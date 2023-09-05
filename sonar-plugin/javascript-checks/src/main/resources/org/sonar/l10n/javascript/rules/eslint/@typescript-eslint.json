@@ -1,0 +1,726 @@
+[
+  {
+    "key": "@typescript-eslint/adjacent-overload-signatures",
+    "name": "Require that function overload signatures be consecutive",
+    "description": "See description of ESLint rule <code>@typescript-eslint/adjacent-overload-signatures</code> at the <a href=\"https://typescript-eslint.io/rules/adjacent-overload-signatures\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/array-type",
+    "name": "Require consistently using either `T[]` or `Array<T>` for arrays",
+    "description": "See description of ESLint rule <code>@typescript-eslint/array-type</code> at the <a href=\"https://typescript-eslint.io/rules/array-type\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/await-thenable",
+    "name": "Disallow awaiting a value that is not a Thenable",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>@typescript-eslint/await-thenable</code> at the <a href=\"https://typescript-eslint.io/rules/await-thenable\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/ban-ts-comment",
+    "name": "Disallow `@ts-<directive>` comments or require descriptions after directives",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>@typescript-eslint/ban-ts-comment</code> at the <a href=\"https://typescript-eslint.io/rules/ban-ts-comment\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/ban-tslint-comment",
+    "name": "Disallow `// tslint:<rule-flag>` comments",
+    "description": "See description of ESLint rule <code>@typescript-eslint/ban-tslint-comment</code> at the <a href=\"https://typescript-eslint.io/rules/ban-tslint-comment\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/ban-types",
+    "name": "Disallow certain types",
+    "description": "See description of ESLint rule <code>@typescript-eslint/ban-types</code> at the <a href=\"https://typescript-eslint.io/rules/ban-types\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/block-spacing",
+    "name": "Disallow or enforce spaces inside of blocks after opening block and before closing block",
+    "description": "See description of ESLint rule <code>@typescript-eslint/block-spacing</code> at the <a href=\"https://typescript-eslint.io/rules/block-spacing\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/brace-style",
+    "name": "Enforce consistent brace style for blocks",
+    "description": "See description of ESLint rule <code>@typescript-eslint/brace-style</code> at the <a href=\"https://typescript-eslint.io/rules/brace-style\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/class-literal-property-style",
+    "name": "Enforce that literals on classes are exposed in a consistent style",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>@typescript-eslint/class-literal-property-style</code> at the <a href=\"https://typescript-eslint.io/rules/class-literal-property-style\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/comma-dangle",
+    "name": "Require or disallow trailing commas",
+    "description": "See description of ESLint rule <code>@typescript-eslint/comma-dangle</code> at the <a href=\"https://typescript-eslint.io/rules/comma-dangle\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/comma-spacing",
+    "name": "Enforce consistent spacing before and after commas",
+    "description": "See description of ESLint rule <code>@typescript-eslint/comma-spacing</code> at the <a href=\"https://typescript-eslint.io/rules/comma-spacing\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/consistent-generic-constructors",
+    "name": "Enforce specifying generic type arguments on type annotation or constructor name of a constructor call",
+    "description": "See description of ESLint rule <code>@typescript-eslint/consistent-generic-constructors</code> at the <a href=\"https://typescript-eslint.io/rules/consistent-generic-constructors\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/consistent-indexed-object-style",
+    "name": "Require or disallow the `Record` type",
+    "description": "See description of ESLint rule <code>@typescript-eslint/consistent-indexed-object-style</code> at the <a href=\"https://typescript-eslint.io/rules/consistent-indexed-object-style\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/consistent-type-assertions",
+    "name": "Enforce consistent usage of type assertions",
+    "description": "See description of ESLint rule <code>@typescript-eslint/consistent-type-assertions</code> at the <a href=\"https://typescript-eslint.io/rules/consistent-type-assertions\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/consistent-type-definitions",
+    "name": "Enforce type definitions to consistently use either `interface` or `type`",
+    "description": "See description of ESLint rule <code>@typescript-eslint/consistent-type-definitions</code> at the <a href=\"https://typescript-eslint.io/rules/consistent-type-definitions\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/consistent-type-exports",
+    "name": "Enforce consistent usage of type exports",
+    "description": "See description of ESLint rule <code>@typescript-eslint/consistent-type-exports</code> at the <a href=\"https://typescript-eslint.io/rules/consistent-type-exports\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/consistent-type-imports",
+    "name": "Enforce consistent usage of type imports",
+    "description": "See description of ESLint rule <code>@typescript-eslint/consistent-type-imports</code> at the <a href=\"https://typescript-eslint.io/rules/consistent-type-imports\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/default-param-last",
+    "name": "Enforce default parameters to be last",
+    "description": "See description of ESLint rule <code>@typescript-eslint/default-param-last</code> at the <a href=\"https://typescript-eslint.io/rules/default-param-last\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/dot-notation",
+    "name": "Enforce dot notation whenever possible",
+    "description": "See description of ESLint rule <code>@typescript-eslint/dot-notation</code> at the <a href=\"https://typescript-eslint.io/rules/dot-notation\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/explicit-function-return-type",
+    "name": "Require explicit return types on functions and class methods",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>@typescript-eslint/explicit-function-return-type</code> at the <a href=\"https://typescript-eslint.io/rules/explicit-function-return-type\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/explicit-member-accessibility",
+    "name": "Require explicit accessibility modifiers on class properties and methods",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>@typescript-eslint/explicit-member-accessibility</code> at the <a href=\"https://typescript-eslint.io/rules/explicit-member-accessibility\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/explicit-module-boundary-types",
+    "name": "Require explicit return and argument types on exported functions' and classes' public class methods",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>@typescript-eslint/explicit-module-boundary-types</code> at the <a href=\"https://typescript-eslint.io/rules/explicit-module-boundary-types\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/func-call-spacing",
+    "name": "Require or disallow spacing between function identifiers and their invocations",
+    "description": "See description of ESLint rule <code>@typescript-eslint/func-call-spacing</code> at the <a href=\"https://typescript-eslint.io/rules/func-call-spacing\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/indent",
+    "name": "Enforce consistent indentation",
+    "description": "See description of ESLint rule <code>@typescript-eslint/indent</code> at the <a href=\"https://typescript-eslint.io/rules/indent\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/init-declarations",
+    "name": "Require or disallow initialization in variable declarations",
+    "description": "See description of ESLint rule <code>@typescript-eslint/init-declarations</code> at the <a href=\"https://typescript-eslint.io/rules/init-declarations\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/key-spacing",
+    "name": "Enforce consistent spacing between property names and type annotations in types and interfaces",
+    "description": "See description of ESLint rule <code>@typescript-eslint/key-spacing</code> at the <a href=\"https://typescript-eslint.io/rules/key-spacing\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/keyword-spacing",
+    "name": "Enforce consistent spacing before and after keywords",
+    "description": "See description of ESLint rule <code>@typescript-eslint/keyword-spacing</code> at the <a href=\"https://typescript-eslint.io/rules/keyword-spacing\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/lines-around-comment",
+    "name": "Require empty lines around comments",
+    "description": "See description of ESLint rule <code>@typescript-eslint/lines-around-comment</code> at the <a href=\"https://typescript-eslint.io/rules/lines-around-comment\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/lines-between-class-members",
+    "name": "Require or disallow an empty line between class members",
+    "description": "See description of ESLint rule <code>@typescript-eslint/lines-between-class-members</code> at the <a href=\"https://typescript-eslint.io/rules/lines-between-class-members\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/member-delimiter-style",
+    "name": "Require a specific member delimiter style for interfaces and type literals",
+    "description": "See description of ESLint rule <code>@typescript-eslint/member-delimiter-style</code> at the <a href=\"https://typescript-eslint.io/rules/member-delimiter-style\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/member-ordering",
+    "name": "Require a consistent member declaration order",
+    "description": "See description of ESLint rule <code>@typescript-eslint/member-ordering</code> at the <a href=\"https://typescript-eslint.io/rules/member-ordering\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/method-signature-style",
+    "name": "Enforce using a particular method signature syntax",
+    "description": "See description of ESLint rule <code>@typescript-eslint/method-signature-style</code> at the <a href=\"https://typescript-eslint.io/rules/method-signature-style\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/naming-convention",
+    "name": "Enforce naming conventions for everything across a codebase",
+    "description": "See description of ESLint rule <code>@typescript-eslint/naming-convention</code> at the <a href=\"https://typescript-eslint.io/rules/naming-convention\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/no-array-constructor",
+    "name": "Disallow generic `Array` constructors",
+    "description": "See description of ESLint rule <code>@typescript-eslint/no-array-constructor</code> at the <a href=\"https://typescript-eslint.io/rules/no-array-constructor\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/no-base-to-string",
+    "name": "Require `.toString()` to only be called on objects which provide useful information when stringified",
+    "description": "See description of ESLint rule <code>@typescript-eslint/no-base-to-string</code> at the <a href=\"https://typescript-eslint.io/rules/no-base-to-string\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/no-confusing-non-null-assertion",
+    "name": "Disallow non-null assertion in locations that may be confusing",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>@typescript-eslint/no-confusing-non-null-assertion</code> at the <a href=\"https://typescript-eslint.io/rules/no-confusing-non-null-assertion\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/no-confusing-void-expression",
+    "name": "Require expressions of type void to appear in statement position",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>@typescript-eslint/no-confusing-void-expression</code> at the <a href=\"https://typescript-eslint.io/rules/no-confusing-void-expression\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/no-dupe-class-members",
+    "name": "Disallow duplicate class members",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>@typescript-eslint/no-dupe-class-members</code> at the <a href=\"https://typescript-eslint.io/rules/no-dupe-class-members\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/no-duplicate-enum-values",
+    "name": "Disallow duplicate enum member values",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>@typescript-eslint/no-duplicate-enum-values</code> at the <a href=\"https://typescript-eslint.io/rules/no-duplicate-enum-values\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/no-duplicate-imports",
+    "name": "Disallow duplicate imports",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>@typescript-eslint/no-duplicate-imports</code> at the <a href=\"https://typescript-eslint.io/rules/no-duplicate-imports\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/no-duplicate-type-constituents",
+    "name": "Disallow duplicate constituents of union or intersection types",
+    "description": "See description of ESLint rule <code>@typescript-eslint/no-duplicate-type-constituents</code> at the <a href=\"https://typescript-eslint.io/rules/no-duplicate-type-constituents\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/no-dynamic-delete",
+    "name": "Disallow using the `delete` operator on computed key expressions",
+    "description": "See description of ESLint rule <code>@typescript-eslint/no-dynamic-delete</code> at the <a href=\"https://typescript-eslint.io/rules/no-dynamic-delete\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/no-empty-function",
+    "name": "Disallow empty functions",
+    "description": "See description of ESLint rule <code>@typescript-eslint/no-empty-function</code> at the <a href=\"https://typescript-eslint.io/rules/no-empty-function\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/no-empty-interface",
+    "name": "Disallow the declaration of empty interfaces",
+    "description": "See description of ESLint rule <code>@typescript-eslint/no-empty-interface</code> at the <a href=\"https://typescript-eslint.io/rules/no-empty-interface\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/no-explicit-any",
+    "name": "Disallow the `any` type",
+    "description": "See description of ESLint rule <code>@typescript-eslint/no-explicit-any</code> at the <a href=\"https://typescript-eslint.io/rules/no-explicit-any\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/no-extra-non-null-assertion",
+    "name": "Disallow extra non-null assertions",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>@typescript-eslint/no-extra-non-null-assertion</code> at the <a href=\"https://typescript-eslint.io/rules/no-extra-non-null-assertion\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/no-extra-parens",
+    "name": "Disallow unnecessary parentheses",
+    "description": "See description of ESLint rule <code>@typescript-eslint/no-extra-parens</code> at the <a href=\"https://typescript-eslint.io/rules/no-extra-parens\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/no-extra-semi",
+    "name": "Disallow unnecessary semicolons",
+    "description": "See description of ESLint rule <code>@typescript-eslint/no-extra-semi</code> at the <a href=\"https://typescript-eslint.io/rules/no-extra-semi\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/no-extraneous-class",
+    "name": "Disallow classes used as namespaces",
+    "description": "See description of ESLint rule <code>@typescript-eslint/no-extraneous-class</code> at the <a href=\"https://typescript-eslint.io/rules/no-extraneous-class\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/no-floating-promises",
+    "name": "Require Promise-like statements to be handled appropriately",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>@typescript-eslint/no-floating-promises</code> at the <a href=\"https://typescript-eslint.io/rules/no-floating-promises\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/no-for-in-array",
+    "name": "Disallow iterating over an array with a for-in loop",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>@typescript-eslint/no-for-in-array</code> at the <a href=\"https://typescript-eslint.io/rules/no-for-in-array\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/no-implicit-any-catch",
+    "name": "Disallow usage of the implicit `any` type in catch clauses",
+    "description": "See description of ESLint rule <code>@typescript-eslint/no-implicit-any-catch</code> at the <a href=\"https://typescript-eslint.io/rules/no-implicit-any-catch\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/no-implied-eval",
+    "name": "Disallow the use of `eval()`-like methods",
+    "description": "See description of ESLint rule <code>@typescript-eslint/no-implied-eval</code> at the <a href=\"https://typescript-eslint.io/rules/no-implied-eval\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/no-import-type-side-effects",
+    "name": "Enforce the use of top-level import type qualifier when an import only has specifiers with inline type qualifiers",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>@typescript-eslint/no-import-type-side-effects</code> at the <a href=\"https://typescript-eslint.io/rules/no-import-type-side-effects\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/no-inferrable-types",
+    "name": "Disallow explicit type declarations for variables or parameters initialized to a number, string, or boolean",
+    "description": "See description of ESLint rule <code>@typescript-eslint/no-inferrable-types</code> at the <a href=\"https://typescript-eslint.io/rules/no-inferrable-types\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/no-invalid-this",
+    "name": "Disallow `this` keywords outside of classes or class-like objects",
+    "description": "See description of ESLint rule <code>@typescript-eslint/no-invalid-this</code> at the <a href=\"https://typescript-eslint.io/rules/no-invalid-this\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/no-invalid-void-type",
+    "name": "Disallow `void` type outside of generic or return types",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>@typescript-eslint/no-invalid-void-type</code> at the <a href=\"https://typescript-eslint.io/rules/no-invalid-void-type\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/no-loop-func",
+    "name": "Disallow function declarations that contain unsafe references inside loop statements",
+    "description": "See description of ESLint rule <code>@typescript-eslint/no-loop-func</code> at the <a href=\"https://typescript-eslint.io/rules/no-loop-func\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/no-loss-of-precision",
+    "name": "Disallow literal numbers that lose precision",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>@typescript-eslint/no-loss-of-precision</code> at the <a href=\"https://typescript-eslint.io/rules/no-loss-of-precision\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/no-magic-numbers",
+    "name": "Disallow magic numbers",
+    "description": "See description of ESLint rule <code>@typescript-eslint/no-magic-numbers</code> at the <a href=\"https://typescript-eslint.io/rules/no-magic-numbers\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/no-meaningless-void-operator",
+    "name": "Disallow the `void` operator except when used to discard a value",
+    "description": "See description of ESLint rule <code>@typescript-eslint/no-meaningless-void-operator</code> at the <a href=\"https://typescript-eslint.io/rules/no-meaningless-void-operator\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/no-misused-new",
+    "name": "Enforce valid definition of `new` and `constructor`",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>@typescript-eslint/no-misused-new</code> at the <a href=\"https://typescript-eslint.io/rules/no-misused-new\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/no-misused-promises",
+    "name": "Disallow Promises in places not designed to handle them",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>@typescript-eslint/no-misused-promises</code> at the <a href=\"https://typescript-eslint.io/rules/no-misused-promises\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/no-mixed-enums",
+    "name": "Disallow enums from having both number and string members",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>@typescript-eslint/no-mixed-enums</code> at the <a href=\"https://typescript-eslint.io/rules/no-mixed-enums\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/no-namespace",
+    "name": "Disallow TypeScript namespaces",
+    "description": "See description of ESLint rule <code>@typescript-eslint/no-namespace</code> at the <a href=\"https://typescript-eslint.io/rules/no-namespace\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/no-non-null-asserted-nullish-coalescing",
+    "name": "Disallow non-null assertions in the left operand of a nullish coalescing operator",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>@typescript-eslint/no-non-null-asserted-nullish-coalescing</code> at the <a href=\"https://typescript-eslint.io/rules/no-non-null-asserted-nullish-coalescing\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/no-non-null-asserted-optional-chain",
+    "name": "Disallow non-null assertions after an optional chain expression",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>@typescript-eslint/no-non-null-asserted-optional-chain</code> at the <a href=\"https://typescript-eslint.io/rules/no-non-null-asserted-optional-chain\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/no-non-null-assertion",
+    "name": "Disallow non-null assertions using the `!` postfix operator",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>@typescript-eslint/no-non-null-assertion</code> at the <a href=\"https://typescript-eslint.io/rules/no-non-null-assertion\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/no-parameter-properties",
+    "name": "Disallow the use of parameter properties in class constructors",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>@typescript-eslint/no-parameter-properties</code> at the <a href=\"https://typescript-eslint.io/rules/no-parameter-properties\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/no-redeclare",
+    "name": "Disallow variable redeclaration",
+    "description": "See description of ESLint rule <code>@typescript-eslint/no-redeclare</code> at the <a href=\"https://typescript-eslint.io/rules/no-redeclare\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/no-redundant-type-constituents",
+    "name": "Disallow members of unions and intersections that do nothing or override type information",
+    "description": "See description of ESLint rule <code>@typescript-eslint/no-redundant-type-constituents</code> at the <a href=\"https://typescript-eslint.io/rules/no-redundant-type-constituents\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/no-require-imports",
+    "name": "Disallow invocation of `require()`",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>@typescript-eslint/no-require-imports</code> at the <a href=\"https://typescript-eslint.io/rules/no-require-imports\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/no-restricted-imports",
+    "name": "Disallow specified modules when loaded by `import`",
+    "description": "See description of ESLint rule <code>@typescript-eslint/no-restricted-imports</code> at the <a href=\"https://typescript-eslint.io/rules/no-restricted-imports\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/no-shadow",
+    "name": "Disallow variable declarations from shadowing variables declared in the outer scope",
+    "description": "See description of ESLint rule <code>@typescript-eslint/no-shadow</code> at the <a href=\"https://typescript-eslint.io/rules/no-shadow\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/no-this-alias",
+    "name": "Disallow aliasing `this`",
+    "description": "See description of ESLint rule <code>@typescript-eslint/no-this-alias</code> at the <a href=\"https://typescript-eslint.io/rules/no-this-alias\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/no-throw-literal",
+    "name": "Disallow throwing literals as exceptions",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>@typescript-eslint/no-throw-literal</code> at the <a href=\"https://typescript-eslint.io/rules/no-throw-literal\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/no-type-alias",
+    "name": "Disallow type aliases",
+    "description": "See description of ESLint rule <code>@typescript-eslint/no-type-alias</code> at the <a href=\"https://typescript-eslint.io/rules/no-type-alias\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/no-unnecessary-boolean-literal-compare",
+    "name": "Disallow unnecessary equality comparisons against boolean literals",
+    "description": "See description of ESLint rule <code>@typescript-eslint/no-unnecessary-boolean-literal-compare</code> at the <a href=\"https://typescript-eslint.io/rules/no-unnecessary-boolean-literal-compare\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/no-unnecessary-condition",
+    "name": "Disallow conditionals where the type is always truthy or always falsy",
+    "description": "See description of ESLint rule <code>@typescript-eslint/no-unnecessary-condition</code> at the <a href=\"https://typescript-eslint.io/rules/no-unnecessary-condition\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/no-unnecessary-qualifier",
+    "name": "Disallow unnecessary namespace qualifiers",
+    "description": "See description of ESLint rule <code>@typescript-eslint/no-unnecessary-qualifier</code> at the <a href=\"https://typescript-eslint.io/rules/no-unnecessary-qualifier\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/no-unnecessary-type-arguments",
+    "name": "Disallow type arguments that are equal to the default",
+    "description": "See description of ESLint rule <code>@typescript-eslint/no-unnecessary-type-arguments</code> at the <a href=\"https://typescript-eslint.io/rules/no-unnecessary-type-arguments\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/no-unnecessary-type-assertion",
+    "name": "Disallow type assertions that do not change the type of an expression",
+    "description": "See description of ESLint rule <code>@typescript-eslint/no-unnecessary-type-assertion</code> at the <a href=\"https://typescript-eslint.io/rules/no-unnecessary-type-assertion\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/no-unnecessary-type-constraint",
+    "name": "Disallow unnecessary constraints on generic types",
+    "description": "See description of ESLint rule <code>@typescript-eslint/no-unnecessary-type-constraint</code> at the <a href=\"https://typescript-eslint.io/rules/no-unnecessary-type-constraint\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/no-unsafe-argument",
+    "name": "Disallow calling a function with a value with type `any`",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>@typescript-eslint/no-unsafe-argument</code> at the <a href=\"https://typescript-eslint.io/rules/no-unsafe-argument\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/no-unsafe-assignment",
+    "name": "Disallow assigning a value with type `any` to variables and properties",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>@typescript-eslint/no-unsafe-assignment</code> at the <a href=\"https://typescript-eslint.io/rules/no-unsafe-assignment\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/no-unsafe-call",
+    "name": "Disallow calling a value with type `any`",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>@typescript-eslint/no-unsafe-call</code> at the <a href=\"https://typescript-eslint.io/rules/no-unsafe-call\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/no-unsafe-declaration-merging",
+    "name": "Disallow unsafe declaration merging",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>@typescript-eslint/no-unsafe-declaration-merging</code> at the <a href=\"https://typescript-eslint.io/rules/no-unsafe-declaration-merging\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/no-unsafe-enum-comparison",
+    "name": "Disallow comparing an enum value with a non-enum value",
+    "description": "See description of ESLint rule <code>@typescript-eslint/no-unsafe-enum-comparison</code> at the <a href=\"https://typescript-eslint.io/rules/no-unsafe-enum-comparison\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/no-unsafe-member-access",
+    "name": "Disallow member access on a value with type `any`",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>@typescript-eslint/no-unsafe-member-access</code> at the <a href=\"https://typescript-eslint.io/rules/no-unsafe-member-access\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/no-unsafe-return",
+    "name": "Disallow returning a value with type `any` from a function",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>@typescript-eslint/no-unsafe-return</code> at the <a href=\"https://typescript-eslint.io/rules/no-unsafe-return\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/no-unused-expressions",
+    "name": "Disallow unused expressions",
+    "description": "See description of ESLint rule <code>@typescript-eslint/no-unused-expressions</code> at the <a href=\"https://typescript-eslint.io/rules/no-unused-expressions\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/no-unused-vars",
+    "name": "Disallow unused variables",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>@typescript-eslint/no-unused-vars</code> at the <a href=\"https://typescript-eslint.io/rules/no-unused-vars\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/no-use-before-define",
+    "name": "Disallow the use of variables before they are defined",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>@typescript-eslint/no-use-before-define</code> at the <a href=\"https://typescript-eslint.io/rules/no-use-before-define\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/no-useless-constructor",
+    "name": "Disallow unnecessary constructors",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>@typescript-eslint/no-useless-constructor</code> at the <a href=\"https://typescript-eslint.io/rules/no-useless-constructor\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/no-useless-empty-export",
+    "name": "Disallow empty exports that don't change anything in a module file",
+    "description": "See description of ESLint rule <code>@typescript-eslint/no-useless-empty-export</code> at the <a href=\"https://typescript-eslint.io/rules/no-useless-empty-export\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/no-var-requires",
+    "name": "Disallow `require` statements except in import statements",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>@typescript-eslint/no-var-requires</code> at the <a href=\"https://typescript-eslint.io/rules/no-var-requires\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/non-nullable-type-assertion-style",
+    "name": "Enforce non-null assertions over explicit type casts",
+    "description": "See description of ESLint rule <code>@typescript-eslint/non-nullable-type-assertion-style</code> at the <a href=\"https://typescript-eslint.io/rules/non-nullable-type-assertion-style\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/object-curly-spacing",
+    "name": "Enforce consistent spacing inside braces",
+    "description": "See description of ESLint rule <code>@typescript-eslint/object-curly-spacing</code> at the <a href=\"https://typescript-eslint.io/rules/object-curly-spacing\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/padding-line-between-statements",
+    "name": "Require or disallow padding lines between statements",
+    "description": "See description of ESLint rule <code>@typescript-eslint/padding-line-between-statements</code> at the <a href=\"https://typescript-eslint.io/rules/padding-line-between-statements\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/parameter-properties",
+    "name": "Require or disallow parameter properties in class constructors",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>@typescript-eslint/parameter-properties</code> at the <a href=\"https://typescript-eslint.io/rules/parameter-properties\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/prefer-as-const",
+    "name": "Enforce the use of `as const` over literal type",
+    "description": "See description of ESLint rule <code>@typescript-eslint/prefer-as-const</code> at the <a href=\"https://typescript-eslint.io/rules/prefer-as-const\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/prefer-enum-initializers",
+    "name": "Require each enum member value to be explicitly initialized",
+    "description": "See description of ESLint rule <code>@typescript-eslint/prefer-enum-initializers</code> at the <a href=\"https://typescript-eslint.io/rules/prefer-enum-initializers\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/prefer-for-of",
+    "name": "Enforce the use of `for-of` loop over the standard `for` loop where possible",
+    "description": "See description of ESLint rule <code>@typescript-eslint/prefer-for-of</code> at the <a href=\"https://typescript-eslint.io/rules/prefer-for-of\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/prefer-function-type",
+    "name": "Enforce using function types instead of interfaces with call signatures",
+    "description": "See description of ESLint rule <code>@typescript-eslint/prefer-function-type</code> at the <a href=\"https://typescript-eslint.io/rules/prefer-function-type\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/prefer-includes",
+    "name": "Enforce `includes` method over `indexOf` method",
+    "description": "See description of ESLint rule <code>@typescript-eslint/prefer-includes</code> at the <a href=\"https://typescript-eslint.io/rules/prefer-includes\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/prefer-literal-enum-member",
+    "name": "Require all enum members to be literal values",
+    "description": "See description of ESLint rule <code>@typescript-eslint/prefer-literal-enum-member</code> at the <a href=\"https://typescript-eslint.io/rules/prefer-literal-enum-member\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/prefer-namespace-keyword",
+    "name": "Require using `namespace` keyword over `module` keyword to declare custom TypeScript modules",
+    "description": "See description of ESLint rule <code>@typescript-eslint/prefer-namespace-keyword</code> at the <a href=\"https://typescript-eslint.io/rules/prefer-namespace-keyword\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/prefer-nullish-coalescing",
+    "name": "Enforce using the nullish coalescing operator instead of logical chaining",
+    "description": "See description of ESLint rule <code>@typescript-eslint/prefer-nullish-coalescing</code> at the <a href=\"https://typescript-eslint.io/rules/prefer-nullish-coalescing\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/prefer-optional-chain",
+    "name": "Enforce using concise optional chain expressions instead of chained logical ands, negated logical ors, or empty objects",
+    "description": "See description of ESLint rule <code>@typescript-eslint/prefer-optional-chain</code> at the <a href=\"https://typescript-eslint.io/rules/prefer-optional-chain\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/prefer-readonly",
+    "name": "Require private members to be marked as `readonly` if they're never modified outside of the constructor",
+    "description": "See description of ESLint rule <code>@typescript-eslint/prefer-readonly</code> at the <a href=\"https://typescript-eslint.io/rules/prefer-readonly\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/prefer-readonly-parameter-types",
+    "name": "Require function parameters to be typed as `readonly` to prevent accidental mutation of inputs",
+    "description": "See description of ESLint rule <code>@typescript-eslint/prefer-readonly-parameter-types</code> at the <a href=\"https://typescript-eslint.io/rules/prefer-readonly-parameter-types\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/prefer-reduce-type-parameter",
+    "name": "Enforce using type parameter when calling `Array#reduce` instead of casting",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>@typescript-eslint/prefer-reduce-type-parameter</code> at the <a href=\"https://typescript-eslint.io/rules/prefer-reduce-type-parameter\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/prefer-regexp-exec",
+    "name": "Enforce `RegExp#exec` over `String#match` if no global flag is provided",
+    "description": "See description of ESLint rule <code>@typescript-eslint/prefer-regexp-exec</code> at the <a href=\"https://typescript-eslint.io/rules/prefer-regexp-exec\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/prefer-return-this-type",
+    "name": "Enforce that `this` is used when only `this` type is returned",
+    "description": "See description of ESLint rule <code>@typescript-eslint/prefer-return-this-type</code> at the <a href=\"https://typescript-eslint.io/rules/prefer-return-this-type\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/prefer-string-starts-ends-with",
+    "name": "Enforce using `String#startsWith` and `String#endsWith` over other equivalent methods of checking substrings",
+    "description": "See description of ESLint rule <code>@typescript-eslint/prefer-string-starts-ends-with</code> at the <a href=\"https://typescript-eslint.io/rules/prefer-string-starts-ends-with\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/prefer-ts-expect-error",
+    "name": "Enforce using `@ts-expect-error` over `@ts-ignore`",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>@typescript-eslint/prefer-ts-expect-error</code> at the <a href=\"https://typescript-eslint.io/rules/prefer-ts-expect-error\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/promise-function-async",
+    "name": "Require any function or method that returns a Promise to be marked async",
+    "description": "See description of ESLint rule <code>@typescript-eslint/promise-function-async</code> at the <a href=\"https://typescript-eslint.io/rules/promise-function-async\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/quotes",
+    "name": "Enforce the consistent use of either backticks, double, or single quotes",
+    "description": "See description of ESLint rule <code>@typescript-eslint/quotes</code> at the <a href=\"https://typescript-eslint.io/rules/quotes\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/require-array-sort-compare",
+    "name": "Require `Array#sort` calls to always provide a `compareFunction`",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>@typescript-eslint/require-array-sort-compare</code> at the <a href=\"https://typescript-eslint.io/rules/require-array-sort-compare\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/require-await",
+    "name": "Disallow async functions which have no `await` expression",
+    "description": "See description of ESLint rule <code>@typescript-eslint/require-await</code> at the <a href=\"https://typescript-eslint.io/rules/require-await\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/restrict-plus-operands",
+    "name": "Require both operands of addition to be the same type and be `bigint`, `number`, or `string`",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>@typescript-eslint/restrict-plus-operands</code> at the <a href=\"https://typescript-eslint.io/rules/restrict-plus-operands\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/restrict-template-expressions",
+    "name": "Enforce template literal expressions to be of `string` type",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>@typescript-eslint/restrict-template-expressions</code> at the <a href=\"https://typescript-eslint.io/rules/restrict-template-expressions\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/return-await",
+    "name": "Enforce consistent returning of awaited values",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>@typescript-eslint/return-await</code> at the <a href=\"https://typescript-eslint.io/rules/return-await\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/semi",
+    "name": "Require or disallow semicolons instead of ASI",
+    "description": "See description of ESLint rule <code>@typescript-eslint/semi</code> at the <a href=\"https://typescript-eslint.io/rules/semi\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/sort-type-constituents",
+    "name": "Enforce constituents of a type union/intersection to be sorted alphabetically",
+    "description": "See description of ESLint rule <code>@typescript-eslint/sort-type-constituents</code> at the <a href=\"https://typescript-eslint.io/rules/sort-type-constituents\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/sort-type-union-intersection-members",
+    "name": "Enforce members of a type union/intersection to be sorted alphabetically",
+    "description": "See description of ESLint rule <code>@typescript-eslint/sort-type-union-intersection-members</code> at the <a href=\"https://typescript-eslint.io/rules/sort-type-union-intersection-members\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/space-before-blocks",
+    "name": "Enforce consistent spacing before blocks",
+    "description": "See description of ESLint rule <code>@typescript-eslint/space-before-blocks</code> at the <a href=\"https://typescript-eslint.io/rules/space-before-blocks\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/space-before-function-paren",
+    "name": "Enforce consistent spacing before function parenthesis",
+    "description": "See description of ESLint rule <code>@typescript-eslint/space-before-function-paren</code> at the <a href=\"https://typescript-eslint.io/rules/space-before-function-paren\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/space-infix-ops",
+    "name": "Require spacing around infix operators",
+    "description": "See description of ESLint rule <code>@typescript-eslint/space-infix-ops</code> at the <a href=\"https://typescript-eslint.io/rules/space-infix-ops\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/strict-boolean-expressions",
+    "name": "Disallow certain types in boolean expressions",
+    "description": "See description of ESLint rule <code>@typescript-eslint/strict-boolean-expressions</code> at the <a href=\"https://typescript-eslint.io/rules/strict-boolean-expressions\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/switch-exhaustiveness-check",
+    "name": "Require switch-case statements to be exhaustive with union type",
+    "description": "See description of ESLint rule <code>@typescript-eslint/switch-exhaustiveness-check</code> at the <a href=\"https://typescript-eslint.io/rules/switch-exhaustiveness-check\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/triple-slash-reference",
+    "name": "Disallow certain triple slash directives in favor of ES6-style import declarations",
+    "description": "See description of ESLint rule <code>@typescript-eslint/triple-slash-reference</code> at the <a href=\"https://typescript-eslint.io/rules/triple-slash-reference\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/type-annotation-spacing",
+    "name": "Require consistent spacing around type annotations",
+    "description": "See description of ESLint rule <code>@typescript-eslint/type-annotation-spacing</code> at the <a href=\"https://typescript-eslint.io/rules/type-annotation-spacing\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/typedef",
+    "name": "Require type annotations in certain places",
+    "description": "See description of ESLint rule <code>@typescript-eslint/typedef</code> at the <a href=\"https://typescript-eslint.io/rules/typedef\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/unbound-method",
+    "name": "Enforce unbound methods are called with their expected scope",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>@typescript-eslint/unbound-method</code> at the <a href=\"https://typescript-eslint.io/rules/unbound-method\">@typescript-eslint/eslint-plugin website</a>"
+  },
+  {
+    "key": "@typescript-eslint/unified-signatures",
+    "name": "Disallow two overloads that could be unified into one with a union or an optional/rest parameter",
+    "description": "See description of ESLint rule <code>@typescript-eslint/unified-signatures</code> at the <a href=\"https://typescript-eslint.io/rules/unified-signatures\">@typescript-eslint/eslint-plugin website</a>"
+  }
+]

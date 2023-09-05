@@ -1,0 +1,138 @@
+[
+  {
+    "key": "@angular-eslint/template/alt-text",
+    "name": "[Accessibility] Enforces alternate text for elements which require the alt, aria-label, aria-labelledby attributes.",
+    "description": "See description of ESLint rule <code>@angular-eslint/template/alt-text</code> at the <a href=\"https://github.com/angular-eslint/angular-eslint/blob/main/packages/eslint-plugin-template/docs/rules/alt-text.md\">@angular-eslint/eslint-plugin-template website</a>"
+  },
+  {
+    "key": "@angular-eslint/template/attributes-order",
+    "name": "Ensures that HTML attributes and Angular bindings are sorted based on an expected order",
+    "description": "See description of ESLint rule <code>@angular-eslint/template/attributes-order</code> at the <a href=\"https://github.com/angular-eslint/angular-eslint/blob/main/packages/eslint-plugin-template/docs/rules/attributes-order.md\">@angular-eslint/eslint-plugin-template website</a>"
+  },
+  {
+    "key": "@angular-eslint/template/banana-in-box",
+    "name": "Ensures that the two-way data binding syntax is correct",
+    "description": "See description of ESLint rule <code>@angular-eslint/template/banana-in-box</code> at the <a href=\"https://github.com/angular-eslint/angular-eslint/blob/main/packages/eslint-plugin-template/docs/rules/banana-in-box.md\">@angular-eslint/eslint-plugin-template website</a>"
+  },
+  {
+    "key": "@angular-eslint/template/button-has-type",
+    "name": "Ensures that a button has a valid type specified",
+    "description": "See description of ESLint rule <code>@angular-eslint/template/button-has-type</code> at the <a href=\"https://github.com/angular-eslint/angular-eslint/blob/main/packages/eslint-plugin-template/docs/rules/button-has-type.md\">@angular-eslint/eslint-plugin-template website</a>"
+  },
+  {
+    "key": "@angular-eslint/template/click-events-have-key-events",
+    "name": "[Accessibility] Ensures that the click event is accompanied with at least one key event keyup, keydown or keypress.",
+    "description": "See description of ESLint rule <code>@angular-eslint/template/click-events-have-key-events</code> at the <a href=\"https://github.com/angular-eslint/angular-eslint/blob/main/packages/eslint-plugin-template/docs/rules/click-events-have-key-events.md\">@angular-eslint/eslint-plugin-template website</a>"
+  },
+  {
+    "key": "@angular-eslint/template/conditional-complexity",
+    "name": "The conditional complexity should not exceed a rational limit",
+    "description": "See description of ESLint rule <code>@angular-eslint/template/conditional-complexity</code> at the <a href=\"https://github.com/angular-eslint/angular-eslint/blob/main/packages/eslint-plugin-template/docs/rules/conditional-complexity.md\">@angular-eslint/eslint-plugin-template website</a>"
+  },
+  {
+    "key": "@angular-eslint/template/cyclomatic-complexity",
+    "name": "Checks cyclomatic complexity against a specified limit. It is a quantitative measure of the number of linearly independent paths through a program's source code",
+    "description": "See description of ESLint rule <code>@angular-eslint/template/cyclomatic-complexity</code> at the <a href=\"https://github.com/angular-eslint/angular-eslint/blob/main/packages/eslint-plugin-template/docs/rules/cyclomatic-complexity.md\">@angular-eslint/eslint-plugin-template website</a>"
+  },
+  {
+    "key": "@angular-eslint/template/elements-content",
+    "name": "[Accessibility] Ensures that the heading, anchor and button elements have content in it",
+    "description": "See description of ESLint rule <code>@angular-eslint/template/elements-content</code> at the <a href=\"https://github.com/angular-eslint/angular-eslint/blob/main/packages/eslint-plugin-template/docs/rules/elements-content.md\">@angular-eslint/eslint-plugin-template website</a>"
+  },
+  {
+    "key": "@angular-eslint/template/eqeqeq",
+    "name": "Requires `===` and `!==` in place of `==` and `!=`",
+    "description": "See description of ESLint rule <code>@angular-eslint/template/eqeqeq</code> at the <a href=\"https://github.com/angular-eslint/angular-eslint/blob/main/packages/eslint-plugin-template/docs/rules/eqeqeq.md\">@angular-eslint/eslint-plugin-template website</a>"
+  },
+  {
+    "key": "@angular-eslint/template/i18n",
+    "name": "Ensures following best practices for i18n. Checks for missing i18n attributes on elements and attributes containing texts. Can also check for texts without i18n attribute, elements that do not use cus",
+    "description": "See description of ESLint rule <code>@angular-eslint/template/i18n</code> at the <a href=\"https://github.com/angular-eslint/angular-eslint/blob/main/packages/eslint-plugin-template/docs/rules/i18n.md\">@angular-eslint/eslint-plugin-template website</a>"
+  },
+  {
+    "key": "@angular-eslint/template/interactive-supports-focus",
+    "name": "[Accessibility] Ensures that elements with interactive handlers like `(click)` are focusable.",
+    "description": "See description of ESLint rule <code>@angular-eslint/template/interactive-supports-focus</code> at the <a href=\"https://github.com/angular-eslint/angular-eslint/blob/main/packages/eslint-plugin-template/docs/rules/interactive-supports-focus.md\">@angular-eslint/eslint-plugin-template website</a>"
+  },
+  {
+    "key": "@angular-eslint/template/label-has-associated-control",
+    "name": "[Accessibility] Ensures that a label element/component is associated with a form element",
+    "description": "See description of ESLint rule <code>@angular-eslint/template/label-has-associated-control</code> at the <a href=\"https://github.com/angular-eslint/angular-eslint/blob/main/packages/eslint-plugin-template/docs/rules/label-has-associated-control.md\">@angular-eslint/eslint-plugin-template website</a>"
+  },
+  {
+    "key": "@angular-eslint/template/mouse-events-have-key-events",
+    "name": "[Accessibility] Ensures that the mouse events `mouseout` and `mouseover` are accompanied by `focus` and `blur` events respectively. Coding for the keyboard is important for users with physical disabil",
+    "description": "See description of ESLint rule <code>@angular-eslint/template/mouse-events-have-key-events</code> at the <a href=\"https://github.com/angular-eslint/angular-eslint/blob/main/packages/eslint-plugin-template/docs/rules/mouse-events-have-key-events.md\">@angular-eslint/eslint-plugin-template website</a>"
+  },
+  {
+    "key": "@angular-eslint/template/no-any",
+    "name": "The use of \"$any\" nullifies the compile-time benefits of Angular's type system",
+    "description": "See description of ESLint rule <code>@angular-eslint/template/no-any</code> at the <a href=\"https://github.com/angular-eslint/angular-eslint/blob/main/packages/eslint-plugin-template/docs/rules/no-any.md\">@angular-eslint/eslint-plugin-template website</a>"
+  },
+  {
+    "key": "@angular-eslint/template/no-autofocus",
+    "name": "[Accessibility] Ensures that the `autofocus` attribute is not used",
+    "description": "See description of ESLint rule <code>@angular-eslint/template/no-autofocus</code> at the <a href=\"https://github.com/angular-eslint/angular-eslint/blob/main/packages/eslint-plugin-template/docs/rules/no-autofocus.md\">@angular-eslint/eslint-plugin-template website</a>"
+  },
+  {
+    "key": "@angular-eslint/template/no-call-expression",
+    "name": "Disallows calling expressions in templates, except for output handlers",
+    "description": "See description of ESLint rule <code>@angular-eslint/template/no-call-expression</code> at the <a href=\"https://github.com/angular-eslint/angular-eslint/blob/main/packages/eslint-plugin-template/docs/rules/no-call-expression.md\">@angular-eslint/eslint-plugin-template website</a>"
+  },
+  {
+    "key": "@angular-eslint/template/no-distracting-elements",
+    "name": "[Accessibility] Enforces that no distracting elements are used",
+    "description": "See description of ESLint rule <code>@angular-eslint/template/no-distracting-elements</code> at the <a href=\"https://github.com/angular-eslint/angular-eslint/blob/main/packages/eslint-plugin-template/docs/rules/no-distracting-elements.md\">@angular-eslint/eslint-plugin-template website</a>"
+  },
+  {
+    "key": "@angular-eslint/template/no-duplicate-attributes",
+    "name": "Ensures that there are no duplicate input properties or output event listeners",
+    "type": "BUG",
+    "description": "See description of ESLint rule <code>@angular-eslint/template/no-duplicate-attributes</code> at the <a href=\"https://github.com/angular-eslint/angular-eslint/blob/main/packages/eslint-plugin-template/docs/rules/no-duplicate-attributes.md\">@angular-eslint/eslint-plugin-template website</a>"
+  },
+  {
+    "key": "@angular-eslint/template/no-inline-styles",
+    "name": "Disallows the use of inline styles in HTML templates",
+    "description": "See description of ESLint rule <code>@angular-eslint/template/no-inline-styles</code> at the <a href=\"https://github.com/angular-eslint/angular-eslint/blob/main/packages/eslint-plugin-template/docs/rules/no-inline-styles.md\">@angular-eslint/eslint-plugin-template website</a>"
+  },
+  {
+    "key": "@angular-eslint/template/no-interpolation-in-attributes",
+    "name": "Ensures that property-binding is used instead of interpolation in attributes.",
+    "description": "See description of ESLint rule <code>@angular-eslint/template/no-interpolation-in-attributes</code> at the <a href=\"https://github.com/angular-eslint/angular-eslint/blob/main/packages/eslint-plugin-template/docs/rules/no-interpolation-in-attributes.md\">@angular-eslint/eslint-plugin-template website</a>"
+  },
+  {
+    "key": "@angular-eslint/template/no-negated-async",
+    "name": "Ensures that async pipe results are not negated",
+    "description": "See description of ESLint rule <code>@angular-eslint/template/no-negated-async</code> at the <a href=\"https://github.com/angular-eslint/angular-eslint/blob/main/packages/eslint-plugin-template/docs/rules/no-negated-async.md\">@angular-eslint/eslint-plugin-template website</a>"
+  },
+  {
+    "key": "@angular-eslint/template/no-positive-tabindex",
+    "name": "Ensures that the `tabindex` attribute is not positive",
+    "description": "See description of ESLint rule <code>@angular-eslint/template/no-positive-tabindex</code> at the <a href=\"https://github.com/angular-eslint/angular-eslint/blob/main/packages/eslint-plugin-template/docs/rules/no-positive-tabindex.md\">@angular-eslint/eslint-plugin-template website</a>"
+  },
+  {
+    "key": "@angular-eslint/template/prefer-self-closing-tags",
+    "name": "Ensures that self-closing tags are used for elements with a closing tag but no content.",
+    "description": "See description of ESLint rule <code>@angular-eslint/template/prefer-self-closing-tags</code> at the <a href=\"https://github.com/angular-eslint/angular-eslint/blob/main/packages/eslint-plugin-template/docs/rules/prefer-self-closing-tags.md\">@angular-eslint/eslint-plugin-template website</a>"
+  },
+  {
+    "key": "@angular-eslint/template/role-has-required-aria",
+    "name": "[Accessibility] Ensures elements with ARIA roles have all required properties for that role.",
+    "description": "See description of ESLint rule <code>@angular-eslint/template/role-has-required-aria</code> at the <a href=\"https://github.com/angular-eslint/angular-eslint/blob/main/packages/eslint-plugin-template/docs/rules/role-has-required-aria.md\">@angular-eslint/eslint-plugin-template website</a>"
+  },
+  {
+    "key": "@angular-eslint/template/table-scope",
+    "name": "[Accessibility] Ensures that the `scope` attribute is only used on the `<th>` element",
+    "description": "See description of ESLint rule <code>@angular-eslint/template/table-scope</code> at the <a href=\"https://github.com/angular-eslint/angular-eslint/blob/main/packages/eslint-plugin-template/docs/rules/table-scope.md\">@angular-eslint/eslint-plugin-template website</a>"
+  },
+  {
+    "key": "@angular-eslint/template/use-track-by-function",
+    "name": "Ensures trackBy function is used",
+    "description": "See description of ESLint rule <code>@angular-eslint/template/use-track-by-function</code> at the <a href=\"https://github.com/angular-eslint/angular-eslint/blob/main/packages/eslint-plugin-template/docs/rules/use-track-by-function.md\">@angular-eslint/eslint-plugin-template website</a>"
+  },
+  {
+    "key": "@angular-eslint/template/valid-aria",
+    "name": "[Accessibility] Ensures that correct ARIA attributes and respective values are used",
+    "description": "See description of ESLint rule <code>@angular-eslint/template/valid-aria</code> at the <a href=\"https://github.com/angular-eslint/angular-eslint/blob/main/packages/eslint-plugin-template/docs/rules/valid-aria.md\">@angular-eslint/eslint-plugin-template website</a>"
+  }
+]
