@@ -266,6 +266,10 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
   }
 
   private String locateNode() throws IOException {
+    if (embeddedNode.isAvailable()) {
+      var embedded = embeddedNode.binary();
+      return embedded.toString();
+    }
     String defaultNode = NODE_EXECUTABLE_DEFAULT;
     if (processWrapper.isMac()) {
       defaultNode = locateNodeOnMac();
@@ -277,10 +281,6 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
   }
 
   private String locateNodeOnMac() throws IOException {
-    if (embeddedNode.isAvailable()) {
-      var embedded = embeddedNode.binary();
-      return embedded.toString();
-    }
     // on Mac when e.g. IntelliJ is launched from dock, node will often not be available via PATH, because PATH is configured
     // in .bashrc or similar, thus we launch node via 'run-node', which should load required configuration
     LOG.debug("Looking for Node.js in the PATH using run-node (macOS)");
@@ -303,10 +303,6 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
   }
 
   private String locateNodeOnWindows() throws IOException {
-    if (embeddedNode.isAvailable()) {
-      var embedded = embeddedNode.binary();
-      return embedded.toString();
-    }
     // Windows will search current directory in addition to the PATH variable, which is unsecure.
     // To avoid it we use where.exe to find node binary only in PATH. See SSF-181
     LOG.debug("Looking for Node.js in the PATH using where.exe (Windows)");
