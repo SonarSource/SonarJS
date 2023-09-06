@@ -272,7 +272,7 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
     } else if (processWrapper.isWindows()) {
       defaultNode = locateNodeOnWindows();
     }
-    LOG.debug("Using default Node.js executable: '{}'.", defaultNode);
+    LOG.info("Using Node.js executable: '{}'.", defaultNode);
     return defaultNode;
   }
 
