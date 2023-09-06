@@ -282,12 +282,12 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
     var defaultNode = NODE_EXECUTABLE_DEFAULT;
     if (embeddedNode.isAvailable() && !isForceHost) {
       defaultNode = embeddedNode.binary().toString();
-    }
-    if (processWrapper.isMac()) {
+    } else if (processWrapper.isMac()) {
       defaultNode = locateNodeOnMac();
     } else if (processWrapper.isWindows()) {
       defaultNode = locateNodeOnWindows();
     }
+
     LOG.info("Using Node.js executable: '{}'.", defaultNode);
     return defaultNode;
   }
