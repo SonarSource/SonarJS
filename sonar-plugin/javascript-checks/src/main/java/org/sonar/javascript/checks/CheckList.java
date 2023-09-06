@@ -202,6 +202,7 @@ public final class CheckList {
       JsxNoCommentTextnodesCheck.class,
       JsxNoConstructedContextValuesCheck.class,
       JsxNoLeakedRenderCheck.class,
+      JsxNoUselessFragmentCheck.class,
       JumpStatementInFinallyCheck.class,
       LabelPlacementCheck.class,
       LabelledStatementCheck.class,
