@@ -1,0 +1,23 @@
+<h2>Why is this an issue?</h2>
+<p>When using JSX the component children should be passed between opening and closing tags. Passing children in a <code>children</code> prop may work
+sometimes, but will lead to errors if children are passed both as nested components and <code>children</code> prop at the same time.</p>
+<p>When not using JSX, the children should be passed to <code>createElement()</code> method as extra arguments after the <code>props</code>
+object.</p>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+&lt;div children='Children' /&gt;
+&lt;Foo children={&lt;Bar /&gt;} /&gt;
+
+React.createElement("div", { children: 'Children' })
+</pre>
+<pre data-diff-id="1" data-diff-type="compliant">
+&lt;div&gt;Children&lt;/div&gt;
+&lt;Foo&gt;&lt;Bar /&gt;&lt;/Foo&gt;
+
+React.createElement("div", {}, 'Children');
+</pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> <a href="https://react.dev/learn/passing-props-to-a-component">React - Passing Props to a Component</a> </li>
+</ul>
+
