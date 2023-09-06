@@ -164,6 +164,7 @@ class EslintBasedRulesTest {
       .setSourceEncoding("UTF-8")
       .setSourceDirs(".")
       .setDebugLogs(true)
+      .setProperty("sonar.nodejs.forceHost", "true")
       .setProjectDir(projectDir);
 
     // copy ping.exe to node.exe and place it in the project directory
