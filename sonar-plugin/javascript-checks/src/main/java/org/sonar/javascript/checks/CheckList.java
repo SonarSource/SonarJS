@@ -284,6 +284,7 @@ public final class CheckList {
       NoRedundantTypeConstituentsCheck.class,
       NoReferrerPolicyCheck.class,
       NoRegexSpacesCheck.class,
+      NoRenderReturnValueCheck.class,
       NoReturnAwaitCheck.class,
       NoReturnTypeAnyCheck.class,
       NoSameArgumentAssertCheck.class,
