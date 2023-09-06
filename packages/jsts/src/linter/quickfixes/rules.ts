@@ -77,6 +77,7 @@ export const quickFixRules = new Set([
   'prefer-while',
 
   // eslint-plugin-react
+  'jsx-no-useless-fragment',
   'no-unknown-property',
 
   // @typescript-eslint plugin
