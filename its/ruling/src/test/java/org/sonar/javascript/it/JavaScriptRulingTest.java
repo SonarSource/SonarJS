@@ -272,7 +272,7 @@ class JavaScriptRulingTest {
       .setProperty("sonar.javascript.maxFileSize", "4000")
       .setProperty("sonar.cpd.exclusions", "**/*")
       .setProperty("sonar.internal.analysis.failFast", "true")
-      .setDebugLogs(false);
+      .setDebugLogs(true);
 
     orchestrator.executeBuild(build);
     assertThat(differencesPath).hasContent("");

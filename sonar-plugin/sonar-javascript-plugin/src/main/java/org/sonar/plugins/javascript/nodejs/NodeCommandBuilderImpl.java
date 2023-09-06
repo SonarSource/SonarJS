@@ -266,11 +266,10 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
   }
 
   private String locateNode() throws IOException {
+    var defaultNode = NODE_EXECUTABLE_DEFAULT;
     if (embeddedNode.isAvailable()) {
-      var embedded = embeddedNode.binary();
-      return embedded.toString();
+      defaultNode = embeddedNode.binary().toString();
     }
-    String defaultNode = NODE_EXECUTABLE_DEFAULT;
     if (processWrapper.isMac()) {
       defaultNode = locateNodeOnMac();
     } else if (processWrapper.isWindows()) {
