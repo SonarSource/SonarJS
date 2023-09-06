@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import fs from 'fs';
 import path from 'path';
 import { JsTsLanguage, setContext } from '@sonar/shared/helpers';
 import { CustomRule, LinterWrapper, quickFixRules, RuleConfig } from '../../src';
 import { parseJavaScriptSourceFile, parseTypeScriptSourceFile } from '../tools';
-import { fileReadable } from '@sonar/shared/helpers';
 
 describe('LinterWrapper', () => {
   beforeAll(() => {
@@ -334,19 +334,31 @@ describe('LinterWrapper', () => {
     `should provide quick fixes from enabled fixable rule '%s'`,
     async ruleId => {
       const fixtures = path.join(__dirname, 'fixtures', 'wrapper', 'quickfixes');
+      const files = await fs.promises.readdir(fixtures);
+
+      let fixture: string | undefined;
       let language: JsTsLanguage;
-      if (await fileReadable(path.join(fixtures, `${ruleId}.js`))) {
-        language = 'js';
-      } else if (await fileReadable(path.join(fixtures, `${ruleId}.ts`))) {
-        language = 'ts';
-      } else {
+      for (const file of files) {
+        const { ext, name } = path.parse(file);
+        if (ext !== '.json' && name === ruleId) {
+          fixture = file;
+          if (['.js', '.jsx'].includes(ext)) {
+            language = 'js';
+          } else {
+            language = 'ts';
+          }
+          break;
+        }
+      }
+
+      if (!fixture) {
         throw new Error(`Failed to find fixture file for rule '${ruleId}' in '${fixtures}'.`);
       }
 
       const tsConfig = path.join(fixtures, 'tsconfig.json');
-      const filePath = path.join(fixtures, `${ruleId}.${language}`);
+      const filePath = path.join(fixtures, fixture);
       const parser = language === 'js' ? parseJavaScriptSourceFile : parseTypeScriptSourceFile;
-      let sourceCode = await parser(filePath, [tsConfig]);
+      const sourceCode = await parser(filePath, [tsConfig]);
 
       const rules = [{ key: ruleId, configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
       const linter = new LinterWrapper({ inputRules: rules });

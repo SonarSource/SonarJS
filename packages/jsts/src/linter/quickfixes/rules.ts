@@ -76,6 +76,9 @@ export const quickFixRules = new Set([
   'prefer-single-boolean-return',
   'prefer-while',
 
+  // eslint-plugin-react
+  'no-unknown-property',
+
   // @typescript-eslint plugin
   'no-confusing-non-null-assertion',
   'no-empty-interface',
