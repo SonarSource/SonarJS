@@ -8,7 +8,7 @@ class MyComponent extends React.Component {
   }
 
   incrementCount() {
-    this.state.count++;
+    this.state.count++; // Noncompliant
   }
 
   render() {
