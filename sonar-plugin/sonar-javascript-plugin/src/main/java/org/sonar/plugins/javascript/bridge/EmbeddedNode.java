@@ -23,6 +23,7 @@ import static java.nio.file.attribute.PosixFilePermission.OWNER_EXECUTE;
 import static java.nio.file.attribute.PosixFilePermission.OWNER_READ;
 import static org.sonarsource.api.sonarlint.SonarLintSide.INSTANCE;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -108,7 +109,7 @@ public class EmbeddedNode {
     return platform != null && isAvailable;
   }
 
-  void deployNode(Path deployLocation) throws IOException {
+  public void deployNode(Path deployLocation) throws IOException {
     if (platform == null || isAvailable) {
       return;
     }
@@ -137,20 +138,25 @@ public class EmbeddedNode {
     var sourceAsString = source.toString();
     var target = Path.of(sourceAsString.substring(0, sourceAsString.length() - 3));
     if (Files.exists(target)) {
+      // TODO drop this skip if it prevents us from upgrading the runtime
       LOG.debug("Skipping decompression. " + target.toString() + " already exists.");
       return;
     }
     LOG.debug("Decompressing " + source.toAbsolutePath() + " into " + target);
     try (
       var is = Files.newInputStream(source);
-      var archive = new XZInputStream(is);
+      var stream = new BufferedInputStream(is);
+      var archive = new XZInputStream(stream);
       var os = Files.newOutputStream(target);
     ) {
-      archive.transferTo(os);
+      int nextBytes;
+      byte[] buf = new byte[8 * 1024 * 1024];
+      while ((nextBytes = archive.read(buf)) > -1) {
+        System.out.println("read " + nextBytes + " bytes");
+        os.write(buf, 0, nextBytes);
+      }
       if (platform != Platform.WIN_X64) {
         Files.setPosixFilePermissions(target, Set.of(OWNER_EXECUTE, OWNER_READ));
-      } else {
-        LOG.debug("I'm on Windows, help me make this executable!");
       }
     }
   }

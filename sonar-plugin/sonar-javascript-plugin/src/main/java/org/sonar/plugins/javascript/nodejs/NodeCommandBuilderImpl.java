@@ -52,6 +52,7 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
     "package/node_modules/run-node/run-node";
 
   private static final String NODE_EXECUTABLE_PROPERTY = "sonar.nodejs.executable";
+  final String NODE_FORCE_HOST_PROPERTY = "sonar.nodejs.forceHost";
 
   private static final Pattern NODEJS_VERSION_PATTERN = Pattern.compile(
     "v?(\\d+)\\.(\\d+)\\.(\\d+)"
@@ -150,7 +151,7 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
    */
   @Override
   public NodeCommand build() throws NodeCommandException, IOException {
-    String nodeExecutable = retrieveNodeExecutableFromConfig(configuration);
+    String nodeExecutable = retrieveNodeExecutable(configuration);
     checkNodeCompatibility(nodeExecutable);
 
     if (nodeJsArgs.isEmpty() && scriptFilename == null && args.isEmpty()) {
@@ -240,7 +241,19 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
     return output.toString();
   }
 
-  private String retrieveNodeExecutableFromConfig(@Nullable Configuration configuration)
+  /**
+   * Finds a node runtime by looking into:
+   * 1. sonar.nodejs.executable
+   * 2. an embedded runtime bundled with the analyzer
+   * 3. a runtime on the host
+   * If sonar.nodejs.forceHost is enabled, 2. is ignored
+   *
+   * @param configuration
+   * @return
+   * @throws NodeCommandException
+   * @throws IOException
+   */
+  private String retrieveNodeExecutable(@Nullable Configuration configuration)
     throws NodeCommandException, IOException {
     if (configuration != null && configuration.hasKey(NODE_EXECUTABLE_PROPERTY)) {
       String nodeExecutable = configuration.get(NODE_EXECUTABLE_PROPERTY).get();
@@ -262,22 +275,28 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
       }
     }
 
-    return locateNode();
+    return locateNode(isForceHost(configuration));
   }
 
-  private String locateNode() throws IOException {
+  private String locateNode(boolean isForceHost) throws IOException {
     String defaultNode = NODE_EXECUTABLE_DEFAULT;
     if (processWrapper.isMac()) {
-      defaultNode = locateNodeOnMac();
+      defaultNode = locateNodeOnMac(isForceHost);
     } else if (processWrapper.isWindows()) {
-      defaultNode = locateNodeOnWindows();
+      defaultNode = locateNodeOnWindows(isForceHost);
     }
     LOG.debug("Using default Node.js executable: '{}'.", defaultNode);
     return defaultNode;
   }
 
-  private String locateNodeOnMac() throws IOException {
-    if (embeddedNode.isAvailable()) {
+  private boolean isForceHost(Configuration configuration) {
+    return (
+      configuration != null && configuration.getBoolean(NODE_FORCE_HOST_PROPERTY).orElse(false)
+    );
+  }
+
+  private String locateNodeOnMac(boolean isForceHost) throws IOException {
+    if (embeddedNode.isAvailable() && !isForceHost) {
       var embedded = embeddedNode.binary();
       return embedded.toString();
     }
@@ -302,8 +321,8 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
     return defaultNode;
   }
 
-  private String locateNodeOnWindows() throws IOException {
-    if (embeddedNode.isAvailable()) {
+  private String locateNodeOnWindows(boolean isForceHost) throws IOException {
+    if (embeddedNode.isAvailable() && !isForceHost) {
       var embedded = embeddedNode.binary();
       return embedded.toString();
     }

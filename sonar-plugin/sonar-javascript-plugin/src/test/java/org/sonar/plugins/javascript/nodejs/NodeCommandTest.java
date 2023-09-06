@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -51,6 +52,7 @@ import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.plugins.javascript.bridge.EmbeddedNode;
 
 class NodeCommandTest {
 
@@ -400,6 +402,43 @@ class NodeCommandTest {
       .hasMessage("Node.js not found in PATH. PATH value was: null");
     assertThat(processStartArgument.getValue())
       .containsExactly("C:\\Windows\\System32\\where.exe", "$PATH:node.exe");
+  }
+
+  @Test
+  void test_embedded_runtime() throws Exception {
+    var en = new EmbeddedNode();
+    en.deployNode(tempDir);
+    NodeCommand nodeCommand = NodeCommand
+      .builder()
+      .script(PATH_TO_SCRIPT)
+      .pathResolver(getPathResolver())
+      .embeddedNode(en)
+      .build();
+    // TODO for some reason, using mockProcessWrapper to test for the used command does not yield the expected result
+    var expectedCommand =
+      Paths.get(tempDir.toString(), en.binary().getFileName().toString()) + " " + PATH_TO_SCRIPT;
+    assertThat(nodeCommand.toString()).isEqualTo(expectedCommand);
+  }
+
+  @Test
+  void test_embedded_runtime_with_forceHost() throws Exception {
+    String NODE_FORCE_HOST_PROPERTY = "sonar.nodejs.forceHost";
+    MapSettings mapSettings = new MapSettings();
+    mapSettings.setProperty(NODE_FORCE_HOST_PROPERTY, true);
+    Configuration configuration = mapSettings.asConfig();
+
+    var en = new EmbeddedNode();
+    en.deployNode(tempDir);
+    NodeCommand nodeCommand = NodeCommand
+      .builder()
+      .script(PATH_TO_SCRIPT)
+      .configuration(configuration)
+      .pathResolver(getPathResolver())
+      .embeddedNode(en)
+      .build();
+    var commandParts = nodeCommand.toString().split(" ");
+    assertThat(commandParts[0])
+      .endsWith("src/test/resources/package/node_modules/run-node/run-node");
   }
 
   private static String resourceScript(String script) throws URISyntaxException {
