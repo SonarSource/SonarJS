@@ -279,13 +279,16 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
   }
 
   private String locateNode(boolean isForceHost) throws IOException {
-    String defaultNode = NODE_EXECUTABLE_DEFAULT;
-    if (processWrapper.isMac()) {
-      defaultNode = locateNodeOnMac(isForceHost);
-    } else if (processWrapper.isWindows()) {
-      defaultNode = locateNodeOnWindows(isForceHost);
+    var defaultNode = NODE_EXECUTABLE_DEFAULT;
+    if (embeddedNode.isAvailable() && !isForceHost) {
+      defaultNode = embeddedNode.binary().toString();
     }
-    LOG.debug("Using default Node.js executable: '{}'.", defaultNode);
+    if (processWrapper.isMac()) {
+      defaultNode = locateNodeOnMac();
+    } else if (processWrapper.isWindows()) {
+      defaultNode = locateNodeOnWindows();
+    }
+    LOG.info("Using Node.js executable: '{}'.", defaultNode);
     return defaultNode;
   }
 
@@ -295,11 +298,7 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
     );
   }
 
-  private String locateNodeOnMac(boolean isForceHost) throws IOException {
-    if (embeddedNode.isAvailable() && !isForceHost) {
-      var embedded = embeddedNode.binary();
-      return embedded.toString();
-    }
+  private String locateNodeOnMac() throws IOException {
     // on Mac when e.g. IntelliJ is launched from dock, node will often not be available via PATH, because PATH is configured
     // in .bashrc or similar, thus we launch node via 'run-node', which should load required configuration
     LOG.debug("Looking for Node.js in the PATH using run-node (macOS)");
@@ -321,11 +320,7 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
     return defaultNode;
   }
 
-  private String locateNodeOnWindows(boolean isForceHost) throws IOException {
-    if (embeddedNode.isAvailable() && !isForceHost) {
-      var embedded = embeddedNode.binary();
-      return embedded.toString();
-    }
+  private String locateNodeOnWindows() throws IOException {
     // Windows will search current directory in addition to the PATH variable, which is unsecure.
     // To avoid it we use where.exe to find node binary only in PATH. See SSF-181
     LOG.debug("Looking for Node.js in the PATH using where.exe (Windows)");

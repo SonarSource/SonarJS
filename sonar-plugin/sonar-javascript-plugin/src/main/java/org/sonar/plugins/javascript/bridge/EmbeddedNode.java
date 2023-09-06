@@ -46,7 +46,8 @@ public class EmbeddedNode {
     WIN_X64,
     LINUX_X64,
     MACOS_ARM64,
-    LINUX_X64_ALPINE;
+    LINUX_X64_ALPINE,
+    UNSUPPORTED;
 
     String pathInJar() {
       switch (this) {
@@ -59,7 +60,7 @@ public class EmbeddedNode {
         case LINUX_X64_ALPINE:
           return "/linux-x64-alpine/node.xz";
         default:
-          throw new IllegalArgumentException("Unexpected platform");
+          return "";
       }
     }
 
@@ -76,18 +77,15 @@ public class EmbeddedNode {
 
     static Platform detect() {
       var osName = System.getProperty("os.name");
-
       var lowerCaseOsName = osName.toLowerCase(Locale.ROOT);
       if (osName.contains("Windows") && isX64()) {
         return WIN_X64;
-      } else if (osName.toLowerCase(Locale.ROOT).contains("linux") && isX64()) {
+      } else if (lowerCaseOsName.contains("linux") && isX64()) {
         return LINUX_X64;
-      } else if (lowerCaseOsName.contains("mac os")) {
-        if (isARM64()) {
-          return MACOS_ARM64;
-        }
+      } else if (lowerCaseOsName.contains("mac os") && (isARM64())) {
+        return MACOS_ARM64;
       }
-      return null;
+      return UNSUPPORTED;
     }
 
     static boolean isX64() {
@@ -106,16 +104,23 @@ public class EmbeddedNode {
   private boolean isAvailable;
 
   public boolean isAvailable() {
-    return platform != null && isAvailable;
+    return platform != UNSUPPORTED && isAvailable;
   }
 
   public void deployNode(Path deployLocation) throws IOException {
-    if (platform == null || isAvailable) {
+    LOG.debug(
+      "Detected os: {} arch: {} platform: {}",
+      System.getProperty("os.name"),
+      System.getProperty("os.arch"),
+      platform
+    );
+    if (platform == UNSUPPORTED || isAvailable) {
       return;
     }
     this.deployLocation = deployLocation;
     var is = getClass().getResourceAsStream(platform.pathInJar());
     if (is == null) {
+      LOG.debug("Embedded node not found for platform {}", platform.pathInJar());
       return;
     }
     var target = deployLocation.resolve(platform.binary() + ".xz");
