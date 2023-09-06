@@ -21,6 +21,8 @@ package org.sonar.plugins.javascript.bridge;
 
 import static java.nio.file.attribute.PosixFilePermission.OWNER_EXECUTE;
 import static java.nio.file.attribute.PosixFilePermission.OWNER_READ;
+import static org.sonar.plugins.javascript.bridge.EmbeddedNode.Platform.UNSUPPORTED;
+import static org.sonar.plugins.javascript.bridge.EmbeddedNode.Platform.WIN_X64;
 import static org.sonarsource.api.sonarlint.SonarLintSide.INSTANCE;
 
 import java.io.IOException;
@@ -44,7 +46,8 @@ public class EmbeddedNode {
     WIN_X64,
     LINUX_X64,
     MACOS_ARM64,
-    LINUX_X64_ALPINE;
+    LINUX_X64_ALPINE,
+    UNSUPPORTED;
 
     String pathInJar() {
       switch (this) {
@@ -57,7 +60,7 @@ public class EmbeddedNode {
         case LINUX_X64_ALPINE:
           return "/linux-x64-alpine/node";
         default:
-          throw new IllegalArgumentException("Unexpected platform");
+          return "";
       }
     }
 
@@ -71,18 +74,15 @@ public class EmbeddedNode {
 
     static Platform detect() {
       var osName = System.getProperty("os.name");
-
       var lowerCaseOsName = osName.toLowerCase(Locale.ROOT);
       if (osName.contains("Windows") && isX64()) {
         return WIN_X64;
-      } else if (osName.toLowerCase(Locale.ROOT).contains("linux") && isX64()) {
+      } else if (lowerCaseOsName.contains("linux") && isX64()) {
         return LINUX_X64;
-      } else if (lowerCaseOsName.contains("mac os")) {
-        if (isARM64()) {
-          return MACOS_ARM64;
-        }
+      } else if (lowerCaseOsName.contains("mac os") && (isARM64())) {
+        return MACOS_ARM64;
       }
-      return null;
+      return UNSUPPORTED;
     }
 
     static boolean isX64() {
@@ -101,11 +101,17 @@ public class EmbeddedNode {
   private boolean isAvailable;
 
   public boolean isAvailable() {
-    return platform != null && isAvailable;
+    return platform != UNSUPPORTED && isAvailable;
   }
 
   void deployNode(Path deployLocation) throws IOException {
-    if (platform == null || isAvailable) {
+    LOG.info(
+      "Detected os: {} arch: {} platform: {}",
+      System.getProperty("os.name"),
+      System.getProperty("os.arch"),
+      platform
+    );
+    if (platform == UNSUPPORTED || isAvailable) {
       return;
     }
     this.deployLocation = deployLocation;
@@ -116,7 +122,7 @@ public class EmbeddedNode {
     var target = deployLocation.resolve(platform.binary());
     LOG.debug("Copy embedded node to {}", target);
     Files.copy(is, target);
-    if (platform != Platform.WIN_X64) {
+    if (platform != WIN_X64) {
       Files.setPosixFilePermissions(target, Set.of(OWNER_EXECUTE, OWNER_READ));
     }
     isAvailable = true;
