@@ -1,0 +1,27 @@
+{
+  "title": "In React \"this.state\" should not be mutated directly",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6746",
+  "sqKey": "S6746",
+  "scope": "All",
+  "quickfix": "infeasible",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "HIGH",
+      "RELIABILITY": "MEDIUM",
+      "SECURITY": "LOW"
+    },
+    "attribute": "CONVENTIONAL"
+  },
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]
+}
