@@ -105,7 +105,7 @@ public class EmbeddedNode {
   }
 
   void deployNode(Path deployLocation) throws IOException {
-    LOG.info(
+    LOG.debug(
       "Detected os: {} arch: {} platform: {}",
       System.getProperty("os.name"),
       System.getProperty("os.arch"),
@@ -117,6 +117,7 @@ public class EmbeddedNode {
     this.deployLocation = deployLocation;
     var is = getClass().getResourceAsStream(platform.pathInJar());
     if (is == null) {
+      LOG.debug("Embedded node not found for platform {}", platform.pathInJar());
       return;
     }
     var target = deployLocation.resolve(platform.binary());
