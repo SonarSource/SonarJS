@@ -25,6 +25,7 @@ import java.util.function.Consumer;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.utils.Version;
+import org.sonar.plugins.javascript.bridge.EmbeddedNode;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
 @ScannerSide
@@ -49,6 +50,8 @@ public interface NodeCommandBuilder {
   NodeCommandBuilder pathResolver(BundlePathResolver pathResolver);
 
   NodeCommandBuilder env(Map<String, String> env);
+
+  NodeCommandBuilder embeddedNode(EmbeddedNode embeddedNode);
 
   NodeCommand build() throws IOException;
 }

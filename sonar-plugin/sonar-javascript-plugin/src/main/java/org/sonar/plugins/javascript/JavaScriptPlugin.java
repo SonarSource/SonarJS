@@ -38,6 +38,7 @@ import org.sonar.plugins.javascript.bridge.AnalysisWithWatchProgram;
 import org.sonar.plugins.javascript.bridge.BridgeServerImpl;
 import org.sonar.plugins.javascript.bridge.BundleImpl;
 import org.sonar.plugins.javascript.bridge.CssRuleSensor;
+import org.sonar.plugins.javascript.bridge.EmbeddedNode;
 import org.sonar.plugins.javascript.bridge.HtmlSensor;
 import org.sonar.plugins.javascript.bridge.JsTsChecks;
 import org.sonar.plugins.javascript.bridge.JsTsSensor;
@@ -150,7 +151,8 @@ public class JavaScriptPlugin implements Plugin {
       AnalysisWithWatchProgram.class,
       AnalysisProcessor.class,
       YamlSensor.class,
-      HtmlSensor.class
+      HtmlSensor.class,
+      EmbeddedNode.class
     );
 
     context.addExtensions(

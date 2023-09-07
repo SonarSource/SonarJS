@@ -252,6 +252,7 @@ class JavaScriptRulingTest {
       .setTestDirs(testDir)
       .setSourceEncoding("utf-8")
       .setScannerVersion(SCANNER_VERSION)
+      .setDebugLogs(true)
       .setProperty(
         "sonar.lits.dump.old",
         FileLocation
@@ -271,7 +272,8 @@ class JavaScriptRulingTest {
       .setProperty("sonar.javascript.node.maxspace", "2048")
       .setProperty("sonar.javascript.maxFileSize", "4000")
       .setProperty("sonar.cpd.exclusions", "**/*")
-      .setProperty("sonar.internal.analysis.failFast", "true");
+      .setProperty("sonar.internal.analysis.failFast", "true")
+      .setDebugLogs(true);
 
     orchestrator.executeBuild(build);
     assertThat(differencesPath).hasContent("");
