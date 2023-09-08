@@ -30,32 +30,28 @@
   </dependencies>
 
   <build>
-    <pluginManagement><!-- lock down plugins versions to avoid using Maven defaults (may be moved to parent pom) -->
-      <plugins>
-        <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>exec-maven-plugin</artifactId>
-          <version>3.1.0</version>
-          <executions>
-            <execution>
-              <goals>
-                <goal>java</goal>
-              </goals>
-            </execution>
-          </executions>
-          <configuration>
-            <mainClass>org.sonarsource.javascript.XZ</mainClass>
-            <arguments>
-              <argument>${project.basedir}/../../sonar-plugin/sonar-javascript-plugin/target/classes/macos-arm64/node</argument>
-              <argument>${project.basedir}/../../sonar-plugin/sonar-javascript-plugin/target/classes/linux-x64/node</argument>
-              <argument>${project.basedir}/../../sonar-plugin/sonar-javascript-plugin/target/classes/linux-x64-alpine/node</argument>
-              <argument>${project.basedir}/../../sonar-plugin/sonar-javascript-plugin/target/classes/win-x64/node.exe</argument>
-            </arguments>
-          </configuration>
-        </plugin>
-
-      </plugins>
-    </pluginManagement>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>3.1.0</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>java</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <mainClass>org.sonarsource.javascript.XZ</mainClass>
+          <arguments>
+            <argument>${project.basedir}/../../sonar-plugin/sonar-javascript-plugin/target/classes/macos-arm64/node</argument>
+            <argument>${project.basedir}/../../sonar-plugin/sonar-javascript-plugin/target/classes/linux-x64/node</argument>
+            <argument>${project.basedir}/../../sonar-plugin/sonar-javascript-plugin/target/classes/win-x64/node.exe</argument>
+          </arguments>
+        </configuration>
+      </plugin>
+    </plugins>
   </build>
 
 </project>

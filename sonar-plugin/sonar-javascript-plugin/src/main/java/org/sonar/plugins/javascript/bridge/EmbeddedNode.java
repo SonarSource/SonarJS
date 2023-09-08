@@ -47,7 +47,6 @@ public class EmbeddedNode {
     WIN_X64,
     LINUX_X64,
     MACOS_ARM64,
-    LINUX_X64_ALPINE,
     UNSUPPORTED;
 
     String pathInJar() {
@@ -58,8 +57,6 @@ public class EmbeddedNode {
           return "/linux-x64/node.xz";
         case MACOS_ARM64:
           return "/macos-arm64/node.xz";
-        case LINUX_X64_ALPINE:
-          return "/linux-x64-alpine/node.xz";
         default:
           return "";
       }
@@ -132,9 +129,9 @@ public class EmbeddedNode {
   }
 
   /**
-   * Expects a path to a xz-compessed file ending in `.xz` like `node.xz` and
+   * Expects a path to a xz-compressed file ending in `.xz` like `node.xz` and
    * extracts it into the same place as `node`.
-   *
+   * <p>
    * Skips extraction if target file already exists.
    *
    * @param source Path for the file to extract
