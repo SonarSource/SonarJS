@@ -48,7 +48,6 @@
             <arguments>
               <argument>${project.basedir}/../../sonar-plugin/sonar-javascript-plugin/target/classes/macos-arm64/node</argument>
               <argument>${project.basedir}/../../sonar-plugin/sonar-javascript-plugin/target/classes/linux-x64/node</argument>
-              <argument>${project.basedir}/../../sonar-plugin/sonar-javascript-plugin/target/classes/linux-x64-alpine/node</argument>
               <argument>${project.basedir}/../../sonar-plugin/sonar-javascript-plugin/target/classes/win-x64/node.exe</argument>
             </arguments>
           </configuration>
