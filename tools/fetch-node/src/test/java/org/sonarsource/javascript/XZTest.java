@@ -37,13 +37,13 @@ public class XZTest {
     try {
       XZ.compress(new String[] { origFile.toString() }, 1);
       var compressedFilename = origFile + ".xz";
-      assertThat(Files.exists(Path.of(compressedFilename)));
-      assertThat(Files.notExists(origFile));
+      assertThat(Files.exists(Path.of(compressedFilename))).isTrue();
+      assertThat(Files.notExists(origFile)).isTrue();
       var compressedFile = new File(compressedFilename);
       assertThat(compressedFile.length()).isLessThan(origSize);
 
       extract(compressedFilename);
-      assertThat(Files.exists(origFile));
+      assertThat(Files.exists(origFile)).isTrue();
       var extractedFile = new File(origFile.toString());
       assertThat(origSize).isEqualTo(extractedFile.length());
       var extractedContents = new String(Files.readAllBytes(origFile));
