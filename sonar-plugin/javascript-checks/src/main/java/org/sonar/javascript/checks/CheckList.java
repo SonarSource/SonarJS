@@ -222,6 +222,7 @@ public final class CheckList {
       NestedControlFlowDepthCheck.class,
       NewCapCheck.class,
       NewOperatorMisuseCheck.class,
+      NoAccessStateInSetstateCheck.class,
       NoAccessorFieldMismatchCheck.class,
       NoAngularBypassSanitizationCheck.class,
       NoAnyCheck.class,
