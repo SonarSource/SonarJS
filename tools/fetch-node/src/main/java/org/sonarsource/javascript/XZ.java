@@ -45,17 +45,6 @@ public class XZ {
    * @throws IOException
    */
   public static void compress(String[] filenames) throws IOException {
-    compress(filenames, DEFAULT_COMPRESSION_LEVEL);
-  }
-
-  /**
-   * Compress with a custom compression level, used for tests
-   *
-   * @param filenames
-   * @param compressionLevel
-   * @throws IOException
-   */
-  public static void compress(String[] filenames, int compressionLevel) throws IOException {
     for (var filename : filenames) {
       System.out.println("Compressing " + filename);
       var file = Path.of(filename);
@@ -65,7 +54,7 @@ public class XZ {
       try (
         var is = Files.newInputStream(file);
         var outfile = Files.newOutputStream(Path.of(file + ".xz"));
-        var outxz = new XZOutputStream(outfile, new LZMA2Options(compressionLevel))
+        var outxz = new XZOutputStream(outfile, new LZMA2Options(DEFAULT_COMPRESSION_LEVEL))
       ) {
         is.transferTo(outxz);
         Files.delete(file);

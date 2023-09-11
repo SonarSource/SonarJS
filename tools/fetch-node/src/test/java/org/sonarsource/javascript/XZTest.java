@@ -35,7 +35,7 @@ public class XZTest {
   void should_compress_files() {
     var origSize = new File(origFile.toString()).length();
     try {
-      XZ.compress(new String[] { origFile.toString() }, 1);
+      XZ.main(new String[] { origFile.toString() });
       var compressedFilename = origFile + ".xz";
       assertThat(Files.exists(Path.of(compressedFilename))).isTrue();
       assertThat(Files.notExists(origFile)).isTrue();
