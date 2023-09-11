@@ -19,7 +19,9 @@
  */
 package org.sonarsource.javascript;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import org.tukaani.xz.LZMA2Options;
@@ -60,8 +62,7 @@ public class XZ {
       System.out.println("Compressing " + filename);
       var file = Path.of(filename);
       if (!Files.exists(file)) {
-        System.out.println("File " + filename + " does not exist.");
-        System.exit(1);
+        throw new FileNotFoundException("File " + filename + " does not exist.");
       }
       try (
         var is = Files.newInputStream(file);
@@ -72,8 +73,8 @@ public class XZ {
       }
       try {
         Files.delete(file);
-      } catch (Exception e) {
-        System.out.println("Error while deleting file: " + e.getMessage());
+      } catch (IOException e) {
+        throw new AccessDeniedException("Error while deleting file: " + e.getMessage());
       }
     }
   }
