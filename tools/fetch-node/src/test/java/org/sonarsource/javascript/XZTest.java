@@ -64,6 +64,12 @@ public class XZTest {
     }
   }
 
+  /**
+   * Extracts the given `source` to `source` without the `.xz` extension
+   *
+   * @param source
+   * @throws IOException
+   */
   private void extract(String source) throws IOException {
     var target = Path.of(source.substring(0, source.length() - 3));
     try (
@@ -72,12 +78,7 @@ public class XZTest {
       var archive = new XZInputStream(stream);
       var os = Files.newOutputStream(target);
     ) {
-      int nextBytes;
-      byte[] buf = new byte[8 * 1024 * 1024];
-      while ((nextBytes = archive.read(buf)) > -1) {
-        System.out.println("read " + nextBytes + " bytes");
-        os.write(buf, 0, nextBytes);
-      }
+      archive.transferTo(os);
     }
   }
 }
