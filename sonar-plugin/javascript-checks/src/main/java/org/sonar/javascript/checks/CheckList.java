@@ -228,6 +228,7 @@ public final class CheckList {
       NoArrayDeleteCheck.class,
       NoArrayIndexKeyCheck.class,
       NoBaseToStringCheck.class,
+      NoChildrenPropCheck.class,
       NoClearTextProtocolsCheck.class,
       NoCodeAfterDoneCheck.class,
       NoConfusingNonNullAssertionCheck.class,
