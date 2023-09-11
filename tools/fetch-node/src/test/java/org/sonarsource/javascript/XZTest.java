@@ -64,18 +64,6 @@ public class XZTest {
     }
   }
 
-  //@Test
-  /*void should_throw_an_error_if_file_deletion_is_forbidden() {
-    var copyPath = Path.of(tempDir.toString(), FILENAME);
-    try (MockedStatic<Files> files = Mockito.mockStatic(Files.class)) {
-      files.when(() -> Files.delete(copyPath)).thenThrow(new IOException("foobar"));
-      XZ.compress(new String[] {copyPath.toString()});
-      fail("Should have thrown.");
-    } catch (IOException e) {
-      assertThat(e.getMessage()).isEqualTo("Error while deleting file: foobar");
-    }
-  }*/
-
   private void extract(String source) throws IOException {
     var target = Path.of(source.substring(0, source.length() - 3));
     try (
