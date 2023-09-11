@@ -1,5 +1,5 @@
 import { useState } from 'react';
-function MyComponent() {
+function useSomething() {
   const [state, , setState] = useState();
   return [state, setState];
 }
