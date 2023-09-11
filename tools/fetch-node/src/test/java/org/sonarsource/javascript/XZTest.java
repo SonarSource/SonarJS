@@ -18,34 +18,36 @@ public class XZTest {
   @TempDir
   Path tempDir;
 
-  private final String FILENAME = "foo.txt";
-  private final String origFilename = getClass().getClassLoader().getResource(FILENAME).getPath();
-  private Path copyPath;
+  /**
+   * this needs to be long enough so that it's shorter compressed
+   */
+  private final String FILE_CONTENT =
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+  private Path origFile;
 
   @BeforeEach
   void before() throws IOException {
-    copyPath = Path.of(tempDir.toString(), FILENAME);
-    Files.copy(Path.of(origFilename), copyPath);
+    origFile = tempDir.resolve("foo.txt");
+    Files.write(origFile, FILE_CONTENT.getBytes());
   }
 
   @Test
   void should_compress_files() {
-    var origFile = new File(origFilename);
+    var origSize = new File(origFile.toString()).length();
     try {
-      XZ.compress(new String[] { copyPath.toString() }, 1);
-      var compressedFilename = copyPath + ".xz";
+      XZ.compress(new String[] { origFile.toString() }, 1);
+      var compressedFilename = origFile + ".xz";
       assertThat(Files.exists(Path.of(compressedFilename)));
-      assertThat(Files.notExists(copyPath));
+      assertThat(Files.notExists(origFile));
       var compressedFile = new File(compressedFilename);
-      assertThat(compressedFile.length()).isLessThan(origFile.length());
+      assertThat(compressedFile.length()).isLessThan(origSize);
 
       extract(compressedFilename);
-      assertThat(Files.exists(copyPath));
-      var extractedFile = new File(copyPath.toString());
-      assertThat(origFile.length()).isEqualTo(extractedFile.length());
-      var origContents = new String(Files.readAllBytes(Path.of(origFilename)));
-      var extractedContents = new String(Files.readAllBytes(copyPath));
-      assertThat(extractedContents).isEqualTo(origContents);
+      assertThat(Files.exists(origFile));
+      var extractedFile = new File(origFile.toString());
+      assertThat(origSize).isEqualTo(extractedFile.length());
+      var extractedContents = new String(Files.readAllBytes(origFile));
+      assertThat(extractedContents).isEqualTo(FILE_CONTENT);
     } catch (Exception e) {
       fail("Error thrown when compressing: " + e.getMessage());
     }
