@@ -15,8 +15,8 @@ is a recommended best practice:</p>
 <pre data-diff-id="1" data-diff-type="noncompliant">
 import { useState } from 'react';
 function MyComponent() {
-  const result = useState(); // Noncompliant
-  return result;
+  const [count, update] = useState(0); // Noncompliant
+  return &lt;div onClick={() =&gt; update(count + 1)}&gt;{count}&lt;/div&gt;
 }
 </pre>
 <p>You should destructure the return value of <code>useState</code> calls in terms of the current state and a function to update that state and name
@@ -24,8 +24,8 @@ them symmetrically.</p>
 <pre data-diff-id="1" data-diff-type="compliant">
 import { useState } from 'react';
 function MyComponent() {
-  const [state, setState] = useState();
-  return [state, setState];
+  const [count, setCount] = useState(0);
+  return &lt;div onClick={() =&gt; setCount(count + 1)}&gt;{count}&lt;/div&gt;
 }
 </pre>
 <h2>Resources</h2>
