@@ -49,11 +49,6 @@ const NODE_DISTROS = [
     id: 'linux-x64',
     url: `https://nodejs.org/dist/${NODE_VERSION}/node-${NODE_VERSION}-linux-x64.tar.gz`,
   },
-  // unofficial-builds throttles downloads
-  {
-    id: 'linux-x64-alpine',
-    url: `https://unofficial-builds.nodejs.org/download/release/${NODE_VERSION}/node-${NODE_VERSION}-linux-x64-musl.tar.gz`,
-  },
 ];
 
 /**
