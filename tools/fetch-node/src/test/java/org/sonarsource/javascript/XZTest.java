@@ -20,15 +20,16 @@ public class XZTest {
 
   private final String FILENAME = "foo.txt";
   private final String origFilename = getClass().getClassLoader().getResource(FILENAME).getPath();
+  private Path copyPath;
 
   @BeforeEach
   void before() throws IOException {
-    Files.copy(Path.of(origFilename), Path.of(tempDir.toString(), FILENAME));
+    copyPath = Path.of(tempDir.toString(), FILENAME);
+    Files.copy(Path.of(origFilename), copyPath);
   }
 
   @Test
   void should_compress_files() {
-    var copyPath = Path.of(tempDir.toString(), FILENAME);
     var origFile = new File(origFilename);
     try {
       XZ.compress(new String[] { copyPath.toString() }, 1);
