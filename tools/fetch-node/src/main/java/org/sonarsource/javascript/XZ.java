@@ -28,8 +28,7 @@ import org.tukaani.xz.XZOutputStream;
 
 public class XZ {
 
-  // TODO: set this to 9 for maximum space saving (it will be slower, so we keep it at 1 for development)
-  private static final int DEFAULT_COMPRESSION_LEVEL = 1;
+  private static final int DEFAULT_COMPRESSION_LEVEL = 9;
 
   public static void main(String[] args) throws Exception {
     if (args.length == 0) {

@@ -24,58 +24,21 @@ import decompress from 'decompress';
 import decompressTargz from 'decompress-targz';
 import * as path from 'node:path';
 import * as stream from 'node:stream';
-import * as url from 'url';
-
-// replace __dirname in module
-const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
+import NODE_DISTROS from './node-distros.mjs';
+import { DOWNLOAD_DIR, removeExtension, RUNTIMES_DIR } from './tools.mjs';
 
 /**
  * Fetches node.js runtimes and downloads them to
- * targetDir/classes/{distro.id}/node{.exe}
+ * downloads/{distro.id}/node{.exe}
  */
-
-const NODE_VERSION = 'v20.5.1';
-
-const NODE_DISTROS = [
-  {
-    id: 'win-x64',
-    url: `https://nodejs.org/dist/${NODE_VERSION}/node-${NODE_VERSION}-win-x64.zip`,
-  },
-  {
-    id: 'macos-arm64',
-    url: `https://nodejs.org/dist/${NODE_VERSION}/node-${NODE_VERSION}-darwin-arm64.tar.gz`,
-  },
-  {
-    id: 'linux-x64',
-    url: `https://nodejs.org/dist/${NODE_VERSION}/node-${NODE_VERSION}-linux-x64.tar.gz`,
-  },
-];
-
-/**
- * This script accepts a custom target directory
- */
-const PARAM_DIR = readTargetDirFromCLI();
-const DOWNLOAD_DIR = path.join(__dirname, 'downloads');
-const DEFAULT_TARGET_DIR = path.join(
-  __dirname,
-  '..',
-  '..',
-  'sonar-plugin',
-  'sonar-javascript-plugin',
-  'target',
-);
-
-const targetDir = PARAM_DIR ?? DEFAULT_TARGET_DIR;
-fs.mkdirpSync(targetDir);
 
 for (const distro of NODE_DISTROS) {
   const filename = getFilenameFromUrl(distro.url);
   const archiveFilename = path.join(DOWNLOAD_DIR, filename);
   await downloadFile(distro.url, archiveFilename);
   await extractFile(archiveFilename, DOWNLOAD_DIR);
-
   const distroName = removeExtension(filename);
-  copyRuntime(distroName, distro.id, DOWNLOAD_DIR, targetDir);
+  copyRuntime(distroName, distro.id, DOWNLOAD_DIR, RUNTIMES_DIR);
 }
 
 function getFilenameFromUrl(url) {
@@ -105,9 +68,9 @@ function copyRuntime(distroName, distroId, nodeDir, targetDir) {
     );
   }
   const nodeSource = path.join(nodeDir, distroName, nodeBin);
-  const classesDir = path.join(targetDir, 'classes', distroId);
-  fs.mkdirpSync(classesDir);
-  const targetFile = path.join(classesDir, keepOnlyFile(nodeBin));
+  const distroDir = path.join(targetDir, distroId);
+  fs.mkdirpSync(distroDir);
+  const targetFile = path.join(distroDir, keepOnlyFile(nodeBin));
   console.log(`Copying runtime from ${nodeSource} to ${targetFile}`);
   fs.copySync(nodeSource, targetFile, { overwrite: true });
   return targetFile;
@@ -116,26 +79,6 @@ function copyRuntime(distroName, distroId, nodeDir, targetDir) {
     const parts = fullPath.split(path.sep);
     return parts[parts.length - 1];
   }
-}
-
-/**
- * Removes the file extension from the archive
- *
- * @param {*} filename
- * @returns
- */
-function removeExtension(filename) {
-  let extensionLength;
-  if (filename.endsWith('.zip')) {
-    extensionLength = 4;
-  } else if (filename.endsWith('.tar.xz') || filename.endsWith('.tar.gz')) {
-    extensionLength = 7;
-  } else {
-    throw new Error(
-      `File extension removal not supported for file: ${filename}. Please implement for its extension`,
-    );
-  }
-  return filename.slice(0, -extensionLength);
 }
 
 /**
@@ -210,26 +153,5 @@ async function extractFile(file, dir) {
     if (fs.existsSync(dirName)) {
       fs.rmSync(dirName, { recursive: true, force: true });
     }
-  }
-}
-
-/**
- * Reads the first CLI parameter
- * If the path is relative, makes it absolute
- *
- * @returns
- */
-function readTargetDirFromCLI() {
-  const folder = process.argv.length > 2 ? process.argv[2] : undefined;
-  if (!folder) return undefined;
-
-  if (isAbsolutePath(folder)) {
-    return folder;
-  }
-
-  return path.join(process.cwd(), folder);
-
-  function isAbsolutePath(folder) {
-    return folder.startsWith(path.sep);
   }
 }
