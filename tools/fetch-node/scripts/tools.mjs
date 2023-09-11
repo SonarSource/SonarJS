@@ -25,37 +25,9 @@ export const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
 /**
  * The local cache for node distributions
  */
-export const DOWNLOAD_DIR = path.join(__dirname, 'downloads');
-
-export const RUNTIMES_DIR = path.join(__dirname, 'downloads', 'runtimes');
+export const DOWNLOAD_DIR = path.join(__dirname, '..', 'downloads');
 
 /**
- * Removes the file extension from the archive
- *
- * @param {*} filename
- * @returns
+ * Folder where the node runtimes are prepared
  */
-export const removeExtension = function removeExtension(filename) {
-  let extensionLength;
-  if (filename.endsWith('.zip')) {
-    extensionLength = 4;
-  } else if (filename.endsWith('.tar.xz') || filename.endsWith('.tar.gz')) {
-    extensionLength = 7;
-  } else {
-    throw new Error(
-      `File extension removal not supported for file: ${filename}. Please implement for its extension`,
-    );
-  }
-  return filename.slice(0, -extensionLength);
-};
-
-/**
- * Retrieves the last part of a URL path
- *
- * @param url
- * @returns {*}
- */
-export const getFilenameFromUrl = function getFilenameFromUrl(url) {
-  const parts = url.split('/');
-  return parts[parts.length - 1];
-};
+export const RUNTIMES_DIR = path.join(__dirname, '..', 'downloads', 'runtimes');

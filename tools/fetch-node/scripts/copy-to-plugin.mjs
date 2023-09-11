@@ -19,7 +19,7 @@
  */
 import path from 'node:path';
 import fs from 'fs-extra';
-import { __dirname } from './tools.mjs';
+import { __dirname, RUNTIMES_DIR } from './tools.mjs';
 
 /**
  * Copies tools/fetch-node/downloads/runtimes
@@ -35,6 +35,7 @@ const DEFAULT_TARGET_DIR = path.join(
   __dirname,
   '..',
   '..',
+  '..',
   'sonar-plugin',
   'sonar-javascript-plugin',
   'target',
@@ -44,10 +45,8 @@ let targetDir = PARAM_DIR ?? DEFAULT_TARGET_DIR;
 targetDir = path.join(targetDir, 'classes');
 fs.mkdirpSync(targetDir);
 
-const SOURCE_DIR = path.join(__dirname, 'downloads', 'runtimes');
-
-console.log(`Copying ${SOURCE_DIR} to ${targetDir}`);
-fs.copySync(SOURCE_DIR, targetDir);
+console.log(`Copying ${RUNTIMES_DIR} to ${targetDir}`);
+fs.copySync(RUNTIMES_DIR, targetDir);
 
 /**
  * Reads the first CLI parameter

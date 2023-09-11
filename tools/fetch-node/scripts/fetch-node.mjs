@@ -24,8 +24,8 @@ import decompress from 'decompress';
 import decompressTargz from 'decompress-targz';
 import * as path from 'node:path';
 import * as stream from 'node:stream';
-import NODE_DISTROS from './node-distros.mjs';
-import { DOWNLOAD_DIR, removeExtension, RUNTIMES_DIR } from './tools.mjs';
+import NODE_DISTROS from '../node-distros.mjs';
+import { DOWNLOAD_DIR, RUNTIMES_DIR } from './tools.mjs';
 
 /**
  * Fetches node.js runtimes and downloads them to
@@ -41,6 +41,12 @@ for (const distro of NODE_DISTROS) {
   copyRuntime(distroName, distro.id, DOWNLOAD_DIR, RUNTIMES_DIR);
 }
 
+/**
+ * Retrieves the last part of a URL path
+ *
+ * @param url
+ * @returns {*}
+ */
 function getFilenameFromUrl(url) {
   const parts = url.split('/');
   return parts[parts.length - 1];
@@ -48,7 +54,7 @@ function getFilenameFromUrl(url) {
 
 /**
  * Copies the node runtime executable from nodeDir based on the distribution
- * file organization into `targetDir/classes/distroId/node{.exe}`
+ * file organization into `targetDir/distroId/node{.exe}`
  *
  * @param {*} distroName
  * @param {*} distroId
@@ -154,4 +160,24 @@ async function extractFile(file, dir) {
       fs.rmSync(dirName, { recursive: true, force: true });
     }
   }
+}
+
+/**
+ * Removes the file extension from the archive
+ *
+ * @param {*} filename
+ * @returns
+ */
+function removeExtension(filename) {
+  let extensionLength;
+  if (filename.endsWith('.zip')) {
+    extensionLength = 4;
+  } else if (filename.endsWith('.tar.xz') || filename.endsWith('.tar.gz')) {
+    extensionLength = 7;
+  } else {
+    throw new Error(
+      `File extension removal not supported for file: ${filename}. Please implement for its extension`,
+    );
+  }
+  return filename.slice(0, -extensionLength);
 }

@@ -1,5 +1,10 @@
 const NODE_VERSION = 'v20.5.1';
 
+/**
+ * Node.js runtimes distributions
+ *
+ * Keep ids in sync with tools/fetch-node/pom.xml
+ */
 export default [
   {
     id: 'win-x64',
