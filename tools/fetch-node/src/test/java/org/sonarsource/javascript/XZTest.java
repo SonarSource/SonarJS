@@ -1,11 +1,69 @@
 package org.sonarsource.javascript;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
+
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+import org.tukaani.xz.XZInputStream;
 
 public class XZTest {
 
+  @TempDir
+  Path tempDir;
+
+  private final String FILENAME = "foo.txt";
+  private final String origFilename = getClass().getClassLoader().getResource(FILENAME).getPath();
+
+  @BeforeEach
+  void before() throws IOException {
+    Files.copy(Path.of(origFilename), Path.of(tempDir.toString(), FILENAME));
+  }
+
   @Test
   void should_compress_files() {
-    System.out.println("yala");
+    var copyPath = Path.of(tempDir.toString(), FILENAME);
+    var origFile = new File(origFilename);
+    try {
+      XZ.compress(new String[] { copyPath.toString() }, 1);
+      var compressedFilename = copyPath + ".xz";
+      assertThat(Files.exists(Path.of(compressedFilename)));
+      assertThat(Files.notExists(copyPath));
+      var compressedFile = new File(compressedFilename);
+      assertThat(compressedFile.length()).isLessThan(origFile.length());
+
+      extract(compressedFilename);
+      assertThat(Files.exists(copyPath));
+      var extractedFile = new File(copyPath.toString());
+      assertThat(origFile.length()).isEqualTo(extractedFile.length());
+      var origContents = new String(Files.readAllBytes(Path.of(origFilename)));
+      var extractedContents = new String(Files.readAllBytes(copyPath));
+      assertThat(extractedContents).isEqualTo(origContents);
+    } catch (Exception e) {
+      fail("Error thrown when compressing: " + e.getMessage());
+    }
+  }
+
+  private void extract(String source) throws IOException {
+    var target = Path.of(source.substring(0, source.length() - 3));
+    try (
+      var is = Files.newInputStream(Path.of(source));
+      var stream = new BufferedInputStream(is);
+      var archive = new XZInputStream(stream);
+      var os = Files.newOutputStream(target);
+    ) {
+      int nextBytes;
+      byte[] buf = new byte[8 * 1024 * 1024];
+      while ((nextBytes = archive.read(buf)) > -1) {
+        System.out.println("read " + nextBytes + " bytes");
+        os.write(buf, 0, nextBytes);
+      }
+    }
   }
 }

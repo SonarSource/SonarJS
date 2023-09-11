@@ -27,7 +27,7 @@ import org.tukaani.xz.XZOutputStream;
 public class XZ {
 
   // TODO: set this to 9 for maximum space saving (it will be slower, so we keep it at 1 for development)
-  private static final int COMPRESSION_LEVEL = 1;
+  private static final int DEFAULT_COMPRESSION_LEVEL = 1;
 
   public static void main(String[] args) throws Exception {
     if (args.length == 0) {
@@ -37,7 +37,24 @@ public class XZ {
     compress(args);
   }
 
+  /**
+   * Compress the provided filenames with the `DEFAULT_COMPRESSION_LEVEL`
+   *
+   * @param filenames
+   * @throws Exception
+   */
   public static void compress(String[] filenames) throws Exception {
+    compress(filenames, DEFAULT_COMPRESSION_LEVEL);
+  }
+
+  /**
+   * Compress with a custom compression level, used for tests
+   *
+   * @param filenames
+   * @param compressionLevel
+   * @throws Exception
+   */
+  public static void compress(String[] filenames, int compressionLevel) throws Exception {
     for (var filename : filenames) {
       System.out.println("Compressing " + filename);
       var file = Path.of(filename);
@@ -48,7 +65,7 @@ public class XZ {
       try (
         var is = Files.newInputStream(file);
         var outfile = Files.newOutputStream(Path.of(file + ".xz"));
-        var outxz = new XZOutputStream(outfile, new LZMA2Options(COMPRESSION_LEVEL))
+        var outxz = new XZOutputStream(outfile, new LZMA2Options(compressionLevel))
       ) {
         is.transferTo(outxz);
       }
