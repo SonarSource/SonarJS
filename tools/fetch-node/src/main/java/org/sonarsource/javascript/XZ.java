@@ -19,6 +19,7 @@
  */
 package org.sonarsource.javascript;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import org.tukaani.xz.LZMA2Options;
@@ -43,7 +44,7 @@ public class XZ {
    * @param filenames
    * @throws Exception
    */
-  public static void compress(String[] filenames) throws Exception {
+  public static void compress(String[] filenames) throws IOException {
     compress(filenames, DEFAULT_COMPRESSION_LEVEL);
   }
 
@@ -54,7 +55,7 @@ public class XZ {
    * @param compressionLevel
    * @throws Exception
    */
-  public static void compress(String[] filenames, int compressionLevel) throws Exception {
+  public static void compress(String[] filenames, int compressionLevel) throws IOException {
     for (var filename : filenames) {
       System.out.println("Compressing " + filename);
       var file = Path.of(filename);
