@@ -24,6 +24,10 @@ import decompress from 'decompress';
 import decompressTargz from 'decompress-targz';
 import * as path from 'node:path';
 import * as stream from 'node:stream';
+import * as url from 'url';
+
+// replace __dirname in module
+const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
 
 /**
  * Fetches node.js runtimes and downloads them to
@@ -56,25 +60,27 @@ const NODE_DISTROS = [
  * This script accepts a custom target directory
  */
 const PARAM_DIR = readTargetDirFromCLI();
+const DOWNLOAD_DIR = path.join(__dirname, 'downloads');
 const DEFAULT_TARGET_DIR = path.join(
-  process.cwd(),
+  __dirname,
+  '..',
+  '..',
   'sonar-plugin',
   'sonar-javascript-plugin',
   'target',
 );
 
 const targetDir = PARAM_DIR ?? DEFAULT_TARGET_DIR;
-const nodeDir = path.join(targetDir, 'node');
-fs.mkdirpSync(nodeDir);
+fs.mkdirpSync(targetDir);
 
 for (const distro of NODE_DISTROS) {
   const filename = getFilenameFromUrl(distro.url);
-  const archiveFilename = path.join(nodeDir, filename);
+  const archiveFilename = path.join(DOWNLOAD_DIR, filename);
   await downloadFile(distro.url, archiveFilename);
-  await extractFile(archiveFilename, nodeDir);
+  await extractFile(archiveFilename, DOWNLOAD_DIR);
 
   const distroName = removeExtension(filename);
-  copyRuntime(distroName, distro.id, nodeDir, targetDir);
+  copyRuntime(distroName, distro.id, DOWNLOAD_DIR, targetDir);
 }
 
 function getFilenameFromUrl(url) {
