@@ -21,7 +21,6 @@ package org.sonarsource.javascript;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import org.tukaani.xz.LZMA2Options;
@@ -70,11 +69,7 @@ public class XZ {
         var outxz = new XZOutputStream(outfile, new LZMA2Options(compressionLevel))
       ) {
         is.transferTo(outxz);
-      }
-      try {
         Files.delete(file);
-      } catch (IOException e) {
-        throw new AccessDeniedException("Error while deleting file: " + e.getMessage());
       }
     }
   }
