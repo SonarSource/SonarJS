@@ -44,7 +44,7 @@ public class XZ {
    * Compress the provided filenames with the `DEFAULT_COMPRESSION_LEVEL`
    *
    * @param filenames
-   * @throws Exception
+   * @throws IOException
    */
   public static void compress(String[] filenames) throws IOException {
     compress(filenames, DEFAULT_COMPRESSION_LEVEL);
@@ -55,7 +55,7 @@ public class XZ {
    *
    * @param filenames
    * @param compressionLevel
-   * @throws Exception
+   * @throws IOException
    */
   public static void compress(String[] filenames, int compressionLevel) throws IOException {
     for (var filename : filenames) {
