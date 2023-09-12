@@ -23,6 +23,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import org.tukaani.xz.LZMA2Options;
 import org.tukaani.xz.XZOutputStream;
 
@@ -30,12 +31,19 @@ public class XZ {
 
   private static final int DEFAULT_COMPRESSION_LEVEL = 9;
 
-  public static void main(String[] args) throws Exception {
+  public static void main(String[] args) {
     if (args.length == 0) {
       System.out.println("Please provide at least 1 filename to compress using XZ");
       System.exit(1);
     }
-    compress(args);
+    try {
+      compress(args);
+    } catch (IOException e) {
+      System.out.println(
+        "Error while compressing files " + Arrays.toString(args) + ": " + e.getMessage()
+      );
+      System.out.println(e.getStackTrace());
+    }
   }
 
   /**
@@ -44,7 +52,7 @@ public class XZ {
    * @param filenames
    * @throws IOException
    */
-  private static void compress(String[] filenames) throws IOException {
+  public static void compress(String[] filenames) throws IOException {
     for (var filename : filenames) {
       System.out.println("Compressing " + filename);
       var file = Path.of(filename);

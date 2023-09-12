@@ -49,7 +49,7 @@ public class XZTest {
   @Test
   void should_throw_an_error_if_a_filename_doesnt_exists() {
     String[] filenames = { "foobar" };
-    assertThatThrownBy(() -> XZ.main(filenames))
+    assertThatThrownBy(() -> XZ.compress(filenames))
       .hasMessage("File " + filenames[0] + " does not exist.");
   }
 
