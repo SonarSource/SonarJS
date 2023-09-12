@@ -1,10 +1,9 @@
 package org.sonarsource.javascript;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.io.BufferedInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -23,57 +22,48 @@ public class XZTest {
    */
   private final String FILE_CONTENT =
     "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
-  private Path origFile;
+  private Path origFilePath;
 
   @BeforeEach
   void before() throws IOException {
-    origFile = tempDir.resolve("foo.txt");
-    Files.write(origFile, FILE_CONTENT.getBytes());
+    origFilePath = tempDir.resolve("foo.txt");
+    Files.write(origFilePath, FILE_CONTENT.getBytes());
   }
 
   @Test
-  void should_compress_files() {
-    var origSize = new File(origFile.toString()).length();
-    try {
-      XZ.main(new String[] { origFile.toString() });
-      var compressedFilename = origFile + ".xz";
-      assertThat(Files.exists(Path.of(compressedFilename))).isTrue();
-      assertThat(Files.notExists(origFile)).isTrue();
-      var compressedFile = new File(compressedFilename);
-      assertThat(compressedFile.length()).isLessThan(origSize);
+  void should_compress_files() throws Exception {
+    var origSize = Files.size(origFilePath);
+    XZ.main(new String[] { origFilePath.toString() });
+    var compressedFilePath = Path.of(origFilePath + ".xz");
+    assertThat(compressedFilePath).exists();
+    assertThat(origFilePath).doesNotExist();
+    assertThat(Files.size(compressedFilePath)).isLessThan(origSize);
 
-      extract(compressedFilename);
-      assertThat(Files.exists(origFile)).isTrue();
-      var extractedFile = new File(origFile.toString());
-      assertThat(origSize).isEqualTo(extractedFile.length());
-      var extractedContents = new String(Files.readAllBytes(origFile));
-      assertThat(extractedContents).isEqualTo(FILE_CONTENT);
-    } catch (Exception e) {
-      fail("Error thrown when compressing: " + e.getMessage());
-    }
+    extract(compressedFilePath);
+    assertThat(origFilePath).exists();
+    assertThat(origSize).isEqualTo(Files.size(origFilePath));
+    var extractedContents = Files.readString(origFilePath);
+    assertThat(extractedContents).isEqualTo(FILE_CONTENT);
   }
 
   @Test
   void should_throw_an_error_if_a_filename_doesnt_exists() {
-    var filename = "foobar";
-    try {
-      XZ.compress(new String[] { filename });
-      fail("Should have thrown.");
-    } catch (IOException e) {
-      assertThat(e.getMessage()).isEqualTo("File " + filename + " does not exist.");
-    }
+    String[] filenames = { "foobar" };
+    assertThatThrownBy(() -> XZ.main(filenames))
+      .hasMessage("File " + filenames[0] + " does not exist.");
   }
 
   /**
-   * Extracts the given `source` to `source` without the `.xz` extension
+   * Extracts the given `source.xz` to `source` (without the `.xz` extension)
    *
    * @param source
    * @throws IOException
    */
-  private void extract(String source) throws IOException {
-    var target = Path.of(source.substring(0, source.length() - 3));
+  private void extract(Path source) throws IOException {
+    var sourceAsString = source.toString();
+    var target = Path.of(sourceAsString.substring(0, sourceAsString.length() - 3));
     try (
-      var is = Files.newInputStream(Path.of(source));
+      var is = Files.newInputStream(source);
       var stream = new BufferedInputStream(is);
       var archive = new XZInputStream(stream);
       var os = Files.newOutputStream(target);

@@ -44,7 +44,7 @@ public class XZ {
    * @param filenames
    * @throws IOException
    */
-  public static void compress(String[] filenames) throws IOException {
+  private static void compress(String[] filenames) throws IOException {
     for (var filename : filenames) {
       System.out.println("Compressing " + filename);
       var file = Path.of(filename);
