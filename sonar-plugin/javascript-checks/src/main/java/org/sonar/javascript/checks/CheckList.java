@@ -181,6 +181,7 @@ public final class CheckList {
       HardcodedCredentialsCheck.class,
       HashingCheck.class,
       HiddenFilesCheck.class,
+      HookUseStateCheck.class,
       IdenticalExpressionOnBinaryOperatorCheck.class,
       IdenticalFunctionsCheck.class,
       IgnoredReturnCheck.class,
