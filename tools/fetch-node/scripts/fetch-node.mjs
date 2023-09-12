@@ -36,7 +36,14 @@ import { DOWNLOAD_DIR, RUNTIMES_DIR } from './directories.mjs';
 for (const distro of NODE_DISTROS) {
   const filename = getFilenameFromUrl(distro.url);
   const archiveFilename = path.join(DOWNLOAD_DIR, filename);
-  await downloadFile(distro.url, archiveFilename);
+  try {
+    await downloadFile(distro.artifactoryUrl, archiveFilename);
+  } catch (error) {
+    console.log(`Error while downloading from artifactory: ${error}`);
+    console.log(`Falling back to Node.js org URL`);
+    await downloadFile(distro.url, archiveFilename);
+  }
+
   validateFile(distro.sha, archiveFilename);
   await extractFile(archiveFilename, DOWNLOAD_DIR);
   const distroName = removeExtension(filename);
