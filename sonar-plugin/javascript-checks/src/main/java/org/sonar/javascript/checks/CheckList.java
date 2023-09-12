@@ -340,6 +340,7 @@ public final class CheckList {
       PreferObjectSpreadCheck.class,
       PreferPromiseRejectErrorsCheck.class,
       PreferPromiseShorthandCheck.class,
+      PreferReadOnlyPropsCheck.class,
       PreferReadonlyCheck.class,
       PreferRegexLiteralsCheck.class,
       PreferRegexpExecCheck.class,
