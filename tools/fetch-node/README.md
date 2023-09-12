@@ -1,6 +1,6 @@
 # Fetch node.js runtimes tooling
 
-## Fetch runtimes and compress them
+## Fetch runtimes, compress them and copy them to plugin
 
 Run `npm run fetch-node`
 
