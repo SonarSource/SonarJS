@@ -17,54 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import path from 'node:path';
 import fs from 'fs-extra';
-import { __dirname, RUNTIMES_DIR } from './tools.mjs';
+import { RUNTIMES_DIR, TARGET_DIR } from './directories.mjs';
 
 /**
  * Copies tools/fetch-node/downloads/runtimes
  * to
- * targetDir/classes
+ * sonar-plugin/sonar-javascript-plugin/target/classes
  */
 
-/**
- * This script accepts a custom target directory
- */
-const PARAM_DIR = readTargetDirFromCLI();
-const DEFAULT_TARGET_DIR = path.join(
-  __dirname,
-  '..',
-  '..',
-  '..',
-  'sonar-plugin',
-  'sonar-javascript-plugin',
-  'target',
-);
+fs.mkdirpSync(TARGET_DIR);
 
-let targetDir = PARAM_DIR ?? DEFAULT_TARGET_DIR;
-targetDir = path.join(targetDir, 'classes');
-fs.mkdirpSync(targetDir);
-
-console.log(`Copying ${RUNTIMES_DIR} to ${targetDir}`);
-fs.copySync(RUNTIMES_DIR, targetDir);
-
-/**
- * Reads the first CLI parameter
- * If the path is relative, makes it absolute
- *
- * @returns
- */
-function readTargetDirFromCLI() {
-  const folder = process.argv.length > 2 ? process.argv[2] : undefined;
-  if (!folder) return undefined;
-
-  if (isAbsolutePath(folder)) {
-    return folder;
-  }
-
-  return path.join(process.cwd(), folder);
-
-  function isAbsolutePath(folder) {
-    return folder.startsWith(path.sep);
-  }
-}
+console.log(`Copying ${RUNTIMES_DIR} to ${TARGET_DIR}`);
+fs.copySync(RUNTIMES_DIR, TARGET_DIR);

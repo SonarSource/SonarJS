@@ -20,7 +20,7 @@
 import * as url from 'url';
 import * as path from 'path';
 // replace __dirname in module
-export const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
+const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
 
 /**
  * The local cache for node distributions
@@ -31,3 +31,19 @@ export const DOWNLOAD_DIR = path.join(__dirname, '..', 'downloads');
  * Folder where the node runtimes are prepared
  */
 export const RUNTIMES_DIR = path.join(__dirname, '..', 'downloads', 'runtimes');
+
+/**
+ * Folder where the plugin can use the runtimes and pick them when building JARs
+ *
+ * @type {string}
+ */
+export const TARGET_DIR = path.join(
+  __dirname,
+  '..',
+  '..',
+  '..',
+  'sonar-plugin',
+  'sonar-javascript-plugin',
+  'target',
+  'classes',
+);

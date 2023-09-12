@@ -25,11 +25,11 @@ import decompressTargz from 'decompress-targz';
 import * as path from 'node:path';
 import * as stream from 'node:stream';
 import NODE_DISTROS from '../node-distros.mjs';
-import { DOWNLOAD_DIR, RUNTIMES_DIR } from './tools.mjs';
+import { DOWNLOAD_DIR, RUNTIMES_DIR } from './directories.mjs';
 
 /**
  * Fetches node.js runtimes and downloads them to
- * downloads/{distro.id}/node{.exe}
+ * downloads/runtimes/{distro.id}/node{.exe}
  */
 
 for (const distro of NODE_DISTROS) {
