@@ -41,7 +41,6 @@ nodejs_runtimes_cache_definition: &RUNTIME_CACHE
   runtime_cache:
     folder: tools/fetch-node/downloads/
     fingerprint_script: cat tools/fetch-node/node-distros.mjs
-    populate_script: npm ci && node tools/fetch-node/scripts/fetch-node.mjs
 
 win_vm_definition: &WINDOWS_VM_DEFINITION
   ec2_instance:
