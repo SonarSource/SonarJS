@@ -26,6 +26,7 @@
     <dependency>
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 
@@ -45,9 +46,9 @@
         <configuration>
           <mainClass>org.sonarsource.javascript.XZ</mainClass>
           <arguments>
-            <argument>${project.basedir}/../../sonar-plugin/sonar-javascript-plugin/target/classes/macos-arm64/node</argument>
-            <argument>${project.basedir}/../../sonar-plugin/sonar-javascript-plugin/target/classes/linux-x64/node</argument>
-            <argument>${project.basedir}/../../sonar-plugin/sonar-javascript-plugin/target/classes/win-x64/node.exe</argument>
+            <argument>${project.basedir}/downloads/runtimes/macos-arm64/node</argument>
+            <argument>${project.basedir}/downloads/runtimes/linux-x64/node</argument>
+            <argument>${project.basedir}/downloads/runtimes/win-x64/node.exe</argument>
           </arguments>
         </configuration>
       </plugin>

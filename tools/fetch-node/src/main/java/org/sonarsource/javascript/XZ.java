@@ -19,43 +19,53 @@
  */
 package org.sonarsource.javascript;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import org.tukaani.xz.LZMA2Options;
 import org.tukaani.xz.XZOutputStream;
 
 public class XZ {
 
-  // TODO: set this to 9 for maximum space saving (it will be slower, so we keep it at 1 for development)
-  private static final int COMPRESSION_LEVEL = 1;
+  private static final int DEFAULT_COMPRESSION_LEVEL = 9;
 
-  public static void main(String[] args) throws Exception {
+  public static void main(String[] args) {
     if (args.length == 0) {
       System.out.println("Please provide at least 1 filename to compress using XZ");
       System.exit(1);
     }
-    compress(args);
+    try {
+      compress(args);
+    } catch (IOException e) {
+      System.out.println(
+        "Error while compressing files " + Arrays.toString(args) + ": " + e.getMessage()
+      );
+      System.out.println(e.getStackTrace());
+    }
   }
 
-  public static void compress(String[] filenames) throws Exception {
+  /**
+   * Compress the provided filenames with the `DEFAULT_COMPRESSION_LEVEL`
+   *
+   * @param filenames
+   * @throws IOException
+   */
+  public static void compress(String[] filenames) throws IOException {
     for (var filename : filenames) {
       System.out.println("Compressing " + filename);
       var file = Path.of(filename);
       if (!Files.exists(file)) {
-        System.out.println("File " + filename + " does not exist.");
-        System.exit(1);
+        throw new FileNotFoundException("File " + filename + " does not exist.");
       }
       try (
         var is = Files.newInputStream(file);
         var outfile = Files.newOutputStream(Path.of(file + ".xz"));
-        var outxz = new XZOutputStream(outfile, new LZMA2Options(COMPRESSION_LEVEL))
+        var outxz = new XZOutputStream(outfile, new LZMA2Options(DEFAULT_COMPRESSION_LEVEL))
       ) {
         is.transferTo(outxz);
-      }
-      try {
         Files.delete(file);
-      } catch (Exception e) {
-        System.out.println("Error while deleting file: " + e.getMessage());
       }
     }
   }
