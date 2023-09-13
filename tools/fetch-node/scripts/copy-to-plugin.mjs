@@ -26,7 +26,7 @@ import NODE_DISTROS from '../node-distros.mjs';
 /**
  * Copies tools/fetch-node/downloads/runtimes
  * to
- * sonar-plugin/sonar-javascript-plugin/target/classes
+ * sonar-plugin/sonar-javascript-plugin/target/node
  */
 
 for (const distro of NODE_DISTROS) {
