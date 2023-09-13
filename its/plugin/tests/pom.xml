@@ -109,6 +109,27 @@
                       <type>sonar-plugin</type>
                       <overWrite>true</overWrite>
                     </artifactItem>
+                    <artifactItem>
+                      <groupId>${project.groupId}</groupId>
+                      <artifactId>sonar-javascript-plugin</artifactId>
+                      <classifier>win-x64</classifier>
+                      <type>sonar-plugin</type>
+                      <overWrite>true</overWrite>
+                    </artifactItem>
+                    <artifactItem>
+                      <groupId>${project.groupId}</groupId>
+                      <artifactId>sonar-javascript-plugin</artifactId>
+                      <classifier>linux-x64</classifier>
+                      <type>sonar-plugin</type>
+                      <overWrite>true</overWrite>
+                    </artifactItem>
+                    <artifactItem>
+                      <groupId>${project.groupId}</groupId>
+                      <artifactId>sonar-javascript-plugin</artifactId>
+                      <classifier>multi</classifier>
+                      <type>sonar-plugin</type>
+                      <overWrite>true</overWrite>
+                    </artifactItem>
                   </artifactItems>
                   <outputDirectory>../../../sonar-plugin/sonar-javascript-plugin/target</outputDirectory>
                   <overWriteReleases>true</overWriteReleases>
