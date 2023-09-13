@@ -293,6 +293,7 @@ public final class CheckList {
       NoSelfCompareCheck.class,
       NoSparseArraysCheck.class,
       NoThisAliasCheck.class,
+      NoThisInSfcCheck.class,
       NoUndefInitCheck.class,
       NoUniqKeyCheck.class,
       NoUnknownPropertyCheck.class,
