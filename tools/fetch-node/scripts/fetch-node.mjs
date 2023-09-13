@@ -135,13 +135,14 @@ function copyRuntime(distroName, distroId, nodeDir, targetDir) {
  * @returns
  */
 
-async function downloadFile(url, file, authToken = '') {
+async function downloadFile(url, file, authToken) {
   if (fs.existsSync(file)) {
     console.log(`Skipping download. File ${file} already exists on disk.`);
     return;
   }
   console.log(`Downloading ${url} to ${file}`);
-  const res = await fetch(url, { headers: { Authorization: `Bearer ${authToken}` } });
+  const httpOptions = authToken ? { headers: { Authorization: `Bearer ${authToken}` } } : {};
+  const res = await fetch(url, httpOptions);
 
   if (!res.ok) {
     throw new Error(`Failed to download ${url}`);
