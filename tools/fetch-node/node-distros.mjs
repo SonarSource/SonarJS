@@ -3,7 +3,9 @@ const NODE_VERSION = 'v20.5.1';
 /**
  * Node.js runtimes distributions
  *
- * Keep ids in sync with tools/fetch-node/pom.xml
+ * Keep ids in sync with
+ * - `tools/fetch-node/pom.xml`
+ * - `sonar-plugin/sonar-javascript-plugin/src/main/java/org/sonar/plugins/javascript/bridge/EmbeddedNode.java`
  */
 export default [
   {
