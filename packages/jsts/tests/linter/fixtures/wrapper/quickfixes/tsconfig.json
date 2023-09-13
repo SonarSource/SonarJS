@@ -3,5 +3,5 @@
     "allowJs": true,
     "strictNullChecks": true
   },
-  "include": ["./*.ts", "./*.js", "./*.jsx"]
+  "include": ["./*.ts", "./*.tsx", "./*.js", "./*.jsx"]
 }

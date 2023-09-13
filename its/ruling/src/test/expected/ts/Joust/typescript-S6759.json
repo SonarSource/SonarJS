@@ -1,0 +1,171 @@
+{
+"Joust:ts/components/EventLog.tsx": [
+11,
+12,
+13,
+14
+],
+"Joust:ts/components/EventLogCard.tsx": [
+5
+],
+"Joust:ts/components/EventLogLine.tsx": [
+6,
+7
+],
+"Joust:ts/components/GameWrapper.tsx": [
+23,
+24,
+25,
+26,
+27,
+28
+],
+"Joust:ts/components/LoadingScreen.tsx": [
+5
+],
+"Joust:ts/components/LocaleSelector.tsx": [
+5,
+6,
+7
+],
+"Joust:ts/components/MessagePicker.tsx": [
+4,
+5,
+6
+],
+"Joust:ts/components/Scrubber.tsx": [
+11,
+12,
+13,
+14,
+15,
+16,
+17,
+18,
+19,
+20,
+21,
+22,
+23,
+24,
+25
+],
+"Joust:ts/components/Settings.tsx": [
+5,
+6,
+7,
+8,
+9
+],
+"Joust:ts/components/SetupWidget.tsx": [
+16,
+17,
+18
+],
+"Joust:ts/components/SpeedSelector.tsx": [
+5,
+6,
+7,
+8
+],
+"Joust:ts/components/Timeline.tsx": [
+8,
+9,
+10,
+11,
+12,
+13
+],
+"Joust:ts/components/Tooltipper.tsx": [
+5,
+6,
+7,
+8,
+9
+],
+"Joust:ts/components/Turn.tsx": [
+6,
+7,
+8,
+9,
+10,
+11
+],
+"Joust:ts/components/game/Card.tsx": [
+14,
+15,
+16,
+17,
+18,
+19,
+20,
+21,
+22
+],
+"Joust:ts/components/game/EndTurnButton.tsx": [
+7,
+8
+],
+"Joust:ts/components/game/Player.tsx": [
+33,
+34,
+35,
+36,
+37,
+38
+],
+"Joust:ts/components/game/TwoPlayerGame.tsx": [
+19,
+20,
+21,
+22,
+23,
+24
+],
+"Joust:ts/components/game/stats/Armor.tsx": [
+4
+],
+"Joust:ts/components/game/stats/Attack.tsx": [
+4,
+5
+],
+"Joust:ts/components/game/stats/Cost.tsx": [
+4,
+5
+],
+"Joust:ts/components/game/stats/Damage.tsx": [
+4
+],
+"Joust:ts/components/game/stats/Durability.tsx": [
+4,
+5,
+6
+],
+"Joust:ts/components/game/stats/Healing.tsx": [
+4
+],
+"Joust:ts/components/game/stats/Health.tsx": [
+4,
+5,
+6
+],
+"Joust:ts/components/game/stats/SecretText.tsx": [
+4,
+5
+],
+"Joust:ts/components/game/visuals/CardArt.tsx": [
+12,
+13,
+14,
+15
+],
+"Joust:ts/components/game/visuals/HeroArt.tsx": [
+9
+],
+"Joust:ts/components/game/visuals/InHandCardArt.tsx": [
+7,
+8,
+9,
+10
+]
+}

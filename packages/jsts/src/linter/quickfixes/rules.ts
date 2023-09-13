@@ -80,6 +80,7 @@ export const quickFixRules = new Set([
   'hook-use-state',
   'jsx-no-useless-fragment',
   'no-unknown-property',
+  'prefer-read-only-props',
 
   // @typescript-eslint plugin
   'no-confusing-non-null-assertion',
