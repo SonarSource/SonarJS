@@ -283,6 +283,7 @@ public final class CheckList {
       NoProtoCheck.class,
       NoRedundantJumpCheck.class,
       NoRedundantOptionalCheck.class,
+      NoRedundantShouldComponentUpdateCheck.class,
       NoRedundantTypeConstituentsCheck.class,
       NoReferrerPolicyCheck.class,
       NoRegexSpacesCheck.class,
