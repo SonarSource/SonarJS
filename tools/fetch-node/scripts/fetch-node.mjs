@@ -25,6 +25,7 @@ import decompressTargz from 'decompress-targz';
 import * as path from 'node:path';
 import * as stream from 'node:stream';
 import * as crypto from 'node:crypto';
+import * as os from 'node:os';
 import NODE_DISTROS from '../node-distros.mjs';
 import { DOWNLOAD_DIR, RUNTIMES_DIR } from './directories.mjs';
 
@@ -36,26 +37,43 @@ import { DOWNLOAD_DIR, RUNTIMES_DIR } from './directories.mjs';
 for (const distro of NODE_DISTROS) {
   const filename = getFilenameFromUrl(distro.url);
   const archiveFilename = path.join(DOWNLOAD_DIR, filename);
-  try {
-    await downloadFile(distro.artifactoryUrl, archiveFilename);
-  } catch (error) {
-    console.log(`Error while downloading from artifactory: ${error}`);
-    console.log(`Falling back to Node.js org URL`);
-    await downloadFile(distro.url, archiveFilename);
-  }
-
+  await downloadRuntime(distro, archiveFilename);
   validateFile(distro.sha, archiveFilename);
   await extractFile(archiveFilename, DOWNLOAD_DIR);
   const distroName = removeExtension(filename);
   copyRuntime(distroName, distro.id, DOWNLOAD_DIR, RUNTIMES_DIR);
 }
 
+/**
+ * Download the node runtime from Artifactory
+ * If it fails, fallback on nodejs.org
+ *
+ * @param distro item from `NODE_DISTROS`
+ * @param targetFilename the filename it will have when downloaded
+ */
+async function downloadRuntime(distro, targetFilename) {
+  try {
+    await downloadFile(distro.artifactoryUrl, targetFilename, retrieveArtifactoryKey());
+  } catch (error) {
+    console.log(`Error while downloading from artifactory: `);
+    console.log(error);
+    console.log(`Falling back to Node.js org.`);
+    await downloadFile(distro.url, archiveFilename);
+  }
+}
+
+/**
+ * Validate file content against a given SHA
+ *
+ * @param sha
+ * @param filename
+ */
 function validateFile(sha, filename) {
   const file = fs.readFileSync(filename);
   const hashSum = crypto.createHash('sha256');
   hashSum.update(file);
   if (sha !== hashSum.digest('hex')) {
-    console.log(`SHAsum for ${filename} invalid.`);
+    console.log(`SHAsum invalid for ${filename}.`);
     process.exit(1);
   }
   console.log(`SHAsum valid for ${filename}`);
@@ -116,13 +134,14 @@ function copyRuntime(distroName, distroId, nodeDir, targetDir) {
  * @param {*} file
  * @returns
  */
-async function downloadFile(url, file) {
+
+async function downloadFile(url, file, authToken = '') {
   if (fs.existsSync(file)) {
     console.log(`Skipping download. File ${file} already exists on disk.`);
     return;
   }
   console.log(`Downloading ${url} to ${file}`);
-  const res = await fetch(url);
+  const res = await fetch(url, { headers: { Authorization: `Bearer ${authToken}` } });
 
   if (!res.ok) {
     throw new Error(`Failed to download ${url}`);
@@ -200,4 +219,30 @@ function removeExtension(filename) {
     );
   }
   return filename.slice(0, -extensionLength);
+}
+
+/**
+ * Retrieves the artifactory API key from ~/.npmrc if available (for dev env)
+ * otherwise from ARTIFACTORY_ACCESS_TOKEN env variable (for CI)
+ *
+ * @returns
+ */
+function retrieveArtifactoryKey() {
+  const devKey = retrieveForDevMachine();
+  return devKey ? devKey : retrieveForDevMachine();
+
+  function retrieveForCI() {
+    return process.env.ARTIFACTORY_ACCESS_TOKEN;
+  }
+
+  function retrieveForDevMachine() {
+    const npmrcFile = path.join(os.homedir(), '.npmrc');
+    if (!fs.existsSync(npmrcFile)) {
+      console.log(`NPM RC file ${npmrcFile} does not exist.`);
+      return;
+    }
+    const npmrcContent = fs.readFileSync(npmrcFile, 'utf-8');
+    const secondLine = npmrcContent?.split('\n')[1];
+    return secondLine?.split('authToken=')[1];
+  }
 }
