@@ -59,9 +59,14 @@ public class XZ {
       if (!Files.exists(file)) {
         throw new FileNotFoundException("File " + filename + " does not exist.");
       }
+      var outputFile = Path.of(file + ".xz");
+      if (Files.exists(outputFile)) {
+        System.out.println("Skipping compression. File " + outputFile + " already exists.");
+        continue;
+      }
       try (
         var is = Files.newInputStream(file);
-        var outfile = Files.newOutputStream(Path.of(file + ".xz"));
+        var outfile = Files.newOutputStream(outputFile);
         var outxz = new XZOutputStream(outfile, new LZMA2Options(DEFAULT_COMPRESSION_LEVEL))
       ) {
         is.transferTo(outxz);

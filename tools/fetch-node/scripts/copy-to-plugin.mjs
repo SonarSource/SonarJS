@@ -17,8 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import fs from 'fs-extra';
+import fse from 'fs-extra';
+import * as path from 'node:path';
+import * as fs from 'node:fs';
 import { RUNTIMES_DIR, TARGET_DIR } from './directories.mjs';
+import NODE_DISTROS from '../node-distros.mjs';
 
 /**
  * Copies tools/fetch-node/downloads/runtimes
@@ -26,7 +29,13 @@ import { RUNTIMES_DIR, TARGET_DIR } from './directories.mjs';
  * sonar-plugin/sonar-javascript-plugin/target/classes
  */
 
-fs.mkdirpSync(TARGET_DIR);
-
-console.log(`Copying ${RUNTIMES_DIR} to ${TARGET_DIR}`);
-fs.copySync(RUNTIMES_DIR, TARGET_DIR);
+for (const distro of NODE_DISTROS) {
+  const sourceDir = path.join(RUNTIMES_DIR, distro.id);
+  const filename = fs.readdirSync(sourceDir).filter(filename => filename.endsWith('.xz'))[0];
+  const targetDir = path.join(TARGET_DIR, distro.id);
+  fse.mkdirpSync(targetDir);
+  const sourceFilename = path.join(sourceDir, filename);
+  const targetFilename = path.join(targetDir, filename);
+  console.log(`Copying ${sourceFilename} to ${targetFilename}`);
+  fse.copySync(sourceFilename, targetFilename);
+}

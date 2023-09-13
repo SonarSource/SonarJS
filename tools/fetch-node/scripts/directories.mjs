@@ -34,8 +34,6 @@ export const RUNTIMES_DIR = path.join(__dirname, '..', 'downloads', 'runtimes');
 
 /**
  * Folder where the plugin can use the runtimes and pick them when building JARs
- *
- * @type {string}
  */
 export const TARGET_DIR = path.join(
   __dirname,
