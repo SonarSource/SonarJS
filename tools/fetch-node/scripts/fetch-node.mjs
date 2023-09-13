@@ -58,7 +58,7 @@ async function downloadRuntime(distro, targetFilename) {
     console.log(`Error while downloading from artifactory: `);
     console.log(error);
     console.log(`Falling back to Node.js org.`);
-    await downloadFile(distro.url, archiveFilename);
+    await downloadFile(distro.url, targetFilename);
   }
 }
 
