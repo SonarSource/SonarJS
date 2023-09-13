@@ -9,7 +9,7 @@ class EmbeddedNodeTest {
   @Test
   void should_detect_platform_macos() {
     if (System.getProperty("os.name").startsWith("Mac")) {
-      assertThat(EmbeddedNode.Platform.detect()).isEqualTo(EmbeddedNode.Platform.MACOS_ARM64);
+      assertThat(EmbeddedNode.Platform.detect()).isEqualTo(EmbeddedNode.Platform.DARWIN_ARM64);
     }
   }
 }

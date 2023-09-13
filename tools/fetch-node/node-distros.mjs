@@ -13,7 +13,7 @@ export default [
     sha: '5d2596a00699fadf0ffa8e651f47ff5d719991014b920544d59c80d78569d42f',
   },
   {
-    id: 'macos-arm64',
+    id: 'darwin-arm64',
     url: `https://nodejs.org/dist/${NODE_VERSION}/node-${NODE_VERSION}-darwin-arm64.tar.gz`,
     artifactoryUrl: `https://repox.jfrog.io/artifactory/nodejs-dist/${NODE_VERSION}/node-${NODE_VERSION}-darwin-arm64.tar.gz`,
     sha: '9cc794517788aee103dfcffa04d0b90ac33854b0d10eb11a26ba4be38403f731',
