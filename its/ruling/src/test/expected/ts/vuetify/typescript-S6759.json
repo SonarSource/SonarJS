@@ -1,0 +1,24 @@
+{
+"vuetify:packages/vuetify/src/components/VInput/InputIcon.tsx": [
+21
+],
+"vuetify:packages/vuetify/src/components/VOverlay/VOverlay.tsx": [
+55,
+56
+],
+"vuetify:packages/vuetify/src/components/VRating/VRating.tsx": [
+165,
+165,
+165
+],
+"vuetify:packages/vuetify/src/composables/loader.tsx": [
+39,
+40,
+41
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/VDataTableHeaders.tsx": [
+73,
+73,
+73
+]
+}

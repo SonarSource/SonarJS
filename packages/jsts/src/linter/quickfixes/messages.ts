@@ -50,6 +50,7 @@ const quickFixMessages = new Map<string, string>([
   ['prefer-namespace-keyword', "Replace with 'namespace' keyword"],
   ['prefer-object-has-own', 'Replace with Object.hasOwn()'],
   ['prefer-object-spread', 'Replace with object spread syntax'],
+  ['prefer-read-only-props', 'Mark the prop as read-only'],
   ['prefer-readonly', "Add 'readonly'"],
   ['prefer-return-this-type', "Replace return type with 'this'"],
   ['prefer-template', 'Replace with template string literal'],
