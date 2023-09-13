@@ -46,7 +46,7 @@ public class EmbeddedNode {
   enum Platform {
     WIN_X64,
     LINUX_X64,
-    MACOS_ARM64,
+    DARWIN_ARM64,
     UNSUPPORTED;
 
     String pathInJar() {
@@ -55,8 +55,8 @@ public class EmbeddedNode {
           return "/win-x64/node.exe.xz";
         case LINUX_X64:
           return "/linux-x64/node.xz";
-        case MACOS_ARM64:
-          return "/macos-arm64/node.xz";
+        case DARWIN_ARM64:
+          return "/darwin-arm64/node.xz";
         default:
           return "";
       }
@@ -81,7 +81,7 @@ public class EmbeddedNode {
       } else if (lowerCaseOsName.contains("linux") && isX64()) {
         return LINUX_X64;
       } else if (lowerCaseOsName.contains("mac os") && (isARM64())) {
-        return MACOS_ARM64;
+        return DARWIN_ARM64;
       }
       return UNSUPPORTED;
     }
