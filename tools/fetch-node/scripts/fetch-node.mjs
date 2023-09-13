@@ -24,6 +24,7 @@ import decompress from 'decompress';
 import decompressTargz from 'decompress-targz';
 import * as path from 'node:path';
 import * as stream from 'node:stream';
+import * as crypto from 'node:crypto';
 import NODE_DISTROS from '../node-distros.mjs';
 import { DOWNLOAD_DIR, RUNTIMES_DIR } from './directories.mjs';
 
@@ -36,9 +37,21 @@ for (const distro of NODE_DISTROS) {
   const filename = getFilenameFromUrl(distro.url);
   const archiveFilename = path.join(DOWNLOAD_DIR, filename);
   await downloadFile(distro.url, archiveFilename);
+  validateFile(distro.sha, archiveFilename);
   await extractFile(archiveFilename, DOWNLOAD_DIR);
   const distroName = removeExtension(filename);
   copyRuntime(distroName, distro.id, DOWNLOAD_DIR, RUNTIMES_DIR);
+}
+
+function validateFile(sha, filename) {
+  const file = fs.readFileSync(filename);
+  const hashSum = crypto.createHash('sha256');
+  hashSum.update(file);
+  if (sha !== hashSum.digest('hex')) {
+    console.log(`SHAsum for ${filename} invalid.`);
+    process.exit(1);
+  }
+  console.log(`SHAsum valid for ${filename}`);
 }
 
 /**
