@@ -229,7 +229,7 @@ function removeExtension(filename) {
  */
 function retrieveArtifactoryKey() {
   const devKey = retrieveForDevMachine();
-  return devKey ? devKey : retrieveForDevMachine();
+  return devKey ? devKey : retrieveForCI();
 
   function retrieveForCI() {
     return process.env.ARTIFACTORY_ACCESS_TOKEN;
