@@ -45,6 +45,6 @@ router.post('/init-linter', onInitLinter);
 router.post('/new-tsconfig', onNewTSConfig);
 router.get('/status', onStatus);
 router.post('/tsconfig-files', onTSConfigFiles);
-router.post('/create-tsconfig-file', onCreateTSConfigFile);
+router.post('/create-tsconfig-file ', onCreateTSConfigFile);
 
 export default router;
