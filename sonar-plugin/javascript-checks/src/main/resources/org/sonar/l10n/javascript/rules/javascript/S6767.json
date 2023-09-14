@@ -1,0 +1,27 @@
+{
+  "title": "React typed props should be used",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6767",
+  "sqKey": "S6767",
+  "scope": "All",
+  "quickfix": "infeasible",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "HIGH",
+      "RELIABILITY": "MEDIUM",
+      "SECURITY": "LOW"
+    },
+    "attribute": "CONVENTIONAL"
+  },
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]
+}
