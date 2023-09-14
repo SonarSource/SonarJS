@@ -155,7 +155,6 @@ public class EmbeddedNode {
       int nextBytes;
       byte[] buf = new byte[8 * 1024 * 1024];
       while ((nextBytes = archive.read(buf)) > -1) {
-        System.out.println("read " + nextBytes + " bytes");
         os.write(buf, 0, nextBytes);
       }
       if (platform != Platform.WIN_X64) {
