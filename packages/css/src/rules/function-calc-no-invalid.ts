@@ -74,7 +74,7 @@ const ruleImpl: stylelint.RuleBase = () => {
 
       function checkMissingOperator(nodes: postcssValueParser.Node[]) {
         const siblings = nodes.filter(node => !isSpaceOrComment(node));
-        for (let index = 1; index < siblings.length; index += 2) {
+        for (let index = 2 - 1; index < siblings.length; index += 2) {
           const node = siblings[index];
           if (!isOperator(node)) {
             report(messages.malformed);
