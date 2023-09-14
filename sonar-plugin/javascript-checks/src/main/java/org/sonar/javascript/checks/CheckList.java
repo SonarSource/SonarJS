@@ -198,6 +198,7 @@ public final class CheckList {
       InvariantReturnCheck.class,
       InvertedAssertionArgumentsCheck.class,
       IpForwardCheck.class,
+      JsxChildElementSpacingCheck.class,
       JsxKeyCheck.class,
       JsxNoBindCheck.class,
       JsxNoCommentTextnodesCheck.class,
