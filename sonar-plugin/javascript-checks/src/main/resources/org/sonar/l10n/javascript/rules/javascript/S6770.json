@@ -1,17 +1,19 @@
 {
-  "title": "FIXME",
+  "title": "User-defined JSX components should use Pascal case",
   "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
     "constantCost": "5min"
   },
-  "tags": [],
+  "tags": [
+    "react"
+  ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-6770",
   "sqKey": "S6770",
   "scope": "All",
-  "quickfix": "unknown",
+  "quickfix": "infeasible",
   "code": {
     "impacts": {
       "MAINTAINABILITY": "HIGH",

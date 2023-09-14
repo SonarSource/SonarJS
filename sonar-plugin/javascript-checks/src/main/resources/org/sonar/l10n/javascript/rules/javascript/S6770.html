@@ -1,14 +1,14 @@
-<p>FIXME: add a description</p>
 <h2>Why is this an issue?</h2>
-<p>FIXME: remove the unused optional headers (that are commented out)</p>
-<h2>How to fix it</h2>
-<h3>Code examples</h3>
-<h4>Noncompliant code example</h4>
+<p>User-defined JSX components should use Pascal case because it is a widely accepted convention in the React community. Using Pascal case for
+component names helps to distinguish them from HTML elements and built-in React components, which are typically written in lowercase. It also improves
+code readability and makes it easier to differentiate between components and regular HTML tags.</p>
+<p>Additionally, adhering to this convention ensures consistency and makes it easier for other developers to understand and work with your code. It is
+considered a best practice in React development and is recommended by the official React documentation.</p>
 <pre data-diff-id="1" data-diff-type="noncompliant">
-FIXME
+&lt;MY_COMPONENT /&gt;
 </pre>
-<h4>Compliant solution</h4>
+<p>You should rename your component according to Pascal case and all its usages as JSX elements.</p>
 <pre data-diff-id="1" data-diff-type="compliant">
-FIXME
+&lt;MyComponent /&gt;
 </pre>
 
