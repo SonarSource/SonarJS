@@ -307,6 +307,7 @@ public final class CheckList {
       NoUnstableNestedComponentsCheck.class,
       NoUnusedClassComponentMethodsCheck.class,
       NoUnusedPrivateClassMembersCheck.class,
+      NoUnusedPropTypesCheck.class,
       NoUselessCallCheck.class,
       NoUselessCatchCheck.class,
       NoUselessConstructorCheck.class,
