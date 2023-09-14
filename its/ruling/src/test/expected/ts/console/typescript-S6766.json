@@ -1,0 +1,59 @@
+{
+"console:src/components/onboarding/OnboardingPopup/OnboardingPopup.tsx": [
+30,
+34
+],
+"console:src/views/CLIAuthView/CLIAuthSuccessInitView/Left.tsx": [
+68
+],
+"console:src/views/FunctionsView/FunctionsList.tsx": [
+61,
+61
+],
+"console:src/views/Integrations/Algolia/AlgoliaModal.tsx": [
+119
+],
+"console:src/views/Integrations/AlgoliaPopup/AlgoliaPopupHeader.tsx": [
+113,
+113,
+113,
+113
+],
+"console:src/views/Integrations/IntegrationsCardGrid.tsx": [
+126
+],
+"console:src/views/PermissionsView/PermissionPopup/AffectedFields.tsx": [
+95,
+95,
+103
+],
+"console:src/views/PermissionsView/PermissionPopup/PermissionPopup.tsx": [
+249
+],
+"console:src/views/ProjectRootView/EndpointPopup.tsx": [
+300
+],
+"console:src/views/ProjectRootView/Onboarding/OnboardingFinale.tsx": [
+165
+],
+"console:src/views/ProjectRootView/Onboarding/SelectExample.tsx": [
+118
+],
+"console:src/views/SchemaView/EnumsOverview/EnumList.tsx": [
+84,
+85,
+85
+],
+"console:src/views/Settings/Billing/Billing.tsx": [
+96,
+125
+],
+"console:src/views/Settings/General/DangerZone.tsx": [
+151
+],
+"console:src/views/models/FieldPopup/ConfirmFieldPopup.tsx": [
+151,
+157,
+164
+]
+}

@@ -297,6 +297,7 @@ public final class CheckList {
       NoThisAliasCheck.class,
       NoThisInSfcCheck.class,
       NoUndefInitCheck.class,
+      NoUnescapedEntitiesCheck.class,
       NoUniqKeyCheck.class,
       NoUnknownPropertyCheck.class,
       NoUnnecessaryTypeAssertionCheck.class,
