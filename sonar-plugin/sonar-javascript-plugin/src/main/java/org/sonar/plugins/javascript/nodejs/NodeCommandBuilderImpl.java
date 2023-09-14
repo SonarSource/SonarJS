@@ -281,6 +281,7 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
   private String locateNode(boolean isForceHost) throws IOException {
     var defaultNode = NODE_EXECUTABLE_DEFAULT;
     if (embeddedNode.isAvailable() && !isForceHost) {
+      LOG.info("Using embedded Node.js runtime");
       defaultNode = embeddedNode.binary().toString();
     } else if (processWrapper.isMac()) {
       defaultNode = locateNodeOnMac();
