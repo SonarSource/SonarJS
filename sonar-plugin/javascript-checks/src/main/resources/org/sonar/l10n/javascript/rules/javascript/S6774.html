@@ -1,0 +1,68 @@
+<h2>Why is this an issue?</h2>
+<p>In JavaScript, props are typically passed as plain objects, which can lead to errors and confusion when working with components that have specific
+prop requirements. However, it lacks of type safety and clarity when passing props to components in a codebase.</p>
+<p>By defining types for component props, developers can enforce type safety and provide clear documentation for the expected props of a component.
+This helps catch potential errors at compile-time. It also improves code maintainability by making it easier to understand how components should be
+used and what props they accept.</p>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+import PropTypes from 'prop-types';
+
+function Hello({ firstname, lastname }) {
+  return &lt;div&gt;Hello {firstname} {lastname}&lt;/div&gt;; // Noncompliant: 'lastname' type is missing
+}
+Hello.propTypes = {
+  firstname: PropTypes.string.isRequired
+};
+
+// Or in ES6
+
+class Hello extends React.Component {
+  render() {
+    return &lt;div&gt;Hello {firstname} {lastname}&lt;/div&gt;; // Noncompliant: 'lastname' type is missing
+  }
+}
+Hello.propTypes = {
+  firstname: PropTypes.string.isRequired,
+};
+</pre>
+<pre data-diff-id="1" data-diff-type="compliant">
+import PropTypes from 'prop-types';
+
+function Hello({ firstname, lastname }) {
+  return &lt;div&gt;Hello {firstname} {lastname}&lt;/div&gt;;
+}
+Hello.propTypes = {
+  firstname: PropTypes.string.isRequired,
+  lastname: PropTypes.string.isRequired,
+};
+
+// Or in ES6
+
+class Hello extends React.Component {
+  render() {
+    return &lt;div&gt;Hello {firstname} {lastname}&lt;/div&gt;;
+  }
+}
+Hello.propTypes = {
+  firstname: PropTypes.string.isRequired,
+  lastname: PropTypes.string.isRequired,
+};
+</pre>
+<p>Alternatively, you can use TypeScript or Flow.js to validate your prop types statically.</p>
+<pre data-diff-id="1" data-diff-type="compliant">
+type Props {
+  firstname: string;
+  lastname: string;
+}
+function Hello({ firstname, lastname }: Props) {
+  return &lt;div&gt;Hello {firstname} {lastname}&lt;/div&gt;;
+}
+</pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> <a href="https://react.dev/reference/react/Component#static-proptypes">React - static propTypes</a> </li>
+  <li> <a href="https://react.dev/learn/typescript#typescript-with-react-components">React - TypeScript with React Components</a> </li>
+  <li> <a href="https://flow.org/en/docs/react/">Flow.js - React</a> </li>
+</ul>
+
