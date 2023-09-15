@@ -27,7 +27,9 @@ import com.sonar.orchestrator.locator.FileLocation;
 import java.io.File;
 import java.util.Locale;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Isolated;
 
+@Isolated
 class EmbeddedNodeTest {
 
   @Test
