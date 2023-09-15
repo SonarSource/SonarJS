@@ -205,6 +205,7 @@ public final class CheckList {
       JsxNoConstructedContextValuesCheck.class,
       JsxNoLeakedRenderCheck.class,
       JsxNoUselessFragmentCheck.class,
+      JsxPascalCaseCheck.class,
       JumpStatementInFinallyCheck.class,
       LabelPlacementCheck.class,
       LabelledStatementCheck.class,
