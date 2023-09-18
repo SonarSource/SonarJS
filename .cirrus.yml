@@ -68,7 +68,6 @@ plugin_qa_body: &PLUGIN_QA_BODY
     CIRRUS_CLONE_DEPTH: 10
     SONARSOURCE_QA: true
   <<: *MAVEN_CACHE
-  <<: *RUNTIME_CACHE
   node_version_script:
     - node -v
   qa_script:
@@ -174,7 +173,6 @@ plugin_qa_win_task:
       - TEST: '!CoverageTest,!TypeScriptAnalysisTest,!EslintBasedRulesTest,!SonarLintTest'
       - TEST: 'CoverageTest,TypeScriptAnalysisTest,EslintBasedRulesTest,SonarLintTest'
   <<: *MAVEN_CACHE
-  <<: *RUNTIME_CACHE
   qa_script:
     - source /c/buildTools-docker/bin/cirrus-env QA
     - source /c/buildTools-docker/bin/set_maven_build_version $BUILD_NUMBER
@@ -200,7 +198,6 @@ ruling_task:
       - RULING: TypeScriptRulingTest
       - RULING: CssRulingTest
   <<: *MAVEN_CACHE
-  <<: *RUNTIME_CACHE
   submodules_script:
     - git submodule update --init
   ruling_script:
@@ -234,6 +231,5 @@ promote_task:
     #artifacts that will have downloadable links in burgr
     ARTIFACTS: org.sonarsource.javascript:sonar-javascript-plugin:jar
   <<: *MAVEN_CACHE
-  <<: *RUNTIME_CACHE
   script: cirrus_promote_maven
   cleanup_before_cache_script: cleanup_maven_repository
