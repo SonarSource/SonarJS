@@ -39,14 +39,17 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 import org.tukaani.xz.XZInputStream;
 
+/**
+ * Class handling the extraction of the embedded Node.JS runtime
+ */
 @ScannerSide
 @SonarLintSide(lifespan = INSTANCE)
 public class EmbeddedNode {
 
   public static final String VERSION_FILENAME = "version.txt";
-
   private static final Logger LOG = Loggers.get(EmbeddedNode.class);
   private Path deployLocation;
+  private Environment env;
 
   enum Platform {
     WIN_X64,
@@ -92,39 +95,49 @@ public class EmbeddedNode {
       }
     }
 
+    static Platform detect() {
+      return Platform.detect(new Environment());
+    }
+
     /**
      * @return The platform where this code is running
      */
-    static Platform detect() {
-      var osName = System.getProperty("os.name");
+    static Platform detect(Environment env) {
+      var osName = env.getOsName();
       var lowerCaseOsName = osName.toLowerCase(Locale.ROOT);
-      if (osName.contains("Windows") && isX64()) {
+      if (osName.contains("Windows") && isX64(env)) {
         return WIN_X64;
-      } else if (lowerCaseOsName.contains("linux") && isX64()) {
+      } else if (lowerCaseOsName.contains("linux") && isX64(env)) {
         return LINUX_X64;
-      } else if (lowerCaseOsName.contains("mac os") && (isARM64())) {
+      } else if (lowerCaseOsName.contains("mac os") && isARM64(env)) {
         return DARWIN_ARM64;
       }
       return UNSUPPORTED;
     }
 
-    private static boolean isX64() {
-      var arch = System.getProperty("os.arch");
-      return arch.contains("amd64");
+    private static boolean isX64(Environment env) {
+      return env.getOsArch().contains("amd64");
     }
 
-    private static boolean isARM64() {
-      var arch = System.getProperty("os.arch");
-      return arch.contains("aarch64");
+    private static boolean isARM64(Environment env) {
+      return env.getOsArch().contains("aarch64");
     }
   }
 
-  private final Platform platform = Platform.detect();
+  private final Platform platform = Platform.detect(new Environment());
 
   private boolean isAvailable;
 
   public boolean isAvailable() {
     return platform != UNSUPPORTED && isAvailable;
+  }
+
+  public EmbeddedNode() {
+    this(new Environment());
+  }
+
+  public EmbeddedNode(Environment env) {
+    this.env = env;
   }
 
   /**

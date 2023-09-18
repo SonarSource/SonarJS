@@ -102,7 +102,8 @@ public class BridgeServerImpl implements BridgeServer {
     NodeDeprecationWarning deprecationWarning,
     TempFolder tempFolder,
     Monitoring monitoring,
-    EmbeddedNode embeddedNode
+    EmbeddedNode embeddedNode,
+    Environment environment
   ) {
     this(
       nodeCommandBuilder,
@@ -112,7 +113,8 @@ public class BridgeServerImpl implements BridgeServer {
       deprecationWarning,
       tempFolder,
       monitoring,
-      embeddedNode
+      embeddedNode,
+      environment
     );
   }
 
@@ -124,7 +126,8 @@ public class BridgeServerImpl implements BridgeServer {
     NodeDeprecationWarning deprecationWarning,
     TempFolder tempFolder,
     Monitoring monitoring,
-    EmbeddedNode embeddedNode
+    EmbeddedNode embeddedNode,
+    Environment environment
   ) {
     this.nodeCommandBuilder = nodeCommandBuilder;
     this.timeoutSeconds = timeoutSeconds;

@@ -156,7 +156,8 @@ class BridgeServerImplTest {
         deprecationWarning,
         tempFolder,
         monitoring,
-        new EmbeddedNode()
+        new EmbeddedNode(),
+        new Environment()
       );
     bridgeServer.deploy();
     List<Path> deployedBundles = emptyList();
@@ -660,7 +661,8 @@ class BridgeServerImplTest {
         deprecationWarning,
         tempFolder,
         monitoring,
-        new EmbeddedNode()
+        new EmbeddedNode(),
+        new Environment()
       );
     assertThat(bridgeServer.getTimeoutSeconds()).isEqualTo(300);
   }
@@ -723,7 +725,8 @@ class BridgeServerImplTest {
         deprecationWarning,
         tempFolder,
         monitoring,
-        new EmbeddedNode()
+        new EmbeddedNode(),
+        new Environment()
       );
     bridgeServer.deploy();
     bridgeServer.startServerLazily(context);
@@ -755,7 +758,8 @@ class BridgeServerImplTest {
         deprecationWarning,
         tempFolder,
         monitoring,
-        new EmbeddedNode()
+        new EmbeddedNode(),
+        new Environment()
       );
     bridgeServer.startServerLazily(context);
 
@@ -772,7 +776,8 @@ class BridgeServerImplTest {
       deprecationWarning,
       tempFolder,
       monitoring,
-      new EmbeddedNode()
+      new EmbeddedNode(),
+      new Environment()
     );
   }
 
