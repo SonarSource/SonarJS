@@ -127,6 +127,7 @@ public final class CheckList {
       DebuggerStatementCheck.class,
       DeclarationInGlobalScopeCheck.class,
       DefaultParametersNotLastCheck.class,
+      DefaultPropsMatchPropTypesCheck.class,
       DeleteNonPropertyCheck.class,
       DeprecationCheck.class,
       DestructuringAssignmentSyntaxCheck.class,

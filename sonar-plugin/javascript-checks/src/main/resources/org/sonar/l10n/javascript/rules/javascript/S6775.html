@@ -1,0 +1,78 @@
+<h2>Why is this an issue?</h2>
+<p>React Legacy APIs provides a way to define the default values and check the prop types at runtime. This rule verifies if a <code>defaultProp</code>
+definition does have a corresponding <code>propTypes</code> definition. If the one is missing it could be the result of errors in refactoring or a
+spelling mistake.</p>
+<p>It is also an error if a <code>defaultProp</code> has <code>propType</code> that is marked as <code>isRequired</code>.</p>
+<h2>How to fix it in PropTypes</h2>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+function MyComponent({foo, bar}) {
+  return &lt;div&gt;{foo}{bar}&lt;/div&gt;;
+}
+
+MyComponent.propTypes = {
+  foo: React.PropTypes.string.isRequired,
+};
+
+MyComponent.defaultProps = {
+  foo: "foo", // Noncompliant: foo is a required prop
+  bar: "bar", // Noncompliant: bar propType is missing
+};
+</pre>
+<p>To fix the issue verify that each <code>defaultProp</code> has a corresponding <code>propType</code> definition and it is not marked as
+<code>isRequired</code>.</p>
+<pre data-diff-id="1" data-diff-type="compliant">
+function MyComponent({foo, bar}) {
+  return &lt;div&gt;{foo}{bar}&lt;/div&gt;;
+}
+
+MyComponent.propTypes = {
+  foo: React.PropTypes.string,
+  bar: React.PropTypes.string,
+};
+
+MyComponent.defaultProps = {
+  foo: "foo",
+  bar: "bar",
+};
+</pre>
+<h2>How to fix it in TypeScript</h2>
+<pre data-diff-id="2" data-diff-type="noncompliant">
+type Props = {
+  foo: string,
+  bar?: string
+}
+
+function MyComponent({foo, bar}: Props) {
+  return &lt;div&gt;{foo}{bar}&lt;/div&gt;;
+}
+
+MyComponent.defaultProps = {
+  foo: "foo", // Noncompliant: foo is a required prop
+  bar: "bar",
+};
+</pre>
+<p>To fix the issue verify that each <code>defaultProp</code> has a corresponding type definition and it is marked as optional.</p>
+<pre data-diff-id="2" data-diff-type="compliant">
+type Props = {
+  foo?: string,
+  bar?: string
+}
+
+function MyComponent({foo, bar}: Props) {
+  return &lt;div&gt;{foo}{bar}&lt;/div&gt;;
+}
+
+MyComponent.defaultProps = {
+  foo: "foo",
+  bar: "bar",
+};
+</pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> <a href="https://react.dev/learn/typescript#typescript-with-react-components">React - TypeScript with React Components</a> </li>
+  <li> <a href="https://react.dev/learn/passing-props-to-a-component#specifying-a-default-value-for-a-prop">React - Specifying a default value for a
+  prop</a> </li>
+  <li> <a href="https://legacy.reactjs.org/docs/typechecking-with-proptypes.html">React Legacy APIs - Typechecking With PropTypes</a> </li>
+</ul>
+
