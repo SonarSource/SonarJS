@@ -26,7 +26,7 @@ import * as path from 'node:path';
 import * as stream from 'node:stream';
 import * as crypto from 'node:crypto';
 import * as os from 'node:os';
-import NODE_DISTROS from '../node-distros.mjs';
+import { DISTROS } from '../node-distros.mjs';
 import { DOWNLOAD_DIR, RUNTIMES_DIR } from './directories.mjs';
 
 /**
@@ -34,7 +34,7 @@ import { DOWNLOAD_DIR, RUNTIMES_DIR } from './directories.mjs';
  * downloads/runtimes/{distro.id}/node{.exe}
  */
 
-for (const distro of NODE_DISTROS) {
+for (const distro of DISTROS) {
   const filename = getFilenameFromUrl(distro.url);
   const archiveFilename = path.join(DOWNLOAD_DIR, filename);
   await downloadRuntime(distro, archiveFilename);

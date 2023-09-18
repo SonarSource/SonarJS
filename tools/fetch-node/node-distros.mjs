@@ -1,4 +1,4 @@
-const NODE_VERSION = 'v20.5.1';
+export const NODE_VERSION = 'v20.5.1';
 
 const NODE_ORG_URL = `https://nodejs.org/dist/${NODE_VERSION}/node-${NODE_VERSION}`;
 const NODE_ARTIFACTORY_URL = `https://repox.jfrog.io/artifactory/nodejs-dist/${NODE_VERSION}/node-${NODE_VERSION}`;
@@ -11,7 +11,7 @@ const NODE_ARTIFACTORY_URL = `https://repox.jfrog.io/artifactory/nodejs-dist/${N
  * - `sonar-plugin/sonar-javascript-plugin/src/main/java/org/sonar/plugins/javascript/bridge/EmbeddedNode.java`
  * - `sonar-plugin/sonar-javascript-plugin/pom.xml`
  */
-export default [
+export const DISTROS = [
   {
     id: 'win-x64',
     url: `${NODE_ORG_URL}-win-x64.zip`,
@@ -31,3 +31,5 @@ export default [
     sha: 'a8678ae00425acdf692e943e3f1cea11a4c46281e4257b82886423bd4ef6f2b5',
   },
 ];
+
+export const VERSION_FILENAME = 'version.txt';
