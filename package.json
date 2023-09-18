@@ -7,7 +7,7 @@
     "clear": "rimraf lib/*",
     "check-format": "prettier --list-different .",
     "test": "jest",
-    "test-with-coverage": "jest --coverage",
+    "test-with-coverage": "jest  --maxWorkers=75% --coverage",
     "format": "prettier --write .",
     "compile": "tsc -b packages/tsconfig.app.json packages/tsconfig.test.json profiling",
     "check-distribution": "bash tools/check-distribution-filepath-length.sh",
