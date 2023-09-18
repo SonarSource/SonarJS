@@ -1,4 +1,4 @@
-/**
+/*
  * SonarQube JavaScript Plugin
  * Copyright (C) 2011-2023 SonarSource SA
  * mailto:info AT sonarsource DOT com
@@ -19,31 +19,16 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
-import org.sonar.plugins.javascript.api.JavaScriptRule;
-import org.sonar.plugins.javascript.api.TypeScriptRule;
+import static org.assertj.core.api.Assertions.assertThat;
 
-@TypeScriptRule
-@JavaScriptRule
-@Rule(key = "S6766")
-public class NoUnescapedEntitiesCheck implements EslintBasedCheck {
+import com.google.gson.Gson;
+import org.junit.jupiter.api.Test;
 
-  @Override
-  public String eslintKey() {
-    return "no-unescaped-entities";
-  }
+class NoUnescapedEntitiesCheckTest {
 
-  @Override
-  public List<Object> configurations() {
-    return Collections.singletonList(new Config());
-  }
-
-  private static class Config {
-
-    List<String> forbid = Arrays.asList(">", "}");
+  @Test
+  void configurations() {
+    String configAsString = new Gson().toJson(new NoUnescapedEntitiesCheck().configurations());
+    assertThat(configAsString).isEqualTo("[{\"forbid\":[\"\\u003e\",\"}\"]}]");
   }
 }
