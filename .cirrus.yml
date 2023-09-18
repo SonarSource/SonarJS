@@ -20,9 +20,6 @@ env:
   CIRRUS_SHELL: bash
 
 container_definition: &CONTAINER_DEFINITION
-  dockerfile: .cirrus/nodejs.Dockerfile
-  docker_arguments:
-    CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
   cluster_name: ${CIRRUS_CLUSTER_NAME}
   builder_role: cirrus-builder
   builder_image: docker-builder-v*
@@ -79,6 +76,9 @@ plugin_qa_body: &PLUGIN_QA_BODY
 build_task:
   eks_container:
     <<: *CONTAINER_DEFINITION
+    dockerfile: .cirrus/nodejs.Dockerfile
+    docker_arguments:
+      CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
     cpu: 15
     memory: 30G
   env:
@@ -124,6 +124,9 @@ ws_scan_task:
     - build
   eks_container:
     <<: *CONTAINER_DEFINITION
+    dockerfile: .cirrus/nodejs.Dockerfile
+    docker_arguments:
+      CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
     cpu: 4
     memory: 8G
   # run only on master and long-term branches
@@ -145,13 +148,11 @@ ws_scan_task:
 plugin_qa_task:
   <<: *PLUGIN_QA_BODY
   eks_container:
-    dockerfile: .cirrus/nodejs.jdk17.Dockerfile
-    docker_arguments:
-      matrix:
-        - NODE_VERSION: 14
-        - NODE_VERSION: 16
-        - NODE_VERSION: 18
-        - NODE_VERSION: 20
+    matrix:
+      - dockerfile: .cirrus/nodejs.jdk17.Dockerfile
+        docker_arguments:
+          NODE_VERSION: 14
+      - image: ${CIRRUS_AWS_ACCOUNT}.dkr.ecr.eu-central-1.amazonaws.com/base:j17-latest
   env:
     SQ_VERSION: LATEST_RELEASE
 
@@ -189,7 +190,7 @@ ruling_task:
   <<: *ONLY_SONARSOURCE_QA
   eks_container:
     <<: *CONTAINER_DEFINITION
-    dockerfile: .cirrus/nodejs.jdk17.Dockerfile
+    image: ${CIRRUS_AWS_ACCOUNT}.dkr.ecr.eu-central-1.amazonaws.com/base:j17-latest
     cpu: 15
     memory: 24G
   env:
