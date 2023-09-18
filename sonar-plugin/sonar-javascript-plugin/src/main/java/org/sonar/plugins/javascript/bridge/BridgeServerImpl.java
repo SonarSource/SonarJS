@@ -32,6 +32,7 @@ import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse.BodyHandlers;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.HashMap;
@@ -75,7 +76,7 @@ public class BridgeServerImpl implements BridgeServer {
     "SONARJS_EXISTING_NODE_PROCESS_PORT";
   private static final Gson GSON = new Gson();
 
-  private static final String DEPLOY_LOCATION = "bridge-bundle";
+  private static final Path DEPLOY_LOCATION = Path.of(".sonar", "js", "bridge-bundle");
 
   private final HttpClient client;
   private final NodeCommandBuilder nodeCommandBuilder;
@@ -137,10 +138,14 @@ public class BridgeServerImpl implements BridgeServer {
     this.rulesBundles = rulesBundles;
     this.deprecationWarning = deprecationWarning;
     this.hostAddress = InetAddress.getLoopbackAddress().getHostAddress();
-    this.deployLocation = tempFolder.newDir(DEPLOY_LOCATION).toPath();
+    this.deployLocation = getPluginCache(environment.getUserHome());
     this.monitoring = monitoring;
     this.heartbeatService = Executors.newSingleThreadScheduledExecutor();
     this.embeddedNode = embeddedNode;
+  }
+
+  private Path getPluginCache(String root) {
+    return Path.of(root).resolve(DEPLOY_LOCATION);
   }
 
   void heartbeat() {
@@ -167,6 +172,7 @@ public class BridgeServerImpl implements BridgeServer {
   }
 
   void deploy() throws IOException {
+    Files.createDirectories(deployLocation);
     bundle.deploy(deployLocation);
     embeddedNode.deployNode(deployLocation);
   }
