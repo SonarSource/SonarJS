@@ -80,7 +80,6 @@ export const quickFixRules = new Set([
   'hook-use-state',
   'jsx-no-useless-fragment',
   'no-unknown-property',
-  'prefer-read-only-props',
 
   // @typescript-eslint plugin
   'no-confusing-non-null-assertion',
@@ -124,6 +123,7 @@ export const quickFixRules = new Set([
   'prefer-type-guard',
   'sonar-no-dupe-keys',
   'sonar-no-misleading-character-class',
+  'sonar-prefer-read-only-props',
   'sonar-prefer-regexp-exec',
   'switch-without-default',
   'unnecessary-character-escapes',

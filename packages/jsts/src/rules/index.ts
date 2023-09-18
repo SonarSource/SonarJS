@@ -255,6 +255,7 @@ import { rule as S6326 } from './S6326'; // sonar-no-regex-spaces
 import { rule as S6441 } from './S6441'; // sonar-no-unused-class-component-methods
 import { rule as S1481 } from './S1481'; // sonar-no-unused-vars
 import { rule as S6582 } from './S6582'; // sonar-prefer-optional-chain
+import { rule as S6759 } from './S6759'; // sonar-prefer-read-only-props
 import { rule as S6594 } from './S6594'; // sonar-prefer-regexp-exec
 import { rule as S2077 } from './S2077'; // sql-queries
 import { rule as S4829 } from './S4829'; // standard-input
@@ -527,6 +528,7 @@ rules['sonar-no-regex-spaces'] = S6326;
 rules['sonar-no-unused-class-component-methods'] = S6441;
 rules['sonar-no-unused-vars'] = S1481;
 rules['sonar-prefer-optional-chain'] = S6582;
+rules['sonar-prefer-read-only-props'] = S6759;
 rules['sonar-prefer-regexp-exec'] = S6594;
 rules['sql-queries'] = S2077;
 rules['standard-input'] = S4829;

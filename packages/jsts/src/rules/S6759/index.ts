@@ -1,4 +1,4 @@
-/**
+/*
  * SonarQube JavaScript Plugin
  * Copyright (C) 2011-2023 SonarSource SA
  * mailto:info AT sonarsource DOT com
@@ -17,18 +17,4 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.checks;
-
-import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
-import org.sonar.plugins.javascript.api.TypeScriptRule;
-
-@TypeScriptRule
-@Rule(key = "S6759")
-public class PreferReadOnlyPropsCheck implements EslintBasedCheck {
-
-  @Override
-  public String eslintKey() {
-    return "sonar-prefer-read-only-props";
-  }
-}
+export { rule } from './rule';

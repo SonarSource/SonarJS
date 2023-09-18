@@ -23,7 +23,6 @@
     "attribute": "CONVENTIONAL"
   },
   "compatibleLanguages": [
-    "JAVASCRIPT",
     "TYPESCRIPT"
   ]
 }
