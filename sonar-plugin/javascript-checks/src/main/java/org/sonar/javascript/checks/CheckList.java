@@ -358,6 +358,7 @@ public final class CheckList {
       PrimitiveWrappersCheck.class,
       ProcessArgvCheck.class,
       ProductionDebugCheck.class,
+      PropTypesCheck.class,
       PseudoRandomCheck.class,
       PubliclyWritableDirectoriesCheck.class,
       ReassignedParameterCheck.class,
