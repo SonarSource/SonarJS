@@ -48,7 +48,7 @@ public final class OrchestratorStarter
   static final String SCANNER_VERSION = "5.0.1.3006";
   static final FileLocation JAVASCRIPT_PLUGIN_LOCATION = FileLocation.byWildcardMavenFilename(
     new File("../../../sonar-plugin/sonar-javascript-plugin/target"),
-    "sonar-javascript-plugin-*.jar"
+    "sonar-javascript-plugin-*-multi.jar"
   );
 
   public static final OrchestratorExtension ORCHESTRATOR = OrchestratorExtension
