@@ -45,6 +45,13 @@ class EmbeddedNodeTest {
       .contains("Skipping node deploy. Deployed node has latest version.");
   }
 
+  @Test
+  void should_not_fail_if_deployLocation_has_no_version() throws Exception {
+    var en = new EmbeddedNode();
+    en.deployNode(tempDir);
+    assertThat(logTester.logs(DEBUG).get(1)).contains("Copy embedded node to");
+  }
+
   private String extractCurrentVersion() throws IOException {
     return new String(
       getClass()
