@@ -65,8 +65,6 @@ plugin_qa_body: &PLUGIN_QA_BODY
     CIRRUS_CLONE_DEPTH: 10
     SONARSOURCE_QA: true
   <<: *MAVEN_CACHE
-  node_version_script:
-    - node -v
   qa_script:
     - source cirrus-env QA
     - source set_maven_build_version $BUILD_NUMBER
