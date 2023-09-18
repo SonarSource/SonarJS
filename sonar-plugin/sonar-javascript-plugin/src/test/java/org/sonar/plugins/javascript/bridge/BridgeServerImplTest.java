@@ -157,7 +157,7 @@ class BridgeServerImplTest {
         tempFolder,
         monitoring,
         new EmbeddedNode(),
-        new Environment()
+        new EnvironmentImpl()
       );
     bridgeServer.deploy();
     List<Path> deployedBundles = emptyList();
@@ -662,7 +662,7 @@ class BridgeServerImplTest {
         tempFolder,
         monitoring,
         new EmbeddedNode(),
-        new Environment()
+        new EnvironmentImpl()
       );
     assertThat(bridgeServer.getTimeoutSeconds()).isEqualTo(300);
   }
@@ -726,7 +726,7 @@ class BridgeServerImplTest {
         tempFolder,
         monitoring,
         new EmbeddedNode(),
-        new Environment()
+        new EnvironmentImpl()
       );
     bridgeServer.deploy();
     bridgeServer.startServerLazily(context);
@@ -759,7 +759,7 @@ class BridgeServerImplTest {
         tempFolder,
         monitoring,
         new EmbeddedNode(),
-        new Environment()
+        new EnvironmentImpl()
       );
     bridgeServer.startServerLazily(context);
 
@@ -777,7 +777,7 @@ class BridgeServerImplTest {
       tempFolder,
       monitoring,
       new EmbeddedNode(),
-      new Environment()
+      new EnvironmentImpl()
     );
   }
 

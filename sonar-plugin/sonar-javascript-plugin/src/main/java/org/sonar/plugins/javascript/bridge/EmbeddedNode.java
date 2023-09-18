@@ -96,7 +96,7 @@ public class EmbeddedNode {
     }
 
     static Platform detect() {
-      return Platform.detect(new Environment());
+      return Platform.detect(new EnvironmentImpl());
     }
 
     /**
@@ -124,20 +124,20 @@ public class EmbeddedNode {
     }
   }
 
-  private final Platform platform = Platform.detect(new Environment());
+  private final Platform platform = Platform.detect(new EnvironmentImpl());
 
   private boolean isAvailable;
 
-  public boolean isAvailable() {
-    return platform != UNSUPPORTED && isAvailable;
-  }
-
   public EmbeddedNode() {
-    this(new Environment());
+    this(new EnvironmentImpl());
   }
 
   public EmbeddedNode(Environment env) {
     this.env = env;
+  }
+
+  public boolean isAvailable() {
+    return platform != UNSUPPORTED && isAvailable;
   }
 
   /**

@@ -104,7 +104,7 @@ public class BridgeServerImpl implements BridgeServer {
     TempFolder tempFolder,
     Monitoring monitoring,
     EmbeddedNode embeddedNode,
-    Environment environment
+    EnvironmentImpl environment
   ) {
     this(
       nodeCommandBuilder,
@@ -128,7 +128,7 @@ public class BridgeServerImpl implements BridgeServer {
     TempFolder tempFolder,
     Monitoring monitoring,
     EmbeddedNode embeddedNode,
-    Environment environment
+    EnvironmentImpl environment
   ) {
     this.nodeCommandBuilder = nodeCommandBuilder;
     this.timeoutSeconds = timeoutSeconds;
@@ -144,8 +144,11 @@ public class BridgeServerImpl implements BridgeServer {
     this.embeddedNode = embeddedNode;
   }
 
-  private Path getPluginCache(String root) {
-    return Path.of(root).resolve(DEPLOY_LOCATION);
+  /**
+   * @return a path to `DEPLOY_LOCATION` from the given `baseDir`
+   */
+  private Path getPluginCache(String baseDir) {
+    return Path.of(baseDir).resolve(DEPLOY_LOCATION);
   }
 
   void heartbeat() {
@@ -171,6 +174,11 @@ public class BridgeServerImpl implements BridgeServer {
     return timeoutSeconds;
   }
 
+  /**
+   * Extracts the bridge files and node.js runtime (if included)
+   *
+   * @throws IOException
+   */
   void deploy() throws IOException {
     Files.createDirectories(deployLocation);
     bundle.deploy(deployLocation);

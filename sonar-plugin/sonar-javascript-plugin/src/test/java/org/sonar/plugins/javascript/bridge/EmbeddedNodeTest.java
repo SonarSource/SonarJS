@@ -54,6 +54,24 @@ class EmbeddedNodeTest {
     assertThat(tempDir.resolve(getBinary())).exists();
   }
 
+  @Test
+  void should_detect_platform_for_windows_environment() {
+    var platform = EmbeddedNode.Platform.detect(new WindowsEnvironment());
+    assertThat(platform).isEqualTo(EmbeddedNode.Platform.WIN_X64);
+  }
+
+  @Test
+  void should_detect_platform_for_mac_os_environment() {
+    var platform = EmbeddedNode.Platform.detect(new MacOSEnvironment());
+    assertThat(platform).isEqualTo(EmbeddedNode.Platform.DARWIN_ARM64);
+  }
+
+  @Test
+  void should_return_unsupported_for_unknown_environment() {
+    var platform = EmbeddedNode.Platform.detect(new UnsupportedEnvironment());
+    assertThat(platform).isEqualTo(EmbeddedNode.Platform.UNSUPPORTED);
+  }
+
   private String getBinary() {
     return EmbeddedNode.Platform.detect().binary();
   }
@@ -62,5 +80,59 @@ class EmbeddedNodeTest {
     return getClass()
       .getResourceAsStream(EmbeddedNode.Platform.detect().versionPathInJar())
       .readAllBytes();
+  }
+
+  private class UnsupportedEnvironment implements Environment {
+
+    @Override
+    public String getUserHome() {
+      return "";
+    }
+
+    @Override
+    public String getOsName() {
+      return "";
+    }
+
+    @Override
+    public String getOsArch() {
+      return "";
+    }
+  }
+
+  private class MacOSEnvironment implements Environment {
+
+    @Override
+    public String getUserHome() {
+      return "";
+    }
+
+    @Override
+    public String getOsName() {
+      return "mac os x";
+    }
+
+    @Override
+    public String getOsArch() {
+      return "aarch64";
+    }
+  }
+
+  private class WindowsEnvironment implements Environment {
+
+    @Override
+    public String getUserHome() {
+      return "";
+    }
+
+    @Override
+    public String getOsName() {
+      return "Windows 99";
+    }
+
+    @Override
+    public String getOsArch() {
+      return "amd64";
+    }
   }
 }

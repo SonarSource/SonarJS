@@ -39,7 +39,7 @@ import org.sonar.plugins.javascript.bridge.BridgeServerImpl;
 import org.sonar.plugins.javascript.bridge.BundleImpl;
 import org.sonar.plugins.javascript.bridge.CssRuleSensor;
 import org.sonar.plugins.javascript.bridge.EmbeddedNode;
-import org.sonar.plugins.javascript.bridge.Environment;
+import org.sonar.plugins.javascript.bridge.EnvironmentImpl;
 import org.sonar.plugins.javascript.bridge.HtmlSensor;
 import org.sonar.plugins.javascript.bridge.JsTsChecks;
 import org.sonar.plugins.javascript.bridge.JsTsSensor;
@@ -154,7 +154,7 @@ public class JavaScriptPlugin implements Plugin {
       YamlSensor.class,
       HtmlSensor.class,
       EmbeddedNode.class,
-      Environment.class
+      EnvironmentImpl.class
     );
 
     context.addExtensions(
