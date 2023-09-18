@@ -48,7 +48,7 @@ win_vm_definition: &WINDOWS_VM_DEFINITION
     image: base-windows-jdk17-v*
     platform: windows
     region: eu-central-1
-    type: c6id.2xlarge
+    type: c6i.4xlarge
     subnet_id: ${CIRRUS_AWS_SUBNET}
     preemptible: false
     use_ssd: true
@@ -68,7 +68,6 @@ plugin_qa_body: &PLUGIN_QA_BODY
     CIRRUS_CLONE_DEPTH: 10
     SONARSOURCE_QA: true
   <<: *MAVEN_CACHE
-  <<: *RUNTIME_CACHE
   node_version_script:
     - node -v
   qa_script:
@@ -115,6 +114,8 @@ build_win_task:
   build_script:
     - source cirrus-env CI
     - npm config set registry "${ARTIFACTORY_URL}/api/npm/npm"
+    #  TODO should be as close to build_task as possible, ie. remove incompatible bash scripts
+    - npm run build && npm run test
     - mvn test
   cleanup_before_cache_script: cleanup_maven_repository
 
@@ -174,7 +175,6 @@ plugin_qa_win_task:
       - TEST: '!CoverageTest,!TypeScriptAnalysisTest,!EslintBasedRulesTest,!SonarLintTest'
       - TEST: 'CoverageTest,TypeScriptAnalysisTest,EslintBasedRulesTest,SonarLintTest'
   <<: *MAVEN_CACHE
-  <<: *RUNTIME_CACHE
   qa_script:
     - source /c/buildTools-docker/bin/cirrus-env QA
     - source /c/buildTools-docker/bin/set_maven_build_version $BUILD_NUMBER
@@ -200,7 +200,6 @@ ruling_task:
       - RULING: TypeScriptRulingTest
       - RULING: CssRulingTest
   <<: *MAVEN_CACHE
-  <<: *RUNTIME_CACHE
   submodules_script:
     - git submodule update --init
   ruling_script:
@@ -234,6 +233,5 @@ promote_task:
     #artifacts that will have downloadable links in burgr
     ARTIFACTS: org.sonarsource.javascript:sonar-javascript-plugin:jar
   <<: *MAVEN_CACHE
-  <<: *RUNTIME_CACHE
   script: cirrus_promote_maven
   cleanup_before_cache_script: cleanup_maven_repository
