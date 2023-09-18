@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.utils.log.LoggerLevel.DEBUG;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
@@ -39,7 +38,7 @@ class EmbeddedNodeTest {
 
   @Test
   void should_not_extract_if_deployLocation_contains_the_same_version() throws Exception {
-    Files.write(tempDir.resolve("version.txt"), extractCurrentVersion().getBytes());
+    Files.write(tempDir.resolve("version.txt"), extractCurrentVersion());
     var en = new EmbeddedNode();
     en.deployNode(tempDir);
     assertThat(logTester.logs(DEBUG))
@@ -59,12 +58,9 @@ class EmbeddedNodeTest {
     return EmbeddedNode.Platform.detect().binary();
   }
 
-  private String extractCurrentVersion() throws IOException {
-    return new String(
-      getClass()
-        .getResourceAsStream(EmbeddedNode.Platform.detect().versionPathInJar())
-        .readAllBytes(),
-      StandardCharsets.UTF_8
-    );
+  private byte[] extractCurrentVersion() throws IOException {
+    return getClass()
+      .getResourceAsStream(EmbeddedNode.Platform.detect().versionPathInJar())
+      .readAllBytes();
   }
 }
