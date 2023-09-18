@@ -37,6 +37,11 @@ maven_cache_definition: &MAVEN_CACHE
     folder: ${CIRRUS_WORKING_DIR}/.m2/repository
     fingerprint_script: cat **/pom.xml
 
+nodejs_runtimes_cache_definition: &RUNTIME_CACHE
+  runtime_cache:
+    folder: tools/fetch-node/downloads/
+    fingerprint_script: cat tools/fetch-node/node-distros.mjs
+
 win_vm_definition: &WINDOWS_VM_DEFINITION
   ec2_instance:
     experimental: true # see https://github.com/cirruslabs/cirrus-ci-docs/issues/1051
@@ -63,6 +68,7 @@ plugin_qa_body: &PLUGIN_QA_BODY
     CIRRUS_CLONE_DEPTH: 10
     SONARSOURCE_QA: true
   <<: *MAVEN_CACHE
+  <<: *RUNTIME_CACHE
   node_version_script:
     - node -v
   qa_script:
@@ -86,14 +92,12 @@ build_task:
     SIGN_KEY: VAULT[development/kv/data/sign data.key]
     PGP_PASSPHRASE: VAULT[development/kv/data/sign data.passphrase]
   <<: *MAVEN_CACHE
+  <<: *RUNTIME_CACHE
   sonar_cache:
     folder: ${HOME}/.sonar/cache
     fingerprint_script:
       - echo ${CIRRUS_OS}
       - curl --silent ${SONAR_HOST_URL}/deploy/plugins/index.txt | sort
-  runtime_cache:
-    folder: tools/fetch-node/downloads/
-    fingerprint_script: cat tools/fetch-node/node-distros.mjs
   build_script:
     - source cirrus-env BUILD
     - npm config set registry "${ARTIFACTORY_URL}/api/npm/npm"
@@ -107,6 +111,7 @@ build_win_task:
   <<: *WINDOWS_VM_DEFINITION
   <<: *ONLY_SONARSOURCE_QA
   <<: *MAVEN_CACHE
+  <<: *RUNTIME_CACHE
   build_script:
     - source cirrus-env CI
     - npm config set registry "${ARTIFACTORY_URL}/api/npm/npm"
@@ -169,6 +174,7 @@ plugin_qa_win_task:
       - TEST: '!CoverageTest,!TypeScriptAnalysisTest,!EslintBasedRulesTest,!SonarLintTest'
       - TEST: 'CoverageTest,TypeScriptAnalysisTest,EslintBasedRulesTest,SonarLintTest'
   <<: *MAVEN_CACHE
+  <<: *RUNTIME_CACHE
   qa_script:
     - source /c/buildTools-docker/bin/cirrus-env QA
     - source /c/buildTools-docker/bin/set_maven_build_version $BUILD_NUMBER
@@ -194,6 +200,7 @@ ruling_task:
       - RULING: TypeScriptRulingTest
       - RULING: CssRulingTest
   <<: *MAVEN_CACHE
+  <<: *RUNTIME_CACHE
   submodules_script:
     - git submodule update --init
   ruling_script:
@@ -227,5 +234,6 @@ promote_task:
     #artifacts that will have downloadable links in burgr
     ARTIFACTS: org.sonarsource.javascript:sonar-javascript-plugin:jar
   <<: *MAVEN_CACHE
+  <<: *RUNTIME_CACHE
   script: cirrus_promote_maven
   cleanup_before_cache_script: cleanup_maven_repository
