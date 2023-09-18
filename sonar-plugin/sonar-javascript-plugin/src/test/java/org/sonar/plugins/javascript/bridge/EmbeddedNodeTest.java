@@ -34,6 +34,7 @@ class EmbeddedNodeTest {
     var en = new EmbeddedNode();
     en.deployNode(tempDir);
     assertThat(logTester.logs(DEBUG).get(1)).contains("Copy embedded node to");
+    assertThat(tempDir.resolve(getBinary())).exists();
   }
 
   @Test
@@ -43,13 +44,19 @@ class EmbeddedNodeTest {
     en.deployNode(tempDir);
     assertThat(logTester.logs(DEBUG))
       .contains("Skipping node deploy. Deployed node has latest version.");
+    assertThat(tempDir.resolve(getBinary())).doesNotExist();
   }
 
   @Test
-  void should_not_fail_if_deployLocation_has_no_version() throws Exception {
+  void should_extract_if_deployLocation_has_no_version() throws Exception {
     var en = new EmbeddedNode();
     en.deployNode(tempDir);
     assertThat(logTester.logs(DEBUG).get(1)).contains("Copy embedded node to");
+    assertThat(tempDir.resolve(getBinary())).exists();
+  }
+
+  private String getBinary() {
+    return EmbeddedNode.Platform.detect().binary();
   }
 
   private String extractCurrentVersion() throws IOException {
