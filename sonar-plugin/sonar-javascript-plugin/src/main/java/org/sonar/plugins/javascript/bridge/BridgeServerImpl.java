@@ -32,7 +32,6 @@ import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse.BodyHandlers;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.HashMap;
@@ -169,7 +168,6 @@ public class BridgeServerImpl implements BridgeServer {
    * @throws IOException
    */
   void deploy() throws IOException {
-    Files.createDirectories(temporaryDeployLocation);
     bundle.deploy(temporaryDeployLocation);
     embeddedNode.deploy();
   }
