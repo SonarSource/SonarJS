@@ -457,8 +457,8 @@ class NodeCommandTest {
   private Environment createMockEnvironment() {
     Environment mockEnvironment = mock(Environment.class);
     when(mockEnvironment.getUserHome()).thenReturn(tempDir.toString());
-    when(mockEnvironment.getOsName()).thenReturn("mac os");
-    when(mockEnvironment.getOsArch()).thenReturn("aarch64");
+    when(mockEnvironment.getOsName()).thenReturn("linux");
+    when(mockEnvironment.getOsArch()).thenReturn("amd64");
     return mockEnvironment;
   }
 }
