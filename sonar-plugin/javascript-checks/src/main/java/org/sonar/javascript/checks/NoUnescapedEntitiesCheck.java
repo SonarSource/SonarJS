@@ -44,6 +44,6 @@ public class NoUnescapedEntitiesCheck implements EslintBasedCheck {
 
   private static class Config {
 
-    List<String> forbid = Arrays.asList(">", "}");
+    List<String> forbid = List.of(">", "}");
   }
 }
