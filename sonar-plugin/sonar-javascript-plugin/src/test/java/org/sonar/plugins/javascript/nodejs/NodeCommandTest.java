@@ -407,7 +407,7 @@ class NodeCommandTest {
 
   @Test
   void test_embedded_runtime() throws Exception {
-    var en = new EmbeddedNode(createMockEnvironment());
+    var en = new EmbeddedNode(new Environment());
     en.deploy();
     NodeCommand nodeCommand = NodeCommand
       .builder()
@@ -431,7 +431,7 @@ class NodeCommandTest {
     mapSettings.setProperty(NODE_FORCE_HOST_PROPERTY, true);
     Configuration configuration = mapSettings.asConfig();
 
-    var en = new EmbeddedNode(createMockEnvironment());
+    var en = new EmbeddedNode(new Environment());
     en.deploy();
     NodeCommand nodeCommand = NodeCommand
       .builder()
@@ -452,13 +452,5 @@ class NodeCommandTest {
   private static BundlePathResolver getPathResolver() {
     File file = new File("src/test/resources");
     return p -> new File(file.getAbsoluteFile(), p).getAbsolutePath();
-  }
-
-  private Environment createMockEnvironment() {
-    Environment mockEnvironment = mock(Environment.class);
-    when(mockEnvironment.getUserHome()).thenReturn(tempDir.toString());
-    when(mockEnvironment.getOsName()).thenReturn("linux");
-    when(mockEnvironment.getOsArch()).thenReturn("amd64");
-    return mockEnvironment;
   }
 }

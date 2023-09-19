@@ -21,9 +21,11 @@ class EmbeddedNodeTest {
   @RegisterExtension
   public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
 
+  private Environment currentEnvironment = new Environment();
+
   @Test
   void should_extract_if_deployLocation_contains_a_different_version() throws Exception {
-    var en = new EmbeddedNode(createMacOSEnvironment());
+    var en = new EmbeddedNode(createTestEnvironment());
     var runtimeFolder = en.binary().getParent();
     Files.createDirectories(runtimeFolder);
     Files.write(runtimeFolder.resolve("version.txt"), "a-different-version".getBytes());
@@ -33,12 +35,12 @@ class EmbeddedNodeTest {
 
   @Test
   void should_not_extract_if_deployLocation_contains_the_same_version() throws Exception {
-    var en = new EmbeddedNode(createMacOSEnvironment());
+    var en = new EmbeddedNode(createTestEnvironment());
     var runtimeFolder = en.binary().getParent();
     Files.createDirectories(runtimeFolder);
     Files.write(
       runtimeFolder.resolve("version.txt"),
-      extractCurrentVersion(createMacOSEnvironment())
+      extractCurrentVersion(createTestEnvironment())
     );
     en.deploy();
     assertThat(en.binary()).doesNotExist();
@@ -46,7 +48,7 @@ class EmbeddedNodeTest {
 
   @Test
   void should_extract_if_deployLocation_has_no_version() throws Exception {
-    var en = new EmbeddedNode(createMacOSEnvironment());
+    var en = new EmbeddedNode(createTestEnvironment());
     en.deploy();
     assertThat(tempDir.resolve(en.binary())).exists();
   }
@@ -78,9 +80,16 @@ class EmbeddedNodeTest {
       .readAllBytes();
   }
 
-  private Environment createMacOSEnvironment() {
+  private Environment createTestEnvironment() {
     Environment mockEnvironment = mock(Environment.class);
     when(mockEnvironment.getUserHome()).thenReturn(tempDir.toString());
+    when(mockEnvironment.getOsName()).thenReturn(currentEnvironment.getOsName());
+    when(mockEnvironment.getOsArch()).thenReturn(currentEnvironment.getOsArch());
+    return mockEnvironment;
+  }
+
+  private Environment createMacOSEnvironment() {
+    Environment mockEnvironment = mock(Environment.class);
     when(mockEnvironment.getOsName()).thenReturn("mac os x");
     when(mockEnvironment.getOsArch()).thenReturn("aarch64");
     return mockEnvironment;
@@ -88,7 +97,6 @@ class EmbeddedNodeTest {
 
   private Environment createWindowsEnvironment() {
     Environment mockEnvironment = mock(Environment.class);
-    when(mockEnvironment.getUserHome()).thenReturn(tempDir.toString());
     when(mockEnvironment.getOsName()).thenReturn("Windows 99");
     when(mockEnvironment.getOsArch()).thenReturn("amd64");
     return mockEnvironment;
@@ -96,7 +104,6 @@ class EmbeddedNodeTest {
 
   private Environment createUnsupportedEnvironment() {
     Environment mockEnvironment = mock(Environment.class);
-    when(mockEnvironment.getUserHome()).thenReturn("");
     when(mockEnvironment.getOsName()).thenReturn("");
     when(mockEnvironment.getOsArch()).thenReturn("");
     return mockEnvironment;
