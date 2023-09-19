@@ -165,6 +165,7 @@ public class EmbeddedNode {
 
     var targetArchive = deployLocation.resolve(platform.binary() + ".xz");
     var targetVersion = targetArchive.getParent().resolve(VERSION_FILENAME);
+    // we assume that since the archive exists, the version file must as well
     var versionIs = getClass().getResourceAsStream(platform.versionPathInJar());
 
     if (!Files.exists(targetVersion) || isDifferent(versionIs, targetVersion)) {
@@ -179,7 +180,7 @@ public class EmbeddedNode {
     isAvailable = true;
   }
 
-  private boolean isDifferent(InputStream newVersionIs, Path currentVersionPath)
+  private static boolean isDifferent(InputStream newVersionIs, Path currentVersionPath)
     throws IOException {
     var newVersionString = new String(newVersionIs.readAllBytes(), StandardCharsets.UTF_8);
     var currentVersionString = Files.readString(currentVersionPath);

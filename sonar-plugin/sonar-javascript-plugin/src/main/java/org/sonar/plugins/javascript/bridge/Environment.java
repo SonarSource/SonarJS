@@ -1,9 +1,9 @@
 package org.sonar.plugins.javascript.bridge;
 
 public interface Environment {
-  public String getUserHome();
+  String getUserHome();
 
-  public String getOsName();
+  String getOsName();
 
-  public String getOsArch();
+  String getOsArch();
 }

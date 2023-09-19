@@ -140,7 +140,7 @@ public class BridgeServerImpl implements BridgeServer {
   /**
    * @return a path to `DEPLOY_LOCATION` from the given `baseDir`
    */
-  private Path getPluginCache(String baseDir) {
+  private static Path getPluginCache(String baseDir) {
     return Path.of(baseDir).resolve(DEPLOY_LOCATION);
   }
 
