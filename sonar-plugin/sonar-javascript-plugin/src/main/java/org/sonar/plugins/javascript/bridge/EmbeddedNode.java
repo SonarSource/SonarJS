@@ -46,6 +46,7 @@ import org.tukaani.xz.XZInputStream;
 @SonarLintSide(lifespan = INSTANCE)
 public class EmbeddedNode {
 
+  private static final String DEPLOY_LOCATION = Path.of(".sonar", "js", "node-runtime").toString();
   public static final String VERSION_FILENAME = "version.txt";
   private static final Logger LOG = Loggers.get(EmbeddedNode.class);
   private Path deployLocation;
@@ -94,10 +95,6 @@ public class EmbeddedNode {
       }
     }
 
-    static Platform detect() {
-      return Platform.detect(new EnvironmentImpl());
-    }
-
     /**
      * @return The platform where this code is running
      */
@@ -127,12 +124,16 @@ public class EmbeddedNode {
 
   private boolean isAvailable;
 
-  public EmbeddedNode() {
-    this(new EnvironmentImpl());
-  }
-
   public EmbeddedNode(Environment env) {
     this.platform = Platform.detect(env);
+    this.deployLocation = getPluginCache(env.getUserHome());
+  }
+
+  /**
+   * @return a path to `DEPLOY_LOCATION` from the given `baseDir`
+   */
+  private static Path getPluginCache(String baseDir) {
+    return Path.of(baseDir).resolve(DEPLOY_LOCATION);
   }
 
   public boolean isAvailable() {
@@ -143,10 +144,9 @@ public class EmbeddedNode {
    * Extracts the node runtime from the JAR to the given `deployLocation`.
    * Skips the operation if the platform is unsupported, already extracted or missing from the JAR (legacy).
    *
-   * @param deployLocation
    * @throws IOException
    */
-  public void deployNode(Path deployLocation) throws IOException {
+  public void deploy() throws IOException {
     LOG.debug(
       "Detected os: {} arch: {} platform: {}",
       System.getProperty("os.name"),
@@ -156,7 +156,6 @@ public class EmbeddedNode {
     if (platform == UNSUPPORTED || isAvailable) {
       return;
     }
-    this.deployLocation = deployLocation;
     var is = getClass().getResourceAsStream(platform.archivePathInJar());
     if (is == null) {
       LOG.debug("Embedded node not found for platform {}", platform.archivePathInJar());
@@ -164,12 +163,14 @@ public class EmbeddedNode {
     }
 
     var targetArchive = deployLocation.resolve(platform.binary() + ".xz");
-    var targetVersion = targetArchive.getParent().resolve(VERSION_FILENAME);
+    var targetDirectory = targetArchive.getParent();
+    var targetVersion = targetDirectory.resolve(VERSION_FILENAME);
     // we assume that since the archive exists, the version file must as well
     var versionIs = getClass().getResourceAsStream(platform.versionPathInJar());
 
     if (!Files.exists(targetVersion) || isDifferent(versionIs, targetVersion)) {
       LOG.debug("Copy embedded node to {}", targetArchive);
+      Files.createDirectories(targetDirectory);
       Files.copy(is, targetArchive, REPLACE_EXISTING);
       extract(targetArchive);
       Files.copy(versionIs, deployLocation.resolve(VERSION_FILENAME), REPLACE_EXISTING);

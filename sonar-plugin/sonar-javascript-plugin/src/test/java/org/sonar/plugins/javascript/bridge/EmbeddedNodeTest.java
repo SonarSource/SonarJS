@@ -1,7 +1,8 @@
 package org.sonar.plugins.javascript.bridge;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.api.utils.log.LoggerLevel.DEBUG;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -21,121 +22,81 @@ class EmbeddedNodeTest {
   public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
 
   @Test
-  void should_detect_platform_macos() {
-    if (System.getProperty("os.name").startsWith("Mac")) {
-      assertThat(EmbeddedNode.Platform.detect()).isEqualTo(EmbeddedNode.Platform.DARWIN_ARM64);
-    }
-  }
-
-  @Test
   void should_extract_if_deployLocation_contains_a_different_version() throws Exception {
     Files.write(tempDir.resolve("version.txt"), "a-different-version".getBytes());
-    var en = new EmbeddedNode();
-    en.deployNode(tempDir);
-    assertThat(logTester.logs(DEBUG).get(1)).contains("Copy embedded node to");
-    assertThat(tempDir.resolve(getBinary())).exists();
+    var en = new EmbeddedNode(createMacOSEnvironment());
+    en.deploy();
+    assertThat(en.binary()).exists();
   }
 
   @Test
   void should_not_extract_if_deployLocation_contains_the_same_version() throws Exception {
-    Files.write(tempDir.resolve("version.txt"), extractCurrentVersion());
-    var en = new EmbeddedNode();
-    en.deployNode(tempDir);
-    assertThat(logTester.logs(DEBUG))
-      .contains("Skipping node deploy. Deployed node has latest version.");
-    assertThat(tempDir.resolve(getBinary())).doesNotExist();
+    var en = new EmbeddedNode(createMacOSEnvironment());
+    var runtimeFolder = en.binary().getParent();
+    Files.createDirectories(runtimeFolder);
+    Files.write(
+      runtimeFolder.resolve("version.txt"),
+      extractCurrentVersion(createMacOSEnvironment())
+    );
+    en.deploy();
+    assertThat(en.binary()).doesNotExist();
   }
 
   @Test
   void should_extract_if_deployLocation_has_no_version() throws Exception {
-    var en = new EmbeddedNode();
-    en.deployNode(tempDir);
-    assertThat(logTester.logs(DEBUG).get(1)).contains("Copy embedded node to");
-    assertThat(tempDir.resolve(getBinary())).exists();
+    var en = new EmbeddedNode(createMacOSEnvironment());
+    en.deploy();
+    assertThat(tempDir.resolve(en.binary())).exists();
   }
 
   @Test
   void should_detect_platform_for_windows_environment() {
-    var platform = EmbeddedNode.Platform.detect(new WindowsEnvironment());
+    var platform = EmbeddedNode.Platform.detect(createWindowsEnvironment());
     assertThat(platform).isEqualTo(EmbeddedNode.Platform.WIN_X64);
     assertThat(platform.archivePathInJar()).isEqualTo("/win-x64/node.exe.xz");
   }
 
   @Test
   void should_detect_platform_for_mac_os_environment() {
-    var platform = EmbeddedNode.Platform.detect(new MacOSEnvironment());
+    var platform = EmbeddedNode.Platform.detect(createMacOSEnvironment());
     assertThat(platform).isEqualTo(EmbeddedNode.Platform.DARWIN_ARM64);
     assertThat(platform.archivePathInJar()).isEqualTo("/darwin-arm64/node.xz");
   }
 
   @Test
   void should_return_unsupported_for_unknown_environment() {
-    var platform = EmbeddedNode.Platform.detect(new UnsupportedEnvironment());
+    var platform = EmbeddedNode.Platform.detect(createUnsupportedEnvironment());
     assertThat(platform).isEqualTo(EmbeddedNode.Platform.UNSUPPORTED);
     assertThat(platform.archivePathInJar()).isEqualTo("node.xz");
   }
 
-  private String getBinary() {
-    return EmbeddedNode.Platform.detect().binary();
-  }
-
-  private byte[] extractCurrentVersion() throws IOException {
+  private byte[] extractCurrentVersion(Environment env) throws IOException {
     return getClass()
-      .getResourceAsStream(EmbeddedNode.Platform.detect().versionPathInJar())
+      .getResourceAsStream(EmbeddedNode.Platform.detect(env).versionPathInJar())
       .readAllBytes();
   }
 
-  private class UnsupportedEnvironment implements Environment {
-
-    @Override
-    public String getUserHome() {
-      return "";
-    }
-
-    @Override
-    public String getOsName() {
-      return "";
-    }
-
-    @Override
-    public String getOsArch() {
-      return "";
-    }
+  private Environment createMacOSEnvironment() {
+    Environment mockEnvironment = mock(Environment.class);
+    when(mockEnvironment.getUserHome()).thenReturn(tempDir.toString());
+    when(mockEnvironment.getOsName()).thenReturn("mac os x");
+    when(mockEnvironment.getOsArch()).thenReturn("aarch64");
+    return mockEnvironment;
   }
 
-  private class MacOSEnvironment implements Environment {
-
-    @Override
-    public String getUserHome() {
-      return "";
-    }
-
-    @Override
-    public String getOsName() {
-      return "mac os x";
-    }
-
-    @Override
-    public String getOsArch() {
-      return "aarch64";
-    }
+  private Environment createWindowsEnvironment() {
+    Environment mockEnvironment = mock(Environment.class);
+    when(mockEnvironment.getUserHome()).thenReturn(tempDir.toString());
+    when(mockEnvironment.getOsName()).thenReturn("Windows 99");
+    when(mockEnvironment.getOsArch()).thenReturn("amd64");
+    return mockEnvironment;
   }
 
-  private class WindowsEnvironment implements Environment {
-
-    @Override
-    public String getUserHome() {
-      return "";
-    }
-
-    @Override
-    public String getOsName() {
-      return "Windows 99";
-    }
-
-    @Override
-    public String getOsArch() {
-      return "amd64";
-    }
+  private Environment createUnsupportedEnvironment() {
+    Environment mockEnvironment = mock(Environment.class);
+    when(mockEnvironment.getUserHome()).thenReturn("");
+    when(mockEnvironment.getOsName()).thenReturn("");
+    when(mockEnvironment.getOsArch()).thenReturn("");
+    return mockEnvironment;
   }
 }

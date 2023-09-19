@@ -112,7 +112,7 @@ class BridgeServerImplTest {
   }
 
   @AfterEach
-  public void tearDown() throws Exception {
+  public void tearDown() {
     try {
       if (bridgeServer != null) {
         bridgeServer.clean();
@@ -154,8 +154,9 @@ class BridgeServerImplTest {
         testBundle,
         emptyRulesBundles,
         deprecationWarning,
+        tempFolder,
         monitoring,
-        new UnsupportedEnvironment()
+        new EmbeddedNode(createMockEnvironment())
       );
     bridgeServer.deploy();
     List<Path> deployedBundles = emptyList();
@@ -657,8 +658,9 @@ class BridgeServerImplTest {
         mock(Bundle.class),
         mock(RulesBundles.class),
         deprecationWarning,
+        tempFolder,
         monitoring,
-        new UnsupportedEnvironment()
+        new EmbeddedNode(createMockEnvironment())
       );
     assertThat(bridgeServer.getTimeoutSeconds()).isEqualTo(300);
   }
@@ -719,8 +721,9 @@ class BridgeServerImplTest {
         new TestBundle(START_SERVER_SCRIPT),
         emptyRulesBundles,
         deprecationWarning,
+        tempFolder,
         monitoring,
-        new UnsupportedEnvironment()
+        new EmbeddedNode(createMockEnvironment())
       );
     bridgeServer.deploy();
     bridgeServer.startServerLazily(context);
@@ -750,8 +753,9 @@ class BridgeServerImplTest {
         new TestBundle(START_SERVER_SCRIPT),
         rulesBundles,
         deprecationWarning,
+        tempFolder,
         monitoring,
-        new UnsupportedEnvironment()
+        new EmbeddedNode(createMockEnvironment())
       );
     bridgeServer.startServerLazily(context);
 
@@ -766,9 +770,18 @@ class BridgeServerImplTest {
       new TestBundle(startServerScript),
       emptyRulesBundles,
       deprecationWarning,
+      tempFolder,
       monitoring,
-      new UnsupportedEnvironment()
+      new EmbeddedNode(createMockEnvironment())
     );
+  }
+
+  private Environment createMockEnvironment() {
+    Environment mockEnvironment = mock(Environment.class);
+    when(mockEnvironment.getUserHome()).thenReturn("");
+    when(mockEnvironment.getOsName()).thenReturn("");
+    when(mockEnvironment.getOsArch()).thenReturn("");
+    return mockEnvironment;
   }
 
   static class TestBundle implements Bundle {
@@ -793,24 +806,6 @@ class BridgeServerImplTest {
     public String resolve(String relativePath) {
       File file = new File("src/test/resources");
       return new File(file.getAbsoluteFile(), relativePath).getAbsolutePath();
-    }
-  }
-
-  private class UnsupportedEnvironment implements Environment {
-
-    @Override
-    public String getUserHome() {
-      return "";
-    }
-
-    @Override
-    public String getOsName() {
-      return "";
-    }
-
-    @Override
-    public String getOsArch() {
-      return "";
     }
   }
 }

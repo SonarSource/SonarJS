@@ -1,9 +1,27 @@
 package org.sonar.plugins.javascript.bridge;
 
-public interface Environment {
-  String getUserHome();
+import static org.sonarsource.api.sonarlint.SonarLintSide.INSTANCE;
 
-  String getOsName();
+import org.sonar.api.scanner.ScannerSide;
+import org.sonarsource.api.sonarlint.SonarLintSide;
 
-  String getOsArch();
+/**
+ * Class to access host parameters.
+ * This abstraction is necessary to mock it in tests.
+ */
+@ScannerSide
+@SonarLintSide(lifespan = INSTANCE)
+public class Environment {
+
+  public String getUserHome() {
+    return System.getProperty("user.home");
+  }
+
+  public String getOsName() {
+    return System.getProperty("os.name");
+  }
+
+  public String getOsArch() {
+    return System.getProperty("os.arch");
+  }
 }
