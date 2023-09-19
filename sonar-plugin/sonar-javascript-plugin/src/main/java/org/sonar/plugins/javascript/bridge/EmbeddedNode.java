@@ -142,7 +142,6 @@ public class EmbeddedNode {
 
   /**
    * Extracts the node runtime from the JAR to the given `deployLocation`.
-   *
    * Skips the operation if the platform is unsupported, already extracted or missing from the JAR (legacy).
    *
    * @throws IOException
