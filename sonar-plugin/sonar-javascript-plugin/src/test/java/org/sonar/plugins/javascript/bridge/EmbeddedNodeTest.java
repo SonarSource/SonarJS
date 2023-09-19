@@ -58,18 +58,21 @@ class EmbeddedNodeTest {
   void should_detect_platform_for_windows_environment() {
     var platform = EmbeddedNode.Platform.detect(new WindowsEnvironment());
     assertThat(platform).isEqualTo(EmbeddedNode.Platform.WIN_X64);
+    assertThat(platform.archivePathInJar()).isEqualTo("/win-x64/node.exe.xz");
   }
 
   @Test
   void should_detect_platform_for_mac_os_environment() {
     var platform = EmbeddedNode.Platform.detect(new MacOSEnvironment());
     assertThat(platform).isEqualTo(EmbeddedNode.Platform.DARWIN_ARM64);
+    assertThat(platform.archivePathInJar()).isEqualTo("/darwin-arm64/node.xz");
   }
 
   @Test
   void should_return_unsupported_for_unknown_environment() {
     var platform = EmbeddedNode.Platform.detect(new UnsupportedEnvironment());
     assertThat(platform).isEqualTo(EmbeddedNode.Platform.UNSUPPORTED);
+    assertThat(platform.archivePathInJar()).isEqualTo("node.xz");
   }
 
   private String getBinary() {
