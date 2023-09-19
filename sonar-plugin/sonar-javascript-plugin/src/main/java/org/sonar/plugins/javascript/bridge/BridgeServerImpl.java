@@ -49,7 +49,6 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.SonarProduct;
 import org.sonar.api.batch.sensor.SensorContext;
-import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
@@ -101,10 +100,9 @@ public class BridgeServerImpl implements BridgeServer {
     Bundle bundle,
     RulesBundles rulesBundles,
     NodeDeprecationWarning deprecationWarning,
-    TempFolder tempFolder,
     Monitoring monitoring,
     EmbeddedNode embeddedNode,
-    EnvironmentImpl environment
+    Environment environment
   ) {
     this(
       nodeCommandBuilder,
@@ -112,7 +110,6 @@ public class BridgeServerImpl implements BridgeServer {
       bundle,
       rulesBundles,
       deprecationWarning,
-      tempFolder,
       monitoring,
       embeddedNode,
       environment
@@ -125,10 +122,9 @@ public class BridgeServerImpl implements BridgeServer {
     Bundle bundle,
     RulesBundles rulesBundles,
     NodeDeprecationWarning deprecationWarning,
-    TempFolder tempFolder,
     Monitoring monitoring,
     EmbeddedNode embeddedNode,
-    EnvironmentImpl environment
+    Environment environment
   ) {
     this.nodeCommandBuilder = nodeCommandBuilder;
     this.timeoutSeconds = timeoutSeconds;

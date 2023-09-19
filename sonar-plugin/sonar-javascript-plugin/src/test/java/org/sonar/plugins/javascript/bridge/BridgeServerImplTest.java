@@ -154,10 +154,9 @@ class BridgeServerImplTest {
         testBundle,
         emptyRulesBundles,
         deprecationWarning,
-        tempFolder,
         monitoring,
-        new EmbeddedNode(),
-        new EnvironmentImpl()
+        new EmbeddedNode(new UnsupportedEnvironment()),
+        new UnsupportedEnvironment()
       );
     bridgeServer.deploy();
     List<Path> deployedBundles = emptyList();
@@ -659,10 +658,9 @@ class BridgeServerImplTest {
         mock(Bundle.class),
         mock(RulesBundles.class),
         deprecationWarning,
-        tempFolder,
         monitoring,
-        new EmbeddedNode(),
-        new EnvironmentImpl()
+        new EmbeddedNode(new UnsupportedEnvironment()),
+        new UnsupportedEnvironment()
       );
     assertThat(bridgeServer.getTimeoutSeconds()).isEqualTo(300);
   }
@@ -723,10 +721,9 @@ class BridgeServerImplTest {
         new TestBundle(START_SERVER_SCRIPT),
         emptyRulesBundles,
         deprecationWarning,
-        tempFolder,
         monitoring,
-        new EmbeddedNode(),
-        new EnvironmentImpl()
+        new EmbeddedNode(new UnsupportedEnvironment()),
+        new UnsupportedEnvironment()
       );
     bridgeServer.deploy();
     bridgeServer.startServerLazily(context);
@@ -756,10 +753,9 @@ class BridgeServerImplTest {
         new TestBundle(START_SERVER_SCRIPT),
         rulesBundles,
         deprecationWarning,
-        tempFolder,
         monitoring,
-        new EmbeddedNode(),
-        new EnvironmentImpl()
+        new EmbeddedNode(new UnsupportedEnvironment()),
+        new UnsupportedEnvironment()
       );
     bridgeServer.startServerLazily(context);
 
@@ -774,10 +770,9 @@ class BridgeServerImplTest {
       new TestBundle(startServerScript),
       emptyRulesBundles,
       deprecationWarning,
-      tempFolder,
       monitoring,
       new EmbeddedNode(),
-      new EnvironmentImpl()
+      new UnsupportedEnvironment()
     );
   }
 
@@ -803,6 +798,24 @@ class BridgeServerImplTest {
     public String resolve(String relativePath) {
       File file = new File("src/test/resources");
       return new File(file.getAbsoluteFile(), relativePath).getAbsolutePath();
+    }
+  }
+
+  private class UnsupportedEnvironment implements Environment {
+
+    @Override
+    public String getUserHome() {
+      return "";
+    }
+
+    @Override
+    public String getOsName() {
+      return "";
+    }
+
+    @Override
+    public String getOsArch() {
+      return "";
     }
   }
 }

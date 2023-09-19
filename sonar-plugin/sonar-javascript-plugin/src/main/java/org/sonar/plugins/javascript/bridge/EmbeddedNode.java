@@ -49,7 +49,6 @@ public class EmbeddedNode {
   public static final String VERSION_FILENAME = "version.txt";
   private static final Logger LOG = Loggers.get(EmbeddedNode.class);
   private Path deployLocation;
-  private Environment env;
 
   enum Platform {
     WIN_X64,
@@ -124,7 +123,7 @@ public class EmbeddedNode {
     }
   }
 
-  private final Platform platform = Platform.detect(new EnvironmentImpl());
+  private final Platform platform;
 
   private boolean isAvailable;
 
@@ -133,7 +132,7 @@ public class EmbeddedNode {
   }
 
   public EmbeddedNode(Environment env) {
-    this.env = env;
+    this.platform = Platform.detect(env);
   }
 
   public boolean isAvailable() {
