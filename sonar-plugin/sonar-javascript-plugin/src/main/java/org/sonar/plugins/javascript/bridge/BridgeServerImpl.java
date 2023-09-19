@@ -101,7 +101,6 @@ public class BridgeServerImpl implements BridgeServer {
     RulesBundles rulesBundles,
     NodeDeprecationWarning deprecationWarning,
     Monitoring monitoring,
-    EmbeddedNode embeddedNode,
     Environment environment
   ) {
     this(
@@ -111,7 +110,6 @@ public class BridgeServerImpl implements BridgeServer {
       rulesBundles,
       deprecationWarning,
       monitoring,
-      embeddedNode,
       environment
     );
   }
@@ -123,7 +121,6 @@ public class BridgeServerImpl implements BridgeServer {
     RulesBundles rulesBundles,
     NodeDeprecationWarning deprecationWarning,
     Monitoring monitoring,
-    EmbeddedNode embeddedNode,
     Environment environment
   ) {
     this.nodeCommandBuilder = nodeCommandBuilder;
@@ -137,7 +134,7 @@ public class BridgeServerImpl implements BridgeServer {
     this.deployLocation = getPluginCache(environment.getUserHome());
     this.monitoring = monitoring;
     this.heartbeatService = Executors.newSingleThreadScheduledExecutor();
-    this.embeddedNode = embeddedNode;
+    this.embeddedNode = new EmbeddedNode(environment);
   }
 
   /**

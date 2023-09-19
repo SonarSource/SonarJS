@@ -155,7 +155,6 @@ class BridgeServerImplTest {
         emptyRulesBundles,
         deprecationWarning,
         monitoring,
-        new EmbeddedNode(new UnsupportedEnvironment()),
         new UnsupportedEnvironment()
       );
     bridgeServer.deploy();
@@ -659,7 +658,6 @@ class BridgeServerImplTest {
         mock(RulesBundles.class),
         deprecationWarning,
         monitoring,
-        new EmbeddedNode(new UnsupportedEnvironment()),
         new UnsupportedEnvironment()
       );
     assertThat(bridgeServer.getTimeoutSeconds()).isEqualTo(300);
@@ -722,7 +720,6 @@ class BridgeServerImplTest {
         emptyRulesBundles,
         deprecationWarning,
         monitoring,
-        new EmbeddedNode(new UnsupportedEnvironment()),
         new UnsupportedEnvironment()
       );
     bridgeServer.deploy();
@@ -754,7 +751,6 @@ class BridgeServerImplTest {
         rulesBundles,
         deprecationWarning,
         monitoring,
-        new EmbeddedNode(new UnsupportedEnvironment()),
         new UnsupportedEnvironment()
       );
     bridgeServer.startServerLazily(context);
@@ -771,7 +767,6 @@ class BridgeServerImplTest {
       emptyRulesBundles,
       deprecationWarning,
       monitoring,
-      new EmbeddedNode(),
       new UnsupportedEnvironment()
     );
   }
