@@ -22,6 +22,7 @@ package org.sonar.plugins.javascript.bridge;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static java.nio.file.attribute.PosixFilePermission.OWNER_EXECUTE;
 import static java.nio.file.attribute.PosixFilePermission.OWNER_READ;
+import static java.nio.file.attribute.PosixFilePermission.OWNER_WRITE;
 import static org.sonar.plugins.javascript.bridge.EmbeddedNode.Platform.UNSUPPORTED;
 import static org.sonarsource.api.sonarlint.SonarLintSide.INSTANCE;
 
@@ -208,7 +209,7 @@ public class EmbeddedNode {
         os.write(buf, 0, nextBytes);
       }
       if (platform != Platform.WIN_X64) {
-        Files.setPosixFilePermissions(target, Set.of(OWNER_EXECUTE, OWNER_READ));
+        Files.setPosixFilePermissions(target, Set.of(OWNER_EXECUTE, OWNER_READ, OWNER_WRITE));
       }
     }
   }
