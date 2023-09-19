@@ -407,7 +407,7 @@ class NodeCommandTest {
 
   @Test
   void test_embedded_runtime() throws Exception {
-    var en = new EmbeddedNode(new Environment());
+    var en = new EmbeddedNode(createTestEnvironment());
     en.deploy();
     NodeCommand nodeCommand = NodeCommand
       .builder()
@@ -415,7 +415,7 @@ class NodeCommandTest {
       .pathResolver(getPathResolver())
       .embeddedNode(en)
       .build();
-    // TODO for some reason, using mockProcessWrapper to test for the used command does not yield the expected result
+    // For some reason, using mockProcessWrapper to test for the used command does not yield the expected result
     var expectedCommand = Paths.get(en.binary().toString()) + " " + PATH_TO_SCRIPT;
     assertThat(nodeCommand.toString()).isEqualTo(expectedCommand);
   }
@@ -431,7 +431,7 @@ class NodeCommandTest {
     mapSettings.setProperty(NODE_FORCE_HOST_PROPERTY, true);
     Configuration configuration = mapSettings.asConfig();
 
-    var en = new EmbeddedNode(new Environment());
+    var en = new EmbeddedNode(createTestEnvironment());
     en.deploy();
     NodeCommand nodeCommand = NodeCommand
       .builder()
@@ -452,5 +452,13 @@ class NodeCommandTest {
   private static BundlePathResolver getPathResolver() {
     File file = new File("src/test/resources");
     return p -> new File(file.getAbsoluteFile(), p).getAbsolutePath();
+  }
+
+  private Environment createTestEnvironment() {
+    Environment mockEnvironment = mock(Environment.class);
+    when(mockEnvironment.getUserHome()).thenReturn(tempDir.toString());
+    when(mockEnvironment.getOsName()).thenReturn(new Environment().getOsName());
+    when(mockEnvironment.getOsArch()).thenReturn(new Environment().getOsArch());
+    return mockEnvironment;
   }
 }

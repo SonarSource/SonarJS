@@ -50,6 +50,9 @@ public class EmbeddedNode {
   public static final String VERSION_FILENAME = "version.txt";
   private static final Logger LOG = Loggers.get(EmbeddedNode.class);
   private Path deployLocation;
+  private final Platform platform;
+  private boolean isAvailable;
+  private Environment env;
 
   enum Platform {
     WIN_X64,
@@ -120,13 +123,10 @@ public class EmbeddedNode {
     }
   }
 
-  private final Platform platform;
-
-  private boolean isAvailable;
-
   public EmbeddedNode(Environment env) {
     this.platform = Platform.detect(env);
     this.deployLocation = getPluginCache(env.getUserHome());
+    this.env = env;
   }
 
   /**
@@ -147,12 +147,7 @@ public class EmbeddedNode {
    * @throws IOException
    */
   public void deploy() throws IOException {
-    LOG.debug(
-      "Detected os: {} arch: {} platform: {}",
-      System.getProperty("os.name"),
-      System.getProperty("os.arch"),
-      platform
-    );
+    LOG.debug("Detected os: {} arch: {} platform: {}", env.getOsName(), env.getOsArch(), platform);
     if (platform == UNSUPPORTED || isAvailable) {
       return;
     }
