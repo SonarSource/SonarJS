@@ -23,8 +23,10 @@ class EmbeddedNodeTest {
 
   @Test
   void should_extract_if_deployLocation_contains_a_different_version() throws Exception {
-    Files.write(tempDir.resolve("version.txt"), "a-different-version".getBytes());
     var en = new EmbeddedNode(createMacOSEnvironment());
+    var runtimeFolder = en.binary().getParent();
+    Files.createDirectories(runtimeFolder);
+    Files.write(runtimeFolder.resolve("version.txt"), "a-different-version".getBytes());
     en.deploy();
     assertThat(en.binary()).exists();
   }
