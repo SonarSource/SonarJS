@@ -27,6 +27,7 @@ import static org.sonar.plugins.javascript.bridge.EmbeddedNode.Platform.UNSUPPOR
 import static org.sonarsource.api.sonarlint.SonarLintSide.INSTANCE;
 
 import java.io.BufferedInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -49,6 +50,7 @@ public class EmbeddedNode {
 
   private static final String DEPLOY_LOCATION = Path.of(".sonar", "js", "node-runtime").toString();
   public static final String VERSION_FILENAME = "version.txt";
+  private static final long EXTRACTION_LOCK_WAIT_TIME_MILLIS = 10000;
   private static final Logger LOG = Loggers.get(EmbeddedNode.class);
   private Path deployLocation;
   private final Platform platform;
@@ -126,14 +128,14 @@ public class EmbeddedNode {
 
   public EmbeddedNode(Environment env) {
     this.platform = Platform.detect(env);
-    this.deployLocation = getPluginCache(env.getUserHome());
+    this.deployLocation = runtimeCachePathFrom(env.getUserHome());
     this.env = env;
   }
 
   /**
    * @return a path to `DEPLOY_LOCATION` from the given `baseDir`
    */
-  private static Path getPluginCache(String baseDir) {
+  private static Path runtimeCachePathFrom(String baseDir) {
     return Path.of(baseDir).resolve(DEPLOY_LOCATION);
   }
 
@@ -158,20 +160,16 @@ public class EmbeddedNode {
       return;
     }
 
-    var targetArchive = deployLocation.resolve(platform.binary() + ".xz");
-    var targetDirectory = targetArchive.getParent();
+    var targetRuntime = deployLocation.resolve(platform.binary());
+    var targetDirectory = targetRuntime.getParent();
     var targetVersion = targetDirectory.resolve(VERSION_FILENAME);
     // we assume that since the archive exists, the version file must as well
     var versionIs = getClass().getResourceAsStream(platform.versionPathInJar());
 
-    if (!Files.exists(targetVersion) || isDifferent(versionIs, targetVersion)) {
-      LOG.debug("Copy embedded node to {}", targetArchive);
-      Files.createDirectories(targetDirectory);
-      Files.copy(is, targetArchive, REPLACE_EXISTING);
-      extract(targetArchive);
-      Files.copy(versionIs, deployLocation.resolve(VERSION_FILENAME), REPLACE_EXISTING);
-    } else {
+    if (Files.exists(targetVersion) && !isDifferent(versionIs, targetVersion)) {
       LOG.debug("Skipping node deploy. Deployed node has latest version.");
+    } else {
+      extractWithLocking(is, versionIs, targetRuntime, targetDirectory);
     }
 
     isAvailable = true;
@@ -193,24 +191,64 @@ public class EmbeddedNode {
   }
 
   /**
-   * Expects a path to a xz-compressed file ending in `.xz` like `node.xz` and
-   * extracts it into the same place as `node`.
+   * Creates the `targetDirectory` and extracts the `source` to `targetRuntime`
+   * Writes the version from `versionIs` to `targetDirectory`/VERSION_FILENAME
+   *
+   * @param source
+   * @param versionIs
+   * @param targetRuntime
+   * @param targetDirectory
+   * @throws IOException
+   */
+  private void extractWithLocking(
+    InputStream source,
+    InputStream versionIs,
+    Path targetRuntime,
+    Path targetDirectory
+  ) throws IOException {
+    var targetLockFile = targetDirectory.resolve("lockfile");
+    Files.createDirectories(targetDirectory);
+    try (
+      var fos = new FileOutputStream(targetLockFile.toString());
+      var channel = fos.getChannel()
+    ) {
+      var lock = channel.tryLock();
+      if (lock != null) {
+        try {
+          LOG.debug("Locked file: " + targetRuntime + " using lock " + lock);
+          extract(source, targetRuntime);
+          Files.copy(versionIs, deployLocation.resolve(VERSION_FILENAME), REPLACE_EXISTING);
+        } finally {
+          lock.release();
+        }
+      } else {
+        try {
+          LOG.debug("Waiting");
+          Thread.sleep(EXTRACTION_LOCK_WAIT_TIME_MILLIS);
+        } catch (InterruptedException e) {
+          LOG.warn("Interrupted while waiting for another process to extract the node runtime");
+          Thread.currentThread().interrupt();
+        }
+      }
+    }
+  }
+
+  /**
+   * Expects an InputStream to a xz-compressed file ending in `.xz` like `node.xz` and
+   * extracts it into the the given target Path.
    * <p>
    * Skips extraction if target file already exists.
    *
    * @param source Path for the file to extract
    * @throws IOException
    */
-  private void extract(Path source) throws IOException {
-    var sourceAsString = source.toString();
-    var target = Path.of(sourceAsString.substring(0, sourceAsString.length() - 3));
-    LOG.debug("Decompressing " + source.toAbsolutePath() + " into " + target);
+  private void extract(InputStream source, Path target) throws IOException {
     try (
-      var is = Files.newInputStream(source);
-      var stream = new BufferedInputStream(is);
+      var stream = new BufferedInputStream(source);
       var archive = new XZInputStream(stream);
       var os = Files.newOutputStream(target);
     ) {
+      LOG.debug("Extracting embedded node to {}", target);
       int nextBytes;
       byte[] buf = new byte[8 * 1024 * 1024];
       while ((nextBytes = archive.read(buf)) > -1) {
