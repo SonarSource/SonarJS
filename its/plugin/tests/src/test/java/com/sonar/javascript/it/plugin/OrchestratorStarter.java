@@ -28,9 +28,14 @@ import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.junit5.OrchestratorExtension;
 import com.sonar.orchestrator.locator.FileLocation;
 import com.sonar.orchestrator.locator.MavenLocation;
-import java.io.File;
+import com.sonar.orchestrator.locator.URLLocation;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 import javax.annotation.CheckForNull;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -46,10 +51,31 @@ public final class OrchestratorStarter
   implements BeforeAllCallback, ExtensionContext.Store.CloseableResource {
 
   static final String SCANNER_VERSION = "5.0.1.3006";
-  static final FileLocation JAVASCRIPT_PLUGIN_LOCATION = FileLocation.byWildcardMavenFilename(
-    new File("../../../sonar-plugin/sonar-javascript-plugin/target"),
-    "sonar-javascript-plugin-*-multi.jar"
-  );
+
+  static final URLLocation JAVASCRIPT_PLUGIN_LOCATION = artifact();
+
+  /**
+   * This is used to test artifact with and without embedded runtime during plugin QA integration tests
+   *
+   */
+  private static URLLocation artifact() {
+    var target = Path.of("../../../sonar-plugin/sonar-javascript-plugin/target");
+    try (var stream = Files.walk(target, 1)) {
+      var plugin = stream
+        .filter(p -> pluginFilenameMatcher().matcher(p.getFileName().toString()).matches())
+        .findAny()
+        .orElseThrow();
+      return URLLocation.create(plugin.toUri().toURL());
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
+  }
+
+  private static Pattern pluginFilenameMatcher() {
+    return "multi".equals(System.getenv("SONARJS_ARTIFACT"))
+      ? Pattern.compile("sonar-javascript-plugin-.*-multi\\.jar")
+      : Pattern.compile("sonar-javascript-plugin-[0-9.]*(?:-SNAPSHOT)?\\.jar");
+  }
 
   public static final OrchestratorExtension ORCHESTRATOR = OrchestratorExtension
     .builderEnv()

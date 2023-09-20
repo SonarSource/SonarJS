@@ -129,8 +129,6 @@
           <skipDependenciesPackaging>true</skipDependenciesPackaging>
           <sonarLintSupported>true</sonarLintSupported>
           <sonarQubeMinVersion>${sonarQubeMinVersion}</sonarQubeMinVersion>
-          <!-- Keep in sync with NodeDeprecationWarning#MIN_SUPPORTED_NODE_VERSION -->
-          <nodeJsMinVersion>14.17.0</nodeJsMinVersion>
           <jreMinVersion>${jdk.min.version}</jreMinVersion>
         </configuration>
       </plugin>
@@ -284,6 +282,8 @@
                   <manifestEntries>
                     <!-- This is used to get plugin version at runtime using getPackage().getImplementationVersion() -->
                     <Implementation-Version>${project.version}</Implementation-Version>
+                    <!-- Keep in sync with NodeDeprecationWarning#MIN_SUPPORTED_NODE_VERSION -->
+                    <NodeJs-Min-Version>14.17.0</NodeJs-Min-Version>
                   </manifestEntries>
                 </transformer>
               </transformers>

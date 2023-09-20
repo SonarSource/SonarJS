@@ -30,26 +30,33 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.regex.Pattern;
 import org.sonarsource.sonarlint.core.analysis.api.ClientInputFile;
 
 public class TestUtils {
 
-  static final Path JAVASCRIPT_PLUGIN_LOCATION;
+  static final Path JAVASCRIPT_PLUGIN_LOCATION = artifact();
 
-  static {
-    var start = homeDir().resolve("../sonar-plugin/sonar-javascript-plugin/target");
-    try (var walk = Files.walk(start)) {
-      JAVASCRIPT_PLUGIN_LOCATION =
-        walk
-          .filter(p -> {
-            var filename = p.getFileName().toString();
-            return filename.startsWith("sonar-javascript-plugin-") && filename.endsWith(".jar");
-          })
-          .findAny()
-          .orElseThrow();
+  /**
+   * This is used to test artifact with and without embedded runtime during plugin QA integration tests
+   *
+   */
+  private static Path artifact() {
+    var target = homeDir().resolve("../sonar-plugin/sonar-javascript-plugin/target");
+    try (var stream = Files.walk(target, 1)) {
+      return stream
+        .filter(p -> pluginFilenameMatcher().matcher(p.getFileName().toString()).matches())
+        .findAny()
+        .orElseThrow();
     } catch (IOException e) {
-      throw new IllegalStateException(e);
+      throw new UncheckedIOException(e);
     }
+  }
+
+  private static Pattern pluginFilenameMatcher() {
+    return "multi".equals(System.getenv("SONARJS_ARTIFACT"))
+      ? Pattern.compile("sonar-javascript-plugin-.*-multi\\.jar")
+      : Pattern.compile("sonar-javascript-plugin-[0-9.]*(?:-SNAPSHOT)?\\.jar");
   }
 
   public static Path homeDir() {
