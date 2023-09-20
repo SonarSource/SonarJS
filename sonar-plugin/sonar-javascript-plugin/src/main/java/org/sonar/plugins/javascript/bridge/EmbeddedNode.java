@@ -163,37 +163,13 @@ public class EmbeddedNode {
     var targetRuntime = deployLocation.resolve(platform.binary());
     var targetDirectory = targetRuntime.getParent();
     var targetVersion = targetDirectory.resolve(VERSION_FILENAME);
-    var targetLockFile = targetDirectory.resolve("lockfile");
     // we assume that since the archive exists, the version file must as well
     var versionIs = getClass().getResourceAsStream(platform.versionPathInJar());
 
-    if (!Files.exists(targetVersion) || isDifferent(versionIs, targetVersion)) {
-      Files.createDirectories(targetDirectory);
-      try (
-        var fos = new FileOutputStream(targetLockFile.toString());
-        var channel = fos.getChannel();
-      ) {
-        var lock = channel.tryLock();
-        if (lock != null) {
-          try {
-            LOG.debug("Locked file: " + targetRuntime + " using lock " + lock);
-            extract(is, targetRuntime);
-            Files.copy(versionIs, deployLocation.resolve(VERSION_FILENAME), REPLACE_EXISTING);
-          } finally {
-            lock.release();
-            Files.delete(targetLockFile);
-          }
-        } else {
-          try {
-            LOG.debug("Waiting");
-            Thread.sleep(TEN_SECONDS_MILLIS);
-          } catch (InterruptedException e) {
-            LOG.error("Interrupted while waiting for another process to extract the node runtime");
-          }
-        }
-      }
-    } else {
+    if (Files.exists(targetVersion) && !isDifferent(versionIs, targetVersion)) {
       LOG.debug("Skipping node deploy. Deployed node has latest version.");
+    } else {
+      extractionWithLocking(is, versionIs, targetRuntime, targetDirectory);
     }
 
     isAvailable = true;
@@ -212,6 +188,39 @@ public class EmbeddedNode {
       newVersionString
     );
     return !newVersionString.equals(currentVersionString);
+  }
+
+  private void extractionWithLocking(
+    InputStream source,
+    InputStream versionIs,
+    Path targetRuntime,
+    Path targetDirectory
+  ) throws IOException {
+    var targetLockFile = targetDirectory.resolve("lockfile");
+    Files.createDirectories(targetDirectory);
+    try (
+      var fos = new FileOutputStream(targetLockFile.toString());
+      var channel = fos.getChannel();
+    ) {
+      var lock = channel.tryLock();
+      if (lock != null) {
+        try {
+          LOG.debug("Locked file: " + targetRuntime + " using lock " + lock);
+          extract(source, targetRuntime);
+          Files.copy(versionIs, deployLocation.resolve(VERSION_FILENAME), REPLACE_EXISTING);
+        } finally {
+          lock.release();
+          Files.delete(targetLockFile);
+        }
+      } else {
+        try {
+          LOG.debug("Waiting");
+          Thread.sleep(TEN_SECONDS_MILLIS);
+        } catch (InterruptedException e) {
+          LOG.error("Interrupted while waiting for another process to extract the node runtime");
+        }
+      }
+    }
   }
 
   /**
