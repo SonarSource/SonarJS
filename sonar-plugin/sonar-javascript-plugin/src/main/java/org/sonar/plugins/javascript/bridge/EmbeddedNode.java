@@ -181,6 +181,14 @@ public class EmbeddedNode {
     throws IOException {
     var newVersionString = new String(newVersionIs.readAllBytes(), StandardCharsets.UTF_8);
     var currentVersionString = Files.readString(currentVersionPath);
+    LOG.debug(
+      "Currently installed Node.JS version: " +
+      currentVersionString +
+      " at " +
+      currentVersionPath +
+      ". Available version in analyzer: " +
+      newVersionString
+    );
     return !newVersionString.equals(currentVersionString);
   }
 
