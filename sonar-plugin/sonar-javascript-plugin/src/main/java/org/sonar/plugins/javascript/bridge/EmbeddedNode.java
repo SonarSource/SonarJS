@@ -128,14 +128,14 @@ public class EmbeddedNode {
 
   public EmbeddedNode(Environment env) {
     this.platform = Platform.detect(env);
-    this.deployLocation = getPluginCache(env.getUserHome());
+    this.deployLocation = runtimeCachePathFrom(env.getUserHome());
     this.env = env;
   }
 
   /**
    * @return a path to `DEPLOY_LOCATION` from the given `baseDir`
    */
-  private static Path getPluginCache(String baseDir) {
+  private static Path runtimeCachePathFrom(String baseDir) {
     return Path.of(baseDir).resolve(DEPLOY_LOCATION);
   }
 
