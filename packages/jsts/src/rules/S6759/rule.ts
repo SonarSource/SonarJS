@@ -102,9 +102,9 @@ export const rule: Rule.RuleModule = {
     };
 
     /**
-     * A function is considered to be a React functional component if it is
-     * is a named function declaration with a starting uppercase letter, it
-     * takes at most one parameter, and it returns some JSX value.
+     * A function is considered to be a React functional component if it
+     * is a named function declaration with a starting uppercase letter,
+     * it takes at most one parameter, and it returns some JSX value.
      */
     function isFunctionalComponent(node: Function, info: FunctionInfo) {
       /* Named function declaration */
