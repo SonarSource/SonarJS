@@ -112,7 +112,7 @@ class BridgeServerImplTest {
   }
 
   @AfterEach
-  public void tearDown() throws Exception {
+  public void tearDown() {
     try {
       if (bridgeServer != null) {
         bridgeServer.clean();
@@ -156,7 +156,7 @@ class BridgeServerImplTest {
         deprecationWarning,
         tempFolder,
         monitoring,
-        new EmbeddedNode()
+        new EmbeddedNode(createMockEnvironment())
       );
     bridgeServer.deploy();
     List<Path> deployedBundles = emptyList();
@@ -660,7 +660,7 @@ class BridgeServerImplTest {
         deprecationWarning,
         tempFolder,
         monitoring,
-        new EmbeddedNode()
+        new EmbeddedNode(createMockEnvironment())
       );
     assertThat(bridgeServer.getTimeoutSeconds()).isEqualTo(300);
   }
@@ -723,7 +723,7 @@ class BridgeServerImplTest {
         deprecationWarning,
         tempFolder,
         monitoring,
-        new EmbeddedNode()
+        new EmbeddedNode(createMockEnvironment())
       );
     bridgeServer.deploy();
     bridgeServer.startServerLazily(context);
@@ -755,7 +755,7 @@ class BridgeServerImplTest {
         deprecationWarning,
         tempFolder,
         monitoring,
-        new EmbeddedNode()
+        new EmbeddedNode(createMockEnvironment())
       );
     bridgeServer.startServerLazily(context);
 
@@ -772,8 +772,16 @@ class BridgeServerImplTest {
       deprecationWarning,
       tempFolder,
       monitoring,
-      new EmbeddedNode()
+      new EmbeddedNode(createMockEnvironment())
     );
+  }
+
+  private Environment createMockEnvironment() {
+    Environment mockEnvironment = mock(Environment.class);
+    when(mockEnvironment.getUserHome()).thenReturn("");
+    when(mockEnvironment.getOsName()).thenReturn("");
+    when(mockEnvironment.getOsArch()).thenReturn("");
+    return mockEnvironment;
   }
 
   static class TestBundle implements Bundle {

@@ -19,13 +19,17 @@
  */
 package org.sonar.plugins.javascript.bridge;
 
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static java.nio.file.attribute.PosixFilePermission.OWNER_EXECUTE;
 import static java.nio.file.attribute.PosixFilePermission.OWNER_READ;
+import static java.nio.file.attribute.PosixFilePermission.OWNER_WRITE;
 import static org.sonar.plugins.javascript.bridge.EmbeddedNode.Platform.UNSUPPORTED;
 import static org.sonarsource.api.sonarlint.SonarLintSide.INSTANCE;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Locale;
@@ -36,12 +40,20 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 import org.tukaani.xz.XZInputStream;
 
+/**
+ * Class handling the extraction of the embedded Node.JS runtime
+ */
 @ScannerSide
 @SonarLintSide(lifespan = INSTANCE)
 public class EmbeddedNode {
 
+  private static final String DEPLOY_LOCATION = Path.of(".sonar", "js", "node-runtime").toString();
+  public static final String VERSION_FILENAME = "version.txt";
   private static final Logger LOG = Loggers.get(EmbeddedNode.class);
   private Path deployLocation;
+  private final Platform platform;
+  private boolean isAvailable;
+  private Environment env;
 
   enum Platform {
     WIN_X64,
@@ -49,17 +61,31 @@ public class EmbeddedNode {
     DARWIN_ARM64,
     UNSUPPORTED;
 
-    String pathInJar() {
+    private String pathInJar() {
       switch (this) {
         case WIN_X64:
-          return "/win-x64/node.exe.xz";
+          return "/win-x64/";
         case LINUX_X64:
-          return "/linux-x64/node.xz";
+          return "/linux-x64/";
         case DARWIN_ARM64:
-          return "/darwin-arm64/node.xz";
+          return "/darwin-arm64/";
         default:
           return "";
       }
+    }
+
+    /**
+     * @return the path of the node compressed node runtime in the JAR
+     */
+    String archivePathInJar() {
+      return pathInJar() + binary() + ".xz";
+    }
+
+    /**
+     * @return the path of the file storing the version of the node runtime in the JAR
+     */
+    String versionPathInJar() {
+      return pathInJar() + VERSION_FILENAME;
     }
 
     /**
@@ -73,59 +99,97 @@ public class EmbeddedNode {
       }
     }
 
-    static Platform detect() {
-      var osName = System.getProperty("os.name");
+    /**
+     * @return The platform where this code is running
+     */
+    static Platform detect(Environment env) {
+      var osName = env.getOsName();
       var lowerCaseOsName = osName.toLowerCase(Locale.ROOT);
-      if (osName.contains("Windows") && isX64()) {
+      if (osName.contains("Windows") && isX64(env)) {
         return WIN_X64;
-      } else if (lowerCaseOsName.contains("linux") && isX64()) {
+      } else if (lowerCaseOsName.contains("linux") && isX64(env)) {
         return LINUX_X64;
-      } else if (lowerCaseOsName.contains("mac os") && (isARM64())) {
+      } else if (lowerCaseOsName.contains("mac os") && isARM64(env)) {
         return DARWIN_ARM64;
       }
       return UNSUPPORTED;
     }
 
-    static boolean isX64() {
-      var arch = System.getProperty("os.arch");
-      return arch.contains("amd64");
+    private static boolean isX64(Environment env) {
+      return env.getOsArch().contains("amd64");
     }
 
-    static boolean isARM64() {
-      var arch = System.getProperty("os.arch");
-      return arch.contains("aarch64");
+    private static boolean isARM64(Environment env) {
+      return env.getOsArch().contains("aarch64");
     }
   }
 
-  private final Platform platform = Platform.detect();
+  public EmbeddedNode(Environment env) {
+    this.platform = Platform.detect(env);
+    this.deployLocation = getPluginCache(env.getUserHome());
+    this.env = env;
+  }
 
-  private boolean isAvailable;
+  /**
+   * @return a path to `DEPLOY_LOCATION` from the given `baseDir`
+   */
+  private static Path getPluginCache(String baseDir) {
+    return Path.of(baseDir).resolve(DEPLOY_LOCATION);
+  }
 
   public boolean isAvailable() {
     return platform != UNSUPPORTED && isAvailable;
   }
 
-  public void deployNode(Path deployLocation) throws IOException {
-    LOG.debug(
-      "Detected os: {} arch: {} platform: {}",
-      System.getProperty("os.name"),
-      System.getProperty("os.arch"),
-      platform
-    );
+  /**
+   * Extracts the node runtime from the JAR to the given `deployLocation`.
+   * Skips the operation if the platform is unsupported, already extracted or missing from the JAR (legacy).
+   *
+   * @throws IOException
+   */
+  public void deploy() throws IOException {
+    LOG.debug("Detected os: {} arch: {} platform: {}", env.getOsName(), env.getOsArch(), platform);
     if (platform == UNSUPPORTED || isAvailable) {
       return;
     }
-    this.deployLocation = deployLocation;
-    var is = getClass().getResourceAsStream(platform.pathInJar());
+    var is = getClass().getResourceAsStream(platform.archivePathInJar());
     if (is == null) {
-      LOG.debug("Embedded node not found for platform {}", platform.pathInJar());
+      LOG.debug("Embedded node not found for platform {}", platform.archivePathInJar());
       return;
     }
-    var target = deployLocation.resolve(platform.binary() + ".xz");
-    LOG.debug("Copy embedded node to {}", target);
-    Files.copy(is, target);
-    extract(target);
+
+    var targetArchive = deployLocation.resolve(platform.binary() + ".xz");
+    var targetDirectory = targetArchive.getParent();
+    var targetVersion = targetDirectory.resolve(VERSION_FILENAME);
+    // we assume that since the archive exists, the version file must as well
+    var versionIs = getClass().getResourceAsStream(platform.versionPathInJar());
+
+    if (!Files.exists(targetVersion) || isDifferent(versionIs, targetVersion)) {
+      LOG.debug("Copy embedded node to {}", targetArchive);
+      Files.createDirectories(targetDirectory);
+      Files.copy(is, targetArchive, REPLACE_EXISTING);
+      extract(targetArchive);
+      Files.copy(versionIs, deployLocation.resolve(VERSION_FILENAME), REPLACE_EXISTING);
+    } else {
+      LOG.debug("Skipping node deploy. Deployed node has latest version.");
+    }
+
     isAvailable = true;
+  }
+
+  private static boolean isDifferent(InputStream newVersionIs, Path currentVersionPath)
+    throws IOException {
+    var newVersionString = new String(newVersionIs.readAllBytes(), StandardCharsets.UTF_8);
+    var currentVersionString = Files.readString(currentVersionPath);
+    LOG.debug(
+      "Currently installed Node.JS version: " +
+      currentVersionString +
+      " at " +
+      currentVersionPath +
+      ". Available version in analyzer: " +
+      newVersionString
+    );
+    return !newVersionString.equals(currentVersionString);
   }
 
   /**
@@ -140,11 +204,6 @@ public class EmbeddedNode {
   private void extract(Path source) throws IOException {
     var sourceAsString = source.toString();
     var target = Path.of(sourceAsString.substring(0, sourceAsString.length() - 3));
-    if (Files.exists(target)) {
-      // TODO drop this skip if it prevents us from upgrading the runtime
-      LOG.debug("Skipping decompression. " + target.toString() + " already exists.");
-      return;
-    }
     LOG.debug("Decompressing " + source.toAbsolutePath() + " into " + target);
     try (
       var is = Files.newInputStream(source);
@@ -158,7 +217,7 @@ public class EmbeddedNode {
         os.write(buf, 0, nextBytes);
       }
       if (platform != Platform.WIN_X64) {
-        Files.setPosixFilePermissions(target, Set.of(OWNER_EXECUTE, OWNER_READ));
+        Files.setPosixFilePermissions(target, Set.of(OWNER_EXECUTE, OWNER_READ, OWNER_WRITE));
       }
     }
   }
