@@ -162,6 +162,10 @@
                   <resource>win-x64/node.exe.xz</resource>
                   <file>${project.build.directory}/node/win-x64/node.exe.xz</file>
                 </transformer>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+                  <resource>win-x64/version.txt</resource>
+                  <file>${project.build.directory}/node/win-x64/version.txt</file>
+                </transformer>
               </transformers>
             </configuration>
           </execution>
@@ -186,6 +190,10 @@
                   <resource>linux-x64/node.xz</resource>
                   <file>${project.build.directory}/node/linux-x64/node.xz</file>
                 </transformer>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+                  <resource>linux-x64/version.txt</resource>
+                  <file>${project.build.directory}/node/linux-x64/version.txt</file>
+                </transformer>
               </transformers>
             </configuration>
           </execution>
@@ -209,6 +217,10 @@
                 <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
                   <resource>darwin-arm64/node.xz</resource>
                   <file>${project.build.directory}/node/darwin-arm64/node.xz</file>
+                </transformer>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+                  <resource>darwin-arm64/version.txt</resource>
+                  <file>${project.build.directory}/node/darwin-arm64/version.txt</file>
                 </transformer>
               </transformers>
             </configuration>
@@ -235,12 +247,24 @@
                   <file>${project.build.directory}/node/win-x64/node.exe.xz</file>
                 </transformer>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+                  <resource>win-x64/version.txt</resource>
+                  <file>${project.build.directory}/node/win-x64/version.txt</file>
+                </transformer>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
                   <resource>linux-x64/node.xz</resource>
                   <file>${project.build.directory}/node/linux-x64/node.xz</file>
                 </transformer>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+                  <resource>linux-x64/version.txt</resource>
+                  <file>${project.build.directory}/node/linux-x64/version.txt</file>
+                </transformer>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
                   <resource>darwin-arm64/node.xz</resource>
                   <file>${project.build.directory}/node/darwin-arm64/node.xz</file>
+                </transformer>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+                  <resource>darwin-arm64/version.txt</resource>
+                  <file>${project.build.directory}/node/darwin-arm64/version.txt</file>
                 </transformer>
               </transformers>
             </configuration>

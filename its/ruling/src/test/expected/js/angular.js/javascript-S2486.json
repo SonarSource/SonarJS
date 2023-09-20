@@ -9,6 +9,9 @@
 "angular.js:test/helpers/support.js": [
 16
 ],
+"angular.js:test/ng/compileSpec.fixture.js": [
+688
+],
 "angular.js:test/ng/compileSpec.js": [
 688
 ],

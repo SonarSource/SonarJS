@@ -42,6 +42,7 @@ import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.bridge.EmbeddedNode;
+import org.sonar.plugins.javascript.bridge.Environment;
 
 public class NodeCommandBuilderImpl implements NodeCommandBuilder {
 
@@ -59,7 +60,7 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
   );
 
   private final ProcessWrapper processWrapper;
-  private EmbeddedNode embeddedNode = new EmbeddedNode();
+  private EmbeddedNode embeddedNode = new EmbeddedNode(new Environment());
   private Version minNodeVersion;
   private Configuration configuration;
   private List<String> args = new ArrayList<>();

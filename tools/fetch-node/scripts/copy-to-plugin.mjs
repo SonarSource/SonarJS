@@ -21,7 +21,7 @@ import fse from 'fs-extra';
 import * as path from 'node:path';
 import * as fs from 'node:fs';
 import { RUNTIMES_DIR, TARGET_DIR } from './directories.mjs';
-import NODE_DISTROS from '../node-distros.mjs';
+import { DISTROS, NODE_VERSION, VERSION_FILENAME } from '../node-distros.mjs';
 
 /**
  * Copies tools/fetch-node/downloads/runtimes
@@ -29,7 +29,7 @@ import NODE_DISTROS from '../node-distros.mjs';
  * sonar-plugin/sonar-javascript-plugin/target/node
  */
 
-for (const distro of NODE_DISTROS) {
+for (const distro of DISTROS) {
   const sourceDir = path.join(RUNTIMES_DIR, distro.id);
   const filename = fs.readdirSync(sourceDir).filter(filename => filename.endsWith('.xz'))[0];
   const targetDir = path.join(TARGET_DIR, distro.id);
@@ -38,4 +38,5 @@ for (const distro of NODE_DISTROS) {
   const targetFilename = path.join(targetDir, filename);
   console.log(`Copying ${sourceFilename} to ${targetFilename}`);
   fse.copySync(sourceFilename, targetFilename);
+  fs.writeFileSync(path.join(targetDir, VERSION_FILENAME), NODE_VERSION);
 }
