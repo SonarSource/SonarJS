@@ -77,6 +77,7 @@ build_task:
     dockerfile: .cirrus/nodejs.Dockerfile
     docker_arguments:
       CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
+      NDOE_VERSION: 18
     cpu: 15
     memory: 30G
   env:
