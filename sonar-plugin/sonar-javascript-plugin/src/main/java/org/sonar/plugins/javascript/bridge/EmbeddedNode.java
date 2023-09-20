@@ -27,6 +27,7 @@ import static org.sonar.plugins.javascript.bridge.EmbeddedNode.Platform.UNSUPPOR
 import static org.sonarsource.api.sonarlint.SonarLintSide.INSTANCE;
 
 import java.io.BufferedInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -54,6 +55,7 @@ public class EmbeddedNode {
   private final Platform platform;
   private boolean isAvailable;
   private Environment env;
+  private long TEN_SECONDS_MILLIS = 10000;
 
   enum Platform {
     WIN_X64,
@@ -210,14 +212,26 @@ public class EmbeddedNode {
       var stream = new BufferedInputStream(is);
       var archive = new XZInputStream(stream);
       var os = Files.newOutputStream(target);
+      var fos = new FileOutputStream(target.toString());
     ) {
-      int nextBytes;
-      byte[] buf = new byte[8 * 1024 * 1024];
-      while ((nextBytes = archive.read(buf)) > -1) {
-        os.write(buf, 0, nextBytes);
-      }
-      if (platform != Platform.WIN_X64) {
-        Files.setPosixFilePermissions(target, Set.of(OWNER_EXECUTE, OWNER_READ, OWNER_WRITE));
+      var channel = fos.getChannel();
+      var lock = channel.tryLock();
+      if (lock != null) {
+        int nextBytes;
+        byte[] buf = new byte[8 * 1024 * 1024];
+        while ((nextBytes = archive.read(buf)) > -1) {
+          os.write(buf, 0, nextBytes);
+        }
+        if (platform != Platform.WIN_X64) {
+          Files.setPosixFilePermissions(target, Set.of(OWNER_EXECUTE, OWNER_READ, OWNER_WRITE));
+        }
+        lock.release();
+      } else {
+        try {
+          Thread.sleep(TEN_SECONDS_MILLIS);
+        } catch (InterruptedException e) {
+          LOG.error("Interrupted while waiting for another process to extract the node runtime");
+        }
       }
     }
   }
