@@ -3,6 +3,10 @@ package org.sonar.plugins.javascript.bridge;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.plugins.javascript.bridge.EmbeddedNode.Platform.DARWIN_ARM64;
+import static org.sonar.plugins.javascript.bridge.EmbeddedNode.Platform.LINUX_X64;
+import static org.sonar.plugins.javascript.bridge.EmbeddedNode.Platform.UNSUPPORTED;
+import static org.sonar.plugins.javascript.bridge.EmbeddedNode.Platform.WIN_X64;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -12,6 +16,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
 import org.slf4j.event.Level;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
+import org.sonar.plugins.javascript.bridge.EmbeddedNode.Platform;
 
 class EmbeddedNodeTest {
 
@@ -31,6 +36,7 @@ class EmbeddedNodeTest {
     Files.write(runtimeFolder.resolve("version.txt"), "a-different-version".getBytes());
     en.deploy();
     assertThat(en.binary()).exists();
+    assertThat(en.isAvailable()).isTrue();
   }
 
   @Test
@@ -44,6 +50,14 @@ class EmbeddedNodeTest {
     );
     en.deploy();
     assertThat(en.binary()).doesNotExist();
+    assertThat(en.isAvailable()).isTrue();
+  }
+
+  @Test
+  void should_not_be_available() throws Exception {
+    var en = new EmbeddedNode(createUnsupportedEnvironment());
+    en.deploy();
+    assertThat(en.isAvailable()).isFalse();
   }
 
   @Test
@@ -55,29 +69,55 @@ class EmbeddedNodeTest {
 
   @Test
   void should_detect_platform_for_windows_environment() {
-    var platform = EmbeddedNode.Platform.detect(createWindowsEnvironment());
-    assertThat(platform).isEqualTo(EmbeddedNode.Platform.WIN_X64);
+    var platform = Platform.detect(createWindowsEnvironment());
+    assertThat(platform).isEqualTo(WIN_X64);
     assertThat(platform.archivePathInJar()).isEqualTo("/win-x64/node.exe.xz");
   }
 
   @Test
   void should_detect_platform_for_mac_os_environment() {
-    var platform = EmbeddedNode.Platform.detect(createMacOSEnvironment());
-    assertThat(platform).isEqualTo(EmbeddedNode.Platform.DARWIN_ARM64);
+    var platform = Platform.detect(createMacOSEnvironment());
+    assertThat(platform).isEqualTo(DARWIN_ARM64);
     assertThat(platform.archivePathInJar()).isEqualTo("/darwin-arm64/node.xz");
   }
 
   @Test
+  void should_detect_platform_for_linux_environment() {
+    var linux = mock(Environment.class);
+    when(linux.getOsName()).thenReturn("linux");
+    when(linux.getOsArch()).thenReturn("amd64");
+    var platform = Platform.detect(linux);
+    assertThat(platform).isEqualTo(LINUX_X64);
+    assertThat(platform.archivePathInJar()).isEqualTo("/linux-x64/node.xz");
+  }
+
+  @Test
   void should_return_unsupported_for_unknown_environment() {
-    var platform = EmbeddedNode.Platform.detect(createUnsupportedEnvironment());
-    assertThat(platform).isEqualTo(EmbeddedNode.Platform.UNSUPPORTED);
+    var platform = Platform.detect(createUnsupportedEnvironment());
+    assertThat(platform).isEqualTo(UNSUPPORTED);
     assertThat(platform.archivePathInJar()).isEqualTo("node.xz");
   }
 
+  @Test
+  void test_unsupported_archs() {
+    var win = mock(Environment.class);
+    when(win.getOsName()).thenReturn("Windows");
+    when(win.getOsArch()).thenReturn("unknown");
+    assertThat(Platform.detect(win)).isEqualTo(UNSUPPORTED);
+
+    var linux = mock(Environment.class);
+    when(linux.getOsName()).thenReturn("linux");
+    when(linux.getOsArch()).thenReturn("unknown");
+    assertThat(Platform.detect(linux)).isEqualTo(UNSUPPORTED);
+
+    var macos = mock(Environment.class);
+    when(macos.getOsName()).thenReturn("mac os");
+    when(macos.getOsArch()).thenReturn("unknown");
+    assertThat(Platform.detect(macos)).isEqualTo(UNSUPPORTED);
+  }
+
   private byte[] extractCurrentVersion(Environment env) throws IOException {
-    return getClass()
-      .getResourceAsStream(EmbeddedNode.Platform.detect(env).versionPathInJar())
-      .readAllBytes();
+    return getClass().getResourceAsStream(Platform.detect(env).versionPathInJar()).readAllBytes();
   }
 
   private Environment createTestEnvironment() {
@@ -106,6 +146,7 @@ class EmbeddedNodeTest {
     Environment mockEnvironment = mock(Environment.class);
     when(mockEnvironment.getOsName()).thenReturn("");
     when(mockEnvironment.getOsArch()).thenReturn("");
+    when(mockEnvironment.getUserHome()).thenReturn(tempDir.toString());
     return mockEnvironment;
   }
 }

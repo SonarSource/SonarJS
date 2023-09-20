@@ -73,7 +73,9 @@ import org.sonar.plugins.javascript.bridge.BridgeServer.TsProgram;
 import org.sonar.plugins.javascript.bridge.BridgeServer.TsProgramRequest;
 import org.sonar.plugins.javascript.nodejs.NodeCommand;
 import org.sonar.plugins.javascript.nodejs.NodeCommandBuilder;
+import org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl;
 import org.sonar.plugins.javascript.nodejs.NodeCommandException;
+import org.sonar.plugins.javascript.nodejs.ProcessWrapperImpl;
 
 class BridgeServerImplTest {
 
@@ -654,7 +656,7 @@ class BridgeServerImplTest {
   void should_use_default_timeout() {
     bridgeServer =
       new BridgeServerImpl(
-        NodeCommand.builder(),
+        builder(),
         mock(Bundle.class),
         mock(RulesBundles.class),
         deprecationWarning,
@@ -716,7 +718,7 @@ class BridgeServerImplTest {
     assertThat(monitoring.isMonitoringEnabled()).isTrue();
     bridgeServer =
       new BridgeServerImpl(
-        NodeCommand.builder(),
+        builder(),
         TEST_TIMEOUT_SECONDS,
         new TestBundle(START_SERVER_SCRIPT),
         emptyRulesBundles,
@@ -748,7 +750,7 @@ class BridgeServerImplTest {
 
     bridgeServer =
       new BridgeServerImpl(
-        NodeCommand.builder(),
+        builder(),
         TEST_TIMEOUT_SECONDS,
         new TestBundle(START_SERVER_SCRIPT),
         rulesBundles,
@@ -765,7 +767,7 @@ class BridgeServerImplTest {
 
   private BridgeServerImpl createBridgeServer(String startServerScript) {
     return new BridgeServerImpl(
-      NodeCommand.builder(),
+      builder(),
       TEST_TIMEOUT_SECONDS,
       new TestBundle(startServerScript),
       emptyRulesBundles,
@@ -807,5 +809,10 @@ class BridgeServerImplTest {
       File file = new File("src/test/resources");
       return new File(file.getAbsoluteFile(), relativePath).getAbsolutePath();
     }
+  }
+
+  private static NodeCommandBuilder builder() {
+    return new NodeCommandBuilderImpl(new ProcessWrapperImpl())
+      .configuration(new MapSettings().asConfig());
   }
 }

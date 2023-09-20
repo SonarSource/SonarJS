@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.tukaani.xz.XZInputStream;
 
-public class XZTest {
+class XZTest {
 
   @TempDir
   Path tempDir;
@@ -51,6 +51,13 @@ public class XZTest {
     String[] filenames = { "foobar" };
     assertThatThrownBy(() -> XZ.compress(filenames))
       .hasMessage("File " + filenames[0] + " does not exist.");
+  }
+
+  @Test
+  void output_already_exists() throws Exception {
+    var f = Files.createFile(Path.of(origFilePath + ".xz"));
+    XZ.main(new String[] { origFilePath.toString() });
+    assertThat(Files.size(f)).isZero();
   }
 
   /**
