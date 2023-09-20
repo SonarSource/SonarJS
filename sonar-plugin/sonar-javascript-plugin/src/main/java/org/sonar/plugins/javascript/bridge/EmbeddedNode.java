@@ -30,7 +30,6 @@ import java.io.BufferedInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.channels.FileLock;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -164,17 +163,17 @@ public class EmbeddedNode {
     var targetRuntime = deployLocation.resolve(platform.binary());
     var targetDirectory = targetRuntime.getParent();
     var targetVersion = targetDirectory.resolve(VERSION_FILENAME);
+    var targetLockFile = targetDirectory.resolve("lockfile");
     // we assume that since the archive exists, the version file must as well
     var versionIs = getClass().getResourceAsStream(platform.versionPathInJar());
 
     if (!Files.exists(targetVersion) || isDifferent(versionIs, targetVersion)) {
       Files.createDirectories(targetDirectory);
-      FileLock lock = null;
       try (
-        var fos = new FileOutputStream(targetRuntime.toString());
+        var fos = new FileOutputStream(targetLockFile.toString());
         var channel = fos.getChannel();
       ) {
-        lock = channel.tryLock();
+        var lock = channel.tryLock();
         if (lock != null) {
           try {
             LOG.debug("Locked file: " + targetRuntime + " using lock " + lock);
@@ -182,6 +181,7 @@ public class EmbeddedNode {
             Files.copy(versionIs, deployLocation.resolve(VERSION_FILENAME), REPLACE_EXISTING);
           } finally {
             lock.release();
+            Files.delete(targetLockFile);
           }
         } else {
           try {
