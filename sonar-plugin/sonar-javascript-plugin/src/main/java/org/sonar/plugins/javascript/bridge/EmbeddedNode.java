@@ -30,6 +30,7 @@ import java.io.BufferedInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.channels.FileLock;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -168,19 +169,27 @@ public class EmbeddedNode {
 
     if (!Files.exists(targetVersion) || isDifferent(versionIs, targetVersion)) {
       Files.createDirectories(targetDirectory);
-      var fos = new FileOutputStream(targetRuntime.toString());
-      var channel = fos.getChannel();
-      var lock = channel.tryLock();
-      if (lock != null) {
-        LOG.debug("Locked file: " + targetRuntime + " using lock " + lock);
-        extract(is, targetRuntime);
-        Files.copy(versionIs, deployLocation.resolve(VERSION_FILENAME), REPLACE_EXISTING);
-      } else {
-        try {
-          Thread.sleep(TEN_SECONDS_MILLIS);
-          LOG.debug("Waiting");
-        } catch (InterruptedException e) {
-          LOG.error("Interrupted while waiting for another process to extract the node runtime");
+      FileLock lock = null;
+      try (
+        var fos = new FileOutputStream(targetRuntime.toString());
+        var channel = fos.getChannel();
+      ) {
+        lock = channel.tryLock();
+        if (lock != null) {
+          try {
+            LOG.debug("Locked file: " + targetRuntime + " using lock " + lock);
+            extract(is, targetRuntime);
+            Files.copy(versionIs, deployLocation.resolve(VERSION_FILENAME), REPLACE_EXISTING);
+          } finally {
+            lock.release();
+          }
+        } else {
+          try {
+            LOG.debug("Waiting");
+            Thread.sleep(TEN_SECONDS_MILLIS);
+          } catch (InterruptedException e) {
+            LOG.error("Interrupted while waiting for another process to extract the node runtime");
+          }
         }
       }
     } else {
