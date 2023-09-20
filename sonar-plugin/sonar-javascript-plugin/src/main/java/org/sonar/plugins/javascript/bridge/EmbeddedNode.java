@@ -169,9 +169,22 @@ public class EmbeddedNode {
     if (!Files.exists(targetVersion) || isDifferent(versionIs, targetVersion)) {
       LOG.debug("Copy embedded node to {}", targetArchive);
       Files.createDirectories(targetDirectory);
-      Files.copy(is, targetArchive, REPLACE_EXISTING);
-      extract(targetArchive);
-      Files.copy(versionIs, deployLocation.resolve(VERSION_FILENAME), REPLACE_EXISTING);
+      var fos = new FileOutputStream(targetArchive.toString());
+      var channel = fos.getChannel();
+      var lock = channel.tryLock();
+      if (lock != null) {
+        LOG.debug("Locking file: " + lock);
+        Files.copy(is, targetArchive, REPLACE_EXISTING);
+        extract(targetArchive);
+        Files.copy(versionIs, deployLocation.resolve(VERSION_FILENAME), REPLACE_EXISTING);
+      } else {
+        try {
+          Thread.sleep(TEN_SECONDS_MILLIS);
+          LOG.debug("Waiting");
+        } catch (InterruptedException e) {
+          LOG.error("Interrupted while waiting for another process to extract the node runtime");
+        }
+      }
     } else {
       LOG.debug("Skipping node deploy. Deployed node has latest version.");
     }
@@ -212,11 +225,7 @@ public class EmbeddedNode {
       var stream = new BufferedInputStream(is);
       var archive = new XZInputStream(stream);
       var os = Files.newOutputStream(target);
-      var fos = new FileOutputStream(target.toString());
     ) {
-      var channel = fos.getChannel();
-      var lock = channel.tryLock();
-      if (lock != null) {
         int nextBytes;
         byte[] buf = new byte[8 * 1024 * 1024];
         while ((nextBytes = archive.read(buf)) > -1) {
@@ -225,14 +234,6 @@ public class EmbeddedNode {
         if (platform != Platform.WIN_X64) {
           Files.setPosixFilePermissions(target, Set.of(OWNER_EXECUTE, OWNER_READ, OWNER_WRITE));
         }
-        lock.release();
-      } else {
-        try {
-          Thread.sleep(TEN_SECONDS_MILLIS);
-        } catch (InterruptedException e) {
-          LOG.error("Interrupted while waiting for another process to extract the node runtime");
-        }
-      }
     }
   }
 
