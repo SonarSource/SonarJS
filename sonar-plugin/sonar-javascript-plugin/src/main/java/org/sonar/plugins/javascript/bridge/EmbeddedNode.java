@@ -50,12 +50,12 @@ public class EmbeddedNode {
 
   private static final String DEPLOY_LOCATION = Path.of(".sonar", "js", "node-runtime").toString();
   public static final String VERSION_FILENAME = "version.txt";
+  private static final long EXTRACTION_LOCK_WAIT_TIME_MILLIS = 10000;
   private static final Logger LOG = Loggers.get(EmbeddedNode.class);
   private Path deployLocation;
   private final Platform platform;
   private boolean isAvailable;
   private Environment env;
-  private final long TEN_SECONDS_MILLIS = 10000;
 
   enum Platform {
     WIN_X64,
@@ -210,7 +210,7 @@ public class EmbeddedNode {
     Files.createDirectories(targetDirectory);
     try (
       var fos = new FileOutputStream(targetLockFile.toString());
-      var channel = fos.getChannel();
+      var channel = fos.getChannel()
     ) {
       var lock = channel.tryLock();
       if (lock != null) {
@@ -224,9 +224,10 @@ public class EmbeddedNode {
       } else {
         try {
           LOG.debug("Waiting");
-          Thread.sleep(TEN_SECONDS_MILLIS);
+          Thread.sleep(EXTRACTION_LOCK_WAIT_TIME_MILLIS);
         } catch (InterruptedException e) {
-          LOG.error("Interrupted while waiting for another process to extract the node runtime");
+          LOG.warn("Interrupted while waiting for another process to extract the node runtime");
+          Thread.currentThread().interrupt();
         }
       }
     }
