@@ -160,22 +160,20 @@ public class EmbeddedNode {
       return;
     }
 
-    var targetArchive = deployLocation.resolve(platform.binary() + ".xz");
-    var targetDirectory = targetArchive.getParent();
+    var targetRuntime = deployLocation.resolve(platform.binary());
+    var targetDirectory = targetRuntime.getParent();
     var targetVersion = targetDirectory.resolve(VERSION_FILENAME);
     // we assume that since the archive exists, the version file must as well
     var versionIs = getClass().getResourceAsStream(platform.versionPathInJar());
 
     if (!Files.exists(targetVersion) || isDifferent(versionIs, targetVersion)) {
-      LOG.debug("Copy embedded node to {}", targetArchive);
       Files.createDirectories(targetDirectory);
-      var fos = new FileOutputStream(targetArchive.toString());
+      var fos = new FileOutputStream(targetRuntime.toString());
       var channel = fos.getChannel();
       var lock = channel.tryLock();
       if (lock != null) {
-        LOG.debug("Locking file: " + lock);
-        Files.copy(is, targetArchive, REPLACE_EXISTING);
-        extract(targetArchive);
+        LOG.debug("Locked file: " + targetRuntime + " using lock " + lock);
+        extract(is, targetRuntime);
         Files.copy(versionIs, deployLocation.resolve(VERSION_FILENAME), REPLACE_EXISTING);
       } else {
         try {
@@ -208,32 +206,29 @@ public class EmbeddedNode {
   }
 
   /**
-   * Expects a path to a xz-compressed file ending in `.xz` like `node.xz` and
-   * extracts it into the same place as `node`.
+   * Expects an InputStream to a xz-compressed file ending in `.xz` like `node.xz` and
+   * extracts it into the the given target Path.
    * <p>
    * Skips extraction if target file already exists.
    *
    * @param source Path for the file to extract
    * @throws IOException
    */
-  private void extract(Path source) throws IOException {
-    var sourceAsString = source.toString();
-    var target = Path.of(sourceAsString.substring(0, sourceAsString.length() - 3));
-    LOG.debug("Decompressing " + source.toAbsolutePath() + " into " + target);
+  private void extract(InputStream source, Path target) throws IOException {
     try (
-      var is = Files.newInputStream(source);
-      var stream = new BufferedInputStream(is);
+      var stream = new BufferedInputStream(source);
       var archive = new XZInputStream(stream);
       var os = Files.newOutputStream(target);
     ) {
-        int nextBytes;
-        byte[] buf = new byte[8 * 1024 * 1024];
-        while ((nextBytes = archive.read(buf)) > -1) {
-          os.write(buf, 0, nextBytes);
-        }
-        if (platform != Platform.WIN_X64) {
-          Files.setPosixFilePermissions(target, Set.of(OWNER_EXECUTE, OWNER_READ, OWNER_WRITE));
-        }
+      LOG.debug("Extracting embedded node to {}", target);
+      int nextBytes;
+      byte[] buf = new byte[8 * 1024 * 1024];
+      while ((nextBytes = archive.read(buf)) > -1) {
+        os.write(buf, 0, nextBytes);
+      }
+      if (platform != Platform.WIN_X64) {
+        Files.setPosixFilePermissions(target, Set.of(OWNER_EXECUTE, OWNER_READ, OWNER_WRITE));
+      }
     }
   }
 
