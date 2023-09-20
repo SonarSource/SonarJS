@@ -220,7 +220,6 @@ public class EmbeddedNode {
           Files.copy(versionIs, deployLocation.resolve(VERSION_FILENAME), REPLACE_EXISTING);
         } finally {
           lock.release();
-          Files.delete(targetLockFile);
         }
       } else {
         try {
