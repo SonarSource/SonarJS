@@ -94,11 +94,6 @@
 "javascript-test-sources:src/ace/src/mouse/touch_handler.js": [
 59
 ],
-"javascript-test-sources:src/ace/src/scrollbar.js": [
-125,
-130,
-223
-],
 "javascript-test-sources:src/ace/src/scrollbar_test.js": [
 13
 ],
@@ -106,12 +101,7 @@
 270
 ],
 "javascript-test-sources:src/ace/src/test/all_browser.js": [
-11,
 116
-],
-"javascript-test-sources:src/ace/src/virtual_renderer.js": [
-1159,
-1167
 ],
 "javascript-test-sources:src/ace/static.js": [
 33
@@ -139,15 +129,6 @@
 123,
 124
 ],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/models/post.js": [
-329
-],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/models/tag.js": [
-68
-],
-"javascript-test-sources:src/ecmascript6/Ghost/core/server/models/user.js": [
-184
-],
 "javascript-test-sources:src/ecmascript6/ecmascript6-today/7-rest-params/js/rest-spread.js": [
 25
 ],
@@ -160,8 +141,6 @@
 ],
 "javascript-test-sources:src/ecmascript6/router/third_party/brick/brick-1.0.1.byob.js": [
 337,
-572,
-575,
 877,
 1412,
 1637,
