@@ -55,7 +55,7 @@ public class EmbeddedNode {
   private final Platform platform;
   private boolean isAvailable;
   private Environment env;
-  private long TEN_SECONDS_MILLIS = 10000;
+  private final long TEN_SECONDS_MILLIS = 10000;
 
   enum Platform {
     WIN_X64,
@@ -169,7 +169,7 @@ public class EmbeddedNode {
     if (Files.exists(targetVersion) && !isDifferent(versionIs, targetVersion)) {
       LOG.debug("Skipping node deploy. Deployed node has latest version.");
     } else {
-      extractionWithLocking(is, versionIs, targetRuntime, targetDirectory);
+      extractWithLocking(is, versionIs, targetRuntime, targetDirectory);
     }
 
     isAvailable = true;
@@ -190,7 +190,17 @@ public class EmbeddedNode {
     return !newVersionString.equals(currentVersionString);
   }
 
-  private void extractionWithLocking(
+  /**
+   * Creates the `targetDirectory` and extracts the `source` to `targetRuntime`
+   * Writes the version from `versionIs` to `targetDirectory`/VERSION_FILENAME
+   *
+   * @param source
+   * @param versionIs
+   * @param targetRuntime
+   * @param targetDirectory
+   * @throws IOException
+   */
+  private void extractWithLocking(
     InputStream source,
     InputStream versionIs,
     Path targetRuntime,
