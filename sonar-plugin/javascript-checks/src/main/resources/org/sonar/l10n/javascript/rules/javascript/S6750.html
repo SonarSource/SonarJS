@@ -1,0 +1,24 @@
+<h2>Why is this an issue?</h2>
+<p>In React, the <code>ReactDOM.render()</code> method is used to render a React component into a DOM element. It has a return value, but it’s
+generally recommended not to use it. The method might return a reference to the root <code>ReactComponent</code> instance, but it can be unpredictable
+and may not always be useful. Indeed, the return value can vary depending on the version of React you’re using and the specific circumstances in which
+it’s called.</p>
+<pre>
+const instance = ReactDOM.render(&lt;App /&gt;, document.body); // Noncompliant: using the return value of 'ReactDOM.render'
+doSomething(instance);
+</pre>
+<pre>
+ReactDOM.render(&lt;App /&gt;, document.body);
+</pre>
+<p>Alternatively, if you really need a reference to the root <code>ReactComponent</code> instance, the preferred solution is to attach a "callback
+ref" to the root element.</p>
+<pre>
+ReactDOM.render(&lt;App /&gt;, document.body, callbackRef);
+</pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> <a href="https://legacy.reactjs.org/docs/react-dom.html#render">React - ReactDom#render</a> </li>
+  <li> <a href="https://legacy.reactjs.org/docs/refs-and-the-dom.html#callback-refs">React - Callback Refs</a> </li>
+</ul>
+

@@ -76,6 +76,11 @@ export const quickFixRules = new Set([
   'prefer-single-boolean-return',
   'prefer-while',
 
+  // eslint-plugin-react
+  'hook-use-state',
+  'jsx-no-useless-fragment',
+  'no-unknown-property',
+
   // @typescript-eslint plugin
   'no-confusing-non-null-assertion',
   'no-empty-interface',
@@ -118,6 +123,7 @@ export const quickFixRules = new Set([
   'prefer-type-guard',
   'sonar-no-dupe-keys',
   'sonar-no-misleading-character-class',
+  'sonar-prefer-read-only-props',
   'sonar-prefer-regexp-exec',
   'switch-without-default',
   'unnecessary-character-escapes',

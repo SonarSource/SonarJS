@@ -1,0 +1,19 @@
+{
+"javascript-test-sources:src/ace/src/edit_session/bracket_match.js": [
+114,
+171
+],
+"javascript-test-sources:src/ace/src/editor.js": [
+2518,
+2519,
+2521
+],
+"javascript-test-sources:src/ace/src/layer/font_metrics.js": [
+103,
+111
+],
+"javascript-test-sources:src/ace/src/mode/folding/mixed.js": [
+18,
+20
+]
+}

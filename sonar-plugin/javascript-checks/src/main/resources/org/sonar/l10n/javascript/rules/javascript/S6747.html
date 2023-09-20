@@ -1,0 +1,44 @@
+<h2>Why is this an issue?</h2>
+<p>React components often render HTML elements, and developers can pass various props (properties) to these elements. However, React has its own set
+of supported properties and attributes, and it’s essential to avoid using unknown or invalid properties when working with such elements to prevent
+unexpected behavior at runtime.</p>
+<p>The rule reports any instances where you are using a property or attribute that is not recognized by React or the HTML element you are
+rendering.</p>
+<h2>How to fix it</h2>
+<p>Replace any unknown property or attribute with a known one, or add it to the list of exceptions.</p>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+class Welcome extends React.Component {
+  render() {
+    return &lt;div class="hello"&gt;Hello, World!&lt;/div&gt;; // Noncompliant: 'class' is a reserved keyword in JavaScript
+  }
+}
+</pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+class Welcome extends React.Component {
+  render() {
+    return &lt;div className="hello"&gt;Hello, World!&lt;/div&gt;;
+  }
+}
+</pre>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="2" data-diff-type="noncompliant">
+const Image = &lt;img source={myImage} /&gt;; // Noncompliant: The 'img' tag does not recognize any 'source' attribute
+</pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="2" data-diff-type="compliant">
+const Image = &lt;img src={myImage} /&gt;;
+</pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes">MDN - HTML attribute reference</a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes">MDN - HTML global attributes</a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute">MDN - SVG attribute reference</a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Attributes">MDN - ARIA states and properties</a> </li>
+  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/data-*">MDN - data-*</a> </li>
+  <li> <a href="https://react.dev/reference/react-dom/components/common#common-props">React - Standard DOM props</a> </li>
+</ul>
+

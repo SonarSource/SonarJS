@@ -190,6 +190,7 @@ import { rule as S4623 } from './S4623'; // no-undefined-argument
 import { rule as S2138 } from './S2138'; // no-undefined-assignment
 import { rule as S2681 } from './S2681'; // no-unenclosed-multiline-block
 import { rule as S6486 } from './S6486'; // no-uniq-key
+import { rule as S6747 } from './S6747'; // no-unknown-property
 import { rule as S1763 } from './S1763'; // no-unreachable
 import { rule as S5042 } from './S5042'; // no-unsafe-unzip
 import { rule as S6478 } from './S6478'; // no-unstable-nested-components
@@ -254,6 +255,7 @@ import { rule as S6326 } from './S6326'; // sonar-no-regex-spaces
 import { rule as S6441 } from './S6441'; // sonar-no-unused-class-component-methods
 import { rule as S1481 } from './S1481'; // sonar-no-unused-vars
 import { rule as S6582 } from './S6582'; // sonar-prefer-optional-chain
+import { rule as S6759 } from './S6759'; // sonar-prefer-read-only-props
 import { rule as S6594 } from './S6594'; // sonar-prefer-regexp-exec
 import { rule as S2077 } from './S2077'; // sql-queries
 import { rule as S4829 } from './S4829'; // standard-input
@@ -461,6 +463,7 @@ rules['no-undefined-argument'] = S4623;
 rules['no-undefined-assignment'] = S2138;
 rules['no-unenclosed-multiline-block'] = S2681;
 rules['no-uniq-key'] = S6486;
+rules['no-unknown-property'] = S6747;
 rules['no-unreachable'] = S1763;
 rules['no-unsafe-unzip'] = S5042;
 rules['no-unstable-nested-components'] = S6478;
@@ -525,6 +528,7 @@ rules['sonar-no-regex-spaces'] = S6326;
 rules['sonar-no-unused-class-component-methods'] = S6441;
 rules['sonar-no-unused-vars'] = S1481;
 rules['sonar-prefer-optional-chain'] = S6582;
+rules['sonar-prefer-read-only-props'] = S6759;
 rules['sonar-prefer-regexp-exec'] = S6594;
 rules['sql-queries'] = S2077;
 rules['standard-input'] = S4829;
