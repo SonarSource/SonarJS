@@ -24,13 +24,17 @@ import { RUNTIMES_DIR, TARGET_DIR } from './directories.mjs';
 import { DISTROS, NODE_VERSION, VERSION_FILENAME } from '../node-distros.mjs';
 
 /**
- * Copies tools/fetch-node/downloads/runtimes
+ * Copies tools/fetch-node/downloads/runtimes/{distro.id}/{path-to-node-bin}.xz
  * to
- * sonar-plugin/sonar-javascript-plugin/target/node
+ * sonar-plugin/sonar-javascript-plugin/target/node/{distro.id}/{path-to-node-bin}.xz
+ *
+ * Writes the
+ * sonar-plugin/sonar-javascript-plugin/target/node/{distro.id}/version.txt files
  */
 
 for (const distro of DISTROS) {
   const sourceDir = path.join(RUNTIMES_DIR, distro.id);
+  // we know that there is a single compressed archive per distro
   const filename = fs.readdirSync(sourceDir).filter(filename => filename.endsWith('.xz'))[0];
   const targetDir = path.join(TARGET_DIR, distro.id);
   fse.mkdirpSync(targetDir);
