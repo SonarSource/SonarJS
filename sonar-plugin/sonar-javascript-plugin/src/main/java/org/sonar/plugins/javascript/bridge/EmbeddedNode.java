@@ -48,14 +48,14 @@ import org.tukaani.xz.XZInputStream;
 @SonarLintSide(lifespan = INSTANCE)
 public class EmbeddedNode {
 
-  private static final String DEPLOY_LOCATION = Path.of(".sonar", "js", "node-runtime").toString();
   public static final String VERSION_FILENAME = "version.txt";
+  private static final String DEPLOY_LOCATION = Path.of(".sonar", "js", "node-runtime").toString();
   private static final long EXTRACTION_LOCK_WAIT_TIME_MILLIS = 10000;
   private static final Logger LOG = Loggers.get(EmbeddedNode.class);
   private final Path deployLocation;
   private final Platform platform;
-  private boolean isAvailable;
   private final Environment env;
+  private boolean isAvailable;
 
   enum Platform {
     WIN_X64,
@@ -182,8 +182,6 @@ public class EmbeddedNode {
     LOG.debug(
       "Currently installed Node.JS version: " +
       currentVersionString +
-      " at " +
-      currentVersionPath +
       ". Available version in analyzer: " +
       newVersionString
     );
@@ -215,7 +213,7 @@ public class EmbeddedNode {
       var lock = channel.tryLock();
       if (lock != null) {
         try {
-          LOG.debug("Locked file: " + targetRuntime + " using lock " + lock);
+          LOG.debug("Lock acquired for extraction");
           extract(source, targetRuntime);
           Files.copy(versionIs, deployLocation.resolve(VERSION_FILENAME), REPLACE_EXISTING);
         } finally {
@@ -223,10 +221,14 @@ public class EmbeddedNode {
         }
       } else {
         try {
-          LOG.debug("Waiting");
+          LOG.debug(
+            "Lock taken, waiting " +
+            EXTRACTION_LOCK_WAIT_TIME_MILLIS +
+            "ms for other process to extract node runtime."
+          );
           Thread.sleep(EXTRACTION_LOCK_WAIT_TIME_MILLIS);
         } catch (InterruptedException e) {
-          LOG.warn("Interrupted while waiting for another process to extract the node runtime");
+          LOG.warn("Interrupted while waiting for another process to extract the node runtime.");
           Thread.currentThread().interrupt();
         }
       }
