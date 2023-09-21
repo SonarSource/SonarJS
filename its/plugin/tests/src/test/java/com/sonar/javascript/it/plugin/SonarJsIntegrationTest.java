@@ -63,7 +63,16 @@ class SonarJsIntegrationTest {
   @TempDir
   Path temp;
 
-  static Path pluginJar = OrchestratorStarter.JAVASCRIPT_PLUGIN_LOCATION.getFile().toPath();
+  static Path pluginJar;
+
+  static {
+    try {
+      pluginJar = Path.of(OrchestratorStarter.JAVASCRIPT_PLUGIN_LOCATION.getURL().toURI());
+    } catch (URISyntaxException e) {
+      throw new IllegalStateException(e);
+    }
+  }
+
   static final Gson gson = new Gson();
 
   @Test

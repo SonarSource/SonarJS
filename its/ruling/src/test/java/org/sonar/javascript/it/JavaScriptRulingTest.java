@@ -73,7 +73,7 @@ class JavaScriptRulingTest {
     .addPlugin(
       FileLocation.byWildcardMavenFilename(
         new File("../../sonar-plugin/sonar-javascript-plugin/target"),
-        "sonar-javascript-plugin-*.jar"
+        "sonar-javascript-plugin-*-multi.jar"
       )
     )
     .addPlugin(

@@ -135,12 +135,4 @@ public class NodeCommand {
   public Version getActualNodeVersion() {
     return actualNodeVersion;
   }
-
-  public static NodeCommandBuilder builder() {
-    return builder(new ProcessWrapperImpl());
-  }
-
-  static NodeCommandBuilder builder(ProcessWrapper processWrapper) {
-    return new NodeCommandBuilderImpl(processWrapper);
-  }
 }

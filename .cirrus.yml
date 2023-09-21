@@ -20,9 +20,6 @@ env:
   CIRRUS_SHELL: bash
 
 container_definition: &CONTAINER_DEFINITION
-  dockerfile: .cirrus/nodejs.Dockerfile
-  docker_arguments:
-    CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
   cluster_name: ${CIRRUS_CLUSTER_NAME}
   builder_role: cirrus-builder
   builder_image: docker-builder-v*
@@ -37,13 +34,18 @@ maven_cache_definition: &MAVEN_CACHE
     folder: ${CIRRUS_WORKING_DIR}/.m2/repository
     fingerprint_script: cat **/pom.xml
 
+nodejs_runtimes_cache_definition: &RUNTIME_CACHE
+  runtime_cache:
+    folder: tools/fetch-node/downloads/
+    fingerprint_script: cat tools/fetch-node/node-distros.mjs
+
 win_vm_definition: &WINDOWS_VM_DEFINITION
   ec2_instance:
     experimental: true # see https://github.com/cirruslabs/cirrus-ci-docs/issues/1051
     image: base-windows-jdk17-v*
     platform: windows
     region: eu-central-1
-    type: c6id.2xlarge
+    type: c6i.4xlarge
     subnet_id: ${CIRRUS_AWS_SUBNET}
     preemptible: false
     use_ssd: true
@@ -63,17 +65,18 @@ plugin_qa_body: &PLUGIN_QA_BODY
     CIRRUS_CLONE_DEPTH: 10
     SONARSOURCE_QA: true
   <<: *MAVEN_CACHE
-  node_version_script:
-    - node -v
   qa_script:
     - source cirrus-env QA
     - source set_maven_build_version $BUILD_NUMBER
-    - mvn -f its/plugin/pom.xml -Dsonar.runtimeVersion=${SQ_VERSION} -B -e -V verify surefire-report:report
+    - mvn -f its/plugin/pom.xml -Dsonar.runtimeVersion=${SQ_VERSION} ${MVN_TEST} -B -e -V verify surefire-report:report
   cleanup_before_cache_script: cleanup_maven_repository
 
 build_task:
   eks_container:
     <<: *CONTAINER_DEFINITION
+    dockerfile: .cirrus/nodejs.Dockerfile
+    docker_arguments:
+      CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
     cpu: 15
     memory: 30G
   env:
@@ -86,6 +89,7 @@ build_task:
     SIGN_KEY: VAULT[development/kv/data/sign data.key]
     PGP_PASSPHRASE: VAULT[development/kv/data/sign data.passphrase]
   <<: *MAVEN_CACHE
+  <<: *RUNTIME_CACHE
   sonar_cache:
     folder: ${HOME}/.sonar/cache
     fingerprint_script:
@@ -104,10 +108,13 @@ build_win_task:
   <<: *WINDOWS_VM_DEFINITION
   <<: *ONLY_SONARSOURCE_QA
   <<: *MAVEN_CACHE
+  <<: *RUNTIME_CACHE
   build_script:
     - source cirrus-env CI
     - npm config set registry "${ARTIFACTORY_URL}/api/npm/npm"
-    - mvn test
+    #  TODO should be as close to build_task as possible, ie. remove incompatible bash scripts
+    - npm run build && npm run test
+    - npm run fetch-node && mvn test
   cleanup_before_cache_script: cleanup_maven_repository
 
 ws_scan_task:
@@ -115,6 +122,9 @@ ws_scan_task:
     - build
   eks_container:
     <<: *CONTAINER_DEFINITION
+    dockerfile: .cirrus/nodejs.Dockerfile
+    docker_arguments:
+      CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
     cpu: 4
     memory: 8G
   # run only on master and long-term branches
@@ -133,25 +143,31 @@ ws_scan_task:
     ws_artifacts:
       path: 'whitesource/**/*'
 
-plugin_qa_task:
+plugin_qa_with_node_task:
   <<: *PLUGIN_QA_BODY
   eks_container:
     dockerfile: .cirrus/nodejs.jdk17.Dockerfile
-    docker_arguments:
-      matrix:
-        - NODE_VERSION: 14
-        - NODE_VERSION: 16
-        - NODE_VERSION: 18
-        - NODE_VERSION: 20
   env:
     SQ_VERSION: LATEST_RELEASE
+    MVN_TEST: ''
+
+plugin_qa_no_node_task:
+  <<: *PLUGIN_QA_BODY
+  eks_container:
+    image: ${CIRRUS_AWS_ACCOUNT}.dkr.ecr.eu-central-1.amazonaws.com/base:j17-latest
+  env:
+    SQ_VERSION: LATEST_RELEASE
+    SONARJS_ARTIFACT: multi
+    MVN_TEST: '-Dtest=!EslintCustomRulesTest,!SonarJsIntegrationTest --projects !org.sonarsource.javascript:eslint-custom-rules-plugin'
 
 plugin_qa_sq_dev_task:
   <<: *PLUGIN_QA_BODY
   eks_container:
-    dockerfile: .cirrus/nodejs.jdk17.Dockerfile
+    image: ${CIRRUS_AWS_ACCOUNT}.dkr.ecr.eu-central-1.amazonaws.com/base:j17-latest
   env:
     SQ_VERSION: DEV
+    SONARJS_ARTIFACT: multi
+    MVN_TEST: '-Dtest=!EslintCustomRulesTest,!SonarJsIntegrationTest --projects !org.sonarsource.javascript:eslint-custom-rules-plugin'
 
 # Plugin QA for Windows is splint into 2 parts to make it faster
 plugin_qa_win_task:
@@ -180,7 +196,7 @@ ruling_task:
   <<: *ONLY_SONARSOURCE_QA
   eks_container:
     <<: *CONTAINER_DEFINITION
-    dockerfile: .cirrus/nodejs.jdk17.Dockerfile
+    image: ${CIRRUS_AWS_ACCOUNT}.dkr.ecr.eu-central-1.amazonaws.com/base:j17-latest
     cpu: 15
     memory: 24G
   env:
@@ -207,15 +223,17 @@ promote_task:
   depends_on:
     - ws_scan
     - build_win
-    - plugin_qa
+    - plugin_qa_with_node
+    - plugin_qa_no_node
     - plugin_qa_sq_dev
     - plugin_qa_win
     - ruling
   <<: *ONLY_SONARSOURCE_QA
   eks_container:
     <<: *CONTAINER_DEFINITION
-    cpu: 1
-    memory: 1G
+    image: ${CIRRUS_AWS_ACCOUNT}.dkr.ecr.eu-central-1.amazonaws.com/base:j17-latest
+    cpu: 2
+    memory: 4G
   env:
     #promotion cloud function
     GCF_ACCESS_TOKEN: VAULT[development/kv/data/promote data.token]

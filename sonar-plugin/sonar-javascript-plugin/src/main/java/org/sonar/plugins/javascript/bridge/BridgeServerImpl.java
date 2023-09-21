@@ -74,8 +74,7 @@ public class BridgeServerImpl implements BridgeServer {
   public static final String SONARJS_EXISTING_NODE_PROCESS_PORT =
     "SONARJS_EXISTING_NODE_PROCESS_PORT";
   private static final Gson GSON = new Gson();
-
-  private static final String DEPLOY_LOCATION = "bridge-bundle";
+  private static final String BRIDGE_DEPLOY_LOCATION = "bridge-bundle";
 
   private final HttpClient client;
   private final NodeCommandBuilder nodeCommandBuilder;
@@ -87,9 +86,9 @@ public class BridgeServerImpl implements BridgeServer {
   private Status status = Status.NOT_STARTED;
   private final RulesBundles rulesBundles;
   private final NodeDeprecationWarning deprecationWarning;
-  private final Path deployLocation;
+  private final Path temporaryDeployLocation;
   private final Monitoring monitoring;
-
+  private final EmbeddedNode embeddedNode;
   private static final int HEARTBEAT_INTERVAL_SECONDS = 5;
   private final ScheduledExecutorService heartbeatService;
   private ScheduledFuture<?> heartbeatFuture;
@@ -101,7 +100,8 @@ public class BridgeServerImpl implements BridgeServer {
     RulesBundles rulesBundles,
     NodeDeprecationWarning deprecationWarning,
     TempFolder tempFolder,
-    Monitoring monitoring
+    Monitoring monitoring,
+    EmbeddedNode embeddedNode
   ) {
     this(
       nodeCommandBuilder,
@@ -110,7 +110,8 @@ public class BridgeServerImpl implements BridgeServer {
       rulesBundles,
       deprecationWarning,
       tempFolder,
-      monitoring
+      monitoring,
+      embeddedNode
     );
   }
 
@@ -121,7 +122,8 @@ public class BridgeServerImpl implements BridgeServer {
     RulesBundles rulesBundles,
     NodeDeprecationWarning deprecationWarning,
     TempFolder tempFolder,
-    Monitoring monitoring
+    Monitoring monitoring,
+    EmbeddedNode embeddedNode
   ) {
     this.nodeCommandBuilder = nodeCommandBuilder;
     this.timeoutSeconds = timeoutSeconds;
@@ -131,9 +133,10 @@ public class BridgeServerImpl implements BridgeServer {
     this.rulesBundles = rulesBundles;
     this.deprecationWarning = deprecationWarning;
     this.hostAddress = InetAddress.getLoopbackAddress().getHostAddress();
-    this.deployLocation = tempFolder.newDir(DEPLOY_LOCATION).toPath();
+    this.temporaryDeployLocation = tempFolder.newDir(BRIDGE_DEPLOY_LOCATION).toPath();
     this.monitoring = monitoring;
     this.heartbeatService = Executors.newSingleThreadScheduledExecutor();
+    this.embeddedNode = embeddedNode;
   }
 
   void heartbeat() {
@@ -159,8 +162,14 @@ public class BridgeServerImpl implements BridgeServer {
     return timeoutSeconds;
   }
 
+  /**
+   * Extracts the bridge files and node.js runtime (if included)
+   *
+   * @throws IOException
+   */
   void deploy() throws IOException {
-    bundle.deploy(deployLocation);
+    bundle.deploy(temporaryDeployLocation);
+    embeddedNode.deploy();
   }
 
   void startServer(SensorContext context, List<Path> deployedBundles) throws IOException {
@@ -231,6 +240,7 @@ public class BridgeServerImpl implements BridgeServer {
 
     nodeCommandBuilder
       .outputConsumer(outputConsumer)
+      .embeddedNode(embeddedNode)
       .pathResolver(bundle)
       .minNodeVersion(NodeDeprecationWarning.MIN_SUPPORTED_NODE_VERSION)
       .configuration(context.config())
@@ -286,7 +296,7 @@ public class BridgeServerImpl implements BridgeServer {
         throw new ServerAlreadyFailedException();
       }
       deploy();
-      List<Path> deployedBundles = rulesBundles.deploy(deployLocation.resolve("package"));
+      List<Path> deployedBundles = rulesBundles.deploy(temporaryDeployLocation.resolve("package"));
       rulesBundles
         .getUcfgRulesBundle()
         .ifPresent(rulesBundle -> PluginInfo.setUcfgPluginVersion(rulesBundle.bundleVersion()));

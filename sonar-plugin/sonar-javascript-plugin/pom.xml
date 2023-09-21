@@ -92,6 +92,10 @@
       <artifactId>sonarlint-core</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.tukaani</groupId>
+      <artifactId>xz</artifactId>
+    </dependency>
   </dependencies>
 
   <build>
@@ -125,15 +129,147 @@
           <skipDependenciesPackaging>true</skipDependenciesPackaging>
           <sonarLintSupported>true</sonarLintSupported>
           <sonarQubeMinVersion>${sonarQubeMinVersion}</sonarQubeMinVersion>
-          <!-- Keep in sync with NodeDeprecationWarning#MIN_SUPPORTED_NODE_VERSION -->
-          <nodeJsMinVersion>14.17.0</nodeJsMinVersion>
           <jreMinVersion>${jdk.min.version}</jreMinVersion>
         </configuration>
       </plugin>
 
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
+        <version>3.5.0</version>
+        <configuration>
+          <minimizeJar>true</minimizeJar>
+          <createDependencyReducedPom>false</createDependencyReducedPom>
+        </configuration>
         <executions>
+          <execution>
+            <id>win-x64</id>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <shadedArtifactAttached>true</shadedArtifactAttached>
+              <shadedClassifierName>win-x64</shadedClassifierName>
+              <transformers>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                  <manifestEntries>
+                    <!-- This is used to get plugin version at runtime using getPackage().getImplementationVersion() -->
+                    <Implementation-Version>${project.version}</Implementation-Version>
+                  </manifestEntries>
+                </transformer>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+                  <resource>win-x64/node.exe.xz</resource>
+                  <file>${project.build.directory}/node/win-x64/node.exe.xz</file>
+                </transformer>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+                  <resource>win-x64/version.txt</resource>
+                  <file>${project.build.directory}/node/win-x64/version.txt</file>
+                </transformer>
+              </transformers>
+            </configuration>
+          </execution>
+
+          <execution>
+            <id>linux-x64</id>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <shadedArtifactAttached>true</shadedArtifactAttached>
+              <shadedClassifierName>linux-x64</shadedClassifierName>
+              <transformers>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                  <manifestEntries>
+                    <!-- This is used to get plugin version at runtime using getPackage().getImplementationVersion() -->
+                    <Implementation-Version>${project.version}</Implementation-Version>
+                  </manifestEntries>
+                </transformer>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+                  <resource>linux-x64/node.xz</resource>
+                  <file>${project.build.directory}/node/linux-x64/node.xz</file>
+                </transformer>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+                  <resource>linux-x64/version.txt</resource>
+                  <file>${project.build.directory}/node/linux-x64/version.txt</file>
+                </transformer>
+              </transformers>
+            </configuration>
+          </execution>
+
+          <execution>
+            <id>darwin-arm64</id>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <shadedArtifactAttached>true</shadedArtifactAttached>
+              <shadedClassifierName>darwin-arm64</shadedClassifierName>
+              <transformers>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                  <manifestEntries>
+                    <!-- This is used to get plugin version at runtime using getPackage().getImplementationVersion() -->
+                    <Implementation-Version>${project.version}</Implementation-Version>
+                  </manifestEntries>
+                </transformer>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+                  <resource>darwin-arm64/node.xz</resource>
+                  <file>${project.build.directory}/node/darwin-arm64/node.xz</file>
+                </transformer>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+                  <resource>darwin-arm64/version.txt</resource>
+                  <file>${project.build.directory}/node/darwin-arm64/version.txt</file>
+                </transformer>
+              </transformers>
+            </configuration>
+          </execution>
+
+          <execution>
+            <id>multi</id>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <shadedArtifactAttached>true</shadedArtifactAttached>
+              <shadedClassifierName>multi</shadedClassifierName>
+              <transformers>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                  <manifestEntries>
+                    <!-- This is used to get plugin version at runtime using getPackage().getImplementationVersion() -->
+                    <Implementation-Version>${project.version}</Implementation-Version>
+                  </manifestEntries>
+                </transformer>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+                  <resource>win-x64/node.exe.xz</resource>
+                  <file>${project.build.directory}/node/win-x64/node.exe.xz</file>
+                </transformer>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+                  <resource>win-x64/version.txt</resource>
+                  <file>${project.build.directory}/node/win-x64/version.txt</file>
+                </transformer>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+                  <resource>linux-x64/node.xz</resource>
+                  <file>${project.build.directory}/node/linux-x64/node.xz</file>
+                </transformer>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+                  <resource>linux-x64/version.txt</resource>
+                  <file>${project.build.directory}/node/linux-x64/version.txt</file>
+                </transformer>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+                  <resource>darwin-arm64/node.xz</resource>
+                  <file>${project.build.directory}/node/darwin-arm64/node.xz</file>
+                </transformer>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+                  <resource>darwin-arm64/version.txt</resource>
+                  <file>${project.build.directory}/node/darwin-arm64/version.txt</file>
+                </transformer>
+              </transformers>
+            </configuration>
+          </execution>
+
           <execution>
             <phase>package</phase>
             <goals>
@@ -141,13 +277,13 @@
             </goals>
             <configuration>
               <shadedArtifactAttached>false</shadedArtifactAttached>
-              <minimizeJar>true</minimizeJar>
-              <createDependencyReducedPom>false</createDependencyReducedPom>
               <transformers>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                   <manifestEntries>
                     <!-- This is used to get plugin version at runtime using getPackage().getImplementationVersion() -->
                     <Implementation-Version>${project.version}</Implementation-Version>
+                    <!-- Keep in sync with NodeDeprecationWarning#MIN_SUPPORTED_NODE_VERSION -->
+                    <NodeJs-Min-Version>14.17.0</NodeJs-Min-Version>
                   </manifestEntries>
                 </transformer>
               </transformers>
@@ -168,13 +304,51 @@
             <configuration>
               <rules>
                 <requireFilesSize>
+                  <minsize>75000000</minsize>
+                  <maxsize>85000000</maxsize>
+                  <files>
+                    <file>${project.build.directory}/${project.build.finalName}-multi.jar</file>
+                  </files>
+                </requireFilesSize>
+                <requireFilesSize>
+                  <minsize>30000000</minsize>
+                  <maxsize>50000000</maxsize>
+                  <files>
+                    <file>${project.build.directory}/${project.build.finalName}-linux-x64.jar</file>
+                    <file>${project.build.directory}/${project.build.finalName}-win-x64.jar</file>
+                    <file>${project.build.directory}/${project.build.finalName}-darwin-arm64.jar</file>
+                  </files>
+                </requireFilesSize>
+                <requireFilesSize>
                   <minsize>19000000</minsize>
-                  <maxsize>26000000</maxsize>
+                  <maxsize>25000000</maxsize>
                   <files>
                     <file>${project.build.directory}/${project.build.finalName}.jar</file>
                   </files>
                 </requireFilesSize>
               </rules>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- copy runtimes so they are accessible by unit tests -->
+      <plugin>
+        <artifactId>maven-resources-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>copy-resources</id>
+            <phase>generate-test-resources</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${basedir}/target/test-classes</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>${project.build.directory}/node</directory>
+                </resource>
+              </resources>
             </configuration>
           </execution>
         </executions>

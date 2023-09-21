@@ -67,23 +67,14 @@ import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.Version;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
-import org.sonar.plugins.javascript.bridge.AnalysisMode;
-import org.sonar.plugins.javascript.bridge.AnalysisWarningsWrapper;
 import org.sonar.plugins.javascript.bridge.BridgeServer.CssAnalysisRequest;
 import org.sonar.plugins.javascript.bridge.BridgeServer.JsAnalysisRequest;
 import org.sonar.plugins.javascript.bridge.BridgeServer.TsProgram;
 import org.sonar.plugins.javascript.bridge.BridgeServer.TsProgramRequest;
-import org.sonar.plugins.javascript.bridge.BridgeServerImpl;
-import org.sonar.plugins.javascript.bridge.Bundle;
-import org.sonar.plugins.javascript.bridge.EslintRule;
-import org.sonar.plugins.javascript.bridge.Monitoring;
-import org.sonar.plugins.javascript.bridge.NodeDeprecationWarning;
-import org.sonar.plugins.javascript.bridge.RulesBundles;
-import org.sonar.plugins.javascript.bridge.ServerAlreadyFailedException;
-import org.sonar.plugins.javascript.bridge.TsConfigFile;
-import org.sonar.plugins.javascript.nodejs.NodeCommand;
 import org.sonar.plugins.javascript.nodejs.NodeCommandBuilder;
+import org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl;
 import org.sonar.plugins.javascript.nodejs.NodeCommandException;
+import org.sonar.plugins.javascript.nodejs.ProcessWrapperImpl;
 
 class BridgeServerImplTest {
 
@@ -122,7 +113,7 @@ class BridgeServerImplTest {
   }
 
   @AfterEach
-  public void tearDown() throws Exception {
+  public void tearDown() {
     try {
       if (bridgeServer != null) {
         bridgeServer.clean();
@@ -165,7 +156,8 @@ class BridgeServerImplTest {
         emptyRulesBundles,
         deprecationWarning,
         tempFolder,
-        monitoring
+        monitoring,
+        new EmbeddedNode(createUnsupportedEnvironment())
       );
     bridgeServer.deploy();
     List<Path> deployedBundles = emptyList();
@@ -663,12 +655,13 @@ class BridgeServerImplTest {
   void should_use_default_timeout() {
     bridgeServer =
       new BridgeServerImpl(
-        NodeCommand.builder(),
+        builder(),
         mock(Bundle.class),
         mock(RulesBundles.class),
         deprecationWarning,
         tempFolder,
-        monitoring
+        monitoring,
+        new EmbeddedNode(createUnsupportedEnvironment())
       );
     assertThat(bridgeServer.getTimeoutSeconds()).isEqualTo(300);
   }
@@ -724,13 +717,14 @@ class BridgeServerImplTest {
     assertThat(monitoring.isMonitoringEnabled()).isTrue();
     bridgeServer =
       new BridgeServerImpl(
-        NodeCommand.builder(),
+        builder(),
         TEST_TIMEOUT_SECONDS,
         new TestBundle(START_SERVER_SCRIPT),
         emptyRulesBundles,
         deprecationWarning,
         tempFolder,
-        monitoring
+        monitoring,
+        new EmbeddedNode(createUnsupportedEnvironment())
       );
     bridgeServer.deploy();
     bridgeServer.startServerLazily(context);
@@ -755,13 +749,14 @@ class BridgeServerImplTest {
 
     bridgeServer =
       new BridgeServerImpl(
-        NodeCommand.builder(),
+        builder(),
         TEST_TIMEOUT_SECONDS,
         new TestBundle(START_SERVER_SCRIPT),
         rulesBundles,
         deprecationWarning,
         tempFolder,
-        monitoring
+        monitoring,
+        new EmbeddedNode(createUnsupportedEnvironment())
       );
     bridgeServer.startServerLazily(context);
 
@@ -771,14 +766,26 @@ class BridgeServerImplTest {
 
   private BridgeServerImpl createBridgeServer(String startServerScript) {
     return new BridgeServerImpl(
-      NodeCommand.builder(),
+      builder(),
       TEST_TIMEOUT_SECONDS,
       new TestBundle(startServerScript),
       emptyRulesBundles,
       deprecationWarning,
       tempFolder,
-      monitoring
+      monitoring,
+      new EmbeddedNode(createUnsupportedEnvironment())
     );
+  }
+
+  /**
+   * Mock used to bypass the embedded node deployment
+   */
+  private Environment createUnsupportedEnvironment() {
+    Environment mockEnvironment = mock(Environment.class);
+    when(mockEnvironment.getUserHome()).thenReturn("");
+    when(mockEnvironment.getOsName()).thenReturn("");
+    when(mockEnvironment.getOsArch()).thenReturn("");
+    return mockEnvironment;
   }
 
   static class TestBundle implements Bundle {
@@ -804,5 +811,10 @@ class BridgeServerImplTest {
       File file = new File("src/test/resources");
       return new File(file.getAbsoluteFile(), relativePath).getAbsolutePath();
     }
+  }
+
+  private static NodeCommandBuilder builder() {
+    return new NodeCommandBuilderImpl(new ProcessWrapperImpl())
+      .configuration(new MapSettings().asConfig());
   }
 }

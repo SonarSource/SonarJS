@@ -103,14 +103,20 @@ class SonarLintTest {
         tuple("javascript:S3504", 4, filePath, "CRITICAL")
       );
 
-    assertThat(
-      logs
-        .stream()
-        .anyMatch(s ->
-          s.matches("Using Node\\.js executable .* from property sonar\\.nodejs\\.executable\\.")
-        )
-    )
-      .isTrue();
+    if (!usingEmbeddedNode()) {
+      assertThat(
+        logs
+          .stream()
+          .anyMatch(s ->
+            s.matches("Using Node\\.js executable .* from property sonar\\.nodejs\\.executable\\.")
+          )
+      )
+        .isTrue();
+    }
+  }
+
+  private static boolean usingEmbeddedNode() {
+    return TestUtils.JAVASCRIPT_PLUGIN_LOCATION.toString().contains("multi");
   }
 
   @Test
