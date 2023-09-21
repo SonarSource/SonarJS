@@ -24,9 +24,9 @@ import { RUNTIMES_DIR, TARGET_DIR } from './directories.mjs';
 import { DISTROS, NODE_VERSION, VERSION_FILENAME } from '../node-distros.mjs';
 
 /**
- * Copies tools/fetch-node/downloads/runtimes/{distro.id}/{path-to-node-bin}.xz
+ * Copies tools/fetch-node/downloads/runtimes/{distro.id}/node{.exe}.xz
  * to
- * sonar-plugin/sonar-javascript-plugin/target/node/{distro.id}/{path-to-node-bin}.xz
+ * sonar-plugin/sonar-javascript-plugin/target/node/{distro.id}/node{.exe}.xz
  *
  * Writes the
  * sonar-plugin/sonar-javascript-plugin/target/node/{distro.id}/version.txt files
