@@ -167,6 +167,7 @@ function getLoopTestRange(loopNode: LoopLike) {
         }
     }
   }
+  return undefined;
 }
 
 function getMainLoopToken(loop: LoopLike, context: Rule.RuleContext): AST.Token {
