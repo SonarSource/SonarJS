@@ -62,7 +62,7 @@ export const rule: Rule.RuleModule = {
           fileContainsSeveralBitwiseOperations = true;
         }
       },
-      'Program:exit': function () {
+      'Program:exit'() {
         if (
           !fileContainsSeveralBitwiseOperations &&
           lonelyBitwiseAndOr &&

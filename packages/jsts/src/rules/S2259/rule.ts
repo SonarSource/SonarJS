@@ -118,7 +118,7 @@ function checkLogicalNullDereference(
     ) {
       context.report({
         messageId: 'shortCircuitError',
-        node: node,
+        node,
       });
     }
   }

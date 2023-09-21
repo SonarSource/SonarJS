@@ -29,7 +29,7 @@ export const rule: Rule.RuleModule = {
   },
   create(context: Rule.RuleContext) {
     return {
-      'Program:exit': function () {
+      'Program:exit'() {
         const firstTab = context
           .getSourceCode()
           .lines.map((content, line) => ({ content, line }))

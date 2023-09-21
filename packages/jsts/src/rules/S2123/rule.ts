@@ -41,7 +41,7 @@ export const rule: Rule.RuleModule = {
     }
 
     return {
-      'ReturnStatement > UpdateExpression': function (node: estree.Node) {
+      'ReturnStatement > UpdateExpression'(node: estree.Node) {
         const updateExpression = node as estree.UpdateExpression;
         const argument = updateExpression.argument;
         if (

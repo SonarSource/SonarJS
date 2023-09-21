@@ -44,7 +44,7 @@ export const rule: Rule.RuleModule = {
     }
 
     return {
-      'Program:exit': function () {
+      'Program:exit'() {
         if (cached.isRegularExpression) {
           checkRegularExpression(cached.searchPattern!, context);
         } else {
