@@ -56,8 +56,8 @@ export const rule: Rule.RuleModule = {
               {
                 messageId: 'suggestExec',
                 fix(fixer) {
-                  const strText = context.getSourceCode().getText(object);
-                  const regText = context.getSourceCode().getText(callExpr.arguments[0]);
+                  const strText = context.sourceCode.getText(object);
+                  const regText = context.sourceCode.getText(callExpr.arguments[0]);
                   const code = `RegExp(${regText}).exec(${strText})`;
                   return fixer.replaceText(callExpr, code);
                 },

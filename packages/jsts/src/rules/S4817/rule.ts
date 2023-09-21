@@ -73,7 +73,7 @@ function checkCallExpression(
     args.length >= 4
   ) {
     const resultTypeArgument = args[3];
-    const argumentAsText = context.getSourceCode().getText(resultTypeArgument);
+    const argumentAsText = context.sourceCode.getText(resultTypeArgument);
     if (argumentAsText.includes('XPathResult')) {
       context.report({ messageId: 'checkXPath', node: callee });
       return;

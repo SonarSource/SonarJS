@@ -132,10 +132,11 @@ function getParameterRemovalSuggestion(
       const paramIndex = func.params.indexOf(paramIdentifier as TSESTree.Parameter);
       const param = func.params[paramIndex] as estree.Node;
       if (func.params.length === 1) {
-        const openingParenthesis = context.getSourceCode().getTokenBefore(param);
-        const closingParenthesis = context
-          .getSourceCode()
-          .getTokenAfter(param, token => token.value === ')');
+        const openingParenthesis = context.sourceCode.getTokenBefore(param);
+        const closingParenthesis = context.sourceCode.getTokenAfter(
+          param,
+          token => token.value === ')',
+        );
         let [start, end] = param.range!;
         if (openingParenthesis && openingParenthesis.value === '(') {
           start = openingParenthesis.range[0];
@@ -143,12 +144,8 @@ function getParameterRemovalSuggestion(
         }
         return fixer.replaceTextRange([start, end], '()');
       } else if (func.params.length - 1 === paramIndex) {
-        const commaAfter = context
-          .getSourceCode()
-          .getTokenAfter(param, token => token.value === ',');
-        const commaBefore = context
-          .getSourceCode()
-          .getTokenBefore(param, token => token.value === ',')!;
+        const commaAfter = context.sourceCode.getTokenAfter(param, token => token.value === ',');
+        const commaBefore = context.sourceCode.getTokenBefore(param, token => token.value === ',')!;
         let start = commaBefore.range[1];
         let end = param.range![1];
         if (commaAfter) {

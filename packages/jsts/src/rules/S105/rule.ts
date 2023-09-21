@@ -30,9 +30,8 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
       'Program:exit'() {
-        const firstTab = context
-          .getSourceCode()
-          .lines.map((content, line) => ({ content, line }))
+        const firstTab = context.sourceCode.lines
+          .map((content, line) => ({ content, line }))
           .find(t => t.content.includes('\t'));
 
         if (firstTab !== undefined) {

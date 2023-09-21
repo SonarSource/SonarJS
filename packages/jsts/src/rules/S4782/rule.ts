@@ -45,9 +45,7 @@ export const rule: Rule.RuleModule = {
       const tsNode = node as TSESTree.Node as
         | TSESTree.PropertyDefinition
         | TSESTree.TSPropertySignature;
-      const optionalToken = context
-        .getSourceCode()
-        .getFirstToken(node, token => token.value === '?');
+      const optionalToken = context.sourceCode.getFirstToken(node, token => token.value === '?');
       if (!tsNode.optional || !optionalToken) {
         return;
       }
@@ -120,11 +118,11 @@ function getUndefinedRemovalSuggestion(
         const unionTypeNode = unionType as any as estree.Node;
         const otherType =
           unionType.types[0] === undefinedType ? unionType.types[1] : unionType.types[0];
-        const otherTypeText = context.getSourceCode().getText(otherType as any as estree.Node);
+        const otherTypeText = context.sourceCode.getText(otherType as any as estree.Node);
         fixes.push(fixer.replaceText(unionTypeNode, otherTypeText));
 
-        const tokenBefore = context.getSourceCode().getTokenBefore(unionTypeNode);
-        const tokenAfter = context.getSourceCode().getTokenAfter(unionTypeNode);
+        const tokenBefore = context.sourceCode.getTokenBefore(unionTypeNode);
+        const tokenAfter = context.sourceCode.getTokenAfter(unionTypeNode);
         if (tokenBefore?.value === '(' && tokenAfter?.value === ')') {
           fixes.push(fixer.remove(tokenBefore));
           fixes.push(fixer.remove(tokenAfter));

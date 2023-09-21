@@ -52,13 +52,15 @@ export const rule: Rule.RuleModule = {
         const type = getTypeFromTreeNode(callee, services);
         const signature = getSignatureFromCallee(node, services);
         if (!isInstantiable(type, signature, considerJSDoc) && !isAny(type)) {
-          const functionToken = context
-            .getSourceCode()
-            .getFirstToken(node, token => token.type === 'Keyword' && token.value === 'function');
-          const newToken = context
-            .getSourceCode()
-            .getFirstToken(node, token => token.type === 'Keyword' && token.value === 'new')!;
-          const text = isFunction(type) ? 'this function' : context.getSourceCode().getText(callee);
+          const functionToken = context.sourceCode.getFirstToken(
+            node,
+            token => token.type === 'Keyword' && token.value === 'function',
+          );
+          const newToken = context.sourceCode.getFirstToken(
+            node,
+            token => token.type === 'Keyword' && token.value === 'new',
+          )!;
+          const text = isFunction(type) ? 'this function' : context.sourceCode.getText(callee);
           const loc = callee.type === 'FunctionExpression' ? functionToken!.loc : callee.loc!;
           context.report({
             message: toEncodedMessage(`Replace ${text} with a constructor function.`, [newToken]),

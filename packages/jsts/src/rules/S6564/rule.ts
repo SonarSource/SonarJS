@@ -50,7 +50,7 @@ export const rule: Rule.RuleModule = {
       TSTypeAliasDeclaration(node: estree.Node) {
         const { id, typeAnnotation } = node as unknown as TSESTree.TSTypeAliasDeclaration;
         if (COMMON_NODE_TYPES.has(typeAnnotation.type) || isTypeAlias(typeAnnotation, context)) {
-          const sourceCode = context.getSourceCode();
+          const sourceCode = context.sourceCode;
           const tpe = sourceCode.getTokens(typeAnnotation as unknown as estree.Node)[0];
           context.report({
             messageId: 'redundantTypeAlias',

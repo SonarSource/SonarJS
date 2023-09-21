@@ -36,7 +36,7 @@ export const rule: Rule.RuleModule = {
   },
 
   create(context: Rule.RuleContext) {
-    const sourceCode = context.getSourceCode();
+    const sourceCode = context.sourceCode;
     const [threshold] = context.options;
     const nodeStack: AST.Token[] = [];
     function push(n: AST.Token) {

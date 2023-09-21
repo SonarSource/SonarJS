@@ -133,10 +133,8 @@ export const rule: Rule.RuleModule = {
   },
   create(context: Rule.RuleContext) {
     const isJsxPragmaSet =
-      context
-        .getSourceCode()
-        .getAllComments()
-        .findIndex(comment => comment.value.includes('@jsx jsx')) > -1;
+      context.sourceCode.getAllComments().findIndex(comment => comment.value.includes('@jsx jsx')) >
+      -1;
     const unusedImports: { id: estree.Identifier; importDecl: estree.ImportDeclaration }[] = [];
     const tsTypeIdentifiers: Set<string> = new Set();
     const vueIdentifiers: Set<string> = new Set();
@@ -261,7 +259,7 @@ function getSuggestion(
 
   const specifiers = importDecl.specifiers;
   const unusedSpecifier = specifiers.find(specifier => specifier.local === id)!;
-  const code = context.getSourceCode();
+  const code = context.sourceCode;
   let range: [number, number];
 
   switch (unusedSpecifier.type) {
@@ -312,15 +310,13 @@ function getJsxFactories(context: Rule.RuleContext) {
 }
 
 function getJsxIdentifiers(context: Rule.RuleContext) {
-  return context
-    .getSourceCode()
-    .ast.tokens.filter(token => token.type === 'JSXIdentifier')
+  return context.sourceCode.ast.tokens
+    .filter(token => token.type === 'JSXIdentifier')
     .map(token => token.value);
 }
 
 function getJsDocComments(context: Rule.RuleContext) {
-  return context
-    .getSourceCode()
+  return context.sourceCode
     .getAllComments()
     .filter(
       comment => comment.type === 'Block' && JSDOC_TAGS.some(tag => comment.value.includes(tag)),

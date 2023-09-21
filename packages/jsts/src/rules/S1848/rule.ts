@@ -32,7 +32,7 @@ export const rule: Rule.RuleModule = {
     },
   },
   create(context: Rule.RuleContext) {
-    const sourceCode = context.getSourceCode();
+    const sourceCode = context.sourceCode;
     return {
       'ExpressionStatement > NewExpression': (node: estree.NewExpression) => {
         if (isTestCode(context) || isTryable(node, context)) {

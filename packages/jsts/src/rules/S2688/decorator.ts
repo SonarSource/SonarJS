@@ -44,7 +44,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       }
       if (negate !== null) {
         const arg = isNaNIdentifier(left) ? right : left;
-        const argText = context.getSourceCode().getText(arg);
+        const argText = context.sourceCode.getText(arg);
         const prefix = negate ? '!' : '';
         suggest.push(
           {

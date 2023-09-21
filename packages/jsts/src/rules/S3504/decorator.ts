@@ -29,7 +29,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
         declarations: [firstDecl, ..._],
       } = node as estree.VariableDeclaration;
 
-      const varToken = context.getSourceCode().getTokenBefore(firstDecl.id);
+      const varToken = context.sourceCode.getTokenBefore(firstDecl.id);
       const identifierEnd = firstDecl.id.loc!.end;
       if (varToken == null) {
         // impossible

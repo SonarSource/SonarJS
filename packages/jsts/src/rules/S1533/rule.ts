@@ -40,9 +40,7 @@ export const rule: Rule.RuleModule = {
       NewExpression(node: estree.Node) {
         const konstructor = (node as estree.NewExpression).callee;
         if (konstructor.type === 'Identifier' && WRAPPER_TYPES.includes(konstructor.name)) {
-          const newToken = context
-            .getSourceCode()
-            .getFirstToken(node, token => token.value === 'new')!;
+          const newToken = context.sourceCode.getFirstToken(node, token => token.value === 'new')!;
           const [begin, end] = newToken.range;
           context.report({
             messageId: 'removeConstructor',
@@ -60,7 +58,7 @@ export const rule: Rule.RuleModule = {
         }
       },
       TSTypeReference(node: estree.Node) {
-        const typeString = context.getSourceCode().getText(node);
+        const typeString = context.sourceCode.getText(node);
         if (WRAPPER_TYPES.includes(typeString)) {
           const primitiveType = typeString.toLowerCase();
           context.report({

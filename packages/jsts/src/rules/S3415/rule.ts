@@ -83,8 +83,8 @@ function checkInvertedArguments(node: estree.CallExpression, context: Rule.RuleC
           {
             desc: 'Swap arguments',
             fix: fixer => [
-              fixer.replaceText(actual, context.getSourceCode().getText(expected)),
-              fixer.replaceText(expected, context.getSourceCode().getText(actual)),
+              fixer.replaceText(actual, context.sourceCode.getText(expected)),
+              fixer.replaceText(expected, context.sourceCode.getText(actual)),
             ],
           },
         ],

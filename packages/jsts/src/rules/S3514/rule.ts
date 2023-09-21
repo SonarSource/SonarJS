@@ -84,7 +84,7 @@ export const rule: Rule.RuleModule = {
       object: estree.Node,
       declaration: estree.VariableDeclarator,
     ) {
-      const key = context.getSourceCode().getText(object);
+      const key = context.sourceCode.getText(object);
       const value = declarationsByObject.get(key);
       if (value) {
         value.push(declaration);

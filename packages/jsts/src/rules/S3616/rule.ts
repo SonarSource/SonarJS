@@ -45,7 +45,7 @@ export const rule: Rule.RuleModule = {
       if (node.type === 'Literal') {
         return node.value;
       } else {
-        return context.getSourceCode().getText(node);
+        return context.sourceCode.getText(node);
       }
     }
 

@@ -55,8 +55,7 @@ export const rule: Rule.RuleModule = {
               `Convert operands of this use of "${operator}" to number type.`,
               [left, right],
             ),
-            loc: context
-              .getSourceCode()
+            loc: context.sourceCode
               .getTokensBetween(left, right)
               .find(token => token.type === 'Punctuator' && token.value === operator)!.loc,
           });

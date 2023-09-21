@@ -55,7 +55,7 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
       '*'(node: estree.Node) {
-        checkRedundantParentheses(context.getSourceCode(), node, context);
+        checkRedundantParentheses(context.sourceCode, node, context);
       },
     };
   },

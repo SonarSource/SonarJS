@@ -47,7 +47,7 @@ export const rule: Rule.RuleModule = {
 function getPromiseExecutor(node: estree.NewExpression, context: Rule.RuleContext) {
   if (
     node.callee.type === 'Identifier' &&
-    context.getSourceCode().getText(node.callee) === 'Promise' &&
+    context.sourceCode.getText(node.callee) === 'Promise' &&
     node.arguments.length === 1
   ) {
     return node.arguments[0];
@@ -88,7 +88,7 @@ function checkExecutor(
                 action,
               },
               fix: fixer => {
-                const argText = context.getSourceCode().getText(args[0]);
+                const argText = context.sourceCode.getText(args[0]);
                 return fixer.replaceText(newExpr, `Promise.${action}(${argText})`);
               },
             },

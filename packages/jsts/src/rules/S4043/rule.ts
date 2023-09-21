@@ -52,7 +52,7 @@ export const rule: Rule.RuleModule = {
       CallExpression(node: estree.CallExpression) {
         const { callee } = node;
         if (callee.type === 'MemberExpression') {
-          const propertyText = context.getSourceCode().getText(callee.property);
+          const propertyText = context.sourceCode.getText(callee.property);
           if (isArrayMutatingCall(callee, services, propertyText)) {
             const mutatedArray = callee.object;
 
@@ -93,7 +93,7 @@ export const rule: Rule.RuleModule = {
 
 function formatMethod(mutatingMethod: string) {
   if (mutatingMethod.startsWith('"') || mutatingMethod.startsWith("'")) {
-    return mutatingMethod.substr(1, mutatingMethod.length - 2);
+    return mutatingMethod.substring(1, mutatingMethod.length - 1);
   } else {
     return mutatingMethod;
   }

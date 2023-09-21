@@ -200,8 +200,7 @@ describe('analyzeYAML', () => {
         create(context: Rule.RuleContext) {
           return {
             Program: () => {
-              const filename = context.getFilename();
-              expect(filename).toEqual(syntheticFilename);
+              expect(context.filename).toEqual(syntheticFilename);
             },
           };
         },

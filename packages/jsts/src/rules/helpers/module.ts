@@ -24,7 +24,7 @@ import { Node, isIdentifier, getVariableFromScope, getUniqueWriteReference } fro
 import Variable = Scope.Variable;
 
 export function getImportDeclarations(context: Rule.RuleContext) {
-  const program = context.getSourceCode().ast;
+  const program = context.sourceCode.ast;
   if (program.sourceType === 'module') {
     return program.body.filter(
       node => node.type === 'ImportDeclaration',
@@ -35,7 +35,7 @@ export function getImportDeclarations(context: Rule.RuleContext) {
 
 export function getRequireCalls(context: Rule.RuleContext) {
   const required: estree.CallExpression[] = [];
-  const { scopeManager } = context.getSourceCode();
+  const { scopeManager } = context.sourceCode;
   scopeManager.scopes.forEach(scope =>
     scope.variables.forEach(variable =>
       variable.defs.forEach(def => {

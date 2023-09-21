@@ -95,7 +95,7 @@ function reportWithQuickFix(
   func: FunctionNodeType,
 ) {
   const name = reportDescriptor.data!.name;
-  const openingBrace = context.getSourceCode().getFirstToken(func.body)!;
-  const closingBrace = context.getSourceCode().getLastToken(func.body)!;
+  const openingBrace = context.sourceCode.getFirstToken(func.body)!;
+  const closingBrace = context.sourceCode.getLastToken(func.body)!;
   suggestEmptyBlockQuickFix(context, reportDescriptor, name, openingBrace, closingBrace);
 }

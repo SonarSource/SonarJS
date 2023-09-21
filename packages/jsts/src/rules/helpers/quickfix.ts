@@ -26,10 +26,10 @@ export function removeNodeWithLeadingWhitespaces(
   fixer: Rule.RuleFixer,
   removeUntil?: number,
 ) {
-  const previousComments = context.getSourceCode().getCommentsBefore(node);
+  const previousComments = context.sourceCode.getCommentsBefore(node);
   let start = 0;
   if (previousComments.length === 0) {
-    const previousToken = context.getSourceCode().getTokenBefore(node);
+    const previousToken = context.sourceCode.getTokenBefore(node);
     if (previousToken) {
       start = previousToken.range[1];
     }

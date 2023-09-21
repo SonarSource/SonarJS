@@ -170,7 +170,7 @@ function getLoopTestRange(loopNode: LoopLike) {
 }
 
 function getMainLoopToken(loop: LoopLike, context: Rule.RuleContext): AST.Token {
-  const sourceCode = context.getSourceCode();
+  const sourceCode = context.sourceCode;
   let token: AST.Token | null;
   switch (loop.type) {
     case 'WhileStatement':

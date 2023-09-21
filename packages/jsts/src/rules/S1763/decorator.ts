@@ -39,7 +39,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
               context,
               node,
               fixer,
-              context.getSourceCode().getIndexFromLoc(loc.end),
+              context.sourceCode.getIndexFromLoc(loc.end),
             ),
         },
       ],

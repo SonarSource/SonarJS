@@ -178,7 +178,7 @@ function checkMultipleInputsRegex(
   if (!resets.has(regex)) {
     const definition = regex.defs.find(def => def.type === 'Variable' && def.node.init);
     const uniqueInputs = new Set<string>(
-      usages.map(callExpr => context.getSourceCode().getText(callExpr.arguments[0])),
+      usages.map(callExpr => context.sourceCode.getText(callExpr.arguments[0])),
     );
     const regexReset = uniqueInputs.has(`''`) || uniqueInputs.has(`""`);
     if (definition && uniqueInputs.size > 1 && !regexReset) {

@@ -39,7 +39,7 @@ export function getRegexpLocation(
 ): AST.SourceLocation {
   let loc: AST.SourceLocation;
   if (isRegexLiteral(node) || isStringLiteral(node)) {
-    const source = context.getSourceCode();
+    const source = context.sourceCode;
     const [start] = node.range!;
     const [reStart, reEnd] = getRegexpRange(node, regexpNode);
     loc = {

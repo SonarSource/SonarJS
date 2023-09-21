@@ -69,7 +69,7 @@ export const rule: Rule.RuleModule = {
           insideCondition(lonelyBitwiseAndOr, lonelyBitwiseAndOrAncestors)
         ) {
           const op = lonelyBitwiseAndOr.operator;
-          const operatorToken = context.getSourceCode().getTokenAfter(lonelyBitwiseAndOr.left);
+          const operatorToken = context.sourceCode.getTokenAfter(lonelyBitwiseAndOr.left);
           if (operatorToken) {
             context.report({
               loc: operatorToken.loc,

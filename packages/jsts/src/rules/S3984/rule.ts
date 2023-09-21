@@ -33,7 +33,7 @@ export const rule: Rule.RuleModule = {
   },
   create(context: Rule.RuleContext) {
     function looksLikeAnError(expression: estree.Expression | estree.Super): boolean {
-      const text = context.getSourceCode().getText(expression);
+      const text = context.sourceCode.getText(expression);
       return text.endsWith('Error') || text.endsWith('Exception');
     }
 

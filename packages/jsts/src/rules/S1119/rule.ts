@@ -30,7 +30,7 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
       LabeledStatement(node) {
-        const sourceCode = context.getSourceCode();
+        const sourceCode = context.sourceCode;
         context.report({
           messageId: 'removeLabel',
           loc: sourceCode.getFirstToken(node)!.loc,

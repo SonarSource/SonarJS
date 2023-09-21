@@ -72,7 +72,7 @@ function checkParameters(
   // Looking at the closing parenthesis after the parameter to avoid problems with cases like
   // `functionTakingCallbacks(x => {...})` where the opening parenthesis before `x` isn't part
   // of the function literal
-  const tokenAfterParameter = context.getSourceCode().getTokenAfter(parameter);
+  const tokenAfterParameter = context.sourceCode.getTokenAfter(parameter);
   const hasParameterParentheses = tokenAfterParameter && tokenAfterParameter.value === ')';
 
   if (requireParameterParentheses && !hasParameterParentheses) {
@@ -82,8 +82,8 @@ function checkParameters(
     !hasGeneric(context, arrowFunction) &&
     hasParameterParentheses
   ) {
-    const arrowFunctionComments = context.getSourceCode().getCommentsInside(arrowFunction);
-    const arrowFunctionBodyComments = context.getSourceCode().getCommentsInside(arrowFunction.body);
+    const arrowFunctionComments = context.sourceCode.getCommentsInside(arrowFunction);
+    const arrowFunctionBodyComments = context.sourceCode.getCommentsInside(arrowFunction.body);
     // parameters comments inside parentheses are not available, so use the following subtraction:
     const hasArrowFunctionParamsComments =
       arrowFunctionComments.filter(comment => !arrowFunctionBodyComments.includes(comment)).length >
@@ -101,7 +101,7 @@ function checkParameters(
 
 function hasGeneric(context: Rule.RuleContext, arrowFunction: estree.ArrowFunctionExpression) {
   const offset = arrowFunction.async ? 1 : 0;
-  const firstTokenIgnoreAsync = context.getSourceCode().getFirstToken(arrowFunction, offset);
+  const firstTokenIgnoreAsync = context.sourceCode.getFirstToken(arrowFunction, offset);
   return firstTokenIgnoreAsync && firstTokenIgnoreAsync.value === '<';
 }
 

@@ -72,7 +72,7 @@ function mergeSpecifiers(
   let namespaceSpecifierText = '';
   const importSpecifiersTexts: string[] = [];
   for (const specifier of specifiers) {
-    const specifierText = context.getSourceCode().getText(specifier);
+    const specifierText = context.sourceCode.getText(specifier);
     switch (specifier.type) {
       case 'ImportDefaultSpecifier':
         defaultSpecifierText = specifierText;
@@ -105,7 +105,7 @@ function getSpecifiersRange(
   decl: estree.ImportDeclaration,
   context: Rule.RuleContext,
 ): [number, number] {
-  const sourceCode = context.getSourceCode();
+  const sourceCode = context.sourceCode;
   const importDecl = decl as TSESTree.ImportDeclaration;
   const importOrType = importDecl.importKind === 'type' ? 'type' : 'import';
   const importOrTypeToken = sourceCode.getFirstToken(decl, token => token.value === importOrType)!;
@@ -127,9 +127,7 @@ function getFirstMatchingImportDeclaration(
   module: string,
   context: Rule.RuleContext,
 ): estree.ImportDeclaration | undefined {
-  return context
-    .getSourceCode()
-    .ast.body.find(node => node.type === 'ImportDeclaration' && module === getModule(node)) as
-    | estree.ImportDeclaration
-    | undefined;
+  return context.sourceCode.ast.body.find(
+    node => node.type === 'ImportDeclaration' && module === getModule(node),
+  ) as estree.ImportDeclaration | undefined;
 }
