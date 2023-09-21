@@ -60,6 +60,12 @@ class XZTest {
     assertThat(Files.size(f)).isZero();
   }
 
+  @Test
+  void no_args() {
+    assertThatThrownBy(() -> XZ.main(new String[] {}))
+      .hasMessage("Please provide at least 1 filename to compress using XZ");
+  }
+
   /**
    * Extracts the given `source.xz` to `source` (without the `.xz` extension)
    *
