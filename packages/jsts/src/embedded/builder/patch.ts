@@ -156,7 +156,7 @@ export function patchParsingErrorMessage(
   /* Extracts location information of the form `(<line>:<column>)` */
   const regex = /((?<line>\d+):(?<column>\d+))/;
   const found = message.match(regex);
-  if (found !== null && found.groups) {
+  if (found?.groups) {
     const line = found.groups.line;
     const column = Number(found.groups.column);
     const patchedColumn = embeddedJS.format === 'PLAIN' ? column + embeddedJS.column - 1 : column;

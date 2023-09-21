@@ -119,12 +119,8 @@ function isIdentifierOrPropertyAccessExpression(
 
 function isGetAccessor(node: estree.Node, services: RequiredParserServices): boolean {
   const symbol = getSymbolAtLocation(node, services);
-  const declarations = symbol && symbol.declarations;
-  return (
-    declarations !== undefined &&
-    declarations.length === 1 &&
-    declarations[0].kind === ts.SyntaxKind.GetAccessor
-  );
+  const declarations = symbol?.declarations;
+  return declarations?.length === 1 && declarations[0].kind === ts.SyntaxKind.GetAccessor;
 }
 
 function isInSelfAssignment(mutatedArray: estree.Node, node?: estree.Node): boolean {

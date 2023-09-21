@@ -317,7 +317,7 @@ function isSelfAssignement(ref: Reference) {
 }
 
 function isCompoundAssignment(writeExpr: estree.Node | null) {
-  if (writeExpr && writeExpr.hasOwnProperty('parent')) {
+  if (writeExpr?.hasOwnProperty('parent')) {
     const node = (writeExpr as TSESTree.Node).parent;
     return node && node.type === 'AssignmentExpression' && node.operator !== '=';
   }

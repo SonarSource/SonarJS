@@ -31,7 +31,7 @@ export function getRuleSchema(ruleModule: Rule.RuleModule | undefined, ruleId: s
     debug(`ruleModule not found for rule ${ruleId}`);
     return undefined;
   }
-  if (!ruleModule.meta || !ruleModule.meta.schema) {
+  if (!ruleModule.meta?.schema) {
     return undefined;
   }
   const { schema } = ruleModule.meta;

@@ -107,10 +107,7 @@ function isConstructor(type: ts.Type, signature: ts.Signature | undefined, consi
 }
 
 function hasJSDocAnnotation(signature: ts.Signature | undefined) {
-  return (
-    signature !== undefined &&
-    signature.getJsDocTags().some(tag => ['constructor', 'class'].includes(tag.name))
-  );
+  return signature?.getJsDocTags().some(tag => ['constructor', 'class'].includes(tag.name));
 }
 
 function isAny(type: ts.Type) {

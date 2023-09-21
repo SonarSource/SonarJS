@@ -240,8 +240,8 @@ const PATH_MAPPING_ASTERISK_PATTERN_SUFFIX_IDX = 2;
 function extractPathMappingPatterns(
   parserServices: RequiredParserServices,
 ): PathMappingPattern[] | 'matchAll' {
-  const compilerOptions = parserServices.program && parserServices.program.getCompilerOptions();
-  const paths = (compilerOptions && compilerOptions.paths) || [];
+  const compilerOptions = parserServices.program?.getCompilerOptions();
+  const paths = compilerOptions?.paths ?? [];
   const pathMappingPatterns: PathMappingPattern[] = [];
   for (const p in paths) {
     if (p === '*') {
@@ -266,11 +266,7 @@ function extractPathMappingPatterns(
 }
 
 function getBaseUrl(parserServices: RequiredParserServices): string | undefined {
-  if (parserServices.program && parserServices.program.getCompilerOptions()) {
-    return parserServices.program.getCompilerOptions().baseUrl;
-  }
-
-  return undefined;
+  return parserServices.program?.getCompilerOptions().baseUrl;
 }
 
 function readFile(filePath: string) {

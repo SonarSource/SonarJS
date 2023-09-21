@@ -85,7 +85,7 @@ function isWithinSortCallback(context: Rule.RuleContext) {
       } else if (callee.type === 'MemberExpression' && callee.property.type === 'Identifier') {
         funcName = callee.property.name;
       }
-      return funcName && funcName.match(/sort/i) && args.some(arg => arg === callback);
+      return funcName?.match(/sort/i) && args.some(arg => arg === callback);
     }
   }
   return false;

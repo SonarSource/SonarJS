@@ -304,7 +304,7 @@ function isEventOriginCompared(event: TSESTree.Identifier) {
  */
 function isEventOriginalEventCompared(event: TSESTree.Identifier) {
   const eventOriginalEvent = findEventOriginalEvent(event);
-  if (!eventOriginalEvent || !eventOriginalEvent.parent) {
+  if (!eventOriginalEvent?.parent) {
     return false;
   }
 

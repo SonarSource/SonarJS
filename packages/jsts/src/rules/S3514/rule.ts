@@ -133,5 +133,5 @@ function getKind(declarator: estree.VariableDeclarator) {
     declarator as TSESTree.Node,
     n => n.type === 'VariableDeclaration',
   ) as estree.VariableDeclaration | undefined;
-  return declaration && declaration.kind;
+  return declaration?.kind;
 }

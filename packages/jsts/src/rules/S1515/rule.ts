@@ -117,7 +117,7 @@ function isSafe(ref: Scope.Reference, loopNode: LoopLike) {
   const variable = ref.resolved;
   if (variable) {
     const definition = variable.defs[0];
-    const declaration = definition && definition.parent;
+    const declaration = definition?.parent;
     const kind = declaration && declaration.type === 'VariableDeclaration' ? declaration.kind : '';
 
     if (kind !== 'let' && kind !== 'const') {
@@ -152,7 +152,7 @@ function getLoopTestRange(loopNode: LoopLike) {
   if (bodyRange) {
     switch (loopNode.type) {
       case 'ForStatement':
-        if (loopNode.test && loopNode.test.range) {
+        if (loopNode.test?.range) {
           return [loopNode.test.range[0], bodyRange[0]];
         }
         break;
