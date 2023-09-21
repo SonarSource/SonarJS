@@ -23,6 +23,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import org.tukaani.xz.LZMA2Options;
 import org.tukaani.xz.XZOutputStream;
 
@@ -37,7 +38,7 @@ public class XZ {
     try {
       compress(args);
     } catch (IOException e) {
-      throw new IllegalStateException(e);
+      throw new IllegalStateException("Error while compressing " + Arrays.toString(args), e);
     }
   }
 
