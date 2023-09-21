@@ -304,8 +304,24 @@
             <configuration>
               <rules>
                 <requireFilesSize>
+                  <minsize>70000000</minsize>
+                  <maxsize>80000000</maxsize>
+                  <files>
+                    <file>${project.build.directory}/${project.build.finalName}-multi.jar</file>
+                  </files>
+                </requireFilesSize>
+                <requireFilesSize>
+                  <minsize>30000000</minsize>
+                  <maxsize>50000000</maxsize>
+                  <files>
+                    <file>${project.build.directory}/${project.build.finalName}-linux-x64.jar</file>
+                    <file>${project.build.directory}/${project.build.finalName}-win-x64.jar</file>
+                    <file>${project.build.directory}/${project.build.finalName}-darwin-arm64.jar</file>
+                  </files>
+                </requireFilesSize>
+                <requireFilesSize>
                   <minsize>19000000</minsize>
-                  <maxsize>160000000</maxsize>
+                  <maxsize>25000000</maxsize>
                   <files>
                     <file>${project.build.directory}/${project.build.finalName}.jar</file>
                   </files>
