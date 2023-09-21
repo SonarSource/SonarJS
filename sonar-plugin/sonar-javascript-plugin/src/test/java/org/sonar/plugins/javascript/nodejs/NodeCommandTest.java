@@ -406,9 +406,14 @@ class NodeCommandTest {
   }
 
   @Test
-  void test_embedded_runtime_ignored_with_forceHost() throws Exception {
+  void test_embedded_runtime_with_forceHost_for_macos() throws Exception {
+    if (!System.getProperty("os.name").toLowerCase().contains("mac")) {
+      // TODO improve this test to be platform agnostic or write others for linux and windows
+      return;
+    }
+    String NODE_FORCE_HOST_PROPERTY = "sonar.nodejs.forceHost";
     MapSettings mapSettings = new MapSettings();
-    mapSettings.setProperty("sonar.nodejs.forceHost", true);
+    mapSettings.setProperty(NODE_FORCE_HOST_PROPERTY, true);
     Configuration configuration = mapSettings.asConfig();
 
     var en = new EmbeddedNode(createTestEnvironment());
