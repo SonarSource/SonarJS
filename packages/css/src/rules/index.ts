@@ -23,7 +23,7 @@ import { rule as functionCalcNoInvalid } from './function-calc-no-invalid';
 /**
  * The set of internal Stylelint-based rules
  */
-const rules: { [key: string]: stylelint.Rule<any, any> } = {};
+const rules: { [key: string]: stylelint.Rule } = {};
 
 /**
  * Maps Stylelint rule keys to rule implementations
