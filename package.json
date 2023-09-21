@@ -43,7 +43,7 @@
     "@types/lodash.clone": "4.5.7",
     "@types/node": "20.2.5",
     "@types/tmp": "0.2.3",
-    "cpy-cli": "5.0.0",
+    "cpy-cli": "4.2.0",
     "husky": "8.0.3",
     "jest": "29.5.0",
     "jest-sonar-reporter": "2.0.0",
