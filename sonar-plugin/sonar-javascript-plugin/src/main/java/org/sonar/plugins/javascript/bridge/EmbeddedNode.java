@@ -52,10 +52,10 @@ public class EmbeddedNode {
   public static final String VERSION_FILENAME = "version.txt";
   private static final long EXTRACTION_LOCK_WAIT_TIME_MILLIS = 10000;
   private static final Logger LOG = Loggers.get(EmbeddedNode.class);
-  private Path deployLocation;
+  private final Path deployLocation;
   private final Platform platform;
   private boolean isAvailable;
-  private Environment env;
+  private final Environment env;
 
   enum Platform {
     WIN_X64,
@@ -151,7 +151,7 @@ public class EmbeddedNode {
    */
   public void deploy() throws IOException {
     LOG.debug("Detected os: {} arch: {} platform: {}", env.getOsName(), env.getOsArch(), platform);
-    if (platform == UNSUPPORTED || isAvailable) {
+    if (platform == UNSUPPORTED) {
       return;
     }
     var is = getClass().getResourceAsStream(platform.archivePathInJar());

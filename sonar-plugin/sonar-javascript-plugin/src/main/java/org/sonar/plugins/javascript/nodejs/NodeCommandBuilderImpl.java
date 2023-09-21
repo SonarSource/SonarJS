@@ -36,7 +36,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.annotation.Nullable;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.Logger;
@@ -53,7 +52,7 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
     "package/node_modules/run-node/run-node";
 
   private static final String NODE_EXECUTABLE_PROPERTY = "sonar.nodejs.executable";
-  final String NODE_FORCE_HOST_PROPERTY = "sonar.nodejs.forceHost";
+  private static final String NODE_FORCE_HOST_PROPERTY = "sonar.nodejs.forceHost";
 
   private static final Pattern NODEJS_VERSION_PATTERN = Pattern.compile(
     "v?(\\d+)\\.(\\d+)\\.(\\d+)"
@@ -254,9 +253,9 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
    * @throws NodeCommandException
    * @throws IOException
    */
-  private String retrieveNodeExecutable(@Nullable Configuration configuration)
+  private String retrieveNodeExecutable(Configuration configuration)
     throws NodeCommandException, IOException {
-    if (configuration != null && configuration.hasKey(NODE_EXECUTABLE_PROPERTY)) {
+    if (configuration.hasKey(NODE_EXECUTABLE_PROPERTY)) {
       String nodeExecutable = configuration.get(NODE_EXECUTABLE_PROPERTY).get();
       File file = new File(nodeExecutable);
       if (file.exists()) {
@@ -295,9 +294,7 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
   }
 
   private boolean isForceHost(Configuration configuration) {
-    return (
-      configuration != null && configuration.getBoolean(NODE_FORCE_HOST_PROPERTY).orElse(false)
-    );
+    return configuration.getBoolean(NODE_FORCE_HOST_PROPERTY).orElse(false);
   }
 
   private String locateNodeOnMac() throws IOException {
