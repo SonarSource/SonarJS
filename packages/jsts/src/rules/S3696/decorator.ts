@@ -21,8 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { isBinaryPlus, isStringLiteral } from '../helpers';
-import { interceptReport } from '../helpers';
+import { isBinaryPlus, isStringLiteral, interceptReport } from '../helpers';
 
 // core implementation of this rule does not provide quick fixes
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {

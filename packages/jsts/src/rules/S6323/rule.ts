@@ -20,10 +20,9 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6323/javascript
 
 import { Rule } from 'eslint';
-import { last } from '../helpers';
-import { Alternation } from '../helpers/regex';
 import * as regexpp from '@eslint-community/regexpp';
-import { createRegExpRule } from '../helpers/regex';
+import { last } from '../helpers';
+import { Alternation, createRegExpRule } from '../helpers/regex';
 
 export const rule: Rule.RuleModule = createRegExpRule(context => {
   function checkAlternation(alternation: Alternation) {

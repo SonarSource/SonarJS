@@ -22,8 +22,7 @@
 import estree from 'estree';
 import { Rule } from 'eslint';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
-import { interceptReport } from '../helpers';
-import { isNumberLiteral } from '../helpers';
+import { interceptReport, isNumberLiteral } from '../helpers';
 
 // The core implementation of this rule reports all enums for which there is a member value that is
 // not initialized explicitly. Here, the decorator's purpose is to restrict the scope of the rule only

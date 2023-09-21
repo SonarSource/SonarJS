@@ -21,8 +21,7 @@
 
 import { Rule } from 'eslint';
 import { AssignmentPattern, BaseFunction } from 'estree';
-import { isIdentifier } from '../helpers';
-import { interceptReport } from '../helpers';
+import { interceptReport, isIdentifier } from '../helpers';
 
 const NUM_ARGS_REDUX_REDUCER = 2;
 

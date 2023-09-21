@@ -21,9 +21,8 @@
 
 import * as estree from 'estree';
 import { Rule } from 'eslint';
-import { interceptReport } from '../helpers';
 import { suggestEmptyBlockQuickFix } from '../S108/decorator';
-import { FunctionNodeType, isFunctionNode, isIdentifier } from '../helpers';
+import { interceptReport, FunctionNodeType, isFunctionNode, isIdentifier } from '../helpers';
 
 type RuleFunctionNode = FunctionNodeType & Rule.Node;
 

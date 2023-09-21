@@ -21,8 +21,7 @@
 
 import { Rule, AST } from 'eslint';
 import * as estree from 'estree';
-import { interceptReport } from '../helpers';
-import { removeNodeWithLeadingWhitespaces } from '../helpers';
+import { interceptReport, removeNodeWithLeadingWhitespaces } from '../helpers';
 
 // core implementation of this rule does not provide quick fixes
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {

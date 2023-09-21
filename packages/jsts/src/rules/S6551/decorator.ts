@@ -21,8 +21,7 @@
 
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { Rule } from 'eslint';
-import { isGenericType } from '../helpers';
-import { interceptReport } from '../helpers';
+import { isGenericType, interceptReport } from '../helpers';
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(rule, (context, reportDescriptor) => {

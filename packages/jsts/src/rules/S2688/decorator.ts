@@ -21,8 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { isIdentifier, isMemberExpression } from '../helpers';
-import { interceptReport } from '../helpers';
+import { isIdentifier, isMemberExpression, interceptReport } from '../helpers';
 
 // core implementation of this rule does not provide quick fixes
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {

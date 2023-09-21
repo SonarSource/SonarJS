@@ -19,8 +19,7 @@
  */
 import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
-import { getVariableFromName } from '../helpers';
-import { interceptReport } from '../helpers';
+import { getVariableFromName, interceptReport } from '../helpers';
 
 // core implementation of this rule raises false positives for generators
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
