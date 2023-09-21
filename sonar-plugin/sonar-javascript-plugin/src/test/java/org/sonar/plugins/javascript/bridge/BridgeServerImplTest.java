@@ -71,7 +71,6 @@ import org.sonar.plugins.javascript.bridge.BridgeServer.CssAnalysisRequest;
 import org.sonar.plugins.javascript.bridge.BridgeServer.JsAnalysisRequest;
 import org.sonar.plugins.javascript.bridge.BridgeServer.TsProgram;
 import org.sonar.plugins.javascript.bridge.BridgeServer.TsProgramRequest;
-import org.sonar.plugins.javascript.nodejs.NodeCommand;
 import org.sonar.plugins.javascript.nodejs.NodeCommandBuilder;
 import org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl;
 import org.sonar.plugins.javascript.nodejs.NodeCommandException;
@@ -158,7 +157,7 @@ class BridgeServerImplTest {
         deprecationWarning,
         tempFolder,
         monitoring,
-        new EmbeddedNode(createMockEnvironment())
+        new EmbeddedNode(createUnsupportedEnvironment())
       );
     bridgeServer.deploy();
     List<Path> deployedBundles = emptyList();
@@ -662,7 +661,7 @@ class BridgeServerImplTest {
         deprecationWarning,
         tempFolder,
         monitoring,
-        new EmbeddedNode(createMockEnvironment())
+        new EmbeddedNode(createUnsupportedEnvironment())
       );
     assertThat(bridgeServer.getTimeoutSeconds()).isEqualTo(300);
   }
@@ -725,7 +724,7 @@ class BridgeServerImplTest {
         deprecationWarning,
         tempFolder,
         monitoring,
-        new EmbeddedNode(createMockEnvironment())
+        new EmbeddedNode(createUnsupportedEnvironment())
       );
     bridgeServer.deploy();
     bridgeServer.startServerLazily(context);
@@ -757,7 +756,7 @@ class BridgeServerImplTest {
         deprecationWarning,
         tempFolder,
         monitoring,
-        new EmbeddedNode(createMockEnvironment())
+        new EmbeddedNode(createUnsupportedEnvironment())
       );
     bridgeServer.startServerLazily(context);
 
@@ -774,11 +773,14 @@ class BridgeServerImplTest {
       deprecationWarning,
       tempFolder,
       monitoring,
-      new EmbeddedNode(createMockEnvironment())
+      new EmbeddedNode(createUnsupportedEnvironment())
     );
   }
 
-  private Environment createMockEnvironment() {
+  /**
+   * Mock used to bypass the embedded node deployment
+   */
+  private Environment createUnsupportedEnvironment() {
     Environment mockEnvironment = mock(Environment.class);
     when(mockEnvironment.getUserHome()).thenReturn("");
     when(mockEnvironment.getOsName()).thenReturn("");
