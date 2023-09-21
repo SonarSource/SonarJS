@@ -293,7 +293,7 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
     return defaultNode;
   }
 
-  private boolean isForceHost(Configuration configuration) {
+  private static boolean isForceHost(Configuration configuration) {
     return configuration.getBoolean(NODE_FORCE_HOST_PROPERTY).orElse(false);
   }
 

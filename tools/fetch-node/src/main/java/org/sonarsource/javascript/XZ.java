@@ -30,11 +30,15 @@ public class XZ {
 
   private static final int DEFAULT_COMPRESSION_LEVEL = 9;
 
-  public static void main(String[] args) throws Exception {
+  public static void main(String[] args) {
     if (args.length == 0) {
       throw new IllegalArgumentException("Please provide at least 1 filename to compress using XZ");
     }
-    compress(args);
+    try {
+      compress(args);
+    } catch (IOException e) {
+      throw new IllegalStateException(e);
+    }
   }
 
   /**

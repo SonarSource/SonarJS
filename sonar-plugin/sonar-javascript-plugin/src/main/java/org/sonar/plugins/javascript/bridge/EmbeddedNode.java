@@ -246,7 +246,7 @@ public class EmbeddedNode {
     try (
       var stream = new BufferedInputStream(source);
       var archive = new XZInputStream(stream);
-      var os = Files.newOutputStream(target);
+      var os = Files.newOutputStream(target)
     ) {
       LOG.debug("Extracting embedded node to {}", target);
       int nextBytes;
