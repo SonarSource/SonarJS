@@ -26,7 +26,7 @@ import Reference = Scope.Reference;
 type LiteralValue = string;
 
 class AssignedValues extends Set<LiteralValue> {
-  type: 'AssignedValues' = 'AssignedValues';
+  type = 'AssignedValues' as const;
 }
 
 const assignedValues = (val: LiteralValue) => new AssignedValues([val]);
