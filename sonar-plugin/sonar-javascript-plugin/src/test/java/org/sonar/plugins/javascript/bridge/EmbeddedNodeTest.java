@@ -48,9 +48,10 @@ class EmbeddedNodeTest {
   }
 
   @Test
-  void should_not_be_available() throws Exception {
+  void should_not_extract_neither_be_available_if_the_platform_is_unsupported() throws Exception {
     var en = new EmbeddedNode(createUnsupportedEnvironment());
     en.deploy();
+    assertThat(en.binary()).doesNotExist();
     assertThat(en.isAvailable()).isFalse();
   }
 
@@ -138,9 +139,9 @@ class EmbeddedNodeTest {
 
   private Environment createUnsupportedEnvironment() {
     Environment mockEnvironment = mock(Environment.class);
+    when(mockEnvironment.getUserHome()).thenReturn(tempDir.toString());
     when(mockEnvironment.getOsName()).thenReturn("");
     when(mockEnvironment.getOsArch()).thenReturn("");
-    when(mockEnvironment.getUserHome()).thenReturn(tempDir.toString());
     return mockEnvironment;
   }
 }
