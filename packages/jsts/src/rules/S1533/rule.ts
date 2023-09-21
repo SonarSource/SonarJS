@@ -38,8 +38,8 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
       NewExpression(node: estree.Node) {
-        const constructor = (node as estree.NewExpression).callee;
-        if (constructor.type === 'Identifier' && WRAPPER_TYPES.includes(constructor.name)) {
+        const konstructor = (node as estree.NewExpression).callee;
+        if (konstructor.type === 'Identifier' && WRAPPER_TYPES.includes(konstructor.name)) {
           const newToken = context
             .getSourceCode()
             .getFirstToken(node, token => token.value === 'new')!;
@@ -47,7 +47,7 @@ export const rule: Rule.RuleModule = {
           context.report({
             messageId: 'removeConstructor',
             data: {
-              constructor: constructor.name,
+              constructor: konstructor.name,
             },
             node,
             suggest: [
