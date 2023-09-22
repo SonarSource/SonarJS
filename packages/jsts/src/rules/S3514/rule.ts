@@ -22,7 +22,12 @@
 import { Rule } from 'eslint';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 import * as estree from 'estree';
-import { findFirstMatchingAncestor, toEncodedMessage } from '../helpers';
+import {
+  findFirstMatchingAncestor,
+  isIdentifier,
+  isNumberLiteral,
+  toEncodedMessage,
+} from '../helpers';
 import { SONAR_RUNTIME } from '../../linter/parameters';
 
 const MAX_INDEX = 4;
@@ -66,12 +71,9 @@ export const rule: Rule.RuleModule = {
             continue;
           }
           const property = expression.property;
-          if (property.type === 'Identifier' && property.name === varName) {
-            addDeclaration(declarationsByObject, expression.object, declaration);
-          } else if (
-            property.type === 'Literal' &&
-            typeof property.value === 'number' &&
-            isAllowedIndex(property.value)
+          if (
+            isIdentifier(property, varName) ||
+            (isNumberLiteral(property) && isAllowedIndex(property.value))
           ) {
             addDeclaration(declarationsByObject, expression.object, declaration);
           }
