@@ -52,7 +52,7 @@ export const rule: Rule.RuleModule = {
     },
   },
   create(context: Rule.RuleContext) {
-    const patterns: RegExp[] = [new RegExp('CBC', 'i'), new RegExp('ECB', 'i')];
+    const patterns: RegExp[] = [/CBC/i, /ECB/i];
     aliases.forEach(alias => patterns.push(new RegExp(`^${alias}$`, 'i')));
     return {
       CallExpression: (node: estree.Node) => {
