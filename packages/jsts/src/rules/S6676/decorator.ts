@@ -31,9 +31,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
     const node = (reportDescriptor as any).node as estree.Node;
 
     if (node.type === 'CallExpression') {
-      const callee = node.callee,
-        args = node.arguments;
-
+      const { callee, arguments: args } = node;
       if (callee.type === 'MemberExpression') {
         const object = callee.object,
           property = callee.property;
