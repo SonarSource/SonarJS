@@ -1,5 +1,5 @@
 {
-  "title": "All defaultProps should have non-required PropType",
+  "title": "All \"defaultProps\" should have non-required PropTypes",
   "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {

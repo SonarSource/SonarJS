@@ -1,12 +1,14 @@
 {
-  "title": "React typed props should be used",
+  "title": "Unused React typed props should be removed",
   "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
     "constantCost": "5min"
   },
-  "tags": [],
+  "tags": [
+    "react"
+  ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-6767",
   "sqKey": "S6767",

@@ -1,6 +1,6 @@
 {
   "title": "\"children\" and \"dangerouslySetInnerHTML\" should not be used together",
-  "type": "CODE_SMELL",
+  "type": "BUG",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

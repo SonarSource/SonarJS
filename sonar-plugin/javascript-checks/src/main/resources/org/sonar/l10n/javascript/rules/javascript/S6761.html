@@ -1,10 +1,10 @@
 <h2>Why is this an issue?</h2>
 <p>React has a special prop called <code>dangerouslySetInnerHTML</code> that allows you to assign a raw HTML string to the underlying DOM
-<code>innerHTML</code> property. Note, that changing <code>innerHTML</code> will replace the element’s child nodes or text content. For this reason
+<code>innerHTML</code> property. Changing <code>innerHTML</code> will replace the element’s child nodes or text content. For this reason,
 <code>dangerouslySetInnerHTML</code> should never be used together with component <code>children</code> as they will conflict with each other, both
-trying to set the inner content of the element.</p>
+trying to set the inner content of the same element.</p>
 <pre data-diff-id="1" data-diff-type="noncompliant">
-function MyComponent(){
+function MyComponent() {
     return ( // Noncompliant: don't use children and dangerouslySetInnerHTML at the same time
         &lt;div dangerouslySetInnerHTML={{ __html: "HTML" }}&gt;
             Children
@@ -14,7 +14,7 @@ function MyComponent(){
 </pre>
 <p>To fix the issue leave either the element’s <code>children</code> or <code>dangerouslySetInnerHTML</code>, but not both.</p>
 <pre data-diff-id="1" data-diff-type="compliant">
-function MyComponent(){
+function MyComponent() {
     return (
         &lt;div dangerouslySetInnerHTML={{ __html: "HTML" }} /&gt;
     );

@@ -1,7 +1,7 @@
 <h2>Why is this an issue?</h2>
-<p>React Legacy APIs provides a way to define the default values and check the prop types at runtime. This rule verifies if a <code>defaultProp</code>
-definition does have a corresponding <code>propTypes</code> definition. If the one is missing it could be the result of errors in refactoring or a
-spelling mistake.</p>
+<p>React Legacy APIs provide a way to define the default values for props and check the prop types at runtime. This rule verifies if a
+<code>defaultProps</code> definition does have a corresponding <code>propTypes</code> definition. If it is missing, this could be the result of errors
+in refactoring or a spelling mistake.</p>
 <p>It is also an error if a <code>defaultProp</code> has <code>propType</code> that is marked as <code>isRequired</code>.</p>
 <h2>How to fix it in PropTypes</h2>
 <pre data-diff-id="1" data-diff-type="noncompliant">
@@ -18,7 +18,7 @@ MyComponent.defaultProps = {
   bar: "bar", // Noncompliant: bar propType is missing
 };
 </pre>
-<p>To fix the issue verify that each <code>defaultProp</code> has a corresponding <code>propType</code> definition and it is not marked as
+<p>To fix the issue, verify that each <code>defaultProp</code> has a corresponding <code>propType</code> definition and is not marked as
 <code>isRequired</code>.</p>
 <pre data-diff-id="1" data-diff-type="compliant">
 function MyComponent({foo, bar}) {
@@ -51,7 +51,7 @@ MyComponent.defaultProps = {
   bar: "bar",
 };
 </pre>
-<p>To fix the issue verify that each <code>defaultProp</code> has a corresponding type definition and it is marked as optional.</p>
+<p>To fix the issue, verify that each <code>defaultProp</code> has a corresponding type definition and is marked as optional.</p>
 <pre data-diff-id="2" data-diff-type="compliant">
 type Props = {
   foo?: string,
