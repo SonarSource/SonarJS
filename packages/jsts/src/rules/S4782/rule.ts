@@ -115,10 +115,10 @@ function getUndefinedRemovalSuggestion(
       const fixes: Rule.Fix[] = [];
       const unionType = undefinedType.parent as TSESTree.TSUnionType;
       if (unionType.types.length === 2) {
-        const unionTypeNode = unionType as any as estree.Node;
+        const unionTypeNode = unionType as unknown as estree.Node;
         const otherType =
           unionType.types[0] === undefinedType ? unionType.types[1] : unionType.types[0];
-        const otherTypeText = context.sourceCode.getText(otherType as any as estree.Node);
+        const otherTypeText = context.sourceCode.getText(otherType as unknown as estree.Node);
         fixes.push(fixer.replaceText(unionTypeNode, otherTypeText));
 
         const tokenBefore = context.sourceCode.getTokenBefore(unionTypeNode);

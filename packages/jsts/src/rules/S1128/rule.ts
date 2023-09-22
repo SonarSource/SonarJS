@@ -169,12 +169,12 @@ export const rule: Rule.RuleModule = {
           saveTypeIdentifier(node as estree.Identifier);
         },
       "TSQualifiedName[left.type = 'Identifier']": (node: estree.Node) => {
-        saveTypeIdentifier((node as any as TSESTree.TSQualifiedName).left as estree.Identifier);
+        saveTypeIdentifier((node as unknown as TSESTree.TSQualifiedName).left as estree.Identifier);
       },
       "TSInterfaceHeritage > MemberExpression[object.type = 'Identifier'], TSClassImplements > MemberExpression[object.type = 'Identifier']":
         (node: estree.Node) => {
           saveTypeIdentifier(
-            (node as any as TSESTree.MemberExpression).object as estree.Identifier,
+            (node as unknown as TSESTree.MemberExpression).object as estree.Identifier,
           );
         },
       'Program:exit': () => {

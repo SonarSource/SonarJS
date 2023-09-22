@@ -54,8 +54,8 @@ describe('createLinterConfig', () => {
   it('should enable rules', () => {
     const inputRules: RuleConfig[] = [{ key: 'foo', configurations: [], fileTypeTarget: ['MAIN'] }];
     const linterRules = new Map<string, Rule.RuleModule>([
-      ['foo', { module: 42 } as any as Rule.RuleModule],
-      ['bar', { module: 24 } as any as Rule.RuleModule],
+      ['foo', { module: 42 } as unknown as Rule.RuleModule],
+      ['bar', { module: 24 } as unknown as Rule.RuleModule],
     ]);
     const { rules } = createLinterConfig(inputRules, linterRules);
     expect(rules).toEqual(

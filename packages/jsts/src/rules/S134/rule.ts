@@ -21,7 +21,7 @@
 
 import { Rule, AST } from 'eslint';
 import * as estree from 'estree';
-import { toEncodedMessage } from '../helpers';
+import { last, toEncodedMessage } from '../helpers';
 import { SONAR_RUNTIME } from '../../linter/parameters';
 
 export const rule: Rule.RuleModule = {
@@ -91,7 +91,3 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
-
-function last(arr: Array<any>) {
-  return arr[arr.length - 1];
-}
