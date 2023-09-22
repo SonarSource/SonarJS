@@ -11,18 +11,18 @@ interface Props {
   name: string;
 }
 
-function Welcome(props: Props) {
-  return &lt;div&gt;Hello {this.props.name}&lt;/div&gt;;
+function Welcome(props: Props) { // Noncompliant: The component props are not read-only
+  return &lt;div&gt;Hello {props.name}&lt;/div&gt;;
 }
 </pre>
 <p>You should use TypeScript’s utility type <code>Readonly</code> to make your functional component props read-only.</p>
-<pre>
+<pre data-diff-id="1" data-diff-type="compliant">
 interface Props {
   name: string;
 }
 
 function Welcome(props: Readonly&lt;Props&gt;) {
-  return &lt;div&gt;Hello {this.props.name}&lt;/div&gt;;
+  return &lt;div&gt;Hello {props.name}&lt;/div&gt;;
 }
 </pre>
 <p>Alternatively, you can use TypeScript’s modifier <code>readonly</code> to mark all the props of your functional component individually as
@@ -33,7 +33,7 @@ interface Props {
 }
 
 function Welcome(props: Props) {
-  return &lt;div&gt;Hello {this.props.name}&lt;/div&gt;;
+  return &lt;div&gt;Hello {props.name}&lt;/div&gt;;
 }
 </pre>
 <h2>Resources</h2>

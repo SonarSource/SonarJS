@@ -14,11 +14,11 @@ Hello.propTypes = {
   firstname: PropTypes.string.isRequired
 };
 
-// Or in ES6
+// Using legacy APIs
 
 class Hello extends React.Component {
   render() {
-    return &lt;div&gt;Hello {firstname} {lastname}&lt;/div&gt;; // Noncompliant: 'lastname' type is missing
+    return &lt;div&gt;Hello {this.props.firstname} {this.props.lastname}&lt;/div&gt;; // Noncompliant: 'lastname' type is missing
   }
 }
 Hello.propTypes = {
@@ -36,11 +36,11 @@ Hello.propTypes = {
   lastname: PropTypes.string.isRequired,
 };
 
-// Or in ES6
+// Using legacy APIs
 
 class Hello extends React.Component {
   render() {
-    return &lt;div&gt;Hello {firstname} {lastname}&lt;/div&gt;;
+    return &lt;div&gt;Hello {this.props.firstname} {this.props.lastname}&lt;/div&gt;;
   }
 }
 Hello.propTypes = {
@@ -48,21 +48,10 @@ Hello.propTypes = {
   lastname: PropTypes.string.isRequired,
 };
 </pre>
-<p>Alternatively, you can use TypeScript or Flow.js to validate your prop types statically.</p>
-<pre data-diff-id="1" data-diff-type="compliant">
-type Props {
-  firstname: string;
-  lastname: string;
-}
-function Hello({ firstname, lastname }: Props) {
-  return &lt;div&gt;Hello {firstname} {lastname}&lt;/div&gt;;
-}
-</pre>
 <h2>Resources</h2>
 <h3>Documentation</h3>
 <ul>
   <li> <a href="https://react.dev/reference/react/Component#static-proptypes">React - static propTypes</a> </li>
-  <li> <a href="https://react.dev/learn/typescript#typescript-with-react-components">React - TypeScript with React Components</a> </li>
   <li> <a href="https://flow.org/en/docs/react/">Flow.js - React</a> </li>
 </ul>
 

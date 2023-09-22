@@ -1,6 +1,16 @@
 <h2>Why is this an issue?</h2>
-<p>Any statement (other than a null statement, which means a statement containing only a semicolon <code>;</code>) which has no side effect and does
-not result in a change of control flow will normally indicate a programming error, and therefore should be refactored.</p>
+<p>When writing code, it is important to ensure that each statement serves a purpose and contributes to the overall functionality of the program. When
+they have no side effects or do not change the control flow, they can either indicate a programming error or be redundant:</p>
+<ol>
+  <li> The code does not behave as intended: The statements are expected to have an effect but they do not. This can be caused by mistyping,
+  copy-and-paste errors, etc. </li>
+  <li> The statements are residual after a refactoring. </li>
+</ol>
+<h3>Exceptions</h3>
+<p>The rule does not raise an issue:</p>
+<ul>
+  <li> Statements containing only a semicolon (<code>;</code>) </li>
+</ul>
 <h3>Noncompliant code example</h3>
 <pre>
 a == 1; // Noncompliant; was assignment intended?

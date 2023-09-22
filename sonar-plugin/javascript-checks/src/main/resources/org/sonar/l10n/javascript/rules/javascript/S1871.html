@@ -1,9 +1,7 @@
 <h2>Why is this an issue?</h2>
 <p>Having two <code>cases</code> in a <code>switch</code> statement or two branches in an <code>if</code> chain with the same implementation is at
-best duplicate code, and at worst a coding error. If the same logic is truly needed for both instances, then in an <code>if</code> chain they should
-be combined, or for a <code>switch</code>, one should fall through to the other.</p>
-<h3>Noncompliant code example</h3>
-<pre>
+best duplicate code, and at worst a coding error.</p>
+<pre data-diff-id="1" data-diff-type="noncompliant">
 switch (i) {
   case 1:
     doFirstThing();
@@ -19,7 +17,8 @@ switch (i) {
   default:
     doTheRest();
 }
-
+</pre>
+<pre data-diff-id="2" data-diff-type="noncompliant">
 if (a &gt;= 0 &amp;&amp; a &lt; 10) {
   doFirstThing();
   doTheThing();
@@ -35,9 +34,44 @@ else {
   doTheRest();
 }
 </pre>
+<p>If the same logic is truly needed for both instances, then:</p>
+<ul>
+  <li> in an <code>if</code> chain they should be combined </li>
+</ul>
+<pre data-diff-id="2" data-diff-type="compliant">
+if ((a &gt;= 0 &amp;&amp; a &lt; 10) || (a &gt;= 20 &amp;&amp; a &lt; 50)) { // Compliant
+  doFirstThing();
+  doTheThing();
+}
+else if (a &gt;= 10 &amp;&amp; a &lt; 20) {
+  doTheOtherThing();
+}
+else {
+  doTheRest();
+}
+</pre>
+<ul>
+  <li> for a <code>switch</code>, one should fall through to the other. </li>
+</ul>
+<pre data-diff-id="1" data-diff-type="compliant">
+switch (i) {
+  case 1:
+  case 3: // Compliant
+    doFirstThing();
+    doSomething();
+    break;
+  case 2:
+    doSomethingDifferent();
+    break;
+  default:
+    doTheRest();
+}
+</pre>
+<p>When all blocks are identical, either this rule will trigger if there is no default clause or rule {rule:javascript:S3923} will raise if there is a
+default clause.</p>
 <h3>Exceptions</h3>
-<p>Blocks in an <code>if</code> chain that contain a single line of code are ignored, as are blocks in a <code>switch</code> statement that contain a
-single line of code with or without a following <code>break</code>.</p>
+<p>Unless all blocks are identical, blocks in an <code>if</code> chain that contain a single line of code are ignored. The same applies to blocks in a
+<code>switch</code> statement that contains a single line of code with or without a following <code>break</code>.</p>
 <pre>
 if (a == 1) {
   doSomething();  //no issue, usually this is done on purpose to increase the readability
@@ -47,14 +81,9 @@ if (a == 1) {
   doSomething();
 }
 </pre>
-<p>But this exception does not apply to <code>if</code> chains without <code>else</code>-s, or to <code>switch</code>-es without default clauses when
-all branches have the same single line of code. In case of <code>if</code> chains with <code>else</code>-s, or of <code>switch</code>-es with default
-clauses, rule {rule:javascript:S3923} raises a bug.</p>
-<pre>
-if (a == 1) {
-  doSomething();  //Noncompliant, this might have been done on purpose but probably not
-} else if (a == 2) {
-  doSomething();
-}
-</pre>
+<h2>Resources</h2>
+<h3>Related rules</h3>
+<ul>
+  <li> {rule:javascript:S3923} - All branches in a conditional structure should not have exactly the same implementation </li>
+</ul>
 

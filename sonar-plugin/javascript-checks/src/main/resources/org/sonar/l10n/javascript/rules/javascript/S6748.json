@@ -22,8 +22,8 @@
     },
     "attribute": "CONVENTIONAL"
   },
- "compatibleLanguages": [
-   "JAVASCRIPT",
-   "TYPESCRIPT"
- ]  
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]
 }
