@@ -99,8 +99,12 @@ function getNullState(
     (isNull(left) &&
       areEquivalent(right as TSESTree.Node, node as TSESTree.Node, context.getSourceCode()))
   ) {
-    if (notEqualOperators.includes(expr.operator)) return Null.discarded;
-    if (equalOperators.includes(expr.operator)) return Null.confirmed;
+    if (notEqualOperators.includes(expr.operator)) {
+      return Null.discarded;
+    }
+    if (equalOperators.includes(expr.operator)) {
+      return Null.confirmed;
+    }
   }
   return Null.unknown;
 }
