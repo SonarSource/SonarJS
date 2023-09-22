@@ -61,6 +61,7 @@ public class EmbeddedNode {
     WIN_X64,
     LINUX_X64,
     DARWIN_ARM64,
+    DARWIN_X64,
     UNSUPPORTED;
 
     private String pathInJar() {
@@ -71,6 +72,8 @@ public class EmbeddedNode {
           return "/linux-x64/";
         case DARWIN_ARM64:
           return "/darwin-arm64/";
+        case DARWIN_X64:
+          return "/darwin-x64/";
         default:
           return "";
       }
@@ -113,6 +116,8 @@ public class EmbeddedNode {
         return LINUX_X64;
       } else if (lowerCaseOsName.contains("mac os") && isARM64(env)) {
         return DARWIN_ARM64;
+      } else if (lowerCaseOsName.contains("mac os") && isX64(env)) {
+        return DARWIN_X64;
       }
       return UNSUPPORTED;
     }

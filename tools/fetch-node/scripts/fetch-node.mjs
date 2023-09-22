@@ -102,9 +102,14 @@ function getFilenameFromUrl(url) {
 function copyRuntime(distroName, distroId, nodeDir, targetDir) {
   console.log(`Copying runtime for ${distroName} from ${nodeDir} to ${targetDir}`);
   let nodeBin;
-  if (distroName.includes('win-x64')) {
+  // the starting dash is necessary, otherwise it captures "darwin-x64" as well
+  if (distroName.includes('-win-x64')) {
     nodeBin = 'node.exe';
-  } else if (distroName.includes('darwin-arm64') || distroName.includes('linux-x64')) {
+  } else if (
+    distroName.includes('darwin-arm64') ||
+    distroName.includes('linux-x64') ||
+    distroName.includes('darwin-x64')
+  ) {
     nodeBin = path.join('bin', 'node');
   } else {
     throw new Error(

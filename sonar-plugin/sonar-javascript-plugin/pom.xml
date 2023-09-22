@@ -227,6 +227,34 @@
           </execution>
 
           <execution>
+            <id>darwin-x64</id>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <shadedArtifactAttached>true</shadedArtifactAttached>
+              <shadedClassifierName>darwin-x64</shadedClassifierName>
+              <transformers>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                  <manifestEntries>
+                    <!-- This is used to get plugin version at runtime using getPackage().getImplementationVersion() -->
+                    <Implementation-Version>${project.version}</Implementation-Version>
+                  </manifestEntries>
+                </transformer>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+                  <resource>darwin-x64/node.xz</resource>
+                  <file>${project.build.directory}/node/darwin-x64/node.xz</file>
+                </transformer>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+                  <resource>darwin-x64/version.txt</resource>
+                  <file>${project.build.directory}/node/darwin-x64/version.txt</file>
+                </transformer>
+              </transformers>
+            </configuration>
+          </execution>
+
+          <execution>
             <id>multi</id>
             <phase>package</phase>
             <goals>
