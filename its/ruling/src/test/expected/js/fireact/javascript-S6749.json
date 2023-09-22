@@ -1,7 +1,4 @@
 {
-"fireact:src/components/Loader/index.js": [
-24
-],
 "fireact:src/components/Logo/index.js": [
 6
 ],
@@ -13,9 +10,6 @@
 ],
 "fireact:src/pages/auth/accounts/DeleteAccount/index.js": [
 57
-],
-"fireact:src/pages/auth/accounts/PaymentList/index.js": [
-72
 ],
 "fireact:src/pages/auth/accounts/PaymentMethod/index.js": [
 131
