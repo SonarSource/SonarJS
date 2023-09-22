@@ -180,6 +180,6 @@ function nameStartsWithCapital(node: estree.Node) {
   return !!(
     (node.type === 'FunctionDeclaration' || node.type === 'FunctionExpression') &&
     node.id &&
-    node.id.name[0] === node.id.name[0].toUpperCase()
+    node.id.name.startsWith(node.id.name[0].toUpperCase())
   );
 }
