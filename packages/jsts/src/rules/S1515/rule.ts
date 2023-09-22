@@ -63,28 +63,29 @@ export const rule: Rule.RuleModule = {
     ],
   },
   create(context: Rule.RuleContext) {
-    function getLocalEnclosingLoop(node: estree.Node) {
-      return findFirstMatchingAncestor(node as TSESTree.Node, n => loopLike.includes(n.type));
+    function getLocalEnclosingLoop(node: estree.Node): LoopLike | undefined {
+      return findFirstMatchingAncestor(node as TSESTree.Node, n => loopLike.includes(n.type)) as
+        | LoopLike
+        | undefined;
     }
 
     return {
       [functionLike]: (node: estree.Node) => {
-        const loopNode = getLocalEnclosingLoop(node) as LoopLike;
-        if (loopNode) {
-          if (
-            !isIIEF(node, context) &&
-            !isAllowedCallbacks(context) &&
-            context.getScope().through.some(ref => !isSafe(ref, loopNode))
-          ) {
-            context.report({
-              message: toEncodedMessage(message, [getMainLoopToken(loopNode, context)]),
-              loc: getMainFunctionTokenLocation(
-                node as TSESTree.FunctionLike,
-                getParent(context) as TSESTree.Node,
-                context as unknown as RuleContext,
-              ),
-            });
-          }
+        const loopNode = getLocalEnclosingLoop(node);
+        if (
+          loopNode &&
+          !isIIEF(node, context) &&
+          !isAllowedCallbacks(context) &&
+          context.getScope().through.some(ref => !isSafe(ref, loopNode))
+        ) {
+          context.report({
+            message: toEncodedMessage(message, [getMainLoopToken(loopNode, context)]),
+            loc: getMainFunctionTokenLocation(
+              node as TSESTree.FunctionLike,
+              getParent(context) as TSESTree.Node,
+              context as unknown as RuleContext,
+            ),
+          });
         }
       },
     };

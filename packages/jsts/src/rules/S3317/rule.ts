@@ -46,12 +46,10 @@ export const rule: Rule.RuleModule = {
             }
           }
         } else if (
-          declaration.type === 'ClassDeclaration' ||
-          declaration.type === 'FunctionDeclaration'
+          (declaration.type === 'ClassDeclaration' || declaration.type === 'FunctionDeclaration') &&
+          declaration.id
         ) {
-          if (declaration.id) {
-            nameOfExported = declaration.id.name;
-          }
+          nameOfExported = declaration.id.name;
         }
       },
       'ExportAllDeclaration, ExportNamedDeclaration': () => {
