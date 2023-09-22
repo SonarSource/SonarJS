@@ -102,7 +102,7 @@ function getEnd(context: Rule.RuleContext, node: TSESTree.Node, composite: TSEST
   let end: estree.Node | AST.Token = node as unknown as estree.Node;
   while (true) {
     const nextToken: AST.Token | null = context.sourceCode.getTokenAfter(end);
-    if (nextToken && nextToken.value === ')' && nextToken.range![1] <= composite.range![1]) {
+    if (nextToken && nextToken.value === ')' && nextToken.range[1] <= composite.range[1]) {
       end = nextToken;
     } else {
       break;

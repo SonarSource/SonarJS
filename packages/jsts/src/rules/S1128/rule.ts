@@ -271,14 +271,14 @@ function getSuggestion(
 
     case 'ImportNamespaceSpecifier':
       // namespace import is always second
-      range = [code.getTokenBefore(unusedSpecifier)!.range![0], unusedSpecifier.range![1]];
+      range = [code.getTokenBefore(unusedSpecifier)!.range[0], unusedSpecifier.range![1]];
       break;
 
     case 'ImportSpecifier':
       const simpleSpecifiers = specifiers.filter(specifier => specifier.type === 'ImportSpecifier');
       const index = simpleSpecifiers.findIndex(specifier => specifier === unusedSpecifier);
       if (simpleSpecifiers.length === 1) {
-        range = [specifiers[0].range![1], code.getTokenAfter(unusedSpecifier)!.range![1]];
+        range = [specifiers[0].range![1], code.getTokenAfter(unusedSpecifier)!.range[1]];
       } else if (index === 0) {
         range = [simpleSpecifiers[0].range![0], simpleSpecifiers[1].range![0]];
       } else {

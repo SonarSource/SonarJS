@@ -38,7 +38,7 @@ export const rule: Rule.RuleModule = {
         if (isTestCode(context) || isTryable(node, context)) {
           return;
         }
-        const callee = (node as estree.NewExpression).callee;
+        const { callee } = node;
         if (callee.type === 'Identifier' || callee.type === 'MemberExpression') {
           const calleeText = sourceCode.getText(callee);
           if (isException(context, callee, calleeText)) {
