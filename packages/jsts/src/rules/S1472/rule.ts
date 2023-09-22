@@ -44,8 +44,7 @@ export const rule: Rule.RuleModule = {
             call.arguments[0],
             isClosingParen,
           );
-          const calleeLastLine = (parenthesis ? parenthesis : sourceCode.getLastToken(callee))!.loc
-            .end.line;
+          const calleeLastLine = (parenthesis ?? sourceCode.getLastToken(callee))!.loc.end.line;
           const { start } = sourceCode.getTokenAfter(callee, isNotClosingParen)!.loc;
           if (calleeLastLine !== start.line) {
             const { end } = sourceCode.getLastToken(call)!.loc;
