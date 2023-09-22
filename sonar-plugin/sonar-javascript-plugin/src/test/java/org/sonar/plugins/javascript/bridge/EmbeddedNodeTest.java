@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.plugins.javascript.bridge.EmbeddedNode.Platform.DARWIN_ARM64;
+import static org.sonar.plugins.javascript.bridge.EmbeddedNode.Platform.DARWIN_X64;
 import static org.sonar.plugins.javascript.bridge.EmbeddedNode.Platform.LINUX_X64;
 import static org.sonar.plugins.javascript.bridge.EmbeddedNode.Platform.UNSUPPORTED;
 import static org.sonar.plugins.javascript.bridge.EmbeddedNode.Platform.WIN_X64;
@@ -70,10 +71,17 @@ class EmbeddedNodeTest {
   }
 
   @Test
-  void should_detect_platform_for_mac_os_environment() {
-    var platform = Platform.detect(createMacOSEnvironment());
+  void should_detect_platform_for_mac_os_arm64_environment() {
+    var platform = Platform.detect(createMacOSArm64Environment());
     assertThat(platform).isEqualTo(DARWIN_ARM64);
     assertThat(platform.archivePathInJar()).isEqualTo("/darwin-arm64/node.xz");
+  }
+
+  @Test
+  void should_detect_platform_for_mac_os_x64_environment() {
+    var platform = Platform.detect(createMacOSX64Environment());
+    assertThat(platform).isEqualTo(DARWIN_X64);
+    assertThat(platform.archivePathInJar()).isEqualTo("/darwin-x64/node.xz");
   }
 
   @Test
@@ -123,10 +131,17 @@ class EmbeddedNodeTest {
     return mockEnvironment;
   }
 
-  private Environment createMacOSEnvironment() {
+  private Environment createMacOSArm64Environment() {
     Environment mockEnvironment = mock(Environment.class);
     when(mockEnvironment.getOsName()).thenReturn("mac os x");
     when(mockEnvironment.getOsArch()).thenReturn("aarch64");
+    return mockEnvironment;
+  }
+
+  private Environment createMacOSX64Environment() {
+    Environment mockEnvironment = mock(Environment.class);
+    when(mockEnvironment.getOsName()).thenReturn("mac os x");
+    when(mockEnvironment.getOsArch()).thenReturn("amd64");
     return mockEnvironment;
   }
 
