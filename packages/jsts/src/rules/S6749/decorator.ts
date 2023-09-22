@@ -34,13 +34,13 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
     NeedsMoreChildren: 'A fragment with only one child is redundant.',
   };
   return interceptReport(rule, (context, descriptor) => {
-    const { messageId, node, ...rest } = descriptor as any;
+    const { node } = descriptor as any;
 
     /* Ignore empty fragments */
     if (node.type === 'JSXFragment' && node.children.length === 0) {
       return;
     }
 
-    context.report({ messageId, node, ...rest });
+    context.report(descriptor);
   });
 }
