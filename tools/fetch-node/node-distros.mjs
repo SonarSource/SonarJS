@@ -25,6 +25,12 @@ export const DISTROS = [
     sha: '9cc794517788aee103dfcffa04d0b90ac33854b0d10eb11a26ba4be38403f731',
   },
   {
+    id: 'darwin-x64',
+    url: `${NODE_ORG_URL}-darwin-x64.tar.gz`,
+    artifactoryUrl: `${NODE_ARTIFACTORY_URL}-darwin-x64.tar.gz`,
+    sha: '7a451dd07551a14ce64afdcc5bf8a71df12558edc19a2a9446e37cefe1e572fb',
+  },
+  {
     id: 'linux-x64',
     url: `${NODE_ORG_URL}-linux-x64.tar.gz`,
     artifactoryUrl: `${NODE_ARTIFACTORY_URL}-linux-x64.tar.gz`,
