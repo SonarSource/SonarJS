@@ -34,7 +34,7 @@ import { addLines } from './helpers';
 export function findNcloc(sourceCode: SourceCode): number[] {
   const lines: Set<number> = new Set();
   const ast = sourceCode.ast as AST.ESLintProgram;
-  const tokens = [...(ast.tokens || [])];
+  const tokens = [...(ast.tokens ?? [])];
   if (ast.templateBody) {
     tokens.push(...extractVuejsTokens(ast.templateBody));
   }

@@ -105,7 +105,7 @@ export class ReachingDefinitions {
 
   join(previousOut: Map<Variable, Values>) {
     for (const [key, values] of previousOut.entries()) {
-      const inValues = this.in.get(key) || new AssignedValues();
+      const inValues = this.in.get(key) ?? new AssignedValues();
       if (inValues.type === 'AssignedValues' && values.type === 'AssignedValues') {
         values.forEach(val => inValues.add(val));
         this.in.set(key, inValues);
@@ -132,7 +132,7 @@ export function resolveAssignedValues(
       const resolvedVar = getVariableFromIdentifier(writeExpr, scope);
       if (resolvedVar && resolvedVar !== lhsVariable) {
         const resolvedAssignedValues = assignedValuesMap.get(resolvedVar);
-        return resolvedAssignedValues || unknownValue;
+        return resolvedAssignedValues ?? unknownValue;
       }
       return unknownValue;
     default:

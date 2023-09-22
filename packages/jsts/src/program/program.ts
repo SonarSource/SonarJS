@@ -147,7 +147,7 @@ export function createProgram(tsConfig: string, tsconfigContents?: string): Prog
   }
   const programOptions = createProgramOptions(tsConfig, tsconfigContents);
   const program = ts.createProgram(programOptions);
-  const inputProjectReferences = program.getProjectReferences() || [];
+  const inputProjectReferences = program.getProjectReferences() ?? [];
   const projectReferences: string[] = [];
 
   for (const reference of inputProjectReferences) {

@@ -49,7 +49,7 @@ export const rule: Rule.RuleModule = {
         }
 
         /** Ignoring symbols called on or passed as arguments */
-        for (const reference of symbol?.references || []) {
+        for (const reference of symbol?.references ?? []) {
           const id = reference.identifier as TSESTree.Node;
 
           if (

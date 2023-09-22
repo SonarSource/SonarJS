@@ -57,7 +57,7 @@ export const rule: Rule.RuleModule = {
             checkIndentation(elseToken, alternate.consequent, context);
           } else {
             checkIndentation(
-              getPrecedingBrace(elseToken, sourceCode) || elseToken,
+              getPrecedingBrace(elseToken, sourceCode) ?? elseToken,
               alternate,
               context,
               elseToken,

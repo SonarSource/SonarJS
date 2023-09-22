@@ -35,7 +35,7 @@ export default class ContainsDetector extends Detector {
       if (typeof str === 'string') {
         regex = new RegExp(escapeRegex(str), 'g');
       }
-      matchers += (lineWithoutSpaces.match(regex) || []).length;
+      matchers += (lineWithoutSpaces.match(regex) ?? []).length;
     }
     return matchers;
   }

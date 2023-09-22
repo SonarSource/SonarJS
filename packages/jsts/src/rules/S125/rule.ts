@@ -163,8 +163,8 @@ function containsCode(value: string) {
 }
 
 function injectMissingBraces(value: string) {
-  const openCurlyBraceNum = (value.match(/{/g) || []).length;
-  const closeCurlyBraceNum = (value.match(/}/g) || []).length;
+  const openCurlyBraceNum = (value.match(/{/g) ?? []).length;
+  const closeCurlyBraceNum = (value.match(/}/g) ?? []).length;
   const missingBraces = openCurlyBraceNum - closeCurlyBraceNum;
   if (missingBraces > 0) {
     return value + Array(missingBraces).fill('}').join('');

@@ -81,7 +81,7 @@ function extractRegex(node: estree.Node, acc: RegexInfo[]) {
     const { flags } = node.regex;
     acc.push({ node, flags });
   } else if (isRegExpConstructor(node)) {
-    const flags = getFlags(node) || '';
+    const flags = getFlags(node) ?? '';
     acc.push({ node, flags });
   }
 }

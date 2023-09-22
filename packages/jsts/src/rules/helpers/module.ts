@@ -140,7 +140,7 @@ export function getFullyQualifiedNameRaw(
     return null;
   }
 
-  const variable = getVariableFromScope(scope || context.getScope(), nodeToCheck.name);
+  const variable = getVariableFromScope(scope ?? context.getScope(), nodeToCheck.name);
 
   if (!variable || variable.defs.length > 1) {
     return null;

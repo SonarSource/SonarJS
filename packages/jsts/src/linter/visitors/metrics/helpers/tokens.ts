@@ -34,8 +34,8 @@ export function extractTokensAndComments(sourceCode: SourceCode): {
   comments: AST.Token[];
 } {
   const ast = sourceCode.ast as AST.ESLintProgram;
-  const tokens = [...(ast.tokens || [])];
-  const comments = [...(ast.comments || [])];
+  const tokens = [...(ast.tokens ?? [])];
+  const comments = [...(ast.comments ?? [])];
   if (ast.templateBody) {
     const { templateBody } = ast;
     tokens.push(...templateBody.tokens);

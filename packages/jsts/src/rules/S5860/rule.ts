@@ -356,7 +356,7 @@ class RegexIntelliSense {
   resolve(matcher: estree.Node): RegexKnowledge | null {
     const variable = this.findVariable(matcher);
     if (variable) {
-      return this.bindings.get(variable) || null;
+      return this.bindings.get(variable) ?? null;
     } else {
       return null;
     }
