@@ -124,7 +124,7 @@ export function getFullyQualifiedNameRaw(
   scope?: Scope.Scope,
   visitedVars: Variable[] = [],
 ): string | null {
-  let nodeToCheck = reduceToIdentifier(node, fqn);
+  const nodeToCheck = reduceToIdentifier(node, fqn);
 
   if (!isIdentifier(nodeToCheck)) {
     // require chaining, e.g. `require('lib')()` or `require('lib').prop()`

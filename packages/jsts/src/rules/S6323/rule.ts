@@ -31,7 +31,7 @@ export const rule: Rule.RuleModule = createRegExpRule(context => {
       return;
     }
     for (let i = 0; i < alts.length; i++) {
-      let alt = alts[i];
+      const alt = alts[i];
       if (alt.elements.length === 0 && !isLastEmptyInGroup(alt)) {
         context.reportRegExpNode({
           message: 'Remove this empty alternative.',
