@@ -138,7 +138,7 @@ class EmbeddedNodeTest {
     en.deploy();
     assertThat(logTester.logs())
       .anyMatch(l ->
-        l.startsWith("Embedded Node.js failed to deploy. Will fallback to host Node.js. My Error")
+        l.startsWith("Embedded Node.js failed to deploy. Will fallback to host Node.js")
       );
   }
 

@@ -31,6 +31,10 @@ public class NodeVersion {
 
   private static final Logger LOG = Loggers.get(NodeVersion.class);
 
+  private NodeVersion() {
+    // utility class
+  }
+
   public static String getVersion(ProcessWrapper processWrapper, String nodeExecutable)
     throws NodeCommandException {
     var output = new StringBuilder();

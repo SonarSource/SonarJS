@@ -186,10 +186,7 @@ public class EmbeddedNode {
       LOG.debug("Deployed node version {}", detected);
       isAvailable = true;
     } catch (Exception e) {
-      LOG.info(
-        "Embedded Node.js failed to deploy. Will fallback to host Node.js. {}",
-        e.getMessage()
-      );
+      LOG.warn("Embedded Node.js failed to deploy. Will fallback to host Node.js.", e);
     }
   }
 
