@@ -13,8 +13,12 @@ You can also use Docker container defined in `./.cirrus/nodejs-lts.Dockerfile` w
 To build the plugin and run its unit tests, execute this command from the project's root directory:
 
 ```sh
-npm run build-full
+npm run build
 ```
+
+### Other useful scripts
+
+In general, scripts have prefixes `bridge_` and `plugin_` depending on whether they work on the TypeScript bridge or the Java plugin.
 
 ## Integration Tests
 
