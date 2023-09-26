@@ -2,6 +2,8 @@ package org.sonar.plugins.javascript.bridge;
 
 import static org.sonarsource.api.sonarlint.SonarLintSide.INSTANCE;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
@@ -23,5 +25,9 @@ public class Environment {
 
   public String getOsArch() {
     return System.getProperty("os.arch");
+  }
+
+  public boolean isAlpine() {
+    return Files.exists(Path.of("/etc/alpine-release"));
   }
 }

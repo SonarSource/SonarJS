@@ -115,7 +115,7 @@ public class EmbeddedNode {
       var lowerCaseOsName = osName.toLowerCase(Locale.ROOT);
       if (osName.contains("Windows") && isX64(env)) {
         return WIN_X64;
-      } else if (lowerCaseOsName.contains("linux") && isX64(env) && !isAlpine()) {
+      } else if (lowerCaseOsName.contains("linux") && isX64(env) && !env.isAlpine()) {
         // alpine linux is using musl libc, which is not compatible with linux-x64
         return LINUX_X64;
       } else if (lowerCaseOsName.contains("mac os") && isARM64(env)) {
@@ -132,10 +132,6 @@ public class EmbeddedNode {
 
     private static boolean isARM64(Environment env) {
       return env.getOsArch().contains("aarch64");
-    }
-
-    private static boolean isAlpine() {
-      return Files.exists(Path.of("/etc/alpine-release"));
     }
   }
 
@@ -164,7 +160,13 @@ public class EmbeddedNode {
    * @throws IOException
    */
   public void deploy() throws IOException {
-    LOG.info("Detected os: {} arch: {} platform: {}", env.getOsName(), env.getOsArch(), platform);
+    LOG.info(
+      "Detected os: {} arch: {} alpine: {}. Platform: {}",
+      env.getOsName(),
+      env.getOsArch(),
+      env.isAlpine(),
+      platform
+    );
     if (platform == UNSUPPORTED) {
       return;
     }
