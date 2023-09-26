@@ -16,7 +16,7 @@
     "plugin_pre-build": "npm run bridge_build && npm pack && npm run plugin_check-distribution && npm run plugin_copy-bridge && npm run plugin_fetch-node",
     "plugin_build_no_bridge": "mvn install",
     "plugin_build_fast": "npm run plugin_build_no_bridge -- -DskipTests",
-    "plugin_build": "npm run plugin_pre-build && mvn clean && npm run plugin_build_no_bridge",
+    "plugin_build": "mvn clean && npm run plugin_pre-build && npm run plugin_build_no_bridge",
     "new-rule": "ts-node tools/newRule.ts",
     "td": "node typedoc/scripts/setup-plugins.js && ./node_modules/.bin/typedoc --options typedoc/typedoc.js",
     "prepare": "husky install",
