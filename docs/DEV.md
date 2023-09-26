@@ -16,10 +16,6 @@ To build the plugin and run its unit tests, execute this command from the projec
 npm run build
 ```
 
-### Other useful scripts
-
-In general, scripts have prefixes `bridge_` and `plugin_` depending on whether they work on the TypeScript bridge or the Java plugin.
-
 ## Integration Tests
 
 First make sure the submodules are checked out:
@@ -90,9 +86,9 @@ java -jar <location of rule-api jar> generate -rule S1234 [-branch <RSPEC branch
 2. Generate other files required for a new rule. If the rule is already covered by ESLint or its plugins, use the existing <ESLint-style rulekey> and add the `eslint` option.
 
 ```sh
-npm run new-rule S1234 <ESLint-style rulekey>
+npm run new_rule S1234 <ESLint-style rulekey>
 // e.g.
-npm run new-rule S1234 no-invalid-something [eslint]
+npm run new_rule S1234 no-invalid-something [eslint]
 ```
 
 This script:
