@@ -159,7 +159,7 @@ public class EmbeddedNode {
    * @throws IOException
    */
   public void deploy() throws IOException {
-    LOG.debug("Detected os: {} arch: {} platform: {}", env.getOsName(), env.getOsArch(), platform);
+    LOG.info("Detected os: {} arch: {} platform: {}", env.getOsName(), env.getOsArch(), platform);
     if (platform == UNSUPPORTED) {
       return;
     }
