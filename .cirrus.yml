@@ -80,9 +80,6 @@ build_task:
     cpu: 15
     memory: 30G
   env:
-    # analysis on next
-    SONAR_TOKEN: VAULT[development/kv/data/next data.token]
-    SONAR_HOST_URL: https://next.sonarqube.com/sonarqube
     #allow deployment of pull request artifacts to repox
     DEPLOY_PULL_REQUEST: true
     #sign artifacts
@@ -90,17 +87,26 @@ build_task:
     PGP_PASSPHRASE: VAULT[development/kv/data/sign data.passphrase]
   <<: *MAVEN_CACHE
   <<: *RUNTIME_CACHE
+  build_script:
+    - source cirrus-env BUILD
+    - npm config set registry "${ARTIFACTORY_URL}/api/npm/npm"
+    - npm run build
+  cleanup_before_cache_script: cleanup_maven_repository
+
+analyze_task:
+  depends_on:
+    - build
+  env:
+    # analysis on next
+    SONAR_TOKEN: VAULT[development/kv/data/next data.token]
+    SONAR_HOST_URL: https://next.sonarqube.com/sonarqube
   sonar_cache:
     folder: ${HOME}/.sonar/cache
     fingerprint_script:
       - echo ${CIRRUS_OS}
       - curl --silent ${SONAR_HOST_URL}/deploy/plugins/index.txt | sort
-  build_script:
-    - source cirrus-env BUILD
-    - npm config set registry "${ARTIFACTORY_URL}/api/npm/npm"
-    - npm run build
+  analyze_script:
     - regular_mvn_build_deploy_analyze
-  cleanup_before_cache_script: cleanup_maven_repository
 
 build_win_task:
   depends_on:
