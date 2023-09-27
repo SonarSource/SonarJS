@@ -71,7 +71,6 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
 
   public NodeCommandBuilderImpl(ProcessWrapper processWrapper) {
     this.processWrapper = processWrapper;
-    this.embeddedNode = new EmbeddedNode(processWrapper, new Environment());
   }
 
   @Override
