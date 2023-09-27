@@ -57,7 +57,7 @@ export const rule: Rule.RuleModule = {
       },
       'Program:exit': () => {
         if (isOnlyExport && nameOfExported) {
-          const fileName = path.parse(context.getFilename()).name;
+          const fileName = path.parse(context.filename).name;
           if (
             'index' !== fileName &&
             !sameName(nameOfExported, fileName) &&
