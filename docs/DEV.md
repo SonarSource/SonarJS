@@ -86,9 +86,9 @@ java -jar <location of rule-api jar> generate -rule S1234 [-branch <RSPEC branch
 2. Generate other files required for a new rule. If the rule is already covered by ESLint or its plugins, use the existing <ESLint-style rulekey> and add the `eslint` option.
 
 ```sh
-npm run new_rule S1234 <ESLint-style rulekey>
+npm run new-rule S1234 <ESLint-style rulekey>
 // e.g.
-npm run new_rule S1234 no-invalid-something [eslint]
+npm run new-rule S1234 no-invalid-something [eslint]
 ```
 
 This script:
