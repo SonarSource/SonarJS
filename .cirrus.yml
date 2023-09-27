@@ -91,6 +91,7 @@ build_task:
     - source cirrus-env BUILD
     - npm config set registry "${ARTIFACTORY_URL}/api/npm/npm"
     - npm run build
+  cleanup_before_cache_script: cleanup_maven_repository
 
 analyze_task:
   eks_container:
@@ -116,7 +117,6 @@ analyze_task:
     - npm config set registry "${ARTIFACTORY_URL}/api/npm/npm"
     - npm run build
     - regular_mvn_build_deploy_analyze
-  cleanup_before_cache_script: cleanup_maven_repository
 
 build_win_task:
   depends_on:
