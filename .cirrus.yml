@@ -113,6 +113,7 @@ analyze_task:
       - echo ${CIRRUS_OS}
       - curl --silent ${SONAR_HOST_URL}/deploy/plugins/index.txt | sort
   analyze_script:
+    - source cirrus-env BUILD
     - regular_mvn_build_deploy_analyze
 
 build_win_task:
