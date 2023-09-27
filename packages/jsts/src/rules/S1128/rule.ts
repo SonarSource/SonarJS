@@ -266,7 +266,7 @@ function getSuggestion(
     case 'ImportDefaultSpecifier':
       const tokenAfter = code.getTokenAfter(id)!;
       // default import is always first
-      range = [id.range![0], code.getTokenAfter(tokenAfter)!.range![0]];
+      range = [id.range![0], code.getTokenAfter(tokenAfter)!.range[0]];
       break;
 
     case 'ImportNamespaceSpecifier':
