@@ -91,6 +91,10 @@ build_task:
     - source cirrus-env BUILD
     - npm config set registry "${ARTIFACTORY_URL}/api/npm/npm"
     - npm run build
+  deploy_script:
+    - .cirrus/prepare_deploy_analyze.bash
+    # we've already run the tests above
+    - mvn deploy -DskipTests
   cleanup_before_cache_script: cleanup_maven_repository
 
 analyze_task:
@@ -114,11 +118,13 @@ analyze_task:
     fingerprint_script:
       - echo ${CIRRUS_OS}
       - curl --silent ${SONAR_HOST_URL}/deploy/plugins/index.txt | sort
-  analyze_script:
+  build_script:
     - source cirrus-env BUILD
     - npm config set registry "${ARTIFACTORY_URL}/api/npm/npm"
     - npm run build
-    - regular_mvn_build_deploy_analyze
+  analyze_script:
+    - .cirrus/prepare_deploy_analyze.bash
+    - .cirrus/analyze.bash
 
 build_win_task:
   depends_on:
