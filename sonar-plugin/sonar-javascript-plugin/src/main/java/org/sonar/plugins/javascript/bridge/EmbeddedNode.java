@@ -51,7 +51,7 @@ import org.tukaani.xz.XZInputStream;
 public class EmbeddedNode {
 
   public static final String VERSION_FILENAME = "version.txt";
-  private static final String DEPLOY_LOCATION = Path.of(".sonar", "js", "node-runtime").toString();
+  private static final String DEPLOY_LOCATION = Path.of("js", "node-runtime").toString();
   private static final long EXTRACTION_LOCK_WAIT_TIME_MILLIS = 10000;
   private static final Logger LOG = Loggers.get(EmbeddedNode.class);
   private final Path deployLocation;
@@ -137,7 +137,7 @@ public class EmbeddedNode {
 
   public EmbeddedNode(ProcessWrapper processWrapper, Environment env) {
     this.platform = Platform.detect(env);
-    this.deployLocation = runtimeCachePathFrom(env.getUserHome());
+    this.deployLocation = runtimeCachePathFrom(env.getSonarUserHome());
     this.env = env;
     this.processWrapper = processWrapper;
   }
@@ -145,8 +145,8 @@ public class EmbeddedNode {
   /**
    * @return a path to `DEPLOY_LOCATION` from the given `baseDir`
    */
-  private static Path runtimeCachePathFrom(String baseDir) {
-    return Path.of(baseDir).resolve(DEPLOY_LOCATION);
+  private static Path runtimeCachePathFrom(Path baseDir) {
+    return baseDir.resolve(DEPLOY_LOCATION);
   }
 
   public boolean isAvailable() {

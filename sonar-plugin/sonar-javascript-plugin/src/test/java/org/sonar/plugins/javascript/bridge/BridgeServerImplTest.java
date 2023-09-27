@@ -786,7 +786,7 @@ class BridgeServerImplTest {
    */
   private Environment createUnsupportedEnvironment() {
     Environment mockEnvironment = mock(Environment.class);
-    when(mockEnvironment.getUserHome()).thenReturn("");
+    when(mockEnvironment.getSonarUserHome()).thenReturn(Path.of(""));
     when(mockEnvironment.getOsName()).thenReturn("");
     when(mockEnvironment.getOsArch()).thenReturn("");
     return mockEnvironment;

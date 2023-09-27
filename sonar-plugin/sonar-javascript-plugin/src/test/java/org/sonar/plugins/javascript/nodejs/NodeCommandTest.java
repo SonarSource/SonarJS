@@ -440,9 +440,10 @@ class NodeCommandTest {
 
   private Environment createTestEnvironment() {
     Environment mockEnvironment = mock(Environment.class);
-    when(mockEnvironment.getUserHome()).thenReturn(tempDir.toString());
-    when(mockEnvironment.getOsName()).thenReturn(new Environment().getOsName());
-    when(mockEnvironment.getOsArch()).thenReturn(new Environment().getOsArch());
+    when(mockEnvironment.getSonarUserHome()).thenReturn(tempDir);
+    var config = new MapSettings().asConfig();
+    when(mockEnvironment.getOsName()).thenReturn(new Environment(config).getOsName());
+    when(mockEnvironment.getOsArch()).thenReturn(new Environment(config).getOsArch());
     return mockEnvironment;
   }
 
@@ -451,6 +452,11 @@ class NodeCommandTest {
   }
 
   static NodeCommandBuilder builder(ProcessWrapper processWrapper) {
-    return new NodeCommandBuilderImpl(processWrapper).configuration(new MapSettings().asConfig());
+    var wrapper = new ProcessWrapperImpl();
+    var config = new MapSettings().asConfig();
+    var env = new Environment(config);
+    return new NodeCommandBuilderImpl(processWrapper)
+      .embeddedNode(new EmbeddedNode(wrapper, env))
+      .configuration(config);
   }
 }

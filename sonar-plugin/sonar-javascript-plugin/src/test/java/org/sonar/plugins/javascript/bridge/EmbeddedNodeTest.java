@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
 import org.slf4j.event.Level;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.plugins.javascript.bridge.EmbeddedNode.Platform;
 import org.sonar.plugins.javascript.nodejs.ProcessWrapper;
@@ -28,7 +29,7 @@ class EmbeddedNodeTest {
   @TempDir
   Path tempDir;
 
-  private Environment currentEnvironment = new Environment();
+  private Environment currentEnvironment = new Environment(new MapSettings().asConfig());
 
   @RegisterExtension
   private LogTesterJUnit5 logTester = new LogTesterJUnit5();
@@ -149,7 +150,7 @@ class EmbeddedNodeTest {
 
   private Environment createTestEnvironment() {
     Environment mockEnvironment = mock(Environment.class);
-    when(mockEnvironment.getUserHome()).thenReturn(tempDir.toString());
+    when(mockEnvironment.getSonarUserHome()).thenReturn(tempDir);
     when(mockEnvironment.getOsName()).thenReturn(currentEnvironment.getOsName());
     when(mockEnvironment.getOsArch()).thenReturn(currentEnvironment.getOsArch());
     return mockEnvironment;
@@ -178,7 +179,7 @@ class EmbeddedNodeTest {
 
   private Environment createUnsupportedEnvironment() {
     Environment mockEnvironment = mock(Environment.class);
-    when(mockEnvironment.getUserHome()).thenReturn(tempDir.toString());
+    when(mockEnvironment.getSonarUserHome()).thenReturn(tempDir);
     when(mockEnvironment.getOsName()).thenReturn("");
     when(mockEnvironment.getOsArch()).thenReturn("");
     return mockEnvironment;
