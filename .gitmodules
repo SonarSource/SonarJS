@@ -1,8 +1,1 @@
 
-[submodule "its/typescript-test-sources"]
-	path = its/typescript-test-sources
-	url = https://github.com/SonarSource/typescript-test-sources.git
-	ignore = untracked
-[submodule "its/css-sources/projects"]
-	path = its/css-sources/projects
-	url = https://github.com/SonarSource/css-test-sources
