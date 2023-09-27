@@ -33,9 +33,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
     if (node.type === 'CallExpression') {
       const { callee, arguments: args } = node;
       if (callee.type === 'MemberExpression') {
-        const object = callee.object,
-          property = callee.property;
-
+        const { object, property } = callee;
         if (property.type === 'Identifier' && property.name === 'call') {
           const desc = 'Remove redundant call()';
 
