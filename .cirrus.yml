@@ -107,6 +107,8 @@ analyze_task:
     # analysis on next
     SONAR_TOKEN: VAULT[development/kv/data/next data.token]
     SONAR_HOST_URL: https://next.sonarqube.com/sonarqube
+  <<: *MAVEN_CACHE
+  <<: *RUNTIME_CACHE
   sonar_cache:
     folder: ${HOME}/.sonar/cache
     fingerprint_script:
