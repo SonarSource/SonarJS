@@ -94,6 +94,13 @@ build_task:
   cleanup_before_cache_script: cleanup_maven_repository
 
 analyze_task:
+  eks_container:
+    <<: *CONTAINER_DEFINITION
+    dockerfile: .cirrus/nodejs.Dockerfile
+    docker_arguments:
+      CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
+    cpu: 15
+    memory: 30G
   depends_on:
     - build
   env:
