@@ -34,7 +34,7 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     const [threshold] = context.options;
 
-    const sourceCode = context.getSourceCode();
+    const sourceCode = context.sourceCode;
     const lines = sourceCode.lines;
 
     const commentLineNumbers = getCommentLineNumbers(sourceCode.getAllComments());

@@ -79,10 +79,10 @@ ruleTester.run('Extra semicolons should be removed', rule, {
 
 it('no-extra-semi handles null nodes', () => {
   const context = {
-    getSourceCode: jest.fn().mockReturnValue({
+    sourceCode: {
       getTokenBefore: jest.fn().mockReturnValue(null),
       getTokenAfter: jest.fn().mockReturnValue({ type: 'Punctuator', value: '[' }),
-    }),
+    },
   } as unknown as Rule.RuleContext;
 
   expect(isProtectionSemicolon(context, { type: 'BreakStatement' })).toBe(false);

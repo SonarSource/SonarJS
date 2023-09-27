@@ -47,7 +47,7 @@ export const rule: Rule.RuleModule = {
           if (misused.length > 0) {
             context.report({
               message: toEncodedMessage(
-                `Move the declaration of \"${declaration.name}\" before this usage.`,
+                `Move the declaration of "${declaration.name}" before this usage.`,
                 [declaration as TSESTree.Node],
                 ['Declaration'],
               ),

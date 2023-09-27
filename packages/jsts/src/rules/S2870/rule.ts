@@ -50,7 +50,7 @@ export const rule: Rule.RuleModule = {
 };
 
 function raiseIssue(context: Rule.RuleContext): void {
-  const deleteKeyword = context.getSourceCode().getFirstToken(getParent(context)!);
+  const deleteKeyword = context.sourceCode.getFirstToken(getParent(context)!);
   context.report({
     messageId: 'removeDelete',
     loc: deleteKeyword!.loc,

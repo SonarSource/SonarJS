@@ -76,7 +76,7 @@ function checkExpression(
   const variable = getVariable(callExpression, context);
   if (variable && variable.defs.length !== 0) {
     const otherTypeUsage = otherTypeUsageMap.get(variable);
-    if (otherTypeUsage && otherTypeUsage.loc && !hasIssue.includes(variable)) {
+    if (otherTypeUsage?.loc && !hasIssue.includes(variable)) {
       const message =
         `Correct the use of this function; ` +
         `on line ${otherTypeUsage.loc.start.line} it was called with${tail} "new".`;

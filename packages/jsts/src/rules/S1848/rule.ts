@@ -32,13 +32,13 @@ export const rule: Rule.RuleModule = {
     },
   },
   create(context: Rule.RuleContext) {
-    const sourceCode = context.getSourceCode();
+    const sourceCode = context.sourceCode;
     return {
       'ExpressionStatement > NewExpression': (node: estree.NewExpression) => {
         if (isTestCode(context) || isTryable(node, context)) {
           return;
         }
-        const callee = (node as estree.NewExpression).callee;
+        const { callee } = node;
         if (callee.type === 'Identifier' || callee.type === 'MemberExpression') {
           const calleeText = sourceCode.getText(callee);
           if (isException(context, callee, calleeText)) {

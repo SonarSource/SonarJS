@@ -485,7 +485,7 @@ export function resolveFromFunctionReference(
   context: Rule.RuleContext,
   functionIdentifier: estree.Identifier,
 ) {
-  const { scopeManager } = context.getSourceCode();
+  const { scopeManager } = context.sourceCode;
   for (const scope of scopeManager.scopes) {
     const reference = scope.references.find(r => r.identifier === functionIdentifier);
     if (

@@ -45,7 +45,7 @@ export function reportPatternInComment(
   pattern: string,
   messageId: string,
 ) {
-  const sourceCode = context.getSourceCode();
+  const sourceCode = context.sourceCode;
   (sourceCode.getAllComments() as TSESTree.Comment[]).forEach(comment => {
     const rawText = comment.value.toLowerCase();
 

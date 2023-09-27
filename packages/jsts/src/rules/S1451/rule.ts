@@ -44,7 +44,7 @@ export const rule: Rule.RuleModule = {
     }
 
     return {
-      'Program:exit': function () {
+      'Program:exit'() {
         if (cached.isRegularExpression) {
           checkRegularExpression(cached.searchPattern!, context);
         } else {
@@ -57,7 +57,7 @@ export const rule: Rule.RuleModule = {
 
 function checkPlainText(expectedLines: string[], context: Rule.RuleContext) {
   let matches = false;
-  const lines = context.getSourceCode().lines;
+  const lines = context.sourceCode.lines;
 
   if (expectedLines.length <= lines.length) {
     matches = true;
@@ -79,7 +79,7 @@ function checkPlainText(expectedLines: string[], context: Rule.RuleContext) {
 }
 
 function checkRegularExpression(searchPattern: RegExp, context: Rule.RuleContext) {
-  const fileContent = context.getSourceCode().getText();
+  const fileContent = context.sourceCode.getText();
   const match = searchPattern.exec(fileContent);
   if (!match || match.index !== 0) {
     addFileIssue(context);

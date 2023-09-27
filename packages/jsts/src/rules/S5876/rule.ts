@@ -57,7 +57,7 @@ export const rule: Rule.RuleModule = {
         sessionRegenerate = true;
         return;
       }
-      childrenOf(node, context.getSourceCode().visitorKeys).forEach(visitCallback);
+      childrenOf(node, context.sourceCode.visitorKeys).forEach(visitCallback);
     }
 
     function hasSessionFalseOption(callExpression: estree.CallExpression) {

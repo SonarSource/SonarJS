@@ -21,8 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { isBinaryPlus, isStringLiteral } from '../helpers';
-import { interceptReport } from '../helpers';
+import { isBinaryPlus, isStringLiteral, interceptReport } from '../helpers';
 
 // core implementation of this rule does not provide quick fixes
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
@@ -32,7 +31,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
     if ('node' in reportDescriptor) {
       const { argument: thrown } = reportDescriptor.node as estree.ThrowStatement;
       if (isStringLike(thrown)) {
-        const thrownText = context.getSourceCode().getText(thrown);
+        const thrownText = context.sourceCode.getText(thrown);
         suggest.push({
           desc: 'Throw an error object',
           fix: fixer => fixer.replaceText(thrown, `new Error(${thrownText})`),

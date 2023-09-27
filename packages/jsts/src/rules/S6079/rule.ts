@@ -69,10 +69,7 @@ export const rule: Rule.RuleModule = {
 
     function checkForDoneCall(node: estree.CallExpression) {
       const { callee } = node;
-      if (
-        currentDoneVariable &&
-        currentDoneVariable.references.some(ref => ref.identifier === callee)
-      ) {
+      if (currentDoneVariable?.references.some(ref => ref.identifier === callee)) {
         doneCall = node;
         doneSegment = currentSegment;
       }

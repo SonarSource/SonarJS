@@ -54,7 +54,7 @@ export const rule: Rule.RuleModule = {
       } else if (typeof modeValue === 'number') {
         const raw = modeExpr.raw;
         // ts parser interprets number starting with 0 as decimal, we need to parse it as octal value
-        if (raw && raw.startsWith('0') && !raw.startsWith('0o')) {
+        if (raw?.startsWith('0') && !raw.startsWith('0o')) {
           mode = Number.parseInt(raw, 8);
         } else {
           mode = modeValue;

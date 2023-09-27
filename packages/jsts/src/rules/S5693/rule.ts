@@ -187,8 +187,8 @@ function visitAssignment(context: Rule.RuleContext, assignment: estree.Assignmen
 
   const { objectVariable, property } = variableProperty;
 
-  if (formidableObjects.has(objectVariable) && property === MAX_FILE_SIZE) {
-    const formOptions = formidableObjects.get(objectVariable)!;
+  const formOptions = formidableObjects.get(objectVariable);
+  if (formOptions && property === MAX_FILE_SIZE) {
     const rhsValue = getSizeValue(context, assignment.right);
     if (rhsValue !== undefined) {
       formOptions.maxFileSize = rhsValue;

@@ -53,8 +53,8 @@ export const rule: Rule.RuleModule = {
         "BinaryExpression[operator='in']": (node: estree.Node) => {
           const { left, right } = node as estree.BinaryExpression;
           if (isArray(right, services) && !prototypeProperty(left) && !isNumber(left, services)) {
-            const leftText = context.getSourceCode().getText(left);
-            const rightText = context.getSourceCode().getText(right);
+            const leftText = context.sourceCode.getText(left);
+            const rightText = context.sourceCode.getText(right);
             context.report({
               messageId: 'inMisuse',
               node,

@@ -31,7 +31,7 @@ import {
 import { normalizeFQN } from '../helpers/aws/cdk';
 
 const INSECURE_PROTOCOLS = ['http://', 'ftp://', 'telnet://'];
-const LOOPBACK_PATTERN = /localhost|127(?:\.[0-9]+){0,2}\.[0-9]+$|\/\/(?:0*\:)*?:?0*1$/;
+const LOOPBACK_PATTERN = /localhost|127(?:\.\d+){0,2}\.\d+$|\/\/(?:0*:)*?:?0*1$/;
 const EXCEPTION_FULL_HOSTS = [
   'www.w3.org',
   'xml.apache.org',

@@ -70,7 +70,7 @@ class TestCaseAssertionVisitor {
   private hasAssertions: boolean;
 
   constructor(private readonly context: Rule.RuleContext) {
-    this.visitorKeys = context.getSourceCode().visitorKeys;
+    this.visitorKeys = context.sourceCode.visitorKeys;
     this.hasAssertions = false;
   }
 

@@ -65,7 +65,7 @@ public class CssRules {
   public CssRules(CheckFactory checkFactory) {
     Checks<CssRule> checks = checkFactory
       .<CssRule>create(CssRulesDefinition.REPOSITORY_KEY)
-      .addAnnotatedChecks((Iterable<?>) getRuleClasses());
+      .addAnnotatedChecks(getRuleClasses());
     this.rules = checks.all();
     stylelintKeyToRuleKey = new HashMap<>();
     for (CssRule rule : rules) {

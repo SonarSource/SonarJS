@@ -184,7 +184,7 @@ function isUsedInsideBody(id: estree.Node, loopBody: estree.Node, context: Rule.
 }
 
 function isInBody(id: estree.Identifier, bodyRange: [number, number]) {
-  return id && id.range && id.range[0] > bodyRange[0] && id.range[1] < bodyRange[1];
+  return id?.range && id.range[0] > bodyRange[0] && id.range[1] < bodyRange[1];
 }
 
 function getValue(node: estree.Node) {

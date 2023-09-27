@@ -82,7 +82,7 @@ function nodeRange(node: estree.Node): [number, number] {
 }
 
 function unquote(s: string): string {
-  if (s.charAt(0) !== "'" && s.charAt(0) !== '"') {
+  if (!s.startsWith("'") && !s.startsWith('"')) {
     throw new Error(`invalid string to unquote: ${s}`);
   }
   return s.substring(1, s.length - 1);

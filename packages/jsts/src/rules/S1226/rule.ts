@@ -90,12 +90,10 @@ export const rule: Rule.RuleModule = {
     function isUsedInWriteExpression(variableName: string, writeExpr: estree.Node | null) {
       return (
         writeExpr &&
-        context
-          .getSourceCode()
-          .getFirstToken(
-            writeExpr,
-            token => token.value === variableName || token.value === 'arguments',
-          )
+        context.sourceCode.getFirstToken(
+          writeExpr,
+          token => token.value === variableName || token.value === 'arguments',
+        )
       );
     }
 
@@ -160,7 +158,7 @@ export const rule: Rule.RuleModule = {
         if (!isForEachLoopStart(node, parent)) {
           return;
         }
-        const currentScope = context.getSourceCode().scopeManager.acquire(parent.body);
+        const currentScope = context.sourceCode.scopeManager.acquire(parent.body);
         const { referencesByIdentifier, variablesToCheck, variablesToCheckInCurrentScope } =
           computeNewContextInfo(variableUsageContext, context, parent.left);
 

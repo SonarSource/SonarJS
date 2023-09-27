@@ -44,7 +44,7 @@ export const rule: Rule.RuleModule = {
         if ((scopeType === 'global' || scopeType === 'module') && !isInsideClass) {
           const suggest: Rule.SuggestionReportDescriptor[] = [];
           if (!memberExpression.computed) {
-            const propertyText = context.getSourceCode().getText(memberExpression.property);
+            const propertyText = context.sourceCode.getText(memberExpression.property);
             suggest.push(
               {
                 messageId: 'suggestRemoveThis',

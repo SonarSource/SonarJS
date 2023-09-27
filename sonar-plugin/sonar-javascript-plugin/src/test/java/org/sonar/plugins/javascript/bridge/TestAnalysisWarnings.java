@@ -21,7 +21,6 @@ package org.sonar.plugins.javascript.bridge;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.sonar.plugins.javascript.bridge.AnalysisWarningsWrapper;
 
 public class TestAnalysisWarnings extends AnalysisWarningsWrapper {
 

@@ -39,7 +39,7 @@ export const rule: Rule.RuleModule = {
     const switchCaseStack: estree.SwitchCase[] = [];
 
     function noComment(node: estree.Node) {
-      return context.getSourceCode().getCommentsAfter(node).length === 0;
+      return context.sourceCode.getCommentsAfter(node).length === 0;
     }
 
     function isAfterProcessExitCall(
@@ -104,7 +104,7 @@ export const rule: Rule.RuleModule = {
         ) {
           context.report({
             messageId: 'switchEnd',
-            loc: context.getSourceCode().getFirstToken(node)!.loc,
+            loc: context.sourceCode.getFirstToken(node)!.loc,
           });
         }
       },

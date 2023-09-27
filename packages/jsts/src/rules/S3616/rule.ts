@@ -45,16 +45,16 @@ export const rule: Rule.RuleModule = {
       if (node.type === 'Literal') {
         return node.value;
       } else {
-        return context.getSourceCode().getText(node);
+        return context.sourceCode.getText(node);
       }
     }
 
     return {
-      'SwitchCase > SequenceExpression': function (node: estree.Node) {
+      'SwitchCase > SequenceExpression'(node: estree.Node) {
         const expressions = (node as estree.SequenceExpression).expressions;
         reportIssue(node, expressions[expressions.length - 1], expressions.length);
       },
-      'SwitchCase > LogicalExpression': function (node: estree.Node) {
+      'SwitchCase > LogicalExpression'(node: estree.Node) {
         if (!isSwitchTrue(getEnclosingSwitchStatement(context))) {
           const firstElemAndNesting = getFirstElementAndNestingLevel(
             node as estree.LogicalExpression,

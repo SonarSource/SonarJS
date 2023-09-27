@@ -39,7 +39,7 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
       'TSUnionType, TSIntersectionType'(node: estree.Node) {
-        const sourceCode = context.getSourceCode();
+        const sourceCode = context.sourceCode;
         const compositeType = node as unknown as TSESTree.TSUnionType | TSESTree.TSIntersectionType;
         const groupedTypes: Map<string, Array<TSESTree.Node>> = new Map();
 
@@ -101,8 +101,8 @@ function getSuggestions(
 function getEnd(context: Rule.RuleContext, node: TSESTree.Node, composite: TSESTree.Node) {
   let end: estree.Node | AST.Token = node as unknown as estree.Node;
   while (true) {
-    const nextToken: AST.Token | null = context.getSourceCode().getTokenAfter(end);
-    if (nextToken && nextToken.value === ')' && nextToken.range![1] <= composite.range![1]) {
+    const nextToken: AST.Token | null = context.sourceCode.getTokenAfter(end);
+    if (nextToken && nextToken.value === ')' && nextToken.range[1] <= composite.range[1]) {
       end = nextToken;
     } else {
       break;

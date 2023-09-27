@@ -38,7 +38,7 @@ export const rule: Rule.RuleModule = {
   },
   create(context: Rule.RuleContext) {
     return {
-      "MethodDefinition[kind='method'] FunctionExpression": function (node: estree.Node) {
+      "MethodDefinition[kind='method'] FunctionExpression"(node: estree.Node) {
         checkFunctionLikeDeclaration(node as FunctionLikeDeclaration, context);
       },
       FunctionDeclaration(node: estree.Node) {
@@ -105,7 +105,7 @@ function checkCastedType(
   expression: TSESTree.Node,
   context: Rule.RuleContext,
 ) {
-  const sourceCode = context.getSourceCode();
+  const sourceCode = context.sourceCode;
   const castedType = getCastTupleFromMemberExpression(expression);
   if (castedType && (castedType[1] as TSESTree.Node).type !== 'TSAnyKeyword') {
     const nOfParam = node.params.length;
@@ -141,9 +141,10 @@ function getTypePredicateSuggestion(
   if (node.returnType) {
     fix = fixer => fixer.replaceText(node.returnType as unknown as estree.Node, predicate);
   } else {
-    const closingParenthesis = context
-      .getSourceCode()
-      .getTokenBefore(node.body as estree.Node, token => token.value === ')')!;
+    const closingParenthesis = context.sourceCode.getTokenBefore(
+      node.body as estree.Node,
+      token => token.value === ')',
+    )!;
     fix = fixer => fixer.insertTextAfter(closingParenthesis, predicate);
   }
   suggestions.push({ messageId: 'suggestTypePredicate', fix });

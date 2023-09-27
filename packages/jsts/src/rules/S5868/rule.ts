@@ -228,7 +228,7 @@ export const rule: Rule.RuleModule = createRegExpRule(context => {
     }
   }
 
-  const sourceCode = context.getSourceCode();
+  const sourceCode = context.sourceCode;
   const validator = new RegExpValidator();
 
   // The order matters as surrogate pair check may trigger at the same time as zero-width-joiner.

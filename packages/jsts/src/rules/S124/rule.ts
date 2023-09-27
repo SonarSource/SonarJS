@@ -57,9 +57,9 @@ export const rule: Rule.RuleModule = {
 
     return {
       'Program:exit': () => {
-        (context.getSourceCode().getAllComments() as TSESTree.Comment[]).forEach(comment => {
+        (context.sourceCode.getAllComments() as TSESTree.Comment[]).forEach(comment => {
           const rawTextTrimmed = comment.value.trim();
-          if (pattern && pattern.test(rawTextTrimmed)) {
+          if (pattern?.test(rawTextTrimmed)) {
             context.report({
               message,
               loc: comment.loc,

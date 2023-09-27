@@ -107,7 +107,7 @@ function checkShould(context: Rule.RuleContext, expression: estree.Expression) {
 }
 
 function findDuplicates(context: Rule.RuleContext, args: estree.Node[]) {
-  const castedContext = context.getSourceCode() as unknown as TSESLint.SourceCode;
+  const castedContext = context.sourceCode as unknown as TSESLint.SourceCode;
   for (let i = 0; i < args.length; i++) {
     for (let j = i + 1; j < args.length; j++) {
       const duplicates = areEquivalent(

@@ -72,7 +72,7 @@ function report(node: estree.Node, context: Rule.RuleContext) {
       {
         messageId: 'suggestConversion',
         fix: fixer => {
-          const sourceCode = context.getSourceCode();
+          const sourceCode = context.sourceCode;
           const previousToken = sourceCode.getTokenBefore(node);
           const nextToken = sourceCode.getTokenAfter(node);
 

@@ -48,7 +48,7 @@ export const rule: Rule.RuleModule = {
           context.report({
             messageId: 'useForOf',
             data: { iterable },
-            loc: context.getSourceCode().getFirstToken(node)!.loc,
+            loc: context.sourceCode.getFirstToken(node)!.loc,
           });
         }
       },

@@ -62,8 +62,7 @@ export const rule: Rule.RuleModule = {
     }
 
     function getOperatorLocation(left: estree.Node, right: estree.Node) {
-      return context
-        .getSourceCode()
+      return context.sourceCode
         .getTokensBetween(left, right)
         .find(token => token.value === '+' || token.value === '+=')!.loc;
     }

@@ -195,8 +195,8 @@ function visitAssignment(context: Rule.RuleContext, assignment: estree.Assignmen
 
   const { objectVariable, property } = variableProperty;
 
-  if (formidableObjects.has(objectVariable)) {
-    const formOptions = formidableObjects.get(objectVariable)!;
+  const formOptions = formidableObjects.get(objectVariable);
+  if (formOptions !== undefined) {
     if (property === UPLOAD_DIR) {
       formOptions.uploadDirSet = true;
     }

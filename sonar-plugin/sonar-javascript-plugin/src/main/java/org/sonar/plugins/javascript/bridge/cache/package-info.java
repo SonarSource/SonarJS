@@ -17,25 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// https://sonarsource.github.io/rspec/#/rspec/S1119/javascript
+@ParametersAreNonnullByDefault
+package org.sonar.plugins.javascript.bridge.cache;
 
-import { Rule } from 'eslint';
-
-export const rule: Rule.RuleModule = {
-  meta: {
-    messages: {
-      removeLabel: 'Refactor the code to remove this label and the need for it.',
-    },
-  },
-  create(context: Rule.RuleContext) {
-    return {
-      LabeledStatement(node) {
-        const sourceCode = context.sourceCode;
-        context.report({
-          messageId: 'removeLabel',
-          loc: sourceCode.getFirstToken(node)!.loc,
-        });
-      },
-    };
-  },
-};
+import javax.annotation.ParametersAreNonnullByDefault;

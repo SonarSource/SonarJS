@@ -84,21 +84,11 @@ import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.TestUtils;
-import org.sonar.plugins.javascript.bridge.AnalysisProcessor;
-import org.sonar.plugins.javascript.bridge.AnalysisWithProgram;
-import org.sonar.plugins.javascript.bridge.AnalysisWithWatchProgram;
-import org.sonar.plugins.javascript.bridge.BridgeServer;
 import org.sonar.plugins.javascript.bridge.BridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.bridge.BridgeServer.JsAnalysisRequest;
 import org.sonar.plugins.javascript.bridge.BridgeServer.ParsingErrorCode;
 import org.sonar.plugins.javascript.bridge.BridgeServer.TsProgram;
 import org.sonar.plugins.javascript.bridge.BridgeServer.TsProgramRequest;
-import org.sonar.plugins.javascript.bridge.BridgeServerImpl;
-import org.sonar.plugins.javascript.bridge.JsTsChecks;
-import org.sonar.plugins.javascript.bridge.JsTsSensor;
-import org.sonar.plugins.javascript.bridge.Monitoring;
-import org.sonar.plugins.javascript.bridge.PluginInfo;
-import org.sonar.plugins.javascript.bridge.TsConfigFile;
 import org.sonar.plugins.javascript.bridge.cache.CacheTestUtils;
 
 class JsTsSensorTest {

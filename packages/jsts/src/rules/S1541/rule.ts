@@ -143,6 +143,7 @@ class FunctionComplexityVisitor {
 
   visit() {
     const visitNode = (node: estree.Node) => {
+      const { sourceCode } = this.context;
       let token: ComplexityToken | undefined | null;
 
       if (isFunctionNode(node)) {
@@ -160,9 +161,11 @@ class FunctionComplexityVisitor {
       } else {
         switch (node.type) {
           case 'ConditionalExpression':
-            token = this.context
-              .getSourceCode()
-              .getFirstTokenBetween(node.test, node.consequent, token => token.value === '?');
+            token = sourceCode.getFirstTokenBetween(
+              node.test,
+              node.consequent,
+              token => token.value === '?',
+            );
             break;
           case 'SwitchCase':
             // ignore default case
@@ -175,15 +178,13 @@ class FunctionComplexityVisitor {
           case 'ForOfStatement':
           case 'WhileStatement':
           case 'DoWhileStatement':
-            token = this.context.getSourceCode().getFirstToken(node);
+            token = sourceCode.getFirstToken(node);
             break;
           case 'LogicalExpression':
-            token = this.context
-              .getSourceCode()
-              .getTokenAfter(
-                node.left,
-                token => ['||', '&&'].includes(token.value) && token.type === 'Punctuator',
-              );
+            token = sourceCode.getTokenAfter(
+              node.left,
+              token => ['||', '&&'].includes(token.value) && token.type === 'Punctuator',
+            );
             break;
         }
       }
@@ -192,7 +193,7 @@ class FunctionComplexityVisitor {
         this.tokens.push(token);
       }
 
-      childrenOf(node, this.context.getSourceCode().visitorKeys).forEach(visitNode);
+      childrenOf(node, sourceCode.visitorKeys).forEach(visitNode);
     };
 
     visitNode(this.root);

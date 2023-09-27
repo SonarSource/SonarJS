@@ -77,9 +77,7 @@ describe('getRegexpRange', () => {
     const regexNode = regexpp.parseRegExpLiteral(new RegExp(literal.value as string));
     const quantifier = regexNode.pattern.alternatives[0].elements[1];
     const context = {
-      getSourceCode() {
-        return new SourceCode(code, program);
-      },
+      sourceCode: new SourceCode(code, program),
     };
     const range = getRegexpLocation(literal, quantifier, context as RuleContext);
     expect(range).toStrictEqual({

@@ -24,7 +24,7 @@ import { runner } from '../../src/router/runner';
 describe('runner', () => {
   it('should run an analysis', async () => {
     const mockRequest = () => ({ body: 'done' } as express.Request);
-    const mockResponse = () => ({ json: jest.fn() } as any as express.Response);
+    const mockResponse = () => ({ json: jest.fn() } as unknown as express.Response);
 
     const analysis = input => Promise.resolve(input.toUpperCase() as AnalysisOutput);
 
@@ -47,7 +47,7 @@ describe('runner', () => {
         json: () => {
           throw 'Something went wrong';
         },
-      } as any as express.Response);
+      } as unknown as express.Response);
 
     const analysis = input => Promise.resolve(input as AnalysisOutput);
 

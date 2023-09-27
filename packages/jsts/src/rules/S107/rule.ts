@@ -134,7 +134,7 @@ export const rule: Rule.RuleModule = {
           }
 
           function getFunctionHeaderLocation(functionLike: TSESTree.FunctionLike) {
-            const sourceCode = context.getSourceCode();
+            const sourceCode = context.sourceCode;
             const functionNode = (
               functionLike.type === 'TSEmptyBodyFunctionExpression'
                 ? functionLike.parent!

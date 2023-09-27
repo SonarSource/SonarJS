@@ -81,7 +81,7 @@ function extractRegex(node: estree.Node, acc: RegexInfo[]) {
     const { flags } = node.regex;
     acc.push({ node, flags });
   } else if (isRegExpConstructor(node)) {
-    const flags = getFlags(node) || '';
+    const flags = getFlags(node) ?? '';
     acc.push({ node, flags });
   }
 }
@@ -101,7 +101,7 @@ function extractRegexInvocation(
     if (variable) {
       const value = getUniqueWriteUsage(context, variable.name);
       const regex = regexes.find(r => r.node === value);
-      if (regex && regex.flags.includes('g')) {
+      if (regex?.flags.includes('g')) {
         const usages = invocations.get(variable);
         if (usages) {
           usages.push(callExpr);
@@ -145,7 +145,7 @@ function checkWhileConditionRegex(callExpr: estree.CallExpression, context: Rule
     const { object, property } = callExpr.callee;
     if ((isRegexLiteral(object) || isRegExpConstructor(object)) && property.name === 'exec') {
       const flags = object.type === 'Literal' ? object.regex.flags : getFlags(object);
-      if (flags && flags.includes('g') && isWithinWhileCondition(callExpr, context)) {
+      if (flags?.includes('g') && isWithinWhileCondition(callExpr, context)) {
         context.report({
           message: toEncodedMessage('Extract this regular expression to avoid infinite loop.', []),
           node: object,
@@ -178,7 +178,7 @@ function checkMultipleInputsRegex(
   if (!resets.has(regex)) {
     const definition = regex.defs.find(def => def.type === 'Variable' && def.node.init);
     const uniqueInputs = new Set<string>(
-      usages.map(callExpr => context.getSourceCode().getText(callExpr.arguments[0])),
+      usages.map(callExpr => context.sourceCode.getText(callExpr.arguments[0])),
     );
     const regexReset = uniqueInputs.has(`''`) || uniqueInputs.has(`""`);
     if (definition && uniqueInputs.size > 1 && !regexReset) {

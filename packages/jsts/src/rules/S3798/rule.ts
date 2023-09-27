@@ -60,7 +60,7 @@ export const rule: Rule.RuleModule = {
 };
 
 function findModuleScope(context: Rule.RuleContext) {
-  return context.getSourceCode().scopeManager.scopes.find(s => s.type === 'module');
+  return context.sourceCode.scopeManager.scopes.find(s => s.type === 'module');
 }
 
 function isRequire(node: estree.Node | null | undefined) {

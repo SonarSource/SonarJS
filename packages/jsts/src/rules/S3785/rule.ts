@@ -53,8 +53,7 @@ export const rule: Rule.RuleModule = {
       'BinaryExpression[operator="in"]': (node: estree.Node) => {
         const { left, right, operator } = node as estree.BinaryExpression;
         if (isPrimitive(right)) {
-          const opToken = context
-            .getSourceCode()
+          const opToken = context.sourceCode
             .getTokensBetween(left, right)
             .find(token => token.type === 'Keyword' && token.value === operator)!;
           context.report({

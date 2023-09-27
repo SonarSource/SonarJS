@@ -21,8 +21,7 @@
 
 import { Rule } from 'eslint';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
-import { interceptReport } from '../helpers';
-import { UTILITY_TYPES } from '../helpers';
+import { UTILITY_TYPES, interceptReport } from '../helpers';
 
 // core implementation of this rule raises issues on empty interface extending TypeScript utility types
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {

@@ -79,7 +79,7 @@ function isThisWindow(node: estree.Node) {
 
 function hasRequiredOption(context: Rule.RuleContext, argument: estree.Node) {
   const stringOrNothing = extractString(context, argument);
-  return stringOrNothing !== undefined && stringOrNothing.includes(REQUIRED_OPTION);
+  return stringOrNothing?.includes(REQUIRED_OPTION);
 }
 
 function isHttpUrl(context: Rule.RuleContext, argument: estree.Node): boolean {

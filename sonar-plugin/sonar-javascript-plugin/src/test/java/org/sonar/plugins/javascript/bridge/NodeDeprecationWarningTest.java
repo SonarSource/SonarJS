@@ -31,8 +31,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.plugins.javascript.bridge.AnalysisWarningsWrapper;
-import org.sonar.plugins.javascript.bridge.NodeDeprecationWarning;
 
 class NodeDeprecationWarningTest {
 

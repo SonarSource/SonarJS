@@ -31,7 +31,6 @@ import org.slf4j.event.Level;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.plugins.javascript.api.RulesBundle;
-import org.sonar.plugins.javascript.bridge.RulesBundles;
 
 class RulesBundlesTest {
 

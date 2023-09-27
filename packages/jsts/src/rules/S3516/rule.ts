@@ -197,7 +197,7 @@ function getLiteralValue(returnedValue: estree.Node, scope: Scope.Scope): Litera
       : undefined;
   } else if (returnedValue.type === 'Identifier') {
     const singleWriteVariable = getSingleWriteDefinition(returnedValue.name, scope);
-    if (singleWriteVariable && singleWriteVariable.initExpression) {
+    if (singleWriteVariable?.initExpression) {
       return getLiteralValue(singleWriteVariable.initExpression, scope);
     }
   }

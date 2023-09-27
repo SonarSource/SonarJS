@@ -154,7 +154,7 @@ export const rule: Rule.RuleModule = {
 
     function resolveFromTSSignature(node: estree.CallExpression) {
       const signature = getSignatureFromCallee(node, services);
-      if (signature && signature.declaration) {
+      if (signature?.declaration) {
         return {
           params: signature.parameters.map(param => param.name),
           declaration: services.tsNodeToESTreeNodeMap.get(signature.declaration),
@@ -238,7 +238,7 @@ function extractFunctionParameters(functionDeclaration: FunctionNodeType) {
 }
 
 function getSecondaryLocations(functionDeclaration: FunctionNodeType | undefined) {
-  if (functionDeclaration && functionDeclaration.params && functionDeclaration.params.length > 0) {
+  if (functionDeclaration?.params && functionDeclaration.params.length > 0) {
     const { start, end } = getParametersClauseLocation(functionDeclaration.params);
     return [
       {

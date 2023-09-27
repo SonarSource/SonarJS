@@ -21,9 +21,8 @@
 
 import * as estree from 'estree';
 import { Rule } from 'eslint';
-import { interceptReport } from '../helpers';
 import { suggestEmptyBlockQuickFix } from '../S108/decorator';
-import { FunctionNodeType, isFunctionNode, isIdentifier } from '../helpers';
+import { interceptReport, FunctionNodeType, isFunctionNode, isIdentifier } from '../helpers';
 
 type RuleFunctionNode = FunctionNodeType & Rule.Node;
 
@@ -96,7 +95,7 @@ function reportWithQuickFix(
   func: FunctionNodeType,
 ) {
   const name = reportDescriptor.data!.name;
-  const openingBrace = context.getSourceCode().getFirstToken(func.body)!;
-  const closingBrace = context.getSourceCode().getLastToken(func.body)!;
+  const openingBrace = context.sourceCode.getFirstToken(func.body)!;
+  const closingBrace = context.sourceCode.getLastToken(func.body)!;
   suggestEmptyBlockQuickFix(context, reportDescriptor, name, openingBrace, closingBrace);
 }

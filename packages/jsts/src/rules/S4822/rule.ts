@@ -108,7 +108,7 @@ class CallLikeExpressionVisitor {
         case 'ArrowFunctionExpression':
           return;
       }
-      childrenOf(node, context.getSourceCode().visitorKeys).forEach(visitNode);
+      childrenOf(node, context.sourceCode.visitorKeys).forEach(visitNode);
     };
     visitNode(root);
   }
@@ -122,7 +122,7 @@ function checkForWrongCatch(
   if (openPromises.length > 0) {
     const ending = openPromises.length > 1 ? 's' : '';
     const message = `Consider using 'await' for the promise${ending} inside this 'try' or replace it with 'Promise.prototype.catch(...)' usage${ending}.`;
-    const token = context.getSourceCode().getFirstToken(tryStmt as estree.Node);
+    const token = context.sourceCode.getFirstToken(tryStmt as estree.Node);
     context.report({
       message: toEncodedMessage(message, openPromises, Array(openPromises.length).fill('Promise')),
       loc: token!.loc,
@@ -139,7 +139,7 @@ function checkForUselessCatch(
   if (openPromises.length === 0 && capturedPromises.length > 0) {
     const ending = capturedPromises.length > 1 ? 's' : '';
     const message = `Consider removing this 'try' statement as promise${ending} rejection is already captured by '.catch()' method.`;
-    const token = context.getSourceCode().getFirstToken(tryStmt as estree.Node);
+    const token = context.sourceCode.getFirstToken(tryStmt as estree.Node);
     context.report({
       message: toEncodedMessage(
         message,

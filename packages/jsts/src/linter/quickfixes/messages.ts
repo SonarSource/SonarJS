@@ -70,8 +70,9 @@ const quickFixMessages = new Map<string, string>([
  * @returns the corresponding quick fix message
  */
 export function getQuickFixMessage(ruleKey: string): string {
-  if (!quickFixMessages.has(ruleKey)) {
+  const message = quickFixMessages.get(ruleKey);
+  if (!message) {
     throw Error(`Missing message for quick fix '${ruleKey}'`);
   }
-  return quickFixMessages.get(ruleKey)!;
+  return message;
 }

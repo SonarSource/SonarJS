@@ -26,8 +26,6 @@ import org.junit.jupiter.api.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.TestUtils;
-import org.sonar.plugins.javascript.api.CustomRuleRepository;
-import org.sonar.plugins.javascript.bridge.JsTsChecks;
 
 class JavaScriptChecksTest {
 
