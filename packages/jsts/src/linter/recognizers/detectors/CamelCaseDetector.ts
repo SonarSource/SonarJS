@@ -20,9 +20,6 @@
 import Detector from '../Detector';
 
 export default class CamelCaseDetector extends Detector {
-  constructor(probability: number) {
-    super(probability);
-  }
 
   scan(line: string): number {
     let previousChar = ' ';
