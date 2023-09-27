@@ -40,8 +40,6 @@ import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.utils.Version;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
-import org.sonar.plugins.javascript.bridge.cache.CpdData;
-import org.sonar.plugins.javascript.bridge.cache.CpdSerializer;
 
 public class CacheTestUtils {
 

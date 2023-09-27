@@ -31,7 +31,6 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
-import org.sonar.plugins.javascript.bridge.EslintRule;
 
 class EslintRuleTest {
 

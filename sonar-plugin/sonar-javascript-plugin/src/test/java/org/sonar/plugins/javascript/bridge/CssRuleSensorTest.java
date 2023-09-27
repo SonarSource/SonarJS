@@ -67,12 +67,8 @@ import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.css.CssLanguage;
-import org.sonar.plugins.javascript.bridge.AnalysisWarningsWrapper;
-import org.sonar.plugins.javascript.bridge.BridgeServer;
 import org.sonar.plugins.javascript.bridge.BridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.bridge.BridgeServer.CssAnalysisRequest;
-import org.sonar.plugins.javascript.bridge.CssRuleSensor;
-import org.sonar.plugins.javascript.bridge.Monitoring;
 import org.sonar.plugins.javascript.nodejs.NodeCommandException;
 
 class CssRuleSensorTest {

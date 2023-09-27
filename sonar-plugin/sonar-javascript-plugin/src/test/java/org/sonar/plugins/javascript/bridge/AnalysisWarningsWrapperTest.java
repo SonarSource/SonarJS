@@ -25,7 +25,6 @@ import static org.assertj.core.api.Assertions.fail;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
-import org.sonar.plugins.javascript.bridge.AnalysisWarningsWrapper;
 
 class AnalysisWarningsWrapperTest {
 
