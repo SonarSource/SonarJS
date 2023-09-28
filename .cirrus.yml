@@ -92,7 +92,7 @@ build_task:
     - npm config set registry "${ARTIFACTORY_URL}/api/npm/npm"
     - npm run build
   deploy_script:
-    - .cirrus/prepare_deploy_analyze.bash
+    - ./.cirrus/prepare_deploy_analyze.bash
     # we've already run the tests above
     - mvn deploy -DskipTests
   cleanup_before_cache_script: cleanup_maven_repository
@@ -123,8 +123,8 @@ analyze_task:
     - npm config set registry "${ARTIFACTORY_URL}/api/npm/npm"
     - npm run build
   analyze_script:
-    - .cirrus/prepare_deploy_analyze.bash
-    - .cirrus/analyze.bash
+    - ./.cirrus/prepare_deploy_analyze.bash
+    - ./.cirrus/analyze.bash
 
 build_win_task:
   depends_on:
