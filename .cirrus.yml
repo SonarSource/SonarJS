@@ -94,7 +94,7 @@ build_task:
   deploy_script:
     - ./.cirrus/prepare_deploy_analyze.bash
     # we've already run the tests above
-    - mvn deploy -DskipTests
+    - mvn deploy -DskipTests -Pcoverage,deploy-sonarsource,release,sign -B -e -V "$@"
   cleanup_before_cache_script: cleanup_maven_repository
 
 analyze_task:
