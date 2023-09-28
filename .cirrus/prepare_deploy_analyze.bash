@@ -2,7 +2,7 @@
 
 source "$(dirname "$0")"/includes/version_util
 
-# taken from https://github.com/SonarSource/re-ci-images/blob/b9f43ffec926c0828a279aefc5a94cb5060bfee5/docker/bin/src/regular_mvn_build_deploy_analyze#L36
+# taken from https://github.com/SonarSource/re-ci-images/blob/b9f43ffec926c0828a279aefc5a94cb5060bfee5/docker/bin/src/regular_mvn_build_deploy_analyze#L41-L49
 
 # Analyze with SNAPSHOT version as long as SQ does not correctly handle
 # purge of release data

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# inspired by https://github.com/SonarSource/re-ci-images/blob/b9f43ffec926c0828a279aefc5a94cb5060bfee5/docker/bin/src/regular_mvn_build_deploy_analyze#L51-L61
+
 mvn sonar:sonar \
       -Pcoverage,deploy-sonarsource,release,sign \
       -Dmaven.test.redirectTestOutputToFile=false \
