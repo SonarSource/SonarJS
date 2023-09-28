@@ -31,7 +31,7 @@ const QUICKFIX_DESCRIPTION_PATTERN = RegExp(
     'fix@(?<quickfixId>\\w+)' +
     // message, ex: {{msg}}
     ' *(?:\\{\\{(?<message>.*?)\\}\\}(?!\\}))? *' +
-    '(?:\r(\n?)|\n)?',
+    '(?:\\r(\\n?)|\\n)?',
 );
 
 const QUICKFIX_CHANGE_PATTERN = RegExp(
@@ -45,7 +45,7 @@ const QUICKFIX_CHANGE_PATTERN = RegExp(
     '\\]\\])?' +
     // contents to be applied, ex: {{foo}}
     ' *(?:\\{\\{(?<contents>.*?)\\}\\}(?!\\}))?' +
-    ' *(?:\r(\n?)|\n)?',
+    ' *(?:\\r(\\n?)|\\n)?',
 );
 
 type ChangeType = 'add' | 'del' | 'edit';
