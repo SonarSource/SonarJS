@@ -90,7 +90,7 @@ build_task:
   build_script:
     - source cirrus-env BUILD
     - npm config set registry "${ARTIFACTORY_URL}/api/npm/npm"
-    - npm run build
+    - npm run bf
   deploy_script:
     - ./.cirrus/prepare_deploy_analyze.bash
     # we've already run the tests above
