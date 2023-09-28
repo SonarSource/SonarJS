@@ -87,12 +87,10 @@ build_task:
     PGP_PASSPHRASE: VAULT[development/kv/data/sign data.passphrase]
   <<: *MAVEN_CACHE
   <<: *RUNTIME_CACHE
-  build_script:
+  build_and_deploy_script:
     - source cirrus-env BUILD
     - npm config set registry "${ARTIFACTORY_URL}/api/npm/npm"
     - npm run build
-  deploy_script:
-    - source cirrus-env BUILD
     - ./.cirrus/prepare_deploy_analyze.bash
     # we've already run the tests above
     - mvn deploy -DskipTests -Pcoverage,deploy-sonarsource,release,sign -B -e -V "$@"
@@ -119,11 +117,10 @@ analyze_task:
     fingerprint_script:
       - echo ${CIRRUS_OS}
       - curl --silent ${SONAR_HOST_URL}/deploy/plugins/index.txt | sort
-  build_script:
+  build_and_analyze_script:
     - source cirrus-env BUILD
     - npm config set registry "${ARTIFACTORY_URL}/api/npm/npm"
     - npm run build
-  analyze_script:
     - ./.cirrus/prepare_deploy_analyze.bash
     - ./.cirrus/analyze.bash
 
