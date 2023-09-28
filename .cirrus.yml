@@ -92,6 +92,7 @@ build_task:
     - npm config set registry "${ARTIFACTORY_URL}/api/npm/npm"
     - npm run build
   deploy_script:
+    - source cirrus-env BUILD
     - ./.cirrus/prepare_deploy_analyze.bash
     # we've already run the tests above
     - mvn deploy -DskipTests -Pcoverage,deploy-sonarsource,release,sign -B -e -V "$@"
