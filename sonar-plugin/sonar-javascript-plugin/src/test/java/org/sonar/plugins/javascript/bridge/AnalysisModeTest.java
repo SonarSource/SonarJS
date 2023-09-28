@@ -39,8 +39,6 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.utils.Version;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
-import org.sonar.plugins.javascript.bridge.AnalysisMode;
-import org.sonar.plugins.javascript.bridge.EslintRule;
 
 class AnalysisModeTest {
 

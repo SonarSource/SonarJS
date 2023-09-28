@@ -24,7 +24,9 @@ import { SONAR_CONTEXT, SONAR_RUNTIME } from '../../../src/linter/parameters';
 
 describe('extendRuleConfig', () => {
   it('should include `sonar-runtime`', () => {
-    const ruleModule = { meta: { schema: [{ enum: SONAR_RUNTIME }] } } as any as Rule.RuleModule;
+    const ruleModule = {
+      meta: { schema: [{ enum: SONAR_RUNTIME }] },
+    } as unknown as Rule.RuleModule;
     const inputRule: RuleConfig = {
       key: 'some-rule',
       configurations: [42],
@@ -44,7 +46,9 @@ describe('extendRuleConfig', () => {
     };
     setContext(ctx);
 
-    const ruleModule = { meta: { schema: [{ title: SONAR_CONTEXT }] } } as any as Rule.RuleModule;
+    const ruleModule = {
+      meta: { schema: [{ title: SONAR_CONTEXT }] },
+    } as unknown as Rule.RuleModule;
     const inputRule: RuleConfig = {
       key: 'some-rule',
       configurations: [42],
@@ -66,7 +70,7 @@ describe('extendRuleConfig', () => {
 
     const ruleModule = {
       meta: { schema: [{ enum: SONAR_RUNTIME, title: SONAR_CONTEXT }] },
-    } as any as Rule.RuleModule;
+    } as unknown as Rule.RuleModule;
     const inputRule: RuleConfig = {
       key: 'some-rule',
       configurations: [42],

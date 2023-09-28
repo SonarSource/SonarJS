@@ -34,12 +34,14 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
           desc: 'Remove this duplicate property',
           fix(fixer) {
             const propertyToRemove = getPropertyNode(reportDescriptor, context)!;
-            const commaAfter = context
-              .getSourceCode()
-              .getTokenAfter(propertyToRemove, token => token.value === ',');
-            const commaBefore = context
-              .getSourceCode()
-              .getTokenBefore(propertyToRemove, token => token.value === ',')!;
+            const commaAfter = context.sourceCode.getTokenAfter(
+              propertyToRemove,
+              token => token.value === ',',
+            );
+            const commaBefore = context.sourceCode.getTokenBefore(
+              propertyToRemove,
+              token => token.value === ',',
+            )!;
 
             let start = commaBefore.range[1];
             let end = propertyToRemove.range![1];
@@ -61,7 +63,7 @@ function getPropertyNode(reportDescriptor: Rule.ReportDescriptor, context: Rule.
     const objectLiteral = reportDescriptor['node'] as estree.ObjectExpression;
     const loc = reportDescriptor['loc'] as AST.SourceLocation;
 
-    const transformPosToIndex = (p: estree.Position) => context.getSourceCode().getIndexFromLoc(p);
+    const transformPosToIndex = (p: estree.Position) => context.sourceCode.getIndexFromLoc(p);
     return objectLiteral.properties.find(
       property =>
         transformPosToIndex(property.loc?.start!) <= transformPosToIndex(loc?.start) &&

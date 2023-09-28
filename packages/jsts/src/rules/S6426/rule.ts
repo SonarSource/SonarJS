@@ -44,7 +44,7 @@ export const rule: Rule.RuleModule = {
                 {
                   fix: (fixer: Rule.RuleFixer) => {
                     const fixes = [fixer.remove(property)];
-                    const dotBeforeOnly = context.getSourceCode().getTokenBefore(property);
+                    const dotBeforeOnly = context.sourceCode.getTokenBefore(property);
                     if (dotBeforeOnly != null) {
                       fixes.push(fixer.remove(dotBeforeOnly));
                     }

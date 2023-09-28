@@ -29,7 +29,7 @@ export function extractReferences(node: estree.Node) {
   const references: GroupReference[] = [];
   if (isStringLiteral(node)) {
     const str = node.value as string;
-    const reg = /\$(\d+)|\$\<([a-zA-Z][a-zA-Z0-9_]*)\>/g;
+    const reg = /\$(\d+)|\$<([a-zA-Z]\w*)>/g;
     let match: RegExpExecArray | null;
     while ((match = reg.exec(str)) !== null) {
       const [raw, index, name] = match;

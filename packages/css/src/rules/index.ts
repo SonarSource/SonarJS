@@ -18,16 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as stylelint from 'stylelint';
-import { rule as functionCalcNoInvalid } from './function-calc-no-invalid';
+import { rule as S5362 } from './S5362';
 
 /**
  * The set of internal Stylelint-based rules
  */
-const rules: { [key: string]: stylelint.Rule<any, any> } = {};
+const rules: { [key: string]: stylelint.Rule } = {};
 
 /**
  * Maps Stylelint rule keys to rule implementations
  */
-rules[functionCalcNoInvalid.ruleName] = functionCalcNoInvalid.rule;
+rules[S5362.ruleName] = S5362.rule; // function-calc-no-invalid
 
 export { rules };

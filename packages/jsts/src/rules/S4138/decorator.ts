@@ -60,15 +60,17 @@ function rewriteForStatement(
   const fixes: Rule.Fix[] = [];
 
   /* rewrite `for` header: `(init; test; update)` -> `(const element of <array>) ` */
-  const openingParenthesis = context
-    .getSourceCode()
-    .getFirstToken(forStmt, token => token.value === '(')!;
-  const closingParenthesis = context
-    .getSourceCode()
-    .getTokenBefore(forStmt.body, token => token.value === ')')!;
+  const openingParenthesis = context.sourceCode.getFirstToken(
+    forStmt,
+    token => token.value === '(',
+  )!;
+  const closingParenthesis = context.sourceCode.getTokenBefore(
+    forStmt.body,
+    token => token.value === ')',
+  )!;
 
   const arrayExpr = extractArrayExpression(forStmt);
-  const arrayText = context.getSourceCode().getText(arrayExpr);
+  const arrayText = context.sourceCode.getText(arrayExpr);
 
   const headerRange: AST.Range = [openingParenthesis.range[1], closingParenthesis.range[0]];
   const headerText = `const ${element} of ${arrayText}`;

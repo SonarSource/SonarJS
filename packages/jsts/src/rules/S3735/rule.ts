@@ -36,7 +36,7 @@ export const rule: Rule.RuleModule = {
       if (isVoid0(unaryExpression) || isIIFE(unaryExpression) || isPromiseLike(unaryExpression)) {
         return;
       }
-      const operatorToken = context.getSourceCode().getTokenBefore(unaryExpression.argument);
+      const operatorToken = context.sourceCode.getTokenBefore(unaryExpression.argument);
       context.report({
         loc: operatorToken!.loc, // cannot be null due to previous checks
         messageId: 'removeVoid',

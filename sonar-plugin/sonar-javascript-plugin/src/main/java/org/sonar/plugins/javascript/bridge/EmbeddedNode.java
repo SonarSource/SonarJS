@@ -38,6 +38,8 @@ import java.util.Set;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.plugins.javascript.nodejs.NodeVersion;
+import org.sonar.plugins.javascript.nodejs.ProcessWrapper;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 import org.tukaani.xz.XZInputStream;
 
@@ -49,12 +51,13 @@ import org.tukaani.xz.XZInputStream;
 public class EmbeddedNode {
 
   public static final String VERSION_FILENAME = "version.txt";
-  private static final String DEPLOY_LOCATION = Path.of(".sonar", "js", "node-runtime").toString();
+  private static final String DEPLOY_LOCATION = Path.of("js", "node-runtime").toString();
   private static final long EXTRACTION_LOCK_WAIT_TIME_MILLIS = 10000;
   private static final Logger LOG = Loggers.get(EmbeddedNode.class);
   private final Path deployLocation;
   private final Platform platform;
   private final Environment env;
+  private final ProcessWrapper processWrapper;
   private boolean isAvailable;
 
   enum Platform {
@@ -112,7 +115,8 @@ public class EmbeddedNode {
       var lowerCaseOsName = osName.toLowerCase(Locale.ROOT);
       if (osName.contains("Windows") && isX64(env)) {
         return WIN_X64;
-      } else if (lowerCaseOsName.contains("linux") && isX64(env)) {
+      } else if (lowerCaseOsName.contains("linux") && isX64(env) && !env.isAlpine()) {
+        // alpine linux is using musl libc, which is not compatible with linux-x64
         return LINUX_X64;
       } else if (lowerCaseOsName.contains("mac os") && isARM64(env)) {
         return DARWIN_ARM64;
@@ -131,17 +135,18 @@ public class EmbeddedNode {
     }
   }
 
-  public EmbeddedNode(Environment env) {
+  public EmbeddedNode(ProcessWrapper processWrapper, Environment env) {
     this.platform = Platform.detect(env);
-    this.deployLocation = runtimeCachePathFrom(env.getUserHome());
+    this.deployLocation = runtimeCachePathFrom(env.getSonarUserHome());
     this.env = env;
+    this.processWrapper = processWrapper;
   }
 
   /**
    * @return a path to `DEPLOY_LOCATION` from the given `baseDir`
    */
-  private static Path runtimeCachePathFrom(String baseDir) {
-    return Path.of(baseDir).resolve(DEPLOY_LOCATION);
+  private static Path runtimeCachePathFrom(Path baseDir) {
+    return baseDir.resolve(DEPLOY_LOCATION);
   }
 
   public boolean isAvailable() {
@@ -155,29 +160,41 @@ public class EmbeddedNode {
    * @throws IOException
    */
   public void deploy() throws IOException {
-    LOG.debug("Detected os: {} arch: {} platform: {}", env.getOsName(), env.getOsArch(), platform);
+    LOG.info(
+      "Detected os: {} arch: {} alpine: {}. Platform: {}",
+      env.getOsName(),
+      env.getOsArch(),
+      env.isAlpine(),
+      platform
+    );
     if (platform == UNSUPPORTED) {
       return;
     }
-    var is = getClass().getResourceAsStream(platform.archivePathInJar());
-    if (is == null) {
-      LOG.debug("Embedded node not found for platform {}", platform.archivePathInJar());
-      return;
+    try {
+      var is = getClass().getResourceAsStream(platform.archivePathInJar());
+      if (is == null) {
+        LOG.debug("Embedded node not found for platform {}", platform.archivePathInJar());
+        return;
+      }
+
+      var targetRuntime = deployLocation.resolve(platform.binary());
+      var targetDirectory = targetRuntime.getParent();
+      var targetVersion = targetDirectory.resolve(VERSION_FILENAME);
+      // we assume that since the archive exists, the version file must as well
+      var versionIs = getClass().getResourceAsStream(platform.versionPathInJar());
+
+      if (Files.exists(targetVersion) && !isDifferent(versionIs, targetVersion)) {
+        LOG.debug("Skipping node deploy. Deployed node has latest version.");
+      } else {
+        extractWithLocking(is, versionIs, targetRuntime, targetDirectory);
+      }
+      // we try to run 'node -v' to test that node is working
+      var detected = NodeVersion.getVersion(processWrapper, binary().toString());
+      LOG.debug("Deployed node version {}", detected);
+      isAvailable = true;
+    } catch (Exception e) {
+      LOG.warn("Embedded Node.js failed to deploy. Will fallback to host Node.js.", e);
     }
-
-    var targetRuntime = deployLocation.resolve(platform.binary());
-    var targetDirectory = targetRuntime.getParent();
-    var targetVersion = targetDirectory.resolve(VERSION_FILENAME);
-    // we assume that since the archive exists, the version file must as well
-    var versionIs = getClass().getResourceAsStream(platform.versionPathInJar());
-
-    if (Files.exists(targetVersion) && !isDifferent(versionIs, targetVersion)) {
-      LOG.debug("Skipping node deploy. Deployed node has latest version.");
-    } else {
-      extractWithLocking(is, versionIs, targetRuntime, targetDirectory);
-    }
-
-    isAvailable = true;
   }
 
   private static boolean isDifferent(InputStream newVersionIs, Path currentVersionPath)
@@ -242,7 +259,7 @@ public class EmbeddedNode {
 
   /**
    * Expects an InputStream to a xz-compressed file ending in `.xz` like `node.xz` and
-   * extracts it into the the given target Path.
+   * extracts it into the given target Path.
    * <p>
    * Skips extraction if target file already exists.
    *

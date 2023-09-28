@@ -38,16 +38,14 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
       NewExpression(node: estree.Node) {
-        const constructor = (node as estree.NewExpression).callee;
-        if (constructor.type === 'Identifier' && WRAPPER_TYPES.includes(constructor.name)) {
-          const newToken = context
-            .getSourceCode()
-            .getFirstToken(node, token => token.value === 'new')!;
+        const konstructor = (node as estree.NewExpression).callee;
+        if (konstructor.type === 'Identifier' && WRAPPER_TYPES.includes(konstructor.name)) {
+          const newToken = context.sourceCode.getFirstToken(node, token => token.value === 'new')!;
           const [begin, end] = newToken.range;
           context.report({
             messageId: 'removeConstructor',
             data: {
-              constructor: constructor.name,
+              constructor: konstructor.name,
             },
             node,
             suggest: [
@@ -60,7 +58,7 @@ export const rule: Rule.RuleModule = {
         }
       },
       TSTypeReference(node: estree.Node) {
-        const typeString = context.getSourceCode().getText(node);
+        const typeString = context.sourceCode.getText(node);
         if (WRAPPER_TYPES.includes(typeString)) {
           const primitiveType = typeString.toLowerCase();
           context.report({

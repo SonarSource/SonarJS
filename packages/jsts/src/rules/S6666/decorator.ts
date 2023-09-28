@@ -34,11 +34,10 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       node.callee.type === 'MemberExpression' &&
       node.arguments.length === 2
     ) {
-      const callee = node.callee,
-        object = callee.object,
-        property = callee.property,
-        args = node.arguments[1];
-
+      const {
+        callee: { object, property },
+        arguments: [, args],
+      } = node;
       if (
         property.type === 'Identifier' &&
         property.name === 'apply' &&

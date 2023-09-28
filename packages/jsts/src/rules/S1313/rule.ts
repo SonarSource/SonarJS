@@ -23,7 +23,7 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { isIP } from 'net';
 
-const netMaskRegex = /(^[^\/]+)\/\d{1,3}$/;
+const netMaskRegex = /(^[^/]+)\/\d{1,3}$/;
 const acceptedIpAddresses = ['255.255.255.255', '::1', '::', '0:0:0:0:0:0:0:1', '0:0:0:0:0:0:0:0'];
 const ipV4Octets = 4;
 const ipV4MappedToV6Prefix = '::ffff:0:';

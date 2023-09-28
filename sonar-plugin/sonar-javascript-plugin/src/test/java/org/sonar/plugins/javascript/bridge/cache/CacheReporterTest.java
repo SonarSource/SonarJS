@@ -34,12 +34,6 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
-import org.sonar.plugins.javascript.bridge.cache.CacheAnalysis;
-import org.sonar.plugins.javascript.bridge.cache.CacheAnalysisSerialization;
-import org.sonar.plugins.javascript.bridge.cache.CacheKey;
-import org.sonar.plugins.javascript.bridge.cache.CacheReporter;
-import org.sonar.plugins.javascript.bridge.cache.CacheStrategies;
-import org.sonar.plugins.javascript.bridge.cache.CacheStrategy;
 
 class CacheReporterTest {
 

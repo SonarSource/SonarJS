@@ -74,6 +74,7 @@ import org.sonar.plugins.javascript.bridge.BridgeServer.TsProgramRequest;
 import org.sonar.plugins.javascript.nodejs.NodeCommandBuilder;
 import org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl;
 import org.sonar.plugins.javascript.nodejs.NodeCommandException;
+import org.sonar.plugins.javascript.nodejs.ProcessWrapper;
 import org.sonar.plugins.javascript.nodejs.ProcessWrapperImpl;
 
 class BridgeServerImplTest {
@@ -104,12 +105,15 @@ class BridgeServerImplTest {
   private final NodeDeprecationWarning deprecationWarning = new NodeDeprecationWarning(
     new AnalysisWarningsWrapper()
   );
+  private EmbeddedNode unsupportedEmbeddedRuntime;
 
   @BeforeEach
   public void setUp() throws Exception {
     context = SensorContextTester.create(moduleBase);
     context.fileSystem().setWorkDir(workDir);
     tempFolder = new DefaultTempFolder(tempDir, true);
+    unsupportedEmbeddedRuntime =
+      new EmbeddedNode(mock(ProcessWrapper.class), createUnsupportedEnvironment());
   }
 
   @AfterEach
@@ -157,7 +161,7 @@ class BridgeServerImplTest {
         deprecationWarning,
         tempFolder,
         monitoring,
-        new EmbeddedNode(createUnsupportedEnvironment())
+        unsupportedEmbeddedRuntime
       );
     bridgeServer.deploy();
     List<Path> deployedBundles = emptyList();
@@ -661,7 +665,7 @@ class BridgeServerImplTest {
         deprecationWarning,
         tempFolder,
         monitoring,
-        new EmbeddedNode(createUnsupportedEnvironment())
+        unsupportedEmbeddedRuntime
       );
     assertThat(bridgeServer.getTimeoutSeconds()).isEqualTo(300);
   }
@@ -724,7 +728,7 @@ class BridgeServerImplTest {
         deprecationWarning,
         tempFolder,
         monitoring,
-        new EmbeddedNode(createUnsupportedEnvironment())
+        unsupportedEmbeddedRuntime
       );
     bridgeServer.deploy();
     bridgeServer.startServerLazily(context);
@@ -756,7 +760,7 @@ class BridgeServerImplTest {
         deprecationWarning,
         tempFolder,
         monitoring,
-        new EmbeddedNode(createUnsupportedEnvironment())
+        unsupportedEmbeddedRuntime
       );
     bridgeServer.startServerLazily(context);
 
@@ -773,7 +777,7 @@ class BridgeServerImplTest {
       deprecationWarning,
       tempFolder,
       monitoring,
-      new EmbeddedNode(createUnsupportedEnvironment())
+      unsupportedEmbeddedRuntime
     );
   }
 
@@ -782,7 +786,7 @@ class BridgeServerImplTest {
    */
   private Environment createUnsupportedEnvironment() {
     Environment mockEnvironment = mock(Environment.class);
-    when(mockEnvironment.getUserHome()).thenReturn("");
+    when(mockEnvironment.getSonarUserHome()).thenReturn(Path.of(""));
     when(mockEnvironment.getOsName()).thenReturn("");
     when(mockEnvironment.getOsArch()).thenReturn("");
     return mockEnvironment;

@@ -77,7 +77,7 @@ export const rule: Rule.RuleModule = {
     function areAdjacentLineComments(previous: TSESTree.Comment, next: TSESTree.Comment) {
       const nextCommentLine = next.loc.start.line;
       if (previous.loc.start.line + 1 === nextCommentLine) {
-        const nextCodeToken = context.getSourceCode().getTokenAfter(previous);
+        const nextCodeToken = context.sourceCode.getTokenAfter(previous);
         return !nextCodeToken || nextCodeToken.loc.start.line > nextCommentLine;
       }
       return false;
@@ -86,7 +86,7 @@ export const rule: Rule.RuleModule = {
     return {
       'Program:exit': () => {
         const groupedComments = getGroupedComments(
-          context.getSourceCode().getAllComments() as TSESTree.Comment[],
+          context.sourceCode.getAllComments() as TSESTree.Comment[],
         );
         groupedComments.forEach(groupComment => {
           const rawTextTrimmed = groupComment.value.trim();
@@ -163,8 +163,8 @@ function containsCode(value: string) {
 }
 
 function injectMissingBraces(value: string) {
-  const openCurlyBraceNum = (value.match(/{/g) || []).length;
-  const closeCurlyBraceNum = (value.match(/}/g) || []).length;
+  const openCurlyBraceNum = (value.match(/{/g) ?? []).length;
+  const closeCurlyBraceNum = (value.match(/}/g) ?? []).length;
   const missingBraces = openCurlyBraceNum - closeCurlyBraceNum;
   if (missingBraces > 0) {
     return value + Array(missingBraces).fill('}').join('');

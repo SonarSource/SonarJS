@@ -21,8 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { isIdentifier, isMemberExpression } from '../helpers';
-import { interceptReport } from '../helpers';
+import { isIdentifier, isMemberExpression, interceptReport } from '../helpers';
 
 // core implementation of this rule does not provide quick fixes
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
@@ -45,7 +44,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       }
       if (negate !== null) {
         const arg = isNaNIdentifier(left) ? right : left;
-        const argText = context.getSourceCode().getText(arg);
+        const argText = context.sourceCode.getText(arg);
         const prefix = negate ? '!' : '';
         suggest.push(
           {

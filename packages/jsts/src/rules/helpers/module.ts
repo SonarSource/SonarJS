@@ -24,7 +24,7 @@ import { Node, isIdentifier, getVariableFromScope, getUniqueWriteReference } fro
 import Variable = Scope.Variable;
 
 export function getImportDeclarations(context: Rule.RuleContext) {
-  const program = context.getSourceCode().ast;
+  const program = context.sourceCode.ast;
   if (program.sourceType === 'module') {
     return program.body.filter(
       node => node.type === 'ImportDeclaration',
@@ -35,7 +35,7 @@ export function getImportDeclarations(context: Rule.RuleContext) {
 
 export function getRequireCalls(context: Rule.RuleContext) {
   const required: estree.CallExpression[] = [];
-  const { scopeManager } = context.getSourceCode();
+  const { scopeManager } = context.sourceCode;
   scopeManager.scopes.forEach(scope =>
     scope.variables.forEach(variable =>
       variable.defs.forEach(def => {
@@ -124,7 +124,7 @@ export function getFullyQualifiedNameRaw(
   scope?: Scope.Scope,
   visitedVars: Variable[] = [],
 ): string | null {
-  let nodeToCheck = reduceToIdentifier(node, fqn);
+  const nodeToCheck = reduceToIdentifier(node, fqn);
 
   if (!isIdentifier(nodeToCheck)) {
     // require chaining, e.g. `require('lib')()` or `require('lib').prop()`
@@ -140,7 +140,7 @@ export function getFullyQualifiedNameRaw(
     return null;
   }
 
-  const variable = getVariableFromScope(scope || context.getScope(), nodeToCheck.name);
+  const variable = getVariableFromScope(scope ?? context.getScope(), nodeToCheck.name);
 
   if (!variable || variable.defs.length > 1) {
     return null;

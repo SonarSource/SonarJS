@@ -1,6 +1,8 @@
 package org.sonar.plugins.javascript.bridge;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.plugins.javascript.bridge.EmbeddedNode.Platform.DARWIN_ARM64;
@@ -9,23 +11,32 @@ import static org.sonar.plugins.javascript.bridge.EmbeddedNode.Platform.LINUX_X6
 import static org.sonar.plugins.javascript.bridge.EmbeddedNode.Platform.UNSUPPORTED;
 import static org.sonar.plugins.javascript.bridge.EmbeddedNode.Platform.WIN_X64;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
+import org.slf4j.event.Level;
+import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.plugins.javascript.bridge.EmbeddedNode.Platform;
+import org.sonar.plugins.javascript.nodejs.ProcessWrapper;
+import org.sonar.plugins.javascript.nodejs.ProcessWrapperImpl;
 
 class EmbeddedNodeTest {
 
   @TempDir
   Path tempDir;
 
-  private Environment currentEnvironment = new Environment();
+  private Environment currentEnvironment = new Environment(new MapSettings().asConfig());
+
+  @RegisterExtension
+  private LogTesterJUnit5 logTester = new LogTesterJUnit5();
 
   @Test
   void should_extract_if_deployLocation_contains_a_different_version() throws Exception {
-    var en = new EmbeddedNode(createTestEnvironment());
+    var en = testEmbeddedNode();
     var runtimeFolder = en.binary().getParent();
     Files.createDirectories(runtimeFolder);
     Files.write(runtimeFolder.resolve("version.txt"), "a-different-version".getBytes());
@@ -36,21 +47,21 @@ class EmbeddedNodeTest {
 
   @Test
   void should_not_extract_if_deployLocation_contains_the_same_version() throws Exception {
-    var en = new EmbeddedNode(createTestEnvironment());
-    var runtimeFolder = en.binary().getParent();
-    Files.createDirectories(runtimeFolder);
-    Files.write(
-      runtimeFolder.resolve("version.txt"),
-      extractCurrentVersion(createTestEnvironment())
-    );
+    logTester.setLevel(Level.DEBUG);
+    var en = testEmbeddedNode();
     en.deploy();
-    assertThat(en.binary()).doesNotExist();
+    assertThat(logTester.logs()).anyMatch(l -> l.startsWith("Extracting embedded node"));
+    logTester.clear();
+    en = testEmbeddedNode();
+    assertThat(en.isAvailable()).isFalse();
+    en.deploy();
+    assertThat(logTester.logs()).anyMatch(l -> l.startsWith("Skipping node deploy."));
     assertThat(en.isAvailable()).isTrue();
   }
 
   @Test
   void should_not_extract_neither_be_available_if_the_platform_is_unsupported() throws Exception {
-    var en = new EmbeddedNode(createUnsupportedEnvironment());
+    var en = new EmbeddedNode(mock(ProcessWrapper.class), createUnsupportedEnvironment());
     en.deploy();
     assertThat(en.binary()).doesNotExist();
     assertThat(en.isAvailable()).isFalse();
@@ -58,7 +69,7 @@ class EmbeddedNodeTest {
 
   @Test
   void should_extract_if_deployLocation_has_no_version() throws Exception {
-    var en = new EmbeddedNode(createTestEnvironment());
+    var en = testEmbeddedNode();
     en.deploy();
     assertThat(tempDir.resolve(en.binary())).exists();
   }
@@ -119,13 +130,27 @@ class EmbeddedNodeTest {
     assertThat(Platform.detect(macos)).isEqualTo(UNSUPPORTED);
   }
 
-  private byte[] extractCurrentVersion(Environment env) throws IOException {
-    return getClass().getResourceAsStream(Platform.detect(env).versionPathInJar()).readAllBytes();
+  @Test
+  void should_fail_gracefully() throws Exception {
+    ProcessWrapper processWrapper = mock(ProcessWrapper.class);
+    when(processWrapper.waitFor(any(), anyLong(), any()))
+      .thenThrow(new IllegalStateException("My Error"));
+    var en = new EmbeddedNode(processWrapper, createTestEnvironment());
+    en.deploy();
+    assertThat(logTester.logs())
+      .anyMatch(l ->
+        l.startsWith("Embedded Node.js failed to deploy. Will fallback to host Node.js")
+      );
+  }
+
+  @NotNull
+  private EmbeddedNode testEmbeddedNode() {
+    return new EmbeddedNode(new ProcessWrapperImpl(), createTestEnvironment());
   }
 
   private Environment createTestEnvironment() {
     Environment mockEnvironment = mock(Environment.class);
-    when(mockEnvironment.getUserHome()).thenReturn(tempDir.toString());
+    when(mockEnvironment.getSonarUserHome()).thenReturn(tempDir);
     when(mockEnvironment.getOsName()).thenReturn(currentEnvironment.getOsName());
     when(mockEnvironment.getOsArch()).thenReturn(currentEnvironment.getOsArch());
     return mockEnvironment;
@@ -154,7 +179,7 @@ class EmbeddedNodeTest {
 
   private Environment createUnsupportedEnvironment() {
     Environment mockEnvironment = mock(Environment.class);
-    when(mockEnvironment.getUserHome()).thenReturn(tempDir.toString());
+    when(mockEnvironment.getSonarUserHome()).thenReturn(tempDir);
     when(mockEnvironment.getOsName()).thenReturn("");
     when(mockEnvironment.getOsArch()).thenReturn("");
     return mockEnvironment;

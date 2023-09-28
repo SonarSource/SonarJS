@@ -129,7 +129,7 @@ public class CssMetricSensor implements Sensor {
         case IDENTIFIER:
           // We want to highlight the property key of a css/scss/less file and as the tokenizer is putting the ':' into another token
           // we need to look for identifier followed by a PUNCTUATOR token with text ':'.
-          if (nextToken != null && nextToken.text.equals(":")) {
+          if (nextToken != null && ":".equals(nextToken.text)) {
             highlightingType = TypeOfText.KEYWORD_LIGHT;
           }
           break;

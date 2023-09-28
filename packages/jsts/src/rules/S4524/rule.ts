@@ -29,7 +29,7 @@ export const rule: Rule.RuleModule = {
     },
   },
   create(context: Rule.RuleContext) {
-    const sourceCode = context.getSourceCode();
+    const sourceCode = context.sourceCode;
     return {
       SwitchStatement(node: estree.Node) {
         const cases = (node as estree.SwitchStatement).cases;

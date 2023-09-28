@@ -37,7 +37,6 @@ import org.sonar.plugins.javascript.api.EslintBasedCheck;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
-import org.sonar.plugins.javascript.bridge.JsTsChecks;
 
 class JsTsChecksTest {
 

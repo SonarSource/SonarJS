@@ -398,7 +398,10 @@ public class BridgeServerImpl implements BridgeServer {
     }
   }
 
-  private IllegalStateException handleInterruptedException(InterruptedException e, String msg) {
+  private static IllegalStateException handleInterruptedException(
+    InterruptedException e,
+    String msg
+  ) {
     LOG.error(msg, e);
     Thread.currentThread().interrupt();
     return new IllegalStateException(msg, e);

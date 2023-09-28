@@ -31,13 +31,14 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
     const type = reportDescriptor.data!.type;
     let openingBrace: AST.Token;
     if (node.type === 'SwitchStatement') {
-      openingBrace = context
-        .getSourceCode()
-        .getTokenAfter(node.discriminant, token => token.value === '{')!;
+      openingBrace = context.sourceCode.getTokenAfter(
+        node.discriminant,
+        token => token.value === '{',
+      )!;
     } /* BlockStatement */ else {
-      openingBrace = context.getSourceCode().getFirstToken(node)!;
+      openingBrace = context.sourceCode.getFirstToken(node)!;
     }
-    const closingBrace = context.getSourceCode().getLastToken(node)!;
+    const closingBrace = context.sourceCode.getLastToken(node)!;
     suggestEmptyBlockQuickFix(context, reportDescriptor, type, openingBrace, closingBrace);
   });
 }

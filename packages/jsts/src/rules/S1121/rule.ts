@@ -96,7 +96,7 @@ export const rule: Rule.RuleModule = {
 };
 
 function raiseIssue(node: estree.AssignmentExpression, context: Rule.RuleContext) {
-  const sourceCode = context.getSourceCode();
+  const sourceCode = context.sourceCode;
   const operator = sourceCode.getFirstTokenBetween(
     node.left,
     node.right,

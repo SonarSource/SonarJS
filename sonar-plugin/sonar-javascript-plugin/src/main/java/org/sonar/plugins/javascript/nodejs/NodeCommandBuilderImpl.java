@@ -20,9 +20,7 @@
 package org.sonar.plugins.javascript.nodejs;
 
 import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
-import static java.util.Collections.singletonList;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,7 +39,6 @@ import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.bridge.EmbeddedNode;
-import org.sonar.plugins.javascript.bridge.Environment;
 
 public class NodeCommandBuilderImpl implements NodeCommandBuilder {
 
@@ -59,7 +56,7 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
   );
 
   private final ProcessWrapper processWrapper;
-  private EmbeddedNode embeddedNode = new EmbeddedNode(new Environment());
+  private EmbeddedNode embeddedNode;
   private Version minNodeVersion;
   private Configuration configuration;
   private List<String> args = new ArrayList<>();
@@ -179,7 +176,7 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
     }
     LOG.debug("Checking Node.js version");
 
-    String versionString = getVersion(nodeExecutable);
+    String versionString = NodeVersion.getVersion(processWrapper, nodeExecutable);
     actualNodeVersion = nodeVersion(versionString);
     if (!actualNodeVersion.isGreaterThanOrEqual(minNodeVersion)) {
       throw new NodeCommandException(
@@ -208,37 +205,6 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
         "Failed to parse Node.js version, got '" + versionString + "'"
       );
     }
-  }
-
-  private String getVersion(String nodeExecutable) throws NodeCommandException {
-    StringBuilder output = new StringBuilder();
-    NodeCommand nodeCommand = new NodeCommand(
-      processWrapper,
-      nodeExecutable,
-      Version.create(0, 0),
-      singletonList("-v"),
-      null,
-      emptyList(),
-      output::append,
-      LOG::error,
-      //Avoid default error message from run-node: https://github.com/sindresorhus/run-node#customizable-cache-path-and-error-message
-      Map.of(
-        "RUN_NODE_ERROR_MSG",
-        "Couldn't find the Node.js binary. Ensure you have Node.js installed."
-      )
-    );
-    nodeCommand.start();
-    int exitValue = nodeCommand.waitFor();
-    if (exitValue != 0) {
-      throw new NodeCommandException(
-        "Failed to determine the version of Node.js, exit value " +
-        exitValue +
-        ". Executed: '" +
-        nodeCommand.toString() +
-        "'"
-      );
-    }
-    return output.toString();
   }
 
   /**

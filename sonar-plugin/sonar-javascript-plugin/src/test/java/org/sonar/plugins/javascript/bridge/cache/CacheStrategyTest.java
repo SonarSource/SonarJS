@@ -70,19 +70,6 @@ import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.Version;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
 import org.sonar.plugins.javascript.bridge.PluginInfo;
-import org.sonar.plugins.javascript.bridge.cache.CacheAnalysis;
-import org.sonar.plugins.javascript.bridge.cache.CacheAnalysisSerialization;
-import org.sonar.plugins.javascript.bridge.cache.CacheKey;
-import org.sonar.plugins.javascript.bridge.cache.CacheStrategies;
-import org.sonar.plugins.javascript.bridge.cache.CacheStrategy;
-import org.sonar.plugins.javascript.bridge.cache.CpdData;
-import org.sonar.plugins.javascript.bridge.cache.CpdDeserializer;
-import org.sonar.plugins.javascript.bridge.cache.CpdSerialization;
-import org.sonar.plugins.javascript.bridge.cache.CpdSerializer;
-import org.sonar.plugins.javascript.bridge.cache.FileIterator;
-import org.sonar.plugins.javascript.bridge.cache.FileMetadata;
-import org.sonar.plugins.javascript.bridge.cache.FilesManifest;
-import org.sonar.plugins.javascript.bridge.cache.UCFGFilesSerialization;
 
 @SuppressWarnings("resource")
 class CacheStrategyTest {

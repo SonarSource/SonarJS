@@ -43,7 +43,7 @@ export const rule: Rule.RuleModule = {
     }
 
     function getVariable(node: estree.Node) {
-      let variable = context.getSourceCode().getText(node);
+      let variable = context.sourceCode.getText(node);
       if (variable.length > 30) {
         variable = 'String';
       }

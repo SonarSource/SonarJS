@@ -46,12 +46,12 @@ export function isProtectionSemicolon(context: Rule.RuleContext, node: estree.No
   }
 
   // This checks the semicolon is on a new line compared to the previous token if it exists.
-  const previousToken = context.getSourceCode().getTokenBefore(node);
+  const previousToken = context.sourceCode.getTokenBefore(node);
   if (!isNodeOnNewLineAfterToken(node, previousToken)) {
     return false;
   }
 
-  const nextToken = context.getSourceCode().getTokenAfter(node);
+  const nextToken = context.sourceCode.getTokenAfter(node);
   return isParenOrBracket(nextToken);
 }
 

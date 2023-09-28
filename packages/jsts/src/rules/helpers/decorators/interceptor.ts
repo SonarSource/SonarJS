@@ -65,11 +65,11 @@ export function interceptReport(
           physicalFilename: originalContext.physicalFilename,
 
           getCwd(): string {
-            return originalContext.getCwd();
+            return originalContext.cwd;
           },
 
           getPhysicalFilename(): string {
-            return originalContext.getPhysicalFilename();
+            return originalContext.physicalFilename;
           },
 
           getAncestors() {
@@ -81,7 +81,7 @@ export function interceptReport(
           },
 
           getFilename() {
-            return originalContext.getFilename();
+            return originalContext.filename;
           },
 
           getScope() {
@@ -89,7 +89,7 @@ export function interceptReport(
           },
 
           getSourceCode() {
-            return originalContext.getSourceCode();
+            return originalContext.sourceCode;
           },
 
           markVariableAsUsed(name: string) {

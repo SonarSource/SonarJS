@@ -42,7 +42,7 @@ export const rule: Rule.RuleModule = {
     const forLoopStack: ForInfo[] = [];
 
     function join(expressions: estree.Node[]) {
-      return expressions.map(expr => context.getSourceCode().getText(expr)).join(', ');
+      return expressions.map(expr => context.sourceCode.getText(expr)).join(', ');
     }
 
     function isInsideUpdate(node: estree.Node) {
@@ -94,7 +94,7 @@ export const rule: Rule.RuleModule = {
 
         if (!hasIntersection) {
           context.report({
-            loc: context.getSourceCode().getFirstToken(forInfo.forLoop)!.loc,
+            loc: context.sourceCode.getFirstToken(forInfo.forLoop)!.loc,
             messageId: 'misplacedCounter',
             data: {
               test: join(forInfo.testedExpressions),

@@ -59,7 +59,7 @@ export const rule: Rule.RuleModule = {
     },
   },
   create(context: Rule.RuleContext) {
-    const sourceCode = context.getSourceCode();
+    const sourceCode = context.sourceCode;
     const services = context.parserServices;
     if (!isRequiredParserServices(services)) {
       return {};

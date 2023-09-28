@@ -46,10 +46,10 @@ export const rule: Rule.RuleModule = {
             );
           }
         },
-        FunctionDeclaration: function () {
+        FunctionDeclaration() {
           returnedExpressions.push([]);
         },
-        'FunctionDeclaration:exit': function (node: estree.Node) {
+        'FunctionDeclaration:exit'(node: estree.Node) {
           const returnType = (node as TSESTree.FunctionDeclaration).returnType;
           if (
             returnType &&

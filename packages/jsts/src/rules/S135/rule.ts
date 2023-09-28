@@ -56,7 +56,7 @@ export const rule: Rule.RuleModule = {
     function leaveScopeAndCheckNumberOfJumps(node: estree.Node) {
       const jumps = jumpTargets.pop()?.jumps;
       if (jumps && jumps.length > 1) {
-        const sourceCode = context.getSourceCode();
+        const sourceCode = context.sourceCode;
         const firstToken = sourceCode.getFirstToken(node);
         context.report({
           loc: firstToken!.loc,

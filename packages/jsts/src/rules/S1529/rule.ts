@@ -62,14 +62,14 @@ export const rule: Rule.RuleModule = {
           fileContainsSeveralBitwiseOperations = true;
         }
       },
-      'Program:exit': function () {
+      'Program:exit'() {
         if (
           !fileContainsSeveralBitwiseOperations &&
           lonelyBitwiseAndOr &&
           insideCondition(lonelyBitwiseAndOr, lonelyBitwiseAndOrAncestors)
         ) {
           const op = lonelyBitwiseAndOr.operator;
-          const operatorToken = context.getSourceCode().getTokenAfter(lonelyBitwiseAndOr.left);
+          const operatorToken = context.sourceCode.getTokenAfter(lonelyBitwiseAndOr.left);
           if (operatorToken) {
             context.report({
               loc: operatorToken.loc,

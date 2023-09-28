@@ -21,8 +21,7 @@
 
 import { Rule } from 'eslint';
 import { AST } from '@eslint-community/regexpp';
-import { Alternation } from '../helpers/regex';
-import { createRegExpRule } from '../helpers/regex';
+import { Alternation, createRegExpRule } from '../helpers/regex';
 
 export const rule: Rule.RuleModule = createRegExpRule(context => {
   function checkAlternation(alternation: Alternation) {

@@ -64,14 +64,7 @@ import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.TestUtils;
-import org.sonar.plugins.javascript.bridge.AnalysisProcessor;
-import org.sonar.plugins.javascript.bridge.AnalysisWarningsWrapper;
-import org.sonar.plugins.javascript.bridge.BridgeServer;
 import org.sonar.plugins.javascript.bridge.BridgeServer.AnalysisResponse;
-import org.sonar.plugins.javascript.bridge.HtmlSensor;
-import org.sonar.plugins.javascript.bridge.JsTsChecks;
-import org.sonar.plugins.javascript.bridge.Monitoring;
-import org.sonar.plugins.javascript.bridge.PluginInfo;
 import org.sonar.plugins.javascript.bridge.cache.CacheTestUtils;
 
 class HtmlSensorTest {

@@ -63,28 +63,29 @@ export const rule: Rule.RuleModule = {
     ],
   },
   create(context: Rule.RuleContext) {
-    function getLocalEnclosingLoop(node: estree.Node) {
-      return findFirstMatchingAncestor(node as TSESTree.Node, n => loopLike.includes(n.type));
+    function getLocalEnclosingLoop(node: estree.Node): LoopLike | undefined {
+      return findFirstMatchingAncestor(node as TSESTree.Node, n => loopLike.includes(n.type)) as
+        | LoopLike
+        | undefined;
     }
 
     return {
       [functionLike]: (node: estree.Node) => {
-        const loopNode = getLocalEnclosingLoop(node) as LoopLike;
-        if (loopNode) {
-          if (
-            !isIIEF(node, context) &&
-            !isAllowedCallbacks(context) &&
-            context.getScope().through.some(ref => !isSafe(ref, loopNode))
-          ) {
-            context.report({
-              message: toEncodedMessage(message, [getMainLoopToken(loopNode, context)]),
-              loc: getMainFunctionTokenLocation(
-                node as TSESTree.FunctionLike,
-                getParent(context) as TSESTree.Node,
-                context as unknown as RuleContext,
-              ),
-            });
-          }
+        const loopNode = getLocalEnclosingLoop(node);
+        if (
+          loopNode &&
+          !isIIEF(node, context) &&
+          !isAllowedCallbacks(context) &&
+          context.getScope().through.some(ref => !isSafe(ref, loopNode))
+        ) {
+          context.report({
+            message: toEncodedMessage(message, [getMainLoopToken(loopNode, context)]),
+            loc: getMainFunctionTokenLocation(
+              node as TSESTree.FunctionLike,
+              getParent(context) as TSESTree.Node,
+              context as unknown as RuleContext,
+            ),
+          });
         }
       },
     };
@@ -117,7 +118,7 @@ function isSafe(ref: Scope.Reference, loopNode: LoopLike) {
   const variable = ref.resolved;
   if (variable) {
     const definition = variable.defs[0];
-    const declaration = definition && definition.parent;
+    const declaration = definition?.parent;
     const kind = declaration && declaration.type === 'VariableDeclaration' ? declaration.kind : '';
 
     if (kind !== 'let' && kind !== 'const') {
@@ -152,7 +153,7 @@ function getLoopTestRange(loopNode: LoopLike) {
   if (bodyRange) {
     switch (loopNode.type) {
       case 'ForStatement':
-        if (loopNode.test && loopNode.test.range) {
+        if (loopNode.test?.range) {
           return [loopNode.test.range[0], bodyRange[0]];
         }
         break;
@@ -167,10 +168,11 @@ function getLoopTestRange(loopNode: LoopLike) {
         }
     }
   }
+  return undefined;
 }
 
 function getMainLoopToken(loop: LoopLike, context: Rule.RuleContext): AST.Token {
-  const sourceCode = context.getSourceCode();
+  const sourceCode = context.sourceCode;
   let token: AST.Token | null;
   switch (loop.type) {
     case 'WhileStatement':

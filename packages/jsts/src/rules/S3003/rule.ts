@@ -55,8 +55,7 @@ export const rule: Rule.RuleModule = {
               `Convert operands of this use of "${operator}" to number type.`,
               [left, right],
             ),
-            loc: context
-              .getSourceCode()
+            loc: context.sourceCode
               .getTokensBetween(left, right)
               .find(token => token.type === 'Punctuator' && token.value === operator)!.loc,
           });
@@ -86,7 +85,7 @@ function isWithinSortCallback(context: Rule.RuleContext) {
       } else if (callee.type === 'MemberExpression' && callee.property.type === 'Identifier') {
         funcName = callee.property.name;
       }
-      return funcName && funcName.match(/sort/i) && args.some(arg => arg === callback);
+      return funcName?.match(/sort/i) && args.some(arg => arg === callback);
     }
   }
   return false;

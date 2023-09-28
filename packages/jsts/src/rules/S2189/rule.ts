@@ -49,7 +49,7 @@ export const rule: Rule.RuleModule = {
         }
 
         /** Ignoring symbols called on or passed as arguments */
-        for (const reference of symbol?.references || []) {
+        for (const reference of symbol?.references ?? []) {
           const id = reference.identifier as TSESTree.Node;
 
           if (
@@ -90,7 +90,7 @@ export const rule: Rule.RuleModule = {
             if (!test || (test.type === 'Literal' && test.value === true)) {
               const hasEndCondition = LoopVisitor.hasEndCondition(body, context);
               if (!hasEndCondition) {
-                const firstToken = context.getSourceCode().getFirstToken(node);
+                const firstToken = context.sourceCode.getFirstToken(node);
                 context.report({
                   loc: firstToken!.loc,
                   message: MESSAGE,
@@ -105,7 +105,7 @@ export const rule: Rule.RuleModule = {
           if (whileStatement.test.type === 'Literal' && whileStatement.test.value === true) {
             const hasEndCondition = LoopVisitor.hasEndCondition(whileStatement.body, context);
             if (!hasEndCondition) {
-              const firstToken = context.getSourceCode().getFirstToken(node);
+              const firstToken = context.sourceCode.getFirstToken(node);
               context.report({ loc: firstToken!.loc, message: MESSAGE });
             }
           }
@@ -152,7 +152,7 @@ class LoopVisitor {
           this.hasEndCondition = true;
           return;
       }
-      childrenOf(node, context.getSourceCode().visitorKeys).forEach(child =>
+      childrenOf(node, context.sourceCode.visitorKeys).forEach(child =>
         visitNode(child, isNestedLoop),
       );
     };

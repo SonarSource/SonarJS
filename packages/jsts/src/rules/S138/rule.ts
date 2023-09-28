@@ -46,7 +46,7 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     const [threshold] = context.options;
 
-    const sourceCode = context.getSourceCode();
+    const sourceCode = context.sourceCode;
     const lines = sourceCode.lines;
 
     const commentLineNumbers = getCommentLineNumbers(sourceCode.getAllComments());
@@ -151,10 +151,9 @@ function isFullLineComment(line: string, lineNumber: number, comment: estree.Com
   if (!comment.loc) {
     return false;
   }
-  const start = comment.loc.start,
-    end = comment.loc.end,
-    isFirstTokenOnLine = start.line === lineNumber && !line.slice(0, start.column).trim(),
-    isLastTokenOnLine = end.line === lineNumber && !line.slice(end.column).trim();
+  const { start, end } = comment.loc;
+  const isFirstTokenOnLine = start.line === lineNumber && !line.slice(0, start.column).trim();
+  const isLastTokenOnLine = end.line === lineNumber && !line.slice(end.column).trim();
 
   return (
     comment &&
@@ -180,6 +179,6 @@ function nameStartsWithCapital(node: estree.Node) {
   return !!(
     (node.type === 'FunctionDeclaration' || node.type === 'FunctionExpression') &&
     node.id &&
-    node.id.name[0] === node.id.name[0].toUpperCase()
+    node.id.name.startsWith(node.id.name[0].toUpperCase())
   );
 }

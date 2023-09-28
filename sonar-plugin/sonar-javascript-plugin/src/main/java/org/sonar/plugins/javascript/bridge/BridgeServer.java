@@ -315,7 +315,11 @@ public interface BridgeServer extends Startable {
       this.error = error;
     }
 
-    TsProgram(String programId, List<String> files, List<String> projectReferences) {
+    TsProgram(
+      String programId,
+      @Nullable List<String> files,
+      @Nullable List<String> projectReferences
+    ) {
       this(programId, files, projectReferences, false, null);
     }
 

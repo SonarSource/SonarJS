@@ -112,7 +112,7 @@ function getValueOfSignatures(typ: ts.Type, checker: ts.TypeChecker) {
   if (!valueOfSymbol) {
     return [];
   }
-  const declarations = valueOfSymbol.getDeclarations() || [];
+  const declarations = valueOfSymbol.getDeclarations() ?? [];
   return declarations
     .map(declaration => checker.getTypeAtLocation(declaration).getCallSignatures())
     .reduce((result, decl) => result.concat(decl), []);

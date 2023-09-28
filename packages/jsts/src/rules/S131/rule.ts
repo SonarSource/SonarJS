@@ -57,7 +57,7 @@ const switchWithoutDefaultRule: Rule.RuleModule = {
               {
                 messageId: 'addDefault',
                 fix(fixer: Rule.RuleFixer): Rule.Fix | null {
-                  return fixSwitch(fixer, node, context.getSourceCode());
+                  return fixSwitch(fixer, node, context.sourceCode);
                 },
               },
             ],
@@ -85,9 +85,10 @@ const decoratedSwitchExhaustivenessRule: Rule.RuleModule = interceptReport(
 );
 
 function getSwitchKeyword(node: estree.Node, context: Rule.RuleContext) {
-  return context
-    .getSourceCode()
-    .getFirstToken(node, token => token.type === 'Keyword' && token.value === 'switch')!;
+  return context.sourceCode.getFirstToken(
+    node,
+    token => token.type === 'Keyword' && token.value === 'switch',
+  )!;
 }
 
 function fixSwitch(

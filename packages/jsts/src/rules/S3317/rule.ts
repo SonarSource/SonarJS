@@ -46,12 +46,10 @@ export const rule: Rule.RuleModule = {
             }
           }
         } else if (
-          declaration.type === 'ClassDeclaration' ||
-          declaration.type === 'FunctionDeclaration'
+          (declaration.type === 'ClassDeclaration' || declaration.type === 'FunctionDeclaration') &&
+          declaration.id
         ) {
-          if (declaration.id) {
-            nameOfExported = declaration.id.name;
-          }
+          nameOfExported = declaration.id.name;
         }
       },
       'ExportAllDeclaration, ExportNamedDeclaration': () => {
@@ -59,7 +57,7 @@ export const rule: Rule.RuleModule = {
       },
       'Program:exit': () => {
         if (isOnlyExport && nameOfExported) {
-          const fileName = path.parse(context.getFilename()).name;
+          const fileName = path.parse(context.filename).name;
           if (
             'index' !== fileName &&
             !sameName(nameOfExported, fileName) &&

@@ -21,8 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { getVariableFromName } from '../helpers';
-import { interceptReport } from '../helpers';
+import { getVariableFromName, interceptReport } from '../helpers';
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(rule, reportExempting(isNotClassOrFunction));

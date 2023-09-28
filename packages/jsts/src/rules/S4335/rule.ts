@@ -100,7 +100,7 @@ function isStandaloneInterface(typeSymbol: ts.Symbol) {
     !declarations ||
     declarations.every(declaration => {
       return (
-        isInterfaceDeclaration(declaration) && (declaration.heritageClauses || []).length === 0
+        isInterfaceDeclaration(declaration) && (declaration.heritageClauses ?? []).length === 0
       );
     })
   );

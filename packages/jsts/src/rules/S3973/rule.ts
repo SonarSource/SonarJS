@@ -36,7 +36,7 @@ export const rule: Rule.RuleModule = {
   },
 
   create(context: Rule.RuleContext) {
-    const sourceCode = context.getSourceCode();
+    const sourceCode = context.sourceCode;
     return {
       IfStatement: (node: estree.Node) => {
         const ifStatement = node as estree.IfStatement;
@@ -57,7 +57,7 @@ export const rule: Rule.RuleModule = {
             checkIndentation(elseToken, alternate.consequent, context);
           } else {
             checkIndentation(
-              getPrecedingBrace(elseToken, sourceCode) || elseToken,
+              getPrecedingBrace(elseToken, sourceCode) ?? elseToken,
               alternate,
               context,
               elseToken,
@@ -80,7 +80,7 @@ function checkIndentation(
   tokenToReport = firstToken,
 ) {
   if (firstToken && tokenToReport && statement.type !== 'BlockStatement') {
-    const firstStatementToken = context.getSourceCode().getFirstToken(statement);
+    const firstStatementToken = context.sourceCode.getFirstToken(statement);
     if (
       firstStatementToken &&
       firstToken.loc.start.column >= firstStatementToken.loc.start.column

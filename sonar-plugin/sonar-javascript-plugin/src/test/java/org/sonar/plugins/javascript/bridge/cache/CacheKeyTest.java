@@ -27,7 +27,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.plugins.javascript.bridge.PluginInfo;
-import org.sonar.plugins.javascript.bridge.cache.CacheKey;
 
 class CacheKeyTest {
 

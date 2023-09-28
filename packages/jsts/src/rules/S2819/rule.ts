@@ -131,7 +131,7 @@ function hasVerifiedOrigin(
   listener: estree.Function,
   event: estree.Identifier,
 ) {
-  const scope = context.getSourceCode().scopeManager.acquire(listener);
+  const scope = context.sourceCode.scopeManager.acquire(listener);
   const eventVariable = scope?.variables.find(v => v.name === event.name);
   if (eventVariable) {
     const eventIdentifiers = eventVariable.references.map(e => e.identifier);
@@ -304,7 +304,7 @@ function isEventOriginCompared(event: TSESTree.Identifier) {
  */
 function isEventOriginalEventCompared(event: TSESTree.Identifier) {
   const eventOriginalEvent = findEventOriginalEvent(event);
-  if (!eventOriginalEvent || !eventOriginalEvent.parent) {
+  if (!eventOriginalEvent?.parent) {
     return false;
   }
 
@@ -384,7 +384,7 @@ class WindowNameVisitor {
       if (node.type === 'Identifier' && node.name.match(/window/i)) {
         this.hasWindowName = true;
       }
-      childrenOf(node, context.getSourceCode().visitorKeys).forEach(visitNode);
+      childrenOf(node, context.sourceCode.visitorKeys).forEach(visitNode);
     };
     visitNode(root);
   }

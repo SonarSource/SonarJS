@@ -56,8 +56,7 @@ export const rule: Rule.RuleModule = {
         if (['===', '!=='].includes(operator) && !isComparableTo(left, right)) {
           const [actual, expected, outcome] =
             operator === '===' ? ['===', '==', 'false'] : ['!==', '!=', 'true'];
-          const operatorToken = context
-            .getSourceCode()
+          const operatorToken = context.sourceCode
             .getTokensBetween(left, right)
             .find(token => token.type === 'Punctuator' && token.value === operator)!;
           context.report({

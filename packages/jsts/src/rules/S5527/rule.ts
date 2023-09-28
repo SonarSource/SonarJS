@@ -166,7 +166,7 @@ class ReturnStatementsVisitor {
         case 'ArrowFunctionExpression':
           return;
       }
-      childrenOf(node, context.getSourceCode().visitorKeys).forEach(visitNode);
+      childrenOf(node, context.sourceCode.visitorKeys).forEach(visitNode);
     };
     visitNode(root);
   }

@@ -113,7 +113,7 @@ function isConditionalLike(node: TSESTree.Node) {
 }
 
 function getOperatorToken(node: TSESTree.Node, context: Rule.RuleContext) {
-  const sourceCode = context.getSourceCode();
+  const sourceCode = context.sourceCode;
   if (node.type === 'ConditionalExpression') {
     return sourceCode.getTokenAfter(
       node.test as estree.Node,

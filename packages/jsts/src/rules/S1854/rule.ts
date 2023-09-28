@@ -86,7 +86,7 @@ export const rule: Rule.RuleModule = {
       },
       'ObjectPattern:exit': () => {
         const destructuring = destructuringStack.pop();
-        if (destructuring && destructuring.hasRest) {
+        if (destructuring?.hasRest) {
           destructuring.references.forEach(ref => referencesUsedInDestructuring.add(ref));
         }
       },

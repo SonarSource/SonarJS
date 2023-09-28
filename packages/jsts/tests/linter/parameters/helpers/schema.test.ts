@@ -22,15 +22,15 @@ import { getRuleSchema } from '../../../../src/linter/parameters/helpers';
 
 describe('getRuleSchema', () => {
   it('should return the schema', () => {
-    expect(getRuleSchema({ meta: { schema: [42] } } as any as Rule.RuleModule, 'schema')).toEqual([
-      42,
-    ]);
+    expect(
+      getRuleSchema({ meta: { schema: [42] } } as unknown as Rule.RuleModule, 'schema'),
+    ).toEqual([42]);
   });
 
   it('should return an array of the schema', () => {
-    expect(getRuleSchema({ meta: { schema: 'foo' } } as any as Rule.RuleModule, 'schema')).toEqual([
-      'foo',
-    ]);
+    expect(
+      getRuleSchema({ meta: { schema: 'foo' } } as unknown as Rule.RuleModule, 'schema'),
+    ).toEqual(['foo']);
   });
 
   it('should return undefined on an undefined rule', () => {

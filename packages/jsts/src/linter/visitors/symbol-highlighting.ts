@@ -60,7 +60,7 @@ export const rule: Rule.RuleModule = {
        highlighting).
      */
     function identifierLocation(node: TSESTree.Node) {
-      const source = context.getSourceCode();
+      const source = context.sourceCode;
       const loc = {
         start: node.loc.start,
         end:
@@ -102,7 +102,7 @@ export const rule: Rule.RuleModule = {
 
         const openCurlyBracesStack: AST.Token[] = [];
         const openHtmlTagsStack: AST.Token[] = [];
-        extractTokensAndComments(context.getSourceCode()).tokens.forEach(token => {
+        extractTokensAndComments(context.sourceCode).tokens.forEach(token => {
           switch (token.type) {
             case 'Punctuator':
               if (token.value === '{') {

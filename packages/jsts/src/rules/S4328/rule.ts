@@ -48,7 +48,7 @@ export const rule: Rule.RuleModule = {
   },
   create(context: Rule.RuleContext) {
     const whitelist = context.options;
-    const dependencies = getDependencies(context.getFilename());
+    const dependencies = getDependencies(context.filename);
     const aliasedPathsMappingPatterns = extractPathMappingPatterns(context.parserServices);
     const baseUrl = getBaseUrl(context.parserServices);
     if (aliasedPathsMappingPatterns === 'matchAll') {
@@ -80,7 +80,7 @@ export const rule: Rule.RuleModule = {
       },
       ImportDeclaration: (node: estree.Node) => {
         const module = (node as estree.ImportDeclaration).source;
-        const importToken = context.getSourceCode().getFirstToken(node);
+        const importToken = context.sourceCode.getFirstToken(node);
         raiseOnImplicitImport(
           module,
           importToken!.loc,
@@ -240,8 +240,8 @@ const PATH_MAPPING_ASTERISK_PATTERN_SUFFIX_IDX = 2;
 function extractPathMappingPatterns(
   parserServices: RequiredParserServices,
 ): PathMappingPattern[] | 'matchAll' {
-  const compilerOptions = parserServices.program && parserServices.program.getCompilerOptions();
-  const paths = (compilerOptions && compilerOptions.paths) || [];
+  const compilerOptions = parserServices.program?.getCompilerOptions();
+  const paths = compilerOptions?.paths ?? [];
   const pathMappingPatterns: PathMappingPattern[] = [];
   for (const p in paths) {
     if (p === '*') {
@@ -266,11 +266,7 @@ function extractPathMappingPatterns(
 }
 
 function getBaseUrl(parserServices: RequiredParserServices): string | undefined {
-  if (parserServices.program && parserServices.program.getCompilerOptions()) {
-    return parserServices.program.getCompilerOptions().baseUrl;
-  }
-
-  return undefined;
+  return parserServices.program?.getCompilerOptions().baseUrl;
 }
 
 function readFile(filePath: string) {
