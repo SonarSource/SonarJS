@@ -80,9 +80,6 @@ build_task:
     cpu: 15
     memory: 30G
   env:
-    # analysis on next
-    SONAR_TOKEN: VAULT[development/kv/data/next data.token]
-    SONAR_HOST_URL: https://next.sonarqube.com/sonarqube
     #allow deployment of pull request artifacts to repox
     DEPLOY_PULL_REQUEST: true
     #sign artifacts
@@ -90,17 +87,41 @@ build_task:
     PGP_PASSPHRASE: VAULT[development/kv/data/sign data.passphrase]
   <<: *MAVEN_CACHE
   <<: *RUNTIME_CACHE
+  build_and_deploy_script:
+    - source cirrus-env BUILD
+    - npm config set registry "${ARTIFACTORY_URL}/api/npm/npm"
+    - npm run build
+    - ./.cirrus/prepare_deploy_analyze.bash
+    - ./.cirrus/deploy.bash
+  cleanup_before_cache_script: cleanup_maven_repository
+
+analyze_task:
+  eks_container:
+    <<: *CONTAINER_DEFINITION
+    dockerfile: .cirrus/nodejs.Dockerfile
+    docker_arguments:
+      CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
+    cpu: 15
+    memory: 30G
+  depends_on:
+    - build
+  env:
+    # analysis on next
+    SONAR_TOKEN: VAULT[development/kv/data/next data.token]
+    SONAR_HOST_URL: https://next.sonarqube.com/sonarqube
+  <<: *MAVEN_CACHE
+  <<: *RUNTIME_CACHE
   sonar_cache:
     folder: ${HOME}/.sonar/cache
     fingerprint_script:
       - echo ${CIRRUS_OS}
       - curl --silent ${SONAR_HOST_URL}/deploy/plugins/index.txt | sort
-  build_script:
-    - source cirrus-env BUILD
+  build_and_analyze_script:
+    - source cirrus-env CI
     - npm config set registry "${ARTIFACTORY_URL}/api/npm/npm"
     - npm run build
-    - regular_mvn_build_deploy_analyze
-  cleanup_before_cache_script: cleanup_maven_repository
+    - ./.cirrus/prepare_deploy_analyze.bash
+    - ./.cirrus/analyze.bash
 
 build_win_task:
   depends_on:
@@ -112,7 +133,6 @@ build_win_task:
   build_script:
     - source cirrus-env CI
     - npm config set registry "${ARTIFACTORY_URL}/api/npm/npm"
-    #  TODO should be as close to build_task as possible, ie. remove incompatible bash scripts
     - npm run build
   cleanup_before_cache_script: cleanup_maven_repository
 
@@ -227,6 +247,7 @@ promote_task:
     - plugin_qa_sq_dev
     - plugin_qa_win
     - ruling
+    - analyze
   <<: *ONLY_SONARSOURCE_QA
   eks_container:
     <<: *CONTAINER_DEFINITION
