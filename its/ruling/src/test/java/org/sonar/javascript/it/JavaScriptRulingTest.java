@@ -86,67 +86,57 @@ class JavaScriptRulingTest {
 
   public static Stream<Arguments> ruling() {
     return Stream.of(
-      //      jsProject("amplify", "external/**", "test"),
-      //      jsProject("angular.js", "src/ngLocale/**, i18n/**", "test"),
-      //      jsProject("backbone", "", "test"),
-      //      jsProject("es5-shim", "", "tests"),
-      //      jsProject("fireact", "", ""),
-      //      jsProject("javascript-test-sources", "", ""),
-      //      jsProject("jira-clone", "", ""),
-      //      jsProject("jquery", "", "test"),
-      //      jsProject("jshint", "", "tests"),
-      //      jsProject("jStorage", "", "tests"),
-      //      jsProject("knockout", "", "spec"),
-      //      jsProject("mootools-core", "", "Specs"),
-      //      jsProject("ocanvas", "build/**", ""),
-      //      jsProject("p5.js", "", "test"),
-      //      jsProject("paper.js", "gulp/jsdoc/**, packages/**", "test"),
-      //      jsProject("prototype", "", "test"),
-      //      jsProject("qunit", "", "test"),
-      //      jsProject("react-cloud-music", "", ""),
-      //      jsProject("sizzle", "external/**", "test"),
-      //      jsProject("underscore", "", "test"),
-      //      tsProject("ag-grid", "spec"),
-      //      tsProject("ant-design", "tests"), // todo: many dirs **/__tests__
-      //      tsProject("console", ""), // todo: many dirs **/__tests__
-      //      tsProject("courselit", ""),
-      //      tsProject("desktop", "app/test"),
-      //      tsProject("eigen", ""), // todo
-      //      tsProject("fireface", ""),
-      //      tsProject("ionic2-auth", ""),
-      //      tsProject("Joust", ""), // todo: files **/*.spec.ts
-      //      tsProject("moose", ""),
-      //      tsProject("postgraphql", ""), // todo: many dirs **/__tests__
-      //      tsProject("prettier-vscode", ""),
-      //      tsProject("rxjs", "spec"),
-      //      tsProject("searchkit", ""), // todo
-      //      tsProject("TypeScript", "src/harness/unittests"),
-      //      tsProject("vuetify", ""),
-      Arguments.of("yaml", "js", "../sources/yaml", "", ""),
-      Arguments.of("file-for-rules", "js", "../sources/jsts/custom", "", "tests")
-      //      Arguments.of("file-for-rules", "ts", "../sources/jsts/custom", "", "")
+      jsTsProject("amplify", "external/**", "test"),
+      jsTsProject("angular.js", "src/ngLocale/**, i18n/**", "test"),
+      jsTsProject("backbone", "test"),
+      jsTsProject("es5-shim", "tests"),
+      jsTsProject("fireact"),
+      jsTsProject("javascript-test-sources"),
+      jsTsProject("jira-clone"),
+      jsTsProject("jquery", "test"),
+      jsTsProject("jshint", "tests"),
+      jsTsProject("jStorage", "tests"),
+      jsTsProject("knockout", "spec"),
+      jsTsProject("mootools-core", "Specs"),
+      jsTsProject("ocanvas", "build/**", ""),
+      jsTsProject("p5.js", "test"),
+      jsTsProject("paper.js", "gulp/jsdoc/**, packages/**", "test"),
+      jsTsProject("prototype", "test"),
+      jsTsProject("qunit", "test"),
+      jsTsProject("react-cloud-music"),
+      jsTsProject("sizzle", "external/**", "test"),
+      jsTsProject("underscore", "test"),
+      jsTsProject("ag-grid", "spec"),
+      jsTsProject("ant-design", "tests"), // todo: many dirs **/__tests__
+      jsTsProject("console"), // todo: many dirs **/__tests__
+      jsTsProject("courselit"),
+      jsTsProject("desktop", "app/test"),
+      jsTsProject("eigen"), // todo
+      jsTsProject("fireface"),
+      jsTsProject("ionic2-auth"),
+      jsTsProject("Joust"), // todo: files **/*.spec.ts
+      jsTsProject("moose"),
+      jsTsProject("postgraphql"), // todo: many dirs **/__tests__
+      jsTsProject("prettier-vscode"),
+      jsTsProject("rxjs", "spec"),
+      jsTsProject("searchkit"), // todo
+      jsTsProject("TypeScript", "src/harness/unittests"),
+      jsTsProject("vuetify"),
+      Arguments.of("yaml", "../sources/yaml", "", ""),
+      Arguments.of("file-for-rules", "../sources/jsts/custom", "", "tests")
     );
   }
 
-  private static Arguments jsProject(String project, String exclusions, String testDir) {
-    String exclusionList = "**/.*, **/*.ts, " + exclusions;
-    return Arguments.of(
-      project,
-      "js",
-      "../sources/jsts/projects/src/" + project,
-      exclusionList,
-      testDir
-    );
+  private static Arguments jsTsProject(String project) {
+    return jsTsProject(project, "", "");
   }
 
-  private static Arguments tsProject(String project, String testDir) {
-    return Arguments.of(
-      project,
-      "ts",
-      "../sources/jsts/projects/src/" + project,
-      "**/*.d.ts, **/*.js",
-      testDir
-    );
+  private static Arguments jsTsProject(String project, String testDir) {
+    return jsTsProject(project, "", testDir);
+  }
+
+  private static Arguments jsTsProject(String project, String exclusions, String testDir) {
+    return Arguments.of(project, "../sources/jsts/projects/" + project, exclusions, testDir);
   }
 
   @BeforeAll
@@ -188,8 +178,6 @@ class JavaScriptRulingTest {
       .getServer()
       .restoreProfile(FileLocation.of(jsProfile))
       .restoreProfile(FileLocation.of(tsProfile))
-      .restoreProfile(FileLocation.ofClasspath("/empty-ts-profile.xml"))
-      .restoreProfile(FileLocation.ofClasspath("/empty-js-profile.xml"))
       .restoreProfile(FileLocation.ofClasspath("/empty-css-profile.xml"))
       .restoreProfile(FileLocation.ofClasspath("/empty-html-profile.xml"));
 
@@ -243,26 +231,16 @@ class JavaScriptRulingTest {
   @ParameterizedTest
   @MethodSource
   @Execution(ExecutionMode.CONCURRENT)
-  void ruling(String project, String language, String sourceDir, String exclusions, String testDir)
+  void ruling(String project, String sourceDir, String exclusions, String testDir)
     throws Exception {
-    runRulingTest(project, language, sourceDir, exclusions, testDir);
+    runRulingTest(project, sourceDir, exclusions, testDir);
   }
 
-  static void runRulingTest(
-    String projectKey,
-    String languageToAnalyze,
-    String sources,
-    String exclusions,
-    String testDir
-  ) throws IOException {
-    String languageToIgnore = "js".equals(languageToAnalyze) ? "ts" : "js";
+  static void runRulingTest(String projectKey, String sources, String exclusions, String testDir)
+    throws IOException {
     orchestrator.getServer().provisionProject(projectKey, projectKey);
-    orchestrator
-      .getServer()
-      .associateProjectToQualityProfile(projectKey, languageToAnalyze, "rules");
-    orchestrator
-      .getServer()
-      .associateProjectToQualityProfile(projectKey, languageToIgnore, "empty-profile");
+    orchestrator.getServer().associateProjectToQualityProfile(projectKey, "js", "rules");
+    orchestrator.getServer().associateProjectToQualityProfile(projectKey, "ts", "rules");
     orchestrator.getServer().associateProjectToQualityProfile(projectKey, "css", "empty-profile");
     orchestrator.getServer().associateProjectToQualityProfile(projectKey, "web", "empty-profile");
 
@@ -273,9 +251,7 @@ class JavaScriptRulingTest {
       actualExclusions += ", " + testDir + "/**/*";
     }
 
-    var differencesPath = Path
-      .of("target", languageToAnalyze + "-" + projectKey + "-differences")
-      .toAbsolutePath();
+    var differencesPath = Path.of("target", projectKey + "-differences").toAbsolutePath();
     SonarScanner build = SonarScanner
       .create(sourcesLocation)
       .setProjectKey(projectKey)
@@ -287,17 +263,11 @@ class JavaScriptRulingTest {
       .setScannerVersion(SCANNER_VERSION)
       .setProperty(
         "sonar.lits.dump.old",
-        FileLocation
-          .of("src/test/expected/" + languageToAnalyze + "/" + projectKey)
-          .getFile()
-          .getAbsolutePath()
+        FileLocation.of("src/test/expected/jsts/" + projectKey).getFile().getAbsolutePath()
       )
       .setProperty(
         "sonar.lits.dump.new",
-        FileLocation
-          .of("target/actual/" + languageToAnalyze + "/" + projectKey)
-          .getFile()
-          .getAbsolutePath()
+        FileLocation.of("target/actual/jsts/" + projectKey).getFile().getAbsolutePath()
       )
       .setProperty("sonar.lits.differences", differencesPath.toString())
       .setProperty("sonar.exclusions", actualExclusions)
