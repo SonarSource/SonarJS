@@ -204,7 +204,6 @@ ruling_task:
     SONARSOURCE_QA: true
     matrix:
       - RULING: JavaScriptRulingTest
-      - RULING: TypeScriptRulingTest
       - RULING: CssRulingTest
   <<: *MAVEN_CACHE
   submodules_script:

@@ -108,7 +108,7 @@ class CssRulingTest {
     ORCHESTRATOR.getServer().associateProjectToQualityProfile(PROJECT_KEY, "ts", "rules");
     File litsDifferencesFile = FileLocation.of("target/differences").getFile();
     SonarScanner build = SonarScanner
-      .create(FileLocation.of("../css-sources").getFile())
+      .create(FileLocation.of("../sources/css").getFile())
       .setProjectKey(PROJECT_KEY)
       .setProjectName(PROJECT_KEY)
       .setProjectVersion("1")

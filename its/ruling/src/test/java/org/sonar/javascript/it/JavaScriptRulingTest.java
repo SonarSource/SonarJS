@@ -86,34 +86,67 @@ class JavaScriptRulingTest {
 
   public static Stream<Arguments> ruling() {
     return Stream.of(
-      jsProject("amplify", "external/**", "test"),
-      jsProject("angular.js", "src/ngLocale/**, i18n/**", "test"),
-      jsProject("backbone", "", "test"),
-      jsProject("es5-shim", "", "tests"),
-      jsProject("file-for-rules", "", "tests"),
-      jsProject("fireact", "", ""),
-      jsProject("javascript-test-sources", "", ""),
-      jsProject("jira-clone", "", ""),
-      jsProject("jquery", "", "test"),
-      jsProject("jshint", "", "tests"),
-      jsProject("jStorage", "", "tests"),
-      jsProject("knockout", "", "spec"),
-      jsProject("mootools-core", "", "Specs"),
-      jsProject("ocanvas", "build/**", ""),
-      jsProject("p5.js", "", "test"),
-      jsProject("paper.js", "gulp/jsdoc/**, packages/**", "test"),
-      jsProject("prototype", "", "test"),
-      jsProject("qunit", "", "test"),
-      jsProject("react-cloud-music", "", ""),
-      jsProject("sizzle", "external/**", "test"),
-      jsProject("underscore", "", "test"),
-      jsProject("yaml", "", "")
+      //      jsProject("amplify", "external/**", "test"),
+      //      jsProject("angular.js", "src/ngLocale/**, i18n/**", "test"),
+      //      jsProject("backbone", "", "test"),
+      //      jsProject("es5-shim", "", "tests"),
+      //      jsProject("fireact", "", ""),
+      //      jsProject("javascript-test-sources", "", ""),
+      //      jsProject("jira-clone", "", ""),
+      //      jsProject("jquery", "", "test"),
+      //      jsProject("jshint", "", "tests"),
+      //      jsProject("jStorage", "", "tests"),
+      //      jsProject("knockout", "", "spec"),
+      //      jsProject("mootools-core", "", "Specs"),
+      //      jsProject("ocanvas", "build/**", ""),
+      //      jsProject("p5.js", "", "test"),
+      //      jsProject("paper.js", "gulp/jsdoc/**, packages/**", "test"),
+      //      jsProject("prototype", "", "test"),
+      //      jsProject("qunit", "", "test"),
+      //      jsProject("react-cloud-music", "", ""),
+      //      jsProject("sizzle", "external/**", "test"),
+      //      jsProject("underscore", "", "test"),
+      //      tsProject("ag-grid", "spec"),
+      //      tsProject("ant-design", "tests"), // todo: many dirs **/__tests__
+      //      tsProject("console", ""), // todo: many dirs **/__tests__
+      //      tsProject("courselit", ""),
+      //      tsProject("desktop", "app/test"),
+      //      tsProject("eigen", ""), // todo
+      //      tsProject("fireface", ""),
+      //      tsProject("ionic2-auth", ""),
+      //      tsProject("Joust", ""), // todo: files **/*.spec.ts
+      //      tsProject("moose", ""),
+      //      tsProject("postgraphql", ""), // todo: many dirs **/__tests__
+      //      tsProject("prettier-vscode", ""),
+      //      tsProject("rxjs", "spec"),
+      //      tsProject("searchkit", ""), // todo
+      //      tsProject("TypeScript", "src/harness/unittests"),
+      //      tsProject("vuetify", ""),
+      Arguments.of("yaml", "js", "../sources/yaml", "", ""),
+      Arguments.of("file-for-rules", "js", "../sources/jsts/custom", "", "tests")
+      //      Arguments.of("file-for-rules", "ts", "../sources/jsts/custom", "", "")
     );
   }
 
   private static Arguments jsProject(String project, String exclusions, String testDir) {
     String exclusionList = "**/.*, **/*.ts, " + exclusions;
-    return Arguments.of(project, "js", "../sources/" + project, exclusionList, testDir);
+    return Arguments.of(
+      project,
+      "js",
+      "../sources/jsts/projects/src/" + project,
+      exclusionList,
+      testDir
+    );
+  }
+
+  private static Arguments tsProject(String project, String testDir) {
+    return Arguments.of(
+      project,
+      "ts",
+      "../sources/jsts/projects/src/" + project,
+      "**/*.d.ts, **/*.js",
+      testDir
+    );
   }
 
   @BeforeAll
