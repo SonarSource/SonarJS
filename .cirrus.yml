@@ -179,8 +179,8 @@ plugin_qa_win_task:
     SONARSOURCE_QA: true
     SQ_VERSION: LATEST_RELEASE
     matrix:
-      - TEST: '!CoverageTest,!TypeScriptAnalysisTest,!EslintBasedRulesTest,!SonarLintTest'
-      - TEST: 'CoverageTest,TypeScriptAnalysisTest,EslintBasedRulesTest,SonarLintTest'
+      - TEST: '!CoverageTest,!TypeScriptAnalysisTest,!EslintBasedRulesTest,!SonarLintTest,!PRAnalysisTest,!TypeCheckerConfigTest,!VueAnalysisTest'
+      - TEST: 'CoverageTest,TypeScriptAnalysisTest,EslintBasedRulesTest,SonarLintTest,PRAnalysisTest,TypeCheckerConfigTest,VueAnalysisTest'
   <<: *MAVEN_CACHE
   qa_script:
     - source /c/buildTools-docker/bin/cirrus-env QA
