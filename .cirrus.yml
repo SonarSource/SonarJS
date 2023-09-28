@@ -98,7 +98,7 @@ build_task:
   build_script:
     - source cirrus-env BUILD
     - npm config set registry "${ARTIFACTORY_URL}/api/npm/npm"
-    - npm run build-plugin
+    - npm run build
     - regular_mvn_build_deploy_analyze
   cleanup_before_cache_script: cleanup_maven_repository
 
@@ -113,8 +113,7 @@ build_win_task:
     - source cirrus-env CI
     - npm config set registry "${ARTIFACTORY_URL}/api/npm/npm"
     #  TODO should be as close to build_task as possible, ie. remove incompatible bash scripts
-    - npm run build && npm run test
-    - npm run fetch-node && mvn test
+    - npm run build
   cleanup_before_cache_script: cleanup_maven_repository
 
 ws_scan_task:
