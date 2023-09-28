@@ -21,7 +21,6 @@ import fetch from 'node-fetch';
 import fs from 'fs-extra';
 import extract from 'extract-zip';
 import decompress from 'decompress';
-import decompressTargz from 'decompress-targz';
 import * as path from 'node:path';
 import * as stream from 'node:stream';
 import * as crypto from 'node:crypto';
@@ -186,7 +185,6 @@ async function extractFile(file, dir) {
     // decompress tar gz doesn't support overwrites
     deleteFolderIfExists(removeExtension(file));
     await decompress(file, dir, {
-      plugins: [decompressTargz()],
       /**
        * There are symlinks in the unix distros that raise an exception when running this on Windows
        * So we filter them out. We only need the binary which is in {distroFullName}/bin/node
@@ -235,7 +233,7 @@ function removeExtension(filename) {
  */
 function retrieveArtifactoryKey() {
   const devKey = retrieveForDevMachine();
-  return devKey ? devKey : retrieveForCI();
+  return devKey || retrieveForCI();
 
   function retrieveForCI() {
     return process.env.ARTIFACTORY_ACCESS_TOKEN;
