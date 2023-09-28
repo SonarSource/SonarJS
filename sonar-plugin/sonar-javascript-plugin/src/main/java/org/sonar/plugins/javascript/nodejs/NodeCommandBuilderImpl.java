@@ -39,7 +39,6 @@ import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.bridge.EmbeddedNode;
-import org.sonar.plugins.javascript.bridge.Environment;
 
 public class NodeCommandBuilderImpl implements NodeCommandBuilder {
 
