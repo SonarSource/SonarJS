@@ -118,7 +118,7 @@ analyze_task:
       - echo ${CIRRUS_OS}
       - curl --silent ${SONAR_HOST_URL}/deploy/plugins/index.txt | sort
   build_and_analyze_script:
-    - source cirrus-env BUILD
+    - source cirrus-env CI
     - npm config set registry "${ARTIFACTORY_URL}/api/npm/npm"
     - npm run build
     - ./.cirrus/prepare_deploy_analyze.bash
