@@ -69,7 +69,8 @@ class CssRuleTest {
 
   /*
    * This test raises awareness of the consequence of a rule adding or removing a rule property.
-   * If a new rule property is added, we should inform the SonarCloud team about it on release.
+   * If a new rule property is added to an existing rule, we should inform the SonarCloud team
+   * about it on release. Rule properties of newly added rules are not concerned by that.
    */
   @Test
   void rules_properties_count() {
