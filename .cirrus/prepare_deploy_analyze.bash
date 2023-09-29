@@ -21,7 +21,7 @@ function check_version_format(){
 
 # Analyze with SNAPSHOT version as long as SQ does not correctly handle
 # purge of release data
-CURRENT_VERSION=$(maven_expression "project.version")
+export CURRENT_VERSION=$(maven_expression "project.version")
 
 . set_maven_build_version "$BUILD_NUMBER"
 
