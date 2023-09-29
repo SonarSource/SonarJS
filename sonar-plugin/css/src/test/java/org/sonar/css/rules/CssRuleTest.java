@@ -26,9 +26,12 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.mockito.internal.util.collections.Sets;
+import org.sonar.check.RuleProperty;
 import org.sonar.css.CssRules;
 
 class CssRuleTest {
+
+  private static final int RULES_PROPERTIES_COUNT = 9;
 
   @Test
   void class_name_should_match_stylelint_key()
@@ -62,6 +65,24 @@ class CssRuleTest {
         assertThat(rule.stylelintOptions()).isEmpty();
       }
     }
+  }
+
+  /*
+   * This test raises awareness of the consequence of a rule adding or removing a rule property.
+   * If a new rule property is added to an existing rule, we should inform the SonarCloud team
+   * about it on release. Rule properties of newly added rules are not concerned by that.
+   */
+  @Test
+  void rules_properties_count() {
+    var count = 0;
+    for (var clazz : CssRules.getRuleClasses()) {
+      for (var field : clazz.getDeclaredFields()) {
+        if (field.isAnnotationPresent(RuleProperty.class)) {
+          count++;
+        }
+      }
+    }
+    assertThat(count).isEqualTo(RULES_PROPERTIES_COUNT);
   }
 
   @Test

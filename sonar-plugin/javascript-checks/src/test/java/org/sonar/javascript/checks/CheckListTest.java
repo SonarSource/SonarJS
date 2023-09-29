@@ -29,10 +29,13 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
+import org.sonar.check.RuleProperty;
 import org.sonar.plugins.javascript.api.EslintBasedCheck;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 
 class CheckListTest {
+
+  private static final int CHECKS_PROPERTIES_COUNT = 35;
 
   /**
    * Enforces that each check declared in list.
@@ -131,6 +134,24 @@ class CheckListTest {
     tsAndJsChecks.addAll(CheckList.getJavaScriptChecks());
 
     assertThat(allChecks).isEqualTo(tsAndJsChecks);
+  }
+
+  /*
+   * This test raises awareness of the consequence of a rule adding or removing a rule property.
+   * If a new rule property is added to an existing rule, we should inform the SonarCloud team
+   * about it on release. Rule properties of newly added rules are not concerned by that.
+   */
+  @Test
+  void testChecksPropertiesCount() {
+    var count = 0;
+    for (var clazz : CheckList.getAllChecks()) {
+      for (var field : clazz.getDeclaredFields()) {
+        if (field.isAnnotationPresent(RuleProperty.class)) {
+          count++;
+        }
+      }
+    }
+    assertThat(count).isEqualTo(CHECKS_PROPERTIES_COUNT);
   }
 
   private boolean isEslintBasedCheck(Class<? extends JavaScriptCheck> cls) {
