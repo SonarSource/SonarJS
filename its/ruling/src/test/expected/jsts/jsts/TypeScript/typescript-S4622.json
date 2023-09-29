@@ -1,0 +1,83 @@
+{
+"TypeScript:scripts/buildProtocol.ts": [
+81
+],
+"TypeScript:src/compiler/checker.ts": [
+8105,
+19257,
+21459,
+21487,
+22621,
+22987,
+22995,
+23142
+],
+"TypeScript:src/compiler/declarationEmitter.ts": [
+830,
+1229
+],
+"TypeScript:src/compiler/emitter.ts": [
+1611
+],
+"TypeScript:src/compiler/factory.ts": [
+75,
+2184
+],
+"TypeScript:src/compiler/program.ts": [
+1125
+],
+"TypeScript:src/compiler/transformers/es2017.ts": [
+206
+],
+"TypeScript:src/compiler/transformers/esnext.ts": [
+612,
+656
+],
+"TypeScript:src/compiler/transformers/ts.ts": [
+50,
+127
+],
+"TypeScript:src/compiler/types.ts": [
+593,
+671,
+859,
+867,
+2770,
+2773,
+2774,
+3595
+],
+"TypeScript:src/compiler/utilities.ts": [
+2567
+],
+"TypeScript:src/compiler/visitor.ts": [
+1092
+],
+"TypeScript:src/harness/harnessLanguageService.ts": [
+583
+],
+"TypeScript:src/server/client.ts": [
+133
+],
+"TypeScript:src/server/server.ts": [
+324
+],
+"TypeScript:src/server/types.ts": [
+53
+],
+"TypeScript:src/server/typingsInstaller/nodeTypingsInstaller.ts": [
+134
+],
+"TypeScript:src/server/typingsInstaller/typingsInstaller.ts": [
+430
+],
+"TypeScript:src/services/formatting/smartIndenter.ts": [
+372
+],
+"TypeScript:src/services/navigationBar.ts": [
+619
+],
+"TypeScript:src/services/utilities.ts": [
+531
+]
+}

@@ -1,0 +1,13 @@
+{
+"vuetify:packages/api-generator/src/index.ts": [
+88
+],
+"vuetify:packages/docs/src/App.vue": [
+67,
+79,
+139
+],
+"vuetify:packages/vuetify/src/composables/theme.ts": [
+330
+]
+}

@@ -1,0 +1,14 @@
+{
+"courselit:apps/web/components/public/base-layout/component-scaffold.tsx": [
+277
+],
+"courselit:apps/web/components/public/base-layout/route-based-component-scaffold.tsx": [
+241
+],
+"courselit:apps/web/components/public/base-layout/scaffold/index.tsx": [
+147
+],
+"courselit:apps/web/graphql/users/logic.ts": [
+57
+]
+}

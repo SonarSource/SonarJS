@@ -1,0 +1,44 @@
+{
+"eigen:__mocks__/react-relay.js": [
+4
+],
+"eigen:scripts/changelog/generatePlatformChangelog.js": [
+33,
+72,
+102,
+128,
+176,
+237
+],
+"eigen:scripts/changelog/parsePRDescription.js": [
+59,
+66
+],
+"eigen:scripts/check-flags/check-flags.js": [
+22,
+32
+],
+"eigen:scripts/generate-manifest.js": [
+12
+],
+"eigen:scripts/strictness-migration.js": [
+15,
+19
+],
+"eigen:scripts/update-metaphysics.js": [
+7,
+37
+],
+"eigen:tslint-rules/jsxSafeConditionalsRule.js": [
+43,
+58,
+81,
+94,
+107,
+124
+],
+"eigen:tslint-rules/useWrappedComponentsRule.js": [
+39,
+48
+]
+}

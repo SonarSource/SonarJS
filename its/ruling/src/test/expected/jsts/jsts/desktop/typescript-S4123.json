@@ -1,0 +1,12 @@
+{
+"desktop:app/src/lib/git/apply.ts": [
+80
+],
+"desktop:app/src/lib/git/cherry-pick.ts": [
+153,
+414
+],
+"desktop:app/src/ui/app.tsx": [
+1132
+]
+}

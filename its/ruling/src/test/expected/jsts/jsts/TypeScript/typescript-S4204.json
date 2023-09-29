@@ -1,0 +1,436 @@
+{
+"TypeScript:Gulpfile.ts": [
+70,
+75,
+597,
+689,
+706,
+790
+],
+"TypeScript:scripts/authors.ts": [
+174,
+176
+],
+"TypeScript:scripts/buildProtocol.ts": [
+47
+],
+"TypeScript:scripts/errorCheck.ts": [
+1
+],
+"TypeScript:scripts/importDefinitelyTypedTests/importDefinitelyTypedTests.ts": [
+98
+],
+"TypeScript:scripts/processDiagnosticMessages.ts": [
+231
+],
+"TypeScript:scripts/word2md.ts": [
+28,
+47,
+119,
+170,
+187,
+187
+],
+"TypeScript:src/compiler/binder.ts": [
+1891,
+1891,
+1891
+],
+"TypeScript:src/compiler/checker.ts": [
+52,
+24290,
+24290,
+24290,
+24299,
+24299,
+24299,
+24306,
+24306,
+24306,
+24449,
+24449,
+24449
+],
+"TypeScript:src/compiler/commandLineParser.ts": [
+866,
+882,
+1094,
+1209,
+1253,
+1295,
+1306,
+1312,
+1318,
+1328,
+1338,
+1358,
+1394,
+1394
+],
+"TypeScript:src/compiler/core.ts": [
+207,
+718,
+949,
+949,
+949,
+949,
+950,
+1002,
+1002,
+1003,
+1058,
+1061,
+1068,
+1070,
+1070,
+1073,
+1073,
+1122,
+1122,
+1253,
+1294,
+2225,
+2226,
+2227,
+2228,
+2229,
+2230,
+2231
+],
+"TypeScript:src/compiler/factory.ts": [
+61,
+61
+],
+"TypeScript:src/compiler/moduleNameResolver.ts": [
+6
+],
+"TypeScript:src/compiler/parser.ts": [
+878,
+885,
+1053,
+1054,
+1129
+],
+"TypeScript:src/compiler/program.ts": [
+6,
+624,
+1649
+],
+"TypeScript:src/compiler/scanner.ts": [
+731
+],
+"TypeScript:src/compiler/sys.ts": [
+3,
+3,
+4,
+44,
+44,
+44,
+45,
+57,
+58,
+59,
+257,
+337,
+337,
+348
+],
+"TypeScript:src/compiler/tsc.ts": [
+54,
+110,
+111
+],
+"TypeScript:src/compiler/types.ts": [
+32,
+612,
+711,
+792,
+863,
+983,
+998,
+1002,
+1035,
+1039,
+1043,
+1330,
+1439,
+1590,
+1797,
+1802,
+2009,
+3576,
+4246,
+4247
+],
+"TypeScript:src/compiler/utilities.ts": [
+202,
+3348
+],
+"TypeScript:src/compiler/visitor.ts": [
+1547
+],
+"TypeScript:src/harness/fourslash.ts": [
+65,
+446,
+582,
+598,
+606,
+611,
+1050,
+1059,
+1060,
+2170,
+2549,
+2556,
+2570,
+2576,
+2770,
+3060,
+3316,
+3316,
+3316,
+3401,
+3413,
+3561,
+3580,
+3587,
+3735,
+3739
+],
+"TypeScript:src/harness/harness.ts": [
+36,
+83,
+137,
+139,
+139,
+188,
+197,
+200,
+206,
+219,
+234,
+235,
+236,
+237,
+238,
+239,
+245,
+248,
+248,
+254,
+272,
+274,
+275,
+297,
+312,
+324,
+329,
+382,
+388,
+410,
+410,
+423,
+452,
+509,
+510,
+510,
+1016,
+1087,
+1111,
+1723,
+1755,
+1756,
+1986
+],
+"TypeScript:src/harness/harnessLanguageService.ts": [
+366,
+708,
+708,
+708,
+712,
+716,
+716,
+716,
+720,
+737,
+799
+],
+"TypeScript:src/harness/instrumenter.ts": [
+1,
+1,
+2,
+3,
+25,
+28,
+31
+],
+"TypeScript:src/harness/loggedIO.ts": [
+134,
+134,
+257,
+259,
+276,
+284,
+284,
+322,
+339
+],
+"TypeScript:src/harness/projectsRunner.ts": [
+262
+],
+"TypeScript:src/harness/runner.ts": [
+125,
+128,
+229
+],
+"TypeScript:src/server/builder.ts": [
+127
+],
+"TypeScript:src/server/client.ts": [
+85,
+448
+],
+"TypeScript:src/server/editorServices.ts": [
+118,
+128
+],
+"TypeScript:src/server/project.ts": [
+99
+],
+"TypeScript:src/server/protocol.ts": [
+127,
+149,
+179,
+2162
+],
+"TypeScript:src/server/server.ts": [
+74,
+74,
+75,
+125,
+127,
+256,
+474,
+504,
+516,
+516,
+771
+],
+"TypeScript:src/server/session.ts": [
+103,
+248,
+249,
+318,
+477,
+487,
+1599,
+1603,
+1850,
+1879
+],
+"TypeScript:src/server/types.ts": [
+9,
+14,
+14,
+14,
+15,
+16,
+16,
+16,
+17,
+24
+],
+"TypeScript:src/server/typingsCache.ts": [
+84,
+88
+],
+"TypeScript:src/server/typingsInstaller/nodeTypingsInstaller.ts": [
+70
+],
+"TypeScript:src/server/typingsInstaller/typingsInstaller.ts": [
+9
+],
+"TypeScript:src/server/utilities.ts": [
+12,
+98,
+98,
+124,
+192,
+196,
+196,
+217
+],
+"TypeScript:src/server/watchGuard/watchGuard.ts": [
+7,
+7
+],
+"TypeScript:src/services/codefixes/importFixes.ts": [
+572
+],
+"TypeScript:src/services/documentRegistry.ts": [
+93
+],
+"TypeScript:src/services/formatting/rules.ts": [
+7,
+7,
+16
+],
+"TypeScript:src/services/formatting/rulesMap.ts": [
+22,
+25
+],
+"TypeScript:src/services/pathCompletions.ts": [
+450,
+531,
+531
+],
+"TypeScript:src/services/services.ts": [
+357,
+358,
+359,
+360,
+361,
+362,
+471,
+752,
+752,
+763
+],
+"TypeScript:src/services/shims.ts": [
+19,
+122,
+128,
+415,
+533,
+533,
+557,
+581,
+612,
+622,
+646,
+655,
+984,
+1033,
+1033,
+1231
+],
+"TypeScript:src/services/signatureHelp.ts": [
+4
+],
+"TypeScript:src/services/textChanges.ts": [
+9,
+13,
+17,
+21,
+556,
+564
+],
+"TypeScript:src/services/types.ts": [
+149
+],
+"TypeScript:src/services/utilities.ts": [
+5,
+1040,
+1040
+]
+}

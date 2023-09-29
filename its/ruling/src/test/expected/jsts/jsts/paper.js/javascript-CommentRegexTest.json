@@ -1,0 +1,147 @@
+{
+"paper.js:src/anim/Tween.js": [
+246
+],
+"paper.js:src/basic/Matrix.js": [
+585
+],
+"paper.js:src/basic/Point.js": [
+733
+],
+"paper.js:src/canvas/BlendMode.js": [
+192
+],
+"paper.js:src/canvas/CanvasProvider.js": [
+13
+],
+"paper.js:src/core/PaperScope.js": [
+85
+],
+"paper.js:src/core/PaperScript.js": [
+359,
+400,
+586
+],
+"paper.js:src/export.js": [
+28
+],
+"paper.js:src/item/Item.js": [
+561,
+687,
+688,
+689,
+858,
+861,
+919,
+1213,
+1578,
+1757,
+1851,
+2082,
+2191,
+2883,
+2900,
+3318,
+3461,
+3511,
+3546,
+3748,
+4694
+],
+"paper.js:src/item/Layer.js": [
+28
+],
+"paper.js:src/item/Project.js": [
+39,
+195,
+232,
+283,
+285,
+299,
+369
+],
+"paper.js:src/item/Raster.js": [
+38,
+39,
+166,
+437,
+587,
+588
+],
+"paper.js:src/item/Shape.js": [
+170
+],
+"paper.js:src/item/SymbolItem.js": [
+83,
+129,
+140
+],
+"paper.js:src/path/Curve.js": [
+440,
+546,
+556,
+777,
+1109,
+1144,
+1212,
+1383,
+1428
+],
+"paper.js:src/path/Path.js": [
+152,
+193,
+362,
+1227,
+1447,
+1824,
+1825,
+2656
+],
+"paper.js:src/path/PathItem.Boolean.js": [
+100,
+993
+],
+"paper.js:src/path/PathItem.js": [
+458
+],
+"paper.js:src/path/Segment.js": [
+119,
+174
+],
+"paper.js:src/style/Color.js": [
+137,
+245,
+250,
+255,
+881
+],
+"paper.js:src/style/GradientStop.js": [
+13,
+53
+],
+"paper.js:src/style/Style.js": [
+268
+],
+"paper.js:src/svg/SvgExport.js": [
+18,
+207
+],
+"paper.js:src/svg/SvgImport.js": [
+150,
+185,
+249,
+303,
+465,
+674
+],
+"paper.js:src/view/View.js": [
+145,
+694,
+695,
+696,
+697,
+698,
+699,
+1104
+]
+}

@@ -1,0 +1,23 @@
+{
+"paper.js:src/core/PaperScript.js": [
+31,
+31
+],
+"paper.js:src/event/Key.js": [
+93
+],
+"paper.js:src/item/Item.js": [
+979,
+4330
+],
+"paper.js:src/node/extend.js": [
+117
+],
+"paper.js:src/path/PathItem.js": [
+116
+],
+"paper.js:src/view/View.js": [
+1368,
+1507
+]
+}

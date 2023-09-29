@@ -1,0 +1,11 @@
+{
+"vuetify:eslint-local-rules.js": [
+1
+],
+"vuetify:packages/vuetify/build/run-tests.js": [
+1
+],
+"vuetify:scripts/rules/jsx-curly-spacing.js": [
+12
+]
+}

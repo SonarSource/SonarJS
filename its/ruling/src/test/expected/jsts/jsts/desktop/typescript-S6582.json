@@ -1,0 +1,134 @@
+{
+"desktop:app/src/cli/commands/help.ts": [
+68
+],
+"desktop:app/src/highlighter/index.ts": [
+546,
+603
+],
+"desktop:app/src/lib/api.ts": [
+76
+],
+"desktop:app/src/lib/diff-parser.ts": [
+271
+],
+"desktop:app/src/lib/git/for-each-ref.ts": [
+27
+],
+"desktop:app/src/lib/http.ts": [
+38,
+42
+],
+"desktop:app/src/lib/menu-item.ts": [
+91
+],
+"desktop:app/src/lib/stats/stats-store.ts": [
+638,
+939,
+956,
+975
+],
+"desktop:app/src/lib/stores/accounts-store.ts": [
+30,
+170
+],
+"desktop:app/src/lib/stores/api-repositories-store.ts": [
+165
+],
+"desktop:app/src/lib/stores/app-store.ts": [
+1755,
+2863
+],
+"desktop:app/src/lib/stores/commit-status-store.ts": [
+343
+],
+"desktop:app/src/lib/stores/git-store.ts": [
+510,
+541,
+1246,
+1260
+],
+"desktop:app/src/lib/stores/helpers/create-tutorial-repository.ts": [
+44
+],
+"desktop:app/src/lib/stores/helpers/tutorial-assessor.ts": [
+112
+],
+"desktop:app/src/lib/stores/issues-store.ts": [
+54
+],
+"desktop:app/src/lib/text-token-parser.ts": [
+221
+],
+"desktop:app/src/lib/trampoline/trampoline-server.ts": [
+108
+],
+"desktop:app/src/main-process/menu/build-context-menu.ts": [
+22
+],
+"desktop:app/src/models/repository.ts": [
+64
+],
+"desktop:app/src/ui/app-menu/app-menu.tsx": [
+127
+],
+"desktop:app/src/ui/app.tsx": [
+578,
+841,
+921,
+3077
+],
+"desktop:app/src/ui/autocompletion/autocompleting-text-input.tsx": [
+172,
+403
+],
+"desktop:app/src/ui/create-tag/create-tag-dialog.tsx": [
+124
+],
+"desktop:app/src/ui/diff/side-by-side-diff-row.tsx": [
+650
+],
+"desktop:app/src/ui/diff/side-by-side-diff.tsx": [
+257
+],
+"desktop:app/src/ui/diff/text-diff.tsx": [
+612,
+1310
+],
+"desktop:app/src/ui/dispatcher/dispatcher.ts": [
+494,
+686,
+3551
+],
+"desktop:app/src/ui/lib/author-input.tsx": [
+482
+],
+"desktop:app/src/ui/lib/draggable.tsx": [
+171
+],
+"desktop:app/src/ui/lib/git-config-user-form.tsx": [
+59
+],
+"desktop:app/src/ui/lib/git-perf.ts": [
+21
+],
+"desktop:app/src/ui/lib/path-text.tsx": [
+293
+],
+"desktop:app/src/ui/lib/popover.tsx": [
+66
+],
+"desktop:app/src/ui/lib/timing.ts": [
+28
+],
+"desktop:app/src/ui/missing-repository.tsx": [
+154
+],
+"desktop:app/src/ui/repository-settings/repository-settings.tsx": [
+150
+],
+"desktop:app/src/ui/toolbar/branch-dropdown.tsx": [
+329,
+330
+]
+}

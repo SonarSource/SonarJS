@@ -1,0 +1,115 @@
+{
+"eigen:src/app/Components/ArtsyWebView.tsx": [
+170
+],
+"eigen:src/app/Components/ArtworkFilter/useArtworkFilters.ts": [
+35
+],
+"eigen:src/app/Components/ArtworkGrids/InfiniteScrollArtworksGrid.tsx": [
+253
+],
+"eigen:src/app/Components/ArtworkGrids/LotCloseInfo.tsx": [
+26
+],
+"eigen:src/app/Components/FancyModal/FancyModalCard.tsx": [
+45
+],
+"eigen:src/app/Components/Home/ArtistRails/ArtistRail.tsx": [
+47
+],
+"eigen:src/app/Components/LocationMap/LocationMap.tsx": [
+77
+],
+"eigen:src/app/Components/ReadMore.tsx": [
+44,
+143
+],
+"eigen:src/app/Scenes/Artwork/Artwork.tsx": [
+233
+],
+"eigen:src/app/Scenes/Artwork/Components/ArtworkActions.tsx": [
+121
+],
+"eigen:src/app/Scenes/Artwork/Components/ContextCard.tsx": [
+112
+],
+"eigen:src/app/Scenes/Artwork/Components/ImageCarousel/FullScreen/DeepZoom/DeepZoomLevel.tsx": [
+169
+],
+"eigen:src/app/Scenes/Artwork/Components/ImageCarousel/FullScreen/ImageZoomView.tsx": [
+119
+],
+"eigen:src/app/Scenes/Fair/Fair.tsx": [
+46
+],
+"eigen:src/app/Scenes/Feature/Feature.tsx": [
+54
+],
+"eigen:src/app/Scenes/Inbox/Components/Conversations/ConversationCTA.tsx": [
+15
+],
+"eigen:src/app/Scenes/Inbox/Components/Conversations/Messages.tsx": [
+45
+],
+"eigen:src/app/Scenes/Inbox/Components/Conversations/OpenInquiryModalButton.tsx": [
+21
+],
+"eigen:src/app/Scenes/Inbox/Components/Conversations/OrderUpdate.tsx": [
+23
+],
+"eigen:src/app/Scenes/Map/GlobalMap.tsx": [
+334
+],
+"eigen:src/app/Scenes/MyAccount/MyAccount.tsx": [
+20
+],
+"eigen:src/app/Scenes/MyAccount/updateMyUserProfile.ts": [
+12
+],
+"eigen:src/app/Scenes/MyCollection/Screens/ArtworkForm/MyCollectionArtworkForm.tsx": [
+283
+],
+"eigen:src/app/Scenes/MyCollection/utils/localArtworkSortAndFilter.ts": [
+20
+],
+"eigen:src/app/navigation/navigate.ts": [
+42
+],
+"eigen:src/app/relay/middlewares/cacheMiddleware.ts": [
+8
+],
+"eigen:src/app/relay/middlewares/checkAuthenticationMiddleware.ts": [
+9
+],
+"eigen:src/app/relay/middlewares/metaphysicsMiddleware.ts": [
+15
+],
+"eigen:src/app/store/AuthModel.ts": [
+310,
+482,
+589,
+657
+],
+"eigen:src/app/tests/createMockNetworkLayer/index.ts": [
+64,
+198
+],
+"eigen:src/app/utils/PushNotification.ts": [
+47
+],
+"eigen:src/app/utils/renderWithPlaceholder.tsx": [
+14
+],
+"eigen:src/app/utils/saleTime.ts": [
+28
+],
+"eigen:src/palette/elements/Button/Button.tsx": [
+241
+],
+"eigen:src/palette/elements/Input/Input.tsx": [
+110
+],
+"eigen:src/palette/elements/Input/PhoneInput/PhoneInput.tsx": [
+35
+]
+}

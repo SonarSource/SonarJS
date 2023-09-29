@@ -1,0 +1,73 @@
+{
+"paper.js:src/basic/Point.js": [
+346
+],
+"paper.js:src/canvas/ProxyContext.js": [
+96
+],
+"paper.js:src/core/Base.js": [
+235,
+264,
+408
+],
+"paper.js:src/event/Key.js": [
+108
+],
+"paper.js:src/item/Item.js": [
+333,
+1320,
+4507
+],
+"paper.js:src/item/Project.js": [
+111
+],
+"paper.js:src/path/CurveLocation.js": [
+181
+],
+"paper.js:src/path/Path.js": [
+460,
+466,
+1097,
+1759,
+1768,
+1773
+],
+"paper.js:src/path/PathFitter.js": [
+32
+],
+"paper.js:src/path/PathItem.Boolean.js": [
+234,
+683,
+735,
+879,
+1045
+],
+"paper.js:src/path/PathItem.js": [
+176,
+198,
+199,
+209,
+210,
+217,
+218,
+225,
+228,
+234
+],
+"paper.js:src/style/Color.js": [
+80,
+730,
+907,
+951
+],
+"paper.js:src/view/View.js": [
+48,
+65,
+109,
+285,
+318,
+1058,
+1235,
+1464
+]
+}

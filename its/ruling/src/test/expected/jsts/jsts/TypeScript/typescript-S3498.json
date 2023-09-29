@@ -1,0 +1,159 @@
+{
+"TypeScript:Gulpfile.ts": [
+675
+],
+"TypeScript:scripts/word2md.ts": [
+144
+],
+"TypeScript:src/compiler/checker.ts": [
+20899
+],
+"TypeScript:src/compiler/moduleNameResolver.ts": [
+156
+],
+"TypeScript:src/compiler/sourcemap.ts": [
+141,
+288,
+289
+],
+"TypeScript:src/compiler/sys.ts": [
+317,
+375
+],
+"TypeScript:src/compiler/transformers/generators.ts": [
+2218,
+2219,
+2260
+],
+"TypeScript:src/compiler/utilities.ts": [
+1926
+],
+"TypeScript:src/harness/fourslash.ts": [
+2544,
+2544,
+2544,
+2544,
+2544,
+2544,
+2618,
+2618,
+2618,
+2618,
+3176,
+3304,
+4096
+],
+"TypeScript:src/harness/projectsRunner.ts": [
+363
+],
+"TypeScript:src/harness/sourceMapRecorder.ts": [
+282,
+285
+],
+"TypeScript:src/harness/test262Runner.ts": [
+51
+],
+"TypeScript:src/harness/typeWriter.ts": [
+71
+],
+"TypeScript:src/server/client.ts": [
+189,
+273,
+307,
+335,
+361,
+414,
+459,
+488,
+500,
+501,
+502,
+503,
+504,
+600,
+689,
+714,
+736
+],
+"TypeScript:src/server/scriptVersionCache.ts": [
+511,
+628,
+795,
+797,
+798,
+817,
+819,
+820
+],
+"TypeScript:src/server/server.ts": [
+569,
+570,
+571,
+572,
+573
+],
+"TypeScript:src/server/session.ts": [
+512,
+524,
+956,
+957,
+1089,
+1419,
+1420
+],
+"TypeScript:src/server/typingsInstaller/typingsInstaller.ts": [
+392
+],
+"TypeScript:src/services/codefixes/fixClassIncorrectlyImplementsInterface.ts": [
+62
+],
+"TypeScript:src/services/completions.ts": [
+71
+],
+"TypeScript:src/services/documentRegistry.ts": [
+182
+],
+"TypeScript:src/services/formatting/formatting.ts": [
+119
+],
+"TypeScript:src/services/formatting/formattingScanner.ts": [
+99,
+268,
+269,
+270
+],
+"TypeScript:src/services/goToDefinition.ts": [
+278
+],
+"TypeScript:src/services/outliningElementsCollector.ts": [
+13,
+25,
+74
+],
+"TypeScript:src/services/preProcess.ts": [
+48
+],
+"TypeScript:src/services/services.ts": [
+831,
+1504,
+1757,
+1758,
+1759,
+1761,
+1762,
+1877,
+1878
+],
+"TypeScript:src/services/signatureHelp.ts": [
+156,
+157,
+297,
+298
+],
+"TypeScript:src/services/textChanges.ts": [
+245
+],
+"TypeScript:src/services/utilities.ts": [
+1243
+]
+}

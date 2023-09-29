@@ -1,0 +1,27 @@
+{
+"courselit:apps/web/components/admin/courses/course-editor/index.tsx": [
+82,
+123
+],
+"courselit:apps/web/components/admin/settings.tsx": [
+100
+],
+"courselit:apps/web/components/public/base-layout/template/index.tsx": [
+44
+],
+"courselit:apps/web/components/public/lesson-viewer.tsx": [
+78
+],
+"courselit:apps/web/graphql/users/logic.ts": [
+33
+],
+"courselit:apps/web/pages/profile/[id].tsx": [
+26
+],
+"courselit:packages/state-management/src/reducer.ts": [
+87
+],
+"courselit:packages/utils/src/fetch-builder.ts": [
+25
+]
+}

@@ -1,0 +1,134 @@
+{
+"TypeScript:scripts/importDefinitelyTypedTests/importDefinitelyTypedTests.ts": [
+41
+],
+"TypeScript:src/compiler/checker.ts": [
+2285
+],
+"TypeScript:src/compiler/core.ts": [
+1457,
+1480,
+1504,
+1564,
+1701,
+1886,
+1890,
+2058,
+2345,
+2378,
+2379
+],
+"TypeScript:src/compiler/moduleNameResolver.ts": [
+403,
+590
+],
+"TypeScript:src/compiler/parser.ts": [
+7375,
+7376
+],
+"TypeScript:src/compiler/scanner.ts": [
+1780
+],
+"TypeScript:src/compiler/transformers/jsx.ts": [
+194,
+211
+],
+"TypeScript:src/compiler/utilities.ts": [
+2454,
+4719
+],
+"TypeScript:src/harness/fourslash.ts": [
+176,
+1386,
+1581,
+1581,
+2192,
+2224,
+2231,
+2599,
+2903,
+2940,
+2943,
+2955,
+2957,
+2959,
+3142,
+3145
+],
+"TypeScript:src/harness/fourslashRunner.ts": [
+59
+],
+"TypeScript:src/harness/harness.ts": [
+993,
+1002,
+1004,
+1283,
+1328,
+1353,
+1635
+],
+"TypeScript:src/harness/harnessLanguageService.ts": [
+447,
+772
+],
+"TypeScript:src/harness/projectsRunner.ts": [
+104,
+105,
+109,
+113,
+323
+],
+"TypeScript:src/harness/runner.ts": [
+36
+],
+"TypeScript:src/harness/rwcRunner.ts": [
+26
+],
+"TypeScript:src/harness/sourceMapRecorder.ts": [
+200
+],
+"TypeScript:src/server/editorServices.ts": [
+1576,
+1577
+],
+"TypeScript:src/server/project.ts": [
+476
+],
+"TypeScript:src/server/session.ts": [
+698
+],
+"TypeScript:src/services/codefixes/importFixes.ts": [
+441,
+442,
+446,
+543
+],
+"TypeScript:src/services/formatting/formatting.ts": [
+952
+],
+"TypeScript:src/services/jsDoc.ts": [
+203
+],
+"TypeScript:src/services/pathCompletions.ts": [
+46,
+231,
+244,
+257,
+317
+],
+"TypeScript:src/services/patternMatcher.ts": [
+582,
+589
+],
+"TypeScript:src/services/services.ts": [
+766,
+951,
+956
+],
+"TypeScript:src/services/shims.ts": [
+667,
+674,
+867,
+1015
+]
+}

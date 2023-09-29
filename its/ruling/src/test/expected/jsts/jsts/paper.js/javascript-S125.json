@@ -1,0 +1,25 @@
+{
+"paper.js:examples/Scripts/BooleanOperations.html": [
+125,
+222,
+230,
+238,
+253,
+272
+],
+"paper.js:src/basic/Line.js": [
+176
+],
+"paper.js:src/basic/Matrix.js": [
+709
+],
+"paper.js:src/path/Curve.js": [
+101
+],
+"paper.js:src/path/PathFitter.js": [
+139
+],
+"paper.js:src/path/Segment.js": [
+429
+]
+}

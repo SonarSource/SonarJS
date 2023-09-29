@@ -1,0 +1,18 @@
+{
+"javascript-test-sources:src/ace/demo/kitchen-sink/dev_util.js": [
+166
+],
+"javascript-test-sources:src/ace/experiments/worker.js": [
+2
+],
+"javascript-test-sources:src/ace/lib/ace/mode/javascript/jshint.js": [
+248,
+2408,
+3316
+],
+"javascript-test-sources:src/ace/lib/ace/mode/yaml/yaml-lint.js": [
+3528,
+3533,
+4037
+]
+}

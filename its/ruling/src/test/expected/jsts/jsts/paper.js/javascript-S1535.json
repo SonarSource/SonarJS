@@ -1,0 +1,32 @@
+{
+"paper.js:src/dom/DomElement.js": [
+121
+],
+"paper.js:src/dom/DomEvent.js": [
+23,
+47
+],
+"paper.js:src/event/Key.js": [
+187
+],
+"paper.js:src/item/Item.js": [
+179,
+3592
+],
+"paper.js:src/item/Project.js": [
+288,
+329,
+846,
+850,
+892
+],
+"paper.js:src/style/Style.js": [
+308
+],
+"paper.js:src/svg/SvgElement.js": [
+46
+],
+"paper.js:src/view/View.js": [
+314
+]
+}

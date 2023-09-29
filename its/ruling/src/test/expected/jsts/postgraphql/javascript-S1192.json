@@ -1,0 +1,26 @@
+{
+"postgraphql:src/postgraphql/__tests__/withPostGraphQLContext-test.js": [
+120,
+136,
+137,
+138
+],
+"postgraphql:src/postgraphql/http/__tests__/createPostGraphQLHttpRequestHandler-test.js": [
+131,
+397
+],
+"postgraphql:src/postgraphql/http/__tests__/setupServerSentEvents-test.js": [
+32
+],
+"postgraphql:src/postgraphql/http/createPostGraphQLHttpRequestHandler.js": [
+152
+],
+"postgraphql:src/postgres/inventory/collection/__tests__/PgCollection-test.js": [
+55
+],
+"postgraphql:src/postgres/inventory/collection/__tests__/PgCollectionKey-test.js": [
+109,
+111,
+153
+]
+}

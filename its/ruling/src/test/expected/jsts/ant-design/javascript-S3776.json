@@ -1,0 +1,23 @@
+{
+"ant-design:components/table/__tests__/Table.filter.test.js": [
+16
+],
+"ant-design:components/typography/__tests__/index.test.js": [
+88
+],
+"ant-design:scripts/print-changelog.js": [
+54
+],
+"ant-design:site/theme/static/template.html": [
+118
+],
+"ant-design:site/theme/template/Color/Palette.jsx": [
+31
+],
+"ant-design:site/theme/template/Content/ComponentDoc.jsx": [
+99
+],
+"ant-design:site/theme/template/Content/Demo/index.jsx": [
+124
+]
+}

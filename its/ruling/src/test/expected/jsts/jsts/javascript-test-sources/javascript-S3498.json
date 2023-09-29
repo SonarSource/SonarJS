@@ -1,0 +1,6927 @@
+{
+"javascript-test-sources:src/ace/Makefile.dryice.js": [
+246,
+389,
+398,
+400
+],
+"javascript-test-sources:src/ace/demo/code_lens.html": [
+37,
+44,
+52,
+72,
+85,
+89,
+102
+],
+"javascript-test-sources:src/ace/demo/keyboard_shortcuts.html": [
+38
+],
+"javascript-test-sources:src/ace/demo/kitchen-sink/demo.js": [
+51,
+60,
+110,
+124,
+129,
+134,
+139,
+151,
+160,
+167,
+174,
+183,
+184,
+185,
+199,
+213,
+323,
+332,
+348,
+458,
+497,
+503,
+509,
+515
+],
+"javascript-test-sources:src/ace/demo/kitchen-sink/dev_util.js": [
+11,
+12,
+80,
+81,
+282,
+298,
+362,
+370,
+373
+],
+"javascript-test-sources:src/ace/demo/kitchen-sink/doclist.js": [
+176,
+180,
+181,
+182
+],
+"javascript-test-sources:src/ace/demo/kitchen-sink/file_drop.js": [
+36
+],
+"javascript-test-sources:src/ace/demo/kitchen-sink/inline_editor.js": [
+12,
+26,
+52
+],
+"javascript-test-sources:src/ace/demo/kitchen-sink/token_tooltip.js": [
+45
+],
+"javascript-test-sources:src/ace/demo/scrollable-page.html": [
+96,
+129
+],
+"javascript-test-sources:src/ace/demo/settings_menu.html": [
+39
+],
+"javascript-test-sources:src/ace/demo/toolbar.html": [
+62,
+68,
+74,
+81
+],
+"javascript-test-sources:src/ace/doc/build.js": [
+10
+],
+"javascript-test-sources:src/ace/doc/site/js/main.js": [
+197
+],
+"javascript-test-sources:src/ace/doc/template/resources/javascripts/jquery-scrollspy.js": [
+11,
+65,
+73,
+73,
+73,
+73,
+83,
+83
+],
+"javascript-test-sources:src/ace/kitchen-sink.html": [
+108
+],
+"javascript-test-sources:src/ace/lib/ace/mode/coffee/parser_test.js": [
+58,
+62,
+68,
+73,
+78
+],
+"javascript-test-sources:src/ace/lib/ace/mode/css/csslint.js": [
+608,
+611,
+615,
+619,
+622,
+625,
+628,
+632,
+635,
+638,
+641,
+644,
+844,
+996,
+1019,
+1020,
+1021,
+1027,
+1060,
+1069,
+1110,
+1111,
+1112,
+1113,
+1119,
+1143,
+1144,
+1159,
+1160,
+1165,
+1200,
+1234,
+1250,
+1276,
+1277,
+1304,
+1305,
+1311,
+1340,
+1397,
+1414,
+1444,
+1460,
+1500,
+1501,
+1510,
+1511,
+1517,
+1535,
+1536,
+1544,
+1545,
+1554,
+1593,
+1610,
+1630,
+1631,
+1638,
+1639,
+1643,
+1662,
+1663,
+1670,
+1671,
+1676,
+1709,
+1710,
+1747,
+1748,
+1754,
+1774,
+1796,
+1817,
+1834,
+1892,
+1946,
+1955,
+1967,
+1997,
+2073,
+2159,
+2195,
+2216,
+2236,
+2261,
+2285,
+2339,
+2382,
+2404,
+2428,
+2461,
+2512,
+2563,
+2568,
+2577,
+2591,
+2638,
+2749,
+2807,
+2857,
+2891,
+2918,
+2919,
+2936,
+2937,
+2948,
+2962,
+2990,
+3014,
+3054,
+3072,
+3157,
+3177,
+3187,
+3196,
+3204,
+3209,
+3214,
+3231,
+3255,
+3280,
+3306,
+4489,
+4509,
+4518,
+4681,
+4898,
+4951,
+4956,
+4961,
+4962,
+4981,
+5025,
+5048,
+5064,
+5082,
+5098,
+5123,
+5148,
+5194,
+5255,
+5281,
+5327,
+5382,
+5434,
+5444,
+5470,
+5483,
+5511,
+5517,
+5559,
+5587,
+5610,
+5653,
+5903,
+5934,
+6014,
+6035,
+6039,
+6043,
+6054,
+6071,
+6088,
+6121,
+6126,
+6152,
+6157,
+6170,
+6215,
+6219,
+6228,
+6232,
+6238,
+6242,
+6250,
+6258,
+6262,
+6267,
+6272,
+6276,
+6282,
+6295,
+6301,
+6305,
+6309,
+6546,
+6561,
+6590,
+6668,
+6677,
+6686,
+6700,
+6720,
+6751,
+6759,
+6779,
+6792,
+6825,
+6851,
+6878,
+7004,
+7013,
+7142,
+7173,
+7204,
+7218,
+7304,
+7350,
+7365,
+7374,
+7385,
+7400,
+7408,
+8070,
+8074,
+8075,
+8076,
+8091,
+8104,
+8118,
+8119,
+8120,
+8122,
+8134,
+8138,
+8139,
+8140,
+8142,
+8152,
+8157,
+8158,
+8168,
+8173,
+8174,
+8184,
+8195,
+8222,
+8241,
+8261,
+8286,
+8396,
+8464,
+8662,
+8784,
+8824,
+8873,
+8910,
+8937,
+8977,
+9012,
+9051,
+9118,
+9172,
+9214,
+9242,
+9283,
+9312,
+9370,
+9446,
+9474,
+9475,
+9515,
+9561,
+9590,
+9620,
+9650,
+9697,
+9786,
+9816,
+9872,
+9901,
+9938,
+9997,
+10147,
+10213,
+10221,
+10231,
+10242,
+10288,
+10297,
+10309,
+10350,
+10359,
+10371,
+10423,
+10433,
+10452,
+10456,
+10474,
+10483,
+10495,
+10582,
+10591,
+10603,
+10658,
+10667,
+10679
+],
+"javascript-test-sources:src/ace/lib/ace/mode/css_worker_test.js": [
+43,
+45,
+46,
+50,
+56
+],
+"javascript-test-sources:src/ace/lib/ace/mode/html/saxparser.js": [
+285,
+291,
+503,
+510,
+520,
+535,
+547,
+560,
+563,
+570,
+575,
+578,
+582,
+585,
+588,
+595,
+595,
+881,
+1191,
+1213,
+1276,
+1282,
+1309,
+1332,
+1358,
+1380,
+1386,
+1446,
+1761,
+1800,
+2056,
+2338,
+2344,
+2441,
+2476,
+2489,
+2494,
+2497,
+2506,
+2515,
+2656,
+2662,
+2736,
+2742,
+2779,
+2798,
+2836,
+2844,
+2892,
+2924,
+3003,
+3065,
+3073,
+3087,
+3334,
+3347,
+3389,
+3445,
+3449,
+3581,
+3586,
+3615,
+3621,
+3660,
+3677,
+3695,
+3699,
+3709,
+3721,
+3725,
+3732,
+3737,
+3784,
+3798,
+3823,
+3872,
+3884,
+3892,
+3897,
+3906,
+3966,
+3988,
+4012,
+4087,
+4092,
+4099,
+4111,
+4153,
+4175,
+4294,
+4311,
+4316,
+4320,
+4423,
+4436,
+4450,
+4461,
+4466,
+4531,
+4563,
+4580,
+4588,
+4592,
+4626,
+4636,
+4704,
+4726,
+4731,
+4777,
+4781,
+4856,
+4860,
+4865,
+4869,
+5859,
+5862,
+5869,
+5872,
+6085,
+6225,
+6228,
+6799,
+6808,
+9200,
+9201,
+9202,
+9203,
+9204
+],
+"javascript-test-sources:src/ace/lib/ace/mode/html_worker.js": [
+79
+],
+"javascript-test-sources:src/ace/lib/ace/mode/javascript/jshint.js": [
+2637,
+2638,
+3947,
+4269,
+4270,
+4271,
+4272,
+4273,
+4274,
+4275,
+4276,
+4277,
+4278,
+4279,
+4280,
+4281,
+4282,
+4284,
+4290,
+4291,
+4292,
+4293,
+4294,
+4295,
+4296,
+4297,
+4298,
+4299,
+4300,
+4301,
+4302,
+4304,
+4305,
+4307,
+4308,
+4309,
+4310,
+4311,
+4312,
+4313,
+4314,
+4315,
+4316,
+4318,
+4319,
+4320,
+4322,
+4323,
+4324,
+4327,
+4328,
+4329,
+4330,
+4331,
+4332,
+4333,
+4334,
+4335,
+4336,
+4337,
+4338,
+4339,
+4340,
+4341,
+4342,
+4343,
+4344,
+4345,
+4346,
+4347,
+4348,
+4349,
+4350,
+4351,
+4352,
+4353,
+4355,
+4356,
+4358,
+4360,
+4363,
+4365,
+4367,
+4368,
+4370,
+4372,
+4375,
+4376,
+4377,
+4378,
+4379,
+4380,
+4381,
+4382,
+4383,
+4384,
+4385,
+4386,
+4387,
+4388,
+4389,
+4390,
+4391,
+4394,
+4395,
+4396,
+4399,
+4400,
+4401,
+4402,
+4404,
+4405,
+4406,
+4407,
+4409,
+4410,
+4411,
+4412,
+4413,
+4802,
+4803,
+4804,
+4850,
+4851,
+4852,
+4853,
+4890,
+4891,
+6710,
+6731,
+7472,
+8116,
+8388,
+8395,
+8402,
+8410,
+8761,
+8916,
+9064,
+10672,
+10676,
+10686,
+10690,
+10969,
+10973,
+10977,
+10981,
+10985,
+11258,
+11262,
+11339,
+11343,
+11347,
+11351,
+11355,
+11360,
+11369,
+11376,
+11391,
+11401,
+11412,
+11427,
+11606,
+11712,
+11713,
+11714,
+11715,
+11785,
+11812,
+11947,
+11962,
+12123,
+12137,
+12138,
+12139,
+12208,
+12209,
+12210,
+12217,
+12325,
+12325,
+12325,
+12334,
+12383,
+12384,
+12385,
+12387,
+12398,
+12399,
+12400,
+12402,
+12423,
+12424,
+12425,
+12427,
+12443,
+12509,
+12510,
+12511,
+12513,
+12561,
+12562,
+12563,
+12565,
+12579,
+13107,
+13117,
+13126,
+13169,
+13243,
+13768,
+13768,
+13772,
+13772,
+13776,
+13776,
+13807,
+15178,
+15179,
+15186,
+15187,
+15229,
+15236,
+15237,
+15371,
+15377,
+15390,
+15405,
+15606,
+15654,
+15693,
+15712,
+15737,
+15749,
+15761,
+15774,
+15805,
+15826,
+15847,
+15957,
+15983,
+16007,
+16023,
+16040,
+16051,
+16094,
+16103,
+16127,
+16136,
+16169,
+16188,
+16204,
+16215,
+16221,
+16230,
+16239,
+16248,
+16257,
+16266,
+16278,
+16291,
+16305,
+16335,
+17988,
+17989,
+17990,
+17991,
+17992
+],
+"javascript-test-sources:src/ace/lib/ace/mode/javascript_worker.js": [
+156,
+157
+],
+"javascript-test-sources:src/ace/lib/ace/mode/javascript_worker_test.js": [
+43,
+45,
+46,
+50,
+56,
+68,
+80,
+92
+],
+"javascript-test-sources:src/ace/lib/ace/mode/json/json_parse.js": [
+85,
+86
+],
+"javascript-test-sources:src/ace/lib/ace/mode/json_worker_test.js": [
+43,
+45,
+46,
+50,
+56,
+64,
+83
+],
+"javascript-test-sources:src/ace/lib/ace/mode/jsoniq.js": [
+26,
+29,
+29,
+58,
+58
+],
+"javascript-test-sources:src/ace/lib/ace/mode/php/php.js": [
+204,
+211,
+218,
+229,
+236,
+247,
+254,
+637,
+684,
+692,
+737,
+840,
+847,
+862,
+869,
+884,
+897,
+910,
+939,
+952,
+960,
+968,
+974,
+985,
+996,
+1002
+],
+"javascript-test-sources:src/ace/lib/ace/mode/xml/dom-parser.js": [
+91,
+97,
+117,
+122,
+124,
+126,
+131,
+133,
+147,
+149,
+152,
+158,
+165,
+169,
+173,
+185,
+188,
+191,
+257
+],
+"javascript-test-sources:src/ace/lib/ace/mode/xml/dom.js": [
+112,
+190,
+202,
+212,
+223,
+232,
+237,
+261,
+270,
+285,
+323,
+326,
+332,
+335,
+338,
+341,
+345,
+359,
+363,
+366,
+383,
+398,
+568,
+584,
+591,
+595,
+609,
+619,
+625,
+631,
+637,
+643,
+650,
+659,
+666,
+686,
+712,
+715,
+719,
+722,
+727,
+733,
+740,
+743,
+746,
+750,
+755,
+758,
+762,
+767,
+771,
+782,
+809,
+812,
+817,
+820,
+826,
+829,
+843,
+1099,
+1105,
+1108
+],
+"javascript-test-sources:src/ace/lib/ace/mode/xml/sax.js": [
+28,
+533,
+539,
+543,
+543,
+543,
+546,
+547,
+548,
+549,
+550
+],
+"javascript-test-sources:src/ace/lib/ace/mode/xml_worker.js": [
+60,
+68,
+76
+],
+"javascript-test-sources:src/ace/lib/ace/mode/xquery.js": [
+54,
+57,
+57,
+86,
+86
+],
+"javascript-test-sources:src/ace/lib/ace/mode/xquery/jsoniq_lexer.js": [
+4239,
+4251,
+4252,
+4253,
+4254,
+4255,
+4256,
+4257,
+4259,
+4260,
+4263,
+4268,
+4271,
+4272,
+4273,
+4276,
+4279,
+4282,
+4285,
+4286,
+4287,
+4291,
+4292,
+4293,
+4298,
+4299,
+4302,
+4309,
+4312,
+4319,
+4324,
+4328,
+4329,
+4334,
+4335,
+4339,
+4343,
+4348,
+4351,
+4358,
+4383,
+4452,
+4462
+],
+"javascript-test-sources:src/ace/lib/ace/mode/xquery/xquery_lexer.js": [
+4215,
+4284,
+4294,
+4308,
+4320,
+4321,
+4322,
+4323,
+4324,
+4325,
+4326,
+4328,
+4329,
+4332,
+4337,
+4340,
+4341,
+4342,
+4345,
+4348,
+4351,
+4354,
+4355,
+4356,
+4360,
+4361,
+4362,
+4367,
+4368,
+4371,
+4378,
+4381,
+4388,
+4393,
+4397,
+4398,
+4403,
+4404,
+4408,
+4412,
+4417,
+4420,
+4427
+],
+"javascript-test-sources:src/ace/lib/ace/mode/xquery_worker.js": [
+58,
+59
+],
+"javascript-test-sources:src/ace/lib/ace/mode/yaml/yaml-lint.js": [
+26,
+3158,
+3159,
+3160,
+3443,
+3444,
+3445,
+3447,
+3651,
+3696,
+3697,
+3698,
+3699,
+3812,
+3853,
+4760
+],
+"javascript-test-sources:src/ace/lib/ace/mode/yaml_worker_test.js": [
+43,
+45,
+46,
+50,
+56,
+68
+],
+"javascript-test-sources:src/ace/lib/ace/worker/worker.js": [
+23,
+25,
+26,
+27,
+135,
+177,
+184,
+185
+],
+"javascript-test-sources:src/ace/lib/ace/worker/worker_client.js": [
+55,
+55,
+108,
+110,
+156,
+174,
+221,
+222,
+223,
+247,
+250,
+250
+],
+"javascript-test-sources:src/ace/lib/ace/worker/worker_client_v2.js": [
+169,
+191,
+261,
+264,
+264
+],
+"javascript-test-sources:src/ace/lib/ace/worker/worker_test.js": [
+44,
+54,
+71,
+86,
+103
+],
+"javascript-test-sources:src/ace/lib/ace/worker/worker_v2.js": [
+28,
+30,
+31,
+32,
+46,
+53,
+54
+],
+"javascript-test-sources:src/ace/src/ace.js": [
+65
+],
+"javascript-test-sources:src/ace/src/ace_test.js": [
+13,
+26,
+37,
+54,
+90,
+105
+],
+"javascript-test-sources:src/ace/src/anchor.js": [
+135,
+136,
+153
+],
+"javascript-test-sources:src/ace/src/anchor_test.js": [
+14,
+22,
+30,
+39,
+47,
+55,
+64,
+73,
+81,
+89,
+97,
+105,
+113,
+121,
+129,
+137,
+145,
+153,
+165,
+176
+],
+"javascript-test-sources:src/ace/src/autocomplete.js": [
+173,
+174,
+175,
+176,
+178,
+179,
+180,
+181,
+189,
+190,
+211,
+464
+],
+"javascript-test-sources:src/ace/src/autocomplete/popup.js": [
+163
+],
+"javascript-test-sources:src/ace/src/autocomplete_test.js": [
+13
+],
+"javascript-test-sources:src/ace/src/background_tokenizer.js": [
+116
+],
+"javascript-test-sources:src/ace/src/background_tokenizer_test.js": [
+26,
+49,
+92
+],
+"javascript-test-sources:src/ace/src/bidihandler.js": [
+222
+],
+"javascript-test-sources:src/ace/src/clipboard.js": [
+6,
+11
+],
+"javascript-test-sources:src/ace/src/commands/command_manager.js": [
+56,
+56,
+56
+],
+"javascript-test-sources:src/ace/src/commands/command_manager_test.js": [
+13,
+22,
+23,
+29,
+34,
+42,
+52,
+62,
+72,
+82,
+90,
+101,
+104,
+107,
+110,
+113,
+137,
+157
+],
+"javascript-test-sources:src/ace/src/commands/default_commands.js": [
+8,
+8,
+19,
+30,
+41,
+52,
+58,
+64,
+74,
+81,
+89,
+97,
+105,
+112,
+119,
+129,
+136,
+144,
+152,
+163,
+174,
+182,
+188,
+197,
+206,
+214,
+222,
+231,
+240,
+248,
+256,
+264,
+272,
+280,
+288,
+296,
+304,
+312,
+320,
+328,
+336,
+344,
+352,
+358,
+364,
+370,
+376,
+382,
+388,
+394,
+400,
+408,
+416,
+422,
+428,
+436,
+444,
+452,
+458,
+468,
+482,
+490,
+497,
+504,
+511,
+518,
+525,
+532,
+539,
+546,
+551,
+556,
+562,
+568,
+574,
+580,
+590,
+597,
+610,
+617,
+624,
+635,
+646,
+653,
+660,
+667,
+674,
+681,
+687,
+693,
+702,
+709,
+710,
+716,
+723,
+730,
+737,
+750,
+755,
+796,
+837,
+847,
+860,
+868,
+879
+],
+"javascript-test-sources:src/ace/src/commands/incremental_search_commands.js": [
+10,
+20,
+25,
+30,
+38,
+44,
+51,
+58,
+64,
+68,
+74,
+78,
+82,
+90,
+99,
+108,
+112,
+124
+],
+"javascript-test-sources:src/ace/src/commands/multi_select_commands.js": [
+5,
+12,
+19,
+26,
+33,
+40,
+47,
+54,
+61,
+72,
+77,
+83,
+94,
+97
+],
+"javascript-test-sources:src/ace/src/commands/occur_commands.js": [
+7,
+19,
+29
+],
+"javascript-test-sources:src/ace/src/config.js": [
+113
+],
+"javascript-test-sources:src/ace/src/config_test.js": [
+13,
+43,
+47,
+53,
+59
+],
+"javascript-test-sources:src/ace/src/document.js": [
+259,
+260,
+282,
+282,
+290,
+290,
+355,
+355,
+380,
+381,
+383,
+399,
+400,
+402,
+402,
+420,
+421,
+423,
+423
+],
+"javascript-test-sources:src/ace/src/document_test.js": [
+13,
+30,
+47,
+64,
+74,
+99,
+116,
+133,
+150,
+167,
+184,
+201,
+218,
+228,
+235,
+240,
+252,
+258,
+265,
+280,
+294,
+299,
+309,
+336
+],
+"javascript-test-sources:src/ace/src/edit_session.js": [
+380,
+381,
+382,
+383,
+384,
+385,
+386,
+387,
+388,
+582,
+585,
+587,
+908,
+908,
+1298,
+1424,
+1425,
+1503,
+1503,
+2431,
+2452,
+2466,
+2481,
+2490,
+2494,
+2505,
+2519,
+2523,
+2527,
+2528,
+2532,
+2533
+],
+"javascript-test-sources:src/ace/src/edit_session/bracket_match.js": [
+355,
+356,
+446,
+447
+],
+"javascript-test-sources:src/ace/src/edit_session/fold_line.js": [
+119,
+124
+],
+"javascript-test-sources:src/ace/src/edit_session/folding.js": [
+753
+],
+"javascript-test-sources:src/ace/src/edit_session_test.js": [
+45,
+55,
+66,
+88,
+109,
+127,
+139,
+155,
+171,
+178,
+185,
+192,
+204,
+226,
+236,
+249,
+259,
+270,
+277,
+302,
+315,
+327,
+347,
+410,
+428,
+437,
+449,
+463,
+469,
+477,
+501,
+516,
+545,
+558,
+587,
+628,
+667,
+694,
+701,
+701,
+795,
+800,
+800,
+864,
+957,
+977,
+1020,
+1055,
+1098,
+1108,
+1132
+],
+"javascript-test-sources:src/ace/src/editor.js": [
+363,
+364,
+546,
+728,
+813,
+847,
+847,
+1006,
+2563,
+2744,
+2751,
+2755,
+2759,
+2766,
+2772,
+2784,
+2787,
+2788,
+2792,
+2793,
+2798,
+2799,
+2805,
+2816,
+2824,
+2896,
+2899,
+2906,
+2909,
+2914
+],
+"javascript-test-sources:src/ace/src/editor_change_document_test.js": [
+19,
+28,
+36,
+52,
+63,
+82,
+93,
+112,
+127
+],
+"javascript-test-sources:src/ace/src/editor_commands_test.js": [
+24,
+43,
+66,
+83,
+120,
+129,
+282,
+315,
+344,
+357,
+369,
+380,
+392,
+452,
+494,
+507,
+518,
+535
+],
+"javascript-test-sources:src/ace/src/editor_highlight_selected_word_test.js": [
+36,
+38,
+39,
+45,
+53,
+57,
+70,
+83,
+92,
+97,
+108,
+131,
+141,
+151,
+161
+],
+"javascript-test-sources:src/ace/src/editor_navigation_test.js": [
+14,
+20,
+31,
+41,
+81,
+97,
+110,
+126,
+149
+],
+"javascript-test-sources:src/ace/src/editor_text_edit_test.js": [
+17,
+43,
+55,
+65,
+80,
+104,
+115,
+124,
+149,
+160,
+176,
+192,
+207,
+229,
+256,
+276,
+294,
+309,
+324,
+339,
+349,
+389,
+398,
+407,
+418,
+428,
+438,
+448,
+459,
+468,
+477,
+487,
+497,
+507,
+517
+],
+"javascript-test-sources:src/ace/src/ext/beautify.js": [
+396
+],
+"javascript-test-sources:src/ace/src/ext/beautify_test.js": [
+17,
+28,
+43,
+57,
+67,
+81,
+99,
+115,
+131,
+155,
+171,
+187,
+203,
+221,
+247,
+261,
+277,
+291,
+310,
+322,
+346,
+372,
+387,
+404
+],
+"javascript-test-sources:src/ace/src/ext/code_lens.js": [
+70,
+107,
+108,
+202
+],
+"javascript-test-sources:src/ace/src/ext/code_lens_test.js": [
+21,
+36,
+41,
+48,
+54,
+112,
+116,
+137,
+141,
+149,
+171,
+174,
+182,
+195,
+198
+],
+"javascript-test-sources:src/ace/src/ext/elastic_tabstops_lite.js": [
+80,
+80,
+207,
+271
+],
+"javascript-test-sources:src/ace/src/ext/emmet.js": [
+15,
+35,
+57,
+73,
+77,
+88,
+97,
+106,
+131,
+153,
+161,
+185,
+210,
+219,
+228,
+237,
+245,
+267,
+422
+],
+"javascript-test-sources:src/ace/src/ext/emmet_test.js": [
+14,
+29,
+34
+],
+"javascript-test-sources:src/ace/src/ext/error_marker.js": [
+30
+],
+"javascript-test-sources:src/ace/src/ext/error_marker_test.js": [
+15,
+30,
+37,
+52
+],
+"javascript-test-sources:src/ace/src/ext/hardwrap.js": [
+64,
+65,
+77,
+104
+],
+"javascript-test-sources:src/ace/src/ext/hardwrap_test.js": [
+14,
+20,
+27,
+53,
+63,
+72
+],
+"javascript-test-sources:src/ace/src/ext/keybinding_menu.js": [
+47
+],
+"javascript-test-sources:src/ace/src/ext/language_tools.js": [
+11,
+31,
+51,
+60,
+87,
+153,
+171,
+184
+],
+"javascript-test-sources:src/ace/src/ext/linking.js": [
+5,
+33,
+51
+],
+"javascript-test-sources:src/ace/src/ext/menu_tools/get_editor_keyboard_shortcuts.js": [
+49,
+49
+],
+"javascript-test-sources:src/ace/src/ext/menu_tools/overlay_page.js": [
+85,
+86
+],
+"javascript-test-sources:src/ace/src/ext/modelist.js": [
+254,
+255,
+256
+],
+"javascript-test-sources:src/ace/src/ext/options.js": [
+273,
+286,
+296,
+315,
+315,
+322,
+360
+],
+"javascript-test-sources:src/ace/src/ext/prompt.js": [
+131,
+139,
+140,
+141,
+142,
+143,
+146,
+147,
+192,
+219,
+254,
+254,
+277,
+284,
+337,
+337,
+337,
+356,
+364,
+379,
+382,
+387,
+442,
+448,
+453
+],
+"javascript-test-sources:src/ace/src/ext/rtl.js": [
+6,
+13,
+22,
+41
+],
+"javascript-test-sources:src/ace/src/ext/searchbox.js": [
+125,
+133,
+140,
+147,
+150,
+153,
+156,
+161,
+166,
+171,
+179,
+186,
+193,
+199,
+205,
+241,
+242,
+247
+],
+"javascript-test-sources:src/ace/src/ext/spellcheck.js": [
+54
+],
+"javascript-test-sources:src/ace/src/ext/static_highlight.js": [
+49,
+52,
+55,
+219
+],
+"javascript-test-sources:src/ace/src/ext/static_highlight_test.js": [
+19,
+27,
+57,
+76,
+94,
+105,
+120
+],
+"javascript-test-sources:src/ace/src/ext/themelist.js": [
+65
+],
+"javascript-test-sources:src/ace/src/ext/whitespace.js": [
+62,
+189,
+196,
+202,
+209
+],
+"javascript-test-sources:src/ace/src/ext/whitespace_test.js": [
+18,
+51,
+68,
+81,
+117,
+198,
+200
+],
+"javascript-test-sources:src/ace/src/incremental_search.js": [
+272
+],
+"javascript-test-sources:src/ace/src/incremental_search_test.js": [
+29,
+42,
+49,
+56,
+70,
+93,
+106,
+116,
+124,
+132,
+143,
+154,
+160,
+167
+],
+"javascript-test-sources:src/ace/src/keyboard/emacs.js": [
+291,
+293,
+306,
+306,
+394,
+408,
+412,
+481,
+497,
+526,
+530,
+539,
+548,
+573,
+578,
+592,
+597,
+603,
+607,
+612
+],
+"javascript-test-sources:src/ace/src/keyboard/emacs_test.js": [
+35,
+42,
+49,
+56,
+65,
+75,
+89,
+105,
+115
+],
+"javascript-test-sources:src/ace/src/keyboard/hash_handler.js": [
+170,
+184,
+184,
+214
+],
+"javascript-test-sources:src/ace/src/keyboard/keybinding.js": [
+8
+],
+"javascript-test-sources:src/ace/src/keyboard/keybinding_test.js": [
+22
+],
+"javascript-test-sources:src/ace/src/keyboard/sublime.js": [
+59,
+67,
+75,
+83,
+90,
+97,
+108,
+119,
+127,
+135,
+143,
+151,
+159,
+167,
+175
+],
+"javascript-test-sources:src/ace/src/keyboard/sublime_test.js": [
+26
+],
+"javascript-test-sources:src/ace/src/keyboard/textarea.js": [
+20
+],
+"javascript-test-sources:src/ace/src/keyboard/textinput.js": [
+318,
+319,
+320,
+321
+],
+"javascript-test-sources:src/ace/src/keyboard/textinput_test.js": [
+36,
+37,
+69,
+88,
+96,
+114,
+132,
+156,
+245,
+366,
+430,
+461,
+590,
+610,
+631,
+657
+],
+"javascript-test-sources:src/ace/src/keyboard/vim.js": [
+96,
+97,
+98,
+99,
+100,
+320,
+320,
+413,
+442,
+443,
+444,
+447,
+457,
+458,
+459,
+680,
+699,
+700,
+701,
+702,
+706,
+712,
+717,
+722,
+723,
+727,
+728,
+731,
+734,
+749,
+750,
+1337,
+1338,
+1339,
+1378,
+1487,
+1488,
+1489,
+1521,
+1529,
+1611,
+1612,
+1613,
+1618,
+1625,
+1634,
+1635,
+1639,
+1645,
+1681,
+1716,
+1717,
+1718,
+1719,
+1726,
+1728,
+1734,
+1746,
+1887,
+1891,
+1892,
+1893,
+1894,
+1895,
+1897,
+1899,
+1900,
+1956,
+1961,
+1971,
+1974,
+1977,
+1983,
+2022,
+2074,
+2084,
+2087,
+2101,
+2122,
+2127,
+2133,
+2155,
+2181,
+2186,
+2215,
+2229,
+2257,
+2387,
+2436,
+2634,
+2651,
+2655,
+2660,
+2664,
+2670,
+2694,
+2763,
+2770,
+2781,
+2819,
+2825,
+2873,
+2901,
+2909,
+2913,
+2917,
+2934,
+2938,
+2948,
+2954,
+2959,
+2966,
+2969,
+2976,
+3000,
+3003,
+3011,
+3015,
+3021,
+3082,
+3082,
+3095,
+3129,
+3181,
+3215,
+3245,
+3252,
+3283,
+3301,
+3315,
+3352,
+3369,
+3382,
+3389,
+3400,
+3476,
+3510,
+3523,
+3524,
+3538,
+3580,
+3598,
+3610,
+3758,
+3764,
+3767,
+3770,
+3774,
+3825,
+3860,
+3871,
+3874,
+4120,
+4120,
+4207,
+4207,
+4224,
+4224,
+4244,
+4245,
+4428,
+4439,
+4443,
+4448,
+4458,
+4462,
+4468,
+4471,
+4499,
+4503,
+4505,
+4793,
+4793,
+4833,
+4834,
+4835,
+4836,
+4881,
+4882,
+4883,
+4884,
+4985,
+4986,
+4987,
+4988,
+5046,
+5047,
+5048,
+5049,
+5161,
+5161,
+5229,
+5232,
+5235,
+5238,
+5241,
+5244,
+5247,
+5250,
+5539,
+5567,
+5725,
+5732,
+5795,
+5818,
+5845,
+5857,
+5869,
+5885,
+5893,
+5936,
+5960,
+5967,
+5977,
+5978,
+5979,
+5980,
+5988,
+5996,
+6047,
+6052,
+6057,
+6082,
+6172,
+6176,
+6240,
+6327,
+6336,
+6339,
+6346,
+6569,
+6569,
+6736,
+6737,
+6969,
+6990,
+6997,
+7072,
+7105,
+7116,
+7136
+],
+"javascript-test-sources:src/ace/src/keyboard/vim_ace_test.js": [
+33,
+34,
+96,
+114,
+121,
+164,
+207,
+259,
+294,
+321,
+349
+],
+"javascript-test-sources:src/ace/src/keyboard/vim_test.js": [
+286,
+287,
+325,
+328,
+4830,
+4835,
+4848,
+5484,
+5485,
+5486,
+5492
+],
+"javascript-test-sources:src/ace/src/keyboard/vscode.js": [
+11,
+18,
+26,
+39,
+52,
+65,
+76,
+87,
+97,
+107
+],
+"javascript-test-sources:src/ace/src/layer/gutter.js": [
+364,
+365
+],
+"javascript-test-sources:src/ace/src/layer/lines.js": [
+111,
+113
+],
+"javascript-test-sources:src/ace/src/layer/text.js": [
+710
+],
+"javascript-test-sources:src/ace/src/layer/text_test.js": [
+16,
+28,
+42,
+58
+],
+"javascript-test-sources:src/ace/src/lib/app_config.js": [
+7,
+12,
+28,
+43
+],
+"javascript-test-sources:src/ace/src/lib/bidiutil.js": [
+344,
+344
+],
+"javascript-test-sources:src/ace/src/lib/event_emitter_test.js": [
+16
+],
+"javascript-test-sources:src/ace/src/mode/ada_test.js": [
+12,
+16,
+21
+],
+"javascript-test-sources:src/ace/src/mode/behaviour/behaviour_test.js": [
+32,
+139,
+206,
+266,
+290,
+362
+],
+"javascript-test-sources:src/ace/src/mode/c9search_highlight_rules.js": [
+22,
+64
+],
+"javascript-test-sources:src/ace/src/mode/coffee_highlight_rules.js": [
+105
+],
+"javascript-test-sources:src/ace/src/mode/coldfusion_highlight_rules.js": [
+36
+],
+"javascript-test-sources:src/ace/src/mode/coldfusion_test.js": [
+13,
+17,
+25
+],
+"javascript-test-sources:src/ace/src/mode/crystal_highlight_rules.js": [
+64,
+360,
+377,
+394
+],
+"javascript-test-sources:src/ace/src/mode/csound_orchestra_highlight_rules.js": [
+1853,
+1864
+],
+"javascript-test-sources:src/ace/src/mode/csound_preprocessor_highlight_rules.js": [
+139,
+251,
+282
+],
+"javascript-test-sources:src/ace/src/mode/css_test.js": [
+15,
+19,
+27,
+32,
+37
+],
+"javascript-test-sources:src/ace/src/mode/d_highlight_rules.js": [
+91,
+98,
+203,
+224
+],
+"javascript-test-sources:src/ace/src/mode/dot_highlight_rules.js": [
+58
+],
+"javascript-test-sources:src/ace/src/mode/eiffel_highlight_rules.js": [
+69
+],
+"javascript-test-sources:src/ace/src/mode/elm_highlight_rules.js": [
+46,
+53,
+62
+],
+"javascript-test-sources:src/ace/src/mode/folding/coffee_test.js": [
+48
+],
+"javascript-test-sources:src/ace/src/mode/folding/cstyle_test.js": [
+12,
+31,
+50
+],
+"javascript-test-sources:src/ace/src/mode/folding/diff.js": [
+17
+],
+"javascript-test-sources:src/ace/src/mode/folding/drools.js": [
+24
+],
+"javascript-test-sources:src/ace/src/mode/folding/fold_mode.js": [
+62,
+79,
+79
+],
+"javascript-test-sources:src/ace/src/mode/folding/fold_mode_test.js": [
+12
+],
+"javascript-test-sources:src/ace/src/mode/folding/html_test.js": [
+12,
+38,
+64,
+83,
+102,
+127
+],
+"javascript-test-sources:src/ace/src/mode/folding/pythonic_test.js": [
+12,
+38,
+63
+],
+"javascript-test-sources:src/ace/src/mode/folding/ruby_test.js": [
+11,
+15,
+59,
+71,
+94,
+122,
+171,
+211
+],
+"javascript-test-sources:src/ace/src/mode/folding/sqlserver.js": [
+55
+],
+"javascript-test-sources:src/ace/src/mode/folding/vbscript_test.js": [
+11,
+15
+],
+"javascript-test-sources:src/ace/src/mode/folding/xml.js": [
+109
+],
+"javascript-test-sources:src/ace/src/mode/folding/xml_test.js": [
+12,
+31,
+50
+],
+"javascript-test-sources:src/ace/src/mode/ftl_highlight_rules.js": [
+65
+],
+"javascript-test-sources:src/ace/src/mode/golang_highlight_rules.js": [
+61
+],
+"javascript-test-sources:src/ace/src/mode/html_highlight_rules.js": [
+56
+],
+"javascript-test-sources:src/ace/src/mode/html_test.js": [
+13,
+17,
+25
+],
+"javascript-test-sources:src/ace/src/mode/jade_highlight_rules.js": [
+48,
+119
+],
+"javascript-test-sources:src/ace/src/mode/javascript_highlight_rules.js": [
+384,
+460,
+504,
+515
+],
+"javascript-test-sources:src/ace/src/mode/javascript_test.js": [
+13,
+17,
+26,
+34,
+42,
+50,
+70,
+78,
+85,
+92,
+108,
+117,
+121,
+125,
+129,
+134,
+139,
+145,
+153,
+157,
+165,
+171
+],
+"javascript-test-sources:src/ace/src/mode/jsx_highlight_rules.js": [
+66
+],
+"javascript-test-sources:src/ace/src/mode/less_highlight_rules.js": [
+68,
+79
+],
+"javascript-test-sources:src/ace/src/mode/logiql.js": [
+63,
+63
+],
+"javascript-test-sources:src/ace/src/mode/logiql_test.js": [
+12,
+16,
+23,
+27,
+31,
+37,
+42,
+50,
+56
+],
+"javascript-test-sources:src/ace/src/mode/lua_highlight_rules.js": [
+67,
+74,
+98,
+105
+],
+"javascript-test-sources:src/ace/src/mode/markdown_highlight_rules.js": [
+21,
+35,
+71
+],
+"javascript-test-sources:src/ace/src/mode/mask_highlight_rules.js": [
+137,
+156,
+162,
+169,
+172,
+195,
+223,
+238,
+241,
+244,
+247,
+270,
+272,
+273,
+274
+],
+"javascript-test-sources:src/ace/src/mode/matching_brace_outdent.js": [
+23,
+23
+],
+"javascript-test-sources:src/ace/src/mode/matching_parens_outdent.js": [
+23,
+23
+],
+"javascript-test-sources:src/ace/src/mode/mixal_highlight_rules.js": [
+39,
+51,
+63,
+73
+],
+"javascript-test-sources:src/ace/src/mode/nix_highlight_rules.js": [
+61
+],
+"javascript-test-sources:src/ace/src/mode/php_highlight_rules.js": [
+942,
+962,
+990
+],
+"javascript-test-sources:src/ace/src/mode/php_test.js": [
+13
+],
+"javascript-test-sources:src/ace/src/mode/plain_text_test.js": [
+12,
+16
+],
+"javascript-test-sources:src/ace/src/mode/python_test.js": [
+13,
+17,
+26,
+36
+],
+"javascript-test-sources:src/ace/src/mode/r_highlight_rules.js": [
+113
+],
+"javascript-test-sources:src/ace/src/mode/razor_highlight_rules.js": [
+23,
+46,
+68,
+84,
+100,
+117
+],
+"javascript-test-sources:src/ace/src/mode/ruby_highlight_rules.js": [
+205,
+215,
+225,
+235,
+245,
+299,
+313,
+330,
+347,
+361,
+389,
+408,
+422,
+437,
+451,
+460,
+474,
+493,
+507,
+523
+],
+"javascript-test-sources:src/ace/src/mode/ruby_test.js": [
+12,
+16,
+26,
+34,
+50,
+76,
+108,
+122,
+138
+],
+"javascript-test-sources:src/ace/src/mode/rust_highlight_rules.js": [
+47,
+54
+],
+"javascript-test-sources:src/ace/src/mode/sass_highlight_rules.js": [
+12,
+27
+],
+"javascript-test-sources:src/ace/src/mode/scss_highlight_rules.js": [
+88
+],
+"javascript-test-sources:src/ace/src/mode/sh_highlight_rules.js": [
+92,
+106,
+123,
+140
+],
+"javascript-test-sources:src/ace/src/mode/slim_highlight_rules.js": [
+14,
+27,
+41,
+92,
+151
+],
+"javascript-test-sources:src/ace/src/mode/snippets.js": [
+17,
+24,
+84
+],
+"javascript-test-sources:src/ace/src/mode/sqlserver_highlight_rules.js": [
+184
+],
+"javascript-test-sources:src/ace/src/mode/swift_highlight_rules.js": [
+70
+],
+"javascript-test-sources:src/ace/src/mode/text_test.js": [
+12,
+16,
+24
+],
+"javascript-test-sources:src/ace/src/mode/textile_highlight_rules.js": [
+10
+],
+"javascript-test-sources:src/ace/src/mode/vbscript_test.js": [
+12,
+16,
+23,
+30,
+37,
+79,
+106,
+138
+],
+"javascript-test-sources:src/ace/src/mode/velocity_highlight_rules.js": [
+60,
+128
+],
+"javascript-test-sources:src/ace/src/mode/xml_highlight_rules.js": [
+183
+],
+"javascript-test-sources:src/ace/src/mode/xml_test.js": [
+13,
+17,
+26,
+33
+],
+"javascript-test-sources:src/ace/src/mode/yaml_highlight_rules.js": [
+45,
+97,
+123
+],
+"javascript-test-sources:src/ace/src/mouse/dragdrop_handler.js": [
+168,
+168
+],
+"javascript-test-sources:src/ace/src/mouse/mouse_handler_test.js": [
+51,
+64,
+80,
+121,
+151,
+175,
+242,
+265,
+273
+],
+"javascript-test-sources:src/ace/src/mouse/touch_handler.js": [
+71,
+77
+],
+"javascript-test-sources:src/ace/src/multi_select.js": [
+118,
+917,
+930
+],
+"javascript-test-sources:src/ace/src/multi_select_test.js": [
+56,
+58,
+59,
+60,
+69,
+95,
+117,
+137,
+164,
+198,
+203,
+215,
+246,
+269,
+283,
+295,
+304,
+328
+],
+"javascript-test-sources:src/ace/src/occur.js": [
+138
+],
+"javascript-test-sources:src/ace/src/occur_test.js": [
+20,
+26,
+33,
+42,
+51,
+75,
+94
+],
+"javascript-test-sources:src/ace/src/placeholder_test.js": [
+19,
+36,
+47,
+65,
+79,
+102
+],
+"javascript-test-sources:src/ace/src/range.js": [
+371,
+371,
+373,
+373
+],
+"javascript-test-sources:src/ace/src/range_list.js": [
+99,
+99
+],
+"javascript-test-sources:src/ace/src/range_list_test.js": [
+27,
+45,
+65,
+87,
+100,
+130
+],
+"javascript-test-sources:src/ace/src/range_test.js": [
+15,
+24,
+33,
+44,
+52,
+60,
+74,
+88,
+101,
+120,
+134
+],
+"javascript-test-sources:src/ace/src/scrollbar_test.js": [
+32,
+53,
+57,
+75,
+97,
+112
+],
+"javascript-test-sources:src/ace/src/search.js": [
+362
+],
+"javascript-test-sources:src/ace/src/search_test.js": [
+14,
+21,
+32,
+43,
+55,
+66,
+80,
+94,
+106,
+116,
+128,
+141,
+154,
+183,
+214,
+229,
+245,
+258,
+272,
+285,
+307,
+324,
+341,
+354,
+365,
+382,
+404,
+427,
+457,
+488
+],
+"javascript-test-sources:src/ace/src/selection_test.js": [
+13,
+19,
+29,
+37,
+45,
+58,
+71,
+104,
+114,
+148,
+161,
+172,
+185,
+198,
+210,
+222,
+242,
+255,
+271,
+287,
+301,
+317,
+327,
+337,
+348,
+358,
+368,
+382,
+392,
+405,
+417,
+427,
+437,
+494,
+504,
+541
+],
+"javascript-test-sources:src/ace/src/snippets.js": [
+13,
+16,
+22,
+25,
+28,
+31,
+34,
+37,
+40,
+44,
+47,
+50,
+53,
+54,
+55,
+57,
+61,
+65,
+114,
+126,
+135,
+139,
+147,
+151,
+160,
+168,
+182,
+189,
+192,
+198,
+205,
+211,
+464,
+464,
+466,
+466,
+664,
+969,
+975,
+979
+],
+"javascript-test-sources:src/ace/src/snippets_test.js": [
+19,
+23,
+27,
+34,
+55,
+76,
+103,
+136,
+145,
+178,
+194,
+204,
+220,
+249,
+263,
+281,
+301,
+320
+],
+"javascript-test-sources:src/ace/src/test/asyncjs/assert.js": [
+89,
+90,
+91,
+92,
+93
+],
+"javascript-test-sources:src/ace/src/test/asyncjs/test.js": [
+173,
+174,
+175,
+179
+],
+"javascript-test-sources:src/ace/src/test/asyncjs/utils.js": [
+11,
+19,
+43,
+49,
+56
+],
+"javascript-test-sources:src/ace/src/test/benchmark.js": [
+10,
+14,
+18,
+30
+],
+"javascript-test-sources:src/ace/src/test/mockdom.js": [
+63,
+84,
+87,
+89,
+386,
+386,
+386,
+386,
+480,
+497,
+514
+],
+"javascript-test-sources:src/ace/src/test/mockdom_test.js": [
+13,
+59
+],
+"javascript-test-sources:src/ace/src/test/user.js": [
+93
+],
+"javascript-test-sources:src/ace/src/token_iterator_test.js": [
+13,
+67,
+100,
+122,
+144
+],
+"javascript-test-sources:src/ace/src/tokenizer.js": [
+53,
+239,
+284,
+284,
+303,
+304,
+330
+],
+"javascript-test-sources:src/ace/src/tokenizer_dev.js": [
+67,
+117,
+117,
+144
+],
+"javascript-test-sources:src/ace/src/tokenizer_test.js": [
+11,
+27,
+33
+],
+"javascript-test-sources:src/ace/src/undomanager.js": [
+529
+],
+"javascript-test-sources:src/ace/src/undomanager_test.js": [
+21,
+30,
+60,
+87,
+101,
+111,
+131,
+140,
+152,
+180,
+190,
+232,
+242,
+263,
+273,
+302,
+310,
+362,
+373
+],
+"javascript-test-sources:src/ace/src/virtual_renderer.js": [
+252,
+253,
+1082,
+1083,
+1084,
+1085,
+1087,
+1088,
+1089,
+1385,
+1505,
+1505,
+1624,
+1659,
+1805,
+1812,
+1816,
+1820,
+1826,
+1831,
+1839,
+1845,
+1852,
+1859,
+1870,
+1877,
+1884,
+1891,
+1900,
+1906,
+1911,
+1918,
+1924,
+1935,
+1941,
+1947,
+1948
+],
+"javascript-test-sources:src/ace/src/virtual_renderer_test.js": [
+25,
+41,
+45,
+67,
+115,
+130,
+148,
+157,
+173,
+178,
+197,
+219,
+303,
+329
+],
+"javascript-test-sources:src/ace/static.js": [
+86,
+86
+],
+"javascript-test-sources:src/ace/tool/regexp_tokenizer.js": [
+36,
+81,
+84,
+95
+],
+"javascript-test-sources:src/ace/tool/tmlanguage.js": [
+322,
+667
+],
+"javascript-test-sources:src/ace/tool/tmtheme.js": [
+365
+],
+"javascript-test-sources:src/ace/tool/update_deps.js": [
+34,
+50,
+63,
+76,
+89,
+102,
+117,
+131,
+154,
+160
+],
+"javascript-test-sources:src/ecmascript6/Ghost/Gruntfile.js": [
+296,
+299,
+308,
+342,
+476,
+829
+],
+"javascript-test-sources:src/ecmascript6/Ghost/config.example.js": [
+88
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/config/environment.js": [
+7
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/lib/asset-delivery/index.js": [
+4
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/authentication.js": [
+92,
+142,
+143,
+144,
+185,
+186,
+187,
+191,
+191,
+258,
+268,
+303
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/clients.js": [
+44
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/configuration.js": [
+37
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/db.js": [
+33,
+62,
+110
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/index.js": [
+226,
+227,
+229,
+230,
+231,
+232,
+233,
+234,
+235,
+236,
+237,
+238,
+239,
+240,
+241,
+242
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/mail.js": [
+50,
+94,
+151
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/posts.js": [
+97
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/roles.js": [
+59,
+69
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/settings.js": [
+219,
+249
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/slugs.js": [
+28,
+66,
+66,
+78
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/tags.js": [
+72
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/themes.js": [
+127
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/upload.js": [
+25
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/users.js": [
+129
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/utils.js": [
+215,
+215,
+273,
+275,
+292,
+295
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/apps/index.js": [
+36,
+96
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/apps/loader.js": [
+37,
+38,
+50,
+58,
+70,
+80,
+91,
+101
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/apps/proxy.js": [
+27,
+27,
+27
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/config/index.js": [
+182,
+183,
+186,
+190,
+236
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/config/url.js": [
+107,
+108,
+109,
+110,
+111,
+112
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/controllers/frontend/fetch-data.js": [
+44
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/controllers/frontend/format-response.js": [
+35
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/controllers/frontend/index.js": [
+89,
+122
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/controllers/frontend/templates.js": [
+97
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/export/index.js": [
+44
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/import/data-importer.js": [
+164,
+165
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/import/index.js": [
+40,
+40,
+163
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/import/utils.js": [
+39,
+82
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/importer/handlers/image.js": [
+15
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/importer/handlers/json.js": [
+14
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/importer/handlers/markdown.js": [
+89,
+107
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/importer/importers/data.js": [
+6,
+10
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/importer/importers/image.js": [
+50,
+62
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/importer/index.js": [
+51,
+58,
+65,
+73,
+83,
+95,
+105,
+124,
+135,
+174,
+188,
+199,
+227,
+277,
+296,
+311,
+328,
+348,
+357
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/meta/index.js": [
+37
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/migration/builder.js": [
+24,
+33,
+44,
+44,
+55,
+55,
+62,
+62,
+71,
+72,
+73,
+74
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/migration/fixtures/index.js": [
+194,
+363,
+364
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/migration/fixtures/permissions/index.js": [
+109,
+110
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/migration/index.js": [
+88,
+140,
+208,
+209,
+210,
+211
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/schema/checks.js": [
+22,
+23,
+24,
+25
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/schema/clients/index.js": [
+6,
+7,
+8
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/schema/clients/mysql.js": [
+52,
+53,
+54,
+55
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/schema/clients/pg.js": [
+40,
+41,
+42
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/schema/clients/sqlite3.js": [
+39,
+40,
+41
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/schema/commands.js": [
+90,
+101,
+112,
+125,
+126,
+127,
+128,
+129,
+130,
+131,
+132,
+133
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/schema/versioning.js": [
+63,
+64,
+65
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/validation/index.js": [
+48,
+48,
+59,
+59,
+72,
+72,
+121,
+161,
+161,
+171,
+172,
+173,
+174,
+175
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/xml/rss/index.js": [
+138
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/xml/sitemap/base-generator.js": [
+29,
+38,
+42,
+54,
+69,
+74,
+77,
+93,
+101,
+112,
+125,
+129,
+130,
+133,
+137,
+141,
+152,
+165,
+195,
+199,
+203,
+211,
+216
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/xml/sitemap/index-generator.js": [
+23,
+34
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/xml/sitemap/manager.js": [
+24,
+28,
+32,
+36,
+40,
+44,
+58,
+66
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/xml/sitemap/page-generator.js": [
+17,
+24,
+41,
+46,
+49
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/xml/sitemap/post-generator.js": [
+17,
+24,
+37,
+38,
+41
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/xml/sitemap/tag-generator.js": [
+17,
+24,
+35,
+36,
+39
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/xml/sitemap/user-generator.js": [
+18,
+25,
+36,
+40,
+45
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/xml/sitemap/utils.js": [
+5
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/xml/xmlrpc.js": [
+22,
+87
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/errors/index.js": [
+41,
+45,
+59,
+63,
+71,
+93,
+149,
+155,
+161,
+167,
+208,
+208,
+211,
+246,
+290,
+291,
+324,
+336
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/helpers/foreach.js": [
+59
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/helpers/get.js": [
+111,
+124,
+137,
+138,
+142
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/helpers/index.js": [
+48
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/helpers/input_password.js": [
+28,
+29
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/helpers/tags.js": [
+32
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/helpers/template.js": [
+14
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/mail/index.js": [
+77
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/middleware/auth.js": [
+131
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/middleware/check-ssl.js": [
+30
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/middleware/ghost-busboy.js": [
+46
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/middleware/index.js": [
+36,
+37,
+38,
+39,
+40
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/middleware/oauth.js": [
+48
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/middleware/spam-prevention.js": [
+49,
+49,
+78,
+153
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/models/app.js": [
+19
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/models/base/index.js": [
+348,
+385,
+467
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/models/base/utils.js": [
+10
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/models/plugins/include-count.js": [
+45,
+60,
+70,
+81
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/models/post.js": [
+147,
+532
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/models/settings.js": [
+103,
+111,
+147,
+149,
+152
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/models/tag.js": [
+41,
+110
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/models/user.js": [
+91,
+211,
+541,
+541
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/permissions/effective.js": [
+7,
+8,
+37
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/permissions/index.js": [
+53,
+304,
+305,
+306,
+307,
+308
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/routes/index.js": [
+7,
+8,
+9
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/update-check.js": [
+120
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/utils/index.js": [
+42,
+54,
+87,
+91
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/utils/read-directory.js": [
+38
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/utils/validate-themes.js": [
+32,
+44
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/shared/ghost-url.js": [
+31,
+69,
+70
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/functional/base.js": [
+34,
+35,
+40,
+41,
+45,
+427,
+428
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/functional/setup/setup_test.js": [
+11,
+20,
+20
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/integration/api/api_upload_spec.js": [
+42,
+59,
+76,
+88,
+103,
+115
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/integration/model/model_users_spec.js": [
+598,
+598
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/config_spec.js": [
+131
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/controllers/frontend/index_spec.js": [
+61,
+144,
+285,
+307,
+322,
+338,
+362,
+435,
+497,
+590,
+680,
+765,
+779,
+846,
+895,
+918,
+1040
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/error_handling_spec.js": [
+255,
+483,
+487
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/middleware/auth-strategies_spec.js": [
+58,
+124,
+127,
+133
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/middleware/authentication_spec.js": [
+119,
+171,
+191,
+213,
+259,
+277,
+296,
+315,
+334,
+358,
+384
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/middleware/oauth_spec.js": [
+162,
+228,
+255
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/middleware/private-blogging_spec.js": [
+101,
+104,
+105,
+192,
+222
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/middleware/spam-prevention_spec.js": [
+143
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/middleware/static-theme_spec.js": [
+49,
+73
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/middleware/theme-handler_spec.js": [
+54
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/models_plugins/pagination_spec.js": [
+207,
+360
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/rss_spec.js": [
+118
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/server_helpers/author_spec.js": [
+44
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/server_helpers/content_spec.js": [
+22,
+33,
+47,
+61,
+75,
+89,
+104,
+118,
+132,
+146,
+160,
+174
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/server_helpers/date_spec.js": [
+36
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/server_helpers/excerpt_spec.js": [
+22,
+35,
+44,
+54,
+65,
+79,
+93
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/server_helpers/get_spec.js": [
+53,
+54,
+67,
+67,
+83,
+83,
+98,
+98,
+112,
+112,
+128,
+128,
+144,
+144,
+160,
+160,
+175,
+175,
+190,
+190,
+205,
+205,
+221,
+221,
+238,
+238,
+254,
+254,
+293,
+293,
+307,
+307,
+321,
+321,
+338,
+338,
+352,
+352
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/server_helpers/ghost_head_spec.js": [
+123,
+164,
+204,
+225,
+250,
+294,
+340,
+413,
+483,
+550,
+712
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/server_helpers/has_spec.js": [
+27,
+27,
+40,
+40,
+53,
+53,
+66,
+66,
+79,
+79,
+92,
+92,
+105,
+105,
+118,
+118,
+131,
+131,
+144,
+144,
+157,
+157,
+170,
+170,
+183,
+183
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/server_helpers/is_spec.js": [
+30,
+30,
+44,
+44,
+58,
+58,
+73,
+73
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/server_helpers/next_post_spec.js": [
+42,
+42,
+77,
+77,
+107,
+107,
+135,
+135
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/server_helpers/prev_post_spec.js": [
+42,
+42,
+78,
+78,
+109,
+109,
+135,
+135
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/server_helpers/tags_spec.js": [
+24,
+35,
+47,
+59,
+71,
+83,
+106,
+116,
+127,
+138,
+149,
+160,
+171
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/server_helpers/title_spec.js": [
+22
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/sitemap_spec.js": [
+48,
+48,
+48,
+48,
+310
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/xmlrpc_spec.js": [
+34
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/utils/api.js": [
+84,
+85,
+86,
+87,
+88,
+89,
+90,
+91
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/utils/fixtures/app/badlib.js": [
+4
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/utils/fixtures/app/goodlib.js": [
+2
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/utils/fixtures/data-generator.js": [
+284,
+288,
+289,
+411,
+412,
+414,
+415,
+416,
+419,
+421,
+422,
+423,
+425,
+426,
+427,
+428,
+429,
+430,
+431,
+432,
+433,
+462,
+463,
+464,
+465
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/utils/fork.js": [
+58,
+84
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/utils/index.js": [
+307,
+311,
+583,
+584,
+585,
+586,
+587,
+589,
+590,
+591,
+593,
+595,
+596,
+598
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/utils/jscs-rules/disallow-object-controller.js": [
+6,
+17,
+21
+],
+"javascript-test-sources:src/ecmascript6/expressionist.js/test/lexer.spec.js": [
+254,
+256
+],
+"javascript-test-sources:src/ecmascript6/expressionist.js/test/parser.spec.js": [
+130,
+148,
+152,
+292,
+314,
+843,
+844,
+883
+],
+"javascript-test-sources:src/ecmascript6/http/test/Http.spec.js": [
+110
+],
+"javascript-test-sources:src/ecmascript6/http/test/XHRConnection.spec.js": [
+195
+],
+"javascript-test-sources:src/ecmascript6/http/test/matchers.js": [
+3,
+5,
+9
+],
+"javascript-test-sources:src/ecmascript6/reddit-mobile/buildTasks/icons.js": [
+34
+],
+"javascript-test-sources:src/ecmascript6/reddit-mobile/buildTasks/js.js": [
+75
+],
+"javascript-test-sources:src/ecmascript6/reddit-mobile/index.js": [
+78,
+79,
+255
+],
+"javascript-test-sources:src/ecmascript6/reddit-mobile/src/config.es6.js": [
+53
+],
+"javascript-test-sources:src/ecmascript6/reddit-mobile/src/lib/loid.es6.js": [
+18,
+19,
+20
+],
+"javascript-test-sources:src/ecmascript6/reddit-mobile/src/lib/savedReply.es6.js": [
+13,
+14,
+49,
+50,
+51
+],
+"javascript-test-sources:src/ecmascript6/reddit-mobile/src/server/console.es6.js": [
+113
+],
+"javascript-test-sources:src/ecmascript6/reddit-mobile/src/server/oauth.es6.js": [
+81,
+159,
+202,
+233,
+234,
+381,
+382
+],
+"javascript-test-sources:src/ecmascript6/reddit-mobile/src/server/routes.es6.js": [
+78
+],
+"javascript-test-sources:src/ecmascript6/redux/examples/async/actions/index.js": [
+32
+],
+"javascript-test-sources:src/ecmascript6/redux/examples/counter/test/components/Counter.spec.js": [
+15,
+16
+],
+"javascript-test-sources:src/ecmascript6/redux/examples/counter/test/containers/App.spec.js": [
+16
+],
+"javascript-test-sources:src/ecmascript6/redux/examples/shopping-cart/actions/index.js": [
+7
+],
+"javascript-test-sources:src/ecmascript6/redux/examples/todomvc/test/components/Footer.spec.js": [
+21,
+22
+],
+"javascript-test-sources:src/ecmascript6/redux/examples/todomvc/test/components/Header.spec.js": [
+17,
+18,
+19
+],
+"javascript-test-sources:src/ecmascript6/redux/examples/todomvc/test/components/MainSection.spec.js": [
+36,
+37,
+38
+],
+"javascript-test-sources:src/ecmascript6/redux/examples/todomvc/test/components/TodoItem.spec.js": [
+34,
+35,
+36
+],
+"javascript-test-sources:src/ecmascript6/redux/examples/todomvc/test/components/TodoTextInput.spec.js": [
+26,
+27,
+28
+],
+"javascript-test-sources:src/ecmascript6/router/src/activation.js": [
+154,
+156
+],
+"javascript-test-sources:src/ecmascript6/router/src/navigationInstruction.js": [
+19,
+20,
+21
+],
+"javascript-test-sources:src/ecmascript6/router/third_party/brick/brick-1.0.1.byob.js": [
+24,
+29,
+32,
+35,
+43,
+46,
+77,
+84,
+88,
+177,
+200,
+214,
+270,
+285,
+288,
+295,
+298,
+305,
+313,
+327,
+829,
+840,
+845,
+895,
+1025,
+1128,
+1136,
+1156,
+1178,
+1187,
+1205,
+1223,
+1247,
+1250,
+1258,
+1286,
+1307,
+1346,
+1378,
+1388,
+1393,
+1394,
+1395,
+1396,
+1403,
+1411,
+1414,
+1415,
+1440,
+1443,
+1447,
+1450,
+1453,
+1461,
+1468,
+1471,
+1485,
+1494,
+1498,
+1516,
+1517,
+1518,
+1519,
+1538,
+1543,
+1602,
+1614,
+1621,
+1630,
+1633,
+1645,
+1672,
+1697,
+1703,
+1709,
+1759,
+1799,
+1812,
+1815,
+1821,
+1824,
+2378,
+2383,
+2386,
+2393,
+2396,
+2408,
+2411,
+2419,
+2422,
+2428,
+2431,
+2441,
+2446,
+2449,
+2455,
+2475,
+2480,
+2485,
+2490,
+2495,
+2498,
+2596,
+2612,
+2621,
+2635,
+2640,
+2645,
+2655,
+2674,
+2679,
+2683,
+2698,
+2702,
+2712,
+2723,
+2726,
+2733,
+2736,
+2742,
+2745,
+2756,
+2773,
+2791,
+2800,
+2807,
+2812,
+2817,
+2822,
+2827,
+2830,
+2835,
+2838,
+2853,
+2856,
+2860,
+2864,
+2868,
+2872,
+2879,
+2909,
+2936,
+2975,
+2988,
+2993,
+2996,
+3005,
+3008,
+3030,
+3033,
+3036,
+3050,
+3054,
+3060,
+3068,
+3073,
+3086,
+3095,
+3118,
+3145,
+3158,
+3169,
+3172,
+3191,
+3194,
+3197,
+3247,
+3254,
+3264,
+3269,
+3285,
+3298,
+3423,
+3430,
+3438,
+3442,
+3450,
+3469,
+3518,
+3558,
+3566,
+3573,
+3577,
+3581,
+3587,
+3599,
+3617,
+3625,
+3633,
+3641,
+3649,
+3662,
+3665,
+3680,
+3720,
+3725,
+3737,
+3745,
+3748,
+3766,
+3773,
+3791,
+3794,
+3802,
+3811,
+3820,
+3829,
+3891,
+3895,
+3899,
+3902,
+3905,
+3909,
+3912,
+3922,
+3931,
+3945,
+3951,
+3965,
+3986,
+3994,
+4006,
+4009,
+4029,
+4032
+],
+"javascript-test-sources:src/ecmascript6/router/third_party/route-recognizer.js": [
+33,
+42,
+46,
+53,
+57,
+61,
+68,
+72,
+76,
+83,
+84,
+85,
+140,
+153,
+178,
+298,
+323,
+353,
+369,
+374,
+385,
+389,
+413,
+445,
+475,
+535,
+559,
+563,
+596,
+596
+],
+"javascript-test-sources:src/ecmascript6/snoode/src/endpoints/v1.es6.js": [
+104,
+328,
+342,
+356,
+364,
+369,
+383,
+416,
+444,
+462,
+485,
+512,
+530,
+553,
+564,
+600,
+612,
+624,
+640,
+649,
+658,
+666,
+672,
+682,
+706,
+735,
+738,
+746,
+751,
+765,
+807,
+811,
+832,
+861,
+873,
+904,
+908,
+917,
+932,
+935,
+943,
+949,
+962,
+967,
+982,
+989,
+1017,
+1046,
+1058,
+1093,
+1103,
+1119,
+1129,
+1141,
+1147,
+1199
+],
+"javascript-test-sources:src/ecmascript6/snoode/src/models/base.es6.js": [
+87,
+91,
+95,
+99,
+103,
+107,
+111,
+115
+],
+"javascript-test-sources:src/ecmascript6/snoode/src/models/link.es6.js": [
+31
+],
+"javascript-test-sources:src/ecmascript6/snoode/src/models/vote.es6.js": [
+11
+],
+"javascript-test-sources:src/ecmascript6/snoode/test/models/base.js": [
+44
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/gulp/scripts.js": [
+84,
+84,
+84,
+108,
+108,
+108,
+130,
+130,
+130
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/api/permissions.js": [
+19,
+19,
+32,
+36,
+36,
+49,
+53,
+53,
+59,
+59,
+72,
+76,
+76,
+89,
+93,
+93,
+103,
+103,
+109,
+114,
+120,
+137
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/account/change-password-view.js": [
+8,
+17,
+23,
+33
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/api-documentation/action-view.js": [
+18,
+22,
+29,
+34,
+39,
+48
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/api-documentation/actions-view.js": [
+8,
+14,
+22,
+32
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/api-documentation/controller.js": [
+8,
+13,
+17,
+27,
+28,
+34,
+40,
+44,
+77
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/api-documentation/filters-view.js": [
+12,
+16,
+20
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/api-documentation/item-view.js": [
+18,
+23,
+36,
+43,
+48
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/api-documentation/layout.js": [
+15,
+19,
+20
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/api-documentation/list-view.js": [
+8,
+16
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/api-documentation/list.js": [
+8,
+17,
+18
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/api-documentation/router.js": [
+8,
+12
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/api-documentation/search-view.js": [
+17,
+22,
+31,
+32
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/background-tasks/main.js": [
+151,
+152
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/app.js": [
+73,
+94
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/bulk-change-modal-view.js": [
+9,
+15,
+22,
+29,
+38,
+47,
+70,
+82
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/bulk-change-popup-view.js": [
+14,
+19,
+20,
+24
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/confirm-dialog.js": [
+9,
+12,
+15
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/controller.js": [
+15,
+36,
+71,
+76,
+88,
+95,
+108,
+126,
+131,
+142,
+152
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/facets-view.js": [
+35
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/facets/active-severity-facet.js": [
+9,
+13,
+22,
+27,
+32,
+37
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/facets/available-since-facet.js": [
+8,
+14,
+28,
+35
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/facets/characteristic-facet.js": [
+9,
+17,
+33,
+41,
+53,
+57
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/facets/custom-labels-facet.js": [
+6,
+10,
+20
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/facets/custom-values-facet.js": [
+8,
+14,
+18,
+23,
+28,
+31,
+34,
+42,
+46,
+49,
+55
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/facets/inheritance-facet.js": [
+9,
+13,
+26,
+31,
+36,
+41,
+51,
+62
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/facets/key-facet.js": [
+8,
+12,
+16
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/facets/language-facet.js": [
+6,
+10,
+14,
+17,
+28,
+32,
+42
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/facets/quality-profile-facet.js": [
+9,
+16,
+35,
+48,
+53,
+58,
+63,
+70
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/facets/query-facet.js": [
+8,
+14,
+23,
+28
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/facets/repository-facet.js": [
+6,
+10,
+14,
+17,
+28,
+33,
+46
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/facets/severity-facet.js": [
+9
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/facets/status-facet.js": [
+7,
+15,
+22
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/facets/tag-facet.js": [
+5,
+9,
+13,
+16
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/facets/template-facet.js": [
+8,
+16
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/filters-view.js": [
+13,
+19
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/layout.js": [
+16,
+19,
+20,
+23,
+29,
+36
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/models/rule.js": [
+7,
+13,
+14,
+15,
+19
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/models/rules.js": [
+8,
+17,
+30,
+32,
+36
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/rule-details-view.js": [
+36,
+45,
+75,
+79,
+91,
+95,
+111,
+115,
+122,
+129,
+135,
+145,
+151,
+167,
+169
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/rule-filter-view.js": [
+9,
+16
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/rule/custom-rule-creation-view.js": [
+11,
+25,
+41,
+48,
+52,
+82,
+108,
+117,
+134,
+139,
+165,
+184,
+186
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/rule/custom-rule-view.js": [
+19,
+24,
+35
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/rule/custom-rules-view.js": [
+12,
+27,
+31,
+38
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/rule/manual-rule-creation-view.js": [
+10,
+24,
+40,
+46,
+53,
+57,
+72,
+82,
+86,
+111
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/rule/profile-activation-view.js": [
+11,
+20,
+26,
+55,
+87,
+103,
+113,
+133,
+135
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/rule/rule-description-view.js": [
+31,
+37,
+42,
+64,
+68,
+75,
+79
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/rule/rule-filter-mixin.js": [
+5
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/rule/rule-issues-view.js": [
+9,
+18,
+41
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/rule/rule-meta-view.js": [
+30,
+36,
+40,
+45,
+60,
+69,
+77,
+87
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/rule/rule-parameters-view.js": [
+12,
+16,
+20
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/rule/rule-profile-view.js": [
+29,
+35,
+49,
+55,
+71,
+77,
+92,
+96,
+112,
+130
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/rule/rule-profiles-view.js": [
+12,
+28,
+44,
+54,
+56,
+59,
+66,
+73
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/workspace-header-view.js": [
+10,
+19,
+23,
+33,
+37,
+41
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/workspace-list-empty-view.js": [
+6
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/workspace-list-item-view.js": [
+29,
+33,
+37,
+50,
+52,
+55,
+60,
+67,
+82
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/workspace-list-view.js": [
+12
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/component-issues/app.js": [
+87
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/custom-measures/create-view.js": [
+6
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/custom-measures/custom-measure.js": [
+7,
+11
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/custom-measures/custom-measures.js": [
+8,
+12,
+16,
+23,
+30,
+32,
+35,
+39,
+43
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/custom-measures/delete-view.js": [
+7,
+12
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/custom-measures/form-view.js": [
+9,
+15,
+24,
+29,
+34,
+41,
+45
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/custom-measures/header-view.js": [
+12,
+17
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/custom-measures/list-footer-view.js": [
+16,
+21,
+25
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/custom-measures/list-item-view.js": [
+15,
+20,
+24,
+29,
+34,
+41
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/custom-measures/update-view.js": [
+5
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/dashboard/app.js": [
+10,
+21,
+68,
+78,
+112,
+120,
+128
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/global-permissions/groups-view.js": [
+14,
+24,
+31,
+41,
+48
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/global-permissions/users-view.js": [
+14,
+24,
+31,
+41,
+48
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/groups/create-view.js": [
+6
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/groups/delete-view.js": [
+7,
+12,
+29
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/groups/form-view.js": [
+7,
+12,
+17
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/groups/group.js": [
+5,
+9
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/groups/groups.js": [
+7,
+11,
+18,
+24,
+26,
+29,
+33
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/groups/header-view.js": [
+17,
+21,
+25,
+30
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/groups/list-footer-view.js": [
+16,
+21,
+25
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/groups/list-item-view.js": [
+19,
+24,
+28,
+33,
+38,
+44,
+51,
+55
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/groups/list-view.js": [
+13,
+17
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/groups/search-view.js": [
+14,
+19,
+23,
+28,
+40,
+44,
+45
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/groups/update-view.js": [
+5
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/groups/users-view.js": [
+8,
+15,
+27,
+34
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/issues/component-viewer/issue-view.js": [
+5,
+10
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/issues/component-viewer/main.js": [
+7,
+14,
+19,
+28,
+69,
+73,
+79,
+91,
+108,
+117,
+130,
+137,
+148,
+159,
+176,
+181,
+191,
+197
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/issues/controller.js": [
+11,
+17,
+28,
+37,
+81,
+86,
+98,
+104,
+125,
+145,
+150,
+158,
+161,
+168,
+186,
+199,
+211,
+222,
+232,
+246
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/issues/facets-view.js": [
+42
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/issues/facets/action-plan-facet.js": [
+9,
+17,
+35,
+42,
+52,
+59
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/issues/facets/assignee-facet.js": [
+9,
+13,
+17,
+24,
+32,
+50,
+57,
+67,
+74,
+88,
+94,
+98
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/issues/facets/author-facet.js": [
+4,
+8,
+13,
+16,
+19,
+26,
+29
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/issues/facets/base-facet.js": [
+8,
+13,
+17
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/issues/facets/context-facet.js": [
+8
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/issues/facets/creation-date-facet.js": [
+12,
+25,
+54,
+59,
+63,
+67,
+78,
+87,
+98,
+107,
+111,
+116,
+121,
+126
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/issues/facets/custom-values-facet.js": [
+8,
+14,
+18,
+23,
+28,
+31,
+34,
+42,
+46,
+49,
+55
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/issues/facets/file-facet.js": [
+9,
+17,
+34
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/issues/facets/issue-key-facet.js": [
+8,
+12,
+16
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/issues/facets/language-facet.js": [
+5,
+9,
+14,
+17,
+20,
+27,
+30,
+42,
+49,
+59
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/issues/facets/mode-facet.js": [
+12,
+17
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/issues/facets/module-facet.js": [
+5,
+12,
+22
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/issues/facets/project-facet.js": [
+6,
+15,
+24,
+30,
+33,
+36,
+43,
+44,
+46,
+58,
+65,
+75
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/issues/facets/reporter-facet.js": [
+5,
+9,
+13,
+20,
+38
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/issues/facets/resolution-facet.js": [
+9,
+17,
+35,
+42
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/issues/facets/rule-facet.js": [
+5,
+15,
+18,
+21,
+27,
+28,
+31,
+42,
+49,
+57,
+71
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/issues/facets/severity-facet.js": [
+8
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/issues/facets/status-facet.js": [
+8
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/issues/facets/tag-facet.js": [
+5,
+15,
+18,
+24,
+25,
+28,
+32,
+38,
+47
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/issues/filters-view.js": [
+18,
+35,
+39,
+49,
+57,
+63,
+72,
+77,
+82
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/issues/issue-filter-view.js": [
+9,
+16
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/issues/layout.js": [
+18,
+24,
+25,
+28,
+34,
+39,
+46,
+50
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/issues/models/filter.js": [
+4,
+8
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/issues/models/filters.js": [
+7,
+11
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/issues/models/issue.js": [
+4
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/issues/models/issues.js": [
+8,
+12,
+28,
+42,
+50,
+63,
+66,
+81,
+83,
+87
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/issues/models/state.js": [
+57,
+62
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/issues/router.js": [
+9,
+14,
+22
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/issues/workspace-header-view.js": [
+9,
+18,
+24,
+29,
+34,
+39,
+45,
+50,
+56,
+63,
+71,
+79,
+83,
+87,
+93,
+101,
+107,
+108,
+109
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/issues/workspace-list-empty-view.js": [
+6
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/issues/workspace-list-item-view.js": [
+22,
+32,
+37,
+48,
+76,
+80,
+83,
+89,
+93,
+98,
+102,
+109,
+110,
+111,
+112,
+119,
+128
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/issues/workspace-list-view.js": [
+18,
+62,
+84,
+104
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/maintenance/main-view.js": [
+14,
+25,
+39,
+43,
+54,
+58,
+64
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/measures/measures-filter-bar.js": [
+5
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/metrics/create-view.js": [
+6
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/metrics/delete-view.js": [
+7,
+12
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/metrics/form-view.js": [
+9,
+15,
+19,
+23,
+30,
+36,
+41,
+46
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/metrics/header-view.js": [
+12,
+17
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/metrics/list-footer-view.js": [
+16,
+21,
+25
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/metrics/list-item-view.js": [
+16,
+23,
+27,
+32,
+37,
+46
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/metrics/list-view.js": [
+8
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/metrics/metric.js": [
+7,
+11
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/metrics/metrics.js": [
+8,
+12,
+19,
+26,
+28,
+31,
+35
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/metrics/update-view.js": [
+5
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/overview/components/domain-timeline.js": [
+76
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/overview/components/issue-measure.js": [
+238
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/overview/main/issues.js": [
+33,
+39,
+47,
+54
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/overview/main/main.js": [
+79,
+80,
+116,
+131
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/permission-templates/create-view.js": [
+5
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/permission-templates/delete-view.js": [
+8,
+13
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/permission-templates/form-view.js": [
+7,
+16,
+21
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/permission-templates/groups-view.js": [
+14,
+21,
+34,
+41,
+48
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/permission-templates/main.js": [
+34,
+58
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/permission-templates/permission-template.js": [
+21,
+30
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/permission-templates/update-view.js": [
+5
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/permission-templates/users-view.js": [
+9,
+18,
+22,
+31,
+38,
+45
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/project-permissions/apply-template-view.js": [
+10,
+18,
+44
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/project-permissions/groups-view.js": [
+13,
+20,
+33,
+40,
+47
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/project-permissions/main.js": [
+35,
+54,
+55,
+58
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/project-permissions/project.js": [
+18,
+28
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/project-permissions/search.js": [
+9
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/project-permissions/users-view.js": [
+9,
+18,
+22,
+31,
+38,
+45
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/projects/create-view.js": [
+9,
+14,
+19,
+24
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/projects/delete-view.js": [
+7
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/projects/form-view.js": [
+6,
+11,
+16
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/projects/main.js": [
+29,
+73,
+86,
+98
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/quality-gates/actions-view.js": [
+13,
+20
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/quality-gates/condition.js": [
+9,
+13,
+17,
+21,
+25
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/quality-gates/controller.js": [
+8,
+15,
+19,
+29,
+54
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/quality-gates/copy-view.js": [
+6,
+11,
+12
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/quality-gates/create-view.js": [
+6,
+11,
+12
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/quality-gates/delete-view.js": [
+7,
+13
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/quality-gates/details-view.js": [
+20,
+25,
+32,
+44
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/quality-gates/form-view.js": [
+10,
+16,
+34,
+40
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/quality-gates/gate-condition-view.js": [
+33,
+52,
+63,
+70,
+74,
+78,
+80,
+83,
+88
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/quality-gates/gate-conditions-delete-view.js": [
+9,
+15,
+32
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/quality-gates/gate-conditions-empty-view.js": [
+9
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/quality-gates/gate-conditions-view.js": [
+23,
+33,
+41,
+46,
+49,
+53,
+60,
+67
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/quality-gates/gate-projects-view.js": [
+9,
+16,
+41
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/quality-gates/gate-view.js": [
+17,
+22
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/quality-gates/gate.js": [
+5,
+9,
+13,
+17,
+21,
+26,
+40
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/quality-gates/gates-view.js": [
+11,
+18
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/quality-gates/gates.js": [
+8,
+12,
+18,
+22
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/quality-gates/header-view.js": [
+22,
+28,
+35,
+41,
+45
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/quality-gates/layout.js": [
+15,
+17,
+18,
+22
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/quality-gates/rename-view.js": [
+6,
+11,
+12
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/quality-gates/router.js": [
+9,
+13,
+17
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/quality-profiles/actions-view.js": [
+20,
+25,
+30,
+35,
+41,
+52,
+58,
+65,
+73,
+81,
+87
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/quality-profiles/change-profile-parent-view.js": [
+10,
+18,
+24,
+34,
+50,
+57
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/quality-profiles/controller.js": [
+9,
+15,
+19,
+22,
+29,
+33,
+36,
+36,
+41,
+45,
+53,
+81,
+92,
+100,
+104
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/quality-profiles/copy-profile-view.js": [
+9,
+15,
+25,
+40
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/quality-profiles/create-profile-view.js": [
+11,
+17,
+22,
+31,
+44,
+49,
+61,
+67,
+77
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/quality-profiles/delete-profile-view.js": [
+12,
+18,
+24
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/quality-profiles/layout.js": [
+15,
+19,
+20,
+24
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/quality-profiles/profile-changelog-view.js": [
+13,
+18,
+23,
+28
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/quality-profiles/profile-comparison-view.js": [
+13,
+20,
+26,
+31,
+40
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/quality-profiles/profile-details-view.js": [
+29,
+50,
+57,
+65,
+90,
+99,
+104,
+108,
+114,
+128,
+132,
+136,
+143,
+151,
+155
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/quality-profiles/profile-header-view.js": [
+24,
+28,
+33,
+38,
+43,
+48,
+52,
+56,
+60,
+64
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/quality-profiles/profile-view.js": [
+20,
+27,
+31,
+36
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/quality-profiles/profile.js": [
+13,
+24,
+47,
+59,
+73,
+89,
+95,
+106,
+112
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/quality-profiles/profiles-view.js": [
+19,
+26,
+31,
+51,
+56
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/quality-profiles/profiles.js": [
+9,
+13,
+16
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/quality-profiles/rename-profile-view.js": [
+8,
+13,
+19,
+23,
+30
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/quality-profiles/restore-built-in-profiles-view.js": [
+9,
+15,
+23,
+31,
+50
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/quality-profiles/restore-profile-view.js": [
+11,
+24
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/quality-profiles/router.js": [
+12,
+16,
+20,
+24,
+29
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/update-center/controller.js": [
+4,
+9,
+14,
+19,
+24
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/update-center/footer-view.js": [
+12
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/update-center/header-view.js": [
+16,
+20
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/update-center/list-item-view.js": [
+29,
+33,
+41,
+45,
+51,
+66,
+71,
+75,
+79,
+83,
+87,
+92
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/update-center/plugin-changelog-view.js": [
+8,
+14,
+19
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/update-center/plugin.js": [
+12,
+17,
+23,
+28,
+31,
+34,
+43,
+46,
+52,
+55,
+61,
+64
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/update-center/plugins.js": [
+9,
+13,
+19,
+30,
+34,
+41,
+44,
+47,
+55,
+62,
+70,
+77,
+85,
+92,
+97,
+112,
+120,
+129,
+140,
+152,
+162,
+169,
+175,
+180,
+192
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/update-center/router.js": [
+12,
+16,
+20,
+24,
+28,
+32
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/update-center/search-view.js": [
+21,
+27,
+31,
+35,
+40,
+44,
+49,
+58,
+62,
+66,
+73,
+79
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/users/change-password-view.js": [
+7,
+12
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/users/create-view.js": [
+6
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/users/deactivate-view.js": [
+7,
+12
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/users/form-view.js": [
+9,
+15,
+20,
+25,
+30,
+35,
+44
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/users/groups-view.js": [
+8,
+15,
+27,
+34
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/users/header-view.js": [
+17,
+21,
+25,
+30
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/users/list-footer-view.js": [
+16,
+21,
+25
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/users/list-item-view.js": [
+23,
+28,
+33,
+37,
+42,
+47,
+52,
+57,
+62,
+67,
+72,
+77,
+84,
+91,
+95,
+99
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/users/list-view.js": [
+13,
+17
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/users/search-view.js": [
+14,
+19,
+23,
+28,
+40,
+44,
+45
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/users/update-view.js": [
+5
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/users/user.js": [
+7,
+11,
+18,
+28,
+33,
+59,
+65
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/users/users.js": [
+7,
+11,
+18,
+24,
+26,
+29,
+33
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/common/action-options-view.js": [
+12,
+19,
+23,
+28,
+32,
+36,
+43,
+47,
+52,
+57,
+61,
+85,
+96,
+103,
+108
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/common/modal-form.js": [
+6,
+12,
+19,
+27,
+34,
+38,
+55,
+61
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/common/modals.js": [
+11,
+17,
+34,
+42,
+49,
+54,
+61,
+65
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/common/popup.js": [
+7,
+30,
+46
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/common/select-list.js": [
+13,
+17,
+21,
+26,
+30,
+36,
+59,
+68,
+73,
+89,
+101,
+111,
+113,
+141,
+168,
+187,
+190,
+198,
+250,
+265,
+275,
+279,
+285,
+290,
+308,
+316,
+320,
+324,
+328,
+346,
+347,
+357,
+362,
+366,
+427,
+431
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/common/selectable-collection-view.js": [
+5,
+10,
+11,
+14,
+18,
+22,
+29,
+33,
+41,
+49,
+58
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/issue/collections/action-plans.js": [
+4,
+8
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/issue/collections/issues.js": [
+8,
+12,
+28,
+42,
+50,
+63
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/issue/issue-view.js": [
+27,
+45,
+49,
+53,
+57,
+61,
+61,
+67,
+87,
+96,
+101,
+113,
+129,
+144,
+156,
+167,
+178,
+187,
+207,
+212,
+224,
+236,
+247,
+251,
+257
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/issue/manual-issue-view.js": [
+15,
+24,
+39,
+45,
+59,
+67,
+72
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/issue/models/changelog.js": [
+4,
+8
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/issue/models/issue.js": [
+7,
+13,
+17,
+21,
+40,
+56,
+70,
+78,
+91,
+128,
+143,
+152,
+164,
+167,
+178,
+181,
+192,
+195,
+206,
+210,
+224,
+228,
+235,
+245,
+245,
+245
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/issue/views/assign-form-view.js": [
+11,
+19,
+25,
+29,
+33,
+42,
+49,
+54,
+61,
+65,
+69,
+88,
+99,
+110,
+121,
+135
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/issue/views/changelog-view.js": [
+12
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/issue/views/comment-form-view.js": [
+24,
+32,
+36,
+40,
+46,
+50,
+54,
+58,
+64,
+81,
+84
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/issue/views/issue-popup.js": [
+6,
+10,
+16,
+22,
+26
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/issue/views/more-actions-view.js": [
+8,
+14
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/issue/views/plan-form-view.js": [
+9,
+13,
+17,
+24,
+28,
+32
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/issue/views/set-severity-form-view.js": [
+9,
+13,
+17,
+23,
+27
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/issue/views/tags-form-view.js": [
+15,
+23,
+32,
+40,
+49,
+54,
+61,
+71,
+73,
+80,
+82,
+89,
+91,
+98,
+112,
+115,
+128,
+132,
+151,
+159,
+164,
+171
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/issue/views/transitions-form-view.js": [
+8,
+12,
+18
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/navigator/controller.js": [
+7,
+12,
+18,
+32,
+40,
+44,
+49,
+61,
+67,
+76,
+80,
+84,
+96,
+106,
+111,
+127
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/navigator/facets-view.js": [
+7,
+13,
+17,
+23
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/navigator/facets/base-facet.js": [
+9,
+15,
+22,
+38,
+44,
+50,
+58,
+65,
+70,
+74,
+78,
+95
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/navigator/filters/ajax-select-filters.js": [
+15,
+21,
+27,
+38,
+52,
+56,
+67,
+76,
+80,
+107,
+133,
+142,
+143,
+156,
+167,
+173,
+186,
+193,
+204,
+216,
+223,
+228,
+239,
+267,
+274,
+301,
+314,
+326,
+332,
+341,
+349,
+357,
+378,
+387,
+409,
+417,
+439,
+449,
+474,
+475,
+476,
+477,
+478,
+479,
+480
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/navigator/filters/base-filters.js": [
+30,
+38,
+40,
+50,
+67,
+80,
+85,
+101,
+111,
+115,
+120,
+133,
+139,
+139,
+145,
+151,
+158,
+163,
+168,
+173,
+184,
+185,
+190,
+195,
+206,
+215,
+230,
+231,
+232,
+233
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/navigator/filters/checkbox-filters.js": [
+10,
+17,
+21,
+34,
+39,
+44,
+46
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/navigator/filters/choice-filters.js": [
+13,
+20,
+26,
+41,
+57,
+86,
+93,
+100,
+106,
+111,
+132,
+140,
+154,
+162,
+175,
+181,
+197,
+224,
+231,
+247,
+259,
+265,
+273,
+283,
+283,
+306,
+332,
+343,
+357,
+387,
+388
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/navigator/filters/favorite-filters.js": [
+18,
+24,
+29,
+34,
+34,
+39,
+51,
+58,
+63,
+67,
+79,
+80
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/navigator/filters/filter-bar.js": [
+16,
+21,
+29,
+75,
+83,
+89,
+100,
+114,
+128,
+135,
+144,
+151,
+161
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/navigator/filters/metric-filters.js": [
+15,
+22,
+24,
+52,
+68,
+92,
+106,
+115,
+125,
+135,
+143,
+165,
+174,
+188
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/navigator/filters/more-criteria-filters.js": [
+16,
+22,
+32,
+39,
+44,
+64,
+71,
+76,
+80,
+86,
+98,
+99
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/navigator/filters/range-filters.js": [
+15,
+32,
+44,
+53,
+60,
+70,
+93,
+104,
+119,
+128,
+146,
+153,
+158,
+168,
+183,
+200,
+201
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/navigator/filters/string-filters.js": [
+15,
+20,
+26,
+37,
+44,
+49,
+59,
+64,
+66,
+72
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/navigator/models/facet.js": [
+10,
+14
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/navigator/models/state.js": [
+5,
+14,
+19,
+29,
+37,
+47,
+48
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/navigator/router.js": [
+11,
+16,
+21
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/navigator/workspace-header-view.js": [
+6,
+13,
+22,
+26,
+30,
+34,
+38,
+43,
+47,
+53,
+57,
+61,
+65,
+73
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/navigator/workspace-list-item-view.js": [
+5,
+9,
+13,
+18
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/navigator/workspace-list-view.js": [
+14,
+24,
+31,
+36,
+40,
+46,
+53,
+57,
+70,
+80,
+86,
+90
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/shared/radio-toggle.js": [
+11
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/shared/status-helper.js": [
+5
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/source-viewer/header.js": [
+13,
+21,
+46,
+53,
+62,
+68,
+75
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/source-viewer/main.js": [
+40,
+56,
+70,
+77,
+86,
+94,
+98,
+102,
+131,
+137,
+138,
+140,
+152,
+159,
+173,
+187,
+205,
+224,
+261,
+281,
+288,
+308,
+326,
+330,
+339,
+355,
+363,
+368,
+374,
+383,
+387,
+395,
+400,
+410,
+418,
+435,
+460,
+466,
+481,
+489,
+498,
+510,
+515,
+523,
+530,
+534,
+549,
+564,
+578,
+593,
+620,
+639,
+663,
+690,
+702,
+711,
+720,
+724,
+733,
+754,
+771,
+776,
+783,
+783,
+793
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/source-viewer/measures-overlay.js": [
+11,
+23,
+33,
+39,
+43,
+56,
+73,
+89,
+108,
+114,
+139,
+141,
+142,
+147,
+161,
+168,
+172,
+181,
+190,
+202,
+206,
+215,
+220
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/source-viewer/more-actions.js": [
+18,
+26,
+30,
+34,
+36,
+39,
+43,
+46
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/source-viewer/popups/coverage-popup.js": [
+14,
+19,
+25,
+44,
+46
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/source-viewer/popups/duplication-popup.js": [
+14,
+18,
+18,
+21,
+27,
+39
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/source-viewer/popups/line-actions-popup.js": [
+13,
+21,
+27,
+28
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/source-viewer/popups/scm-popup.js": [
+11,
+16
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/source-viewer/source.js": [
+7,
+21,
+25,
+38,
+41,
+62,
+65,
+75,
+78,
+84
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/workspace/main.js": [
+19,
+35,
+39,
+45,
+59,
+63,
+67,
+75,
+88,
+92,
+99,
+111
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/workspace/models/item.js": [
+5,
+17,
+21,
+25
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/workspace/models/items.js": [
+9,
+13,
+18,
+30,
+36
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/workspace/views/base-viewer-view.js": [
+16,
+21,
+25,
+29
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/workspace/views/item-view.js": [
+20,
+25,
+31,
+35
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/workspace/views/items-view.js": [
+11
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/workspace/views/rule-view.js": [
+9,
+14,
+18
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/workspace/views/viewer-header-view.js": [
+22,
+27,
+32,
+37,
+42,
+47,
+52,
+57,
+67,
+74,
+80,
+87
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/workspace/views/viewer-view.js": [
+8,
+13
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/helpers/handlebars-helpers.js": [
+161,
+432,
+485
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/helpers/measures.js": [
+46
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/libs/sortable.js": [
+19
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/libs/translate.js": [
+69
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/main/nav/component/recent-history.js": [
+34
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/main/nav/global/global-nav-menu.js": [
+8
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/main/nav/global/search-view.js": [
+15,
+19,
+23,
+27,
+61,
+77,
+85,
+105,
+117,
+121,
+136,
+142,
+161,
+189,
+211,
+225
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/main/processes.js": [
+17,
+24,
+31,
+63,
+149,
+152
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/widgets/issue-filter/widget.js": [
+51,
+58,
+62,
+70,
+74,
+83,
+93,
+104,
+112,
+121,
+131,
+142,
+150,
+159,
+162,
+169,
+241,
+246,
+266,
+286,
+293,
+298,
+303,
+313,
+322,
+329,
+343,
+352
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/widgets/old/base.js": [
+45,
+46,
+57
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/widgets/old/bubble-chart.js": [
+443,
+446,
+458,
+461
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/widgets/old/treemap.js": [
+306,
+319,
+329
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/test/helpers/test-page.js": [
+137,
+146
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/test/intern.js": [
+36
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/test/medium/custom-measures.spec.js": [
+12,
+31,
+37,
+47,
+55,
+60,
+75,
+88,
+103,
+110,
+128,
+134
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/test/medium/source-viewer.spec.js": [
+17,
+40,
+59,
+78
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/tests/nav-test.js": [
+16
+],
+"javascript-test-sources:src/ecmascript6/templating/protractor-shared.conf.js": [
+11
+],
+"javascript-test-sources:src/ecmascript6/templating/src/lib/di/ce_di.js": [
+43
+],
+"javascript-test-sources:src/ecmascript6/templating/src/lib/di/ce_di_bootstrap.js": [
+10
+],
+"javascript-test-sources:src/ecmascript6/templating/src/lib/load_barrier.js": [
+86,
+87,
+88
+],
+"javascript-test-sources:src/ecmascript6/templating/src/util/ng_polymer.js": [
+11,
+33,
+41
+],
+"javascript-test-sources:src/ecmascript6/watchtower.js/test/dirtychecking.spec.js": [
+15,
+16
+],
+"javascript-test-sources:src/ecmascript6/watchtower.js/test/matchers.js": [
+102,
+115,
+128,
+141
+],
+"javascript-test-sources:src/ecmascript6/watchtower.js/test/observer.spec.js": [
+15
+],
+"javascript-test-sources:src/ecmascript6/watchtower.js/test/watchgroup.spec.js": [
+444
+]
+}

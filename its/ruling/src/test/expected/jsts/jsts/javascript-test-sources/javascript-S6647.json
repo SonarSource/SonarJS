@@ -1,0 +1,9 @@
+{
+"javascript-test-sources:src/ecmascript6/http/test/mocks/Xhr.js": [
+50
+],
+"javascript-test-sources:src/ecmascript6/watchtower.js/src/watch_record.js": [
+109,
+121
+]
+}

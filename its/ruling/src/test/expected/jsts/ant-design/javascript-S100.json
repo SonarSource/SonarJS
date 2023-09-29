@@ -1,0 +1,29 @@
+{
+"ant-design:components/config-provider/__tests__/index.test.js": [
+110
+],
+"ant-design:components/config-provider/__tests__/locale.test.js": [
+14
+],
+"ant-design:components/form/__tests__/index.test.js": [
+1188
+],
+"ant-design:components/grid/__tests__/index.test.js": [
+109
+],
+"ant-design:components/message/__tests__/hooks.test.js": [
+187
+],
+"ant-design:components/modal/__tests__/confirm.test.js": [
+70
+],
+"ant-design:components/notification/__tests__/hooks.test.js": [
+92
+],
+"ant-design:components/notification/__tests__/placement.test.js": [
+7
+],
+"ant-design:site/theme/template/Color/ColorPatterns.jsx": [
+6
+]
+}

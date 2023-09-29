@@ -1,0 +1,85 @@
+{
+"searchkit:docs/docusaurus.config.js": [
+41,
+46
+],
+"searchkit:docs/src/pages/index.js": [
+12,
+13,
+42,
+52,
+52,
+96,
+208,
+209,
+367,
+397,
+397
+],
+"searchkit:examples/next/components/geosearch-examples/Input.jsx": [
+15,
+33,
+64,
+88
+],
+"searchkit:examples/next/components/geosearch-examples/maps.jsx": [
+32,
+56,
+66,
+88,
+90,
+102,
+105,
+123,
+126,
+146,
+164,
+165
+],
+"searchkit:examples/next/components/geosearch-examples/parks.jsx": [
+104
+],
+"searchkit:examples/next/components/sdk-example/index.jsx": [
+1,
+28,
+32,
+34,
+41,
+41,
+41,
+42,
+42,
+42
+],
+"searchkit:examples/next/pages/_document.jsx": [
+13
+],
+"searchkit:examples/next/pages/api/graphql.js": [
+22,
+22,
+22,
+23,
+23,
+23,
+113,
+114,
+121
+],
+"searchkit:examples/next/pages/graphql/index.jsx": [
+10,
+13,
+24,
+43,
+44
+],
+"searchkit:examples/next/pages/graphql/ssr-example.jsx": [
+4
+],
+"searchkit:examples/next/pages/index.jsx": [
+9,
+12,
+23,
+42,
+43
+]
+}

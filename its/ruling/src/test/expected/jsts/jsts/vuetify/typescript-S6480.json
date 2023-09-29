@@ -1,0 +1,157 @@
+{
+"vuetify:packages/vuetify/src/components/VAutocomplete/VAutocomplete.tsx": [
+269,
+272,
+284,
+285,
+286,
+287,
+288,
+304,
+312,
+313,
+314,
+330
+],
+"vuetify:packages/vuetify/src/components/VBtn/VBtn.tsx": [
+182
+],
+"vuetify:packages/vuetify/src/components/VCheckbox/VCheckboxBtn.tsx": [
+68
+],
+"vuetify:packages/vuetify/src/components/VChip/VChip.tsx": [
+186
+],
+"vuetify:packages/vuetify/src/components/VColorPicker/VColorPicker.tsx": [
+137,
+151,
+162,
+164,
+175
+],
+"vuetify:packages/vuetify/src/components/VColorPicker/VColorPickerEdit.tsx": [
+91
+],
+"vuetify:packages/vuetify/src/components/VColorPicker/VColorPickerPreview.tsx": [
+48,
+63
+],
+"vuetify:packages/vuetify/src/components/VCombobox/VCombobox.tsx": [
+350,
+364,
+365,
+366,
+367,
+368,
+384,
+392,
+393,
+394,
+410
+],
+"vuetify:packages/vuetify/src/components/VExpansionPanel/__tests__/VExpansionPanels.spec.cy.tsx": [
+139
+],
+"vuetify:packages/vuetify/src/components/VFileInput/VFileInput.tsx": [
+169,
+188,
+189,
+190
+],
+"vuetify:packages/vuetify/src/components/VList/VListItem.tsx": [
+208
+],
+"vuetify:packages/vuetify/src/components/VList/__tests__/VListItem.spec.cy.tsx": [
+34,
+35
+],
+"vuetify:packages/vuetify/src/components/VMenu/VMenu.tsx": [
+103
+],
+"vuetify:packages/vuetify/src/components/VOverlay/VOverlay.tsx": [
+278
+],
+"vuetify:packages/vuetify/src/components/VParallax/VParallax.tsx": [
+97,
+98
+],
+"vuetify:packages/vuetify/src/components/VRangeSlider/VRangeSlider.tsx": [
+184,
+185,
+202,
+218,
+219,
+236
+],
+"vuetify:packages/vuetify/src/components/VSelect/VSelect.tsx": [
+226,
+240,
+241,
+242,
+243,
+266,
+267,
+288
+],
+"vuetify:packages/vuetify/src/components/VSelect/__tests__/VSelect.spec.cy.tsx": [
+23
+],
+"vuetify:packages/vuetify/src/components/VSlider/VSlider.tsx": [
+149
+],
+"vuetify:packages/vuetify/src/components/VSwitch/VSwitch.tsx": [
+108
+],
+"vuetify:packages/vuetify/src/components/VTabs/VTab.tsx": [
+147
+],
+"vuetify:packages/vuetify/src/components/VTabs/__tests__/VTabs.spec.cy.tsx": [
+135
+],
+"vuetify:packages/vuetify/src/components/VTextField/VTextField.tsx": [
+184,
+185,
+186
+],
+"vuetify:packages/vuetify/src/components/VTextarea/VTextarea.tsx": [
+231,
+232,
+233
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/VDataTable.tsx": [
+159
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/VDataTableFooter.tsx": [
+98,
+113,
+120,
+130,
+137
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/VDataTableGroupHeaderRow.tsx": [
+61,
+78
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/VDataTableHeaders.tsx": [
+96
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/VDataTableRow.tsx": [
+71,
+82
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/VDataTableRows.tsx": [
+140
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/VDataTableServer.tsx": [
+136
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/VDataTableVirtual.tsx": [
+149
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/__tests__/VDataTableServer.spec.cy.tsx": [
+135
+],
+"vuetify:packages/vuetify/src/labs/VVirtualScroll/VVirtualScroll.tsx": [
+179
+]
+}

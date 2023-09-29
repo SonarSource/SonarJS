@@ -1,0 +1,88 @@
+{
+"moose:main/background.ts": [
+47,
+47,
+73,
+85,
+91
+],
+"moose:main/controllers/delete.ts": [
+16,
+24,
+29
+],
+"moose:main/controllers/subtitles.ts": [
+58,
+90,
+93
+],
+"moose:main/helpers/createWindow.ts": [
+49,
+50
+],
+"moose:main/modules/progress.ts": [
+38
+],
+"moose:main/utils/Cast.ts": [
+44
+],
+"moose:main/utils/opensubtitle-hash.ts": [
+10,
+10,
+11,
+12,
+19,
+21,
+22,
+25,
+35,
+44,
+51,
+56,
+57,
+69,
+69,
+71,
+72,
+72,
+83,
+89,
+89,
+90,
+90,
+93,
+94,
+98,
+98,
+99,
+99,
+103,
+105,
+106,
+108,
+111,
+113
+],
+"moose:main/utils/temp.ts": [
+10,
+12
+],
+"moose:renderer/components/CastControl/CastControl.tsx": [
+77,
+114,
+114,
+115,
+115
+],
+"moose:renderer/components/Downloads/Downloads.tsx": [
+62,
+80
+],
+"moose:renderer/components/Toast/Toast.tsx": [
+20
+],
+"moose:renderer/utils/animations.ts": [
+28,
+28
+]
+}

@@ -1,0 +1,174 @@
+{
+"desktop:app/src/crash/crash-app.tsx": [
+172
+],
+"desktop:app/src/lib/ci-checks/ci-checks.ts": [
+120
+],
+"desktop:app/src/lib/fatal-error.ts": [
+43
+],
+"desktop:app/src/lib/git/environment.ts": [
+84
+],
+"desktop:app/src/lib/git/gitignore.ts": [
+40
+],
+"desktop:app/src/lib/git/stage.ts": [
+22
+],
+"desktop:app/src/lib/markdown-filters/close-keyword-filter.ts": [
+160
+],
+"desktop:app/src/lib/markdown-filters/commit-mention-filter.ts": [
+227,
+274
+],
+"desktop:app/src/lib/stats/stats-store.ts": [
+1638,
+1660,
+1683,
+1704
+],
+"desktop:app/src/lib/stores/app-store.ts": [
+1205,
+1272,
+1728,
+2390,
+2444,
+2980,
+3014,
+3931,
+4395,
+4754,
+5620,
+5746,
+5881,
+5911,
+6425,
+6521,
+6815,
+6951
+],
+"desktop:app/src/lib/stores/notifications-store.ts": [
+104
+],
+"desktop:app/src/lib/stores/pull-request-store.ts": [
+114
+],
+"desktop:app/src/lib/stores/sign-in-store.ts": [
+334,
+458,
+516
+],
+"desktop:app/src/main-process/menu/build-spell-check-menu.ts": [
+3
+],
+"desktop:app/src/main-process/squirrel-updater.ts": [
+136
+],
+"desktop:app/src/models/repository.ts": [
+117
+],
+"desktop:app/src/ui/about/about.tsx": [
+236
+],
+"desktop:app/src/ui/add-repository/create-repository.tsx": [
+247
+],
+"desktop:app/src/ui/app.tsx": [
+346,
+873,
+899,
+2655
+],
+"desktop:app/src/ui/banners/success-banner.tsx": [
+24
+],
+"desktop:app/src/ui/clone-repository/clone-repository.tsx": [
+542,
+565
+],
+"desktop:app/src/ui/create-branch/create-branch-dialog.tsx": [
+443,
+459
+],
+"desktop:app/src/ui/diff/diff-options.tsx": [
+133
+],
+"desktop:app/src/ui/diff/side-by-side-diff-row.tsx": [
+150,
+481
+],
+"desktop:app/src/ui/diff/text-diff.tsx": [
+525
+],
+"desktop:app/src/ui/dispatcher/dispatcher.ts": [
+873,
+1127,
+1998,
+2197,
+2893,
+3005,
+3204,
+3291,
+3397
+],
+"desktop:app/src/ui/drag-elements/commit-drag-element.tsx": [
+65
+],
+"desktop:app/src/ui/dropdown-select-button.tsx": [
+130,
+144,
+181
+],
+"desktop:app/src/ui/history/compare.tsx": [
+274
+],
+"desktop:app/src/ui/lib/configure-git-user.tsx": [
+262,
+290
+],
+"desktop:app/src/ui/lib/filter-list.tsx": [
+458
+],
+"desktop:app/src/ui/lib/list/list.tsx": [
+590
+],
+"desktop:app/src/ui/local-changes-overwritten/local-changes-overwritten-dialog.tsx": [
+157
+],
+"desktop:app/src/ui/multi-commit-operation/base-multi-commit-operation.tsx": [
+75,
+103,
+129
+],
+"desktop:app/src/ui/multi-commit-operation/cherry-pick.tsx": [
+46
+],
+"desktop:app/src/ui/multi-commit-operation/choose-branch/base-choose-branch-dialog.tsx": [
+135
+],
+"desktop:app/src/ui/multi-commit-operation/choose-branch/merge-choose-branch-dialog.tsx": [
+60
+],
+"desktop:app/src/ui/multi-commit-operation/rebase.tsx": [
+13
+],
+"desktop:app/src/ui/multi-commit-operation/reorder.tsx": [
+8
+],
+"desktop:app/src/ui/multi-commit-operation/squash.tsx": [
+8
+],
+"desktop:app/src/ui/notifications/pull-request-review-helpers.ts": [
+9,
+28
+],
+"desktop:app/src/ui/preferences/custom-theme-selector.tsx": [
+112
+],
+"desktop:app/src/ui/release-notes/release-notes-dialog.tsx": [
+115
+]
+}

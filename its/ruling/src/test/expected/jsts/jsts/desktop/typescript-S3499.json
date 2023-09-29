@@ -1,0 +1,179 @@
+{
+"desktop:app/src/lib/actions-log-parser/action-log-parser.ts": [
+234
+],
+"desktop:app/src/lib/app-shell.ts": [
+43
+],
+"desktop:app/src/lib/ci-checks/ci-checks.ts": [
+105
+],
+"desktop:app/src/lib/editors/win32.ts": [
+484
+],
+"desktop:app/src/lib/fuzzy-find.ts": [
+38
+],
+"desktop:app/src/lib/git/checkout.ts": [
+96
+],
+"desktop:app/src/lib/git/cherry-pick.ts": [
+352,
+353
+],
+"desktop:app/src/lib/git/diff.ts": [
+482,
+587
+],
+"desktop:app/src/lib/git/push.ts": [
+112
+],
+"desktop:app/src/lib/git/rebase.ts": [
+239,
+301
+],
+"desktop:app/src/lib/git/status.ts": [
+100,
+113,
+246
+],
+"desktop:app/src/lib/multi-commit-operation.ts": [
+31
+],
+"desktop:app/src/lib/progress/git.ts": [
+215
+],
+"desktop:app/src/lib/status-parser.ts": [
+129
+],
+"desktop:app/src/lib/stores/app-store.ts": [
+867,
+880,
+1303,
+1451,
+2213,
+2688,
+3486,
+5735,
+6406,
+6909,
+6955,
+7043
+],
+"desktop:app/src/lib/stores/cloning-repositories-store.ts": [
+30
+],
+"desktop:app/src/lib/stores/commit-status-store.ts": [
+440
+],
+"desktop:app/src/lib/stores/git-store.ts": [
+1434,
+1439
+],
+"desktop:app/src/lib/stores/github-user-store.ts": [
+64
+],
+"desktop:app/src/lib/stores/notifications-store.ts": [
+181,
+281
+],
+"desktop:app/src/lib/stores/sign-in-store.ts": [
+293,
+379,
+556
+],
+"desktop:app/src/lib/stores/updates/changes-state.ts": [
+347
+],
+"desktop:app/src/lib/trampoline/trampoline-ui-helper.ts": [
+24,
+39,
+52
+],
+"desktop:app/src/models/app-menu.ts": [
+208,
+218,
+221,
+231,
+242,
+288
+],
+"desktop:app/src/ui/app.tsx": [
+543
+],
+"desktop:app/src/ui/branches/branches-container.tsx": [
+389
+],
+"desktop:app/src/ui/changes/changes.tsx": [
+83
+],
+"desktop:app/src/ui/changes/commit-message.tsx": [
+304
+],
+"desktop:app/src/ui/check-runs/ci-check-run-list-item.tsx": [
+203
+],
+"desktop:app/src/ui/create-branch/create-branch-dialog.tsx": [
+109
+],
+"desktop:app/src/ui/diff/side-by-side-diff.tsx": [
+1274
+],
+"desktop:app/src/ui/diff/text-diff.tsx": [
+473,
+655
+],
+"desktop:app/src/ui/dispatcher/dispatcher.ts": [
+501,
+566,
+587,
+2299,
+2810,
+2981,
+3233,
+3326,
+3432,
+3779,
+3842
+],
+"desktop:app/src/ui/dispatcher/error-handlers.ts": [
+515
+],
+"desktop:app/src/ui/history/compare.tsx": [
+302,
+588,
+638
+],
+"desktop:app/src/ui/history/merge-call-to-action-with-conflicts.tsx": [
+157
+],
+"desktop:app/src/ui/lib/path-text.tsx": [
+168,
+175
+],
+"desktop:app/src/ui/multi-commit-operation/base-rebase.tsx": [
+32
+],
+"desktop:app/src/ui/notifications/pull-request-checks-failed.tsx": [
+69
+],
+"desktop:app/src/ui/preferences/preferences.tsx": [
+164
+],
+"desktop:app/src/ui/publish-repository/publish.tsx": [
+118
+],
+"desktop:app/src/ui/repositories-list/group-repositories.ts": [
+161
+],
+"desktop:app/src/ui/toolbar/branch-dropdown.tsx": [
+293
+],
+"desktop:script/publish.ts": [
+143,
+211
+],
+"desktop:script/validate-sass/validate-file.ts": [
+28
+]
+}

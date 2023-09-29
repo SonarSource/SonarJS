@@ -1,0 +1,56 @@
+{
+"desktop:app/src/cli/main.ts": [
+77
+],
+"desktop:app/src/highlighter/index.ts": [
+487
+],
+"desktop:app/src/lib/ci-checks/ci-checks.ts": [
+277,
+291,
+304
+],
+"desktop:app/src/lib/git/core.ts": [
+263
+],
+"desktop:app/src/lib/git/diff-index.ts": [
+59
+],
+"desktop:app/src/lib/markdown-filters/issue-link-filter.ts": [
+152
+],
+"desktop:app/src/lib/menu-item.ts": [
+48
+],
+"desktop:app/src/lib/parse-pac-string.ts": [
+109
+],
+"desktop:app/src/main-process/squirrel-updater.ts": [
+22
+],
+"desktop:app/src/ui/autocompletion/autocompleting-text-input.tsx": [
+381
+],
+"desktop:app/src/ui/branches/ci-status.tsx": [
+127,
+153,
+174,
+185
+],
+"desktop:app/src/ui/check-runs/ci-check-run-popover.tsx": [
+262,
+289
+],
+"desktop:app/src/ui/diff/side-by-side-diff-row.tsx": [
+156,
+339,
+532,
+561
+],
+"desktop:app/src/ui/history/commit-summary.tsx": [
+441
+],
+"desktop:app/src/ui/history/merge-call-to-action-with-conflicts.tsx": [
+218
+]
+}

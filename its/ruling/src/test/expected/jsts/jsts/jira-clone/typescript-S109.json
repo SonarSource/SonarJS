@@ -1,0 +1,49 @@
+{
+"jira-clone:api/src/database/createGuestAccount.ts": [
+63,
+90,
+101,
+115,
+152,
+157,
+161,
+162,
+166,
+167,
+171,
+172,
+176,
+177,
+181,
+182,
+186,
+187,
+198
+],
+"jira-clone:api/src/entities/Comment.ts": [
+17
+],
+"jira-clone:api/src/entities/Issue.ts": [
+25
+],
+"jira-clone:api/src/entities/Project.ts": [
+18
+],
+"jira-clone:api/src/entities/User.ts": [
+20,
+21
+],
+"jira-clone:api/src/errors/customErrors.ts": [
+9,
+18,
+24,
+30,
+36
+],
+"jira-clone:api/src/index.ts": [
+41
+],
+"jira-clone:api/src/middleware/response.ts": [
+5
+]
+}

@@ -1,0 +1,35 @@
+{
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/components/gh-fullscreen-modal.js": [
+0
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/utils/ajax.js": [
+0
+],
+"javascript-test-sources:src/ecmascript6/reddit-mobile/src/lib/formatDifference.es6.js": [
+0
+],
+"javascript-test-sources:src/ecmascript6/reddit-mobile/src/lib/loid.es6.js": [
+0
+],
+"javascript-test-sources:src/ecmascript6/reddit-mobile/src/lib/timing.es6.js": [
+0
+],
+"javascript-test-sources:src/ecmascript6/reddit-mobile/src/server/config.es6.js": [
+0
+],
+"javascript-test-sources:src/ecmascript6/redux/examples/todos-with-undo/reducers.js": [
+0
+],
+"javascript-test-sources:src/ecmascript6/snoode/src/endpoints/v1.es6.js": [
+0
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/shared/assignee-helper.js": [
+0
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/source-viewer/helpers/code-with-issue-locations-helper.js": [
+0
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/helpers/latinize.js": [
+0
+]
+}

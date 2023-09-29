@@ -1,0 +1,63 @@
+{
+"searchkit:packages/searchkit-client/src/searchkit.tsx": [
+268,
+273
+],
+"searchkit:packages/searchkit-schema/tests/BaseFilters.test.ts": [
+25
+],
+"searchkit:packages/searchkit-schema/tests/Customisations.test.ts": [
+48
+],
+"searchkit:packages/searchkit-schema/tests/HitsResolver.test.ts": [
+37
+],
+"searchkit:packages/searchkit-schema/tests/Pagination.test.ts": [
+42
+],
+"searchkit:packages/searchkit-schema/tests/Query.test.ts": [
+56
+],
+"searchkit:packages/searchkit-schema/tests/SummaryResolver.test.ts": [
+11
+],
+"searchkit:packages/searchkit-schema/tests/VisibleWhen.test.ts": [
+17
+],
+"searchkit:packages/searchkit-schema/tests/facets/FacetResolver.test.ts": [
+11
+],
+"searchkit:packages/searchkit-schema/tests/facets/FacetsResolver.test.ts": [
+11
+],
+"searchkit:packages/searchkit-schema/tests/facets/HierarchicalMenuFacet.test.ts": [
+12
+],
+"searchkit:packages/searchkit-schema/tests/facets/RangeFilters.test.ts": [
+11
+],
+"searchkit:packages/searchkit-schema/tests/filters/GeoFilters.test.ts": [
+10
+],
+"searchkit:packages/searchkit-schema/tests/filters/NumericRangeFilter.test.ts": [
+30
+],
+"searchkit:packages/searchkit-schema/tests/filters/TermFilter.test.ts": [
+30
+],
+"searchkit:packages/searchkit-schema/tests/support/helper.ts": [
+20
+],
+"searchkit:packages/searchkit-sdk/src/core/FacetsFns.ts": [
+92
+],
+"searchkit:packages/searchkit-sdk/src/facets/GeoDistanceOptionsFacet.ts": [
+38
+],
+"searchkit:packages/searchkit-sdk/src/index.ts": [
+163
+],
+"searchkit:packages/searchkit-sdk/src/transporters/FetchClientTransporter.ts": [
+37
+]
+}

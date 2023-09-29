@@ -1,0 +1,18 @@
+{
+"postgraphql:src/graphql/schema/__tests__/createMutationGqlField-test.js": [
+79
+],
+"postgraphql:src/graphql/schema/connection/__tests__/createConnectionGqlField-test.js": [
+63,
+79
+],
+"postgraphql:src/postgraphql/http/__tests__/createPostGraphQLHttpRequestHandler-test.js": [
+64
+],
+"postgraphql:src/postgraphql/http/createPostGraphQLHttpRequestHandler.js": [
+393
+],
+"postgraphql:src/postgraphql/watch/__tests__/watchPgSchemas-test.js": [
+57
+]
+}

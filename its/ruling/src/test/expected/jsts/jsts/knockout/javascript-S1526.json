@@ -1,0 +1,38 @@
+{
+"knockout:src/binding/bindingAttributeSyntax.js": [
+40,
+40,
+45,
+61,
+63,
+85
+],
+"knockout:src/binding/defaultBindings/checked.js": [
+10,
+33,
+38,
+39,
+40,
+61
+],
+"knockout:src/binding/expressionRewriting.js": [
+121,
+129,
+133,
+136
+],
+"knockout:src/subscribables/dependentObservable.js": [
+69,
+74,
+76
+],
+"knockout:src/subscribables/observable.js": [
+33
+],
+"knockout:src/subscribables/subscribable.js": [
+30
+],
+"knockout:src/virtualElements.js": [
+28
+]
+}

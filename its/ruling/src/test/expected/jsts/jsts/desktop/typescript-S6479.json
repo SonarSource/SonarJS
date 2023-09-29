@@ -1,0 +1,40 @@
+{
+"desktop:app/src/ui/changes/no-changes.tsx": [
+216
+],
+"desktop:app/src/ui/check-runs/ci-check-run-actions-job-step-list.tsx": [
+43
+],
+"desktop:app/src/ui/check-runs/ci-check-run-list.tsx": [
+164,
+202
+],
+"desktop:app/src/ui/create-tag/create-tag-dialog.tsx": [
+109
+],
+"desktop:app/src/ui/diff/diff-helpers.tsx": [
+338
+],
+"desktop:app/src/ui/diff/side-by-side-diff-row.tsx": [
+458,
+475
+],
+"desktop:app/src/ui/donut.tsx": [
+43
+],
+"desktop:app/src/ui/lib/highlight-text.tsx": [
+26
+],
+"desktop:app/src/ui/lib/rich-text.tsx": [
+51,
+61,
+66,
+69
+],
+"desktop:app/src/ui/preferences/custom-theme-selector.tsx": [
+156
+],
+"desktop:app/src/ui/tab-bar.tsx": [
+121
+]
+}

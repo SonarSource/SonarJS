@@ -1,0 +1,187 @@
+{
+"console:sortSchema.ts": [
+2,
+3
+],
+"console:src/components/Help/Alert.tsx": [
+33
+],
+"console:src/components/Help/Help.tsx": [
+33
+],
+"console:src/components/ProjectSelection/ProjectSelection.tsx": [
+200
+],
+"console:src/main.tsx": [
+2
+],
+"console:src/views/ActionsView/ActionBoxes.tsx": [
+11,
+13,
+14
+],
+"console:src/views/ActionsView/ActionHandlerBox.tsx": [
+37,
+46
+],
+"console:src/views/ActionsView/ActionRow.tsx": [
+104
+],
+"console:src/views/ActionsView/ActionTriggerBox.tsx": [
+66,
+75
+],
+"console:src/views/ActionsView/ActionsView.tsx": [
+62
+],
+"console:src/views/FunctionsView/FunctionPopup/RequestPipelineFunctionInput.tsx": [
+13,
+270,
+270
+],
+"console:src/views/Integrations/Algolia/AlgoliaHeader.tsx": [
+37,
+42
+],
+"console:src/views/Integrations/Algolia/AlgoliaModal.tsx": [
+98
+],
+"console:src/views/Integrations/Algolia/AlgoliaQuery.tsx": [
+6,
+7,
+8
+],
+"console:src/views/Integrations/Algolia/AlgoliaQueryEditor.tsx": [
+6,
+7,
+8
+],
+"console:src/views/Integrations/Algolia/ConfirmOperationsPopup.tsx": [
+28
+],
+"console:src/views/Integrations/Algolia/CreateAlgoliaIndex.tsx": [
+6,
+7,
+8
+],
+"console:src/views/Integrations/AlgoliaPopup/AlgoliaIndexPopup/AlgoliaIndexPopupQuery.tsx": [
+10,
+11,
+12
+],
+"console:src/views/Integrations/IntegrationsCardGrid.tsx": [
+38,
+45,
+63,
+90
+],
+"console:src/views/PermissionsView/PermissionPopup/PermissionConditions.tsx": [
+5,
+234,
+372,
+372
+],
+"console:src/views/PermissionsView/PermissionPopup/PermissionPopup.tsx": [
+2
+],
+"console:src/views/PermissionsView/PermissionPopup/ast.ts": [
+1,
+2
+],
+"console:src/views/PermissionsView/RelationPermissionPopup/RelationPermissionPopup.tsx": [
+3
+],
+"console:src/views/ProjectRootView/OnboardSideNav.tsx": [
+38,
+151
+],
+"console:src/views/ProjectRootView/Onboarding/OnboardingFinale.tsx": [
+148,
+181
+],
+"console:src/views/ProjectRootView/SideNav.tsx": [
+201,
+210
+],
+"console:src/views/ProjectSettingsView/AddPermanentAuthTokenRow.tsx": [
+50
+],
+"console:src/views/ProjectSettingsView/PermanentAuthTokenRow.tsx": [
+65
+],
+"console:src/views/SchemaView/EnumsOverview/EnumsOverviewHeader.tsx": [
+56
+],
+"console:src/views/SchemaView/SchemaHeader.tsx": [
+159
+],
+"console:src/views/SchemaView/SchemaOverview/FieldItem.tsx": [
+71
+],
+"console:src/views/SchemaView/SchemaOverview/SchemaOverviewHeader.tsx": [
+61,
+72,
+81
+],
+"console:src/views/SchemaView/SchemaOverview/TypeBox.tsx": [
+233,
+271,
+283,
+334,
+349,
+362
+],
+"console:src/views/SchemaView/SchemaOverview/TypeBoxSettings.tsx": [
+61
+],
+"console:src/views/SchemaView/SchemaOverview/TypeTag.tsx": [
+52
+],
+"console:src/views/account/ResetPasswordView/ResetPasswordView.tsx": [
+70
+],
+"console:src/views/models/AuthProviderPopup/AuthProviderPopup.tsx": [
+62,
+83,
+94,
+109,
+120,
+134,
+137,
+151,
+154
+],
+"console:src/views/models/DatabrowserView/Cell/ScalarListCell.tsx": [
+184,
+196
+],
+"console:src/views/models/DatabrowserView/DataActionRow/DeleteNodeRow.tsx": [
+35
+],
+"console:src/views/models/DatabrowserView/DatabrowserView.tsx": [
+259,
+276,
+302
+],
+"console:src/views/models/DatabrowserView/HeaderCell.tsx": [
+64,
+89
+],
+"console:src/views/models/DatabrowserView/NewRow.tsx": [
+107,
+127
+],
+"console:src/views/models/DatabrowserView/NewRowInactive.tsx": [
+146
+],
+"console:src/views/models/DatabrowserView/RelationsPopup.tsx": [
+100,
+143
+],
+"console:src/views/models/ModelHeader.tsx": [
+188
+],
+"console:src/views/models/ModelModal.tsx": [
+50
+]
+}

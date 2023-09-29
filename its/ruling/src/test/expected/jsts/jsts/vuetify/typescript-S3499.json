@@ -1,0 +1,159 @@
+{
+"vuetify:packages/api-generator/src/index.ts": [
+73
+],
+"vuetify:packages/docs/src/plugins/vuetify.ts": [
+21
+],
+"vuetify:packages/vuetify/dev/Playground.datatable.vue": [
+143
+],
+"vuetify:packages/vuetify/src/components/VBadge/__tests__/VBadge.spec.cy.tsx": [
+12
+],
+"vuetify:packages/vuetify/src/components/VCalendar/mixins/calendar-with-events.ts": [
+251,
+283
+],
+"vuetify:packages/vuetify/src/components/VCalendar/modes/stack.ts": [
+229
+],
+"vuetify:packages/vuetify/src/components/VDataIterator/VDataFooter.ts": [
+122
+],
+"vuetify:packages/vuetify/src/components/VDatePicker/VDatePicker.ts": [
+142
+],
+"vuetify:packages/vuetify/src/components/VDatePicker/VDatePickerHeader.ts": [
+87
+],
+"vuetify:packages/vuetify/src/components/VItemGroup/VItem.tsx": [
+22
+],
+"vuetify:packages/vuetify/src/components/VList/VList.tsx": [
+147
+],
+"vuetify:packages/vuetify/src/components/VList/VListItem.tsx": [
+148
+],
+"vuetify:packages/vuetify/src/components/VNavigationDrawer/VNavigationDrawer.tsx": [
+162
+],
+"vuetify:packages/vuetify/src/components/VOverlay/VOverlay.tsx": [
+283
+],
+"vuetify:packages/vuetify/src/components/VRangeSlider/VRangeSlider.tsx": [
+71
+],
+"vuetify:packages/vuetify/src/components/VSelectionControlGroup/VSelectionControlGroup.tsx": [
+92
+],
+"vuetify:packages/vuetify/src/components/VSlider/slider.ts": [
+309
+],
+"vuetify:packages/vuetify/src/components/VSnackbar/VSnackbar.tsx": [
+105
+],
+"vuetify:packages/vuetify/src/components/VTimePicker/__tests__/VTimePicker.spec.ts": [
+590
+],
+"vuetify:packages/vuetify/src/components/VTreeview/VTreeview.ts": [
+213
+],
+"vuetify:packages/vuetify/src/components/VTreeview/VTreeviewNode.ts": [
+310
+],
+"vuetify:packages/vuetify/src/components/transitions/expand-transition.ts": [
+18
+],
+"vuetify:packages/vuetify/src/composables/form.ts": [
+142
+],
+"vuetify:packages/vuetify/src/composables/group.ts": [
+137
+],
+"vuetify:packages/vuetify/src/composables/layout.ts": [
+135
+],
+"vuetify:packages/vuetify/src/composables/nested/__tests__/selectStrategies.spec.ts": [
+56,
+66,
+89,
+101,
+126,
+188,
+198,
+221,
+233,
+258,
+320,
+328,
+351,
+363,
+388,
+451,
+459,
+482,
+494,
+519,
+551,
+582,
+614,
+694,
+712
+],
+"vuetify:packages/vuetify/src/composables/nested/nested.ts": [
+133,
+167,
+169,
+181,
+193,
+195
+],
+"vuetify:packages/vuetify/src/composables/nested/selectStrategies.ts": [
+51,
+179
+],
+"vuetify:packages/vuetify/src/composables/stack.ts": [
+62
+],
+"vuetify:packages/vuetify/src/composables/theme.ts": [
+350
+],
+"vuetify:packages/vuetify/src/directives/click-outside/__tests__/click-outside-shadow-dom.spec.ts": [
+47
+],
+"vuetify:packages/vuetify/src/directives/click-outside/__tests__/click-outside.spec.ts": [
+31
+],
+"vuetify:packages/vuetify/src/directives/scroll/__tests__/scroll.spec.ts": [
+33,
+38
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/VDataTableRows.tsx": [
+106,
+125
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/VDataTableVirtual.tsx": [
+99
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/__tests__/VDataTable.spec.ts": [
+669,
+702
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/composables/group.ts": [
+64
+],
+"vuetify:packages/vuetify/src/locale/adapters/vue-i18n.ts": [
+51,
+69
+],
+"vuetify:packages/vuetify/src/locale/adapters/vuetify.ts": [
+81,
+98
+],
+"vuetify:packages/vuetify/src/util/colorUtils.ts": [
+129,
+139
+]
+}

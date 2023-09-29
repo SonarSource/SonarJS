@@ -1,0 +1,30 @@
+{
+"eigen:src/app/Components/Bidding/Screens/ConfirmBid/index.tsx": [
+216
+],
+"eigen:src/app/Components/Bidding/Screens/Registration.tsx": [
+250
+],
+"eigen:src/app/Components/FancyModal/FancyModal.tsx": [
+98
+],
+"eigen:src/app/NativeModules/ARScreenPresenterModule.tsx": [
+112
+],
+"eigen:src/app/Scenes/Inbox/Components/Conversations/ConversationCTA.tsx": [
+65
+],
+"eigen:src/app/Scenes/MyCollection/Screens/ArtworkForm/MyCollectionArtworkForm.tsx": [
+374
+],
+"eigen:src/app/relay/middlewares/cacheMiddleware.ts": [
+46
+],
+"eigen:src/app/utils/saleTime.ts": [
+56,
+79
+],
+"eigen:src/setupJest.ts": [
+529
+]
+}

@@ -1,0 +1,13 @@
+{
+"vuetify:packages/vuetify/build/rollup.config.js": [
+169,
+287
+],
+"vuetify:packages/vuetify/build/rollup.types.config.js": [
+66,
+70
+],
+"vuetify:scripts/lint-commit-message.js": [
+27
+]
+}

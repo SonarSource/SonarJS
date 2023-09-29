@@ -1,0 +1,48 @@
+{
+"javascript-test-sources:src/ace/experiments/dom.html": [
+87,
+95,
+103,
+151,
+186,
+202,
+230,
+239,
+257,
+297,
+315,
+329
+],
+"javascript-test-sources:src/ace/lib/ace/mode/css/csslint.js": [
+10512,
+10620
+],
+"javascript-test-sources:src/ace/lib/ace/mode/javascript/jshint.js": [
+621,
+733,
+2007,
+15184
+],
+"javascript-test-sources:src/ace/lib/ace/mode/yaml/yaml-lint.js": [
+4350,
+4465
+],
+"javascript-test-sources:src/ace/src/edit_session_test.js": [
+799
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/tests/integration/components/gh-navitem-url-input-test.js": [
+382,
+410,
+470
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/functional/routes/admin_spec.js": [
+30
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/server_helpers/pagination_spec.js": [
+97
+],
+"javascript-test-sources:src/ecmascript6/router/third_party/brick/brick-1.0.1.byob.js": [
+3689,
+3701
+]
+}

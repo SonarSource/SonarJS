@@ -1,0 +1,247 @@
+{
+"javascript-test-sources:src/ace/lib/ace/mode/css/csslint.js": [
+5172,
+5402,
+6861,
+7947,
+8572,
+8686,
+8944,
+9019,
+9249,
+9390,
+9488,
+9533
+],
+"javascript-test-sources:src/ace/lib/ace/mode/html/saxparser.js": [
+3465,
+10094
+],
+"javascript-test-sources:src/ace/lib/ace/mode/javascript/jshint.js": [
+4539,
+4602,
+4688,
+4697,
+5130,
+5417,
+5494,
+6326,
+6409,
+6562,
+6610,
+7338,
+7445,
+7504,
+7567,
+7720,
+7810,
+8080,
+8369,
+8909,
+9081,
+9104,
+9274,
+9815,
+9980,
+11080,
+13197,
+15227,
+15612,
+15899,
+15924,
+15927,
+16063,
+18900
+],
+"javascript-test-sources:src/ace/lib/ace/mode/php/php.js": [
+1260
+],
+"javascript-test-sources:src/ace/lib/ace/mode/xml/dom.js": [
+388,
+598,
+1042
+],
+"javascript-test-sources:src/ace/lib/ace/mode/yaml/yaml-lint.js": [
+1847,
+1933,
+2297,
+3828
+],
+"javascript-test-sources:src/ace/src/commands/default_commands.js": [
+808
+],
+"javascript-test-sources:src/ace/src/edit_session/folding.js": [
+860
+],
+"javascript-test-sources:src/ace/src/editor.js": [
+904,
+1747
+],
+"javascript-test-sources:src/ace/src/ext/beautify.js": [
+155,
+208,
+217,
+268,
+307
+],
+"javascript-test-sources:src/ace/src/ext/elastic_tabstops_lite.js": [
+105
+],
+"javascript-test-sources:src/ace/src/ext/rtl.js": [
+72
+],
+"javascript-test-sources:src/ace/src/keyboard/hash_handler.js": [
+201
+],
+"javascript-test-sources:src/ace/src/keyboard/vim.js": [
+193,
+213,
+336,
+834,
+931,
+936,
+2218,
+3901,
+4752,
+4769,
+4777,
+4788,
+5603,
+5982,
+7008,
+7039
+],
+"javascript-test-sources:src/ace/src/layer/gutter.js": [
+292
+],
+"javascript-test-sources:src/ace/src/layer/text.js": [
+477
+],
+"javascript-test-sources:src/ace/src/line_widgets.js": [
+129
+],
+"javascript-test-sources:src/ace/src/mode/crystal.js": [
+59
+],
+"javascript-test-sources:src/ace/src/mode/folding/asciidoc.js": [
+54
+],
+"javascript-test-sources:src/ace/src/mode/folding/coffee.js": [
+68
+],
+"javascript-test-sources:src/ace/src/mode/folding/cstyle.js": [
+47
+],
+"javascript-test-sources:src/ace/src/mode/folding/java.js": [
+16
+],
+"javascript-test-sources:src/ace/src/mode/folding/lua.js": [
+68
+],
+"javascript-test-sources:src/ace/src/mode/folding/ruby.js": [
+57,
+97,
+102
+],
+"javascript-test-sources:src/ace/src/mode/folding/velocity.js": [
+68
+],
+"javascript-test-sources:src/ace/src/mode/javascript_highlight_rules.js": [
+468
+],
+"javascript-test-sources:src/ace/src/mode/livescript.js": [
+19
+],
+"javascript-test-sources:src/ace/src/mode/lua.js": [
+79
+],
+"javascript-test-sources:src/ace/src/mode/ruby.js": [
+60
+],
+"javascript-test-sources:src/ace/src/mode/text_highlight_rules.js": [
+33
+],
+"javascript-test-sources:src/ace/src/mode/vbscript.js": [
+89
+],
+"javascript-test-sources:src/ace/src/mouse/fold_handler.js": [
+22
+],
+"javascript-test-sources:src/ace/src/range.js": [
+267
+],
+"javascript-test-sources:src/ace/src/range_list.js": [
+186
+],
+"javascript-test-sources:src/ace/src/test/mockdom.js": [
+621
+],
+"javascript-test-sources:src/ace/src/tokenizer.js": [
+325
+],
+"javascript-test-sources:src/ace/src/undomanager.js": [
+294
+],
+"javascript-test-sources:src/ace/tool/regexp_tokenizer.js": [
+60
+],
+"javascript-test-sources:src/ace/tool/tmlanguage.js": [
+302,
+600
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/adapters/base.js": [
+59
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/controllers/post-settings-menu.js": [
+260
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/controllers/setup/three.js": [
+32
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/controllers/team/user.js": [
+230
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/mixins/editor-base-route.js": [
+70
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/validators/user.js": [
+27,
+47,
+59
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/utils.js": [
+279
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/migration/builder.js": [
+59
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/validation/index.js": [
+45,
+56,
+70
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/middleware/check-ssl.js": [
+41
+],
+"javascript-test-sources:src/ecmascript6/reddit-mobile/assets/js/client.es6.js": [
+189
+],
+"javascript-test-sources:src/ecmascript6/reddit-mobile/src/lib/errorLog.es6.js": [
+35
+],
+"javascript-test-sources:src/ecmascript6/router/third_party/brick/brick-1.0.1.byob.js": [
+764
+],
+"javascript-test-sources:src/ecmascript6/router/third_party/route-recognizer.js": [
+193
+],
+"javascript-test-sources:src/ecmascript6/templating/src/lib/load_barrier.js": [
+76
+],
+"javascript-test-sources:src/ecmascript6/watchtower.js/src/dirty_checking.js": [
+172
+],
+"javascript-test-sources:src/ecmascript6/watchtower.js/src/watch_record.js": [
+328
+]
+}

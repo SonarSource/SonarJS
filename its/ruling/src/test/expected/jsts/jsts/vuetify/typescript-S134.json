@@ -1,0 +1,40 @@
+{
+"vuetify:packages/api-generator/src/index.ts": [
+93,
+112
+],
+"vuetify:packages/api-generator/src/types.ts": [
+381
+],
+"vuetify:packages/docs/src/util/helpers.ts": [
+87
+],
+"vuetify:packages/vuetify/src/components/VCalendar/VCalendar.ts": [
+332
+],
+"vuetify:packages/vuetify/src/components/VCalendar/mixins/mouse.ts": [
+79
+],
+"vuetify:packages/vuetify/src/components/VCalendar/modes/common.ts": [
+68
+],
+"vuetify:packages/vuetify/src/components/VCalendar/modes/stack.ts": [
+66,
+79,
+85
+],
+"vuetify:packages/vuetify/src/components/VCalendar/util/props.ts": [
+244
+],
+"vuetify:packages/vuetify/src/composables/filter.ts": [
+81,
+98
+],
+"vuetify:packages/vuetify/src/composables/theme.ts": [
+222,
+224
+],
+"vuetify:packages/vuetify/src/util/console.ts": [
+90
+]
+}

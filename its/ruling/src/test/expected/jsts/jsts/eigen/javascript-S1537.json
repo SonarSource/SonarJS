@@ -1,0 +1,96 @@
+{
+"eigen:.eslintrc.js": [
+3
+],
+"eigen:__mocks__/react-relay.js": [
+13
+],
+"eigen:alias.js": [
+20
+],
+"eigen:babel.config.js": [
+12,
+13,
+14,
+37,
+38,
+44,
+45
+],
+"eigen:index-common.js": [
+6
+],
+"eigen:jest.config.js": [
+14,
+21,
+24,
+26
+],
+"eigen:metro.config.js": [
+14,
+15,
+16,
+20,
+21
+],
+"eigen:relay.config.js": [
+9,
+10
+],
+"eigen:scripts/changelog/cli.js": [
+16,
+20
+],
+"eigen:scripts/changelog/commitChangelog.js": [
+69,
+84,
+92
+],
+"eigen:scripts/changelog/generateChangelogSectionTemplate.js": [
+7
+],
+"eigen:scripts/changelog/generatePlatformChangelog.js": [
+38,
+63,
+82,
+107,
+256
+],
+"eigen:scripts/changelog/parsePRDescription.js": [
+25
+],
+"eigen:scripts/generate-cities-cache.js": [
+28,
+29
+],
+"eigen:scripts/generate-cities-objc.js": [
+29
+],
+"eigen:scripts/preheatGraphQLCache.js": [
+37,
+38,
+60
+],
+"eigen:scripts/queryMap.js": [
+15,
+22
+],
+"eigen:scripts/update-metaphysics.js": [
+24
+],
+"eigen:src/storybook/main.js": [
+3
+],
+"eigen:src/storybook/storybook.requires.js": [
+7,
+56
+],
+"eigen:tslint-rules/jsxSafeConditionalsRule.js": [
+27,
+72
+],
+"eigen:tslint-rules/useWrappedComponentsRule.js": [
+23,
+61
+]
+}

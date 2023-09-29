@@ -1,0 +1,34 @@
+{
+"javascript-test-sources:src/ace/lib/ace/mode/html/saxparser.js": [
+489,
+850,
+3066,
+4071,
+4086,
+4091,
+4098,
+4110,
+5177,
+5323,
+5348
+],
+"javascript-test-sources:src/ace/lib/ace/mode/javascript/jshint.js": [
+13555
+],
+"javascript-test-sources:src/ace/src/mode/elixir_highlight_rules.js": [
+295
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/issues/models/issues.js": [
+52
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/overview/main/main.js": [
+98,
+113
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/issue/collections/issues.js": [
+52
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/issue/models/issue.js": [
+80
+]
+}

@@ -1,0 +1,755 @@
+{
+"rxjs:.make-packages.js": [
+1,
+2,
+3,
+4,
+5
+],
+"rxjs:.markdown-doctest-setup.js": [
+4
+],
+"rxjs:dangerfile.js": [
+1,
+2,
+3,
+4
+],
+"rxjs:doc/decision-tree-widget/src/main.js": [
+1,
+2,
+3,
+4,
+5,
+6,
+7,
+8
+],
+"rxjs:doc/decision-tree-widget/tools/yaml2json.js": [
+1,
+2
+],
+"rxjs:index.js": [
+1
+],
+"rxjs:perf/macro/bufferCount/buffercount.spec.js": [
+1
+],
+"rxjs:perf/macro/combineLatest/combinelatest.spec.js": [
+1
+],
+"rxjs:perf/macro/groupBy/groupby.spec.js": [
+1
+],
+"rxjs:perf/macro/merge/merge.spec.js": [
+1
+],
+"rxjs:perf/macro/mergeAll/mergeall.spec.js": [
+1
+],
+"rxjs:perf/macro/mergeMap-scalar/mergemap-scalar.spec.js": [
+1
+],
+"rxjs:perf/macro/mergeMap/mergemap.spec.js": [
+1
+],
+"rxjs:perf/macro/specbuilder.js": [
+1
+],
+"rxjs:perf/macro/windowCount/windowcount.spec.js": [
+1
+],
+"rxjs:perf/macro/zip/zip.spec.js": [
+1
+],
+"rxjs:perf/micro/current-thread-scheduler/observable/defer.js": [
+1,
+2
+],
+"rxjs:perf/micro/current-thread-scheduler/observable/empty.js": [
+1,
+2
+],
+"rxjs:perf/micro/current-thread-scheduler/observable/from-with-array.js": [
+1,
+2
+],
+"rxjs:perf/micro/current-thread-scheduler/observable/from-with-iterable.js": [
+1,
+2
+],
+"rxjs:perf/micro/current-thread-scheduler/observable/from-with-string.js": [
+1,
+2
+],
+"rxjs:perf/micro/current-thread-scheduler/observable/interval.js": [
+1,
+2
+],
+"rxjs:perf/micro/current-thread-scheduler/observable/of.js": [
+1,
+2
+],
+"rxjs:perf/micro/current-thread-scheduler/observable/range.js": [
+1,
+2
+],
+"rxjs:perf/micro/current-thread-scheduler/observable/throw.js": [
+1,
+2
+],
+"rxjs:perf/micro/current-thread-scheduler/observable/timer.js": [
+1,
+2
+],
+"rxjs:perf/micro/current-thread-scheduler/operators/buffercount-skip.js": [
+1,
+2
+],
+"rxjs:perf/micro/current-thread-scheduler/operators/buffercount.js": [
+1,
+2
+],
+"rxjs:perf/micro/current-thread-scheduler/operators/catch.js": [
+1,
+2
+],
+"rxjs:perf/micro/current-thread-scheduler/operators/combinelatest.js": [
+1,
+2
+],
+"rxjs:perf/micro/current-thread-scheduler/operators/concat-many.js": [
+1,
+2
+],
+"rxjs:perf/micro/current-thread-scheduler/operators/concat.js": [
+1,
+2
+],
+"rxjs:perf/micro/current-thread-scheduler/operators/concatall.js": [
+1,
+2
+],
+"rxjs:perf/micro/current-thread-scheduler/operators/defaultifempty.js": [
+1,
+2
+],
+"rxjs:perf/micro/current-thread-scheduler/operators/do.js": [
+1,
+2
+],
+"rxjs:perf/micro/current-thread-scheduler/operators/exhaust.js": [
+1,
+2
+],
+"rxjs:perf/micro/current-thread-scheduler/operators/exhaustMap.js": [
+1,
+2
+],
+"rxjs:perf/micro/current-thread-scheduler/operators/filter.js": [
+1,
+2
+],
+"rxjs:perf/micro/current-thread-scheduler/operators/groupby.js": [
+1,
+2
+],
+"rxjs:perf/micro/current-thread-scheduler/operators/ignoreelements.js": [
+1,
+2
+],
+"rxjs:perf/micro/current-thread-scheduler/operators/map.js": [
+1,
+2
+],
+"rxjs:perf/micro/current-thread-scheduler/operators/merge.js": [
+1,
+2
+],
+"rxjs:perf/micro/current-thread-scheduler/operators/mergeall.js": [
+1,
+2
+],
+"rxjs:perf/micro/current-thread-scheduler/operators/mergemap-resultselector.js": [
+1,
+2
+],
+"rxjs:perf/micro/current-thread-scheduler/operators/mergemap-scalar.js": [
+1,
+2
+],
+"rxjs:perf/micro/current-thread-scheduler/operators/mergemap.js": [
+1,
+2
+],
+"rxjs:perf/micro/current-thread-scheduler/operators/mergemapto-resultselector.js": [
+1,
+2
+],
+"rxjs:perf/micro/current-thread-scheduler/operators/mergemapto-scalar.js": [
+1,
+2
+],
+"rxjs:perf/micro/current-thread-scheduler/operators/mergemapto.js": [
+1,
+2
+],
+"rxjs:perf/micro/current-thread-scheduler/operators/reduce.js": [
+1,
+2
+],
+"rxjs:perf/micro/current-thread-scheduler/operators/retry.js": [
+1,
+2
+],
+"rxjs:perf/micro/current-thread-scheduler/operators/skip.js": [
+1,
+2
+],
+"rxjs:perf/micro/current-thread-scheduler/operators/skiplast.js": [
+1,
+2
+],
+"rxjs:perf/micro/current-thread-scheduler/operators/skipwhile.js": [
+1,
+2
+],
+"rxjs:perf/micro/current-thread-scheduler/operators/startwith-fromarray.js": [
+1,
+2
+],
+"rxjs:perf/micro/current-thread-scheduler/operators/startwith-scalar.js": [
+1,
+2
+],
+"rxjs:perf/micro/current-thread-scheduler/operators/switch.js": [
+1,
+2
+],
+"rxjs:perf/micro/current-thread-scheduler/operators/switchmap-resultselector.js": [
+1,
+2
+],
+"rxjs:perf/micro/current-thread-scheduler/operators/switchmap.js": [
+1,
+2
+],
+"rxjs:perf/micro/current-thread-scheduler/operators/switchmapto-resultselector.js": [
+1,
+2
+],
+"rxjs:perf/micro/current-thread-scheduler/operators/switchmapto.js": [
+1,
+2
+],
+"rxjs:perf/micro/current-thread-scheduler/operators/take.js": [
+1,
+2
+],
+"rxjs:perf/micro/current-thread-scheduler/operators/takelast.js": [
+1,
+2
+],
+"rxjs:perf/micro/current-thread-scheduler/operators/takewhile.js": [
+1,
+2
+],
+"rxjs:perf/micro/current-thread-scheduler/operators/throttle.js": [
+1,
+2
+],
+"rxjs:perf/micro/current-thread-scheduler/operators/timeinterval.js": [
+1,
+2
+],
+"rxjs:perf/micro/current-thread-scheduler/operators/toarray.js": [
+1,
+2
+],
+"rxjs:perf/micro/current-thread-scheduler/operators/windowcount.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/observable/defer.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/observable/empty.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/observable/forkjoin.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/observable/from-with-array.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/observable/from-with-iterable.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/observable/from-with-string.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/observable/fromPromise.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/observable/fromevent.js": [
+1,
+2,
+3
+],
+"rxjs:perf/micro/immediate-scheduler/observable/fromeventpattern.js": [
+1,
+2,
+3
+],
+"rxjs:perf/micro/immediate-scheduler/observable/interval.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/observable/never.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/observable/of.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/observable/range.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/observable/throw.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/observable/timer.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/observable/zip.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/buffer.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/buffercount-skip.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/buffercount.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/catch.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/combinelatest.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/concat-many.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/concat.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/concatall.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/count-scalar.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/count.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/debounce.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/debouncetime.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/defaultifempty.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/delay.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/distinct-keyselector.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/distinct.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/elementat.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/every-predicate-array.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/every-predicate-scalar.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/every-predicate-this.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/every-predicate.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/exhaust.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/exhaustMap.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/filter-scalar-false.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/filter-scalar-true.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/filter.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/find-predicate-this.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/find-predicate.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/findindex-predicate-this.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/findindex-predicate.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/first-predicate.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/first.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/groupby.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/ignoreelements.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/isempty.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/last-predicate-this.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/last-predicate.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/last.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/map-scalar.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/map.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/mapto.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/merge.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/mergeall.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/mergemap-resultselector.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/mergemap-scalar.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/mergemap.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/mergemapto-resultselector.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/mergemapto-scalar.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/mergemapto.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/multicast-selector.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/multicast.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/pairwise.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/publish-selector.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/publish.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/reduce-scalar-noseed.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/reduce-scalar.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/reduce.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/repeat-scalar.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/repeat.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/retry.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/scan-array.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/scan-scalar-noseed.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/scan-scalar.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/scan.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/sequenceEqual-comparor.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/sequenceEqual.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/share.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/single-predicate.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/single.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/skip-scalar-0.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/skip-scalar-outofbounds.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/skip.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/skiplast.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/skipuntil.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/skipwhile.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/startwith-fromarray.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/startwith-scalar.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/switch.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/switchmap-resultselector.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/switchmap.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/switchmapto-resultselector.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/switchmapto.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/take-scalar.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/take.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/takelast.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/takeuntil.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/takewhile.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/throttle.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/timeinterval.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/toarray.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/topromise-ctor.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/topromise.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/windowcount.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/withlatestfrom.js": [
+1,
+2
+],
+"rxjs:perf/micro/immediate-scheduler/operators/zip.js": [
+1,
+2
+],
+"rxjs:perf/micro/index.js": [
+1,
+2,
+4,
+6,
+7,
+8,
+10,
+12
+],
+"rxjs:protractor.conf.js": [
+1
+],
+"rxjs:tools/add-license-to-file.js": [
+1,
+2,
+3
+],
+"rxjs:tools/check-gzip-size.js": [
+1,
+2,
+3
+],
+"rxjs:tools/make-closure-core.js": [
+1,
+2
+],
+"rxjs:tools/make-umd-bundle.js": [
+1,
+3,
+4,
+5,
+7,
+8,
+10
+]
+}

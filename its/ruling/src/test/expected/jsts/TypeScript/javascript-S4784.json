@@ -1,0 +1,45 @@
+{
+"TypeScript:Jakefile.js": [
+556
+],
+"TypeScript:lib/tsc.js": [
+1085,
+5418,
+5419,
+5420,
+6506,
+6507,
+7384,
+8606,
+16159,
+16168,
+16169,
+16179,
+40226,
+43031,
+53171,
+55763,
+55765,
+55766,
+55767,
+55768,
+55769
+],
+"TypeScript:lib/typingsInstaller.js": [
+1095,
+6100,
+6102,
+6103,
+6104,
+6105,
+6106,
+7248
+],
+"TypeScript:scripts/browserify-optional.js": [
+7
+],
+"TypeScript:scripts/mocha-parallel.js": [
+14,
+15
+]
+}

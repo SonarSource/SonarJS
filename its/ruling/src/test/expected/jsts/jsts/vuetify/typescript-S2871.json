@@ -1,0 +1,11 @@
+{
+"vuetify:packages/api-generator/src/vetur.ts": [
+19
+],
+"vuetify:packages/vuetify/src/components/VCalendar/modes/stack.ts": [
+156
+],
+"vuetify:packages/vuetify/src/components/VDatePicker/mixins/date-picker-table.ts": [
+251
+]
+}

@@ -1,0 +1,557 @@
+{
+"javascript-test-sources:src/ace/src/keyboard/vim.js": [
+3602
+],
+"javascript-test-sources:src/ace/src/keyboard/vim_ace_test.js": [
+338
+],
+"javascript-test-sources:src/ace/src/test/mockdom.js": [
+516
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/adapters/base.js": [
+53
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/adapters/embedded-relation-adapter.js": [
+105
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/assets/lib/uploader.js": [
+22,
+33
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/components/gh-dropdown.js": [
+43
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/components/gh-error-message.js": [
+29
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/components/gh-fullscreen-modal.js": [
+35,
+57,
+67
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/components/gh-notification.js": [
+39
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/components/gh-search-input.js": [
+64,
+65,
+81,
+82,
+98,
+99
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/components/gh-selectize.js": [
+84
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/components/gh-user-invited.js": [
+29,
+40,
+58
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/components/modals/delete-all.js": [
+42
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/components/modals/invite-new-user.js": [
+30,
+58,
+116
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/components/modals/re-authenticate.js": [
+52,
+54
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/components/modals/upload-image.js": [
+81
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/controllers/editor/new.js": [
+18
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/controllers/feature.js": [
+31,
+31
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/controllers/post-settings-menu.js": [
+37,
+47,
+47,
+49,
+50,
+50,
+74,
+179,
+203,
+218,
+241,
+281,
+335,
+390,
+403,
+441,
+450,
+450,
+463,
+464,
+464,
+470,
+470
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/controllers/reset.js": [
+52,
+56,
+60
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/controllers/settings/code-injection.js": [
+15
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/controllers/settings/general.js": [
+25,
+83,
+87
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/controllers/settings/labs.js": [
+35,
+76,
+109
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/controllers/settings/navigation.js": [
+63,
+63,
+93,
+102,
+119
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/controllers/settings/tags/tag.js": [
+36,
+39,
+51
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/controllers/setup/three.js": [
+52,
+52,
+60,
+90,
+135,
+135,
+166,
+168,
+187,
+194
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/controllers/setup/two.js": [
+43,
+82,
+121,
+134,
+139
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/controllers/signin.js": [
+32,
+36,
+67,
+94
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/controllers/signup.js": [
+28,
+32,
+75,
+78
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/controllers/team/user.js": [
+123,
+125,
+145,
+174,
+185,
+211,
+257,
+261,
+270
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/mirage/config.js": [
+147
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/mixins/active-link-wrapper.js": [
+24
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/mixins/body-event-listener.js": [
+33
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/mixins/current-user-settings.js": [
+7,
+17
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/mixins/editor-base-controller.js": [
+36,
+323,
+331
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/mixins/pagination-route.js": [
+54,
+57,
+82,
+86
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/mixins/shortcuts.js": [
+51,
+61,
+74
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/mixins/style-body.js": [
+14,
+27
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/mixins/validation-engine.js": [
+133,
+135
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/routes/about.js": [
+28,
+32
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/routes/application.js": [
+46,
+84,
+95,
+97,
+98
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/routes/editor/edit.js": [
+33,
+47
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/routes/editor/new.js": [
+8
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/routes/posts.js": [
+18,
+27
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/routes/posts/index.js": [
+35
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/routes/posts/post.js": [
+31,
+43
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/routes/settings/code-injection.js": [
+17,
+17
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/routes/settings/general.js": [
+18,
+18
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/routes/settings/labs.js": [
+18,
+18
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/routes/settings/navigation.js": [
+20,
+20
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/routes/settings/tags.js": [
+36,
+36
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/routes/setup.js": [
+33
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/routes/setup/one.js": [
+36
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/routes/signup.js": [
+36,
+57
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/routes/team/index.js": [
+21
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/routes/team/user.js": [
+23
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/serializers/setting.js": [
+16,
+40
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/services/media-queries.js": [
+20
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/services/notifications.js": [
+132,
+171
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/services/slug-generator.js": [
+22
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/utils/ajax.js": [
+24,
+24
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/utils/ghost-paths.js": [
+7
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/validators/base.js": [
+25
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/tests/acceptance/authentication-test.js": [
+136,
+155
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/tests/integration/adapters/tag-test.js": [
+40,
+56
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/tests/integration/adapters/user-test.js": [
+40,
+56,
+64,
+78
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/tests/integration/components/gh-alerts-test.js": [
+47
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/tests/integration/components/gh-navitem-test.js": [
+61
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/tests/integration/components/gh-navitem-url-input-test.js": [
+108,
+127,
+152,
+174,
+266,
+275,
+299,
+308,
+328,
+347,
+356,
+373,
+382,
+401,
+410,
+434,
+443,
+461,
+470
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/tests/integration/services/ajax-test.js": [
+44,
+58,
+72,
+85
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/tests/unit/controllers/settings/navigation-test.js": [
+139
+],
+"javascript-test-sources:src/ecmascript6/expressionist.js/test/parser.spec.js": [
+286,
+297,
+306,
+319,
+333,
+346,
+398,
+399,
+534,
+543,
+543,
+766
+],
+"javascript-test-sources:src/ecmascript6/expressionist.js/test/watch_parser.spec.js": [
+159,
+160
+],
+"javascript-test-sources:src/ecmascript6/reddit-mobile/src/lib/TrackingPixel.es6.js": [
+34,
+34
+],
+"javascript-test-sources:src/ecmascript6/reddit-mobile/src/server/console.es6.js": [
+60,
+70,
+172,
+349,
+372,
+377
+],
+"javascript-test-sources:src/ecmascript6/redux/examples/buildAll.js": [
+9,
+9
+],
+"javascript-test-sources:src/ecmascript6/redux/examples/counter/test/actions/counter.spec.js": [
+54,
+62,
+69
+],
+"javascript-test-sources:src/ecmascript6/redux/examples/shopping-cart/containers/CartContainer.js": [
+31
+],
+"javascript-test-sources:src/ecmascript6/redux/examples/testAll.js": [
+9,
+9
+],
+"javascript-test-sources:src/ecmascript6/redux/examples/todomvc/components/TodoItem.js": [
+34
+],
+"javascript-test-sources:src/ecmascript6/redux/examples/todos-with-undo/components/AddTodo.js": [
+17
+],
+"javascript-test-sources:src/ecmascript6/redux/examples/universal/server/server.js": [
+77
+],
+"javascript-test-sources:src/ecmascript6/redux/src/utils/applyMiddleware.js": [
+20,
+27
+],
+"javascript-test-sources:src/ecmascript6/redux/src/utils/combineReducers.js": [
+100
+],
+"javascript-test-sources:src/ecmascript6/redux/src/utils/isPlainObject.js": [
+1
+],
+"javascript-test-sources:src/ecmascript6/snoode/src/endpoints/v1.es6.js": [
+400,
+400,
+424,
+456,
+456,
+474,
+474,
+492,
+524,
+524,
+542,
+542,
+576,
+585,
+627,
+689,
+693,
+795,
+864,
+891,
+970,
+992,
+1027,
+1068,
+1096,
+1106,
+1132,
+1132,
+1152,
+1247,
+1286
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/api/ce.js": [
+31
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/api/components.js": [
+42
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/background-tasks/main.js": [
+130
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/global-permissions/permission-users-groups-mixin.js": [
+18
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/global-permissions/permissions-list.js": [
+13
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/overview/components/domain-bubble-chart.js": [
+53,
+95,
+96
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/overview/components/domain-timeline.js": [
+130,
+131
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/overview/helpers/metrics.js": [
+18
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/permission-templates/permission-template-defaults.js": [
+20
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/projects/main.js": [
+67,
+80,
+148
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/projects/search.js": [
+35
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/quality-gates/details-view.js": [
+27,
+27
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/system/item-log-level.js": [
+19
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/system/main.js": [
+39
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/charts/donut-chart.js": [
+47
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/helpers/request.js": [
+29
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/helpers/urls.js": [
+18
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/main/nav/app.js": [
+14
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/main/nav/component/component-nav-menu.js": [
+51,
+167
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/tests/apps/background-tasks-test.js": [
+60
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/tests/apps/overview/components/timeline-chart-test.js": [
+22
+],
+"javascript-test-sources:src/ecmascript6/templating/src/lib/load_barrier.js": [
+46
+],
+"javascript-test-sources:src/ecmascript6/templating/src/lib/types.js": [
+76
+],
+"javascript-test-sources:src/ecmascript6/templating/src/lib/util/module_annotator.js": [
+15
+],
+"javascript-test-sources:src/ecmascript6/templating/test/example/tab.spec.js": [
+57,
+64,
+71,
+74,
+81,
+89,
+93
+],
+"javascript-test-sources:src/ecmascript6/templating/test/example/video.spec.js": [
+29,
+33
+],
+"javascript-test-sources:src/ecmascript6/templating/test/lib/compiler/compiler.spec.js": [
+14,
+278
+],
+"javascript-test-sources:src/ecmascript6/templating/test/lib/dom_mocks.js": [
+11
+],
+"javascript-test-sources:src/ecmascript6/templating/test/lib/util/document_ready.spec.js": [
+21,
+23,
+33,
+34,
+46,
+47
+],
+"javascript-test-sources:src/ecmascript6/watchtower.js/src/dirty_checking.js": [
+121
+],
+"javascript-test-sources:src/ecmascript6/watchtower.js/test/watchgroup.spec.js": [
+601
+]
+}

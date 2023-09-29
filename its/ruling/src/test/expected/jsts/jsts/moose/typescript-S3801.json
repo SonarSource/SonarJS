@@ -1,0 +1,38 @@
+{
+"moose:main/controllers/delete.ts": [
+5,
+14
+],
+"moose:main/controllers/description.ts": [
+9
+],
+"moose:main/controllers/details.ts": [
+12
+],
+"moose:main/controllers/stream.ts": [
+7,
+23
+],
+"moose:main/controllers/subtitles.ts": [
+46
+],
+"moose:main/helpers/Description.ts": [
+66
+],
+"moose:main/utils/Cast.ts": [
+87,
+96
+],
+"moose:main/utils/opensubtitle-hash.ts": [
+31,
+37,
+54
+],
+"moose:renderer/components/CastControl/CastControl.tsx": [
+63
+],
+"moose:renderer/components/Player/Player.tsx": [
+31,
+60
+]
+}

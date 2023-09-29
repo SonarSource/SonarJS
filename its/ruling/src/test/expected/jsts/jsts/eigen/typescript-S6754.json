@@ -1,0 +1,86 @@
+{
+"eigen:src/app/Components/Artist/ArtistArtworks/ArtistArtworks.tsx": [
+41
+],
+"eigen:src/app/Components/Gene/GeneArtworks.tsx": [
+89
+],
+"eigen:src/app/Components/HeaderArtworksFilter/HeaderArtworksFilter.tsx": [
+59
+],
+"eigen:src/app/Components/PopoverMessage/PopoverMessageProvider.tsx": [
+29,
+30
+],
+"eigen:src/app/Components/StickyTabPage/StickyTabPageTabBar.tsx": [
+24
+],
+"eigen:src/app/Components/Tag/TagArtworks.tsx": [
+91
+],
+"eigen:src/app/Components/Toast/ToastComponent.tsx": [
+38
+],
+"eigen:src/app/Scenes/About/About.tsx": [
+16
+],
+"eigen:src/app/Scenes/ArtistSeries/ArtistSeries.tsx": [
+33
+],
+"eigen:src/app/Scenes/Artwork/Components/CommercialButtons/CollapsibleArtworkDetails.tsx": [
+41
+],
+"eigen:src/app/Scenes/Collection/Components/CollectionArtworksFilter.tsx": [
+18
+],
+"eigen:src/app/Scenes/Fair/Fair.tsx": [
+59
+],
+"eigen:src/app/Scenes/Fair/FairAllFollowedArtists.tsx": [
+33
+],
+"eigen:src/app/Scenes/Home/Components/EmailConfirmationBanner.tsx": [
+17,
+18
+],
+"eigen:src/app/Scenes/Inbox/Components/Conversations/CTAPopUp.tsx": [
+5
+],
+"eigen:src/app/Scenes/MyCollection/Screens/ArtworkForm/Components/Rarity.tsx": [
+13
+],
+"eigen:src/app/Scenes/MyCollection/Screens/Insights/AverageSalePriceAtAuction.tsx": [
+18
+],
+"eigen:src/app/Scenes/Sale/Sale.tsx": [
+83,
+84
+],
+"eigen:src/app/Scenes/Search/SearchArtworksGrid.tsx": [
+34
+],
+"eigen:src/app/navigation/NavStack.tsx": [
+27
+],
+"eigen:src/app/utils/LinkedAccounts/apple.ts": [
+15
+],
+"eigen:src/app/utils/LinkedAccounts/facebook.ts": [
+11
+],
+"eigen:src/app/utils/LinkedAccounts/google.ts": [
+16
+],
+"eigen:src/app/utils/useGlobalState.ts": [
+4
+],
+"eigen:src/palette/elements/Select/Select.tsx": [
+228
+],
+"eigen:src/palette/elements/Select/SelectV2.tsx": [
+186
+],
+"eigen:src/palette/organisms/screenStructure/Screen.tsx": [
+36
+]
+}

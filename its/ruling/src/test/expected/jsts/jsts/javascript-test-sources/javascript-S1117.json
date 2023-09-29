@@ -1,0 +1,1968 @@
+{
+"javascript-test-sources:src/ace/Makefile.dryice.js": [
+48,
+61,
+178,
+187,
+197,
+280,
+291,
+543,
+553,
+587,
+597,
+620,
+817
+],
+"javascript-test-sources:src/ace/demo/code_lens.html": [
+37,
+44
+],
+"javascript-test-sources:src/ace/demo/keyboard_shortcuts.html": [
+38
+],
+"javascript-test-sources:src/ace/demo/kitchen-sink/demo.js": [
+183,
+184,
+185,
+216,
+291,
+332
+],
+"javascript-test-sources:src/ace/demo/kitchen-sink/dev_util.js": [
+50,
+68,
+86,
+89,
+92,
+299,
+380,
+392
+],
+"javascript-test-sources:src/ace/demo/kitchen-sink/doclist.js": [
+11,
+70,
+99,
+101,
+127,
+148
+],
+"javascript-test-sources:src/ace/demo/kitchen-sink/util.js": [
+89,
+93
+],
+"javascript-test-sources:src/ace/demo/scrollable-page.html": [
+96
+],
+"javascript-test-sources:src/ace/demo/settings_menu.html": [
+39
+],
+"javascript-test-sources:src/ace/demo/shadow-dom.html": [
+52
+],
+"javascript-test-sources:src/ace/doc/build.js": [
+40
+],
+"javascript-test-sources:src/ace/doc/template/resources/javascripts/ux.js": [
+22
+],
+"javascript-test-sources:src/ace/experiments/animate_folding.html": [
+143
+],
+"javascript-test-sources:src/ace/experiments/capture.html": [
+33
+],
+"javascript-test-sources:src/ace/experiments/dom.html": [
+15,
+51,
+87,
+121,
+169,
+220,
+257,
+315
+],
+"javascript-test-sources:src/ace/lib/ace/loader_build.js": [
+9
+],
+"javascript-test-sources:src/ace/lib/ace/mode/css/csslint.js": [
+27,
+28,
+54,
+55,
+55,
+55,
+55,
+55,
+55,
+244,
+244,
+244,
+291,
+291,
+291,
+337,
+526,
+668,
+668,
+668,
+709,
+709,
+709,
+761,
+761,
+761,
+3331,
+3331,
+3331,
+3832,
+3832,
+3832,
+3871,
+3871,
+3871,
+3909,
+3909,
+3909,
+4047,
+4047,
+4047,
+4296,
+4296,
+4296,
+4314,
+4314,
+4314,
+4359,
+4359,
+4359,
+4410,
+4410,
+4410,
+4455,
+4455,
+4455,
+4540,
+4542,
+4542,
+4589,
+4589,
+4589,
+5472,
+5679,
+5679,
+5679,
+5890,
+5890,
+5890,
+5958,
+5958,
+5958,
+6000,
+6000,
+6000,
+6490,
+6490,
+6490,
+6512,
+6512,
+6512,
+6605,
+6605,
+6605,
+6890,
+6890,
+6890,
+6935,
+6935,
+6935,
+7019,
+7019,
+7019,
+7421,
+7421,
+7421,
+7432,
+7432,
+7432,
+7495,
+7516,
+7516,
+7712,
+7782,
+8588,
+8589,
+8591,
+8592,
+9734,
+9734,
+9734
+],
+"javascript-test-sources:src/ace/lib/ace/mode/html/saxparser.js": [
+2,
+2,
+2,
+3,
+3,
+300,
+300,
+488,
+488,
+603,
+603,
+786,
+786,
+2023,
+2033,
+2353,
+2353,
+5439,
+5439,
+5564,
+5564,
+5825,
+5825,
+5882,
+5882,
+6581,
+6581,
+6838,
+6838,
+9075,
+9075,
+9439,
+9439,
+9448,
+9448,
+9484,
+10040,
+10040,
+10344,
+10344,
+10371,
+10371,
+10435,
+10435,
+10439,
+10439
+],
+"javascript-test-sources:src/ace/lib/ace/mode/javascript/jshint.js": [
+25,
+25,
+49,
+49,
+51,
+51,
+57,
+57,
+63,
+63,
+125,
+153,
+153,
+160,
+160,
+1052,
+1920,
+1920,
+2384,
+2384,
+2386,
+2391,
+2453,
+2633,
+2648,
+2671,
+2692,
+2868,
+2884,
+2921,
+2933,
+2942,
+2960,
+2967,
+3000,
+3009,
+3055,
+3146,
+3170,
+3178,
+3178,
+3193,
+3272,
+3322,
+3373,
+3444,
+3457,
+3485,
+3530,
+3584,
+3591,
+3601,
+3647,
+3659,
+3710,
+3727,
+3743,
+3743,
+3758,
+3759,
+3852,
+3853,
+3877,
+3878,
+3923,
+3926,
+3942,
+3963,
+3964,
+3965,
+3977,
+3983,
+3990,
+3996,
+4013,
+4014,
+4014,
+4033,
+4034,
+4090,
+4107,
+4114,
+4143,
+4161,
+4176,
+4177,
+4201,
+4214,
+4430,
+4430,
+4523,
+4915,
+4991,
+5899,
+5933,
+6006,
+6298,
+6298,
+6315,
+6525,
+7155,
+8016,
+8254,
+8255,
+8256,
+8661,
+8674,
+8715,
+8716,
+8731,
+8847,
+8857,
+8857,
+10357,
+10616,
+10835,
+10969,
+10973,
+10977,
+10986,
+11200,
+11200,
+11618,
+11903,
+12803,
+13009,
+13009,
+13009,
+13009,
+13249,
+13506,
+13506,
+13779,
+13779,
+13875,
+13875,
+14996,
+14996,
+15046,
+15046,
+15105,
+15105,
+16157,
+16157,
+16364,
+16364,
+16510,
+16510,
+17046,
+17046,
+17863,
+17863,
+18224,
+18224,
+18249,
+18249,
+18256,
+18256,
+18292,
+18846,
+18846,
+19149,
+19149,
+19204,
+19229,
+19335,
+19335,
+19337,
+19337,
+19339,
+19339
+],
+"javascript-test-sources:src/ace/lib/ace/mode/json/json_parse.js": [
+110,
+111,
+153,
+233,
+261,
+332
+],
+"javascript-test-sources:src/ace/lib/ace/mode/php/php.js": [
+177,
+180,
+960,
+974,
+985,
+1002
+],
+"javascript-test-sources:src/ace/lib/ace/mode/xml/sax.js": [
+51,
+62,
+68
+],
+"javascript-test-sources:src/ace/lib/ace/mode/xquery/jsoniq_lexer.js": [
+25,
+25,
+39,
+40,
+57,
+57,
+106,
+4231,
+4231,
+4366,
+4366
+],
+"javascript-test-sources:src/ace/lib/ace/mode/xquery/xquery_lexer.js": [
+25,
+25,
+39,
+40,
+57,
+57,
+106,
+4198,
+4198,
+4299,
+4299
+],
+"javascript-test-sources:src/ace/lib/ace/mode/yaml/yaml-lint.js": [
+1,
+1,
+1,
+1,
+1,
+3,
+3,
+29,
+29,
+38,
+38,
+79,
+79,
+140,
+140,
+490,
+969,
+969,
+1014,
+1014,
+2614,
+2614,
+2692,
+2692,
+2802,
+2802,
+2822,
+2822,
+2849,
+2849,
+2879,
+2879,
+2898,
+2898,
+2925,
+2925,
+2988,
+2988,
+3128,
+3128,
+3165,
+3165,
+3283,
+3283,
+3458,
+3458,
+3552,
+3552,
+3614,
+3614,
+3644,
+3644,
+3654,
+3654,
+3668,
+3668,
+3704,
+3704,
+3750,
+3750,
+3805,
+3805,
+3815,
+3815,
+3846,
+3846,
+3856,
+3856,
+3946,
+3946
+],
+"javascript-test-sources:src/ace/lib/ace/worker/worker_test.js": [
+46,
+46,
+46,
+49,
+49,
+49,
+60,
+60,
+60,
+92,
+92,
+92,
+109
+],
+"javascript-test-sources:src/ace/src/autocomplete.js": [
+269,
+274,
+275,
+303,
+304,
+455
+],
+"javascript-test-sources:src/ace/src/autocomplete/popup.js": [
+242
+],
+"javascript-test-sources:src/ace/src/commands/default_commands.js": [
+764,
+807
+],
+"javascript-test-sources:src/ace/src/commands/incremental_search_commands.js": [
+116
+],
+"javascript-test-sources:src/ace/src/config.js": [
+112,
+116
+],
+"javascript-test-sources:src/ace/src/edit_session.js": [
+1179,
+1712
+],
+"javascript-test-sources:src/ace/src/edit_session/folding.js": [
+417
+],
+"javascript-test-sources:src/ace/src/edit_session_test.js": [
+672
+],
+"javascript-test-sources:src/ace/src/editor.js": [
+160,
+865,
+1696,
+1696,
+1987,
+2688,
+2707,
+2899
+],
+"javascript-test-sources:src/ace/src/ext/code_lens_test.js": [
+48
+],
+"javascript-test-sources:src/ace/src/ext/emmet.js": [
+379
+],
+"javascript-test-sources:src/ace/src/ext/error_marker.js": [
+70
+],
+"javascript-test-sources:src/ace/src/ext/hardwrap.js": [
+44,
+44
+],
+"javascript-test-sources:src/ace/src/ext/keybinding_menu.js": [
+47
+],
+"javascript-test-sources:src/ace/src/ext/modelist.js": [
+11,
+22,
+39
+],
+"javascript-test-sources:src/ace/src/ext/options.js": [
+213,
+304,
+312,
+323
+],
+"javascript-test-sources:src/ace/src/ext/prompt.js": [
+139,
+140,
+141,
+142,
+143,
+146,
+147,
+388,
+454
+],
+"javascript-test-sources:src/ace/src/ext/static_highlight.js": [
+97
+],
+"javascript-test-sources:src/ace/src/ext/textarea.js": [
+224,
+240,
+416
+],
+"javascript-test-sources:src/ace/src/ext/whitespace.js": [
+38,
+39,
+102
+],
+"javascript-test-sources:src/ace/src/incremental_search_test.js": [
+168
+],
+"javascript-test-sources:src/ace/src/keyboard/emacs.js": [
+150,
+184,
+187,
+293,
+293,
+452
+],
+"javascript-test-sources:src/ace/src/keyboard/hash_handler.js": [
+75,
+76,
+77
+],
+"javascript-test-sources:src/ace/src/keyboard/textinput.js": [
+65,
+238,
+364,
+589,
+635,
+635,
+635
+],
+"javascript-test-sources:src/ace/src/keyboard/textinput_test.js": [
+238,
+359,
+422
+],
+"javascript-test-sources:src/ace/src/keyboard/vim.js": [
+41,
+119,
+300,
+369,
+570,
+655,
+819,
+896,
+1646,
+2268,
+2284,
+2287,
+2292,
+2308,
+2318,
+4744,
+4745,
+4745,
+4749,
+4829,
+4829,
+4877,
+4877,
+4959,
+4980,
+4980,
+5042,
+5042,
+5488,
+5809,
+6117,
+6226,
+6796
+],
+"javascript-test-sources:src/ace/src/keyboard/vim_ace_test.js": [
+17,
+21,
+40,
+59
+],
+"javascript-test-sources:src/ace/src/keyboard/vim_test.js": [
+154,
+156,
+245,
+259,
+281,
+292,
+296,
+297,
+305,
+310,
+345,
+352,
+371,
+374,
+415,
+416,
+426,
+427,
+525,
+530,
+538,
+548,
+569,
+577,
+603,
+630,
+654,
+665,
+676,
+693,
+710,
+785,
+866,
+876,
+885,
+895,
+905,
+915,
+925,
+935,
+945,
+955,
+965,
+975,
+986,
+997,
+1008,
+1013,
+1018,
+1023,
+1028,
+1033,
+1038,
+1043,
+1054,
+1059,
+1064,
+1069,
+1074,
+1079,
+1084,
+1089,
+1094,
+1099,
+1108,
+1113,
+1118,
+1123,
+1135,
+1145,
+1157,
+1169,
+1181,
+1193,
+1200,
+1209,
+1217,
+1229,
+1242,
+1249,
+1255,
+1268,
+1280,
+1291,
+1299,
+1304,
+1315,
+1325,
+1347,
+1364,
+1369,
+1375,
+1388,
+1396,
+1396,
+1423,
+1435,
+1447,
+1480,
+1490,
+1496,
+1513,
+1524,
+1535,
+1546,
+1557,
+1570,
+1698,
+1699,
+1720,
+1732,
+1741,
+1752,
+1762,
+1777,
+1784,
+1792,
+1800,
+1801,
+1813,
+1826,
+1839,
+1849,
+1855,
+1861,
+1868,
+1875,
+1881,
+1888,
+1895,
+1904,
+1915,
+1922,
+1930,
+1943,
+1955,
+1960,
+1971,
+1977,
+1985,
+1991,
+1998,
+2006,
+2013,
+2020,
+2027,
+2036,
+2046,
+2053,
+2060,
+2067,
+2074,
+2081,
+2086,
+2091,
+2096,
+2101,
+2106,
+2113,
+2120,
+2136,
+2141,
+2155,
+2160,
+2165,
+2172,
+2184,
+2196,
+2224,
+2234,
+2244,
+2258,
+2267,
+2274,
+2281,
+2290,
+2300,
+2310,
+2320,
+2334,
+2343,
+2350,
+2357,
+2366,
+2374,
+2398,
+2422,
+2446,
+2470,
+2477,
+2483,
+2487,
+2492,
+2497,
+2502,
+2511,
+2520,
+2525,
+2529,
+2540,
+2548,
+2556,
+2573,
+2589,
+2602,
+2614,
+2623,
+2628,
+2633,
+2653,
+2657,
+2680,
+2688,
+2707,
+2713,
+2720,
+2727,
+2734,
+2746,
+2758,
+2777,
+2789,
+2806,
+2814,
+2830,
+2843,
+2851,
+2858,
+2865,
+2873,
+2881,
+2888,
+2900,
+2925,
+2947,
+2964,
+2981,
+2985,
+2992,
+2999,
+3007,
+3015,
+3025,
+3035,
+3049,
+3063,
+3075,
+3099,
+3121,
+3138,
+3155,
+3164,
+3169,
+3174,
+3183,
+3189,
+3195,
+3203,
+3211,
+3221,
+3239,
+3250,
+3259,
+3268,
+3278,
+3287,
+3294,
+3303,
+3316,
+3332,
+3341,
+3350,
+3358,
+3367,
+3373,
+3382,
+3391,
+3400,
+3409,
+3419,
+3434,
+3442,
+3447,
+3452,
+3461,
+3466,
+3484,
+3504,
+3510,
+3516,
+3522,
+3528,
+3544,
+3553,
+3562,
+3571,
+3580,
+3589,
+3599,
+3611,
+3620,
+3629,
+3637,
+3651,
+3658,
+3665,
+3672,
+3679,
+3686,
+3693,
+3700,
+3707,
+3718,
+3729,
+3740,
+3751,
+3762,
+3773,
+3784,
+3795,
+3806,
+3817,
+3828,
+3839,
+3840,
+3843,
+3865,
+3867,
+3879,
+3891,
+3892,
+3910,
+3921,
+3931,
+3934,
+3937,
+3940,
+3943,
+3946,
+3950,
+3955,
+3959,
+3964,
+3968,
+3976,
+4010,
+4021,
+4068,
+4083,
+4098,
+4115,
+4131,
+4132,
+4140,
+4150,
+4166,
+4173,
+4182,
+4187,
+4194,
+4205,
+4216,
+4220,
+4226,
+4235,
+4239,
+4243,
+4247,
+4252,
+4256,
+4260,
+4264,
+4268,
+4272,
+4276,
+4280,
+4284,
+4288,
+4292,
+4296,
+4300,
+4304,
+4308,
+4312,
+4317,
+4327,
+4331,
+4335,
+4346,
+4353,
+4358,
+4364,
+4369,
+4374,
+4379,
+4385,
+4390,
+4395,
+4400,
+4405,
+4410,
+4415,
+4420,
+4425,
+4432,
+4439,
+4448,
+4455,
+4463,
+4473,
+4481,
+4539,
+4545,
+4551,
+4661,
+4662,
+4664,
+4700,
+4707,
+4715,
+4726,
+4738,
+4752,
+4781,
+4784,
+4828,
+4846,
+4858,
+4871,
+4883,
+4890,
+4897,
+4904,
+4914,
+4921,
+4926,
+4936,
+4941,
+4951,
+4956,
+4971,
+4988,
+4996,
+4999,
+5011,
+5015,
+5042,
+5050,
+5059,
+5073,
+5086,
+5103,
+5118,
+5123,
+5144,
+5189,
+5242,
+5294,
+5396,
+5397,
+5480,
+5490,
+5491,
+5541,
+5542,
+5543
+],
+"javascript-test-sources:src/ace/src/layer/font_metrics.js": [
+151,
+176,
+176,
+177,
+177,
+178,
+178
+],
+"javascript-test-sources:src/ace/src/layer/text.js": [
+693,
+732
+],
+"javascript-test-sources:src/ace/src/lib/keys.js": [
+140
+],
+"javascript-test-sources:src/ace/src/mode/_test/highlight_rules_test.js": [
+18,
+200
+],
+"javascript-test-sources:src/ace/src/mode/behaviour/xquery.js": [
+10
+],
+"javascript-test-sources:src/ace/src/mode/csound_preprocessor_highlight_rules.js": [
+255
+],
+"javascript-test-sources:src/ace/src/mode/drools_highlight_rules.js": [
+74
+],
+"javascript-test-sources:src/ace/src/mode/folding/asciidoc.js": [
+41,
+53
+],
+"javascript-test-sources:src/ace/src/mode/folding/latex.js": [
+65,
+66
+],
+"javascript-test-sources:src/ace/src/mode/folding/markdown.js": [
+55
+],
+"javascript-test-sources:src/ace/src/mode/livescript.js": [
+5
+],
+"javascript-test-sources:src/ace/src/mode/razor_highlight_rules.js": [
+118
+],
+"javascript-test-sources:src/ace/src/mode/text.js": [
+241
+],
+"javascript-test-sources:src/ace/src/mouse/dragdrop_handler.js": [
+21,
+280
+],
+"javascript-test-sources:src/ace/src/mouse/mouse_handler_test.js": [
+35,
+122,
+152,
+176
+],
+"javascript-test-sources:src/ace/src/mouse/multi_select_handler.js": [
+42,
+113,
+143
+],
+"javascript-test-sources:src/ace/src/mouse/touch_handler.js": [
+188,
+188,
+287
+],
+"javascript-test-sources:src/ace/src/multi_select.js": [
+735
+],
+"javascript-test-sources:src/ace/src/multi_select_test.js": [
+25,
+43,
+46
+],
+"javascript-test-sources:src/ace/src/scrollbar_custom.js": [
+133,
+280
+],
+"javascript-test-sources:src/ace/src/selection_test.js": [
+438
+],
+"javascript-test-sources:src/ace/src/snippets.js": [
+260,
+344,
+374,
+374,
+377,
+378,
+390,
+394,
+404,
+408,
+409,
+898,
+899
+],
+"javascript-test-sources:src/ace/src/split.js": [
+224
+],
+"javascript-test-sources:src/ace/src/test/all_browser.js": [
+93,
+139
+],
+"javascript-test-sources:src/ace/src/test/asyncjs/async.js": [
+36,
+36,
+60,
+129,
+149,
+171,
+204,
+287
+],
+"javascript-test-sources:src/ace/src/test/asyncjs/test.js": [
+89,
+103,
+165
+],
+"javascript-test-sources:src/ace/src/test/mockdom.js": [
+183,
+524,
+678,
+745,
+779,
+848
+],
+"javascript-test-sources:src/ace/src/test/user.js": [
+92,
+160,
+161
+],
+"javascript-test-sources:src/ace/src/tokenizer.js": [
+98
+],
+"javascript-test-sources:src/ace/src/undomanager.js": [
+290
+],
+"javascript-test-sources:src/ace/src/virtual_renderer.js": [
+630,
+690,
+830
+],
+"javascript-test-sources:src/ace/static.js": [
+59,
+110
+],
+"javascript-test-sources:src/ace/tool/add_mode.js": [
+5,
+5
+],
+"javascript-test-sources:src/ace/tool/lib.js": [
+46
+],
+"javascript-test-sources:src/ace/tool/mode_creator.js": [
+12,
+155,
+155,
+218,
+239
+],
+"javascript-test-sources:src/ace/tool/tmlanguage.js": [
+122,
+132,
+141,
+507,
+511,
+516,
+523,
+560
+],
+"javascript-test-sources:src/ace/tool/tmsnippets.js": [
+6,
+14,
+20,
+31
+],
+"javascript-test-sources:src/ace/tool/tmtheme.js": [
+263,
+306,
+310,
+310
+],
+"javascript-test-sources:src/ace/tool/update_deps.js": [
+210,
+271
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/controllers/team/user.js": [
+262
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/routes/posts/index.js": [
+36
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/routes/posts/post.js": [
+32
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/utils/caja-sanitizers.js": [
+8,
+19
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/tests/integration/services/ajax-test.js": [
+44,
+58,
+72
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/authentication.js": [
+244
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/clients.js": [
+36
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/db.js": [
+67,
+86
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/index.js": [
+38,
+55,
+102,
+140,
+146,
+191
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/notifications.js": [
+61,
+79,
+129,
+137
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/posts.js": [
+57,
+91,
+132,
+179,
+220
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/roles.js": [
+41,
+54,
+68
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/settings.js": [
+74,
+107,
+169,
+210
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/slugs.js": [
+47,
+60
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/tags.js": [
+35,
+66,
+102,
+138,
+178
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/themes.js": [
+37,
+110,
+163,
+165
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/users.js": [
+22,
+87,
+123,
+174,
+226,
+263,
+294,
+340,
+341,
+375,
+390,
+443,
+457,
+493,
+509
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/utils.js": [
+82,
+123
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/apps/dependencies.js": [
+30
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/apps/proxy.js": [
+19,
+33
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/config/index.js": [
+307,
+317
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/controllers/admin.js": [
+22,
+52
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/controllers/frontend/channel-config.js": [
+5
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/controllers/frontend/error.js": [
+2
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/controllers/frontend/index.js": [
+35,
+45
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/controllers/frontend/templates.js": [
+77
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/import/data-importer.js": [
+95
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/import/index.js": [
+16,
+50,
+71,
+80,
+168
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/import/utils.js": [
+21,
+28,
+119,
+162
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/migration/builder.js": [
+16,
+20,
+29,
+38,
+49
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/migration/fixtures/index.js": [
+33,
+42,
+61,
+73,
+131,
+170,
+304,
+344
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/migration/fixtures/permissions/index.js": [
+21
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/migration/index.js": [
+32,
+36,
+44
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/schema/clients/mysql.js": [
+19,
+25,
+31,
+41
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/schema/clients/pg.js": [
+18,
+24,
+33
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/schema/clients/sqlite3.js": [
+12,
+18,
+26,
+32
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/schema/commands.js": [
+55,
+62
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/validation/index.js": [
+37,
+89,
+105,
+143
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/xml/rss/index.js": [
+28,
+110,
+123,
+176,
+181,
+186,
+212
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/errors/index.js": [
+190
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/filters.js": [
+82
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/helpers/date.js": [
+26
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/helpers/foreach.js": [
+64
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/helpers/get.js": [
+92
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/helpers/ghost_foot.js": [
+22
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/helpers/ghost_head.js": [
+127
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/helpers/has.js": [
+22,
+35,
+36
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/helpers/index.js": [
+52
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/helpers/navigation.js": [
+44
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/helpers/tags.js": [
+28
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/index.js": [
+40
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/middleware/auth-strategies.js": [
+43,
+43
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/middleware/cache-control.js": [
+12
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/middleware/check-ssl.js": [
+40
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/middleware/decide-is-admin.js": [
+11
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/middleware/index.js": [
+50
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/middleware/oauth.js": [
+27,
+29,
+43,
+48,
+57,
+61
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/middleware/serve-shared-file.js": [
+17
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/middleware/uncapitalise.js": [
+12
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/models/base/index.js": [
+78,
+405,
+457
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/models/plugins/filter.js": [
+77
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/models/plugins/pagination.js": [
+70,
+127
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/models/post.js": [
+177,
+473,
+499
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/models/settings.js": [
+22
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/models/user.js": [
+321,
+327,
+336,
+384,
+391,
+391,
+537,
+539
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/routes/api.js": [
+6
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/routes/frontend.js": [
+9
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/utils/downzero.js": [
+9,
+14
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/utils/labs.js": [
+4
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/utils/pipeline.js": [
+12,
+15,
+23
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/utils/startup-check.js": [
+174
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/functional/base.js": [
+179,
+456,
+462,
+496
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/functional/client/editor_test.js": [
+518
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/functional/routes/admin_spec.js": [
+113,
+151
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/functional/routes/api/authentication_spec.js": [
+135,
+135
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/functional/routes/api/notifications_spec.js": [
+100,
+100
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/functional/routes/api/posts_spec.js": [
+405,
+405,
+432,
+432,
+486,
+486,
+535,
+535,
+581,
+581,
+615,
+615,
+653,
+653,
+691,
+691,
+723,
+723,
+753,
+753,
+786,
+786,
+827,
+827,
+914,
+914,
+948,
+948,
+976,
+976,
+1033,
+1033
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/functional/routes/api/settings_spec.js": [
+125,
+125,
+159,
+159,
+192,
+192
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/functional/routes/api/users_spec.js": [
+334,
+334,
+370,
+370
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/functional/routes/frontend_spec.js": [
+790,
+866,
+951
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/integration/api/api_notifications_spec.js": [
+126,
+147
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/integration/api/api_users_spec.js": [
+29,
+876,
+896,
+916,
+938,
+958,
+978
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/integration/model/model_users_spec.js": [
+41,
+58,
+73,
+102,
+117,
+135,
+339,
+359,
+409,
+439,
+498,
+591
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/api_utils_spec.js": [
+175,
+175
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/config_spec.js": [
+534,
+549
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/controllers/frontend/index_spec.js": [
+792,
+795,
+808,
+811,
+823,
+826,
+840,
+843,
+857,
+860,
+889,
+892
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/error_handling_spec.js": [
+483
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/permissions_spec.js": [
+28,
+238
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/server_helpers/foreach_spec.js": [
+41,
+41
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/server_utils_spec.js": [
+91,
+98
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/utils/fork.js": [
+96
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/utils/index.js": [
+84,
+87,
+381,
+385,
+442,
+472,
+487,
+507,
+528,
+546,
+576
+],
+"javascript-test-sources:src/ecmascript6/ecmascript6-today/1-let.js": [
+7
+],
+"javascript-test-sources:src/ecmascript6/ecmascript6-today/7-rest-params/js/rest-spread.js": [
+24
+],
+"javascript-test-sources:src/ecmascript6/ecmascript6-today/7-rest-params/rest-spread.js": [
+16
+],
+"javascript-test-sources:src/ecmascript6/expressionist.js/test/parser.spec.js": [
+12
+],
+"javascript-test-sources:src/ecmascript6/expressionist.js/test/watch_parser.spec.js": [
+47
+],
+"javascript-test-sources:src/ecmascript6/http/test/Http.spec.js": [
+25
+],
+"javascript-test-sources:src/ecmascript6/reddit-mobile/buildTasks/icons.js": [
+25
+],
+"javascript-test-sources:src/ecmascript6/reddit-mobile/index.js": [
+99
+],
+"javascript-test-sources:src/ecmascript6/reddit-mobile/src/server/config.es6.js": [
+8
+],
+"javascript-test-sources:src/ecmascript6/reddit-mobile/src/server/oauth.es6.js": [
+30,
+43,
+70,
+78,
+184,
+217,
+217,
+229,
+244,
+259,
+259
+],
+"javascript-test-sources:src/ecmascript6/router/third_party/brick/brick-1.0.1.byob.js": [
+586,
+776,
+941,
+968,
+987,
+1042,
+1066,
+1094,
+1111,
+1146,
+1163,
+1205,
+1223,
+1533,
+1597,
+1616,
+1631,
+1661,
+1664,
+3851,
+3872
+],
+"javascript-test-sources:src/ecmascript6/router/third_party/route-recognizer.js": [
+451
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/source-viewer/main.js": [
+146
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/test/helpers/test-page.js": [
+13,
+13,
+28,
+43,
+58,
+58,
+77,
+77,
+108,
+108,
+117,
+126,
+136,
+136,
+136,
+145,
+145,
+145,
+163,
+163,
+175
+],
+"javascript-test-sources:src/ecmascript6/templating/test/example/shadow-dom-util.js": [
+9,
+9,
+9,
+9,
+20,
+20,
+20
+],
+"javascript-test-sources:src/ecmascript6/templating/test/lib/compiler/compiler.spec.js": [
+16
+],
+"javascript-test-sources:src/ecmascript6/watchtower.js/test/watchgroup.spec.js": [
+448,
+449,
+449,
+508,
+578,
+732,
+749,
+767,
+795
+]
+}

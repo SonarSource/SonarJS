@@ -1,0 +1,35 @@
+{
+"vuetify:packages/docs/src/examples/v-calendar/event-click.vue": [
+213
+],
+"vuetify:packages/docs/src/examples/v-calendar/misc-drag-and-drop.vue": [
+178
+],
+"vuetify:packages/docs/src/examples/v-calendar/prop-type-category.vue": [
+114
+],
+"vuetify:packages/docs/src/examples/v-calendar/usage.vue": [
+117
+],
+"vuetify:packages/docs/src/examples/v-date-picker/event-events.vue": [
+36
+],
+"vuetify:packages/docs/src/examples/v-date-picker/prop-picker-date.vue": [
+55,
+56,
+57
+],
+"vuetify:packages/docs/src/examples/v-progress-linear/prop-buffer-value.vue": [
+61,
+62
+],
+"vuetify:packages/docs/src/examples/v-sparkline/misc-heart-rate.vue": [
+81
+],
+"vuetify:packages/docs/src/examples/v-treeview/prop-load-children.vue": [
+164
+],
+"vuetify:packages/docs/src/examples/v-virtual-scroll/misc-user-directory.vue": [
+95
+]
+}

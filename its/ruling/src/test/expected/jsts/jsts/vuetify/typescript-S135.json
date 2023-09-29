@@ -1,0 +1,23 @@
+{
+"vuetify:packages/docs/build/markdown-it.ts": [
+16
+],
+"vuetify:packages/vuetify/src/components/VOverlay/locationStrategies.ts": [
+304
+],
+"vuetify:packages/vuetify/src/composables/filter.ts": [
+71
+],
+"vuetify:packages/vuetify/src/composables/layout.ts": [
+182
+],
+"vuetify:packages/vuetify/src/composables/validation.ts": [
+159
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/composables/sort.ts": [
+100
+],
+"vuetify:packages/vuetify/src/util/helpers.ts": [
+387
+]
+}

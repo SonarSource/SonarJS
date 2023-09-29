@@ -1,0 +1,113 @@
+{
+"jira-clone:client/cypress/support/commands.js": [
+57,
+58,
+61
+],
+"jira-clone:client/src/Project/Board/IssueDetails/AssigneesReporter/Styles.js": [
+12
+],
+"jira-clone:client/src/Project/Board/IssueDetails/Comments/Comment/index.jsx": [
+59
+],
+"jira-clone:client/src/Project/Board/IssueDetails/Comments/Create/index.jsx": [
+41
+],
+"jira-clone:client/src/Project/Board/IssueDetails/Description/index.jsx": [
+28,
+46
+],
+"jira-clone:client/src/Project/Board/IssueDetails/EstimateTracking/TrackingWidget/index.jsx": [
+19
+],
+"jira-clone:client/src/Project/Board/IssueDetails/EstimateTracking/index.jsx": [
+67,
+69
+],
+"jira-clone:client/src/Project/Board/Lists/index.jsx": [
+82
+],
+"jira-clone:client/src/Project/Sidebar/Styles.js": [
+58
+],
+"jira-clone:client/src/Project/Sidebar/index.jsx": [
+52
+],
+"jira-clone:client/src/shared/components/Avatar/index.jsx": [
+24
+],
+"jira-clone:client/src/shared/components/Button/Styles.js": [
+13,
+86
+],
+"jira-clone:client/src/shared/components/Button/index.jsx": [
+51,
+63
+],
+"jira-clone:client/src/shared/components/CopyLinkButton.jsx": [
+17
+],
+"jira-clone:client/src/shared/components/DatePicker/DateSection.jsx": [
+43,
+44
+],
+"jira-clone:client/src/shared/components/DatePicker/TimeSection.jsx": [
+68,
+69
+],
+"jira-clone:client/src/shared/components/DatePicker/index.jsx": [
+60
+],
+"jira-clone:client/src/shared/components/Form/Field.jsx": [
+37
+],
+"jira-clone:client/src/shared/components/Form/index.jsx": [
+57
+],
+"jira-clone:client/src/shared/components/Icon/Styles.js": [
+7
+],
+"jira-clone:client/src/shared/components/InputDebounced.jsx": [
+37
+],
+"jira-clone:client/src/shared/components/IssuePriorityIcon/index.jsx": [
+13
+],
+"jira-clone:client/src/shared/components/Modal/index.jsx": [
+46
+],
+"jira-clone:client/src/shared/components/Select/Dropdown.jsx": [
+83,
+170,
+199,
+209
+],
+"jira-clone:client/src/shared/components/Select/Styles.js": [
+100
+],
+"jira-clone:client/src/shared/components/Select/index.jsx": [
+70,
+75,
+135,
+148,
+153,
+160
+],
+"jira-clone:client/src/shared/components/Tooltip/index.jsx": [
+62
+],
+"jira-clone:client/src/shared/hooks/api/query.js": [
+19
+],
+"jira-clone:client/src/shared/utils/api.js": [
+12,
+28,
+29
+],
+"jira-clone:client/src/shared/utils/dateTime.js": [
+4,
+7,
+10,
+16
+]
+}

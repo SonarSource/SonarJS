@@ -1,0 +1,44 @@
+{
+"searchkit:docs/.stylelintrc.js": [
+11,
+12
+],
+"searchkit:docs/babel.config.js": [
+11
+],
+"searchkit:docs/docusaurus.config.js": [
+32,
+41,
+46,
+51,
+53,
+61,
+62,
+74,
+79,
+85,
+88,
+89,
+90,
+91
+],
+"searchkit:docs/src/pages/index.js": [
+59,
+98
+],
+"searchkit:docs/tailwind.config.js": [
+8
+],
+"searchkit:examples/next/components/sdk-example/index.jsx": [
+26,
+42,
+78
+],
+"searchkit:examples/next/pages/_document.jsx": [
+23
+],
+"searchkit:examples/next/pages/api/graphql.js": [
+23,
+140
+]
+}

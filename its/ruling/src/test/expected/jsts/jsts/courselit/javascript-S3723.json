@@ -1,0 +1,33 @@
+{
+"courselit:.yarn/plugins/@yarnpkg/plugin-version.cjs": [
+549
+],
+"courselit:.yarn/plugins/@yarnpkg/plugin-workspace-tools.cjs": [
+27
+],
+"courselit:apps/web/models/Subscriber.js": [
+12
+],
+"courselit:packages/rich-text/src/Decorators/Tweet.js": [
+67
+],
+"courselit:packages/rich-text/src/Decorators/YouTube.js": [
+54
+],
+"courselit:packages/rich-text/src/Editor.js": [
+79,
+80,
+106,
+122,
+131
+],
+"courselit:packages/rich-text/src/index.js": [
+44
+],
+"courselit:packages/widget-buttondown/src/AdminWidget.js": [
+44
+],
+"courselit:packages/widget-buttondown/src/Widget.js": [
+34
+]
+}

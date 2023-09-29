@@ -1,0 +1,366 @@
+{
+"javascript-test-sources:src/ace/doc/site/js/ga.js": [
+7
+],
+"javascript-test-sources:src/ace/doc/template/resources/javascripts/disqus-ext.js": [
+13
+],
+"javascript-test-sources:src/ace/lib/ace/mode/html/saxparser.js": [
+2613
+],
+"javascript-test-sources:src/ace/static.js": [
+154
+],
+"javascript-test-sources:src/ecmascript6/Ghost/config.example.js": [
+14
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/mirage/config.js": [
+93
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/tests/integration/components/gh-navitem-url-input-test.js": [
+420,
+421
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/tests/unit/components/gh-url-preview_test.js": [
+20,
+34
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/tests/unit/controllers/post-settings-menu-test.js": [
+222,
+226,
+231,
+235,
+240,
+244,
+249,
+254
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/authentication.js": [
+276
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/config/index.js": [
+449
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/meta/schema.js": [
+20,
+50,
+64,
+80
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/xml/rss/index.js": [
+133
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/xml/sitemap/base-generator.js": [
+15,
+16
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/xml/sitemap/index-generator.js": [
+13
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/xml/xmlrpc.js": [
+73
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/helpers/get.js": [
+151
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/mail/index.js": [
+25,
+32
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/middleware/auth.js": [
+90,
+115,
+134
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/models/plugins/filter.js": [
+31
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/models/user.js": [
+142
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/update-check.js": [
+50
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/utils/parse-package-json.js": [
+35,
+44
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/utils/validate-themes.js": [
+33,
+45
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/functional/base.js": [
+30
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/functional/client/app_test.js": [
+92,
+100,
+104
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/functional/client/editor_test.js": [
+178
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/functional/routes/api/public_api_spec.js": [
+204
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/functional/routes/api/users_spec.js": [
+319
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/functional/routes/frontend_spec.js": [
+811,
+887
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/integration/api/api_configuration_spec.js": [
+25
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/integration/model/model_users_spec.js": [
+118,
+126,
+392,
+395,
+425
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/config_spec.js": [
+30,
+51,
+95,
+98,
+103,
+106,
+109,
+112,
+117,
+120,
+170,
+177,
+178,
+178,
+183,
+192,
+201,
+203,
+210,
+212,
+214,
+216,
+218,
+220,
+222,
+224,
+230,
+232,
+234,
+236,
+242,
+244,
+246,
+248,
+254,
+256,
+258,
+260,
+262,
+264,
+273,
+275,
+277,
+279,
+283,
+290,
+292,
+294,
+296,
+303,
+305,
+307,
+309,
+316,
+320,
+322,
+323,
+324,
+331,
+340,
+347,
+349,
+350,
+352,
+355,
+356,
+367,
+368,
+369,
+371,
+377,
+379,
+382,
+434,
+443,
+444,
+453,
+463,
+464,
+472,
+489,
+577,
+580,
+589,
+592,
+595,
+598
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/ghost_url_spec.js": [
+13
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/importer_spec.js": [
+427
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/mail_spec.js": [
+171,
+175,
+179,
+218
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/metadata/canonical_url_spec.js": [
+36
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/metadata/schema_spec.js": [
+11,
+12,
+14,
+17,
+25,
+32,
+37,
+39,
+40,
+46,
+49,
+59,
+61,
+79,
+84,
+91,
+100,
+101,
+108,
+111,
+113,
+122,
+123,
+133,
+136,
+139,
+148,
+149,
+155,
+160,
+165,
+166
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/metadata/structured_data_spec.js": [
+13,
+16,
+26,
+30,
+33,
+35,
+46,
+60,
+63
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/metadata/url_spec.js": [
+52,
+64
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/middleware/authentication_spec.js": [
+132,
+378
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/middleware/check-ssl_spec.js": [
+20,
+71,
+86,
+107,
+131,
+172,
+193
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/rss_spec.js": [
+68,
+218,
+277,
+349,
+411,
+428
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/server_helpers/asset_spec.js": [
+70
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/server_helpers/ghost_head_spec.js": [
+52,
+246,
+290,
+334,
+408,
+478,
+545,
+654,
+682,
+707,
+734
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/server_helpers/image_spec.js": [
+18,
+56,
+73,
+101
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/server_helpers/page_url_spec.js": [
+47,
+115
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/server_helpers/url_spec.js": [
+20,
+64,
+131,
+144,
+147,
+152,
+155,
+160,
+181,
+240,
+242,
+245,
+249,
+255
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/server_spec.js": [
+10
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/showdown_client_integrated_spec.js": [
+197
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/sitemap_spec.js": [
+300,
+303
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/xmlrpc_spec.js": [
+31,
+32
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/utils/fixtures/data-generator.js": [
+26
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/utils/fixtures/filter-param/index.js": [
+54,
+61
+],
+"javascript-test-sources:src/ecmascript6/http/test/QueryParams.spec.js": [
+48
+],
+"javascript-test-sources:src/ecmascript6/templating/test/example/video.spec.js": [
+22
+]
+}

@@ -1,0 +1,1261 @@
+{
+"courselit:apps/web/components/admin/base-layout.tsx": [
+10,
+29,
+35,
+36,
+45,
+51,
+59,
+65,
+73,
+81,
+89,
+111,
+171
+],
+"courselit:apps/web/components/admin/courses/course-editor/course-structure-editor.tsx": [
+10,
+25,
+31,
+37,
+38,
+57,
+111,
+179,
+184,
+205,
+206,
+325,
+353,
+357
+],
+"courselit:apps/web/components/admin/courses/course-editor/group.tsx": [
+13,
+24,
+37,
+42,
+48,
+56,
+57,
+82,
+284
+],
+"courselit:apps/web/components/admin/courses/course-editor/index.tsx": [
+25,
+40,
+58,
+63,
+64,
+95,
+98,
+306,
+315,
+316,
+325,
+326,
+351,
+372,
+373,
+374,
+534,
+674,
+704,
+828,
+830,
+842,
+846
+],
+"courselit:apps/web/components/admin/courses/index.tsx": [
+10,
+18,
+39,
+46,
+49,
+53,
+57,
+58,
+191,
+216,
+261,
+265
+],
+"courselit:apps/web/components/admin/courses/lesson-editor.tsx": [
+13,
+27,
+37,
+57,
+63,
+70,
+79,
+84,
+92,
+93,
+163,
+164,
+317,
+374,
+417,
+430,
+460,
+536,
+538,
+547,
+551
+],
+"courselit:apps/web/components/admin/design/index.tsx": [
+35,
+48
+],
+"courselit:apps/web/components/admin/design/layout-manager/add-component-dialog.tsx": [
+10,
+14
+],
+"courselit:apps/web/components/admin/design/layout-manager/added-component.tsx": [
+13,
+14
+],
+"courselit:apps/web/components/admin/design/layout-manager/compatible-components-map.ts": [
+10,
+21
+],
+"courselit:apps/web/components/admin/design/layout-manager/edit-widget-dialog.tsx": [
+8,
+13,
+71
+],
+"courselit:apps/web/components/admin/design/layout-manager/index.tsx": [
+15,
+45,
+53,
+58,
+63,
+68,
+72,
+76,
+80,
+85,
+89,
+93,
+97,
+101,
+139,
+145,
+164,
+214,
+226,
+312,
+394,
+591,
+595
+],
+"courselit:apps/web/components/admin/design/menus/links/index.tsx": [
+42,
+43,
+65,
+69
+],
+"courselit:apps/web/components/admin/design/menus/links/navigation-link-item.tsx": [
+14,
+20,
+24,
+39,
+45,
+46,
+74,
+231,
+289,
+293
+],
+"courselit:apps/web/components/admin/design/themes-manager/index.tsx": [
+22,
+36,
+41,
+45,
+46,
+326,
+330
+],
+"courselit:apps/web/components/admin/design/themes-manager/theme-item.tsx": [
+11,
+19,
+26,
+27,
+28,
+41,
+107,
+109,
+119,
+121
+],
+"courselit:apps/web/components/admin/media/editor.tsx": [
+9,
+43,
+55,
+92,
+220,
+222,
+231,
+235
+],
+"courselit:apps/web/components/admin/media/index.tsx": [
+9,
+27,
+34,
+35,
+127,
+131,
+149,
+184,
+230
+],
+"courselit:apps/web/components/admin/media/media-preview.tsx": [
+8,
+16,
+35,
+43,
+46,
+49,
+50,
+153,
+201,
+205
+],
+"courselit:apps/web/components/admin/media/media-selector/index.tsx": [
+5,
+14,
+19,
+20
+],
+"courselit:apps/web/components/admin/media/media-selector/media-manager-dialog.tsx": [
+7,
+12
+],
+"courselit:apps/web/components/admin/media/upload.tsx": [
+10,
+24,
+29,
+30,
+44,
+57,
+133,
+142,
+211
+],
+"courselit:apps/web/components/admin/settings.tsx": [
+6,
+13,
+24,
+46,
+66,
+72,
+76,
+80,
+86,
+87,
+106,
+115,
+171,
+228,
+288,
+310,
+311,
+361,
+396,
+458,
+473,
+480,
+550,
+767,
+771
+],
+"courselit:apps/web/components/admin/users/details.tsx": [
+6,
+25,
+236,
+240
+],
+"courselit:apps/web/components/admin/users/index.tsx": [
+18,
+30,
+42,
+65,
+142,
+145,
+249,
+336,
+340
+],
+"courselit:apps/web/components/admin/users/permissions-editor.tsx": [
+17,
+41,
+57,
+168,
+172
+],
+"courselit:apps/web/components/app-error.tsx": [
+11,
+16,
+17
+],
+"courselit:apps/web/components/app-loader.tsx": [
+8,
+15
+],
+"courselit:apps/web/components/app-toast.tsx": [
+47,
+71,
+85,
+89
+],
+"courselit:apps/web/components/course-introduction.tsx": [
+14
+],
+"courselit:apps/web/components/img.tsx": [
+35
+],
+"courselit:apps/web/components/public/article.tsx": [
+11,
+30,
+38,
+42,
+48,
+52,
+57,
+60,
+83,
+95,
+146,
+201
+],
+"courselit:apps/web/components/public/base-layout/branding.tsx": [
+19,
+32,
+38,
+44,
+47,
+79
+],
+"courselit:apps/web/components/public/base-layout/component-scaffold.tsx": [
+17,
+45,
+50,
+56,
+57,
+66,
+67,
+74,
+75,
+83,
+93,
+94,
+98,
+102,
+110,
+116,
+120,
+124,
+129,
+133,
+134,
+274,
+277,
+286,
+317
+],
+"courselit:apps/web/components/public/base-layout/drawer-list-item-icon.tsx": [
+8,
+13,
+14,
+24
+],
+"courselit:apps/web/components/public/base-layout/header.tsx": [
+12,
+18,
+19,
+20
+],
+"courselit:apps/web/components/public/base-layout/index.tsx": [
+45
+],
+"courselit:apps/web/components/public/base-layout/route-based-component-scaffold.tsx": [
+40,
+45,
+51,
+52,
+61,
+62,
+69,
+70,
+78,
+88,
+89,
+93,
+97,
+105,
+111,
+115,
+119,
+123,
+128,
+129,
+238,
+241,
+250,
+298
+],
+"courselit:apps/web/components/public/base-layout/scaffold/drawer-content.tsx": [
+8,
+20,
+27,
+28,
+46,
+63,
+74,
+104
+],
+"courselit:apps/web/components/public/base-layout/scaffold/index.tsx": [
+33,
+38,
+44,
+45,
+54,
+55,
+62,
+63,
+71,
+81,
+82,
+86,
+90,
+94,
+95,
+144,
+147,
+159,
+192
+],
+"courselit:apps/web/components/public/base-layout/scaffold/menu-item.tsx": [
+11,
+18,
+19
+],
+"courselit:apps/web/components/public/base-layout/template/index.tsx": [
+16,
+25,
+35,
+36,
+130
+],
+"courselit:apps/web/components/public/base-layout/template/section.tsx": [
+45
+],
+"courselit:apps/web/components/public/base-layout/template/widget-by-name.tsx": [
+24,
+35
+],
+"courselit:apps/web/components/public/checkout/free.tsx": [
+27,
+32,
+42,
+73,
+77
+],
+"courselit:apps/web/components/public/checkout/index.tsx": [
+6,
+42
+],
+"courselit:apps/web/components/public/checkout/stripe.tsx": [
+13,
+38,
+39,
+44,
+52,
+59,
+70,
+76,
+96
+],
+"courselit:apps/web/components/public/code-injector.tsx": [
+50
+],
+"courselit:apps/web/components/public/items.tsx": [
+11,
+96,
+100
+],
+"courselit:apps/web/components/public/lesson-viewer.tsx": [
+8,
+15,
+28,
+33,
+38,
+42,
+43,
+67,
+124,
+125,
+247,
+251
+],
+"courselit:apps/web/components/public/purchase-status.tsx": [
+7,
+18,
+62,
+166
+],
+"courselit:apps/web/components/public/session-button.tsx": [
+6,
+35
+],
+"courselit:apps/web/config/constants.ts": [
+70,
+265,
+266
+],
+"courselit:apps/web/config/strings.ts": [
+88,
+99
+],
+"courselit:apps/web/graphql/courses/index.ts": [
+6
+],
+"courselit:apps/web/graphql/courses/logic.ts": [
+14,
+29,
+42,
+66,
+71,
+82,
+117,
+197,
+204,
+218,
+229,
+240,
+273,
+316,
+318,
+339,
+357,
+376,
+403
+],
+"courselit:apps/web/graphql/courses/mutation.ts": [
+6,
+17,
+26,
+27,
+33,
+39,
+40,
+43,
+49,
+50,
+53,
+59,
+62,
+63,
+66,
+72,
+75,
+76,
+79,
+85,
+88,
+91,
+92,
+95,
+101,
+104,
+105,
+108,
+114,
+117,
+120,
+123,
+126,
+127,
+140,
+141,
+142
+],
+"courselit:apps/web/graphql/courses/query.ts": [
+8,
+15,
+24,
+25,
+33,
+36,
+37,
+43,
+49,
+52,
+53,
+59,
+78,
+81,
+84,
+85,
+92,
+95,
+101,
+102,
+108,
+109
+],
+"courselit:apps/web/graphql/courses/types.ts": [
+11,
+26,
+27,
+36,
+37,
+56,
+64,
+66,
+67,
+80,
+81,
+96,
+97,
+108,
+111,
+112,
+128,
+130,
+131,
+148,
+153,
+154,
+164
+],
+"courselit:apps/web/graphql/design/index.ts": [
+6
+],
+"courselit:apps/web/graphql/design/logic.ts": [
+72
+],
+"courselit:apps/web/graphql/design/mutation.ts": [
+12,
+13,
+16,
+22,
+23,
+26,
+32,
+33,
+36,
+42,
+43,
+46,
+47
+],
+"courselit:apps/web/graphql/design/query.ts": [
+10,
+11
+],
+"courselit:apps/web/graphql/design/types.ts": [
+7,
+17,
+18,
+26,
+27,
+37,
+38,
+44,
+45,
+52
+],
+"courselit:apps/web/graphql/index.ts": [
+21,
+22,
+33,
+34,
+35
+],
+"courselit:apps/web/graphql/lessons/index.ts": [
+6
+],
+"courselit:apps/web/graphql/lessons/logic.ts": [
+10,
+25,
+38,
+56,
+84,
+99,
+131,
+152,
+154,
+163
+],
+"courselit:apps/web/graphql/lessons/mutation.ts": [
+12,
+13,
+19,
+24,
+27,
+68,
+69,
+75,
+76
+],
+"courselit:apps/web/graphql/lessons/query.ts": [
+11,
+12,
+15,
+21,
+22,
+25,
+26
+],
+"courselit:apps/web/graphql/lessons/types.ts": [
+8,
+29,
+30,
+46,
+52,
+53,
+54,
+67,
+71,
+72,
+86,
+91,
+92,
+109,
+110,
+111,
+119
+],
+"courselit:apps/web/graphql/media/types.ts": [
+7,
+21,
+22,
+26
+],
+"courselit:apps/web/graphql/menus/index.ts": [
+6
+],
+"courselit:apps/web/graphql/menus/logic.ts": [
+47
+],
+"courselit:apps/web/graphql/menus/mutation.ts": [
+12,
+13,
+16,
+21,
+24,
+25
+],
+"courselit:apps/web/graphql/menus/types.ts": [
+7,
+16,
+17,
+27,
+28,
+38,
+39,
+45
+],
+"courselit:apps/web/graphql/settings/index.ts": [
+6
+],
+"courselit:apps/web/graphql/settings/logic.ts": [
+8,
+26,
+41
+],
+"courselit:apps/web/graphql/settings/mutation.ts": [
+10,
+11,
+17,
+23,
+24,
+30,
+31
+],
+"courselit:apps/web/graphql/settings/query.ts": [
+7,
+8
+],
+"courselit:apps/web/graphql/settings/types.ts": [
+7,
+22,
+28,
+29,
+38,
+39,
+51,
+52,
+62,
+63,
+70
+],
+"courselit:apps/web/graphql/users/index.ts": [
+6
+],
+"courselit:apps/web/graphql/users/logic.ts": [
+7,
+18,
+30,
+63,
+86,
+123,
+126,
+176
+],
+"courselit:apps/web/graphql/users/mutation.ts": [
+10,
+11,
+14,
+15
+],
+"courselit:apps/web/graphql/users/query.ts": [
+11,
+14,
+19,
+22,
+23
+],
+"courselit:apps/web/graphql/users/types.ts": [
+10,
+28,
+29,
+39,
+40,
+47,
+48,
+56,
+57,
+65,
+66,
+72,
+73,
+81
+],
+"courselit:apps/web/graphql/widgets/index.ts": [
+6
+],
+"courselit:apps/web/graphql/widgets/logic.ts": [
+16,
+33,
+56,
+63,
+100
+],
+"courselit:apps/web/graphql/widgets/mutation.ts": [
+11,
+12,
+15,
+21,
+22,
+25,
+31,
+32,
+35,
+36
+],
+"courselit:apps/web/graphql/widgets/query.ts": [
+11,
+12,
+15,
+21,
+22,
+25,
+30,
+31
+],
+"courselit:apps/web/graphql/widgets/types.ts": [
+6,
+13,
+14,
+22,
+23,
+30,
+31,
+38,
+39,
+47
+],
+"courselit:apps/web/lib/auth-cookies.ts": [
+10,
+19
+],
+"courselit:apps/web/lib/graphql.ts": [
+18
+],
+"courselit:apps/web/lib/jwt.ts": [
+13,
+15
+],
+"courselit:apps/web/lib/passport-magic-link.ts": [
+19,
+26,
+33,
+40,
+46
+],
+"courselit:apps/web/lib/user.ts": [
+12,
+19,
+35
+],
+"courselit:apps/web/lib/utils.ts": [
+115
+],
+"courselit:apps/web/middlewares/verify-domain.ts": [
+26,
+71,
+87,
+93
+],
+"courselit:apps/web/models/Course.ts": [
+36,
+53,
+54,
+55,
+58,
+63
+],
+"courselit:apps/web/models/Domain.ts": [
+31,
+34
+],
+"courselit:apps/web/models/Layout.ts": [
+13
+],
+"courselit:apps/web/models/Lesson.ts": [
+29,
+39
+],
+"courselit:apps/web/models/Link.ts": [
+17
+],
+"courselit:apps/web/models/Log.ts": [
+11,
+14,
+17
+],
+"courselit:apps/web/models/Purchase.ts": [
+37
+],
+"courselit:apps/web/models/SiteInfo.ts": [
+28
+],
+"courselit:apps/web/models/Theme.ts": [
+21,
+27,
+33
+],
+"courselit:apps/web/models/User.ts": [
+27,
+30,
+36,
+42
+],
+"courselit:apps/web/models/Widget.ts": [
+16
+],
+"courselit:apps/web/pages/404.tsx": [
+14
+],
+"courselit:apps/web/pages/_app.tsx": [
+12,
+34,
+58,
+111,
+112
+],
+"courselit:apps/web/pages/_document.tsx": [
+38,
+56
+],
+"courselit:apps/web/pages/api/auth/login.ts": [
+22,
+30,
+44,
+60,
+61
+],
+"courselit:apps/web/pages/api/auth/user.ts": [
+17
+],
+"courselit:apps/web/pages/api/graph.ts": [
+20,
+43
+],
+"courselit:apps/web/pages/api/media/[mediaId].ts": [
+22,
+39,
+62
+],
+"courselit:apps/web/pages/api/media/index.ts": [
+23,
+36,
+47
+],
+"courselit:apps/web/pages/api/media/presigned.ts": [
+22,
+33
+],
+"courselit:apps/web/pages/api/payment/initiate.ts": [
+29,
+48,
+57,
+68,
+86,
+92,
+100,
+106
+],
+"courselit:apps/web/pages/api/payment/verify.ts": [
+23,
+41,
+48,
+55,
+60,
+67
+],
+"courselit:apps/web/pages/api/payment/webhook.ts": [
+22,
+36,
+49,
+53,
+58
+],
+"courselit:apps/web/pages/course/[id]/[slug].tsx": [
+6,
+40,
+45,
+56,
+177,
+182,
+183,
+189,
+190,
+197,
+198,
+206
+],
+"courselit:apps/web/pages/courses.tsx": [
+45
+],
+"courselit:apps/web/pages/index.tsx": [
+47,
+54,
+72,
+112
+],
+"courselit:apps/web/pages/login.tsx": [
+7,
+76,
+80,
+81,
+154,
+158
+],
+"courselit:apps/web/pages/logout.tsx": [
+35,
+39
+],
+"courselit:apps/web/pages/post/[id]/[slug].tsx": [
+21,
+97,
+103,
+104,
+110
+],
+"courselit:apps/web/pages/posts.tsx": [
+41
+],
+"courselit:apps/web/pages/profile/[id].tsx": [
+13,
+74,
+271,
+277,
+278,
+285,
+289
+],
+"courselit:apps/web/pages/tag/[tag].tsx": [
+3,
+53
+],
+"courselit:apps/web/payments/index.ts": [
+9
+],
+"courselit:apps/web/payments/stripe-payment.ts": [
+10,
+36,
+50,
+52,
+54,
+55,
+61,
+62
+],
+"courselit:apps/web/services/db.ts": [
+11
+],
+"courselit:apps/web/services/logger.ts": [
+13,
+24,
+35
+],
+"courselit:apps/web/services/mail.ts": [
+17,
+18,
+26
+],
+"courselit:apps/web/services/medialit.ts": [
+16,
+31,
+34,
+36,
+52,
+55,
+56,
+70,
+74,
+75,
+93,
+96,
+97
+],
+"courselit:apps/web/ui-config/constants.ts": [
+60
+],
+"courselit:apps/web/ui-config/default-theme.ts": [
+6,
+17
+],
+"courselit:apps/web/ui-config/widgets.tsx": [
+6
+],
+"courselit:apps/web/ui-lib/utils.ts": [
+16,
+19,
+37,
+104,
+134
+],
+"courselit:apps/web/ui-models/app-message.ts": [
+26
+],
+"courselit:packages/common-models/src/app-message.ts": [
+26
+],
+"courselit:packages/common-widgets/src/about/admin-widget.tsx": [
+17
+],
+"courselit:packages/common-widgets/src/about/index.tsx": [
+8
+],
+"courselit:packages/common-widgets/src/about/metadata.ts": [
+5
+],
+"courselit:packages/common-widgets/src/about/widget.tsx": [
+20
+],
+"courselit:packages/common-widgets/src/branding/index.tsx": [
+6
+],
+"courselit:packages/common-widgets/src/branding/metadata.ts": [
+4
+],
+"courselit:packages/common-widgets/src/branding/widget.tsx": [
+20,
+22
+],
+"courselit:packages/common-widgets/src/footer-menu/index.tsx": [
+6
+],
+"courselit:packages/common-widgets/src/footer-menu/metadata.ts": [
+4
+],
+"courselit:packages/common-widgets/src/footer-menu/widget.tsx": [
+23,
+36,
+37,
+56,
+69
+],
+"courselit:packages/common-widgets/src/tagged-content/admin-widget.tsx": [
+17,
+27
+],
+"courselit:packages/common-widgets/src/tagged-content/index.tsx": [
+8
+],
+"courselit:packages/common-widgets/src/tagged-content/metadata.ts": [
+6
+],
+"courselit:packages/common-widgets/src/tagged-content/widget.tsx": [
+20,
+29,
+64
+],
+"courselit:packages/components-library/src/course-item.tsx": [
+14,
+22,
+27,
+28,
+43,
+52
+],
+"courselit:packages/components-library/src/image.tsx": [
+43,
+54
+],
+"courselit:packages/components-library/src/index.ts": [
+16
+],
+"courselit:packages/components-library/src/overview-and-detail/index.tsx": [
+40,
+95
+],
+"courselit:packages/components-library/src/overview-and-detail/overview-list.tsx": [
+15
+],
+"courselit:packages/components-library/src/rich-text.tsx": [
+44,
+48,
+52,
+56,
+57
+],
+"courselit:packages/components-library/src/widget-helpers.ts": [
+25,
+57
+],
+"courselit:packages/state-management/src/action-creators.ts": [
+18,
+28
+],
+"courselit:packages/state-management/src/default-state.ts": [
+4,
+11,
+17,
+28,
+33,
+41,
+46,
+48
+],
+"courselit:packages/state-management/src/reducer.ts": [
+17,
+28,
+65,
+99,
+114,
+155,
+181,
+188
+],
+"courselit:packages/state-management/src/utils/get-address.ts": [
+4
+],
+"courselit:packages/utils/src/fetch-builder.ts": [
+29
+]
+}

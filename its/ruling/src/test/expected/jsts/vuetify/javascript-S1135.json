@@ -1,0 +1,18 @@
+{
+"vuetify:.eslintrc.js": [
+123
+],
+"vuetify:packages/docs/src/examples/v-autocomplete/slot-item-and-selection.vue": [
+159
+],
+"vuetify:packages/docs/src/examples/v-ripple/misc-ripple-in-components.vue": [
+2
+],
+"vuetify:packages/docs/src/examples/v-scroll/usage.vue": [
+109
+],
+"vuetify:packages/vuetify/build/rollup.config.js": [
+159,
+278
+]
+}

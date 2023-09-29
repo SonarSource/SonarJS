@@ -1,0 +1,114 @@
+{
+"paper.js:examples/Scripts/BooleanOperations.html": [
+389
+],
+"paper.js:src/core/Base.js": [
+135,
+492,
+492,
+658,
+672
+],
+"paper.js:src/core/PaperScope.js": [
+285
+],
+"paper.js:src/core/PaperScript.js": [
+215,
+223,
+224,
+256
+],
+"paper.js:src/item/Item.js": [
+960,
+1265,
+1658,
+2282,
+2283,
+2515,
+2516,
+4529
+],
+"paper.js:src/item/Raster.js": [
+640
+],
+"paper.js:src/item/Shape.js": [
+127
+],
+"paper.js:src/path/CompoundPath.js": [
+144
+],
+"paper.js:src/path/Curve.js": [
+1509,
+1510,
+1817,
+1818,
+1829,
+2044,
+2117,
+2281
+],
+"paper.js:src/path/Path.js": [
+393,
+745,
+764,
+1368,
+1368,
+1593,
+1595,
+1772,
+2259,
+2472,
+2473,
+2493,
+2496
+],
+"paper.js:src/path/PathFitter.js": [
+203,
+220,
+254
+],
+"paper.js:src/path/PathItem.Boolean.js": [
+67,
+168,
+168,
+418,
+419,
+790,
+794,
+810,
+1015
+],
+"paper.js:src/path/PathItem.js": [
+175,
+687
+],
+"paper.js:src/path/Segment.js": [
+456,
+457
+],
+"paper.js:src/style/Color.js": [
+75,
+76,
+619,
+619,
+642,
+645
+],
+"paper.js:src/style/Gradient.js": [
+157,
+157
+],
+"paper.js:src/style/Style.js": [
+228
+],
+"paper.js:src/svg/SvgImport.js": [
+95,
+95,
+476
+],
+"paper.js:src/util/CollisionDetection.js": [
+177,
+205,
+206
+]
+}

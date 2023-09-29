@@ -1,0 +1,27 @@
+{
+"javascript-test-sources:src/ace/lib/ace/mode/html/saxparser.js": [
+9325,
+9326
+],
+"javascript-test-sources:src/ace/lib/ace/mode/javascript/jshint.js": [
+2956,
+18112,
+18113
+],
+"javascript-test-sources:src/ace/lib/ace/mode/yaml/yaml-lint.js": [
+734
+],
+"javascript-test-sources:src/ace/src/test/asyncjs/assert.js": [
+207,
+208
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/permissions_spec.js": [
+41
+],
+"javascript-test-sources:src/ecmascript6/expressionist.js/test/watch_parser.spec.js": [
+282
+],
+"javascript-test-sources:src/ecmascript6/router/third_party/route-recognizer.js": [
+421
+]
+}

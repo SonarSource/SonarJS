@@ -1,0 +1,33 @@
+{
+"knockout:src/binding/bindingAttributeSyntax.js": [
+116
+],
+"knockout:src/binding/defaultBindings/checked.js": [
+65,
+119
+],
+"knockout:src/binding/defaultBindings/textInput.js": [
+58
+],
+"knockout:src/binding/editDetection/arrayToDomNodeChildren.js": [
+113,
+181
+],
+"knockout:src/binding/selectExtensions.js": [
+44
+],
+"knockout:src/subscribables/dependentObservable.js": [
+19,
+410,
+416,
+417,
+418,
+420
+],
+"knockout:src/subscribables/extenders.js": [
+87
+],
+"knockout:src/subscribables/observableArray.changeTracking.js": [
+46
+]
+}

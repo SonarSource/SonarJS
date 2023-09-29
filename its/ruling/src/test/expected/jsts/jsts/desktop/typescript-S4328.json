@@ -1,0 +1,14 @@
+{
+"desktop:app/src/main-process/desktop-console-transport.ts": [
+1
+],
+"desktop:app/src/main-process/desktop-file-transport.ts": [
+4
+],
+"desktop:app/src/ui/lib/popover.tsx": [
+3
+],
+"desktop:app/src/ui/toolbar/dropdown.tsx": [
+9
+]
+}

@@ -1,0 +1,39 @@
+{
+"courselit:.yarn/plugins/@yarnpkg/plugin-version.cjs": [
+41,
+41,
+41,
+41,
+44,
+129,
+173,
+173,
+403,
+404,
+409
+],
+"courselit:.yarn/plugins/@yarnpkg/plugin-workspace-tools.cjs": [
+7,
+7,
+7,
+7,
+7,
+7,
+7,
+7
+],
+"courselit:.yarn/releases/yarn-3.2.0.cjs": [
+14,
+190,
+190,
+190,
+190,
+190,
+190,
+190,
+190,
+394,
+394,
+619
+]
+}

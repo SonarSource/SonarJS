@@ -1,0 +1,353 @@
+{
+"javascript-test-sources:src/ace/lib/ace/mode/css/csslint.js": [
+297,
+767,
+6904,
+7025
+],
+"javascript-test-sources:src/ace/lib/ace/mode/javascript/jshint.js": [
+485,
+486,
+498,
+499,
+500,
+501,
+502
+],
+"javascript-test-sources:src/ace/lib/ace/mode/yaml/yaml-lint.js": [
+4191,
+4192,
+4214
+],
+"javascript-test-sources:src/ace/src/snippets_test.js": [
+228,
+244
+],
+"javascript-test-sources:src/ecmascript6/Ghost/Gruntfile.js": [
+14
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/components/gh-fullscreen-modal.js": [
+5
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/components/modals/invite-new-user.js": [
+6
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/controllers/setup/two.js": [
+6
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/controllers/signup.js": [
+6
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/routes/signup.js": [
+8
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/authentication.js": [
+7
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/clients.js": [
+3
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/configuration.js": [
+6
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/db.js": [
+4
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/mail.js": [
+4
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/notifications.js": [
+3
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/posts.js": [
+3
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/roles.js": [
+3
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/settings.js": [
+5
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/slugs.js": [
+5
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/tags.js": [
+3
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/themes.js": [
+3
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/upload.js": [
+2
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/users.js": [
+3
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/utils.js": [
+3
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/apps/dependencies.js": [
+5
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/apps/index.js": [
+3
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/apps/loader.js": [
+4
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/apps/permissions.js": [
+3
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/config/index.js": [
+4
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/controllers/frontend/fetch-data.js": [
+8
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/controllers/frontend/index.js": [
+14
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/export/index.js": [
+2
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/import/data-importer.js": [
+1
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/import/index.js": [
+1
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/import/utils.js": [
+1
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/importer/handlers/image.js": [
+2
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/importer/handlers/json.js": [
+2
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/importer/handlers/markdown.js": [
+2
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/importer/importers/image.js": [
+2
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/importer/index.js": [
+2
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/migration/fixtures/index.js": [
+8
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/migration/fixtures/permissions/index.js": [
+3
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/migration/index.js": [
+2
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/schema/commands.js": [
+2
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/validation/index.js": [
+4
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/xml/sitemap/base-generator.js": [
+7
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/xml/sitemap/manager.js": [
+2
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/errors/index.js": [
+6
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/filters.js": [
+3
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/ghost-server.js": [
+3
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/helpers/get.js": [
+6
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/helpers/ghost_head.js": [
+18
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/helpers/index.js": [
+2
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/helpers/prev_next.js": [
+8
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/index.js": [
+10
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/mail/index.js": [
+4
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/middleware/private-blogging.js": [
+7
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/models/base/index.js": [
+14
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/models/base/token.js": [
+1
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/models/index.js": [
+5
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/models/plugins/pagination.js": [
+5
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/models/post.js": [
+4
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/models/role.js": [
+4
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/models/settings.js": [
+6
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/models/user.js": [
+2
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/permissions/index.js": [
+5
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/storage/local-file-store.js": [
+8
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/update-check.js": [
+28
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/utils/parse-package-json.js": [
+5
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/utils/pipeline.js": [
+7
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/utils/read-directory.js": [
+6
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/utils/read-themes.js": [
+6
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/utils/sequence.js": [
+1
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/utils/validate-themes.js": [
+6
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/integration/api/api_authentication_spec.js": [
+6
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/integration/api/api_tags_spec.js": [
+5
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/integration/api/api_themes_spec.js": [
+8
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/integration/api/api_upload_spec.js": [
+6
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/integration/api/api_users_spec.js": [
+6
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/integration/export_spec.js": [
+6
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/integration/import_spec.js": [
+6
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/integration/model/model_tags_spec.js": [
+6
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/integration/model/model_users_spec.js": [
+5
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/api_utils_spec.js": [
+6
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/apps_filters_spec.js": [
+5
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/apps_spec.js": [
+8
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/config_spec.js": [
+5
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/controllers/frontend/fetch-data_spec.js": [
+5
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/controllers/frontend/index_spec.js": [
+6
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/error_handling_spec.js": [
+4
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/filters_spec.js": [
+5
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/importer_spec.js": [
+5
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/mail_spec.js": [
+4
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/middleware/auth-strategies_spec.js": [
+5
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/middleware/oauth_spec.js": [
+5
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/middleware/private-blogging_spec.js": [
+6
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/middleware/redirect-to-setup_spec.js": [
+5
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/middleware/theme-handler_spec.js": [
+6
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/models_plugins/pagination_spec.js": [
+5
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/permissions_spec.js": [
+6
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/rss_spec.js": [
+7
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/server_helpers/get_spec.js": [
+6
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/server_helpers/ghost_foot_spec.js": [
+5
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/server_helpers/ghost_head_spec.js": [
+6
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/server_helpers/next_post_spec.js": [
+5
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/server_helpers/prev_post_spec.js": [
+5
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/server_helpers/url_spec.js": [
+5
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/sitemap_spec.js": [
+6
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/utils_pipeline_spec.js": [
+5
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/utils/fork.js": [
+6
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/utils/index.js": [
+1
+],
+"javascript-test-sources:src/ecmascript6/router/third_party/brick/brick-1.0.1.byob.js": [
+73
+]
+}

@@ -1,0 +1,24 @@
+{
+"javascript-test-sources:src/ace/lib/ace/mode/xquery/jsoniq_lexer.js": [
+4374
+],
+"javascript-test-sources:src/ace/lib/ace/mode/xquery/xquery_lexer.js": [
+4206
+],
+"javascript-test-sources:src/ecmascript6/http/src/IConnection.js": [
+10
+],
+"javascript-test-sources:src/ecmascript6/http/src/IRequest.js": [
+10
+],
+"javascript-test-sources:src/ecmascript6/http/src/IResponse.js": [
+10
+],
+"javascript-test-sources:src/ecmascript6/router/third_party/brick/brick-1.0.1.byob.js": [
+1806,
+2281,
+2728,
+2866,
+2870
+]
+}

@@ -1,0 +1,11 @@
+{
+"vuetify:eslint-local-rules.js": [
+22
+],
+"vuetify:scripts/rules/jsx-curly-spacing.js": [
+412
+],
+"vuetify:scripts/rules/no-render-string-reference.js": [
+7
+]
+}

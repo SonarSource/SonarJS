@@ -1,0 +1,12 @@
+{
+"desktop:eslint-rules/react-no-unbound-dispatcher-props.js": [
+44,
+53
+],
+"desktop:eslint-rules/react-proper-lifecycle-methods.js": [
+199
+],
+"desktop:eslint-rules/react-readonly-props-and-state.js": [
+31
+]
+}

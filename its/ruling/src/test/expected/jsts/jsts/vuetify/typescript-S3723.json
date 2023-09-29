@@ -1,0 +1,386 @@
+{
+"vuetify:packages/api-generator/src/index.ts": [
+62,
+78,
+80
+],
+"vuetify:packages/api-generator/src/utils.ts": [
+55,
+94,
+145
+],
+"vuetify:packages/docs/src/components/app/search/Search.vue": [
+127
+],
+"vuetify:packages/docs/src/store/app.ts": [
+83
+],
+"vuetify:packages/docs/src/util/analytics.ts": [
+9
+],
+"vuetify:packages/docs/src/util/markdown-it-rules.ts": [
+20
+],
+"vuetify:packages/vuetify/cypress/templates/generateStories.tsx": [
+87
+],
+"vuetify:packages/vuetify/src/components/VAutocomplete/VAutocomplete.tsx": [
+129
+],
+"vuetify:packages/vuetify/src/components/VBtn/__tests__/VBtn.spec.cy.tsx": [
+38,
+41,
+44,
+47
+],
+"vuetify:packages/vuetify/src/components/VCalendar/VCalendarCategory.ts": [
+117
+],
+"vuetify:packages/vuetify/src/components/VCalendar/VCalendarWeekly.ts": [
+54,
+68,
+81,
+157,
+207
+],
+"vuetify:packages/vuetify/src/components/VCalendar/mixins/calendar-base.ts": [
+34,
+73,
+85,
+98,
+121
+],
+"vuetify:packages/vuetify/src/components/VCalendar/mixins/calendar-with-events.ts": [
+349,
+352,
+409,
+424,
+434,
+442,
+453
+],
+"vuetify:packages/vuetify/src/components/VCalendar/mixins/calendar-with-intervals.ts": [
+60,
+83
+],
+"vuetify:packages/vuetify/src/components/VCalendar/util/__tests__/timestamp.spec.ts": [
+459,
+486
+],
+"vuetify:packages/vuetify/src/components/VCalendar/util/parser.ts": [
+8,
+19
+],
+"vuetify:packages/vuetify/src/components/VCalendar/util/timestamp.ts": [
+365,
+423
+],
+"vuetify:packages/vuetify/src/components/VCard/VCard.tsx": [
+107
+],
+"vuetify:packages/vuetify/src/components/VChip/VChip.tsx": [
+125
+],
+"vuetify:packages/vuetify/src/components/VColorPicker/VColorPicker.tsx": [
+100
+],
+"vuetify:packages/vuetify/src/components/VCombobox/VCombobox.tsx": [
+133
+],
+"vuetify:packages/vuetify/src/components/VCombobox/__tests__/VCombobox.spec.cy.tsx": [
+299
+],
+"vuetify:packages/vuetify/src/components/VData/VData.ts": [
+317,
+330
+],
+"vuetify:packages/vuetify/src/components/VDataIterator/VDataFooter.ts": [
+184,
+191,
+199,
+206
+],
+"vuetify:packages/vuetify/src/components/VDataIterator/VDataIterator.ts": [
+25,
+292
+],
+"vuetify:packages/vuetify/src/components/VDatePicker/VDatePickerDateTable.ts": [
+18,
+78
+],
+"vuetify:packages/vuetify/src/components/VDatePicker/VDatePickerHeader.ts": [
+26
+],
+"vuetify:packages/vuetify/src/components/VDatePicker/VDatePickerMonthTable.ts": [
+16
+],
+"vuetify:packages/vuetify/src/components/VDatePicker/VDatePickerTitle.ts": [
+19
+],
+"vuetify:packages/vuetify/src/components/VDatePicker/VDatePickerYears.ts": [
+35
+],
+"vuetify:packages/vuetify/src/components/VDatePicker/__tests__/VDatePicker.month.spec.ts": [
+331
+],
+"vuetify:packages/vuetify/src/components/VDatePicker/mixins/date-picker-table.ts": [
+41
+],
+"vuetify:packages/vuetify/src/components/VDatePicker/util/createNativeLocaleFormatter.ts": [
+26
+],
+"vuetify:packages/vuetify/src/components/VDialog/VDialog.tsx": [
+65,
+102
+],
+"vuetify:packages/vuetify/src/components/VFileInput/__tests__/VFileInput.spec.tsx": [
+27,
+63
+],
+"vuetify:packages/vuetify/src/components/VIcon/VIcon.tsx": [
+42
+],
+"vuetify:packages/vuetify/src/components/VImg/VImg.tsx": [
+227
+],
+"vuetify:packages/vuetify/src/components/VList/VList.tsx": [
+198
+],
+"vuetify:packages/vuetify/src/components/VList/VListItem.tsx": [
+114,
+120
+],
+"vuetify:packages/vuetify/src/components/VMenu/VMenu.tsx": [
+87
+],
+"vuetify:packages/vuetify/src/components/VNavigationDrawer/VNavigationDrawer.tsx": [
+121,
+172
+],
+"vuetify:packages/vuetify/src/components/VOtpInput/__tests__/VOtpInput.spec.ts": [
+46
+],
+"vuetify:packages/vuetify/src/components/VOverlay/locationStrategies.ts": [
+77
+],
+"vuetify:packages/vuetify/src/components/VOverlay/scrollStrategies.ts": [
+41
+],
+"vuetify:packages/vuetify/src/components/VOverlay/useActivator.tsx": [
+63,
+227
+],
+"vuetify:packages/vuetify/src/components/VPagination/VPagination.tsx": [
+167
+],
+"vuetify:packages/vuetify/src/components/VPicker/VPicker.ts": [
+23
+],
+"vuetify:packages/vuetify/src/components/VSelect/VSelect.tsx": [
+132
+],
+"vuetify:packages/vuetify/src/components/VSelect/__tests__/VSelect.spec.cy.tsx": [
+135
+],
+"vuetify:packages/vuetify/src/components/VSelectionControl/VSelectionControl.tsx": [
+63
+],
+"vuetify:packages/vuetify/src/components/VSlideGroup/VSlideGroup.tsx": [
+254
+],
+"vuetify:packages/vuetify/src/components/VSparkline/VSparkline.ts": [
+56,
+190,
+283
+],
+"vuetify:packages/vuetify/src/components/VSparkline/helpers/core.ts": [
+8,
+29
+],
+"vuetify:packages/vuetify/src/components/VSparkline/helpers/math.ts": [
+21
+],
+"vuetify:packages/vuetify/src/components/VSparkline/helpers/path.ts": [
+28
+],
+"vuetify:packages/vuetify/src/components/VStepper/VStepperContent.ts": [
+23,
+99,
+108
+],
+"vuetify:packages/vuetify/src/components/VStepper/VStepperStep.ts": [
+26
+],
+"vuetify:packages/vuetify/src/components/VTextField/VTextField.tsx": [
+92
+],
+"vuetify:packages/vuetify/src/components/VTextField/__tests__/VTextField.spec.tsx": [
+27,
+63
+],
+"vuetify:packages/vuetify/src/components/VTextarea/VTextarea.tsx": [
+91,
+161
+],
+"vuetify:packages/vuetify/src/components/VTextarea/__tests__/VTextarea.spec.tsx": [
+27,
+63
+],
+"vuetify:packages/vuetify/src/components/VTimePicker/VTimePicker.ts": [
+33
+],
+"vuetify:packages/vuetify/src/components/VTimePicker/VTimePickerClock.ts": [
+36
+],
+"vuetify:packages/vuetify/src/components/VTimePicker/VTimePickerTitle.ts": [
+17
+],
+"vuetify:packages/vuetify/src/components/VToolbar/VToolbar.tsx": [
+96
+],
+"vuetify:packages/vuetify/src/components/VTooltip/VTooltip.tsx": [
+84
+],
+"vuetify:packages/vuetify/src/components/VTreeview/VTreeview.ts": [
+50,
+112
+],
+"vuetify:packages/vuetify/src/components/VTreeview/VTreeviewNode.ts": [
+25
+],
+"vuetify:packages/vuetify/src/components/VTreeview/util/filterTreeItems.ts": [
+20
+],
+"vuetify:packages/vuetify/src/components/VWindow/VWindow.tsx": [
+173,
+187
+],
+"vuetify:packages/vuetify/src/components/transitions/createTransition.ts": [
+11,
+81
+],
+"vuetify:packages/vuetify/src/composables/color.ts": [
+51,
+69
+],
+"vuetify:packages/vuetify/src/composables/defaults.ts": [
+36
+],
+"vuetify:packages/vuetify/src/composables/filter.ts": [
+135
+],
+"vuetify:packages/vuetify/src/composables/focus.ts": [
+21
+],
+"vuetify:packages/vuetify/src/composables/group.ts": [
+98,
+151,
+168
+],
+"vuetify:packages/vuetify/src/composables/icons.tsx": [
+209
+],
+"vuetify:packages/vuetify/src/composables/layout.ts": [
+266
+],
+"vuetify:packages/vuetify/src/composables/location.ts": [
+38
+],
+"vuetify:packages/vuetify/src/composables/mutationObserver.ts": [
+27
+],
+"vuetify:packages/vuetify/src/composables/stack.ts": [
+20
+],
+"vuetify:packages/vuetify/src/composables/toggleScope.ts": [
+10
+],
+"vuetify:packages/vuetify/src/composables/transition.ts": [
+28
+],
+"vuetify:packages/vuetify/src/directives/color/index.ts": [
+77,
+95
+],
+"vuetify:packages/vuetify/src/directives/intersect/index.ts": [
+34
+],
+"vuetify:packages/vuetify/src/directives/mutate/index.ts": [
+30
+],
+"vuetify:packages/vuetify/src/directives/ripple/index.ts": [
+49,
+86
+],
+"vuetify:packages/vuetify/src/directives/scroll/__tests__/scroll.spec.ts": [
+30
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/__tests__/sort.spec.ts": [
+18,
+28,
+38,
+48,
+58,
+68,
+82,
+96,
+116,
+126,
+136,
+146,
+156,
+166,
+176,
+186,
+196
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/composables/headers.ts": [
+32
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/composables/paginate.ts": [
+80
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/composables/sort.ts": [
+95
+],
+"vuetify:packages/vuetify/src/labs/VVirtualScroll/VVirtualScroll.tsx": [
+75
+],
+"vuetify:packages/vuetify/src/services/goto/index.ts": [
+21
+],
+"vuetify:packages/vuetify/src/util/__tests__/colorUtils.spec.ts": [
+115,
+118,
+121
+],
+"vuetify:packages/vuetify/src/util/__tests__/getCurrentInstance.spec.tsx": [
+11,
+21
+],
+"vuetify:packages/vuetify/src/util/__tests__/propsFactory.spec.ts": [
+19,
+20,
+32
+],
+"vuetify:packages/vuetify/src/util/animation.ts": [
+42
+],
+"vuetify:packages/vuetify/src/util/color/transformSRGB.ts": [
+43
+],
+"vuetify:packages/vuetify/src/util/createSimpleFunctional.ts": [
+7
+],
+"vuetify:packages/vuetify/src/util/defineComponent.tsx": [
+91
+],
+"vuetify:packages/vuetify/src/util/helpers.ts": [
+80,
+207,
+258
+],
+"vuetify:packages/vuetify/src/util/propsFactory.ts": [
+33
+]
+}

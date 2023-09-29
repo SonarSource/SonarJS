@@ -1,0 +1,12 @@
+{
+"eigen:scripts/changelog/generatePlatformChangelog.js": [
+84
+],
+"eigen:tslint-rules/jsxSafeConditionalsRule.js": [
+43,
+128
+],
+"eigen:tslint-rules/useWrappedComponentsRule.js": [
+52
+]
+}

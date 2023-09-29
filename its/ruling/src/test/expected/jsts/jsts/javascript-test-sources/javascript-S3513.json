@@ -1,0 +1,982 @@
+{
+"javascript-test-sources:src/ace/experiments/animate_folding.html": [
+241
+],
+"javascript-test-sources:src/ace/experiments/cut_copy.html": [
+50
+],
+"javascript-test-sources:src/ace/lib/ace/mode/css/csslint.js": [
+440,
+467,
+497,
+588,
+599,
+7182
+],
+"javascript-test-sources:src/ace/lib/ace/mode/html/saxparser.js": [
+9419,
+9424,
+9476,
+9518,
+9538,
+9555,
+9581,
+10002,
+10097,
+10208
+],
+"javascript-test-sources:src/ace/lib/ace/mode/javascript/jshint.js": [
+109,
+113,
+117,
+137,
+147,
+2456,
+2567,
+2966,
+3115,
+3388,
+3459,
+3501,
+3573,
+3580,
+3584,
+3594,
+3605,
+4150,
+4233,
+4246,
+4260,
+9018,
+9873,
+9931,
+9944,
+11402,
+13184,
+13190,
+15180,
+15188,
+18206,
+18211,
+18284,
+18326,
+18346,
+18363,
+18389,
+18810,
+18903,
+19015,
+19287,
+19336,
+19338,
+19340
+],
+"javascript-test-sources:src/ace/lib/ace/mode/xml/dom-parser.js": [
+55,
+134,
+159
+],
+"javascript-test-sources:src/ace/lib/ace/mode/xml/dom.js": [
+824
+],
+"javascript-test-sources:src/ace/lib/ace/mode/yaml/yaml-lint.js": [
+2738,
+2770,
+5345,
+5393,
+5475
+],
+"javascript-test-sources:src/ace/lib/ace/worker/worker.js": [
+10
+],
+"javascript-test-sources:src/ace/lib/ace/worker/worker_client.js": [
+68
+],
+"javascript-test-sources:src/ace/lib/ace/worker/worker_v2.js": [
+13
+],
+"javascript-test-sources:src/ace/src/keyboard/vim.js": [
+57,
+4001,
+4007,
+5458
+],
+"javascript-test-sources:src/ace/src/keyboard/vim_test.js": [
+294,
+5541
+],
+"javascript-test-sources:src/ace/src/lib/app_config.js": [
+56
+],
+"javascript-test-sources:src/ace/src/lib/es6-shim.js": [
+56,
+76,
+88,
+106,
+127
+],
+"javascript-test-sources:src/ace/src/lib/event_emitter.js": [
+52
+],
+"javascript-test-sources:src/ace/src/lib/lang.js": [
+114
+],
+"javascript-test-sources:src/ace/src/mode/_test/highlight_rules_test.js": [
+137
+],
+"javascript-test-sources:src/ace/src/mode/mask_highlight_rules.js": [
+257
+],
+"javascript-test-sources:src/ace/src/mode/text.js": [
+261,
+298
+],
+"javascript-test-sources:src/ace/src/snippets.js": [
+256
+],
+"javascript-test-sources:src/ace/src/test/asyncjs/assert.js": [
+301,
+306
+],
+"javascript-test-sources:src/ace/src/test/asyncjs/async.js": [
+236,
+261,
+363,
+390,
+429,
+499,
+506
+],
+"javascript-test-sources:src/ace/src/test/user.js": [
+159
+],
+"javascript-test-sources:src/ace/tool/update_deps.js": [
+266
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/adapters/base.js": [
+35,
+51,
+66
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/components/gh-cm-editor.js": [
+21,
+41
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/components/gh-content-preview-content.js": [
+11
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/components/gh-dropdown.js": [
+85,
+94
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/components/gh-ed-editor.js": [
+31
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/components/gh-ed-preview.js": [
+17,
+24
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/components/gh-editor.js": [
+49
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/components/gh-fullscreen-modal.js": [
+26
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/components/gh-navigation.js": [
+15,
+36
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/components/gh-navitem-url-input.js": [
+34
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/components/gh-notification.js": [
+37,
+47
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/components/gh-popover-button.js": [
+18,
+23
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/components/gh-posts-list-item.js": [
+50,
+55
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/components/gh-profile-image.js": [
+38,
+56,
+77,
+98
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/components/gh-search-input.js": [
+124
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/components/gh-selectize.js": [
+11,
+120
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/components/gh-spin-button.js": [
+56
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/components/gh-tab-pane.js": [
+24,
+30
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/components/gh-tab.js": [
+25,
+31
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/components/gh-tag-settings-form.js": [
+87
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/components/gh-tags-management-container.js": [
+26
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/components/gh-trim-focus-input.js": [
+33,
+38
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/components/gh-uploader.js": [
+38,
+58,
+63
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/components/modals/base.js": [
+37,
+42
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/components/modals/invite-new-user.js": [
+26,
+44
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/components/modals/upload-image.js": [
+36
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/controllers/feature.js": [
+29
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/controllers/settings/navigation.js": [
+37
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/initializers/trailing-history.js": [
+7
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/mixins/404-handler.js": [
+20
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/mixins/active-link-wrapper.js": [
+19
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/mixins/body-event-listener.js": [
+17,
+23
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/mixins/ed-editor-scroll.js": [
+89,
+95
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/mixins/editor-base-controller.js": [
+35
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/mixins/editor-base-route.js": [
+124
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/mixins/infinite-scroll.js": [
+27,
+39
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/mixins/pagination-route.js": [
+25
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/mixins/shortcuts-route.js": [
+41,
+46
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/mixins/slug-url.js": [
+7
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/mixins/style-body.js": [
+10,
+24
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/mixins/validation-engine.js": [
+128
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/routes/application.js": [
+45
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/routes/editor/edit.js": [
+14,
+45,
+55
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/routes/editor/index.js": [
+7
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/routes/editor/new.js": [
+39,
+48
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/routes/mobile-index-route.js": [
+21,
+31
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/routes/posts/index.js": [
+19,
+27
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/routes/reset.js": [
+17,
+30
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/routes/settings/code-injection.js": [
+10
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/routes/settings/general.js": [
+11
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/routes/settings/labs.js": [
+11
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/routes/settings/navigation.js": [
+14,
+38
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/routes/settings/tags.js": [
+26,
+43
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/routes/settings/tags/index.js": [
+14
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/routes/settings/tags/new.js": [
+17
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/routes/settings/tags/tag.js": [
+17
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/routes/setup.js": [
+22,
+43
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/routes/setup/index.js": [
+7
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/routes/setup/one.js": [
+18
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/routes/setup/three.js": [
+7
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/routes/signin.js": [
+20,
+39
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/routes/signup.js": [
+22,
+72
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/routes/team/user.js": [
+21,
+46
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/serializers/post.js": [
+30,
+34
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/serializers/user.js": [
+19,
+29
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/services/media-queries.js": [
+14,
+45
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/utils/bind.js": [
+4
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/utils/ghost-paths.js": [
+35,
+39,
+44
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/app/utils/link-component.js": [
+7
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/client/tests/helpers/module-for-acceptance.js": [
+11,
+19
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/api/utils.js": [
+47
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/apps/proxy.js": [
+34,
+44
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/config/url.js": [
+33
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/import/utils.js": [
+20
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/xml/sitemap/page-generator.js": [
+10
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/xml/sitemap/post-generator.js": [
+10
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/xml/sitemap/tag-generator.js": [
+10
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/xml/sitemap/user-generator.js": [
+11
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/errors/index.js": [
+95
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/models/app.js": [
+12
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/models/base/index.js": [
+70
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/models/plugins/access-rules.js": [
+33
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/models/plugins/filter.js": [
+18
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/models/plugins/include-count.js": [
+61,
+71
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/models/post.js": [
+39,
+571
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/models/role.js": [
+52
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/models/settings.js": [
+59,
+99
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/models/tag.js": [
+16,
+34
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/models/user.js": [
+46,
+84,
+100,
+448
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/utils/pipeline.js": [
+10
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/shared/ghost-url.js": [
+32
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/integration/api/api_settings_spec.js": [
+23
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/server_helpers_index_spec.js": [
+26
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/utils/index.js": [
+473,
+489,
+508
+],
+"javascript-test-sources:src/ecmascript6/ecmascript6-today/7-rest-params/js/rest-spread.js": [
+7,
+15
+],
+"javascript-test-sources:src/ecmascript6/reddit-mobile/assets/js/trackingEvents.es6.js": [
+45
+],
+"javascript-test-sources:src/ecmascript6/reddit-mobile/index.js": [
+16,
+24,
+32,
+248
+],
+"javascript-test-sources:src/ecmascript6/reddit-mobile/src/server/console.es6.js": [
+37,
+42,
+47
+],
+"javascript-test-sources:src/ecmascript6/router/src/util.js": [
+2
+],
+"javascript-test-sources:src/ecmascript6/router/third_party/brick/brick-1.0.1.byob.js": [
+533,
+1162,
+1180,
+1188,
+1351,
+1361,
+1398,
+1406,
+1488,
+1515,
+1560,
+1567,
+1574,
+1590,
+2939
+],
+"javascript-test-sources:src/ecmascript6/snoode/src/endpoints/v1.es6.js": [
+173,
+214,
+218
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/api-documentation/filters-view.js": [
+21
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/bulk-change-modal-view.js": [
+10,
+30,
+39,
+84
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/controller.js": [
+89
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/facets/active-severity-facet.js": [
+23,
+28,
+33
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/facets/available-since-facet.js": [
+9
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/facets/characteristic-facet.js": [
+10,
+58
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/facets/custom-labels-facet.js": [
+21
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/facets/custom-values-facet.js": [
+9,
+19
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/facets/inheritance-facet.js": [
+27,
+32,
+37,
+63
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/facets/key-facet.js": [
+17
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/facets/language-facet.js": [
+43
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/facets/quality-profile-facet.js": [
+10,
+71
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/facets/query-facet.js": [
+9
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/facets/repository-facet.js": [
+47
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/facets/status-facet.js": [
+23
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/facets/template-facet.js": [
+9
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/rule-details-view.js": [
+166
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/rule-filter-view.js": [
+13,
+17
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/rule/custom-rule-creation-view.js": [
+12,
+26,
+53,
+182
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/rule/custom-rule-view.js": [
+36
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/rule/custom-rules-view.js": [
+39
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/rule/manual-rule-creation-view.js": [
+41,
+112
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/rule/rule-description-view.js": [
+78
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/rule/rule-issues-view.js": [
+42
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/rule/rule-meta-view.js": [
+88
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/rule/rule-parameters-view.js": [
+19
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/rule/rule-profile-view.js": [
+131
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/rule/rule-profiles-view.js": [
+74
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/workspace-header-view.js": [
+11,
+42
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/workspace-list-item-view.js": [
+83
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/coding-rules/workspace-list-view.js": [
+13
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/issues/component-viewer/issue-view.js": [
+6,
+11
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/issues/component-viewer/main.js": [
+8,
+15,
+20,
+74
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/issues/controller.js": [
+12,
+162,
+188
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/issues/facets/action-plan-facet.js": [
+10,
+60
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/issues/facets/assignee-facet.js": [
+25,
+99
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/issues/facets/base-facet.js": [
+9
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/issues/facets/context-facet.js": [
+9
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/issues/facets/creation-date-facet.js": [
+13,
+127
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/issues/facets/custom-values-facet.js": [
+9,
+19
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/issues/facets/file-facet.js": [
+10,
+35
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/issues/facets/issue-key-facet.js": [
+17
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/issues/facets/language-facet.js": [
+60
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/issues/facets/module-facet.js": [
+23
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/issues/facets/project-facet.js": [
+20,
+76
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/issues/facets/reporter-facet.js": [
+39
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/issues/facets/resolution-facet.js": [
+10
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/issues/facets/rule-facet.js": [
+72
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/issues/facets/tag-facet.js": [
+48
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/issues/filters-view.js": [
+84
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/issues/router.js": [
+10
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/issues/workspace-header-view.js": [
+10,
+19
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/issues/workspace-list-item-view.js": [
+23,
+33,
+38,
+129
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/issues/workspace-list-view.js": [
+28,
+105
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/permission-templates/delete-view.js": [
+9
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/permission-templates/form-view.js": [
+22
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/permission-templates/groups-view.js": [
+49
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/permission-templates/users-view.js": [
+46
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/project-permissions/apply-template-view.js": [
+11,
+19,
+45
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/project-permissions/groups-view.js": [
+48
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/project-permissions/users-view.js": [
+46
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/quality-gates/actions-view.js": [
+21
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/quality-gates/delete-view.js": [
+8
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/quality-gates/form-view.js": [
+11,
+41
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/quality-gates/gate-condition-view.js": [
+90
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/quality-gates/gate-conditions-delete-view.js": [
+10,
+33
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/quality-gates/gate-conditions-empty-view.js": [
+10
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/quality-gates/gate-conditions-view.js": [
+68
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/quality-gates/gate-projects-view.js": [
+42
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/quality-gates/header-view.js": [
+46
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/quality-profiles/actions-view.js": [
+88
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/quality-profiles/change-profile-parent-view.js": [
+11,
+19,
+56
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/quality-profiles/copy-profile-view.js": [
+10
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/quality-profiles/create-profile-view.js": [
+12,
+18,
+23,
+78
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/quality-profiles/delete-profile-view.js": [
+13
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/quality-profiles/profile-comparison-view.js": [
+41
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/quality-profiles/profile-details-view.js": [
+154
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/quality-profiles/profile-header-view.js": [
+66
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/quality-profiles/profile-view.js": [
+37
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/quality-profiles/profiles-view.js": [
+52
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/quality-profiles/rename-profile-view.js": [
+9
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/quality-profiles/restore-built-in-profiles-view.js": [
+10,
+16,
+51
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/quality-profiles/restore-profile-view.js": [
+13
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/apps/users/groups-view.js": [
+36
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/common/action-options-view.js": [
+24,
+97
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/common/modal-form.js": [
+13,
+20
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/common/select-list.js": [
+94,
+97
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/issue/issue-view.js": [
+259
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/issue/views/assign-form-view.js": [
+12
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/issue/views/changelog-view.js": [
+13
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/issue/views/comment-form-view.js": [
+26,
+83
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/issue/views/issue-popup.js": [
+17
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/issue/views/more-actions-view.js": [
+11
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/issue/views/plan-form-view.js": [
+21,
+33
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/issue/views/set-severity-form-view.js": [
+20,
+28
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/issue/views/tags-form-view.js": [
+16,
+24,
+42
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/issue/views/transitions-form-view.js": [
+15
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/navigator/facets/base-facet.js": [
+96
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/navigator/filters/ajax-select-filters.js": [
+108,
+205
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/navigator/filters/base-filters.js": [
+68,
+102
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/navigator/filters/choice-filters.js": [
+21,
+269
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/navigator/filters/filter-bar.js": [
+30
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/navigator/filters/range-filters.js": [
+169
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/navigator/filters/string-filters.js": [
+21
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/navigator/workspace-header-view.js": [
+74
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/source-viewer/header.js": [
+76
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/source-viewer/measures-overlay.js": [
+24,
+34,
+221
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/source-viewer/more-actions.js": [
+45
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/source-viewer/popups/coverage-popup.js": [
+15
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/source-viewer/popups/scm-popup.js": [
+12
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/workspace/views/rule-view.js": [
+10,
+19
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/workspace/views/viewer-view.js": [
+9
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/helpers/handlebars-helpers.js": [
+13,
+18,
+60,
+123,
+130,
+224,
+233,
+252,
+306,
+321,
+326,
+331
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/libs/translate.js": [
+6,
+15,
+28
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/main/nav/global/search-view.js": [
+28
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/widgets/old/histogram.js": [
+4,
+68,
+149
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/widgets/old/tag-cloud.js": [
+4,
+62
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/widgets/old/treemap.js": [
+10,
+266
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/widgets/old/word-cloud.js": [
+7,
+80
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/tests/helpers/measures-test.js": [
+24,
+31
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/tests/jsdom-setup.js": [
+13
+],
+"javascript-test-sources:src/ecmascript6/templating/src/lib/di/ce_di.js": [
+18
+],
+"javascript-test-sources:src/ecmascript6/templating/src/lib/load_barrier.js": [
+59,
+75
+]
+}

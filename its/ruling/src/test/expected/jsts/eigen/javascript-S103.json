@@ -1,0 +1,11 @@
+{
+"eigen:babel.config.js": [
+37
+],
+"eigen:tslint-rules/jsxSafeConditionalsRule.js": [
+23
+],
+"eigen:tslint-rules/useWrappedComponentsRule.js": [
+19
+]
+}

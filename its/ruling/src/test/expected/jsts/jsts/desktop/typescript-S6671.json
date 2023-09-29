@@ -1,0 +1,13 @@
+{
+"desktop:app/src/lib/shells/shared.ts": [
+59,
+106
+],
+"desktop:app/src/main-process/exception-reporting.ts": [
+71
+],
+"desktop:script/publish.ts": [
+165,
+182
+]
+}

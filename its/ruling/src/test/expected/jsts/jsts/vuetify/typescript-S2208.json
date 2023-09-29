@@ -1,0 +1,152 @@
+{
+"vuetify:packages/api-generator/src/index.ts": [
+10
+],
+"vuetify:packages/docs/src/plugins/vuetify.ts": [
+7,
+8,
+9
+],
+"vuetify:packages/vuetify/cypress/templates/index.ts": [
+1,
+2,
+3,
+4
+],
+"vuetify:packages/vuetify/src/components/index.ts": [
+1,
+2,
+3,
+4,
+5,
+6,
+7,
+8,
+10,
+11,
+12,
+13,
+15,
+16,
+17,
+18,
+19,
+20,
+21,
+23,
+24,
+29,
+30,
+31,
+32,
+33,
+34,
+35,
+36,
+37,
+38,
+39,
+40,
+41,
+42,
+43,
+44,
+45,
+46,
+47,
+48,
+49,
+50,
+51,
+52,
+53,
+56,
+57,
+58,
+60,
+61,
+62,
+63,
+64,
+65,
+66,
+67,
+68,
+69,
+70,
+72,
+73,
+74,
+78,
+79,
+80,
+81,
+82,
+83,
+84,
+85,
+87,
+88,
+90,
+92,
+93
+],
+"vuetify:packages/vuetify/src/entry-bundler.ts": [
+2,
+3,
+18
+],
+"vuetify:packages/vuetify/src/framework.ts": [
+20
+],
+"vuetify:packages/vuetify/src/labs/allComponents.ts": [
+1,
+2
+],
+"vuetify:packages/vuetify/src/labs/components.ts": [
+1,
+2
+],
+"vuetify:packages/vuetify/src/labs/entry-bundler.ts": [
+1,
+2,
+6
+],
+"vuetify:packages/vuetify/src/labs/index.ts": [
+1
+],
+"vuetify:packages/vuetify/src/locale/__tests__/index.spec.ts": [
+2
+],
+"vuetify:packages/vuetify/src/services/goto/__tests__/easing-patterns.spec.ts": [
+4
+],
+"vuetify:packages/vuetify/src/services/goto/index.ts": [
+8
+],
+"vuetify:packages/vuetify/src/util/__tests__/colorUtils.spec.ts": [
+10,
+11
+],
+"vuetify:packages/vuetify/src/util/colorUtils.ts": [
+4,
+5
+],
+"vuetify:packages/vuetify/src/util/index.ts": [
+1,
+2,
+3,
+4,
+5,
+6,
+7,
+8,
+9,
+10,
+11,
+12,
+13,
+14,
+15
+]
+}

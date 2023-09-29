@@ -1,0 +1,186 @@
+{
+"react-cloud-music:scripts/build.js": [
+53
+],
+"react-cloud-music:scripts/start.js": [
+68
+],
+"react-cloud-music:src/api/lyric-parser.js": [
+72
+],
+"react-cloud-music:src/api/request.js": [
+3,
+7,
+11,
+21,
+25,
+29,
+33,
+37,
+41,
+45,
+49,
+59,
+63
+],
+"react-cloud-music:src/api/utils.js": [
+122,
+128
+],
+"react-cloud-music:src/application/Album/index.jsx": [
+37,
+97,
+106
+],
+"react-cloud-music:src/application/Album/store/actionCreators.js": [
+5,
+10,
+14,
+19,
+24,
+29
+],
+"react-cloud-music:src/application/Player/index.jsx": [
+229
+],
+"react-cloud-music:src/application/Player/mini-player/index.jsx": [
+17
+],
+"react-cloud-music:src/application/Player/normal-player/index.jsx": [
+154,
+253
+],
+"react-cloud-music:src/application/Player/play-list/index.jsx": [
+58,
+75,
+80,
+85,
+93,
+101,
+126,
+126,
+132,
+155,
+156,
+231,
+249,
+258
+],
+"react-cloud-music:src/application/Player/store/actionCreators.js": [
+5,
+10,
+15,
+20,
+25,
+30,
+35,
+40,
+45,
+50,
+55,
+100,
+101
+],
+"react-cloud-music:src/application/Rank/index.jsx": [
+29,
+32,
+36,
+85,
+91
+],
+"react-cloud-music:src/application/Rank/store/index.js": [
+9,
+24
+],
+"react-cloud-music:src/application/Recommend/index.jsx": [
+46,
+53
+],
+"react-cloud-music:src/application/Recommend/store/actionCreators.js": [
+5,
+10,
+15,
+21,
+32
+],
+"react-cloud-music:src/application/Search/index.jsx": [
+17,
+82,
+152,
+218,
+227
+],
+"react-cloud-music:src/application/Search/store/actionCreators.js": [
+6,
+11,
+16,
+21,
+34
+],
+"react-cloud-music:src/application/Singer/store/actionCreators.js": [
+6,
+11,
+15,
+20
+],
+"react-cloud-music:src/application/Singers/index.jsx": [
+32,
+44,
+50,
+82,
+83,
+103,
+113
+],
+"react-cloud-music:src/application/Singers/store/actionCreators.js": [
+18,
+23,
+28,
+33,
+39,
+45,
+51,
+58
+],
+"react-cloud-music:src/application/SongList/index.jsx": [
+33,
+41,
+55,
+69,
+84,
+91
+],
+"react-cloud-music:src/baseUI/horizen-item/index.jsx": [
+53,
+62
+],
+"react-cloud-music:src/baseUI/music-note/index.jsx": [
+31
+],
+"react-cloud-music:src/baseUI/progress-bar/index.jsx": [
+61,
+72,
+79,
+87,
+95
+],
+"react-cloud-music:src/baseUI/scroll/index.jsx": [
+89,
+93,
+139
+],
+"react-cloud-music:src/baseUI/search-box/index.jsx": [
+39,
+46,
+69
+],
+"react-cloud-music:src/components/list/index.jsx": [
+11
+],
+"react-cloud-music:ts-music/scripts/build.js": [
+53
+],
+"react-cloud-music:ts-music/scripts/start.js": [
+68
+]
+}

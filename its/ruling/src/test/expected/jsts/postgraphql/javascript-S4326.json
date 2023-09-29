@@ -1,0 +1,23 @@
+{
+"postgraphql:src/postgraphql/__tests__/postgraphqlIntegrationMutations-test.js": [
+25,
+38,
+51
+],
+"postgraphql:src/postgraphql/__tests__/postgraphqlIntegrationQueries-test.js": [
+53,
+57,
+73,
+80
+],
+"postgraphql:src/postgraphql/__tests__/postgraphqlIntegrationSchema-test.js": [
+34
+],
+"postgraphql:src/postgraphql/__tests__/postgraphqlIntegrationSchemaExport-test.js": [
+12
+],
+"postgraphql:src/postgres/inventory/collection/__tests__/PgCollectionKey-test.js": [
+12,
+20
+]
+}

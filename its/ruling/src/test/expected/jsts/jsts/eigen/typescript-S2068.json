@@ -1,0 +1,23 @@
+{
+"eigen:src/app/Scenes/Onboarding/OnboardingLogin.tsx": [
+204
+],
+"eigen:src/app/Scenes/Onboarding/OnboardingSocialLink.tsx": [
+156
+],
+"eigen:src/app/store/AuthModel.tests.ts": [
+144,
+180,
+199,
+218,
+238,
+258,
+269,
+300,
+321
+],
+"eigen:src/app/utils/PushNotification.tests.ts": [
+65,
+140
+]
+}

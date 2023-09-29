@@ -1,0 +1,38 @@
+{
+"vuetify:packages/docs/src/App.vue": [
+81
+],
+"vuetify:packages/vuetify/src/components/VCalendar/VCalendar.ts": [
+214,
+323
+],
+"vuetify:packages/vuetify/src/components/VCalendar/util/timestamp.ts": [
+367,
+384
+],
+"vuetify:packages/vuetify/src/components/VDatePicker/VDatePickerDateTable.ts": [
+104,
+133
+],
+"vuetify:packages/vuetify/src/components/VOverlay/locationStrategies.ts": [
+305
+],
+"vuetify:packages/vuetify/src/components/VStepper/VStepper.ts": [
+127,
+130
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/composables/headers.ts": [
+72,
+86
+],
+"vuetify:packages/vuetify/src/services/goto/easing-patterns.ts": [
+14,
+20,
+22,
+26,
+28
+],
+"vuetify:packages/vuetify/src/util/getCurrentInstance.ts": [
+29
+]
+}

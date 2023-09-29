@@ -1,0 +1,116 @@
+{
+"console:src/components/Auth0LockWrapper/Auth0LockWrapper.tsx": [
+25
+],
+"console:src/components/onboarding/Steps.tsx": [
+6
+],
+"console:src/mutations/AddActionMutation.ts": [
+24
+],
+"console:src/mutations/ModelPermission/AddPermissionMutation.ts": [
+15
+],
+"console:src/mutations/ModelPermission/DeleteModelPermissionMutation.ts": [
+8
+],
+"console:src/mutations/ModelPermission/ToggleActivePermissionMutation.ts": [
+8
+],
+"console:src/mutations/ModelPermission/UpdatePermissionMutation.ts": [
+4
+],
+"console:src/mutations/RelationPermission/AddRelationPermission.tsx": [
+15
+],
+"console:src/mutations/RelationPermission/DeleteRelationPermission.tsx": [
+8
+],
+"console:src/mutations/RelationPermission/ToggleRelationPermission.tsx": [
+8
+],
+"console:src/mutations/RelationPermission/UpdateRelationPermission.tsx": [
+4
+],
+"console:src/mutations/UpdateActionMutation.ts": [
+24
+],
+"console:src/mutations/UpdateAuthProviderMutation.ts": [
+11
+],
+"console:src/mutations/UpdateRelationDescriptionMutation.ts": [
+8
+],
+"console:src/mutations/UpdateRelationMutation.ts": [
+17
+],
+"console:src/utils/classnames.ts": [
+10
+],
+"console:src/views/CLIAuthView/CLIAuthSuccessView.tsx": [
+5
+],
+"console:src/views/FunctionsView/FunctionLogs/FunctionLogs.tsx": [
+18
+],
+"console:src/views/FunctionsView/FunctionPopup/DummyTestLog.tsx": [
+3
+],
+"console:src/views/FunctionsView/FunctionPopup/RequestPipelineFunction.tsx": [
+32
+],
+"console:src/views/FunctionsView/FunctionPopup/Step0.tsx": [
+18
+],
+"console:src/views/FunctionsView/FunctionsList.tsx": [
+15
+],
+"console:src/views/FunctionsView/FunctionsView.tsx": [
+14
+],
+"console:src/views/FunctionsView/RequestGraph.tsx": [
+9
+],
+"console:src/views/Integrations/Algolia/AlgoliaIndexes.tsx": [
+13
+],
+"console:src/views/Integrations/AlgoliaPopup/AlgoliaPopupIndex.tsx": [
+22
+],
+"console:src/views/Integrations/AlgoliaPopup/AlgoliaPopupIndexes.tsx": [
+20
+],
+"console:src/views/ProjectRootView/Onboarding/FinalPopup.tsx": [
+17
+],
+"console:src/views/ProjectRootView/Onboarding/IntroPopup.tsx": [
+13
+],
+"console:src/views/ProjectRootView/Onboarding/OnboardingBar.tsx": [
+12
+],
+"console:src/views/ProjectRootView/Onboarding/OnboardingFinale.tsx": [
+9
+],
+"console:src/views/ProjectRootView/Onboarding/WaitingIndicator.tsx": [
+3
+],
+"console:src/views/RootView/MobileScreen.tsx": [
+4
+],
+"console:src/views/SchemaView/ComingSoonTag.tsx": [
+10
+],
+"console:src/views/Settings/Billing/CreditCardFront.tsx": [
+4
+],
+"console:src/views/Settings/Billing/CurrentPlan.tsx": [
+6
+],
+"console:src/views/models/DatabrowserView/DataActionRow/DeleteNodeRow.tsx": [
+16
+],
+"console:src/views/models/DatabrowserView/DataActionRow/NewNodeRow.tsx": [
+27
+]
+}

@@ -1,0 +1,50 @@
+{
+"react-cloud-music:ewas.config.ts": [
+14
+],
+"react-cloud-music:ts-music/src/api/config.ts": [
+248
+],
+"react-cloud-music:ts-music/src/api/request.ts": [
+65
+],
+"react-cloud-music:ts-music/src/api/utils.ts": [
+1
+],
+"react-cloud-music:ts-music/src/application/Recommend/index.tsx": [
+57
+],
+"react-cloud-music:ts-music/src/application/Recommend/store/actionCreators.ts": [
+42
+],
+"react-cloud-music:ts-music/src/application/Recommend/store/constants.ts": [
+5
+],
+"react-cloud-music:ts-music/src/application/Recommend/store/index.ts": [
+5
+],
+"react-cloud-music:ts-music/src/application/Recommend/store/reducer.ts": [
+44
+],
+"react-cloud-music:ts-music/src/baseUI/loading-v2/index.tsx": [
+57
+],
+"react-cloud-music:ts-music/src/baseUI/loading/index.tsx": [
+39
+],
+"react-cloud-music:ts-music/src/baseUI/scroll/index.tsx": [
+175
+],
+"react-cloud-music:ts-music/src/components/list/index.tsx": [
+48
+],
+"react-cloud-music:ts-music/src/components/list/style.ts": [
+67
+],
+"react-cloud-music:ts-music/src/components/slider/index.tsx": [
+53
+],
+"react-cloud-music:vite.config.ts": [
+10
+]
+}

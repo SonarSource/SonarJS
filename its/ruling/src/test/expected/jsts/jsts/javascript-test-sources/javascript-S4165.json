@@ -1,0 +1,32 @@
+{
+"javascript-test-sources:src/ace/lib/ace/mode/javascript_worker.js": [
+146
+],
+"javascript-test-sources:src/ace/lib/ace/mode/yaml/yaml-lint.js": [
+2302
+],
+"javascript-test-sources:src/ace/src/document.js": [
+346
+],
+"javascript-test-sources:src/ace/src/layer/cursor.js": [
+182
+],
+"javascript-test-sources:src/ace/src/mode/edifact_highlight_rules.js": [
+30
+],
+"javascript-test-sources:src/ace/src/mode/folding/vbscript.js": [
+165
+],
+"javascript-test-sources:src/ace/src/test/mockdom.js": [
+351
+],
+"javascript-test-sources:src/ace/src/virtual_renderer.js": [
+1340
+],
+"javascript-test-sources:src/ace/static.js": [
+95
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/meta/description.js": [
+11
+]
+}

@@ -1,0 +1,17 @@
+{
+"Joust:ts/components/EventLogLine.tsx": [
+107,
+175,
+176,
+186,
+206,
+212,
+213
+],
+"Joust:ts/components/game/Hero.tsx": [
+36
+],
+"Joust:ts/state/mutators/ShowEntityMutator.ts": [
+35
+]
+}

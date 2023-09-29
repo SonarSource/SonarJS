@@ -1,0 +1,25 @@
+{
+"desktop:app/test/unit/git/commit-test.ts": [
+44
+],
+"desktop:app/test/unit/git/diff-test.ts": [
+36,
+127
+],
+"desktop:app/test/unit/git/gitignore-test.ts": [
+60,
+85
+],
+"desktop:app/test/unit/patch-formatter-test.ts": [
+29,
+56,
+95,
+135,
+175
+],
+"desktop:app/test/unit/path-test.ts": [
+15,
+22,
+31
+]
+}

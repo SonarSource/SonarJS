@@ -1,0 +1,27 @@
+{
+"postgraphql:src/graphql/schema/connection/__tests__/createConnectionGqlField-test.js": [
+3,
+3,
+3,
+4,
+4,
+6
+],
+"postgraphql:src/interface/__tests__/Inventory-test.js": [
+1
+],
+"postgraphql:src/postgraphql/http/createPostGraphQLHttpRequestHandler.js": [
+9,
+13,
+14,
+15,
+17
+],
+"postgraphql:src/postgres/introspection/__tests__/introspectDatabase-test.js": [
+2
+],
+"postgraphql:src/postgres/inventory/collection/__tests__/PgCollection-test.js": [
+1,
+2
+]
+}

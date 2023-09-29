@@ -1,0 +1,40 @@
+{
+"searchkit:examples/indexer/bike-hire-stations/config.ts": [
+2,
+2,
+2
+],
+"searchkit:examples/indexer/mrp-products/config.ts": [
+2,
+2,
+2
+],
+"searchkit:examples/indexer/parks/config.ts": [
+2,
+2,
+2
+],
+"searchkit:packages/searchkit-client/src/__tests__/searchkit.test.tsx": [
+8
+],
+"searchkit:packages/searchkit-client/src/__tests__/withSearchkitRouting.test.tsx": [
+1,
+10
+],
+"searchkit:packages/searchkit-elastic-ui/src/Facets/ComboBoxFacet/__tests__/index.test.tsx": [
+65
+],
+"searchkit:packages/searchkit-elastic-ui/src/Facets/RangeSliderFacet/index.tsx": [
+2
+],
+"searchkit:packages/searchkit-elastic-ui/src/SearchBar/__tests__/index.test.tsx": [
+2,
+2,
+2,
+2,
+41
+],
+"searchkit:packages/searchkit-elastic-ui/src/SortingSelector/__tests__/index.test.tsx": [
+2
+]
+}

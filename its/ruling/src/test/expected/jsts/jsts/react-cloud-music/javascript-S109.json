@@ -1,0 +1,135 @@
+{
+"react-cloud-music:scripts/build.js": [
+36,
+36,
+37,
+37
+],
+"react-cloud-music:scripts/start.js": [
+44
+],
+"react-cloud-music:scripts/test.js": [
+21
+],
+"react-cloud-music:src/api/lyric-parser.js": [
+61,
+61,
+62,
+62,
+62,
+65,
+65,
+65,
+65,
+65,
+65
+],
+"react-cloud-music:src/api/script.js": [
+17
+],
+"react-cloud-music:src/api/utils.js": [
+82,
+83,
+83
+],
+"react-cloud-music:src/application/Album/index.jsx": [
+43
+],
+"react-cloud-music:src/application/Player/index.jsx": [
+85,
+117,
+141,
+153,
+201,
+212,
+233
+],
+"react-cloud-music:src/application/Player/normal-player/index.jsx": [
+59,
+60,
+61,
+63,
+84,
+87,
+88
+],
+"react-cloud-music:src/application/Player/play-list/index.jsx": [
+59,
+66,
+103
+],
+"react-cloud-music:src/application/Singer/index.jsx": [
+79
+],
+"react-cloud-music:src/application/SongList/index.jsx": [
+59,
+59
+],
+"react-cloud-music:src/application/User/Login/PhoneForm/index.jsx": [
+33
+],
+"react-cloud-music:src/application/User/Login/PhoneForm/step-one/index.jsx": [
+24
+],
+"react-cloud-music:src/application/User/Login/PhoneForm/step-two/index.jsx": [
+23,
+30
+],
+"react-cloud-music:src/application/User/Login/index.jsx": [
+40
+],
+"react-cloud-music:src/application/User/Login/store/actionCreators.js": [
+43,
+58
+],
+"react-cloud-music:src/assets/border.js": [
+45,
+57
+],
+"react-cloud-music:src/baseUI/horizen-item/index.jsx": [
+48
+],
+"react-cloud-music:src/baseUI/music-note/index.jsx": [
+73
+],
+"react-cloud-music:src/baseUI/progress-circle/index.jsx": [
+24
+],
+"react-cloud-music:src/baseUI/scroll/index.jsx": [
+90,
+94,
+127,
+141
+],
+"react-cloud-music:src/baseUI/search-box/index.jsx": [
+47
+],
+"react-cloud-music:src/baseUI/toast/index.jsx": [
+46
+],
+"react-cloud-music:src/components/album-detail/index.jsx": [
+19,
+19
+],
+"react-cloud-music:src/components/list/index.jsx": [
+29
+],
+"react-cloud-music:src/serviceWorker.js": [
+108
+],
+"react-cloud-music:ts-music/scripts/build.js": [
+36,
+36,
+37,
+37
+],
+"react-cloud-music:ts-music/scripts/start.js": [
+44
+],
+"react-cloud-music:ts-music/scripts/test.js": [
+21
+],
+"react-cloud-music:ts-music/src/serviceWorker.js": [
+110
+]
+}

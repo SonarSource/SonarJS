@@ -1,0 +1,35 @@
+{
+"courselit:apps/web/components/admin/design/layout-manager/compatible-components-map.ts": [
+0
+],
+"courselit:apps/web/models/Layout.ts": [
+0
+],
+"courselit:apps/web/models/Widget.ts": [
+0
+],
+"courselit:apps/web/pages/404.tsx": [
+0
+],
+"courselit:apps/web/pages/_document.tsx": [
+0
+],
+"courselit:apps/web/pages/dashboard/courses/edit/[[...id]].tsx": [
+0
+],
+"courselit:apps/web/pages/dashboard/design.tsx": [
+0
+],
+"courselit:apps/web/pages/dashboard/settings.tsx": [
+0
+],
+"courselit:apps/web/pages/dashboard/users/[id].tsx": [
+0
+],
+"courselit:apps/web/services/db.ts": [
+0
+],
+"courselit:apps/web/ui-config/default-theme.ts": [
+0
+]
+}

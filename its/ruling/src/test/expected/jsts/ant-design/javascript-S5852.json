@@ -1,0 +1,32 @@
+{
+"ant-design:components/typography/__tests__/ellipsis.test.js": [
+23,
+33,
+318
+],
+"ant-design:components/typography/__tests__/index.test.js": [
+44,
+51
+],
+"ant-design:index-with-locales.js": [
+3
+],
+"ant-design:scripts/print-changelog.js": [
+87
+],
+"ant-design:site/bisheng.config.js": [
+154
+],
+"ant-design:site/theme/static/template.html": [
+44
+],
+"ant-design:site/theme/template/Content/Demo/index.jsx": [
+24,
+216,
+217,
+218,
+220,
+222,
+225
+]
+}

@@ -1,0 +1,164 @@
+{
+"vuetify:packages/api-generator/src/types.ts": [
+39,
+532
+],
+"vuetify:packages/docs/src/App.vue": [
+63
+],
+"vuetify:packages/docs/src/components/app/list/List.vue": [
+92
+],
+"vuetify:packages/docs/src/components/app/search/Search.vue": [
+195
+],
+"vuetify:packages/docs/src/plugins/pwa.ts": [
+46
+],
+"vuetify:packages/vuetify/cypress/templates/generateStories.tsx": [
+75
+],
+"vuetify:packages/vuetify/src/components/VAutocomplete/VAutocomplete.tsx": [
+185
+],
+"vuetify:packages/vuetify/src/components/VCalendar/VCalendar.ts": [
+301,
+321,
+341
+],
+"vuetify:packages/vuetify/src/components/VCalendar/util/props.ts": [
+249
+],
+"vuetify:packages/vuetify/src/components/VColorPicker/util/index.ts": [
+35,
+66
+],
+"vuetify:packages/vuetify/src/components/VCombobox/VCombobox.tsx": [
+232
+],
+"vuetify:packages/vuetify/src/components/VDataIterator/VDataFooter.ts": [
+151
+],
+"vuetify:packages/vuetify/src/components/VDataIterator/VDataIterator.ts": [
+207,
+267
+],
+"vuetify:packages/vuetify/src/components/VDatePicker/VDatePicker.ts": [
+274
+],
+"vuetify:packages/vuetify/src/components/VImg/VImg.tsx": [
+188
+],
+"vuetify:packages/vuetify/src/components/VNavigationDrawer/sticky.ts": [
+63
+],
+"vuetify:packages/vuetify/src/components/VNavigationDrawer/touch.ts": [
+117,
+132
+],
+"vuetify:packages/vuetify/src/components/VOtpInput/VOtpInput.ts": [
+236,
+274
+],
+"vuetify:packages/vuetify/src/components/VOverflowBtn/VOverflowBtn.ts": [
+107
+],
+"vuetify:packages/vuetify/src/components/VOverlay/useActivator.tsx": [
+212
+],
+"vuetify:packages/vuetify/src/components/VOverlay/util/point.ts": [
+52
+],
+"vuetify:packages/vuetify/src/components/VPagination/VPagination.tsx": [
+159,
+301
+],
+"vuetify:packages/vuetify/src/components/VSelect/VSelect.tsx": [
+185
+],
+"vuetify:packages/vuetify/src/components/VSkeletonLoader/VSkeletonLoader.ts": [
+141
+],
+"vuetify:packages/vuetify/src/components/VSlideGroup/VSlideGroup.tsx": [
+135,
+176,
+231,
+237,
+244,
+267
+],
+"vuetify:packages/vuetify/src/components/VSlideGroup/helpers.ts": [
+32
+],
+"vuetify:packages/vuetify/src/components/VStepper/VStepper.ts": [
+110,
+118
+],
+"vuetify:packages/vuetify/src/components/VTimePicker/VTimePicker.ts": [
+253
+],
+"vuetify:packages/vuetify/src/components/VTreeview/VTreeview.ts": [
+397
+],
+"vuetify:packages/vuetify/src/components/VTreeview/VTreeviewNode.ts": [
+298
+],
+"vuetify:packages/vuetify/src/components/transitions/dialog-transition.tsx": [
+122,
+129
+],
+"vuetify:packages/vuetify/src/composables/border.ts": [
+25
+],
+"vuetify:packages/vuetify/src/composables/filter.ts": [
+92
+],
+"vuetify:packages/vuetify/src/composables/form.ts": [
+132
+],
+"vuetify:packages/vuetify/src/composables/group.ts": [
+245,
+317
+],
+"vuetify:packages/vuetify/src/composables/rounded.ts": [
+37
+],
+"vuetify:packages/vuetify/src/composables/size.ts": [
+28
+],
+"vuetify:packages/vuetify/src/composables/toggleScope.ts": [
+17
+],
+"vuetify:packages/vuetify/src/composables/validation.ts": [
+124
+],
+"vuetify:packages/vuetify/src/directives/color/index.ts": [
+87
+],
+"vuetify:packages/vuetify/src/directives/ripple/index.ts": [
+309
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/composables/virtual.ts": [
+51,
+78
+],
+"vuetify:packages/vuetify/src/labs/VVirtualScroll/VVirtualScroll.tsx": [
+101,
+121
+],
+"vuetify:packages/vuetify/src/util/colorUtils.ts": [
+38,
+69,
+72,
+109
+],
+"vuetify:packages/vuetify/src/util/console.ts": [
+94
+],
+"vuetify:packages/vuetify/src/util/helpers.ts": [
+461,
+480,
+483,
+559
+]
+}

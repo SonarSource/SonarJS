@@ -1,0 +1,260 @@
+{
+"react-cloud-music:config/env.js": [
+25,
+37,
+79,
+87
+],
+"react-cloud-music:config/jest/cssTransform.js": [
+13
+],
+"react-cloud-music:config/jest/fileTransform.js": [
+17,
+39
+],
+"react-cloud-music:config/modules.js": [
+80
+],
+"react-cloud-music:config/paths.js": [
+52,
+85
+],
+"react-cloud-music:config/webpack.config.js": [
+77,
+81,
+96,
+98,
+103,
+105,
+106,
+107,
+113,
+114,
+145,
+176,
+190,
+204,
+207,
+214,
+215,
+224,
+237,
+239,
+240,
+241,
+248,
+252,
+274,
+285,
+286,
+292,
+293,
+310,
+313,
+314,
+316,
+331,
+332,
+351,
+352,
+353,
+354,
+355,
+362,
+363,
+378,
+379,
+388,
+389,
+403,
+409,
+419,
+420,
+431,
+439,
+450,
+453,
+468,
+469,
+470,
+473,
+474,
+475,
+484,
+498,
+499,
+542,
+557,
+559,
+580,
+581,
+587,
+604,
+609,
+610,
+622,
+626
+],
+"react-cloud-music:config/webpackDevServer.config.js": [
+72,
+81,
+102
+],
+"react-cloud-music:scripts/build.js": [
+147,
+180,
+189
+],
+"react-cloud-music:scripts/start.js": [
+28,
+87,
+97
+],
+"react-cloud-music:src/application/Album/store/reducer.js": [
+9
+],
+"react-cloud-music:src/application/Home/index.jsx": [
+6
+],
+"react-cloud-music:src/application/Player/store/reducer.js": [
+53,
+72
+],
+"react-cloud-music:src/application/Recommend/index.jsx": [
+60
+],
+"react-cloud-music:src/application/Singers/store/reducer.js": [
+11
+],
+"react-cloud-music:src/components/slider/index.jsx": [
+16,
+18
+],
+"react-cloud-music:ts-music/config/env.js": [
+25,
+37,
+87,
+95
+],
+"react-cloud-music:ts-music/config/getHttpsConfig.js": [
+57
+],
+"react-cloud-music:ts-music/config/jest/cssTransform.js": [
+13
+],
+"react-cloud-music:ts-music/config/jest/fileTransform.js": [
+17,
+39
+],
+"react-cloud-music:ts-music/config/modules.js": [
+75,
+96,
+119,
+137
+],
+"react-cloud-music:ts-music/config/paths.js": [
+35,
+67
+],
+"react-cloud-music:ts-music/config/webpack.config.js": [
+80,
+84,
+99,
+101,
+106,
+108,
+109,
+110,
+117,
+118,
+123,
+124,
+156,
+194,
+208,
+222,
+225,
+235,
+236,
+238,
+251,
+253,
+256,
+257,
+258,
+265,
+271,
+272,
+298,
+300,
+311,
+312,
+318,
+319,
+338,
+341,
+342,
+344,
+359,
+360,
+380,
+381,
+382,
+383,
+384,
+392,
+393,
+408,
+409,
+419,
+420,
+434,
+440,
+450,
+451,
+452,
+463,
+471,
+482,
+483,
+486,
+501,
+502,
+503,
+506,
+507,
+508,
+517,
+531,
+532,
+575,
+597,
+599,
+622,
+623,
+629,
+646,
+650,
+651,
+663,
+667
+],
+"react-cloud-music:ts-music/config/webpackDevServer.config.js": [
+91,
+100,
+128
+],
+"react-cloud-music:ts-music/scripts/build.js": [
+167,
+200,
+209
+],
+"react-cloud-music:ts-music/scripts/start.js": [
+28,
+94,
+105
+],
+"react-cloud-music:ts-music/src/serviceWorker.js": [
+104
+]
+}

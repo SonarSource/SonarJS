@@ -1,0 +1,250 @@
+{
+"javascript-test-sources:src/ace/doc/template/resources/javascripts/jquery-scrollspy.js": [
+31,
+40
+],
+"javascript-test-sources:src/ace/lib/ace/mode/javascript/jshint.js": [
+96,
+468,
+485,
+2416,
+2418,
+5490,
+8199,
+8846,
+11213,
+15849
+],
+"javascript-test-sources:src/ace/lib/ace/mode/php/php.js": [
+1096
+],
+"javascript-test-sources:src/ace/lib/ace/mode/xml/dom-parser.js": [
+15
+],
+"javascript-test-sources:src/ace/lib/ace/mode/xml/sax.js": [
+357
+],
+"javascript-test-sources:src/ace/lib/ace/mode/yaml/yaml-lint.js": [
+553,
+4165,
+4191
+],
+"javascript-test-sources:src/ace/src/autocomplete.js": [
+275
+],
+"javascript-test-sources:src/ace/src/background_tokenizer.js": [
+36
+],
+"javascript-test-sources:src/ace/src/document.js": [
+579
+],
+"javascript-test-sources:src/ace/src/edit_session.js": [
+1583
+],
+"javascript-test-sources:src/ace/src/edit_session/fold.js": [
+51,
+68
+],
+"javascript-test-sources:src/ace/src/edit_session/fold_line.js": [
+170
+],
+"javascript-test-sources:src/ace/src/edit_session/folding.js": [
+38
+],
+"javascript-test-sources:src/ace/src/editor.js": [
+1615,
+1685,
+1878
+],
+"javascript-test-sources:src/ace/src/ext/beautify.js": [
+24
+],
+"javascript-test-sources:src/ace/src/ext/code_lens.js": [
+100
+],
+"javascript-test-sources:src/ace/src/ext/elastic_tabstops_lite.js": [
+192
+],
+"javascript-test-sources:src/ace/src/ext/prompt.js": [
+29
+],
+"javascript-test-sources:src/ace/src/keyboard/sublime.js": [
+7
+],
+"javascript-test-sources:src/ace/src/keyboard/textinput.js": [
+15,
+272,
+658
+],
+"javascript-test-sources:src/ace/src/keyboard/vim.js": [
+324,
+2262,
+2439,
+2440,
+2978,
+3132,
+3185,
+3305,
+3647,
+3680,
+4111,
+4148,
+4165,
+4511,
+6008,
+6973
+],
+"javascript-test-sources:src/ace/src/keyboard/vim_test.js": [
+168
+],
+"javascript-test-sources:src/ace/src/layer/gutter.js": [
+64,
+280
+],
+"javascript-test-sources:src/ace/src/layer/text.js": [
+309,
+347
+],
+"javascript-test-sources:src/ace/src/lib/es6-shim.js": [
+106
+],
+"javascript-test-sources:src/ace/src/mode/markdown_highlight_rules.js": [
+37
+],
+"javascript-test-sources:src/ace/src/mode/php.js": [
+5
+],
+"javascript-test-sources:src/ace/src/mode/slim_highlight_rules.js": [
+42
+],
+"javascript-test-sources:src/ace/src/mode/swift_highlight_rules.js": [
+66
+],
+"javascript-test-sources:src/ace/src/mouse/dragdrop_handler.js": [
+182
+],
+"javascript-test-sources:src/ace/src/mouse/multi_select_handler.js": [
+35
+],
+"javascript-test-sources:src/ace/src/multi_select.js": [
+405,
+437
+],
+"javascript-test-sources:src/ace/src/placeholder.js": [
+61
+],
+"javascript-test-sources:src/ace/src/range.js": [
+85
+],
+"javascript-test-sources:src/ace/src/range_list.js": [
+154
+],
+"javascript-test-sources:src/ace/src/search.js": [
+108,
+258
+],
+"javascript-test-sources:src/ace/src/selection.js": [
+128,
+138,
+458,
+516,
+561,
+642,
+669
+],
+"javascript-test-sources:src/ace/src/snippets.js": [
+588,
+667,
+701,
+823
+],
+"javascript-test-sources:src/ace/src/test/mockdom.js": [
+184
+],
+"javascript-test-sources:src/ace/src/undomanager.js": [
+282,
+518
+],
+"javascript-test-sources:src/ace/src/virtual_renderer.js": [
+10,
+1104
+],
+"javascript-test-sources:src/ace/tool/add_mode.js": [
+105
+],
+"javascript-test-sources:src/ace/tool/regexp_tokenizer_test.js": [
+5
+],
+"javascript-test-sources:src/ace/tool/tmlanguage.js": [
+10
+],
+"javascript-test-sources:src/ace/tool/tmtheme.js": [
+382
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/export/index.js": [
+4,
+32
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/migration/fixtures/index.js": [
+76,
+134
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/data/migration/index.js": [
+9
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/helpers/foreach.js": [
+18
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/server/models/user.js": [
+587,
+705,
+731,
+757
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/integration/import_spec.js": [
+145,
+192,
+260,
+305,
+356,
+424,
+468,
+511
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/integration/model/model_users_spec.js": [
+317
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/unit/server_spec.js": [
+8
+],
+"javascript-test-sources:src/ecmascript6/Ghost/core/test/utils/api.js": [
+6
+],
+"javascript-test-sources:src/ecmascript6/ecmascript6-today/10-modules/js/main.js": [
+5
+],
+"javascript-test-sources:src/ecmascript6/reddit-mobile/src/server/oauth.es6.js": [
+343
+],
+"javascript-test-sources:src/ecmascript6/router/third_party/brick/brick-1.0.1.byob.js": [
+8,
+373,
+1175,
+2153,
+2297,
+3352,
+3357,
+3473,
+3670
+],
+"javascript-test-sources:src/ecmascript6/router/third_party/route-recognizer.js": [
+287
+],
+"javascript-test-sources:src/ecmascript6/sonar-web/src/main/js/components/charts/bubble-chart.js": [
+95,
+110
+],
+"javascript-test-sources:src/ecmascript6/templating/src/lib/di/ce_di.js": [
+60
+]
+}

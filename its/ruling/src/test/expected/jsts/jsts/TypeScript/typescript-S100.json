@@ -1,0 +1,122 @@
+{
+"TypeScript:src/compiler/core.ts": [
+2199,
+2205,
+2209,
+2212
+],
+"TypeScript:src/harness/fourslash.ts": [
+3719,
+3834
+],
+"TypeScript:src/harness/harness.ts": [
+792,
+797,
+803
+],
+"TypeScript:src/server/editorServices.ts": [
+377,
+381
+],
+"TypeScript:src/server/project.ts": [
+168
+],
+"TypeScript:src/server/utilities.ts": [
+63,
+66,
+69
+],
+"TypeScript:src/services/formatting/formattingContext.ts": [
+42,
+50,
+58,
+68,
+76,
+84,
+90
+],
+"TypeScript:src/services/formatting/ruleOperationContext.ts": [
+15,
+19
+],
+"TypeScript:src/services/formatting/rules.ts": [
+576,
+580,
+584,
+588,
+592,
+596,
+600,
+639,
+643,
+647,
+668,
+673,
+677,
+681,
+685,
+689,
+694,
+711,
+734,
+738,
+742,
+760,
+781,
+802,
+806,
+810,
+814,
+818,
+822,
+826,
+830,
+834,
+838,
+842,
+846,
+850,
+854,
+858,
+865,
+872,
+877,
+881,
+885,
+889,
+893,
+921,
+926,
+930,
+934,
+938
+],
+"TypeScript:src/services/formatting/rulesMap.ts": [
+20,
+31,
+37,
+43,
+60,
+108,
+123,
+142,
+146
+],
+"TypeScript:src/services/formatting/tokenRange.ts": [
+14,
+18,
+28,
+32,
+40,
+44,
+58,
+62,
+76,
+80,
+84,
+94
+],
+"TypeScript:src/services/textChanges.ts": [
+561
+]
+}

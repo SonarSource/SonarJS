@@ -1,0 +1,34 @@
+{
+"vuetify:packages/api-generator/src/types.ts": [
+446
+],
+"vuetify:packages/docs/src/composables/codepen.ts": [
+74
+],
+"vuetify:packages/docs/src/util/helpers.ts": [
+147
+],
+"vuetify:packages/docs/src/util/markdown-it-rules.ts": [
+18
+],
+"vuetify:packages/vuetify/src/components/VCalendar/VCalendar.ts": [
+158,
+162,
+164
+],
+"vuetify:packages/vuetify/src/components/VCalendar/VCalendarCategory.ts": [
+89
+],
+"vuetify:packages/vuetify/src/components/VCalendar/VCalendarWeekly.ts": [
+206
+],
+"vuetify:packages/vuetify/src/components/VCalendar/mixins/calendar-with-events.ts": [
+302
+],
+"vuetify:packages/vuetify/src/components/VSparkline/VSparkline.ts": [
+248
+],
+"vuetify:packages/vuetify/src/components/VSpeedDial/VSpeedDial.ts": [
+82
+]
+}

@@ -1,0 +1,161 @@
+{
+"paper.js:examples/Node.js/JSONtoPDF.js": [
+15
+],
+"paper.js:examples/Scripts/BooleanOperations.html": [
+92,
+93,
+105,
+106,
+132,
+136,
+146,
+151,
+156,
+161,
+162,
+163,
+171,
+177,
+178,
+179,
+187,
+188,
+189,
+200,
+201,
+202,
+213,
+214
+],
+"paper.js:gulp/tasks/publish.js": [
+94
+],
+"paper.js:gulp/typescript/typescript-definition-generator.js": [
+59,
+60
+],
+"paper.js:src/anim/Tween.js": [
+228
+],
+"paper.js:src/basic/Point.js": [
+1037
+],
+"paper.js:src/basic/Rectangle.js": [
+894
+],
+"paper.js:src/basic/Size.js": [
+560
+],
+"paper.js:src/core/Base.js": [
+393,
+465,
+466
+],
+"paper.js:src/core/PaperScope.js": [
+232
+],
+"paper.js:src/core/PaperScript.js": [
+150,
+319,
+480,
+503
+],
+"paper.js:src/item/Item.js": [
+2938
+],
+"paper.js:src/load.js": [
+28
+],
+"paper.js:src/node/extend.js": [
+144
+],
+"paper.js:src/path/Curve.js": [
+851,
+1561,
+2167
+],
+"paper.js:src/path/CurveLocation.js": [
+453,
+547
+],
+"paper.js:src/path/Path.js": [
+1725,
+1729,
+1757,
+2312,
+2715,
+2773,
+2785
+],
+"paper.js:src/path/PathFlattener.js": [
+56,
+56
+],
+"paper.js:src/path/PathItem.Boolean.js": [
+142,
+143,
+143,
+155,
+155,
+227,
+312,
+414,
+567,
+661,
+679,
+680,
+680,
+876,
+889,
+891,
+891,
+899,
+900,
+901,
+901,
+912,
+916,
+918,
+919,
+921,
+961,
+962,
+1244,
+1244,
+1316
+],
+"paper.js:src/path/PathItem.js": [
+142
+],
+"paper.js:src/style/Color.js": [
+541
+],
+"paper.js:src/style/Style.js": [
+129,
+163,
+212,
+261
+],
+"paper.js:src/svg/SvgImport.js": [
+665,
+677,
+686
+],
+"paper.js:src/tool/Tool.js": [
+304,
+304
+],
+"paper.js:src/util/CollisionDetection.js": [
+79
+],
+"paper.js:src/util/Numerical.js": [
+351
+],
+"paper.js:src/view/View.js": [
+34,
+1219,
+1219,
+1323
+]
+}

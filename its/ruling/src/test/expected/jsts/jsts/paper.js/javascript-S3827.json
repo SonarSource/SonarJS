@@ -1,0 +1,452 @@
+{
+"paper.js:examples/Scripts/BooleanOperations.html": [
+8,
+44,
+133,
+163,
+279,
+373
+],
+"paper.js:examples/Worker/Worker.js": [
+2,
+8
+],
+"paper.js:src/anim/Tween.js": [
+27,
+27,
+367
+],
+"paper.js:src/basic/Line.js": [
+18,
+57,
+144
+],
+"paper.js:src/basic/Matrix.js": [
+41,
+137,
+166,
+221,
+643
+],
+"paper.js:src/basic/Point.js": [
+26,
+250,
+287,
+704,
+1080
+],
+"paper.js:src/basic/Rectangle.js": [
+20,
+117,
+140,
+235,
+259,
+277,
+966
+],
+"paper.js:src/basic/Size.js": [
+28,
+191,
+394
+],
+"paper.js:src/canvas/BlendMode.js": [
+220,
+231
+],
+"paper.js:src/canvas/ProxyContext.js": [
+71
+],
+"paper.js:src/constants.js": [
+13
+],
+"paper.js:src/core/Base.js": [
+19,
+35,
+601,
+602
+],
+"paper.js:src/core/Emitter.js": [
+22
+],
+"paper.js:src/core/PaperScope.js": [
+35,
+67,
+70,
+117,
+209,
+263
+],
+"paper.js:src/core/PaperScopeItem.js": [
+22,
+22,
+29
+],
+"paper.js:src/core/PaperScript.js": [
+17,
+32,
+79,
+80,
+81,
+349,
+463,
+575,
+608,
+659
+],
+"paper.js:src/dom/DomElement.js": [
+65,
+90
+],
+"paper.js:src/dom/DomEvent.js": [
+62,
+78
+],
+"paper.js:src/event/Event.js": [
+20,
+79
+],
+"paper.js:src/event/Key.js": [
+51,
+70,
+94,
+137
+],
+"paper.js:src/export.js": [
+19,
+19,
+21,
+22,
+23,
+24,
+29,
+30
+],
+"paper.js:src/item/Group.js": [
+22,
+103,
+175
+],
+"paper.js:src/item/HitResult.js": [
+20,
+113
+],
+"paper.js:src/item/Item.js": [
+23,
+23,
+72,
+143,
+145,
+154,
+199,
+216,
+417,
+625,
+778,
+778,
+873,
+879,
+1390,
+1764,
+1765,
+1767,
+1883,
+1914,
+2018,
+4370,
+4479,
+4828
+],
+"paper.js:src/item/Layer.js": [
+25
+],
+"paper.js:src/item/Project.js": [
+33,
+60,
+64,
+65,
+80,
+90,
+242,
+256,
+291,
+368,
+387,
+871,
+874
+],
+"paper.js:src/item/Raster.js": [
+20,
+118,
+131,
+133,
+178,
+306,
+344,
+519,
+586,
+619,
+626,
+650,
+803,
+829
+],
+"paper.js:src/item/Shape.js": [
+20,
+39,
+79,
+83,
+104,
+172,
+181,
+223,
+281,
+385
+],
+"paper.js:src/item/SymbolDefinition.js": [
+22,
+60,
+61,
+88,
+90,
+118,
+120,
+137
+],
+"paper.js:src/item/SymbolItem.js": [
+21,
+77,
+78,
+103
+],
+"paper.js:src/load.js": [
+45
+],
+"paper.js:src/net/Http.js": [
+18
+],
+"paper.js:src/paper.js": [
+36,
+78
+],
+"paper.js:src/path/CompoundPath.js": [
+28,
+128,
+149,
+377
+],
+"paper.js:src/path/Curve.js": [
+27,
+78,
+205,
+417,
+476,
+839,
+1123,
+2125
+],
+"paper.js:src/path/CurveLocation.js": [
+29,
+44,
+357,
+451
+],
+"paper.js:src/path/Path.Constructors.js": [
+15,
+17,
+24,
+25,
+84,
+121,
+216,
+293
+],
+"paper.js:src/path/Path.js": [
+21,
+131,
+141,
+161,
+190,
+231,
+294,
+306,
+932,
+945,
+1048,
+1078,
+1265,
+1281,
+1504,
+1523,
+1524,
+1705,
+1852,
+1897,
+2298,
+2527,
+2705
+],
+"paper.js:src/path/PathFitter.js": [
+23,
+51,
+115
+],
+"paper.js:src/path/PathFlattener.js": [
+18,
+57
+],
+"paper.js:src/path/PathItem.Boolean.js": [
+29,
+71,
+84,
+84,
+134,
+145,
+171,
+602,
+1088
+],
+"paper.js:src/path/PathItem.js": [
+22,
+70,
+87,
+139,
+235,
+242,
+260,
+262,
+335,
+686,
+698,
+725
+],
+"paper.js:src/path/Segment.js": [
+25,
+144,
+186,
+200,
+312,
+372
+],
+"paper.js:src/path/SegmentPoint.js": [
+19,
+76,
+93
+],
+"paper.js:src/style/Color.js": [
+43,
+117,
+280,
+295,
+718,
+861
+],
+"paper.js:src/style/Gradient.js": [
+64,
+70,
+160
+],
+"paper.js:src/style/GradientStop.js": [
+19,
+76,
+179
+],
+"paper.js:src/style/Style.js": [
+70,
+87,
+104,
+107,
+134,
+136,
+137,
+167,
+279
+],
+"paper.js:src/svg/SvgExport.js": [
+23,
+38,
+56,
+74,
+286,
+337,
+402,
+406,
+413,
+420,
+422
+],
+"paper.js:src/svg/SvgImport.js": [
+30,
+51,
+58,
+78,
+106,
+140,
+163,
+165,
+184,
+221,
+230,
+267,
+284,
+306,
+383,
+383,
+535,
+582,
+706,
+731,
+738
+],
+"paper.js:src/svg/SvgStyles.js": [
+13,
+28,
+29,
+30
+],
+"paper.js:src/text/PointText.js": [
+22,
+71,
+75,
+118
+],
+"paper.js:src/text/TextItem.js": [
+24,
+43,
+45,
+94
+],
+"paper.js:src/tool/Tool.js": [
+45,
+343
+],
+"paper.js:src/util/Formatter.js": [
+18
+],
+"paper.js:src/view/CanvasView.js": [
+18,
+38,
+42,
+43,
+50,
+54,
+100
+],
+"paper.js:src/view/View.js": [
+22,
+22,
+34,
+39,
+50,
+63,
+109,
+120,
+153,
+331,
+380,
+422,
+422,
+567,
+1028,
+1465
+]
+}
