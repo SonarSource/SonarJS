@@ -61,6 +61,17 @@ describe('analyzeCSS', () => {
     });
   });
 
+  it('should analyze postcss jsx syntax', async () => {
+    const filePath = path.join(__dirname, 'fixtures', 'postcss-jsx.erb');
+    await expect(analyzeCSS(await input(filePath, undefined, rules))).resolves.toEqual({
+      issues: [
+        expect.objectContaining({
+          ruleId: 'block-no-empty',
+        }),
+      ],
+    });
+  });
+
   it('should return a parsing error in the form of an issue', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'malformed.css');
     await expect(analyzeCSS(await input(filePath))).resolves.toEqual({
