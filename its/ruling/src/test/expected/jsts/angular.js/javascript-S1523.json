@@ -1,4 +1,15 @@
 {
+"angular.js:i18n/spec/closureI18nExtractorSpec.js": [
+265,
+276,
+285
+],
+"angular.js:i18n/src/closureI18nExtractor.js": [
+40,
+54,
+64,
+85
+],
 "angular.js:src/ng/parse.js": [
 848
 ]

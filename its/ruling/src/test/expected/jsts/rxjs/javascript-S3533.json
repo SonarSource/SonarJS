@@ -1,14 +1,4 @@
 {
-"rxjs:.make-packages.js": [
-1,
-2,
-3,
-4,
-5
-],
-"rxjs:.markdown-doctest-setup.js": [
-4
-],
 "rxjs:dangerfile.js": [
 1,
 2,

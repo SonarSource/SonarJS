@@ -44,6 +44,10 @@
 "angular.js:docs/app/test/errorsSpec.js": [
 16
 ],
+"angular.js:i18n/e2e/i18n-e2e.js": [
+10,
+60
+],
 "angular.js:lib/promises-aplus/promises-aplus-test-adapter.js": [
 41
 ],

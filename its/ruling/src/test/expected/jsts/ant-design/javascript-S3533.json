@@ -1,20 +1,4 @@
 {
-"ant-design:.antd-tools.config.js": [
-1,
-2,
-3,
-4,
-5
-],
-"ant-design:.jest.image.js": [
-1
-],
-"ant-design:.jest.node.js": [
-1
-],
-"ant-design:.jest.site.js": [
-1
-],
 "ant-design:components/__tests__/index.test.js": [
 4
 ],
@@ -128,9 +112,6 @@
 ],
 "ant-design:scripts/update-rc.js": [
 7
-],
-"ant-design:site/.eslintrc.js": [
-1
 ],
 "ant-design:site/antd.js": [
 27,

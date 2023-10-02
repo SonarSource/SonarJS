@@ -145,6 +145,18 @@
 "angular.js:docs/config/tag-defs/tutorial-step.js": [
 5
 ],
+"angular.js:i18n/closure/pluralRules.js": [
+89,
+89
+],
+"angular.js:i18n/src/closureI18nExtractor.js": [
+14,
+15,
+210
+],
+"angular.js:i18n/ucd/spec/extactValuesSpec.js": [
+8
+],
 "angular.js:lib/browserstack/start_tunnel.js": [
 21,
 29
@@ -720,6 +732,3176 @@
 149,
 165,
 180
+],
+"angular.js:src/ngLocale/angular-locale_af-na.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_af-za.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_af.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_agq-cm.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_agq.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ak-gh.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ak.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_am-et.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_am.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_ar-001.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_ar-ae.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_ar-bh.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_ar-dj.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_ar-dz.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_ar-eg.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_ar-eh.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_ar-er.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_ar-il.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_ar-iq.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_ar-jo.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_ar-km.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_ar-kw.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_ar-lb.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_ar-ly.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_ar-ma.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_ar-mr.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_ar-om.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_ar-ps.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_ar-qa.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_ar-sa.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_ar-sd.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_ar-so.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_ar-ss.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_ar-sy.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_ar-td.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_ar-tn.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_ar-xb.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_ar-ye.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_ar.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_as-in.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_as.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_asa-tz.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_asa.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ast-es.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ast.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_az-cyrl-az.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_az-cyrl.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_az-latn-az.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_az-latn.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_az.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_bas-cm.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_bas.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_be-by.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_be.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_bem-zm.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_bem.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_bez-tz.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_bez.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_bg-bg.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_bg.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_bm-ml.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_bm.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_bn-bd.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_bn-in.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_bn.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_bo-cn.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_bo-in.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_bo.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_br-fr.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_br.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_brx-in.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_brx.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_bs-cyrl-ba.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_bs-cyrl.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_bs-latn-ba.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_bs-latn.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_bs.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ca-ad.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ca-es-valencia.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ca-es.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ca-fr.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ca-it.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ca.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ce-ru.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ce.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_cgg-ug.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_cgg.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_chr-us.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_chr.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_ckb-arab-iq.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ckb-arab-ir.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ckb-arab.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ckb-iq.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ckb-ir.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ckb-latn-iq.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ckb-latn.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ckb.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_cs-cz.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_cs.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_cu-ru.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_cu.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_cy-gb.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_cy.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_da-dk.js": [
+19,
+19,
+154
+],
+"angular.js:src/ngLocale/angular-locale_da-gl.js": [
+19,
+19,
+154
+],
+"angular.js:src/ngLocale/angular-locale_da.js": [
+19,
+19,
+154
+],
+"angular.js:src/ngLocale/angular-locale_dav-ke.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_dav.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_de-at.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_de-be.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_de-ch.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_de-de.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_de-it.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_de-li.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_de-lu.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_de.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_dje-ne.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_dje.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_dsb-de.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_dsb.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_dua-cm.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_dua.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_dyo-sn.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_dyo.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_dz-bt.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_dz.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ebu-ke.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ebu.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ee-gh.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ee-tg.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ee.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_el-cy.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_el-gr.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_el.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_en-001.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-150.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-ag.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-ai.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-as.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-at.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-au.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-bb.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-be.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-bi.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-bm.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-bs.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-bw.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-bz.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-ca.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-cc.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-ch.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-ck.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-cm.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-cx.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-cy.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-de.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-dg.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-dk.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-dm.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-er.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-fi.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-fj.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-fk.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-fm.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-gb.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-gd.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-gg.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-gh.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-gi.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-gm.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-gu.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-gy.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-hk.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-ie.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-il.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-im.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-in.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-io.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-iso.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-je.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-jm.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-ke.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-ki.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-kn.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-ky.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-lc.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-lr.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-ls.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-mg.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-mh.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-mo.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-mp.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-ms.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-mt.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-mu.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-mw.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-my.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-na.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-nf.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-ng.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-nl.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-nr.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-nu.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-nz.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-pg.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-ph.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-pk.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-pn.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-pr.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-pw.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-rw.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-sb.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-sc.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-sd.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-se.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-sg.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-sh.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-si.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-sl.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-ss.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-sx.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-sz.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-tc.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-tk.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-to.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-tt.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-tv.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-tz.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-ug.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-um.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-us-posix.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-us.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-vc.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-vg.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-vi.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-vu.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-ws.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-xa.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-za.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-zm.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en-zw.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_en.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_eo-001.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_eo.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_es-419.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_es-ar.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_es-bo.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_es-br.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_es-bz.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_es-cl.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_es-co.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_es-cr.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_es-cu.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_es-do.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_es-ea.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_es-ec.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_es-es.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_es-gq.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_es-gt.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_es-hn.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_es-ic.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_es-mx.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_es-ni.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_es-pa.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_es-pe.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_es-ph.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_es-pr.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_es-py.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_es-sv.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_es-us.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_es-uy.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_es-ve.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_es.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_et-ee.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_et.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_eu-es.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_eu.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_ewo-cm.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ewo.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_fa-af.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_fa-ir.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_fa.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_ff-cm.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ff-gn.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ff-mr.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ff-sn.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ff.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_fi-fi.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_fi.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_fil-ph.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_fil.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_fo-dk.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_fo-fo.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_fo.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_fr-be.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_fr-bf.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_fr-bi.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_fr-bj.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_fr-bl.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_fr-ca.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_fr-cd.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_fr-cf.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_fr-cg.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_fr-ch.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_fr-ci.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_fr-cm.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_fr-dj.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_fr-dz.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_fr-fr.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_fr-ga.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_fr-gf.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_fr-gn.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_fr-gp.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_fr-gq.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_fr-ht.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_fr-km.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_fr-lu.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_fr-ma.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_fr-mc.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_fr-mf.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_fr-mg.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_fr-ml.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_fr-mq.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_fr-mr.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_fr-mu.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_fr-nc.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_fr-ne.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_fr-pf.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_fr-pm.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_fr-re.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_fr-rw.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_fr-sc.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_fr-sn.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_fr-sy.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_fr-td.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_fr-tg.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_fr-tn.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_fr-vu.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_fr-wf.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_fr-yt.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_fr.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_fur-it.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_fur.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_fy-nl.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_fy.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ga-ie.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_ga.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_gd-gb.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_gd.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_gl-es.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_gl.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_gsw-ch.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_gsw-fr.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_gsw-li.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_gsw.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_gu-in.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_gu.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_guz-ke.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_guz.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_gv-im.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_gv.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ha-gh.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ha-ne.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ha-ng.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ha.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_haw-us.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_haw.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_he-il.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_he.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_hi-in.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_hi.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_hr-ba.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_hr-hr.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_hr.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_hsb-de.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_hsb.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_hu-hu.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_hu.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_hy-am.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_hy.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_id-id.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_id.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_ig-ng.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ig.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ii-cn.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ii.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_in.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_is-is.js": [
+19,
+19,
+154
+],
+"angular.js:src/ngLocale/angular-locale_is.js": [
+19,
+19,
+154
+],
+"angular.js:src/ngLocale/angular-locale_it-ch.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_it-it.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_it-sm.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_it-va.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_it.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_iw.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ja-jp.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_ja.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_jgo-cm.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_jgo.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_jmc-tz.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_jmc.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ka-ge.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_ka.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_kab-dz.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_kab.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_kam-ke.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_kam.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_kde-tz.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_kde.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_kea-cv.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_kea.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_khq-ml.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_khq.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ki-ke.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ki.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_kk-kz.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_kk.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_kkj-cm.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_kkj.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_kl-gl.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_kl.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_kln-ke.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_kln.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_km-kh.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_km.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_kn-in.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_kn.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_ko-kp.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_ko-kr.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_ko.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_kok-in.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_kok.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ks-in.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ks.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ksb-tz.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ksb.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ksf-cm.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ksf.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ksh-de.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ksh.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_kw-gb.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_kw.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ky-kg.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_ky.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_lag-tz.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_lag.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_lb-lu.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_lb.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_lg-ug.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_lg.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_lkt-us.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_lkt.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ln-ao.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_ln-cd.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_ln-cf.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_ln-cg.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_ln.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_lo-la.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_lo.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_lrc-iq.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_lrc-ir.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_lrc.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_lt-lt.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_lt.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_lu-cd.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_lu.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_luo-ke.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_luo.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_luy-ke.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_luy.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_lv-lv.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_lv.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_mas-ke.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_mas-tz.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_mas.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_mer-ke.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_mer.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_mfe-mu.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_mfe.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_mg-mg.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_mg.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_mgh-mz.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_mgh.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_mgo-cm.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_mgo.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_mk-mk.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_mk.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ml-in.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_ml.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_mn-mn.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_mn.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_mo.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_mr-in.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_mr.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_ms-bn.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_ms-my.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_ms-sg.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_ms.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_mt-mt.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_mt.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_mua-cm.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_mua.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_my-mm.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_my.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_mzn-ir.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_mzn.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_naq-na.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_naq.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_nb-no.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_nb-sj.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_nb.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_nd-zw.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_nd.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_nds-de.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_nds-nl.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_nds.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ne-in.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_ne-np.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_ne.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_nl-aw.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_nl-be.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_nl-bq.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_nl-cw.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_nl-nl.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_nl-sr.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_nl-sx.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_nl.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_nmg-cm.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_nmg.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_nn-no.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_nn.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_nnh-cm.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_nnh.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_no-no.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_no.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_nus-ss.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_nus.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_nyn-ug.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_nyn.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_om-et.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_om-ke.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_om.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_or-in.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_or.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_os-ge.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_os-ru.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_os.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_pa-arab-pk.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_pa-arab.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_pa-guru-in.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_pa-guru.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_pa.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_pl-pl.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_pl.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_prg-001.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_prg.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ps-af.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ps.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_pt-ao.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_pt-br.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_pt-ch.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_pt-cv.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_pt-gq.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_pt-gw.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_pt-lu.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_pt-mo.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_pt-mz.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_pt-pt.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_pt-st.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_pt-tl.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_pt.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_qu-bo.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_qu-ec.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_qu-pe.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_qu.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_rm-ch.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_rm.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_rn-bi.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_rn.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ro-md.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ro-ro.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ro.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_rof-tz.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_rof.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ru-by.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ru-kg.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ru-kz.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ru-md.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ru-ru.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ru-ua.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ru.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_rw-rw.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_rw.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_rwk-tz.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_rwk.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_sah-ru.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_sah.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_saq-ke.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_saq.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_sbp-tz.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_sbp.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_se-fi.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_se-no.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_se-se.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_se.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_seh-mz.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_seh.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ses-ml.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ses.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_sg-cf.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_sg.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_sh.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_shi-latn-ma.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_shi-latn.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_shi-tfng-ma.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_shi-tfng.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_shi.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_si-lk.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_si.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_sk-sk.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_sk.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_sl-si.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_sl.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_smn-fi.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_smn.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_sn-zw.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_sn.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_so-dj.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_so-et.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_so-ke.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_so-so.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_so.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_sq-al.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_sq-mk.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_sq-xk.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_sq.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_sr-cyrl-ba.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_sr-cyrl-me.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_sr-cyrl-rs.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_sr-cyrl-xk.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_sr-cyrl.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_sr-latn-ba.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_sr-latn-me.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_sr-latn-rs.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_sr-latn-xk.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_sr-latn.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_sr.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_sv-ax.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_sv-fi.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_sv-se.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_sv.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_sw-cd.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_sw-ke.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_sw-tz.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_sw-ug.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_sw.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ta-in.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_ta-lk.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_ta-my.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_ta-sg.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_ta.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_te-in.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_te.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_teo-ke.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_teo-ug.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_teo.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_th-th.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_th.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_ti-er.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ti-et.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ti.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_tk-tm.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_tk.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_tl.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_to-to.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_to.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_tr-cy.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_tr-tr.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_tr.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_twq-ne.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_twq.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_tzm-ma.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_tzm.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ug-cn.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ug.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_uk-ua.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_uk.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ur-in.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ur-pk.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_ur.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_uz-arab-af.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_uz-arab.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_uz-cyrl-uz.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_uz-cyrl.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_uz-latn-uz.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_uz-latn.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_uz.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_vai-latn-lr.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_vai-latn.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_vai-vaii-lr.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_vai-vaii.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_vai.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_vi-vn.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_vi.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_vo-001.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_vo.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_vun-tz.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_vun.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_wae-ch.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_wae.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_xog-ug.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_xog.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_yav-cm.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_yav.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_yi-001.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_yi.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_yo-bj.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_yo-ng.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_yo.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_yue-hk.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_yue.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_zgh-ma.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_zgh.js": [
+19,
+19,
+141
+],
+"angular.js:src/ngLocale/angular-locale_zh-cn.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_zh-hans-cn.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_zh-hans-hk.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_zh-hans-mo.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_zh-hans-sg.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_zh-hans.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_zh-hant-hk.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_zh-hant-mo.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_zh-hant-tw.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_zh-hant.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_zh-hk.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_zh-tw.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_zh.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_zu-za.js": [
+123
+],
+"angular.js:src/ngLocale/angular-locale_zu.js": [
+123
 ],
 "angular.js:src/ngMessageFormat/messageFormatService.js": [
 198

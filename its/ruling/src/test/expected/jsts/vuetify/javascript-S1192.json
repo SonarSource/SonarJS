@@ -1,8 +1,4 @@
 {
-"vuetify:.eslintrc.js": [
-46,
-221
-],
 "vuetify:packages/vuetify/build/rollup.config.js": [
 117
 ]

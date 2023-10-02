@@ -1,19 +1,4 @@
 {
-"ant-design:.antd-tools.config.js": [
-137
-],
-"ant-design:.jest.image.js": [
-4
-],
-"ant-design:.jest.js": [
-15
-],
-"ant-design:.jest.node.js": [
-4
-],
-"ant-design:.jest.site.js": [
-4
-],
 "ant-design:components/message/__tests__/index.test.js": [
 230
 ],

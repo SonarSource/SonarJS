@@ -1,10 +1,4 @@
 {
-"vuetify:.eslintrc.js": [
-116
-],
-"vuetify:packages/docs/.eslintrc.js": [
-14
-],
 "vuetify:packages/docs/src/examples/v-scroll/usage.vue": [
 109
 ]

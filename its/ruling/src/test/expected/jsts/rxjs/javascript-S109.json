@@ -1,10 +1,4 @@
 {
-"rxjs:.make-packages.js": [
-21
-],
-"rxjs:.markdown-doctest-setup.js": [
-42
-],
 "rxjs:doc/decision-tree-widget/tools/yaml2json.js": [
 3,
 4

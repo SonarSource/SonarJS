@@ -1,15 +1,4 @@
 {
-"ant-design:.antd-tools.config.js": [
-7,
-16,
-40,
-76,
-129,
-133
-],
-"ant-design:.jest.js": [
-8
-],
 "ant-design:components/cascader/__tests__/index.test.js": [
 13,
 17,

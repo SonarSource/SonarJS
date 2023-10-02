@@ -1,5 +1,8 @@
 {
 "angular.js:docs/config/processors/sitemap.js": [
 3
+],
+"angular.js:i18n/spec/closureI18nExtractorSpec.js": [
+256
 ]
 }

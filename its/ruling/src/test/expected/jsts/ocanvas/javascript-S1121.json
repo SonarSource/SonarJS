@@ -1,4 +1,15 @@
 {
+"ocanvas:build/lib/parse-js.js": [
+372,
+376,
+386
+],
+"ocanvas:build/lib/process.js": [
+349,
+353,
+1179,
+1182
+],
 "ocanvas:src/animation.js": [
 474,
 478,

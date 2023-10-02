@@ -246,7 +246,9 @@ class JavaScriptRulingTest {
 
     File sourcesLocation = FileLocation.of(sources).getFile();
 
-    String actualExclusions = exclusions.equals("") ? "**/*.d.ts, " + exclusions : "**/*.d.ts";
+    String actualExclusions = exclusions.equals("")
+      ? "**/.*, **/*.d.ts, " + exclusions
+      : "**/.*, **/*.d.ts";
     if (!testDir.equals("")) {
       actualExclusions += ", " + testDir + "/**/*";
     }

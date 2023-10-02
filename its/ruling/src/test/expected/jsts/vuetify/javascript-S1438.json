@@ -1,7 +1,4 @@
 {
-"vuetify:.eslintrc.js": [
-237
-],
 "vuetify:ecosystem-win.config.js": [
 4,
 6,
@@ -49,9 +46,6 @@
 ],
 "vuetify:packages/api-generator/babel.config.js": [
 9
-],
-"vuetify:packages/docs/.eslintrc.js": [
-42
 ],
 "vuetify:packages/docs/build/sitemap.js": [
 1,
@@ -3592,9 +3586,6 @@
 108,
 109,
 110
-],
-"vuetify:packages/vuetify/.eslintrc.js": [
-81
 ],
 "vuetify:packages/vuetify/babel.config.js": [
 1,

@@ -1,4 +1,18 @@
 {
+"ocanvas:build/lib/parse-js.js": [
+143
+],
+"ocanvas:build/lib/process.js": [
+1179,
+1182,
+1285,
+1286,
+1287,
+1295,
+1380,
+1446,
+1448
+],
 "ocanvas:scripts/release.js": [
 66,
 73

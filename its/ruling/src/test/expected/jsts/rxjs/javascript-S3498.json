@@ -1,15 +1,4 @@
 {
-"rxjs:.markdown-doctest-setup.js": [
-25,
-27,
-28,
-37,
-38,
-39,
-40,
-43,
-47
-],
 "rxjs:doc/decision-tree-widget/src/main.js": [
 37
 ],

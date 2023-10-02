@@ -6,6 +6,17 @@
 18,
 19
 ],
+"angular.js:i18n/src/closureI18nExtractor.js": [
+41,
+65
+],
+"angular.js:i18n/ucd/src/extractValues.js": [
+32,
+53
+],
+"angular.js:i18n/ucd/src/generateCode.js": [
+13
+],
 "angular.js:lib/grunt/validate-angular-files.js": [
 20
 ],

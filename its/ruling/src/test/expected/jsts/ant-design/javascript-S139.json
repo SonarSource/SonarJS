@@ -1,11 +1,4 @@
 {
-"ant-design:.eslintrc.js": [
-96,
-101,
-105,
-134,
-135
-],
 "ant-design:components/form/__tests__/list.test.js": [
 150
 ],

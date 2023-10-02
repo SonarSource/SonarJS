@@ -1,16 +1,4 @@
 {
-"rxjs:.make-packages.js": [
-18
-],
-"rxjs:.markdown-doctest-setup.js": [
-20,
-28,
-30,
-43,
-49,
-53,
-54
-],
 "rxjs:doc/decision-tree-widget/src/main.js": [
 18,
 24,

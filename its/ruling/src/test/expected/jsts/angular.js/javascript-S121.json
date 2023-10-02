@@ -20,6 +20,21 @@
 31,
 32
 ],
+"angular.js:i18n/src/closureSlurper.js": [
+72,
+91
+],
+"angular.js:i18n/src/parser.js": [
+66,
+67,
+68
+],
+"angular.js:i18n/ucd/src/extractValues.js": [
+34,
+35,
+41,
+47
+],
 "angular.js:lib/grunt/utils.js": [
 28,
 45,

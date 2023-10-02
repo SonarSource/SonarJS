@@ -20,6 +20,24 @@
 "angular.js:docs/config/processors/versions-data.js": [
 18
 ],
+"angular.js:i18n/e2e/localeTest_cs.html": [
+9
+],
+"angular.js:i18n/e2e/localeTest_de.html": [
+9
+],
+"angular.js:i18n/e2e/localeTest_en.html": [
+11
+],
+"angular.js:i18n/e2e/localeTest_es.html": [
+9
+],
+"angular.js:i18n/e2e/localeTest_sk.html": [
+9
+],
+"angular.js:i18n/e2e/localeTest_zh.html": [
+9
+],
 "angular.js:src/Angular.js": [
 767,
 1893

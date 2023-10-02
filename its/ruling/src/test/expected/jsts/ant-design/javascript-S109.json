@@ -1,12 +1,4 @@
 {
-"ant-design:.antd-tools.config.js": [
-52,
-61
-],
-"ant-design:.eslintrc.js": [
-31,
-161
-],
 "ant-design:components/_util/__tests__/easings.test.js": [
 7,
 8,

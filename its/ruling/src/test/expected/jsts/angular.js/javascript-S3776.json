@@ -2,6 +2,9 @@
 "angular.js:docs/config/processors/keywords.js": [
 28
 ],
+"angular.js:i18n/ucd/src/extractValues.js": [
+13
+],
 "angular.js:lib/grunt/utils.js": [
 244
 ],

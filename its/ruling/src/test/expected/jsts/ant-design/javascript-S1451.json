@@ -1,28 +1,4 @@
 {
-"ant-design:.antd-tools.config.js": [
-0
-],
-"ant-design:.depslintrc.js": [
-0
-],
-"ant-design:.eslintrc.js": [
-0
-],
-"ant-design:.jest.image.js": [
-0
-],
-"ant-design:.jest.js": [
-0
-],
-"ant-design:.jest.node.js": [
-0
-],
-"ant-design:.jest.site.js": [
-0
-],
-"ant-design:.remarkrc.js": [
-0
-],
 "ant-design:components/__tests__/index.test.js": [
 0
 ],
@@ -612,9 +588,6 @@
 0
 ],
 "ant-design:scripts/update-rc.js": [
-0
-],
-"ant-design:site/.eslintrc.js": [
 0
 ],
 "ant-design:site/antd.js": [

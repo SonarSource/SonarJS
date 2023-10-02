@@ -1,84 +1,4 @@
 {
-"ant-design:.antd-tools.config.js": [
-28,
-34,
-45,
-52,
-63,
-64,
-69,
-81,
-86,
-123,
-124,
-172,
-173,
-185,
-186,
-188,
-191,
-194
-],
-"ant-design:.depslintrc.js": [
-10,
-15,
-19,
-23,
-24,
-25
-],
-"ant-design:.eslintrc.js": [
-9,
-16,
-20,
-22,
-34,
-35,
-41,
-51,
-57,
-58,
-63,
-83,
-84,
-85,
-120,
-121,
-122,
-163,
-166,
-167
-],
-"ant-design:.jest.image.js": [
-12,
-19,
-20,
-23
-],
-"ant-design:.jest.js": [
-5,
-29,
-36,
-46,
-52,
-53,
-56,
-57
-],
-"ant-design:.jest.node.js": [
-13,
-18
-],
-"ant-design:.jest.site.js": [
-11,
-19,
-20,
-21
-],
-"ant-design:.remarkrc.js": [
-5,
-6
-],
 "ant-design:components/__tests__/index.test.js": [
 17
 ],
@@ -2696,10 +2616,6 @@
 207,
 237,
 238
-],
-"ant-design:site/.eslintrc.js": [
-9,
-10
 ],
 "ant-design:site/bisheng.config.js": [
 20,
