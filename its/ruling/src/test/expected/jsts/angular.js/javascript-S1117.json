@@ -26,15 +26,6 @@
 "angular.js:docs/config/tag-defs/deprecated.js": [
 13
 ],
-"angular.js:i18n/src/closureSlurper.js": [
-18,
-21,
-32
-],
-"angular.js:i18n/ucd/src/extractValues.js": [
-32,
-53
-],
 "angular.js:lib/versions/version-info.js": [
 149
 ],

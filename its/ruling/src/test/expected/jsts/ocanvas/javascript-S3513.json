@@ -1,24 +1,4 @@
 {
-"ocanvas:build/lib/parse-js.js": [
-741,
-757,
-916,
-1263,
-1264,
-1271
-],
-"ocanvas:build/lib/process.js": [
-132,
-190,
-498,
-962,
-1102,
-1129,
-1263,
-1383,
-1519,
-1539
-],
 "ocanvas:src/displayobject.js": [
 533,
 561,

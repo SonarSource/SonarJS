@@ -1,18 +1,4 @@
 {
-"ocanvas:build/build.js": [
-1,
-2,
-4,
-5
-],
-"ocanvas:build/lib/process.js": [
-61,
-1606
-],
-"ocanvas:build/lib/squeeze-more.js": [
-1,
-2
-],
 "ocanvas:index.js": [
 13,
 14,

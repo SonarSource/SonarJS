@@ -1,31 +1,4 @@
 {
-"ocanvas:build/lib/parse-js.js": [
-246,
-367,
-566,
-575,
-720,
-762,
-1057,
-1142,
-1207
-],
-"ocanvas:build/lib/process.js": [
-283,
-288,
-351,
-401,
-552,
-935,
-969,
-999,
-1005,
-1014,
-1215
-],
-"ocanvas:build/lib/squeeze-more.js": [
-11
-],
 "ocanvas:src/animation.js": [
 275
 ],

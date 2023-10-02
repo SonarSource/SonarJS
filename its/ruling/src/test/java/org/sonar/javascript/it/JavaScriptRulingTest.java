@@ -65,6 +65,8 @@ class JavaScriptRulingTest {
   static final String LITS_VERSION = "0.11.0.2659";
   static final String SCANNER_VERSION = "5.0.1.3006";
 
+  static final String DEFAULT_EXCLUSIONS = "**/.*,**/*.d.ts";
+
   @RegisterExtension
   public static final OrchestratorExtension orchestrator = OrchestratorExtension
     .builderEnv()
@@ -109,7 +111,7 @@ class JavaScriptRulingTest {
       jsTsProject("ag-grid", "spec"),
       jsTsProject("ant-design", "tests"), // todo: many dirs **/__tests__
       jsTsProject("console"), // todo: many dirs **/__tests__
-      jsTsProject("courselit"),
+      jsTsProject("courselit", ".yarn/**", ""),
       jsTsProject("desktop", "app/test"),
       jsTsProject("eigen"), // todo
       jsTsProject("fireface"),
@@ -246,11 +248,12 @@ class JavaScriptRulingTest {
 
     File sourcesLocation = FileLocation.of(sources).getFile();
 
-    String actualExclusions = exclusions.equals("")
-      ? "**/.*, **/*.d.ts, " + exclusions
-      : "**/.*, **/*.d.ts";
+    String actualExclusions = DEFAULT_EXCLUSIONS;
+    if (!exclusions.equals("")) {
+      actualExclusions += "," + exclusions;
+    }
     if (!testDir.equals("")) {
-      actualExclusions += ", " + testDir + "/**/*";
+      actualExclusions += "," + testDir + "/**/*";
     }
 
     var differencesPath = Path.of("target", projectKey + "-differences").toAbsolutePath();

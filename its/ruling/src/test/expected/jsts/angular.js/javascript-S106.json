@@ -16,25 +16,6 @@
 "angular.js:docs/app/e2e/app.scenario.js": [
 21
 ],
-"angular.js:i18n/src/closureI18nExtractor.js": [
-87,
-90,
-161
-],
-"angular.js:i18n/src/closureSlurper.js": [
-14,
-28,
-41,
-48,
-53,
-75,
-78,
-92,
-101
-],
-"angular.js:i18n/src/converter.js": [
-30
-],
 "angular.js:karma-shared.conf.js": [
 238
 ],

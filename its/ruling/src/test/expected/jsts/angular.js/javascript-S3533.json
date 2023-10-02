@@ -85,43 +85,6 @@
 "angular.js:docs/protractor-conf.js": [
 3
 ],
-"angular.js:i18n/spec/closureI18nExtractorSpec.js": [
-3,
-4
-],
-"angular.js:i18n/spec/converterSpec.js": [
-3
-],
-"angular.js:i18n/spec/parserSpec.js": [
-3
-],
-"angular.js:i18n/src/closureI18nExtractor.js": [
-3
-],
-"angular.js:i18n/src/closureSlurper.js": [
-4,
-5,
-6
-],
-"angular.js:i18n/src/converter.js": [
-11
-],
-"angular.js:i18n/ucd/spec/extactValuesSpec.js": [
-3,
-4
-],
-"angular.js:i18n/ucd/spec/generateCodeSpec.js": [
-3
-],
-"angular.js:i18n/ucd/src/extract.js": [
-3,
-4,
-5,
-6
-],
-"angular.js:i18n/ucd/src/extractValues.js": [
-8
-],
 "angular.js:karma-docs.conf.js": [
 3
 ],

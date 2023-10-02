@@ -115,37 +115,6 @@
 63,
 140
 ],
-"angular.js:i18n/closure/currencySymbols.js": [
-121,
-136
-],
-"angular.js:i18n/spec/closureI18nExtractorSpec.js": [
-265,
-276,
-285
-],
-"angular.js:i18n/src/closureI18nExtractor.js": [
-90,
-102,
-225
-],
-"angular.js:i18n/src/closureSlurper.js": [
-74
-],
-"angular.js:i18n/src/converter.js": [
-30,
-52,
-53
-],
-"angular.js:i18n/src/parser.js": [
-25
-],
-"angular.js:i18n/ucd/src/extractValues.js": [
-22,
-34,
-35,
-54
-],
 "angular.js:karma-jquery.conf-factory.js": [
 12
 ],

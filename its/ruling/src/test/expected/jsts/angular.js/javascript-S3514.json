@@ -2,19 +2,6 @@
 "angular.js:Gruntfile.js": [
 6
 ],
-"angular.js:i18n/spec/closureI18nExtractorSpec.js": [
-5
-],
-"angular.js:i18n/spec/parserSpec.js": [
-4
-],
-"angular.js:i18n/src/parser.js": [
-46,
-59
-],
-"angular.js:i18n/ucd/spec/generateCodeSpec.js": [
-4
-],
 "angular.js:scripts/code.angularjs.org-firebase/functions/index.js": [
 159
 ],
