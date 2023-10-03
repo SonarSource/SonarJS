@@ -40,8 +40,7 @@ The "Ruling Test" is an integration test which launches the analysis of a large 
 
 ```sh
 cd its/ruling
-mvn verify -Dtest=JavaScriptRulingTest -Dmaven.test.redirectTestOutputToFile=false
-mvn verify -Dtest=TypeScriptRulingTest -Dmaven.test.redirectTestOutputToFile=false
+mvn verify -Dtest=JsTsRulingTest -Dmaven.test.redirectTestOutputToFile=false
 mvn verify -Dtest=CssRulingTest -Dmaven.test.redirectTestOutputToFile=false
 ```
 
@@ -52,13 +51,12 @@ into the directory with the expected issues `its/ruling/src/test/resources/expec
 
 From `its/ruling/`:
 
-- for JS `cp -R target/actual/js/ src/test/expected/js`
-- for TS `cp -R target/actual/ts/ src/test/expected/ts`
+- for JS/TS `cp -R target/actual/jsts/ src/test/expected/jsts`
 - for CSS `cp -R target/actual/css/ src/test/expected/css`
 
-You can review the Ruling difference by running `diff -rq src/test/expected/js target/actual/js` from `its/ruling`.
+You can review the Ruling difference by running `diff -rq src/test/expected/jsts target/actual/jsts` from `its/ruling`.
 
-To review the Ruling difference in SonarQube UI, put the breakpoint on `assertThat(...)` in `{JavaScript/CSS}RulingTest.java` and open in the browser the orchestrated local SonarQube.
+To review the Ruling difference in SonarQube UI, put the breakpoint on `assertThat(...)` in `{JsTs/CSS}RulingTest.java` and open in the browser the orchestrated local SonarQube.
 Note that you can fix the port in `orchestrator.properties files`, e.g. `orchestrator.container.port=9100`.
 
 > :warning: Please note that running ruling tests will remove `node_modules` from the root to avoid affecting the results. Run `npm ci` to put them back.
@@ -275,8 +273,8 @@ Make sure to run [Ruling ITs](#ruling-tests) for the new or updated rule (don't 
 
 If your rule does not raise any issue, you should write your own code that triggers your rule in:
 
-- `its/sources/file-for-rules/S1234.js` for code
-- `its/sources/file-for-rules/tests/S1234.js` for test code
+- `its/sources/jsts/custom/S1234.js` for code
+- `its/sources/jsts/custom/tests/S1234.js` for test code
 
 You can simply copy and paste compliant and non-compliant examples from your RSPEC HTML description.
 
