@@ -1,0 +1,26 @@
+{
+"expressionist.js:gulpfile.js": [
+0
+],
+"expressionist.js:karma.conf.js": [
+0
+],
+"expressionist.js:src/index.js": [
+0
+],
+"expressionist.js:src/types.js": [
+0
+],
+"expressionist.js:test-main.js": [
+0
+],
+"expressionist.js:test/lexer.spec.js": [
+0
+],
+"expressionist.js:test/parser.spec.js": [
+0
+],
+"expressionist.js:test/watch_parser.spec.js": [
+0
+]
+}

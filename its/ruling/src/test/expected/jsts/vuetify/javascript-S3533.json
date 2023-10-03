@@ -1,0 +1,70 @@
+{
+"vuetify:ecosystem-win.config.js": [
+4
+],
+"vuetify:eslint-local-rules.js": [
+2,
+5,
+59
+],
+"vuetify:packages/docs/build/sitemap.js": [
+1,
+2
+],
+"vuetify:packages/docs/jest.config.js": [
+1
+],
+"vuetify:packages/vuetify/babel.config.js": [
+1
+],
+"vuetify:packages/vuetify/build/run-tests.js": [
+2
+],
+"vuetify:packages/vuetify/jest.config.js": [
+1
+],
+"vuetify:packages/vuetify/postcss.config.js": [
+1
+],
+"vuetify:scripts/build.js": [
+1
+],
+"vuetify:scripts/confirm-npm-tag.js": [
+1,
+2,
+3,
+4
+],
+"vuetify:scripts/converter.js": [
+2,
+3,
+4,
+5
+],
+"vuetify:scripts/deploy-and-alias.js": [
+1
+],
+"vuetify:scripts/dev.js": [
+1
+],
+"vuetify:scripts/lint-commit-message.js": [
+1
+],
+"vuetify:scripts/parse-npm-tag.js": [
+1
+],
+"vuetify:scripts/post-install.js": [
+1,
+2,
+3
+],
+"vuetify:scripts/post-release-merge.js": [
+1
+],
+"vuetify:scripts/prepare-commit-message.js": [
+1
+],
+"vuetify:scripts/warn-npm-install.js": [
+1
+]
+}

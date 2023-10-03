@@ -21,7 +21,7 @@ package org.sonar.javascript.it;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.javascript.it.JavaScriptRulingTest.LITS_VERSION;
+import static org.sonar.javascript.it.JsTsRulingTest.LITS_VERSION;
 
 import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.junit5.OrchestratorExtension;
@@ -108,7 +108,7 @@ class CssRulingTest {
     ORCHESTRATOR.getServer().associateProjectToQualityProfile(PROJECT_KEY, "ts", "rules");
     File litsDifferencesFile = FileLocation.of("target/differences").getFile();
     SonarScanner build = SonarScanner
-      .create(FileLocation.of("../css-sources").getFile())
+      .create(FileLocation.of("../sources/css").getFile())
       .setProjectKey(PROJECT_KEY)
       .setProjectName(PROJECT_KEY)
       .setProjectVersion("1")

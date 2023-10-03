@@ -1,0 +1,22 @@
+{
+"sonar-web:test/medium/coding-rules.spec.js": [
+1,
+5
+],
+"sonar-web:test/medium/issues.spec.js": [
+1,
+5
+],
+"sonar-web:test/medium/quality-gates.spec.js": [
+1,
+5
+],
+"sonar-web:test/medium/quality-profiles.spec.js": [
+1,
+5
+],
+"sonar-web:test/medium/update-center.spec.js": [
+1,
+5
+]
+}

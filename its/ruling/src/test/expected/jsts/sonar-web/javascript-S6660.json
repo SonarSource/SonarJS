@@ -1,0 +1,11 @@
+{
+"sonar-web:src/main/js/components/common/select-list.js": [
+258
+],
+"sonar-web:src/main/js/components/navigator/controller.js": [
+116
+],
+"sonar-web:src/main/js/components/navigator/filters/metric-filters.js": [
+38
+]
+}

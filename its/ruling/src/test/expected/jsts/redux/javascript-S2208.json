@@ -1,0 +1,39 @@
+{
+"redux:examples/counter/containers/App.js": [
+4
+],
+"redux:examples/counter/test/actions/counter.spec.js": [
+4
+],
+"redux:examples/real-world/reducers/index.js": [
+1
+],
+"redux:examples/shopping-cart/actions/index.js": [
+2
+],
+"redux:examples/todomvc/actions/todos.js": [
+1
+],
+"redux:examples/todomvc/containers/App.js": [
+6
+],
+"redux:examples/todomvc/test/actions/todos.spec.js": [
+2,
+3
+],
+"redux:examples/todomvc/test/reducers/todos.spec.js": [
+3
+],
+"redux:examples/universal/common/containers/App.js": [
+4
+],
+"redux:test/createStore.spec.js": [
+4
+],
+"redux:test/utils/applyMiddleware.spec.js": [
+3
+],
+"redux:test/utils/bindActionCreators.spec.js": [
+4
+]
+}

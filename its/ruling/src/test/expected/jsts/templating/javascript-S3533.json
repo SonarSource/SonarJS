@@ -1,0 +1,34 @@
+{
+"templating:gulpfile.js": [
+1,
+2,
+4,
+5,
+6,
+8,
+10,
+11,
+110
+],
+"templating:karma.conf.js": [
+1
+],
+"templating:protractor-shared.conf.js": [
+1
+],
+"templating:protractor-travis.conf.js": [
+1
+],
+"templating:protractor.conf.js": [
+1
+],
+"templating:scripts/read-pkg-url.js": [
+3
+],
+"templating:test/example/tab.spec.js": [
+1
+],
+"templating:test/example/video.spec.js": [
+1
+]
+}

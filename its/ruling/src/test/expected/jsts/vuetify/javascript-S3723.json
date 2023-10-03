@@ -1,0 +1,53 @@
+{
+"vuetify:eslint-local-rules.js": [
+100
+],
+"vuetify:packages/docs/src/components/app/bar/ThemeToggle.vue": [
+26
+],
+"vuetify:packages/docs/src/service-worker.js": [
+16,
+21,
+34,
+78,
+83
+],
+"vuetify:packages/vuetify/babel.config.js": [
+5
+],
+"vuetify:packages/vuetify/build/babel-plugin-replace-import-extension.js": [
+18
+],
+"vuetify:packages/vuetify/build/rollup.config.js": [
+90,
+111,
+137,
+172,
+228,
+248,
+290,
+294,
+295
+],
+"vuetify:packages/vuetify/build/rollup.types.config.js": [
+21,
+41,
+47
+],
+"vuetify:packages/vuetify/postcss.config.js": [
+6,
+7,
+8
+],
+"vuetify:packages/vuetify/vite.config.mjs": [
+40,
+41,
+54,
+55,
+56,
+65
+],
+"vuetify:scripts/post-install.js": [
+11
+]
+}

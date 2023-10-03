@@ -1,0 +1,11 @@
+{
+"redux:examples/real-world/reducers/index.js": [
+9
+],
+"redux:src/utils/combineReducers.js": [
+9
+],
+"redux:test/utils/combineReducers.spec.js": [
+37
+]
+}

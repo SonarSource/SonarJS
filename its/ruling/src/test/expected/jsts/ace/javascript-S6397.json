@@ -1,0 +1,105 @@
+{
+"ace:demo/kitchen-sink/demo.js": [
+392
+],
+"ace:demo/kitchen-sink/util.js": [
+14
+],
+"ace:src/editor.js": [
+1591,
+1741,
+1748
+],
+"ace:src/ext/beautify.js": [
+156
+],
+"ace:src/keyboard/sublime.js": [
+36
+],
+"ace:src/keyboard/vim.js": [
+1278,
+1297,
+6118
+],
+"ace:src/mode/apex_highlight_rules.js": [
+120,
+159
+],
+"ace:src/mode/asciidoc.js": [
+19
+],
+"ace:src/mode/folding/fold_mode_test.js": [
+38
+],
+"ace:src/mode/gobstones_highlight_rules.js": [
+27
+],
+"ace:src/mode/json5_highlight_rules.js": [
+14,
+14
+],
+"ace:src/mode/json_highlight_rules.js": [
+46
+],
+"ace:src/mode/kotlin_highlight_rules.js": [
+45,
+69,
+81
+],
+"ace:src/mode/latte_highlight_rules.js": [
+106
+],
+"ace:src/mode/mediawiki_highlight_rules.js": [
+37,
+111,
+121,
+160,
+342
+],
+"ace:src/mode/mips_highlight_rules.js": [
+80
+],
+"ace:src/mode/nginx_highlight_rules.js": [
+88,
+88,
+91,
+94
+],
+"ace:src/mode/nim_highlight_rules.js": [
+43
+],
+"ace:src/mode/nunjucks_highlight_rules.js": [
+137
+],
+"ace:src/mode/php_completions.js": [
+10389,
+10436
+],
+"ace:src/mode/php_highlight_rules.js": [
+1022
+],
+"ace:src/mode/prisma_highlight_rules.js": [
+39,
+63,
+87
+],
+"ace:src/mode/ruby_highlight_rules.js": [
+39,
+39,
+49,
+49,
+54,
+152,
+245,
+558
+],
+"ace:src/mode/scrypt_highlight_rules.js": [
+99
+],
+"ace:src/tokenizer_test.js": [
+43
+],
+"ace:tool/regexp_tokenizer.js": [
+35
+]
+}

@@ -1,0 +1,80 @@
+{
+"ace:src/editor_text_edit_test.js": [
+24,
+29,
+34,
+39,
+51,
+61,
+72,
+76,
+89,
+101,
+112,
+121,
+133,
+142,
+156,
+169,
+188,
+203,
+237,
+243,
+250,
+264,
+270,
+284,
+290,
+302,
+317,
+332,
+336,
+346,
+354,
+358,
+363,
+368,
+374,
+378,
+382,
+386,
+395,
+404,
+415
+],
+"ace:src/mode/coldfusion_test.js": [
+22
+],
+"ace:src/mode/css_test.js": [
+23
+],
+"ace:src/mode/html_test.js": [
+22
+],
+"ace:src/mode/javascript_test.js": [
+31,
+39,
+47,
+57,
+64,
+67,
+75,
+82,
+89,
+96,
+99,
+101,
+105,
+110,
+114
+],
+"ace:src/mode/logiql_test.js": [
+20
+],
+"ace:src/mode/text_test.js": [
+20
+],
+"ace:src/mode/xml_test.js": [
+30
+]
+}

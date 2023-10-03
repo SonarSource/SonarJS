@@ -1,0 +1,171 @@
+{
+"templating:gulpfile.js": [
+1,
+2,
+4,
+5,
+6,
+8,
+10,
+11,
+13,
+35,
+40,
+75,
+110,
+111,
+120,
+130,
+131
+],
+"templating:karma.conf.js": [
+1
+],
+"templating:protractor-travis.conf.js": [
+1
+],
+"templating:protractor.conf.js": [
+1
+],
+"templating:scripts/read-pkg-url.js": [
+3,
+4,
+5,
+6
+],
+"templating:src/lib/di/ce_di.js": [
+4,
+5,
+6,
+7,
+14,
+25,
+36,
+59,
+60,
+63,
+65
+],
+"templating:src/lib/di/ce_di_bootstrap.js": [
+6,
+9
+],
+"templating:src/lib/load_barrier.js": [
+23,
+29,
+33,
+45,
+57,
+64,
+75,
+101,
+102,
+105
+],
+"templating:src/lib/types.js": [
+3,
+10,
+12,
+17,
+21,
+25,
+29,
+35,
+43,
+57,
+64,
+73,
+75,
+77
+],
+"templating:src/lib/util/module_annotator.js": [
+5,
+6
+],
+"templating:src/util/ng_polymer.js": [
+4,
+5,
+6,
+9,
+23,
+24,
+25,
+28,
+29,
+32
+],
+"templating:test/example/greet.spec.js": [
+14,
+21,
+28,
+37,
+38
+],
+"templating:test/example/ngmodel.spec.js": [
+18,
+26
+],
+"templating:test/example/shadow-dom-util.js": [
+10,
+21,
+22,
+23
+],
+"templating:test/example/tab.spec.js": [
+1,
+45,
+46,
+58,
+60,
+72,
+82
+],
+"templating:test/example/todo.spec.js": [
+12
+],
+"templating:test/example/video.spec.js": [
+1
+],
+"templating:test/lib/compiler/compiler.spec.js": [
+9,
+16,
+17,
+90,
+167,
+176,
+239,
+257,
+269,
+285,
+286,
+291,
+298,
+304,
+307,
+308,
+310,
+322,
+323,
+338,
+348
+],
+"templating:test/lib/dom_mocks.js": [
+2,
+23,
+24,
+35
+],
+"templating:test/lib/util/document_ready.spec.js": [
+6
+],
+"templating:test/lib/util/tree_array.spec.js": [
+6,
+16,
+23
+],
+"templating:test/unit-test-main.js": [
+1,
+2,
+4
+]
+}

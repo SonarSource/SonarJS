@@ -1,0 +1,4100 @@
+{
+"vuetify:ecosystem-win.config.js": [
+4,
+6,
+7,
+11,
+13,
+15,
+16,
+43
+],
+"vuetify:ecosystem-wsl.config.js": [
+31
+],
+"vuetify:ecosystem.config.js": [
+25
+],
+"vuetify:eslint-local-rules.js": [
+1,
+2,
+10,
+16,
+20,
+35,
+39,
+42,
+44,
+52,
+54,
+56,
+67,
+72,
+82,
+83,
+85,
+88,
+101,
+105,
+114,
+116,
+119,
+122
+],
+"vuetify:jest.config.js": [
+47
+],
+"vuetify:packages/api-generator/babel.config.js": [
+9
+],
+"vuetify:packages/docs/build/sitemap.js": [
+1,
+2,
+6,
+8,
+10,
+12,
+13,
+14,
+21,
+27,
+29,
+33
+],
+"vuetify:packages/docs/jest-runner-eslint.config.js": [
+7
+],
+"vuetify:packages/docs/jest.config.js": [
+1,
+3,
+20
+],
+"vuetify:packages/docs/src/components/Alert.vue": [
+17
+],
+"vuetify:packages/docs/src/components/Backmatter.vue": [
+37,
+38,
+39,
+42,
+45,
+47
+],
+"vuetify:packages/docs/src/components/about/TeamMembers.vue": [
+23,
+26,
+29,
+31,
+32,
+33
+],
+"vuetify:packages/docs/src/components/api/NameCell.vue": [
+18
+],
+"vuetify:packages/docs/src/components/app/BackToTop.vue": [
+26,
+28,
+31,
+38
+],
+"vuetify:packages/docs/src/components/app/Btn.vue": [
+24,
+33,
+35
+],
+"vuetify:packages/docs/src/components/app/Caption.vue": [
+16
+],
+"vuetify:packages/docs/src/components/app/Figure.vue": [
+21,
+23,
+27,
+29,
+35
+],
+"vuetify:packages/docs/src/components/app/Heading.vue": [
+24,
+32,
+38,
+40,
+41
+],
+"vuetify:packages/docs/src/components/app/Headline.vue": [
+12,
+32,
+34
+],
+"vuetify:packages/docs/src/components/app/Markdown.vue": [
+9,
+10,
+11,
+17,
+20,
+23,
+25,
+28,
+32,
+34,
+36,
+40,
+45,
+46,
+48,
+49,
+50,
+53,
+54,
+55,
+58,
+59,
+60,
+61,
+64,
+65,
+66,
+67,
+70,
+71,
+73,
+75,
+76,
+77,
+79,
+80,
+81,
+83,
+84,
+86,
+87,
+88,
+89,
+92,
+96,
+104,
+106
+],
+"vuetify:packages/docs/src/components/app/PwaSnackbar.vue": [
+35,
+37
+],
+"vuetify:packages/docs/src/components/app/Table.vue": [
+14
+],
+"vuetify:packages/docs/src/components/app/V2Banner.vue": [
+38,
+39,
+40,
+42,
+45,
+47,
+48,
+51
+],
+"vuetify:packages/docs/src/components/app/bar/Bar.vue": [
+57,
+58,
+59,
+60,
+61,
+62,
+63,
+64,
+65,
+66,
+67,
+68,
+69,
+70,
+71,
+72,
+75,
+76,
+77,
+79,
+80,
+81
+],
+"vuetify:packages/docs/src/components/app/bar/EcosystemMenu.vue": [
+17,
+20,
+23,
+24,
+26,
+88
+],
+"vuetify:packages/docs/src/components/app/bar/EnterpriseLink.vue": [
+23,
+24,
+27,
+28,
+30,
+31
+],
+"vuetify:packages/docs/src/components/app/bar/JobsLink.vue": [
+27,
+30,
+31,
+34,
+35,
+37,
+38,
+39,
+40,
+45,
+46,
+53
+],
+"vuetify:packages/docs/src/components/app/bar/Logo.vue": [
+19,
+20,
+23,
+24,
+28,
+30,
+31,
+32,
+35,
+36,
+38,
+39
+],
+"vuetify:packages/docs/src/components/app/bar/PlaygroundLink.vue": [
+16,
+17,
+19,
+20,
+27
+],
+"vuetify:packages/docs/src/components/app/bar/SettingsToggle.vue": [
+14,
+15,
+18,
+20,
+21,
+24,
+26,
+30,
+32
+],
+"vuetify:packages/docs/src/components/app/bar/SponsorLink.vue": [
+14,
+15,
+18,
+20,
+21,
+28
+],
+"vuetify:packages/docs/src/components/app/bar/StoreLink.vue": [
+15,
+18,
+19,
+21,
+22,
+29
+],
+"vuetify:packages/docs/src/components/app/bar/SupportMenu.vue": [
+20,
+23,
+26,
+27,
+29,
+30,
+80
+],
+"vuetify:packages/docs/src/components/app/bar/TeamLink.vue": [
+14,
+15,
+18,
+20,
+21,
+28
+],
+"vuetify:packages/docs/src/components/app/bar/ThemeToggle.vue": [
+12,
+13,
+14,
+17,
+18,
+20,
+21,
+22,
+27,
+30,
+31
+],
+"vuetify:packages/docs/src/components/app/drawer/Drawer.vue": [
+42,
+45,
+46,
+49,
+50,
+52,
+53,
+56,
+58,
+60,
+66,
+67
+],
+"vuetify:packages/docs/src/components/app/settings/Api.vue": [
+7,
+10,
+13,
+15,
+25
+],
+"vuetify:packages/docs/src/components/app/settings/Dev.vue": [
+14,
+16,
+20,
+23
+],
+"vuetify:packages/docs/src/components/app/settings/Drawer.vue": [
+47,
+48,
+49,
+50,
+53,
+54,
+56,
+57
+],
+"vuetify:packages/docs/src/components/app/settings/Rtl.vue": [
+7,
+10,
+13,
+15,
+25
+],
+"vuetify:packages/docs/src/components/doc/Contribute.vue": [
+14,
+15,
+18,
+19,
+21,
+22,
+25,
+26,
+28,
+29
+],
+"vuetify:packages/docs/src/components/doc/RelatedPage.vue": [
+24,
+27,
+30,
+31,
+32,
+34,
+35,
+36,
+37,
+38,
+39,
+40,
+41
+],
+"vuetify:packages/docs/src/components/doc/RelatedPages.vue": [
+20,
+23,
+25
+],
+"vuetify:packages/docs/src/components/doc/UpNext.vue": [
+46,
+47,
+48,
+51,
+52,
+54,
+55,
+56,
+57,
+58,
+60,
+62,
+64,
+66,
+67,
+69,
+71,
+73,
+74,
+76,
+80
+],
+"vuetify:packages/docs/src/components/doc/VueJobs.vue": [
+89,
+90,
+92,
+93
+],
+"vuetify:packages/docs/src/components/doc/VuetifyUiKits.vue": [
+43,
+44,
+46,
+48,
+53,
+56,
+63,
+64,
+65
+],
+"vuetify:packages/docs/src/components/examples/ExampleMissing.vue": [
+9,
+16,
+18
+],
+"vuetify:packages/docs/src/components/examples/Usage.vue": [
+10
+],
+"vuetify:packages/docs/src/components/examples/UsageExample.vue": [
+116,
+117,
+120,
+121,
+135,
+136,
+138,
+139,
+140,
+142,
+143,
+145,
+146,
+150,
+153,
+155
+],
+"vuetify:packages/docs/src/components/examples/VueFile.vue": [
+10,
+11,
+18,
+20,
+22,
+26,
+27,
+29
+],
+"vuetify:packages/docs/src/components/features/BreakpointsTable.vue": [
+78,
+116,
+123,
+125
+],
+"vuetify:packages/docs/src/components/features/ColorPalette.vue": [
+71,
+72,
+84,
+85,
+88,
+91,
+93,
+95,
+101,
+103,
+105,
+107,
+113,
+115,
+118
+],
+"vuetify:packages/docs/src/components/getting-started/WireframeExamples.vue": [
+32,
+43
+],
+"vuetify:packages/docs/src/components/home/ActionBtns.vue": [
+24,
+26,
+57,
+58
+],
+"vuetify:packages/docs/src/components/home/Footer.vue": [
+78,
+80,
+94,
+116
+],
+"vuetify:packages/docs/src/components/home/Logo.vue": [
+13,
+16,
+20,
+22,
+25,
+26
+],
+"vuetify:packages/docs/src/components/home/Sponsors.vue": [
+39,
+40,
+43,
+46,
+48,
+54,
+56,
+59,
+60,
+61,
+67
+],
+"vuetify:packages/docs/src/components/introduction/DirectSupport.vue": [
+64
+],
+"vuetify:packages/docs/src/components/promoted/Base.vue": [
+19,
+22,
+30,
+32,
+35,
+36,
+37,
+39,
+40,
+43,
+44,
+50
+],
+"vuetify:packages/docs/src/components/promoted/Inline.vue": [
+15,
+17,
+19
+],
+"vuetify:packages/docs/src/components/promoted/Promoted.vue": [
+46,
+49,
+50,
+53,
+62,
+64,
+65,
+67,
+70,
+73,
+74,
+75,
+78,
+80,
+86,
+93
+],
+"vuetify:packages/docs/src/components/promoted/Vuetify.vue": [
+28,
+31,
+37,
+39
+],
+"vuetify:packages/docs/src/components/sponsor/Card.vue": [
+27,
+28,
+29,
+30,
+33,
+41,
+43,
+44,
+45,
+46,
+47,
+55,
+57,
+58,
+59,
+62,
+63,
+64,
+66,
+67,
+71,
+73,
+74,
+78,
+80,
+86
+],
+"vuetify:packages/docs/src/components/sponsor/Link.vue": [
+19,
+20,
+21,
+24,
+28,
+30,
+31,
+32,
+41,
+42
+],
+"vuetify:packages/docs/src/examples/accessibility/list-item-group.vue": [
+39
+],
+"vuetify:packages/docs/src/examples/accessibility/menu.vue": [
+37
+],
+"vuetify:packages/docs/src/examples/application-layout/dynamic.vue": [
+20
+],
+"vuetify:packages/docs/src/examples/application-layout/layout-information-composable.vue": [
+24,
+28,
+31,
+34,
+36,
+40
+],
+"vuetify:packages/docs/src/examples/application-layout/layout-information-ref.vue": [
+26,
+29
+],
+"vuetify:packages/docs/src/examples/application/theme.vue": [
+23,
+25,
+28
+],
+"vuetify:packages/docs/src/examples/blueprints/md1.vue": [
+42,
+44
+],
+"vuetify:packages/docs/src/examples/blueprints/md2.vue": [
+42,
+44
+],
+"vuetify:packages/docs/src/examples/blueprints/md3.vue": [
+42,
+44
+],
+"vuetify:packages/docs/src/examples/border-radius/usage.vue": [
+37
+],
+"vuetify:packages/docs/src/examples/display/hidden-elements.vue": [
+32,
+34
+],
+"vuetify:packages/docs/src/examples/grid/misc-row-and-column-breakpoints.vue": [
+26,
+27,
+30
+],
+"vuetify:packages/docs/src/examples/grid/prop-align.vue": [
+96
+],
+"vuetify:packages/docs/src/examples/grid/prop-justify.vue": [
+76
+],
+"vuetify:packages/docs/src/examples/scroll/usage.vue": [
+97,
+112,
+116,
+117,
+118,
+125,
+128,
+129,
+130,
+133
+],
+"vuetify:packages/docs/src/examples/sizing/height.vue": [
+10
+],
+"vuetify:packages/docs/src/examples/sizing/width.vue": [
+10
+],
+"vuetify:packages/docs/src/examples/spacing/negative-margin.vue": [
+26
+],
+"vuetify:packages/docs/src/examples/spacing/usage.vue": [
+92,
+93,
+94,
+105,
+110,
+113,
+116
+],
+"vuetify:packages/docs/src/examples/text-and-typography/typography.vue": [
+32
+],
+"vuetify:packages/docs/src/examples/transitions/misc-expand-x.vue": [
+55
+],
+"vuetify:packages/docs/src/examples/transitions/misc-todo.vue": [
+119,
+122,
+125,
+134,
+136,
+139
+],
+"vuetify:packages/docs/src/examples/v-alert/prop-closable.vue": [
+36
+],
+"vuetify:packages/docs/src/examples/v-alert/usage.vue": [
+50,
+51,
+53,
+54,
+55,
+56,
+57,
+58,
+59,
+60,
+69,
+70,
+73,
+74,
+77,
+78
+],
+"vuetify:packages/docs/src/examples/v-app-bar/misc-app-bar-nav.vue": [
+45
+],
+"vuetify:packages/docs/src/examples/v-app-bar/prop-collapse.vue": [
+38
+],
+"vuetify:packages/docs/src/examples/v-app-bar/usage.vue": [
+38,
+39,
+41,
+42,
+43,
+44,
+45,
+52,
+53,
+56,
+67,
+70,
+71,
+74,
+75
+],
+"vuetify:packages/docs/src/examples/v-autocomplete/misc-asynchronous-items.vue": [
+91,
+95,
+100,
+104,
+105,
+106,
+107,
+110
+],
+"vuetify:packages/docs/src/examples/v-autocomplete/misc-state-selector.vue": [
+56,
+58
+],
+"vuetify:packages/docs/src/examples/v-autocomplete/prop-density.vue": [
+42
+],
+"vuetify:packages/docs/src/examples/v-autocomplete/prop-filter.vue": [
+88,
+89,
+90,
+93,
+96,
+97,
+100
+],
+"vuetify:packages/docs/src/examples/v-autocomplete/slot-item-and-selection.vue": [
+151,
+174,
+179,
+182,
+189,
+190,
+193
+],
+"vuetify:packages/docs/src/examples/v-autocomplete/usage.vue": [
+24,
+25,
+27,
+28,
+29,
+30,
+31,
+32,
+41,
+42,
+45,
+46,
+49,
+50
+],
+"vuetify:packages/docs/src/examples/v-avatar/misc-advanced.vue": [
+113
+],
+"vuetify:packages/docs/src/examples/v-avatar/misc-avatar-menu.vue": [
+67
+],
+"vuetify:packages/docs/src/examples/v-avatar/usage.vue": [
+33,
+34,
+36,
+37,
+38,
+39,
+40,
+48,
+49,
+52,
+53,
+56,
+57
+],
+"vuetify:packages/docs/src/examples/v-badge/misc-dynamic.vue": [
+40,
+42
+],
+"vuetify:packages/docs/src/examples/v-badge/misc-hover.vue": [
+28
+],
+"vuetify:packages/docs/src/examples/v-badge/usage.vue": [
+33,
+34,
+36,
+37,
+38,
+39,
+40,
+47,
+48,
+53,
+54,
+57,
+58
+],
+"vuetify:packages/docs/src/examples/v-banner/prop-sticky.vue": [
+58
+],
+"vuetify:packages/docs/src/examples/v-banner/usage.vue": [
+49,
+50,
+52,
+53,
+54,
+55,
+56,
+57,
+58,
+59,
+69,
+70,
+77,
+78,
+81,
+82
+],
+"vuetify:packages/docs/src/examples/v-bottom-navigation/prop-color.vue": [
+32
+],
+"vuetify:packages/docs/src/examples/v-bottom-navigation/prop-grow.vue": [
+32
+],
+"vuetify:packages/docs/src/examples/v-bottom-navigation/prop-horizontal.vue": [
+33
+],
+"vuetify:packages/docs/src/examples/v-bottom-navigation/prop-shift.vue": [
+43,
+44,
+45,
+46,
+47,
+51
+],
+"vuetify:packages/docs/src/examples/v-bottom-navigation/prop-toggle.vue": [
+42
+],
+"vuetify:packages/docs/src/examples/v-bottom-navigation/usage.vue": [
+38,
+39,
+41,
+42,
+43,
+44,
+51,
+52,
+55,
+75,
+77,
+78,
+81,
+82
+],
+"vuetify:packages/docs/src/examples/v-bottom-sheet/misc-open-in-list.vue": [
+51
+],
+"vuetify:packages/docs/src/examples/v-bottom-sheet/prop-inset.vue": [
+42
+],
+"vuetify:packages/docs/src/examples/v-bottom-sheet/prop-model.vue": [
+36
+],
+"vuetify:packages/docs/src/examples/v-bottom-sheet/prop-persistent.vue": [
+42
+],
+"vuetify:packages/docs/src/examples/v-bottom-sheet/usage.vue": [
+56
+],
+"vuetify:packages/docs/src/examples/v-breadcrumbs/prop-divider.vue": [
+36
+],
+"vuetify:packages/docs/src/examples/v-breadcrumbs/prop-large.vue": [
+33
+],
+"vuetify:packages/docs/src/examples/v-breadcrumbs/slot-icon-dividers.vue": [
+38
+],
+"vuetify:packages/docs/src/examples/v-breadcrumbs/slot-prepend.vue": [
+30
+],
+"vuetify:packages/docs/src/examples/v-breadcrumbs/slot-title.vue": [
+30
+],
+"vuetify:packages/docs/src/examples/v-breadcrumbs/usage.vue": [
+30,
+31,
+33,
+34,
+35,
+36,
+41,
+42,
+45,
+46,
+49,
+50
+],
+"vuetify:packages/docs/src/examples/v-btn-fab/misc-display-animation.vue": [
+63
+],
+"vuetify:packages/docs/src/examples/v-btn-fab/misc-lateral-screens.vue": [
+77,
+78,
+79,
+80,
+84
+],
+"vuetify:packages/docs/src/examples/v-btn-fab/misc-small.vue": [
+150,
+152
+],
+"vuetify:packages/docs/src/examples/v-btn-fab/misc-speed-dial.vue": [
+176,
+179,
+182,
+185,
+188
+],
+"vuetify:packages/docs/src/examples/v-btn-fab/usage.vue": [
+74
+],
+"vuetify:packages/docs/src/examples/v-btn-toggle/misc-toolbar.vue": [
+103,
+105
+],
+"vuetify:packages/docs/src/examples/v-btn-toggle/misc-wysiwyg.vue": [
+80
+],
+"vuetify:packages/docs/src/examples/v-btn-toggle/prop-divided.vue": [
+20
+],
+"vuetify:packages/docs/src/examples/v-btn-toggle/prop-mandatory.vue": [
+22,
+24
+],
+"vuetify:packages/docs/src/examples/v-btn-toggle/prop-multiple.vue": [
+22,
+24
+],
+"vuetify:packages/docs/src/examples/v-btn-toggle/prop-variant.vue": [
+57
+],
+"vuetify:packages/docs/src/examples/v-btn-toggle/usage.vue": [
+201,
+203
+],
+"vuetify:packages/docs/src/examples/v-btn/prop-loaders.vue": [
+51,
+55,
+56,
+59
+],
+"vuetify:packages/docs/src/examples/v-btn/usage.vue": [
+24,
+25,
+27,
+28,
+29,
+30,
+31,
+32,
+33,
+34,
+42,
+43,
+45,
+50,
+51,
+54,
+55
+],
+"vuetify:packages/docs/src/examples/v-calendar/event-click.vue": [
+151,
+155,
+156,
+159,
+162,
+165,
+168,
+172,
+173,
+174,
+175,
+178,
+179,
+181,
+184,
+187,
+189,
+190,
+191,
+192,
+195,
+196,
+197,
+198,
+199,
+207,
+210,
+213,
+216
+],
+"vuetify:packages/docs/src/examples/v-calendar/misc-drag-and-drop.vue": [
+52,
+53,
+54,
+58,
+61,
+63,
+65,
+72,
+74,
+78,
+79,
+80,
+83,
+86,
+87,
+88,
+89,
+90,
+91,
+93,
+94,
+96,
+97,
+98,
+100,
+101,
+105,
+106,
+107,
+108,
+109,
+114,
+116,
+118,
+123,
+124,
+125,
+126,
+129,
+130,
+134,
+137,
+140,
+141,
+142,
+143,
+149,
+152,
+154,
+155,
+156,
+157,
+160,
+161,
+162,
+163,
+164,
+172,
+175,
+178,
+181,
+184
+],
+"vuetify:packages/docs/src/examples/v-calendar/prop-type-category.vue": [
+71,
+75,
+78,
+81,
+84,
+87,
+89,
+90,
+91,
+92,
+95,
+96,
+97,
+98,
+99,
+108,
+111,
+114,
+117
+],
+"vuetify:packages/docs/src/examples/v-calendar/prop-type-day.vue": [
+26
+],
+"vuetify:packages/docs/src/examples/v-calendar/prop-type-week.vue": [
+40,
+42
+],
+"vuetify:packages/docs/src/examples/v-calendar/slot-day-body.vue": [
+31,
+34,
+38,
+39,
+40,
+44,
+47,
+48,
+50,
+53,
+56
+],
+"vuetify:packages/docs/src/examples/v-calendar/slot-day.vue": [
+51
+],
+"vuetify:packages/docs/src/examples/v-calendar/usage.vue": [
+88,
+90,
+91,
+92,
+93,
+96,
+97,
+98,
+99,
+100,
+108,
+111,
+114,
+117,
+120
+],
+"vuetify:packages/docs/src/examples/v-card/misc-card-reveal.vue": [
+58
+],
+"vuetify:packages/docs/src/examples/v-card/misc-content-wrapping.vue": [
+79
+],
+"vuetify:packages/docs/src/examples/v-card/misc-custom-actions.vue": [
+53
+],
+"vuetify:packages/docs/src/examples/v-card/misc-grids.vue": [
+75
+],
+"vuetify:packages/docs/src/examples/v-card/misc-information-card.vue": [
+29
+],
+"vuetify:packages/docs/src/examples/v-card/misc-intermediate.vue": [
+46
+],
+"vuetify:packages/docs/src/examples/v-card/misc-twitter-card.vue": [
+50
+],
+"vuetify:packages/docs/src/examples/v-card/misc-weather-card.vue": [
+106
+],
+"vuetify:packages/docs/src/examples/v-card/prop-loading.vue": [
+99,
+101,
+104
+],
+"vuetify:packages/docs/src/examples/v-card/prop-outlined.vue": [
+28
+],
+"vuetify:packages/docs/src/examples/v-card/usage.vue": [
+35,
+36,
+38,
+39,
+40,
+41,
+42,
+43,
+44,
+52,
+53,
+56,
+63,
+66,
+67,
+70,
+71
+],
+"vuetify:packages/docs/src/examples/v-carousel/prop-custom-icons.vue": [
+52,
+54
+],
+"vuetify:packages/docs/src/examples/v-carousel/prop-custom-transition.vue": [
+32,
+34
+],
+"vuetify:packages/docs/src/examples/v-carousel/prop-cycle.vue": [
+44,
+46
+],
+"vuetify:packages/docs/src/examples/v-carousel/prop-hide-controls.vue": [
+30,
+32
+],
+"vuetify:packages/docs/src/examples/v-carousel/prop-hide-delimiters.vue": [
+30,
+32
+],
+"vuetify:packages/docs/src/examples/v-carousel/prop-model.vue": [
+50,
+52
+],
+"vuetify:packages/docs/src/examples/v-carousel/prop-progress.vue": [
+35,
+37
+],
+"vuetify:packages/docs/src/examples/v-carousel/slots-next-prev.vue": [
+57,
+59
+],
+"vuetify:packages/docs/src/examples/v-carousel/usage.vue": [
+31,
+32,
+34,
+35,
+36,
+41,
+42,
+60,
+61,
+64,
+65
+],
+"vuetify:packages/docs/src/examples/v-checkbox/misc-inline-textfield.vue": [
+35
+],
+"vuetify:packages/docs/src/examples/v-checkbox/prop-colors.vue": [
+138,
+140
+],
+"vuetify:packages/docs/src/examples/v-checkbox/prop-model-as-array.vue": [
+22,
+24
+],
+"vuetify:packages/docs/src/examples/v-checkbox/prop-model-as-boolean.vue": [
+20,
+22
+],
+"vuetify:packages/docs/src/examples/v-checkbox/slot-label.vue": [
+32,
+34
+],
+"vuetify:packages/docs/src/examples/v-checkbox/usage.vue": [
+16,
+17,
+19,
+20,
+21,
+25,
+26,
+29,
+30,
+33,
+34
+],
+"vuetify:packages/docs/src/examples/v-chip-group/misc-product-card.vue": [
+57
+],
+"vuetify:packages/docs/src/examples/v-chip-group/misc-toothbrush-card.vue": [
+52
+],
+"vuetify:packages/docs/src/examples/v-chip-group/prop-column.vue": [
+62
+],
+"vuetify:packages/docs/src/examples/v-chip-group/prop-filter.vue": [
+123
+],
+"vuetify:packages/docs/src/examples/v-chip-group/prop-mandatory.vue": [
+39
+],
+"vuetify:packages/docs/src/examples/v-chip-group/prop-multiple.vue": [
+39
+],
+"vuetify:packages/docs/src/examples/v-chip-group/usage.vue": [
+22,
+23,
+25,
+26,
+27,
+31,
+32,
+41,
+42,
+45,
+46
+],
+"vuetify:packages/docs/src/examples/v-chip/misc-custom-list.vue": [
+135,
+138,
+140,
+143,
+145,
+146,
+149,
+152,
+155,
+161,
+167,
+170,
+171,
+172,
+173,
+176
+],
+"vuetify:packages/docs/src/examples/v-chip/misc-expandable.vue": [
+90
+],
+"vuetify:packages/docs/src/examples/v-chip/misc-filtering.vue": [
+110,
+112,
+115,
+118,
+121,
+123,
+126,
+128,
+129,
+132
+],
+"vuetify:packages/docs/src/examples/v-chip/misc-in-selects.vue": [
+33,
+38,
+41
+],
+"vuetify:packages/docs/src/examples/v-chip/prop-closable.vue": [
+29,
+31
+],
+"vuetify:packages/docs/src/examples/v-chip/prop-filter.vue": [
+44
+],
+"vuetify:packages/docs/src/examples/v-chip/slot-icon.vue": [
+74,
+77
+],
+"vuetify:packages/docs/src/examples/v-chip/usage.vue": [
+30,
+31,
+33,
+34,
+35,
+36,
+37,
+38,
+39,
+40,
+41,
+50,
+51,
+53,
+55,
+60,
+61,
+64,
+65
+],
+"vuetify:packages/docs/src/examples/v-click-outside/option-close-on-outside-click.vue": [
+31,
+34,
+37
+],
+"vuetify:packages/docs/src/examples/v-click-outside/option-include.vue": [
+48,
+51,
+54
+],
+"vuetify:packages/docs/src/examples/v-click-outside/usage.vue": [
+27,
+30
+],
+"vuetify:packages/docs/src/examples/v-color-picker/prop-canvas.vue": [
+24
+],
+"vuetify:packages/docs/src/examples/v-color-picker/prop-elevation.vue": [
+20,
+22
+],
+"vuetify:packages/docs/src/examples/v-color-picker/prop-mode.vue": [
+29
+],
+"vuetify:packages/docs/src/examples/v-color-picker/prop-model.vue": [
+39
+],
+"vuetify:packages/docs/src/examples/v-color-picker/prop-swatches.vue": [
+27
+],
+"vuetify:packages/docs/src/examples/v-color-picker/usage.vue": [
+22,
+23,
+25,
+26,
+27,
+28,
+29,
+36,
+37,
+40,
+41,
+44,
+45
+],
+"vuetify:packages/docs/src/examples/v-combobox/misc-advanced.vue": [
+115,
+122,
+124,
+126,
+129,
+130,
+137,
+138,
+140,
+141,
+145,
+147,
+149,
+150,
+154,
+157
+],
+"vuetify:packages/docs/src/examples/v-combobox/prop-density.vue": [
+40
+],
+"vuetify:packages/docs/src/examples/v-combobox/prop-multiple.vue": [
+72,
+74
+],
+"vuetify:packages/docs/src/examples/v-combobox/slot-no-data.vue": [
+37,
+41
+],
+"vuetify:packages/docs/src/examples/v-combobox/usage.vue": [
+24,
+25,
+27,
+28,
+29,
+30,
+31,
+32,
+40,
+41,
+44,
+45,
+48,
+49
+],
+"vuetify:packages/docs/src/examples/v-data-iterator/misc-filter.vue": [
+287,
+291,
+294,
+299,
+302,
+305,
+308
+],
+"vuetify:packages/docs/src/examples/v-data-iterator/slot-default.vue": [
+137
+],
+"vuetify:packages/docs/src/examples/v-data-iterator/slot-header-and-footer.vue": [
+154
+],
+"vuetify:packages/docs/src/examples/v-data-iterator/usage.vue": [
+301,
+304
+],
+"vuetify:packages/docs/src/examples/v-data-table/misc-crud.vue": [
+191,
+197,
+200,
+205,
+281,
+285,
+286,
+287,
+291,
+292,
+293,
+297,
+298,
+302,
+304,
+305,
+306,
+310,
+312,
+313,
+314,
+319,
+321,
+323,
+326
+],
+"vuetify:packages/docs/src/examples/v-data-table/misc-edit-dialog.vue": [
+179,
+183,
+184,
+185,
+188,
+189,
+190,
+193,
+194,
+195,
+198,
+201
+],
+"vuetify:packages/docs/src/examples/v-data-table/misc-expand.vue": [
+127,
+129
+],
+"vuetify:packages/docs/src/examples/v-data-table/misc-external-paginate.vue": [
+136,
+138
+],
+"vuetify:packages/docs/src/examples/v-data-table/misc-external-sort.vue": [
+126,
+130,
+133,
+134,
+135,
+138
+],
+"vuetify:packages/docs/src/examples/v-data-table/misc-server-side-paginate-and-sort.vue": [
+43,
+48,
+55,
+57,
+58,
+59,
+60,
+67,
+69,
+70,
+74,
+75,
+78,
+79,
+80,
+82,
+83,
+84,
+86,
+90,
+97,
+98,
+99,
+183,
+186
+],
+"vuetify:packages/docs/src/examples/v-data-table/prop-custom-filter.vue": [
+126,
+134,
+137
+],
+"vuetify:packages/docs/src/examples/v-data-table/prop-dense.vue": [
+110
+],
+"vuetify:packages/docs/src/examples/v-data-table/prop-filterable.vue": [
+121,
+123
+],
+"vuetify:packages/docs/src/examples/v-data-table/prop-footer-props.vue": [
+72
+],
+"vuetify:packages/docs/src/examples/v-data-table/prop-grouping.vue": [
+79
+],
+"vuetify:packages/docs/src/examples/v-data-table/prop-hide-header-footer.vue": [
+109
+],
+"vuetify:packages/docs/src/examples/v-data-table/prop-multi-sort.vue": [
+110,
+112
+],
+"vuetify:packages/docs/src/examples/v-data-table/prop-row-selection.vue": [
+112,
+114
+],
+"vuetify:packages/docs/src/examples/v-data-table/prop-search.vue": [
+122,
+124
+],
+"vuetify:packages/docs/src/examples/v-data-table/prop-sort-by.vue": [
+113,
+115
+],
+"vuetify:packages/docs/src/examples/v-data-table/server.vue": [
+97,
+103,
+104,
+105,
+108,
+109,
+111,
+112,
+113,
+114,
+117,
+118,
+119,
+121,
+144,
+148,
+150,
+151,
+152,
+153,
+156
+],
+"vuetify:packages/docs/src/examples/v-data-table/slot-group-header.vue": [
+140,
+142
+],
+"vuetify:packages/docs/src/examples/v-data-table/slot-header.vue": [
+113
+],
+"vuetify:packages/docs/src/examples/v-data-table/slot-item-key.vue": [
+114,
+118,
+119,
+120,
+123
+],
+"vuetify:packages/docs/src/examples/v-data-table/slot-item.vue": [
+121,
+123
+],
+"vuetify:packages/docs/src/examples/v-data-table/slot-main.vue": [
+229,
+264,
+269,
+272,
+275,
+282,
+284,
+286,
+287,
+294,
+297
+],
+"vuetify:packages/docs/src/examples/v-data-table/slot-simple-checkbox.vue": [
+90
+],
+"vuetify:packages/docs/src/examples/v-data-table/usage.vue": [
+111,
+113
+],
+"vuetify:packages/docs/src/examples/v-data-table/virtual.vue": [
+113,
+114,
+116,
+117,
+120
+],
+"vuetify:packages/docs/src/examples/v-data-table/virtualized.vue": [
+95,
+116,
+117,
+118,
+121
+],
+"vuetify:packages/docs/src/examples/v-date-picker-month/misc-dialog-and-menu.vue": [
+106
+],
+"vuetify:packages/docs/src/examples/v-date-picker-month/misc-internationalization.vue": [
+21,
+23
+],
+"vuetify:packages/docs/src/examples/v-date-picker-month/misc-orientation.vue": [
+21,
+23
+],
+"vuetify:packages/docs/src/examples/v-date-picker-month/prop-allowed-months.vue": [
+19,
+25
+],
+"vuetify:packages/docs/src/examples/v-date-picker-month/prop-colors.vue": [
+23,
+25
+],
+"vuetify:packages/docs/src/examples/v-date-picker-month/prop-icons.vue": [
+18,
+20
+],
+"vuetify:packages/docs/src/examples/v-date-picker-month/prop-multiple.vue": [
+16
+],
+"vuetify:packages/docs/src/examples/v-date-picker-month/prop-readonly.vue": [
+16,
+18
+],
+"vuetify:packages/docs/src/examples/v-date-picker-month/prop-show-current.vue": [
+22,
+24
+],
+"vuetify:packages/docs/src/examples/v-date-picker-month/prop-width.vue": [
+23
+],
+"vuetify:packages/docs/src/examples/v-date-picker-month/usage.vue": [
+15,
+17
+],
+"vuetify:packages/docs/src/examples/v-date-picker/event-button-events.vue": [
+60,
+62,
+64,
+67,
+69,
+72,
+73,
+76,
+79
+],
+"vuetify:packages/docs/src/examples/v-date-picker/event-events.vue": [
+36,
+37,
+38,
+39,
+40,
+45,
+46,
+47,
+48,
+51
+],
+"vuetify:packages/docs/src/examples/v-date-picker/misc-birthday.vue": [
+42,
+47,
+50
+],
+"vuetify:packages/docs/src/examples/v-date-picker/misc-dialog-and-menu.vue": [
+136
+],
+"vuetify:packages/docs/src/examples/v-date-picker/misc-formatting-external-libraries.vue": [
+62,
+63,
+75,
+78,
+81
+],
+"vuetify:packages/docs/src/examples/v-date-picker/misc-formatting.vue": [
+85,
+91,
+97,
+99,
+100,
+103,
+105,
+106,
+109
+],
+"vuetify:packages/docs/src/examples/v-date-picker/misc-internationalization.vue": [
+21,
+23
+],
+"vuetify:packages/docs/src/examples/v-date-picker/misc-orientation.vue": [
+20,
+22
+],
+"vuetify:packages/docs/src/examples/v-date-picker/prop-allowed-dates.vue": [
+22
+],
+"vuetify:packages/docs/src/examples/v-date-picker/prop-colors.vue": [
+21,
+23
+],
+"vuetify:packages/docs/src/examples/v-date-picker/prop-elevation.vue": [
+23,
+25
+],
+"vuetify:packages/docs/src/examples/v-date-picker/prop-icons.vue": [
+17,
+19
+],
+"vuetify:packages/docs/src/examples/v-date-picker/prop-multiple.vue": [
+71
+],
+"vuetify:packages/docs/src/examples/v-date-picker/prop-picker-date.vue": [
+58,
+61
+],
+"vuetify:packages/docs/src/examples/v-date-picker/prop-range.vue": [
+34,
+37
+],
+"vuetify:packages/docs/src/examples/v-date-picker/prop-readonly.vue": [
+15,
+17
+],
+"vuetify:packages/docs/src/examples/v-date-picker/prop-show-adjacent-months.vue": [
+13,
+15
+],
+"vuetify:packages/docs/src/examples/v-date-picker/prop-show-current.vue": [
+20,
+22
+],
+"vuetify:packages/docs/src/examples/v-date-picker/prop-width.vue": [
+21
+],
+"vuetify:packages/docs/src/examples/v-date-picker/usage.vue": [
+12,
+14
+],
+"vuetify:packages/docs/src/examples/v-defaults-provider/prop-defaults.vue": [
+22
+],
+"vuetify:packages/docs/src/examples/v-defaults-provider/usage.vue": [
+30,
+31,
+33,
+34,
+35,
+36,
+46,
+47,
+52,
+53,
+56,
+57
+],
+"vuetify:packages/docs/src/examples/v-dialog/misc-form.vue": [
+119
+],
+"vuetify:packages/docs/src/examples/v-dialog/misc-loader.vue": [
+38,
+43,
+45,
+48
+],
+"vuetify:packages/docs/src/examples/v-dialog/misc-nesting.vue": [
+126,
+128
+],
+"vuetify:packages/docs/src/examples/v-dialog/misc-overflowed.vue": [
+59,
+61
+],
+"vuetify:packages/docs/src/examples/v-dialog/misc-without-activator.vue": [
+53,
+55
+],
+"vuetify:packages/docs/src/examples/v-dialog/prop-activator.vue": [
+31,
+33
+],
+"vuetify:packages/docs/src/examples/v-dialog/prop-fullscreen.vue": [
+84,
+86
+],
+"vuetify:packages/docs/src/examples/v-dialog/prop-model.vue": [
+31,
+33
+],
+"vuetify:packages/docs/src/examples/v-dialog/prop-persistent.vue": [
+48,
+50
+],
+"vuetify:packages/docs/src/examples/v-dialog/prop-scrollable.vue": [
+126,
+128
+],
+"vuetify:packages/docs/src/examples/v-dialog/usage.vue": [
+33,
+35
+],
+"vuetify:packages/docs/src/examples/v-divider/misc-subheaders.vue": [
+112
+],
+"vuetify:packages/docs/src/examples/v-divider/usage.vue": [
+24,
+25,
+27,
+28,
+29,
+30,
+31,
+37,
+38,
+39,
+41,
+44,
+52,
+53,
+56,
+57,
+60,
+61
+],
+"vuetify:packages/docs/src/examples/v-expansion-panels/misc-advanced.vue": [
+177
+],
+"vuetify:packages/docs/src/examples/v-expansion-panels/prop-disabled.vue": [
+46
+],
+"vuetify:packages/docs/src/examples/v-expansion-panels/prop-model.vue": [
+44,
+48,
+51,
+54
+],
+"vuetify:packages/docs/src/examples/v-expansion-panels/prop-readonly.vue": [
+45
+],
+"vuetify:packages/docs/src/examples/v-expansion-panels/usage.vue": [
+22,
+23,
+25,
+26,
+27,
+29,
+30,
+39,
+40,
+43,
+44
+],
+"vuetify:packages/docs/src/examples/v-file-input/misc-complex-selection.vue": [
+41
+],
+"vuetify:packages/docs/src/examples/v-file-input/prop-validation.vue": [
+16,
+20
+],
+"vuetify:packages/docs/src/examples/v-file-input/slot-selection.vue": [
+29
+],
+"vuetify:packages/docs/src/examples/v-file-input/usage.vue": [
+22,
+23,
+25,
+26,
+27,
+28,
+29,
+30,
+38,
+39,
+42,
+43,
+46,
+47
+],
+"vuetify:packages/docs/src/examples/v-footer/misc-company-footer.vue": [
+33
+],
+"vuetify:packages/docs/src/examples/v-footer/misc-indigo-footer.vue": [
+37
+],
+"vuetify:packages/docs/src/examples/v-footer/misc-teal-footer.vue": [
+34
+],
+"vuetify:packages/docs/src/examples/v-footer/usage.vue": [
+18,
+19,
+21,
+22,
+23,
+27,
+28,
+31,
+32,
+35,
+36
+],
+"vuetify:packages/docs/src/examples/v-form/misc-exposed.vue": [
+81,
+83,
+86,
+89,
+92
+],
+"vuetify:packages/docs/src/examples/v-form/misc-vee-validate.vue": [
+52,
+53,
+60,
+62,
+65,
+67,
+70,
+72,
+75,
+77,
+80,
+82,
+85,
+86,
+87,
+88,
+89,
+90,
+97,
+100,
+101,
+103,
+105
+],
+"vuetify:packages/docs/src/examples/v-form/misc-vuelidate.vue": [
+54,
+55,
+56,
+65,
+69,
+76,
+84,
+86,
+89,
+92,
+96,
+98
+],
+"vuetify:packages/docs/src/examples/v-form/prop-disabled.vue": [
+22
+],
+"vuetify:packages/docs/src/examples/v-form/prop-fast-fail.vue": [
+27,
+29,
+35,
+37,
+41
+],
+"vuetify:packages/docs/src/examples/v-form/rules-async.vue": [
+25,
+26,
+30,
+32,
+33,
+35,
+36,
+37,
+40
+],
+"vuetify:packages/docs/src/examples/v-form/rules-required.vue": [
+20,
+22,
+26
+],
+"vuetify:packages/docs/src/examples/v-form/usage.vue": [
+55,
+57,
+60,
+62,
+68,
+70,
+73,
+75,
+79
+],
+"vuetify:packages/docs/src/examples/v-hover/misc-hover-list.vue": [
+83
+],
+"vuetify:packages/docs/src/examples/v-hover/usage.vue": [
+25,
+26,
+28,
+29,
+30,
+32,
+33,
+45,
+46,
+49,
+50
+],
+"vuetify:packages/docs/src/examples/v-icon/event-click.vue": [
+33,
+36
+],
+"vuetify:packages/docs/src/examples/v-icon/misc-mdi-svg.vue": [
+16,
+27
+],
+"vuetify:packages/docs/src/examples/v-icon/usage.vue": [
+24,
+25,
+27,
+28,
+29,
+30,
+31,
+32,
+38,
+39,
+45,
+55,
+62,
+65,
+66,
+69,
+70
+],
+"vuetify:packages/docs/src/examples/v-img/prop-cover.vue": [
+46
+],
+"vuetify:packages/docs/src/examples/v-img/usage.vue": [
+37,
+38,
+40,
+41,
+42,
+43,
+48,
+49,
+57,
+58,
+61,
+62,
+65,
+66
+],
+"vuetify:packages/docs/src/examples/v-input/event-slot-clicks.vue": [
+27,
+31,
+34,
+37
+],
+"vuetify:packages/docs/src/examples/v-input/prop-hide-details.vue": [
+20
+],
+"vuetify:packages/docs/src/examples/v-input/prop-hint.vue": [
+25,
+28
+],
+"vuetify:packages/docs/src/examples/v-input/prop-rules.vue": [
+12,
+13,
+17
+],
+"vuetify:packages/docs/src/examples/v-input/usage.vue": [
+25,
+31
+],
+"vuetify:packages/docs/src/examples/v-intersect/prop-options.vue": [
+57,
+60
+],
+"vuetify:packages/docs/src/examples/v-intersect/usage.vue": [
+48,
+51
+],
+"vuetify:packages/docs/src/examples/v-item-group/misc-chips.vue": [
+61
+],
+"vuetify:packages/docs/src/examples/v-item-group/misc-selection.vue": [
+55
+],
+"vuetify:packages/docs/src/examples/v-lazy/usage.vue": [
+55,
+56,
+58,
+59,
+60,
+61,
+62,
+68,
+71,
+72,
+80,
+81,
+99,
+100,
+103,
+104
+],
+"vuetify:packages/docs/src/examples/v-list/misc-action-stack.vue": [
+112
+],
+"vuetify:packages/docs/src/examples/v-list/misc-simple-avatar-list.vue": [
+60,
+62
+],
+"vuetify:packages/docs/src/examples/v-list/misc-single-line-list.vue": [
+96
+],
+"vuetify:packages/docs/src/examples/v-list/misc-subheadings-and-dividers.vue": [
+118
+],
+"vuetify:packages/docs/src/examples/v-list/prop-density.vue": [
+34
+],
+"vuetify:packages/docs/src/examples/v-list/prop-disabled.vue": [
+33
+],
+"vuetify:packages/docs/src/examples/v-list/prop-items-custom.vue": [
+32
+],
+"vuetify:packages/docs/src/examples/v-list/prop-items-prop.vue": [
+37
+],
+"vuetify:packages/docs/src/examples/v-list/prop-items-type.vue": [
+43
+],
+"vuetify:packages/docs/src/examples/v-list/prop-items.vue": [
+28
+],
+"vuetify:packages/docs/src/examples/v-list/prop-nav.vue": [
+65
+],
+"vuetify:packages/docs/src/examples/v-list/prop-rounded.vue": [
+35
+],
+"vuetify:packages/docs/src/examples/v-list/prop-shaped.vue": [
+36
+],
+"vuetify:packages/docs/src/examples/v-list/prop-sub-group.vue": [
+71
+],
+"vuetify:packages/docs/src/examples/v-list/prop-three-line.vue": [
+64
+],
+"vuetify:packages/docs/src/examples/v-list/prop-two-line-and-subheader.vue": [
+102
+],
+"vuetify:packages/docs/src/examples/v-list/prop-variant.vue": [
+53
+],
+"vuetify:packages/docs/src/examples/v-list/slot-expansion-lists.vue": [
+94
+],
+"vuetify:packages/docs/src/examples/v-list/usage.vue": [
+28,
+29,
+31,
+32,
+33,
+34,
+49,
+55,
+56,
+59,
+60,
+61,
+63,
+68,
+69,
+77,
+78,
+83,
+84
+],
+"vuetify:packages/docs/src/examples/v-menu/misc-custom-transition.vue": [
+80
+],
+"vuetify:packages/docs/src/examples/v-menu/misc-popover.vue": [
+87
+],
+"vuetify:packages/docs/src/examples/v-menu/misc-use-in-components.vue": [
+46
+],
+"vuetify:packages/docs/src/examples/v-menu/prop-absolute-without-activator.vue": [
+51,
+52,
+53,
+54,
+56,
+57,
+60
+],
+"vuetify:packages/docs/src/examples/v-menu/prop-absolute.vue": [
+40
+],
+"vuetify:packages/docs/src/examples/v-menu/prop-close-on-click.vue": [
+42
+],
+"vuetify:packages/docs/src/examples/v-menu/prop-close-on-content-click.vue": [
+44
+],
+"vuetify:packages/docs/src/examples/v-menu/prop-disabled.vue": [
+35
+],
+"vuetify:packages/docs/src/examples/v-menu/prop-location.vue": [
+49
+],
+"vuetify:packages/docs/src/examples/v-menu/prop-open-on-hover.vue": [
+37
+],
+"vuetify:packages/docs/src/examples/v-menu/prop-rounded.vue": [
+43
+],
+"vuetify:packages/docs/src/examples/v-menu/slot-activator-and-tooltip.vue": [
+30,
+44
+],
+"vuetify:packages/docs/src/examples/v-menu/usage.vue": [
+72
+],
+"vuetify:packages/docs/src/examples/v-mutate/option-modifiers.vue": [
+73,
+76
+],
+"vuetify:packages/docs/src/examples/v-mutate/usage.vue": [
+23,
+26
+],
+"vuetify:packages/docs/src/examples/v-navigation-drawer/prop-bottom-drawer.vue": [
+69,
+72
+],
+"vuetify:packages/docs/src/examples/v-navigation-drawer/prop-expand-on-hover.vue": [
+33
+],
+"vuetify:packages/docs/src/examples/v-navigation-drawer/prop-mini-variant.vue": [
+48,
+50
+],
+"vuetify:packages/docs/src/examples/v-navigation-drawer/prop-right.vue": [
+39,
+41
+],
+"vuetify:packages/docs/src/examples/v-navigation-drawer/prop-temporary.vue": [
+39,
+41
+],
+"vuetify:packages/docs/src/examples/v-navigation-drawer/usage.vue": [
+45,
+46,
+48,
+49,
+50,
+52,
+53,
+58,
+59,
+62,
+63
+],
+"vuetify:packages/docs/src/examples/v-otp-input/misc-loading.vue": [
+43,
+45,
+46,
+47,
+48,
+49,
+52
+],
+"vuetify:packages/docs/src/examples/v-otp-input/prop-dark.vue": [
+29,
+32
+],
+"vuetify:packages/docs/src/examples/v-otp-input/prop-type.vue": [
+17
+],
+"vuetify:packages/docs/src/examples/v-otp-input/usage.vue": [
+49,
+52
+],
+"vuetify:packages/docs/src/examples/v-overflow-btn/prop-counter.vue": [
+24
+],
+"vuetify:packages/docs/src/examples/v-overflow-btn/prop-dense.vue": [
+17
+],
+"vuetify:packages/docs/src/examples/v-overflow-btn/prop-disabled.vue": [
+18
+],
+"vuetify:packages/docs/src/examples/v-overflow-btn/prop-editable.vue": [
+24
+],
+"vuetify:packages/docs/src/examples/v-overflow-btn/prop-filled.vue": [
+18
+],
+"vuetify:packages/docs/src/examples/v-overflow-btn/prop-hint.vue": [
+19
+],
+"vuetify:packages/docs/src/examples/v-overflow-btn/prop-loading.vue": [
+18
+],
+"vuetify:packages/docs/src/examples/v-overflow-btn/prop-menu-props.vue": [
+18
+],
+"vuetify:packages/docs/src/examples/v-overflow-btn/prop-readonly.vue": [
+18
+],
+"vuetify:packages/docs/src/examples/v-overflow-btn/prop-segmented.vue": [
+22
+],
+"vuetify:packages/docs/src/examples/v-overflow-btn/usage.vue": [
+51
+],
+"vuetify:packages/docs/src/examples/v-overlay/connected-playground.vue": [
+75,
+78,
+81,
+84,
+94,
+99,
+104,
+108
+],
+"vuetify:packages/docs/src/examples/v-overlay/misc-advanced.vue": [
+48
+],
+"vuetify:packages/docs/src/examples/v-overlay/misc-loader.vue": [
+33,
+34,
+37
+],
+"vuetify:packages/docs/src/examples/v-overlay/prop-contained.vue": [
+42
+],
+"vuetify:packages/docs/src/examples/v-overlay/usage.vue": [
+23,
+24,
+27
+],
+"vuetify:packages/docs/src/examples/v-pagination/prop-icons.vue": [
+17,
+19
+],
+"vuetify:packages/docs/src/examples/v-pagination/prop-length.vue": [
+24,
+26
+],
+"vuetify:packages/docs/src/examples/v-pagination/prop-rounded.vue": [
+22,
+24
+],
+"vuetify:packages/docs/src/examples/v-pagination/prop-total-visible.vue": [
+16,
+18
+],
+"vuetify:packages/docs/src/examples/v-pagination/usage.vue": [
+22,
+23,
+25,
+26,
+27,
+28,
+33,
+34,
+37,
+38,
+41,
+42
+],
+"vuetify:packages/docs/src/examples/v-progress-circular/prop-rotate.vue": [
+51,
+54,
+59,
+61,
+62,
+64
+],
+"vuetify:packages/docs/src/examples/v-progress-circular/usage.vue": [
+43,
+44,
+46,
+47,
+48,
+49,
+50,
+51,
+52,
+60,
+61,
+64,
+65,
+68,
+69
+],
+"vuetify:packages/docs/src/examples/v-progress-linear/misc-determinate.vue": [
+30,
+32
+],
+"vuetify:packages/docs/src/examples/v-progress-linear/misc-toolbar-loader.vue": [
+64,
+66,
+69
+],
+"vuetify:packages/docs/src/examples/v-progress-linear/prop-buffer-value.vue": [
+35,
+40,
+42,
+43,
+44,
+49,
+53,
+58,
+61,
+62,
+63,
+66
+],
+"vuetify:packages/docs/src/examples/v-progress-linear/prop-query.vue": [
+20,
+24,
+28,
+33,
+34,
+35,
+38,
+42,
+43,
+44,
+46,
+47,
+48,
+51
+],
+"vuetify:packages/docs/src/examples/v-progress-linear/slot-default.vue": [
+39
+],
+"vuetify:packages/docs/src/examples/v-progress-linear/usage.vue": [
+35,
+36,
+38,
+39,
+40,
+41,
+42,
+43,
+50,
+51,
+54,
+55,
+58,
+59
+],
+"vuetify:packages/docs/src/examples/v-radio-group/prop-colors.vue": [
+100,
+102
+],
+"vuetify:packages/docs/src/examples/v-radio-group/prop-direction.vue": [
+39,
+41
+],
+"vuetify:packages/docs/src/examples/v-radio-group/slot-label.vue": [
+26,
+28
+],
+"vuetify:packages/docs/src/examples/v-radio-group/usage.vue": [
+24,
+25,
+27,
+28,
+29,
+30,
+35,
+36,
+43,
+44,
+47,
+48
+],
+"vuetify:packages/docs/src/examples/v-range-slider/prop-disabled.vue": [
+20,
+22
+],
+"vuetify:packages/docs/src/examples/v-range-slider/prop-min-and-max.vue": [
+42,
+44
+],
+"vuetify:packages/docs/src/examples/v-range-slider/prop-step.vue": [
+14,
+16
+],
+"vuetify:packages/docs/src/examples/v-range-slider/prop-strict.vue": [
+17,
+19
+],
+"vuetify:packages/docs/src/examples/v-range-slider/prop-vertical.vue": [
+13,
+15
+],
+"vuetify:packages/docs/src/examples/v-range-slider/slot-thumb-label.vue": [
+41,
+44
+],
+"vuetify:packages/docs/src/examples/v-range-slider/usage.vue": [
+20,
+21,
+23,
+24,
+25,
+26,
+31,
+32,
+35,
+36,
+39,
+40
+],
+"vuetify:packages/docs/src/examples/v-rating/misc-advanced.vue": [
+150,
+152,
+154,
+157
+],
+"vuetify:packages/docs/src/examples/v-rating/misc-card.vue": [
+53
+],
+"vuetify:packages/docs/src/examples/v-rating/prop-clearable.vue": [
+15
+],
+"vuetify:packages/docs/src/examples/v-rating/prop-color.vue": [
+14
+],
+"vuetify:packages/docs/src/examples/v-rating/prop-density.vue": [
+26
+],
+"vuetify:packages/docs/src/examples/v-rating/prop-half-increments.vue": [
+17
+],
+"vuetify:packages/docs/src/examples/v-rating/prop-hover.vue": [
+15
+],
+"vuetify:packages/docs/src/examples/v-rating/prop-icon-label.vue": [
+13
+],
+"vuetify:packages/docs/src/examples/v-rating/prop-icons.vue": [
+19
+],
+"vuetify:packages/docs/src/examples/v-rating/prop-item-labels.vue": [
+22
+],
+"vuetify:packages/docs/src/examples/v-rating/prop-length.vue": [
+15
+],
+"vuetify:packages/docs/src/examples/v-rating/prop-readonly.vue": [
+15
+],
+"vuetify:packages/docs/src/examples/v-rating/slot-item-label.vue": [
+26
+],
+"vuetify:packages/docs/src/examples/v-rating/slot-item.vue": [
+23
+],
+"vuetify:packages/docs/src/examples/v-rating/usage.vue": [
+79
+],
+"vuetify:packages/docs/src/examples/v-resize/usage.vue": [
+24,
+29,
+32
+],
+"vuetify:packages/docs/src/examples/v-responsive/usage.vue": [
+25,
+26,
+28,
+29,
+30,
+31,
+37,
+38,
+41,
+42,
+45,
+46
+],
+"vuetify:packages/docs/src/examples/v-scroll/option-self.vue": [
+41,
+44
+],
+"vuetify:packages/docs/src/examples/v-scroll/option-target.vue": [
+36,
+39
+],
+"vuetify:packages/docs/src/examples/v-scroll/usage.vue": [
+110,
+114,
+115,
+116,
+123,
+126,
+127,
+128,
+131
+],
+"vuetify:packages/docs/src/examples/v-select/prop-chips.vue": [
+17
+],
+"vuetify:packages/docs/src/examples/v-select/prop-custom-title-and-value.vue": [
+27,
+29
+],
+"vuetify:packages/docs/src/examples/v-select/prop-dense.vue": [
+27
+],
+"vuetify:packages/docs/src/examples/v-select/prop-disabled.vue": [
+18
+],
+"vuetify:packages/docs/src/examples/v-select/prop-icons.vue": [
+86
+],
+"vuetify:packages/docs/src/examples/v-select/prop-menu-props.vue": [
+18
+],
+"vuetify:packages/docs/src/examples/v-select/prop-multiple.vue": [
+33,
+35
+],
+"vuetify:packages/docs/src/examples/v-select/prop-readonly.vue": [
+18
+],
+"vuetify:packages/docs/src/examples/v-select/slot-append-and-prepend-item.vue": [
+101,
+104,
+107,
+109,
+111,
+114,
+116,
+118,
+125,
+127,
+131
+],
+"vuetify:packages/docs/src/examples/v-select/slot-selection.vue": [
+30
+],
+"vuetify:packages/docs/src/examples/v-select/usage.vue": [
+24,
+25,
+27,
+28,
+29,
+30,
+31,
+32,
+41,
+42,
+45,
+46,
+49,
+50
+],
+"vuetify:packages/docs/src/examples/v-sheet/prop-color.vue": [
+99,
+110,
+114
+],
+"vuetify:packages/docs/src/examples/v-sheet/prop-elevation.vue": [
+31
+],
+"vuetify:packages/docs/src/examples/v-sheet/usage.vue": [
+54,
+55,
+56,
+58,
+59,
+60,
+61,
+62,
+63,
+64,
+65,
+66,
+75,
+76,
+79,
+80,
+81,
+84,
+85,
+88,
+89
+],
+"vuetify:packages/docs/src/examples/v-skeleton-loader/misc-boilerplate.vue": [
+61
+],
+"vuetify:packages/docs/src/examples/v-skeleton-loader/misc-implementation.vue": [
+104
+],
+"vuetify:packages/docs/src/examples/v-skeleton-loader/usage.vue": [
+24
+],
+"vuetify:packages/docs/src/examples/v-slide-group/misc-pseudo-carousel.vue": [
+59
+],
+"vuetify:packages/docs/src/examples/v-slide-group/prop-active-class.vue": [
+46
+],
+"vuetify:packages/docs/src/examples/v-slide-group/prop-center-active.vue": [
+46
+],
+"vuetify:packages/docs/src/examples/v-slide-group/prop-custom-icons.vue": [
+48
+],
+"vuetify:packages/docs/src/examples/v-slide-group/prop-mandatory.vue": [
+47
+],
+"vuetify:packages/docs/src/examples/v-slide-group/prop-multiple.vue": [
+47
+],
+"vuetify:packages/docs/src/examples/v-slider/prop-colors.vue": [
+30
+],
+"vuetify:packages/docs/src/examples/v-slider/prop-icons.vue": [
+36,
+41,
+44,
+47
+],
+"vuetify:packages/docs/src/examples/v-slider/prop-min-and-max.vue": [
+29,
+31
+],
+"vuetify:packages/docs/src/examples/v-slider/prop-step.vue": [
+16,
+18
+],
+"vuetify:packages/docs/src/examples/v-slider/prop-thumb.vue": [
+59,
+61
+],
+"vuetify:packages/docs/src/examples/v-slider/prop-ticks.vue": [
+47,
+49
+],
+"vuetify:packages/docs/src/examples/v-slider/prop-validation.vue": [
+44,
+46
+],
+"vuetify:packages/docs/src/examples/v-slider/prop-vertical.vue": [
+15,
+17
+],
+"vuetify:packages/docs/src/examples/v-slider/slot-append-and-prepend.vue": [
+95,
+96,
+97,
+98,
+99,
+102,
+108,
+111,
+114,
+117
+],
+"vuetify:packages/docs/src/examples/v-slider/slot-append-text-field.vue": [
+79,
+81
+],
+"vuetify:packages/docs/src/examples/v-slider/usage.vue": [
+20,
+21,
+23,
+24,
+25,
+26,
+31,
+32,
+35,
+36,
+39,
+40
+],
+"vuetify:packages/docs/src/examples/v-snackbar/prop-multi-line.vue": [
+35
+],
+"vuetify:packages/docs/src/examples/v-snackbar/prop-timeout.vue": [
+36
+],
+"vuetify:packages/docs/src/examples/v-snackbar/prop-vertical.vue": [
+36
+],
+"vuetify:packages/docs/src/examples/v-snackbar/usage.vue": [
+32
+],
+"vuetify:packages/docs/src/examples/v-sparkline/misc-custom-labels.vue": [
+57
+],
+"vuetify:packages/docs/src/examples/v-sparkline/misc-dashboard-card.vue": [
+64
+],
+"vuetify:packages/docs/src/examples/v-sparkline/misc-heart-rate.vue": [
+56,
+66,
+67,
+69,
+71,
+76,
+81,
+84,
+86,
+88,
+90,
+93
+],
+"vuetify:packages/docs/src/examples/v-sparkline/prop-fill.vue": [
+118,
+130
+],
+"vuetify:packages/docs/src/examples/v-sparkline/usage.vue": [
+25,
+41
+],
+"vuetify:packages/docs/src/examples/v-stepper/misc-dynamic.vue": [
+64,
+70,
+78,
+80,
+84
+],
+"vuetify:packages/docs/src/examples/v-stepper/misc-vertical-error.vue": [
+107,
+109
+],
+"vuetify:packages/docs/src/examples/v-stepper/prop-vertical.vue": [
+106,
+108
+],
+"vuetify:packages/docs/src/examples/v-stepper/usage.vue": [
+93,
+95
+],
+"vuetify:packages/docs/src/examples/v-switch/prop-colors.vue": [
+140,
+142
+],
+"vuetify:packages/docs/src/examples/v-switch/prop-custom-values.vue": [
+16
+],
+"vuetify:packages/docs/src/examples/v-switch/prop-flat.vue": [
+15,
+17
+],
+"vuetify:packages/docs/src/examples/v-switch/prop-inset.vue": [
+15,
+17
+],
+"vuetify:packages/docs/src/examples/v-switch/prop-model-as-array.vue": [
+26,
+28
+],
+"vuetify:packages/docs/src/examples/v-switch/slot-label.vue": [
+19,
+21
+],
+"vuetify:packages/docs/src/examples/v-switch/usage.vue": [
+20,
+21,
+23,
+24,
+25,
+26,
+32,
+33,
+35,
+38,
+39,
+42,
+43
+],
+"vuetify:packages/docs/src/examples/v-system-bar/usage.vue": [
+27,
+28,
+30,
+31,
+32,
+37,
+38,
+46,
+47
+],
+"vuetify:packages/docs/src/examples/v-table/prop-dark.vue": [
+71,
+73
+],
+"vuetify:packages/docs/src/examples/v-table/prop-dense.vue": [
+71,
+73
+],
+"vuetify:packages/docs/src/examples/v-table/prop-fixed-header.vue": [
+74,
+76
+],
+"vuetify:packages/docs/src/examples/v-table/prop-height.vue": [
+71,
+73
+],
+"vuetify:packages/docs/src/examples/v-table/usage.vue": [
+71,
+73
+],
+"vuetify:packages/docs/src/examples/v-tabs/misc-content.vue": [
+54,
+56
+],
+"vuetify:packages/docs/src/examples/v-tabs/misc-dynamic-height.vue": [
+88,
+90
+],
+"vuetify:packages/docs/src/examples/v-tabs/misc-dynamic.vue": [
+46,
+49
+],
+"vuetify:packages/docs/src/examples/v-tabs/misc-mobile.vue": [
+66,
+68
+],
+"vuetify:packages/docs/src/examples/v-tabs/misc-overflow-to-menu.vue": [
+97,
+100,
+101,
+102,
+102,
+105
+],
+"vuetify:packages/docs/src/examples/v-tabs/misc-tab-items.vue": [
+45,
+47
+],
+"vuetify:packages/docs/src/examples/v-tabs/prop-align-tabs-center.vue": [
+44
+],
+"vuetify:packages/docs/src/examples/v-tabs/prop-align-tabs-end.vue": [
+44
+],
+"vuetify:packages/docs/src/examples/v-tabs/prop-align-tabs-title.vue": [
+57,
+59
+],
+"vuetify:packages/docs/src/examples/v-tabs/prop-direction.vue": [
+99
+],
+"vuetify:packages/docs/src/examples/v-tabs/prop-grow.vue": [
+50,
+52
+],
+"vuetify:packages/docs/src/examples/v-tabs/prop-stacked.vue": [
+45,
+47
+],
+"vuetify:packages/docs/src/examples/v-tabs/usage.vue": [
+35
+],
+"vuetify:packages/docs/src/examples/v-text-field/event-icons.vue": [
+49,
+55,
+58,
+59,
+62,
+65,
+70,
+73
+],
+"vuetify:packages/docs/src/examples/v-text-field/misc-custom-validation.vue": [
+128,
+134,
+142,
+144,
+147,
+148,
+151,
+152,
+155,
+158,
+160,
+161,
+164
+],
+"vuetify:packages/docs/src/examples/v-text-field/misc-full-width-with-counter.vue": [
+44
+],
+"vuetify:packages/docs/src/examples/v-text-field/misc-guide.vue": [
+55,
+57,
+59,
+62,
+65
+],
+"vuetify:packages/docs/src/examples/v-text-field/misc-password.vue": [
+54,
+56
+],
+"vuetify:packages/docs/src/examples/v-text-field/prop-clearable.vue": [
+20
+],
+"vuetify:packages/docs/src/examples/v-text-field/prop-contained.vue": [
+37
+],
+"vuetify:packages/docs/src/examples/v-text-field/prop-counter.vue": [
+75,
+77
+],
+"vuetify:packages/docs/src/examples/v-text-field/prop-custom-colors.vue": [
+67
+],
+"vuetify:packages/docs/src/examples/v-text-field/prop-dense.vue": [
+31,
+34,
+35,
+36,
+39
+],
+"vuetify:packages/docs/src/examples/v-text-field/prop-filled.vue": [
+37
+],
+"vuetify:packages/docs/src/examples/v-text-field/prop-hide-details.vue": [
+20
+],
+"vuetify:packages/docs/src/examples/v-text-field/prop-outlined.vue": [
+37
+],
+"vuetify:packages/docs/src/examples/v-text-field/prop-validation.vue": [
+43,
+44,
+47,
+49
+],
+"vuetify:packages/docs/src/examples/v-text-field/slot-icons.vue": [
+84,
+85,
+87,
+88,
+89,
+92
+],
+"vuetify:packages/docs/src/examples/v-text-field/slot-progress.vue": [
+37,
+40,
+43
+],
+"vuetify:packages/docs/src/examples/v-text-field/usage.vue": [
+24,
+25,
+27,
+28,
+29,
+30,
+31,
+32,
+33,
+40,
+41,
+44,
+45,
+48,
+49,
+52,
+53
+],
+"vuetify:packages/docs/src/examples/v-textarea/misc-signup-form.vue": [
+152
+],
+"vuetify:packages/docs/src/examples/v-textarea/prop-counter.vue": [
+18
+],
+"vuetify:packages/docs/src/examples/v-textarea/prop-no-resize.vue": [
+17
+],
+"vuetify:packages/docs/src/examples/v-textarea/usage.vue": [
+24,
+25,
+27,
+28,
+29,
+30,
+31,
+32,
+33,
+40,
+41,
+44,
+45,
+48,
+49,
+52,
+53
+],
+"vuetify:packages/docs/src/examples/v-time-picker/misc-dialog-and-menu.vue": [
+91,
+93
+],
+"vuetify:packages/docs/src/examples/v-time-picker/prop-allowed-times.vue": [
+28,
+35
+],
+"vuetify:packages/docs/src/examples/v-time-picker/prop-ampm-in-title.vue": [
+24,
+26
+],
+"vuetify:packages/docs/src/examples/v-time-picker/prop-color.vue": [
+20,
+22
+],
+"vuetify:packages/docs/src/examples/v-time-picker/prop-disabled.vue": [
+23,
+25
+],
+"vuetify:packages/docs/src/examples/v-time-picker/prop-elevation.vue": [
+23,
+25
+],
+"vuetify:packages/docs/src/examples/v-time-picker/prop-format.vue": [
+17,
+19
+],
+"vuetify:packages/docs/src/examples/v-time-picker/prop-no-title.vue": [
+22,
+24
+],
+"vuetify:packages/docs/src/examples/v-time-picker/prop-range.vue": [
+32,
+34
+],
+"vuetify:packages/docs/src/examples/v-time-picker/prop-readonly.vue": [
+23,
+25
+],
+"vuetify:packages/docs/src/examples/v-time-picker/prop-scrollable.vue": [
+18,
+20
+],
+"vuetify:packages/docs/src/examples/v-time-picker/prop-use-seconds.vue": [
+23,
+25
+],
+"vuetify:packages/docs/src/examples/v-time-picker/prop-width.vue": [
+25
+],
+"vuetify:packages/docs/src/examples/v-time-picker/usage.vue": [
+40
+],
+"vuetify:packages/docs/src/examples/v-timeline/misc-advanced.vue": [
+163,
+169,
+174,
+176,
+178,
+181
+],
+"vuetify:packages/docs/src/examples/v-timeline/prop-icon-dots.vue": [
+50
+],
+"vuetify:packages/docs/src/examples/v-timeline/prop-mirror.vue": [
+56
+],
+"vuetify:packages/docs/src/examples/v-timeline/prop-single-side.vue": [
+36
+],
+"vuetify:packages/docs/src/examples/v-timeline/slot-opposite.vue": [
+53
+],
+"vuetify:packages/docs/src/examples/v-toolbar/misc-contextual-action-bar.vue": [
+66
+],
+"vuetify:packages/docs/src/examples/v-toolbar/misc-variations.vue": [
+48
+],
+"vuetify:packages/docs/src/examples/v-toolbar/usage.vue": [
+28,
+29,
+31,
+32,
+33,
+34,
+35,
+36,
+44,
+45,
+48,
+49,
+52,
+53
+],
+"vuetify:packages/docs/src/examples/v-tooltip/prop-visibility.vue": [
+46,
+48
+],
+"vuetify:packages/docs/src/examples/v-tooltip/usage.vue": [
+28,
+29,
+31,
+32,
+33,
+34,
+35,
+39,
+42,
+43,
+46,
+47,
+54,
+55,
+58,
+59
+],
+"vuetify:packages/docs/src/examples/v-touch/usage.vue": [
+29,
+32
+],
+"vuetify:packages/docs/src/examples/v-treeview/misc-search-and-filter.vue": [
+119,
+122
+],
+"vuetify:packages/docs/src/examples/v-treeview/misc-selectable-icons.vue": [
+112,
+118,
+121,
+128,
+130,
+132,
+133,
+139,
+144,
+147,
+150,
+155,
+159,
+160,
+163,
+166
+],
+"vuetify:packages/docs/src/examples/v-treeview/playground.vue": [
+157
+],
+"vuetify:packages/docs/src/examples/v-treeview/prop-activatable.vue": [
+84
+],
+"vuetify:packages/docs/src/examples/v-treeview/prop-color.vue": [
+85
+],
+"vuetify:packages/docs/src/examples/v-treeview/prop-dense.vue": [
+84
+],
+"vuetify:packages/docs/src/examples/v-treeview/prop-hoverable.vue": [
+84
+],
+"vuetify:packages/docs/src/examples/v-treeview/prop-item-disabled.vue": [
+87
+],
+"vuetify:packages/docs/src/examples/v-treeview/prop-load-children.vue": [
+118,
+120,
+137,
+140,
+142,
+144,
+156,
+161,
+164,
+167
+],
+"vuetify:packages/docs/src/examples/v-treeview/prop-open-all.vue": [
+84
+],
+"vuetify:packages/docs/src/examples/v-treeview/prop-rounded.vue": [
+86
+],
+"vuetify:packages/docs/src/examples/v-treeview/prop-selectable.vue": [
+84
+],
+"vuetify:packages/docs/src/examples/v-treeview/prop-selected-color.vue": [
+85
+],
+"vuetify:packages/docs/src/examples/v-treeview/prop-selection-type.vue": [
+64
+],
+"vuetify:packages/docs/src/examples/v-treeview/prop-shaped.vue": [
+86
+],
+"vuetify:packages/docs/src/examples/v-treeview/slot-append-and-label.vue": [
+89
+],
+"vuetify:packages/docs/src/examples/v-treeview/usage.vue": [
+81
+],
+"vuetify:packages/docs/src/examples/v-virtual-scroll/misc-user-directory.vue": [
+76,
+77,
+78,
+81,
+82,
+88,
+89,
+95,
+98
+],
+"vuetify:packages/docs/src/examples/v-virtual-scroll/prop-dynamic-item-height.vue": [
+24,
+27
+],
+"vuetify:packages/docs/src/examples/v-virtual-scroll/prop-height-parent.vue": [
+16
+],
+"vuetify:packages/docs/src/examples/v-virtual-scroll/prop-height.vue": [
+14
+],
+"vuetify:packages/docs/src/examples/v-virtual-scroll/prop-item-height.vue": [
+44
+],
+"vuetify:packages/docs/src/examples/v-virtual-scroll/prop-visible-items.vue": [
+56
+],
+"vuetify:packages/docs/src/examples/v-virtual-scroll/usage.vue": [
+23,
+24,
+26,
+27,
+28,
+29,
+34,
+35,
+42,
+43,
+46,
+47
+],
+"vuetify:packages/docs/src/examples/v-window/misc-account-creation.vue": [
+92,
+93,
+94,
+98
+],
+"vuetify:packages/docs/src/examples/v-window/misc-onboarding.vue": [
+68,
+73,
+76
+],
+"vuetify:packages/docs/src/examples/v-window/prop-direction.vue": [
+32
+],
+"vuetify:packages/docs/src/examples/v-window/prop-reverse.vue": [
+32
+],
+"vuetify:packages/docs/src/examples/v-window/prop-show-arrows.vue": [
+31
+],
+"vuetify:packages/docs/src/examples/v-window/usage.vue": [
+23
+],
+"vuetify:packages/docs/src/examples/wireframes/baseline.vue": [
+22
+],
+"vuetify:packages/docs/src/examples/wireframes/constrained.vue": [
+85
+],
+"vuetify:packages/docs/src/examples/wireframes/discord.vue": [
+106
+],
+"vuetify:packages/docs/src/examples/wireframes/extended-toolbar.vue": [
+37
+],
+"vuetify:packages/docs/src/examples/wireframes/inbox.vue": [
+99
+],
+"vuetify:packages/docs/src/examples/wireframes/side-navigation.vue": [
+27
+],
+"vuetify:packages/docs/src/examples/wireframes/steam.vue": [
+119
+],
+"vuetify:packages/docs/src/examples/wireframes/system-bar.vue": [
+55
+],
+"vuetify:packages/docs/src/examples/wireframes/three-column.vue": [
+90
+],
+"vuetify:packages/docs/src/layouts/default.vue": [
+44,
+45,
+46,
+47,
+48,
+49,
+50,
+51,
+54,
+57,
+59,
+61,
+62
+],
+"vuetify:packages/docs/src/layouts/home.vue": [
+23,
+24,
+25,
+26,
+27
+],
+"vuetify:packages/docs/src/layouts/wireframe.vue": [
+16,
+18,
+19,
+20
+],
+"vuetify:packages/docs/src/service-worker.js": [
+2,
+3,
+4,
+6,
+8,
+9,
+11,
+12,
+17,
+22,
+27,
+28,
+30,
+33,
+35,
+37,
+44,
+47,
+48,
+50,
+53,
+54,
+56,
+58,
+60,
+61,
+63,
+64,
+67,
+68,
+71,
+75,
+79,
+84,
+86,
+89,
+91,
+92,
+96,
+100,
+102,
+104,
+108,
+109,
+110
+],
+"vuetify:packages/vuetify/babel.config.js": [
+1,
+47
+],
+"vuetify:packages/vuetify/build/babel-plugin-replace-import-extension.js": [
+60
+],
+"vuetify:packages/vuetify/build/rollup.config.js": [
+1,
+2,
+3,
+5,
+7,
+8,
+9,
+10,
+11,
+13,
+14,
+15,
+16,
+18,
+23,
+26,
+80,
+82,
+83,
+84,
+91,
+93,
+94,
+105,
+106,
+107,
+112,
+115,
+118,
+121,
+125,
+126,
+128,
+129,
+131,
+132,
+138,
+141,
+143,
+147,
+148,
+150,
+163,
+173,
+175,
+217,
+219,
+220,
+221,
+224,
+229,
+231,
+232,
+243,
+244,
+249,
+252,
+255,
+258,
+262,
+263,
+265,
+266,
+268,
+269,
+281,
+291,
+293,
+298
+],
+"vuetify:packages/vuetify/build/rollup.types.config.js": [
+1,
+2,
+3,
+5,
+6,
+7,
+8,
+10,
+19,
+22,
+25,
+26,
+28,
+31,
+45,
+46,
+50,
+51,
+57,
+61,
+66,
+69,
+70,
+75,
+76,
+77,
+80,
+88
+],
+"vuetify:packages/vuetify/build/run-tests.js": [
+1,
+2,
+4,
+6,
+10,
+13,
+16
+],
+"vuetify:packages/vuetify/dev/App.vue": [
+8,
+15
+],
+"vuetify:packages/vuetify/dev/Playground.items.vue": [
+183,
+185,
+188
+],
+"vuetify:packages/vuetify/dev/Playground.list.vue": [
+175,
+209
+],
+"vuetify:packages/vuetify/dev/Playground.nested.vue": [
+227,
+230,
+234,
+237,
+240,
+242,
+245,
+247,
+251,
+255,
+258,
+261,
+262,
+264,
+266,
+269,
+272,
+275,
+278,
+284,
+285,
+287,
+288,
+292,
+293,
+296,
+306,
+309
+],
+"vuetify:packages/vuetify/dev/Playground.slider.vue": [
+300
+],
+"vuetify:packages/vuetify/dev/Playground.template.vue": [
+15,
+17
+],
+"vuetify:packages/vuetify/dev/index.js": [
+1,
+2,
+3,
+5,
+6,
+7,
+8,
+9,
+11,
+14,
+17,
+18,
+19,
+21,
+22
+],
+"vuetify:packages/vuetify/dev/router.js": [
+1,
+5,
+8,
+11,
+14,
+17,
+46
+],
+"vuetify:packages/vuetify/dev/vuetify.js": [
+1,
+2,
+3,
+4,
+5,
+6,
+26
+],
+"vuetify:packages/vuetify/jest.config.js": [
+1,
+10
+],
+"vuetify:packages/vuetify/postcss.config.js": [
+1,
+9
+],
+"vuetify:packages/vuetify/vite.config.mjs": [
+1,
+2,
+3,
+4,
+5,
+6,
+7,
+8,
+9,
+11,
+12,
+14,
+16,
+17,
+18,
+19,
+21,
+22,
+23,
+24,
+27,
+52,
+66,
+67
+],
+"vuetify:scripts/build.js": [
+1,
+3,
+8,
+9,
+11,
+13,
+15,
+18
+],
+"vuetify:scripts/confirm-npm-tag.js": [
+1,
+2,
+3,
+4,
+7,
+9,
+10,
+11,
+13,
+16,
+17,
+19,
+20,
+26
+],
+"vuetify:scripts/converter.js": [
+2,
+3,
+4,
+5,
+6,
+8,
+11,
+12,
+14,
+16,
+17,
+20,
+28,
+31,
+32,
+33,
+34,
+37,
+40,
+42,
+44,
+46,
+48,
+50,
+56,
+58,
+61,
+62,
+65,
+66,
+74,
+75,
+76,
+78,
+79
+],
+"vuetify:scripts/deploy-and-alias.js": [
+1,
+7,
+10,
+11,
+20,
+22,
+24,
+26,
+28
+],
+"vuetify:scripts/dev.js": [
+1,
+3,
+6,
+7,
+10,
+12
+],
+"vuetify:scripts/lint-commit-message.js": [
+1,
+3,
+4,
+6,
+7,
+9,
+13,
+17,
+18,
+20,
+21,
+22,
+25,
+26,
+27,
+29,
+30,
+31,
+32,
+33,
+34,
+35,
+36,
+37
+],
+"vuetify:scripts/parse-npm-tag.js": [
+1,
+3,
+6,
+7,
+10,
+11,
+15,
+17,
+20
+],
+"vuetify:scripts/post-install.js": [
+1,
+2,
+3,
+4,
+5,
+6,
+12
+],
+"vuetify:scripts/post-release-merge.js": [
+1,
+3,
+6,
+8,
+9,
+10,
+12,
+16,
+17,
+18,
+19,
+22,
+23,
+25
+],
+"vuetify:scripts/prepare-commit-message.js": [
+1,
+6,
+9,
+10,
+11,
+12
+],
+"vuetify:scripts/rules/jsx-curly-spacing.js": [
+12,
+21,
+22,
+31,
+126,
+127,
+128,
+129,
+130,
+131,
+132,
+135,
+136,
+137,
+146,
+149,
+150,
+151,
+152,
+154,
+156,
+161,
+162,
+163,
+164,
+165,
+178,
+191,
+193,
+195,
+199,
+201,
+204,
+223,
+224,
+226,
+245,
+246,
+248,
+266,
+267,
+268,
+272,
+275,
+276,
+281,
+284,
+286,
+304,
+305,
+306,
+310,
+313,
+314,
+319,
+322,
+324,
+342,
+344,
+362,
+364,
+373,
+377,
+378,
+382,
+383,
+386,
+389,
+392,
+393,
+394,
+395,
+396,
+399,
+400,
+401,
+404,
+405,
+406,
+409,
+410,
+411,
+415,
+418,
+420,
+423,
+425,
+430,
+433,
+437,
+440,
+444,
+446,
+450,
+454,
+457,
+469,
+471
+],
+"vuetify:scripts/rules/no-render-string-reference.js": [
+3,
+12,
+18,
+24,
+32,
+35,
+37
+],
+"vuetify:scripts/warn-npm-install.js": [
+1,
+3,
+4,
+5,
+8,
+9,
+10,
+11,
+12,
+13,
+14
+]
+}

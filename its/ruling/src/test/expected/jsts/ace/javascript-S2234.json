@@ -1,0 +1,23 @@
+{
+"ace:lib/ace/mode/javascript/jshint.js": [
+6942,
+6953,
+6968,
+6977
+],
+"ace:src/edit_session_test.js": [
+673
+],
+"ace:src/layer/font_metrics.js": [
+195
+],
+"ace:src/mode/folding/vbscript.js": [
+301
+],
+"ace:src/undomanager.js": [
+389,
+397,
+405,
+413
+]
+}

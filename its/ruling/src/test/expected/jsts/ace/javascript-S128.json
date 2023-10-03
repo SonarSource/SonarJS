@@ -1,0 +1,22 @@
+{
+"ace:lib/ace/mode/xml/sax.js": [
+237,
+241,
+253,
+258,
+265,
+289,
+302,
+329
+],
+"ace:src/lib/bidiutil.js": [
+168,
+241
+],
+"ace:src/mode/behaviour.js": [
+11
+],
+"ace:src/mode/folding/ruby.js": [
+131
+]
+}

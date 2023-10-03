@@ -1,0 +1,29 @@
+{
+"sonar-web:src/main/js/apps/global-permissions/groups-view.js": [
+26
+],
+"sonar-web:src/main/js/apps/global-permissions/users-view.js": [
+26
+],
+"sonar-web:src/main/js/apps/groups/users-view.js": [
+10
+],
+"sonar-web:src/main/js/apps/permission-templates/groups-view.js": [
+16
+],
+"sonar-web:src/main/js/apps/permission-templates/users-view.js": [
+13
+],
+"sonar-web:src/main/js/apps/project-permissions/groups-view.js": [
+15
+],
+"sonar-web:src/main/js/apps/project-permissions/users-view.js": [
+13
+],
+"sonar-web:src/main/js/apps/quality-gates/gate-projects-view.js": [
+11
+],
+"sonar-web:src/main/js/apps/users/groups-view.js": [
+10
+]
+}

@@ -1,0 +1,12 @@
+{
+"templating:gulpfile.js": [
+112
+],
+"templating:test/lib/compiler/compiler.spec.js": [
+299
+],
+"templating:test/lib/util/tree_array.spec.js": [
+24,
+24
+]
+}

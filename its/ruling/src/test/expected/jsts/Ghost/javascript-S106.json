@@ -1,0 +1,79 @@
+{
+"Ghost:Gruntfile.js": [
+509,
+797,
+799
+],
+"Ghost:core/client/tests/integration/components/gh-tag-settings-form-test.js": [
+46
+],
+"Ghost:core/server/errors/index.js": [
+89,
+145
+],
+"Ghost:core/server/ghost-server.js": [
+122,
+169,
+175,
+185,
+187,
+191,
+209
+],
+"Ghost:core/server/i18n.js": [
+72
+],
+"Ghost:core/server/middleware/ghost-busboy.js": [
+53,
+59,
+66
+],
+"Ghost:core/server/models/plugins/include-count.js": [
+64,
+74
+],
+"Ghost:core/server/models/plugins/pagination.js": [
+180
+],
+"Ghost:core/server/utils/startup-check.js": [
+35,
+36,
+38,
+61,
+63,
+92,
+93,
+94,
+136,
+137,
+138,
+158,
+159,
+160,
+205,
+206,
+207,
+208
+],
+"Ghost:core/test/functional/base.js": [
+337
+],
+"Ghost:core/test/functional/routes/admin_spec.js": [
+50,
+51
+],
+"Ghost:core/test/functional/routes/frontend_spec.js": [
+47,
+48
+],
+"Ghost:core/test/integration/api/api_configuration_spec.js": [
+46,
+66
+],
+"Ghost:core/test/unit/server_helpers/next_post_spec.js": [
+58
+],
+"Ghost:core/test/unit/server_helpers/prev_post_spec.js": [
+59
+]
+}

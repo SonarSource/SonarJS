@@ -1,0 +1,72 @@
+{
+"redux:examples/async/containers/App.js": [
+66
+],
+"redux:examples/counter/test/actions/counter.spec.js": [
+22
+],
+"redux:examples/real-world/components/List.js": [
+10
+],
+"redux:examples/real-world/middleware/api.js": [
+25
+],
+"redux:examples/shopping-cart/components/Cart.js": [
+9,
+25
+],
+"redux:examples/shopping-cart/components/Product.js": [
+6
+],
+"redux:examples/shopping-cart/components/ProductItem.js": [
+16,
+17
+],
+"redux:examples/shopping-cart/index.js": [
+11
+],
+"redux:examples/todomvc/components/Footer.js": [
+14
+],
+"redux:examples/todomvc/components/MainSection.js": [
+63
+],
+"redux:examples/todomvc/reducers/todos.js": [
+30,
+37
+],
+"redux:examples/todomvc/test/components/Footer.spec.js": [
+27,
+32,
+65
+],
+"redux:examples/todos-with-undo/components/Todo.js": [
+9,
+10
+],
+"redux:src/utils/bindActionCreators.js": [
+35
+],
+"redux:src/utils/combineReducers.js": [
+20,
+46,
+135
+],
+"redux:src/utils/isPlainObject.js": [
+13
+],
+"redux:test/createStore.spec.js": [
+319,
+323
+],
+"redux:test/helpers/middleware.js": [
+3
+],
+"redux:test/helpers/reducers.js": [
+6
+],
+"redux:test/utils/combineReducers.spec.js": [
+10,
+12
+]
+}

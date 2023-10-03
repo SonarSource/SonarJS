@@ -1,0 +1,11 @@
+{
+"Ghost:core/server/storage/base.js": [
+4
+],
+"Ghost:core/server/storage/local-file-store.js": [
+14
+],
+"Ghost:core/test/functional/base.js": [
+364
+]
+}

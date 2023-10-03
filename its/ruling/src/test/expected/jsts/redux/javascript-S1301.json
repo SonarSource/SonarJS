@@ -1,0 +1,27 @@
+{
+"redux:examples/async/reducers/index.js": [
+8
+],
+"redux:examples/shopping-cart/reducers/cart.js": [
+13,
+25
+],
+"redux:examples/shopping-cart/reducers/products.js": [
+5,
+17,
+39
+],
+"redux:examples/todos-with-undo/reducers.js": [
+8
+],
+"redux:test/helpers/reducers.js": [
+11,
+26,
+40,
+50
+],
+"redux:test/utils/combineReducers.spec.js": [
+103,
+138
+]
+}

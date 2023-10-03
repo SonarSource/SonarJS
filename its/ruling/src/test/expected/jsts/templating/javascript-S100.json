@@ -1,0 +1,12 @@
+{
+"templating:src/lib/compiler/selector_config.js": [
+3
+],
+"templating:src/lib/util/global.js": [
+1
+],
+"templating:test/lib/dom_mocks.js": [
+1,
+34
+]
+}

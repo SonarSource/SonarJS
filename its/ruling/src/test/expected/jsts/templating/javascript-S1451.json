@@ -1,0 +1,89 @@
+{
+"templating:gulpfile.js": [
+0
+],
+"templating:karma.conf.js": [
+0
+],
+"templating:protractor-shared.conf.js": [
+0
+],
+"templating:protractor-travis.conf.js": [
+0
+],
+"templating:protractor.conf.js": [
+0
+],
+"templating:scripts/read-pkg-url.js": [
+0
+],
+"templating:src/example/tab/directives.js": [
+0
+],
+"templating:src/lib/compiler/selector_config.js": [
+0
+],
+"templating:src/lib/di/ce_di.js": [
+0
+],
+"templating:src/lib/di/ce_di_bootstrap.js": [
+0
+],
+"templating:src/lib/directive/index.js": [
+0
+],
+"templating:src/lib/index.js": [
+0
+],
+"templating:src/lib/index_ce_di.js": [
+0
+],
+"templating:src/lib/load_barrier.js": [
+0
+],
+"templating:src/lib/types.js": [
+0
+],
+"templating:src/lib/util/global.js": [
+0
+],
+"templating:src/lib/util/module_annotator.js": [
+0
+],
+"templating:src/util/ng_polymer.js": [
+0
+],
+"templating:test/example/greet.spec.js": [
+0
+],
+"templating:test/example/ngmodel.spec.js": [
+0
+],
+"templating:test/example/shadow-dom-util.js": [
+0
+],
+"templating:test/example/tab.spec.js": [
+0
+],
+"templating:test/example/todo.spec.js": [
+0
+],
+"templating:test/example/video.spec.js": [
+0
+],
+"templating:test/lib/compiler/compiler.spec.js": [
+0
+],
+"templating:test/lib/dom_mocks.js": [
+0
+],
+"templating:test/lib/util/document_ready.spec.js": [
+0
+],
+"templating:test/lib/util/tree_array.spec.js": [
+0
+],
+"templating:test/unit-test-main.js": [
+0
+]
+}

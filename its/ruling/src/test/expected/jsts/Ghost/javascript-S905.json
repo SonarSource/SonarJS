@@ -1,0 +1,28 @@
+{
+"Ghost:core/client/tests/integration/components/gh-profile-image-test.js": [
+46
+],
+"Ghost:core/test/functional/routes/api/posts_spec.js": [
+818
+],
+"Ghost:core/test/unit/models_plugins/filter_spec.js": [
+42,
+43,
+75,
+88,
+101,
+111,
+121,
+137,
+157,
+185
+],
+"Ghost:core/test/unit/server_helpers/foreach_spec.js": [
+65,
+90,
+116,
+158,
+193,
+235
+]
+}

@@ -1,0 +1,19 @@
+{
+"http:gulpfile.js": [
+1,
+2,
+3,
+4
+],
+"http:karma.conf.js": [
+1
+],
+"http:lib/gulp/karma/background.js": [
+1
+],
+"http:lib/gulp/karma/index.js": [
+1,
+2,
+3
+]
+}

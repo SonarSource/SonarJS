@@ -1,0 +1,28 @@
+{
+"ecmascript6-today:10-modules/in/main.js": [
+3,
+4
+],
+"ecmascript6-today:10-modules/js/main.js": [
+8,
+9
+],
+"ecmascript6-today:4-default-params.js": [
+4
+],
+"ecmascript6-today:6-destructuring.js": [
+6,
+10,
+16,
+36
+],
+"ecmascript6-today:7-rest-params/js/rest-spread.js": [
+25
+],
+"ecmascript6-today:7-rest-params/rest-spread.js": [
+17
+],
+"ecmascript6-today:8-iterators.js": [
+41
+]
+}

@@ -1,0 +1,72 @@
+{
+"watchtower.js:gulpfile.js": [
+44,
+45,
+46,
+47
+],
+"watchtower.js:lib/gulp/karma/background.js": [
+6
+],
+"watchtower.js:lib/gulp/karma/index.js": [
+6,
+7,
+8,
+9,
+10,
+13,
+14
+],
+"watchtower.js:src/dirty_checking.js": [
+149,
+156
+],
+"watchtower.js:src/linked_list.js": [
+40,
+41,
+42,
+43,
+76,
+77,
+78,
+79,
+106,
+107,
+108,
+109,
+140,
+141,
+142,
+143,
+164,
+165,
+184,
+185,
+187,
+188,
+189,
+190
+],
+"watchtower.js:src/watch.js": [
+20,
+26
+],
+"watchtower.js:src/watch_record.js": [
+116,
+128,
+204,
+277,
+316
+],
+"watchtower.js:test/matchers.js": [
+38,
+44,
+50,
+107,
+120
+],
+"watchtower.js:test/watchgroup.spec.js": [
+564,
+566
+]
+}

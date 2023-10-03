@@ -1,0 +1,67 @@
+{
+"ace:Makefile.dryice.js": [
+725,
+725
+],
+"ace:build_support/editor.html": [
+33
+],
+"ace:demo/autocompletion.html": [
+31
+],
+"ace:demo/csp.html": [
+23
+],
+"ace:demo/kitchen-sink/demo.js": [
+266
+],
+"ace:demo/kitchen-sink/dev_util.js": [
+87
+],
+"ace:doc/site/js/main.js": [
+75,
+76,
+163
+],
+"ace:doc/template/resources/javascripts/prettify-extension.js": [
+23
+],
+"ace:experiments/animate_folding.html": [
+117
+],
+"ace:experiments/capture.html": [
+29
+],
+"ace:experiments/debug_mem_leak.html": [
+30
+],
+"ace:experiments/triple_click.html": [
+22
+],
+"ace:index.html": [
+955
+],
+"ace:lib/ace/mode/html/saxparser.js": [
+6274,
+6310,
+6614
+],
+"ace:lib/ace/mode/php/php.js": [
+1347
+],
+"ace:lib/ace/mode/xml/dom.js": [
+1122
+],
+"ace:lib/ace/mode/xquery/jsoniq_lexer.js": [
+1594
+],
+"ace:lib/ace/mode/xquery/xquery_lexer.js": [
+1594
+],
+"ace:lib/ace/worker/worker_client_v2.js": [
+102
+],
+"ace:tool/perf-test.html": [
+87
+]
+}

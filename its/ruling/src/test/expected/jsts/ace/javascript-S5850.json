@@ -1,0 +1,34 @@
+{
+"ace:Makefile.dryice.js": [
+286
+],
+"ace:lib/ace/mode/html/saxparser.js": [
+9777
+],
+"ace:lib/ace/mode/javascript/jshint.js": [
+1942,
+16411,
+18585
+],
+"ace:lib/ace/mode/xml/sax.js": [
+79
+],
+"ace:src/edit_session/folding.js": [
+587
+],
+"ace:src/keyboard/vim.js": [
+4024
+],
+"ace:src/layer/text.js": [
+131
+],
+"ace:src/mode/asciidoc_highlight_rules.js": [
+129
+],
+"ace:src/mode/folding/latex.js": [
+26
+],
+"ace:src/mode/robot_highlight_rules.js": [
+86
+]
+}

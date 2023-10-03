@@ -1,0 +1,17 @@
+{
+"eigen:metro.config.js": [
+8
+],
+"eigen:scripts/changelog/commitChangelog.js": [
+17
+],
+"eigen:scripts/doctor.js": [
+18
+],
+"eigen:scripts/generate-cities-objc.js": [
+10
+],
+"eigen:tslint-rules/jsxSafeConditionalsRule.js": [
+61
+]
+}

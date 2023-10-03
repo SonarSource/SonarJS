@@ -1,0 +1,60 @@
+{
+"watchtower.js:lib/gulp/karma/background.js": [
+6,
+6
+],
+"watchtower.js:lib/gulp/karma/index.js": [
+7
+],
+"watchtower.js:src/dirty_checking.js": [
+99,
+166,
+182,
+183,
+275,
+276,
+631,
+631,
+638,
+639,
+914,
+914,
+915,
+915,
+916,
+916,
+917,
+917,
+978
+],
+"watchtower.js:src/watch_record.js": [
+13,
+13,
+287,
+329
+],
+"watchtower.js:test/dirtychecking.spec.js": [
+53,
+53,
+71,
+94,
+106,
+118,
+118,
+122
+],
+"watchtower.js:test/helpers.js": [
+19
+],
+"watchtower.js:test/matchers.js": [
+136,
+148
+],
+"watchtower.js:test/watchgroup.spec.js": [
+125,
+230,
+553,
+555,
+558
+]
+}

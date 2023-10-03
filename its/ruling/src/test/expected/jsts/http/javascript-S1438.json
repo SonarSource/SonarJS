@@ -1,0 +1,38 @@
+{
+"http:test/ConnectionMock.spec.js": [
+109,
+109,
+113,
+155
+],
+"http:test/Http.spec.js": [
+21,
+133,
+233
+],
+"http:test/IInterceptResolution.spec.js": [
+23
+],
+"http:test/IRequest.spec.js": [
+13
+],
+"http:test/IResponse.spec.js": [
+13,
+63,
+69
+],
+"http:test/JSONPConnection.spec.js": [
+84
+],
+"http:test/QueryParams.spec.js": [
+24,
+31
+],
+"http:test/XHRConnection.spec.js": [
+77,
+170
+],
+"http:test/mocks/HttpResponse.js": [
+23
+]
+}

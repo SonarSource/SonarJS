@@ -1,0 +1,3784 @@
+{
+"Ghost:Gruntfile.js": [
+38,
+54,
+57,
+58,
+64,
+65,
+71,
+72,
+73,
+81,
+85,
+89,
+90,
+91,
+99,
+108,
+118,
+119,
+124,
+129,
+140,
+141,
+142,
+147,
+152,
+153,
+154,
+166,
+167,
+168,
+169,
+180,
+186,
+187,
+192,
+196,
+200,
+204,
+208,
+212,
+218,
+219,
+223,
+231,
+232,
+237,
+242,
+248,
+249,
+255,
+256,
+257,
+272,
+273,
+281,
+282,
+284,
+293,
+301,
+302,
+326,
+327,
+328,
+337,
+338,
+344,
+348,
+352,
+356,
+360,
+361,
+374,
+375,
+376,
+387,
+388,
+391,
+394,
+397,
+400,
+401,
+409,
+413,
+414,
+422,
+423,
+424,
+430,
+433,
+434,
+435,
+436,
+479,
+480,
+525,
+526,
+527,
+528,
+643,
+649,
+670,
+700,
+722,
+731,
+737,
+759,
+768,
+782,
+786,
+832,
+833,
+856,
+964,
+968
+],
+"Ghost:config.example.js": [
+19,
+21,
+26,
+27,
+56,
+58,
+66,
+71,
+72,
+85,
+93,
+94,
+98,
+100,
+114,
+115,
+119,
+121,
+135,
+136,
+140,
+142,
+143
+],
+"Ghost:core/client/app/adapters/application.js": [
+7
+],
+"Ghost:core/client/app/adapters/base.js": [
+7,
+67
+],
+"Ghost:core/client/app/adapters/embedded-relation-adapter.js": [
+52,
+131
+],
+"Ghost:core/client/app/adapters/setting.js": [
+18
+],
+"Ghost:core/client/app/adapters/user.js": [
+22
+],
+"Ghost:core/client/app/app.js": [
+15
+],
+"Ghost:core/client/app/assets/lib/uploader.js": [
+15,
+18,
+110,
+239,
+247
+],
+"Ghost:core/client/app/authenticators/oauth2.js": [
+6,
+27
+],
+"Ghost:core/client/app/components/gh-activating-list-item.js": [
+20,
+21
+],
+"Ghost:core/client/app/components/gh-alert.js": [
+6,
+25,
+38,
+39
+],
+"Ghost:core/client/app/components/gh-alerts.js": [
+7,
+21
+],
+"Ghost:core/client/app/components/gh-app.js": [
+14
+],
+"Ghost:core/client/app/components/gh-blog-url.js": [
+5,
+11
+],
+"Ghost:core/client/app/components/gh-cm-editor.js": [
+46
+],
+"Ghost:core/client/app/components/gh-content-cover.js": [
+29
+],
+"Ghost:core/client/app/components/gh-content-preview-content.js": [
+21
+],
+"Ghost:core/client/app/components/gh-content-view-container.js": [
+6,
+14
+],
+"Ghost:core/client/app/components/gh-datetime-input.js": [
+31
+],
+"Ghost:core/client/app/components/gh-dropdown-button.js": [
+6,
+23
+],
+"Ghost:core/client/app/components/gh-dropdown.js": [
+7,
+98
+],
+"Ghost:core/client/app/components/gh-ed-editor.js": [
+49,
+50
+],
+"Ghost:core/client/app/components/gh-ed-preview.js": [
+8,
+53,
+64
+],
+"Ghost:core/client/app/components/gh-editor-save-button.js": [
+48,
+49
+],
+"Ghost:core/client/app/components/gh-editor.js": [
+121,
+122
+],
+"Ghost:core/client/app/components/gh-error-message.js": [
+35
+],
+"Ghost:core/client/app/components/gh-file-upload.js": [
+35,
+36
+],
+"Ghost:core/client/app/components/gh-form-group.js": [
+4
+],
+"Ghost:core/client/app/components/gh-fullscreen-modal.js": [
+9,
+74,
+75,
+79
+],
+"Ghost:core/client/app/components/gh-input.js": [
+7
+],
+"Ghost:core/client/app/components/gh-main.js": [
+12
+],
+"Ghost:core/client/app/components/gh-menu-toggle.js": [
+6,
+41
+],
+"Ghost:core/client/app/components/gh-nav-menu.js": [
+5,
+37,
+38
+],
+"Ghost:core/client/app/components/gh-navigation.js": [
+31,
+38
+],
+"Ghost:core/client/app/components/gh-navitem-url-input.js": [
+147
+],
+"Ghost:core/client/app/components/gh-navitem.js": [
+42,
+43
+],
+"Ghost:core/client/app/components/gh-notification.js": [
+6,
+26,
+54,
+55
+],
+"Ghost:core/client/app/components/gh-notifications.js": [
+6,
+16
+],
+"Ghost:core/client/app/components/gh-popover-button.js": [
+5,
+25
+],
+"Ghost:core/client/app/components/gh-popover.js": [
+5,
+10
+],
+"Ghost:core/client/app/components/gh-posts-list-item.js": [
+8,
+81,
+84
+],
+"Ghost:core/client/app/components/gh-profile-image.js": [
+7,
+89,
+123
+],
+"Ghost:core/client/app/components/gh-search-input.js": [
+11,
+69,
+86,
+103,
+192,
+193
+],
+"Ghost:core/client/app/components/gh-select-native.js": [
+40,
+41
+],
+"Ghost:core/client/app/components/gh-selectize.js": [
+122
+],
+"Ghost:core/client/app/components/gh-skip-link.js": [
+35
+],
+"Ghost:core/client/app/components/gh-spin-button.js": [
+58
+],
+"Ghost:core/client/app/components/gh-tab-pane.js": [
+33
+],
+"Ghost:core/client/app/components/gh-tab.js": [
+34
+],
+"Ghost:core/client/app/components/gh-tabs-manager.js": [
+84
+],
+"Ghost:core/client/app/components/gh-tag-settings-form.js": [
+10,
+136,
+137
+],
+"Ghost:core/client/app/components/gh-tags-management-container.js": [
+9,
+53
+],
+"Ghost:core/client/app/components/gh-textarea.js": [
+7
+],
+"Ghost:core/client/app/components/gh-trim-focus-input.js": [
+40
+],
+"Ghost:core/client/app/components/gh-uploader.js": [
+10,
+72,
+86,
+87
+],
+"Ghost:core/client/app/components/gh-url-preview.js": [
+6,
+34
+],
+"Ghost:core/client/app/components/gh-user-active.js": [
+6,
+30
+],
+"Ghost:core/client/app/components/gh-user-invited.js": [
+6,
+67,
+68
+],
+"Ghost:core/client/app/components/gh-validation-status-container.js": [
+25
+],
+"Ghost:core/client/app/components/gh-view-title.js": [
+12,
+13
+],
+"Ghost:core/client/app/components/modals/base.js": [
+53,
+54
+],
+"Ghost:core/client/app/components/modals/copy-html.js": [
+8
+],
+"Ghost:core/client/app/components/modals/delete-all.js": [
+5,
+47,
+48
+],
+"Ghost:core/client/app/components/modals/delete-post.js": [
+6,
+53,
+54
+],
+"Ghost:core/client/app/components/modals/delete-tag.js": [
+24,
+25
+],
+"Ghost:core/client/app/components/modals/delete-user.js": [
+16,
+17
+],
+"Ghost:core/client/app/components/modals/invite-new-user.js": [
+8,
+103,
+123,
+124
+],
+"Ghost:core/client/app/components/modals/leave-editor.js": [
+9,
+10
+],
+"Ghost:core/client/app/components/modals/re-authenticate.js": [
+8,
+66,
+67
+],
+"Ghost:core/client/app/components/modals/transfer-owner.js": [
+14,
+15
+],
+"Ghost:core/client/app/components/modals/upload-image.js": [
+9,
+32,
+38,
+87,
+88
+],
+"Ghost:core/client/app/controllers/about.js": [
+5,
+14,
+20
+],
+"Ghost:core/client/app/controllers/application.js": [
+6,
+29,
+51,
+52
+],
+"Ghost:core/client/app/controllers/editor/edit.js": [
+12,
+13
+],
+"Ghost:core/client/app/controllers/editor/new.js": [
+23,
+24
+],
+"Ghost:core/client/app/controllers/error.js": [
+19
+],
+"Ghost:core/client/app/controllers/feature.js": [
+36
+],
+"Ghost:core/client/app/controllers/post-settings-menu.js": [
+20,
+475,
+496,
+497
+],
+"Ghost:core/client/app/controllers/posts.js": [
+94,
+95
+],
+"Ghost:core/client/app/controllers/reset.js": [
+7,
+35,
+50,
+51,
+73,
+74
+],
+"Ghost:core/client/app/controllers/settings/code-injection.js": [
+6,
+18
+],
+"Ghost:core/client/app/controllers/settings/general.js": [
+9,
+54,
+117,
+118
+],
+"Ghost:core/client/app/controllers/settings/labs.js": [
+8,
+48,
+68,
+117,
+118
+],
+"Ghost:core/client/app/controllers/settings/navigation.js": [
+12,
+40,
+164,
+165
+],
+"Ghost:core/client/app/controllers/settings/tags.js": [
+5,
+40,
+41
+],
+"Ghost:core/client/app/controllers/settings/tags/tag.js": [
+6,
+79,
+80
+],
+"Ghost:core/client/app/controllers/setup.js": [
+7,
+22
+],
+"Ghost:core/client/app/controllers/setup/three.js": [
+9,
+63,
+172,
+178,
+183,
+186,
+234,
+235
+],
+"Ghost:core/client/app/controllers/setup/two.js": [
+8,
+48,
+49,
+118,
+119,
+120,
+150,
+151
+],
+"Ghost:core/client/app/controllers/signin.js": [
+8,
+89,
+90,
+112,
+113
+],
+"Ghost:core/client/app/controllers/signup.js": [
+8,
+37,
+38,
+67,
+68,
+69,
+94,
+95
+],
+"Ghost:core/client/app/controllers/team/index.js": [
+6,
+31,
+32
+],
+"Ghost:core/client/app/controllers/team/user.js": [
+11,
+179,
+254,
+255,
+256,
+287,
+288
+],
+"Ghost:core/client/app/initializers/ember-simple-auth.js": [
+16
+],
+"Ghost:core/client/app/initializers/trailing-history.js": [
+8,
+16
+],
+"Ghost:core/client/app/instance-initializers/jquery-ajax-oauth-prefilter.js": [
+20
+],
+"Ghost:core/client/app/mirage/config.js": [
+43,
+44,
+46,
+62,
+77,
+78,
+79,
+84,
+85,
+96,
+118,
+137,
+155,
+156,
+157,
+169,
+178,
+179,
+186,
+187,
+214,
+221,
+222,
+240,
+256,
+266,
+286,
+293,
+303,
+311
+],
+"Ghost:core/client/app/mirage/factories/notification.js": [
+8
+],
+"Ghost:core/client/app/mirage/factories/post.js": [
+22
+],
+"Ghost:core/client/app/mirage/factories/role.js": [
+11
+],
+"Ghost:core/client/app/mirage/factories/setting.js": [
+12
+],
+"Ghost:core/client/app/mirage/factories/tag.js": [
+20
+],
+"Ghost:core/client/app/mirage/factories/user.js": [
+26
+],
+"Ghost:core/client/app/mirage/fixtures/roles.js": [
+11,
+21,
+31,
+41,
+42
+],
+"Ghost:core/client/app/mirage/fixtures/settings.js": [
+12,
+23,
+34,
+45,
+56,
+67,
+78,
+89,
+100,
+111,
+122,
+133,
+144,
+157,
+158,
+167,
+169,
+170,
+172,
+173
+],
+"Ghost:core/client/app/mixins/404-handler.js": [
+21,
+22
+],
+"Ghost:core/client/app/mixins/active-link-wrapper.js": [
+25,
+30
+],
+"Ghost:core/client/app/mixins/body-event-listener.js": [
+48
+],
+"Ghost:core/client/app/mixins/current-user-settings.js": [
+24
+],
+"Ghost:core/client/app/mixins/dropdown-mixin.js": [
+16
+],
+"Ghost:core/client/app/mixins/ed-editor-api.js": [
+47,
+77,
+135
+],
+"Ghost:core/client/app/mixins/ed-editor-scroll.js": [
+37,
+98
+],
+"Ghost:core/client/app/mixins/ed-editor-shortcuts.js": [
+12,
+16,
+21,
+25,
+30,
+35,
+39,
+44,
+45,
+71,
+137,
+146,
+172
+],
+"Ghost:core/client/app/mixins/editor-base-controller.js": [
+11,
+53,
+177,
+196,
+200,
+201,
+203,
+210,
+214,
+215,
+216,
+217,
+398,
+399
+],
+"Ghost:core/client/app/mixins/editor-base-route.js": [
+85,
+94,
+135
+],
+"Ghost:core/client/app/mixins/infinite-scroll.js": [
+43
+],
+"Ghost:core/client/app/mixins/pagination-route.js": [
+6,
+11,
+94,
+95
+],
+"Ghost:core/client/app/mixins/settings-menu-controller.js": [
+6,
+22,
+32,
+33
+],
+"Ghost:core/client/app/mixins/settings-save.js": [
+15,
+16
+],
+"Ghost:core/client/app/mixins/shortcuts-route.js": [
+48
+],
+"Ghost:core/client/app/mixins/shortcuts.js": [
+78
+],
+"Ghost:core/client/app/mixins/slug-url.js": [
+15
+],
+"Ghost:core/client/app/mixins/style-body.js": [
+31
+],
+"Ghost:core/client/app/mixins/text-input.js": [
+24
+],
+"Ghost:core/client/app/mixins/validation-engine.js": [
+47,
+149,
+150
+],
+"Ghost:core/client/app/mixins/validation-state.js": [
+32
+],
+"Ghost:core/client/app/models/notification.js": [
+8
+],
+"Ghost:core/client/app/models/post.js": [
+10,
+39,
+85
+],
+"Ghost:core/client/app/models/role.js": [
+19
+],
+"Ghost:core/client/app/models/setting.js": [
+24
+],
+"Ghost:core/client/app/models/tag.js": [
+22
+],
+"Ghost:core/client/app/models/user.js": [
+10,
+38,
+88,
+100,
+101,
+102,
+110,
+116,
+118
+],
+"Ghost:core/client/app/router.js": [
+8,
+19
+],
+"Ghost:core/client/app/routes/about.js": [
+6,
+39
+],
+"Ghost:core/client/app/routes/application.js": [
+11,
+70,
+112,
+113
+],
+"Ghost:core/client/app/routes/editor/edit.js": [
+30,
+63,
+64
+],
+"Ghost:core/client/app/routes/editor/index.js": [
+9
+],
+"Ghost:core/client/app/routes/editor/new.js": [
+10,
+18,
+24,
+49,
+50
+],
+"Ghost:core/client/app/routes/error404.js": [
+12,
+14
+],
+"Ghost:core/client/app/routes/mobile-index-route.js": [
+8,
+36
+],
+"Ghost:core/client/app/routes/posts.js": [
+12,
+68,
+98,
+99
+],
+"Ghost:core/client/app/routes/posts/index.js": [
+7,
+56
+],
+"Ghost:core/client/app/routes/posts/post.js": [
+28,
+58,
+74,
+75
+],
+"Ghost:core/client/app/routes/reset.js": [
+7,
+32
+],
+"Ghost:core/client/app/routes/settings/code-injection.js": [
+25,
+26
+],
+"Ghost:core/client/app/routes/settings/general.js": [
+26,
+27
+],
+"Ghost:core/client/app/routes/settings/labs.js": [
+21
+],
+"Ghost:core/client/app/routes/settings/navigation.js": [
+39,
+40
+],
+"Ghost:core/client/app/routes/settings/tags.js": [
+14,
+22,
+104,
+105
+],
+"Ghost:core/client/app/routes/settings/tags/index.js": [
+5,
+19
+],
+"Ghost:core/client/app/routes/settings/tags/new.js": [
+19
+],
+"Ghost:core/client/app/routes/settings/tags/tag.js": [
+19
+],
+"Ghost:core/client/app/routes/setup.js": [
+7,
+45
+],
+"Ghost:core/client/app/routes/setup/index.js": [
+9
+],
+"Ghost:core/client/app/routes/setup/one.js": [
+7,
+48,
+63
+],
+"Ghost:core/client/app/routes/setup/three.js": [
+11
+],
+"Ghost:core/client/app/routes/signin.js": [
+8,
+31,
+44
+],
+"Ghost:core/client/app/routes/signout.js": [
+7,
+25
+],
+"Ghost:core/client/app/routes/signup.js": [
+9,
+55,
+56,
+76
+],
+"Ghost:core/client/app/routes/team/index.js": [
+14,
+30,
+31
+],
+"Ghost:core/client/app/routes/team/user.js": [
+56,
+57
+],
+"Ghost:core/client/app/serializers/application.js": [
+5,
+26
+],
+"Ghost:core/client/app/serializers/post.js": [
+11,
+55
+],
+"Ghost:core/client/app/serializers/setting.js": [
+45
+],
+"Ghost:core/client/app/serializers/tag.js": [
+19
+],
+"Ghost:core/client/app/serializers/user.js": [
+9,
+30
+],
+"Ghost:core/client/app/services/ajax.js": [
+31
+],
+"Ghost:core/client/app/services/config.js": [
+43
+],
+"Ghost:core/client/app/services/dropdown.js": [
+19
+],
+"Ghost:core/client/app/services/ghost-paths.js": [
+7
+],
+"Ghost:core/client/app/services/media-queries.js": [
+9,
+46
+],
+"Ghost:core/client/app/services/notifications.js": [
+9,
+65,
+83,
+186
+],
+"Ghost:core/client/app/services/session.js": [
+6,
+14
+],
+"Ghost:core/client/app/services/slug-generator.js": [
+6,
+28
+],
+"Ghost:core/client/app/session-stores/application.js": [
+9
+],
+"Ghost:core/client/app/transforms/moment-date.js": [
+17
+],
+"Ghost:core/client/app/transforms/raw.js": [
+10
+],
+"Ghost:core/client/app/transitions.js": [
+9
+],
+"Ghost:core/client/app/utils/bound-one-way.js": [
+29
+],
+"Ghost:core/client/app/utils/caja-sanitizers.js": [
+25
+],
+"Ghost:core/client/app/utils/date-formatting.js": [
+38
+],
+"Ghost:core/client/app/utils/document-title.js": [
+45,
+46,
+56
+],
+"Ghost:core/client/app/utils/ed-image-manager.js": [
+53
+],
+"Ghost:core/client/app/utils/ghost-paths.js": [
+52,
+53
+],
+"Ghost:core/client/app/utils/link-component.js": [
+18
+],
+"Ghost:core/client/app/utils/text-field.js": [
+6
+],
+"Ghost:core/client/app/utils/validator-extensions.js": [
+18
+],
+"Ghost:core/client/app/utils/window-proxy.js": [
+8
+],
+"Ghost:core/client/app/validators/base.js": [
+36
+],
+"Ghost:core/client/app/validators/invite-user.js": [
+16
+],
+"Ghost:core/client/app/validators/nav-item.js": [
+35
+],
+"Ghost:core/client/app/validators/new-user.js": [
+34
+],
+"Ghost:core/client/app/validators/post.js": [
+36
+],
+"Ghost:core/client/app/validators/reset.js": [
+20
+],
+"Ghost:core/client/app/validators/setting.js": [
+46
+],
+"Ghost:core/client/app/validators/setup.js": [
+13
+],
+"Ghost:core/client/app/validators/signin.js": [
+47
+],
+"Ghost:core/client/app/validators/tag-settings.js": [
+55
+],
+"Ghost:core/client/app/validators/user.js": [
+80
+],
+"Ghost:core/client/config/environment.js": [
+14,
+25,
+26,
+36
+],
+"Ghost:core/client/ember-cli-build.js": [
+22,
+26,
+30,
+31,
+40,
+45,
+46
+],
+"Ghost:core/client/lib/asset-delivery/index.js": [
+21
+],
+"Ghost:core/client/tests/acceptance/authentication-test.js": [
+6,
+52,
+53,
+88,
+89,
+93,
+145,
+154
+],
+"Ghost:core/client/tests/acceptance/password-reset-test.js": [
+6,
+46,
+52,
+68,
+74,
+90,
+96
+],
+"Ghost:core/client/tests/acceptance/posts/post-test.js": [
+7
+],
+"Ghost:core/client/tests/acceptance/settings/navigation-test.js": [
+7
+],
+"Ghost:core/client/tests/acceptance/settings/tags-test.js": [
+7,
+26
+],
+"Ghost:core/client/tests/acceptance/setup-test.js": [
+6,
+53,
+54,
+72,
+73,
+188,
+189,
+190,
+241,
+242,
+243,
+286,
+287,
+288,
+295
+],
+"Ghost:core/client/tests/acceptance/team-test.js": [
+6
+],
+"Ghost:core/client/tests/helpers/module-for-acceptance.js": [
+21
+],
+"Ghost:core/client/tests/helpers/resolver.js": [
+8
+],
+"Ghost:core/client/tests/integration/adapters/tag-test.js": [
+5,
+13,
+32,
+36,
+52,
+62
+],
+"Ghost:core/client/tests/integration/adapters/user-test.js": [
+5,
+13,
+32,
+36,
+52,
+73,
+74,
+85
+],
+"Ghost:core/client/tests/integration/components/gh-alert-test.js": [
+5,
+13,
+45
+],
+"Ghost:core/client/tests/integration/components/gh-alerts-test.js": [
+5,
+14,
+21,
+30,
+57
+],
+"Ghost:core/client/tests/integration/components/gh-cm-editor-test.js": [
+5,
+16,
+52
+],
+"Ghost:core/client/tests/integration/components/gh-navigation-test.js": [
+14,
+60,
+70,
+74
+],
+"Ghost:core/client/tests/integration/components/gh-navitem-test.js": [
+14,
+113
+],
+"Ghost:core/client/tests/integration/components/gh-navitem-url-input-test.js": [
+5,
+19,
+492
+],
+"Ghost:core/client/tests/integration/components/gh-notification-test.js": [
+5,
+13,
+43
+],
+"Ghost:core/client/tests/integration/components/gh-notifications-test.js": [
+5,
+14,
+21,
+30,
+43
+],
+"Ghost:core/client/tests/integration/components/gh-profile-image-test.js": [
+6,
+20,
+21,
+28,
+102
+],
+"Ghost:core/client/tests/integration/components/gh-tag-settings-form-test.js": [
+6,
+15,
+19,
+26,
+39,
+321
+],
+"Ghost:core/client/tests/integration/components/gh-tags-management-container-test.js": [
+5,
+14,
+32
+],
+"Ghost:core/client/tests/integration/components/gh-validation-status-container-test.js": [
+5,
+15,
+71
+],
+"Ghost:core/client/tests/integration/services/ajax-test.js": [
+4,
+14,
+23,
+91
+],
+"Ghost:core/client/tests/integration/services/slug-generator-test.js": [
+4,
+19,
+28,
+61
+],
+"Ghost:core/client/tests/test-helper.js": [
+9
+],
+"Ghost:core/client/tests/unit/components/gh-alert-test.js": [
+5,
+14,
+32
+],
+"Ghost:core/client/tests/unit/components/gh-app-test.js": [
+5,
+12,
+27
+],
+"Ghost:core/client/tests/unit/components/gh-content-preview-content-test.js": [
+5,
+12,
+27
+],
+"Ghost:core/client/tests/unit/components/gh-editor-save-button-test.js": [
+5,
+17,
+18,
+31
+],
+"Ghost:core/client/tests/unit/components/gh-editor-test.js": [
+5,
+19,
+20,
+33
+],
+"Ghost:core/client/tests/unit/components/gh-infinite-scroll-box-test.js": [
+5,
+12,
+27
+],
+"Ghost:core/client/tests/unit/components/gh-infinite-scroll-test.js": [
+5,
+12,
+27
+],
+"Ghost:core/client/tests/unit/components/gh-navitem-url-input-test.js": [
+6,
+15,
+21,
+38
+],
+"Ghost:core/client/tests/unit/components/gh-notification-test.js": [
+5,
+14,
+49
+],
+"Ghost:core/client/tests/unit/components/gh-posts-list-item-test.js": [
+5,
+12,
+27
+],
+"Ghost:core/client/tests/unit/components/gh-search-input-test.js": [
+5,
+13,
+25
+],
+"Ghost:core/client/tests/unit/components/gh-select-native-test.js": [
+5,
+12,
+27
+],
+"Ghost:core/client/tests/unit/components/gh-selectize-test.js": [
+5,
+18,
+39
+],
+"Ghost:core/client/tests/unit/components/gh-spin-button-test.js": [
+5,
+12,
+27
+],
+"Ghost:core/client/tests/unit/components/gh-trim-focus-input_test.js": [
+4,
+11,
+16,
+28,
+39,
+46
+],
+"Ghost:core/client/tests/unit/components/gh-url-preview_test.js": [
+3,
+10,
+20,
+34,
+41
+],
+"Ghost:core/client/tests/unit/components/gh-user-active-test.js": [
+5,
+12,
+27
+],
+"Ghost:core/client/tests/unit/components/gh-user-invited-test.js": [
+5,
+12,
+27
+],
+"Ghost:core/client/tests/unit/controllers/post-settings-menu-test.js": [
+5,
+18,
+25,
+26,
+56,
+57,
+87,
+88,
+120,
+121,
+130,
+131,
+141,
+142,
+152,
+153,
+168,
+188,
+189,
+203,
+223,
+232,
+241,
+258,
+277,
+278,
+298,
+299,
+318,
+319,
+336,
+337,
+355,
+356,
+375,
+376,
+394,
+396,
+418,
+421,
+422,
+446,
+472,
+477,
+503,
+508,
+535,
+536,
+574,
+577,
+578,
+601,
+604,
+605,
+627,
+631,
+632,
+654,
+662,
+663,
+686,
+694,
+695,
+711
+],
+"Ghost:core/client/tests/unit/controllers/settings/general-test.js": [
+4,
+13,
+20,
+21,
+36,
+37,
+64,
+65,
+72,
+73,
+78,
+79,
+92
+],
+"Ghost:core/client/tests/unit/controllers/settings/navigation-test.js": [
+25,
+197,
+212,
+227,
+237
+],
+"Ghost:core/client/tests/unit/helpers/gh-user-can-admin-test.js": [
+3,
+17,
+34,
+51
+],
+"Ghost:core/client/tests/unit/helpers/is-equal-test.js": [
+5,
+8
+],
+"Ghost:core/client/tests/unit/helpers/is-not-test.js": [
+5,
+8
+],
+"Ghost:core/client/tests/unit/mixins/infinite-scroll-test.js": [
+5
+],
+"Ghost:core/client/tests/unit/mixins/validation-engine-test.js": [
+5
+],
+"Ghost:core/client/tests/unit/models/post-test.js": [
+4,
+11,
+23,
+40,
+83
+],
+"Ghost:core/client/tests/unit/models/role-test.js": [
+4,
+12
+],
+"Ghost:core/client/tests/unit/models/setting-test.js": [
+3
+],
+"Ghost:core/client/tests/unit/models/tag-test.js": [
+3
+],
+"Ghost:core/client/tests/unit/models/user-test.js": [
+4,
+13,
+25,
+44,
+61,
+140
+],
+"Ghost:core/client/tests/unit/services/config-test.js": [
+5,
+33
+],
+"Ghost:core/client/tests/unit/services/notifications-test.js": [
+7,
+162,
+168,
+198,
+209,
+218,
+270,
+304,
+372,
+418
+],
+"Ghost:core/client/tests/unit/validators/nav-item-test.js": [
+5,
+18,
+41,
+54,
+64,
+84
+],
+"Ghost:core/client/tests/unit/validators/tag-settings-test.js": [
+6,
+21
+],
+"Ghost:core/server/api/authentication.js": [
+23,
+100,
+102,
+103,
+144,
+187,
+255,
+264,
+269,
+270,
+277,
+320
+],
+"Ghost:core/server/api/clients.js": [
+47,
+58
+],
+"Ghost:core/server/api/configuration.js": [
+14,
+29,
+39,
+71
+],
+"Ghost:core/server/api/db.js": [
+49,
+79,
+97,
+125,
+129
+],
+"Ghost:core/server/api/index.js": [
+172,
+197,
+198,
+242
+],
+"Ghost:core/server/api/mail.js": [
+63,
+80,
+117,
+118,
+119,
+137,
+156,
+176,
+179
+],
+"Ghost:core/server/api/notifications.js": [
+83,
+91,
+105,
+144,
+163,
+187
+],
+"Ghost:core/server/api/posts.js": [
+14,
+66,
+100,
+141,
+188,
+235,
+250
+],
+"Ghost:core/server/api/roles.js": [
+49,
+72
+],
+"Ghost:core/server/api/settings.js": [
+42,
+61,
+63,
+145,
+186,
+196,
+214,
+219,
+264,
+348,
+421
+],
+"Ghost:core/server/api/slugs.js": [
+38,
+69,
+80
+],
+"Ghost:core/server/api/tags.js": [
+44,
+75,
+111,
+147,
+191,
+196
+],
+"Ghost:core/server/api/themes.js": [
+24,
+25,
+62,
+65,
+66,
+97,
+115,
+134,
+185,
+189
+],
+"Ghost:core/server/api/upload.js": [
+47
+],
+"Ghost:core/server/api/users.js": [
+28,
+38,
+55,
+57,
+58,
+96,
+132,
+191,
+235,
+307,
+326,
+355,
+398,
+421,
+460,
+469,
+518,
+527
+],
+"Ghost:core/server/api/utils.js": [
+119,
+303
+],
+"Ghost:core/server/apps/dependencies.js": [
+25
+],
+"Ghost:core/server/apps/index.js": [
+50,
+91,
+96
+],
+"Ghost:core/server/apps/loader.js": [
+38,
+51,
+108
+],
+"Ghost:core/server/apps/permissions.js": [
+54
+],
+"Ghost:core/server/apps/proxy.js": [
+39,
+61,
+65,
+69,
+72,
+75,
+78,
+79,
+80
+],
+"Ghost:core/server/apps/sandbox.js": [
+88
+],
+"Ghost:core/server/config/index.js": [
+50,
+178,
+203,
+206,
+210,
+217,
+227,
+232,
+236
+],
+"Ghost:core/server/config/url.js": [
+112,
+160
+],
+"Ghost:core/server/controllers/admin.js": [
+32,
+60
+],
+"Ghost:core/server/controllers/frontend/channel-config.js": [
+10,
+16,
+22,
+23,
+25,
+31,
+37,
+38,
+40,
+41
+],
+"Ghost:core/server/controllers/frontend/fetch-data.js": [
+16,
+22,
+23
+],
+"Ghost:core/server/controllers/frontend/format-response.js": [
+11,
+35,
+41
+],
+"Ghost:core/server/controllers/frontend/index.js": [
+111,
+228
+],
+"Ghost:core/server/controllers/frontend/templates.js": [
+99
+],
+"Ghost:core/server/data/export/index.js": [
+44,
+48
+],
+"Ghost:core/server/data/import/data-importer.js": [
+167
+],
+"Ghost:core/server/data/import/index.js": [
+150,
+164
+],
+"Ghost:core/server/data/import/utils.js": [
+16,
+82,
+235,
+324
+],
+"Ghost:core/server/data/importer/handlers/image.js": [
+45
+],
+"Ghost:core/server/data/importer/handlers/json.js": [
+40
+],
+"Ghost:core/server/data/importer/handlers/markdown.js": [
+109
+],
+"Ghost:core/server/data/importer/importers/data.js": [
+12
+],
+"Ghost:core/server/data/importer/importers/image.js": [
+70
+],
+"Ghost:core/server/data/importer/index.js": [
+29,
+138,
+141,
+144,
+152,
+211,
+242,
+259,
+374
+],
+"Ghost:core/server/data/meta/index.js": [
+37
+],
+"Ghost:core/server/data/meta/schema.js": [
+31,
+42,
+57,
+72,
+89
+],
+"Ghost:core/server/data/meta/structured_data.js": [
+23
+],
+"Ghost:core/server/data/migration/builder.js": [
+74
+],
+"Ghost:core/server/data/migration/fixtures/index.js": [
+176,
+180,
+201,
+308,
+364
+],
+"Ghost:core/server/data/migration/fixtures/permissions/index.js": [
+110
+],
+"Ghost:core/server/data/migration/index.js": [
+107,
+179,
+187,
+211
+],
+"Ghost:core/server/data/schema/checks.js": [
+25
+],
+"Ghost:core/server/data/schema/clients/index.js": [
+10
+],
+"Ghost:core/server/data/schema/clients/mysql.js": [
+55
+],
+"Ghost:core/server/data/schema/clients/pg.js": [
+20,
+42
+],
+"Ghost:core/server/data/schema/clients/sqlite3.js": [
+41
+],
+"Ghost:core/server/data/schema/commands.js": [
+133
+],
+"Ghost:core/server/data/schema/schema.js": [
+22,
+46,
+56,
+61,
+73,
+78,
+83,
+88,
+99,
+115,
+121,
+133,
+144,
+159,
+175,
+181,
+188,
+195,
+196
+],
+"Ghost:core/server/data/schema/versioning.js": [
+65
+],
+"Ghost:core/server/data/validation/index.js": [
+175
+],
+"Ghost:core/server/data/xml/rss/index.js": [
+47,
+116,
+133,
+134,
+148,
+160,
+161,
+162,
+172,
+173
+],
+"Ghost:core/server/data/xml/sitemap/base-generator.js": [
+16,
+17,
+77,
+86,
+152,
+153,
+186,
+191,
+222
+],
+"Ghost:core/server/data/xml/sitemap/handler.js": [
+22,
+34
+],
+"Ghost:core/server/data/xml/sitemap/index-generator.js": [
+13,
+14,
+27,
+39,
+46,
+47,
+50
+],
+"Ghost:core/server/data/xml/sitemap/manager.js": [
+50,
+78,
+79
+],
+"Ghost:core/server/data/xml/sitemap/page-generator.js": [
+27,
+31,
+35,
+52
+],
+"Ghost:core/server/data/xml/sitemap/post-generator.js": [
+27,
+31,
+44
+],
+"Ghost:core/server/data/xml/sitemap/tag-generator.js": [
+27,
+29,
+42
+],
+"Ghost:core/server/data/xml/sitemap/user-generator.js": [
+28,
+30,
+48
+],
+"Ghost:core/server/data/xml/sitemap/utils.js": [
+10
+],
+"Ghost:core/server/data/xml/xmlrpc.js": [
+13,
+16,
+40,
+45,
+46,
+47,
+51,
+52,
+53,
+54,
+55,
+63,
+73,
+87
+],
+"Ghost:core/server/errors/index.js": [
+214,
+271,
+291,
+306,
+370,
+390
+],
+"Ghost:core/server/filters.js": [
+15
+],
+"Ghost:core/server/ghost-server.js": [
+56,
+65,
+71,
+172,
+180,
+188,
+194
+],
+"Ghost:core/server/helpers/asset.js": [
+21
+],
+"Ghost:core/server/helpers/author.js": [
+35
+],
+"Ghost:core/server/helpers/content.js": [
+26,
+31
+],
+"Ghost:core/server/helpers/excerpt.js": [
+21
+],
+"Ghost:core/server/helpers/foreach.js": [
+60
+],
+"Ghost:core/server/helpers/get.js": [
+22,
+138,
+151
+],
+"Ghost:core/server/helpers/ghost_head.js": [
+29
+],
+"Ghost:core/server/helpers/input_password.js": [
+29
+],
+"Ghost:core/server/helpers/prev_next.js": [
+32
+],
+"Ghost:core/server/helpers/tags.js": [
+33
+],
+"Ghost:core/server/helpers/utils.js": [
+9
+],
+"Ghost:core/server/i18n.js": [
+109
+],
+"Ghost:core/server/index.js": [
+106,
+107,
+116,
+117,
+171
+],
+"Ghost:core/server/mail/index.js": [
+79
+],
+"Ghost:core/server/middleware/auth-strategies.js": [
+58
+],
+"Ghost:core/server/middleware/auth.js": [
+90,
+115,
+134,
+138,
+161,
+186
+],
+"Ghost:core/server/middleware/cache-control.js": [
+16
+],
+"Ghost:core/server/middleware/check-ssl.js": [
+30,
+32,
+47
+],
+"Ghost:core/server/middleware/ghost-busboy.js": [
+48
+],
+"Ghost:core/server/middleware/index.js": [
+46,
+47,
+119,
+120
+],
+"Ghost:core/server/middleware/oauth.js": [
+26,
+56,
+59,
+100
+],
+"Ghost:core/server/middleware/private-blogging.js": [
+42,
+65,
+131,
+136
+],
+"Ghost:core/server/middleware/serve-shared-file.js": [
+37,
+39
+],
+"Ghost:core/server/middleware/spam-prevention.js": [
+50,
+100,
+107,
+133,
+149,
+153,
+163
+],
+"Ghost:core/server/middleware/static-theme.js": [
+19
+],
+"Ghost:core/server/middleware/theme-handler.js": [
+68,
+125
+],
+"Ghost:core/server/models/accesstoken.js": [
+8,
+12,
+17
+],
+"Ghost:core/server/models/app-field.js": [
+10,
+14,
+19
+],
+"Ghost:core/server/models/app-setting.js": [
+10,
+14,
+19
+],
+"Ghost:core/server/models/app.js": [
+30,
+43,
+51,
+55,
+60
+],
+"Ghost:core/server/models/base/index.js": [
+63,
+197,
+498
+],
+"Ghost:core/server/models/base/token.js": [
+30,
+82
+],
+"Ghost:core/server/models/base/utils.js": [
+46,
+67
+],
+"Ghost:core/server/models/client-trusted-domain.js": [
+7,
+11,
+16
+],
+"Ghost:core/server/models/client.js": [
+10,
+23,
+31,
+35,
+40
+],
+"Ghost:core/server/models/index.js": [
+30
+],
+"Ghost:core/server/models/permission.js": [
+20,
+24,
+29
+],
+"Ghost:core/server/models/plugins/access-rules.js": [
+21,
+41
+],
+"Ghost:core/server/models/plugins/filter.js": [
+31,
+71,
+72,
+74,
+135,
+169
+],
+"Ghost:core/server/models/plugins/include-count.js": [
+24,
+40,
+41,
+93
+],
+"Ghost:core/server/models/plugins/index.js": [
+5
+],
+"Ghost:core/server/models/plugins/pagination.js": [
+21,
+76,
+91,
+153,
+192,
+195
+],
+"Ghost:core/server/models/post.js": [
+32,
+180,
+260,
+263,
+315,
+322,
+378,
+433,
+443,
+591,
+595,
+600
+],
+"Ghost:core/server/models/refreshtoken.js": [
+8,
+12,
+17
+],
+"Ghost:core/server/models/role.js": [
+20,
+33,
+80,
+84,
+89
+],
+"Ghost:core/server/models/settings.js": [
+50,
+100,
+183,
+188
+],
+"Ghost:core/server/models/tag.js": [
+59,
+78,
+115,
+119,
+124
+],
+"Ghost:core/server/models/user.js": [
+171,
+177,
+231,
+255,
+307,
+330,
+550,
+563,
+697,
+723,
+823,
+827,
+832
+],
+"Ghost:core/server/permissions/effective.js": [
+46
+],
+"Ghost:core/server/permissions/index.js": [
+31,
+120,
+189,
+238,
+254,
+309
+],
+"Ghost:core/server/routes/api.js": [
+12,
+18,
+92,
+103
+],
+"Ghost:core/server/routes/frontend.js": [
+65,
+71
+],
+"Ghost:core/server/routes/index.js": [
+9
+],
+"Ghost:core/server/update-check.js": [
+44,
+50,
+113,
+120,
+163,
+167,
+168
+],
+"Ghost:core/server/utils/index.js": [
+97
+],
+"Ghost:core/server/utils/read-directory.js": [
+38
+],
+"Ghost:core/server/utils/startup-check.js": [
+15,
+212
+],
+"Ghost:core/server/utils/validate-themes.js": [
+19,
+33,
+45
+],
+"Ghost:core/shared/ghost-url.js": [
+52,
+70
+],
+"Ghost:core/test/functional/base.js": [
+35,
+41,
+45,
+49,
+53,
+67,
+72,
+77,
+82,
+87,
+91,
+95,
+100,
+105,
+109,
+114,
+121,
+125,
+129,
+134,
+138,
+142,
+143,
+317,
+428,
+539
+],
+"Ghost:core/test/functional/client/content_test.js": [
+22,
+26,
+29
+],
+"Ghost:core/test/functional/client/editor_test.js": [
+50,
+54,
+144,
+370,
+405,
+670,
+717,
+731
+],
+"Ghost:core/test/functional/client/psm_test.js": [
+53,
+91,
+167
+],
+"Ghost:core/test/functional/client/settings_test.js": [
+87,
+96,
+106,
+116,
+128
+],
+"Ghost:core/test/functional/client/signin_test.js": [
+128,
+154,
+170,
+183,
+206,
+233
+],
+"Ghost:core/test/functional/client/team_test.js": [
+152,
+180,
+212,
+222,
+252,
+269,
+288,
+307
+],
+"Ghost:core/test/functional/routes/api/authentication_spec.js": [
+41,
+68,
+91,
+114,
+130,
+154
+],
+"Ghost:core/test/functional/routes/api/notifications_spec.js": [
+35,
+69
+],
+"Ghost:core/test/functional/routes/api/public_api_spec.js": [
+15,
+16
+],
+"Ghost:core/test/functional/routes/api/settings_spec.js": [
+112,
+113
+],
+"Ghost:core/test/functional/routes/api/users_spec.js": [
+325
+],
+"Ghost:core/test/integration/api/api_authentication_spec.js": [
+22,
+23,
+27,
+28,
+34,
+35,
+73,
+150,
+220,
+253,
+286
+],
+"Ghost:core/test/integration/api/api_configuration_spec.js": [
+20,
+23,
+25
+],
+"Ghost:core/test/integration/api/api_db_spec.js": [
+100,
+128
+],
+"Ghost:core/test/integration/api/api_mail_spec.js": [
+18,
+20,
+21
+],
+"Ghost:core/test/integration/api/api_notifications_spec.js": [
+21,
+42,
+64,
+86,
+102,
+118,
+125,
+139,
+146
+],
+"Ghost:core/test/integration/api/api_settings_spec.js": [
+188
+],
+"Ghost:core/test/integration/api/api_themes_spec.js": [
+44,
+47,
+48,
+49,
+50
+],
+"Ghost:core/test/integration/api/api_upload_spec.js": [
+40,
+57,
+74,
+86,
+101,
+113
+],
+"Ghost:core/test/integration/api/api_users_spec.js": [
+24,
+379,
+387,
+395,
+409,
+414,
+425,
+433,
+440,
+454,
+464,
+474,
+483,
+874,
+875,
+894,
+895,
+914,
+915,
+936,
+937,
+956,
+957,
+976,
+977,
+995,
+1007,
+1020,
+1029,
+1038,
+1046,
+1057,
+1070,
+1086,
+1096,
+1106,
+1116,
+1130,
+1131,
+1146,
+1147,
+1161,
+1162,
+1175,
+1176,
+1189,
+1190,
+1203,
+1204,
+1218,
+1219
+],
+"Ghost:core/test/integration/import_spec.js": [
+138,
+185,
+254,
+299,
+349,
+418,
+462,
+504,
+680,
+730,
+805,
+905,
+955,
+1030,
+1131,
+1164,
+1176,
+1192,
+1262,
+1362
+],
+"Ghost:core/test/integration/migration_spec.js": [
+27
+],
+"Ghost:core/test/integration/model/model_apps_spec.js": [
+96
+],
+"Ghost:core/test/integration/model/model_permissions_spec.js": [
+59
+],
+"Ghost:core/test/integration/model/model_posts_spec.js": [
+64,
+99,
+259,
+317,
+626,
+641,
+655,
+684,
+714,
+729,
+744,
+756,
+760,
+781,
+794
+],
+"Ghost:core/test/integration/model/model_roles_spec.js": [
+59
+],
+"Ghost:core/test/integration/model/model_settings_spec.js": [
+138
+],
+"Ghost:core/test/integration/model/model_tags_spec.js": [
+137,
+332,
+337,
+346
+],
+"Ghost:core/test/integration/model/model_users_spec.js": [
+126
+],
+"Ghost:core/test/unit/api_utils_spec.js": [
+37,
+54,
+126,
+144,
+162,
+233,
+444,
+445,
+460,
+461
+],
+"Ghost:core/test/unit/apps_spec.js": [
+33,
+38,
+41,
+45,
+50,
+51,
+71,
+84,
+85,
+128,
+129,
+158,
+159,
+180,
+181,
+207,
+208,
+229,
+230,
+245,
+246,
+267,
+301,
+378,
+383,
+384,
+392,
+397,
+403,
+404,
+405
+],
+"Ghost:core/test/unit/config_spec.js": [
+35,
+36,
+82,
+131,
+132,
+157,
+158,
+421,
+435,
+445,
+455,
+464,
+473,
+481,
+489,
+507,
+530,
+531,
+769,
+770,
+771,
+862,
+874,
+887,
+888,
+901,
+902,
+915,
+916,
+925
+],
+"Ghost:core/test/unit/controllers/frontend/context_spec.js": [
+12,
+15
+],
+"Ghost:core/test/unit/controllers/frontend/fetch-data_spec.js": [
+76,
+77,
+78,
+103,
+104,
+105,
+128,
+135,
+136,
+137
+],
+"Ghost:core/test/unit/controllers/frontend/format-response_spec.js": [
+28,
+43,
+60,
+61,
+62
+],
+"Ghost:core/test/unit/controllers/frontend/index_spec.js": [
+47,
+48,
+49,
+56,
+57,
+62,
+66,
+73,
+87,
+104,
+121,
+125,
+131,
+139,
+140,
+145,
+149,
+157,
+175,
+192,
+222,
+224,
+225,
+239,
+240,
+241,
+255,
+257,
+258,
+271,
+272,
+281,
+286,
+292,
+301,
+302,
+356,
+357,
+429,
+430,
+489,
+490,
+581,
+582,
+671,
+672,
+761,
+762,
+784,
+793,
+797,
+809,
+813,
+824,
+828,
+841,
+850,
+858,
+863,
+878,
+879,
+890,
+899,
+914,
+921,
+928,
+929,
+946,
+985,
+987,
+988,
+1002,
+1003,
+1004,
+1019,
+1021,
+1022,
+1035,
+1036,
+1041,
+1047
+],
+"Ghost:core/test/unit/controllers/frontend/templates_spec.js": [
+44,
+66,
+67,
+68,
+69,
+76,
+85,
+94,
+103,
+113,
+128,
+146,
+166
+],
+"Ghost:core/test/unit/error_handling_spec.js": [
+98,
+114,
+166,
+178,
+191,
+226,
+257,
+327,
+330,
+331,
+332,
+333,
+480,
+492
+],
+"Ghost:core/test/unit/ghost_url_spec.js": [
+13,
+24,
+34,
+44,
+54,
+64,
+81,
+95,
+100,
+114,
+119,
+133,
+138
+],
+"Ghost:core/test/unit/importer_spec.js": [
+322,
+334,
+370,
+390,
+410,
+432,
+451,
+455,
+459,
+463,
+505,
+525,
+544,
+563,
+583,
+596,
+599,
+602,
+704
+],
+"Ghost:core/test/unit/mail_spec.js": [
+18,
+19,
+20,
+27,
+32,
+36,
+105,
+163,
+164
+],
+"Ghost:core/test/unit/metadata/author_image_spec.js": [
+13,
+14,
+15,
+26,
+27,
+28,
+40,
+41,
+42,
+50,
+57,
+67,
+68,
+69,
+72
+],
+"Ghost:core/test/unit/metadata/author_url_spec.js": [
+12,
+13,
+14,
+25,
+26,
+27,
+37,
+38,
+47,
+48
+],
+"Ghost:core/test/unit/metadata/canonical_url_spec.js": [
+12,
+25,
+40,
+49
+],
+"Ghost:core/test/unit/metadata/cover_image_spec.js": [
+10,
+11,
+21,
+22,
+32,
+33,
+42,
+50,
+58
+],
+"Ghost:core/test/unit/metadata/description_spec.js": [
+7,
+14,
+22,
+23,
+25,
+33,
+34,
+36,
+45,
+46,
+48,
+56,
+57,
+59,
+67,
+68,
+70
+],
+"Ghost:core/test/unit/metadata/keywords_spec.js": [
+12,
+13,
+14,
+22,
+23,
+30,
+37
+],
+"Ghost:core/test/unit/metadata/modified_date_spec.js": [
+10,
+11,
+19,
+28,
+29
+],
+"Ghost:core/test/unit/metadata/next_url_spec.js": [
+10,
+11,
+20,
+21,
+30,
+31,
+40,
+41,
+50,
+51
+],
+"Ghost:core/test/unit/metadata/og_type_spec.js": [
+8,
+15,
+22
+],
+"Ghost:core/test/unit/metadata/previous_url_spec.js": [
+10,
+11,
+20,
+21,
+30,
+31,
+40,
+41,
+50,
+51,
+60,
+61
+],
+"Ghost:core/test/unit/metadata/published_date_spec.js": [
+10,
+11,
+20,
+21,
+31,
+32,
+40,
+49,
+50
+],
+"Ghost:core/test/unit/metadata/rss_url_spec.js": [
+8,
+15,
+22
+],
+"Ghost:core/test/unit/metadata/schema_spec.js": [
+9,
+19,
+26,
+27,
+28,
+40,
+49,
+56,
+66,
+73,
+74,
+75,
+84,
+91,
+98,
+102,
+104,
+113,
+120,
+124,
+128,
+129,
+139,
+146,
+150,
+155,
+156,
+166
+],
+"Ghost:core/test/unit/metadata/structured_data_spec.js": [
+9,
+18,
+35,
+42,
+51,
+63
+],
+"Ghost:core/test/unit/metadata/title_spec.js": [
+8,
+16,
+17,
+26,
+27,
+31,
+32,
+40,
+41,
+45,
+46,
+51,
+52,
+60,
+61,
+65,
+66,
+74,
+75,
+79,
+80,
+85,
+86,
+95,
+96,
+104,
+105,
+113,
+114,
+123,
+124,
+132,
+133,
+139,
+140
+],
+"Ghost:core/test/unit/metadata/url_spec.js": [
+11,
+22,
+32,
+43,
+55,
+68,
+78,
+88,
+95
+],
+"Ghost:core/test/unit/middleware/auth-strategies_spec.js": [
+16,
+23,
+29,
+58,
+124,
+127,
+133
+],
+"Ghost:core/test/unit/middleware/authentication_spec.js": [
+19,
+32,
+42,
+52,
+63,
+74,
+85,
+121,
+173,
+193,
+215,
+261,
+279,
+298,
+317,
+336,
+360,
+386
+],
+"Ghost:core/test/unit/middleware/cache-control_spec.js": [
+15,
+38,
+64,
+73,
+89
+],
+"Ghost:core/test/unit/middleware/check-ssl_spec.js": [
+20,
+72,
+88,
+109,
+125,
+133,
+153,
+174,
+195,
+196
+],
+"Ghost:core/test/unit/middleware/decide-is-admin_spec.js": [
+31,
+37
+],
+"Ghost:core/test/unit/middleware/oauth_spec.js": [
+43,
+54,
+58,
+89,
+111,
+122,
+126,
+130,
+152,
+164,
+166,
+197,
+218,
+230,
+232,
+245,
+257,
+259,
+264
+],
+"Ghost:core/test/unit/middleware/private-blogging_spec.js": [
+47,
+48,
+63,
+64,
+87,
+106,
+182,
+183,
+192,
+206,
+222,
+236
+],
+"Ghost:core/test/unit/middleware/serve-shared-file_spec.js": [
+46,
+72,
+96
+],
+"Ghost:core/test/unit/middleware/spam-prevention_spec.js": [
+33,
+37,
+38,
+105,
+109,
+110,
+111,
+117,
+143,
+163,
+166,
+167
+],
+"Ghost:core/test/unit/middleware/static-theme_spec.js": [
+20,
+29,
+38,
+49,
+50,
+73,
+74
+],
+"Ghost:core/test/unit/middleware/theme-handler_spec.js": [
+139,
+140,
+156,
+157,
+175,
+176,
+198,
+199
+],
+"Ghost:core/test/unit/middleware/uncapitalise_spec.js": [
+41,
+67,
+93
+],
+"Ghost:core/test/unit/models_plugins/filter_spec.js": [
+61,
+66,
+106,
+116,
+149,
+171,
+199,
+206,
+213,
+219,
+254,
+255,
+266,
+267,
+278,
+279,
+290,
+291,
+302,
+303,
+307,
+308,
+319,
+320,
+324,
+325,
+336,
+337,
+341,
+342,
+356,
+357,
+369,
+370,
+382,
+385,
+386,
+387,
+398,
+406,
+409,
+410,
+411,
+424,
+429,
+436,
+437,
+449,
+457,
+460,
+461,
+462,
+474,
+483,
+487,
+488,
+489,
+498,
+505,
+508,
+513,
+516,
+524,
+525,
+537,
+540,
+549,
+552,
+553,
+554,
+567,
+572,
+580,
+585,
+586,
+587,
+603,
+608,
+613,
+618,
+624,
+627
+],
+"Ghost:core/test/unit/models_plugins/pagination_spec.js": [
+45,
+56,
+67,
+78,
+89,
+100,
+115,
+122,
+125,
+132,
+135,
+141,
+144,
+194,
+228,
+266,
+305
+],
+"Ghost:core/test/unit/permissions_spec.js": [
+56,
+62,
+71,
+77,
+86,
+95,
+104,
+111,
+151,
+158,
+252,
+259
+],
+"Ghost:core/test/unit/rss_spec.js": [
+58,
+63,
+65,
+77,
+118,
+160,
+189,
+224,
+267,
+272,
+274,
+280,
+339,
+344,
+346,
+359,
+397,
+405
+],
+"Ghost:core/test/unit/server_helpers/body_class_spec.js": [
+24,
+25,
+26,
+35,
+36,
+37,
+63,
+70,
+79,
+88,
+97,
+106,
+115,
+124,
+133,
+142,
+151,
+160
+],
+"Ghost:core/test/unit/server_helpers/content_spec.js": [
+34,
+48,
+62,
+76,
+90,
+105,
+119,
+133,
+147,
+161,
+175
+],
+"Ghost:core/test/unit/server_helpers/date_spec.js": [
+31,
+36,
+37,
+53,
+57,
+58
+],
+"Ghost:core/test/unit/server_helpers/excerpt_spec.js": [
+66,
+80,
+94
+],
+"Ghost:core/test/unit/server_helpers/foreach_spec.js": [
+37,
+52,
+72,
+80,
+100,
+104,
+136,
+140,
+148,
+178,
+181,
+213,
+216,
+225,
+252,
+265,
+268
+],
+"Ghost:core/test/unit/server_helpers/get_spec.js": [
+44,
+67,
+83,
+98,
+112,
+128,
+144,
+160,
+175,
+190,
+205,
+221,
+238,
+254,
+269,
+281,
+293,
+307,
+321,
+338,
+352
+],
+"Ghost:core/test/unit/server_helpers/ghost_foot_spec.js": [
+33
+],
+"Ghost:core/test/unit/server_helpers/ghost_head_spec.js": [
+36,
+37,
+42,
+43,
+56,
+57,
+68,
+84,
+119,
+124,
+160,
+165,
+200,
+205,
+221,
+226,
+246,
+251,
+290,
+295,
+311,
+335,
+336,
+341,
+408,
+409,
+414,
+478,
+479,
+545,
+546,
+551,
+602,
+618,
+636,
+658,
+659,
+666,
+686,
+689,
+690,
+707,
+708,
+713,
+730,
+738,
+739,
+746,
+763,
+775
+],
+"Ghost:core/test/unit/server_helpers/has_spec.js": [
+27,
+40,
+53,
+66,
+79,
+92,
+105,
+118,
+131,
+144,
+157,
+170,
+183
+],
+"Ghost:core/test/unit/server_helpers/image_spec.js": [
+38,
+39,
+49,
+52,
+83,
+84,
+94,
+97,
+108,
+109
+],
+"Ghost:core/test/unit/server_helpers/input_password_spec.js": [
+32,
+33,
+46,
+47
+],
+"Ghost:core/test/unit/server_helpers/is_spec.js": [
+30,
+44,
+58,
+73
+],
+"Ghost:core/test/unit/server_helpers/meta_description_spec.js": [
+17,
+18,
+33,
+43,
+53,
+63,
+73,
+83,
+93,
+103,
+113,
+123,
+133
+],
+"Ghost:core/test/unit/server_helpers/meta_title_spec.js": [
+17,
+18,
+33,
+43,
+53,
+63,
+73,
+84,
+94,
+104,
+114,
+124,
+134,
+144,
+154
+],
+"Ghost:core/test/unit/server_helpers/navigation_spec.js": [
+24,
+36,
+39,
+40,
+41,
+144,
+157,
+160,
+161,
+162
+],
+"Ghost:core/test/unit/server_helpers/next_post_spec.js": [
+29,
+126
+],
+"Ghost:core/test/unit/server_helpers/page_url_spec.js": [
+29,
+38,
+62,
+71,
+97,
+106,
+130,
+139
+],
+"Ghost:core/test/unit/server_helpers/pagination_spec.js": [
+46,
+59,
+72,
+85,
+141,
+145,
+146,
+147
+],
+"Ghost:core/test/unit/server_helpers/plural_spec.js": [
+26,
+27,
+40,
+41,
+54,
+55,
+68,
+69
+],
+"Ghost:core/test/unit/server_helpers/prev_post_spec.js": [
+29
+],
+"Ghost:core/test/unit/server_helpers/tags_spec.js": [
+25,
+36,
+48,
+60,
+72,
+84,
+95,
+106,
+117,
+128,
+139,
+150,
+161,
+172
+],
+"Ghost:core/test/unit/server_helpers/url_spec.js": [
+50,
+60,
+71,
+82,
+94
+],
+"Ghost:core/test/unit/server_utils_spec.js": [
+111,
+120,
+136,
+162,
+240,
+242,
+272,
+274,
+291,
+305,
+310,
+311,
+327,
+341,
+344,
+377,
+379,
+380,
+399,
+418,
+448
+],
+"Ghost:core/test/unit/showdown_client_integrated_spec.js": [
+62,
+74,
+88,
+92,
+93,
+112,
+127,
+141,
+145,
+146,
+160,
+164,
+165,
+179,
+183,
+184,
+198,
+202,
+206,
+210,
+214,
+218,
+222,
+226,
+230,
+231,
+245,
+249,
+253,
+254,
+293,
+297,
+301,
+305,
+309,
+310,
+323,
+335,
+339,
+343,
+344,
+359,
+363,
+367,
+371,
+375,
+379,
+380,
+395,
+409,
+416,
+459,
+463,
+467,
+471,
+475,
+479,
+480,
+494,
+498,
+502,
+503,
+516,
+521,
+522,
+535,
+539,
+543,
+547,
+551,
+555,
+559,
+563,
+567,
+568,
+587,
+606,
+610,
+611
+],
+"Ghost:core/test/unit/sitemap_spec.js": [
+311,
+337,
+377,
+385,
+392,
+411,
+415,
+416,
+467,
+478,
+500,
+522
+],
+"Ghost:core/test/unit/storage_local-file-store_spec.js": [
+29,
+137,
+138
+],
+"Ghost:core/test/unit/utils_pipeline_spec.js": [
+32,
+41,
+50,
+64,
+79,
+88,
+102,
+111,
+126
+],
+"Ghost:core/test/unit/xmlrpc_spec.js": [
+36
+],
+"Ghost:core/test/utils/api.js": [
+18,
+23,
+28,
+36,
+37,
+91
+],
+"Ghost:core/test/utils/fixtures/app/badlib.js": [
+4
+],
+"Ghost:core/test/utils/fixtures/app/goodlib.js": [
+4
+],
+"Ghost:core/test/utils/fixtures/app/nested/goodnested.js": [
+5
+],
+"Ghost:core/test/utils/fixtures/data-generator.js": [
+13,
+19,
+29,
+37,
+42,
+48,
+55,
+56,
+62,
+66,
+70,
+74,
+78,
+79,
+88,
+94,
+100,
+106,
+112,
+113,
+120,
+125,
+130,
+135,
+140,
+145,
+150,
+155,
+160,
+165,
+166,
+172,
+176,
+180,
+184,
+185,
+193,
+199,
+205,
+206,
+214,
+220,
+221,
+227,
+231,
+232,
+233,
+253,
+271,
+289,
+298,
+307,
+314,
+326,
+335,
+343,
+354,
+362,
+369,
+376,
+380,
+387,
+396,
+402,
+407,
+433,
+453,
+465
+],
+"Ghost:core/test/utils/fixtures/example.js": [
+3
+],
+"Ghost:core/test/utils/fixtures/filter-param/index.js": [
+12,
+19,
+26,
+33,
+38,
+43,
+44,
+54,
+61,
+67,
+68,
+78,
+86,
+94,
+102,
+110,
+119,
+128,
+136,
+144,
+152,
+161,
+169,
+177,
+185,
+194,
+202,
+210,
+218,
+227,
+235,
+244,
+245
+],
+"Ghost:core/test/utils/index.js": [
+81,
+163,
+249,
+257,
+281,
+289,
+343,
+377,
+427,
+539,
+562,
+563,
+606,
+616,
+617,
+624,
+625,
+633,
+634
+],
+"Ghost:core/test/utils/jscs-rules/disallow-object-controller.js": [
+9,
+13,
+31
+]
+}

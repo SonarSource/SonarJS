@@ -1,0 +1,17 @@
+{
+"vuetify:packages/vuetify/build/run-tests.js": [
+4
+],
+"vuetify:scripts/build.js": [
+3
+],
+"vuetify:scripts/deploy-and-alias.js": [
+7
+],
+"vuetify:scripts/dev.js": [
+3
+],
+"vuetify:scripts/parse-npm-tag.js": [
+3
+]
+}

@@ -1,0 +1,11 @@
+{
+"sonar-web:src/main/js/components/navigator/filters/ajax-select-filters.js": [
+320
+],
+"sonar-web:src/main/js/components/source-viewer/measures-overlay.js": [
+18
+],
+"sonar-web:src/main/js/helpers/handlebars-helpers.js": [
+14
+]
+}

@@ -1,0 +1,35 @@
+{
+"console:dll.webpack.config.js": [
+0
+],
+"console:jest-setup.js": [
+0
+],
+"console:postcss.config.js": [
+0
+],
+"console:preprocessor.js": [
+0
+],
+"console:src/__mocks__/fileMock.js": [
+0
+],
+"console:src/utils/smooth.js": [
+0
+],
+"console:src/views/FunctionsView/FunctionLogs/Codemirror.js": [
+0
+],
+"console:src/views/FunctionsView/FunctionLogs/ResultViewer.js": [
+0
+],
+"console:src/views/SchemaView/Editor/QueryEditor.js": [
+0
+],
+"console:webpack.config.build.js": [
+0
+],
+"console:webpack.config.js": [
+0
+]
+}

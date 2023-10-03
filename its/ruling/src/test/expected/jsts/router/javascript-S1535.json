@@ -1,0 +1,27 @@
+{
+"router:gulpfile.js": [
+49
+],
+"router:src/activation.js": [
+63,
+94
+],
+"router:src/navigationContext.js": [
+28,
+48
+],
+"router:src/navigationPlan.js": [
+14
+],
+"router:third_party/brick/brick-1.0.1.byob.js": [
+941,
+969,
+981,
+1094,
+1152,
+1163,
+1407,
+1597,
+1631
+]
+}

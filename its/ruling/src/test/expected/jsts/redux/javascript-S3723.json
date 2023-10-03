@@ -1,0 +1,699 @@
+{
+"redux:examples/async/actions/index.js": [
+11,
+18,
+25,
+34
+],
+"redux:examples/async/components/Picker.js": [
+25,
+28
+],
+"redux:examples/async/components/Posts.js": [
+8,
+16
+],
+"redux:examples/async/containers/App.js": [
+80,
+88,
+91,
+98
+],
+"redux:examples/async/index.js": [
+14
+],
+"redux:examples/async/reducers/index.js": [
+4,
+19,
+24,
+29,
+36,
+49,
+58
+],
+"redux:examples/async/store/configureStore.js": [
+8
+],
+"redux:examples/async/webpack.config.js": [
+8,
+13,
+18,
+25,
+26,
+27,
+43
+],
+"redux:examples/buildAll.js": [
+16,
+24
+],
+"redux:examples/counter/actions/counter.js": [
+6,
+12
+],
+"redux:examples/counter/components/Counter.js": [
+27
+],
+"redux:examples/counter/containers/App.js": [
+8
+],
+"redux:examples/counter/index.js": [
+13
+],
+"redux:examples/counter/reducers/index.js": [
+5
+],
+"redux:examples/counter/store/configureStore.js": [
+6
+],
+"redux:examples/counter/test/actions/counter.spec.js": [
+34,
+39,
+56,
+71
+],
+"redux:examples/counter/test/components/Counter.spec.js": [
+11,
+18
+],
+"redux:examples/counter/test/containers/App.spec.js": [
+13,
+18
+],
+"redux:examples/counter/webpack.config.js": [
+8,
+13,
+18,
+26,
+27,
+28,
+29,
+45
+],
+"redux:examples/real-world/actions/index.js": [
+14,
+15,
+43,
+44,
+73,
+74,
+85,
+108,
+109,
+120,
+136
+],
+"redux:examples/real-world/components/Explore.js": [
+63
+],
+"redux:examples/real-world/components/List.js": [
+18,
+47,
+52
+],
+"redux:examples/real-world/components/Repo.js": [
+33,
+36,
+37
+],
+"redux:examples/real-world/components/User.js": [
+25,
+26
+],
+"redux:examples/real-world/containers/App.js": [
+62,
+68,
+74
+],
+"redux:examples/real-world/containers/DevTools.js": [
+10
+],
+"redux:examples/real-world/containers/RepoPage.js": [
+72,
+79,
+92,
+98
+],
+"redux:examples/real-world/containers/Root.dev.js": [
+21
+],
+"redux:examples/real-world/containers/Root.prod.js": [
+17
+],
+"redux:examples/real-world/containers/UserPage.js": [
+72,
+79,
+91,
+97
+],
+"redux:examples/real-world/index.js": [
+11
+],
+"redux:examples/real-world/middleware/api.js": [
+29,
+40,
+54,
+58,
+62,
+70,
+116,
+120,
+121
+],
+"redux:examples/real-world/reducers/index.js": [
+36,
+37,
+44,
+45,
+46,
+53
+],
+"redux:examples/real-world/reducers/paginate.js": [
+23,
+28,
+35,
+39,
+56
+],
+"redux:examples/real-world/store/configureStore.dev.js": [
+15
+],
+"redux:examples/real-world/store/configureStore.prod.js": [
+11
+],
+"redux:examples/real-world/webpack.config.js": [
+8,
+13,
+18,
+25,
+26,
+27,
+43
+],
+"redux:examples/shopping-cart/actions/index.js": [
+7,
+22,
+39,
+44
+],
+"redux:examples/shopping-cart/api/shop.js": [
+15
+],
+"redux:examples/shopping-cart/components/Cart.js": [
+16,
+36
+],
+"redux:examples/shopping-cart/components/Product.js": [
+13
+],
+"redux:examples/shopping-cart/components/ProductItem.js": [
+28,
+30
+],
+"redux:examples/shopping-cart/components/ProductsList.js": [
+16
+],
+"redux:examples/shopping-cart/containers/CartContainer.js": [
+25,
+28,
+34,
+40
+],
+"redux:examples/shopping-cart/containers/ProductsContainer.js": [
+17,
+29,
+31,
+36,
+42
+],
+"redux:examples/shopping-cart/index.js": [
+24
+],
+"redux:examples/shopping-cart/reducers/cart.js": [
+4,
+9,
+30,
+46
+],
+"redux:examples/shopping-cart/reducers/index.js": [
+8,
+15,
+21
+],
+"redux:examples/shopping-cart/reducers/products.js": [
+9,
+24,
+31,
+49
+],
+"redux:examples/shopping-cart/webpack.config.js": [
+8,
+13,
+18,
+25,
+31,
+32,
+33,
+49
+],
+"redux:examples/testAll.js": [
+15,
+23
+],
+"redux:examples/todomvc/components/Footer.js": [
+8,
+56,
+70
+],
+"redux:examples/todomvc/components/Header.js": [
+24
+],
+"redux:examples/todomvc/components/MainSection.js": [
+9,
+64,
+72,
+83
+],
+"redux:examples/todomvc/components/TodoItem.js": [
+9,
+55,
+67
+],
+"redux:examples/todomvc/components/TodoTextInput.js": [
+8,
+37,
+55
+],
+"redux:examples/todomvc/containers/App.js": [
+22,
+27,
+33,
+39
+],
+"redux:examples/todomvc/index.js": [
+15
+],
+"redux:examples/todomvc/reducers/index.js": [
+5
+],
+"redux:examples/todomvc/reducers/todos.js": [
+7,
+8,
+18,
+20,
+25,
+32,
+39,
+45
+],
+"redux:examples/todomvc/test/actions/todos.spec.js": [
+9,
+16,
+24,
+31,
+37,
+43
+],
+"redux:examples/todomvc/test/components/Footer.spec.js": [
+13,
+22,
+69
+],
+"redux:examples/todomvc/test/components/Header.spec.js": [
+9,
+19
+],
+"redux:examples/todomvc/test/components/MainSection.spec.js": [
+15,
+19,
+20,
+27,
+28,
+38,
+64,
+65,
+66,
+112,
+113,
+114
+],
+"redux:examples/todomvc/test/components/TodoItem.spec.js": [
+12,
+16,
+22,
+36
+],
+"redux:examples/todomvc/test/components/TodoTextInput.spec.js": [
+12,
+18,
+28
+],
+"redux:examples/todomvc/test/reducers/todos.spec.js": [
+8,
+13,
+14,
+22,
+23,
+28,
+29,
+37,
+38,
+41,
+42,
+47,
+51,
+52,
+60,
+64,
+65,
+68,
+69,
+74,
+78,
+82,
+83,
+93,
+97,
+98,
+101,
+102,
+107,
+108,
+118,
+122,
+123,
+127,
+128,
+133,
+137,
+138,
+148,
+152,
+153,
+156,
+157,
+162,
+166,
+167,
+177,
+181,
+182,
+184,
+185,
+190,
+194,
+195,
+204,
+208,
+209,
+211,
+212,
+217,
+221,
+222,
+232,
+236,
+237,
+239,
+240,
+245,
+246,
+255,
+257,
+260,
+261,
+266,
+270,
+271,
+272,
+277,
+281,
+282
+],
+"redux:examples/todomvc/webpack.config.js": [
+8,
+13,
+18,
+25,
+29,
+30,
+31,
+47
+],
+"redux:examples/todos-with-undo/actions.js": [
+8
+],
+"redux:examples/todos-with-undo/components/AddTodo.js": [
+29
+],
+"redux:examples/todos-with-undo/components/Footer.js": [
+62,
+63
+],
+"redux:examples/todos-with-undo/components/Todo.js": [
+10,
+21
+],
+"redux:examples/todos-with-undo/components/TodoList.js": [
+11,
+22,
+23
+],
+"redux:examples/todos-with-undo/containers/App.js": [
+35,
+40,
+43,
+63
+],
+"redux:examples/todos-with-undo/index.js": [
+15
+],
+"redux:examples/todos-with-undo/reducers.js": [
+23,
+24,
+30,
+32,
+41
+],
+"redux:examples/todos-with-undo/webpack.config.js": [
+8,
+13,
+18,
+25,
+26,
+27,
+43
+],
+"redux:examples/universal/client/index.js": [
+16
+],
+"redux:examples/universal/common/actions/counter.js": [
+8,
+14,
+20
+],
+"redux:examples/universal/common/components/Counter.js": [
+27
+],
+"redux:examples/universal/common/containers/App.js": [
+8
+],
+"redux:examples/universal/common/reducers/index.js": [
+5
+],
+"redux:examples/universal/common/store/configureStore.js": [
+6
+],
+"redux:examples/universal/server/server.js": [
+48
+],
+"redux:examples/universal/webpack.config.js": [
+8,
+13,
+18,
+33,
+41,
+42,
+43,
+44,
+45,
+46,
+47,
+48,
+49,
+50,
+51,
+66
+],
+"redux:src/createStore.js": [
+10,
+104,
+111,
+154
+],
+"redux:src/index.js": [
+12
+],
+"redux:src/utils/applyMiddleware.js": [
+27,
+34
+],
+"redux:src/utils/bindActionCreators.js": [
+36,
+41
+],
+"redux:src/utils/combineReducers.js": [
+41,
+64,
+76
+],
+"redux:test/createStore.spec.js": [
+20,
+24,
+28,
+32,
+40,
+41,
+46,
+47,
+62,
+63,
+70,
+73,
+74,
+82,
+83,
+88,
+89,
+96,
+97,
+104,
+107,
+108,
+119,
+123,
+124,
+131,
+134,
+135,
+142,
+146,
+150,
+151,
+158,
+162,
+166,
+167,
+174,
+178,
+182,
+186,
+187,
+295,
+296,
+306,
+312,
+313,
+338,
+346,
+353,
+357,
+364,
+371,
+378,
+381,
+384,
+387
+],
+"redux:test/helpers/actionCreators.js": [
+25,
+31,
+37
+],
+"redux:test/helpers/reducers.js": [
+17,
+18,
+31,
+32
+],
+"redux:test/utils/applyMiddleware.spec.js": [
+26,
+55,
+56,
+63,
+64,
+71,
+75,
+76,
+83,
+87,
+91,
+92
+],
+"redux:test/utils/bindActionCreators.spec.js": [
+16,
+18,
+23,
+26,
+37,
+46,
+55,
+64
+],
+"redux:test/utils/combineReducers.spec.js": [
+12,
+26,
+30,
+49,
+53,
+55,
+58,
+60,
+63,
+65,
+80,
+83,
+91,
+94,
+109,
+125,
+147,
+168,
+171,
+180,
+193,
+201,
+207,
+212,
+217,
+222,
+227,
+232
+],
+"redux:test/utils/mapValues.spec.js": [
+8,
+12
+],
+"redux:test/utils/pick.spec.js": [
+8,
+11,
+13
+],
+"redux:webpack.config.base.js": [
+6,
+7,
+11,
+14,
+15
+],
+"redux:webpack.config.development.js": [
+10,
+11
+],
+"redux:webpack.config.production.js": [
+10,
+15,
+16,
+17
+]
+}

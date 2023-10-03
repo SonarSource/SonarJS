@@ -1,0 +1,68 @@
+{
+"ace:demo/webpack/webpack.config.js": [
+29
+],
+"ace:doc/build.js": [
+67
+],
+"ace:doc/site/js/ga.js": [
+9
+],
+"ace:doc/site/js/main.js": [
+199
+],
+"ace:doc/template/resources/javascripts/clicker.js": [
+69
+],
+"ace:doc/template/resources/javascripts/disqus-ext.js": [
+17
+],
+"ace:doc/template/resources/javascripts/jquery.cookie.js": [
+96
+],
+"ace:doc/template/resources/javascripts/prettify-extension.js": [
+24
+],
+"ace:doc/template/resources/javascripts/ux.js": [
+135
+],
+"ace:experiments/worker.js": [
+3
+],
+"ace:lib/ace/mode/html/saxparser.js": [
+10445
+],
+"ace:lib/ace/mode/javascript/jshint.js": [
+19343
+],
+"ace:lib/ace/mode/xquery/jsoniq_lexer.js": [
+4469
+],
+"ace:lib/ace/mode/xquery/xquery_lexer.js": [
+4438
+],
+"ace:lib/ace/worker/worker_test.js": [
+125
+],
+"ace:src/layer/decorators.js": [
+129
+],
+"ace:src/mode/bibtex.js": [
+18
+],
+"ace:src/mode/bibtex_highlight_rules.js": [
+184
+],
+"ace:tool/regexp_tokenizer.js": [
+113
+],
+"ace:tool/templates/snippets.js": [
+4
+],
+"ace:tool/tmsnippets.js": [
+82
+],
+"ace:tool/wrap_keyword_regexp.js": [
+21
+]
+}

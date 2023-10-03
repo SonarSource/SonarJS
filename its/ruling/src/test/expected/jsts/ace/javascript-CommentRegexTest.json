@@ -1,0 +1,346 @@
+{
+"ace:Makefile.dryice.js": [
+134
+],
+"ace:demo/kitchen-sink/doclist.js": [
+126
+],
+"ace:lib/ace/mode/css/csslint.js": [
+1605,
+4869,
+5797,
+7308
+],
+"ace:lib/ace/mode/html/saxparser.js": [
+2462,
+2980,
+3273,
+3354,
+3366,
+3616,
+3664,
+3681,
+3803,
+4035,
+4359,
+4505,
+4873,
+4989,
+5346,
+10427
+],
+"ace:lib/ace/mode/javascript/jshint.js": [
+4656,
+4689,
+4698,
+5131,
+7828,
+10160,
+12198,
+12280,
+12478,
+13643
+],
+"ace:lib/ace/mode/xml/dom.js": [
+294,
+1120
+],
+"ace:lib/ace/mode/xml/sax.js": [
+172
+],
+"ace:lib/ace/mode/yaml/yaml-lint.js": [
+1608,
+2970
+],
+"ace:lib/ace/worker/worker_client.js": [
+171
+],
+"ace:lib/ace/worker/worker_client_v2.js": [
+184
+],
+"ace:src/anchor.js": [
+116
+],
+"ace:src/autocomplete.js": [
+150,
+532
+],
+"ace:src/config.js": [
+53
+],
+"ace:src/edit_session.js": [
+421,
+943,
+2172,
+2330
+],
+"ace:src/edit_session/fold_line.js": [
+142
+],
+"ace:src/edit_session/folding.js": [
+132
+],
+"ace:src/edit_session_test.js": [
+861
+],
+"ace:src/editor.js": [
+51,
+96,
+182,
+776,
+1545,
+2316
+],
+"ace:src/editor_commands_test.js": [
+206,
+273,
+459
+],
+"ace:src/ext/elastic_tabstops_lite.js": [
+85,
+106
+],
+"ace:src/ext/emmet.js": [
+36,
+385
+],
+"ace:src/ext/modelist.js": [
+43
+],
+"ace:src/ext/searchbox.js": [
+361
+],
+"ace:src/ext/spellcheck.js": [
+50
+],
+"ace:src/ext/whitespace.js": [
+191
+],
+"ace:src/keyboard/emacs.js": [
+258,
+259,
+339,
+386
+],
+"ace:src/keyboard/textarea.js": [
+17
+],
+"ace:src/keyboard/vim.js": [
+4,
+296,
+757,
+1257,
+1614,
+1644,
+1678,
+1714,
+1778,
+1857,
+2446,
+2502,
+3022,
+3040,
+3480,
+4454,
+5118,
+5166,
+6582
+],
+"ace:src/keyboard/vim_test.js": [
+494,
+1968,
+2142,
+2886,
+4326
+],
+"ace:src/keyboard/vscode.js": [
+224,
+228
+],
+"ace:src/mode/_test/highlight_rules_test.js": [
+82
+],
+"ace:src/mode/alda.js": [
+10
+],
+"ace:src/mode/behaviour/liquid.js": [
+35
+],
+"ace:src/mode/behaviour/xml.js": [
+89
+],
+"ace:src/mode/dart_highlight_rules.js": [
+182
+],
+"ace:src/mode/doc_comment_highlight_rules.js": [
+10
+],
+"ace:src/mode/drools_highlight_rules.js": [
+111,
+112
+],
+"ace:src/mode/elixir_highlight_rules.js": [
+293
+],
+"ace:src/mode/elm_highlight_rules.js": [
+1
+],
+"ace:src/mode/folding/sqlserver.js": [
+45
+],
+"ace:src/mode/fsl.js": [
+10
+],
+"ace:src/mode/gherkin_highlight_rules.js": [
+11
+],
+"ace:src/mode/groovy_highlight_rules.js": [
+53,
+104,
+105
+],
+"ace:src/mode/haskell.js": [
+10
+],
+"ace:src/mode/haxe_highlight_rules.js": [
+58,
+59
+],
+"ace:src/mode/ini.js": [
+6
+],
+"ace:src/mode/jade_highlight_rules.js": [
+137,
+162
+],
+"ace:src/mode/java_highlight_rules.js": [
+123,
+124
+],
+"ace:src/mode/javascript_highlight_rules.js": [
+7
+],
+"ace:src/mode/jssm.js": [
+10
+],
+"ace:src/mode/jsx_highlight_rules.js": [
+80,
+81
+],
+"ace:src/mode/julia.js": [
+10
+],
+"ace:src/mode/logtalk.js": [
+11
+],
+"ace:src/mode/markdown_highlight_rules.js": [
+24
+],
+"ace:src/mode/mips.js": [
+10
+],
+"ace:src/mode/mysql.js": [
+12
+],
+"ace:src/mode/pascal.js": [
+10
+],
+"ace:src/mode/pgsql_highlight_rules.js": [
+429
+],
+"ace:src/mode/pig.js": [
+10
+],
+"ace:src/mode/powershell_highlight_rules.js": [
+219,
+220
+],
+"ace:src/mode/prisma.js": [
+10
+],
+"ace:src/mode/python_highlight_rules.js": [
+1,
+343
+],
+"ace:src/mode/r.js": [
+58
+],
+"ace:src/mode/redshift_highlight_rules.js": [
+56
+],
+"ace:src/mode/ruby_highlight_rules.js": [
+124
+],
+"ace:src/mode/scala_highlight_rules.js": [
+103,
+104
+],
+"ace:src/mode/sh_highlight_rules.js": [
+65
+],
+"ace:src/mode/space_highlight_rules.js": [
+8
+],
+"ace:src/mode/sparql.js": [
+10
+],
+"ace:src/mode/swift.js": [
+11
+],
+"ace:src/mode/tcl_highlight_rules.js": [
+8
+],
+"ace:src/mode/terraform_highlight_rules.js": [
+140
+],
+"ace:src/mode/text.js": [
+209
+],
+"ace:src/mode/turtle.js": [
+10
+],
+"ace:src/mode/velocity_highlight_rules.js": [
+76,
+77,
+144,
+145
+],
+"ace:src/mode/wollok_highlight_rules.js": [
+59,
+60
+],
+"ace:src/mouse/dragdrop_handler.js": [
+373
+],
+"ace:src/multi_select.js": [
+10,
+906
+],
+"ace:src/placeholder.js": [
+53,
+83,
+196,
+211
+],
+"ace:src/selection.js": [
+472
+],
+"ace:src/test/mockdom.js": [
+390,
+416
+],
+"ace:src/undomanager_test.js": [
+36
+],
+"ace:src/virtual_renderer.js": [
+267,
+844
+],
+"ace:tool/regexp_tokenizer.js": [
+5,
+21
+],
+"ace:tool/tmtheme.js": [
+408
+]
+}

@@ -1,0 +1,33 @@
+{
+"router:examples/hello/jsonp.js": [
+1
+],
+"router:examples/http.js": [
+1
+],
+"router:third_party/brick/brick-1.0.1.byob.js": [
+9,
+73,
+170,
+220,
+263,
+288,
+298,
+1833,
+2133,
+3891,
+3895
+],
+"router:third_party/route-recognizer.js": [
+31,
+51,
+66,
+81,
+134,
+270,
+275,
+316,
+528,
+552
+]
+}

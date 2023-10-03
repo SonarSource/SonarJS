@@ -1,0 +1,27 @@
+{
+"router:src/history.js": [
+61,
+154
+],
+"router:src/router.js": [
+131
+],
+"router:third_party/brick/brick-1.0.1.byob.js": [
+177,
+685,
+718,
+761,
+1136,
+1205,
+1307,
+1759,
+1963,
+2148,
+2217,
+3222,
+3469
+],
+"router:third_party/route-recognizer.js": [
+475
+]
+}

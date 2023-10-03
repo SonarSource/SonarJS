@@ -1,0 +1,224 @@
+{
+"ace:demo/kitchen-sink/demo.js": [
+418
+],
+"ace:lib/ace/mode/html/saxparser.js": [
+6601,
+6606,
+6611
+],
+"ace:lib/ace/mode/javascript/jshint.js": [
+2387
+],
+"ace:lib/ace/worker/worker_client_v2.js": [
+55
+],
+"ace:src/ace_test.js": [
+6
+],
+"ace:src/anchor_test.js": [
+5
+],
+"ace:src/autocomplete.js": [
+438
+],
+"ace:src/autocomplete_test.js": [
+6
+],
+"ace:src/background_tokenizer_test.js": [
+5
+],
+"ace:src/commands/command_manager_test.js": [
+5
+],
+"ace:src/config_test.js": [
+5
+],
+"ace:src/document_test.js": [
+5
+],
+"ace:src/edit_session_test.js": [
+6
+],
+"ace:src/editor_change_document_test.js": [
+6
+],
+"ace:src/editor_commands_test.js": [
+6
+],
+"ace:src/editor_highlight_selected_word_test.js": [
+6
+],
+"ace:src/editor_navigation_test.js": [
+6
+],
+"ace:src/editor_text_edit_test.js": [
+6
+],
+"ace:src/ext/beautify_test.js": [
+5
+],
+"ace:src/ext/code_lens_test.js": [
+8
+],
+"ace:src/ext/emmet_test.js": [
+5
+],
+"ace:src/ext/error_marker_test.js": [
+7
+],
+"ace:src/ext/hardwrap_test.js": [
+5
+],
+"ace:src/ext/static_highlight_test.js": [
+5
+],
+"ace:src/ext/whitespace_test.js": [
+5
+],
+"ace:src/incremental_search_test.js": [
+5
+],
+"ace:src/keyboard/emacs_test.js": [
+6
+],
+"ace:src/keyboard/keybinding_test.js": [
+5
+],
+"ace:src/keyboard/sublime_test.js": [
+6
+],
+"ace:src/keyboard/textinput_test.js": [
+7
+],
+"ace:src/keyboard/vim_ace_test.js": [
+7
+],
+"ace:src/layer/text_test.js": [
+6
+],
+"ace:src/lib/event_emitter_test.js": [
+5
+],
+"ace:src/mode/_test/highlight_rules_test.js": [
+7
+],
+"ace:src/mode/ada_test.js": [
+5
+],
+"ace:src/mode/behaviour/behaviour_test.js": [
+6
+],
+"ace:src/mode/coldfusion_test.js": [
+5
+],
+"ace:src/mode/css_test.js": [
+5
+],
+"ace:src/mode/folding/coffee_test.js": [
+4
+],
+"ace:src/mode/folding/cstyle_test.js": [
+4
+],
+"ace:src/mode/folding/fold_mode_test.js": [
+4
+],
+"ace:src/mode/folding/html_test.js": [
+4
+],
+"ace:src/mode/folding/pythonic_test.js": [
+4
+],
+"ace:src/mode/folding/ruby_test.js": [
+4
+],
+"ace:src/mode/folding/vbscript_test.js": [
+4
+],
+"ace:src/mode/folding/xml_test.js": [
+4
+],
+"ace:src/mode/html_test.js": [
+5
+],
+"ace:src/mode/javascript_test.js": [
+5
+],
+"ace:src/mode/logiql_test.js": [
+5
+],
+"ace:src/mode/php_test.js": [
+5
+],
+"ace:src/mode/plain_text_test.js": [
+5
+],
+"ace:src/mode/python_test.js": [
+5
+],
+"ace:src/mode/ruby_test.js": [
+5
+],
+"ace:src/mode/text_test.js": [
+5
+],
+"ace:src/mode/vbscript_test.js": [
+5
+],
+"ace:src/mode/xml_test.js": [
+5
+],
+"ace:src/mouse/mouse_handler_test.js": [
+6
+],
+"ace:src/multi_select_test.js": [
+6
+],
+"ace:src/occur_test.js": [
+5
+],
+"ace:src/placeholder_test.js": [
+6
+],
+"ace:src/range_list_test.js": [
+5
+],
+"ace:src/range_test.js": [
+5
+],
+"ace:src/scrollbar_test.js": [
+6
+],
+"ace:src/search_test.js": [
+5
+],
+"ace:src/selection_test.js": [
+5
+],
+"ace:src/snippets_test.js": [
+6,
+28
+],
+"ace:src/test/benchmark.js": [
+5
+],
+"ace:src/test/mockdom_test.js": [
+8
+],
+"ace:src/token_iterator_test.js": [
+5
+],
+"ace:src/tokenizer_test.js": [
+5
+],
+"ace:src/undomanager.js": [
+300
+],
+"ace:src/undomanager_test.js": [
+6
+],
+"ace:src/virtual_renderer_test.js": [
+6
+]
+}

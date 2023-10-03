@@ -1,0 +1,9 @@
+{
+"sonar-web:src/main/js/api/metrics.js": [
+1
+],
+"sonar-web:tests/apps/overview/overview-test.js": [
+2,
+8
+]
+}

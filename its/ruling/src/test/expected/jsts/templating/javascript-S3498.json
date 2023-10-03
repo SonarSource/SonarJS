@@ -1,0 +1,21 @@
+{
+"templating:protractor-shared.conf.js": [
+11
+],
+"templating:src/lib/di/ce_di.js": [
+43
+],
+"templating:src/lib/di/ce_di_bootstrap.js": [
+10
+],
+"templating:src/lib/load_barrier.js": [
+86,
+87,
+88
+],
+"templating:src/util/ng_polymer.js": [
+11,
+33,
+41
+]
+}

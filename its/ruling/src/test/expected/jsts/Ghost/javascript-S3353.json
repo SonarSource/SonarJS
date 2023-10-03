@@ -1,0 +1,1229 @@
+{
+"Ghost:core/client/app/adapters/base.js": [
+51
+],
+"Ghost:core/client/app/adapters/embedded-relation-adapter.js": [
+32,
+50,
+59,
+60,
+61,
+67,
+68,
+76,
+87,
+117,
+118
+],
+"Ghost:core/client/app/adapters/setting.js": [
+5,
+6
+],
+"Ghost:core/client/app/app.js": [
+12
+],
+"Ghost:core/client/app/assets/lib/uploader.js": [
+6,
+8,
+9,
+10,
+11,
+23,
+33,
+43,
+44,
+81,
+177,
+220,
+244,
+251,
+252
+],
+"Ghost:core/client/app/components/gh-alert.js": [
+17,
+21
+],
+"Ghost:core/client/app/components/gh-app.js": [
+11
+],
+"Ghost:core/client/app/components/gh-cm-editor.js": [
+23,
+24,
+43
+],
+"Ghost:core/client/app/components/gh-content-preview-content.js": [
+15
+],
+"Ghost:core/client/app/components/gh-datetime-input.js": [
+18,
+28
+],
+"Ghost:core/client/app/components/gh-dropdown.js": [
+57,
+58,
+59,
+60,
+83,
+92
+],
+"Ghost:core/client/app/components/gh-ed-preview.js": [
+40,
+48
+],
+"Ghost:core/client/app/components/gh-editor.js": [
+32,
+33,
+33,
+39,
+42,
+43,
+104,
+105,
+106
+],
+"Ghost:core/client/app/components/gh-error-message.js": [
+23,
+24,
+25
+],
+"Ghost:core/client/app/components/gh-fullscreen-modal.js": [
+31,
+32,
+33,
+37
+],
+"Ghost:core/client/app/components/gh-navigation.js": [
+10,
+11,
+13
+],
+"Ghost:core/client/app/components/gh-navitem-url-input.js": [
+5,
+15,
+36,
+53,
+92,
+93,
+94,
+116,
+117
+],
+"Ghost:core/client/app/components/gh-notification.js": [
+19,
+23
+],
+"Ghost:core/client/app/components/gh-posts-list-item.js": [
+64,
+65,
+66,
+67,
+68,
+69,
+72,
+73,
+75
+],
+"Ghost:core/client/app/components/gh-profile-image.js": [
+44,
+50,
+57,
+62,
+63,
+67,
+74,
+75,
+96,
+106,
+114
+],
+"Ghost:core/client/app/components/gh-search-input.js": [
+37,
+38,
+39,
+40,
+59,
+60,
+61,
+62,
+76,
+77,
+78,
+79,
+93,
+94,
+95,
+96,
+137,
+142,
+147,
+163,
+164,
+177,
+184
+],
+"Ghost:core/client/app/components/gh-select-native.js": [
+25,
+27,
+30,
+31,
+33
+],
+"Ghost:core/client/app/components/gh-selectize.js": [
+11,
+23,
+39,
+40,
+57,
+58,
+59,
+66,
+75,
+85,
+98,
+102
+],
+"Ghost:core/client/app/components/gh-skip-link.js": [
+19,
+20
+],
+"Ghost:core/client/app/components/gh-spin-button.js": [
+29,
+30
+],
+"Ghost:core/client/app/components/gh-tab-pane.js": [
+15,
+16
+],
+"Ghost:core/client/app/components/gh-tag-settings-form.js": [
+54,
+55
+],
+"Ghost:core/client/app/components/gh-tags-management-container.js": [
+31,
+32,
+33
+],
+"Ghost:core/client/app/components/gh-trim-focus-input.js": [
+28
+],
+"Ghost:core/client/app/components/gh-uploader.js": [
+24,
+35,
+36,
+69,
+70
+],
+"Ghost:core/client/app/components/gh-url-preview.js": [
+22,
+24,
+27,
+28,
+31
+],
+"Ghost:core/client/app/components/gh-user-active.js": [
+21,
+27
+],
+"Ghost:core/client/app/components/gh-user-invited.js": [
+18,
+25,
+26,
+30,
+48,
+49,
+50,
+56
+],
+"Ghost:core/client/app/components/gh-validation-status-container.js": [
+17,
+18
+],
+"Ghost:core/client/app/components/modals/delete-all.js": [
+18
+],
+"Ghost:core/client/app/components/modals/delete-post.js": [
+21
+],
+"Ghost:core/client/app/components/modals/invite-new-user.js": [
+31,
+52,
+59,
+92,
+93,
+94,
+107
+],
+"Ghost:core/client/app/components/modals/re-authenticate.js": [
+25,
+26,
+27,
+28
+],
+"Ghost:core/client/app/components/modals/upload-image.js": [
+22,
+28,
+29,
+74,
+75,
+76
+],
+"Ghost:core/client/app/controllers/about.js": [
+18
+],
+"Ghost:core/client/app/controllers/feature.js": [
+31
+],
+"Ghost:core/client/app/controllers/post-settings-menu.js": [
+45,
+64,
+65,
+73,
+106,
+139,
+140,
+165,
+228,
+255,
+256,
+293,
+294,
+342,
+343,
+344,
+363,
+364,
+365,
+410,
+426,
+427,
+449,
+450
+],
+"Ghost:core/client/app/controllers/posts.js": [
+12,
+13,
+29,
+30,
+31,
+32,
+51,
+52,
+78
+],
+"Ghost:core/client/app/controllers/reset.js": [
+41,
+46
+],
+"Ghost:core/client/app/controllers/settings/code-injection.js": [
+13
+],
+"Ghost:core/client/app/controllers/settings/general.js": [
+21,
+22,
+46,
+51,
+59,
+80,
+81,
+100
+],
+"Ghost:core/client/app/controllers/settings/labs.js": [
+28,
+53,
+54,
+55,
+56,
+88,
+89,
+90,
+101,
+102
+],
+"Ghost:core/client/app/controllers/settings/navigation.js": [
+25,
+25,
+31,
+31,
+48,
+67,
+76,
+88,
+89,
+93,
+103,
+104,
+129,
+130,
+145,
+151,
+152
+],
+"Ghost:core/client/app/controllers/settings/tags.js": [
+20,
+21,
+34
+],
+"Ghost:core/client/app/controllers/settings/tags/tag.js": [
+22,
+23,
+47,
+57
+],
+"Ghost:core/client/app/controllers/setup.js": [
+18,
+19
+],
+"Ghost:core/client/app/controllers/setup/three.js": [
+26,
+27,
+42,
+50,
+58,
+77,
+78,
+79,
+102,
+103,
+104,
+153,
+154,
+169,
+188
+],
+"Ghost:core/client/app/controllers/setup/two.js": [
+38,
+44,
+101,
+102,
+103,
+104,
+111
+],
+"Ghost:core/client/app/controllers/signin.js": [
+28,
+29,
+77,
+78,
+84,
+98
+],
+"Ghost:core/client/app/controllers/signup.js": [
+26,
+33,
+48,
+49,
+50,
+51,
+52,
+58
+],
+"Ghost:core/client/app/controllers/team/index.js": [
+23
+],
+"Ghost:core/client/app/controllers/team/user.js": [
+63,
+74,
+89,
+110,
+111,
+112,
+123,
+171,
+195,
+198,
+199,
+225,
+226,
+246,
+247,
+262,
+263
+],
+"Ghost:core/client/app/helpers/gh-count-characters.js": [
+10,
+11,
+12
+],
+"Ghost:core/client/app/helpers/gh-count-down-characters.js": [
+10,
+15
+],
+"Ghost:core/client/app/helpers/gh-count-words.js": [
+11,
+17
+],
+"Ghost:core/client/app/helpers/gh-format-markdown.js": [
+7,
+14
+],
+"Ghost:core/client/app/helpers/gh-format-timeago.js": [
+10
+],
+"Ghost:core/client/app/helpers/gh-path.js": [
+14
+],
+"Ghost:core/client/app/helpers/is-equal.js": [
+6,
+6
+],
+"Ghost:core/client/app/initializers/ember-simple-auth.js": [
+10
+],
+"Ghost:core/client/app/initializers/trailing-history.js": [
+5
+],
+"Ghost:core/client/app/instance-initializers/jquery-ajax-oauth-prefilter.js": [
+10,
+14
+],
+"Ghost:core/client/app/mirage/config.js": [
+8,
+20,
+21,
+68,
+69,
+107,
+115,
+124,
+132,
+144,
+145,
+162,
+194,
+209,
+229,
+237,
+245,
+251,
+261,
+262,
+263,
+275,
+283,
+300
+],
+"Ghost:core/client/app/mixins/404-handler.js": [
+9,
+10,
+11
+],
+"Ghost:core/client/app/mixins/active-link-wrapper.js": [
+22,
+24
+],
+"Ghost:core/client/app/mixins/ed-editor-api.js": [
+35,
+43,
+59,
+68,
+90,
+114
+],
+"Ghost:core/client/app/mixins/ed-editor-scroll.js": [
+10,
+11,
+12,
+16,
+17,
+30,
+31,
+49,
+72
+],
+"Ghost:core/client/app/mixins/ed-editor-shortcuts.js": [
+9,
+48,
+81,
+95,
+106,
+142
+],
+"Ghost:core/client/app/mixins/editor-base-controller.js": [
+51,
+56,
+59,
+85,
+86,
+98,
+99,
+106,
+130,
+131,
+132,
+133,
+134,
+223,
+241,
+267,
+268,
+282,
+283,
+284,
+322,
+368,
+369
+],
+"Ghost:core/client/app/mixins/editor-base-route.js": [
+8,
+23,
+34,
+35,
+36,
+37,
+38,
+53,
+59,
+119
+],
+"Ghost:core/client/app/mixins/infinite-scroll.js": [
+14,
+15,
+16,
+29
+],
+"Ghost:core/client/app/mixins/pagination-route.js": [
+9,
+22,
+23,
+49,
+50,
+72,
+73,
+74,
+75,
+76
+],
+"Ghost:core/client/app/mixins/shortcuts.js": [
+49,
+52,
+72,
+75
+],
+"Ghost:core/client/app/mixins/style-body.js": [
+8,
+22
+],
+"Ghost:core/client/app/mixins/validation-engine.js": [
+86,
+87,
+88,
+107,
+119
+],
+"Ghost:core/client/app/mixins/validation-state.js": [
+13,
+14,
+15
+],
+"Ghost:core/client/app/models/post.js": [
+47,
+48,
+53,
+54,
+55,
+76,
+77
+],
+"Ghost:core/client/app/models/user.js": [
+65,
+92,
+107,
+108,
+112
+],
+"Ghost:core/client/app/router.js": [
+11
+],
+"Ghost:core/client/app/routes/about.js": [
+21,
+29
+],
+"Ghost:core/client/app/routes/application.js": [
+18
+],
+"Ghost:core/client/app/routes/editor/edit.js": [
+21,
+27,
+34
+],
+"Ghost:core/client/app/routes/editor/new.js": [
+29
+],
+"Ghost:core/client/app/routes/posts.js": [
+16,
+39,
+40,
+41,
+42,
+57,
+58
+],
+"Ghost:core/client/app/routes/posts/index.js": [
+32
+],
+"Ghost:core/client/app/routes/posts/post.js": [
+13,
+20,
+25,
+32
+],
+"Ghost:core/client/app/routes/settings/tags.js": [
+49,
+50,
+51,
+54,
+67,
+68
+],
+"Ghost:core/client/app/routes/settings/tags/index.js": [
+12
+],
+"Ghost:core/client/app/routes/setup.js": [
+29,
+34
+],
+"Ghost:core/client/app/routes/setup/one.js": [
+10,
+24,
+25,
+37
+],
+"Ghost:core/client/app/routes/signin.js": [
+37
+],
+"Ghost:core/client/app/routes/signup.js": [
+31,
+32,
+50
+],
+"Ghost:core/client/app/routes/team/user.js": [
+24,
+25,
+26,
+37
+],
+"Ghost:core/client/app/serializers/application.js": [
+15,
+16
+],
+"Ghost:core/client/app/serializers/post.js": [
+24,
+25,
+42,
+43
+],
+"Ghost:core/client/app/serializers/setting.js": [
+10,
+11,
+12,
+24,
+29,
+38
+],
+"Ghost:core/client/app/serializers/tag.js": [
+10,
+11
+],
+"Ghost:core/client/app/serializers/user.js": [
+13,
+14,
+23,
+24
+],
+"Ghost:core/client/app/services/ajax.js": [
+10,
+13
+],
+"Ghost:core/client/app/services/config.js": [
+29,
+30,
+33,
+34,
+35,
+37
+],
+"Ghost:core/client/app/services/media-queries.js": [
+26,
+30,
+31,
+32
+],
+"Ghost:core/client/app/services/notifications.js": [
+27,
+32,
+139,
+165,
+168,
+169,
+172,
+173
+],
+"Ghost:core/client/app/services/slug-generator.js": [
+20,
+23,
+24
+],
+"Ghost:core/client/app/utils/bind.js": [
+4,
+5,
+6
+],
+"Ghost:core/client/app/utils/caja-sanitizers.js": [
+8,
+19
+],
+"Ghost:core/client/app/utils/ed-image-manager.js": [
+5,
+17,
+30,
+31,
+32
+],
+"Ghost:core/client/app/utils/editor-shortcuts.js": [
+6
+],
+"Ghost:core/client/app/utils/ghost-paths.js": [
+1,
+2,
+3,
+4,
+17,
+18,
+19,
+20,
+46
+],
+"Ghost:core/client/app/utils/link-component.js": [
+7
+],
+"Ghost:core/client/app/utils/random-password.js": [
+4,
+5
+],
+"Ghost:core/client/app/utils/titleize.js": [
+7
+],
+"Ghost:core/client/app/utils/word-count.js": [
+5
+],
+"Ghost:core/client/app/validators/invite-user.js": [
+7
+],
+"Ghost:core/client/app/validators/nav-item.js": [
+7,
+8,
+19,
+20,
+22,
+24
+],
+"Ghost:core/client/app/validators/new-user.js": [
+7,
+16,
+28
+],
+"Ghost:core/client/app/validators/post.js": [
+7,
+21,
+30
+],
+"Ghost:core/client/app/validators/reset.js": [
+7,
+8
+],
+"Ghost:core/client/app/validators/setting.js": [
+6,
+15,
+24,
+25,
+34
+],
+"Ghost:core/client/app/validators/setup.js": [
+7
+],
+"Ghost:core/client/app/validators/signin.js": [
+8,
+17,
+18,
+39
+],
+"Ghost:core/client/app/validators/tag-settings.js": [
+7,
+22,
+31,
+40,
+49
+],
+"Ghost:core/client/app/validators/user.js": [
+11,
+25,
+36,
+45,
+56,
+73
+],
+"Ghost:core/client/tests/acceptance/authentication-test.js": [
+39,
+40,
+67,
+68,
+77,
+78,
+82,
+83,
+133,
+134
+],
+"Ghost:core/client/tests/acceptance/posts/post-test.js": [
+28,
+29,
+39,
+56
+],
+"Ghost:core/client/tests/acceptance/settings/navigation-test.js": [
+35,
+36,
+48,
+49
+],
+"Ghost:core/client/tests/acceptance/settings/tags-test.js": [
+28,
+29,
+33,
+39,
+40,
+67,
+68,
+80,
+81,
+91,
+92
+],
+"Ghost:core/client/tests/acceptance/setup-test.js": [
+27,
+28,
+268,
+276
+],
+"Ghost:core/client/tests/acceptance/team-test.js": [
+115,
+133,
+136,
+145
+],
+"Ghost:core/client/tests/helpers/resolver.js": [
+4
+],
+"Ghost:core/client/tests/integration/adapters/user-test.js": [
+65
+],
+"Ghost:core/client/tests/integration/components/gh-alert-test.js": [
+22,
+31
+],
+"Ghost:core/client/tests/integration/components/gh-alerts-test.js": [
+13
+],
+"Ghost:core/client/tests/integration/components/gh-cm-editor-test.js": [
+23,
+45
+],
+"Ghost:core/client/tests/integration/components/gh-navigation-test.js": [
+24
+],
+"Ghost:core/client/tests/integration/components/gh-navitem-test.js": [
+25,
+42,
+51,
+105
+],
+"Ghost:core/client/tests/integration/components/gh-navitem-url-input-test.js": [
+14,
+33,
+45,
+58,
+79,
+84,
+95,
+100,
+114,
+133,
+158,
+160,
+180,
+194,
+213,
+229,
+233,
+250,
+254,
+273,
+275,
+306,
+308,
+335,
+354,
+356,
+380,
+382,
+408,
+410,
+441,
+443,
+468,
+470
+],
+"Ghost:core/client/tests/integration/components/gh-notification-test.js": [
+22,
+32
+],
+"Ghost:core/client/tests/integration/components/gh-notifications-test.js": [
+13
+],
+"Ghost:core/client/tests/integration/components/gh-profile-image-test.js": [
+13,
+58,
+59,
+72,
+73
+],
+"Ghost:core/client/tests/integration/components/gh-tag-settings-form-test.js": [
+14,
+18,
+31,
+178,
+179,
+200,
+204,
+208,
+211,
+215,
+225,
+228,
+246,
+259,
+277
+],
+"Ghost:core/client/tests/integration/components/gh-validation-status-container-test.js": [
+19
+],
+"Ghost:core/client/tests/integration/services/ajax-test.js": [
+37,
+40,
+51,
+54,
+65,
+68,
+81,
+86
+],
+"Ghost:core/client/tests/integration/services/slug-generator-test.js": [
+42,
+51,
+54
+],
+"Ghost:core/client/tests/unit/components/gh-alert-test.js": [
+20,
+21,
+22
+],
+"Ghost:core/client/tests/unit/components/gh-app-test.js": [
+19
+],
+"Ghost:core/client/tests/unit/components/gh-content-preview-content-test.js": [
+19
+],
+"Ghost:core/client/tests/unit/components/gh-editor-save-button-test.js": [
+23
+],
+"Ghost:core/client/tests/unit/components/gh-editor-test.js": [
+25
+],
+"Ghost:core/client/tests/unit/components/gh-infinite-scroll-box-test.js": [
+19
+],
+"Ghost:core/client/tests/unit/components/gh-infinite-scroll-test.js": [
+19
+],
+"Ghost:core/client/tests/unit/components/gh-navitem-url-input-test.js": [
+19
+],
+"Ghost:core/client/tests/unit/components/gh-notification-test.js": [
+20,
+21,
+22,
+34,
+35,
+36
+],
+"Ghost:core/client/tests/unit/components/gh-posts-list-item-test.js": [
+19
+],
+"Ghost:core/client/tests/unit/components/gh-search-input-test.js": [
+18
+],
+"Ghost:core/client/tests/unit/components/gh-select-native-test.js": [
+19
+],
+"Ghost:core/client/tests/unit/components/gh-selectize-test.js": [
+22
+],
+"Ghost:core/client/tests/unit/components/gh-spin-button-test.js": [
+19
+],
+"Ghost:core/client/tests/unit/components/gh-trim-focus-input_test.js": [
+15,
+26,
+37
+],
+"Ghost:core/client/tests/unit/components/gh-url-preview_test.js": [
+14,
+29
+],
+"Ghost:core/client/tests/unit/components/gh-user-active-test.js": [
+19
+],
+"Ghost:core/client/tests/unit/components/gh-user-invited-test.js": [
+19
+],
+"Ghost:core/client/tests/unit/controllers/post-settings-menu-test.js": [
+23,
+54,
+85,
+117,
+128,
+138,
+149,
+166,
+167,
+174,
+186,
+201,
+202,
+209,
+221,
+230,
+239,
+254,
+255,
+256,
+274,
+291,
+311,
+333,
+348,
+368,
+390,
+414,
+441,
+469,
+500,
+533,
+568,
+571,
+594,
+597,
+598,
+621,
+624,
+648,
+651,
+680,
+683
+],
+"Ghost:core/client/tests/unit/controllers/settings/general-test.js": [
+76
+],
+"Ghost:core/client/tests/unit/controllers/settings/navigation-test.js": [
+29,
+35,
+54,
+68,
+87,
+102,
+112,
+126,
+134,
+135,
+136,
+163,
+183,
+194,
+195,
+209,
+210,
+224,
+225
+],
+"Ghost:core/client/tests/unit/helpers/gh-user-can-admin-test.js": [
+10,
+21,
+27,
+38,
+44,
+55
+],
+"Ghost:core/client/tests/unit/helpers/is-not-test.js": [
+14
+],
+"Ghost:core/client/tests/unit/mixins/infinite-scroll-test.js": [
+13,
+14
+],
+"Ghost:core/client/tests/unit/models/post-test.js": [
+16,
+22,
+39,
+43,
+55,
+58,
+59,
+60,
+61
+],
+"Ghost:core/client/tests/unit/models/setting-test.js": [
+8
+],
+"Ghost:core/client/tests/unit/models/tag-test.js": [
+8
+],
+"Ghost:core/client/tests/unit/models/user-test.js": [
+18,
+24,
+43,
+60,
+74,
+77,
+83,
+90,
+93,
+103,
+106,
+116,
+119,
+129,
+132
+],
+"Ghost:core/client/tests/unit/services/notifications-test.js": [
+180,
+250
+],
+"Ghost:core/client/tests/unit/validators/nav-item-test.js": [
+11,
+24,
+34,
+47,
+60,
+73,
+93
+],
+"Ghost:core/client/tests/unit/validators/tag-settings-test.js": [
+93,
+112,
+135,
+174,
+213,
+260,
+301
+]
+}

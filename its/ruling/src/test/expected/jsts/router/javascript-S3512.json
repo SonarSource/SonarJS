@@ -1,0 +1,41 @@
+{
+"router:examples/hello/jsonp.js": [
+12
+],
+"router:gulpfile.js": [
+52
+],
+"router:read-pkg-url.js": [
+8
+],
+"router:src/history.js": [
+20,
+79,
+104
+],
+"router:src/util.js": [
+50
+],
+"router:third_party/brick/brick-1.0.1.byob.js": [
+74,
+420,
+423,
+825,
+903,
+974,
+1472,
+1504,
+2159,
+2513,
+3382,
+3383,
+3849,
+3863,
+3987,
+4013
+],
+"router:third_party/route-recognizer.js": [
+8,
+431
+]
+}

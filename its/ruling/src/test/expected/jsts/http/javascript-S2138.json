@@ -1,0 +1,12 @@
+{
+"http:lib/gulp/karma/index.js": [
+6
+],
+"http:test/Http.spec.js": [
+68,
+76
+],
+"http:test/mocks/Xhr.js": [
+76
+]
+}

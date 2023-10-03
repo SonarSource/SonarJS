@@ -1,0 +1,110 @@
+{
+"eigen:__mocks__/react-relay.js": [
+0
+],
+"eigen:__mocks__/svgMock.js": [
+0
+],
+"eigen:alias.js": [
+0
+],
+"eigen:apollo.config.js": [
+0
+],
+"eigen:babel.config.js": [
+0
+],
+"eigen:index-common.js": [
+0
+],
+"eigen:index.android.js": [
+0
+],
+"eigen:index.ios.js": [
+0
+],
+"eigen:index.tests.ios.js": [
+0
+],
+"eigen:jest.config.js": [
+0
+],
+"eigen:metro.config.js": [
+0
+],
+"eigen:relay.config.js": [
+0
+],
+"eigen:scripts/changelog/cli.js": [
+0
+],
+"eigen:scripts/changelog/commitChangelog.js": [
+0
+],
+"eigen:scripts/changelog/generateChangelogSectionTemplate.js": [
+0
+],
+"eigen:scripts/changelog/generatePlatformChangelog.js": [
+0
+],
+"eigen:scripts/changelog/parsePRDescription.js": [
+0
+],
+"eigen:scripts/check-flags/check-flags.js": [
+0
+],
+"eigen:scripts/detect-secrets.js": [
+0
+],
+"eigen:scripts/doctor.js": [
+0
+],
+"eigen:scripts/generate-cities-cache.js": [
+0
+],
+"eigen:scripts/generate-cities-objc.js": [
+0
+],
+"eigen:scripts/generate-manifest.js": [
+0
+],
+"eigen:scripts/preheatGraphQLCache.js": [
+0
+],
+"eigen:scripts/queryMap.js": [
+0
+],
+"eigen:scripts/set-storybook-environment.js": [
+0
+],
+"eigen:scripts/strictness-migration.js": [
+0
+],
+"eigen:scripts/update-metaphysics.js": [
+0
+],
+"eigen:src/app/__fixtures__/ArtistFixture.js": [
+0
+],
+"eigen:src/palette/elements/Input/PhoneInput/index.js": [
+0
+],
+"eigen:src/storybook/index.js": [
+0
+],
+"eigen:src/storybook/main.js": [
+0
+],
+"eigen:src/storybook/preview.js": [
+0
+],
+"eigen:src/storybook/storybook.requires.js": [
+0
+],
+"eigen:tslint-rules/jsxSafeConditionalsRule.js": [
+0
+],
+"eigen:tslint-rules/useWrappedComponentsRule.js": [
+0
+]
+}

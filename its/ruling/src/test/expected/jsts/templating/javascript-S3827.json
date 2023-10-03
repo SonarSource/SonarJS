@@ -1,0 +1,23 @@
+{
+"templating:src/util/ng_polymer.js": [
+10
+],
+"templating:test/example/greet.spec.js": [
+7
+],
+"templating:test/example/ngmodel.spec.js": [
+7
+],
+"templating:test/example/tab.spec.js": [
+16
+],
+"templating:test/example/todo.spec.js": [
+6
+],
+"templating:test/example/video.spec.js": [
+9
+],
+"templating:test/lib/dom_mocks.js": [
+25
+]
+}

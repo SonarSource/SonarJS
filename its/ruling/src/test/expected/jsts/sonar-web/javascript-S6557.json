@@ -1,0 +1,15 @@
+{
+"sonar-web:src/main/js/components/router/router.js": [
+15
+],
+"sonar-web:src/main/js/helpers/handlebars-helpers.js": [
+64
+],
+"sonar-web:src/main/js/helpers/measures.js": [
+267,
+275
+],
+"sonar-web:src/main/js/main/nav/links-mixin.js": [
+7
+]
+}

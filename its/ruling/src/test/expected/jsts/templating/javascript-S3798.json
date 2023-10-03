@@ -1,0 +1,66 @@
+{
+"templating:gulpfile.js": [
+11,
+13,
+34,
+111,
+120
+],
+"templating:scripts/read-pkg-url.js": [
+4,
+5,
+6
+],
+"templating:src/lib/compiler/selector_config.js": [
+3
+],
+"templating:src/lib/di/ce_di.js": [
+3
+],
+"templating:src/lib/di/ce_di_bootstrap.js": [
+6,
+8,
+13
+],
+"templating:src/lib/load_barrier.js": [
+29,
+32,
+56,
+98
+],
+"templating:src/lib/types.js": [
+3,
+10,
+17,
+21,
+25,
+29,
+35,
+43,
+57,
+64,
+73
+],
+"templating:src/lib/util/global.js": [
+1
+],
+"templating:src/lib/util/module_annotator.js": [
+3,
+13
+],
+"templating:test/example/shadow-dom-util.js": [
+5,
+16
+],
+"templating:test/example/tab.spec.js": [
+11
+],
+"templating:test/lib/dom_mocks.js": [
+1
+],
+"templating:test/unit-test-main.js": [
+1,
+2,
+4
+]
+}

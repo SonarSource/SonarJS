@@ -1,0 +1,19 @@
+{
+"ace:lib/ace/mode/html/saxparser.js": [
+10103
+],
+"ace:lib/ace/mode/xml/dom.js": [
+824
+],
+"ace:src/ext/textarea.js": [
+300,
+304,
+316
+],
+"ace:src/keyboard/vim.js": [
+539
+],
+"ace:tool/tmlanguage.js": [
+465
+]
+}

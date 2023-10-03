@@ -61,6 +61,8 @@ You can review the Ruling difference by running `diff -rq src/test/expected/js t
 To review the Ruling difference in SonarQube UI, put the breakpoint on `assertThat(...)` in `{JavaScript/CSS}RulingTest.java` and open in the browser the orchestrated local SonarQube.
 Note that you can fix the port in `orchestrator.properties files`, e.g. `orchestrator.container.port=9100`.
 
+> :warning: Please note that running ruling tests will remove `node_modules` from the root to avoid affecting the results. Run `npm ci` to put them back.
+
 ### Debug `node` process during scan
 
 You can run your own Node.js process manually and set the environment variable `SONARJS_EXISTING_NODE_PROCESS_PORT` with the value of the port where your process is listening to. When set, SonarJS will not start a new Node process and will send the analysis requests to the specified port instead.

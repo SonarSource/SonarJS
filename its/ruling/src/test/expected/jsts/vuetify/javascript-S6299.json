@@ -1,0 +1,51 @@
+{
+"vuetify:packages/docs/src/components/Backmatter.vue": [
+17
+],
+"vuetify:packages/docs/src/components/api/NameCell.vue": [
+5
+],
+"vuetify:packages/docs/src/components/app/drawer/Drawer.vue": [
+18
+],
+"vuetify:packages/docs/src/components/doc/Contribute.vue": [
+6
+],
+"vuetify:packages/docs/src/components/doc/VueJobs.vue": [
+8
+],
+"vuetify:packages/docs/src/components/doc/VuetifyUiKits.vue": [
+11
+],
+"vuetify:packages/docs/src/components/home/Footer.vue": [
+24,
+62
+],
+"vuetify:packages/docs/src/components/introduction/DirectSupport.vue": [
+32
+],
+"vuetify:packages/docs/src/components/sponsor/Card.vue": [
+4
+],
+"vuetify:packages/docs/src/examples/v-avatar/misc-advanced.vue": [
+40,
+63
+],
+"vuetify:packages/docs/src/examples/v-calendar/event-click.vue": [
+104,
+114
+],
+"vuetify:packages/docs/src/examples/v-divider/misc-subheaders.vue": [
+42,
+46
+],
+"vuetify:packages/docs/src/examples/v-list/prop-three-line.vue": [
+22
+],
+"vuetify:packages/docs/src/examples/v-treeview/prop-load-children.vue": [
+91
+],
+"vuetify:packages/docs/src/layouts/wireframe.vue": [
+5
+]
+}
