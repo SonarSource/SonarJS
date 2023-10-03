@@ -1,0 +1,71 @@
+{
+"ace:demo/kitchen-sink/doclist.js": [
+85,
+87
+],
+"ace:lib/ace/mode/html/saxparser.js": [
+820
+],
+"ace:lib/ace/mode/javascript/jshint.js": [
+3345,
+8059,
+8900,
+8948,
+9077
+],
+"ace:lib/ace/mode/yaml/yaml-lint.js": [
+623
+],
+"ace:src/edit_session.js": [
+1018
+],
+"ace:src/edit_session/folding.js": [
+651
+],
+"ace:src/editor.js": [
+1880,
+1889
+],
+"ace:src/ext/whitespace.js": [
+34
+],
+"ace:src/keyboard/vim.js": [
+5346
+],
+"ace:src/layer/text.js": [
+178
+],
+"ace:src/lib/bidiutil.js": [
+330
+],
+"ace:src/mode/folding/xml.js": [
+67,
+72,
+72
+],
+"ace:src/mode/text.js": [
+323
+],
+"ace:src/mode/text_highlight_rules.js": [
+165
+],
+"ace:src/range_list.js": [
+90
+],
+"ace:src/search.js": [
+138
+],
+"ace:src/snippets.js": [
+320
+],
+"ace:src/undomanager.js": [
+428,
+431,
+547,
+550
+],
+"ace:tool/tmlanguage.js": [
+50,
+127
+]
+}

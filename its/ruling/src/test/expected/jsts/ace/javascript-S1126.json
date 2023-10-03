@@ -1,0 +1,32 @@
+{
+"ace:lib/ace/mode/javascript/jshint.js": [
+4557,
+16197
+],
+"ace:lib/ace/mode/xml/dom.js": [
+263
+],
+"ace:lib/ace/mode/yaml/yaml-lint.js": [
+3187,
+3488,
+3881
+],
+"ace:src/edit_session/folding.js": [
+673
+],
+"ace:src/keyboard/vim.js": [
+3994,
+4463
+],
+"ace:src/mode/ada.js": [
+44
+],
+"ace:src/mode/logiql.js": [
+48
+],
+"ace:src/range.js": [
+203,
+221,
+240
+]
+}

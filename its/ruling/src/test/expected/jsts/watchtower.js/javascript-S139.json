@@ -1,0 +1,14 @@
+{
+"watchtower.js:src/dirty_checking.js": [
+100,
+208
+],
+"watchtower.js:test/dirtychecking.spec.js": [
+148
+],
+"watchtower.js:test/watchgroup.spec.js": [
+863,
+872,
+880
+]
+}

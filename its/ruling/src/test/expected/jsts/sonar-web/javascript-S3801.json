@@ -1,0 +1,75 @@
+{
+"sonar-web:src/main/js/apps/issues/component-viewer/main.js": [
+19,
+30
+],
+"sonar-web:src/main/js/apps/issues/controller.js": [
+52,
+114,
+133
+],
+"sonar-web:src/main/js/apps/issues/facets/action-plan-facet.js": [
+9
+],
+"sonar-web:src/main/js/apps/issues/facets/assignee-facet.js": [
+24
+],
+"sonar-web:src/main/js/apps/issues/facets/creation-date-facet.js": [
+35
+],
+"sonar-web:src/main/js/apps/issues/facets/resolution-facet.js": [
+9
+],
+"sonar-web:src/main/js/apps/users/change-password-view.js": [
+12
+],
+"sonar-web:src/main/js/components/issue/issue-view.js": [
+129
+],
+"sonar-web:src/main/js/components/issue/views/assign-form-view.js": [
+69
+],
+"sonar-web:src/main/js/components/issue/views/tags-form-view.js": [
+132
+],
+"sonar-web:src/main/js/components/source-viewer/main.js": [
+534
+],
+"sonar-web:src/main/js/components/workspace/models/item.js": [
+5
+],
+"sonar-web:src/main/js/helpers/handlebars-helpers.js": [
+241,
+541
+],
+"sonar-web:src/main/js/main/nav/global/search-view.js": [
+85,
+161
+],
+"sonar-web:src/main/js/widgets/issue-filter/widget.js": [
+83,
+93,
+104,
+121,
+131,
+142
+],
+"sonar-web:src/main/js/widgets/old/base.js": [
+46,
+57
+],
+"sonar-web:src/main/js/widgets/old/bubble-chart.js": [
+278
+],
+"sonar-web:src/main/js/widgets/old/histogram.js": [
+48
+],
+"sonar-web:src/main/js/widgets/old/pie-chart.js": [
+66
+],
+"sonar-web:src/main/js/widgets/old/treemap.js": [
+35,
+280,
+320
+]
+}

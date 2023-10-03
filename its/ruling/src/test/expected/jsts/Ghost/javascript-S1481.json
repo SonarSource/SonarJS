@@ -1,0 +1,32 @@
+{
+"Ghost:core/client/tests/acceptance/authentication-test.js": [
+40,
+78,
+134
+],
+"Ghost:core/client/tests/acceptance/posts/post-test.js": [
+29,
+56
+],
+"Ghost:core/client/tests/acceptance/settings/navigation-test.js": [
+36,
+49
+],
+"Ghost:core/client/tests/acceptance/settings/tags-test.js": [
+68,
+81
+],
+"Ghost:core/client/tests/acceptance/setup-test.js": [
+28
+],
+"Ghost:core/client/tests/acceptance/team-test.js": [
+38,
+52,
+67,
+75,
+239
+],
+"Ghost:core/test/utils/index.js": [
+49
+]
+}

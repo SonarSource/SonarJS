@@ -1,0 +1,23 @@
+{
+"sonar-web:src/main/js/components/workspace/main.js": [
+11
+],
+"sonar-web:src/main/js/widgets/old/base.js": [
+9
+],
+"sonar-web:src/main/js/widgets/old/histogram.js": [
+3
+],
+"sonar-web:src/main/js/widgets/old/tag-cloud.js": [
+3
+],
+"sonar-web:src/main/js/widgets/old/treemap.js": [
+6
+],
+"sonar-web:src/main/js/widgets/old/word-cloud.js": [
+3
+],
+"sonar-web:tests/apps/overview/components/timeline-chart-test.js": [
+22
+]
+}

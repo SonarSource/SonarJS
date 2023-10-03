@@ -1,0 +1,22 @@
+{
+"templating:protractor-shared.conf.js": [
+16,
+16
+],
+"templating:scripts/read-pkg-url.js": [
+4
+],
+"templating:test/example/greet.spec.js": [
+53,
+61
+],
+"templating:test/example/todo.spec.js": [
+13,
+16,
+26,
+34
+],
+"templating:test/lib/util/tree_array.spec.js": [
+17
+]
+}

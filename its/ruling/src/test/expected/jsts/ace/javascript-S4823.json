@@ -1,0 +1,41 @@
+{
+"ace:Makefile.dryice.js": [
+869
+],
+"ace:doc/build.js": [
+5
+],
+"ace:lib/ace/mode/html/saxparser.js": [
+10414
+],
+"ace:lib/ace/mode/javascript/jshint.js": [
+19307
+],
+"ace:src/mode/_test/highlight_rules_test.js": [
+349,
+354,
+358
+],
+"ace:static.js": [
+28
+],
+"ace:tool/add_mode.js": [
+104
+],
+"ace:tool/tmlanguage.js": [
+686
+],
+"ace:tool/tmsnippets.js": [
+5
+],
+"ace:tool/tmtheme.js": [
+376,
+377
+],
+"ace:tool/update_deps.js": [
+298
+],
+"ace:tool/wrap_keyword_regexp.js": [
+10
+]
+}

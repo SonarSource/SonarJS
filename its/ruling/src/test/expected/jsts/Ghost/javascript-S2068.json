@@ -1,0 +1,54 @@
+{
+"Ghost:core/test/functional/base.js": [
+49
+],
+"Ghost:core/test/functional/client/signin_test.js": [
+128,
+170
+],
+"Ghost:core/test/functional/routes/api/authentication_spec.js": [
+89
+],
+"Ghost:core/test/functional/setup/setup_test.js": [
+11
+],
+"Ghost:core/test/integration/api/api_authentication_spec.js": [
+20,
+72,
+149,
+219,
+252,
+285
+],
+"Ghost:core/test/integration/api/api_users_spec.js": [
+483
+],
+"Ghost:core/test/unit/middleware/oauth_spec.js": [
+48,
+57,
+94,
+116,
+125
+],
+"Ghost:core/test/unit/middleware/private-blogging_spec.js": [
+247,
+258
+],
+"Ghost:core/test/unit/middleware/spam-prevention_spec.js": [
+166
+],
+"Ghost:core/test/utils/fixtures/data-generator.js": [
+88,
+94,
+100,
+106,
+112,
+307,
+453
+],
+"Ghost:core/test/utils/fixtures/filter-param/index.js": [
+53,
+60,
+67
+]
+}

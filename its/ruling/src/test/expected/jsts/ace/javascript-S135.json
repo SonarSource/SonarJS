@@ -1,0 +1,187 @@
+{
+"ace:demo/code_lens.html": [
+63
+],
+"ace:lib/ace/mode/css/csslint.js": [
+2124,
+3096,
+5204,
+5335,
+5490,
+5564,
+5592
+],
+"ace:lib/ace/mode/html/saxparser.js": [
+398,
+3359,
+3610,
+4014,
+4892,
+5232
+],
+"ace:lib/ace/mode/javascript/jshint.js": [
+6275,
+7586,
+7925,
+8512,
+10121,
+10435,
+10748,
+10784,
+12865
+],
+"ace:lib/ace/mode/javascript_worker.js": [
+118
+],
+"ace:lib/ace/mode/json/json_parse.js": [
+159
+],
+"ace:lib/ace/mode/xquery/jsoniq_lexer.js": [
+1543
+],
+"ace:lib/ace/mode/xquery/xquery_lexer.js": [
+1543
+],
+"ace:lib/ace/mode/yaml/yaml-lint.js": [
+690,
+743,
+1467,
+1820,
+1918,
+1987,
+2462,
+3369
+],
+"ace:src/autocomplete.js": [
+510
+],
+"ace:src/edit_session.js": [
+1185,
+1769,
+1803
+],
+"ace:src/edit_session/bracket_match.js": [
+420
+],
+"ace:src/edit_session/folding.js": [
+20,
+46,
+60,
+275,
+638
+],
+"ace:src/editor.js": [
+1880
+],
+"ace:src/ext/beautify.js": [
+63
+],
+"ace:src/ext/searchbox.js": [
+272
+],
+"ace:src/keyboard/keybinding.js": [
+75
+],
+"ace:src/keyboard/sublime.js": [
+17
+],
+"ace:src/keyboard/vim.js": [
+330,
+2785
+],
+"ace:src/keyboard/vim_test.js": [
+5542
+],
+"ace:src/layer/gutter.js": [
+191
+],
+"ace:src/layer/marker.js": [
+47
+],
+"ace:src/line_widgets.js": [
+271,
+323
+],
+"ace:src/mode/behaviour/liquid.js": [
+50
+],
+"ace:src/mode/folding/asciidoc.js": [
+63
+],
+"ace:src/mode/folding/coffee.js": [
+28
+],
+"ace:src/mode/folding/csharp.js": [
+61,
+84
+],
+"ace:src/mode/folding/cstyle.js": [
+108,
+143
+],
+"ace:src/mode/folding/fold_mode.js": [
+40
+],
+"ace:src/mode/folding/ini.js": [
+30
+],
+"ace:src/mode/folding/java.js": [
+37
+],
+"ace:src/mode/folding/latex.js": [
+79,
+120
+],
+"ace:src/mode/folding/lua.js": [
+107
+],
+"ace:src/mode/folding/markdown.js": [
+70
+],
+"ace:src/mode/folding/ruby.js": [
+163,
+178
+],
+"ace:src/mode/folding/sqlserver.js": [
+63
+],
+"ace:src/mode/folding/vbscript.js": [
+164
+],
+"ace:src/mode/folding/velocity.js": [
+28
+],
+"ace:src/range_list.js": [
+72,
+168
+],
+"ace:src/search.js": [
+119,
+325
+],
+"ace:src/selection.js": [
+619
+],
+"ace:src/snippets.js": [
+299,
+420,
+568
+],
+"ace:src/test/user.js": [
+160
+],
+"ace:src/tokenizer.js": [
+226,
+243
+],
+"ace:src/tokenizer_dev.js": [
+54,
+71
+],
+"ace:src/undomanager.js": [
+288
+],
+"ace:tool/lib.js": [
+58
+]
+}

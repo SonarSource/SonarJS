@@ -1,0 +1,116 @@
+{
+"sonar-web:src/main/js/apps/account/app.js": [
+6
+],
+"sonar-web:src/main/js/apps/coding-rules/rule/custom-rule-creation-view.js": [
+64,
+65,
+84,
+91,
+169,
+183
+],
+"sonar-web:src/main/js/apps/coding-rules/rule/manual-rule-creation-view.js": [
+58,
+113
+],
+"sonar-web:src/main/js/apps/coding-rules/rule/profile-activation-view.js": [
+42,
+132,
+137,
+138
+],
+"sonar-web:src/main/js/apps/global-permissions/permission.js": [
+29,
+38
+],
+"sonar-web:src/main/js/apps/groups/groups.js": [
+19
+],
+"sonar-web:src/main/js/apps/issues/component-viewer/main.js": [
+139,
+151
+],
+"sonar-web:src/main/js/apps/metrics/form-view.js": [
+32
+],
+"sonar-web:src/main/js/apps/overview/components/language-distribution.js": [
+24
+],
+"sonar-web:src/main/js/apps/overview/gate/gate.js": [
+9
+],
+"sonar-web:src/main/js/apps/system/main.js": [
+38
+],
+"sonar-web:src/main/js/apps/users/users.js": [
+19
+],
+"sonar-web:src/main/js/components/common/select-list.js": [
+235
+],
+"sonar-web:src/main/js/components/issue/views/comment-form-view.js": [
+61
+],
+"sonar-web:src/main/js/components/navigator/filters/ajax-select-filters.js": [
+218,
+258
+],
+"sonar-web:src/main/js/components/navigator/filters/base-filters.js": [
+70,
+175
+],
+"sonar-web:src/main/js/components/navigator/filters/choice-filters.js": [
+199,
+214,
+297
+],
+"sonar-web:src/main/js/components/navigator/filters/metric-filters.js": [
+181,
+186
+],
+"sonar-web:src/main/js/components/navigator/filters/range-filters.js": [
+109,
+109,
+110,
+114
+],
+"sonar-web:src/main/js/components/shared/avatar.js": [
+11
+],
+"sonar-web:src/main/js/components/source-viewer/main.js": [
+229,
+755
+],
+"sonar-web:src/main/js/helpers/handlebars-helpers.js": [
+433,
+571
+],
+"sonar-web:src/main/js/libs/translate.js": [
+33
+],
+"sonar-web:src/main/js/main/nav/global/search-view.js": [
+111
+],
+"sonar-web:src/main/js/main/processes.js": [
+140
+],
+"sonar-web:src/main/js/widgets/issue-filter/widget.js": [
+242,
+294,
+299,
+304,
+314
+],
+"sonar-web:src/main/js/widgets/old/base.js": [
+86,
+89
+],
+"sonar-web:src/main/js/widgets/old/bubble-chart.js": [
+78,
+80
+],
+"sonar-web:src/main/js/widgets/old/widget.js": [
+84
+]
+}

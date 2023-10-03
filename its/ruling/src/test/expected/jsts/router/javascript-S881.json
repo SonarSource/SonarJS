@@ -1,0 +1,20 @@
+{
+"router:src/activation.js": [
+44
+],
+"router:src/router.js": [
+168
+],
+"router:third_party/brick/brick-1.0.1.byob.js": [
+74,
+174,
+923,
+974,
+1059,
+1489,
+1502
+],
+"router:third_party/route-recognizer.js": [
+295
+]
+}

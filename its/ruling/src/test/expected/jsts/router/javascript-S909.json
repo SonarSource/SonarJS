@@ -1,0 +1,18 @@
+{
+"router:src/navigationPlan.js": [
+86
+],
+"router:third_party/brick/brick-1.0.1.byob.js": [
+162,
+1989,
+2240,
+2337,
+2342,
+2502
+],
+"router:third_party/route-recognizer.js": [
+340,
+398,
+426
+]
+}

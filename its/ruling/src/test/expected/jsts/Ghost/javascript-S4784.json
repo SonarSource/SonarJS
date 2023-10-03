@@ -1,0 +1,87 @@
+{
+"Ghost:core/client/app/helpers/gh-format-html.js": [
+15,
+17
+],
+"Ghost:core/client/app/helpers/gh-format-markdown.js": [
+21,
+23
+],
+"Ghost:core/client/app/routes/setup/one.js": [
+37
+],
+"Ghost:core/client/app/routes/signup.js": [
+32
+],
+"Ghost:core/client/app/utils/ed-image-manager.js": [
+1
+],
+"Ghost:core/client/app/utils/word-count.js": [
+9
+],
+"Ghost:core/server/api/mail.js": [
+20
+],
+"Ghost:core/server/data/importer/handlers/markdown.js": [
+6,
+9
+],
+"Ghost:core/server/data/meta/excerpt.js": [
+5
+],
+"Ghost:core/server/data/meta/next_url.js": [
+2
+],
+"Ghost:core/server/data/meta/previous_url.js": [
+2
+],
+"Ghost:core/server/errors/index.js": [
+257
+],
+"Ghost:core/server/helpers/get.js": [
+51
+],
+"Ghost:core/server/helpers/has.js": [
+28
+],
+"Ghost:core/server/middleware/serve-shared-file.js": [
+12,
+13
+],
+"Ghost:core/server/middleware/theme-handler.js": [
+19
+],
+"Ghost:core/server/middleware/uncapitalise.js": [
+16
+],
+"Ghost:core/server/models/base/index.js": [
+480
+],
+"Ghost:core/server/utils/downzero.js": [
+9
+],
+"Ghost:core/server/utils/index.js": [
+64
+],
+"Ghost:core/shared/ghost-url.js": [
+58
+],
+"Ghost:core/test/functional/base.js": [
+462
+],
+"Ghost:core/test/functional/client/about_test.js": [
+14
+],
+"Ghost:core/test/functional/routes/api/posts_spec.js": [
+1005
+],
+"Ghost:core/test/unit/showdown_client_integrated_spec.js": [
+392,
+393,
+394,
+395,
+409,
+475,
+479
+]
+}

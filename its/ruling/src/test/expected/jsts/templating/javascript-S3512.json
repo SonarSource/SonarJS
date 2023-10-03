@@ -1,0 +1,25 @@
+{
+"templating:gulpfile.js": [
+43,
+46,
+49,
+52,
+55,
+57,
+78
+],
+"templating:scripts/read-pkg-url.js": [
+8
+],
+"templating:test/example/shadow-dom-util.js": [
+6,
+17
+],
+"templating:test/lib/compiler/compiler.spec.js": [
+279,
+316
+],
+"templating:test/lib/dom_mocks.js": [
+17
+]
+}

@@ -1,0 +1,15 @@
+{
+"ace:lib/ace/mode/html/saxparser.js": [
+430
+],
+"ace:lib/ace/mode/xquery/jsoniq_lexer.js": [
+146,
+697,
+1044
+],
+"ace:lib/ace/mode/xquery/xquery_lexer.js": [
+146,
+697,
+1044
+]
+}

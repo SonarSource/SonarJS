@@ -1,0 +1,41 @@
+{
+"Ghost:core/server/data/export/index.js": [
+4,
+32
+],
+"Ghost:core/server/data/migration/fixtures/index.js": [
+76,
+134
+],
+"Ghost:core/server/data/migration/index.js": [
+9
+],
+"Ghost:core/server/helpers/foreach.js": [
+18
+],
+"Ghost:core/server/models/user.js": [
+587,
+705,
+731,
+757
+],
+"Ghost:core/test/integration/import_spec.js": [
+145,
+192,
+260,
+305,
+356,
+424,
+468,
+511
+],
+"Ghost:core/test/integration/model/model_users_spec.js": [
+317
+],
+"Ghost:core/test/unit/server_spec.js": [
+8
+],
+"Ghost:core/test/utils/api.js": [
+6
+]
+}

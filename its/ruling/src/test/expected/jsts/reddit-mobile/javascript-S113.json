@@ -1,0 +1,20 @@
+{
+"reddit-mobile:buildTasks/utils/notify.js": [
+34
+],
+"reddit-mobile:src/EUCountries.es6.js": [
+33
+],
+"reddit-mobile:src/lib/loid.es6.js": [
+24
+],
+"reddit-mobile:src/lib/savedReply.es6.js": [
+52
+],
+"reddit-mobile:src/sideNavAboutMenuItems.es6.js": [
+15
+],
+"reddit-mobile:test/lib/formatDifference.es6.js": [
+32
+]
+}

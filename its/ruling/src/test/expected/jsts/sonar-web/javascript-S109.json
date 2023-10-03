@@ -1,0 +1,938 @@
+{
+"sonar-web:gulp/scripts.js": [
+20,
+21
+],
+"sonar-web:src/main/js/apps/account/app.js": [
+18
+],
+"sonar-web:src/main/js/apps/api-documentation/actions-view.js": [
+41
+],
+"sonar-web:src/main/js/apps/api-documentation/search-view.js": [
+19
+],
+"sonar-web:src/main/js/apps/background-tasks/helpers.js": [
+2
+],
+"sonar-web:src/main/js/apps/background-tasks/search.js": [
+121
+],
+"sonar-web:src/main/js/apps/coding-rules/rule/custom-rule-creation-view.js": [
+154
+],
+"sonar-web:src/main/js/apps/coding-rules/rule/manual-rule-creation-view.js": [
+100
+],
+"sonar-web:src/main/js/apps/dashboard/app.js": [
+150
+],
+"sonar-web:src/main/js/apps/groups/search-view.js": [
+16
+],
+"sonar-web:src/main/js/apps/issues/component-viewer/main.js": [
+138,
+143,
+144,
+150,
+155,
+193
+],
+"sonar-web:src/main/js/apps/issues/facets/assignee-facet.js": [
+90
+],
+"sonar-web:src/main/js/apps/issues/facets/author-facet.js": [
+20
+],
+"sonar-web:src/main/js/apps/issues/facets/creation-date-facet.js": [
+45
+],
+"sonar-web:src/main/js/apps/issues/facets/custom-values-facet.js": [
+35
+],
+"sonar-web:src/main/js/apps/issues/facets/language-facet.js": [
+21
+],
+"sonar-web:src/main/js/apps/issues/facets/project-facet.js": [
+37
+],
+"sonar-web:src/main/js/apps/issues/facets/rule-facet.js": [
+22
+],
+"sonar-web:src/main/js/apps/issues/workspace-header-view.js": [
+95
+],
+"sonar-web:src/main/js/apps/maintenance/main-view.js": [
+22,
+61
+],
+"sonar-web:src/main/js/apps/overview/components/complexity-distribution.js": [
+30,
+30
+],
+"sonar-web:src/main/js/apps/overview/components/coverage-measure.js": [
+24
+],
+"sonar-web:src/main/js/apps/overview/components/domain-bubble-chart.js": [
+99,
+99,
+99,
+99
+],
+"sonar-web:src/main/js/apps/overview/components/domain-timeline.js": [
+118,
+143,
+143,
+143,
+143
+],
+"sonar-web:src/main/js/apps/overview/components/language-distribution.js": [
+42,
+47,
+49,
+49
+],
+"sonar-web:src/main/js/apps/overview/components/timeline-chart.js": [
+22,
+22,
+22,
+22,
+33,
+33,
+33,
+33,
+58,
+81,
+82,
+85,
+140,
+141,
+150
+],
+"sonar-web:src/main/js/apps/overview/domains/coverage-domain.js": [
+80
+],
+"sonar-web:src/main/js/apps/overview/domains/debt-domain.js": [
+115,
+115,
+115,
+115
+],
+"sonar-web:src/main/js/apps/overview/domains/duplications-domain.js": [
+85
+],
+"sonar-web:src/main/js/apps/overview/main/main.js": [
+72,
+73,
+74
+],
+"sonar-web:src/main/js/apps/overview/main/timeline.js": [
+22
+],
+"sonar-web:src/main/js/apps/permission-templates/permissions-header.js": [
+9
+],
+"sonar-web:src/main/js/apps/project-permissions/permissions-header.js": [
+9
+],
+"sonar-web:src/main/js/apps/project-permissions/search.js": [
+10
+],
+"sonar-web:src/main/js/apps/projects/create-view.js": [
+40
+],
+"sonar-web:src/main/js/apps/projects/main.js": [
+30
+],
+"sonar-web:src/main/js/apps/projects/search.js": [
+77
+],
+"sonar-web:src/main/js/apps/quality-profiles/profile-details-view.js": [
+123,
+148
+],
+"sonar-web:src/main/js/apps/update-center/search-view.js": [
+23
+],
+"sonar-web:src/main/js/apps/users/search-view.js": [
+16
+],
+"sonar-web:src/main/js/components/charts/bar-chart.js": [
+23,
+23,
+23,
+23,
+38,
+38,
+51,
+51,
+60,
+75,
+76,
+87
+],
+"sonar-web:src/main/js/components/charts/bubble-chart.js": [
+57,
+57,
+62,
+62,
+62,
+62,
+108,
+138,
+154,
+155,
+184
+],
+"sonar-web:src/main/js/components/charts/donut-chart.js": [
+38,
+39,
+42,
+52
+],
+"sonar-web:src/main/js/components/charts/histogram.js": [
+24,
+24,
+24,
+24,
+40,
+40,
+53,
+53,
+62,
+74,
+75,
+86
+],
+"sonar-web:src/main/js/components/charts/line-chart.js": [
+31,
+31,
+31,
+31,
+124,
+125,
+143
+],
+"sonar-web:src/main/js/components/charts/treemap.js": [
+10,
+10,
+11,
+11,
+58,
+58
+],
+"sonar-web:src/main/js/components/charts/word-cloud.js": [
+38,
+38,
+46,
+46
+],
+"sonar-web:src/main/js/components/common/modal-form.js": [
+28
+],
+"sonar-web:src/main/js/components/common/select-list.js": [
+95,
+195,
+222,
+223,
+228
+],
+"sonar-web:src/main/js/components/issue/models/issue.js": [
+244
+],
+"sonar-web:src/main/js/components/issue/views/assign-form-view.js": [
+22,
+39,
+71,
+74,
+77,
+80,
+83,
+83,
+83,
+83,
+83,
+91
+],
+"sonar-web:src/main/js/components/issue/views/comment-form-view.js": [
+29,
+41
+],
+"sonar-web:src/main/js/components/issue/views/tags-form-view.js": [
+28,
+46,
+134,
+137,
+140,
+143,
+146,
+146,
+146,
+146,
+146
+],
+"sonar-web:src/main/js/components/navigator/filters/ajax-select-filters.js": [
+112,
+112,
+112,
+112,
+116,
+120,
+187,
+187,
+187
+],
+"sonar-web:src/main/js/components/navigator/filters/choice-filters.js": [
+113,
+117,
+121
+],
+"sonar-web:src/main/js/components/navigator/filters/filter-bar.js": [
+46,
+46
+],
+"sonar-web:src/main/js/components/navigator/workspace-header-view.js": [
+70
+],
+"sonar-web:src/main/js/components/navigator/workspace-list-view.js": [
+25
+],
+"sonar-web:src/main/js/components/shared/avatar.js": [
+18
+],
+"sonar-web:src/main/js/components/source-viewer/helpers/code-with-issue-locations-helper.js": [
+45
+],
+"sonar-web:src/main/js/components/source-viewer/main.js": [
+64,
+65,
+213,
+558,
+782
+],
+"sonar-web:src/main/js/components/widgets/barchart.js": [
+40,
+41,
+64,
+65,
+112,
+112
+],
+"sonar-web:src/main/js/helpers/handlebars-helpers.js": [
+36,
+142,
+170,
+180,
+357,
+360,
+580
+],
+"sonar-web:src/main/js/helpers/measures.js": [
+113,
+116,
+137,
+142,
+147,
+159,
+181,
+189,
+240,
+241,
+242,
+243,
+255,
+256,
+257,
+258
+],
+"sonar-web:src/main/js/helpers/request.js": [
+89,
+89,
+158
+],
+"sonar-web:src/main/js/libs/graphics/pie-chart.js": [
+21
+],
+"sonar-web:src/main/js/libs/inputs.js": [
+24,
+36,
+37,
+37,
+38
+],
+"sonar-web:src/main/js/libs/sortable.js": [
+5,
+6
+],
+"sonar-web:src/main/js/libs/translate.js": [
+82
+],
+"sonar-web:src/main/js/main/nav/global/global-nav-branding.js": [
+6
+],
+"sonar-web:src/main/js/main/nav/global/global-nav.js": [
+21
+],
+"sonar-web:src/main/js/main/nav/global/search-view.js": [
+73,
+86,
+90,
+94,
+99,
+148,
+162,
+208,
+222,
+232
+],
+"sonar-web:src/main/js/main/processes.js": [
+47
+],
+"sonar-web:src/main/js/widgets/issue-filter/widget.js": [
+271
+],
+"sonar-web:src/main/js/widgets/old/bubble-chart.js": [
+123,
+142,
+142,
+159,
+159,
+160,
+160,
+161,
+161,
+188,
+230,
+234,
+256,
+274,
+332,
+340,
+368,
+368,
+369,
+369,
+370,
+370,
+384,
+391,
+409,
+421,
+421,
+434,
+434,
+473,
+473
+],
+"sonar-web:src/main/js/widgets/old/histogram.js": [
+32,
+41,
+89,
+111,
+120,
+127,
+133,
+138,
+147
+],
+"sonar-web:src/main/js/widgets/old/pie-chart.js": [
+135,
+159,
+160,
+169,
+173,
+179,
+179,
+193,
+193,
+198,
+201,
+202,
+203,
+206,
+220,
+316,
+316,
+329,
+332,
+332,
+342
+],
+"sonar-web:src/main/js/widgets/old/stack-area.js": [
+89,
+110,
+118,
+122,
+131,
+135,
+136,
+142,
+142,
+147,
+147,
+148,
+166,
+222,
+223,
+284,
+284,
+304,
+328,
+335
+],
+"sonar-web:src/main/js/widgets/old/timeline.js": [
+82,
+99,
+127,
+131,
+202,
+218,
+227,
+227,
+231,
+235,
+236,
+265,
+265,
+281,
+281,
+282,
+285,
+286,
+295,
+318,
+338,
+343,
+347
+],
+"sonar-web:src/main/js/widgets/old/treemap.js": [
+125,
+128,
+128,
+191,
+223,
+223,
+223,
+223,
+229,
+229,
+229,
+229,
+251,
+251,
+252,
+252,
+252,
+252,
+271
+],
+"sonar-web:src/main/js/widgets/old/word-cloud.js": [
+18,
+65,
+65,
+65
+],
+"sonar-web:test/helpers/test-page.js": [
+97,
+101,
+168,
+180
+],
+"sonar-web:test/intern.js": [
+9,
+9
+],
+"sonar-web:test/medium/api-documentation.spec.js": [
+12,
+36
+],
+"sonar-web:test/medium/coding-rules.spec.js": [
+139,
+171,
+238,
+279,
+325,
+327,
+350,
+394,
+557,
+599,
+600,
+605,
+610,
+615,
+638,
+643,
+655,
+660,
+672,
+677,
+697,
+703,
+708,
+737,
+751,
+755,
+766,
+770,
+774,
+862,
+863
+],
+"sonar-web:test/medium/custom-measures.spec.js": [
+14,
+21,
+22,
+23,
+33,
+40,
+50,
+67
+],
+"sonar-web:test/medium/global-permissions.spec.js": [
+15
+],
+"sonar-web:test/medium/groups.spec.js": [
+13,
+17,
+18,
+28,
+40,
+55,
+78,
+91
+],
+"sonar-web:test/medium/issues.spec.js": [
+14,
+80,
+102,
+106,
+123,
+133,
+193,
+243
+],
+"sonar-web:test/medium/metrics.spec.js": [
+14,
+20,
+21,
+33,
+39,
+51,
+69
+],
+"sonar-web:test/medium/project-permissions.spec.js": [
+14,
+15
+],
+"sonar-web:test/medium/quality-gates.spec.js": [
+13,
+38,
+65,
+66,
+67,
+193,
+202,
+266,
+274
+],
+"sonar-web:test/medium/quality-profiles.spec.js": [
+15,
+18,
+23,
+35,
+38,
+151,
+193,
+203,
+269,
+280,
+296,
+314,
+368,
+369,
+443,
+461,
+490,
+500,
+521,
+522,
+523,
+549,
+550,
+551
+],
+"sonar-web:test/medium/source-viewer.spec.js": [
+46,
+81
+],
+"sonar-web:test/medium/update-center.spec.js": [
+15,
+48,
+60,
+74,
+87,
+104,
+124,
+129,
+134,
+142,
+147,
+152,
+169,
+174,
+175,
+186,
+188,
+202,
+203,
+204,
+205
+],
+"sonar-web:test/medium/users.spec.js": [
+12,
+16,
+17,
+18,
+34,
+46,
+55,
+60,
+69,
+85
+],
+"sonar-web:tests/application-test.js": [
+53,
+54,
+55,
+62,
+63,
+65
+],
+"sonar-web:tests/apps/background-tasks-test.js": [
+22,
+27,
+192,
+199,
+203,
+207,
+211,
+215,
+219,
+223,
+227,
+231,
+235,
+235,
+235
+],
+"sonar-web:tests/apps/overview/components/complexity-distribution-test.js": [
+35,
+35,
+35,
+35,
+35,
+35
+],
+"sonar-web:tests/apps/overview/components/legend-test.js": [
+8,
+8,
+8
+],
+"sonar-web:tests/apps/overview/components/timeline-chart-test.js": [
+9,
+10,
+10,
+11,
+11,
+12,
+12,
+16,
+17,
+17,
+18,
+18,
+19,
+19,
+28,
+29,
+29,
+30,
+30,
+31,
+31,
+38,
+41,
+46,
+47,
+47,
+48,
+48,
+49,
+49,
+56,
+59,
+60,
+61
+],
+"sonar-web:tests/apps/overview/helpers/metrics-test.js": [
+79
+],
+"sonar-web:tests/apps/overview/helpers/periods-test.js": [
+27
+],
+"sonar-web:tests/apps/overview/main/coverage-test.js": [
+11
+],
+"sonar-web:tests/apps/overview/overview-test.js": [
+40
+],
+"sonar-web:tests/apps/permission-templates-test.js": [
+73
+],
+"sonar-web:tests/apps/projects-test.js": [
+19,
+32
+],
+"sonar-web:tests/apps/system-test.js": [
+32,
+44,
+45,
+68
+],
+"sonar-web:tests/components/charts/bar-chart-test.js": [
+17,
+28,
+39,
+52,
+53
+],
+"sonar-web:tests/components/charts/bubble-chart-test.js": [
+17
+],
+"sonar-web:tests/components/charts/line-chart-test.js": [
+28,
+39
+],
+"sonar-web:tests/components/charts/treemap-test.js": [
+17
+],
+"sonar-web:tests/components/charts/work-cloud-test.js": [
+17
+],
+"sonar-web:tests/components/issue-test.js": [
+58,
+58,
+121,
+130,
+131,
+137,
+139,
+140,
+141,
+143,
+145,
+151,
+153,
+154,
+155,
+157,
+159,
+161,
+161,
+162,
+163,
+163
+],
+"sonar-web:tests/helpers/measures-test.js": [
+9,
+48,
+49,
+50,
+51,
+52,
+53,
+59,
+60,
+61,
+62,
+63,
+64,
+70,
+71,
+72,
+73,
+74,
+75,
+76,
+82,
+83,
+84,
+85,
+90,
+91,
+93,
+93,
+94,
+95,
+95,
+96,
+96,
+97,
+98,
+104,
+105,
+107,
+107,
+108,
+109,
+109,
+110,
+110,
+111,
+112,
+113,
+116,
+117,
+118,
+118,
+123,
+124,
+125,
+126,
+139,
+140,
+141,
+142,
+159,
+160,
+167,
+168,
+169,
+170,
+177,
+178,
+185,
+186,
+191,
+192,
+194,
+195,
+201,
+202,
+204,
+204,
+205,
+206,
+206,
+207,
+207,
+208,
+209,
+210,
+213,
+214,
+215,
+215
+]
+}

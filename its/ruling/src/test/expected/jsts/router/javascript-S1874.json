@@ -1,0 +1,14 @@
+{
+"router:src/router.js": [
+99,
+100
+],
+"router:third_party/brick/brick-1.0.1.byob.js": [
+337,
+877,
+1412,
+1637,
+1931,
+3917
+]
+}

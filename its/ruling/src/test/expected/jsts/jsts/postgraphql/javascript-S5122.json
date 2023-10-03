@@ -1,9 +1,0 @@
-{
-"postgraphql:src/postgraphql/http/__tests__/createPostGraphQLHttpRequestHandler-test.js": [
-139,
-152
-],
-"postgraphql:src/postgraphql/http/createPostGraphQLHttpRequestHandler.js": [
-504
-]
-}

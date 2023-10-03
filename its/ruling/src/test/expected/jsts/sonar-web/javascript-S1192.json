@@ -1,0 +1,252 @@
+{
+"sonar-web:gulp/scripts.js": [
+80
+],
+"sonar-web:src/main/js/api/permissions.js": [
+25
+],
+"sonar-web:src/main/js/apps/coding-rules/layout.js": [
+17
+],
+"sonar-web:src/main/js/components/common/popup.js": [
+35
+],
+"sonar-web:src/main/js/components/common/select-list.js": [
+221
+],
+"sonar-web:src/main/js/components/navigator/filters/metric-filters.js": [
+28
+],
+"sonar-web:src/main/js/components/source-viewer/main.js": [
+327,
+367,
+420,
+428
+],
+"sonar-web:src/main/js/components/workspace/views/viewer-header-view.js": [
+59
+],
+"sonar-web:src/main/js/widgets/issue-filter/widget.js": [
+42,
+45
+],
+"sonar-web:test/medium/api-documentation.spec.js": [
+11,
+40
+],
+"sonar-web:test/medium/coding-rules.spec.js": [
+10,
+11,
+12,
+13,
+14,
+15,
+16,
+17,
+18,
+27,
+30,
+31,
+32,
+33,
+58,
+79,
+94,
+100,
+112,
+123,
+125,
+126,
+129,
+179,
+184,
+187,
+188,
+193,
+240,
+309,
+379,
+431,
+452,
+502,
+508,
+509,
+588,
+595,
+597,
+598,
+801,
+856,
+863,
+865
+],
+"sonar-web:test/medium/custom-measures.spec.js": [
+11,
+11,
+13,
+14,
+48,
+52
+],
+"sonar-web:test/medium/groups.spec.js": [
+9,
+9,
+11,
+13,
+19,
+81,
+82,
+83
+],
+"sonar-web:test/medium/issues.spec.js": [
+10,
+10,
+11,
+11,
+12,
+12,
+22,
+57,
+120,
+121,
+124,
+148
+],
+"sonar-web:test/medium/metrics.spec.js": [
+9,
+9,
+10,
+10,
+11,
+11,
+13,
+14,
+54,
+55,
+55,
+56,
+57,
+58,
+86,
+87
+],
+"sonar-web:test/medium/project-permissions.spec.js": [
+9,
+17,
+19
+],
+"sonar-web:test/medium/quality-gates.spec.js": [
+9,
+9,
+10,
+10,
+11,
+11,
+12,
+14,
+25,
+25,
+29,
+30,
+41,
+76,
+96,
+98,
+133,
+216,
+217,
+233
+],
+"sonar-web:test/medium/quality-profiles.spec.js": [
+9,
+9,
+10,
+10,
+11,
+11,
+12,
+12,
+13,
+13,
+14,
+18,
+63,
+63,
+64,
+65,
+65,
+69,
+70,
+71,
+73,
+76,
+77,
+78,
+79,
+80,
+86,
+126,
+128,
+189,
+223,
+300,
+434,
+439,
+443,
+444,
+449,
+464,
+521,
+522,
+523
+],
+"sonar-web:test/medium/source-viewer.spec.js": [
+12,
+12,
+13,
+13,
+14,
+17,
+19,
+22
+],
+"sonar-web:test/medium/update-center.spec.js": [
+9,
+10,
+10,
+11,
+11,
+12,
+12,
+13,
+13,
+14,
+15,
+53,
+61,
+62,
+81,
+83,
+83,
+89
+],
+"sonar-web:test/medium/users.spec.js": [
+9,
+10,
+10,
+12,
+20
+],
+"sonar-web:tests/apps/overview/components/timeline-chart-test.js": [
+37
+],
+"sonar-web:tests/apps/permission-templates-test.js": [
+19
+],
+"sonar-web:tests/helpers/measures-test.js": [
+146
+],
+"sonar-web:tests/helpers/urls-test.js": [
+42
+]
+}

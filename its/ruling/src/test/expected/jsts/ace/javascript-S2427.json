@@ -1,0 +1,56 @@
+{
+"ace:lib/ace/mode/xml/sax.js": [
+56
+],
+"ace:lib/ace/mode/xquery.js": [
+139
+],
+"ace:src/edit_session.js": [
+2506
+],
+"ace:src/ext/options.js": [
+287
+],
+"ace:src/ext/prompt.js": [
+239,
+245,
+251,
+287
+],
+"ace:src/keyboard/emacs.js": [
+223
+],
+"ace:src/keyboard/textinput.js": [
+586,
+587
+],
+"ace:src/keyboard/vim.js": [
+6279
+],
+"ace:src/layer/gutter.js": [
+393,
+394,
+395,
+396
+],
+"ace:src/mode/folding/coffee_test.js": [
+32,
+43
+],
+"ace:src/mode/yaml_highlight_rules.js": [
+49
+],
+"ace:src/mouse/mouse_handler_test.js": [
+149,
+157,
+162,
+167,
+172
+],
+"ace:src/test/mockdom.js": [
+358
+],
+"ace:tool/perf-test.html": [
+71
+]
+}

@@ -1,0 +1,42 @@
+{
+"ecmascript6-today:1-let.js": [
+15,
+20,
+26,
+32
+],
+"ecmascript6-today:10-modules/in/circle.js": [
+6
+],
+"ecmascript6-today:10-modules/in/main.js": [
+3,
+4
+],
+"ecmascript6-today:10-modules/js/circle.js": [
+10
+],
+"ecmascript6-today:10-modules/js/main.js": [
+8,
+9
+],
+"ecmascript6-today:2-const.js": [
+8
+],
+"ecmascript6-today:4-default-params.js": [
+3
+],
+"ecmascript6-today:5-map.js": [
+11,
+12,
+21
+],
+"ecmascript6-today:6-destructuring.js": [
+13,
+13,
+13,
+13
+],
+"ecmascript6-today:8-iterators.js": [
+37
+]
+}

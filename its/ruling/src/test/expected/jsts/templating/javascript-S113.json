@@ -1,0 +1,44 @@
+{
+"templating:protractor-shared.conf.js": [
+24
+],
+"templating:protractor-travis.conf.js": [
+30
+],
+"templating:protractor.conf.js": [
+9
+],
+"templating:src/lib/index.js": [
+28
+],
+"templating:src/lib/util/global.js": [
+3
+],
+"templating:src/lib/util/module_annotator.js": [
+21
+],
+"templating:src/util/ng_polymer.js": [
+43
+],
+"templating:test/example/greet.spec.js": [
+68
+],
+"templating:test/example/ngmodel.spec.js": [
+32
+],
+"templating:test/example/shadow-dom-util.js": [
+28
+],
+"templating:test/example/tab.spec.js": [
+96
+],
+"templating:test/example/todo.spec.js": [
+38
+],
+"templating:test/example/video.spec.js": [
+38
+],
+"templating:test/lib/util/document_ready.spec.js": [
+60
+]
+}

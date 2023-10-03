@@ -1,0 +1,39 @@
+{
+"redux:examples/async/actions/index.js": [
+32
+],
+"redux:examples/counter/test/components/Counter.spec.js": [
+15,
+16
+],
+"redux:examples/counter/test/containers/App.spec.js": [
+16
+],
+"redux:examples/shopping-cart/actions/index.js": [
+7
+],
+"redux:examples/todomvc/test/components/Footer.spec.js": [
+21,
+22
+],
+"redux:examples/todomvc/test/components/Header.spec.js": [
+17,
+18,
+19
+],
+"redux:examples/todomvc/test/components/MainSection.spec.js": [
+36,
+37,
+38
+],
+"redux:examples/todomvc/test/components/TodoItem.spec.js": [
+34,
+35,
+36
+],
+"redux:examples/todomvc/test/components/TodoTextInput.spec.js": [
+26,
+27,
+28
+]
+}

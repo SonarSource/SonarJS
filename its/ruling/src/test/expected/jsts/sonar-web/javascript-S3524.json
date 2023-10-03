@@ -1,0 +1,72 @@
+{
+"sonar-web:src/main/js/api/ce.js": [
+31
+],
+"sonar-web:src/main/js/api/components.js": [
+42
+],
+"sonar-web:src/main/js/apps/background-tasks/main.js": [
+130
+],
+"sonar-web:src/main/js/apps/global-permissions/permission-users-groups-mixin.js": [
+18
+],
+"sonar-web:src/main/js/apps/global-permissions/permissions-list.js": [
+13
+],
+"sonar-web:src/main/js/apps/overview/components/domain-bubble-chart.js": [
+53,
+95,
+96
+],
+"sonar-web:src/main/js/apps/overview/components/domain-timeline.js": [
+130,
+131
+],
+"sonar-web:src/main/js/apps/overview/helpers/metrics.js": [
+18
+],
+"sonar-web:src/main/js/apps/permission-templates/permission-template-defaults.js": [
+20
+],
+"sonar-web:src/main/js/apps/projects/main.js": [
+67,
+80,
+148
+],
+"sonar-web:src/main/js/apps/projects/search.js": [
+35
+],
+"sonar-web:src/main/js/apps/quality-gates/details-view.js": [
+27,
+27
+],
+"sonar-web:src/main/js/apps/system/item-log-level.js": [
+19
+],
+"sonar-web:src/main/js/apps/system/main.js": [
+39
+],
+"sonar-web:src/main/js/components/charts/donut-chart.js": [
+47
+],
+"sonar-web:src/main/js/helpers/request.js": [
+29
+],
+"sonar-web:src/main/js/helpers/urls.js": [
+18
+],
+"sonar-web:src/main/js/main/nav/app.js": [
+14
+],
+"sonar-web:src/main/js/main/nav/component/component-nav-menu.js": [
+51,
+167
+],
+"sonar-web:tests/apps/background-tasks-test.js": [
+60
+],
+"sonar-web:tests/apps/overview/components/timeline-chart-test.js": [
+22
+]
+}

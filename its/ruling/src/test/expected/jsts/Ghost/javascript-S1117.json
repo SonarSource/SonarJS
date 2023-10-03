@@ -1,0 +1,478 @@
+{
+"Ghost:core/client/app/controllers/team/user.js": [
+262
+],
+"Ghost:core/client/app/routes/posts/index.js": [
+36
+],
+"Ghost:core/client/app/routes/posts/post.js": [
+32
+],
+"Ghost:core/client/app/utils/caja-sanitizers.js": [
+8,
+19
+],
+"Ghost:core/client/tests/integration/services/ajax-test.js": [
+44,
+58,
+72
+],
+"Ghost:core/server/api/authentication.js": [
+244
+],
+"Ghost:core/server/api/clients.js": [
+36
+],
+"Ghost:core/server/api/db.js": [
+67,
+86
+],
+"Ghost:core/server/api/index.js": [
+38,
+55,
+102,
+140,
+146,
+191
+],
+"Ghost:core/server/api/notifications.js": [
+61,
+79,
+129,
+137
+],
+"Ghost:core/server/api/posts.js": [
+57,
+91,
+132,
+179,
+220
+],
+"Ghost:core/server/api/roles.js": [
+41,
+54,
+68
+],
+"Ghost:core/server/api/settings.js": [
+74,
+107,
+169,
+210
+],
+"Ghost:core/server/api/slugs.js": [
+47,
+60
+],
+"Ghost:core/server/api/tags.js": [
+35,
+66,
+102,
+138,
+178
+],
+"Ghost:core/server/api/themes.js": [
+37,
+110,
+163,
+165
+],
+"Ghost:core/server/api/users.js": [
+22,
+87,
+123,
+174,
+226,
+263,
+294,
+340,
+341,
+375,
+390,
+443,
+457,
+493,
+509
+],
+"Ghost:core/server/api/utils.js": [
+82,
+123
+],
+"Ghost:core/server/apps/dependencies.js": [
+30
+],
+"Ghost:core/server/apps/proxy.js": [
+19,
+33
+],
+"Ghost:core/server/config/index.js": [
+307,
+317
+],
+"Ghost:core/server/controllers/admin.js": [
+22,
+52
+],
+"Ghost:core/server/controllers/frontend/channel-config.js": [
+5
+],
+"Ghost:core/server/controllers/frontend/error.js": [
+2
+],
+"Ghost:core/server/controllers/frontend/index.js": [
+35,
+45
+],
+"Ghost:core/server/controllers/frontend/templates.js": [
+77
+],
+"Ghost:core/server/data/import/data-importer.js": [
+95
+],
+"Ghost:core/server/data/import/index.js": [
+16,
+50,
+71,
+80,
+168
+],
+"Ghost:core/server/data/import/utils.js": [
+21,
+28,
+119,
+162
+],
+"Ghost:core/server/data/migration/builder.js": [
+16,
+20,
+29,
+38,
+49
+],
+"Ghost:core/server/data/migration/fixtures/index.js": [
+33,
+42,
+61,
+73,
+131,
+170,
+304,
+344
+],
+"Ghost:core/server/data/migration/fixtures/permissions/index.js": [
+21
+],
+"Ghost:core/server/data/migration/index.js": [
+32,
+36,
+44
+],
+"Ghost:core/server/data/schema/clients/mysql.js": [
+19,
+25,
+31,
+41
+],
+"Ghost:core/server/data/schema/clients/pg.js": [
+18,
+24,
+33
+],
+"Ghost:core/server/data/schema/clients/sqlite3.js": [
+12,
+18,
+26,
+32
+],
+"Ghost:core/server/data/schema/commands.js": [
+55,
+62
+],
+"Ghost:core/server/data/validation/index.js": [
+37,
+89,
+105,
+143
+],
+"Ghost:core/server/data/xml/rss/index.js": [
+28,
+110,
+123,
+176,
+181,
+186,
+212
+],
+"Ghost:core/server/errors/index.js": [
+190
+],
+"Ghost:core/server/filters.js": [
+82
+],
+"Ghost:core/server/helpers/date.js": [
+26
+],
+"Ghost:core/server/helpers/foreach.js": [
+64
+],
+"Ghost:core/server/helpers/get.js": [
+92
+],
+"Ghost:core/server/helpers/ghost_foot.js": [
+22
+],
+"Ghost:core/server/helpers/ghost_head.js": [
+127
+],
+"Ghost:core/server/helpers/has.js": [
+22,
+35,
+36
+],
+"Ghost:core/server/helpers/index.js": [
+52
+],
+"Ghost:core/server/helpers/navigation.js": [
+44
+],
+"Ghost:core/server/helpers/tags.js": [
+28
+],
+"Ghost:core/server/index.js": [
+40
+],
+"Ghost:core/server/middleware/auth-strategies.js": [
+43,
+43
+],
+"Ghost:core/server/middleware/cache-control.js": [
+12
+],
+"Ghost:core/server/middleware/check-ssl.js": [
+40
+],
+"Ghost:core/server/middleware/decide-is-admin.js": [
+11
+],
+"Ghost:core/server/middleware/index.js": [
+50
+],
+"Ghost:core/server/middleware/oauth.js": [
+27,
+29,
+43,
+48,
+57,
+61
+],
+"Ghost:core/server/middleware/serve-shared-file.js": [
+17
+],
+"Ghost:core/server/middleware/uncapitalise.js": [
+12
+],
+"Ghost:core/server/models/base/index.js": [
+78,
+405,
+457
+],
+"Ghost:core/server/models/plugins/filter.js": [
+77
+],
+"Ghost:core/server/models/plugins/pagination.js": [
+70,
+127
+],
+"Ghost:core/server/models/post.js": [
+177,
+473,
+499
+],
+"Ghost:core/server/models/settings.js": [
+22
+],
+"Ghost:core/server/models/user.js": [
+321,
+327,
+336,
+384,
+391,
+391,
+537,
+539
+],
+"Ghost:core/server/routes/api.js": [
+6
+],
+"Ghost:core/server/routes/frontend.js": [
+9
+],
+"Ghost:core/server/utils/downzero.js": [
+9,
+14
+],
+"Ghost:core/server/utils/labs.js": [
+4
+],
+"Ghost:core/server/utils/pipeline.js": [
+12,
+15,
+23
+],
+"Ghost:core/server/utils/startup-check.js": [
+174
+],
+"Ghost:core/test/functional/base.js": [
+179,
+456,
+462,
+496
+],
+"Ghost:core/test/functional/client/editor_test.js": [
+518
+],
+"Ghost:core/test/functional/routes/admin_spec.js": [
+113,
+151
+],
+"Ghost:core/test/functional/routes/api/authentication_spec.js": [
+135,
+135
+],
+"Ghost:core/test/functional/routes/api/notifications_spec.js": [
+100,
+100
+],
+"Ghost:core/test/functional/routes/api/posts_spec.js": [
+405,
+405,
+432,
+432,
+486,
+486,
+535,
+535,
+581,
+581,
+615,
+615,
+653,
+653,
+691,
+691,
+723,
+723,
+753,
+753,
+786,
+786,
+827,
+827,
+914,
+914,
+948,
+948,
+976,
+976,
+1033,
+1033
+],
+"Ghost:core/test/functional/routes/api/settings_spec.js": [
+125,
+125,
+159,
+159,
+192,
+192
+],
+"Ghost:core/test/functional/routes/api/users_spec.js": [
+334,
+334,
+370,
+370
+],
+"Ghost:core/test/functional/routes/frontend_spec.js": [
+790,
+866,
+951
+],
+"Ghost:core/test/integration/api/api_notifications_spec.js": [
+126,
+147
+],
+"Ghost:core/test/integration/api/api_users_spec.js": [
+29,
+876,
+896,
+916,
+938,
+958,
+978
+],
+"Ghost:core/test/integration/model/model_users_spec.js": [
+41,
+58,
+73,
+102,
+117,
+135,
+339,
+359,
+409,
+439,
+498,
+591
+],
+"Ghost:core/test/unit/api_utils_spec.js": [
+175,
+175
+],
+"Ghost:core/test/unit/config_spec.js": [
+534,
+549
+],
+"Ghost:core/test/unit/controllers/frontend/index_spec.js": [
+792,
+795,
+808,
+811,
+823,
+826,
+840,
+843,
+857,
+860,
+889,
+892
+],
+"Ghost:core/test/unit/error_handling_spec.js": [
+483
+],
+"Ghost:core/test/unit/permissions_spec.js": [
+28,
+238
+],
+"Ghost:core/test/unit/server_helpers/foreach_spec.js": [
+41,
+41
+],
+"Ghost:core/test/unit/server_utils_spec.js": [
+91,
+98
+],
+"Ghost:core/test/utils/fork.js": [
+96
+],
+"Ghost:core/test/utils/index.js": [
+84,
+87,
+381,
+385,
+442,
+472,
+487,
+507,
+528,
+546,
+576
+]
+}

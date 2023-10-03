@@ -1,0 +1,18 @@
+{
+"ace:doc/build.js": [
+32
+],
+"ace:doc/template/resources/javascripts/jquery-scrollspy.js": [
+33
+],
+"ace:lib/ace/mode/html/saxparser.js": [
+6149
+],
+"ace:src/test/asyncjs/assert.js": [
+54
+],
+"ace:src/test/asyncjs/test.js": [
+97,
+170
+]
+}

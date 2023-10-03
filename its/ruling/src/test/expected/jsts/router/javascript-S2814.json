@@ -1,0 +1,20 @@
+{
+"router:gulpfile.js": [
+82
+],
+"router:src/navigationPlan.js": [
+57
+],
+"router:src/pipeline.js": [
+40
+],
+"router:third_party/brick/brick-1.0.1.byob.js": [
+349,
+350,
+351,
+363,
+375,
+469,
+2914
+]
+}

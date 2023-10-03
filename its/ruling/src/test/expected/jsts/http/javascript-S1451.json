@@ -1,0 +1,80 @@
+{
+"http:gulpfile.js": [
+0
+],
+"http:karma.conf.js": [
+0
+],
+"http:lib/gulp/karma/background.js": [
+0
+],
+"http:lib/gulp/karma/index.js": [
+0
+],
+"http:src/IConnection.js": [
+0
+],
+"http:src/IInterceptResolution.js": [
+0
+],
+"http:src/IRequest.js": [
+0
+],
+"http:src/IResponse.js": [
+0
+],
+"http:src/Serialize.js": [
+0
+],
+"http:src/Utils.js": [
+0
+],
+"http:src/index.js": [
+0
+],
+"http:test-main.js": [
+0
+],
+"http:test/ConnectionMock.spec.js": [
+0
+],
+"http:test/Http.spec.js": [
+0
+],
+"http:test/IInterceptResolution.spec.js": [
+0
+],
+"http:test/IRequest.spec.js": [
+0
+],
+"http:test/IResponse.spec.js": [
+0
+],
+"http:test/JSONPConnection.spec.js": [
+0
+],
+"http:test/Public.spec.js": [
+0
+],
+"http:test/QueryParams.spec.js": [
+0
+],
+"http:test/Serialize.spec.js": [
+0
+],
+"http:test/TestUtils.js": [
+0
+],
+"http:test/XHRConnection.spec.js": [
+0
+],
+"http:test/matchers.js": [
+0
+],
+"http:test/mocks/HttpResponse.js": [
+0
+],
+"http:test/mocks/Xhr.js": [
+0
+]
+}

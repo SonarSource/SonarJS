@@ -1,0 +1,59 @@
+{
+"Ghost:core/client/tests/acceptance/authentication-test.js": [
+40,
+78,
+134
+],
+"Ghost:core/client/tests/acceptance/posts/post-test.js": [
+29,
+56
+],
+"Ghost:core/client/tests/acceptance/settings/navigation-test.js": [
+36,
+49
+],
+"Ghost:core/client/tests/acceptance/settings/tags-test.js": [
+68,
+81
+],
+"Ghost:core/client/tests/acceptance/setup-test.js": [
+28
+],
+"Ghost:core/client/tests/acceptance/team-test.js": [
+38,
+52,
+67,
+75
+],
+"Ghost:core/server/middleware/auth.js": [
+27
+],
+"Ghost:core/test/functional/routes/api/authentication_spec.js": [
+22
+],
+"Ghost:core/test/integration/model/model_tags_spec.js": [
+30
+],
+"Ghost:core/test/unit/apps_spec.js": [
+27,
+320,
+331
+],
+"Ghost:core/test/unit/controllers/frontend/fetch-data_spec.js": [
+26
+],
+"Ghost:core/test/unit/middleware/spam-prevention_spec.js": [
+74,
+88,
+198,
+208
+],
+"Ghost:core/test/unit/middleware/static-theme_spec.js": [
+79
+],
+"Ghost:core/test/unit/server_helpers/get_spec.js": [
+50,
+51,
+286
+]
+}

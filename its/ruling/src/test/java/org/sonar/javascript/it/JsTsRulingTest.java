@@ -93,7 +93,18 @@ class JsTsRulingTest {
       jsTsProject("backbone", "test"),
       jsTsProject("es5-shim", "tests"),
       jsTsProject("fireact"),
-      jsTsProject("javascript-test-sources"),
+      jsTsProject("ace"),
+      jsTsProject("ecmascript6-today"),
+      jsTsProject("expressionist.js"),
+      jsTsProject("Ghost"),
+      jsTsProject("http"),
+      jsTsProject("reddit-mobile"),
+      jsTsProject("redux"),
+      jsTsProject("router"),
+      jsTsProject("snoode"),
+      jsTsProject("sonar-web"),
+      jsTsProject("templating"),
+      jsTsProject("watchtower.js"),
       jsTsProject("jira-clone"),
       jsTsProject("jquery", "test"),
       jsTsProject("jshint", "tests"),
@@ -203,6 +214,12 @@ class JsTsRulingTest {
     installScanner();
   }
 
+  /**
+   * Method to remove SonarJS root node_modules to avoid typescript picking up typings from SonarJS,
+   * as they are not available during CI and the results with and without node_modules are different.
+   *
+   * @throws IOException
+   */
   private static void cleanRootNodeModules() throws IOException {
     var nodeModules = Path.of("../../node_modules");
     if (Files.exists(nodeModules)) {

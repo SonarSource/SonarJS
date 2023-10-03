@@ -1,0 +1,27 @@
+{
+"ace:lib/ace/mode/css/csslint.js": [
+55,
+55,
+55
+],
+"ace:lib/ace/mode/html/saxparser.js": [
+2,
+2,
+2
+],
+"ace:lib/ace/mode/yaml/yaml-lint.js": [
+1,
+1,
+1,
+1
+],
+"ace:lib/ace/worker/worker_client.js": [
+174
+],
+"ace:src/edit_session/bracket_match.js": [
+124
+],
+"ace:src/test/asyncjs/async.js": [
+276
+]
+}

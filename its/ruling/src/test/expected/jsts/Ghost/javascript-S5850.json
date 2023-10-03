@@ -1,0 +1,15 @@
+{
+"Ghost:core/client/app/controllers/team/index.js": [
+19
+],
+"Ghost:core/server/api/index.js": [
+56
+],
+"Ghost:core/server/api/utils.js": [
+112,
+116
+],
+"Ghost:core/shared/ghost-url.js": [
+47
+]
+}

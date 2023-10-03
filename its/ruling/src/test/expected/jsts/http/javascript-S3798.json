@@ -1,0 +1,30 @@
+{
+"http:gulpfile.js": [
+7
+],
+"http:lib/gulp/karma/background.js": [
+1,
+2,
+3,
+4
+],
+"http:lib/gulp/karma/index.js": [
+1,
+3
+],
+"http:src/IConnection.js": [
+3
+],
+"http:src/IInterceptResolution.js": [
+5
+],
+"http:src/IRequest.js": [
+3
+],
+"http:src/IResponse.js": [
+3
+],
+"http:src/Serialize.js": [
+1
+]
+}

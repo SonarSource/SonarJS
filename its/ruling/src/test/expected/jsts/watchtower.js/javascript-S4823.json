@@ -1,0 +1,14 @@
+{
+"watchtower.js:gulpfile.js": [
+42,
+43,
+47
+],
+"watchtower.js:karma.conf.js": [
+44
+],
+"watchtower.js:lib/gulp/karma/background.js": [
+2,
+6
+]
+}

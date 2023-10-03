@@ -1,0 +1,89 @@
+{
+"reddit-mobile:buildTasks/clean.js": [
+3,
+4
+],
+"reddit-mobile:buildTasks/icons.js": [
+3,
+4,
+5,
+6,
+8
+],
+"reddit-mobile:buildTasks/js.js": [
+3,
+4,
+5,
+6,
+7,
+8,
+9,
+10,
+11,
+12,
+13,
+14,
+15,
+16,
+17,
+18,
+19,
+20,
+22
+],
+"reddit-mobile:buildTasks/less.js": [
+3,
+4,
+5,
+6,
+7,
+8,
+9,
+10,
+12
+],
+"reddit-mobile:buildTasks/utils/notify.js": [
+3,
+4,
+5,
+6,
+7
+],
+"reddit-mobile:buildTasks/watcher.js": [
+3,
+4
+],
+"reddit-mobile:gulpfile.js": [
+3,
+10,
+11,
+12,
+13,
+14,
+18
+],
+"reddit-mobile:index.js": [
+41,
+50,
+52,
+55,
+57,
+89,
+92,
+93,
+95
+],
+"reddit-mobile:test/index.js": [
+1,
+10,
+11,
+18,
+22,
+25,
+26
+],
+"reddit-mobile:version.js": [
+1,
+2
+]
+}

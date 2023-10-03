@@ -1,0 +1,39 @@
+{
+"templating:src/lib/load_barrier.js": [
+46
+],
+"templating:src/lib/types.js": [
+76
+],
+"templating:src/lib/util/module_annotator.js": [
+15
+],
+"templating:test/example/tab.spec.js": [
+57,
+64,
+71,
+74,
+81,
+89,
+93
+],
+"templating:test/example/video.spec.js": [
+29,
+33
+],
+"templating:test/lib/compiler/compiler.spec.js": [
+14,
+278
+],
+"templating:test/lib/dom_mocks.js": [
+11
+],
+"templating:test/lib/util/document_ready.spec.js": [
+21,
+23,
+33,
+34,
+46,
+47
+]
+}

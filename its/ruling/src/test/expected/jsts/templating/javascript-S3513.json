@@ -1,0 +1,9 @@
+{
+"templating:src/lib/di/ce_di.js": [
+18
+],
+"templating:src/lib/load_barrier.js": [
+59,
+75
+]
+}

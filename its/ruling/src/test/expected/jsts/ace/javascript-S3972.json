@@ -1,0 +1,14 @@
+{
+"ace:lib/ace/mode/javascript/jshint.js": [
+16529
+],
+"ace:lib/ace/mode/xml/sax.js": [
+391
+],
+"ace:src/keyboard/vim.js": [
+407
+],
+"ace:src/snippets.js": [
+696
+]
+}

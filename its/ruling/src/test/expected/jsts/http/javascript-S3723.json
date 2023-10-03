@@ -1,0 +1,72 @@
+{
+"http:gulpfile.js": [
+10,
+48,
+49,
+55
+],
+"http:karma.conf.js": [
+17,
+28
+],
+"http:lib/gulp/karma/index.js": [
+24
+],
+"http:src/IConnection.js": [
+19
+],
+"http:src/IRequest.js": [
+18
+],
+"http:src/IResponse.js": [
+37
+],
+"http:test-main.js": [
+23,
+30
+],
+"http:test/Http.spec.js": [
+33,
+132,
+148,
+176,
+191,
+224,
+232,
+256,
+261,
+280,
+286,
+305,
+311,
+316,
+335,
+340,
+356,
+360
+],
+"http:test/IInterceptResolution.spec.js": [
+14,
+22,
+30,
+35,
+45,
+56,
+67,
+78
+],
+"http:test/IRequest.spec.js": [
+12
+],
+"http:test/IResponse.spec.js": [
+12
+],
+"http:test/Public.spec.js": [
+12
+],
+"http:test/matchers.js": [
+17,
+19,
+21
+]
+}

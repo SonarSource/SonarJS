@@ -1,0 +1,969 @@
+{
+"ace:Makefile.dryice.js": [
+63,
+157,
+190,
+194,
+201,
+203,
+254,
+255,
+263,
+281,
+333,
+480,
+574,
+604,
+606,
+607,
+613,
+695,
+698,
+708,
+711,
+759,
+771,
+776,
+849
+],
+"ace:demo/code_lens.html": [
+77
+],
+"ace:demo/kitchen-sink/demo.js": [
+258,
+393,
+459
+],
+"ace:demo/kitchen-sink/dev_util.js": [
+121,
+233,
+239,
+244,
+251,
+256
+],
+"ace:demo/kitchen-sink/doclist.js": [
+70,
+109
+],
+"ace:demo/kitchen-sink/util.js": [
+62
+],
+"ace:demo/shadow-dom.html": [
+108
+],
+"ace:demo/static-highlighter/server.js": [
+24,
+32,
+34
+],
+"ace:doc/site/js/main.js": [
+81,
+167,
+172
+],
+"ace:doc/template/resources/javascripts/clicker.js": [
+22
+],
+"ace:doc/template/resources/javascripts/disqus-ext.js": [
+13
+],
+"ace:doc/template/resources/javascripts/ux.js": [
+7,
+27
+],
+"ace:experiments/animate_folding.html": [
+194,
+206
+],
+"ace:experiments/capture.html": [
+30,
+34
+],
+"ace:experiments/cut_copy.html": [
+95,
+96
+],
+"ace:experiments/dom.html": [
+354,
+385,
+394
+],
+"ace:lib/ace/mode/coffee/parser_test.js": [
+44,
+45
+],
+"ace:lib/ace/mode/css/csslint.js": [
+55,
+456,
+483,
+575,
+647,
+688,
+924,
+2374,
+2879,
+3178,
+4272,
+4274,
+4519,
+5913,
+5922,
+5945,
+5947,
+5951,
+6807,
+7184,
+8323,
+8335,
+8551,
+8576,
+8633,
+8688,
+8800,
+8846,
+8956,
+8991,
+9030,
+9095,
+9191,
+9261,
+9467,
+9492,
+9535,
+9600,
+9630,
+9746,
+10091,
+10095,
+10232,
+10262,
+10266,
+10330,
+10332,
+10396,
+10399,
+10401,
+10553,
+10554,
+10563,
+10629,
+10632,
+10636,
+10638,
+10686,
+10693,
+10695,
+10708,
+10710,
+10713
+],
+"ace:lib/ace/mode/html/saxparser.js": [
+2,
+537,
+1885,
+4815,
+9182,
+9398,
+9552,
+9636,
+9702,
+9726,
+9777,
+9793,
+9832,
+9872,
+9885,
+9893
+],
+"ace:lib/ace/mode/javascript/jshint.js": [
+10,
+131,
+478,
+2500,
+3198,
+3286,
+3288,
+3290,
+3306,
+3310,
+3327,
+4800,
+4807,
+7377,
+7379,
+11009,
+11659,
+12684,
+17970,
+18185,
+18360,
+18444,
+18510,
+18534,
+18585,
+18601,
+18640,
+18680,
+18693,
+18701
+],
+"ace:lib/ace/mode/javascript_worker.js": [
+39
+],
+"ace:lib/ace/mode/json/json_parse.js": [
+95,
+224,
+275
+],
+"ace:lib/ace/mode/jsoniq.js": [
+85
+],
+"ace:lib/ace/mode/php/php.js": [
+197,
+203,
+210,
+217,
+683,
+691,
+736,
+835,
+951,
+961,
+975,
+989,
+1011,
+1281
+],
+"ace:lib/ace/mode/php_worker.js": [
+56
+],
+"ace:lib/ace/mode/xml/dom-parser.js": [
+198
+],
+"ace:lib/ace/mode/xml/dom.js": [
+86,
+410
+],
+"ace:lib/ace/mode/xml/sax.js": [
+7,
+8,
+113,
+220,
+227,
+276,
+279,
+304,
+324,
+330,
+426,
+451
+],
+"ace:lib/ace/mode/xquery.js": [
+113
+],
+"ace:lib/ace/mode/xquery/jsoniq_lexer.js": [
+10,
+107,
+110,
+112,
+4238,
+4239,
+4247
+],
+"ace:lib/ace/mode/xquery/xquery_lexer.js": [
+10,
+107,
+110,
+112,
+4307,
+4308,
+4316
+],
+"ace:lib/ace/mode/xquery_worker.js": [
+46,
+50,
+55
+],
+"ace:lib/ace/mode/yaml/yaml-lint.js": [
+1,
+48,
+244,
+472,
+498,
+500,
+503,
+506,
+522,
+600,
+650,
+704,
+717,
+816,
+869,
+874,
+882,
+887,
+900,
+1246,
+2208,
+2263,
+2403,
+2407,
+2415,
+2489,
+2664,
+2673,
+2676,
+2966,
+2982,
+3485,
+3505,
+3593,
+4184
+],
+"ace:lib/ace/worker/worker.js": [
+36
+],
+"ace:lib/ace/worker/worker_client.js": [
+42
+],
+"ace:lib/ace/worker/worker_client_v2.js": [
+88
+],
+"ace:src/autocomplete.js": [
+391,
+397,
+401
+],
+"ace:src/autocomplete/popup.js": [
+253
+],
+"ace:src/config.js": [
+57
+],
+"ace:src/document_test.js": [
+332
+],
+"ace:src/edit_session/bracket_match.js": [
+126,
+183
+],
+"ace:src/edit_session/fold.js": [
+24
+],
+"ace:src/edit_session/folding.js": [
+689
+],
+"ace:src/edit_session_test.js": [
+480
+],
+"ace:src/editor.js": [
+1714,
+1716,
+2194
+],
+"ace:src/ext/code_lens.js": [
+80
+],
+"ace:src/ext/code_lens_test.js": [
+42
+],
+"ace:src/ext/emmet.js": [
+259
+],
+"ace:src/ext/error_marker.js": [
+111
+],
+"ace:src/ext/error_marker_test.js": [
+51
+],
+"ace:src/ext/hardwrap.js": [
+28
+],
+"ace:src/ext/keybinding_menu.js": [
+30,
+36
+],
+"ace:src/ext/menu_tools/overlay_page.js": [
+63
+],
+"ace:src/ext/modelist.js": [
+33
+],
+"ace:src/ext/prompt.js": [
+204,
+208,
+210,
+289,
+309
+],
+"ace:src/ext/rtl.js": [
+110
+],
+"ace:src/ext/searchbox.js": [
+286
+],
+"ace:src/ext/spellcheck.js": [
+17
+],
+"ace:src/ext/static_highlight.js": [
+195
+],
+"ace:src/ext/statusbar.js": [
+37,
+39,
+41
+],
+"ace:src/ext/textarea.js": [
+66,
+89,
+225,
+226,
+425,
+427
+],
+"ace:src/keyboard/hash_handler.js": [
+179
+],
+"ace:src/keyboard/textinput.js": [
+138,
+177,
+183,
+580
+],
+"ace:src/keyboard/textinput_test.js": [
+297
+],
+"ace:src/keyboard/vim.js": [
+45,
+48,
+51,
+1262,
+1360,
+1723,
+2089,
+2372,
+3661,
+3848,
+5779,
+6036,
+6038,
+6065,
+6077,
+6108,
+6288,
+6290,
+6398,
+6891
+],
+"ace:src/keyboard/vim_ace_test.js": [
+261,
+297
+],
+"ace:src/keyboard/vim_test.js": [
+110,
+119,
+122,
+5021,
+5024,
+5028,
+5032,
+5035,
+5408
+],
+"ace:src/layer/font_metrics.js": [
+153
+],
+"ace:src/layer/lines.js": [
+8
+],
+"ace:src/layer/marker.js": [
+73,
+107,
+130,
+145,
+161,
+180,
+195,
+211,
+223
+],
+"ace:src/layer/text.js": [
+45,
+208,
+387,
+394,
+407
+],
+"ace:src/layer/text_test.js": [
+60,
+75,
+76,
+77,
+82,
+83,
+88,
+89
+],
+"ace:src/lib/app_config.js": [
+33,
+46
+],
+"ace:src/lib/dom.js": [
+204,
+290
+],
+"ace:src/line_widgets.js": [
+327,
+337,
+345
+],
+"ace:src/mode/_test/highlight_rules_test.js": [
+33,
+60,
+83,
+166,
+180,
+184,
+214,
+234,
+236
+],
+"ace:src/mode/asciidoc_highlight_rules.js": [
+163
+],
+"ace:src/mode/behaviour/cstyle.js": [
+110
+],
+"ace:src/mode/behaviour/liquid.js": [
+78
+],
+"ace:src/mode/behaviour/xml.js": [
+123,
+165
+],
+"ace:src/mode/behaviour/xquery.js": [
+52
+],
+"ace:src/mode/c9search_highlight_rules.js": [
+86,
+95,
+102,
+120,
+124
+],
+"ace:src/mode/c_cpp_highlight_rules.js": [
+49,
+79
+],
+"ace:src/mode/coffee_highlight_rules.js": [
+135,
+143,
+147,
+152
+],
+"ace:src/mode/coldfusion_highlight_rules.js": [
+11,
+37
+],
+"ace:src/mode/crystal_highlight_rules.js": [
+38
+],
+"ace:src/mode/css_completions.js": [
+153
+],
+"ace:src/mode/css_highlight_rules.js": [
+115
+],
+"ace:src/mode/d_highlight_rules.js": [
+121,
+124,
+127,
+130
+],
+"ace:src/mode/drools_highlight_rules.js": [
+138,
+142,
+146,
+150,
+154,
+158,
+162,
+173
+],
+"ace:src/mode/elm_highlight_rules.js": [
+28,
+45,
+52
+],
+"ace:src/mode/folding/diff.js": [
+10,
+21
+],
+"ace:src/mode/folding/pythonic.js": [
+7
+],
+"ace:src/mode/folding/ruby.js": [
+141,
+195
+],
+"ace:src/mode/fortran_highlight_rules.js": [
+83,
+88,
+89,
+90,
+116
+],
+"ace:src/mode/fsharp_highlight_rules.js": [
+87
+],
+"ace:src/mode/ftl_highlight_rules.js": [
+42,
+45,
+48,
+51,
+54,
+120
+],
+"ace:src/mode/gherkin_highlight_rules.js": [
+36
+],
+"ace:src/mode/golang_highlight_rules.js": [
+50
+],
+"ace:src/mode/html_highlight_rules.js": [
+58,
+59
+],
+"ace:src/mode/javascript_highlight_rules.js": [
+77,
+85,
+93,
+102,
+109,
+117,
+132,
+181,
+417,
+478,
+485
+],
+"ace:src/mode/js_regex_highlight_rules.js": [
+58
+],
+"ace:src/mode/jsx_highlight_rules.js": [
+64
+],
+"ace:src/mode/less_highlight_rules.js": [
+51
+],
+"ace:src/mode/livescript.js": [
+14
+],
+"ace:src/mode/lua_highlight_rules.js": [
+57,
+61,
+62
+],
+"ace:src/mode/markdown.js": [
+38
+],
+"ace:src/mode/markdown_highlight_rules.js": [
+11,
+106,
+109
+],
+"ace:src/mode/mask_highlight_rules.js": [
+84,
+92,
+142,
+165,
+226
+],
+"ace:src/mode/mips_highlight_rules.js": [
+53
+],
+"ace:src/mode/mushcode_highlight_rules.js": [
+507,
+512,
+513,
+514,
+536
+],
+"ace:src/mode/nginx_highlight_rules.js": [
+42
+],
+"ace:src/mode/nim_highlight_rules.js": [
+19,
+21,
+22,
+28,
+86,
+146,
+156
+],
+"ace:src/mode/ocaml.js": [
+40
+],
+"ace:src/mode/ocaml_highlight_rules.js": [
+212,
+217,
+218,
+219,
+247
+],
+"ace:src/mode/partiql_highlight_rules.js": [
+18,
+44,
+52
+],
+"ace:src/mode/php.js": [
+29,
+30
+],
+"ace:src/mode/powershell_highlight_rules.js": [
+224
+],
+"ace:src/mode/praat_highlight_rules.js": [
+127,
+155,
+159,
+163,
+172
+],
+"ace:src/mode/python_highlight_rules.js": [
+51,
+56,
+57,
+58,
+374
+],
+"ace:src/mode/r.js": [
+59,
+61
+],
+"ace:src/mode/raku_highlight_rules.js": [
+237
+],
+"ace:src/mode/ruby_highlight_rules.js": [
+274
+],
+"ace:src/mode/rust_highlight_rules.js": [
+38,
+41,
+44,
+88,
+92,
+95,
+129,
+140,
+162
+],
+"ace:src/mode/sac_highlight_rules.js": [
+43,
+73
+],
+"ace:src/mode/sh_highlight_rules.js": [
+36,
+37,
+38,
+39,
+42,
+46
+],
+"ace:src/mode/snippets.js": [
+15,
+36
+],
+"ace:src/mode/swift_highlight_rules.js": [
+69
+],
+"ace:src/mode/text.js": [
+19,
+21,
+48,
+49,
+85
+],
+"ace:src/mode/twig_highlight_rules.js": [
+13
+],
+"ace:src/mode/xml_highlight_rules.js": [
+17,
+64,
+100,
+172,
+173,
+190,
+191
+],
+"ace:src/mouse/mouse_handler_test.js": [
+123,
+177
+],
+"ace:src/mouse/touch_handler.js": [
+95,
+101
+],
+"ace:src/range.js": [
+51
+],
+"ace:src/scrollbar.js": [
+77,
+180
+],
+"ace:src/scrollbar_test.js": [
+58,
+76
+],
+"ace:src/snippets.js": [
+19,
+110,
+113,
+147,
+597
+],
+"ace:src/split.js": [
+275,
+284
+],
+"ace:src/test/all_browser.js": [
+141,
+149,
+151,
+160,
+182,
+183,
+184,
+186
+],
+"ace:src/test/asyncjs/assert.js": [
+280
+],
+"ace:src/test/asyncjs/test.js": [
+54,
+55,
+79,
+80,
+81
+],
+"ace:src/test/asyncjs/utils.js": [
+27
+],
+"ace:src/test/benchmark.js": [
+15
+],
+"ace:src/test/mockdom.js": [
+18,
+310,
+312,
+317,
+319,
+550,
+567
+],
+"ace:src/tokenizer.js": [
+47,
+73,
+102
+],
+"ace:src/tokenizer_dev.js": [
+37,
+76
+],
+"ace:src/undomanager.js": [
+257,
+341,
+353,
+358
+],
+"ace:src/virtual_renderer.js": [
+403,
+862,
+1672
+],
+"ace:src/virtual_renderer_test.js": [
+158,
+241
+],
+"ace:static.js": [
+83,
+99,
+104,
+154
+],
+"ace:tool/add_mode.js": [
+10,
+11,
+17,
+30,
+55,
+78
+],
+"ace:tool/lib.js": [
+21,
+22,
+108,
+148,
+154,
+154,
+162
+],
+"ace:tool/mode_creator.js": [
+80,
+110,
+165,
+199,
+210,
+212
+],
+"ace:tool/perf-test.html": [
+51
+],
+"ace:tool/tmlanguage.js": [
+76,
+170,
+198,
+518,
+625,
+638,
+639
+],
+"ace:tool/tmtheme.js": [
+118,
+158,
+160,
+170,
+207,
+222,
+225,
+242,
+307,
+324,
+333,
+360,
+366,
+371,
+372
+],
+"ace:tool/unicode.js": [
+119,
+125,
+130,
+136,
+139
+],
+"ace:tool/update_deps.js": [
+121,
+184,
+206,
+212,
+236,
+272
+],
+"ace:tool/wrap_keyword_regexp.js": [
+19,
+21
+]
+}

@@ -1,0 +1,11 @@
+{
+"redux:webpack.config.base.js": [
+1
+],
+"redux:webpack.config.development.js": [
+1
+],
+"redux:webpack.config.production.js": [
+1
+]
+}

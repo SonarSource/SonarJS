@@ -1,0 +1,55 @@
+{
+"ace:demo/kitchen-sink/util.js": [
+32
+],
+"ace:src/commands/command_manager.js": [
+53
+],
+"ace:src/config.js": [
+33
+],
+"ace:src/edit_session/folding.js": [
+438
+],
+"ace:src/editor.js": [
+140
+],
+"ace:src/editor_commands_test.js": [
+342
+],
+"ace:src/ext/hardwrap.js": [
+7
+],
+"ace:src/ext/textarea.js": [
+245
+],
+"ace:src/keyboard/keybinding.js": [
+90,
+90
+],
+"ace:src/layer/text.js": [
+650
+],
+"ace:src/lib/dom.js": [
+164
+],
+"ace:src/mode/javascript_highlight_rules.js": [
+445
+],
+"ace:src/mode/typescript_highlight_rules.js": [
+35
+],
+"ace:src/multi_select.js": [
+436
+],
+"ace:src/search.js": [
+83,
+255,
+256,
+277,
+292
+],
+"ace:src/virtual_renderer.js": [
+1860
+]
+}

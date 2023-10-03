@@ -1,0 +1,11 @@
+{
+"watchtower.js:lib/gulp/karma/index.js": [
+7
+],
+"watchtower.js:src/dirty_checking.js": [
+166
+],
+"watchtower.js:src/watch_record.js": [
+287
+]
+}

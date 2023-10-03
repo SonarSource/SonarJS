@@ -1,0 +1,17 @@
+{
+"router:src/routerConfiguration.js": [
+10
+],
+"router:third_party/brick/brick-1.0.1.byob.js": [
+159,
+185,
+2221,
+2367,
+2577,
+2585,
+2665
+],
+"router:third_party/route-recognizer.js": [
+447
+]
+}

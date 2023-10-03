@@ -1,0 +1,84 @@
+{
+"templating:gulpfile.js": [
+24,
+26,
+57,
+90,
+106,
+124
+],
+"templating:karma.conf.js": [
+19,
+27,
+28
+],
+"templating:protractor-shared.conf.js": [
+22,
+23
+],
+"templating:protractor-travis.conf.js": [
+12,
+13
+],
+"templating:src/lib/di/ce_di.js": [
+37,
+43
+],
+"templating:src/lib/index.js": [
+6,
+11,
+14,
+17,
+20
+],
+"templating:src/lib/index_ce_di.js": [
+5,
+9
+],
+"templating:src/lib/load_barrier.js": [
+68,
+88
+],
+"templating:src/lib/types.js": [
+6,
+31,
+38,
+51,
+53,
+60,
+66
+],
+"templating:src/util/ng_polymer.js": [
+16,
+17,
+38,
+39
+],
+"templating:test/example/video.spec.js": [
+23
+],
+"templating:test/lib/compiler/compiler.spec.js": [
+93,
+102,
+118,
+163,
+169,
+172,
+179,
+190,
+236,
+241,
+244
+],
+"templating:test/lib/util/document_ready.spec.js": [
+12,
+16
+],
+"templating:test/unit-test-main.js": [
+20,
+28,
+29,
+34,
+38
+]
+}

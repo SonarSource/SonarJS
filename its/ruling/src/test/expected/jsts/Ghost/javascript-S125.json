@@ -1,0 +1,57 @@
+{
+"Ghost:core/client/app/assets/lib/uploader.js": [
+130
+],
+"Ghost:core/client/app/mirage/config.js": [
+51
+],
+"Ghost:core/client/app/mirage/scenarios/default.js": [
+5
+],
+"Ghost:core/client/config/environment.js": [
+30
+],
+"Ghost:core/client/tests/unit/validators/tag-settings-test.js": [
+10
+],
+"Ghost:core/test/functional/client/content_test.js": [
+70,
+75,
+77
+],
+"Ghost:core/test/functional/client/signup_test.js": [
+9,
+13,
+17,
+25,
+29
+],
+"Ghost:core/test/functional/client/tags_test.js": [
+10
+],
+"Ghost:core/test/functional/routes/api/users_spec.js": [
+236,
+261
+],
+"Ghost:core/test/integration/model/model_permissions_spec.js": [
+98,
+100,
+102,
+112,
+126,
+136,
+159,
+171
+],
+"Ghost:core/test/unit/permissions_spec.js": [
+288,
+323,
+326,
+397,
+408,
+464,
+476,
+486,
+499
+]
+}

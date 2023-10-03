@@ -1,0 +1,21 @@
+{
+"http:test/ConnectionMock.spec.js": [
+30,
+68,
+82,
+95
+],
+"http:test/Http.spec.js": [
+298
+],
+"http:test/IInterceptResolution.spec.js": [
+17
+],
+"http:test/XHRConnection.spec.js": [
+178,
+206
+],
+"http:test/mocks/Xhr.js": [
+83
+]
+}
