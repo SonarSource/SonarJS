@@ -21,7 +21,7 @@ package org.sonar.javascript.it;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.javascript.it.JavaScriptRulingTest.LITS_VERSION;
+import static org.sonar.javascript.it.JsTsRulingTest.LITS_VERSION;
 
 import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.junit5.OrchestratorExtension;

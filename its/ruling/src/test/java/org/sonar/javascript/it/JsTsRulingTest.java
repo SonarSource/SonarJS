@@ -59,9 +59,9 @@ import org.sonarqube.ws.client.qualityprofiles.SearchRequest;
 import org.sonarqube.ws.client.rules.CreateRequest;
 import org.sonarsource.analyzer.commons.ProfileGenerator;
 
-class JavaScriptRulingTest {
+class JsTsRulingTest {
 
-  private static final Logger LOG = LoggerFactory.getLogger(JavaScriptRulingTest.class);
+  private static final Logger LOG = LoggerFactory.getLogger(JsTsRulingTest.class);
   static final String LITS_VERSION = "0.11.0.2659";
   static final String SCANNER_VERSION = "5.0.1.3006";
 
@@ -209,9 +209,7 @@ class JavaScriptRulingTest {
       var start = System.currentTimeMillis();
       LOG.info("Cleaning node_modules");
       try (var dirStream = Files.walk(nodeModules)) {
-        dirStream
-          .sorted(Comparator.reverseOrder())
-          .forEachOrdered(JavaScriptRulingTest::deleteUnchecked);
+        dirStream.sorted(Comparator.reverseOrder()).forEachOrdered(JsTsRulingTest::deleteUnchecked);
       }
       LOG.info("Done cleaning node_modules in {}ms", System.currentTimeMillis() - start);
     }

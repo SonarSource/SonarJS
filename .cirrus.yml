@@ -203,7 +203,7 @@ ruling_task:
     CIRRUS_CLONE_DEPTH: 10
     SONARSOURCE_QA: true
     matrix:
-      - RULING: JavaScriptRulingTest
+      - RULING: JsTsRulingTest
       - RULING: CssRulingTest
   <<: *MAVEN_CACHE
   submodules_script:
