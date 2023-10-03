@@ -61,7 +61,7 @@ You can review the Ruling difference by running `diff -rq src/test/expected/js t
 To review the Ruling difference in SonarQube UI, put the breakpoint on `assertThat(...)` in `{JavaScript/CSS}RulingTest.java` and open in the browser the orchestrated local SonarQube.
 Note that you can fix the port in `orchestrator.properties files`, e.g. `orchestrator.container.port=9100`.
 
-> :warning: \*\*Please note that running ruling tests will remove `node_modules` from the root to avoid affecting the results. Run `npm ci` to put them back.
+> :warning: Please note that running ruling tests will remove `node_modules` from the root to avoid affecting the results. Run `npm ci` to put them back.
 
 ### Debug `node` process during scan
 
