@@ -135,8 +135,8 @@ class JsTsRulingTest {
       jsTsProject("searchkit"), // todo
       jsTsProject("TypeScript", "src/harness/unittests"),
       jsTsProject("vuetify"),
-      Arguments.of("yaml", "../sources/yaml", "", ""),
-      Arguments.of("file-for-rules", "../sources/jsts/custom", "", "tests")
+      jsTsProject("yaml", "../sources/yaml", "", ""),
+      jsTsProject("file-for-rules", "../sources/jsts/custom", "", "tests")
     );
   }
 
@@ -149,7 +149,16 @@ class JsTsRulingTest {
   }
 
   private static Arguments jsTsProject(String project, String exclusions, String testDir) {
-    return Arguments.of(project, "../sources/jsts/projects/" + project, exclusions, testDir);
+    return jsTsProject(project, "../sources/jsts/projects/" + project, exclusions, testDir);
+  }
+
+  private static Arguments jsTsProject(
+    String project,
+    String folder,
+    String exclusions,
+    String testDir
+  ) {
+    return Arguments.of(project, folder, exclusions, testDir);
   }
 
   @BeforeAll
