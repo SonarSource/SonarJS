@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import express from 'express';
-import { initializeLinter, RuleConfig } from '@sonar/jsts';
+import { worker } from '../server';
 
 /**
  * Handles initialization requests of the global ESLint linter wrappers
@@ -30,7 +30,6 @@ import { initializeLinter, RuleConfig } from '@sonar/jsts';
  * variables ann JavaScript execution environments.
  */
 export default function (request: express.Request, response: express.Response) {
-  const { rules, environments, globals, linterId } = request.body;
-  initializeLinter(rules as RuleConfig[], environments as string[], globals as string[], linterId);
-  response.send('OK!');
+  worker.once('message', msg => response.send(msg.res));
+  worker.postMessage({ type: 'on-init-linter', data: request.body });
 }

@@ -18,13 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import express from 'express';
-import { deleteProgram } from '@sonar/jsts';
+import { worker } from '../server';
 
 /**
  * Handles TypeScript Program deletion requests
  */
 export default function (request: express.Request, response: express.Response) {
-  const { programId } = request.body;
-  deleteProgram(programId);
-  response.send('OK!');
+  worker.once('message', msg => response.send(msg.res));
+  worker.postMessage({ type: 'on-delete-program', data: request.body });
 }

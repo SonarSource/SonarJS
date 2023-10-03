@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import express from 'express';
-import { createProgramOptions } from '@sonar/jsts';
+import { worker } from '../server';
 
 /**
  * Handles TSConfig files resolving requests
@@ -28,21 +28,11 @@ import { createProgramOptions } from '@sonar/jsts';
  * of the whole resolving lies in the bridge since it includes and bundles
  * TypeScript dependency, which is able to parse and analyze TSConfig files.
  */
-export default function (
+export default async (
   request: express.Request,
   response: express.Response,
-  next: express.NextFunction,
-) {
-  try {
-    const tsconfig = request.body.tsconfig;
-    const options = createProgramOptions(tsconfig);
-    response.json({
-      files: options.rootNames,
-      projectReferences: options.projectReferences
-        ? options.projectReferences.map(ref => ref.path)
-        : [],
-    });
-  } catch (error) {
-    next(error);
-  }
-}
+  _next: express.NextFunction,
+) => {
+  worker.once('message', msg => response.json(msg));
+  worker.postMessage({ type: 'on-tsconfig-files', data: request.body });
+};

@@ -18,12 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import express from 'express';
-import { clearTypeScriptESLintParserCaches } from '@sonar/jsts';
+import { worker } from '../server';
 
 /**
  * Handles new TSConfig-based analysis requests
  */
 export default function (_request: express.Request, response: express.Response) {
-  clearTypeScriptESLintParserCaches();
-  response.send('OK!');
+  worker.once('message', msg => response.send(msg.res));
+  worker.postMessage({ type: 'on-new-tsconfig', data: undefined });
 }

@@ -17,10 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { analyzeHTML, HtmlAnalysisInput } from '@sonar/html';
-import { runner } from './runner';
+import express from 'express';
+import { worker } from '../server';
 
 /**
  * Handles HTML analysis requests
  */
-export default runner(input => analyzeHTML(input as HtmlAnalysisInput));
+export default async (
+  request: express.Request,
+  response: express.Response,
+  _next: express.NextFunction,
+) => {
+  worker.once('message', msg => response.json(msg));
+  worker.postMessage({ type: 'on-analyze-html', data: request.body });
+};

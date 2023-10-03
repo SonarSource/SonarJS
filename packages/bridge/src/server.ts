@@ -24,11 +24,13 @@ import 'module-alias/register';
 
 import express from 'express';
 import http from 'http';
+import path from 'path';
 import router from './router';
 import { errorMiddleware } from './errors';
-import { debug } from '@sonar/shared/helpers';
+import { debug, getContext } from '@sonar/shared/helpers';
 import { timeoutMiddleware } from './timeout';
 import { AddressInfo } from 'net';
+import { Worker } from 'worker_threads';
 
 /**
  * The maximum request body size
@@ -43,6 +45,17 @@ const MAX_REQUEST_SIZE = '50mb';
  * the bridge to prevent it from becoming an orphan process.
  */
 const SHUTDOWN_TIMEOUT = 15_000;
+
+/**
+ * A pool of a single worker thread
+ *
+ * The main thread of the bridge delegates CPU-intensive operations to
+ * a worker thread. These include all HTTP requests sent by the plugin
+ * that require maintaining a state across requests, namely initialized
+ * linters, created programs, and whatever information TypeScript ESLint
+ * and TypeScript keep at runtime.
+ */
+let worker: Worker;
 
 /**
  * Starts the bridge
@@ -70,6 +83,10 @@ export function start(
   return new Promise(resolve => {
     debug(`starting the bridge server at port ${port}`);
 
+    worker = new Worker(path.resolve(__dirname, 'worker.js'), {
+      workerData: { context: getContext() },
+    });
+
     const app = express();
     const server = http.createServer(app);
 
@@ -95,6 +112,7 @@ export function start(
     app.post('/close', (_request: express.Request, response: express.Response) => {
       debug('the bridge server will shutdown');
       response.end(() => {
+        worker.terminate();
         server.close();
       });
     });

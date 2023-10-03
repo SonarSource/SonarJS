@@ -18,20 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import express from 'express';
-import { writeTSConfigFile } from '@sonar/jsts';
+import { worker } from '../server';
 
 /**
  * Handles TSConfig file creation requests
  */
-export default async function (
-  request: express.Request,
-  response: express.Response,
-  next: express.NextFunction,
-) {
-  try {
-    const tsconfig = request.body;
-    response.json(await writeTSConfigFile(tsconfig));
-  } catch (error) {
-    next(error);
-  }
+export default function (request: express.Request, response: express.Response) {
+  worker.once('message', msg => response.json(msg));
+  worker.postMessage({ type: 'on-create-tsconfig-file', data: request.body });
 }

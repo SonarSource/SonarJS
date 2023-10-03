@@ -18,21 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import express from 'express';
-import { createAndSaveProgram } from '@sonar/jsts';
+import { worker } from '../server';
 
 /**
  * Handles TypeScript Program creation requests
  */
-export default function (
-  request: express.Request,
-  response: express.Response,
-  next: express.NextFunction,
-) {
-  try {
-    const { tsConfig } = request.body;
-    const { programId, files, projectReferences, missingTsConfig } = createAndSaveProgram(tsConfig);
-    response.json({ programId, files, projectReferences, missingTsConfig });
-  } catch (error) {
-    next(error);
-  }
+export default function (request: express.Request, response: express.Response) {
+  worker.once('message', msg => response.json(msg));
+  worker.postMessage({ type: 'on-create-program', data: request.body });
 }

@@ -40,11 +40,11 @@ router.post('/analyze-ts', onAnalyzeTs);
 router.post('/analyze-with-program', onAnalyzeTs);
 router.post('/analyze-yaml', onAnalyzeYaml);
 router.post('/create-program', onCreateProgram);
+router.post('/create-tsconfig-file', onCreateTSConfigFile);
 router.post('/delete-program', onDeleteProgram);
 router.post('/init-linter', onInitLinter);
 router.post('/new-tsconfig', onNewTSConfig);
 router.get('/status', onStatus);
 router.post('/tsconfig-files', onTSConfigFiles);
-router.post('/create-tsconfig-file', onCreateTSConfigFile);
 
 export default router;

@@ -17,10 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { analyzeCSS, CssAnalysisInput } from '@sonar/css';
-import { runner } from './runner';
+import express from 'express';
+import { worker } from '../server';
 
 /**
  * Handles CSS analysis requests
  */
-export default runner(input => analyzeCSS(input as CssAnalysisInput));
+export default async (
+  request: express.Request,
+  response: express.Response,
+  _next: express.NextFunction,
+) => {
+  worker.once('message', msg => response.json(msg));
+  worker.postMessage({ type: 'on-analyze-css', data: request.body });
+};
