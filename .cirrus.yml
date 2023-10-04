@@ -206,7 +206,7 @@ plugin_qa_win_task:
     - source /c/buildTools-docker/bin/set_maven_build_version $BUILD_NUMBER
     # building the custom plugin required for the further tests
     - mvn clean package -f its/plugin/plugins/pom.xml
-    - mvn -f its/plugin/pom.xml -Dsonar.runtimeVersion=${SQ_VERSION} "-Dtest=${TEST}" -B -e -V verify surefire-report:report
+    - mvn -f its/plugin/pom.xml -Dsonar.runtimeVersion=${SQ_VERSION} "-Dtest=${TEST}" --projects !org.sonarsource.javascript:eslint-custom-rules-plugin -B -e -V verify surefire-report:report
   cleanup_before_cache_script: cleanup_maven_repository
 
 ruling_task:
