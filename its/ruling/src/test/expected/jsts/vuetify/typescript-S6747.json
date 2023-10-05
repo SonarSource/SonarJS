@@ -115,6 +115,9 @@
 40,
 41
 ],
+"vuetify:packages/vuetify/src/components/VDialog/VDialog.tsx": [
+120
+],
 "vuetify:packages/vuetify/src/components/VDivider/VDivider.tsx": [
 47
 ],
