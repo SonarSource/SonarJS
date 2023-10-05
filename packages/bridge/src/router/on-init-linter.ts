@@ -30,6 +30,6 @@ import { worker } from '../server';
  * variables ann JavaScript execution environments.
  */
 export default function (request: express.Request, response: express.Response) {
-  worker.once('message', msg => response.send(msg.res));
+  worker.once('message', msg => response.send(msg.result));
   worker.postMessage({ type: 'on-init-linter', data: request.body });
 }

@@ -24,6 +24,6 @@ import { worker } from '../server';
  * Handles new TSConfig-based analysis requests
  */
 export default function (_request: express.Request, response: express.Response) {
-  worker.once('message', msg => response.send(msg.res));
+  worker.once('message', msg => response.send(msg.result));
   worker.postMessage({ type: 'on-new-tsconfig', data: undefined });
 }

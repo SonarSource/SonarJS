@@ -24,6 +24,6 @@ import { worker } from '../server';
  * Handles TypeScript Program deletion requests
  */
 export default function (request: express.Request, response: express.Response) {
-  worker.once('message', msg => response.send(msg.res));
+  worker.once('message', msg => response.send(msg.result));
   worker.postMessage({ type: 'on-delete-program', data: request.body });
 }

@@ -35,99 +35,126 @@ import { readFile, setContext } from '@sonar/shared/helpers';
 import { analyzeCSS } from '@sonar/css';
 import { analyzeHTML } from '@sonar/html';
 import { analyzeYAML } from '@sonar/yaml';
+import { APIError, ErrorCode } from '@sonar/shared/errors';
 
 if (parentPort) {
   setContext(workerData.context);
 
   const parentThread = parentPort;
   parentThread.on('message', async msg => {
-    const { type, data } = msg;
-    if (data?.filePath && !data.fileContent) {
-      data.fileContent = await readFile(data.filePath);
-    }
-
-    switch (type) {
-      case 'on-analyze-css': {
-        const output = await analyzeCSS(data);
-        parentThread.postMessage(output);
-        break;
+    try {
+      const { type, data } = msg;
+      if (data?.filePath && !data.fileContent) {
+        data.fileContent = await readFile(data.filePath);
       }
 
-      case 'on-analyze-html': {
-        const output = await analyzeHTML(data);
-        parentThread.postMessage(output);
-        break;
-      }
+      switch (type) {
+        case 'on-analyze-css': {
+          const output = await analyzeCSS(data);
+          parentThread.postMessage({ type: 'success', result: output });
+          break;
+        }
 
-      case 'on-analyze-js': {
-        const output = analyzeJSTS(data, 'js');
-        parentThread.postMessage(output);
-        break;
-      }
+        case 'on-analyze-html': {
+          const output = await analyzeHTML(data);
+          parentThread.postMessage({ type: 'success', result: output });
+          break;
+        }
 
-      case 'on-analyze-ts': {
-        const output = analyzeJSTS(data, 'ts');
-        parentThread.postMessage(output);
-        break;
-      }
+        case 'on-analyze-js': {
+          const output = analyzeJSTS(data, 'js');
+          parentThread.postMessage({ type: 'success', result: output });
+          break;
+        }
 
-      case 'on-analyze-yaml': {
-        const output = await analyzeYAML(data);
-        parentThread.postMessage(output);
-        break;
-      }
+        case 'on-analyze-ts': {
+          const output = analyzeJSTS(data, 'ts');
+          parentThread.postMessage({ type: 'success', result: output });
+          break;
+        }
 
-      case 'on-create-program': {
-        const { tsConfig } = data;
-        const { programId, files, projectReferences, missingTsConfig } =
-          createAndSaveProgram(tsConfig);
-        parentThread.postMessage({ programId, files, projectReferences, missingTsConfig });
-        break;
-      }
+        case 'on-analyze-yaml': {
+          const output = await analyzeYAML(data);
+          parentThread.postMessage({ type: 'success', result: output });
+          break;
+        }
 
-      case 'on-create-tsconfig-file': {
-        const tsConfigContent = data;
-        const tsConfigFile = await writeTSConfigFile(tsConfigContent);
-        parentThread.postMessage(tsConfigFile);
-        break;
-      }
+        case 'on-create-program': {
+          const { tsConfig } = data;
+          const { programId, files, projectReferences, missingTsConfig } =
+            createAndSaveProgram(tsConfig);
+          parentThread.postMessage({
+            type: 'success',
+            result: { programId, files, projectReferences, missingTsConfig },
+          });
+          break;
+        }
 
-      case 'on-delete-program': {
-        const { programId } = data;
-        deleteProgram(programId);
-        parentThread.postMessage({ res: 'OK!' });
-        break;
-      }
+        case 'on-create-tsconfig-file': {
+          const tsConfigContent = data;
+          const tsConfigFile = await writeTSConfigFile(tsConfigContent);
+          parentThread.postMessage({ type: 'success', result: tsConfigFile });
+          break;
+        }
 
-      case 'on-init-linter': {
-        const { rules, environments, globals, linterId } = data;
-        initializeLinter(
-          rules as RuleConfig[],
-          environments as string[],
-          globals as string[],
-          linterId,
-        );
-        parentThread.postMessage({ res: 'OK!' });
-        break;
-      }
+        case 'on-delete-program': {
+          const { programId } = data;
+          deleteProgram(programId);
+          parentThread.postMessage({ type: 'success', result: 'OK!' });
+          break;
+        }
 
-      case 'on-new-tsconfig': {
-        clearTypeScriptESLintParserCaches();
-        parentThread.postMessage({ res: 'OK!' });
-        break;
-      }
+        case 'on-init-linter': {
+          const { rules, environments, globals, linterId } = data;
+          initializeLinter(
+            rules as RuleConfig[],
+            environments as string[],
+            globals as string[],
+            linterId,
+          );
+          parentThread.postMessage({ type: 'success', result: 'OK!' });
+          break;
+        }
 
-      case 'on-tsconfig-files': {
-        const { tsconfig } = data;
-        const options = createProgramOptions(tsconfig);
-        parentThread.postMessage({
-          files: options.rootNames,
-          projectReferences: options.projectReferences
-            ? options.projectReferences.map(ref => ref.path)
-            : [],
-        });
-        break;
+        case 'on-new-tsconfig': {
+          clearTypeScriptESLintParserCaches();
+          parentThread.postMessage({ type: 'success', result: 'OK!' });
+          break;
+        }
+
+        case 'on-tsconfig-files': {
+          const { tsconfig } = data;
+          const options = createProgramOptions(tsconfig);
+          parentThread.postMessage({
+            type: 'success',
+            result: {
+              files: options.rootNames,
+              projectReferences: options.projectReferences
+                ? options.projectReferences.map(ref => ref.path)
+                : [],
+            },
+          });
+          break;
+        }
       }
+    } catch (err) {
+      parentThread.postMessage({ type: 'failure', error: serializeError(err) });
     }
   });
+
+  /**
+   * The default (de)serialization mechanism of the Worker Thread API cannot be used
+   * to (de)serialize Error instances. To address this, we turn those instances into
+   * regular JavaScript objects.
+   */
+  function serializeError(err: any) {
+    switch (true) {
+      case err instanceof APIError:
+        return { code: err.code, message: err.message, stack: err.stack, data: err.data };
+      case err instanceof Error:
+        return { code: ErrorCode.Unexpected, message: err.message, stack: err.stack };
+      default:
+        return { code: ErrorCode.Unexpected, message: err };
+    }
+  }
 }

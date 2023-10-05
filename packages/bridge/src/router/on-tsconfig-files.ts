@@ -31,8 +31,17 @@ import { worker } from '../server';
 export default async (
   request: express.Request,
   response: express.Response,
-  _next: express.NextFunction,
+  next: express.NextFunction,
 ) => {
-  worker.once('message', msg => response.json(msg));
+  worker.once('message', msg => {
+    switch (msg.type) {
+      case 'success':
+        response.json(msg.result);
+        break;
+      case 'failure':
+        next(msg.error);
+        break;
+    }
+  });
   worker.postMessage({ type: 'on-tsconfig-files', data: request.body });
 };

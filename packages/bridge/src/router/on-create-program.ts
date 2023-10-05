@@ -23,7 +23,20 @@ import { worker } from '../server';
 /**
  * Handles TypeScript Program creation requests
  */
-export default function (request: express.Request, response: express.Response) {
-  worker.once('message', msg => response.json(msg));
+export default function (
+  request: express.Request,
+  response: express.Response,
+  next: express.NextFunction,
+) {
+  worker.once('message', msg => {
+    switch (msg.type) {
+      case 'success':
+        response.json(msg.result);
+        break;
+      case 'failure':
+        next(msg.error);
+        break;
+    }
+  });
   worker.postMessage({ type: 'on-create-program', data: request.body });
 }
