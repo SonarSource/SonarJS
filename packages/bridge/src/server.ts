@@ -87,6 +87,18 @@ export function start(
       workerData: { context: getContext() },
     });
 
+    worker.on('online', () => {
+      debug('The worker thread is running');
+    });
+
+    worker.on('exit', code => {
+      debug(`The worker thread exited with code ${code}`);
+    });
+
+    worker.on('error', err => {
+      debug(`The worker thread failed: ${err}`);
+    });
+
     const app = express();
     const server = http.createServer(app);
 
