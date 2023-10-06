@@ -108,7 +108,7 @@ export function start(
      */
     const orphanTimeout = timeoutMiddleware(() => {
       if (server.listening) {
-        server.close();
+        shutdown();
       }
     }, timeout);
 
@@ -124,8 +124,7 @@ export function start(
     app.post('/close', (_request: express.Request, response: express.Response) => {
       debug('the bridge server will shutdown');
       response.end(() => {
-        worker.terminate();
-        server.close();
+        shutdown();
       });
     });
 
@@ -148,5 +147,13 @@ export function start(
     });
 
     server.listen(port, host);
+
+    /**
+     * Shutdown the server and the worker thread
+     */
+    function shutdown() {
+      worker.terminate().catch(reason => debug(`Failed to terminate the worker thread: ${reason}`));
+      server.close();
+    }
   });
 }
