@@ -74,7 +74,6 @@ function extractScopeFromArgs() {
       'es5-shim',
       'file-for-rules',
       'fireact/src',
-      'javascript-test-sources/src',
       'jira-clone',
       'jquery/src',
       'jshint/src',
@@ -92,7 +91,7 @@ function extractScopeFromArgs() {
     ],
   };
   JS_PROJECTS.js = JS_PROJECTS.js.map(filePath =>
-    path.join(__dirname, '../../its/sources/', filePath),
+    path.join(__dirname, '../../its/sources/jsts/projects', filePath),
   );
   const TS_PROJECTS = {
     ts: [
@@ -118,7 +117,7 @@ function extractScopeFromArgs() {
     ],
   };
   TS_PROJECTS.ts = TS_PROJECTS.ts.map(filePath =>
-    path.join(__dirname, '../../its/typescript-test-sources/src/', filePath),
+    path.join(__dirname, '../../its/sources/jsts/projects/', filePath),
   );
 
   if (process.argv.length < 4) {
