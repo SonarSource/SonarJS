@@ -81,7 +81,7 @@ export function start(
   timeout = SHUTDOWN_TIMEOUT,
 ): Promise<http.Server> {
   return new Promise(resolve => {
-    debug(`starting the bridge server at port ${port}`);
+    debug('Starting the bridge server');
 
     worker = new Worker(path.resolve(__dirname, 'worker.js'), {
       workerData: { context: getContext() },
@@ -121,20 +121,20 @@ export function start(
     app.use(router(worker));
     app.use(errorMiddleware);
 
-    app.post('/close', (_request: express.Request, response: express.Response) => {
-      debug('the bridge server will shutdown');
+    app.post('/close', (_: express.Request, response: express.Response) => {
+      debug('Shutting down the bridge server');
       response.end(() => {
         shutdown();
       });
     });
 
     server.on('close', () => {
-      debug('the bridge server closed');
+      debug('The bridge server shutted down');
       orphanTimeout.stop();
     });
 
-    server.on('error', (err: Error) => {
-      debug(`the bridge server error: ${err}`);
+    server.on('error', err => {
+      debug(`The bridge server failed: ${err}`);
     });
 
     server.on('listening', () => {
@@ -142,7 +142,7 @@ export function start(
        * Since we use 0 as the default port, Node.js assigns a random port to the server,
        * which we get using server.address().
        */
-      debug(`the bridge server is running at port ${(server.address() as AddressInfo)?.port}`);
+      debug(`The bridge server is listening on port ${(server.address() as AddressInfo)?.port}`);
       resolve(server);
     });
 
