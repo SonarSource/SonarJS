@@ -4,4 +4,4 @@
 	url = https://github.com/SonarSource/css-test-sources.git
 [submodule "its/sources/jsts/projects"]
 	path = its/sources/jsts/projects
-	url = https://github.com/SonarSource/typescript-test-sources.git
+	url = https://github.com/SonarSource/jsts-test-sources.git
