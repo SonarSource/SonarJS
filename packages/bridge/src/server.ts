@@ -118,7 +118,7 @@ export function start(
      */
     app.use(express.json({ limit: MAX_REQUEST_SIZE }));
     app.use(orphanTimeout.middleware);
-    app.use(router);
+    app.use(router(worker));
     app.use(errorMiddleware);
 
     app.post('/close', (_request: express.Request, response: express.Response) => {

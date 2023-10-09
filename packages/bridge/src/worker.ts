@@ -20,7 +20,8 @@
 
 import 'module-alias/register';
 
-import { parentPort, workerData } from 'worker_threads';
+import express from 'express';
+import { Worker, parentPort, workerData } from 'worker_threads';
 import {
   analyzeJSTS,
   clearTypeScriptESLintParserCaches,
@@ -37,13 +38,43 @@ import { analyzeHTML } from '@sonar/html';
 import { analyzeYAML } from '@sonar/yaml';
 import { APIError, ErrorCode } from '@sonar/shared/errors';
 
+/**
+ * Delegate the handling of an HTTP request to a worker thread
+ */
+export function delegate(worker: Worker, type: string) {
+  return async (
+    request: express.Request,
+    response: express.Response,
+    next: express.NextFunction,
+  ) => {
+    worker.once('message', message => {
+      switch (message.type) {
+        case 'success':
+          if (typeof message.result === 'object') {
+            response.json(message.result);
+          } else {
+            response.send(message.result);
+          }
+          break;
+        case 'failure':
+          next(message.error);
+          break;
+      }
+    });
+    worker.postMessage({ type, data: request.body });
+  };
+}
+
+/**
+ * Code executed by the worker thread
+ */
 if (parentPort) {
   setContext(workerData.context);
 
   const parentThread = parentPort;
-  parentThread.on('message', async msg => {
+  parentThread.on('message', async message => {
     try {
-      const { type, data } = msg;
+      const { type, data } = message;
       if (data?.filePath && !data.fileContent) {
         data.fileContent = await readFile(data.filePath);
       }
@@ -67,7 +98,8 @@ if (parentPort) {
           break;
         }
 
-        case 'on-analyze-ts': {
+        case 'on-analyze-ts':
+        case 'on-analyze-with-program': {
           const output = analyzeJSTS(data, 'ts');
           parentThread.postMessage({ type: 'success', result: output });
           break;
