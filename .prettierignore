@@ -7,9 +7,7 @@ packages/*/tests/**/fixtures
 packages/jsts/src/rules/*/*.fixture.*
 packages/jsts/src/rules/*/fixtures
 
-its/css-sources
 its/sources
-its/typescript-test-sources
 
 its/plugin/projects
 its/plugin/tests/target
