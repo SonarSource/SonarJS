@@ -371,6 +371,7 @@ public final class CheckList {
       RequireRenderReturnCheck.class,
       ReturnInSetterCheck.class,
       ReturnOfBooleanExpressionCheck.class,
+      RoleHasRequiredAriaPropsCheck.class,
       RulesOfHooksCheck.class,
       SameLineConditionalCheck.class,
       SelfAssignmentCheck.class,
