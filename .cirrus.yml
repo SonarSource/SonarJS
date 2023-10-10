@@ -165,7 +165,7 @@ ws_scan_task:
 plugin_qa_with_node_task:
   <<: *PLUGIN_QA_BODY
   eks_container:
-    dockerfile: .cirrus/nodejs.jdk17.Dockerfile
+    dockerfile: .cirrus/nodejs.Dockerfile
   env:
     SQ_VERSION: LATEST_RELEASE
     MVN_TEST: ''
