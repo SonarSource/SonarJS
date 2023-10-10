@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// https://sonarsource.github.io/rspec/#/rspec/S1534/javascript
+// https://sonarsource.github.io/rspec/#/rspec/S6747/javascript
 
 import { Rule } from 'eslint';
 import { rules as reactRules } from 'eslint-plugin-react';
@@ -30,13 +30,14 @@ const noUnkownProp = reactRules['no-unknown-property'];
 const decoratedNoUnkownProp = decorate(noUnkownProp);
 
 /**
- * We keep a single occurence of issues raised by both rules, discarding the ones raised by 'no-async-promise-executor'
- * The current logic relies on the fact that the listener of 'no-misused-promises' runs first because
+ * We keep a single occurence of issues raised by both rules, keeping the ones raised by 'aria-props'
+ * in case of duplicate.
+ * The current logic relies on the fact that the listener of 'aria-props' runs first because
  * it is alphabetically "smaller", which is how we set them up in mergeRules.
  */
 
 /**
- * start offsets of nodes that raised issues in typescript-eslint's no-misused-promises
+ * start offsets of nodes that raised issues in eslint-plugin-jsx-a11y's aria-props
  */
 const flaggedNodeStarts = new Map();
 
@@ -61,11 +62,6 @@ const twiceDecoratedNoUnkownProp = interceptReport(decoratedNoUnkownProp, (conte
 });
 
 export const rule: Rule.RuleModule = {
-  /**
-   * The metadata from `no-dupe-class-members` and `jsx-no-duplicate-props` are required for issue messages.
-   * However, we don't include those from `no-dupe-keys` because of a duplicate message id, and we use instead
-   * the message id from `no-dupe-class-members`, which is a bit more generic.
-   */
   meta: {
     hasSuggestions: true,
     messages: {
