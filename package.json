@@ -121,7 +121,6 @@
     "eslint-plugin-react",
     "eslint-plugin-react-hooks",
     "eslint-plugin-sonarjs",
-    "eslint-plugin-jsx-a11y",
     "express",
     "functional-red-black-tree",
     "htmlparser2",
