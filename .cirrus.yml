@@ -165,7 +165,7 @@ ws_scan_task:
 plugin_qa_with_node_task:
   <<: *PLUGIN_QA_BODY
   eks_container:
-    dockerfile: .cirrus/nodejs.jdk17.Dockerfile
+    dockerfile: .cirrus/nodejs.Dockerfile
   env:
     SQ_VERSION: LATEST_RELEASE
     MVN_TEST: ''
@@ -198,15 +198,17 @@ plugin_qa_win_task:
     SONARSOURCE_QA: true
     SQ_VERSION: LATEST_RELEASE
     matrix:
-      - TEST: '!CoverageTest,!TypeScriptAnalysisTest,!EslintBasedRulesTest,!SonarLintTest,!PRAnalysisTest,!TypeCheckerConfigTest,!VueAnalysisTest'
-      - TEST: 'CoverageTest,TypeScriptAnalysisTest,EslintBasedRulesTest,SonarLintTest,PRAnalysisTest,TypeCheckerConfigTest,VueAnalysisTest'
+      # tests must be balanced so that the maximum task runtime is minimized
+      # this fails if they don't both have tests from its/plugin/tests and its/plugin/sonarlint-tests
+      - TEST: '!CoverageTest,!TypeScriptAnalysisTest,!EslintBasedRulesTest,!SonarLintTestCodeAnalysisTest,!PRAnalysisTest,!TypeCheckerConfigTest,!VueAnalysisTest'
+      - TEST: 'CoverageTest,TypeScriptAnalysisTest,EslintBasedRulesTest,SonarLintTestCodeAnalysisTest,PRAnalysisTest,TypeCheckerConfigTest,VueAnalysisTest'
   <<: *MAVEN_CACHE
   qa_script:
     - source /c/buildTools-docker/bin/cirrus-env QA
     - source /c/buildTools-docker/bin/set_maven_build_version $BUILD_NUMBER
     # building the custom plugin required for the further tests
     - mvn clean package -f its/plugin/plugins/pom.xml
-    - mvn -f its/plugin/tests/pom.xml -Dsonar.runtimeVersion=${SQ_VERSION} "-Dtest=${TEST}" -B -e -V verify surefire-report:report
+    - mvn -f its/plugin/pom.xml -Dsonar.runtimeVersion=${SQ_VERSION} "-Dtest=${TEST}" --projects !org.sonarsource.javascript:eslint-custom-rules-plugin -B -e -V verify surefire-report:report
   cleanup_before_cache_script: cleanup_maven_repository
 
 ruling_task:
