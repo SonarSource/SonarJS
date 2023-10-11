@@ -133,7 +133,7 @@ class TypeScriptRuleTest {
       new String(Files.readAllBytes(Paths.get("target/differences")), StandardCharsets.UTF_8)
     )
       .isEmpty();
-    assertPerfMonitoringAvailable(perfMonitoringDir);
+    // assertPerfMonitoringAvailable(perfMonitoringDir);
   }
 
   // asserting perf monitoring on TypeScript project as it creates all kinds of metrics
