@@ -24,13 +24,15 @@ import 'module-alias/register';
 
 import express from 'express';
 import http from 'http';
+import path from 'path';
 import router from './router';
 import { errorMiddleware } from './errors';
-import { debug, info, warn } from '@sonar/shared/helpers';
+import { debug, getContext, info, warn } from '@sonar/shared/helpers';
 import { timeoutMiddleware } from './timeout';
 import { AddressInfo } from 'net';
 import * as v8 from 'v8';
 import * as os from 'os';
+import { Worker } from 'worker_threads';
 
 /**
  * The maximum request body size
@@ -58,6 +60,17 @@ function logMemoryConfiguration() {
 }
 
 /**
+ * A pool of a single worker thread
+ *
+ * The main thread of the bridge delegates CPU-intensive operations to
+ * a worker thread. These include all HTTP requests sent by the plugin
+ * that require maintaining a state across requests, namely initialized
+ * linters, created programs, and whatever information TypeScript ESLint
+ * and TypeScript keep at runtime.
+ */
+let worker: Worker;
+
+/**
  * Starts the bridge
  *
  * The bridge is an Express.js web server that exposes several services
@@ -82,7 +95,23 @@ export function start(
 ): Promise<http.Server> {
   logMemoryConfiguration();
   return new Promise(resolve => {
-    debug(`starting the bridge server at port ${port}`);
+    debug('Starting the bridge server');
+
+    worker = new Worker(path.resolve(__dirname, 'worker.js'), {
+      workerData: { context: getContext() },
+    });
+
+    worker.on('online', () => {
+      debug('The worker thread is running');
+    });
+
+    worker.on('exit', code => {
+      debug(`The worker thread exited with code ${code}`);
+    });
+
+    worker.on('error', err => {
+      debug(`The worker thread failed: ${err}`);
+    });
 
     const app = express();
     const server = http.createServer(app);
@@ -93,7 +122,7 @@ export function start(
      */
     const orphanTimeout = timeoutMiddleware(() => {
       if (server.listening) {
-        server.close();
+        shutdown();
       }
     }, timeout);
 
@@ -103,23 +132,23 @@ export function start(
      */
     app.use(express.json({ limit: MAX_REQUEST_SIZE }));
     app.use(orphanTimeout.middleware);
-    app.use(router);
+    app.use(router(worker));
     app.use(errorMiddleware);
 
-    app.post('/close', (_request: express.Request, response: express.Response) => {
-      debug('the bridge server will shutdown');
+    app.post('/close', (_: express.Request, response: express.Response) => {
+      debug('Shutting down the bridge server');
       response.end(() => {
-        server.close();
+        shutdown();
       });
     });
 
     server.on('close', () => {
-      debug('the bridge server closed');
+      debug('The bridge server shutted down');
       orphanTimeout.stop();
     });
 
-    server.on('error', (err: Error) => {
-      debug(`the bridge server error: ${err}`);
+    server.on('error', err => {
+      debug(`The bridge server failed: ${err}`);
     });
 
     server.on('listening', () => {
@@ -127,10 +156,18 @@ export function start(
        * Since we use 0 as the default port, Node.js assigns a random port to the server,
        * which we get using server.address().
        */
-      debug(`the bridge server is running at port ${(server.address() as AddressInfo)?.port}`);
+      debug(`The bridge server is listening on port ${(server.address() as AddressInfo)?.port}`);
       resolve(server);
     });
 
     server.listen(port, host);
+
+    /**
+     * Shutdown the server and the worker thread
+     */
+    function shutdown() {
+      worker.terminate().catch(reason => debug(`Failed to terminate the worker thread: ${reason}`));
+      server.close();
+    }
   });
 }

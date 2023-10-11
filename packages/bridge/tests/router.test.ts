@@ -19,14 +19,15 @@
  */
 import { setContext, toUnixPath } from '@sonar/shared/helpers';
 import http from 'http';
-import { initializeLinter, createAndSaveProgram } from '@sonar/jsts';
+import { createAndSaveProgram, RuleConfig } from '@sonar/jsts';
 import path from 'path';
-import { start } from '../../src/server';
+import { start } from '../src/server';
 import { promisify } from 'util';
-import { request } from '../tools';
+import { request } from './tools';
 import * as fs from 'fs';
 
 describe('router', () => {
+  const fixtures = path.join(__dirname, 'fixtures', 'router');
   const port = 0;
 
   let server: http.Server;
@@ -49,7 +50,7 @@ describe('router', () => {
   });
 
   it('should route /analyze-css requests', async () => {
-    const filePath = path.join(__dirname, 'fixtures', 'file.css');
+    const filePath = path.join(fixtures, 'file.css');
     const rules = [{ key: 'function-calc-no-invalid', configurations: [] }];
     const data = { filePath, rules };
     const response = (await request(server, '/analyze-css', 'POST', data)) as string;
@@ -66,10 +67,10 @@ describe('router', () => {
   });
 
   it('should route /analyze-js requests', async () => {
-    initializeLinter([
+    await requestInitLinter(server, [
       { key: 'prefer-regex-literals', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
-    const filePath = path.join(__dirname, 'fixtures', 'file.js');
+    const filePath = path.join(fixtures, 'file.js');
     const fileType = 'MAIN';
     const data = { filePath, fileType, tsConfigs: [] };
     const response = (await request(server, '/analyze-js', 'POST', data)) as string;
@@ -89,12 +90,12 @@ describe('router', () => {
   });
 
   it('should route /analyze-ts requests', async () => {
-    initializeLinter([
+    await requestInitLinter(server, [
       { key: 'no-duplicate-in-composite', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
-    const filePath = path.join(__dirname, 'fixtures', 'file.ts');
+    const filePath = path.join(fixtures, 'file.ts');
     const fileType = 'MAIN';
-    const tsConfig = path.join(__dirname, 'fixtures', 'tsconfig.json');
+    const tsConfig = path.join(fixtures, 'tsconfig.json');
     const data = { filePath, fileType, tsConfigs: [tsConfig] };
     const response = (await request(server, '/analyze-ts', 'POST', data)) as string;
     const {
@@ -113,13 +114,15 @@ describe('router', () => {
   });
 
   it('should route /analyze-with-program requests', async () => {
-    initializeLinter([
+    await requestInitLinter(server, [
       { key: 'no-duplicate-in-composite', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
-    const filePath = path.join(__dirname, 'fixtures', 'file.ts');
+    const filePath = path.join(fixtures, 'file.ts');
     const fileType = 'MAIN';
-    const tsConfig = path.join(__dirname, 'fixtures', 'tsconfig.json');
-    const { programId } = createAndSaveProgram(tsConfig);
+    const tsConfig = path.join(fixtures, 'tsconfig.json');
+    const { programId } = JSON.parse(
+      (await request(server, '/create-program', 'POST', { tsConfig })) as string,
+    );
     const data = { filePath, fileType, programId };
     const response = (await request(server, '/analyze-with-program', 'POST', data)) as string;
     const {
@@ -138,10 +141,10 @@ describe('router', () => {
   });
 
   it('should route /analyze-yaml requests', async () => {
-    initializeLinter([
+    await requestInitLinter(server, [
       { key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
-    const filePath = path.join(__dirname, 'fixtures', 'file.yaml');
+    const filePath = path.join(fixtures, 'file.yaml');
     const data = { filePath };
     const response = (await request(server, '/analyze-yaml', 'POST', data)) as string;
     const {
@@ -161,10 +164,10 @@ describe('router', () => {
   });
 
   it('should route /analyze-html requests', async () => {
-    initializeLinter([
+    await requestInitLinter(server, [
       { key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
-    const filePath = path.join(__dirname, 'fixtures', 'file.html');
+    const filePath = path.join(fixtures, 'file.html');
     const data = { filePath };
     const response = (await request(server, '/analyze-html', 'POST', data)) as string;
     const {
@@ -184,7 +187,7 @@ describe('router', () => {
   });
 
   it('should route /create-program requests', async () => {
-    const tsConfig = path.join(__dirname, 'fixtures', 'tsconfig.json');
+    const tsConfig = path.join(fixtures, 'tsconfig.json');
     const data = { tsConfig };
     const response = (await request(server, '/create-program', 'POST', data)) as string;
     const programId = Number(JSON.parse(response).programId);
@@ -194,7 +197,7 @@ describe('router', () => {
 
   it('should forward /create-program failures', async () => {
     console.error = jest.fn();
-    const tsConfig = path.join(__dirname, 'fixtures', 'malformed.json');
+    const tsConfig = path.join(fixtures, 'malformed.json');
     const data = { tsConfig };
     const response = (await request(server, '/create-program', 'POST', data)) as string;
     const { error } = JSON.parse(response);
@@ -203,7 +206,7 @@ describe('router', () => {
   });
 
   it('should route /delete-program requests', async () => {
-    const tsConfig = path.join(__dirname, 'fixtures', 'tsconfig.json');
+    const tsConfig = path.join(fixtures, 'tsconfig.json');
     const { programId } = createAndSaveProgram(tsConfig);
     const data = { programId };
     const response = (await request(server, '/delete-program', 'POST', data)) as string;
@@ -232,9 +235,9 @@ describe('router', () => {
   });
 
   it('should route /tsconfig-files requests', async () => {
-    const file = toUnixPath(path.join(__dirname, 'fixtures', 'file.ts'));
+    const file = toUnixPath(path.join(fixtures, 'file.ts'));
 
-    const tsconfig1 = path.join(__dirname, 'fixtures', 'tsconfig.json');
+    const tsconfig1 = path.join(fixtures, 'tsconfig.json');
     const response1 = (await request(server, '/tsconfig-files', 'POST', {
       tsconfig: tsconfig1,
     })) as string;
@@ -243,7 +246,7 @@ describe('router', () => {
       projectReferences: [],
     });
 
-    const tsconfig2 = path.join(__dirname, 'fixtures', 'tsconfig-references.json');
+    const tsconfig2 = path.join(fixtures, 'tsconfig-references.json');
     const response2 = (await request(server, '/tsconfig-files', 'POST', {
       tsconfig: tsconfig2,
     })) as string;
@@ -255,7 +258,7 @@ describe('router', () => {
 
   it('should forward /tsconfig-files failures', async () => {
     console.error = jest.fn();
-    const tsConfig = path.join(__dirname, 'fixtures', 'malformed.json');
+    const tsConfig = path.join(fixtures, 'malformed.json');
     const data = { tsConfig };
     const response = (await request(server, '/tsconfig-files', 'POST', data)) as string;
     const { error } = JSON.parse(response);
@@ -273,3 +276,8 @@ describe('router', () => {
     expect(fs.existsSync(json.filename)).toBe(true);
   });
 });
+
+function requestInitLinter(server: http.Server, rules: RuleConfig[]) {
+  const config = { rules };
+  return request(server, '/init-linter', 'POST', config);
+}

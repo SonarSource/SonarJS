@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import express from 'express';
-import { APIError, ErrorCode } from '@sonar/shared/errors';
+import { ErrorCode } from '@sonar/shared/errors';
 import { JsTsAnalysisOutput } from '@sonar/jsts';
 
 /**
@@ -32,13 +32,12 @@ import { JsTsAnalysisOutput } from '@sonar/jsts';
  * @see https://expressjs.com/en/guide/error-handling.html
  */
 export function errorMiddleware(
-  error: Error,
+  error: any,
   _request: express.Request,
   response: express.Response,
   _next: express.NextFunction,
 ) {
-  const { code, message, data } =
-    error instanceof APIError ? error : APIError.unexpectedError(error.message);
+  const { code, message, stack, data } = error;
   switch (code) {
     case ErrorCode.Parsing:
       response.json({
@@ -60,8 +59,8 @@ export function errorMiddleware(
       });
       break;
     default:
-      console.error(error.stack);
-      response.json({ error: error.message });
+      console.error(stack);
+      response.json({ error: message });
       break;
   }
 }
