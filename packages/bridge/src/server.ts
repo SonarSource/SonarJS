@@ -27,9 +27,11 @@ import http from 'http';
 import path from 'path';
 import router from './router';
 import { errorMiddleware } from './errors';
-import { debug, getContext } from '@sonar/shared/helpers';
+import { debug, getContext, info, warn } from '@sonar/shared/helpers';
 import { timeoutMiddleware } from './timeout';
 import { AddressInfo } from 'net';
+import * as v8 from 'v8';
+import * as os from 'os';
 import { Worker } from 'worker_threads';
 
 /**
@@ -45,6 +47,17 @@ const MAX_REQUEST_SIZE = '50mb';
  * the bridge to prevent it from becoming an orphan process.
  */
 const SHUTDOWN_TIMEOUT = 15_000;
+
+function logMemoryConfiguration() {
+  const osMem = Math.floor(os.totalmem() / 1_000_000);
+  const heapSize = Math.floor(v8.getHeapStatistics().heap_size_limit / 1_000_000);
+  info(`OS memory ${osMem} MB. Node.js heap size limit: ${heapSize} MB.`);
+  if (heapSize > osMem) {
+    warn(
+      `Node.js heap size limit ${heapSize} is higher than available memory ${osMem}. Check your configuration of sonar.javascript.node.maxspace`,
+    );
+  }
+}
 
 /**
  * A pool of a single worker thread
@@ -80,6 +93,7 @@ export function start(
   host = '127.0.0.1',
   timeout = SHUTDOWN_TIMEOUT,
 ): Promise<http.Server> {
+  logMemoryConfiguration();
   return new Promise(resolve => {
     debug('Starting the bridge server');
 

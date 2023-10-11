@@ -38,7 +38,7 @@ describe('server', () => {
   });
 
   it('should start', async () => {
-    expect.assertions(4);
+    expect.assertions(5);
 
     console.log = jest.fn();
 
@@ -46,10 +46,14 @@ describe('server', () => {
     const close = promisify(server.close.bind(server));
 
     expect(server.listening).toBeTruthy();
-    expect(console.log).toHaveBeenCalledTimes(2);
-    expect(console.log).toHaveBeenNthCalledWith(1, 'DEBUG Starting the bridge server');
+    expect(console.log).toHaveBeenCalledTimes(3);
     expect(console.log).toHaveBeenNthCalledWith(
-      2,
+      1,
+      expect.stringMatching('OS memory \\d+ MB. Node.js heap size limit: \\d+ MB.'),
+    );
+    expect(console.log).toHaveBeenNthCalledWith(2, `DEBUG Starting the bridge server`);
+    expect(console.log).toHaveBeenNthCalledWith(
+      3,
       `DEBUG The bridge server is listening on port ${(server.address() as AddressInfo)?.port}`,
     );
 
