@@ -69,24 +69,26 @@ if (parentPort) {
   parentThread.on('message', async message => {
     try {
       const { type, data } = message;
-      if (data?.filePath && !data.fileContent) {
-        data.fileContent = await readFile(data.filePath);
-      }
-
       switch (type) {
         case 'on-analyze-css': {
+          await readFileLazily(data);
+
           const output = await analyzeCSS(data);
           parentThread.postMessage({ type: 'success', result: output });
           break;
         }
 
         case 'on-analyze-html': {
+          await readFileLazily(data);
+
           const output = await analyzeHTML(data);
           parentThread.postMessage({ type: 'success', result: output });
           break;
         }
 
         case 'on-analyze-js': {
+          await readFileLazily(data);
+
           const output = analyzeJSTS(data, 'js');
           parentThread.postMessage({ type: 'success', result: output });
           break;
@@ -94,12 +96,16 @@ if (parentPort) {
 
         case 'on-analyze-ts':
         case 'on-analyze-with-program': {
+          await readFileLazily(data);
+
           const output = analyzeJSTS(data, 'ts');
           parentThread.postMessage({ type: 'success', result: output });
           break;
         }
 
         case 'on-analyze-yaml': {
+          await readFileLazily(data);
+
           const output = await analyzeYAML(data);
           parentThread.postMessage({ type: 'success', result: output });
           break;
@@ -162,6 +168,17 @@ if (parentPort) {
       parentThread.postMessage({ type: 'failure', error: serializeError(err) });
     }
   });
+
+  /**
+   * In SonarQube context, an analysis input includes both path and content of a file
+   * to analyze. However, in SonarLint, we might only get the file path. As a result,
+   * we read the file if the content is missing in the input.
+   */
+  async function readFileLazily(input) {
+    if (input.filePath && !input.fileContent) {
+      input.fileContent = await readFile(input.filePath);
+    }
+  }
 
   /**
    * The default (de)serialization mechanism of the Worker Thread API cannot be used
