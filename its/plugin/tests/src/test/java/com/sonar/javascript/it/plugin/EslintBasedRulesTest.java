@@ -277,7 +277,7 @@ class EslintBasedRulesTest {
     );
     assertThat(buildResult.getLogs()).matches(osMem);
     var warn = Pattern.compile(
-      "WARN: Node.JS heap size limit \\d+ is higher than available memory \\d+. Check your configuration of sonar.javascript.node.maxspace",
+      ".*WARN: Node.JS heap size limit \\d+ is higher than available memory \\d+. Check your configuration of sonar\\.javascript\\.node\\.maxspace.*",
       Pattern.DOTALL
     );
     assertThat(buildResult.getLogs()).matches(warn);
