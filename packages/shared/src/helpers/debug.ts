@@ -30,7 +30,7 @@ export function debug(message: string) {
 }
 
 export function info(message: string) {
-  console.log(`${message}`);
+  console.log(message);
 }
 
 export function warn(message: string) {

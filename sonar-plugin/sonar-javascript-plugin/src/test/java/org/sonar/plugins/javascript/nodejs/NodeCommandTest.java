@@ -167,7 +167,7 @@ class NodeCommandTest {
     Map map = new Gson().fromJson(output.toString(), Map.class);
     double total_available_size = (double) map.get("total_available_size");
     assertThat(logTester.logs(LoggerLevel.INFO))
-      .contains("Configured Node.JS max old space " + maxOldSpaceSize + ".");
+      .contains("Configured Node.js --max-old-space-size=" + maxOldSpaceSize + ".");
     assertThat(total_available_size).isGreaterThan(maxOldSpaceSize * 1000);
   }
 

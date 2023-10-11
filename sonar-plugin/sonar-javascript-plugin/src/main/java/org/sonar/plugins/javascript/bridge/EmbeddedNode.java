@@ -202,7 +202,7 @@ public class EmbeddedNode {
     var newVersionString = new String(newVersionIs.readAllBytes(), StandardCharsets.UTF_8);
     var currentVersionString = Files.readString(currentVersionPath);
     LOG.debug(
-      "Currently installed Node.JS version: " +
+      "Currently installed Node.js version: " +
       currentVersionString +
       ". Available version in analyzer: " +
       newVersionString

@@ -49,10 +49,10 @@ const SHUTDOWN_TIMEOUT = 15_000;
 function logMemoryConfiguration() {
   const osMem = Math.floor(os.totalmem() / 1_000_000);
   const heapSize = Math.floor(v8.getHeapStatistics().heap_size_limit / 1_000_000);
-  info(`OS memory ${osMem}m. Node.JS heap size limit: ${heapSize}m.`);
+  info(`OS memory ${osMem} MB. Node.js heap size limit: ${heapSize} MB.`);
   if (heapSize > osMem) {
     warn(
-      `Node.JS heap size limit ${heapSize} is higher than available memory ${osMem}. Check your configuration of sonar.javascript.node.maxspace`,
+      `Node.js heap size limit ${heapSize} is higher than available memory ${osMem}. Check your configuration of sonar.javascript.node.maxspace`,
     );
   }
 }

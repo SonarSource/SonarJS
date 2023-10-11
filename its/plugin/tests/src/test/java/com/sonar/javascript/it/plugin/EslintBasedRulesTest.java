@@ -270,14 +270,14 @@ class EslintBasedRulesTest {
 
     var buildResult = orchestrator.executeBuild(build);
     assertThat(buildResult.isSuccess()).isTrue();
-    assertThat(buildResult.getLogs()).contains("Configured Node.JS max old space 500000.");
+    assertThat(buildResult.getLogs()).contains("Configured Node.js --max-old-space-size=500000.");
     var osMem = Pattern.compile(
-      ".*OS memory \\d+m\\. Node.JS heap size limit: \\d+m\\..*",
+      ".*OS memory \\d+ MB\\. Node.js heap size limit: \\d+ MB\\..*",
       Pattern.DOTALL
     );
     assertThat(buildResult.getLogs()).matches(osMem);
     var warn = Pattern.compile(
-      ".*WARN: Node.JS heap size limit \\d+ is higher than available memory \\d+. Check your configuration of sonar\\.javascript\\.node\\.maxspace.*",
+      ".*WARN: Node.js heap size limit \\d+ is higher than available memory \\d+. Check your configuration of sonar\\.javascript\\.node\\.maxspace.*",
       Pattern.DOTALL
     );
     assertThat(buildResult.getLogs()).matches(warn);
