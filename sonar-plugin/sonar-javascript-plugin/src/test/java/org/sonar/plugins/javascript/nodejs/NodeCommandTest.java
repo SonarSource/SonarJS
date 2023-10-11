@@ -155,8 +155,9 @@ class NodeCommandTest {
   void test_max_old_space_size_setting() throws IOException {
     String request = "v8.getHeapStatistics()";
     StringBuilder output = new StringBuilder();
+    int maxOldSpaceSize = 2048;
     NodeCommand command = builder()
-      .maxOldSpaceSize(2048)
+      .maxOldSpaceSize(maxOldSpaceSize)
       .nodeJsArgs("-p", request)
       .outputConsumer(output::append)
       .pathResolver(getPathResolver())
@@ -165,7 +166,9 @@ class NodeCommandTest {
     command.waitFor();
     Map map = new Gson().fromJson(output.toString(), Map.class);
     double total_available_size = (double) map.get("total_available_size");
-    assertThat(total_available_size).isGreaterThan(2048 * 1000);
+    assertThat(logTester.logs(LoggerLevel.INFO))
+      .contains("Configured Node.JS max old space " + maxOldSpaceSize + ".");
+    assertThat(total_available_size).isGreaterThan(maxOldSpaceSize * 1000);
   }
 
   @Test

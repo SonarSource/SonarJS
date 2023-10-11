@@ -28,3 +28,11 @@
 export function debug(message: string) {
   console.log(`DEBUG ${message}`);
 }
+
+export function info(message: string) {
+  console.log(`${message}`);
+}
+
+export function warn(message: string) {
+  console.log(`WARN ${message}`);
+}
