@@ -44,11 +44,7 @@ exports.delegate = function (worker, type) {
     worker.once('message', message => {
       switch (message.type) {
         case 'success':
-          if (typeof message.result === 'object') {
-            response.json(message.result);
-          } else {
-            response.send(message.result);
-          }
+          response.send(message.result);
           break;
         case 'failure':
           next(message.error);
@@ -74,7 +70,7 @@ if (parentPort) {
           await readFileLazily(data);
 
           const output = await analyzeCSS(data);
-          parentThread.postMessage({ type: 'success', result: output });
+          parentThread.postMessage({ type: 'success', result: JSON.stringify(output) });
           break;
         }
 
@@ -82,7 +78,7 @@ if (parentPort) {
           await readFileLazily(data);
 
           const output = await analyzeHTML(data);
-          parentThread.postMessage({ type: 'success', result: output });
+          parentThread.postMessage({ type: 'success', result: JSON.stringify(output) });
           break;
         }
 
@@ -90,7 +86,7 @@ if (parentPort) {
           await readFileLazily(data);
 
           const output = analyzeJSTS(data, 'js');
-          parentThread.postMessage({ type: 'success', result: output });
+          parentThread.postMessage({ type: 'success', result: JSON.stringify(output) });
           break;
         }
 
@@ -99,7 +95,7 @@ if (parentPort) {
           await readFileLazily(data);
 
           const output = analyzeJSTS(data, 'ts');
-          parentThread.postMessage({ type: 'success', result: output });
+          parentThread.postMessage({ type: 'success', result: JSON.stringify(output) });
           break;
         }
 
@@ -107,7 +103,7 @@ if (parentPort) {
           await readFileLazily(data);
 
           const output = await analyzeYAML(data);
-          parentThread.postMessage({ type: 'success', result: output });
+          parentThread.postMessage({ type: 'success', result: JSON.stringify(output) });
           break;
         }
 
@@ -117,7 +113,7 @@ if (parentPort) {
             createAndSaveProgram(tsConfig);
           parentThread.postMessage({
             type: 'success',
-            result: { programId, files, projectReferences, missingTsConfig },
+            result: JSON.stringify({ programId, files, projectReferences, missingTsConfig }),
           });
           break;
         }
@@ -125,7 +121,7 @@ if (parentPort) {
         case 'on-create-tsconfig-file': {
           const tsConfigContent = data;
           const tsConfigFile = await writeTSConfigFile(tsConfigContent);
-          parentThread.postMessage({ type: 'success', result: tsConfigFile });
+          parentThread.postMessage({ type: 'success', result: JSON.stringify(tsConfigFile) });
           break;
         }
 
@@ -154,12 +150,12 @@ if (parentPort) {
           const options = createProgramOptions(tsconfig);
           parentThread.postMessage({
             type: 'success',
-            result: {
+            result: JSON.stringify({
               files: options.rootNames,
               projectReferences: options.projectReferences
                 ? options.projectReferences.map(ref => ref.path)
                 : [],
-            },
+            }),
           });
           break;
         }

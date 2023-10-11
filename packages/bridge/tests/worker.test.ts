@@ -47,6 +47,28 @@ describe('worker', () => {
     worker.postMessage({ type: 'on-new-tsconfig' });
   });
 
+  it('should post back stringified results', done => {
+    const input = {
+      filePath: path.join(__dirname, 'fixtures', 'worker', 'file.css'),
+      rules: [{ key: 'no-duplicate-selectors', configurations: [] }],
+    };
+    worker.once('message', message => {
+      const { type, result } = message;
+      expect(type).toEqual('success');
+      expect(typeof result).toBe('string');
+      expect(JSON.parse(result)).toEqual({
+        issues: [
+          expect.objectContaining({
+            ruleId: 'no-duplicate-selectors',
+          }),
+        ],
+      });
+      done();
+    });
+
+    worker.postMessage({ type: 'on-analyze-css', data: input });
+  });
+
   it('should post back errors', done => {
     const tsconfig = path.resolve('does', 'not', 'exist');
     worker.once('message', message => {
