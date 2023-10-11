@@ -18,35 +18,29 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import 'module-alias/register';
+require('module-alias/register');
 
-import express from 'express';
-import { Worker, parentPort, workerData } from 'worker_threads';
-import {
+const { parentPort, workerData } = require('worker_threads');
+const {
   analyzeJSTS,
   clearTypeScriptESLintParserCaches,
   createAndSaveProgram,
   createProgramOptions,
   deleteProgram,
   initializeLinter,
-  RuleConfig,
   writeTSConfigFile,
-} from '@sonar/jsts';
-import { readFile, setContext } from '@sonar/shared/helpers';
-import { analyzeCSS } from '@sonar/css';
-import { analyzeHTML } from '@sonar/html';
-import { analyzeYAML } from '@sonar/yaml';
-import { APIError, ErrorCode } from '@sonar/shared/errors';
+} = require('@sonar/jsts');
+const { readFile, setContext } = require('@sonar/shared/helpers');
+const { analyzeCSS } = require('@sonar/css');
+const { analyzeHTML } = require('@sonar/html');
+const { analyzeYAML } = require('@sonar/yaml');
+const { APIError, ErrorCode } = require('@sonar/shared/errors');
 
 /**
  * Delegate the handling of an HTTP request to a worker thread
  */
-export function delegate(worker: Worker, type: string) {
-  return async (
-    request: express.Request,
-    response: express.Response,
-    next: express.NextFunction,
-  ) => {
+exports.delegate = function (worker, type) {
+  return async (request, response, next) => {
     worker.once('message', message => {
       switch (message.type) {
         case 'success':
@@ -63,7 +57,7 @@ export function delegate(worker: Worker, type: string) {
     });
     worker.postMessage({ type, data: request.body });
   };
-}
+};
 
 /**
  * Code executed by the worker thread
@@ -138,12 +132,7 @@ if (parentPort) {
 
         case 'on-init-linter': {
           const { rules, environments, globals, linterId } = data;
-          initializeLinter(
-            rules as RuleConfig[],
-            environments as string[],
-            globals as string[],
-            linterId,
-          );
+          initializeLinter(rules, environments, globals, linterId);
           parentThread.postMessage({ type: 'success', result: 'OK!' });
           break;
         }
@@ -179,7 +168,7 @@ if (parentPort) {
    * to (de)serialize Error instances. To address this, we turn those instances into
    * regular JavaScript objects.
    */
-  function serializeError(err: any) {
+  function serializeError(err) {
     switch (true) {
       case err instanceof APIError:
         return { code: err.code, message: err.message, stack: err.stack, data: err.data };
