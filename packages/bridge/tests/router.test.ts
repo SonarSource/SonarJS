@@ -19,7 +19,7 @@
  */
 import { setContext, toUnixPath } from '@sonar/shared/helpers';
 import http from 'http';
-import { initializeLinter, createAndSaveProgram } from '@sonar/jsts';
+import { createAndSaveProgram, RuleConfig } from '@sonar/jsts';
 import path from 'path';
 import { start } from '../src/server';
 import { promisify } from 'util';
@@ -67,7 +67,7 @@ describe('router', () => {
   });
 
   it('should route /analyze-js requests', async () => {
-    initializeLinter([
+    await requestInitLinter(server, [
       { key: 'prefer-regex-literals', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
     const filePath = path.join(fixtures, 'file.js');
@@ -90,7 +90,7 @@ describe('router', () => {
   });
 
   it('should route /analyze-ts requests', async () => {
-    initializeLinter([
+    await requestInitLinter(server, [
       { key: 'no-duplicate-in-composite', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
     const filePath = path.join(fixtures, 'file.ts');
@@ -114,13 +114,15 @@ describe('router', () => {
   });
 
   it('should route /analyze-with-program requests', async () => {
-    initializeLinter([
+    await requestInitLinter(server, [
       { key: 'no-duplicate-in-composite', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
     const filePath = path.join(fixtures, 'file.ts');
     const fileType = 'MAIN';
     const tsConfig = path.join(fixtures, 'tsconfig.json');
-    const { programId } = createAndSaveProgram(tsConfig);
+    const { programId } = JSON.parse(
+      (await request(server, '/create-program', 'POST', { tsConfig })) as string,
+    );
     const data = { filePath, fileType, programId };
     const response = (await request(server, '/analyze-with-program', 'POST', data)) as string;
     const {
@@ -139,7 +141,7 @@ describe('router', () => {
   });
 
   it('should route /analyze-yaml requests', async () => {
-    initializeLinter([
+    await requestInitLinter(server, [
       { key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
     const filePath = path.join(fixtures, 'file.yaml');
@@ -162,7 +164,7 @@ describe('router', () => {
   });
 
   it('should route /analyze-html requests', async () => {
-    initializeLinter([
+    await requestInitLinter(server, [
       { key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
     const filePath = path.join(fixtures, 'file.html');
@@ -274,3 +276,8 @@ describe('router', () => {
     expect(fs.existsSync(json.filename)).toBe(true);
   });
 });
+
+function requestInitLinter(server: http.Server, rules: RuleConfig[]) {
+  const config = { rules };
+  return request(server, '/init-linter', 'POST', config);
+}
