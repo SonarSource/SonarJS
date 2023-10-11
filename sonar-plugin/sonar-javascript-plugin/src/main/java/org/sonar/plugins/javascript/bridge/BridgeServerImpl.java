@@ -258,7 +258,10 @@ public class BridgeServerImpl implements BridgeServer {
     context
       .config()
       .getInt(MAX_OLD_SPACE_SIZE_PROPERTY)
-      .ifPresent(nodeCommandBuilder::maxOldSpaceSize);
+      .ifPresent(maxSpace -> {
+        nodeCommandBuilder.maxOldSpaceSize(maxSpace);
+        LOG.info("Configured Node.JS heap size limit {}.", maxSpace);
+      });
 
     nodeCommand = nodeCommandBuilder.build();
   }

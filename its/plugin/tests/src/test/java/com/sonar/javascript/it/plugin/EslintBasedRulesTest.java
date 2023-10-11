@@ -38,6 +38,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.regex.Pattern;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -254,6 +255,32 @@ class EslintBasedRulesTest {
         tuple("javascript:S3923", projectKey + ":file.js"), // rule does not require type information
         tuple("typescript:S3923", projectKey + ":file.ts")
       );
+  }
+
+  @Test
+  void should_log_memory_config() {
+    var projectKey = "eslint_based_rules";
+    var projectDir = TestUtils.projectDir(projectKey);
+    var build = getSonarScanner()
+      .setProjectKey(projectKey)
+      .setSourceEncoding("UTF-8")
+      .setSourceDirs(".")
+      .setProperty("sonar.javascript.node.maxspace", "500000")
+      .setProjectDir(projectDir);
+
+    var buildResult = orchestrator.executeBuild(build);
+    assertThat(buildResult.isSuccess()).isTrue();
+    assertThat(buildResult.getLogs()).contains("Configured Node.JS max old space 500000.");
+    var osMem = Pattern.compile(
+      ".*OS memory \\d+m\\. Node.JS heap size limit: \\d+m\\..*",
+      Pattern.DOTALL
+    );
+    assertThat(buildResult.getLogs()).matches(osMem);
+    var warn = Pattern.compile(
+      "WARN: Node.JS heap size limit \\d+ is higher than available memory \\d+. Check your configuration of sonar.javascript.node.maxspace",
+      Pattern.DOTALL
+    );
+    assertThat(buildResult.getLogs()).matches(warn);
   }
 
   @NotNull
