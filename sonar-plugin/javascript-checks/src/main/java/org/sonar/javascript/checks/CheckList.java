@@ -65,6 +65,7 @@ public final class CheckList {
       ArgumentTypesCheck.class,
       ArgumentsCallerCalleeUsageCheck.class,
       ArgumentsUsageCheck.class,
+      AriaProptypesCheck.class,
       ArithmeticOperationReturningNanCheck.class,
       ArrayCallbackWithoutReturnCheck.class,
       ArrayConstructorsCheck.class,
