@@ -569,19 +569,6 @@ class JavaScriptEslintBasedSensorTest {
   }
 
   @Test
-  void stop_analysis_if_server_is_not_responding() throws Exception {
-    when(bridgeServerMock.isAlive()).thenReturn(false);
-    var javaScriptEslintBasedSensor = createSensor();
-    createInputFile(context);
-    javaScriptEslintBasedSensor.execute(context);
-    final var logAndArguments = logTester.getLogs(Level.ERROR).get(0);
-    assertThat(logAndArguments.getFormattedMsg())
-      .isEqualTo("Failure during analysis, bridgeServerMock command info");
-    assertThat(logAndArguments.getThrowable().getMessage())
-      .isEqualTo("the bridge server is not answering");
-  }
-
-  @Test
   void should_raise_a_parsing_error() throws IOException {
     when(bridgeServerMock.analyzeJavaScript(any()))
       .thenReturn(

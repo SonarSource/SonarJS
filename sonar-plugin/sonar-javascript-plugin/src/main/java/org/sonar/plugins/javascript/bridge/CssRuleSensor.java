@@ -113,10 +113,6 @@ public class CssRuleSensor extends AbstractBridgeSensor {
             "Analysis interrupted because the SensorContext is in cancelled state"
           );
         }
-        if (!bridgeServer.isAlive()) {
-          throw new IllegalStateException("the bridge server is not answering");
-        }
-
         analyzeFile(inputFile, context, rules);
         progressReport.nextFile(inputFile.absolutePath());
       }
