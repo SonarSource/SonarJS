@@ -1,0 +1,29 @@
+{
+  "title": "DOM elements with ARIA role should only have supported properties",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "a11y",
+    "react"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6811",
+  "sqKey": "S6811",
+  "scope": "All",
+  "quickfix": "infeasible",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "LOW",
+      "RELIABILITY": "LOW"
+    },
+    "attribute": "CONVENTIONAL"
+  },
+ "compatibleLanguages": [
+   "JAVASCRIPT",
+   "TYPESCRIPT"
+ ]
+}
