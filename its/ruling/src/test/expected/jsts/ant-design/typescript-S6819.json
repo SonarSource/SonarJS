@@ -1,0 +1,20 @@
+{
+"ant-design:components/_util/transButton.tsx": [
+60
+],
+"ant-design:components/alert/__tests__/index.test.tsx": [
+91
+],
+"ant-design:components/divider/index.tsx": [
+57
+],
+"ant-design:components/input/ClearableLabeledInput.tsx": [
+55
+],
+"ant-design:components/table/hooks/useFilter/FilterDropdown.tsx": [
+466
+],
+"ant-design:components/typography/Base/index.tsx": [
+399
+]
+}
