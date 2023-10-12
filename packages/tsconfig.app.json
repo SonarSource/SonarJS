@@ -1,10 +1,11 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "composite": true
+    "composite": true,
+    "allowJs": true
   },
   "references": [],
-  "include": ["server.ts", "*/src/**/*.ts"],
+  "include": ["server.ts", "*/src/**/*.ts", "bridge/src/worker.js"],
   "exclude": [
     "*/src/rules/tools",
     "*/src/rules/*/*.test.ts",

@@ -373,6 +373,7 @@ public final class CheckList {
       ReturnInSetterCheck.class,
       ReturnOfBooleanExpressionCheck.class,
       RoleHasRequiredAriaPropsCheck.class,
+      RoleSupportsAriaPropsCheck.class,
       RulesOfHooksCheck.class,
       SameLineConditionalCheck.class,
       SelfAssignmentCheck.class,

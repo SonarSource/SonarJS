@@ -38,7 +38,7 @@ describe('server', () => {
   });
 
   it('should start', async () => {
-    expect.assertions(4);
+    expect.assertions(5);
 
     console.log = jest.fn();
 
@@ -46,14 +46,15 @@ describe('server', () => {
     const close = promisify(server.close.bind(server));
 
     expect(server.listening).toBeTruthy();
-    expect(console.log).toHaveBeenCalledTimes(2);
+    expect(console.log).toHaveBeenCalledTimes(3);
     expect(console.log).toHaveBeenNthCalledWith(
       1,
-      `DEBUG starting the bridge server at port ${port}`,
+      expect.stringMatching('OS memory \\d+ MB. Node.js heap size limit: \\d+ MB.'),
     );
+    expect(console.log).toHaveBeenNthCalledWith(2, `DEBUG Starting the bridge server`);
     expect(console.log).toHaveBeenNthCalledWith(
-      2,
-      `DEBUG the bridge server is running at port ${(server.address() as AddressInfo)?.port}`,
+      3,
+      `DEBUG The bridge server is listening on port ${(server.address() as AddressInfo)?.port}`,
     );
 
     await close();
@@ -115,7 +116,7 @@ describe('server', () => {
     await close();
   });
 
-  it('should close', async () => {
+  it('should shut down', async () => {
     expect.assertions(2);
 
     console.log = jest.fn();
@@ -126,7 +127,7 @@ describe('server', () => {
     await closeRequest;
 
     expect(server.listening).toBeFalsy();
-    expect(console.log).toHaveBeenCalledWith('DEBUG the bridge server will shutdown');
+    expect(console.log).toHaveBeenCalledWith('DEBUG Shutting down the bridge server');
   });
 
   it('should timeout', async () => {
@@ -145,7 +146,7 @@ describe('server', () => {
     await new Promise(r => setTimeout(r, 600));
     expect(server.listening).toBeFalsy();
 
-    expect(console.log).toHaveBeenCalledWith('DEBUG the bridge server closed');
+    expect(console.log).toHaveBeenCalledWith('DEBUG The bridge server shutted down');
   });
 });
 

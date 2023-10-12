@@ -1,4 +1,4 @@
-/*
+/**
  * SonarQube JavaScript Plugin
  * Copyright (C) 2011-2023 SonarSource SA
  * mailto:info AT sonarsource DOT com
@@ -17,21 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import express from 'express';
-import { writeTSConfigFile } from '@sonar/jsts';
+package org.sonar.javascript.checks;
 
-/**
- * Handles TSConfig file creation requests
- */
-export default async function (
-  request: express.Request,
-  response: express.Response,
-  next: express.NextFunction,
-) {
-  try {
-    const tsconfig = request.body;
-    response.json(await writeTSConfigFile(tsconfig));
-  } catch (error) {
-    next(error);
+import org.sonar.check.Rule;
+import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.JavaScriptRule;
+import org.sonar.plugins.javascript.api.TypeScriptRule;
+
+@TypeScriptRule
+@JavaScriptRule
+@Rule(key = "S6811")
+public class RoleSupportsAriaPropsCheck implements EslintBasedCheck {
+
+  @Override
+  public String eslintKey() {
+    return "role-supports-aria-props";
   }
 }
