@@ -1,4 +1,4 @@
-/**
+/*
  * SonarQube JavaScript Plugin
  * Copyright (C) 2011-2023 SonarSource SA
  * mailto:info AT sonarsource DOT com
@@ -19,31 +19,17 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.Collections;
-import java.util.List;
-import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
-import org.sonar.plugins.javascript.api.JavaScriptRule;
-import org.sonar.plugins.javascript.api.TypeScriptRule;
+import static org.assertj.core.api.Assertions.assertThat;
 
-@TypeScriptRule
-@JavaScriptRule
-@Rule(key = "S6821")
-public class AriaRoleCheck implements EslintBasedCheck {
+import com.google.gson.Gson;
+import org.junit.jupiter.api.Test;
 
-  @Override
-  public String eslintKey() {
-    return "aria-role";
-  }
+class AriaRoleCheckTest {
 
-  @Override
-  public List<Object> configurations() {
-    return Collections.singletonList(new Config());
-  }
-
-  private static class Config {
-
-    boolean ignoreNonDOM = true;
-    String[] allowedInvalidRoles = { "text" };
+  @Test
+  void config() {
+    String configAsString = new Gson().toJson(new AriaRoleCheck().configurations());
+    assertThat(configAsString)
+      .isEqualTo("[{\"ignoreNonDOM\":true,\"allowedInvalidRoles\":[\"text\"]}]");
   }
 }
