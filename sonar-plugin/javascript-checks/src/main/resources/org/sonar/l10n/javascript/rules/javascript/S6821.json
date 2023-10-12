@@ -1,0 +1,30 @@
+{
+  "title": "DOM elements with ARIA roles should have a valid non-abstract role",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "react",
+    "a11y"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6821",
+  "sqKey": "S6821",
+  "scope": "All",
+  "defaultQualityProfiles": ["Sonar way"],
+  "quickfix": "infeasible",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "LOW",
+      "RELIABILITY": "MEDIUM"
+    },
+    "attribute": "LOGICAL"
+  },
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]
+}
