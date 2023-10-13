@@ -452,8 +452,7 @@ class JavaScriptEslintBasedSensorTest {
     createInputFile(context);
     sensor.execute(context);
 
-    assertThat(logTester.logs(LoggerLevel.ERROR))
-      .contains("Failure during analysis, bridgeServerMock command info");
+    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Failure during analysis");
     assertThat(context.allIssues()).isEmpty();
   }
 
