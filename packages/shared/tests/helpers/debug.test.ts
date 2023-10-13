@@ -17,12 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { debug } from '../../src/helpers';
+import { debug, info, warn } from '../../src/helpers';
 
 describe('debug', () => {
   it('should log with a `DEBUG` prefix', () => {
     console.log = jest.fn();
     debug('hello, world!');
     expect(console.log).toHaveBeenCalledWith(`DEBUG hello, world!`);
+  });
+});
+
+describe('warn', () => {
+  it('should log with a `WARN` prefix', () => {
+    console.log = jest.fn();
+    warn('hello, world!');
+    expect(console.log).toHaveBeenCalledWith(`WARN hello, world!`);
+  });
+});
+
+describe('info', () => {
+  it('should log with no prefix', () => {
+    console.log = jest.fn();
+    info('hello, world!');
+    expect(console.log).toHaveBeenCalledWith(`hello, world!`);
   });
 });
