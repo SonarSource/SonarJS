@@ -36,6 +36,7 @@ import {
   error,
   readFileSync,
   toUnixPath,
+  warn,
 } from '@sonar/shared/helpers';
 import tmp from 'tmp';
 import { promisify } from 'util';
@@ -159,7 +160,7 @@ export function createProgram(tsConfig: string, tsconfigContents?: string): Prog
   for (const reference of inputProjectReferences) {
     const sanitizedReference = addTsConfigIfDirectory(reference.path);
     if (!sanitizedReference) {
-      console.log(`WARN Skipping missing referenced tsconfig.json: ${reference.path}`);
+      warn(`Skipping missing referenced tsconfig.json: ${reference.path}`);
     } else {
       projectReferences.push(sanitizedReference);
     }
