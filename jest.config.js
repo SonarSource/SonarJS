@@ -1,5 +1,5 @@
 module.exports = {
-  collectCoverageFrom: ['packages/*/src/**/*.ts'],
+  collectCoverageFrom: ['packages/*/src/**/*.ts', 'packages/bridge/src/worker.js'],
   coveragePathIgnorePatterns: ['.fixture.', '/fixtures/'],
   moduleFileExtensions: ['js', 'ts', 'json'],
   moduleDirectories: ['node_modules', '<rootDir>packages/*/tests/**/fixtures'],
