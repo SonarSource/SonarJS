@@ -444,7 +444,7 @@ class JavaScriptEslintBasedSensorTest {
 
   @Test
   void should_catch_if_bridge_server_not_started() throws Exception {
-    doThrow(new IllegalStateException("failed to start server"))
+    doThrow(new IllegalStateException("Failed to start the bridge server"))
       .when(bridgeServerMock)
       .startServerLazily(context);
 
