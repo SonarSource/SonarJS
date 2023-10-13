@@ -356,6 +356,7 @@ public final class CheckList {
       PreferReturnThisTypeCheck.class,
       PreferSpreadCheck.class,
       PreferStringStartsEndsWithCheck.class,
+      PreferTagOverRoleCheck.class,
       PreferTypeGuardCheck.class,
       PrimitiveWrappersCheck.class,
       ProcessArgvCheck.class,
