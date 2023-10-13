@@ -372,7 +372,7 @@ class BridgeServerImplTest {
     bridgeServer.startServer(context, emptyList());
 
     assertThat(bridgeServer.getCommandInfo())
-      .contains("Node.js command to start the bridge server was ", "node", START_SERVER_SCRIPT);
+      .contains("Node.js command to start the bridge server was: ", "node", START_SERVER_SCRIPT);
     assertThat(bridgeServer.getCommandInfo()).doesNotContain("--max-old-space-size");
   }
 
@@ -439,7 +439,7 @@ class BridgeServerImplTest {
   @Test
   void test_use_existing_node() throws Exception {
     String starting = "Creating Node.js process to start the bridge server on port";
-    var useExisting = "Will use existing Node.js process in port 60000";
+    var useExisting = "Using existing Node.js process on port 60000";
     var alreadyStarted = "The bridge server is up, no need to start.";
     var wrongPortRange =
       "Node.js process port set in $SONARJS_EXISTING_NODE_PROCESS_PORT should be a number between 1 and 65535 range";

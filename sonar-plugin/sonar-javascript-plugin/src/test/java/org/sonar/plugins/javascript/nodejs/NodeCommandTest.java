@@ -261,7 +261,8 @@ class NodeCommandTest {
     nodeCommand.start();
     int exitValue = nodeCommand.waitFor();
     verify(mockProcessWrapper).interrupt();
-    assertThat(logTester.logs()).contains("Interrupted while waiting for process to terminate.");
+    assertThat(logTester.logs())
+      .contains("Interrupted while waiting for Node.js process to terminate.");
     assertThat(exitValue).isEqualTo(1);
   }
 
@@ -274,7 +275,7 @@ class NodeCommandTest {
     nodeCommand.start();
     int exitValue = nodeCommand.waitFor();
     verify(mockProcessWrapper).destroyForcibly(any());
-    assertThat(logTester.logs()).contains("Node process did not stop in a timely fashion");
+    assertThat(logTester.logs()).contains("Node.js process did not stop in a timely fashion");
     assertThat(exitValue).isEqualTo(-1);
   }
 

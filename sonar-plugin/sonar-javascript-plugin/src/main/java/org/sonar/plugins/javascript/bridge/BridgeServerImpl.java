@@ -286,7 +286,7 @@ public class BridgeServerImpl implements BridgeServer {
     if (providedPort != 0) {
       port = providedPort;
       serverHasStarted();
-      LOG.info("Will use existing Node.js process in port " + port);
+      LOG.info("Using existing Node.js process on port " + port);
     }
 
     try {
@@ -533,7 +533,7 @@ public class BridgeServerImpl implements BridgeServer {
     if (nodeCommand == null) {
       return "Node.js command to start the bridge server was not built yet.";
     } else {
-      return "Node.js command to start the bridge server was " + nodeCommand;
+      return "Node.js command to start the bridge server was: " + nodeCommand;
     }
   }
 
