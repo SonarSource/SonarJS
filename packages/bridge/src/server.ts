@@ -65,8 +65,15 @@ function logMemoryConfiguration() {
 }
 
 function readDockerMemoryLimit() {
+  return (
+    readDockerMemoryLimitFrom('/sys/fs/cgroup/memory.max') ||
+    readDockerMemoryLimitFrom('/sys/fs/cgroup/memory.limit_in_bytes')
+  );
+}
+
+function readDockerMemoryLimitFrom(cgroupPath: string) {
   try {
-    const mem = Number.parseInt(fs.readFileSync('/sys/fs/cgroup/memory.max', { encoding: 'utf8' }));
+    const mem = Number.parseInt(fs.readFileSync(cgroupPath, { encoding: 'utf8' }));
     if (Number.isInteger(mem)) {
       return mem / MB;
     }
