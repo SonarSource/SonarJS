@@ -29,6 +29,10 @@ export function debug(message: string) {
   console.log(`DEBUG ${message}`);
 }
 
+export function error(message: string) {
+  console.error(message);
+}
+
 export function info(message: string) {
   console.log(message);
 }

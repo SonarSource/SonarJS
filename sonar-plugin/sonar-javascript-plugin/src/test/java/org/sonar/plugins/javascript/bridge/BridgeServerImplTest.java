@@ -614,12 +614,6 @@ class BridgeServerImplTest {
     assertThatThrownBy(() -> bridgeServer.loadTsConfig("any.ts"))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("The bridge server is unresponsive");
-    assertThat(logTester.logs(ERROR))
-      .contains(
-        "The bridge Node.js process is unresponsive. This is most likely " +
-        "caused by process running out of memory. Consider setting sonar.javascript.node.maxspace to higher value" +
-        " (e.g. 4096)."
-      );
   }
 
   @Test

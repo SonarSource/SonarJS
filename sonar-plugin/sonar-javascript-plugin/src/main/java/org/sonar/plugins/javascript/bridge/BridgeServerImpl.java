@@ -392,10 +392,6 @@ public class BridgeServerImpl implements BridgeServer {
     } catch (InterruptedException e) {
       throw handleInterruptedException(e, "Request " + endpoint + " was interrupted.");
     } catch (IOException e) {
-      String msg =
-        "The bridge Node.js process is unresponsive. This is most likely caused by process running out of memory." +
-        " Consider setting sonar.javascript.node.maxspace to higher value (e.g. 4096).";
-      LOG.error(msg);
       throw new IllegalStateException("The bridge server is unresponsive", e);
     }
   }

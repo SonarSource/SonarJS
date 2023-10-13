@@ -17,12 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { debug } from '../../src/helpers';
+import { debug, error } from '../../src/helpers';
 
 describe('debug', () => {
   it('should log with a `DEBUG` prefix', () => {
     console.log = jest.fn();
     debug('hello, world!');
     expect(console.log).toHaveBeenCalledWith(`DEBUG hello, world!`);
+  });
+});
+
+describe('error', () => {
+  it('should log to stderr', () => {
+    console.error = jest.fn();
+    error('hello, world!');
+    expect(console.error).toHaveBeenCalledWith(`hello, world!`);
   });
 });
