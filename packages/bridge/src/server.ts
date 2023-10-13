@@ -33,6 +33,7 @@ import { AddressInfo } from 'net';
 import * as v8 from 'v8';
 import * as os from 'os';
 import { Worker } from 'worker_threads';
+import fs from 'fs';
 
 /**
  * The maximum request body size
@@ -48,15 +49,31 @@ const MAX_REQUEST_SIZE = '50mb';
  */
 const SHUTDOWN_TIMEOUT = 15_000;
 
+const MB = 1024 * 1024;
+
 function logMemoryConfiguration() {
-  const osMem = Math.floor(os.totalmem() / 1_000_000);
-  const heapSize = Math.floor(v8.getHeapStatistics().heap_size_limit / 1_000_000);
-  info(`OS memory ${osMem} MB. Node.js heap size limit: ${heapSize} MB.`);
+  const osMem = Math.floor(os.totalmem() / MB);
+  const heapSize = Math.floor(v8.getHeapStatistics().heap_size_limit / MB);
+  const dockerMemLimit = readDockerMemoryLimit();
+  const dockerMem = dockerMemLimit ? `Docker mem: ${dockerMemLimit} MB. ` : '';
+  info(`OS memory ${osMem} MB. ${dockerMem}Node.js heap size limit: ${heapSize} MB.`);
   if (heapSize > osMem) {
     warn(
       `Node.js heap size limit ${heapSize} is higher than available memory ${osMem}. Check your configuration of sonar.javascript.node.maxspace`,
     );
   }
+}
+
+function readDockerMemoryLimit() {
+  try {
+    const mem = Number.parseInt(fs.readFileSync('/sys/fs/cgroup/memory.max', { encoding: 'utf8' }));
+    if (Number.isInteger(mem)) {
+      return mem;
+    }
+  } catch (e) {
+    // probably not a docker env
+  }
+  return undefined;
 }
 
 /**
