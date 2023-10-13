@@ -20,6 +20,7 @@
 import { Linter, SourceCode } from 'eslint';
 import { transformFixes } from '../quickfixes';
 import { Issue } from './issue';
+import { error } from '@sonar/shared/helpers';
 
 /**
  * Converts an ESLint message into a SonarQube issue
@@ -40,7 +41,7 @@ export function convertMessage(source: SourceCode, message: Linter.LintMessage):
    * happen because we lint ready SourceCode instances and not file contents.
    */
   if (!message.ruleId) {
-    console.error("Illegal 'null' ruleId for eslint issue");
+    error("Illegal 'null' ruleId for eslint issue");
     return null;
   }
   return {

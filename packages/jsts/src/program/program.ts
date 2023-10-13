@@ -30,7 +30,13 @@
 
 import path from 'path';
 import ts from 'typescript';
-import { addTsConfigIfDirectory, debug, readFileSync, toUnixPath } from '@sonar/shared/helpers';
+import {
+  addTsConfigIfDirectory,
+  debug,
+  error,
+  readFileSync,
+  toUnixPath,
+} from '@sonar/shared/helpers';
 import tmp from 'tmp';
 import { promisify } from 'util';
 import fs from 'fs/promises';
@@ -90,7 +96,7 @@ export function createProgramOptions(
   const config = ts.readConfigFile(tsConfig, parseConfigHost.readFile);
 
   if (config.error) {
-    console.error(`Failed to parse tsconfig: ${tsConfig} (${diagnosticToString(config.error)})`);
+    error(`Failed to parse tsconfig: ${tsConfig} (${diagnosticToString(config.error)})`);
     throw Error(diagnosticToString(config.error));
   }
 
