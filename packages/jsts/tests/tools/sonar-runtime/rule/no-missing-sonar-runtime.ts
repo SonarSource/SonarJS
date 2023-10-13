@@ -61,20 +61,22 @@ export const rule: Rule.RuleModule = {
           return;
         }
         const maybeMeta = getObjectExpressionProperty(node, 'meta');
-        if (maybeMeta) {
-          const maybeSchema = getObjectExpressionProperty(maybeMeta.value, 'schema');
-          if (maybeSchema && maybeSchema.value.type === 'ArrayExpression') {
-            const schema = maybeSchema.value;
-            for (const element of schema.elements) {
-              const maybeEnum = getObjectExpressionProperty(element, 'enum');
-              if (maybeEnum) {
-                isSecondaryLocationEnabled =
-                  maybeEnum.value.type === 'ArrayExpression' &&
-                  maybeEnum.value.elements.length === 1 &&
-                  maybeEnum.value.elements[0].type === 'Identifier' &&
-                  maybeEnum.value.elements[0].name === 'SONAR_RUNTIME';
-              }
-            }
+        if (!maybeMeta) {
+          return;
+        }
+        const maybeSchema = getObjectExpressionProperty(maybeMeta.value, 'schema');
+        if (maybeSchema?.value.type !== 'ArrayExpression') {
+          return;
+        }
+        const schema = maybeSchema.value;
+        for (const element of schema.elements) {
+          const maybeEnum = getObjectExpressionProperty(element, 'enum');
+          if (maybeEnum) {
+            isSecondaryLocationEnabled =
+              maybeEnum.value.type === 'ArrayExpression' &&
+              maybeEnum.value.elements.length === 1 &&
+              maybeEnum.value.elements[0].type === 'Identifier' &&
+              maybeEnum.value.elements[0].name === 'SONAR_RUNTIME';
           }
         }
       },

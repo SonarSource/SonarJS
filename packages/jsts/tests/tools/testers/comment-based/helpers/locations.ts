@@ -51,10 +51,6 @@ export abstract class Location {
 
 export class PrimaryLocation extends Location {
   readonly secondaryLocations: SecondaryLocation[] = [];
-
-  constructor(range: Range) {
-    super(range);
-  }
 }
 
 export class SecondaryLocation extends Location {
@@ -79,7 +75,7 @@ export function extractLocations(file: FileIssues, comment: Comment) {
   let offset = 0;
   let matcher: RegExpMatchArray | null;
   LOCATION_PATTERN.lastIndex = 0;
-  while ((matcher = toBeMatched.match(LOCATION_PATTERN)) !== null) {
+  while ((matcher = LOCATION_PATTERN.exec(toBeMatched)) !== null) {
     locations.push(
       matcherToLocation(line, column, commentContent.indexOf(matcher[1], offset) + 1, matcher),
     );
