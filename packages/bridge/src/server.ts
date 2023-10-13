@@ -68,7 +68,7 @@ function readDockerMemoryLimit() {
   try {
     const mem = Number.parseInt(fs.readFileSync('/sys/fs/cgroup/memory.max', { encoding: 'utf8' }));
     if (Number.isInteger(mem)) {
-      return mem;
+      return mem / MB;
     }
   } catch (e) {
     // probably not a docker env
