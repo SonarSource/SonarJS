@@ -117,13 +117,9 @@ public class AnalysisWithWatchProgram extends AbstractAnalysis {
           "Analysis interrupted because the SensorContext is in cancelled state"
         );
       }
-      if (bridgeServer.isAlive()) {
-        monitoring.startFile(inputFile);
-        analyze(inputFile, tsConfigFile);
-        progressReport.nextFile(inputFile.absolutePath());
-      } else {
-        throw new IllegalStateException("the bridge server is not answering");
-      }
+      monitoring.startFile(inputFile);
+      analyze(inputFile, tsConfigFile);
+      progressReport.nextFile(inputFile.absolutePath());
     }
   }
 

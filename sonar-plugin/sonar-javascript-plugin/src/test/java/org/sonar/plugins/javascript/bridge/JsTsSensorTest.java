@@ -695,21 +695,6 @@ class JsTsSensorTest {
   }
 
   @Test
-  void stop_analysis_if_server_is_not_responding() throws Exception {
-    when(bridgeServerMock.isAlive()).thenReturn(false);
-    JsTsSensor sensor = createSensor();
-    createTsConfigFile();
-    createVueInputFile();
-    createInputFile(context);
-    sensor.execute(context);
-    final var logAndArguments = logTester.getLogs(Level.ERROR).get(0);
-    assertThat(logAndArguments.getFormattedMsg())
-      .isEqualTo("Failure during analysis, bridgeServerMock command info");
-    assertThat(logAndArguments.getThrowable().getMessage())
-      .isEqualTo("the bridge server is not answering");
-  }
-
-  @Test
   void stop_analysis_if_cancelled() throws Exception {
     JsTsSensor sensor = createSensor();
     createInputFile(context);

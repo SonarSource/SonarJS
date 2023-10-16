@@ -64,7 +64,7 @@ public class YamlAnalysisTest {
     assertThat(issuesList)
       .extracting(Issue::getLine, Issue::getRule)
       .containsExactlyInAnyOrder(tuple(12, "javascript:S3923"));
-    assertThat(result.getLogsLines(log -> log.contains("Starting Node.js process"))).hasSize(1);
+    assertThat(result.getLogsLines(log -> log.contains("Creating Node.js process"))).hasSize(1);
     // assertPerfMonitoringAvailable(perfMonitoringDir);
   }
 
@@ -89,6 +89,6 @@ public class YamlAnalysisTest {
 
     OrchestratorStarter.setProfiles(projectKey, Map.of("eslint-based-rules-profile", "js"));
     BuildResult result = orchestrator.executeBuild(build);
-    assertThat(result.getLogsLines(log -> log.contains("Starting Node.js process"))).hasSize(0);
+    assertThat(result.getLogsLines(log -> log.contains("Creating Node.js process"))).hasSize(0);
   }
 }

@@ -149,9 +149,6 @@ public class AnalysisWithProgram extends AbstractAnalysis {
         "Analysis interrupted because the SensorContext is in cancelled state"
       );
     }
-    if (!bridgeServer.isAlive()) {
-      throw new IllegalStateException("the bridge server is not answering");
-    }
     var cacheStrategy = CacheStrategies.getStrategyFor(context, file);
     if (cacheStrategy.isAnalysisRequired()) {
       try {

@@ -83,12 +83,8 @@ public class YamlSensor extends AbstractBridgeSensor {
             "Analysis interrupted because the SensorContext is in cancelled state"
           );
         }
-        if (bridgeServer.isAlive()) {
-          progressReport.nextFile(inputFile.absolutePath());
-          analyze(inputFile);
-        } else {
-          throw new IllegalStateException("the bridge server is not answering");
-        }
+        progressReport.nextFile(inputFile.absolutePath());
+        analyze(inputFile);
       }
       success = true;
     } finally {
