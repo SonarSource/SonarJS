@@ -28,7 +28,7 @@ export function request(server: http.Server, path: string, method: string, data:
     host: '127.0.0.1',
     path,
     method,
-    port: (<AddressInfo>server.address()).port,
+    port: (server.address() as AddressInfo).port,
     headers: {
       'Content-Type': 'application/json',
     },

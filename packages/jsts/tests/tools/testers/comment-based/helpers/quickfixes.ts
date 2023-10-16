@@ -75,7 +75,7 @@ export function isQuickfixLine(comment: string) {
 
 export function extractQuickFixes(quickfixes: Map<string, QuickFix>, comment: Comment) {
   if (QUICKFIX_DESCRIPTION_PATTERN.test(comment.value)) {
-    const matches = comment.value.match(QUICKFIX_DESCRIPTION_PATTERN);
+    const matches = QUICKFIX_DESCRIPTION_PATTERN.exec(comment.value);
     const { quickfixId, message } = matches.groups;
     const quickfix = quickfixes.get(quickfixId);
     if (!quickfix) {
@@ -87,7 +87,7 @@ export function extractQuickFixes(quickfixes: Map<string, QuickFix>, comment: Co
     }
     quickfix.description = message;
   } else if (QUICKFIX_CHANGE_PATTERN.test(comment.value)) {
-    const matches = comment.value.match(QUICKFIX_CHANGE_PATTERN);
+    const matches = QUICKFIX_CHANGE_PATTERN.exec(comment.value);
     const {
       quickfixId,
       type,

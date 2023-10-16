@@ -45,7 +45,7 @@ class TypeScriptRuleTester extends RuleTester {
     super({
       env,
       parser,
-      parserOptions: parserOptions,
+      parserOptions,
     });
   }
 
