@@ -49,7 +49,7 @@ describe('server', () => {
     expect(console.log).toHaveBeenCalledTimes(3);
     expect(console.log).toHaveBeenNthCalledWith(
       1,
-      expect.stringMatching('OS memory \\d+ MB. Node.js heap size limit: \\d+ MB.'),
+      expect.stringMatching('Memory configuration: OS \\(\\d+ MB\\), Node.js \\(\\d+ MB\\).'),
     );
     expect(console.log).toHaveBeenNthCalledWith(2, `DEBUG Starting the bridge server`);
     expect(console.log).toHaveBeenNthCalledWith(

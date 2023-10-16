@@ -29,8 +29,8 @@ export function logMemoryConfiguration() {
   const osMem = Math.floor(os.totalmem() / MB);
   const heapSize = getHeapSize();
   const dockerMemLimit = readDockerMemoryLimit();
-  const dockerMem = dockerMemLimit ? `Docker mem: ${dockerMemLimit} MB. ` : '';
-  info(`OS memory ${osMem} MB. ${dockerMem}Node.js heap size limit: ${heapSize} MB.`);
+  const dockerMem = dockerMemLimit ? `, Docker (${dockerMemLimit} MB)` : ',';
+  info(`Memory configuration: OS (${osMem} MB)${dockerMem} Node.js (${heapSize} MB).`);
   if (heapSize > osMem) {
     warn(
       `Node.js heap size limit ${heapSize} is higher than available memory ${osMem}. Check your configuration of sonar.javascript.node.maxspace`,
@@ -39,10 +39,17 @@ export function logMemoryConfiguration() {
 }
 
 function readDockerMemoryLimit() {
+  return (
+    readDockerMemoryLimitFrom('/sys/fs/cgroup/memory.max') ||
+    readDockerMemoryLimitFrom('/sys/fs/cgroup/memory.limit_in_bytes')
+  );
+}
+
+function readDockerMemoryLimitFrom(cgroupPath: string) {
   try {
-    const mem = Number.parseInt(fs.readFileSync('/sys/fs/cgroup/memory.max', { encoding: 'utf8' }));
+    const mem = Number.parseInt(fs.readFileSync(cgroupPath, { encoding: 'utf8' }));
     if (Number.isInteger(mem)) {
-      return mem;
+      return mem / MB;
     }
   } catch (e) {
     // probably not a docker env
