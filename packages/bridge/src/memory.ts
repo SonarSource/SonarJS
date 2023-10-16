@@ -61,7 +61,7 @@ export function logMemoryError(err: any) {
         `The analysis will stop due to the Node.js process running out of memory (heap size limit ${getHeapSize()} MB)`,
       );
       error(
-        `You can see how Node.js heap usage evolves during analysis with "sonar.javascript.node.FIXME=true"`,
+        `You can see how Node.js heap usage evolves during analysis with "sonar.javascript.node.debugMemory=true"`,
       );
       error(
         'Try setting "sonar.javascript.node.maxspace" to a higher value to increase Node.js heap size limit',

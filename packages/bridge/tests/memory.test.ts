@@ -32,7 +32,7 @@ describe('logMemoryError', () => {
       ),
     );
     expect(console.error).toHaveBeenCalledWith(
-      'You can see how Node.js heap usage evolves during analysis with "sonar.javascript.node.FIXME=true"',
+      'You can see how Node.js heap usage evolves during analysis with "sonar.javascript.node.debugMemory=true"',
     );
     expect(console.error).toHaveBeenCalledWith(
       'Try setting "sonar.javascript.node.maxspace" to a higher value to increase Node.js heap size limit',
