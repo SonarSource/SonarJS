@@ -1,0 +1,14 @@
+{
+"desktop:app/src/ui/changes/commit-message.tsx": [
+753
+],
+"desktop:app/src/ui/changes/undo-commit.tsx": [
+36
+],
+"desktop:app/src/ui/dialog/header.tsx": [
+67
+],
+"desktop:app/src/ui/lib/vertical-segmented-control/segmented-item.tsx": [
+67
+]
+}

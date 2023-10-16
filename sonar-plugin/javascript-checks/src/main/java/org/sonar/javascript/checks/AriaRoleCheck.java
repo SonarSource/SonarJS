@@ -1,4 +1,4 @@
-/*
+/**
  * SonarQube JavaScript Plugin
  * Copyright (C) 2011-2023 SonarSource SA
  * mailto:info AT sonarsource DOT com
@@ -17,36 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { AddressInfo } from 'net';
-import http from 'http';
+package org.sonar.javascript.checks;
 
-/**
- * Sends an HTTP request to a server's endpoint running on localhost.
- */
-export function request(server: http.Server, path: string, method: string, data: any = {}) {
-  const options = {
-    host: '127.0.0.1',
-    path,
-    method,
-    port: (server.address() as AddressInfo).port,
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    timeout: 10000,
-  };
+import java.util.Collections;
+import java.util.List;
+import org.sonar.check.Rule;
+import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.JavaScriptRule;
+import org.sonar.plugins.javascript.api.TypeScriptRule;
 
-  return new Promise((resolve, reject) => {
-    const request = http.request(options, res => {
-      let response = '';
-      res.on('data', chunk => {
-        response += chunk;
-      });
+@TypeScriptRule
+@JavaScriptRule
+@Rule(key = "S6821")
+public class AriaRoleCheck implements EslintBasedCheck {
 
-      res.on('end', () => resolve(response));
-    });
-    request.on('error', reject);
+  @Override
+  public String eslintKey() {
+    return "aria-role";
+  }
 
-    request.write(JSON.stringify(data));
-    request.end();
-  });
+  @Override
+  public List<Object> configurations() {
+    return Collections.singletonList(new Config());
+  }
+
+  private static class Config {
+
+    boolean ignoreNonDOM = true;
+    String[] allowedInvalidRoles = { "text" };
+  }
 }

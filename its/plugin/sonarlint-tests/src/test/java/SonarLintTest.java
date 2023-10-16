@@ -122,9 +122,9 @@ class SonarLintTest {
   @Test
   void should_start_node_server_once() throws Exception {
     analyze(FILE_PATH, "");
-    assertThat(logs).doesNotContain("the bridge server is up, no need to start.");
+    assertThat(logs).doesNotContain("The bridge server is up, no need to start.");
     analyze(FILE_PATH, "");
-    assertThat(logs).contains("the bridge server is up, no need to start.");
+    assertThat(logs).contains("The bridge server is up, no need to start.");
   }
 
   @Test

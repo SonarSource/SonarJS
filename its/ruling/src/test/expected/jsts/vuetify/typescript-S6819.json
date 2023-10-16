@@ -1,0 +1,44 @@
+{
+"vuetify:packages/vuetify/src/components/VBadge/VBadge.tsx": [
+112
+],
+"vuetify:packages/vuetify/src/components/VBanner/VBanner.tsx": [
+84
+],
+"vuetify:packages/vuetify/src/components/VIcon/VIcon.tsx": [
+53
+],
+"vuetify:packages/vuetify/src/components/VImg/VImg.tsx": [
+292
+],
+"vuetify:packages/vuetify/src/components/VList/VList.tsx": [
+225
+],
+"vuetify:packages/vuetify/src/components/VList/VListGroup.tsx": [
+112
+],
+"vuetify:packages/vuetify/src/components/VPagination/VPagination.tsx": [
+308
+],
+"vuetify:packages/vuetify/src/components/VProgressCircular/VProgressCircular.tsx": [
+77
+],
+"vuetify:packages/vuetify/src/components/VProgressLinear/VProgressLinear.tsx": [
+100
+],
+"vuetify:packages/vuetify/src/components/VSlider/VSliderThumb.tsx": [
+123
+],
+"vuetify:packages/vuetify/src/components/VSnackbar/VSnackbar.tsx": [
+130
+],
+"vuetify:packages/vuetify/src/components/VTextField/VTextField.tsx": [
+182
+],
+"vuetify:packages/vuetify/src/components/VTextarea/VTextarea.tsx": [
+226
+],
+"vuetify:packages/vuetify/src/composables/icons.tsx": [
+116
+]
+}

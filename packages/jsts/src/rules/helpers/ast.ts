@@ -412,7 +412,6 @@ function resolveIdentifiersAcc(
   }
 }
 
-// TODO Drop this function and replace it with `getProperty`
 export function getObjectExpressionProperty(
   node: estree.Node | undefined | null,
   propertyKey: string,

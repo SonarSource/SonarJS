@@ -17,22 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-/**
- * Prints a message to `stdout` like `console.log` by prefixing it with `DEBUG`.
- *
- * The `DEBUG` prefix is recognized by the scanner, which
- * will show the logged message in the scanner debug logs.
- *
- * @param message the message to log
- */
-export function debug(message: string) {
-  console.log(`DEBUG ${message}`);
-}
+package org.sonar.javascript.checks;
 
-export function info(message: string) {
-  console.log(message);
-}
+import static org.assertj.core.api.Assertions.assertThat;
 
-export function warn(message: string) {
-  console.log(`WARN ${message}`);
+import com.google.gson.Gson;
+import org.junit.jupiter.api.Test;
+
+class AriaRoleCheckTest {
+
+  @Test
+  void config() {
+    String configAsString = new Gson().toJson(new AriaRoleCheck().configurations());
+    assertThat(configAsString)
+      .isEqualTo("[{\"ignoreNonDOM\":true,\"allowedInvalidRoles\":[\"text\"]}]");
+  }
 }

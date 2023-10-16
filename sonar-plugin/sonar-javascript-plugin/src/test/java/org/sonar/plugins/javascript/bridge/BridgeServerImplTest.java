@@ -359,7 +359,7 @@ class BridgeServerImplTest {
 
     assertThatThrownBy(() -> bridgeServer.startServer(context, deployedBundles))
       .isInstanceOf(NodeCommandException.class)
-      .hasMessage("Failed to start server (" + TEST_TIMEOUT_SECONDS + "s timeout)");
+      .hasMessage("Failed to start the bridge server (" + TEST_TIMEOUT_SECONDS + "s timeout)");
   }
 
   @Test
@@ -372,7 +372,7 @@ class BridgeServerImplTest {
     bridgeServer.startServer(context, emptyList());
 
     assertThat(bridgeServer.getCommandInfo())
-      .contains("Node.js command to start the bridge was: ", "node", START_SERVER_SCRIPT);
+      .contains("Node.js command to start the bridge server was: ", "node", START_SERVER_SCRIPT);
     assertThat(bridgeServer.getCommandInfo()).doesNotContain("--max-old-space-size");
   }
 
@@ -424,8 +424,8 @@ class BridgeServerImplTest {
 
   @Test
   void test_lazy_start() throws Exception {
-    String alreadyStarted = "the bridge server is up, no need to start.";
-    String starting = "Starting Node.js process to start the bridge server at port";
+    String alreadyStarted = "The bridge server is up, no need to start.";
+    String starting = "Creating Node.js process to start the bridge server on port";
     bridgeServer = createBridgeServer("startServer.js");
     bridgeServer.startServerLazily(context);
     assertThat(logTester.logs(DEBUG).stream().anyMatch(s -> s.startsWith(starting))).isTrue();
@@ -438,9 +438,9 @@ class BridgeServerImplTest {
 
   @Test
   void test_use_existing_node() throws Exception {
-    String starting = "Starting Node.js process to start the bridge server at port";
-    var useExisting = "Will use existing Node.js process in port 60000";
-    var alreadyStarted = "the bridge server is up, no need to start.";
+    String starting = "Creating Node.js process to start the bridge server on port";
+    var useExisting = "Using existing Node.js process on port 60000";
+    var alreadyStarted = "The bridge server is up, no need to start.";
     var wrongPortRange =
       "Node.js process port set in $SONARJS_EXISTING_NODE_PROCESS_PORT should be a number between 1 and 65535 range";
     var wrongPortValue =
@@ -480,7 +480,7 @@ class BridgeServerImplTest {
   void should_throw_special_exception_when_failed_start_server_before() {
     bridgeServer = createBridgeServer("throw.js");
     String failedToStartExceptionMessage =
-      "Failed to start server (" + TEST_TIMEOUT_SECONDS + "s timeout)";
+      "Failed to start the bridge server (" + TEST_TIMEOUT_SECONDS + "s timeout)";
     assertThatThrownBy(() -> bridgeServer.startServerLazily(context))
       .isInstanceOf(NodeCommandException.class)
       .hasMessage(failedToStartExceptionMessage);
@@ -613,13 +613,7 @@ class BridgeServerImplTest {
 
     assertThatThrownBy(() -> bridgeServer.loadTsConfig("any.ts"))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage("the bridge is unresponsive");
-    assertThat(logTester.logs(ERROR))
-      .contains(
-        "the bridge Node.js process is unresponsive. This is most likely " +
-        "caused by process running out of memory. Consider setting sonar.javascript.node.maxspace to higher value" +
-        " (e.g. 4096)."
-      );
+      .hasMessage("The bridge server is unresponsive");
   }
 
   @Test

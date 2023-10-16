@@ -84,7 +84,7 @@ export function isNonCompliantLine(comment: string) {
 }
 
 export function extractLineIssues(file: FileIssues, comment: Comment) {
-  const matcher = comment.value.match(NON_COMPLIANT_PATTERN);
+  const matcher = NON_COMPLIANT_PATTERN.exec(comment.value);
   if (matcher === null) {
     throw new Error(`Invalid comment format at line ${comment.line}: ${comment.value}`);
   }

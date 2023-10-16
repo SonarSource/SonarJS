@@ -17,36 +17,37 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { AddressInfo } from 'net';
-import http from 'http';
 
-/**
- * Sends an HTTP request to a server's endpoint running on localhost.
- */
-export function request(server: http.Server, path: string, method: string, data: any = {}) {
-  const options = {
-    host: '127.0.0.1',
-    path,
-    method,
-    port: (server.address() as AddressInfo).port,
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    timeout: 10000,
-  };
+import { debug, error, info, warn } from '../../src/helpers';
 
-  return new Promise((resolve, reject) => {
-    const request = http.request(options, res => {
-      let response = '';
-      res.on('data', chunk => {
-        response += chunk;
-      });
-
-      res.on('end', () => resolve(response));
-    });
-    request.on('error', reject);
-
-    request.write(JSON.stringify(data));
-    request.end();
+describe('debug', () => {
+  it('should log with a `DEBUG` prefix', () => {
+    console.log = jest.fn();
+    debug('hello, world!');
+    expect(console.log).toHaveBeenCalledWith(`DEBUG hello, world!`);
   });
-}
+});
+
+describe('error', () => {
+  it('should log to stderr', () => {
+    console.error = jest.fn();
+    error('hello, world!');
+    expect(console.error).toHaveBeenCalledWith(`hello, world!`);
+  });
+});
+
+describe('warn', () => {
+  it('should log with a `WARN` prefix', () => {
+    console.log = jest.fn();
+    warn('hello, world!');
+    expect(console.log).toHaveBeenCalledWith(`WARN hello, world!`);
+  });
+});
+
+describe('info', () => {
+  it('should log with no prefix', () => {
+    console.log = jest.fn();
+    info('hello, world!');
+    expect(console.log).toHaveBeenCalledWith(`hello, world!`);
+  });
+});

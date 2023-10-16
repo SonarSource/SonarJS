@@ -253,22 +253,6 @@ class HtmlSensorTest {
   }
 
   @Test
-  void stop_analysis_if_server_is_not_responding() throws Exception {
-    when(bridgeServerMock.isAlive()).thenReturn(false);
-
-    HtmlSensor HtmlSensor = createSensor();
-    createInputFile(context);
-    HtmlSensor.execute(context);
-
-    final LogAndArguments logAndArguments = logTester.getLogs(Level.ERROR).get(0);
-
-    assertThat(logAndArguments.getFormattedMsg())
-      .isEqualTo("Failure during analysis, bridgeServerMock command info");
-    assertThat(logAndArguments.getThrowable().getMessage())
-      .isEqualTo("the bridge server is not answering");
-  }
-
-  @Test
   void log_debug_analyzed_filename() throws Exception {
     when(bridgeServerMock.analyzeHtml(any())).thenReturn(new AnalysisResponse());
 

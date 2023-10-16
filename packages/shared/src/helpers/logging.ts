@@ -17,12 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { debug } from '../../src/helpers';
+/**
+ * Prints a message to `stdout` like `console.log` by prefixing it with `DEBUG`.
+ *
+ * The `DEBUG` prefix is recognized by the scanner, which
+ * will show the logged message in the scanner debug logs.
+ *
+ * @param message the message to log
+ */
+export function debug(message: string) {
+  console.log(`DEBUG ${message}`);
+}
 
-describe('debug', () => {
-  it('should log with a `DEBUG` prefix', () => {
-    console.log = jest.fn();
-    debug('hello, world!');
-    expect(console.log).toHaveBeenCalledWith(`DEBUG hello, world!`);
-  });
-});
+export function error(message: string) {
+  console.error(message);
+}
+
+export function info(message: string) {
+  console.log(message);
+}
+
+export function warn(message: string) {
+  console.log(`WARN ${message}`);
+}

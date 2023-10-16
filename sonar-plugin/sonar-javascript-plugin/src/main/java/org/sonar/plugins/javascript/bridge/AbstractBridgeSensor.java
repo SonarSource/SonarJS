@@ -92,7 +92,7 @@ public abstract class AbstractBridgeSensor implements Sensor {
         );
       }
     } catch (Exception e) {
-      LOG.error("Failure during analysis, " + bridgeServer.getCommandInfo(), e);
+      LOG.error("Failure during analysis", e);
       if (contextUtils.failFast()) {
         throw new IllegalStateException(
           "Analysis failed (\"sonar.internal.analysis.failFast\"=true)",
