@@ -290,6 +290,7 @@ public final class CheckList {
       NoProtoCheck.class,
       NoRedundantJumpCheck.class,
       NoRedundantOptionalCheck.class,
+      NoRedundantRolesCheck.class,
       NoRedundantShouldComponentUpdateCheck.class,
       NoRedundantTypeConstituentsCheck.class,
       NoReferrerPolicyCheck.class,
