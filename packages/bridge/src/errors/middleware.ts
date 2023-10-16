@@ -20,6 +20,7 @@
 import express from 'express';
 import { ErrorCode } from '@sonar/shared/errors';
 import { JsTsAnalysisOutput } from '@sonar/jsts';
+import { error } from '@sonar/shared/helpers';
 
 /**
  * Express.js middleware for handling error while serving requests.
@@ -32,12 +33,12 @@ import { JsTsAnalysisOutput } from '@sonar/jsts';
  * @see https://expressjs.com/en/guide/error-handling.html
  */
 export function errorMiddleware(
-  error: any,
+  err: any,
   _request: express.Request,
   response: express.Response,
   _next: express.NextFunction,
 ) {
-  const { code, message, stack, data } = error;
+  const { code, message, stack, data } = err;
   switch (code) {
     case ErrorCode.Parsing:
       response.json({
@@ -59,7 +60,7 @@ export function errorMiddleware(
       });
       break;
     default:
-      console.error(stack);
+      error(stack);
       response.json({ error: message });
       break;
   }

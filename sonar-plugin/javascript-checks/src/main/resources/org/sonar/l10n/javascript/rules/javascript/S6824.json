@@ -1,0 +1,30 @@
+{
+  "title": "No ARIA role or property for unsupported DOM elements",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "react",
+    "a11y"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6824",
+  "sqKey": "S6824",
+  "scope": "All",
+  "defaultQualityProfiles": ["Sonar way"],
+  "quickfix": "targeted",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "LOW",
+      "RELIABILITY": "LOW"
+    },
+    "attribute": "CONVENTIONAL"
+  },
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]
+}

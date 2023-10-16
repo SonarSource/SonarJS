@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 /**
  * `module-alias` must be imported first for module aliasing to work.
  */
@@ -27,13 +28,11 @@ import http from 'http';
 import path from 'path';
 import router from './router';
 import { errorMiddleware } from './errors';
-import { debug, getContext, info, warn } from '@sonar/shared/helpers';
+import { debug, getContext } from '@sonar/shared/helpers';
 import { timeoutMiddleware } from './timeout';
 import { AddressInfo } from 'net';
-import * as v8 from 'v8';
-import * as os from 'os';
 import { Worker } from 'worker_threads';
-import fs from 'fs';
+import { logMemoryConfiguration, logMemoryError } from './memory';
 
 /**
  * The maximum request body size
@@ -48,40 +47,6 @@ const MAX_REQUEST_SIZE = '50mb';
  * the bridge to prevent it from becoming an orphan process.
  */
 const SHUTDOWN_TIMEOUT = 15_000;
-
-const MB = 1024 * 1024;
-
-function logMemoryConfiguration() {
-  const osMem = Math.floor(os.totalmem() / MB);
-  const heapSize = Math.floor(v8.getHeapStatistics().heap_size_limit / MB);
-  const dockerMemLimit = readDockerMemoryLimit();
-  const dockerMem = dockerMemLimit ? `Docker mem: ${dockerMemLimit} MB. ` : '';
-  info(`OS memory ${osMem} MB. ${dockerMem}Node.js heap size limit: ${heapSize} MB.`);
-  if (heapSize > osMem) {
-    warn(
-      `Node.js heap size limit ${heapSize} is higher than available memory ${osMem}. Check your configuration of sonar.javascript.node.maxspace`,
-    );
-  }
-}
-
-function readDockerMemoryLimit() {
-  return (
-    readDockerMemoryLimitFrom('/sys/fs/cgroup/memory.max') ||
-    readDockerMemoryLimitFrom('/sys/fs/cgroup/memory.limit_in_bytes')
-  );
-}
-
-function readDockerMemoryLimitFrom(cgroupPath: string) {
-  try {
-    const mem = Number.parseInt(fs.readFileSync(cgroupPath, { encoding: 'utf8' }));
-    if (Number.isInteger(mem)) {
-      return mem / MB;
-    }
-  } catch (e) {
-    // probably not a docker env
-  }
-  return undefined;
-}
 
 /**
  * A pool of a single worker thread
@@ -135,6 +100,19 @@ export function start(
 
     worker.on('error', err => {
       debug(`The worker thread failed: ${err}`);
+
+      logMemoryError(err);
+
+      /**
+       * At this point, the worker thread can no longer respond to any request from the plugin.
+       * However, existing requests are stalled until they time out. Since the bridge server is
+       * about to be shut down in an unexpected manner anyway, we can close all connections and
+       * avoid waiting unnecessarily for them to eventually close.
+       */
+      server.closeAllConnections();
+
+      debug('Shutting down the bridge server due to failure');
+      shutdown();
     });
 
     const app = express();

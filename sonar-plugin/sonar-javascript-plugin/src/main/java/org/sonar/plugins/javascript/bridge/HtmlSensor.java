@@ -85,14 +85,10 @@ public class HtmlSensor extends AbstractBridgeSensor {
             "Analysis interrupted because the SensorContext is in cancelled state"
           );
         }
-        if (bridgeServer.isAlive()) {
-          progressReport.nextFile(inputFile.absolutePath());
-          var cacheStrategy = CacheStrategies.getStrategyFor(context, inputFile);
-          if (cacheStrategy.isAnalysisRequired()) {
-            analyze(inputFile, cacheStrategy);
-          }
-        } else {
-          throw new IllegalStateException("the bridge server is not answering");
+        progressReport.nextFile(inputFile.absolutePath());
+        var cacheStrategy = CacheStrategies.getStrategyFor(context, inputFile);
+        if (cacheStrategy.isAnalysisRequired()) {
+          analyze(inputFile, cacheStrategy);
         }
       }
       success = true;

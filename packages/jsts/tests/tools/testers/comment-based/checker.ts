@@ -39,7 +39,7 @@ const ruleTester = new RuleTester({ parser: __filename });
 export function check(ruleId: string, ruleModule: Rule.RuleModule, ruleDir: string) {
   const fixtures = [];
   for (const file of fs.readdirSync(ruleDir)) {
-    if (file.match(/\.fixture\.(js|ts|jsx|tsx|vue)$/)) {
+    if (/\.fixture\.(js|ts|jsx|tsx|vue)$/.exec(file)) {
       const fixture = path.join(ruleDir, file);
       fixtures.push(fixture);
     }

@@ -1,4 +1,4 @@
-/*
+/**
  * SonarQube JavaScript Plugin
  * Copyright (C) 2011-2023 SonarSource SA
  * mailto:info AT sonarsource DOT com
@@ -17,22 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-/**
- * Prints a message to `stdout` like `console.log` by prefixing it with `DEBUG`.
- *
- * The `DEBUG` prefix is recognized by the scanner, which
- * will show the logged message in the scanner debug logs.
- *
- * @param message the message to log
- */
-export function debug(message: string) {
-  console.log(`DEBUG ${message}`);
-}
+package org.sonar.javascript.checks;
 
-export function info(message: string) {
-  console.log(message);
-}
+import org.sonar.check.Rule;
+import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.JavaScriptRule;
+import org.sonar.plugins.javascript.api.TypeScriptRule;
 
-export function warn(message: string) {
-  console.log(`WARN ${message}`);
+@TypeScriptRule
+@JavaScriptRule
+@Rule(key = "S6819")
+public class PreferTagOverRoleCheck implements EslintBasedCheck {
+
+  @Override
+  public String eslintKey() {
+    return "prefer-tag-over-role";
+  }
 }

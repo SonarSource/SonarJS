@@ -30,7 +30,14 @@
 
 import path from 'path';
 import ts from 'typescript';
-import { addTsConfigIfDirectory, debug, readFileSync, toUnixPath } from '@sonar/shared/helpers';
+import {
+  addTsConfigIfDirectory,
+  debug,
+  error,
+  readFileSync,
+  toUnixPath,
+  warn,
+} from '@sonar/shared/helpers';
 import tmp from 'tmp';
 import { promisify } from 'util';
 import fs from 'fs/promises';
@@ -90,7 +97,7 @@ export function createProgramOptions(
   const config = ts.readConfigFile(tsConfig, parseConfigHost.readFile);
 
   if (config.error) {
-    console.error(`Failed to parse tsconfig: ${tsConfig} (${diagnosticToString(config.error)})`);
+    error(`Failed to parse tsconfig: ${tsConfig} (${diagnosticToString(config.error)})`);
     throw Error(diagnosticToString(config.error));
   }
 
@@ -153,7 +160,7 @@ export function createProgram(tsConfig: string, tsconfigContents?: string): Prog
   for (const reference of inputProjectReferences) {
     const sanitizedReference = addTsConfigIfDirectory(reference.path);
     if (!sanitizedReference) {
-      console.log(`WARN Skipping missing referenced tsconfig.json: ${reference.path}`);
+      warn(`Skipping missing referenced tsconfig.json: ${reference.path}`);
     } else {
       projectReferences.push(sanitizedReference);
     }

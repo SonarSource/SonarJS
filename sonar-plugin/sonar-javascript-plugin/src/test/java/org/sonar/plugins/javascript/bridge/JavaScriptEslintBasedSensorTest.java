@@ -444,7 +444,7 @@ class JavaScriptEslintBasedSensorTest {
 
   @Test
   void should_catch_if_bridge_server_not_started() throws Exception {
-    doThrow(new IllegalStateException("failed to start server"))
+    doThrow(new IllegalStateException("Failed to start the bridge server"))
       .when(bridgeServerMock)
       .startServerLazily(context);
 
@@ -452,8 +452,7 @@ class JavaScriptEslintBasedSensorTest {
     createInputFile(context);
     sensor.execute(context);
 
-    assertThat(logTester.logs(LoggerLevel.ERROR))
-      .contains("Failure during analysis, bridgeServerMock command info");
+    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Failure during analysis");
     assertThat(context.allIssues()).isEmpty();
   }
 
@@ -566,19 +565,6 @@ class JavaScriptEslintBasedSensorTest {
         "Skipping the start of the bridge server as it failed to start during the first analysis or it's not answering anymore",
         "No rules will be executed"
       );
-  }
-
-  @Test
-  void stop_analysis_if_server_is_not_responding() throws Exception {
-    when(bridgeServerMock.isAlive()).thenReturn(false);
-    var javaScriptEslintBasedSensor = createSensor();
-    createInputFile(context);
-    javaScriptEslintBasedSensor.execute(context);
-    final var logAndArguments = logTester.getLogs(Level.ERROR).get(0);
-    assertThat(logAndArguments.getFormattedMsg())
-      .isEqualTo("Failure during analysis, bridgeServerMock command info");
-    assertThat(logAndArguments.getThrowable().getMessage())
-      .isEqualTo("the bridge server is not answering");
   }
 
   @Test

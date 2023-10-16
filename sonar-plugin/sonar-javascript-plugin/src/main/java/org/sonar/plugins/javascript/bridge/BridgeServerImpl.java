@@ -140,7 +140,7 @@ public class BridgeServerImpl implements BridgeServer {
   }
 
   void heartbeat() {
-    LOG.trace("Pinging the server");
+    LOG.trace("Pinging the bridge server");
     isAlive();
   }
 
@@ -189,12 +189,14 @@ public class BridgeServerImpl implements BridgeServer {
       .collect(Collectors.joining(File.pathSeparator));
     initNodeCommand(context, scriptFile, context.fileSystem().workDir(), bundles);
 
-    LOG.debug("Starting Node.js process to start the bridge server at port " + port);
+    LOG.debug("Creating Node.js process to start the bridge server on port " + port);
     nodeCommand.start();
 
     if (!waitServerToStart(timeoutSeconds * 1000)) {
       status = Status.FAILED;
-      throw new NodeCommandException("Failed to start server (" + timeoutSeconds + "s timeout)");
+      throw new NodeCommandException(
+        "Failed to start the bridge server (" + timeoutSeconds + "s timeout)"
+      );
     } else {
       serverHasStarted();
     }
@@ -284,12 +286,12 @@ public class BridgeServerImpl implements BridgeServer {
     if (providedPort != 0) {
       port = providedPort;
       serverHasStarted();
-      LOG.info("Will use existing Node.js process in port " + port);
+      LOG.info("Using existing Node.js process on port " + port);
     }
 
     try {
       if (isAlive()) {
-        LOG.debug("the bridge server is up, no need to start.");
+        LOG.debug("The bridge server is up, no need to start.");
         return;
       } else if (status == Status.STARTED) {
         status = Status.FAILED;
@@ -390,11 +392,7 @@ public class BridgeServerImpl implements BridgeServer {
     } catch (InterruptedException e) {
       throw handleInterruptedException(e, "Request " + endpoint + " was interrupted.");
     } catch (IOException e) {
-      String msg =
-        "the bridge Node.js process is unresponsive. This is most likely caused by process running out of memory." +
-        " Consider setting sonar.javascript.node.maxspace to higher value (e.g. 4096).";
-      LOG.error(msg);
-      throw new IllegalStateException("the bridge is unresponsive", e);
+      throw new IllegalStateException("The bridge server is unresponsive", e);
     }
   }
 
@@ -510,7 +508,7 @@ public class BridgeServerImpl implements BridgeServer {
       try {
         request("", "close");
       } catch (IOException e) {
-        LOG.warn("Failed to close server", e);
+        LOG.warn("Failed to close the bridge server", e);
       }
       nodeCommand.waitFor();
       nodeCommand = null;
@@ -531,7 +529,7 @@ public class BridgeServerImpl implements BridgeServer {
     if (nodeCommand == null) {
       return "Node.js command to start the bridge server was not built yet.";
     } else {
-      return "Node.js command to start the bridge was: " + nodeCommand;
+      return "Node.js command to start the bridge server was: " + nodeCommand;
     }
   }
 

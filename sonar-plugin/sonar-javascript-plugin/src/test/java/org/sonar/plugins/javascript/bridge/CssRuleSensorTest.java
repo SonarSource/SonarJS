@@ -302,15 +302,6 @@ class CssRuleSensorTest {
   }
 
   @Test
-  void analysis_stop_when_server_is_not_anymore_alive() {
-    addInputFile("file.css");
-    when(bridgeServerMock.isAlive()).thenReturn(false);
-    sensor.execute(context);
-    assertThat(logTester.logs(LoggerLevel.ERROR))
-      .contains("Failure during analysis, bridgeServerMock command info");
-  }
-
-  @Test
   void should_stop_execution_when_sensor_context_is_cancelled() {
     addInputFile("file.css");
     context.setCancelled(true);

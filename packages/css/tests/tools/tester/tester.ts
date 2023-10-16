@@ -29,7 +29,7 @@ export type InvalidAssertion = {
 class StylelintRuleTester {
   private readonly config: stylelint.Config;
 
-  constructor(rule: { ruleName: string; rule: stylelint.Rule<any, any> }) {
+  constructor(rule: { ruleName: string; rule: stylelint.Rule }) {
     stylelint.rules[rule.ruleName] = rule.rule;
     this.config = { rules: { [rule.ruleName]: true } };
   }

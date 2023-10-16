@@ -115,14 +115,14 @@ public class NodeCommand {
       if (success) {
         exitValue = processWrapper.exitValue(process);
       } else {
-        LOG.error("Node process did not stop in a timely fashion");
+        LOG.error("Node.js process did not stop in a timely fashion");
         processWrapper.destroyForcibly(process);
         exitValue = -1;
       }
       return exitValue;
     } catch (InterruptedException e) {
       processWrapper.interrupt();
-      LOG.error("Interrupted while waiting for process to terminate.");
+      LOG.error("Interrupted while waiting for Node.js process to terminate.");
       return 1;
     }
   }

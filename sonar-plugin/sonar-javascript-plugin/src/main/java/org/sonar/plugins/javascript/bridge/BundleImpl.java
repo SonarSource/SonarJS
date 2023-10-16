@@ -54,10 +54,10 @@ public class BundleImpl implements Bundle {
   @Override
   public void deploy(Path deployLocation) throws IOException {
     PROFILER.startDebug("Deploying bundle");
-    LOG.debug("Deploying the bridge into {}", deployLocation);
+    LOG.debug("Deploying the bridge server into {}", deployLocation);
     InputStream bundle = getClass().getResourceAsStream(bundleLocation);
     if (bundle == null) {
-      throw new IllegalStateException("the bridge not found in plugin jar");
+      throw new IllegalStateException("The bridge server was not found in the plugin jar");
     }
     BundleUtils.extractFromClasspath(bundle, deployLocation);
     this.deployLocation = deployLocation;
