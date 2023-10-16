@@ -67,6 +67,7 @@ public final class CheckList {
       ArgumentsUsageCheck.class,
       AriaProptypesCheck.class,
       AriaRoleCheck.class,
+      AriaUnsupportedElementsCheck.class,
       ArithmeticOperationReturningNanCheck.class,
       ArrayCallbackWithoutReturnCheck.class,
       ArrayConstructorsCheck.class,
