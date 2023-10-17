@@ -1,0 +1,28 @@
+{
+  "title": "Focusable elements should not have \"aria-hidden\" attribute",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "a11y",
+    "react"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6825",
+  "sqKey": "S6825",
+  "scope": "All",
+  "quickfix": "targeted",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "MEDIUM"
+    },
+    "attribute": "CONVENTIONAL"
+  },
+ "compatibleLanguages": [
+   "JAVASCRIPT",
+   "TYPESCRIPT"
+ ]
+}
