@@ -233,6 +233,7 @@ public final class CheckList {
       NoAccessorFieldMismatchCheck.class,
       NoAngularBypassSanitizationCheck.class,
       NoAnyCheck.class,
+      NoAriaHiddenOnFocusableCheck.class,
       NoArrayDeleteCheck.class,
       NoArrayIndexKeyCheck.class,
       NoBaseToStringCheck.class,
