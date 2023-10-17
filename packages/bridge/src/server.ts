@@ -32,7 +32,11 @@ import { debug, getContext } from '@sonar/shared/helpers';
 import { timeoutMiddleware } from './timeout';
 import { AddressInfo } from 'net';
 import { Worker } from 'worker_threads';
-import { logMemoryConfiguration, logMemoryError } from './memory';
+import {
+  registerGarbageCollectionObserver,
+  logMemoryConfiguration,
+  logMemoryError,
+} from './memory';
 
 /**
  * The maximum request body size
@@ -73,7 +77,7 @@ let worker: Worker;
  * which embeds it or directly with SonarLint.
  *
  * @param port the port to listen to
- * @param host only for usage from outside of NodeJS - Java plugin, SonarLint, ...
+ * @param host only for usage from outside of Node.js - Java plugin, SonarLint, ...
  * @param timeout timeout in ms to shut down the server if unresponsive
  * @returns an http server
  */
@@ -83,6 +87,9 @@ export function start(
   timeout = SHUTDOWN_TIMEOUT,
 ): Promise<http.Server> {
   logMemoryConfiguration();
+  if (getContext().debugMemory) {
+    registerGarbageCollectionObserver();
+  }
   return new Promise(resolve => {
     debug('Starting the bridge server');
 
@@ -145,7 +152,7 @@ export function start(
     });
 
     server.on('close', () => {
-      debug('The bridge server shutted down');
+      debug('The bridge server shut down');
       orphanTimeout.stop();
     });
 

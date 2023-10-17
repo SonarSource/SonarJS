@@ -6,7 +6,8 @@ const host = process.argv[3];
 
 console.log(`allowTsParserJsFiles: ${process.argv[5]}`);
 console.log(`sonarlint: ${process.argv[6]}`);
-console.log(`additional rules: [${process.argv[7]}]`);
+console.log(`debugMemory: ${process.argv[7]}`);
+console.log(`additional rules: [${process.argv[8]}]`);
 
 const requestHandler = (request, response) => {
   let data = "";

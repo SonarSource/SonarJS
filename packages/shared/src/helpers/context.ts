@@ -30,6 +30,7 @@ export interface Context {
   workDir: string;
   shouldUseTypeScriptParserForJS: boolean;
   sonarlint: boolean;
+  debugMemory?: boolean;
   bundles: string[];
 }
 
