@@ -1,0 +1,29 @@
+{
+  "title": "DOM elements with the `aria-activedescendant` property must be tabbable",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "react",
+    "a11y"
+  ],
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-6823",
+  "sqKey": "S6823",
+  "scope": "All",
+  "defaultQualityProfiles": ["Sonar way"],
+  "quickfix": "targeted",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "MEDIUM"
+    },
+    "attribute": "CONVENTIONAL"
+  },
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]
+}
