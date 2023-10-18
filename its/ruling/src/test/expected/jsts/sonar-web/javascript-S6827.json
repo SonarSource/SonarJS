@@ -1,24 +1,4 @@
 {
-"sonar-web:src/main/js/apps/background-tasks/stats.js": [
-40
-],
-"sonar-web:src/main/js/apps/background-tasks/tasks.js": [
-88
-],
-"sonar-web:src/main/js/apps/global-permissions/permission-groups.js": [
-10
-],
-"sonar-web:src/main/js/apps/global-permissions/permission-users.js": [
-10
-],
-"sonar-web:src/main/js/apps/permission-templates/permission-template.js": [
-77,
-85
-],
-"sonar-web:src/main/js/apps/project-permissions/project.js": [
-54,
-62
-],
 "sonar-web:src/main/js/components/shared/checkbox.js": [
 35
 ]
