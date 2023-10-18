@@ -65,6 +65,7 @@ public final class CheckList {
       ArgumentTypesCheck.class,
       ArgumentsCallerCalleeUsageCheck.class,
       ArgumentsUsageCheck.class,
+      AriaActivedescendantHasTabindexCheck.class,
       AriaProptypesCheck.class,
       AriaRoleCheck.class,
       AriaUnsupportedElementsCheck.class,
