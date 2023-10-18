@@ -266,6 +266,8 @@ class EslintBasedRulesTest {
       .setSourceEncoding("UTF-8")
       .setSourceDirs(".")
       .setProperty("sonar.javascript.node.maxspace", "500000")
+      .setProperty("sonar.javascript.node.debugMemory", "true")
+      .setDebugLogs(true)
       .setProjectDir(projectDir);
 
     var buildResult = orchestrator.executeBuild(build);
@@ -281,6 +283,7 @@ class EslintBasedRulesTest {
       Pattern.DOTALL
     );
     assertThat(buildResult.getLogs()).matches(warn);
+    assertThat(buildResult.getLogs()).contains("used_heap_size");
   }
 
   @NotNull

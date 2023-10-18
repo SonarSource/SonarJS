@@ -21,7 +21,9 @@
 import * as v8 from 'v8';
 import * as os from 'os';
 import fs from 'fs';
-import { error, info, warn } from '@sonar/shared/helpers';
+import { debug, error, getContext, info, warn } from '@sonar/shared/helpers';
+import { constants, PerformanceObserver } from 'node:perf_hooks';
+import { NodeGCPerformanceDetail } from 'perf_hooks';
 
 const MB = 1024 * 1024;
 
@@ -81,5 +83,28 @@ export function logMemoryError(err: any) {
       error(`The analysis will stop due to an unexpected error: ${err}`);
       error('Please report the issue at https://community.sonarsource.com');
       break;
+  }
+}
+
+export function registerGarbageCollectionObserver() {
+  const obs = new PerformanceObserver(items => {
+    items
+      .getEntries()
+      .filter(
+        item =>
+          (item.detail as NodeGCPerformanceDetail)?.kind === constants.NODE_PERFORMANCE_GC_MAJOR,
+      )
+      .forEach(item => {
+        debug(`Major GC event`);
+        debug(JSON.stringify(item));
+        logHeapStatistics();
+      });
+  });
+  obs.observe({ entryTypes: ['gc'] });
+}
+
+export function logHeapStatistics() {
+  if (getContext().debugMemory) {
+    debug(JSON.stringify(v8.getHeapStatistics()));
   }
 }

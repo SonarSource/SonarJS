@@ -650,6 +650,17 @@ class BridgeServerImplTest {
   }
 
   @Test
+  void should_pass_debug_memory_option() throws Exception {
+    bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
+    bridgeServer.deploy();
+    context.setSettings(new MapSettings().setProperty("sonar.javascript.node.debugMemory", "true"));
+    bridgeServer.startServer(context, Arrays.asList(Paths.get("bundle1"), Paths.get("bundle2")));
+    bridgeServer.stop();
+
+    assertThat(logTester.logs()).contains("debugMemory: true");
+  }
+
+  @Test
   void should_use_default_timeout() {
     bridgeServer =
       new BridgeServerImpl(

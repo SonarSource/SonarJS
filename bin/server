@@ -20,11 +20,12 @@ const host = process.argv[3];
 const workDir = process.argv[4];
 const shouldUseTypeScriptParserForJS = process.argv[5] !== 'false';
 const sonarlint = process.argv[6] === 'true';
+const debugMemory = process.argv[7] === 'true';
 
 let bundles = [];
-if (process.argv[7]) {
-  bundles = process.argv[7].split(path.delimiter);
+if (process.argv[8]) {
+  bundles = process.argv[8].split(path.delimiter);
 }
 
-context.setContext({ workDir, shouldUseTypeScriptParserForJS, sonarlint, bundles });
+context.setContext({ workDir, shouldUseTypeScriptParserForJS, sonarlint, debugMemory, bundles });
 server.start(Number.parseInt(port), host).catch(() => {});
