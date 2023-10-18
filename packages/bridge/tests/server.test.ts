@@ -146,7 +146,7 @@ describe('server', () => {
     await new Promise(r => setTimeout(r, 600));
     expect(server.listening).toBeFalsy();
 
-    expect(console.log).toHaveBeenCalledWith('DEBUG The bridge server shutted down');
+    expect(console.log).toHaveBeenCalledWith('DEBUG The bridge server shut down');
   });
 });
 

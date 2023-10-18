@@ -35,6 +35,7 @@ const { analyzeCSS } = require('@sonar/css');
 const { analyzeHTML } = require('@sonar/html');
 const { analyzeYAML } = require('@sonar/yaml');
 const { APIError, ErrorCode } = require('@sonar/shared/errors');
+const { logHeapStatistics } = require('@sonar/bridge/memory');
 
 /**
  * Delegate the handling of an HTTP request to a worker thread
@@ -109,6 +110,7 @@ if (parentPort) {
 
         case 'on-create-program': {
           const { tsConfig } = data;
+          logHeapStatistics();
           const { programId, files, projectReferences, missingTsConfig } =
             createAndSaveProgram(tsConfig);
           parentThread.postMessage({
@@ -128,6 +130,7 @@ if (parentPort) {
         case 'on-delete-program': {
           const { programId } = data;
           deleteProgram(programId);
+          logHeapStatistics();
           parentThread.postMessage({ type: 'success', result: 'OK!' });
           break;
         }

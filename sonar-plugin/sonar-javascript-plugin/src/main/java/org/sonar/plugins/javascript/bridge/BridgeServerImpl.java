@@ -71,6 +71,7 @@ public class BridgeServerImpl implements BridgeServer {
   // internal property to set "--max-old-space-size" for Node process running this server
   private static final String MAX_OLD_SPACE_SIZE_PROPERTY = "sonar.javascript.node.maxspace";
   private static final String ALLOW_TS_PARSER_JS_FILES = "sonar.javascript.allowTsParserJsFiles";
+  private static final String DEBUG_MEMORY = "sonar.javascript.node.debugMemory";
   public static final String SONARJS_EXISTING_NODE_PROCESS_PORT =
     "SONARJS_EXISTING_NODE_PROCESS_PORT";
   private static final Gson GSON = new Gson();
@@ -183,13 +184,12 @@ public class BridgeServerImpl implements BridgeServer {
       );
     }
 
+    LOG.debug("Creating Node.js process to start the bridge server on port " + port);
     String bundles = deployedBundles
       .stream()
       .map(Path::toString)
       .collect(Collectors.joining(File.pathSeparator));
-    initNodeCommand(context, scriptFile, context.fileSystem().workDir(), bundles);
-
-    LOG.debug("Creating Node.js process to start the bridge server on port " + port);
+    nodeCommand = initNodeCommand(context, scriptFile, bundles);
     nodeCommand.start();
 
     if (!waitServerToStart(timeoutSeconds * 1000)) {
@@ -221,24 +221,21 @@ public class BridgeServerImpl implements BridgeServer {
     return true;
   }
 
-  private void initNodeCommand(
-    SensorContext context,
-    File scriptFile,
-    File workDir,
-    String bundles
-  ) throws IOException {
-    boolean allowTsParserJsFiles = context
-      .config()
-      .getBoolean(ALLOW_TS_PARSER_JS_FILES)
-      .orElse(true);
-    boolean isSonarLint = context.runtime().getProduct() == SonarProduct.SONARLINT;
+  private NodeCommand initNodeCommand(SensorContext context, File scriptFile, String bundles)
+    throws IOException {
+    var workdir = context.fileSystem().workDir().getAbsolutePath();
+    var config = context.config();
+    var allowTsParserJsFiles = config.getBoolean(ALLOW_TS_PARSER_JS_FILES).orElse(true);
+    var isSonarLint = context.runtime().getProduct() == SonarProduct.SONARLINT;
     if (isSonarLint) {
       LOG.info("Running in SonarLint context, metrics will not be computed.");
     }
+    var debugMemory = config.getBoolean(DEBUG_MEMORY).orElse(false);
+
+    // enable per rule performance tracking https://eslint.org/docs/1.0.0/developer-guide/working-with-rules#per-rule-performance
     var outputConsumer = monitoring.isMonitoringEnabled()
       ? new LogOutputConsumer().andThen(new MonitoringOutputConsumer(monitoring))
       : new LogOutputConsumer();
-    // enable per rule performance tracking https://eslint.org/docs/1.0.0/developer-guide/working-with-rules#per-rule-performance
 
     nodeCommandBuilder
       .outputConsumer(outputConsumer)
@@ -250,9 +247,10 @@ public class BridgeServerImpl implements BridgeServer {
       .scriptArgs(
         String.valueOf(port),
         hostAddress,
-        workDir.getAbsolutePath(),
+        workdir,
         String.valueOf(allowTsParserJsFiles),
         String.valueOf(isSonarLint),
+        String.valueOf(debugMemory),
         bundles
       )
       .env(getEnv());
@@ -262,7 +260,7 @@ public class BridgeServerImpl implements BridgeServer {
       .getInt(MAX_OLD_SPACE_SIZE_PROPERTY)
       .ifPresent(nodeCommandBuilder::maxOldSpaceSize);
 
-    nodeCommand = nodeCommandBuilder.build();
+    return nodeCommandBuilder.build();
   }
 
   private Map<String, String> getEnv() {
