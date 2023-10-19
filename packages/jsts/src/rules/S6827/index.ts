@@ -17,4 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export { rule } from './rule';
+// https://sonarsource.github.io/rspec/#/rspec/S6727/javascript
+
+import { rules as jsxA11yRules } from 'eslint-plugin-jsx-a11y';
+import { decorate } from './decorator';
+
+export const rule = decorate(jsxA11yRules['anchor-has-content']);
