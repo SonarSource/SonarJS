@@ -42,7 +42,7 @@ export function logMemoryConfiguration() {
 
 function readDockerMemoryLimit() {
   return (
-    readDockerMemoryLimitFrom('/sys/fs/cgroup/memory.max') ||
+    readDockerMemoryLimitFrom('/sys/fs/cgroup/memory.max') ??
     readDockerMemoryLimitFrom('/sys/fs/cgroup/memory.limit_in_bytes')
   );
 }
