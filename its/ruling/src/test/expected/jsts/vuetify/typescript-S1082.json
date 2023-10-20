@@ -1,0 +1,24 @@
+{
+"vuetify:packages/vuetify/src/components/VChip/VChip.tsx": [
+279
+],
+"vuetify:packages/vuetify/src/components/VColorPicker/VColorPickerCanvas.tsx": [
+180
+],
+"vuetify:packages/vuetify/src/components/VColorPicker/VColorPickerSwatches.tsx": [
+70
+],
+"vuetify:packages/vuetify/src/components/VField/VField.tsx": [
+212
+],
+"vuetify:packages/vuetify/src/components/VNavigationDrawer/VNavigationDrawer.tsx": [
+265
+],
+"vuetify:packages/vuetify/src/components/VSlideGroup/VSlideGroup.tsx": [
+355,
+393
+],
+"vuetify:packages/vuetify/src/components/VSwitch/VSwitch.tsx": [
+118
+]
+}
