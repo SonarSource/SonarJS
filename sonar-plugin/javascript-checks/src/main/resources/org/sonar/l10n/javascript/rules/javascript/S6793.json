@@ -8,13 +8,12 @@
   },
   "tags": [
     "react",
-    "a11y"
+    "accessibility"
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-6793",
   "sqKey": "S6793",
   "scope": "All",
-  "defaultQualityProfiles": ["Sonar way"],
   "quickfix": "infeasible",
   "code": {
     "impacts": {

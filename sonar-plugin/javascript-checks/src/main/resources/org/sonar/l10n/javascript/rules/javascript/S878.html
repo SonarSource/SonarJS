@@ -1,24 +1,32 @@
 <h2>Why is this an issue?</h2>
-<p>The comma operator takes two expressions, executes them from left to right and returns the result of the second one. Use of this operator is
+<p>The comma operator takes two expressions, executes them from left to right, and returns the result of the second one. The use of this operator is
 generally detrimental to the readability and reliability of code, and the same effect can be achieved by other means.</p>
-<h3>Noncompliant code example</h3>
 <pre>
-i = a += 2, a + b;  // What's the value of i ?
+i = a += 2, a + b;  // Noncompliant: What's the value of i ?
 </pre>
-<h3>Compliant solution</h3>
+<p>Writing each expression on its own line will improve readability and might fix misunderstandings.</p>
 <pre>
-a +=  2;
-i = a + b;
+a += 2;
+i = a + b; // We probably expected to assign the result of the addition to i, although the previous code wasn't doing it.
 </pre>
 <h3>Exceptions</h3>
-<p>Use of comma operator is tolerated:</p>
+<p>The comma operator is tolerated:</p>
 <ul>
-  <li> in initialization and increment expressions of <code>for</code> loops. </li>
+  <li> In initializations and increment expressions of <code>for</code> loops. </li>
 </ul>
 <pre>
-for(i = 0, j = 5; i &lt; 6; i++, j++) { ... }
+for (i = 0, j = 5; i &lt; 6; i++, j++) { ... }
 </pre>
 <ul>
   <li> If the expression sequence is explicitly wrapped in parentheses. </li>
+</ul>
+<pre>
+i = (a += 2, a + b); // Compliant by exception
+</pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> MDN web docs - <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Comma_operator">Comma operator (,)</a>
+  </li>
 </ul>
 

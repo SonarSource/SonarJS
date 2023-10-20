@@ -1,23 +1,26 @@
+<p>A magic number is a hard-coded numerical value that may lack context or meaning. They should not be used because they can make the code less
+readable and maintainable.</p>
 <h2>Why is this an issue?</h2>
-<p>A magic number is a number that comes out of nowhere, and is directly used in a statement. Magic numbers are often used, for instance to limit the
-number of iterations of a loop, to test the value of a property, etc.</p>
-<p>Using magic numbers may seem obvious and straightforward when you’re writing a piece of code, but they are much less obvious and straightforward at
-debugging time.</p>
-<p>That is why magic numbers must be demystified by first being assigned to clearly named variables before being used.</p>
-<p>-1, 0 and 1 are not considered magic numbers.</p>
-<h3>Noncompliant code example</h3>
-<pre>
+<p>Magic numbers make the code more complex to understand as it requires the reader to have knowledge about the global context to understand the
+number itself. Their usage may seem obvious when writing the code, but it may not be the case for another developer or later once the context faded
+away. -1, 0, and 1 are not considered magic numbers.</p>
+<h2>How to fix it</h2>
+<p>Replacing them with a constant allows us to provide a meaningful name associated with the value. Instead of adding complexity to the code, it
+brings clarity and helps to understand the context and the global meaning.</p>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
 function doSomething() {
-  for (let i = 0; i &lt; 4; i++) {    // Noncompliant, 4 is a magic number
+  for (let i = 0; i &lt; 4; i++) { // Noncompliant, 4 is a magic number
     // ...
   }
 }
 </pre>
-<h3>Compliant solution</h3>
-<pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
 function doSomething() {
   const numberOfCycles = 4;
-  for (let i = 0; i &lt; numberOfCycles; i++) {
+  for (let i = 0; i &lt; numberOfCycles; i++) { // Compliant
     // ...
   }
 }

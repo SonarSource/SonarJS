@@ -1,50 +1,56 @@
 <h2>Why is this an issue?</h2>
-<p>Empty functions can be a sign of poor code quality and can make the code harder to read and maintain. It usually happens when a developer forgets
-to add any statements to it, or when a function is no longer needed but is not removed from the codebase. In these cases when it is an unintentional
-omission, it should be fixed to prevent an unexpected behavior in production.</p>
-<pre data-diff-id="1" data-diff-type="noncompliant">
-function foo() { //Noncompliant: Function does not have any statement
-}
-</pre>
-<p>Ensure that all functions contain meaningful statements. Otherwise, they should be removed.</p>
-<pre data-diff-id="1" data-diff-type="compliant">
-function foo() {
-    do_something();
-}
-</pre>
-<p>Throw an exception if it is done intentionally due to some functionality not being supported yet.</p>
-<pre data-diff-id="1" data-diff-type="compliant">
-function foo() {
-    throw new Error("Not yet implemented");
-}
-</pre>
-<h3>Exceptions</h3>
+<p>An empty method is generally considered bad practice and can lead to confusion, readability, and maintenance issues. Empty methods bring no
+functionality and are misleading to others as they might think the method implementation fulfills a specific and identified requirement.</p>
+<p>There are several reasons for a method not to have a body:</p>
 <ul>
-  <li> This rule does not apply to functions containing comments. The comment should explain the reason for the intention of the blank override. </li>
+  <li> It is an unintentional omission, and should be fixed to prevent an unexpected behavior in production. </li>
+  <li> It is not yet, or never will be, supported. In this case an exception should be thrown. </li>
+  <li> The method is an intentionally-blank override. In this case a nested comment should explain the reason for the blank override. </li>
 </ul>
-<pre>
-function foo() {
-    // This is intentional
-}
-</pre>
+<h3>Exceptions</h3>
+<p>This does not raise an issue in the following cases:</p>
 <ul>
-  <li> This rule does not apply to function expressions and arrow functions as they can denote default values. </li>
+  <li> Function expressions and arrow functions as they can denote default values </li>
+  <li> Empty functions with a name starting with the prefix <code>on</code> like <code>onClick</code>. </li>
 </ul>
 <pre>
 static defaultProps = {
   listStyle: () =&gt; {}
 };
-</pre>
-<ul>
-  <li> The rule allows for empty functions with a name starting with the prefix <code>on</code> like <code>onClick</code>. </li>
-</ul>
-<pre>
+
 function onClick() {
+}
+</pre>
+<h2>How to fix it</h2>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+function shouldNotBeEmpty() {  // Noncompliant - method is empty
+}
+
+function notImplemented() {  // Noncompliant - method is empty
+}
+
+function emptyOnPurpose() {  // Noncompliant - method is empty
+}
+</pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+function shouldNotBeEmpty() {
+  doSomething();
+}
+
+function notImplemented() {
+  throw new Error("notImplemented() cannot be performed because ...");
+}
+
+function emptyOnPurpose() {
+  // comment explaining why the method is empty
 }
 </pre>
 <h2>Resources</h2>
 <h3>Documentation</h3>
 <ul>
-  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Functions">MDN - Functions</a> </li>
+  <li> MDN web docs - <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Functions">Functions</a> </li>
 </ul>
 

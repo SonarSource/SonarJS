@@ -1,24 +1,33 @@
 <h2>Why is this an issue?</h2>
-<p><code>readonly</code> properties can only be assigned in a class constructor or at the point of declaration. If a class has a property that’s not
-marked <code>readonly</code> but is only set in the constructor, it could cause confusion about the property’s intended use. To avoid confusion, such
-properties should be marked <code>readonly</code> to make their intended use explicit, and to prevent future maintainers from inadvertently changing
-their use.</p>
-<h3>Noncompliant code example</h3>
-<pre>
+<p><code>readonly</code> fields can only be assigned in a class constructor. If a class has a field that’s not marked <code>readonly</code> but is
+only set in the constructor, it could cause confusion about the field’s intended use. To avoid confusion, such fields should be marked
+<code>readonly</code> to make their intended use explicit, and to prevent future maintainers from inadvertently changing their use.</p>
+<h2>How to fix it</h2>
+<p>Mark the given field with the <code>readonly</code> modifier.</p>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
 class Person {
-  private _birthYear: number;  // Noncompliant
+  private birthYear: number; // Noncompliant
+
   constructor(birthYear: number) {
-    this._birthYear = birthYear;
+    this.birthYear = birthYear;
   }
 }
 </pre>
-<h3>Compliant solution</h3>
-<pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
 class Person {
-  private readonly _birthYear: number;
+  private readonly birthYear: number;
+
   constructor(birthYear: number) {
-    this._birthYear = birthYear;
+    this.birthYear = birthYear;
   }
 }
 </pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> TypeScript Documentation - <a href="https://www.typescriptlang.org/docs/handbook/2/classes.html#readonly">readonly</a> </li>
+</ul>
 

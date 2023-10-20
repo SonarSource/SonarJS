@@ -10,7 +10,7 @@
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
-    "constantCost": "2min"
+    "constantCost": "1min"
   },
   "tags": [
     "unused"

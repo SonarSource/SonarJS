@@ -1,5 +1,5 @@
 {
-  "title": "Collapsible \"if\" statements should be merged",
+  "title": "Mergeable \"if\" statements should be combined",
   "type": "CODE_SMELL",
   "code": {
     "impacts": {

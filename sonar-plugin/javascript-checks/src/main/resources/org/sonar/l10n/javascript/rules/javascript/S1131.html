@@ -1,10 +1,8 @@
 <p>This rule is deprecated, and will eventually be removed.</p>
 <h2>Why is this an issue?</h2>
-<p>Trailing whitespaces are simply useless and should not stay in code. They may generate noise when comparing different versions of the same
-file.</p>
-<p>If you encounter issues from this rule, this probably means that you are not using an automated code formatter - which you should if you have the
-opportunity to do so.</p>
-<h3>Noncompliant code example</h3>
+<p>Trailing whitespaces bring no information, they may generate noise when comparing different versions of the same file, and they can create bugs
+when they appear after a <code>\</code> marking a line continuation. They should be systematically removed.</p>
+<p>An automated code formatter allows to completely avoid this family of issues and should be used wherever possible.</p>
 <pre>
 // The following string will error if there is a whitespace after '\'
 var str = "Hello \

@@ -7,7 +7,7 @@
     "constantCost": "5min"
   },
   "tags": [
-    "a11y",
+    "accessibility",
     "react"
   ],
   "defaultSeverity": "Major",
@@ -21,8 +21,8 @@
     },
     "attribute": "CONVENTIONAL"
   },
- "compatibleLanguages": [
-   "JAVASCRIPT",
-   "TYPESCRIPT"
- ]
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]
 }

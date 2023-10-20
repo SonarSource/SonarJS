@@ -1,15 +1,17 @@
 <h2>Why is this an issue?</h2>
-<p>While the ternary operator is pleasingly compact, its use can make code more difficult to read. It should therefore be avoided in favor of the more
-verbose <code>if</code>/<code>else</code> structure.</p>
-<h3>Noncompliant code example</h3>
-<pre>
+<p>Ternary expressions, while concise, can often lead to code that is difficult to read and understand, especially when they are nested or complex.
+Prioritizing readability fosters maintainability and reduces the likelihood of bugs. Therefore, they should be removed in favor of more explicit
+control structures, such as <code>if</code>/<code>else</code> statements, to improve the clarity and readability of the code.</p>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
 function foo(a) {
   var b = (a === 'A') ? 'is A' : 'is not A'; // Noncompliant
   // ...
 }
 </pre>
-<h3>Compliant solution</h3>
-<pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
 function foo(a) {
   var b;
   if (a === 'A') {

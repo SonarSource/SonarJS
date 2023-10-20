@@ -14,7 +14,6 @@
   "ruleSpecification": "RSPEC-6827",
   "sqKey": "S6827",
   "scope": "All",
-  "defaultQualityProfiles": ["Sonar way"],
   "quickfix": "infeasible",
   "code": {
     "impacts": {

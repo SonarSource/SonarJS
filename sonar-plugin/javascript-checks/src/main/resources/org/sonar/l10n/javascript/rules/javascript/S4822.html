@@ -20,9 +20,9 @@ function foo() {
   runPromiseThatRejects().catch(e =&gt; console.log("Failed to run promise", e));
 }
 </pre>
-<p>Alternatively, wait for the Promise fulfillment value using <code>await</code>. <code>await</code> is used to unwrap promises. <code>await</code>
-pauses the execution of its surrounding <code>async</code> function until the promise is settled (that is, fulfilled or rejected). Any errors that
-occur within the Promise will be thrown as exceptions.</p>
+<p>Alternatively, wait for the Promise fulfillment value using <code>await</code>. It is used to unwrap promises and pauses the execution of its
+surrounding <code>async</code> function until the promise is settled (that is, fulfilled or rejected). Any errors that occur within the Promise will
+be thrown as exceptions.</p>
 <pre data-diff-id="1" data-diff-type="compliant">
 async function foo() {
   try {
@@ -37,11 +37,12 @@ it’s less likely that <code>catch</code> is intended to catch something else t
 <h2>Resources</h2>
 <h3>Documentation</h3>
 <ul>
-  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise">MDN - Promise</a> </li>
-  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/try...catch">MDN - <code>try...catch</code></a> </li>
-  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await">MDN - <code>await</code></a> </li>
-  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function">MDN - <code>async function</code></a>
+  <li> MDN web docs - <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise">Promise</a> </li>
+  <li> MDN web docs - <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/try...catch"><code>try...catch</code></a>
   </li>
-  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/API/HTML_DOM_API/Microtask_guide">MDN - Microtasks</a> </li>
+  <li> MDN web docs - <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await"><code>await</code></a> </li>
+  <li> MDN web docs - <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function"><code>async
+  function</code></a> </li>
+  <li> MDN web docs - <a href="https://developer.mozilla.org/en-US/docs/Web/API/HTML_DOM_API/Microtask_guide">Microtasks</a> </li>
 </ul>
 
