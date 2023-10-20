@@ -1,5 +1,4 @@
 {
-  "title": "Variables should not be shadowed",
   "type": "CODE_SMELL",
   "code": {
     "impacts": {
@@ -21,6 +20,7 @@
   "sqKey": "S1117",
   "scope": "Main",
   "quickfix": "unknown",
+  "title": "Variables should not be shadowed",
   "compatibleLanguages": [
     "JAVASCRIPT",
     "TYPESCRIPT"

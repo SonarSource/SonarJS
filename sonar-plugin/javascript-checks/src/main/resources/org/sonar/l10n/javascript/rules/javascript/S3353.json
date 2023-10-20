@@ -1,5 +1,5 @@
 {
-  "title": "Unchanged variables should be marked \"const\"",
+  "title": "Unchanged variables should be marked as \"const\"",
   "type": "CODE_SMELL",
   "code": {
     "impacts": {

@@ -1,5 +1,5 @@
 {
-  "title": "DOM elements with the `aria-activedescendant` property must be tabbable",
+  "title": "DOM elements with the `aria-activedescendant` property should be accessible via the tab key",
   "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
@@ -8,19 +8,18 @@
   },
   "tags": [
     "react",
-    "a11y"
+    "accessibility"
   ],
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-6823",
   "sqKey": "S6823",
   "scope": "All",
-  "defaultQualityProfiles": ["Sonar way"],
   "quickfix": "targeted",
   "code": {
     "impacts": {
       "RELIABILITY": "MEDIUM"
     },
-    "attribute": "CONVENTIONAL"
+    "attribute": "LOGICAL"
   },
   "compatibleLanguages": [
     "JAVASCRIPT",

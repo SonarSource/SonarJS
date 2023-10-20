@@ -1,31 +1,9 @@
 <h2>Why is this an issue?</h2>
 <p>Nested code blocks can be used to create a new scope: variables declared within that block cannot be accessed from the outside, and their lifetime
-end at the end of the block. However this only happens when you use ES6 <code>let</code> or <code>const</code> keywords, a class declaration or a
-function declaration (in strict mode). Otherwise the nested block is redundant and should be removed.</p>
-<p>The presense of redundant blocks (the ones which are not part of control flow and do not create a new scope) is confusing and may point to errors
-in the code.</p>
-<pre data-diff-id="1" data-diff-type="noncompliant">
-{   // Noncompliant: redundant code block
-    var foo = bar();
-}
-
-if (condition) {
-    doSomething();
-    {   // Noncompliant: redundant code block
-        doOtherStuff();
-    }
-}
-</pre>
-<p>To fix your code remove redundant blocks.</p>
-<pre data-diff-id="1" data-diff-type="compliant">
-var foo = bar();
-
-if (condition) {
-    doSomething();
-    doOtherStuff();
-}
-</pre>
+end at the end of the block. However, this only happens when you use ES6 <code>let</code> or <code>const</code> keywords, a class declaration or a
+function declaration (in strict mode). Otherwise, the nested block is redundant and should be removed.</p>
 <h3>Exceptions</h3>
+<p>The rule does not apply to the following cases:</p>
 <ul>
   <li> Block statements containing variable declarations using <code>let</code> or <code>const</code> keywords or class declarations are not redundant
   as they create a new scope. </li>
@@ -54,15 +32,41 @@ if (condition) {
     doSomething();
 }
 </pre>
+<h2>How to fix it</h2>
+<p>The nested code blocks should be extracted into separate methods.</p>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+{   // Noncompliant: redundant code block
+    var foo = bar();
+}
+
+if (condition) {
+    doSomething();
+    {   // Noncompliant: redundant code block
+        doOtherStuff();
+    }
+}
+</pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+var foo = bar();
+
+if (condition) {
+    doSomething();
+    doOtherStuff();
+}
+</pre>
 <h2>Resources</h2>
 <h3>Documentation</h3>
 <ul>
-  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/block">MDN - block statement</a> </li>
-  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/var">MDN - var</a> </li>
-  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/let">MDN - let</a> </li>
-  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/const">MDN - const</a> </li>
-  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/class">MDN - class declaration</a> </li>
-  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function">MDN - function declaration</a> </li>
-  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Strict_mode">MDN - strict mode</a> </li>
+  <li> Wikipedia - <a href="https://en.wikipedia.org/wiki/Single-responsibility_principle">Single Responsibility Principle</a> </li>
+  <li> MDN web docs - <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/block">block statement</a> </li>
+  <li> MDN web docs - <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/var">var</a> </li>
+  <li> MDN web docs - <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/let">let</a> </li>
+  <li> MDN web docs - <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/const">const</a> </li>
+  <li> MDN web docs - <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/class">class declaration</a> </li>
+  <li> MDN web docs - <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function">function declaration</a> </li>
+  <li> MDN web docs - <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Strict_mode">strict mode</a> </li>
 </ul>
 

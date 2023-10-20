@@ -33,7 +33,7 @@ setInterval(replaceThing, 1000);
 </pre>
 <h2>How to fix it</h2>
 <p>Usually, the fix for this issue is straightforward, you just need to remove the unused variable declaration, or its name from the declaration
-statement if it’s declared along with other variables.</p>
+statement if it is declared along with other variables.</p>
 <h3>Code examples</h3>
 <h4>Noncompliant code example</h4>
 <pre data-diff-id="1" data-diff-type="noncompliant">
@@ -60,9 +60,8 @@ const [, params] = url.split(path);
 <h2>Resources</h2>
 <h3>Documentation</h3>
 <ul>
-  <li> <a
-  href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment#ignoring_some_returned_values">MDN -
-  Destructuring assignment / Ignoring some values</a> </li>
+  <li> MDN web docs - <a
+  href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment#ignoring_some_returned_values">Destructuring assignment / Ignoring some values</a> </li>
 </ul>
 <h3>Articles &amp; blog posts</h3>
 <ul>

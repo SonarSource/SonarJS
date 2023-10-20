@@ -14,11 +14,9 @@
   "quickfix": "covered",
   "code": {
     "impacts": {
-      "MAINTAINABILITY": "HIGH",
-      "RELIABILITY": "MEDIUM",
-      "SECURITY": "LOW"
+      "MAINTAINABILITY": "LOW"
     },
-    "attribute": "CONVENTIONAL"
+    "attribute": "IDENTIFIABLE"
   },
   "compatibleLanguages": [
     "JAVASCRIPT",

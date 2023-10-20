@@ -1,5 +1,5 @@
 {
-  "title": "Private properties that are only assigned in the constructor or at declaration should be \"readonly\"",
+  "title": "Fields that are only assigned in the constructor should be \"readonly\"",
   "type": "CODE_SMELL",
   "code": {
     "impacts": {

@@ -16,11 +16,10 @@
   "quickfix": "covered",
   "code": {
     "impacts": {
-      "MAINTAINABILITY": "HIGH",
-      "RELIABILITY": "MEDIUM",
-      "SECURITY": "LOW"
+      "MAINTAINABILITY": "LOW",
+      "RELIABILITY": "LOW"
     },
-    "attribute": "CONVENTIONAL"
+    "attribute": "LOGICAL"
   },
   "compatibleLanguages": [
     "JAVASCRIPT",

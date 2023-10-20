@@ -4,6 +4,9 @@ prop requirements. However, it lacks of type safety and clarity when passing pro
 <p>By defining types for component props, developers can enforce type safety and provide clear documentation for the expected props of a component.
 This helps catch potential errors at compile-time. It also improves code maintainability by making it easier to understand how components should be
 used and what props they accept.</p>
+<h2>How to fix it</h2>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
 <pre data-diff-id="1" data-diff-type="noncompliant">
 import PropTypes from 'prop-types';
 
@@ -25,6 +28,7 @@ Hello.propTypes = {
   firstname: PropTypes.string.isRequired,
 };
 </pre>
+<h4>Compliant solution</h4>
 <pre data-diff-id="1" data-diff-type="compliant">
 import PropTypes from 'prop-types';
 
@@ -51,7 +55,7 @@ Hello.propTypes = {
 <h2>Resources</h2>
 <h3>Documentation</h3>
 <ul>
-  <li> <a href="https://react.dev/reference/react/Component#static-proptypes">React - static propTypes</a> </li>
-  <li> <a href="https://flow.org/en/docs/react/">Flow.js - React</a> </li>
+  <li> React Documentation - <a href="https://react.dev/reference/react/Component#static-proptypes">static propTypes</a> </li>
+  <li> Flow.js Documentation - <a href="https://flow.org/en/docs/react/">React</a> </li>
 </ul>
 

@@ -7,14 +7,14 @@
     "constantCost": "5min"
   },
   "tags": [
-    "a11y",
+    "accessibility",
     "react"
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-6822",
   "sqKey": "S6822",
   "scope": "All",
-  "quickfix": "infeasible",
+  "quickfix": "targeted",
   "code": {
     "impacts": {
       "MAINTAINABILITY": "LOW",

@@ -1,40 +1,36 @@
 <h2>Why is this an issue?</h2>
-<p>Declaring a variable only to immediately return or throw it is a bad practice.</p>
-<p>Some developers argue that the practice improves code readability, because it enables them to explicitly name what is being returned. However, this
-variable is an internal implementation detail that is not exposed to the callers of the method. The method name should be sufficient for callers to
-know exactly what will be returned.</p>
-<h3>Noncompliant code example</h3>
+<p>Declaring a variable only to immediately return or throw it is considered a bad practice because it adds unnecessary complexity to the code. This
+practice can make the code harder to read and understand, as it introduces an extra step that doesn’t add any value. Instead of declaring a variable
+and then immediately returning or throwing it, it is generally better to return or throw the value directly. This makes the code cleaner, simpler, and
+easier to understand.</p>
+<h2>How to fix it</h2>
+<p>Declaring a variable only to immediately return or throw it is considered a bad practice because it adds unnecessary complexity to the code. To fix
+the issue, return or throw the value directly.</p>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
 <pre data-diff-id="1" data-diff-type="noncompliant">
 function computeDurationInMilliseconds(hours, minutes, seconds) {
-  let duration = (((hours * 60) + minutes) * 60 + seconds ) * 1000;
+  const duration = (((hours * 60) + minutes) * 60 + seconds) * 1000;
   return duration;
 }
 </pre>
-<h3>Compliant solution</h3>
+<h4>Compliant solution</h4>
 <pre data-diff-id="1" data-diff-type="compliant">
 function computeDurationInMilliseconds(hours, minutes, seconds) {
-  return (((hours * 60) + minutes) * 60 + seconds ) * 1000;
+  return (((hours * 60) + minutes) * 60 + seconds) * 1000;
 }
 </pre>
-<h3>Noncompliant code example</h3>
+<h4>Noncompliant code example</h4>
 <pre data-diff-id="2" data-diff-type="noncompliant">
-async function foo () {
-  try {
-    const result = await bar();
-    return result;
-  } catch (e) {
-    handleError(e);
-  }
+function doSomething() {
+  const myError = new Error();
+  throw myError;
 }
 </pre>
-<h3>Compliant solution</h3>
+<h4>Compliant solution</h4>
 <pre data-diff-id="2" data-diff-type="compliant">
-async function foo () {
-  try {
-    return await bar();
-  } catch (e) {
-    handleError(e);
-  }
+function doSomething() {
+  throw new Error();
 }
 </pre>
 
