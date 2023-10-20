@@ -114,6 +114,7 @@ import { rule as S1439 } from './S1439'; // label-position
 import { rule as S5148 } from './S5148'; // link-with-target-blank
 import { rule as S4622 } from './S4622'; // max-union-size
 import { rule as S1994 } from './S1994'; // misplaced-loop-counter
+import { rule as S1082 } from './S1082'; // mouse-events-a11y
 import { rule as S134 } from './S134'; // nested-control-flow
 import { rule as S2430 } from './S2430'; // new-cap
 import { rule as S2999 } from './S2999'; // new-operator-misuse
@@ -389,6 +390,7 @@ rules['label-position'] = S1439;
 rules['link-with-target-blank'] = S5148;
 rules['max-union-size'] = S4622;
 rules['misplaced-loop-counter'] = S1994;
+rules['mouse-events-a11y'] = S1082;
 rules['nested-control-flow'] = S134;
 rules['new-cap'] = S2430;
 rules['new-operator-misuse'] = S2999;

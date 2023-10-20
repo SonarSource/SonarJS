@@ -224,6 +224,7 @@ public final class CheckList {
       MisorderedParameterListCheck.class,
       MissingNewlineAtEndOfFileCheck.class,
       MissingTrailingCommaCheck.class,
+      MouseEventsA11YCheck.class,
       MultilineBlockCurlyBraceCheck.class,
       MultilineStringLiteralsCheck.class,
       NestedAssignmentCheck.class,
