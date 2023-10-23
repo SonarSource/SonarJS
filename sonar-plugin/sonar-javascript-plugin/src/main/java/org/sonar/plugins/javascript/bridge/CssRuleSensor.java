@@ -211,7 +211,7 @@ public class CssRuleSensor extends AbstractBridgeSensor {
       .predicates()
       .and(
         fileSystem.predicates().hasType(InputFile.Type.MAIN),
-        fileSystem.predicates().hasLanguages(CssLanguage.KEY, "php", "web")
+        fileSystem.predicates().hasLanguages(CssLanguage.KEY)
       );
 
     FilePredicate vueFilePredicate = fileSystem

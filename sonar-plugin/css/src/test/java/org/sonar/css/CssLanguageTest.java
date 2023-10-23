@@ -33,6 +33,7 @@ class CssLanguageTest {
     CssLanguage language = new CssLanguage(settings.asConfig());
     assertThat(language.getKey()).isEqualTo("css");
     assertThat(language.getName()).isEqualTo("CSS");
-    assertThat(language.getFileSuffixes()).containsOnly(".css", ".less", ".scss");
+    assertThat(language.getFileSuffixes())
+      .containsOnly(".css", ".less", ".scss", ".sass", ".htm", ".html", ".xhtml");
   }
 }
