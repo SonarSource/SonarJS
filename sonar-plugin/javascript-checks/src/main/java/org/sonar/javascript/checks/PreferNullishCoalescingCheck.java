@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.checks;
 
+import com.google.gson.annotations.SerializedName;
 import java.util.Collections;
 import java.util.List;
 import org.sonar.check.Rule;
@@ -45,5 +46,18 @@ public class PreferNullishCoalescingCheck implements EslintBasedCheck {
     boolean ignoreTernaryTests = false;
     boolean ignoreMixedLogicalExpressions = true;
     boolean allowRuleToRunWithoutStrictNullChecksIKnowWhatIAmDoing = true;
+
+    IgnorePrimitives ignorePrimitives = new IgnorePrimitives();
+
+    private static class IgnorePrimitives {
+
+      boolean string = false;
+
+      @SerializedName(value = "boolean")
+      boolean bool = true;
+
+      boolean number = false;
+      boolean bigint = false;
+    }
   }
 }
