@@ -50,6 +50,23 @@ describe('analyzeCSS', () => {
     });
   });
 
+  it('should analyze sass syntax', async () => {
+    const filePath = path.join(__dirname, 'fixtures', 'file.sass');
+    await expect(
+      analyzeCSS(
+        await input(filePath, undefined, [
+          { key: 'selector-pseudo-element-no-unknown', configurations: [] },
+        ]),
+      ),
+    ).resolves.toEqual({
+      issues: [
+        expect.objectContaining({
+          ruleId: 'selector-pseudo-element-no-unknown',
+        }),
+      ],
+    });
+  });
+
   it('should analyze less syntax', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'file.less');
     await expect(analyzeCSS(await input(filePath, undefined, rules))).resolves.toEqual({
