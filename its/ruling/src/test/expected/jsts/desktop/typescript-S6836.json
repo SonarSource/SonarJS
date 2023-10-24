@@ -1,0 +1,76 @@
+{
+"desktop:app/src/lib/shells/win32.ts": [
+419,
+426,
+433,
+440,
+465,
+469
+],
+"desktop:app/src/lib/status.ts": [
+130
+],
+"desktop:app/src/lib/stores/app-store.ts": [
+6730
+],
+"desktop:app/src/lib/trampoline/trampoline-command-parser.ts": [
+73,
+83,
+84
+],
+"desktop:app/src/models/app-menu.ts": [
+220
+],
+"desktop:app/src/ui/about/about.tsx": [
+117
+],
+"desktop:app/src/ui/app.tsx": [
+1373,
+1412,
+1416,
+1449,
+1595,
+1680,
+1681,
+1927,
+1929,
+1974,
+1978,
+1979,
+1982,
+1986,
+1995
+],
+"desktop:app/src/ui/clone-repository/clone-repository.tsx": [
+300
+],
+"desktop:app/src/ui/diff/side-by-side-diff-row.tsx": [
+171
+],
+"desktop:app/src/ui/dispatcher/dispatcher.ts": [
+1818,
+1827,
+1828,
+1839,
+3704
+],
+"desktop:app/src/ui/drag-elements/commit-drag-element.tsx": [
+74,
+91,
+108
+],
+"desktop:app/src/ui/multi-commit-operation/base-multi-commit-operation.tsx": [
+157,
+216
+],
+"desktop:app/src/ui/sign-in/sign-in.tsx": [
+138
+],
+"desktop:app/src/ui/welcome/welcome.tsx": [
+141
+],
+"desktop:script/draft-release/version.ts": [
+48,
+64
+]
+}
