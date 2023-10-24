@@ -13,7 +13,8 @@
     "constantCost": "10min"
   },
   "tags": [
-    "regex"
+    "regex",
+    "type-dependent"
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-5850",

@@ -13,7 +13,8 @@
     "constantCost": "1min"
   },
   "tags": [
-    "confusing"
+    "confusing",
+    "type-dependent"
   ],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-4123",

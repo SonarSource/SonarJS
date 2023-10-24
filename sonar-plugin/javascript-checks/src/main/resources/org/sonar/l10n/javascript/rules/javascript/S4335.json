@@ -13,7 +13,8 @@
     "constantCost": "5min"
   },
   "tags": [
-    "pitfall"
+    "pitfall",
+    "type-dependent"
   ],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-4335",

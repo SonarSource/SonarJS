@@ -14,7 +14,8 @@
   },
   "tags": [
     "string",
-    "object"
+    "object",
+    "type-dependent"
   ],
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-6551",

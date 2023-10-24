@@ -13,7 +13,8 @@
     "constantCost": "5min"
   },
   "tags": [
-    "es2015"
+    "es2015",
+    "type-dependent"
   ],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-3525",

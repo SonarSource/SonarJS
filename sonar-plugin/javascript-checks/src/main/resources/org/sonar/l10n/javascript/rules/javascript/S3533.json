@@ -15,7 +15,8 @@
   "tags": [
     "convention",
     "es2015",
-    "obsolete"
+    "obsolete",
+    "type-dependent"
   ],
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-3533",

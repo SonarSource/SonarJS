@@ -14,7 +14,8 @@
   },
   "tags": [
     "es2015",
-    "unused"
+    "unused",
+    "type-dependent"
   ],
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-1128",
