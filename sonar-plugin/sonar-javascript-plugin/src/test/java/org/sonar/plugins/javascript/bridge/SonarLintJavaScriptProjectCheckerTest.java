@@ -69,7 +69,7 @@ class SonarLintProjectCheckerTest {
     assertThat(checker.isBeyondLimit()).isTrue();
     assertThat(logTester.logs())
       .contains(
-        "Turning off type-checking of JavaScript files due to the project size (4 files) exceeding the limit (3 files)",
+        "Turning off type-checking of JavaScript files due to the project size exceeding the limit (3 files)",
         "This may cause rules dependent on type information to not behave as expected",
         "Check the list of impacted rules at https://rules.sonarsource.com/javascript/tag/type-dependent",
         "To turn type-checking back on, increase the \"" + MAX_FILES_PROPERTY + "\" property value",

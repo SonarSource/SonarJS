@@ -57,7 +57,7 @@ public class SonarLintJavaScriptProjectChecker implements JavaScriptProjectCheck
   private void checkLimit(SensorContext context) {
     try {
       var typeCheckingLimit = getTypeCheckingLimit(context);
-      var projectSize = countProjectSize(context);
+      var projectSize = countProjectSize(context, typeCheckingLimit);
 
       beyondLimit = projectSize >= typeCheckingLimit;
       if (!beyondLimit) {
@@ -66,8 +66,7 @@ public class SonarLintJavaScriptProjectChecker implements JavaScriptProjectCheck
         // TypeScript type checking mechanism creates performance issues for large projects. Analyzing a file can take more than a minute in
         // SonarLint, and it can even lead to runtime errors due to Node.js being out of memory during the process.
         LOG.warn(
-          "Turning off type-checking of JavaScript files due to the project size ({} files) exceeding the limit ({} files)",
-          projectSize,
+          "Turning off type-checking of JavaScript files due to the project size exceeding the limit ({} files)",
           typeCheckingLimit
         );
         LOG.warn("This may cause rules dependent on type information to not behave as expected");
@@ -89,7 +88,7 @@ public class SonarLintJavaScriptProjectChecker implements JavaScriptProjectCheck
     }
   }
 
-  private static long countProjectSize(SensorContext context) {
+  private static long countProjectSize(SensorContext context, long maxSize) {
     var isPluginFile = Pattern.compile("\\.(js|cjs|mjs|jsx|ts|cts|mts|tsx|vue)$").asPredicate();
 
     try (var files = walkProjectFiles(context)) {
@@ -97,6 +96,7 @@ public class SonarLintJavaScriptProjectChecker implements JavaScriptProjectCheck
         .filter(Files::isRegularFile)
         .map(path -> path.getFileName().toString())
         .filter(isPluginFile)
+        .limit(maxSize)
         .count();
     }
   }
