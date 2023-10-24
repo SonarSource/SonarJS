@@ -56,43 +56,40 @@ public class SonarLintJavaScriptProjectChecker implements JavaScriptProjectCheck
 
   private void checkLimit(SensorContext context) {
     try {
-      var start = Instant.now();
-      var maxFilesForTypeChecking = getMaxFilesForTypeChecking(context);
-      long cappedFileCount = countFiles(context, maxFilesForTypeChecking);
+      var typeCheckingLimit = getTypeCheckingLimit(context);
+      var projectSize = countProjectSize(context);
 
-      beyondLimit = cappedFileCount >= maxFilesForTypeChecking;
+      beyondLimit = projectSize >= typeCheckingLimit;
       if (!beyondLimit) {
-        LOG.debug(
-          "Project type checking for JavaScript files activated as project size is below limit (total number of files is {}, maximum is {})",
-          cappedFileCount,
-          maxFilesForTypeChecking
-        );
+        LOG.info("Turning on type-checking of JavaScript files");
       } else {
         // TypeScript type checking mechanism creates performance issues for large projects. Analyzing a file can take more than a minute in
         // SonarLint, and it can even lead to runtime errors due to Node.js being out of memory during the process.
-        LOG.debug(
-          "Project type checking for JavaScript files deactivated as project has too many files (maximum is {} files)",
-          maxFilesForTypeChecking
+        LOG.warn(
+          "Turning off type-checking of JavaScript files due to the project size ({} files) exceeding the limit ({} files)",
+          projectSize,
+          typeCheckingLimit
         );
-        // We can't inform the user of the actual number of files as the performance impact may be too high for large projects.
-        LOG.debug("Update \"{}\" to set a different limit.", MAX_FILES_PROPERTY);
+        LOG.warn("This may cause rules dependent on type information to not behave as expected");
+        LOG.warn(
+          "Check the list of impacted rules at https://rules.sonarsource.com/javascript/tag/type-dependent"
+        );
+        LOG.warn(
+          "To turn type-checking back on, increase the \"{}\" property value",
+          MAX_FILES_PROPERTY
+        );
+        LOG.warn(
+          "Please be aware that this could potentially impact the performance of the analysis"
+        );
       }
-
-      LOG.debug(
-        "Project checker duration took: {}ms",
-        Duration.between(start, Instant.now()).toMillis()
-      );
     } catch (RuntimeException e) {
       // Any runtime error raised by the SonarLint API would be caught here to let the analyzer proceed with the rules that don't require
       // type checking.
-      LOG.debug(
-        "Project type checking for JavaScript files deactivated because of unexpected error",
-        e
-      );
+      LOG.warn("Turning off type-checking of JavaScript files due to unexpected error", e);
     }
   }
 
-  private static long countFiles(SensorContext context, int maxFilesForTypeChecking) {
+  private static long countProjectSize(SensorContext context) {
     var isPluginFile = Pattern.compile("\\.(js|cjs|mjs|jsx|ts|cts|mts|tsx|vue)$").asPredicate();
 
     try (var files = walkProjectFiles(context)) {
@@ -100,7 +97,6 @@ public class SonarLintJavaScriptProjectChecker implements JavaScriptProjectCheck
         .filter(Files::isRegularFile)
         .map(path -> path.getFileName().toString())
         .filter(isPluginFile)
-        .limit(maxFilesForTypeChecking)
         .count();
     }
   }
@@ -110,7 +106,7 @@ public class SonarLintJavaScriptProjectChecker implements JavaScriptProjectCheck
     return PathWalker.stream(context.fileSystem().baseDir().toPath(), FILE_WALK_MAX_DEPTH);
   }
 
-  private static int getMaxFilesForTypeChecking(SensorContext context) {
+  private static int getTypeCheckingLimit(SensorContext context) {
     return Math.max(
       context.config().getInt(MAX_FILES_PROPERTY).orElse(DEFAULT_MAX_FILES_FOR_TYPE_CHECKING),
       0
