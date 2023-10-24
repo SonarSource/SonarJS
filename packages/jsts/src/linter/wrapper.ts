@@ -174,6 +174,31 @@ export class LinterWrapper {
   private createConfig() {
     debug('Creating linter config');
     const rulesByKey: Map<LinterConfigurationKey, RuleConfig[]> = new Map();
+    if (!this.options.inputRules?.length) {
+      this.options.inputRules = [];
+      const ignored = [
+        'multiline-comment-style',
+        'padding-line-between-statements',
+        'callback-return',
+        'sort-keys',
+        'file-header',
+      ];
+      try {
+        //const allRules = this.linter.getRules().keys();
+        const allRules = ['regex-complexity'];
+        console.log(allRules);
+        for (const key of allRules) {
+          if (!ignored.includes(key)) {
+            this.options.inputRules.push(
+              { fileTypeTarget: ['MAIN', 'TEST'], language: 'js', key, configurations: [{}] },
+              { fileTypeTarget: ['MAIN', 'TEST'], language: 'js', key, configurations: [{}] },
+            );
+          }
+        }
+      } catch (e) {
+        console.log(e);
+      }
+    }
     this.options.inputRules?.forEach(r => {
       const target = Array.isArray(r.fileTypeTarget) ? r.fileTypeTarget : [r.fileTypeTarget];
       target.forEach(fileType => {

@@ -348,6 +348,7 @@ public class BridgeServerImpl implements BridgeServer {
   @Override
   public AnalysisResponse analyzeJavaScript(JsAnalysisRequest request) throws IOException {
     String json = GSON.toJson(request);
+    LOG.info(json);
     return response(request(json, "analyze-js"), request.filePath);
   }
 
@@ -376,6 +377,7 @@ public class BridgeServerImpl implements BridgeServer {
   }
 
   private String request(String json, String endpoint) throws IOException {
+    LOG.info(json);
     var request = HttpRequest
       .newBuilder()
       .uri(url(endpoint))
