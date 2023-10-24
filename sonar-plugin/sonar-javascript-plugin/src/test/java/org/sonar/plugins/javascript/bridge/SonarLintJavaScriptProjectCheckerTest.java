@@ -32,7 +32,6 @@ import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
-import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.config.Configuration;
@@ -42,27 +41,25 @@ import org.sonar.api.utils.log.LoggerLevel;
 class SonarLintProjectCheckerTest {
 
   @RegisterExtension
-  LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
+  LogTesterJUnit5 logTester = new LogTesterJUnit5();
 
   @TempDir
   Path baseDir;
 
   @Test
   void should_check_javascript_files() throws IOException {
+    logTester.setLevel(LoggerLevel.INFO);
     inputFile("file.js");
     inputFile("file.css");
     var checker = sonarLintJavaScriptProjectChecker(2);
 
     assertThat(checker.isBeyondLimit()).isFalse();
-    assertThat(logTester.logs())
-      .contains(
-        "Project type checking for JavaScript files activated as project size is below limit (total number of files is 1, maximum is 2)"
-      );
+    assertThat(logTester.logs()).contains("Turning on type-checking of JavaScript files");
   }
 
   @Test
   void should_detect_projects_with_too_many_files() throws IOException {
-    logTester.setLevel(LoggerLevel.DEBUG);
+    logTester.setLevel(LoggerLevel.WARN);
     inputFile("file1.js");
     inputFile("file2.ts");
     inputFile("file3.cjs");
@@ -72,21 +69,22 @@ class SonarLintProjectCheckerTest {
     assertThat(checker.isBeyondLimit()).isTrue();
     assertThat(logTester.logs())
       .contains(
-        "Project type checking for JavaScript files deactivated as project has too many files (maximum is 3 files)",
-        "Update \"sonar.javascript.sonarlint.typechecking.maxfiles\" to set a different limit."
+        "Turning off type-checking of JavaScript files due to the project size exceeding the limit (3 files)",
+        "This may cause rules dependent on type information to not behave as expected",
+        "Check the list of impacted rules at https://rules.sonarsource.com/javascript/tag/type-dependent",
+        "To turn type-checking back on, increase the \"" + MAX_FILES_PROPERTY + "\" property value",
+        "Please be aware that this could potentially impact the performance of the analysis"
       );
   }
 
   @Test
   void should_detect_errors() {
-    logTester.setLevel(LoggerLevel.DEBUG);
+    logTester.setLevel(LoggerLevel.WARN);
     var checker = sonarLintJavaScriptProjectChecker(new IllegalArgumentException());
 
     assertThat(checker.isBeyondLimit()).isTrue();
     assertThat(logTester.logs())
-      .containsExactly(
-        "Project type checking for JavaScript files deactivated because of unexpected error"
-      );
+      .containsExactly("Turning off type-checking of JavaScript files due to unexpected error");
   }
 
   private SonarLintJavaScriptProjectChecker sonarLintJavaScriptProjectChecker(int maxFiles) {
