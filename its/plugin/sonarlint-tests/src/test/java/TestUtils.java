@@ -18,15 +18,19 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import static java.util.Objects.requireNonNull;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Objects;
 import java.util.regex.Pattern;
 import org.sonarsource.sonarlint.core.analysis.api.ClientInputFile;
 
@@ -39,12 +43,14 @@ public class TestUtils {
    *
    */
   private static Path artifact() {
-    var target = homeDir().resolve("../sonar-plugin/sonar-javascript-plugin/target");
+    var target = homeDir()
+      .resolve("../../../../../../sonar-plugin/sonar-javascript-plugin/target")
+      .normalize();
     try (var stream = Files.walk(target, 1)) {
       return stream
         .filter(p -> pluginFilenameMatcher().matcher(p.getFileName().toString()).matches())
         .findAny()
-        .orElseThrow();
+        .orElseThrow(() -> new IllegalStateException("Cannot find plugin artifact in " + target));
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }
@@ -57,7 +63,11 @@ public class TestUtils {
   }
 
   public static Path homeDir() {
-    return Path.of("../../");
+    try {
+      return Path.of(requireNonNull(TestUtils.class.getResource("TestUtils.txt")).toURI());
+    } catch (URISyntaxException e) {
+      throw new IllegalStateException(e);
+    }
   }
 
   public static Path projectDir(String projectName) {
