@@ -22,8 +22,9 @@
 import { Rule } from 'eslint';
 import { tsEslintRules } from '../typescript-eslint';
 import { eslintRules } from '../core';
-import { interceptReport, mergeRules } from '../helpers';
+import { FUNCTION_NODES, RuleContext, interceptReport, mergeRules } from '../helpers';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { getMainFunctionTokenLocation } from 'eslint-plugin-sonarjs/lib/utils/locations';
 
 /**
  * We keep a single occurence of issues raised by both rules, discarding the ones raised by 'no-async-promise-executor'
@@ -41,10 +42,20 @@ const decoratedNoMisusedPromisesRule = interceptReport(
   noMisusedPromisesRule,
   (context, descriptor) => {
     if ('node' in descriptor) {
-      const start = (descriptor.node as TSESTree.Node).range[0];
+      const node = descriptor.node as TSESTree.Node;
+      const start = node.range[0];
       if (!flaggedNodeStarts.get(start)) {
         flaggedNodeStarts.set(start, true);
-        context.report(descriptor);
+        if (FUNCTION_NODES.includes(node.type)) {
+          const loc = getMainFunctionTokenLocation(
+            node as TSESTree.FunctionLike,
+            node.parent,
+            context as unknown as RuleContext,
+          );
+          context.report({ ...descriptor, loc });
+        } else {
+          context.report(descriptor);
+        }
       }
     }
   },
