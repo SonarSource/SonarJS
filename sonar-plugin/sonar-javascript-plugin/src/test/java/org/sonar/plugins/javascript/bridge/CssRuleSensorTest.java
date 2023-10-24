@@ -240,18 +240,28 @@ class CssRuleSensorTest {
 
   @Test
   void test_non_css_files() {
-    DefaultInputFile fileCss = addInputFile("file.css");
-    DefaultInputFile fileHtml = addInputFile("file.web");
-    DefaultInputFile filePhp = addInputFile("file.php");
-    DefaultInputFile fileVue = addInputFile("file.vue");
+    var fileCss = addInputFile("file.css");
+    var fileVue = addInputFile("file.vue");
+    var fileHtml = addInputFile("file.html");
     addInputFile("file.js");
+    addInputFile("file.php");
+    addInputFile("file.cshtml");
+    addInputFile("file.vbhtml");
+    addInputFile("file.aspx");
+    addInputFile("file.ascx");
+    addInputFile("file.rhtml");
+    addInputFile("file.erb");
+    addInputFile("file.shtm");
+    addInputFile("file.shtml");
+    addInputFile("file.cmp");
+    addInputFile("file.twig");
 
     sensor.execute(context);
 
-    assertThat(context.allIssues()).hasSize(4);
+    assertThat(context.allIssues()).hasSize(3);
     assertThat(context.allIssues())
       .extracting("primaryLocation.component")
-      .containsOnly(fileCss, fileHtml, filePhp, fileVue);
+      .containsOnly(fileCss, fileVue, fileHtml);
   }
 
   @Test
@@ -271,7 +281,7 @@ class CssRuleSensorTest {
     doThrow(new NodeCommandException("Exception Message"))
       .when(bridgeServerMock)
       .startServerLazily(any());
-    addInputFile("file.web");
+    addInputFile("file.html");
 
     assertThatThrownBy(() -> sensor.execute(context))
       .isInstanceOf(IllegalStateException.class)
@@ -321,7 +331,7 @@ class CssRuleSensorTest {
     when(bridgeServerMock.analyzeCss(any())).thenReturn(responseIssues);
 
     InputFile inputFile = addInputFile("syntax-error.css");
-    InputFile inputFileNotCss = addInputFile("syntax-error.web");
+    InputFile inputFileNotCss = addInputFile("syntax-error.html");
     sensor.execute(context);
     assertThat(context.allIssues()).isEmpty();
     assertThat(logTester.logs(LoggerLevel.ERROR))

@@ -205,31 +205,28 @@ public class CssRuleSensor extends AbstractBridgeSensor {
 
   @Override
   protected List<InputFile> getInputFiles() {
-    FileSystem fileSystem = this.context.fileSystem();
+    var fileSystem = this.context.fileSystem();
+    var p = fileSystem.predicates();
 
-    FilePredicate mainFilePredicate = fileSystem
-      .predicates()
-      .and(
-        fileSystem.predicates().hasType(InputFile.Type.MAIN),
-        fileSystem.predicates().hasLanguages(CssLanguage.KEY)
-      );
+    var mainFilePredicate = p.and(
+      p.hasType(InputFile.Type.MAIN),
+      p.or(
+        p.hasLanguages(CssLanguage.KEY),
+        p.hasExtension("html"),
+        p.hasExtension("htm"),
+        p.hasExtension("xhtml")
+      )
+    );
 
-    FilePredicate vueFilePredicate = fileSystem
-      .predicates()
-      .and(
-        fileSystem.predicates().hasType(InputFile.Type.MAIN),
-        fileSystem.predicates().hasExtension("vue"),
-        // by default 'vue' extension is defined for JS language, but 'vue' files can contain TS code and thus language can be changed
-        fileSystem.predicates().hasLanguages("js", "ts")
-      );
+    var vueFilePredicate = p.and(
+      p.hasType(InputFile.Type.MAIN),
+      p.hasExtension("vue"),
+      // by default 'vue' extension is defined for JS language, but 'vue' files can contain TS code and thus language can be changed
+      p.hasLanguages("js", "ts")
+    );
 
     return StreamSupport
-      .stream(
-        fileSystem
-          .inputFiles(fileSystem.predicates().or(mainFilePredicate, vueFilePredicate))
-          .spliterator(),
-        false
-      )
+      .stream(fileSystem.inputFiles(p.or(mainFilePredicate, vueFilePredicate)).spliterator(), false)
       .collect(Collectors.toList());
   }
 
