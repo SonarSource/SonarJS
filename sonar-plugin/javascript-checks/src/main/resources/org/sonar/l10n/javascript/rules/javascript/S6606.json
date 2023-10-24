@@ -14,7 +14,8 @@
   },
   "tags": [
     "es2020",
-    "nullish-coalescing"
+    "nullish-coalescing",
+    "type-dependent"
   ],
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-6606",

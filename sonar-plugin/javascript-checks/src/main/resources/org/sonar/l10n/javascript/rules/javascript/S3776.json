@@ -21,7 +21,7 @@
   "ruleSpecification": "RSPEC-3776",
   "sqKey": "S3776",
   "scope": "Main",
-  "quickfix": "unknown",
+  "quickfix": "infeasible",
   "compatibleLanguages": [
     "JAVASCRIPT",
     "TYPESCRIPT"

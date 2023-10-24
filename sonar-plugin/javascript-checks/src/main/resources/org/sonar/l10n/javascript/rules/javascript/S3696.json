@@ -14,7 +14,8 @@
   },
   "tags": [
     "error-handling",
-    "api-design"
+    "api-design",
+    "type-dependent"
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-3696",

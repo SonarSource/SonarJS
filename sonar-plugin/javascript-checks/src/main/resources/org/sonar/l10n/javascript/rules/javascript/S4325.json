@@ -13,7 +13,8 @@
     "constantCost": "1min"
   },
   "tags": [
-    "redundant"
+    "redundant",
+    "type-dependent"
   ],
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-4325",

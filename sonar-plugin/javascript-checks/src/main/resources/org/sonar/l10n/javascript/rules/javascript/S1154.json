@@ -6,7 +6,9 @@
     "func": "Constant\/Issue",
     "constantCost": "20min"
   },
-  "tags": [],
+  "tags": [
+    "type-dependent"
+  ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-1154",
   "sqKey": "S1154",
