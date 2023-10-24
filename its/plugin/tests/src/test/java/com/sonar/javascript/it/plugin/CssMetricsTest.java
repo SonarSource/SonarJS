@@ -42,11 +42,11 @@ class CssMetricsTest {
 
   @Test
   void test() {
-    assertThat(getMeasureAsDouble(PROJECT_KEY, "lines")).isEqualTo(43);
-    assertThat(getMeasureAsDouble(PROJECT_KEY, "ncloc")).isEqualTo(32);
+    assertThat(getMeasureAsDouble(PROJECT_KEY, "lines")).isEqualTo(89);
+    assertThat(getMeasureAsDouble(PROJECT_KEY, "ncloc")).isEqualTo(52);
     assertThat(getMeasure(PROJECT_KEY, "ncloc_language_distribution").getValue())
-      .isEqualTo("css=22;web=10");
-    assertThat(getMeasureAsDouble(PROJECT_KEY, "comment_lines")).isEqualTo(4);
+      .isEqualTo("css=27;php=1;web=24");
+    assertThat(getMeasureAsDouble(PROJECT_KEY, "comment_lines")).isEqualTo(6);
 
     assertThat(getMeasure(PROJECT_KEY + ":src/file1.css", "ncloc_data").getValue())
       .contains("1=1;", "2=1;", "3=1;", "4=1;", "5=1;", "6=1;", "7=1");
@@ -56,5 +56,29 @@ class CssMetricsTest {
 
     assertThat(getMeasure(PROJECT_KEY + ":src/file3.scss", "ncloc_data").getValue())
       .contains("1=1;", "3=1;", "5=1;", "6=1;", "7=1;", "8=1");
+
+    assertThat(getMeasure(PROJECT_KEY + ":src/file4.sass", "ncloc_data").getValue())
+      .contains("1=1", "3=1", "5=1", "6=1", "7=1");
+
+    assertThat(getMeasure(PROJECT_KEY + ":src/file5.html", "ncloc_data").getValue())
+      .contains("1=1", "2=1", "3=1", "4=1", "5=1", "6=1", "7=1", "8=1", "9=1", "10=1");
+
+    assertThat(getMeasure(PROJECT_KEY + ":src/file7.xhtml", "ncloc_data").getValue())
+      .contains(
+        "1=1",
+        "2=1",
+        "4=1",
+        "5=1",
+        "6=1",
+        "7=1",
+        "8=1",
+        "9=1",
+        "10=1",
+        "11=1",
+        "12=1",
+        "13=1",
+        "14=1",
+        "15=1"
+      );
   }
 }

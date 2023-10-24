@@ -243,6 +243,8 @@ class CssRuleSensorTest {
     var fileCss = addInputFile("file.css");
     var fileVue = addInputFile("file.vue");
     var fileHtml = addInputFile("file.html");
+    var fileHtm = addInputFile("file.htm");
+    var fileXhtml = addInputFile("file.xhtml");
     addInputFile("file.js");
     addInputFile("file.php");
     addInputFile("file.cshtml");
@@ -258,10 +260,10 @@ class CssRuleSensorTest {
 
     sensor.execute(context);
 
-    assertThat(context.allIssues()).hasSize(3);
+    assertThat(context.allIssues()).hasSize(5);
     assertThat(context.allIssues())
       .extracting("primaryLocation.component")
-      .containsOnly(fileCss, fileVue, fileHtml);
+      .containsOnly(fileCss, fileVue, fileHtml, fileHtm, fileXhtml);
   }
 
   @Test
