@@ -180,6 +180,9 @@ class JavaScriptExclusionsFileFilterTest {
       assertThat(filter.accept(inputFile("name.java", syntheticJavaFileContent(size, "Foo"))))
         .withFailMessage("Wrong result for size " + size)
         .isTrue();
+
+      // we ignore size limits for CSS files
+      assertThat(filter.accept(inputFile("name.css", syntheticJsFileContent(size)))).isTrue();
     }
   }
 
