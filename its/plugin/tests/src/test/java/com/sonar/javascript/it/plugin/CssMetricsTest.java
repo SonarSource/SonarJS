@@ -64,6 +64,7 @@ class CssMetricsTest {
       .contains("1=1", "2=1", "3=1", "4=1", "5=1", "6=1", "7=1", "8=1", "9=1", "10=1");
 
     // .htm is not part of sonar-HTML languages. When it is, an assertion should be added for file6.htm
+    // https://sonarsource.atlassian.net/jira/software/c/projects/SONARHTML/issues/SONARHTML-180
 
     assertThat(getMeasure(PROJECT_KEY + ":src/file7.xhtml", "ncloc_data").getValue())
       .contains(
