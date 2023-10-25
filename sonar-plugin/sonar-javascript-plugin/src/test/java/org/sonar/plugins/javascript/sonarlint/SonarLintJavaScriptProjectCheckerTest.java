@@ -37,7 +37,6 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.plugins.javascript.sonarlint.SonarLintJavaScriptProjectChecker;
 
 class SonarLintProjectCheckerTest {
 
