@@ -208,14 +208,15 @@ public class CssRuleSensor extends AbstractBridgeSensor {
     var fileSystem = this.context.fileSystem();
     var p = fileSystem.predicates();
 
+    var supportedWebExtensions = p.or(
+      p.hasExtension("htm"),
+      p.hasExtension("html"),
+      p.hasExtension("xhtml")
+    );
+
     var mainFilePredicate = p.and(
       p.hasType(InputFile.Type.MAIN),
-      p.or(
-        p.hasLanguages(CssLanguage.KEY),
-        p.hasExtension("html"),
-        p.hasExtension("htm"),
-        p.hasExtension("xhtml")
-      )
+      p.or(p.hasLanguages(CssLanguage.KEY), supportedWebExtensions)
     );
 
     var vueFilePredicate = p.and(
