@@ -184,14 +184,14 @@ export class LinterWrapper {
         'file-header',
       ];
       try {
-        //const allRules = this.linter.getRules().keys();
-        const allRules = ['regex-complexity'];
+        const allRules = this.linter.getRules().keys();
+        //const allRules = ['regex-complexity'];
         console.log(allRules);
         for (const key of allRules) {
           if (!ignored.includes(key)) {
             this.options.inputRules.push(
               { fileTypeTarget: ['MAIN', 'TEST'], language: 'js', key, configurations: [{}] },
-              { fileTypeTarget: ['MAIN', 'TEST'], language: 'js', key, configurations: [{}] },
+              { fileTypeTarget: ['MAIN', 'TEST'], language: 'ts', key, configurations: [{}] },
             );
           }
         }
