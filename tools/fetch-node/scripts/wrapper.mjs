@@ -17,26 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import fse from 'fs-extra';
-import * as path from 'node:path';
 import * as fs from 'node:fs';
-import { RUNTIMES_DIR, TARGET_DIR, getRuntimePaths } from './directories.mjs';
-import { DISTROS, NODE_VERSION, VERSION_FILENAME } from '../node-distros.mjs';
+import * as url from 'node:url';
+import * as path from 'node:path';
+import { execSync } from 'node:child_process';
+import { getRuntimePaths, TARGET_DIR } from './directories.mjs';
+// replace __dirname in module
+const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
 
 /**
- * Copies tools/fetch-node/downloads/runtimes/{distro.id}/node{.exe}.xz
- * to
- * sonar-plugin/sonar-javascript-plugin/target/node/{distro.id}/node{.exe}.xz
- *
- * Writes the
- * sonar-plugin/sonar-javascript-plugin/target/node/{distro.id}/version.txt files
+ * Skips running the fetch node scripts if Node.js runtimes are already present
  */
-
 const runtimePaths = getRuntimePaths();
 
-runtimePaths.forEach(p => {
-  fse.mkdirpSync(p.targetDir);
-  console.log(`Copying ${p.sourceFilename} to ${p.targetFilename}`);
-  fse.copySync(p.sourceFilename, p.targetFilename);
-  fs.writeFileSync(path.join(p.targetDir, VERSION_FILENAME), NODE_VERSION);
-});
+if (runtimePaths.every(p => fs.existsSync(p.targetFilename))) {
+  console.log(`Skipping. All Node.js runtimes are already present in the plugin: ${TARGET_DIR}`);
+  console.log('If the runtimes are outdated, delete the folder and run the script again.');
+  process.exit(0);
+}
+
+execSync(`node ${path.join(__dirname, 'fetch-node.mjs')}`, { stdio: 'inherit' });
+
+execSync(`mvn -f ${path.join(__dirname, '..', 'pom.xml')} package exec:java`, { stdio: 'inherit' });
+
+execSync(`node ${path.join(__dirname, 'copy-to-plugin.mjs')}`, { stdio: 'inherit' });
