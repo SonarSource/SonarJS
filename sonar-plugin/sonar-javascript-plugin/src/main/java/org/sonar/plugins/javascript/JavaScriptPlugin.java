@@ -57,7 +57,7 @@ import org.sonar.plugins.javascript.rules.EslintRulesDefinition;
 import org.sonar.plugins.javascript.rules.JavaScriptRulesDefinition;
 import org.sonar.plugins.javascript.rules.TslintRulesDefinition;
 import org.sonar.plugins.javascript.rules.TypeScriptRulesDefinition;
-import org.sonar.plugins.javascript.sonarlint.SonarLintJavaScriptProjectChecker;
+import org.sonar.plugins.javascript.sonarlint.SonarLintTypeCheckingCheckerImpl;
 
 public class JavaScriptPlugin implements Plugin {
 
@@ -316,7 +316,7 @@ public class JavaScriptPlugin implements Plugin {
       );
     } else {
       var sonarLintPluginAPIManager = new SonarLintPluginAPIManager();
-      sonarLintPluginAPIManager.addSonarlintJavaScriptProjectChecker(
+      sonarLintPluginAPIManager.addSonarLintTypeCheckingChecker(
         context,
         new SonarLintPluginAPIVersion()
       );
@@ -325,14 +325,14 @@ public class JavaScriptPlugin implements Plugin {
 
   static class SonarLintPluginAPIManager {
 
-    public void addSonarlintJavaScriptProjectChecker(
+    public void addSonarLintTypeCheckingChecker(
       Context context,
       SonarLintPluginAPIVersion sonarLintPluginAPIVersion
     ) {
       if (sonarLintPluginAPIVersion.isDependencyAvailable()) {
-        context.addExtension(SonarLintJavaScriptProjectChecker.class);
+        context.addExtension(SonarLintTypeCheckingCheckerImpl.class);
       } else {
-        LOG.debug("Error while trying to inject SonarLintJavaScriptProjectChecker");
+        LOG.debug("Error while trying to inject SonarLintTypeCheckingChecker");
       }
     }
   }

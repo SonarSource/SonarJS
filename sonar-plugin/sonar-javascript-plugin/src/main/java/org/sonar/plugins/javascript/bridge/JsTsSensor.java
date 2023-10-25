@@ -34,7 +34,7 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.JavaScriptFilePredicate;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
-import org.sonar.plugins.javascript.sonarlint.JavaScriptProjectChecker;
+import org.sonar.plugins.javascript.sonarlint.SonarLintTypeCheckingChecker;
 
 public class JsTsSensor extends AbstractBridgeSensor {
 
@@ -43,7 +43,7 @@ public class JsTsSensor extends AbstractBridgeSensor {
   private final AnalysisWithProgram analysisWithProgram;
   private final AnalysisWithWatchProgram analysisWithWatchProgram;
   private final JsTsChecks checks;
-  private final JavaScriptProjectChecker javaScriptProjectChecker;
+  private final SonarLintTypeCheckingChecker javaScriptProjectChecker;
 
   // Constructor for SonarCloud without the optional dependency (Pico doesn't support optional dependencies)
   public JsTsSensor(
@@ -73,7 +73,7 @@ public class JsTsSensor extends AbstractBridgeSensor {
     AnalysisWarningsWrapper analysisWarnings,
     TempFolder tempFolder,
     Monitoring monitoring,
-    @Nullable JavaScriptProjectChecker javaScriptProjectChecker,
+    @Nullable SonarLintTypeCheckingChecker javaScriptProjectChecker,
     AnalysisWithProgram analysisWithProgram,
     AnalysisWithWatchProgram analysisWithWatchProgram
   ) {
@@ -106,7 +106,7 @@ public class JsTsSensor extends AbstractBridgeSensor {
     var analysisMode = AnalysisMode.getMode(context, checks.eslintRules());
     bridgeServer.initLinter(checks.eslintRules(), environments, globals, analysisMode);
 
-    JavaScriptProjectChecker.checkOnce(javaScriptProjectChecker, context);
+    SonarLintTypeCheckingChecker.checkOnce(javaScriptProjectChecker, context);
     var tsConfigs = TsConfigProvider.getTsConfigs(
       contextUtils,
       javaScriptProjectChecker,

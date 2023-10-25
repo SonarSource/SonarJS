@@ -22,13 +22,10 @@ package org.sonar.plugins.javascript.sonarlint;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.sensor.SensorContext;
 
-public interface JavaScriptProjectChecker {
-  static void checkOnce(
-    @Nullable JavaScriptProjectChecker javascriptProjectChecker,
-    SensorContext context
-  ) {
-    if (javascriptProjectChecker != null) {
-      javascriptProjectChecker.checkOnce(context);
+public interface SonarLintTypeCheckingChecker {
+  static void checkOnce(@Nullable SonarLintTypeCheckingChecker checker, SensorContext context) {
+    if (checker != null) {
+      checker.checkOnce(context);
     }
   }
 
