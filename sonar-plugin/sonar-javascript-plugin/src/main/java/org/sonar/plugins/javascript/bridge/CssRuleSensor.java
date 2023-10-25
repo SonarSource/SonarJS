@@ -208,15 +208,14 @@ public class CssRuleSensor extends AbstractBridgeSensor {
     var fileSystem = this.context.fileSystem();
     var p = fileSystem.predicates();
 
-    var supportedWebExtensions = p.or(
-      p.hasExtension("htm"),
-      p.hasExtension("html"),
-      p.hasExtension("xhtml")
+    var cssFilePredicate = p.and(
+      p.hasType(InputFile.Type.MAIN),
+      p.or(p.hasLanguages(CssLanguage.KEY))
     );
 
-    var mainFilePredicate = p.and(
+    var webFilePredicate = p.and(
       p.hasType(InputFile.Type.MAIN),
-      p.or(p.hasLanguages(CssLanguage.KEY), supportedWebExtensions)
+      p.or(p.hasExtension("htm"), p.hasExtension("html"), p.hasExtension("xhtml"))
     );
 
     var vueFilePredicate = p.and(
@@ -227,7 +226,12 @@ public class CssRuleSensor extends AbstractBridgeSensor {
     );
 
     return StreamSupport
-      .stream(fileSystem.inputFiles(p.or(mainFilePredicate, vueFilePredicate)).spliterator(), false)
+      .stream(
+        fileSystem
+          .inputFiles(p.or(cssFilePredicate, webFilePredicate, vueFilePredicate))
+          .spliterator(),
+        false
+      )
       .collect(Collectors.toList());
   }
 
