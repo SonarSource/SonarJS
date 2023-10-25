@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as url from 'url';
-import * as path from 'path';
-import * as fs from 'fs';
+import * as url from 'node:url';
+import * as path from 'node:path';
+import * as fs from 'node:fs';
 import { DISTROS } from '../node-distros.mjs';
 // replace __dirname in module
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url));

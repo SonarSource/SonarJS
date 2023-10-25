@@ -5,7 +5,7 @@
   "scripts": {
     "format": "prettier --write .",
     "build": "mvn clean && npm run _:plugin:pre-build && npm run plugin:build-no-bridge",
-    "build:fast": "npm run bridge:build:fast && npm run _:plugin:prepare-bridge && npm run plugin:build:fast",
+    "build:fast": "npm run bridge:build:fast && npm run _:plugin:prepare-bridge && npm run _:plugin-fetch-node && npm run plugin:build:fast",
     "bf": "npm run build:fast",
     "new-rule": "ts-node tools/newRule.ts",
     "bridge:compile": "tsc -b packages profiling",
@@ -22,7 +22,7 @@
     "precommit": "pretty-quick --staged",
     "_:bridge:clear": "rimraf lib/*",
     "_:plugin:prepare-bridge": "npm pack && node tools/check-distribution-filepath-length.js && npm run _:plugin:copy-bridge",
-    "_:plugin-fetch-node": "node tools/fetch-node/scripts/fetch-node.mjs && mvn -f tools/fetch-node/pom.xml package exec:java && node tools/fetch-node/scripts/copy-to-plugin.mjs",
+    "_:plugin-fetch-node": "node tools/fetch-node/scripts/wrapper.mjs",
     "_:plugin:pre-build": "npm run bridge:build && npm run _:plugin:prepare-bridge && npm run _:plugin-fetch-node",
     "_:plugin:copy-bridge": "cpy sonarjs-1.0.0.tgz sonar-plugin/sonar-javascript-plugin/target/classes"
   },
