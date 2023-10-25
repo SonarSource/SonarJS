@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.javascript.bridge;
+package org.sonar.plugins.javascript.sonarlint;
 
 import java.nio.file.Files;
 import java.nio.file.Path;

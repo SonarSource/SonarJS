@@ -83,6 +83,7 @@ import org.sonar.plugins.javascript.bridge.BridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.bridge.BridgeServer.JsAnalysisRequest;
 import org.sonar.plugins.javascript.bridge.cache.CacheTestUtils;
 import org.sonar.plugins.javascript.nodejs.NodeCommandException;
+import org.sonar.plugins.javascript.sonarlint.JavaScriptProjectChecker;
 
 class JavaScriptEslintBasedSensorTest {
 

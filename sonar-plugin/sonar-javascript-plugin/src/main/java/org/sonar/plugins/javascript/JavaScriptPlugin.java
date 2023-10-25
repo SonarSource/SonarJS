@@ -46,7 +46,6 @@ import org.sonar.plugins.javascript.bridge.JsTsSensor;
 import org.sonar.plugins.javascript.bridge.Monitoring;
 import org.sonar.plugins.javascript.bridge.NodeDeprecationWarning;
 import org.sonar.plugins.javascript.bridge.RulesBundles;
-import org.sonar.plugins.javascript.bridge.SonarLintJavaScriptProjectChecker;
 import org.sonar.plugins.javascript.bridge.YamlSensor;
 import org.sonar.plugins.javascript.external.EslintReportSensor;
 import org.sonar.plugins.javascript.external.TslintReportSensor;
@@ -58,6 +57,7 @@ import org.sonar.plugins.javascript.rules.EslintRulesDefinition;
 import org.sonar.plugins.javascript.rules.JavaScriptRulesDefinition;
 import org.sonar.plugins.javascript.rules.TslintRulesDefinition;
 import org.sonar.plugins.javascript.rules.TypeScriptRulesDefinition;
+import org.sonar.plugins.javascript.sonarlint.SonarLintJavaScriptProjectChecker;
 
 public class JavaScriptPlugin implements Plugin {
 

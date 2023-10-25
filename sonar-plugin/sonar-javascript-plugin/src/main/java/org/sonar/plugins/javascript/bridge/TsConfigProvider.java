@@ -47,6 +47,7 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.JavaScriptFilePredicate;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
+import org.sonar.plugins.javascript.sonarlint.JavaScriptProjectChecker;
 import org.sonarsource.analyzer.commons.FileProvider;
 
 class TsConfigProvider {

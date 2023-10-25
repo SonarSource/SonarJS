@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.javascript.bridge;
+package org.sonar.plugins.javascript.sonarlint;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.plugins.javascript.bridge.SonarLintJavaScriptProjectChecker.DEFAULT_MAX_FILES_FOR_TYPE_CHECKING;
-import static org.sonar.plugins.javascript.bridge.SonarLintJavaScriptProjectChecker.MAX_FILES_PROPERTY;
+import static org.sonar.plugins.javascript.sonarlint.SonarLintJavaScriptProjectChecker.DEFAULT_MAX_FILES_FOR_TYPE_CHECKING;
+import static org.sonar.plugins.javascript.sonarlint.SonarLintJavaScriptProjectChecker.MAX_FILES_PROPERTY;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -37,6 +37,7 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.plugins.javascript.sonarlint.SonarLintJavaScriptProjectChecker;
 
 class SonarLintProjectCheckerTest {
 

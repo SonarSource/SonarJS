@@ -46,6 +46,7 @@ import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
+import org.sonar.plugins.javascript.sonarlint.JavaScriptProjectChecker;
 
 class TsConfigProviderTest {
 
