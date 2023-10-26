@@ -25,7 +25,6 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.css.CssLanguage;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 
 class SizeAssessor implements Assessor {
@@ -68,11 +67,6 @@ class SizeAssessor implements Assessor {
    * <code>InputStream</code> or <code>IOUtils</code>.
    */
   static boolean hasExcessiveSize(InputFile file, Long maxFileSizeBytes) {
-    // we ignore size limit for CSS files, because analyzing large CSS files takes a reasonable amount of time to analyze
-    if (CssLanguage.KEY.equals(file.language())) {
-      return false;
-    }
-
     return hasExcessiveSize(file::inputStream, maxFileSizeBytes);
   }
 
