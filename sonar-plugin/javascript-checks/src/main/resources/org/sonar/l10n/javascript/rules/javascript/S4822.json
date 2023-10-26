@@ -1,5 +1,5 @@
 {
-  "title": "Promise rejections should not be caught by \u0027try\u0027 blocks",
+  "title": "Promise rejections should not be caught by \"try\" blocks",
   "type": "BUG",
   "code": {
     "impacts": {
@@ -12,7 +12,9 @@
     "func": "Constant\/Issue",
     "constantCost": "5min"
   },
-  "tags": [],
+  "tags": [
+    "type-dependent"
+  ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-4822",
   "sqKey": "S4822",

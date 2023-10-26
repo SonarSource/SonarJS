@@ -13,7 +13,8 @@
     "constantCost": "20min"
   },
   "tags": [
-    "confusing"
+    "confusing",
+    "type-dependent"
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-3800",

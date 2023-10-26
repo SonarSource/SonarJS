@@ -13,7 +13,8 @@
     "constantCost": "10min"
   },
   "tags": [
-    "bad-practice"
+    "bad-practice",
+    "type-dependent"
   ],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-2871",

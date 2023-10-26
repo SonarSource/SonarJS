@@ -14,7 +14,8 @@
   },
   "tags": [
     "cwe",
-    "regex"
+    "regex",
+    "type-dependent"
   ],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-5852",

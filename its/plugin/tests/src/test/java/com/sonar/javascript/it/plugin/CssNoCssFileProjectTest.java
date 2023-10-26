@@ -37,7 +37,7 @@ import org.sonarqube.ws.client.issues.SearchRequest;
 @ExtendWith(OrchestratorStarter.class)
 class CssNoCssFileProjectTest {
 
-  private static final String PROJECT_KEY = "css-php-project";
+  private static final String PROJECT_KEY = "css-html-project";
 
   private static final Orchestrator orchestrator = OrchestratorStarter.ORCHESTRATOR;
 
@@ -62,6 +62,6 @@ class CssNoCssFileProjectTest {
 
     assertThat(issuesList)
       .extracting(Issues.Issue::getRule, Issues.Issue::getLine, Issues.Issue::getComponent)
-      .containsExactlyInAnyOrder(tuple("css:S4658", 7, "css-php-project:src/index.php"));
+      .containsExactlyInAnyOrder(tuple("css:S4658", 7, PROJECT_KEY + ":src/index.html"));
   }
 }

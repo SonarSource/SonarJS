@@ -13,7 +13,7 @@
     "constantCost": "15min"
   },
   "tags": [
-    "regex"
+    "type-dependent"
   ],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-5856",

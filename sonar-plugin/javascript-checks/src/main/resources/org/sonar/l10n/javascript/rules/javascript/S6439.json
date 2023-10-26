@@ -13,7 +13,8 @@
     "constantCost": "5min"
   },
   "tags": [
-    "react"
+    "react",
+    "type-dependent"
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-6439",

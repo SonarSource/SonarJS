@@ -12,7 +12,9 @@
     "func": "Constant\/Issue",
     "constantCost": "2h"
   },
-  "tags": [],
+  "tags": [
+    "type-dependent"
+  ],
   "defaultSeverity": "Blocker",
   "ruleSpecification": "RSPEC-2817",
   "sqKey": "S2817",
