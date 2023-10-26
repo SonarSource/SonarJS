@@ -67,7 +67,7 @@ export const rule: Rule.RuleModule = {
 
     function onFunctionExit(node: estree.Node) {
       const returnStatements = scopes.pop()!.getReturnStatements();
-      if (returnStatements.every(retStmt => retStmt.argument?.type === 'ThisExpression')) {
+      if (returnStatements.some(retStmt => retStmt.argument?.type === 'ThisExpression')) {
         return;
       }
       const signature = checker.getSignatureFromDeclaration(
