@@ -1944,6 +1944,22 @@
 16059,
 16069
 ],
+"project:projects/tailwindcss-2.0.3/__tests__/fixtures/tailwind-output-flagged.css": [
+448,
+485
+],
+"project:projects/tailwindcss-2.0.3/__tests__/fixtures/tailwind-output-important.css": [
+448,
+485
+],
+"project:projects/tailwindcss-2.0.3/__tests__/fixtures/tailwind-output-no-color-opacity.css": [
+448,
+485
+],
+"project:projects/tailwindcss-2.0.3/__tests__/fixtures/tailwind-output.css": [
+448,
+485
+],
 "project:projects/bulma-0.9.2/sass/base/generic.sass": [
 114,
 144

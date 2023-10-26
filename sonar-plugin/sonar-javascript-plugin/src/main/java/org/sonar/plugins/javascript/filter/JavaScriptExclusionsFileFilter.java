@@ -31,10 +31,11 @@ import org.sonar.plugins.javascript.TypeScriptLanguage;
 
 public class JavaScriptExclusionsFileFilter implements InputFileFilter {
 
-  private final List<Assessor> assessors;
+  private final List<Assessor> jsTsAssessors;
+  private final List<Assessor> cssAssessors;
 
   public JavaScriptExclusionsFileFilter(Configuration configuration) {
-    assessors =
+    jsTsAssessors =
       Stream
         .of(
           new PathAssessor(configuration),
@@ -42,6 +43,13 @@ public class JavaScriptExclusionsFileFilter implements InputFileFilter {
           new MinificationAssessor(),
           new BundleAssessor()
         )
+        .filter(assessor -> shouldBeEnabled(assessor, configuration))
+        .collect(Collectors.toUnmodifiableList());
+
+    // We ignore the size limit for CSS files, because analyzing large CSS files takes a reasonable amount of time
+    cssAssessors =
+      Stream
+        .of(new PathAssessor(configuration), new MinificationAssessor(), new BundleAssessor())
         .filter(assessor -> shouldBeEnabled(assessor, configuration))
         .collect(Collectors.toUnmodifiableList());
   }
@@ -55,16 +63,17 @@ public class JavaScriptExclusionsFileFilter implements InputFileFilter {
 
   @Override
   public boolean accept(InputFile inputFile) {
-    boolean isJsTsCss =
+    boolean isJsTs =
       JavaScriptLanguage.KEY.equals(inputFile.language()) ||
-      TypeScriptLanguage.KEY.equals(inputFile.language()) ||
-      CssLanguage.KEY.equals(inputFile.language());
+      TypeScriptLanguage.KEY.equals(inputFile.language());
+    boolean isCss = CssLanguage.KEY.equals(inputFile.language());
 
-    // filter only JS/TS/CSS files
-    if (!isJsTsCss) {
+    if (isJsTs) {
+      return jsTsAssessors.stream().noneMatch(assessor -> assessor.test(inputFile));
+    } else if (isCss) {
+      return cssAssessors.stream().noneMatch(assessor -> assessor.test(inputFile));
+    } else {
       return true;
     }
-
-    return assessors.stream().noneMatch(assessor -> assessor.test(inputFile));
   }
 }
