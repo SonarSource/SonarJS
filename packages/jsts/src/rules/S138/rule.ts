@@ -26,7 +26,7 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { getMainFunctionTokenLocation } from 'eslint-plugin-sonarjs/lib/utils/locations';
-import { getParent, last, RuleContext } from '../helpers';
+import { getNodeParent, getParent, last, RuleContext } from '../helpers';
 
 interface FunctionKnowledge {
   node: estree.Node;
@@ -176,9 +176,43 @@ function isReactFunctionComponent(knowledge: FunctionKnowledge) {
 }
 
 function nameStartsWithCapital(node: estree.Node) {
-  return !!(
-    (node.type === 'FunctionDeclaration' || node.type === 'FunctionExpression') &&
-    node.id &&
-    node.id.name.startsWith(node.id.name[0].toUpperCase())
-  );
+  const identifier = getIdentifierFromNormalFunction(node) ?? getIdentifierFromArrowFunction(node);
+
+  if (!identifier) {
+    return false;
+  }
+  return isIdentifierUppercase(identifier);
+
+  /**
+   * Picks `Foo` from: `let Foo = () => {}`
+   */
+  function getIdentifierFromArrowFunction(node: estree.Node) {
+    if (node.type !== 'ArrowFunctionExpression') {
+      return null;
+    }
+    const parent = getNodeParent(node);
+    if (!parent) {
+      return null;
+    }
+    if (parent.type === 'VariableDeclarator') {
+      return parent.id as estree.Identifier;
+    } else {
+      return null;
+    }
+  }
+
+  /**
+   * Picks `Foo` from:
+   * - `function Foo() {}`
+   * - `let bar = function Foo() {}`
+   */
+  function getIdentifierFromNormalFunction(node: estree.Node) {
+    if (node.type === 'FunctionDeclaration' || node.type === 'FunctionExpression') {
+      return node.id;
+    }
+  }
+
+  function isIdentifierUppercase(node: estree.Identifier) {
+    return node.name.startsWith(node.name[0].toUpperCase());
+  }
 }

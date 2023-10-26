@@ -34,7 +34,7 @@ ruleTester.run('Too many lines in functions', rule, {
     },
     {
       code: `function f() {
-        
+
               console.log("a");
 
 
@@ -104,6 +104,16 @@ function
         const greeting = 'Hello, world!';
 
         return <><h1>{greeting}</h1></>
+      }`,
+      options: [2],
+    },
+    {
+      // React Function Component - using arrow function
+      code: `
+      const Welcome = () => {
+        const greeting = 'Hello, world!';
+
+        return <h1>{greeting}</h1>
       }`,
       options: [2],
     },
