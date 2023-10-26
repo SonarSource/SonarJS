@@ -32,5 +32,45 @@
 ],
 "project:projects/normalize.css-8.0.1/test.html": [
 50
+],
+"project:projects/tailwindcss-2.0.3/__tests__/fixtures/tailwind-output-flagged.css": [
+56,
+366,
+376,
+420,
+453,
+485,
+502,
+19542
+],
+"project:projects/tailwindcss-2.0.3/__tests__/fixtures/tailwind-output-important.css": [
+56,
+366,
+376,
+420,
+453,
+485,
+502,
+19542
+],
+"project:projects/tailwindcss-2.0.3/__tests__/fixtures/tailwind-output-no-color-opacity.css": [
+56,
+366,
+376,
+420,
+453,
+485,
+502,
+17696
+],
+"project:projects/tailwindcss-2.0.3/__tests__/fixtures/tailwind-output.css": [
+56,
+366,
+376,
+420,
+453,
+485,
+502,
+19542
 ]
 }
