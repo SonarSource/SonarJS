@@ -17,21 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.javascript.bridge;
+@ParametersAreNonnullByDefault
+package org.sonar.plugins.javascript.sonarlint;
 
-import javax.annotation.Nullable;
-import org.sonar.api.batch.sensor.SensorContext;
-
-public interface JavaScriptProjectChecker {
-  static void checkOnce(
-    @Nullable JavaScriptProjectChecker javascriptProjectChecker,
-    SensorContext context
-  ) {
-    if (javascriptProjectChecker != null) {
-      javascriptProjectChecker.checkOnce(context);
-    }
-  }
-
-  void checkOnce(SensorContext context);
-  boolean isBeyondLimit();
-}
+import javax.annotation.ParametersAreNonnullByDefault;

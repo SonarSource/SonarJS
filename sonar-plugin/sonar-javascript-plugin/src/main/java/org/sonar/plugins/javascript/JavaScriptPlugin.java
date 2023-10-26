@@ -46,7 +46,6 @@ import org.sonar.plugins.javascript.bridge.JsTsSensor;
 import org.sonar.plugins.javascript.bridge.Monitoring;
 import org.sonar.plugins.javascript.bridge.NodeDeprecationWarning;
 import org.sonar.plugins.javascript.bridge.RulesBundles;
-import org.sonar.plugins.javascript.bridge.SonarLintJavaScriptProjectChecker;
 import org.sonar.plugins.javascript.bridge.YamlSensor;
 import org.sonar.plugins.javascript.external.EslintReportSensor;
 import org.sonar.plugins.javascript.external.TslintReportSensor;
@@ -58,6 +57,7 @@ import org.sonar.plugins.javascript.rules.EslintRulesDefinition;
 import org.sonar.plugins.javascript.rules.JavaScriptRulesDefinition;
 import org.sonar.plugins.javascript.rules.TslintRulesDefinition;
 import org.sonar.plugins.javascript.rules.TypeScriptRulesDefinition;
+import org.sonar.plugins.javascript.sonarlint.SonarLintTypeCheckingCheckerImpl;
 
 public class JavaScriptPlugin implements Plugin {
 
@@ -116,6 +116,14 @@ public class JavaScriptPlugin implements Plugin {
 
   public static final String JS_EXCLUSIONS_KEY = PROPERTY_PREFIX + ".exclusions";
   public static final String TS_EXCLUSIONS_KEY = "sonar.typescript.exclusions";
+  public static final String[] EXCLUSIONS_DEFAULT_VALUE = new String[] {
+    "**/node_modules/**",
+    "**/bower_components/**",
+    "**/dist/**",
+    "**/vendor/**",
+    "**/external/**",
+    "**/*.d.ts",
+  };
 
   public static final String EXTERNAL_ANALYZERS_CATEGORY = "External Analyzers";
   public static final String EXTERNAL_ANALYZERS_SUB_CATEGORY = "JavaScript/TypeScript";
@@ -316,7 +324,7 @@ public class JavaScriptPlugin implements Plugin {
       );
     } else {
       var sonarLintPluginAPIManager = new SonarLintPluginAPIManager();
-      sonarLintPluginAPIManager.addSonarlintJavaScriptProjectChecker(
+      sonarLintPluginAPIManager.addSonarLintTypeCheckingChecker(
         context,
         new SonarLintPluginAPIVersion()
       );
@@ -325,14 +333,14 @@ public class JavaScriptPlugin implements Plugin {
 
   static class SonarLintPluginAPIManager {
 
-    public void addSonarlintJavaScriptProjectChecker(
+    public void addSonarLintTypeCheckingChecker(
       Context context,
       SonarLintPluginAPIVersion sonarLintPluginAPIVersion
     ) {
       if (sonarLintPluginAPIVersion.isDependencyAvailable()) {
-        context.addExtension(SonarLintJavaScriptProjectChecker.class);
+        context.addExtension(SonarLintTypeCheckingCheckerImpl.class);
       } else {
-        LOG.debug("Error while trying to inject SonarLintJavaScriptProjectChecker");
+        LOG.debug("Error while trying to inject SonarLintTypeCheckingChecker");
       }
     }
   }

@@ -29,6 +29,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Spliterator;
 import java.util.Spliterators;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -37,15 +38,21 @@ public class PathWalker implements Iterator<Path> {
   private final Deque<Path> paths = new ArrayDeque<>();
   private final long rootDepth;
   private final int maxDepth;
+  private final Predicate<Path> exclusion;
 
-  private PathWalker(Path root, int maxDepth) {
+  private PathWalker(Path root, int maxDepth, Predicate<Path> exclusion) {
     this.rootDepth = depth(root);
     this.maxDepth = Math.max(0, maxDepth);
+    this.exclusion = exclusion;
     addPath(root);
   }
 
   public static Stream<Path> stream(Path root, int maxDepth) {
-    var pathWalker = new PathWalker(root, maxDepth);
+    return stream(root, maxDepth, p -> false);
+  }
+
+  public static Stream<Path> stream(Path root, int maxDepth, Predicate<Path> exclusion) {
+    var pathWalker = new PathWalker(root, maxDepth, exclusion);
     return StreamSupport.stream(
       Spliterators.spliteratorUnknownSize(pathWalker, Spliterator.ORDERED),
       false
@@ -73,6 +80,7 @@ public class PathWalker implements Iterator<Path> {
         .ofNullable(path.toFile().listFiles())
         .flatMap(Arrays::stream)
         .map(File::toPath)
+        .filter(p -> !exclusion.test(p))
         .forEach(this::addPath);
     }
     return path;

@@ -47,6 +47,7 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.JavaScriptFilePredicate;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
+import org.sonar.plugins.javascript.sonarlint.SonarLintTypeCheckingChecker;
 import org.sonarsource.analyzer.commons.FileProvider;
 
 class TsConfigProvider {
@@ -76,7 +77,7 @@ class TsConfigProvider {
    */
   static List<String> getTsConfigs(
     ContextUtils contextUtils,
-    @Nullable JavaScriptProjectChecker javaScriptProjectChecker,
+    @Nullable SonarLintTypeCheckingChecker javaScriptProjectChecker,
     TsConfigFileCreator tsConfigFileCreator
   ) throws IOException {
     var defaultProvider = contextUtils.isSonarLint()
@@ -288,7 +289,7 @@ class TsConfigProvider {
     private final boolean deactivated;
 
     WildcardTsConfigProvider(
-      @Nullable JavaScriptProjectChecker checker,
+      @Nullable SonarLintTypeCheckingChecker checker,
       TsConfigFileCreator tsConfigFileCreator
     ) {
       super(SonarProduct.SONARLINT);

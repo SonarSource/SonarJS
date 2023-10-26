@@ -46,6 +46,7 @@ import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
+import org.sonar.plugins.javascript.sonarlint.SonarLintTypeCheckingChecker;
 
 class TsConfigProviderTest {
 
@@ -258,7 +259,7 @@ class TsConfigProviderTest {
     createInputFile(ctx, "file1.js");
     createInputFile(ctx, "file2.js");
 
-    var checker = mock(JavaScriptProjectChecker.class);
+    var checker = mock(SonarLintTypeCheckingChecker.class);
     when(checker.isBeyondLimit()).thenReturn(false);
 
     var provider = new TsConfigProvider.WildcardTsConfigProvider(
@@ -297,7 +298,7 @@ class TsConfigProviderTest {
     var ctx = SensorContextTester.create(baseDir);
     ctx.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 4)));
 
-    var checker = mock(JavaScriptProjectChecker.class);
+    var checker = mock(SonarLintTypeCheckingChecker.class);
     when(checker.isBeyondLimit()).thenReturn(false);
 
     tsconfigs =
@@ -318,7 +319,7 @@ class TsConfigProviderTest {
     var ctx = SensorContextTester.create(baseDir);
     createInputFile(ctx, "file.js");
 
-    var checker = mock(JavaScriptProjectChecker.class);
+    var checker = mock(SonarLintTypeCheckingChecker.class);
     when(checker.isBeyondLimit()).thenReturn(false);
 
     var fileWriter = mock(TsConfigProvider.TsConfigFileCreator.class);

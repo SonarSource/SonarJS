@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.javascript.bridge;
+package org.sonar.plugins.javascript.sonarlint;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.plugins.javascript.bridge.SonarLintJavaScriptProjectChecker.DEFAULT_MAX_FILES_FOR_TYPE_CHECKING;
-import static org.sonar.plugins.javascript.bridge.SonarLintJavaScriptProjectChecker.MAX_FILES_PROPERTY;
+import static org.sonar.plugins.javascript.sonarlint.SonarLintTypeCheckingCheckerImpl.DEFAULT_MAX_FILES_FOR_TYPE_CHECKING;
+import static org.sonar.plugins.javascript.sonarlint.SonarLintTypeCheckingCheckerImpl.MAX_FILES_PROPERTY;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -38,7 +38,7 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
 
-class SonarLintProjectCheckerTest {
+class SonarLintTypeCheckingCheckerTest {
 
   @RegisterExtension
   LogTesterJUnit5 logTester = new LogTesterJUnit5();
@@ -51,7 +51,9 @@ class SonarLintProjectCheckerTest {
     logTester.setLevel(LoggerLevel.INFO);
     inputFile("file.js");
     inputFile("file.css");
-    var checker = sonarLintJavaScriptProjectChecker(2);
+    inputFile("file.d.ts");
+    inputFile("node_modules", "dep.js");
+    var checker = sonarLintTypeCheckingChecker(2);
 
     assertThat(checker.isBeyondLimit()).isFalse();
     assertThat(logTester.logs()).contains("Turning on type-checking of JavaScript files");
@@ -64,7 +66,7 @@ class SonarLintProjectCheckerTest {
     inputFile("file2.ts");
     inputFile("file3.cjs");
     inputFile("file4.cts");
-    var checker = sonarLintJavaScriptProjectChecker(3);
+    var checker = sonarLintTypeCheckingChecker(3);
 
     assertThat(checker.isBeyondLimit()).isTrue();
     assertThat(logTester.logs())
@@ -80,23 +82,21 @@ class SonarLintProjectCheckerTest {
   @Test
   void should_detect_errors() {
     logTester.setLevel(LoggerLevel.WARN);
-    var checker = sonarLintJavaScriptProjectChecker(new IllegalArgumentException());
+    var checker = sonarLintTypeCheckingChecker(new IllegalArgumentException());
 
     assertThat(checker.isBeyondLimit()).isTrue();
     assertThat(logTester.logs())
       .containsExactly("Turning off type-checking of JavaScript files due to unexpected error");
   }
 
-  private SonarLintJavaScriptProjectChecker sonarLintJavaScriptProjectChecker(int maxFiles) {
-    var checker = new SonarLintJavaScriptProjectChecker();
+  private SonarLintTypeCheckingChecker sonarLintTypeCheckingChecker(int maxFiles) {
+    var checker = new SonarLintTypeCheckingCheckerImpl();
     checker.checkOnce(sensorContext(maxFiles));
     return checker;
   }
 
-  private SonarLintJavaScriptProjectChecker sonarLintJavaScriptProjectChecker(
-    RuntimeException error
-  ) {
-    var checker = new SonarLintJavaScriptProjectChecker();
+  private SonarLintTypeCheckingChecker sonarLintTypeCheckingChecker(RuntimeException error) {
+    var checker = new SonarLintTypeCheckingCheckerImpl();
     var context = sensorContext();
     when(context.fileSystem().baseDir()).thenThrow(error);
     checker.checkOnce(context);
@@ -120,5 +120,11 @@ class SonarLintProjectCheckerTest {
   private void inputFile(String filename) throws IOException {
     var path = baseDir.resolve(filename);
     Files.writeString(path, "inputFile");
+  }
+
+  private Path inputFile(String dir, String filename) throws IOException {
+    var path = Files.createDirectories(baseDir.resolve(dir)).resolve(filename);
+    Files.writeString(path, "inputFile");
+    return path;
   }
 }
