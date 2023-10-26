@@ -116,6 +116,14 @@ public class JavaScriptPlugin implements Plugin {
 
   public static final String JS_EXCLUSIONS_KEY = PROPERTY_PREFIX + ".exclusions";
   public static final String TS_EXCLUSIONS_KEY = "sonar.typescript.exclusions";
+  public static final String[] EXCLUSIONS_DEFAULT_VALUE = new String[] {
+    "**/node_modules/**",
+    "**/bower_components/**",
+    "**/dist/**",
+    "**/vendor/**",
+    "**/external/**",
+    "**/*.d.ts",
+  };
 
   public static final String EXTERNAL_ANALYZERS_CATEGORY = "External Analyzers";
   public static final String EXTERNAL_ANALYZERS_SUB_CATEGORY = "JavaScript/TypeScript";

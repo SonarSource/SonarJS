@@ -32,20 +32,11 @@ import org.sonar.plugins.javascript.JavaScriptPlugin;
 class PathAssessor implements Assessor {
 
   private static final Logger LOG = Loggers.get(PathAssessor.class);
-  private static final String[] EXCLUSIONS_DEFAULT_VALUE = new String[] {
-    "**/node_modules/**",
-    "**/bower_components/**",
-    "**/dist/**",
-    "**/vendor/**",
-    "**/external/**",
-    "**/*.d.ts",
-  };
-
   private final WildcardPattern[] excludedPatterns;
 
   PathAssessor(Configuration configuration) {
     if (!isExclusionOverridden(configuration)) {
-      excludedPatterns = WildcardPattern.create(EXCLUSIONS_DEFAULT_VALUE);
+      excludedPatterns = WildcardPattern.create(JavaScriptPlugin.EXCLUSIONS_DEFAULT_VALUE);
     } else {
       WildcardPattern[] jsExcludedPatterns = WildcardPattern.create(
         configuration.getStringArray(JavaScriptPlugin.JS_EXCLUSIONS_KEY)

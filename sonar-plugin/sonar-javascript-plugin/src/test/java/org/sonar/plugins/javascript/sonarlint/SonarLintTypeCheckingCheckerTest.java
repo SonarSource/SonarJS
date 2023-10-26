@@ -51,6 +51,8 @@ class SonarLintTypeCheckingCheckerTest {
     logTester.setLevel(LoggerLevel.INFO);
     inputFile("file.js");
     inputFile("file.css");
+    inputFile("file.d.ts");
+    inputFile("node_modules", "dep.js");
     var checker = sonarLintTypeCheckingChecker(2);
 
     assertThat(checker.isBeyondLimit()).isFalse();
@@ -118,5 +120,11 @@ class SonarLintTypeCheckingCheckerTest {
   private void inputFile(String filename) throws IOException {
     var path = baseDir.resolve(filename);
     Files.writeString(path, "inputFile");
+  }
+
+  private Path inputFile(String dir, String filename) throws IOException {
+    var path = Files.createDirectories(baseDir.resolve(dir)).resolve(filename);
+    Files.writeString(path, "inputFile");
+    return path;
   }
 }

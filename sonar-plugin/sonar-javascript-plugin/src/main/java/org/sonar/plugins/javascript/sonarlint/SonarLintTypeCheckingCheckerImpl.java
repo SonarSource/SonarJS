@@ -19,9 +19,11 @@
  */
 package org.sonar.plugins.javascript.sonarlint;
 
+import static org.sonar.plugins.javascript.sonarlint.SonarLintTypeCheckingFilter.FileFilter;
+import static org.sonar.plugins.javascript.sonarlint.SonarLintTypeCheckingFilter.PathFilter;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.utils.log.Logger;
@@ -87,13 +89,11 @@ public class SonarLintTypeCheckingCheckerImpl implements SonarLintTypeCheckingCh
   }
 
   private static long countProjectSize(SensorContext context, long maxSize) {
-    var isPluginFile = Pattern.compile("\\.(js|cjs|mjs|jsx|ts|cts|mts|tsx|vue)$").asPredicate();
+    var fileFilter = new FileFilter(context.config());
 
     try (var files = walkProjectFiles(context)) {
       return files
-        .filter(Files::isRegularFile)
-        .map(path -> path.getFileName().toString())
-        .filter(isPluginFile)
+        .filter(path -> Files.isRegularFile(path) && fileFilter.test(path))
         .limit(maxSize)
         .count();
     }
@@ -101,7 +101,11 @@ public class SonarLintTypeCheckingCheckerImpl implements SonarLintTypeCheckingCh
 
   private static Stream<Path> walkProjectFiles(SensorContext context) {
     // The Files.walk() is failing on Windows with WSL (see https://bugs.openjdk.org/browse/JDK-8259617)
-    return PathWalker.stream(context.fileSystem().baseDir().toPath(), FILE_WALK_MAX_DEPTH);
+    return PathWalker.stream(
+      context.fileSystem().baseDir().toPath(),
+      FILE_WALK_MAX_DEPTH,
+      new PathFilter(context.config())
+    );
   }
 
   private static int getTypeCheckingLimit(SensorContext context) {
