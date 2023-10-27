@@ -264,4 +264,11 @@ describe('program', () => {
     const { files } = createProgram(tsConfig);
     expect(files.some(file => file.endsWith('.json'))).toBe(false);
   });
+
+  it('should filter out node modules on program creation', () => {
+    const fixtures = toUnixPath(path.join(__dirname, 'fixtures', 'node'));
+    const tsConfig = toUnixPath(path.join(fixtures, 'tsconfig.json'));
+    const { files } = createProgram(tsConfig);
+    expect(files).toEqual([toUnixPath(path.join(fixtures, 'file.ts'))]);
+  });
 });
