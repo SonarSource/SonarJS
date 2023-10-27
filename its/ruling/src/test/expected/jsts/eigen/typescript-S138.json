@@ -2,9 +2,6 @@
 "eigen:src/app/Components/Artist/ArtistConsignButton.tests.tsx": [
 26
 ],
-"eigen:src/app/Components/ArtworkFilter/ArtworkFilterNavigator.tsx": [
-101
-],
 "eigen:src/app/Components/ArtworkFilter/ArtworkFiltersStore.tests.tsx": [
 94,
 610,
@@ -28,17 +25,11 @@
 "eigen:src/app/Components/ArtworkFilter/SavedSearch/convertersToFilterParams.tests.ts": [
 415
 ],
-"eigen:src/app/Components/ArtworkGrids/ArtworkGridItem.tsx": [
-93
-],
 "eigen:src/app/Components/Bidding/Screens/Registration.tests.tsx": [
 170
 ],
 "eigen:src/app/Scenes/Artwork/Artwork.tests.tsx": [
 66
-],
-"eigen:src/app/Scenes/Artwork/Artwork.tsx": [
-64
 ],
 "eigen:src/app/Scenes/Artwork/Components/ArtworkExtraLinks/index.tests.tsx": [
 48
@@ -64,14 +55,8 @@
 "eigen:src/app/Scenes/Artwork/Components/PartnerCard.tests.tsx": [
 16
 ],
-"eigen:src/app/Scenes/AuctionResult/AuctionResult.tsx": [
-34
-],
 "eigen:src/app/Scenes/Fair/Fair.tests.tsx": [
 21
-],
-"eigen:src/app/Scenes/Home/Home.tsx": [
-74
 ],
 "eigen:src/app/Scenes/Inbox/Components/Conversations/Composer.tests.tsx": [
 89,
@@ -86,21 +71,9 @@
 "eigen:src/app/Scenes/MyCollection/Screens/ArtworkForm/MyCollectionArtworkForm.tests.tsx": [
 41
 ],
-"eigen:src/app/Scenes/MyCollection/Screens/ArtworkForm/Screens/MyCollectionArtworkFormMain.tsx": [
-26
-],
 "eigen:src/app/Scenes/MyCollection/utils/localArtworkSortAndFilter.ts": [
 15,
 20
-],
-"eigen:src/app/Scenes/MyProfile/MyProfileEditForm.tsx": [
-64
-],
-"eigen:src/app/Scenes/Onboarding/OnboardingSocialLink.tsx": [
-32
-],
-"eigen:src/app/Scenes/Onboarding/OnboardingSocialPick.tsx": [
-16
 ],
 "eigen:src/app/Scenes/OrderHistory/OrderHistoryRow.tests.tsx": [
 41
@@ -112,18 +85,12 @@
 "eigen:src/app/Scenes/SavedAddresses/SavedAddresses.tests.tsx": [
 13
 ],
-"eigen:src/app/Scenes/SavedSearchAlert/SavedSearchAlertForm.tsx": [
-40
-],
 "eigen:src/app/Scenes/Search/Search.tests.tsx": [
 59,
 217
 ],
 "eigen:src/app/Scenes/Search/components/AutosuggestSearchResult.tests.tsx": [
 46
-],
-"eigen:src/app/Scenes/SellWithArtsy/SubmitArtwork/ArtworkDetails/ArtworkDetailsForm.tsx": [
-25
 ],
 "eigen:src/app/navigation/navigate.tests.tsx": [
 30
