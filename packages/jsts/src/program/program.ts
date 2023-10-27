@@ -168,7 +168,7 @@ export function createProgram(tsConfig: string, tsconfigContents?: string): Prog
   const files = program
     .getSourceFiles()
     .map(sourceFile => sourceFile.fileName)
-    .filter(fileName => !fileName.endsWith('.json'));
+    .filter(exceptions);
 
   return {
     files,
@@ -176,6 +176,22 @@ export function createProgram(tsConfig: string, tsconfigContents?: string): Prog
     missingTsConfig: programOptions.missingTsConfig,
     program,
   };
+
+  function exceptions(filename: string) {
+    const { dir, ext } = path.parse(filename);
+
+    /* JSON files */
+    if (ext === '.json') {
+      return false;
+    }
+
+    /* Node modules */
+    if (toUnixPath(dir).split('/').includes('node_modules')) {
+      return false;
+    }
+
+    return true;
+  }
 }
 
 /**
