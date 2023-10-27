@@ -1,15 +1,10 @@
 {
 "react-cloud-music:ts-music/src/assets/border.ts": [
-35,
 46
 ],
 "react-cloud-music:ts-music/src/baseUI/scroll/index.tsx": [
 82,
 86,
-119,
 133
-],
-"react-cloud-music:ts-music/src/components/list/index.tsx": [
-35
 ]
 }

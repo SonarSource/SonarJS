@@ -17,21 +17,4 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.checks;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
-import com.google.gson.Gson;
-import org.junit.jupiter.api.Test;
-
-class NoMagicNumbersCheckTest {
-
-  @Test
-  void config() {
-    String configAsString = new Gson().toJson(new NoMagicNumbersCheck().configurations());
-    assertThat(configAsString)
-      .isEqualTo(
-        "[{\"ignore\":[0,1,-1,24,60],\"ignoreEnums\":true,\"ignoreReadonlyClassProperties\":true,\"ignoreNumericLiteralTypes\":true,\"ignoreDefaultValues\":true,\"ignoreClassFieldInitialValues\":true}]"
-      );
-  }
-}
+export { rule } from './rule';

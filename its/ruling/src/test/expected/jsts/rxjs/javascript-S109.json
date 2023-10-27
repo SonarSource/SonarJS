@@ -1,47 +1,12 @@
 {
 "rxjs:doc/decision-tree-widget/tools/yaml2json.js": [
-3,
 4
 ],
-"rxjs:perf/macro/bufferCount/perf.js": [
-8,
-10,
-10
-],
-"rxjs:perf/macro/combineLatest/perf.js": [
-8
-],
 "rxjs:perf/macro/groupBy/perf.js": [
-8,
 11
 ],
-"rxjs:perf/macro/merge/perf.js": [
-8
-],
-"rxjs:perf/macro/mergeAll/perf.js": [
-8
-],
-"rxjs:perf/macro/mergeMap-scalar/perf.js": [
-8
-],
-"rxjs:perf/macro/mergeMap/perf.js": [
-8
-],
-"rxjs:perf/macro/perf-helpers.js": [
-7
-],
 "rxjs:perf/macro/specbuilder.js": [
-5,
-5,
 9
-],
-"rxjs:perf/macro/windowCount/perf.js": [
-8,
-10,
-10
-],
-"rxjs:perf/macro/zip/perf.js": [
-8
 ],
 "rxjs:perf/micro/current-thread-scheduler/observable/from-with-array.js": [
 6
@@ -126,8 +91,6 @@
 11
 ],
 "rxjs:perf/micro/current-thread-scheduler/operators/filter.js": [
-6,
-9,
 12,
 14
 ],
@@ -243,15 +206,11 @@
 ],
 "rxjs:perf/micro/current-thread-scheduler/operators/switchmapto-resultselector.js": [
 6,
-7,
-8,
-9
+8
 ],
 "rxjs:perf/micro/current-thread-scheduler/operators/switchmapto.js": [
 5,
-6,
-7,
-8
+7
 ],
 "rxjs:perf/micro/current-thread-scheduler/operators/take.js": [
 5,
@@ -295,12 +254,8 @@
 7,
 8,
 8,
-8,
-8,
 11,
 12,
-13,
-13,
 13,
 13
 ],
@@ -401,16 +356,12 @@
 5,
 5,
 5,
-5,
-5,
 7,
 9,
 10,
 12
 ],
 "rxjs:perf/micro/immediate-scheduler/operators/debouncetime.js": [
-5,
-5,
 5,
 5,
 5,
@@ -447,14 +398,6 @@
 9,
 9,
 9,
-9,
-9,
-9,
-9,
-11,
-11,
-11,
-11,
 11,
 11,
 11,
@@ -482,20 +425,14 @@
 11
 ],
 "rxjs:perf/micro/immediate-scheduler/operators/filter-scalar-false.js": [
-6,
-10,
 12,
 13
 ],
 "rxjs:perf/micro/immediate-scheduler/operators/filter-scalar-true.js": [
-6,
-10,
 12,
 13
 ],
 "rxjs:perf/micro/immediate-scheduler/operators/filter.js": [
-6,
-10,
 12,
 13
 ],
@@ -661,14 +598,6 @@
 9,
 9,
 9,
-9,
-9,
-9,
-9,
-13,
-13,
-13,
-13,
 13,
 13,
 13,
@@ -688,9 +617,6 @@
 10
 ],
 "rxjs:perf/micro/immediate-scheduler/operators/sequenceEqual-comparor.js": [
-9,
-9,
-9,
 9,
 9,
 9,
@@ -740,9 +666,7 @@
 "rxjs:perf/micro/immediate-scheduler/operators/skipuntil.js": [
 5,
 6,
-6,
 7,
-8,
 8
 ],
 "rxjs:perf/micro/immediate-scheduler/operators/skipwhile.js": [
@@ -784,15 +708,11 @@
 ],
 "rxjs:perf/micro/immediate-scheduler/operators/switchmapto-resultselector.js": [
 6,
-7,
-8,
-9
+8
 ],
 "rxjs:perf/micro/immediate-scheduler/operators/switchmapto.js": [
 5,
-6,
-7,
-8
+7
 ],
 "rxjs:perf/micro/immediate-scheduler/operators/take-scalar.js": [
 5,
@@ -815,9 +735,7 @@
 "rxjs:perf/micro/immediate-scheduler/operators/takeuntil.js": [
 5,
 6,
-6,
 7,
-8,
 8
 ],
 "rxjs:perf/micro/immediate-scheduler/operators/takewhile.js": [
@@ -866,11 +784,6 @@
 13
 ],
 "rxjs:perf/micro/index.js": [
-18,
-47,
-47,
-58,
-59,
 70,
 70,
 70,
@@ -881,19 +794,10 @@
 71,
 71,
 71,
-95,
-101,
-149,
-150,
-151,
 152,
 152,
 152,
 152,
 152
-],
-"rxjs:tools/check-gzip-size.js": [
-12,
-12
 ]
 }

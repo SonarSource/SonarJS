@@ -253,6 +253,7 @@ import { rule as S1534 } from './S1534'; // sonar-no-dupe-keys
 import { rule as S2639 } from './S2639'; // sonar-no-empty-character-class
 import { rule as S128 } from './S128'; // sonar-no-fallthrough
 import { rule as S5856 } from './S5856'; // sonar-no-invalid-regexp
+import { rule as S109 } from './S109'; // sonar-no-magic-numbers
 import { rule as S5868 } from './S5868'; // sonar-no-misleading-character-class
 import { rule as S6326 } from './S6326'; // sonar-no-regex-spaces
 import { rule as S6441 } from './S6441'; // sonar-no-unused-class-component-methods
@@ -529,6 +530,7 @@ rules['sonar-no-dupe-keys'] = S1534;
 rules['sonar-no-empty-character-class'] = S2639;
 rules['sonar-no-fallthrough'] = S128;
 rules['sonar-no-invalid-regexp'] = S5856;
+rules['sonar-no-magic-numbers'] = S109;
 rules['sonar-no-misleading-character-class'] = S5868;
 rules['sonar-no-regex-spaces'] = S6326;
 rules['sonar-no-unused-class-component-methods'] = S6441;
