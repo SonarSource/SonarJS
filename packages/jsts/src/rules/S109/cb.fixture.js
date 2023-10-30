@@ -1,5 +1,5 @@
 function doSomething() {
-  for (let i = 0; i < 42; i++) { // Noncompliant {{No magic number: 42}}
+  for (let i = 0; i < 42; i++) { // Noncompliant {{No magic number: 42.}}
     // ...
   }
 }
