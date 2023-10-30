@@ -199,7 +199,7 @@ ruleTester.run('', rule, {
     },
     {
       code: 'var r = new RegExp("[👶🏻]", "u")',
-      errors: [{ column: 26, endColumn: 27, message: modifiedEmoji('👶🏻') }],
+      errors: [{ column: 24, endColumn: 26, message: modifiedEmoji('👶🏻') }],
     },
     {
       code: 'var r = new RegExp(`[👶🏻]`, `u`)',
@@ -231,7 +231,7 @@ ruleTester.run('', rule, {
     },
     {
       code: 'var r = new RegExp("[🇯🇵]", "u")',
-      errors: [{ column: 26, endColumn: 27, message: regionalIndicator('🇯🇵') }],
+      errors: [{ column: 24, endColumn: 26, message: regionalIndicator('🇯🇵') }],
     },
     {
       code: 'var r = new RegExp(`[🇯🇵]`, `u`)',
@@ -259,7 +259,7 @@ ruleTester.run('', rule, {
     },
     {
       code: 'var r = new RegExp("[👨‍👩‍👦]", "u")',
-      errors: [{ column: 22, endColumn: 25, message: zwj }],
+      errors: [{ column: 22, endColumn: 24, message: zwj }],
     },
     {
       code: 'var r = new RegExp(`[👨‍👩‍👦]`, `u`)',
@@ -281,7 +281,7 @@ ruleTester.run('', rule, {
     // RegExp constructors.
     {
       code: 'var r = new RegExp("[👍]")',
-      errors: surrogatePair('👍', 'var r = new RegExp("[👍]", "u")', 24, 25),
+      errors: surrogatePair('👍', 'var r = new RegExp("[👍]", "u")', 23, 24),
     },
     {
       code: 'var r = new RegExp(`[👍]`)',
@@ -316,11 +316,8 @@ ruleTester.run('', rule, {
       errors: surrogatePair('👍', 'var r = new RegExp(String.raw`[👍]`, String.raw`iu`)'),
     },
     {
-      code: String.raw`var r = new RegExp("[\\uD83D\\uDC4D]", "")`,
-      errors: surrogatePair(
-        '\\uD83D\\uDC4D',
-        String.raw`var r = new RegExp("[\\uD83D\\uDC4D]", "u")`,
-      ),
+      code: `var r = new RegExp("[\\uD83D\\uDC4D]", "")`,
+      errors: surrogatePair('\\uD83D\\uDC4D', `var r = new RegExp("[\\uD83D\\uDC4D]", "u")`),
     },
     {
       code: String.raw`var r = new RegExp("/(?<=[👍])", "")`,
@@ -341,11 +338,11 @@ ruleTester.run('', rule, {
       errors: [{ message: modifiedEmoji('👶🏻') }],
     },
     {
-      code: String.raw`var r = new RegExp("[\\uD83D\\uDC76\\uD83C\\uDFFB]", "u")`,
+      code: `var r = new RegExp("[\\uD83D\\uDC76\\uD83C\\uDFFB]", "u")`,
       errors: [{ message: modifiedEmoji('\\uD83D\\uDC76\\uD83C\\uDFFB') }],
     },
     {
-      code: String.raw`var r = new RegExp("[\\u{1F476}\\u{1F3FB}]", "u")`,
+      code: `var r = new RegExp("[\\u{1F476}\\u{1F3FB}]", "u")`,
       errors: [{ message: modifiedEmoji('\\u{1F476}\\u{1F3FB}') }],
     },
     {
@@ -377,11 +374,11 @@ ruleTester.run('', rule, {
       errors: [{ message: regionalIndicator('🇯🇵') }],
     },
     {
-      code: String.raw`var r = new RegExp("[\\uD83C\\uDDEF\\uD83C\\uDDF5]", "u")`,
+      code: `var r = new RegExp("[\\uD83C\\uDDEF\\uD83C\\uDDF5]", "u")`,
       errors: [{ message: regionalIndicator('\\uD83C\\uDDEF\\uD83C\\uDDF5') }],
     },
     {
-      code: String.raw`var r = new RegExp("[\\u{1F1EF}\\u{1F1F5}]", "u")`,
+      code: `var r = new RegExp("[\\u{1F1EF}\\u{1F1F5}]", "u")`,
       errors: [{ message: regionalIndicator('\\u{1F1EF}\\u{1F1F5}') }],
     },
     {
@@ -393,11 +390,11 @@ ruleTester.run('', rule, {
       errors: [{ message: zwj }],
     },
     {
-      code: String.raw`var r = new RegExp("[\\uD83D\\uDC68\\u200D\\uD83D\\uDC69\\u200D\\uD83D\\uDC66]", "u")`,
+      code: `var r = new RegExp("[\\uD83D\\uDC68\\u200D\\uD83D\\uDC69\\u200D\\uD83D\\uDC66]", "u")`,
       errors: [{ message: zwj }],
     },
     {
-      code: String.raw`var r = new RegExp("[\\u{1F468}\\u{200D}\\u{1F469}\\u{200D}\\u{1F466}]", "u")`,
+      code: `var r = new RegExp("[\\u{1F468}\\u{200D}\\u{1F469}\\u{200D}\\u{1F466}]", "u")`,
       errors: [{ message: zwj }],
     },
     {
@@ -416,7 +413,7 @@ ruleTester.run('', rule, {
       errors: surrogatePair('🇯', String.raw`var r = new globalThis.RegExp("[🇯🇵]", "u")`),
     },
     {
-      code: String.raw`var r = new globalThis.RegExp("[\\u{1F468}\\u{200D}\\u{1F469}\\u{200D}\\u{1F466}]", "u")`,
+      code: `var r = new globalThis.RegExp("[\\u{1F468}\\u{200D}\\u{1F469}\\u{200D}\\u{1F466}]", "u")`,
       env: { es2020: true },
       errors: [{ message: zwj }],
     },

@@ -51,6 +51,7 @@ import {
   isStringRegexMethodCall,
 } from '../helpers/regex';
 import { SONAR_RUNTIME } from '../../linter/parameters';
+import Diff from 'diff';
 
 const DEFAULT_THESHOLD = 20;
 
@@ -179,9 +180,17 @@ class ComplexityCalculator {
   complexity = 0;
   components: { location: LocationHolder; message: string }[] = [];
   regexPartAST: regexpp.AST.Node | null;
+  parseDiff: Diff.Change[] | null;
 
   constructor(readonly regexPart: RegexPart, readonly context: Rule.RuleContext) {
-    this.regexPartAST = getParsedRegex(regexPart, context);
+    const result = getParsedRegex(regexPart, context);
+    if (result) {
+      this.regexPartAST = result.regex;
+      this.parseDiff = result.parseDiff;
+    } else {
+      this.regexPartAST = null;
+      this.parseDiff = null;
+    }
   }
 
   visit() {
@@ -265,7 +274,7 @@ class ComplexityCalculator {
     if (increment > 1) {
       message += ` (incl ${increment - 1} for nesting)`;
     }
-    const loc = getRegexpLocation(this.regexPart, node, this.context, offset);
+    const loc = getRegexpLocation(this.regexPart, node, this.context, offset, this.parseDiff || []);
     this.components.push({
       location: {
         loc,

@@ -108,7 +108,7 @@ ruleTester.run('Empty groups', rule, {
           message: 'Remove this empty group.',
           line: 1,
           endLine: 1,
-          column: 16,
+          column: 15,
           endColumn: 18,
         },
       ],

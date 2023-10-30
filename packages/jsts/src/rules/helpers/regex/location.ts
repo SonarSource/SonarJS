@@ -22,6 +22,7 @@ import * as estree from 'estree';
 import * as regexpp from '@eslint-community/regexpp';
 import { isRegexLiteral, isStringLiteral } from '../';
 import { getRegexpRange } from './range';
+import { Change } from 'diff';
 
 /**
  * Gets the regexp node location in the ESLint referential
@@ -29,6 +30,7 @@ import { getRegexpRange } from './range';
  * @param regexpNode the regexp regex node
  * @param context the rule context
  * @param offset an offset to apply on the location
+ * @param parseDiff
  * @returns the regexp node location in the ESLint referential
  */
 export function getRegexpLocation(
@@ -36,15 +38,42 @@ export function getRegexpLocation(
   regexpNode: regexpp.AST.Node,
   context: Rule.RuleContext,
   offset = [0, 0],
+  parseDiff: Change[] = [],
 ): AST.SourceLocation {
   let loc: AST.SourceLocation;
   if (isRegexLiteral(node) || isStringLiteral(node)) {
     const source = context.sourceCode;
     const [start] = node.range!;
     const [reStart, reEnd] = getRegexpRange(node, regexpNode);
+    let startIndex = start + reStart + offset[0];
+    let endIndex = start + reEnd + offset[1];
+
+    let index = 1;
+    for (const change of parseDiff) {
+      if (change.removed) {
+        if (startIndex >= index) {
+          startIndex += change.value.length;
+        }
+        if (endIndex >= index) {
+          endIndex += change.value.length;
+        }
+      } else if (change.added) {
+        index += change.value.length;
+        if (startIndex >= index) {
+          startIndex -= change.value.length;
+        }
+        if (endIndex >= index) {
+          endIndex -= change.value.length;
+        }
+      } else {
+        // Chunk was both in input and output
+        index += change.value.length;
+      }
+    }
+
     loc = {
-      start: source.getLocFromIndex(start + reStart + offset[0]),
-      end: source.getLocFromIndex(start + reEnd + offset[1]),
+      start: source.getLocFromIndex(startIndex),
+      end: source.getLocFromIndex(endIndex),
     };
   } else {
     loc = node.loc!;

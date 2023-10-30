@@ -42,7 +42,7 @@ ruleTester.run('No control characters in regular expressions', rule, {
       code: `/\\cA/`,
     },
     {
-      code: String.raw`new RegExp('\t')`,
+      code: `new RegExp('\t')`,
     },
     {
       code: String.raw`new RegExp('\n')`,
@@ -89,14 +89,14 @@ ruleTester.run('No control characters in regular expressions', rule, {
       code: "var regex = new RegExp('\\x1f\\x1e')",
       errors: [
         {
-          message: String.raw`Remove this control character.`,
+          message: `Remove this control character.`,
           line: 1,
           endLine: 1,
           column: 25,
           endColumn: 29,
         },
         {
-          message: String.raw`Remove this control character.`,
+          message: `Remove this control character.`,
           line: 1,
           endLine: 1,
           column: 29,
@@ -117,7 +117,7 @@ ruleTester.run('No control characters in regular expressions', rule, {
       errors: 1,
     },
     {
-      code: String.raw`const flags = ''; new RegExp("\\u001F", flags)`,
+      code: `const flags = ''; new RegExp("\\u001F", flags)`,
       errors: 1,
     },
   ],

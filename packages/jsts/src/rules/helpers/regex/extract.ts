@@ -33,21 +33,33 @@ import {
 import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { isRegExpConstructor } from './ast';
 import { getFlags } from './flags';
+import { diffChars, Change } from 'diff';
 
 export function getParsedRegex(
   node: estree.Node,
   context: Rule.RuleContext,
-): regexpp.AST.RegExpLiteral | null {
+): { regex: regexpp.AST.RegExpLiteral; parseDiff: Change[] } | null {
   const patternAndFlags = getPatternFromNode(node, context);
   if (patternAndFlags) {
     try {
-      return regexpp.parseRegExpLiteral(new RegExp(patternAndFlags.pattern, patternAndFlags.flags));
-    } catch {
+      const regex = regexpp.parseRegExpLiteral(
+        new RegExp(patternAndFlags.pattern, patternAndFlags.flags),
+      );
+      const parseDiff = diffChars(patternAndFlags.pattern, regex.pattern.raw);
+      return { regex, parseDiff };
+    } catch (err) {
       // do nothing for invalid regex
     }
   }
 
   return null;
+}
+
+function unquote(s: string): string {
+  if (!s.startsWith("'") && !s.startsWith('"')) {
+    throw new Error(`invalid string to unquote: ${s}`);
+  }
+  return s.substring(1, s.length - 1);
 }
 
 export function getPatternFromNode(
@@ -65,7 +77,7 @@ export function getPatternFromNode(
   } else if (isRegexLiteral(node)) {
     return node.regex;
   } else if (isStringLiteral(node)) {
-    return { pattern: node.value as string, flags: '' };
+    return { pattern: unquote(node.raw as string), flags: '' };
   } else if (isStaticTemplateLiteral(node)) {
     return { pattern: node.quasis[0].value.raw, flags: '' };
   } else if (isSimpleRawString(node)) {
