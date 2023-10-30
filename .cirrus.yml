@@ -149,13 +149,16 @@ analyze_task:
 build_win_task:
   depends_on:
     - build
+  env:
+    ARTIFACTORY_DEPLOY_ACCESS_TOKEN: VAULT[development/artifactory/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-qa-deployer access_token]
   <<: *WINDOWS_VM_DEFINITION
   <<: *ONLY_SONARSOURCE_QA
   <<: *MAVEN_CACHE
   <<: *RUNTIME_CACHE
   build_script:
     - source cirrus-env CI
-    - npm config set registry "${ARTIFACTORY_URL}/api/npm/npm"
+    - jfrog config add repox --url $ARTIFACTORY_URL --access-token $ARTIFACTORY_DEPLOY_ACCESS_TOKEN
+    - jfrog npm config set registry "${ARTIFACTORY_URL}/api/npm/npm"
     - npm run build
   cleanup_before_cache_script: cleanup_maven_repository
 
