@@ -507,7 +507,7 @@ typeAwareRuleTester.run('Regular expressions named groups should be used', rule,
       ],
     },
     {
-      code: `'str'.search('(?<foo>\\w)\\\\1(?<bar>\\w)\\\\k<bar>(?<baz>\\w)'); // Noncompliant: 'foo' referenced by index`,
+      code: String.raw`'str'.search(/(?<foo>\w)\1(?<bar>\w)\k<bar>(?<baz>\w)/); // Noncompliant: 'foo' referenced by index`,
       errors: 1,
     },
     {
