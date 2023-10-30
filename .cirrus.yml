@@ -149,8 +149,6 @@ analyze_task:
 build_win_task:
   depends_on:
     - build
-  env:
-    ARTIFACTORY_DEPLOY_ACCESS_TOKEN: VAULT[development/artifactory/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-qa-deployer access_token]
   <<: *WINDOWS_VM_DEFINITION
   <<: *ONLY_SONARSOURCE_QA
   <<: *MAVEN_CACHE
