@@ -50,6 +50,7 @@ const decoratedAriaPropsRule = interceptReport(ariaPropsRule, (context, descript
       context.report(descriptor);
     }
   }
+  console.log('wololo');
 });
 
 const twiceDecoratedNoUnkownProp = interceptReport(decoratedNoUnkownProp, (context, descriptor) => {
