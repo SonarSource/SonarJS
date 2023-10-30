@@ -55,13 +55,6 @@ export function getParsedRegex(
   return null;
 }
 
-function unquote(s: string): string {
-  if (!s.startsWith("'") && !s.startsWith('"')) {
-    throw new Error(`invalid string to unquote: ${s}`);
-  }
-  return s.substring(1, s.length - 1);
-}
-
 export function getPatternFromNode(
   node: estree.Node,
   context: Rule.RuleContext,
@@ -99,4 +92,11 @@ export function getPatternFromNode(
   }
 
   return null;
+}
+
+function unquote(s: string): string {
+  if (!s.startsWith("'") && !s.startsWith('"')) {
+    return s;
+  }
+  return s.substring(1, s.length - 1);
 }

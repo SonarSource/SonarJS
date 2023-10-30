@@ -29,7 +29,7 @@ import { Change } from 'diff';
  * @param regexpNode the regexp regex node
  * @param context the rule context
  * @param offset an offset to apply on the location
- * @param parseDiff
+ * @param parseDiff difference between code and parsed regex
  * @returns the regexp node location in the ESLint referential
  */
 export function getRegexpLocation(
@@ -46,13 +46,13 @@ export function getRegexpLocation(
     let startIndex = start + regexpNode.start + offset[0];
     let endIndex = start + regexpNode.end + offset[1];
 
-    let index = 1;
+    let index = start;
     for (const change of parseDiff) {
       if (change.removed) {
         if (startIndex >= index) {
           startIndex += change.value.length;
         }
-        if (endIndex >= index) {
+        if (endIndex > index) {
           endIndex += change.value.length;
         }
       } else if (change.added) {
@@ -60,7 +60,7 @@ export function getRegexpLocation(
         if (startIndex >= index) {
           startIndex -= change.value.length;
         }
-        if (endIndex >= index) {
+        if (endIndex > index) {
           endIndex -= change.value.length;
         }
       } else {
