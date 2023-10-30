@@ -1,69 +1,24 @@
 {
 "prototype:ext/update_helper/prototype_update_helper.html": [
-39,
-272,
 272
 ],
-"prototype:src/prototype/ajax/periodical_updater.js": [
-213
-],
 "prototype:src/prototype/ajax/request.js": [
-226,
 250,
 250,
-259,
 278,
 278,
 278,
 284,
 284
 ],
-"prototype:src/prototype/ajax/response.js": [
-71,
-71,
-78
-],
 "prototype:src/prototype/dom/dom.js": [
-716,
-717,
-718,
-1045,
-2034,
-2034,
-2391,
-2687,
-2752,
-2987
-],
-"prototype:src/prototype/dom/event.js": [
-124
-],
-"prototype:src/prototype/dom/layout.js": [
-8
-],
-"prototype:src/prototype/lang/function.js": [
-116,
-261,
-293
-],
-"prototype:src/prototype/lang/number.js": [
-29,
-29,
-102
-],
-"prototype:src/prototype/lang/periodical_executer.js": [
-40
+717
 ],
 "prototype:src/prototype/lang/string.js": [
-229,
-355,
-677,
-677
+229
 ],
 "prototype:src/prototype/lang/template.js": [
-151,
 153,
-160,
 162,
 163
 ],
@@ -73,8 +28,6 @@
 "prototype:test/functional/event.html": [
 130,
 224,
-231,
-231,
-329
+231
 ]
 }

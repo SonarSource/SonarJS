@@ -4,46 +4,19 @@
 70,
 82,
 142,
-142,
-142,
-149,
-149,
 149,
 156,
-156,
-156,
-163,
-163,
 163,
 249,
 340,
-340,
-340,
-647,
-647,
 647,
 733,
-733,
-733,
-930,
-930,
 930
 ],
 "snoode:src/models/link.es6.js": [
 41
 ],
-"snoode:src/models/message.es6.js": [
-13,
-17
-],
 "snoode:src/models/report.es6.js": [
-17,
-22,
-37,
-41,
-42
-],
-"snoode:test/models/base.js": [
-55
+41
 ]
 }

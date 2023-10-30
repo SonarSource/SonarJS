@@ -1,13 +1,6 @@
 {
 "jquery:Gruntfile.js": [
-174,
 174
-],
-"jquery:build/release/dist.js": [
-52
-],
-"jquery:build/tasks/build.js": [
-122
 ],
 "jquery:build/tasks/dist.js": [
 46,
@@ -15,14 +8,9 @@
 48
 ],
 "jquery:build/tasks/testswarm.js": [
-20,
-20,
-20,
-28
+20
 ],
 "jquery:src/ajax.js": [
-465,
-738,
 741,
 741,
 741,
@@ -34,49 +22,29 @@
 55
 ],
 "jquery:src/attributes/attr.js": [
-27,
-27,
 27
 ],
 "jquery:src/attributes/prop.js": [
-28,
-28,
 28
 ],
 "jquery:src/core.js": [
-97,
-103,
 276,
 276,
-289,
 289
 ],
 "jquery:src/core/init.js": [
-33,
-76
+33
 ],
 "jquery:src/css.js": [
 42,
-42,
-56,
-56,
-104,
-205,
 205,
 244,
-360,
-385,
-387
+360
 ],
 "jquery:src/css/adjustCSS.js": [
 16,
 23,
-27,
-30,
-40,
-47,
-59,
-60
+30
 ],
 "jquery:src/css/support.js": [
 27
@@ -88,51 +56,24 @@
 12
 ],
 "jquery:src/deferred.js": [
-51,
-78,
-79,
 232,
 244,
 255,
-255,
-277,
 278,
 297,
-297,
 301,
 301,
-304,
 307,
 314
-],
-"jquery:src/deprecated.js": [
-48
 ],
 "jquery:src/dimensions.js": [
 29
 ],
-"jquery:src/effects.js": [
-54,
-54,
-195
-],
-"jquery:src/effects/Tween.js": [
-102,
-102
-],
 "jquery:src/event.js": [
-156,
-238,
-251,
-737,
-738,
-741,
-742
+738
 ],
 "jquery:src/event/trigger.js": [
 27,
-27,
-51,
 51
 ],
 "jquery:src/manipulation.js": [
@@ -147,85 +88,46 @@
 322,
 322
 ],
-"jquery:src/manipulation/buildFragment.js": [
-39
-],
 "jquery:src/manipulation/wrapMap.js": [
-10,
-11,
 12
 ],
 "jquery:src/offset.js": [
 180
 ],
 "jquery:src/selector.js": [
-116,
-129,
-130,
-130,
-130,
-130,
 157,
 163,
 163,
 177,
 183,
-200,
 205,
 426,
 516,
 516,
 516,
-516,
-519,
 520,
 520,
-523,
 540,
 543,
-549,
-549,
 550,
 550,
 551,
 551,
-551,
-553,
 553,
 553,
 553,
 556,
 565,
-565,
 572,
 573,
-573,
-573,
-586,
 590,
 670,
 671,
-719,
 945,
-989,
-997,
-1171,
-1171,
-1178,
-1379,
-1409,
-1570,
 1571
 ],
 "jquery:src/selector/contains.js": [
-5,
-14
-],
-"jquery:src/selector/escapeSelector.js": [
-16
-],
-"jquery:src/selector/uniqueSort.js": [
-59
+5
 ],
 "jquery:src/traversing.js": [
 51,
@@ -238,23 +140,11 @@
 "jquery:test/data/ajax/unreleasedXHR.html": [
 15
 ],
-"jquery:test/data/core/dynamic_ready.html": [
-32
-],
 "jquery:test/data/event/onbeforeunload.html": [
 17
 ],
 "jquery:test/data/offset/boxes.html": [
-73,
 74
-],
-"jquery:test/data/offset/fixed.html": [
-19,
-19
-],
-"jquery:test/data/offset/scroll.html": [
-21,
-21
 ],
 "jquery:test/data/readywait.html": [
 32

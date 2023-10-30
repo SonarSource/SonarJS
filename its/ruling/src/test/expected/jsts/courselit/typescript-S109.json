@@ -1,86 +1,19 @@
 {
-"courselit:apps/web/components/admin/courses/course-editor/course-structure-editor.tsx": [
-35
-],
-"courselit:apps/web/components/admin/courses/course-editor/group.tsx": [
-56
-],
-"courselit:apps/web/components/admin/courses/lesson-editor.tsx": [
-62,
-67,
-68,
-79,
-89,
-90
-],
-"courselit:apps/web/components/admin/design/layout-manager/index.tsx": [
-53,
-72,
-80,
-84,
-93,
-97,
-298,
-300,
-385
-],
-"courselit:apps/web/components/admin/design/themes-manager/index.tsx": [
-41,
-45,
-223
-],
 "courselit:apps/web/components/admin/media/index.tsx": [
 82
 ],
 "courselit:apps/web/components/admin/media/upload.tsx": [
 144
 ],
-"courselit:apps/web/components/admin/settings.tsx": [
-76,
-80,
-86
-],
 "courselit:apps/web/components/public/article.tsx": [
-56,
-57
+56
 ],
 "courselit:apps/web/components/public/base-layout/component-scaffold.tsx": [
-124,
-128,
-129,
 133
-],
-"courselit:apps/web/components/public/base-layout/route-based-component-scaffold.tsx": [
-111,
-123,
-127,
-128
-],
-"courselit:apps/web/components/public/base-layout/scaffold/drawer-content.tsx": [
-26,
-27
-],
-"courselit:apps/web/components/public/base-layout/scaffold/index.tsx": [
-94
-],
-"courselit:apps/web/components/public/base-layout/template/index.tsx": [
-35,
-65,
-66,
-97
-],
-"courselit:apps/web/components/public/items.tsx": [
-31
 ],
 "courselit:apps/web/config/constants.ts": [
 24,
 43
-],
-"courselit:apps/web/graphql/courses/logic.ts": [
-338
-],
-"courselit:apps/web/models/HttpError.ts": [
-2
 ],
 "courselit:apps/web/pages/_app.tsx": [
 60
@@ -132,7 +65,6 @@
 56,
 67,
 71,
-85,
 98,
 104
 ],
@@ -158,23 +90,8 @@
 "courselit:apps/web/pages/logout.tsx": [
 22
 ],
-"courselit:apps/web/payments/stripe-payment.ts": [
-52
-],
 "courselit:apps/web/services/medialit.ts": [
 41
-],
-"courselit:packages/components-library/src/course-item.tsx": [
-21
-],
-"courselit:packages/components-library/src/image.tsx": [
-42,
-63,
-63
-],
-"courselit:packages/components-library/src/overview-and-detail/overview-list.tsx": [
-22,
-22
 ],
 "courselit:packages/utils/src/fetch-builder.ts": [
 55

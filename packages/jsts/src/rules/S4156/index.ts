@@ -17,21 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.checks;
+// https://sonarsource.github.io/rspec/#/rspec/S4156/javascript
 
-import static org.assertj.core.api.Assertions.assertThat;
+import { tsEslintRules as rules } from '../typescript-eslint';
+import { decorate } from './decorator';
 
-import com.google.gson.Gson;
-import org.junit.jupiter.api.Test;
-
-class NoMagicNumbersCheckTest {
-
-  @Test
-  void config() {
-    String configAsString = new Gson().toJson(new NoMagicNumbersCheck().configurations());
-    assertThat(configAsString)
-      .isEqualTo(
-        "[{\"ignore\":[0,1,-1,24,60],\"ignoreEnums\":true,\"ignoreReadonlyClassProperties\":true,\"ignoreNumericLiteralTypes\":true,\"ignoreDefaultValues\":true,\"ignoreClassFieldInitialValues\":true}]"
-      );
-  }
-}
+export const rule = decorate(rules['prefer-namespace-keyword']);

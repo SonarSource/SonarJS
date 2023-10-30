@@ -17,21 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.checks;
+import { Rule } from 'eslint';
+import * as estree from 'estree';
+import { interceptReport } from '../helpers';
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import com.google.gson.Gson;
-import org.junit.jupiter.api.Test;
-
-class NoMagicNumbersCheckTest {
-
-  @Test
-  void config() {
-    String configAsString = new Gson().toJson(new NoMagicNumbersCheck().configurations());
-    assertThat(configAsString)
-      .isEqualTo(
-        "[{\"ignore\":[0,1,-1,24,60],\"ignoreEnums\":true,\"ignoreReadonlyClassProperties\":true,\"ignoreNumericLiteralTypes\":true,\"ignoreDefaultValues\":true,\"ignoreClassFieldInitialValues\":true}]"
-      );
-  }
+export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
+  return interceptReport(rule, (context: Rule.RuleContext, descriptor: Rule.ReportDescriptor) => {
+    const { node } = descriptor as { node: estree.Node };
+    const moduleKeyword = context.sourceCode.getFirstToken(node, token => token.value === 'module');
+    if (moduleKeyword?.loc) {
+      context.report({ ...descriptor, loc: moduleKeyword.loc });
+    } else {
+      context.report(descriptor);
+    }
+  });
 }
