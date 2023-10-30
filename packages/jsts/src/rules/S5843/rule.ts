@@ -46,7 +46,6 @@ import {
 import {
   getParsedRegex,
   getRegexpLocation,
-  getRegexpRange,
   isRegExpConstructor,
   isStringRegexMethodCall,
 } from '../helpers/regex';
@@ -201,10 +200,9 @@ class ComplexityCalculator {
       onAssertionEnter: (node: Assertion) => {
         /* lookaround */
         if (node.kind === 'lookahead' || node.kind === 'lookbehind') {
-          const [start, end] = getRegexpRange(this.regexPart, node);
           this.increaseComplexity(this.nesting, node, [
             0,
-            -(end - start - 1) + (node.kind === 'lookahead' ? '?='.length : '?<='.length),
+            -(node.end - node.start - 1) + (node.kind === 'lookahead' ? '?='.length : '?<='.length),
           ]);
           this.nesting++;
           this.onDisjunctionEnter(node);
@@ -230,8 +228,7 @@ class ComplexityCalculator {
       },
       onCharacterClassEnter: (node: CharacterClass) => {
         /* character class */
-        const [start, end] = getRegexpRange(this.regexPart, node);
-        this.increaseComplexity(1, node, [0, -(end - start - 1)]);
+        this.increaseComplexity(1, node, [0, -(node.end - node.start - 1)]);
         this.nesting++;
       },
       onCharacterClassLeave: (_node: CharacterClass) => {
@@ -256,9 +253,7 @@ class ComplexityCalculator {
       },
       onQuantifierEnter: (node: Quantifier) => {
         /* repetition */
-        const [start] = getRegexpRange(this.regexPart, node);
-        const [, end] = getRegexpRange(this.regexPart, node.element);
-        this.increaseComplexity(this.nesting, node, [end - start, 0]);
+        this.increaseComplexity(this.nesting, node, [node.element.end - node.start, 0]);
         this.nesting++;
       },
       onQuantifierLeave: (_node: Quantifier) => {
@@ -288,8 +283,10 @@ class ComplexityCalculator {
       let { alternatives } = node;
       let increment = this.nesting;
       while (alternatives.length > 1) {
-        const [start, end] = getRegexpRange(this.regexPart, alternatives[1]);
-        this.increaseComplexity(increment, alternatives[1], [-1, -(end - start)]);
+        this.increaseComplexity(increment, alternatives[1], [
+          -1,
+          -(alternatives[1].end - alternatives[1].start),
+        ]);
         increment = 1;
         alternatives = alternatives.slice(1);
       }

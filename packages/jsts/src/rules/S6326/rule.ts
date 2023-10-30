@@ -21,7 +21,7 @@
 
 import { AST, Rule } from 'eslint';
 import * as regexpp from '@eslint-community/regexpp';
-import { createRegExpRule, getRegexpRange } from '../helpers/regex';
+import { createRegExpRule } from '../helpers/regex';
 
 export const rule: Rule.RuleModule = createRegExpRule(
   context => {
@@ -42,8 +42,7 @@ export const rule: Rule.RuleModule = createRegExpRule(
           if (spacesBefore > 0) {
             const spacesNumber = spacesBefore + 1;
             const quantifier = `{${spacesNumber}}`;
-            const [start, end] = getRegexpRange(context.node, node);
-            const range: AST.Range = [start - spacesNumber + 1, end];
+            const range: AST.Range = [node.start - spacesNumber + 1, node.end];
             context.reportRegExpNode({
               message: `If multiple spaces are required here, use number quantifier (${quantifier}).`,
               regexpNode: node,

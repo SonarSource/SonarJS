@@ -21,7 +21,6 @@ import { AST, Rule } from 'eslint';
 import * as estree from 'estree';
 import * as regexpp from '@eslint-community/regexpp';
 import { isRegexLiteral, isStringLiteral } from '../';
-import { getRegexpRange } from './range';
 import { Change } from 'diff';
 
 /**
@@ -44,9 +43,8 @@ export function getRegexpLocation(
   if (isRegexLiteral(node) || isStringLiteral(node)) {
     const source = context.sourceCode;
     const [start] = node.range!;
-    const [reStart, reEnd] = getRegexpRange(node, regexpNode);
-    let startIndex = start + reStart + offset[0];
-    let endIndex = start + reEnd + offset[1];
+    let startIndex = start + regexpNode.start + offset[0];
+    let endIndex = start + regexpNode.end + offset[1];
 
     let index = 1;
     for (const change of parseDiff) {
