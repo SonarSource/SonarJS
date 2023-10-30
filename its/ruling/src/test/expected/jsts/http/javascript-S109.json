@@ -1,37 +1,20 @@
 {
-"http:lib/gulp/karma/background.js": [
-2
-],
-"http:lib/gulp/karma/index.js": [
-30
-],
 "http:test/ConnectionMock.spec.js": [
 69,
 83,
 96,
-126,
 250,
 252
 ],
 "http:test/Http.spec.js": [
 172,
-181,
-187,
-195,
-319
+187
 ],
 "http:test/QueryParams.spec.js": [
-7,
-15,
-30,
 30
 ],
 "http:test/XHRConnection.spec.js": [
-152,
-182,
-185,
-210,
-213
+152
 ],
 "http:test/mocks/HttpResponse.js": [
 23
