@@ -6,6 +6,10 @@
 "angular.js:src/auto/injector.js": [
 88
 ],
+"angular.js:src/ng/animate.js": [
+304,
+304
+],
 "angular.js:src/ngSanitize/filter/linky.js": [
 132
 ],
