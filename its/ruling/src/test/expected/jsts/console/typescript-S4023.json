@@ -44,9 +44,6 @@
 "console:src/mutations/UpdateRelationMutation.ts": [
 17
 ],
-"console:src/utils/classnames.ts": [
-10
-],
 "console:src/views/CLIAuthView/CLIAuthSuccessView.tsx": [
 5
 ],

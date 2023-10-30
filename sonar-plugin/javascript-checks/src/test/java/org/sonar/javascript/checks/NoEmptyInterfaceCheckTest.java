@@ -19,27 +19,16 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.List;
-import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
-import org.sonar.plugins.javascript.api.TypeScriptRule;
+import static org.assertj.core.api.Assertions.assertThat;
 
-@TypeScriptRule
-@Rule(key = "S4023")
-public class NoEmptyInterfaceCheck implements EslintBasedCheck {
+import com.google.gson.Gson;
+import org.junit.jupiter.api.Test;
 
-  @Override
-  public String eslintKey() {
-    return "no-empty-interface";
-  }
+class NoEmptyInterfaceCheckTest {
 
-  @Override
-  public List<Object> configurations() {
-    return List.of(new Config());
-  }
-
-  private static class Config {
-
-    boolean allowSingleExtends = true;
+  @Test
+  void configurations() {
+    String configAsString = new Gson().toJson(new NoEmptyInterfaceCheck().configurations());
+    assertThat(configAsString).isEqualTo("[{\"allowSingleExtends\":true}]");
   }
 }
