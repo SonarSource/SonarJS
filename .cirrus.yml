@@ -112,7 +112,7 @@ build_task:
   build_and_deploy_script:
     - source cirrus-env BUILD
     - jfrog config add repox --url $ARTIFACTORY_URL --access-token $ARTIFACTORY_DEPLOY_ACCESS_TOKEN
-    - jfrog npm config set registry "${ARTIFACTORY_URL}/api/npm/npm"
+    - npm config set registry "${ARTIFACTORY_URL}/api/npm/npm"
     - npm run build
     - regular_mvn_build_deploy_analyze -Dmaven.test.skip=true -Dmaven.install.skip=true -Dsonar.skip=true
   cleanup_before_cache_script: cleanup_maven_repository
@@ -142,7 +142,7 @@ analyze_task:
   build_and_analyze_script:
     - source cirrus-env QA
     - jfrog config add repox --url $ARTIFACTORY_URL --access-token $ARTIFACTORY_DEPLOY_ACCESS_TOKEN
-    - jfrog npm config set registry "${ARTIFACTORY_URL}/api/npm/npm"
+    - npm config set registry "${ARTIFACTORY_URL}/api/npm/npm"
     - npm run build
     - PULL_REQUEST_SHA=$GIT_SHA1 regular_mvn_build_deploy_analyze -P-deploy-sonarsource,-release,-sign -Dcommercial -Dmaven.shade.skip=true -Dmaven.test.skip=true -Dmaven.install.skip=true -Dmaven.deploy.skip=true -Dsonar.coverage.jacoco.xmlReportPaths=$CIRRUS_WORKING_DIR/report-aggregate/target/site/jacoco-aggregate/jacoco.xml
 
@@ -158,7 +158,7 @@ build_win_task:
   build_script:
     - source cirrus-env CI
     - jfrog config add repox --url $ARTIFACTORY_URL --access-token $ARTIFACTORY_DEPLOY_ACCESS_TOKEN
-    - jfrog npm config set registry "${ARTIFACTORY_URL}/api/npm/npm"
+    - npm config set registry "${ARTIFACTORY_URL}/api/npm/npm"
     - npm run build
   cleanup_before_cache_script: cleanup_maven_repository
 
