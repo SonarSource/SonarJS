@@ -120,6 +120,7 @@
     "@eslint-community/regexpp",
     "builtin-modules",
     "bytes",
+    "diff",
     "eslint",
     "eslint-plugin-jsx-a11y",
     "eslint-plugin-react",
