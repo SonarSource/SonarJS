@@ -55,14 +55,14 @@ class NodeDeprecationWarningTest {
     deprecationWarning.logNodeDeprecation(14);
     assertWarnings(
       "Using Node.js version 14 to execute analysis is deprecated and will stop being supported no earlier than May 1st, 2023. " +
-      "Please upgrade to a newer LTS version of Node.js [16, 18, 20]"
+      "Please upgrade to a newer LTS version of Node.js [18, 20]"
     );
   }
 
   @Test
   void test_recommended() {
-    deprecationWarning.logNodeDeprecation(16);
     deprecationWarning.logNodeDeprecation(18);
+    deprecationWarning.logNodeDeprecation(20);
     assertWarnings();
   }
 
@@ -70,8 +70,16 @@ class NodeDeprecationWarningTest {
   void test_15() {
     deprecationWarning.logNodeDeprecation(15);
     assertWarnings(
-      "Using Node.js version 15 to execute analysis is deprecated and will stop being supported no earlier than May 1st, 2023. Please upgrade to a newer LTS version of Node.js [16, 18, 20]",
-      "Node.js version 15 is not recommended, you might experience issues. Please use a recommended version of Node.js [16, 18, 20]"
+      "Using Node.js version 15 to execute analysis is deprecated and will stop being supported no earlier than May 1st, 2023. Please upgrade to a newer LTS version of Node.js [18, 20]",
+      "Node.js version 15 is not recommended, you might experience issues. Please use a recommended version of Node.js [18, 20]"
+    );
+  }
+
+  @Test
+  void test_16() {
+    deprecationWarning.logNodeDeprecation(16);
+    assertWarnings(
+      "Using Node.js version 16 to execute analysis is deprecated and will stop being supported no earlier than Nov 30th, 2023. Please upgrade to a newer LTS version of Node.js [18, 20]"
     );
   }
 
@@ -79,7 +87,8 @@ class NodeDeprecationWarningTest {
   void test_17() {
     deprecationWarning.logNodeDeprecation(17);
     assertWarnings(
-      "Node.js version 17 is not recommended, you might experience issues. Please use a recommended version of Node.js [16, 18, 20]"
+      "Using Node.js version 17 to execute analysis is deprecated and will stop being supported no earlier than Nov 30th, 2023. Please upgrade to a newer LTS version of Node.js [18, 20]",
+      "Node.js version 17 is not recommended, you might experience issues. Please use a recommended version of Node.js [18, 20]"
     );
   }
 
