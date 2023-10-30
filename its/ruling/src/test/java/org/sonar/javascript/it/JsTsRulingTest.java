@@ -87,7 +87,57 @@ class JsTsRulingTest {
     .build();
 
   public static Stream<Arguments> ruling() {
-    return Stream.of(jsTsProject("blabla"));
+    return Stream.of(
+      jsTsProject("amplify", "external/**", "test"),
+      jsTsProject("angular.js", "src/ngLocale/**, i18n/**", "test"),
+      jsTsProject("backbone", "test"),
+      jsTsProject("es5-shim", "tests"),
+      jsTsProject("fireact"),
+      jsTsProject("ace"),
+      jsTsProject("ecmascript6-today"),
+      jsTsProject("expressionist.js"),
+      jsTsProject("Ghost"),
+      jsTsProject("http"),
+      jsTsProject("reddit-mobile"),
+      jsTsProject("redux"),
+      jsTsProject("router"),
+      jsTsProject("snoode"),
+      jsTsProject("sonar-web"),
+      jsTsProject("templating"),
+      jsTsProject("watchtower.js"),
+      jsTsProject("jira-clone"),
+      jsTsProject("jquery", "test"),
+      jsTsProject("jshint", "tests"),
+      jsTsProject("jStorage", "tests"),
+      jsTsProject("knockout", "spec"),
+      jsTsProject("mootools-core", "Specs"),
+      jsTsProject("ocanvas", "build/**", ""),
+      jsTsProject("p5.js", "test"),
+      jsTsProject("paper.js", "gulp/jsdoc/**, packages/**", "test"),
+      jsTsProject("prototype", "test"),
+      jsTsProject("qunit", "test"),
+      jsTsProject("react-cloud-music"),
+      jsTsProject("sizzle", "external/**", "test"),
+      jsTsProject("underscore", "test"),
+      jsTsProject("ag-grid", "spec"),
+      jsTsProject("ant-design", "tests"), // todo: many dirs **/__tests__
+      jsTsProject("console"), // todo: many dirs **/__tests__
+      jsTsProject("courselit", ".yarn/**", ""),
+      jsTsProject("desktop", "app/test"),
+      jsTsProject("eigen"), // todo
+      jsTsProject("fireface"),
+      jsTsProject("ionic2-auth"),
+      jsTsProject("Joust"), // todo: files **/*.spec.ts
+      jsTsProject("moose"),
+      jsTsProject("postgraphql"), // todo: many dirs **/__tests__
+      jsTsProject("prettier-vscode"),
+      jsTsProject("rxjs", "spec"),
+      jsTsProject("searchkit"), // todo
+      jsTsProject("TypeScript", "src/harness/unittests"),
+      jsTsProject("vuetify"),
+      jsTsProject("yaml", "../sources/yaml", "", ""),
+      jsTsProject("file-for-rules", "../sources/jsts/custom", "", "tests")
+    );
   }
 
   private static Arguments jsTsProject(String project) {
@@ -113,7 +163,7 @@ class JsTsRulingTest {
 
   @BeforeAll
   public static void setUp() throws Exception {
-    //cleanRootNodeModules();
+    cleanRootNodeModules();
     ProfileGenerator.RulesConfiguration jsRulesConfiguration =
       new ProfileGenerator.RulesConfiguration()
         .add(

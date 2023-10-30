@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { APIError } from '@sonar/shared/errors';
 import { debug } from '@sonar/shared/helpers';
 import { LinterWrapper } from './wrapper';
 import { RuleConfig } from './config';
@@ -44,7 +45,7 @@ const linters: Linters = {};
  * @param linterId key of the linter
  */
 export function initializeLinter(
-  inputRules: RuleConfig[] = [],
+  inputRules: RuleConfig[],
   environments: string[] = [],
   globals: string[] = [],
   linterId = 'default',
@@ -62,7 +63,7 @@ export function initializeLinter(
  */
 export function getLinter(linterId: keyof Linters = 'default') {
   if (!linters[linterId]) {
-    initializeLinter();
+    throw APIError.linterError(`Linter ${linterId} does not exist. Did you call /init-linter?`);
   }
   return linters[linterId];
 }
