@@ -19,7 +19,7 @@
  */
 import * as url from 'node:url';
 import * as path from 'node:path';
-import * as fs from 'node:fs';
+import fs from 'fs-extra';
 import { DISTROS } from '../node-distros.mjs';
 // replace __dirname in module
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
@@ -57,8 +57,9 @@ export function getRuntimePaths() {
   const runtimeDirectories = [];
   for (const distro of DISTROS) {
     const sourceDir = path.join(RUNTIMES_DIR, distro.id);
-    // we know that there is a single compressed archive per distro
-    const filename = fs.readdirSync(sourceDir).filter(filename => filename.endsWith('.xz'))[0];
+    // needed in case the script is run on a clean machine (no cache)
+    fs.mkdirpSync(sourceDir);
+    const filename = path.basename(distro.binPath + '.xz');
     const sourceFilename = path.join(sourceDir, filename);
     const targetDir = path.join(TARGET_DIR, distro.id);
     const targetFilename = path.join(targetDir, filename);

@@ -24,6 +24,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.tukaani.xz.LZMA2Options;
 import org.tukaani.xz.XZOutputStream;
 
@@ -35,10 +39,20 @@ public class XZ {
     if (args.length == 0) {
       throw new IllegalArgumentException("Please provide at least 1 filename to compress using XZ");
     }
+    List<String> filenames = Collections.emptyList();
     try {
-      compress(args);
+      filenames =
+        Stream
+          .of(args)
+          .map(filename -> filename.replaceAll("[\\\\/]+", "/"))
+          .collect(Collectors.toList());
+
+      compress(filenames);
     } catch (IOException e) {
-      throw new IllegalStateException("Error while compressing " + Arrays.toString(args), e);
+      throw new IllegalStateException(
+        "Error while compressing " + Arrays.toString(filenames.toArray()),
+        e
+      );
     }
   }
 
@@ -48,10 +62,10 @@ public class XZ {
    * @param filenames
    * @throws IOException
    */
-  public static void compress(String[] filenames) throws IOException {
+  public static void compress(List<String> filenames) throws IOException {
     for (var filename : filenames) {
-      System.out.println("Compressing " + filename);
       var file = Path.of(filename);
+      System.out.println("Compressing " + filename);
       if (!Files.exists(file)) {
         throw new FileNotFoundException("File " + filename + " does not exist.");
       }

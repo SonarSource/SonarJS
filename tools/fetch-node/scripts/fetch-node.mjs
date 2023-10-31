@@ -40,7 +40,7 @@ for (const distro of DISTROS) {
   validateFile(distro.sha, archiveFilename);
   await extractFile(archiveFilename, DOWNLOAD_DIR);
   const distroName = removeExtension(filename);
-  copyRuntime(distroName, distro.id, DOWNLOAD_DIR, RUNTIMES_DIR);
+  copyRuntime(distroName, distro.id, distro.binPath, DOWNLOAD_DIR, RUNTIMES_DIR);
 }
 
 /**
@@ -98,35 +98,15 @@ function getFilenameFromUrl(url) {
  * @param {*} nodeDir
  * @param {*} targetDir
  */
-function copyRuntime(distroName, distroId, nodeDir, targetDir) {
+function copyRuntime(distroName, distroId, binPath, nodeDir, targetDir) {
   console.log(`Copying runtime for ${distroName} from ${nodeDir} to ${targetDir}`);
-  let nodeBin;
-  // the starting dash is necessary, otherwise it captures "darwin-x64" as well
-  if (distroName.includes('-win-x64')) {
-    nodeBin = 'node.exe';
-  } else if (
-    distroName.includes('darwin-arm64') ||
-    distroName.includes('linux-x64') ||
-    distroName.includes('darwin-x64')
-  ) {
-    nodeBin = path.join('bin', 'node');
-  } else {
-    throw new Error(
-      `Distribution ${distroName} unknown. Implement support for its internal file structure`,
-    );
-  }
-  const nodeSource = path.join(nodeDir, distroName, nodeBin);
+  const nodeSource = path.join(nodeDir, distroName, binPath);
   const distroDir = path.join(targetDir, distroId);
   fs.mkdirpSync(distroDir);
-  const targetFile = path.join(distroDir, keepOnlyFile(nodeBin));
+  const targetFile = path.join(distroDir, path.basename(binPath));
   console.log(`Copying runtime from ${nodeSource} to ${targetFile}`);
   fs.copySync(nodeSource, targetFile, { overwrite: true });
   return targetFile;
-
-  function keepOnlyFile(fullPath) {
-    const parts = fullPath.split(path.sep);
-    return parts[parts.length - 1];
-  }
 }
 
 /**
@@ -246,7 +226,7 @@ function retrieveArtifactoryKey() {
       return;
     }
     const npmrcContent = fs.readFileSync(npmrcFile, 'utf-8');
-    const secondLine = npmrcContent?.split('\n')[1];
+    const secondLine = npmrcContent?.split(/\r?\n/)[1];
     return secondLine?.split('authToken=')[1];
   }
 }

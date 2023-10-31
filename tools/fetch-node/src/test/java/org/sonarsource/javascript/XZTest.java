@@ -7,6 +7,7 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -48,9 +49,9 @@ class XZTest {
 
   @Test
   void should_throw_an_error_if_a_filename_doesnt_exists() {
-    String[] filenames = { "foobar" };
+    List<String> filenames = List.of("foobar");
     assertThatThrownBy(() -> XZ.compress(filenames))
-      .hasMessage("File " + filenames[0] + " does not exist.");
+      .hasMessage("File " + filenames.get(0) + " does not exist.");
   }
 
   @Test
