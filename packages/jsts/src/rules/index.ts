@@ -222,6 +222,7 @@ import { rule as S4524 } from './S4524'; // prefer-default-last
 import { rule as S6572 } from './S6572'; // prefer-enum-initializers
 import { rule as S4138 } from './S4138'; // prefer-for-of
 import { rule as S6598 } from './S6598'; // prefer-function-type
+import { rule as S4156 } from './S4156'; // prefer-namespace-keyword
 import { rule as S6661 } from './S6661'; // prefer-object-spread
 import { rule as S4634 } from './S4634'; // prefer-promise-shorthand
 import { rule as S6666 } from './S6666'; // prefer-spread
@@ -499,6 +500,7 @@ rules['prefer-default-last'] = S4524;
 rules['prefer-enum-initializers'] = S6572;
 rules['prefer-for-of'] = S4138;
 rules['prefer-function-type'] = S6598;
+rules['prefer-namespace-keyword'] = S4156;
 rules['prefer-object-spread'] = S6661;
 rules['prefer-promise-shorthand'] = S4634;
 rules['prefer-spread'] = S6666;
