@@ -36,16 +36,22 @@ export function getRegexpLocation(
   regexpNode: regexpp.AST.Node,
   context: Rule.RuleContext,
   offset = [0, 0],
-): AST.SourceLocation {
+): AST.SourceLocation | null {
   let loc: AST.SourceLocation;
   if (isRegexLiteral(node) || isStringLiteral(node)) {
     const source = context.sourceCode;
     const [start] = node.range!;
     const [reStart, reEnd] = getRegexpRange(node, regexpNode);
-    loc = {
-      start: source.getLocFromIndex(start + reStart + offset[0]),
-      end: source.getLocFromIndex(start + reEnd + offset[1]),
-    };
+    const locationStart = start + reStart + offset[0];
+    const locationEnd = start + reEnd + offset[1];
+    if (locationStart === locationEnd) {
+      return null;
+    } else {
+      loc = {
+        start: source.getLocFromIndex(locationStart),
+        end: source.getLocFromIndex(locationEnd),
+      };
+    }
   } else {
     loc = node.loc!;
   }

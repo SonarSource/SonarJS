@@ -19,7 +19,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S5860/javascript
 
-import { Rule, Scope } from 'eslint';
+import { AST, Rule, Scope } from 'eslint';
 import * as estree from 'estree';
 import * as regexpp from '@eslint-community/regexpp';
 import { Backreference, CapturingGroup, RegExpLiteral } from '@eslint-community/regexpp/ast';
@@ -34,6 +34,7 @@ import {
   isObjectDestructuring,
   isRequiredParserServices,
   isString,
+  LocationHolder,
   RequiredParserServices,
   toEncodedMessage,
 } from '../helpers';
@@ -116,13 +117,17 @@ function checkStringReplaceGroupReferences(
       });
       const indexedGroups = regex.groups.filter(group => indexes.has(group.index));
       if (indexedGroups.length > 0) {
+        const { locations, messages } = prepareSecondaries(
+          regex,
+          indexedGroups,
+          intellisense,
+          'Group',
+        );
         intellisense.context.report({
           message: toEncodedMessage(
             `Directly use the group names instead of their numbers.`,
-            indexedGroups.map(group => ({
-              loc: getRegexpLocation(regex.node, group.node, intellisense.context),
-            })),
-            indexedGroups.map(group => `Group '${group.name}'`),
+            locations,
+            messages,
           ),
           node: substr,
         });
@@ -144,11 +149,12 @@ function checkIndexBasedGroupReference(
       const group = regex.groups.find(grp => grp.index === index);
       if (group) {
         group.used = true;
+        const { locations, messages } = prepareSecondaries(regex, [group], intellisense, 'Group');
         intellisense.context.report({
           message: toEncodedMessage(
             `Directly use '${group.name}' instead of its group number.`,
-            [{ loc: getRegexpLocation(regex.node, group.node, intellisense.context) }],
-            [`Group '${group.name}'`],
+            locations,
+            messages,
           ),
           node: property,
         });
@@ -172,13 +178,18 @@ function checkNonExistingGroupReference(
       if (group) {
         group.used = true;
       } else {
+        const { locations, messages } = prepareSecondaries(
+          regex,
+          regex.groups,
+          intellisense,
+          'Named group',
+        );
+
         intellisense.context.report({
           message: toEncodedMessage(
             `There is no group named '${groupName}' in the regular expression.`,
-            regex.groups.map(grp => ({
-              loc: getRegexpLocation(regex.node, grp.node, intellisense.context),
-            })),
-            regex.groups.map(grp => `Named group '${grp.name}'`),
+            locations,
+            messages,
           ),
           node: groupNode,
         });
@@ -238,13 +249,18 @@ function checkUnusedGroups(intellisense: RegexIntelliSense) {
     if (regex.matched) {
       const unusedGroups = regex.groups.filter(group => !group.used);
       if (unusedGroups.length) {
+        const { locations, messages } = prepareSecondaries(
+          regex,
+          unusedGroups,
+          intellisense,
+          'Named group',
+        );
+
         intellisense.context.report({
           message: toEncodedMessage(
             'Use the named groups of this regex or remove the names.',
-            unusedGroups.map(grp => ({
-              loc: getRegexpLocation(regex.node, grp.node, intellisense.context),
-            })),
-            unusedGroups.map(grp => `Named group '${grp.name}'`),
+            locations,
+            messages,
           ),
           node: regex.node,
         });
@@ -253,22 +269,47 @@ function checkUnusedGroups(intellisense: RegexIntelliSense) {
   });
 }
 
+function prepareSecondaries(
+  regex: RegexKnowledge,
+  groups: GroupKnowledge[],
+  intellisense: RegexIntelliSense,
+  label: string,
+) {
+  const locations: LocationHolder[] = [];
+  const messages: string[] = [];
+  for (const grp of groups) {
+    const loc: AST.SourceLocation | null = getRegexpLocation(
+      regex.node,
+      grp.node,
+      intellisense.context,
+    );
+    if (loc) {
+      locations.push({ loc });
+      messages.push(`${label} '${grp.name}'`);
+    }
+  }
+  return { locations, messages };
+}
+
 function checkIndexedGroups(intellisense: RegexIntelliSense) {
   intellisense.getKnowledge().forEach(regex => {
-    regex.groups.forEach(group =>
+    regex.groups.forEach(group => {
+      const { locations, messages } = prepareSecondaries(regex, [group], intellisense, 'Group');
+
       group.node.references.forEach(reference => {
-        if (typeof reference.ref === 'number') {
+        const loc = getRegexpLocation(regex.node, reference, intellisense.context);
+        if (loc && typeof reference.ref === 'number') {
           intellisense.context.report({
             message: toEncodedMessage(
               `Directly use '${group.name}' instead of its group number.`,
-              [{ loc: getRegexpLocation(regex.node, group.node, intellisense.context) }],
-              [`Group '${group.name}'`],
+              locations,
+              messages,
             ),
-            loc: getRegexpLocation(regex.node, reference, intellisense.context),
+            loc,
           });
         }
-      }),
-    );
+      });
+    });
   });
 }
 

@@ -74,7 +74,9 @@ export function createRegExpRule(
       function reportRegExpNode(descriptor: RegexReportDescriptor) {
         const { node, regexpNode, offset = [0, 0], ...rest } = descriptor;
         const loc = getRegexpLocation(node, regexpNode, context, offset);
-        context.report({ ...rest, loc });
+        if (loc) {
+          context.report({ ...rest, loc });
+        }
       }
 
       function checkLiteral(literal: estree.Literal) {

@@ -19,9 +19,9 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S5869/javascript
 
-import { Rule } from 'eslint';
+import { AST, Rule } from 'eslint';
 import { CharacterClass, Flags, Node, RegExpLiteral } from '@eslint-community/regexpp/ast';
-import { toEncodedMessage } from '../helpers';
+import { LocationHolder, toEncodedMessage } from '../helpers';
 import {
   createRegExpRule,
   getRegexpLocation,
@@ -51,11 +51,24 @@ export const rule: Rule.RuleModule = createRegExpRule(
         });
         if (duplicates.size > 0) {
           const [primary, ...secondaries] = duplicates;
+          const secondaryLocations: LocationHolder[] = [];
+          const messages: string[] = [];
+          for (const secondary of secondaries) {
+            const loc: AST.SourceLocation | null = getRegexpLocation(
+              context.node,
+              secondary,
+              context,
+            );
+            if (loc) {
+              secondaryLocations.push({ loc });
+              messages.push('Additional duplicate');
+            }
+          }
           context.reportRegExpNode({
             message: toEncodedMessage(
               'Remove duplicates in this character class.',
-              secondaries.map(snd => ({ loc: getRegexpLocation(context.node, snd, context) })),
-              secondaries.map(_ => 'Additional duplicate'),
+              secondaryLocations,
+              messages,
             ),
             node: context.node,
             regexpNode: primary,

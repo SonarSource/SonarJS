@@ -21,8 +21,7 @@
 
 import { Rule } from 'eslint';
 import { Character, Quantifier, RegExpLiteral } from '@eslint-community/regexpp/ast';
-import { SourceLocation } from 'estree';
-import { toEncodedMessage } from '../helpers';
+import { LocationHolder, toEncodedMessage } from '../helpers';
 import { createRegExpRule, getRegexpLocation } from '../helpers/regex';
 import { SONAR_RUNTIME } from '../../linter/parameters';
 
@@ -123,17 +122,21 @@ export const rule: Rule.RuleModule = createRegExpRule(
       },
       onRegExpLiteralLeave: (regexp: RegExpLiteral) => {
         if (!isUnicodeEnabled && (unicodeProperties.length > 0 || unicodeCharacters.length > 0)) {
-          const secondaryLocations: { loc: SourceLocation }[] = [];
+          const secondaryLocations: LocationHolder[] = [];
           const secondaryMessages: string[] = [];
           unicodeProperties.forEach(p => {
-            secondaryLocations.push({
-              loc: getRegexpLocation(context.node, p.character, context, [0, p.offset]),
-            });
-            secondaryMessages.push('Unicode property');
+            const loc = getRegexpLocation(context.node, p.character, context, [0, p.offset]);
+            if (loc) {
+              secondaryLocations.push({ loc });
+              secondaryMessages.push('Unicode property');
+            }
           });
           unicodeCharacters.forEach(c => {
-            secondaryLocations.push({ loc: getRegexpLocation(context.node, c, context) });
-            secondaryMessages.push('Unicode character');
+            const loc = getRegexpLocation(context.node, c, context);
+            if (loc) {
+              secondaryLocations.push({ loc });
+              secondaryMessages.push('Unicode character');
+            }
           });
           context.reportRegExpNode({
             message: toEncodedMessage(
