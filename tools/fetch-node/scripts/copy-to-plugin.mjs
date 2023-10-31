@@ -20,7 +20,7 @@
 import fse from 'fs-extra';
 import * as path from 'node:path';
 import * as fs from 'node:fs';
-import { RUNTIMES_DIR, TARGET_DIR } from './directories.mjs';
+import { RUNTIMES_DIR, TARGET_DIR, getRuntimePaths } from './directories.mjs';
 import { DISTROS, NODE_VERSION, VERSION_FILENAME } from '../node-distros.mjs';
 
 /**
@@ -32,15 +32,11 @@ import { DISTROS, NODE_VERSION, VERSION_FILENAME } from '../node-distros.mjs';
  * sonar-plugin/sonar-javascript-plugin/target/node/{distro.id}/version.txt files
  */
 
-for (const distro of DISTROS) {
-  const sourceDir = path.join(RUNTIMES_DIR, distro.id);
-  // we know that there is a single compressed archive per distro
-  const filename = fs.readdirSync(sourceDir).filter(filename => filename.endsWith('.xz'))[0];
-  const targetDir = path.join(TARGET_DIR, distro.id);
-  fse.mkdirpSync(targetDir);
-  const sourceFilename = path.join(sourceDir, filename);
-  const targetFilename = path.join(targetDir, filename);
-  console.log(`Copying ${sourceFilename} to ${targetFilename}`);
-  fse.copySync(sourceFilename, targetFilename);
-  fs.writeFileSync(path.join(targetDir, VERSION_FILENAME), NODE_VERSION);
-}
+const runtimePaths = getRuntimePaths();
+
+runtimePaths.forEach(p => {
+  fse.mkdirpSync(p.targetDir);
+  console.log(`Copying ${p.sourceFilename} to ${p.targetFilename}`);
+  fse.copySync(p.sourceFilename, p.targetFilename);
+  fs.writeFileSync(path.join(p.targetDir, VERSION_FILENAME), NODE_VERSION);
+});

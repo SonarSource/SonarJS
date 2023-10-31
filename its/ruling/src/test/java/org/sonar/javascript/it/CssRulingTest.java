@@ -121,7 +121,7 @@ class CssRulingTest {
       )
       .setProperty(
         "sonar.lits.dump.new",
-        FileLocation.of("target/actual").getFile().getAbsolutePath()
+        FileLocation.of("target/actual/css").getFile().getAbsolutePath()
       )
       .setProperty("sonar.cpd.exclusions", "**/*")
       .setProperty("sonar.lits.differences", litsDifferencesFile.getAbsolutePath())

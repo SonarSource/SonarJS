@@ -83,12 +83,9 @@ class JavaScriptPluginTest {
     var sonarLintPluginAPIManager = new JavaScriptPlugin.SonarLintPluginAPIManager();
     var context = mock(Plugin.Context.class);
 
-    sonarLintPluginAPIManager.addSonarlintJavaScriptProjectChecker(
-      context,
-      sonarLintPluginAPIVersion
-    );
+    sonarLintPluginAPIManager.addSonarLintTypeCheckingChecker(context, sonarLintPluginAPIVersion);
     assertThat(logTester.logs(LoggerLevel.DEBUG))
-      .containsExactly("Error while trying to inject SonarLintJavaScriptProjectChecker");
+      .containsExactly("Error while trying to inject SonarLintTypeCheckingChecker");
   }
 
   @Test

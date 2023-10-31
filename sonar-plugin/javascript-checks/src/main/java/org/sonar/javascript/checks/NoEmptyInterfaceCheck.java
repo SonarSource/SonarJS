@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.checks;
 
+import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.EslintBasedCheck;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
@@ -30,5 +31,15 @@ public class NoEmptyInterfaceCheck implements EslintBasedCheck {
   @Override
   public String eslintKey() {
     return "no-empty-interface";
+  }
+
+  @Override
+  public List<Object> configurations() {
+    return List.of(new Config());
+  }
+
+  private static class Config {
+
+    boolean allowSingleExtends = true;
   }
 }

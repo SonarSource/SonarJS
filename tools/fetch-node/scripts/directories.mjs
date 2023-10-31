@@ -17,8 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as url from 'url';
-import * as path from 'path';
+import * as url from 'node:url';
+import * as path from 'node:path';
+import * as fs from 'node:fs';
+import { DISTROS } from '../node-distros.mjs';
 // replace __dirname in module
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
 
@@ -45,3 +47,26 @@ export const TARGET_DIR = path.join(
   'target',
   'node',
 );
+
+/**
+ * Builds the paths for the Node.js runtimes
+ *
+ * @returns
+ */
+export function getRuntimePaths() {
+  const runtimeDirectories = [];
+  for (const distro of DISTROS) {
+    const sourceDir = path.join(RUNTIMES_DIR, distro.id);
+    // we know that there is a single compressed archive per distro
+    const filename = fs.readdirSync(sourceDir).filter(filename => filename.endsWith('.xz'))[0];
+    const sourceFilename = path.join(sourceDir, filename);
+    const targetDir = path.join(TARGET_DIR, distro.id);
+    const targetFilename = path.join(targetDir, filename);
+    runtimeDirectories.push({
+      targetDir,
+      targetFilename,
+      sourceFilename,
+    });
+  }
+  return runtimeDirectories;
+}

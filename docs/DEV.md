@@ -72,6 +72,9 @@ When using this for the ruling tests, make sure that you run them in series (and
 ### Rule Description
 
 1. Create a PR with a rule description in RSPEC repo like described [here](https://github.com/SonarSource/rspec#create-or-modify-a-rule)
+
+- Tag the RSPEC with `type-dependent` if the rule relies partially or fully on type information
+
 2. Link this RSPEC PR to the implementation issue in this repo
 3. Make sure the implementation issue title contains the RSPEC number and name
 

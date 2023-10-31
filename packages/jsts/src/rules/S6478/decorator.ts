@@ -20,23 +20,42 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6478/javascript
 
 import { Rule } from 'eslint';
-import { interceptReportForReact } from '../helpers';
+import * as estree from 'estree';
+import { RuleContext, functionLike, interceptReportForReact } from '../helpers';
+import { getMainFunctionTokenLocation } from 'eslint-plugin-sonarjs/lib/utils/locations';
+import { TSESTree } from '@typescript-eslint/experimental-utils';
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
-  return interceptReportForReact(rule, changeMessageWith(urlRemover()));
-}
-
-function changeMessageWith(messageChanger: (message: string) => string) {
-  return (context: Rule.RuleContext, reportDescriptor: Rule.ReportDescriptor) => {
-    const report = reportDescriptor as { message?: string };
-    if (report.message) {
-      report.message = messageChanger(report.message);
+  return interceptReportForReact(rule, (context, report) => {
+    const message =
+      'Move this component definition out of the parent component and pass data as props.';
+    const { node } = report as { node: estree.Node };
+    const loc = getMainNodeLocation(node, context);
+    if (loc) {
+      context.report({ ...report, loc, message });
+    } else {
+      context.report({ ...report, message });
     }
-    context.report(reportDescriptor);
-  };
-}
+  });
 
-function urlRemover() {
-  const urlRegexp = / \(https:[^)]+\)/;
-  return (message: string) => message.replace(urlRegexp, '');
+  function getMainNodeLocation(node: estree.Node, context: Rule.RuleContext) {
+    /* class components */
+    if (node.type === 'ClassDeclaration' || node.type === 'ClassExpression') {
+      if (node.id) {
+        return node.id.loc;
+      } else {
+        return context.sourceCode.getFirstToken(node, token => token.value === 'class')?.loc;
+      }
+    }
+
+    /* functional components */
+    if (functionLike.has(node.type)) {
+      const fun = node as unknown as TSESTree.FunctionLike;
+      const ctx = context as unknown as RuleContext;
+      return getMainFunctionTokenLocation(fun, fun.parent, ctx) as estree.SourceLocation;
+    }
+
+    /* should not happen */
+    return node.loc;
+  }
 }

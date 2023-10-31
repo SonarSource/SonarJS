@@ -15,7 +15,8 @@
     "linearFactor": "2min"
   },
   "tags": [
-    "regex"
+    "regex",
+    "type-dependent"
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-5843",

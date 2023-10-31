@@ -44,7 +44,9 @@ public class NodeDeprecationWarning {
 
   static final Map<Integer, String> REMOVAL_DATE = Map.ofEntries(
     entry(14, "May 1st, 2023"),
-    entry(15, "May 1st, 2023")
+    entry(15, "May 1st, 2023"),
+    entry(16, "Nov 30th, 2023"),
+    entry(17, "Nov 30th, 2023")
   );
 
   private static final Logger LOG = Loggers.get(NodeDeprecationWarning.class);
@@ -55,8 +57,8 @@ public class NodeDeprecationWarning {
    * @see https://github.com/eslint/eslint/blob/d75d3c68ad8c98828aaa522b87ec267ab2dcb002/package.json#L169
    */
   static final Version MIN_SUPPORTED_NODE_VERSION = Version.create(14, 17, 0);
-  static final int MIN_RECOMMENDED_NODE_VERSION = 16;
-  static final List<Integer> RECOMMENDED_NODE_VERSIONS = Arrays.asList(16, 18, 20);
+  static final int MIN_RECOMMENDED_NODE_VERSION = 18;
+  static final List<Integer> RECOMMENDED_NODE_VERSIONS = Arrays.asList(18, 20);
   static final List<Integer> ALL_RECOMMENDED_NODE_VERSIONS = Arrays.asList(14, 16, 18, 20);
   private final AnalysisWarningsWrapper analysisWarnings;
 

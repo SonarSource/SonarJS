@@ -109,7 +109,7 @@ class RulesMetadataForSonarLintTest {
         "        \"key\": \"ignoreAtRules\",\n" +
         "        \"name\": \"ignoreAtRules\",\n" +
         "        \"description\": \"Comma-separated list of \\\"at-rules\\\" to consider as valid.\",\n" +
-        "        \"defaultValue\": \"value,at-root,content,debug,each,else,error,for,function,if,include,mixin,return,warn,while,extend,use,forward,tailwind,apply,layer,/^@.*/\",\n" +
+        "        \"defaultValue\": \"value,at-root,content,debug,each,else,error,for,function,if,include,mixin,return,warn,while,extend,use,forward,tailwind,apply,layer,container,/^@.*/\",\n" +
         "        \"type\": {\n" +
         "          \"type\": \"STRING\",\n" +
         "          \"values\": [],\n" +
@@ -143,6 +143,7 @@ class RulesMetadataForSonarLintTest {
         "          \"tailwind\",\n" +
         "          \"apply\",\n" +
         "          \"layer\",\n" +
+        "          \"container\",\n" +
         "          \"/^@.*/\"\n" +
         "        ]\n" +
         "      }\n" +

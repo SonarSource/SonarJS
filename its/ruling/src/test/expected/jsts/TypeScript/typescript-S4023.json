@@ -1,29 +1,9 @@
 {
 "TypeScript:scripts/word2md.ts": [
 57,
-60,
-67,
-81,
-99,
-112
-],
-"TypeScript:src/compiler/types.ts": [
-3161
+99
 ],
 "TypeScript:src/harness/loggedIO.ts": [
 12
-],
-"TypeScript:src/server/protocol.ts": [
-1027,
-1101,
-1108,
-1133,
-1210,
-1678,
-1936,
-2223
-],
-"TypeScript:src/services/types.ts": [
-366
 ]
 }

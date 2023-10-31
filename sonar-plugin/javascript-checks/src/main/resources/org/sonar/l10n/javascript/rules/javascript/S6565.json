@@ -13,7 +13,8 @@
     "constantCost": "5min"
   },
   "tags": [
-    "api-design"
+    "api-design",
+    "type-dependent"
   ],
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-6565",

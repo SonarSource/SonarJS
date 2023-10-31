@@ -13,7 +13,8 @@
     "constantCost": "5min"
   },
   "tags": [
-    "cwe"
+    "cwe",
+    "type-dependent"
   ],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-131",

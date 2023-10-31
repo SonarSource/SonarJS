@@ -14,7 +14,8 @@
   },
   "tags": [
     "cwe",
-    "obsolete"
+    "obsolete",
+    "type-dependent"
   ],
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-1874",

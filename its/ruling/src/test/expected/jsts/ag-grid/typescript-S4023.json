@@ -1,7 +1,4 @@
 {
-"ag-grid:src/ts/filter/filter.ts": [
-4
-],
 "ag-grid:src/ts/filter/floatingFilter.ts": [
 14
 ],
@@ -13,9 +10,6 @@
 ],
 "ag-grid:src/ts/interfaces/iEnterpriseCache.ts": [
 2
-],
-"ag-grid:src/ts/interfaces/iExcelCreator.ts": [
-105
 ],
 "ag-grid:src/ts/interfaces/iMenu.ts": [
 2

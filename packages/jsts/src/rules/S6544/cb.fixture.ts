@@ -5,6 +5,7 @@
 
 // otherwise rule 'no-misused-promises' gets triggered second
 new Promise(async (resolve) => { // Noncompliant {{Promise returned in function argument where a void return was expected.}}
+//                          ^^
   const a = await Promise.resolve(12);
   resolve(a);
 }).catch(error => {});

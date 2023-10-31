@@ -14,7 +14,8 @@
   },
   "tags": [
     "promise",
-    "async"
+    "async",
+    "type-dependent"
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-6544",

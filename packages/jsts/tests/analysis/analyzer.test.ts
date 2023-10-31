@@ -379,7 +379,7 @@ describe('analyzeJSTS', () => {
 
     const nodeTsConfig = path.join(__dirname, 'fixtures', 'module', 'tsconfig_commonjs.json');
     const nodeProgram = createAndSaveProgram(nodeTsConfig);
-    expect(nodeProgram.files).toContain(toUnixPath(nodeDependencyPath));
+    expect(nodeProgram.files).not.toContain(toUnixPath(nodeDependencyPath));
     expect(nodeProgram.files).not.toContain(toUnixPath(nodenextDependencyPath));
     expect(nodeProgram.files).not.toContain(toUnixPath(classicDependencyPath));
     const {
@@ -397,7 +397,7 @@ describe('analyzeJSTS', () => {
     const nodenextTsConfig = path.join(__dirname, 'fixtures', 'module', 'tsconfig_nodenext.json');
     const nodenextProgram = createAndSaveProgram(nodenextTsConfig);
     expect(nodenextProgram.files).not.toContain(toUnixPath(nodeDependencyPath));
-    expect(nodenextProgram.files).toContain(toUnixPath(nodenextDependencyPath));
+    expect(nodenextProgram.files).not.toContain(toUnixPath(nodenextDependencyPath));
     expect(nodenextProgram.files).not.toContain(toUnixPath(classicDependencyPath));
     const {
       issues: [nodenextIssue],

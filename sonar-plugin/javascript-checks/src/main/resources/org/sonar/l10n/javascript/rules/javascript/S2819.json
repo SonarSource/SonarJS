@@ -14,7 +14,8 @@
   },
   "tags": [
     "cwe",
-    "html5"
+    "html5",
+    "type-dependent"
   ],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-2819",
