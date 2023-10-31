@@ -47,12 +47,15 @@ const ruleImpl: stylelint.RuleBase = () => {
 
   function isLikelyCss(text: string) {
     // Regular expression to match CSS selectors, properties, and values
+    // `<selector(s)> '{' <anything> '}'`
     const ruleRegex = /([a-z0-9\s,.\-#:_]+)\{([^}]*)\}/i;
 
     // Regular expression to match CSS declarations
+    // `<property> ':' <value> ';'`
     const declRegex = /([a-z-]+)\s*:\s*([^;]+);/i;
 
     // Regular expression to match CSS at-rules
+    // `'@' <at-rule> '(' <anything> ')'`
     const atRuleRegex = /@([a-z-]*)\s*([^;{]*)(;|(\{([^}]*)\}))/i;
 
     // Test the text against the regular expressions
