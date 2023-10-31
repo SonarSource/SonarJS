@@ -42,10 +42,16 @@ export function getRegexpLocation(
     const source = context.sourceCode;
     const [start] = node.range!;
     const [reStart, reEnd] = getRegexpRange(node, regexpNode);
-    loc = {
-      start: source.getLocFromIndex(start + reStart + offset[0]),
-      end: source.getLocFromIndex(start + reEnd + offset[1]),
-    };
+    const locationStart = start + reStart + offset[0];
+    const locationEnd = start + reEnd + offset[1];
+    if (locationStart === locationEnd) {
+      loc = node.loc!;
+    } else {
+      loc = {
+        start: source.getLocFromIndex(locationStart),
+        end: source.getLocFromIndex(locationEnd),
+      };
+    }
   } else {
     loc = node.loc!;
   }
