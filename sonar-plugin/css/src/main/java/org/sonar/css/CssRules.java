@@ -44,6 +44,7 @@ import org.sonar.css.rules.FunctionCalcNoUnspacedOperator;
 import org.sonar.css.rules.FunctionLinearGradientNoNonstandardDirection;
 import org.sonar.css.rules.KeyframeDeclarationNoImportant;
 import org.sonar.css.rules.MediaFeatureNameNoUnknown;
+import org.sonar.css.rules.NoCommentedCode;
 import org.sonar.css.rules.NoDescendingSpecificity;
 import org.sonar.css.rules.NoDuplicateAtImportRules;
 import org.sonar.css.rules.NoDuplicateSelectors;
@@ -89,6 +90,7 @@ public class CssRules {
         FunctionLinearGradientNoNonstandardDirection.class,
         KeyframeDeclarationNoImportant.class,
         MediaFeatureNameNoUnknown.class,
+        NoCommentedCode.class,
         NoDescendingSpecificity.class,
         NoDuplicateAtImportRules.class,
         NoDuplicateSelectors.class,
