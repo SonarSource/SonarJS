@@ -70,7 +70,7 @@ export function getSyntaxHighlighting(sourceCode: SourceCode) {
       case 'Numeric':
         highlight(token, 'CONSTANT', highlights);
         break;
-      case 'Identifier':
+      case 'Identifier': {
         const node = sourceCode.getNodeByRangeIndex(token.range[0]);
         // @ts-ignore
         if (token.value === 'type' && node?.type === 'TSTypeAliasDeclaration') {
@@ -81,6 +81,7 @@ export function getSyntaxHighlighting(sourceCode: SourceCode) {
           highlight(token, 'KEYWORD', highlights);
         }
         break;
+      }
     }
   }
   for (const comment of comments) {

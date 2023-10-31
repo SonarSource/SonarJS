@@ -116,7 +116,7 @@ public class JavaScriptPlugin implements Plugin {
 
   public static final String JS_EXCLUSIONS_KEY = PROPERTY_PREFIX + ".exclusions";
   public static final String TS_EXCLUSIONS_KEY = "sonar.typescript.exclusions";
-  public static final String[] EXCLUSIONS_DEFAULT_VALUE = new String[] {
+  protected static final String[] EXCLUSIONS_DEFAULT_VALUE = new String[] {
     "**/node_modules/**",
     "**/bower_components/**",
     "**/dist/**",

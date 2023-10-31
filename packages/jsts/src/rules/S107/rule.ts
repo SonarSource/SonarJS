@@ -158,13 +158,14 @@ export const rule: Rule.RuleModule = {
                   name = functionLike.id.name;
                 }
                 break;
-              case 'TSEmptyBodyFunctionExpression':
+              case 'TSEmptyBodyFunctionExpression': {
                 kind = 'Empty function';
                 const parent = functionLike.parent;
                 if (parent?.type === 'MethodDefinition' && parent.key.type === 'Identifier') {
                   name = parent.key.name;
                 }
                 break;
+              }
             }
             if (name) {
               return `${kind} '${name}'`;

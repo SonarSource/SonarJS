@@ -128,13 +128,14 @@ export function resolveAssignedValues(
   switch (writeExpr.type) {
     case 'Literal':
       return writeExpr.raw ? assignedValues(writeExpr.raw) : unknownValue;
-    case 'Identifier':
+    case 'Identifier': {
       const resolvedVar = getVariableFromIdentifier(writeExpr, scope);
       if (resolvedVar && resolvedVar !== lhsVariable) {
         const resolvedAssignedValues = assignedValuesMap.get(resolvedVar);
         return resolvedAssignedValues ?? unknownValue;
       }
       return unknownValue;
+    }
     default:
       return unknownValue;
   }

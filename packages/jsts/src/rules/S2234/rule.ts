@@ -110,20 +110,23 @@ export const rule: Rule.RuleModule = {
       if (maybeIfStmt) {
         const { test } = maybeIfStmt as estree.IfStatement;
         switch (test.type) {
-          case 'BinaryExpression':
+          case 'BinaryExpression': {
             const binExpr = test;
             if (['==', '!=', '===', '!==', '<', '<=', '>', '>='].includes(binExpr.operator)) {
               const { left: lhs, right: rhs } = binExpr;
               return checkComparedArguments(lhs, rhs);
             }
             break;
-          case 'CallExpression':
+          }
+
+          case 'CallExpression': {
             const callExpr = test;
             if (callExpr.arguments.length === 1 && callExpr.callee.type === 'MemberExpression') {
               const [lhs, rhs] = [callExpr.callee.object, callExpr.arguments[0]];
               return checkComparedArguments(lhs, rhs);
             }
             break;
+          }
         }
       }
       return false;

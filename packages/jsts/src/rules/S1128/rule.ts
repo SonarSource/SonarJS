@@ -263,18 +263,19 @@ function getSuggestion(
   let range: [number, number];
 
   switch (unusedSpecifier.type) {
-    case 'ImportDefaultSpecifier':
+    case 'ImportDefaultSpecifier': {
       const tokenAfter = code.getTokenAfter(id)!;
       // default import is always first
       range = [id.range![0], code.getTokenAfter(tokenAfter)!.range[0]];
       break;
+    }
 
     case 'ImportNamespaceSpecifier':
       // namespace import is always second
       range = [code.getTokenBefore(unusedSpecifier)!.range[0], unusedSpecifier.range![1]];
       break;
 
-    case 'ImportSpecifier':
+    case 'ImportSpecifier': {
       const simpleSpecifiers = specifiers.filter(specifier => specifier.type === 'ImportSpecifier');
       const index = simpleSpecifiers.findIndex(specifier => specifier === unusedSpecifier);
       if (simpleSpecifiers.length === 1) {
@@ -284,6 +285,7 @@ function getSuggestion(
       } else {
         range = [simpleSpecifiers[index - 1].range![1], simpleSpecifiers[index].range![1]];
       }
+    }
   }
 
   return {
