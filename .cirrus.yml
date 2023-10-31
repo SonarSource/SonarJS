@@ -144,7 +144,7 @@ analyze_task:
     - jfrog config add repox --url $ARTIFACTORY_URL --access-token $ARTIFACTORY_DEPLOY_ACCESS_TOKEN
     - npm config set registry "${ARTIFACTORY_URL}/api/npm/npm"
     - npm run build
-    - PULL_REQUEST_SHA=$GIT_SHA1 regular_mvn_build_deploy_analyze -P-deploy-sonarsource,-release,-sign -Dcommercial -Dmaven.shade.skip=true -Dmaven.test.skip=true -Dmaven.install.skip=true -Dmaven.deploy.skip=true -Dsonar.coverage.jacoco.xmlReportPaths=$CIRRUS_WORKING_DIR/report-aggregate/target/site/jacoco-aggregate/jacoco.xml
+    - PULL_REQUEST_SHA=$GIT_SHA1 regular_mvn_build_deploy_analyze -P-deploy-sonarsource,-release,-sign -Dcommercial -Dmaven.shade.skip=true -Dmaven.install.skip=true -Dmaven.deploy.skip=true -Dsonar.coverage.jacoco.xmlReportPaths=$CIRRUS_WORKING_DIR/report-aggregate/target/site/jacoco-aggregate/jacoco.xml
 
 build_win_task:
   depends_on:
