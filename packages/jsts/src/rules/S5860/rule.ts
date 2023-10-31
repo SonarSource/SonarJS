@@ -294,12 +294,7 @@ function prepareSecondaries(
 function checkIndexedGroups(intellisense: RegexIntelliSense) {
   intellisense.getKnowledge().forEach(regex => {
     regex.groups.forEach(group => {
-      const { locations, messages } = prepareSecondaries(
-        regex,
-        [group],
-        intellisense,
-        'Named group',
-      );
+      const { locations, messages } = prepareSecondaries(regex, [group], intellisense, 'Group');
 
       group.node.references.forEach(reference => {
         const loc = getRegexpLocation(regex.node, reference, intellisense.context);

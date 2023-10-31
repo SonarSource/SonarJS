@@ -111,6 +111,42 @@ ruleTesterThreshold0.run(
         options: [0],
       },
       {
+        code: `RegExp('\\r?');`,
+        errors: [
+          {
+            message: JSON.stringify({
+              message: `Simplify this regular expression to reduce its complexity from 1 to the 0 allowed.`,
+              cost: 1,
+              secondaryLocations: [], // Secondary location removed when invalid (start===end)
+            }),
+            line: 1,
+            endLine: 1,
+            column: 8,
+            endColumn: 13,
+          },
+        ],
+        options: [0],
+      },
+      {
+        code: `RegExp('\\\\r?');`,
+        errors: [
+          {
+            message: JSON.stringify({
+              message: `Simplify this regular expression to reduce its complexity from 1 to the 0 allowed.`,
+              cost: 1,
+              secondaryLocations: [
+                { message: '+1', column: 11, line: 1, endColumn: 12, endLine: 1 },
+              ],
+            }),
+            line: 1,
+            endLine: 1,
+            column: 8,
+            endColumn: 14,
+          },
+        ],
+        options: [0],
+      },
+      {
         code: `/(?<=abc)/`,
         errors: [
           {
