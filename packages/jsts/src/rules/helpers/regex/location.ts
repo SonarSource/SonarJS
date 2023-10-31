@@ -36,7 +36,7 @@ export function getRegexpLocation(
   regexpNode: regexpp.AST.Node,
   context: Rule.RuleContext,
   offset = [0, 0],
-): AST.SourceLocation {
+): AST.SourceLocation | null {
   let loc: AST.SourceLocation;
   if (isRegexLiteral(node) || isStringLiteral(node)) {
     const source = context.sourceCode;
@@ -45,7 +45,7 @@ export function getRegexpLocation(
     const locationStart = start + reStart + offset[0];
     const locationEnd = start + reEnd + offset[1];
     if (locationStart === locationEnd) {
-      loc = node.loc!;
+      return null;
     } else {
       loc = {
         start: source.getLocFromIndex(locationStart),

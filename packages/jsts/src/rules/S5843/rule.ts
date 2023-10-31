@@ -266,12 +266,14 @@ class ComplexityCalculator {
       message += ` (incl ${increment - 1} for nesting)`;
     }
     const loc = getRegexpLocation(this.regexPart, node, this.context, offset);
-    this.components.push({
-      location: {
-        loc,
-      },
-      message,
-    });
+    if (loc) {
+      this.components.push({
+        location: {
+          loc,
+        },
+        message,
+      });
+    }
   }
 
   private onDisjunctionEnter(node: Disjunction) {
