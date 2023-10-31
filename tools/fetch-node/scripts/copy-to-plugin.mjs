@@ -20,8 +20,8 @@
 import fse from 'fs-extra';
 import * as path from 'node:path';
 import * as fs from 'node:fs';
-import { RUNTIMES_DIR, TARGET_DIR, getRuntimePaths } from './directories.mjs';
-import { DISTROS, NODE_VERSION, VERSION_FILENAME } from '../node-distros.mjs';
+import { getRuntimePaths } from './directories.mjs';
+import { NODE_VERSION, VERSION_FILENAME } from '../node-distros.mjs';
 
 /**
  * Copies tools/fetch-node/downloads/runtimes/{distro.id}/node{.exe}.xz

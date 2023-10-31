@@ -17,24 +17,28 @@ export const DISTROS = [
     url: `${NODE_ORG_URL}-win-x64.zip`,
     artifactoryUrl: `${NODE_ARTIFACTORY_URL}-win-x64.zip`,
     sha: '5d2596a00699fadf0ffa8e651f47ff5d719991014b920544d59c80d78569d42f',
+    binPath: 'node.exe',
   },
   {
     id: 'darwin-arm64',
     url: `${NODE_ORG_URL}-darwin-arm64.tar.gz`,
     artifactoryUrl: `${NODE_ARTIFACTORY_URL}-darwin-arm64.tar.gz`,
     sha: '9cc794517788aee103dfcffa04d0b90ac33854b0d10eb11a26ba4be38403f731',
+    binPath: 'bin/node',
   },
   {
     id: 'darwin-x64',
     url: `${NODE_ORG_URL}-darwin-x64.tar.gz`,
     artifactoryUrl: `${NODE_ARTIFACTORY_URL}-darwin-x64.tar.gz`,
     sha: '7a451dd07551a14ce64afdcc5bf8a71df12558edc19a2a9446e37cefe1e572fb',
+    binPath: 'bin/node',
   },
   {
     id: 'linux-x64',
     url: `${NODE_ORG_URL}-linux-x64.tar.gz`,
     artifactoryUrl: `${NODE_ARTIFACTORY_URL}-linux-x64.tar.gz`,
     sha: 'a8678ae00425acdf692e943e3f1cea11a4c46281e4257b82886423bd4ef6f2b5',
+    binPath: 'bin/node',
   },
 ];
 
