@@ -121,7 +121,7 @@ export const rule: Rule.RuleModule = {
             case 'HTMLSelfClosingTagClose':
               openHtmlTagsStack.pop();
               break;
-            case 'HTMLEndTagOpen':
+            case 'HTMLEndTagOpen': {
               const openHtmlTag = openHtmlTagsStack.pop();
               if (openHtmlTag) {
                 const highlightedSymbol: SymbolHighlight = {
@@ -131,6 +131,7 @@ export const rule: Rule.RuleModule = {
                 result.push(highlightedSymbol);
               }
               break;
+            }
           }
         });
 

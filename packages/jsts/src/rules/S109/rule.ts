@@ -99,7 +99,7 @@ function isPower(value: number) {
 }
 
 function isJSX(context: Rule.RuleContext) {
-  return context.getAncestors().some(node => node.type.indexOf('JSX') === 0);
+  return context.getAncestors().some(node => node.type.startsWith('JSX'));
 }
 
 function isBitwiseOperator(node: estree.Node) {

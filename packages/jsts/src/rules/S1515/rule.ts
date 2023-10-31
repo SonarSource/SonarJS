@@ -161,11 +161,12 @@ function getLoopTestRange(loopNode: LoopLike) {
       case 'DoWhileStatement':
         return loopNode.test.range;
       case 'ForOfStatement':
-      case 'ForInStatement':
+      case 'ForInStatement': {
         const leftRange = loopNode.range;
         if (leftRange) {
           return [leftRange[0], bodyRange[0]];
         }
+      }
     }
   }
   return undefined;
