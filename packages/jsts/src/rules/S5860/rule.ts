@@ -117,24 +117,16 @@ function checkStringReplaceGroupReferences(
       });
       const indexedGroups = regex.groups.filter(group => indexes.has(group.index));
       if (indexedGroups.length > 0) {
-        const secondaryLocations: LocationHolder[] = [];
-        const messages: string[] = [];
-        for (const grp of indexedGroups) {
-          const loc: AST.SourceLocation | null = getRegexpLocation(
-            regex.node,
-            grp.node,
-            intellisense.context,
-          );
-          if (loc) {
-            secondaryLocations.push({ loc });
-            messages.push(`Group '${grp.name}'`);
-          }
-        }
-
+        const { locations, messages } = prepareSecondaries(
+          regex,
+          indexedGroups,
+          intellisense,
+          'Group',
+        );
         intellisense.context.report({
           message: toEncodedMessage(
             `Directly use the group names instead of their numbers.`,
-            secondaryLocations,
+            locations,
             messages,
           ),
           node: substr,
@@ -157,23 +149,11 @@ function checkIndexBasedGroupReference(
       const group = regex.groups.find(grp => grp.index === index);
       if (group) {
         group.used = true;
-
-        const secondaryLocations: LocationHolder[] = [];
-        const messages: string[] = [];
-        const loc: AST.SourceLocation | null = getRegexpLocation(
-          regex.node,
-          group.node,
-          intellisense.context,
-        );
-        if (loc) {
-          secondaryLocations.push({ loc });
-          messages.push(`Group '${group.name}'`);
-        }
-
+        const { locations, messages } = prepareSecondaries(regex, [group], intellisense, 'Group');
         intellisense.context.report({
           message: toEncodedMessage(
             `Directly use '${group.name}' instead of its group number.`,
-            secondaryLocations,
+            locations,
             messages,
           ),
           node: property,
@@ -198,24 +178,17 @@ function checkNonExistingGroupReference(
       if (group) {
         group.used = true;
       } else {
-        const secondaryLocations: LocationHolder[] = [];
-        const messages: string[] = [];
-        for (const grp of regex.groups) {
-          const loc: AST.SourceLocation | null = getRegexpLocation(
-            regex.node,
-            grp.node,
-            intellisense.context,
-          );
-          if (loc) {
-            secondaryLocations.push({ loc });
-            messages.push(`Named group '${grp.name}'`);
-          }
-        }
+        const { locations, messages } = prepareSecondaries(
+          regex,
+          regex.groups,
+          intellisense,
+          'Named group',
+        );
 
         intellisense.context.report({
           message: toEncodedMessage(
             `There is no group named '${groupName}' in the regular expression.`,
-            secondaryLocations,
+            locations,
             messages,
           ),
           node: groupNode,
@@ -276,24 +249,17 @@ function checkUnusedGroups(intellisense: RegexIntelliSense) {
     if (regex.matched) {
       const unusedGroups = regex.groups.filter(group => !group.used);
       if (unusedGroups.length) {
-        const secondaryLocations: LocationHolder[] = [];
-        const messages: string[] = [];
-        for (const grp of unusedGroups) {
-          const loc: AST.SourceLocation | null = getRegexpLocation(
-            regex.node,
-            grp.node,
-            intellisense.context,
-          );
-          if (loc) {
-            secondaryLocations.push({ loc });
-            messages.push(`Named group '${grp.name}'`);
-          }
-        }
+        const { locations, messages } = prepareSecondaries(
+          regex,
+          unusedGroups,
+          intellisense,
+          'Named group',
+        );
 
         intellisense.context.report({
           message: toEncodedMessage(
             'Use the named groups of this regex or remove the names.',
-            secondaryLocations,
+            locations,
             messages,
           ),
           node: regex.node,
@@ -303,20 +269,37 @@ function checkUnusedGroups(intellisense: RegexIntelliSense) {
   });
 }
 
+function prepareSecondaries(
+  regex: RegexKnowledge,
+  groups: GroupKnowledge[],
+  intellisense: RegexIntelliSense,
+  label: string,
+) {
+  const locations: LocationHolder[] = [];
+  const messages: string[] = [];
+  for (const grp of groups) {
+    const loc: AST.SourceLocation | null = getRegexpLocation(
+      regex.node,
+      grp.node,
+      intellisense.context,
+    );
+    if (loc) {
+      locations.push({ loc });
+      messages.push(`${label} '${grp.name}'`);
+    }
+  }
+  return { locations, messages };
+}
+
 function checkIndexedGroups(intellisense: RegexIntelliSense) {
   intellisense.getKnowledge().forEach(regex => {
     regex.groups.forEach(group => {
-      const secondaryLocations: LocationHolder[] = [];
-      const messages: string[] = [];
-      const loc: AST.SourceLocation | null = getRegexpLocation(
-        regex.node,
-        group.node,
-        intellisense.context,
+      const { locations, messages } = prepareSecondaries(
+        regex,
+        [group],
+        intellisense,
+        'Named group',
       );
-      if (loc) {
-        secondaryLocations.push({ loc });
-        messages.push(`Group '${group.name}'`);
-      }
 
       group.node.references.forEach(reference => {
         const loc = getRegexpLocation(regex.node, reference, intellisense.context);
@@ -324,7 +307,7 @@ function checkIndexedGroups(intellisense: RegexIntelliSense) {
           intellisense.context.report({
             message: toEncodedMessage(
               `Directly use '${group.name}' instead of its group number.`,
-              secondaryLocations,
+              locations,
               messages,
             ),
             loc,
