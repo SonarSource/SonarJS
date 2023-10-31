@@ -21,6 +21,7 @@ export * from './ancestor';
 export * from './ast';
 export * from './chai';
 export * from './collection';
+export * from './decorators';
 export * from './express';
 export * from './file';
 export * from './globals';
@@ -31,8 +32,9 @@ export * from './module';
 export * from './quickfix';
 export * from './reaching-definitions';
 export * from './rule-detect-react';
+export * from './sinon';
 export * from './type';
-export * from './decorators';
+export * from './vitest';
 export * from './vue';
 
 export * from 'eslint-plugin-sonarjs/lib/utils/parser-services';

@@ -17,26 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import fse from 'fs-extra';
-import * as path from 'node:path';
-import * as fs from 'node:fs';
-import { getRuntimePaths } from './directories.mjs';
-import { NODE_VERSION, VERSION_FILENAME } from '../node-distros.mjs';
+import { check } from '../tools';
+import { rule } from './';
+import path from 'path';
 
-/**
- * Copies tools/fetch-node/downloads/runtimes/{distro.id}/node{.exe}.xz
- * to
- * sonar-plugin/sonar-javascript-plugin/target/node/{distro.id}/node{.exe}.xz
- *
- * Writes the
- * sonar-plugin/sonar-javascript-plugin/target/node/{distro.id}/version.txt files
- */
+const sonarId = path.basename(__dirname);
 
-const runtimePaths = getRuntimePaths();
-
-runtimePaths.forEach(p => {
-  fse.mkdirpSync(p.targetDir);
-  console.log(`Copying ${p.sourceFilename} to ${p.targetFilename}`);
-  fse.copySync(p.sourceFilename, p.targetFilename);
-  fs.writeFileSync(path.join(p.targetDir, VERSION_FILENAME), NODE_VERSION);
+describe(`Rule ${sonarId}`, () => {
+  check(sonarId, rule, __dirname);
 });

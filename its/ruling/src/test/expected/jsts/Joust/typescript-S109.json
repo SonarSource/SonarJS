@@ -3,57 +3,37 @@
 14,
 15,
 21,
-22,
 28
 ],
 "Joust:ts/Launcher.tsx": [
-301,
-337,
-417
+301
 ],
 "Joust:ts/Player.spec.ts": [
 8,
 8,
-8,
-9,
 13,
-14,
-19
-],
-"Joust:ts/TexturePreloader.ts": [
-47
+14
 ],
 "Joust:ts/components/EventLog.tsx": [
 106,
-145,
 251
 ],
 "Joust:ts/components/EventLogLine.tsx": [
-97,
 100
 ],
 "Joust:ts/components/GameWidget.tsx": [
 77
 ],
-"Joust:ts/components/GameWrapper.tsx": [
-134
-],
 "Joust:ts/components/LoadingScreen.tsx": [
-106,
-113
+106
 ],
 "Joust:ts/components/MessagePicker.tsx": [
-45,
 50
 ],
 "Joust:ts/components/Scrubber.tsx": [
 41,
 41,
 41,
-41,
-41,
-41,
-131,
 132,
 135,
 136,
@@ -71,21 +51,8 @@
 184,
 187
 ],
-"Joust:ts/components/Timeline.tsx": [
-153
-],
-"Joust:ts/components/Turn.tsx": [
-22,
-33,
-40,
-40,
-43
-],
 "Joust:ts/components/game/Card.tsx": [
-284,
-300,
 324,
-335,
 335,
 335
 ],
@@ -96,73 +63,43 @@
 "Joust:ts/protocol/HSReplayDecoder.spec.ts": [
 29,
 48,
-49,
 52,
 61,
 61,
-74,
 75,
-76,
 90,
 102,
 114,
 133,
 133,
 134,
-135,
-135,
-136,
 137,
 137,
 138,
-138,
-151,
 160
-],
-"Joust:ts/protocol/KettleDecoder.ts": [
-59,
-65
 ],
 "Joust:ts/protocol/KettleEncoder.ts": [
 37,
 42,
-60,
-63,
-100
+63
 ],
 "Joust:ts/state/GameStateHistory.spec.ts": [
-12,
-13,
 18,
 22,
 26,
-30,
 34,
-51,
-52,
-77,
-78,
-89,
-132,
 136,
 137,
 138,
 143,
 157,
-158,
 159,
 160,
-161,
-162,
 175,
-177,
-178
+177
 ],
 "Joust:ts/state/GameStateScrubber.ts": [
-97,
-141,
-308,
-361
+308
 ],
 "Joust:ts/state/mutators/IncrementTimeMutator.spec.ts": [
 26,
@@ -172,18 +109,11 @@
 30
 ],
 "Joust:ts/state/plugins/Timer.ts": [
-31,
-48,
-60,
 64,
 68,
 83,
 102,
 110,
-122,
-146,
-170,
-172,
-177
+172
 ]
 }

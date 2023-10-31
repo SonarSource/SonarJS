@@ -1,24 +1,6 @@
 {
-"redux:examples/async/containers/App.js": [
-66
-],
-"redux:examples/counter/actions/counter.js": [
-20,
-28
-],
-"redux:examples/counter/test/actions/counter.spec.js": [
-74
-],
 "redux:examples/counter/test/components/Counter.spec.js": [
-42,
 48
-],
-"redux:examples/counter/test/containers/App.spec.js": [
-43,
-49
-],
-"redux:examples/counter/test/reducers/counter.spec.js": [
-12
 ],
 "redux:examples/real-world/components/Explore.js": [
 30
@@ -29,27 +11,13 @@
 "redux:examples/real-world/reducers/paginate.js": [
 7
 ],
-"redux:examples/shopping-cart/reducers/index.js": [
-9
-],
 "redux:examples/todomvc/components/TodoTextInput.js": [
 14
 ],
 "redux:examples/todomvc/test/components/Footer.spec.js": [
 61
 ],
-"redux:examples/todomvc/test/components/MainSection.spec.js": [
-127
-],
-"redux:examples/todomvc/test/components/TodoItem.spec.js": [
-74
-],
-"redux:examples/universal/common/actions/counter.js": [
-28,
-36
-],
 "redux:examples/universal/common/api/counter.js": [
-8,
 9
 ],
 "redux:src/utils/combineReducers.js": [
@@ -57,46 +25,26 @@
 68
 ],
 "redux:test/createStore.spec.js": [
-11,
-202,
-206,
 210,
 214,
 218,
-219,
 222,
-223,
 226,
-227,
 230,
-231,
-234,
-235,
-284,
-286,
-310,
-323
-],
-"redux:test/utils/applyMiddleware.spec.js": [
-44
+310
 ],
 "redux:test/utils/combineReducers.spec.js": [
-216,
 221,
-226,
 231
 ],
 "redux:test/utils/compose.spec.js": [
-7,
 9,
 9,
-10,
 10,
 11,
 11
 ],
 "redux:test/utils/isPlainObject.spec.js": [
-17,
 17
 ]
 }

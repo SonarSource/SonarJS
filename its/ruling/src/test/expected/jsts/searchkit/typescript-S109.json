@@ -1,31 +1,9 @@
 {
-"searchkit:examples/indexer/mrp-products/config.ts": [
-103
-],
-"searchkit:packages/searchkit-cli/src/lib.ts": [
-265
-],
 "searchkit:packages/searchkit-client/src/__tests__/searchkit.test.tsx": [
-51,
 59
-],
-"searchkit:packages/searchkit-client/src/components.tsx": [
-30
-],
-"searchkit:packages/searchkit-client/src/history.ts": [
-64
-],
-"searchkit:packages/searchkit-client/src/searchkit.tsx": [
-199
-],
-"searchkit:packages/searchkit-client/src/withSearchkitRouting.tsx": [
-49
 ],
 "searchkit:packages/searchkit-elastic-ui/src/Facets/RangeSliderFacet/index.tsx": [
 46
-],
-"searchkit:packages/searchkit-schema/src/resolvers/HitsResolver.ts": [
-16
 ],
 "searchkit:packages/searchkit-schema/tests/BaseFilters.test.ts": [
 135,
@@ -51,7 +29,6 @@
 ],
 "searchkit:packages/searchkit-schema/tests/Pagination.test.ts": [
 56,
-68,
 69,
 73,
 85,
@@ -61,8 +38,7 @@
 139
 ],
 "searchkit:packages/searchkit-schema/tests/Query.test.ts": [
-72,
-76
+72
 ],
 "searchkit:packages/searchkit-schema/tests/SummaryResolver.test.ts": [
 163,
@@ -129,18 +105,7 @@
 "searchkit:packages/searchkit-sdk/src/facets/RefinementSelectFacet.ts": [
 47
 ],
-"searchkit:packages/searchkit-sdk/src/facets/utils/index.ts": [
-13
-],
-"searchkit:packages/searchkit-sdk/src/suggestors/CompletionSuggestor.ts": [
-28
-],
-"searchkit:packages/searchkit-sdk/src/suggestors/HitsSuggestor.ts": [
-34
-],
 "searchkit:packages/searchkit-sdk/src/transporters/ESClientTransporter.ts": [
-38,
-45,
 46
 ],
 "searchkit:packages/searchkit-sdk/src/transporters/__tests__/ESClientTransporter.test.ts": [
@@ -152,28 +117,23 @@
 87
 ],
 "searchkit:packages/searchkit-sdk/tests/BaseFilters.test.ts": [
-23,
-113
+23
 ],
 "searchkit:packages/searchkit-sdk/tests/collapse.test.ts": [
-25,
-82
+25
 ],
 "searchkit:packages/searchkit-sdk/tests/filters-facets/GeoDistanceOptionsFacet.test.ts": [
 41
 ],
 "searchkit:packages/searchkit-sdk/tests/filters-facets/GeoFilters.test.ts": [
-46,
-114
+46
 ],
 "searchkit:packages/searchkit-sdk/tests/filters-facets/HierarchicalMenuFacet.test.ts": [
 41,
 80,
-143,
 146,
 158,
 265,
-267,
 280
 ],
 "searchkit:packages/searchkit-sdk/tests/filters-facets/MultiQueryOptionsFacet.test.ts": [
@@ -192,46 +152,34 @@
 "searchkit:packages/searchkit-sdk/tests/filters-facets/VisibleWhen.test.ts": [
 49,
 66,
-80,
 89
 ],
 "searchkit:packages/searchkit-sdk/tests/filters-facets/baseFilters.test.ts": [
 23,
-95,
 110
 ],
 "searchkit:packages/searchkit-sdk/tests/filters-facets/facets.test.ts": [
 31,
-41,
 74,
-84,
 137,
 180,
-190,
-223,
-236
+223
 ],
 "searchkit:packages/searchkit-sdk/tests/hits.test.ts": [
 23,
-88,
 100,
 119,
-120,
-121,
 135,
 154
 ],
 "searchkit:packages/searchkit-sdk/tests/postProcessRequest.test.ts": [
 28,
-93,
 105
 ],
 "searchkit:packages/searchkit-sdk/tests/sortBy.test.ts": [
 21,
-39,
 55,
-103,
-119
+103
 ],
 "searchkit:packages/searchkit-sdk/tests/suggestions/CompletionSuggestor.test.ts": [
 22

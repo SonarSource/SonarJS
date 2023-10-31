@@ -31,7 +31,7 @@ class NoMagicNumbersCheckTest {
     String configAsString = new Gson().toJson(new NoMagicNumbersCheck().configurations());
     assertThat(configAsString)
       .isEqualTo(
-        "[{\"ignore\":[0,1,-1],\"ignoreEnums\":true,\"ignoreReadonlyClassProperties\":true,\"ignoreNumericLiteralTypes\":true}]"
+        "[{\"ignore\":[0,1,-1,24,60],\"ignoreEnums\":true,\"ignoreReadonlyClassProperties\":true,\"ignoreNumericLiteralTypes\":true,\"ignoreDefaultValues\":true,\"ignoreClassFieldInitialValues\":true}]"
       );
   }
 }
