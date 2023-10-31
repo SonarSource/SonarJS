@@ -63,6 +63,7 @@ public class XZ {
    * @throws IOException
    */
   public static void compress(List<String> filenames) throws IOException {
+    filenames.size();
     for (var filename : filenames) {
       var file = Path.of(filename);
       System.out.println("Compressing " + filename);
