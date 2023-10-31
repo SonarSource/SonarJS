@@ -17,19 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as stylelint from 'stylelint';
-import { rule as S125 } from './S125';
-import { rule as S5362 } from './S5362';
+package org.sonar.css.rules;
 
-/**
- * The set of internal Stylelint-based rules
- */
-const rules: { [key: string]: stylelint.Rule } = {};
+import org.sonar.check.Rule;
 
-/**
- * Maps Stylelint rule keys to rule implementations
- */
-rules[S125.ruleName] = S125.rule; // no-commented-code
-rules[S5362.ruleName] = S5362.rule; // function-calc-no-invalid
+@Rule(key = "S125")
+public class NoCommentedCode implements CssRule {
 
-export { rules };
+  @Override
+  public String stylelintKey() {
+    return "no-commented-code";
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "title": "Sections of code should not be commented out",
+  "type": "CODE_SMELL",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "MEDIUM"
+    },
+    "attribute": "CLEAR"
+  },
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "unused"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-125",
+  "sqKey": "S125",
+  "scope": "All",
+  "quickfix": "unknown"
+}
