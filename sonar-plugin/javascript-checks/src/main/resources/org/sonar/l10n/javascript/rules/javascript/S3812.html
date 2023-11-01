@@ -4,7 +4,7 @@ how the expression is parsed and executed. JavaScript follows a specific set of 
 <p>Not being aware of JavaScript’s operator precedence rules can lead to unexpected and potentially incorrect results when evaluating expressions.
 This is common when misapplying the logical negation operator (<code>!</code>). For instance, consider the difference between <code>!key in
 dict</code> and <code>!(key in dict)</code>. The first looks for a boolean value (<code>!key</code>) in <code>dict</code>, and the other looks for a
-string and inverts the result. The same applies for <code>`!obj instanceof SomeClass</code></p>
+string and inverts the result. The same applies for <code>!obj instanceof SomeClass</code>.</p>
 <p>This rule raises an issue when the left operand of an <code>in</code> or <code>instanceof</code> operator is negated with <code>!</code>.</p>
 <pre data-diff-id="1" data-diff-type="noncompliant">
 if (!"prop" in myObj) { // Noncompliant: checks whether !"prop", that is, false is in myObj

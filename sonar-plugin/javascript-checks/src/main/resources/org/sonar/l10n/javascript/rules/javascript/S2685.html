@@ -11,7 +11,7 @@ to functions involved in the function invocation chain:</p>
 </ul>
 <p>Both <code>arguments.caller</code> and <code>arguments.callee</code> are non-standard, deprecated, and leak stack information, which poses security
 risks and severely limits the possibility of optimizations.</p>
-<p>Accessing <code>arguments.callee</code>, <code>Function.prototype.caller</code> and <code>Function.prototype.arguments </code> in strict mode will
+<p>Accessing <code>arguments.callee</code>, <code>Function.prototype.caller</code> and <code>Function.prototype.arguments</code> in strict mode will
 throw a <code>TypeError</code>.</p>
 <pre>
 function whoCalled() {

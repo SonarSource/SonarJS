@@ -4,6 +4,15 @@ readable and maintainable.</p>
 <p>Magic numbers make the code more complex to understand as it requires the reader to have knowledge about the global context to understand the
 number itself. Their usage may seem obvious when writing the code, but it may not be the case for another developer or later once the context faded
 away. -1, 0, and 1 are not considered magic numbers.</p>
+<h3>Exceptions</h3>
+<ul>
+  <li> the following numbers used in arithmetic operations: -1, 0, 1, as well as powers of 2 and 10 </li>
+  <li> time-related constants such as 24 and 60 are excluded </li>
+  <li> numbers used in JSX elements are excluded </li>
+  <li> enum values, default values, and other assignments are excluded </li>
+  <li> arguments to <code>parseInt()</code> and <code>JSON.stringify()</code> are excluded </li>
+  <li> numbers used in bitwise operations are excluded </li>
+</ul>
 <h2>How to fix it</h2>
 <p>Replacing them with a constant allows us to provide a meaningful name associated with the value. Instead of adding complexity to the code, it
 brings clarity and helps to understand the context and the global meaning.</p>

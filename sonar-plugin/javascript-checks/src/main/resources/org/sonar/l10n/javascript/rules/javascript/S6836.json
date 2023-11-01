@@ -7,11 +7,11 @@
     "constantCost": "5min"
   },
   "tags": [],
-  "defaultSeverity": "Major",
+  "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-6836",
   "sqKey": "S6836",
   "scope": "All",
-  "quickfix": "unknown",
+  "quickfix": "infeasible",
   "code": {
     "impacts": {
       "MAINTAINABILITY": "MEDIUM"

@@ -1,9 +1,9 @@
 <h2>Why is this an issue?</h2>
 <p>A <code>switch</code> statement is a control flow statement that allows you to execute different blocks of code based on the value of an
 expression. It provides a more concise way to handle multiple conditions compared to using multiple <code>if-else</code> statements.</p>
-<p>If you only have a single condition to check, using an <code>if</code>` statement is simpler and more concise. <code>switch</code> statements are
+<p>If you only have a single condition to check, using an <code>if</code> statement is simpler and more concise. <code>switch</code> statements are
 designed for handling multiple cases, so using them for a single condition can be overkill and less readable.</p>
-<p>This rule raises an issue when a <code>switch</code> statement has only one <code>case</code> clause and possibly a <code>++default</code> one.</p>
+<p>This rule raises an issue when a <code>switch</code> statement has only one <code>case</code> clause and possibly a <code>default</code> one.</p>
 <pre data-diff-id="1" data-diff-type="noncompliant">
 switch (condition) { // Noncompliant: The switch has only one case and a default
   case 0:

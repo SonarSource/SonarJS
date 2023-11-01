@@ -1,8 +1,9 @@
 <h2>Why is this an issue?</h2>
 <p>The ECMAScript specification allows for creating block-level lexical declarations (<code>let</code>, <code>const</code>, <code>function</code>, and
-<code>class</code>) in any block statement or expression. However, when these declarations are made inside a <code>case</code> or <code>default</code>
-clause of a <code>switch</code> statement, they are not confined to the block of that <code>case</code> or <code>default</code> clause. Instead, they
-apply to the whole <code>switch</code> block but only get initialized when the cases are reached, which can lead to unexpected behavior.</p>
+<code>class</code>) in any block statement or expression. However, when these declarations are made inside the <code>case</code> or
+<code>default</code> clause of a <code>switch</code> statement, they are not confined to the block of that <code>case</code> or <code>default</code>
+clause. Instead, they apply to the whole <code>switch</code> block but only get initialized when the cases are reached, which can lead to unexpected
+behavior.</p>
 <pre data-diff-id="1" data-diff-type="noncompliant">
 switch (foo) {
     case 1:

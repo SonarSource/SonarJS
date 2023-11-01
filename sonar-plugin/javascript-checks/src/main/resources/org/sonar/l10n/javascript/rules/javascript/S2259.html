@@ -3,12 +3,25 @@
 on a <code>null</code> or <code>undefined</code> value, JavaScript tries to access the property of an object that does not exist, which results in a
 <code>TypeError</code>.</p>
 <p>This can cause the program to crash or behave unexpectedly, which can be difficult to debug.</p>
+<h2>How to fix it</h2>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
 <pre data-diff-id="1" data-diff-type="noncompliant">
 let foo = null;
 console.log(foo.bar); // Noncompliant: TypeError will be thrown
 </pre>
-<p>Use the logical AND operator (<code>&amp;&amp;</code>) to check if a variable is truthy before attempting to access its properties. The expression
-will short-circuit and return the falsy value instead of attempting to access its properties.</p>
+<h4>Compliant solution</h4>
+<p>The simplest solution is to check in a <code>if</code> condition the equality to <code>null</code> or <code>undefined</code>. With the <a
+href="https://262.ecma-international.org/6.0/#sec-abstract-equality-comparison">abstract equality operator</a> it is not required to check both, as
+these operators consider <code>null</code> and <code>undefined</code> to be equals.</p>
+<pre data-diff-id="1" data-diff-type="compliant">
+let foo;
+if (foo != null) {
+  console.log(foo.bar);
+}
+</pre>
+<p>Also, the logical AND operator (<code>&amp;&amp;</code>) can be used to check if a variable is truthy before attempting to access its properties.
+The expression will short-circuit and return the falsy value instead of attempting to access its properties.</p>
 <pre data-diff-id="1" data-diff-type="compliant">
 let foo = null;
 console.log(foo &amp;&amp; foo.bar);
