@@ -31,7 +31,7 @@ import { errorMiddleware } from './errors';
 import { debug, getContext } from '@sonar/shared/helpers';
 import { timeoutMiddleware } from './timeout';
 import { AddressInfo } from 'net';
-import { Worker } from 'worker_threads';
+import { Worker, SHARE_ENV } from 'worker_threads';
 import {
   registerGarbageCollectionObserver,
   logMemoryConfiguration,
@@ -95,6 +95,7 @@ export function start(
 
     worker = new Worker(path.resolve(__dirname, 'worker.js'), {
       workerData: { context: getContext() },
+      env: SHARE_ENV,
     });
 
     worker.on('online', () => {
