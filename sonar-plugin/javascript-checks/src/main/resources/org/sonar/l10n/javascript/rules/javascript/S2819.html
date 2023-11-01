@@ -1,46 +1,62 @@
+<p>Cross-origin communication allows different websites to interact with each other. This interaction is typically achieved through mechanisms like
+AJAX requests, WebSockets, or postMessage API. However, a vulnerability can arise when these communications are not properly secured by verifying
+their origins.</p>
 <h2>Why is this an issue?</h2>
-<p>Browsers <a href="https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage">allow message exchanges</a> between Window objects of
-different origins.</p>
-<p>Because any window can send or receive messages from another window, it is important to verify the sender’s/receiver’s identity:</p>
-<ul>
-  <li> When sending a message with the postMessage method, the identity’s receiver should be defined (the wildcard keyword (<code>*</code>) should not
-  be used). </li>
-  <li> When receiving a message with a message event, the sender’s identity should be verified using the origin and possibly source properties. </li>
-</ul>
-<h3>Noncompliant code example</h3>
+<p>Without origin verification, the target website cannot distinguish between legitimate requests from its own pages and malicious requests from an
+attacker’s site. The attacker can craft a malicious website or script that sends requests to a target website where the user is already
+authenticated.</p>
+<p>This vulnerability class is not about a single specific user input or action, but rather a series of actions that lead to an insecure cross-origin
+communication.</p>
+<h3>What is the potential impact?</h3>
+<p>The absence of origin verification during cross-origin communications can lead to serious security issues.</p>
+<h4>Data Breach</h4>
+<p>If an attacker can successfully exploit this vulnerability, they may gain unauthorized access to sensitive data. For instance, a user’s personal
+information, financial details, or other confidential data could be exposed. This not only compromises the user’s privacy but can also lead to
+identity theft or financial loss.</p>
+<h4>Unauthorized Actions</h4>
+<p>An attacker could manipulate the communication between websites to perform actions on behalf of the user without their knowledge. This could range
+from making unauthorized purchases to changing user settings or even deleting accounts.</p>
+<h2>How to fix it</h2>
+<p>When sending a message, avoid using <code>*</code> for the target origin (it means no preference). Instead define it explicitly so the message will
+only be dispatched to this URI. When receiving the message, verify the orgin to be sure that it is sent by an authorized sender.</p>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
 <p>When sending a message:</p>
-<pre>
+<pre data-diff-id="1" data-diff-type="noncompliant">
 var iframe = document.getElementById("testiframe");
-iframe.contentWindow.postMessage("secret", "*"); // Noncompliant: * is used
+iframe.contentWindow.postMessage("hello", "*"); // Noncompliant: * is used
 </pre>
 <p>When receiving a message:</p>
-<pre>
+<pre data-diff-id="2" data-diff-type="noncompliant">
 window.addEventListener("message", function(event) { // Noncompliant: no checks are done on the origin property.
-      console.log(event.data);
+  console.log(event.data);
  });
 </pre>
-<h3>Compliant solution</h3>
+<h4>Compliant solution</h4>
 <p>When sending a message:</p>
-<pre>
-var iframe = document.getElementById("testsecureiframe");
-iframe.contentWindow.postMessage("hello", "https://secure.example.com"); // Compliant
+<pre data-diff-id="1" data-diff-type="compliant">
+var iframe = document.getElementById("testiframe");
+iframe.contentWindow.postMessage("hello", "https://secure.example.com");
 </pre>
 <p>When receiving a message:</p>
-<pre>
+<pre data-diff-id="2" data-diff-type="compliant">
 window.addEventListener("message", function(event) {
-
-  if (event.origin !== "http://example.org") // Compliant
+  if (event.origin !== "http://example.org")
     return;
 
   console.log(event.data)
 });
 </pre>
 <h2>Resources</h2>
+<h3>Documentation</h3>
 <ul>
-  <li> <a href="https://owasp.org/Top10/A01_2021-Broken_Access_Control/">OWASP Top 10 2021 Category A1</a> - Broken Access Control </li>
-  <li> <a href="https://owasp.org/www-project-top-ten/2017/A2_2017-Broken_Authentication">OWASP Top 10 2017 Category A2</a> - Broken Authentication
+  <li> MDN web docs - <a href="https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage">postMessage API</a> </li>
+</ul>
+<h3>Standards</h3>
+<ul>
+  <li> OWASP - <a href="https://owasp.org/Top10/A01_2021-Broken_Access_Control/">Top 10 2021 Category A1 - Broken Access Control</a> </li>
+  <li> OWASP - <a href="https://owasp.org/www-project-top-ten/2017/A2_2017-Broken_Authentication">Top 10 2017 Category A2 - Broken Authentication</a>
   </li>
-  <li> <a href="https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage">developer.mozilla.org</a> - postMessage API </li>
-  <li> <a href="https://cwe.mitre.org/data/definitions/345.html">MITRE, CWE-345</a> - Insufficient Verification of Data Authenticity </li>
+  <li> CWE - <a href="https://cwe.mitre.org/data/definitions/345.html">CWE-345 - Insufficient Verification of Data Authenticity</a> </li>
 </ul>
 

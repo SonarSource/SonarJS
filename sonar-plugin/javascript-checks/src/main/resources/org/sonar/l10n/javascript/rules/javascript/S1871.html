@@ -1,7 +1,25 @@
 <h2>Why is this an issue?</h2>
+<p>When the same code is duplicated in two or more separate branches of a conditional, it can make the code harder to understand, maintain, and can
+potentially introduce bugs if one instance of the code is changed but others are not.</p>
 <p>Having two <code>cases</code> in a <code>switch</code> statement or two branches in an <code>if</code> chain with the same implementation is at
 best duplicate code, and at worst a coding error.</p>
 <pre data-diff-id="1" data-diff-type="noncompliant">
+if (a &gt;= 0 &amp;&amp; a &lt; 10) {
+  doFirstThing();
+  doTheThing();
+}
+else if (a &gt;= 10 &amp;&amp; a &lt; 20) {
+  doTheOtherThing();
+}
+else if (a &gt;= 20 &amp;&amp; a &lt; 50) {
+  doFirstThing();
+  doTheThing();  // Noncompliant; duplicates first condition
+}
+else {
+  doTheRest();
+}
+</pre>
+<pre data-diff-id="2" data-diff-type="noncompliant">
 switch (i) {
   case 1:
     doFirstThing();
@@ -18,27 +36,11 @@ switch (i) {
     doTheRest();
 }
 </pre>
-<pre data-diff-id="2" data-diff-type="noncompliant">
-if (a &gt;= 0 &amp;&amp; a &lt; 10) {
-  doFirstThing();
-  doTheThing();
-}
-else if (a &gt;= 10 &amp;&amp; a &lt; 20) {
-  doTheOtherThing();
-}
-else if (a &gt;= 20 &amp;&amp; a &lt; 50) {
-  doFirstThing();
-  doTheThing();  // Noncompliant; duplicates first condition
-}
-else {
-  doTheRest();
-}
-</pre>
 <p>If the same logic is truly needed for both instances, then:</p>
 <ul>
   <li> in an <code>if</code> chain they should be combined </li>
 </ul>
-<pre data-diff-id="2" data-diff-type="compliant">
+<pre data-diff-id="1" data-diff-type="compliant">
 if ((a &gt;= 0 &amp;&amp; a &lt; 10) || (a &gt;= 20 &amp;&amp; a &lt; 50)) { // Compliant
   doFirstThing();
   doTheThing();
@@ -51,9 +53,9 @@ else {
 }
 </pre>
 <ul>
-  <li> for a <code>switch</code>, one should fall through to the other. </li>
+  <li> for a <code>switch</code>, one should fall through to the other </li>
 </ul>
-<pre data-diff-id="1" data-diff-type="compliant">
+<pre data-diff-id="2" data-diff-type="compliant">
 switch (i) {
   case 1:
   case 3: // Compliant
@@ -74,7 +76,7 @@ default clause.</p>
 <code>switch</code> statement that contains a single line of code with or without a following <code>break</code>.</p>
 <pre>
 if (a == 1) {
-  doSomething();  //no issue, usually this is done on purpose to increase the readability
+  doSomething();  // Compliant, usually this is done on purpose to increase the readability
 } else if (a == 2) {
   doSomethingElse();
 } else {
