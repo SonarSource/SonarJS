@@ -24,17 +24,13 @@ import path from 'path';
 
 describe('index', () => {
   it('should map keys to rules definitions', () => {
-    // FIXME: This test runs with a time complexity of O(n^2) where n is the number of rules.
-    //        This is because it iterates over all rules and checks if they are mapped. Once
-    //        we use Sonar rule keys as ESLint rule keys, we can make this test O(n) just by
-    //        checking if the rule key is in the mapping.
     const ruleFolder = path.join(__dirname, '../../src/rules');
     const sonarKeys = fs.readdirSync(ruleFolder).filter(name => /^S\d+/.test(name));
-    const mappedRules = Object.values(mapping);
+    const mappedRules = new Map(Object.values(mapping).map(rule => [rule, true]));
     const missing = [];
     for (const sonarKey of sonarKeys) {
       const { rule } = require(path.join(ruleFolder, sonarKey));
-      if (!mappedRules.some(mapped => mapped === rule)) {
+      if (!mappedRules.has(rule)) {
         missing.push(sonarKey);
       }
     }
