@@ -30,7 +30,7 @@
     "type": "git",
     "url": "git+https://github.com/SonarSource/SonarJS.git"
   },
-  "license": "LGPL-3.0",
+  "license": "LGPL-3.0-only",
   "bugs": {
     "url": "https://github.com/SonarSource/SonarJS/issues"
   },
