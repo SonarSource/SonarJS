@@ -43,7 +43,12 @@ export function buildSourceCode(input: JsTsAnalysisInput, language: JsTsLanguage
       filePath: input.filePath,
       programs: input.programId && [getProgramById(input.programId)],
       project: input.tsConfigs,
-      parser: vueFile ? parsers.typescript.parser : undefined,
+      parser: vueFile
+        ? {
+            ts: parsers.typescript.parser,
+            '<template>': 'espree',
+          }
+        : undefined,
     };
 
     try {
