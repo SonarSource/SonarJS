@@ -20,5 +20,9 @@
       "RELIABILITY": "LOW"
     },
     "attribute": "CONVENTIONAL"
-  }
+  },
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]
 }
