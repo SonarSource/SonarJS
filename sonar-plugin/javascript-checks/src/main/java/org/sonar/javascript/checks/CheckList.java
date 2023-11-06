@@ -306,6 +306,7 @@ public final class CheckList {
       NoSameArgumentAssertCheck.class,
       NoSelfCompareCheck.class,
       NoSparseArraysCheck.class,
+      NoStringRefsCheck.class,
       NoThisAliasCheck.class,
       NoThisInSfcCheck.class,
       NoUndefInitCheck.class,
