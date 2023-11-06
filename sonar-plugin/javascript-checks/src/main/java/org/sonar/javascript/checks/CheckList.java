@@ -265,6 +265,7 @@ public final class CheckList {
       NoExtendNativeCheck.class,
       NoExtraBindCheck.class,
       NoExtraBooleanCastCheck.class,
+      NoFindDomNodeCheck.class,
       NoForInArrayCheck.class,
       NoHardcodedIpCheck.class,
       NoHookSetterInBodyCheck.class,
