@@ -275,6 +275,7 @@ public final class CheckList {
       NoInferrableTypesCheck.class,
       NoInvalidAwaitCheck.class,
       NoInvertedBooleanCheckCheck.class,
+      NoIsMountedCheck.class,
       NoLoneBlocksCheck.class,
       NoLonelyIfCheck.class,
       NoLossOfPrecisionCheck.class,
