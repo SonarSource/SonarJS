@@ -92,6 +92,8 @@ class SonarLintTypeCheckingFilterTest {
     assertThat(filter.test(inputFile("bar", "file.ts"))).isTrue();
     assertThat(filter.test(inputFile("qux", "file.cjs"))).isFalse();
     assertThat(filter.test(inputFile("file.vue"))).isFalse();
+    assertThat(filter.test(inputFile("file.gjs"))).isFalse();
+    assertThat(filter.test(inputFile("file.gts"))).isFalse();
   }
 
   private Path inputFile(String filename) throws IOException {

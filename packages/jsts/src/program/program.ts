@@ -116,6 +116,11 @@ export function createProgramOptions(
         isMixedContent: true,
         scriptKind: ts.ScriptKind.Deferred,
       },
+      {
+        extension: 'gts',
+        isMixedContent: true,
+        scriptKind: ts.ScriptKind.Deferred,
+      },
     ],
   );
 

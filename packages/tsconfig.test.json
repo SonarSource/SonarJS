@@ -11,6 +11,6 @@
       "path": "./tsconfig.app.json"
     }
   ],
-  "include": ["*/tests", "*/src/rules/tools", "*/src/rules/*/*.test.ts"],
+  "include": ["*/tests", "*/src/rules/tools", "types.d.ts", "*/src/rules/*/*.test.ts"],
   "exclude": ["*/tests/**/fixtures", "*/src/rules/*/*.fixture.*", "*/src/rules/*/fixtures"]
 }

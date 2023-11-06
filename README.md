@@ -12,7 +12,7 @@ This SonarSource project is a [static code analyzer](https://en.wikipedia.org/wi
 - [389 JS rules](https://rules.sonarsource.com/javascript) and [393 TS rules](https://rules.sonarsource.com/typescript)
 - [26 CSS rules](https://rules.sonarsource.com/css)
 - Compatible with ECMAScript 2015-2020
-- React JSX, Flow, Vue, and AWS lambda functions support for JavaScript and TypeScript
+- React JSX, Flow, Vue, Ember and AWS lambda functions support for JavaScript and TypeScript
 - CSS, SCSS, SASS, Less, also 'style' inside HTML and VueJS files
 - Metrics (complexity, number of lines, etc.)
 - Import of test coverage reports

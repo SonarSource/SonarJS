@@ -123,6 +123,25 @@ describe('analyzeJSTS', () => {
     );
   });
 
+  it('should analyze Ember.js code', async () => {
+    const rules = [
+      { key: 'sonar-no-dupe-keys', configurations: [], fileTypeTarget: ['MAIN'] },
+    ] as RuleConfig[];
+    initializeLinter(rules);
+
+    const filePath = path.join(__dirname, 'fixtures', 'file.gjs');
+    const language = 'js';
+
+    const {
+      issues: [issue],
+    } = analyzeJSTS(await jsTsInput({ filePath }), language);
+    expect(issue).toEqual(
+      expect.objectContaining({
+        ruleId: 'sonar-no-dupe-keys',
+      }),
+    );
+  });
+
   it('should analyze Vue.js code with type checks', async () => {
     const rules = [
       { key: 'strings-comparison', configurations: [], fileTypeTarget: ['MAIN'] },
@@ -131,6 +150,27 @@ describe('analyzeJSTS', () => {
 
     const filePath = path.join(__dirname, 'fixtures', 'vue_ts', 'file.vue');
     const tsConfigs = [path.join(__dirname, 'fixtures', 'vue_ts', 'tsconfig.json')];
+    const language = 'ts';
+
+    const {
+      issues: [issue1],
+    } = analyzeJSTS(await jsTsInput({ filePath, tsConfigs }), language) as JsTsAnalysisOutput;
+    expect(issue1).toEqual(
+      expect.objectContaining({
+        ruleId: 'strings-comparison',
+      }),
+    );
+  });
+
+  it('should analyze Ember.js code with type checks', async () => {
+    const rules = [
+      { key: 'strings-comparison', configurations: [], fileTypeTarget: ['MAIN'] },
+    ] as RuleConfig[];
+    initializeLinter(rules);
+
+    const filePath = path.join(__dirname, 'fixtures', 'ember_ts', 'file.gts');
+    const tsConfigs = [path.join(__dirname, 'fixtures', 'ember_ts', 'tsconfig.json')];
+
     const language = 'ts';
 
     const {

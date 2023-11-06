@@ -80,6 +80,7 @@
     "@typescript-eslint/parser": "6.14.0",
     "builtin-modules": "3.3.0",
     "bytes": "3.1.2",
+    "ember-eslint-parser": "0.2.5",
     "eslint": "8.55.0",
     "eslint-plugin-import": "2.29.0",
     "eslint-plugin-jsx-a11y": "6.8.0",
@@ -123,6 +124,7 @@
     "@eslint-community/regexpp",
     "builtin-modules",
     "bytes",
+    "ember-eslint-parser",
     "eslint",
     "eslint-plugin-import",
     "eslint-plugin-jsx-a11y",
@@ -169,5 +171,10 @@
     "@sonar/jsts": "lib/jsts/src",
     "@sonar/shared": "lib/shared/src",
     "@sonar/yaml": "lib/yaml/src"
+  },
+  "overrides": {
+    "@babel/core": "7.23.2",
+    "@typescript-eslint/parser": "6.14.0",
+    "typescript": "5.3.3"
   }
 }

@@ -32,6 +32,8 @@ const cases = [
   { syntax: 'JSX', fixture: 'jsx.jsx', language: 'js' },
   { syntax: 'Flow', fixture: 'flow.js', language: 'js' },
   { syntax: 'Vue.js', fixture: 'vue.vue', language: 'js' },
+  { syntax: 'Ember.js Glimmer JS', fixture: 'ember.gjs', language: 'js' },
+  { syntax: 'Ember.js Glimmer TS', fixture: 'ember.gts', language: 'ts' },
   { syntax: 'decorator @', fixture: 'decorator.js', language: 'js' },
   { syntax: 'private #', fixture: 'private.js', language: 'js' },
   { syntax: 'TypeScript', fixture: 'typescript.ts', language: 'ts' },

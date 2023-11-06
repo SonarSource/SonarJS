@@ -134,7 +134,7 @@ We support 2 kinds of rule unit-tests: ESLint's [RuleTester](https://eslint.org/
 
 ### Comment-based testing
 
-These tests are located in the rule folder and they **MUST** be named `*.fixture.*` (where the extension could be one of `js`, `ts`, `jsx`, `tsx`, `vue`). If options are to be passed to the tested rule, add a JSON file to the same directory named `cb.options.json`. The file must contain the array of options.
+These tests are located in the rule folder and they **MUST** be named `*.fixture.*` (where the extension could be one of `js`, `ts`, `jsx`, `tsx`, `vue`, `gjs`, `gts`). If options are to be passed to the tested rule, add a JSON file to the same directory named `cb.options.json`. The file must contain the array of options.
 
 The contents of the test code have the following structure:
 

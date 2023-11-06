@@ -46,8 +46,8 @@ export function buildParserOptions(initialOptions: Linter.ParserOptions, usingBa
       globalReturn: false,
       legacyDecorators: true,
     },
-    // for Vue parser
-    extraFileExtensions: ['.vue'],
+    // for Vue and Ember parser
+    extraFileExtensions: ['.vue', '.gjs', '.gts'],
     ...initialOptions,
   };
 

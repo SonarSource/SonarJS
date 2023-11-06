@@ -6,6 +6,7 @@
   "exclude": ["excluded.ts"],
   "include": [
     "**/*.ts",
-    "**/*.vue"
+    "**/*.vue",
+    "**/*.gts",
   ]
 }

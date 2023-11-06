@@ -116,6 +116,8 @@ class JavaScriptFilePredicateTest {
     fs.add(createInputFile(baseDir, "i.java"));
     fs.add(createInputFile(baseDir, "j.jsx"));
     fs.add(createInputFile(baseDir, "k.tsx"));
+    fs.add(createInputFile(baseDir, "l.gjs"));
+    fs.add(createInputFile(baseDir, "m.gts"));
 
     FilePredicate predicate = JavaScriptFilePredicate.getJsTsPredicate(fs);
     var files = new ArrayList<InputFile>();
@@ -127,7 +129,16 @@ class JavaScriptFilePredicateTest {
       .map(InputFile::filename)
       .collect(Collectors.toList());
     assertThat(filenames)
-      .containsExactlyInAnyOrder("a.js", "c.vue", "d.vue", "e.vue", "f.vue", "h.vue", "j.jsx");
+      .containsExactlyInAnyOrder(
+        "a.js",
+        "c.vue",
+        "d.vue",
+        "e.vue",
+        "f.vue",
+        "h.vue",
+        "j.jsx",
+        "l.gjs"
+      );
   }
 
   @Test
@@ -193,6 +204,8 @@ class JavaScriptFilePredicateTest {
     fs.add(createInputFile(baseDir, "h.java"));
     fs.add(createInputFile(baseDir, "i.jsx"));
     fs.add(createInputFile(baseDir, "j.tsx"));
+    fs.add(createInputFile(baseDir, "k.gjs"));
+    fs.add(createInputFile(baseDir, "l.gts"));
 
     FilePredicate predicate = JavaScriptFilePredicate.getJsTsPredicate(fs);
     var files = new ArrayList<InputFile>();
@@ -203,7 +216,7 @@ class JavaScriptFilePredicateTest {
       .filter(JavaScriptFilePredicate::isTypeScriptFile)
       .map(InputFile::filename)
       .collect(Collectors.toList());
-    assertThat(filenames).containsExactlyInAnyOrder("b.ts", "e.vue", "f.vue", "j.tsx");
+    assertThat(filenames).containsExactlyInAnyOrder("b.ts", "e.vue", "f.vue", "j.tsx", "l.gts");
   }
 
   @Test

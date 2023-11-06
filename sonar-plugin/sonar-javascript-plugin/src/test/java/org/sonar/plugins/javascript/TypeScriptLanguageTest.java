@@ -34,6 +34,7 @@ class TypeScriptLanguageTest {
       TypeScriptLanguage.FILE_SUFFIXES_DEFVALUE
     );
     TypeScriptLanguage typeScriptLanguage = new TypeScriptLanguage(settings.asConfig());
-    assertThat(typeScriptLanguage.getFileSuffixes()).containsExactly(".ts", ".tsx", ".cts", ".mts");
+    assertThat(typeScriptLanguage.getFileSuffixes())
+      .containsExactly(".ts", ".tsx", ".cts", ".mts", ".gts");
   }
 }

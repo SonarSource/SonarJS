@@ -482,6 +482,16 @@
     "description": "See description of ESLint rule <code>ember/routes-segments-snake-case</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/routes-segments-snake-case.md\">eslint-plugin-ember website</a>"
   },
   {
+    "key": "ember/template-indent",
+    "name": "enforce consistent indentation for gts/gjs templates",
+    "description": "See description of ESLint rule <code>ember/template-indent</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/template-indent.md\">eslint-plugin-ember website</a>"
+  },
+  {
+    "key": "ember/template-no-let-reference",
+    "name": "disallow referencing let variables in \\<template\\>",
+    "description": "See description of ESLint rule <code>ember/template-no-let-reference</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/template-no-let-reference.md\">eslint-plugin-ember website</a>"
+  },
+  {
     "key": "ember/use-brace-expansion",
     "name": "enforce usage of brace expansion in computed property dependent keys",
     "description": "See description of ESLint rule <code>ember/use-brace-expansion</code> at the <a href=\"https://github.com/ember-cli/eslint-plugin-ember/tree/master/docs/rules/use-brace-expansion.md\">eslint-plugin-ember website</a>"

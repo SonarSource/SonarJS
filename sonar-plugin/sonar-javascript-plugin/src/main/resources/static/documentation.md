@@ -28,7 +28,7 @@ Discover and update the CSS [properties](/analysis/analysis-parameters/) in: **<
 
 - ECMAScript 3 - 2022
 - TypeScript 5.0.4
-- React JSX, Vue.js, Angular
+- React JSX, Vue.js, Angular, Ember.js (partially)
 - Flow
 - CSS, SCSS, Less, also 'style' inside PHP, HTML, and VueJS files
 

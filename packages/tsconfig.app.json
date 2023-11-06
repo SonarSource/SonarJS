@@ -5,7 +5,7 @@
     "allowJs": true
   },
   "references": [],
-  "include": ["server.ts", "*/src/**/*.ts", "bridge/src/worker.js"],
+  "include": ["server.ts", "*/src/**/*.ts", "types.d.ts", "bridge/src/worker.js"],
   "exclude": [
     "*/src/rules/tools",
     "*/src/rules/*/*.test.ts",

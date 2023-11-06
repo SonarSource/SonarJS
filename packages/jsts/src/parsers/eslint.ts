@@ -20,6 +20,7 @@
 import * as babelESLintParser from '@babel/eslint-parser';
 import * as vueESLintParser from 'vue-eslint-parser';
 import * as typescriptESLintParser from '@typescript-eslint/parser';
+import * as emberESLintParser from 'ember-eslint-parser';
 
 /**
  * An ESLint-based parsing function
@@ -50,15 +51,20 @@ export type ESLintParser = {
 /**
  * The ESLint-based parsers used to parse JavaScript, TypeScript, and Vue.js code.
  */
-export const parsers: { javascript: ESLintParser; typescript: ESLintParser; vuejs: ESLintParser } =
-  {
-    javascript: { parser: '@babel/eslint-parser', parse: babelESLintParser.parseForESLint },
-    typescript: {
-      parser: '@typescript-eslint/parser',
-      parse: typescriptESLintParser.parseForESLint,
-    },
-    vuejs: { parser: 'vue-eslint-parser', parse: vueESLintParser.parseForESLint },
-  };
+export const parsers: {
+  javascript: ESLintParser;
+  typescript: ESLintParser;
+  vuejs: ESLintParser;
+  ember: ESLintParser;
+} = {
+  javascript: { parser: '@babel/eslint-parser', parse: babelESLintParser.parseForESLint },
+  typescript: {
+    parser: '@typescript-eslint/parser',
+    parse: typescriptESLintParser.parseForESLint,
+  },
+  vuejs: { parser: 'vue-eslint-parser', parse: vueESLintParser.parseForESLint },
+  ember: { parser: 'gjs-gts-parser', parse: emberESLintParser.parseForESLint },
+};
 
 /**
  * Clears TypeScript ESLint parser's caches

@@ -35,6 +35,7 @@ import { Linter } from 'eslint';
  */
 export function buildSourceCode(input: JsTsAnalysisInput, language: JsTsLanguage) {
   const vueFile = isVueFile(input.filePath);
+  const emberFile = isEmberFile(input.filePath);
 
   if (shouldUseTypescriptParser(language)) {
     const options: Linter.ParserOptions = {
@@ -43,12 +44,16 @@ export function buildSourceCode(input: JsTsAnalysisInput, language: JsTsLanguage
       filePath: input.filePath,
       programs: input.programId && [getProgramById(input.programId)],
       project: input.tsConfigs,
-      parser: vueFile ? parsers.typescript.parser : undefined,
+      parser: vueFile || emberFile ? parsers.typescript.parser : undefined,
     };
     const parser = vueFile ? parsers.vuejs : parsers.typescript;
     try {
       debug(`Parsing ${input.filePath} with ${parser.parser}`);
-      return parseForESLint(input.fileContent, parser.parse, buildParserOptions(options, false));
+      return parseForESLint(
+        input.fileContent,
+        getParseFunction(input.filePath, 'typescript'),
+        buildParserOptions(options, false),
+      );
     } catch (error) {
       debug(`Failed to parse ${input.filePath} with TypeScript parser: ${error.message}`);
       if (language === 'ts') {
@@ -63,12 +68,18 @@ export function buildSourceCode(input: JsTsAnalysisInput, language: JsTsLanguage
     debug(`Parsing ${input.filePath} with ${parser.parser}`);
     return parseForESLint(
       input.fileContent,
-      parser.parse,
-      buildParserOptions({ parser: vueFile ? parsers.javascript.parser : undefined }, true),
+      getParseFunction(input.filePath, 'javascript'),
+      buildParserOptions(
+        {
+          filePath: input.filePath,
+          parser: vueFile || emberFile ? parsers.javascript.parser : undefined,
+        },
+        true,
+      ),
     );
   } catch (error) {
     debug(`Failed to parse ${input.filePath} with Javascript parser: ${error.message}`);
-    if (vueFile) {
+    if (vueFile || emberFile) {
       throw error;
     }
     moduleError = error;
@@ -97,6 +108,24 @@ function shouldUseTypescriptParser(language: JsTsLanguage): boolean {
   return getContext()?.shouldUseTypeScriptParserForJS !== false || language === 'ts';
 }
 
+function getParseFunction(filePath: string, language: 'javascript' | 'typescript') {
+  const fileExtension = filePath.split('.').pop();
+  switch (fileExtension) {
+    case 'vue':
+      return parsers.vuejs.parse;
+    case 'gjs':
+      return parsers.ember.parse;
+    case 'gts':
+      return parsers.ember.parse;
+    default:
+      return parsers[language].parse;
+  }
+}
+
 function isVueFile(file: string) {
   return file.toLowerCase().endsWith('.vue');
+}
+
+function isEmberFile(file: string) {
+  return file.toLowerCase().endsWith('.gts') || file.toLowerCase().endsWith('.gjs');
 }

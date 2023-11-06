@@ -247,6 +247,17 @@ describe('program', () => {
     );
   });
 
+  it('should return ember .gts files', () => {
+    const fixtures = path.join(__dirname, 'fixtures', 'ember-gts');
+    const tsConfig = path.join(fixtures, 'tsconfig.json');
+    const result = createProgramOptions(tsConfig);
+    expect(result).toEqual(
+      expect.objectContaining({
+        rootNames: expect.arrayContaining([toUnixPath(path.join(fixtures, 'file.gts'))]),
+      }),
+    );
+  });
+
   it('should write tsconfig file', async () => {
     const { filename } = await writeTSConfigFile({
       compilerOptions: { allowJs: true, noImplicitAny: true },

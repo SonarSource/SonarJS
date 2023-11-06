@@ -98,7 +98,13 @@ public class JavaScriptFilePredicate {
     );
   }
 
+  private static boolean isEmberGtsFile(InputFile file) {
+    return (file.filename().toLowerCase(Locale.ROOT).endsWith(".gts"));
+  }
+
   public static boolean isTypeScriptFile(InputFile file) {
-    return (TypeScriptLanguage.KEY.equals(file.language()) || isVueTsFile(file));
+    return (
+      TypeScriptLanguage.KEY.equals(file.language()) || isVueTsFile(file) || isEmberGtsFile(file)
+    );
   }
 }

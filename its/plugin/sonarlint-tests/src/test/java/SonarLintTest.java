@@ -148,6 +148,28 @@ class SonarLintTest {
   }
 
   @Test
+  void should_analyze_ember_gjs() throws IOException {
+    String fileName = "file.gjs";
+    Path filePath = TestUtils.projectDir("ember-gjs-project").resolve(fileName);
+
+    String content = Files.readString(filePath);
+    List<Issue> issues = analyze(fileName, content);
+
+    assertThat(issues).extracting("ruleKey").containsOnly("javascript:S3923", "javascript:S3516");
+  }
+
+  @Test
+  void should_analyze_ember_gts() throws IOException {
+    String fileName = "file.gts";
+    Path filePath = TestUtils.projectDir("ember-gts-project").resolve(fileName);
+
+    String content = Files.readString(filePath);
+    List<Issue> issues = analyze(fileName, content);
+
+    assertThat(issues).extracting("ruleKey").containsOnly("typescript:S3516", "typescript:S3923");
+  }
+
+  @Test
   void should_analyze_css() throws IOException {
     String fileName = "file.css";
     Path filePath = TestUtils.projectDir("css-sonarlint-project").resolve(fileName);

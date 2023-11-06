@@ -4,7 +4,7 @@
 @angular-eslint/eslint-plugin-template v16.1.1
 @typescript-eslint/eslint-plugin v5.59.9
 eslint-plugin-angular v3.3.0
-eslint-plugin-ember v11.11.1
+eslint-plugin-ember v12.0.0
 eslint-plugin-flowtype v2.50.0
 eslint-plugin-import v2.28.1
 eslint-plugin-jsx-a11y v6.7.1

@@ -39,7 +39,7 @@ describe('buildParserOptions', () => {
         globalReturn: false,
         legacyDecorators: true,
       },
-      extraFileExtensions: ['.vue'],
+      extraFileExtensions: ['.vue', '.gjs', '.gts'],
       parser,
       filePath,
     });
