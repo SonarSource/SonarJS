@@ -1,0 +1,37 @@
+{
+"sonar-web:src/main/js/apps/background-tasks/search.js": [
+82,
+84,
+110,
+143
+],
+"sonar-web:src/main/js/apps/background-tasks/stats.js": [
+23,
+37,
+40,
+47,
+62,
+72
+],
+"sonar-web:src/main/js/apps/overview/components/domain-timeline.js": [
+165,
+179
+],
+"sonar-web:src/main/js/apps/project-permissions/search.js": [
+33
+],
+"sonar-web:src/main/js/apps/projects/search.js": [
+108
+],
+"sonar-web:src/main/js/apps/system/item-log-level.js": [
+28
+],
+"sonar-web:src/main/js/components/charts/bubble-chart.js": [
+100,
+115
+],
+"sonar-web:src/main/js/main/nav/global/global-nav-search.js": [
+76,
+80
+]
+}
