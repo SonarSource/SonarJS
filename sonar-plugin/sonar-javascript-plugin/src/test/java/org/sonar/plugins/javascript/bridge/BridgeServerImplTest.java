@@ -215,12 +215,13 @@ class BridgeServerImplTest {
       rules,
       Collections.emptyList(),
       Collections.emptyList(),
-      AnalysisMode.DEFAULT
+      AnalysisMode.DEFAULT,
+      ""
     );
     bridgeServer.stop();
     assertThat(logTester.logs())
       .contains(
-        "{\"linterId\":\"default\",\"rules\":[{\"key\":\"key\",\"fileTypeTarget\":[\"MAIN\"],\"configurations\":[\"config\"],\"language\":\"js\"}],\"environments\":[],\"globals\":[]}"
+        "{\"linterId\":\"default\",\"rules\":[{\"key\":\"key\",\"fileTypeTarget\":[\"MAIN\"],\"configurations\":[\"config\"],\"language\":\"js\"}],\"environments\":[],\"globals\":[],\"baseDir\":\"\"}"
       );
   }
 

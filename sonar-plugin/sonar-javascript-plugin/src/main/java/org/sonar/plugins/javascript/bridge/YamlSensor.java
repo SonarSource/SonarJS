@@ -76,7 +76,13 @@ public class YamlSensor extends AbstractBridgeSensor {
     var success = false;
     try {
       progressReport.start(inputFiles.size(), inputFiles.iterator().next().absolutePath());
-      bridgeServer.initLinter(checks.eslintRules(), environments, globals, analysisMode);
+      bridgeServer.initLinter(
+        checks.eslintRules(),
+        environments,
+        globals,
+        analysisMode,
+        context.fileSystem().baseDir().getAbsolutePath()
+      );
       for (var inputFile : inputFiles) {
         if (context.isCancelled()) {
           throw new CancellationException(

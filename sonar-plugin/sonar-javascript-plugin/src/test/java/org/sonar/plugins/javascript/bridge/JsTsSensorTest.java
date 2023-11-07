@@ -181,7 +181,7 @@ class JsTsSensorTest {
     createTsConfigFile();
 
     sensor.execute(context);
-    verify(bridgeServerMock, times(1)).initLinter(any(), any(), any(), any());
+    verify(bridgeServerMock, times(1)).initLinter(any(), any(), any(), any(), any());
     assertThat(context.allIssues()).hasSize(expectedResponse.issues.size());
     assertThat(logTester.logs(LoggerLevel.DEBUG))
       .contains(

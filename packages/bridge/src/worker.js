@@ -136,8 +136,9 @@ if (parentPort) {
         }
 
         case 'on-init-linter': {
-          const { rules, environments, globals, linterId } = data;
+          const { rules, environments, globals, linterId, baseDir } = data;
           initializeLinter(rules, environments, globals, linterId);
+          await initPackageJsons(baseDir);
           parentThread.postMessage({ type: 'success', result: 'OK!' });
           break;
         }

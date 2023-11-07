@@ -77,7 +77,8 @@ public class HtmlSensor extends AbstractBridgeSensor {
         AnalysisMode.getHtmlFileRules(checks.eslintRules()),
         environments,
         globals,
-        analysisMode
+        analysisMode,
+        context.fileSystem().baseDir().getAbsolutePath()
       );
       for (var inputFile : inputFiles) {
         if (context.isCancelled()) {

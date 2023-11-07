@@ -312,16 +312,18 @@ public class BridgeServerImpl implements BridgeServer {
     List<EslintRule> rules,
     List<String> environments,
     List<String> globals,
-    AnalysisMode analysisMode
+    AnalysisMode analysisMode,
+    String baseDir
   ) throws IOException {
-    initLinter(AnalysisMode.DEFAULT_LINTER_ID, rules, environments, globals);
+    initLinter(AnalysisMode.DEFAULT_LINTER_ID, rules, environments, globals, baseDir);
 
     if (analysisMode == AnalysisMode.SKIP_UNCHANGED) {
       initLinter(
         AnalysisMode.UNCHANGED_LINTER_ID,
         AnalysisMode.getUnchangedFileRules(rules),
         environments,
-        globals
+        globals,
+        baseDir
       );
     }
   }
@@ -330,13 +332,15 @@ public class BridgeServerImpl implements BridgeServer {
     String linterId,
     List<EslintRule> rules,
     List<String> environments,
-    List<String> globals
+    List<String> globals,
+    String baseDir
   ) throws IOException {
     InitLinterRequest initLinterRequest = new InitLinterRequest(
       linterId,
       rules,
       environments,
-      globals
+      globals,
+      baseDir
     );
     String request = GSON.toJson(initLinterRequest);
     String response = request(request, "init-linter");
@@ -588,17 +592,20 @@ public class BridgeServerImpl implements BridgeServer {
     List<EslintRule> rules;
     List<String> environments;
     List<String> globals;
+    String baseDir;
 
     InitLinterRequest(
       String linterId,
       List<EslintRule> rules,
       List<String> environments,
-      List<String> globals
+      List<String> globals,
+      String baseDir
     ) {
       this.linterId = linterId;
       this.rules = rules;
       this.environments = environments;
       this.globals = globals;
+      this.baseDir = baseDir;
     }
   }
 
