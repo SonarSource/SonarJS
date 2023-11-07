@@ -81,6 +81,9 @@ export const quickFixRules = new Set([
   'jsx-no-useless-fragment',
   'no-unknown-property',
 
+  // decorated eslint-plugin-react
+  'no-unsafe',
+
   // @typescript-eslint plugin
   'no-confusing-non-null-assertion',
   'no-empty-interface',
