@@ -76,6 +76,7 @@ public final class CheckList {
       ArrowFunctionConventionCheck.class,
       AssertionsInTestsCheck.class,
       AssociativeArraysCheck.class,
+      AutocompleteValidCheck.class,
       AwsApigatewayPublicApiCheck.class,
       AwsEc2RdsDmsPublicCheck.class,
       AwsEc2UnencryptedEbsVolumeCheck.class,
