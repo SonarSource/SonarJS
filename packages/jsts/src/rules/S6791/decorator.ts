@@ -24,26 +24,13 @@ import * as estree from 'estree';
 import { interceptReportForReact } from '../helpers';
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
-  rule.meta!.hasSuggestions = true;
   rule.meta!.messages!['unsafeMethod'] = '{{method}} is unsafe for use in async rendering.';
-  rule.meta!.messages!['safeMethod'] = 'Use {{newMethod}} instead';
   return interceptReportForReact(rule, (context, descriptor) => {
     const {
       node: { key },
-      data,
     } = descriptor as unknown as {
       node: estree.Property | estree.PropertyDefinition | estree.MethodDefinition;
-      data: { newMethod: string };
     };
-    context.report({
-      ...descriptor,
-      loc: key.loc!,
-      suggest: [
-        {
-          messageId: 'safeMethod',
-          fix: fixer => fixer.replaceText(key, data.newMethod),
-        },
-      ],
-    });
+    context.report({ ...descriptor, loc: key.loc! });
   });
 }

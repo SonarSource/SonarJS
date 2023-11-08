@@ -48,16 +48,6 @@ class Component extends React.Component {
             line: 4,
             column: 5,
             endColumn: 30,
-            suggestions: [
-              {
-                messageId: 'safeMethod',
-                output: `
-import * as React from 'react';
-class Component extends React.Component {
-    componentDidMount() {}
-}`,
-              },
-            ],
           },
         ],
       },
