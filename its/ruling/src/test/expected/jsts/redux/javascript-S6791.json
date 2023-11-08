@@ -1,0 +1,16 @@
+{
+"redux:examples/async/containers/App.js": [
+19
+],
+"redux:examples/real-world/components/Explore.js": [
+12
+],
+"redux:examples/real-world/containers/RepoPage.js": [
+21,
+25
+],
+"redux:examples/real-world/containers/UserPage.js": [
+22,
+26
+]
+}

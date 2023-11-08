@@ -1,0 +1,91 @@
+{
+"console:src/components/NodeSelector/NodeSelector.tsx": [
+54
+],
+"console:src/components/RedirectOnMount/RedirectOnMount.tsx": [
+23
+],
+"console:src/components/ResizableBox.tsx": [
+39
+],
+"console:src/components/ScrollBox/ScrollBox.tsx": [
+22
+],
+"console:src/views/ActionsView/ActionBoxes.tsx": [
+99,
+103
+],
+"console:src/views/AfterSignUpView/AfterSignUpView.tsx": [
+87
+],
+"console:src/views/FunctionsView/FunctionPopup/RequestPipelineFunctionInput.tsx": [
+87
+],
+"console:src/views/FunctionsView/FunctionPopup/TestPopup.tsx": [
+88
+],
+"console:src/views/FunctionsView/FunctionRow.tsx": [
+42
+],
+"console:src/views/Integrations/Algolia/AlgoliaQuery.tsx": [
+60
+],
+"console:src/views/Integrations/AlgoliaPopup/AlgoliaIndexPopup/AlgoliaIndexPopupQuery.tsx": [
+77
+],
+"console:src/views/ProjectRootView/ProjectRootView.tsx": [
+110
+],
+"console:src/views/ProjectRootView/RootRedirectView.tsx": [
+24
+],
+"console:src/views/ProjectRootView/TokenRedirectView.tsx": [
+12
+],
+"console:src/views/RootView/RootView.tsx": [
+24
+],
+"console:src/views/SchemaView/EnumsOverview/EnumBox.tsx": [
+52
+],
+"console:src/views/SchemaView/SchemaEditor.tsx": [
+104
+],
+"console:src/views/SchemaView/SchemaOverview/TypeBox.tsx": [
+52
+],
+"console:src/views/models/AuthProviderPopup/AuthProviderPopup.tsx": [
+32
+],
+"console:src/views/models/AuthProviderPopup/AuthProviderSidePanel.tsx": [
+65
+],
+"console:src/views/models/DatabrowserView/Cell.tsx": [
+125
+],
+"console:src/views/models/DatabrowserView/Cell/EnumCell.tsx": [
+23
+],
+"console:src/views/models/DatabrowserView/Cell/FloatCell.tsx": [
+14
+],
+"console:src/views/models/DatabrowserView/Cell/IntCell.tsx": [
+15
+],
+"console:src/views/models/DatabrowserView/Cell/SelectNodesCell/SelectNodesCell.tsx": [
+83
+],
+"console:src/views/models/DatabrowserView/Cell/StringCell.tsx": [
+35
+],
+"console:src/views/models/DatabrowserView/DatabrowserView.tsx": [
+170,
+216
+],
+"console:src/views/models/ModelRedirectView.tsx": [
+16
+],
+"console:src/views/playground/PlaygroundView/PlaygroundView.tsx": [
+142
+]
+}
