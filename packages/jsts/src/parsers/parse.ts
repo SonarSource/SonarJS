@@ -20,21 +20,30 @@
 import { APIError } from '@sonar/shared/errors';
 import { SourceCode } from 'eslint';
 import { ParseFunction } from './eslint';
+import { PackageJson } from 'type-fest';
 
 /**
  * Parses a JavaScript / TypeScript analysis input with an ESLint-based parser
  * @param code the JavaScript / TypeScript code to parse
  * @param parse the ESLint parsing function to use for parsing
  * @param options the ESLint parser options
+ * @param packageJson package.json contents containing dependencies
  * @returns the parsed source code
  */
-export function parseForESLint(code: string, parse: ParseFunction, options: {}): SourceCode {
+export function parseForESLint(
+  code: string,
+  parse: ParseFunction,
+  options: {},
+  packageJson?: PackageJson,
+): SourceCode {
   try {
     const result = parse(code, options);
+    const parserServices = result.services || {};
+    parserServices.packageJson = packageJson;
     return new SourceCode({
       ...result,
       text: code,
-      parserServices: result.services,
+      parserServices,
     });
   } catch ({ lineNumber, message }) {
     if (message.startsWith('Debug Failure')) {

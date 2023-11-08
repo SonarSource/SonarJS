@@ -29,6 +29,7 @@ const {
   deleteProgram,
   initializeLinter,
   writeTSConfigFile,
+  initPackageJsons,
 } = require('@sonar/jsts');
 const { readFile, setContext } = require('@sonar/shared/helpers');
 const { analyzeCSS } = require('@sonar/css');

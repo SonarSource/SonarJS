@@ -19,17 +19,23 @@
  */
 
 import path from 'path';
-import { PackageJsons } from './project-package-json';
+import { PackageJsons, PackageJson } from './project-package-json';
 
-const PackageJsonsByBaseDir: Map<string, PackageJsons> = new Map<string, PackageJsons>();
+const PackageJsonsByBaseDir = new PackageJsons();
 
-async function initPackageJsons(baseDir: string) {
-  const normalizedBaseDir = path.posix.basename(baseDir);
-  let packageJsons = PackageJsonsByBaseDir.get(normalizedBaseDir);
-  if (!packageJsons) {
-    packageJsons = await PackageJsons.init(normalizedBaseDir);
-    PackageJsonsByBaseDir.set(normalizedBaseDir, packageJsons);
+async function initPackageJsons(baseDir?: string) {
+  if (baseDir) {
+    const normalizedBaseDir = path.posix.basename(baseDir);
+    await PackageJsonsByBaseDir.packageJsonLookup(normalizedBaseDir);
   }
-  return packageJsons;
 }
-export { PackageJsonsByBaseDir, initPackageJsons };
+
+function getNearestPackageJson(file: string): PackageJson | undefined {
+  return PackageJsonsByBaseDir.getPackageJsonForFile(file);
+}
+
+function getAllPackageJsons() {
+  return PackageJsonsByBaseDir.db;
+}
+
+export { initPackageJsons, getNearestPackageJson, getAllPackageJsons };
