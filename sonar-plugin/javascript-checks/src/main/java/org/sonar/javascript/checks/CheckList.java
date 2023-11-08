@@ -413,6 +413,7 @@ public final class CheckList {
       SwitchWithNotEnoughCaseCheck.class,
       SwitchWithoutDefaultCheck.class,
       TabCharacterCheck.class,
+      TabindexNoPositiveCheck.class,
       TemplateStringMisuseCheck.class,
       TestCheckExceptionCheck.class,
       ThrowLiteralCheck.class,
