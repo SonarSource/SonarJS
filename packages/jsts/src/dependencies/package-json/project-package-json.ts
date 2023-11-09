@@ -54,7 +54,7 @@ export class PackageJsons {
         }
       }
     } catch (e) {
-      debug(`ERROR: Failed package.json file search: ${e}`);
+      error(`Failed to search for package.json files: ${e}`);
     }
   }
 
