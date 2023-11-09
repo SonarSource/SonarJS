@@ -296,7 +296,7 @@ describe('buildSourceCode', () => {
     const filePath = path.join(baseDir, 'file.ts');
     const packageJson = path.join(baseDir, 'package.json');
     await searchPackageJsonFiles(baseDir);
-    const log = `DEBUG package.json found: ${toUnixPath(packageJson)}`;
+    const log = `DEBUG Found package.json: ${toUnixPath(packageJson)}`;
     expect(console.log).toHaveBeenCalledWith(log);
 
     const result = buildSourceCode(await jsTsInput({ filePath }), 'ts');

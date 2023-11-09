@@ -40,8 +40,8 @@ export class PackageJsons {
    * @param dir parent folder where the search starts
    */
   async searchPackageJsonFiles(dir: string) {
-    dir = path.posix.normalize(toUnixPath(dir));
     try {
+      dir = path.posix.normalize(toUnixPath(dir));
       const files = await fs.readdir(dir, { withFileTypes: true });
       for (const file of files) {
         const filename = path.posix.join(dir, file.name);
