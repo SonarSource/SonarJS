@@ -19,12 +19,17 @@
  */
 package org.sonar.plugins.javascript.bridge;
 
+import static java.util.Arrays.stream;
+import static java.util.stream.Stream.concat;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.internal.apachecommons.lang.ArrayUtils;
+import org.sonar.api.utils.WildcardPattern;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.CancellationException;
@@ -37,6 +42,7 @@ public abstract class AbstractBridgeSensor implements Sensor {
   private static final Logger LOG = Loggers.get(AbstractBridgeSensor.class);
 
   protected final BridgeServer bridgeServer;
+  protected String[] exclusions;
   private final AnalysisWarningsWrapper analysisWarnings;
   final Monitoring monitoring;
   List<String> environments;
@@ -60,6 +66,7 @@ public abstract class AbstractBridgeSensor implements Sensor {
     monitoring.startSensor(context, this);
     CacheStrategies.reset();
     this.context = context;
+    this.exclusions = getExcludedPaths();
     this.contextUtils = new ContextUtils(context);
     environments = Arrays.asList(context.config().getStringArray(JavaScriptPlugin.ENVIRONMENTS));
     globals = Arrays.asList(context.config().getStringArray(JavaScriptPlugin.GLOBALS));
@@ -125,5 +132,19 @@ public abstract class AbstractBridgeSensor implements Sensor {
     }
     LOG.debug("Will use AnalysisWithProgram");
     return true;
+  }
+
+  protected String[] getExcludedPaths() {
+    var configuration = this.context.config();
+    var excludedPatterns = JavaScriptPlugin.EXCLUSIONS_DEFAULT_VALUE;
+    var jsExcludedPatterns = configuration.get(JavaScriptPlugin.JS_EXCLUSIONS_KEY).isPresent()
+      ? configuration.getStringArray(JavaScriptPlugin.JS_EXCLUSIONS_KEY)
+      : ArrayUtils.EMPTY_STRING_ARRAY;
+    var tsExcludedPatterns = configuration.get(JavaScriptPlugin.TS_EXCLUSIONS_KEY).isPresent()
+      ? configuration.getStringArray(JavaScriptPlugin.TS_EXCLUSIONS_KEY)
+      : ArrayUtils.EMPTY_STRING_ARRAY;
+    var exclusions = concat(stream(jsExcludedPatterns), stream(tsExcludedPatterns))
+      .toArray(String[]::new);
+    return (exclusions.length == 0) ? excludedPatterns : exclusions;
   }
 }

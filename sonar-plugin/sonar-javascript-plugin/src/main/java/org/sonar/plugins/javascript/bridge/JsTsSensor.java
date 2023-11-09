@@ -109,7 +109,8 @@ public class JsTsSensor extends AbstractBridgeSensor {
       environments,
       globals,
       analysisMode,
-      context.fileSystem().baseDir().getAbsolutePath()
+      context.fileSystem().baseDir().getAbsolutePath(),
+      exclusions
     );
 
     SonarLintTypeCheckingChecker.checkOnce(javaScriptProjectChecker, context);

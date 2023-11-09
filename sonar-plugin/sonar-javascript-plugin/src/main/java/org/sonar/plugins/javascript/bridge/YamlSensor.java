@@ -81,7 +81,8 @@ public class YamlSensor extends AbstractBridgeSensor {
         environments,
         globals,
         analysisMode,
-        context.fileSystem().baseDir().getAbsolutePath()
+        context.fileSystem().baseDir().getAbsolutePath(),
+        exclusions
       );
       for (var inputFile : inputFiles) {
         if (context.isCancelled()) {
