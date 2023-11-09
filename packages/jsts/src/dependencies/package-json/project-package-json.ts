@@ -48,7 +48,7 @@ export class PackageJsons {
         if (file.isDirectory() && !IGNORED_DIRS.includes(file.name)) {
           await this.packageJsonLookup(filename);
         } else if (file.name.toLowerCase() === PACKAGE_JSON && !file.isDirectory()) {
-          debug(`package.json found: ${filename}`);
+          debug(`Found package.json: ${filename}`);
           const contents = JSON.parse(await fs.readFile(filename, 'utf-8'));
           this.db.set(dir, { filename, contents });
         }
