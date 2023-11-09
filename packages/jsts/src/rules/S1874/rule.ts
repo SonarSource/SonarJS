@@ -31,15 +31,29 @@ export const rule: Rule.RuleModule = {
     messages: { ...reactNoDeprecated.meta!.messages, ...diagnosticsRule.meta!.messages },
   },
   create(context: Rule.RuleContext) {
-    if (context.parserServices?.packageJson?.dependencies?.react) {
-      if (!context.hasOwnProperty('settings')) {
-        context.settings = {};
-      }
-      if (!context.settings.hasOwnProperty('react')) {
-        context.settings.react = {};
-      }
-      context.settings.react.version = context.parserServices.packageJson.dependencies.react;
+    function getVersionFromOptions() {
+      return context.options?.[0]?.['react-version'];
     }
-    return mergeRules(reactNoDeprecated.create(context), diagnosticsRule.create(context));
+    function getVersionFromPackageJson() {
+      return context.parserServices?.packageJson?.dependencies?.react;
+    }
+
+    const reactVersion = getVersionFromOptions() || getVersionFromPackageJson();
+    const patchedContext = reactVersion ? createProxy(context, reactVersion) : context;
+    return mergeRules(
+      reactNoDeprecated.create(patchedContext),
+      diagnosticsRule.create(patchedContext),
+    );
   },
 };
+
+function createProxy(context: Rule.RuleContext, reactVersion: string) {
+  return new Proxy(context, {
+    get(target: Rule.RuleContext, key: string | symbol, receiver: any): any {
+      //https://stackoverflow.com/questions/41299642/how-to-use-javascript-proxy-for-nested-objects
+      if (key === 'settings' && typeof target[key] === 'object' && target[key] !== null) {
+        return;
+      }
+    },
+  });
+}
