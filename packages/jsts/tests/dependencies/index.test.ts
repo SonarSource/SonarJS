@@ -20,7 +20,7 @@
 
 import path from 'path';
 import { toUnixPath } from '@sonar/shared/helpers';
-import { initPackageJsons, getAllPackageJsons, getNearestPackageJson } from '@sonar/jsts';
+import { searchPackageJsonFiles, getAllPackageJsons, getNearestPackageJson } from '@sonar/jsts';
 
 describe('initialize package.json files', () => {
   beforeEach(() => {
@@ -29,7 +29,7 @@ describe('initialize package.json files', () => {
 
   it('should find all package.json files', async () => {
     const baseDir = path.join(__dirname, 'fixtures');
-    await initPackageJsons(baseDir);
+    await searchPackageJsonFiles(baseDir);
     expect(getAllPackageJsons().size).toEqual(7);
 
     expect(getNearestPackageJson(path.join(__dirname, 'fixtures', 'index.js')).filename).toEqual(

@@ -39,14 +39,14 @@ export class PackageJsons {
    *
    * @param dir parent folder where the search starts
    */
-  async packageJsonLookup(dir: string) {
+  async searchPackageJsonFiles(dir: string) {
     dir = path.posix.normalize(toUnixPath(dir));
     try {
       const files = await fs.readdir(dir, { withFileTypes: true });
       for (const file of files) {
         const filename = path.posix.join(dir, file.name);
         if (file.isDirectory() && !IGNORED_DIRS.includes(file.name)) {
-          await this.packageJsonLookup(filename);
+          await this.searchPackageJsonFiles(filename);
         } else if (file.name.toLowerCase() === PACKAGE_JSON && !file.isDirectory()) {
           debug(`Found package.json: ${filename}`);
           const contents = JSON.parse(await fs.readFile(filename, 'utf-8'));
@@ -54,7 +54,7 @@ export class PackageJsons {
         }
       }
     } catch (e) {
-      error(`Failed to search for package.json files: ${e}`);
+      error(`Error while searching for package.json files: ${e}`);
     }
   }
 

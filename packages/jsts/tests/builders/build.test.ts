@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { setContext, toUnixPath } from '@sonar/shared/helpers';
-import { buildSourceCode, initPackageJsons } from '../../src';
+import { buildSourceCode, searchPackageJsonFiles } from '../../src';
 import path from 'path';
 import { AST } from 'vue-eslint-parser';
 import { jsTsInput } from '../tools';
@@ -295,7 +295,7 @@ describe('buildSourceCode', () => {
     const baseDir = path.join(__dirname, 'fixtures', 'build');
     const filePath = path.join(baseDir, 'file.ts');
     const packageJson = path.join(baseDir, 'package.json');
-    await initPackageJsons(baseDir);
+    await searchPackageJsonFiles(baseDir);
     const log = `DEBUG package.json found: ${toUnixPath(packageJson)}`;
     expect(console.log).toHaveBeenCalledWith(log);
 
