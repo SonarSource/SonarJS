@@ -901,7 +901,7 @@ describe('analyzeJSTS', () => {
     let ruleExecuted = false;
 
     const baseDir = path.join(__dirname, 'fixtures', 'package-json');
-    const packageJson = path.join(__dirname, 'fixtures', 'package-json', 'package.json');
+    const packageJson = path.join(baseDir, 'package.json');
     await initPackageJsons(baseDir);
     const log = `DEBUG package.json found: ${toUnixPath(packageJson)}`;
     expect(console.log).toHaveBeenCalledWith(log);
