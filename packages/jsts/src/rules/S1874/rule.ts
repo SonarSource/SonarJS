@@ -20,44 +20,26 @@
 // https://sonarsource.github.io/rspec/#/rspec/S1874/javascript
 
 import { Rule } from 'eslint';
-import { isRequiredParserServices } from '../helpers';
-import * as ts from 'typescript';
+import { rule as diagnosticsRule } from './rule.diagnostics';
+import { rules } from 'eslint-plugin-react';
+import { mergeRules } from '../helpers';
+
+const reactNoDeprecated = rules['no-deprecated'];
 
 export const rule: Rule.RuleModule = {
   meta: {
-    messages: {
-      deprecation: '{{deprecation}}',
-    },
+    messages: { ...reactNoDeprecated.meta!.messages, ...diagnosticsRule.meta!.messages },
   },
   create(context: Rule.RuleContext) {
-    const services = context.parserServices;
-    if (!isRequiredParserServices(services)) {
-      return {};
+    if (context.parserServices?.packageJson?.dependencies?.react) {
+      if (!context.hasOwnProperty('settings')) {
+        context.settings = {};
+      }
+      if (!context.settings.hasOwnProperty('react')) {
+        context.settings.react = {};
+      }
+      context.settings.react.version = context.parserServices.packageJson.dependencies.react;
     }
-    return {
-      Program: () => {
-        const program = services.program;
-        const checker = program.getTypeChecker();
-        const sourceFile = program.getSourceFile(context.filename);
-        const diagnostics: ts.DiagnosticWithLocation[] =
-          // @ts-ignore: TypeChecker#getSuggestionDiagnostics is not publicly exposed
-          checker.getSuggestionDiagnostics(sourceFile);
-        for (const diagnostic of diagnostics) {
-          if (diagnostic.reportsDeprecated === true) {
-            const sourceCode = context.sourceCode;
-            const start = sourceCode.getLocFromIndex(diagnostic.start);
-            const end = sourceCode.getLocFromIndex(diagnostic.start + diagnostic.length);
-            const loc = { start, end };
-            context.report({
-              loc,
-              messageId: 'deprecation',
-              data: {
-                deprecation: diagnostic.messageText as string,
-              },
-            });
-          }
-        }
-      },
-    };
+    return mergeRules(reactNoDeprecated.create(context), diagnosticsRule.create(context));
   },
 };
