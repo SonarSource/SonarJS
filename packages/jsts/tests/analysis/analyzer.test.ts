@@ -25,11 +25,11 @@ import {
   analyzeJSTS,
   JsTsAnalysisOutput,
   createAndSaveProgram,
-  getLinter,
   initPackageJsons,
 } from '../../src';
 import { APIError } from '@sonar/shared/errors';
 import { jsTsInput, parseJavaScriptSourceFile } from '../tools';
+import { Linter, Rule } from 'eslint';
 describe('analyzeJSTS', () => {
   beforeEach(() => {
     jest.resetModules();
@@ -897,14 +897,8 @@ describe('analyzeJSTS', () => {
   });
 
   it('package.json should be available in rule context', async () => {
-    setContext({
-      workDir: '/tmp/dir',
-      shouldUseTypeScriptParserForJS: false,
-      sonarlint: false,
-      bundles: ['rule-package-json'],
-    });
-
     console.log = jest.fn();
+    let ruleExecuted = false;
 
     const baseDir = path.join(__dirname, 'fixtures', 'package-json');
     const packageJson = path.join(__dirname, 'fixtures', 'package-json', 'package.json');
@@ -912,25 +906,27 @@ describe('analyzeJSTS', () => {
     const log = `DEBUG package.json found: ${toUnixPath(packageJson)}`;
     expect(console.log).toHaveBeenCalledWith(log);
 
-    initializeLinter([{ key: 'custom-rule', configurations: [], fileTypeTarget: ['MAIN'] }]);
+    const linter = new Linter();
+    linter.defineRule('custom-rule-file', {
+      create(context) {
+        return {
+          CallExpression() {
+            console.log('detected call expression');
+            ruleExecuted = true;
+            expect(context.parserServices.packageJson).toBeDefined();
+            expect(context.parserServices.packageJson.name).toEqual('test-module');
+          },
+        };
+      },
+    } as Rule.RuleModule);
 
     const filePath = path.join(__dirname, 'fixtures', 'package-json', 'custom.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
     expect(sourceCode.parserServices.packageJson).toBeDefined();
     expect(sourceCode.parserServices.packageJson.name).toEqual('test-module');
 
-    const {
-      issues: [issue],
-    } = getLinter().lint(sourceCode, filePath);
-    expect(issue).toEqual(
-      expect.objectContaining({
-        ruleId: 'custom-rule',
-        line: 1,
-        column: 0,
-        endLine: 1,
-        endColumn: 3,
-        message: 'test-module', // message comes from package.json name attribute
-      }),
-    );
+    const options = { filename: filePath, allowInlineConfig: false };
+    linter.verify(sourceCode, { rules: { 'custom-rule-file': 2 } }, options);
+    expect(ruleExecuted).toBeTruthy();
   });
 });
