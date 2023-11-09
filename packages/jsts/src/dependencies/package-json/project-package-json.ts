@@ -19,7 +19,7 @@
  */
 import fs from 'fs/promises';
 import path from 'path';
-import { toUnixPath, debug } from '@sonar/shared/helpers';
+import { toUnixPath, debug, error } from '@sonar/shared/helpers';
 import { PackageJson as PJ } from 'type-fest';
 
 const PACKAGE_JSON = 'package.json';
@@ -72,6 +72,6 @@ export class PackageJsons {
       }
       currentDir = path.posix.dirname(currentDir);
     } while (currentDir !== path.posix.dirname(currentDir));
-    return undefined;
+    return null;
   }
 }

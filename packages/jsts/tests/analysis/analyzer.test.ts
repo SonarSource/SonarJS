@@ -897,23 +897,20 @@ describe('analyzeJSTS', () => {
   });
 
   it('package.json should be available in rule context', async () => {
-    console.log = jest.fn();
-    let ruleExecuted = false;
-
     const baseDir = path.join(__dirname, 'fixtures', 'package-json');
-    const packageJson = path.join(baseDir, 'package.json');
     await initPackageJsons(baseDir);
-    const log = `DEBUG package.json found: ${toUnixPath(packageJson)}`;
-    expect(console.log).toHaveBeenCalledWith(log);
 
     const linter = new Linter();
     linter.defineRule('custom-rule-file', {
       create(context) {
         return {
-          CallExpression() {
-            ruleExecuted = true;
+          CallExpression(node) {
             expect(context.parserServices.packageJson).toBeDefined();
             expect(context.parserServices.packageJson.name).toEqual('test-module');
+            context.report({
+              node: node.callee,
+              message: 'call',
+            });
           },
         };
       },
@@ -925,7 +922,8 @@ describe('analyzeJSTS', () => {
     expect(sourceCode.parserServices.packageJson.name).toEqual('test-module');
 
     const options = { filename: filePath, allowInlineConfig: false };
-    linter.verify(sourceCode, { rules: { 'custom-rule-file': "error" } }, options);
-    expect(ruleExecuted).toBeTruthy();
+    const issues = linter.verify(sourceCode, { rules: { 'custom-rule-file': 'error' } }, options);
+    expect(issues).toHaveLength(1);
+    expect(issues[0].message).toEqual('call');
   });
 });

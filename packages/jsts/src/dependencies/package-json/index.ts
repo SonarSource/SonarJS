@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { PackageJsons, PackageJson } from './project-package-json';
+import { PackageJsons } from './project-package-json';
 
 const PackageJsonsByBaseDir = new PackageJsons();
 
@@ -28,7 +28,7 @@ async function initPackageJsons(baseDir?: string) {
   }
 }
 
-function getNearestPackageJson(file: string): PackageJson | undefined {
+function getNearestPackageJson(file: string) {
   return PackageJsonsByBaseDir.getPackageJsonForFile(file);
 }
 
