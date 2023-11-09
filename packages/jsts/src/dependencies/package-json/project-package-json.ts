@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import fs from 'node:fs/promises';
+import fs from 'fs/promises';
 import path from 'path';
 import { toUnixPath, debug } from '@sonar/shared/helpers';
 import { PackageJson as PJ } from 'type-fest';
@@ -31,10 +31,7 @@ export interface PackageJson {
 }
 
 export class PackageJsons {
-  public db: Map<string, PackageJson>;
-  constructor() {
-    this.db = new Map();
-  }
+  readonly db: Map<string, PackageJson> = new Map();
 
   /**
    * Look for package.json files in a given path and its child paths.

@@ -20,8 +20,8 @@
 
 import path from 'path';
 import { toUnixPath } from '@sonar/shared/helpers';
+import { initPackageJsons, getAllPackageJsons, getNearestPackageJson } from '@sonar/jsts';
 
-const { initPackageJsons, getAllPackageJsons, getNearestPackageJson } = require('@sonar/jsts');
 describe('initialize package.json files', () => {
   beforeEach(() => {
     jest.resetModules();
