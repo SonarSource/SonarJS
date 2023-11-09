@@ -925,7 +925,7 @@ describe('analyzeJSTS', () => {
     expect(sourceCode.parserServices.packageJson.name).toEqual('test-module');
 
     const options = { filename: filePath, allowInlineConfig: false };
-    linter.verify(sourceCode, { rules: { 'custom-rule-file': 2 } }, options);
+    linter.verify(sourceCode, { rules: { 'custom-rule-file': "error" } }, options);
     expect(ruleExecuted).toBeTruthy();
   });
 });
