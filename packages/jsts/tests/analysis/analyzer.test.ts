@@ -920,7 +920,7 @@ describe('analyzeJSTS', () => {
       },
     } as Rule.RuleModule);
 
-    const filePath = path.join(__dirname, 'fixtures', 'package-json', 'custom.js');
+    const filePath = path.join(baseDir, 'custom.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
     expect(sourceCode.parserServices.packageJson).toBeDefined();
     expect(sourceCode.parserServices.packageJson.name).toEqual('test-module');
