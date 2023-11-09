@@ -18,15 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import path from 'path';
 import { PackageJsons, PackageJson } from './project-package-json';
 
 const PackageJsonsByBaseDir = new PackageJsons();
 
 async function initPackageJsons(baseDir?: string) {
   if (baseDir) {
-    const normalizedBaseDir = path.posix.basename(baseDir);
-    await PackageJsonsByBaseDir.packageJsonLookup(normalizedBaseDir);
+    await PackageJsonsByBaseDir.packageJsonLookup(baseDir);
   }
 }
 

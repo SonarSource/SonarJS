@@ -1,0 +1,5 @@
+{
+  "name": "rule-package-json",
+  "version": "1.0.0",
+  "main": "rules.js"
+}

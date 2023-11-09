@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { setContext } from '@sonar/shared/helpers';
-import { buildSourceCode } from '../../src';
+import { setContext, toUnixPath } from '@sonar/shared/helpers';
+import { buildSourceCode, initPackageJsons } from '../../src';
 import path from 'path';
 import { AST } from 'vue-eslint-parser';
 import { jsTsInput } from '../tools';
@@ -288,5 +288,20 @@ describe('buildSourceCode', () => {
 
     const log = `DEBUG Failed to parse ${filePath} with TypeScript parser: Expression expected.`;
     expect(console.log).toHaveBeenCalledWith(log);
+  });
+
+  it('should include package.json contents in SourceCode', async () => {
+    console.log = jest.fn();
+    const baseDir = path.join(__dirname, 'fixtures', 'build');
+    const filePath = path.join(baseDir, 'file.ts');
+    const packageJson = path.join(baseDir, 'package.json');
+    await initPackageJsons(baseDir);
+    const log = `DEBUG package.json found: ${toUnixPath(packageJson)}`;
+    expect(console.log).toHaveBeenCalledWith(log);
+
+    const result = buildSourceCode(await jsTsInput({ filePath }), 'ts');
+
+    expect(result.parserServices.packageJson).toBeDefined();
+    expect(result.parserServices.packageJson.name).toEqual('test-build-module');
   });
 });
