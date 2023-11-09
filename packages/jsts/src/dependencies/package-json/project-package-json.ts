@@ -67,7 +67,7 @@ export class PackageJsons {
    * @param file source file for which we need a package.json
    */
   getPackageJsonForFile(file: string) {
-    let currentDir = path.posix.dirname(toUnixPath(file));
+    let currentDir = path.posix.dirname(path.posix.normalize(toUnixPath(file)));
     do {
       const packageJson = this.db.get(currentDir);
       if (packageJson) {
