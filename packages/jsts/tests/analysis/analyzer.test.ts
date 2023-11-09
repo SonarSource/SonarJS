@@ -921,9 +921,25 @@ describe('analyzeJSTS', () => {
     expect(sourceCode.parserServices.packageJson).toBeDefined();
     expect(sourceCode.parserServices.packageJson.name).toEqual('test-module');
 
-    const options = { filename: filePath, allowInlineConfig: false };
-    const issues = linter.verify(sourceCode, { rules: { 'custom-rule-file': 'error' } }, options);
+    const issues = linter.verify(
+      sourceCode,
+      { rules: { 'custom-rule-file': 'error' } },
+      { filename: filePath, allowInlineConfig: false },
+    );
     expect(issues).toHaveLength(1);
     expect(issues[0].message).toEqual('call');
+
+    const vueFilePath = path.join(baseDir, 'custom.js');
+    const vueSourceCode = await parseJavaScriptSourceFile(vueFilePath);
+    expect(vueSourceCode.parserServices.packageJson).toBeDefined();
+    expect(vueSourceCode.parserServices.packageJson.name).toEqual('test-module');
+
+    const vueIssues = linter.verify(
+      vueSourceCode,
+      { rules: { 'custom-rule-file': 'error' } },
+      { filename: vueFilePath, allowInlineConfig: false },
+    );
+    expect(vueIssues).toHaveLength(1);
+    expect(vueIssues[0].message).toEqual('call');
   });
 });

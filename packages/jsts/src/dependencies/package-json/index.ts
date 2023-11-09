@@ -22,10 +22,8 @@ import { PackageJsons } from './project-package-json';
 
 const PackageJsonsByBaseDir = new PackageJsons();
 
-async function initPackageJsons(baseDir?: string) {
-  if (baseDir) {
-    await PackageJsonsByBaseDir.packageJsonLookup(baseDir);
-  }
+async function initPackageJsons(baseDir: string) {
+  await PackageJsonsByBaseDir.packageJsonLookup(baseDir);
 }
 
 function getNearestPackageJson(file: string) {
