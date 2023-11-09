@@ -911,7 +911,6 @@ describe('analyzeJSTS', () => {
       create(context) {
         return {
           CallExpression() {
-            console.log('detected call expression');
             ruleExecuted = true;
             expect(context.parserServices.packageJson).toBeDefined();
             expect(context.parserServices.packageJson.name).toEqual('test-module');
