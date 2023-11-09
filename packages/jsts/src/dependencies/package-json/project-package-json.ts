@@ -43,21 +43,21 @@ export class PackageJsons {
    * @param dir parent folder where the search starts
    */
   async packageJsonLookup(dir: string) {
-    dir = toUnixPath(dir);
-    const files = await fs.readdir(dir, { withFileTypes: true });
-    for (const file of files) {
-      const filename = path.posix.join(dir, file.name);
-      if (file.isDirectory() && !IGNORED_DIRS.includes(file.name)) {
-        await this.packageJsonLookup(filename);
-      } else if (file.name.toLowerCase() === PACKAGE_JSON && !file.isDirectory()) {
-        debug(`package.json found: ${filename}`);
-        try {
+    dir = path.posix.normalize(toUnixPath(dir));
+    try {
+      const files = await fs.readdir(dir, { withFileTypes: true });
+      for (const file of files) {
+        const filename = path.posix.join(dir, file.name);
+        if (file.isDirectory() && !IGNORED_DIRS.includes(file.name)) {
+          await this.packageJsonLookup(filename);
+        } else if (file.name.toLowerCase() === PACKAGE_JSON && !file.isDirectory()) {
+          debug(`package.json found: ${filename}`);
           const contents = JSON.parse(await fs.readFile(filename, 'utf-8'));
           this.db.set(dir, { filename, contents });
-        } catch (e) {
-          debug(`${filename} failed to be parsed: ${e}`);
         }
       }
+    } catch (e) {
+      debug(`ERROR: Failed package.json file search: ${e}`);
     }
   }
 
@@ -75,5 +75,6 @@ export class PackageJsons {
       }
       currentDir = path.posix.dirname(currentDir);
     } while (currentDir !== path.posix.dirname(currentDir));
+    return undefined;
   }
 }

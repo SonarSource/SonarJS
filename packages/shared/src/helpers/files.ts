@@ -86,7 +86,7 @@ export function stripBOM(str: string) {
  * @returns the converted path
  */
 export function toUnixPath(path: string) {
-  return path.replace(/[\\/]+/g, '/').replace(/(\.\/)/, '');
+  return path.replace(/[\\/]+/g, '/');
 }
 
 /**
