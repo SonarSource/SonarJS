@@ -1,37 +1,38 @@
-import React, { PropTypes, Component } from 'react';
+import React, { PropTypes, Component } from 'react'; // Noncompliant
+//              ^^^^^^^^^
 import ReactDOM from 'react-dom';
 
-React.render(<MyComponent />, root);
+React.render(<MyComponent />, root); // Noncompliant
 
-React.unmountComponentAtNode(root);
+React.unmountComponentAtNode(root); // Noncompliant
 
-React.findDOMNode(this.refs.foo);
+React.findDOMNode(this.refs.foo); // Noncompliant
 
-React.renderToString(<MyComponent />);
+React.renderToString(<MyComponent />); // Noncompliant
 
-React.renderToStaticMarkup(<MyComponent />);
+React.renderToStaticMarkup(<MyComponent />); // Noncompliant
 
-React.createClass({ /* Class object */ });
+React.createClass({ /* Class object */ }); // Noncompliant
 
 const propTypes = {
   foo: PropTypes.bar,
 };
 
 //Any factories under React.DOM
-React.DOM.div();
+React.DOM.div(); // Noncompliant
 
 class ApiCall extends Component {
 // old lifecycles (since React 16.9)
-  componentWillMount() {}
-  componentWillReceiveProps() {}
-  componentWillUpdate() {}
+  componentWillMount() {} // Noncompliant
+  componentWillReceiveProps() {} // Noncompliant
+  componentWillUpdate() {} // Noncompliant
 }
 
 // React 18 deprecations
-ReactDOM.render(<div></div>, container);
+ReactDOM.render(<div></div>, container); // Noncompliant
 
-ReactDOM.hydrate(<div></div>, container);
+ReactDOM.hydrate(<div></div>, container); // Noncompliant
 
-ReactDOM.unmountComponentAtNode(container);
+ReactDOM.unmountComponentAtNode(container); // Noncompliant
 
-ReactDOMServer.renderToNodeStream(element);
+ReactDOMServer.renderToNodeStream(element); // Noncompliant
