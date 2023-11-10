@@ -19,9 +19,6 @@
  */
 package org.sonar.plugins.javascript.filter;
 
-import static java.util.Arrays.stream;
-import static java.util.stream.Stream.concat;
-
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.WildcardPattern;
