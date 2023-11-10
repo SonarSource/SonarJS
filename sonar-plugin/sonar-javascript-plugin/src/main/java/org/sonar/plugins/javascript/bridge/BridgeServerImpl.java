@@ -314,7 +314,7 @@ public class BridgeServerImpl implements BridgeServer {
     List<String> globals,
     AnalysisMode analysisMode,
     String baseDir,
-    String[] exclusions
+    List<String> exclusions
   ) throws IOException {
     initLinter(AnalysisMode.DEFAULT_LINTER_ID, rules, environments, globals, baseDir, exclusions);
 
@@ -336,7 +336,7 @@ public class BridgeServerImpl implements BridgeServer {
     List<String> environments,
     List<String> globals,
     String baseDir,
-    String[] exclusions
+    List<String> exclusions
   ) throws IOException {
     InitLinterRequest initLinterRequest = new InitLinterRequest(
       linterId,
@@ -597,6 +597,7 @@ public class BridgeServerImpl implements BridgeServer {
     List<String> environments;
     List<String> globals;
     String baseDir;
+    List<String> exclusions;
 
     InitLinterRequest(
       String linterId,
@@ -604,13 +605,14 @@ public class BridgeServerImpl implements BridgeServer {
       List<String> environments,
       List<String> globals,
       String baseDir,
-      String[] exclusions
+      List<String> exclusions
     ) {
       this.linterId = linterId;
       this.rules = rules;
       this.environments = environments;
       this.globals = globals;
       this.baseDir = baseDir;
+      this.exclusions = exclusions;
     }
   }
 

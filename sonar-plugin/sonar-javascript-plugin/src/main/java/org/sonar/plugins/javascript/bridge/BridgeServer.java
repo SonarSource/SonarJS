@@ -43,7 +43,7 @@ public interface BridgeServer extends Startable {
     List<String> globals,
     AnalysisMode analysisMode,
     String baseDir,
-    String[] exclusions
+    List<String> exclusions
   ) throws IOException;
 
   AnalysisResponse analyzeJavaScript(JsAnalysisRequest request) throws IOException;

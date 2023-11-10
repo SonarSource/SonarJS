@@ -25,6 +25,7 @@ import static java.util.stream.Stream.concat;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -40,7 +41,7 @@ public abstract class AbstractBridgeSensor implements Sensor {
   private static final Logger LOG = Loggers.get(AbstractBridgeSensor.class);
 
   protected final BridgeServer bridgeServer;
-  protected String[] exclusions;
+  protected List<String> exclusions;
   private final AnalysisWarningsWrapper analysisWarnings;
   final Monitoring monitoring;
   List<String> environments;
@@ -132,9 +133,9 @@ public abstract class AbstractBridgeSensor implements Sensor {
     return true;
   }
 
-  protected String[] getExcludedPaths() {
+  protected List<String> getExcludedPaths() {
     var configuration = this.context.config();
-    var excludedPatterns = JavaScriptPlugin.EXCLUSIONS_DEFAULT_VALUE;
+    var excludedPatterns = Arrays.asList(JavaScriptPlugin.EXCLUSIONS_DEFAULT_VALUE);
     var jsExcludedPatterns = configuration.get(JavaScriptPlugin.JS_EXCLUSIONS_KEY).isPresent()
       ? configuration.getStringArray(JavaScriptPlugin.JS_EXCLUSIONS_KEY)
       : new String[] {};
@@ -142,7 +143,7 @@ public abstract class AbstractBridgeSensor implements Sensor {
       ? configuration.getStringArray(JavaScriptPlugin.TS_EXCLUSIONS_KEY)
       : new String[] {};
     var exclusions = concat(stream(jsExcludedPatterns), stream(tsExcludedPatterns))
-      .toArray(String[]::new);
-    return (exclusions.length == 0) ? excludedPatterns : exclusions;
+      .collect(Collectors.toList());
+    return exclusions.isEmpty() ? excludedPatterns : exclusions;
   }
 }

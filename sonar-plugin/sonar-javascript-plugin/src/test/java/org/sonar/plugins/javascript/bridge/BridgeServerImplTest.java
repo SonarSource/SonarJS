@@ -217,7 +217,7 @@ class BridgeServerImplTest {
       Collections.emptyList(),
       AnalysisMode.DEFAULT,
       "",
-      new String[] {}
+      Collections.emptyList()
     );
     bridgeServer.stop();
     assertThat(logTester.logs())
