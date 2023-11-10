@@ -19,7 +19,7 @@
  */
 import fs from 'fs/promises';
 import path from 'path';
-import { toUnixPath, debug, error } from '@sonar/shared/helpers';
+import { toUnixPath, debug, error, readFile } from '@sonar/shared/helpers';
 import { PackageJson as PJ } from 'type-fest';
 import { Minimatch } from 'minimatch';
 
@@ -60,7 +60,7 @@ export class PackageJsons {
         await this.walkDirectory(filename, ignoredPatterns);
       } else if (file.name.toLowerCase() === PACKAGE_JSON && !file.isDirectory()) {
         debug(`Found package.json: ${filename}`);
-        const contents = JSON.parse(await fs.readFile(filename, 'utf-8'));
+        const contents = JSON.parse(await readFile(filename));
         this.db.set(dir, { filename, contents });
       }
     }
@@ -71,6 +71,9 @@ export class PackageJsons {
    * @param file source file for which we need a package.json
    */
   getPackageJsonForFile(file: string) {
+    if (this.db.size === 0) {
+      return null;
+    }
     let currentDir = path.posix.dirname(path.posix.normalize(toUnixPath(file)));
     do {
       const packageJson = this.db.get(currentDir);
