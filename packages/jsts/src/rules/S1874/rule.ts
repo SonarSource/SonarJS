@@ -39,7 +39,9 @@ export const rule: Rule.RuleModule = {
     }
 
     const reactVersion = getVersionFromOptions() || getVersionFromPackageJson();
-    const patchedContext = reactVersion ? createProxy(context, reactVersion) : context;
+    const patchedContext = reactVersion
+      ? createProxy(context, ['settings', 'react', 'version'], reactVersion)
+      : context;
     return mergeRules(
       reactNoDeprecated.create(patchedContext),
       diagnosticsRule.create(patchedContext),
@@ -47,13 +49,42 @@ export const rule: Rule.RuleModule = {
   },
 };
 
-function createProxy(context: Rule.RuleContext, reactVersion: string) {
-  return new Proxy(context, {
-    get(target: Rule.RuleContext, key: string | symbol, receiver: any): any {
+function createProxy(target: any, fqn: string[], value: any) {
+  return new Proxy(target, {
+    get(target: any, p: string | symbol): any {
       //https://stackoverflow.com/questions/41299642/how-to-use-javascript-proxy-for-nested-objects
-      if (key === 'settings' && typeof target[key] === 'object' && target[key] !== null) {
-        return;
+      if (p === 'isProxy') {
+        return true;
       }
+      const key = p as keyof typeof target;
+
+      const prop = target[key];
+
+      if (key === fqn[0]) {
+        if (fqn.length) {
+          if (typeof prop == 'undefined') {
+            return createObject(fqn.slice(1), value);
+          }
+
+          if (!prop.isProxy && typeof prop === 'object' && target[key] !== null) {
+            return createProxy(prop, fqn.slice(1), value);
+          }
+        } else {
+          return value;
+        }
+      }
+      return target[key];
     },
   });
+}
+
+function createObject(fqn: string[], value: any) {
+  const target: { [key: string]: any } = {};
+  const key = fqn[0];
+  if (fqn.length > 1) {
+    target[key] = createObject(fqn.slice(1), value);
+  } else {
+    target[fqn[0]] = value;
+  }
+  return target;
 }
