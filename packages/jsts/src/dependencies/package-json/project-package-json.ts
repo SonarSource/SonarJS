@@ -25,6 +25,9 @@ import { Minimatch } from 'minimatch';
 
 const PACKAGE_JSON = 'package.json';
 
+// Patterns enforced to be ignored no matter what the user configures on sonar.properties
+const IGNORED_PATTERNS = ['**/.scannerwork/**'];
+
 export interface PackageJson {
   filename: string;
   contents: PJ;
@@ -42,7 +45,9 @@ export class PackageJsons {
    */
   async searchPackageJsonFiles(dir: string, exclusions: string[]) {
     try {
-      const patterns = exclusions.map(exclusion => new Minimatch(exclusion));
+      const patterns = exclusions
+        .concat(IGNORED_PATTERNS)
+        .map(exclusion => new Minimatch(exclusion));
       await this.walkDirectory(path.posix.normalize(toUnixPath(dir)), patterns);
     } catch (e) {
       error(`Error while searching for package.json files: ${e}`);
@@ -59,9 +64,13 @@ export class PackageJsons {
       if (file.isDirectory()) {
         await this.walkDirectory(filename, ignoredPatterns);
       } else if (file.name.toLowerCase() === PACKAGE_JSON && !file.isDirectory()) {
-        debug(`Found package.json: ${filename}`);
-        const contents = JSON.parse(await readFile(filename));
-        this.db.set(dir, { filename, contents });
+        try {
+          debug(`Found package.json: ${filename}`);
+          const contents = JSON.parse(await readFile(filename));
+          this.db.set(dir, { filename, contents });
+        } catch (e) {
+          debug(`Error reading file ${filename}: ${e}`);
+        }
       }
     }
   }

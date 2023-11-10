@@ -61,7 +61,6 @@ class EmbeddedNodeTest {
       .setProjectKey(projectKey)
       .setSourceEncoding("UTF-8")
       .setSourceDirs(".")
-      .setDebugLogs(true)
       .setProjectDir(projectDir);
 
     var buildResult = orchestrator.executeBuild(build);
