@@ -143,8 +143,8 @@ public abstract class AbstractBridgeSensor implements Sensor {
     var tsExcludedPatterns = configuration.get(JavaScriptPlugin.TS_EXCLUSIONS_KEY).isPresent()
       ? configuration.getStringArray(JavaScriptPlugin.TS_EXCLUSIONS_KEY)
       : new String[] {};
-    var exclusions = concat(stream(jsExcludedPatterns), stream(tsExcludedPatterns))
+    var jsTsExclusions = concat(stream(jsExcludedPatterns), stream(tsExcludedPatterns))
       .collect(Collectors.toList());
-    return exclusions.isEmpty() ? excludedPatterns : exclusions;
+    return jsTsExclusions.isEmpty() ? excludedPatterns : jsTsExclusions;
   }
 }
