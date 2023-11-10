@@ -18,6 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+export let proxiesCounter = 0;
+export let ghostObjectCounter = 0;
+export const isProxy = Symbol('isProxy');
+export const isGhostObject = Symbol('isGhostObject');
 /**
  * Proxies an object (useful for frozen objects which cannot be modified). Covers cases like
  * when the path to the value does not exist.
@@ -27,38 +31,40 @@
  * @param value value that will be returned instead of original
  */
 export function createProxy(target: any, fqn: string[], value: any) {
+  proxiesCounter++;
+  const [propertyName, ...next] = fqn;
   return new Proxy(target, {
-    get(target: any, p: string | symbol): any {
+    cache: {},
+    get(target: any, key: string | symbol | number): any {
       //https://stackoverflow.com/questions/41299642/how-to-use-javascript-proxy-for-nested-objects
-      if (p === 'isProxy') {
+      if (key === isProxy) {
         return true;
       }
 
-      const key = p as keyof typeof target;
-
-      // Early return: We do not look for this property
-      if (key !== fqn[0]) {
-        return target[key];
-      }
-
-      const prop = target[key];
-      if (fqn.length) {
-        if (typeof prop !== 'object' || prop === null) {
-          return createObject(fqn.slice(1), value);
-        } else if (prop.isProxy) {
-          return prop;
-        } else if (typeof prop === 'object') {
-          return createProxy(prop, fqn.slice(1), value);
+      const actualValue = target[key];
+      if (propertyName && key === propertyName) {
+        if (!this.cache[key]) {
+          if (typeof actualValue !== 'object' || actualValue === null) {
+            if (next.length) {
+              this.cache[key] = createObject(next, value);
+            } else {
+              this.cache[key] = value;
+            }
+          } else {
+            this.cache[key] = createProxy(actualValue, next, value);
+          }
         }
-      } else {
-        return value;
+        return this.cache[key];
       }
+      return target[key];
     },
-  });
+  } as ProxyHandler<any> & { cache: { [key: string | number | symbol]: any } });
 }
 
 function createObject(fqn: string[], value: any) {
-  const target: { [key: string]: any } = {};
+  ghostObjectCounter++;
+  const target: { [key: string | number | symbol]: any } = {};
+  target[isGhostObject] = true;
   const key = fqn[0];
   if (fqn.length > 1) {
     target[key] = createObject(fqn.slice(1), value);
@@ -66,4 +72,9 @@ function createObject(fqn: string[], value: any) {
     target[fqn[0]] = value;
   }
   return target;
+}
+
+export function resetCounters() {
+  proxiesCounter = 0;
+  ghostObjectCounter = 0;
 }
