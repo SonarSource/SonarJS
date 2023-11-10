@@ -56,7 +56,9 @@ describe('proxy', () => {
   });
   it('should proxy existing nested object', () => {
     expect(proxiesCounter).toEqual(0);
-    const obj = { a: 1, b: { c: {} } } as any;
+    const objProto = { b: { c: {} } } as any;
+    const obj = Object.create(objProto);
+    obj.a = 1;
     freezeDeeply(obj);
     expect(() => (obj.b = { c: { d: 1 } })).toThrow(TypeError);
     const objProxy = createProxy(obj, ['b', 'c', 'd'], 1);
@@ -65,8 +67,8 @@ describe('proxy', () => {
     expect(objProxy[isProxy]).toEqual(true);
     expect(objProxy.b[isProxy]).toEqual(true);
     expect(objProxy.b.c[isProxy]).toEqual(true);
-    expect(proxiesCounter).toEqual(2);
-    expect(ghostObjectCounter).toEqual(1);
+    expect(proxiesCounter).toEqual(3);
+    expect(ghostObjectCounter).toEqual(0);
   });
 });
 
