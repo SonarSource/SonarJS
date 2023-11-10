@@ -28,8 +28,6 @@ import java.util.List;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
-import org.sonar.api.internal.apachecommons.lang.ArrayUtils;
-import org.sonar.api.utils.WildcardPattern;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.CancellationException;
@@ -139,10 +137,10 @@ public abstract class AbstractBridgeSensor implements Sensor {
     var excludedPatterns = JavaScriptPlugin.EXCLUSIONS_DEFAULT_VALUE;
     var jsExcludedPatterns = configuration.get(JavaScriptPlugin.JS_EXCLUSIONS_KEY).isPresent()
       ? configuration.getStringArray(JavaScriptPlugin.JS_EXCLUSIONS_KEY)
-      : ArrayUtils.EMPTY_STRING_ARRAY;
+      : new String[] {};
     var tsExcludedPatterns = configuration.get(JavaScriptPlugin.TS_EXCLUSIONS_KEY).isPresent()
       ? configuration.getStringArray(JavaScriptPlugin.TS_EXCLUSIONS_KEY)
-      : ArrayUtils.EMPTY_STRING_ARRAY;
+      : new String[] {};
     var exclusions = concat(stream(jsExcludedPatterns), stream(tsExcludedPatterns))
       .toArray(String[]::new);
     return (exclusions.length == 0) ? excludedPatterns : exclusions;
