@@ -13,6 +13,7 @@ public class Exclusions {
       stream(configuration.getStringArray(JavaScriptPlugin.JS_EXCLUSIONS_KEY)),
       stream(configuration.getStringArray(JavaScriptPlugin.TS_EXCLUSIONS_KEY))
     )
+      .filter(x -> !x.isBlank())
       .toArray(String[]::new);
     return jsTsExclusions.length == 0 ? JavaScriptPlugin.EXCLUSIONS_DEFAULT_VALUE : jsTsExclusions;
   }
