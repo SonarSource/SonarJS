@@ -8,6 +8,10 @@ import org.sonar.plugins.javascript.JavaScriptPlugin;
 
 public class Exclusions {
 
+  private Exclusions() {
+    throw new IllegalStateException("Utility class");
+  }
+
   public static String[] getExcludedPaths(Configuration configuration) {
     if (isExclusionOverridden(configuration)) {
       return concat(
