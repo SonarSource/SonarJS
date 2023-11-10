@@ -66,7 +66,6 @@ public abstract class AbstractBridgeSensor implements Sensor {
     CacheStrategies.reset();
     this.context = context;
     this.exclusions = getExcludedPaths();
-    LOG.error(this.exclusions.toString());
     this.contextUtils = new ContextUtils(context);
     environments = Arrays.asList(context.config().getStringArray(JavaScriptPlugin.ENVIRONMENTS));
     globals = Arrays.asList(context.config().getStringArray(JavaScriptPlugin.GLOBALS));

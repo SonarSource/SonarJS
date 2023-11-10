@@ -349,7 +349,6 @@ public class BridgeServerImpl implements BridgeServer {
     );
     String request = GSON.toJson(initLinterRequest);
 
-    LOG.error(request);
     String response = request(request, "init-linter");
     if (!"OK!".equals(response)) {
       throw new IllegalStateException("Failed to initialize linter");
