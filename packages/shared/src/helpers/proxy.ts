@@ -33,24 +33,26 @@ export function createProxy(target: any, fqn: string[], value: any) {
       if (p === 'isProxy') {
         return true;
       }
+
       const key = p as keyof typeof target;
 
-      const prop = target[key];
-
-      if (key === fqn[0]) {
-        if (fqn.length) {
-          if (typeof prop == 'undefined') {
-            return createObject(fqn.slice(1), value);
-          }
-
-          if (!prop.isProxy && typeof prop === 'object' && target[key] !== null) {
-            return createProxy(prop, fqn.slice(1), value);
-          }
-        } else {
-          return value;
-        }
+      // Early return: We do not look for this property
+      if (key !== fqn[0]) {
+        return target[key];
       }
-      return target[key];
+
+      const prop = target[key];
+      if (fqn.length) {
+        if (typeof prop !== 'object' || prop === null) {
+          return createObject(fqn.slice(1), value);
+        } else if (prop.isProxy) {
+          return prop;
+        } else if (typeof prop === 'object') {
+          return createProxy(prop, fqn.slice(1), value);
+        }
+      } else {
+        return value;
+      }
     },
   });
 }
