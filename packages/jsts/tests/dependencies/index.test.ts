@@ -20,7 +20,12 @@
 
 import path from 'path';
 import { toUnixPath } from '@sonar/shared/helpers';
-import { searchPackageJsonFiles, getAllPackageJsons, getNearestPackageJson } from '@sonar/jsts';
+import {
+  searchPackageJsonFiles,
+  getAllPackageJsons,
+  getNearestPackageJson,
+  PackageJsonsByBaseDir,
+} from '@sonar/jsts';
 
 describe('initialize package.json files', () => {
   beforeEach(() => {
@@ -100,6 +105,36 @@ describe('initialize package.json files', () => {
           { filename: path.posix.join(baseDir, 'package.json'), contents: expect.any(Object) },
         ],
       ]),
+    );
+  });
+
+  it('should return null when no package.json are in the DB or none exist in the file tree', async () => {
+    const baseDir = path.posix.join(toUnixPath(__dirname), 'fixtures');
+
+    expect(getAllPackageJsons().size).toEqual(0);
+    expect(
+      getNearestPackageJson(path.posix.join(baseDir, '..', 'another-module', 'index.js')),
+    ).toBeNull();
+
+    await searchPackageJsonFiles(baseDir, ['']);
+    expect(getAllPackageJsons().size).toEqual(7);
+    expect(
+      getNearestPackageJson(path.posix.join(baseDir, '..', 'another-module', 'index.js')),
+    ).toBeNull();
+  });
+
+  it('should return log error when cannot access baseDir', async () => {
+    const baseDir = path.posix.join(toUnixPath(__dirname), 'fixtures');
+
+    console.error = jest.fn();
+
+    jest.spyOn(PackageJsonsByBaseDir, 'walkDirectory').mockImplementation(dir => {
+      throw Error(`Cannot access ${dir}`);
+    });
+
+    await searchPackageJsonFiles(baseDir, ['']);
+    expect(console.error).toHaveBeenCalledWith(
+      `Error while searching for package.json files: Error: Cannot access ${baseDir}`,
     );
   });
 });

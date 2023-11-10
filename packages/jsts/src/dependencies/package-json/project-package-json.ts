@@ -54,7 +54,7 @@ export class PackageJsons {
     }
   }
 
-  private async walkDirectory(dir: string, ignoredPatterns: Minimatch[]) {
+  async walkDirectory(dir: string, ignoredPatterns: Minimatch[]) {
     const files = await fs.readdir(dir, { withFileTypes: true });
     for (const file of files) {
       const filename = path.posix.join(dir, file.name);

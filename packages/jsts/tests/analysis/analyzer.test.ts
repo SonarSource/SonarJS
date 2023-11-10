@@ -929,7 +929,7 @@ describe('analyzeJSTS', () => {
     expect(issues).toHaveLength(1);
     expect(issues[0].message).toEqual('call');
 
-    const vueFilePath = path.join(baseDir, 'custom.js');
+    const vueFilePath = path.join(baseDir, 'code.vue');
     const vueSourceCode = await parseJavaScriptSourceFile(vueFilePath);
     expect(vueSourceCode.parserServices.packageJson).toBeDefined();
     expect(vueSourceCode.parserServices.packageJson.name).toEqual('test-module');

@@ -34,4 +34,4 @@ function getAllPackageJsons() {
   return PackageJsonsByBaseDir.db;
 }
 
-export { searchPackageJsonFiles, getNearestPackageJson, getAllPackageJsons };
+export { searchPackageJsonFiles, getNearestPackageJson, getAllPackageJsons, PackageJsonsByBaseDir };
