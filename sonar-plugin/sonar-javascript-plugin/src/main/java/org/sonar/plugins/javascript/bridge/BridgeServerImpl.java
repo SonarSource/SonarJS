@@ -239,6 +239,7 @@ public class BridgeServerImpl implements BridgeServer {
 
     nodeCommandBuilder
       .outputConsumer(outputConsumer)
+      .errorConsumer(LOG::error)
       .embeddedNode(embeddedNode)
       .pathResolver(bundle)
       .minNodeVersion(NodeDeprecationWarning.MIN_SUPPORTED_NODE_VERSION)
@@ -347,6 +348,8 @@ public class BridgeServerImpl implements BridgeServer {
       exclusions
     );
     String request = GSON.toJson(initLinterRequest);
+
+    LOG.error(request);
     String response = request(request, "init-linter");
     if (!"OK!".equals(response)) {
       throw new IllegalStateException("Failed to initialize linter");

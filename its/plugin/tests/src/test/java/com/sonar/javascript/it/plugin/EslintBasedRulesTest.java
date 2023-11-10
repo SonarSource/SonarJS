@@ -83,6 +83,7 @@ class EslintBasedRulesTest {
       .setProjectKey(projectKey)
       .setSourceEncoding("UTF-8")
       .setSourceDirs(".")
+      .setDebugLogs(true)
       .setProjectDir(projectDir);
 
     OrchestratorStarter.setProfile(projectKey, jsProfile, "js");
@@ -136,6 +137,7 @@ class EslintBasedRulesTest {
     SonarScanner build = getSonarScanner()
       .setProjectKey(projectKey)
       .setSourceEncoding("UTF-8")
+      .setDebugLogs(true)
       .setSourceDirs(".")
       .setProjectDir(TestUtils.projectDir("file-filter/excluded_dir/project"))
       .setProperty("sonar.javascript.exclusions", "excluded_dir/**");
@@ -213,6 +215,7 @@ class EslintBasedRulesTest {
     SonarScanner build = getSonarScanner()
       .setProjectKey(projectKey)
       .setSourceEncoding("UTF-8")
+      .setDebugLogs(true)
       .setSourceDirs(".")
       .setProjectDir(projectDir);
     OrchestratorStarter.setProfile(projectKey, jsProfile, "js");
