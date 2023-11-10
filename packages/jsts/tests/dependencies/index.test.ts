@@ -25,49 +25,38 @@ import { searchPackageJsonFiles, getAllPackageJsons, getNearestPackageJson } fro
 describe('initialize package.json files', () => {
   beforeEach(() => {
     jest.resetModules();
+    getAllPackageJsons().clear();
   });
 
   it('should find all package.json files', async () => {
-    const baseDir = path.join(__dirname, 'fixtures');
-    await searchPackageJsonFiles(baseDir);
+    const baseDir = path.posix.join(toUnixPath(__dirname), 'fixtures');
+    await searchPackageJsonFiles(baseDir, []);
     expect(getAllPackageJsons().size).toEqual(7);
 
-    expect(getNearestPackageJson(path.join(__dirname, 'fixtures', 'index.js')).filename).toEqual(
-      toUnixPath(path.join(__dirname, 'fixtures', 'package.json')),
+    expect(getNearestPackageJson(path.posix.join(baseDir, 'index.js')).filename).toEqual(
+      toUnixPath(path.posix.join(baseDir, 'package.json')),
+    );
+    expect(getNearestPackageJson(path.posix.join(baseDir, 'moduleA', 'index.js')).filename).toEqual(
+      toUnixPath(path.posix.join(baseDir, 'moduleA', 'package.json')),
     );
     expect(
-      getNearestPackageJson(path.join(__dirname, 'fixtures', 'moduleA', 'index.js')).filename,
-    ).toEqual(toUnixPath(path.join(__dirname, 'fixtures', 'moduleA', 'package.json')));
+      getNearestPackageJson(path.posix.join(baseDir, 'moduleA', 'submoduleA', 'index.js')).filename,
+    ).toEqual(toUnixPath(path.posix.join(baseDir, 'moduleA', 'submoduleA', 'package.json')));
     expect(
-      getNearestPackageJson(path.join(__dirname, 'fixtures', 'moduleA', 'submoduleA', 'index.js'))
-        .filename,
-    ).toEqual(
-      toUnixPath(path.join(__dirname, 'fixtures', 'moduleA', 'submoduleA', 'package.json')),
+      getNearestPackageJson(path.posix.join(baseDir, 'moduleA', 'submoduleB', 'index.js')).filename,
+    ).toEqual(toUnixPath(path.posix.join(baseDir, 'moduleA', 'submoduleB', 'package.json')));
+    expect(getNearestPackageJson(path.posix.join(baseDir, 'moduleB', 'index.js')).filename).toEqual(
+      toUnixPath(path.posix.join(baseDir, 'moduleB', 'package.json')),
     );
     expect(
-      getNearestPackageJson(path.join(__dirname, 'fixtures', 'moduleA', 'submoduleB', 'index.js'))
-        .filename,
-    ).toEqual(
-      toUnixPath(path.join(__dirname, 'fixtures', 'moduleA', 'submoduleB', 'package.json')),
-    );
+      getNearestPackageJson(path.posix.join(baseDir, 'moduleB', 'submoduleA', 'index.js')).filename,
+    ).toEqual(toUnixPath(path.posix.join(baseDir, 'moduleB', 'submoduleA', 'package.json')));
     expect(
-      getNearestPackageJson(path.join(__dirname, 'fixtures', 'moduleB', 'index.js')).filename,
-    ).toEqual(toUnixPath(path.join(__dirname, 'fixtures', 'moduleB', 'package.json')));
-    expect(
-      getNearestPackageJson(path.join(__dirname, 'fixtures', 'moduleB', 'submoduleA', 'index.js'))
-        .filename,
-    ).toEqual(
-      toUnixPath(path.join(__dirname, 'fixtures', 'moduleB', 'submoduleA', 'package.json')),
-    );
-    expect(
-      getNearestPackageJson(path.join(__dirname, 'fixtures', 'moduleB', 'submoduleB', 'index.js'))
-        .filename,
-    ).toEqual(
-      toUnixPath(path.join(__dirname, 'fixtures', 'moduleB', 'submoduleB', 'package.json')),
-    );
+      getNearestPackageJson(path.posix.join(baseDir, 'moduleB', 'submoduleB', 'index.js')).filename,
+    ).toEqual(toUnixPath(path.posix.join(baseDir, 'moduleB', 'submoduleB', 'package.json')));
     expect(
       getNearestPackageJson(
-        path.join(
+        path.posix.join(
           __dirname,
           'fixtures',
           'moduleB',
@@ -78,8 +67,39 @@ describe('initialize package.json files', () => {
           'index.js',
         ),
       ).filename,
-    ).toEqual(
-      toUnixPath(path.join(__dirname, 'fixtures', 'moduleB', 'submoduleB', 'package.json')),
+    ).toEqual(toUnixPath(path.posix.join(baseDir, 'moduleB', 'submoduleB', 'package.json')));
+  });
+
+  it('should ignore package.json files from ignored patterns', async () => {
+    const baseDir = path.posix.join(toUnixPath(__dirname), 'fixtures');
+
+    await searchPackageJsonFiles(baseDir, ['**/moduleA/**']);
+    expect(getAllPackageJsons().size).toEqual(4);
+    const packageJsons = [
+      ['package.json'],
+      ['moduleB', 'package.json'],
+      ['moduleB', 'submoduleA', 'package.json'],
+      ['moduleB', 'submoduleB', 'package.json'],
+    ];
+    expect(getAllPackageJsons()).toEqual(
+      new Map(
+        packageJsons.map(packageJson => {
+          const filename = path.posix.join(baseDir, ...packageJson);
+          return [path.posix.dirname(filename), { filename, contents: expect.any(Object) }];
+        }),
+      ),
+    );
+
+    getAllPackageJsons().clear();
+    await searchPackageJsonFiles(baseDir, ['**/module*/**']);
+    expect(getAllPackageJsons().size).toEqual(1);
+    expect(getAllPackageJsons()).toEqual(
+      new Map([
+        [
+          baseDir,
+          { filename: path.posix.join(baseDir, 'package.json'), contents: expect.any(Object) },
+        ],
+      ]),
     );
   });
 });

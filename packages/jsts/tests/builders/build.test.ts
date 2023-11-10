@@ -295,7 +295,7 @@ describe('buildSourceCode', () => {
     const baseDir = path.join(__dirname, 'fixtures', 'build');
     const filePath = path.join(baseDir, 'file.ts');
     const packageJson = path.join(baseDir, 'package.json');
-    await searchPackageJsonFiles(baseDir);
+    await searchPackageJsonFiles(baseDir, []);
     const log = `DEBUG Found package.json: ${toUnixPath(packageJson)}`;
     expect(console.log).toHaveBeenCalledWith(log);
 
