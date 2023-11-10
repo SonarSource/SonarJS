@@ -19,13 +19,9 @@
  */
 package org.sonar.plugins.javascript.bridge;
 
-import static java.util.Arrays.stream;
-import static java.util.stream.Stream.concat;
-
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -35,6 +31,7 @@ import org.sonar.plugins.javascript.CancellationException;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.bridge.cache.CacheStrategies;
 import org.sonar.plugins.javascript.nodejs.NodeCommandException;
+import org.sonar.plugins.javascript.utils.Exclusions;
 
 public abstract class AbstractBridgeSensor implements Sensor {
 
@@ -65,7 +62,7 @@ public abstract class AbstractBridgeSensor implements Sensor {
     monitoring.startSensor(context, this);
     CacheStrategies.reset();
     this.context = context;
-    this.exclusions = getExcludedPaths();
+    this.exclusions = Arrays.asList(Exclusions.getExcludedPaths(context.config()));
     this.contextUtils = new ContextUtils(context);
     environments = Arrays.asList(context.config().getStringArray(JavaScriptPlugin.ENVIRONMENTS));
     globals = Arrays.asList(context.config().getStringArray(JavaScriptPlugin.GLOBALS));
@@ -131,19 +128,5 @@ public abstract class AbstractBridgeSensor implements Sensor {
     }
     LOG.debug("Will use AnalysisWithProgram");
     return true;
-  }
-
-  protected List<String> getExcludedPaths() {
-    var configuration = this.context.config();
-    var excludedPatterns = Arrays.asList(JavaScriptPlugin.EXCLUSIONS_DEFAULT_VALUE);
-    var jsExcludedPatterns = configuration.get(JavaScriptPlugin.JS_EXCLUSIONS_KEY).isPresent()
-      ? configuration.getStringArray(JavaScriptPlugin.JS_EXCLUSIONS_KEY)
-      : new String[] {};
-    var tsExcludedPatterns = configuration.get(JavaScriptPlugin.TS_EXCLUSIONS_KEY).isPresent()
-      ? configuration.getStringArray(JavaScriptPlugin.TS_EXCLUSIONS_KEY)
-      : new String[] {};
-    var jsTsExclusions = concat(stream(jsExcludedPatterns), stream(tsExcludedPatterns))
-      .collect(Collectors.toList());
-    return jsTsExclusions.isEmpty() ? excludedPatterns : jsTsExclusions;
   }
 }
