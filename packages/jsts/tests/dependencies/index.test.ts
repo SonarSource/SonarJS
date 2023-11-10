@@ -123,7 +123,7 @@ describe('initialize package.json files', () => {
     ).toBeNull();
   });
 
-  it('should return log error when cannot access baseDir', async () => {
+  it('should log error when cannot access baseDir', async () => {
     const baseDir = path.posix.join(toUnixPath(__dirname), 'fixtures');
 
     console.error = jest.fn();
