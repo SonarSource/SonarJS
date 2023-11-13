@@ -29,6 +29,7 @@ const {
   deleteProgram,
   initializeLinter,
   writeTSConfigFile,
+  searchPackageJsonFiles,
 } = require('@sonar/jsts');
 const { readFile, setContext } = require('@sonar/shared/helpers');
 const { analyzeCSS } = require('@sonar/css');
@@ -136,8 +137,9 @@ if (parentPort) {
         }
 
         case 'on-init-linter': {
-          const { rules, environments, globals, linterId } = data;
+          const { rules, environments, globals, linterId, baseDir, exclusions } = data;
           initializeLinter(rules, environments, globals, linterId);
+          await searchPackageJsonFiles(baseDir, exclusions);
           parentThread.postMessage({ type: 'success', result: 'OK!' });
           break;
         }

@@ -59,7 +59,6 @@ import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.testfixtures.log.LogAndArguments;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.javascript.checks.CheckList;
@@ -142,7 +141,7 @@ class HtmlSensorTest {
     DefaultInputFile inputFile = createInputFile(context);
 
     sensor.execute(context);
-    verify(bridgeServerMock, times(1)).initLinter(any(), any(), any(), any());
+    verify(bridgeServerMock, times(1)).initLinter(any(), any(), any(), any(), any(), any());
     assertThat(context.allIssues()).hasSize(2);
 
     Iterator<Issue> issues = context.allIssues().iterator();

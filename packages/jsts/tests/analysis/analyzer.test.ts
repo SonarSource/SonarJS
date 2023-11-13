@@ -25,12 +25,14 @@ import {
   analyzeJSTS,
   JsTsAnalysisOutput,
   createAndSaveProgram,
+  searchPackageJsonFiles,
 } from '../../src';
 import { APIError } from '@sonar/shared/errors';
-import { jsTsInput } from '../tools';
-
+import { jsTsInput, parseJavaScriptSourceFile } from '../tools';
+import { Linter, Rule } from 'eslint';
 describe('analyzeJSTS', () => {
   beforeEach(() => {
+    jest.resetModules();
     setContext({
       workDir: '/tmp/dir',
       shouldUseTypeScriptParserForJS: false,
@@ -892,5 +894,52 @@ describe('analyzeJSTS', () => {
     expect(() => analyzeJSTS(analysisInput, language)).toThrow(
       APIError.parsingError('Unexpected token (3:0)', { line: 3 }),
     );
+  });
+
+  it('package.json should be available in rule context', async () => {
+    const baseDir = path.join(__dirname, 'fixtures', 'package-json');
+    await searchPackageJsonFiles(baseDir, []);
+
+    const linter = new Linter();
+    linter.defineRule('custom-rule-file', {
+      create(context) {
+        return {
+          CallExpression(node) {
+            expect(context.parserServices.packageJson).toBeDefined();
+            expect(context.parserServices.packageJson.name).toEqual('test-module');
+            context.report({
+              node: node.callee,
+              message: 'call',
+            });
+          },
+        };
+      },
+    } as Rule.RuleModule);
+
+    const filePath = path.join(baseDir, 'custom.js');
+    const sourceCode = await parseJavaScriptSourceFile(filePath);
+    expect(sourceCode.parserServices.packageJson).toBeDefined();
+    expect(sourceCode.parserServices.packageJson.name).toEqual('test-module');
+
+    const issues = linter.verify(
+      sourceCode,
+      { rules: { 'custom-rule-file': 'error' } },
+      { filename: filePath, allowInlineConfig: false },
+    );
+    expect(issues).toHaveLength(1);
+    expect(issues[0].message).toEqual('call');
+
+    const vueFilePath = path.join(baseDir, 'code.vue');
+    const vueSourceCode = await parseJavaScriptSourceFile(vueFilePath);
+    expect(vueSourceCode.parserServices.packageJson).toBeDefined();
+    expect(vueSourceCode.parserServices.packageJson.name).toEqual('test-module');
+
+    const vueIssues = linter.verify(
+      vueSourceCode,
+      { rules: { 'custom-rule-file': 'error' } },
+      { filename: vueFilePath, allowInlineConfig: false },
+    );
+    expect(vueIssues).toHaveLength(1);
+    expect(vueIssues[0].message).toEqual('call');
   });
 });

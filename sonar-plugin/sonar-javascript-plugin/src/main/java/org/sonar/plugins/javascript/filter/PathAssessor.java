@@ -19,15 +19,13 @@
  */
 package org.sonar.plugins.javascript.filter;
 
-import static java.util.Arrays.stream;
-import static java.util.stream.Stream.concat;
-
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.WildcardPattern;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
+import org.sonar.plugins.javascript.utils.Exclusions;
 
 class PathAssessor implements Assessor {
 
@@ -35,26 +33,7 @@ class PathAssessor implements Assessor {
   private final WildcardPattern[] excludedPatterns;
 
   PathAssessor(Configuration configuration) {
-    if (!isExclusionOverridden(configuration)) {
-      excludedPatterns = WildcardPattern.create(JavaScriptPlugin.EXCLUSIONS_DEFAULT_VALUE);
-    } else {
-      WildcardPattern[] jsExcludedPatterns = WildcardPattern.create(
-        configuration.getStringArray(JavaScriptPlugin.JS_EXCLUSIONS_KEY)
-      );
-      WildcardPattern[] tsExcludedPatterns = WildcardPattern.create(
-        configuration.getStringArray(JavaScriptPlugin.TS_EXCLUSIONS_KEY)
-      );
-      excludedPatterns =
-        concat(stream(jsExcludedPatterns), stream(tsExcludedPatterns))
-          .toArray(WildcardPattern[]::new);
-    }
-  }
-
-  private static boolean isExclusionOverridden(Configuration configuration) {
-    return (
-      configuration.get(JavaScriptPlugin.JS_EXCLUSIONS_KEY).isPresent() ||
-      configuration.get(JavaScriptPlugin.TS_EXCLUSIONS_KEY).isPresent()
-    );
+    excludedPatterns = WildcardPattern.create(Exclusions.getExcludedPaths(configuration));
   }
 
   @Override

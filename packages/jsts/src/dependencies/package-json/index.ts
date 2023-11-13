@@ -17,10 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export * from './analysis';
-export * from './builders';
-export * from './dependencies';
-export * from './linter';
-export * from './parsers';
-export * from './program';
-export * from './rules';
+
+import { PackageJsons } from './project-package-json';
+
+const PackageJsonsByBaseDir = new PackageJsons();
+
+async function searchPackageJsonFiles(baseDir: string, exclusions: string[]) {
+  await PackageJsonsByBaseDir.searchPackageJsonFiles(baseDir, exclusions);
+}
+
+function getNearestPackageJson(file: string) {
+  return PackageJsonsByBaseDir.getPackageJsonForFile(file);
+}
+
+function getAllPackageJsons() {
+  return PackageJsonsByBaseDir.db;
+}
+
+export { searchPackageJsonFiles, getNearestPackageJson, getAllPackageJsons, PackageJsonsByBaseDir };

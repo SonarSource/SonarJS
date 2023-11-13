@@ -104,7 +104,14 @@ public class JsTsSensor extends AbstractBridgeSensor {
   @Override
   protected void analyzeFiles(List<InputFile> inputFiles) throws IOException {
     var analysisMode = AnalysisMode.getMode(context, checks.eslintRules());
-    bridgeServer.initLinter(checks.eslintRules(), environments, globals, analysisMode);
+    bridgeServer.initLinter(
+      checks.eslintRules(),
+      environments,
+      globals,
+      analysisMode,
+      context.fileSystem().baseDir().getAbsolutePath(),
+      exclusions
+    );
 
     SonarLintTypeCheckingChecker.checkOnce(javaScriptProjectChecker, context);
     var tsConfigs = TsConfigProvider.getTsConfigs(

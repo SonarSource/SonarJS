@@ -31,12 +31,14 @@ import org.sonar.plugins.javascript.CancellationException;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.bridge.cache.CacheStrategies;
 import org.sonar.plugins.javascript.nodejs.NodeCommandException;
+import org.sonar.plugins.javascript.utils.Exclusions;
 
 public abstract class AbstractBridgeSensor implements Sensor {
 
   private static final Logger LOG = Loggers.get(AbstractBridgeSensor.class);
 
   protected final BridgeServer bridgeServer;
+  protected List<String> exclusions;
   private final AnalysisWarningsWrapper analysisWarnings;
   final Monitoring monitoring;
   List<String> environments;
@@ -60,6 +62,7 @@ public abstract class AbstractBridgeSensor implements Sensor {
     monitoring.startSensor(context, this);
     CacheStrategies.reset();
     this.context = context;
+    this.exclusions = Arrays.asList(Exclusions.getExcludedPaths(context.config()));
     this.contextUtils = new ContextUtils(context);
     environments = Arrays.asList(context.config().getStringArray(JavaScriptPlugin.ENVIRONMENTS));
     globals = Arrays.asList(context.config().getStringArray(JavaScriptPlugin.GLOBALS));

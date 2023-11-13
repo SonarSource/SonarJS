@@ -41,7 +41,9 @@ public interface BridgeServer extends Startable {
     List<EslintRule> rules,
     List<String> environments,
     List<String> globals,
-    AnalysisMode analysisMode
+    AnalysisMode analysisMode,
+    String baseDir,
+    List<String> exclusions
   ) throws IOException;
 
   AnalysisResponse analyzeJavaScript(JsAnalysisRequest request) throws IOException;

@@ -239,6 +239,7 @@ public class BridgeServerImpl implements BridgeServer {
 
     nodeCommandBuilder
       .outputConsumer(outputConsumer)
+      .errorConsumer(LOG::error)
       .embeddedNode(embeddedNode)
       .pathResolver(bundle)
       .minNodeVersion(NodeDeprecationWarning.MIN_SUPPORTED_NODE_VERSION)
@@ -312,16 +313,20 @@ public class BridgeServerImpl implements BridgeServer {
     List<EslintRule> rules,
     List<String> environments,
     List<String> globals,
-    AnalysisMode analysisMode
+    AnalysisMode analysisMode,
+    String baseDir,
+    List<String> exclusions
   ) throws IOException {
-    initLinter(AnalysisMode.DEFAULT_LINTER_ID, rules, environments, globals);
+    initLinter(AnalysisMode.DEFAULT_LINTER_ID, rules, environments, globals, baseDir, exclusions);
 
     if (analysisMode == AnalysisMode.SKIP_UNCHANGED) {
       initLinter(
         AnalysisMode.UNCHANGED_LINTER_ID,
         AnalysisMode.getUnchangedFileRules(rules),
         environments,
-        globals
+        globals,
+        baseDir,
+        exclusions
       );
     }
   }
@@ -330,15 +335,20 @@ public class BridgeServerImpl implements BridgeServer {
     String linterId,
     List<EslintRule> rules,
     List<String> environments,
-    List<String> globals
+    List<String> globals,
+    String baseDir,
+    List<String> exclusions
   ) throws IOException {
     InitLinterRequest initLinterRequest = new InitLinterRequest(
       linterId,
       rules,
       environments,
-      globals
+      globals,
+      baseDir,
+      exclusions
     );
     String request = GSON.toJson(initLinterRequest);
+
     String response = request(request, "init-linter");
     if (!"OK!".equals(response)) {
       throw new IllegalStateException("Failed to initialize linter");
@@ -588,17 +598,23 @@ public class BridgeServerImpl implements BridgeServer {
     List<EslintRule> rules;
     List<String> environments;
     List<String> globals;
+    String baseDir;
+    List<String> exclusions;
 
     InitLinterRequest(
       String linterId,
       List<EslintRule> rules,
       List<String> environments,
-      List<String> globals
+      List<String> globals,
+      String baseDir,
+      List<String> exclusions
     ) {
       this.linterId = linterId;
       this.rules = rules;
       this.environments = environments;
       this.globals = globals;
+      this.baseDir = baseDir;
+      this.exclusions = exclusions;
     }
   }
 
