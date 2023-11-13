@@ -22,4 +22,3 @@ export * from './logging';
 export * from './files';
 export * from './language';
 export * from './escape';
-export * from './proxy';

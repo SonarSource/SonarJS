@@ -23,7 +23,6 @@ import { Rule } from 'eslint';
 import { rule as diagnosticsRule } from './rule.diagnostics';
 import { rules } from 'eslint-plugin-react';
 import { mergeRules } from '../helpers';
-import { createProxy } from '@sonar/shared/helpers';
 
 const reactNoDeprecated = rules['no-deprecated'];
 
@@ -36,12 +35,21 @@ export const rule: Rule.RuleModule = {
       return context.options?.[0]?.['react-version'];
     }
     function getVersionFromPackageJson() {
-      return context.parserServices?.packageJson?.dependencies?.react;
+      return (
+        context.parserServices?.packageJson?.dependencies?.react ||
+        context.parserServices?.packageJson?.devDependencies?.react
+      );
     }
 
     const reactVersion = getVersionFromOptions() || getVersionFromPackageJson();
+
     const patchedContext = reactVersion
-      ? createProxy(context, ['settings', 'react', 'version'], reactVersion)
+      ? Object.create(context, {
+          settings: {
+            value: { react: { version: reactVersion } },
+            writable: false,
+          },
+        })
       : context;
     return mergeRules(reactNoDeprecated.create(patchedContext), diagnosticsRule.create(context));
   },
