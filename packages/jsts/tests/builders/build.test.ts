@@ -301,7 +301,7 @@ describe('buildSourceCode', () => {
 
     const result = buildSourceCode(await jsTsInput({ filePath }), 'ts');
 
-    expect(result.parserServices.packageJson).toBeDefined();
-    expect(result.parserServices.packageJson.name).toEqual('test-build-module');
+    expect(result.parserServices.packageJsons).toBeDefined();
+    expect(result.parserServices.packageJsons[0].contents.name).toEqual('test-build-module');
   });
 });

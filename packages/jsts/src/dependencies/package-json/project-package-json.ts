@@ -75,22 +75,24 @@ export class PackageJsons {
     }
   }
   /**
-   * Given a filename, find the nearest package.json
+   * Given a filename, return all package.json files in the ancestor paths
+   * ordered from nearest to furthest
    *
    * @param file source file for which we need a package.json
    */
-  getPackageJsonForFile(file: string) {
+  getPackageJsonsForFile(file: string) {
+    const results: PackageJson[] = [];
     if (this.db.size === 0) {
-      return null;
+      return results;
     }
     let currentDir = path.posix.dirname(path.posix.normalize(toUnixPath(file)));
     do {
       const packageJson = this.db.get(currentDir);
       if (packageJson) {
-        return packageJson;
+        results.push(packageJson);
       }
       currentDir = path.posix.dirname(currentDir);
     } while (currentDir !== path.posix.dirname(currentDir));
-    return null;
+    return results;
   }
 }

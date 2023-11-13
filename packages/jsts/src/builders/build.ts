@@ -22,7 +22,7 @@ import { JsTsAnalysisInput } from '../analysis';
 import { buildParserOptions, parseForESLint, parsers } from '../parsers';
 import { getProgramById } from '../program';
 import { Linter } from 'eslint';
-import { getNearestPackageJson } from '../dependencies';
+import { getNearestPackageJsons } from '../dependencies';
 
 /**
  * Builds an ESLint SourceCode for JavaScript / TypeScript
@@ -36,7 +36,7 @@ import { getNearestPackageJson } from '../dependencies';
  */
 export function buildSourceCode(input: JsTsAnalysisInput, language: JsTsLanguage) {
   const vueFile = isVueFile(input.filePath);
-  const packageJson = getNearestPackageJson(input.filePath);
+  const packageJsons = getNearestPackageJsons(input.filePath);
 
   if (shouldUseTypescriptParser(language)) {
     const options: Linter.ParserOptions = {
@@ -53,7 +53,7 @@ export function buildSourceCode(input: JsTsAnalysisInput, language: JsTsLanguage
         input.fileContent,
         vueFile ? parsers.vuejs.parse : parsers.typescript.parse,
         buildParserOptions(options, false),
-        packageJson?.contents,
+        packageJsons,
       );
     } catch (error) {
       debug(`Failed to parse ${input.filePath} with TypeScript parser: ${error.message}`);
@@ -69,7 +69,7 @@ export function buildSourceCode(input: JsTsAnalysisInput, language: JsTsLanguage
       input.fileContent,
       vueFile ? parsers.vuejs.parse : parsers.javascript.parse,
       buildParserOptions({ parser: vueFile ? parsers.javascript.parser : undefined }, true),
-      packageJson?.contents,
+      packageJsons,
     );
   } catch (error) {
     debug(`Failed to parse ${input.filePath} with Javascript parser: ${error.message}`);
@@ -84,7 +84,7 @@ export function buildSourceCode(input: JsTsAnalysisInput, language: JsTsLanguage
       input.fileContent,
       parsers.javascript.parse,
       buildParserOptions({ sourceType: 'script' }, true),
-      packageJson?.contents,
+      packageJsons,
     );
   } catch (error) {
     debug(
