@@ -32,9 +32,9 @@ describe('initialize package.json files', () => {
     getAllPackageJsons().clear();
   });
 
-  it('should find all package.json files', async () => {
+  it('should find all package.json files', () => {
     const baseDir = path.posix.join(toUnixPath(__dirname), 'fixtures');
-    await searchPackageJsonFiles(baseDir, []);
+    searchPackageJsonFiles(baseDir, []);
     expect(getAllPackageJsons().size).toEqual(7);
 
     const basePJList = getNearestPackageJsons(path.posix.join(baseDir, 'index.js'));
@@ -105,10 +105,10 @@ describe('initialize package.json files', () => {
     expect(fakeFilePJList[0].filename).toEqual(moduleBsubmoduleBPJ);
   });
 
-  it('should ignore package.json files from ignored patterns', async () => {
+  it('should ignore package.json files from ignored patterns', () => {
     const baseDir = path.posix.join(toUnixPath(__dirname), 'fixtures');
 
-    await searchPackageJsonFiles(baseDir, ['**/moduleA/**']);
+    searchPackageJsonFiles(baseDir, ['**/moduleA/**']);
     expect(getAllPackageJsons().size).toEqual(4);
     const packageJsons = [
       ['package.json'],
@@ -126,7 +126,7 @@ describe('initialize package.json files', () => {
     );
 
     getAllPackageJsons().clear();
-    await searchPackageJsonFiles(baseDir, ['**/module*/**']);
+    searchPackageJsonFiles(baseDir, ['**/module*/**']);
     expect(getAllPackageJsons().size).toEqual(1);
     expect(getAllPackageJsons()).toEqual(
       new Map([
@@ -138,7 +138,7 @@ describe('initialize package.json files', () => {
     );
   });
 
-  it('should return empty array when no package.json are in the DB or none exist in the file tree', async () => {
+  it('should return empty array when no package.json are in the DB or none exist in the file tree', () => {
     const baseDir = path.posix.join(toUnixPath(__dirname), 'fixtures');
 
     expect(getAllPackageJsons().size).toEqual(0);
@@ -146,14 +146,14 @@ describe('initialize package.json files', () => {
       getNearestPackageJsons(path.posix.join(baseDir, '..', 'another-module', 'index.js')),
     ).toHaveLength(0);
 
-    await searchPackageJsonFiles(baseDir, ['']);
+    searchPackageJsonFiles(baseDir, ['']);
     expect(getAllPackageJsons().size).toEqual(7);
     expect(
       getNearestPackageJsons(path.posix.join(baseDir, '..', 'another-module', 'index.js')),
     ).toHaveLength(0);
   });
 
-  it('should log error when cannot access baseDir', async () => {
+  it('should log error when cannot access baseDir', () => {
     const baseDir = path.posix.join(toUnixPath(__dirname), 'fixtures');
 
     console.error = jest.fn();
@@ -162,7 +162,7 @@ describe('initialize package.json files', () => {
       throw Error(`Cannot access ${dir}`);
     });
 
-    await searchPackageJsonFiles(baseDir, ['']);
+    searchPackageJsonFiles(baseDir, ['']);
     expect(console.error).toHaveBeenCalledWith(
       `Error while searching for package.json files: Error: Cannot access ${baseDir}`,
     );
