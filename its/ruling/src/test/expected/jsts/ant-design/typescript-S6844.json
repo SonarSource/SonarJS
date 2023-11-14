@@ -1,0 +1,19 @@
+{
+"ant-design:components/badge/__tests__/index.test.tsx": [
+14,
+107,
+142,
+145,
+148
+],
+"ant-design:components/modal/__tests__/Modal.test.tsx": [
+39
+],
+"ant-design:components/pagination/Pagination.tsx": [
+62,
+71
+],
+"ant-design:components/typography/Base/index.tsx": [
+371
+]
+}
