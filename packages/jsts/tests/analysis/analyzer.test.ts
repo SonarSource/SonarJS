@@ -26,6 +26,7 @@ import {
   JsTsAnalysisOutput,
   createAndSaveProgram,
   searchPackageJsonFiles,
+  getNearestPackageJsons,
 } from '../../src';
 import { APIError } from '@sonar/shared/errors';
 import { jsTsInput, parseJavaScriptSourceFile } from '../tools';
@@ -905,8 +906,9 @@ describe('analyzeJSTS', () => {
       create(context) {
         return {
           CallExpression(node) {
-            expect(context.parserServices.packageJsons).toBeDefined();
-            expect(context.parserServices.packageJsons[0].contents.name).toEqual('test-module');
+            const packageJsons = getNearestPackageJsons(context.filename);
+            expect(packageJsons).toBeDefined();
+            expect(packageJsons[0].contents.name).toEqual('test-module');
             context.report({
               node: node.callee,
               message: 'call',
@@ -918,8 +920,6 @@ describe('analyzeJSTS', () => {
 
     const filePath = path.join(baseDir, 'custom.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
-    expect(sourceCode.parserServices.packageJsons).toBeDefined();
-    expect(sourceCode.parserServices.packageJsons[0].contents.name).toEqual('test-module');
 
     const issues = linter.verify(
       sourceCode,
@@ -931,8 +931,6 @@ describe('analyzeJSTS', () => {
 
     const vueFilePath = path.join(baseDir, 'code.vue');
     const vueSourceCode = await parseJavaScriptSourceFile(vueFilePath);
-    expect(vueSourceCode.parserServices.packageJsons).toBeDefined();
-    expect(vueSourceCode.parserServices.packageJsons[0].contents.name).toEqual('test-module');
 
     const vueIssues = linter.verify(
       vueSourceCode,
