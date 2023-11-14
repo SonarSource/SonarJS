@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { join } from 'path';
-import { setContext } from '@sonar/shared';
+import { setContext, APIError } from '@sonar/shared';
 import { parseAwsFromYaml } from '../../src/aws';
 import { embeddedInput } from '../../../jsts/tests/tools';
 import {
@@ -27,7 +27,6 @@ import {
   initializeLinter,
   getLinter,
 } from '@sonar/jsts';
-import { APIError } from '@sonar/shared';
 import { Rule } from 'eslint';
 
 describe('analyzeYAML', () => {
