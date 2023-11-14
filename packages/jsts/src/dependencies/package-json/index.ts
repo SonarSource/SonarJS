@@ -26,12 +26,18 @@ async function searchPackageJsonFiles(baseDir: string, exclusions: string[]) {
   await PackageJsonsByBaseDir.searchPackageJsonFiles(baseDir, exclusions);
 }
 
-function getNearestPackageJson(file: string) {
-  return PackageJsonsByBaseDir.getPackageJsonForFile(file);
+function getNearestPackageJsons(file: string) {
+  return PackageJsonsByBaseDir.getPackageJsonsForFile(file);
 }
 
 function getAllPackageJsons() {
   return PackageJsonsByBaseDir.db;
 }
 
-export { searchPackageJsonFiles, getNearestPackageJson, getAllPackageJsons, PackageJsonsByBaseDir };
+export {
+  searchPackageJsonFiles,
+  getNearestPackageJsons,
+  getAllPackageJsons,
+  PackageJsonsByBaseDir,
+};
+export { PackageJson } from './project-package-json';

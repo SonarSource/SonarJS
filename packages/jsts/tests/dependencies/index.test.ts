@@ -23,13 +23,12 @@ import { toUnixPath } from '@sonar/shared/helpers';
 import {
   searchPackageJsonFiles,
   getAllPackageJsons,
-  getNearestPackageJson,
+  getNearestPackageJsons,
   PackageJsonsByBaseDir,
 } from '@sonar/jsts';
 
 describe('initialize package.json files', () => {
   beforeEach(() => {
-    jest.resetModules();
     getAllPackageJsons().clear();
   });
 
@@ -38,41 +37,72 @@ describe('initialize package.json files', () => {
     await searchPackageJsonFiles(baseDir, []);
     expect(getAllPackageJsons().size).toEqual(7);
 
-    expect(getNearestPackageJson(path.posix.join(baseDir, 'index.js')).filename).toEqual(
-      toUnixPath(path.posix.join(baseDir, 'package.json')),
+    const basePJList = getNearestPackageJsons(path.posix.join(baseDir, 'index.js'));
+    const basePJ = toUnixPath(path.posix.join(baseDir, 'package.json'));
+
+    const moduleAPJList = getNearestPackageJsons(path.posix.join(baseDir, 'moduleA', 'index.js'));
+    const moduleAPJ = toUnixPath(path.posix.join(baseDir, 'moduleA', 'package.json'));
+
+    const moduleAsubmoduleAPJList = getNearestPackageJsons(
+      path.posix.join(baseDir, 'moduleA', 'submoduleA', 'index.js'),
     );
-    expect(getNearestPackageJson(path.posix.join(baseDir, 'moduleA', 'index.js')).filename).toEqual(
-      toUnixPath(path.posix.join(baseDir, 'moduleA', 'package.json')),
+    const moduleAsubmoduleAPJ = toUnixPath(
+      path.posix.join(baseDir, 'moduleA', 'submoduleA', 'package.json'),
     );
-    expect(
-      getNearestPackageJson(path.posix.join(baseDir, 'moduleA', 'submoduleA', 'index.js')).filename,
-    ).toEqual(toUnixPath(path.posix.join(baseDir, 'moduleA', 'submoduleA', 'package.json')));
-    expect(
-      getNearestPackageJson(path.posix.join(baseDir, 'moduleA', 'submoduleB', 'index.js')).filename,
-    ).toEqual(toUnixPath(path.posix.join(baseDir, 'moduleA', 'submoduleB', 'package.json')));
-    expect(getNearestPackageJson(path.posix.join(baseDir, 'moduleB', 'index.js')).filename).toEqual(
-      toUnixPath(path.posix.join(baseDir, 'moduleB', 'package.json')),
+
+    const moduleAsubmoduleBPJList = getNearestPackageJsons(
+      path.posix.join(baseDir, 'moduleA', 'submoduleB', 'index.js'),
     );
-    expect(
-      getNearestPackageJson(path.posix.join(baseDir, 'moduleB', 'submoduleA', 'index.js')).filename,
-    ).toEqual(toUnixPath(path.posix.join(baseDir, 'moduleB', 'submoduleA', 'package.json')));
-    expect(
-      getNearestPackageJson(path.posix.join(baseDir, 'moduleB', 'submoduleB', 'index.js')).filename,
-    ).toEqual(toUnixPath(path.posix.join(baseDir, 'moduleB', 'submoduleB', 'package.json')));
-    expect(
-      getNearestPackageJson(
-        path.posix.join(
-          __dirname,
-          'fixtures',
-          'moduleB',
-          'submoduleB',
-          'subfolder1',
-          'subfolder2',
-          'subfolder3',
-          'index.js',
-        ),
-      ).filename,
-    ).toEqual(toUnixPath(path.posix.join(baseDir, 'moduleB', 'submoduleB', 'package.json')));
+    const moduleAsubmoduleBPJ = toUnixPath(
+      path.posix.join(baseDir, 'moduleA', 'submoduleB', 'package.json'),
+    );
+
+    const moduleBPJList = getNearestPackageJsons(path.posix.join(baseDir, 'moduleB', 'index.js'));
+    const moduleBPJ = toUnixPath(path.posix.join(baseDir, 'moduleB', 'package.json'));
+
+    const moduleBsubmoduleAPJList = getNearestPackageJsons(
+      path.posix.join(baseDir, 'moduleB', 'submoduleA', 'index.js'),
+    );
+    const moduleBsubmoduleAPJ = toUnixPath(
+      path.posix.join(baseDir, 'moduleB', 'submoduleA', 'package.json'),
+    );
+
+    const moduleBsubmoduleBPJList = getNearestPackageJsons(
+      path.posix.join(baseDir, 'moduleB', 'submoduleB', 'index.js'),
+    );
+    const moduleBsubmoduleBPJ = toUnixPath(
+      path.posix.join(baseDir, 'moduleB', 'submoduleB', 'package.json'),
+    );
+
+    expect(basePJList).toHaveLength(1);
+    expect(basePJList[0].filename).toEqual(basePJ);
+    expect(moduleAPJList).toHaveLength(2);
+    expect(moduleAPJList[0].filename).toEqual(toUnixPath(moduleAPJ));
+    expect(moduleAsubmoduleAPJList).toHaveLength(3);
+    expect(moduleAsubmoduleAPJList[0].filename).toEqual(moduleAsubmoduleAPJ);
+    expect(moduleAsubmoduleBPJList).toHaveLength(3);
+    expect(moduleAsubmoduleBPJList[0].filename).toEqual(moduleAsubmoduleBPJ);
+    expect(moduleBPJList).toHaveLength(2);
+    expect(moduleBPJList[0].filename).toEqual(toUnixPath(moduleBPJ));
+    expect(moduleBsubmoduleAPJList).toHaveLength(3);
+    expect(moduleBsubmoduleAPJList[0].filename).toEqual(moduleBsubmoduleAPJ);
+    expect(moduleBsubmoduleBPJList).toHaveLength(3);
+    expect(moduleBsubmoduleBPJList[0].filename).toEqual(moduleBsubmoduleBPJ);
+
+    const fakeFilePJList = getNearestPackageJsons(
+      path.posix.join(
+        __dirname,
+        'fixtures',
+        'moduleB',
+        'submoduleB',
+        'subfolder1',
+        'subfolder2',
+        'subfolder3',
+        'index.js',
+      ),
+    );
+    expect(fakeFilePJList).toHaveLength(3);
+    expect(fakeFilePJList[0].filename).toEqual(moduleBsubmoduleBPJ);
   });
 
   it('should ignore package.json files from ignored patterns', async () => {
@@ -108,19 +138,19 @@ describe('initialize package.json files', () => {
     );
   });
 
-  it('should return null when no package.json are in the DB or none exist in the file tree', async () => {
+  it('should return empty array when no package.json are in the DB or none exist in the file tree', async () => {
     const baseDir = path.posix.join(toUnixPath(__dirname), 'fixtures');
 
     expect(getAllPackageJsons().size).toEqual(0);
     expect(
-      getNearestPackageJson(path.posix.join(baseDir, '..', 'another-module', 'index.js')),
-    ).toBeNull();
+      getNearestPackageJsons(path.posix.join(baseDir, '..', 'another-module', 'index.js')),
+    ).toHaveLength(0);
 
     await searchPackageJsonFiles(baseDir, ['']);
     expect(getAllPackageJsons().size).toEqual(7);
     expect(
-      getNearestPackageJson(path.posix.join(baseDir, '..', 'another-module', 'index.js')),
-    ).toBeNull();
+      getNearestPackageJsons(path.posix.join(baseDir, '..', 'another-module', 'index.js')),
+    ).toHaveLength(0);
   });
 
   it('should log error when cannot access baseDir', async () => {
