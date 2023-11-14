@@ -295,6 +295,7 @@ public final class CheckList {
       NoNewNativeNonconstructorCheck.class,
       NoNonNullAssertionCheck.class,
       NoNoninteractiveElementToInteractiveRoleCheck.class,
+      NoNoninteractiveTabindexCheck.class,
       NoOctalEscapeCheck.class,
       NoOneIterationLoopCheck.class,
       NoOsCommandsFromPathCheck.class,
