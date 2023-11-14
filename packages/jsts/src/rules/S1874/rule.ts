@@ -23,6 +23,7 @@ import { Rule } from 'eslint';
 import { rule as diagnosticsRule } from './rule.diagnostics';
 import { rules } from 'eslint-plugin-react';
 import { mergeRules } from '../helpers';
+import { getNearestPackageJsons } from '@sonar/jsts';
 
 const reactNoDeprecated = rules['no-deprecated'];
 
@@ -35,10 +36,15 @@ export const rule: Rule.RuleModule = {
       return context.options?.[0]?.['react-version'];
     }
     function getVersionFromPackageJson() {
-      return (
-        context.parserServices?.packageJson?.dependencies?.react ||
-        context.parserServices?.packageJson?.devDependencies?.react
-      );
+      for (const { contents: packageJson } of getNearestPackageJsons(context.filename)) {
+        if (packageJson.dependencies?.react) {
+          return packageJson.dependencies.react;
+        }
+        if (packageJson.devDependencies?.react) {
+          return packageJson.devDependencies.react;
+        }
+      }
+      return null;
     }
 
     const reactVersion = getVersionFromOptions() || getVersionFromPackageJson();
