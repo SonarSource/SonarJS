@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Rule } from 'eslint';
-import { debug } from '@sonar/shared/helpers';
+import { debug } from '@sonar/shared';
 
 /**
  * Extracts the schema of a rule

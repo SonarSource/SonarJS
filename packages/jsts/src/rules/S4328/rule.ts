@@ -26,7 +26,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as ts from 'typescript';
 import { RequiredParserServices } from '../helpers';
-import { toUnixPath } from '@sonar/shared/helpers';
+import { toUnixPath } from '@sonar/shared';
 import { getNearestPackageJsons } from '@sonar/jsts';
 import { PackageJson } from 'type-fest';
 

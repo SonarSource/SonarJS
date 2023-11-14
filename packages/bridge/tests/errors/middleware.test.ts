@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ErrorCode, APIError } from '@sonar/shared/errors';
+import { ErrorCode, APIError } from '@sonar/shared';
 import * as express from 'express';
 import { EMPTY_JSTS_ANALYSIS_OUTPUT, errorMiddleware } from '../../src/errors';
 

@@ -20,7 +20,7 @@
 import { buildSourceCode } from '../../src/builders';
 import { JsTsAnalysisInput } from '../../src/analysis';
 import path from 'path';
-import { JsTsLanguage, readFile } from '@sonar/shared/helpers';
+import { JsTsLanguage, readFile } from '@sonar/shared';
 
 const cases = [
   { syntax: 'ECMAScript 2015', fixture: 'es2015.js', language: 'js' },

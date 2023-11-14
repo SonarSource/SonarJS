@@ -22,7 +22,7 @@ import * as v8 from 'v8';
 import * as os from 'os';
 import fs from 'fs';
 import { constants, NodeGCPerformanceDetail, PerformanceObserver } from 'perf_hooks';
-import { debug, error, getContext, info, warn } from '@sonar/shared/helpers';
+import { debug, error, getContext, info, warn } from '@sonar/shared';
 
 const MB = 1024 * 1024;
 

@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { setContext } from '@sonar/shared/helpers';
+import { setContext } from '@sonar/shared';
 import { buildSourceCode } from '../../src';
 import path from 'path';
 import { AST } from 'vue-eslint-parser';
 import { jsTsInput } from '../tools';
-import { APIError } from '@sonar/shared/errors';
+import { APIError } from '@sonar/shared';
 describe('buildSourceCode', () => {
   beforeEach(() => {
     setContext({

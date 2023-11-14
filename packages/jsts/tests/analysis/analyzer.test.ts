@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import path from 'path';
-import { setContext, toUnixPath } from '@sonar/shared/helpers';
+import { setContext, toUnixPath } from '@sonar/shared';
 import {
   initializeLinter,
   RuleConfig,
@@ -28,7 +28,7 @@ import {
   searchPackageJsonFiles,
   getNearestPackageJsons,
 } from '../../src';
-import { APIError } from '@sonar/shared/errors';
+import { APIError } from '@sonar/shared';
 import { jsTsInput, parseJavaScriptSourceFile } from '../tools';
 import { Linter, Rule } from 'eslint';
 describe('analyzeJSTS', () => {

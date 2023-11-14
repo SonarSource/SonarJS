@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import path from 'path';
-import { readFile, setContext } from '@sonar/shared/helpers';
+import { readFile, setContext } from '@sonar/shared';
 import { buildSourceCode, JsTsAnalysisInput } from '@sonar/jsts';
 import { parseAwsFromYaml } from '../../src/aws';
 import {
@@ -26,7 +26,7 @@ import {
   EmbeddedAnalysisInput,
   EmbeddedJS,
   patchParsingErrorMessage,
-} from '@sonar/jsts/embedded';
+} from '@sonar/jsts';
 
 describe('patchSourceCode', () => {
   beforeAll(() => {

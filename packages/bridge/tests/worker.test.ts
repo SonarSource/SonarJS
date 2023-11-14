@@ -20,7 +20,7 @@
 
 import path from 'path';
 import { Worker } from 'worker_threads';
-import { ErrorCode } from '@sonar/shared/errors';
+import { ErrorCode } from '@sonar/shared';
 
 describe('worker', () => {
   let worker: Worker;

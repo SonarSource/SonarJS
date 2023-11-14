@@ -20,7 +20,7 @@
 import { Linter, SourceCode } from 'eslint';
 import { transformFixes } from '../quickfixes';
 import { Issue } from './issue';
-import { error } from '@sonar/shared/helpers';
+import { error } from '@sonar/shared';
 
 /**
  * Converts an ESLint message into a SonarQube issue

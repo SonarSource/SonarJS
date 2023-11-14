@@ -22,7 +22,7 @@ import { Position } from 'estree';
 import { getLinter, Issue, LinterWrapper } from '../../linter';
 import { buildSourceCodes, ExtendedSourceCode, LanguageParser } from '../builder';
 import { EmbeddedAnalysisInput, EmbeddedAnalysisOutput } from './analysis';
-import { debug } from '@sonar/shared/helpers';
+import { debug } from '@sonar/shared';
 import { measureDuration } from '../../monitoring';
 import { findNcloc } from '../../linter/visitors/metrics/ncloc';
 

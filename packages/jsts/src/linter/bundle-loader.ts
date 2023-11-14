@@ -25,7 +25,7 @@ import { rules as reactESLintRules } from 'eslint-plugin-react';
 import { rules as reactA11yRules } from 'eslint-plugin-jsx-a11y';
 import { rules as internalRules } from '../rules';
 import { customRules as internalCustomRules, CustomRule } from './custom-rules';
-import { debug, getContext } from '@sonar/shared/helpers';
+import { debug, getContext } from '@sonar/shared';
 
 export function loadCustomRules(linter: Linter, rules: CustomRule[] = []) {
   for (const rule of rules) {
