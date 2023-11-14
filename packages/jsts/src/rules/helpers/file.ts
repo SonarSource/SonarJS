@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Rule } from 'eslint';
-import { FileType } from '@sonar/shared/helpers';
+import { FileType } from '@sonar/shared';
 
 export function isMainCode(context: Rule.RuleContext) {
   return !isTestCode(context);

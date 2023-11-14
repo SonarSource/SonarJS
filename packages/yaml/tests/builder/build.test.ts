@@ -21,8 +21,8 @@ import * as estree from 'estree';
 import { join } from 'path';
 import { parseAwsFromYaml } from '../../src/aws';
 import { embeddedInput } from '../../../jsts/tests/tools';
-import { buildSourceCodes, composeSyntheticFilePath } from '@sonar/jsts/embedded';
-import { APIError } from '@sonar/shared/errors';
+import { buildSourceCodes, composeSyntheticFilePath } from '@sonar/jsts';
+import { APIError } from '@sonar/shared';
 
 describe('buildSourceCodes()', () => {
   const fixturesPath = join(__dirname, 'fixtures', 'build');

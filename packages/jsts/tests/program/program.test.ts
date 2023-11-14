@@ -28,7 +28,7 @@ import {
   isRoot,
   writeTSConfigFile,
 } from '../../src/program';
-import { toUnixPath } from '@sonar/shared/helpers';
+import { toUnixPath } from '@sonar/shared';
 import ts, { ModuleKind, ScriptTarget } from 'typescript';
 import fs from 'fs';
 

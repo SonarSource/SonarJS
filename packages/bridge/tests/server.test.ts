@@ -20,7 +20,7 @@
 import { start } from '../src/server';
 import { promisify } from 'util';
 import path from 'path';
-import { setContext } from '@sonar/shared/helpers';
+import { setContext } from '@sonar/shared';
 import { AddressInfo } from 'net';
 import { request } from './tools';
 import http from 'http';

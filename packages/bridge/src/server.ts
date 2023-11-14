@@ -28,7 +28,7 @@ import http from 'http';
 import path from 'path';
 import router from './router';
 import { errorMiddleware } from './errors';
-import { debug, getContext } from '@sonar/shared/helpers';
+import { debug, getContext } from '@sonar/shared';
 import { timeoutMiddleware } from './timeout';
 import { AddressInfo } from 'net';
 import { Worker, SHARE_ENV } from 'worker_threads';

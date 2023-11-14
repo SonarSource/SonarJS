@@ -17,11 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { APIError } from '@sonar/shared/errors';
+import { APIError, readFile } from '@sonar/shared';
 import { buildParserOptions, parseForESLint, parsers } from '../../src/parsers';
 import { JsTsAnalysisInput } from '../../src/analysis';
 import path from 'path';
-import { readFile } from '@sonar/shared/helpers';
 
 const parseFunctions = [
   {

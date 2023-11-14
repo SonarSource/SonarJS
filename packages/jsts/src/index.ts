@@ -24,3 +24,4 @@ export * from './linter';
 export * from './parsers';
 export * from './program';
 export * from './rules';
+export * from './embedded';
