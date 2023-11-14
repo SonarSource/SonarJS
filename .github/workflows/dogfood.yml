@@ -11,13 +11,19 @@ jobs:
     runs-on: ubuntu-latest
     name: Update dogfood branch
     steps:
-    - name: git octopus step      
-      env:
-        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-      id: dogfood
-      uses: SonarSource/gh-action_dogfood_merge@v1
-      with:
-        dogfood-branch: 'dogfood-on-peach'
-    # Use the output from the `dogfood` step
-    - name: Get the name of the dogfood branch and its HEAD SHA1
-      run: echo "The dogfood branch was ${{ steps.dogfood.outputs.dogfood-branch }} and its HEAD SHA1 was ${{ steps.dogfood.outputs.sha1 }}"
+      - name: get secrets
+        id: secrets
+        uses: SonarSource/vault-action-wrapper@v2
+        with:
+          secrets: |
+            development/github/token/{REPO_OWNER_NAME_DASH}-dogfood-merge token | dogfood_token;
+      - name: git octopus step
+        env:
+          GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).dogfood_token }}
+        id: dogfood
+        uses: SonarSource/gh-action_dogfood_merge@v1
+        with:
+          dogfood-branch: 'dogfood-on-peach'
+      # Use the output from the `dogfood` step
+      - name: Get the name of the dogfood branch and its HEAD SHA1
+        run: echo "The dogfood branch was ${{ steps.dogfood.outputs.dogfood-branch }} and its HEAD SHA1 was ${{ steps.dogfood.outputs.sha1 }}"
