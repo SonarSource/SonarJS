@@ -1,4 +1,4 @@
-/*
+/**
  * SonarQube JavaScript Plugin
  * Copyright (C) 2011-2023 SonarSource SA
  * mailto:info AT sonarsource DOT com
@@ -17,27 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.javascript.checks;
 
-import { PackageJsons } from './project-package-json';
+import org.sonar.check.Rule;
+import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.JavaScriptRule;
+import org.sonar.plugins.javascript.api.TypeScriptRule;
 
-const PackageJsonsByBaseDir = new PackageJsons();
+@JavaScriptRule
+@TypeScriptRule
+@Rule(key = "S6844")
+public class AnchorIsValidCheck implements EslintBasedCheck {
 
-function searchPackageJsonFiles(baseDir: string, exclusions: string[]) {
-  PackageJsonsByBaseDir.searchPackageJsonFiles(baseDir, exclusions);
+  @Override
+  public String eslintKey() {
+    return "anchor-is-valid";
+  }
 }
-
-function getNearestPackageJsons(file: string) {
-  return PackageJsonsByBaseDir.getPackageJsonsForFile(file);
-}
-
-function getAllPackageJsons() {
-  return PackageJsonsByBaseDir.db;
-}
-
-export {
-  searchPackageJsonFiles,
-  getNearestPackageJsons,
-  getAllPackageJsons,
-  PackageJsonsByBaseDir,
-};
-export { PackageJson } from './project-package-json';
