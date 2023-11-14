@@ -17,9 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { FileType, JsTsLanguage } from '@sonar/shared';
+import { FileType, JsTsLanguage, AnalysisInput, AnalysisOutput } from '@sonar/shared';
 import { CpdToken, Issue, Metrics, SymbolHighlight, SyntaxHighlight } from '../linter';
-import { AnalysisInput, AnalysisOutput } from '@sonar/shared';
 import { Perf } from '../monitoring';
 
 /**
