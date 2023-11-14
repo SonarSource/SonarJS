@@ -26,7 +26,9 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as ts from 'typescript';
 import { RequiredParserServices } from '../helpers';
-import { stripBOM } from '@sonar/shared/helpers';
+import { toUnixPath } from '@sonar/shared/helpers';
+import { getNearestPackageJsons } from '@sonar/jsts';
+import { PackageJson } from 'type-fest';
 
 const DefinitelyTyped = '@types/';
 
@@ -156,7 +158,7 @@ function getPackageName(name: string) {
 }
 
 function getDependencies(fileName: string) {
-  let dirname = path.dirname(fileName);
+  let dirname = path.posix.dirname(toUnixPath(fileName));
   const cached = cache.get(dirname);
   if (cached) {
     return cached;
@@ -165,34 +167,24 @@ function getDependencies(fileName: string) {
   const result = new Set<string>();
   cache.set(dirname, result);
 
-  while (true) {
+  for (const packageJson of getNearestPackageJsons(fileName)) {
+    dirname = path.posix.dirname(packageJson.filename);
     const dirCached = dirCache.get(dirname);
     if (dirCached) {
       dirCached.forEach(d => result.add(d));
     } else {
-      const packageJsonPath = path.join(path.resolve(dirname), 'package.json');
-      const dep = fs.existsSync(packageJsonPath)
-        ? getDependenciesFromPackageJson(packageJsonPath)
-        : new Set<string>();
+      const dep = getDependenciesFromPackageJson(packageJson.contents);
       dep.forEach(d => result.add(d));
       dirCache.set(dirname, dep);
-    }
-
-    const upperDir = path.dirname(dirname);
-    if (upperDir === dirname) {
-      break;
-    } else {
-      dirname = upperDir;
     }
   }
 
   return result;
 }
 
-function getDependenciesFromPackageJson(packageJsonPath: string) {
+function getDependenciesFromPackageJson(content: PackageJson) {
   const result = new Set<string>();
   try {
-    const content = JSON.parse(readFile(packageJsonPath));
     if (content.dependencies !== undefined) {
       addDependencies(result, content.dependencies);
     }
@@ -267,9 +259,4 @@ function extractPathMappingPatterns(
 
 function getBaseUrl(parserServices: RequiredParserServices): string | undefined {
   return parserServices.program?.getCompilerOptions().baseUrl;
-}
-
-function readFile(filePath: string) {
-  const fileContent = fs.readFileSync(filePath, { encoding: 'utf8' });
-  return stripBOM(fileContent);
 }
