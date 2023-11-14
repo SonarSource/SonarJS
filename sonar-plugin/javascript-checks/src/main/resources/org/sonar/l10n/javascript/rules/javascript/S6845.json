@@ -1,0 +1,29 @@
+{
+  "title": "Non interactive DOM elements should not have the `tabIndex` property",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "accessibility",
+    "react"
+  ],
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-6845",
+  "sqKey": "S6845",
+  "scope": "All",
+  "quickfix": "targeted",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "LOW",
+      "RELIABILITY": "MEDIUM"
+    },
+    "attribute": "CONVENTIONAL"
+  },
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]
+}
