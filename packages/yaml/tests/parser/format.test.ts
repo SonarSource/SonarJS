@@ -19,7 +19,7 @@
  */
 import * as yaml from 'yaml';
 import path from 'path';
-import { readFile } from '@sonar/shared/helpers';
+import { readFile } from '@sonar/shared';
 import { isSupportedFormat, SUPPORTED_STRING_FORMATS } from '../../src/parser';
 
 describe('isSupportedFormat', () => {

@@ -1,4 +1,4 @@
-/*
+/**
  * SonarQube JavaScript Plugin
  * Copyright (C) 2011-2023 SonarSource SA
  * mailto:info AT sonarsource DOT com
@@ -17,18 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { join } from 'path';
-import { parseHTML } from '../../src/parser';
-import { embeddedInput } from '../../../jsts/tests/tools';
-import { buildSourceCodes } from '@sonar/jsts';
+package org.sonar.javascript.checks;
 
-describe('buildSourceCodes()', () => {
-  const fixturesPath = join(__dirname, 'fixtures');
-  it('should build source codes from an HTML file', async () => {
-    const filePath = join(fixturesPath, 'multiple.html');
-    const sourceCodes = buildSourceCodes(await embeddedInput({ filePath }), parseHTML);
-    expect(sourceCodes).toHaveLength(2);
-    expect(sourceCodes[0].ast.loc.start).toEqual({ line: 4, column: 8 });
-    expect(sourceCodes[1].ast.loc.start).toEqual({ line: 8, column: 8 });
-  });
-});
+import org.sonar.check.Rule;
+import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.JavaScriptRule;
+import org.sonar.plugins.javascript.api.TypeScriptRule;
+
+@JavaScriptRule
+@TypeScriptRule
+@Rule(key = "S6846")
+public class NoAccessKeyCheck implements EslintBasedCheck {
+
+  @Override
+  public String eslintKey() {
+    return "no-access-key";
+  }
+}

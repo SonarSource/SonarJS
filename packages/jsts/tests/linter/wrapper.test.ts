@@ -19,7 +19,7 @@
  */
 import fs from 'fs';
 import path from 'path';
-import { JsTsLanguage, setContext } from '@sonar/shared/helpers';
+import { JsTsLanguage, setContext } from '@sonar/shared';
 import { CustomRule, LinterWrapper, quickFixRules, RuleConfig } from '../../src';
 import { parseJavaScriptSourceFile, parseTypeScriptSourceFile } from '../tools';
 

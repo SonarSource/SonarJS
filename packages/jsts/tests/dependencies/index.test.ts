@@ -19,7 +19,7 @@
  */
 
 import path from 'path';
-import { toUnixPath } from '@sonar/shared/helpers';
+import { toUnixPath } from '@sonar/shared';
 import {
   searchPackageJsonFiles,
   getAllPackageJsons,
