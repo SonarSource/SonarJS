@@ -20,10 +20,13 @@
 import { RuleTester } from 'eslint';
 import { rule } from './';
 import path from 'path';
-import { searchPackageJsonFiles } from '@sonar/jsts';
+import { getAllPackageJsons, searchPackageJsonFiles } from '@sonar/jsts';
+
+//reset and search package.json files in rule dir
+getAllPackageJsons().clear();
+searchPackageJsonFiles(__dirname, []);
 
 const fixtures = path.join(__dirname, 'fixtures');
-searchPackageJsonFiles(__dirname, []);
 const filename = path.join(fixtures, 'package-json-project/file.js');
 const options = [];
 const tsParserPath = require.resolve('@typescript-eslint/parser');
