@@ -1,0 +1,111 @@
+{
+"desktop:app/src/ui/app-menu/app-menu.tsx": [
+320
+],
+"desktop:app/src/ui/app-menu/menu-pane.tsx": [
+268
+],
+"desktop:app/src/ui/banners/banner.tsx": [
+32
+],
+"desktop:app/src/ui/branches/branch-list-item.tsx": [
+134
+],
+"desktop:app/src/ui/branches/branches-container.tsx": [
+261
+],
+"desktop:app/src/ui/branches/pull-request-badge.tsx": [
+81
+],
+"desktop:app/src/ui/branches/pull-request-list-item.tsx": [
+129
+],
+"desktop:app/src/ui/changes/changed-file.tsx": [
+58
+],
+"desktop:app/src/ui/changes/changes-list.tsx": [
+903
+],
+"desktop:app/src/ui/changes/commit-message-avatar.tsx": [
+74
+],
+"desktop:app/src/ui/changes/commit-warning.tsx": [
+37
+],
+"desktop:app/src/ui/check-runs/ci-check-run-actions-job-step-item.tsx": [
+62
+],
+"desktop:app/src/ui/check-runs/ci-check-run-list-item.tsx": [
+152,
+191,
+209,
+214
+],
+"desktop:app/src/ui/diff/side-by-side-diff-row.tsx": [
+200,
+215,
+234,
+249,
+271,
+279,
+323,
+372,
+388,
+429,
+465
+],
+"desktop:app/src/ui/diff/side-by-side-diff.tsx": [
+280
+],
+"desktop:app/src/ui/history/commit-list-item.tsx": [
+158
+],
+"desktop:app/src/ui/history/commit-summary.tsx": [
+222
+],
+"desktop:app/src/ui/history/committed-file-item.tsx": [
+39
+],
+"desktop:app/src/ui/lib/draggable.tsx": [
+177
+],
+"desktop:app/src/ui/lib/focus-container.tsx": [
+103
+],
+"desktop:app/src/ui/lib/list/list-item-insertion-overlay.tsx": [
+108,
+127
+],
+"desktop:app/src/ui/lib/list/list-row.tsx": [
+96
+],
+"desktop:app/src/ui/lib/list/list.tsx": [
+880
+],
+"desktop:app/src/ui/preferences/custom-theme-selector.tsx": [
+157
+],
+"desktop:app/src/ui/pull-request-quick-view.tsx": [
+222
+],
+"desktop:app/src/ui/repositories-list/repository-list-item.tsx": [
+89
+],
+"desktop:app/src/ui/resizable/resizable.tsx": [
+89
+],
+"desktop:app/src/ui/thank-you/thank-you.tsx": [
+110
+],
+"desktop:app/src/ui/toolbar/button.tsx": [
+199
+],
+"desktop:app/src/ui/toolbar/dropdown.tsx": [
+337,
+342,
+378
+],
+"desktop:app/src/ui/window/title-bar.tsx": [
+114
+]
+}
