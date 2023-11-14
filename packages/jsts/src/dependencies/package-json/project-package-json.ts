@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import fs from 'fs/promises';
+import fs from 'fs';
 import path from 'path';
-import { toUnixPath, debug, error, readFile } from '@sonar/shared/helpers';
+import { toUnixPath, debug, error, readFileSync } from '@sonar/shared/helpers';
 import { PackageJson as PJ } from 'type-fest';
 import { Minimatch } from 'minimatch';
 
@@ -48,25 +48,25 @@ export class PackageJsons {
       const patterns = exclusions
         .concat(IGNORED_PATTERNS)
         .map(exclusion => new Minimatch(exclusion));
-      await this.walkDirectory(path.posix.normalize(toUnixPath(dir)), patterns);
+      this.walkDirectory(path.posix.normalize(toUnixPath(dir)), patterns);
     } catch (e) {
       error(`Error while searching for package.json files: ${e}`);
     }
   }
 
-  async walkDirectory(dir: string, ignoredPatterns: Minimatch[]) {
-    const files = await fs.readdir(dir, { withFileTypes: true });
+  walkDirectory(dir: string, ignoredPatterns: Minimatch[]) {
+    const files = fs.readdirSync(dir, { withFileTypes: true });
     for (const file of files) {
       const filename = path.posix.join(dir, file.name);
       if (ignoredPatterns.some(pattern => pattern.match(filename))) {
         continue; // is ignored pattern
       }
       if (file.isDirectory()) {
-        await this.walkDirectory(filename, ignoredPatterns);
+        this.walkDirectory(filename, ignoredPatterns);
       } else if (file.name.toLowerCase() === PACKAGE_JSON && !file.isDirectory()) {
         try {
           debug(`Found package.json: ${filename}`);
-          const contents = JSON.parse(await readFile(filename));
+          const contents = JSON.parse(readFileSync(filename));
           this.db.set(dir, { filename, contents });
         } catch (e) {
           debug(`Error reading file ${filename}: ${e}`);
