@@ -26,6 +26,7 @@ import {
   JsTsAnalysisOutput,
   createAndSaveProgram,
   searchPackageJsonFiles,
+  getNearestPackageJsons,
 } from '../../src';
 import { APIError } from '@sonar/shared/errors';
 import { jsTsInput, parseJavaScriptSourceFile } from '../tools';
@@ -898,15 +899,16 @@ describe('analyzeJSTS', () => {
 
   it('package.json should be available in rule context', async () => {
     const baseDir = path.join(__dirname, 'fixtures', 'package-json');
-    await searchPackageJsonFiles(baseDir, []);
+    searchPackageJsonFiles(baseDir, []);
 
     const linter = new Linter();
     linter.defineRule('custom-rule-file', {
       create(context) {
         return {
           CallExpression(node) {
-            expect(context.parserServices.packageJson).toBeDefined();
-            expect(context.parserServices.packageJson.name).toEqual('test-module');
+            const packageJsons = getNearestPackageJsons(context.filename);
+            expect(packageJsons).toBeDefined();
+            expect(packageJsons[0].contents.name).toEqual('test-module');
             context.report({
               node: node.callee,
               message: 'call',
@@ -918,8 +920,6 @@ describe('analyzeJSTS', () => {
 
     const filePath = path.join(baseDir, 'custom.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
-    expect(sourceCode.parserServices.packageJson).toBeDefined();
-    expect(sourceCode.parserServices.packageJson.name).toEqual('test-module');
 
     const issues = linter.verify(
       sourceCode,
@@ -931,8 +931,6 @@ describe('analyzeJSTS', () => {
 
     const vueFilePath = path.join(baseDir, 'code.vue');
     const vueSourceCode = await parseJavaScriptSourceFile(vueFilePath);
-    expect(vueSourceCode.parserServices.packageJson).toBeDefined();
-    expect(vueSourceCode.parserServices.packageJson.name).toEqual('test-module');
 
     const vueIssues = linter.verify(
       vueSourceCode,
