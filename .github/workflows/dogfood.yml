@@ -10,6 +10,8 @@ jobs:
   dogfood_merge:
     runs-on: ubuntu-latest
     name: Update dogfood branch
+    permissions:
+      id-token: write # required for SonarSource/vault-action-wrapper
     steps:
       - name: get secrets
         id: secrets
