@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "react": "19.0"
+  },
+  "devDependencies": {
+    "react": "15.0"
+  }
+}
