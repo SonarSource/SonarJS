@@ -300,6 +300,7 @@ public final class CheckList {
       NoNewNativeNonconstructorCheck.class,
       NoNonNullAssertionCheck.class,
       NoNoninteractiveElementToInteractiveRoleCheck.class,
+      NoNonInteractiveElementsWithHandlersCheck.class,
       NoNoninteractiveTabindexCheck.class,
       NoOctalEscapeCheck.class,
       NoOneIterationLoopCheck.class,

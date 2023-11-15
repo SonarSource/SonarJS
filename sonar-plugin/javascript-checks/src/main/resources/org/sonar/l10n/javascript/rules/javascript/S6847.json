@@ -1,0 +1,30 @@
+{
+  "title": "Non-interactive elements shouldn\u0027t have event handlers",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "accessibility",
+    "react"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6847",
+  "sqKey": "S6847",
+  "scope": "All",
+  "quickfix": "infeasible",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "LOW",
+      "RELIABILITY": "LOW",
+      "SECURITY": "LOW"
+    },
+    "attribute": "CONVENTIONAL"
+  },
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]
+}
