@@ -59,6 +59,7 @@ public final class CheckList {
       AdjacentOverloadSignaturesCheck.class,
       AlertUseCheck.class,
       AlphabeticalSortCheck.class,
+      AltTextCheck.class,
       AlwaysUseCurlyBracesCheck.class,
       AnchorHasContentCheck.class,
       AnchorIsValidCheck.class,
