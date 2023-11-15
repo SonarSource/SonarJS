@@ -101,6 +101,7 @@ import { rule as S1527 } from './S1527'; // future-reserved-words
 import { rule as S3531 } from './S3531'; // generator-without-yield
 import { rule as S4790 } from './S4790'; // hashing
 import { rule as S5691 } from './S5691'; // hidden-files
+import { rule as S6849 } from './S6849'; // html-has-lang
 import { rule as S3785 } from './S3785'; // in-operator-type-error
 import { rule as S3686 } from './S3686'; // inconsistent-function-call
 import { rule as S2692 } from './S2692'; // index-of-compare-to-positive-number
@@ -110,7 +111,6 @@ import { rule as S3415 } from './S3415'; // inverted-assertion-arguments
 import { rule as S6477 } from './S6477'; // jsx-key
 import { rule as S6481 } from './S6481'; // jsx-no-constructed-context-values
 import { rule as S6749 } from './S6749'; // jsx-no-useless-fragment
-import { rule as S6788 } from './S6788'; // no-find-dom-node
 import { rule as S1439 } from './S1439'; // label-position
 import { rule as S5148 } from './S5148'; // link-with-target-blank
 import { rule as S4622 } from './S4622'; // max-union-size
@@ -144,6 +144,7 @@ import { rule as S888 } from './S888'; // no-equals-in-for-termination
 import { rule as S6426 } from './S6426'; // no-exclusive-tests
 import { rule as S6643 } from './S6643'; // no-extend-native
 import { rule as S1116 } from './S1116'; // no-extra-semi
+import { rule as S6788 } from './S6788'; // no-find-dom-node
 import { rule as S4139 } from './S4139'; // no-for-in-iterable
 import { rule as S1530 } from './S1530'; // no-function-declaration-in-block
 import { rule as S2990 } from './S2990'; // no-global-this
@@ -381,6 +382,7 @@ rules['future-reserved-words'] = S1527;
 rules['generator-without-yield'] = S3531;
 rules['hashing'] = S4790;
 rules['hidden-files'] = S5691;
+rules['html-has-lang'] = S6849;
 rules['in-operator-type-error'] = S3785;
 rules['inconsistent-function-call'] = S3686;
 rules['index-of-compare-to-positive-number'] = S2692;
@@ -390,7 +392,6 @@ rules['inverted-assertion-arguments'] = S3415;
 rules['jsx-key'] = S6477;
 rules['jsx-no-constructed-context-values'] = S6481;
 rules['jsx-no-useless-fragment'] = S6749;
-rules['no-find-dom-node'] = S6788;
 rules['label-position'] = S1439;
 rules['link-with-target-blank'] = S5148;
 rules['max-union-size'] = S4622;
@@ -424,6 +425,7 @@ rules['no-equals-in-for-termination'] = S888;
 rules['no-exclusive-tests'] = S6426;
 rules['no-extend-native'] = S6643;
 rules['no-extra-semi'] = S1116;
+rules['no-find-dom-node'] = S6788;
 rules['no-for-in-iterable'] = S4139;
 rules['no-function-declaration-in-block'] = S1530;
 rules['no-global-this'] = S2990;

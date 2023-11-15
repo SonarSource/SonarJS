@@ -190,6 +190,7 @@ public final class CheckList {
       HashingCheck.class,
       HiddenFilesCheck.class,
       HookUseStateCheck.class,
+      HtmlHasLangCheck.class,
       IdenticalExpressionOnBinaryOperatorCheck.class,
       IdenticalFunctionsCheck.class,
       IgnoredReturnCheck.class,
