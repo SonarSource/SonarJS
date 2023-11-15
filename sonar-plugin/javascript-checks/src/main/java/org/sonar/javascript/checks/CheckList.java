@@ -188,6 +188,7 @@ public final class CheckList {
       GratuitousConditionCheck.class,
       HardcodedCredentialsCheck.class,
       HashingCheck.class,
+      HeadingHasContentCheck.class,
       HiddenFilesCheck.class,
       HookUseStateCheck.class,
       HtmlHasLangCheck.class,
