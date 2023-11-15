@@ -6,7 +6,7 @@ module.exports = {
   moduleNameMapper: {
     '^@sonar/(\\w+)(.*)$': '<rootDir>/packages/$1/src$2',
   },
-  modulePathIgnorePatterns: ['<rootDir>/packages/jsts/.*/package.json$'],
+  modulePathIgnorePatterns: ['<rootDir>/packages/jsts/src/rules/.*/package.json$'],
   testResultsProcessor: 'jest-sonar-reporter',
   transform: {
     '^.+\\.ts$': ['ts-jest', { tsconfig: 'packages/tsconfig.test.json' }],
