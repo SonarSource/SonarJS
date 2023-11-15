@@ -1,8 +1,11 @@
 ﻿{
-  "name": "react19-app",
+  "name": "no-react-app2",
   "version": "1.0.0",
   "author": "Your Name <email@example.com>",
+  "dependencies": {
+
+  },
   "devDependencies": {
-    "react": "19.0"
+
   }
 }
