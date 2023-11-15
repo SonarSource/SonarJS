@@ -1,0 +1,57 @@
+{
+"react-cloud-music:src/application/Home/index.jsx": [
+17,
+19
+],
+"react-cloud-music:src/application/Player/mini-player/index.jsx": [
+47,
+49,
+53
+],
+"react-cloud-music:src/application/Player/normal-player/index.jsx": [
+180,
+276,
+282,
+286,
+294,
+297
+],
+"react-cloud-music:src/application/Player/play-list/index.jsx": [
+155,
+156,
+201,
+212,
+231
+],
+"react-cloud-music:src/application/SongList/index.jsx": [
+69
+],
+"react-cloud-music:src/application/User/Login/LoginForm/index.jsx": [
+40,
+41
+],
+"react-cloud-music:src/application/User/Login/PhoneForm/step-one/index.jsx": [
+22
+],
+"react-cloud-music:src/application/User/Login/PhoneForm/step-two/index.jsx": [
+57
+],
+"react-cloud-music:src/baseUI/confirm/index.jsx": [
+97,
+98
+],
+"react-cloud-music:src/baseUI/header/index.jsx": [
+32
+],
+"react-cloud-music:src/baseUI/progress-bar/index.jsx": [
+104
+],
+"react-cloud-music:src/baseUI/search-box/index.jsx": [
+84,
+86
+],
+"react-cloud-music:src/layouts/HomeLayout.jsx": [
+13,
+20
+]
+}
