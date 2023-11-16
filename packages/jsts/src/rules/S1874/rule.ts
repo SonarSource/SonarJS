@@ -29,7 +29,10 @@ const reactNoDeprecated = rules['no-deprecated'];
 
 export const rule: Rule.RuleModule = {
   meta: {
-    messages: { ...reactNoDeprecated.meta!.messages, ...diagnosticsRule.meta!.messages },
+    messages: {
+      deprecated: '{{oldMethod}} is deprecated since React {{version}}{{newMethod}}',
+      ...diagnosticsRule.meta!.messages,
+    },
   },
   create(context: Rule.RuleContext) {
     function getVersionFromOptions() {
