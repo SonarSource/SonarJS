@@ -1,4 +1,5 @@
 {
+  "name": "local-dependency",
   "dependencies": {
     "top-dependency": "latest"
   }
