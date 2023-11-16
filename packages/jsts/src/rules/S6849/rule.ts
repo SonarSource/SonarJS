@@ -19,25 +19,35 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6849/javascript
 
+import { TSESTree } from '@typescript-eslint/experimental-utils';
 import { Rule } from 'eslint';
 import { rules as jsxA11yRules } from 'eslint-plugin-jsx-a11y';
-import { mergeRules } from '../helpers';
+import { interceptReport, mergeRules } from '../helpers';
 
 const langRule = jsxA11yRules['lang'];
 const htmlHasLangRule = jsxA11yRules['html-has-lang'];
+const decoratedHasLangRule = decorate(htmlHasLangRule);
+
+export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
+  return interceptReport(rule, (context, reportDescriptor) => {
+    const node = (reportDescriptor as any).node as TSESTree.JSXOpeningElement;
+    (reportDescriptor as any).node = node.name;
+    context.report(reportDescriptor);
+  });
+}
 
 export const rule: Rule.RuleModule = {
   meta: {
     hasSuggestions: true,
     messages: {
       ...langRule.meta!.messages,
-      ...htmlHasLangRule.meta!.messages,
+      ...decoratedHasLangRule.meta!.messages,
     },
   },
 
   create(context: Rule.RuleContext) {
     const langListener: Rule.RuleListener = langRule.create(context);
-    const htmlHasLangListener: Rule.RuleListener = htmlHasLangRule.create(context);
+    const htmlHasLangListener: Rule.RuleListener = decoratedHasLangRule.create(context);
 
     return mergeRules(langListener, htmlHasLangListener);
   },
