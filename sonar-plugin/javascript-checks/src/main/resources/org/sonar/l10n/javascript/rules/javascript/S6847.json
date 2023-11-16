@@ -10,16 +10,15 @@
     "accessibility",
     "react"
   ],
-  "defaultSeverity": "Major",
+  "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-6847",
   "sqKey": "S6847",
   "scope": "All",
   "quickfix": "infeasible",
   "code": {
     "impacts": {
-      "MAINTAINABILITY": "LOW",
-      "RELIABILITY": "LOW",
-      "SECURITY": "LOW"
+      "MAINTAINABILITY": "MEDIUM",
+      "RELIABILITY": "LOW"
     },
     "attribute": "CONVENTIONAL"
   },
