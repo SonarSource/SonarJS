@@ -205,6 +205,7 @@ public final class CheckList {
       IndexOfCompareToPositiveNumberCheck.class,
       InsecureCookieCheck.class,
       InsecureJwtTokenCheck.class,
+      InteractiveElementsShouldBeFocusableCheck.class,
       InstanceofInMisuseCheck.class,
       IntrusivePermissionsCheck.class,
       InvariantReturnCheck.class,
