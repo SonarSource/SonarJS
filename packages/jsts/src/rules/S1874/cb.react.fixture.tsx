@@ -2,7 +2,7 @@ import React, { PropTypes, Component } from 'react'; // Noncompliant
 //              ^^^^^^^^^
 import ReactDOM from 'react-dom';
 
-React.render(<MyComponent />, root); // Noncompliant
+React.render(<MyComponent />, root); // Noncompliant {{React.render is deprecated since React 0.14.0, use ReactDOM.render instead}}
 
 React.unmountComponentAtNode(root); // Noncompliant
 
