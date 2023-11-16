@@ -1,0 +1,72 @@
+{
+"desktop:app/src/crash/crash-app.tsx": [
+204
+],
+"desktop:app/src/ui/autocompletion/emoji-autocompletion-provider.tsx": [
+93
+],
+"desktop:app/src/ui/branches/no-branches.tsx": [
+22
+],
+"desktop:app/src/ui/branches/no-pull-requests.tsx": [
+36
+],
+"desktop:app/src/ui/changes/multiple-selection.tsx": [
+21
+],
+"desktop:app/src/ui/changes/no-changes.tsx": [
+717
+],
+"desktop:app/src/ui/check-runs/ci-check-run-popover.tsx": [
+245
+],
+"desktop:app/src/ui/check-runs/ci-check-run-rerun-dialog.tsx": [
+223
+],
+"desktop:app/src/ui/diff/image-diffs/image-container.tsx": [
+23
+],
+"desktop:app/src/ui/diff/index.tsx": [
+174,
+191
+],
+"desktop:app/src/ui/history/selected-commit.tsx": [
+303,
+428
+],
+"desktop:app/src/ui/no-repositories/no-repositories-view.tsx": [
+142,
+146
+],
+"desktop:app/src/ui/notifications/pull-request-checks-failed.tsx": [
+224,
+241
+],
+"desktop:app/src/ui/release-notes/release-notes-dialog.tsx": [
+172,
+180
+],
+"desktop:app/src/ui/repositories-list/repositories-list.tsx": [
+255
+],
+"desktop:app/src/ui/thank-you/thank-you.tsx": [
+64,
+69
+],
+"desktop:app/src/ui/tutorial/done.tsx": [
+42
+],
+"desktop:app/src/ui/tutorial/tutorial-panel.tsx": [
+103
+],
+"desktop:app/src/ui/tutorial/welcome.tsx": [
+28,
+34,
+41
+],
+"desktop:app/src/ui/welcome/welcome.tsx": [
+206,
+207,
+215
+]
+}
