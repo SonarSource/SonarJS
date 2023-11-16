@@ -219,6 +219,7 @@ public final class CheckList {
       JsxNoUselessFragmentCheck.class,
       JsxPascalCaseCheck.class,
       JumpStatementInFinallyCheck.class,
+      LabelHasAssociatedControlCheck.class,
       LabelPlacementCheck.class,
       LabelledStatementCheck.class,
       LineLengthCheck.class,
