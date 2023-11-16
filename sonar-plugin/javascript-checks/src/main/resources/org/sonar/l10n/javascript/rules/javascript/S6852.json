@@ -11,8 +11,8 @@
     "react"
   ],
   "defaultSeverity": "Major",
-  "ruleSpecification": "RSPEC-6851",
-  "sqKey": "S6851",
+  "ruleSpecification": "RSPEC-6852",
+  "sqKey": "S6852",
   "scope": "All",
   "quickfix": "infeasible",
   "code": {
