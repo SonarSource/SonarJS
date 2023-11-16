@@ -452,55 +452,10 @@
 11,
 15
 ],
-"vuetify:packages/vuetify/src/components/VCalendar/VCalendar.ts": [
-40
-],
 "vuetify:packages/vuetify/src/components/VCalendar/VCalendarCategory.ts": [
 15
 ],
-"vuetify:packages/vuetify/src/components/VCalendar/VCalendarDaily.ts": [
-21
-],
-"vuetify:packages/vuetify/src/components/VCalendar/VCalendarMonthly.ts": [
-12
-],
-"vuetify:packages/vuetify/src/components/VCalendar/VCalendarWeekly.ts": [
-25
-],
-"vuetify:packages/vuetify/src/components/VCalendar/mixins/calendar-base.ts": [
-27
-],
-"vuetify:packages/vuetify/src/components/VCalendar/mixins/calendar-with-events.ts": [
-31
-],
-"vuetify:packages/vuetify/src/components/VCalendar/mixins/calendar-with-intervals.ts": [
-20
-],
-"vuetify:packages/vuetify/src/components/VCalendar/mixins/times.ts": [
-11
-],
-"vuetify:packages/vuetify/src/components/VCalendar/modes/column.ts": [
-4
-],
-"vuetify:packages/vuetify/src/components/VCalendar/modes/common.ts": [
-4
-],
-"vuetify:packages/vuetify/src/components/VCalendar/modes/index.ts": [
-4
-],
-"vuetify:packages/vuetify/src/components/VCalendar/modes/stack.ts": [
-4
-],
-"vuetify:packages/vuetify/src/components/VCalendar/util/events.ts": [
-11
-],
 "vuetify:packages/vuetify/src/components/VCalendar/util/parser.ts": [
-4
-],
-"vuetify:packages/vuetify/src/components/VCalendar/util/props.ts": [
-7
-],
-"vuetify:packages/vuetify/src/components/VCalendar/util/timestamp.ts": [
 4
 ],
 "vuetify:packages/vuetify/src/components/VCard/VCard.tsx": [
@@ -679,41 +634,8 @@
 8,
 12
 ],
-"vuetify:packages/vuetify/src/components/VData/VData.ts": [
-9
-],
-"vuetify:packages/vuetify/src/components/VDataIterator/VDataFooter.ts": [
-13
-],
-"vuetify:packages/vuetify/src/components/VDataIterator/VDataIterator.ts": [
-20
-],
-"vuetify:packages/vuetify/src/components/VDatePicker/VDatePicker.ts": [
-34
-],
-"vuetify:packages/vuetify/src/components/VDatePicker/VDatePickerDateTable.ts": [
-15
-],
-"vuetify:packages/vuetify/src/components/VDatePicker/VDatePickerHeader.ts": [
-21
-],
-"vuetify:packages/vuetify/src/components/VDatePicker/VDatePickerMonthTable.ts": [
-13
-],
-"vuetify:packages/vuetify/src/components/VDatePicker/VDatePickerYears.ts": [
-20
-],
-"vuetify:packages/vuetify/src/components/VDatePicker/mixins/date-picker-table.ts": [
-27
-],
 "vuetify:packages/vuetify/src/components/VDatePicker/util/__tests__/sanitizeDateString.spec.ts": [
 1
-],
-"vuetify:packages/vuetify/src/components/VDatePicker/util/createNativeLocaleFormatter.ts": [
-5
-],
-"vuetify:packages/vuetify/src/components/VDatePicker/util/isDateAllowed.ts": [
-4
 ],
 "vuetify:packages/vuetify/src/components/VDefaultsProvider/VDefaultsProvider.tsx": [
 2,
@@ -1519,12 +1441,6 @@
 18,
 19
 ],
-"vuetify:packages/vuetify/src/components/VTreeview/VTreeview.ts": [
-10
-],
-"vuetify:packages/vuetify/src/components/VTreeview/util/filterTreeItems.ts": [
-5
-],
 "vuetify:packages/vuetify/src/components/VValidation/VValidation.tsx": [
 2,
 5
@@ -1991,12 +1907,7 @@
 7
 ],
 "vuetify:packages/vuetify/src/services/goto/__tests__/goto.spec.ts": [
-6,
-16
-],
-"vuetify:packages/vuetify/src/services/goto/index.ts": [
-15,
-17
+6
 ],
 "vuetify:packages/vuetify/src/util/__tests__/colorUtils.spec.ts": [
 1
