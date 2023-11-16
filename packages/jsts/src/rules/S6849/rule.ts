@@ -29,14 +29,9 @@ const htmlHasLangRule = jsxA11yRules['html-has-lang'];
 const decoratedHasLangRule = decorate(htmlHasLangRule);
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
-  rule.meta!.hasSuggestions = true;
   return interceptReport(rule, (context, reportDescriptor) => {
-    const node = (reportDescriptor as any).node as TSESTree.Node;
-    if (node.type === 'JSXOpeningElement') {
-      (reportDescriptor as any).node = node.name;
-    }
-
-    console.log(require('util').inspect(node, { depth: 3 }));
+    const node = (reportDescriptor as any).node as TSESTree.JSXOpeningElement;
+    (reportDescriptor as any).node = node.name;
     context.report(reportDescriptor);
   });
 }
