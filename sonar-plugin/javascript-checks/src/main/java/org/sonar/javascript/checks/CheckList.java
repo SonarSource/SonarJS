@@ -195,6 +195,7 @@ public final class CheckList {
       IdenticalExpressionOnBinaryOperatorCheck.class,
       IdenticalFunctionsCheck.class,
       IgnoredReturnCheck.class,
+      ImgRedundantAltCheck.class,
       ImmediatelyReturnedVariableCheck.class,
       ImplicitDependenciesCheck.class,
       InOperatorTypeErrorCheck.class,
