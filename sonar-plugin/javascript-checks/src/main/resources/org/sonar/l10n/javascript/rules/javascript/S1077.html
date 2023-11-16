@@ -1,68 +1,90 @@
 <h2>Why is this an issue?</h2>
-<p>Header elements are represented by the tags <code>&lt;h1&gt;</code> through <code>&lt;h6&gt;</code>, with <code>&lt;h1&gt;</code> being the highest
-level and <code>&lt;h6&gt;</code> being the lowest. These elements are used to structure the content of the page and create a hierarchical outline
-that can be followed by users and search engines alike.</p>
-<p>In the context of accessibility, header elements play a crucial role. They provide a way for users, especially those using assistive technologies
-like screen readers, to navigate through the content of a webpage. By reading out the headers, screen readers can give users an overview of the
-content and allow them to jump to the section they’re interested in.</p>
-<p>If a header element is empty, it can lead to confusion as it doesn’t provide any information about the content that follows. This can make
-navigation difficult for users relying on screen readers, resulting in a poor user experience and making the website less accessible for people with
-visual impairments.</p>
-<p>Therefore, to ensure your website is accessible to all users, it’s important to always include meaningful content in your header elements.</p>
-<h2>How to fix it</h2>
-<p>Do not leave empty your header elements.</p>
-<h3>Code examples</h3>
-<h4>Noncompliant code example</h4>
-<pre data-diff-id="1" data-diff-type="noncompliant">
-function JavaScript101() {
-    return (
-        &lt;&gt;
-            &lt;h1&gt;JavaScript Programming Guide&lt;/h1&gt;
-            &lt;p&gt;An introduction to JavaScript programming and its applications.&lt;/p&gt;
-
-            &lt;h2&gt;JavaScript Basics&lt;/h2&gt;
-            &lt;p&gt;Understanding the basic concepts in JavaScript programming.&lt;/p&gt;
-
-            &lt;h3&gt;Variables&lt;/h3&gt;
-            &lt;p&gt;Explanation of what variables are and how to declare them in JavaScript.&lt;/p&gt;
-
-            &lt;h3 aria-hidden&gt;Data Types&lt;/h3&gt; // Noncompliant
-            &lt;p&gt;Overview of the different data types in JavaScript.&lt;/p&gt;
-
-            &lt;h3 /&gt; // Noncompliant
-            &lt;p&gt;Understanding how to declare and use functions in JavaScript.&lt;/p&gt;
-        &lt;/&gt;
-    );
-}
-</pre>
-<h4>Compliant solution</h4>
-<pre data-diff-id="1" data-diff-type="compliant">
-function JavaScript101() {
-    return (
-        &lt;&gt;
-            &lt;h1&gt;JavaScript Programming Guide&lt;/h1&gt;
-            &lt;p&gt;An introduction to JavaScript programming and its applications.&lt;/p&gt;
-
-            &lt;h2&gt;JavaScript Basics&lt;/h2&gt;
-            &lt;p&gt;Understanding the basic concepts in JavaScript programming.&lt;/p&gt;
-
-            &lt;h3&gt;Variables&lt;/h3&gt;
-            &lt;p&gt;Explanation of what variables are and how to declare them in JavaScript.&lt;/p&gt;
-
-            &lt;h3&gt;Data Types&lt;/h3&gt;
-            &lt;p&gt;Overview of the different data types in JavaScript.&lt;/p&gt;
-
-            &lt;h3&gt;Functions&lt;/h3&gt;
-            &lt;p&gt;Understanding how to declare and use functions in JavaScript.&lt;/p&gt;
-        &lt;/&gt;
-    );
-}
-</pre>
-<h2>Resources</h2>
-<h3>Documentation</h3>
+<p>The <code>alt</code>, <code>aria-label</code> and <code>aria-labelledby</code> attributes provide a textual alternative to an image.</p>
+<p>It is used whenever the actual image cannot be rendered.</p>
+<p>Common reasons for that include:</p>
 <ul>
-  <li> MDN web docs - <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/Heading_Elements">Heading elements</a> </li>
-  <li> MDN web docs - <a href="https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Attributes/aria-hidden">aria-hidden</a> </li>
-  <li> WCAG - <a href="https://www.w3.org/TR/UNDERSTANDING-WCAG20/navigation-mechanisms-descriptive.html">Headings and Labels</a> </li>
+  <li> The image can no longer be found </li>
+  <li> Visually impaired users using a screen reader software </li>
+  <li> Image loading is disabled, to reduce data consumption on mobile phones </li>
+</ul>
+<p>It is also very important to not set an alternative text attribute to a non-informative value. For example <code>&lt;img ... alt="logo"&gt;</code>
+is useless as it doesn’t give any information to the user. In this case, as for any other decorative image, it is better to use a CSS background image
+instead of an <code>&lt;img&gt;</code> tag. If using CSS background-image is not possible, an empty <code>alt=""</code> is tolerated. See Exceptions
+below.</p>
+<p>This rule raises an issue when:</p>
+<ul>
+  <li> An <code>&lt;img&gt;</code> element has no <code>alt</code> attribute. </li>
+  <li> An <code>&lt;input type="image"&gt;</code> element has no <code>alt</code>, <code>aria-label</code> or <code>aria-labelledby</code> attribute
+  or they hold an empty string. </li>
+  <li> An <code>&lt;area&gt;</code> element within an image map has no <code>alt</code>, <code>aria-label</code> or <code>aria-labelledby</code>
+  attribute. </li>
+  <li> An <code>&lt;object&gt;</code> element has no inner text, or <code>title</code>, <code>aria-label</code> or <code>aria-labelledby</code>
+  attribute </li>
+</ul>
+<h3>Noncompliant code example</h3>
+<pre>
+&lt;img src="foo.png" /&gt; &lt;!-- missing `alt` attribute --&gt;
+&lt;input type="image" src="bar.png" /&gt; &lt;!-- missing alternative text attribute --&gt;
+&lt;input type="image" src="bar.png" alt="" /&gt; &lt;!-- empty alternative text attribute on &lt;input&gt; --&gt;
+
+&lt;img src="house.gif" usemap="#map1"
+    alt="rooms of the house." /&gt;
+&lt;map id="map1" name="map1"&gt;
+  &lt;area shape="rect" coords="0,0,42,42"
+    href="bedroom.html"/&gt; &lt;!-- missing alternative text attribute on &lt;area&gt; --&gt;
+  &lt;area shape="rect" coords="0,0,21,21"
+    href="lounge.html" alt=""/&gt; &lt;!-- empty `alt` attribute on &lt;area&gt; --&gt;
+&lt;/map&gt;
+
+&lt;object {...props} /&gt;  &lt;!-- missing alternative text attribute on &lt;area&gt; --&gt;
+</pre>
+<h3>Compliant solution</h3>
+<pre>
+&lt;img src="foo.png" alt="Some textual description of foo.png" /&gt;
+&lt;input type="image" src="bar.png" aria-labelledby="Textual description of bar.png" /&gt;
+
+&lt;img src="house.gif" usemap="#map1"
+    alt="rooms of the house." /&gt;
+&lt;map id="map1" name="map1"&gt;
+  &lt;area shape="rect" coords="0,0,42,42"
+    href="bedroom.html" alt="Bedroom" /&gt;
+  &lt;area shape="rect" coords="0,0,21,21"
+    href="lounge.html" aria-label="Lounge"/&gt;
+&lt;/map&gt;
+
+&lt;object&gt;My welcoming Bar&lt;/object&gt;
+</pre>
+<h3>Exceptions</h3>
+<p><code>&lt;img&gt;</code> elements with an empty string&nbsp;<code>alt=""</code> attribute won’t raise any issue. However, this way should be used
+in two cases only:</p>
+<p>When the image is decorative and it is not possible to use a CSS background image. For example, when the decorative <code>&lt;img&gt;</code> is
+generated via javascript with a source image coming from a database, it is better to use an <code>&lt;img alt=""&gt;</code> tag rather than generate
+CSS code.</p>
+<pre>
+&lt;li *ngFor="let image of images"&gt;
+    &lt;img [src]="image" alt=""&gt;
+&lt;/li&gt;
+</pre>
+<p>When the image is not decorative but its <code>alt</code> text would repeat a nearby text. For example, images contained in links should not
+duplicate the link’s text in their <code>alt</code> attribute, as it would make the screen reader repeat the text twice.</p>
+<pre>
+&lt;a href="flowers.html"&gt;
+    &lt;img src="tulip.gif" alt="" /&gt;
+    A blooming tulip
+&lt;/a&gt;
+</pre>
+<p>In all other cases, you should use CSS background images.</p>
+<p>See&nbsp;<a href="https://www.w3.org/WAI/tutorials/images/decision-tree/">W3C WAI&nbsp;Web Accessibility Tutorials</a> for more information.</p>
+<h2>Resources</h2>
+<ul>
+  <li> <a href="https://www.w3.org/TR/WCAG20-TECHS/H24.html">WCAG2, H24</a> - Providing text alternatives for the area elements of image maps </li>
+  <li> <a href="https://www.w3.org/TR/WCAG20-TECHS/H36.html">WCAG2, H36</a> - Using alt attributes on images used as submit buttons </li>
+  <li> <a href="https://www.w3.org/TR/WCAG20-TECHS/H37.html">WCAG2, H37</a> - Using alt attributes on img elements </li>
+  <li> <a href="https://www.w3.org/TR/WCAG20-TECHS/H67.html">WCAG2, H67</a> - Using null alt text and no title attribute on img elements for images
+  that AT should ignore </li>
+  <li> <a href="https://www.w3.org/TR/WCAG20-TECHS/H2.html">WCAG2, H2</a> - Combining adjacent image and text links for the same resource </li>
+  <li> <a href="https://www.w3.org/WAI/WCAG21/quickref/?versions=2.0#qr-text-equiv-all">WCAG2, 1.1.1</a> - Non-text Content </li>
+  <li> <a href="https://www.w3.org/WAI/WCAG21/quickref/?versions=2.0#qr-navigation-mechanisms-refs">WCAG2, 2.4.4</a> - Link Purpose (In Context) </li>
+  <li> <a href="https://www.w3.org/WAI/WCAG21/quickref/?versions=2.0#qr-navigation-mechanisms-link">WCAG2, 2.4.9</a> - Link Purpose (Link Only) </li>
 </ul>
 
