@@ -184,6 +184,7 @@ function getDependencies(fileName: string) {
 
 function getDependenciesFromPackageJson(content: PackageJson) {
   const result = new Set<string>();
+  addDependencies(result, content.name);
   try {
     if (content.dependencies !== undefined) {
       addDependencies(result, content.dependencies);
