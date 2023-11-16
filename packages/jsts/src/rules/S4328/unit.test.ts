@@ -187,6 +187,7 @@ ruleTesterNestedPackage.run('all levels of package.json should be considered', r
       code: `
         import { f as f1 } from 'top-dependency';
         import { f as f2 } from 'nested-dependency';
+        import { f as f2 } from 'local-dependency';
       `,
       filename: filenameNestedPackage,
     },

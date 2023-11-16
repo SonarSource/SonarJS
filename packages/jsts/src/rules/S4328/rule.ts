@@ -184,18 +184,18 @@ function getDependencies(fileName: string) {
 
 function getDependenciesFromPackageJson(content: PackageJson) {
   const result = new Set<string>();
-  addDependencies(result, content.name);
-  try {
-    if (content.dependencies !== undefined) {
-      addDependencies(result, content.dependencies);
-    }
-    if (content.devDependencies !== undefined) {
-      addDependencies(result, content.devDependencies);
-    }
-    if (content.peerDependencies !== undefined) {
-      addDependencies(result, content.peerDependencies);
-    }
-  } catch {}
+  if (content.name) {
+    addDependencies(result, { [content.name]: '*' });
+  }
+  if (content.dependencies !== undefined) {
+    addDependencies(result, content.dependencies);
+  }
+  if (content.devDependencies !== undefined) {
+    addDependencies(result, content.devDependencies);
+  }
+  if (content.peerDependencies !== undefined) {
+    addDependencies(result, content.peerDependencies);
+  }
   return result;
 }
 
