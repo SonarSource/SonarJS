@@ -1,0 +1,29 @@
+{
+  "title": "label elements should have a text label and an associated control",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "accessibility",
+    "react"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6851",
+  "sqKey": "S6851",
+  "scope": "All",
+  "quickfix": "infeasible",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "LOW",
+      "RELIABILITY": "LOW"
+    },
+    "attribute": "CONVENTIONAL"
+  },
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]
+}
