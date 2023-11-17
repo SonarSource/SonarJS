@@ -25,7 +25,8 @@ import { interceptReport } from '../helpers';
 const anchorIsValid = jsxA11yRules['anchor-is-valid'];
 
 export const rule = interceptReport(anchorIsValid, (context, reportDescriptor) => {
-  const msg = (reportDescriptor as any)!.message;
-  (reportDescriptor as any)!.message = msg.substring(0, msg.indexOf(' Learn'));
-  context.report(reportDescriptor);
+  const descriptor = reportDescriptor as any;
+  const { message } = descriptor;
+  descriptor.message = message.substring(0, message.indexOf(' Learn'));
+  context.report(descriptor);
 });
