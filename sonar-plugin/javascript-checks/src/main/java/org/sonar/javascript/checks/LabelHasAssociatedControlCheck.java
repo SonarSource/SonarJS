@@ -26,7 +26,7 @@ import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @TypeScriptRule
 @JavaScriptRule
-@Rule(key = "S6852")
+@Rule(key = "S6853")
 public class LabelHasAssociatedControlCheck implements EslintBasedCheck {
 
   @Override
