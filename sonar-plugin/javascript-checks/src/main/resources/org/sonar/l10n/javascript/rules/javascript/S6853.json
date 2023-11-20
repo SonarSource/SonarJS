@@ -10,17 +10,16 @@
     "accessibility",
     "react"
   ],
-  "defaultSeverity": "Major",
+  "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-6853",
   "sqKey": "S6853",
   "scope": "All",
   "quickfix": "infeasible",
   "code": {
     "impacts": {
-      "MAINTAINABILITY": "LOW",
-      "RELIABILITY": "LOW"
+      "RELIABILITY": "MEDIUM"
     },
-    "attribute": "CONVENTIONAL"
+    "attribute": "LOGICAL"
   },
   "compatibleLanguages": [
     "JAVASCRIPT",
