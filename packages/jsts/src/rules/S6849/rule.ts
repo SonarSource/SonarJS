@@ -28,7 +28,7 @@ const langRule = jsxA11yRules['lang'];
 const htmlHasLangRule = jsxA11yRules['html-has-lang'];
 const decoratedHasLangRule = decorate(htmlHasLangRule);
 
-export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
+function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(rule, (context, reportDescriptor) => {
     const node = (reportDescriptor as any).node as TSESTree.JSXOpeningElement;
     (reportDescriptor as any).node = node.name;
