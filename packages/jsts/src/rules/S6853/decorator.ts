@@ -18,17 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6853/javascript
-
-import { rules } from 'eslint-plugin-jsx-a11y';
-import { interceptReport } from '../helpers';
 import { Rule } from 'eslint';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { interceptReport } from '../helpers';
 
-const labelRule = rules['label-has-associated-control'];
-
-export const rule = decorate(labelRule);
-
-function decorate(rule: Rule.RuleModule): Rule.RuleModule {
+export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(rule, (context, reportDescriptor) => {
     const node = (reportDescriptor as any).node as TSESTree.JSXOpeningElement;
     const parent = node.parent as TSESTree.JSXElement;
