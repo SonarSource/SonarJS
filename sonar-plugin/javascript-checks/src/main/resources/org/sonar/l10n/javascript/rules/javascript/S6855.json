@@ -1,0 +1,28 @@
+{
+  "title": "Media elements should have captions",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "accessibility",
+    "react"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6855",
+  "sqKey": "S6855",
+  "scope": "All",
+  "quickfix": "infeasible",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "LOW"
+    },
+    "attribute": "CONVENTIONAL"
+  },
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]
+}

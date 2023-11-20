@@ -229,6 +229,7 @@ public final class CheckList {
       MaxParameterCheck.class,
       MaxSwitchCasesCheck.class,
       MaxUnionSizeCheck.class,
+      MediaHasCaptionCheck.class,
       MisorderedParameterListCheck.class,
       MissingNewlineAtEndOfFileCheck.class,
       MissingTrailingCommaCheck.class,
