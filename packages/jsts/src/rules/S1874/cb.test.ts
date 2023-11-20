@@ -24,7 +24,7 @@ import { getAllPackageJsons, searchPackageJsonFiles } from '@sonar/jsts';
 
 const sonarId = path.basename(__dirname);
 
-describe(`Rule ${sonarId}`, () => {
+describe('Rule S1874', () => {
   beforeEach(() => {
     searchPackageJsonFiles(__dirname, []);
   });

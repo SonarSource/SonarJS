@@ -1,0 +1,24 @@
+{
+"desktop:app/src/ui/changes/commit-message.tsx": [
+753
+],
+"desktop:app/src/ui/dialog/dialog.tsx": [
+593
+],
+"desktop:app/src/ui/diff/image-diffs/image-container.tsx": [
+23
+],
+"desktop:app/src/ui/dropdown-select-button.tsx": [
+161
+],
+"desktop:app/src/ui/lib/avatar.tsx": [
+223
+],
+"desktop:app/src/ui/lib/vertical-segmented-control/vertical-segmented-control.tsx": [
+197
+],
+"desktop:app/src/ui/tutorial/tutorial-step-instruction.tsx": [
+34,
+35
+]
+}

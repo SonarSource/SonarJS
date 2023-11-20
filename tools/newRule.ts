@@ -87,7 +87,10 @@ function run() {
 
     inflateTemplate(ruleTemplatePath, path.join(ruleFolder, `rule.ts`), ruleMetadata);
 
-    fs.copyFileSync(ruleCBTestPath, path.join(ruleFolder, `cb.test.ts`));
+    fs.writeFileSync(
+      path.join(ruleFolder, `cb.test.ts`),
+      fs.readFileSync(ruleCBTestPath, 'utf8').replace('${sonarId}', rspecId),
+    );
     fs.writeFileSync(path.join(ruleFolder, `cb.fixture.ts`), '');
   }
 
