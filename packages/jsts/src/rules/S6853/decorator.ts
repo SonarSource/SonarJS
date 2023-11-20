@@ -26,7 +26,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(rule, (context, reportDescriptor) => {
     const node = (reportDescriptor as any).node as TSESTree.JSXOpeningElement;
     const parent = node.parent as TSESTree.JSXElement;
-    if (parent.children != undefined) {
+    if (parent.children !== undefined) {
       for (const child of parent.children) {
         if (child.type === 'JSXElement' && isCustomComponent(child)) {
           // we ignore the issue
