@@ -1,5 +1,5 @@
 {
-  "title": "label elements should have a text label and an associated control",
+  "title": "Label elements should have a text label and an associated control",
   "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
