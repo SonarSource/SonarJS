@@ -19,13 +19,13 @@ usability:</p>
   <li> Unlike the Windows environment that highlights keyboard shortcuts in menus, web pages or applications lack a standardized method to notify
   users about available <code>accesskey</code> shortcuts. </li>
 </ul>
-<p>Given these concerns, it is generally recommended to avoid using `accesskey`s.</p>
+<p>Given these concerns, it is generally recommended to avoid using <code>accesskey</code>s.</p>
 <pre data-diff-id="1" data-diff-type="noncompliant">
 function div() {
     return &lt;div accessKey="h" /&gt;;
 }
 </pre>
-<p>Do not use `accesskey`s at all.</p>
+<p>Do not use <code>accesskey</code>s at all.</p>
 <pre data-diff-id="1" data-diff-type="compliant">
 function div() {
     return &lt;div /&gt;;

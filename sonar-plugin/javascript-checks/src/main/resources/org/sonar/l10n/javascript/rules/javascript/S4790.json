@@ -9,8 +9,7 @@
   },
   "status": "ready",
   "tags": [
-    "cwe",
-    "spring"
+    "cwe"
   ],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-4790",
