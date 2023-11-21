@@ -20,6 +20,7 @@
     "td": "node typedoc/scripts/setup-plugins.js && ./node_modules/.bin/typedoc --options typedoc/typedoc.js",
     "prepare": "husky install",
     "precommit": "pretty-quick --staged",
+    "count-rules": "node tools/count-rules.mjs",
     "_:bridge:clear": "rimraf lib/*",
     "_:plugin:prepare-bridge": "npm pack && node tools/check-distribution-filepath-length.js && npm run _:plugin:copy-bridge",
     "_:plugin-fetch-node": "node tools/fetch-node/scripts/wrapper.mjs",
