@@ -20,6 +20,7 @@
 import { Rule } from 'eslint';
 
 import { rule as S2376 } from './S2376'; // accessor-pairs
+import { rule as S1077 } from './S1077'; // alt-text
 import { rule as S6827 } from './S6827'; // anchor-has-content
 import { rule as S6844 } from './S6844'; // anchor-is-valid
 import { rule as S5850 } from './S5850'; // anchor-precedence
@@ -303,6 +304,7 @@ import { rule as S4817 } from './S4817'; // xpath
 const rules: { [key: string]: Rule.RuleModule } = {};
 
 rules['accessor-pairs'] = S2376;
+rules['alt-text'] = S1077;
 rules['anchor-has-content'] = S6827;
 rules['anchor-is-valid'] = S6844;
 rules['anchor-precedence'] = S5850;
