@@ -113,7 +113,6 @@ import { rule as S6477 } from './S6477'; // jsx-key
 import { rule as S6481 } from './S6481'; // jsx-no-constructed-context-values
 import { rule as S6749 } from './S6749'; // jsx-no-useless-fragment
 import { rule as S6853 } from './S6853'; // label-has-associated-control
-import { rule as S6853 } from './S6853'; // label-has-associated-control
 import { rule as S1439 } from './S1439'; // label-position
 import { rule as S5148 } from './S5148'; // link-with-target-blank
 import { rule as S4622 } from './S4622'; // max-union-size
