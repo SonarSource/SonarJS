@@ -25,7 +25,7 @@ import { interceptReport } from '../helpers';
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(rule, (context, reportDescriptor) => {
-    const { node } = reportDescriptor as any as { node: TSESTree.JSXOpeningElement };
+    const { node } = reportDescriptor as unknown as { node: TSESTree.JSXOpeningElement };
     const parent = node.parent as TSESTree.JSXElement;
     if (parent.children !== undefined) {
       for (const child of parent.children) {

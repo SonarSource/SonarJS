@@ -396,7 +396,6 @@ rules['jsx-key'] = S6477;
 rules['jsx-no-constructed-context-values'] = S6481;
 rules['jsx-no-useless-fragment'] = S6749;
 rules['label-has-associated-control'] = S6853;
-rules['label-has-associated-control'] = S6853;
 rules['label-position'] = S1439;
 rules['link-with-target-blank'] = S5148;
 rules['max-union-size'] = S4622;
