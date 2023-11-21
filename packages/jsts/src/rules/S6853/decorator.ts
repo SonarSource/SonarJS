@@ -20,11 +20,12 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6853/javascript
 import { Rule } from 'eslint';
 import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { Node } from 'estree';
 import { interceptReport } from '../helpers';
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(rule, (context, reportDescriptor) => {
-    const node = (reportDescriptor as any).node as TSESTree.JSXOpeningElement;
+    const { node } = reportDescriptor as any as { node: TSESTree.JSXOpeningElement };
     const parent = node.parent as TSESTree.JSXElement;
     if (parent.children !== undefined) {
       for (const child of parent.children) {
@@ -34,7 +35,8 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
         }
       }
     }
-    context.report(reportDescriptor);
+    const name = node.name as unknown as Node;
+    context.report({ ...reportDescriptor, node: name });
   });
 }
 

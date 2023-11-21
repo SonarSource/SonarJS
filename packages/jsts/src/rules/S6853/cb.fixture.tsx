@@ -16,13 +16,14 @@ function invalid() {
     <>
       <input type="text" />
       <label>Surname </label> {/* Noncompliant */}
-{/*   ^^^^^^^*/}
+{/*    ^^^^^*/}
     </>
   );
 }
 
 function invalidEmptyLabel() {
   return <label></label>; // Noncompliant
+  //      ^^^^^
 }
 
 

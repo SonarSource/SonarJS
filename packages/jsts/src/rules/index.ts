@@ -20,8 +20,8 @@
 import { Rule } from 'eslint';
 
 import { rule as S2376 } from './S2376'; // accessor-pairs
-import { rule as S6844 } from './S6844'; // anchor-is-valid
 import { rule as S6827 } from './S6827'; // anchor-has-content
+import { rule as S6844 } from './S6844'; // anchor-is-valid
 import { rule as S5850 } from './S5850'; // anchor-precedence
 import { rule as S3782 } from './S3782'; // argument-type
 import { rule as S2234 } from './S2234'; // arguments-order
@@ -112,6 +112,7 @@ import { rule as S3415 } from './S3415'; // inverted-assertion-arguments
 import { rule as S6477 } from './S6477'; // jsx-key
 import { rule as S6481 } from './S6481'; // jsx-no-constructed-context-values
 import { rule as S6749 } from './S6749'; // jsx-no-useless-fragment
+import { rule as S6853 } from './S6853'; // label-has-associated-control
 import { rule as S6853 } from './S6853'; // label-has-associated-control
 import { rule as S1439 } from './S1439'; // label-position
 import { rule as S5148 } from './S5148'; // link-with-target-blank
@@ -303,8 +304,8 @@ import { rule as S4817 } from './S4817'; // xpath
 const rules: { [key: string]: Rule.RuleModule } = {};
 
 rules['accessor-pairs'] = S2376;
-rules['anchor-is-valid'] = S6844;
 rules['anchor-has-content'] = S6827;
+rules['anchor-is-valid'] = S6844;
 rules['anchor-precedence'] = S5850;
 rules['argument-type'] = S3782;
 rules['arguments-order'] = S2234;
@@ -395,6 +396,7 @@ rules['inverted-assertion-arguments'] = S3415;
 rules['jsx-key'] = S6477;
 rules['jsx-no-constructed-context-values'] = S6481;
 rules['jsx-no-useless-fragment'] = S6749;
+rules['label-has-associated-control'] = S6853;
 rules['label-has-associated-control'] = S6853;
 rules['label-position'] = S1439;
 rules['link-with-target-blank'] = S5148;
