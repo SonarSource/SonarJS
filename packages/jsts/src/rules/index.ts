@@ -117,6 +117,7 @@ import { rule as S6853 } from './S6853'; // label-has-associated-control
 import { rule as S1439 } from './S1439'; // label-position
 import { rule as S5148 } from './S5148'; // link-with-target-blank
 import { rule as S4622 } from './S4622'; // max-union-size
+import { rule as S6855 } from './S6855'; // media-has-caption
 import { rule as S1994 } from './S1994'; // misplaced-loop-counter
 import { rule as S1082 } from './S1082'; // mouse-events-a11y
 import { rule as S134 } from './S134'; // nested-control-flow
@@ -401,6 +402,7 @@ rules['label-has-associated-control'] = S6853;
 rules['label-position'] = S1439;
 rules['link-with-target-blank'] = S5148;
 rules['max-union-size'] = S4622;
+rules['media-has-caption'] = S6855;
 rules['misplaced-loop-counter'] = S1994;
 rules['mouse-events-a11y'] = S1082;
 rules['nested-control-flow'] = S134;
