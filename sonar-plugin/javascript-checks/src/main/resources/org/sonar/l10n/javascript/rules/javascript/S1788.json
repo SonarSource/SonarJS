@@ -5,7 +5,7 @@
     "impacts": {
       "MAINTAINABILITY": "MEDIUM"
     },
-    "attribute": "LOGICAL"
+    "attribute": "FOCUSED"
   },
   "status": "ready",
   "remediation": {
