@@ -4,9 +4,9 @@ logical tab order to navigate through the content. If the tab order doesn’t ma
 understand the page structure.</p>
 <p>Therefore, it’s recommended to avoid using positive <code>tabIndex</code> values.</p>
 <h2>How to fix it</h2>
-<p>If you need to make an element focusable that isn’t by default (like a &lt;div&gt; or &lt;span&gt;), you can use <code>tabIndex="0"</code>. This
-will add the element to the natural tab order based on its position in the HTML. Otherwise, either remove the <code>tabIndex</code> value or use a
-negative value to remove the element from the tab order.</p>
+<p>If you need to make an element focusable that isn’t by default (like a <code>&lt;div&gt;</code> or <code>&lt;span&gt;</code>), you can use
+<code>tabIndex="0"</code>. This will add the element to the natural tab order based on its position in the HTML. Otherwise, either remove the
+<code>tabIndex</code> value or use <code>tabIndex="-1"</code> to remove the element from the tab order.</p>
 <h3>Code examples</h3>
 <h4>Noncompliant code example</h4>
 <pre data-diff-id="1" data-diff-type="noncompliant">

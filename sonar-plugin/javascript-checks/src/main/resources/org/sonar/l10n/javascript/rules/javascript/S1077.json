@@ -1,6 +1,12 @@
 {
   "title": "Image, area, button with image and object elements should have an alternative text",
   "type": "CODE_SMELL",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "LOW"
+    },
+    "attribute": "COMPLETE"
+  },
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -14,14 +20,8 @@
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-1077",
   "sqKey": "S1077",
-  "scope": "All",
+  "scope": "Main",
   "quickfix": "infeasible",
-  "code": {
-    "impacts": {
-      "RELIABILITY": "LOW"
-    },
-    "attribute": "COMPLETE"
-  },
   "compatibleLanguages": [
     "JAVASCRIPT",
     "TYPESCRIPT"

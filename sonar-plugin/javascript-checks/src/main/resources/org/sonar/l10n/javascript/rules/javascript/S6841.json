@@ -1,5 +1,5 @@
 {
-  "title": "\"tabIndex\" values should be non-positive",
+  "title": "\"tabIndex\" values should be 0 or -1",
   "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
@@ -7,7 +7,8 @@
     "constantCost": "5min"
   },
   "tags": [
-    "accessibility"
+    "accessibility",
+    "react"
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-6841",

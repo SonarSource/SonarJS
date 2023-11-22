@@ -9,15 +9,15 @@ class MyComponent extends React.Component {
   componentDidMount() {
     mydatastore.subscribe(this);
   }
-  dataHandler: function() {
+  dataHandler() {
     if (this.isMounted()) { // Noncompliant: isMounted() hides the error
-        //...
+      //...
     }
   }
-  render: function() {
+  render() {
     //... calls dataHandler()
   }
-});
+};
 </pre>
 <p>Find places where <code>setState()</code> might be called after a component has unmounted, and fix them. Such situations most commonly occur due to
 callbacks, when a component is waiting for some data and gets unmounted before the data arrives. Ideally, any callbacks should be canceled in
@@ -27,7 +27,7 @@ class MyComponent extends React.Component {
   componentDidMount() {
     mydatastore.subscribe(this);
   }
-  dataHandler: function() {
+  dataHandler() {
     //...
   }
   render() {

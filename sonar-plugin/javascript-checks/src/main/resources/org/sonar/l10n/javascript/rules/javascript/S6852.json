@@ -1,5 +1,5 @@
 {
-  "title": "Elements with interactive role should support focus",
+  "title": "Elements with an interactive role should support focus",
   "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
@@ -10,7 +10,7 @@
     "accessibility",
     "react"
   ],
-  "defaultSeverity": "Major",
+  "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-6852",
   "sqKey": "S6852",
   "scope": "All",

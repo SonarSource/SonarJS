@@ -9,11 +9,11 @@ This is considered legacy code due to multiple reasons:</p>
 </ul>
 <pre data-diff-id="1" data-diff-type="noncompliant">
 const Hello = createReactClass({
-  componentDidMount: function() {
+  componentDidMount() {
     const component = this.refs.hello; // Noncompliant
     // ...
   },
-  render: function() {
+  render() {
     return &lt;div ref="hello"&gt;Hello, world.&lt;/div&gt;;
   }
 });
@@ -23,7 +23,7 @@ will call the <code>ref</code> callback with the DOM node as the argument. When 
 callback with <code>null</code>. One should return <code>undefined</code> from the <code>ref</code> callback.</p>
 <pre data-diff-id="1" data-diff-type="compliant">
 const Hello = createReactClass({
-  componentDidMount: function() {
+  componentDidMount() {
     const component = this.hello;
     // ...
   },
