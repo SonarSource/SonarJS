@@ -134,11 +134,6 @@ analyze_task:
     ARTIFACTORY_DEPLOY_ACCESS_TOKEN: VAULT[development/artifactory/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-qa-deployer access_token]
   <<: *MAVEN_CACHE
   <<: *RUNTIME_CACHE
-  sonar_cache:
-    folder: ${HOME}/.sonar/cache
-    fingerprint_script:
-      - echo ${CIRRUS_OS}
-      - curl --silent ${SONAR_HOST_URL}/deploy/plugins/index.txt | sort
   build_and_analyze_script:
     - source cirrus-env QA
     - jfrog config add repox --url $ARTIFACTORY_URL --access-token $ARTIFACTORY_DEPLOY_ACCESS_TOKEN
