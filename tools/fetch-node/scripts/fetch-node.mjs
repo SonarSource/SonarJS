@@ -20,7 +20,7 @@
 import fetch from 'node-fetch';
 import fs from 'fs-extra';
 import extract from 'extract-zip';
-import decompress from 'decompress';
+import tar from 'tar';
 import * as path from 'node:path';
 import * as stream from 'node:stream';
 import * as crypto from 'node:crypto';
@@ -164,12 +164,14 @@ async function extractFile(file, dir) {
   } else if (file.endsWith('.tar.gz')) {
     // decompress tar gz doesn't support overwrites
     deleteFolderIfExists(removeExtension(file));
-    await decompress(file, dir, {
+    await tar.x({
+      file,
+      cwd: dir,
       /**
        * There are symlinks in the unix distros that raise an exception when running this on Windows
        * So we filter them out. We only need the binary which is in {distroFullName}/bin/node
        */
-      filter: currentFile => currentFile.path.endsWith('bin/node'),
+      filter: (_path, currentFile) => currentFile.path.endsWith('bin/node'),
     });
   } else {
     throw new Error(
