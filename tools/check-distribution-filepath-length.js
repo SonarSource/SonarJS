@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-const decompress = require('decompress');
+const tar = require('tar');
 
 const PACKAGE_FILENAME = 'sonarjs-1.0.0.tgz';
 const MAX_FILEPATH = 128;
@@ -26,20 +26,21 @@ const MAX_FILEPATH = 128;
 let longestLength = 0;
 let longestFilepath = '';
 
-decompress(PACKAGE_FILENAME, 'tmp', {
-  filter: file => {
+tar.list({
+  file: PACKAGE_FILENAME,
+  sync: true,
+  onentry: file => {
     if (file.path.length > longestLength) {
       longestLength = file.path.length;
       longestFilepath = file.path;
     }
-    return false;
   },
-}).then(() => {
-  if (longestLength > MAX_FILEPATH) {
-    console.log(
-      `File length in generated ${PACKAGE_FILENAME} is longer than the accepted ${MAX_FILEPATH} characters`,
-    );
-    console.log(`File length is too long at ${longestLength} characters in ${longestFilepath}`);
-    process.exit(1);
-  }
 });
+
+if (longestLength > MAX_FILEPATH) {
+  console.log(
+    `File length in generated ${PACKAGE_FILENAME} is longer than the accepted ${MAX_FILEPATH} characters`,
+  );
+  console.log(`File length is too long at ${longestLength} characters in ${longestFilepath}`);
+  process.exitCode = 1;
+}
