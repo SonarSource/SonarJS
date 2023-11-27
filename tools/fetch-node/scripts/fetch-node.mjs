@@ -162,8 +162,6 @@ async function extractFile(file, dir) {
   if (file.endsWith('.zip')) {
     await extract(file, { dir });
   } else if (file.endsWith('.tar.gz')) {
-    // decompress tar gz doesn't support overwrites
-    deleteFolderIfExists(removeExtension(file));
     await tar.x({
       file,
       cwd: dir,
@@ -179,12 +177,6 @@ async function extractFile(file, dir) {
     );
   }
   console.log('Extracted');
-
-  function deleteFolderIfExists(dirName) {
-    if (fs.existsSync(dirName)) {
-      fs.rmSync(dirName, { recursive: true, force: true });
-    }
-  }
 }
 
 /**
