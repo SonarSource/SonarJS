@@ -300,6 +300,7 @@ public final class CheckList {
       NoMisusedPromisesCheck.class,
       NoMixedContentCheck.class,
       NoMixedEnumsCheck.class,
+      NoMutableExportsCheck.class,
       NoNestedSwitchCheck.class,
       NoNestedTemplateLiteralsCheck.class,
       NoNewNativeNonconstructorCheck.class,
