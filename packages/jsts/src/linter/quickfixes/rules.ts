@@ -128,4 +128,7 @@ export const quickFixRules = new Set([
   'switch-without-default',
   'unnecessary-character-escapes',
   'unused-import',
+
+  // eslint-plugin-import
+  'no-absolute-path',
 ]);

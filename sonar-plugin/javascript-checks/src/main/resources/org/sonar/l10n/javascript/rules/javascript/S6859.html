@@ -1,0 +1,22 @@
+<h2>Why is this an issue?</h2>
+<p>In Node.js importing modules is doable by providing an absolute path such as <code>/lib/foo/bar.js</code>. Doing this restricts the portability of
+your code, making it specific to your computer’s file system and potentially causing issues when the code is distributed, for example, through NPM
+packages.</p>
+<h2>How to fix it</h2>
+<p>Replace the absolute path with one that is relative to your current file.</p>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+import { foo } from '/home/project/api/bar.js';
+</pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+import { foo } from '../api/bar.js';
+</pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> MDN web docs - <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import">import</a> </li>
+  <li> Node.js docs - <a href="https://nodejs.org/api/esm.html">ECMAScript modules</a> </li>
+</ul>
+
