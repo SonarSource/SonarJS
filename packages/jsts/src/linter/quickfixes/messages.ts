@@ -28,6 +28,7 @@ const quickFixMessages = new Map<string, string>([
   ['comma-dangle', 'Remove this trailing comma'],
   ['eol-last', 'Add a new line at the end of file'],
   ['jsx-no-useless-fragment', 'Remove redundant fragment'],
+  ['no-absolute-path', 'Replace with a relative path'],
   ['no-empty-interface', 'Replace with type alias'],
   ['no-extra-bind', 'Remove .bind() call'],
   ['no-extra-boolean-cast', 'Remove extra cast'],
