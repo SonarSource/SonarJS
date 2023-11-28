@@ -1,0 +1,20 @@
+{
+"jquery:src/core.js": [
+19
+],
+"jquery:src/core/access.js": [
+6
+],
+"jquery:src/core/init.js": [
+9
+],
+"jquery:src/core/isAttached.js": [
+6
+],
+"jquery:src/manipulation/wrapMap.js": [
+2
+],
+"jquery:src/selector/rbuggyQSA.js": [
+5
+]
+}
