@@ -84,7 +84,7 @@ export const rule: Rule.RuleModule = {
   },
   create(context: Rule.RuleContext) {
     const { filename } = context;
-    if (!filename.match(/\.spec\.|\.test\./)) {
+    if (!/\.spec\.|\.test\./.exec(filename)) {
       return {};
     }
 
@@ -98,7 +98,6 @@ export const rule: Rule.RuleModule = {
         const fqn = fullyQualifiedName(node.callee);
         if (APIs.has(fqn)) {
           hasTest = true;
-          return;
         }
       },
       'Program:exit'() {
