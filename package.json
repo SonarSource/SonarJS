@@ -10,7 +10,7 @@
     "new-rule": "ts-node tools/newRule.ts",
     "bridge:compile": "tsc -b packages profiling",
     "bridge:test": "jest",
-    "bridge:test-with-coverage": "jest --maxWorkers=75% --coverage",
+    "bridge:test-with-coverage": "jest --maxWorkers=50% --coverage",
     "bridge:build": "npm run bridge:build:fast && npm run bridge:test-with-coverage",
     "bridge:build:fast": "npm ci && npm run format && npm run _:bridge:clear && npm run bridge:compile",
     "bbf": "npm run bridge:build:fast",
@@ -37,7 +37,7 @@
   },
   "homepage": "https://github.com/SonarSource/SonarJS#readme",
   "engines": {
-    "node": ">=14"
+    "node": "^16.0.0 || >=18.0.0"
   },
   "type": "commonjs",
   "devDependencies": {
