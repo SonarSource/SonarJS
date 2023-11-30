@@ -89,9 +89,7 @@ public abstract class AbstractBridgeSensor implements Sensor {
       analysisWarnings.addUnique(
         "Error while running Node.js. A supported version of Node.js is required for running the analysis for " +
         lang +
-        " files. " +
-        "Please make sure a supported version of Node.js is available in the PATH. " +
-        "Alternatively, you can exclude " +
+        " files. Please make sure a supported version of Node.js is available in the PATH. Alternatively, you can exclude " +
         lang +
         " files from your analysis using the 'sonar.exclusions' configuration property. " +
         "See the docs for configuring the analysis environment: https://docs.sonarsource.com/"
