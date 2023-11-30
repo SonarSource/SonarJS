@@ -273,6 +273,7 @@ public final class CheckList {
       NoEmptyCollectionCheck.class,
       NoEmptyGroupCheck.class,
       NoEmptyInterfaceCheck.class,
+      NoEmptyTestFileCheck.class,
       NoExclusiveTestsCheck.class,
       NoExtendNativeCheck.class,
       NoExtraBindCheck.class,

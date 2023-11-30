@@ -144,6 +144,7 @@ import { rule as S6323 } from './S6323'; // no-empty-alternatives
 import { rule as S1186 } from './S1186'; // no-empty-function
 import { rule as S6331 } from './S6331'; // no-empty-group
 import { rule as S4023 } from './S4023'; // no-empty-interface
+import { rule as S2187 } from './S2187'; // no-empty-test-file
 import { rule as S888 } from './S888'; // no-equals-in-for-termination
 import { rule as S6426 } from './S6426'; // no-exclusive-tests
 import { rule as S6643 } from './S6643'; // no-extend-native
@@ -429,6 +430,7 @@ rules['no-empty-alternatives'] = S6323;
 rules['no-empty-function'] = S1186;
 rules['no-empty-group'] = S6331;
 rules['no-empty-interface'] = S4023;
+rules['no-empty-test-file'] = S2187;
 rules['no-equals-in-for-termination'] = S888;
 rules['no-exclusive-tests'] = S6426;
 rules['no-extend-native'] = S6643;
