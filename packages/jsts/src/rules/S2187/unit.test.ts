@@ -85,5 +85,10 @@ it('1 + 2 should give 3', () => {
       filename: 'foo.spec.js',
       errors: 1,
     },
+    {
+      code: `it['coverage']();`,
+      filename: 'foo.spec.js',
+      errors: 1,
+    },
   ],
 });
