@@ -79,7 +79,7 @@ const APIs = new Set([
 export const rule: Rule.RuleModule = {
   meta: {
     messages: {
-      missingTest: 'Add some tests to this file.',
+      missingTest: 'Add some tests to this file or delete it.',
     },
   },
   create(context: Rule.RuleContext) {

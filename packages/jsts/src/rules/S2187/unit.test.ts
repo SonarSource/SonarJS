@@ -74,7 +74,7 @@ it('1 + 2 should give 3', () => {
       filename: 'foo.test.js',
       errors: [
         {
-          message: 'Add some tests to this file.',
+          message: 'Add some tests to this file or delete it.',
           line: 0,
           column: 1,
         },
