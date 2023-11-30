@@ -278,28 +278,17 @@ class CssRuleSensorTest {
   }
 
   @Test
-  void failed_server_should_log_warn_no_css() throws IOException {
-    context.settings().setProperty("sonar.internal.analysis.failFast", "true");
-    doThrow(new NodeCommandException("Exception Message"))
-      .when(bridgeServerMock)
-      .startServerLazily(any());
-    addInputFile("file.html");
-
-    assertThatThrownBy(() -> sensor.execute(context))
-      .isInstanceOf(IllegalStateException.class)
-      .hasMessageContaining("Analysis failed");
-    assertThat(logTester.logs(LoggerLevel.WARN)).contains("Exception Message");
-  }
-
-  @Test
   void failed_server_should_log_error_with_css() throws IOException {
     doThrow(new NodeCommandException("Exception Message"))
       .when(bridgeServerMock)
       .startServerLazily(any());
     addInputFile("file.css");
 
-    sensor.execute(context);
-    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Exception Message");
+    assertThatThrownBy(() -> sensor.execute(context))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage(
+        "Error while running Node.js. Please make sure a supported version of Node.js is available in the PATH"
+      );
   }
 
   @Test
@@ -364,7 +353,7 @@ class CssRuleSensorTest {
     DefaultInputFile inputFile = new TestInputFileBuilder("moduleKey", filePath)
       .setLanguage(CssLanguage.KEY)
       .setCharset(StandardCharsets.UTF_8)
-      .setContents("css content")
+      .setContents("css content\nline 2")
       .build();
     context.fileSystem().add(inputFile);
     sensor.execute(context);
@@ -382,7 +371,7 @@ class CssRuleSensorTest {
     DefaultInputFile inputFile = new TestInputFileBuilder("moduleKey", filePath)
       .setLanguage(CssLanguage.KEY)
       .setCharset(StandardCharsets.ISO_8859_1)
-      .setContents("css content")
+      .setContents("css content\nline 2")
       .build();
     context.fileSystem().add(inputFile);
     sensor.execute(context);
@@ -391,7 +380,7 @@ class CssRuleSensorTest {
     );
     verify(bridgeServerMock).analyzeCss(capturedRequest.capture());
 
-    assertThat(capturedRequest.getValue().fileContent).isEqualTo("css content");
+    assertThat(capturedRequest.getValue().fileContent).isEqualTo("css content\nline 2");
   }
 
   @Test

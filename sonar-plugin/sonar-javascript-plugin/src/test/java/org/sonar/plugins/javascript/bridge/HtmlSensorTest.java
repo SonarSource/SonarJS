@@ -20,6 +20,7 @@
 package org.sonar.plugins.javascript.bridge;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -225,12 +226,14 @@ class HtmlSensorTest {
   }
 
   @Test
-  void should_not_explode_if_no_response() throws Exception {
+  void should_explode_if_no_response() throws Exception {
     when(bridgeServerMock.analyzeHtml(any())).thenThrow(new IOException("error"));
 
     HtmlSensor sensor = createSensor();
     DefaultInputFile inputFile = createInputFile(context);
-    sensor.execute(context);
+    assertThatThrownBy(() -> sensor.execute(context))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Analysis for html failed, please check logs for more details");
 
     assertThat(logTester.logs(LoggerLevel.ERROR))
       .contains("Failed to get response while analyzing " + inputFile.uri());

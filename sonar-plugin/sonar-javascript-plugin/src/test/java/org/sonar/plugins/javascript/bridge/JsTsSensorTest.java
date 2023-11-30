@@ -172,13 +172,14 @@ class JsTsSensorTest {
 
   @Test
   void should_analyse() throws Exception {
-    AnalysisResponse expectedResponse = createResponse();
-    when(bridgeServerMock.analyzeTypeScript(any())).thenReturn(expectedResponse);
-
     JsTsSensor sensor = createSensor();
     DefaultInputFile inputFile = createInputFile(context);
-    createVueInputFile();
     createTsConfigFile();
+
+    AnalysisResponse expectedResponse = createResponse();
+    when(bridgeServerMock.analyzeTypeScript(any())).thenReturn(expectedResponse);
+    var tsProgram = new TsProgram("1", List.of(inputFile.absolutePath()), List.of());
+    when(bridgeServerMock.createProgram(any())).thenReturn(tsProgram);
 
     sensor.execute(context);
     verify(bridgeServerMock, times(1)).initLinter(any(), any(), any(), any(), any(), any());
@@ -236,13 +237,15 @@ class JsTsSensorTest {
   }
 
   @Test
-  void should_not_explode_if_no_response() throws Exception {
+  void should_explode_if_no_response() throws Exception {
     createVueInputFile();
     when(bridgeServerMock.analyzeTypeScript(any())).thenThrow(new IOException("error"));
 
     JsTsSensor sensor = createSensor();
     DefaultInputFile inputFile = createInputFile(context);
-    sensor.execute(context);
+    assertThatThrownBy(() -> sensor.execute(context))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Analysis for js/ts failed, please check logs for more details");
 
     assertThat(logTester.logs(LoggerLevel.ERROR))
       .contains("Failed to get response while analyzing " + inputFile.uri());
@@ -667,13 +670,11 @@ class JsTsSensorTest {
     createTsConfigFile();
     when(bridgeServerMock.analyzeTypeScript(any())).thenThrow(new IOException("error"));
     JsTsSensor sensor = createSensor();
-    MapSettings settings = new MapSettings().setProperty("sonar.internal.analysis.failFast", true);
-    context.setSettings(settings);
     createInputFile(context);
 
     assertThatThrownBy(() -> sensor.execute(context))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Analysis failed (\"sonar.internal.analysis.failFast\"=true)");
+      .hasMessage("Analysis for js/ts failed, please check logs for more details");
   }
 
   @Test
@@ -689,7 +690,7 @@ class JsTsSensorTest {
     createInputFile(context);
     assertThatThrownBy(() -> createSensor().execute(context))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Analysis failed (\"sonar.internal.analysis.failFast\"=true)");
+      .hasMessage("Analysis for js/ts failed, please check logs for more details");
     assertThat(logTester.logs(LoggerLevel.ERROR))
       .contains("Failed to analyze file [dir/file.ts]: Parse error message");
   }
@@ -902,7 +903,7 @@ class JsTsSensorTest {
     )
       .setLanguage("js")
       .setCharset(StandardCharsets.UTF_8)
-      .setContents("<script lang=\"ts\"></script>")
+      .setContents("<script lang=\"ts\">\nif (cond)\ndoFoo(); \nelse \ndoFoo();\n</script>")
       .build();
     context.fileSystem().add(vueFile);
   }
