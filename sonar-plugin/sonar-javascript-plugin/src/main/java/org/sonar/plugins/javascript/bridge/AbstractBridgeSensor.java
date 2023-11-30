@@ -85,27 +85,38 @@ public abstract class AbstractBridgeSensor implements Sensor {
       LOG.debug("No rules will be executed");
     } catch (NodeCommandException e) {
       logErrorOrWarn(e.getMessage(), e);
+      var lang = getSensorLanguage();
       analysisWarnings.addUnique(
-        "JavaScript/TypeScript/CSS rules were not executed. " + e.getMessage()
+        "Error while running Node.js. A supported version of Node.js is required for running the analysis for " +
+        lang +
+        " files. " +
+        "Please make sure a supported version of Node.js is available in the PATH. " +
+        "Alternatively, you can exclude " +
+        lang +
+        " files from your analysis using the 'sonar.exclusions' configuration property. " +
+        "See the docs for configuring the analysis environment: https://docs.sonarsource.com/"
       );
-      if (contextUtils.failFast()) {
-        throw new IllegalStateException(
-          "Analysis failed (\"sonar.internal.analysis.failFast\"=true)",
-          e
-        );
-      }
+      throw new IllegalStateException(
+        "Error while running Node.js. Please make sure a supported version of Node.js is available in the PATH",
+        e
+      );
     } catch (Exception e) {
       LOG.error("Failure during analysis", e);
-      if (contextUtils.failFast()) {
-        throw new IllegalStateException(
-          "Analysis failed (\"sonar.internal.analysis.failFast\"=true)",
-          e
-        );
-      }
+      throw new IllegalStateException(
+        "Analysis for " + getSensorLanguage() + " failed, please check logs for more details",
+        e
+      );
     } finally {
       CacheStrategies.logReport();
       monitoring.stopSensor();
     }
+  }
+
+  protected String getSensorLanguage() {
+    if (this.getClass() == YamlSensor.class) return "yaml";
+    if (this.getClass() == HtmlSensor.class) return "html";
+    if (this.getClass() == CssRuleSensor.class) return "css";
+    return "js/ts";
   }
 
   protected void logErrorOrWarn(String msg, Throwable e) {
