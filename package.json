@@ -66,7 +66,7 @@
     "rimraf": "3.0.2",
     "ts-jest": "29.1.0",
     "ts-node": "10.9.1",
-    "typedoc": "0.24.8"
+    "typedoc": "0.25.4"
   },
   "dependencies": {
     "@babel/core": "7.23.2",
@@ -105,7 +105,7 @@
     "stylelint": "15.10.0",
     "tmp": "0.2.1",
     "type-fest": "4.6.0",
-    "typescript": "5.1.6",
+    "typescript": "5.3.2",
     "vue-eslint-parser": "9.3.0",
     "yaml": "2.3.1"
   },
