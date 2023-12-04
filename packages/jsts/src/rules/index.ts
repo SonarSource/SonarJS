@@ -240,6 +240,7 @@ import { rule as S4322 } from './S4322'; // prefer-type-guard
 import { rule as S4823 } from './S4823'; // process-argv
 import { rule as S4507 } from './S4507'; // production-debug
 import { rule as S2245 } from './S2245'; // pseudo-random
+import { rule as S1444 } from './S1444'; // public-static-readonly
 import { rule as S5443 } from './S5443'; // publicly-writable-directories
 import { rule as S6564 } from './S6564'; // redundant-type-aliases
 import { rule as S5843 } from './S5843'; // regex-complexity
@@ -526,6 +527,7 @@ rules['prefer-type-guard'] = S4322;
 rules['process-argv'] = S4823;
 rules['production-debug'] = S4507;
 rules['pseudo-random'] = S2245;
+rules['public-static-readonly'] = S1444;
 rules['publicly-writable-directories'] = S5443;
 rules['redundant-type-aliases'] = S6564;
 rules['regex-complexity'] = S5843;

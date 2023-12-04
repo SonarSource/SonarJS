@@ -1,0 +1,64 @@
+{
+"TypeScript:scripts/tslint/nextLineRule.ts": [
+8,
+9
+],
+"TypeScript:scripts/tslint/noBomRule.ts": [
+5
+],
+"TypeScript:scripts/tslint/noInOperatorRule.ts": [
+5
+],
+"TypeScript:scripts/tslint/noIncrementDecrementRule.ts": [
+5,
+6
+],
+"TypeScript:scripts/tslint/noTypeAssertionWhitespaceRule.ts": [
+5
+],
+"TypeScript:scripts/tslint/objectLiteralSurroundingSpaceRule.ts": [
+5,
+6,
+7,
+8
+],
+"TypeScript:scripts/tslint/typeOperatorSpacingRule.ts": [
+5
+],
+"TypeScript:src/harness/harnessLanguageService.ts": [
+111
+],
+"TypeScript:src/server/scriptVersionCache.ts": [
+275,
+276,
+277
+],
+"TypeScript:src/services/formatting/ruleOperationContext.ts": [
+13
+],
+"TypeScript:src/services/types.ts": [
+814,
+815,
+816,
+817,
+818,
+819,
+820,
+821,
+823,
+825,
+826,
+827,
+828,
+829,
+830,
+831,
+832,
+833,
+834,
+835,
+836,
+837,
+838
+]
+}
