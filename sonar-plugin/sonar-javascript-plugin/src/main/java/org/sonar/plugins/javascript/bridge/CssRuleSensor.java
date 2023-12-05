@@ -62,7 +62,7 @@ public class CssRuleSensor extends AbstractBridgeSensor {
     Monitoring monitoring,
     CheckFactory checkFactory
   ) {
-    super(bridgeServer, analysisWarnings, monitoring);
+    super(bridgeServer, analysisWarnings, monitoring, "CSS");
     this.sonarRuntime = sonarRuntime;
     this.cssRules = new CssRules(checkFactory);
   }
