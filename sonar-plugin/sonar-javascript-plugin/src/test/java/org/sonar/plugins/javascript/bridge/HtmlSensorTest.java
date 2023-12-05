@@ -233,7 +233,7 @@ class HtmlSensorTest {
     DefaultInputFile inputFile = createInputFile(context);
     assertThatThrownBy(() -> sensor.execute(context))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Analysis for html failed, please check logs for more details");
+      .hasMessage("Analysis of JS in HTML files failed");
 
     assertThat(logTester.logs(LoggerLevel.ERROR))
       .contains("Failed to get response while analyzing " + inputFile.uri());

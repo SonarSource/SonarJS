@@ -56,7 +56,7 @@ public class HtmlSensor extends AbstractBridgeSensor {
   ) {
     // The monitoring sensor remains inactive during HTML files analysis, as the
     // bridge doesn't provide nor compute metrics for such files.
-    super(bridgeServer, analysisWarnings, monitoring, "html");
+    super(bridgeServer, analysisWarnings, monitoring, "JS in HTML");
     this.analysisProcessor = processAnalysis;
     this.checks = checks;
   }

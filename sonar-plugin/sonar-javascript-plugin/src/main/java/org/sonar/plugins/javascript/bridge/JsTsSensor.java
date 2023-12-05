@@ -77,7 +77,7 @@ public class JsTsSensor extends AbstractBridgeSensor {
     AnalysisWithProgram analysisWithProgram,
     AnalysisWithWatchProgram analysisWithWatchProgram
   ) {
-    super(bridgeServer, analysisWarnings, monitoring, "js/ts");
+    super(bridgeServer, analysisWarnings, monitoring, "JS/TS");
     this.tempFolder = tempFolder;
     this.analysisWithProgram = analysisWithProgram;
     this.analysisWithWatchProgram = analysisWithWatchProgram;

@@ -454,7 +454,7 @@ class JavaScriptEslintBasedSensorTest {
 
     assertThatThrownBy(() -> sensor.execute(context))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Analysis for js/ts failed, please check logs for more details");
+      .hasMessage("Analysis of JS/TS files failed");
 
     assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Failure during analysis");
     assertThat(context.allIssues()).isEmpty();
@@ -468,7 +468,7 @@ class JavaScriptEslintBasedSensorTest {
 
     assertThatThrownBy(() -> sensor.execute(context))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Analysis for js/ts failed, please check logs for more details");
+      .hasMessage("Analysis of JS/TS files failed");
 
     assertThat(logTester.logs(LoggerLevel.ERROR))
       .contains("Failed to get response while analyzing " + inputFile);
@@ -697,7 +697,7 @@ class JavaScriptEslintBasedSensorTest {
     DefaultInputFile inputFile = createInputFile(context);
     assertThatThrownBy(() -> sensor.execute(context))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Analysis for js/ts failed, please check logs for more details");
+      .hasMessage("Analysis of JS/TS files failed");
   }
 
   @Test

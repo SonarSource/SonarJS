@@ -203,7 +203,7 @@ class YamlSensorTest {
 
     assertThatThrownBy(() -> sensor.execute(context))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Analysis for yaml failed, please check logs for more details");
+      .hasMessage("Analysis of JS in YAML failed");
 
     assertThat(logTester.logs(LoggerLevel.ERROR))
       .contains("Failed to get response while analyzing " + inputFile.uri());

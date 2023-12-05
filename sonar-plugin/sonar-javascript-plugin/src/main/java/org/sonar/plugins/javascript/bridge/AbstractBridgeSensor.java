@@ -89,7 +89,7 @@ public abstract class AbstractBridgeSensor implements Sensor {
     } catch (NodeCommandException e) {
       logErrorOrWarn(e.getMessage(), e);
       throw new IllegalStateException(
-        "Error while running Node.js. A supported version of Node.js is required for running the analysis for " +
+        "Error while running Node.js. A supported version of Node.js is required for running the analysis of " +
         this.lang +
         " files. Please make sure a supported version of Node.js is available in the PATH. Alternatively, you can exclude " +
         this.lang +
@@ -99,7 +99,7 @@ public abstract class AbstractBridgeSensor implements Sensor {
       );
     } catch (Exception e) {
       LOG.error("Failure during analysis", e);
-      throw new IllegalStateException("Analysis for " + this.lang + " failed", e);
+      throw new IllegalStateException("Analysis of " + this.lang + " files failed", e);
     } finally {
       CacheStrategies.logReport();
       monitoring.stopSensor();
