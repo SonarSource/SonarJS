@@ -63,7 +63,23 @@ export namespace Mocha {
     return null;
   }
 
+  /**
+   * returns true if the node is a test case
+   *
+   * @param node
+   * @returns
+   */
   export function isTestCase(node: estree.Node): boolean {
     return isTestConstruct(node, ['it', 'specify']);
+  }
+
+  /**
+   * returns true if the node is a describe block
+   *
+   * @param node
+   * @returns
+   */
+  export function isDescribeCase(node: estree.Node): boolean {
+    return isTestConstruct(node, ['describe']);
   }
 }

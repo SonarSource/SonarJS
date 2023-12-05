@@ -272,6 +272,7 @@ import { rule as S6582 } from './S6582'; // sonar-prefer-optional-chain
 import { rule as S6759 } from './S6759'; // sonar-prefer-read-only-props
 import { rule as S6594 } from './S6594'; // sonar-prefer-regexp-exec
 import { rule as S2077 } from './S2077'; // sql-queries
+import { rule as S5973 } from './S5973'; // stable-tests
 import { rule as S4829 } from './S4829'; // standard-input
 import { rule as S6351 } from './S6351'; // stateful-regex
 import { rule as S5739 } from './S5739'; // strict-transport-security
@@ -559,6 +560,7 @@ rules['sonar-prefer-optional-chain'] = S6582;
 rules['sonar-prefer-read-only-props'] = S6759;
 rules['sonar-prefer-regexp-exec'] = S6594;
 rules['sql-queries'] = S2077;
+rules['stable-tests'] = S5973;
 rules['standard-input'] = S4829;
 rules['stateful-regex'] = S6351;
 rules['strict-transport-security'] = S5739;
