@@ -134,7 +134,7 @@ We support 2 kinds of rule unit-tests: ESLint's [RuleTester](https://eslint.org/
 
 ### Comment-based testing
 
-These tests are located in the rule folder and they **MUST** be named `cb.fixture.*` (where the extension could be one of `js`, `ts`, `jsx`, `tsx`, `vue`). If options are to be passed to the tested rule, add a JSON file to the same directory named `cb.options.json`. The file must contain the array of options.
+These tests are located in the rule folder and they **MUST** be named `*.fixture.*` (where the extension could be one of `js`, `ts`, `jsx`, `tsx`, `vue`). If options are to be passed to the tested rule, add a JSON file to the same directory named `cb.options.json`. The file must contain the array of options.
 
 The contents of the test code have the following structure:
 
@@ -154,6 +154,29 @@ The contents of the options file must be a valid JSON array:
 // brace-style.json
 ['1tbs', { allowSingleLine: true }];
 ```
+
+If your rule depends on a dependency declared in the `package.json` file, you can add the following clauses to your test:
+
+```js
+describe('Rule S5973', () => {
+  beforeEach(() => {
+    searchPackageJsonFiles(__dirname, []);
+  });
+  afterAll(() => {
+    getAllPackageJsons().clear();
+  });
+  check(sonarId, rule, __dirname);
+});
+```
+
+and define multiple subfolders for your different settings like:
+
+- fixtures/setup-1/cb.test.ts
+- fixtures/setup-1/cb.fixture.ts
+- fixtures/setup-2/cb.test.ts
+- fixtures/setup-2/cb.fixture.ts
+
+You can find an example at [the bottom of this document](#examples).
 
 #### Tests syntax
 
@@ -290,6 +313,8 @@ You can simply copy and paste compliant and non-compliant examples from your RSP
 - Adding a rule covered by ESLint with an ESLint "fix" quick fix: [PR](https://github.com/SonarSource/SonarJS/pull/3751)
 - Decorate a rule covered by ESLint: [PR](https://github.com/SonarSource/SonarJS/pull/3514)
 - Merge 2 ESLint rules: [PR](https://github.com/SonarSource/SonarJS/pull/4387/files#diff-0bbe92c0a507bd02fb792be5df80db2ad9d66b30ce7b11b7925ed29121c3b233R22-R44)
+- Use comment-based tests with `package.json` dependencies dependent rule: [PR](<[TBD](https://github.com/SonarSource/SonarJS/pull/4443/files#diff-92d7c68b7e4cc945d0f128acbd458648eb8021903587c1ee7025243f2fae89d2)>)
+- Use ESLint's Rule tester with `package.json` dependencies dependent rule: [PR](<[TBD](https://github.com/SonarSource/SonarJS/commit/dc9435738093286869edff742c90d17d74e39b1c#diff-55f5136cfbed4170ed04f718f78f46015d6bb1f78c26403e036136211a333425R154-R213)>)
 
 ## Misc
 
