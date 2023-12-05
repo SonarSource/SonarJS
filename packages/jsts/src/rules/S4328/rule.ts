@@ -26,21 +26,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as ts from 'typescript';
 import { RequiredParserServices } from '../helpers';
-import { toUnixPath } from '@sonar/shared';
-import { getNearestPackageJsons } from '@sonar/jsts';
-import { PackageJson } from 'type-fest';
-
-const DefinitelyTyped = '@types/';
-
-/**
- * Cache for each dirname the dependencies of the package.json in this directory, empty set when no package.json.
- */
-const dirCache: Map<string, Set<string>> = new Map();
-
-/**
- * Cache for the available dependencies by dirname.
- */
-const cache: Map<string, Set<string>> = new Map();
+import { getDependencies } from '@sonar/jsts';
 
 export const rule: Rule.RuleModule = {
   meta: {
@@ -155,54 +141,6 @@ function getPackageName(name: string) {
   } else {
     return `${parts[0]}/${parts[1]}`;
   }
-}
-
-function getDependencies(fileName: string) {
-  let dirname = path.posix.dirname(toUnixPath(fileName));
-  const cached = cache.get(dirname);
-  if (cached) {
-    return cached;
-  }
-
-  const result = new Set<string>();
-  cache.set(dirname, result);
-
-  for (const packageJson of getNearestPackageJsons(fileName)) {
-    dirname = path.posix.dirname(packageJson.filename);
-    const dirCached = dirCache.get(dirname);
-    if (dirCached) {
-      dirCached.forEach(d => result.add(d));
-    } else {
-      const dep = getDependenciesFromPackageJson(packageJson.contents);
-      dep.forEach(d => result.add(d));
-      dirCache.set(dirname, dep);
-    }
-  }
-
-  return result;
-}
-
-function getDependenciesFromPackageJson(content: PackageJson) {
-  const result = new Set<string>();
-  if (content.name) {
-    addDependencies(result, { [content.name]: '*' });
-  }
-  if (content.dependencies !== undefined) {
-    addDependencies(result, content.dependencies);
-  }
-  if (content.devDependencies !== undefined) {
-    addDependencies(result, content.devDependencies);
-  }
-  if (content.peerDependencies !== undefined) {
-    addDependencies(result, content.peerDependencies);
-  }
-  return result;
-}
-
-function addDependencies(result: Set<string>, dependencies: any) {
-  Object.keys(dependencies).forEach(name =>
-    result.add(name.startsWith(DefinitelyTyped) ? name.substring(DefinitelyTyped.length) : name),
-  );
 }
 
 /**
