@@ -33,6 +33,7 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.plugins.javascript.CancellationException;
+import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.bridge.BridgeServer.TsProgram;
 import org.sonar.plugins.javascript.bridge.BridgeServer.TsProgramRequest;
 import org.sonar.plugins.javascript.bridge.cache.CacheAnalysis;
@@ -80,6 +81,13 @@ public class AnalysisWithProgram extends AbstractAnalysis {
         var program = bridgeServer.createProgram(new TsProgramRequest(tsConfig));
         if (program.error != null) {
           LOG.error("Failed to create program: " + program.error);
+          this.analysisWarnings.addUnique(
+              String.format(
+                "Failed to create TypeScript program with %s. Highest TypeScript supported version is %s",
+                tsConfig,
+                JavaScriptPlugin.TYPESCRIPT_VERSION
+              )
+            );
           PROFILER.stopInfo();
           continue;
         }

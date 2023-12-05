@@ -83,6 +83,7 @@ import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.javascript.checks.CheckList;
+import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.TestUtils;
 import org.sonar.plugins.javascript.bridge.BridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.bridge.BridgeServer.JsAnalysisRequest;
@@ -527,6 +528,15 @@ class JsTsSensorTest {
       );
     assertThat(logTester.logs(LoggerLevel.ERROR))
       .contains("Failed to create program: something went wrong");
+
+    assertThat(analysisWarnings.warnings)
+      .contains(
+        String.format(
+          "Failed to create TypeScript program with %s. Highest TypeScript supported version is %s",
+          absolutePath(baseDir, "dir3/tsconfig.json"),
+          JavaScriptPlugin.TYPESCRIPT_VERSION
+        )
+      );
   }
 
   @Test
