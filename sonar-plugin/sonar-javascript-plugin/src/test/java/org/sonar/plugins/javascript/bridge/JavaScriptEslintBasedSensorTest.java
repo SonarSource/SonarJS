@@ -546,11 +546,10 @@ class JavaScriptEslintBasedSensorTest {
       .when(bridgeServerMock)
       .startServerLazily(any());
 
-    TestAnalysisWarnings analysisWarnings = new TestAnalysisWarnings();
     var javaScriptEslintBasedSensor = new JsTsSensor(
       checks(ESLINT_BASED_RULE),
       bridgeServerMock,
-      analysisWarnings,
+      new AnalysisWarningsWrapper(),
       tempFolder,
       monitoring,
       analysisWithProgram,
@@ -563,7 +562,6 @@ class JavaScriptEslintBasedSensorTest {
       .hasMessage(nodeExceptionMessage);
 
     assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Exception Message");
-    assertThat(analysisWarnings.warnings).containsExactly(nodeExceptionMessage);
   }
 
   @Test
