@@ -38,9 +38,9 @@ const ruleTester = new RuleTester({ parser: __filename });
  */
 export function check(ruleId: string, ruleModule: Rule.RuleModule, ruleDir: string) {
   const fixtures = [];
-  for (const file of fs.readdirSync(ruleDir)) {
-    if (/\.fixture\.(js|ts|jsx|tsx|vue)$/.exec(file)) {
-      const fixture = path.join(ruleDir, file);
+  for (const file of fs.readdirSync(ruleDir, { recursive: true })) {
+    if (/\.fixture\.(js|ts|jsx|tsx|vue)$/.exec(file as string)) {
+      const fixture = path.join(ruleDir, file as string);
       fixtures.push(fixture);
     }
   }

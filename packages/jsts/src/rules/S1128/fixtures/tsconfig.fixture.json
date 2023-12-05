@@ -4,6 +4,6 @@
     "jsxFragmentFactory": "Fragment"
   },
   "files": [
-    "unit.fixture.tsx"
+    "file.tsx"
   ]
 }

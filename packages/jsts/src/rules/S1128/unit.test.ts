@@ -337,7 +337,7 @@ ruleTesterTS.run('Unnecessary imports should be removed', rule, {
 });
 
 const project = path.join(__dirname, 'fixtures', 'tsconfig.fixture.json');
-const filename = path.join(__dirname, 'fixtures', 'unit.fixture.tsx');
+const filename = path.join(__dirname, 'fixtures', 'file.tsx');
 
 const ruleTesterJsxFactory = new RuleTester({
   parserOptions: {
@@ -416,7 +416,7 @@ ruleTesterVue.run('Unnecessary imports should be removed', rule, {
       code: `
       <script setup>
         import Foo from './Foo.vue'
-      </script>      
+      </script>
       <template>
         <Foo />
       </template>
@@ -426,7 +426,7 @@ ruleTesterVue.run('Unnecessary imports should be removed', rule, {
       code: `
       <script setup>
         import MyFoo from './MyFoo.vue'
-      </script>      
+      </script>
       <template>
         <my-foo />
       </template>
@@ -436,7 +436,7 @@ ruleTesterVue.run('Unnecessary imports should be removed', rule, {
       code: `
       <script setup>
         import {foo} from './foo'
-      </script>      
+      </script>
       <template>
         <div @click="foo()" />
       </template>
@@ -446,7 +446,7 @@ ruleTesterVue.run('Unnecessary imports should be removed', rule, {
       code: `
       <script setup>
         import {isFoo} from './foo'
-      </script>      
+      </script>
       <template>
         <div v-if="isFoo" />
       </template>
@@ -468,7 +468,7 @@ ruleTesterVue.run('Unnecessary imports should be removed', rule, {
       code: `
       <script setup>
         import Foo from './Foo.vue'
-      </script>      
+      </script>
       <template>
         <div />
       </template>
