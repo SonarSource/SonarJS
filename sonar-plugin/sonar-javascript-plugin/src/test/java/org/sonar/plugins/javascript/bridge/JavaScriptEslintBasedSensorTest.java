@@ -108,6 +108,9 @@ class JavaScriptEslintBasedSensorTest {
 
   private SensorContextTester context;
 
+  private String nodeExceptionMessage =
+    "Error while running Node.js. A supported version of Node.js is required for running the analysis of JS/TS files. Please make sure a supported version of Node.js is available in the PATH. Alternatively, you can exclude JS/TS files from your analysis using the 'sonar.exclusions' configuration property. See the docs for configuring the analysis environment: https://docs.sonarsource.com/sonarqube/latest/analyzing-source-code/languages/javascript-typescript-css/";
+
   @TempDir
   Path workDir;
 
@@ -557,15 +560,10 @@ class JavaScriptEslintBasedSensorTest {
 
     assertThatThrownBy(() -> javaScriptEslintBasedSensor.execute(context))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage(
-        "Error while running Node.js. Please make sure a supported version of Node.js is available in the PATH"
-      );
+      .hasMessage(nodeExceptionMessage);
 
     assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Exception Message");
-    assertThat(analysisWarnings.warnings)
-      .containsExactly(
-        "Error while running Node.js. A supported version of Node.js is required for running the analysis for js/ts files. Please make sure a supported version of Node.js is available in the PATH. Alternatively, you can exclude js/ts files from your analysis using the 'sonar.exclusions' configuration property. See the docs for configuring the analysis environment: https://docs.sonarsource.com/"
-      );
+    assertThat(analysisWarnings.warnings).containsExactly(nodeExceptionMessage);
   }
 
   @Test
@@ -707,9 +705,7 @@ class JavaScriptEslintBasedSensorTest {
     createInputFile(context);
     assertThatThrownBy(() -> sensor.execute(context))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage(
-        "Error while running Node.js. Please make sure a supported version of Node.js is available in the PATH"
-      );
+      .hasMessage(nodeExceptionMessage);
   }
 
   @Test

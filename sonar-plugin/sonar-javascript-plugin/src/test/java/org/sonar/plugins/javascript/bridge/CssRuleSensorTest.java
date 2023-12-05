@@ -287,7 +287,7 @@ class CssRuleSensorTest {
     assertThatThrownBy(() -> sensor.execute(context))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage(
-        "Error while running Node.js. Please make sure a supported version of Node.js is available in the PATH"
+        "Error while running Node.js. A supported version of Node.js is required for running the analysis of CSS files. Please make sure a supported version of Node.js is available in the PATH. Alternatively, you can exclude CSS files from your analysis using the 'sonar.exclusions' configuration property. See the docs for configuring the analysis environment: https://docs.sonarsource.com/sonarqube/latest/analyzing-source-code/languages/javascript-typescript-css/"
       );
   }
 
