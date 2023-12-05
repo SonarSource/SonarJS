@@ -393,6 +393,7 @@ public final class CheckList {
       ProductionDebugCheck.class,
       PropTypesCheck.class,
       PseudoRandomCheck.class,
+      PublicStaticReadonlyCheck.class,
       PubliclyWritableDirectoriesCheck.class,
       ReassignedParameterCheck.class,
       RedeclaredSymbolCheck.class,

@@ -119,6 +119,7 @@ export const quickFixRules = new Set([
   'no-undefined-argument',
   'no-unthrown-error',
   'no-unused-function-argument',
+  'public-static-readonly',
   'prefer-promise-shorthand',
   'prefer-type-guard',
   'sonar-no-dupe-keys',

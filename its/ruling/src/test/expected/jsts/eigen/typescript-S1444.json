@@ -1,0 +1,47 @@
+{
+"eigen:src/app/Components/ArtistListItem.tsx": [
+49
+],
+"eigen:src/app/Components/ArtworkGrids/GenericGrid.tsx": [
+36
+],
+"eigen:src/app/Components/ArtworkGrids/InfiniteScrollArtworksGrid.tsx": [
+172
+],
+"eigen:src/app/Components/Bidding/Components/Timer.tsx": [
+204
+],
+"eigen:src/app/Components/Bidding/Context/TimeOffsetProvider.tests.tsx": [
+17
+],
+"eigen:src/app/Components/Bidding/Context/TimeOffsetProvider.tsx": [
+74
+],
+"eigen:src/app/Components/Markdown.tsx": [
+17
+],
+"eigen:src/app/Components/OpaqueImageView/OpaqueImageView.tsx": [
+77
+],
+"eigen:src/app/Components/ParentAwareScrollView.tsx": [
+41
+],
+"eigen:src/app/Scenes/Artwork/Artwork.tests.tsx": [
+49
+],
+"eigen:src/app/Scenes/Artwork/Components/ImageCarousel/FullScreen/DeepZoom/DeepZoomTile.tsx": [
+10
+],
+"eigen:src/app/Scenes/Map/Components/PinsShapeLayer.tsx": [
+26
+],
+"eigen:src/app/Scenes/Onboarding/OnboardingPersonalization/OnboardingPersonalizationArtistListItem.tsx": [
+60
+],
+"eigen:src/app/store/PropsStore.ts": [
+2
+],
+"eigen:src/palette/elements/Select/SelectV2.tsx": [
+49
+]
+}
