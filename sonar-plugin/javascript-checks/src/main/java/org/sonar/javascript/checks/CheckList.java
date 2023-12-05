@@ -418,6 +418,7 @@ public final class CheckList {
       SonarNoMisleadingCharacterClassCheck.class,
       SonarPreferOptionalChainCheck.class,
       SqlQueriesCheck.class,
+      StableTestsCheck.class,
       StandardInputCheck.class,
       StatefulRegexCheck.class,
       StrictModeCheck.class,
