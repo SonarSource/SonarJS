@@ -108,6 +108,9 @@ class JavaScriptEslintBasedSensorTest {
 
   private SensorContextTester context;
 
+  private String nodeExceptionMessage =
+    "Error while running Node.js. A supported version of Node.js is required for running the analysis of JS/TS files. Please make sure a supported version of Node.js is available in the PATH. Alternatively, you can exclude JS/TS files from your analysis using the 'sonar.exclusions' configuration property. See the docs for configuring the analysis environment: https://docs.sonarsource.com/sonarqube/latest/analyzing-source-code/languages/javascript-typescript-css/";
+
   @TempDir
   Path workDir;
 
@@ -451,18 +454,24 @@ class JavaScriptEslintBasedSensorTest {
 
     var sensor = createSensor();
     createInputFile(context);
-    sensor.execute(context);
+
+    assertThatThrownBy(() -> sensor.execute(context))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Analysis of JS/TS files failed");
 
     assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Failure during analysis");
     assertThat(context.allIssues()).isEmpty();
   }
 
   @Test
-  void should_not_explode_if_no_response() throws Exception {
+  void should_explode_if_no_response() throws Exception {
     when(bridgeServerMock.analyzeJavaScript(any())).thenThrow(new IOException("error"));
     var sensor = createSensor();
     DefaultInputFile inputFile = createInputFile(context);
-    sensor.execute(context);
+
+    assertThatThrownBy(() -> sensor.execute(context))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Analysis of JS/TS files failed");
 
     assertThat(logTester.logs(LoggerLevel.ERROR))
       .contains("Failed to get response while analyzing " + inputFile);
@@ -537,21 +546,22 @@ class JavaScriptEslintBasedSensorTest {
       .when(bridgeServerMock)
       .startServerLazily(any());
 
-    TestAnalysisWarnings analysisWarnings = new TestAnalysisWarnings();
     var javaScriptEslintBasedSensor = new JsTsSensor(
       checks(ESLINT_BASED_RULE),
       bridgeServerMock,
-      analysisWarnings,
+      new AnalysisWarningsWrapper(),
       tempFolder,
       monitoring,
       analysisWithProgram,
       analysisWithWatchProgram
     );
     createInputFile(context);
-    javaScriptEslintBasedSensor.execute(context);
+
+    assertThatThrownBy(() -> javaScriptEslintBasedSensor.execute(context))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage(nodeExceptionMessage);
+
     assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Exception Message");
-    assertThat(analysisWarnings.warnings)
-      .containsExactly("JavaScript/TypeScript/CSS rules were not executed. Exception Message");
   }
 
   @Test
@@ -680,24 +690,20 @@ class JavaScriptEslintBasedSensorTest {
   void should_fail_fast() throws Exception {
     when(bridgeServerMock.analyzeJavaScript(any())).thenThrow(new IOException("error"));
     var sensor = createSensor();
-    MapSettings settings = new MapSettings().setProperty("sonar.internal.analysis.failFast", true);
-    context.setSettings(settings);
     DefaultInputFile inputFile = createInputFile(context);
     assertThatThrownBy(() -> sensor.execute(context))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Analysis failed (\"sonar.internal.analysis.failFast\"=true)");
+      .hasMessage("Analysis of JS/TS files failed");
   }
 
   @Test
   void should_fail_fast_with_nodecommandexception() throws Exception {
     doThrow(new NodeCommandException("error")).when(bridgeServerMock).startServerLazily(any());
     var sensor = createSensor();
-    MapSettings settings = new MapSettings().setProperty("sonar.internal.analysis.failFast", true);
-    context.setSettings(settings);
     createInputFile(context);
     assertThatThrownBy(() -> sensor.execute(context))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage("Analysis failed (\"sonar.internal.analysis.failFast\"=true)");
+      .hasMessage(nodeExceptionMessage);
   }
 
   @Test

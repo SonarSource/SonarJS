@@ -37,6 +37,7 @@ public abstract class AbstractBridgeSensor implements Sensor {
 
   private static final Logger LOG = Loggers.get(AbstractBridgeSensor.class);
 
+  protected final String lang;
   protected final BridgeServer bridgeServer;
   protected List<String> exclusions;
   private final AnalysisWarningsWrapper analysisWarnings;
@@ -50,11 +51,13 @@ public abstract class AbstractBridgeSensor implements Sensor {
   protected AbstractBridgeSensor(
     BridgeServer bridgeServer,
     AnalysisWarningsWrapper analysisWarnings,
-    Monitoring monitoring
+    Monitoring monitoring,
+    String lang
   ) {
     this.bridgeServer = bridgeServer;
     this.analysisWarnings = analysisWarnings;
     this.monitoring = monitoring;
+    this.lang = lang;
   }
 
   @Override
@@ -85,23 +88,18 @@ public abstract class AbstractBridgeSensor implements Sensor {
       LOG.debug("No rules will be executed");
     } catch (NodeCommandException e) {
       logErrorOrWarn(e.getMessage(), e);
-      analysisWarnings.addUnique(
-        "JavaScript/TypeScript/CSS rules were not executed. " + e.getMessage()
+      throw new IllegalStateException(
+        "Error while running Node.js. A supported version of Node.js is required for running the analysis of " +
+        this.lang +
+        " files. Please make sure a supported version of Node.js is available in the PATH. Alternatively, you can exclude " +
+        this.lang +
+        " files from your analysis using the 'sonar.exclusions' configuration property. " +
+        "See the docs for configuring the analysis environment: https://docs.sonarsource.com/sonarqube/latest/analyzing-source-code/languages/javascript-typescript-css/",
+        e
       );
-      if (contextUtils.failFast()) {
-        throw new IllegalStateException(
-          "Analysis failed (\"sonar.internal.analysis.failFast\"=true)",
-          e
-        );
-      }
     } catch (Exception e) {
       LOG.error("Failure during analysis", e);
-      if (contextUtils.failFast()) {
-        throw new IllegalStateException(
-          "Analysis failed (\"sonar.internal.analysis.failFast\"=true)",
-          e
-        );
-      }
+      throw new IllegalStateException("Analysis of " + this.lang + " files failed", e);
     } finally {
       CacheStrategies.logReport();
       monitoring.stopSensor();

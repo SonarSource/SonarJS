@@ -108,7 +108,7 @@ class CssRuleSensorTest {
     when(bridgeServerMock.analyzeCss(any()))
       .thenReturn(
         response(
-          "{ issues: [{\"line\":2,\"ruleId\":\"block-no-empty\",\"message\":\"Unexpected empty block\"}]}"
+          "{ issues: [{\"line\":1,\"ruleId\":\"block-no-empty\",\"message\":\"Unexpected empty block\"}]}"
         )
       );
     when(bridgeServerMock.getCommandInfo()).thenReturn("bridgeServerMock command info");
@@ -278,27 +278,17 @@ class CssRuleSensorTest {
   }
 
   @Test
-  void failed_server_should_log_warn_no_css() throws IOException {
-    context.settings().setProperty("sonar.internal.analysis.failFast", "true");
-    doThrow(new NodeCommandException("Exception Message"))
-      .when(bridgeServerMock)
-      .startServerLazily(any());
-    addInputFile("file.html");
-
-    assertThatThrownBy(() -> sensor.execute(context))
-      .isInstanceOf(IllegalStateException.class)
-      .hasMessageContaining("Analysis failed");
-    assertThat(logTester.logs(LoggerLevel.WARN)).contains("Exception Message");
-  }
-
-  @Test
   void failed_server_should_log_error_with_css() throws IOException {
     doThrow(new NodeCommandException("Exception Message"))
       .when(bridgeServerMock)
       .startServerLazily(any());
     addInputFile("file.css");
 
-    sensor.execute(context);
+    assertThatThrownBy(() -> sensor.execute(context))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage(
+        "Error while running Node.js. A supported version of Node.js is required for running the analysis of CSS files. Please make sure a supported version of Node.js is available in the PATH. Alternatively, you can exclude CSS files from your analysis using the 'sonar.exclusions' configuration property. See the docs for configuring the analysis environment: https://docs.sonarsource.com/sonarqube/latest/analyzing-source-code/languages/javascript-typescript-css/"
+      );
     assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Exception Message");
   }
 

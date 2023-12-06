@@ -59,7 +59,7 @@ public class YamlSensor extends AbstractBridgeSensor {
   ) {
     // The monitoring sensor remains inactive during YAML files analysis, as the
     // bridge doesn't provide nor compute metrics for such files.
-    super(bridgeServer, analysisWarnings, monitoring);
+    super(bridgeServer, analysisWarnings, monitoring, "JS in YAML");
     this.checks = checks;
     this.analysisProcessor = processAnalysis;
   }
