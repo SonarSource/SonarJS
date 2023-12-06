@@ -61,7 +61,7 @@ import org.sonar.plugins.javascript.sonarlint.SonarLintTypeCheckingCheckerImpl;
 
 public class JavaScriptPlugin implements Plugin {
 
-  public static final Object TYPESCRIPT_VERSION = "5.3.2";
+  public static final String TYPESCRIPT_VERSION = "5.3.2";
   private static final Logger LOG = Loggers.get(JavaScriptPlugin.class);
 
   // Subcategories
