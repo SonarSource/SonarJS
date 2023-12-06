@@ -42,6 +42,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.junit.jupiter.api.BeforeEach;
@@ -507,8 +508,12 @@ class JsTsSensorTest {
     when(bridgeServerMock.analyzeTypeScript(any())).thenReturn(new AnalysisResponse());
 
     ArgumentCaptor<JsAnalysisRequest> captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
+    ArgumentCaptor<TsProgramRequest> captorProgram = ArgumentCaptor.forClass(
+      TsProgramRequest.class
+    );
     createSensor().execute(context);
     verify(bridgeServerMock, times(4)).analyzeTypeScript(captor.capture());
+    verify(bridgeServerMock, times(4)).createProgram(captorProgram.capture());
     assertThat(captor.getAllValues())
       .extracting(req -> req.filePath)
       .containsExactlyInAnyOrder(
@@ -533,7 +538,7 @@ class JsTsSensorTest {
       .contains(
         String.format(
           "Failed to create TypeScript program with %s. Highest TypeScript supported version is %s",
-          absolutePath(baseDir, "dir3/tsconfig.json"),
+          captorProgram.getAllValues().get(2).tsConfig,
           JavaScriptPlugin.TYPESCRIPT_VERSION
         )
       );
