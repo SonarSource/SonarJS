@@ -153,15 +153,17 @@ class JavaScriptEslintBasedSensorTest {
     when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(fileLinesContext);
     analysisProcessor =
       new AnalysisProcessor(new DefaultNoSonarFilter(), fileLinesContextFactory, monitoring);
+    var analysisWarnings = new AnalysisWarningsWrapper();
+
     analysisWithProgram =
-      new AnalysisWithProgram(
+      new AnalysisWithProgram(bridgeServerMock, monitoring, analysisProcessor, analysisWarnings);
+    analysisWithWatchProgram =
+      new AnalysisWithWatchProgram(
         bridgeServerMock,
         monitoring,
         analysisProcessor,
-        new AnalysisWarningsWrapper()
+        analysisWarnings
       );
-    analysisWithWatchProgram =
-      new AnalysisWithWatchProgram(bridgeServerMock, monitoring, analysisProcessor);
   }
 
   @Test

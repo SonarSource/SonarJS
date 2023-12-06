@@ -47,7 +47,6 @@ public class AnalysisWithProgram extends AbstractAnalysis {
 
   private static final Logger LOG = Loggers.get(AnalysisWithProgram.class);
   private static final Profiler PROFILER = Profiler.create(LOG);
-  private final AnalysisWarningsWrapper analysisWarnings;
 
   public AnalysisWithProgram(
     BridgeServer bridgeServer,
@@ -55,8 +54,7 @@ public class AnalysisWithProgram extends AbstractAnalysis {
     AnalysisProcessor analysisProcessor,
     AnalysisWarningsWrapper analysisWarnings
   ) {
-    super(bridgeServer, monitoring, analysisProcessor);
-    this.analysisWarnings = analysisWarnings;
+    super(bridgeServer, monitoring, analysisProcessor, analysisWarnings);
   }
 
   @Override
@@ -118,6 +116,12 @@ public class AnalysisWithProgram extends AbstractAnalysis {
         }
       }
       success = true;
+      this.analysisWarnings.addUnique(
+          String.format(
+            "There were %d parsing errors while analyzing the project. Check the logs for further details",
+            analysisProcessor.parsingErrorsCount()
+          )
+        );
     } finally {
       if (success) {
         progressReport.stop();

@@ -48,9 +48,10 @@ public class AnalysisWithWatchProgram extends AbstractAnalysis {
   public AnalysisWithWatchProgram(
     BridgeServer bridgeServer,
     Monitoring monitoring,
-    AnalysisProcessor analysisProcessor
+    AnalysisProcessor analysisProcessor,
+    AnalysisWarningsWrapper analysisWarnings
   ) {
-    super(bridgeServer, monitoring, analysisProcessor);
+    super(bridgeServer, monitoring, analysisProcessor, analysisWarnings);
   }
 
   @Override
@@ -82,6 +83,12 @@ public class AnalysisWithWatchProgram extends AbstractAnalysis {
         }
       }
       success = true;
+      this.analysisWarnings.addUnique(
+          String.format(
+            "There were %d parsing errors while analyzing the project. Check the logs for further details",
+            analysisProcessor.parsingErrorsCount()
+          )
+        );
     } finally {
       if (success) {
         progressReport.stop();

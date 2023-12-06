@@ -29,6 +29,7 @@ import static org.sonar.plugins.javascript.utils.UnicodeEscape.unicodeEscape;
 
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.sonar.api.batch.fs.InputFile;
@@ -70,6 +71,7 @@ public class AnalysisProcessor {
   private ContextUtils contextUtils;
   private InputFile file;
   private JsTsChecks checks;
+  HashSet<String> parsingErrors;
 
   public AnalysisProcessor(
     NoSonarFilter noSonarFilter,
@@ -79,6 +81,7 @@ public class AnalysisProcessor {
     this.noSonarFilter = noSonarFilter;
     this.fileLinesContextFactory = fileLinesContextFactory;
     this.monitoring = monitoring;
+    this.parsingErrors = new HashSet<>();
   }
 
   void processResponse(
@@ -92,6 +95,7 @@ public class AnalysisProcessor {
     this.checks = checks;
     this.file = file;
     if (response.parsingError != null) {
+      parsingErrors.add(file.absolutePath());
       processParsingError(response.parsingError);
       return;
     }
@@ -115,6 +119,10 @@ public class AnalysisProcessor {
       saveCpd(response.cpdTokens);
       monitoring.stopFile(file, response.metrics.ncloc.length, response.perf);
     }
+  }
+
+  public int parsingErrorsCount() {
+    return parsingErrors.size();
   }
 
   void processCacheAnalysis(SensorContext context, InputFile file, CacheAnalysis cacheAnalysis) {

@@ -805,7 +805,12 @@ class JsTsSensorTest {
   }
 
   private AnalysisWithWatchProgram analysisWithWatchProgram() {
-    return new AnalysisWithWatchProgram(bridgeServerMock, monitoring, processAnalysis);
+    return new AnalysisWithWatchProgram(
+      bridgeServerMock,
+      monitoring,
+      processAnalysis,
+      analysisWarnings
+    );
   }
 
   private AnalysisResponse createResponse() {
