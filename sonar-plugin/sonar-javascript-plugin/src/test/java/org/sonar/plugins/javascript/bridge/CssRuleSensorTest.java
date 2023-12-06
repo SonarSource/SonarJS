@@ -108,7 +108,7 @@ class CssRuleSensorTest {
     when(bridgeServerMock.analyzeCss(any()))
       .thenReturn(
         response(
-          "{ issues: [{\"line\":2,\"ruleId\":\"block-no-empty\",\"message\":\"Unexpected empty block\"}]}"
+          "{ issues: [{\"line\":1,\"ruleId\":\"block-no-empty\",\"message\":\"Unexpected empty block\"}]}"
         )
       );
     when(bridgeServerMock.getCommandInfo()).thenReturn("bridgeServerMock command info");
@@ -289,6 +289,7 @@ class CssRuleSensorTest {
       .hasMessage(
         "Error while running Node.js. A supported version of Node.js is required for running the analysis of CSS files. Please make sure a supported version of Node.js is available in the PATH. Alternatively, you can exclude CSS files from your analysis using the 'sonar.exclusions' configuration property. See the docs for configuring the analysis environment: https://docs.sonarsource.com/sonarqube/latest/analyzing-source-code/languages/javascript-typescript-css/"
       );
+    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Exception Message");
   }
 
   @Test
@@ -353,7 +354,7 @@ class CssRuleSensorTest {
     DefaultInputFile inputFile = new TestInputFileBuilder("moduleKey", filePath)
       .setLanguage(CssLanguage.KEY)
       .setCharset(StandardCharsets.UTF_8)
-      .setContents("css content\nline 2")
+      .setContents("css content")
       .build();
     context.fileSystem().add(inputFile);
     sensor.execute(context);
@@ -371,7 +372,7 @@ class CssRuleSensorTest {
     DefaultInputFile inputFile = new TestInputFileBuilder("moduleKey", filePath)
       .setLanguage(CssLanguage.KEY)
       .setCharset(StandardCharsets.ISO_8859_1)
-      .setContents("css content\nline 2")
+      .setContents("css content")
       .build();
     context.fileSystem().add(inputFile);
     sensor.execute(context);
@@ -380,7 +381,7 @@ class CssRuleSensorTest {
     );
     verify(bridgeServerMock).analyzeCss(capturedRequest.capture());
 
-    assertThat(capturedRequest.getValue().fileContent).isEqualTo("css content\nline 2");
+    assertThat(capturedRequest.getValue().fileContent).isEqualTo("css content");
   }
 
   @Test
