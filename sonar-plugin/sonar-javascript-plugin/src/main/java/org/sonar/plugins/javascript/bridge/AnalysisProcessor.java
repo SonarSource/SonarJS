@@ -71,7 +71,7 @@ public class AnalysisProcessor {
   private ContextUtils contextUtils;
   private InputFile file;
   private JsTsChecks checks;
-  HashSet<String> parsingErrorFiles;
+  HashSet<String> uniqueParsingErrors;
 
   public AnalysisProcessor(
     NoSonarFilter noSonarFilter,
@@ -81,7 +81,7 @@ public class AnalysisProcessor {
     this.noSonarFilter = noSonarFilter;
     this.fileLinesContextFactory = fileLinesContextFactory;
     this.monitoring = monitoring;
-    this.parsingErrorFiles = new HashSet<>();
+    this.uniqueParsingErrors = new HashSet<>();
   }
 
   void processResponse(
@@ -95,7 +95,7 @@ public class AnalysisProcessor {
     this.checks = checks;
     this.file = file;
     if (response.parsingError != null) {
-      parsingErrorFiles.add(file.absolutePath());
+      uniqueParsingErrors.add(file.absolutePath());
       processParsingError(response.parsingError);
       return;
     }
@@ -122,7 +122,7 @@ public class AnalysisProcessor {
   }
 
   public int parsingErrorFilesCount() {
-    return parsingErrorFiles.size();
+    return uniqueParsingErrors.size();
   }
 
   void processCacheAnalysis(SensorContext context, InputFile file, CacheAnalysis cacheAnalysis) {
