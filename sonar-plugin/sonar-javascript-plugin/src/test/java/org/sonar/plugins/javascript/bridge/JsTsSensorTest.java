@@ -537,7 +537,7 @@ class JsTsSensorTest {
     assertThat(analysisWarnings.warnings)
       .contains(
         String.format(
-          "Failed to create TypeScript program with %s. Highest TypeScript supported version is %s",
+          "Failed to create TypeScript program with TSConfig file %s. Highest TypeScript supported version is %s.",
           captorProgram.getAllValues().get(2).tsConfig,
           JavaScriptPlugin.TYPESCRIPT_VERSION
         )

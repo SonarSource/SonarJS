@@ -81,7 +81,7 @@ public class AnalysisWithProgram extends AbstractAnalysis {
           LOG.error("Failed to create program: " + program.error);
           this.analysisWarnings.addUnique(
               String.format(
-                "Failed to create TypeScript program with TSconfig file %s. Highest TypeScript supported version is %s.",
+                "Failed to create TypeScript program with TSConfig file %s. Highest TypeScript supported version is %s.",
                 tsConfig,
                 JavaScriptPlugin.TYPESCRIPT_VERSION
               )
@@ -116,11 +116,11 @@ public class AnalysisWithProgram extends AbstractAnalysis {
         }
       }
       success = true;
-      if (analysisProcessor.parsingErrorsCount() > 0) {
+      if (analysisProcessor.parsingErrorFilesCount() > 0) {
         this.analysisWarnings.addUnique(
             String.format(
               "There were %d parsing errors while analyzing the project. Check the logs for further details",
-              analysisProcessor.parsingErrorsCount()
+              analysisProcessor.parsingErrorFilesCount()
             )
           );
       }

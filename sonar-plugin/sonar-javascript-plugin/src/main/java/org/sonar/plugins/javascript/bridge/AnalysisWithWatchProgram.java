@@ -83,11 +83,11 @@ public class AnalysisWithWatchProgram extends AbstractAnalysis {
         }
       }
       success = true;
-      if (analysisProcessor.parsingErrorsCount() > 0) {
+      if (analysisProcessor.parsingErrorFilesCount() > 0) {
         this.analysisWarnings.addUnique(
             String.format(
               "There were parsing errors in %d files while analyzing the project. Check the logs for further details.",
-              analysisProcessor.parsingErrorsCount()
+              analysisProcessor.parsingErrorFilesCount()
             )
           );
       }

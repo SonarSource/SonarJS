@@ -81,7 +81,7 @@ public class AnalysisProcessor {
     this.noSonarFilter = noSonarFilter;
     this.fileLinesContextFactory = fileLinesContextFactory;
     this.monitoring = monitoring;
-    this.parsingErrors = new HashSet<>();
+    this.parsingErrorFiles = new HashSet<>();
   }
 
   void processResponse(
@@ -95,7 +95,7 @@ public class AnalysisProcessor {
     this.checks = checks;
     this.file = file;
     if (response.parsingError != null) {
-      parsingErrors.add(file.absolutePath());
+      parsingErrorFiles.add(file.absolutePath());
       processParsingError(response.parsingError);
       return;
     }
@@ -121,8 +121,8 @@ public class AnalysisProcessor {
     }
   }
 
-  public int parsingErrorsCount() {
-    return parsingErrors.size();
+  public int parsingErrorFilesCount() {
+    return parsingErrorFiles.size();
   }
 
   void processCacheAnalysis(SensorContext context, InputFile file, CacheAnalysis cacheAnalysis) {
