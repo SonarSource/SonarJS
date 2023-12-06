@@ -119,7 +119,7 @@ public class AnalysisWithProgram extends AbstractAnalysis {
       if (analysisProcessor.parsingErrorFilesCount() > 0) {
         this.analysisWarnings.addUnique(
             String.format(
-              "There were %d parsing errors while analyzing the project. Check the logs for further details",
+              "There were parsing errors in %d files while analyzing the project. Check the logs for further details.",
               analysisProcessor.parsingErrorFilesCount()
             )
           );
