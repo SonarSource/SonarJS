@@ -71,7 +71,7 @@ public class AnalysisProcessor {
   private ContextUtils contextUtils;
   private InputFile file;
   private JsTsChecks checks;
-  HashSet<String> parsingErrors;
+  HashSet<String> parsingErrorFiles;
 
   public AnalysisProcessor(
     NoSonarFilter noSonarFilter,
