@@ -45,15 +45,18 @@ abstract class AbstractAnalysis {
   JsTsChecks checks;
   ProgressReport progressReport;
   AnalysisMode analysisMode;
+  protected final AnalysisWarningsWrapper analysisWarnings;
 
   AbstractAnalysis(
     BridgeServer bridgeServer,
     Monitoring monitoring,
-    AnalysisProcessor analysisProcessor
+    AnalysisProcessor analysisProcessor,
+    AnalysisWarningsWrapper analysisWarnings
   ) {
     this.bridgeServer = bridgeServer;
     this.monitoring = monitoring;
     this.analysisProcessor = analysisProcessor;
+    this.analysisWarnings = analysisWarnings;
   }
 
   protected static String inputFileLanguage(InputFile file) {

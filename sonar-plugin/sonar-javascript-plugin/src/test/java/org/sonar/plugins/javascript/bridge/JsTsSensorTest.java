@@ -42,6 +42,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.junit.jupiter.api.BeforeEach;
@@ -83,6 +84,7 @@ import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.javascript.checks.CheckList;
+import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.TestUtils;
 import org.sonar.plugins.javascript.bridge.BridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.bridge.BridgeServer.JsAnalysisRequest;
@@ -509,8 +511,12 @@ class JsTsSensorTest {
     when(bridgeServerMock.analyzeTypeScript(any())).thenReturn(new AnalysisResponse());
 
     ArgumentCaptor<JsAnalysisRequest> captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
+    ArgumentCaptor<TsProgramRequest> captorProgram = ArgumentCaptor.forClass(
+      TsProgramRequest.class
+    );
     createSensor().execute(context);
     verify(bridgeServerMock, times(4)).analyzeTypeScript(captor.capture());
+    verify(bridgeServerMock, times(4)).createProgram(captorProgram.capture());
     assertThat(captor.getAllValues())
       .extracting(req -> req.filePath)
       .containsExactlyInAnyOrder(
@@ -530,6 +536,15 @@ class JsTsSensorTest {
       );
     assertThat(logTester.logs(LoggerLevel.ERROR))
       .contains("Failed to create program: something went wrong");
+
+    assertThat(analysisWarnings.warnings)
+      .contains(
+        String.format(
+          "Failed to create TypeScript program with TSConfig file %s. Highest TypeScript supported version is %s.",
+          captorProgram.getAllValues().get(2).tsConfig,
+          JavaScriptPlugin.TYPESCRIPT_VERSION
+        )
+      );
   }
 
   @Test
@@ -796,7 +811,12 @@ class JsTsSensorTest {
   }
 
   private AnalysisWithWatchProgram analysisWithWatchProgram() {
-    return new AnalysisWithWatchProgram(bridgeServerMock, monitoring, processAnalysis);
+    return new AnalysisWithWatchProgram(
+      bridgeServerMock,
+      monitoring,
+      processAnalysis,
+      analysisWarnings
+    );
   }
 
   private AnalysisResponse createResponse() {

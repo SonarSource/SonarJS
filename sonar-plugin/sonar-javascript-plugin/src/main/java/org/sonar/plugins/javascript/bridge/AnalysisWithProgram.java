@@ -33,6 +33,7 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.plugins.javascript.CancellationException;
+import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.bridge.BridgeServer.TsProgram;
 import org.sonar.plugins.javascript.bridge.BridgeServer.TsProgramRequest;
 import org.sonar.plugins.javascript.bridge.cache.CacheAnalysis;
@@ -46,7 +47,6 @@ public class AnalysisWithProgram extends AbstractAnalysis {
 
   private static final Logger LOG = Loggers.get(AnalysisWithProgram.class);
   private static final Profiler PROFILER = Profiler.create(LOG);
-  private final AnalysisWarningsWrapper analysisWarnings;
 
   public AnalysisWithProgram(
     BridgeServer bridgeServer,
@@ -54,8 +54,7 @@ public class AnalysisWithProgram extends AbstractAnalysis {
     AnalysisProcessor analysisProcessor,
     AnalysisWarningsWrapper analysisWarnings
   ) {
-    super(bridgeServer, monitoring, analysisProcessor);
-    this.analysisWarnings = analysisWarnings;
+    super(bridgeServer, monitoring, analysisProcessor, analysisWarnings);
   }
 
   @Override
@@ -80,6 +79,13 @@ public class AnalysisWithProgram extends AbstractAnalysis {
         var program = bridgeServer.createProgram(new TsProgramRequest(tsConfig));
         if (program.error != null) {
           LOG.error("Failed to create program: " + program.error);
+          this.analysisWarnings.addUnique(
+              String.format(
+                "Failed to create TypeScript program with TSConfig file %s. Highest TypeScript supported version is %s.",
+                tsConfig,
+                JavaScriptPlugin.TYPESCRIPT_VERSION
+              )
+            );
           PROFILER.stopInfo();
           continue;
         }
@@ -110,6 +116,14 @@ public class AnalysisWithProgram extends AbstractAnalysis {
         }
       }
       success = true;
+      if (analysisProcessor.parsingErrorFilesCount() > 0) {
+        this.analysisWarnings.addUnique(
+            String.format(
+              "There were parsing errors in %d files while analyzing the project. Check the logs for further details.",
+              analysisProcessor.parsingErrorFilesCount()
+            )
+          );
+      }
     } finally {
       if (success) {
         progressReport.stop();
