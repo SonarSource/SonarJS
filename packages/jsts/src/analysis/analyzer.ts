@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { APIError, debug, getContext, JsTsLanguage, readFile } from '@sonar/shared';
+import { APIError, debug, getContext, JsTsLanguage } from '@sonar/shared';
 import { SourceCode } from 'eslint';
 import {
   computeMetrics,
@@ -25,88 +25,12 @@ import {
   getCpdTokens,
   getLinter,
   getSyntaxHighlighting,
-  initializeLinter,
   LinterWrapper,
   SymbolHighlight,
 } from '../linter';
 import { buildSourceCode } from '../builders';
 import { measureDuration } from '../monitoring';
-import {
-  JsTsAnalysisInput,
-  JsTsAnalysisOutput,
-  ProjectAnalysisInput,
-  ProjectAnalysisOutput,
-} from './analysis';
-import { searchPackageJsonFiles } from '../dependencies';
-import { createAndSaveProgram, createProgramOptions } from '../program';
-import { clearTypeScriptESLintParserCaches } from '../parsers';
-
-const DEFAULT_LANGUAGE: JsTsLanguage = 'ts';
-
-export async function analyzeProject(input: ProjectAnalysisInput): Promise<ProjectAnalysisOutput> {
-  const { rules, environments, globals, baseDir, exclusions = [] } = input;
-  const inputFilenames = Object.keys(input.files);
-  const watchProgram = input.isSonarlint || hasVueFile(inputFilenames);
-  const pendingFiles: Set<string> = new Set(inputFilenames);
-  initializeLinter(rules, environments, globals);
-  searchPackageJsonFiles(baseDir, exclusions);
-  const tsConfigs = input.tsConfigs ?? []; // || searchTsConfigFiles(baseDir, exclusions);
-  const results: ProjectAnalysisOutput = { files: {} };
-  for (const tsConfig of tsConfigs) {
-    if (watchProgram) {
-      const options = createProgramOptions(tsConfig);
-      const files = options.rootNames;
-      tsConfigs.push(
-        ...(options.projectReferences ? options.projectReferences.map(ref => ref.path) : []),
-      );
-      for (const file of files) {
-        // only analyze files which are requested
-        if (input.files[file]) {
-          results.files[file] = analyzeJSTS(
-            {
-              filePath: file,
-              fileContent: input.files[file].fileContent ?? (await readFile(file)),
-              fileType: input.files[file].fileType,
-              tsConfigs: [tsConfig],
-            },
-            input.files[file].language ?? DEFAULT_LANGUAGE,
-          );
-          pendingFiles.delete(file);
-        }
-      }
-      clearTypeScriptESLintParserCaches();
-    } else {
-      const { files, programId } = createAndSaveProgram(tsConfig);
-      for (const file of files) {
-        // only analyze files which are requested
-        if (input.files[file]) {
-          results.files[file] = analyzeJSTS(
-            {
-              filePath: file,
-              fileContent: input.files[file].fileContent ?? (await readFile(file)),
-              fileType: input.files[file].fileType,
-              programId,
-            },
-            input.files[file].language ?? DEFAULT_LANGUAGE,
-          );
-          pendingFiles.delete(file);
-        }
-      }
-    }
-  }
-
-  for (const file of pendingFiles) {
-    results.files[file] = analyzeJSTS(
-      {
-        filePath: file,
-        fileContent: input.files[file].fileContent ?? (await readFile(file)),
-        fileType: input.files[file].fileType,
-      },
-      input.files[file].language ?? DEFAULT_LANGUAGE,
-    );
-  }
-  return results;
-}
+import { JsTsAnalysisInput, JsTsAnalysisOutput } from './analysis';
 
 /**
  * Analyzes a JavaScript / TypeScript analysis input
@@ -216,8 +140,4 @@ function computeExtendedMetrics(
       metrics: findNoSonarLines(sourceCode),
     };
   }
-}
-
-function hasVueFile(files: string[]) {
-  return files.some(file => file.toLowerCase().endsWith('.vue'));
 }
