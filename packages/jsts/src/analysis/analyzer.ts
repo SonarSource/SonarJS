@@ -25,15 +25,29 @@ import {
   getCpdTokens,
   getLinter,
   getSyntaxHighlighting,
+  initializeLinter,
   LinterWrapper,
   SymbolHighlight,
 } from '../linter';
 import { buildSourceCode } from '../builders';
 import { measureDuration } from '../monitoring';
 import { JsTsAnalysisInput, JsTsAnalysisOutput } from './analysis';
+import { searchPackageJsonFiles } from '../dependencies';
+import { createProgram } from '../program';
 
 export function analyzeProject(input: any) {
   input;
+
+  const { rules, environments, globals, linterId, baseDir, exclusions } = input;
+  initializeLinter(rules, environments, globals, linterId);
+  searchPackageJsonFiles(baseDir, exclusions);
+  const tsConfigs =
+    '/Users/ilia.kebets/Dev/Sonar/SonarJS/packages/bridge/tests/fixtures/router/tsconfig.json'; //searchTsConfigFiles(baseDir, exclusions);
+  for (const tsConfig of tsConfigs) {
+    const { files, program } = createProgram(tsConfig);
+    for (const file of files) {
+    }
+  }
   return {
     files: {
       '/Users/ilia.kebets/Dev/Sonar/SonarJS/packages/bridge/tests/fixtures/router/file.ts': {
