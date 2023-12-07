@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { FileType, JsTsLanguage, AnalysisInput, AnalysisOutput } from '@sonar/shared';
-import { CpdToken, Issue, Metrics, SymbolHighlight, SyntaxHighlight } from '../linter';
+import { CpdToken, Issue, Metrics, RuleConfig, SymbolHighlight, SyntaxHighlight } from '../linter';
 import { Perf } from '../monitoring';
 
 /**
@@ -48,6 +48,24 @@ export interface JsTsAnalysisInput extends AnalysisInput {
 }
 export type ProjectAnalysisOutput = {
   files: { [key: string]: JsTsAnalysisOutput };
+};
+
+export type JsTsFile = {
+  fileContent?: string;
+  ignoreHeaderComments?: boolean;
+  fileType: FileType;
+  language?: JsTsLanguage;
+};
+
+export type ProjectAnalysisInput = {
+  files: { [key: string]: JsTsFile };
+  rules: RuleConfig[];
+  environments: string[];
+  globals: string[];
+  baseDir: string;
+  tsConfigs?: string[];
+  exclusions?: string[];
+  isSonarlint?: boolean;
 };
 
 /**

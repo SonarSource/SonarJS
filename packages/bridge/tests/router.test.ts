@@ -19,7 +19,7 @@
  */
 import { setContext, toUnixPath } from '@sonar/shared';
 import http from 'http';
-import { createAndSaveProgram, RuleConfig } from '@sonar/jsts';
+import { createAndSaveProgram, ProjectAnalysisInput, RuleConfig } from '@sonar/jsts';
 import path from 'path';
 import { start } from '../src/server';
 import { promisify } from 'util';
@@ -51,21 +51,18 @@ describe('router', () => {
 
   it('should route /analyze-project requests', async () => {
     const tsConfig = toUnixPath(path.join(fixtures, 'tsconfig.json'));
-    const payload = {
+    const payload: ProjectAnalysisInput = {
       rules: [{ key: 'no-duplicate-in-composite', configurations: [], fileTypeTarget: ['MAIN'] }],
       environments: [],
       globals: [],
       baseDir: fixtures,
-      files: [],
+      files: {},
       tsConfigs: [tsConfig],
     };
     const filePath = toUnixPath(path.join(fixtures, 'file.ts'));
 
     const fileType = 'MAIN';
-    payload.files.push({
-      filePath,
-      fileType,
-    });
+    payload.files[filePath] = { fileType };
     const response = (await request(server, '/analyze-project', 'POST', payload)) as string;
     const {
       files: {

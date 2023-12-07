@@ -31,29 +31,79 @@ import {
 } from '../linter';
 import { buildSourceCode } from '../builders';
 import { measureDuration } from '../monitoring';
-import { JsTsAnalysisInput, JsTsAnalysisOutput, ProjectAnalysisOutput } from './analysis';
+import {
+  JsTsAnalysisInput,
+  JsTsAnalysisOutput,
+  ProjectAnalysisInput,
+  ProjectAnalysisOutput,
+} from './analysis';
 import { searchPackageJsonFiles } from '../dependencies';
-import { createAndSaveProgram } from '../program';
+import { createAndSaveProgram, createProgramOptions } from '../program';
+import { clearTypeScriptESLintParserCaches } from '../parsers';
 
-export async function analyzeProject(input: any): Promise<ProjectAnalysisOutput> {
-  const { rules, environments, globals, linterId, baseDir, exclusions } = input;
-  initializeLinter(rules, environments, globals, linterId);
+const DEFAULT_LANGUAGE: JsTsLanguage = 'ts';
+
+export async function analyzeProject(input: ProjectAnalysisInput): Promise<ProjectAnalysisOutput> {
+  const { rules, environments, globals, baseDir, exclusions = [] } = input;
+  const inputFilenames = Object.keys(input.files);
+  const watchProgram = input.isSonarlint || hasVueFile(inputFilenames);
+  const pendingFiles: Set<string> = new Set(inputFilenames);
+  initializeLinter(rules, environments, globals);
   searchPackageJsonFiles(baseDir, exclusions);
-  const tsConfigs = input.tsConfigs; // || searchTsConfigFiles(baseDir, exclusions);
+  const tsConfigs = input.tsConfigs ?? []; // || searchTsConfigFiles(baseDir, exclusions);
   const results: ProjectAnalysisOutput = { files: {} };
   for (const tsConfig of tsConfigs) {
-    const { files, programId } = createAndSaveProgram(tsConfig);
-    for (const file of files) {
-      results.files[file] = analyzeJSTS(
-        {
-          filePath: file,
-          fileContent: await readFile(file),
-          fileType: 'MAIN',
-          programId,
-        },
-        'ts',
+    if (watchProgram) {
+      const options = createProgramOptions(tsConfig);
+      const files = options.rootNames;
+      tsConfigs.push(
+        ...(options.projectReferences ? options.projectReferences.map(ref => ref.path) : []),
       );
+      for (const file of files) {
+        // only analyze files which are requested
+        if (input.files[file]) {
+          results.files[file] = analyzeJSTS(
+            {
+              filePath: file,
+              fileContent: input.files[file].fileContent ?? (await readFile(file)),
+              fileType: input.files[file].fileType,
+              tsConfigs: [tsConfig],
+            },
+            input.files[file].language ?? DEFAULT_LANGUAGE,
+          );
+          pendingFiles.delete(file);
+        }
+      }
+      clearTypeScriptESLintParserCaches();
+    } else {
+      const { files, programId } = createAndSaveProgram(tsConfig);
+      for (const file of files) {
+        // only analyze files which are requested
+        if (input.files[file]) {
+          results.files[file] = analyzeJSTS(
+            {
+              filePath: file,
+              fileContent: input.files[file].fileContent ?? (await readFile(file)),
+              fileType: input.files[file].fileType,
+              programId,
+            },
+            input.files[file].language ?? DEFAULT_LANGUAGE,
+          );
+          pendingFiles.delete(file);
+        }
+      }
     }
+  }
+
+  for (const file of pendingFiles) {
+    results.files[file] = analyzeJSTS(
+      {
+        filePath: file,
+        fileContent: input.files[file].fileContent ?? (await readFile(file)),
+        fileType: input.files[file].fileType,
+      },
+      input.files[file].language ?? DEFAULT_LANGUAGE,
+    );
   }
   return results;
 }
@@ -166,4 +216,8 @@ function computeExtendedMetrics(
       metrics: findNoSonarLines(sourceCode),
     };
   }
+}
+
+function hasVueFile(files: string[]) {
+  return files.some(file => file.toLowerCase().endsWith('.vue'));
 }
