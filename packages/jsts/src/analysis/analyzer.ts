@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { APIError, debug, getContext, JsTsLanguage } from '@sonar/shared';
+import { APIError, debug, getContext, JsTsLanguage, readFile } from '@sonar/shared';
 import { SourceCode } from 'eslint';
 import {
   computeMetrics,
@@ -31,39 +31,31 @@ import {
 } from '../linter';
 import { buildSourceCode } from '../builders';
 import { measureDuration } from '../monitoring';
-import { JsTsAnalysisInput, JsTsAnalysisOutput } from './analysis';
+import { JsTsAnalysisInput, JsTsAnalysisOutput, ProjectAnalysisOutput } from './analysis';
 import { searchPackageJsonFiles } from '../dependencies';
-import { createProgram } from '../program';
+import { createAndSaveProgram } from '../program';
 
-export function analyzeProject(input: any) {
-  input;
-
+export async function analyzeProject(input: any): Promise<ProjectAnalysisOutput> {
   const { rules, environments, globals, linterId, baseDir, exclusions } = input;
   initializeLinter(rules, environments, globals, linterId);
   searchPackageJsonFiles(baseDir, exclusions);
-  const tsConfigs =
-    '/Users/ilia.kebets/Dev/Sonar/SonarJS/packages/bridge/tests/fixtures/router/tsconfig.json'; //searchTsConfigFiles(baseDir, exclusions);
+  const tsConfigs = input.tsConfigs; // || searchTsConfigFiles(baseDir, exclusions);
+  const results: ProjectAnalysisOutput = { files: {} };
   for (const tsConfig of tsConfigs) {
-    const { files, program } = createProgram(tsConfig);
+    const { files, programId } = createAndSaveProgram(tsConfig);
     for (const file of files) {
+      results.files[file] = analyzeJSTS(
+        {
+          filePath: file,
+          fileContent: await readFile(file),
+          fileType: 'MAIN',
+          programId,
+        },
+        'ts',
+      );
     }
   }
-  return {
-    files: {
-      '/Users/ilia.kebets/Dev/Sonar/SonarJS/packages/bridge/tests/fixtures/router/file.ts': {
-        issues: [
-          {
-            ruleId: 'no-duplicate-in-composite',
-            line: 1,
-            column: 28,
-            endLine: 1,
-            endColumn: 35,
-            message: `Remove this duplicated type or replace with another one.`,
-          },
-        ],
-      },
-    },
-  };
+  return results;
 }
 
 /**

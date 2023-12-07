@@ -46,6 +46,9 @@ export interface JsTsAnalysisInput extends AnalysisInput {
   tsConfigs?: string[];
   programId?: string;
 }
+export type ProjectAnalysisOutput = {
+  files: { [key: string]: JsTsAnalysisOutput };
+};
 
 /**
  * A JavaScript / TypeScript analysis output

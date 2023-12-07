@@ -50,25 +50,21 @@ describe('router', () => {
   });
 
   it('should route /analyze-project requests', async () => {
-    /* await requestInitLinter(server, [
-      { key: 'no-duplicate-in-composite', configurations: [], fileTypeTarget: ['MAIN'] },
-    ]); */
-
+    const tsConfig = toUnixPath(path.join(fixtures, 'tsconfig.json'));
     const payload = {
       rules: [{ key: 'no-duplicate-in-composite', configurations: [], fileTypeTarget: ['MAIN'] }],
       environments: [],
       globals: [],
       baseDir: fixtures,
       files: [],
+      tsConfigs: [tsConfig],
     };
-    const filePath = path.join(fixtures, 'file.ts');
+    const filePath = toUnixPath(path.join(fixtures, 'file.ts'));
 
     const fileType = 'MAIN';
-    //const tsConfig = path.join(fixtures, 'tsconfig.json');
     payload.files.push({
       filePath,
       fileType,
-      /* tsConfigs: [tsConfig] */
     });
     const response = (await request(server, '/analyze-project', 'POST', payload)) as string;
     const {

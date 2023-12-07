@@ -94,15 +94,7 @@ if (parentPort) {
         }
 
         case 'on-analyze-project': {
-          /**
-           * do the plugin preparation stuff
-           */
-          const output = analyzeProject(data);
-          /* const files = [];
-          const results = [];
-          for (const file of files) {
-            results.push(analyzeJSTS(file, 'ts'));
-          } */
+          const output = await analyzeProject(data);
           parentThread.postMessage({ type: 'success', result: JSON.stringify(output) });
           break;
         }
