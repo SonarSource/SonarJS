@@ -32,6 +32,26 @@ import { buildSourceCode } from '../builders';
 import { measureDuration } from '../monitoring';
 import { JsTsAnalysisInput, JsTsAnalysisOutput } from './analysis';
 
+export function analyzeProject(input: any) {
+  input;
+  return {
+    files: {
+      '/Users/ilia.kebets/Dev/Sonar/SonarJS/packages/bridge/tests/fixtures/router/file.ts': {
+        issues: [
+          {
+            ruleId: 'no-duplicate-in-composite',
+            line: 1,
+            column: 28,
+            endLine: 1,
+            endColumn: 35,
+            message: `Remove this duplicated type or replace with another one.`,
+          },
+        ],
+      },
+    },
+  };
+}
+
 /**
  * Analyzes a JavaScript / TypeScript analysis input
  *

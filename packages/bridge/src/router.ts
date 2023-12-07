@@ -25,6 +25,7 @@ export default function (worker: Worker): express.Router {
   const router = express.Router();
 
   /** Endpoints running on the worker thread */
+  router.post('/analyze-project', delegate(worker, 'on-analyze-project'));
   router.post('/analyze-css', delegate(worker, 'on-analyze-css'));
   router.post('/analyze-js', delegate(worker, 'on-analyze-js'));
   router.post('/analyze-html', delegate(worker, 'on-analyze-html'));

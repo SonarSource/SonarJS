@@ -30,6 +30,7 @@ const {
   initializeLinter,
   writeTSConfigFile,
   searchPackageJsonFiles,
+  analyzeProject,
 } = require('@sonar/jsts');
 const { readFile, setContext } = require('@sonar/shared/helpers');
 const { analyzeCSS } = require('@sonar/css');
@@ -88,6 +89,20 @@ if (parentPort) {
           await readFileLazily(data);
 
           const output = analyzeJSTS(data, 'js');
+          parentThread.postMessage({ type: 'success', result: JSON.stringify(output) });
+          break;
+        }
+
+        case 'on-analyze-project': {
+          /**
+           * do the plugin preparation stuff
+           */
+          const output = analyzeProject(data);
+          /* const files = [];
+          const results = [];
+          for (const file of files) {
+            results.push(analyzeJSTS(file, 'ts'));
+          } */
           parentThread.postMessage({ type: 'success', result: JSON.stringify(output) });
           break;
         }

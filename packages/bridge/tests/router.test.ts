@@ -49,6 +49,48 @@ describe('router', () => {
     await close();
   });
 
+  it('should route /analyze-project requests', async () => {
+    /* await requestInitLinter(server, [
+      { key: 'no-duplicate-in-composite', configurations: [], fileTypeTarget: ['MAIN'] },
+    ]); */
+
+    const payload = {
+      rules: [{ key: 'no-duplicate-in-composite', configurations: [], fileTypeTarget: ['MAIN'] }],
+      environments: [],
+      globals: [],
+      baseDir: fixtures,
+      files: [],
+    };
+    const filePath = path.join(fixtures, 'file.ts');
+
+    const fileType = 'MAIN';
+    //const tsConfig = path.join(fixtures, 'tsconfig.json');
+    payload.files.push({
+      filePath,
+      fileType,
+      /* tsConfigs: [tsConfig] */
+    });
+    const response = (await request(server, '/analyze-project', 'POST', payload)) as string;
+    const {
+      files: {
+        [filePath]: {
+          issues: [issue],
+        },
+      },
+      //issues: [issue],
+    } = JSON.parse(response);
+    expect(issue).toEqual(
+      expect.objectContaining({
+        ruleId: 'no-duplicate-in-composite',
+        line: 1,
+        column: 28,
+        endLine: 1,
+        endColumn: 35,
+        message: `Remove this duplicated type or replace with another one.`,
+      }),
+    );
+  });
+
   it('should route /analyze-css requests', async () => {
     const filePath = path.join(fixtures, 'file.css');
     const rules = [{ key: 'function-calc-no-invalid', configurations: [] }];
