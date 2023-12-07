@@ -82,7 +82,7 @@ class JsTsRulingTest {
       MavenLocation.of("org.sonarsource.sonar-lits-plugin", "sonar-lits-plugin", LITS_VERSION)
     )
     // required to load YAML files
-    .addPlugin(MavenLocation.of("org.sonarsource.config", "sonar-config-plugin", "LATEST_RELEASE"))
+    .addPlugin(MavenLocation.of("org.sonarsource.iac", "sonar-iac-plugin", "LATEST_RELEASE"))
     .addPlugin(MavenLocation.of("org.sonarsource.html", "sonar-html-plugin", "LATEST_RELEASE"))
     .build();
 
@@ -201,7 +201,12 @@ class JsTsRulingTest {
       .restoreProfile(FileLocation.of(jsProfile))
       .restoreProfile(FileLocation.of(tsProfile))
       .restoreProfile(FileLocation.ofClasspath("/empty-css-profile.xml"))
-      .restoreProfile(FileLocation.ofClasspath("/empty-html-profile.xml"));
+      .restoreProfile(FileLocation.ofClasspath("/empty-html-profile.xml"))
+      .restoreProfile(FileLocation.ofClasspath("/empty-kubernetes-profile.xml"))
+      .restoreProfile(FileLocation.ofClasspath("/empty-terraform-profile.xml"))
+      .restoreProfile(FileLocation.ofClasspath("/empty-azureresourcemanager-profile.xml"))
+      .restoreProfile(FileLocation.ofClasspath("/empty-cloudformation-profile.xml"))
+      .restoreProfile(FileLocation.ofClasspath("/empty-docker-profile.xml"));
 
     instantiateTemplateRule(
       "js",
@@ -269,6 +274,21 @@ class JsTsRulingTest {
     orchestrator.getServer().associateProjectToQualityProfile(projectKey, "ts", "rules");
     orchestrator.getServer().associateProjectToQualityProfile(projectKey, "css", "empty-profile");
     orchestrator.getServer().associateProjectToQualityProfile(projectKey, "web", "empty-profile");
+    orchestrator
+      .getServer()
+      .associateProjectToQualityProfile(projectKey, "kubernetes", "empty-profile");
+    orchestrator
+      .getServer()
+      .associateProjectToQualityProfile(projectKey, "terraform", "empty-profile");
+    orchestrator
+      .getServer()
+      .associateProjectToQualityProfile(projectKey, "azureresourcemanager", "empty-profile");
+    orchestrator
+      .getServer()
+      .associateProjectToQualityProfile(projectKey, "cloudformation", "empty-profile");
+    orchestrator
+      .getServer()
+      .associateProjectToQualityProfile(projectKey, "docker", "empty-profile");
 
     File sourcesLocation = FileLocation.of(sources).getFile();
 
