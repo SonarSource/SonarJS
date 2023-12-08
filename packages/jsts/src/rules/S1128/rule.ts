@@ -204,8 +204,8 @@ export const rule: Rule.RuleModule = {
     };
 
     // @ts-ignore
-    if (context.parserServices.defineTemplateBodyVisitor) {
-      return context.parserServices.defineTemplateBodyVisitor(
+    if (context.sourceCode.parserServices.defineTemplateBodyVisitor) {
+      return context.sourceCode.parserServices.defineTemplateBodyVisitor(
         {
           VElement: (node: AST.VElement) => {
             const { rawName } = node;
@@ -298,7 +298,7 @@ function getSuggestion(
 
 function getJsxFactories(context: Rule.RuleContext) {
   const factories = new Set<string>();
-  const parserServices = context.parserServices;
+  const parserServices = context.sourceCode.parserServices;
   if (isRequiredParserServices(parserServices)) {
     const compilerOptions = parserServices.program.getCompilerOptions();
     if (compilerOptions.jsxFactory) {

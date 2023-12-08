@@ -31,7 +31,7 @@ export const rule: Rule.RuleModule = {
     },
   },
   create(context: Rule.RuleContext) {
-    const services = context.parserServices;
+    const services = context.sourceCode.parserServices;
     return {
       'CallExpression[callee.type="Identifier"]': (node: estree.Node) => {
         if (context.getScope().type !== 'module' && context.getScope().type !== 'global') {

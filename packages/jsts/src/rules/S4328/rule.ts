@@ -37,8 +37,10 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     const whitelist = context.options;
     const dependencies = getDependencies(context.filename);
-    const aliasedPathsMappingPatterns = extractPathMappingPatterns(context.parserServices);
-    const baseUrl = getBaseUrl(context.parserServices);
+    const aliasedPathsMappingPatterns = extractPathMappingPatterns(
+      context.sourceCode.parserServices,
+    );
+    const baseUrl = getBaseUrl(context.sourceCode.parserServices);
     if (aliasedPathsMappingPatterns === 'matchAll') {
       // deactivates this rule altogether.
       return {};

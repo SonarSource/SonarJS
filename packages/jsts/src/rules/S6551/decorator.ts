@@ -26,7 +26,7 @@ import { isGenericType, interceptReport } from '../helpers';
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(rule, (context, reportDescriptor) => {
     if ('node' in reportDescriptor) {
-      const services = context.parserServices;
+      const services = context.sourceCode.parserServices;
       if (isGenericType(reportDescriptor.node as TSESTree.Node, services)) {
         // we skip
       } else {

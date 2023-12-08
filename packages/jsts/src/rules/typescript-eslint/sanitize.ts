@@ -49,7 +49,7 @@ export function sanitize(rule: Rule.RuleModule): Rule.RuleModule {
       if (
         rule.meta?.docs &&
         (rule.meta.docs as any).requiresTypeChecking === true &&
-        !isRequiredParserServices(context.parserServices)
+        !isRequiredParserServices(context.sourceCode.parserServices)
       ) {
         return {};
       }

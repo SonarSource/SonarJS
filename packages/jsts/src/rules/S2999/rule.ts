@@ -42,7 +42,7 @@ export const rule: Rule.RuleModule = {
   },
   create(context: Rule.RuleContext) {
     const { considerJSDoc } = context.options[0];
-    const services = context.parserServices;
+    const services = context.sourceCode.parserServices;
     if (!isRequiredParserServices(services)) {
       return {};
     }

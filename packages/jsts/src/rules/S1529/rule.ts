@@ -103,7 +103,7 @@ function insideCondition(node: estree.Node, ancestors: estree.Node[]) {
 type NumericTypeChecker = (node: estree.Node) => boolean;
 
 function getNumericTypeChecker(context: Rule.RuleContext): NumericTypeChecker {
-  const services = context.parserServices;
+  const services = context.sourceCode.parserServices;
   if (!!services && !!services.program && !!services.esTreeNodeToTSNodeMap) {
     return (node: estree.Node) => isNumericType(getTypeFromTreeNode(node, services));
   } else {

@@ -34,7 +34,7 @@ export const rule: Rule.RuleModule = {
     },
   },
   create(context: Rule.RuleContext) {
-    const services = context.parserServices;
+    const services = context.sourceCode.parserServices;
 
     if (isRequiredParserServices(services)) {
       const returnedExpressions: ReturnedExpression[][] = [];

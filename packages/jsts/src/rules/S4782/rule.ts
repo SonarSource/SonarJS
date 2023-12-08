@@ -37,7 +37,7 @@ export const rule: Rule.RuleModule = {
   },
 
   create(context: Rule.RuleContext) {
-    if (!isRequiredParserServices(context.parserServices)) {
+    if (!isRequiredParserServices(context.sourceCode.parserServices)) {
       return {};
     }
 

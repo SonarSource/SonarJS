@@ -54,7 +54,7 @@ export const rule: Rule.RuleModule = {
     },
   },
   create(context: Rule.RuleContext) {
-    if (!isRequiredParserServices(context.parserServices)) {
+    if (!isRequiredParserServices(context.sourceCode.parserServices)) {
       return {};
     }
     const alreadyRaisedSymbols: Set<Scope.Variable> = new Set();
@@ -159,7 +159,7 @@ function checkNullDereference(
   if (
     !alreadyRaisedSymbols.has(symbol) &&
     !isWrittenInInnerFunction(symbol, enclosingFunction) &&
-    isUndefinedOrNull(node, context.parserServices)
+    isUndefinedOrNull(node, context.sourceCode.parserServices)
   ) {
     alreadyRaisedSymbols.add(symbol);
     context.report({
