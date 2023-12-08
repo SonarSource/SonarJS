@@ -1,6 +1,7 @@
 import * as path from 'path';
 import * as fs from 'fs';
-import { FileType } from '../../shared/src';
+import * as os from 'os';
+import { FileType, setContext } from '../../shared/src';
 import { JsTsFiles, ProjectAnalysisInput, analyzeProject } from '../../jsts/src';
 import { Minimatch } from 'minimatch';
 
@@ -19,7 +20,16 @@ async function runRuling() {
   const projects = getFolders(jsTsProjectsPath);
   for (const project of projects) {
     console.log(`Testing project ${project}`);
-    await testProject(project);
+    setContext({
+      workDir: path.join(os.tmpdir(), 'sonarjs'),
+      shouldUseTypeScriptParserForJS: true,
+      sonarlint: false,
+      bundles: [],
+    });
+
+    const results = await testProject(project);
+
+    console.log('finished', results);
     process.exit(0);
   }
 }
@@ -44,7 +54,7 @@ function testProject(projectPath: string, exclusions: string = '') {
   const exclusionsGlob = stringToGlob(exclusions.split(','));
   getFiles(files, projectPath, exclusionsGlob);
   payload.files = files;
-  getFiles(files, projectPath, exclusionsGlob, 'TEST');
+  //getFiles(files, projectPath, exclusionsGlob, 'TEST');
   return analyzeProject(payload);
 
   function stringToGlob(patterns: string[]): Minimatch[] {
@@ -55,10 +65,14 @@ function testProject(projectPath: string, exclusions: string = '') {
 function getFiles(acc: JsTsFiles, dir: string, exclusions: Minimatch[], type: FileType = 'MAIN') {
   const files = fs.readdirSync(dir, { withFileTypes: true, recursive: true });
   for (const file of files) {
-    if (file.isDirectory()) continue;
-    if (!isExcluded(file.path, exclusions)) {
-      acc[file.path] = { fileType: type };
+    if (!isJsTsFile(file.name) || file.isDirectory()) continue;
+    if (!isExcluded(file.name, exclusions)) {
+      acc[path.join(file.path, file.name)] = { fileType: type };
     }
+  }
+
+  function isJsTsFile(filePath: string) {
+    return filePath.endsWith('.js') || filePath.endsWith('.ts');
   }
 
   function isExcluded(filePath: string, exclusions: Minimatch[]) {
