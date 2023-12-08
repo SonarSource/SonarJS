@@ -17,9 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ParserServices } from '@typescript-eslint/experimental-utils';
 import * as estree from 'estree';
-import { isIdentifier, isString } from '../';
+import { isIdentifier, isString, RequiredParserServices } from '../';
 
 export function isRegExpConstructor(node: estree.Node): node is estree.CallExpression {
   return (
@@ -31,7 +30,7 @@ export function isRegExpConstructor(node: estree.Node): node is estree.CallExpre
   );
 }
 
-export function isStringReplaceCall(call: estree.CallExpression, services: ParserServices) {
+export function isStringReplaceCall(call: estree.CallExpression, services: RequiredParserServices) {
   return (
     call.callee.type === 'MemberExpression' &&
     call.callee.property.type === 'Identifier' &&
@@ -42,7 +41,10 @@ export function isStringReplaceCall(call: estree.CallExpression, services: Parse
   );
 }
 
-export function isStringRegexMethodCall(call: estree.CallExpression, services: ParserServices) {
+export function isStringRegexMethodCall(
+  call: estree.CallExpression,
+  services: RequiredParserServices,
+) {
   return (
     call.callee.type === 'MemberExpression' &&
     call.callee.property.type === 'Identifier' &&

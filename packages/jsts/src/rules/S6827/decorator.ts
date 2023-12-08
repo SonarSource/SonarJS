@@ -20,7 +20,7 @@
 import { Rule } from 'eslint';
 import { interceptReport } from '../helpers';
 import { hasAnyProp } from 'jsx-ast-utils';
-import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { TSESTree } from '@typescript-eslint/utils';
 
 /**
  * This fix was introduced in eslint-plugin-jsx-a11y e6bfd5cb7c,

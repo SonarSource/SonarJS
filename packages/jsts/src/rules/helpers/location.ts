@@ -19,7 +19,7 @@
  */
 import * as estree from 'estree';
 import { AST } from 'eslint';
-import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { TSESTree } from '@typescript-eslint/utils';
 import { EncodedMessage, IssueLocation } from 'eslint-plugin-sonarjs/lib/utils/locations';
 
 export type LocationHolder = AST.Token | TSESTree.Node | estree.Node | { loc: AST.SourceLocation };

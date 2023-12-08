@@ -20,7 +20,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S3513/javascript
 
 import { Rule, Scope } from 'eslint';
-import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { TSESTree } from '@typescript-eslint/utils';
 import { toEncodedMessage } from '../helpers';
 import { SONAR_RUNTIME } from '../../linter/parameters';
 

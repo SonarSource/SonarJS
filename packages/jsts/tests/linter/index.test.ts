@@ -19,7 +19,7 @@
  */
 import path from 'path';
 import { setContext } from '@sonar/shared';
-import { initializeLinter, getLinter, LinterWrapper } from '../../src/linter';
+import { initializeLinter, getLinter, LinterWrapper } from '@sonar/jsts';
 import { parseJavaScriptSourceFile } from '../tools';
 
 describe('initializeLinter', () => {

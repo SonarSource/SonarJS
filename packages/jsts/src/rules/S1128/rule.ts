@@ -22,7 +22,7 @@
 import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
 import { AST } from 'vue-eslint-parser';
-import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { TSESTree } from '@typescript-eslint/utils';
 import {
   isRequiredParserServices,
   removeNodeWithLeadingWhitespaces,

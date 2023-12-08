@@ -20,7 +20,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S124/javascript
 
 import { Rule } from 'eslint';
-import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { TSESTree } from '@typescript-eslint/utils';
 
 export const rule: Rule.RuleModule = {
   meta: {

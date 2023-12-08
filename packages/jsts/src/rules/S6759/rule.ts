@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import { Function, Node, ReturnStatement } from 'estree';
-import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { TSESTree } from '@typescript-eslint/utils';
 import {
   RequiredParserServices,
   getTypeFromTreeNode,

@@ -20,7 +20,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S4023/javascript
 
 import { Rule } from 'eslint';
-import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { TSESTree } from '@typescript-eslint/utils';
 import { UTILITY_TYPES, interceptReport } from '../helpers';
 
 // core implementation of this rule raises issues on empty interface extending TypeScript utility types

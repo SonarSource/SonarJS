@@ -20,7 +20,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S4324/javascript
 
 import { Rule } from 'eslint';
-import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { TSESTree } from '@typescript-eslint/utils';
 import { isRequiredParserServices, RequiredParserServices } from '../helpers';
 import * as estree from 'estree';
 import * as ts from 'typescript';

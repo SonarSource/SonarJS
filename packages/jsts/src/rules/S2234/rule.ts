@@ -21,9 +21,8 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { TSESTree } from '@typescript-eslint/utils';
 import { EncodedMessage } from 'eslint-plugin-sonarjs/lib/utils/locations';
-import { isIdentifier } from 'eslint-plugin-sonarjs/lib/utils/nodes';
 import {
   FunctionNodeType,
   isRequiredParserServices,
@@ -63,7 +62,7 @@ export const rule: Rule.RuleModule = {
       const { params: functionParameters, declaration: functionDeclaration } = resolvedFunction;
       const argumentNames = functionCall.arguments.map(arg => {
         const argument = arg as TSESTree.Node;
-        return isIdentifier(argument) ? argument.name : undefined;
+        return argument.type === 'Identifier' ? argument.name : undefined;
       });
 
       for (let argumentIndex = 0; argumentIndex < argumentNames.length; argumentIndex++) {

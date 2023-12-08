@@ -37,4 +37,4 @@ export * from './type';
 export * from './vitest';
 export * from './vue';
 
-export * from 'eslint-plugin-sonarjs/lib/utils/parser-services';
+export * from './parser-services';

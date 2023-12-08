@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { TSESTree } from '@typescript-eslint/utils';
 import { resolveIdentifiers } from '../helpers';
 
 interface FunctionLike {
@@ -40,7 +40,7 @@ export const rule: Rule.RuleModule = {
       VariableDeclaration: (node: estree.Node) =>
         checkVariable(node as TSESTree.VariableDeclaration, context),
       'FunctionDeclaration, FunctionExpression, ArrowFunctionExpression, TSDeclareFunction, TSMethodSignature, TSConstructSignatureDeclaration, TSEmptyBodyFunctionExpression':
-        (node: estree.Node) => checkFunction(node as FunctionLike, context),
+        (node: estree.Node) => checkFunction(node as TSESTree.Node as FunctionLike, context),
       PropertyDefinition: (node: estree.Node) =>
         checkProperty(node as unknown as TSESTree.PropertyDefinition, context),
       CatchClause: (node: estree.Node) => checkCatch(node as TSESTree.CatchClause, context),
