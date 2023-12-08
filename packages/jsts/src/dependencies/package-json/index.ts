@@ -37,36 +37,14 @@ const dirCache: Map<string, Set<string>> = new Map();
  */
 const cache: Map<string, Set<string>> = new Map();
 
-const PackageJsonsByBaseDir = new FileFinder<PackageJson>();
+export const PackageJsonsByBaseDir = new FileFinder<PackageJson>();
 
-function searchPackageJsonFiles(baseDir: string, exclusions: string[]) {
+export function searchPackageJsonFiles(baseDir: string, exclusions: string[]) {
   PackageJsonsByBaseDir.searchFiles(baseDir, [PACKAGE_JSON], exclusions);
 }
 
-function getAllPackageJsons() {
+export function getAllPackageJsons() {
   return PackageJsonsByBaseDir.db;
-}
-
-/**
- * Given a filename, return all package.json files in the ancestor paths
- * ordered from nearest to furthest
- *
- * @param file source file for which we need a package.json
- */
-function getNearestPackageJsons(file: string) {
-  const results: File<PackageJson>[] = [];
-  if (PackageJsonsByBaseDir.db.size === 0) {
-    return results;
-  }
-  let currentDir = path.posix.dirname(path.posix.normalize(toUnixPath(file)));
-  do {
-    const packageJson = PackageJsonsByBaseDir.db.get(currentDir);
-    if (packageJson) {
-      results.push(packageJson);
-    }
-    currentDir = path.posix.dirname(currentDir);
-  } while (currentDir !== path.posix.dirname(currentDir));
-  return results;
 }
 
 /**
@@ -75,7 +53,7 @@ function getNearestPackageJsons(file: string) {
  * @param fileName context.filename
  * @returns
  */
-function getDependencies(fileName: string) {
+export function getDependencies(fileName: string) {
   let dirname = path.posix.dirname(toUnixPath(fileName));
   const cached = cache.get(dirname);
   if (cached) {
@@ -100,6 +78,28 @@ function getDependencies(fileName: string) {
   return result;
 }
 
+/**
+ * Given a filename, return all package.json files in the ancestor paths
+ * ordered from nearest to furthest
+ *
+ * @param file source file for which we need a package.json
+ */
+export function getNearestPackageJsons(file: string) {
+  const results: File<PackageJson>[] = [];
+  if (PackageJsonsByBaseDir.db.size === 0) {
+    return results;
+  }
+  let currentDir = path.posix.dirname(path.posix.normalize(toUnixPath(file)));
+  do {
+    const packageJson = PackageJsonsByBaseDir.db.get(currentDir);
+    if (packageJson) {
+      results.push(packageJson);
+    }
+    currentDir = path.posix.dirname(currentDir);
+  } while (currentDir !== path.posix.dirname(currentDir));
+  return results;
+}
+
 function getDependenciesFromPackageJson(content: PackageJson) {
   const result = new Set<string>();
   if (content.name) {
@@ -122,11 +122,3 @@ function addDependencies(result: Set<string>, dependencies: any) {
     result.add(name.startsWith(DefinitelyTyped) ? name.substring(DefinitelyTyped.length) : name),
   );
 }
-
-export {
-  searchPackageJsonFiles,
-  getNearestPackageJsons,
-  getAllPackageJsons,
-  getDependencies,
-  PackageJsonsByBaseDir,
-};

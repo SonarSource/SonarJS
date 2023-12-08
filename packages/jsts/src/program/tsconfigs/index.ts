@@ -23,14 +23,12 @@ import { TsConfigJson } from 'type-fest';
 
 const TSCONFIG_JSON = 'tsconfig.json';
 
-const TSConfigJsonsByBaseDir = new FileFinder<TsConfigJson>();
+export const TSConfigJsonsByBaseDir = new FileFinder<TsConfigJson>();
 
-function searchTSConfigJsonFiles(baseDir: string, exclusions: string[]) {
+export function searchTSConfigJsonFiles(baseDir: string, exclusions: string[]) {
   TSConfigJsonsByBaseDir.searchFiles(baseDir, [TSCONFIG_JSON], exclusions);
 }
 
-function getAllTSConfigJsons() {
+export function getAllTSConfigJsons() {
   return TSConfigJsonsByBaseDir.db;
 }
-
-export { searchTSConfigJsonFiles, getAllTSConfigJsons, TSConfigJsonsByBaseDir };

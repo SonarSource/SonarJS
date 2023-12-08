@@ -94,5 +94,5 @@ export class FileFinder<T> {
 }
 
 function stringToGlob(patterns: string[]): Minimatch[] {
-  return patterns.map(pattern => new Minimatch(pattern, { nocase: true }));
+  return patterns.map(pattern => new Minimatch(pattern, { nocase: true, matchBase: true }));
 }
