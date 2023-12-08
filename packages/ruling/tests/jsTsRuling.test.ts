@@ -1,15 +1,18 @@
 import * as path from 'path';
 import * as fs from 'fs';
-import { FileType } from '@sonar/shared';
-import { JsTsFiles, ProjectAnalysisInput, analyzeProject } from '@sonar/jsts';
+import { FileType } from '../../shared/src';
+import { JsTsFiles, ProjectAnalysisInput, analyzeProject } from '../../jsts/src';
 
-const sourcesPath = path.join(__dirname, '..', 'its', 'sources');
+const sourcesPath = path.join(__dirname, '..', '..', '..', 'its', 'sources');
+console.log('sourcesPath', sourcesPath);
 const jsTsProjectsPath = path.join(sourcesPath, 'jsts', 'projects');
 /* const customPath = path.join(sourcesPath, 'jsts', 'custom'); */
 
-(async () => {
-  await runRuling();
-})();
+describe('Ruling', () => {
+  it('should rule', async () => {
+    await runRuling();
+  });
+});
 
 async function runRuling() {
   const projects = getFolders(jsTsProjectsPath);
@@ -21,9 +24,10 @@ async function runRuling() {
 }
 
 function getFolders(dir: string) {
+  const ignore = new Set(['.github']);
   return fs
     .readdirSync(dir, { withFileTypes: true })
-    .filter(dirent => dirent.isDirectory())
+    .filter(dirent => dirent.isDirectory() && !ignore.has(dirent.name))
     .map(dirent => path.join(dir, dirent.name));
 }
 
