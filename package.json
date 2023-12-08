@@ -108,11 +108,12 @@
     "type-fest": "4.6.0",
     "typescript": "5.3.2",
     "vue-eslint-parser": "9.3.0",
+    "typescript": "5.3.3",
     "yaml": "2.3.1"
   },
   "bundledDependencies": [
     "@typescript-eslint/eslint-plugin",
-    "@typescript-eslint/experimental-utils",
+    "@typescript-eslint/utils",
     "@typescript-eslint/parser",
     "@babel/core",
     "@babel/eslint-parser",
