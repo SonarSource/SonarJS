@@ -17,9 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export * from './context';
-export * from './logging';
-export * from './files';
-export * from './language';
-export * from './escape';
-export * from './find-files';
+
+import { FileFinder } from '@sonar/shared';
+import { TsConfigJson } from 'type-fest';
+
+const TSCONFIG_JSON = 'tsconfig.json';
+
+const TSConfigJsonsByBaseDir = new FileFinder<TsConfigJson>();
+
+function searchTSConfigJsonFiles(baseDir: string, exclusions: string[]) {
+  TSConfigJsonsByBaseDir.searchFiles(baseDir, [TSCONFIG_JSON], exclusions);
+}
+
+function getAllTSConfigJsons() {
+  return TSConfigJsonsByBaseDir.db;
+}
+
+export { searchTSConfigJsonFiles, getAllTSConfigJsons, TSConfigJsonsByBaseDir };

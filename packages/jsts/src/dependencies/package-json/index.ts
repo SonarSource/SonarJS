@@ -19,25 +19,13 @@
  */
 
 import path from 'path';
-import { PackageJsons } from './project-package-json';
+import { FileFinder, File } from '@sonar/shared';
 import { toUnixPath } from '@sonar/shared';
 import { PackageJson } from 'type-fest';
 
+const PACKAGE_JSON = 'package.json';
+
 const DefinitelyTyped = '@types/';
-
-const PackageJsonsByBaseDir = new PackageJsons();
-
-function searchPackageJsonFiles(baseDir: string, exclusions: string[]) {
-  PackageJsonsByBaseDir.searchPackageJsonFiles(baseDir, exclusions);
-}
-
-function getNearestPackageJsons(file: string) {
-  return PackageJsonsByBaseDir.getPackageJsonsForFile(file);
-}
-
-function getAllPackageJsons() {
-  return PackageJsonsByBaseDir.db;
-}
 
 /**
  * Cache for each dirname the dependencies of the package.json in this directory, empty set when no package.json.
@@ -49,12 +37,42 @@ const dirCache: Map<string, Set<string>> = new Map();
  */
 const cache: Map<string, Set<string>> = new Map();
 
+const PackageJsonsByBaseDir = new FileFinder<PackageJson>();
+
+function searchPackageJsonFiles(baseDir: string, exclusions: string[]) {
+  PackageJsonsByBaseDir.searchFiles(baseDir, [PACKAGE_JSON], exclusions);
+}
+
+function getAllPackageJsons() {
+  return PackageJsonsByBaseDir.db;
+}
+
+/**
+ * Given a filename, return all package.json files in the ancestor paths
+ * ordered from nearest to furthest
+ *
+ * @param file source file for which we need a package.json
+ */
+function getNearestPackageJsons(file: string) {
+  const results: File<PackageJson>[] = [];
+  if (PackageJsonsByBaseDir.db.size === 0) {
+    return results;
+  }
+  let currentDir = path.posix.dirname(path.posix.normalize(toUnixPath(file)));
+  do {
+    const packageJson = PackageJsonsByBaseDir.db.get(currentDir);
+    if (packageJson) {
+      results.push(packageJson);
+    }
+    currentDir = path.posix.dirname(currentDir);
+  } while (currentDir !== path.posix.dirname(currentDir));
+  return results;
+}
+
 /**
  * Retrieve the dependencies of all the package.json files available for the given file.
  *
  * @param fileName context.filename
- * @param cache Cache for the available dependencies by dirname.
- * @param dirCache Cache for each dirname the dependencies of the package.json in this directory, empty set when no package.json.
  * @returns
  */
 function getDependencies(fileName: string) {
@@ -112,4 +130,3 @@ export {
   getDependencies,
   PackageJsonsByBaseDir,
 };
-export { PackageJson } from './project-package-json';

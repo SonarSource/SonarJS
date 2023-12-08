@@ -24,11 +24,13 @@ import {
   clearTypeScriptESLintParserCaches,
   createAndSaveProgram,
   createProgramOptions,
+  getAllTSConfigJsons,
   initializeLinter,
   JsTsFiles,
   ProjectAnalysisInput,
   ProjectAnalysisOutput,
   searchPackageJsonFiles,
+  searchTSConfigJsonFiles,
 } from '@sonar/jsts';
 
 const DEFAULT_LANGUAGE: JsTsLanguage = 'ts';
@@ -46,12 +48,12 @@ export async function analyzeProject(input: ProjectAnalysisInput): Promise<Proje
   const watchProgram = input.isSonarlint || hasVueFile(inputFilenames);
   initializeLinter(rules, environments, globals);
   searchPackageJsonFiles(baseDir, exclusions);
-  const tsConfigs = input.tsConfigs ?? []; // || searchTsConfigFiles(baseDir, exclusions);
+  searchTSConfigJsonFiles(baseDir, exclusions);
   const results: ProjectAnalysisOutput = { files: {} };
   if (watchProgram) {
-    await analyzeWithWatchProgram(tsConfigs, input.files, results, pendingFiles);
+    await analyzeWithWatchProgram(input.files, results, pendingFiles);
   } else {
-    await analyzeWithProgram(tsConfigs, input.files, results, pendingFiles);
+    await analyzeWithProgram(input.files, results, pendingFiles);
   }
 
   await analyzeWithoutProgram(pendingFiles, input.files, results);
@@ -59,12 +61,11 @@ export async function analyzeProject(input: ProjectAnalysisInput): Promise<Proje
 }
 
 async function analyzeWithProgram(
-  tsConfigs: string[],
   files: JsTsFiles,
   results: ProjectAnalysisOutput,
   pendingFiles: Set<string>,
 ) {
-  for (const tsConfig of tsConfigs) {
+  for (const [tsConfig] of getAllTSConfigJsons()) {
     const { files: filenames, programId } = createAndSaveProgram(tsConfig);
     for (const filename of filenames) {
       // only analyze files which are requested
@@ -85,17 +86,13 @@ async function analyzeWithProgram(
 }
 
 async function analyzeWithWatchProgram(
-  tsConfigs: string[],
   files: JsTsFiles,
   results: ProjectAnalysisOutput,
   pendingFiles: Set<string>,
 ) {
-  for (const tsConfig of tsConfigs) {
+  for (const [tsConfig] of getAllTSConfigJsons()) {
     const options = createProgramOptions(tsConfig);
     const filenames = options.rootNames;
-    tsConfigs.push(
-      ...(options.projectReferences ? options.projectReferences.map(ref => ref.path) : []),
-    );
     for (const filename of filenames) {
       // only analyze files which are requested
       if (files[filename]) {
