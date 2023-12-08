@@ -2,6 +2,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { FileType } from '../../shared/src';
 import { JsTsFiles, ProjectAnalysisInput, analyzeProject } from '../../jsts/src';
+import { Minimatch } from 'minimatch';
 
 const sourcesPath = path.join(__dirname, '..', '..', '..', 'its', 'sources');
 console.log('sourcesPath', sourcesPath);
@@ -40,26 +41,27 @@ function testProject(projectPath: string, exclusions: string = '') {
     files: {},
   };
   const files = {};
-  getFiles(files, projectPath, exclusions);
+  const exclusionsGlob = stringToGlob(exclusions.split(','));
+  getFiles(files, projectPath, exclusionsGlob);
   payload.files = files;
-  getFiles(files, projectPath, exclusions, 'TEST');
+  getFiles(files, projectPath, exclusionsGlob, 'TEST');
   return analyzeProject(payload);
+
+  function stringToGlob(patterns: string[]): Minimatch[] {
+    return patterns.map(pattern => new Minimatch(pattern, { nocase: true, matchBase: true }));
+  }
 }
 
-function getFiles(acc: JsTsFiles, dir: string, exclusions: string = '', type: FileType = 'MAIN') {
-  const regexExclusions = exclusions.split(',').map(exclusion => {
-    exclusion = exclusion.trim();
-    return new RegExp(exclusion);
-  });
+function getFiles(acc: JsTsFiles, dir: string, exclusions: Minimatch[], type: FileType = 'MAIN') {
   const files = fs.readdirSync(dir, { withFileTypes: true, recursive: true });
   for (const file of files) {
     if (file.isDirectory()) continue;
-    if (!isExcluded(file.path, regexExclusions)) {
+    if (!isExcluded(file.path, exclusions)) {
       acc[file.path] = { fileType: type };
     }
   }
 
-  function isExcluded(filePath: string, exclusions: RegExp[]) {
-    return exclusions.some(exclusion => filePath.match(exclusion));
+  function isExcluded(filePath: string, exclusions: Minimatch[]) {
+    return exclusions.some(exclusion => exclusion.match(filePath));
   }
 }
