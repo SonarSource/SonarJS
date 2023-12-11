@@ -24,7 +24,6 @@ import {
   clearTypeScriptESLintParserCaches,
   createAndSaveProgram,
   createProgramOptions,
-  getAllTSConfigJsons,
   initializeLinter,
   JsTsAnalysisInput,
   JsTsAnalysisOutput,
@@ -77,25 +76,24 @@ async function analyzeWithProgram(
   results: ProjectAnalysisOutput,
   pendingFiles: Set<string>,
 ) {
-  for (const [_dirname, tsconfigs] of getAllTSConfigJsons()) {
-    for (const { filename: tsConfig } of tsconfigs) {
-      const { files: filenames, programId } = createAndSaveProgram(tsConfig);
-      for (const filename of filenames) {
-        // only analyze files which are requested
-        if (files[filename]) {
-          results.files[filename] = analyzeFile(
-            {
-              filePath: filename,
-              fileContent: files[filename].fileContent ?? (await readFile(filename)),
-              fileType: files[filename].fileType,
-              programId,
-            },
-            files[filename].language ?? DEFAULT_LANGUAGE,
-          );
-          pendingFiles.delete(filename);
-        }
+  for (const tsConfig of loopTSConfigs()) {
+    const { files: filenames, programId } = createAndSaveProgram(tsConfig);
+    for (const filename of filenames) {
+      // only analyze files which are requested
+      if (files[filename]) {
+        results.files[filename] = analyzeFile(
+          {
+            filePath: filename,
+            fileContent: files[filename].fileContent ?? (await readFile(filename)),
+            fileType: files[filename].fileType,
+            programId,
+          },
+          files[filename].language ?? DEFAULT_LANGUAGE,
+        );
+        pendingFiles.delete(filename);
       }
     }
+    if (!pendingFiles.size) break;
   }
 }
 
@@ -104,27 +102,26 @@ async function analyzeWithWatchProgram(
   results: ProjectAnalysisOutput,
   pendingFiles: Set<string>,
 ) {
-  for (const [_dirname, tsconfigs] of getAllTSConfigJsons()) {
-    for (const { filename: tsConfig } of tsconfigs) {
-      const options = createProgramOptions(tsConfig);
-      const filenames = options.rootNames;
-      for (const filename of filenames) {
-        // only analyze files which are requested
-        if (files[filename]) {
-          results.files[filename] = analyzeFile(
-            {
-              filePath: filename,
-              fileContent: files[filename].fileContent ?? (await readFile(filename)),
-              fileType: files[filename].fileType,
-              tsConfigs: [tsConfig],
-            },
-            files[filename].language ?? DEFAULT_LANGUAGE,
-          );
-          pendingFiles.delete(filename);
-        }
+  for (const tsConfig of loopTSConfigs()) {
+    const options = createProgramOptions(tsConfig);
+    const filenames = options.rootNames;
+    for (const filename of filenames) {
+      // only analyze files which are requested
+      if (files[filename]) {
+        results.files[filename] = analyzeFile(
+          {
+            filePath: filename,
+            fileContent: files[filename].fileContent ?? (await readFile(filename)),
+            fileType: files[filename].fileType,
+            tsConfigs: [tsConfig],
+          },
+          files[filename].language ?? DEFAULT_LANGUAGE,
+        );
+        pendingFiles.delete(filename);
       }
-      clearTypeScriptESLintParserCaches();
     }
+    clearTypeScriptESLintParserCaches();
+    if (!pendingFiles.size) break;
   }
 }
 
@@ -145,6 +142,8 @@ async function analyzeWithoutProgram(
     );
   }
 }
+
+function* loopTSConfigs() {}
 
 function analyzeFile(input: JsTsAnalysisInput, language: JsTsLanguage) {
   try {

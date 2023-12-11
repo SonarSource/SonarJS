@@ -33,3 +33,11 @@ export function searchTSConfigJsonFiles(baseDir: string, exclusions: string[]) {
 export function getAllTSConfigJsons() {
   return TSConfigJsonsByBaseDir.db;
 }
+
+export function* loopTSConfigs() {
+  for (const [_dirname, tsconfigs] of getAllTSConfigJsons()) {
+    for (const { filename: tsConfig } of tsconfigs) {
+      yield tsConfig;
+    }
+  }
+}
