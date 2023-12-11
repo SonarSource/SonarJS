@@ -27,6 +27,7 @@ export type ProjectAnalysisOutput = {
     withProgram: boolean;
     withWatchProgram: boolean;
     filesWithoutTypeChecking: string[];
+    programsCreated: number;
   };
 };
 

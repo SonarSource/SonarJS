@@ -28,6 +28,7 @@ import {
   JsTsAnalysisInput,
   JsTsAnalysisOutput,
   JsTsFiles,
+  loopTSConfigs,
   ProjectAnalysisInput,
   ProjectAnalysisOutput,
   searchPackageJsonFiles,
@@ -57,6 +58,7 @@ export async function analyzeProject(input: ProjectAnalysisInput): Promise<Proje
       withProgram: false,
       withWatchProgram: false,
       filesWithoutTypeChecking: [],
+      programsCreated: 0,
     },
   };
   if (watchProgram) {
@@ -78,6 +80,7 @@ async function analyzeWithProgram(
 ) {
   for (const tsConfig of loopTSConfigs()) {
     const { files: filenames, programId } = createAndSaveProgram(tsConfig);
+    results.meta!.programsCreated++;
     for (const filename of filenames) {
       // only analyze files which are requested
       if (files[filename]) {
@@ -142,8 +145,6 @@ async function analyzeWithoutProgram(
     );
   }
 }
-
-function* loopTSConfigs() {}
 
 function analyzeFile(input: JsTsAnalysisInput, language: JsTsLanguage) {
   try {

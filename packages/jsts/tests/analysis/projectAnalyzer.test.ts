@@ -32,7 +32,7 @@ describe('analyzeJSTS', () => {
     jest.resetModules();
     setContext({
       workDir: '/tmp/dir',
-      shouldUseTypeScriptParserForJS: false,
+      shouldUseTypeScriptParserForJS: true,
       sonarlint: false,
       bundles: [],
     });
@@ -69,5 +69,6 @@ describe('analyzeJSTS', () => {
     });
     expect(result.meta.withWatchProgram).toBeFalsy();
     expect(result.meta.withProgram).toBeTruthy();
+    expect(result.meta.programsCreated).toEqual(3);
   });
 });
