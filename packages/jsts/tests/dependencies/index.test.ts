@@ -164,7 +164,7 @@ describe('initialize package.json files', () => {
 
     searchPackageJsonFiles(baseDir, ['']);
     expect(console.error).toHaveBeenCalledWith(
-      `Error while searching for package.json files: Error: Cannot access ${baseDir}`,
+      `Error while searching for files: Error: Cannot access ${baseDir}`,
     );
   });
 });
