@@ -24,6 +24,7 @@ import {
   clearTypeScriptESLintParserCaches,
   createAndSaveProgram,
   createProgramOptions,
+  deleteProgram,
   initializeLinter,
   JsTsAnalysisInput,
   JsTsAnalysisOutput,
@@ -96,6 +97,7 @@ async function analyzeWithProgram(
         pendingFiles.delete(filename);
       }
     }
+    deleteProgram(programId);
     if (!pendingFiles.size) {
       break;
     }
