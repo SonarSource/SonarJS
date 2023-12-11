@@ -37,7 +37,9 @@ const dirCache: Map<string, Set<string>> = new Map();
  */
 const cache: Map<string, Set<string>> = new Map();
 
-export const PackageJsonsByBaseDir = new FileFinder<PackageJson>();
+export const PackageJsonsByBaseDir = new FileFinder(
+  contents => JSON.parse(contents) as PackageJson,
+);
 
 export function searchPackageJsonFiles(baseDir: string, exclusions: string[]) {
   PackageJsonsByBaseDir.searchFiles(baseDir, [PACKAGE_JSON], exclusions);

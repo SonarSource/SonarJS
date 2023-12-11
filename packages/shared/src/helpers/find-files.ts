@@ -51,6 +51,7 @@ export interface File<T> {
 
 export class FileFinder<T> {
   readonly db: Map<string, File<T>> = new Map();
+  constructor(readonly contentsParser: (contents: string) => T) {}
   /**
    * Look for files in a given path and its child paths.
    * node_modules is ignored
@@ -83,8 +84,8 @@ export class FileFinder<T> {
       } else if (patterns.some(pattern => pattern.match(filename)) && !file.isDirectory()) {
         try {
           debug(`Found package.json: ${filename}`);
-          const contents = JSON.parse(readFileSync(filename)) as T;
-          this.db.set(dir, { filename, contents });
+          const contents = readFileSync(filename);
+          this.db.set(dir, { filename, contents: this.contentsParser(contents) });
         } catch (e) {
           debug(`Error reading file ${filename}: ${e}`);
         }
