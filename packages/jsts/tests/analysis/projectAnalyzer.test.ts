@@ -19,17 +19,68 @@
  */
 
 import path from 'path';
-import { FileFinder, setContext, toUnixPath } from '@sonar/shared';
+import { File, FileFinder, setContext, toUnixPath } from '@sonar/shared';
 import {
   analyzeProject,
   defaultEnvironments,
   defaultGlobals,
+  getAllTSConfigJsons,
   ProjectAnalysisInput,
+  RuleConfig,
 } from '@sonar/jsts';
+
+const defaultRules: RuleConfig[] = [
+  { key: 'no-duplicate-in-composite', configurations: [], fileTypeTarget: ['MAIN'] },
+  { key: 'no-extra-semi', configurations: [], fileTypeTarget: ['MAIN'] },
+  { key: 'no-duplicate-string', configurations: [], fileTypeTarget: ['MAIN'] },
+  { key: 'sonar-no-regex-spaces', configurations: [], fileTypeTarget: ['MAIN'] },
+  { key: 'prefer-default-last', configurations: [], fileTypeTarget: ['MAIN'] },
+  { key: 'bool-param-default', configurations: [], fileTypeTarget: ['MAIN'] },
+  { key: 'sonar-no-dupe-keys', configurations: [], fileTypeTarget: ['MAIN'] },
+  { key: 'strings-comparison', configurations: [], fileTypeTarget: ['MAIN'] },
+  { key: 'prefer-promise-shorthand', configurations: [], fileTypeTarget: ['MAIN'] },
+  { key: 'no-with', configurations: [], fileTypeTarget: ['MAIN'] },
+  { key: 'no-throw-literal', configurations: [], fileTypeTarget: ['MAIN'] },
+  { key: 'object-shorthand', configurations: [], fileTypeTarget: ['MAIN'] },
+  { key: 'prefer-template', configurations: [], fileTypeTarget: ['MAIN'] },
+  { key: 'no-useless-intersection', configurations: [], fileTypeTarget: ['MAIN'] },
+  { key: 'no-array-delete', configurations: [], fileTypeTarget: ['MAIN'] },
+  { key: 'different-types-comparison', configurations: [], fileTypeTarget: ['MAIN'] },
+  { key: 'no-octal', configurations: [], fileTypeTarget: ['MAIN'] },
+  { key: 'destructuring-assignment-syntax', configurations: [], fileTypeTarget: ['MAIN'] },
+  { key: 'no-unused-function-argument', configurations: [], fileTypeTarget: ['MAIN'] },
+];
+
+function filesDBtoFilesInput(filesDB: Map<string, File<void>[]>) {
+  const allFiles = {};
+  filesDB.forEach(files => {
+    files.forEach(file => {
+      allFiles[file.filename] = {
+        fileType: 'MAIN',
+        language: file.filename.toLowerCase().endsWith('js') ? 'js' : 'ts',
+      };
+    });
+  });
+  return allFiles;
+}
+
+function prepareInput(): ProjectAnalysisInput {
+  return {
+    rules: defaultRules,
+    environments: defaultEnvironments,
+    globals: defaultGlobals,
+    baseDir: fixtures,
+    files: filesDBtoFilesInput(files.db),
+  };
+}
+
+const fixtures = path.join(__dirname, 'fixtures');
+const files = new FileFinder(() => {});
 
 describe('analyzeJSTS', () => {
   beforeEach(() => {
     jest.resetModules();
+    getAllTSConfigJsons().clear();
     setContext({
       workDir: '/tmp/dir',
       shouldUseTypeScriptParserForJS: true,
@@ -39,29 +90,8 @@ describe('analyzeJSTS', () => {
   });
 
   it('should analyze whole project with program', async () => {
-    const fixtures = path.join(__dirname, 'fixtures');
-    const files = new FileFinder(contents => contents);
     files.searchFiles(fixtures, ['*.js', '*.ts'], []);
-    const allFiles = {};
-    files.db.forEach(files => {
-      files.forEach(file => {
-        allFiles[file.filename] = {
-          fileType: 'MAIN',
-          language: file.filename.toLowerCase().endsWith('js') ? 'js' : 'ts',
-        };
-      });
-    });
-
-    const analysisInput: ProjectAnalysisInput = {
-      rules: [{ key: 'no-duplicate-in-composite', configurations: [], fileTypeTarget: ['MAIN'] }],
-      environments: defaultEnvironments,
-      globals: defaultGlobals,
-      baseDir: fixtures,
-      files: allFiles,
-    };
-
-    const result = await analyzeProject(analysisInput);
-
+    const result = await analyzeProject(prepareInput());
     expect(result).toBeDefined();
 
     expect(result.files[toUnixPath(path.join(fixtures, 'parsing-error.js'))]).toMatchObject({
@@ -70,5 +100,18 @@ describe('analyzeJSTS', () => {
     expect(result.meta.withWatchProgram).toBeFalsy();
     expect(result.meta.withProgram).toBeTruthy();
     expect(result.meta.programsCreated).toEqual(3);
+  });
+
+  it('should analyze whole project with watch program', async () => {
+    files.searchFiles(fixtures, ['*.js', '*.ts', '*.vue'], []);
+    const result = await analyzeProject(prepareInput());
+    expect(result).toBeDefined();
+
+    expect(result.files[toUnixPath(path.join(fixtures, 'parsing-error.js'))]).toMatchObject({
+      parsingError: { code: 'PARSING', message: 'Unexpected token (3:0)', line: 3 },
+    });
+    expect(result.meta.withWatchProgram).toBeTruthy();
+    expect(result.meta.withProgram).toBeFalsy();
+    expect(result.meta.programsCreated).toEqual(0);
   });
 });

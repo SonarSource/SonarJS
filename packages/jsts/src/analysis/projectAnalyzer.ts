@@ -96,7 +96,9 @@ async function analyzeWithProgram(
         pendingFiles.delete(filename);
       }
     }
-    if (!pendingFiles.size) break;
+    if (!pendingFiles.size) {
+      break;
+    }
   }
 }
 
@@ -124,7 +126,9 @@ async function analyzeWithWatchProgram(
       }
     }
     clearTypeScriptESLintParserCaches();
-    if (!pendingFiles.size) break;
+    if (!pendingFiles.size) {
+      break;
+    }
   }
 }
 
