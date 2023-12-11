@@ -108,7 +108,7 @@ describe('initialize package.json files', () => {
   it('should ignore package.json files from ignored patterns', () => {
     const baseDir = path.posix.join(toUnixPath(__dirname), 'fixtures');
 
-    searchPackageJsonFiles(baseDir, ['**/moduleA/**']);
+    searchPackageJsonFiles(baseDir, ['moduleA']);
     expect(getAllPackageJsons().size).toEqual(4);
     const packageJsons = [
       ['package.json'],
@@ -120,19 +120,19 @@ describe('initialize package.json files', () => {
       new Map(
         packageJsons.map(packageJson => {
           const filename = path.posix.join(baseDir, ...packageJson);
-          return [path.posix.dirname(filename), { filename, contents: expect.any(Object) }];
+          return [path.posix.dirname(filename), [{ filename, contents: expect.any(Object) }]];
         }),
       ),
     );
 
     getAllPackageJsons().clear();
-    searchPackageJsonFiles(baseDir, ['**/module*/**']);
+    searchPackageJsonFiles(baseDir, ['module*']);
     expect(getAllPackageJsons().size).toEqual(1);
     expect(getAllPackageJsons()).toEqual(
       new Map([
         [
           baseDir,
-          { filename: path.posix.join(baseDir, 'package.json'), contents: expect.any(Object) },
+          [{ filename: path.posix.join(baseDir, 'package.json'), contents: expect.any(Object) }],
         ],
       ]),
     );

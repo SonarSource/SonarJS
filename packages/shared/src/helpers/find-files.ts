@@ -50,7 +50,7 @@ export interface File<T> {
 }
 
 export class FileFinder<T> {
-  readonly db: Map<string, File<T>> = new Map();
+  readonly db: Map<string, File<T>[]> = new Map();
   constructor(readonly contentsParser: (contents: string) => T) {}
   /**
    * Look for files in a given path and its child paths.
@@ -74,6 +74,9 @@ export class FileFinder<T> {
 
   walkDirectory(dir: string, patterns: Minimatch[], ignoredPatterns: Minimatch[]) {
     const files = fs.readdirSync(dir, { withFileTypes: true });
+    if (!this.db.has(dir)) {
+      this.db.set(dir, []);
+    }
     for (const file of files) {
       const filename = path.posix.join(dir, file.name);
       if (ignoredPatterns.some(pattern => pattern.match(filename))) {
@@ -85,7 +88,7 @@ export class FileFinder<T> {
         try {
           debug(`Found package.json: ${filename}`);
           const contents = readFileSync(filename);
-          this.db.set(dir, { filename, contents: this.contentsParser(contents) });
+          this.db.get(dir)!.push({ filename, contents: this.contentsParser(contents) });
         } catch (e) {
           debug(`Error reading file ${filename}: ${e}`);
         }

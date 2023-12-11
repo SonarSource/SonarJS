@@ -94,8 +94,8 @@ export function getNearestPackageJsons(file: string) {
   let currentDir = path.posix.dirname(path.posix.normalize(toUnixPath(file)));
   do {
     const packageJson = PackageJsonsByBaseDir.db.get(currentDir);
-    if (packageJson) {
-      results.push(packageJson);
+    if (packageJson?.length) {
+      results.push(...packageJson);
     }
     currentDir = path.posix.dirname(currentDir);
   } while (currentDir !== path.posix.dirname(currentDir));

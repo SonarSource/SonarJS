@@ -65,21 +65,23 @@ async function analyzeWithProgram(
   results: ProjectAnalysisOutput,
   pendingFiles: Set<string>,
 ) {
-  for (const [tsConfig] of getAllTSConfigJsons()) {
-    const { files: filenames, programId } = createAndSaveProgram(tsConfig);
-    for (const filename of filenames) {
-      // only analyze files which are requested
-      if (files[filename]) {
-        results.files[filename] = analyzeJSTS(
-          {
-            filePath: filename,
-            fileContent: files[filename].fileContent ?? (await readFile(filename)),
-            fileType: files[filename].fileType,
-            programId,
-          },
-          files[filename].language ?? DEFAULT_LANGUAGE,
-        );
-        pendingFiles.delete(filename);
+  for (const [_dirname, tsconfigs] of getAllTSConfigJsons()) {
+    for (const { filename: tsConfig } of tsconfigs) {
+      const { files: filenames, programId } = createAndSaveProgram(tsConfig);
+      for (const filename of filenames) {
+        // only analyze files which are requested
+        if (files[filename]) {
+          results.files[filename] = analyzeJSTS(
+            {
+              filePath: filename,
+              fileContent: files[filename].fileContent ?? (await readFile(filename)),
+              fileType: files[filename].fileType,
+              programId,
+            },
+            files[filename].language ?? DEFAULT_LANGUAGE,
+          );
+          pendingFiles.delete(filename);
+        }
       }
     }
   }
@@ -90,25 +92,27 @@ async function analyzeWithWatchProgram(
   results: ProjectAnalysisOutput,
   pendingFiles: Set<string>,
 ) {
-  for (const [tsConfig] of getAllTSConfigJsons()) {
-    const options = createProgramOptions(tsConfig);
-    const filenames = options.rootNames;
-    for (const filename of filenames) {
-      // only analyze files which are requested
-      if (files[filename]) {
-        results.files[filename] = analyzeJSTS(
-          {
-            filePath: filename,
-            fileContent: files[filename].fileContent ?? (await readFile(filename)),
-            fileType: files[filename].fileType,
-            tsConfigs: [tsConfig],
-          },
-          files[filename].language ?? DEFAULT_LANGUAGE,
-        );
-        pendingFiles.delete(filename);
+  for (const [_dirname, tsconfigs] of getAllTSConfigJsons()) {
+    for (const { filename: tsConfig } of tsconfigs) {
+      const options = createProgramOptions(tsConfig);
+      const filenames = options.rootNames;
+      for (const filename of filenames) {
+        // only analyze files which are requested
+        if (files[filename]) {
+          results.files[filename] = analyzeJSTS(
+            {
+              filePath: filename,
+              fileContent: files[filename].fileContent ?? (await readFile(filename)),
+              fileType: files[filename].fileType,
+              tsConfigs: [tsConfig],
+            },
+            files[filename].language ?? DEFAULT_LANGUAGE,
+          );
+          pendingFiles.delete(filename);
+        }
       }
+      clearTypeScriptESLintParserCaches();
     }
-    clearTypeScriptESLintParserCaches();
   }
 }
 
