@@ -19,7 +19,13 @@
  */
 import { setContext, toUnixPath } from '@sonar/shared';
 import http from 'http';
-import { createAndSaveProgram, ProjectAnalysisInput, RuleConfig } from '@sonar/jsts';
+import {
+  createAndSaveProgram,
+  defaultEnvironments,
+  defaultGlobals,
+  ProjectAnalysisInput,
+  RuleConfig,
+} from '@sonar/jsts';
 import path from 'path';
 import { start } from '../src/server';
 import { promisify } from 'util';
@@ -53,8 +59,8 @@ describe('router', () => {
     const tsConfig = toUnixPath(path.join(fixtures, 'tsconfig.json'));
     const payload: ProjectAnalysisInput = {
       rules: [{ key: 'no-duplicate-in-composite', configurations: [], fileTypeTarget: ['MAIN'] }],
-      environments: [],
-      globals: [],
+      environments: defaultEnvironments,
+      globals: defaultGlobals,
       baseDir: fixtures,
       files: {},
       tsConfigs: [tsConfig],

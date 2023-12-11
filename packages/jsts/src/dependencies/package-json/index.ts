@@ -19,7 +19,7 @@
  */
 
 import path from 'path';
-import { FileFinder, File } from '@sonar/shared';
+import { FileFinder, File, readFileSync } from '@sonar/shared';
 import { toUnixPath } from '@sonar/shared';
 import { PackageJson } from 'type-fest';
 
@@ -38,7 +38,7 @@ const dirCache: Map<string, Set<string>> = new Map();
 const cache: Map<string, Set<string>> = new Map();
 
 export const PackageJsonsByBaseDir = new FileFinder(
-  contents => JSON.parse(contents) as PackageJson,
+  filename => JSON.parse(readFileSync(filename)) as PackageJson,
 );
 
 export function searchPackageJsonFiles(baseDir: string, exclusions: string[]) {

@@ -19,13 +19,12 @@
  */
 
 import { FileFinder } from '@sonar/shared';
-import { TsConfigJson } from 'type-fest';
 
 const TSCONFIG_JSON = 'tsconfig.json';
 
-export const TSConfigJsonsByBaseDir = new FileFinder(
-  contents => JSON.parse(contents) as TsConfigJson,
-);
+// Would need to parse jsonc (different spec from json, using jsonc-parser from Microsoft)
+//import { TsConfigJson } from 'type-fest';
+export const TSConfigJsonsByBaseDir = new FileFinder(() => {});
 
 export function searchTSConfigJsonFiles(baseDir: string, exclusions: string[]) {
   TSConfigJsonsByBaseDir.searchFiles(baseDir, [TSCONFIG_JSON], exclusions);

@@ -23,6 +23,11 @@ import { JsTsAnalysisOutput, RuleConfig } from '@sonar/jsts';
 
 export type ProjectAnalysisOutput = {
   files: { [key: string]: JsTsAnalysisOutput };
+  meta?: {
+    withProgram: boolean;
+    withWatchProgram: boolean;
+    filesWithoutTypeChecking: string[];
+  };
 };
 
 export type JsTsFile = {
@@ -44,3 +49,46 @@ export type ProjectAnalysisInput = {
   exclusions?: string[];
   isSonarlint?: boolean;
 };
+
+export const defaultEnvironments = [
+  'amd',
+  'applescript',
+  'atomtest',
+  'browser',
+  'commonjs',
+  'embertest',
+  'greasemonkey',
+  'jasmine',
+  'jest',
+  'jquery',
+  'meteor',
+  'mocha',
+  'mongo',
+  'nashorn',
+  'node',
+  'phantomjs',
+  'prototypejs',
+  'protractor',
+  'qunit',
+  'serviceworker',
+  'shared-node-browser',
+  'shelljs',
+  'webextensions',
+  'worker',
+];
+
+export const defaultGlobals = [
+  'angular',
+  'goog',
+  'google',
+  'OpenLayers',
+  'd3',
+  'dojo',
+  'dojox',
+  'dijit',
+  'Backbone',
+  'moment',
+  'casper',
+  '_',
+  'sap',
+];

@@ -26,12 +26,15 @@ import {
   createProgramOptions,
   getAllTSConfigJsons,
   initializeLinter,
+  JsTsAnalysisInput,
+  JsTsAnalysisOutput,
   JsTsFiles,
   ProjectAnalysisInput,
   ProjectAnalysisOutput,
   searchPackageJsonFiles,
   searchTSConfigJsonFiles,
 } from '@sonar/jsts';
+import { EMPTY_JSTS_ANALYSIS_OUTPUT } from '../../../bridge/src/errors';
 
 const DEFAULT_LANGUAGE: JsTsLanguage = 'ts';
 
@@ -49,10 +52,19 @@ export async function analyzeProject(input: ProjectAnalysisInput): Promise<Proje
   initializeLinter(rules, environments, globals);
   searchPackageJsonFiles(baseDir, exclusions);
   searchTSConfigJsonFiles(baseDir, exclusions);
-  const results: ProjectAnalysisOutput = { files: {} };
+  const results: ProjectAnalysisOutput = {
+    files: {},
+    meta: {
+      withProgram: false,
+      withWatchProgram: false,
+      filesWithoutTypeChecking: [],
+    },
+  };
   if (watchProgram) {
+    results.meta!.withWatchProgram = true;
     await analyzeWithWatchProgram(input.files, results, pendingFiles);
   } else {
+    results.meta!.withProgram = true;
     await analyzeWithProgram(input.files, results, pendingFiles);
   }
 
@@ -71,7 +83,7 @@ async function analyzeWithProgram(
       for (const filename of filenames) {
         // only analyze files which are requested
         if (files[filename]) {
-          results.files[filename] = analyzeJSTS(
+          results.files[filename] = analyzeFile(
             {
               filePath: filename,
               fileContent: files[filename].fileContent ?? (await readFile(filename)),
@@ -99,7 +111,7 @@ async function analyzeWithWatchProgram(
       for (const filename of filenames) {
         // only analyze files which are requested
         if (files[filename]) {
-          results.files[filename] = analyzeJSTS(
+          results.files[filename] = analyzeFile(
             {
               filePath: filename,
               fileContent: files[filename].fileContent ?? (await readFile(filename)),
@@ -122,7 +134,8 @@ async function analyzeWithoutProgram(
   results: ProjectAnalysisOutput,
 ) {
   for (const filename of filenames) {
-    results.files[filename] = analyzeJSTS(
+    results.meta?.filesWithoutTypeChecking.push(filename);
+    results.files[filename] = analyzeFile(
       {
         filePath: filename,
         fileContent: files[filename].fileContent ?? (await readFile(filename)),
@@ -132,6 +145,22 @@ async function analyzeWithoutProgram(
     );
   }
 }
+
+function analyzeFile(input: JsTsAnalysisInput, language: JsTsLanguage) {
+  try {
+    return analyzeJSTS(input, language);
+  } catch (e) {
+    return {
+      parsingError: {
+        message: e.message,
+        code: e.code,
+        line: e.data?.line,
+      },
+      ...EMPTY_JSTS_ANALYSIS_OUTPUT,
+    } as JsTsAnalysisOutput;
+  }
+}
+
 function hasVueFile(files: string[]) {
   return files.some(file => file.toLowerCase().endsWith('.vue'));
 }
