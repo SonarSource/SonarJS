@@ -138,6 +138,8 @@ public class JavaScriptPlugin implements Plugin {
 
   public static final String PROPERTY_KEY_MAX_FILE_SIZE = "sonar.javascript.maxFileSize";
 
+  public static final String DISABLE_NODEJS_PROPERTY = "sonar.internal.disableNodeJs";
+
   @Override
   public void define(Context context) {
     context.addExtensions(

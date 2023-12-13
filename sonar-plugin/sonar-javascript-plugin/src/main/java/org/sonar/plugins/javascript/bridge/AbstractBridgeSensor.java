@@ -62,11 +62,24 @@ public abstract class AbstractBridgeSensor implements Sensor {
 
   @Override
   public void execute(SensorContext context) {
+    this.context = context;
+    this.contextUtils = new ContextUtils(context);
+    if (contextUtils.disableNodeJs()) {
+      var message =
+        "Analysis of " +
+        this.lang +
+        " files skipped due to Node.js disablement. " +
+        "To enable the analysis remove or set to false the " +
+        JavaScriptPlugin.DISABLE_NODEJS_PROPERTY +
+        " property and " +
+        "make sure a supported version of Node.js is available in the PATH";
+      analysisWarnings.addUnique(message);
+      LOG.warn(message);
+      return;
+    }
     monitoring.startSensor(context, this);
     CacheStrategies.reset();
-    this.context = context;
     this.exclusions = Arrays.asList(Exclusions.getExcludedPaths(context.config()));
-    this.contextUtils = new ContextUtils(context);
     environments = Arrays.asList(context.config().getStringArray(JavaScriptPlugin.ENVIRONMENTS));
     globals = Arrays.asList(context.config().getStringArray(JavaScriptPlugin.GLOBALS));
     try {
@@ -94,7 +107,9 @@ public abstract class AbstractBridgeSensor implements Sensor {
         " files. Please make sure a supported version of Node.js is available in the PATH. Alternatively, you can exclude " +
         this.lang +
         " files from your analysis using the 'sonar.exclusions' configuration property. " +
-        "See the docs for configuring the analysis environment: https://docs.sonarsource.com/sonarqube/latest/analyzing-source-code/languages/javascript-typescript-css/",
+        "To disable analyses that require a Node.js installation, you can use the property " +
+        JavaScriptPlugin.DISABLE_NODEJS_PROPERTY +
+        "=true. See the docs for configuring the analysis environment: https://docs.sonarsource.com/sonarqube/latest/analyzing-source-code/languages/javascript-typescript-css/",
         e
       );
     } catch (Exception e) {

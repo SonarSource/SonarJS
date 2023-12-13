@@ -56,6 +56,10 @@ class ContextUtils {
     return context.config().getBoolean("sonar.internal.analysis.failFast").orElse(false);
   }
 
+  boolean disableNodeJs() {
+    return context.config().getBoolean(JavaScriptPlugin.DISABLE_NODEJS_PROPERTY).orElse(false);
+  }
+
   SensorContext context() {
     return context;
   }
