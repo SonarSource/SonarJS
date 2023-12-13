@@ -220,7 +220,7 @@ function nextId() {
  *
  * To be removed once Java part does not handle program creation
  */
-export function createAndSaveProgram(tsConfig: string): ProgramResult {
+export function createAndSaveProgram(tsConfig: string): ProgramResult & { programId: string } {
   const program = createProgram(tsConfig);
 
   const programId = nextId();

@@ -38,7 +38,7 @@
  */
 import fs from 'fs';
 import path from 'path';
-import { toUnixPath, debug, error, readFileSync } from '@sonar/shared';
+import { toUnixPath, debug, error } from '@sonar/shared';
 import { Minimatch } from 'minimatch';
 
 // Patterns enforced to be ignored no matter what the user configures on sonar.properties
@@ -50,7 +50,8 @@ export interface File<T> {
 }
 
 export class FileFinder<T> {
-  readonly db: Map<string, File<T>> = new Map();
+  readonly db: Map<string, File<T>[]> = new Map();
+  constructor(readonly contentsParser: (filename: string) => T) {}
   /**
    * Look for files in a given path and its child paths.
    * node_modules is ignored
@@ -67,12 +68,15 @@ export class FileFinder<T> {
         stringToGlob(exclusions.concat(IGNORED_PATTERNS)),
       );
     } catch (e) {
-      error(`Error while searching for package.json files: ${e}`);
+      error(`Error while searching for files: ${e}`);
     }
   }
 
   walkDirectory(dir: string, patterns: Minimatch[], ignoredPatterns: Minimatch[]) {
     const files = fs.readdirSync(dir, { withFileTypes: true });
+    if (!this.db.has(dir)) {
+      this.db.set(dir, []);
+    }
     for (const file of files) {
       const filename = path.posix.join(dir, file.name);
       if (ignoredPatterns.some(pattern => pattern.match(filename))) {
@@ -82,11 +86,11 @@ export class FileFinder<T> {
         this.walkDirectory(filename, patterns, ignoredPatterns);
       } else if (patterns.some(pattern => pattern.match(filename)) && !file.isDirectory()) {
         try {
-          debug(`Found package.json: ${filename}`);
-          const contents = JSON.parse(readFileSync(filename)) as T;
-          this.db.set(dir, { filename, contents });
+          debug(`Found file: ${filename}`);
+          const contents = this.contentsParser(filename);
+          this.db.get(dir)!.push({ filename, contents });
         } catch (e) {
-          debug(`Error reading file ${filename}: ${e}`);
+          debug(`Error parsing file ${filename}: ${e}`);
         }
       }
     }

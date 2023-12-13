@@ -138,8 +138,6 @@ public interface BridgeServer extends Startable {
 
   enum ParsingErrorCode {
     PARSING,
-    MISSING_TYPESCRIPT,
-    UNSUPPORTED_TYPESCRIPT,
     FAILING_TYPESCRIPT,
     GENERAL_ERROR,
   }

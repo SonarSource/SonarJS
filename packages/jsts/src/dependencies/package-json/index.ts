@@ -19,7 +19,7 @@
  */
 
 import path from 'path';
-import { FileFinder, File } from '@sonar/shared';
+import { FileFinder, File, readFileSync } from '@sonar/shared';
 import { toUnixPath } from '@sonar/shared';
 import { PackageJson } from 'type-fest';
 
@@ -37,7 +37,9 @@ const dirCache: Map<string, Set<string>> = new Map();
  */
 const cache: Map<string, Set<string>> = new Map();
 
-export const PackageJsonsByBaseDir = new FileFinder<PackageJson>();
+export const PackageJsonsByBaseDir = new FileFinder(
+  filename => JSON.parse(readFileSync(filename)) as PackageJson,
+);
 
 export function searchPackageJsonFiles(baseDir: string, exclusions: string[]) {
   PackageJsonsByBaseDir.searchFiles(baseDir, [PACKAGE_JSON], exclusions);
@@ -92,8 +94,8 @@ export function getNearestPackageJsons(file: string) {
   let currentDir = path.posix.dirname(path.posix.normalize(toUnixPath(file)));
   do {
     const packageJson = PackageJsonsByBaseDir.db.get(currentDir);
-    if (packageJson) {
-      results.push(packageJson);
+    if (packageJson?.length) {
+      results.push(...packageJson);
     }
     currentDir = path.posix.dirname(currentDir);
   } while (currentDir !== path.posix.dirname(currentDir));

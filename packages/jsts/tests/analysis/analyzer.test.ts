@@ -868,7 +868,7 @@ describe('analyzeJSTS', () => {
 
   it('should measure analysis duration', async () => {
     const rules = [
-      { key: 'no-extra-smi', configurations: [], fileTypeTarget: ['MAIN'] },
+      { key: 'no-extra-semi', configurations: [], fileTypeTarget: ['MAIN'] },
       { key: 'no-duplicate-string', configurations: [], fileTypeTarget: ['MAIN'] },
       { key: 'sonar-no-regex-spaces', configurations: [], fileTypeTarget: ['MAIN'] },
     ] as RuleConfig[];

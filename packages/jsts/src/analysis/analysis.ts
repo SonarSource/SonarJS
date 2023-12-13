@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { FileType, JsTsLanguage, AnalysisInput, AnalysisOutput } from '@sonar/shared';
+import { FileType, JsTsLanguage, AnalysisInput, AnalysisOutput, ErrorCode } from '@sonar/shared';
 import { CpdToken, Issue, Metrics, SymbolHighlight, SyntaxHighlight } from '../linter';
 import { Perf } from '../monitoring';
 
@@ -47,10 +47,17 @@ export interface JsTsAnalysisInput extends AnalysisInput {
   programId?: string;
 }
 
+export interface ParsingError {
+  message: string;
+  line: number;
+  code: ErrorCode;
+}
+
 /**
  * A JavaScript / TypeScript analysis output
  */
 export interface JsTsAnalysisOutput extends AnalysisOutput {
+  parsingError?: ParsingError;
   issues: Issue[];
   highlights?: SyntaxHighlight[];
   highlightedSymbols?: SymbolHighlight[];
