@@ -11,9 +11,15 @@
 "vuetify:packages/vuetify/src/components/VCalendar/mixins/calendar-with-intervals.ts": [
 104
 ],
+"vuetify:packages/vuetify/src/components/VCalendar/util/timestamp.ts": [
+470
+],
 "vuetify:packages/vuetify/src/components/VDatePicker/VDatePicker.ts": [
 284,
 292
+],
+"vuetify:packages/vuetify/src/components/VList/VList.tsx": [
+217
 ],
 "vuetify:packages/vuetify/src/components/VRangeSlider/VRangeSlider.tsx": [
 101

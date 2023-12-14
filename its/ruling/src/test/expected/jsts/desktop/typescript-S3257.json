@@ -6,6 +6,7 @@
 18
 ],
 "desktop:app/src/lib/git/cherry-pick.ts": [
+71,
 108,
 227,
 231
@@ -95,6 +96,12 @@
 "desktop:app/src/lib/trampoline/trampoline-command-parser.ts": [
 21,
 23
+],
+"desktop:app/src/models/diff/diff-line.ts": [
+19
+],
+"desktop:app/src/models/repository.ts": [
+61
 ],
 "desktop:app/src/ui/app-menu/app-menu-bar.tsx": [
 95

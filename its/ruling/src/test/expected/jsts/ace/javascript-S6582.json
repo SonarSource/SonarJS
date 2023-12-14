@@ -22,28 +22,14 @@
 ],
 "ace:demo/kitchen-sink/util.js": [
 28,
-34,
-131,
-134,
 149,
 171
-],
-"ace:experiments/dom.html": [
-38,
-74,
-108,
-156,
-207,
-244,
-302,
-364
 ],
 "ace:lib/ace/loader_build.js": [
 34,
 44
 ],
 "ace:lib/ace/mode/css/csslint.js": [
-7632,
 7781,
 7782,
 7896,
@@ -55,9 +41,11 @@
 9398,
 10225,
 10306,
-10317
+10317,
+10377
 ],
 "ace:lib/ace/mode/javascript/jshint.js": [
+76,
 460,
 1516,
 2524,
@@ -67,8 +55,10 @@
 4602,
 5417,
 5422,
-6008,
+6365,
+6410,
 6420,
+6422,
 6640,
 6934,
 6934,
@@ -137,10 +127,12 @@
 28
 ],
 "ace:lib/ace/worker/worker_client.js": [
+132,
 172,
 174
 ],
 "ace:lib/ace/worker/worker_client_v2.js": [
+145,
 185
 ],
 "ace:lib/ace/worker/worker_v2.js": [
@@ -153,6 +145,7 @@
 ],
 "ace:src/autocomplete.js": [
 93,
+118,
 119,
 147,
 257,
@@ -196,9 +189,6 @@
 79,
 86
 ],
-"ace:src/edit_session/fold_line.js": [
-143
-],
 "ace:src/edit_session/folding.js": [
 586,
 647
@@ -220,7 +210,8 @@
 2684
 ],
 "ace:src/ext/beautify.js": [
-56
+56,
+308
 ],
 "ace:src/ext/code_lens.js": [
 45,
@@ -282,6 +273,9 @@
 289,
 421
 ],
+"ace:src/keyboard/hash_handler.js": [
+90
+],
 "ace:src/keyboard/keybinding.js": [
 54,
 66,
@@ -297,7 +291,7 @@
 "ace:src/keyboard/vim.js": [
 172,
 183,
-223,
+190,
 230,
 371,
 565,
@@ -307,6 +301,7 @@
 1400,
 1401,
 1483,
+3140,
 3403,
 3456,
 4397,
@@ -331,10 +326,6 @@
 141,
 147
 ],
-"ace:src/layer/gutter.js": [
-38,
-44
-],
 "ace:src/layer/text.js": [
 501,
 516,
@@ -344,11 +335,11 @@
 36,
 40,
 49,
-50
+50,
+55
 ],
 "ace:src/lib/dom.js": [
 15,
-171,
 189,
 240,
 240
@@ -392,9 +383,6 @@
 "ace:src/mode/behaviour/cstyle.js": [
 61
 ],
-"ace:src/mode/behaviour/xquery.js": [
-43
-],
 "ace:src/mode/c9search_highlight_rules.js": [
 44
 ],
@@ -404,6 +392,9 @@
 "ace:src/mode/folding/asciidoc.js": [
 43,
 71
+],
+"ace:src/mode/folding/fold_mode.js": [
+18
 ],
 "ace:src/mode/folding/mixed.js": [
 41,
@@ -442,7 +433,6 @@
 36
 ],
 "ace:src/mouse/mouse_handler.js": [
-23,
 24,
 39,
 40,
@@ -450,7 +440,9 @@
 83,
 84,
 124,
+133,
 144,
+157,
 173,
 176
 ],
@@ -470,6 +462,12 @@
 ],
 "ace:src/scrollbar_test.js": [
 54
+],
+"ace:src/search.js": [
+82
+],
+"ace:src/selection.js": [
+739
 ],
 "ace:src/snippets.js": [
 41,

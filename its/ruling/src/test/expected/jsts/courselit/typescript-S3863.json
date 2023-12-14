@@ -1,35 +1,46 @@
 {
 "courselit:apps/web/components/admin/design/layout-manager/index.tsx": [
+3,
 17
 ],
 "courselit:apps/web/components/admin/media/media-preview.tsx": [
+19,
 26
 ],
 "courselit:apps/web/components/public/base-layout/component-scaffold.tsx": [
-12
+2,
+18
 ],
 "courselit:apps/web/components/public/base-layout/header.tsx": [
+4,
 6
 ],
 "courselit:apps/web/components/public/base-layout/route-based-component-scaffold.tsx": [
+11,
 12
 ],
 "courselit:apps/web/components/public/base-layout/scaffold/index.tsx": [
+9,
 10
 ],
 "courselit:apps/web/graphql/lessons/logic.ts": [
+12,
 16
 ],
 "courselit:apps/web/lib/passport-magic-link.ts": [
+2,
 3
 ],
 "courselit:apps/web/pages/_app.tsx": [
+7,
 20
 ],
 "courselit:apps/web/pages/profile/[id].tsx": [
+18,
 23
 ],
 "courselit:packages/state-management/src/store.ts": [
+2,
 3
 ]
 }
