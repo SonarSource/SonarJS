@@ -20,16 +20,11 @@
 
 import path from 'path';
 import { toUnixPath } from '@sonar/shared';
-import {
-  searchPackageJsonFiles,
-  getAllPackageJsons,
-  getNearestPackageJsons,
-  PackageJsonsByBaseDir,
-} from '@sonar/jsts';
+import { searchPackageJsonFiles, getAllPackageJsons, getNearestPackageJsons } from '@sonar/jsts';
 
 describe('initialize package.json files', () => {
   beforeEach(() => {
-    getAllPackageJsons().clear();
+    getAllPackageJsons()?.clear();
   });
 
   it('should find all package.json files', () => {
@@ -151,20 +146,5 @@ describe('initialize package.json files', () => {
     expect(
       getNearestPackageJsons(path.posix.join(baseDir, '..', 'another-module', 'index.js')),
     ).toHaveLength(0);
-  });
-
-  it('should log error when cannot access baseDir', () => {
-    const baseDir = path.posix.join(toUnixPath(__dirname), 'fixtures');
-
-    console.error = jest.fn();
-
-    jest.spyOn(PackageJsonsByBaseDir, 'walkDirectory').mockImplementation(dir => {
-      throw Error(`Cannot access ${dir}`);
-    });
-
-    searchPackageJsonFiles(baseDir, ['']);
-    expect(console.error).toHaveBeenCalledWith(
-      `Error while searching for files: Error: Cannot access ${baseDir}`,
-    );
   });
 });

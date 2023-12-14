@@ -42,16 +42,21 @@ import { toUnixPath, debug, error } from '@sonar/shared';
 import { Minimatch } from 'minimatch';
 
 // Patterns enforced to be ignored no matter what the user configures on sonar.properties
-const IGNORED_PATTERNS = ['**/.scannerwork/**'];
+const IGNORED_PATTERNS = ['.scannerwork'];
 
 export interface File<T> {
   filename: string;
   contents: T;
 }
 
-export class FileFinder<T> {
-  readonly db: Map<string, File<T>[]> = new Map();
-  constructor(readonly contentsParser: (filename: string) => T) {}
+type PatternsAndParser = { pattern: string; parser: (filename: string) => unknown };
+type MinimatchAndParser = {
+  id: string;
+  patterns: Minimatch[];
+  parser?: (filename: string) => unknown;
+};
+
+export abstract class FileFinder {
   /**
    * Look for files in a given path and its child paths.
    * node_modules is ignored
@@ -60,43 +65,89 @@ export class FileFinder<T> {
    * @param patterns glob patterns to search for
    * @param exclusions glob patterns to ignore while walking the tree
    */
-  searchFiles(dir: string, patterns: string[], exclusions: string[]) {
+  static searchFiles(dir: string, patterns: (PatternsAndParser | string)[], exclusions: string[]) {
     try {
-      this.walkDirectory(
+      return walkDirectory(
         path.posix.normalize(toUnixPath(dir)),
-        stringToGlob(patterns),
+        normalizeInput(patterns),
         stringToGlob(exclusions.concat(IGNORED_PATTERNS)),
       );
     } catch (e) {
       error(`Error while searching for files: ${e}`);
     }
   }
+}
 
-  walkDirectory(dir: string, patterns: Minimatch[], ignoredPatterns: Minimatch[]) {
+function walkDirectory(
+  baseDir: string,
+  patterns: MinimatchAndParser[],
+  ignoredPatterns: Minimatch[],
+) {
+  const dbs: { [key: string]: Map<string, File<unknown>[]> } = {};
+  for (const pattern of patterns) {
+    dbs[pattern.id] = new Map();
+  }
+  const dirs = [baseDir];
+  while (dirs.length) {
+    const dir = dirs.shift()!;
     const files = fs.readdirSync(dir, { withFileTypes: true });
-    if (!this.db.has(dir)) {
-      this.db.set(dir, []);
-    }
     for (const file of files) {
       const filename = path.posix.join(dir, file.name);
       if (ignoredPatterns.some(pattern => pattern.match(filename))) {
         continue; // is ignored pattern
       }
       if (file.isDirectory()) {
-        this.walkDirectory(filename, patterns, ignoredPatterns);
-      } else if (patterns.some(pattern => pattern.match(filename)) && !file.isDirectory()) {
-        try {
-          debug(`Found file: ${filename}`);
-          const contents = this.contentsParser(filename);
-          this.db.get(dir)!.push({ filename, contents });
-        } catch (e) {
-          debug(`Error parsing file ${filename}: ${e}`);
-        }
+        dirs.push(filename);
+      } else {
+        patterns.forEach(pattern => {
+          const filesInDir: File<unknown>[] = [];
+          dbs[pattern.id].set(dir, filesInDir);
+          checkPattern(filename, pattern, filesInDir);
+        });
       }
+    }
+  }
+  return dbs;
+}
+
+function checkPattern(
+  filename: string,
+  { patterns, parser }: MinimatchAndParser,
+  db: File<unknown>[],
+) {
+  if (patterns.some(pattern => pattern.match(filename))) {
+    try {
+      debug(`Found file: ${filename}`);
+      if (parser) {
+        db.push({ filename, contents: parser(filename) });
+      } else {
+        db.push({ filename, contents: undefined });
+      }
+    } catch (e) {
+      debug(`Error parsing file ${filename}: ${e}`);
     }
   }
 }
 
 function stringToGlob(patterns: string[]): Minimatch[] {
   return patterns.map(pattern => new Minimatch(pattern, { nocase: true, matchBase: true }));
+}
+
+function normalizeInput(patterns: (PatternsAndParser | string)[]): MinimatchAndParser[] {
+  const normalized: MinimatchAndParser[] = [];
+  for (const pattern of patterns) {
+    if (typeof pattern === 'string') {
+      normalized.push({
+        id: pattern,
+        patterns: stringToGlob(pattern.split(',')),
+      });
+    } else {
+      normalized.push({
+        id: pattern.pattern,
+        patterns: stringToGlob(pattern.pattern.split(',')),
+        parser: pattern.parser,
+      });
+    }
+  }
+  return normalized;
 }

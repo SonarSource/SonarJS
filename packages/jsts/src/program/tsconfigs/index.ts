@@ -18,26 +18,33 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { FileFinder } from '@sonar/shared';
+import { File, FileFinder } from '@sonar/shared';
 
-const TSCONFIG_JSON = 'tsconfig.json';
+export const TSCONFIG_JSON = 'tsconfig.json';
 
 // Would need to parse jsonc (different spec from json, using jsonc-parser from Microsoft)
 //import { TsConfigJson } from 'type-fest';
-export const TSConfigJsonsByBaseDir = new FileFinder(() => {});
+export let TSConfigJsonsByBaseDir: Map<string, File<void>[]> | undefined = undefined;
 
 export function searchTSConfigJsonFiles(baseDir: string, exclusions: string[]) {
-  TSConfigJsonsByBaseDir.searchFiles(baseDir, [TSCONFIG_JSON], exclusions);
+  const result = FileFinder.searchFiles(baseDir, [TSCONFIG_JSON], exclusions);
+  TSConfigJsonsByBaseDir = result?.[TSCONFIG_JSON] as Map<string, File<void>[]>;
 }
 
 export function getAllTSConfigJsons() {
-  return TSConfigJsonsByBaseDir.db;
+  return TSConfigJsonsByBaseDir;
+}
+
+export function setTSConfigJsons(db: Map<string, File<void>[]>) {
+  TSConfigJsonsByBaseDir = db;
 }
 
 export function* loopTSConfigs() {
-  for (const [, tsconfigs] of getAllTSConfigJsons()) {
-    for (const { filename: tsConfig } of tsconfigs) {
-      yield tsConfig;
+  if (TSConfigJsonsByBaseDir) {
+    for (const [, tsconfigs] of TSConfigJsonsByBaseDir) {
+      for (const { filename: tsConfig } of tsconfigs) {
+        yield tsConfig;
+      }
     }
   }
 }

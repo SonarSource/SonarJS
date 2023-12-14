@@ -64,18 +64,17 @@ function filesDBtoFilesInput(filesDB: Map<string, File<void>[]>) {
   return allFiles;
 }
 
-function prepareInput(): ProjectAnalysisInput {
+function prepareInput(files: Map<string, File<void>[]>): ProjectAnalysisInput {
   return {
     rules: defaultRules,
     environments: defaultEnvironments,
     globals: defaultGlobals,
     baseDir: fixtures,
-    files: filesDBtoFilesInput(files.db),
+    files: filesDBtoFilesInput(files),
   };
 }
 
 const fixtures = path.join(__dirname, 'fixtures');
-const files = new FileFinder(() => {});
 
 describe('analyzeJSTS', () => {
   beforeEach(() => {
@@ -90,8 +89,10 @@ describe('analyzeJSTS', () => {
   });
 
   it('should analyze whole project with program', async () => {
-    files.searchFiles(fixtures, ['*.js', '*.ts'], []);
-    const result = await analyzeProject(prepareInput());
+    const files = FileFinder.searchFiles(fixtures, ['*.js,*.ts'], []);
+    const result = await analyzeProject(
+      prepareInput(files?.['*.js,*.ts'] as Map<string, File<void>[]>),
+    );
     expect(result).toBeDefined();
 
     expect(result.files[toUnixPath(path.join(fixtures, 'parsing-error.js'))]).toMatchObject({
@@ -103,8 +104,10 @@ describe('analyzeJSTS', () => {
   });
 
   it('should analyze whole project with watch program', async () => {
-    files.searchFiles(fixtures, ['*.js', '*.ts', '*.vue'], []);
-    const result = await analyzeProject(prepareInput());
+    const files = FileFinder.searchFiles(fixtures, ['*.js,*.ts,*.vue'], []);
+    const result = await analyzeProject(
+      prepareInput(files?.['*.js,*.ts,*.vue'] as Map<string, File<void>[]>),
+    );
     expect(result).toBeDefined();
 
     expect(result.files[toUnixPath(path.join(fixtures, 'parsing-error.js'))]).toMatchObject({

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { JsTsLanguage, readFile } from '@sonar/shared';
+import { File, FileFinder, JsTsLanguage, readFile } from '@sonar/shared';
 import {
   analyzeJSTS,
   clearTypeScriptESLintParserCaches,
@@ -30,14 +30,32 @@ import {
   JsTsAnalysisOutput,
   JsTsFiles,
   loopTSConfigs,
+  PACKAGE_JSON,
+  PACKAGE_JSON_PARSER,
   ProjectAnalysisInput,
   ProjectAnalysisOutput,
-  searchPackageJsonFiles,
-  searchTSConfigJsonFiles,
+  setPackageJsons,
+  setTSConfigJsons,
+  TSCONFIG_JSON,
 } from '@sonar/jsts';
 import { EMPTY_JSTS_ANALYSIS_OUTPUT } from '../../../bridge/src/errors';
+import { PackageJson } from 'type-fest';
 
 const DEFAULT_LANGUAGE: JsTsLanguage = 'ts';
+
+function searchTSConfigJsonAndPackageJsonFiles(baseDir: string, exclusions: string[]) {
+  const result = FileFinder.searchFiles(
+    baseDir,
+    [{ pattern: PACKAGE_JSON, parser: PACKAGE_JSON_PARSER }, TSCONFIG_JSON],
+    exclusions,
+  );
+  if (result?.[PACKAGE_JSON]) {
+    setPackageJsons(result?.[PACKAGE_JSON] as Map<string, File<PackageJson>[]>);
+  }
+  if (result?.[TSCONFIG_JSON]) {
+    setTSConfigJsons(result?.[TSCONFIG_JSON] as Map<string, File<void>[]>);
+  }
+}
 
 /**
  * Analyzes a JavaScript / TypeScript project in a single run
@@ -51,8 +69,7 @@ export async function analyzeProject(input: ProjectAnalysisInput): Promise<Proje
   const pendingFiles: Set<string> = new Set(inputFilenames);
   const watchProgram = input.isSonarlint || hasVueFile(inputFilenames);
   initializeLinter(rules, environments, globals);
-  searchPackageJsonFiles(baseDir, exclusions);
-  searchTSConfigJsonFiles(baseDir, exclusions);
+  searchTSConfigJsonAndPackageJsonFiles(baseDir, exclusions);
   const results: ProjectAnalysisOutput = {
     files: {},
     meta: {
