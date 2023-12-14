@@ -79,7 +79,7 @@ const fixtures = path.join(__dirname, 'fixtures');
 describe('analyzeJSTS', () => {
   beforeEach(() => {
     jest.resetModules();
-    getAllTSConfigJsons().clear();
+    getAllTSConfigJsons()?.clear();
     setContext({
       workDir: '/tmp/dir',
       shouldUseTypeScriptParserForJS: true,
