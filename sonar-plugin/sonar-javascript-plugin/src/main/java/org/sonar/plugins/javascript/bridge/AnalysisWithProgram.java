@@ -79,15 +79,14 @@ public class AnalysisWithProgram extends AbstractAnalysis {
         var program = bridgeServer.createProgram(new TsProgramRequest(tsConfig));
         if (program.error != null) {
           LOG.error("Failed to create program: " + program.error);
-          this.analysisWarnings.addUnique(
-              String.format(
-                "Failed to create TypeScript program with TSConfig file %s. Highest TypeScript supported version is %s.",
-                tsConfig,
-                JavaScriptPlugin.TYPESCRIPT_VERSION
-              )
-            );
           PROFILER.stopInfo();
-          continue;
+          throw new IllegalStateException(
+            String.format(
+              "Failed to create TypeScript program with TSConfig file %s. Highest TypeScript supported version is %s.",
+              tsConfig,
+              JavaScriptPlugin.TYPESCRIPT_VERSION
+            )
+          );
         }
         if (program.missingTsConfig) {
           String msg =

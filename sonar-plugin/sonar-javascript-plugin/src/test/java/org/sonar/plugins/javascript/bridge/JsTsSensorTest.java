@@ -42,7 +42,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.junit.jupiter.api.BeforeEach;
@@ -500,11 +499,15 @@ class JsTsSensorTest {
           singletonList(file2.absolutePath()),
           singletonList("some-other-tsconfig.json")
         ),
-        new TsProgram("something went wrong"),
         new TsProgram(
           "3",
           Arrays.asList(file2.absolutePath(), file3.absolutePath()),
           singletonList(tsconfig1)
+        ),
+        new TsProgram(
+          "4",
+          Arrays.asList(file1.absolutePath(), "not/part/sonar/project/file.ts"),
+          emptyList()
         )
       );
 
@@ -526,7 +529,7 @@ class JsTsSensorTest {
         noconfig.absolutePath()
       );
 
-    verify(bridgeServerMock, times(3)).deleteProgram(any());
+    verify(bridgeServerMock, times(4)).deleteProgram(any());
 
     assertThat(logTester.logs(LoggerLevel.DEBUG))
       .contains(
@@ -534,17 +537,30 @@ class JsTsSensorTest {
         file2.absolutePath() +
         "'. Check your project configuration to avoid files being part of multiple projects."
       );
-    assertThat(logTester.logs(LoggerLevel.ERROR))
-      .contains("Failed to create program: something went wrong");
+  }
 
-    assertThat(analysisWarnings.warnings)
-      .contains(
+  @Test
+  void should_fail_on_program_creation_failure() throws Exception {
+    Path baseDir = Paths.get("src/test/resources/multi-tsconfig").toAbsolutePath();
+    SensorContextTester context = createSensorContext(baseDir);
+
+    inputFileFromResource(context, baseDir, "dir1/file.ts");
+    String tsconfig1 = absolutePath(baseDir, "dir1/tsconfig.json");
+    when(bridgeServerMock.createProgram(any())).thenReturn(new TsProgram("something went wrong"));
+
+    assertThatThrownBy(() -> createSensor().execute(context))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Analysis of JS/TS files failed")
+      .getCause()
+      .hasMessage(
         String.format(
           "Failed to create TypeScript program with TSConfig file %s. Highest TypeScript supported version is %s.",
-          captorProgram.getAllValues().get(2).tsConfig,
+          tsconfig1,
           JavaScriptPlugin.TYPESCRIPT_VERSION
         )
       );
+    assertThat(logTester.logs(LoggerLevel.ERROR))
+      .contains("Failed to create program: something went wrong");
   }
 
   @Test
