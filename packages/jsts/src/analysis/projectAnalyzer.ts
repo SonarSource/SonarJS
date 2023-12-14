@@ -76,7 +76,7 @@ export async function analyzeProject(input: ProjectAnalysisInput): Promise<Proje
       withProgram: false,
       withWatchProgram: false,
       filesWithoutTypeChecking: [],
-      programsCreated: 0,
+      programsCreated: [],
     },
   };
   if (watchProgram) {
@@ -98,7 +98,7 @@ async function analyzeWithProgram(
 ) {
   for (const tsConfig of loopTSConfigs()) {
     const { files: filenames, programId } = createAndSaveProgram(tsConfig);
-    results.meta!.programsCreated++;
+    results.meta!.programsCreated.push(tsConfig);
     for (const filename of filenames) {
       // only analyze files which are requested
       if (files[filename]) {

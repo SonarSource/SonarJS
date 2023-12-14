@@ -90,6 +90,10 @@ function walkDirectory(
   const dirs = [baseDir];
   while (dirs.length) {
     const dir = dirs.shift()!;
+    patterns.forEach(pattern => {
+      const filesInDir: File<unknown>[] = [];
+      dbs[pattern.id].set(dir, filesInDir);
+    });
     const files = fs.readdirSync(dir, { withFileTypes: true });
     for (const file of files) {
       const filename = path.posix.join(dir, file.name);
@@ -100,9 +104,7 @@ function walkDirectory(
         dirs.push(filename);
       } else {
         patterns.forEach(pattern => {
-          const filesInDir: File<unknown>[] = [];
-          dbs[pattern.id].set(dir, filesInDir);
-          checkPattern(filename, pattern, filesInDir);
+          checkPattern(filename, pattern, dbs[pattern.id].get(dir)!);
         });
       }
     }

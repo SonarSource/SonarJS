@@ -100,7 +100,7 @@ describe('analyzeJSTS', () => {
     });
     expect(result.meta.withWatchProgram).toBeFalsy();
     expect(result.meta.withProgram).toBeTruthy();
-    expect(result.meta.programsCreated).toEqual(3);
+    expect(result.meta.programsCreated.length).toEqual(3);
   });
 
   it('should analyze whole project with watch program', async () => {
@@ -115,6 +115,6 @@ describe('analyzeJSTS', () => {
     });
     expect(result.meta.withWatchProgram).toBeTruthy();
     expect(result.meta.withProgram).toBeFalsy();
-    expect(result.meta.programsCreated).toEqual(0);
+    expect(result.meta.programsCreated.length).toEqual(0);
   });
 });
