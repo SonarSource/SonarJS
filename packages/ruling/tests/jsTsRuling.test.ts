@@ -20,6 +20,7 @@
 import * as path from 'path';
 import * as fs from 'fs';
 import * as os from 'os';
+import { Minimatch } from 'minimatch';
 import { FileType, setContext } from '../../shared/src';
 import {
   JsTsFiles,
@@ -27,11 +28,12 @@ import {
   ProjectAnalysisOutput,
   analyzeProject,
 } from '../../jsts/src';
-import { Minimatch } from 'minimatch';
+import { getEslintToSonar } from './tools/keysMapping';
 
 // cache for rules
 const rules = [];
 let projects = [];
+let eslintIdToSonarId: Record<string, string> = {};
 
 type LitsFormattedResult = {
   issues: {
@@ -53,6 +55,7 @@ describe('Ruling', () => {
     const jsTsProjectsPath = path.join(sourcesPath, 'jsts', 'projects');
     // courselit fails for some reason
     projects = getFolders(jsTsProjectsPath).filter(project => !project.includes('courselit'));
+    eslintIdToSonarId = getEslintToSonar();
   });
 
   it(
@@ -81,8 +84,9 @@ function writeResults(
   fs.mkdirSync(projectDir, { recursive: true });
   const litsResults = transformResults(sourceProjectDir, project, results);
   for (const [ruleId, { js: jsIssues, ts: tsIssues }] of Object.entries(litsResults.issues)) {
-    writeIssues(projectDir, ruleId, jsIssues);
-    writeIssues(projectDir, ruleId, tsIssues, false);
+    const sonarRuleId = eslintIdToSonarId[ruleId];
+    writeIssues(projectDir, sonarRuleId, jsIssues);
+    writeIssues(projectDir, sonarRuleId, tsIssues, false);
   }
 
   /**
