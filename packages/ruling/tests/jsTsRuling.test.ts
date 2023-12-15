@@ -21,40 +21,72 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as os from 'os';
 import { FileType, setContext } from '../../shared/src';
-import { JsTsFiles, ProjectAnalysisInput, analyzeProject } from '../../jsts/src';
+import {
+  JsTsFiles,
+  ProjectAnalysisInput,
+  ProjectAnalysisOutput,
+  analyzeProject,
+} from '../../jsts/src';
 import { Minimatch } from 'minimatch';
 
 // cache for rules
 const rules = [];
-
-const sourcesPath = path.join(__dirname, '..', '..', '..', 'its', 'sources');
-console.log('sourcesPath', sourcesPath);
-const jsTsProjectsPath = path.join(sourcesPath, 'jsts', 'projects');
+let projects;
 
 describe('Ruling', () => {
-  it('should rule', async () => {
+  beforeAll(() => {
+    const sourcesPath = path.join(__dirname, '..', '..', '..', 'its', 'sources');
+    const jsTsProjectsPath = path.join(sourcesPath, 'jsts', 'projects');
+    projects = getFolders(jsTsProjectsPath);
+  });
+  /* test.each(projects,'should run the ruling test for %s', (project) => {
+
+  });*/
+  it('should run the ruling tests', async () => {
     await runRuling();
   });
 });
 
 async function runRuling() {
-  const projects = getFolders(jsTsProjectsPath);
+  setContext({
+    workDir: path.join(os.tmpdir(), 'sonarjs'),
+    shouldUseTypeScriptParserForJS: true,
+    sonarlint: false,
+    bundles: [],
+  });
+
   for (const project of projects) {
     console.log(`Testing project ${project}`);
-    setContext({
-      workDir: path.join(os.tmpdir(), 'sonarjs'),
-      shouldUseTypeScriptParserForJS: true,
-      sonarlint: false,
-      bundles: [],
-    });
-
     const results = await testProject(project);
-
-    console.log('finished', results);
-    process.exit(0);
+    writeResults(project, results);
   }
 }
 
+/**
+ * Writes the given `results` in its associated `project` folder
+ *
+ * @param project
+ * @param results
+ * @param isJsTs
+ * @param baseDir
+ */
+function writeResults(
+  project: string,
+  results: ProjectAnalysisOutput,
+  isJsTs: boolean = true,
+  baseDir: string = path.join(__dirname, 'actual'),
+) {
+  const projectDir = path.join(baseDir, isJsTs ? 'jsts' : 'css', project);
+  fs.mkdirSync(projectDir, { recursive: true });
+  fs.writeFileSync(path.join(projectDir, 'results.json'), JSON.stringify(results, null, 2));
+}
+
+/**
+ * Returns all the folders in the given `dir`
+ *
+ * @param dir
+ * @returns
+ */
 function getFolders(dir: string) {
   const ignore = new Set(['.github']);
   return fs
@@ -63,6 +95,13 @@ function getFolders(dir: string) {
     .map(dirent => path.join(dir, dirent.name));
 }
 
+/**
+ * Load files and analyze project
+ *
+ * @param projectPath
+ * @param exclusions
+ * @returns
+ */
 function testProject(projectPath: string, exclusions: string = '') {
   const payload: ProjectAnalysisInput = {
     rules: getRules(),
@@ -75,7 +114,6 @@ function testProject(projectPath: string, exclusions: string = '') {
   const exclusionsGlob = stringToGlob(exclusions.split(','));
   getFiles(files, projectPath, exclusionsGlob);
   payload.files = files;
-  console.log('got payload', payload);
   //getFiles(files, projectPath, exclusionsGlob, 'TEST');
   return analyzeProject(payload);
 
@@ -84,6 +122,15 @@ function testProject(projectPath: string, exclusions: string = '') {
   }
 }
 
+/**
+ * Stores in `acc` all the JS/TS files in the given `dir`,
+ * ignoring the given `exclusions` and assigning the given `type`
+ *
+ * @param acc
+ * @param dir
+ * @param exclusions
+ * @param type
+ */
 function getFiles(acc: JsTsFiles, dir: string, exclusions: Minimatch[], type: FileType = 'MAIN') {
   const files = fs.readdirSync(dir, { recursive: true }) as string[];
   for (const file of files) {
