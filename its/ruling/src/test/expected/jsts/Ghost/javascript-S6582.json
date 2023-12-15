@@ -49,6 +49,9 @@
 251,
 253
 ],
+"Ghost:core/client/app/mixins/editor-base-route.js": [
+55
+],
 "Ghost:core/client/app/mixins/pagination-route.js": [
 75
 ],
@@ -86,8 +89,10 @@
 346
 ],
 "Ghost:core/server/api/users.js": [
+113,
 156,
 161,
+175,
 181,
 266
 ],
@@ -102,6 +107,7 @@
 ],
 "Ghost:core/server/config/index.js": [
 128,
+159,
 382
 ],
 "Ghost:core/server/config/url.js": [
@@ -109,7 +115,6 @@
 170
 ],
 "Ghost:core/server/controllers/frontend/context.js": [
-25,
 53
 ],
 "Ghost:core/server/data/import/data-importer.js": [
@@ -117,7 +122,11 @@
 50
 ],
 "Ghost:core/server/data/import/utils.js": [
-140
+140,
+170
+],
+"Ghost:core/server/data/meta/author_image.js": [
+8
 ],
 "Ghost:core/server/data/meta/author_url.js": [
 8
@@ -137,6 +146,9 @@
 "Ghost:core/server/data/xml/rss/index.js": [
 40,
 41
+],
+"Ghost:core/server/errors/index.js": [
+316
 ],
 "Ghost:core/server/filters.js": [
 54
@@ -194,22 +206,22 @@
 82,
 103
 ],
-"Ghost:core/server/middleware/check-ssl.js": [
-22
-],
 "Ghost:core/server/middleware/private-blogging.js": [
 121
+],
+"Ghost:core/server/middleware/theme-handler.js": [
+73
 ],
 "Ghost:core/server/models/base/index.js": [
 137,
 140,
 163,
 167,
-408
+408,
+446
 ],
 "Ghost:core/server/models/plugins/access-rules.js": [
-20,
-35
+20
 ],
 "Ghost:core/server/models/user.js": [
 110,
@@ -230,6 +242,7 @@
 ],
 "Ghost:core/test/functional/base.js": [
 291,
-302
+302,
+480
 ]
 }

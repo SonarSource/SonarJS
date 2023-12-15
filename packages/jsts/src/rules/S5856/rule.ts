@@ -70,7 +70,7 @@ export const rule: Rule.RuleModule = {
     }
 
     function isStringMatch(call: estree.CallExpression) {
-      const services = context.parserServices;
+      const services = context.sourceCode.parserServices;
       if (!isRequiredParserServices(services)) {
         return false;
       }

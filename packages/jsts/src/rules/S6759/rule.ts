@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import { Function, Node, ReturnStatement } from 'estree';
-import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { TSESTree } from '@typescript-eslint/utils';
 import {
   RequiredParserServices,
   getTypeFromTreeNode,
@@ -47,7 +47,7 @@ export const rule: Rule.RuleModule = {
     },
   },
   create(context: Rule.RuleContext) {
-    const services = context.parserServices;
+    const services = context.sourceCode.parserServices;
     if (!isRequiredParserServices(services)) {
       return {};
     }

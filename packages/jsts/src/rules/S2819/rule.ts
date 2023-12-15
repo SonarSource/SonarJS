@@ -21,7 +21,7 @@
 
 import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
-import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { TSESTree } from '@typescript-eslint/utils';
 import {
   isRequiredParserServices,
   getValueOfExpression,
@@ -44,7 +44,7 @@ export const rule: Rule.RuleModule = {
     },
   },
   create(context: Rule.RuleContext) {
-    const services = context.parserServices;
+    const services = context.sourceCode.parserServices;
     if (!isRequiredParserServices(services)) {
       return {};
     }
@@ -61,7 +61,7 @@ export const rule: Rule.RuleModule = {
 };
 
 function isWindowObject(node: estree.Node, context: Rule.RuleContext) {
-  const type = getTypeAsString(node, context.parserServices);
+  const type = getTypeAsString(node, context.sourceCode.parserServices);
   const hasWindowName = WindowNameVisitor.containsWindowName(node, context);
   return type.match(/window/i) || type.match(/globalThis/i) || hasWindowName;
 }

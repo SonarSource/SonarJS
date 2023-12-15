@@ -22,7 +22,7 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import * as ts from 'typescript';
-import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { TSESTree } from '@typescript-eslint/utils';
 import { isRequiredParserServices } from '../helpers';
 
 export const rule: Rule.RuleModule = {
@@ -33,7 +33,7 @@ export const rule: Rule.RuleModule = {
     },
   },
   create(context: Rule.RuleContext) {
-    const services = context.parserServices;
+    const services = context.sourceCode.parserServices;
     if (isRequiredParserServices(services)) {
       return {
         TSIntersectionType: (node: estree.Node) => {

@@ -22,7 +22,7 @@
 import { AST, Rule } from 'eslint';
 import * as estree from 'estree';
 import { Position } from 'estree';
-import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { TSESTree } from '@typescript-eslint/utils';
 
 export const rule: Rule.RuleModule = {
   meta: {

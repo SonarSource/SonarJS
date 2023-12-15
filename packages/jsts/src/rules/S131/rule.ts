@@ -39,7 +39,7 @@ const switchWithoutDefaultRule: Rule.RuleModule = {
     },
   },
   create(context: Rule.RuleContext) {
-    const services = context.parserServices;
+    const services = context.sourceCode.parserServices;
     const hasTypeInformation = isRequiredParserServices(services);
     return {
       SwitchStatement(node: estree.SwitchStatement) {

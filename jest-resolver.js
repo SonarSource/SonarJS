@@ -17,21 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// https://sonarsource.github.io/rspec/#/rspec/S6551/javascript
-
-import { TSESTree } from '@typescript-eslint/utils';
-import { Rule } from 'eslint';
-import { isGenericType, interceptReport } from '../helpers';
-
-export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
-  return interceptReport(rule, (context, reportDescriptor) => {
-    if ('node' in reportDescriptor) {
-      const services = context.sourceCode.parserServices;
-      if (isGenericType(reportDescriptor.node as TSESTree.Node, services)) {
-        // we skip
+module.exports = (path, options) => {
+  // Call the defaultResolver, so we leverage its cache, error handling, etc.
+  return options.defaultResolver(path, {
+    ...options,
+    // Use packageFilter to process parsed `package.json` before the resolution (see https://www.npmjs.com/package/resolve#resolveid-opts-cb)
+    packageFilter: pkg => {
+      if (pkg.name === '@typescript-eslint/parser') {
+        /**
+         * `@typescript-eslint/parser` uses a more modern "exports" field in its package.json, which is not yet supported
+         * by the Jest default resolver (see https://github.com/browserify/resolve/issues/222, https://github.com/jestjs/jest/issues/9771).
+         * This is a workaround to make it work.
+         */
+        return {
+          ...pkg,
+          main: pkg.exports['.'].default,
+        };
       } else {
-        context.report(reportDescriptor);
+        return pkg;
       }
-    }
+    },
   });
-}
+};

@@ -53,7 +53,6 @@ export const quickFixRules = new Set([
   'semi',
 
   // decorated eslint core
-  'no-duplicate-imports',
   'no-empty-function',
   'no-empty',
   'no-lonely-if',
@@ -132,4 +131,5 @@ export const quickFixRules = new Set([
 
   // eslint-plugin-import
   'no-absolute-path',
+  'no-duplicates',
 ]);

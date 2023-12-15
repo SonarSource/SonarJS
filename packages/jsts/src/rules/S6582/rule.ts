@@ -44,10 +44,11 @@ const preferOptionalChainRule = tsEslintRules['prefer-optional-chain'];
 export const rule: Rule.RuleModule = {
   meta: {
     hasSuggestions: true,
+    fixable: 'code',
     messages: { ...preferOptionalChainRule.meta!.messages },
   },
   create(context: Rule.RuleContext) {
-    const services = context.parserServices;
+    const services = context.sourceCode.parserServices;
     if (!services?.program || !services.esTreeNodeToTSNodeMap || !services.tsNodeToESTreeNodeMap) {
       return {};
     }

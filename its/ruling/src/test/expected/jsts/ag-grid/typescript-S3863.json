@@ -1,65 +1,86 @@
 {
 "ag-grid:src/ts/columnController/balancedColumnTreeBuilder.ts": [
+4,
 8,
 9,
+11,
 12,
 13,
 14
 ],
 "ag-grid:src/ts/columnController/columnUtils.ts": [
+8,
 9,
 10
 ],
 "ag-grid:src/ts/columnController/displayedGroupCreator.ts": [
+8,
 10
 ],
 "ag-grid:src/ts/entities/columnGroup.ts": [
+2,
 4
 ],
 "ag-grid:src/ts/eventService.ts": [
+2,
 3,
+5,
 6
 ],
 "ag-grid:src/ts/expressionService.ts": [
+2,
 3
 ],
 "ag-grid:src/ts/gridPanel/mouseEventService.ts": [
+1,
 2
 ],
 "ag-grid:src/ts/headerRendering/horizontalDragService.ts": [
+3,
 4
 ],
 "ag-grid:src/ts/logger.ts": [
+2,
 3
 ],
 "ag-grid:src/ts/masterSlaveService.ts": [
+4,
 6,
+12,
 13,
 14,
 15
 ],
 "ag-grid:src/ts/rendering/autoWidthCalculator.ts": [
+4,
 6
 ],
 "ag-grid:src/ts/rendering/cellEditors/largeTextCellEditor.ts": [
+1,
 2,
+4,
 5
 ],
 "ag-grid:src/ts/rowModels/floatingRowModel.ts": [
+4,
 5,
 7,
 9
 ],
 "ag-grid:src/ts/selectionController.ts": [
+3,
 4,
+5,
 6,
 9,
 12
 ],
 "ag-grid:src/ts/sortController.ts": [
+2,
 7
 ],
 "ag-grid:src/ts/templateService.ts": [
+1,
 2,
 3
 ]

@@ -24,7 +24,7 @@
 
 import { Rule } from 'eslint';
 import { isMemberExpression } from '../helpers';
-import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { TSESTree } from '@typescript-eslint/utils';
 import * as estree from 'estree';
 
 export const rule: Rule.RuleModule = {

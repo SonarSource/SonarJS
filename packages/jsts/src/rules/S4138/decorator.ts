@@ -22,7 +22,7 @@
 import { Rule, AST, Scope } from 'eslint';
 import { interceptReport } from '../helpers';
 import * as estree from 'estree';
-import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { TSESTree } from '@typescript-eslint/utils';
 
 const element = 'element';
 

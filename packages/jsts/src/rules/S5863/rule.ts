@@ -19,7 +19,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S5863/javascript
 
-import { TSESLint, TSESTree } from '@typescript-eslint/experimental-utils';
+import { TSESLint, TSESTree } from '@typescript-eslint/utils';
 import { Rule } from 'eslint';
 import { areEquivalent } from 'eslint-plugin-sonarjs/lib/utils/equivalence';
 import * as estree from 'estree';

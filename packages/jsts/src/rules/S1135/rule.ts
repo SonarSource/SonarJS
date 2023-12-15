@@ -20,7 +20,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S1135/javascript
 
 import { Rule } from 'eslint';
-import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { TSESTree } from '@typescript-eslint/utils';
 
 const todoPattern = 'todo';
 const letterPattern = /[\p{Letter}]/u;

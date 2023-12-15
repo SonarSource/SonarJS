@@ -3,6 +3,7 @@
 29
 ],
 "angular.js:docs/app/src/docs.js": [
+15,
 49
 ],
 "angular.js:docs/app/src/search.js": [
@@ -20,6 +21,7 @@
 "angular.js:src/Angular.js": [
 682,
 768,
+1708,
 1918,
 1938,
 1939
@@ -36,6 +38,7 @@
 340,
 341,
 413,
+423,
 1056,
 1057
 ],
@@ -51,6 +54,7 @@
 2505,
 2509,
 2670,
+2796,
 3002,
 3402,
 3403,
@@ -93,12 +97,17 @@
 "angular.js:src/ng/log.js": [
 85
 ],
+"angular.js:src/ng/q.js": [
+469
+],
 "angular.js:src/ng/sanitizeUri.js": [
 75
 ],
 "angular.js:src/ng/sniffer.js": [
 29,
 33,
+34,
+35,
 37,
 38,
 40
@@ -127,6 +136,7 @@
 ],
 "angular.js:src/ngMock/angular-mocks.js": [
 1522,
+2173,
 3238,
 3248
 ],

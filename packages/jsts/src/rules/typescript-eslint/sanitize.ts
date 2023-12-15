@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Rule } from 'eslint';
+import { isRequiredParserServices } from '../helpers';
 
 /**
  * Sanitizes a TypeScript ESLint rule
@@ -48,7 +49,7 @@ export function sanitize(rule: Rule.RuleModule): Rule.RuleModule {
       if (
         rule.meta?.docs &&
         (rule.meta.docs as any).requiresTypeChecking === true &&
-        context.parserServices.hasFullTypeInformation !== true
+        !isRequiredParserServices(context.sourceCode.parserServices)
       ) {
         return {};
       }

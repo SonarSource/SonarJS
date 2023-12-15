@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { TSESTree } from '@typescript-eslint/utils';
 import { Variable } from 'eslint-scope';
 import { isIdentifier, isRequiredParserServices, getTypeAsString } from '../helpers';
 
@@ -32,7 +32,7 @@ export const rule: Rule.RuleModule = {
     },
   },
   create(context: Rule.RuleContext) {
-    const services = context.parserServices;
+    const services = context.sourceCode.parserServices;
     if (!isRequiredParserServices(services)) {
       return {};
     }

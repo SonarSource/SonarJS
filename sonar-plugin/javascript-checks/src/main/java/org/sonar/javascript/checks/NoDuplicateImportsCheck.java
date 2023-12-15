@@ -31,6 +31,6 @@ public class NoDuplicateImportsCheck implements EslintBasedCheck {
 
   @Override
   public String eslintKey() {
-    return "no-duplicate-imports";
+    return "no-duplicates";
   }
 }

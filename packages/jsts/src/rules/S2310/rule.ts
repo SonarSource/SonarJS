@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { TSESTree } from '@typescript-eslint/utils';
 import { toEncodedMessage, getVariableFromName, resolveIdentifiers, getParent } from '../helpers';
 import { SONAR_RUNTIME } from '../../linter/parameters';
 

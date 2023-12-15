@@ -21,8 +21,7 @@
 
 import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
-import { TSESTree } from '@typescript-eslint/experimental-utils';
-import { isAssignmentExpression } from 'eslint-plugin-sonarjs/lib/utils/nodes';
+import { TSESTree } from '@typescript-eslint/utils';
 import CodePath = Rule.CodePath;
 import Variable = Scope.Variable;
 import Reference = Scope.Reference;
@@ -277,11 +276,15 @@ class AssignmentContext {
   rhs = new Set<Reference>();
 
   isRhs(node: TSESTree.Node) {
-    return isAssignmentExpression(this.node) ? this.node.right === node : this.node.init === node;
+    return this.node.type === 'AssignmentExpression'
+      ? this.node.right === node
+      : this.node.init === node;
   }
 
   isLhs(node: TSESTree.Node) {
-    return isAssignmentExpression(this.node) ? this.node.left === node : this.node.id === node;
+    return this.node.type === 'AssignmentExpression'
+      ? this.node.left === node
+      : this.node.id === node;
   }
 
   add(ref: Reference) {

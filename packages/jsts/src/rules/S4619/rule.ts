@@ -22,8 +22,7 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { isArray, isNumber, isRequiredParserServices } from '../helpers';
-import { isLiteral } from 'eslint-plugin-sonarjs/lib/utils/nodes';
-import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { TSESTree } from '@typescript-eslint/utils';
 
 export const rule: Rule.RuleModule = {
   meta: {
@@ -35,11 +34,11 @@ export const rule: Rule.RuleModule = {
     },
   },
   create(context: Rule.RuleContext) {
-    const services = context.parserServices;
+    const services = context.sourceCode.parserServices;
 
     function prototypeProperty(node: estree.Expression) {
       const expr = node as TSESTree.Expression;
-      if (!isLiteral(expr) || typeof expr.value !== 'string') {
+      if (expr.type !== 'Literal' || typeof expr.value !== 'string') {
         return false;
       }
 

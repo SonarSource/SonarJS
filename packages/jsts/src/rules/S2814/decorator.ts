@@ -20,7 +20,7 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { interceptReport } from '../helpers';
-import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { TSESTree } from '@typescript-eslint/utils';
 
 // core implementation of this rule raises issues on type exports
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {

@@ -30,7 +30,7 @@ export const rule: Rule.RuleModule = {
     },
   },
   create(context: Rule.RuleContext) {
-    const services = context.parserServices;
+    const services = context.sourceCode.parserServices;
 
     function attrsHref(calleeName: string) {
       // select call expression with given name where second argument is object expression like { attrs: { href: 'bla' } }
@@ -52,7 +52,7 @@ export const rule: Rule.RuleModule = {
     // @ts-ignore
     if (services.defineTemplateBodyVisitor) {
       // analyze <template> in .vue file
-      const templateBodyVisitor = context.parserServices.defineTemplateBodyVisitor({
+      const templateBodyVisitor = context.sourceCode.parserServices.defineTemplateBodyVisitor({
         ["VAttribute[directive=true][key.name.name='html']," +
           "VAttribute[directive=true][key.argument.name='href']"](node: AST.VAttribute) {
           context.report({

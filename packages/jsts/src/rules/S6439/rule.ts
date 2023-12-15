@@ -98,12 +98,12 @@ function report(node: estree.Node, context: Rule.RuleContext) {
 }
 
 function isStringOrNumber(node: estree.Node, context: Rule.RuleContext) {
-  const type = getTypeFromTreeNode(node, context.parserServices);
+  const type = getTypeFromTreeNode(node, context.sourceCode.parserServices);
   return isStringType(type) || isBigIntType(type) || isNumberType(type);
 }
 
 function isNumber(node: estree.Node, context: Rule.RuleContext) {
-  const type = getTypeFromTreeNode(node, context.parserServices);
+  const type = getTypeFromTreeNode(node, context.sourceCode.parserServices);
   return isBigIntType(type) || isNumberType(type);
 }
 

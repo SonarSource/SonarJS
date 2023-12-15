@@ -21,7 +21,7 @@
 
 import { Rule, SourceCode } from 'eslint';
 import * as estree from 'estree';
-import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { TSESTree } from '@typescript-eslint/utils';
 import * as babel from '@babel/eslint-parser';
 import { buildParserOptions } from '../../parsers';
 import { CodeRecognizer, JavaScriptFootPrint } from '../../linter/recognizers';

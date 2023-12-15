@@ -19,8 +19,8 @@
  */
 import * as estree from 'estree';
 import ts from 'typescript';
-import { TSESLint, TSESTree } from '@typescript-eslint/experimental-utils';
-import { RequiredParserServices } from 'eslint-plugin-sonarjs/lib/utils/parser-services';
+import { TSESLint, TSESTree } from '@typescript-eslint/utils';
+import { RequiredParserServices } from '../helpers';
 import { getVariableFromScope } from './ast';
 import { Rule } from 'eslint';
 
@@ -273,7 +273,7 @@ export function isTypeAlias(node: TSESTree.TypeNode, context: Rule.RuleContext) 
   if (
     node.type !== 'TSTypeReference' ||
     node.typeName.type !== 'Identifier' ||
-    node.typeParameters
+    node.typeArguments
   ) {
     return false;
   }

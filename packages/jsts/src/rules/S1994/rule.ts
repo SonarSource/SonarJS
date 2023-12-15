@@ -23,7 +23,7 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { areEquivalent } from 'eslint-plugin-sonarjs/lib/utils/equivalence';
 import { getParent, RuleContext } from '../helpers';
-import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { TSESTree } from '@typescript-eslint/utils';
 
 class ForInfo {
   updatedExpressions: estree.Node[] = [];

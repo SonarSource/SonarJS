@@ -23,7 +23,7 @@ import { Rule, Scope } from 'eslint';
 import { eslintRules } from '../core';
 import * as estree from 'estree';
 import { childrenOf } from '../../linter';
-import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { TSESTree } from '@typescript-eslint/utils';
 import { isUndefined, interceptReport, mergeRules } from '../helpers';
 
 const noUnmodifiedLoopEslint = eslintRules['no-unmodified-loop-condition'];

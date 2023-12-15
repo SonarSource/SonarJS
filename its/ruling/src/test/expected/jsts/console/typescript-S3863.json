@@ -1,61 +1,82 @@
 {
 "console:src/actions/databrowser/data.ts": [
+1,
 4
 ],
 "console:src/utils/relay.ts": [
+2,
 9
 ],
 "console:src/views/ActionsView/ActionBoxes.tsx": [
+17,
+18,
 19,
 20
 ],
 "console:src/views/ActionsView/ActionTriggerBox.tsx": [
+4,
 9
 ],
 "console:src/views/ActionsView/ActionsView.tsx": [
+9,
 12
 ],
 "console:src/views/FunctionsView/FunctionRow.tsx": [
+3,
 6
 ],
 "console:src/views/Integrations/Algolia/CreateAlgoliaIndex.tsx": [
+17,
 18
 ],
 "console:src/views/Integrations/AlgoliaPopup/AlgoliaPopupIndex.tsx": [
+8,
 10
 ],
 "console:src/views/Integrations/IntegrationsCardGrid.tsx": [
+6,
 9
 ],
 "console:src/views/PermissionsView/PermissionPopup/PermissionConditions.tsx": [
+14,
 22
 ],
 "console:src/views/SchemaView/EnumsOverview/EnumBox.tsx": [
+4,
 16
 ],
 "console:src/views/SchemaView/SchemaOverview/TypeBox.tsx": [
+5,
 19
 ],
 "console:src/views/models/AuthProviderPopup/AuthProviderPopup.tsx": [
+4,
 5
 ],
 "console:src/views/models/DatabrowserView/Cell/BooleanCell.tsx": [
+3,
 4
 ],
 "console:src/views/models/DatabrowserView/DatabrowserView.tsx": [
+9,
+17,
 37,
-41
+43
 ],
 "console:src/views/models/DatabrowserView/RelationsPopup.tsx": [
+7,
 10
 ],
 "console:src/views/models/FieldPopup/FieldPopupFooter.tsx": [
+3,
 4
 ],
 "console:src/views/models/utils.ts": [
+1,
 7
 ],
 "console:src/views/playground/PlaygroundView/PlaygroundView.tsx": [
+13,
 22
 ]
 }

@@ -17,7 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { tsEslintRules } from '../typescript-eslint';
-import { decorate } from './decorator';
+import type { ParserServices, ParserServicesWithTypeInformation } from '@typescript-eslint/utils';
 
-export const rule = decorate(tsEslintRules['no-duplicate-imports']);
+export type RequiredParserServices = ParserServicesWithTypeInformation;
+
+export function isRequiredParserServices(
+  services: ParserServices | undefined,
+): services is RequiredParserServices {
+  // see https://github.com/typescript-eslint/typescript-eslint/issues/7124
+  return !!services?.program;
+}

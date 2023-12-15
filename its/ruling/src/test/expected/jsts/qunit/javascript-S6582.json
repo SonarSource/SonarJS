@@ -30,20 +30,16 @@
 12
 ],
 "qunit:src/core/utilities.js": [
-35,
 112
 ],
 "qunit:src/export.js": [
 10,
+18,
 38
 ],
 "qunit:src/globals.js": [
 9,
 10
-],
-"qunit:src/module.js": [
-17,
-18
 ],
 "qunit:src/test.js": [
 538,

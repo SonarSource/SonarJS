@@ -3,28 +3,29 @@
 94
 ],
 "p5.js:docs/yuidoc-p5-theme/assets/js/reference.js": [
+80,
+81,
 85,
 386,
 443,
 769,
 773,
 792,
+1100,
 1112,
 1119,
 1209,
 1590,
 3852,
-4015,
 4031,
 4430
 ],
 "p5.js:lib/addons/p5.sound.js": [
 970,
 975,
-7231,
+7512,
 7730,
-7993,
-12597
+7993
 ],
 "p5.js:src/core/environment.js": [
 467,
@@ -32,12 +33,11 @@
 476,
 477
 ],
-"p5.js:src/core/error_helpers.js": [
-372,
-791
-],
 "p5.js:src/core/main.js": [
 452
+],
+"p5.js:src/core/p5.Renderer.js": [
+338
 ],
 "p5.js:src/dom/dom.js": [
 1305,
@@ -82,9 +82,5 @@
 1109,
 1113,
 1125
-],
-"p5.js:test/test-reference.html": [
-113,
-128
 ]
 }

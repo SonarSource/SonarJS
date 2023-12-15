@@ -30,7 +30,7 @@ export const rule: Rule.RuleModule = {
     },
   },
   create(context: Rule.RuleContext) {
-    const services = context.parserServices;
+    const services = context.sourceCode.parserServices;
     function checkNode(node: estree.Node) {
       const unaryExpression: estree.UnaryExpression = node as estree.UnaryExpression;
       if (isVoid0(unaryExpression) || isIIFE(unaryExpression) || isPromiseLike(unaryExpression)) {

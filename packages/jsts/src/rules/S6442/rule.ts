@@ -30,7 +30,7 @@ import {
   isFunctionNode,
   isIdentifier,
 } from '../helpers';
-import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { TSESTree } from '@typescript-eslint/utils';
 
 type HookDeclarator = estree.VariableDeclarator & {
   id: {

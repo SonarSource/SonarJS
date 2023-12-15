@@ -21,7 +21,7 @@
 
 import { AST, Rule, Scope } from 'eslint';
 import * as estree from 'estree';
-import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { TSESTree } from '@typescript-eslint/utils';
 import { getParent, resolveIdentifiers } from '../helpers';
 
 type ContextType = 'catch' | 'function' | 'foreach' | 'global';

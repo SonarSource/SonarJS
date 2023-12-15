@@ -3,6 +3,7 @@
 36,
 72,
 250,
+371,
 628,
 753,
 867,
@@ -11,8 +12,6 @@
 1250
 ],
 "snoode:src/models/base.es6.js": [
-29,
-33,
 70
 ],
 "snoode:src/models/link.es6.js": [
