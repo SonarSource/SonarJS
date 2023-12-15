@@ -38,6 +38,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import javax.annotation.Nullable;
 import org.sonar.api.Startable;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.Sensor;
@@ -106,8 +107,8 @@ public class Monitoring implements Startable {
     sensorMetric.fileCount++;
   }
 
-  public void stopFile(InputFile inputFile, int ncloc, BridgeServer.Perf perf) {
-    if (!enabled) {
+  public void stopFile(InputFile inputFile, int ncloc, @Nullable BridgeServer.Perf perf) {
+    if (!enabled || perf == null) {
       return;
     }
     fileMetric.duration = fileMetric.clock.stop();
