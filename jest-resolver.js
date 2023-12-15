@@ -25,8 +25,8 @@ module.exports = (path, options) => {
     packageFilter: pkg => {
       if (pkg.name === '@typescript-eslint/parser') {
         /**
-         * `@typescript-eslint/parser` uses more modern "exports" field in its package.json, which is not yet supported by jest default
-         * resolver (see https://github.com/browserify/resolve/issues/222, https://github.com/jestjs/jest/issues/9771).
+         * `@typescript-eslint/parser` uses a more modern "exports" field in its package.json, which is not yet supported
+         * by the Jest default resolver (see https://github.com/browserify/resolve/issues/222, https://github.com/jestjs/jest/issues/9771).
          * This is a workaround to make it work.
          */
         return {
