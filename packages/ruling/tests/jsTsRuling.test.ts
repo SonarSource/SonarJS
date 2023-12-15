@@ -31,76 +31,7 @@ import { Minimatch } from 'minimatch';
 
 // cache for rules
 const rules = [];
-let projects;
-
-describe('Ruling', () => {
-  beforeAll(() => {
-    const sourcesPath = path.join(__dirname, '..', '..', '..', 'its', 'sources');
-    const jsTsProjectsPath = path.join(sourcesPath, 'jsts', 'projects');
-    projects = getFolders(jsTsProjectsPath).filter(project => !project.includes('TypeScript'));
-  });
-  it(
-    'should run the ruling tests',
-    async () => {
-      await runRuling();
-    },
-    20 * 60 * 1000,
-  );
-  it.skip('should fix results', () => {
-    const res = require('./actual/jsts/amplify/results.json');
-    //const litsRes = transformResults('/Users/ilia.kebets/Dev/Sonar/SonarJS/its/sources/jsts/projects/amplify', 'wazaa', res);
-    writeResults(
-      'wazaa',
-      res,
-      '/Users/ilia.kebets/Dev/Sonar/SonarJS/its/sources/jsts/projects/amplify',
-    );
-  });
-});
-
-async function runRuling() {
-  for (const project of projects) {
-    console.log(`Testing project ${project}`);
-    const results = await testProject(project);
-    writeResults(pickLastFolder(project), results, project);
-  }
-}
-
-function pickLastFolder(projectPath: string) {
-  return projectPath.split(path.posix.sep).at(-1);
-}
-
-/**
- * Writes the given `results` in its associated `project` folder
- *
- * @param project
- * @param results
- * @param isJsTs
- * @param baseDir
- */
-function writeResults(
-  project: string,
-  results: ProjectAnalysisOutput,
-  sourceDir: string,
-  isJsTs: boolean = true,
-  baseDir: string = path.join(__dirname, 'actual'),
-) {
-  const projectDir = path.join(baseDir, isJsTs ? 'jsts' : 'css', project);
-  fs.mkdirSync(projectDir, { recursive: true });
-  const litsResults = transformResults(sourceDir, project, results);
-  for (const [ruleId, { js: jsIssues, ts: tsIssues }] of Object.entries(litsResults.issues)) {
-    writeIssues(projectDir, ruleId, jsIssues);
-    writeIssues(projectDir, ruleId, tsIssues, false);
-  }
-
-  function writeIssues(projectDir: string, ruleId: string, issues, isJs: boolean = true) {
-    if (Object.keys(issues).length === 0) return;
-    const issueFilename = path.join(
-      projectDir,
-      `${isJs ? 'javascript' : 'typescript'}-${ruleId}.json`,
-    );
-    fs.writeFileSync(issueFilename, JSON.stringify(issues, null, 2));
-  }
-}
+let projects = [];
 
 type LitsFormattedResult = {
   issues: {
@@ -110,6 +41,69 @@ type LitsFormattedResult = {
   };
 };
 
+describe('Ruling', () => {
+  beforeAll(() => {
+    setContext({
+      workDir: path.join(os.tmpdir(), 'sonarjs'),
+      shouldUseTypeScriptParserForJS: true,
+      sonarlint: false,
+      bundles: [],
+    });
+    const sourcesPath = path.join(__dirname, '..', '..', '..', 'its', 'sources');
+    const jsTsProjectsPath = path.join(sourcesPath, 'jsts', 'projects');
+    projects = getFolders(jsTsProjectsPath).filter(project => project.includes('amplify'));
+  });
+
+  it(
+    `should run the ruling tests`,
+    async () => {
+      for (const project of projects) {
+        const results = await testProject(project);
+        writeResults(project, results);
+      }
+    },
+    20 * 60 * 1000,
+  );
+});
+
+/**
+ * Writes the given `results` in its associated project folder
+ */
+function writeResults(
+  sourceProjectDir: string,
+  results: ProjectAnalysisOutput,
+  isJsTs: boolean = true,
+  baseDir: string = path.join(__dirname, 'actual'),
+) {
+  const project = pickLastFolder(sourceProjectDir);
+  const projectDir = path.join(baseDir, isJsTs ? 'jsts' : 'css', project);
+  fs.mkdirSync(projectDir, { recursive: true });
+  const litsResults = transformResults(sourceProjectDir, project, results);
+  for (const [ruleId, { js: jsIssues, ts: tsIssues }] of Object.entries(litsResults.issues)) {
+    writeIssues(projectDir, ruleId, jsIssues);
+    writeIssues(projectDir, ruleId, tsIssues, false);
+  }
+
+  /**
+   * Write the issues LITS style, if there are any
+   */
+  function writeIssues(projectDir: string, ruleId: string, issues, isJs: boolean = true) {
+    if (Object.keys(issues).length === 0) return;
+    const issueFilename = path.join(
+      projectDir,
+      `${isJs ? 'javascript' : 'typescript'}-${ruleId}.json`,
+    );
+    fs.writeFileSync(issueFilename, JSON.stringify(issues, null, 2));
+  }
+
+  function pickLastFolder(projectPath: string) {
+    return projectPath.split(path.posix.sep).at(-1);
+  }
+}
+
+/**
+ * Transform ProjectAnalysisOutput to LITS format
+ */
 function transformResults(
   projectsSourceDir: string,
   project: string,
@@ -144,9 +138,6 @@ function transformResults(
 
 /**
  * Returns all the folders in the given `dir`
- *
- * @param dir
- * @returns
  */
 function getFolders(dir: string) {
   const ignore = new Set(['.github']);
@@ -158,10 +149,6 @@ function getFolders(dir: string) {
 
 /**
  * Load files and analyze project
- *
- * @param projectPath
- * @param exclusions
- * @returns
  */
 function testProject(projectPath: string, exclusions: string = '') {
   const payload: ProjectAnalysisInput = {
@@ -186,11 +173,6 @@ function testProject(projectPath: string, exclusions: string = '') {
 /**
  * Stores in `acc` all the JS/TS files in the given `dir`,
  * ignoring the given `exclusions` and assigning the given `type`
- *
- * @param acc
- * @param dir
- * @param exclusions
- * @param type
  */
 function getFiles(acc: JsTsFiles, dir: string, exclusions: Minimatch[], type: FileType = 'MAIN') {
   const files = fs.readdirSync(dir, { recursive: true }) as string[];
