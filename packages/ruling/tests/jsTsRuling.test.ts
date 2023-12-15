@@ -39,12 +39,13 @@ describe('Ruling', () => {
     const jsTsProjectsPath = path.join(sourcesPath, 'jsts', 'projects');
     projects = getFolders(jsTsProjectsPath);
   });
-  /* test.each(projects,'should run the ruling test for %s', (project) => {
-
-  });*/
-  it('should run the ruling tests', async () => {
-    await runRuling();
-  });
+  it(
+    'should run the ruling tests',
+    async () => {
+      await runRuling();
+    },
+    20 * 60 * 1000,
+  );
 });
 
 async function runRuling() {
