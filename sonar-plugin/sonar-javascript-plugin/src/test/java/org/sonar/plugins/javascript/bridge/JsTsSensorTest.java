@@ -514,12 +514,8 @@ class JsTsSensorTest {
     when(bridgeServerMock.analyzeTypeScript(any())).thenReturn(new AnalysisResponse());
 
     ArgumentCaptor<JsAnalysisRequest> captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
-    ArgumentCaptor<TsProgramRequest> captorProgram = ArgumentCaptor.forClass(
-      TsProgramRequest.class
-    );
     createSensor().execute(context);
     verify(bridgeServerMock, times(4)).analyzeTypeScript(captor.capture());
-    verify(bridgeServerMock, times(4)).createProgram(captorProgram.capture());
     assertThat(captor.getAllValues())
       .extracting(req -> req.filePath)
       .containsExactlyInAnyOrder(
@@ -545,20 +541,24 @@ class JsTsSensorTest {
     SensorContextTester context = createSensorContext(baseDir);
 
     inputFileFromResource(context, baseDir, "dir1/file.ts");
-    String tsconfig1 = absolutePath(baseDir, "dir1/tsconfig.json");
     when(bridgeServerMock.createProgram(any())).thenReturn(new TsProgram("something went wrong"));
 
-    assertThatThrownBy(() -> createSensor().execute(context))
+    ArgumentCaptor<TsProgramRequest> captorProgram = ArgumentCaptor.forClass(
+      TsProgramRequest.class
+    );
+    var cause = assertThatThrownBy(() -> createSensor().execute(context))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Analysis of JS/TS files failed")
-      .getCause()
-      .hasMessage(
-        String.format(
-          "Failed to create TypeScript program with TSConfig file %s. Highest TypeScript supported version is %s.",
-          tsconfig1,
-          JavaScriptPlugin.TYPESCRIPT_VERSION
-        )
-      );
+      .getCause();
+    verify(bridgeServerMock, times(1)).createProgram(captorProgram.capture());
+
+    cause.hasMessage(
+      String.format(
+        "Failed to create TypeScript program with TSConfig file %s. Highest TypeScript supported version is %s.",
+        captorProgram.getAllValues().get(0).tsConfig,
+        JavaScriptPlugin.TYPESCRIPT_VERSION
+      )
+    );
     assertThat(logTester.logs(LoggerLevel.ERROR))
       .contains("Failed to create program: something went wrong");
   }
