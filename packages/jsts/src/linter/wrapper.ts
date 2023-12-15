@@ -145,7 +145,6 @@ export class LinterWrapper {
     language: JsTsLanguage = 'js',
   ): LintingResult {
     const key: LinterConfigurationKey = { fileType, language };
-    debug(`Using linter configuration for ${JSON.stringify(key)}`);
     let linterConfig = this.getConfig(key);
     if (!linterConfig) {
       // we create default linter config with internal rules only which provide metrics, tokens, etc...
