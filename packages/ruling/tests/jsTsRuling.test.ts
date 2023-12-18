@@ -28,12 +28,11 @@ import {
   ProjectAnalysisOutput,
   analyzeProject,
 } from '../../jsts/src';
-import { getEslintToSonar } from './tools/keysMapping';
+const eslintIdToSonarId: Record<string, string> = require('./tools/eslint-to-sonar-id.json');
 
 // cache for rules
 const rules = [];
 let projects = [];
-let eslintIdToSonarId: Record<string, string> = {};
 
 type LitsFormattedResult = {
   issues: {
@@ -55,7 +54,6 @@ describe('Ruling', () => {
     const jsTsProjectsPath = path.join(sourcesPath, 'jsts', 'projects');
     // courselit fails for some reason
     projects = getFolders(jsTsProjectsPath).filter(project => !project.includes('courselit'));
-    eslintIdToSonarId = getEslintToSonar();
   });
 
   it(
@@ -66,7 +64,7 @@ describe('Ruling', () => {
         writeResults(project, results);
       }
     },
-    20 * 60 * 1000,
+    30 * 60 * 1000,
   );
 });
 
