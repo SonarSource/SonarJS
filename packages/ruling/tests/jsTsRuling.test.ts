@@ -96,7 +96,13 @@ function writeResults(
       projectDir,
       `${isJs ? 'javascript' : 'typescript'}-${ruleId}.json`,
     );
-    fs.writeFileSync(issueFilename, JSON.stringify(issues, null, 1).replaceAll(' ', '') + '\n');
+    fs.writeFileSync(
+      issueFilename,
+      // we remove both:
+      // - 1 space before a newline (for closing bracket lines: " ]")
+      // - 2 spaces before a newline (for line numbers)
+      JSON.stringify(issues, null, 1).replaceAll(/\n\s+/g, '\n') + '\n',
+    );
   }
 
   function pickLastFolder(projectPath: string) {
