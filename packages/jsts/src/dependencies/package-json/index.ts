@@ -19,12 +19,12 @@
  */
 
 import path from 'path';
-import { FileFinder, File, readFileSync, toUnixPath } from '@sonar/shared';
+import { FileFinder, File, toUnixPath } from '@sonar/shared';
 import { PackageJson } from 'type-fest';
 
 export const PACKAGE_JSON = 'package.json';
-export const PACKAGE_JSON_PARSER = (filename: string) =>
-  JSON.parse(readFileSync(filename)) as PackageJson;
+export const PACKAGE_JSON_PARSER = (_filename: string, contents: string | null) =>
+  contents ? (JSON.parse(contents) as PackageJson) : {};
 
 const DefinitelyTyped = '@types/';
 
@@ -43,6 +43,7 @@ export let PackageJsonsByBaseDir: Map<string, File<PackageJson>[]> | undefined =
 export function searchPackageJsonFiles(baseDir: string, exclusions: string[]) {
   const result = FileFinder.searchFiles(
     baseDir,
+    true,
     [
       {
         pattern: PACKAGE_JSON,

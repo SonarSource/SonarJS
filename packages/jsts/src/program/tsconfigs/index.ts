@@ -27,7 +27,7 @@ export const TSCONFIG_JSON = 'tsconfig.json';
 export let TSConfigJsonsByBaseDir: Map<string, File<void>[]> | undefined = undefined;
 
 export function searchTSConfigJsonFiles(baseDir: string, exclusions: string[]) {
-  const result = FileFinder.searchFiles(baseDir, [TSCONFIG_JSON], exclusions);
+  const result = FileFinder.searchFiles(baseDir, false, [TSCONFIG_JSON], exclusions);
   TSConfigJsonsByBaseDir = result?.[TSCONFIG_JSON] as Map<string, File<void>[]>;
 }
 

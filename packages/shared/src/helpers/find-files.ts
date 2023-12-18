@@ -38,7 +38,7 @@
  */
 import fs from 'fs';
 import path from 'path';
-import { toUnixPath, debug, error } from '@sonar/shared';
+import { toUnixPath, debug, error, readFileSync } from '@sonar/shared';
 import { Minimatch } from 'minimatch';
 
 // Patterns enforced to be ignored no matter what the user configures on sonar.properties
@@ -49,11 +49,14 @@ export interface File<T> {
   contents: T;
 }
 
-type PatternsAndParser = { pattern: string; parser: (filename: string) => unknown };
+type PatternsAndParser = {
+  pattern: string;
+  parser: (filename: string, contents: string | null) => unknown;
+};
 type MinimatchAndParser = {
   id: string;
   patterns: Minimatch[];
-  parser?: (filename: string) => unknown;
+  parser?: (filename: string, contents: string | null) => unknown;
 };
 
 export abstract class FileFinder {
@@ -62,15 +65,22 @@ export abstract class FileFinder {
    * node_modules is ignored
    *
    * @param dir parent folder where the search starts
-   * @param patterns glob patterns to search for
+   * @param readContents read contents of the matched files and pass them to the parser
+   * @param patterns glob patterns to search for, and parser function
    * @param exclusions glob patterns to ignore while walking the tree
    */
-  static searchFiles(dir: string, patterns: (PatternsAndParser | string)[], exclusions: string[]) {
+  static searchFiles(
+    dir: string,
+    readContents: boolean,
+    patterns: (PatternsAndParser | string)[],
+    exclusions: string[],
+  ) {
     try {
       return walkDirectory(
         path.posix.normalize(toUnixPath(dir)),
         normalizeInput(patterns),
         stringToGlob(exclusions.concat(IGNORED_PATTERNS)),
+        readContents,
       );
     } catch (e) {
       error(`Error while searching for files: ${e}`);
@@ -82,6 +92,7 @@ function walkDirectory(
   baseDir: string,
   patterns: MinimatchAndParser[],
   ignoredPatterns: Minimatch[],
+  readContents: boolean,
 ) {
   const dbs: { [key: string]: Map<string, File<unknown>[]> } = {};
   for (const pattern of patterns) {
@@ -103,8 +114,9 @@ function walkDirectory(
       if (file.isDirectory()) {
         dirs.push(filename);
       } else {
+        const contents = readContents ? readFileSync(filename) : null;
         patterns.forEach(pattern => {
-          checkPattern(filename, pattern, dbs[pattern.id].get(dir)!);
+          checkPattern(filename, pattern, dbs[pattern.id].get(dir)!, contents);
         });
       }
     }
@@ -116,12 +128,13 @@ function checkPattern(
   filename: string,
   { patterns, parser }: MinimatchAndParser,
   db: File<unknown>[],
+  contents: string | null,
 ) {
   if (patterns.some(pattern => pattern.match(filename))) {
     try {
       debug(`Found file: ${filename}`);
       if (parser) {
-        db.push({ filename, contents: parser(filename) });
+        db.push({ filename, contents: parser(filename, contents) });
       } else {
         db.push({ filename, contents: undefined });
       }

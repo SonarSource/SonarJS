@@ -89,7 +89,7 @@ describe('analyzeJSTS', () => {
   });
 
   it('should analyze whole project with program', async () => {
-    const files = FileFinder.searchFiles(fixtures, ['*.js,*.ts'], []);
+    const files = FileFinder.searchFiles(fixtures, false, ['*.js,*.ts'], []);
     const result = await analyzeProject(
       prepareInput(files?.['*.js,*.ts'] as Map<string, File<void>[]>),
     );
@@ -104,7 +104,7 @@ describe('analyzeJSTS', () => {
   });
 
   it('should analyze whole project with watch program', async () => {
-    const files = FileFinder.searchFiles(fixtures, ['*.js,*.ts,*.vue'], []);
+    const files = FileFinder.searchFiles(fixtures, false, ['*.js,*.ts,*.vue'], []);
     const result = await analyzeProject(
       prepareInput(files?.['*.js,*.ts,*.vue'] as Map<string, File<void>[]>),
     );

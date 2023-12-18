@@ -46,6 +46,7 @@ const DEFAULT_LANGUAGE: JsTsLanguage = 'ts';
 function searchTSConfigJsonAndPackageJsonFiles(baseDir: string, exclusions: string[]) {
   const result = FileFinder.searchFiles(
     baseDir,
+    true,
     [{ pattern: PACKAGE_JSON, parser: PACKAGE_JSON_PARSER }, TSCONFIG_JSON],
     exclusions,
   );
