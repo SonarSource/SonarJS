@@ -19,6 +19,7 @@
  */
 
 import { File, FileFinder } from '@sonar/shared';
+import { createTSConfigFile, writeTSConfigFile } from '../program';
 
 export const TSCONFIG_JSON = 'tsconfig.json';
 
@@ -39,12 +40,21 @@ export function setTSConfigJsons(db: Map<string, File<void>[]>) {
   TSConfigJsonsByBaseDir = db;
 }
 
-export function* loopTSConfigs() {
+export async function* loopTSConfigs(files: string[], baseDir: string, sonarLint: boolean) {
+  let emptyTsConfigs = true;
   if (TSConfigJsonsByBaseDir) {
     for (const [, tsconfigs] of TSConfigJsonsByBaseDir) {
       for (const { filename: tsConfig } of tsconfigs) {
+        emptyTsConfigs = false;
         yield tsConfig;
       }
     }
+  }
+  if (emptyTsConfigs) {
+    const tsConfig = sonarLint
+      ? createTSConfigFile(undefined, [baseDir + '/**/*'])
+      : createTSConfigFile(files);
+    const { filename } = await writeTSConfigFile(tsConfig);
+    yield filename;
   }
 }

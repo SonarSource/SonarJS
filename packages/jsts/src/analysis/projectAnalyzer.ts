@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { File, FileFinder, JsTsLanguage, readFile } from '@sonar/shared';
+import { File, FileFinder, JsTsLanguage, readFile, toUnixPath } from '@sonar/shared';
 import {
   analyzeJSTS,
   clearTypeScriptESLintParserCaches,
@@ -65,7 +65,7 @@ function searchTSConfigJsonAndPackageJsonFiles(baseDir: string, exclusions: stri
  * @returns the JavaScript / TypeScript project analysis output
  */
 export async function analyzeProject(input: ProjectAnalysisInput): Promise<ProjectAnalysisOutput> {
-  const { rules, environments, globals, baseDir, exclusions = [] } = input;
+  const { rules, environments, globals, baseDir, exclusions = [], isSonarlint = false } = input;
   const inputFilenames = Object.keys(input.files);
   const pendingFiles: Set<string> = new Set(inputFilenames);
   const watchProgram = input.isSonarlint || hasVueFile(inputFilenames);
@@ -80,12 +80,13 @@ export async function analyzeProject(input: ProjectAnalysisInput): Promise<Proje
       programsCreated: [],
     },
   };
+  const tsConfigs = loopTSConfigs(inputFilenames, toUnixPath(baseDir), isSonarlint);
   if (watchProgram) {
     results.meta!.withWatchProgram = true;
-    await analyzeWithWatchProgram(input.files, results, pendingFiles);
+    await analyzeWithWatchProgram(input.files, tsConfigs, results, pendingFiles);
   } else {
     results.meta!.withProgram = true;
-    await analyzeWithProgram(input.files, results, pendingFiles);
+    await analyzeWithProgram(input.files, tsConfigs, results, pendingFiles);
   }
 
   await analyzeWithoutProgram(pendingFiles, input.files, results);
@@ -94,10 +95,11 @@ export async function analyzeProject(input: ProjectAnalysisInput): Promise<Proje
 
 async function analyzeWithProgram(
   files: JsTsFiles,
+  tsConfigs: AsyncGenerator<string>,
   results: ProjectAnalysisOutput,
   pendingFiles: Set<string>,
 ) {
-  for (const tsConfig of loopTSConfigs()) {
+  for await (const tsConfig of tsConfigs) {
     const { files: filenames, programId } = createAndSaveProgram(tsConfig);
     results.meta!.programsCreated.push(tsConfig);
     for (const filename of filenames) {
@@ -124,10 +126,11 @@ async function analyzeWithProgram(
 
 async function analyzeWithWatchProgram(
   files: JsTsFiles,
+  tsConfigs: AsyncGenerator<string>,
   results: ProjectAnalysisOutput,
   pendingFiles: Set<string>,
 ) {
-  for (const tsConfig of loopTSConfigs()) {
+  for await (const tsConfig of tsConfigs) {
     const options = createProgramOptions(tsConfig);
     const filenames = options.rootNames;
     for (const filename of filenames) {
