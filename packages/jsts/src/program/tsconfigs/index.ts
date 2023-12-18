@@ -20,6 +20,7 @@
 
 import { File, FileFinder } from '@sonar/shared';
 import { createTSConfigFile, writeTSConfigFile } from '../program';
+import { DEFAULT_MAX_FILES_FOR_TYPE_CHECKING } from '../../analysis';
 
 export const TSCONFIG_JSON = 'tsconfig.json';
 
@@ -40,7 +41,12 @@ export function setTSConfigJsons(db: Map<string, File<void>[]>) {
   TSConfigJsonsByBaseDir = db;
 }
 
-export async function* loopTSConfigs(files: string[], baseDir: string, sonarLint: boolean) {
+export async function* loopTSConfigs(
+  files: string[],
+  baseDir: string,
+  sonarLint: boolean,
+  maxFilesForTypeChecking?: number,
+) {
   let emptyTsConfigs = true;
   if (TSConfigJsonsByBaseDir) {
     for (const [, tsconfigs] of TSConfigJsonsByBaseDir) {
@@ -50,7 +56,11 @@ export async function* loopTSConfigs(files: string[], baseDir: string, sonarLint
       }
     }
   }
-  if (emptyTsConfigs) {
+  const maxFiles =
+    typeof maxFilesForTypeChecking === 'undefined'
+      ? DEFAULT_MAX_FILES_FOR_TYPE_CHECKING
+      : maxFilesForTypeChecking;
+  if (emptyTsConfigs && files.length < maxFiles) {
     const tsConfig = sonarLint
       ? createTSConfigFile(undefined, [baseDir + '/**/*'])
       : createTSConfigFile(files);

@@ -65,7 +65,15 @@ function searchTSConfigJsonAndPackageJsonFiles(baseDir: string, exclusions: stri
  * @returns the JavaScript / TypeScript project analysis output
  */
 export async function analyzeProject(input: ProjectAnalysisInput): Promise<ProjectAnalysisOutput> {
-  const { rules, environments, globals, baseDir, exclusions = [], isSonarlint = false } = input;
+  const {
+    rules,
+    environments,
+    globals,
+    baseDir,
+    exclusions = [],
+    isSonarlint = false,
+    maxFilesForTypeChecking,
+  } = input;
   const inputFilenames = Object.keys(input.files);
   const pendingFiles: Set<string> = new Set(inputFilenames);
   const watchProgram = input.isSonarlint || hasVueFile(inputFilenames);
@@ -80,7 +88,12 @@ export async function analyzeProject(input: ProjectAnalysisInput): Promise<Proje
       programsCreated: [],
     },
   };
-  const tsConfigs = loopTSConfigs(inputFilenames, toUnixPath(baseDir), isSonarlint);
+  const tsConfigs = loopTSConfigs(
+    inputFilenames,
+    toUnixPath(baseDir),
+    isSonarlint,
+    maxFilesForTypeChecking,
+  );
   if (watchProgram) {
     results.meta!.withWatchProgram = true;
     await analyzeWithWatchProgram(input.files, tsConfigs, results, pendingFiles);
