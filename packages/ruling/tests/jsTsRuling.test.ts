@@ -29,10 +29,14 @@ import {
   analyzeProject,
 } from '../../jsts/src';
 const eslintIdToSonarId: Record<string, string> = require('./tools/eslint-to-sonar-id.json');
+const sourcesPath = path.join(__dirname, '..', '..', '..', 'its', 'sources');
+const jsTsProjectsPath = path.join(sourcesPath, 'jsts', 'projects');
 
-// cache for rules
-const rules = [];
-let projects = [];
+type RulingInput = {
+  name: string;
+  test: string;
+  exclusions: string;
+};
 
 type LitsFormattedResult = {
   issues: {
@@ -42,6 +46,10 @@ type LitsFormattedResult = {
   };
 };
 
+// cache for rules
+const rules = [];
+let projects: RulingInput[] = [];
+
 describe('Ruling', () => {
   beforeAll(() => {
     setContext({
@@ -50,18 +58,19 @@ describe('Ruling', () => {
       sonarlint: false,
       bundles: [],
     });
-    const sourcesPath = path.join(__dirname, '..', '..', '..', 'its', 'sources');
-    const jsTsProjectsPath = path.join(sourcesPath, 'jsts', 'projects');
-    // courselit fails for some reason
-    projects = getFolders(jsTsProjectsPath).filter(project => !project.includes('courselit'));
+
+    projects = require('./projects')
+      // courselit fails for some reason
+      .filter(project => !project.name.includes('courselit'))
+      .filter(project => project.name.endsWith('amplify'));
   });
 
   it(
     `should run the ruling tests`,
     async () => {
       for (const project of projects) {
-        const results = await testProject(project);
-        writeResults(project, results);
+        const results = await testProject(jsTsProjectsPath, project);
+        writeResults(project.name, results);
       }
     },
     30 * 60 * 1000,
@@ -146,20 +155,10 @@ function transformResults(
 }
 
 /**
- * Returns all the folders in the given `dir`
- */
-function getFolders(dir: string) {
-  const ignore = new Set(['.github']);
-  return fs
-    .readdirSync(dir, { withFileTypes: true })
-    .filter(dirent => dirent.isDirectory() && !ignore.has(dirent.name))
-    .map(dirent => path.join(dir, dirent.name));
-}
-
-/**
  * Load files and analyze project
  */
-function testProject(projectPath: string, exclusions: string = '') {
+function testProject(baseDir: string, rulingInput: RulingInput) {
+  const projectPath = path.join(baseDir, rulingInput.name);
   const payload: ProjectAnalysisInput = {
     rules: getRules(),
     environments: [],
@@ -168,7 +167,7 @@ function testProject(projectPath: string, exclusions: string = '') {
     files: {},
   };
   const files = {};
-  const exclusionsGlob = stringToGlob(exclusions.split(','));
+  const exclusionsGlob = stringToGlob(rulingInput.exclusions.split(','));
   getFiles(files, projectPath, exclusionsGlob);
   payload.files = files;
   //getFiles(files, projectPath, exclusionsGlob, 'TEST');

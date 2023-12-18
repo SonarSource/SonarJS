@@ -1,0 +1,237 @@
+[
+  {
+    "name": "Ghost",
+    "testDir": "test",
+    "exclusions": ""
+  },
+  {
+    "name": "Joust",
+    "testDir": "test",
+    "exclusions": ""
+  },
+  {
+    "name": "TypeScript",
+    "testDir": "test",
+    "exclusions": ""
+  },
+  {
+    "name": "ace",
+    "testDir": "test",
+    "exclusions": ""
+  },
+  {
+    "name": "ag-grid",
+    "testDir": "test",
+    "exclusions": ""
+  },
+  {
+    "name": "amplify",
+    "testDir": "test",
+    "exclusions": ""
+  },
+  {
+    "name": "angular.js",
+    "testDir": "test",
+    "exclusions": ""
+  },
+  {
+    "name": "ant-design",
+    "testDir": "test",
+    "exclusions": ""
+  },
+  {
+    "name": "backbone",
+    "testDir": "test",
+    "exclusions": ""
+  },
+  {
+    "name": "console",
+    "testDir": "test",
+    "exclusions": ""
+  },
+  {
+    "name": "courselit",
+    "testDir": "test",
+    "exclusions": ""
+  },
+  {
+    "name": "desktop",
+    "testDir": "test",
+    "exclusions": ""
+  },
+  {
+    "name": "ecmascript6-today",
+    "testDir": "test",
+    "exclusions": ""
+  },
+  {
+    "name": "eigen",
+    "testDir": "test",
+    "exclusions": ""
+  },
+  {
+    "name": "es5-shim",
+    "testDir": "test",
+    "exclusions": ""
+  },
+  {
+    "name": "expressionist.js",
+    "testDir": "test",
+    "exclusions": ""
+  },
+  {
+    "name": "fireact",
+    "testDir": "test",
+    "exclusions": ""
+  },
+  {
+    "name": "fireface",
+    "testDir": "test",
+    "exclusions": ""
+  },
+  {
+    "name": "http",
+    "testDir": "test",
+    "exclusions": ""
+  },
+  {
+    "name": "ionic2-auth",
+    "testDir": "test",
+    "exclusions": ""
+  },
+  {
+    "name": "jStorage",
+    "testDir": "test",
+    "exclusions": ""
+  },
+  {
+    "name": "jira-clone",
+    "testDir": "test",
+    "exclusions": ""
+  },
+  {
+    "name": "jquery",
+    "testDir": "test",
+    "exclusions": ""
+  },
+  {
+    "name": "jshint",
+    "testDir": "test",
+    "exclusions": ""
+  },
+  {
+    "name": "knockout",
+    "testDir": "test",
+    "exclusions": ""
+  },
+  {
+    "name": "moose",
+    "testDir": "test",
+    "exclusions": ""
+  },
+  {
+    "name": "mootools-core",
+    "testDir": "test",
+    "exclusions": ""
+  },
+  {
+    "name": "ocanvas",
+    "testDir": "test",
+    "exclusions": ""
+  },
+  {
+    "name": "p5.js",
+    "testDir": "test",
+    "exclusions": ""
+  },
+  {
+    "name": "paper.js",
+    "testDir": "test",
+    "exclusions": ""
+  },
+  {
+    "name": "postgraphql",
+    "testDir": "test",
+    "exclusions": ""
+  },
+  {
+    "name": "prettier-vscode",
+    "testDir": "test",
+    "exclusions": ""
+  },
+  {
+    "name": "prototype",
+    "testDir": "test",
+    "exclusions": ""
+  },
+  {
+    "name": "qunit",
+    "testDir": "test",
+    "exclusions": ""
+  },
+  {
+    "name": "react-cloud-music",
+    "testDir": "test",
+    "exclusions": ""
+  },
+  {
+    "name": "reddit-mobile",
+    "testDir": "test",
+    "exclusions": ""
+  },
+  {
+    "name": "redux",
+    "testDir": "test",
+    "exclusions": ""
+  },
+  {
+    "name": "router",
+    "testDir": "test",
+    "exclusions": ""
+  },
+  {
+    "name": "rxjs",
+    "testDir": "test",
+    "exclusions": ""
+  },
+  {
+    "name": "searchkit",
+    "testDir": "test",
+    "exclusions": ""
+  },
+  {
+    "name": "sizzle",
+    "testDir": "test",
+    "exclusions": ""
+  },
+  {
+    "name": "snoode",
+    "testDir": "test",
+    "exclusions": ""
+  },
+  {
+    "name": "sonar-web",
+    "testDir": "test",
+    "exclusions": ""
+  },
+  {
+    "name": "templating",
+    "testDir": "test",
+    "exclusions": ""
+  },
+  {
+    "name": "underscore",
+    "testDir": "test",
+    "exclusions": ""
+  },
+  {
+    "name": "vuetify",
+    "testDir": "test",
+    "exclusions": ""
+  },
+  {
+    "name": "watchtower.js",
+    "testDir": "test",
+    "exclusions": ""
+  }
+]
