@@ -96,7 +96,7 @@ function writeResults(
       projectDir,
       `${isJs ? 'javascript' : 'typescript'}-${ruleId}.json`,
     );
-    fs.writeFileSync(issueFilename, JSON.stringify(issues, null, 1).replaceAll(' ', ''));
+    fs.writeFileSync(issueFilename, JSON.stringify(issues, null, 1).replaceAll(' ', '') + '\n');
   }
 
   function pickLastFolder(projectPath: string) {
