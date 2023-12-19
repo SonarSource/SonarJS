@@ -28,6 +28,7 @@ import {
   ProjectAnalysisOutput,
   analyzeProject,
 } from '../../jsts/src';
+import { accept } from './filter/JavaScriptExclusionsFilter';
 const eslintIdToSonarId: Record<string, string> = require('./tools/eslint-to-sonar-id.json');
 const sourcesPath = path.join(__dirname, '..', '..', '..', 'its', 'sources');
 const jsTsProjectsPath = path.join(sourcesPath, 'jsts', 'projects');
@@ -183,10 +184,13 @@ function testProject(baseDir: string, rulingInput: RulingInput) {
  */
 function getFiles(acc: JsTsFiles, dir: string, exclusions: Minimatch[], type: FileType = 'MAIN') {
   const files = fs.readdirSync(dir, { recursive: true }) as string[];
+  files.sort();
   for (const file of files) {
-    if (!isJsTsFile(path.join(dir, file))) continue;
+    const absolutePath = path.join(dir, file);
+    if (!isJsTsFile(absolutePath)) continue;
+    if (!accept(absolutePath)) continue;
     if (!isExcluded(file, exclusions)) {
-      acc[path.join(dir, file)] = { fileType: type };
+      acc[absolutePath] = { fileType: type };
     }
   }
 
