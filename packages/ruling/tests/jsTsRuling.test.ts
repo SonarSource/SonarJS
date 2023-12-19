@@ -177,8 +177,11 @@ function testProject(baseDir: string, rulingInput: RulingInput) {
   const exclusionsGlob = stringToGlob(exclusions.split(','));
   getFiles(files, projectPath, exclusionsGlob);
   payload.files = files;
-  const testFolder = path.join(projectPath, rulingInput.testDir ?? '');
-  getFiles(files, testFolder, exclusionsGlob, 'TEST');
+  if (rulingInput.testDir != null) {
+    const testFolder = path.join(projectPath, rulingInput.testDir);
+    getFiles(files, testFolder, exclusionsGlob, 'TEST');
+  }
+
   return analyzeProject(payload);
 
   function stringToGlob(patterns: string[]): Minimatch[] {
