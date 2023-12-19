@@ -43,8 +43,8 @@ export type JsTsFiles = { [key: string]: JsTsFile };
 export type ProjectAnalysisInput = {
   files: JsTsFiles;
   rules: RuleConfig[];
-  environments: string[];
-  globals: string[];
+  environments?: string[];
+  globals?: string[];
   baseDir: string;
   tsConfigs?: string[];
   exclusions?: string[];
@@ -56,7 +56,7 @@ export const DEFAULT_LANGUAGE: JsTsLanguage = 'ts';
 
 export const DEFAULT_MAX_FILES_FOR_TYPE_CHECKING = 20_000;
 
-export const defaultEnvironments = [
+export const DEFAULT_ENVIRONMENTS = [
   'amd',
   'applescript',
   'atomtest',
@@ -83,7 +83,7 @@ export const defaultEnvironments = [
   'worker',
 ];
 
-export const defaultGlobals = [
+export const DEFAULT_GLOBALS = [
   'angular',
   'goog',
   'google',
