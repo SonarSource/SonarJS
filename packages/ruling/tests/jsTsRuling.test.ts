@@ -160,8 +160,6 @@ function testProject(baseDir: string, rulingInput: RulingInput) {
   }
   const payload: ProjectAnalysisInput = {
     rules: getRules(),
-    environments: [],
-    globals: [],
     baseDir: projectPath,
     files: {},
   };

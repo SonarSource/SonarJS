@@ -20,6 +20,8 @@
 
 import { File, FileFinder, toUnixPath } from '@sonar/shared';
 import {
+  DEFAULT_ENVIRONMENTS,
+  DEFAULT_GLOBALS,
   initializeLinter,
   loopTSConfigs,
   PACKAGE_JSON,
@@ -54,7 +56,7 @@ export async function analyzeProject(input: ProjectAnalysisInput): Promise<Proje
   const inputFilenames = Object.keys(input.files);
   const pendingFiles: Set<string> = new Set(inputFilenames);
   const watchProgram = input.isSonarlint || hasVueFile(inputFilenames);
-  initializeLinter(rules, environments, globals);
+  initializeLinter(rules, environments ?? DEFAULT_ENVIRONMENTS, globals ?? DEFAULT_GLOBALS);
   searchTSConfigJsonAndPackageJsonFiles(baseDir, exclusions);
   const results: ProjectAnalysisOutput = {
     files: {},

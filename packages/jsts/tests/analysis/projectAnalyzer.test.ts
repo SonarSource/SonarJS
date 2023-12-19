@@ -22,8 +22,8 @@ import path from 'path';
 import { File, FileFinder, setContext, toUnixPath } from '@sonar/shared';
 import {
   analyzeProject,
-  defaultEnvironments,
-  defaultGlobals,
+  DEFAULT_ENVIRONMENTS,
+  DEFAULT_GLOBALS,
   getAllTSConfigJsons,
   ProjectAnalysisInput,
   RuleConfig,
@@ -67,8 +67,8 @@ function filesDBtoFilesInput(filesDB: Map<string, File<void>[]>) {
 function prepareInput(files: Map<string, File<void>[]>): ProjectAnalysisInput {
   return {
     rules: defaultRules,
-    environments: defaultEnvironments,
-    globals: defaultGlobals,
+    environments: DEFAULT_ENVIRONMENTS,
+    globals: DEFAULT_GLOBALS,
     baseDir: fixtures,
     files: filesDBtoFilesInput(files),
   };

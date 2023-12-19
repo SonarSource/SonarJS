@@ -21,8 +21,8 @@ import { setContext, toUnixPath } from '@sonar/shared';
 import http from 'http';
 import {
   createAndSaveProgram,
-  defaultEnvironments,
-  defaultGlobals,
+  DEFAULT_ENVIRONMENTS,
+  DEFAULT_GLOBALS,
   ProjectAnalysisInput,
   RuleConfig,
 } from '@sonar/jsts';
@@ -59,8 +59,8 @@ describe('router', () => {
     const tsConfig = toUnixPath(path.join(fixtures, 'tsconfig.json'));
     const payload: ProjectAnalysisInput = {
       rules: [{ key: 'no-duplicate-in-composite', configurations: [], fileTypeTarget: ['MAIN'] }],
-      environments: defaultEnvironments,
-      globals: defaultGlobals,
+      environments: DEFAULT_ENVIRONMENTS,
+      globals: DEFAULT_GLOBALS,
       baseDir: fixtures,
       files: {},
       tsConfigs: [tsConfig],
