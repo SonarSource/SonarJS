@@ -114,7 +114,7 @@ function writeResults(
       // we remove both:
       // - 1 space before a newline (for closing bracket lines: " ]")
       // - 2 spaces before a newline (for line numbers)
-      JSON.stringify(issues, null, 1).replaceAll(/\n\s+/g, '\n') + '\n',
+      JSON.stringify(issues, Object.keys(issues).sort(), 1).replaceAll(/\n\s+/g, '\n') + '\n',
     );
   }
 }
@@ -185,7 +185,6 @@ function testProject(baseDir: string, rulingInput: RulingInput) {
  */
 function getFiles(acc: JsTsFiles, dir: string, exclusions: Minimatch[], type: FileType = 'MAIN') {
   const files = fs.readdirSync(dir, { recursive: true }) as string[];
-  files.sort();
   for (const file of files) {
     const absolutePath = path.join(dir, file);
     if (!isJsTsFile(absolutePath)) continue;
