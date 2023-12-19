@@ -41,6 +41,7 @@ import {
 import tmp from 'tmp';
 import { promisify } from 'util';
 import fs from 'fs/promises';
+import { TsConfigJson } from 'type-fest';
 
 export type ProgramResult = {
   files: string[];
@@ -317,8 +318,26 @@ tmp.setGracefulCleanup();
  * @param tsConfig TSConfig to write
  * @returns the resolved TSConfig file path
  */
-export async function writeTSConfigFile(tsConfig: any): Promise<{ filename: string }> {
+export async function writeTSConfigFile(tsConfig: TsConfigJson): Promise<{ filename: string }> {
   const filename = await promisify(tmp.file)();
   await fs.writeFile(filename, JSON.stringify(tsConfig), 'utf-8');
   return { filename };
+}
+
+/**
+ * Create and return a TSConfig object.
+ *
+ * @param files array of files included in the TS program
+ * @param include inclusion paths of the TS Program
+ * @returns the TSConfig object
+ */
+export function createTSConfigFile(files?: string[], include?: string[]): TsConfigJson {
+  return {
+    compilerOptions: {
+      allowJs: true,
+      noImplicitAny: true,
+    },
+    include,
+    files,
+  } as TsConfigJson;
 }

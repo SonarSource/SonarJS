@@ -27,7 +27,7 @@ export type ProjectAnalysisOutput = {
     withProgram: boolean;
     withWatchProgram: boolean;
     filesWithoutTypeChecking: string[];
-    programsCreated: number;
+    programsCreated: string[];
   };
 };
 
@@ -49,7 +49,10 @@ export type ProjectAnalysisInput = {
   tsConfigs?: string[];
   exclusions?: string[];
   isSonarlint?: boolean;
+  maxFilesForTypeChecking?: number;
 };
+
+export const DEFAULT_MAX_FILES_FOR_TYPE_CHECKING = 20_000;
 
 export const defaultEnvironments = [
   'amd',

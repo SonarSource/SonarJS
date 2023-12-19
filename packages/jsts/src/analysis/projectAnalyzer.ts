@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { JsTsLanguage, readFile } from '@sonar/shared';
+import { File, FileFinder, JsTsLanguage, readFile, toUnixPath } from '@sonar/shared';
 import {
   analyzeJSTS,
   clearTypeScriptESLintParserCaches,
@@ -30,14 +30,33 @@ import {
   JsTsAnalysisOutput,
   JsTsFiles,
   loopTSConfigs,
+  PACKAGE_JSON,
+  PACKAGE_JSON_PARSER,
   ProjectAnalysisInput,
   ProjectAnalysisOutput,
-  searchPackageJsonFiles,
-  searchTSConfigJsonFiles,
+  setPackageJsons,
+  setTSConfigJsons,
+  TSCONFIG_JSON,
 } from '@sonar/jsts';
 import { EMPTY_JSTS_ANALYSIS_OUTPUT } from '../../../bridge/src/errors';
+import { PackageJson } from 'type-fest';
 
 const DEFAULT_LANGUAGE: JsTsLanguage = 'ts';
+
+function searchTSConfigJsonAndPackageJsonFiles(baseDir: string, exclusions: string[]) {
+  const result = FileFinder.searchFiles(
+    baseDir,
+    true,
+    [{ pattern: PACKAGE_JSON, parser: PACKAGE_JSON_PARSER }, TSCONFIG_JSON],
+    exclusions,
+  );
+  if (result?.[PACKAGE_JSON]) {
+    setPackageJsons(result?.[PACKAGE_JSON] as Map<string, File<PackageJson>[]>);
+  }
+  if (result?.[TSCONFIG_JSON]) {
+    setTSConfigJsons(result?.[TSCONFIG_JSON] as Map<string, File<void>[]>);
+  }
+}
 
 /**
  * Analyzes a JavaScript / TypeScript project in a single run
@@ -46,28 +65,41 @@ const DEFAULT_LANGUAGE: JsTsLanguage = 'ts';
  * @returns the JavaScript / TypeScript project analysis output
  */
 export async function analyzeProject(input: ProjectAnalysisInput): Promise<ProjectAnalysisOutput> {
-  const { rules, environments, globals, baseDir, exclusions = [] } = input;
+  const {
+    rules,
+    environments,
+    globals,
+    baseDir,
+    exclusions = [],
+    isSonarlint = false,
+    maxFilesForTypeChecking,
+  } = input;
   const inputFilenames = Object.keys(input.files);
   const pendingFiles: Set<string> = new Set(inputFilenames);
   const watchProgram = input.isSonarlint || hasVueFile(inputFilenames);
   initializeLinter(rules, environments, globals);
-  searchPackageJsonFiles(baseDir, exclusions);
-  searchTSConfigJsonFiles(baseDir, exclusions);
+  searchTSConfigJsonAndPackageJsonFiles(baseDir, exclusions);
   const results: ProjectAnalysisOutput = {
     files: {},
     meta: {
       withProgram: false,
       withWatchProgram: false,
       filesWithoutTypeChecking: [],
-      programsCreated: 0,
+      programsCreated: [],
     },
   };
+  const tsConfigs = loopTSConfigs(
+    inputFilenames,
+    toUnixPath(baseDir),
+    isSonarlint,
+    maxFilesForTypeChecking,
+  );
   if (watchProgram) {
     results.meta!.withWatchProgram = true;
-    await analyzeWithWatchProgram(input.files, results, pendingFiles);
+    await analyzeWithWatchProgram(input.files, tsConfigs, results, pendingFiles);
   } else {
     results.meta!.withProgram = true;
-    await analyzeWithProgram(input.files, results, pendingFiles);
+    await analyzeWithProgram(input.files, tsConfigs, results, pendingFiles);
   }
 
   await analyzeWithoutProgram(pendingFiles, input.files, results);
@@ -76,12 +108,13 @@ export async function analyzeProject(input: ProjectAnalysisInput): Promise<Proje
 
 async function analyzeWithProgram(
   files: JsTsFiles,
+  tsConfigs: AsyncGenerator<string>,
   results: ProjectAnalysisOutput,
   pendingFiles: Set<string>,
 ) {
-  for (const tsConfig of loopTSConfigs()) {
+  for await (const tsConfig of tsConfigs) {
     const { files: filenames, programId } = createAndSaveProgram(tsConfig);
-    results.meta!.programsCreated++;
+    results.meta!.programsCreated.push(tsConfig);
     for (const filename of filenames) {
       // only analyze files which are requested
       if (files[filename]) {
@@ -106,10 +139,11 @@ async function analyzeWithProgram(
 
 async function analyzeWithWatchProgram(
   files: JsTsFiles,
+  tsConfigs: AsyncGenerator<string>,
   results: ProjectAnalysisOutput,
   pendingFiles: Set<string>,
 ) {
-  for (const tsConfig of loopTSConfigs()) {
+  for await (const tsConfig of tsConfigs) {
     const options = createProgramOptions(tsConfig);
     const filenames = options.rootNames;
     for (const filename of filenames) {

@@ -19,11 +19,12 @@
  */
 
 import path from 'path';
-import { FileFinder, File, readFileSync } from '@sonar/shared';
-import { toUnixPath } from '@sonar/shared';
+import { FileFinder, File, toUnixPath } from '@sonar/shared';
 import { PackageJson } from 'type-fest';
 
-const PACKAGE_JSON = 'package.json';
+export const PACKAGE_JSON = 'package.json';
+export const PACKAGE_JSON_PARSER = (_filename: string, contents: string | null) =>
+  contents ? (JSON.parse(contents) as PackageJson) : {};
 
 const DefinitelyTyped = '@types/';
 
@@ -37,16 +38,30 @@ const dirCache: Map<string, Set<string>> = new Map();
  */
 const cache: Map<string, Set<string>> = new Map();
 
-export const PackageJsonsByBaseDir = new FileFinder(
-  filename => JSON.parse(readFileSync(filename)) as PackageJson,
-);
+export let PackageJsonsByBaseDir: Map<string, File<PackageJson>[]> | undefined = undefined;
 
 export function searchPackageJsonFiles(baseDir: string, exclusions: string[]) {
-  PackageJsonsByBaseDir.searchFiles(baseDir, [PACKAGE_JSON], exclusions);
+  const result = FileFinder.searchFiles(
+    baseDir,
+    true,
+    [
+      {
+        pattern: PACKAGE_JSON,
+        parser: PACKAGE_JSON_PARSER,
+      },
+    ],
+    exclusions,
+  );
+
+  PackageJsonsByBaseDir = result?.[PACKAGE_JSON] as Map<string, File<PackageJson>[]>;
 }
 
 export function getAllPackageJsons() {
-  return PackageJsonsByBaseDir.db;
+  return PackageJsonsByBaseDir;
+}
+
+export function setPackageJsons(db: Map<string, File<PackageJson>[]>) {
+  PackageJsonsByBaseDir = db;
 }
 
 /**
@@ -87,13 +102,16 @@ export function getDependencies(fileName: string) {
  * @param file source file for which we need a package.json
  */
 export function getNearestPackageJsons(file: string) {
+  if (!PackageJsonsByBaseDir) {
+    return [];
+  }
   const results: File<PackageJson>[] = [];
-  if (PackageJsonsByBaseDir.db.size === 0) {
+  if (PackageJsonsByBaseDir.size === 0) {
     return results;
   }
   let currentDir = path.posix.dirname(path.posix.normalize(toUnixPath(file)));
   do {
-    const packageJson = PackageJsonsByBaseDir.db.get(currentDir);
+    const packageJson = PackageJsonsByBaseDir.get(currentDir);
     if (packageJson?.length) {
       results.push(...packageJson);
     }
