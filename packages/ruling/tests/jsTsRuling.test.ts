@@ -174,7 +174,7 @@ function testProject(baseDir: string, rulingInput: RulingInput) {
     files: {},
   };
   const files = {};
-  const exclusionsGlob = stringToGlob(exclusions.split(','));
+  const exclusionsGlob = stringToGlob(exclusions.split(',').map(pattern => pattern.trim()));
   getFiles(files, projectPath, exclusionsGlob);
   payload.files = files;
   if (rulingInput.testDir != null) {
