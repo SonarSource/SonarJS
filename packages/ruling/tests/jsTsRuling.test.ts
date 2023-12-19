@@ -154,13 +154,20 @@ function transformResults(projectPath: string, project: string, results: Project
  * Load files and analyze project
  */
 function testProject(baseDir: string, rulingInput: RulingInput) {
+  const DEFAULT_EXCLUSIONS = '*.d.ts';
+
   let projectPath;
   if (rulingInput.folder) {
     projectPath = path.join(baseDir, rulingInput.folder);
   } else {
     projectPath = path.join(baseDir, rulingInput.name);
   }
-  const exclusions = rulingInput.exclusions ?? '';
+  let exclusions = rulingInput.exclusions;
+  if (exclusions) {
+    exclusions += ',' + DEFAULT_EXCLUSIONS;
+  } else {
+    exclusions = DEFAULT_EXCLUSIONS;
+  }
   const payload: ProjectAnalysisInput = {
     rules: getRules(),
     baseDir: projectPath,
