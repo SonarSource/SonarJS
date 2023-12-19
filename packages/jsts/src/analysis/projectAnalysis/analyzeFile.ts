@@ -17,6 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export * from './analysis';
-export * from './analyzer';
-export * from './projectAnalysis';
+
+import { analyzeJSTS, JsTsAnalysisInput, JsTsAnalysisOutput } from '@sonar/jsts';
+import { JsTsLanguage } from '@sonar/shared';
+import { EMPTY_JSTS_ANALYSIS_OUTPUT } from '../../../../bridge/src/errors';
+
+/**
+ * Safely analyze a JavaScript/TypeScript file wrapping raised exceptions in the output format
+ * @param input JsTsAnalysisInput object containing all the data necessary for the analysis
+ * @param language 'js' or 'ts'
+ */
+export function analyzeFile(input: JsTsAnalysisInput, language: JsTsLanguage) {
+  try {
+    return analyzeJSTS(input, language);
+  } catch (e) {
+    return {
+      parsingError: {
+        message: e.message,
+        code: e.code,
+        line: e.data?.line,
+      },
+      ...EMPTY_JSTS_ANALYSIS_OUTPUT,
+    } as JsTsAnalysisOutput;
+  }
+}

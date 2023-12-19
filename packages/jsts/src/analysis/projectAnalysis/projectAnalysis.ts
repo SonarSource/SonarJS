@@ -52,6 +52,8 @@ export type ProjectAnalysisInput = {
   maxFilesForTypeChecking?: number;
 };
 
+export const DEFAULT_LANGUAGE: JsTsLanguage = 'ts';
+
 export const DEFAULT_MAX_FILES_FOR_TYPE_CHECKING = 20_000;
 
 export const defaultEnvironments = [
