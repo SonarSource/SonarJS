@@ -26,7 +26,7 @@ export const TSCONFIG_JSON = 'tsconfig.json';
 
 // Would need to parse jsonc (different spec from json, using jsonc-parser from Microsoft)
 //import { TsConfigJson } from 'type-fest';
-export let TSConfigJsonsByBaseDir: Map<string, File<void>[]> | undefined = undefined;
+let TSConfigJsonsByBaseDir: Map<string, File<void>[]>;
 
 export function searchTSConfigJsonFiles(baseDir: string, exclusions: string[]) {
   const result = FileFinder.searchFiles(baseDir, false, [TSCONFIG_JSON], exclusions);

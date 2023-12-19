@@ -59,7 +59,7 @@ async function analyzeProgram(
   pendingFiles: Set<string>,
 ) {
   const { files: filenames, programId, projectReferences } = createAndSaveProgram(tsConfig);
-  results.meta!.programsCreated.push(tsConfig);
+  results.meta?.programsCreated.push(tsConfig);
   for (const filename of filenames) {
     // only analyze files which are requested
     if (files[filename]) {

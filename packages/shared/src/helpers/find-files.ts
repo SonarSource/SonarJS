@@ -38,7 +38,7 @@
  */
 import fs from 'fs';
 import path from 'path';
-import { toUnixPath, debug, error, readFileSync } from '@sonar/shared';
+import { toUnixPath, debug, readFileSync } from '@sonar/shared';
 import { Minimatch } from 'minimatch';
 
 // Patterns enforced to be ignored no matter what the user configures on sonar.properties
@@ -75,16 +75,12 @@ export abstract class FileFinder {
     patterns: (PatternsAndParser | string)[],
     exclusions: string[],
   ) {
-    try {
-      return walkDirectory(
-        path.posix.normalize(toUnixPath(dir)),
-        normalizeInput(patterns),
-        stringToGlob(exclusions.concat(IGNORED_PATTERNS)),
-        readContents,
-      );
-    } catch (e) {
-      error(`Error while searching for files: ${e}`);
-    }
+    return walkDirectory(
+      path.posix.normalize(toUnixPath(dir)),
+      normalizeInput(patterns),
+      stringToGlob(exclusions.concat(IGNORED_PATTERNS)),
+      readContents,
+    );
   }
 }
 
