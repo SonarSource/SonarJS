@@ -34,8 +34,9 @@ const jsTsProjectsPath = path.join(sourcesPath, 'jsts', 'projects');
 
 type RulingInput = {
   name: string;
-  test: string;
-  exclusions: string;
+  testDir?: string;
+  exclusions?: string;
+  folder?: string;
 };
 
 type LitsFormattedResult = {
@@ -70,7 +71,7 @@ describe('Ruling', () => {
     async () => {
       for (const project of projects) {
         const results = await testProject(jsTsProjectsPath, project);
-        writeResults(project.name, results);
+        writeResults(path.join(jsTsProjectsPath, project.name), project.name, results);
       }
     },
     30 * 60 * 1000,
@@ -81,19 +82,19 @@ describe('Ruling', () => {
  * Writes the given `results` in its associated project folder
  */
 function writeResults(
-  sourceProjectDir: string,
+  projectPath: string,
+  projectName: string,
   results: ProjectAnalysisOutput,
   isJsTs: boolean = true,
   baseDir: string = path.join(__dirname, 'actual'),
 ) {
-  const project = pickLastFolder(sourceProjectDir);
-  const projectDir = path.join(baseDir, isJsTs ? 'jsts' : 'css', project);
-  fs.mkdirSync(projectDir, { recursive: true });
-  const litsResults = transformResults(sourceProjectDir, project, results);
+  const targetProjectPath = path.join(baseDir, isJsTs ? 'jsts' : 'css', projectName);
+  fs.mkdirSync(targetProjectPath, { recursive: true });
+  const litsResults = transformResults(projectPath, projectName, results);
   for (const [ruleId, { js: jsIssues, ts: tsIssues }] of Object.entries(litsResults.issues)) {
     const sonarRuleId = eslintIdToSonarId[ruleId];
-    writeIssues(projectDir, sonarRuleId, jsIssues);
-    writeIssues(projectDir, sonarRuleId, tsIssues, false);
+    writeIssues(targetProjectPath, sonarRuleId, jsIssues);
+    writeIssues(targetProjectPath, sonarRuleId, tsIssues, false);
   }
 
   /**
@@ -113,25 +114,17 @@ function writeResults(
       JSON.stringify(issues, null, 1).replaceAll(/\n\s+/g, '\n') + '\n',
     );
   }
-
-  function pickLastFolder(projectPath: string) {
-    return projectPath.split(path.posix.sep).at(-1);
-  }
 }
 
 /**
  * Transform ProjectAnalysisOutput to LITS format
  */
-function transformResults(
-  projectsSourceDir: string,
-  project: string,
-  results: ProjectAnalysisOutput,
-) {
+function transformResults(projectPath: string, project: string, results: ProjectAnalysisOutput) {
   const litsResult: LitsFormattedResult = {
     issues: {},
   };
   for (const [filename, fileData] of Object.entries(results.files)) {
-    const filenamePathInProject = retrieveFilename(projectsSourceDir.length + 1, filename);
+    const filenamePathInProject = retrieveFilename(projectPath.length + 1, filename);
     processIssues(litsResult, `${project}:${filenamePathInProject}`, fileData.issues);
   }
   return litsResult;
@@ -158,7 +151,12 @@ function transformResults(
  * Load files and analyze project
  */
 function testProject(baseDir: string, rulingInput: RulingInput) {
-  const projectPath = path.join(baseDir, rulingInput.name);
+  let projectPath;
+  if (rulingInput.folder) {
+    projectPath = path.join(baseDir, rulingInput.folder);
+  } else {
+    projectPath = path.join(baseDir, rulingInput.name);
+  }
   const payload: ProjectAnalysisInput = {
     rules: getRules(),
     environments: [],
@@ -170,7 +168,8 @@ function testProject(baseDir: string, rulingInput: RulingInput) {
   const exclusionsGlob = stringToGlob(rulingInput.exclusions.split(','));
   getFiles(files, projectPath, exclusionsGlob);
   payload.files = files;
-  //getFiles(files, projectPath, exclusionsGlob, 'TEST');
+  const testFolder = path.join(projectPath, rulingInput.testDir);
+  getFiles(files, testFolder, exclusionsGlob, 'TEST');
   return analyzeProject(payload);
 
   function stringToGlob(patterns: string[]): Minimatch[] {

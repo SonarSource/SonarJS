@@ -1,237 +1,249 @@
 [
   {
     "name": "Ghost",
-    "testDir": "test",
-    "exclusions": ""
+    "testDir": null,
+    "exclusions": null
   },
   {
     "name": "Joust",
-    "testDir": "test",
-    "exclusions": ""
+    "testDir": null,
+    "exclusions": null
   },
   {
     "name": "TypeScript",
-    "testDir": "test",
-    "exclusions": ""
+    "testDir": "src/harness/unittests",
+    "exclusions": null
   },
   {
     "name": "ace",
-    "testDir": "test",
-    "exclusions": ""
+    "testDir": null,
+    "exclusions": null
   },
   {
     "name": "ag-grid",
-    "testDir": "test",
-    "exclusions": ""
+    "testDir": "spec",
+    "exclusions": null
   },
   {
     "name": "amplify",
     "testDir": "test",
-    "exclusions": ""
+    "exclusions": "external/**"
   },
   {
     "name": "angular.js",
     "testDir": "test",
-    "exclusions": ""
+    "exclusions": "src/ngLocale/**, i18n/**"
   },
   {
     "name": "ant-design",
-    "testDir": "test",
-    "exclusions": ""
+    "testDir": "tests",
+    "exclusions": null
   },
   {
     "name": "backbone",
     "testDir": "test",
-    "exclusions": ""
+    "exclusions": null
   },
   {
     "name": "console",
-    "testDir": "test",
-    "exclusions": ""
+    "testDir": null,
+    "exclusions": null
   },
   {
     "name": "courselit",
-    "testDir": "test",
+    "testDir": ".yarn/**",
     "exclusions": ""
   },
   {
     "name": "desktop",
-    "testDir": "test",
-    "exclusions": ""
+    "testDir": "app/test",
+    "exclusions": null
   },
   {
     "name": "ecmascript6-today",
-    "testDir": "test",
-    "exclusions": ""
+    "testDir": null,
+    "exclusions": null
   },
   {
     "name": "eigen",
-    "testDir": "test",
-    "exclusions": ""
+    "testDir": null,
+    "exclusions": null
   },
   {
     "name": "es5-shim",
-    "testDir": "test",
-    "exclusions": ""
+    "testDir": "tests",
+    "exclusions": null
   },
   {
     "name": "expressionist.js",
-    "testDir": "test",
-    "exclusions": ""
+    "testDir": null,
+    "exclusions": null
   },
   {
     "name": "fireact",
-    "testDir": "test",
-    "exclusions": ""
+    "testDir": null,
+    "exclusions": null
   },
   {
     "name": "fireface",
-    "testDir": "test",
-    "exclusions": ""
+    "testDir": null,
+    "exclusions": null
   },
   {
     "name": "http",
-    "testDir": "test",
-    "exclusions": ""
+    "testDir": null,
+    "exclusions": null
   },
   {
     "name": "ionic2-auth",
-    "testDir": "test",
-    "exclusions": ""
+    "testDir": null,
+    "exclusions": null
   },
   {
     "name": "jStorage",
-    "testDir": "test",
-    "exclusions": ""
+    "testDir": "tests",
+    "exclusions": null
   },
   {
     "name": "jira-clone",
-    "testDir": "test",
-    "exclusions": ""
+    "testDir": null,
+    "exclusions": null
   },
   {
     "name": "jquery",
     "testDir": "test",
-    "exclusions": ""
+    "exclusions": null
   },
   {
     "name": "jshint",
-    "testDir": "test",
-    "exclusions": ""
+    "testDir": "tests",
+    "exclusions": null
   },
   {
     "name": "knockout",
-    "testDir": "test",
-    "exclusions": ""
+    "testDir": "spec",
+    "exclusions": null
   },
   {
     "name": "moose",
-    "testDir": "test",
-    "exclusions": ""
+    "testDir": null,
+    "exclusions": null
   },
   {
     "name": "mootools-core",
-    "testDir": "test",
-    "exclusions": ""
+    "testDir": "Specs",
+    "exclusions": null
   },
   {
     "name": "ocanvas",
-    "testDir": "test",
-    "exclusions": ""
+    "testDir": "",
+    "exclusions": "build/**"
   },
   {
     "name": "p5.js",
     "testDir": "test",
-    "exclusions": ""
+    "exclusions": null
   },
   {
     "name": "paper.js",
     "testDir": "test",
-    "exclusions": ""
+    "exclusions": "gulp/jsdoc/**, packages/**"
   },
   {
     "name": "postgraphql",
-    "testDir": "test",
-    "exclusions": ""
+    "testDir": null,
+    "exclusions": null
   },
   {
     "name": "prettier-vscode",
-    "testDir": "test",
-    "exclusions": ""
+    "testDir": null,
+    "exclusions": null
   },
   {
     "name": "prototype",
     "testDir": "test",
-    "exclusions": ""
+    "exclusions": null
   },
   {
     "name": "qunit",
     "testDir": "test",
-    "exclusions": ""
+    "exclusions": null
   },
   {
     "name": "react-cloud-music",
-    "testDir": "test",
-    "exclusions": ""
+    "testDir": null,
+    "exclusions": null
   },
   {
     "name": "reddit-mobile",
-    "testDir": "test",
-    "exclusions": ""
+    "testDir": null,
+    "exclusions": null
   },
   {
     "name": "redux",
-    "testDir": "test",
-    "exclusions": ""
+    "testDir": null,
+    "exclusions": null
   },
   {
     "name": "router",
-    "testDir": "test",
-    "exclusions": ""
+    "testDir": null,
+    "exclusions": null
   },
   {
     "name": "rxjs",
-    "testDir": "test",
-    "exclusions": ""
+    "testDir": "spec",
+    "exclusions": null
   },
   {
     "name": "searchkit",
-    "testDir": "test",
-    "exclusions": ""
+    "testDir": null,
+    "exclusions": null
   },
   {
     "name": "sizzle",
     "testDir": "test",
-    "exclusions": ""
+    "exclusions": "external/**"
   },
   {
     "name": "snoode",
-    "testDir": "test",
-    "exclusions": ""
+    "testDir": null,
+    "exclusions": null
   },
   {
     "name": "sonar-web",
-    "testDir": "test",
-    "exclusions": ""
+    "testDir": null,
+    "exclusions": null
   },
   {
     "name": "templating",
-    "testDir": "test",
-    "exclusions": ""
+    "testDir": null,
+    "exclusions": null
   },
   {
     "name": "underscore",
     "testDir": "test",
-    "exclusions": ""
+    "exclusions": null
   },
   {
     "name": "vuetify",
-    "testDir": "test",
-    "exclusions": ""
+    "testDir": null,
+    "exclusions": null
   },
   {
     "name": "watchtower.js",
-    "testDir": "test",
-    "exclusions": ""
+    "testDir": null,
+    "exclusions": null
+  },
+  {
+    "name": "yaml",
+    "folder": "../sources/yaml",
+    "testDir": "",
+    "exclusions": null
+  },
+  {
+    "name": "file-for-rules",
+    "folder": "../sources/jsts/custom",
+    "testDir": "tests",
+    "exclusions": null
   }
 ]
