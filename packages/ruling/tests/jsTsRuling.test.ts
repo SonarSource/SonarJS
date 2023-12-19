@@ -63,8 +63,10 @@ describe('Ruling', () => {
 
     projects = require('./projects')
       // courselit fails for some reason
-      .filter(project => !project.name.includes('courselit'))
-      .filter(project => project.name.endsWith('amplify'));
+      .filter(
+        project => !project.name.includes('courselit') && !project.name.includes('TypeScript'),
+      )
+      .filter(project => !project.name.includes('yaml'));
   });
 
   it(
@@ -158,16 +160,17 @@ function testProject(baseDir: string, rulingInput: RulingInput) {
   } else {
     projectPath = path.join(baseDir, rulingInput.name);
   }
+  const exclusions = rulingInput.exclusions ?? '';
   const payload: ProjectAnalysisInput = {
     rules: getRules(),
     baseDir: projectPath,
     files: {},
   };
   const files = {};
-  const exclusionsGlob = stringToGlob(rulingInput.exclusions.split(','));
+  const exclusionsGlob = stringToGlob(exclusions.split(','));
   getFiles(files, projectPath, exclusionsGlob);
   payload.files = files;
-  const testFolder = path.join(projectPath, rulingInput.testDir);
+  const testFolder = path.join(projectPath, rulingInput.testDir ?? '');
   getFiles(files, testFolder, exclusionsGlob, 'TEST');
   return analyzeProject(payload);
 
@@ -186,10 +189,11 @@ function getFiles(acc: JsTsFiles, dir: string, exclusions: Minimatch[], type: Fi
   for (const file of files) {
     const absolutePath = path.join(dir, file);
     if (!isJsTsFile(absolutePath)) continue;
-    if (!accept(absolutePath)) continue;
-    if (!isExcluded(file, exclusions)) {
-      acc[absolutePath] = { fileType: type };
-    }
+    const fileContent = fs.readFileSync(absolutePath, 'utf8');
+    if (!accept(absolutePath, fileContent)) continue;
+    if (isExcluded(file, exclusions)) continue;
+
+    acc[absolutePath] = { fileType: type, fileContent };
   }
 
   function isJsTsFile(filePath: string) {

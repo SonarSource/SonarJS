@@ -236,13 +236,13 @@
   },
   {
     "name": "yaml",
-    "folder": "../sources/yaml",
+    "folder": "../../yaml",
     "testDir": "",
     "exclusions": null
   },
   {
     "name": "file-for-rules",
-    "folder": "../sources/jsts/custom",
+    "folder": "../custom",
     "testDir": "tests",
     "exclusions": null
   }
