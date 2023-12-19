@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { analyzeJSTS, JsTsAnalysisInput, JsTsAnalysisOutput } from '@sonar/jsts';
+import { analyzeJSTS, JsTsAnalysisInput, JsTsAnalysisOutput } from '../../';
 import { JsTsLanguage } from '@sonar/shared';
 import { EMPTY_JSTS_ANALYSIS_OUTPUT } from '../../../../bridge/src/errors';
 

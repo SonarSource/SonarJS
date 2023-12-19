@@ -25,7 +25,7 @@ import {
   deleteProgram,
   JsTsFiles,
   ProjectAnalysisOutput,
-} from '@sonar/jsts';
+} from '../../';
 import { readFile } from '@sonar/shared';
 
 /**

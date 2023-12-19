@@ -21,7 +21,8 @@ import { join } from 'path';
 import { embeddedInput } from '../../../jsts/tests/tools';
 import { parseHTML } from '../../src/parser';
 import { setContext } from '@sonar/shared';
-import { analyzeEmbedded, initializeLinter } from '@sonar/jsts';
+import { analyzeEmbedded } from '@sonar/jsts';
+import { initializeLinter } from '../../../jsts/src/linter';
 
 describe('analyzeHTML', () => {
   const fixturesPath = join(__dirname, 'fixtures');

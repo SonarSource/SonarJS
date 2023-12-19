@@ -19,7 +19,7 @@
  */
 
 import { FileType, JsTsLanguage } from '@sonar/shared';
-import { JsTsAnalysisOutput, RuleConfig } from '@sonar/jsts';
+import { JsTsAnalysisOutput, RuleConfig } from '../../';
 
 export type ProjectAnalysisOutput = {
   files: { [key: string]: JsTsAnalysisOutput };

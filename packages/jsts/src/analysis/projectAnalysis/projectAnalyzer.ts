@@ -19,21 +19,14 @@
  */
 
 import { File, FileFinder, toUnixPath } from '@sonar/shared';
-import {
-  initializeLinter,
-  loopTSConfigs,
-  PACKAGE_JSON,
-  PACKAGE_JSON_PARSER,
-  ProjectAnalysisInput,
-  ProjectAnalysisOutput,
-  setPackageJsons,
-  setTSConfigJsons,
-  TSCONFIG_JSON,
-} from '@sonar/jsts';
+import { ProjectAnalysisInput, ProjectAnalysisOutput } from './projectAnalysis';
 import { PackageJson } from 'type-fest';
 import { analyzeWithProgram } from './analyzeWithProgram';
 import { analyzeWithWatchProgram } from './analyzeWithWatchProgram';
 import { analyzeWithoutProgram } from './analyzeWithoutProgram';
+import { initializeLinter } from '../../linter';
+import { TSCONFIG_JSON, setTSConfigJsons, loopTSConfigs } from '../../program';
+import { PACKAGE_JSON, PACKAGE_JSON_PARSER, setPackageJsons } from '../../dependencies';
 
 /**
  * Analyzes a JavaScript / TypeScript project in a single run
