@@ -161,8 +161,12 @@ async function analyzeHtmlFiles(files: JsTsFiles) {
       filePath,
       fileContent: fileData.fileContent,
     };
-    const result = await analyzeHTML(payload);
-    htmlResults.files[filePath] = result;
+    try {
+      const result = await analyzeHTML(payload);
+      htmlResults.files[filePath] = result;
+    } catch (err) {
+      console.log(`Error analyzing ${filePath}: ${err}`);
+    }
   }
   return htmlResults;
 }
