@@ -19,7 +19,7 @@
  */
 import * as fs from 'fs';
 import * as path from 'path';
-import { ProjectAnalysisOutput } from '@sonar/jsts';
+import { Issue, ProjectAnalysisOutput } from '@sonar/jsts';
 
 const eslintIdToSonarId = JSON.parse(
   fs.readFileSync(path.join(__dirname, 'data', 'eslint-to-sonar-id.json'), 'utf8'),
@@ -28,7 +28,12 @@ const eslintIdToSonarId = JSON.parse(
 type LitsFormattedResult = {
   issues: {
     [ruleId: string]: {
-      [filename: string]: number[];
+      js: {
+        [filename: string]: number[];
+      };
+      ts: {
+        [filename: string]: number[];
+      };
     };
   };
 };
@@ -57,6 +62,7 @@ export function writeResults(
  * Write the issues LITS style, if there are any
  */
 function writeIssues(projectDir: string, ruleId: string, issues, isJs: boolean = true) {
+  // we don't write empty files
   if (Object.keys(issues).length === 0) return;
   const issueFilename = path.join(
     projectDir,
@@ -89,7 +95,11 @@ function transformResults(projectPath: string, project: string, results: Project
     return filename.substring(prefixLength);
   }
 
-  function processIssues(result, projectWithFilename, issues) {
+  function processIssues(
+    result: LitsFormattedResult,
+    projectWithFilename: string,
+    issues: Issue[],
+  ) {
     for (const issue of issues) {
       const ruleId = issue.ruleId;
       if (result.issues[ruleId] === undefined) result.issues[ruleId] = { js: {}, ts: {} };
