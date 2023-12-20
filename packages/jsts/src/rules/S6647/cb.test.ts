@@ -17,5 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { check } from '../tools';
+import { rule } from './';
+import path from 'path';
 
-export { rule } from './rule';
+const sonarId = path.basename(__dirname);
+
+describe('Rule S6647', () => {
+  check(sonarId, rule, __dirname);
+});
