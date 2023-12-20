@@ -26,7 +26,7 @@ import {
   JsTsFiles,
   ProjectAnalysisOutput,
 } from '@sonar/jsts';
-import { readFile } from '@sonar/shared';
+import { error, readFile } from '@sonar/shared';
 
 /**
  * Analyzes JavaScript / TypeScript files using TypeScript programs. Only the files
@@ -58,7 +58,13 @@ async function analyzeProgram(
   results: ProjectAnalysisOutput,
   pendingFiles: Set<string>,
 ) {
-  const { files: filenames, programId, projectReferences } = createAndSaveProgram(tsConfig);
+  let filenames, programId, projectReferences;
+  try {
+    ({ files: filenames, programId, projectReferences } = createAndSaveProgram(tsConfig));
+  } catch (e) {
+    error('Failed to create program: ' + e);
+    return;
+  }
   results.meta!.programsCreated.push(tsConfig);
   for (const filename of filenames) {
     // only analyze files which are requested
