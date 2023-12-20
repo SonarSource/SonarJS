@@ -51,7 +51,7 @@
   },
   {
     "name": "courselit",
-    "testDir": "",
+    "testDir": null,
     "exclusions": ".yarn/**"
   },
   {

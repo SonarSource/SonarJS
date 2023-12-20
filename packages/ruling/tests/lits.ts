@@ -20,6 +20,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { Issue, ProjectAnalysisOutput } from '@sonar/jsts';
+import { isJsFile } from './tools/languages';
 
 const eslintIdToSonarId = JSON.parse(
   fs.readFileSync(path.join(__dirname, 'data', 'eslint-to-sonar-id.json'), 'utf8'),
@@ -111,6 +112,6 @@ function transformResults(projectPath: string, project: string, results: Project
     }
   }
   function isJs(filename: string) {
-    return filename.endsWith('ts') ? 'ts' : 'js';
+    return isJsFile(filename) ? 'js' : 'ts';
   }
 }

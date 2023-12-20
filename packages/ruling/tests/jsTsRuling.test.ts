@@ -35,11 +35,10 @@ import {
 import { accept } from './filter/JavaScriptExclusionsFilter';
 import { writeResults } from './lits';
 import { HtmlAnalysisInput, analyzeHTML } from '@sonar/html';
+import { isJsFile, isTsFile } from './tools/languages';
 const sourcesPath = path.join(__dirname, '..', '..', '..', 'its', 'sources');
 const jsTsProjectsPath = path.join(sourcesPath, 'jsts', 'projects');
 
-const JS_EXTENSIONS = ['.js', '.mjs', '.cjs', '.jsx', '.vue', '.html', '.htm', '.yml', '.yaml'];
-const TS_EXTENSIONS = ['.ts', '.mts', '.cts', '.tsx'];
 const HTML_LINTER_ID = 'html';
 
 type RulingInput = {
@@ -240,14 +239,6 @@ function getFiles(
     if (isTsFile(filePath)) {
       return 'ts';
     }
-  }
-
-  function isJsFile(filePath: string) {
-    return JS_EXTENSIONS.includes(path.posix.extname(filePath).toLowerCase());
-  }
-
-  function isTsFile(filePath: string) {
-    return TS_EXTENSIONS.includes(path.posix.extname(filePath).toLowerCase());
   }
 
   function isExcluded(filePath: string, exclusions: Minimatch[]) {
