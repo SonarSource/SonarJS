@@ -20,8 +20,7 @@
 const READ_CHARACTERS_LIMIT = 2048;
 const COMMENT_OPERATOR_FUNCTION = buildBundleRegex();
 
-export function bundleAssessor(filename: string, input: string) {
-  filename;
+export function bundleAssessor(input: string) {
   const firstCharacters = input.substring(0, READ_CHARACTERS_LIMIT);
   return !COMMENT_OPERATOR_FUNCTION.test(firstCharacters);
 }

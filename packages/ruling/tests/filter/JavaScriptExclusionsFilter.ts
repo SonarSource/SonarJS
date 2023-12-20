@@ -23,7 +23,7 @@ import { sizeAssessor } from './sizeAssessor';
 
 export function accept(filePath: string, fileContent: string) {
   return (
-    bundleAssessor(filePath, fileContent) &&
+    bundleAssessor(fileContent) &&
     minificationAssessor(filePath, fileContent) &&
     sizeAssessor(fileContent)
   );
