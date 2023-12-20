@@ -23,7 +23,7 @@ import * as os from 'os';
 import { Minimatch } from 'minimatch';
 import { FileType, setContext, toUnixPath } from '../../shared/src';
 import {
-  //JsTsAnalysisOutput,
+  JsTsAnalysisOutput,
   JsTsFiles,
   ProjectAnalysisInput,
   ProjectAnalysisOutput,
@@ -183,7 +183,7 @@ function mergeIssues(...resultsSet: ProjectAnalysisOutput[]) {
   return allResults;
 }
 
-function extractParsingError(fileData: any) {
+function extractParsingError(fileData: JsTsAnalysisOutput) {
   return {
     ruleId: 'S2260',
     line: fileData.parsingError.line,
