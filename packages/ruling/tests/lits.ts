@@ -109,6 +109,6 @@ function transformResults(projectPath: string, project: string, results: Project
     }
   }
   function isJs(filename: string) {
-    return filename.endsWith('js') ? 'js' : 'ts';
+    return filename.endsWith('ts') ? 'ts' : 'js';
   }
 }
