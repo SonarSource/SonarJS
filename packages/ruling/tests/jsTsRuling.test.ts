@@ -138,7 +138,13 @@ function getFiles(acc: JsTsFiles, dir: string, exclusions: Minimatch[], type: Fi
   }
 
   function isJsTsFile(filePath: string) {
-    return fs.statSync(filePath).isFile() && (filePath.endsWith('.js') || filePath.endsWith('.ts'));
+    return (
+      fs.statSync(filePath).isFile() &&
+      (filePath.endsWith('.js') ||
+        filePath.endsWith('.ts') ||
+        filePath.endsWith('.tsx') ||
+        filePath.endsWith('.jsx'))
+    );
   }
 
   function isExcluded(filePath: string, exclusions: Minimatch[]) {
