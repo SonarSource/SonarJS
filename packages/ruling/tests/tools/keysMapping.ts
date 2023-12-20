@@ -25,11 +25,9 @@ import * as path from 'node:path';
  */
 const rules = JSON.parse(fs.readFileSync(path.join(__dirname, 'sonarlint-metadata.json'), 'utf8'));
 
-const sonarToEslint: Record<string, string> = {};
 const eslintToSonar: Record<string, string> = {};
 
 for (const rule of rules) {
-  sonarToEslint[extractSonarId(rule)] = rule.eslintKey;
   eslintToSonar[rule.eslintKey] = extractSonarId(rule);
 }
 
@@ -38,10 +36,6 @@ function extractSonarId(rule: any) {
 }
 
 fs.writeFileSync(
-  path.join(__dirname, 'sonar-to-eslint-id.json'),
-  JSON.stringify(sonarToEslint, null, 2),
-);
-fs.writeFileSync(
-  path.join(__dirname, 'eslint-to-sonar-id.json'),
+  path.join(__dirname, '..', 'data', 'eslint-to-sonar-id.json'),
   JSON.stringify(eslintToSonar, null, 2),
 );

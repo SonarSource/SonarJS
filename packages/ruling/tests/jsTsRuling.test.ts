@@ -22,14 +22,9 @@ import * as fs from 'fs';
 import * as os from 'os';
 import { Minimatch } from 'minimatch';
 import { FileType, setContext } from '../../shared/src';
-import {
-  JsTsFiles,
-  ProjectAnalysisInput,
-  ProjectAnalysisOutput,
-  analyzeProject,
-} from '../../jsts/src';
+import { JsTsFiles, ProjectAnalysisInput, analyzeProject } from '../../jsts/src';
 import { accept } from './filter/JavaScriptExclusionsFilter';
-const eslintIdToSonarId: Record<string, string> = require('./tools/eslint-to-sonar-id.json');
+import { writeResults } from './lits';
 const sourcesPath = path.join(__dirname, '..', '..', '..', 'its', 'sources');
 const jsTsProjectsPath = path.join(sourcesPath, 'jsts', 'projects');
 
@@ -38,14 +33,6 @@ type RulingInput = {
   testDir?: string;
   exclusions?: string;
   folder?: string;
-};
-
-type LitsFormattedResult = {
-  issues: {
-    [ruleId: string]: {
-      [filename: string]: number[];
-    };
-  };
 };
 
 // cache for rules
@@ -61,7 +48,7 @@ describe('Ruling', () => {
       bundles: [],
     });
 
-    projects = require('./projects')
+    projects = require('./data/projects')
       // courselit fails for some reason
       .filter(project => project.name == 'ag-grid')
       .filter(project => !project.name.includes('courselit'))
@@ -79,76 +66,6 @@ describe('Ruling', () => {
     30 * 60 * 1000,
   );
 });
-
-/**
- * Writes the given `results` in its associated project folder
- */
-function writeResults(
-  projectPath: string,
-  projectName: string,
-  results: ProjectAnalysisOutput,
-  isJsTs: boolean = true,
-  baseDir: string = path.join(__dirname, 'actual'),
-) {
-  const targetProjectPath = path.join(baseDir, isJsTs ? 'jsts' : 'css', projectName);
-  fs.mkdirSync(targetProjectPath, { recursive: true });
-  const litsResults = transformResults(projectPath, projectName, results);
-  for (const [ruleId, { js: jsIssues, ts: tsIssues }] of Object.entries(litsResults.issues)) {
-    const sonarRuleId = eslintIdToSonarId[ruleId];
-    writeIssues(targetProjectPath, sonarRuleId, jsIssues);
-    writeIssues(targetProjectPath, sonarRuleId, tsIssues, false);
-  }
-
-  /**
-   * Write the issues LITS style, if there are any
-   */
-  function writeIssues(projectDir: string, ruleId: string, issues, isJs: boolean = true) {
-    if (Object.keys(issues).length === 0) return;
-    const issueFilename = path.join(
-      projectDir,
-      `${isJs ? 'javascript' : 'typescript'}-${ruleId}.json`,
-    );
-    fs.writeFileSync(
-      issueFilename,
-      // we remove both:
-      // - 1 space before a newline (for closing bracket lines: " ]")
-      // - 2 spaces before a newline (for line numbers)
-      // and we sort the keys
-      JSON.stringify(issues, Object.keys(issues).sort(), 1).replaceAll(/\n\s+/g, '\n') + '\n',
-    );
-  }
-}
-
-/**
- * Transform ProjectAnalysisOutput to LITS format
- */
-function transformResults(projectPath: string, project: string, results: ProjectAnalysisOutput) {
-  const litsResult: LitsFormattedResult = {
-    issues: {},
-  };
-  for (const [filename, fileData] of Object.entries(results.files)) {
-    const filenamePathInProject = retrieveFilename(projectPath.length + 1, filename);
-    processIssues(litsResult, `${project}:${filenamePathInProject}`, fileData.issues);
-  }
-  return litsResult;
-
-  function retrieveFilename(prefixLength: number, filename: string) {
-    return filename.substring(prefixLength);
-  }
-
-  function processIssues(result, projectWithFilename, issues) {
-    for (const issue of issues) {
-      const ruleId = issue.ruleId;
-      if (result.issues[ruleId] === undefined) result.issues[ruleId] = { js: {}, ts: {} };
-      if (result.issues[ruleId][isJs(projectWithFilename)][projectWithFilename] === undefined)
-        result.issues[ruleId][isJs(projectWithFilename)][projectWithFilename] = [];
-      result.issues[ruleId][isJs(projectWithFilename)][projectWithFilename].push(issue.line);
-    }
-  }
-  function isJs(filename: string) {
-    return filename.endsWith('js') ? 'js' : 'ts';
-  }
-}
 
 /**
  * Load files and analyze project
@@ -235,6 +152,6 @@ function getFiles(acc: JsTsFiles, dir: string, exclusions: Minimatch[], type: Fi
  */
 function getRules() {
   if (rules.length > 0) return rules;
-  rules.push(...JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'rules.json'), 'utf8')));
+  rules.push(...JSON.parse(fs.readFileSync(path.join(__dirname, 'data', 'rules.json'), 'utf8')));
   return rules;
 }
