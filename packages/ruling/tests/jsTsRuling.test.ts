@@ -21,11 +21,10 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as os from 'os';
 import { Minimatch } from 'minimatch';
-import { FileType, setContext, toUnixPath } from '../../shared/src';
+import { AnalysisInput, FileType, setContext, toUnixPath } from '../../shared/src';
 import {
   DEFAULT_ENVIRONMENTS,
   DEFAULT_GLOBALS,
-  JsTsAnalysisOutput,
   JsTsFiles,
   ProjectAnalysisInput,
   ProjectAnalysisOutput,
@@ -34,8 +33,9 @@ import {
 } from '../../jsts/src';
 import { accept } from './filter/JavaScriptExclusionsFilter';
 import { writeResults } from './lits';
-import { HtmlAnalysisInput, analyzeHTML } from '@sonar/html';
+import { analyzeHTML } from '@sonar/html';
 import { isJsFile, isTsFile } from './tools/languages';
+import { analyzeYAML } from '@sonar/yaml';
 const sourcesPath = path.join(__dirname, '..', '..', '..', 'its', 'sources');
 const jsTsProjectsPath = path.join(sourcesPath, 'jsts', 'projects');
 
@@ -61,8 +61,7 @@ describe('Ruling', () => {
       bundles: [],
     });
 
-    projects = require('./data/projects')
-      .filter(project => project.name !== 'TypeScript');
+    projects = require('./data/projects').filter(project => project.name == 'yaml');
   });
 
   it(
@@ -70,8 +69,7 @@ describe('Ruling', () => {
     async () => {
       for (const project of projects) {
         initHtmlLinter(getRules());
-        const results = await testProject(jsTsProjectsPath, project);
-        writeResults(path.join(jsTsProjectsPath, project.name), project.name, results);
+        await testProject(jsTsProjectsPath, project);
       }
     },
     30 * 60 * 1000,
@@ -90,7 +88,7 @@ async function testProject(baseDir: string, rulingInput: RulingInput) {
   const projectPath = setProjectPath(baseDir, rulingInput.name, rulingInput.folder);
   const exclusions = setExclusions(rulingInput.exclusions, rulingInput.testDir);
 
-  const [jsTsFiles, htmlFiles] = getProjectFiles(rulingInput, projectPath, exclusions);
+  const [jsTsFiles, htmlFiles, yamlFiles] = getProjectFiles(rulingInput, projectPath, exclusions);
 
   const payload: ProjectAnalysisInput = {
     rules: getRules(),
@@ -99,10 +97,11 @@ async function testProject(baseDir: string, rulingInput: RulingInput) {
   };
 
   const jsTsResults = await analyzeProject(payload);
-  const htmlResults = await analyzeHtmlFiles(htmlFiles);
-  const results = mergeIssues(jsTsResults, htmlResults);
+  const htmlResults = await analyzeFiles(htmlFiles, analyzeHTML, HTML_LINTER_ID);
+  const yamlResults = await analyzeFiles(yamlFiles, analyzeYAML);
+  const results = mergeIssues(jsTsResults, htmlResults, yamlResults);
 
-  return results;
+  writeResults(projectPath, rulingInput.name, results);
 }
 
 /**
@@ -144,31 +143,50 @@ function setExclusions(exclusions: string, testDir?: string) {
 }
 
 function getProjectFiles(rulingInput: RulingInput, projectPath: string, exclusions: Minimatch[]) {
-  const [jsTsFiles, htmlFiles] = getFiles(projectPath, exclusions);
+  const [jsTsFiles, htmlFiles, yamlFiles] = getFiles(projectPath, exclusions);
 
   if (rulingInput.testDir != null) {
     const testFolder = path.join(projectPath, rulingInput.testDir);
-    getFiles(testFolder, exclusions, jsTsFiles, htmlFiles, 'TEST');
+    getFiles(testFolder, exclusions, jsTsFiles, htmlFiles, yamlFiles, 'TEST');
   }
-  return [jsTsFiles, htmlFiles];
+  return [jsTsFiles, htmlFiles, yamlFiles];
 }
 
-async function analyzeHtmlFiles(files: JsTsFiles) {
-  const htmlResults = { files: {} };
+async function analyzeFiles(
+  files: JsTsFiles,
+  analyzer: (payload: AnalysisInput) => Promise<any>,
+  linterId?: string,
+) {
+  const results = { files: {} };
   for (const [filePath, fileData] of Object.entries(files)) {
-    const payload: HtmlAnalysisInput = {
+    const payload: AnalysisInput = {
       filePath,
       fileContent: fileData.fileContent,
-      linterId: HTML_LINTER_ID,
+      linterId,
     };
     try {
-      const result = await analyzeHTML(payload);
-      htmlResults.files[filePath] = result;
+      const result = await analyzer(payload);
+      results.files[filePath] = result;
     } catch (err) {
-      htmlResults.files[filePath] = { parsingError: { line: err.data.line } };
+      results.files[filePath] = createParsingError(err);
     }
   }
-  return htmlResults;
+  return results;
+
+  function createParsingError(err: { data: { line: number } }) {
+    return {
+      issues: [
+        {
+          ruleId: 'S2260',
+          line: err.data.line,
+          // stub values so we don't have to modify the type
+          message: '',
+          column: 0,
+          secondaryLocations: [],
+        },
+      ],
+    };
+  }
 }
 
 function mergeIssues(...resultsSet: ProjectAnalysisOutput[]) {
@@ -178,25 +196,10 @@ function mergeIssues(...resultsSet: ProjectAnalysisOutput[]) {
       if (!allResults.files[filePath]) {
         allResults.files[filePath] = { issues: [] };
       }
-      if (fileData.parsingError) {
-        allResults.files[filePath].issues.push(extractParsingError(fileData));
-      } else {
-        allResults.files[filePath].issues.push(...fileData.issues);
-      }
+      allResults.files[filePath].issues.push(...fileData.issues);
     }
   }
   return allResults;
-}
-
-function extractParsingError(fileData: JsTsAnalysisOutput) {
-  return {
-    ruleId: 'S2260',
-    line: fileData.parsingError.line,
-    // stub values so we don't have to modify the type
-    message: '',
-    column: 0,
-    secondaryLocations: [],
-  };
 }
 
 /**
@@ -208,6 +211,7 @@ function getFiles(
   exclusions: Minimatch[],
   jsTsFiles: JsTsFiles = {},
   htmlFiles: JsTsFiles = {},
+  yamlFiles: JsTsFiles = {},
   type: FileType = 'MAIN',
 ) {
   const files = fs.readdirSync(dir, { recursive: true }) as string[];
@@ -220,13 +224,15 @@ function getFiles(
     if (!accept(absolutePath, fileContent)) continue;
     if (isExcluded(file, exclusions)) continue;
 
-    if (absolutePath.endsWith('.html') || absolutePath.endsWith('.htm')) {
+    if (isHtml(absolutePath)) {
       htmlFiles[absolutePath] = { fileType: type, fileContent, language };
+    } else if (isYaml(absolutePath)) {
+      yamlFiles[absolutePath] = { fileType: type, fileContent, language };
     } else {
       jsTsFiles[absolutePath] = { fileType: type, fileContent, language };
     }
   }
-  return [jsTsFiles, htmlFiles];
+  return [jsTsFiles, htmlFiles, yamlFiles];
 
   function findLanguage(filePath: string) {
     if (isJsFile(filePath)) {
@@ -239,5 +245,13 @@ function getFiles(
 
   function isExcluded(filePath: string, exclusions: Minimatch[]) {
     return exclusions.some(exclusion => exclusion.match(filePath));
+  }
+
+  function isHtml(filePath: string) {
+    return filePath.endsWith('.html') || filePath.endsWith('.htm');
+  }
+
+  function isYaml(filePath: string) {
+    return filePath.endsWith('.yaml') || filePath.endsWith('.yml');
   }
 }
