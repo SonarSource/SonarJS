@@ -21,7 +21,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as os from 'os';
 import { Minimatch } from 'minimatch';
-import { FileType, setContext } from '../../shared/src';
+import { FileType, setContext, toUnixPath } from '../../shared/src';
 import {
   JsTsFiles,
   ProjectAnalysisInput,
@@ -33,6 +33,10 @@ import { writeResults } from './lits';
 import { HtmlAnalysisInput, analyzeHTML } from '@sonar/html';
 const sourcesPath = path.join(__dirname, '..', '..', '..', 'its', 'sources');
 const jsTsProjectsPath = path.join(sourcesPath, 'jsts', 'projects');
+
+const jsExts = ['.js', '.mjs', '.cjs', '.jsx', '.vue', '.html', '.htm', '.yml', '.yaml'];
+
+const tsExts = ['.ts', '.mts', '.cts', '.tsx'];
 
 type RulingInput = {
   name: string;
@@ -56,7 +60,7 @@ describe('Ruling', () => {
 
     projects = require('./data/projects')
       // courselit fails for some reason
-      .filter(project => project.name == 'ag-grid')
+      .filter(project => project.name == 'Ghost')
       .filter(project => !project.name.includes('courselit'))
       .filter(project => !project.name.includes('yaml'));
   });
@@ -124,7 +128,12 @@ function setExclusions(exclusions: string, testDir?: string) {
   }
 }
 
-function setFiles(rulingInput: RulingInput, files: JsTsFiles, projectPath: string, exclusions: Minimatch[]) {
+function setFiles(
+  rulingInput: RulingInput,
+  files: JsTsFiles,
+  projectPath: string,
+  exclusions: Minimatch[],
+) {
   getFiles(files, projectPath, exclusions);
 
   if (rulingInput.testDir != null) {
@@ -162,7 +171,7 @@ function mergeIssues(...resultsSet: ProjectAnalysisOutput[]) {
   const allResults = { files: {} };
   for (const results of resultsSet) {
     for (const [filePath, fileData] of Object.entries(results.files)) {
-      if (! allResults.files[filePath]) {
+      if (!allResults.files[filePath]) {
         allResults.files[filePath] = { issues: [] };
       }
       allResults.files[filePath].issues.push(...fileData.issues);
@@ -178,27 +187,30 @@ function mergeIssues(...resultsSet: ProjectAnalysisOutput[]) {
 function getFiles(acc: JsTsFiles, dir: string, exclusions: Minimatch[], type: FileType = 'MAIN') {
   const files = fs.readdirSync(dir, { recursive: true }) as string[];
   for (const file of files) {
-    const absolutePath = path.join(dir, file);
-    if (!isJsTsFile(absolutePath)) continue;
+    const absolutePath = toUnixPath(path.join(dir, file));
+    let language;
+    if (fs.statSync(absolutePath).isFile()) {
+      if (isJsFile(absolutePath)) {
+        language = 'js';
+      }
+      if (isTsFile(absolutePath)) {
+        language = 'ts';
+      }
+    }
+    if (!language) continue;
     const fileContent = fs.readFileSync(absolutePath, 'utf8');
     if (!accept(absolutePath, fileContent)) continue;
     if (isExcluded(file, exclusions)) continue;
 
-    acc[absolutePath] = { fileType: type, fileContent };
+    acc[absolutePath] = { fileType: type, fileContent, language };
   }
 
-  function isJsTsFile(filePath: string) {
-    return (
-      (fs.statSync(filePath).isFile() &&
-        (filePath.endsWith('.js') ||
-          filePath.endsWith('.ts') ||
-          filePath.endsWith('.tsx') ||
-          filePath.endsWith('.jsx'))) ||
-      filePath.endsWith('.vue') ||
-      filePath.endsWith('.html') ||
-      filePath.endsWith('.yml') ||
-      filePath.endsWith('.yaml')
-    );
+  function isJsFile(filePath: string) {
+    return jsExts.includes(path.posix.extname(filePath).toLowerCase());
+  }
+
+  function isTsFile(filePath: string) {
+    return tsExts.includes(path.posix.extname(filePath).toLowerCase());
   }
 
   function isExcluded(filePath: string, exclusions: Minimatch[]) {
