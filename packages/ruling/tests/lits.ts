@@ -52,7 +52,7 @@ export function writeResults(
   fs.mkdirSync(targetProjectPath, { recursive: true });
   const litsResults = transformResults(projectPath, projectName, results);
   for (const [ruleId, { js: jsIssues, ts: tsIssues }] of Object.entries(litsResults.issues)) {
-    const sonarRuleId = eslintIdToSonarId[ruleId];
+    const sonarRuleId = eslintIdToSonarId[ruleId] || ruleId;
     writeIssues(targetProjectPath, sonarRuleId, jsIssues);
     writeIssues(targetProjectPath, sonarRuleId, tsIssues, false);
   }
