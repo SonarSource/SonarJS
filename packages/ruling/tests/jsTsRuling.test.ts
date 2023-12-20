@@ -155,7 +155,7 @@ function transformResults(projectPath: string, project: string, results: Project
  */
 function testProject(baseDir: string, rulingInput: RulingInput) {
   const projectPath = setProjectPath(baseDir, rulingInput.name, rulingInput.folder);
-  const exclusions = setExclusions(rulingInput.exclusions);
+  const exclusions = setExclusions(rulingInput.exclusions, rulingInput.testDir);
 
   const payload: ProjectAnalysisInput = {
     rules: getRules(),
@@ -175,12 +175,15 @@ function testProject(baseDir: string, rulingInput: RulingInput) {
     return projectPath;
   }
 
-  function setExclusions(exclusions: string) {
+  function setExclusions(exclusions: string, testDir?: string) {
     const DEFAULT_EXCLUSIONS = '**/.*,**/*.d.ts';
     if (exclusions) {
       exclusions += ',' + DEFAULT_EXCLUSIONS;
     } else {
       exclusions = DEFAULT_EXCLUSIONS;
+    }
+    if (testDir && testDir !== '') {
+      exclusions += `,${testDir}/**/*`;
     }
     const exclusionsGlob = stringToGlob(exclusions.split(',').map(pattern => pattern.trim()));
     return exclusionsGlob;
