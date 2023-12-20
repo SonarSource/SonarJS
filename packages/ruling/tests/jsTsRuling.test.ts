@@ -34,7 +34,7 @@ import {
 import { accept } from './filter/JavaScriptExclusionsFilter';
 import { writeResults } from './lits';
 import { analyzeHTML } from '@sonar/html';
-import { isJsFile, isTsFile } from './tools/languages';
+import { isHtmlFile, isJsFile, isTsFile, isYamlFile } from './tools/languages';
 import { analyzeYAML } from '@sonar/yaml';
 const sourcesPath = path.join(__dirname, '..', '..', '..', 'its', 'sources');
 const jsTsProjectsPath = path.join(sourcesPath, 'jsts', 'projects');
@@ -224,9 +224,9 @@ function getFiles(
     if (!accept(absolutePath, fileContent)) continue;
     if (isExcluded(file, exclusions)) continue;
 
-    if (isHtml(absolutePath)) {
+    if (isHtmlFile(absolutePath)) {
       htmlFiles[absolutePath] = { fileType: type, fileContent, language };
-    } else if (isYaml(absolutePath)) {
+    } else if (isYamlFile(absolutePath)) {
       yamlFiles[absolutePath] = { fileType: type, fileContent, language };
     } else {
       jsTsFiles[absolutePath] = { fileType: type, fileContent, language };
@@ -245,13 +245,5 @@ function getFiles(
 
   function isExcluded(filePath: string, exclusions: Minimatch[]) {
     return exclusions.some(exclusion => exclusion.match(filePath));
-  }
-
-  function isHtml(filePath: string) {
-    return filePath.endsWith('.html') || filePath.endsWith('.htm');
-  }
-
-  function isYaml(filePath: string) {
-    return filePath.endsWith('.yaml') || filePath.endsWith('.yml');
   }
 }
