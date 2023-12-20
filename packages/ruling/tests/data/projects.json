@@ -51,8 +51,8 @@
   },
   {
     "name": "courselit",
-    "testDir": ".yarn/**",
-    "exclusions": ""
+    "testDir": "",
+    "exclusions": ".yarn/**"
   },
   {
     "name": "desktop",
