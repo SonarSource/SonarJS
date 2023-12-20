@@ -66,7 +66,9 @@ function writeIssues(projectDir: string, ruleId: string, issues, isJs: boolean =
   if (Object.keys(issues).length === 0) return;
   const issueFilename = path.join(
     projectDir,
-    `${isJs ? 'javascript' : 'typescript'}-${ruleId}.json`,
+    `${isJs ? 'javascript' : 'typescript'}-${
+      ruleId === 'S124' ? (isJs ? 'CommentRegexTest' : 'CommentRegexTestTS') : ruleId
+    }.json`,
   );
   fs.writeFileSync(
     issueFilename,
