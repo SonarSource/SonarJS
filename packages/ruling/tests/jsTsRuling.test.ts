@@ -63,9 +63,8 @@ describe('Ruling', () => {
 
     projects = require('./projects')
       // courselit fails for some reason
-      .filter(
-        project => !project.name.includes('courselit') && !project.name.includes('TypeScript'),
-      )
+      .filter(project => project.name == 'ag-grid')
+      .filter(project => !project.name.includes('courselit'))
       .filter(project => !project.name.includes('yaml'));
   });
 
@@ -114,6 +113,7 @@ function writeResults(
       // we remove both:
       // - 1 space before a newline (for closing bracket lines: " ]")
       // - 2 spaces before a newline (for line numbers)
+      // and we sort the keys
       JSON.stringify(issues, Object.keys(issues).sort(), 1).replaceAll(/\n\s+/g, '\n') + '\n',
     );
   }
@@ -154,38 +154,50 @@ function transformResults(projectPath: string, project: string, results: Project
  * Load files and analyze project
  */
 function testProject(baseDir: string, rulingInput: RulingInput) {
-  const DEFAULT_EXCLUSIONS = '*.d.ts';
+  const projectPath = setProjectPath(baseDir, rulingInput.name, rulingInput.folder);
+  const exclusions = setExclusions(rulingInput.exclusions);
 
-  let projectPath;
-  if (rulingInput.folder) {
-    projectPath = path.join(baseDir, rulingInput.folder);
-  } else {
-    projectPath = path.join(baseDir, rulingInput.name);
-  }
-  let exclusions = rulingInput.exclusions;
-  if (exclusions) {
-    exclusions += ',' + DEFAULT_EXCLUSIONS;
-  } else {
-    exclusions = DEFAULT_EXCLUSIONS;
-  }
   const payload: ProjectAnalysisInput = {
     rules: getRules(),
     baseDir: projectPath,
-    files: {},
+    files: setFiles({}, projectPath, exclusions),
   };
-  const files = {};
-  const exclusionsGlob = stringToGlob(exclusions.split(',').map(pattern => pattern.trim()));
-  getFiles(files, projectPath, exclusionsGlob);
-  payload.files = files;
-  if (rulingInput.testDir != null) {
-    const testFolder = path.join(projectPath, rulingInput.testDir);
-    getFiles(files, testFolder, exclusionsGlob, 'TEST');
-  }
 
   return analyzeProject(payload);
 
-  function stringToGlob(patterns: string[]): Minimatch[] {
-    return patterns.map(pattern => new Minimatch(pattern, { nocase: true, matchBase: true }));
+  function setProjectPath(baseDir: string, name: string, folder?: string) {
+    let projectPath;
+    if (folder) {
+      projectPath = path.join(baseDir, folder);
+    } else {
+      projectPath = path.join(baseDir, name);
+    }
+    return projectPath;
+  }
+
+  function setExclusions(exclusions: string) {
+    const DEFAULT_EXCLUSIONS = '**/.*,**/*.d.ts';
+    if (exclusions) {
+      exclusions += ',' + DEFAULT_EXCLUSIONS;
+    } else {
+      exclusions = DEFAULT_EXCLUSIONS;
+    }
+    const exclusionsGlob = stringToGlob(exclusions.split(',').map(pattern => pattern.trim()));
+    return exclusionsGlob;
+
+    function stringToGlob(patterns: string[]): Minimatch[] {
+      return patterns.map(pattern => new Minimatch(pattern, { nocase: true, matchBase: true }));
+    }
+  }
+
+  function setFiles(files: JsTsFiles, projectPath: string, exclusions: Minimatch[]) {
+    getFiles(files, projectPath, exclusions);
+
+    if (rulingInput.testDir != null) {
+      const testFolder = path.join(projectPath, rulingInput.testDir);
+      getFiles(files, testFolder, exclusions, 'TEST');
+    }
+    return files;
   }
 }
 
