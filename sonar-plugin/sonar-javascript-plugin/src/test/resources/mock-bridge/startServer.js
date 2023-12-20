@@ -39,6 +39,9 @@ const requestHandler = (request, response) => {
       response.end("OK!");
     } else if (request.url === "/create-tsconfig-file") {
       response.end('{"filename":"/path/to/tsconfig.json"}');
+    } else if (request.url === "/error") {
+      response.writeHead(500, { "Content-Type": "text/plain" });
+      response.end();
     } else {
       // /analyze-with-program
       // /analyze-js
