@@ -62,11 +62,7 @@ describe('Ruling', () => {
     });
 
     projects = require('./data/projects')
-      // courselit fails for some reason
-      .filter(project => project.name === 'courselit');
-    /* .filter(project => !project.name.includes('courselit'))
-      .filter(project => !project.name.includes('yaml'))
-      .filter(project => !project.name.includes('TypeScript')); */
+      .filter(project => project.name !== 'TypeScript');
   });
 
   it(
