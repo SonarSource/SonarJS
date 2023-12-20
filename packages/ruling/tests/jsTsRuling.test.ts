@@ -124,7 +124,12 @@ function setExclusions(exclusions: string, testDir?: string) {
   }
 }
 
-function setFiles(rulingInput: RulingInput, files: JsTsFiles, projectPath: string, exclusions: Minimatch[]) {
+function setFiles(
+  rulingInput: RulingInput,
+  files: JsTsFiles,
+  projectPath: string,
+  exclusions: Minimatch[],
+) {
   getFiles(files, projectPath, exclusions);
 
   if (rulingInput.testDir != null) {
@@ -152,8 +157,12 @@ async function analyzeHtmlFiles(files: JsTsFiles) {
       filePath,
       fileContent: fileData.fileContent,
     };
-    const result = await analyzeHTML(payload);
-    htmlResults.files[filePath] = result;
+    try {
+      const result = await analyzeHTML(payload);
+      htmlResults.files[filePath] = result;
+    } catch (err) {
+      console.log(`Error analyzing ${filePath}: ${err}`);
+    }
   }
   return htmlResults;
 }
@@ -162,7 +171,7 @@ function mergeIssues(...resultsSet: ProjectAnalysisOutput[]) {
   const allResults = { files: {} };
   for (const results of resultsSet) {
     for (const [filePath, fileData] of Object.entries(results.files)) {
-      if (! allResults.files[filePath]) {
+      if (!allResults.files[filePath]) {
         allResults.files[filePath] = { issues: [] };
       }
       allResults.files[filePath].issues.push(...fileData.issues);
