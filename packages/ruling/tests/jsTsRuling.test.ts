@@ -23,11 +23,14 @@ import * as os from 'os';
 import { Minimatch } from 'minimatch';
 import { FileType, setContext, toUnixPath } from '../../shared/src';
 import {
+  DEFAULT_ENVIRONMENTS,
+  DEFAULT_GLOBALS,
   JsTsAnalysisOutput,
   JsTsFiles,
   ProjectAnalysisInput,
   ProjectAnalysisOutput,
   analyzeProject,
+  initializeLinter,
 } from '../../jsts/src';
 import { accept } from './filter/JavaScriptExclusionsFilter';
 import { writeResults } from './lits';
@@ -37,6 +40,7 @@ const jsTsProjectsPath = path.join(sourcesPath, 'jsts', 'projects');
 
 const JS_EXTENSIONS = ['.js', '.mjs', '.cjs', '.jsx', '.vue', '.html', '.htm', '.yml', '.yaml'];
 const TS_EXTENSIONS = ['.ts', '.mts', '.cts', '.tsx'];
+const HTML_LINTER_ID = 'html';
 
 type RulingInput = {
   name: string;
@@ -70,6 +74,7 @@ describe('Ruling', () => {
     `should run the ruling tests`,
     async () => {
       for (const project of projects) {
+        initHtmlLinter(getRules());
         const results = await testProject(jsTsProjectsPath, project);
         writeResults(path.join(jsTsProjectsPath, project.name), project.name, results);
       }
@@ -77,6 +82,11 @@ describe('Ruling', () => {
     30 * 60 * 1000,
   );
 });
+
+function initHtmlLinter(rules: any[]) {
+  const htmlRules = rules.filter(rule => rule.key !== 'no-var');
+  initializeLinter(htmlRules, DEFAULT_ENVIRONMENTS, DEFAULT_GLOBALS, HTML_LINTER_ID);
+}
 
 /**
  * Load files and analyze project
@@ -154,6 +164,7 @@ async function analyzeHtmlFiles(files: JsTsFiles) {
     const payload: HtmlAnalysisInput = {
       filePath,
       fileContent: fileData.fileContent,
+      linterId: HTML_LINTER_ID,
     };
     try {
       const result = await analyzeHTML(payload);
@@ -214,7 +225,7 @@ function getFiles(
     if (!accept(absolutePath, fileContent)) continue;
     if (isExcluded(file, exclusions)) continue;
 
-    if (absolutePath.endsWith('.html')) {
+    if (absolutePath.endsWith('.html') || absolutePath.endsWith('.htm')) {
       htmlFiles[absolutePath] = { fileType: type, fileContent, language };
     } else {
       jsTsFiles[absolutePath] = { fileType: type, fileContent, language };
