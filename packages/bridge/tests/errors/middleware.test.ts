@@ -28,8 +28,8 @@ describe('errorMiddleware', () => {
   let mockResponse: Partial<express.Response>;
   beforeEach(() => {
     mockResponse = {
-      json: jest.fn(() => mockResponse as express.Response),
-      status: jest.fn(),
+      json: jest.fn(),
+      status: jest.fn(() => mockResponse as express.Response),
     };
   });
 
