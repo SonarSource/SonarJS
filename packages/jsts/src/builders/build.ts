@@ -45,13 +45,10 @@ export function buildSourceCode(input: JsTsAnalysisInput, language: JsTsLanguage
       project: input.tsConfigs,
       parser: vueFile ? parsers.typescript.parser : undefined,
     };
-
+    const parser = vueFile ? parsers.vuejs : parsers.typescript;
     try {
-      return parseForESLint(
-        input.fileContent,
-        vueFile ? parsers.vuejs.parse : parsers.typescript.parse,
-        buildParserOptions(options, false),
-      );
+      debug(`Parsing ${input.filePath} with ${parser.parser}`);
+      return parseForESLint(input.fileContent, parser.parse, buildParserOptions(options, false));
     } catch (error) {
       debug(`Failed to parse ${input.filePath} with TypeScript parser: ${error.message}`);
       if (language === 'ts') {
@@ -62,9 +59,11 @@ export function buildSourceCode(input: JsTsAnalysisInput, language: JsTsLanguage
 
   let moduleError;
   try {
+    const parser = vueFile ? parsers.vuejs : parsers.javascript;
+    debug(`Parsing ${input.filePath} with ${parser.parser}`);
     return parseForESLint(
       input.fileContent,
-      vueFile ? parsers.vuejs.parse : parsers.javascript.parse,
+      parser.parse,
       buildParserOptions({ parser: vueFile ? parsers.javascript.parser : undefined }, true),
     );
   } catch (error) {
@@ -76,6 +75,7 @@ export function buildSourceCode(input: JsTsAnalysisInput, language: JsTsLanguage
   }
 
   try {
+    debug(`Parsing ${input.filePath} with Javascript parser in 'script' mode`);
     return parseForESLint(
       input.fileContent,
       parsers.javascript.parse,
