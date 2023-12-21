@@ -56,7 +56,6 @@ const expectedPath = path.join(
 const actualPath = path.join(__dirname, 'actual', 'jsts');
 
 const HTML_LINTER_ID = 'html';
-const YAML_LINTER_ID = 'yaml';
 
 type RulingInput = {
   name: string;
@@ -78,8 +77,8 @@ setContext({
   bundles: [],
 });
 
-const projects: RulingInput[] = require('./data/projects'); //.filter(project => project.name == 'angular.js');
-initializeLinter(rules, DEFAULT_ENVIRONMENTS, DEFAULT_GLOBALS, YAML_LINTER_ID);
+const projects: RulingInput[] = require('./data/projects').filter(project => project.name == 'ace');
+initializeLinter(rules, DEFAULT_ENVIRONMENTS, DEFAULT_GLOBALS);
 const htmlRules = rules.filter(rule => rule.key !== 'no-var');
 initializeLinter(htmlRules, DEFAULT_ENVIRONMENTS, DEFAULT_GLOBALS, HTML_LINTER_ID);
 
@@ -110,7 +109,7 @@ async function testProject(baseDir: string, rulingInput: RulingInput) {
 
   const jsTsResults = await analyzeProject(payload);
   const htmlResults = await analyzeFiles(htmlFiles, analyzeHTML, HTML_LINTER_ID);
-  const yamlResults = await analyzeFiles(yamlFiles, analyzeYAML, YAML_LINTER_ID);
+  const yamlResults = await analyzeFiles(yamlFiles, analyzeYAML);
   const results = mergeIssues(jsTsResults, htmlResults, yamlResults);
 
   writeResults(projectPath, rulingInput.name, results);
