@@ -385,7 +385,7 @@ public class BridgeServerImpl implements BridgeServer {
     return response(request(json, "analyze-html"), request.filePath);
   }
 
-  String request(String json, String endpoint) throws IOException {
+  private String request(String json, String endpoint) throws IOException {
     var request = HttpRequest
       .newBuilder()
       .uri(url(endpoint))
@@ -396,11 +396,6 @@ public class BridgeServerImpl implements BridgeServer {
 
     try {
       var response = client.send(request, BodyHandlers.ofString());
-      if (response.statusCode() != 200) {
-        throw new IllegalStateException(
-          "The bridge server returned an unexpected status code: " + response.statusCode()
-        );
-      }
       return response.body();
     } catch (InterruptedException e) {
       throw handleInterruptedException(e, "Request " + endpoint + " was interrupted.");

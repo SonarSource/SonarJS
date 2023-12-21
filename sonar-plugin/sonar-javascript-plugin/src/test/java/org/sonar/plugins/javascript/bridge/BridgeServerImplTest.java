@@ -663,16 +663,6 @@ class BridgeServerImplTest {
   }
 
   @Test
-  void should_stop_on_error_http_response() throws Exception {
-    bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
-    bridgeServer.deploy();
-    bridgeServer.startServer(context, emptyList());
-    assertThatThrownBy(() -> bridgeServer.request("{}", "error"))
-      .isInstanceOf(IllegalStateException.class)
-      .hasMessage("The bridge server returned an unexpected status code: 500");
-  }
-
-  @Test
   void should_use_default_timeout() {
     bridgeServer =
       new BridgeServerImpl(
