@@ -50,6 +50,9 @@ export function writeResults(
   baseDir: string = path.join(__dirname, 'actual'),
 ) {
   const targetProjectPath = path.join(baseDir, isJsTs ? 'jsts' : 'css', projectName);
+  try {
+    fs.rmSync(targetProjectPath, { recursive: true });
+  } catch {}
   fs.mkdirSync(targetProjectPath, { recursive: true });
   const litsResults = transformResults(projectPath, projectName, results);
   for (const [ruleId, { js: jsIssues, ts: tsIssues }] of Object.entries(litsResults.issues)) {
