@@ -55,6 +55,7 @@ export async function analyzeWithWatchProgram(
             filePath: filename,
             fileContent: files[filename].fileContent ?? (await readFile(filename)),
             fileType: files[filename].fileType,
+            language: files[filename].language ?? DEFAULT_LANGUAGE,
             tsConfigs: [tsConfig],
           },
           files[filename].language ?? DEFAULT_LANGUAGE,

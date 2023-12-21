@@ -40,6 +40,7 @@ export async function analyzeWithoutProgram(
         filePath: filename,
         fileContent: files[filename].fileContent ?? (await readFile(filename)),
         fileType: files[filename].fileType,
+        language: files[filename].language ?? DEFAULT_LANGUAGE,
       },
       files[filename].language ?? DEFAULT_LANGUAGE,
     );
