@@ -36,8 +36,24 @@ import { writeResults } from './lits';
 import { analyzeHTML } from '@sonar/html';
 import { isHtmlFile, isJsFile, isTsFile, isYamlFile } from './tools/languages';
 import { analyzeYAML } from '@sonar/yaml';
+import { compareSync } from 'dir-compare';
+
 const sourcesPath = path.join(__dirname, '..', '..', '..', 'its', 'sources');
 const jsTsProjectsPath = path.join(sourcesPath, 'jsts', 'projects');
+
+const expectedPath = path.join(
+  __dirname,
+  '..',
+  '..',
+  '..',
+  'its',
+  'ruling',
+  'src',
+  'test',
+  'expected',
+  'jsts',
+);
+const actualPath = path.join(__dirname, 'actual', 'jsts');
 
 const HTML_LINTER_ID = 'html';
 const YAML_LINTER_ID = 'yaml';
@@ -62,7 +78,7 @@ describe('Ruling', () => {
       bundles: [],
     });
 
-    projects = require('./data/projects').filter(project => project.name == 'angular.js');
+    projects = require('./data/projects').filter(project => project.name == 'yaml');
   });
 
   it(
@@ -72,6 +88,11 @@ describe('Ruling', () => {
       initYamlLinter(getRules());
       for (const project of projects) {
         await testProject(jsTsProjectsPath, project);
+        expect(
+          compareSync(path.join(expectedPath, project.name), path.join(actualPath, project.name), {
+            compareContent: true,
+          }).same,
+        ).toBeTruthy();
       }
     },
     30 * 60 * 1000,
