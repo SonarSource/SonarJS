@@ -398,7 +398,10 @@ public class BridgeServerImpl implements BridgeServer {
       var response = client.send(request, BodyHandlers.ofString());
       if (response.statusCode() != 200) {
         throw new IllegalStateException(
-          "The bridge server returned an unexpected status code: " + response.statusCode()
+          "The bridge server returned an unexpected status code: " +
+          response.statusCode() +
+          ". Response body: " +
+          response.body()
         );
       }
       return response.body();

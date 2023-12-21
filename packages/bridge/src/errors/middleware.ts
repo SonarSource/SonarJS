@@ -60,7 +60,7 @@ export function errorMiddleware(
       break;
     default:
       error(stack);
-      response.json({ error: message }).status(500);
+      response.status(500).json({ error: message });
       break;
   }
 }
