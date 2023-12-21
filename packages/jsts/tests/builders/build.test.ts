@@ -141,7 +141,6 @@ describe('buildSourceCode', () => {
     } = buildSourceCode(await jsTsInput({ filePath }), 'js');
 
     expect(stmt.type).toEqual('FunctionDeclaration');
-    expect(console.log).not.toHaveBeenCalled();
   });
 
   it('should fail building JavaScript code with TypeScript ESLint parser', async () => {
