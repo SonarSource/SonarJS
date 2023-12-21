@@ -669,7 +669,7 @@ class BridgeServerImplTest {
     bridgeServer.startServer(context, emptyList());
     assertThatThrownBy(() -> bridgeServer.request("{}", "error"))
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage("The bridge server returned an unexpected status code: 500");
+      .hasMessage("The bridge server returned an unexpected status code: 500. Response body: body");
   }
 
   @Test

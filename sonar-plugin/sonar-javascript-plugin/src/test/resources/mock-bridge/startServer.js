@@ -41,7 +41,7 @@ const requestHandler = (request, response) => {
       response.end('{"filename":"/path/to/tsconfig.json"}');
     } else if (request.url === "/error") {
       response.writeHead(500, { "Content-Type": "text/plain" });
-      response.end();
+      response.end("body");
     } else {
       // /analyze-with-program
       // /analyze-js
