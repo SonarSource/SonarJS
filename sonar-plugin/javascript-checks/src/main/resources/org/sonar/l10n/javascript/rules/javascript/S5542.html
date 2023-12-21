@@ -14,9 +14,9 @@ for several important reasons:</p>
 </ol>
 <p>For these reasons, as soon as cryptography is included in a project, it is important to choose encryption algorithms that are considered strong and
 secure by the cryptography community.</p>
-<p>For AES, the weakest modes are CBC (Cipher Block Chaining) and ECB</p>
-<p>(Electronic Codebook), as they are either vulnerable to padding oracles or do not provide authentication mechanisms.</p>
-<p>And for RSA, the weakest algorithms are either using it without padding or using the PKCS1v1.5 padding scheme.</p>
+<p>For AES, the weakest modes are CBC (Cipher Block Chaining) and ECB (Electronic Codebook) because they are either vulnerable to padding oracles or
+do not provide authentication mechanisms.</p>
+<p>For RSA, the weakest algorithms are either using it without padding or using the PKCS1v1.5 padding scheme.</p>
 <h3>What is the potential impact?</h3>
 <p>The cleartext of an encrypted message might be recoverable. Additionally, it might be possible to modify the cleartext of an encrypted message.</p>
 <p>Below are some real-world scenarios that illustrate possible impacts of an attacker exploiting the vulnerability.</p>
