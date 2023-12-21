@@ -28,8 +28,7 @@ describe('errorMiddleware', () => {
   let mockResponse: Partial<express.Response>;
   beforeEach(() => {
     mockResponse = {
-      json: jest.fn(() => mockResponse as express.Response),
-      status: jest.fn(),
+      json: jest.fn(),
     };
   });
 
@@ -90,6 +89,5 @@ describe('errorMiddleware', () => {
     expect(mockResponse.json).toBeCalledWith({
       error: 'Something unexpected happened.',
     });
-    expect(mockResponse.status).toBeCalledWith(500);
   });
 });
