@@ -62,7 +62,7 @@ describe('Ruling', () => {
       bundles: [],
     });
 
-    projects = require('./data/projects').filter(project => project.name == 'yaml');
+    projects = require('./data/projects').filter(project => project.name == 'angular.js');
   });
 
   it(
@@ -228,15 +228,16 @@ function getFiles(
   yamlFiles: JsTsFiles = {},
   type: FileType = 'MAIN',
 ) {
+  const prefixLength = toUnixPath(dir).length + 1;
   const files = fs.readdirSync(dir, { recursive: true, withFileTypes: true });
   for (const file of files) {
-    const absolutePath = toUnixPath(path.join(dir, file.name));
+    const absolutePath = toUnixPath(path.join(file.path, file.name));
     if (!file.isFile()) continue;
     const language = findLanguage(absolutePath);
     if (!language) continue;
     const fileContent = fs.readFileSync(absolutePath, 'utf8');
     if (!accept(absolutePath, fileContent)) continue;
-    if (isExcluded(file.name, exclusions)) continue;
+    if (isExcluded(absolutePath.substring(prefixLength), exclusions)) continue;
 
     if (isHtmlFile(absolutePath)) {
       htmlFiles[absolutePath] = { fileType: type, fileContent, language };
