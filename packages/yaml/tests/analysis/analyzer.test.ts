@@ -21,12 +21,8 @@ import { join } from 'path';
 import { setContext, APIError } from '@sonar/shared';
 import { parseAwsFromYaml } from '../../src/aws';
 import { embeddedInput } from '../../../jsts/tests/tools';
-import {
-  analyzeEmbedded,
-  composeSyntheticFilePath,
-  initializeLinter,
-  getLinter,
-} from '@sonar/jsts';
+import { initializeLinter, getLinter } from '../../../jsts/src/linter';
+import { analyzeEmbedded, composeSyntheticFilePath } from '@sonar/jsts';
 import { Rule } from 'eslint';
 
 describe('analyzeYAML', () => {

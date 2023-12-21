@@ -146,7 +146,9 @@ if (parentPort) {
         case 'on-init-linter': {
           const { rules, environments, globals, linterId, baseDir, exclusions } = data;
           initializeLinter(rules, environments, globals, linterId);
-          searchPackageJsonFiles(baseDir, exclusions);
+          if (baseDir) {
+            searchPackageJsonFiles(baseDir, exclusions);
+          }
           parentThread.postMessage({ type: 'success', result: 'OK!' });
           break;
         }

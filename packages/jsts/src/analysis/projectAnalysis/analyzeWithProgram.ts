@@ -25,7 +25,7 @@ import {
   deleteProgram,
   JsTsFiles,
   ProjectAnalysisOutput,
-} from '@sonar/jsts';
+} from '../../';
 import { error, readFile } from '@sonar/shared';
 
 /**
@@ -65,7 +65,7 @@ async function analyzeProgram(
     error('Failed to create program: ' + e);
     return;
   }
-  results.meta!.programsCreated.push(tsConfig);
+  results.meta?.programsCreated.push(tsConfig);
   for (const filename of filenames) {
     // only analyze files which are requested
     if (files[filename]) {
