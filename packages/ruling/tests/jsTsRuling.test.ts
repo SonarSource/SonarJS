@@ -40,6 +40,7 @@ const sourcesPath = path.join(__dirname, '..', '..', '..', 'its', 'sources');
 const jsTsProjectsPath = path.join(sourcesPath, 'jsts', 'projects');
 
 const HTML_LINTER_ID = 'html';
+const YAML_LINTER_ID = 'yaml';
 
 type RulingInput = {
   name: string;
@@ -67,8 +68,9 @@ describe('Ruling', () => {
   it(
     `should run the ruling tests`,
     async () => {
+      initHtmlLinter(getRules());
+      initYamlLinter(getRules());
       for (const project of projects) {
-        initHtmlLinter(getRules());
         await testProject(jsTsProjectsPath, project);
       }
     },
@@ -79,6 +81,10 @@ describe('Ruling', () => {
 function initHtmlLinter(rules: any[]) {
   const htmlRules = rules.filter(rule => rule.key !== 'no-var');
   initializeLinter(htmlRules, DEFAULT_ENVIRONMENTS, DEFAULT_GLOBALS, HTML_LINTER_ID);
+}
+
+function initYamlLinter(rules: any[]) {
+  initializeLinter(rules, DEFAULT_ENVIRONMENTS, DEFAULT_GLOBALS, YAML_LINTER_ID);
 }
 
 /**
@@ -98,7 +104,7 @@ async function testProject(baseDir: string, rulingInput: RulingInput) {
 
   const jsTsResults = await analyzeProject(payload);
   const htmlResults = await analyzeFiles(htmlFiles, analyzeHTML, HTML_LINTER_ID);
-  const yamlResults = await analyzeFiles(yamlFiles, analyzeYAML);
+  const yamlResults = await analyzeFiles(yamlFiles, analyzeYAML, YAML_LINTER_ID);
   const results = mergeIssues(jsTsResults, htmlResults, yamlResults);
 
   writeResults(projectPath, rulingInput.name, results);
@@ -172,34 +178,42 @@ async function analyzeFiles(
     }
   }
   return results;
-
-  function createParsingError(err: { data: { line: number } }) {
-    return {
-      issues: [
-        {
-          ruleId: 'S2260',
-          line: err.data.line,
-          // stub values so we don't have to modify the type
-          message: '',
-          column: 0,
-          secondaryLocations: [],
-        },
-      ],
-    };
-  }
 }
 
 function mergeIssues(...resultsSet: ProjectAnalysisOutput[]) {
   const allResults = { files: {} };
   for (const results of resultsSet) {
     for (const [filePath, fileData] of Object.entries(results.files)) {
-      if (!allResults.files[filePath]) {
-        allResults.files[filePath] = { issues: [] };
+      if (allResults.files[filePath]) {
+        throw Error(`File ${filePath} has been analyzed in multiple paths`);
       }
-      allResults.files[filePath].issues.push(...fileData.issues);
+      if (fileData.parsingError) {
+        allResults.files[filePath] = createParsingError({ data: fileData.parsingError });
+      } else {
+        allResults.files[filePath] = fileData;
+      }
     }
   }
   return allResults;
+}
+
+function createParsingError({
+  data: { line, message },
+}: {
+  data: { line: number; message: string };
+}) {
+  return {
+    issues: [
+      {
+        ruleId: 'S2260',
+        line,
+        // stub values so we don't have to modify the type
+        message,
+        column: 0,
+        secondaryLocations: [],
+      },
+    ],
+  };
 }
 
 /**
@@ -214,15 +228,15 @@ function getFiles(
   yamlFiles: JsTsFiles = {},
   type: FileType = 'MAIN',
 ) {
-  const files = fs.readdirSync(dir, { recursive: true }) as string[];
+  const files = fs.readdirSync(dir, { recursive: true, withFileTypes: true });
   for (const file of files) {
-    const absolutePath = toUnixPath(path.join(dir, file));
-    if (!fs.statSync(absolutePath).isFile()) continue;
+    const absolutePath = toUnixPath(path.join(dir, file.name));
+    if (!file.isFile()) continue;
     const language = findLanguage(absolutePath);
     if (!language) continue;
     const fileContent = fs.readFileSync(absolutePath, 'utf8');
     if (!accept(absolutePath, fileContent)) continue;
-    if (isExcluded(file, exclusions)) continue;
+    if (isExcluded(file.name, exclusions)) continue;
 
     if (isHtmlFile(absolutePath)) {
       htmlFiles[absolutePath] = { fileType: type, fileContent, language };

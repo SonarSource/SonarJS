@@ -43,7 +43,7 @@ describe('assessors', () => {
         '// Use the correct document accordingly with window argument (sandbox)\n' +
         'var document = window.document;\n' +
         'var jQuery = (function() {';
-      expect(bundleAssessor('jquery.js', JQUERY)).toBeTruthy();
+      expect(bundleAssessor(JQUERY)).toBeFalsy();
     });
   });
 });
