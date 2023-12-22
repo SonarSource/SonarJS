@@ -68,7 +68,7 @@ async function analyzeProgram(
   results.meta?.programsCreated.push(tsConfig);
   for (const filename of filenames) {
     // only analyze files which are requested
-    if (files[filename]) {
+    if (files[filename] && pendingFiles.has(filename)) {
       results.files[filename] = analyzeFile({
         filePath: filename,
         fileContent: files[filename].fileContent ?? (await readFile(filename)),

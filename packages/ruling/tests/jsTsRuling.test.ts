@@ -78,7 +78,7 @@ setContext({
 });
 
 const projects: RulingInput[] = require('./data/projects').filter(
-  project => project.name === 'TypeScript',
+  project => project.name === 'Joust',
 );
 initializeLinter(rules, DEFAULT_ENVIRONMENTS, DEFAULT_GLOBALS);
 const htmlRules = rules.filter(rule => rule.key !== 'no-var');
@@ -179,6 +179,7 @@ async function analyzeFiles(
     } catch (err) {
       results.files[filePath] = createParsingError(err);
     }
+    results.files[filePath].language = fileData.language;
   }
   return results;
 }
