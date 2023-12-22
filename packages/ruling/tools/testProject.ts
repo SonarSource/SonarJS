@@ -109,7 +109,7 @@ export function setupBeforeAll(projectFile: string) {
  */
 export async function testProject(rulingInput: RulingInput) {
   const projectPath = path.join(jsTsProjectsPath, rulingInput.folder ?? rulingInput.name);
-  const exclusions = setExclusions(rulingInput.exclusions, rulingInput.testDir).concat(
+  const exclusions = setExclusions(projectPath, rulingInput.exclusions, rulingInput.testDir).concat(
     DEFAULT_EXCLUSIONS,
   );
 
@@ -129,12 +129,16 @@ export async function testProject(rulingInput: RulingInput) {
   writeResults(projectPath, rulingInput.name, results, files, actualPath);
 }
 
-function setExclusions(exclusions: string, testDir?: string) {
-  const exclusionsArray = exclusions ? exclusions.split(',') : [];
+function setExclusions(projectPath: string, exclusions: string, testDir?: string) {
+  const exclusionsArray = exclusions
+    ? exclusions.split(',').map(exclusion => exclusion.trim())
+    : [];
   if (testDir && testDir !== '') {
     exclusionsArray.push(testDir);
   }
-  return exclusionsArray;
+  return exclusionsArray.map(exclusion =>
+    /^(\*\*)?\//.test(exclusion) ? exclusion : toUnixPath(path.join(projectPath, exclusion)),
+  );
 }
 
 function getProjectFiles(rulingInput: RulingInput, projectPath: string, exclusions: string[]) {
