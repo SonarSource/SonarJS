@@ -80,7 +80,6 @@ setContext({
 const projects: RulingInput[] = require('./data/projects').filter(
   project => project.name === 'angular.js',
 );
-
 initializeLinter(rules, DEFAULT_ENVIRONMENTS, DEFAULT_GLOBALS);
 const htmlRules = rules.filter(rule => rule.key !== 'no-var');
 initializeLinter(htmlRules, DEFAULT_ENVIRONMENTS, DEFAULT_GLOBALS, HTML_LINTER_ID);
