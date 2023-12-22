@@ -26,7 +26,7 @@ import {
   JsTsFiles,
   ProjectAnalysisOutput,
 } from '../../';
-import { readFile } from '@sonar/shared';
+import { error, readFile } from '@sonar/shared';
 
 /**
  * Analyzes JavaScript / TypeScript files using TypeScript programs. Only the files
@@ -58,20 +58,24 @@ async function analyzeProgram(
   results: ProjectAnalysisOutput,
   pendingFiles: Set<string>,
 ) {
-  const { files: filenames, programId, projectReferences } = createAndSaveProgram(tsConfig);
+  let filenames, programId, projectReferences;
+  try {
+    ({ files: filenames, programId, projectReferences } = createAndSaveProgram(tsConfig));
+  } catch (e) {
+    error('Failed to create program: ' + e);
+    return;
+  }
   results.meta?.programsCreated.push(tsConfig);
   for (const filename of filenames) {
     // only analyze files which are requested
-    if (files[filename]) {
-      results.files[filename] = analyzeFile(
-        {
-          filePath: filename,
-          fileContent: files[filename].fileContent ?? (await readFile(filename)),
-          fileType: files[filename].fileType,
-          programId,
-        },
-        files[filename].language ?? DEFAULT_LANGUAGE,
-      );
+    if (files[filename] && pendingFiles.has(filename)) {
+      results.files[filename] = analyzeFile({
+        filePath: filename,
+        fileContent: files[filename].fileContent ?? (await readFile(filename)),
+        fileType: files[filename].fileType,
+        language: files[filename].language ?? DEFAULT_LANGUAGE,
+        programId,
+      });
       pendingFiles.delete(filename);
     }
   }

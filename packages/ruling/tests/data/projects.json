@@ -1,0 +1,249 @@
+[
+  {
+    "name": "Ghost",
+    "testDir": null,
+    "exclusions": null
+  },
+  {
+    "name": "Joust",
+    "testDir": null,
+    "exclusions": null
+  },
+  {
+    "name": "TypeScript",
+    "testDir": "src/harness/unittests",
+    "exclusions": null
+  },
+  {
+    "name": "ace",
+    "testDir": null,
+    "exclusions": null
+  },
+  {
+    "name": "ag-grid",
+    "testDir": "spec",
+    "exclusions": null
+  },
+  {
+    "name": "amplify",
+    "testDir": "test",
+    "exclusions": "external/**"
+  },
+  {
+    "name": "angular.js",
+    "testDir": "test",
+    "exclusions": "src/ngLocale/**, i18n/**"
+  },
+  {
+    "name": "ant-design",
+    "testDir": "tests",
+    "exclusions": null
+  },
+  {
+    "name": "backbone",
+    "testDir": "test",
+    "exclusions": null
+  },
+  {
+    "name": "console",
+    "testDir": null,
+    "exclusions": null
+  },
+  {
+    "name": "courselit",
+    "testDir": null,
+    "exclusions": ".yarn/**"
+  },
+  {
+    "name": "desktop",
+    "testDir": "app/test",
+    "exclusions": null
+  },
+  {
+    "name": "ecmascript6-today",
+    "testDir": null,
+    "exclusions": null
+  },
+  {
+    "name": "eigen",
+    "testDir": null,
+    "exclusions": null
+  },
+  {
+    "name": "es5-shim",
+    "testDir": "tests",
+    "exclusions": null
+  },
+  {
+    "name": "expressionist.js",
+    "testDir": null,
+    "exclusions": null
+  },
+  {
+    "name": "fireact",
+    "testDir": null,
+    "exclusions": null
+  },
+  {
+    "name": "fireface",
+    "testDir": null,
+    "exclusions": null
+  },
+  {
+    "name": "http",
+    "testDir": null,
+    "exclusions": null
+  },
+  {
+    "name": "ionic2-auth",
+    "testDir": null,
+    "exclusions": null
+  },
+  {
+    "name": "jStorage",
+    "testDir": "tests",
+    "exclusions": null
+  },
+  {
+    "name": "jira-clone",
+    "testDir": null,
+    "exclusions": null
+  },
+  {
+    "name": "jquery",
+    "testDir": "test",
+    "exclusions": null
+  },
+  {
+    "name": "jshint",
+    "testDir": "tests",
+    "exclusions": null
+  },
+  {
+    "name": "knockout",
+    "testDir": "spec",
+    "exclusions": null
+  },
+  {
+    "name": "moose",
+    "testDir": null,
+    "exclusions": null
+  },
+  {
+    "name": "mootools-core",
+    "testDir": "Specs",
+    "exclusions": null
+  },
+  {
+    "name": "ocanvas",
+    "testDir": null,
+    "exclusions": "build/**"
+  },
+  {
+    "name": "p5.js",
+    "testDir": "test",
+    "exclusions": null
+  },
+  {
+    "name": "paper.js",
+    "testDir": "test",
+    "exclusions": "gulp/jsdoc/**, packages/**"
+  },
+  {
+    "name": "postgraphql",
+    "testDir": null,
+    "exclusions": null
+  },
+  {
+    "name": "prettier-vscode",
+    "testDir": null,
+    "exclusions": null
+  },
+  {
+    "name": "prototype",
+    "testDir": "test",
+    "exclusions": null
+  },
+  {
+    "name": "qunit",
+    "testDir": "test",
+    "exclusions": null
+  },
+  {
+    "name": "react-cloud-music",
+    "testDir": null,
+    "exclusions": null
+  },
+  {
+    "name": "reddit-mobile",
+    "testDir": null,
+    "exclusions": null
+  },
+  {
+    "name": "redux",
+    "testDir": null,
+    "exclusions": null
+  },
+  {
+    "name": "router",
+    "testDir": null,
+    "exclusions": null
+  },
+  {
+    "name": "rxjs",
+    "testDir": "spec",
+    "exclusions": null
+  },
+  {
+    "name": "searchkit",
+    "testDir": null,
+    "exclusions": null
+  },
+  {
+    "name": "sizzle",
+    "testDir": "test",
+    "exclusions": "external/**"
+  },
+  {
+    "name": "snoode",
+    "testDir": null,
+    "exclusions": null
+  },
+  {
+    "name": "sonar-web",
+    "testDir": null,
+    "exclusions": null
+  },
+  {
+    "name": "templating",
+    "testDir": null,
+    "exclusions": null
+  },
+  {
+    "name": "underscore",
+    "testDir": "test",
+    "exclusions": null
+  },
+  {
+    "name": "vuetify",
+    "testDir": null,
+    "exclusions": null
+  },
+  {
+    "name": "watchtower.js",
+    "testDir": null,
+    "exclusions": null
+  },
+  {
+    "name": "yaml",
+    "folder": "../../yaml",
+    "testDir": null,
+    "exclusions": null
+  },
+  {
+    "name": "file-for-rules",
+    "folder": "../custom",
+    "testDir": "tests",
+    "exclusions": null
+  }
+]

@@ -50,10 +50,6 @@ export async function analyzeProject(input: ProjectAnalysisInput): Promise<Proje
     maxFilesForTypeChecking,
   } = input;
   const inputFilenames = Object.keys(input.files);
-  const pendingFiles: Set<string> = new Set(inputFilenames);
-  const watchProgram = input.isSonarlint || hasVueFile(inputFilenames);
-  initializeLinter(rules, environments ?? DEFAULT_ENVIRONMENTS, globals ?? DEFAULT_GLOBALS);
-  searchTSConfigJsonAndPackageJsonFiles(baseDir, exclusions);
   const results: ProjectAnalysisOutput = {
     files: {},
     meta: {
@@ -63,6 +59,13 @@ export async function analyzeProject(input: ProjectAnalysisInput): Promise<Proje
       programsCreated: [],
     },
   };
+  if (!inputFilenames.length) {
+    return results;
+  }
+  const pendingFiles: Set<string> = new Set(inputFilenames);
+  const watchProgram = input.isSonarlint || hasVueFile(inputFilenames);
+  initializeLinter(rules, environments ?? DEFAULT_ENVIRONMENTS, globals ?? DEFAULT_GLOBALS);
+  searchTSConfigJsonAndPackageJsonFiles(baseDir, exclusions);
   const tsConfigs = loopTSConfigs(
     inputFilenames,
     toUnixPath(baseDir),

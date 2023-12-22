@@ -17,25 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { bundleAssessor } from './bundeAssessor';
+import { minificationAssessor } from './minificationAssessor';
+import { sizeAssessor } from './sizeAssessor';
 
-import { analyzeJSTS, JsTsAnalysisInput, JsTsAnalysisOutput } from '../../';
-import { EMPTY_JSTS_ANALYSIS_OUTPUT } from '../../../../bridge/src/errors';
-
-/**
- * Safely analyze a JavaScript/TypeScript file wrapping raised exceptions in the output format
- * @param input JsTsAnalysisInput object containing all the data necessary for the analysis
- */
-export function analyzeFile(input: JsTsAnalysisInput) {
-  try {
-    return analyzeJSTS(input, input.language!);
-  } catch (e) {
-    return {
-      parsingError: {
-        message: e.message,
-        code: e.code,
-        line: e.data?.line,
-      },
-      ...EMPTY_JSTS_ANALYSIS_OUTPUT,
-    } as JsTsAnalysisOutput;
-  }
+export function accept(filePath: string, fileContent: string) {
+  return (
+    bundleAssessor(fileContent) &&
+    minificationAssessor(filePath, fileContent) &&
+    sizeAssessor(fileContent)
+  );
 }

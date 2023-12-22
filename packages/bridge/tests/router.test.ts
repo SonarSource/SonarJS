@@ -58,7 +58,14 @@ describe('router', () => {
   it('should route /analyze-project requests', async () => {
     const tsConfig = toUnixPath(path.join(fixtures, 'tsconfig.json'));
     const payload: ProjectAnalysisInput = {
-      rules: [{ key: 'no-duplicate-in-composite', configurations: [], fileTypeTarget: ['MAIN'] }],
+      rules: [
+        {
+          key: 'no-duplicate-in-composite',
+          configurations: [],
+          fileTypeTarget: ['MAIN'],
+          language: 'ts',
+        },
+      ],
       environments: DEFAULT_ENVIRONMENTS,
       globals: DEFAULT_GLOBALS,
       baseDir: fixtures,

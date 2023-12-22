@@ -17,25 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+const DEFAULT_MAX_FILE_SIZE_KB = 4000;
 
-import { analyzeJSTS, JsTsAnalysisInput, JsTsAnalysisOutput } from '../../';
-import { EMPTY_JSTS_ANALYSIS_OUTPUT } from '../../../../bridge/src/errors';
+export function sizeAssessor(input: string, maxSize: number = DEFAULT_MAX_FILE_SIZE_KB) {
+  return getBytes(input) <= maxSize * 1000;
 
-/**
- * Safely analyze a JavaScript/TypeScript file wrapping raised exceptions in the output format
- * @param input JsTsAnalysisInput object containing all the data necessary for the analysis
- */
-export function analyzeFile(input: JsTsAnalysisInput) {
-  try {
-    return analyzeJSTS(input, input.language!);
-  } catch (e) {
-    return {
-      parsingError: {
-        message: e.message,
-        code: e.code,
-        line: e.data?.line,
-      },
-      ...EMPTY_JSTS_ANALYSIS_OUTPUT,
-    } as JsTsAnalysisOutput;
+  function getBytes(input: string) {
+    return Buffer.byteLength(input, 'utf8');
   }
 }

@@ -17,25 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
-import { analyzeJSTS, JsTsAnalysisInput, JsTsAnalysisOutput } from '../../';
-import { EMPTY_JSTS_ANALYSIS_OUTPUT } from '../../../../bridge/src/errors';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 
 /**
- * Safely analyze a JavaScript/TypeScript file wrapping raised exceptions in the output format
- * @param input JsTsAnalysisInput object containing all the data necessary for the analysis
+ * This file is in the sonar-javascript-plugin JAR file
  */
-export function analyzeFile(input: JsTsAnalysisInput) {
-  try {
-    return analyzeJSTS(input, input.language!);
-  } catch (e) {
-    return {
-      parsingError: {
-        message: e.message,
-        code: e.code,
-        line: e.data?.line,
-      },
-      ...EMPTY_JSTS_ANALYSIS_OUTPUT,
-    } as JsTsAnalysisOutput;
-  }
+const rules = JSON.parse(fs.readFileSync(path.join(__dirname, 'sonarlint-metadata.json'), 'utf8'));
+
+const eslintToSonar: Record<string, string> = {};
+
+for (const rule of rules) {
+  eslintToSonar[rule.eslintKey] = extractSonarId(rule);
 }
+
+function extractSonarId(rule: any) {
+  return rule.ruleKey.split(':')[1];
+}
+
+fs.writeFileSync(
+  path.join(__dirname, '..', 'data', 'eslint-to-sonar-id.json'),
+  JSON.stringify(eslintToSonar, null, 2),
+);

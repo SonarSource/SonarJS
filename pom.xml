@@ -86,7 +86,7 @@
     <sonar.javascript.lcov.reportPaths>coverage/lcov.info</sonar.javascript.lcov.reportPaths>
     <sonar.typescript.tsconfigPath>${project.basedir}/packages/tsconfig.app.json,${project.basedir}/packages/tsconfig.test.json</sonar.typescript.tsconfigPath>
     <sonar.cpd.exclusions>sonar-plugin/javascript-checks/src/main/resources/**/*.html</sonar.cpd.exclusions>
-    <sonar.coverage.exclusions>packages/bridge/src/worker.js</sonar.coverage.exclusions>
+    <sonar.coverage.exclusions>packages/bridge/src/worker.js,packages/ruling/</sonar.coverage.exclusions>
   </properties>
 
   <dependencyManagement>
