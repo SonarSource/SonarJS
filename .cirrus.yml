@@ -78,9 +78,6 @@ plugin_qa_body: &PLUGIN_QA_BODY
   <<: *ONLY_SONARSOURCE_QA
   eks_container:
     <<: *CONTAINER_DEFINITION
-    dockerfile: .cirrus/nodejs.Dockerfile
-    docker_arguments:
-      CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
     cpu: 15
     memory: 30G
   env:
@@ -99,7 +96,9 @@ fast_ruling_task:
   #<<: *ONLY_SONARSOURCE_QA
   eks_container:
     <<: *CONTAINER_DEFINITION
-    image: ${CIRRUS_AWS_ACCOUNT}.dkr.ecr.eu-central-1.amazonaws.com/base:j17-latest
+    dockerfile: .cirrus/nodejs.Dockerfile
+    docker_arguments:
+      CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
     cpu: 15
     memory: 24G
   env:
