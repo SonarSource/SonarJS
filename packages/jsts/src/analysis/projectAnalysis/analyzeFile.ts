@@ -19,17 +19,15 @@
  */
 
 import { analyzeJSTS, JsTsAnalysisInput, JsTsAnalysisOutput } from '../../';
-import { JsTsLanguage } from '@sonar/shared';
 import { EMPTY_JSTS_ANALYSIS_OUTPUT } from '../../../../bridge/src/errors';
 
 /**
  * Safely analyze a JavaScript/TypeScript file wrapping raised exceptions in the output format
  * @param input JsTsAnalysisInput object containing all the data necessary for the analysis
- * @param language 'js' or 'ts'
  */
-export function analyzeFile(input: JsTsAnalysisInput, language: JsTsLanguage) {
+export function analyzeFile(input: JsTsAnalysisInput) {
   try {
-    return analyzeJSTS(input, language);
+    return analyzeJSTS(input, input.language!);
   } catch (e) {
     return {
       parsingError: {

@@ -69,16 +69,13 @@ async function analyzeProgram(
   for (const filename of filenames) {
     // only analyze files which are requested
     if (files[filename]) {
-      results.files[filename] = analyzeFile(
-        {
-          filePath: filename,
-          fileContent: files[filename].fileContent ?? (await readFile(filename)),
-          fileType: files[filename].fileType,
-          language: files[filename].language ?? DEFAULT_LANGUAGE,
-          programId,
-        },
-        files[filename].language ?? DEFAULT_LANGUAGE,
-      );
+      results.files[filename] = analyzeFile({
+        filePath: filename,
+        fileContent: files[filename].fileContent ?? (await readFile(filename)),
+        fileType: files[filename].fileType,
+        language: files[filename].language ?? DEFAULT_LANGUAGE,
+        programId,
+      });
       pendingFiles.delete(filename);
     }
   }
