@@ -110,7 +110,7 @@ fast_ruling_task:
   ruling_script:
     - source cirrus-env QA
     - source set_maven_build_version $BUILD_NUMBER
-    - npm run bf
+    - npm run bridge:build:fast
     - cd ..
     - ln -s SonarJS/its/sources/ rulingSources
     - cd SonarJS
