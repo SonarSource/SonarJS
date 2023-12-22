@@ -6,9 +6,9 @@ USER root
 ARG NODE_VERSION=20.10.0
 ARG DISTRO=linux-x64
 
-RUN curl -fsSL https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz
+RUN curl -o node.tar.xz -fsSL "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz"
 RUN mkdir -p /usr/local/lib/nodejs
-RUN tar -xJvf node-${NODE_VERSION}-${DISTRO}.tar.xz -C /usr/local/lib/nodejs
+RUN tar -xJvf node.tar.xz -C /usr/local/lib/nodejs
 
 USER sonarsource
 
