@@ -108,7 +108,8 @@ fast_ruling_task:
   submodules_script:
     - git submodule update --init
   ruling_script:
-    - source ~/.profile
+    - . ~/.profile
+    - echo $PATH
     - node --version
     - source cirrus-env QA
     - source set_maven_build_version $BUILD_NUMBER
