@@ -115,7 +115,7 @@ fast_ruling_task:
     - npm run bridge:build:fast
     - export SONAR_JS_REPO=`pwd`
     - ln -s $SONAR_JS_REPO/its/sources/ $SONAR_JS_REPO/../rulingSources
-    - npm run ruling -- --maxWorkers=75%
+    - npm run ruling
   cleanup_before_cache_script: cleanup_maven_repository
   on_failure:
     diff_artifacts:
