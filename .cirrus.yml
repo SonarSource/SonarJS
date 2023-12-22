@@ -110,6 +110,9 @@ fast_ruling_task:
   ruling_script:
     - . ~/.profile
     - echo $PATH
+    - ls -l ~/
+    - ls -l ~/nodejs/
+    - ls -l ~/nodejs/node-20.10.0-linux-x64/
     - ls -l ~/nodejs/node-20.10.0-linux-x64/bin
     - node --version
     - source cirrus-env QA
