@@ -19,7 +19,8 @@
  */
 import * as fs from 'fs';
 import * as path from 'path';
-import { JsTsAnalysisOutput, ProjectAnalysisOutput } from '@sonar/jsts';
+import { Issue, JsTsFiles, ProjectAnalysisOutput } from '@sonar/jsts';
+import { JsTsLanguage } from '@sonar/shared';
 
 const eslintIdToSonarId = JSON.parse(
   fs.readFileSync(path.join(__dirname, 'data', 'eslint-to-sonar-id.json'), 'utf8'),
@@ -45,6 +46,7 @@ export function writeResults(
   projectPath: string,
   projectName: string,
   results: ProjectAnalysisOutput,
+  fileSet: [JsTsFiles, JsTsFiles, JsTsFiles],
   isJsTs: boolean = true,
   baseDir: string = path.join(__dirname, 'actual'),
 ) {
@@ -53,7 +55,7 @@ export function writeResults(
     fs.rmSync(targetProjectPath, { recursive: true });
   } catch {}
   fs.mkdirSync(targetProjectPath, { recursive: true });
-  const litsResults = transformResults(projectPath, projectName, results);
+  const litsResults = transformResults(projectPath, projectName, results, fileSet);
   for (const [ruleId, { js: jsIssues, ts: tsIssues }] of Object.entries(litsResults.issues)) {
     const sonarRuleId = eslintIdToSonarId[ruleId] || ruleId;
     writeIssues(targetProjectPath, sonarRuleId, jsIssues);
@@ -86,13 +88,28 @@ function writeIssues(projectDir: string, ruleId: string, issues, isJs: boolean =
 /**
  * Transform ProjectAnalysisOutput to LITS format
  */
-function transformResults(projectPath: string, project: string, results: ProjectAnalysisOutput) {
+function transformResults(
+  projectPath: string,
+  project: string,
+  results: ProjectAnalysisOutput,
+  fileSet: [JsTsFiles, JsTsFiles, JsTsFiles],
+) {
   const litsResult: LitsFormattedResult = {
     issues: {},
   };
   for (const [filename, fileData] of Object.entries(results.files)) {
     const filenamePathInProject = retrieveFilename(projectPath.length + 1, filename);
-    processIssues(litsResult, `${project}:${filenamePathInProject}`, fileData);
+    let language;
+    for (const files of fileSet) {
+      if (files.hasOwnProperty(filename)) {
+        language = files[filename].language;
+        break;
+      }
+    }
+    if (!language) {
+      throw Error(`No language set for ${filename}`);
+    }
+    processIssues(litsResult, `${project}:${filenamePathInProject}`, fileData.issues, language);
   }
   return litsResult;
 
@@ -103,14 +120,15 @@ function transformResults(projectPath: string, project: string, results: Project
   function processIssues(
     result: LitsFormattedResult,
     projectWithFilename: string,
-    analysisOutput: JsTsAnalysisOutput,
+    issues: Issue[],
+    language: JsTsLanguage,
   ) {
-    for (const issue of analysisOutput.issues) {
+    for (const issue of issues) {
       const ruleId = issue.ruleId;
       if (result.issues[ruleId] === undefined) result.issues[ruleId] = { js: {}, ts: {} };
-      if (result.issues[ruleId][analysisOutput.language][projectWithFilename] === undefined)
-        result.issues[ruleId][analysisOutput.language][projectWithFilename] = [];
-      result.issues[ruleId][analysisOutput.language][projectWithFilename].push(issue.line);
+      if (result.issues[ruleId][language][projectWithFilename] === undefined)
+        result.issues[ruleId][language][projectWithFilename] = [];
+      result.issues[ruleId][language][projectWithFilename].push(issue.line);
     }
   }
 }

@@ -78,7 +78,7 @@ setContext({
 });
 
 const projects: RulingInput[] = require('./data/projects').filter(
-  project => project.name === 'Joust',
+  project => project.name === 'angular.js',
 );
 initializeLinter(rules, DEFAULT_ENVIRONMENTS, DEFAULT_GLOBALS);
 const htmlRules = rules.filter(rule => rule.key !== 'no-var');
@@ -125,7 +125,7 @@ async function testProject(baseDir: string, rulingInput: RulingInput) {
   const yamlResults = await analyzeFiles(yamlFiles, analyzeYAML);
   const results = mergeIssues(jsTsResults, htmlResults, yamlResults);
 
-  writeResults(projectPath, rulingInput.name, results);
+  writeResults(projectPath, rulingInput.name, results, [jsTsFiles, htmlFiles, yamlFiles]);
 }
 
 function setProjectPath(baseDir: string, name: string, folder?: string) {
