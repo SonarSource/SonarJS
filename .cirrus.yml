@@ -248,29 +248,32 @@ plugin_qa_win_sonarlint_task:
     - mvn -f its/plugin/sonarlint-tests/pom.xml -Dsonar.runtimeVersion=${SQ_VERSION} -B -e -V verify surefire-report:report
   cleanup_before_cache_script: cleanup_maven_repository
 
-ruling_task:
+fast_ruling_task:
   depends_on:
     - build
   <<: *ONLY_SONARSOURCE_QA
   eks_container:
     <<: *CONTAINER_DEFINITION
-    image: ${CIRRUS_AWS_ACCOUNT}.dkr.ecr.eu-central-1.amazonaws.com/base:j17-latest
+    dockerfile: .cirrus/nodejs.Dockerfile
+    docker_arguments:
+      CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
     cpu: 15
-    memory: 24G
+    memory: 30G
   env:
     CIRRUS_CLONE_DEPTH: 10
     SONARSOURCE_QA: true
-    matrix:
-      - RULING: JsTsRulingTest
-      - RULING: CssRulingTest
   <<: *MAVEN_CACHE
   submodules_script:
     - git submodule update --init
   ruling_script:
+    - . ~/.profile
+    - node --version
     - source cirrus-env QA
     - source set_maven_build_version $BUILD_NUMBER
-    - cd its/ruling
-    - mvn verify -Dtest=${RULING} -Dsonar.runtimeVersion=LATEST_RELEASE -Dmaven.test.redirectTestOutputToFile=false -Djunit.jupiter.execution.parallel.config.dynamic.factor=1 -B -e -V
+    - npm run bridge:build:fast
+    - export SONAR_JS_REPO=`pwd`
+    - ln -s $SONAR_JS_REPO/its/sources/ $SONAR_JS_REPO/../rulingSources
+    - npm run ruling
   cleanup_before_cache_script: cleanup_maven_repository
   on_failure:
     diff_artifacts:
