@@ -77,9 +77,8 @@ setContext({
   bundles: [],
 });
 
-const projects: RulingInput[] = require('./data/projects').filter(
-  project => project.name === 'angular.js',
-);
+const projects: RulingInput[] = require('./data/projects');
+
 initializeLinter(rules, DEFAULT_ENVIRONMENTS, DEFAULT_GLOBALS);
 const htmlRules = rules.filter(rule => rule.key !== 'no-var');
 initializeLinter(htmlRules, DEFAULT_ENVIRONMENTS, DEFAULT_GLOBALS, HTML_LINTER_ID);
@@ -96,7 +95,7 @@ const DEFAULT_EXCLUSIONS = [
 ].map(pattern => new Minimatch(pattern, { nocase: true }));
 
 describe('Ruling', () => {
-  it.skip.each(projects)('should run %s', async (project: RulingInput) => {
+  it.each(projects)('should run %s', async (project: RulingInput) => {
     await testProject(jsTsProjectsPath, project);
     expect(
       compareSync(path.join(expectedPath, project.name), path.join(actualPath, project.name), {
