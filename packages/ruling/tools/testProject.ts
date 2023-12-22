@@ -18,8 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as path from 'path';
+import * as fs from 'fs';
 import * as os from 'os';
-import { AnalysisInput, FileFinder, FileType, setContext, toUnixPath } from '../../shared/src';
+import { Minimatch } from 'minimatch';
+import { AnalysisInput, FileType, setContext, toUnixPath } from '../../shared/src';
 import {
   DEFAULT_ENVIRONMENTS,
   DEFAULT_GLOBALS,
@@ -33,6 +35,7 @@ import {
 import { accept } from '../filter/JavaScriptExclusionsFilter';
 import { writeResults } from './lits';
 import { analyzeHTML } from '../../html/src';
+import { isHtmlFile, isJsFile, isTsFile, isYamlFile } from './languages';
 import { analyzeYAML } from '../../yaml/src';
 import projects from '../data/projects.json';
 /**
@@ -40,12 +43,6 @@ import projects from '../data/projects.json';
  * and capturing the `inputRules` parameter from `packages/jsts/src/linter/linters.ts#initializeLinter()`
  */
 import rules from '../data/rules.json';
-import { getLanguage } from './languages';
-const PATTERNS = {
-  html: '*.html,*.htm',
-  yaml: '*.yaml,*.yml',
-  jsts: '*.js,*.mjs,*.cjs,*.jsx,*.vue,*.ts,*.mts,*.cts,*.tsx',
-};
 
 const sourcesPath = path.join(__dirname, '..', '..', '..', '..', 'rulingSources');
 const jsTsProjectsPath = path.join(sourcesPath, 'jsts', 'projects');
@@ -74,14 +71,15 @@ type RulingInput = {
 };
 
 const DEFAULT_EXCLUSIONS = [
-  '.*',
-  '*.d.ts',
-  'node_modules',
-  'bower_components',
-  'dist',
-  'vendor',
-  'external',
-];
+  '**/.*',
+  '**/.*/**',
+  '**/*.d.ts',
+  '**/node_modules/**',
+  '**/bower_components/**',
+  '**/dist/**',
+  '**/vendor/**',
+  '**/external/**',
+].map(pattern => new Minimatch(pattern, { nocase: true }));
 
 export function setupBeforeAll(projectFile: string) {
   const projectName = toUnixPath(projectFile).match(/.*\/([^\/]*)\.ruling\.test\.ts$/)?.[1];
@@ -109,94 +107,53 @@ export function setupBeforeAll(projectFile: string) {
  */
 export async function testProject(rulingInput: RulingInput) {
   const projectPath = path.join(jsTsProjectsPath, rulingInput.folder ?? rulingInput.name);
-  const exclusions = setExclusions(rulingInput.exclusions, rulingInput.testDir).concat(
-    DEFAULT_EXCLUSIONS,
-  );
+  const exclusions = setExclusions(rulingInput.exclusions, rulingInput.testDir);
 
-  const files = getProjectFiles(rulingInput, projectPath, exclusions);
+  const [jsTsFiles, htmlFiles, yamlFiles] = getProjectFiles(rulingInput, projectPath, exclusions);
 
   const payload: ProjectAnalysisInput = {
     rules: rules as RuleConfig[],
     baseDir: projectPath,
-    files: files[PATTERNS.jsts],
+    files: jsTsFiles,
   };
 
   const jsTsResults = await analyzeProject(payload);
-  const htmlResults = await analyzeFiles(files[PATTERNS.html], analyzeHTML, HTML_LINTER_ID);
-  const yamlResults = await analyzeFiles(files[PATTERNS.yaml], analyzeYAML);
+  const htmlResults = await analyzeFiles(htmlFiles, analyzeHTML, HTML_LINTER_ID);
+  const yamlResults = await analyzeFiles(yamlFiles, analyzeYAML);
   const results = mergeIssues(jsTsResults, htmlResults, yamlResults);
 
-  writeResults(projectPath, rulingInput.name, results, files, actualPath);
+  writeResults(
+    projectPath,
+    rulingInput.name,
+    results,
+    [jsTsFiles, htmlFiles, yamlFiles],
+    actualPath,
+  );
 }
 
 function setExclusions(exclusions: string, testDir?: string) {
   const exclusionsArray = exclusions ? exclusions.split(',') : [];
   if (testDir && testDir !== '') {
-    exclusionsArray.push(testDir);
+    exclusionsArray.push(...testDir.split(',').map(dir => `${dir}/**/*`));
   }
-  return exclusionsArray;
+  const exclusionsGlob = stringToGlob(exclusionsArray.map(pattern => pattern.trim()));
+  return exclusionsGlob;
+
+  function stringToGlob(patterns: string[]): Minimatch[] {
+    return patterns.map(pattern => new Minimatch(pattern, { nocase: true, matchBase: true }));
+  }
 }
 
-function getProjectFiles(rulingInput: RulingInput, projectPath: string, exclusions: string[]) {
-  const files = {};
-  for (const lang of Object.values(PATTERNS)) {
-    files[lang] = {};
-  }
-  getFiles(files, projectPath, exclusions, 'MAIN');
+function getProjectFiles(rulingInput: RulingInput, projectPath: string, exclusions: Minimatch[]) {
+  const [jsTsFiles, htmlFiles, yamlFiles] = getFiles(projectPath, exclusions);
 
   if (rulingInput.testDir != null) {
     const testFolder = path.join(projectPath, rulingInput.testDir);
-    getFiles(files, testFolder, exclusions, 'TEST');
+    getFiles(testFolder, exclusions, jsTsFiles, htmlFiles, yamlFiles, 'TEST');
   }
-  return files;
+  return [jsTsFiles, htmlFiles, yamlFiles];
 }
 
-function getFiles(
-  result: { [key: string]: JsTsFiles },
-  projectPath: string,
-  exclusions: string[],
-  fileType: FileType,
-) {
-  const files = FileFinder.searchFiles(
-    projectPath,
-    true,
-    [
-      { pattern: PATTERNS.html, parser: (_, contents) => contents },
-      { pattern: PATTERNS.yaml, parser: (_, contents) => contents },
-      { pattern: PATTERNS.jsts, parser: (_, contents) => contents },
-    ],
-    exclusions,
-  );
-
-  for (const [lang, filesDB] of Object.entries(files)) {
-    switch (lang) {
-      case PATTERNS.html:
-      case PATTERNS.yaml:
-        for (const [_, files] of filesDB) {
-          files.forEach(file => {
-            result[lang][file.filename] = {
-              fileType,
-              fileContent: file.contents as string,
-              language: 'js',
-            };
-          });
-        }
-        break;
-      case PATTERNS.jsts:
-        for (const [_, files] of filesDB) {
-          files.forEach(file => {
-            if (accept(file.filename, file.contents as string)) {
-              result[lang][file.filename] = {
-                fileType,
-                fileContent: file.contents as string,
-                language: getLanguage(file.filename, file.contents as string),
-              };
-            }
-          });
-        }
-    }
-  }
-}
 async function analyzeFiles(
   files: JsTsFiles,
   analyzer: (payload: AnalysisInput) => Promise<any>,
@@ -254,4 +211,52 @@ function createParsingError({
       },
     ],
   };
+}
+
+/**
+ * Stores in `acc` all the JS/TS files in the given `dir`,
+ * ignoring the given `exclusions` and assigning the given `type`
+ */
+function getFiles(
+  dir: string,
+  exclusions: Minimatch[],
+  jsTsFiles: JsTsFiles = {},
+  htmlFiles: JsTsFiles = {},
+  yamlFiles: JsTsFiles = {},
+  type: FileType = 'MAIN',
+) {
+  const prefixLength = toUnixPath(dir).length + 1;
+  const files = fs.readdirSync(dir, { recursive: true, withFileTypes: true });
+  for (const file of files) {
+    const absolutePath = toUnixPath(path.join(file.path, file.name));
+    if (!file.isFile()) continue;
+    if (isExcluded(absolutePath.substring(prefixLength), exclusions)) continue;
+    if (isExcluded(absolutePath, DEFAULT_EXCLUSIONS)) continue;
+    const fileContent = fs.readFileSync(absolutePath, 'utf8');
+    const language = findLanguage(absolutePath, fileContent);
+    if (!language) continue;
+
+    if (isHtmlFile(absolutePath)) {
+      htmlFiles[absolutePath] = { fileType: type, fileContent, language };
+    } else if (isYamlFile(absolutePath)) {
+      yamlFiles[absolutePath] = { fileType: type, fileContent, language };
+    } else {
+      if (!accept(absolutePath, fileContent)) continue;
+      jsTsFiles[absolutePath] = { fileType: type, fileContent, language };
+    }
+  }
+  return [jsTsFiles, htmlFiles, yamlFiles];
+
+  function findLanguage(filePath: string, contents: string) {
+    if (isTsFile(filePath, contents)) {
+      return 'ts';
+    }
+    if (isJsFile(filePath)) {
+      return 'js';
+    }
+  }
+
+  function isExcluded(filePath: string, exclusions: Minimatch[]) {
+    return exclusions.some(exclusion => exclusion.match(filePath));
+  }
 }
