@@ -115,7 +115,7 @@ fast_ruling_task:
     - cd ..
     - ln -s $SONAR_JS_REPO/its/sources/ rulingSources
     - cd $SONAR_JS_REPO
-    - npx jest.config.js packages/ruling/tests/jsTsRuling.test.ts
+    - ./node_modules/.bin/jest packages/ruling/tests/jsTsRuling.test.ts
   cleanup_before_cache_script: cleanup_maven_repository
   on_failure:
     diff_artifacts:
