@@ -9,7 +9,7 @@ ARG DISTRO=linux-x64
 
 #RUN apt-get update
 #RUN apt-get install curl --yes && apt-get clean cache
-RUN curl -o node.tar.gz -fsSL "https://nodejs.org/dist/v$}/node-v${NODE_VERSION}-linux-x64.tar.gz"
+RUN curl -o node.tar.gz -fsSL "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.gz"
 RUN mkdir -p /usr/local/lib/nodejs
 RUN tar -xJvf node.tar.gz -C /usr/local/lib/nodejs
 
