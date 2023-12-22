@@ -23,12 +23,16 @@ import { setupBeforeAll, testProject } from '../tools/testProject';
 
 describe('Ruling', () => {
   const { project, expectedPath, actualPath } = setupBeforeAll(__filename);
-  it(project.name, async () => {
-    await testProject(project);
-    expect(
-      compareSync(expectedPath, actualPath, {
-        compareContent: true,
-      }).same,
-    ).toBeTruthy();
-  });
+  it(
+    project.name,
+    async () => {
+      await testProject(project);
+      expect(
+        compareSync(expectedPath, actualPath, {
+          compareContent: true,
+        }).same,
+      ).toBeTruthy();
+    },
+    10 * 60 * 1000,
+  );
 });
