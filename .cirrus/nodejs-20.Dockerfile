@@ -15,4 +15,4 @@ RUN mkdir -p ~/nodejs
 RUN tar -xzvf node.tar.gz -C ~/nodejs
 RUN echo "NODE_VERSION=20.10.0" >> ~/.profile
 RUN echo "DISTRO=linux-x64" >> ~/.profile
-RUN echo "export PATH=~/nodejs/node-${NODE_VERSION}-${DISTRO}/bin:${PATH}" >> ~/.profile
+RUN echo "export PATH=~/nodejs/node-v${NODE_VERSION}-${DISTRO}/bin:${PATH}" >> ~/.profile

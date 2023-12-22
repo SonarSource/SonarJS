@@ -112,8 +112,8 @@ fast_ruling_task:
     - echo $PATH
     - ls -l ~/
     - ls -l ~/nodejs/
-    - ls -l ~/nodejs/node-20.10.0-linux-x64/
-    - ls -l ~/nodejs/node-20.10.0-linux-x64/bin
+    - ls -l ~/nodejs/node-v20.10.0-linux-x64/
+    - ls -l ~/nodejs/node-v20.10.0-linux-x64/bin
     - node --version
     - source cirrus-env QA
     - source set_maven_build_version $BUILD_NUMBER
