@@ -112,9 +112,7 @@ fast_ruling_task:
     - source set_maven_build_version $BUILD_NUMBER
     - npm run bridge:build:fast
     - export SONAR_JS_REPO=`pwd`
-    - cd ..
-    - ln -s $SONAR_JS_REPO/its/sources/ rulingSources
-    - cd $SONAR_JS_REPO
+    - ln -s $SONAR_JS_REPO/its/sources/ $SONAR_JS_REPO/../rulingSources
     - ./node_modules/.bin/jest packages/ruling/tests/jsTsRuling.test.ts
   cleanup_before_cache_script: cleanup_maven_repository
   on_failure:
