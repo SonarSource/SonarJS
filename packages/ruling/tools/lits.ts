@@ -19,12 +19,9 @@
  */
 import * as fs from 'fs';
 import * as path from 'path';
-import { Issue, JsTsFiles, ProjectAnalysisOutput } from '@sonar/jsts';
-import { JsTsLanguage } from '@sonar/shared';
-
-const eslintIdToSonarId = JSON.parse(
-  fs.readFileSync(path.join(__dirname, 'data', 'eslint-to-sonar-id.json'), 'utf8'),
-);
+import { Issue, JsTsFiles, ProjectAnalysisOutput } from '../../jsts/src';
+import { JsTsLanguage } from '../../shared/src';
+import eslintIdToSonarId from '../data/eslint-to-sonar-id.json';
 
 type LitsFormattedResult = {
   issues: {
@@ -47,10 +44,9 @@ export function writeResults(
   projectName: string,
   results: ProjectAnalysisOutput,
   fileSet: [JsTsFiles, JsTsFiles, JsTsFiles],
-  isJsTs: boolean = true,
-  baseDir: string = path.join(__dirname, 'actual'),
+  actualPath: string,
 ) {
-  const targetProjectPath = path.join(baseDir, isJsTs ? 'jsts' : 'css', projectName);
+  const targetProjectPath = path.join(actualPath, projectName);
   try {
     fs.rmSync(targetProjectPath, { recursive: true });
   } catch {}
