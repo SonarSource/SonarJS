@@ -49,7 +49,7 @@ export async function analyzeWithWatchProgram(
     const filenames = options.rootNames;
     for (const filename of filenames) {
       // only analyze files which are requested
-      if (files[filename]) {
+      if (files[filename] && pendingFiles.has(filename)) {
         results.files[filename] = analyzeFile({
           filePath: filename,
           fileContent: files[filename].fileContent ?? (await readFile(filename)),

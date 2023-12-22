@@ -27,7 +27,9 @@ import { EMPTY_JSTS_ANALYSIS_OUTPUT } from '../../../../bridge/src/errors';
  */
 export function analyzeFile(input: JsTsAnalysisInput) {
   try {
-    return analyzeJSTS(input, input.language!);
+    const result = analyzeJSTS(input, input.language!);
+    result.language = input.language;
+    return result;
   } catch (e) {
     return {
       parsingError: {

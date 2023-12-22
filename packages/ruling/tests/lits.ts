@@ -19,8 +19,7 @@
  */
 import * as fs from 'fs';
 import * as path from 'path';
-import { Issue, ProjectAnalysisOutput } from '@sonar/jsts';
-import { isJsFile } from './tools/languages';
+import { JsTsAnalysisOutput, ProjectAnalysisOutput } from '@sonar/jsts';
 
 const eslintIdToSonarId = JSON.parse(
   fs.readFileSync(path.join(__dirname, 'data', 'eslint-to-sonar-id.json'), 'utf8'),
@@ -93,7 +92,7 @@ function transformResults(projectPath: string, project: string, results: Project
   };
   for (const [filename, fileData] of Object.entries(results.files)) {
     const filenamePathInProject = retrieveFilename(projectPath.length + 1, filename);
-    processIssues(litsResult, `${project}:${filenamePathInProject}`, fileData.issues);
+    processIssues(litsResult, `${project}:${filenamePathInProject}`, fileData);
   }
   return litsResult;
 
@@ -104,17 +103,14 @@ function transformResults(projectPath: string, project: string, results: Project
   function processIssues(
     result: LitsFormattedResult,
     projectWithFilename: string,
-    issues: Issue[],
+    analysisOutput: JsTsAnalysisOutput,
   ) {
-    for (const issue of issues) {
+    for (const issue of analysisOutput.issues) {
       const ruleId = issue.ruleId;
       if (result.issues[ruleId] === undefined) result.issues[ruleId] = { js: {}, ts: {} };
-      if (result.issues[ruleId][isJs(projectWithFilename)][projectWithFilename] === undefined)
-        result.issues[ruleId][isJs(projectWithFilename)][projectWithFilename] = [];
-      result.issues[ruleId][isJs(projectWithFilename)][projectWithFilename].push(issue.line);
+      if (result.issues[ruleId][analysisOutput.language][projectWithFilename] === undefined)
+        result.issues[ruleId][analysisOutput.language][projectWithFilename] = [];
+      result.issues[ruleId][analysisOutput.language][projectWithFilename].push(issue.line);
     }
-  }
-  function isJs(filename: string) {
-    return isJsFile(filename) ? 'js' : 'ts';
   }
 }
