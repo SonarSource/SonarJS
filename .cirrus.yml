@@ -96,7 +96,7 @@ fast_ruling_task:
   #<<: *ONLY_SONARSOURCE_QA
   eks_container:
     <<: *CONTAINER_DEFINITION
-    dockerfile: .cirrus/nodejs-20.Dockerfile
+    dockerfile: .cirrus/nodejs.Dockerfile
     docker_arguments:
       CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
     cpu: 15
@@ -108,8 +108,6 @@ fast_ruling_task:
   submodules_script:
     - git submodule update --init
   ruling_script:
-    - source ~/.profile
-    - node --version
     - source cirrus-env QA
     - source set_maven_build_version $BUILD_NUMBER
     - npm run bridge:build:fast
