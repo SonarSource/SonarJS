@@ -43,7 +43,7 @@ export function writeResults(
   projectPath: string,
   projectName: string,
   results: ProjectAnalysisOutput,
-  fileSet: { [key: string]: JsTsFiles },
+  fileSet: [JsTsFiles, JsTsFiles, JsTsFiles],
   actualPath: string,
 ) {
   const targetProjectPath = path.join(actualPath, projectName);
@@ -88,7 +88,7 @@ function transformResults(
   projectPath: string,
   project: string,
   results: ProjectAnalysisOutput,
-  fileSet: { [key: string]: JsTsFiles },
+  fileSet: [JsTsFiles, JsTsFiles, JsTsFiles],
 ) {
   const litsResult: LitsFormattedResult = {
     issues: {},
@@ -96,7 +96,7 @@ function transformResults(
   for (const [filename, fileData] of Object.entries(results.files)) {
     const filenamePathInProject = retrieveFilename(projectPath.length + 1, filename);
     let language;
-    for (const files of Object.values(fileSet)) {
+    for (const files of fileSet) {
       if (files.hasOwnProperty(filename)) {
         language = files[filename].language;
         break;
