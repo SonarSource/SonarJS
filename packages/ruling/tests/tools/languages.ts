@@ -31,6 +31,7 @@ const JS_EXTENSIONS = [
   ...YAML_EXTENSIONS,
 ];
 const TS_EXTENSIONS = ['.ts', '.mts', '.cts', '.tsx'];
+const VUE_TS_REGEX = /<script[^>]+lang=['"]ts['"][^>]*>/;
 
 export function isHtmlFile(filePath: string) {
   return HTML_EXTENSIONS.includes(path.posix.extname(filePath).toLowerCase());
@@ -44,6 +45,9 @@ export function isJsFile(filePath: string) {
   return JS_EXTENSIONS.includes(path.posix.extname(filePath).toLowerCase());
 }
 
-export function isTsFile(filePath: string) {
-  return TS_EXTENSIONS.includes(path.posix.extname(filePath).toLowerCase());
+export function isTsFile(filePath: string, contents: string) {
+  const extension = path.posix.extname(filePath).toLowerCase();
+  return (
+    TS_EXTENSIONS.includes(extension) || (extension.endsWith('.vue') && VUE_TS_REGEX.test(contents))
+  );
 }

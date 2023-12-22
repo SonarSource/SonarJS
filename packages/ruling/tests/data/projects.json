@@ -136,7 +136,7 @@
   },
   {
     "name": "ocanvas",
-    "testDir": "",
+    "testDir": null,
     "exclusions": "build/**"
   },
   {

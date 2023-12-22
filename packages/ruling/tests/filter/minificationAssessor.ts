@@ -48,6 +48,9 @@ function hasExcessiveAverageLineLength(
 
 function getAverageLineLength(input: string) {
   const lines = input.split('\n');
+  if (lines[lines.length - 1] === '') {
+    lines.pop();
+  }
   const totalLength = lines.reduce((acc, line) => acc + line.length, 0);
   return totalLength / lines.length;
 }

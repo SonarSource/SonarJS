@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-const DEFAULT_MAX_FILE_SIZE_KB = 1024;
+const DEFAULT_MAX_FILE_SIZE_KB = 4000;
 
 export function sizeAssessor(input: string, maxSize: number = DEFAULT_MAX_FILE_SIZE_KB) {
-  return getBytes(input) <= maxSize * 1024;
+  return getBytes(input) <= maxSize * 1000;
 
   function getBytes(input: string) {
     return Buffer.byteLength(input, 'utf8');
