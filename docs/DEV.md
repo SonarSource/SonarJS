@@ -39,22 +39,23 @@ mvn clean install
 The "Ruling Test" is an integration test which launches the analysis of a large code base (stored as submodules), saves the issues created by the plugin in report files, and then compares those results to the set of expected issues (stored as JSON files).
 
 ```sh
+npm run ruling
 cd its/ruling
-mvn verify -Dtest=JsTsRulingTest -Dmaven.test.redirectTestOutputToFile=false
 mvn verify -Dtest=CssRulingTest -Dmaven.test.redirectTestOutputToFile=false
 ```
 
 This test gives you the opportunity to examine the issues created by each rule and make sure that they are what you expect. You can inspect new/lost issues checking the SonarQube UI (use DEBUG mode and put a breakpoint on the assertion) at the end of analysis.
 
-If everything looks good to you, you can copy the file with the actual issues located at `its/ruling/target/actual/`
+If everything looks good to you, you can copy the file with the actual issues located at `packages/ruling/tests/actual/`
 into the directory with the expected issues `its/ruling/src/test/resources/expected/`.
 
-From `its/ruling/`:
+From the project root, run:
 
-- for JS/TS `cp -R target/actual/jsts/ src/test/expected/jsts`
+- for JS/TS `cp -R packages/ruling/tests/actual/jsts/ its/ruling/src/test/expected/jsts`
+  From `its/ruling/`:
 - for CSS `cp -R target/actual/css/ src/test/expected/css`
 
-You can review the Ruling difference by running `diff -rq src/test/expected/jsts target/actual/jsts` from `its/ruling`.
+You can review the Ruling difference by running `diff -rq its/ruling/src/test/expected/jsts packages/ruling/tests/target/actual/jsts`.
 
 To review the Ruling difference in SonarQube UI, put the breakpoint on `assertThat(...)` in `{JsTs/CSS}RulingTest.java` and open in the browser the orchestrated local SonarQube.
 Note that you can fix the port in `orchestrator.properties files`, e.g. `orchestrator.container.port=9100`.
