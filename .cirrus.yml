@@ -110,7 +110,7 @@ fast_ruling_task:
   ruling_script:
     - . ~/.profile
     - echo $PATH
-    - ls -l /usr/local/lib/nodejs/node-20.10.0-linux-x64/bin
+    - ls -l ~/nodejs/node-20.10.0-linux-x64/bin
     - node --version
     - source cirrus-env QA
     - source set_maven_build_version $BUILD_NUMBER
