@@ -109,11 +109,6 @@ fast_ruling_task:
     - git submodule update --init
   ruling_script:
     - . ~/.profile
-    - echo $PATH
-    - ls -l ~/
-    - ls -l ~/nodejs/
-    - ls -l ~/nodejs/node-v20.10.0-linux-x64/
-    - ls -l ~/nodejs/node-v20.10.0-linux-x64/bin
     - node --version
     - source cirrus-env QA
     - source set_maven_build_version $BUILD_NUMBER
