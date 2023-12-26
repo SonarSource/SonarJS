@@ -77,7 +77,7 @@ function transformResults(
   };
   for (const [filename, fileData] of Object.entries(results.files)) {
     const relativePath = getRelativePath(projectPath.length + 1, filename);
-    const language = findFileLanguage(relativePath, fileSet);
+    const language = findFileLanguage(filename, fileSet);
     processIssues(litsResult, `${project}:${relativePath}`, fileData.issues, language);
   }
   return litsResult;

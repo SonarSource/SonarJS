@@ -22,6 +22,7 @@ import { embeddedInput } from '../../../jsts/tests/tools';
 import { parseHTML } from '../../src/parser';
 import { setContext } from '@sonar/shared';
 import { analyzeEmbedded } from '@sonar/jsts';
+// importing this from @sonar/jsts causes a resolution issue
 import { initializeLinter } from '../../../jsts/src/linter';
 
 describe('analyzeHTML', () => {

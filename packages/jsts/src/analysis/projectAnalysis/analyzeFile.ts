@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { analyzeJSTS, JsTsAnalysisInput, JsTsAnalysisOutput } from '../../';
-import { EMPTY_JSTS_ANALYSIS_OUTPUT } from '../../../../bridge/src/errors';
+import { analyzeJSTS, JsTsAnalysisInput } from '../../';
+import { parseParsingError } from '../../../../bridge/src/errors';
 
 /**
  * Safely analyze a JavaScript/TypeScript file wrapping raised exceptions in the output format
@@ -29,13 +29,6 @@ export function analyzeFile(input: JsTsAnalysisInput) {
   try {
     return analyzeJSTS(input, input.language!);
   } catch (e) {
-    return {
-      parsingError: {
-        message: e.message,
-        code: e.code,
-        line: e.data?.line,
-      },
-      ...EMPTY_JSTS_ANALYSIS_OUTPUT,
-    } as JsTsAnalysisOutput;
+    return parseParsingError(e);
   }
 }

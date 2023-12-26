@@ -37,17 +37,10 @@ export function errorMiddleware(
   response: express.Response,
   _next: express.NextFunction,
 ) {
-  const { code, message, stack, data } = err;
+  const { code, message, stack } = err;
   switch (code) {
     case ErrorCode.Parsing:
-      response.json({
-        parsingError: {
-          message,
-          code,
-          line: data?.line,
-        },
-        ...EMPTY_JSTS_ANALYSIS_OUTPUT,
-      });
+      response.json(parseParsingError(err));
       break;
     case ErrorCode.FailingTypeScript:
     case ErrorCode.LinterInitialization:
@@ -63,6 +56,21 @@ export function errorMiddleware(
       response.json({ error: message });
       break;
   }
+}
+
+export function parseParsingError(error: {
+  message: string;
+  code: ErrorCode;
+  data?: { line: number };
+}) {
+  return {
+    parsingError: {
+      message: error.message,
+      code: error.code,
+      line: error.data?.line,
+    },
+    ...EMPTY_JSTS_ANALYSIS_OUTPUT,
+  };
 }
 
 /**
