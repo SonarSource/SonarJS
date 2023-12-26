@@ -10,7 +10,7 @@
     "new-rule": "ts-node tools/newRule.ts",
     "ruling": "node tools/ruling-symlink.js && jest ./packages/ruling/tests/*.ruling.test.ts",
     "bridge:compile": "tsc -b packages profiling",
-    "bridge:test": "jest --coverage --testPathIgnorePatterns=/packages/ruling/tests/",
+    "bridge:test": "jest --maxWorkers=50% --coverage --testPathIgnorePatterns=/packages/ruling/tests/",
     "bridge:build": "npm run bridge:build:fast && npm run bridge:test",
     "bridge:build:fast": "npm ci && npm run format && npm run _:bridge:clear && npm run bridge:compile",
     "bbf": "npm run bridge:build:fast",
