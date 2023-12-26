@@ -45,7 +45,7 @@ import projects from '../data/projects.json';
  */
 import rules from '../data/rules.json';
 
-const sourcesPath = path.join(__dirname, '..', '..', '..', '..', 'rulingSources');
+const sourcesPath = path.join(__dirname, '..', '..', '..', '..', 'sonarjs-ruling-sources');
 const jsTsProjectsPath = path.join(sourcesPath, 'jsts', 'projects');
 
 const expectedPath = path.join(
