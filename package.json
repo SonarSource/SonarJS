@@ -8,7 +8,7 @@
     "build:fast": "npm run bridge:build:fast && npm run _:plugin:prepare-bridge && npm run _:plugin-fetch-node && npm run plugin:build:fast",
     "bf": "npm run build:fast",
     "new-rule": "ts-node tools/newRule.ts",
-    "ruling": "jest ./packages/ruling/tests/*.ruling.test.ts",
+    "ruling": "node tools/ruling-symlink.js && jest ./packages/ruling/tests/*.ruling.test.ts",
     "bridge:compile": "tsc -b packages profiling",
     "bridge:test": "jest --testPathIgnorePatterns=/packages/ruling/tests/",
     "bridge:test-with-coverage": "jest --maxWorkers=50% --coverage --testPathIgnorePatterns=packages/ruling/tests/*.ruling.test.ts",
