@@ -49,7 +49,7 @@ export interface JsTsAnalysisInput extends AnalysisInput {
 
 export interface ParsingError {
   message: string;
-  line: number;
+  line?: number;
   code: ErrorCode;
 }
 

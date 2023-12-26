@@ -215,7 +215,7 @@ function mergeResults(...resultsSet: ProjectAnalysisOutput[]) {
 function createParsingIssue({
   data: { line, message },
 }: {
-  data: { line: number; message: string };
+  data: { line?: number; message: string };
 }) {
   return {
     issues: [
