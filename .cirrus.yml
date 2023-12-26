@@ -100,7 +100,7 @@ fast_ruling_task:
     docker_arguments:
       CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
     cpu: 15
-    memory: 24G
+    memory: 32G
   env:
     CIRRUS_CLONE_DEPTH: 10
     SONARSOURCE_QA: true
