@@ -42,9 +42,9 @@ import { PACKAGE_JSON, PACKAGE_JSON_PARSER, setPackageJsons } from '../../depend
 export async function analyzeProject(input: ProjectAnalysisInput): Promise<ProjectAnalysisOutput> {
   const {
     rules,
-    environments,
-    globals,
     baseDir,
+    environments = DEFAULT_ENVIRONMENTS,
+    globals = DEFAULT_GLOBALS,
     exclusions = [],
     isSonarlint = false,
     maxFilesForTypeChecking,
@@ -64,7 +64,7 @@ export async function analyzeProject(input: ProjectAnalysisInput): Promise<Proje
   }
   const pendingFiles: Set<string> = new Set(inputFilenames);
   const watchProgram = input.isSonarlint || hasVueFile(inputFilenames);
-  initializeLinter(rules, environments ?? DEFAULT_ENVIRONMENTS, globals ?? DEFAULT_GLOBALS);
+  initializeLinter(rules, environments, globals);
   searchTSConfigJsonAndPackageJsonFiles(baseDir, exclusions);
   const tsConfigs = loopTSConfigs(
     inputFilenames,
