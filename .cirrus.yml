@@ -248,7 +248,7 @@ plugin_qa_win_sonarlint_task:
     - mvn -f its/plugin/sonarlint-tests/pom.xml -Dsonar.runtimeVersion=${SQ_VERSION} -B -e -V verify surefire-report:report
   cleanup_before_cache_script: cleanup_maven_repository
 
-fast_ruling_task:
+js_ts_ruling_task:
   depends_on:
     - build
   <<: *ONLY_SONARSOURCE_QA
@@ -273,7 +273,7 @@ fast_ruling_task:
     - npm run ruling
   cleanup_before_cache_script: cleanup_maven_repository
 
-ruling_task:
+css_ruling_task:
   depends_on:
     - build
   <<: *ONLY_SONARSOURCE_QA
