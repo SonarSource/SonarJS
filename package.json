@@ -10,7 +10,7 @@
     "new-rule": "ts-node tools/newRule.ts",
     "ruling": "jest ./packages/ruling/tests/*.ruling.test.ts",
     "bridge:compile": "tsc -b packages profiling",
-    "bridge:test": "jest --testPathIgnorePatterns=packages/ruling/tests/*.ruling.test.ts",
+    "bridge:test": "jest --testPathIgnorePatterns=/packages/ruling/tests/",
     "bridge:test-with-coverage": "jest --maxWorkers=50% --coverage --testPathIgnorePatterns=packages/ruling/tests/*.ruling.test.ts",
     "bridge:build": "npm run bridge:build:fast && npm run bridge:test-with-coverage",
     "bridge:build:fast": "npm ci && npm run format && npm run _:bridge:clear && npm run bridge:compile",
