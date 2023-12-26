@@ -102,7 +102,7 @@ fast_ruling_task:
     cpu: 15
     memory: 32G
   env:
-    CIRRUS_CLONE_DEPTH: 10
+    CIRRUS_CLONE_DEPTH: 1
     SONARSOURCE_QA: true
   <<: *MAVEN_CACHE
   submodules_script:
