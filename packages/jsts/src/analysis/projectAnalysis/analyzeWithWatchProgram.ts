@@ -29,8 +29,8 @@ import { readFile } from '@sonar/shared';
 
 /**
  * Analyzes JavaScript / TypeScript files using TypeScript watchPrograms. Only the files
- * belonging to the given tsconfig.json files will be analyzed. We rely on typescript-eslint
- * programCreation for this.
+ * belonging to the given tsconfig.json files will be analyzed. We rely on the
+ * typescript-eslint programCreation for this.
  *
  * @param files the list of JavaScript / TypeScript files to analyze.
  * @param tsConfigs list of tsconfig.json files to use for the analysis

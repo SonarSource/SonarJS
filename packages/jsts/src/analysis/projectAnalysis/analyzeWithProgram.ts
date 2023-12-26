@@ -80,7 +80,7 @@ async function analyzeProgram(
     }
   }
   deleteProgram(programId);
-  //Analyze references as well
+
   for (const reference of projectReferences) {
     await analyzeProgram(files, reference, results, pendingFiles);
   }
