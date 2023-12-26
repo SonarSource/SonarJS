@@ -23,6 +23,10 @@ import { Issue, JsTsFiles, ProjectAnalysisOutput } from '../../jsts/src';
 import { JsTsLanguage } from '../../shared/src';
 import eslintIdToSonarId from '../data/eslint-to-sonar-id.json';
 
+/**
+ * LITS formatted results with extra intermediate key js/ts
+ * to define target file javascript-Sxxxx.json or typescript-Sxxxx.json
+ */
 type LitsFormattedResult = {
   issues: {
     [ruleId: string]: {
@@ -43,7 +47,7 @@ export function writeResults(
   projectPath: string,
   projectName: string,
   results: ProjectAnalysisOutput,
-  fileSet: [JsTsFiles, JsTsFiles, JsTsFiles],
+  fileSet: JsTsFiles[],
   actualPath: string,
 ) {
   const targetProjectPath = path.join(actualPath, projectName);
@@ -60,57 +64,35 @@ export function writeResults(
 }
 
 /**
- * Write the issues LITS style, if there are any
- */
-function writeIssues(projectDir: string, ruleId: string, issues, isJs: boolean = true) {
-  // we don't write empty files
-  if (Object.keys(issues).length === 0) return;
-  const issueFilename = path.join(
-    projectDir,
-    `${isJs ? 'javascript' : 'typescript'}-${
-      ruleId === 'S124' ? (isJs ? 'CommentRegexTest' : 'CommentRegexTestTS') : ruleId
-    }.json`,
-  );
-  fs.writeFileSync(
-    issueFilename,
-    // we remove both:
-    // - 1 space before a newline (for closing bracket lines: " ]")
-    // - 2 spaces before a newline (for line numbers)
-    // and we sort the keys
-    JSON.stringify(issues, Object.keys(issues).sort(), 1).replaceAll(/\n\s+/g, '\n') + '\n',
-  );
-}
-
-/**
  * Transform ProjectAnalysisOutput to LITS format
  */
 function transformResults(
   projectPath: string,
   project: string,
   results: ProjectAnalysisOutput,
-  fileSet: [JsTsFiles, JsTsFiles, JsTsFiles],
+  fileSet: JsTsFiles[],
 ) {
   const litsResult: LitsFormattedResult = {
     issues: {},
   };
   for (const [filename, fileData] of Object.entries(results.files)) {
-    const filenamePathInProject = retrieveFilename(projectPath.length + 1, filename);
-    let language;
-    for (const files of fileSet) {
-      if (files.hasOwnProperty(filename)) {
-        language = files[filename].language;
-        break;
-      }
-    }
-    if (!language) {
-      throw Error(`No language set for ${filename}`);
-    }
-    processIssues(litsResult, `${project}:${filenamePathInProject}`, fileData.issues, language);
+    const relativePath = getRelativePath(projectPath.length + 1, filename);
+    const language = findFileLanguage(relativePath, fileSet);
+    processIssues(litsResult, `${project}:${relativePath}`, fileData.issues, language);
   }
   return litsResult;
 
-  function retrieveFilename(prefixLength: number, filename: string) {
+  function getRelativePath(prefixLength: number, filename: string) {
     return filename.substring(prefixLength);
+  }
+
+  function findFileLanguage(filename: string, fileSet: JsTsFiles[]) {
+    for (const files of fileSet) {
+      if (files.hasOwnProperty(filename)) {
+        return files[filename].language;
+      }
+    }
+    throw Error(`No language set for ${filename}`);
   }
 
   function processIssues(
@@ -125,6 +107,33 @@ function transformResults(
       if (result.issues[ruleId][language][projectWithFilename] === undefined)
         result.issues[ruleId][language][projectWithFilename] = [];
       result.issues[ruleId][language][projectWithFilename].push(issue.line);
+    }
+  }
+}
+
+/**
+ * Write the issues LITS style, if there are any
+ */
+function writeIssues(projectDir: string, ruleId: string, issues, isJs: boolean = true) {
+  // we don't write empty files
+  if (Object.keys(issues).length === 0) return;
+  const issueFilename = path.join(
+    projectDir,
+    `${isJs ? 'javascript' : 'typescript'}-${handleS124(ruleId, isJs)}.json`,
+  );
+  fs.writeFileSync(
+    issueFilename,
+    // we spaces at the beginning of lines
+    // and we sort the keys
+    JSON.stringify(issues, Object.keys(issues).sort(), 1).replaceAll(/\n\s+/g, '\n') + '\n',
+  );
+
+  function handleS124(ruleId: string, isJs: boolean = true) {
+    if (ruleId !== 'S124') return ruleId;
+    if (isJs) {
+      return 'CommentRegexTest';
+    } else {
+      return 'CommentRegexTestTS';
     }
   }
 }

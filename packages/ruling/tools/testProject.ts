@@ -110,7 +110,7 @@ export async function testProject(rulingInput: RulingInput) {
   const projectPath = path.join(jsTsProjectsPath, rulingInput.folder ?? rulingInput.name);
   const exclusions = setExclusions(rulingInput.exclusions, rulingInput.testDir);
 
-  const [jsTsFiles, htmlFiles, yamlFiles] = getProjectFiles(rulingInput, projectPath, exclusions);
+  const { jsTsFiles, htmlFiles, yamlFiles } = getProjectFiles(rulingInput, projectPath, exclusions);
 
   const payload: ProjectAnalysisInput = {
     rules: rules as RuleConfig[],
@@ -158,7 +158,7 @@ function getProjectFiles(rulingInput: RulingInput, projectPath: string, exclusio
     const testFolder = path.join(projectPath, rulingInput.testDir);
     getFiles(testFolder, exclusions, jsTsFiles, htmlFiles, yamlFiles, 'TEST');
   }
-  return [jsTsFiles, htmlFiles, yamlFiles];
+  return { jsTsFiles, htmlFiles, yamlFiles };
 }
 
 /**
