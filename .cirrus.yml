@@ -309,8 +309,8 @@ promote_task:
     - plugin_qa_sq_dev
     - plugin_qa_win
     - plugin_qa_win_sonarlint
-    - ruling
-    - fast_ruling
+    - css_ruling
+    - js_ts_ruling
     - analyze
   <<: *ONLY_SONARSOURCE_QA
   eks_container:
