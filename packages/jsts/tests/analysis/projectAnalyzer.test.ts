@@ -20,12 +20,7 @@
 
 import path from 'path';
 import { File, FileFinder, setContext, toUnixPath } from '@sonar/shared';
-import {
-  analyzeProject,
-  getAllTSConfigJsons,
-  ProjectAnalysisInput,
-  RuleConfig,
-} from '@sonar/jsts';
+import { analyzeProject, getAllTSConfigJsons, ProjectAnalysisInput, RuleConfig } from '@sonar/jsts';
 
 const defaultRules: RuleConfig[] = [
   { key: 'no-duplicate-in-composite', configurations: [], fileTypeTarget: ['MAIN'] },
@@ -72,7 +67,7 @@ function prepareInput(files: Map<string, File<void>[]>): ProjectAnalysisInput {
 
 const fixtures = path.join(__dirname, 'fixtures');
 
-describe('analyzeJSTS', () => {
+describe('analyzeProject', () => {
   beforeEach(() => {
     jest.resetModules();
     getAllTSConfigJsons()?.clear();
@@ -84,7 +79,7 @@ describe('analyzeJSTS', () => {
     });
   });
 
-  it('should analyze whole project with program', async () => {
+  it('should analyze the whole project with program', async () => {
     const files = FileFinder.searchFiles(fixtures, false, ['*.js,*.ts'], []);
     const result = await analyzeProject(
       prepareInput(files?.['*.js,*.ts'] as Map<string, File<void>[]>),
@@ -99,7 +94,7 @@ describe('analyzeJSTS', () => {
     expect(result.meta.programsCreated.length).toEqual(3);
   });
 
-  it('should analyze whole project with watch program', async () => {
+  it('should analyze the whole project with watch program', async () => {
     const files = FileFinder.searchFiles(fixtures, false, ['*.js,*.ts,*.vue'], []);
     const result = await analyzeProject(
       prepareInput(files?.['*.js,*.ts,*.vue'] as Map<string, File<void>[]>),
