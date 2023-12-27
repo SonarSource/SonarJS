@@ -101,6 +101,6 @@ function searchTSConfigJsonAndPackageJsonFiles(baseDir: string, exclusions: stri
     },
     exclusions,
   );
-  setPackageJsons(packageJsons as Map<string, File<PackageJson>[]>);
-  setTSConfigJsons(tsConfigs as Map<string, File<void>[]>);
+  setPackageJsons(packageJsons as Record<string, File<PackageJson>[]>);
+  setTSConfigJsons(tsConfigs as Record<string, File<void>[]>);
 }

@@ -20,7 +20,7 @@
 import { check } from '../tools';
 import { rule } from './';
 import path from 'path';
-import { getAllPackageJsons, searchPackageJsonFiles } from '@sonar/jsts';
+import { clearPackageJsons, searchPackageJsonFiles } from '@sonar/jsts';
 
 const sonarId = path.basename(__dirname);
 
@@ -29,7 +29,7 @@ describe('Rule S1874', () => {
     searchPackageJsonFiles(__dirname, []);
   });
   afterAll(() => {
-    getAllPackageJsons().clear();
+    clearPackageJsons();
   });
   check(sonarId, rule, __dirname);
 });

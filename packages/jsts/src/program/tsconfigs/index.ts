@@ -26,18 +26,22 @@ export const TSCONFIG_JSON = 'tsconfig.json';
 
 // Would need to parse jsonc (different spec from json, using jsonc-parser from Microsoft)
 //import { TsConfigJson } from 'type-fest';
-let TSConfigJsonsByBaseDir: Map<string, File<void>[]>;
+let TSConfigJsonsByBaseDir: Record<string, File<void>[]>;
 
 export function searchTSConfigJsonFiles(baseDir: string, exclusions: string[]) {
   const { tsConfigs } = searchFiles(baseDir, { tsConfigs: { pattern: TSCONFIG_JSON } }, exclusions);
-  TSConfigJsonsByBaseDir = tsConfigs as Map<string, File<void>[]>;
+  TSConfigJsonsByBaseDir = tsConfigs as Record<string, File<void>[]>;
 }
 
 export function getAllTSConfigJsons() {
   return TSConfigJsonsByBaseDir;
 }
 
-export function setTSConfigJsons(db: Map<string, File<void>[]>) {
+export function clearTSConfigJsons() {
+  TSConfigJsonsByBaseDir = {};
+}
+
+export function setTSConfigJsons(db: Record<string, File<void>[]>) {
   TSConfigJsonsByBaseDir = db;
 }
 
@@ -49,7 +53,7 @@ export async function* loopTSConfigs(
 ) {
   let emptyTsConfigs = true;
   if (TSConfigJsonsByBaseDir) {
-    for (const [, tsconfigs] of TSConfigJsonsByBaseDir) {
+    for (const tsconfigs of Object.values(TSConfigJsonsByBaseDir)) {
       for (const { filename: tsConfig } of tsconfigs) {
         emptyTsConfigs = false;
         yield tsConfig;

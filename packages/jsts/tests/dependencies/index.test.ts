@@ -20,11 +20,16 @@
 
 import path from 'path';
 import { toUnixPath } from '@sonar/shared';
-import { searchPackageJsonFiles, getAllPackageJsons, getNearestPackageJsons } from '@sonar/jsts';
+import {
+  searchPackageJsonFiles,
+  getAllPackageJsons,
+  getNearestPackageJsons,
+  clearPackageJsons,
+} from '@sonar/jsts';
 
 describe('initialize package.json files', () => {
   beforeEach(() => {
-    getAllPackageJsons()?.clear();
+    clearPackageJsons();
   });
 
   it('should find all package.json files', () => {
@@ -120,7 +125,7 @@ describe('initialize package.json files', () => {
       ),
     );
 
-    getAllPackageJsons().clear();
+    clearPackageJsons();
     searchPackageJsonFiles(baseDir, ['module*']);
     expect(getAllPackageJsons().size).toEqual(1);
     expect(getAllPackageJsons()).toEqual(

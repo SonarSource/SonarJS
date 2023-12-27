@@ -20,7 +20,7 @@
 
 import path from 'path';
 import { File, searchFiles, setContext, toUnixPath } from '@sonar/shared';
-import { analyzeProject, getAllTSConfigJsons, ProjectAnalysisInput, RuleConfig } from '@sonar/jsts';
+import { analyzeProject, clearTSConfigJsons, ProjectAnalysisInput, RuleConfig } from '@sonar/jsts';
 
 const defaultRules: RuleConfig[] = [
   { key: 'no-duplicate-in-composite', configurations: [], fileTypeTarget: ['MAIN'] },
@@ -44,9 +44,9 @@ const defaultRules: RuleConfig[] = [
   { key: 'no-unused-function-argument', configurations: [], fileTypeTarget: ['MAIN'] },
 ];
 
-function filesDBtoFilesInput(filesDB: Map<string, File<void>[]>) {
+function filesDBtoFilesInput(filesDB: Record<string, File<void>[]>) {
   const allFiles = {};
-  filesDB.forEach(files => {
+  Object.values(filesDB).forEach(files => {
     files.forEach(file => {
       allFiles[file.filename] = {
         fileType: 'MAIN',
@@ -57,7 +57,7 @@ function filesDBtoFilesInput(filesDB: Map<string, File<void>[]>) {
   return allFiles;
 }
 
-function prepareInput(files: Map<string, File<void>[]>): ProjectAnalysisInput {
+function prepareInput(files: Record<string, File<void>[]>): ProjectAnalysisInput {
   return {
     rules: defaultRules,
     baseDir: fixtures,
@@ -70,7 +70,7 @@ const fixtures = path.join(__dirname, 'fixtures');
 describe('analyzeProject', () => {
   beforeEach(() => {
     jest.resetModules();
-    getAllTSConfigJsons()?.clear();
+    clearTSConfigJsons();
     setContext({
       workDir: '/tmp/dir',
       shouldUseTypeScriptParserForJS: true,
@@ -81,7 +81,7 @@ describe('analyzeProject', () => {
 
   it('should analyze the whole project with program', async () => {
     const { files } = searchFiles(fixtures, { files: { pattern: '*.js,*.ts' } }, []);
-    const result = await analyzeProject(prepareInput(files as Map<string, File<void>[]>));
+    const result = await analyzeProject(prepareInput(files as Record<string, File<void>[]>));
     expect(result).toBeDefined();
 
     expect(result.files[toUnixPath(path.join(fixtures, 'parsing-error.js'))]).toMatchObject({
@@ -94,7 +94,7 @@ describe('analyzeProject', () => {
 
   it('should analyze the whole project with watch program', async () => {
     const { files } = searchFiles(fixtures, { files: { pattern: '*.js,*.ts,*.vue' } }, []);
-    const result = await analyzeProject(prepareInput(files as Map<string, File<void>[]>));
+    const result = await analyzeProject(prepareInput(files as Record<string, File<void>[]>));
     expect(result).toBeDefined();
 
     expect(result.files[toUnixPath(path.join(fixtures, 'parsing-error.js'))]).toMatchObject({

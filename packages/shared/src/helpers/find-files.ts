@@ -70,7 +70,7 @@ export interface File<T> {
  * filterId -> dirname -> files
  */
 type FilesByFilter = {
-  [filter: string]: Map<string, File<unknown>[]>;
+  [filter: string]: Record<string, File<unknown>[]>;
 };
 
 /**
@@ -89,14 +89,14 @@ export function searchFiles(rawDir: string, inclusionFilters: RawFilterMap, excl
 
   const result: FilesByFilter = {};
   for (const filterId of Object.keys(inclusionFilters)) {
-    result[filterId] = new Map();
+    result[filterId] = {};
   }
 
   const dirs = [dir];
   while (dirs.length) {
     const dir = dirs.shift()!;
     for (const filterId of Object.keys(compiledInclusionFilters)) {
-      result[filterId].set(dir, []);
+      result[filterId][dir] = [];
     }
     const files = fs.readdirSync(dir, { withFileTypes: true });
     for (const file of files) {
@@ -108,7 +108,7 @@ export function searchFiles(rawDir: string, inclusionFilters: RawFilterMap, excl
         dirs.push(filename);
       } else {
         for (const [filterId, filter] of Object.entries(compiledInclusionFilters)) {
-          filterAndParse(filename, filter, result[filterId].get(dir)!);
+          filterAndParse(filename, filter, result[filterId][dir]);
         }
       }
     }

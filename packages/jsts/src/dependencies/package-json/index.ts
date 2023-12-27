@@ -38,7 +38,7 @@ const dirCache: Map<string, Set<string>> = new Map();
  */
 const cache: Map<string, Set<string>> = new Map();
 
-let PackageJsonsByBaseDir: Map<string, File<PackageJson>[]>;
+let PackageJsonsByBaseDir: Record<string, File<PackageJson>[]>;
 
 export function searchPackageJsonFiles(baseDir: string, exclusions: string[]) {
   const { packageJsons } = searchFiles(
@@ -52,14 +52,18 @@ export function searchPackageJsonFiles(baseDir: string, exclusions: string[]) {
     exclusions,
   );
 
-  PackageJsonsByBaseDir = packageJsons as Map<string, File<PackageJson>[]>;
+  PackageJsonsByBaseDir = packageJsons as Record<string, File<PackageJson>[]>;
 }
 
 export function getAllPackageJsons() {
   return PackageJsonsByBaseDir;
 }
 
-export function setPackageJsons(db: Map<string, File<PackageJson>[]>) {
+export function clearPackageJsons() {
+  PackageJsonsByBaseDir = {};
+}
+
+export function setPackageJsons(db: Record<string, File<PackageJson>[]>) {
   PackageJsonsByBaseDir = db;
 }
 
@@ -105,12 +109,12 @@ export function getNearestPackageJsons(file: string) {
     return [];
   }
   const results: File<PackageJson>[] = [];
-  if (PackageJsonsByBaseDir.size === 0) {
+  if (Object.keys(PackageJsonsByBaseDir).length === 0) {
     return results;
   }
   let currentDir = path.posix.dirname(path.posix.normalize(toUnixPath(file)));
   do {
-    const packageJson = PackageJsonsByBaseDir.get(currentDir);
+    const packageJson = PackageJsonsByBaseDir[currentDir];
     if (packageJson?.length) {
       results.push(...packageJson);
     }
