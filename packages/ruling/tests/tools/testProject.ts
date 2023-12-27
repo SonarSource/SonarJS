@@ -110,8 +110,9 @@ export function setupBeforeAll(projectFile: string) {
   };
 }
 function getProjectName(testFilePath: string) {
+  const SUFFIX = '.ruling.test.ts';
   const filename = path.basename(testFilePath);
-  return filename.split('.')[0];
+  return filename.substring(0, filename.length - SUFFIX.length);
 }
 
 /**
