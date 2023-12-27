@@ -44,21 +44,28 @@ import { Minimatch } from 'minimatch';
 // Patterns enforced to be ignored no matter what the user configures on sonar.properties
 const IGNORED_PATTERNS = ['.scannerwork'];
 
+type ParserFunction = (filename: string, contents: string | null) => unknown;
+type RawFilter = {
+  pattern: string;
+  parser?: ParserFunction;
+};
+/**
+ * filterId -> filter
+ */
+type RawFilterMap = Record<string, RawFilter>;
+type CompiledFilter = {
+  patterns: Minimatch[];
+  parser?: ParserFunction;
+};
+/**
+ * filterId -> filter
+ */
+type FilterMap = Record<string, CompiledFilter>;
+
 export interface File<T> {
   filename: string;
   contents: T;
 }
-
-type RawFilter = {
-  pattern: string;
-  parser: (filename: string, contents: string | null) => unknown;
-};
-type CompiledFilter = {
-  id: string;
-  patterns: Minimatch[];
-  parser?: (filename: string, contents: string | null) => unknown;
-};
-
 /**
  * filterId -> dirname -> files
  */
@@ -66,51 +73,31 @@ type FilesByFilter = {
   [filter: string]: Map<string, File<unknown>[]>;
 };
 
-export abstract class FileFinder {
-  /**
-   * Look for files in a given path recursively.
-   * node_modules/ are ignored
-   *
-   * @param dir directory where the search starts
-   * @param readContents read contents of the matched files and pass them to the parser
-   * @param inclusionFilters glob patterns to search for, and parser function
-   * @param exclusions glob patterns to ignore while walking the tree
-   */
-  static searchFiles(
-    dir: string,
-    readContents: boolean,
-    inclusionFilters: (RawFilter | string)[],
-    exclusions: string[],
-  ) {
-    return walkDirectory(
-      path.posix.normalize(toUnixPath(dir)),
-      normalizeInput(inclusionFilters),
-      stringToGlob(exclusions.concat(IGNORED_PATTERNS)),
-      readContents,
-    );
-  }
-}
-
 /**
- * Traverse the directory tree and gather
- * files matching the inclusion filters.
+ * Traverse the directory tree recursively from `dir` and
+ * gather files matching the `inclusionFilters`
+ * that were not matching the `exclusionPatterns`.
+ *
+ * @param rawDir directory where the search starts
+ * @param inclusionFilters glob patterns to search for, and parser function
+ * @param exclusions glob patterns to ignore while walking the tree
  */
-function walkDirectory(
-  baseDir: string,
-  inclusionFilters: CompiledFilter[],
-  exclusionPatterns: Minimatch[],
-  readContents: boolean,
-) {
-  const dbs: FilesByFilter = {};
-  for (const inclusionFilter of inclusionFilters) {
-    dbs[inclusionFilter.id] = new Map();
+export function searchFiles(rawDir: string, inclusionFilters: RawFilterMap, exclusions: string[]) {
+  const dir = path.posix.normalize(toUnixPath(rawDir));
+  const compiledInclusionFilters = compilePatterns(inclusionFilters);
+  const exclusionPatterns = stringToGlob(exclusions.concat(IGNORED_PATTERNS));
+
+  const result: FilesByFilter = {};
+  for (const filterId of Object.keys(inclusionFilters)) {
+    result[filterId] = new Map();
   }
-  const dirs = [baseDir];
+
+  const dirs = [dir];
   while (dirs.length) {
     const dir = dirs.shift()!;
-    inclusionFilters.forEach(inclusionFilter => {
-      dbs[inclusionFilter.id].set(dir, []);
-    });
+    for (const filterId of Object.keys(compiledInclusionFilters)) {
+      result[filterId].set(dir, []);
+    }
     const files = fs.readdirSync(dir, { withFileTypes: true });
     for (const file of files) {
       const filename = path.posix.join(dir, file.name);
@@ -120,20 +107,19 @@ function walkDirectory(
       if (file.isDirectory()) {
         dirs.push(filename);
       } else {
-        inclusionFilters.forEach(pattern => {
-          filterAndParse(filename, pattern, dbs[pattern.id].get(dir)!, readContents);
-        });
+        for (const [filterId, filter] of Object.entries(compiledInclusionFilters)) {
+          filterAndParse(filename, filter, result[filterId].get(dir)!);
+        }
       }
     }
   }
-  return dbs;
+  return result;
 }
 
 function filterAndParse(
   filename: string,
   { patterns, parser }: CompiledFilter,
   db: File<unknown>[],
-  readContents: boolean,
 ): void {
   if (patterns.some(pattern => pattern.match(filename))) {
     debug(`Found file: ${filename}`);
@@ -142,7 +128,7 @@ function filterAndParse(
       return;
     }
     try {
-      const contents = readContents ? readFileSync(filename) : null;
+      const contents = readFileSync(filename);
       db.push({ filename, contents: parser(filename, contents) });
     } catch (e) {
       debug(`Error parsing file ${filename}: ${e}`);
@@ -154,26 +140,13 @@ function stringToGlob(patterns: string[]): Minimatch[] {
   return patterns.map(pattern => new Minimatch(pattern, { nocase: true, matchBase: true }));
 }
 
-/**
- * - set an id for each pattern
- * - compile string patterns to glob patterns
- * - set parser if any
- */
-function normalizeInput(patterns: (RawFilter | string)[]): CompiledFilter[] {
-  const normalized: CompiledFilter[] = [];
-  for (const pattern of patterns) {
-    if (typeof pattern === 'string') {
-      normalized.push({
-        id: pattern,
-        patterns: stringToGlob(pattern.split(',')),
-      });
-    } else {
-      normalized.push({
-        id: pattern.pattern,
-        patterns: stringToGlob(pattern.pattern.split(',')),
-        parser: pattern.parser,
-      });
-    }
+function compilePatterns(filters: RawFilterMap): FilterMap {
+  const compiledFilterMap: FilterMap = {};
+  for (const [filterId, filter] of Object.entries(filters)) {
+    compiledFilterMap[filterId] = {
+      patterns: stringToGlob(filter.pattern.split(',')),
+      parser: filter.parser,
+    };
   }
-  return normalized;
+  return compiledFilterMap;
 }

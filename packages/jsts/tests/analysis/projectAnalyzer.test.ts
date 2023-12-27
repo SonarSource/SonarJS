@@ -19,7 +19,7 @@
  */
 
 import path from 'path';
-import { File, FileFinder, setContext, toUnixPath } from '@sonar/shared';
+import { File, searchFiles, setContext, toUnixPath } from '@sonar/shared';
 import { analyzeProject, getAllTSConfigJsons, ProjectAnalysisInput, RuleConfig } from '@sonar/jsts';
 
 const defaultRules: RuleConfig[] = [
@@ -80,10 +80,8 @@ describe('analyzeProject', () => {
   });
 
   it('should analyze the whole project with program', async () => {
-    const files = FileFinder.searchFiles(fixtures, false, ['*.js,*.ts'], []);
-    const result = await analyzeProject(
-      prepareInput(files?.['*.js,*.ts'] as Map<string, File<void>[]>),
-    );
+    const { files } = searchFiles(fixtures, { files: { pattern: '*.js,*.ts' } }, []);
+    const result = await analyzeProject(prepareInput(files as Map<string, File<void>[]>));
     expect(result).toBeDefined();
 
     expect(result.files[toUnixPath(path.join(fixtures, 'parsing-error.js'))]).toMatchObject({
@@ -95,10 +93,8 @@ describe('analyzeProject', () => {
   });
 
   it('should analyze the whole project with watch program', async () => {
-    const files = FileFinder.searchFiles(fixtures, false, ['*.js,*.ts,*.vue'], []);
-    const result = await analyzeProject(
-      prepareInput(files?.['*.js,*.ts,*.vue'] as Map<string, File<void>[]>),
-    );
+    const { files } = searchFiles(fixtures, { files: { pattern: '*.js,*.ts,*.vue' } }, []);
+    const result = await analyzeProject(prepareInput(files as Map<string, File<void>[]>));
     expect(result).toBeDefined();
 
     expect(result.files[toUnixPath(path.join(fixtures, 'parsing-error.js'))]).toMatchObject({

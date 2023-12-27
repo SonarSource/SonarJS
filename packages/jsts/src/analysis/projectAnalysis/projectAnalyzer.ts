@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { File, FileFinder, toUnixPath } from '@sonar/shared';
+import { File, searchFiles, toUnixPath } from '@sonar/shared';
 import {
   DEFAULT_ENVIRONMENTS,
   DEFAULT_GLOBALS,
@@ -93,16 +93,14 @@ function hasVueFile(files: string[]) {
  * and save them in their respective caches.
  */
 function searchTSConfigJsonAndPackageJsonFiles(baseDir: string, exclusions: string[]) {
-  const result = FileFinder.searchFiles(
+  const { packageJsons, tsConfigs } = searchFiles(
     baseDir,
-    true,
-    [{ pattern: PACKAGE_JSON, parser: parsePackageJson }, TSCONFIG_JSON],
+    {
+      packageJsons: { pattern: PACKAGE_JSON, parser: parsePackageJson },
+      tsConfigs: { pattern: TSCONFIG_JSON },
+    },
     exclusions,
   );
-  if (result?.[PACKAGE_JSON]) {
-    setPackageJsons(result?.[PACKAGE_JSON] as Map<string, File<PackageJson>[]>);
-  }
-  if (result?.[TSCONFIG_JSON]) {
-    setTSConfigJsons(result?.[TSCONFIG_JSON] as Map<string, File<void>[]>);
-  }
+  setPackageJsons(packageJsons as Map<string, File<PackageJson>[]>);
+  setTSConfigJsons(tsConfigs as Map<string, File<void>[]>);
 }

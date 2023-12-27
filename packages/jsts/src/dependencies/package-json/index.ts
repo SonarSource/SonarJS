@@ -19,7 +19,7 @@
  */
 
 import path from 'path';
-import { FileFinder, File, toUnixPath } from '@sonar/shared';
+import { File, searchFiles, toUnixPath } from '@sonar/shared';
 import { PackageJson } from 'type-fest';
 
 export const PACKAGE_JSON = 'package.json';
@@ -41,19 +41,18 @@ const cache: Map<string, Set<string>> = new Map();
 let PackageJsonsByBaseDir: Map<string, File<PackageJson>[]>;
 
 export function searchPackageJsonFiles(baseDir: string, exclusions: string[]) {
-  const result = FileFinder.searchFiles(
+  const { packageJsons } = searchFiles(
     baseDir,
-    true,
-    [
-      {
+    {
+      packageJsons: {
         pattern: PACKAGE_JSON,
         parser: parsePackageJson,
       },
-    ],
+    },
     exclusions,
   );
 
-  PackageJsonsByBaseDir = result?.[PACKAGE_JSON] as Map<string, File<PackageJson>[]>;
+  PackageJsonsByBaseDir = packageJsons as Map<string, File<PackageJson>[]>;
 }
 
 export function getAllPackageJsons() {

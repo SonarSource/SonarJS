@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { File, FileFinder } from '@sonar/shared';
+import { File, searchFiles } from '@sonar/shared';
 import { createTSConfigFile, writeTSConfigFile } from '../program';
 import { DEFAULT_MAX_FILES_FOR_TYPE_CHECKING } from '../../analysis';
 
@@ -29,8 +29,8 @@ export const TSCONFIG_JSON = 'tsconfig.json';
 let TSConfigJsonsByBaseDir: Map<string, File<void>[]>;
 
 export function searchTSConfigJsonFiles(baseDir: string, exclusions: string[]) {
-  const result = FileFinder.searchFiles(baseDir, false, [TSCONFIG_JSON], exclusions);
-  TSConfigJsonsByBaseDir = result?.[TSCONFIG_JSON] as Map<string, File<void>[]>;
+  const { tsConfigs } = searchFiles(baseDir, { tsConfigs: { pattern: TSCONFIG_JSON } }, exclusions);
+  TSConfigJsonsByBaseDir = tsConfigs as Map<string, File<void>[]>;
 }
 
 export function getAllTSConfigJsons() {
