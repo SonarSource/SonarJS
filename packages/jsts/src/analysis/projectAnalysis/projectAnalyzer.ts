@@ -88,6 +88,10 @@ function hasVueFile(files: string[]) {
   return files.some(file => file.toLowerCase().endsWith('.vue'));
 }
 
+/**
+ * Gather all the tsconfig.json and package.json files in the project
+ * and save them in their respective caches.
+ */
 function searchTSConfigJsonAndPackageJsonFiles(baseDir: string, exclusions: string[]) {
   const result = FileFinder.searchFiles(
     baseDir,

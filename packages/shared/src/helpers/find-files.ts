@@ -59,25 +59,32 @@ type MinimatchAndParser = {
   parser?: (filename: string, contents: string | null) => unknown;
 };
 
+/**
+ * filterId -> dirname -> files
+ */
+type FilesByFilter = {
+  [filter: string]: Map<string, File<unknown>[]>;
+};
+
 export abstract class FileFinder {
   /**
-   * Look for files in a given path and its child paths.
-   * node_modules is ignored
+   * Look for files in a given path recursively.
+   * node_modules/ are ignored
    *
-   * @param dir parent folder where the search starts
+   * @param dir directory where the search starts
    * @param readContents read contents of the matched files and pass them to the parser
-   * @param patterns glob patterns to search for, and parser function
+   * @param inclusionFilters glob patterns to search for, and parser function
    * @param exclusions glob patterns to ignore while walking the tree
    */
   static searchFiles(
     dir: string,
     readContents: boolean,
-    patterns: (PatternsAndParser | string)[],
+    inclusionFilters: (PatternsAndParser | string)[],
     exclusions: string[],
   ) {
     return walkDirectory(
       path.posix.normalize(toUnixPath(dir)),
-      normalizeInput(patterns),
+      normalizeInput(inclusionFilters),
       stringToGlob(exclusions.concat(IGNORED_PATTERNS)),
       readContents,
     );
@@ -86,33 +93,31 @@ export abstract class FileFinder {
 
 function walkDirectory(
   baseDir: string,
-  patterns: MinimatchAndParser[],
-  ignoredPatterns: Minimatch[],
+  inclusionFilters: MinimatchAndParser[],
+  exclusionPatterns: Minimatch[],
   readContents: boolean,
 ) {
-  const dbs: { [key: string]: Map<string, File<unknown>[]> } = {};
-  for (const pattern of patterns) {
-    dbs[pattern.id] = new Map();
+  const dbs: FilesByFilter = {};
+  for (const inclusionFilter of inclusionFilters) {
+    dbs[inclusionFilter.id] = new Map();
   }
   const dirs = [baseDir];
   while (dirs.length) {
     const dir = dirs.shift()!;
-    patterns.forEach(pattern => {
-      const filesInDir: File<unknown>[] = [];
-      dbs[pattern.id].set(dir, filesInDir);
+    inclusionFilters.forEach(inclusionFilter => {
+      dbs[inclusionFilter.id].set(dir, []);
     });
     const files = fs.readdirSync(dir, { withFileTypes: true });
     for (const file of files) {
       const filename = path.posix.join(dir, file.name);
-      if (ignoredPatterns.some(pattern => pattern.match(filename))) {
-        continue; // is ignored pattern
+      if (exclusionPatterns.some(pattern => pattern.match(filename))) {
+        continue;
       }
       if (file.isDirectory()) {
         dirs.push(filename);
       } else {
-        const contents = readContents ? readFileSync(filename) : null;
-        patterns.forEach(pattern => {
-          checkPattern(filename, pattern, dbs[pattern.id].get(dir)!, contents);
+        inclusionFilters.forEach(pattern => {
+          filterAndParse(filename, pattern, dbs[pattern.id].get(dir)!, readContents);
         });
       }
     }
@@ -120,20 +125,21 @@ function walkDirectory(
   return dbs;
 }
 
-function checkPattern(
+function filterAndParse(
   filename: string,
   { patterns, parser }: MinimatchAndParser,
   db: File<unknown>[],
-  contents: string | null,
-) {
+  readContents: boolean,
+): void {
   if (patterns.some(pattern => pattern.match(filename))) {
+    debug(`Found file: ${filename}`);
+    if (!parser) {
+      db.push({ filename, contents: undefined });
+      return;
+    }
     try {
-      debug(`Found file: ${filename}`);
-      if (parser) {
-        db.push({ filename, contents: parser(filename, contents) });
-      } else {
-        db.push({ filename, contents: undefined });
-      }
+      const contents = readContents ? readFileSync(filename) : null;
+      db.push({ filename, contents: parser(filename, contents) });
     } catch (e) {
       debug(`Error parsing file ${filename}: ${e}`);
     }
