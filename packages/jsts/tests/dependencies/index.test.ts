@@ -110,32 +110,28 @@ describe('initialize package.json files', () => {
 
     searchPackageJsonFiles(baseDir, ['moduleA']);
     expect(Object.keys(getAllPackageJsons()).length).toEqual(4);
-    const packageJsons = [
+    const expected = [
       ['package.json'],
       ['moduleB', 'package.json'],
       ['moduleB', 'submoduleA', 'package.json'],
       ['moduleB', 'submoduleB', 'package.json'],
     ];
-    expect(getAllPackageJsons()).toEqual(
-      new Map(
-        packageJsons.map(packageJson => {
-          const filename = path.posix.join(baseDir, ...packageJson);
-          return [path.posix.dirname(filename), [{ filename, contents: expect.any(Object) }]];
-        }),
-      ),
-    );
+    const actual = getAllPackageJsons();
+    const expectedMap = {};
+    expected.forEach(packageJson => {
+      const filename = path.posix.join(baseDir, ...packageJson);
+      expectedMap[path.posix.dirname(filename)] = [{ filename, contents: expect.any(Object) }];
+    });
+    expect(actual).toEqual(expectedMap);
 
     clearPackageJsons();
     searchPackageJsonFiles(baseDir, ['module*']);
     expect(Object.keys(getAllPackageJsons()).length).toEqual(1);
-    expect(getAllPackageJsons()).toEqual(
-      new Map([
-        [
-          baseDir,
-          [{ filename: path.posix.join(baseDir, 'package.json'), contents: expect.any(Object) }],
-        ],
-      ]),
-    );
+    expect(getAllPackageJsons()).toEqual({
+      [baseDir]: [
+        { filename: path.posix.join(baseDir, 'package.json'), contents: expect.any(Object) },
+      ],
+    });
   });
 
   it('should return empty array when no package.json are in the DB or none exist in the file tree', () => {

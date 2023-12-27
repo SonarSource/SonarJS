@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import path from 'path';
-import { getAllPackageJsons, searchPackageJsonFiles } from '../../../../';
+import { clearPackageJsons, searchPackageJsonFiles } from '../../../../';
 import { check } from '../../../tools';
 import { rule } from '../../';
 
@@ -30,7 +30,7 @@ describe('Rule S5973', () => {
     searchPackageJsonFiles(__dirname, []);
   });
   afterAll(() => {
-    getAllPackageJsons().clear();
+    clearPackageJsons();
   });
   check(sonarId, rule, __dirname);
 });
