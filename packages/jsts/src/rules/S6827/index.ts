@@ -19,7 +19,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6727/javascript
 
-import { rules as jsxA11yRules } from 'eslint-plugin-jsx-a11y';
+import jsxA11y from 'eslint-plugin-jsx-a11y';
 import { decorate } from './decorator';
 
-export const rule = decorate(jsxA11yRules['anchor-has-content']);
+export const rule = decorate(jsxA11y.rules['anchor-has-content']);

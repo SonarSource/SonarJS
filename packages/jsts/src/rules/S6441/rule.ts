@@ -20,10 +20,10 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6441/javascript
 
 import { Rule } from 'eslint';
-import { rules as reactRules } from 'eslint-plugin-react';
+import react from 'eslint-plugin-react';
 import { rule as detectReact, mergeRules } from '../helpers';
 
-const noUnusedClassComponentMethod = reactRules['no-unused-class-component-methods'];
+const noUnusedClassComponentMethod = react.rules['no-unused-class-component-methods'];
 
 function overrideContext(context: Rule.RuleContext, overrides: any): Rule.RuleContext {
   Object.setPrototypeOf(overrides, context);

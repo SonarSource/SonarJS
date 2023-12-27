@@ -21,11 +21,11 @@
 
 import { TSESTree } from '@typescript-eslint/utils';
 import { Rule } from 'eslint';
-import { rules as jsxA11yRules } from 'eslint-plugin-jsx-a11y';
+import jsxA11y from 'eslint-plugin-jsx-a11y';
 import { interceptReport, mergeRules } from '../helpers';
 
-const langRule = jsxA11yRules['lang'];
-const htmlHasLangRule = jsxA11yRules['html-has-lang'];
+const langRule = jsxA11y.rules['lang'];
+const htmlHasLangRule = jsxA11y.rules['html-has-lang'];
 const decoratedHasLangRule = decorate(htmlHasLangRule);
 
 function decorate(rule: Rule.RuleModule): Rule.RuleModule {

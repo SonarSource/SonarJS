@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { rules } from 'eslint-plugin-react';
+import react from 'eslint-plugin-react';
 import { decorate } from './decorator';
 
-export const rule = decorate(rules['jsx-no-constructed-context-values']);
+export const rule = decorate(react.rules['jsx-no-constructed-context-values']);

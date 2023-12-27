@@ -23,7 +23,7 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { getTypeFromTreeNode, isRequiredParserServices } from '../helpers';
 import { TSESTree } from '@typescript-eslint/utils';
-import ts, { SyntaxKind } from 'typescript';
+import ts from 'typescript';
 
 export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
@@ -35,7 +35,7 @@ export const rule: Rule.RuleModule = {
 
     function isBuiltInMethod(symbol: ts.Symbol) {
       const parent = symbol.valueDeclaration?.parent;
-      if (!parent || parent.kind !== SyntaxKind.InterfaceDeclaration) {
+      if (!parent || parent.kind !== ts.SyntaxKind.InterfaceDeclaration) {
         return false;
       }
       const parentSymbol = tc.getSymbolAtLocation((parent as ts.InterfaceDeclaration).name);

@@ -21,11 +21,11 @@
 
 import { Rule } from 'eslint';
 import { rule as diagnosticsRule } from './rule.diagnostics';
-import { rules } from 'eslint-plugin-react';
+import react from 'eslint-plugin-react';
 import { mergeRules } from '../helpers';
 import { getNearestPackageJsons } from '@sonar/jsts';
 
-const reactNoDeprecated = rules['no-deprecated'];
+const reactNoDeprecated = react.rules['no-deprecated'];
 
 export const rule: Rule.RuleModule = {
   meta: {

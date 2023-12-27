@@ -19,10 +19,10 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6844/javascript
 
-import { rules as jsxA11yRules } from 'eslint-plugin-jsx-a11y';
+import jsxA11y from 'eslint-plugin-jsx-a11y';
 import { interceptReport } from '../helpers';
 
-const anchorIsValid = jsxA11yRules['anchor-is-valid'];
+const anchorIsValid = jsxA11y.rules['anchor-is-valid'];
 
 export const rule = interceptReport(anchorIsValid, (context, reportDescriptor) => {
   const descriptor = reportDescriptor as any;

@@ -21,9 +21,9 @@ import { Linter, Rule } from 'eslint';
 import { eslintRules } from '../rules/core';
 import { tsEslintRules } from '../rules/typescript-eslint';
 import { rules as pluginRules } from 'eslint-plugin-sonarjs';
-import { rules as reactESLintRules } from 'eslint-plugin-react';
-import { rules as reactA11yRules } from 'eslint-plugin-jsx-a11y';
-import { rules as importRules } from 'eslint-plugin-import';
+import react from 'eslint-plugin-react';
+import jsxA11y from 'eslint-plugin-jsx-a11y';
+import import_ from 'eslint-plugin-import';
 import { rules as internalRules } from '../rules';
 import { customRules as internalCustomRules, CustomRule } from './custom-rules';
 import { debug, getContext } from '@sonar/shared';
@@ -59,13 +59,7 @@ const loaders: { [key: string]: Function } = {
      * Core ESLint rules could be overridden by the implementation from specific
      * dependencies, which should be the default behaviour in most cases.
      */
-    const dependencies = [
-      eslintRules,
-      tsEslintRules,
-      reactESLintRules,
-      reactA11yRules,
-      importRules,
-    ];
+    const dependencies = [eslintRules, tsEslintRules, react.rules, jsxA11y.rules, import_.rules];
     for (const dependencyRules of dependencies) {
       for (const [name, module] of Object.entries(dependencyRules)) {
         externalRules[name] = module;

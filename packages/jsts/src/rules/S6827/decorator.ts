@@ -19,7 +19,7 @@
  */
 import { Rule } from 'eslint';
 import { interceptReport } from '../helpers';
-import { hasAnyProp } from 'jsx-ast-utils';
+import jsxAstUtils from 'jsx-ast-utils';
 import { TSESTree } from '@typescript-eslint/utils';
 
 /**
@@ -37,7 +37,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(rule, (context, reportDescriptor) => {
     const node = (reportDescriptor as any).node as TSESTree.JSXOpeningElement;
 
-    if (hasAnyProp(node.attributes, ['title', 'aria-label'])) {
+    if (jsxAstUtils.hasAnyProp(node.attributes, ['title', 'aria-label'])) {
       return;
     }
     context.report({ ...reportDescriptor });

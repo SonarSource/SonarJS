@@ -21,10 +21,10 @@
 
 import { Rule } from 'eslint';
 import { mergeRules } from '../helpers';
-import { rules as jsxA11yRules } from 'eslint-plugin-jsx-a11y';
+import jsxA11y from 'eslint-plugin-jsx-a11y';
 
-const mouseEventsHaveKeyEvents = jsxA11yRules['mouse-events-have-key-events'];
-const clickEventsHaveKeyEvents = jsxA11yRules['click-events-have-key-events'];
+const mouseEventsHaveKeyEvents = jsxA11y.rules['mouse-events-have-key-events'];
+const clickEventsHaveKeyEvents = jsxA11y.rules['click-events-have-key-events'];
 
 export const rule: Rule.RuleModule = {
   meta: {

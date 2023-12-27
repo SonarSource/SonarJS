@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Rule } from 'eslint';
-import { rules } from '@typescript-eslint/eslint-plugin';
+import tsEslint from '@typescript-eslint/eslint-plugin';
 import { sanitize } from './sanitize';
 
 /**
@@ -26,8 +26,8 @@ import { sanitize } from './sanitize';
  * they unconditionally assume that TypeScript's type checker is available.
  */
 const sanitized: Record<string, Rule.RuleModule> = {};
-for (const ruleKey of Object.keys(rules)) {
-  sanitized[ruleKey] = sanitize(rules[ruleKey]);
+for (const ruleKey of Object.keys(tsEslint.rules)) {
+  sanitized[ruleKey] = sanitize(tsEslint.rules[ruleKey]);
 }
 
 /**

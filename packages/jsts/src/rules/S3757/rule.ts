@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import ts, { TypeFlags } from 'typescript';
+import ts from 'typescript';
 import { isRequiredParserServices, getTypeFromTreeNode } from '../helpers';
 
 const BINARY_OPERATORS = ['/', '*', '%', '-', '-=', '*=', '/=', '%='];
@@ -42,7 +42,7 @@ export const rule: Rule.RuleModule = {
 
     function isObjectType(...types: ts.Type[]): boolean {
       return types.some(
-        t => !!(t.getFlags() & TypeFlags.Object) && !isDate(t) && t.symbol?.name !== 'Number',
+        t => !!(t.getFlags() & ts.TypeFlags.Object) && !isDate(t) && t.symbol?.name !== 'Number',
       );
     }
 
