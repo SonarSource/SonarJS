@@ -21,6 +21,7 @@ import { join } from 'path';
 import { setContext, APIError } from '@sonar/shared';
 import { parseAwsFromYaml } from '../../src/aws';
 import { embeddedInput } from '../../../jsts/tests/tools';
+// loading it from @sonar/jsts breaks resolution
 import { initializeLinter, getLinter } from '../../../jsts/src/linter';
 import { analyzeEmbedded, composeSyntheticFilePath } from '@sonar/jsts';
 import { Rule } from 'eslint';

@@ -5,7 +5,13 @@
     "allowJs": true
   },
   "references": [],
-  "include": ["server.ts", "*/src/**/*.ts", "bridge/src/worker.js", "ruling/*.test.ts"],
+  "include": [
+    "server.ts",
+    "*/src/**/*.ts",
+    "bridge/src/worker.js",
+    "ruling/tools/*.ts",
+    "ruling/filter/*.ts"
+  ],
   "exclude": [
     "*/src/rules/tools",
     "*/src/rules/*/*.test.ts",
