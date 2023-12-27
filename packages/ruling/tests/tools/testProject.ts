@@ -90,7 +90,7 @@ const DEFAULT_EXCLUSIONS = [
 ].map(pattern => new Minimatch(pattern, { nocase: true }));
 
 export function setupBeforeAll(projectFile: string) {
-  const projectName = /.*\/([^/]*)\.ruling\.test\.ts$/.exec(toUnixPath(projectFile))?.[1];
+  const projectName = getProjectName(toUnixPath(projectFile));
   const project = projects.find(p => p.name === projectName);
   beforeAll(() => {
     setContext({
@@ -108,6 +108,10 @@ export function setupBeforeAll(projectFile: string) {
     expectedPath: path.join(expectedPath, project.name),
     actualPath: path.join(actualPath, project.name),
   };
+}
+function getProjectName(testFilePath: string) {
+  const filename = path.basename(testFilePath);
+  return filename.split('.')[0];
 }
 
 /**
