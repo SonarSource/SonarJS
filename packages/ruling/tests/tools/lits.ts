@@ -19,8 +19,8 @@
  */
 import * as fs from 'fs';
 import * as path from 'path';
-import { Issue, JsTsFiles, ProjectAnalysisOutput } from '../../jsts/src';
-import { JsTsLanguage } from '../../shared/src';
+import { Issue, JsTsFiles, ProjectAnalysisOutput } from '../../../jsts/src';
+import { JsTsLanguage } from '../../../shared/src';
 import eslintIdToSonarId from '../data/eslint-to-sonar-id.json';
 
 /**

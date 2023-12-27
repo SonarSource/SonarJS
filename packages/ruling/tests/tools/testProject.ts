@@ -21,7 +21,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as os from 'os';
 import { Minimatch } from 'minimatch';
-import { AnalysisInput, FileType, setContext, toUnixPath } from '../../shared/src';
+import { AnalysisInput, FileType, setContext, toUnixPath } from '../../../shared/src';
 import {
   DEFAULT_ENVIRONMENTS,
   DEFAULT_GLOBALS,
@@ -31,12 +31,12 @@ import {
   RuleConfig,
   analyzeProject,
   initializeLinter,
-} from '../../jsts/src';
+} from '../../../jsts/src';
 import { accept } from '../filter/JavaScriptExclusionsFilter';
 import { writeResults } from './lits';
-import { analyzeHTML } from '../../html/src';
+import { analyzeHTML } from '../../../html/src';
 import { isHtmlFile, isJsFile, isTsFile, isYamlFile } from './languages';
-import { analyzeYAML } from '../../yaml/src';
+import { analyzeYAML } from '../../../yaml/src';
 import projects from '../data/projects.json';
 
 /**
@@ -45,11 +45,12 @@ import projects from '../data/projects.json';
  */
 import rules from '../data/rules.json';
 
-const sourcesPath = path.join(__dirname, '..', '..', '..', '..', 'sonarjs-ruling-sources');
+const sourcesPath = path.join(__dirname, '..', '..', '..', '..', '..', 'sonarjs-ruling-sources');
 const jsTsProjectsPath = path.join(sourcesPath, 'jsts', 'projects');
 
 const expectedPath = path.join(
   __dirname,
+  '..',
   '..',
   '..',
   '..',
@@ -162,78 +163,9 @@ function getProjectFiles(rulingInput: RulingInput, projectPath: string, exclusio
 }
 
 /**
- * Analyze files the old school way
- * used for HTML and YAML
- */
-async function analyzeFiles(
-  files: JsTsFiles,
-  analyzer: (payload: AnalysisInput) => Promise<any>,
-  linterId?: string,
-) {
-  const results = { files: {} };
-  for (const [filePath, fileData] of Object.entries(files)) {
-    const payload: AnalysisInput = {
-      filePath,
-      fileContent: fileData.fileContent,
-      linterId,
-    };
-    try {
-      const result = await analyzer(payload);
-      results.files[filePath] = result;
-    } catch (err) {
-      results.files[filePath] = createParsingIssue(err);
-    }
-    results.files[filePath].language = fileData.language;
-  }
-  return results;
-}
-
-/**
- * Merge results from multiple analyses into a single object
- * Creates a parsing error if needed
- */
-function mergeResults(...resultsSet: ProjectAnalysisOutput[]) {
-  const allResults = { files: {} };
-  for (const results of resultsSet) {
-    for (const [filePath, fileData] of Object.entries(results.files)) {
-      if (allResults.files[filePath]) {
-        throw Error(`File ${filePath} has been analyzed in multiple paths`);
-      }
-      if (fileData.parsingError) {
-        allResults.files[filePath] = createParsingIssue({ data: fileData.parsingError });
-      } else {
-        allResults.files[filePath] = fileData;
-      }
-    }
-  }
-  return allResults;
-}
-
-/**
- * Creates a S2260 issue for the parsing error
- */
-function createParsingIssue({
-  data: { line, message },
-}: {
-  data: { line?: number; message: string };
-}) {
-  return {
-    issues: [
-      {
-        ruleId: 'S2260',
-        line,
-        // stub values so we don't have to modify the type
-        message,
-        column: 0,
-        secondaryLocations: [],
-      },
-    ],
-  };
-}
-
-/**
- * Stores in `acc` all the JS/TS files in the given `dir`,
- * ignoring the given `exclusions` and assigning the given `type`
+ * Stores in `jsTsFiles`, `htmlFiles` and `yamlFiles` the files
+ * found in the given `dir`, ignoring the given `exclusions` and
+ * assigning the given `type`
  */
 function getFiles(
   dir: string,
@@ -278,4 +210,74 @@ function getFiles(
   function isExcluded(filePath: string, exclusions: Minimatch[]) {
     return exclusions.some(exclusion => exclusion.match(filePath));
   }
+}
+
+/**
+ * Analyze files the old school way.
+ * Used for HTML and YAML
+ */
+async function analyzeFiles(
+  files: JsTsFiles,
+  analyzer: (payload: AnalysisInput) => Promise<any>,
+  linterId?: string,
+) {
+  const results = { files: {} };
+  for (const [filePath, fileData] of Object.entries(files)) {
+    const payload: AnalysisInput = {
+      filePath,
+      fileContent: fileData.fileContent,
+      linterId,
+    };
+    try {
+      const result = await analyzer(payload);
+      results.files[filePath] = result;
+    } catch (err) {
+      results.files[filePath] = createParsingIssue(err);
+    }
+    results.files[filePath].language = fileData.language;
+  }
+  return results;
+}
+
+/**
+ * Merge results from multiple analyses into a single object
+ * Creates parsing issues from parsingError when needed
+ */
+function mergeResults(...resultsSet: ProjectAnalysisOutput[]) {
+  const allResults = { files: {} };
+  for (const results of resultsSet) {
+    for (const [filePath, fileData] of Object.entries(results.files)) {
+      if (allResults.files[filePath]) {
+        throw Error(`File ${filePath} has been analyzed in multiple paths`);
+      }
+      if (fileData.parsingError) {
+        allResults.files[filePath] = createParsingIssue({ data: fileData.parsingError });
+      } else {
+        allResults.files[filePath] = fileData;
+      }
+    }
+  }
+  return allResults;
+}
+
+/**
+ * Creates a S2260 issue for the parsing error
+ */
+function createParsingIssue({
+  data: { line, message },
+}: {
+  data: { line?: number; message: string };
+}) {
+  return {
+    issues: [
+      {
+        ruleId: 'S2260',
+        line,
+        // stub values so we don't have to modify the type
+        message,
+        column: 0,
+        secondaryLocations: [],
+      },
+    ],
+  };
 }
