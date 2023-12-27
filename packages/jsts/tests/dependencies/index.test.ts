@@ -35,7 +35,7 @@ describe('initialize package.json files', () => {
   it('should find all package.json files', () => {
     const baseDir = path.posix.join(toUnixPath(__dirname), 'fixtures');
     searchPackageJsonFiles(baseDir, []);
-    expect(getAllPackageJsons().size).toEqual(7);
+    expect(Object.keys(getAllPackageJsons()).length).toEqual(7);
 
     const basePJList = getNearestPackageJsons(path.posix.join(baseDir, 'index.js'));
     const basePJ = toUnixPath(path.posix.join(baseDir, 'package.json'));
@@ -109,7 +109,7 @@ describe('initialize package.json files', () => {
     const baseDir = path.posix.join(toUnixPath(__dirname), 'fixtures');
 
     searchPackageJsonFiles(baseDir, ['moduleA']);
-    expect(getAllPackageJsons().size).toEqual(4);
+    expect(Object.keys(getAllPackageJsons()).length).toEqual(4);
     const packageJsons = [
       ['package.json'],
       ['moduleB', 'package.json'],
@@ -127,7 +127,7 @@ describe('initialize package.json files', () => {
 
     clearPackageJsons();
     searchPackageJsonFiles(baseDir, ['module*']);
-    expect(getAllPackageJsons().size).toEqual(1);
+    expect(Object.keys(getAllPackageJsons()).length).toEqual(1);
     expect(getAllPackageJsons()).toEqual(
       new Map([
         [
@@ -141,13 +141,13 @@ describe('initialize package.json files', () => {
   it('should return empty array when no package.json are in the DB or none exist in the file tree', () => {
     const baseDir = path.posix.join(toUnixPath(__dirname), 'fixtures');
 
-    expect(getAllPackageJsons().size).toEqual(0);
+    expect(Object.keys(getAllPackageJsons()).length).toEqual(0);
     expect(
       getNearestPackageJsons(path.posix.join(baseDir, '..', 'another-module', 'index.js')),
     ).toHaveLength(0);
 
     searchPackageJsonFiles(baseDir, ['']);
-    expect(getAllPackageJsons().size).toEqual(7);
+    expect(Object.keys(getAllPackageJsons()).length).toEqual(7);
     expect(
       getNearestPackageJsons(path.posix.join(baseDir, '..', 'another-module', 'index.js')),
     ).toHaveLength(0);
