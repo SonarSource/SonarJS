@@ -49,11 +49,11 @@ export interface File<T> {
   contents: T;
 }
 
-type PatternsAndParser = {
+type RawFilter = {
   pattern: string;
   parser: (filename: string, contents: string | null) => unknown;
 };
-type MinimatchAndParser = {
+type CompiledFilter = {
   id: string;
   patterns: Minimatch[];
   parser?: (filename: string, contents: string | null) => unknown;
@@ -79,7 +79,7 @@ export abstract class FileFinder {
   static searchFiles(
     dir: string,
     readContents: boolean,
-    inclusionFilters: (PatternsAndParser | string)[],
+    inclusionFilters: (RawFilter | string)[],
     exclusions: string[],
   ) {
     return walkDirectory(
@@ -91,9 +91,13 @@ export abstract class FileFinder {
   }
 }
 
+/**
+ * Traverse the directory tree and gather
+ * files matching the inclusion filters.
+ */
 function walkDirectory(
   baseDir: string,
-  inclusionFilters: MinimatchAndParser[],
+  inclusionFilters: CompiledFilter[],
   exclusionPatterns: Minimatch[],
   readContents: boolean,
 ) {
@@ -127,7 +131,7 @@ function walkDirectory(
 
 function filterAndParse(
   filename: string,
-  { patterns, parser }: MinimatchAndParser,
+  { patterns, parser }: CompiledFilter,
   db: File<unknown>[],
   readContents: boolean,
 ): void {
@@ -150,8 +154,13 @@ function stringToGlob(patterns: string[]): Minimatch[] {
   return patterns.map(pattern => new Minimatch(pattern, { nocase: true, matchBase: true }));
 }
 
-function normalizeInput(patterns: (PatternsAndParser | string)[]): MinimatchAndParser[] {
-  const normalized: MinimatchAndParser[] = [];
+/**
+ * - set an id for each pattern
+ * - compile string patterns to glob patterns
+ * - set parser if any
+ */
+function normalizeInput(patterns: (RawFilter | string)[]): CompiledFilter[] {
+  const normalized: CompiledFilter[] = [];
   for (const pattern of patterns) {
     if (typeof pattern === 'string') {
       normalized.push({
