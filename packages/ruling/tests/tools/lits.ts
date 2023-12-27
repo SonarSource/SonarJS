@@ -30,14 +30,14 @@ import eslintIdToSonarId from '../data/eslint-to-sonar-id.json';
 type LitsFormattedResult = {
   issues: {
     [ruleId: string]: {
-      js: {
-        [filename: string]: number[];
-      };
-      ts: {
-        [filename: string]: number[];
-      };
+      js: FileIssues;
+      ts: FileIssues;
     };
   };
+};
+
+type FileIssues = {
+  [filename: string]: number[];
 };
 
 /**
@@ -103,9 +103,12 @@ function transformResults(
   ) {
     for (const issue of issues) {
       const ruleId = issue.ruleId;
-      if (result.issues[ruleId] === undefined) result.issues[ruleId] = { js: {}, ts: {} };
-      if (result.issues[ruleId][language][projectWithFilename] === undefined)
+      if (result.issues[ruleId] === undefined) {
+        result.issues[ruleId] = { js: {}, ts: {} };
+      }
+      if (result.issues[ruleId][language][projectWithFilename] === undefined) {
         result.issues[ruleId][language][projectWithFilename] = [];
+      }
       result.issues[ruleId][language][projectWithFilename].push(issue.line);
     }
   }
@@ -114,9 +117,11 @@ function transformResults(
 /**
  * Write the issues LITS style, if there are any
  */
-function writeIssues(projectDir: string, ruleId: string, issues, isJs: boolean = true) {
+function writeIssues(projectDir: string, ruleId: string, issues: FileIssues, isJs = true) {
   // we don't write empty files
-  if (Object.keys(issues).length === 0) return;
+  if (Object.keys(issues).length === 0) {
+    return;
+  }
   const issueFilename = path.join(
     projectDir,
     `${isJs ? 'javascript' : 'typescript'}-${handleS124(ruleId, isJs)}.json`,
@@ -128,8 +133,10 @@ function writeIssues(projectDir: string, ruleId: string, issues, isJs: boolean =
     JSON.stringify(issues, Object.keys(issues).sort(), 1).replaceAll(/\n\s+/g, '\n') + '\n',
   );
 
-  function handleS124(ruleId: string, isJs: boolean = true) {
-    if (ruleId !== 'S124') return ruleId;
+  function handleS124(ruleId: string, isJs = true) {
+    if (ruleId !== 'S124') {
+      return ruleId;
+    }
     if (isJs) {
       return 'CommentRegexTest';
     } else {

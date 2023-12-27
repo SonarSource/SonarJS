@@ -21,7 +21,13 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as os from 'os';
 import { Minimatch } from 'minimatch';
-import { AnalysisInput, FileType, setContext, toUnixPath } from '../../../shared/src';
+import {
+  AnalysisInput,
+  AnalysisOutput,
+  FileType,
+  setContext,
+  toUnixPath,
+} from '../../../shared/src';
 import {
   DEFAULT_ENVIRONMENTS,
   DEFAULT_GLOBALS,
@@ -84,8 +90,8 @@ const DEFAULT_EXCLUSIONS = [
 ].map(pattern => new Minimatch(pattern, { nocase: true }));
 
 export function setupBeforeAll(projectFile: string) {
-  const projectName = toUnixPath(projectFile).match(/.*\/([^\/]*)\.ruling\.test\.ts$/)?.[1];
-  let project = projects.find(p => p.name === projectName);
+  const projectName = /.*\/([^/]*)\.ruling\.test\.ts$/.exec(toUnixPath(projectFile))?.[1];
+  const project = projects.find(p => p.name === projectName);
   beforeAll(() => {
     setContext({
       workDir: path.join(os.tmpdir(), 'sonarjs'),
@@ -197,19 +203,19 @@ function getFiles(
     }
   }
   return { jsTsFiles, htmlFiles, yamlFiles };
+}
 
-  function findLanguage(filePath: string, contents: string) {
-    if (isTsFile(filePath, contents)) {
-      return 'ts';
-    }
-    if (isJsFile(filePath)) {
-      return 'js';
-    }
+function findLanguage(filePath: string, contents: string) {
+  if (isTsFile(filePath, contents)) {
+    return 'ts';
   }
+  if (isJsFile(filePath)) {
+    return 'js';
+  }
+}
 
-  function isExcluded(filePath: string, exclusions: Minimatch[]) {
-    return exclusions.some(exclusion => exclusion.match(filePath));
-  }
+function isExcluded(filePath: string, exclusions: Minimatch[]) {
+  return exclusions.some(exclusion => exclusion.match(filePath));
 }
 
 /**
@@ -218,7 +224,7 @@ function getFiles(
  */
 async function analyzeFiles(
   files: JsTsFiles,
-  analyzer: (payload: AnalysisInput) => Promise<any>,
+  analyzer: (payload: AnalysisInput) => Promise<AnalysisOutput>,
   linterId?: string,
 ) {
   const results = { files: {} };

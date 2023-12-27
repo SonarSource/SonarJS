@@ -23,7 +23,7 @@ import { FileFinder, File, toUnixPath } from '@sonar/shared';
 import { PackageJson } from 'type-fest';
 
 export const PACKAGE_JSON = 'package.json';
-export const PACKAGE_JSON_PARSER = (_filename: string, contents: string | null) =>
+export const parsePackageJson = (_filename: string, contents: string | null) =>
   contents ? (JSON.parse(contents) as PackageJson) : {};
 
 const DefinitelyTyped = '@types/';
@@ -47,7 +47,7 @@ export function searchPackageJsonFiles(baseDir: string, exclusions: string[]) {
     [
       {
         pattern: PACKAGE_JSON,
-        parser: PACKAGE_JSON_PARSER,
+        parser: parsePackageJson,
       },
     ],
     exclusions,

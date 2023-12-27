@@ -31,7 +31,7 @@ for (const rule of rules) {
   eslintToSonar[rule.eslintKey] = extractSonarId(rule);
 }
 
-function extractSonarId(rule: any) {
+function extractSonarId(rule: { ruleKey: string }) {
   return rule.ruleKey.split(':')[1];
 }
 

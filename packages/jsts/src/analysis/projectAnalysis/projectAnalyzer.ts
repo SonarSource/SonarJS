@@ -31,7 +31,7 @@ import { analyzeWithWatchProgram } from './analyzeWithWatchProgram';
 import { analyzeWithoutProgram } from './analyzeWithoutProgram';
 import { initializeLinter } from '../../linter';
 import { TSCONFIG_JSON, setTSConfigJsons, loopTSConfigs } from '../../program';
-import { PACKAGE_JSON, PACKAGE_JSON_PARSER, setPackageJsons } from '../../dependencies';
+import { PACKAGE_JSON, parsePackageJson, setPackageJsons } from '../../dependencies';
 
 /**
  * Analyzes a JavaScript / TypeScript project in a single run
@@ -92,7 +92,7 @@ function searchTSConfigJsonAndPackageJsonFiles(baseDir: string, exclusions: stri
   const result = FileFinder.searchFiles(
     baseDir,
     true,
-    [{ pattern: PACKAGE_JSON, parser: PACKAGE_JSON_PARSER }, TSCONFIG_JSON],
+    [{ pattern: PACKAGE_JSON, parser: parsePackageJson }, TSCONFIG_JSON],
     exclusions,
   );
   if (result?.[PACKAGE_JSON]) {
