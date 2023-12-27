@@ -14,7 +14,7 @@ module.exports = {
   testMatch: [
     '<rootDir>/packages/*/tests/**/*.test.ts',
     '<rootDir>/packages/*/src/rules/**/*.test.ts',
-    '<rootDir>/packages/ruling/tests/*.ruling.test.ts',
+    '<rootDir>/packages/ruling/tests/projects/*.ruling.test.ts',
   ],
   testTimeout: 20000,
 };
