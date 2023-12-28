@@ -21,10 +21,11 @@
 import path from 'path';
 import { toUnixPath } from '@sonar/shared';
 import {
-  searchPackageJsonFiles,
+  loadPackageJsonFiles,
   getAllPackageJsons,
   getNearestPackageJsons,
   clearPackageJsons,
+  getPackageJsonsCount,
 } from '@sonar/jsts';
 
 describe('initialize package.json files', () => {
@@ -34,8 +35,8 @@ describe('initialize package.json files', () => {
 
   it('should find all package.json files', () => {
     const baseDir = path.posix.join(toUnixPath(__dirname), 'fixtures');
-    searchPackageJsonFiles(baseDir, []);
-    expect(Object.keys(getAllPackageJsons()).length).toEqual(7);
+    loadPackageJsonFiles(baseDir, []);
+    expect(getPackageJsonsCount()).toEqual(7);
 
     const basePJList = getNearestPackageJsons(path.posix.join(baseDir, 'index.js'));
     const basePJ = toUnixPath(path.posix.join(baseDir, 'package.json'));
@@ -108,8 +109,8 @@ describe('initialize package.json files', () => {
   it('should ignore package.json files from ignored patterns', () => {
     const baseDir = path.posix.join(toUnixPath(__dirname), 'fixtures');
 
-    searchPackageJsonFiles(baseDir, ['moduleA']);
-    expect(Object.keys(getAllPackageJsons()).length).toEqual(4);
+    loadPackageJsonFiles(baseDir, ['moduleA']);
+    expect(getPackageJsonsCount()).toEqual(4);
     const expected = [
       ['package.json'],
       ['moduleB', 'package.json'],
@@ -125,8 +126,8 @@ describe('initialize package.json files', () => {
     expect(actual).toEqual(expectedMap);
 
     clearPackageJsons();
-    searchPackageJsonFiles(baseDir, ['module*']);
-    expect(Object.keys(getAllPackageJsons()).length).toEqual(1);
+    loadPackageJsonFiles(baseDir, ['module*']);
+    expect(getPackageJsonsCount()).toEqual(1);
     expect(getAllPackageJsons()).toEqual({
       [baseDir]: [
         { filename: path.posix.join(baseDir, 'package.json'), contents: expect.any(Object) },
@@ -137,13 +138,13 @@ describe('initialize package.json files', () => {
   it('should return empty array when no package.json are in the DB or none exist in the file tree', () => {
     const baseDir = path.posix.join(toUnixPath(__dirname), 'fixtures');
 
-    expect(Object.keys(getAllPackageJsons()).length).toEqual(0);
+    expect(getPackageJsonsCount()).toEqual(0);
     expect(
       getNearestPackageJsons(path.posix.join(baseDir, '..', 'another-module', 'index.js')),
     ).toHaveLength(0);
 
-    searchPackageJsonFiles(baseDir, ['']);
-    expect(Object.keys(getAllPackageJsons()).length).toEqual(7);
+    loadPackageJsonFiles(baseDir, ['']);
+    expect(getPackageJsonsCount()).toEqual(7);
     expect(
       getNearestPackageJsons(path.posix.join(baseDir, '..', 'another-module', 'index.js')),
     ).toHaveLength(0);

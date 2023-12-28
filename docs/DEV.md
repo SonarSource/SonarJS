@@ -161,10 +161,10 @@ If your rule depends on a dependency declared in the `package.json` file, you ca
 ```js
 describe('Rule S5973', () => {
   beforeEach(() => {
-    searchPackageJsonFiles(__dirname, []);
+    loadPackageJsonFiles(__dirname, []);
   });
   afterAll(() => {
-    getAllPackageJsons().clear();
+    clearPackageJsons();
   });
   check(sonarId, rule, __dirname);
 });

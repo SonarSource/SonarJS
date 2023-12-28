@@ -20,11 +20,11 @@
 import { RuleTester } from 'eslint';
 import { rule } from './';
 import path from 'path';
-import { clearPackageJsons, searchPackageJsonFiles } from '@sonar/jsts';
+import { clearPackageJsons, loadPackageJsonFiles } from '@sonar/jsts';
 
 //reset and search package.json files in rule dir
 clearPackageJsons();
-searchPackageJsonFiles(__dirname, []);
+loadPackageJsonFiles(__dirname, []);
 
 const fixtures = path.join(__dirname, 'fixtures');
 const filenameReact15 = path.join(fixtures, 'react15/file.js');

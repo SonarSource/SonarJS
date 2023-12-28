@@ -25,7 +25,7 @@ import {
   analyzeJSTS,
   JsTsAnalysisOutput,
   createAndSaveProgram,
-  searchPackageJsonFiles,
+  loadPackageJsonFiles,
   getNearestPackageJsons,
 } from '../../src';
 import { jsTsInput, parseJavaScriptSourceFile } from '../tools';
@@ -898,7 +898,7 @@ describe('analyzeJSTS', () => {
 
   it('package.json should be available in rule context', async () => {
     const baseDir = path.join(__dirname, 'fixtures', 'package-json');
-    searchPackageJsonFiles(baseDir, []);
+    loadPackageJsonFiles(baseDir, []);
 
     const linter = new Linter();
     linter.defineRule('custom-rule-file', {

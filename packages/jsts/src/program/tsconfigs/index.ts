@@ -28,17 +28,21 @@ export const TSCONFIG_JSON = 'tsconfig.json';
 //import { TsConfigJson } from 'type-fest';
 let TSConfigJsonsByBaseDir: Record<string, File<void>[]>;
 
-export function searchTSConfigJsonFiles(baseDir: string, exclusions: string[]) {
+export function loadTSConfigFiles(baseDir: string, exclusions: string[]) {
   const { tsConfigs } = searchFiles(baseDir, { tsConfigs: { pattern: TSCONFIG_JSON } }, exclusions);
   TSConfigJsonsByBaseDir = tsConfigs as Record<string, File<void>[]>;
 }
 
-export function getAllTSConfigJsons() {
-  return TSConfigJsonsByBaseDir;
-}
-
 export function clearTSConfigJsons() {
   TSConfigJsonsByBaseDir = {};
+}
+
+export function getTSConfigCount() {
+  let count = 0;
+  for (const tsConfigs of Object.values(TSConfigJsonsByBaseDir)) {
+    count += tsConfigs.length;
+  }
+  return count;
 }
 
 export function setTSConfigJsons(db: Record<string, File<void>[]>) {

@@ -40,7 +40,7 @@ const cache: Map<string, Set<string>> = new Map();
 
 let PackageJsonsByBaseDir: Record<string, File<PackageJson>[]>;
 
-export function searchPackageJsonFiles(baseDir: string, exclusions: string[]) {
+export function loadPackageJsonFiles(baseDir: string, exclusions: string[]) {
   const { packageJsons } = searchFiles(
     baseDir,
     {
@@ -57,6 +57,10 @@ export function searchPackageJsonFiles(baseDir: string, exclusions: string[]) {
 
 export function getAllPackageJsons() {
   return PackageJsonsByBaseDir;
+}
+
+export function getPackageJsonsCount() {
+  return Object.keys(PackageJsonsByBaseDir).length;
 }
 
 export function clearPackageJsons() {
@@ -105,11 +109,11 @@ export function getDependencies(fileName: string) {
  * @param file source file for which we need a package.json
  */
 export function getNearestPackageJsons(file: string) {
-  if (!PackageJsonsByBaseDir) {
+  if (!getAllPackageJsons()) {
     return [];
   }
   const results: File<PackageJson>[] = [];
-  if (Object.keys(PackageJsonsByBaseDir).length === 0) {
+  if (getPackageJsonsCount() === 0) {
     return results;
   }
   let currentDir = path.posix.dirname(path.posix.normalize(toUnixPath(file)));
