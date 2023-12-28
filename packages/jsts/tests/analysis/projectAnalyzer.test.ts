@@ -104,4 +104,14 @@ describe('analyzeProject', () => {
     expect(result.meta.withProgram).toBeFalsy();
     expect(result.meta.programsCreated.length).toEqual(0);
   });
+
+  it('should return a default result when the project is empty', async () => {
+    const result = await analyzeProject(prepareInput({} as Record<string, File<void>[]>));
+    expect(result).toEqual(
+      expect.objectContaining({
+        files: {},
+        meta: expect.objectContaining({}),
+      }),
+    );
+  });
 });
