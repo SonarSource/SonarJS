@@ -1,7 +1,7 @@
 import {
-  clearTSConfigJsons as clearTSconfigFiles,
-  getTSConfigCount,
-  loadTSConfigFiles,
+  clearTSConfigs as clearTSconfigFiles,
+  getTSConfigsCount,
+  loadTSConfigs,
 } from '@sonar/jsts';
 import * as path from 'path';
 
@@ -13,8 +13,8 @@ describe('tsconfigs', () => {
 
     const fixturesDir = path.join(__dirname, 'fixtures');
     it('should return the TSconfig files', () => {
-      loadTSConfigFiles(fixturesDir, []);
-      expect(getTSConfigCount()).toEqual(7);
+      loadTSConfigs(fixturesDir, []);
+      expect(getTSConfigsCount()).toEqual(7);
     });
   });
 });

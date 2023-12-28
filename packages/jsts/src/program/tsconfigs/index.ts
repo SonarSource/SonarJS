@@ -28,16 +28,16 @@ export const TSCONFIG_JSON = 'tsconfig.json';
 //import { TsConfigJson } from 'type-fest';
 let TSConfigJsonsByBaseDir: Record<string, File<void>[]>;
 
-export function loadTSConfigFiles(baseDir: string, exclusions: string[]) {
+export function loadTSConfigs(baseDir: string, exclusions: string[]) {
   const { tsConfigs } = searchFiles(baseDir, { tsConfigs: { pattern: TSCONFIG_JSON } }, exclusions);
   TSConfigJsonsByBaseDir = tsConfigs as Record<string, File<void>[]>;
 }
 
-export function clearTSConfigJsons() {
+export function clearTSConfigs() {
   TSConfigJsonsByBaseDir = {};
 }
 
-export function getTSConfigCount() {
+export function getTSConfigsCount() {
   let count = 0;
   for (const tsConfigs of Object.values(TSConfigJsonsByBaseDir)) {
     count += tsConfigs.length;
@@ -45,11 +45,11 @@ export function getTSConfigCount() {
   return count;
 }
 
-export function setTSConfigJsons(db: Record<string, File<void>[]>) {
+export function setTSConfigs(db: Record<string, File<void>[]>) {
   TSConfigJsonsByBaseDir = db;
 }
 
-export async function* loopTSConfigs(
+export async function* getTSConfigsIterator(
   files: string[],
   baseDir: string,
   sonarLint: boolean,

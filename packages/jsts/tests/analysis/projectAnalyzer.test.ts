@@ -20,7 +20,7 @@
 
 import path from 'path';
 import { File, searchFiles, setContext, toUnixPath } from '@sonar/shared';
-import { analyzeProject, clearTSConfigJsons, ProjectAnalysisInput, RuleConfig } from '@sonar/jsts';
+import { analyzeProject, clearTSConfigs, ProjectAnalysisInput, RuleConfig } from '@sonar/jsts';
 
 const defaultRules: RuleConfig[] = [
   { key: 'no-duplicate-in-composite', configurations: [], fileTypeTarget: ['MAIN'] },
@@ -70,7 +70,7 @@ const fixtures = path.join(__dirname, 'fixtures');
 describe('analyzeProject', () => {
   beforeEach(() => {
     jest.resetModules();
-    clearTSConfigJsons();
+    clearTSConfigs();
     setContext({
       workDir: '/tmp/dir',
       shouldUseTypeScriptParserForJS: true,

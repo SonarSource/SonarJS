@@ -30,7 +30,7 @@ import { analyzeWithProgram } from './analyzeWithProgram';
 import { analyzeWithWatchProgram } from './analyzeWithWatchProgram';
 import { analyzeWithoutProgram } from './analyzeWithoutProgram';
 import { initializeLinter } from '../../linter';
-import { TSCONFIG_JSON, setTSConfigJsons, loopTSConfigs } from '../../program';
+import { TSCONFIG_JSON, setTSConfigs as setTSConfigs, getTSConfigsIterator } from '../../program';
 import { PACKAGE_JSON, parsePackageJson, setPackageJsons } from '../../dependencies';
 
 /**
@@ -65,8 +65,8 @@ export async function analyzeProject(input: ProjectAnalysisInput): Promise<Proje
   const pendingFiles: Set<string> = new Set(inputFilenames);
   const watchProgram = input.isSonarlint || hasVueFile(inputFilenames);
   initializeLinter(rules, environments, globals);
-  searchTSConfigJsonAndPackageJsonFiles(baseDir, exclusions);
-  const tsConfigs = loopTSConfigs(
+  loadTSConfigAndPackageJsonFiles(baseDir, exclusions);
+  const tsConfigs = getTSConfigsIterator(
     inputFilenames,
     toUnixPath(baseDir),
     isSonarlint,
@@ -92,7 +92,7 @@ function hasVueFile(files: string[]) {
  * Gather all the tsconfig.json and package.json files in the project
  * and save them in their respective caches.
  */
-function searchTSConfigJsonAndPackageJsonFiles(baseDir: string, exclusions: string[]) {
+function loadTSConfigAndPackageJsonFiles(baseDir: string, exclusions: string[]) {
   const { packageJsons, tsConfigs } = searchFiles(
     baseDir,
     {
@@ -102,5 +102,5 @@ function searchTSConfigJsonAndPackageJsonFiles(baseDir: string, exclusions: stri
     exclusions,
   );
   setPackageJsons(packageJsons as Record<string, File<PackageJson>[]>);
-  setTSConfigJsons(tsConfigs as Record<string, File<void>[]>);
+  setTSConfigs(tsConfigs as Record<string, File<void>[]>);
 }

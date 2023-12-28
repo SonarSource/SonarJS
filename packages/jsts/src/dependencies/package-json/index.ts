@@ -40,7 +40,7 @@ const cache: Map<string, Set<string>> = new Map();
 
 let PackageJsonsByBaseDir: Record<string, File<PackageJson>[]>;
 
-export function loadPackageJsonFiles(baseDir: string, exclusions: string[]) {
+export function loadPackageJsons(baseDir: string, exclusions: string[]) {
   const { packageJsons } = searchFiles(
     baseDir,
     {

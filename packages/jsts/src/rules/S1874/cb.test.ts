@@ -20,13 +20,13 @@
 import { check } from '../tools';
 import { rule } from './';
 import path from 'path';
-import { clearPackageJsons, loadPackageJsonFiles } from '@sonar/jsts';
+import { clearPackageJsons, loadPackageJsons } from '@sonar/jsts';
 
 const sonarId = path.basename(__dirname);
 
 describe('Rule S1874', () => {
   beforeEach(() => {
-    loadPackageJsonFiles(__dirname, []);
+    loadPackageJsons(__dirname, []);
   });
   afterAll(() => {
     clearPackageJsons();

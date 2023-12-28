@@ -21,7 +21,7 @@
 import path from 'path';
 import { toUnixPath } from '@sonar/shared';
 import {
-  loadPackageJsonFiles,
+  loadPackageJsons,
   getAllPackageJsons,
   getNearestPackageJsons,
   clearPackageJsons,
@@ -35,7 +35,7 @@ describe('initialize package.json files', () => {
 
   it('should find all package.json files', () => {
     const baseDir = path.posix.join(toUnixPath(__dirname), 'fixtures');
-    loadPackageJsonFiles(baseDir, []);
+    loadPackageJsons(baseDir, []);
     expect(getPackageJsonsCount()).toEqual(7);
 
     const basePJList = getNearestPackageJsons(path.posix.join(baseDir, 'index.js'));
@@ -109,7 +109,7 @@ describe('initialize package.json files', () => {
   it('should ignore package.json files from ignored patterns', () => {
     const baseDir = path.posix.join(toUnixPath(__dirname), 'fixtures');
 
-    loadPackageJsonFiles(baseDir, ['moduleA']);
+    loadPackageJsons(baseDir, ['moduleA']);
     expect(getPackageJsonsCount()).toEqual(4);
     const expected = [
       ['package.json'],
@@ -126,7 +126,7 @@ describe('initialize package.json files', () => {
     expect(actual).toEqual(expectedMap);
 
     clearPackageJsons();
-    loadPackageJsonFiles(baseDir, ['module*']);
+    loadPackageJsons(baseDir, ['module*']);
     expect(getPackageJsonsCount()).toEqual(1);
     expect(getAllPackageJsons()).toEqual({
       [baseDir]: [
@@ -143,7 +143,7 @@ describe('initialize package.json files', () => {
       getNearestPackageJsons(path.posix.join(baseDir, '..', 'another-module', 'index.js')),
     ).toHaveLength(0);
 
-    loadPackageJsonFiles(baseDir, ['']);
+    loadPackageJsons(baseDir, ['']);
     expect(getPackageJsonsCount()).toEqual(7);
     expect(
       getNearestPackageJsons(path.posix.join(baseDir, '..', 'another-module', 'index.js')),
