@@ -23,8 +23,8 @@ import {
   createAndSaveProgram,
   DEFAULT_LANGUAGE,
   deleteProgram,
+  JsTsAnalysisOutput,
   JsTsFiles,
-  ProjectAnalysisOutput,
 } from '../../';
 import { error, readFile } from '@sonar/shared';
 
@@ -38,38 +38,40 @@ import { error, readFile } from '@sonar/shared';
  * @param pendingFiles array of files which are still not analyzed, to keep track of progress
  *                     and avoid analyzing twice the same file
  */
-export async function analyzeWithProgram(
-  files: JsTsFiles,
-  tsConfigs: AsyncGenerator<string>,
-  results: ProjectAnalysisOutput,
-  pendingFiles: Set<string>,
-) {
+export async function analyzeWithProgram(files: JsTsFiles, tsConfigs: AsyncGenerator<string>) {
+  const resultFiles: { [key: string]: JsTsAnalysisOutput } = {};
+  const pendingFiles = new Set(Object.keys(files));
+  const programsCreated: string[] = [];
   for await (const tsConfig of tsConfigs) {
-    await analyzeProgram(files, tsConfig, results, pendingFiles);
+    const intermediateResult = await analyzeProgram(files, tsConfig, pendingFiles);
+    Object.assign(resultFiles, intermediateResult.resultFiles);
+    programsCreated.push(...intermediateResult.programsCreated);
     if (!pendingFiles.size) {
       break;
     }
   }
+  return { resultFiles, programsCreated };
 }
 
 async function analyzeProgram(
   files: JsTsFiles,
   tsConfig: string,
-  results: ProjectAnalysisOutput,
   pendingFiles: Set<string>,
+  programsCreated: string[] = [],
 ) {
   let filenames, programId, projectReferences;
   try {
     ({ files: filenames, programId, projectReferences } = createAndSaveProgram(tsConfig));
   } catch (e) {
     error('Failed to create program: ' + e);
-    return;
+    return { resultFiles: {}, programsCreated: [] };
   }
-  results.meta?.programsCreated.push(tsConfig);
+  programsCreated.push(tsConfig);
+  const resultFiles: { [key: string]: JsTsAnalysisOutput } = {};
   for (const filename of filenames) {
     // only analyze files which are requested
-    if (files[filename] && pendingFiles.has(filename)) {
-      results.files[filename] = analyzeFile({
+    if (files[filename]) {
+      resultFiles[filename] = analyzeFile({
         filePath: filename,
         fileContent: files[filename].fileContent ?? (await readFile(filename)),
         fileType: files[filename].fileType,
@@ -82,6 +84,13 @@ async function analyzeProgram(
   deleteProgram(programId);
 
   for (const reference of projectReferences) {
-    await analyzeProgram(files, reference, results, pendingFiles);
+    const { resultFiles: referenceResults, programsCreated: referencePC } = await analyzeProgram(
+      files,
+      reference,
+      pendingFiles,
+    );
+    Object.assign(resultFiles, referenceResults);
+    programsCreated = programsCreated.concat(referencePC);
   }
+  return { resultFiles, programsCreated };
 }
