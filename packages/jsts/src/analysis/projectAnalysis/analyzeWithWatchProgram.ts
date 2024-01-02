@@ -22,8 +22,8 @@ import {
   clearTypeScriptESLintParserCaches,
   createProgramOptions,
   DEFAULT_LANGUAGE,
+  JsTsAnalysisOutput,
   JsTsFiles,
-  ProjectAnalysisOutput,
 } from '../../';
 import { readFile } from '@sonar/shared';
 
@@ -38,31 +38,30 @@ import { readFile } from '@sonar/shared';
  * @param pendingFiles array of files which are still not analyzed, to keep track of progress
  *                     and avoid analyzing twice the same file
  */
-export async function analyzeWithWatchProgram(
-  files: JsTsFiles,
-  tsConfigs: AsyncGenerator<string>,
-  results: ProjectAnalysisOutput,
-  pendingFiles: Set<string>,
-) {
+export async function analyzeWithWatchProgram(files: JsTsFiles, tsConfigs: AsyncGenerator<string>) {
+  const analyzedFiles: { [key: string]: JsTsAnalysisOutput } = {};
+  const analyzedFilenames = new Set();
+  const availableFiles = Object.keys(files).length;
   for await (const tsConfig of tsConfigs) {
     const options = createProgramOptions(tsConfig);
     const filenames = options.rootNames;
     for (const filename of filenames) {
       // only analyze files which are requested
-      if (files[filename] && pendingFiles.has(filename)) {
-        results.files[filename] = analyzeFile({
+      if (files[filename] && !analyzedFilenames.has(filename)) {
+        analyzedFiles[filename] = analyzeFile({
           filePath: filename,
           fileContent: files[filename].fileContent ?? (await readFile(filename)),
           fileType: files[filename].fileType,
           language: files[filename].language ?? DEFAULT_LANGUAGE,
           tsConfigs: [tsConfig],
         });
-        pendingFiles.delete(filename);
+        analyzedFilenames.add(filename);
       }
     }
     clearTypeScriptESLintParserCaches();
-    if (!pendingFiles.size) {
+    if (analyzedFilenames.size === availableFiles) {
       break;
     }
   }
+  return analyzedFiles;
 }

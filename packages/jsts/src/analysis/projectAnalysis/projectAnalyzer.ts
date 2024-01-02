@@ -22,6 +22,7 @@ import { File, searchFiles, toUnixPath } from '@sonar/shared';
 import {
   DEFAULT_ENVIRONMENTS,
   DEFAULT_GLOBALS,
+  JsTsFiles,
   ProjectAnalysisInput,
   ProjectAnalysisOutput,
 } from './projectAnalysis';
@@ -32,6 +33,7 @@ import { analyzeWithoutProgram } from './analyzeWithoutProgram';
 import { initializeLinter } from '../../linter';
 import { TSCONFIG_JSON, setTSConfigs, getTSConfigsIterator } from '../../program';
 import { PACKAGE_JSON, parsePackageJson, setPackageJsons } from '../../dependencies';
+import { JsTsAnalysisOutput } from '../analysis';
 
 /**
  * Analyzes a JavaScript / TypeScript project in a single run
@@ -62,8 +64,7 @@ export async function analyzeProject(input: ProjectAnalysisInput): Promise<Proje
   if (!inputFilenames.length) {
     return results;
   }
-  const pendingFiles: Set<string> = new Set(inputFilenames);
-  const watchProgram = input.isSonarlint || hasVueFile(inputFilenames);
+  const shouldUseWatchProgram = input.isSonarlint || hasVueFile(inputFilenames);
   initializeLinter(rules, environments, globals);
   loadTSConfigAndPackageJsonFiles(baseDir, exclusions);
   const tsConfigs = getTSConfigsIterator(
@@ -72,16 +73,37 @@ export async function analyzeProject(input: ProjectAnalysisInput): Promise<Proje
     isSonarlint,
     maxFilesForTypeChecking,
   );
-  if (watchProgram) {
+  if (shouldUseWatchProgram) {
     results.meta!.withWatchProgram = true;
-    await analyzeWithWatchProgram(input.files, tsConfigs, results, pendingFiles);
+    results.files = await analyzeWithWatchProgram(input.files, tsConfigs);
   } else {
     results.meta!.withProgram = true;
-    await analyzeWithProgram(input.files, tsConfigs, results, pendingFiles);
+    ({ resultFiles: results.files, programsCreated: results.meta!.programsCreated } =
+      await analyzeWithProgram(input.files, tsConfigs));
   }
 
-  await analyzeWithoutProgram(pendingFiles, input.files, results);
+  const pendingFiles = computePending(input.files, results.files);
+
+  const { resultFiles, filesWithoutTypeChecking } = await analyzeWithoutProgram(
+    pendingFiles,
+    input.files,
+  );
+  results.meta!.filesWithoutTypeChecking = filesWithoutTypeChecking;
+  Object.assign(results.files, resultFiles);
   return results;
+}
+
+function computePending(
+  inputFiles: JsTsFiles,
+  analyzedFiles: { [key: string]: JsTsAnalysisOutput },
+) {
+  const pendingFiles: Set<string> = new Set();
+  for (const filename of Object.keys(inputFiles)) {
+    if (!analyzedFiles[filename]) {
+      pendingFiles.add(filename);
+    }
+  }
+  return pendingFiles;
 }
 
 function hasVueFile(files: string[]) {
