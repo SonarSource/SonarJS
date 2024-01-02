@@ -266,6 +266,7 @@ js_ts_ruling_task:
   submodules_script:
     - git submodule update --init
   ruling_script:
+    - . ~/.profile
     - source cirrus-env QA
     - source set_maven_build_version $BUILD_NUMBER
     - npm run bridge:build:fast
