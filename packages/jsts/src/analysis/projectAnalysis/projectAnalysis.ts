@@ -46,7 +46,6 @@ export type ProjectAnalysisInput = {
   environments?: string[];
   globals?: string[];
   baseDir: string;
-  tsConfigs?: string[];
   exclusions?: string[];
   isSonarlint?: boolean;
   maxFilesForTypeChecking?: number;

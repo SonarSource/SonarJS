@@ -50,7 +50,6 @@ describe('router', () => {
   });
 
   it('should route /analyze-project requests', async () => {
-    const tsConfig = toUnixPath(path.join(fixtures, 'tsconfig.json'));
     const filePath = toUnixPath(path.join(fixtures, 'file.ts'));
     const payload: ProjectAnalysisInput = {
       rules: [
@@ -65,7 +64,6 @@ describe('router', () => {
       files: {
         [filePath]: { fileType: 'MAIN' },
       },
-      tsConfigs: [tsConfig],
     };
 
     const response = (await request(server, '/analyze-project', 'POST', payload)) as string;
