@@ -269,8 +269,8 @@ js_ts_ruling_task:
     - . ~/.profile
     - source cirrus-env QA
     - source set_maven_build_version $BUILD_NUMBER
-    - npm run bridge:build:fast
     - npm run _:plugin:update-ruling-data
+    - npm run bridge:build:fast
     - npm run ruling
   cleanup_before_cache_script: cleanup_maven_repository
 
