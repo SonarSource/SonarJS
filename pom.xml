@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.sonarsource.parent</groupId>
     <artifactId>parent</artifactId>
-    <version>70.0.0.270</version>
+    <version>71.0.0.1292</version>
   </parent>
 
   <groupId>org.sonarsource.javascript</groupId>
@@ -29,6 +29,7 @@
   </licenses>
 
   <modules>
+    <module>packages</module>
     <module>sonar-plugin</module>
     <module>tools</module>
     <!--
@@ -245,16 +246,6 @@
         <artifactId>license-maven-plugin</artifactId>
         <!-- This plugin is already configured in parent pom, however we want a configuration specific to this project -->
         <configuration>
-          <includes>
-            <include>packages/**/*.ts</include>
-            <include>packages/**/*.tsx</include>
-            <include>profiling/**/*.ts</include>
-            <include>profiling/**/*.js</include>
-            <include>tools/resources/rule.*</include>
-            <include>tools/**/*.mjs</include>
-            <include>tools/**/*.ts</include>
-            <include>tools/**/*.java</include>
-          </includes>
           <mapping>
             <template_java>JAVADOC_STYLE</template_java>
             <template_ts>JAVADOC_STYLE</template_ts>
