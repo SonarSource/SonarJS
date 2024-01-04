@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2023 SonarSource SA
+ * Copyright (C) 2011-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -38,6 +38,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import javax.annotation.Nullable;
 import org.sonar.api.Startable;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.Sensor;
@@ -106,8 +107,8 @@ public class Monitoring implements Startable {
     sensorMetric.fileCount++;
   }
 
-  public void stopFile(InputFile inputFile, int ncloc, BridgeServer.Perf perf) {
-    if (!enabled) {
+  public void stopFile(InputFile inputFile, int ncloc, @Nullable BridgeServer.Perf perf) {
+    if (!enabled || perf == null) {
       return;
     }
     fileMetric.duration = fileMetric.clock.stop();

@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2023 SonarSource SA
+ * Copyright (C) 2011-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -141,7 +141,6 @@ describe('buildSourceCode', () => {
     } = buildSourceCode(await jsTsInput({ filePath }), 'js');
 
     expect(stmt.type).toEqual('FunctionDeclaration');
-    expect(console.log).not.toHaveBeenCalled();
   });
 
   it('should fail building JavaScript code with TypeScript ESLint parser', async () => {

@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2023 SonarSource SA
+ * Copyright (C) 2011-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,7 +21,7 @@
 
 import estree from 'estree';
 import { Rule } from 'eslint';
-import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { TSESTree } from '@typescript-eslint/utils';
 import { interceptReport, isNumberLiteral } from '../helpers';
 
 // The core implementation of this rule reports all enums for which there is a member value that is

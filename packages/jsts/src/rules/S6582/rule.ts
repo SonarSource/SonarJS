@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2023 SonarSource SA
+ * Copyright (C) 2011-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -44,10 +44,11 @@ const preferOptionalChainRule = tsEslintRules['prefer-optional-chain'];
 export const rule: Rule.RuleModule = {
   meta: {
     hasSuggestions: true,
+    fixable: 'code',
     messages: { ...preferOptionalChainRule.meta!.messages },
   },
   create(context: Rule.RuleContext) {
-    const services = context.parserServices;
+    const services = context.sourceCode.parserServices;
     if (!services?.program || !services.esTreeNodeToTSNodeMap || !services.tsNodeToESTreeNodeMap) {
       return {};
     }

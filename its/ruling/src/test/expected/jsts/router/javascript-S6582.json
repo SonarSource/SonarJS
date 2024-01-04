@@ -2,6 +2,9 @@
 "router:src/activation.js": [
 91
 ],
+"router:src/history.js": [
+74
+],
 "router:src/router.js": [
 88,
 92

@@ -1,8 +1,10 @@
 {
 "Joust:ts/components/SetupWidget.tsx": [
+6,
 12
 ],
 "Joust:ts/protocol/HSReplayDecoder.ts": [
+2,
 24
 ]
 }

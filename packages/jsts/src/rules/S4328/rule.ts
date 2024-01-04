@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2023 SonarSource SA
+ * Copyright (C) 2011-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -37,8 +37,10 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     const whitelist = context.options;
     const dependencies = getDependencies(context.filename);
-    const aliasedPathsMappingPatterns = extractPathMappingPatterns(context.parserServices);
-    const baseUrl = getBaseUrl(context.parserServices);
+    const aliasedPathsMappingPatterns = extractPathMappingPatterns(
+      context.sourceCode.parserServices,
+    );
+    const baseUrl = getBaseUrl(context.sourceCode.parserServices);
     if (aliasedPathsMappingPatterns === 'matchAll') {
       // deactivates this rule altogether.
       return {};

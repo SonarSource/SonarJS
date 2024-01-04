@@ -7,11 +7,8 @@
     },
     "attribute": "COMPLETE"
   },
-  "status": "ready",
-  "tags": [
-    "aws",
-    "cwe"
-  ],
+  "status": "deprecated",
+  "tags": [],
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-6245",
   "sqKey": "S6245",

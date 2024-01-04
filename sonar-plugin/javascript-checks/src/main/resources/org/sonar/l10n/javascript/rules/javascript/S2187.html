@@ -6,10 +6,10 @@ ensure that it behaves as expected. If a test file doesn’t contain any test ca
   <li> An incomplete test suite: Perhaps the developer started writing tests but didn’t finish. </li>
   <li> A mistake: The developer might have accidentally deleted the test cases or moved them to another file. </li>
 </ul>
-<p>This rule flags any file that has a <code>.test</code> or <code>.spec</code> suffix but does not contain any test cases defined using the different
-forms of the <code>it</code> and <code>test</code> functions from Jasmine, Jest, Mocha, or Node.js testing API.</p>
+<p>This rule flags any file that has <code>.test</code> or <code>.spec</code> as part of its suffix but does not contain any test cases defined using
+the different forms of the <code>it</code> and <code>test</code> functions from Jasmine, Jest, Mocha, or Node.js testing API.</p>
 <h2>How to fix it</h2>
-<p>To fix a test file that doesn’t contain any test cases, you should add test cases or delete the file if it isn’t needed.</p>
+<p>Add test cases to the file or delete it if it isn’t needed anymore.</p>
 <h3>Code examples</h3>
 <h4>Noncompliant code example</h4>
 <pre data-diff-id="1" data-diff-type="noncompliant">

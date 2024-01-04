@@ -1,4 +1,5 @@
-module.exports = {
+/** @type {import('jest').Config} */
+const config = {
   collectCoverageFrom: ['packages/*/src/**/*.ts'],
   coveragePathIgnorePatterns: ['.fixture.', '/fixtures/'],
   moduleFileExtensions: ['js', 'ts', 'json'],
@@ -7,6 +8,7 @@ module.exports = {
     '^@sonar/(\\w+)(.*)$': '<rootDir>/packages/$1/src$2',
   },
   modulePathIgnorePatterns: ['<rootDir>/packages/jsts/src/rules/.*/package.json$'],
+  resolver: '<rootDir>/jest-resolver.js',
   testResultsProcessor: 'jest-sonar-reporter',
   transform: {
     '^.+\\.ts$': ['ts-jest', { tsconfig: 'packages/tsconfig.test.json' }],
@@ -18,3 +20,5 @@ module.exports = {
   ],
   testTimeout: 20000,
 };
+
+module.exports = config;

@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2023 SonarSource SA
+ * Copyright (C) 2011-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -66,7 +66,7 @@ export const rule: Rule.RuleModule = {
   },
   create(context: Rule.RuleContext) {
     const threshold = context.options.length > 0 ? context.options[0] : DEFAULT_THESHOLD;
-    const services = context.parserServices;
+    const services = context.sourceCode.parserServices;
     const regexNodes: estree.Node[] = [];
     return {
       'Literal[regex]:exit': (node: estree.Node) => {

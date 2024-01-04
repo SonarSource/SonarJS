@@ -62,13 +62,13 @@ validating the signature every time a token is decoded. Just having a signed tok
 signatures, they are not serving their purpose.</p>
 <p>Every time your application receives a JWT, it needs to decode the token to extract the information contained within. It is during this decoding
 process that the signature of the JWT should also be checked.</p>
-<p>To resolve the issue follow these instructions:</p>
+<p>To resolve the issue, follow these instructions:</p>
 <ol>
   <li> Use framework-specific functions for signature verification: Most programming frameworks that support JWTs provide specific functions to not
   only decode a token but also validate its signature simultaneously. Make sure to use these functions when handling incoming tokens. </li>
   <li> Handle invalid signatures appropriately: If a JWT’s signature does not validate correctly, it means the token is not trustworthy, indicating
-  potential tampering. The action to take on encountering an invalid token should be denying the request carrying it and logging the event for further
-  investigation. </li>
+  potential tampering. The action to take when encountering an invalid token should be denying the request carrying it and logging the event for
+  further investigation. </li>
   <li> Incorporate signature validation in your tests: When you are writing tests for your application, include tests that check the signature
   validation functionality. This can help you catch any instances where signature verification might be unintentionally skipped or bypassed. </li>
 </ol>

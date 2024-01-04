@@ -8,6 +8,9 @@
 "jshint:tests/unit/fixtures/destparam.js": [
 5
 ],
+"jshint:tests/unit/fixtures/emptystmt.js": [
+1
+],
 "jshint:tests/unit/fixtures/es5Reserved.js": [
 6
 ],

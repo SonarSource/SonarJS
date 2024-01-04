@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2023 SonarSource SA
+ * Copyright (C) 2011-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -30,7 +30,7 @@ import {
 import { RegExpValidator } from '@eslint-community/regexpp';
 import { Character, CharacterClassElement } from '@eslint-community/regexpp/ast';
 import * as estree from 'estree';
-import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { TSESTree } from '@typescript-eslint/utils';
 
 const MODIFIABLE_REGEXP_FLAGS_TYPES: estree.Node['type'][] = [
   'Literal',

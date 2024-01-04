@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2023 SonarSource SA
+ * Copyright (C) 2011-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -98,12 +98,12 @@ function report(node: estree.Node, context: Rule.RuleContext) {
 }
 
 function isStringOrNumber(node: estree.Node, context: Rule.RuleContext) {
-  const type = getTypeFromTreeNode(node, context.parserServices);
+  const type = getTypeFromTreeNode(node, context.sourceCode.parserServices);
   return isStringType(type) || isBigIntType(type) || isNumberType(type);
 }
 
 function isNumber(node: estree.Node, context: Rule.RuleContext) {
-  const type = getTypeFromTreeNode(node, context.parserServices);
+  const type = getTypeFromTreeNode(node, context.sourceCode.parserServices);
   return isBigIntType(type) || isNumberType(type);
 }
 

@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2023 SonarSource SA
+ * Copyright (C) 2011-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -57,8 +57,8 @@ export function createRegExpRule(
   return {
     ...metadata,
     create(context: Rule.RuleContext) {
-      const services = isRequiredParserServices(context.parserServices)
-        ? context.parserServices
+      const services = isRequiredParserServices(context.sourceCode.parserServices)
+        ? context.sourceCode.parserServices
         : null;
 
       function checkRegex(node: estree.Node, regExpAST: regexpp.AST.Node | null) {

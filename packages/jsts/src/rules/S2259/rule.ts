@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2023 SonarSource SA
+ * Copyright (C) 2011-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,7 +21,7 @@
 
 import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
-import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { TSESTree } from '@typescript-eslint/utils';
 import {
   isRequiredParserServices,
   functionLike,
@@ -54,7 +54,7 @@ export const rule: Rule.RuleModule = {
     },
   },
   create(context: Rule.RuleContext) {
-    if (!isRequiredParserServices(context.parserServices)) {
+    if (!isRequiredParserServices(context.sourceCode.parserServices)) {
       return {};
     }
     const alreadyRaisedSymbols: Set<Scope.Variable> = new Set();
@@ -159,7 +159,7 @@ function checkNullDereference(
   if (
     !alreadyRaisedSymbols.has(symbol) &&
     !isWrittenInInnerFunction(symbol, enclosingFunction) &&
-    isUndefinedOrNull(node, context.parserServices)
+    isUndefinedOrNull(node, context.sourceCode.parserServices)
   ) {
     alreadyRaisedSymbols.add(symbol);
     context.report({

@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2023 SonarSource SA
+ * Copyright (C) 2011-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,69 +21,48 @@ import { RuleTester } from 'eslint';
 import { rule } from './';
 
 const ruleTester = new RuleTester({
-  parser: require.resolve('@typescript-eslint/parser'),
-  parserOptions: { ecmaVersion: 2015 },
+  parser: require.resolve('@babel/eslint-parser'),
+  parserOptions: { ecmaVersion: 2015, requireConfigFile: false },
 });
 
-ruleTester.run(`Unnecessary constructors should be removed`, rule, {
+ruleTester.run(`Unnecessary constructors should be removed with @babel/eslint-parser`, rule, {
   valid: [
     {
       code: `class Foo {}`,
     },
     {
+      // This test case is coming from closure library https://github.com/google/closure-library/blob/7818ff7dc0b53555a7fb3c3427e6761e88bde3a2/closure/goog/labs/net/webchannel/testing/fakewebchannel.js
       code: `
-        class Foo {
-          constructor(){
-            doSomething();
-          }
-        }
+class FakeWebChannel extends EventTarget {
+  
+  /**
+   * @param {!WebChannel.MessageData} messageData
+   * @override
+   */
+  constructor(messageData) {
+    super();
+
+    /** @private {?boolean} */
+    this.open_ = null;
+
+    /** @private @const {!Array<!WebChannel.MessageData>} */
+    this.messages_ = [];
+  }
+  
+}
       `,
     },
   ],
   invalid: [
     {
       code: `
-      class Foo {
-        constructor(){}
-      }
-    `,
-      errors: [
-        {
-          suggestions: [
-            {
-              desc: 'Remove constructor',
-              output: `
-      class Foo {
-        
-      }
-    `,
-            },
-          ],
-        },
-      ],
-    },
-    {
-      code: `
-      class Foo extends Bar {
-        constructor(){
+      class Invalid2 extends Bar {
+        constructor(){ // Noncompliant
           super();
         }
       }
-    `,
-      errors: [
-        {
-          suggestions: [
-            {
-              desc: 'Remove constructor',
-              output: `
-      class Foo extends Bar {
-        
-      }
-    `,
-            },
-          ],
-        },
-      ],
+      `,
+      errors: 1,
     },
   ],
 });

@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2023 SonarSource SA
+ * Copyright (C) 2011-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { TSESTree } from '@typescript-eslint/utils';
 import { resolveIdentifiers } from '../helpers';
 
 interface FunctionLike {
@@ -40,7 +40,7 @@ export const rule: Rule.RuleModule = {
       VariableDeclaration: (node: estree.Node) =>
         checkVariable(node as TSESTree.VariableDeclaration, context),
       'FunctionDeclaration, FunctionExpression, ArrowFunctionExpression, TSDeclareFunction, TSMethodSignature, TSConstructSignatureDeclaration, TSEmptyBodyFunctionExpression':
-        (node: estree.Node) => checkFunction(node as FunctionLike, context),
+        (node: estree.Node) => checkFunction(node as TSESTree.Node as FunctionLike, context),
       PropertyDefinition: (node: estree.Node) =>
         checkProperty(node as unknown as TSESTree.PropertyDefinition, context),
       CatchClause: (node: estree.Node) => checkCatch(node as TSESTree.CatchClause, context),

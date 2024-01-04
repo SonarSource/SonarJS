@@ -1,42 +1,54 @@
 {
 "searchkit:packages/searchkit-schema/src/resolvers/ResultsResolver.ts": [
+2,
 3
 ],
 "searchkit:packages/searchkit-schema/tests/Customisations.test.ts": [
+2,
 3
 ],
 "searchkit:packages/searchkit-schema/tests/Pagination.test.ts": [
+2,
 3
 ],
 "searchkit:packages/searchkit-schema/tests/Query.test.ts": [
+2,
 3
 ],
 "searchkit:packages/searchkit-schema/tests/SummaryResolver.test.ts": [
+2,
 3,
 4
 ],
 "searchkit:packages/searchkit-schema/tests/facets/FacetResolver.test.ts": [
+2,
 3,
 4
 ],
 "searchkit:packages/searchkit-schema/tests/facets/FacetsResolver.test.ts": [
+2,
 3,
 4
 ],
 "searchkit:packages/searchkit-schema/tests/facets/HierarchicalMenuFacet.test.ts": [
+2,
 3
 ],
 "searchkit:packages/searchkit-schema/tests/facets/RangeFilters.test.ts": [
+2,
 3,
 4
 ],
 "searchkit:packages/searchkit-schema/tests/filters/GeoFilters.test.ts": [
+2,
 3
 ],
 "searchkit:packages/searchkit-sdk/tests/suggestions/CompletionSuggestor.test.ts": [
+2,
 3
 ],
 "searchkit:packages/searchkit-sdk/tests/suggestions/HitsSuggestor.test.ts": [
+2,
 3
 ]
 }

@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2023 SonarSource SA
+ * Copyright (C) 2011-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -24,7 +24,7 @@ import { rules as reactRules } from 'eslint-plugin-react';
 import { rules as jsxA11yRules } from 'eslint-plugin-jsx-a11y';
 import { interceptReport, mergeRules } from '../helpers';
 import { decorate } from './decorator';
-import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { TSESTree } from '@typescript-eslint/utils';
 
 const noUnkownProp = reactRules['no-unknown-property'];
 const decoratedNoUnkownProp = decorate(noUnkownProp);
