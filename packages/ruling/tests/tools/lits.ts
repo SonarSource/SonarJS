@@ -21,7 +21,6 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { Issue, JsTsFiles, ProjectAnalysisOutput } from '../../../jsts/src';
 import { JsTsLanguage } from '../../../shared/src';
-import eslintIdToSonarId from '../data/eslint-to-sonar-id.json';
 
 /**
  * LITS formatted results with extra intermediate key js/ts
@@ -50,6 +49,7 @@ export function writeResults(
   fileSet: JsTsFiles[],
   actualPath: string,
 ) {
+  const eslintIdToSonarId = loadKeysMapping();
   const targetProjectPath = path.join(actualPath, projectName);
   try {
     fs.rmSync(targetProjectPath, { recursive: true });
@@ -143,4 +143,9 @@ function writeIssues(projectDir: string, ruleId: string, issues: FileIssues, isJ
       return 'CommentRegexTestTS';
     }
   }
+}
+
+function loadKeysMapping() {
+  const pathToKeysMapping = path.join(__dirname, '..', 'data', 'eslint-to-sonar-id.json');
+  return JSON.parse(fs.readFileSync(pathToKeysMapping, 'utf8'));
 }
