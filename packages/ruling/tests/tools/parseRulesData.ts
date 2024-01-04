@@ -78,10 +78,12 @@ function extractRulesData() {
 function applyRulingConfig(rule: RuleData) {
   switch (rule.key) {
     case 'no-ignored-exceptions': {
+      // for some reason the scope is different
       rule.fileTypeTarget = ['TEST'];
       break;
     }
     case 'no-exclusive-tests': {
+      // for some reason the scope is different
       rule.fileTypeTarget = ['TEST'];
       break;
     }
