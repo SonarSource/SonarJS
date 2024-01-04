@@ -269,6 +269,8 @@ js_ts_ruling_task:
     - . ~/.profile
     - source cirrus-env QA
     - source set_maven_build_version $BUILD_NUMBER
+    - jfrog config add repox --url $ARTIFACTORY_URL --access-token $ARTIFACTORY_DEPLOY_ACCESS_TOKEN
+    - npm config set registry "${ARTIFACTORY_URL}/api/npm/npm"
     - npm run build:fast
     - npm run _:plugin:update-ruling-data
     - npm run ruling
