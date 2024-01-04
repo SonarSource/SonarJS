@@ -113,8 +113,7 @@ build_task:
     - source cirrus-env BUILD
     - jfrog config add repox --url $ARTIFACTORY_URL --access-token $ARTIFACTORY_DEPLOY_ACCESS_TOKEN
     - npm config set registry "${ARTIFACTORY_URL}/api/npm/npm"
-    - npm run build:fast
-    - npm run _:plugin:update-ruling-data
+    - npm run build
     - regular_mvn_build_deploy_analyze -Dmaven.test.skip=true -Dmaven.install.skip=true -Dsonar.skip=true
   cleanup_before_cache_script: cleanup_maven_repository
 
