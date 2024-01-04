@@ -105,6 +105,7 @@ js_ts_ruling_task:
     CIRRUS_CLONE_DEPTH: 1
     SONARSOURCE_QA: true
   <<: *MAVEN_CACHE
+  <<: *RUNTIME_CACHE
   submodules_script:
     - git submodule update --init
   ruling_script:
