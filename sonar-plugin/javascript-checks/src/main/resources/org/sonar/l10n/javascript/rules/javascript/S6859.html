@@ -1,7 +1,8 @@
 <h2>Why is this an issue?</h2>
-<p>In Node.js importing modules is doable by providing an absolute path such as <code>/lib/foo/bar.js</code>. Doing this restricts the portability of
-your code, making it specific to your computer’s file system and potentially causing issues when the code is distributed, for example, through NPM
-packages.</p>
+<p>In Node.js, it’s possible to import modules by specifying an absolute path, such as <code>/lib/foo/bar.js</code>. However, this approach can limit
+the portability of your code, as it becomes tied to your computer’s file system. This could potentially lead to problems when the code is distributed,
+for instance, via NPM packages. Therefore, it’s advisable to use relative paths or module names for importing modules to enhance the portability and
+compatibility of your code across different systems.</p>
 <h2>How to fix it</h2>
 <p>Replace the absolute path with one that is relative to your current file.</p>
 <h3>Code examples</h3>

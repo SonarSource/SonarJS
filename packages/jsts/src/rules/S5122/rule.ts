@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2023 SonarSource SA
+ * Copyright (C) 2011-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -27,8 +27,7 @@ import {
   toEncodedMessage,
   getFullyQualifiedName,
 } from '../helpers';
-import { isLiteral } from 'eslint-plugin-sonarjs/lib/utils/nodes';
-import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { TSESTree } from '@typescript-eslint/utils';
 import { SONAR_RUNTIME } from '../../linter/parameters';
 
 const MESSAGE = `Make sure that enabling CORS is safe here.`;
@@ -94,12 +93,12 @@ export const rule: Rule.RuleModule = {
 
 function isCorsHeader(node: estree.Node) {
   const header = node as TSESTree.Node;
-  return isLiteral(header) && header.value === CORS_HEADER;
+  return header && header.type === 'Literal' && header.value === CORS_HEADER;
 }
 
 function isAnyDomain(node: estree.Node) {
   const domain = node as TSESTree.Node;
-  return isLiteral(domain) && domain.value === '*';
+  return domain && domain.type === 'Literal' && domain.value === '*';
 }
 
 function getSensitiveCorsProperty(

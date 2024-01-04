@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2023 SonarSource SA
+ * Copyright (C) 2011-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,9 +20,7 @@
 import { RuleTester, Rule } from 'eslint';
 import * as path from 'path';
 
-const parser = path.resolve(
-  `${__dirname}/../../../../../../node_modules/@typescript-eslint/parser`,
-);
+const parser = require.resolve('@typescript-eslint/parser');
 
 const parserOptions = {
   ecmaVersion: 2018,

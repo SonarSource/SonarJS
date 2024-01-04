@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2012-2023 SonarSource SA
+ * Copyright (C) 2012-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -127,7 +127,7 @@ class EslintCustomRulesTest {
       )
     )
       .isEmpty();
-    assertThat(buildResult.getLogsLines(l -> l.contains("TS API in custom rule: TS version 5.3.2")))
+    assertThat(buildResult.getLogsLines(l -> l.contains("TS API in custom rule: TS version 5.3.3")))
       .hasSize(2);
     List<Issue> issues = findIssues("eslint-custom-rules:sqKey", orchestrator);
     assertThat(issues).hasSize(2);

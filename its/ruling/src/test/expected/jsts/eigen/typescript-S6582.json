@@ -57,6 +57,9 @@
 "eigen:src/app/Scenes/Artwork/Components/ArtworkExtraLinks/FaqAndSpecialistSection.tsx": [
 23
 ],
+"eigen:src/app/Scenes/Artwork/Components/ArtworkTombstone.tsx": [
+134
+],
 "eigen:src/app/Scenes/Artwork/Components/AuctionPrice.tsx": [
 18,
 56,
@@ -96,9 +99,6 @@
 ],
 "eigen:src/app/Scenes/Artwork/Components/ImageCarousel/ImageCarousel.tsx": [
 173
-],
-"eigen:src/app/Scenes/Artwork/Components/ImageCarousel/ImageCarouselContext.tsx": [
-104
 ],
 "eigen:src/app/Scenes/Artwork/Components/PartnerCard.tsx": [
 96
@@ -179,6 +179,9 @@
 "eigen:src/app/Scenes/Inbox/Components/Conversations/InquiryMakeOfferButton.tsx": [
 62
 ],
+"eigen:src/app/Scenes/Inbox/Components/Conversations/Shipping.tsx": [
+42
+],
 "eigen:src/app/Scenes/LotsByArtistsYouFollow/LotsByArtistsYouFollow.tsx": [
 73
 ],
@@ -206,6 +209,9 @@
 ],
 "eigen:src/app/Scenes/Onboarding/OnboardingPersonalization/OnboardingPersonalizationArtistListItem.tsx": [
 129
+],
+"eigen:src/app/Scenes/Onboarding/OnboardingSocialPick.tsx": [
+79
 ],
 "eigen:src/app/Scenes/OrderHistory/OrderDetails/Components/SoldBySection.tsx": [
 13

@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2023 SonarSource SA
+ * Copyright (C) 2011-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,7 +19,7 @@
  */
 import path from 'path';
 import { setContext } from '@sonar/shared';
-import { initializeLinter, getLinter, LinterWrapper } from '../../src/linter';
+import { initializeLinter, getLinter, LinterWrapper } from '@sonar/jsts';
 import { parseJavaScriptSourceFile } from '../tools';
 
 describe('initializeLinter', () => {

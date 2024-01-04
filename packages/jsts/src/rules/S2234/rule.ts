@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2023 SonarSource SA
+ * Copyright (C) 2011-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,9 +21,8 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { TSESTree } from '@typescript-eslint/utils';
 import { EncodedMessage } from 'eslint-plugin-sonarjs/lib/utils/locations';
-import { isIdentifier } from 'eslint-plugin-sonarjs/lib/utils/nodes';
 import {
   FunctionNodeType,
   isRequiredParserServices,
@@ -51,7 +50,7 @@ export const rule: Rule.RuleModule = {
   },
 
   create(context: Rule.RuleContext) {
-    const services = context.parserServices;
+    const services = context.sourceCode.parserServices;
     const canResolveType = isRequiredParserServices(services);
 
     function checkArguments(functionCall: estree.CallExpression) {
@@ -63,7 +62,7 @@ export const rule: Rule.RuleModule = {
       const { params: functionParameters, declaration: functionDeclaration } = resolvedFunction;
       const argumentNames = functionCall.arguments.map(arg => {
         const argument = arg as TSESTree.Node;
-        return isIdentifier(argument) ? argument.name : undefined;
+        return argument.type === 'Identifier' ? argument.name : undefined;
       });
 
       for (let argumentIndex = 0; argumentIndex < argumentNames.length; argumentIndex++) {

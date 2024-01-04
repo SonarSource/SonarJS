@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2023 SonarSource SA
+ * Copyright (C) 2011-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,14 +19,14 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6551/javascript
 
-import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { TSESTree } from '@typescript-eslint/utils';
 import { Rule } from 'eslint';
 import { isGenericType, interceptReport } from '../helpers';
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(rule, (context, reportDescriptor) => {
     if ('node' in reportDescriptor) {
-      const services = context.parserServices;
+      const services = context.sourceCode.parserServices;
       if (isGenericType(reportDescriptor.node as TSESTree.Node, services)) {
         // we skip
       } else {

@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2023 SonarSource SA
+ * Copyright (C) 2011-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,7 +19,7 @@
  */
 import * as estree from 'estree';
 import { AST } from 'eslint';
-import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { TSESTree } from '@typescript-eslint/utils';
 import { EncodedMessage, IssueLocation } from 'eslint-plugin-sonarjs/lib/utils/locations';
 
 export type LocationHolder = AST.Token | TSESTree.Node | estree.Node | { loc: AST.SourceLocation };

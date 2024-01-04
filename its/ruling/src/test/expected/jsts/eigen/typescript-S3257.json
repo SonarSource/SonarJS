@@ -2,6 +2,9 @@
 "eigen:src/app/Components/ArtworkFilter/Filters/helpers.ts": [
 36
 ],
+"eigen:src/app/Components/FancyModal/FancyModalContext.tsx": [
+19
+],
 "eigen:src/app/Scenes/Artwork/Components/ArtworkTombstone.tests.tsx": [
 387
 ],

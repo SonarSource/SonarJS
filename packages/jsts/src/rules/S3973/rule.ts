@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2023 SonarSource SA
+ * Copyright (C) 2011-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,7 +22,7 @@
 import { Rule, AST, SourceCode } from 'eslint';
 import * as estree from 'estree';
 import { getParent, LoopLike, toEncodedMessage } from '../helpers';
-import { TSESLint } from '@typescript-eslint/experimental-utils';
+import { TSESLint } from '@typescript-eslint/utils';
 import { SONAR_RUNTIME } from '../../linter/parameters';
 
 export const rule: Rule.RuleModule = {

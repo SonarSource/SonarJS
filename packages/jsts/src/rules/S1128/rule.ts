@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2023 SonarSource SA
+ * Copyright (C) 2011-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -22,7 +22,7 @@
 import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
 import { AST } from 'vue-eslint-parser';
-import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { TSESTree } from '@typescript-eslint/utils';
 import {
   isRequiredParserServices,
   removeNodeWithLeadingWhitespaces,
@@ -204,8 +204,8 @@ export const rule: Rule.RuleModule = {
     };
 
     // @ts-ignore
-    if (context.parserServices.defineTemplateBodyVisitor) {
-      return context.parserServices.defineTemplateBodyVisitor(
+    if (context.sourceCode.parserServices.defineTemplateBodyVisitor) {
+      return context.sourceCode.parserServices.defineTemplateBodyVisitor(
         {
           VElement: (node: AST.VElement) => {
             const { rawName } = node;
@@ -298,7 +298,7 @@ function getSuggestion(
 
 function getJsxFactories(context: Rule.RuleContext) {
   const factories = new Set<string>();
-  const parserServices = context.parserServices;
+  const parserServices = context.sourceCode.parserServices;
   if (isRequiredParserServices(parserServices)) {
     const compilerOptions = parserServices.program.getCompilerOptions();
     if (compilerOptions.jsxFactory) {

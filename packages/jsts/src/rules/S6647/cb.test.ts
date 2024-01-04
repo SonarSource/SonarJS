@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2023 SonarSource SA
+ * Copyright (C) 2011-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,7 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { tsEslintRules } from '../typescript-eslint';
-import { decorate } from './decorator';
+import { check } from '../tools';
+import { rule } from './';
+import path from 'path';
 
-export const rule = decorate(tsEslintRules['no-duplicate-imports']);
+const sonarId = path.basename(__dirname);
+
+describe('Rule S6647', () => {
+  check(sonarId, rule, __dirname);
+});

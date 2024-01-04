@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2023 SonarSource SA
+ * Copyright (C) 2011-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -20,7 +20,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S4324/javascript
 
 import { Rule } from 'eslint';
-import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { TSESTree } from '@typescript-eslint/utils';
 import { isRequiredParserServices, RequiredParserServices } from '../helpers';
 import * as estree from 'estree';
 import * as ts from 'typescript';
@@ -34,7 +34,7 @@ export const rule: Rule.RuleModule = {
     },
   },
   create(context: Rule.RuleContext) {
-    const services = context.parserServices;
+    const services = context.sourceCode.parserServices;
 
     if (isRequiredParserServices(services)) {
       const returnedExpressions: ReturnedExpression[][] = [];

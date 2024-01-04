@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <!-- This pom file is only used to format the file headers using license-maven-plugin -->
+  <parent>
+    <groupId>org.sonarsource.javascript</groupId>
+    <artifactId>javascript</artifactId>
+    <version>10.12.0-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>packages</artifactId>
+  <packaging>pom</packaging>
+
+  <name>SonarQube JavaScript :: Packages</name>
+
+  <properties>
+     <!-- sonar analysis -->
+    <sonar.sources>packages/</sonar.sources>
+    <sonar.exclusions>packages/**/*.test.ts,packages/**/*.fixture.*,packages/**/fixtures/**/*</sonar.exclusions>
+    <sonar.tests>packages/</sonar.tests>
+    <sonar.test.inclusions>packages/**/*.test.ts</sonar.test.inclusions>
+  </properties>
+
+   <build>
+    <plugins>
+      <plugin>
+        <groupId>com.mycila</groupId>
+        <artifactId>license-maven-plugin</artifactId>
+        <!-- This plugin is already configured in parent pom, however we want a configuration specific to this project -->
+        <configuration>
+          <includes>
+            <include>packages/**/*.ts</include>
+            <include>packages/**/*.tsx</include>
+            <include>profiling/**/*.ts</include>
+            <include>profiling/**/*.js</include>
+            <include>tools/resources/rule.*</include>
+            <include>tools/**/*.mjs</include>
+            <include>tools/**/*.ts</include>
+            <include>tools/**/*.java</include>
+          </includes>
+          <mapping>
+            <template_java>JAVADOC_STYLE</template_java>
+            <template_ts>JAVADOC_STYLE</template_ts>
+          </mapping>
+          <excludes>
+            <exclude>packages/**/fixtures/**/*</exclude>
+            <exclude>packages/**/*.fixture.*</exclude>
+            <exclude>**/src/test/resources/**/*</exclude>
+          </excludes>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+
+</project>

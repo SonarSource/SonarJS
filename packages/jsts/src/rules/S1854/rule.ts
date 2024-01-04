@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2023 SonarSource SA
+ * Copyright (C) 2011-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -21,24 +21,11 @@
 
 import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
-import { TSESTree } from '@typescript-eslint/experimental-utils';
-import {
-  isLiteral,
-  isObjectExpression,
-  isIdentifier,
-  isAssignmentExpression,
-} from 'eslint-plugin-sonarjs/lib/utils/nodes';
+import { TSESTree } from '@typescript-eslint/utils';
 import CodePath = Rule.CodePath;
 import Variable = Scope.Variable;
 import CodePathSegment = Rule.CodePathSegment;
-import {
-  isUnaryExpression,
-  isArrayExpression,
-  LiveVariables,
-  lva,
-  ReferenceLike,
-  isNullLiteral,
-} from '../helpers';
+import { LiveVariables, lva, ReferenceLike, isNullLiteral } from '../helpers';
 
 export const rule: Rule.RuleModule = {
   meta: {
@@ -211,27 +198,24 @@ export const rule: Rule.RuleModule = {
     }
 
     function isReferenceWithBasicValue(ref: ReferenceLike) {
-      return ref.init && ref.writeExpr && isBasicValue(ref.writeExpr);
+      return ref.init && ref.writeExpr && isBasicValue(ref.writeExpr as TSESTree.Node);
     }
 
-    function isBasicValue(node: estree.Node): boolean {
-      const node1 = node as TSESTree.Node;
-      if (isLiteral(node1)) {
-        return node1.value === '' || [0, 1, null, true, false].includes(node1.value as any);
+    function isBasicValue(node: TSESTree.Node): boolean {
+      switch (node.type) {
+        case 'Literal':
+          return node.value === '' || [0, 1, null, true, false].includes(node.value as any);
+        case 'Identifier':
+          return node.name === 'undefined';
+        case 'UnaryExpression':
+          return isBasicValue(node.argument);
+        case 'ObjectExpression':
+          return node.properties.length === 0;
+        case 'ArrayExpression':
+          return node.elements.length === 0;
+        default:
+          return false;
       }
-      if (isIdentifier(node1)) {
-        return node1.name === 'undefined';
-      }
-      if (isUnaryExpression(node)) {
-        return isBasicValue(node.argument);
-      }
-      if (isObjectExpression(node1)) {
-        return node1.properties.length === 0;
-      }
-      if (isArrayExpression(node)) {
-        return node.elements.length === 0;
-      }
-      return false;
     }
 
     function report(ref: ReferenceLike) {
@@ -374,11 +358,15 @@ class AssignmentContext {
   rhs = new Set<ReferenceLike>();
 
   isRhs(node: TSESTree.Node) {
-    return isAssignmentExpression(this.node) ? this.node.right === node : this.node.init === node;
+    return this.node.type === 'AssignmentExpression'
+      ? this.node.right === node
+      : this.node.init === node;
   }
 
   isLhs(node: TSESTree.Node) {
-    return isAssignmentExpression(this.node) ? this.node.left === node : this.node.id === node;
+    return this.node.type === 'AssignmentExpression'
+      ? this.node.left === node
+      : this.node.id === node;
   }
 
   add(ref: ReferenceLike) {
