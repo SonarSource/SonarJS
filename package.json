@@ -22,7 +22,7 @@
     "precommit": "pretty-quick --staged",
     "count-rules": "node tools/count-rules.js",
     "_:bridge:clear": "rimraf lib/*",
-    "_:plugin:update-ruling-data": "mvn -f sonar-plugin/sonar-javascript-plugin/pom.xml compile && ts-node packages/ruling/tests/tools/keysMapping.ts",
+    "_:plugin:update-ruling-data": "mvn -f sonar-plugin/sonar-javascript-plugin/pom.xml compile && ts-node packages/ruling/tests/tools/parseRulesData.ts",
     "_:plugin:prepare-bridge": "npm pack && node tools/check-distribution-filepath-length.js && npm run _:plugin:copy-bridge",
     "_:plugin-fetch-node": "node tools/fetch-node/scripts/wrapper.mjs",
     "_:plugin:pre-build": "npm run bridge:build && npm run _:plugin:prepare-bridge && npm run _:plugin-fetch-node",
