@@ -288,8 +288,6 @@ css_ruling_task:
   env:
     CIRRUS_CLONE_DEPTH: 10
     SONARSOURCE_QA: true
-    matrix:
-      - RULING: CssRulingTest
   <<: *MAVEN_CACHE
   submodules_script:
     - git submodule update --init
@@ -297,7 +295,7 @@ css_ruling_task:
     - source cirrus-env QA
     - source set_maven_build_version $BUILD_NUMBER
     - cd its/ruling
-    - mvn verify -Dtest=${RULING} -Dsonar.runtimeVersion=LATEST_RELEASE -Dmaven.test.redirectTestOutputToFile=false -Djunit.jupiter.execution.parallel.config.dynamic.factor=1 -B -e -V
+    - mvn verify -Dtest=CssRulingTest -Dsonar.runtimeVersion=LATEST_RELEASE -Dmaven.test.redirectTestOutputToFile=false -Djunit.jupiter.execution.parallel.config.dynamic.factor=1 -B -e -V
   cleanup_before_cache_script: cleanup_maven_repository
   on_failure:
     diff_artifacts:
