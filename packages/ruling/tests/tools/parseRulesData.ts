@@ -92,9 +92,6 @@ function isInvalidRule(ruleKey: string, eslintKey?: string) {
 
 /**
  * Apply the non-default configuration for some rules
- *
- * @param rule
- * @returns
  */
 function applyRulingConfig(rule: RuleData) {
   switch (rule.key) {
