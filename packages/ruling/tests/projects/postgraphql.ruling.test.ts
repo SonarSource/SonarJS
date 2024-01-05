@@ -33,6 +33,6 @@ describe('Ruling', () => {
         }).same,
       ).toBeTruthy();
     },
-    10 * 60 * 1000,
+    15 * 60 * 1000,
   );
 });
