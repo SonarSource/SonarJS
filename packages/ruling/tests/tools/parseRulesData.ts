@@ -20,7 +20,18 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 
-const SONARLINT_METADATA_PATH = path.join(__dirname, 'sonarlint-metadata.json');
+const SONARLINT_METADATA_PATH = path.join(
+  __dirname,
+  '..',
+  '..',
+  '..',
+  '..',
+  'sonar-plugin',
+  'sonar-javascript-plugin',
+  'target',
+  'classes',
+  'sonarlint-metadata.json',
+);
 const ESLINT_TO_SONAR_ID_PATH = path.join(__dirname, '..', 'data', 'eslint-to-sonar-id.json');
 const RULES_PATH = path.join(__dirname, '..', 'data', 'rules.json');
 
