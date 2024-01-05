@@ -105,7 +105,7 @@
         <artifactId>exec-maven-plugin</artifactId>
         <executions>
           <execution>
-            <phase>prepare-package</phase>
+            <phase>compile</phase>
             <goals>
               <goal>java</goal>
             </goals>
@@ -116,26 +116,6 @@
           <classpathScope>compile</classpathScope>
           <arguments>
             <argument>${project.build.directory}/classes/sonarlint-metadata.json</argument>
-          </arguments>
-        </configuration>
-      </plugin>
-
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>exec-maven-plugin</artifactId>
-        <version>3.0.0</version>
-        <executions>
-          <execution>
-            <phase>compile</phase>
-            <goals>
-              <goal>java</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <mainClass>org.sonar.plugins.javascript.utils.RulesMetadataForSonarLint</mainClass>
-          <arguments>
-            <argument>${basedir}/../../packages/ruling/tests/tools/sonarlint-metadata.json</argument>
           </arguments>
         </configuration>
       </plugin>
