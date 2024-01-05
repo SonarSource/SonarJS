@@ -273,7 +273,7 @@ js_ts_ruling_task:
     - source set_maven_build_version $BUILD_NUMBER
     - npm run build:fast
     - npm run update-ruling-data
-    - npm run ruling -- --maxWorkers=80%
+    - npm run ruling -- --maxWorkers=70%
   cleanup_before_cache_script: cleanup_maven_repository
 
 css_ruling_task:
