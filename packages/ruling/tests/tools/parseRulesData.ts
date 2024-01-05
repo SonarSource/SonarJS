@@ -24,6 +24,7 @@ const SONARLINT_METADATA_PATH = path.join(__dirname, 'sonarlint-metadata.json');
 const ESLINT_TO_SONAR_ID_PATH = path.join(__dirname, '..', 'data', 'eslint-to-sonar-id.json');
 const RULES_PATH = path.join(__dirname, '..', 'data', 'rules.json');
 
+// Loading this through `fs` and not import because the file is absent at compile time
 const rulesMetadata: RuleMetadata[] = JSON.parse(fs.readFileSync(SONARLINT_METADATA_PATH, 'utf8'));
 
 type RuleMetadata = {
@@ -42,12 +43,27 @@ type RuleData = {
 extractKeysMapping();
 extractRulesData();
 
+function extractKeysMapping() {
+  const eslintToSonar: Record<string, string> = {};
+
+  for (const rule of rulesMetadata) {
+    eslintToSonar[rule.eslintKey] = extractSonarId(rule);
+  }
+
+  function extractSonarId(rule: { ruleKey: string }) {
+    return rule.ruleKey.split(':')[1];
+  }
+
+  fs.writeFileSync(ESLINT_TO_SONAR_ID_PATH, JSON.stringify(eslintToSonar, null, 2));
+}
+
 function extractRulesData() {
   const rulesData: RuleData[] = [];
   rulesMetadata.forEach(ruleData => {
     const { eslintKey, scope, defaultParams, ruleKey } = ruleData;
-    if (ruleKey.startsWith('css')) return;
-    if (!eslintKey) return;
+    if (isInvalidRule(ruleKey, eslintKey)) {
+      return;
+    }
     const rule = applyRulingConfig({
       key: eslintKey,
       fileTypeTarget: parseType(scope),
@@ -56,25 +72,19 @@ function extractRulesData() {
     });
     rulesData.push(rule);
   });
-
-  function parseType(scope: string) {
-    if (scope === 'ALL') {
-      return ['MAIN'];
-    } else {
-      return [scope];
-    }
-  }
-  function parseLanguage(ruleKey: string) {
-    if (ruleKey.startsWith('typescript:')) {
-      return 'ts';
-    } else {
-      return 'js';
-    }
-  }
-
   fs.writeFileSync(RULES_PATH, JSON.stringify(rulesData, null, 2));
 }
 
+function isInvalidRule(ruleKey: string, eslintKey?: string) {
+  return ruleKey.startsWith('css') || !eslintKey;
+}
+
+/**
+ * Apply the non-default configuration for some rules
+ *
+ * @param rule
+ * @returns
+ */
 function applyRulingConfig(rule: RuleData) {
   switch (rule.key) {
     case 'no-ignored-exceptions': {
@@ -113,16 +123,17 @@ function applyRulingConfig(rule: RuleData) {
   return rule;
 }
 
-function extractKeysMapping() {
-  const eslintToSonar: Record<string, string> = {};
-
-  for (const rule of rulesMetadata) {
-    eslintToSonar[rule.eslintKey] = extractSonarId(rule);
+function parseType(scope: string) {
+  if (scope === 'ALL') {
+    return ['MAIN'];
+  } else {
+    return [scope];
   }
-
-  function extractSonarId(rule: { ruleKey: string }) {
-    return rule.ruleKey.split(':')[1];
+}
+function parseLanguage(ruleKey: string) {
+  if (ruleKey.startsWith('typescript:')) {
+    return 'ts';
+  } else {
+    return 'js';
   }
-
-  fs.writeFileSync(ESLINT_TO_SONAR_ID_PATH, JSON.stringify(eslintToSonar, null, 2));
 }

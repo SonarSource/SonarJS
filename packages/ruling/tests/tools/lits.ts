@@ -145,6 +145,9 @@ function writeIssues(projectDir: string, ruleId: string, issues: FileIssues, isJ
   }
 }
 
+/**
+ * Loading this through `fs` and not import because the file is absent at compile time
+ */
 function loadKeysMapping() {
   const pathToKeysMapping = path.join(__dirname, '..', 'data', 'eslint-to-sonar-id.json');
   return JSON.parse(fs.readFileSync(pathToKeysMapping, 'utf8'));

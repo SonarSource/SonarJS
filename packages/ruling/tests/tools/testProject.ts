@@ -290,6 +290,9 @@ function createParsingIssue({
   };
 }
 
+/**
+ * Loading this through `fs` and not import because the file is absent at compile time
+ */
 function loadRules() {
   const rulesPath = path.join(__dirname, '..', 'data', 'rules.json');
   const rulesContent = fs.readFileSync(rulesPath, 'utf8');
