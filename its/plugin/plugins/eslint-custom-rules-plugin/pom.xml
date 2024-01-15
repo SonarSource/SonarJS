@@ -55,9 +55,9 @@
         <artifactId>sonar-packaging-maven-plugin</artifactId>
         <extensions>true</extensions>
         <configuration>
-          <pluginClass>org.sonar.samples.javascript.EslintCustomRulesPlugin</pluginClass>
           <basePlugin>javascript</basePlugin>
-          <sonarQubeMinVersion>${sonarQubeMinVersion}</sonarQubeMinVersion>
+          <pluginApiMinVersion>${pluginApiMinVersion}</pluginApiMinVersion>
+          <pluginClass>org.sonar.samples.javascript.EslintCustomRulesPlugin</pluginClass>
         </configuration>
       </plugin>
     </plugins>

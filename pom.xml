@@ -53,10 +53,9 @@
 
     <gitRepositoryName>SonarJS</gitRepositoryName>
     <license.title>SonarQube JavaScript Plugin</license.title>
-    <sonarQubeMinVersion>8.9</sonarQubeMinVersion>
+    <!-- Version corresponds to SQ 9.9 LTS -->
+    <pluginApiMinVersion>9.14.0.375</pluginApiMinVersion>
 
-    <!-- override sonar-packaging plugin version from parent -->
-    <version.sonar-packaging.plugin>1.20.0.405</version.sonar-packaging.plugin>
     <assertj.version>3.16.1</assertj.version>
     <jgit.version>6.2.0.202206071550-r</jgit.version>
     <junit.version>5.9.3</junit.version>
