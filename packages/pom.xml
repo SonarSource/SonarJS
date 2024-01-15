@@ -17,10 +17,10 @@
 
   <properties>
      <!-- sonar analysis -->
-    <sonar.sources>packages/</sonar.sources>
-    <sonar.exclusions>packages/**/*.test.ts,packages/**/*.fixture.*,packages/**/fixtures/**/*</sonar.exclusions>
-    <sonar.tests>packages/</sonar.tests>
-    <sonar.test.inclusions>packages/**/*.test.ts</sonar.test.inclusions>
+    <sonar.sources>./</sonar.sources>
+    <sonar.exclusions>./**/*.test.ts,./**/*.fixture.*,./**/fixtures/**/*</sonar.exclusions>
+    <sonar.tests>./</sonar.tests>
+    <sonar.test.inclusions>./**/*.test.ts</sonar.test.inclusions>
   </properties>
 
    <build>
@@ -31,8 +31,8 @@
         <!-- This plugin is already configured in parent pom, however we want a configuration specific to this project -->
         <configuration>
           <includes>
-            <include>packages/**/*.ts</include>
-            <include>packages/**/*.tsx</include>
+            <include>./**/*.ts</include>
+            <include>./**/*.tsx</include>
             <include>profiling/**/*.ts</include>
             <include>profiling/**/*.js</include>
             <include>tools/resources/rule.*</include>
@@ -45,9 +45,9 @@
             <template_ts>JAVADOC_STYLE</template_ts>
           </mapping>
           <excludes>
-            <exclude>packages/**/fixtures/**/*</exclude>
-            <exclude>packages/**/*.fixture.*</exclude>
-            <exclude>**/src/test/resources/**/*</exclude>
+            <exclude>./**/fixtures/**/*</exclude>
+            <exclude>./**/*.fixture.*</exclude>
+            <exclude>./**/src/test/resources/**/*</exclude>
           </excludes>
         </configuration>
       </plugin>
