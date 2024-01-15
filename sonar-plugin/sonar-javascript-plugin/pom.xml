@@ -125,12 +125,12 @@
         <artifactId>sonar-packaging-maven-plugin</artifactId>
         <configuration>
           <jreMinVersion>${jdk.min.version}</jreMinVersion>
+          <pluginApiMinVersion>${pluginApiMinVersion}</pluginApiMinVersion>
           <pluginName>JavaScript/TypeScript/CSS Code Quality and Security</pluginName>
           <pluginClass>org.sonar.plugins.javascript.JavaScriptPlugin</pluginClass>
           <requiredForLanguages>js,ts,css,web,yaml</requiredForLanguages>
           <skipDependenciesPackaging>true</skipDependenciesPackaging>
           <sonarLintSupported>true</sonarLintSupported>
-          <sonarQubeMinVersion>${sonarQubeMinVersion}</sonarQubeMinVersion>
         </configuration>
       </plugin>
 
