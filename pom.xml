@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.sonarsource.parent</groupId>
     <artifactId>parent</artifactId>
-    <version>71.0.0.1292</version>
+    <version>70.0.0.270</version>
   </parent>
 
   <groupId>org.sonarsource.javascript</groupId>
@@ -29,7 +29,6 @@
   </licenses>
 
   <modules>
-    <module>packages</module>
     <module>sonar-plugin</module>
     <module>tools</module>
     <!--
@@ -78,6 +77,11 @@
     <!-- FIXME fix javadoc errors -->
     <doclint>none</doclint>
 
+    <!-- sonar analysis -->
+    <sonar.sources>packages/</sonar.sources>
+    <sonar.exclusions>packages/**/*.test.ts,packages/**/*.fixture.*,packages/**/fixtures/**/*</sonar.exclusions>
+    <sonar.tests>packages/</sonar.tests>
+    <sonar.test.inclusions>packages/**/*.test.ts</sonar.test.inclusions>
     <sonar.javascript.lcov.reportPaths>coverage/lcov.info</sonar.javascript.lcov.reportPaths>
     <sonar.typescript.tsconfigPath>${project.basedir}/packages/tsconfig.app.json,${project.basedir}/packages/tsconfig.test.json</sonar.typescript.tsconfigPath>
     <sonar.cpd.exclusions>sonar-plugin/javascript-checks/src/main/resources/**/*.html</sonar.cpd.exclusions>
@@ -240,6 +244,16 @@
         <artifactId>license-maven-plugin</artifactId>
         <!-- This plugin is already configured in parent pom, however we want a configuration specific to this project -->
         <configuration>
+          <includes>
+            <include>packages/**/*.ts</include>
+            <include>packages/**/*.tsx</include>
+            <include>profiling/**/*.ts</include>
+            <include>profiling/**/*.js</include>
+            <include>tools/resources/rule.*</include>
+            <include>tools/**/*.mjs</include>
+            <include>tools/**/*.ts</include>
+            <include>tools/**/*.java</include>
+          </includes>
           <mapping>
             <template_java>JAVADOC_STYLE</template_java>
             <template_ts>JAVADOC_STYLE</template_ts>
