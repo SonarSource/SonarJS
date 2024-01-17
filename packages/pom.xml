@@ -31,23 +31,16 @@
         <!-- This plugin is already configured in parent pom, however we want a configuration specific to this project -->
         <configuration>
           <includes>
-            <include>packages/**/*.ts</include>
-            <include>packages/**/*.tsx</include>
-            <include>profiling/**/*.ts</include>
-            <include>profiling/**/*.js</include>
-            <include>tools/resources/rule.*</include>
-            <include>tools/**/*.mjs</include>
-            <include>tools/**/*.ts</include>
-            <include>tools/**/*.java</include>
+            <include>**/*.ts</include>
+            <include>**/*.tsx</include>
           </includes>
           <mapping>
             <template_java>JAVADOC_STYLE</template_java>
             <template_ts>JAVADOC_STYLE</template_ts>
           </mapping>
           <excludes>
-            <exclude>packages/**/fixtures/**/*</exclude>
-            <exclude>packages/**/*.fixture.*</exclude>
-            <exclude>**/src/test/resources/**/*</exclude>
+            <exclude>**/fixtures/**/*</exclude>
+            <exclude>**/*.fixture.*</exclude>
           </excludes>
         </configuration>
       </plugin>
