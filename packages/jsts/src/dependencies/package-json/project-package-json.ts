@@ -44,7 +44,6 @@ export class PackageJsons {
    * @param exclusions glob patterns to ignore while walking the tree
    */
   async searchPackageJsonFiles(dir: string, exclusions: string[]) {
-    console.log(exclusions);
     try {
       const patterns = exclusions
         .concat(IGNORED_PATTERNS)
