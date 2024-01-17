@@ -17,10 +17,10 @@
 
   <properties>
      <!-- sonar analysis -->
-    <sonar.sources>packages/</sonar.sources>
-    <sonar.exclusions>packages/**/*.test.ts,packages/**/*.fixture.*,packages/**/fixtures/**/*</sonar.exclusions>
-    <sonar.tests>packages/</sonar.tests>
-    <sonar.test.inclusions>packages/**/*.test.ts</sonar.test.inclusions>
+    <sonar.sources>.</sonar.sources>
+    <sonar.exclusions>**/*.test.ts,**/*.fixture.*,**/fixtures/**/*</sonar.exclusions>
+    <sonar.tests>.</sonar.tests>
+    <sonar.test.inclusions>**/*.test.ts</sonar.test.inclusions>
   </properties>
 
    <build>
