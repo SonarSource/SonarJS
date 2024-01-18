@@ -15,6 +15,14 @@
 
   <name>SonarQube JavaScript :: Packages</name>
 
+  <properties>
+    <sonar.sources>.</sonar.sources>
+    <sonar.exclusions>**/*.test.ts,**/*.fixture.*,**/fixtures/**/*</sonar.exclusions>
+    <sonar.tests>.</sonar.tests>
+    <sonar.test.inclusions>**/*.test.ts</sonar.test.inclusions>
+    <sonar.typescript.tsconfigPath>${project.basedir}/packages/tsconfig.app.json,${project.basedir}/packages/tsconfig.test.json</sonar.typescript.tsconfigPath>
+  </properties>
+
    <build>
     <plugins>
       <plugin>
