@@ -68,10 +68,10 @@ describe('initialize package.json files', () => {
     );
 
     const moduleBsubmoduleBPJList = getNearestPackageJsons(
-      path.posix.join(baseDir, 'moduleB', 'submoduleB', 'index.js'),
+      path.posix.join(baseDir, 'moduleB', '.submoduleB', 'index.js'),
     );
     const moduleBsubmoduleBPJ = toUnixPath(
-      path.posix.join(baseDir, 'moduleB', 'submoduleB', 'package.json'),
+      path.posix.join(baseDir, 'moduleB', '.submoduleB', 'package.json'),
     );
 
     expect(basePJList).toHaveLength(1);
@@ -94,7 +94,7 @@ describe('initialize package.json files', () => {
         __dirname,
         'fixtures',
         'moduleB',
-        'submoduleB',
+        '.submoduleB',
         'subfolder1',
         'subfolder2',
         'subfolder3',
@@ -114,7 +114,7 @@ describe('initialize package.json files', () => {
       ['package.json'],
       ['moduleB', 'package.json'],
       ['moduleB', 'submoduleA', 'package.json'],
-      ['moduleB', 'submoduleB', 'package.json'],
+      ['moduleB', '.submoduleB', 'package.json'],
     ];
     const actual = getAllPackageJsons();
     const expectedMap = {};

@@ -47,7 +47,7 @@ export class PackageJsons {
     try {
       const patterns = exclusions
         .concat(IGNORED_PATTERNS)
-        .map(exclusion => new Minimatch(exclusion));
+        .map(exclusion => new Minimatch(exclusion, { dot: true }));
       this.walkDirectory(path.posix.normalize(toUnixPath(dir)), patterns);
     } catch (e) {
       error(`Error while searching for package.json files: ${e}`);
