@@ -19,7 +19,7 @@
  */
 import { setContext, toUnixPath } from '@sonar/shared';
 import http from 'http';
-import { createAndSaveProgram, RuleConfig } from '@sonar/jsts';
+import { createAndSaveProgram, ProjectAnalysisInput, RuleConfig } from '@sonar/jsts';
 import path from 'path';
 import { start } from '../src/server';
 import { promisify } from 'util';
@@ -47,6 +47,43 @@ describe('router', () => {
 
   afterEach(async () => {
     await close();
+  });
+
+  it('should route /analyze-project requests', async () => {
+    const filePath = toUnixPath(path.join(fixtures, 'file.ts'));
+    const payload: ProjectAnalysisInput = {
+      rules: [
+        {
+          key: 'no-duplicate-in-composite',
+          configurations: [],
+          fileTypeTarget: ['MAIN'],
+          language: 'ts',
+        },
+      ],
+      baseDir: fixtures,
+      files: {
+        [filePath]: { fileType: 'MAIN' },
+      },
+    };
+
+    const response = (await request(server, '/analyze-project', 'POST', payload)) as string;
+    const {
+      files: {
+        [filePath]: {
+          issues: [issue],
+        },
+      },
+    } = JSON.parse(response);
+    expect(issue).toEqual(
+      expect.objectContaining({
+        ruleId: 'no-duplicate-in-composite',
+        line: 1,
+        column: 28,
+        endLine: 1,
+        endColumn: 35,
+        message: `Remove this duplicated type or replace with another one.`,
+      }),
+    );
   });
 
   it('should route /analyze-css requests', async () => {

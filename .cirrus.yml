@@ -248,7 +248,35 @@ plugin_qa_win_sonarlint_task:
     - mvn -f its/plugin/sonarlint-tests/pom.xml -Dsonar.runtimeVersion=${SQ_VERSION} -B -e -V verify surefire-report:report
   cleanup_before_cache_script: cleanup_maven_repository
 
-ruling_task:
+js_ts_ruling_task:
+  depends_on:
+    - build
+  <<: *ONLY_SONARSOURCE_QA
+  eks_container:
+    <<: *CONTAINER_DEFINITION
+    dockerfile: .cirrus/nodejs-20.Dockerfile
+    docker_arguments:
+      CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
+    cpu: 15
+    memory: 32G
+  env:
+    CIRRUS_CLONE_DEPTH: 1
+    SONARSOURCE_QA: true
+  <<: *MAVEN_CACHE
+  # needed because we need to build the plugin
+  <<: *RUNTIME_CACHE
+  submodules_script:
+    - git submodule update --init
+  ruling_script:
+    - . ~/.profile
+    - source cirrus-env QA
+    - source set_maven_build_version $BUILD_NUMBER
+    - npm run build:fast
+    - npm run update-ruling-data
+    - npm run ruling -- --maxWorkers=60%
+  cleanup_before_cache_script: cleanup_maven_repository
+
+css_ruling_task:
   depends_on:
     - build
   <<: *ONLY_SONARSOURCE_QA
@@ -260,9 +288,6 @@ ruling_task:
   env:
     CIRRUS_CLONE_DEPTH: 10
     SONARSOURCE_QA: true
-    matrix:
-      - RULING: JsTsRulingTest
-      - RULING: CssRulingTest
   <<: *MAVEN_CACHE
   submodules_script:
     - git submodule update --init
@@ -270,7 +295,7 @@ ruling_task:
     - source cirrus-env QA
     - source set_maven_build_version $BUILD_NUMBER
     - cd its/ruling
-    - mvn verify -Dtest=${RULING} -Dsonar.runtimeVersion=LATEST_RELEASE -Dmaven.test.redirectTestOutputToFile=false -Djunit.jupiter.execution.parallel.config.dynamic.factor=1 -B -e -V
+    - mvn verify -Dtest=CssRulingTest -Dsonar.runtimeVersion=LATEST_RELEASE -Dmaven.test.redirectTestOutputToFile=false -Djunit.jupiter.execution.parallel.config.dynamic.factor=1 -B -e -V
   cleanup_before_cache_script: cleanup_maven_repository
   on_failure:
     diff_artifacts:
@@ -285,7 +310,8 @@ promote_task:
     - plugin_qa_sq_dev
     - plugin_qa_win
     - plugin_qa_win_sonarlint
-    - ruling
+    - css_ruling
+    - js_ts_ruling
     - analyze
   <<: *ONLY_SONARSOURCE_QA
   eks_container:

@@ -20,11 +20,11 @@
 import { RuleTester } from 'eslint';
 import { rule } from './';
 import path from 'path';
-import { getAllPackageJsons, searchPackageJsonFiles } from '@sonar/jsts';
+import { clearPackageJsons, loadPackageJsons } from '@sonar/jsts';
 
 //reset and search package.json files in rule dir
-getAllPackageJsons().clear();
-searchPackageJsonFiles(__dirname, []);
+clearPackageJsons();
+loadPackageJsons(__dirname, []);
 
 const fixtures = path.join(__dirname, 'fixtures');
 const filename = path.join(fixtures, 'package-json-project/file.js');

@@ -25,7 +25,7 @@ import {
   analyzeJSTS,
   JsTsAnalysisOutput,
   createAndSaveProgram,
-  searchPackageJsonFiles,
+  loadPackageJsons,
   getNearestPackageJsons,
 } from '../../src';
 import { jsTsInput, parseJavaScriptSourceFile } from '../tools';
@@ -868,7 +868,7 @@ describe('analyzeJSTS', () => {
 
   it('should measure analysis duration', async () => {
     const rules = [
-      { key: 'no-extra-smi', configurations: [], fileTypeTarget: ['MAIN'] },
+      { key: 'no-extra-semi', configurations: [], fileTypeTarget: ['MAIN'] },
       { key: 'no-duplicate-string', configurations: [], fileTypeTarget: ['MAIN'] },
       { key: 'sonar-no-regex-spaces', configurations: [], fileTypeTarget: ['MAIN'] },
     ] as RuleConfig[];
@@ -898,7 +898,7 @@ describe('analyzeJSTS', () => {
 
   it('package.json should be available in rule context', async () => {
     const baseDir = path.join(__dirname, 'fixtures', 'package-json');
-    searchPackageJsonFiles(baseDir, []);
+    loadPackageJsons(baseDir, []);
 
     const linter = new Linter();
     linter.defineRule('custom-rule-file', {

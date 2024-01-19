@@ -20,21 +20,22 @@
 import path from 'path';
 import { toUnixPath } from '@sonar/shared';
 import {
-  searchPackageJsonFiles,
+  loadPackageJsons,
   getAllPackageJsons,
   getNearestPackageJsons,
-  PackageJsonsByBaseDir,
+  clearPackageJsons,
+  getPackageJsonsCount,
 } from '@sonar/jsts';
 
 describe('initialize package.json files', () => {
   beforeEach(() => {
-    getAllPackageJsons().clear();
+    clearPackageJsons();
   });
 
   it('should find all package.json files', () => {
     const baseDir = path.posix.join(toUnixPath(__dirname), 'fixtures');
-    searchPackageJsonFiles(baseDir, []);
-    expect(getAllPackageJsons().size).toEqual(7);
+    loadPackageJsons(baseDir, []);
+    expect(getPackageJsonsCount()).toEqual(7);
 
     const basePJList = getNearestPackageJsons(path.posix.join(baseDir, 'index.js'));
     const basePJ = toUnixPath(path.posix.join(baseDir, 'package.json'));
@@ -107,63 +108,44 @@ describe('initialize package.json files', () => {
   it('should ignore package.json files from ignored patterns', () => {
     const baseDir = path.posix.join(toUnixPath(__dirname), 'fixtures');
 
-    searchPackageJsonFiles(baseDir, ['**/moduleA/**']);
-    expect(getAllPackageJsons().size).toEqual(4);
-    const packageJsons = [
+    loadPackageJsons(baseDir, ['moduleA']);
+    expect(getPackageJsonsCount()).toEqual(4);
+    const expected = [
       ['package.json'],
       ['moduleB', 'package.json'],
       ['moduleB', 'submoduleA', 'package.json'],
       ['moduleB', '.submoduleB', 'package.json'],
     ];
-    expect(getAllPackageJsons()).toEqual(
-      new Map(
-        packageJsons.map(packageJson => {
-          const filename = path.posix.join(baseDir, ...packageJson);
-          return [path.posix.dirname(filename), { filename, contents: expect.any(Object) }];
-        }),
-      ),
-    );
+    const actual = getAllPackageJsons();
+    const expectedMap = {};
+    expected.forEach(packageJson => {
+      const filename = path.posix.join(baseDir, ...packageJson);
+      expectedMap[path.posix.dirname(filename)] = [{ filename, contents: expect.any(Object) }];
+    });
+    expect(actual).toEqual(expectedMap);
 
-    getAllPackageJsons().clear();
-    searchPackageJsonFiles(baseDir, ['**/module*/**']);
-    expect(getAllPackageJsons().size).toEqual(1);
-    expect(getAllPackageJsons()).toEqual(
-      new Map([
-        [
-          baseDir,
-          { filename: path.posix.join(baseDir, 'package.json'), contents: expect.any(Object) },
-        ],
-      ]),
-    );
+    clearPackageJsons();
+    loadPackageJsons(baseDir, ['module*']);
+    expect(getPackageJsonsCount()).toEqual(1);
+    expect(getAllPackageJsons()).toEqual({
+      [baseDir]: [
+        { filename: path.posix.join(baseDir, 'package.json'), contents: expect.any(Object) },
+      ],
+    });
   });
 
   it('should return empty array when no package.json are in the DB or none exist in the file tree', () => {
     const baseDir = path.posix.join(toUnixPath(__dirname), 'fixtures');
 
-    expect(getAllPackageJsons().size).toEqual(0);
+    expect(getPackageJsonsCount()).toEqual(0);
     expect(
       getNearestPackageJsons(path.posix.join(baseDir, '..', 'another-module', 'index.js')),
     ).toHaveLength(0);
 
-    searchPackageJsonFiles(baseDir, ['']);
-    expect(getAllPackageJsons().size).toEqual(7);
+    loadPackageJsons(baseDir, ['']);
+    expect(getPackageJsonsCount()).toEqual(7);
     expect(
       getNearestPackageJsons(path.posix.join(baseDir, '..', 'another-module', 'index.js')),
     ).toHaveLength(0);
-  });
-
-  it('should log error when cannot access baseDir', () => {
-    const baseDir = path.posix.join(toUnixPath(__dirname), 'fixtures');
-
-    console.error = jest.fn();
-
-    jest.spyOn(PackageJsonsByBaseDir, 'walkDirectory').mockImplementation(dir => {
-      throw Error(`Cannot access ${dir}`);
-    });
-
-    searchPackageJsonFiles(baseDir, ['']);
-    expect(console.error).toHaveBeenCalledWith(
-      `Error while searching for package.json files: Error: Cannot access ${baseDir}`,
-    );
   });
 });
