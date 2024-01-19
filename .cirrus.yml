@@ -107,11 +107,11 @@ build_task:
     SONAR_TOKEN: VAULT[development/kv/data/next data.token]
     SONAR_HOST_URL: https://next.sonarqube.com/sonarqube
     ARTIFACTORY_DEPLOY_ACCESS_TOKEN: VAULT[development/artifactory/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-qa-deployer access_token]
+    NPM_CONFIG_//repox.jfrog.io/artifactory/api/npm/:_authToken: VAULT[development/artifactory/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-private-reader access_token]
   <<: *MAVEN_CACHE
   <<: *RUNTIME_CACHE
   build_and_deploy_script:
     - source cirrus-env BUILD
-    - jfrog config add repox --url $ARTIFACTORY_URL --access-token $ARTIFACTORY_DEPLOY_ACCESS_TOKEN
     - npm config set registry "${ARTIFACTORY_URL}/api/npm/npm"
     - npm run build
     - regular_mvn_build_deploy_analyze -Dmaven.test.skip=true -Dmaven.install.skip=true -Dsonar.skip=true
@@ -132,11 +132,11 @@ analyze_task:
     SONAR_TOKEN: VAULT[development/kv/data/next data.token]
     SONAR_HOST_URL: https://next.sonarqube.com/sonarqube
     ARTIFACTORY_DEPLOY_ACCESS_TOKEN: VAULT[development/artifactory/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-qa-deployer access_token]
+    NPM_CONFIG_//repox.jfrog.io/artifactory/api/npm/:_authToken: VAULT[development/artifactory/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-private-reader access_token]
   <<: *MAVEN_CACHE
   <<: *RUNTIME_CACHE
   build_and_analyze_script:
     - source cirrus-env QA
-    - jfrog config add repox --url $ARTIFACTORY_URL --access-token $ARTIFACTORY_DEPLOY_ACCESS_TOKEN
     - npm config set registry "${ARTIFACTORY_URL}/api/npm/npm"
     - npm run build
     - PULL_REQUEST_SHA=$GIT_SHA1 regular_mvn_build_deploy_analyze -P-deploy-sonarsource,-release,-sign -Dcommercial -Dmaven.shade.skip=true -Dmaven.install.skip=true -Dmaven.deploy.skip=true -Dsonar.coverage.jacoco.xmlReportPaths=$CIRRUS_WORKING_DIR/report-aggregate/target/site/jacoco-aggregate/jacoco.xml
@@ -150,9 +150,9 @@ build_win_task:
   <<: *RUNTIME_CACHE
   env:
     ARTIFACTORY_DEPLOY_ACCESS_TOKEN: VAULT[development/artifactory/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-qa-deployer access_token]
+    NPM_CONFIG_//repox.jfrog.io/artifactory/api/npm/:_authToken: VAULT[development/artifactory/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-private-reader access_token]
   build_script:
     - source cirrus-env CI
-    - jf config add repox --url $ARTIFACTORY_URL --access-token $ARTIFACTORY_DEPLOY_ACCESS_TOKEN
     - npm config set registry "${ARTIFACTORY_URL}/api/npm/npm"
     - npm run build
   cleanup_before_cache_script: cleanup_maven_repository
@@ -171,6 +171,7 @@ ws_scan_task:
   only_if: $CIRRUS_USER_COLLABORATOR == 'true' && ($CIRRUS_BRANCH == "master" || $CIRRUS_BRANCH =~ "branch-.*")
   env:
     WS_APIKEY: VAULT[development/kv/data/mend data.apikey]
+    NPM_CONFIG_//repox.jfrog.io/artifactory/api/npm/:_authToken: VAULT[development/artifactory/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-private-reader access_token]
   <<: *MAVEN_CACHE
   whitesource_script:
     - source cirrus-env QA
@@ -262,6 +263,7 @@ js_ts_ruling_task:
   env:
     CIRRUS_CLONE_DEPTH: 1
     SONARSOURCE_QA: true
+    NPM_CONFIG_//repox.jfrog.io/artifactory/api/npm/:_authToken: VAULT[development/artifactory/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-private-reader access_token]
   <<: *MAVEN_CACHE
   # needed because we need to build the plugin
   <<: *RUNTIME_CACHE
