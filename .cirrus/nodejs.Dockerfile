@@ -6,7 +6,7 @@ USER root
 ARG NODE_VERSION=16
 
 RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x | bash - \
-    && apt-get install -y nodejs \
+    && apt-get install -y nodejs=${NODE_VERSION}.* \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 USER sonarsource
