@@ -269,6 +269,7 @@ js_ts_ruling_task:
     - . ~/.profile
     - source cirrus-env QA
     - source set_maven_build_version $BUILD_NUMBER
+    - npm config set registry "${ARTIFACTORY_URL}/api/npm/npm"
     - npm run build:fast
     - npm run update-ruling-data
     - npm run ruling -- --maxWorkers=60%
