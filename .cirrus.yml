@@ -3,8 +3,8 @@ env:
   CIRRUS_VAULT_AUTH_PATH: jwt-cirrusci
   CIRRUS_VAULT_ROLE: cirrusci-${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}
 
+  ARTIFACTORY_URL: https://repox.jfrog.io/artifactory
   NPM_CONFIG_//repox.jfrog.io/artifactory/api/npm/:_authToken: VAULT[development/artifactory/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-private-reader access_token]
-  ARTIFACTORY_URL: VAULT[development/kv/data/repox data.url]
   ARTIFACTORY_PRIVATE_USERNAME: vault-${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-private-reader
   ARTIFACTORY_PRIVATE_PASSWORD: VAULT[development/artifactory/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-private-reader access_token]
   ARTIFACTORY_DEPLOY_USERNAME: vault-${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-qa-deployer
@@ -112,7 +112,6 @@ build_task:
   <<: *RUNTIME_CACHE
   build_and_deploy_script:
     - source cirrus-env BUILD
-    - npm config set registry "${ARTIFACTORY_URL}/api/npm/npm"
     - npm run build
     - regular_mvn_build_deploy_analyze -Dmaven.test.skip=true -Dmaven.install.skip=true -Dsonar.skip=true
   cleanup_before_cache_script: cleanup_maven_repository
@@ -136,7 +135,6 @@ analyze_task:
   <<: *RUNTIME_CACHE
   build_and_analyze_script:
     - source cirrus-env QA
-    - npm config set registry "${ARTIFACTORY_URL}/api/npm/npm"
     - npm run build
     - PULL_REQUEST_SHA=$GIT_SHA1 regular_mvn_build_deploy_analyze -P-deploy-sonarsource,-release,-sign -Dcommercial -Dmaven.shade.skip=true -Dmaven.install.skip=true -Dmaven.deploy.skip=true -Dsonar.coverage.jacoco.xmlReportPaths=$CIRRUS_WORKING_DIR/report-aggregate/target/site/jacoco-aggregate/jacoco.xml
 
@@ -151,7 +149,6 @@ build_win_task:
     ARTIFACTORY_DEPLOY_ACCESS_TOKEN: VAULT[development/artifactory/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-qa-deployer access_token]
   build_script:
     - source cirrus-env CI
-    - npm config set registry "${ARTIFACTORY_URL}/api/npm/npm"
     - npm run build
   cleanup_before_cache_script: cleanup_maven_repository
 
@@ -172,7 +169,6 @@ ws_scan_task:
   <<: *MAVEN_CACHE
   whitesource_script:
     - source cirrus-env QA
-    - npm config set registry "${ARTIFACTORY_URL}/api/npm/npm"
     - source set_maven_build_version $BUILD_NUMBER
     - npm ci
     - source ws_scan.sh
