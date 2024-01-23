@@ -9,4 +9,6 @@ RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x | bash - \
     && apt-get install -y nodejs=${NODE_VERSION}.* \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
+RUN npm install npm@latest -g
+
 USER sonarsource
