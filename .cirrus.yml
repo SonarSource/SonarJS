@@ -3,7 +3,7 @@ env:
   CIRRUS_VAULT_AUTH_PATH: jwt-cirrusci
   CIRRUS_VAULT_ROLE: cirrusci-${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}
 
-  npm_config_//repox.jfrog.io/repox/api/npm/npm/:_authToken: VAULT[development/artifactory/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-private-reader access_token]
+  npm_config_//https://repox.jfrog.io/repox/api/npm/npm/:_authToken: VAULT[development/artifactory/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-private-reader access_token]
   ARTIFACTORY_URL: VAULT[development/kv/data/repox data.url]
   ARTIFACTORY_PRIVATE_USERNAME: vault-${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-private-reader
   ARTIFACTORY_PRIVATE_PASSWORD: VAULT[development/artifactory/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-private-reader access_token]
