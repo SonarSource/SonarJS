@@ -110,6 +110,8 @@ build_task:
     ARTIFACTORY_DEPLOY_ACCESS_TOKEN: VAULT[development/artifactory/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-qa-deployer access_token]
   <<: *MAVEN_CACHE
   <<: *RUNTIME_CACHE
+  npm_version_script:
+    - npm --version
   build_and_deploy_script:
     - source cirrus-env BUILD
     - npm config set registry "${ARTIFACTORY_URL}/api/npm/npm"
@@ -266,6 +268,8 @@ js_ts_ruling_task:
   <<: *RUNTIME_CACHE
   submodules_script:
     - git submodule update --init
+  npm_version_script:
+    - npm --version
   ruling_script:
     - . ~/.profile
     - source cirrus-env QA
