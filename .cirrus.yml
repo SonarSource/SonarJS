@@ -149,6 +149,11 @@ build_win_task:
   <<: *RUNTIME_CACHE
   env:
     ARTIFACTORY_DEPLOY_ACCESS_TOKEN: VAULT[development/artifactory/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-qa-deployer access_token]
+  npmrc_file:
+    path: .npmrc
+    from_contents: |
+      registry=https://repox.jfrog.io/artifactory/api/npm/npm
+      //repox.jfrog.io/artifactory/api/npm/:_authToken=${ARTIFACTORY_DEPLOY_ACCESS_TOKEN}
   build_script:
     - source cirrus-env CI
     - npm config set registry "${ARTIFACTORY_URL}/api/npm/npm"
