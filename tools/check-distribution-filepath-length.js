@@ -21,7 +21,7 @@
 const tar = require('tar');
 
 const PACKAGE_FILENAME = 'sonarjs-1.0.0.tgz';
-const MAX_FILEPATH = 128;
+const MAX_FILEPATH = 130;
 
 let longestLength = 0;
 let longestFilepath = '';
