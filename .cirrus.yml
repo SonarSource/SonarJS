@@ -3,7 +3,7 @@ env:
   CIRRUS_VAULT_AUTH_PATH: jwt-cirrusci
   CIRRUS_VAULT_ROLE: cirrusci-${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}
 
-  ARTIFACTORY_URL: VAULT[development/kv/data/repox data.url]
+  ARTIFACTORY_URL: https://repox.jfrog.io/artifactory
   ARTIFACTORY_PRIVATE_USERNAME: vault-${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-private-reader
   ARTIFACTORY_PRIVATE_PASSWORD: VAULT[development/artifactory/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-private-reader access_token]
   ARTIFACTORY_DEPLOY_USERNAME: vault-${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-qa-deployer
@@ -49,6 +49,10 @@ win_vm_definition: &WINDOWS_VM_DEFINITION
     subnet_id: ${CIRRUS_AWS_SUBNET}
     preemptible: false
     use_ssd: true
+
+npmrc_script_definition: &NPMRC_SCRIPT_DEFINITION
+  npmrc_script:
+    - cp .cirrus/npmrc $CIRRUS_WORKING_DIR/.npmrc
 
 win_ssd_and_clone:
   &WIN_SSD_AND_CLONE # copy&paste from https://github.com/SonarSource/sonar-cpp/blob/a8c6f1e45a12393508682a013ac7ee35eb92bece/.cirrus.yml#L45
@@ -109,10 +113,9 @@ build_task:
     ARTIFACTORY_DEPLOY_ACCESS_TOKEN: VAULT[development/artifactory/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-qa-deployer access_token]
   <<: *MAVEN_CACHE
   <<: *RUNTIME_CACHE
+  <<: *NPMRC_SCRIPT_DEFINITION
   build_and_deploy_script:
     - source cirrus-env BUILD
-    - jfrog config add repox --url $ARTIFACTORY_URL --access-token $ARTIFACTORY_DEPLOY_ACCESS_TOKEN
-    - npm config set registry "${ARTIFACTORY_URL}/api/npm/npm"
     - npm run build
     - regular_mvn_build_deploy_analyze -Dmaven.test.skip=true -Dmaven.install.skip=true -Dsonar.skip=true
   cleanup_before_cache_script: cleanup_maven_repository
@@ -134,10 +137,9 @@ analyze_task:
     ARTIFACTORY_DEPLOY_ACCESS_TOKEN: VAULT[development/artifactory/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-qa-deployer access_token]
   <<: *MAVEN_CACHE
   <<: *RUNTIME_CACHE
+  <<: *NPMRC_SCRIPT_DEFINITION
   build_and_analyze_script:
     - source cirrus-env QA
-    - jfrog config add repox --url $ARTIFACTORY_URL --access-token $ARTIFACTORY_DEPLOY_ACCESS_TOKEN
-    - npm config set registry "${ARTIFACTORY_URL}/api/npm/npm"
     - npm run build
     - PULL_REQUEST_SHA=$GIT_SHA1 regular_mvn_build_deploy_analyze -P-deploy-sonarsource,-release,-sign -Dcommercial -Dmaven.shade.skip=true -Dmaven.install.skip=true -Dmaven.deploy.skip=true -Dsonar.coverage.jacoco.xmlReportPaths=$CIRRUS_WORKING_DIR/report-aggregate/target/site/jacoco-aggregate/jacoco.xml
 
@@ -148,12 +150,9 @@ build_win_task:
   <<: *ONLY_SONARSOURCE_QA
   <<: *MAVEN_CACHE
   <<: *RUNTIME_CACHE
-  env:
-    ARTIFACTORY_DEPLOY_ACCESS_TOKEN: VAULT[development/artifactory/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-qa-deployer access_token]
+  <<: *NPMRC_SCRIPT_DEFINITION
   build_script:
     - source cirrus-env CI
-    - jf config add repox --url $ARTIFACTORY_URL --access-token $ARTIFACTORY_DEPLOY_ACCESS_TOKEN
-    - npm config set registry "${ARTIFACTORY_URL}/api/npm/npm"
     - npm run build
   cleanup_before_cache_script: cleanup_maven_repository
 
@@ -172,9 +171,9 @@ ws_scan_task:
   env:
     WS_APIKEY: VAULT[development/kv/data/mend data.apikey]
   <<: *MAVEN_CACHE
+  <<: *NPMRC_SCRIPT_DEFINITION
   whitesource_script:
     - source cirrus-env QA
-    - npm config set registry "${ARTIFACTORY_URL}/api/npm/npm"
     - source set_maven_build_version $BUILD_NUMBER
     - npm ci
     - source ws_scan.sh
@@ -254,15 +253,17 @@ js_ts_ruling_task:
   <<: *ONLY_SONARSOURCE_QA
   eks_container:
     <<: *CONTAINER_DEFINITION
-    dockerfile: .cirrus/nodejs-20.Dockerfile
+    dockerfile: .cirrus/nodejs.Dockerfile
     docker_arguments:
       CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
+      NODE_VERSION: 20
     cpu: 15
     memory: 32G
   env:
     CIRRUS_CLONE_DEPTH: 1
     SONARSOURCE_QA: true
   <<: *MAVEN_CACHE
+  <<: *NPMRC_SCRIPT_DEFINITION
   # needed because we need to build the plugin
   <<: *RUNTIME_CACHE
   submodules_script:
