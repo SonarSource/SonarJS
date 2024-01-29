@@ -10,10 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     name: Publish typedoc
     env:
-      ARTIFACTORY_URL: https://repox.jfrog.io/artifactory
-      ARTIFACTORY_PRIVATE_USERNAME: vault-${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-private-reader
-      ARTIFACTORY_PRIVATE_PASSWORD: VAULT[development/artifactory/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-private-reader access_token]
-      ARTIFACTORY_ACCESS_TOKEN: VAULT[development/artifactory/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-private-reader access_token]
+      NPM_CONFIG_registry: https://repox.jfrog.io/artifactory/api/npm/npm
+      NPM_CONFIG_//repox.jfrog.io/artifactory/api/npm/:_authToken: VAULT[development/artifactory/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-private-reader access_token]
     steps:
     - name: Checkout 🛎️
       uses: actions/checkout@v3
