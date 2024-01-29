@@ -9,9 +9,15 @@ jobs:
   publish-rules-helper-site:
     runs-on: ubuntu-latest
     name: Publish typedoc
+    env:
+      ARTIFACTORY_URL: https://repox.jfrog.io/artifactory
+
     steps:
     - name: Checkout 🛎️
       uses: actions/checkout@v3
+    - name: Setup Npm
+      run: |
+        cp .cirrus/npmrc .npmrc
     - name: Build typedoc site
       run: |
         npm ci
