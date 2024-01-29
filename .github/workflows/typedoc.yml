@@ -19,7 +19,7 @@ jobs:
       uses: actions/checkout@v3
     - name: Setup Npm
       run: |
-        cp .cirrus/npmrc .npmrc
+        cp .cirrus/npmrc ${GITHUB_WORKSPACE}/.npmrc
     - name: Build typedoc site
       run: |
         npm ci
