@@ -2,5 +2,5 @@
   "compilerOptions": {
     "target": "es2018",
   },
-  "files": ["placeholder.tsx"]
+  "files": ["index.js"]
 }

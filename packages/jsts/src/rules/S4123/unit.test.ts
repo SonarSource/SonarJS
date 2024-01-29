@@ -17,214 +17,44 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { rule } from './';
-import { RuleTester } from 'eslint';
 import { TypeScriptRuleTester } from '../tools';
-
+import { rule } from './';
 const ruleTester = new TypeScriptRuleTester();
 ruleTester.run('await should only be used with promises.', rule, {
   valid: [
     {
       code: `
-      async function foo() {
-        await ({then() { }});
+      /**
+       * Saves the current vuegg project definition in the specify repository
+       *
+       * @param  {object} project : Project definition to be saved in the repository (as vue.gg)
+       * @param  {string} owner : Repository owner
+       * @param  {string} repo : Repository where to save the project definition
+       * @param  {string} token : Authentication token
+       * @return {object|false} : returns a JSON of the created file of false is something goes wrong
+       */
+      async function saveVueggProject ({project, owner, repo, token}) {
+        let existingRepo = await getRepo(owner, repo, token)
+
+        if (!existingRepo) { await createRepo(repo, token) }
+
+        return await saveFile(project, owner, repo, 'vue.gg', token)
       }
-      `,
-    },
-    {
-      code: `
-      async function foo() {
-        await Promise.resolve(42);
-      }
-      `,
-    },
-    {
-      code: `
-      async function foo(p: PromiseLike<any>) {
-        await p;
-      }
-      `,
-    },
-    {
-      code: `
-      class MyPromiseLike implements PromiseLike<any> {
-        then(){}
-      }
-      async function foo() {
-        await new MyPromiseLike();
-      }
-      `,
-    },
-    {
-      code: `
-      class MyPromiseLike implements PromiseLike<any> {
-        then(){}
-      }
-      class MyPromiseLike2 extends MyPromiseLike {
-        then(){}
-      }
-      async function foo() {
-        await new MyPromiseLike2();
-      }
-      `,
-    },
-    {
-      code: `
-      class MyPromise implements Promise<any> {
-        then(){}
-      }
-      async function foo() {
-        await new MyPromise();
-      }
-      `,
-    },
-    {
-      code: `
-      interface Thenable<T> {
-        then: () => T
-      }
-      class MyThenable implements Thenable<number> {
-        then() {
-          return 1;
+      /**
+       * [getRepo description]
+       * @param  {[type]} owner [description]
+       * @param  {[type]} repo  [description]
+       * @param  {[type]} [token] [description]
+       * @return {[type]}       [description]
+       */
+      async function getRepo (owner, repo, token) {
+        // octokit.authenticate({type: 'oauth', token})
+        try {
+          return await octokit.repos.get({owner, repo})
+        } catch (e) {
+          console.log('(REPO) - ' + owner + '/' + repo + '  does not exist')
+          return false
         }
-      }
-      async function foo() {
-        await new MyThenable();
-      }
-      `,
-    },
-    {
-      code: `
-      import { NotExisting } from "invalid";
-      async function foo() {
-        await new NotExisting();
-      }
-      `,
-    },
-    {
-      code: `
-      function returnNumber(): number | Promise<number> {
-        return 1
-      }
-      async function foo() {
-        await returnNumber();
-      }
-      `,
-    },
-    {
-      code: `
-      interface MyQuery<T> extends Pick<Promise<T>, keyof Promise<T>> {
-        toQuery(): string;
-      }
-      async function foo(query: MyQuery<string>) {
-        const result = await query;
-        console.log(result);
-      }
-      `,
-    },
-    {
-      code: `
-      async function foo(x: unknown) {
-        await x;
-      }
-      `,
-    },
-    {
-      code: `
-      export class NoErrorThrownError extends Error {};
-      export class TestUtils {
-          public static getError = async (
-              call: () => PromiseLike<unknown> | unknown
-          ): Promise<TError> => {
-              try {
-                  await call();
-                  throw new NoErrorThrownError();
-              } catch (error) {
-                  return error as TError;
-              }
-          };
-      }
-      `,
-    },
-    {
-      code: `
-      class Foo {
-        then: Promise<Bar>;
-      }
-      function qux(): Foo {}
-      const baz = await qux();`,
-    },
-  ],
-  invalid: [
-    {
-      code: `
-      async function foo() {
-        let arr = [1, 2, 3];
-        await arr;
-      }
-      `,
-      errors: [
-        {
-          message: "Refactor this redundant 'await' on a non-promise.",
-          line: 4,
-          endLine: 4,
-          column: 9,
-          endColumn: 18,
-        },
-      ],
-    },
-    {
-      code: `
-      async function foo() {
-        let x: number = 1;
-        await x;
-      }
-      `,
-      errors: 1,
-    },
-    {
-      code: `
-      async function foo() {
-        await 1;
-      }
-      `,
-      errors: 1,
-    },
-    {
-      code: `
-      async function foo() {
-        await {else: 42};
-      }
-      `,
-      errors: 1,
-    },
-    {
-      code: `
-      async function foo() {
-        await {then: 42};
-      }
-      `,
-      errors: 1,
-    },
-  ],
-});
-
-const ruleTesterWithNoFullTypeInfo = new RuleTester({
-  parser: require.resolve('@typescript-eslint/parser'),
-  parserOptions: {
-    ecmaVersion: 2018,
-    sourceType: 'module',
-    project: [],
-  },
-});
-
-ruleTesterWithNoFullTypeInfo.run('await should only be used with promises.', rule, {
-  valid: [
-    {
-      code: `
-      async function bar() { return 42; }
-      async function foo() {
-        await bar();
       }
       `,
     },

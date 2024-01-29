@@ -32,7 +32,7 @@ const env = {
   es6: true,
 };
 
-const placeHolderFilePath = path.resolve(`${__dirname}/fixtures/placeholder.tsx`);
+const placeHolderFilePath = path.resolve(`${__dirname}/fixtures/index.js`);
 
 /**
  * Rule tester for Typescript, using @typescript-eslint parser, making sure that type information is present.
