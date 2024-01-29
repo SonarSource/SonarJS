@@ -18,6 +18,50 @@ Promise API to provide a clean and intuitive way to write asynchronous code in J
 const x = Promise.resolve(42);
 await x;
 </pre>
+<p>When running on JavaScript code, the JSdoc is prioritized over the type inference, so make sure that they are correct, using a
+<code>Promise&lt;T&gt;</code> type when needed.</p>
+<pre data-diff-id="2" data-diff-type="noncompliant">
+/**
+ * @return {number}
+ */
+async function foo() {
+  return await Promise.resolve(42);
+}
+async function bar() {
+  await foo(); // Noncompliant
+}
+</pre>
+<p>Either remove the JSdoc or fix it to correct the issue.</p>
+<pre data-diff-id="2" data-diff-type="compliant">
+/**
+ * @return {Promise&lt;number&gt;}
+ */
+async function foo() {
+  return await Promise.resolve(42);
+}
+async function bar() {
+  await foo();
+}
+</pre>
+<p>When calling a function that returns a promise as the last expression, you might forget to return it, especially if you refactored your code from a
+single-expression arrow function.</p>
+<pre data-diff-id="3" data-diff-type="noncompliant">
+function foo() {
+  Promise.resolve(42);
+}
+async function bar() {
+  await foo(); // Noncompliant
+}
+</pre>
+<p>Make sure that you return the promise.</p>
+<pre data-diff-id="3" data-diff-type="compliant">
+function foo() {
+  return Promise.resolve(42);
+}
+async function bar() {
+  await foo();
+}
+</pre>
 <h2>Resources</h2>
 <h3>Documentation</h3>
 <ul>

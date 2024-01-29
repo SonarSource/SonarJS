@@ -19,7 +19,7 @@
  */
 import { rule } from './';
 import { RuleTester } from 'eslint';
-import { TypeScriptRuleTester } from '../tools';
+import { JavaScriptRuleTester, TypeScriptRuleTester } from '../tools';
 
 const ruleTester = new TypeScriptRuleTester();
 ruleTester.run('await should only be used with promises.', rule, {
@@ -231,3 +231,40 @@ ruleTesterWithNoFullTypeInfo.run('await should only be used with promises.', rul
   ],
   invalid: [],
 });
+
+const javaScriptRuleTester = new JavaScriptRuleTester();
+javaScriptRuleTester.run(
+  'await should only be used with promises: honors JSDoc @return directive.',
+  rule,
+  {
+    valid: [
+      {
+        code: `
+async function foo () {
+    await bar()
+}
+/**
+ * @return {Promise<number>}
+ */
+async function bar () {
+    return 5;
+}`,
+      },
+    ],
+    invalid: [
+      {
+        code: `
+async function foo () {
+    await bar() // FP
+}
+/**
+ * @return {number}
+ */
+async function bar () {
+    return Promise.resolve(5);
+}`,
+        errors: 1,
+      },
+    ],
+  },
+);
