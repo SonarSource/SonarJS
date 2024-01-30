@@ -31,6 +31,8 @@ import {
   isStringArray,
   sortLike,
   copyingSortLike,
+  getTypeArguments,
+  isAUnionType,
 } from '../helpers';
 
 const compareNumberFunctionPlaceholder = '(a, b) => (a - b)';
@@ -74,8 +76,22 @@ export const rule: Rule.RuleModule = {
         const type = getTypeFromTreeNode(object, services);
 
         if ([...sortLike, ...copyingSortLike].includes(text) && isArrayLikeType(type, services)) {
-          const suggest = getSuggestions(call, type);
-          context.report({ node, suggest, messageId: 'provideCompareFunction' });
+          let [typeArgument] = getTypeArguments(type, services);
+
+          if (typeArgument === undefined) {
+            typeArgument = type;
+          }
+
+          function isTypeAString(candidate: ts.Type): boolean {
+            return candidate.flags === 4;
+          }
+
+          const types = isAUnionType(typeArgument) ? typeArgument.types : [typeArgument];
+
+          if (!types.every(isTypeAString)) {
+            const suggest = getSuggestions(call, type);
+            context.report({ node, suggest, messageId: 'provideCompareFunction' });
+          }
         }
       },
     };

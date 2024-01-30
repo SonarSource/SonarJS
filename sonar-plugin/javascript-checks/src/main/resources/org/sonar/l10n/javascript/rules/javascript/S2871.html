@@ -31,6 +31,16 @@ const code3 = '\u0065\u0394'; // "eΔ"
 console.log([code1, code2, code3].sort()); // Noncompliant: ["éΔ", "eΔ", "éΔ"], "eΔ" position is inconsistent
 console.log([code1, code2, code3].sort((a, b) =&gt; a.localeCompare(b))); // ["eΔ", "éΔ", "éΔ"]
 </pre>
+<h3>Exceptions</h3>
+<p>The rule ignores arrays that only contain strings, or are declared as such.</p>
+<pre>
+const names = ['foo', 'bar'];
+names.sort(); // Compliant
+</pre>
+<pre>
+const names: string[] = [];
+names.sort(); // Compliant
+</pre>
 <h2>Resources</h2>
 <h3>Documentation</h3>
 <ul>
