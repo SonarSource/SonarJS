@@ -25,8 +25,7 @@ jobs:
     - name: Build typedoc site
       run: |
         cp .cirrus/npmrc ./.npmrc
-        cat .npmrc
-        npm ci
+        ARTIFACTORY_ACCESS_TOKEN=steps.secrets.outputs.ARTIFACTORY_ACCESS_TOKEN npm ci
         npm run td
     - name: Publish typedoc site
       uses: JamesIves/github-pages-deploy-action@v4
