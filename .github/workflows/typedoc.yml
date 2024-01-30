@@ -27,6 +27,7 @@ jobs:
         cp .cirrus/npmrc ./.npmrc
         export ARTIFACTORY_ACCESS_TOKEN=steps.secrets.outputs.ARTIFACTORY_ACCESS_TOKEN
         echo ${ARTIFACTORY_URL}/api/npm/npm
+        echo $ARTIFACTORY_ACCESS_TOKEN
         npm ci
         npm run td
     - name: Publish typedoc site
