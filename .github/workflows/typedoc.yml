@@ -8,12 +8,25 @@ permissions:
 jobs:
   publish-rules-helper-site:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write # for vault
+      contents: write # for publish
     name: Publish typedoc
+    env:
+      ARTIFACTORY_URL: https://repox.jfrog.io/artifactory
     steps:
     - name: Checkout 🛎️
       uses: actions/checkout@v3
+    - name: Get vault secrets
+      id: secrets
+      uses: SonarSource/vault-action-wrapper@dc8fe04652687f7278f3ecd27905967836bab0eb # tag=2.7.4-1
+      with:
+        secrets: |
+          development/artifactory/token/{REPO_OWNER_NAME_DASH}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
     - name: Build typedoc site
       run: |
+        cp .cirrus/npmrc ./.npmrc
+        export ARTIFACTORY_ACCESS_TOKEN=${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
         npm ci
         npm run td
     - name: Publish typedoc site
