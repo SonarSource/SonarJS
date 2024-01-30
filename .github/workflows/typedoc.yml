@@ -25,6 +25,7 @@ jobs:
     - name: Build typedoc site
       run: |
         cp .cirrus/npmrc ./.npmrc
+        cat .npmrc
         npm ci
         npm run td
     - name: Publish typedoc site
