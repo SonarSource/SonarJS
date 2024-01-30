@@ -10,6 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       id-token: write # for vault
+      contents: write # for publish
     name: Publish typedoc
     env:
       ARTIFACTORY_URL: https://repox.jfrog.io/artifactory
