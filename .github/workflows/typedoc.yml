@@ -2,7 +2,7 @@ name: 'Typedoc: site for helper function for the bridge'
 on:
   push:
     branches:
-      - '**'
+      - master
 permissions:
   contents: write
 jobs:
