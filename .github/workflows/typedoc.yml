@@ -14,6 +14,7 @@ jobs:
     env:
       NPM_CONFIG_registry: https://repox.jfrog.io/artifactory/api/npm/npm
       NPM_CONFIG_//repox.jfrog.io/artifactory/api/npm/:_authToken: VAULT[development/artifactory/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-qa-deployer access_token]
+      ARTIFACTORY_URL: https://repox.jfrog.io/artifactory
     steps:
     - name: Checkout 🛎️
       uses: actions/checkout@v3
@@ -24,8 +25,6 @@ jobs:
         secrets: |
           development/artifactory/token/{REPO_OWNER_NAME_DASH}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
     - name: setup NPM RC
-      env:
-        ARTIFACTORY_URL: https://repox.jfrog.io/artifactory
       run: |
         cp .cirrus/npmrc ./.npmrc
     - name: Build typedoc site
