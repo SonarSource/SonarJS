@@ -7,7 +7,7 @@ foo.match(/foo/);
 // fix@qf1 {{Replace with "RegExp.exec()"}}
 // edit@qf1 [[ec=19]] {{RegExp(/bar/).exec('foo');}}
 
-const m1 = 'foo'.match(/bar/);
+const m1 = 'foo'.match(/bar/); // Compliant: we're checking `m1.length` below
 if (m1.length > 0) {
   console.log(m1[0]);
 }
