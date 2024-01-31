@@ -77,7 +77,7 @@ export const rule: Rule.RuleModule = {
 
 function getCallee(call: estree.CallExpression) {
   const node = call as TSESTree.CallExpression;
-  return (node.typeParameters ?? node.callee) as estree.Node;
+  return (node.typeArguments ?? node.callee) as estree.Node;
 }
 
 function isClosingParen(token: AST.Token) {
