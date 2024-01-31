@@ -22,24 +22,15 @@ numbers.sort((a, b) =&gt; a - b);
 console.log(numbers); // Output: [1, 2, 5, 10, 30]
 </pre>
 <p>Even to sort strings, the default sort order may give unexpected results. Not only does it not support localization, it also doesn’t fully support
-Unicode, as it only considers UTF-16 code units. For example, in the code below, <code>"eΔ"</code> is surprisingly before and after
-<code>"éΔ"</code>.</p>
+Unicode, as it only considers UTF-16 code units. For example, in the code below, <code>"eΔ"</code> is surprisingly before and after <code>"éΔ"</code>.
+To guarantee that the sorting is reliable and remains as such in the long run, it is necessary to provide a compare function that is both locale and
+Unicode aware - typically <code>String.localeCompare</code>.</p>
 <pre>
 const code1 = '\u00e9\u0394'; // "éΔ"
 const code2 = '\u0065\u0301\u0394'; // "éΔ" using Unicode combining marks
 const code3 = '\u0065\u0394'; // "eΔ"
 console.log([code1, code2, code3].sort()); // Noncompliant: ["éΔ", "eΔ", "éΔ"], "eΔ" position is inconsistent
 console.log([code1, code2, code3].sort((a, b) =&gt; a.localeCompare(b))); // ["eΔ", "éΔ", "éΔ"]
-</pre>
-<h3>Exceptions</h3>
-<p>The rule ignores arrays that only contain strings, or are declared as such.</p>
-<pre>
-const names = ['foo', 'bar'];
-names.sort(); // Compliant
-</pre>
-<pre>
-const names: string[] = [];
-names.sort(); // Compliant
 </pre>
 <h2>Resources</h2>
 <h3>Documentation</h3>

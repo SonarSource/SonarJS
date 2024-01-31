@@ -145,50 +145,6 @@ ruleTester.run(`A compare function should be provided when using "Array.prototyp
     {
       code: `Array.prototype.sort.apply([1, 2, 10])`,
     },
-    {
-      code: 'const array = ["foo", "bar"]; array.sort();',
-    },
-    // optional chain
-    {
-      code: `
-        function f(a: string[]) {
-          a?.sort();
-        }
-      `,
-    },
-    {
-      code: `
-        ['foo', 'bar', 'baz'].sort();
-      `,
-    },
-    {
-      code: `
-        function getString() {
-          return 'foo';
-        }
-        [getString(), getString()].sort();
-      `,
-    },
-    {
-      code: `
-        const foo = 'foo';
-        const bar = 'bar';
-        const baz = 'baz';
-        [foo, bar, baz].sort();
-      `,
-    },
-    {
-      code: `
-const names: Array<string> = [];
-names.sort();
-`,
-    },
-    {
-      code: `
-const names: Array<string | 'foo'> = [];
-names.sort();
-`,
-    },
   ],
   invalid: [
     {
@@ -332,17 +288,49 @@ names.sort();
       errors: [{ suggestions: [] }],
     },
     {
+      code: 'const array = ["foo", "bar"]; array.sort();',
+      errors: [
+        {
+          suggestions: [
+            {
+              desc: 'Add a comparator function to sort in ascending language-sensitive order',
+              output: 'const array = ["foo", "bar"]; array.sort((a, b) => a.localeCompare(b));',
+            },
+          ],
+        },
+      ],
+    },
+    // optional chain
+    {
       code: `
-const names: Array<number> = [];
-names.sort();
-`,
+        function f(a: string[]) {
+          a?.sort();
+        }
+      `,
       errors: 1,
     },
     {
       code: `
-const names: Array<string | number> = [];
-names.sort();
-`,
+        ['foo', 'bar', 'baz'].sort();
+      `,
+      errors: 1,
+    },
+    {
+      code: `
+        function getString() {
+          return 'foo';
+        }
+        [getString(), getString()].sort();
+      `,
+      errors: 1,
+    },
+    {
+      code: `
+        const foo = 'foo';
+        const bar = 'bar';
+        const baz = 'baz';
+        [foo, bar, baz].sort();
+      `,
       errors: 1,
     },
   ],
@@ -468,50 +456,6 @@ ruleTester.run(
       },
       {
         code: `const sorted = Array.prototype.toSorted.apply([1, 2, 10])`,
-      },
-      {
-        code: 'const array = ["foo", "bar"]; const sortedArray = array.toSorted();',
-      },
-      // optional chain
-      {
-        code: `
-        function f(a: string[]) {
-          return a?.toSorted();
-        }
-      `,
-      },
-      {
-        code: `
-        const sorted = ['foo', 'bar', 'baz'].toSorted();
-      `,
-      },
-      {
-        code: `
-        function getString() {
-          return 'foo';
-        }
-        const sorted = [getString(), getString()].toSorted();
-      `,
-      },
-      {
-        code: `
-        const foo = 'foo';
-        const bar = 'bar';
-        const baz = 'baz';
-        const sorted = [foo, bar, baz].toSorted();
-      `,
-      },
-      {
-        code: `
-const names: Array<string> = [];
-names.sort();
-`,
-      },
-      {
-        code: `
-const names: Array<string | 'foo'> = [];
-names.sort();
-`,
       },
     ],
     invalid: [
@@ -659,17 +603,52 @@ names.sort();
         errors: [{ suggestions: [] }],
       },
       {
+        code: 'const array = ["foo", "bar"]; const sortedArray = array.toSorted();',
+        errors: [
+          {
+            message:
+              'Provide a compare function that depends on String.localeCompare, to reliably sort elements alphabetically.',
+            suggestions: [
+              {
+                desc: 'Add a comparator function to sort in ascending language-sensitive order',
+                output:
+                  'const array = ["foo", "bar"]; const sortedArray = array.toSorted((a, b) => a.localeCompare(b));',
+              },
+            ],
+          },
+        ],
+      },
+      // optional chain
+      {
         code: `
-const names: Array<number> = [];
-names.sort();
-`,
+        function f(a: string[]) {
+          return a?.toSorted();
+        }
+      `,
         errors: 1,
       },
       {
         code: `
-const names: Array<string | number> = [];
-names.sort();
-`,
+        const sorted = ['foo', 'bar', 'baz'].toSorted();
+      `,
+        errors: 1,
+      },
+      {
+        code: `
+        function getString() {
+          return 'foo';
+        }
+        const sorted = [getString(), getString()].toSorted();
+      `,
+        errors: 1,
+      },
+      {
+        code: `
+        const foo = 'foo';
+        const bar = 'bar';
+        const baz = 'baz';
+        const sorted = [foo, bar, baz].toSorted();
+      `,
         errors: 1,
       },
     ],

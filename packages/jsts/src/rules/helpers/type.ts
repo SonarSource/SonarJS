@@ -281,24 +281,3 @@ export function isTypeAlias(node: TSESTree.TypeNode, context: Rule.RuleContext) 
   const variable = getVariableFromScope(scope, node.typeName.name);
   return variable?.defs.some(def => def.node.type === 'TSTypeAliasDeclaration');
 }
-
-export function getTypeArguments(
-  type: ts.Type,
-  services: RequiredParserServices,
-): readonly ts.Type[] {
-  const checker = services.program.getTypeChecker();
-  return checker.getTypeArguments(type as ts.TypeReference);
-}
-
-type UnionType = ts.Type & {
-  types: ts.Type[];
-};
-
-/**
- * Type guard that guarantees that the passed candidate is a union and narrows its type to {@link UnionType}.
- *
- * @param candidate
- */
-export function isAUnionType(candidate: ts.Type): candidate is UnionType {
-  return candidate.flags === 1048576;
-}
