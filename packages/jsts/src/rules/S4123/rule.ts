@@ -23,6 +23,7 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import * as ts from 'typescript';
 import { isRequiredParserServices, getTypeFromTreeNode } from '../helpers';
+import { ParserServicesWithTypeInformation, TSESTree } from '@typescript-eslint/utils';
 
 export const rule: Rule.RuleModule = {
   meta: {
@@ -34,7 +35,10 @@ export const rule: Rule.RuleModule = {
     const services = context.sourceCode.parserServices;
     if (isRequiredParserServices(services)) {
       return {
-        AwaitExpression: (node: estree.Node) => {
+        AwaitExpression: (node: estree.AwaitExpression) => {
+          if (isException(node, services)) {
+            return;
+          }
           const awaitedType = getTypeFromTreeNode(
             (node as estree.AwaitExpression).argument,
             services,
@@ -56,6 +60,33 @@ export const rule: Rule.RuleModule = {
     return {};
   },
 };
+
+/**
+ * If the awaited expression is a call expression, check if it is a call to a function with JSDoc.
+ */
+function isException(node: estree.AwaitExpression, services: ParserServicesWithTypeInformation) {
+  if (node.argument.type !== 'CallExpression') {
+    return false;
+  }
+  const callExpression = node.argument;
+  const tsCallExpr = services.esTreeNodeToTSNodeMap.get(callExpression.callee as TSESTree.Node);
+  const tc = services.program.getTypeChecker();
+  const symbol = tc.getSymbolAtLocation(tsCallExpr);
+  const declarations = symbol?.declarations;
+  if (!declarations) {
+    return false;
+  }
+  for (const declaration of declarations) {
+    if (hasJsDoc(declaration)) {
+      return true;
+    }
+  }
+  return false;
+
+  function hasJsDoc(declaration: ts.Declaration & { jsDoc?: ts.JSDoc[] }) {
+    return declaration.jsDoc && declaration.jsDoc.length > 0;
+  }
+}
 
 function isThenable(type: ts.Type) {
   const thenProperty = type.getProperty('then');
