@@ -21,7 +21,13 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { isRequiredParserServices, isString } from '../helpers';
+import {
+  getNodeParent,
+  getVariableFromName,
+  isMemberWithProperty,
+  isRequiredParserServices,
+  isString,
+} from '../helpers';
 import { getParsedRegex } from '../helpers/regex';
 
 export const rule: Rule.RuleModule = {
@@ -44,11 +50,22 @@ export const rule: Rule.RuleModule = {
           if (!isString(object, services)) {
             return;
           }
+
           const callExpr = (memberExpr as any).parent as estree.CallExpression;
           const regex = getParsedRegex(callExpr.arguments[0], context);
           if (regex?.flags.global) {
             return;
           }
+
+          const variable = getLhsVariable(callExpr);
+          for (const ref of variable?.references ?? []) {
+            const id = ref.identifier;
+            const parent = getNodeParent(id);
+            if (isMemberWithProperty(parent, 'length')) {
+              return;
+            }
+          }
+
           context.report({
             node: property,
             messageId: 'useExec',
@@ -66,5 +83,23 @@ export const rule: Rule.RuleModule = {
           });
         },
     };
+
+    /**
+     * Extracts the left-hand side variable of expressions
+     * like `x` in `const x = <node>` or `x` in `x = <node>`.
+     */
+    function getLhsVariable(node: estree.Node) {
+      const parent = getNodeParent(node);
+      let ident: estree.Identifier | undefined;
+      if (parent.type === 'VariableDeclarator' && parent.id.type === 'Identifier') {
+        ident = parent.id;
+      } else if (parent.type === 'AssignmentExpression' && parent.left.type === 'Identifier') {
+        ident = parent.left;
+      }
+      if (ident) {
+        return getVariableFromName(context, ident.name);
+      }
+      return null;
+    }
   },
 };
