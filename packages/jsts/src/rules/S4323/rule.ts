@@ -68,6 +68,10 @@ export const rule: Rule.RuleModule = {
           return;
         }
 
+        if (isNullableType(composite)) {
+          return;
+        }
+
         const text = composite.types
           .map(typeNode => context.sourceCode.getText(typeNode as unknown as estree.Node))
           .sort((a, b) => a.localeCompare(b))
@@ -81,5 +85,14 @@ export const rule: Rule.RuleModule = {
         }
       },
     };
+
+    function isNullableType(node: TSESTree.TSUnionType | TSESTree.TSIntersectionType) {
+      return (
+        node.type === 'TSUnionType' &&
+        node.types.filter(
+          type => type.type !== 'TSNullKeyword' && type.type !== 'TSUndefinedKeyword',
+        ).length === 1
+      );
+    }
   },
 };
