@@ -54,7 +54,7 @@ export const rule: Rule.RuleModule = {
       provideCompareFunction:
         'Provide a compare function to avoid sorting elements alphabetically.',
       provideCompareFunctionForArrayOfStrings:
-        'Provide a compare function that depends on String.localeCompare, to reliably sort elements alphabetically.',
+        'Provide a compare function that depends on "String.localeCompare", to reliably sort elements alphabetically.',
       suggestNumericOrder: 'Add a comparator function to sort in ascending order',
       suggestLanguageSensitiveOrder:
         'Add a comparator function to sort in ascending language-sensitive order',
