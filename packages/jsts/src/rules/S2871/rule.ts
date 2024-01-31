@@ -82,9 +82,9 @@ export const rule: Rule.RuleModule = {
             typeArgument = type;
           }
 
-          function isTypeAString(candidate: ts.Type): boolean {
+          const isTypeAString = (candidate: ts.Type): boolean => {
             return candidate.flags === 4;
-          }
+          };
 
           const types = isAUnionType(typeArgument) ? typeArgument.types : [typeArgument];
 
