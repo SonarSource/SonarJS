@@ -13,7 +13,7 @@ if (m1.length > 0) {
 }
 
 let m2;
-m2 = 'foo'.match(/bar/);
+m2 = 'foo'.match(/bar/); // Compliant: we're checking `m2?.length` below
 if (m2?.length > 0) {
   console.log(m2[0]);
 }
