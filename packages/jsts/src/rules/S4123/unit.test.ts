@@ -234,20 +234,47 @@ ruleTesterWithNoFullTypeInfo.run('await should only be used with promises.', rul
 
 const javaScriptRuleTester = new JavaScriptRuleTester();
 javaScriptRuleTester.run(
-  'await should only be used with promises: honors JSDoc @return directive.',
+  'await should only be used with promises: ignore function calls for functions with JSdoc',
   rule,
   {
     valid: [
       {
         code: `
 async function foo () {
-    await bar()
+  await bar() // Compliant: ignored because of JSDoc
 }
 /**
  * @return {Promise<number>}
  */
 async function bar () {
-    return 5;
+  return 5;
+}`,
+      },
+      {
+        code: `
+async function foo () {
+  await bar() // Compliant: ignored because of JSDoc
+}
+/**
+ * @return {number}
+ */
+async function bar () {
+  return Promise.resolve(5);
+}`,
+      },
+      {
+        code: `
+async function foo () {
+  await bar.baz() // Compliant: ignored because of JSDoc
+}
+
+const bar = {
+  /**
+   * @return {Promise<number>}
+   */
+  baz() {
+    return Promise.resolve(5);
+  }
 }`,
       },
     ],
@@ -255,13 +282,10 @@ async function bar () {
       {
         code: `
 async function foo () {
-    await bar() // FP
+    await bar() // Noncompliant
 }
-/**
- * @return {number}
- */
-async function bar () {
-    return Promise.resolve(5);
+function bar () {
+    return 5;
 }`,
         errors: 1,
       },
