@@ -1,7 +1,4 @@
 {
-"desktop:app/src/crash/crash-app.tsx": [
-65
-],
 "desktop:app/src/lib/actions-log-parser/action-log-parser.ts": [
 140,
 219,
@@ -30,35 +27,19 @@
 200,
 226
 ],
-"desktop:app/src/lib/markdown-filters/emoji-filter.ts": [
-64
-],
 "desktop:app/src/lib/markdown-filters/issue-link-filter.ts": [
 112
 ],
 "desktop:app/src/lib/parse-pac-string.ts": [
 72
 ],
-"desktop:app/src/lib/progress/lfs.ts": [
-54
-],
-"desktop:app/src/lib/remove-remote-prefix.ts": [
-10
-],
 "desktop:app/src/models/app-menu.ts": [
 161
-],
-"desktop:app/src/models/branch.ts": [
-73,
-87
 ],
 "desktop:app/src/models/commit-identity.ts": [
 23
 ],
 "desktop:app/src/models/git-author.ts": [
 3
-],
-"desktop:script/changelog/parser.ts": [
-20
 ]
 }
