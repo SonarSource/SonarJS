@@ -296,6 +296,19 @@ function bar () {
 }`,
         errors: 1,
       },
+      {
+        code: `
+async function foo () {
+    await bar() // Noncompliant
+}
+/**
+ * JSdoc without return type
+ */
+function bar () {
+    return 5;
+}`,
+        errors: 1,
+      },
     ],
   },
 );
