@@ -68,15 +68,8 @@ function isException(node: estree.AwaitExpression, services: ParserServicesWithT
   if (node.argument.type !== 'CallExpression') {
     return false;
   }
-  const callExpression = node.argument;
-  const tsCallExpr = services.esTreeNodeToTSNodeMap.get(callExpression.callee as TSESTree.Node);
-  const tc = services.program.getTypeChecker();
-  const symbol = tc.getSymbolAtLocation(tsCallExpr);
-  const declarations = symbol?.declarations;
-  if (declarations?.some(d => hasJsDoc(d))) {
-    return true;
-  }
-  return false;
+  const signature = getSignatureFromCallee(node.argument, services);
+  return signature?.declaration && hasJsDoc(signature.declaration);
 
   function hasJsDoc(declaration: ts.Declaration & { jsDoc?: ts.JSDoc[] }) {
     return declaration.jsDoc && declaration.jsDoc.length > 0;
