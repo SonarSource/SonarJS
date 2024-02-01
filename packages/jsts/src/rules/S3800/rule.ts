@@ -28,11 +28,14 @@ import {
   getParent,
   getTypeFromTreeNode,
   isAny,
+  isBooleanTrueType,
   isRequiredParserServices,
+  isStringType,
   RuleContext,
   toEncodedMessage,
 } from '../helpers';
 import { SONAR_RUNTIME } from '../../linter/parameters';
+import { type UnionType } from 'typescript';
 
 class FunctionScope {
   private readonly returnStatements: estree.ReturnStatement[] = [];
@@ -45,6 +48,12 @@ class FunctionScope {
     this.returnStatements.push(node);
   }
 }
+
+const isASanitationFunction = (signature: ts.Signature) => {
+  const { types } = signature.getReturnType() as UnionType;
+
+  return types.length === 2 && types.some(isBooleanTrueType) && types.some(isStringType);
+};
 
 export const rule: Rule.RuleModule = {
   meta: {
@@ -74,6 +83,10 @@ export const rule: Rule.RuleModule = {
         services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node) as ts.SignatureDeclaration,
       );
       if (signature && hasMultipleReturnTypes(signature, checker)) {
+        if (isASanitationFunction(signature)) {
+          return;
+        }
+
         const stmts = returnStatements.filter(
           retStmt => !isNullLike(getTypeFromTreeNode(retStmt.argument!, services)),
         );

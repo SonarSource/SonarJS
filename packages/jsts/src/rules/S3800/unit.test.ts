@@ -249,6 +249,29 @@ ruleTesterTs.run(`Functions should always return the same type [ts]`, rule, {
           }
         }`,
     },
+    {
+      code: `
+        function foo() {
+          return condition ? 'str' : true;
+        }`,
+    },
+    {
+      code: `
+const sanitize = () => {
+  return condition ? true : 'Value should be a string';
+};
+`,
+    },
+    {
+      code: `
+const sanitize = () => {
+  if (condition) {
+    return true;
+  };
+
+  return 'Value should be a string';
+}`,
+    },
   ],
   invalid: [
     {
@@ -470,13 +493,6 @@ ruleTesterTs.run(`Functions should always return the same type [ts]`, rule, {
     },
     {
       code: `
-        function foo() {
-          return condition ? 'str' : true;
-        }`,
-      errors: 1,
-    },
-    {
-      code: `
         class C {
           m() {
             if (condition) {
@@ -532,6 +548,14 @@ ruleTesterTs.run(`Functions should always return the same type [ts]`, rule, {
           endColumn: 14,
         },
       ],
+    },
+    {
+      code: `
+const sanitize = () => {
+  return condition ? true : 42;
+};
+`,
+      errors: 1,
     },
   ],
 });
