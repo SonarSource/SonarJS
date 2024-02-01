@@ -19,3 +19,8 @@ class SubClass extends SuperClass {
     super();
   }
 }
+
+@Decorator()
+class Decorated {
+  constructor() {}
+}

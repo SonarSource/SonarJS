@@ -52,6 +52,15 @@ function checkParams(node: TSESTree.MethodDefinition): boolean {
   );
 }
 
+/**
+ * Check if the enclosing class is not decorated.
+ */
+function checkDecorator(node: TSESTree.MethodDefinition): boolean {
+  return !(
+    node.parent.parent?.type === 'ClassDeclaration' && node.parent.parent.decorators?.length > 0
+  );
+}
+
 const eslintNoUselessConstructor = eslintRules['no-useless-constructor'];
 
 const originalRule: Rule.RuleModule = {
@@ -68,7 +77,8 @@ const originalRule: Rule.RuleModule = {
           node.value.type === 'FunctionExpression' &&
           node.kind === 'constructor' &&
           checkAccessibility(node as TSESTree.MethodDefinition) &&
-          checkParams(node as TSESTree.MethodDefinition)
+          checkParams(node as TSESTree.MethodDefinition) &&
+          checkDecorator(node as TSESTree.MethodDefinition)
         ) {
           rules.MethodDefinition!(node);
         }
