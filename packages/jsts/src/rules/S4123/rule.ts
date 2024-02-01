@@ -73,13 +73,8 @@ function isException(node: estree.AwaitExpression, services: ParserServicesWithT
   const tc = services.program.getTypeChecker();
   const symbol = tc.getSymbolAtLocation(tsCallExpr);
   const declarations = symbol?.declarations;
-  if (!declarations) {
-    return false;
-  }
-  for (const declaration of declarations) {
-    if (hasJsDoc(declaration)) {
-      return true;
-    }
+  if (declarations?.some(d => hasJsDoc(d))) {
+    return true;
   }
   return false;
 
