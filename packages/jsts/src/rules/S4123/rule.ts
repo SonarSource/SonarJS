@@ -22,7 +22,7 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import * as ts from 'typescript';
-import { isRequiredParserServices, getTypeFromTreeNode } from '../helpers';
+import { isRequiredParserServices, getTypeFromTreeNode, getSignatureFromCallee } from '../helpers';
 import { ParserServicesWithTypeInformation, TSESTree } from '@typescript-eslint/utils';
 
 export const rule: Rule.RuleModule = {
@@ -36,14 +36,12 @@ export const rule: Rule.RuleModule = {
     if (isRequiredParserServices(services)) {
       return {
         AwaitExpression: (node: estree.AwaitExpression) => {
-          if (isException(node, services)) {
-            return;
-          }
           const awaitedType = getTypeFromTreeNode(
             (node as estree.AwaitExpression).argument,
             services,
           );
           if (
+            !isException(node, services) &&
             !isThenable(awaitedType) &&
             !isAny(awaitedType) &&
             !isUnknown(awaitedType) &&
