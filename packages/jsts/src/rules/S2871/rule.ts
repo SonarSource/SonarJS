@@ -53,6 +53,8 @@ export const rule: Rule.RuleModule = {
     messages: {
       provideCompareFunction:
         'Provide a compare function to avoid sorting elements alphabetically.',
+      provideCompareFunctionForArrayOfStrings:
+        'Provide a compare function that depends on "String.localeCompare", to reliably sort elements alphabetically.',
       suggestNumericOrder: 'Add a comparator function to sort in ascending order',
       suggestLanguageSensitiveOrder:
         'Add a comparator function to sort in ascending language-sensitive order',
@@ -75,7 +77,8 @@ export const rule: Rule.RuleModule = {
 
         if ([...sortLike, ...copyingSortLike].includes(text) && isArrayLikeType(type, services)) {
           const suggest = getSuggestions(call, type);
-          context.report({ node, suggest, messageId: 'provideCompareFunction' });
+          const messageId = getMessageId(type);
+          context.report({ node, suggest, messageId });
         }
       },
     };
@@ -99,6 +102,14 @@ export const rule: Rule.RuleModule = {
         });
       }
       return suggestions;
+    }
+
+    function getMessageId(type: ts.Type) {
+      if (isStringArray(type, services)) {
+        return 'provideCompareFunctionForArrayOfStrings';
+      }
+
+      return 'provideCompareFunction';
     }
 
     function fixer(call: estree.CallExpression, ...placeholder: string[]): Rule.ReportFixer {

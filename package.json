@@ -5,7 +5,7 @@
   "scripts": {
     "format": "prettier --write .",
     "build": "mvn clean && npm run _:plugin:pre-build && npm run plugin:build-no-bridge && npm run update-ruling-data",
-    "build:fast": "npm run bridge:build:fast && npm run _:plugin:prepare-bridge && npm run _:plugin-fetch-node && npm run plugin:build:fast",
+    "build:fast": "npm run bridge:build:fast && npm run _:plugin:prepare-bridge && npm run _:plugin-fetch-node && npm run plugin:build:fast && npm run update-ruling-data",
     "bf": "npm run build:fast",
     "new-rule": "ts-node tools/newRule.ts",
     "ruling": "node tools/prepare-ruling.js && jest ./packages/ruling/tests/projects/*.ruling.test.ts",

@@ -606,6 +606,8 @@ ruleTester.run(
         code: 'const array = ["foo", "bar"]; const sortedArray = array.toSorted();',
         errors: [
           {
+            message:
+              'Provide a compare function that depends on "String.localeCompare", to reliably sort elements alphabetically.',
             suggestions: [
               {
                 desc: 'Add a comparator function to sort in ascending language-sensitive order',
