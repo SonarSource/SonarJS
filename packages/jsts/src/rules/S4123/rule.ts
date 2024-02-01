@@ -23,7 +23,7 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import * as ts from 'typescript';
 import { isRequiredParserServices, getTypeFromTreeNode, getSignatureFromCallee } from '../helpers';
-import { ParserServicesWithTypeInformation, TSESTree } from '@typescript-eslint/utils';
+import { ParserServicesWithTypeInformation } from '@typescript-eslint/utils';
 
 export const rule: Rule.RuleModule = {
   meta: {
@@ -60,17 +60,27 @@ export const rule: Rule.RuleModule = {
 };
 
 /**
- * If the awaited expression is a call expression, check if it is a call to a function with JSDoc.
+ * If the awaited expression is a call expression, check if it is a call to a function with
+ * a JSDoc containing a return tag.
  */
 function isException(node: estree.AwaitExpression, services: ParserServicesWithTypeInformation) {
   if (node.argument.type !== 'CallExpression') {
     return false;
   }
   const signature = getSignatureFromCallee(node.argument, services);
-  return signature?.declaration && hasJsDoc(signature.declaration);
+  return signature?.declaration && hasJsDocReturn(signature.declaration);
 
-  function hasJsDoc(declaration: ts.Declaration & { jsDoc?: ts.JSDoc[] }) {
-    return declaration.jsDoc && declaration.jsDoc.length > 0;
+  function hasJsDocReturn(declaration: ts.Declaration & { jsDoc?: ts.JSDoc[] }) {
+    const RETURN_TAGS = ['return', 'returns'];
+    if (!declaration.jsDoc) {
+      return false;
+    }
+    for (const jsDoc of declaration.jsDoc) {
+      if (jsDoc.tags?.some(tag => RETURN_TAGS.includes(tag.tagName.escapedText.toString()))) {
+        return true;
+      }
+    }
+    return false;
   }
 }
 
