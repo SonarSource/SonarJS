@@ -71,6 +71,12 @@ ruleTester.run('Type aliases should be used', rule, {
       let y: number | string | undefined;
       let z: number | String | undefined; // this fine because case-sensitive`,
     },
+    {
+      code: `
+      let x: T | null | undefined;
+      let y: T | null | undefined;
+      let z: T | null | undefined; `,
+    },
   ],
   invalid: [
     {

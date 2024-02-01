@@ -59,23 +59,40 @@ export const rule: Rule.RuleModule = {
         const declaration = ancestors.find(
           ancestor => (ancestor as TSESTree.Node).type === 'TSTypeAliasDeclaration',
         );
-        if (!declaration) {
-          const composite = node as unknown as TSESTree.TSUnionType | TSESTree.TSIntersectionType;
-          if (composite.types.length > TYPE_THRESHOLD) {
-            const text = composite.types
-              .map(typeNode => context.sourceCode.getText(typeNode as unknown as estree.Node))
-              .sort((a, b) => a.localeCompare(b))
-              .join('|');
-            let occurrences = usage.get(text);
-            if (!occurrences) {
-              occurrences = [composite];
-              usage.set(text, occurrences);
-            } else {
-              occurrences.push(composite);
-            }
-          }
+        if (declaration) {
+          return;
+        }
+
+        const composite = node as unknown as TSESTree.TSUnionType | TSESTree.TSIntersectionType;
+        if (composite.types.length <= TYPE_THRESHOLD) {
+          return;
+        }
+
+        if (isNullableType(composite)) {
+          return;
+        }
+
+        const text = composite.types
+          .map(typeNode => context.sourceCode.getText(typeNode as unknown as estree.Node))
+          .sort((a, b) => a.localeCompare(b))
+          .join('|');
+        let occurrences = usage.get(text);
+        if (!occurrences) {
+          occurrences = [composite];
+          usage.set(text, occurrences);
+        } else {
+          occurrences.push(composite);
         }
       },
     };
+
+    function isNullableType(node: TSESTree.TSUnionType | TSESTree.TSIntersectionType) {
+      return (
+        node.type === 'TSUnionType' &&
+        node.types.filter(
+          type => type.type !== 'TSNullKeyword' && type.type !== 'TSUndefinedKeyword',
+        ).length === 1
+      );
+    }
   },
 };
