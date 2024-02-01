@@ -24,3 +24,13 @@ class SubClass extends SuperClass {
 class Decorated {
   constructor() {}
 }
+
+class Alpha {
+  protected constructor() {}
+}
+
+class Beta extends Alpha {
+  constructor() {
+    super();
+  }
+}

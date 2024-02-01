@@ -21,6 +21,7 @@ import type { TSESTree } from '@typescript-eslint/utils';
 import { Rule } from 'eslint';
 import { eslintRules } from '../core';
 import { decorate } from './decorator';
+import { getVariableFromName } from '../helpers';
 
 /**
  * Check if method with accessibility is not useless
@@ -61,6 +62,36 @@ function checkDecorator(node: TSESTree.MethodDefinition): boolean {
   );
 }
 
+/**
+ * Check if the enclosing class does not inherit a protected constructor.
+ */
+function checkInheritance(node: TSESTree.MethodDefinition, context: Rule.RuleContext): boolean {
+  if (
+    node.parent.type === 'ClassBody' &&
+    'superClass' in node.parent.parent &&
+    node.parent.parent.superClass
+  ) {
+    const superClass = node.parent.parent.superClass as TSESTree.Identifier;
+    const variable = getVariableFromName(context, superClass.name);
+    for (const def of variable?.defs ?? []) {
+      if (def.node.type === 'ClassDeclaration') {
+        const decl = def.node as TSESTree.ClassDeclaration;
+        if (
+          decl.body.body.some(
+            member =>
+              member.type === 'MethodDefinition' &&
+              member.kind === 'constructor' &&
+              member.accessibility === 'protected',
+          )
+        ) {
+          return false;
+        }
+      }
+    }
+  }
+  return true;
+}
+
 const eslintNoUselessConstructor = eslintRules['no-useless-constructor'];
 
 const originalRule: Rule.RuleModule = {
@@ -78,7 +109,8 @@ const originalRule: Rule.RuleModule = {
           node.kind === 'constructor' &&
           checkAccessibility(node as TSESTree.MethodDefinition) &&
           checkParams(node as TSESTree.MethodDefinition) &&
-          checkDecorator(node as TSESTree.MethodDefinition)
+          checkDecorator(node as TSESTree.MethodDefinition) &&
+          checkInheritance(node as TSESTree.MethodDefinition, context)
         ) {
           rules.MethodDefinition!(node);
         }
