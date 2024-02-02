@@ -25,15 +25,16 @@ import {
   getNearestPackageJsons,
   clearPackageJsons,
   getPackageJsonsCount,
+  isSupported,
 } from '@sonar/jsts';
 
 describe('initialize package.json files', () => {
+  const baseDir = path.posix.join(toUnixPath(__dirname), 'fixtures', 'package-json');
   beforeEach(() => {
     clearPackageJsons();
   });
 
   it('should find all package.json files', () => {
-    const baseDir = path.posix.join(toUnixPath(__dirname), 'fixtures');
     loadPackageJsons(baseDir, []);
     expect(getPackageJsonsCount()).toEqual(7);
 
@@ -91,8 +92,7 @@ describe('initialize package.json files', () => {
 
     const fakeFilePJList = getNearestPackageJsons(
       path.posix.join(
-        __dirname,
-        'fixtures',
+        baseDir,
         'moduleB',
         '.submoduleB',
         'subfolder1',
@@ -106,8 +106,6 @@ describe('initialize package.json files', () => {
   });
 
   it('should ignore package.json files from ignored patterns', () => {
-    const baseDir = path.posix.join(toUnixPath(__dirname), 'fixtures');
-
     loadPackageJsons(baseDir, ['moduleA']);
     expect(getPackageJsonsCount()).toEqual(4);
     const expected = [
@@ -135,8 +133,6 @@ describe('initialize package.json files', () => {
   });
 
   it('should return empty array when no package.json are in the DB or none exist in the file tree', () => {
-    const baseDir = path.posix.join(toUnixPath(__dirname), 'fixtures');
-
     expect(getPackageJsonsCount()).toEqual(0);
     expect(
       getNearestPackageJsons(path.posix.join(baseDir, '..', 'another-module', 'index.js')),
@@ -147,5 +143,69 @@ describe('initialize package.json files', () => {
     expect(
       getNearestPackageJsons(path.posix.join(baseDir, '..', 'another-module', 'index.js')),
     ).toHaveLength(0);
+  });
+});
+
+describe('isSupported()', () => {
+  let baseDir;
+  beforeEach(() => {
+    clearPackageJsons();
+    baseDir = path.posix.join(toUnixPath(__dirname), 'fixtures', 'is-supported-node');
+  });
+
+  it('should throw an error when a version is invalid', () => {
+    expect(() => isSupported('index.js', { node: 'invalid' })).toThrowError(
+      'Invalid semver version: "invalid" for "node"',
+    );
+  });
+
+  it('should return true when no minimum version is provided', () => {
+    expect(isSupported('index.js', {})).toBe(true);
+  });
+
+  describe('#isSupportedNodeVersion()', () => {
+    describe('when package.json#engine.node is defined', () => {
+      describe('when there is a minimum version', () => {
+        it('should return true when the project supports the feature', () => {
+          const projectDir = path.posix.join(baseDir, 'with-node-with-minimum');
+          loadPackageJsons(projectDir, []);
+          expect(isSupported(path.posix.join(projectDir, 'index.js'), { node: '4.0.0' })).toBe(
+            true,
+          );
+        });
+        it('should return false when the project does not support the feature', () => {
+          const projectDir = path.posix.join(baseDir, 'with-node-with-minimum');
+          loadPackageJsons(projectDir, []);
+          expect(isSupported(path.posix.join(projectDir, 'index.js'), { node: '6.0.0' })).toBe(
+            false,
+          );
+        });
+      });
+
+      // coverage
+      describe('when there is no minimum version', () => {
+        it('should return true', () => {
+          const projectDir = path.posix.join(baseDir, 'with-node-no-minimum');
+          loadPackageJsons(projectDir, []);
+          expect(isSupported(path.posix.join(projectDir, 'index.js'), { node: '5.0.0' })).toBe(
+            true,
+          );
+        });
+      });
+    });
+    describe('when package.json#engine.node is undefined', () => {
+      it('should return true', () => {
+        const projectDir = path.posix.join(baseDir, 'no-node');
+        loadPackageJsons(projectDir, []);
+        expect(isSupported(path.posix.join(projectDir, 'index.js'), { node: '6.0.0' })).toBe(true);
+      });
+    });
+    describe('when no package.json is found', () => {
+      // we simply don't load the package.json files
+      it('should return true', () => {
+        const projectDir = path.posix.join(baseDir, 'no-node');
+        expect(isSupported(path.posix.join(projectDir, 'index.js'), { node: '6.0.0' })).toBe(true);
+      });
+    });
   });
 });

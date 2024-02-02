@@ -22,9 +22,13 @@
 import { Rule } from 'eslint';
 import { CallExpression } from 'estree';
 import { interceptReport } from '../helpers';
+import { isSupported } from '@sonar/jsts';
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(rule, (context, reportDescriptor) => {
+    if (isException(context.filename)) {
+      return;
+    }
     if ('node' in reportDescriptor) {
       const { node, ...rest } = reportDescriptor;
       const call = node as CallExpression;
@@ -34,4 +38,9 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       });
     }
   });
+}
+
+function isException(filename: string) {
+  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax#browser_compatibility
+  return !isSupported(filename, { node: '8.3.0' });
 }
