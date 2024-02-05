@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from 'eslint';
+import { TypeScriptRuleTester } from '../tools';
 import { rule } from './';
 
-const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
+const ruleTester = new TypeScriptRuleTester();
 
 ruleTester.run(`Objects should not be created to be dropped immediately without being used`, rule, {
   valid: [
@@ -71,6 +71,17 @@ ruleTester.run(`Objects should not be created to be dropped immediately without 
         const { Grid } = require('@ag-grid-community/core');
         new Grid();
       `,
+    },
+    {
+      code: `
+import * as s3 from 'aws-cdk-lib/aws-s3';
+export class Stack extends cdk.Stack {
+  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+    super(scope, id, props);
+
+    new s3.Bucket(this, 'TempBucket', {});
+  }
+}`,
     },
   ],
   invalid: [

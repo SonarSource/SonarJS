@@ -99,5 +99,5 @@ function isException(
   }
 
   const fqn = getFullyQualifiedName(context, node);
-  return fqn === 'vue' || fqn === '@ag-grid-community.core.Grid';
+  return fqn === 'vue' || fqn === '@ag-grid-community.core.Grid' || fqn?.startsWith('aws-cdk-lib');
 }
