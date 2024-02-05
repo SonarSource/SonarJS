@@ -22,7 +22,7 @@ import { rule } from './rule';
 
 const ruleTester = new JavaScriptRuleTester();
 
-ruleTester.run('', rule, {
+ruleTester.run('Rule S6479 - no-array-index-key', rule, {
   valid: [
     {
       code: `
