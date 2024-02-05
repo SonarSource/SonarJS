@@ -74,6 +74,9 @@ function checkInheritance(node: TSESTree.MethodDefinition, context: Rule.RuleCon
     const superClass = node.parent.parent.superClass as TSESTree.Identifier;
     const variable = getVariableFromName(context, superClass.name);
     for (const def of variable?.defs ?? []) {
+      if (def.type === 'ImportBinding') {
+        return false;
+      }
       if (def.node.type === 'ClassDeclaration') {
         const decl = def.node as TSESTree.ClassDeclaration;
         if (

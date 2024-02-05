@@ -1,3 +1,5 @@
+import { Lambda } from 'lambda';
+
 class Foo {
   private constructor() {
     // this is ok
@@ -30,6 +32,12 @@ class Alpha {
 }
 
 class Beta extends Alpha {
+  constructor() {
+    super();
+  }
+}
+
+class Gamma extends Lambda {
   constructor() {
     super();
   }
