@@ -281,3 +281,13 @@ export function isTypeAlias(node: TSESTree.TypeNode, context: Rule.RuleContext) 
   const variable = getVariableFromScope(scope, node.typeName.name);
   return variable?.defs.some(def => def.node.type === 'TSTypeAliasDeclaration');
 }
+
+export function isBooleanLiteralType(type: ts.Type): type is ts.Type & {
+  intrinsicName: 'true' | 'false';
+} {
+  return type.flags === ts.TypeFlags.BooleanLiteral;
+}
+
+export function isBooleanTrueType(type: ts.Type) {
+  return isBooleanLiteralType(type) && type.intrinsicName === 'true';
+}
