@@ -1,3 +1,5 @@
+import { Lambda } from 'lambda';
+
 class Foo {
   private constructor() {
     // this is ok
@@ -16,6 +18,27 @@ class SuperClass {
 
 class SubClass extends SuperClass {
   public constructor() {
+    super();
+  }
+}
+
+@Decorator()
+class Decorated {
+  constructor() {}
+}
+
+class Alpha {
+  protected constructor() {}
+}
+
+class Beta extends Alpha {
+  constructor() {
+    super();
+  }
+}
+
+class Gamma extends Lambda {
+  constructor() {
     super();
   }
 }
