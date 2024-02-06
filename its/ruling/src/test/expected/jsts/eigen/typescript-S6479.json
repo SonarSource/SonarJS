@@ -114,12 +114,6 @@
 "eigen:src/palette/elements/Tabs/ContentTabs.tsx": [
 17
 ],
-"eigen:src/palette/elements/Tabs/NavigationalTabs.tsx": [
-30
-],
-"eigen:src/palette/elements/Tabs/StepTabs.tsx": [
-27
-],
 "eigen:src/palette/elements/Tabs/Tabs.tests.tsx": [
 51
 ]
