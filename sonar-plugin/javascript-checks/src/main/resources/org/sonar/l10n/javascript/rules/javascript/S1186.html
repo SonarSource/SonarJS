@@ -10,8 +10,10 @@ functionality and are misleading to others as they might think the method implem
 <h3>Exceptions</h3>
 <p>This does not raise an issue in the following cases:</p>
 <ul>
-  <li> Function expressions and arrow functions as they can denote default values </li>
-  <li> Empty functions with a name starting with the prefix <code>on</code> like <code>onClick</code>. </li>
+  <li> Arrow functions as they can denote default values. </li>
+  <li> Functions with a name starting with the prefix <code>on</code> like <code>onClick</code>. </li>
+  <li> Functions whose name includes <code>noop</code>. </li>
+  <li> Constructors as it is already covered by {rule:javascript:S6647}. </li>
 </ul>
 <pre>
 static defaultProps = {
@@ -19,6 +21,13 @@ static defaultProps = {
 };
 
 function onClick() {
+}
+
+function myNoopFunction() {
+}
+
+class C {
+  constructor() {}
 }
 </pre>
 <h2>How to fix it</h2>
@@ -52,5 +61,9 @@ function emptyOnPurpose() {
 <h3>Documentation</h3>
 <ul>
   <li> MDN web docs - <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Functions">Functions</a> </li>
+</ul>
+<h3>Related rules</h3>
+<ul>
+  <li> {rule:javascript:S6647} - Unnecessary constructors should be removed </li>
 </ul>
 

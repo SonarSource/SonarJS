@@ -53,15 +53,16 @@ export function reportWithQuickFixIfApplicable(
 // This function limits the issues to variable/function/method declarations which name is not like /^on[A-Z].
 // Any lambda expression or arrow function is thus ignored.
 function isApplicable(functionNode: RuleFunctionNode) {
-  // Matches identifiers like onClick and more generally onXxx
-  function isCallbackIdentifier(node: estree.Node | null) {
-    return node !== null && isIdentifier(node) && /^on[A-Z]/.test(node.name);
+  // Matches identifiers like onClick and more generally onXxx as well as XXXnoopXXX functions
+  function isExceptionalName(node: estree.Node | null) {
+    return (
+      node !== null && isIdentifier(node) && (/^on[A-Z]/.test(node.name) || /noop/i.test(node.name))
+    );
   }
-
   // Matches: function foo() {}
-  // But not: function onClose() {}
+  // But not: function onClose() {} or function XXXnoopXXX() {}
   function isFunctionDeclaration() {
-    return functionNode.type === 'FunctionDeclaration' && !isCallbackIdentifier(functionNode.id);
+    return functionNode.type === 'FunctionDeclaration' && !isExceptionalName(functionNode.id);
   }
 
   // Matches: class A { foo() {} }
@@ -71,7 +72,7 @@ function isApplicable(functionNode: RuleFunctionNode) {
     return (
       methodNode.type === 'MethodDefinition' &&
       methodNode.value === functionNode &&
-      !isCallbackIdentifier(methodNode.key)
+      !isExceptionalName(methodNode.key)
     );
   }
 
@@ -82,7 +83,7 @@ function isApplicable(functionNode: RuleFunctionNode) {
     return (
       variableNode.type === 'VariableDeclarator' &&
       variableNode.init === functionNode &&
-      !isCallbackIdentifier(variableNode.id)
+      !isExceptionalName(variableNode.id)
     );
   }
 
