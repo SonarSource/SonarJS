@@ -36,10 +36,7 @@ export const rule: Rule.RuleModule = {
     if (isRequiredParserServices(services)) {
       return {
         AwaitExpression: (node: estree.AwaitExpression) => {
-          const awaitedType = getTypeFromTreeNode(
-            (node as estree.AwaitExpression).argument,
-            services,
-          );
+          const awaitedType = getTypeFromTreeNode(node.argument, services);
           if (
             !isException(node, services) &&
             !isThenable(awaitedType) &&

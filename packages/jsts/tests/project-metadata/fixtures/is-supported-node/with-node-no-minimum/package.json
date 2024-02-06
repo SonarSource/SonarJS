@@ -1,0 +1,8 @@
+{
+  "name": "project",
+  "version": "1.0.0",
+  "author": "Your Name <email@example.com>",
+  "engines": {
+    "node": ">4 <3"
+  }
+}

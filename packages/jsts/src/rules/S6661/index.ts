@@ -17,7 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { Rule } from 'eslint';
 import { eslintRules } from '../core';
 import { decorate } from './decorator';
+import { isSupported } from '@sonar/jsts';
 
-export const rule = decorate(eslintRules['prefer-object-spread']);
+const decorated = decorate(eslintRules['prefer-object-spread']);
+
+export const rule: Rule.RuleModule = {
+  meta: decorated.meta,
+  create(context) {
+    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax#browser_compatibility
+    if (!isSupported(context.filename, { node: '8.3.0' })) {
+      return {};
+    }
+
+    return decorated.create(context);
+  },
+};
