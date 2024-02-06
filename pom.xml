@@ -18,7 +18,8 @@
   <description>SonarQube JavaScript/TypeScript/CSS Analyzer</description>
   <inceptionYear>2011</inceptionYear>
   <organization>
-    <name>SonarSource and Eriks Nukis</name>
+    <name>SonarSource</name>
+    <url>https://www.sonarsource.com</url>
   </organization>
   <licenses>
     <license>
@@ -27,6 +28,33 @@
       <distribution>repo</distribution>
     </license>
   </licenses>
+  <developers>
+    <developer>
+      <id>vilchik-elena</id>
+      <name>Elena Vilchik</name>
+      <organization>SonarSource</organization>
+    </developer>
+    <developer>
+      <id>saberduck</id>
+      <name>Tibor Blénessy</name>
+      <organization>SonarSource</organization>
+    </developer>
+    <developer>
+      <id>yassin-kammoun-sonarsource</id>
+      <name>Yassin Kammoun</name>
+      <organization>SonarSource</organization>
+    </developer>
+    <developer>
+      <id>ilia-kebets-sonarsource</id>
+      <name>Ilia Kebets</name>
+      <organization>SonarSource</organization>
+    </developer>
+    <developer>
+      <id>vdiez</id>
+      <name>Victor Diez</name>
+      <organization>SonarSource</organization>
+    </developer>
+  </developers>
 
   <modules>
     <module>sonar-plugin</module>
