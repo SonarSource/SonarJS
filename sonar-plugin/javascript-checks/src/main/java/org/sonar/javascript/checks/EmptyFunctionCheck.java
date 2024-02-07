@@ -43,6 +43,6 @@ public class EmptyFunctionCheck implements EslintBasedCheck {
 
   private static class Config {
 
-    String[] allow = { "private-constructors" };
+    String[] allow = { "arrowFunctions", "constructors", "private-constructors" };
   }
 }

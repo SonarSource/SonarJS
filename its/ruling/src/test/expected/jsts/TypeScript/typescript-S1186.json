@@ -1,6 +1,5 @@
 {
 "TypeScript:src/compiler/core.ts": [
-1127,
 2209
 ],
 "TypeScript:src/harness/harnessLanguageService.ts": [
@@ -18,9 +17,6 @@
 ],
 "TypeScript:src/harness/projectsRunner.ts": [
 426
-],
-"TypeScript:src/harness/runnerbase.ts": [
-9
 ],
 "TypeScript:src/server/scriptVersionCache.ts": [
 44

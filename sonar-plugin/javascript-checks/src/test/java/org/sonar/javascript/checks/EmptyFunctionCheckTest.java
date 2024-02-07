@@ -29,6 +29,7 @@ class EmptyFunctionCheckTest {
   @Test
   void configurations() {
     String configAsString = new Gson().toJson(new EmptyFunctionCheck().configurations());
-    assertThat(configAsString).isEqualTo("[{\"allow\":[\"private-constructors\"]}]");
+    assertThat(configAsString)
+      .isEqualTo("[{\"allow\":[\"arrowFunctions\",\"constructors\",\"private-constructors\"]}]");
   }
 }

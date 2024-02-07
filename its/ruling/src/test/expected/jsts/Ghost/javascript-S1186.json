@@ -4,8 +4,5 @@
 ],
 "Ghost:core/server/storage/local-file-store.js": [
 14
-],
-"Ghost:core/test/functional/base.js": [
-364
 ]
 }

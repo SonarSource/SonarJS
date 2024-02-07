@@ -126,6 +126,9 @@ ruleTester.run(`Decorated rule should provide suggestion`, rule, {
     {
       code: `() => {}`,
     },
+    {
+      code: `function myNoopFunction() {}`,
+    },
   ],
   invalid: [
     {
