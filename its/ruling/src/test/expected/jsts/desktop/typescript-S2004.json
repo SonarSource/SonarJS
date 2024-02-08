@@ -1,0 +1,35 @@
+{
+"desktop:app/src/lib/git/core.ts": [
+147
+],
+"desktop:app/src/lib/progress/from-process.ts": [
+77
+],
+"desktop:app/src/lib/read-emoji.ts": [
+97,
+121
+],
+"desktop:app/src/lib/stores/app-store.ts": [
+3202,
+4043,
+4057,
+4245
+],
+"desktop:app/src/main-process/app-window.ts": [
+128
+],
+"desktop:app/src/main-process/main.ts": [
+477,
+481
+],
+"desktop:app/src/ui/app.tsx": [
+240
+],
+"desktop:script/pr-api.ts": [
+36,
+40
+],
+"desktop:script/publish.ts": [
+142
+]
+}

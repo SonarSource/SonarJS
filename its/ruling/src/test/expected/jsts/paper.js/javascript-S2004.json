@@ -1,0 +1,19 @@
+{
+"paper.js:src/core/PaperScript.js": [
+308,
+319
+],
+"paper.js:src/node/extend.js": [
+117
+],
+"paper.js:src/path/PathItem.Boolean.js": [
+916
+],
+"paper.js:src/style/Color.js": [
+278,
+294,
+301,
+308,
+315
+]
+}

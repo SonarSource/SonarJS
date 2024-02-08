@@ -1,0 +1,40 @@
+{
+"knockout:Gruntfile.js": [
+61
+],
+"knockout:src/binding/bindingAttributeSyntax.js": [
+278,
+367,
+445,
+504,
+519
+],
+"knockout:src/binding/defaultBindings/ifIfnotWith.js": [
+18
+],
+"knockout:src/binding/editDetection/arrayToDomNodeChildren.js": [
+79
+],
+"knockout:src/binding/expressionRewriting.js": [
+118
+],
+"knockout:src/components/componentBinding.js": [
+45
+],
+"knockout:src/components/customElements.js": [
+61,
+64
+],
+"knockout:src/components/defaultLoader.js": [
+81,
+92
+],
+"knockout:src/components/loaderRegistry.js": [
+60,
+75
+],
+"knockout:src/templating/templating.js": [
+183,
+232
+]
+}

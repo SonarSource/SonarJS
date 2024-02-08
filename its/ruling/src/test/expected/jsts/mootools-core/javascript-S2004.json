@@ -1,0 +1,18 @@
+{
+"mootools-core:Grunt/plugins/eslint/rules/mootools-indent.js": [
+150,
+166
+],
+"mootools-core:Grunt/plugins/eslint/rules/mootools-whitespace.js": [
+16
+],
+"mootools-core:Source/Element/Element.js": [
+295,
+867,
+872
+],
+"mootools-core:Source/Fx/Fx.CSS.js": [
+111,
+115
+]
+}

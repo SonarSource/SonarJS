@@ -127,6 +127,7 @@ import { rule as S4275 } from './S4275'; // no-accessor-field-mismatch
 import { rule as S2871 } from './S2871'; // no-alphabetical-sort
 import { rule as S6268 } from './S6268'; // no-angular-bypass-sanitization
 import { rule as S2870 } from './S2870'; // no-array-delete
+import { rule as S6479 } from './S6479'; // no-array-index-key
 import { rule as S3579 } from './S3579'; // no-associative-arrays
 import { rule as S6551 } from './S6551'; // no-base-to-string
 import { rule as S2424 } from './S2424'; // no-built-in-override
@@ -176,6 +177,7 @@ import { rule as S6544 } from './S6544'; // no-misused-promises
 import { rule as S5730 } from './S5730'; // no-mixed-content
 import { rule as S1121 } from './S1121'; // no-nested-assignment
 import { rule as S3358 } from './S3358'; // no-nested-conditional
+import { rule as S2004 } from './S2004'; // no-nested-functions
 import { rule as S881 } from './S881'; // no-nested-incdec
 import { rule as S4036 } from './S4036'; // no-os-command-from-path
 import { rule as S1226 } from './S1226'; // no-parameter-reassignment
@@ -300,7 +302,6 @@ import { rule as S2817 } from './S2817'; // web-sql-database
 import { rule as S5689 } from './S5689'; // x-powered-by
 import { rule as S2755 } from './S2755'; // xml-parser-xxe
 import { rule as S4817 } from './S4817'; // xpath
-import { rule as S6479 } from './S6479'; // no-array-index-key
 
 /**
  * Maps ESLint rule keys declared in the JavaScript checks to rule implementations
@@ -415,6 +416,7 @@ rules['no-accessor-field-mismatch'] = S4275;
 rules['no-alphabetical-sort'] = S2871;
 rules['no-angular-bypass-sanitization'] = S6268;
 rules['no-array-delete'] = S2870;
+rules['no-array-index-key'] = S6479;
 rules['no-associative-arrays'] = S3579;
 rules['no-base-to-string'] = S6551;
 rules['no-built-in-override'] = S2424;
@@ -464,6 +466,7 @@ rules['no-misused-promises'] = S6544;
 rules['no-mixed-content'] = S5730;
 rules['no-nested-assignment'] = S1121;
 rules['no-nested-conditional'] = S3358;
+rules['no-nested-functions'] = S2004;
 rules['no-nested-incdec'] = S881;
 rules['no-os-command-from-path'] = S4036;
 rules['no-parameter-reassignment'] = S1226;
@@ -588,6 +591,5 @@ rules['web-sql-database'] = S2817;
 rules['x-powered-by'] = S5689;
 rules['xml-parser-xxe'] = S2755;
 rules['xpath'] = S4817;
-rules['no-array-index-key'] = S6479;
 
 export { rules };

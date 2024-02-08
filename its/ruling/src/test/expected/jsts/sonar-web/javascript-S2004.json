@@ -1,0 +1,197 @@
+{
+"sonar-web:gulp/scripts.js": [
+99
+],
+"sonar-web:src/main/js/apps/coding-rules/bulk-change-modal-view.js": [
+53
+],
+"sonar-web:src/main/js/apps/issues/filters-view.js": [
+28
+],
+"sonar-web:src/main/js/apps/overview/components/domain-bubble-chart.js": [
+39
+],
+"sonar-web:src/main/js/apps/overview/components/domain-treemap.js": [
+32
+],
+"sonar-web:src/main/js/apps/overview/main/main.js": [
+141
+],
+"sonar-web:src/main/js/components/source-viewer/main.js": [
+234
+],
+"sonar-web:src/main/js/components/source-viewer/source.js": [
+48
+],
+"sonar-web:src/main/js/libs/graphics/pie-chart.js": [
+34,
+37,
+45
+],
+"sonar-web:src/main/js/libs/sortable.js": [
+55
+],
+"sonar-web:src/main/js/main/nav/global/search-view.js": [
+172
+],
+"sonar-web:src/main/js/widgets/old/pie-chart.js": [
+219,
+220,
+224,
+231
+],
+"sonar-web:src/main/js/widgets/old/stack-area.js": [
+63,
+137,
+141,
+182,
+187,
+193,
+216,
+230
+],
+"sonar-web:src/main/js/widgets/old/tag-cloud.js": [
+22,
+25,
+32,
+35,
+38
+],
+"sonar-web:src/main/js/widgets/old/timeline.js": [
+61,
+73,
+107,
+119,
+123,
+129,
+145,
+188,
+189,
+194,
+203,
+227,
+237,
+291,
+332
+],
+"sonar-web:src/main/js/widgets/old/treemap.js": [
+283,
+293,
+323
+],
+"sonar-web:test/helpers/test-page.js": [
+13,
+17,
+19,
+28,
+32,
+34,
+43,
+47,
+49,
+58,
+65,
+67,
+77,
+84,
+86,
+108,
+117,
+126,
+136,
+145,
+154,
+163,
+175,
+199
+],
+"sonar-web:test/medium/coding-rules.spec.js": [
+486,
+724,
+733
+],
+"sonar-web:test/medium/issues.spec.js": [
+7,
+19,
+35,
+178
+],
+"sonar-web:test/medium/source-viewer.spec.js": [
+9,
+32,
+51,
+72
+],
+"sonar-web:test/medium/update-center.spec.js": [
+99
+],
+"sonar-web:tests/application-test.js": [
+50,
+60
+],
+"sonar-web:tests/apps/background-tasks-test.js": [
+71,
+94,
+100,
+106,
+112,
+118,
+129,
+135,
+141,
+147,
+153,
+164,
+170,
+176,
+198,
+202,
+206,
+210,
+214,
+218,
+222,
+226,
+230,
+234
+],
+"sonar-web:tests/apps/overview/helpers/metrics-test.js": [
+20,
+28,
+37,
+47,
+55,
+64,
+72,
+85,
+89,
+93,
+97,
+104
+],
+"sonar-web:tests/apps/overview/helpers/periods-test.js": [
+25,
+30,
+38,
+43,
+48
+],
+"sonar-web:tests/apps/system-test.js": [
+54
+],
+"sonar-web:tests/components/issue-test.js": [
+63,
+74,
+85,
+93,
+101,
+114,
+124,
+134,
+148,
+166
+],
+"sonar-web:tests/helpers/measures-test.js": [
+35
+]
+}
