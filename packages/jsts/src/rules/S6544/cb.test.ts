@@ -24,5 +24,6 @@ import path from 'path';
 const sonarId = path.basename(__dirname);
 
 describe('Rule S6544', () => {
-  check(sonarId, rule, __dirname);
+  check(sonarId, rule, path.join(__dirname, 'fixtures', 'checksVoidReturn', 'true'));
+  check(sonarId, rule, path.join(__dirname, 'fixtures', 'checksVoidReturn', 'arguments', 'false'));
 });

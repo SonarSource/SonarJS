@@ -1,11 +1,11 @@
-
-[1,2].forEach(async (num) => { // Noncompliant
+[1, 2].forEach(async num => {
+  // Compliant
   await Promise.resolve(num);
 });
 
 // otherwise rule 'no-misused-promises' gets triggered second
-new Promise(async (resolve) => { // Noncompliant {{Promise returned in function argument where a void return was expected.}}
-//                          ^^
+new Promise(async resolve => { // Noncompliant {{Promise executor functions should not be async.}}
+//          ^^^^^
   const a = await Promise.resolve(12);
   resolve(a);
 }).catch(error => {});
@@ -17,6 +17,12 @@ new Promise(async (resolve) => { // Noncompliant {{Promise returned in function 
 })();
 
 if (Promise.resolve(42)) { // Noncompliant {{Expected non-Promise value in a boolean conditional.}}
-  console.log('yolo')
+  console.log('yolo');
 }
 
+import { EventEmitter } from 'events';
+
+const eventEmitter = new EventEmitter();
+eventEmitter.on('some-event', async () => { // Compliant
+  await Promise.resolve();
+});

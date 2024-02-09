@@ -39,6 +39,8 @@ public class NoMisusedPromisesCheck implements EslintBasedCheck {
     private static class ChecksVoidReturn {
 
       boolean attributes = false;
+
+      boolean arguments = false;
     }
   }
 

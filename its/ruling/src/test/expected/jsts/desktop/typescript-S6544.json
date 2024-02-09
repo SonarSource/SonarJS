@@ -10,66 +10,20 @@
 "desktop:app/src/lib/git/spawn.ts": [
 63
 ],
-"desktop:app/src/lib/stats/stats-store.ts": [
-428,
-517
-],
-"desktop:app/src/lib/stores/alive-store.ts": [
-64
-],
 "desktop:app/src/lib/stores/app-store.ts": [
-562,
-566,
-727,
-769,
-4993,
 6525
 ],
 "desktop:app/src/lib/stores/git-store.ts": [
 380
 ],
-"desktop:app/src/lib/stores/notifications-store.ts": [
-83
-],
-"desktop:app/src/lib/stores/pull-request-coordinator.ts": [
-92
-],
 "desktop:app/src/main-process/main.ts": [
-468,
-537,
-599
-],
-"desktop:app/src/main-process/ordered-webrequest.ts": [
-78
-],
-"desktop:app/src/main-process/show-uncaught-exception.ts": [
-29
-],
-"desktop:app/src/ui/app.tsx": [
-259
-],
-"desktop:app/src/ui/clone-repository/clone-repository.tsx": [
-292,
-559,
-580,
-592,
-617
+468
 ],
 "desktop:app/src/ui/dispatcher/dispatcher.ts": [
 3782
 ],
-"desktop:app/src/ui/index.tsx": [
-339
-],
 "desktop:app/src/ui/lib/conflicts/unmerged-file.tsx": [
 324
-],
-"desktop:app/src/ui/lib/theme-change-monitor.ts": [
-21
-],
-"desktop:app/src/ui/lib/update-store.ts": [
-74,
-75
 ],
 "desktop:app/src/ui/toolbar/branch-dropdown.tsx": [
 246

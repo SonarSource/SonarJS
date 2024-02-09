@@ -32,6 +32,8 @@ class NoMisusedPromisesCheckTest {
 
     String defaultConfigAsString = new Gson().toJson(check.configurations());
     assertThat(defaultConfigAsString)
-      .isEqualTo("[{\"ignoreIIFE\":true,\"checksVoidReturn\":{\"attributes\":false}}]");
+      .isEqualTo(
+        "[{\"ignoreIIFE\":true,\"checksVoidReturn\":{\"attributes\":false,\"arguments\":false}}]"
+      );
   }
 }
