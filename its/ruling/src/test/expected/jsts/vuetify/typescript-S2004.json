@@ -1,0 +1,486 @@
+{
+"vuetify:packages/api-generator/src/web-types.ts": [
+40
+],
+"vuetify:packages/docs/src/App.vue": [
+112
+],
+"vuetify:packages/docs/src/plugins/pwa.ts": [
+40
+],
+"vuetify:packages/docs/src/store/team.ts": [
+48
+],
+"vuetify:packages/vuetify/cypress/templates/generateStories.tsx": [
+114,
+118,
+131,
+143
+],
+"vuetify:packages/vuetify/src/__tests__/framework.spec.ts": [
+38
+],
+"vuetify:packages/vuetify/src/components/VAlert/__tests__/VAlert.spec.cy.tsx": [
+23,
+34
+],
+"vuetify:packages/vuetify/src/components/VAutocomplete/VAutocomplete.tsx": [
+135,
+141,
+312,
+322,
+350
+],
+"vuetify:packages/vuetify/src/components/VAutocomplete/__tests__/VAutocomplete.spec.cy.tsx": [
+161
+],
+"vuetify:packages/vuetify/src/components/VBadge/__tests__/VBadge.spec.cy.tsx": [
+48,
+59,
+95,
+106
+],
+"vuetify:packages/vuetify/src/components/VBreadcrumbs/VBreadcrumbs.tsx": [
+121,
+128
+],
+"vuetify:packages/vuetify/src/components/VBreadcrumbs/__tests__/VBreadcrumbs.spec.cy.tsx": [
+15,
+29
+],
+"vuetify:packages/vuetify/src/components/VBtn/__tests__/VBtn.spec.cy.tsx": [
+55,
+66
+],
+"vuetify:packages/vuetify/src/components/VBtnGroup/__tests__/VBtnGroup.spec.cy.tsx": [
+15,
+33,
+51
+],
+"vuetify:packages/vuetify/src/components/VCalendar/mixins/mouse.ts": [
+77
+],
+"vuetify:packages/vuetify/src/components/VCalendar/util/__tests__/timestamp.spec.ts": [
+441,
+495
+],
+"vuetify:packages/vuetify/src/components/VCarousel/VCarousel.tsx": [
+125
+],
+"vuetify:packages/vuetify/src/components/VColorPicker/VColorPickerEdit.tsx": [
+68,
+92
+],
+"vuetify:packages/vuetify/src/components/VColorPicker/VColorPickerSwatches.tsx": [
+66
+],
+"vuetify:packages/vuetify/src/components/VCombobox/VCombobox.tsx": [
+177,
+183,
+392,
+402,
+430
+],
+"vuetify:packages/vuetify/src/components/VCombobox/__tests__/VCombobox-multiple.spec.ts": [
+28
+],
+"vuetify:packages/vuetify/src/components/VCombobox/__tests__/VCombobox.spec.cy.tsx": [
+23,
+45,
+46,
+48,
+62,
+76,
+89,
+108,
+109,
+111,
+126,
+139,
+151,
+170,
+196,
+226,
+255,
+270,
+302,
+324,
+337,
+363,
+401
+],
+"vuetify:packages/vuetify/src/components/VCombobox/__tests__/VCombobox.spec.ts": [
+27
+],
+"vuetify:packages/vuetify/src/components/VData/__tests__/VData.spec.ts": [
+33,
+186,
+386,
+392,
+426,
+432,
+463,
+464,
+471,
+473,
+551,
+553
+],
+"vuetify:packages/vuetify/src/components/VDataIterator/__tests__/VDataIterator.spec.ts": [
+125,
+160,
+198
+],
+"vuetify:packages/vuetify/src/components/VDatePicker/__tests__/VDatePickerYears.spec.ts": [
+22
+],
+"vuetify:packages/vuetify/src/components/VExpansionPanel/__tests__/VExpansionPanels.spec.cy.tsx": [
+14,
+32,
+55,
+139
+],
+"vuetify:packages/vuetify/src/components/VField/VField.tsx": [
+177
+],
+"vuetify:packages/vuetify/src/components/VFileInput/VFileInput.tsx": [
+205
+],
+"vuetify:packages/vuetify/src/components/VFileInput/__tests__/VFileInput.spec.cy.tsx": [
+146
+],
+"vuetify:packages/vuetify/src/components/VForm/__tests__/VForm.spec.cy.tsx": [
+16,
+47,
+48,
+77,
+95,
+126,
+155,
+168,
+192,
+215
+],
+"vuetify:packages/vuetify/src/components/VHover/__tests__/VHover.spec.cy.tsx": [
+12,
+29,
+47
+],
+"vuetify:packages/vuetify/src/components/VIcon/__tests__/VIcon.spec.cy.tsx": [
+10,
+19,
+28,
+35,
+47,
+56,
+65,
+74,
+85,
+94
+],
+"vuetify:packages/vuetify/src/components/VImg/VImg.tsx": [
+282
+],
+"vuetify:packages/vuetify/src/components/VItemGroup/__tests__/VItemGroup.spec.cy.tsx": [
+13,
+18
+],
+"vuetify:packages/vuetify/src/components/VItemGroup/__tests__/VItemGroup.spec.ts": [
+100,
+103,
+130
+],
+"vuetify:packages/vuetify/src/components/VLayout/__tests__/VLayout.spec.cy.tsx": [
+32,
+34,
+51,
+53
+],
+"vuetify:packages/vuetify/src/components/VList/VListChildren.tsx": [
+54,
+55,
+56,
+57,
+58,
+69,
+72
+],
+"vuetify:packages/vuetify/src/components/VList/__tests__/VListItem.spec.cy.tsx": [
+30,
+32
+],
+"vuetify:packages/vuetify/src/components/VOverflowBtn/__tests__/VOverflowBtn.spec.ts": [
+29
+],
+"vuetify:packages/vuetify/src/components/VOverlay/__tests__/VOverlay.spec.cy.tsx": [
+38,
+39,
+58,
+59,
+79,
+80
+],
+"vuetify:packages/vuetify/src/components/VOverlay/locationStrategies.ts": [
+221,
+426
+],
+"vuetify:packages/vuetify/src/components/VOverlay/scrollStrategies.ts": [
+130
+],
+"vuetify:packages/vuetify/src/components/VPagination/VPagination.tsx": [
+221,
+249
+],
+"vuetify:packages/vuetify/src/components/VPagination/__tests__/VPagination.spec.cy.tsx": [
+42
+],
+"vuetify:packages/vuetify/src/components/VProgressLinear/__tests__/VProgressLinear.spec.cy.tsx": [
+112,
+129
+],
+"vuetify:packages/vuetify/src/components/VRangeSlider/VRangeSlider.tsx": [
+184,
+185,
+202,
+218,
+219,
+236
+],
+"vuetify:packages/vuetify/src/components/VRating/VRating.tsx": [
+121,
+125,
+129,
+137,
+141
+],
+"vuetify:packages/vuetify/src/components/VRating/__tests__/VRating.spec.cy.tsx": [
+101,
+115
+],
+"vuetify:packages/vuetify/src/components/VSelect/VSelect.tsx": [
+137,
+144,
+266,
+275,
+304
+],
+"vuetify:packages/vuetify/src/components/VSelect/__tests__/VSelect.spec.cy.tsx": [
+23,
+26,
+39,
+52,
+89,
+96,
+106,
+138,
+152,
+175,
+255
+],
+"vuetify:packages/vuetify/src/components/VSelectionControl/__tests__/VSelectionControl.spec.cy.tsx": [
+11,
+23
+],
+"vuetify:packages/vuetify/src/components/VSlideGroup/__tests__/VSlideGroup.spec.cy.tsx": [
+15,
+43,
+66,
+67,
+68,
+88,
+107,
+139,
+168,
+191,
+209,
+230
+],
+"vuetify:packages/vuetify/src/components/VSlider/VSlider.tsx": [
+149
+],
+"vuetify:packages/vuetify/src/components/VSwitch/VSwitch.tsx": [
+118,
+119
+],
+"vuetify:packages/vuetify/src/components/VTabs/__tests__/VTabs.spec.cy.tsx": [
+135
+],
+"vuetify:packages/vuetify/src/components/VTextField/VTextField.tsx": [
+202
+],
+"vuetify:packages/vuetify/src/components/VTextarea/VTextarea.tsx": [
+248
+],
+"vuetify:packages/vuetify/src/components/VTimePicker/__tests__/VTimePicker.spec.ts": [
+463,
+465,
+486,
+487,
+488
+],
+"vuetify:packages/vuetify/src/components/VTimeline/__tests__/VTimeline.spec.cy.tsx": [
+20,
+42,
+62,
+67,
+72,
+83,
+112,
+120,
+149,
+155,
+190,
+212,
+232,
+237,
+242,
+253,
+282,
+290,
+319
+],
+"vuetify:packages/vuetify/src/components/VToolbar/__tests__/VToolbar.spec.cy.tsx": [
+33
+],
+"vuetify:packages/vuetify/src/components/VTreeview/VTreeviewNode.ts": [
+259
+],
+"vuetify:packages/vuetify/src/components/transitions/createTransition.ts": [
+37,
+40,
+61
+],
+"vuetify:packages/vuetify/src/composables/__tests__/filter.spec.ts": [
+37,
+51,
+52,
+136,
+150,
+155,
+160
+],
+"vuetify:packages/vuetify/src/composables/__tests__/group.spec.ts": [
+17,
+33,
+74,
+231,
+256,
+273
+],
+"vuetify:packages/vuetify/src/composables/__tests__/location.spec.ts": [
+27
+],
+"vuetify:packages/vuetify/src/composables/__tests__/mutationObserver.spec.ts": [
+16,
+29
+],
+"vuetify:packages/vuetify/src/composables/__tests__/proxiedModel.spec.ts": [
+149,
+152,
+157
+],
+"vuetify:packages/vuetify/src/composables/__tests__/resizeObserver.spec.ts": [
+16
+],
+"vuetify:packages/vuetify/src/composables/delay.ts": [
+30
+],
+"vuetify:packages/vuetify/src/composables/layout.ts": [
+280
+],
+"vuetify:packages/vuetify/src/composables/router.tsx": [
+98
+],
+"vuetify:packages/vuetify/src/composables/stack.ts": [
+44
+],
+"vuetify:packages/vuetify/src/composables/toggleScope.ts": [
+9
+],
+"vuetify:packages/vuetify/src/composables/validation.ts": [
+125,
+125
+],
+"vuetify:packages/vuetify/src/directives/color/__tests__/color.spec.ts": [
+23,
+26
+],
+"vuetify:packages/vuetify/src/directives/scroll/__tests__/scroll.spec.ts": [
+19
+],
+"vuetify:packages/vuetify/src/framework.ts": [
+86
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/VDataTable.tsx": [
+159
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/VDataTableGroupHeaderRow.tsx": [
+53,
+72
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/VDataTableHeaders.tsx": [
+139,
+154
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/VDataTableRow.tsx": [
+53
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/VDataTableRows.tsx": [
+140
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/VDataTableServer.tsx": [
+136
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/VDataTableVirtual.tsx": [
+149
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/__tests__/VDataTableHeader.spec.ts": [
+47,
+64,
+69,
+79,
+93,
+106,
+120,
+130,
+143
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/__tests__/VDataTableServer.spec.cy.tsx": [
+123
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/__tests__/VVirtualTable.spec.ts": [
+43
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/composables/headers.ts": [
+43
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/composables/items.ts": [
+28
+],
+"vuetify:packages/vuetify/src/labs/VVirtualScroll/VVirtualScroll.tsx": [
+179
+],
+"vuetify:packages/vuetify/src/labs/VVirtualScroll/__tests__/VVirtualScroll.spec.cy.tsx": [
+13
+],
+"vuetify:packages/vuetify/src/locale/__tests__/index.spec.ts": [
+18
+],
+"vuetify:packages/vuetify/src/util/__tests__/colorUtils.spec.ts": [
+48
+],
+"vuetify:packages/vuetify/src/util/__tests__/getCurrentInstance.spec.tsx": [
+16
+],
+"vuetify:packages/vuetify/src/util/__tests__/helpers.spec.ts": [
+286,
+292,
+308
+],
+"vuetify:packages/vuetify/src/util/defineComponent.tsx": [
+78
+],
+"vuetify:packages/vuetify/test/util/to-have-been-warned.ts": [
+63
+]
+}

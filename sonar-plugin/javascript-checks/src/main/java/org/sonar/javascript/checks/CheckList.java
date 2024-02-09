@@ -302,6 +302,7 @@ public final class CheckList {
       NoMixedContentCheck.class,
       NoMixedEnumsCheck.class,
       NoMutableExportsCheck.class,
+      NoNestedFunctionsCheck.class,
       NoNestedSwitchCheck.class,
       NoNestedTemplateLiteralsCheck.class,
       NoNewNativeNonconstructorCheck.class,

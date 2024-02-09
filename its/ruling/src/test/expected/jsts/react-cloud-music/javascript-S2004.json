@@ -1,0 +1,31 @@
+{
+"react-cloud-music:src/application/Rank/index.jsx": [
+49
+],
+"react-cloud-music:src/application/Search/index.jsx": [
+54,
+98,
+122,
+152
+],
+"react-cloud-music:src/application/Singers/index.jsx": [
+64
+],
+"react-cloud-music:src/application/User/Login/PhoneForm/step-two/index.jsx": [
+22
+],
+"react-cloud-music:src/baseUI/music-note/index.jsx": [
+46
+],
+"react-cloud-music:src/baseUI/toast/index.jsx": [
+44
+],
+"react-cloud-music:src/serviceWorker.js": [
+66,
+113
+],
+"react-cloud-music:ts-music/src/serviceWorker.js": [
+66,
+115
+]
+}

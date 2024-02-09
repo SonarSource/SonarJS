@@ -35,7 +35,7 @@ import org.sonar.plugins.javascript.api.JavaScriptCheck;
 
 class CheckListTest {
 
-  private static final int CHECKS_PROPERTIES_COUNT = 35;
+  private static final int CHECKS_PROPERTIES_COUNT = 36;
 
   /**
    * Enforces that each check declared in list.

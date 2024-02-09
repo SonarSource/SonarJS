@@ -1,0 +1,36 @@
+{
+"console:src/actions/databrowser/data.ts": [
+103,
+133,
+175,
+238,
+313,
+317,
+369
+],
+"console:src/actions/gettingStarted.tsx": [
+57,
+121
+],
+"console:src/components/MapProps/MapProps.tsx": [
+14
+],
+"console:src/views/PermissionsView/PermissionPopup/PermissionConditions.tsx": [
+413
+],
+"console:src/views/ProjectRootView/AddProjectPopup.tsx": [
+73
+],
+"console:src/views/SchemaView/SchemaViewer.tsx": [
+62
+],
+"console:src/views/models/DatabrowserView/DatabrowserView.tsx": [
+191
+],
+"console:src/views/models/DatabrowserView/RelationsPopup.tsx": [
+196
+],
+"console:src/views/models/FieldPopup/BaseSettings.tsx": [
+228
+]
+}

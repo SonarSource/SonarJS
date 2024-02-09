@@ -1,0 +1,17 @@
+{
+"postgraphql:src/graphql/schema/connection/__tests__/createConnectionGqlField-test.js": [
+14
+],
+"postgraphql:src/postgraphql/__tests__/postgraphqlIntegrationMutations-test.js": [
+40
+],
+"postgraphql:src/postgraphql/__tests__/postgraphqlIntegrationQueries-test.js": [
+57
+],
+"postgraphql:src/postgraphql/http/createPostGraphQLHttpRequestHandler.js": [
+302
+],
+"postgraphql:src/postgres/inventory/collection/__tests__/PgCollection-test.js": [
+380
+]
+}
