@@ -1,11 +1,4 @@
 {
-"console:src/actions/databrowser/data.ts": [
-303
-],
-"console:src/utils/polyfils.ts": [
-42,
-134
-],
 "console:src/utils/valueparser.ts": [
 120
 ],
@@ -23,8 +16,5 @@
 ],
 "console:src/views/models/FieldPopup/ConfirmFieldPopup.tsx": [
 30
-],
-"console:src/views/models/utils.ts": [
-118
 ]
 }

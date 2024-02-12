@@ -1,20 +1,5 @@
 {
-"sonar-web:src/main/js/components/navigator/filters/ajax-select-filters.js": [
-239
-],
-"sonar-web:src/main/js/components/navigator/filters/choice-filters.js": [
-273
-],
-"sonar-web:src/main/js/components/source-viewer/source.js": [
-41
-],
-"sonar-web:src/main/js/components/widgets/barchart.js": [
-31
-],
-"sonar-web:src/main/js/widgets/old/base.js": [
-3
-],
 "sonar-web:src/main/js/widgets/old/widget.js": [
-40
+44
 ]
 }

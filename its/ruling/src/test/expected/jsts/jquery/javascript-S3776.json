@@ -1,28 +1,18 @@
 {
 "jquery:build/tasks/build.js": [
-59
+59,
+118
 ],
 "jquery:src/ajax.js": [
 134,
 192,
-382
-],
-"jquery:src/ajax/jsonp.js": [
-21
-],
-"jquery:src/ajax/xhr.js": [
-20
+382,
+714
 ],
 "jquery:src/attributes/classes.js": [
 23,
 60,
-105
-],
-"jquery:src/attributes/val.js": [
-10
-],
-"jquery:src/callbacks.js": [
-36
+122
 ],
 "jquery:src/core.js": [
 118
@@ -50,28 +40,18 @@
 "jquery:src/data/Data.js": [
 104
 ],
-"jquery:src/deferred.js": [
-45,
-343
-],
-"jquery:src/dimensions.js": [
-10
-],
 "jquery:src/effects.js": [
 80,
 249,
-286,
 448,
-520,
-572
+536
 ],
 "jquery:src/event.js": [
 37,
 106,
 221,
 294,
-359,
-519
+359
 ],
 "jquery:src/event/trigger.js": [
 17
@@ -84,14 +64,15 @@
 "jquery:src/manipulation/buildFragment.js": [
 12
 ],
-"jquery:src/offset.js": [
-173
-],
 "jquery:src/selector.js": [
-20
-],
-"jquery:src/serialize.js": [
-15
+152,
+681,
+1045,
+1147,
+1240,
+1332,
+1397,
+1557
 ],
 "jquery:src/traversing.js": [
 38

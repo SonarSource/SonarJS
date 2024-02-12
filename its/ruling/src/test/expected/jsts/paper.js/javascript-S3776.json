@@ -1,10 +1,4 @@
 {
-"paper.js:gulp/typescript/typescript-definition-generator.js": [
-131
-],
-"paper.js:src/anim/Tween.js": [
-218
-],
 "paper.js:src/basic/Line.js": [
 133
 ],
@@ -17,22 +11,16 @@
 "paper.js:src/basic/Size.js": [
 95
 ],
-"paper.js:src/canvas/BlendMode.js": [
-13
-],
 "paper.js:src/core/Base.js": [
-25,
 122,
 180,
 438,
-520,
-585
-],
-"paper.js:src/core/PaperScope.js": [
-45
+520
 ],
 "paper.js:src/core/PaperScript.js": [
-17
+134,
+192,
+454
 ],
 "paper.js:src/event/Key.js": [
 92
@@ -60,15 +48,10 @@
 298,
 349
 ],
-"paper.js:src/node/extend.js": [
-16
-],
 "paper.js:src/path/Curve.js": [
 701,
-732,
-848,
 1433,
-1524,
+1561,
 1733,
 1768,
 2027,
@@ -77,19 +60,15 @@
 2262
 ],
 "paper.js:src/path/CurveLocation.js": [
-401,
-532
+401
 ],
 "paper.js:src/path/Path.js": [
-302,
+315,
 384,
-734,
 1175,
 1288,
-1460,
 1573,
 1656,
-2227,
 2290,
 2453,
 2920
@@ -99,8 +78,10 @@
 309,
 395,
 536,
+567,
 779,
 872,
+916,
 1239,
 1382
 ],
@@ -116,29 +97,25 @@
 "paper.js:src/style/Color.js": [
 63,
 205,
-265,
 541,
-857,
-880,
-902,
-1210
+902
 ],
 "paper.js:src/style/Style.js": [
-146
+163,
+207
 ],
 "paper.js:src/svg/SvgExport.js": [
 21,
 202,
-278
+286
 ],
 "paper.js:src/svg/SvgImport.js": [
 62,
 323,
-572,
-654
+572
 ],
 "paper.js:src/tool/Tool.js": [
-286
+304
 ],
 "paper.js:src/util/CollisionDetection.js": [
 143
@@ -148,7 +125,8 @@
 341
 ],
 "paper.js:src/view/View.js": [
-25,
-1033
+1133,
+1219,
+1313
 ]
 }

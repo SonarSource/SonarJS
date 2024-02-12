@@ -1,59 +1,54 @@
 {
 "ocanvas:src/animation.js": [
-5
+202
 ],
 "ocanvas:src/background.js": [
-4
+20
 ],
 "ocanvas:src/core.js": [
 22
 ],
 "ocanvas:src/displayobject.js": [
-4
-],
-"ocanvas:src/displayobjects/ellipse.js": [
-4
+708,
+826
 ],
 "ocanvas:src/displayobjects/image.js": [
-4
-],
-"ocanvas:src/displayobjects/line.js": [
-4
+73
 ],
 "ocanvas:src/displayobjects/rectangle.js": [
-4
+172
 ],
 "ocanvas:src/displayobjects/sprite.js": [
-4
-],
-"ocanvas:src/displayobjects/text.js": [
-6
+52,
+99
 ],
 "ocanvas:src/draw.js": [
-4
+93
 ],
 "ocanvas:src/events.js": [
-4
-],
-"ocanvas:src/keyboard.js": [
-4
+98,
+299
 ],
 "ocanvas:src/mouse.js": [
-4
-],
-"ocanvas:src/scenes.js": [
-4
+134
 ],
 "ocanvas:src/style.js": [
-4
+11,
+127,
+313,
+554,
+617,
+710
 ],
 "ocanvas:src/tools.js": [
-4
+10,
+94
 ],
 "ocanvas:src/touch.js": [
-4
+96,
+171
 ],
 "ocanvas:src/utils.js": [
-1
+4
 ]
 }
