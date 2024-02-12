@@ -1,69 +1,14 @@
 {
-"redux:examples/real-world/middleware/api.js": [
-100,
-104,
-114,
-118
-],
-"redux:examples/todomvc/test/components/Footer.spec.js": [
-62
-],
 "redux:examples/todomvc/test/components/MainSection.spec.js": [
-51,
-59,
-72,
-81,
-90,
-99,
-106,
-123,
-134
-],
-"redux:src/utils/applyMiddleware.js": [
-27,
-29
-],
-"redux:test/createStore.spec.js": [
-32,
-311
-],
-"redux:test/helpers/actionCreators.js": [
-8
+128
 ],
 "redux:test/utils/applyMiddleware.spec.js": [
-10,
+12,
 34
 ],
-"redux:test/utils/combineReducers.spec.js": [
-9,
-11,
-26,
-36,
-53,
-58,
-63,
-71,
-82,
-89,
-93,
-102,
-117,
-120,
-123,
-134,
-137,
-145,
-156,
-170,
-188,
-191
-],
 "redux:test/utils/compose.spec.js": [
-7,
-8,
 15,
 16,
-17,
-18
+17
 ]
 }

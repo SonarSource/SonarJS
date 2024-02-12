@@ -5,12 +5,14 @@ parameters of the outer function, creating a closure.</p>
 the functions are long or if there are many levels of nesting.</p>
 <p>This can make it difficult for other developers or even yourself to understand and maintain the code.</p>
 <h3>Noncompliant code example</h3>
-<p>With the default threshold of 3 levels:</p>
+<p>With the default threshold of 4 levels:</p>
 <pre>
 function f() {
   function f_inner() {
     function f_inner_inner() {
-      function f_inner_inner_inner() { // Noncompliant
+      function f_inner_inner_inner() {
+        function f_inner_inner_inner_inner() { // Noncompliant
+        }
       }
     }
   }

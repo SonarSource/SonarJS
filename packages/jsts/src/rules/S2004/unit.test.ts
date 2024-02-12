@@ -40,17 +40,11 @@ ruleTester.run('Functions should not be nested too deeply', rule, {
         function f1() {
             function f2() {
                 function f3() {
-                    function f4() {
-                        function f5() {
-                            function f6() {
 
-                            }
-                        }
-                    }
                 }
             }
         }`,
-      options: [5],
+      options: [2],
       errors: 1,
     },
   ],
