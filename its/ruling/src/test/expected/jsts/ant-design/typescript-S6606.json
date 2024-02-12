@@ -2,9 +2,6 @@
 "ant-design:components/_util/statusUtils.tsx": [
 23
 ],
-"ant-design:components/affix/index.tsx": [
-80
-],
 "ant-design:components/alert/ErrorBoundary.tsx": [
 34
 ],
@@ -16,8 +13,7 @@
 149
 ],
 "ant-design:components/cascader/index.tsx": [
-217,
-221
+217
 ],
 "ant-design:components/descriptions/index.tsx": [
 38,
@@ -35,16 +31,8 @@
 86,
 87
 ],
-"ant-design:components/input/Input.tsx": [
-93
-],
 "ant-design:components/list/index.tsx": [
-194,
-221,
 266
-],
-"ant-design:components/locale-provider/LocaleReceiver.tsx": [
-59
 ],
 "ant-design:components/menu/SubMenu.tsx": [
 78
@@ -72,77 +60,25 @@
 25
 ],
 "ant-design:components/progress/progress.tsx": [
-81,
-91
-],
-"ant-design:components/radio/radio.tsx": [
-53
+81
 ],
 "ant-design:components/space/index.tsx": [
 37
 ],
-"ant-design:components/spin/index.tsx": [
-113
-],
-"ant-design:components/statistic/utils.tsx": [
-40
-],
 "ant-design:components/table/Table.tsx": [
-148,
-174,
-282
-],
-"ant-design:components/table/hooks/useFilter/FilterDropdown.tsx": [
-161,
-182,
-240,
-256,
-269,
-282,
-395,
-410
-],
-"ant-design:components/table/hooks/useFilter/index.tsx": [
-134,
-149
+174
 ],
 "ant-design:components/table/hooks/usePagination.ts": [
 81
 ],
-"ant-design:components/table/hooks/useSelection.tsx": [
-63,
-99,
-115,
-115,
-172
-],
-"ant-design:components/table/hooks/useSorter.tsx": [
-144
-],
 "ant-design:components/tabs/index.tsx": [
 65
 ],
-"ant-design:components/transfer/ListItem.tsx": [
-37,
-58,
-78
-],
-"ant-design:components/transfer/index.tsx": [
-133,
-379
-],
-"ant-design:components/transfer/operation.tsx": [
-38,
-48
-],
 "ant-design:components/tree-select/index.tsx": [
-159,
-162
+159
 ],
 "ant-design:components/typography/Base/index.tsx": [
-207,
-244,
-246
+207
 ],
 "ant-design:components/upload/UploadList/ListItem.tsx": [
 104,
@@ -150,21 +86,14 @@
 205
 ],
 "ant-design:components/upload/utils.tsx": [
-48,
 57,
 57
 ],
 "ant-design:site/theme/template/Home/DesignPage/InteractiveIcon.tsx": [
 38
 ],
-"ant-design:site/theme/template/Layout/Header/algolia-config.ts": [
-6
-],
 "ant-design:site/theme/template/utils.tsx": [
 31,
-31,
-61,
-78,
-91
+31
 ]
 }
