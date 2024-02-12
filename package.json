@@ -4,6 +4,7 @@
   "description": "SonarJS code analyzer",
   "scripts": {
     "format": "prettier --write .",
+    "check-format": "prettier --list-different .",
     "build": "mvn clean && npm run _:plugin:pre-build && npm run plugin:build-no-bridge && npm run update-ruling-data",
     "build:fast": "npm run bridge:build:fast && npm run _:plugin:prepare-bridge && npm run _:plugin-fetch-node && npm run plugin:build:fast && npm run update-ruling-data",
     "bf": "npm run build:fast",
