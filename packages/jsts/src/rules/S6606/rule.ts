@@ -26,7 +26,7 @@ import {
   isObjectType,
   isBooleanType,
 } from '../helpers';
-import { LogicalExpression } from 'estree';
+import { type LogicalExpression } from 'estree';
 
 const preferNullishCoalescingRule = tsEslintRules['prefer-nullish-coalescing'];
 
@@ -38,7 +38,12 @@ export const rule = interceptReport(preferNullishCoalescingRule, (context, repor
 
   if (messageId === 'preferNullishOverOr') {
     const services = context.sourceCode.parserServices;
-    const node = context.sourceCode.getNodeByRangeIndex(token.range![0]) as LogicalExpression;
+    const rangeIndex = (
+      token as {
+        range: [number, number];
+      }
+    ).range[0];
+    const node = context.sourceCode.getNodeByRangeIndex(rangeIndex) as LogicalExpression;
     const leftOperand = node.left;
     const leftOperandType = getTypeFromTreeNode(leftOperand, services);
 
