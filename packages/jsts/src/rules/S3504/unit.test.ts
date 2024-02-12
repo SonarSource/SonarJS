@@ -17,22 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Rule } from 'eslint';
-import { eslintRules } from '../core';
-import { decorate } from './decorator';
-import { isSupported } from '@sonar/jsts';
+import { RuleTester } from 'eslint';
+import { rule } from './';
+import { clearPackageJsons, loadPackageJsons } from '@sonar/jsts';
+import path from 'path';
 
-const decoratedRule = decorate(eslintRules['no-var']);
+const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
 
-export const rule: Rule.RuleModule = {
-  meta: decoratedRule.meta,
-  create(context) {
-    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/let#browser_compatibility
-    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/const#browser_compatibility
-    if (!isSupported(context.filename, { node: '6.0.0' })) {
-      return {};
-    }
+clearPackageJsons();
+const project = path.join(__dirname, 'fixtures', 'unsupported-node');
+loadPackageJsons(project, []);
+const filename = path.join(project, 'file.js');
 
-    return decoratedRule.create(context);
+ruleTester.run(
+  'When the project does not support the "let" and "const" keywords, the rule should be ignored',
+  rule,
+  {
+    valid: [
+      {
+        code: `var foo = 42;`,
+        filename,
+      },
+    ],
+    invalid: [],
   },
-};
+);
