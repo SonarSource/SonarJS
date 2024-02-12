@@ -8,6 +8,7 @@
 "desktop:app/src/lib/actions-log-parser/action-log-parser.ts": [
 174,
 258,
+293,
 488
 ],
 "desktop:app/src/lib/api.ts": [
@@ -25,9 +26,6 @@
 "desktop:app/src/lib/git/reorder.ts": [
 28
 ],
-"desktop:app/src/lib/git/spawn.ts": [
-63
-],
 "desktop:app/src/lib/git/squash.ts": [
 33
 ],
@@ -38,11 +36,7 @@
 74
 ],
 "desktop:app/src/lib/patch-formatter.ts": [
-129,
-251
-],
-"desktop:app/src/lib/progress/from-process.ts": [
-56
+143
 ],
 "desktop:app/src/lib/progress/git.ts": [
 245
@@ -51,18 +45,11 @@
 165
 ],
 "desktop:app/src/lib/stores/app-store.ts": [
-939,
-2085,
 2165,
-2494,
-2642,
 2841
 ],
 "desktop:app/src/lib/stores/git-store.ts": [
 742
-],
-"desktop:app/src/lib/stores/helpers/branch-pruner.ts": [
-131
 ],
 "desktop:app/src/lib/stores/pull-request-store.ts": [
 233
@@ -70,14 +57,11 @@
 "desktop:app/src/lib/stores/sign-in-store.ts": [
 334
 ],
-"desktop:app/src/lib/stores/updates/changes-state.ts": [
-32
-],
 "desktop:app/src/lib/wrap-rich-text-commit-message.ts": [
 34
 ],
 "desktop:app/src/main-process/main.ts": [
-298
+334
 ],
 "desktop:app/src/main-process/menu/build-default-menu.ts": [
 35
@@ -98,9 +82,6 @@
 997,
 1357,
 2515
-],
-"desktop:app/src/ui/changes/changes-list.tsx": [
-488
 ],
 "desktop:app/src/ui/changes/commit-message.tsx": [
 646
@@ -127,11 +108,7 @@
 "desktop:app/src/ui/diff/text-diff.tsx": [
 525,
 873,
-957,
 1255
-],
-"desktop:app/src/ui/dispatcher/dispatcher.ts": [
-1782
 ],
 "desktop:app/src/ui/history/commit-list-item.tsx": [
 265
@@ -160,7 +137,6 @@
 318
 ],
 "desktop:app/src/ui/repositories-list/group-repositories.ts": [
-42,
 128
 ],
 "desktop:app/src/ui/repository-settings/repository-settings.tsx": [
@@ -168,9 +144,6 @@
 ],
 "desktop:app/src/ui/toolbar/branch-dropdown.tsx": [
 119
-],
-"desktop:script/build.ts": [
-142
 ],
 "desktop:script/draft-release/run.ts": [
 117

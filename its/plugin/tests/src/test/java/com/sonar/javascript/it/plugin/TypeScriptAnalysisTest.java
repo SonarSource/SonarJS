@@ -68,7 +68,7 @@ class TypeScriptAnalysisTest {
     assertThat(OrchestratorStarter.getMeasureAsInt(sampleFileKey, "comment_lines")).isEqualTo(1);
     assertThat(OrchestratorStarter.getMeasureAsInt(sampleFileKey, "complexity")).isEqualTo(2);
     assertThat(OrchestratorStarter.getMeasureAsInt(sampleFileKey, "cognitive_complexity"))
-      .isEqualTo(2);
+      .isEqualTo(0);
 
     assertThat(OrchestratorStarter.getMeasureAsDouble(projectKey, "duplicated_lines"))
       .isEqualTo(111.0);

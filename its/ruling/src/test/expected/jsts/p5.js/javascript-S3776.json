@@ -1,73 +1,43 @@
 {
-"p5.js:docs/preprocessor.js": [
-49
-],
 "p5.js:docs/yuidoc-p5-theme/assets/js/reference.js": [
 73,
-461,
-2189,
-2312,
-2542,
-4119,
-4402,
-4534,
-4623,
-4863
-],
-"p5.js:docs/yuidoc-p5-theme/assets/js/render.js": [
-1
+2340,
+2755,
+2827,
+2988,
+3153,
+3257,
+3457,
+3579,
+3931,
+4136,
+4716
 ],
 "p5.js:lib/addons/p5.sound.js": [
-80,
-268,
-365,
-742,
-812,
-1208,
-1546,
-1639,
-3177,
-3456,
-4137,
-4455,
-4627,
-4883,
-5364,
-5881,
-6084,
-6310,
-7112,
-7291,
-7437,
-7957,
-8354,
-8496,
-8826,
-9018,
-9250,
-9469,
-9746,
-10267,
-10374,
-10457,
-10942,
-11200,
-11412,
-12358,
-12749
+379,
+428,
+759,
+1353,
+1943,
+2495,
+2589,
+4327,
+5958,
+5993,
+8142,
+10320
 ],
 "p5.js:src/color/p5.Color.js": [
 85,
 805
 ],
 "p5.js:src/core/error_helpers.js": [
-248,
-399,
-555,
-631
+300
 ],
 "p5.js:src/core/main.js": [
-36
+36,
+230,
+431
 ],
 "p5.js:src/core/p5.Renderer.js": [
 211
@@ -81,13 +51,7 @@
 "p5.js:src/core/rendering.js": [
 51
 ],
-"p5.js:src/core/shim.js": [
-47
-],
 "p5.js:src/dom/dom.js": [
-648,
-768,
-1288,
 1775,
 2021
 ],
@@ -102,18 +66,13 @@
 387,
 522
 ],
-"p5.js:src/image/loading_displaying.js": [
-75,
-153
-],
 "p5.js:src/io/files.js": [
-119,
 391,
+442,
 1038,
 1689
 ],
 "p5.js:src/typography/p5.Font.js": [
-214,
 382,
 704,
 804,
@@ -123,13 +82,7 @@
 205
 ],
 "p5.js:src/webgl/3d_primitives.js": [
-48,
-126,
 308,
-745,
-881,
-1065,
-1181,
 1400,
 1491,
 1580
@@ -141,7 +94,6 @@
 621
 ],
 "p5.js:src/webgl/loading.js": [
-101,
 181,
 351,
 445
@@ -158,14 +110,7 @@
 ],
 "p5.js:src/webgl/text.js": [
 61,
-167,
-624
-],
-"p5.js:tasks/release/release-bower.js": [
-10
-],
-"p5.js:test/test-reference.html": [
-98
+167
 ],
 "p5.js:utils/sample-linter.js": [
 134

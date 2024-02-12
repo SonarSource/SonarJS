@@ -1,26 +1,21 @@
 {
 "knockout:src/binding/bindingAttributeSyntax.js": [
-30,
-355,
 388
 ],
 "knockout:src/binding/defaultBindings/attr.js": [
 5
 ],
 "knockout:src/binding/defaultBindings/checked.js": [
-5
-],
-"knockout:src/binding/defaultBindings/event.js": [
 19
 ],
 "knockout:src/binding/defaultBindings/ifIfnotWith.js": [
-4
+18
 ],
 "knockout:src/binding/defaultBindings/options.js": [
 15
 ],
 "knockout:src/binding/defaultBindings/textInput.js": [
-1
+50
 ],
 "knockout:src/binding/defaultBindings/value.js": [
 2
@@ -32,53 +27,31 @@
 37
 ],
 "knockout:src/binding/expressionRewriting.js": [
-46,
-113
+46
 ],
 "knockout:src/binding/selectExtensions.js": [
 23
-],
-"knockout:src/components/componentBinding.js": [
-5
-],
-"knockout:src/components/customElements.js": [
-1
-],
-"knockout:src/components/loaderRegistry.js": [
-88
 ],
 "knockout:src/subscribables/dependentObservable.js": [
 3,
 426
 ],
 "knockout:src/subscribables/observableArray.changeTracking.js": [
-2
+105
 ],
-"knockout:src/subscribables/subscribable.js": [
-108
+"knockout:src/subscribables/observableArray.js": [
+13
 ],
 "knockout:src/tasks.js": [
-1
-],
-"knockout:src/templating/jquery.tmpl/jqueryTmplTemplateEngine.js": [
-1
+35
 ],
 "knockout:src/templating/templateSources.js": [
 83
 ],
 "knockout:src/templating/templating.js": [
-17,
-134,
-172,
 289
 ],
-"knockout:src/utils.domData.js": [
-2
-],
-"knockout:src/utils.js": [
-1
-],
 "knockout:src/virtualElements.js": [
-1
+188
 ]
 }

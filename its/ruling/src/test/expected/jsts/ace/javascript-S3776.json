@@ -1,136 +1,180 @@
 {
 "ace:Makefile.dryice.js": [
-88,
-331,
-721
-],
-"ace:doc/site/js/main.js": [
-3
+346
 ],
 "ace:doc/template/resources/javascripts/jquery-scrollspy.js": [
-11
+37
 ],
 "ace:doc/template/resources/javascripts/jquery.cookie.js": [
 56
-],
-"ace:doc/template/resources/javascripts/ux.js": [
-43
 ],
 "ace:lib/ace/loader_build.js": [
 33
 ],
 "ace:lib/ace/mode/css/csslint.js": [
-26
+844,
+1340,
+1997,
+2073,
+2638,
+2749,
+3072,
+4069,
+4681,
+5194,
+5327,
+5382,
+5610,
+7218,
+7516,
+8313,
+8582,
+9121,
+9451,
+9519,
+9943
 ],
 "ace:lib/ace/mode/html/saxparser.js": [
-2,
-3,
-300,
-488,
-603,
-786,
-2353,
-5882,
-6581,
-9075,
-9448,
-10040,
-10371
+325,
+1507,
+2007,
+2532,
+4840,
+5226,
+5333,
+9249,
+9660,
+9817,
+10087,
+10147,
+10219
 ],
 "ace:lib/ace/mode/javascript/jshint.js": [
-2,
-63,
-160,
-1920,
-2384,
-4430,
-11200,
-13779,
-15105,
-16157,
-16364,
-16510,
-17863,
-18256,
-18846,
-19149
+161,
+1002,
+2361,
+2394,
+2756,
+3415,
+3660,
+4107,
+4580,
+4652,
+4989,
+5274,
+5380,
+5489,
+6006,
+6270,
+6348,
+6525,
+7150,
+7315,
+7480,
+7554,
+7673,
+7799,
+7902,
+8016,
+8254,
+8489,
+8674,
+8682,
+8715,
+8857,
+9049,
+9138,
+9207,
+9244,
+9391,
+9546,
+9831,
+9937,
+9994,
+10067,
+10175,
+10427,
+10516,
+10744,
+10856,
+11427,
+11606,
+11639,
+11962,
+12334,
+12443,
+12579,
+12600,
+13243,
+13249,
+15405,
+15606,
+15847,
+18037,
+18086,
+18468,
+18625,
+18893,
+18951,
+19026
 ],
 "ace:lib/ace/mode/javascript_worker.js": [
-77
+105
 ],
 "ace:lib/ace/mode/json/json_parse.js": [
 106,
-147,
-313
-],
-"ace:lib/ace/mode/jsoniq.js": [
-23
+147
 ],
 "ace:lib/ace/mode/php/php.js": [
-173,
 1094,
 1301
 ],
 "ace:lib/ace/mode/xml/dom-parser.js": [
-37
+47
 ],
 "ace:lib/ace/mode/xml/dom.js": [
-1
+914
 ],
 "ace:lib/ace/mode/xml/sax.js": [
-1
-],
-"ace:lib/ace/mode/xquery.js": [
-51
+37,
+190,
+350,
+459
 ],
 "ace:lib/ace/mode/xquery/jsoniq_lexer.js": [
-2,
-25,
-4366
+1508,
+4400
 ],
 "ace:lib/ace/mode/xquery/xquery_lexer.js": [
-2,
-25,
-4198
+1508,
+4232
 ],
 "ace:lib/ace/mode/yaml/yaml-lint.js": [
-1,
-140,
-1014,
-2614,
-2692,
-2925,
-2988,
-3165,
-3283,
-3458,
-3552,
-3704,
-3856,
-3946
-],
-"ace:lib/ace/worker/mirror.js": [
-7
-],
-"ace:lib/ace/worker/worker.js": [
-2
-],
-"ace:lib/ace/worker/worker_client.js": [
-81
-],
-"ace:lib/ace/worker/worker_client_v2.js": [
-125
-],
-"ace:lib/ace/worker/worker_v2.js": [
-2
+397,
+720,
+794,
+832,
+921,
+1102,
+1351,
+1422,
+1576,
+1655,
+1760,
+1903,
+1965,
+2120,
+2271,
+2425,
+3303,
+3712,
+3947,
+4667,
+4906
 ],
 "ace:src/autocomplete.js": [
 139,
-240,
 506
-],
-"ace:src/autocomplete/popup.js": [
-38
 ],
 "ace:src/bidihandler.js": [
 107,
@@ -139,11 +183,7 @@
 "ace:src/commands/default_commands.js": [
 796
 ],
-"ace:src/document.js": [
-37
-],
 "ace:src/edit_session.js": [
-831,
 1001,
 1178,
 1243,
@@ -174,29 +214,24 @@
 ],
 "ace:src/editor.js": [
 136,
-491,
+499,
 851,
 895,
 1332,
-1684,
 1856,
-2160,
-2663
+2160
 ],
 "ace:src/ext/beautify.js": [
 20
 ],
 "ace:src/ext/code_lens.js": [
-15,
-120
+15
 ],
 "ace:src/ext/emmet.js": [
-237,
 319
 ],
 "ace:src/ext/error_marker.js": [
-25,
-61
+25
 ],
 "ace:src/ext/hardwrap.js": [
 5
@@ -205,18 +240,10 @@
 248
 ],
 "ace:src/ext/prompt.js": [
-37,
-219,
-312
+37
 ],
 "ace:src/ext/searchbox.js": [
 256
-],
-"ace:src/ext/spellcheck.js": [
-4
-],
-"ace:src/ext/static_highlight.js": [
-66
 ],
 "ace:src/ext/whitespace.js": [
 6,
@@ -232,7 +259,9 @@
 5
 ],
 "ace:src/keyboard/textinput.js": [
-19
+151,
+262,
+651
 ],
 "ace:src/keyboard/textinput_test.js": [
 27
@@ -240,14 +269,12 @@
 "ace:src/keyboard/vim.js": [
 189,
 322,
-734,
 819,
+828,
 1351,
-1645,
 1681,
-1746,
-2257,
-2387,
+2292,
+2396,
 2436,
 2694,
 2781,
@@ -259,39 +286,33 @@
 3610,
 3774,
 3825,
-4096,
 4198,
 4323,
 4491,
 4557,
 4629,
 4739,
-4803,
-4945,
+4829,
+4877,
+5042,
 5167,
 5296,
 5338,
 5455,
-5534,
-5593,
-5628,
+5595,
 5732,
 5893,
 5996,
 6082,
-6176,
+6084,
 6240,
 6346,
-6421,
 6665,
-6784,
-6918,
 6997
 ],
 "ace:src/keyboard/vim_test.js": [
-42,
-265,
-5371
+5449,
+5508
 ],
 "ace:src/layer/cursor.js": [
 172
@@ -313,8 +334,7 @@
 440,
 522,
 558,
-649,
-689
+649
 ],
 "ace:src/lib/bidiutil.js": [
 72,
@@ -326,7 +346,7 @@
 176
 ],
 "ace:src/lib/event.js": [
-123,
+132,
 180
 ],
 "ace:src/line_widgets.js": [
@@ -336,8 +356,6 @@
 308
 ],
 "ace:src/mode/_test/highlight_rules_test.js": [
-30,
-151,
 305
 ],
 "ace:src/mode/behaviour/cstyle.js": [
@@ -394,29 +412,19 @@
 "ace:src/mode/folding/velocity.js": [
 48
 ],
-"ace:src/mode/javascript_highlight_rules.js": [
-10
-],
 "ace:src/mode/scheme.js": [
 30
 ],
-"ace:src/mode/swift_highlight_rules.js": [
-28
-],
 "ace:src/mode/text.js": [
-34,
 157,
 307
 ],
 "ace:src/mode/text_highlight_rules.js": [
 22,
-90
+93
 ],
 "ace:src/mode/vbscript.js": [
 34
-],
-"ace:src/mode/velocity_highlight_rules.js": [
-8
 ],
 "ace:src/mouse/default_handlers.js": [
 110,
@@ -425,23 +433,17 @@
 "ace:src/mouse/dragdrop_handler.js": [
 345
 ],
-"ace:src/mouse/mouse_handler.js": [
-12,
-103
-],
 "ace:src/mouse/multi_select_handler.js": [
 9
 ],
 "ace:src/mouse/touch_handler.js": [
-23,
 144,
 240
 ],
 "ace:src/multi_select.js": [
 233,
 432,
-689,
-765
+689
 ],
 "ace:src/placeholder.js": [
 119
@@ -461,37 +463,22 @@
 715
 ],
 "ace:src/snippets.js": [
-102,
-247,
+254,
 295,
-352,
 567,
-587,
+616,
 685,
-773,
-878
-],
-"ace:src/test/asyncjs/async.js": [
-96,
-158,
-191,
-272,
-388
-],
-"ace:src/test/asyncjs/test.js": [
-87
+773
 ],
 "ace:src/test/mockdom.js": [
 341,
-475,
 574
 ],
 "ace:src/test/user.js": [
-72
+110
 ],
 "ace:src/tokenizer.js": [
 17,
-156,
 199
 ],
 "ace:src/tokenizer_dev.js": [
@@ -508,22 +495,17 @@
 616,
 807,
 996,
-1223,
-1366,
-1656
+1223
 ],
 "ace:tool/lib.js": [
-42
+46
 ],
 "ace:tool/regexp_tokenizer.js": [
 36
 ],
 "ace:tool/tmlanguage.js": [
-40,
-108,
 275,
-363,
-507
+363
 ],
 "ace:tool/tmtheme.js": [
 105

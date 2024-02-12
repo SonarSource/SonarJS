@@ -3,34 +3,16 @@
 44
 ],
 "vuetify:packages/api-generator/src/types.ts": [
-248,
 307
-],
-"vuetify:packages/docs/src/plugins/pwa.ts": [
-8
 ],
 "vuetify:packages/docs/src/store/user.ts": [
 51
 ],
 "vuetify:packages/docs/src/util/helpers.ts": [
-46,
-124
-],
-"vuetify:packages/docs/vite.config.ts": [
-30
-],
-"vuetify:packages/vuetify/src/components/VAutocomplete/VAutocomplete.tsx": [
-259
-],
-"vuetify:packages/vuetify/src/components/VBtn/VBtn.tsx": [
-132
-],
-"vuetify:packages/vuetify/src/components/VCalendar/VCalendar.ts": [
-297
+46
 ],
 "vuetify:packages/vuetify/src/components/VCalendar/mixins/calendar-with-events.ts": [
-159,
-445
+159
 ],
 "vuetify:packages/vuetify/src/components/VCalendar/mixins/mouse.ts": [
 42
@@ -51,19 +33,10 @@
 150
 ],
 "vuetify:packages/vuetify/src/components/VCombobox/VCombobox.tsx": [
-107
+205
 ],
 "vuetify:packages/vuetify/src/components/VDatePicker/VDatePickerDateTable.ts": [
 89
-],
-"vuetify:packages/vuetify/src/components/VDialog/VDialog.tsx": [
-45
-],
-"vuetify:packages/vuetify/src/components/VFileInput/VFileInput.tsx": [
-157
-],
-"vuetify:packages/vuetify/src/components/VImg/VImg.tsx": [
-86
 ],
 "vuetify:packages/vuetify/src/components/VList/VList.tsx": [
 194
@@ -71,36 +44,22 @@
 "vuetify:packages/vuetify/src/components/VList/VListChildren.tsx": [
 37
 ],
-"vuetify:packages/vuetify/src/components/VNavigationDrawer/VNavigationDrawer.tsx": [
-94
-],
 "vuetify:packages/vuetify/src/components/VNavigationDrawer/touch.ts": [
 59,
 97
 ],
 "vuetify:packages/vuetify/src/components/VOverlay/locationStrategies.ts": [
-149
+218,
+325
 ],
 "vuetify:packages/vuetify/src/components/VOverlay/util/point.ts": [
 37
 ],
-"vuetify:packages/vuetify/src/components/VRangeSlider/VRangeSlider.tsx": [
-111
-],
-"vuetify:packages/vuetify/src/components/VRating/VRating.tsx": [
-120
-],
-"vuetify:packages/vuetify/src/components/VSelect/VSelect.tsx": [
-216
-],
 "vuetify:packages/vuetify/src/components/VSlideGroup/VSlideGroup.tsx": [
-82
+225
 ],
 "vuetify:packages/vuetify/src/components/VSlider/VSliderThumb.tsx": [
-56
-],
-"vuetify:packages/vuetify/src/components/VSlider/VSliderTrack.tsx": [
-35
+87
 ],
 "vuetify:packages/vuetify/src/components/VTabs/VTab.tsx": [
 64
@@ -112,14 +71,8 @@
 204,
 350
 ],
-"vuetify:packages/vuetify/src/components/VWindow/VWindowItem.tsx": [
-42
-],
-"vuetify:packages/vuetify/src/components/transitions/createTransition.ts": [
-30
-],
 "vuetify:packages/vuetify/src/composables/display.ts": [
-145
+163
 ],
 "vuetify:packages/vuetify/src/composables/filter.ts": [
 51
@@ -130,27 +83,11 @@
 "vuetify:packages/vuetify/src/composables/group.ts": [
 217
 ],
-"vuetify:packages/vuetify/src/composables/icons.tsx": [
-179
-],
 "vuetify:packages/vuetify/src/composables/layout.ts": [
-267
-],
-"vuetify:packages/vuetify/src/composables/location.ts": [
-31
-],
-"vuetify:packages/vuetify/src/composables/nested/selectStrategies.ts": [
-138
-],
-"vuetify:packages/vuetify/src/composables/router.tsx": [
-88
+283
 ],
 "vuetify:packages/vuetify/src/composables/theme.ts": [
-208,
-309
-],
-"vuetify:packages/vuetify/src/composables/touch.ts": [
-72
+208
 ],
 "vuetify:packages/vuetify/src/labs/VDataTable/composables/headers.ts": [
 37
@@ -158,16 +95,7 @@
 "vuetify:packages/vuetify/src/labs/VDataTable/composables/sort.ts": [
 99
 ],
-"vuetify:packages/vuetify/src/services/goto/index.ts": [
-19
-],
 "vuetify:packages/vuetify/src/util/colorUtils.ts": [
 22
-],
-"vuetify:packages/vuetify/src/util/console.ts": [
-83
-],
-"vuetify:packages/vuetify/src/util/defineComponent.tsx": [
-43
 ]
 }

@@ -1,8 +1,5 @@
 {
-"postgraphql:src/postgraphql/graphiql/src/components/PostGraphiQL.js": [
-108
-],
 "postgraphql:src/postgraphql/http/createPostGraphQLHttpRequestHandler.js": [
-67
+120
 ]
 }
