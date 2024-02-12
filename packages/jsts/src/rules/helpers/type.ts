@@ -292,14 +292,8 @@ export function isBooleanTrueType(type: ts.Type) {
   return isBooleanLiteralType(type) && type.intrinsicName === 'true';
 }
 
-export function isPrimitiveType({ flags }: ts.Type) {
-  return (
-    flags & ts.TypeFlags.BooleanLike ||
-    flags & ts.TypeFlags.BigIntLike ||
-    flags & ts.TypeFlags.NumberLike ||
-    flags & ts.TypeFlags.StringLike ||
-    flags & ts.TypeFlags.EnumLike
-  );
+export function isBooleanType({ flags }: ts.Type) {
+  return flags & ts.TypeFlags.BooleanLike;
 }
 
 export function isNullOrUndefinedType({ flags }: ts.Type) {

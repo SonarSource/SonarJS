@@ -51,30 +51,6 @@ ruleTester.run('S6606', rule, {
     },
     {
       code: `
-  function foo(value: string | null) {
-    return value || 'default';
-  }
-  `,
-      filename: path.join(__dirname, 'fixtures/index.ts'),
-    },
-    {
-      code: `
-  function foo(value: number | null) {
-    return value || 'default';
-  }
-  `,
-      filename: path.join(__dirname, 'fixtures/index.ts'),
-    },
-    {
-      code: `
-  function foo(value: bigint | null) {
-    return value || 'default';
-  }
-  `,
-      filename: path.join(__dirname, 'fixtures/index.ts'),
-    },
-    {
-      code: `
   function foo(value: boolean | null) {
     return value || 'default';
   }
@@ -98,5 +74,33 @@ ruleTester.run('S6606', rule, {
       filename: path.join(__dirname, 'fixtures/index.ts'),
     },
   ],
-  invalid: [],
+  invalid: [
+    {
+      code: `
+  function foo(value: string | null) {
+    return value || 'default';
+  }
+  `,
+      filename: path.join(__dirname, 'fixtures/index.ts'),
+      errors: 1,
+    },
+    {
+      code: `
+  function foo(value: number | null) {
+    return value || 'default';
+  }
+  `,
+      filename: path.join(__dirname, 'fixtures/index.ts'),
+      errors: 1,
+    },
+    {
+      code: `
+  function foo(value: bigint | null) {
+    return value || 'default';
+  }
+  `,
+      filename: path.join(__dirname, 'fixtures/index.ts'),
+      errors: 1,
+    },
+  ],
 });

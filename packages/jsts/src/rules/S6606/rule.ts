@@ -24,7 +24,7 @@ import {
   interceptReport,
   isNullOrUndefinedType,
   isObjectType,
-  isPrimitiveType,
+  isBooleanType,
 } from '../helpers';
 import { LogicalExpression } from 'estree';
 
@@ -45,7 +45,7 @@ export const rule = interceptReport(preferNullishCoalescingRule, (context, repor
     if (
       leftOperandType.isUnion() &&
       leftOperandType.types.some(isNullOrUndefinedType) &&
-      (leftOperandType.types.some(isPrimitiveType) || leftOperandType.types.some(isObjectType))
+      (leftOperandType.types.some(isBooleanType) || leftOperandType.types.some(isObjectType))
     ) {
       return;
     }
