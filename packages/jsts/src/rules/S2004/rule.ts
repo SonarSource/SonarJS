@@ -26,7 +26,7 @@ import { getMainFunctionTokenLocation } from 'eslint-plugin-sonarjs/lib/utils/lo
 import { SONAR_RUNTIME } from '../../linter/parameters';
 import { toEncodedMessage } from '../helpers';
 
-const DEFAULT_THRESHOLD = 3;
+const DEFAULT_THRESHOLD = 4;
 
 export const rule: Rule.RuleModule = {
   meta: {

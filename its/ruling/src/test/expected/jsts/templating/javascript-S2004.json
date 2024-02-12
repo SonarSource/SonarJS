@@ -1,23 +1,6 @@
 {
-"templating:test/example/tab.spec.js": [
-64,
-74
-],
-"templating:test/lib/compiler/compiler.spec.js": [
-115,
-161,
-187,
-234,
-262,
-299
-],
 "templating:test/lib/util/document_ready.spec.js": [
-24,
-34,
-47
-],
-"templating:test/lib/util/tree_array.spec.js": [
-12,
-24
+37,
+50
 ]
 }

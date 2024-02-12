@@ -1,185 +1,52 @@
 {
 "TypeScript:Gulpfile.ts": [
-677,
-766,
-798,
-940
+800
 ],
 "TypeScript:scripts/errorCheck.ts": [
-25
+26
 ],
 "TypeScript:scripts/importDefinitelyTypedTests/importDefinitelyTypedTests.ts": [
-119
+128,
+144
 ],
 "TypeScript:src/compiler/checker.ts": [
-669,
-814,
-1826,
-1993,
-2004,
-2014,
-2459,
-2470,
-2483,
-2535,
-2565,
-2570,
-2632,
-2706,
-2707,
-2772,
-2810,
-2843,
-2995,
-3024,
-3072,
-3136,
-3149,
-3168,
-3208,
-3223,
-3277,
-3283,
-3294,
-3307,
-3359,
-3394,
-3475,
-3481,
-3513,
-3769,
-11260,
-11386,
-11394,
-11426,
-11429,
-11467,
-11472,
-11525,
-11529,
-11575,
-11588,
-11593,
-18302,
-18323,
-18351,
-18569,
-19198,
-19569,
-20526,
-21051,
-22093
-],
-"TypeScript:src/compiler/declarationEmitter.ts": [
-228,
-230,
-1039,
-1113,
-1139,
-1321
-],
-"TypeScript:src/compiler/program.ts": [
-708,
-1102,
-1172,
-1234,
-1260,
-1267
+2021,
+2521,
+3262
 ],
 "TypeScript:src/compiler/sys.ts": [
-114,
-126,
-142,
-146,
-153,
-158,
-162,
-310,
-327,
-333,
-337,
-364
-],
-"TypeScript:src/harness/compilerRunner.ts": [
-93,
-102,
-109,
-144,
-153,
-181
+135
 ],
 "TypeScript:src/harness/fourslashRunner.ts": [
-53
-],
-"TypeScript:src/harness/harness.ts": [
-1342,
-1477,
-1503
-],
-"TypeScript:src/harness/harnessLanguageService.ts": [
-738,
-770
+62
 ],
 "TypeScript:src/harness/instrumenter.ts": [
-28
+31
 ],
 "TypeScript:src/harness/projectsRunner.ts": [
-180,
-184,
-185,
-186,
-187,
-188,
-256,
-352,
-408,
-411,
-449,
-537
+452,
+463,
+468,
+475,
+483,
+519,
+529
 ],
 "TypeScript:src/harness/rwcRunner.ts": [
-62,
-71,
-147,
-162,
-168,
-178,
-196,
-211,
-230,
-231
+63,
+74,
+95,
+201,
+202
 ],
 "TypeScript:src/harness/test262Runner.ts": [
-43,
-70,
-77,
-93
-],
-"TypeScript:src/services/breakpoints.ts": [
-525,
-548
-],
-"TypeScript:src/services/classifier.ts": [
-541
+71
 ],
 "TypeScript:src/services/codefixes/importFixes.ts": [
-300,
-307,
-333,
-401,
-530,
-540,
-548,
-553
-],
-"TypeScript:src/services/documentRegistry.ts": [
-127,
-134
-],
-"TypeScript:src/services/navigationBar.ts": [
-520
-],
-"TypeScript:src/services/services.ts": [
-1923
+414,
+420,
+460,
+472,
+485
 ]
 }

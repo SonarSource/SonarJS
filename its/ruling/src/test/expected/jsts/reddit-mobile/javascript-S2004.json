@@ -1,23 +1,9 @@
 {
 "reddit-mobile:assets/js/client.es6.js": [
-162
-],
-"reddit-mobile:buildTasks/icons.js": [
-25,
-45
-],
-"reddit-mobile:buildTasks/js.js": [
-117,
-135
-],
-"reddit-mobile:src/server/console.es6.js": [
-62
+163
 ],
 "reddit-mobile:src/server/oauth.es6.js": [
-83,
-132,
-172,
-403,
-486
+217,
+499
 ]
 }

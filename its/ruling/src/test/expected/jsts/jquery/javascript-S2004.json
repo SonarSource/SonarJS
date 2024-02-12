@@ -1,26 +1,7 @@
 {
-"jquery:build/tasks/build.js": [
-82,
-307,
-314
-],
-"jquery:build/tasks/dist.js": [
-56
-],
-"jquery:src/ajax/xhr.js": [
-60
-],
-"jquery:src/callbacks.js": [
-124
-],
 "jquery:src/deferred.js": [
-75,
-105
-],
-"jquery:src/dimensions.js": [
-17
-],
-"jquery:src/selector.js": [
-389
+84,
+108,
+184
 ]
 }

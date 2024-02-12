@@ -32,7 +32,7 @@ import org.sonar.plugins.javascript.api.TypeScriptRule;
 @Rule(key = "S2004")
 public class NoNestedFunctionsCheck implements EslintBasedCheck {
 
-  private static final int DEFAULT_THRESHOLD = 3;
+  private static final int DEFAULT_THRESHOLD = 4;
 
   @RuleProperty(
     key = "max",
