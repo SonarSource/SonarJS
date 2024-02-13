@@ -4,6 +4,7 @@
   "description": "SonarJS code analyzer",
   "scripts": {
     "format": "prettier --write .",
+    "check-format": "prettier --list-different .",
     "build": "mvn clean && npm run _:plugin:pre-build && npm run plugin:build-no-bridge && npm run update-ruling-data",
     "build:fast": "npm run bridge:build:fast && npm run _:plugin:prepare-bridge && npm run _:plugin-fetch-node && npm run plugin:build:fast && npm run update-ruling-data",
     "bf": "npm run build:fast",
@@ -14,7 +15,7 @@
     "bridge:compile": "tsc -b packages profiling",
     "bridge:test": "jest --maxWorkers=40% --coverage --testPathIgnorePatterns=/packages/ruling/tests/",
     "bridge:build": "npm run bridge:build:fast && npm run bridge:test",
-    "bridge:build:fast": "npm ci && npm run format && npm run _:bridge:clear && npm run bridge:compile",
+    "bridge:build:fast": "npm ci && npm run _:bridge:clear && npm run bridge:compile",
     "bbf": "npm run bridge:build:fast",
     "plugin:build-no-bridge": "mvn install",
     "plugin:build:fast": "npm run plugin:build-no-bridge -- -DskipTests",
