@@ -291,3 +291,15 @@ export function isBooleanLiteralType(type: ts.Type): type is ts.Type & {
 export function isBooleanTrueType(type: ts.Type) {
   return isBooleanLiteralType(type) && type.intrinsicName === 'true';
 }
+
+export function isBooleanType({ flags }: ts.Type) {
+  return flags & ts.TypeFlags.BooleanLike;
+}
+
+export function isNullOrUndefinedType({ flags }: ts.Type) {
+  return flags & ts.TypeFlags.Null || flags & ts.TypeFlags.Undefined;
+}
+
+export function isObjectType({ flags }: ts.Type) {
+  return flags & ts.TypeFlags.Object;
+}

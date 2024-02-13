@@ -2,10 +2,6 @@
 "eigen:dangerfile.ts": [
 131
 ],
-"eigen:src/app/Components/ArtworkFilter/Filters/YearOptions.tsx": [
-66,
-67
-],
 "eigen:src/app/Components/ArtworkGrids/ArtworkGridItem.tests.tsx": [
 263
 ],
@@ -27,15 +23,6 @@
 ],
 "eigen:src/app/Scenes/Artwork/Components/PartnerCard.tsx": [
 117
-],
-"eigen:src/app/Scenes/City/Components/AllEvents.tsx": [
-77
-],
-"eigen:src/app/Scenes/MyCollection/Screens/Artwork/Components/MyCollectionArtworkHeader.tsx": [
-58
-],
-"eigen:src/app/Scenes/Sale/Components/SaleLotsList.tsx": [
-96
 ],
 "eigen:src/app/Scenes/SellWithArtsy/SubmitArtwork/ArtworkDetails/utils/createOrUpdateSubmission.ts": [
 41
