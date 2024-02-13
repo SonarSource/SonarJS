@@ -44,10 +44,10 @@ The "Ruling Test" is an integration test which launches the analysis of a large 
 npm run ruling
 ```
 
-If everything looks good to you, you can copy the file with the actual issues located at `packages/ruling/tests/actual/`
+You can copy the files with the actual issues located at `packages/ruling/tests/actual/`
 into the directory with the expected issues `its/ruling/src/test/resources/expected/`.
 
-From the project root, run: `cp -R packages/ruling/tests/actual/jsts/ its/ruling/src/test/expected/jsts`
+From the project root, run: `npm run ruling-sync`
 
 You can review the Ruling difference by running `diff -rq its/ruling/src/test/expected/jsts packages/ruling/tests/target/actual/jsts`.
 For CSS, run `diff -rq its/ruling/src/test/expected/css `
