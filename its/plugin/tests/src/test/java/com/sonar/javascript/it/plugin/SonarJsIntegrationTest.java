@@ -43,6 +43,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.zip.GZIPInputStream;
 import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.ArchiveInputStream;
@@ -79,7 +80,7 @@ class SonarJsIntegrationTest {
   void test() throws Exception {
     String filename = "sonarjs-1.0.0.tgz";
     Bridge bridge = new Bridge();
-    try (FileSystem fileSystem = FileSystems.newFileSystem(pluginJar, null)) {
+    try (FileSystem fileSystem = FileSystems.newFileSystem(pluginJar, Map.of())) {
       Path fileToExtract = fileSystem.getPath(filename);
       extractArchive(fileToExtract, temp);
       bridge.start(temp);
