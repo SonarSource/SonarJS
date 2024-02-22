@@ -30,7 +30,6 @@ import static org.mockito.Mockito.when;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Iterator;
@@ -56,7 +55,6 @@ import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.IssueLocation;
 import org.sonar.api.batch.sensor.issue.internal.DefaultNoSonarFilter;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.rule.RuleKey;
@@ -276,35 +274,6 @@ class HtmlSensorTest {
     assertThat(context.cpdTokens(file.key())).isNull();
     assertThat(logTester.logs(LoggerLevel.DEBUG))
       .doesNotContain("Processing cache analysis of file: " + file.uri());
-  }
-
-  @Test
-  void should_save_performance_metrics() throws Exception {
-    var expectedResponse = response(
-      "{ issues: []," +
-      "\"metrics\": { \"ncloc\": [1]}, " +
-      "\"perf\":{\"parseTime\":12,\"analysisTime\":40}" +
-      "}"
-    );
-    when(bridgeServerMock.analyzeHtml(any())).thenReturn(expectedResponse);
-
-    var settings = new MapSettings();
-    settings.setProperty("sonar.javascript.monitoring", true);
-    settings.setProperty("sonar.javascript.monitoring.path", monitoringDir.toString());
-    analysisProcessor = new AnalysisProcessor(new DefaultNoSonarFilter(), fileLinesContextFactory);
-    var path = "dir/file.html";
-    var context = CacheTestUtils.createContextWithCache(baseDir, workDir, path);
-    TestUtils
-      .createInputFile(context, getInputFileContent(), path, "web")
-      .setStatus(InputFile.Status.SAME);
-    var sensor = createSensor();
-
-    sensor.execute(context);
-    var metrics = Files.readString(monitoringDir.resolve("metrics.json"));
-    assertThat(metrics)
-      .contains("\"ncloc\":1")
-      .contains("\"parseTime\":12")
-      .contains("\"analysisTime\":40");
   }
 
   private static JsTsChecks checks(String... ruleKeys) {

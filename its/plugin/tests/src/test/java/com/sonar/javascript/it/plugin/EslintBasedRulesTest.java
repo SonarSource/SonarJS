@@ -187,26 +187,6 @@ class EslintBasedRulesTest {
   }
 
   @Test
-  void should_record_perf_metrics() throws Exception {
-    String projectKey = "eslint_based_rules";
-    File projectDir = TestUtils.projectDir(projectKey);
-    SonarScanner build = getSonarScanner()
-      .setProjectKey(projectKey)
-      .setSourceEncoding("UTF-8")
-      .setSourceDirs(".")
-      .setProperty("sonar.javascript.monitoring", "true")
-      .setProperty(
-        "sonar.javascript.monitoring.path",
-        projectDir.toPath().resolve(".scannerwork").toString()
-      )
-      .setProjectDir(projectDir);
-
-    BuildResult buildResult = orchestrator.executeBuild(build);
-    assertThat(buildResult.isSuccess()).isTrue();
-    assertThat(projectDir.toPath().resolve(".scannerwork/metrics.json")).exists();
-  }
-
-  @Test
   void quickfix() throws Exception {
     var projectKey = "quickfix";
     var projectDir = TestUtils.projectDir(projectKey);

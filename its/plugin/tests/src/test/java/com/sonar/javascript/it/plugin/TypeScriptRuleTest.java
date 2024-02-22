@@ -135,14 +135,4 @@ class TypeScriptRuleTest {
       .isEmpty();
     // assertPerfMonitoringAvailable(perfMonitoringDir);
   }
-
-  // asserting perf monitoring on TypeScript project as it creates all kinds of metrics
-  private void assertPerfMonitoringAvailable(Path perfMonitoringDir) throws IOException {
-    String content = Files.readString(perfMonitoringDir.resolve("metrics.json"));
-    assertThat(content)
-      .contains("\"metricType\":\"FILE\"")
-      .contains("\"metricType\":\"SENSOR\"")
-      .contains("\"metricType\":\"PROGRAM\"")
-      .contains("\"metricType\":\"RULE\"");
-  }
 }
