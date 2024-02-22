@@ -92,12 +92,10 @@ class HtmlSensorTest {
   @TempDir
   Path monitoringDir;
 
-  private Monitoring monitoring;
   private AnalysisProcessor analysisProcessor;
 
   @BeforeEach
   public void setUp() throws Exception {
-    monitoring = new Monitoring(new MapSettings().asConfig());
     MockitoAnnotations.initMocks(this);
 
     // reset is required as this static value might be set by another test
@@ -115,8 +113,7 @@ class HtmlSensorTest {
     FileLinesContext fileLinesContext = mock(FileLinesContext.class);
     when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(fileLinesContext);
 
-    analysisProcessor =
-      new AnalysisProcessor(new DefaultNoSonarFilter(), fileLinesContextFactory, monitoring);
+    analysisProcessor = new AnalysisProcessor(new DefaultNoSonarFilter(), fileLinesContextFactory);
   }
 
   @Test
@@ -294,9 +291,7 @@ class HtmlSensorTest {
     var settings = new MapSettings();
     settings.setProperty("sonar.javascript.monitoring", true);
     settings.setProperty("sonar.javascript.monitoring.path", monitoringDir.toString());
-    monitoring = new Monitoring(settings.asConfig());
-    analysisProcessor =
-      new AnalysisProcessor(new DefaultNoSonarFilter(), fileLinesContextFactory, monitoring);
+    analysisProcessor = new AnalysisProcessor(new DefaultNoSonarFilter(), fileLinesContextFactory);
     var path = "dir/file.html";
     var context = CacheTestUtils.createContextWithCache(baseDir, workDir, path);
     TestUtils
@@ -305,8 +300,6 @@ class HtmlSensorTest {
     var sensor = createSensor();
 
     sensor.execute(context);
-    // We need to call monitor.stop() by hand. In a Sonar product, this gets called somehow.
-    monitoring.stop();
     var metrics = Files.readString(monitoringDir.resolve("metrics.json"));
     assertThat(metrics)
       .contains("\"ncloc\":1")
@@ -356,7 +349,6 @@ class HtmlSensorTest {
       checks(DUPLICATE_BRANCH_RULE_KEY, PARSING_ERROR_RULE_KEY),
       bridgeServerMock,
       new AnalysisWarningsWrapper(),
-      monitoring,
       analysisProcessor
     );
   }

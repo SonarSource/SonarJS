@@ -51,12 +51,11 @@ public class HtmlSensor extends AbstractBridgeSensor {
     JsTsChecks checks,
     BridgeServer bridgeServer,
     AnalysisWarningsWrapper analysisWarnings,
-    Monitoring monitoring,
     AnalysisProcessor processAnalysis
   ) {
     // The monitoring sensor remains inactive during HTML files analysis, as the
     // bridge doesn't provide nor compute metrics for such files.
-    super(bridgeServer, analysisWarnings, monitoring, "JS in HTML");
+    super(bridgeServer, analysisWarnings, "JS in HTML");
     this.analysisProcessor = processAnalysis;
     this.checks = checks;
   }
@@ -123,7 +122,6 @@ public class HtmlSensor extends AbstractBridgeSensor {
   private void analyze(InputFile file, CacheStrategy cacheStrategy) throws IOException {
     try {
       LOG.debug("Analyzing file: {}", file.uri());
-      monitoring.startFile(file);
       var fileContent = contextUtils.shouldSendFileContent(file) ? file.contents() : null;
       var jsAnalysisRequest = new JsAnalysisRequest(
         file.absolutePath(),

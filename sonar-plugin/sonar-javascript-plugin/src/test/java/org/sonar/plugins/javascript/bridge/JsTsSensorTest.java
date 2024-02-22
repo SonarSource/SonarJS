@@ -42,7 +42,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.junit.jupiter.api.BeforeEach;
@@ -121,7 +120,6 @@ class JsTsSensorTest {
   @TempDir
   Path workDir;
 
-  private Monitoring monitoring;
   private AnalysisProcessor processAnalysis;
 
   @BeforeEach
@@ -158,9 +156,7 @@ class JsTsSensorTest {
 
     FileLinesContext fileLinesContext = mock(FileLinesContext.class);
     when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(fileLinesContext);
-    monitoring = new Monitoring(new MapSettings().asConfig());
-    processAnalysis =
-      new AnalysisProcessor(new DefaultNoSonarFilter(), fileLinesContextFactory, monitoring);
+    processAnalysis = new AnalysisProcessor(new DefaultNoSonarFilter(), fileLinesContextFactory);
   }
 
   @Test
@@ -800,23 +796,17 @@ class JsTsSensorTest {
       bridgeServerMock,
       analysisWarnings,
       tempFolder,
-      monitoring,
       analysisWithProgram(),
       analysisWithWatchProgram()
     );
   }
 
   private AnalysisWithProgram analysisWithProgram() {
-    return new AnalysisWithProgram(bridgeServerMock, monitoring, processAnalysis, analysisWarnings);
+    return new AnalysisWithProgram(bridgeServerMock, processAnalysis, analysisWarnings);
   }
 
   private AnalysisWithWatchProgram analysisWithWatchProgram() {
-    return new AnalysisWithWatchProgram(
-      bridgeServerMock,
-      monitoring,
-      processAnalysis,
-      analysisWarnings
-    );
+    return new AnalysisWithWatchProgram(bridgeServerMock, processAnalysis, analysisWarnings);
   }
 
   private AnalysisResponse createResponse() {

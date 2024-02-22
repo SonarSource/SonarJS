@@ -210,21 +210,4 @@ describe('analyzeYAML', () => {
     getLinter().linter.defineRule(rule.key, rule.module);
     analyzeEmbedded(await embeddedInput({ filePath }), parseAwsFromYaml);
   });
-
-  it('should measure analysis duration', async () => {
-    initializeLinter([
-      { key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: ['MAIN'] },
-    ]);
-    const {
-      perf: { parseTime, analysisTime },
-      metrics: { ncloc },
-    } = analyzeEmbedded(
-      await embeddedInput({ filePath: join(fixturesPath, 'monitoring.yaml') }),
-      parseAwsFromYaml,
-    );
-    expect(parseTime).toBeGreaterThan(0);
-    expect(analysisTime).toBeGreaterThan(0);
-    expect(ncloc).toHaveLength(1);
-    expect(ncloc[0]).toEqual(7);
-  });
 });

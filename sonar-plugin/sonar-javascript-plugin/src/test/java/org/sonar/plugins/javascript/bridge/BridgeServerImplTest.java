@@ -44,7 +44,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 import org.awaitility.Awaitility;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
@@ -56,9 +55,6 @@ import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
-import org.sonar.api.batch.sensor.Sensor;
-import org.sonar.api.batch.sensor.SensorContext;
-import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.impl.utils.DefaultTempFolder;
@@ -81,7 +77,6 @@ class BridgeServerImplTest {
 
   private static final String START_SERVER_SCRIPT = "startServer.js";
   private static final int TEST_TIMEOUT_SECONDS = 1;
-  private final Monitoring monitoring = new Monitoring(new MapSettings().asConfig());
 
   @RegisterExtension
   public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
@@ -160,7 +155,6 @@ class BridgeServerImplTest {
         emptyRulesBundles,
         deprecationWarning,
         tempFolder,
-        monitoring,
         unsupportedEmbeddedRuntime
       );
     bridgeServer.deploy();
@@ -671,7 +665,6 @@ class BridgeServerImplTest {
         mock(RulesBundles.class),
         deprecationWarning,
         tempFolder,
-        monitoring,
         unsupportedEmbeddedRuntime
       );
     assertThat(bridgeServer.getTimeoutSeconds()).isEqualTo(300);
@@ -711,45 +704,6 @@ class BridgeServerImplTest {
   }
 
   @Test
-  void enabled_monitoring() throws Exception {
-    var settings = new MapSettings();
-    settings.setProperty("sonar.javascript.monitoring", "true");
-    var monitoring = new Monitoring(settings.asConfig());
-    monitoring.startSensor(
-      context,
-      new Sensor() {
-        @Override
-        public void describe(SensorDescriptor descriptor) {}
-
-        @Override
-        public void execute(SensorContext context) {}
-      }
-    );
-    assertThat(monitoring.isMonitoringEnabled()).isTrue();
-    bridgeServer =
-      new BridgeServerImpl(
-        builder(),
-        TEST_TIMEOUT_SECONDS,
-        new TestBundle(START_SERVER_SCRIPT),
-        emptyRulesBundles,
-        deprecationWarning,
-        tempFolder,
-        monitoring,
-        unsupportedEmbeddedRuntime
-      );
-    bridgeServer.deploy();
-    bridgeServer.startServerLazily(context);
-    bridgeServer.stop();
-    var rules = monitoring
-      .metrics()
-      .stream()
-      .filter(m -> m.metricType == Monitoring.MetricType.RULE)
-      .map(m -> ((Monitoring.RuleMetric) m).ruleKey)
-      .collect(Collectors.toList());
-    assertThat(rules).containsExactly("no-commented-code", "arguments-order", "deprecation");
-  }
-
-  @Test
   void test_ucfg_bundle_version() throws Exception {
     RulesBundlesTest.TestUcfgRulesBundle ucfgRulesBundle = new RulesBundlesTest.TestUcfgRulesBundle(
       "/test-bundle.tgz"
@@ -766,7 +720,6 @@ class BridgeServerImplTest {
         rulesBundles,
         deprecationWarning,
         tempFolder,
-        monitoring,
         unsupportedEmbeddedRuntime
       );
     bridgeServer.startServerLazily(context);
@@ -783,7 +736,6 @@ class BridgeServerImplTest {
       emptyRulesBundles,
       deprecationWarning,
       tempFolder,
-      monitoring,
       unsupportedEmbeddedRuntime
     );
   }

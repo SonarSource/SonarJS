@@ -19,7 +19,6 @@
  */
 import { FileType, JsTsLanguage, AnalysisInput, AnalysisOutput, ErrorCode } from '@sonar/shared';
 import { CpdToken, Issue, Metrics, SymbolHighlight, SyntaxHighlight } from '../linter';
-import { Perf } from '../monitoring';
 
 /**
  *
@@ -63,6 +62,5 @@ export interface JsTsAnalysisOutput extends AnalysisOutput {
   highlightedSymbols?: SymbolHighlight[];
   metrics?: Metrics;
   cpdTokens?: CpdToken[];
-  perf?: Perf;
   ucfgPaths?: string[];
 }

@@ -54,12 +54,11 @@ public class YamlSensor extends AbstractBridgeSensor {
     JsTsChecks checks,
     BridgeServer bridgeServer,
     AnalysisWarningsWrapper analysisWarnings,
-    Monitoring monitoring,
     AnalysisProcessor processAnalysis
   ) {
     // The monitoring sensor remains inactive during YAML files analysis, as the
     // bridge doesn't provide nor compute metrics for such files.
-    super(bridgeServer, analysisWarnings, monitoring, "JS in YAML");
+    super(bridgeServer, analysisWarnings, "JS in YAML");
     this.checks = checks;
     this.analysisProcessor = processAnalysis;
   }
@@ -154,7 +153,6 @@ public class YamlSensor extends AbstractBridgeSensor {
     if (cacheStrategy.isAnalysisRequired()) {
       try {
         LOG.debug("Analyzing file: {}", file.uri());
-        monitoring.startFile(file);
         var fileContent = contextUtils.shouldSendFileContent(file) ? file.contents() : null;
         var jsAnalysisRequest = new JsAnalysisRequest(
           file.absolutePath(),
