@@ -19,7 +19,7 @@ jobs:
       uses: actions/checkout@v3
     - name: Get vault secrets
       id: secrets
-      uses: SonarSource/vault-action-wrapper@dc8fe04652687f7278f3ecd27905967836bab0eb # tag=2.7.4-1
+      uses: SonarSource/vault-action-wrapper@v3
       with:
         secrets: |
           development/artifactory/token/{REPO_OWNER_NAME_DASH}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
