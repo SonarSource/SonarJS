@@ -43,6 +43,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.SonarProduct;
@@ -227,7 +228,9 @@ public class BridgeServerImpl implements BridgeServer {
     var debugMemory = config.getBoolean(DEBUG_MEMORY).orElse(false);
 
     // enable per rule performance tracking https://eslint.org/docs/1.0.0/developer-guide/working-with-rules#per-rule-performance
-    var outputConsumer = new LogOutputConsumer();
+    var outputConsumer = LOG.isDebugEnabled()
+      ? new LogOutputConsumer().andThen(new ESLintPerfConsumer())
+      : new LogOutputConsumer();
 
     nodeCommandBuilder
       .outputConsumer(outputConsumer)
@@ -258,6 +261,9 @@ public class BridgeServerImpl implements BridgeServer {
 
   private Map<String, String> getEnv() {
     Map<String, String> env = new HashMap<>();
+    if (LOG.isDebugEnabled()) {
+      env.put("TIMING", "all");
+    }
     // see https://github.com/SonarSource/SonarJS/issues/2803
     env.put("BROWSERSLIST_IGNORE_OLD_DATA", "true");
     return env;
@@ -604,6 +610,37 @@ public class BridgeServerImpl implements BridgeServer {
       this.globals = globals;
       this.baseDir = baseDir;
       this.exclusions = exclusions;
+    }
+  }
+
+  static class ESLintPerfConsumer implements Consumer<String> {
+
+    // number of spaces after "Rule" depends on the rule keys lengths
+    private static final Pattern HEADER = Pattern.compile(
+      "Rule\\s+\\|\\s+Time \\(ms\\)\\s+\\|\\s+Relative\\s*"
+    );
+    private static final Pattern RULE_LINE = Pattern.compile(
+      "(\\S+)\\s*\\|\\s*(\\d+\\.?\\d+)\\s*\\|\\s*(\\d+\\.?\\d+)%"
+    );
+
+    boolean headerDetected;
+
+    @Override
+    public void accept(String s) {
+      if (HEADER.matcher(s).matches()) {
+        headerDetected = true;
+        return;
+      }
+      if (headerDetected) {
+        try {
+          var matcher = RULE_LINE.matcher(s);
+          if (matcher.matches()) {
+            LOG.debug(s);
+          }
+        } catch (Exception e) {
+          LOG.error("Error parsing rule timing data", e);
+        }
+      }
     }
   }
 
