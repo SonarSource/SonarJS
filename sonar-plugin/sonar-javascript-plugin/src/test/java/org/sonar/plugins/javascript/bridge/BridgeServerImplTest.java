@@ -704,6 +704,28 @@ class BridgeServerImplTest {
   }
 
   @Test
+  void enabled_monitoring() throws Exception {
+    bridgeServer =
+      new BridgeServerImpl(
+        builder(),
+        TEST_TIMEOUT_SECONDS,
+        new TestBundle(START_SERVER_SCRIPT),
+        emptyRulesBundles,
+        deprecationWarning,
+        tempFolder,
+        unsupportedEmbeddedRuntime
+      );
+    bridgeServer.deploy();
+    bridgeServer.startServerLazily(context);
+    bridgeServer.stop();
+    assertThat(logTester.logs(DEBUG).stream().anyMatch(s -> s.startsWith("no-commented-code")))
+      .isTrue();
+    assertThat(logTester.logs(DEBUG).stream().anyMatch(s -> s.startsWith("arguments-order")))
+      .isTrue();
+    assertThat(logTester.logs(DEBUG).stream().anyMatch(s -> s.startsWith("deprecation"))).isTrue();
+  }
+
+  @Test
   void test_ucfg_bundle_version() throws Exception {
     RulesBundlesTest.TestUcfgRulesBundle ucfgRulesBundle = new RulesBundlesTest.TestUcfgRulesBundle(
       "/test-bundle.tgz"
