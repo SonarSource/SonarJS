@@ -46,16 +46,23 @@ import com.sonar.orchestrator.http.HttpResponse;
 import com.sonar.orchestrator.junit5.OrchestratorExtension;
 import com.sonar.orchestrator.locator.MavenLocation;
 import java.nio.file.Path;
+import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
+import org.openjdk.jmh.annotations.Measurement;
 import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.annotations.OutputTimeUnit;
 import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.State;
+import org.openjdk.jmh.annotations.Warmup;
+import org.openjdk.jmh.results.RunResult;
+import org.openjdk.jmh.results.format.ResultFormatFactory;
+import org.openjdk.jmh.results.format.ResultFormatType;
 import org.openjdk.jmh.runner.Runner;
+import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 
 @State(Scope.Benchmark)
@@ -63,19 +70,52 @@ public class SonarJsPerfBenchmark {
 
   static final String SCANNER_VERSION = "5.0.1.3006";
 
+  static double THRESHOLD_PERCENT = 3;
+
   @Param("")
   String token;
 
   @Benchmark
-  @BenchmarkMode(Mode.AverageTime)
+  @BenchmarkMode(Mode.SingleShotTime)
+  @Warmup(iterations = 3)
+  @Measurement(iterations = 5)
   @OutputTimeUnit(TimeUnit.SECONDS)
-  public void vuetify() throws Exception {
+  public void vuetify() {
     var result = runScan(token, "vuetify");
     assertTrue(result.getLogs().contains("INFO: 1585/1585 source files have been analyzed"));
   }
 
   public static void main(String[] args) throws Exception {
-    var orchestrator = orchestrator();
+    var baseline = runBenchmark("LATEST_RELEASE");
+    var candidate = runBenchmark("DEV");
+    System.out.println("\nBaseline\n==================================");
+    print(baseline);
+    System.out.println("\nCandidate\n==================================");
+    print(candidate);
+    compare(baseline, candidate);
+  }
+
+  private static void print(Collection<RunResult> result) {
+    ResultFormatFactory.getInstance(ResultFormatType.TEXT, System.out).writeOut(result);
+  }
+
+  private static void compare(Collection<RunResult> baseline, Collection<RunResult> candidate) {
+    var baselineScore = baseline.stream().mapToDouble(r -> r.getPrimaryResult().getScore()).sum();
+    var candidateScore = candidate.stream().mapToDouble(r -> r.getPrimaryResult().getScore()).sum();
+    System.out.println("Baseline: " + baselineScore);
+    System.out.println("Candidate: " + candidateScore);
+    var delta = baselineScore - candidateScore;
+    var deltaPercent = delta / baselineScore * 100;
+    System.out.printf("Delta: %.3f (%.3f %%)%n", delta, deltaPercent);
+    if (deltaPercent > THRESHOLD_PERCENT) {
+      throw new IllegalStateException(
+        "Performance degradation is greater than " + THRESHOLD_PERCENT + "%"
+      );
+    }
+  }
+
+  private static Collection<RunResult> runBenchmark(String jsPluginVersion) throws RunnerException {
+    var orchestrator = orchestrator(jsPluginVersion);
     try {
       orchestrator.start();
       var token = generateDefaultAdminToken(orchestrator);
@@ -86,17 +126,17 @@ public class SonarJsPerfBenchmark {
         .forks(1)
         .build();
 
-      new Runner(opt).run();
+      return new Runner(opt).run();
     } finally {
       orchestrator.stop();
     }
   }
 
-  private static Orchestrator orchestrator() {
+  private static Orchestrator orchestrator(String jsPluginVersion) {
     var pluginLocation = MavenLocation.of(
       "org.sonarsource.javascript",
       "sonar-javascript-plugin",
-      "DEV"
+      jsPluginVersion
     );
     return OrchestratorExtension
       .builderEnv()
