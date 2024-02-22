@@ -227,13 +227,8 @@ public class BridgeServerImpl implements BridgeServer {
     }
     var debugMemory = config.getBoolean(DEBUG_MEMORY).orElse(false);
 
-    // enable per rule performance tracking https://eslint.org/docs/1.0.0/developer-guide/working-with-rules#per-rule-performance
-    var outputConsumer = LOG.isDebugEnabled()
-      ? new LogOutputConsumer().andThen(new ESLintPerfConsumer())
-      : new LogOutputConsumer();
-
     nodeCommandBuilder
-      .outputConsumer(outputConsumer)
+      .outputConsumer(new LogOutputConsumer())
       .errorConsumer(LOG::error)
       .embeddedNode(embeddedNode)
       .pathResolver(bundle)
@@ -610,37 +605,6 @@ public class BridgeServerImpl implements BridgeServer {
       this.globals = globals;
       this.baseDir = baseDir;
       this.exclusions = exclusions;
-    }
-  }
-
-  static class ESLintPerfConsumer implements Consumer<String> {
-
-    // number of spaces after "Rule" depends on the rule keys lengths
-    private static final Pattern HEADER = Pattern.compile(
-      "Rule\\s+\\|\\s+Time \\(ms\\)\\s+\\|\\s+Relative\\s*"
-    );
-    private static final Pattern RULE_LINE = Pattern.compile(
-      "(\\S+)\\s*\\|\\s*(\\d+\\.?\\d+)\\s*\\|\\s*(\\d+\\.?\\d+)%"
-    );
-
-    boolean headerDetected;
-
-    @Override
-    public void accept(String s) {
-      if (HEADER.matcher(s).matches()) {
-        headerDetected = true;
-        return;
-      }
-      if (headerDetected) {
-        try {
-          var matcher = RULE_LINE.matcher(s);
-          if (matcher.matches()) {
-            LOG.debug(s);
-          }
-        } catch (Exception e) {
-          LOG.error("Error parsing rule timing data", e);
-        }
-      }
     }
   }
 

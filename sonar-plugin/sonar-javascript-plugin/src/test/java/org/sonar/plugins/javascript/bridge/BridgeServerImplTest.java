@@ -718,11 +718,11 @@ class BridgeServerImplTest {
     bridgeServer.deploy();
     bridgeServer.startServerLazily(context);
     bridgeServer.stop();
-    assertThat(logTester.logs(DEBUG).stream().anyMatch(s -> s.startsWith("no-commented-code")))
+    assertThat(logTester.logs(INFO).stream().anyMatch(s -> s.startsWith("no-commented-code")))
       .isTrue();
-    assertThat(logTester.logs(DEBUG).stream().anyMatch(s -> s.startsWith("arguments-order")))
+    assertThat(logTester.logs(INFO).stream().anyMatch(s -> s.startsWith("arguments-order")))
       .isTrue();
-    assertThat(logTester.logs(DEBUG).stream().anyMatch(s -> s.startsWith("deprecation"))).isTrue();
+    assertThat(logTester.logs(INFO).stream().anyMatch(s -> s.startsWith("deprecation"))).isTrue();
   }
 
   @Test
