@@ -92,7 +92,7 @@ public class SonarJsPerfBenchmark {
   @OutputTimeUnit(TimeUnit.SECONDS)
   public void vscode() {
     var result = runScan(token, "vscode");
-    assertTrue(result.getLogs().contains("INFO: 1585/1585 source files have been analyzed"));
+    assertTrue(result.getLogs().contains("INFO: 4734/4734 source files have been analyzed"));
   }
 
   public static void main(String[] args) throws Exception {
