@@ -1,5 +1,5 @@
 {
-  "title": "Header elements should have accessible content",
+  "title": "Heading elements should have accessible content",
   "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
