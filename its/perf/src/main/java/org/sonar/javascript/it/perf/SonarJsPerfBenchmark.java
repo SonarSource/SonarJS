@@ -160,6 +160,7 @@ public class SonarJsPerfBenchmark {
       .setProperty("sonar.javascript.maxFileSize", "4000")
       .setProperty("sonar.cpd.exclusions", "**/*")
       .setProperty("sonar.internal.analysis.failFast", "true")
+      .setProperty("sonar.exclusions", "**/.*")
       .setProperty("sonar.token", token);
 
     return new BuildRunner(Configuration.createEnv()).run(null, build);
