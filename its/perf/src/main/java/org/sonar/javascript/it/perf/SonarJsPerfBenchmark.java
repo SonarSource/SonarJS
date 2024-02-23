@@ -85,6 +85,16 @@ public class SonarJsPerfBenchmark {
     assertTrue(result.getLogs().contains("INFO: 1585/1585 source files have been analyzed"));
   }
 
+  @Benchmark
+  @BenchmarkMode(Mode.SingleShotTime)
+  @Warmup(iterations = 3)
+  @Measurement(iterations = 5)
+  @OutputTimeUnit(TimeUnit.SECONDS)
+  public void vscode() {
+    var result = runScan(token, "vscode");
+    assertTrue(result.getLogs().contains("INFO: 1585/1585 source files have been analyzed"));
+  }
+
   public static void main(String[] args) throws Exception {
     var baseline = runBenchmark("LATEST_RELEASE");
     var candidate = runBenchmark("DEV");
