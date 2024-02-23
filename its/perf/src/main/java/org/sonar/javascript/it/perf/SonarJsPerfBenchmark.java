@@ -70,15 +70,18 @@ public class SonarJsPerfBenchmark {
 
   static final String SCANNER_VERSION = "5.0.1.3006";
 
-  static double THRESHOLD_PERCENT = 3;
+  static final double MARGIN_PERCENT = 2;
 
   @Param("")
   String token;
 
+  @Param("")
+  String pluginVersion;
+
   @Benchmark
   @BenchmarkMode(Mode.SingleShotTime)
-  @Warmup(iterations = 3)
-  @Measurement(iterations = 5)
+  @Warmup(iterations = 1)
+  @Measurement(iterations = 3)
   @OutputTimeUnit(TimeUnit.SECONDS)
   public void vuetify() {
     var result = runScan(token, "vuetify");
@@ -117,9 +120,9 @@ public class SonarJsPerfBenchmark {
     var delta = baselineScore - candidateScore;
     var deltaPercent = delta / baselineScore * 100;
     System.out.printf("Delta: %.3f (%.3f %%)%n", delta, deltaPercent);
-    if (deltaPercent > THRESHOLD_PERCENT) {
+    if (deltaPercent > MARGIN_PERCENT) {
       throw new IllegalStateException(
-        "Performance degradation is greater than " + THRESHOLD_PERCENT + "%"
+        "Performance degradation is greater than " + MARGIN_PERCENT + "%"
       );
     }
   }
@@ -133,6 +136,7 @@ public class SonarJsPerfBenchmark {
       var opt = new OptionsBuilder()
         .include(SonarJsPerfBenchmark.class.getSimpleName())
         .param("token", token)
+        .param("pluginVersion", jsPluginVersion)
         .forks(1)
         .build();
 
