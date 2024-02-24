@@ -98,6 +98,23 @@
                     </execution>
                 </executions>
             </plugin>
+
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <configuration>
+                    <executable>java</executable>
+                    <arguments>
+                    <argument>-classpath</argument>
+                    <classpath/>
+                    <argument>org.sonar.javascript.it.perf.SonarJsPerfBenchmark</argument>
+                    </arguments>
+                    <additionalClasspathElements>
+                      <additionalClasspathElement>${project.build.directory}/benchmarks.jar</additionalClasspathElement>
+                    </additionalClasspathElements>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
