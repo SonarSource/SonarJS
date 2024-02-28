@@ -259,8 +259,8 @@ js_ts_ruling_task:
     docker_arguments:
       CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
       NODE_VERSION: 20
-    cpu: 15
-    memory: 32G
+    cpu: 10
+    memory: 40G
   env:
     CIRRUS_CLONE_DEPTH: 1
     SONARSOURCE_QA: true
