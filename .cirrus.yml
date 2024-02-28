@@ -302,18 +302,19 @@ perf_task:
   <<: *ONLY_SONARSOURCE_QA
   eks_container:
     <<: *CONTAINER_DEFINITION
-    cpu: 15
-    memory: 30G
   env:
     CIRRUS_CLONE_DEPTH: 10
     SONARSOURCE_QA: true
   <<: *MAVEN_CACHE
+  submodules_script:
+    - git submodule update --init
   perf_script:
     - source cirrus-env QA
     - source set_maven_build_version $BUILD_NUMBER
     - cd its/perf
     - mvn -B -e -V package
     - mvn exec:exec
+  cleanup_before_cache_script: cleanup_maven_repository
 
 promote_task:
   depends_on:
