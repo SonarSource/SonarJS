@@ -28,6 +28,8 @@ container_definition: &CONTAINER_DEFINITION
   region: eu-central-1
   namespace: default
   use_in_memory_disk: true
+  cpu: 10
+  memory: 40G
 
 maven_cache_definition: &MAVEN_CACHE
   maven_cache:
@@ -82,8 +84,6 @@ plugin_qa_body: &PLUGIN_QA_BODY
   <<: *ONLY_SONARSOURCE_QA
   eks_container:
     <<: *CONTAINER_DEFINITION
-    cpu: 15
-    memory: 30G
   env:
     CIRRUS_CLONE_DEPTH: 10
     SONARSOURCE_QA: true
@@ -100,8 +100,6 @@ build_task:
     dockerfile: .cirrus/nodejs.Dockerfile
     docker_arguments:
       CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
-    cpu: 10
-    memory: 40G
   env:
     #allow deployment of pull request artifacts to repox
     DEPLOY_PULL_REQUEST: true
@@ -128,8 +126,6 @@ analyze_task:
     dockerfile: .cirrus/nodejs.Dockerfile
     docker_arguments:
       CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
-    cpu: 15
-    memory: 30G
   depends_on:
     - build
   env:
@@ -259,8 +255,6 @@ js_ts_ruling_task:
     docker_arguments:
       CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
       NODE_VERSION: 20
-    cpu: 15
-    memory: 32G
   env:
     CIRRUS_CLONE_DEPTH: 1
     SONARSOURCE_QA: true
@@ -276,7 +270,7 @@ js_ts_ruling_task:
     - source set_maven_build_version $BUILD_NUMBER
     - npm run build:fast
     - npm run update-ruling-data
-    - npm run ruling -- --maxWorkers=60%
+    - npm run ruling -- --maxWorkers=8
   cleanup_before_cache_script: cleanup_maven_repository
 
 css_ruling_task:
@@ -286,8 +280,6 @@ css_ruling_task:
   eks_container:
     <<: *CONTAINER_DEFINITION
     image: ${CIRRUS_AWS_ACCOUNT}.dkr.ecr.eu-central-1.amazonaws.com/base:j17-latest
-    cpu: 15
-    memory: 24G
   env:
     CIRRUS_CLONE_DEPTH: 10
     SONARSOURCE_QA: true
