@@ -21,7 +21,6 @@ package org.sonar.plugins.javascript.bridge;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
-import static java.util.stream.Collectors.toList;
 
 import com.google.gson.Gson;
 import java.io.File;
@@ -141,7 +140,7 @@ class TsConfigProvider {
         FileProvider fileProvider = new FileProvider(baseDir, pattern);
         List<File> matchingTsconfigs = fileProvider.getMatchingFiles();
         if (!matchingTsconfigs.isEmpty()) {
-          tsconfigs.addAll(matchingTsconfigs.stream().map(File::getAbsolutePath).collect(toList()));
+          tsconfigs.addAll(matchingTsconfigs.stream().map(File::getAbsolutePath).toList());
         }
       }
 

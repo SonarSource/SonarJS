@@ -20,7 +20,6 @@
 package org.sonar.plugins.javascript.bridge.cache;
 
 import static java.util.Collections.emptyList;
-import static java.util.stream.Collectors.toList;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,7 +37,7 @@ class CacheKey {
   private final String pluginVersion;
 
   private CacheKey(List<String> prefixes, @Nullable String pluginVersion, String file) {
-    this.prefixes = prefixes.stream().filter(Objects::nonNull).collect(toList());
+    this.prefixes = prefixes.stream().filter(Objects::nonNull).toList();
     this.pluginVersion = pluginVersion;
     this.file = file;
   }
@@ -68,7 +67,7 @@ class CacheKey {
 
   CacheKey withPrefix(String... prefixes) {
     return new CacheKey(
-      Stream.concat(this.prefixes.stream(), Arrays.stream(prefixes)).collect(toList()),
+      Stream.concat(this.prefixes.stream(), Arrays.stream(prefixes)).toList(),
       pluginVersion,
       file
     );

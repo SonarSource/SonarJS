@@ -28,7 +28,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -70,7 +69,7 @@ public class RulesBundles {
           }
           return resource;
         })
-        .collect(Collectors.toList());
+        .toList();
   }
 
   /**

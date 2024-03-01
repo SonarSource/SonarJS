@@ -21,7 +21,6 @@ package org.sonar.plugins.javascript.bridge;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.FilePredicate;
@@ -98,7 +97,7 @@ public class JsTsSensor extends AbstractBridgeSensor {
     FilePredicate allFilesPredicate = JavaScriptFilePredicate.getJsTsPredicate(fileSystem);
     return StreamSupport
       .stream(fileSystem.inputFiles(allFilesPredicate).spliterator(), false)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   @Override

@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.rule.CheckFactory;
@@ -169,7 +168,7 @@ public class JsTsChecks {
             )
           )
       )
-      .collect(Collectors.toList());
+      .toList();
   }
 
   static class LanguageAndRepository {

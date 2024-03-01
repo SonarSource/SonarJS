@@ -226,12 +226,10 @@ public class RulesMetadataForSonarLint {
       rule.params = sqRule.params();
       rule.scope = sqRule.scope();
       rule.activatedByDefault = sqRule.activatedByDefault();
-      if (check instanceof EslintBasedCheck) {
-        var eslintBasedCheck = (EslintBasedCheck) check;
+      if (check instanceof EslintBasedCheck eslintBasedCheck) {
         rule.eslintKey = eslintBasedCheck.eslintKey();
         rule.defaultParams = eslintBasedCheck.configurations();
-      } else if (check instanceof CssRule) {
-        var cssRule = (CssRule) check;
+      } else if (check instanceof CssRule cssRule) {
         rule.stylelintKey = cssRule.stylelintKey();
         rule.defaultParams = cssRule.stylelintOptions();
       }

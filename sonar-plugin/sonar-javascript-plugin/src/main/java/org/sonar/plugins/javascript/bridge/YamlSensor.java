@@ -25,7 +25,6 @@ import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.InputFile;
@@ -112,7 +111,7 @@ public class YamlSensor extends AbstractBridgeSensor {
       input -> isSamTemplate(input, LOG)
     );
     var inputFiles = context.fileSystem().inputFiles(filePredicate);
-    return StreamSupport.stream(inputFiles.spliterator(), false).collect(Collectors.toList());
+    return StreamSupport.stream(inputFiles.spliterator(), false).toList();
   }
 
   // Inspired from

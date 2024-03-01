@@ -26,7 +26,6 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.tukaani.xz.LZMA2Options;
 import org.tukaani.xz.XZOutputStream;
@@ -41,11 +40,7 @@ public class XZ {
     }
     List<String> filenames = Collections.emptyList();
     try {
-      filenames =
-        Stream
-          .of(args)
-          .map(filename -> filename.replaceAll("[\\\\/]+", "/"))
-          .collect(Collectors.toList());
+      filenames = Stream.of(args).map(filename -> filename.replaceAll("[\\\\/]+", "/")).toList();
 
       compress(filenames);
     } catch (IOException e) {

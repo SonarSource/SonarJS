@@ -22,7 +22,6 @@ package org.sonar.plugins.javascript.bridge.cache;
 import static java.util.Collections.emptyList;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toList;
 
 import java.io.BufferedOutputStream;
 import java.io.IOException;
@@ -110,7 +109,7 @@ class SequenceSerialization extends CacheSerialization {
   FilesManifest writeToCache(@Nullable List<String> generatedFiles) throws IOException {
     List<Path> paths = generatedFiles == null
       ? emptyList()
-      : generatedFiles.stream().map(Path::of).collect(toList());
+      : generatedFiles.stream().map(Path::of).toList();
     var iterator = new FileIterator(paths);
 
     try (var sequence = new SequenceInputStream(new IteratorEnumeration<>(iterator))) {

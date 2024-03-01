@@ -22,7 +22,6 @@ package org.sonar.javascript.checks;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.plugins.javascript.api.EslintBasedCheck;
@@ -44,9 +43,7 @@ public class NoUnknownPropertyCheck implements EslintBasedCheck {
   @Override
   public List<Object> configurations() {
     return Collections.singletonList(
-      new Config(
-        Arrays.asList(whitelist.split(",")).stream().map(String::trim).collect(Collectors.toList())
-      )
+      new Config(Arrays.asList(whitelist.split(",")).stream().map(String::trim).toList())
     );
   }
 

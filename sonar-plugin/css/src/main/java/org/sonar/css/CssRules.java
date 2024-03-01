@@ -25,7 +25,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.Checks;
@@ -115,6 +114,6 @@ public class CssRules {
   public List<StylelintRule> getStylelintRules() {
     return this.rules.stream()
       .map(rule -> new StylelintRule(rule.stylelintKey(), rule.stylelintOptions()))
-      .collect(Collectors.toList());
+      .toList();
   }
 }

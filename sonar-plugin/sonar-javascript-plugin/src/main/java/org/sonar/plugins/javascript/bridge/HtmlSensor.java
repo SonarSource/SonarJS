@@ -22,7 +22,6 @@ package org.sonar.plugins.javascript.bridge;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FilePredicates;
@@ -117,7 +116,7 @@ public class HtmlSensor extends AbstractBridgeSensor {
         )
     );
     var inputFiles = context.fileSystem().inputFiles(filePredicate);
-    return StreamSupport.stream(inputFiles.spliterator(), false).collect(Collectors.toList());
+    return StreamSupport.stream(inputFiles.spliterator(), false).toList();
   }
 
   private void analyze(InputFile file, CacheStrategy cacheStrategy) throws IOException {
