@@ -20,7 +20,6 @@
 package org.sonar.plugins.javascript.filter;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFileFilter;
@@ -44,14 +43,14 @@ public class JavaScriptExclusionsFileFilter implements InputFileFilter {
           new BundleAssessor()
         )
         .filter(assessor -> shouldBeEnabled(assessor, configuration))
-        .collect(Collectors.toUnmodifiableList());
+        .toList();
 
     // We ignore the size limit for CSS files, because analyzing large CSS files takes a reasonable amount of time
     cssAssessors =
       Stream
         .of(new PathAssessor(configuration), new MinificationAssessor(), new BundleAssessor())
         .filter(assessor -> shouldBeEnabled(assessor, configuration))
-        .collect(Collectors.toUnmodifiableList());
+        .toList();
   }
 
   private static boolean shouldBeEnabled(Assessor assessor, Configuration configuration) {

@@ -43,7 +43,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.SonarProduct;
@@ -254,7 +253,7 @@ public class BridgeServerImpl implements BridgeServer {
     return nodeCommandBuilder.build();
   }
 
-  private Map<String, String> getEnv() {
+  private static Map<String, String> getEnv() {
     Map<String, String> env = new HashMap<>();
     if (LOG.isDebugEnabled()) {
       env.put("TIMING", "all");

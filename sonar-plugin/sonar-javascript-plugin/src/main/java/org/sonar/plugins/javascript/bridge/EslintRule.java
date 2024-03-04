@@ -22,7 +22,6 @@ package org.sonar.plugins.javascript.bridge;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
@@ -43,8 +42,7 @@ class EslintRule {
     String language
   ) {
     this.key = key;
-    this.fileTypeTarget =
-      fileTypeTarget.stream().map(InputFile.Type::name).collect(Collectors.toList());
+    this.fileTypeTarget = fileTypeTarget.stream().map(InputFile.Type::name).toList();
     this.configurations = configurations;
     // unfortunately we can't check this using types, so it's enforced at runtime
     if (!JavaScriptLanguage.KEY.equals(language) && !TypeScriptLanguage.KEY.equals(language)) {
@@ -71,10 +69,7 @@ class EslintRule {
   }
 
   static List<EslintRule> findAllBut(List<EslintRule> rules, Set<String> blackListRuleKeys) {
-    return rules
-      .stream()
-      .filter(rule -> !blackListRuleKeys.contains(rule.key))
-      .collect(Collectors.toList());
+    return rules.stream().filter(rule -> !blackListRuleKeys.contains(rule.key)).toList();
   }
 
   private static Predicate<EslintRule> ruleMatcher(String eslintKey) {

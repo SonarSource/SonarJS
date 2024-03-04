@@ -29,6 +29,7 @@ import java.util.Objects;
 import java.util.zip.GZIPInputStream;
 import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.ArchiveInputStream;
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.utils.IOUtils;
 
@@ -42,7 +43,7 @@ class BundleUtils {
     Objects.requireNonNull(resource);
     try (
       InputStream stream = new GZIPInputStream(new BufferedInputStream(resource));
-      ArchiveInputStream archive = new TarArchiveInputStream(stream)
+      ArchiveInputStream<TarArchiveEntry> archive = new TarArchiveInputStream(stream)
     ) {
       ArchiveEntry entry;
       while ((entry = archive.getNextEntry()) != null) {

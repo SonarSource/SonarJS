@@ -29,7 +29,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
 import org.sonar.api.batch.fs.InputFile;
@@ -66,7 +65,7 @@ class LCOVParser {
     final List<String> lines = new LinkedList<>();
     for (File file : files) {
       try (Stream<String> fileLines = Files.lines(file.toPath())) {
-        lines.addAll(fileLines.collect(Collectors.toList()));
+        lines.addAll(fileLines.toList());
       } catch (IOException e) {
         throw new IllegalArgumentException("Could not read content from file: " + file, e);
       }

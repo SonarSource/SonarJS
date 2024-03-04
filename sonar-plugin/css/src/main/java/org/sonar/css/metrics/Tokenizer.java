@@ -22,7 +22,6 @@ package org.sonar.css.metrics;
 import com.sonar.sslr.api.Token;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class Tokenizer {
 
@@ -33,6 +32,6 @@ public class Tokenizer {
     List<Token> cloneTokenList = new ArrayList<>(tokenList);
     cloneTokenList.remove(cloneTokenList.size() - 1);
 
-    return cloneTokenList.stream().map(CssToken::new).collect(Collectors.toList());
+    return cloneTokenList.stream().map(CssToken::new).toList();
   }
 }

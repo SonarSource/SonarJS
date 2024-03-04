@@ -22,7 +22,6 @@ package org.sonar.css.rules;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class RuleUtils {
 
@@ -33,6 +32,6 @@ public class RuleUtils {
       return Collections.emptyList();
     }
     String[] split = parameterValue.split(",");
-    return Arrays.stream(split).map(String::trim).collect(Collectors.toList());
+    return Arrays.stream(split).map(String::trim).toList();
   }
 }

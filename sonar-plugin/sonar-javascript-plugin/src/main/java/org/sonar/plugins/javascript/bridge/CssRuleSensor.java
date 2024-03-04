@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.sonar.api.SonarProduct;
 import org.sonar.api.SonarRuntime;
@@ -231,7 +230,7 @@ public class CssRuleSensor extends AbstractBridgeSensor {
           .spliterator(),
         false
       )
-      .collect(Collectors.toList());
+      .toList();
   }
 
   public static boolean hasCssFiles(SensorContext context) {
