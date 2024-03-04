@@ -88,7 +88,6 @@ public class BridgeServerImpl implements BridgeServer {
   private final RulesBundles rulesBundles;
   private final NodeDeprecationWarning deprecationWarning;
   private final Path temporaryDeployLocation;
-  private final Monitoring monitoring;
   private final EmbeddedNode embeddedNode;
   private static final int HEARTBEAT_INTERVAL_SECONDS = 5;
   private final ScheduledExecutorService heartbeatService;
@@ -101,7 +100,6 @@ public class BridgeServerImpl implements BridgeServer {
     RulesBundles rulesBundles,
     NodeDeprecationWarning deprecationWarning,
     TempFolder tempFolder,
-    Monitoring monitoring,
     EmbeddedNode embeddedNode
   ) {
     this(
@@ -111,7 +109,6 @@ public class BridgeServerImpl implements BridgeServer {
       rulesBundles,
       deprecationWarning,
       tempFolder,
-      monitoring,
       embeddedNode
     );
   }
@@ -123,7 +120,6 @@ public class BridgeServerImpl implements BridgeServer {
     RulesBundles rulesBundles,
     NodeDeprecationWarning deprecationWarning,
     TempFolder tempFolder,
-    Monitoring monitoring,
     EmbeddedNode embeddedNode
   ) {
     this.nodeCommandBuilder = nodeCommandBuilder;
@@ -135,7 +131,6 @@ public class BridgeServerImpl implements BridgeServer {
     this.deprecationWarning = deprecationWarning;
     this.hostAddress = InetAddress.getLoopbackAddress().getHostAddress();
     this.temporaryDeployLocation = tempFolder.newDir(BRIDGE_DEPLOY_LOCATION).toPath();
-    this.monitoring = monitoring;
     this.heartbeatService = Executors.newSingleThreadScheduledExecutor();
     this.embeddedNode = embeddedNode;
   }
@@ -232,13 +227,8 @@ public class BridgeServerImpl implements BridgeServer {
     }
     var debugMemory = config.getBoolean(DEBUG_MEMORY).orElse(false);
 
-    // enable per rule performance tracking https://eslint.org/docs/1.0.0/developer-guide/working-with-rules#per-rule-performance
-    var outputConsumer = monitoring.isMonitoringEnabled()
-      ? new LogOutputConsumer().andThen(new MonitoringOutputConsumer(monitoring))
-      : new LogOutputConsumer();
-
     nodeCommandBuilder
-      .outputConsumer(outputConsumer)
+      .outputConsumer(new LogOutputConsumer())
       .errorConsumer(LOG::error)
       .embeddedNode(embeddedNode)
       .pathResolver(bundle)
@@ -266,7 +256,7 @@ public class BridgeServerImpl implements BridgeServer {
 
   private Map<String, String> getEnv() {
     Map<String, String> env = new HashMap<>();
-    if (monitoring.isMonitoringEnabled()) {
+    if (LOG.isDebugEnabled()) {
       env.put("TIMING", "all");
     }
     // see https://github.com/SonarSource/SonarJS/issues/2803
@@ -615,45 +605,6 @@ public class BridgeServerImpl implements BridgeServer {
       this.globals = globals;
       this.baseDir = baseDir;
       this.exclusions = exclusions;
-    }
-  }
-
-  static class MonitoringOutputConsumer implements Consumer<String> {
-
-    // number of spaces after "Rule" depends on the rule keys lengths
-    private static final Pattern HEADER = Pattern.compile(
-      "Rule\\s+\\|\\s+Time \\(ms\\)\\s+\\|\\s+Relative\\s*"
-    );
-    private static final Pattern RULE_LINE = Pattern.compile(
-      "(\\S+)\\s*\\|\\s*(\\d+\\.?\\d+)\\s*\\|\\s*(\\d+\\.?\\d+)%"
-    );
-    private final Monitoring monitoring;
-
-    boolean headerDetected;
-
-    MonitoringOutputConsumer(Monitoring monitoring) {
-      this.monitoring = monitoring;
-    }
-
-    @Override
-    public void accept(String s) {
-      if (HEADER.matcher(s).matches()) {
-        headerDetected = true;
-        return;
-      }
-      if (headerDetected) {
-        try {
-          var matcher = RULE_LINE.matcher(s);
-          if (matcher.matches()) {
-            var ruleKey = matcher.group(1);
-            var timeMs = Double.parseDouble(matcher.group(2));
-            var relative = Double.parseDouble(matcher.group(3));
-            monitoring.ruleStatistics(ruleKey, timeMs, relative);
-          }
-        } catch (Exception e) {
-          LOG.error("Error parsing rule timing data", e);
-        }
-      }
     }
   }
 

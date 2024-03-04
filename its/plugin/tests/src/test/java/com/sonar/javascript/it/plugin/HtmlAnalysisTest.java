@@ -79,15 +79,6 @@ public class HtmlAnalysisTest {
     // assertPerfMonitoringAvailable(perfMonitoringDir);
   }
 
-  private void assertPerfMonitoringAvailable(Path perfMonitoringDir) throws IOException {
-    String content = Files.readString(perfMonitoringDir.resolve("metrics.json"));
-    assertThat(content)
-      .contains("\"ncloc\":4")
-      .containsPattern("\"parseTime\":\\d+")
-      .containsPattern("\"analysisTime\":\\d+")
-      .contains("\"component\":\"index.html\"");
-  }
-
   @Test
   void should_not_raise_issues_for_blacklisted_rules() {
     var projectKey = "html-project-blacklisted-rules";

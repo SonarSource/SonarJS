@@ -73,11 +73,7 @@ class QuickFixSupportTest {
     activeRules = new ActiveRulesBuilder().addRule(activeRule).build();
     checks = new JsTsChecks(new CheckFactory(activeRules));
     analysisProcessor =
-      new AnalysisProcessor(
-        mock(NoSonarFilter.class),
-        mock(FileLinesContextFactory.class),
-        mock(Monitoring.class)
-      );
+      new AnalysisProcessor(mock(NoSonarFilter.class), mock(FileLinesContextFactory.class));
   }
 
   DefaultSensorContext createContext(Version version) {

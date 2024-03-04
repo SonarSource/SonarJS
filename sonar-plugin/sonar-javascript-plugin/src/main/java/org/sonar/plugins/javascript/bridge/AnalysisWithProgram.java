@@ -50,11 +50,10 @@ public class AnalysisWithProgram extends AbstractAnalysis {
 
   public AnalysisWithProgram(
     BridgeServer bridgeServer,
-    Monitoring monitoring,
     AnalysisProcessor analysisProcessor,
     AnalysisWarningsWrapper analysisWarnings
   ) {
-    super(bridgeServer, monitoring, analysisProcessor, analysisWarnings);
+    super(bridgeServer, analysisProcessor, analysisWarnings);
   }
 
   @Override
@@ -73,7 +72,6 @@ public class AnalysisWithProgram extends AbstractAnalysis {
           LOG.debug("tsconfig.json already analyzed: '{}'. Skipping it.", tsConfig);
           continue;
         }
-        monitoring.startProgram(tsConfig);
         PROFILER.startInfo("Creating TypeScript program");
         LOG.info("TypeScript configuration file " + tsConfig);
         var program = bridgeServer.createProgram(new TsProgramRequest(tsConfig));
@@ -96,7 +94,6 @@ public class AnalysisWithProgram extends AbstractAnalysis {
           this.analysisWarnings.addUnique(msg);
         }
         PROFILER.stopInfo();
-        monitoring.stopProgram();
         analyzeProgram(program, analyzedFiles);
         workList.addAll(program.projectReferences);
         bridgeServer.deleteProgram(program);
@@ -168,7 +165,6 @@ public class AnalysisWithProgram extends AbstractAnalysis {
       try {
         LOG.debug("Analyzing file: {}", file.uri());
         progressReport.nextFile(file.absolutePath());
-        monitoring.startFile(file);
         var fileContent = contextUtils.shouldSendFileContent(file) ? file.contents() : null;
         var request = getJsAnalysisRequest(file, tsProgram, fileContent);
 

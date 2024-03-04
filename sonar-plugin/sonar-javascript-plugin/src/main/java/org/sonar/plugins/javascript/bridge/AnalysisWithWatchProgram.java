@@ -47,11 +47,10 @@ public class AnalysisWithWatchProgram extends AbstractAnalysis {
 
   public AnalysisWithWatchProgram(
     BridgeServer bridgeServer,
-    Monitoring monitoring,
     AnalysisProcessor analysisProcessor,
     AnalysisWarningsWrapper analysisWarnings
   ) {
-    super(bridgeServer, monitoring, analysisProcessor, analysisWarnings);
+    super(bridgeServer, analysisProcessor, analysisWarnings);
   }
 
   @Override
@@ -126,7 +125,6 @@ public class AnalysisWithWatchProgram extends AbstractAnalysis {
           "Analysis interrupted because the SensorContext is in cancelled state"
         );
       }
-      monitoring.startFile(inputFile);
       analyze(inputFile, tsConfigFile);
       progressReport.nextFile(inputFile.absolutePath());
     }

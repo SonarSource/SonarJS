@@ -92,8 +92,4 @@ export const EMPTY_JSTS_ANALYSIS_OUTPUT: JsTsAnalysisOutput = {
     cognitiveComplexity: 0,
   },
   cpdTokens: [],
-  perf: {
-    parseTime: 0,
-    analysisTime: 0,
-  },
 };

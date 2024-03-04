@@ -38,7 +38,6 @@ abstract class AbstractAnalysis {
   static final long PROGRESS_REPORT_PERIOD = TimeUnit.SECONDS.toMillis(10);
 
   final BridgeServer bridgeServer;
-  final Monitoring monitoring;
   final AnalysisProcessor analysisProcessor;
   SensorContext context;
   ContextUtils contextUtils;
@@ -49,12 +48,10 @@ abstract class AbstractAnalysis {
 
   AbstractAnalysis(
     BridgeServer bridgeServer,
-    Monitoring monitoring,
     AnalysisProcessor analysisProcessor,
     AnalysisWarningsWrapper analysisWarnings
   ) {
     this.bridgeServer = bridgeServer;
-    this.monitoring = monitoring;
     this.analysisProcessor = analysisProcessor;
     this.analysisWarnings = analysisWarnings;
   }

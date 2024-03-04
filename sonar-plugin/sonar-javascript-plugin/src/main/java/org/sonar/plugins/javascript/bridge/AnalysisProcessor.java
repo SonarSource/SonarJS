@@ -64,7 +64,6 @@ public class AnalysisProcessor {
   private static final Logger LOG = Loggers.get(AnalysisProcessor.class);
   private static final Version SONARLINT_6_3 = Version.create(6, 3);
 
-  private final Monitoring monitoring;
   private final NoSonarFilter noSonarFilter;
   private final FileLinesContextFactory fileLinesContextFactory;
   private SensorContext context;
@@ -75,12 +74,10 @@ public class AnalysisProcessor {
 
   public AnalysisProcessor(
     NoSonarFilter noSonarFilter,
-    FileLinesContextFactory fileLinesContextFactory,
-    Monitoring monitoring
+    FileLinesContextFactory fileLinesContextFactory
   ) {
     this.noSonarFilter = noSonarFilter;
     this.fileLinesContextFactory = fileLinesContextFactory;
-    this.monitoring = monitoring;
     this.uniqueParsingErrors = new HashSet<>();
   }
 
@@ -108,7 +105,6 @@ public class AnalysisProcessor {
       // from Cloudformation configurations, we can only save issues for these files. Same applies for HTML and
       // sonar-html plugin.
       saveIssues(response.issues);
-      monitoring.stopFile(file, response.metrics.ncloc.length, response.perf);
     } else {
       // it's important to have an order here:
       // saving metrics should be done before saving issues so that NO SONAR lines with issues are indeed ignored
@@ -117,7 +113,6 @@ public class AnalysisProcessor {
       saveHighlights(response.highlights);
       saveHighlightedSymbols(response.highlightedSymbols);
       saveCpd(response.cpdTokens);
-      monitoring.stopFile(file, response.metrics.ncloc.length, response.perf);
     }
   }
 

@@ -56,7 +56,6 @@ import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.rule.internal.NewActiveRule;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.impl.utils.DefaultTempFolder;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.measures.FileLinesContext;
@@ -125,7 +124,6 @@ class CssRuleSensorTest {
         sonarRuntime,
         bridgeServerMock,
         new AnalysisWarningsWrapper(),
-        new Monitoring(new MapSettings().asConfig()),
         CHECK_FACTORY
       );
   }
@@ -172,7 +170,6 @@ class CssRuleSensorTest {
         sonarRuntime,
         bridgeServerMock,
         new AnalysisWarningsWrapper(),
-        new Monitoring(new MapSettings().asConfig()),
         CHECK_FACTORY
       );
     DefaultSensorDescriptor sensorDescriptor = new DefaultSensorDescriptor();
@@ -193,7 +190,6 @@ class CssRuleSensorTest {
         sonarRuntime,
         bridgeServerMock,
         new AnalysisWarningsWrapper(),
-        new Monitoring(new MapSettings().asConfig()),
         CHECK_FACTORY
       );
     DefaultSensorDescriptor sensorDescriptor = new DefaultSensorDescriptor();

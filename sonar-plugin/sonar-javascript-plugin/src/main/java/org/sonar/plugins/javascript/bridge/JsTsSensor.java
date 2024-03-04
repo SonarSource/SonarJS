@@ -51,7 +51,6 @@ public class JsTsSensor extends AbstractBridgeSensor {
     BridgeServer bridgeServer,
     AnalysisWarningsWrapper analysisWarnings,
     TempFolder tempFolder,
-    Monitoring monitoring,
     AnalysisWithProgram analysisWithProgram,
     AnalysisWithWatchProgram analysisWithWatchProgram
   ) {
@@ -60,7 +59,6 @@ public class JsTsSensor extends AbstractBridgeSensor {
       bridgeServer,
       analysisWarnings,
       tempFolder,
-      monitoring,
       null,
       analysisWithProgram,
       analysisWithWatchProgram
@@ -72,12 +70,11 @@ public class JsTsSensor extends AbstractBridgeSensor {
     BridgeServer bridgeServer,
     AnalysisWarningsWrapper analysisWarnings,
     TempFolder tempFolder,
-    Monitoring monitoring,
     @Nullable SonarLintTypeCheckingChecker javaScriptProjectChecker,
     AnalysisWithProgram analysisWithProgram,
     AnalysisWithWatchProgram analysisWithWatchProgram
   ) {
-    super(bridgeServer, analysisWarnings, monitoring, "JS/TS");
+    super(bridgeServer, analysisWarnings, "JS/TS");
     this.tempFolder = tempFolder;
     this.analysisWithProgram = analysisWithProgram;
     this.analysisWithWatchProgram = analysisWithWatchProgram;
