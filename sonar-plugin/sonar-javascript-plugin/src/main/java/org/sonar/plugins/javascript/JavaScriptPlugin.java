@@ -43,7 +43,6 @@ import org.sonar.plugins.javascript.bridge.Environment;
 import org.sonar.plugins.javascript.bridge.HtmlSensor;
 import org.sonar.plugins.javascript.bridge.JsTsChecks;
 import org.sonar.plugins.javascript.bridge.JsTsSensor;
-import org.sonar.plugins.javascript.bridge.Monitoring;
 import org.sonar.plugins.javascript.bridge.NodeDeprecationWarning;
 import org.sonar.plugins.javascript.bridge.RulesBundles;
 import org.sonar.plugins.javascript.bridge.YamlSensor;
@@ -156,7 +155,6 @@ public class JavaScriptPlugin implements Plugin {
       RulesBundles.class,
       JsTsChecks.class,
       AnalysisWarningsWrapper.class,
-      Monitoring.class,
       AnalysisWithProgram.class,
       AnalysisWithWatchProgram.class,
       AnalysisProcessor.class,

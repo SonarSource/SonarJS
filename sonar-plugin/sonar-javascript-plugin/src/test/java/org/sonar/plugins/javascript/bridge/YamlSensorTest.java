@@ -30,7 +30,6 @@ import static org.mockito.Mockito.when;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Iterator;
@@ -56,7 +55,6 @@ import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.IssueLocation;
 import org.sonar.api.batch.sensor.issue.internal.DefaultNoSonarFilter;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.rule.RuleKey;
@@ -89,15 +87,10 @@ class YamlSensorTest {
   @TempDir
   Path workDir;
 
-  @TempDir
-  Path monitoringPath;
-
-  private Monitoring monitoring;
   private AnalysisProcessor analysisProcessor;
 
   @BeforeEach
   public void setUp() throws Exception {
-    monitoring = new Monitoring(new MapSettings().asConfig());
     MockitoAnnotations.initMocks(this);
 
     // reset is required as this static value might be set by another test
@@ -115,8 +108,7 @@ class YamlSensorTest {
     FileLinesContext fileLinesContext = mock(FileLinesContext.class);
     when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(fileLinesContext);
 
-    analysisProcessor =
-      new AnalysisProcessor(new DefaultNoSonarFilter(), fileLinesContextFactory, monitoring);
+    analysisProcessor = new AnalysisProcessor(new DefaultNoSonarFilter(), fileLinesContextFactory);
   }
 
   @Test
@@ -261,39 +253,6 @@ class YamlSensorTest {
       .doesNotContain("Processing cache analysis of file: " + file.uri());
   }
 
-  @Test
-  void should_save_performance_metrics() throws Exception {
-    var expectedResponse = response(
-      "{ issues: []," +
-      "\"metrics\": { \"ncloc\": [1]}, " +
-      "\"perf\":{\"parseTime\":12,\"analysisTime\":40}" +
-      "}"
-    );
-    when(bridgeServerMock.analyzeYaml(any())).thenReturn(expectedResponse);
-
-    var settings = new MapSettings();
-    settings.setProperty("sonar.javascript.monitoring", true);
-    settings.setProperty("sonar.javascript.monitoring.path", monitoringPath.toString());
-    monitoring = new Monitoring(settings.asConfig());
-    analysisProcessor =
-      new AnalysisProcessor(new DefaultNoSonarFilter(), fileLinesContextFactory, monitoring);
-    var path = "dir/file.yaml";
-    var context = CacheTestUtils.createContextWithCache(baseDir, workDir, path);
-    TestUtils
-      .createInputFile(context, getInputFileContent(), path)
-      .setStatus(InputFile.Status.SAME);
-    var sensor = createSensor();
-
-    sensor.execute(context);
-    // We need to call monitor.stop() by hand. In a Sonar product, this gets called somehow.
-    monitoring.stop();
-    var metrics = Files.readString(monitoringPath.resolve("metrics.json"));
-    assertThat(metrics)
-      .contains("\"ncloc\":1")
-      .contains("\"parseTime\":12")
-      .contains("\"analysisTime\":40");
-  }
-
   private static JsTsChecks checks(String... ruleKeys) {
     ActiveRulesBuilder builder = new ActiveRulesBuilder();
     for (String ruleKey : ruleKeys) {
@@ -332,7 +291,6 @@ class YamlSensorTest {
       checks(DUPLICATE_BRANCH_RULE_KEY, PARSING_ERROR_RULE_KEY),
       bridgeServerMock,
       new AnalysisWarningsWrapper(),
-      monitoring,
       analysisProcessor
     );
   }

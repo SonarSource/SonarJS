@@ -66,7 +66,6 @@ import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.IssueLocation;
 import org.sonar.api.batch.sensor.issue.internal.DefaultNoSonarFilter;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.impl.utils.DefaultTempFolder;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.measures.CoreMetrics;
@@ -114,7 +113,6 @@ class JavaScriptEslintBasedSensorTest {
   @TempDir
   Path workDir;
 
-  private final Monitoring monitoring = new Monitoring(new MapSettings().asConfig());
   private AnalysisProcessor analysisProcessor;
   private AnalysisWithProgram analysisWithProgram;
   private AnalysisWithWatchProgram analysisWithWatchProgram;
@@ -154,19 +152,13 @@ class JavaScriptEslintBasedSensorTest {
 
     FileLinesContext fileLinesContext = mock(FileLinesContext.class);
     when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(fileLinesContext);
-    analysisProcessor =
-      new AnalysisProcessor(new DefaultNoSonarFilter(), fileLinesContextFactory, monitoring);
+    analysisProcessor = new AnalysisProcessor(new DefaultNoSonarFilter(), fileLinesContextFactory);
     var analysisWarnings = new AnalysisWarningsWrapper();
 
     analysisWithProgram =
-      new AnalysisWithProgram(bridgeServerMock, monitoring, analysisProcessor, analysisWarnings);
+      new AnalysisWithProgram(bridgeServerMock, analysisProcessor, analysisWarnings);
     analysisWithWatchProgram =
-      new AnalysisWithWatchProgram(
-        bridgeServerMock,
-        monitoring,
-        analysisProcessor,
-        analysisWarnings
-      );
+      new AnalysisWithWatchProgram(bridgeServerMock, analysisProcessor, analysisWarnings);
   }
 
   @Test
@@ -534,7 +526,6 @@ class JavaScriptEslintBasedSensorTest {
       bridgeServerMock,
       analysisWarnings,
       tempFolder,
-      monitoring,
       analysisWithProgram,
       analysisWithWatchProgram
     );
@@ -553,7 +544,6 @@ class JavaScriptEslintBasedSensorTest {
       bridgeServerMock,
       new AnalysisWarningsWrapper(),
       tempFolder,
-      monitoring,
       analysisWithProgram,
       analysisWithWatchProgram
     );
@@ -618,7 +608,6 @@ class JavaScriptEslintBasedSensorTest {
       bridgeServerMock,
       null,
       tempFolder,
-      monitoring,
       analysisWithProgram,
       analysisWithWatchProgram
     )
@@ -801,7 +790,6 @@ class JavaScriptEslintBasedSensorTest {
       bridgeServerMock,
       new AnalysisWarningsWrapper(),
       tempFolder,
-      monitoring,
       sonarlintTypeCheckingChecker,
       analysisWithProgram,
       analysisWithWatchProgram

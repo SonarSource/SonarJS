@@ -23,7 +23,6 @@ import { getLinter, Issue, LinterWrapper } from '../../linter';
 import { buildSourceCodes, ExtendedSourceCode, LanguageParser } from '../builder';
 import { EmbeddedAnalysisInput, EmbeddedAnalysisOutput } from './analysis';
 import { debug } from '@sonar/shared';
-import { measureDuration } from '../../monitoring';
 import { findNcloc } from '../../linter/visitors/metrics/ncloc';
 
 /**
@@ -53,15 +52,8 @@ export function analyzeEmbedded(
 ): EmbeddedAnalysisOutput {
   debug(`Analyzing file "${input.filePath}" with linterId "${input.linterId}"`);
   const linter = getLinter(input.linterId);
-  const building = () => buildSourceCodes(input, languageParser);
-  const { result: extendedSourceCodes, duration: parseTime } = measureDuration(building);
-  const analysis = () => analyzeFile(linter, extendedSourceCodes);
-  const { result: output, duration: analysisTime } = measureDuration(analysis);
-
-  return {
-    ...output,
-    perf: { parseTime, analysisTime },
-  };
+  const extendedSourceCodes = buildSourceCodes(input, languageParser);
+  return analyzeFile(linter, extendedSourceCodes);
 }
 
 /**

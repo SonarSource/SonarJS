@@ -41,7 +41,6 @@ public abstract class AbstractBridgeSensor implements Sensor {
   protected final BridgeServer bridgeServer;
   protected List<String> exclusions;
   private final AnalysisWarningsWrapper analysisWarnings;
-  final Monitoring monitoring;
   List<String> environments;
   List<String> globals;
 
@@ -51,18 +50,15 @@ public abstract class AbstractBridgeSensor implements Sensor {
   protected AbstractBridgeSensor(
     BridgeServer bridgeServer,
     AnalysisWarningsWrapper analysisWarnings,
-    Monitoring monitoring,
     String lang
   ) {
     this.bridgeServer = bridgeServer;
     this.analysisWarnings = analysisWarnings;
-    this.monitoring = monitoring;
     this.lang = lang;
   }
 
   @Override
   public void execute(SensorContext context) {
-    monitoring.startSensor(context, this);
     CacheStrategies.reset();
     this.context = context;
     this.exclusions = Arrays.asList(Exclusions.getExcludedPaths(context.config()));
@@ -102,7 +98,6 @@ public abstract class AbstractBridgeSensor implements Sensor {
       throw new IllegalStateException("Analysis of " + this.lang + " files failed", e);
     } finally {
       CacheStrategies.logReport();
-      monitoring.stopSensor();
     }
   }
 

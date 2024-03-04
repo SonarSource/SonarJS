@@ -29,7 +29,6 @@ import {
   SymbolHighlight,
 } from '../linter';
 import { buildSourceCode } from '../builders';
-import { measureDuration } from '../monitoring';
 import { JsTsAnalysisInput, JsTsAnalysisOutput } from './analysis';
 
 /**
@@ -51,11 +50,7 @@ import { JsTsAnalysisInput, JsTsAnalysisOutput } from './analysis';
 export function analyzeJSTS(input: JsTsAnalysisInput, language: JsTsLanguage): JsTsAnalysisOutput {
   debug(`Analyzing file "${input.filePath}" with linterId "${input.linterId}"`);
   const linter = getLinter(input.linterId);
-  const building = () => buildSourceCode(input, language);
-  const { result: built, duration: parseTime } = measureDuration(building);
-  const analysis = () => analyzeFile(linter, input, built);
-  const { result: output, duration: analysisTime } = measureDuration(analysis);
-  return { ...output, perf: { parseTime, analysisTime } };
+  return analyzeFile(linter, input, buildSourceCode(input, language));
 }
 
 /**

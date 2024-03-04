@@ -866,24 +866,6 @@ describe('analyzeJSTS', () => {
     });
   });
 
-  it('should measure analysis duration', async () => {
-    const rules = [
-      { key: 'no-extra-semi', configurations: [], fileTypeTarget: ['MAIN'] },
-      { key: 'no-duplicate-string', configurations: [], fileTypeTarget: ['MAIN'] },
-      { key: 'sonar-no-regex-spaces', configurations: [], fileTypeTarget: ['MAIN'] },
-    ] as RuleConfig[];
-    initializeLinter(rules);
-
-    const filePath = path.join(__dirname, 'fixtures', 'measure.js');
-    const language = 'js';
-
-    const {
-      perf: { parseTime, analysisTime },
-    } = analyzeJSTS(await jsTsInput({ filePath }), language) as JsTsAnalysisOutput;
-    expect(parseTime).toBeGreaterThan(0);
-    expect(analysisTime).toBeGreaterThan(0);
-  });
-
   it('should return parsing errors', async () => {
     const rules = [];
     initializeLinter(rules);
