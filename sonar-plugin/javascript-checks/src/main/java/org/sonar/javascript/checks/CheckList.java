@@ -22,7 +22,6 @@ package org.sonar.javascript.checks;
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
@@ -48,10 +47,7 @@ public final class CheckList {
     Class<? extends Annotation> annotation
   ) {
     List<Class<? extends JavaScriptCheck>> allChecks = getAllChecks();
-    return allChecks
-      .stream()
-      .filter(c -> c.isAnnotationPresent(annotation))
-      .collect(Collectors.toList());
+    return allChecks.stream().filter(c -> c.isAnnotationPresent(annotation)).toList();
   }
 
   public static List<Class<? extends JavaScriptCheck>> getAllChecks() {

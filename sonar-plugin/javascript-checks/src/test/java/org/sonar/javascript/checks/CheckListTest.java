@@ -46,7 +46,7 @@ class CheckListTest {
       .list(Paths.get("src/main/java/org/sonar/javascript/checks/"))
       .filter(p -> p.toString().endsWith("Check.java") && !p.toString().startsWith("Abstract"))
       .count();
-    assertThat(CheckList.getAllChecks().size()).isEqualTo(count);
+    assertThat(CheckList.getAllChecks()).hasSize((int) count);
   }
 
   /**
@@ -111,18 +111,17 @@ class CheckListTest {
 
   @Test
   void testTypeScriptChecks() {
-    List<Class<? extends JavaScriptCheck>> typeScriptChecks = CheckList.getTypeScriptChecks();
-    assertThat(typeScriptChecks).isNotEmpty();
-    assertThat(typeScriptChecks).isNotEqualTo(CheckList.getAllChecks());
-    typeScriptChecks.removeIf(c -> c == ParsingErrorCheck.class);
-    assertThat(typeScriptChecks).allMatch(EslintBasedCheck.class::isAssignableFrom);
+    var typeScriptChecks = CheckList.getTypeScriptChecks();
+    assertThat(typeScriptChecks)
+      .isNotEmpty()
+      .isNotEqualTo(CheckList.getAllChecks())
+      .allMatch(c -> c == ParsingErrorCheck.class || EslintBasedCheck.class.isAssignableFrom(c));
   }
 
   @Test
   void testJavaScriptChecks() {
-    List<Class<? extends JavaScriptCheck>> javaScriptChecks = CheckList.getJavaScriptChecks();
-    assertThat(javaScriptChecks).isNotEmpty();
-    assertThat(javaScriptChecks).isNotEqualTo(CheckList.getAllChecks());
+    var javaScriptChecks = CheckList.getJavaScriptChecks();
+    assertThat(javaScriptChecks).isNotEmpty().isNotEqualTo(CheckList.getAllChecks());
   }
 
   @Test
