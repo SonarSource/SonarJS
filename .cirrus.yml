@@ -328,6 +328,7 @@ promote_task:
     - css_ruling
     - js_ts_ruling
     - analyze
+    - perf
   <<: *ONLY_SONARSOURCE_QA
   eks_container:
     <<: *CONTAINER_DEFINITION
