@@ -35,20 +35,27 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonValue;
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.BuildRunner;
 import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.config.Configuration;
-import com.sonar.orchestrator.http.HttpCall;
 import com.sonar.orchestrator.http.HttpMethod;
-import com.sonar.orchestrator.http.HttpResponse;
 import com.sonar.orchestrator.junit5.OrchestratorExtension;
 import com.sonar.orchestrator.locator.MavenLocation;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.Collection;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.StreamSupport;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Measurement;
@@ -90,8 +97,8 @@ public class SonarJsPerfBenchmark {
 
   @Benchmark
   @BenchmarkMode(Mode.SingleShotTime)
-  @Warmup(iterations = 3)
-  @Measurement(iterations = 5)
+  @Warmup(iterations = 1)
+  @Measurement(iterations = 3)
   @OutputTimeUnit(TimeUnit.SECONDS)
   public void vscode() {
     var result = runScan(token, "vscode");
@@ -99,8 +106,14 @@ public class SonarJsPerfBenchmark {
   }
 
   public static void main(String[] args) throws Exception {
-    var baseline = runBenchmark("LATEST_RELEASE");
-    var candidate = runBenchmark("DEV");
+    var baselineVersion = "LATEST_RELEASE";
+    var candidateVersion = "DEV";
+    if (args.length == 2) {
+      baselineVersion = args[0];
+      candidateVersion = args[1];
+    }
+    var baseline = runBenchmark(baselineVersion);
+    var candidate = runBenchmark(candidateVersion);
     System.out.println("\nBaseline\n==================================");
     print(baseline);
     System.out.println("\nCandidate\n==================================");
@@ -108,8 +121,14 @@ public class SonarJsPerfBenchmark {
     compare(baseline, candidate);
   }
 
-  private static void print(Collection<RunResult> result) {
-    ResultFormatFactory.getInstance(ResultFormatType.TEXT, System.out).writeOut(result);
+  private static void print(Collection<RunResult> result) throws IOException {
+    try (
+      var out = Files.newOutputStream(Path.of("target", "perf.txt"), StandardOpenOption.APPEND)
+    ) {
+      var writer = new PrintStream(out);
+      ResultFormatFactory.getInstance(ResultFormatType.TEXT, System.out).writeOut(result);
+      ResultFormatFactory.getInstance(ResultFormatType.TEXT, writer).writeOut(result);
+    }
   }
 
   private static void compare(Collection<RunResult> baseline, Collection<RunResult> candidate) {
@@ -133,10 +152,12 @@ public class SonarJsPerfBenchmark {
       orchestrator.start();
       var token = generateDefaultAdminToken(orchestrator);
 
+      String resolvedJsPluginVersion = getJsPluginVersion(orchestrator).orElse(jsPluginVersion);
+      System.out.println("Resolved JS plugin version " + resolvedJsPluginVersion);
       var opt = new OptionsBuilder()
         .include(SonarJsPerfBenchmark.class.getSimpleName())
         .param("token", token)
-        .param("pluginVersion", jsPluginVersion)
+        .param("pluginVersion", resolvedJsPluginVersion)
         .forks(1)
         .build();
 
@@ -146,11 +167,28 @@ public class SonarJsPerfBenchmark {
     }
   }
 
+  private static Optional<String> getJsPluginVersion(Orchestrator orchestrator) {
+    var installed = orchestrator
+      .getServer()
+      .newHttpCall("api/plugins/installed")
+      .setAdminCredentials()
+      .execute()
+      .getBodyAsString();
+    var plugins = new Gson().fromJson(installed, JsonObject.class).get("plugins").getAsJsonArray();
+    return StreamSupport
+      .stream(plugins.spliterator(), false)
+      .map(JsonElement::getAsJsonObject)
+      .filter(e -> "javascript".equals(e.get("key").getAsString()))
+      .map(e -> e.get("version").getAsString())
+      .findFirst();
+  }
+
   private static Orchestrator orchestrator(String jsPluginVersion) {
-    var pluginLocation = MavenLocation.of(
+    var pluginLocation = MavenLocation.create(
       "org.sonarsource.javascript",
       "sonar-javascript-plugin",
-      jsPluginVersion
+      jsPluginVersion,
+      "multi"
     );
     return OrchestratorExtension
       .builderEnv()
@@ -162,7 +200,7 @@ public class SonarJsPerfBenchmark {
   }
 
   private static BuildResult runScan(String token, String projectKey) {
-    SonarScanner build = SonarScanner
+    var build = SonarScanner
       .create(Path.of("../sources/jsts/projects/", projectKey).toFile())
       .setProjectKey(projectKey)
       .setProjectName(projectKey)
@@ -181,13 +219,13 @@ public class SonarJsPerfBenchmark {
   }
 
   private static String generateDefaultAdminToken(Orchestrator orchestrator) {
-    HttpCall httpCall = orchestrator
+    var httpCall = orchestrator
       .getServer()
       .newHttpCall("api/user_tokens/generate")
       .setParam("name", UUID.randomUUID().toString())
       .setMethod(HttpMethod.POST)
       .setAdminCredentials();
-    HttpResponse response = httpCall.execute();
+    var response = httpCall.execute();
     if (response.isSuccessful()) {
       return ofNullable(Json.parse(response.getBodyAsString()).asObject().get("token"))
         .map(JsonValue::asString)
