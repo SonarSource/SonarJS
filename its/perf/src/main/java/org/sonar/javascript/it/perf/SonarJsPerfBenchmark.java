@@ -45,7 +45,10 @@ import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.config.Configuration;
 import com.sonar.orchestrator.http.HttpMethod;
 import com.sonar.orchestrator.junit5.OrchestratorExtension;
+import com.sonar.orchestrator.locator.FileLocation;
+import com.sonar.orchestrator.locator.Location;
 import com.sonar.orchestrator.locator.MavenLocation;
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
@@ -106,14 +109,20 @@ public class SonarJsPerfBenchmark {
   }
 
   public static void main(String[] args) throws Exception {
-    var baselineVersion = "LATEST_RELEASE";
-    var candidateVersion = "DEV";
-    if (args.length == 2) {
-      baselineVersion = args[0];
-      candidateVersion = args[1];
-    }
-    var baseline = runBenchmark(baselineVersion);
-    var candidate = runBenchmark(candidateVersion);
+    var baseline = runBenchmark(
+      MavenLocation.create(
+        "org.sonarsource.javascript",
+        "sonar-javascript-plugin",
+        "LATEST_RELEASE",
+        "multi"
+      )
+    );
+    var candidate = runBenchmark(
+      FileLocation.byWildcardMavenFilename(
+        new File("../../sonar-plugin/sonar-javascript-plugin/target"),
+        "sonar-javascript-plugin-*-multi.jar"
+      )
+    );
     System.out.println("\nBaseline\n==================================");
     print(baseline);
     System.out.println("\nCandidate\n==================================");
@@ -146,13 +155,14 @@ public class SonarJsPerfBenchmark {
     }
   }
 
-  private static Collection<RunResult> runBenchmark(String jsPluginVersion) throws RunnerException {
-    var orchestrator = orchestrator(jsPluginVersion);
+  private static Collection<RunResult> runBenchmark(Location pluginLocation)
+    throws RunnerException {
+    var orchestrator = orchestrator(pluginLocation);
     try {
       orchestrator.start();
       var token = generateDefaultAdminToken(orchestrator);
 
-      String resolvedJsPluginVersion = getJsPluginVersion(orchestrator).orElse(jsPluginVersion);
+      String resolvedJsPluginVersion = getJsPluginVersion(orchestrator).orElseThrow();
       System.out.println("Resolved JS plugin version " + resolvedJsPluginVersion);
       var opt = new OptionsBuilder()
         .include(SonarJsPerfBenchmark.class.getSimpleName())
@@ -183,13 +193,7 @@ public class SonarJsPerfBenchmark {
       .findFirst();
   }
 
-  private static Orchestrator orchestrator(String jsPluginVersion) {
-    var pluginLocation = MavenLocation.create(
-      "org.sonarsource.javascript",
-      "sonar-javascript-plugin",
-      jsPluginVersion,
-      "multi"
-    );
+  private static Orchestrator orchestrator(Location pluginLocation) {
     return OrchestratorExtension
       .builderEnv()
       .setSonarVersion("LATEST_RELEASE")
