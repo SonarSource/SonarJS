@@ -315,7 +315,7 @@ perf_task:
     - cd its/perf
     - mvn -B -e -V package
     - mvn exec:exec -Dexec.args="LATEST_RELEASE $BUILD_NUMBER"
-  perf_artifacts:
+  perf_result_artifacts:
     path: 'target/perf.txt'
   cleanup_before_cache_script: cleanup_maven_repository
 
