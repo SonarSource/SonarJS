@@ -56,10 +56,14 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+import org.jetbrains.annotations.NotNull;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Measurement;
@@ -91,8 +95,8 @@ public class SonarJsPerfBenchmark {
 
   @Benchmark
   @BenchmarkMode(Mode.AverageTime)
-  @Warmup(iterations = 1)
-  @Measurement(iterations = 3)
+  @Warmup(iterations = 2)
+  @Measurement(iterations = 5)
   @OutputTimeUnit(TimeUnit.SECONDS)
   public void vuetify() {
     var result = runScan(token, "vuetify");
@@ -101,8 +105,8 @@ public class SonarJsPerfBenchmark {
 
   @Benchmark
   @BenchmarkMode(Mode.AverageTime)
-  @Warmup(iterations = 1)
-  @Measurement(iterations = 3)
+  @Warmup(iterations = 2)
+  @Measurement(iterations = 5)
   @OutputTimeUnit(TimeUnit.SECONDS)
   public void vscode() {
     var result = runScan(token, "vscode");
@@ -124,9 +128,9 @@ public class SonarJsPerfBenchmark {
         "sonar-javascript-plugin-*-multi.jar"
       )
     );
-    System.out.println("\nBaseline\n==================================");
+    println("\nBaseline\n==================================");
     print(baseline);
-    System.out.println("\nCandidate\n==================================");
+    println("\nCandidate\n==================================");
     print(candidate);
     compare(baseline, candidate);
   }
@@ -140,18 +144,45 @@ public class SonarJsPerfBenchmark {
   }
 
   private static void compare(Collection<RunResult> baseline, Collection<RunResult> candidate) {
-    var baselineScore = baseline.stream().mapToDouble(r -> r.getPrimaryResult().getScore()).sum();
-    var candidateScore = candidate.stream().mapToDouble(r -> r.getPrimaryResult().getScore()).sum();
-    System.out.println("Baseline: " + baselineScore);
-    System.out.println("Candidate: " + candidateScore);
-    var delta = baselineScore - candidateScore;
-    var deltaPercent = delta / baselineScore * 100;
-    System.out.printf("Delta: %.3f (%.3f %%)%n", delta, deltaPercent);
-    if (deltaPercent > MARGIN_PERCENT) {
+    var baselineBenchs = mapByLabel(baseline);
+    var candidateBenchs = mapByLabel(candidate);
+    var b = new AtomicBoolean();
+    baselineBenchs.forEach((label, baselineScore) -> {
+      var candidateScore = candidateBenchs.get(label);
+      println("====== " + label);
+      println("Baseline: " + baselineScore);
+      println("Candidate: " + candidateScore);
+      var delta = Math.abs(baselineScore - candidateScore);
+      var deltaPercent = delta / baselineScore * 100;
+      printf("Delta: %.3f (%.3f %%)%n", delta, deltaPercent);
+      if (deltaPercent > MARGIN_PERCENT) {
+        println("Performance degradation is greater than " + MARGIN_PERCENT + "%");
+        b.set(true);
+      }
+    });
+    // if any of the benchmarks failed, fail
+    if (b.get()) {
       throw new IllegalStateException(
         "Performance degradation is greater than " + MARGIN_PERCENT + "%"
       );
     }
+  }
+
+  static void println(String s) {
+    printf("%s%n", s);
+  }
+
+  static void printf(String s, Object... args) {
+    System.out.printf(s, args);
+  }
+
+  @NotNull
+  private static Map<String, Double> mapByLabel(Collection<RunResult> baseline) {
+    return baseline
+      .stream()
+      .collect(
+        Collectors.toMap(r -> r.getPrimaryResult().getLabel(), r -> r.getPrimaryResult().getScore())
+      );
   }
 
   private static Collection<RunResult> runBenchmark(Location pluginLocation)
@@ -162,7 +193,7 @@ public class SonarJsPerfBenchmark {
       var token = generateDefaultAdminToken(orchestrator);
 
       String resolvedJsPluginVersion = getJsPluginVersion(orchestrator).orElseThrow();
-      System.out.println("Resolved JS plugin version " + resolvedJsPluginVersion);
+      println("Resolved JS plugin version " + resolvedJsPluginVersion);
       var opt = new OptionsBuilder()
         .include(SonarJsPerfBenchmark.class.getSimpleName())
         .param("token", token)
@@ -215,7 +246,7 @@ public class SonarJsPerfBenchmark {
       .setProperty("sonar.javascript.maxFileSize", "4000")
       .setProperty("sonar.cpd.exclusions", "**/*")
       .setProperty("sonar.internal.analysis.failFast", "true")
-      .setProperty("sonar.exclusions", "**/.*")
+      .setProperty("sonar.inclusions", "**/*.js,**/*.ts,**/.vue")
       .setProperty("sonar.token", token);
 
     return new BuildRunner(Configuration.createEnv()).run(null, build);
