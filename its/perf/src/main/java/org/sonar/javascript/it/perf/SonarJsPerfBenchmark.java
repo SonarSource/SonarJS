@@ -90,7 +90,7 @@ public class SonarJsPerfBenchmark {
   String pluginVersion;
 
   @Benchmark
-  @BenchmarkMode(Mode.SingleShotTime)
+  @BenchmarkMode(Mode.AverageTime)
   @Warmup(iterations = 1)
   @Measurement(iterations = 3)
   @OutputTimeUnit(TimeUnit.SECONDS)
@@ -100,7 +100,7 @@ public class SonarJsPerfBenchmark {
   }
 
   @Benchmark
-  @BenchmarkMode(Mode.SingleShotTime)
+  @BenchmarkMode(Mode.AverageTime)
   @Warmup(iterations = 1)
   @Measurement(iterations = 3)
   @OutputTimeUnit(TimeUnit.SECONDS)

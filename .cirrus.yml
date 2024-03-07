@@ -316,7 +316,7 @@ perf_task:
     - mvn -B -e -V package
     - mvn exec:exec -Dexec.args="-classpath %classpath org.sonar.javascript.it.perf.SonarJsPerfBenchmark LATEST_RELEASE $BUILD_NUMBER"
   perf_result_artifacts:
-    path: 'target/perf.txt'
+    path: 'its/perf/target/perf.txt'
   cleanup_before_cache_script: cleanup_maven_repository
 
 promote_task:
