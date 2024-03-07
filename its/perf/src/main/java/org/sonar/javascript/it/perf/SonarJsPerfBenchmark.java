@@ -30,6 +30,8 @@
  */
 package org.sonar.javascript.it.perf;
 
+import static java.nio.file.StandardOpenOption.APPEND;
+import static java.nio.file.StandardOpenOption.CREATE;
 import static java.util.Optional.ofNullable;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -53,7 +55,6 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
@@ -131,9 +132,7 @@ public class SonarJsPerfBenchmark {
   }
 
   private static void print(Collection<RunResult> result) throws IOException {
-    try (
-      var out = Files.newOutputStream(Path.of("target", "perf.txt"), StandardOpenOption.APPEND)
-    ) {
+    try (var out = Files.newOutputStream(Path.of("target", "perf.txt"), APPEND, CREATE)) {
       var writer = new PrintStream(out);
       ResultFormatFactory.getInstance(ResultFormatType.TEXT, System.out).writeOut(result);
       ResultFormatFactory.getInstance(ResultFormatType.TEXT, writer).writeOut(result);
