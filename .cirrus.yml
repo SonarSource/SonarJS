@@ -297,6 +297,7 @@ css_ruling_task:
       path: '**/target/actual/**/*'
 
 perf_task:
+  timeout_in: 120m
   depends_on:
     - build
   <<: *ONLY_SONARSOURCE_QA
