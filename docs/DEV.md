@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-- [JDK 11](https://docs.aws.amazon.com/corretto/latest/corretto-11-ug/what-is-corretto-11.html)
+- [JDK 17](https://docs.aws.amazon.com/corretto/latest/corretto-17-ug/what-is-corretto-17.html)
 - [Maven](https://maven.apache.org/install.html)
 - Node.js (we recommend using [NVM](https://github.com/nvm-sh/nvm#installing-and-updating))
 
