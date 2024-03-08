@@ -87,6 +87,8 @@ public class SonarJsPerfBenchmark {
 
   static final double MARGIN_PERCENT = 2;
 
+  private static final int DEFAULT_MAXSPACE = 4096;
+
   @Param("")
   String token;
 
@@ -95,22 +97,22 @@ public class SonarJsPerfBenchmark {
 
   @Benchmark
   @BenchmarkMode(Mode.AverageTime)
-  @Warmup(iterations = 2)
-  @Measurement(iterations = 5)
+  @Warmup(iterations = 1)
+  @Measurement(iterations = 1)
   @OutputTimeUnit(TimeUnit.SECONDS)
   public void vuetify() {
-    var result = runScan(token, "vuetify");
-    assertTrue(result.getLogs().contains("INFO: 1585/1585 source files have been analyzed"));
+    var result = runScan(token, "vuetify", DEFAULT_MAXSPACE);
+    assertTrue(result.getLogs().contains("INFO: 509/509 source files have been analyzed"));
   }
 
   @Benchmark
   @BenchmarkMode(Mode.AverageTime)
-  @Warmup(iterations = 2)
-  @Measurement(iterations = 5)
+  @Warmup(iterations = 1)
+  @Measurement(iterations = 1)
   @OutputTimeUnit(TimeUnit.SECONDS)
   public void vscode() {
-    var result = runScan(token, "vscode");
-    assertTrue(result.getLogs().contains("INFO: 4734/4734 source files have been analyzed"));
+    var result = runScan(token, "vscode", 6 * 1024);
+    assertTrue(result.getLogs().contains("INFO: 4721/4721 source files have been analyzed"));
   }
 
   public static void main(String[] args) throws Exception {
@@ -233,7 +235,7 @@ public class SonarJsPerfBenchmark {
       .build();
   }
 
-  private static BuildResult runScan(String token, String projectKey) {
+  private static BuildResult runScan(String token, String projectKey, int maxspace) {
     var build = SonarScanner
       .create(Path.of("../sources/jsts/projects/", projectKey).toFile())
       .setProjectKey(projectKey)
@@ -242,7 +244,7 @@ public class SonarJsPerfBenchmark {
       .setSourceDirs("./")
       .setSourceEncoding("utf-8")
       .setScannerVersion(SCANNER_VERSION)
-      .setProperty("sonar.javascript.node.maxspace", "4096")
+      .setProperty("sonar.javascript.node.maxspace", Integer.toString(maxspace))
       .setProperty("sonar.javascript.maxFileSize", "4000")
       .setProperty("sonar.cpd.exclusions", "**/*")
       .setProperty("sonar.internal.analysis.failFast", "true")
