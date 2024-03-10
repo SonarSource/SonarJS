@@ -120,10 +120,14 @@ ruleTester.run('Using clear-text protocols is security-sensitive', rule, {
     },
     {
       code: `
+      url = "http://example.example";
+      url = "http://subdomain.example.example";
       url = "http://example.com";
       url = "http://someSubdomain.example.com";
       url = "http://example.org";
       url = "http://someSubdomain.example.org";
+      url = "http://example.test";
+      url = "http://subdomain.example.test";
       url = "http://test.com";
       url = "http://someSubdomain.test.com";
       `,
