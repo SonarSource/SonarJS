@@ -97,8 +97,8 @@ public class SonarJsPerfBenchmark {
 
   @Benchmark
   @BenchmarkMode(Mode.AverageTime)
-  @Warmup(iterations = 1)
-  @Measurement(iterations = 1)
+  @Warmup(iterations = 2)
+  @Measurement(iterations = 3)
   @OutputTimeUnit(TimeUnit.SECONDS)
   public void vuetify() {
     var result = runScan(token, "vuetify", DEFAULT_MAXSPACE);
@@ -107,8 +107,8 @@ public class SonarJsPerfBenchmark {
 
   @Benchmark
   @BenchmarkMode(Mode.AverageTime)
-  @Warmup(iterations = 1)
-  @Measurement(iterations = 1)
+  @Warmup(iterations = 2)
+  @Measurement(iterations = 3)
   @OutputTimeUnit(TimeUnit.SECONDS)
   public void vscode() {
     var result = runScan(token, "vscode", 6 * 1024);
