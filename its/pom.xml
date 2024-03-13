@@ -13,6 +13,7 @@
   <packaging>pom</packaging>
 
   <modules>
+    <module>perf</module>
     <module>plugin</module>
     <module>ruling</module>
   </modules>
