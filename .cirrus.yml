@@ -320,6 +320,13 @@ perf_task:
     path: 'its/perf/target/perf.txt'
   cleanup_before_cache_script: cleanup_maven_repository
 
+fossa_task:
+  env:
+    FOSSA_API_KEY: ENCRYPTED[b9f0d7e70bbcb7f73fab158fddd13f6f26ac2cf9601e91d3341065398302cf32eef2ea4cb458e6a035672233281b7f93]
+  analyze_script:
+    - curl -H 'Cache-Control: no-cache' https://raw.githubusercontent.com/fossas/fossa-cli/master/install-latest.sh | bash
+    - fossa analyze
+
 promote_task:
   depends_on:
     - ws_scan
