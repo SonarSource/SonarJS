@@ -175,7 +175,7 @@ class SonarLintTest {
     fileName = "file.vue";
     content = Files.readString(TestUtils.projectDir("js-sonarlint-project").resolve(fileName));
     issues = analyze(fileName, content);
-    assertThat(issues).extracting(Issue::getRuleKey).contains("javascript:S2870");
+    assertThat(issues).extracting(Issue::getRuleKey).contains("javascript:S3504");
   }
 
   @Test
