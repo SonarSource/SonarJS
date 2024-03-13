@@ -77,8 +77,6 @@ public class AnalysisWithWatchProgram extends AbstractAnalysis {
             LOG.info("Analyzing {} files using tsconfig: {}", files.size(), tsConfigFile);
             analyzeTsConfig(tsConfigFile, files);
           }
-          // Clear Watch Program Cache. Useful only for SonarQube with Vue files. To be removed when only in SonarLint. Test Out of memory
-          bridgeServer.newTsConfig();
         }
       }
       success = true;

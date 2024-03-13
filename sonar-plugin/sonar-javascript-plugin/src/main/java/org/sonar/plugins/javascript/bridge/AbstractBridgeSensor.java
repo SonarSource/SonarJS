@@ -114,11 +114,6 @@ public abstract class AbstractBridgeSensor implements Sensor {
       LOG.debug("Will use AnalysisWithWatchProgram because we are in SonarLint context");
       return false;
     }
-    var vueFile = inputFiles.stream().filter(f -> f.filename().endsWith(".vue")).findAny();
-    if (vueFile.isPresent()) {
-      LOG.debug("Will use AnalysisWithWatchProgram because we have vue file");
-      return false;
-    }
     LOG.debug("Will use AnalysisWithProgram");
     return true;
   }

@@ -178,7 +178,7 @@ public class AnalysisWithProgram extends AbstractAnalysis {
           file
         );
       } catch (IOException e) {
-        LOG.error("Failed to get response while analyzing " + file, e);
+        LOG.error("Failed to get response while analyzing " + file.uri(), e);
         throw e;
       }
     } else {

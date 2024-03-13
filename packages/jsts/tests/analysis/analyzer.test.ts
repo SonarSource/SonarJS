@@ -123,7 +123,7 @@ describe('analyzeJSTS', () => {
     );
   });
 
-  it('should analyze Vue.js code with type checks', async () => {
+  it('Vue.js analysis does not support type checking', async () => {
     const rules = [
       { key: 'strings-comparison', configurations: [], fileTypeTarget: ['MAIN'] },
     ] as RuleConfig[];
@@ -133,14 +133,11 @@ describe('analyzeJSTS', () => {
     const tsConfigs = [path.join(__dirname, 'fixtures', 'vue_ts', 'tsconfig.json')];
     const language = 'ts';
 
-    const {
-      issues: [issue1],
-    } = analyzeJSTS(await jsTsInput({ filePath, tsConfigs }), language) as JsTsAnalysisOutput;
-    expect(issue1).toEqual(
-      expect.objectContaining({
-        ruleId: 'strings-comparison',
-      }),
-    );
+    const { issues } = analyzeJSTS(
+      await jsTsInput({ filePath, tsConfigs }),
+      language,
+    ) as JsTsAnalysisOutput;
+    expect(issues).toHaveLength(0);
   });
 
   it('should analyze main files', async () => {

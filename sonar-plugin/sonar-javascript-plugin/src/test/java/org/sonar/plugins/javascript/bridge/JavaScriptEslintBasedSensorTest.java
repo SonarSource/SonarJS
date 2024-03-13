@@ -468,7 +468,7 @@ class JavaScriptEslintBasedSensorTest {
       .hasMessage("Analysis of JS/TS files failed");
 
     assertThat(logTester.logs(LoggerLevel.ERROR))
-      .contains("Failed to get response while analyzing " + inputFile);
+      .contains("Failed to get response while analyzing " + inputFile.uri());
     assertThat(context.allIssues()).isEmpty();
   }
 
