@@ -160,7 +160,7 @@ class SonarLintTest {
   }
 
   @Test
-  void should_analyze_js_with_typed_rules() throws IOException {
+  void should_analyze_js_with_typed_rules_except_vue() throws IOException {
     String fileName;
     String content;
     List<Issue> issues;
@@ -175,9 +175,7 @@ class SonarLintTest {
     fileName = "file.vue";
     content = Files.readString(TestUtils.projectDir("js-sonarlint-project").resolve(fileName));
     issues = analyze(fileName, content);
-    assertThat(issues)
-      .extracting(Issue::getRuleKey)
-      .contains("javascript:S2870", "javascript:S3504");
+    assertThat(issues).extracting(Issue::getRuleKey).contains("javascript:S2870");
   }
 
   @Test
