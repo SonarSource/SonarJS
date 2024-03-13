@@ -210,6 +210,11 @@ ruling_task:
       path: "**/target/actual/**/*"
 
 fossa_task:
+  eks_container:
+    <<: *CONTAINER_DEFINITION
+    image: ${CIRRUS_AWS_ACCOUNT}.dkr.ecr.eu-central-1.amazonaws.com/base:j17-latest
+    cpu: 4
+    memory: 8G
   env:
     FOSSA_API_KEY: ENCRYPTED[b9f0d7e70bbcb7f73fab158fddd13f6f26ac2cf9601e91d3341065398302cf32eef2ea4cb458e6a035672233281b7f93]
   analyze_script:
