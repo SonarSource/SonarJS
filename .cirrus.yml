@@ -333,7 +333,7 @@ fossa_task:
     - wget https://github.com/fossas/fossa-cli/releases/download/v3.9.8/fossa_3.9.8_linux_amd64.zip.sha256
     - sha256sum --binary fossa_3.9.8_linux_amd64.zip
     - unzip fossa_3.9.8_linux_amd64.zip
-    - fossa analyze
+    - ./fossa analyze
 
 promote_task:
   depends_on:
