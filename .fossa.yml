@@ -1,6 +1,12 @@
 version: 3
 
+project:
+  id: SonarSource/SonarJS
+  name: SonarJS
+  url: https://github.com/SonarSource/SonarJS
+
 paths:
   exclude:
     - ./its/sources
+    - ./its/plugin/projects
     - ./**/fixtures
