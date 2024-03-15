@@ -48,7 +48,13 @@ const EXCEPTION_FULL_HOSTS = [
   'graphml.graphdrawing.org',
   'json-schema.org',
 ];
-const EXCEPTION_TOP_HOSTS = [/(.*\.)?example\.com$/, /(.*\.)?example\.org$/, /(.*\.)?test\.com$/];
+const EXCEPTION_TOP_HOSTS = [
+  /\.example$/,
+  /\.?example\.com$/,
+  /\.?example\.org$/,
+  /\.test$/,
+  /\.?test\.com$/,
+];
 
 export const rule: Rule.RuleModule = {
   meta: {
