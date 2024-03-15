@@ -6,7 +6,7 @@ project:
   url: https://github.com/SonarSource/SonarJS
   releaseGroup:
     name: SonarQube
-    release: 9.9
+    release: '9.9'
 
 
 paths:
