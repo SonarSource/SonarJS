@@ -4,6 +4,10 @@ project:
   id: SonarSource/SonarJS
   name: SonarJS
   url: https://github.com/SonarSource/SonarJS
+  releaseGroup:
+    name: SonarQube
+    release: 9.9
+
 
 paths:
   exclude:
