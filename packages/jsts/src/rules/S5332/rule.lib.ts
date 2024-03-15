@@ -50,10 +50,10 @@ const EXCEPTION_FULL_HOSTS = [
 ];
 const EXCEPTION_TOP_HOSTS = [
   /\.example$/,
-  /([^.]+\.)?example\.com$/,
-  /([^.]+\.)?example\.org$/,
+  /\.?example\.com$/,
+  /\.?example\.org$/,
   /\.test$/,
-  /([^.]+\.)?test\.com$/,
+  /\.?test\.com$/,
 ];
 
 export const rule: Rule.RuleModule = {
