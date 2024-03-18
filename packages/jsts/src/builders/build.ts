@@ -44,7 +44,7 @@ export function buildSourceCode(input: JsTsAnalysisInput, language: JsTsLanguage
       parser: vueFile ? parsers.typescript.parser : undefined,
     };
     const parser = vueFile ? parsers.vuejs : parsers.typescript;
-    if (getContext()?.sonarlint || !vueFile) {
+    if (!vueFile) {
       options.programs = input.programId && [getProgramById(input.programId)];
       options.project = input.tsConfigs;
     }

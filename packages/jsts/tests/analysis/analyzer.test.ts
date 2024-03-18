@@ -123,33 +123,7 @@ describe('analyzeJSTS', () => {
     );
   });
 
-  it('should analyze Vue.js code with type checks in SL', async () => {
-    setContext({
-      workDir: '/tmp/dir',
-      shouldUseTypeScriptParserForJS: true,
-      sonarlint: true,
-      bundles: [],
-    });
-
-    const rules = [
-      { key: 'strings-comparison', configurations: [], fileTypeTarget: ['MAIN'] },
-    ] as RuleConfig[];
-    initializeLinter(rules);
-    const filePath = path.join(__dirname, 'fixtures', 'vue_ts', 'file.vue');
-    const tsConfigs = [path.join(__dirname, 'fixtures', 'vue_ts', 'tsconfig.json')];
-    const language = 'ts';
-
-    const {
-      issues: [issue1],
-    } = analyzeJSTS(await jsTsInput({ filePath, tsConfigs }), language) as JsTsAnalysisOutput;
-    expect(issue1).toEqual(
-      expect.objectContaining({
-        ruleId: 'strings-comparison',
-      }),
-    );
-  });
-
-  it('should not analyze Vue.js with type checks in SQ/SC', async () => {
+  it('should not analyze Vue.js with type checks in SQ/SC nor SL', async () => {
     const rules = [
       { key: 'strings-comparison', configurations: [], fileTypeTarget: ['MAIN'] },
     ] as RuleConfig[];
@@ -164,6 +138,18 @@ describe('analyzeJSTS', () => {
       language,
     ) as JsTsAnalysisOutput;
     expect(issues).toHaveLength(0);
+    setContext({
+      workDir: '/tmp/dir',
+      shouldUseTypeScriptParserForJS: true,
+      sonarlint: true,
+      bundles: [],
+    });
+
+    const { issues: issues_sl } = analyzeJSTS(
+      await jsTsInput({ filePath, tsConfigs }),
+      language,
+    ) as JsTsAnalysisOutput;
+    expect(issues_sl).toHaveLength(0);
   });
 
   it('should analyze main files', async () => {
