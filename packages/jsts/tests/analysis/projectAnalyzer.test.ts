@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import path from 'path';
-import { File, searchFiles, setContext, toUnixPath } from '@sonar/shared';
+import { File, getContext, searchFiles, setContext, toUnixPath } from '@sonar/shared';
 import { analyzeProject, clearTSConfigs, ProjectAnalysisInput, RuleConfig } from '@sonar/jsts';
 
 const defaultRules: RuleConfig[] = [
@@ -61,6 +61,7 @@ function prepareInput(files: Record<string, File<void>[]>): ProjectAnalysisInput
     rules: defaultRules,
     baseDir: fixtures,
     files: filesDBtoFilesInput(files),
+    isSonarlint: getContext().sonarlint,
   };
 }
 
@@ -92,6 +93,12 @@ describe('analyzeProject', () => {
   });
 
   it('should analyze the whole project with watch program', async () => {
+    setContext({
+      workDir: '/tmp/dir',
+      shouldUseTypeScriptParserForJS: true,
+      sonarlint: true,
+      bundles: [],
+    });
     const { files } = searchFiles(fixtures, { files: { pattern: '*.js,*.ts,*.vue' } }, []);
     const result = await analyzeProject(prepareInput(files as Record<string, File<void>[]>));
     expect(result).toBeDefined();
