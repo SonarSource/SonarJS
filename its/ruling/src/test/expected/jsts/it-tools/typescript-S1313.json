@@ -1,0 +1,50 @@
+{
+"it-tools:src/tools/ipv4-address-converter/ipv4-address-converter.service.test.ts": [
+7,
+8,
+15,
+16
+],
+"it-tools:src/tools/ipv4-address-converter/ipv4-address-converter.vue": [
+6
+],
+"it-tools:src/tools/ipv4-range-expander/ipv4-range-expander.e2e.spec.ts": [
+13,
+14,
+16,
+17,
+18,
+19,
+23,
+27,
+28,
+30,
+31,
+32,
+33,
+37,
+41,
+42
+],
+"it-tools:src/tools/ipv4-range-expander/ipv4-range-expander.service.test.ts": [
+7,
+7,
+12,
+13,
+14,
+18,
+18,
+23,
+24,
+25,
+29,
+29
+],
+"it-tools:src/tools/ipv4-range-expander/ipv4-range-expander.vue": [
+9,
+10
+],
+"it-tools:src/tools/ipv4-subnet-calculator/ipv4-subnet-calculator.vue": [
+10
+]
+}

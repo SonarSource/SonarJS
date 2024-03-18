@@ -1,0 +1,20 @@
+{
+"it-tools:src/tools/benchmark-builder/benchmark-builder.vue": [
+41
+],
+"it-tools:src/tools/camera-recorder/camera-recorder.vue": [
+54
+],
+"it-tools:src/tools/color-converter/color-converter.models.ts": [
+28
+],
+"it-tools:src/tools/date-time-converter/date-time-converter.vue": [
+37,
+55,
+61,
+79
+],
+"it-tools:src/tools/qr-code-generator/qr-code-generator.vue": [
+13
+]
+}

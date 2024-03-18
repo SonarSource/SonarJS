@@ -1,0 +1,23 @@
+{
+"it-tools:src/components/TextareaCopyable.vue": [
+17
+],
+"it-tools:src/tools/pdf-signature-checker/pdf-signature-checker.vue": [
+7
+],
+"it-tools:src/ui/c-button/c-button.vue": [
+8
+],
+"it-tools:src/ui/c-input-text/c-input-text.vue": [
+23
+],
+"it-tools:src/ui/c-key-value-list/c-key-value-list.types.ts": [
+3
+],
+"it-tools:src/ui/c-tooltip/c-tooltip.vue": [
+2
+],
+"it-tools:src/utils/array.ts": [
+3
+]
+}

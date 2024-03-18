@@ -1,0 +1,28 @@
+{
+"it-tools:src/tools/color-converter/color-converter.models.ts": [
+8
+],
+"it-tools:src/tools/date-time-converter/date-time-converter.models.ts": [
+18,
+20,
+23,
+25,
+27
+],
+"it-tools:src/tools/phone-parser-and-formatter/phone-parser-and-formatter.vue": [
+19
+],
+"it-tools:src/tools/roman-numeral-converter/roman-numeral-converter.service.ts": [
+33
+],
+"it-tools:src/tools/token-generator/token-generator.service.test.ts": [
+82
+],
+"it-tools:src/tools/uuid-generator/uuid-generator.vue": [
+21
+],
+"it-tools:src/utils/macAddress.ts": [
+7,
+21
+]
+}

@@ -135,6 +135,7 @@ class JsTsRulingTest {
       jsTsProject("searchkit"), // todo
       jsTsProject("TypeScript", "src/harness/unittests"),
       jsTsProject("vuetify"),
+      jsTsProject("it-tools"),
       jsTsProject("yaml", "../sources/yaml", "", ""),
       jsTsProject("file-for-rules", "../sources/jsts/custom", "", "tests")
     );

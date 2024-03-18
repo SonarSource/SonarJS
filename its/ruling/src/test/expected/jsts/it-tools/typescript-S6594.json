@@ -1,0 +1,15 @@
+{
+"it-tools:src/composable/downloadBase64.ts": [
+16
+],
+"it-tools:src/tools/mac-address-generator/mac-adress-generator.models.ts": [
+6
+],
+"it-tools:src/tools/safelink-decoder/safelink-decoder.service.ts": [
+2
+],
+"it-tools:src/utils/macAddress.ts": [
+7,
+21
+]
+}

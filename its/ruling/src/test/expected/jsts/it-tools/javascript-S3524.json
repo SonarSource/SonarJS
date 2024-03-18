@@ -1,0 +1,9 @@
+{
+"it-tools:scripts/create-tool.mjs": [
+15,
+100
+],
+"it-tools:scripts/shared/commits.mjs": [
+20
+]
+}

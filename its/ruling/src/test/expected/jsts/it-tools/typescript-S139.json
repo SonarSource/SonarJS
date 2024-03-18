@@ -1,0 +1,14 @@
+{
+"it-tools:src/tools/otp-code-generator-and-validator/otp-code-generator.e2e.spec.ts": [
+6
+],
+"it-tools:src/tools/otp-code-generator-and-validator/otp.service.ts": [
+29
+],
+"it-tools:src/tools/tools.store.ts": [
+36
+],
+"it-tools:src/tools/wifi-qr-code-generator/useQRCode.ts": [
+71
+]
+}

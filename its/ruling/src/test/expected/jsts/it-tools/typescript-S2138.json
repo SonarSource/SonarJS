@@ -1,0 +1,66 @@
+{
+"it-tools:src/composable/computed/catchedComputed.ts": [
+12
+],
+"it-tools:src/composable/downloadBase64.test.ts": [
+29
+],
+"it-tools:src/composable/downloadBase64.ts": [
+28
+],
+"it-tools:src/composable/validation.ts": [
+48,
+51,
+60
+],
+"it-tools:src/tools/json-diff/json-diff.models.test.ts": [
+33,
+70
+],
+"it-tools:src/tools/json-to-csv/json-to-csv.service.test.ts": [
+56
+],
+"it-tools:src/ui/c-alert/c-alert.vue": [
+4
+],
+"it-tools:src/ui/c-button/c-button.vue": [
+23,
+24
+],
+"it-tools:src/ui/c-buttons-select/c-buttons-select.vue": [
+14
+],
+"it-tools:src/ui/c-file-upload/c-file-upload.vue": [
+10
+],
+"it-tools:src/ui/c-input-text/c-input-text.vue": [
+39,
+43,
+44,
+49,
+50,
+51,
+52,
+53
+],
+"it-tools:src/ui/c-label/c-label.vue": [
+5,
+5
+],
+"it-tools:src/ui/c-modal-value/c-modal-value.vue": [
+4
+],
+"it-tools:src/ui/c-select/c-select.vue": [
+19,
+20
+],
+"it-tools:src/ui/c-table/c-table.vue": [
+5
+],
+"it-tools:src/ui/c-text-copyable/c-text-copyable.vue": [
+4
+],
+"it-tools:src/ui/c-tooltip/c-tooltip.vue": [
+3
+]
+}

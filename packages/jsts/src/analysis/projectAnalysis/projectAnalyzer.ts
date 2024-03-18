@@ -62,7 +62,7 @@ export async function analyzeProject(input: ProjectAnalysisInput): Promise<Proje
     return results;
   }
   const pendingFiles: Set<string> = new Set(inputFilenames);
-  const watchProgram = input.isSonarlint || hasVueFile(inputFilenames);
+  const watchProgram = input.isSonarlint;
   initializeLinter(rules, environments, globals);
   loadTSConfigAndPackageJsonFiles(baseDir, exclusions);
   const tsConfigs = getTSConfigsIterator(
@@ -81,10 +81,6 @@ export async function analyzeProject(input: ProjectAnalysisInput): Promise<Proje
 
   await analyzeWithoutProgram(pendingFiles, input.files, results);
   return results;
-}
-
-function hasVueFile(files: string[]) {
-  return files.some(file => file.toLowerCase().endsWith('.vue'));
 }
 
 /**

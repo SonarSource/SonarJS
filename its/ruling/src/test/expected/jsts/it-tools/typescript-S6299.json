@@ -1,0 +1,18 @@
+{
+"it-tools:src/layouts/base.layout.vue": [
+66,
+76
+],
+"it-tools:src/tools/otp-code-generator-and-validator/otp-code-generator-and-validator.vue": [
+82
+],
+"it-tools:src/ui/c-button/c-button.vue": [
+57
+],
+"it-tools:src/ui/c-link/c-link.vue": [
+25
+],
+"it-tools:src/ui/c-markdown/c-markdown.vue": [
+20
+]
+}
