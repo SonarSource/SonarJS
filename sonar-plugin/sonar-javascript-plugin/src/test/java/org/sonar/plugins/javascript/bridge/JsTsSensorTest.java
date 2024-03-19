@@ -286,7 +286,7 @@ class JsTsSensorTest {
     assertThat(issue.primaryLocation().textRange().start().line()).isEqualTo(3);
     assertThat(issue.primaryLocation().message()).isEqualTo("Parse error message");
     assertThat(context.allAnalysisErrors()).hasSize(1);
-    assertThat(logTester.logs(LoggerLevel.ERROR))
+    assertThat(logTester.logs(LoggerLevel.WARN))
       .contains("Failed to parse file [dir/file.ts] at line 3: Parse error message");
   }
 

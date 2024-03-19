@@ -216,7 +216,7 @@ class HtmlSensorTest {
     assertThat(issue.primaryLocation().textRange().start().line()).isEqualTo(1);
     assertThat(issue.primaryLocation().message()).isEqualTo("Parse error message");
     assertThat(context.allAnalysisErrors()).hasSize(1);
-    assertThat(logTester.logs(LoggerLevel.ERROR))
+    assertThat(logTester.logs(LoggerLevel.WARN))
       .contains("Failed to parse file [dir/file.html] at line 1: Parse error message");
   }
 

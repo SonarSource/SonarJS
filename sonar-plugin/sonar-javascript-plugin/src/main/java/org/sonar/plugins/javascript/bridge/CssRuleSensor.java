@@ -158,9 +158,9 @@ public class CssRuleSensor extends AbstractBridgeSensor {
       if (ruleKey == null) {
         if ("CssSyntaxError".equals(issue.ruleId)) {
           String errorMessage = issue.message.replace("(CssSyntaxError)", "").trim();
-          logErrorOrDebug(
+          logWarningOrDebug(
             inputFile,
-            "Failed to parse {}, line {}, {}",
+            "Failed to parse file {}, line {}, {}",
             inputFile.uri(),
             issue.line,
             errorMessage
@@ -187,6 +187,14 @@ public class CssRuleSensor extends AbstractBridgeSensor {
   private static void logErrorOrDebug(InputFile file, String msg, Object... arguments) {
     if (CssLanguage.KEY.equals(file.language())) {
       LOG.error(msg, arguments);
+    } else {
+      LOG.debug(msg, arguments);
+    }
+  }
+
+  private static void logWarningOrDebug(InputFile file, String msg, Object... arguments) {
+    if (CssLanguage.KEY.equals(file.language())) {
+      LOG.warn(msg, arguments);
     } else {
       LOG.debug(msg, arguments);
     }

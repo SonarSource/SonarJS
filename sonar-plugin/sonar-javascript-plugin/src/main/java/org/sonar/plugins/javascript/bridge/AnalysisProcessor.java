@@ -145,7 +145,7 @@ public class AnalysisProcessor {
     String message = parsingError.message;
 
     if (line != null) {
-      LOG.error("Failed to parse file [{}] at line {}: {}", file, line, message);
+      LOG.warn("Failed to parse file [{}] at line {}: {}", file, line, message);
     } else if (parsingError.code == BridgeServer.ParsingErrorCode.FAILING_TYPESCRIPT) {
       LOG.error("Failed to analyze file [{}] from TypeScript: {}", file, message);
     } else {

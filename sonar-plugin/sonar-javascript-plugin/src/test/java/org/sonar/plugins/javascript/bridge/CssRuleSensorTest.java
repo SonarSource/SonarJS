@@ -322,10 +322,10 @@ class CssRuleSensorTest {
     InputFile inputFileNotCss = addInputFile("syntax-error.html");
     sensor.execute(context);
     assertThat(context.allIssues()).isEmpty();
-    assertThat(logTester.logs(LoggerLevel.ERROR))
-      .contains("Failed to parse " + inputFile.uri() + ", line 2, Missed semicolon");
+    assertThat(logTester.logs(LoggerLevel.WARN))
+      .contains("Failed to parse file " + inputFile.uri() + ", line 2, Missed semicolon");
     assertThat(logTester.logs(LoggerLevel.DEBUG))
-      .contains("Failed to parse " + inputFileNotCss.uri() + ", line 2, Missed semicolon");
+      .contains("Failed to parse file " + inputFileNotCss.uri() + ", line 2, Missed semicolon");
   }
 
   @Test
