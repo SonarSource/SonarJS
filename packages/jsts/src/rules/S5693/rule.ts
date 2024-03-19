@@ -115,8 +115,8 @@ function checkFormidable(context: Rule.RuleContext, callExpression: estree.CallE
   }
 
   const options = getValueOfExpression(context, callExpression.arguments[0], 'ObjectExpression');
-  const property = getProperty(options, MAX_FILE_SIZE, context);
-  if (property) {
+  if (options) {
+    const property = getProperty(options, MAX_FILE_SIZE, context);
     checkSize(context, callExpression, property, FORMIDABLE_DEFAULT_SIZE);
   }
 }
