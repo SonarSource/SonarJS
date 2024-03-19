@@ -160,7 +160,8 @@ public class CssRuleSensor extends AbstractBridgeSensor {
           String errorMessage = issue.message.replace("(CssSyntaxError)", "").trim();
           logErrorOrDebug(
             inputFile,
-            "Failed to parse {}, line {}, {}",
+            "Failed to parse file {}, line {}, {}",
+            true,
             inputFile.uri(),
             issue.line,
             errorMessage
@@ -168,7 +169,8 @@ public class CssRuleSensor extends AbstractBridgeSensor {
         } else {
           logErrorOrDebug(
             inputFile,
-            "Unknown stylelint rule or rule not enabled: '" + issue.ruleId + "'"
+            "Unknown stylelint rule or rule not enabled: '" + issue.ruleId + "'",
+            false
           );
         }
       } else {
@@ -184,9 +186,18 @@ public class CssRuleSensor extends AbstractBridgeSensor {
     }
   }
 
-  private static void logErrorOrDebug(InputFile file, String msg, Object... arguments) {
+  private static void logErrorOrDebug(
+    InputFile file,
+    String msg,
+    boolean logErrorAsWarning,
+    Object... arguments
+  ) {
     if (CssLanguage.KEY.equals(file.language())) {
-      LOG.error(msg, arguments);
+      if (logErrorAsWarning) {
+        LOG.warn(msg, arguments);
+      } else {
+        LOG.error(msg, arguments);
+      }
     } else {
       LOG.debug(msg, arguments);
     }
