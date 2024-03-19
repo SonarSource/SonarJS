@@ -69,10 +69,10 @@ class CssIssuesTest {
   void parsing_error_not_on_excluded_files() {
     assertThat(buildResult.getLogs())
       .doesNotMatch(
-        "(?s).*ERROR: Failed to parse file:\\S*file-with-parsing-error-excluded\\.css.*"
+        "(?s).*ERROR: Failed to parse file file:\\S*file-with-parsing-error-excluded\\.css.*"
       )
       .matches(
-        "(?s).*ERROR: Failed to parse file:\\S*file-with-parsing-error\\.css, line 1, Unclosed block.*"
+        "(?s).*ERROR: Failed to parse file file:\\S*file-with-parsing-error\\.css, line 1, Unclosed block.*"
       );
   }
 
