@@ -21,11 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import {
-  getObjectExpressionProperty,
-  getValueOfExpression,
-  getFullyQualifiedName,
-} from '../helpers';
+import { getProperty, getValueOfExpression, getFullyQualifiedName } from '../helpers';
 
 const SECURE_PROTOCOL_ALLOWED_VALUES = [
   'TLSv1_2_method',
@@ -51,7 +47,8 @@ export const rule: Rule.RuleModule = {
       objectExpression: estree.ObjectExpression | undefined,
       propertyName: string,
     ) {
-      const unsafeProperty = getObjectExpressionProperty(objectExpression, propertyName);
+      const unsafeProperty =
+        objectExpression && getProperty(objectExpression, propertyName, context);
       if (unsafeProperty) {
         return getValueOfExpression(context, unsafeProperty.value, 'Literal');
       }
@@ -89,7 +86,7 @@ export const rule: Rule.RuleModule = {
         });
       }
 
-      const secureOptions = getObjectExpressionProperty(options, 'secureOptions');
+      const secureOptions = getProperty(options, 'secureOptions', context);
       if (secureOptions && !isValidSecureOptions(secureOptions.value)) {
         context.report({
           node: secureOptions,

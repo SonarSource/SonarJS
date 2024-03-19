@@ -23,9 +23,9 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import {
   getUniqueWriteUsage,
-  getObjectExpressionProperty,
   toEncodedMessage,
   getFullyQualifiedName,
+  getProperty,
 } from '../helpers';
 import { TSESTree } from '@typescript-eslint/utils';
 import { SONAR_RUNTIME } from '../../linter/parameters';
@@ -63,13 +63,13 @@ export const rule: Rule.RuleModule = {
             return;
           }
           const [arg] = call.arguments;
-          let sensitiveCorsProperty = getSensitiveCorsProperty(arg);
+          let sensitiveCorsProperty = getSensitiveCorsProperty(arg, context);
           if (sensitiveCorsProperty) {
             report(sensitiveCorsProperty);
           }
           if (arg?.type === 'Identifier') {
             const usage = getUniqueWriteUsage(context, arg.name);
-            sensitiveCorsProperty = getSensitiveCorsProperty(usage);
+            sensitiveCorsProperty = getSensitiveCorsProperty(usage, context);
             if (sensitiveCorsProperty) {
               report(sensitiveCorsProperty, arg);
             }
@@ -82,7 +82,7 @@ export const rule: Rule.RuleModule = {
       },
 
       ObjectExpression(node: estree.Node) {
-        const objProperty = getObjectExpressionProperty(node, CORS_HEADER);
+        const objProperty = getProperty(node, CORS_HEADER, context);
         if (objProperty && isAnyDomain(objProperty.value)) {
           report(objProperty);
         }
@@ -103,8 +103,9 @@ function isAnyDomain(node: estree.Node) {
 
 function getSensitiveCorsProperty(
   node: estree.Node | undefined | null,
+  context: Rule.RuleContext,
 ): estree.Property | undefined {
-  const originProperty = getObjectExpressionProperty(node, 'origin');
+  const originProperty = getProperty(node, 'origin', context);
   if (originProperty && isAnyDomain(originProperty.value)) {
     return originProperty;
   }

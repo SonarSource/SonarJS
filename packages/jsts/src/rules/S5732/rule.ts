@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { Express, getFullyQualifiedName, getObjectExpressionProperty } from '../helpers';
+import { Express, getFullyQualifiedName, getProperty } from '../helpers';
 
 const HELMET = 'helmet';
 const HELMET_CSP = 'helmet-csp';
@@ -43,9 +43,9 @@ function findDirectivesWithSensitiveFrameAncestorsPropertyFromHelmet(
   const { arguments: args } = node;
   if (isValidHelmetModuleCall(context, node) && args.length === 1) {
     const [options] = args;
-    const maybeDirectives = getObjectExpressionProperty(options, DIRECTIVES);
+    const maybeDirectives = getProperty(options, DIRECTIVES, context);
     if (maybeDirectives) {
-      const maybeFrameAncestors = getFrameAncestorsProperty(maybeDirectives);
+      const maybeFrameAncestors = getFrameAncestorsProperty(maybeDirectives, context);
       if (!maybeFrameAncestors) {
         return [maybeDirectives];
       }
@@ -75,10 +75,13 @@ function isSetNoneFrameAncestorsProperty(frameAncestors: estree.Property): boole
   );
 }
 
-function getFrameAncestorsProperty(directives: estree.Property): estree.Property | undefined {
+function getFrameAncestorsProperty(
+  directives: estree.Property,
+  context: Rule.RuleContext,
+): estree.Property | undefined {
   const propertyKeys = [FRAME_ANCESTORS_CAMEL, FRAME_ANCESTORS_HYPHEN];
   for (const propertyKey of propertyKeys) {
-    const maybeProperty = getObjectExpressionProperty(directives.value, propertyKey);
+    const maybeProperty = getProperty(directives.value, propertyKey, context);
     if (maybeProperty) {
       return maybeProperty;
     }

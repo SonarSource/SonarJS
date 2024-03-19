@@ -26,8 +26,8 @@ import { parse } from 'bytes';
 import {
   getLhsVariable,
   getValueOfExpression,
-  getObjectExpressionProperty,
   getFullyQualifiedName,
+  getProperty,
 } from '../helpers';
 
 const FORMIDABLE_MODULE = 'formidable';
@@ -115,8 +115,8 @@ function checkFormidable(context: Rule.RuleContext, callExpression: estree.CallE
   }
 
   const options = getValueOfExpression(context, callExpression.arguments[0], 'ObjectExpression');
-  if (options) {
-    const property = getObjectExpressionProperty(options, MAX_FILE_SIZE);
+  const property = getProperty(options, MAX_FILE_SIZE, context);
+  if (property) {
     checkSize(context, callExpression, property, FORMIDABLE_DEFAULT_SIZE);
   }
 }
@@ -136,9 +136,9 @@ function checkMulter(context: Rule.RuleContext, callExpression: estree.CallExpre
     return;
   }
 
-  const limitsPropertyValue = getObjectExpressionProperty(multerOptions, LIMITS_OPTION)?.value;
+  const limitsPropertyValue = getProperty(multerOptions, LIMITS_OPTION, context)?.value;
   if (limitsPropertyValue && limitsPropertyValue.type === 'ObjectExpression') {
-    const fileSizeProperty = getObjectExpressionProperty(limitsPropertyValue, FILE_SIZE_OPTION);
+    const fileSizeProperty = getProperty(limitsPropertyValue, FILE_SIZE_OPTION, context);
     checkSize(context, callExpression, fileSizeProperty);
   }
 
@@ -158,14 +158,14 @@ function checkBodyParser(context: Rule.RuleContext, callExpression: estree.CallE
     return;
   }
 
-  const limitsProperty = getObjectExpressionProperty(options, LIMITS_OPTION);
+  const limitsProperty = getProperty(options, LIMITS_OPTION, context);
   checkSize(context, callExpression, limitsProperty, BODY_PARSER_DEFAULT_SIZE, true);
 }
 
 function checkSize(
   context: Rule.RuleContext,
   callExpr: estree.CallExpression,
-  property?: estree.Property,
+  property?: estree.Property | null,
   defaultLimit?: number,
   useStandardSizeLimit = false,
 ) {

@@ -412,29 +412,13 @@ function resolveIdentifiersAcc(
   }
 }
 
-export function getObjectExpressionProperty(
-  node: estree.Node | undefined | null,
-  propertyKey: string,
-): estree.Property | undefined {
-  if (node?.type === 'ObjectExpression') {
-    const properties = node.properties.filter(
-      p =>
-        p.type === 'Property' &&
-        (isIdentifier(p.key, propertyKey) || (isLiteral(p.key) && p.key.value === propertyKey)),
-    ) as estree.Property[];
-    // if property is duplicated, we return the last defined
-    return properties[properties.length - 1];
-  }
-  return undefined;
-}
-
 export function getPropertyWithValue(
   context: Rule.RuleContext,
   objectExpression: estree.ObjectExpression,
   propertyName: string,
   propertyValue: estree.Literal['value'],
 ): estree.Property | undefined {
-  const maybeProperty = getObjectExpressionProperty(objectExpression, propertyName);
+  const maybeProperty = getProperty(objectExpression, propertyName, context);
   if (maybeProperty) {
     const maybePropertyValue = getValueOfExpression(context, maybeProperty.value, 'Literal');
     if (maybePropertyValue?.value === propertyValue) {
@@ -445,10 +429,13 @@ export function getPropertyWithValue(
 }
 
 export function getProperty(
-  expr: estree.ObjectExpression,
+  expr: estree.Node | undefined | null,
   key: string,
   ctx: Rule.RuleContext,
 ): estree.Property | null | undefined {
+  if (!(expr?.type == 'ObjectExpression')) {
+    return undefined;
+  }
   let unresolvedSpreadElement = false;
   for (let i = expr.properties.length - 1; i >= 0; --i) {
     const property = expr.properties[i];

@@ -24,10 +24,10 @@ import * as estree from 'estree';
 import {
   getPropertyWithValue,
   getValueOfExpression,
-  getObjectExpressionProperty,
   toEncodedMessage,
   isNullLiteral,
   getFullyQualifiedName,
+  getProperty,
 } from '../helpers';
 import { SONAR_RUNTIME } from '../../linter/parameters';
 
@@ -76,7 +76,7 @@ export const rule: Rule.RuleModule = {
       thirdArgumentValue: estree.ObjectExpression,
       secondaryLocations: estree.Node[],
     ) {
-      const algorithmsProperty = getObjectExpressionProperty(thirdArgumentValue, 'algorithms');
+      const algorithmsProperty = getProperty(thirdArgumentValue, 'algorithms', context);
       if (!algorithmsProperty) {
         if (isNullLiteral(publicKey)) {
           raiseIssueOn(callExpression.callee, VERIFY_MESSAGE, secondaryLocations);
