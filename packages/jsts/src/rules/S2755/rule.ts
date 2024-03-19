@@ -50,7 +50,7 @@ export const rule: Rule.RuleModule = {
     return {
       CallExpression: (node: estree.Node) => {
         const call = node as estree.CallExpression;
-        if (isXmlParserCall(call) && call.arguments[1].type === 'ObjectExpression') {
+        if (isXmlParserCall(call)) {
           const noent = getProperty(call.arguments[1], 'noent', context);
           if (noent && isNoEntSet(noent)) {
             context.report({
