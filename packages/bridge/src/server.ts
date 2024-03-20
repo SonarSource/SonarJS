@@ -105,7 +105,7 @@ export function start(
       debug(`The worker thread exited with code ${code}`);
     });
 
-    worker.on('error', err => {
+    worker.on('error', async err => {
       debug(`The worker thread failed: ${err}`);
 
       logMemoryError(err);
@@ -119,7 +119,7 @@ export function start(
       server.closeAllConnections();
 
       debug('Shutting down the bridge server due to failure');
-      shutdown();
+      await shutdown();
     });
 
     const app = express();
@@ -129,9 +129,9 @@ export function start(
      * Builds a timeout middleware to shut down the server
      * in case the process becomes orphan.
      */
-    const orphanTimeout = timeoutMiddleware(() => {
+    const orphanTimeout = timeoutMiddleware(async () => {
       if (server.listening) {
-        shutdown();
+        await shutdown();
       }
     }, timeout);
 
@@ -144,10 +144,10 @@ export function start(
     app.use(router(worker));
     app.use(errorMiddleware);
 
-    app.post('/close', (_: express.Request, response: express.Response) => {
-      debug('Shutting down the bridge server');
-      response.end(() => {
-        shutdown();
+    app.post('/close', async (_: express.Request, response: express.Response) => {
+      await shutdown(() => {
+        debug('Shutting down the bridge server');
+        response.end();
       });
     });
 
@@ -174,9 +174,23 @@ export function start(
     /**
      * Shutdown the server and the worker thread
      */
-    function shutdown() {
-      worker.terminate().catch(reason => debug(`Failed to terminate the worker thread: ${reason}`));
-      server.close();
+    async function shutdown(f?: () => void) {
+      return worker
+        .terminate()
+        .catch(reason => debug(`Failed to terminate the worker thread: ${reason}`))
+        .then(f || (() => {}))
+        .then(
+          () =>
+            new Promise<void>((resolve, reject) => {
+              server.close(err => {
+                if (err) {
+                  reject(err);
+                } else {
+                  resolve();
+                }
+              });
+            }),
+        );
     }
   });
 }
