@@ -33,8 +33,10 @@ import { CssAnalysisInput, CssAnalysisOutput } from './analysis';
 export async function analyzeCSS(input: CssAnalysisInput): Promise<CssAnalysisOutput> {
   const { filePath, fileContent: code, rules } = input;
   const config = createStylelintConfig(rules);
+  const sanitizedCode = code.replace(/[\u2000-\u200F]/g, ' ');
+
   const options = {
-    code,
+    code: sanitizedCode,
     codeFilename: filePath,
     config,
   };
