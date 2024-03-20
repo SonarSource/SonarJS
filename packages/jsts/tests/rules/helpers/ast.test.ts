@@ -21,11 +21,8 @@
 import path from 'path';
 
 import { Linter, Rule } from 'eslint';
-// import * as esprima from 'esprima';
 import { getProperty } from '../../../src/rules/helpers/ast';
 
-// import * as typescriptESLintParser from '@typescript-eslint/parser';
-// import { buildParserOptions } from '@sonar/jsts';
 import { parseJavaScriptSourceFile } from '../../tools';
 
 describe('getProperty', () => {

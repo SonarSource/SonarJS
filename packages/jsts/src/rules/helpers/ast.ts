@@ -438,7 +438,7 @@ export function getProperty(
   key: string,
   ctx: Rule.RuleContext,
 ): estree.Property | null | undefined {
-  if (!(expr?.type == 'ObjectExpression')) {
+  if (expr?.type !== 'ObjectExpression') {
     return null;
   }
   let unresolvedSpreadElement = false;
