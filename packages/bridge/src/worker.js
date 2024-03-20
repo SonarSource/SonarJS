@@ -69,6 +69,10 @@ if (parentPort) {
     try {
       const { type, data } = message;
       switch (type) {
+        case 'close':
+          console.log('closing worker thread');
+          parentThread.close();
+          break;
         case 'on-analyze-css': {
           await readFileLazily(data);
 
