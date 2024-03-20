@@ -34,6 +34,7 @@ import static org.mockito.Mockito.when;
 import com.google.gson.Gson;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -239,6 +240,9 @@ class JsTsSensorTest {
     createVueInputFile();
     when(bridgeServerMock.analyzeTypeScript(any())).thenThrow(new IOException("error"));
 
+    var tsProgram = new TsProgram("1", List.of(), List.of());
+    when(bridgeServerMock.createProgram(any())).thenReturn(tsProgram);
+    createTsConfigFile();
     JsTsSensor sensor = createSensor();
     DefaultInputFile inputFile = createInputFile(context);
     assertThatThrownBy(() -> sensor.execute(context))
@@ -299,6 +303,8 @@ class JsTsSensorTest {
           .fromJson("{ parsingError: { message: \"Parse error message\"} }", AnalysisResponse.class)
       );
     createInputFile(context);
+    var tsProgram = new TsProgram("1", List.of(), List.of());
+    when(bridgeServerMock.createProgram(any())).thenReturn(tsProgram);
     createSensor().execute(context);
     Collection<Issue> issues = context.allIssues();
     assertThat(issues).hasSize(2);
@@ -350,20 +356,20 @@ class JsTsSensorTest {
 
   @Test
   void should_send_content_when_not_utf8() throws Exception {
-    SensorContextTester ctx = createSensorContext(baseDir);
+    var ctx = createSensorContext(baseDir);
     createVueInputFile(ctx);
-    String content = "if (cond)\ndoFoo(); \nelse \ndoFoo();";
-    DefaultInputFile inputFile = new TestInputFileBuilder("moduleKey", "dir/file.ts")
-      .setLanguage("ts")
-      .setCharset(StandardCharsets.ISO_8859_1)
-      .setContents(content)
-      .build();
-    ctx.fileSystem().add(inputFile);
-    Files.write(baseDir.resolve("tsconfig.json"), singleton("{}"));
-    when(bridgeServerMock.loadTsConfig(any()))
-      .thenReturn(
-        new TsConfigFile("tsconfig.json", singletonList(inputFile.absolutePath()), emptyList())
-      );
+    String content = "if (cond)\ndoFoo(); \nelse \nanotherFoo();";
+    DefaultInputFile inputFile = createInputFile(
+      ctx,
+      "dir/file.ts",
+      StandardCharsets.ISO_8859_1,
+      baseDir,
+      content
+    );
+
+    var tsProgram = new TsProgram("1", List.of(inputFile.absolutePath()), List.of());
+    when(bridgeServerMock.createProgram(any())).thenReturn(tsProgram);
+    createTsConfigFile();
 
     ArgumentCaptor<JsAnalysisRequest> captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
     createSensor().execute(ctx);
@@ -380,12 +386,12 @@ class JsTsSensorTest {
     when(bridgeServerMock.analyzeTypeScript(any())).thenReturn(parseError);
     var file1 = createInputFile(context, "dir/file1.ts");
     var file2 = createInputFile(context, "dir/file2.ts");
-    var tsConfigFile = new TsConfigFile(
-      "tsconfig.json",
+    var tsProgram = new TsProgram(
+      "1",
       List.of(file1.absolutePath(), file2.absolutePath()),
-      emptyList()
+      List.of()
     );
-    when(bridgeServerMock.loadTsConfig(any())).thenReturn(tsConfigFile);
+    when(bridgeServerMock.createProgram(any())).thenReturn(tsProgram);
     createVueInputFile();
     createSensor().execute(context);
     assertThat(logTester.logs(LoggerLevel.ERROR))
@@ -430,7 +436,6 @@ class JsTsSensorTest {
         file3.absolutePath(),
         noconfig.absolutePath()
       );
-    verify(bridgeServerMock, times(4)).newTsConfig();
   }
 
   @Test
@@ -641,29 +646,6 @@ class JsTsSensorTest {
       .containsExactlyInAnyOrder(file1.absolutePath());
   }
 
-  private String absolutePath(Path baseDir, String relativePath) {
-    return new File(baseDir.toFile(), relativePath).getAbsolutePath();
-  }
-
-  private DefaultInputFile inputFileFromResource(
-    SensorContextTester context,
-    Path baseDir,
-    String file
-  ) throws IOException {
-    Path filePath = baseDir.resolve(file);
-    DefaultInputFile inputFile = new TestInputFileBuilder(
-      "projectKey",
-      baseDir.toFile(),
-      filePath.toFile()
-    )
-      .setContents(Files.readString(filePath))
-      .setCharset(StandardCharsets.UTF_8)
-      .setLanguage("ts")
-      .build();
-    context.fileSystem().add(inputFile);
-    return inputFile;
-  }
-
   @Test
   void should_stop_when_no_input_files() throws Exception {
     SensorContextTester context = createSensorContext(tempDir);
@@ -699,6 +681,8 @@ class JsTsSensorTest {
     MapSettings settings = new MapSettings().setProperty("sonar.internal.analysis.failFast", true);
     context.setSettings(settings);
     createInputFile(context);
+    var tsProgram = new TsProgram("1", List.of(), List.of());
+    when(bridgeServerMock.createProgram(any())).thenReturn(tsProgram);
     assertThatThrownBy(() -> createSensor().execute(context))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Analysis of JS/TS files failed");
@@ -737,10 +721,10 @@ class JsTsSensorTest {
   void log_debug_analyzed_filename_with_tsconfig() throws Exception {
     AnalysisResponse expectedResponse = createResponse();
     when(bridgeServerMock.analyzeTypeScript(any())).thenReturn(expectedResponse);
+    var inputFile = createVueInputFile();
+    var tsProgram = new TsProgram("1", List.of(inputFile.absolutePath()), List.of());
+    when(bridgeServerMock.createProgram(any())).thenReturn(tsProgram);
     JsTsSensor sensor = createSensor();
-    DefaultInputFile inputFile = createInputFile(context);
-    // having a vue file makes TypeScriptSensor#shouldAnalyzeWithProgram() return false, which leads to the path that executes TypeScript#analyze()
-    createVueInputFile();
     createTsConfigFile();
 
     sensor.execute(context);
@@ -758,11 +742,8 @@ class JsTsSensorTest {
 
     createVueInputFile(context);
     createTsConfigFile();
-    when(bridgeServerMock.loadTsConfig(any()))
-      .thenReturn(
-        new TsConfigFile("tsconfig.json", singletonList(file.absolutePath()), emptyList())
-      );
-
+    var tsProgram = new TsProgram("1", List.of(file.absolutePath()), List.of());
+    when(bridgeServerMock.createProgram(any())).thenReturn(tsProgram);
     sensor.execute(context);
 
     assertThat(context.cpdTokens(file.key())).hasSize(2);
@@ -884,14 +865,47 @@ class JsTsSensorTest {
   }
 
   private DefaultInputFile createInputFile(SensorContextTester context, String relativePath) {
+    return createInputFile(context, relativePath, StandardCharsets.UTF_8);
+  }
+
+  private DefaultInputFile createInputFile(
+    SensorContextTester context,
+    String relativePath,
+    Charset charset
+  ) {
+    return createInputFile(context, relativePath, charset, baseDir);
+  }
+
+  private DefaultInputFile createInputFile(
+    SensorContextTester context,
+    String relativePath,
+    Charset charset,
+    Path baseDir
+  ) {
+    return createInputFile(
+      context,
+      relativePath,
+      charset,
+      baseDir,
+      "if (cond)\ndoFoo(); \nelse \ndoFoo();"
+    );
+  }
+
+  private DefaultInputFile createInputFile(
+    SensorContextTester context,
+    String relativePath,
+    Charset charset,
+    Path baseDir,
+    String contents
+  ) {
     DefaultInputFile inputFile = new TestInputFileBuilder(
       "moduleKey",
       baseDir.toFile(),
       baseDir.resolve(relativePath).toFile()
     )
       .setLanguage("ts")
-      .setCharset(StandardCharsets.UTF_8)
-      .setContents("if (cond)\ndoFoo(); \nelse \ndoFoo();")
+      .setCharset(charset)
+      .setContents(contents)
       .build();
     context.fileSystem().add(inputFile);
     return inputFile;
@@ -901,11 +915,11 @@ class JsTsSensorTest {
     Files.writeString(baseDir.resolve("tsconfig.json"), "{}");
   }
 
-  private void createVueInputFile() {
-    createVueInputFile(context);
+  private DefaultInputFile createVueInputFile() {
+    return createVueInputFile(context);
   }
 
-  private void createVueInputFile(SensorContextTester context) {
+  private DefaultInputFile createVueInputFile(SensorContextTester context) {
     var vueFile = new TestInputFileBuilder(
       "moduleKey",
       baseDir.toFile(),
@@ -916,6 +930,26 @@ class JsTsSensorTest {
       .setContents("<script lang=\"ts\">\nif (cond)\ndoFoo(); \nelse \ndoFoo();\n</script>")
       .build();
     context.fileSystem().add(vueFile);
+    return vueFile;
+  }
+
+  private String absolutePath(Path baseDir, String relativePath) {
+    return new File(baseDir.toFile(), relativePath).getAbsolutePath();
+  }
+
+  private DefaultInputFile inputFileFromResource(
+    SensorContextTester context,
+    Path baseDir,
+    String file
+  ) throws IOException {
+    Path filePath = baseDir.resolve(file);
+    return createInputFile(
+      context,
+      file,
+      StandardCharsets.UTF_8,
+      baseDir,
+      Files.readString(filePath)
+    );
   }
 
   private void setSonarLintRuntime(SensorContextTester context) {

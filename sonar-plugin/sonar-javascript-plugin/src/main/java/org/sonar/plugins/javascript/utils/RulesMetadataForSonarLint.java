@@ -138,7 +138,7 @@ public class RulesMetadataForSonarLint {
 
   void save(Path path) throws IOException {
     Gson gson = new GsonBuilder().setPrettyPrinting().create();
-    String json = gson.toJson(rules);
+    String json = gson.toJson(rules).replace("\\r\\n", "\\n");
     Files.write(path, json.getBytes(StandardCharsets.UTF_8));
   }
 

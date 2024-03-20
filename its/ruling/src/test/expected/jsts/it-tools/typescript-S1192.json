@@ -1,0 +1,36 @@
+{
+"it-tools:src/tools/camera-recorder/useMediaRecorder.ts": [
+14
+],
+"it-tools:src/tools/date-time-converter/date-time-converter.e2e.spec.ts": [
+16
+],
+"it-tools:src/tools/ipv4-range-expander/ipv4-range-expander.e2e.spec.ts": [
+13,
+13,
+14,
+14
+],
+"it-tools:src/tools/json-diff/json-diff.e2e.spec.ts": [
+13,
+16
+],
+"it-tools:src/tools/mac-address-generator/mac-adress-generator.models.test.ts": [
+37
+],
+"it-tools:src/tools/meta-tag-generator/og-schemas/videoMovie.ts": [
+7
+],
+"it-tools:src/tools/otp-code-generator-and-validator/otp-code-generator.e2e.spec.ts": [
+16
+],
+"it-tools:src/ui/c-input-text/c-input-text.test.ts": [
+86
+],
+"it-tools:src/utils/base64.test.ts": [
+9,
+9,
+11,
+40
+]
+}

@@ -41,11 +41,13 @@ export function buildSourceCode(input: JsTsAnalysisInput, language: JsTsLanguage
       // enable logs for @typescript-eslint
       // debugLevel: true,
       filePath: input.filePath,
-      programs: input.programId && [getProgramById(input.programId)],
-      project: input.tsConfigs,
       parser: vueFile ? parsers.typescript.parser : undefined,
     };
     const parser = vueFile ? parsers.vuejs : parsers.typescript;
+    if (!vueFile) {
+      options.programs = input.programId && [getProgramById(input.programId)];
+      options.project = input.tsConfigs;
+    }
     try {
       debug(`Parsing ${input.filePath} with ${parser.parser}`);
       return parseForESLint(input.fileContent, parser.parse, buildParserOptions(options, false));

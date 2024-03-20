@@ -1,0 +1,14 @@
+{
+"it-tools:scripts/build-locales-files.mjs": [
+39,
+43
+],
+"it-tools:scripts/create-tool.mjs": [
+20,
+25,
+104
+],
+"it-tools:scripts/getLatestChangelog.mjs": [
+6
+]
+}

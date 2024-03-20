@@ -1,0 +1,15 @@
+{
+"it-tools:scripts/build-locales-files.mjs": [
+5,
+19,
+24
+],
+"it-tools:scripts/shared/changelog.mjs": [
+5
+],
+"it-tools:scripts/shared/commits.mjs": [
+23,
+36,
+43
+]
+}

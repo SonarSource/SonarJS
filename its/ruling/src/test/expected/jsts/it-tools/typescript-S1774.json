@@ -1,0 +1,179 @@
+{
+"it-tools:playwright.config.ts": [
+18,
+20
+],
+"it-tools:src/App.vue": [
+12,
+13
+],
+"it-tools:src/components/CollapsibleToolMenu.vue": [
+22
+],
+"it-tools:src/components/FavoriteButton.vue": [
+12
+],
+"it-tools:src/components/InputCopyable.vue": [
+10
+],
+"it-tools:src/components/MenuLayout.vue": [
+6
+],
+"it-tools:src/components/SpanCopyable.vue": [
+10
+],
+"it-tools:src/components/TextareaCopyable.vue": [
+35,
+38
+],
+"it-tools:src/composable/computed/catchedComputed.ts": [
+16
+],
+"it-tools:src/composable/downloadBase64.ts": [
+53
+],
+"it-tools:src/composable/queryParams.ts": [
+17
+],
+"it-tools:src/layouts/base.layout.vue": [
+30
+],
+"it-tools:src/modules/command-palette/command-palette.vue": [
+52
+],
+"it-tools:src/plugins/i18n.plugin.ts": [
+20
+],
+"it-tools:src/router.ts": [
+36
+],
+"it-tools:src/tools/benchmark-builder/benchmark-builder.vue": [
+36,
+39,
+45
+],
+"it-tools:src/tools/camera-recorder/camera-recorder.vue": [
+36,
+101
+],
+"it-tools:src/tools/case-converter/case-converter.vue": [
+80
+],
+"it-tools:src/tools/chmod-calculator/chmod-calculator.service.ts": [
+10,
+23
+],
+"it-tools:src/tools/chronometer/chronometer.service.ts": [
+6
+],
+"it-tools:src/tools/emoji-picker/emoji-picker.vue": [
+9
+],
+"it-tools:src/tools/eta-calculator/eta-calculator.service.ts": [
+14
+],
+"it-tools:src/tools/iban-validator-and-parser/iban-validator-and-parser.vue": [
+28
+],
+"it-tools:src/tools/json-diff/diff-viewer/diff-viewer.models.tsx": [
+33
+],
+"it-tools:src/tools/json-to-toml/json-to-toml.vue": [
+9
+],
+"it-tools:src/tools/json-viewer/json.models.ts": [
+34
+],
+"it-tools:src/tools/jwt-parser/jwt-parser.service.ts": [
+22
+],
+"it-tools:src/tools/list-converter/list-converter.models.ts": [
+9,
+13
+],
+"it-tools:src/tools/mac-address-generator/mac-adress-generator.models.ts": [
+6
+],
+"it-tools:src/tools/mime-types/mime-types.vue": [
+9,
+18
+],
+"it-tools:src/tools/otp-code-generator-and-validator/otp-code-generator-and-validator.vue": [
+36
+],
+"it-tools:src/tools/password-strength-analyser/password-strength-analyser.service.ts": [
+8,
+9,
+44,
+56
+],
+"it-tools:src/tools/percentage-calculator/percentage-calculator.vue": [
+18,
+28
+],
+"it-tools:src/tools/roman-numeral-converter/roman-numeral-converter.service.ts": [
+44
+],
+"it-tools:src/tools/string-obfuscator/string-obfuscator.model.ts": [
+16
+],
+"it-tools:src/tools/svg-placeholder-generator/svg-placeholder-generator.vue": [
+17,
+18
+],
+"it-tools:src/tools/text-to-unicode/text-to-unicode.vue": [
+6,
+10
+],
+"it-tools:src/tools/token-generator/token-generator.service.ts": [
+19,
+20,
+21,
+22
+],
+"it-tools:src/tools/toml-to-json/toml-to-json.vue": [
+7
+],
+"it-tools:src/tools/toml-to-yaml/toml-to-yaml.vue": [
+8
+],
+"it-tools:src/tools/tool.ts": [
+7
+],
+"it-tools:src/tools/user-agent-parser/user-agent-parser.vue": [
+14
+],
+"it-tools:src/tools/wifi-qr-code-generator/useQRCode.ts": [
+76,
+95,
+96,
+97
+],
+"it-tools:src/tools/yaml-to-json-converter/yaml-to-json.vue": [
+10
+],
+"it-tools:src/tools/yaml-to-toml/yaml-to-toml.vue": [
+9
+],
+"it-tools:src/ui/c-diff-editor/c-diff-editor.vue": [
+33
+],
+"it-tools:src/ui/c-select/c-select.vue": [
+124
+],
+"it-tools:src/ui/color/color.models.ts": [
+6
+],
+"it-tools:src/ui/theme/theme.models.ts": [
+10
+],
+"it-tools:src/utils/array.ts": [
+5
+],
+"it-tools:src/utils/base64.ts": [
+5
+],
+"it-tools:src/utils/boolean.ts": [
+14
+]
+}

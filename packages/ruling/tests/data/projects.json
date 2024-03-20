@@ -230,6 +230,11 @@
     "exclusions": null
   },
   {
+    "name": "it-tools",
+    "testDir": null,
+    "exclusions": null
+  },
+  {
     "name": "watchtower.js",
     "testDir": null,
     "exclusions": null

@@ -1,0 +1,35 @@
+{
+"it-tools:src/plugins/i18n.plugin.ts": [
+13
+],
+"it-tools:src/tools/camera-recorder/camera-recorder.vue": [
+53
+],
+"it-tools:src/tools/camera-recorder/useMediaRecorder.ts": [
+40
+],
+"it-tools:src/tools/keycode-info/keycode-info.vue": [
+8
+],
+"it-tools:src/tools/mime-types/mime-types.vue": [
+11
+],
+"it-tools:src/tools/text-to-nato-alphabet/text-to-nato-alphabet.service.ts": [
+12
+],
+"it-tools:src/tools/tools.store.ts": [
+12
+],
+"it-tools:src/ui/c-select/c-select.vue": [
+69
+],
+"it-tools:src/ui/c-table/c-table.vue": [
+11
+],
+"it-tools:src/ui/demo/demo.routes.ts": [
+6
+],
+"it-tools:src/utils/array.ts": [
+4
+]
+}
