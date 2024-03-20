@@ -123,7 +123,7 @@ describe('analyzeJSTS', () => {
     );
   });
 
-  it('should not analyze Vue.js with type checks in SQ/SC nor SL', async () => {
+  it('should not analyze Vue.js with type checking', async () => {
     const rules = [
       { key: 'strings-comparison', configurations: [], fileTypeTarget: ['MAIN'] },
     ] as RuleConfig[];
