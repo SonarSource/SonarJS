@@ -22,12 +22,7 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { URL } from 'url';
-import {
-  getValueOfExpression,
-  getObjectExpressionProperty,
-  getParent,
-  getFullyQualifiedName,
-} from '../helpers';
+import { getValueOfExpression, getParent, getFullyQualifiedName, getProperty } from '../helpers';
 import { normalizeFQN } from '../helpers/aws/cdk';
 
 const INSECURE_PROTOCOLS = ['http://', 'ftp://', 'telnet://'];
@@ -71,22 +66,22 @@ export const rule: Rule.RuleModule = {
 
       const firstArgValue = getValueOfExpression(context, firstArg, 'ObjectExpression');
 
-      const ses = getObjectExpressionProperty(firstArgValue, 'SES');
+      const ses = getProperty(firstArgValue, 'SES', context);
       if (ses && usesSesCommunication(ses)) {
         return;
       }
 
-      const secure = getObjectExpressionProperty(firstArgValue, 'secure');
+      const secure = getProperty(firstArgValue, 'secure', context);
       if (secure && (secure.value.type !== 'Literal' || secure.value.raw !== 'false')) {
         return;
       }
 
-      const requireTls = getObjectExpressionProperty(firstArgValue, 'requireTLS');
+      const requireTls = getProperty(firstArgValue, 'requireTLS', context);
       if (requireTls && (requireTls.value.type !== 'Literal' || requireTls.value.raw !== 'false')) {
         return;
       }
 
-      const port = getObjectExpressionProperty(firstArgValue, 'port');
+      const port = getProperty(firstArgValue, 'port', context);
       if (port && (port.value.type !== 'Literal' || port.value.raw === '465')) {
         return;
       }
@@ -102,14 +97,14 @@ export const rule: Rule.RuleModule = {
 
       const ses = getValueOfExpression(
         context,
-        getObjectExpressionProperty(configuration, 'ses')?.value,
+        getProperty(configuration, 'ses', context)?.value,
         'NewExpression',
       );
       if (!ses || normalizeFQN(getFullyQualifiedName(context, ses)) !== '@aws_sdk.client_ses.SES') {
         return false;
       }
 
-      const aws = getObjectExpressionProperty(configuration, 'aws');
+      const aws = getProperty(configuration, 'aws', context);
       if (
         !aws ||
         normalizeFQN(getFullyQualifiedName(context, aws.value)) !== '@aws_sdk.client_ses'
@@ -137,7 +132,7 @@ export const rule: Rule.RuleModule = {
             return;
           }
           const firstArgValue = getValueOfExpression(context, firstArg, 'ObjectExpression');
-          const secure = getObjectExpressionProperty(firstArgValue, 'secure');
+          const secure = getProperty(firstArgValue, 'secure', context);
           if (secure && secure.value.type === 'Literal' && secure.value.raw === 'false') {
             context.report({
               node: callExpression.callee,

@@ -23,9 +23,9 @@ import * as estree from 'estree';
 import {
   isIdentifier,
   getValueOfExpression,
-  getObjectExpressionProperty,
   toEncodedMessage,
   getFullyQualifiedName,
+  getProperty,
 } from '.';
 
 export class CookieFlagCheck {
@@ -109,7 +109,7 @@ export class CookieFlagCheck {
     if (!objectExpression) {
       return;
     }
-    const cookieProperty = getObjectExpressionProperty(objectExpression, 'cookie');
+    const cookieProperty = getProperty(objectExpression, 'cookie', this.context);
     if (!cookieProperty) {
       return;
     }
@@ -136,7 +136,7 @@ export class CookieFlagCheck {
     objectExpression: estree.ObjectExpression,
     callExpression: estree.CallExpression,
   ) {
-    const flagProperty = getObjectExpressionProperty(cookiePropertyValue, this.flag);
+    const flagProperty = getProperty(cookiePropertyValue, this.flag, this.context);
     if (flagProperty) {
       const flagPropertyValue = getValueOfExpression(this.context, flagProperty.value, 'Literal');
       if (flagPropertyValue?.value === false) {

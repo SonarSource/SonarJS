@@ -24,9 +24,9 @@ import * as estree from 'estree';
 import {
   getValueOfExpression,
   getPropertyWithValue,
-  getObjectExpressionProperty,
   toEncodedMessage,
   getFullyQualifiedName,
+  getProperty,
 } from '../helpers';
 import { SONAR_RUNTIME } from '../../linter/parameters';
 import { childrenOf } from '../../linter';
@@ -73,9 +73,10 @@ export const rule: Rule.RuleModule = {
         secondaryMessages.push(SECONDARY_MESSAGE);
         shouldReport = true;
       }
-      const checkServerIdentityProperty = getObjectExpressionProperty(
+      const checkServerIdentityProperty = getProperty(
         argumentValue,
         'checkServerIdentity',
+        context,
       );
       if (
         checkServerIdentityProperty &&

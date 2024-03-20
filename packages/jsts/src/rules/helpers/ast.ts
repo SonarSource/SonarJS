@@ -20,7 +20,7 @@
 import { TSESTree } from '@typescript-eslint/utils';
 import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
-import { flatMap, getFullyQualifiedName, toEncodedMessage } from '.';
+import { findFirstMatchingAncestor, flatMap, getFullyQualifiedName, toEncodedMessage } from '.';
 
 export type Node = estree.Node | TSESTree.Node;
 
@@ -412,29 +412,13 @@ function resolveIdentifiersAcc(
   }
 }
 
-export function getObjectExpressionProperty(
-  node: estree.Node | undefined | null,
-  propertyKey: string,
-): estree.Property | undefined {
-  if (node?.type === 'ObjectExpression') {
-    const properties = node.properties.filter(
-      p =>
-        p.type === 'Property' &&
-        (isIdentifier(p.key, propertyKey) || (isLiteral(p.key) && p.key.value === propertyKey)),
-    ) as estree.Property[];
-    // if property is duplicated, we return the last defined
-    return properties[properties.length - 1];
-  }
-  return undefined;
-}
-
 export function getPropertyWithValue(
   context: Rule.RuleContext,
   objectExpression: estree.ObjectExpression,
   propertyName: string,
   propertyValue: estree.Literal['value'],
 ): estree.Property | undefined {
-  const maybeProperty = getObjectExpressionProperty(objectExpression, propertyName);
+  const maybeProperty = getProperty(objectExpression, propertyName, context);
   if (maybeProperty) {
     const maybePropertyValue = getValueOfExpression(context, maybeProperty.value, 'Literal');
     if (maybePropertyValue?.value === propertyValue) {
@@ -444,11 +428,35 @@ export function getPropertyWithValue(
   return undefined;
 }
 
-export function getProperty(
-  expr: estree.ObjectExpression,
+function getPropertyFromSpreadElement(
+  spreadElement: estree.SpreadElement,
   key: string,
   ctx: Rule.RuleContext,
 ): estree.Property | null | undefined {
+  const props = getValueOfExpression(ctx, spreadElement.argument, 'ObjectExpression');
+  const recursiveDefinition = findFirstMatchingAncestor(
+    spreadElement.argument as TSESTree.Node,
+    node => node === props,
+  );
+  if (recursiveDefinition || props === undefined) {
+    return undefined;
+  }
+  return getProperty(props, key, ctx);
+}
+
+/**
+ * Retrieves the property with the specified key from the given node.
+ * @returns The property if found, or null if not found, or undefined if property not found and one of the properties
+ * is an unresolved SpreadElement.
+ */
+export function getProperty(
+  expr: estree.Node | undefined | null,
+  key: string,
+  ctx: Rule.RuleContext,
+): estree.Property | null | undefined {
+  if (expr?.type !== 'ObjectExpression') {
+    return null;
+  }
   let unresolvedSpreadElement = false;
   for (let i = expr.properties.length - 1; i >= 0; --i) {
     const property = expr.properties[i];
@@ -456,14 +464,11 @@ export function getProperty(
       return property;
     }
     if (property.type === 'SpreadElement') {
-      const props = getValueOfExpression(ctx, property.argument, 'ObjectExpression');
-      if (props !== undefined) {
-        const prop = getProperty(props, key, ctx);
-        if (prop !== null) {
-          return prop;
-        }
-      } else {
+      const prop = getPropertyFromSpreadElement(property, key, ctx);
+      if (prop === undefined) {
         unresolvedSpreadElement = true;
+      } else if (prop !== null) {
+        return prop;
       }
     }
   }

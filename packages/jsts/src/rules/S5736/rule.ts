@@ -21,12 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import {
-  Express,
-  getPropertyWithValue,
-  getObjectExpressionProperty,
-  getFullyQualifiedName,
-} from '../helpers';
+import { Express, getPropertyWithValue, getFullyQualifiedName, getProperty } from '../helpers';
 
 const HELMET = 'helmet';
 const POLICY = 'policy';
@@ -53,7 +48,7 @@ function findNoReferrerPolicyPropertyFromHelmet(
     if (fqn === HELMET && options.type === 'ObjectExpression') {
       sensitive = getPropertyWithValue(context, options, REFERRER_POLICY, false);
     } else if (fqn === `${HELMET}.${REFERRER_POLICY}`) {
-      const maybePolicy = getObjectExpressionProperty(options, POLICY);
+      const maybePolicy = getProperty(options, POLICY, context);
       if (maybePolicy && !isSafePolicy(maybePolicy)) {
         sensitive = maybePolicy;
       }

@@ -21,11 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import {
-  getUniqueWriteUsage,
-  getObjectExpressionProperty,
-  getFullyQualifiedName,
-} from '../helpers';
+import { getUniqueWriteUsage, getFullyQualifiedName, getProperty } from '../helpers';
 
 const SERVE_STATIC = 'serve-static';
 
@@ -46,7 +42,7 @@ export const rule: Rule.RuleModule = {
             options = getUniqueWriteUsage(context, options.name);
           }
 
-          const dotfilesProperty = getObjectExpressionProperty(options, 'dotfiles');
+          const dotfilesProperty = getProperty(options, 'dotfiles', context);
           if (
             dotfilesProperty?.value.type === 'Literal' &&
             dotfilesProperty.value.value === 'allow'

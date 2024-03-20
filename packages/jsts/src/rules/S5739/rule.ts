@@ -24,9 +24,9 @@ import * as estree from 'estree';
 import {
   Express,
   getPropertyWithValue,
-  getObjectExpressionProperty,
   getValueOfExpression,
   getFullyQualifiedName,
+  getProperty,
 } from '../helpers';
 
 const HSTS = 'hsts';
@@ -76,7 +76,7 @@ function findSensitiveMaxAge(
   options: estree.ObjectExpression,
 ): estree.Property | undefined {
   if (isHstsMiddlewareNode(context, middleware)) {
-    const maybeMaxAgeProperty = getObjectExpressionProperty(options, MAX_AGE);
+    const maybeMaxAgeProperty = getProperty(options, MAX_AGE, context);
     if (maybeMaxAgeProperty) {
       const maybeMaxAgeValue = getValueOfExpression(context, maybeMaxAgeProperty.value, 'Literal');
       if (

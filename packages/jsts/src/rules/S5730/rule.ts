@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { Express, getObjectExpressionProperty, getFullyQualifiedName } from '../helpers';
+import { Express, getFullyQualifiedName, getProperty } from '../helpers';
 
 const HELMET = 'helmet';
 const HELMET_CSP = 'helmet-csp';
@@ -43,10 +43,10 @@ function findDirectivesWithMissingMixedContentPropertyFromHelmet(
   const { arguments: args } = node;
   if (args.length === 1) {
     const [options] = args;
-    const maybeDirectives = getObjectExpressionProperty(options, DIRECTIVES);
+    const maybeDirectives = getProperty(options, DIRECTIVES, context);
     if (
       maybeDirectives &&
-      isMissingMixedContentProperty(maybeDirectives) &&
+      isMissingMixedContentProperty(maybeDirectives, context) &&
       isValidHelmetModuleCall(context, node)
     ) {
       sensitive = maybeDirectives;
@@ -60,9 +60,12 @@ function isValidHelmetModuleCall(context: Rule.RuleContext, callExpr: estree.Cal
   return fqn === `${HELMET}.${CONTENT_SECURITY_POLICY}` || fqn === HELMET_CSP;
 }
 
-function isMissingMixedContentProperty(directives: estree.Property): boolean {
+function isMissingMixedContentProperty(
+  directives: estree.Property,
+  context: Rule.RuleContext,
+): boolean {
   return !(
-    Boolean(getObjectExpressionProperty(directives.value, BLOCK_ALL_MIXED_CONTENT_CAMEL)) ||
-    Boolean(getObjectExpressionProperty(directives.value, BLOCK_ALL_MIXED_CONTENT_HYPHEN))
+    Boolean(getProperty(directives.value, BLOCK_ALL_MIXED_CONTENT_CAMEL, context)) ||
+    Boolean(getProperty(directives.value, BLOCK_ALL_MIXED_CONTENT_HYPHEN, context))
   );
 }

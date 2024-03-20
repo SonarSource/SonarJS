@@ -22,10 +22,10 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import {
-  getObjectExpressionProperty,
   getValueOfExpression,
   toEncodedMessage,
   getFullyQualifiedName,
+  getProperty,
 } from '../helpers';
 import { SONAR_RUNTIME } from '../../linter/parameters';
 
@@ -44,7 +44,7 @@ export const rule: Rule.RuleModule = {
         const call = node as estree.CallExpression;
         const { callee, arguments: args } = call;
         if (isSensitiveFQN(context, call) && args.length > 0) {
-          const xfwdProp = getObjectExpressionProperty(args[0], 'xfwd');
+          const xfwdProp = getProperty(args[0], 'xfwd', context);
           if (!xfwdProp) {
             return;
           }

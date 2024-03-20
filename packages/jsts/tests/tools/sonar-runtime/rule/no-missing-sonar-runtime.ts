@@ -22,7 +22,7 @@ import { Rule } from 'eslint';
 import {
   getFullyQualifiedName,
   getImportDeclarations,
-  getObjectExpressionProperty,
+  getProperty,
   getUniqueWriteUsage,
   isIdentifier,
 } from '../../../../src/rules/helpers';
@@ -60,17 +60,17 @@ export const rule: Rule.RuleModule = {
         if (isSecondaryLocationEnabled) {
           return;
         }
-        const maybeMeta = getObjectExpressionProperty(node, 'meta');
+        const maybeMeta = getProperty(node, 'meta', context);
         if (!maybeMeta) {
           return;
         }
-        const maybeSchema = getObjectExpressionProperty(maybeMeta.value, 'schema');
+        const maybeSchema = getProperty(maybeMeta.value, 'schema', context);
         if (maybeSchema?.value.type !== 'ArrayExpression') {
           return;
         }
         const schema = maybeSchema.value;
         for (const element of schema.elements) {
-          const maybeEnum = getObjectExpressionProperty(element, 'enum');
+          const maybeEnum = getProperty(element, 'enum', context);
           if (maybeEnum) {
             isSecondaryLocationEnabled =
               maybeEnum.value.type === 'ArrayExpression' &&
