@@ -191,10 +191,15 @@ public class AnalysisProcessor {
   private void saveHighlights(BridgeServer.Highlight[] highlights) {
     NewHighlighting highlighting = context.newHighlighting().onFile(file);
     for (BridgeServer.Highlight highlight : highlights) {
-      highlighting.highlight(
-        highlight.location.toTextRange(file),
-        TypeOfText.valueOf(highlight.textType)
-      );
+      try {
+        highlighting.highlight(
+          highlight.location.toTextRange(file),
+          TypeOfText.valueOf(highlight.textType)
+        );
+      } catch (IllegalArgumentException e) {
+        LOG.warn("Failed to save highlight", e);
+        // continue processing other highlights
+      }
     }
     highlighting.save();
   }
@@ -203,19 +208,24 @@ public class AnalysisProcessor {
     NewSymbolTable symbolTable = context.newSymbolTable().onFile(file);
     for (BridgeServer.HighlightedSymbol highlightedSymbol : highlightedSymbols) {
       BridgeServer.Location declaration = highlightedSymbol.declaration;
-      NewSymbol newSymbol = symbolTable.newSymbol(
-        declaration.startLine,
-        declaration.startCol,
-        declaration.endLine,
-        declaration.endCol
-      );
-      for (BridgeServer.Location reference : highlightedSymbol.references) {
-        newSymbol.newReference(
-          reference.startLine,
-          reference.startCol,
-          reference.endLine,
-          reference.endCol
+      try {
+        NewSymbol newSymbol = symbolTable.newSymbol(
+          declaration.startLine,
+          declaration.startCol,
+          declaration.endLine,
+          declaration.endCol
         );
+        for (BridgeServer.Location reference : highlightedSymbol.references) {
+          newSymbol.newReference(
+            reference.startLine,
+            reference.startCol,
+            reference.endLine,
+            reference.endCol
+          );
+        }
+      } catch (IllegalArgumentException e) {
+        LOG.warn("Failed to create symbol", e);
+        // continue processing other symbols
       }
     }
     symbolTable.save();
