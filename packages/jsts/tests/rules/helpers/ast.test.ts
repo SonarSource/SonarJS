@@ -51,31 +51,28 @@ describe('getProperty', () => {
       'baz',
       property => expect(property).toBeUndefined(),
     ],
-  ])(
-    'it %s',
-    async (_test_name: string, fixtureFile: string, key: string, verifier: (property) => void) => {
-      const baseDir = path.join(__dirname, 'fixtures');
+  ])('it %s', async (_: string, fixtureFile: string, key: string, verifier: (property) => void) => {
+    const baseDir = path.join(__dirname, 'fixtures');
 
-      const linter = new Linter();
-      linter.defineRule('custom-rule-file', {
-        create(context: Rule.RuleContext) {
-          return {
-            'ExpressionStatement ObjectExpression': node => {
-              const property = getProperty(node, key, context);
-              verifier(property);
-            },
-          };
-        },
-      } as Rule.RuleModule);
+    const linter = new Linter();
+    linter.defineRule('custom-rule-file', {
+      create(context: Rule.RuleContext) {
+        return {
+          'ExpressionStatement ObjectExpression': node => {
+            const property = getProperty(node, key, context);
+            verifier(property);
+          },
+        };
+      },
+    } as Rule.RuleModule);
 
-      const filePath = path.join(baseDir, fixtureFile);
-      const sourceCode = await parseJavaScriptSourceFile(filePath);
+    const filePath = path.join(baseDir, fixtureFile);
+    const sourceCode = await parseJavaScriptSourceFile(filePath);
 
-      linter.verify(
-        sourceCode,
-        { rules: { 'custom-rule-file': 'error' } },
-        { filename: filePath, allowInlineConfig: false },
-      );
-    },
-  );
+    linter.verify(
+      sourceCode,
+      { rules: { 'custom-rule-file': 'error' } },
+      { filename: filePath, allowInlineConfig: false },
+    );
+  });
 });

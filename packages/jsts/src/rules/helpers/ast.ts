@@ -428,6 +428,18 @@ export function getPropertyWithValue(
   return undefined;
 }
 
+function getPropertyFromSpreadElement(
+  spreadElement: estree.SpreadElement,
+  propertyName: string,
+  ctx: Rule.RuleContext,
+): estree.Property | null | undefined {
+  const props = getValueOfExpression(ctx, spreadElement.argument, 'ObjectExpression');
+  if (props === undefined) {
+    return undefined;
+  }
+  return getProperty(props, propertyName, ctx);
+}
+
 /**
  * Retrieves the property with the specified key from the given node.
  * @returns The property if found, or null if not found, or undefined if property not found and one of the properties
@@ -448,19 +460,11 @@ export function getProperty(
       return property;
     }
     if (property.type === 'SpreadElement') {
-      const props = getValueOfExpression(ctx, property.argument, 'ObjectExpression');
-      const recursiveDefinition = findFirstMatchingAncestor(
-        property.argument as TSESTree.Node,
-        node => node === props,
-      );
-      if (recursiveDefinition || props === undefined) {
+      const prop = getPropertyFromSpreadElement(property, key, ctx);
+      if (prop === undefined) {
         unresolvedSpreadElement = true;
-      } else {
-        const prop = getProperty(props, key, ctx);
-
-        if (prop !== null) {
-          return prop;
-        }
+      } else if (prop !== null) {
+        return prop;
       }
     }
   }
