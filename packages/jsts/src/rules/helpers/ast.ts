@@ -434,7 +434,11 @@ function getPropertyFromSpreadElement(
   ctx: Rule.RuleContext,
 ): estree.Property | null | undefined {
   const props = getValueOfExpression(ctx, spreadElement.argument, 'ObjectExpression');
-  if (props === undefined) {
+  const recursiveDefinition = findFirstMatchingAncestor(
+    spreadElement.argument as TSESTree.Node,
+    node => node === props,
+  );
+  if (recursiveDefinition || props === undefined) {
     return undefined;
   }
   return getProperty(props, key, ctx);
