@@ -135,7 +135,6 @@ export function start(
     app.use(errorMiddleware);
 
     app.post('/close', (_: express.Request, response: express.Response) => {
-      debug('Shutting down the bridge server');
       response.end();
       closeWorker();
     });
@@ -164,6 +163,7 @@ export function start(
      * Shutdown the server and the worker thread
      */
     function closeWorker() {
+      debug('Shutting down the worker');
       worker.postMessage({ type: 'close' });
     }
 
