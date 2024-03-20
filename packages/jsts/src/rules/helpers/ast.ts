@@ -430,14 +430,14 @@ export function getPropertyWithValue(
 
 function getPropertyFromSpreadElement(
   spreadElement: estree.SpreadElement,
-  propertyName: string,
+  key: string,
   ctx: Rule.RuleContext,
 ): estree.Property | null | undefined {
   const props = getValueOfExpression(ctx, spreadElement.argument, 'ObjectExpression');
   if (props === undefined) {
     return undefined;
   }
-  return getProperty(props, propertyName, ctx);
+  return getProperty(props, key, ctx);
 }
 
 /**
