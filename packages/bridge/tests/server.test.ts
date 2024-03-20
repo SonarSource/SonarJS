@@ -127,7 +127,7 @@ describe('server', () => {
     await closeRequest;
 
     expect(server.listening).toBeFalsy();
-    expect(console.log).toHaveBeenCalledWith('DEBUG Shutting down the bridge server');
+    expect(console.log).toHaveBeenCalledWith('DEBUG Shutting down the worker');
   });
 
   it('should timeout', async () => {
@@ -143,7 +143,8 @@ describe('server', () => {
     expect(server.listening).toBeTruthy();
     await request(server, '/status', 'GET');
 
-    await new Promise(r => setTimeout(r, 600));
+    // we need to wait longer because the server will not shut down until worker has exited
+    await new Promise(r => setTimeout(r, 3000));
     expect(server.listening).toBeFalsy();
 
     expect(console.log).toHaveBeenCalledWith('DEBUG The bridge server shut down');

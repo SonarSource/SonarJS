@@ -85,6 +85,8 @@ export function start(
   host = '127.0.0.1',
   timeout = SHUTDOWN_TIMEOUT,
 ): Promise<http.Server> {
+  const pendingCloseRequests: express.Response[] = [];
+
   logMemoryConfiguration();
   if (getContext().debugMemory) {
     registerGarbageCollectionObserver();
@@ -106,7 +108,7 @@ export function start(
       closeServer();
     });
 
-    worker.on('error', async err => {
+    worker.on('error', err => {
       debug(`The worker thread failed: ${err}`);
       debug('Shutting down the bridge server due to failure');
       logMemoryError(err);
@@ -135,13 +137,13 @@ export function start(
     app.use(errorMiddleware);
 
     app.post('/close', (_: express.Request, response: express.Response) => {
-      response.end();
+      pendingCloseRequests.push(response);
       closeWorker();
     });
 
     server.on('close', () => {
       debug('The bridge server shut down');
-      orphanTimeout.stop();
+      orphanTimeout.cancel();
     });
 
     server.on('error', err => {
@@ -172,6 +174,9 @@ export function start(
      */
     function closeServer() {
       if (server.listening) {
+        while (pendingCloseRequests.length) {
+          pendingCloseRequests.pop()?.end();
+        }
         /**
          * At this point, the worker thread can no longer respond to any request from the plugin.
          * If we reached this due to worker failure, existing requests are stalled until they time out.
