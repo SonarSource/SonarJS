@@ -35,14 +35,11 @@ class AnalysisProcessorTest {
       .build();
     var response = new BridgeServer.AnalysisResponse();
     var highlight = new BridgeServer.Highlight();
-    highlight.location = new BridgeServer.Location();
-    highlight.location.startLine = 1;
-    highlight.location.startCol = 2;
-    highlight.location.endLine = 1;
-    highlight.location.endCol = 1; // invalid range startCol > endCol
+    highlight.location = new BridgeServer.Location(1, 2, 1, 1); // invalid range startCol > endCol
     response.highlights = new BridgeServer.Highlight[] { highlight };
     processor.processResponse(context, mock(JsTsChecks.class), file, response);
-    assertThat(logTester.logs()).contains("Failed to save highlight");
+    assertThat(logTester.logs())
+      .contains("Failed to save highlight in " + file.uri() + " at 1:2-1:1");
   }
 
   @Test
@@ -57,13 +54,16 @@ class AnalysisProcessorTest {
       .build();
     var response = new BridgeServer.AnalysisResponse();
     var symbol = new BridgeServer.HighlightedSymbol();
-    symbol.declaration = new BridgeServer.Location();
-    symbol.declaration.startLine = 1;
-    symbol.declaration.startCol = 2;
-    symbol.declaration.endLine = 1;
-    symbol.declaration.endCol = 1; // invalid range startCol > endCol
+    symbol.declaration = new BridgeServer.Location(1, 2, 1, 1); // invalid range startCol > endCol
     response.highlightedSymbols = new BridgeServer.HighlightedSymbol[] { symbol };
     processor.processResponse(context, mock(JsTsChecks.class), file, response);
-    assertThat(logTester.logs()).contains("Failed to create symbol");
+    assertThat(logTester.logs())
+      .contains("Failed to create symbol declaration in " + file.uri() + " at 1:2-1:1");
+
+    symbol.declaration = new BridgeServer.Location(1, 1, 1, 2);
+    symbol.references = new BridgeServer.Location[] { new BridgeServer.Location(2, 2, 2, 1) };
+    processor.processResponse(context, mock(JsTsChecks.class), file, response);
+    assertThat(logTester.logs())
+      .contains("Failed to create symbol reference in " + file.uri() + " at 2:2-2:1");
   }
 }

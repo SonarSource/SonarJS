@@ -197,7 +197,8 @@ public class AnalysisProcessor {
           TypeOfText.valueOf(highlight.textType)
         );
       } catch (IllegalArgumentException e) {
-        LOG.warn("Failed to save highlight", e);
+        LOG.warn("Failed to save highlight in {} at {}", file.uri(), highlight.location);
+        LOG.warn("Exception cause", e);
         // continue processing other highlights
       }
     }
@@ -208,24 +209,30 @@ public class AnalysisProcessor {
     NewSymbolTable symbolTable = context.newSymbolTable().onFile(file);
     for (BridgeServer.HighlightedSymbol highlightedSymbol : highlightedSymbols) {
       BridgeServer.Location declaration = highlightedSymbol.declaration;
+      NewSymbol newSymbol;
       try {
-        NewSymbol newSymbol = symbolTable.newSymbol(
-          declaration.startLine,
-          declaration.startCol,
-          declaration.endLine,
-          declaration.endCol
-        );
-        for (BridgeServer.Location reference : highlightedSymbol.references) {
+        newSymbol =
+          symbolTable.newSymbol(
+            declaration.startLine,
+            declaration.startCol,
+            declaration.endLine,
+            declaration.endCol
+          );
+      } catch (IllegalArgumentException e) {
+        LOG.warn("Failed to create symbol declaration in {} at {}", file.uri(), declaration);
+        continue;
+      }
+      for (BridgeServer.Location reference : highlightedSymbol.references) {
+        try {
           newSymbol.newReference(
             reference.startLine,
             reference.startCol,
             reference.endLine,
             reference.endCol
           );
+        } catch (IllegalArgumentException e) {
+          LOG.warn("Failed to create symbol reference in {} at {}", file.uri(), reference);
         }
-      } catch (IllegalArgumentException e) {
-        LOG.warn("Failed to create symbol", e);
-        // continue processing other symbols
       }
     }
     symbolTable.save();
