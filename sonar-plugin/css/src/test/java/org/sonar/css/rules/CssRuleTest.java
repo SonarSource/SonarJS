@@ -38,7 +38,10 @@ class CssRuleTest {
     throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
     for (Class ruleClass : CssRules.getRuleClasses()) {
       CssRule rule = (CssRule) ruleClass.getConstructor().newInstance();
-      String stylelintRuleKeyWithoutUnderscore = rule.stylelintKey().replace("-", "");
+      String stylelintRuleKeyWithoutUnderscore = rule
+        .stylelintKey()
+        .replace("-", "")
+        .replace("sonar/", "");
       assertThat(ruleClass.getSimpleName())
         .isEqualToIgnoringCase(stylelintRuleKeyWithoutUnderscore);
     }
