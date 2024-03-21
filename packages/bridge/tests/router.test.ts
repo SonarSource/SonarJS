@@ -22,6 +22,7 @@ import http from 'http';
 import { createAndSaveProgram, ProjectAnalysisInput, RuleConfig } from '@sonar/jsts';
 import path from 'path';
 import { start } from '../src/server';
+import { promisify } from 'util';
 import { request } from './tools';
 import * as fs from 'fs';
 
@@ -32,6 +33,7 @@ describe('router', () => {
   const port = 0;
 
   let server: http.Server;
+  let close: () => Promise<void>;
 
   beforeEach(async () => {
     setContext({
@@ -42,10 +44,11 @@ describe('router', () => {
     });
     jest.setTimeout(60 * 1000);
     server = await start(port, '127.0.0.1', 60 * 60 * 1000);
+    close = promisify(server.close.bind(server));
   });
 
   afterEach(async () => {
-    await request(server, '/close', 'POST', {});
+    await close();
   });
 
   it('should route /analyze-project requests', async () => {
