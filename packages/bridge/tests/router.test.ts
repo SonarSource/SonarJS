@@ -22,16 +22,16 @@ import http from 'http';
 import { createAndSaveProgram, ProjectAnalysisInput, RuleConfig } from '@sonar/jsts';
 import path from 'path';
 import { start } from '../src/server';
-import { promisify } from 'util';
 import { request } from './tools';
 import * as fs from 'fs';
+
+import { rule as S5362 } from '../../css/src/rules/S5362';
 
 describe('router', () => {
   const fixtures = path.join(__dirname, 'fixtures', 'router');
   const port = 0;
 
   let server: http.Server;
-  let close: () => Promise<void>;
 
   beforeEach(async () => {
     setContext({
@@ -42,11 +42,10 @@ describe('router', () => {
     });
     jest.setTimeout(60 * 1000);
     server = await start(port, '127.0.0.1', 60 * 60 * 1000);
-    close = promisify(server.close.bind(server));
   });
 
   afterEach(async () => {
-    await close();
+    await request(server, '/close', 'POST', {});
   });
 
   it('should route /analyze-project requests', async () => {
@@ -88,13 +87,13 @@ describe('router', () => {
 
   it('should route /analyze-css requests', async () => {
     const filePath = path.join(fixtures, 'file.css');
-    const rules = [{ key: 'function-calc-no-invalid', configurations: [] }];
+    const rules = [{ key: S5362.ruleName, configurations: [] }];
     const data = { filePath, rules };
     const response = (await request(server, '/analyze-css', 'POST', data)) as string;
     expect(JSON.parse(response)).toEqual({
       issues: [
         {
-          ruleId: 'function-calc-no-invalid',
+          ruleId: S5362.ruleName,
           line: 1,
           column: 6,
           message: `Fix this malformed 'calc' expression.`,

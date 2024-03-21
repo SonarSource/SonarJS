@@ -107,7 +107,7 @@
     "run-node": "2.0.0",
     "semver": "7.6.0",
     "scslre": "0.2.0",
-    "stylelint": "15.10.0",
+    "stylelint": "16.2.1",
     "tar": "^6.2.0",
     "tmp": "0.2.1",
     "type-fest": "4.6.0",

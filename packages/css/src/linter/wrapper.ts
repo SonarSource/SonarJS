@@ -19,19 +19,11 @@
  */
 import * as stylelint from 'stylelint';
 import { transform } from './issues';
-import { rules } from '../rules';
 
 /**
  * A wrapper of Stylelint linter
  */
 export class LinterWrapper {
-  /**
-   * Constructs a Stylelint wrapper
-   */
-  constructor() {
-    this.defineRules();
-  }
-
   /**
    * Lints a stylesheet
    *
@@ -55,18 +47,6 @@ export class LinterWrapper {
     return stylelint
       .lint(options)
       .then(result => ({ issues: transform(result.results, filePath) }));
-  }
-
-  /**
-   * Defines the wrapper's rules
-   *
-   * Besides Stylelint rules, the linter wrapper includes all the rules that
-   * are implemented internally.
-   */
-  private defineRules() {
-    for (const key in rules) {
-      stylelint.rules[key] = rules[key];
-    }
   }
 }
 

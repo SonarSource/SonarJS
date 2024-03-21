@@ -22,7 +22,7 @@
 import * as stylelint from 'stylelint';
 import { parse } from 'postcss';
 
-const ruleName = 'no-commented-code';
+const ruleName = 'sonar/no-commented-code';
 const messages = { commentedCode: 'Remove this commented out code.' };
 
 const ruleImpl: stylelint.RuleBase = () => {
