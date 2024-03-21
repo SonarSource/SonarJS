@@ -26,6 +26,6 @@ public class NoCommentedCode implements CssRule {
 
   @Override
   public String stylelintKey() {
-    return "no-commented-code";
+    return "sonar/no-commented-code";
   }
 }

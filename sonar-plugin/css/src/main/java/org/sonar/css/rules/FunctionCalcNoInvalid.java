@@ -26,6 +26,6 @@ public class FunctionCalcNoInvalid implements CssRule {
 
   @Override
   public String stylelintKey() {
-    return "function-calc-no-invalid";
+    return "sonar/function-calc-no-invalid";
   }
 }
