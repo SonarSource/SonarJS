@@ -60,6 +60,7 @@ class AnalysisProcessorTest {
     assertThat(logTester.logs())
       .contains("Failed to create symbol declaration in " + file.uri() + " at 1:2-1:1");
 
+    context = SensorContextTester.create(baseDir);
     symbol.declaration = new BridgeServer.Location(1, 1, 1, 2);
     symbol.references = new BridgeServer.Location[] { new BridgeServer.Location(2, 2, 2, 1) };
     processor.processResponse(context, mock(JsTsChecks.class), file, response);
