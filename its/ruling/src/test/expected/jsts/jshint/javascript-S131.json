@@ -1,10 +1,12 @@
 {
 "jshint:src/cli.js": [
+705,
 705
 ],
 "jshint:src/jshint.js": [
 1048,
 1075,
+2442,
 2442,
 3895
 ],

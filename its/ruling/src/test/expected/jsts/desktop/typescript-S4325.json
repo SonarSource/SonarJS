@@ -2,6 +2,22 @@
 "desktop:app/src/lib/actions-log-parser/action-log-parser.ts": [
 528
 ],
+"desktop:app/src/lib/diff-parser.ts": [
+32,
+33,
+34,
+35
+],
+"desktop:app/src/lib/stores/app-store.ts": [
+2274
+],
+"desktop:app/src/lib/stores/issues-store.ts": [
+127,
+137
+],
+"desktop:app/src/lib/stores/repositories-store.ts": [
+122
+],
 "desktop:app/src/models/diff/diff-selection.ts": [
 200
 ],

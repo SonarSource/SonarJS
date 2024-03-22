@@ -1,4 +1,7 @@
 {
+"TypeScript:scripts/tslint/noIncrementDecrementRule.ts": [
+31
+],
 "TypeScript:src/compiler/binder.ts": [
 236,
 298,
@@ -306,6 +309,7 @@
 2043
 ],
 "TypeScript:src/harness/fourslash.ts": [
+427,
 1500,
 2773,
 2782
@@ -367,6 +371,7 @@
 ],
 "TypeScript:src/services/findAllReferences.ts": [
 835,
+942,
 1021,
 1525,
 1624

@@ -1,0 +1,14 @@
+{
+"postgraphql:src/__tests__/utils/kitchenSinkSchemaSql.ts": [
+6
+],
+"postgraphql:src/postgraphql/schema/exportPostGraphQLSchema.ts": [
+11
+],
+"postgraphql:src/postgraphql/watch/watchPgSchemas.ts": [
+13
+],
+"postgraphql:src/postgres/introspection/introspectDatabase.ts": [
+14
+]
+}

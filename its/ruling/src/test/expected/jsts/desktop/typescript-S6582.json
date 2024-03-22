@@ -62,9 +62,6 @@
 "desktop:app/src/lib/trampoline/trampoline-server.ts": [
 108
 ],
-"desktop:app/src/lib/uuid.ts": [
-16
-],
 "desktop:app/src/main-process/menu/build-context-menu.ts": [
 22
 ],
