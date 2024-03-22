@@ -129,6 +129,19 @@ describe('server', () => {
     await serverClosed;
   });
 
+  it('worker crashing should close server', async () => {
+    console.log = jest.fn();
+
+    const { server, serverClosed, worker } = await start(port);
+    expect(server.listening).toBeTruthy();
+
+    await worker.terminate();
+
+    expect(server.listening).toBeFalsy();
+    expect(console.log).toHaveBeenCalledWith('DEBUG The worker thread exited with code 1');
+    await serverClosed;
+  });
+
   it('should timeout', async () => {
     console.log = jest.fn();
 

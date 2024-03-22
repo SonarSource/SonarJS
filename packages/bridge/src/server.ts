@@ -84,9 +84,9 @@ export function start(
   port = 0,
   host = '127.0.0.1',
   timeout = SHUTDOWN_TIMEOUT,
-): Promise<{ server: http.Server; serverClosed: Promise<void> }> {
+): Promise<{ server: http.Server; serverClosed: Promise<void>; worker: Worker }> {
   const pendingCloseRequests: express.Response[] = [];
-  let resolveClosed: (value?: any) => void;
+  let resolveClosed: () => void;
   const serverClosed: Promise<void> = new Promise(resolve => {
     resolveClosed = resolve;
   });
@@ -161,7 +161,7 @@ export function start(
        * which we get using server.address().
        */
       debug(`The bridge server is listening on port ${(server.address() as AddressInfo)?.port}`);
-      resolve({ server, serverClosed });
+      resolve({ server, serverClosed, worker });
     });
 
     server.listen(port, host);
