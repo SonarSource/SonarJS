@@ -22,6 +22,8 @@ import * as stylelint from 'stylelint';
 import { readFile } from '@sonar/shared';
 import { createStylelintConfig, LinterWrapper, RuleConfig } from '../../src/linter';
 
+import { rule as S5362 } from '../../src/rules/S5362';
+
 describe('LinterWrapper', () => {
   it('should lint with a stylelint rule', async () => {
     const filePath = path.join(__dirname, './fixtures/block.css');
@@ -43,7 +45,7 @@ describe('LinterWrapper', () => {
 
   it('should lint with an internal rule', async () => {
     const filePath = path.join(__dirname, './fixtures/calc.css');
-    const rules = [{ key: 'function-calc-no-invalid', configurations: [] }];
+    const rules = [{ key: S5362.ruleName, configurations: [] }];
     const options = await createStylelintOptions(filePath, rules);
 
     const linter = new LinterWrapper();
@@ -51,7 +53,7 @@ describe('LinterWrapper', () => {
 
     expect(issues).toEqual([
       {
-        ruleId: 'function-calc-no-invalid',
+        ruleId: S5362.ruleName,
         line: 1,
         column: 6,
         message: `Fix this malformed 'calc' expression.`,

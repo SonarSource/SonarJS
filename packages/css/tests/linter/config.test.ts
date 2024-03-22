@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { createStylelintConfig, RuleConfig } from '../../src/linter';
+import { plugins } from '../../src/rules';
 
 describe('createStylelintConfig', () => {
   it('should create a Stylelint config', () => {
@@ -32,6 +33,7 @@ describe('createStylelintConfig', () => {
         foo: true,
         bar: [42],
       },
+      plugins,
     });
   });
 });
