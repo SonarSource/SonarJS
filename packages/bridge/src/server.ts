@@ -84,8 +84,12 @@ export function start(
   port = 0,
   host = '127.0.0.1',
   timeout = SHUTDOWN_TIMEOUT,
-): Promise<http.Server> {
+): Promise<{ server: http.Server; serverClosed: Promise<void> }> {
   const pendingCloseRequests: express.Response[] = [];
+  let resolveClosed: (value?: any) => void;
+  const serverClosed: Promise<void> = new Promise(resolve => {
+    resolveClosed = resolve;
+  });
 
   logMemoryConfiguration();
   if (getContext().debugMemory) {
@@ -144,6 +148,7 @@ export function start(
     server.on('close', () => {
       debug('The bridge server shut down');
       orphanTimeout.cancel();
+      resolveClosed();
     });
 
     server.on('error', err => {
@@ -156,7 +161,7 @@ export function start(
        * which we get using server.address().
        */
       debug(`The bridge server is listening on port ${(server.address() as AddressInfo)?.port}`);
-      resolve(server);
+      resolve({ server, serverClosed });
     });
 
     server.listen(port, host);

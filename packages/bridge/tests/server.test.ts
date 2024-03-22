@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { start } from '../src/server';
-import { promisify } from 'util';
 import path from 'path';
 import { setContext } from '@sonar/shared';
 import { AddressInfo } from 'net';
@@ -42,8 +41,7 @@ describe('server', () => {
 
     console.log = jest.fn();
 
-    const server = await start(undefined, undefined);
-    const close = promisify(server.close.bind(server));
+    const { server, serverClosed } = await start(undefined, undefined);
 
     expect(server.listening).toBeTruthy();
     expect(console.log).toHaveBeenCalledTimes(3);
@@ -57,14 +55,14 @@ describe('server', () => {
       `DEBUG The bridge server is listening on port ${(server.address() as AddressInfo)?.port}`,
     );
 
-    await close();
+    await request(server, '/close', 'POST');
+    await serverClosed;
   });
 
   it('should fail when linter is not initialized', async () => {
     expect.assertions(3);
 
-    const server = await start(port);
-    const close = promisify(server.close.bind(server));
+    const { server, serverClosed } = await start(port);
 
     const ruleId = 'no-extra-semi';
     const fileType = 'MAIN';
@@ -86,15 +84,14 @@ describe('server', () => {
         ruleId,
       }),
     );
-
-    await close();
+    await request(server, '/close', 'POST');
+    await serverClosed;
   });
 
   it('should route service requests', async () => {
     expect.assertions(2);
 
-    const server = await start(port);
-    const close = promisify(server.close.bind(server));
+    const { server, serverClosed } = await start(port);
 
     expect(server.listening).toBeTruthy();
 
@@ -113,27 +110,29 @@ describe('server', () => {
       }),
     );
 
-    await close();
+    await request(server, '/close', 'POST');
+    await serverClosed;
   });
 
   it('should shut down', async () => {
-    expect.assertions(2);
+    expect.assertions(3);
 
     console.log = jest.fn();
 
-    const server = await start(port);
+    const { server, serverClosed } = await start(port);
+    expect(server.listening).toBeTruthy();
 
-    const closeRequest = request(server, '/close', 'POST');
-    await closeRequest;
+    await request(server, '/close', 'POST');
 
     expect(server.listening).toBeFalsy();
     expect(console.log).toHaveBeenCalledWith('DEBUG Shutting down the worker');
+    await serverClosed;
   });
 
   it('should timeout', async () => {
     console.log = jest.fn();
 
-    const server = await start(port, '127.0.0.1', 500);
+    const { server, serverClosed } = await start(port, '127.0.0.1', 500);
 
     await new Promise(r => setTimeout(r, 100));
     expect(server.listening).toBeTruthy();
@@ -143,11 +142,9 @@ describe('server', () => {
     expect(server.listening).toBeTruthy();
     await request(server, '/status', 'GET');
 
-    // we need to wait longer because the server will not shut down until worker has exited
-    await new Promise(r => setTimeout(r, 3000));
-    expect(server.listening).toBeFalsy();
-
+    await serverClosed;
     expect(console.log).toHaveBeenCalledWith('DEBUG The bridge server shut down');
+    expect(server.listening).toBeFalsy();
   });
 });
 
