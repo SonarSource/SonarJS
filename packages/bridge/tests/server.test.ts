@@ -138,7 +138,7 @@ describe('server', () => {
     await worker.terminate();
 
     expect(server.listening).toBeFalsy();
-    expect(console.log).toHaveBeenCalledWith('DEBUG The worker thread exited with code 1');
+    expect(console.log).toHaveBeenCalledWith('DEBUG The bridge server shut down');
     await serverClosed;
   });
 
