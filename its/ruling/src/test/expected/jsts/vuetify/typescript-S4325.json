@@ -5,11 +5,11 @@
 "vuetify:packages/vuetify/src/components/VData/VData.ts": [
 382
 ],
+"vuetify:packages/vuetify/src/components/VDatePicker/VDatePicker.ts": [
+191
+],
 "vuetify:packages/vuetify/src/components/VDatePicker/VDatePickerDateTable.ts": [
 48
-],
-"vuetify:packages/vuetify/src/components/VForm/__tests__/VForm.spec.cy.tsx": [
-182
 ],
 "vuetify:packages/vuetify/src/components/VGrid/VCol.ts": [
 114,
@@ -19,11 +19,29 @@
 114,
 116
 ],
+"vuetify:packages/vuetify/src/components/VImg/VImg.tsx": [
+155
+],
 "vuetify:packages/vuetify/src/components/VList/VListChildren.tsx": [
 61
 ],
+"vuetify:packages/vuetify/src/components/VOverlay/scrollStrategies.ts": [
+55,
+57
+],
 "vuetify:packages/vuetify/src/components/VSelectionControl/__tests__/VSelectionControl.spec.tsx": [
 17
+],
+"vuetify:packages/vuetify/src/components/VTextarea/VTextarea.tsx": [
+163,
+179
+],
+"vuetify:packages/vuetify/src/components/VTimePicker/VTimePicker.ts": [
+194
+],
+"vuetify:packages/vuetify/src/components/transitions/dialog-transition.tsx": [
+35,
+65
 ],
 "vuetify:packages/vuetify/src/composables/__tests__/border.spec.ts": [
 39
@@ -35,15 +53,11 @@
 "vuetify:packages/vuetify/src/composables/forwardRefs.ts": [
 66
 ],
-"vuetify:packages/vuetify/src/composables/layout.ts": [
-237,
-238
-],
 "vuetify:packages/vuetify/src/composables/proxiedModel.ts": [
 47
 ],
-"vuetify:packages/vuetify/src/composables/scopeId.ts": [
-6
+"vuetify:packages/vuetify/src/composables/theme.ts": [
+237
 ],
 "vuetify:packages/vuetify/src/composables/transition.ts": [
 27,
@@ -67,9 +81,5 @@
 ],
 "vuetify:packages/vuetify/src/util/useRender.ts": [
 8
-],
-"vuetify:packages/vuetify/test/util/to-have-been-warned.ts": [
-66,
-71
 ]
 }

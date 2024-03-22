@@ -20,6 +20,7 @@
 5506,
 5533,
 6936,
+6936,
 8437,
 11431,
 11691,
@@ -76,6 +77,7 @@
 103
 ],
 "ace:src/mode/behaviour.js": [
+10,
 10
 ],
 "ace:src/mode/folding/ruby.js": [

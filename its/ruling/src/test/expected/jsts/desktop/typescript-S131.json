@@ -17,6 +17,7 @@
 59
 ],
 "desktop:app/src/lib/markdown-filters/issue-link-filter.ts": [
+152,
 152
 ],
 "desktop:app/src/lib/menu-item.ts": [
@@ -39,6 +40,8 @@
 ],
 "desktop:app/src/ui/check-runs/ci-check-run-popover.tsx": [
 262,
+262,
+289,
 289
 ],
 "desktop:app/src/ui/diff/side-by-side-diff-row.tsx": [

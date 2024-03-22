@@ -2,14 +2,104 @@
 "eigen:src/app/Components/Bidding/Screens/ConfirmBid.tests.tsx": [
 891
 ],
+"eigen:src/app/Components/Bidding/Screens/ConfirmBid/index.tsx": [
+166
+],
+"eigen:src/app/Components/Bidding/Screens/Registration.tsx": [
+205
+],
 "eigen:src/app/Scenes/Artwork/Components/RequestConditionReport-analytics.tests.tsx": [
 101
 ],
+"eigen:src/app/Scenes/MyAccount/deleteUserAccount.ts": [
+38
+],
 "eigen:src/app/Scenes/MyAccount/updateMyUserProfile.ts": [
+59,
+63,
 71
+],
+"eigen:src/app/Scenes/MyCollection/mutations/deleteArtworkImage.ts": [
+32,
+34
+],
+"eigen:src/app/Scenes/MyCollection/mutations/myCollectionCreateArtwork.ts": [
+39,
+41
+],
+"eigen:src/app/Scenes/MyCollection/mutations/myCollectionDeleteArtwork.ts": [
+31,
+33
+],
+"eigen:src/app/Scenes/MyCollection/mutations/myCollectionUpdateArtwork.ts": [
+35,
+37
+],
+"eigen:src/app/Scenes/SavedAddresses/mutations/addNewAddress.ts": [
+44,
+46,
+52
+],
+"eigen:src/app/Scenes/SavedAddresses/mutations/setAsDefaultAddress.ts": [
+36,
+38,
+44
+],
+"eigen:src/app/Scenes/SavedAddresses/mutations/updateUserAddress.ts": [
+44,
+46,
+52
+],
+"eigen:src/app/Scenes/SavedSearchAlert/mutations/createSavedSearchAlert.ts": [
+34
+],
+"eigen:src/app/Scenes/SavedSearchAlert/mutations/deleteSavedSearchAlert.ts": [
+28
+],
+"eigen:src/app/Scenes/SavedSearchAlert/mutations/updateNotificationPreferences.ts": [
+33
+],
+"eigen:src/app/Scenes/SavedSearchAlert/mutations/updateSavedSearchAlert.ts": [
+41
+],
+"eigen:src/app/Scenes/SellWithArtsy/mutations/createConsignSubmissionMutation.ts": [
+30
+],
+"eigen:src/app/Scenes/SellWithArtsy/mutations/removeAssetFromConsignmentSubmissionMutation.ts": [
+28
+],
+"eigen:src/app/Scenes/SellWithArtsy/mutations/updateConsignSubmissionMutation.ts": [
+26
+],
+"eigen:src/app/store/AuthModel.ts": [
+489,
+503,
+507,
+526,
+565,
+592,
+609,
+649,
+670,
+703,
+746
+],
+"eigen:src/app/utils/ExecutionQueue.ts": [
+11
 ],
 "eigen:src/app/utils/PushNotification.ts": [
 58,
 83
+],
+"eigen:src/app/utils/requestPhotos.ts": [
+57
+],
+"eigen:src/app/utils/verifyEmail.ts": [
+7,
+8
+],
+"eigen:src/app/utils/verifyID.ts": [
+7,
+8
 ]
 }
