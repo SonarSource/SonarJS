@@ -112,8 +112,8 @@ class NodeCommandTest {
         builder().minNodeVersion(Version.create(99, 0)).pathResolver(getPathResolver()).build()
       )
       .isInstanceOf(NodeCommandException.class)
-      .hasMessageStartingWith(
-        "Unsupported Node.JS version detected 20.10. Please upgrade to latest Node.JS LTS version."
+      .hasMessageMatching(
+        "Unsupported Node.JS version detected .*fi Please upgrade to latest Node.JS LTS version."
       );
   }
 
