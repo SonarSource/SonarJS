@@ -170,6 +170,7 @@ import { rule as S4123 } from './S4123'; // no-invalid-await
 import { rule as S3516 } from './S3516'; // no-invariant-returns
 import { rule as S5759 } from './S5759'; // no-ip-forward
 import { rule as S1119 } from './S1119'; // no-labels
+import { rule as S6958 } from './S6958'; // no-literal-call
 import { rule as S6660 } from './S6660'; // no-lonely-if
 import { rule as S5734 } from './S5734'; // no-mime-sniff
 import { rule as S4043 } from './S4043'; // no-misleading-array-reverse
@@ -460,6 +461,7 @@ rules['no-invalid-await'] = S4123;
 rules['no-invariant-returns'] = S3516;
 rules['no-ip-forward'] = S5759;
 rules['no-labels'] = S1119;
+rules['no-literal-call'] = S6958;
 rules['no-lonely-if'] = S6660;
 rules['no-mime-sniff'] = S5734;
 rules['no-misleading-array-reverse'] = S4043;
