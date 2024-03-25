@@ -84,7 +84,13 @@ export function start(
   port = 0,
   host = '127.0.0.1',
   timeout = SHUTDOWN_TIMEOUT,
-): Promise<http.Server> {
+): Promise<{ server: http.Server; serverClosed: Promise<void>; worker: Worker }> {
+  const pendingCloseRequests: express.Response[] = [];
+  let resolveClosed: () => void;
+  const serverClosed: Promise<void> = new Promise(resolve => {
+    resolveClosed = resolve;
+  });
+
   logMemoryConfiguration();
   if (getContext().debugMemory) {
     registerGarbageCollectionObserver();
@@ -103,23 +109,12 @@ export function start(
 
     worker.on('exit', code => {
       debug(`The worker thread exited with code ${code}`);
+      closeServer();
     });
 
     worker.on('error', err => {
       debug(`The worker thread failed: ${err}`);
-
       logMemoryError(err);
-
-      /**
-       * At this point, the worker thread can no longer respond to any request from the plugin.
-       * However, existing requests are stalled until they time out. Since the bridge server is
-       * about to be shut down in an unexpected manner anyway, we can close all connections and
-       * avoid waiting unnecessarily for them to eventually close.
-       */
-      server.closeAllConnections();
-
-      debug('Shutting down the bridge server due to failure');
-      shutdown();
     });
 
     const app = express();
@@ -130,9 +125,7 @@ export function start(
      * in case the process becomes orphan.
      */
     const orphanTimeout = timeoutMiddleware(() => {
-      if (server.listening) {
-        shutdown();
-      }
+      closeWorker();
     }, timeout);
 
     /**
@@ -145,15 +138,14 @@ export function start(
     app.use(errorMiddleware);
 
     app.post('/close', (_: express.Request, response: express.Response) => {
-      debug('Shutting down the bridge server');
-      response.end(() => {
-        shutdown();
-      });
+      pendingCloseRequests.push(response);
+      closeWorker();
     });
 
     server.on('close', () => {
       debug('The bridge server shut down');
-      orphanTimeout.stop();
+      orphanTimeout.cancel();
+      resolveClosed();
     });
 
     server.on('error', err => {
@@ -166,7 +158,7 @@ export function start(
        * which we get using server.address().
        */
       debug(`The bridge server is listening on port ${(server.address() as AddressInfo)?.port}`);
-      resolve(server);
+      resolve({ server, serverClosed, worker });
     });
 
     server.listen(port, host);
@@ -174,9 +166,28 @@ export function start(
     /**
      * Shutdown the server and the worker thread
      */
-    function shutdown() {
-      worker.terminate().catch(reason => debug(`Failed to terminate the worker thread: ${reason}`));
-      server.close();
+    function closeWorker() {
+      debug('Shutting down the worker');
+      worker.postMessage({ type: 'close' });
+    }
+
+    /**
+     * Shutdown the server and the worker thread
+     */
+    function closeServer() {
+      if (server.listening) {
+        while (pendingCloseRequests.length) {
+          pendingCloseRequests.pop()?.end();
+        }
+        /**
+         * At this point, the worker thread can no longer respond to any request from the plugin.
+         * If we reached this due to worker failure, existing requests are stalled until they time out.
+         * Since the bridge server is about to be shut down in an unexpected manner anyway, we can
+         * close all connections and avoid waiting unnecessarily for them to eventually close.
+         */
+        server.closeAllConnections();
+        server.close();
+      }
     }
   });
 }
