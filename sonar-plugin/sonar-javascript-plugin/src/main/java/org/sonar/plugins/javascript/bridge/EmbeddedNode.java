@@ -24,6 +24,7 @@ import static java.nio.file.attribute.PosixFilePermission.OWNER_EXECUTE;
 import static java.nio.file.attribute.PosixFilePermission.OWNER_READ;
 import static java.nio.file.attribute.PosixFilePermission.OWNER_WRITE;
 import static org.sonar.plugins.javascript.bridge.EmbeddedNode.Platform.UNSUPPORTED;
+import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_EXECUTABLE_PROPERTY;
 import static org.sonarsource.api.sonarlint.SonarLintSide.INSTANCE;
 
 import java.io.BufferedInputStream;
@@ -173,7 +174,10 @@ public class EmbeddedNode {
       return;
     }
     if (isNodejsExecutableSet(configuration)) {
-      LOG.info("'sonar.nodejs.executable' is set. Skipping embedded Node.js runtime deployment.");
+      LOG.info(
+        "'{}' is set. Skipping embedded Node.js runtime deployment.",
+        NODE_EXECUTABLE_PROPERTY
+      );
       return;
     }
 
@@ -208,7 +212,7 @@ public class EmbeddedNode {
     if (configuration == null) {
       return false;
     }
-    return configuration.get("sonar.nodejs.executable").isPresent();
+    return configuration.get(NODE_EXECUTABLE_PROPERTY).isPresent();
   }
 
   private static boolean isDifferent(InputStream newVersionIs, Path currentVersionPath)

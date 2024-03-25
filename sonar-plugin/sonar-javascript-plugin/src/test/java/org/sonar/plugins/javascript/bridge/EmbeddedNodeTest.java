@@ -29,6 +29,7 @@ import static org.sonar.plugins.javascript.bridge.EmbeddedNode.Platform.DARWIN_X
 import static org.sonar.plugins.javascript.bridge.EmbeddedNode.Platform.LINUX_X64;
 import static org.sonar.plugins.javascript.bridge.EmbeddedNode.Platform.UNSUPPORTED;
 import static org.sonar.plugins.javascript.bridge.EmbeddedNode.Platform.WIN_X64;
+import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_EXECUTABLE_PROPERTY;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -99,7 +100,7 @@ class EmbeddedNodeTest {
   @Test
   void should_do_nothing_if_sonar_nodejs_executable_is_set() throws Exception {
     var settings = new MapSettings();
-    settings.setProperty("sonar.nodejs.executable", "true");
+    settings.setProperty(NODE_EXECUTABLE_PROPERTY, "true");
     var config = getConfig(settings);
     var en = testEmbeddedNode();
     en.deploy(config);
