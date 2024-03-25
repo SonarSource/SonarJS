@@ -98,9 +98,8 @@ class EmbeddedNodeTest {
 
   @Test
   void should_do_nothing_if_sonar_nodejs_executable_is_set() throws Exception {
-    var NODEJS_EXECUTABLE_KEY = "sonar.nodejs.executable";
     var settings = new MapSettings();
-    settings.setProperty(NODEJS_EXECUTABLE_KEY, "true");
+    settings.setProperty("sonar.nodejs.executable", "true");
     var config = getConfig(settings);
     var en = testEmbeddedNode();
     en.deploy(config);
