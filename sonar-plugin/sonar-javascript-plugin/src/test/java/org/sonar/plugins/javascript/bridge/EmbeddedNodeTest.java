@@ -150,6 +150,19 @@ class EmbeddedNodeTest {
   }
 
   @Test
+  void should_log_if_platform_unsupported() throws Exception {
+    logTester.setLevel(Level.DEBUG);
+    var en = new EmbeddedNode(mock(ProcessWrapper.class), createUnsupportedEnvironment());
+    en.deploy();
+    assertThat(logTester.logs())
+      .anyMatch(l ->
+        l.startsWith(
+          "Your platform is not supported for embedded Node.js. Falling back to host Node.js."
+        )
+      );
+  }
+
+  @Test
   void should_fail_gracefully() throws Exception {
     ProcessWrapper processWrapper = mock(ProcessWrapper.class);
     when(processWrapper.waitFor(any(), anyLong(), any()))
