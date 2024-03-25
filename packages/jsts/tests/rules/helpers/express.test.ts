@@ -19,19 +19,19 @@
  */
 import { Rule, RuleTester } from 'eslint';
 import * as estree from 'estree';
-import { Express, getObjectExpressionProperty } from '../../../src/rules/helpers';
+import { Express, getProperty } from '../../../src/rules/helpers';
 
 const rule = Express.SensitiveMiddlewarePropertyRule(
-  (_context: Rule.RuleContext, node: estree.CallExpression): estree.Property[] => {
+  (context: Rule.RuleContext, node: estree.CallExpression): estree.Property[] => {
     const sensitives: estree.Property[] = [];
     const { callee, arguments: args } = node;
     if (callee.type === 'Identifier' && callee.name === 'middleware' && args.length === 1) {
       const [options] = args;
-      const maybeFoo = getObjectExpressionProperty(options, 'foo');
+      const maybeFoo = getProperty(options, 'foo', context);
       if (maybeFoo) {
         sensitives.push(maybeFoo);
       }
-      const maybeBar = getObjectExpressionProperty(options, 'bar');
+      const maybeBar = getProperty(options, 'bar', context);
       if (maybeBar) {
         sensitives.push(maybeBar);
       }

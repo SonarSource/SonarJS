@@ -25,11 +25,11 @@ import * as estree from 'estree';
 import {
   isIdentifier,
   isLiteral,
-  getObjectExpressionProperty,
   flattenArgs,
   toEncodedMessage,
   getFullyQualifiedName,
   isRequireModule,
+  getProperty,
 } from '../helpers';
 import { SONAR_RUNTIME } from '../../linter/parameters';
 
@@ -83,7 +83,7 @@ export const rule: Rule.RuleModule = {
       // csurf(...)
       if (getFullyQualifiedName(context, callee) === CSURF_MODULE) {
         const [args] = callExpression.arguments;
-        const ignoredMethods = getObjectExpressionProperty(args, 'ignoreMethods');
+        const ignoredMethods = getProperty(args, 'ignoreMethods', context);
         if (ignoredMethods) {
           checkIgnoredMethods(ignoredMethods);
         }

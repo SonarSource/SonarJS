@@ -32,11 +32,10 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
 
 /**
  * Currently supported versions ('supported' means that we execute the analysis):
- * 14 - deprecated (support will be removed not earlier than April 1, 2023)
- * 15 - deprecated (support will be removed not earlier than April 1, 2023), not recommended
- * 16 - nothing to warn, recommended version
- * 17 - not recommended
  * 18 - nothing to warn, recommended version
+ * 19 - not recommended
+ * 20 - nothing to warn, recommended version
+ * 21 - nothing to warn, recommended version
  */
 @ScannerSide
 @SonarLintSide(lifespan = SonarLintSide.MULTIPLE_ANALYSES)
@@ -54,10 +53,10 @@ public class NodeDeprecationWarning {
    * The minor version is a requirement from the ESLint version that the bridge uses.
    * @see https://github.com/eslint/eslint/blob/d75d3c68ad8c98828aaa522b87ec267ab2dcb002/package.json#L169
    */
-  static final Version MIN_SUPPORTED_NODE_VERSION = Version.create(16, 0, 0);
+  static final Version MIN_SUPPORTED_NODE_VERSION = Version.create(18, 18, 0);
   static final int MIN_RECOMMENDED_NODE_VERSION = 18;
   static final List<Integer> RECOMMENDED_NODE_VERSIONS = Arrays.asList(18, 20);
-  static final List<Integer> ALL_RECOMMENDED_NODE_VERSIONS = Arrays.asList(16, 18, 20);
+  static final List<Integer> ALL_RECOMMENDED_NODE_VERSIONS = Arrays.asList(18, 20, 21);
   private final AnalysisWarningsWrapper analysisWarnings;
 
   public NodeDeprecationWarning(AnalysisWarningsWrapper analysisWarnings) {

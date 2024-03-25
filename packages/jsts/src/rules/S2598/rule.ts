@@ -25,10 +25,10 @@ import * as estree from 'estree';
 import {
   getLhsVariable,
   getValueOfExpression,
-  getObjectExpressionProperty,
   getVariableFromName,
   toEncodedMessage,
   getFullyQualifiedName,
+  getProperty,
 } from '../helpers';
 import { SONAR_RUNTIME } from '../../linter/parameters';
 
@@ -115,8 +115,8 @@ function checkFormidable(context: Rule.RuleContext, callExpression: estree.CallE
   if (options) {
     report(
       context,
-      !!getObjectExpressionProperty(options, UPLOAD_DIR),
-      keepExtensionsValue(getObjectExpressionProperty(options, KEEP_EXTENSIONS)?.value),
+      !!getProperty(options, UPLOAD_DIR, context),
+      keepExtensionsValue(getProperty(options, KEEP_EXTENSIONS, context)?.value),
       callExpression,
     );
   }
@@ -136,7 +136,7 @@ function checkMulter(context: Rule.RuleContext, callExpression: estree.CallExpre
     return;
   }
 
-  const storagePropertyValue = getObjectExpressionProperty(multerOptions, STORAGE_OPTION)?.value;
+  const storagePropertyValue = getProperty(multerOptions, STORAGE_OPTION, context)?.value;
   if (storagePropertyValue) {
     const storageValue = getValueOfExpression(context, storagePropertyValue, 'CallExpression');
 
@@ -159,7 +159,7 @@ function getDiskStorageCalleeIfUnsafeStorage(
   const { arguments: args, callee } = storageCreation;
   if (args.length > 0 && isMemberWithProperty(callee, 'diskStorage')) {
     const storageOptions = getValueOfExpression(context, args[0], 'ObjectExpression');
-    if (storageOptions && !getObjectExpressionProperty(storageOptions, DESTINATION_OPTION)) {
+    if (storageOptions && !getProperty(storageOptions, DESTINATION_OPTION, context)) {
       return callee;
     }
   }

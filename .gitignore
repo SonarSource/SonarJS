@@ -22,6 +22,9 @@ sonarjs-*
 # Visual Studio
 .vs/
 
+# VS Code
+.vscode/
+
 # ---- Mac OS X
 .DS_Store
 Icon?

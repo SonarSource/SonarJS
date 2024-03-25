@@ -1,9 +1,0 @@
-{
-  "[typescript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
-    "editor.formatOnSave": true
-  },
-  "sonarlint.connectedMode.project": {
-    "projectKey": "org.sonarsource.javascript:javascript"
-  }
-}

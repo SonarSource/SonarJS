@@ -21,7 +21,7 @@ import { StylelintRuleTester } from '../../../tests/tools/tester';
 import { rule } from './rule';
 
 const ruleTester = new StylelintRuleTester(rule);
-ruleTester.run('no-commented-code', {
+ruleTester.run('sonar/no-commented-code', {
   valid: [
     {
       description: 'no comment',

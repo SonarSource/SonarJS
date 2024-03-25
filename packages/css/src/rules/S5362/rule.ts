@@ -21,7 +21,7 @@
 import * as stylelint from 'stylelint';
 import postcssValueParser from 'postcss-value-parser';
 
-const ruleName = 'function-calc-no-invalid';
+const ruleName = 'sonar/function-calc-no-invalid';
 const operators = ['+', '-', '*', '/'];
 
 // exported for testing purpose

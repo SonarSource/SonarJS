@@ -24,9 +24,9 @@ import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
 import {
   getValueOfExpression,
-  getObjectExpressionProperty,
   toEncodedMessage,
   getFullyQualifiedName,
+  getProperty,
 } from '../helpers';
 import { SONAR_RUNTIME } from '../../linter/parameters';
 
@@ -61,7 +61,7 @@ export const rule: Rule.RuleModule = {
           // Argument exists but its value is unknown
           return;
         }
-        const secrets = getObjectExpressionProperty(firstArgument, 'secrets');
+        const secrets = getProperty(firstArgument, 'secrets', context);
         if (
           secrets &&
           secrets.value.type === 'ArrayExpression' &&

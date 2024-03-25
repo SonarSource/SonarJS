@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { isIdentifier, getValueOfExpression, getObjectExpressionProperty } from '../helpers';
+import { isIdentifier, getValueOfExpression, getProperty } from '../helpers';
 
 const MINIMAL_MODULUS_LENGTH = 2048;
 const MINIMAL_DIVISOR_LENGTH = 224;
@@ -72,7 +72,7 @@ export const rule: Rule.RuleModule = {
     }
 
     function checkRsaAndDsaOptions(algorithm: string, options: estree.Node) {
-      const modulusProperty = getObjectExpressionProperty(options, 'modulusLength');
+      const modulusProperty = getProperty(options, 'modulusLength', context);
       const modulusLength = getNumericValue(modulusProperty?.value);
       if (modulusProperty && modulusLength && modulusLength < MINIMAL_MODULUS_LENGTH) {
         context.report({
@@ -84,7 +84,7 @@ export const rule: Rule.RuleModule = {
           },
         });
       }
-      const divisorProperty = getObjectExpressionProperty(options, 'divisorLength');
+      const divisorProperty = getProperty(options, 'divisorLength', context);
       const divisorLength = getNumericValue(divisorProperty?.value);
       if (divisorProperty && divisorLength && divisorLength < MINIMAL_DIVISOR_LENGTH) {
         context.report({
@@ -99,7 +99,7 @@ export const rule: Rule.RuleModule = {
     }
 
     function checkEcCurve(options: estree.Node) {
-      const namedCurveProperty = getObjectExpressionProperty(options, 'namedCurve');
+      const namedCurveProperty = getProperty(options, 'namedCurve', context);
       const namedCurve = getValueOfExpression(
         context,
         namedCurveProperty?.value,
