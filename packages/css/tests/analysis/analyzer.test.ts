@@ -102,7 +102,7 @@ describe('should emit correctly located issues regardless of invisible character
   for (const [type, expectation] of testCases) {
     const candidates: Array<number | [from: number, to: number]> = [[8192, 8207]];
 
-    for (let candidate of candidates) {
+    for (const candidate of candidates) {
       const executeTest = async (characterCode: number) => {
         const hexadecimalRepresentation = characterCode.toString(16);
 
