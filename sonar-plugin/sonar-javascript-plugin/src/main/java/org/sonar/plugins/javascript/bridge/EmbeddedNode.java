@@ -204,12 +204,11 @@ public class EmbeddedNode {
     }
   }
 
-  private static boolean isNodejsExecutableSet(Configuration configuration) {
+  private static boolean isNodejsExecutableSet(@Nullable Configuration configuration) {
     if (configuration == null) {
       return false;
     }
-    var nodeJsExecutable = configuration.get("sonar.nodejs.executable").get();
-    return nodeJsExecutable != null;
+    return configuration.get("sonar.nodejs.executable").isPresent();
   }
 
   private static boolean isDifferent(InputStream newVersionIs, Path currentVersionPath)
