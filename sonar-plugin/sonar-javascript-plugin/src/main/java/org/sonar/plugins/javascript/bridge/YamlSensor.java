@@ -19,6 +19,8 @@
  */
 package org.sonar.plugins.javascript.bridge;
 
+import static org.sonar.plugins.javascript.JavaScriptFilePredicate.getYamlPredicate;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.Scanner;
@@ -105,10 +107,8 @@ public class YamlSensor extends AbstractBridgeSensor {
   protected List<InputFile> getInputFiles() {
     var fileSystem = context.fileSystem();
     FilePredicates p = fileSystem.predicates();
-    var filePredicate = p.and(
-      p.hasLanguage(YamlSensor.LANGUAGE),
-      input -> isSamTemplate(input, LOG)
-    );
+    var yamlPredicate = getYamlPredicate(fileSystem);
+    var filePredicate = p.and(yamlPredicate, input -> isSamTemplate(input, LOG));
     var inputFiles = context.fileSystem().inputFiles(filePredicate);
     return StreamSupport.stream(inputFiles.spliterator(), false).toList();
   }
