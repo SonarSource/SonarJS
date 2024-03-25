@@ -94,12 +94,10 @@ describe('analyzeCSS', () => {
 });
 
 describe('should emit correctly located issues regardless of invisible characters', () => {
-  const testCases: Array<
-    [type: 'single' | 'multiple', expectation: [line: number, column: number]]
-  > = [
+  const testCases = [
     ['single', [5, 2]],
     ['multiple', [7, 4]],
-  ];
+  ] as const;
 
   for (const [type, expectation] of testCases) {
     const candidates: Array<number | [from: number, to: number]> = [[8192, 8207]];
