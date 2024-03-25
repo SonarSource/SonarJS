@@ -17,12 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { check } from '../tools';
-import { rule } from './';
-import path from 'path';
+package org.sonar.javascript.checks;
 
-const sonarId = path.basename(__dirname);
+import org.sonar.check.Rule;
+import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.JavaScriptRule;
+import org.sonar.plugins.javascript.api.TypeScriptRule;
 
-describe('Rule S1874', () => {
-  check(sonarId, rule, __dirname);
-});
+@JavaScriptRule
+@TypeScriptRule
+@Rule(key = "S6957")
+public class NoDeprecatedReactCheck implements EslintBasedCheck {
+
+  @Override
+  public String eslintKey() {
+    return "no-deprecated-react";
+  }
+}
