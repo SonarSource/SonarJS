@@ -103,6 +103,8 @@ class EmbeddedNodeTest {
     assertThat(en.binary()).doesNotExist();
     if (tmp != null) {
       System.setProperty(NODEJS_EXECUTABLE_KEY, tmp);
+    } else {
+      System.clearProperty(NODEJS_EXECUTABLE_KEY);
     }
   }
 
