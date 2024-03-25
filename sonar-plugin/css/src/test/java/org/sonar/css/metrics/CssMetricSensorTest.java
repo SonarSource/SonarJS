@@ -34,6 +34,7 @@ import org.junit.jupiter.api.io.TempDir;
 import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarRuntime;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
@@ -210,6 +211,10 @@ class CssMetricSensorTest {
     // Mix code and comment
     executeSensor("foo {} // some comment");
     assertLinesOfCode(1);
+
+    // We don't count TEST files
+    executeSensor("bar { }", InputFile.Type.TEST);
+    assertThat(sensorContext.measure(inputFile.key(), CoreMetrics.COMMENT_LINES)).isNull();
   }
 
   @Test
@@ -237,10 +242,15 @@ class CssMetricSensorTest {
   }
 
   private void executeSensor(String content) throws IOException {
+    executeSensor(content, InputFile.Type.MAIN);
+  }
+
+  private void executeSensor(String content, InputFile.Type type) throws IOException {
     File file = tempFolder.resolve("file.js").toFile();
     inputFile =
       new TestInputFileBuilder("moduleKey", file.getName())
         .setLanguage("css")
+        .setType(type)
         .setContents(content)
         .build();
 
