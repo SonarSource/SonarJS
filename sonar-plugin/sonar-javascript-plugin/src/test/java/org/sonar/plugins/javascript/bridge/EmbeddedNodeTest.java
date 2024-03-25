@@ -94,6 +94,19 @@ class EmbeddedNodeTest {
   }
 
   @Test
+  void should_do_nothing_if_sonar_nodejs_executable_is_set() throws Exception {
+    var NODEJS_EXECUTABLE_KEY = "sonar.nodejs.executable";
+    var tmp = System.getProperty(NODEJS_EXECUTABLE_KEY);
+    System.setProperty(NODEJS_EXECUTABLE_KEY, "true");
+    var en = testEmbeddedNode();
+    en.deploy();
+    assertThat(en.binary()).doesNotExist();
+    if (tmp != null) {
+      System.setProperty(NODEJS_EXECUTABLE_KEY, tmp);
+    }
+  }
+
+  @Test
   void should_detect_platform_for_windows_environment() {
     var platform = Platform.detect(createWindowsEnvironment());
     assertThat(platform).isEqualTo(WIN_X64);

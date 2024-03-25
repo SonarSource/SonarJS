@@ -170,6 +170,11 @@ public class EmbeddedNode {
     if (platform == UNSUPPORTED) {
       return;
     }
+    if (isNodejsExecutableSet()) {
+      LOG.info("'sonar.nodejs.executable' is set. Skipping embedded Node.js runtime deployment.");
+      return;
+    }
+
     try {
       var is = getClass().getResourceAsStream(platform.archivePathInJar());
       if (is == null) {
@@ -195,6 +200,11 @@ public class EmbeddedNode {
     } catch (Exception e) {
       LOG.warn("Embedded Node.js failed to deploy. Will fallback to host Node.js.", e);
     }
+  }
+
+  private static boolean isNodejsExecutableSet() {
+    var nodeJsExecutable = System.getProperty("sonar.nodejs.executable");
+    return nodeJsExecutable != null;
   }
 
   private static boolean isDifferent(InputStream newVersionIs, Path currentVersionPath)
