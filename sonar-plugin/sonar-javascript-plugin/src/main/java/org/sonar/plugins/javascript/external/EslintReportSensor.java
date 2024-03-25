@@ -78,7 +78,7 @@ public class EslintReportSensor extends AbstractExternalIssuesSensor {
         }
       }
     } catch (IOException | JsonSyntaxException e) {
-      LOG.error(FILE_EXCEPTION_MESSAGE, e);
+      LOG.warn(FILE_EXCEPTION_MESSAGE, e);
     }
   }
 
