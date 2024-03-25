@@ -35,6 +35,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Locale;
 import java.util.Set;
+import javax.annotation.Nullable;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -159,7 +161,7 @@ public class EmbeddedNode {
    *
    * @throws IOException
    */
-  public void deploy() throws IOException {
+  public void deploy(@Nullable Configuration configuration) throws IOException {
     LOG.info(
       "Detected os: {} arch: {} alpine: {}. Platform: {}",
       env.getOsName(),
@@ -170,7 +172,7 @@ public class EmbeddedNode {
     if (platform == UNSUPPORTED) {
       return;
     }
-    if (isNodejsExecutableSet()) {
+    if (isNodejsExecutableSet(configuration)) {
       LOG.info("'sonar.nodejs.executable' is set. Skipping embedded Node.js runtime deployment.");
       return;
     }
@@ -202,8 +204,11 @@ public class EmbeddedNode {
     }
   }
 
-  private static boolean isNodejsExecutableSet() {
-    var nodeJsExecutable = System.getProperty("sonar.nodejs.executable");
+  private static boolean isNodejsExecutableSet(Configuration configuration) {
+    if (configuration == null) {
+      return false;
+    }
+    var nodeJsExecutable = configuration.get("sonar.nodejs.executable").get();
     return nodeJsExecutable != null;
   }
 

@@ -47,6 +47,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.SonarProduct;
 import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -162,9 +163,9 @@ public class BridgeServerImpl implements BridgeServer {
    *
    * @throws IOException
    */
-  void deploy() throws IOException {
+  void deploy(Configuration configuration) throws IOException {
     bundle.deploy(temporaryDeployLocation);
-    embeddedNode.deploy();
+    embeddedNode.deploy(configuration);
   }
 
   void startServer(SensorContext context, List<Path> deployedBundles) throws IOException {
@@ -285,7 +286,7 @@ public class BridgeServerImpl implements BridgeServer {
         status = Status.FAILED;
         throw new ServerAlreadyFailedException();
       }
-      deploy();
+      deploy(context.config());
       List<Path> deployedBundles = rulesBundles.deploy(temporaryDeployLocation.resolve("package"));
       rulesBundles
         .getUcfgRulesBundle()

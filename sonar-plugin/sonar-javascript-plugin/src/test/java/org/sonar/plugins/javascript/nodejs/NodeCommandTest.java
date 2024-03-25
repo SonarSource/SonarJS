@@ -398,7 +398,7 @@ class NodeCommandTest {
   @Test
   void test_embedded_runtime() throws Exception {
     var en = new EmbeddedNode(new ProcessWrapperImpl(), createTestEnvironment());
-    en.deploy();
+    en.deploy(null);
     NodeCommand nodeCommand = builder()
       .script(PATH_TO_SCRIPT)
       .pathResolver(getPathResolver())
@@ -421,7 +421,7 @@ class NodeCommandTest {
     Configuration configuration = mapSettings.asConfig();
 
     var en = new EmbeddedNode(mockProcessWrapper, createTestEnvironment());
-    en.deploy();
+    en.deploy(null);
     NodeCommand nodeCommand = builder()
       .script(PATH_TO_SCRIPT)
       .configuration(configuration)
