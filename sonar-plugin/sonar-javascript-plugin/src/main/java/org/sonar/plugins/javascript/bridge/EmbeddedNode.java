@@ -24,7 +24,6 @@ import static java.nio.file.attribute.PosixFilePermission.OWNER_EXECUTE;
 import static java.nio.file.attribute.PosixFilePermission.OWNER_READ;
 import static java.nio.file.attribute.PosixFilePermission.OWNER_WRITE;
 import static org.sonar.plugins.javascript.bridge.EmbeddedNode.Platform.UNSUPPORTED;
-import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_EXECUTABLE_PROPERTY;
 import static org.sonarsource.api.sonarlint.SonarLintSide.INSTANCE;
 
 import java.io.BufferedInputStream;
@@ -36,8 +35,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Locale;
 import java.util.Set;
-import javax.annotation.Nullable;
-import org.sonar.api.config.Configuration;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -162,7 +159,7 @@ public class EmbeddedNode {
    *
    * @throws IOException
    */
-  public void deploy(@Nullable Configuration configuration) throws IOException {
+  public void deploy() throws IOException {
     LOG.info(
       "Detected os: {} arch: {} alpine: {}. Platform: {}",
       env.getOsName(),
@@ -171,13 +168,6 @@ public class EmbeddedNode {
       platform
     );
     if (platform == UNSUPPORTED) {
-      return;
-    }
-    if (isNodejsExecutableSet(configuration)) {
-      LOG.info(
-        "'{}' is set. Skipping embedded Node.js runtime deployment.",
-        NODE_EXECUTABLE_PROPERTY
-      );
       return;
     }
 
@@ -206,13 +196,6 @@ public class EmbeddedNode {
     } catch (Exception e) {
       LOG.warn("Embedded Node.js failed to deploy. Will fallback to host Node.js.", e);
     }
-  }
-
-  private static boolean isNodejsExecutableSet(@Nullable Configuration configuration) {
-    if (configuration == null) {
-      return false;
-    }
-    return configuration.get(NODE_EXECUTABLE_PROPERTY).isPresent();
   }
 
   private static boolean isDifferent(InputStream newVersionIs, Path currentVersionPath)

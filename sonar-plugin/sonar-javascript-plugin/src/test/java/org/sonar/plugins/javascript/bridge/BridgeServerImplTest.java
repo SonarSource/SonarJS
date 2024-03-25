@@ -33,6 +33,7 @@ import static org.sonar.api.utils.log.LoggerLevel.ERROR;
 import static org.sonar.api.utils.log.LoggerLevel.INFO;
 import static org.sonar.api.utils.log.LoggerLevel.WARN;
 import static org.sonar.plugins.javascript.bridge.AnalysisMode.DEFAULT_LINTER_ID;
+import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_EXECUTABLE_PROPERTY;
 
 import java.io.File;
 import java.io.IOException;
@@ -44,6 +45,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import org.awaitility.Awaitility;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
@@ -720,6 +722,25 @@ class BridgeServerImplTest {
 
     assertThat(logTester.logs(DEBUG))
       .contains("Security Frontend version is available: [some_bundle_version]");
+  }
+
+  @Test
+  void should_not_deploy_runtime_if_sonar_nodejs_executable_is_set() throws Exception {
+    var existingDoesntMatterScript = "logging.js";
+    bridgeServer = createBridgeServer(existingDoesntMatterScript);
+    bridgeServer.startServer(context, emptyList());
+    var nodeCommand = Arrays
+      .stream(bridgeServer.getCommandInfo().split(" "))
+      .filter(s -> s.contains("node"))
+      .collect(Collectors.joining());
+    bridgeServer.stop();
+    context.setSettings(new MapSettings().setProperty(NODE_EXECUTABLE_PROPERTY, nodeCommand));
+    bridgeServer.startServerLazily(context);
+
+    assertThat(logTester.logs(INFO))
+      .contains(
+        "'" + NODE_EXECUTABLE_PROPERTY + "' is set. Skipping embedded Node.js runtime deployment."
+      );
   }
 
   private BridgeServerImpl createBridgeServer(String startServerScript) {

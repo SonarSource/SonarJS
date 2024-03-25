@@ -21,6 +21,7 @@ package org.sonar.plugins.javascript.bridge;
 
 import static java.util.Collections.emptyList;
 import static org.sonar.plugins.javascript.bridge.NetUtils.findOpenPort;
+import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_EXECUTABLE_PROPERTY;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
@@ -165,7 +166,14 @@ public class BridgeServerImpl implements BridgeServer {
    */
   void deploy(Configuration configuration) throws IOException {
     bundle.deploy(temporaryDeployLocation);
-    embeddedNode.deploy(configuration);
+    if (configuration.get(NODE_EXECUTABLE_PROPERTY).isPresent()) {
+      LOG.info(
+        "'{}' is set. Skipping embedded Node.js runtime deployment.",
+        NODE_EXECUTABLE_PROPERTY
+      );
+      return;
+    }
+    embeddedNode.deploy();
   }
 
   void startServer(SensorContext context, List<Path> deployedBundles) throws IOException {

@@ -29,7 +29,6 @@ import static org.sonar.plugins.javascript.bridge.EmbeddedNode.Platform.DARWIN_X
 import static org.sonar.plugins.javascript.bridge.EmbeddedNode.Platform.LINUX_X64;
 import static org.sonar.plugins.javascript.bridge.EmbeddedNode.Platform.UNSUPPORTED;
 import static org.sonar.plugins.javascript.bridge.EmbeddedNode.Platform.WIN_X64;
-import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_EXECUTABLE_PROPERTY;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -63,7 +62,7 @@ class EmbeddedNodeTest {
     var runtimeFolder = en.binary().getParent();
     Files.createDirectories(runtimeFolder);
     Files.write(runtimeFolder.resolve("version.txt"), "a-different-version".getBytes());
-    en.deploy(null);
+    en.deploy();
     assertThat(en.binary()).exists();
     assertThat(en.isAvailable()).isTrue();
   }
@@ -72,12 +71,12 @@ class EmbeddedNodeTest {
   void should_not_extract_if_deployLocation_contains_the_same_version() throws Exception {
     logTester.setLevel(Level.DEBUG);
     var en = testEmbeddedNode();
-    en.deploy(null);
+    en.deploy();
     assertThat(logTester.logs()).anyMatch(l -> l.startsWith("Extracting embedded node"));
     logTester.clear();
     en = testEmbeddedNode();
     assertThat(en.isAvailable()).isFalse();
-    en.deploy(null);
+    en.deploy();
     assertThat(logTester.logs()).anyMatch(l -> l.startsWith("Skipping node deploy."));
     assertThat(en.isAvailable()).isTrue();
   }
@@ -85,7 +84,7 @@ class EmbeddedNodeTest {
   @Test
   void should_not_extract_neither_be_available_if_the_platform_is_unsupported() throws Exception {
     var en = new EmbeddedNode(mock(ProcessWrapper.class), createUnsupportedEnvironment());
-    en.deploy(null);
+    en.deploy();
     assertThat(en.binary()).doesNotExist();
     assertThat(en.isAvailable()).isFalse();
   }
@@ -93,18 +92,8 @@ class EmbeddedNodeTest {
   @Test
   void should_extract_if_deployLocation_has_no_version() throws Exception {
     var en = testEmbeddedNode();
-    en.deploy(null);
+    en.deploy();
     assertThat(tempDir.resolve(en.binary())).exists();
-  }
-
-  @Test
-  void should_do_nothing_if_sonar_nodejs_executable_is_set() throws Exception {
-    var settings = new MapSettings();
-    settings.setProperty(NODE_EXECUTABLE_PROPERTY, "true");
-    var config = getConfig(settings);
-    var en = testEmbeddedNode();
-    en.deploy(config);
-    assertThat(en.binary()).doesNotExist();
   }
 
   @Test
@@ -169,7 +158,7 @@ class EmbeddedNodeTest {
     when(processWrapper.waitFor(any(), anyLong(), any()))
       .thenThrow(new IllegalStateException("My Error"));
     var en = new EmbeddedNode(processWrapper, createTestEnvironment());
-    en.deploy(null);
+    en.deploy();
     assertThat(logTester.logs())
       .anyMatch(l ->
         l.startsWith("Embedded Node.js failed to deploy. Will fallback to host Node.js")
