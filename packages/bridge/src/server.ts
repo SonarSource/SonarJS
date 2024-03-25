@@ -114,10 +114,7 @@ export function start(
 
     worker.on('error', err => {
       debug(`The worker thread failed: ${err}`);
-      debug('Shutting down the bridge server due to failure');
       logMemoryError(err);
-
-      closeServer();
     });
 
     const app = express();

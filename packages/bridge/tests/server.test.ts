@@ -135,10 +135,11 @@ describe('server', () => {
     const { server, serverClosed, worker } = await start(port);
     expect(server.listening).toBeTruthy();
 
+    worker.emit('error', new Error('An error'));
     await worker.terminate();
 
     expect(server.listening).toBeFalsy();
-    expect(console.log).toHaveBeenCalledWith('DEBUG The bridge server shut down');
+    expect(console.log).toHaveBeenCalledWith('DEBUG The worker thread failed: Error: An error');
     await serverClosed;
   });
 

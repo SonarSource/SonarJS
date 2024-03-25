@@ -47,6 +47,7 @@ describe('router', () => {
 
   afterEach(async () => {
     await request(server, '/close', 'POST');
+    //We need to await the server close promise, as the http server still needs to be up to finish the response of the /close request.
     await closePromise;
   });
 
