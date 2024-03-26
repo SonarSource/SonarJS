@@ -27,3 +27,9 @@ describe('vitest test cases', () => {
     expect(1).toEqual(2);
   }
 });
+
+describe.concurrent('vitest concurrent test cases', () => {
+  it('recognizes global expect as an assertion', async ({ expect }) => {
+    expect(5).toEqual(5);
+  });
+});
