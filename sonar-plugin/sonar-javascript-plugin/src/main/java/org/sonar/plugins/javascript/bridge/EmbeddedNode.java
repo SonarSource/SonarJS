@@ -170,7 +170,6 @@ public class EmbeddedNode {
     if (platform == UNSUPPORTED) {
       return;
     }
-
     try {
       var is = getClass().getResourceAsStream(platform.archivePathInJar());
       if (is == null) {
