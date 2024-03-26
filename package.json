@@ -66,7 +66,7 @@
     "prettier": "3.2.5",
     "prettier-plugin-java": "2.6.0",
     "pretty-quick": "4.0.0",
-    "rimraf": "5.0.5",
+    "rimraf": "3.0.2",
     "ts-jest": "29.1.2",
     "ts-node": "10.9.2",
     "typedoc": "0.25.12"
@@ -98,7 +98,7 @@
     "minimatch": "9.0.3",
     "module-alias": "2.2.3",
     "postcss": "8.4.38",
-    "postcss-html": "1.6.0",
+    "postcss-html": "0.36.0",
     "postcss-less": "6.0.0",
     "postcss-sass": "0.5.0",
     "postcss-scss": "4.0.9",
