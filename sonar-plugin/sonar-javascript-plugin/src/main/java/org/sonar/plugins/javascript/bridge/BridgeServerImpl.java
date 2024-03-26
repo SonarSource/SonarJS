@@ -539,13 +539,6 @@ public class BridgeServerImpl implements BridgeServer {
     }
   }
 
-  /**
-   * used for tests only
-   */
-  public String getNodeCommandString() {
-    return nodeCommand.toString();
-  }
-
   @Override
   public void start() {
     // Server is started lazily from the org.sonar.plugins.javascript.eslint.EslintBasedRulesSensor
