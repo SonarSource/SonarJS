@@ -116,7 +116,7 @@ class EslintReportSensorTest {
     Collection<ExternalIssue> externalIssues = context.allExternalIssues();
     assertThat(externalIssues).hasSize(0);
 
-    assertThat(logTester.logs(LoggerLevel.ERROR))
+    assertThat(logTester.logs(LoggerLevel.WARN))
       .contains("No issues information will be saved as the report file can't be read.");
   }
 
@@ -128,7 +128,7 @@ class EslintReportSensorTest {
     Collection<ExternalIssue> externalIssues = context.allExternalIssues();
     assertThat(externalIssues).hasSize(0);
 
-    assertThat(logTester.logs(LoggerLevel.ERROR))
+    assertThat(logTester.logs(LoggerLevel.WARN))
       .contains("No issues information will be saved as the report file can't be read.");
   }
 
