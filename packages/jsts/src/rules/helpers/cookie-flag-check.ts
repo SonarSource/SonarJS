@@ -31,7 +31,10 @@ import {
 export class CookieFlagCheck {
   issueMessage: string;
 
-  constructor(readonly context: Rule.RuleContext, readonly flag: 'httpOnly' | 'secure') {
+  constructor(
+    readonly context: Rule.RuleContext,
+    readonly flag: 'httpOnly' | 'secure',
+  ) {
     this.issueMessage = `Make sure creating this cookie without the "${flag}" flag is safe.`;
   }
 

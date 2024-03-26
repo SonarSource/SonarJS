@@ -180,7 +180,10 @@ class ComplexityCalculator {
   components: { location: LocationHolder; message: string }[] = [];
   regexPartAST: regexpp.AST.Node | null;
 
-  constructor(readonly regexPart: RegexPart, readonly context: Rule.RuleContext) {
+  constructor(
+    readonly regexPart: RegexPart,
+    readonly context: Rule.RuleContext,
+  ) {
     this.regexPartAST = getParsedRegex(regexPart, context);
   }
 

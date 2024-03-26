@@ -31,7 +31,10 @@ export default class Timeout {
    * @param f the function to be executed after the timer expires.
    * @param delay The time in milliseconds that the timer should wait.
    */
-  constructor(private readonly f: () => void, private readonly delay: number) {}
+  constructor(
+    private readonly f: () => void,
+    private readonly delay: number,
+  ) {}
 
   /**
    * Starts the timeout.

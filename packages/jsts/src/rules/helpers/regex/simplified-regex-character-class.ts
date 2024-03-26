@@ -43,7 +43,10 @@ export class SimplifiedRegexCharacterClass {
    */
   private contents = createTree<number, Node | undefined>();
 
-  constructor(private readonly flags: Flags, element?: CharacterClassElement) {
+  constructor(
+    private readonly flags: Flags,
+    element?: CharacterClassElement,
+  ) {
     if (element) {
       this.add(element);
     }
