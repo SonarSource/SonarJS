@@ -727,7 +727,7 @@ class BridgeServerImplTest {
   void should_not_deploy_runtime_if_sonar_nodejs_executable_is_set() throws Exception {
     var existingDoesntMatterScript = "logging.js";
     bridgeServer = createBridgeServer(existingDoesntMatterScript);
-    bridgeServer.startServer(context, emptyList());
+    bridgeServer.startServerLazily(context);
     var nodeCommand = bridgeServer.getNodeCommandString().split(" ")[0];
     bridgeServer.stop();
 

@@ -37,10 +37,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
 import org.slf4j.event.Level;
-import org.sonar.api.config.Configuration;
-import org.sonar.api.config.internal.ConfigurationBridge;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.api.config.internal.Settings;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.plugins.javascript.bridge.EmbeddedNode.Platform;
 import org.sonar.plugins.javascript.nodejs.ProcessWrapper;
@@ -205,9 +202,5 @@ class EmbeddedNodeTest {
     when(mockEnvironment.getOsName()).thenReturn("");
     when(mockEnvironment.getOsArch()).thenReturn("");
     return mockEnvironment;
-  }
-
-  private Configuration getConfig(Settings settings) {
-    return new ConfigurationBridge(settings);
   }
 }
