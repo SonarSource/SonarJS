@@ -63,6 +63,7 @@ export function interceptReport(
           cwd: originalContext.cwd,
           filename: originalContext.filename,
           physicalFilename: originalContext.physicalFilename,
+          languageOptions: originalContext.languageOptions,
 
           getCwd(): string {
             return originalContext.cwd;

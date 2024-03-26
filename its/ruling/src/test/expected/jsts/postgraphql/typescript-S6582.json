@@ -22,5 +22,9 @@
 ],
 "postgraphql:src/postgraphql/withPostGraphQLContext.ts": [
 209
+],
+"postgraphql:src/postgres/inventory/type/PgRangeType.ts": [
+137,
+138
 ]
 }

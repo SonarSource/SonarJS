@@ -64,6 +64,9 @@
 "courselit:apps/web/graphql/courses/helpers.ts": [
 28
 ],
+"courselit:apps/web/graphql/lessons/logic.ts": [
+65
+],
 "courselit:apps/web/graphql/settings/logic.ts": [
 118
 ],
