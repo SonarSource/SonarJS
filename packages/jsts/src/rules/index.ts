@@ -246,6 +246,7 @@ import { rule as S4507 } from './S4507'; // production-debug
 import { rule as S2245 } from './S2245'; // pseudo-random
 import { rule as S1444 } from './S1444'; // public-static-readonly
 import { rule as S5443 } from './S5443'; // publicly-writable-directories
+import { rule as S6959 } from './S6959'; // reduce-initial-value
 import { rule as S6564 } from './S6564'; // redundant-type-aliases
 import { rule as S5843 } from './S5843'; // regex-complexity
 import { rule as S4784 } from './S4784'; // regular-expr
@@ -538,6 +539,7 @@ rules['production-debug'] = S4507;
 rules['pseudo-random'] = S2245;
 rules['public-static-readonly'] = S1444;
 rules['publicly-writable-directories'] = S5443;
+rules['reduce-initial-value'] = S6959;
 rules['redundant-type-aliases'] = S6564;
 rules['regex-complexity'] = S5843;
 rules['regular-expr'] = S4784;

@@ -1,0 +1,27 @@
+{
+  "title": "\"Array.reduce()\" calls should include an initial value",
+  "type": "BUG",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "type-dependent"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6959",
+  "sqKey": "S6959",
+  "scope": "All",
+  "quickfix": "targeted",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "MEDIUM"
+    },
+    "attribute": "CONVENTIONAL"
+  },
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]
+}
