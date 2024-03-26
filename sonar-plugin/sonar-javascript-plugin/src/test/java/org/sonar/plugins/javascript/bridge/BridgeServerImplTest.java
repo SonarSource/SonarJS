@@ -45,7 +45,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 import org.awaitility.Awaitility;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
@@ -729,11 +728,9 @@ class BridgeServerImplTest {
     var existingDoesntMatterScript = "logging.js";
     bridgeServer = createBridgeServer(existingDoesntMatterScript);
     bridgeServer.startServer(context, emptyList());
-    var nodeCommand = Arrays
-      .stream(bridgeServer.getCommandInfo().split(" "))
-      .filter(s -> s.contains("node"))
-      .collect(Collectors.joining());
+    var nodeCommand = bridgeServer.getNodeCommandString().split(" ")[0];
     bridgeServer.stop();
+
     context.setSettings(new MapSettings().setProperty(NODE_EXECUTABLE_PROPERTY, nodeCommand));
     bridgeServer.startServerLazily(context);
 
