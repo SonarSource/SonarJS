@@ -161,7 +161,10 @@ class PathMappingNoAsteriskPattern implements PathMappingPattern {
 }
 
 class PathMappingSingleAsteriskPattern implements PathMappingPattern {
-  constructor(private readonly prefix: string, private readonly suffix: string) {}
+  constructor(
+    private readonly prefix: string,
+    private readonly suffix: string,
+  ) {}
   isApplicableTo(name: string): boolean {
     return name.startsWith(this.prefix) && name.endsWith(this.suffix);
   }
