@@ -38,7 +38,7 @@ ruleTester.run('no-literal-call', rule, {
       code: 'true();',
       errors: [
         {
-          message: 'Literal should not be used as function.',
+          messageId: 'asFunction',
           line: 1,
           column: 1,
           endColumn: 5,
@@ -49,7 +49,7 @@ ruleTester.run('no-literal-call', rule, {
       code: 'true``;',
       errors: [
         {
-          message: 'Literal should not be used as tag function.',
+          messageId: 'asTagFunction',
           line: 1,
           column: 1,
           endColumn: 5,
@@ -60,7 +60,7 @@ ruleTester.run('no-literal-call', rule, {
       code: 'false();',
       errors: [
         {
-          message: 'Literal should not be used as function.',
+          messageId: 'asFunction',
           line: 1,
           column: 1,
           endColumn: 6,
@@ -71,7 +71,7 @@ ruleTester.run('no-literal-call', rule, {
       code: 'false``;',
       errors: [
         {
-          message: 'Literal should not be used as tag function.',
+          messageId: 'asTagFunction',
           line: 1,
           column: 1,
           endColumn: 6,
@@ -82,7 +82,7 @@ ruleTester.run('no-literal-call', rule, {
       code: 'null();',
       errors: [
         {
-          message: 'Literal should not be used as function.',
+          messageId: 'asFunction',
           line: 1,
           column: 1,
           endColumn: 5,
@@ -93,7 +93,7 @@ ruleTester.run('no-literal-call', rule, {
       code: 'null``;',
       errors: [
         {
-          message: 'Literal should not be used as tag function.',
+          messageId: 'asTagFunction',
           line: 1,
           column: 1,
           endColumn: 5,
@@ -104,7 +104,7 @@ ruleTester.run('no-literal-call', rule, {
       code: '100();',
       errors: [
         {
-          message: 'Literal should not be used as function.',
+          messageId: 'asFunction',
           line: 1,
           column: 1,
           endColumn: 4,
@@ -115,7 +115,7 @@ ruleTester.run('no-literal-call', rule, {
       code: '100``;',
       errors: [
         {
-          message: 'Literal should not be used as tag function.',
+          messageId: 'asTagFunction',
           line: 1,
           column: 1,
           endColumn: 4,
@@ -126,7 +126,7 @@ ruleTester.run('no-literal-call', rule, {
       code: '"hello"();',
       errors: [
         {
-          message: 'Literal should not be used as function.',
+          messageId: 'asFunction',
           line: 1,
           column: 1,
           endColumn: 8,
@@ -137,7 +137,7 @@ ruleTester.run('no-literal-call', rule, {
       code: '`hello```;',
       errors: [
         {
-          message: 'Literal should not be used as tag function.',
+          messageId: 'asTagFunction',
           line: 1,
           column: 1,
           endColumn: 8,
@@ -148,7 +148,7 @@ ruleTester.run('no-literal-call', rule, {
       code: '/abc/();',
       errors: [
         {
-          message: 'Literal should not be used as function.',
+          messageId: 'asFunction',
           line: 1,
           column: 1,
           endColumn: 6,
@@ -159,7 +159,7 @@ ruleTester.run('no-literal-call', rule, {
       code: '/abc/``;',
       errors: [
         {
-          message: 'Literal should not be used as tag function.',
+          messageId: 'asTagFunction',
           line: 1,
           column: 1,
           endColumn: 6,
@@ -170,7 +170,7 @@ ruleTester.run('no-literal-call', rule, {
       code: '[1,2,3]();',
       errors: [
         {
-          message: 'Literal should not be used as function.',
+          messageId: 'asFunction',
           line: 1,
           column: 1,
           endColumn: 8,
@@ -181,7 +181,7 @@ ruleTester.run('no-literal-call', rule, {
       code: '[1,2,3]``;',
       errors: [
         {
-          message: 'Literal should not be used as tag function.',
+          messageId: 'asTagFunction',
           line: 1,
           column: 1,
           endColumn: 8,
@@ -192,7 +192,7 @@ ruleTester.run('no-literal-call', rule, {
       code: '({foo: 0})();',
       errors: [
         {
-          message: 'Literal should not be used as function.',
+          messageId: 'asFunction',
           line: 1,
           column: 2,
           endColumn: 10,
@@ -203,7 +203,7 @@ ruleTester.run('no-literal-call', rule, {
       code: '({foo: 0})``;',
       errors: [
         {
-          message: 'Literal should not be used as tag function.',
+          messageId: 'asTagFunction',
           line: 1,
           column: 2,
           endColumn: 10,
@@ -214,7 +214,7 @@ ruleTester.run('no-literal-call', rule, {
       code: '`hello`();',
       errors: [
         {
-          message: 'Literal should not be used as function.',
+          messageId: 'asFunction',
           line: 1,
           column: 1,
           endColumn: 8,
@@ -225,7 +225,7 @@ ruleTester.run('no-literal-call', rule, {
       code: '"hello"``;',
       errors: [
         {
-          message: 'Literal should not be used as tag function.',
+          messageId: 'asTagFunction',
           line: 1,
           column: 1,
           endColumn: 8,
@@ -236,7 +236,7 @@ ruleTester.run('no-literal-call', rule, {
       code: '(class A {})();',
       errors: [
         {
-          message: 'Literal should not be used as function.',
+          messageId: 'asFunction',
           line: 1,
           column: 2,
           endColumn: 12,
@@ -247,7 +247,7 @@ ruleTester.run('no-literal-call', rule, {
       code: '(class A {})``;',
       errors: [
         {
-          message: 'Literal should not be used as tag function.',
+          messageId: 'asTagFunction',
           line: 1,
           column: 2,
           endColumn: 12,

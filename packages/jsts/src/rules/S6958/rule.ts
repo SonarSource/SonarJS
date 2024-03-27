@@ -20,6 +20,15 @@
 import { type Rule } from 'eslint';
 import { type Node } from 'estree';
 
+const NODES = new Set([
+  'Expression',
+  'ArrayExpression',
+  'ClassExpression',
+  'ObjectExpression',
+  'Literal',
+  'TemplateLiteral',
+]);
+
 export const rule: Rule.RuleModule = {
   meta: {
     messages: {
@@ -29,10 +38,8 @@ export const rule: Rule.RuleModule = {
   },
 
   create(context) {
-    const pattern = /^(?:(?:Array|Class|Object)Expression|(?:Template)?Literal)$/u;
-
     const processNode = (node: Node, messageId: string): void => {
-      if (pattern.test(node.type)) {
+      if (NODES.has(node.type)) {
         context.report({
           node: node,
           messageId,
