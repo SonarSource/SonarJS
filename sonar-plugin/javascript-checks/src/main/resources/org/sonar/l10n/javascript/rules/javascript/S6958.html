@@ -1,14 +1,17 @@
-<p>FIXME: add a description</p>
 <h2>Why is this an issue?</h2>
-<p>FIXME: remove the unused optional headers (that are commented out)</p>
-<h2>How to fix it</h2>
-<h3>Code examples</h3>
-<h4>Noncompliant code example</h4>
-<pre data-diff-id="1" data-diff-type="noncompliant">
-FIXME
+<p>Calling a literal throws a TypeError, and is likely the result of an unintentional error in the code.</p>
+<p>This rule raises an issue when an attempt is made to use a literal as a function.</p>
+<pre>
+true(); // Noncompliant, literal should not be used as function
 </pre>
-<h4>Compliant solution</h4>
-<pre data-diff-id="1" data-diff-type="compliant">
-FIXME
+<p>This rule also detects when a literal is used as a <em>tag</em> function.</p>
+<pre>
+true``; // Noncompliant, literal should not be used as tag function
 </pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> MDN web docs - <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions">Functions</a> </li>
+  <li> MDN web docs - <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals">Template literals</a> </li>
+</ul>
 
