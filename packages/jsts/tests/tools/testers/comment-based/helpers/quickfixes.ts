@@ -111,14 +111,14 @@ export function extractQuickFixes(quickfixes: Map<string, QuickFix>, comment: Co
         firstColumnType === 'sc'
           ? +firstColumnValue
           : secondColumnType === 'sc'
-          ? +secondColumnValue
-          : undefined,
+            ? +secondColumnValue
+            : undefined,
       end:
         firstColumnType === 'ec'
           ? +firstColumnValue
           : secondColumnType === 'ec'
-          ? +secondColumnValue
-          : undefined,
+            ? +secondColumnValue
+            : undefined,
       contents,
     };
     quickfix.changes.push(edit);

@@ -356,7 +356,10 @@ class RegexIntelliSense {
   private readonly knowledge: RegexKnowledge[] = [];
   private readonly bindings = new Map<Scope.Variable, RegexKnowledge>();
 
-  constructor(readonly services: RequiredParserServices, readonly context: Rule.RuleContext) {}
+  constructor(
+    readonly services: RequiredParserServices,
+    readonly context: Rule.RuleContext,
+  ) {}
 
   getKnowledge() {
     return this.knowledge;
