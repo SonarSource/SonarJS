@@ -22,7 +22,6 @@ import http from 'http';
 import { createAndSaveProgram, ProjectAnalysisInput, RuleConfig } from '@sonar/jsts';
 import path from 'path';
 import { start } from '../src/server';
-import { promisify } from 'util';
 import { request } from './tools';
 import * as fs from 'fs';
 
@@ -31,9 +30,9 @@ import { rule as S5362 } from '../../css/src/rules/S5362';
 describe('router', () => {
   const fixtures = path.join(__dirname, 'fixtures', 'router');
   const port = 0;
+  let closePromise: Promise<void>;
 
   let server: http.Server;
-  let close: () => Promise<void>;
 
   beforeEach(async () => {
     setContext({
@@ -43,12 +42,15 @@ describe('router', () => {
       bundles: [],
     });
     jest.setTimeout(60 * 1000);
-    server = await start(port, '127.0.0.1', 60 * 60 * 1000);
-    close = promisify(server.close.bind(server));
+    const { server: serverInstance, serverClosed } = await start(port, '127.0.0.1', 60 * 60 * 1000);
+    server = serverInstance;
+    closePromise = serverClosed;
   });
 
   afterEach(async () => {
-    await close();
+    await request(server, '/close', 'POST');
+    //We need to await the server close promise, as the http server still needs to be up to finish the response of the /close request.
+    await closePromise;
   });
 
   it('should route /analyze-project requests', async () => {

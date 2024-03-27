@@ -90,7 +90,14 @@ class TestCaseAssertionVisitor {
       return;
     }
     if (isFunctionCall(node)) {
-      const functionDef = resolveFunction(this.context, node.callee);
+      const { callee } = node;
+
+      if (callee.name === 'expect') {
+        this.hasAssertions = true;
+        return;
+      }
+
+      const functionDef = resolveFunction(this.context, callee);
       if (functionDef) {
         this.visit(context, functionDef.body, visitedNodes);
       }

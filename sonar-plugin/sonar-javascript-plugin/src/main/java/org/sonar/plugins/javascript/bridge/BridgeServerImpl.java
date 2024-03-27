@@ -21,6 +21,7 @@ package org.sonar.plugins.javascript.bridge;
 
 import static java.util.Collections.emptyList;
 import static org.sonar.plugins.javascript.bridge.NetUtils.findOpenPort;
+import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_EXECUTABLE_PROPERTY;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
@@ -47,6 +48,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.SonarProduct;
 import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -162,8 +164,15 @@ public class BridgeServerImpl implements BridgeServer {
    *
    * @throws IOException
    */
-  void deploy() throws IOException {
+  void deploy(Configuration configuration) throws IOException {
     bundle.deploy(temporaryDeployLocation);
+    if (configuration.get(NODE_EXECUTABLE_PROPERTY).isPresent()) {
+      LOG.info(
+        "'{}' is set. Skipping embedded Node.js runtime deployment.",
+        NODE_EXECUTABLE_PROPERTY
+      );
+      return;
+    }
     embeddedNode.deploy();
   }
 
@@ -285,7 +294,7 @@ public class BridgeServerImpl implements BridgeServer {
         status = Status.FAILED;
         throw new ServerAlreadyFailedException();
       }
-      deploy();
+      deploy(context.config());
       List<Path> deployedBundles = rulesBundles.deploy(temporaryDeployLocation.resolve("package"));
       rulesBundles
         .getUcfgRulesBundle()

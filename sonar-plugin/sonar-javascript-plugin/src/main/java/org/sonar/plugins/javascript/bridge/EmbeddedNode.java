@@ -168,6 +168,9 @@ public class EmbeddedNode {
       platform
     );
     if (platform == UNSUPPORTED) {
+      LOG.debug(
+        "Your platform is not supported for embedded Node.js. Falling back to host Node.js."
+      );
       return;
     }
     try {

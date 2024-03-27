@@ -29,17 +29,21 @@ import Timeout from './timeout';
 export function timeoutMiddleware(f: () => void, delay: number) {
   const timeout = new Timeout(f, delay);
   timeout.start();
+  let cancelled = false;
 
   return {
     middleware(_request: express.Request, response: express.Response, next: express.NextFunction) {
-      timeout.stop();
+      if (!cancelled) {
+        timeout.stop();
 
-      response.on('finish', function () {
-        timeout.start();
-      });
+        response.on('finish', function () {
+          timeout.start();
+        });
+      }
       next();
     },
-    stop() {
+    cancel() {
+      cancelled = true;
       timeout.stop();
     },
   };

@@ -257,6 +257,7 @@ public final class CheckList {
       NoConstructorReturnCheck.class,
       NoControlRegexCheck.class,
       NoDangerWithChildrenCheck.class,
+      NoDeprecatedReactCheck.class,
       NoDirectMutationStateCheck.class,
       NoDuplicateEnumValuesCheck.class,
       NoDuplicateImportsCheck.class,

@@ -1,13 +1,50 @@
 {
+"desktop:app/src/lib/editors/darwin.ts": [
+144
+],
+"desktop:app/src/lib/git/gitignore.ts": [
+25,
+50
+],
+"desktop:app/src/lib/git/merge-tree.ts": [
+71
+],
+"desktop:app/src/lib/git/spawn.ts": [
+75
+],
+"desktop:app/src/lib/highlighter/worker.ts": [
+59
+],
+"desktop:app/src/lib/process/win32.ts": [
+83
+],
+"desktop:app/src/lib/read-emoji.ts": [
+89,
+114
+],
 "desktop:app/src/lib/shells/shared.ts": [
 59,
 106
 ],
+"desktop:app/src/lib/stores/pull-request-store.ts": [
+127
+],
+"desktop:app/src/lib/trampoline/trampoline-server.ts": [
+56
+],
 "desktop:app/src/main-process/exception-reporting.ts": [
 71
 ],
+"desktop:app/src/main-process/log.ts": [
+74
+],
+"desktop:script/generate-octicons.ts": [
+39
+],
 "desktop:script/publish.ts": [
+134,
 165,
-182
+182,
+235
 ]
 }

@@ -84,7 +84,9 @@ public class CssMetricSensor implements Sensor {
         List<CssToken> tokenList = tokenizer.tokenize(file.contents());
 
         saveHighlights(context, file, tokenList);
-        saveLineTypes(context, file, tokenList);
+        if (file.type() == InputFile.Type.MAIN) {
+          saveLineTypes(context, file, tokenList);
+        }
       } catch (IOException e) {
         LOG.error(String.format("Failed to read file '%s'", file.toString()), e);
       }

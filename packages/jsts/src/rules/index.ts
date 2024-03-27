@@ -137,6 +137,7 @@ import { rule as S6079 } from './S6079'; // no-code-after-done
 import { rule as S125 } from './S125'; // no-commented-code
 import { rule as S1854 } from './S1854'; // no-dead-store
 import { rule as S3001 } from './S3001'; // no-delete-var
+import { rule as S6957 } from './S6957'; // no-deprecated-react
 import { rule as S4621 } from './S4621'; // no-duplicate-in-composite
 import { rule as S108 } from './S108'; // no-empty
 import { rule as S6019 } from './S6019'; // no-empty-after-reluctant
@@ -428,6 +429,7 @@ rules['no-code-after-done'] = S6079;
 rules['no-commented-code'] = S125;
 rules['no-dead-store'] = S1854;
 rules['no-delete-var'] = S3001;
+rules['no-deprecated-react'] = S6957;
 rules['no-duplicate-in-composite'] = S4621;
 rules['no-empty'] = S108;
 rules['no-empty-after-reluctant'] = S6019;

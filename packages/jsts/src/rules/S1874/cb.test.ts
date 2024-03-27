@@ -20,16 +20,9 @@
 import { check } from '../tools';
 import { rule } from './';
 import path from 'path';
-import { clearPackageJsons, loadPackageJsons } from '@sonar/jsts';
 
 const sonarId = path.basename(__dirname);
 
 describe('Rule S1874', () => {
-  beforeEach(() => {
-    loadPackageJsons(__dirname, []);
-  });
-  afterAll(() => {
-    clearPackageJsons();
-  });
   check(sonarId, rule, __dirname);
 });

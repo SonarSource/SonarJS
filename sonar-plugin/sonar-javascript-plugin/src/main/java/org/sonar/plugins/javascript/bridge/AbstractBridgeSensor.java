@@ -19,6 +19,8 @@
  */
 package org.sonar.plugins.javascript.bridge;
 
+import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_EXECUTABLE_PROPERTY;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -87,7 +89,9 @@ public abstract class AbstractBridgeSensor implements Sensor {
       throw new IllegalStateException(
         "Error while running Node.js. A supported version of Node.js is required for running the analysis of " +
         this.lang +
-        " files. Please make sure a supported version of Node.js is available in the PATH. Alternatively, you can exclude " +
+        " files. Please make sure a supported version of Node.js is available in the PATH or an executable path is provided via '" +
+        NODE_EXECUTABLE_PROPERTY +
+        "' property. Alternatively, you can exclude " +
         this.lang +
         " files from your analysis using the 'sonar.exclusions' configuration property. " +
         "See the docs for configuring the analysis environment: https://docs.sonarsource.com/sonarqube/latest/analyzing-source-code/languages/javascript-typescript-css/",

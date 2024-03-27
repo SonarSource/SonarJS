@@ -23,30 +23,12 @@ import http from 'http';
 /**
  * Sends an HTTP request to a server's endpoint running on localhost.
  */
-export function request(server: http.Server, path: string, method: string, data: any = {}) {
-  const options = {
-    host: '127.0.0.1',
-    path,
-    method,
-    port: (server.address() as AddressInfo).port,
+export async function request(server: http.Server, path: string, method: string, body: any = {}) {
+  return await fetch(`http://127.0.0.1:${(server.address() as AddressInfo).port}${path}`, {
     headers: {
       'Content-Type': 'application/json',
     },
-    timeout: 10000,
-  };
-
-  return new Promise((resolve, reject) => {
-    const request = http.request(options, res => {
-      let response = '';
-      res.on('data', chunk => {
-        response += chunk;
-      });
-
-      res.on('end', () => resolve(response));
-    });
-    request.on('error', reject);
-
-    request.write(JSON.stringify(data));
-    request.end();
-  });
+    method,
+    body: method !== 'GET' ? JSON.stringify(body) : undefined,
+  }).then(response => response.text());
 }

@@ -29,22 +29,39 @@
 201,
 227
 ],
+"desktop:app/src/lib/markdown-filters/emoji-filter.ts": [
+58
+],
 "desktop:app/src/lib/markdown-filters/issue-link-filter.ts": [
 113
+],
+"desktop:app/src/lib/markdown-filters/mention-filter.ts": [
+94
+],
+"desktop:app/src/lib/markdown-filters/team-mention-filter.ts": [
+58
 ],
 "desktop:app/src/lib/menu-item.ts": [
 91,
 123
 ],
 "desktop:app/src/lib/stats/stats-store.ts": [
-638
+638,
+939,
+956,
+975
 ],
 "desktop:app/src/lib/stores/accounts-store.ts": [
+30,
 170
+],
+"desktop:app/src/lib/stores/api-repositories-store.ts": [
+165
 ],
 "desktop:app/src/lib/stores/app-store.ts": [
 1755,
 2060,
+2863,
 5702
 ],
 "desktop:app/src/lib/stores/git-store.ts": [
@@ -52,6 +69,12 @@
 541,
 1246,
 1260
+],
+"desktop:app/src/lib/stores/helpers/create-tutorial-repository.ts": [
+44
+],
+"desktop:app/src/lib/stores/helpers/tutorial-assessor.ts": [
+112
 ],
 "desktop:app/src/lib/stores/issues-store.ts": [
 54
@@ -62,17 +85,19 @@
 "desktop:app/src/lib/trampoline/trampoline-server.ts": [
 108
 ],
-"desktop:app/src/lib/uuid.ts": [
-16
-],
 "desktop:app/src/main-process/menu/build-context-menu.ts": [
 22
 ],
 "desktop:app/src/models/repository.ts": [
 64
 ],
+"desktop:app/src/ui/app-menu/app-menu.tsx": [
+127
+],
 "desktop:app/src/ui/app.tsx": [
-841
+578,
+841,
+921
 ],
 "desktop:app/src/ui/autocompletion/autocompleting-text-input.tsx": [
 172,
@@ -88,7 +113,13 @@
 773,
 855
 ],
+"desktop:app/src/ui/diff/text-diff.tsx": [
+729,
+1310
+],
 "desktop:app/src/ui/dispatcher/dispatcher.ts": [
+494,
+686,
 3551
 ],
 "desktop:app/src/ui/lib/author-input.tsx": [
@@ -108,5 +139,9 @@
 ],
 "desktop:app/src/ui/repository-settings/repository-settings.tsx": [
 150
+],
+"desktop:app/src/ui/toolbar/branch-dropdown.tsx": [
+329,
+330
 ]
 }

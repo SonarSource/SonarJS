@@ -93,6 +93,66 @@ describe('analyzeCSS', () => {
   });
 });
 
+describe('should emit correctly located issues regardless of invisible characters', () => {
+  const testCases = [
+    ['single', [5, 2]],
+    ['multiple', [7, 4]],
+  ] as const;
+
+  for (const [type, expectation] of testCases) {
+    const candidates: Array<number | [from: number, to: number]> = [[8192, 8207]];
+
+    for (const candidate of candidates) {
+      const executeTest = async (characterCode: number) => {
+        const hexadecimalRepresentation = characterCode.toString(16);
+
+        it(`${type} character(s) 0x${hexadecimalRepresentation}`, async () => {
+          const character = String.fromCharCode(characterCode);
+          const analysisInput: CssAnalysisInput = {
+            fileContent:
+              type === 'single'
+                ? `body {
+  color: orangered;
+}
+${character}
+${character}.foo {`
+                : `body {
+  color: orangered;
+}
+${character}
+${character}
+${character}
+${character}${character}${character}.foo {`,
+            rules,
+            filePath: path.resolve('foo.css'),
+          };
+
+          await expect(analyzeCSS(analysisInput))
+            .resolves.toEqual({
+              issues: [
+                {
+                  ruleId: 'CssSyntaxError',
+                  line: expectation[0],
+                  column: expectation[1],
+                  message: 'Unclosed block (CssSyntaxError)',
+                },
+              ],
+            })
+            .catch(error => {
+              throw error;
+            });
+        });
+      };
+
+      const [from, to] = typeof candidate === 'number' ? [candidate, candidate] : candidate;
+
+      for (let i = from; i <= to; i++) {
+        executeTest(i);
+      }
+    }
+  }
+});
+
 async function input(
   filePath?: string,
   fileContent?: string,

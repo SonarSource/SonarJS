@@ -5,6 +5,9 @@
 "console:src/utils/relay.ts": [
 39
 ],
+"console:src/utils/valueparser.ts": [
+93
+],
 "console:src/views/ActionsView/ActionBoxes.tsx": [
 73
 ],
@@ -57,6 +60,9 @@
 169,
 193,
 195
+],
+"console:src/views/account/AccountView/SettingsTab.tsx": [
+41
 ],
 "console:src/views/models/AuthProviderPopup/AuthProviderPopup.tsx": [
 173

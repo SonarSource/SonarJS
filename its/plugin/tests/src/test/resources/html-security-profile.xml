@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<profile>
+  <name>html-security-profile</name>
+  <language>js</language>
+  <rules>
+    <rule>
+      <repositoryKey>javascript</repositoryKey>
+      <key>S1116</key> <!-- empty statement -->
+      <priority>INFO</priority>
+    </rule>
+    <rule>
+      <repositoryKey>jssecurity</repositoryKey>
+      <key>S2076</key> <!-- OSCommandInjectionCheck -->
+      <priority>INFO</priority>
+    </rule>
+  </rules>
+</profile>
