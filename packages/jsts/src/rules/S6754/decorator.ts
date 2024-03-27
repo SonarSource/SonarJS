@@ -20,10 +20,10 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6754/javascript
 
 import { Rule } from 'eslint';
-import { interceptReport } from '../helpers';
+import { interceptReportForReact } from '../helpers';
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
-  return interceptReport(rule, (context, descriptor) => {
+  return interceptReportForReact(rule, (context, descriptor) => {
     const { node } = descriptor as any;
     if (node.type === 'ArrayPattern' && node.elements.length === 1) {
       return;
