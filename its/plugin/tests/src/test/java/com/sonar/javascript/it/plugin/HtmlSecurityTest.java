@@ -61,7 +61,7 @@ class HtmlSecurityTest {
       3,
       BuildResultAssert::isUcfgFile
     );
-    assertThat(stream.toList().isEmpty()).isTrue();
+    assertThat(stream.toList()).isEmpty();
   }
 
   @BeforeAll
@@ -76,9 +76,6 @@ class HtmlSecurityTest {
       .addPlugin(MavenLocation.of("com.sonarsource.security", "sonar-security-plugin", "DEV"))
       .addPlugin(
         MavenLocation.of("com.sonarsource.security", "sonar-security-js-frontend-plugin", "DEV")
-      )
-      .addPlugin(
-        MavenLocation.of("org.sonarsource.config", "sonar-config-plugin", "LATEST_RELEASE")
       )
       .addPlugin(MavenLocation.of("org.sonarsource.html", "sonar-html-plugin", "LATEST_RELEASE"))
       .restoreProfileAtStartup(FileLocation.ofClasspath("/html-security-profile.xml"));

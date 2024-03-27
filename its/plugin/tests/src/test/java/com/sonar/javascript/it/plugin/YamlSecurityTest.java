@@ -61,7 +61,7 @@ class YamlSecurityTest {
       3,
       BuildResultAssert::isUcfgFile
     );
-    assertThat(stream.toList().size() == 1).isTrue();
+    assertThat(stream.toList()).hasSize(1);
   }
 
   @BeforeAll
