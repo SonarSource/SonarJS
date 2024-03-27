@@ -82,7 +82,7 @@ public class BuildResultAssert extends AbstractAssert<BuildResultAssert, BuildRe
     }
   }
 
-  private static boolean isUcfgFile(Path path, BasicFileAttributes attrs) {
+  public static boolean isUcfgFile(Path path, BasicFileAttributes attrs) {
     return attrs.isRegularFile() && path.getFileName().toString().endsWith(".ucfgs");
   }
 

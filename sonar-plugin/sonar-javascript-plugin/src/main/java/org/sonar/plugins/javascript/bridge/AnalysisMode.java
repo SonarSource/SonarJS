@@ -84,6 +84,7 @@ public enum AnalysisMode {
   static List<EslintRule> getHtmlFileRules(List<EslintRule> rules) {
     var blackListRuleKeys = new HashSet<String>();
     blackListRuleKeys.add("no-var");
+    blackListRuleKeys.add("ucfg");
     return EslintRule.findAllBut(rules, blackListRuleKeys);
   }
 
