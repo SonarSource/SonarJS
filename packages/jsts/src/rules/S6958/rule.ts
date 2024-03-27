@@ -17,16 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { TSESTree } from '@typescript-eslint/utils';
 import { type Rule } from 'eslint';
 import { type Node } from 'estree';
 
-const NODES = new Set([
-  'Expression',
-  'ArrayExpression',
-  'ClassExpression',
-  'ObjectExpression',
-  'Literal',
-  'TemplateLiteral',
+const NODES = new Set<string>([
+  TSESTree.AST_NODE_TYPES.ArrayExpression,
+  TSESTree.AST_NODE_TYPES.ClassExpression,
+  TSESTree.AST_NODE_TYPES.ObjectExpression,
+  TSESTree.AST_NODE_TYPES.Literal,
+  TSESTree.AST_NODE_TYPES.TemplateLiteral,
 ]);
 
 export const rule: Rule.RuleModule = {
@@ -41,7 +41,7 @@ export const rule: Rule.RuleModule = {
     const processNode = (node: Node, messageId: string): void => {
       if (NODES.has(node.type)) {
         context.report({
-          node: node,
+          node,
           messageId,
         });
       }
