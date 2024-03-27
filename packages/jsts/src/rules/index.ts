@@ -103,6 +103,7 @@ import { rule as S1527 } from './S1527'; // future-reserved-words
 import { rule as S3531 } from './S3531'; // generator-without-yield
 import { rule as S4790 } from './S4790'; // hashing
 import { rule as S5691 } from './S5691'; // hidden-files
+import { rule as S6754 } from './S6754'; // hook-use-state
 import { rule as S6849 } from './S6849'; // html-has-lang
 import { rule as S3785 } from './S3785'; // in-operator-type-error
 import { rule as S3686 } from './S3686'; // inconsistent-function-call
@@ -396,6 +397,7 @@ rules['future-reserved-words'] = S1527;
 rules['generator-without-yield'] = S3531;
 rules['hashing'] = S4790;
 rules['hidden-files'] = S5691;
+rules['hook-use-state'] = S6754;
 rules['html-has-lang'] = S6849;
 rules['in-operator-type-error'] = S3785;
 rules['inconsistent-function-call'] = S3686;

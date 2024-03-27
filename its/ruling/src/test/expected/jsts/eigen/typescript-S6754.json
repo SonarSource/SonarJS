@@ -8,18 +8,8 @@
 "eigen:src/app/Components/HeaderArtworksFilter/HeaderArtworksFilter.tsx": [
 59
 ],
-"eigen:src/app/Components/PopoverMessage/PopoverMessageProvider.tsx": [
-29,
-30
-],
-"eigen:src/app/Components/StickyTabPage/StickyTabPageTabBar.tsx": [
-24
-],
 "eigen:src/app/Components/Tag/TagArtworks.tsx": [
 91
-],
-"eigen:src/app/Components/Toast/ToastComponent.tsx": [
-38
 ],
 "eigen:src/app/Scenes/About/About.tsx": [
 16
