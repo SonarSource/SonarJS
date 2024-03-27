@@ -113,7 +113,7 @@ class NodeCommandTest {
       )
       .isInstanceOf(NodeCommandException.class)
       .hasMessageMatching(
-        "Unsupported Node.JS version detected .* Please upgrade to latest Node.JS LTS version."
+        "Unsupported Node.JS version detected .* Please upgrade to the latest Node.JS LTS version."
       );
   }
 
