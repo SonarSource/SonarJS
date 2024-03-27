@@ -26,6 +26,21 @@ ruleTester.run('"Array.reduce()" calls should include an initial value', rule, {
     {
       code: 'xs.reduce((acc, x) => acc + x);',
     },
+    {
+      code: '[1,2,3].reduce((acc, x) => acc + x, 0);',
+    },
+    {
+      code: 'const xs = [1,2,3]; xs.reduce((acc, x) => acc + x, 0);',
+    },
   ],
-  invalid: [],
+  invalid: [
+    {
+      code: '[1,2,3].reduce((acc, x) => acc + x);',
+      errors: 1,
+    },
+    {
+      code: 'const xs = [1,2,3]; xs.reduce((acc, x) => acc + x);',
+      errors: 1,
+    },
+  ],
 });

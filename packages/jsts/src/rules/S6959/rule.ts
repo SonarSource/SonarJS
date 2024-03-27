@@ -19,8 +19,15 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6959/javascript
 
+import * as estree from 'estree';
 import { Rule } from 'eslint';
-import { isArray, isCallingMethod, isRequiredParserServices } from '../helpers';
+import {
+  getUniqueWriteUsageOrNode,
+  isArray as isArrayType,
+  isArrayExpression,
+  isCallingMethod,
+  isRequiredParserServices,
+} from '../helpers';
 
 export const rule: Rule.RuleModule = {
   meta: {
@@ -30,13 +37,18 @@ export const rule: Rule.RuleModule = {
   },
   create(context: Rule.RuleContext) {
     const services = context.parserServices;
-    if (!isRequiredParserServices(services)) {
-      return {};
+
+    function isArray(node: estree.Node) {
+      if (isRequiredParserServices(services)) {
+        return isArrayType(node, services);
+      } else {
+        return isArrayExpression(getUniqueWriteUsageOrNode(context, node));
+      }
     }
 
     return {
       CallExpression(node) {
-        if (isCallingMethod(node, 1, 'reduce') && isArray(node.callee.object, services)) {
+        if (isCallingMethod(node, 1, 'reduce') && isArray(node.callee.object)) {
           context.report({
             node: node.callee.property,
             messageId: 'message',
