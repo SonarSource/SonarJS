@@ -288,6 +288,7 @@ public final class CheckList {
       NoInvalidAwaitCheck.class,
       NoInvertedBooleanCheckCheck.class,
       NoIsMountedCheck.class,
+      NoLiteralCallCheck.class,
       NoLoneBlocksCheck.class,
       NoLonelyIfCheck.class,
       NoLossOfPrecisionCheck.class,
