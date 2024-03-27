@@ -112,7 +112,9 @@ class NodeCommandTest {
         builder().minNodeVersion(Version.create(99, 0)).pathResolver(getPathResolver()).build()
       )
       .isInstanceOf(NodeCommandException.class)
-      .hasMessageStartingWith("Only Node.js v99.0 or later is supported, got");
+      .hasMessageMatching(
+        "Unsupported Node.JS version detected .* Please upgrade to the latest Node.JS LTS version."
+      );
   }
 
   @Test

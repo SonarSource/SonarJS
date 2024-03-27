@@ -182,8 +182,7 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
     if (!actualNodeVersion.isGreaterThanOrEqual(minNodeVersion)) {
       throw new NodeCommandException(
         String.format(
-          "Only Node.js v%s or later is supported, got %s.",
-          minNodeVersion,
+          "Unsupported Node.JS version detected %s. Please upgrade to the latest Node.JS LTS version.",
           actualNodeVersion
         )
       );
