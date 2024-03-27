@@ -19,10 +19,6 @@ describe('vitest test cases', () => {
     check();
   });
 
-  it('recognizes global expect as an assertion', () => {
-    expect(5).toEqual(5);
-  });
-
   function check() {
     expect(1).toEqual(2);
   }
