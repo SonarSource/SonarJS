@@ -20,46 +20,44 @@
 // https://sonarsource.github.io/rspec/#/rspec/S1874/javascript
 
 import { Rule } from 'eslint';
-import { rule as diagnosticsRule } from './rule.diagnostics';
-import { rules } from 'eslint-plugin-react';
-import { mergeRules } from '../helpers';
-import { getNearestPackageJsons } from '@sonar/jsts';
-
-const reactNoDeprecated = rules['no-deprecated'];
+import { isRequiredParserServices } from '../helpers';
+import * as ts from 'typescript';
 
 export const rule: Rule.RuleModule = {
   meta: {
     messages: {
-      deprecated: '{{oldMethod}} is deprecated since React {{version}}{{newMethod}}',
-      ...diagnosticsRule.meta!.messages,
+      deprecation: '{{deprecation}}',
     },
   },
   create(context: Rule.RuleContext) {
-    function getVersionFromOptions() {
-      return context.options?.[0]?.['react-version'];
+    const services = context.sourceCode.parserServices;
+    if (!isRequiredParserServices(services)) {
+      return {};
     }
-    function getVersionFromPackageJson() {
-      for (const { contents: packageJson } of getNearestPackageJsons(context.filename)) {
-        if (packageJson.dependencies?.react) {
-          return packageJson.dependencies.react;
+    return {
+      Program: () => {
+        const program = services.program;
+        const checker = program.getTypeChecker();
+        const sourceFile = program.getSourceFile(context.filename);
+        const diagnostics: ts.DiagnosticWithLocation[] =
+          // @ts-ignore: TypeChecker#getSuggestionDiagnostics is not publicly exposed
+          checker.getSuggestionDiagnostics(sourceFile);
+        for (const diagnostic of diagnostics) {
+          if (diagnostic.reportsDeprecated === true) {
+            const sourceCode = context.sourceCode;
+            const start = sourceCode.getLocFromIndex(diagnostic.start);
+            const end = sourceCode.getLocFromIndex(diagnostic.start + diagnostic.length);
+            const loc = { start, end };
+            context.report({
+              loc,
+              messageId: 'deprecation',
+              data: {
+                deprecation: diagnostic.messageText as string,
+              },
+            });
+          }
         }
-        if (packageJson.devDependencies?.react) {
-          return packageJson.devDependencies.react;
-        }
-      }
-      return null;
-    }
-
-    const reactVersion = getVersionFromOptions() || getVersionFromPackageJson();
-
-    const patchedContext = reactVersion
-      ? Object.create(context, {
-          settings: {
-            value: { react: { version: reactVersion } },
-            writable: false,
-          },
-        })
-      : context;
-    return mergeRules(reactNoDeprecated.create(patchedContext), diagnosticsRule.create(context));
+      },
+    };
   },
 };
