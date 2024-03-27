@@ -1,5 +1,6 @@
 function noncompliant(xs: number[]) {
     return xs.reduce((acc, x) => acc + x); // Noncompliant {{Add an initial value to this "reduce()" call.}}
+//            ^^^^^^
 }
 
 function compliant(xs: number[]) {
