@@ -28,11 +28,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.StreamSupport;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorDescriptor;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.CancellationException;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.bridge.BridgeServer.JsAnalysisRequest;
@@ -46,7 +46,7 @@ public class YamlSensor extends AbstractBridgeSensor {
   public static final String SAM_TRANSFORM_FIELD = "AWS::Serverless-2016-10-31";
   public static final String NODEJS_RUNTIME_REGEX = "^\\s*Runtime:\\s*[\'\"]?nodejs\\S*[\'\"]?";
 
-  private static final Logger LOG = Loggers.get(YamlSensor.class);
+  private static final Logger LOG = LoggerFactory.getLogger(YamlSensor.class);
   private final JsTsChecks checks;
   private final AnalysisProcessor analysisProcessor;
   private AnalysisMode analysisMode;
@@ -59,7 +59,7 @@ public class YamlSensor extends AbstractBridgeSensor {
   ) {
     // The monitoring sensor remains inactive during YAML files analysis, as the
     // bridge doesn't provide nor compute metrics for such files.
-    super(bridgeServer, analysisWarnings, "JS in YAML");
+    super(bridgeServer, "JS in YAML");
     this.checks = checks;
     this.analysisProcessor = processAnalysis;
   }
@@ -75,7 +75,7 @@ public class YamlSensor extends AbstractBridgeSensor {
     var progressReport = new ProgressReport("Analysis progress", TimeUnit.SECONDS.toMillis(10));
     var success = false;
     try {
-      progressReport.start(inputFiles.size(), inputFiles.iterator().next().absolutePath());
+      progressReport.start(inputFiles.size(), inputFiles.iterator().next().toString());
       bridgeServer.initLinter(
         checks.eslintRules(),
         environments,
@@ -90,7 +90,7 @@ public class YamlSensor extends AbstractBridgeSensor {
             "Analysis interrupted because the SensorContext is in cancelled state"
           );
         }
-        progressReport.nextFile(inputFile.absolutePath());
+        progressReport.nextFile(inputFile.toString());
         analyze(inputFile);
       }
       success = true;

@@ -21,15 +21,15 @@ package org.sonar.plugins.javascript.filter;
 
 import java.io.IOException;
 import java.io.InputStream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.config.Configuration;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 
 class SizeAssessor implements Assessor {
 
-  private static final Logger LOG = Loggers.get(SizeAssessor.class);
+  private static final Logger LOG = LoggerFactory.getLogger(SizeAssessor.class);
   private static final long DEFAULT_MAX_FILE_SIZE_KB = 1000L; // 1MB
 
   /**
@@ -58,7 +58,7 @@ class SizeAssessor implements Assessor {
   }
 
   final void fallbackToDefaultMaxFileSize(String reasonErrorMessage) {
-    LOG.warn(reasonErrorMessage + ", falling back to " + DEFAULT_MAX_FILE_SIZE_KB + ".");
+    LOG.warn("{}, falling back to {}.", reasonErrorMessage, DEFAULT_MAX_FILE_SIZE_KB);
     maxFileSizeKb = DEFAULT_MAX_FILE_SIZE_KB;
   }
 

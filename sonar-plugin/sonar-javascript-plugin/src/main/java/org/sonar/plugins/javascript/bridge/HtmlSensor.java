@@ -23,12 +23,12 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.StreamSupport;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorDescriptor;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.CancellationException;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.bridge.BridgeServer.JsAnalysisRequest;
@@ -41,7 +41,7 @@ public class HtmlSensor extends AbstractBridgeSensor {
 
   public static final String LANGUAGE = "web";
 
-  private static final Logger LOG = Loggers.get(HtmlSensor.class);
+  private static final Logger LOG = LoggerFactory.getLogger(HtmlSensor.class);
   private final JsTsChecks checks;
   private final AnalysisProcessor analysisProcessor;
   private AnalysisMode analysisMode;
@@ -49,12 +49,11 @@ public class HtmlSensor extends AbstractBridgeSensor {
   public HtmlSensor(
     JsTsChecks checks,
     BridgeServer bridgeServer,
-    AnalysisWarningsWrapper analysisWarnings,
     AnalysisProcessor processAnalysis
   ) {
     // The monitoring sensor remains inactive during HTML files analysis, as the
     // bridge doesn't provide nor compute metrics for such files.
-    super(bridgeServer, analysisWarnings, "JS in HTML");
+    super(bridgeServer, "JS in HTML");
     this.analysisProcessor = processAnalysis;
     this.checks = checks;
   }
@@ -70,7 +69,7 @@ public class HtmlSensor extends AbstractBridgeSensor {
     analysisMode = AnalysisMode.getMode(context, checks.eslintRules());
     var success = false;
     try {
-      progressReport.start(inputFiles.size(), inputFiles.iterator().next().absolutePath());
+      progressReport.start(inputFiles.size(), inputFiles.iterator().next().toString());
       bridgeServer.initLinter(
         AnalysisMode.getHtmlFileRules(checks.eslintRules()),
         environments,
@@ -85,7 +84,7 @@ public class HtmlSensor extends AbstractBridgeSensor {
             "Analysis interrupted because the SensorContext is in cancelled state"
           );
         }
-        progressReport.nextFile(inputFile.absolutePath());
+        progressReport.nextFile(inputFile.toString());
         var cacheStrategy = CacheStrategies.getStrategyFor(context, inputFile);
         if (cacheStrategy.isAnalysisRequired()) {
           analyze(inputFile, cacheStrategy);

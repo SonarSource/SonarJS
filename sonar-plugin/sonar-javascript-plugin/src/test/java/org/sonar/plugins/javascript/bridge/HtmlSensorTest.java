@@ -317,7 +317,6 @@ class HtmlSensorTest {
     return new HtmlSensor(
       checks(DUPLICATE_BRANCH_RULE_KEY, PARSING_ERROR_RULE_KEY),
       bridgeServerMock,
-      new AnalysisWarningsWrapper(),
       analysisProcessor
     );
   }

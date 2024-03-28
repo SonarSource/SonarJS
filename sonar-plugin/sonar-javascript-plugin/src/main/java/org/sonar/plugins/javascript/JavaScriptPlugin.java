@@ -19,13 +19,13 @@
  */
 package org.sonar.plugins.javascript;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.Plugin;
 import org.sonar.api.PropertyType;
 import org.sonar.api.SonarProduct;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.css.CssLanguage;
 import org.sonar.css.CssProfileDefinition;
 import org.sonar.css.CssRulesDefinition;
@@ -61,7 +61,7 @@ import org.sonar.plugins.javascript.sonarlint.SonarLintTypeCheckingCheckerImpl;
 public class JavaScriptPlugin implements Plugin {
 
   public static final String TYPESCRIPT_VERSION = "5.3.2";
-  private static final Logger LOG = Loggers.get(JavaScriptPlugin.class);
+  private static final Logger LOG = LoggerFactory.getLogger(JavaScriptPlugin.class);
 
   // Subcategories
 

@@ -23,11 +23,11 @@ import static java.util.Collections.emptyList;
 
 import java.util.HashSet;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.utils.Version;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 
 public enum AnalysisMode {
   DEFAULT,
@@ -35,7 +35,7 @@ public enum AnalysisMode {
 
   static final String DEFAULT_LINTER_ID = "default";
   static final String UNCHANGED_LINTER_ID = "unchanged";
-  private static final Logger LOG = Loggers.get(AnalysisMode.class);
+  private static final Logger LOG = LoggerFactory.getLogger(AnalysisMode.class);
 
   public static boolean isRuntimeApiCompatible(SensorContext context) {
     return context.runtime().getApiVersion().isGreaterThanOrEqual(Version.create(9, 4));

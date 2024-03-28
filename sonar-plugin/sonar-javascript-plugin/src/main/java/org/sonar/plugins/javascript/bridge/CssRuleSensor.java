@@ -27,6 +27,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.StreamSupport;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.SonarProduct;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.FilePredicate;
@@ -39,8 +41,6 @@ import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.Version;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.css.CssLanguage;
 import org.sonar.css.CssRules;
 import org.sonar.css.StylelintRule;
@@ -49,7 +49,7 @@ import org.sonar.plugins.javascript.utils.ProgressReport;
 
 public class CssRuleSensor extends AbstractBridgeSensor {
 
-  private static final Logger LOG = Loggers.get(CssRuleSensor.class);
+  private static final Logger LOG = LoggerFactory.getLogger(CssRuleSensor.class);
 
   private final SonarRuntime sonarRuntime;
   private final CssRules cssRules;
@@ -57,10 +57,9 @@ public class CssRuleSensor extends AbstractBridgeSensor {
   public CssRuleSensor(
     SonarRuntime sonarRuntime,
     BridgeServer bridgeServer,
-    AnalysisWarningsWrapper analysisWarnings,
     CheckFactory checkFactory
   ) {
-    super(bridgeServer, analysisWarnings, "CSS");
+    super(bridgeServer, "CSS");
     this.sonarRuntime = sonarRuntime;
     this.cssRules = new CssRules(checkFactory);
   }
@@ -104,7 +103,7 @@ public class CssRuleSensor extends AbstractBridgeSensor {
     List<StylelintRule> rules = cssRules.getStylelintRules();
 
     try {
-      progressReport.start(inputFiles.size(), inputFiles.iterator().next().absolutePath());
+      progressReport.start(inputFiles.size(), inputFiles.iterator().next().toString());
       for (InputFile inputFile : inputFiles) {
         if (context.isCancelled()) {
           throw new CancellationException(
@@ -112,7 +111,7 @@ public class CssRuleSensor extends AbstractBridgeSensor {
           );
         }
         analyzeFile(inputFile, context, rules);
-        progressReport.nextFile(inputFile.absolutePath());
+        progressReport.nextFile(inputFile.toString());
       }
       success = true;
     } finally {

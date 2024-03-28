@@ -31,11 +31,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.coverage.NewCoverage;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 
 /**
  * http://ltp.sourceforge.net/coverage/lcov/geninfo.1.php
@@ -53,7 +53,7 @@ class LCOVParser {
   private final FileLocator fileLocator;
   private int inconsistenciesCounter = 0;
 
-  private static final Logger LOG = Loggers.get(LCOVParser.class);
+  private static final Logger LOG = LoggerFactory.getLogger(LCOVParser.class);
 
   private LCOVParser(List<String> lines, SensorContext context, FileLocator fileLocator) {
     this.context = context;
@@ -150,12 +150,10 @@ class LCOVParser {
 
   private void logWrongDataWarning(String dataType, int reportLineNum, Exception e) {
     LOG.debug(
-      String.format(
-        "Problem during processing LCOV report: can't save %s data for line %s of coverage report file (%s).",
+        "Problem during processing LCOV report: can't save {} data for line {} of coverage report file ({}).",
         dataType,
         reportLineNum,
         e.toString()
-      )
     );
     inconsistenciesCounter++;
   }
