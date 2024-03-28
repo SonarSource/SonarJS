@@ -14,8 +14,10 @@ for several important reasons:</p>
 </ol>
 <p>For these reasons, as soon as cryptography is included in a project, it is important to choose encryption algorithms that are considered strong and
 secure by the cryptography community.</p>
-<p>For AES, the weakest modes are CBC (Cipher Block Chaining) and ECB (Electronic Codebook) because they are either vulnerable to padding oracles or
-do not provide authentication mechanisms.</p>
+<p>For AES, the weakest mode is ECB (Electronic Codebook). Repeated blocks of data are encrypted to the same value, making them easy to identify and
+reducing the difficulty of recovering the original cleartext.</p>
+<p>Unauthenticated modes such as CBC (Cipher Block Chaining) may be used but are prone to attacks that manipulate the ciphertext. They must be used
+with caution.</p>
 <p>For RSA, the weakest algorithms are either using it without padding or using the PKCS1v1.5 padding scheme.</p>
 <h3>What is the potential impact?</h3>
 <p>The cleartext of an encrypted message might be recoverable. Additionally, it might be possible to modify the cleartext of an encrypted message.</p>
@@ -45,7 +47,8 @@ crypto.createCipheriv("AES-256-GCM", key, iv);
 <h3>How does this work?</h3>
 <p>As a rule of thumb, use the cryptographic algorithms and mechanisms that are considered strong by the cryptographic community.</p>
 <p>Appropriate choices are currently the following.</p>
-<h4>For AES: Use Galois/Counter mode (GCM)</h4>
+<h4>For AES: use authenticated encryption modes</h4>
+<p>The best-known authenticated encryption mode for AES is Galois/Counter mode (GCM).</p>
 <p>GCM mode combines encryption with authentication and integrity checks using a cryptographic hash function and provides both confidentiality and
 authenticity of data.</p>
 <p>Other similar modes are:</p>
@@ -56,8 +59,8 @@ authenticity of data.</p>
   <li> IAPM: <code>Integer Authenticated Parallelizable Mode</code> </li>
   <li> OCB: <code>Offset Codebook Mode</code> </li>
 </ul>
-<p>It is also possible to use AES-CBC with HMAC for integrity checks. However, it</p>
-<p>is considered more straightforward to use AES-GCM directly instead.</p>
+<p>It is also possible to use AES-CBC with HMAC for integrity checks. However, it is considered more straightforward to use AES-GCM directly
+instead.</p>
 <h4>For RSA: use the OAEP scheme</h4>
 <p>The Optimal Asymmetric Encryption Padding scheme (OAEP) adds randomness and a secure hash function that strengthens the regular inner workings of
 RSA.</p>
@@ -75,9 +78,11 @@ RSA.</p>
 </ul>
 <h3>Standards</h3>
 <ul>
-  <li> <a href="https://owasp.org/Top10/A02_2021-Cryptographic_Failures/">OWASP Top 10 2021 Category A2</a> - Cryptographic Failures </li>
-  <li> <a href="https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration">OWASP Top 10 2017 Category A6</a> - Security
-  Misconfiguration </li>
-  <li> <a href="https://cwe.mitre.org/data/definitions/327">MITRE, CWE-327</a> - Use of a Broken or Risky Cryptographic Algorithm </li>
+  <li> OWASP - <a href="https://owasp.org/Top10/A02_2021-Cryptographic_Failures/">Top 10 2021 Category A2 - Cryptographic Failures</a> </li>
+  <li> OWASP - <a href="https://owasp.org/www-project-top-ten/2017/A3_2017-Sensitive_Data_Exposure">Top 10 2017 Category A3 - Sensitive Data
+  Exposure</a> </li>
+  <li> OWASP - <a href="https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration">Top 10 2017 Category A6 - Security
+  Misconfiguration</a> </li>
+  <li> CWE - <a href="https://cwe.mitre.org/data/definitions/327">CWE-327 - Use of a Broken or Risky Cryptographic Algorithm</a> </li>
 </ul>
 

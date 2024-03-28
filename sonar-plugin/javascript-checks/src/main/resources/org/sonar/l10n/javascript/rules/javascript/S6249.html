@@ -29,17 +29,11 @@ const bucket = new s3.Bucket(this, 'example', {
 </pre>
 <h2>See</h2>
 <ul>
-  <li> <a href="https://owasp.org/Top10/A02_2021-Cryptographic_Failures/">OWASP Top 10 2021 Category A2</a> - Cryptographic Failures </li>
-  <li> <a href="https://owasp.org/Top10/A05_2021-Security_Misconfiguration/">OWASP Top 10 2021 Category A5</a> - Security Misconfiguration </li>
-  <li> <a href="https://www.owasp.org/www-project-top-ten/2017/A3_2017-Sensitive_Data_Exposure">OWASP Top 10 2017 Category A3</a> - Sensitive Data
-  Exposure </li>
-  <li> <a href="https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration">OWASP Top 10 2017 Category A6</a> - Security
-  Misconfiguration </li>
   <li> <a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/security-best-practices.html#transit">AWS documentation</a> - Enforce encryption
   of data in transit </li>
   <li> <a href="https://docs.aws.amazon.com/securityhub/latest/userguide/securityhub-standards-fsbp-controls.html#fsbp-s3-5">AWS Foundational Security
   Best Practices controls</a> - S3 buckets should require requests to use Secure Socket Layer </li>
-  <li> <a href="https://cwe.mitre.org/data/definitions/319">MITRE, CWE-319</a> - Cleartext Transmission of Sensitive Information </li>
+  <li> CWE - <a href="https://cwe.mitre.org/data/definitions/319">CWE-319 - Cleartext Transmission of Sensitive Information</a> </li>
   <li> <a href="https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_s3.Bucket.html">AWS CDK version 2</a> - Bucket </li>
 </ul>
 

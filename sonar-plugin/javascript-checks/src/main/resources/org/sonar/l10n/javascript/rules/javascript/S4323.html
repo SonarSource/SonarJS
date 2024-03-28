@@ -43,6 +43,13 @@ function baz(): MyType {
   /* ... */
 }
 </pre>
+<p>The rule disregards nullable types, irrespective of their frequency within the codebase. This includes types of the form <code>T | null |
+undefined</code>, where <code>T</code> can represent any type.</p>
+<pre>
+function foo(x: T | null | undefined) {
+  /* ... */
+}
+</pre>
 <h2>Resources</h2>
 <h3>Documentation</h3>
 <ul>

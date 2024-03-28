@@ -1,11 +1,10 @@
 <h2>Why is this an issue?</h2>
 <p>When merging objects or copying properties from one object to another, use the object spread syntax instead of <code>Object.assign()</code>. The
-Object spread syntax was introduced in ES2018 and allows shallow-cloning or merging of objects with a more concise and readable syntax.</p>
+object spread syntax was introduced in ES2018 and allows shallow-cloning or merging of objects with a more concise and readable syntax.</p>
 <p>The <code>Object.assign()</code> also allows to mutate an object, which is not possible with the spread syntax, so the rule only applies to cases
 where the first argument of the <code>Object.assign()</code> is an object literal.</p>
-<p>The object spread syntax improves clarity when you’re modifying an object, as demonstrated in this example: <code>foo = { bar: 42, …​baz
-}</code>.</p>
-<p>Additionally, it provides a more concise way to perform a shallow clone. Instead of using <code>foo = Object.assign({}, bar)</code>, you can simply
+<p>The object spread syntax improves clarity when you’re modifying an object, as demonstrated in this example: <code>foo = { bar: 42, …​baz }</code>.
+Additionally, it provides a more concise way to perform a shallow clone. Instead of using <code>foo = Object.assign({}, bar)</code>, you can simply
 write <code>foo = { …​bar }</code>.</p>
 <pre data-diff-id="1" data-diff-type="noncompliant">
 const a = Object.assign({}, foo); // Noncompliant: Use spread syntax to clone or merge objects

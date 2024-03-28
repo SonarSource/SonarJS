@@ -77,7 +77,7 @@ var { privateKey, publicKey } = crypto.generateKeyPairSync('dsa', {
   },
   callback);
 </pre>
-<p>Here is an example of an Elliptic Curve (EC) initialization. It implicitly generates a private key whose size is indicated in the algorithm
+<p>Here is an example of an Elliptic Curve (EC) initialization. It implicitly generates a private key whose size is indicated in the elliptic curve
 name:</p>
 <pre data-diff-id="3" data-diff-type="noncompliant">
 const crypto = require('crypto');
@@ -118,7 +118,7 @@ var { privateKey, publicKey } = crypto.generateKeyPairSync('dsa', {
   },
   callback);
 </pre>
-<p>Here is an example of an Elliptic Curve (EC) initialization. It implicitly generates a private key whose size is indicated in the algorithm
+<p>Here is an example of an Elliptic Curve (EC) initialization. It implicitly generates a private key whose size is indicated in the elliptic curve
 name:</p>
 <pre data-diff-id="3" data-diff-type="compliant">
 const crypto = require('crypto');
@@ -133,11 +133,12 @@ var { privateKey, publicKey } = crypto.generateKeyPair('ec', {
   callback);
 </pre>
 <h3>How does this work?</h3>
-<p>As a rule of thumb, use the cryptographic algorithms and mechanisms that are considered strong by the cryptographic community.</p>
+<p>As a rule of thumb, use the cryptographic algorithms and mechanisms that are considered strong by the cryptography community.</p>
 <p>The appropriate choices are the following.</p>
 <h4>RSA (Rivest-Shamir-Adleman) and DSA (Digital Signature Algorithm)</h4>
 <p>The security of these algorithms depends on the difficulty of attacks attempting to solve their underlying mathematical problem.</p>
-<p>In general, a minimum key size of <strong>2048</strong> bits is recommended for both.</p>
+<p>In general, a minimum key size of <strong>2048</strong> bits is recommended for both. It provides 112 bits of security. A key length of
+<strong>3072</strong> or <strong>4092</strong> should be preferred when possible.</p>
 <h4>AES (Advanced Encryption Standard)</h4>
 <p>AES supports three key sizes: 128 bits, 192 bits and 256 bits. The security of the AES algorithm is based on the computational complexity of trying
 all possible keys.<br> A larger key size increases the number of possible keys and makes exhaustive search attacks computationally infeasible.
@@ -145,8 +146,17 @@ Therefore, a 256-bit key provides a higher level of security than a 128-bit or 1
 <p>Currently, a minimum key size of <strong>128 bits</strong> is recommended for AES.</p>
 <h4>Elliptic Curve Cryptography (ECC)</h4>
 <p>Elliptic curve cryptography is also used in various algorithms, such as ECDSA, ECDH, or ECMQV. The length of keys generated with elliptic curve
-algorithms are mentioned directly in their names. For example, <code>secp256k1</code> generates a 256-bits long private key.</p>
-<p>Currently, a minimum key size of <strong>224 bits</strong> is recommended for EC algorithms.</p>
+algorithms is mentioned directly in their names. For example, <code>secp256k1</code> generates a 256-bits long private key.</p>
+<p>Currently, a minimum key size of <strong>224 bits</strong> is recommended for EC-based algorithms.</p>
+<p>Additionally, some curves that theoretically provide sufficiently long keys are still discouraged. This can be because of a flaw in the curve
+parameters, a bad overall design, or poor performance. It is generally advised to use a NIST-approved elliptic curve wherever possible. Such curves
+currently include:</p>
+<ul>
+  <li> NIST P curves with a size of at least 224 bits, e.g. secp256r1. </li>
+  <li> Curve25519, generally known as ed25519 or x25519 depending on its application. </li>
+  <li> Curve448. </li>
+  <li> Brainpool curves with a size of at least 224 bits, e.g. brainpoolP224r1 </li>
+</ul>
 <h3>Going the extra mile</h3>
 <h4>Pre-Quantum Cryptography</h4>
 <p>Encrypted data and communications recorded today could be decrypted in the future by an attack from a quantum computer.<br> It is important to keep
@@ -155,6 +165,15 @@ in mind that NIST-approved digital signature schemes, key agreement, and key tra
 <p>Thus, if data is to remain secure beyond 2030, proactive measures should be taken now to ensure its safety.</p>
 <p><a href="https://www.enisa.europa.eu/publications/post-quantum-cryptography-current-state-and-quantum-mitigation">Learn more here</a>.</p>
 <h2>Resources</h2>
+<ul>
+  <li> Documentation
+    <ul>
+      <li> NIST Documentation - <a href="https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-186.pdf">NIST SP 800-186: Recommendations
+      for Discrete Logarithm-based Cryptography: Elliptic Curve Domain Parameters</a> </li>
+      <li> IETF - <a href="https://datatracker.ietf.org/doc/html/rfc5639">rfc5639: Elliptic Curve Cryptography (ECC) Brainpool Standard Curves and
+      Curve Generation</a> </li>
+    </ul>  </li>
+</ul>
 <h3>Articles &amp; blog posts</h3>
 <ul>
   <li> <a href="https://learn.microsoft.com/en-us/dotnet/standard/security/vulnerabilities-cbc-mode">Microsoft, Timing vulnerabilities with CBC-mode
@@ -168,19 +187,19 @@ in mind that NIST-approved digital signature schemes, key agreement, and key tra
 </ul>
 <h3>Standards</h3>
 <ul>
-  <li> <a href="https://owasp.org/Top10/A02_2021-Cryptographic_Failures/">OWASP Top 10 2021 Category A2</a> - Cryptographic Failures </li>
-  <li> <a href="https://www.owasp.org/www-project-top-ten/2017/A3_2017-Sensitive_Data_Exposure">OWASP Top 10 2017 Category A3</a> - Sensitive Data
-  Exposure </li>
-  <li> <a href="https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration">OWASP Top 10 2017 Category A6</a> - Security
-  Misconfiguration </li>
-  <li> <a href="https://mobile-security.gitbook.io/masvs/security-requirements/0x08-v3-cryptography_verification_requirements">Mobile AppSec
-  Verification Standard</a> - Cryptography Requirements </li>
-  <li> <a href="https://owasp.org/www-project-mobile-top-10/2016-risks/m5-insufficient-cryptography">OWASP Mobile Top 10 2016 Category M5</a> -
-  Insufficient Cryptography </li>
+  <li> OWASP - <a href="https://owasp.org/Top10/A02_2021-Cryptographic_Failures/">Top 10 2021 Category A2 - Cryptographic Failures</a> </li>
+  <li> OWASP - <a href="https://www.owasp.org/www-project-top-ten/2017/A3_2017-Sensitive_Data_Exposure">Top 10 2017 Category A3 - Sensitive Data
+  Exposure</a> </li>
+  <li> OWASP - <a href="https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration">Top 10 2017 Category A6 - Security
+  Misconfiguration</a> </li>
+  <li> OWASP - <a href="https://mobile-security.gitbook.io/masvs/security-requirements/0x08-v3-cryptography_verification_requirements">Mobile AppSec
+  Verification Standard - Cryptography Requirements</a> </li>
+  <li> OWASP - <a href="https://owasp.org/www-project-mobile-top-10/2016-risks/m5-insufficient-cryptography">Mobile Top 10 2016 Category M5 -
+  Insufficient Cryptography</a> </li>
   <li> <a href="https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-131Ar1.pdf">NIST 800-131A</a> - Recommendation for Transitioning the
-  Use of Cryptographic Algorithms and Key Lengths* <a href="https://cwe.mitre.org/data/definitions/326">MITRE, CWE-326</a> - Inadequate Encryption
-  Strength </li>
-  <li> <a href="https://cwe.mitre.org/data/definitions/327">MITRE, CWE-327</a> - Use of a Broken or Risky Cryptographic Algorithm </li>
+  Use of Cryptographic Algorithms and Key Lengths </li>
+  <li> CWE - <a href="https://cwe.mitre.org/data/definitions/326">CWE-326 - Inadequate Encryption Strength</a> </li>
+  <li> CWE - <a href="https://cwe.mitre.org/data/definitions/327">CWE-327 - Use of a Broken or Risky Cryptographic Algorithm</a> </li>
   <li> <a href="https://wiki.sei.cmu.edu/confluence/x/hDdGBQ">CERT, MSC61-J.</a> - Do not use insecure or weak cryptographic algorithms </li>
 </ul>
 

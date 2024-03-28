@@ -1,13 +1,13 @@
 <h2>Why is this an issue?</h2>
 <p>Public <code>static</code> fields in TypeScript should be declared as <code>readonly</code> to prevent them from being modified after their initial
 assignment. This is a good practice because it makes the code safer by preventing accidental changes to these fields, which could lead to bugs that
-are hard to detect and fix.</p>
+are hard to detect.</p>
 <pre data-diff-id="1" data-diff-type="noncompliant">
 class MyClass {
     static myField = 42; // Noncompliant
 }
 </pre>
-<p>To fix this, declare you static field with the <code>readonly</code> qualifier .</p>
+<p>To fix this, declare your static field with the <code>readonly</code> qualifier.</p>
 <pre data-diff-id="1" data-diff-type="compliant">
 class MyClass {
     static readonly myField = 42;
@@ -16,6 +16,7 @@ class MyClass {
 <h2>Resources</h2>
 <h2>Documentation</h2>
 <ul>
-  <li> TypeScript Documentation - <a href="https://www.typescriptlang.org/docs/handbook/2/objects.html#readonly-properties">readonly</a> </li>
+  <li> TypeScript Documentation - <a href="https://www.typescriptlang.org/docs/handbook/2/objects.html#readonly-properties">readonly properties</a>
+  </li>
 </ul>
 
