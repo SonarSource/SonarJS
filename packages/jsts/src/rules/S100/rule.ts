@@ -86,7 +86,7 @@ export const rule: Rule.RuleModule = {
       },
       'FunctionDeclaration[id.type="Identifier"]': (node: estree.FunctionDeclaration) => {
         knowledgeStack.push({
-          node: node.id as estree.Identifier,
+          node: node.id,
           func: node as estree.Function,
           returnsJSX: false,
         });
