@@ -6,10 +6,6 @@
     "func": "Constant\/Issue",
     "constantCost": "5min"
   },
-  "tags": [
-    "accessibility",
-    "react"
-  ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-6840",
   "sqKey": "S6840",
@@ -22,6 +18,10 @@
     },
     "attribute": "CONVENTIONAL"
   },
+  "tags": [
+    "accessibility",
+    "react"
+  ],
   "compatibleLanguages": [
     "JAVASCRIPT",
     "TYPESCRIPT"

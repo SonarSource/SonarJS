@@ -27,14 +27,22 @@ potential accessibility violations.</p>
 <h3>Code examples</h3>
 <h4>Noncompliant code example</h4>
 <pre data-diff-id="1" data-diff-type="noncompliant">
-&lt;a href="javascript:void(0)" onClick={foo}&gt;Perform action&lt;/a&gt;
-&lt;a href="#" onClick={foo}&gt;Perform action&lt;/a&gt;
-&lt;a onClick={foo}&gt;Perform action&lt;/a&gt;
+const MyComponent = () =&gt; {
+    return &lt;&gt;
+        &lt;a href="javascript:void(0)" onClick={foo}&gt;Perform action&lt;/a&gt;
+        &lt;a href="#" onClick={foo}&gt;Perform action&lt;/a&gt;
+        &lt;a onClick={foo}&gt;Perform action&lt;/a&gt;
+    &lt;/&gt;;
+};
 </pre>
 <h4>Compliant solution</h4>
 <pre data-diff-id="1" data-diff-type="compliant">
-&lt;button onClick={foo}&gt;Perform action&lt;/button&gt;
-&lt;a href="#section" onClick={foo} /&gt;
+const MyComponent = () =&gt; {
+    return &lt;&gt;
+      &lt;button onClick={foo}&gt;Perform action&lt;/button&gt;
+      &lt;a href="#section" onClick={foo}&gt;Perform action&lt;/a&gt;
+    &lt;/&gt;;
+};
 </pre>
 <h2>Resources</h2>
 <h3>Documentation</h3>

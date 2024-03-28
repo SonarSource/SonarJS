@@ -1,16 +1,15 @@
 <p>This vulnerability makes it possible that an encrypted communication is intercepted.</p>
 <h2>Why is this an issue?</h2>
-<p>Transport Layer Security (TLS) provides secure communication between systems over the internet by encrypting the data sent between them. The role
-of certificate validation in this process is to ensure that a system is indeed the one it claims to be, adding an extra layer of trust and
-security.</p>
-<p>When certificate validation is disabled, the client skips this critical check. This creates an opportunity for attackers to pose as a trusted
+<p>Transport Layer Security (TLS) provides secure communication between systems over the internet by encrypting the data sent between them.
+Certificate validation adds an extra layer of trust and security to this process to ensure that a system is indeed the one it claims to be.</p>
+<p>When certificate validation is disabled, the client skips a critical security check. This creates an opportunity for attackers to pose as a trusted
 entity and intercept, manipulate, or steal the data being transmitted.</p>
 <h3>What is the potential impact?</h3>
 <p>Establishing trust in a secure way is a non-trivial task. When you disable certificate validation, you are removing a key mechanism designed to
 build this trust in internet communication, opening your system up to a number of potential threats.</p>
 <h4>Identity spoofing</h4>
 <p>If a system does not validate certificates, it cannot confirm the identity of the other party involved in the communication. An attacker can
-exploit this by creating a fake server and masquerading it as a legitimate one. For example, they might set up a server that looks like your bank’s
+exploit this by creating a fake server and masquerading as a legitimate one. For example, they might set up a server that looks like your bank’s
 server, tricking your system into thinking it is communicating with the bank. This scenario, called identity spoofing, allows the attacker to collect
 any data your system sends to them, potentially leading to significant data breaches.</p>
 <h4>Loss of data integrity</h4>
@@ -132,18 +131,18 @@ roots. Rather than disabling certificate validation in your code, you can add th
 <h2>Resources</h2>
 <h3>Standards</h3>
 <ul>
-  <li> <a href="https://owasp.org/Top10/A02_2021-Cryptographic_Failures/">OWASP Top 10 2021 Category A2</a> - Cryptographic Failures </li>
-  <li> <a href="https://owasp.org/Top10/A05_2021-Security_Misconfiguration/">OWASP Top 10 2021 Category A5</a> - Security Misconfiguration </li>
-  <li> <a href="https://owasp.org/Top10/A07_2021-Identification_and_Authentication_Failures/">OWASP Top 10 2021 Category A7</a> - Identification and
-  Authentication Failures </li>
-  <li> <a href="https://www.owasp.org/www-project-top-ten/2017/A3_2017-Sensitive_Data_Exposure">OWASP Top 10 2017 Category A3</a> - Sensitive Data
-  Exposure </li>
-  <li> <a href="https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration">OWASP Top 10 2017 Category A6</a> - Security
-  Misconfiguration </li>
-  <li> <a href="https://owasp.org/www-project-mobile-top-10/2016-risks/m3-insecure-communication">OWASP Mobile Top 10 2016 Category M3</a> - Insecure
-  Communication </li>
-  <li> <a href="https://mobile-security.gitbook.io/masvs/security-requirements/0x10-v5-network_communication_requirements">Mobile AppSec Verification
-  Standard</a> - Network Communication Requirements </li>
-  <li> <a href="https://cwe.mitre.org/data/definitions/295">MITRE, CWE-295</a> - Improper Certificate Validation </li>
+  <li> OWASP - <a href="https://owasp.org/Top10/A02_2021-Cryptographic_Failures/">Top 10 2021 Category A2 - Cryptographic Failures</a> </li>
+  <li> OWASP - <a href="https://owasp.org/Top10/A05_2021-Security_Misconfiguration/">Top 10 2021 Category A5 - Security Misconfiguration</a> </li>
+  <li> OWASP - <a href="https://owasp.org/Top10/A07_2021-Identification_and_Authentication_Failures/">Top 10 2021 Category A7 - Identification and
+  Authentication Failures</a> </li>
+  <li> OWASP - <a href="https://owasp.org/www-project-top-ten/2017/A3_2017-Sensitive_Data_Exposure">Top 10 2017 Category A3 - Sensitive Data
+  Exposure</a> </li>
+  <li> OWASP - <a href="https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration">Top 10 2017 Category A6 - Security
+  Misconfiguration</a> </li>
+  <li> OWASP - <a href="https://owasp.org/www-project-mobile-top-10/2016-risks/m3-insecure-communication">Mobile Top 10 2016 Category M3 - Insecure
+  Communication</a> </li>
+  <li> OWASP - <a href="https://mobile-security.gitbook.io/masvs/security-requirements/0x10-v5-network_communication_requirements">Mobile AppSec
+  Verification Standard - Network Communication Requirements</a> </li>
+  <li> CWE - <a href="https://cwe.mitre.org/data/definitions/295">CWE-295 - Improper Certificate Validation</a> </li>
 </ul>
 

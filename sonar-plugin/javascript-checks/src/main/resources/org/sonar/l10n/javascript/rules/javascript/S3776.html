@@ -6,10 +6,10 @@ to read, understand, test, and modify.</p>
 <h3>Which syntax in code does impact cognitive complexity score?</h3>
 <p>Here are the core concepts:</p>
 <ul>
-  <li> <strong>Cognitive complexity is incremented each time the code breaks the normal linear reading flow.</strong><br> This concerns, for example:
-  Loop structures, Conditionals, Catches, Switches, Jumps to label and mixed operators in condition. </li>
-  <li> <strong>Each nesting level adds a malus to the breaking call.</strong><br> During code reading, the deeper you go through nested layers, the
-  harder it becomes to keep the context in mind. </li>
+  <li> <strong>Cognitive complexity is incremented each time the code breaks the normal linear reading flow.</strong><br> This concerns, for example,
+  loop structures, conditionals, catches, switches, jumps to labels, and conditions mixing multiple operators. </li>
+  <li> <strong>Each nesting level increases complexity.</strong><br> During code reading, the deeper you go through nested layers, the harder it
+  becomes to keep the context in mind. </li>
   <li> <strong>Method calls are free</strong><br> A well-picked method name is a summary of multiple lines of code. A reader can first explore a
   high-level view of what the code is performing then go deeper and deeper by looking at called functions content.<br> <em>Note:</em> This does not
   apply to recursive calls, those will increment cognitive score. </li>
@@ -18,6 +18,15 @@ to read, understand, test, and modify.</p>
 <h3>What is the potential impact?</h3>
 <p>Developers spend more time reading and understanding code than writing it. High cognitive complexity slows down changes and increases the cost of
 maintenance.</p>
+<h3>Exceptions</h3>
+<p>Cognitive complexity calculations exclude logical expressions using the <code>||</code> and <code>??</code> operators when applied within the
+context of default value code patterns.</p>
+<pre>
+function greet(name) {
+    name = name || 'Guest';
+    console.log('Hello, ' + name + '!');
+}
+</pre>
 <h2>How to fix it</h2>
 <p>Reducing cognitive complexity can be challenging.<br> Here are a few suggestions:</p>
 <ul>
@@ -30,6 +39,9 @@ maintenance.</p>
   <li> <strong>Use null-safe operations (if available in the language).</strong><br> When available the <code>.?</code> or <code>??</code> operator
   replaces multiple tests and simplifies the flow. </li>
 </ul>
+<p>Note that the calculation of cognitive complexity deviates from the documented process when functions are nested. Given the functional nature of
+JavaScript, nesting functions is a prevalent practice, especially within frameworks like React.js. Consequently, the cognitive complexity of functions
+remains independent of each other.</p>
 <h3>Code examples</h3>
 <p><strong>Extraction of a complex condition in a new function.</strong></p>
 <h4>Noncompliant code example</h4>
