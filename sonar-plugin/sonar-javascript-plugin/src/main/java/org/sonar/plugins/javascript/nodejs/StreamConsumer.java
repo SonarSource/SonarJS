@@ -28,12 +28,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 class StreamConsumer {
 
-  private static final Logger LOG = Loggers.get(StreamConsumer.class);
+  private static final Logger LOG = LoggerFactory.getLogger(StreamConsumer.class);
   private final ExecutorService executorService;
 
   StreamConsumer() {

@@ -24,13 +24,13 @@ import com.google.gson.JsonParseException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.sensor.SensorContext;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 
 class JsonSerialization<P> extends CacheSerialization {
 
-  private static final Logger LOG = Loggers.get(JsonSerialization.class);
+  private static final Logger LOG = LoggerFactory.getLogger(JsonSerialization.class);
 
   private final Class<P> jsonClass;
   private final Gson gson = new Gson();

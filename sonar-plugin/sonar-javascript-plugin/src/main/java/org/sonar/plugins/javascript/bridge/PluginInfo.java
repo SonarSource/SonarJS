@@ -20,12 +20,12 @@
 package org.sonar.plugins.javascript.bridge;
 
 import java.util.Optional;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PluginInfo {
 
-  private static final Logger LOG = Loggers.get(PluginInfo.class);
+  private static final Logger LOG = LoggerFactory.getLogger(PluginInfo.class);
 
   private static String version;
   private static String ucfgPluginVersion;

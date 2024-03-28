@@ -32,6 +32,8 @@ import java.util.List;
 import javax.annotation.Nullable;
 import org.apache.commons.io.ByteOrderMark;
 import org.apache.commons.io.input.BOMInputStream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.CheckFactory;
@@ -40,8 +42,6 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.issue.NewExternalIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.css.StylelintReport.Issue;
 import org.sonar.css.StylelintReport.IssuesPerFile;
 import org.sonarsource.analyzer.commons.ExternalReportProvider;
@@ -53,7 +53,7 @@ public class StylelintReportSensor implements Sensor {
   public static final String STYLELINT_REPORT_PATHS = "sonar.css.stylelint.reportPaths";
   public static final String STYLELINT_REPORT_PATHS_DEFAULT_VALUE = "";
 
-  private static final Logger LOG = Loggers.get(StylelintReportSensor.class);
+  private static final Logger LOG = LoggerFactory.getLogger(StylelintReportSensor.class);
   private static final String FILE_EXCEPTION_MESSAGE =
     "No issues information will be saved as the report file can't be read.";
   private static final ByteOrderMark[] BYTE_ORDER_MARKS = {

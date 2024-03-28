@@ -19,6 +19,9 @@
  */
 package org.sonar.plugins.javascript.lcov;
 
+import static org.sonar.plugins.javascript.JavaScriptPlugin.LCOV_REPORT_PATHS;
+import static org.sonar.plugins.javascript.JavaScriptPlugin.LCOV_REPORT_PATHS_ALIAS;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,6 +29,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -34,24 +39,21 @@ import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.coverage.NewCoverage;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
-import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
 import org.sonarsource.analyzer.commons.FileProvider;
 
 public class CoverageSensor implements Sensor {
 
-  private static final Logger LOG = Loggers.get(CoverageSensor.class);
+  private static final Logger LOG = LoggerFactory.getLogger(CoverageSensor.class);
 
   @Override
   public void describe(SensorDescriptor descriptor) {
     descriptor
       .onlyOnLanguages(JavaScriptLanguage.KEY, TypeScriptLanguage.KEY)
       .onlyWhenConfiguration(conf ->
-        conf.hasKey(JavaScriptPlugin.LCOV_REPORT_PATHS) ||
-        conf.hasKey(JavaScriptPlugin.LCOV_REPORT_PATHS_ALIAS)
+        conf.hasKey(LCOV_REPORT_PATHS) ||
+        conf.hasKey(LCOV_REPORT_PATHS_ALIAS)
       )
       .name("JavaScript/TypeScript Coverage")
       .onlyOnFileType(Type.MAIN);
@@ -60,23 +62,18 @@ public class CoverageSensor implements Sensor {
   @Override
   public void execute(SensorContext context) {
     Set<String> reports = new HashSet<>(
-      Arrays.asList(context.config().getStringArray(JavaScriptPlugin.LCOV_REPORT_PATHS))
+      Arrays.asList(context.config().getStringArray(LCOV_REPORT_PATHS))
     );
     reports.addAll(
-      Arrays.asList(context.config().getStringArray(JavaScriptPlugin.LCOV_REPORT_PATHS_ALIAS))
+      Arrays.asList(context.config().getStringArray(LCOV_REPORT_PATHS_ALIAS))
     );
-    logIfUsedProperty(context, JavaScriptPlugin.LCOV_REPORT_PATHS);
-    logIfUsedProperty(context, JavaScriptPlugin.LCOV_REPORT_PATHS_ALIAS);
+    logIfUsedProperty(context, LCOV_REPORT_PATHS);
+    logIfUsedProperty(context, LCOV_REPORT_PATHS_ALIAS);
     if (
-      context.config().hasKey(JavaScriptPlugin.LCOV_REPORT_PATHS) &&
-      context.config().hasKey(JavaScriptPlugin.LCOV_REPORT_PATHS_ALIAS)
+      context.config().hasKey(LCOV_REPORT_PATHS) &&
+      context.config().hasKey(LCOV_REPORT_PATHS_ALIAS)
     ) {
-      LOG.info(
-        String.format(
-          "Merging coverage reports from %s and %s.",
-          JavaScriptPlugin.LCOV_REPORT_PATHS,
-          JavaScriptPlugin.LCOV_REPORT_PATHS_ALIAS
-        )
+      LOG.info("Merging coverage reports from {} and {}.", LCOV_REPORT_PATHS, LCOV_REPORT_PATHS_ALIAS
       );
     }
     List<File> lcovFiles = getLcovFiles(context.fileSystem().baseDir(), reports);
@@ -133,17 +130,12 @@ public class CoverageSensor implements Sensor {
 
     List<String> unresolvedPaths = parser.unresolvedPaths();
     if (!unresolvedPaths.isEmpty()) {
-      LOG.warn(
-        String.format("Could not resolve %d file paths in %s", unresolvedPaths.size(), lcovFiles)
-      );
+      LOG.warn("Could not resolve {} file paths in {}", unresolvedPaths.size(), lcovFiles);
       if (LOG.isDebugEnabled()) {
-        LOG.debug("Unresolved paths:\n" + String.join("\n", unresolvedPaths));
+        LOG.debug("Unresolved paths:\n{}", String.join("\n", unresolvedPaths));
       } else {
         LOG.warn(
-          "First unresolved path: " +
-          unresolvedPaths.get(0) +
-          " (Run in DEBUG mode to get full list of unresolved paths)"
-        );
+          "First unresolved path: {} (Run in DEBUG mode to get full list of unresolved paths)", unresolvedPaths.get(0));
       }
     }
 

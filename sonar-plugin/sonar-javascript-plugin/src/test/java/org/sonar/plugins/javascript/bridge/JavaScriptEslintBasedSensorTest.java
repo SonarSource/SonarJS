@@ -524,8 +524,6 @@ class JavaScriptEslintBasedSensorTest {
     var javaScriptEslintBasedSensor = new JsTsSensor(
       checks(ESLINT_BASED_RULE),
       bridgeServerMock,
-      analysisWarnings,
-      tempFolder,
       analysisWithProgram,
       analysisWithWatchProgram
     );
@@ -542,8 +540,6 @@ class JavaScriptEslintBasedSensorTest {
     var javaScriptEslintBasedSensor = new JsTsSensor(
       checks(ESLINT_BASED_RULE),
       bridgeServerMock,
-      new AnalysisWarningsWrapper(),
-      tempFolder,
       analysisWithProgram,
       analysisWithWatchProgram
     );
@@ -606,8 +602,6 @@ class JavaScriptEslintBasedSensorTest {
     new JsTsSensor(
       checks(ESLINT_BASED_RULE),
       bridgeServerMock,
-      null,
-      tempFolder,
       analysisWithProgram,
       analysisWithWatchProgram
     )
@@ -788,8 +782,6 @@ class JavaScriptEslintBasedSensorTest {
     return new JsTsSensor(
       checks(ESLINT_BASED_RULE, "S2260", "S1451"),
       bridgeServerMock,
-      new AnalysisWarningsWrapper(),
-      tempFolder,
       sonarlintTypeCheckingChecker,
       analysisWithProgram,
       analysisWithWatchProgram

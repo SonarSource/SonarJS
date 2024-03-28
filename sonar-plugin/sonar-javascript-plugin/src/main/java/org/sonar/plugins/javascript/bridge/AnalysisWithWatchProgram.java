@@ -29,10 +29,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.scanner.ScannerSide;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.CancellationException;
 import org.sonar.plugins.javascript.bridge.cache.CacheAnalysis;
 import org.sonar.plugins.javascript.bridge.cache.CacheStrategies;
@@ -43,7 +43,7 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
 @SonarLintSide
 public class AnalysisWithWatchProgram extends AbstractAnalysis {
 
-  private static final Logger LOG = Loggers.get(AnalysisWithWatchProgram.class);
+  private static final Logger LOG = LoggerFactory.getLogger(AnalysisWithWatchProgram.class);
 
   public AnalysisWithWatchProgram(
     BridgeServer bridgeServer,
@@ -62,7 +62,7 @@ public class AnalysisWithWatchProgram extends AbstractAnalysis {
       inputFiles
     );
     try {
-      progressReport.start(inputFiles.size(), inputFiles.iterator().next().absolutePath());
+      progressReport.start(inputFiles.size(), inputFiles.iterator().next().toString());
       if (tsConfigs.isEmpty()) {
         LOG.info("Analyzing {} files without tsconfig", inputFiles.size());
         analyzeTsConfig(null, inputFiles);
@@ -124,7 +124,7 @@ public class AnalysisWithWatchProgram extends AbstractAnalysis {
         );
       }
       analyze(inputFile, tsConfigFile);
-      progressReport.nextFile(inputFile.absolutePath());
+      progressReport.nextFile(inputFile.toString());
     }
   }
 
@@ -132,7 +132,7 @@ public class AnalysisWithWatchProgram extends AbstractAnalysis {
     var cacheStrategy = CacheStrategies.getStrategyFor(context, file);
     if (cacheStrategy.isAnalysisRequired()) {
       try {
-        LOG.debug("Analyzing file: " + file.uri());
+        LOG.debug("Analyzing file: {}", file);
         var fileContent = contextUtils.shouldSendFileContent(file) ? file.contents() : null;
         var tsConfigs = tsConfigFile == null
           ? Collections.<String>emptyList()

@@ -37,13 +37,13 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import javax.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.SonarProduct;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.JavaScriptFilePredicate;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.sonarlint.SonarLintTypeCheckingChecker;
@@ -51,7 +51,7 @@ import org.sonarsource.analyzer.commons.FileProvider;
 
 class TsConfigProvider {
 
-  private static final Logger LOG = Loggers.get(TsConfigProvider.class);
+  private static final Logger LOG = LoggerFactory.getLogger(TsConfigProvider.class);
 
   interface Provider {
     List<String> tsconfigs(SensorContext context) throws IOException;
@@ -185,7 +185,7 @@ class TsConfigProvider {
           }
         }
       }
-      LOG.info("Found " + tsconfigs.size() + " tsconfig.json file(s): " + tsconfigs);
+      LOG.info("Found {} tsconfig.json file(s): {}",tsconfigs.size(), tsconfigs);
       return tsconfigs;
     }
   }

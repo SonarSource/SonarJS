@@ -35,9 +35,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Locale;
 import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.scanner.ScannerSide;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.nodejs.NodeVersion;
 import org.sonar.plugins.javascript.nodejs.ProcessWrapper;
 import org.sonarsource.api.sonarlint.SonarLintSide;
@@ -53,7 +53,7 @@ public class EmbeddedNode {
   public static final String VERSION_FILENAME = "version.txt";
   private static final String DEPLOY_LOCATION = Path.of("js", "node-runtime").toString();
   private static final long EXTRACTION_LOCK_WAIT_TIME_MILLIS = 10000;
-  private static final Logger LOG = Loggers.get(EmbeddedNode.class);
+  private static final Logger LOG = LoggerFactory.getLogger(EmbeddedNode.class);
   private final Path deployLocation;
   private final Platform platform;
   private final Environment env;
@@ -205,10 +205,7 @@ public class EmbeddedNode {
     var newVersionString = new String(newVersionIs.readAllBytes(), StandardCharsets.UTF_8);
     var currentVersionString = Files.readString(currentVersionPath);
     LOG.debug(
-      "Currently installed Node.js version: " +
-      currentVersionString +
-      ". Available version in analyzer: " +
-      newVersionString
+      "Currently installed Node.js version: {}. Available version in analyzer: {}", currentVersionString, newVersionString
     );
     return !newVersionString.equals(currentVersionString);
   }
