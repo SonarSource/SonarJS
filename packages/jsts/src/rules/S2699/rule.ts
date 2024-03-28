@@ -22,6 +22,7 @@ import { Rule, SourceCode } from 'eslint';
 import * as estree from 'estree';
 import { childrenOf } from '../../linter';
 import { Chai, isFunctionCall, Mocha, resolveFunction, Sinon, Vitest } from '../helpers';
+import { Supertest } from '../helpers/supertest';
 
 /**
  * We assume that the user is using a single assertion library per file,
@@ -40,7 +41,12 @@ export const rule: Rule.RuleModule = {
         }
       },
       'Program:exit': () => {
-        if (Chai.isImported(context) || Sinon.isImported(context) || Vitest.isImported(context)) {
+        if (
+          Chai.isImported(context) ||
+          Sinon.isImported(context) ||
+          Vitest.isImported(context) ||
+          Supertest.isImported(context)
+        ) {
           potentialIssues.forEach(issue => {
             context.report(issue);
           });
@@ -84,7 +90,8 @@ class TestCaseAssertionVisitor {
     if (
       Chai.isAssertion(context, node) ||
       Sinon.isAssertion(context, node) ||
-      Vitest.isAssertion(context, node)
+      Vitest.isAssertion(context, node) ||
+      Supertest.isAssertion(context, node)
     ) {
       this.hasAssertions = true;
       return;
