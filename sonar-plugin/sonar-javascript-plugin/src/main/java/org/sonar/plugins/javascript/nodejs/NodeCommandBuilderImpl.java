@@ -34,15 +34,15 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.Version;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.bridge.EmbeddedNode;
 
 public class NodeCommandBuilderImpl implements NodeCommandBuilder {
 
-  private static final Logger LOG = Loggers.get(NodeCommandBuilderImpl.class);
+  private static final Logger LOG = LoggerFactory.getLogger(NodeCommandBuilderImpl.class);
 
   public static final String NODE_EXECUTABLE_DEFAULT = "node";
   private static final String NODE_EXECUTABLE_DEFAULT_MACOS =

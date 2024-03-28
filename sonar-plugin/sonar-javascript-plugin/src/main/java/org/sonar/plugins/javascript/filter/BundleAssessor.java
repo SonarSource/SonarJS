@@ -26,13 +26,13 @@ import java.io.InputStreamReader;
 import java.util.regex.Pattern;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.BoundedReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 
 public class BundleAssessor implements Assessor {
 
-  private static final Logger LOG = Loggers.get(BundleAssessor.class);
+  private static final Logger LOG = LoggerFactory.getLogger(BundleAssessor.class);
   static final String PROPERTY = "sonar.javascript.detectBundles";
   private static final Pattern COMMENT_OPERATOR_FUNCTION = bundleRegexPattern();
   private static final int READ_CHARACTERS_LIMIT = 2048;
@@ -73,11 +73,11 @@ public class BundleAssessor implements Assessor {
   }
 
   private static Pattern bundleRegexPattern() {
-    var COMMENT = "/\\*.*\\*/";
-    var OPERATOR = "[!;+(]";
-    var OPTIONAL_FUNCTION_NAME = "(?: [_$a-zA-Z][_$a-zA-Z0-9]*)?";
+    var comment = "/\\*.*\\*/";
+    var operator = "[!;+(]";
+    var optionalFunctionName = "(?: [_$a-zA-Z][_$a-zA-Z0-9]*)?";
     return Pattern.compile(
-      COMMENT + "\\s*" + OPERATOR + "function ?" + OPTIONAL_FUNCTION_NAME + "\\(",
+      comment + "\\s*" + operator + "function ?" + optionalFunctionName + "\\(",
       DOTALL
     );
   }

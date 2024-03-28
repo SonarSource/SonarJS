@@ -28,17 +28,17 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.scanner.ScannerSide;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.api.RulesBundle;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
 @ScannerSide
-@SonarLintSide(lifespan = SonarLintSide.MULTIPLE_ANALYSES)
+@SonarLintSide(lifespan = SonarLintSide.INSTANCE)
 public class RulesBundles {
 
-  private static final Logger LOG = Loggers.get(RulesBundles.class);
+  private static final Logger LOG = LoggerFactory.getLogger(RulesBundles.class);
 
   private final List<URL> bundleUrls;
   private final List<RulesBundle> bundles;

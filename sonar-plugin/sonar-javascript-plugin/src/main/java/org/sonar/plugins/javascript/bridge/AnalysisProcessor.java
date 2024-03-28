@@ -32,6 +32,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.cpd.NewCpdTokens;
@@ -49,19 +51,15 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.utils.Version;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.bridge.BridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.bridge.cache.CacheAnalysis;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 import org.sonarsource.sonarlint.plugin.api.SonarLintRuntime;
-import org.sonarsource.sonarlint.plugin.api.issue.NewSonarLintIssue;
 
 @ScannerSide
 @SonarLintSide
 public class AnalysisProcessor {
-
-  private static final Logger LOG = Loggers.get(AnalysisProcessor.class);
+  private static final Logger LOG = LoggerFactory.getLogger(AnalysisProcessor.class);
   private static final Version SONARLINT_6_3 = Version.create(6, 3);
 
   private final NoSonarFilter noSonarFilter;
@@ -181,7 +179,7 @@ public class AnalysisProcessor {
       LOG.debug(
         "Saving issue for rule {} on file {} at line {}",
         issue.ruleId,
-        file.absolutePath(),
+        file,
         issue.line
       );
       saveIssue(issue);
@@ -320,7 +318,7 @@ public class AnalysisProcessor {
         newIssue.setQuickFixAvailable(true);
       }
       if (isQuickFixCompatible()) {
-        addQuickFixes(issue, (NewSonarLintIssue) newIssue, file);
+        addQuickFixes(issue, newIssue, file);
       }
     }
 

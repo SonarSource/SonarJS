@@ -25,16 +25,16 @@ import static org.sonar.plugins.javascript.sonarlint.SonarLintTypeCheckingFilter
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.stream.Stream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.sensor.SensorContext;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.utils.PathWalker;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
 @SonarLintSide(lifespan = "MODULE")
 public class SonarLintTypeCheckingCheckerImpl implements SonarLintTypeCheckingChecker {
 
-  private static final Logger LOG = Loggers.get(SonarLintTypeCheckingCheckerImpl.class);
+  private static final Logger LOG = LoggerFactory.getLogger(SonarLintTypeCheckingCheckerImpl.class);
   static final String MAX_FILES_PROPERTY = "sonar.javascript.sonarlint.typechecking.maxfiles";
   static final int DEFAULT_MAX_FILES_FOR_TYPE_CHECKING = 20_000;
   private static final int FILE_WALK_MAX_DEPTH = 20;

@@ -22,19 +22,19 @@ package org.sonar.plugins.javascript.external;
 import com.google.gson.Gson;
 import java.io.File;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonarsource.analyzer.commons.ExternalReportProvider;
 
 abstract class AbstractExternalIssuesSensor implements Sensor {
 
-  private static final Logger LOG = Loggers.get(AbstractExternalIssuesSensor.class);
+  private static final Logger LOG = LoggerFactory.getLogger(AbstractExternalIssuesSensor.class);
   static final Gson gson = new Gson();
 
   static final long DEFAULT_REMEDIATION_COST = 5L;

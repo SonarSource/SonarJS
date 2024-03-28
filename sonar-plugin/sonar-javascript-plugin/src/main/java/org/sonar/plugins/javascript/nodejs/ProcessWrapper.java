@@ -36,7 +36,7 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
  * thread
  */
 @ScannerSide
-@SonarLintSide(lifespan = SonarLintSide.MULTIPLE_ANALYSES)
+@SonarLintSide(lifespan = SonarLintSide.INSTANCE)
 public interface ProcessWrapper {
   Process startProcess(
     List<String> commandLine,

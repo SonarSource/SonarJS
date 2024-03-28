@@ -19,10 +19,10 @@
  */
 package org.sonar.plugins.javascript.bridge;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
-import org.sonarsource.sonarlint.plugin.api.issue.NewSonarLintIssue;
+import org.sonar.api.batch.sensor.issue.NewIssue;
 
 /**
  * QuickFix logic is separated here, because it can't be used directly in the plugin extension class, otherwise
@@ -30,7 +30,7 @@ import org.sonarsource.sonarlint.plugin.api.issue.NewSonarLintIssue;
  */
 class QuickFixSupport {
 
-  private static final Logger LOG = Loggers.get(QuickFixSupport.class);
+  private static final Logger LOG = LoggerFactory.getLogger(QuickFixSupport.class);
 
   private QuickFixSupport() {
     // utility class
@@ -38,7 +38,7 @@ class QuickFixSupport {
 
   static void addQuickFixes(
     BridgeServer.Issue issue,
-    NewSonarLintIssue sonarLintIssue,
+    NewIssue sonarLintIssue,
     InputFile file
   ) {
     issue.quickFixes.forEach(qf -> {

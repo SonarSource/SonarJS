@@ -29,7 +29,7 @@ import org.sonar.plugins.javascript.bridge.EmbeddedNode;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
 @ScannerSide
-@SonarLintSide(lifespan = SonarLintSide.MULTIPLE_ANALYSES)
+@SonarLintSide(lifespan = SonarLintSide.INSTANCE)
 public interface NodeCommandBuilder {
   NodeCommandBuilder minNodeVersion(Version minNodeVersion);
 

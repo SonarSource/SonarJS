@@ -23,6 +23,8 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.SonarProduct;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.FileSystem;
@@ -36,13 +38,11 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.utils.Version;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.css.CssLanguage;
 
 public class CssMetricSensor implements Sensor {
 
-  private static final Logger LOG = Loggers.get(CssMetricSensor.class);
+  private static final Logger LOG = LoggerFactory.getLogger(CssMetricSensor.class);
 
   private final SonarRuntime sonarRuntime;
   private final FileLinesContextFactory fileLinesContextFactory;

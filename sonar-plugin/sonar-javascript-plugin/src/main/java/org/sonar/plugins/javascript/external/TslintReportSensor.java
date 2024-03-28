@@ -27,6 +27,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextPointer;
 import org.sonar.api.batch.fs.TextRange;
@@ -34,13 +36,11 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.issue.NewExternalIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.rules.RuleType;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.rules.TslintRulesDefinition;
 
 public class TslintReportSensor extends AbstractExternalIssuesSensor {
 
-  private static final Logger LOG = Loggers.get(TslintReportSensor.class);
+  private static final Logger LOG = LoggerFactory.getLogger(TslintReportSensor.class);
 
   @Override
   String linterName() {

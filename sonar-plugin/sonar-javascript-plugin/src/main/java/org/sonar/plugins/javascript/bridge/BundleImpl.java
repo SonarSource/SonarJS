@@ -19,23 +19,21 @@
  */
 package org.sonar.plugins.javascript.bridge;
 
-import static org.sonarsource.api.sonarlint.SonarLintSide.MULTIPLE_ANALYSES;
+import static org.sonarsource.api.sonarlint.SonarLintSide.INSTANCE;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.scanner.ScannerSide;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
-import org.sonar.api.utils.log.Profiler;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
 @ScannerSide
-@SonarLintSide(lifespan = MULTIPLE_ANALYSES)
+@SonarLintSide(lifespan = INSTANCE)
 public class BundleImpl implements Bundle {
 
-  private static final Logger LOG = Loggers.get(BundleImpl.class);
-  private static final Profiler PROFILER = Profiler.createIfDebug(LOG);
+  private static final Logger LOG = LoggerFactory.getLogger(BundleImpl.class);
 
   // this archive is created in the bridge module
   private static final String BUNDLE_LOCATION = "/sonarjs-1.0.0.tgz";
@@ -53,7 +51,6 @@ public class BundleImpl implements Bundle {
 
   @Override
   public void deploy(Path deployLocation) throws IOException {
-    PROFILER.startDebug("Deploying bundle");
     LOG.debug("Deploying the bridge server into {}", deployLocation);
     InputStream bundle = getClass().getResourceAsStream(bundleLocation);
     if (bundle == null) {
@@ -61,7 +58,6 @@ public class BundleImpl implements Bundle {
     }
     BundleUtils.extractFromClasspath(bundle, deployLocation);
     this.deployLocation = deployLocation;
-    PROFILER.stopDebug();
   }
 
   @Override

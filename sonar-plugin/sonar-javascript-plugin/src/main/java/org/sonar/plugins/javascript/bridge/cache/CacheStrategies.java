@@ -25,18 +25,18 @@ import static org.sonar.plugins.javascript.bridge.cache.CacheStrategy.writeOnly;
 
 import java.io.IOException;
 import javax.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.SonarProduct;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.utils.Version;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.bridge.AnalysisMode;
 import org.sonar.plugins.javascript.bridge.PluginInfo;
 
 public class CacheStrategies {
 
-  private static final Logger LOG = Loggers.get(CacheStrategies.class);
+  private static final Logger LOG = LoggerFactory.getLogger(CacheStrategies.class);
 
   private static final CacheReporter REPORTER = new CacheReporter();
 

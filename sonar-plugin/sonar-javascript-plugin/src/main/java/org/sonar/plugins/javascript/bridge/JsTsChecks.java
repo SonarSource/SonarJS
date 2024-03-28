@@ -26,12 +26,12 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.scanner.ScannerSide;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.javascript.checks.ParsingErrorCheck;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
@@ -49,7 +49,7 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
 @SonarLintSide
 public class JsTsChecks {
 
-  private static final Logger LOG = Loggers.get(JsTsChecks.class);
+  private static final Logger LOG = LoggerFactory.getLogger(JsTsChecks.class);
   private final CheckFactory checkFactory;
   private final CustomRuleRepository[] customRuleRepositories;
   private final Map<LanguageAndRepository, Checks<JavaScriptCheck>> checks = new HashMap<>();

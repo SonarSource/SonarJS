@@ -23,13 +23,12 @@ import java.io.IOException;
 import java.util.List;
 import java.util.stream.StreamSupport;
 import javax.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorDescriptor;
-import org.sonar.api.utils.TempFolder;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.JavaScriptFilePredicate;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
@@ -37,8 +36,7 @@ import org.sonar.plugins.javascript.sonarlint.SonarLintTypeCheckingChecker;
 
 public class JsTsSensor extends AbstractBridgeSensor {
 
-  private static final Logger LOG = Loggers.get(JsTsSensor.class);
-  private final TempFolder tempFolder;
+  private static final Logger LOG = LoggerFactory.getLogger(JsTsSensor.class);
   private final AnalysisWithProgram analysisWithProgram;
   private final AnalysisWithWatchProgram analysisWithWatchProgram;
   private final JsTsChecks checks;
@@ -48,16 +46,12 @@ public class JsTsSensor extends AbstractBridgeSensor {
   public JsTsSensor(
     JsTsChecks checks,
     BridgeServer bridgeServer,
-    AnalysisWarningsWrapper analysisWarnings,
-    TempFolder tempFolder,
     AnalysisWithProgram analysisWithProgram,
     AnalysisWithWatchProgram analysisWithWatchProgram
   ) {
     this(
       checks,
       bridgeServer,
-      analysisWarnings,
-      tempFolder,
       null,
       analysisWithProgram,
       analysisWithWatchProgram
@@ -67,14 +61,11 @@ public class JsTsSensor extends AbstractBridgeSensor {
   public JsTsSensor(
     JsTsChecks checks,
     BridgeServer bridgeServer,
-    AnalysisWarningsWrapper analysisWarnings,
-    TempFolder tempFolder,
     @Nullable SonarLintTypeCheckingChecker javaScriptProjectChecker,
     AnalysisWithProgram analysisWithProgram,
     AnalysisWithWatchProgram analysisWithWatchProgram
   ) {
-    super(bridgeServer, analysisWarnings, "JS/TS");
-    this.tempFolder = tempFolder;
+    super(bridgeServer, "JS/TS");
     this.analysisWithProgram = analysisWithProgram;
     this.analysisWithWatchProgram = analysisWithWatchProgram;
     this.checks = checks;
@@ -116,7 +107,7 @@ public class JsTsSensor extends AbstractBridgeSensor {
       this::createTsConfigFile
     );
     AbstractAnalysis analysis;
-    if (shouldAnalyzeWithProgram(inputFiles)) {
+    if (shouldAnalyzeWithProgram()) {
       analysis = analysisWithProgram;
     } else {
       analysis = analysisWithWatchProgram;

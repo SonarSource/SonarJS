@@ -19,9 +19,9 @@
  */
 package org.sonar.plugins.javascript.filter;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 
 /**
  * An object to assess if a .js file is a minified file or not.
@@ -33,7 +33,7 @@ import org.sonar.api.utils.log.Loggers;
  */
 class MinificationAssessor implements Assessor {
 
-  private static final Logger LOG = Loggers.get(MinificationAssessor.class);
+  private static final Logger LOG = LoggerFactory.getLogger(MinificationAssessor.class);
 
   private static final int DEFAULT_AVERAGE_LINE_LENGTH_THRESHOLD = 200;
 

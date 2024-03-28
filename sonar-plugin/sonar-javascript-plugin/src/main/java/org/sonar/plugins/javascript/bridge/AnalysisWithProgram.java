@@ -27,11 +27,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.scanner.ScannerSide;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
-import org.sonar.api.utils.log.Profiler;
 import org.sonar.plugins.javascript.CancellationException;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.bridge.BridgeServer.TsProgram;
@@ -45,9 +44,7 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
 @SonarLintSide
 public class AnalysisWithProgram extends AbstractAnalysis {
 
-  private static final Logger LOG = Loggers.get(AnalysisWithProgram.class);
-  private static final Profiler PROFILER = Profiler.create(LOG);
-
+  private static final Logger LOG = LoggerFactory.getLogger(AnalysisWithProgram.class);
   public AnalysisWithProgram(
     BridgeServer bridgeServer,
     AnalysisProcessor analysisProcessor,
@@ -59,7 +56,7 @@ public class AnalysisWithProgram extends AbstractAnalysis {
   @Override
   void analyzeFiles(List<InputFile> inputFiles, List<String> tsConfigs) throws IOException {
     progressReport = new ProgressReport(PROGRESS_REPORT_TITLE, PROGRESS_REPORT_PERIOD);
-    progressReport.start(inputFiles.size(), inputFiles.iterator().next().absolutePath());
+    progressReport.start(inputFiles.size(), inputFiles.iterator().next().toString());
     boolean success = false;
     try {
       Deque<String> workList = new ArrayDeque<>(tsConfigs);
@@ -72,11 +69,11 @@ public class AnalysisWithProgram extends AbstractAnalysis {
           LOG.debug("tsconfig.json already analyzed: '{}'. Skipping it.", tsConfig);
           continue;
         }
-        PROFILER.startInfo("Creating TypeScript program");
-        LOG.info("TypeScript configuration file " + tsConfig);
+        LOG.info("Creating TypeScript program");
+        LOG.info("TypeScript configuration file {}", tsConfig);
         var program = bridgeServer.createProgram(new TsProgramRequest(tsConfig));
         if (program.error != null) {
-          LOG.error("Failed to create program: " + program.error);
+          LOG.error("Failed to create program: {}", program.error);
           this.analysisWarnings.addUnique(
               String.format(
                 "Failed to create TypeScript program with TSConfig file %s. Highest TypeScript supported version is %s.",
@@ -84,7 +81,6 @@ public class AnalysisWithProgram extends AbstractAnalysis {
                 JavaScriptPlugin.TYPESCRIPT_VERSION
               )
             );
-          PROFILER.stopInfo();
           continue;
         }
         if (program.missingTsConfig) {
@@ -93,7 +89,6 @@ public class AnalysisWithProgram extends AbstractAnalysis {
           LOG.warn(msg);
           this.analysisWarnings.addUnique(msg);
         }
-        PROFILER.stopInfo();
         analyzeProgram(program, analyzedFiles);
         workList.addAll(program.projectReferences);
         bridgeServer.deleteProgram(program);
@@ -164,7 +159,7 @@ public class AnalysisWithProgram extends AbstractAnalysis {
     if (cacheStrategy.isAnalysisRequired()) {
       try {
         LOG.debug("Analyzing file: {}", file.uri());
-        progressReport.nextFile(file.absolutePath());
+        progressReport.nextFile(file.toString());
         var fileContent = contextUtils.shouldSendFileContent(file) ? file.contents() : null;
         var request = getJsAnalysisRequest(file, tsProgram, fileContent);
 
