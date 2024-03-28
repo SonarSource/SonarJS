@@ -124,9 +124,9 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
     } catch (ClassNotFoundException e) {
       LOG.debug("{} is not found, {}", className,  securityRuleMessage(e));
     } catch (NoSuchMethodException e) {
-      LOG.debug("Method not found on {} , ", className, securityRuleMessage(e));
+      LOG.debug("Method not found on {}, {}", className, securityRuleMessage(e));
     } catch (IllegalAccessException | InvocationTargetException e) {
-      LOG.debug("{}: ", e.getClass().getSimpleName(), securityRuleMessage(e));
+      LOG.debug("{}: {}", e.getClass().getSimpleName(), securityRuleMessage(e));
     }
 
     return Collections.emptySet();
