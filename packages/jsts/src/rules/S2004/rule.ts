@@ -24,7 +24,7 @@ import { Rule } from 'eslint';
 import { TSESTree } from '@typescript-eslint/utils';
 import { getMainFunctionTokenLocation } from 'eslint-plugin-sonarjs/lib/utils/locations';
 import { SONAR_RUNTIME } from '../../linter/parameters';
-import { toEncodedMessage } from '../helpers';
+import { RuleContext, toEncodedMessage } from '../helpers';
 
 const DEFAULT_THRESHOLD = 4;
 
@@ -48,10 +48,12 @@ export const rule: Rule.RuleModule = {
         if (nestedStack.length === max + 1) {
           const secondaries = nestedStack.slice(0, -1);
           context.report({
-            loc: getMainFunctionTokenLocation(fn, fn.parent, context),
+            loc: getMainFunctionTokenLocation(fn, fn.parent, context as unknown as RuleContext),
             message: toEncodedMessage(
               `Refactor this code to not nest functions more than ${max} levels deep.`,
-              secondaries.map(n => ({ loc: getMainFunctionTokenLocation(n, n.parent, context) })),
+              secondaries.map(n => ({
+                loc: getMainFunctionTokenLocation(n, n.parent, context as unknown as RuleContext),
+              })),
               secondaries.map(_ => 'Nesting +1'),
             ),
           });
