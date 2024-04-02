@@ -27,6 +27,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextPointer;
 import org.sonar.api.batch.fs.TextRange;
@@ -35,14 +37,12 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.issue.NewExternalIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.rules.RuleType;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.rules.EslintRulesDefinition;
 import org.sonarsource.analyzer.commons.ExternalRuleLoader;
 
 public class EslintReportSensor extends AbstractExternalIssuesSensor {
 
-  private static final Logger LOG = Loggers.get(EslintReportSensor.class);
+  private static final Logger LOG = LoggerFactory.getLogger(EslintReportSensor.class);
 
   @Override
   String linterName() {
@@ -90,7 +90,7 @@ public class EslintReportSensor extends AbstractExternalIssuesSensor {
   ) {
     String eslintKey = eslintError.ruleId;
     if (eslintKey == null) {
-      LOG.warn("Parse error issue from ESLint will not be imported, file " + inputFile.uri());
+      LOG.warn("Parse error issue from ESLint will not be imported, file {}", inputFile.uri());
       return;
     }
 

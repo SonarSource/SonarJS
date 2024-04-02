@@ -187,7 +187,7 @@ class JsTsSensorTest {
       .contains(
         String.format(
           "Saving issue for rule no-all-duplicated-branches on file %s at line 1",
-          inputFile.absolutePath()
+          inputFile
         )
       );
 
@@ -775,8 +775,6 @@ class JsTsSensorTest {
     return new JsTsSensor(
       checks(ESLINT_BASED_RULE, "S2260"),
       bridgeServerMock,
-      analysisWarnings,
-      tempFolder,
       analysisWithProgram(),
       analysisWithWatchProgram()
     );

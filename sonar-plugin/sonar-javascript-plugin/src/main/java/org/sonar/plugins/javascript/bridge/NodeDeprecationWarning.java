@@ -24,10 +24,10 @@ import static java.util.Map.entry;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.utils.Version;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
 /**
@@ -38,7 +38,7 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
  * 21 - nothing to warn, recommended version
  */
 @ScannerSide
-@SonarLintSide(lifespan = SonarLintSide.MULTIPLE_ANALYSES)
+@SonarLintSide(lifespan = SonarLintSide.INSTANCE)
 public class NodeDeprecationWarning {
 
   static final Map<Integer, String> REMOVAL_DATE = Map.ofEntries(
@@ -46,12 +46,11 @@ public class NodeDeprecationWarning {
     entry(17, "Jan 31th, 2024")
   );
 
-  private static final Logger LOG = Loggers.get(NodeDeprecationWarning.class);
+  private static final Logger LOG = LoggerFactory.getLogger(NodeDeprecationWarning.class);
   /**
    * This version should be kept in sync with sonar-javascript-plugin/pom.xml#nodeJsMinVersion.
-   *
+   * <p>
    * The minor version is a requirement from the ESLint version that the bridge uses.
-   * @see https://github.com/eslint/eslint/blob/d75d3c68ad8c98828aaa522b87ec267ab2dcb002/package.json#L169
    */
   static final Version MIN_SUPPORTED_NODE_VERSION = Version.create(18, 17, 1);
   static final int MIN_RECOMMENDED_NODE_VERSION = 18;

@@ -23,13 +23,13 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.Version;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 
 public class NodeVersion {
 
-  private static final Logger LOG = Loggers.get(NodeVersion.class);
+  private static final Logger LOG = LoggerFactory.getLogger(NodeVersion.class);
 
   private NodeVersion() {
     // utility class

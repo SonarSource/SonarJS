@@ -33,13 +33,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.StreamSupport;
 import javax.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.sensor.SensorContext;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 
 class SequenceSerialization extends CacheSerialization {
 
-  private static final Logger LOG = Loggers.get(SequenceSerialization.class);
+  private static final Logger LOG = LoggerFactory.getLogger(SequenceSerialization.class);
   private static final String ENTRY_SEPARATOR = "/";
   private static final int DEFAULT_BUFFER_SIZE = 8192;
 

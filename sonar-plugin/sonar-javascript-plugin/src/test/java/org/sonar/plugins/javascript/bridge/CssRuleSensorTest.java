@@ -123,7 +123,6 @@ class CssRuleSensorTest {
       new CssRuleSensor(
         sonarRuntime,
         bridgeServerMock,
-        new AnalysisWarningsWrapper(),
         CHECK_FACTORY
       );
   }
@@ -169,7 +168,6 @@ class CssRuleSensorTest {
       new CssRuleSensor(
         sonarRuntime,
         bridgeServerMock,
-        new AnalysisWarningsWrapper(),
         CHECK_FACTORY
       );
     DefaultSensorDescriptor sensorDescriptor = new DefaultSensorDescriptor();
@@ -189,7 +187,6 @@ class CssRuleSensorTest {
       new CssRuleSensor(
         sonarRuntime,
         bridgeServerMock,
-        new AnalysisWarningsWrapper(),
         CHECK_FACTORY
       );
     DefaultSensorDescriptor sensorDescriptor = new DefaultSensorDescriptor();

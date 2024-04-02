@@ -19,17 +19,17 @@
  */
 package org.sonar.plugins.javascript.filter;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.WildcardPattern;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.utils.Exclusions;
 
 class PathAssessor implements Assessor {
 
-  private static final Logger LOG = Loggers.get(PathAssessor.class);
+  private static final Logger LOG = LoggerFactory.getLogger(PathAssessor.class);
   private final WildcardPattern[] excludedPatterns;
 
   PathAssessor(Configuration configuration) {

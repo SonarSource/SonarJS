@@ -19,7 +19,7 @@
  */
 package org.sonar.plugins.javascript.bridge;
 
-import static org.sonarsource.api.sonarlint.SonarLintSide.MULTIPLE_ANALYSES;
+import static org.sonarsource.api.sonarlint.SonarLintSide.INSTANCE;
 
 import java.io.IOException;
 import java.util.List;
@@ -33,7 +33,7 @@ import org.sonar.css.StylelintRule;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
 @ScannerSide
-@SonarLintSide(lifespan = MULTIPLE_ANALYSES)
+@SonarLintSide(lifespan = INSTANCE)
 public interface BridgeServer extends Startable {
   void startServerLazily(SensorContext context) throws IOException;
 

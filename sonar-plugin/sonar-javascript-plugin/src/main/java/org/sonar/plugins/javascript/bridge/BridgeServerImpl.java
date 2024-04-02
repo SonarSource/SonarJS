@@ -46,13 +46,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.SonarProduct;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.TempFolder;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
-import org.sonar.api.utils.log.Profiler;
 import org.sonar.plugins.javascript.nodejs.NodeCommand;
 import org.sonar.plugins.javascript.nodejs.NodeCommandBuilder;
 import org.sonar.plugins.javascript.nodejs.NodeCommandException;
@@ -65,8 +64,7 @@ public class BridgeServerImpl implements BridgeServer {
     STARTED,
   }
 
-  private static final Logger LOG = Loggers.get(BridgeServerImpl.class);
-  private static final Profiler PROFILER = Profiler.createIfDebug(LOG);
+  private static final Logger LOG = LoggerFactory.getLogger(BridgeServerImpl.class);
 
   private static final int DEFAULT_TIMEOUT_SECONDS = 5 * 60;
   // internal property to set "--max-old-space-size" for Node process running this server
@@ -177,7 +175,8 @@ public class BridgeServerImpl implements BridgeServer {
   }
 
   void startServer(SensorContext context, List<Path> deployedBundles) throws IOException {
-    PROFILER.startDebug("Starting server");
+    LOG.debug("Starting server");
+    long start = System.currentTimeMillis();
     port = findOpenPort();
 
     File scriptFile = new File(bundle.startServerScript());
@@ -187,7 +186,7 @@ public class BridgeServerImpl implements BridgeServer {
       );
     }
 
-    LOG.debug("Creating Node.js process to start the bridge server on port " + port);
+    LOG.debug("Creating Node.js process to start the bridge server on port {} ", port);
     String bundles = deployedBundles
       .stream()
       .map(Path::toString)
@@ -203,7 +202,8 @@ public class BridgeServerImpl implements BridgeServer {
     } else {
       serverHasStarted();
     }
-    PROFILER.stopDebug();
+    long duration = System.currentTimeMillis() - start;
+    LOG.debug("Bridge server started on port {} in {} ms", port, duration);
     deprecationWarning.logNodeDeprecation(nodeCommand.getActualNodeVersion().major());
   }
 
@@ -283,7 +283,7 @@ public class BridgeServerImpl implements BridgeServer {
     if (providedPort != 0) {
       port = providedPort;
       serverHasStarted();
-      LOG.info("Using existing Node.js process on port " + port);
+      LOG.info("Using existing Node.js process on port {}", port);
     }
 
     try {
@@ -459,11 +459,7 @@ public class BridgeServerImpl implements BridgeServer {
       LOG.error("Failed to request files for tsconfig: " + tsconfigAbsolutePath, e);
     } catch (JsonSyntaxException e) {
       LOG.error(
-        "Failed to parse response when requesting files for tsconfig: " +
-        tsconfigAbsolutePath +
-        ": \n-----\n" +
-        result +
-        "\n-----\n"
+        "Failed to parse response when requesting files for tsconfig: {}: \n-----\n{}\n-----\n{}", tsconfigAbsolutePath, result, e.getMessage()
       );
     }
     return new TsConfigResponse(emptyList(), emptyList(), result, null);

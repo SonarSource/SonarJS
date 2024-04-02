@@ -22,10 +22,10 @@ package org.sonar.plugins.javascript.bridge;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.JavaScriptFilePredicate;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
@@ -33,7 +33,7 @@ import org.sonar.plugins.javascript.utils.ProgressReport;
 
 abstract class AbstractAnalysis {
 
-  private static final Logger LOG = Loggers.get(AbstractAnalysis.class);
+  private static final Logger LOG = LoggerFactory.getLogger(AbstractAnalysis.class);
   static final String PROGRESS_REPORT_TITLE = "Progress of JavaScript/TypeScript analysis";
   static final long PROGRESS_REPORT_PERIOD = TimeUnit.SECONDS.toMillis(10);
 
@@ -63,7 +63,7 @@ abstract class AbstractAnalysis {
   }
 
   void initialize(SensorContext context, JsTsChecks checks, AnalysisMode analysisMode) {
-    LOG.debug("Initializing " + getClass().getName());
+    LOG.debug("Initializing {}", getClass().getName());
     this.context = context;
     contextUtils = new ContextUtils(context);
     this.checks = checks;

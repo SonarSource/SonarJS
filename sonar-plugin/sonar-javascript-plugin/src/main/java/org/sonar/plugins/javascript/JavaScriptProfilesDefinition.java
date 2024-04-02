@@ -27,10 +27,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
@@ -38,7 +38,7 @@ import org.sonarsource.analyzer.commons.BuiltInQualityProfileJsonLoader;
 
 public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefinition {
 
-  private static final Logger LOG = Loggers.get(JavaScriptProfilesDefinition.class);
+  private static final Logger LOG = LoggerFactory.getLogger(JavaScriptProfilesDefinition.class);
 
   static final String SONAR_WAY = "Sonar way";
 
@@ -122,11 +122,11 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
       Method getRuleKeysMethod = rulesClass.getMethod(ruleKeysMethodName, String.class);
       return (Set<RuleKey>) getRuleKeysMethod.invoke(null, language);
     } catch (ClassNotFoundException e) {
-      LOG.debug(className + " is not found, " + securityRuleMessage(e));
+      LOG.debug("{} is not found, {}", className,  securityRuleMessage(e));
     } catch (NoSuchMethodException e) {
-      LOG.debug("Method not found on " + className + ", " + securityRuleMessage(e));
+      LOG.debug("Method not found on {}, {}", className, securityRuleMessage(e));
     } catch (IllegalAccessException | InvocationTargetException e) {
-      LOG.debug(e.getClass().getSimpleName() + ": " + securityRuleMessage(e));
+      LOG.debug("{}: {}", e.getClass().getSimpleName(), securityRuleMessage(e));
     }
 
     return Collections.emptySet();

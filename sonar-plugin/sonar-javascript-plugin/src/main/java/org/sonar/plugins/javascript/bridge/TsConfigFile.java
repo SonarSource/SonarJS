@@ -31,13 +31,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 
 class TsConfigFile implements Predicate<InputFile> {
 
-  private static final Logger LOG = Loggers.get(TsConfigFile.class);
+  private static final Logger LOG = LoggerFactory.getLogger(TsConfigFile.class);
 
   static final TsConfigFile UNMATCHED_CONFIG = new TsConfigFile(
     "NO_CONFIG",
@@ -85,7 +85,7 @@ class TsConfigFile implements Predicate<InputFile> {
         .filter(tsConfigFile -> tsConfigFile.test(inputFile))
         .findFirst()
         .orElse(UNMATCHED_CONFIG);
-      LOG.debug("{} matched {}", inputFile.absolutePath(), tsconfig);
+      LOG.debug("{} matched {}", inputFile, tsconfig);
       result.computeIfAbsent(tsconfig, t -> new ArrayList<>()).add(inputFile);
     });
     return result;

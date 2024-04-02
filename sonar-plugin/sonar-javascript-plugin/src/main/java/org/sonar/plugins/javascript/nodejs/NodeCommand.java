@@ -26,9 +26,9 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.Version;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 
 /**
  * Represents invocation of external NodeJS process. Use {@link NodeCommandBuilder} to create instance of this class.
@@ -42,7 +42,7 @@ import org.sonar.api.utils.log.Loggers;
  */
 public class NodeCommand {
 
-  private static final Logger LOG = Loggers.get(NodeCommand.class);
+  private static final Logger LOG = LoggerFactory.getLogger(NodeCommand.class);
 
   final Consumer<String> outputConsumer;
   final Consumer<String> errorConsumer;

@@ -24,11 +24,11 @@ import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_EX
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.CancellationException;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.bridge.cache.CacheStrategies;
@@ -37,12 +37,11 @@ import org.sonar.plugins.javascript.utils.Exclusions;
 
 public abstract class AbstractBridgeSensor implements Sensor {
 
-  private static final Logger LOG = Loggers.get(AbstractBridgeSensor.class);
+  private static final Logger LOG = LoggerFactory.getLogger(AbstractBridgeSensor.class);
 
   protected final String lang;
   protected final BridgeServer bridgeServer;
   protected List<String> exclusions;
-  private final AnalysisWarningsWrapper analysisWarnings;
   List<String> environments;
   List<String> globals;
 
@@ -51,11 +50,9 @@ public abstract class AbstractBridgeSensor implements Sensor {
 
   protected AbstractBridgeSensor(
     BridgeServer bridgeServer,
-    AnalysisWarningsWrapper analysisWarnings,
     String lang
   ) {
     this.bridgeServer = bridgeServer;
-    this.analysisWarnings = analysisWarnings;
     this.lang = lang;
   }
 
@@ -113,7 +110,7 @@ public abstract class AbstractBridgeSensor implements Sensor {
 
   protected abstract List<InputFile> getInputFiles();
 
-  protected boolean shouldAnalyzeWithProgram(List<InputFile> inputFiles) {
+  protected boolean shouldAnalyzeWithProgram() {
     if (contextUtils.isSonarLint()) {
       LOG.debug("Will use AnalysisWithWatchProgram because we are in SonarLint context");
       return false;
