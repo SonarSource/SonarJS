@@ -23,9 +23,13 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.URISyntaxException;
+import java.nio.file.CopyOption;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.BasicFileAttributes;
 
 public class TestUtils {
 
@@ -52,11 +56,36 @@ public class TestUtils {
   }
 
   public static File projectDir(String projectName) {
-    File file = new File(homeDir(), "projects/" + projectName);
-    if (!file.exists()) {
-      throw new IllegalStateException("Invalid project directory " + file.getAbsolutePath());
+    var file = homeDir().toPath().resolve("projects/" + projectName);
+    if (!Files.exists(file)) {
+      throw new IllegalStateException("Invalid project directory " + file);
     }
-    return file;
+    try {
+      copyFolder(file, Files.createTempFile(Path.of("target"), "unittest", ".tmp"));
+    } catch (IOException e) {
+      throw new IllegalStateException(e);
+    }
+    return file.toFile();
+  }
+
+  static void copyFolder(Path source, Path target, CopyOption... options)
+    throws IOException {
+    Files.walkFileTree(source, new SimpleFileVisitor<>() {
+
+      @Override
+      public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
+        throws IOException {
+        Files.createDirectories(target.resolve(source.relativize(dir).toString()));
+        return FileVisitResult.CONTINUE;
+      }
+
+      @Override
+      public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
+        throws IOException {
+        Files.copy(file, target.resolve(source.relativize(file).toString()), options);
+        return FileVisitResult.CONTINUE;
+      }
+    });
   }
 
   public static File file(String relativePath) {

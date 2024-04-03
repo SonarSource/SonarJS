@@ -34,6 +34,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Map;
+import java.util.UUID;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -44,7 +45,7 @@ class YamlSecurityTest {
 
   @Test
   void should_generate_ucfgs_for_yaml() throws IOException {
-    var projectKey = "yaml-aws-lambda-analyzed";
+    var projectKey = "yaml-aws-lambda-analyzed_" + UUID.randomUUID();
     var projectPath = TestUtils.projectDir(projectKey);
 
     OrchestratorStarter.setProfiles(
