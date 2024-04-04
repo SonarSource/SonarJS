@@ -30,6 +30,7 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Comparator;
 
 public class TestUtils {
 
@@ -56,16 +57,44 @@ public class TestUtils {
   }
 
   public static File projectDir(String projectName) {
-    var file = homeDir().toPath().resolve("projects/" + projectName);
-    if (!Files.exists(file)) {
-      throw new IllegalStateException("Invalid project directory " + file);
+    var projectDir = homeDir().toPath().resolve("projects/" + projectName);
+    if (!Files.exists(projectDir)) {
+      throw new IllegalStateException("Invalid project directory " + projectDir);
     }
     try {
-      copyFolder(file, Files.createTempFile(Path.of("target"), "unittest", ".tmp"));
+      Path tmpProjectDir = createTempDirForProject(projectName);
+      copyFolder(projectDir, tmpProjectDir);
+      return tmpProjectDir.toFile();
     } catch (IOException e) {
-      throw new IllegalStateException(e);
+      throw new UncheckedIOException(e);
     }
-    return file.toFile();
+  }
+
+  /**
+   * Create a temporary directory for the project. It will be deleted when the JVM exits.
+   * @param projectName the name of the project
+   * @return the path to the temporary directory
+   *
+   */
+  private static Path createTempDirForProject(String projectName) {
+    try {
+      var tempDirectory = Files.createTempDirectory(Path.of("target"), "its_" + projectName + "_");
+      Runtime.getRuntime().addShutdownHook(new Thread(() -> deleteDirRecursively(tempDirectory)));
+      return tempDirectory;
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
+  }
+
+  static void deleteDirRecursively(Path pathToBeDeleted) {
+    try (var walk = Files.walk(pathToBeDeleted)) {
+      walk
+        .sorted(Comparator.reverseOrder())
+        .map(Path::toFile)
+        .forEach(File::delete);
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
   }
 
   static void copyFolder(Path source, Path target, CopyOption... options)
