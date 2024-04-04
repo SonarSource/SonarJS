@@ -56,6 +56,14 @@ public class TestUtils {
     return HOME;
   }
 
+  public static File projectDirNoCopy(String projectName) {
+    var projectDir = homeDir().toPath().resolve("projects/" + projectName);
+    if (!Files.exists(projectDir)) {
+      throw new IllegalStateException("Invalid project directory " + projectDir);
+    }
+    return projectDir.toFile();
+  }
+
   public static File projectDir(String projectName) {
     var projectDir = homeDir().toPath().resolve("projects/" + projectName);
     if (!Files.exists(projectDir)) {

@@ -101,7 +101,7 @@ class EslintBasedRulesTest {
       .setProjectKey(projectKey)
       .setSourceEncoding("UTF-8")
       .setSourceDirs(".")
-      .setProjectDir(TestUtils.projectDir("(dir with paren)/eslint_based_rules"));
+      .setProjectDir(TestUtils.projectDirNoCopy("(dir with paren)/eslint_based_rules"));
 
     OrchestratorStarter.setProfile(projectKey, "eslint-based-rules-profile", "js");
 
@@ -137,7 +137,7 @@ class EslintBasedRulesTest {
       .setProjectKey(projectKey)
       .setSourceEncoding("UTF-8")
       .setSourceDirs(".")
-      .setProjectDir(TestUtils.projectDir("file-filter/excluded_dir/project"))
+      .setProjectDir(TestUtils.projectDirNoCopy("file-filter/excluded_dir/project"))
       .setProperty("sonar.javascript.exclusions", "excluded_dir/**");
 
     OrchestratorStarter.setProfile(projectKey, jsProfile, "js");
