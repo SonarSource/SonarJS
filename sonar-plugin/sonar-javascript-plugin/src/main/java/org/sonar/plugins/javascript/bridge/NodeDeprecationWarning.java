@@ -52,7 +52,7 @@ public class NodeDeprecationWarning {
    * <p>
    * The minor version is a requirement from the ESLint version that the bridge uses.
    */
-  static final Version MIN_SUPPORTED_NODE_VERSION = Version.create(18, 17, 1);
+  static final Version MIN_SUPPORTED_NODE_VERSION = Version.create(18, 17, 0);
   static final int MIN_RECOMMENDED_NODE_VERSION = 18;
   static final List<Integer> RECOMMENDED_NODE_VERSIONS = Arrays.asList(18, 20);
   static final List<Integer> ALL_RECOMMENDED_NODE_VERSIONS = Arrays.asList(18, 20, 21);

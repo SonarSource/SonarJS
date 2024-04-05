@@ -312,7 +312,7 @@
                     <!-- This is used to get plugin version at runtime using getPackage().getImplementationVersion() -->
                     <Implementation-Version>${project.version}</Implementation-Version>
                     <!-- Keep in sync with NodeDeprecationWarning#MIN_SUPPORTED_NODE_VERSION -->
-                    <NodeJs-Min-Version>18.17.1</NodeJs-Min-Version>
+                    <NodeJs-Min-Version>18.17.0</NodeJs-Min-Version>
                   </manifestEntries>
                 </transformer>
               </transformers>
