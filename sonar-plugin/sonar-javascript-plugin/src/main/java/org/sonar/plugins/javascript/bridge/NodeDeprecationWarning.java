@@ -54,7 +54,7 @@ public class NodeDeprecationWarning {
    */
   static final Version MIN_SUPPORTED_NODE_VERSION = Version.create(18, 17, 0);
   static final int MIN_RECOMMENDED_NODE_VERSION = 18;
-  static final List<Integer> RECOMMENDED_NODE_VERSIONS = Arrays.asList(18, 20);
+  static final List<String> RECOMMENDED_NODE_VERSIONS = List.of("^18.18.0", "^20.9.0");
   static final List<Integer> ALL_RECOMMENDED_NODE_VERSIONS = Arrays.asList(18, 20, 21);
   private final AnalysisWarningsWrapper analysisWarnings;
 
