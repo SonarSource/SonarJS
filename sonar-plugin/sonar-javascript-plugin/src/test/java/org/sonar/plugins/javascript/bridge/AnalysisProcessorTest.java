@@ -67,4 +67,23 @@ class AnalysisProcessorTest {
     assertThat(logTester.logs())
       .contains("Failed to create symbol reference in " + file.uri() + " at 2:2-2:1");
   }
+
+  @Test
+  void should_not_fail_when_invalid_cpd() {
+    var fileLinesContextFactory = mock(FileLinesContextFactory.class);
+    when(fileLinesContextFactory.createFor(any())).thenReturn(mock(FileLinesContext.class));
+    var processor = new AnalysisProcessor(mock(NoSonarFilter.class), fileLinesContextFactory);
+    var context = SensorContextTester.create(baseDir);
+    var file = TestInputFileBuilder
+      .create("moduleKey", "file.js")
+      .setContents("var x  = 1;")
+      .build();
+    var response = new BridgeServer.AnalysisResponse();
+    var cpd = new BridgeServer.CpdToken();
+    cpd.location = new BridgeServer.Location(1, 2, 1, 1); // invalid range startCol > endCol
+    response.cpdTokens = new BridgeServer.CpdToken[] { cpd };
+    processor.processResponse(context, mock(JsTsChecks.class), file, response);
+    assertThat(logTester.logs())
+      .contains("Failed to save CPD token in " + file.uri() + " at 1:2-1:1");
+  }
 }
