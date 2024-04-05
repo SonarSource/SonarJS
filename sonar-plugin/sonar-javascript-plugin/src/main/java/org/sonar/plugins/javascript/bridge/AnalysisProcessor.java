@@ -281,7 +281,13 @@ public class AnalysisProcessor {
     }
     NewCpdTokens newCpdTokens = context.newCpdTokens().onFile(file);
     for (BridgeServer.CpdToken cpdToken : cpdTokens) {
-      newCpdTokens.addToken(cpdToken.location.toTextRange(file), cpdToken.image);
+      try {
+        newCpdTokens.addToken(cpdToken.location.toTextRange(file), cpdToken.image);
+      } catch (IllegalArgumentException e) {
+        LOG.warn("Failed to save CPD token in {} at {}", file.uri(), cpdToken.location);
+        LOG.warn("Exception cause", e);
+        // continue processing other tokens
+      }
     }
     newCpdTokens.save();
   }
