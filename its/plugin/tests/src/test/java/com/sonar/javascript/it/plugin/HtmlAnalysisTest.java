@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.sonarqube.ws.Common;
@@ -42,26 +43,21 @@ public class HtmlAnalysisTest {
   @Test
   void should_raise_issues_in_html_files() throws IOException {
     var projectKey = "html-project";
-    var perfMonitoringDir = Path.of("target/monitoring/", projectKey);
+    var uniqueProjectKey = projectKey + UUID.randomUUID();
     var build = getSonarScanner()
-      .setProjectKey(projectKey)
+      .setProjectKey(uniqueProjectKey)
       .setSourceEncoding("UTF-8")
       .setSourceDirs(".")
       .setDebugLogs(true)
-      .setProjectDir(TestUtils.projectDir(projectKey))
-      .setProperty("sonar.javascript.monitoring", "true")
-      .setProperty(
-        "sonar.javascript.monitoring.path",
-        perfMonitoringDir.toAbsolutePath().toString()
-      );
+      .setProjectDir(TestUtils.projectDir(projectKey));
 
     OrchestratorStarter.setProfiles(
-      projectKey,
+      uniqueProjectKey,
       Map.of("html-profile", "web", "eslint-based-rules-profile", "js")
     );
     orchestrator.executeBuild(build);
 
-    var issuesList = getIssues(projectKey);
+    var issuesList = getIssues(uniqueProjectKey);
 
     Common.TextRange primaryLocation = issuesList.get(2).getTextRange();
     // S3834 no longer reports secondaryLocation
@@ -76,7 +72,6 @@ public class HtmlAnalysisTest {
         tuple(4, "javascript:S3923"),
         tuple(7, "javascript:S3834")
       );
-    // assertPerfMonitoringAvailable(perfMonitoringDir);
   }
 
   @Test

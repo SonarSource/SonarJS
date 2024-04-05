@@ -92,7 +92,7 @@ class EslintCustomRulesTest {
   static BuildResult runBuild(Orchestrator orchestrator) {
     SonarScanner build = OrchestratorStarter
       .createScanner()
-      .setProjectDir(TestUtils.projectDir("custom_rules"))
+      .setProjectDir(TestUtils.projectDirNoCopy("custom_rules"))
       .setProjectKey("custom-rules")
       .setProjectName("Custom Rules")
       .setProjectVersion("1.0")
@@ -139,7 +139,7 @@ class EslintCustomRulesTest {
       );
     Common.Location secondaryLocation = issues.get(0).getFlows(0).getLocations(0);
     assertThat(secondaryLocation.getMsg())
-      .isEqualTo(new File(TestUtils.projectDir("custom_rules"), ".scannerwork").getAbsolutePath());
+      .isEqualTo(new File(TestUtils.projectDirNoCopy("custom_rules"), ".scannerwork").getAbsolutePath());
 
     issues = findIssues("ts-custom-rules:tsRuleKey", orchestrator);
     assertThat(issues)

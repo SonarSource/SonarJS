@@ -38,7 +38,7 @@ class ExternalTSConfigDependencyTest {
   private static final Orchestrator orchestrator = OrchestratorStarter.ORCHESTRATOR;
 
   private static final String PROJECT = "external-tsconfig-dependency-project";
-  private static final File PROJECT_DIR = TestUtils.projectDir(PROJECT);
+  private static final File PROJECT_DIR = TestUtils.projectDirNoCopy(PROJECT);
 
   @Test
   void test() throws Exception {
