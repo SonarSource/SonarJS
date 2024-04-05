@@ -64,11 +64,15 @@ public class TestUtils {
     return projectDir.toFile();
   }
 
+  /**
+   * Copy the project directory to a temporary directory and return it. This is to avoid race condition when multiple
+   * tests are run in parallel.
+   * @param projectName the name of the project
+   * @return the path to the temporary directory
+   *
+   */
   public static File projectDir(String projectName) {
-    var projectDir = homeDir().toPath().resolve("projects/" + projectName);
-    if (!Files.exists(projectDir)) {
-      throw new IllegalStateException("Invalid project directory " + projectDir);
-    }
+    var projectDir = projectDirNoCopy(projectName).toPath();
     try {
       Path tmpProjectDir = createTempDirForProject(projectName);
       copyFolder(projectDir, tmpProjectDir);
