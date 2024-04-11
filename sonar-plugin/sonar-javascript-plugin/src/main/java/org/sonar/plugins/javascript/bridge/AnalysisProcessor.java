@@ -279,17 +279,16 @@ public class AnalysisProcessor {
       // even providing empty 'NewCpdTokens' will trigger duplication computation so skipping
       return;
     }
-    NewCpdTokens newCpdTokens = context.newCpdTokens().onFile(file);
-    for (BridgeServer.CpdToken cpdToken : cpdTokens) {
-      try {
+    try {
+      NewCpdTokens newCpdTokens = context.newCpdTokens().onFile(file);
+      for (BridgeServer.CpdToken cpdToken : cpdTokens) {
         newCpdTokens.addToken(cpdToken.location.toTextRange(file), cpdToken.image);
-      } catch (IllegalArgumentException e) {
-        LOG.warn("Failed to save CPD token in {} at {}", file.uri(), cpdToken.location);
-        LOG.warn("Exception cause", e);
-        // continue processing other tokens
       }
+      newCpdTokens.save();
+    } catch (IllegalArgumentException e) {
+      LOG.warn("Failed to save CPD token in {}. File will not be analyzed for duplications.", file.uri());
+      LOG.warn("Exception cause", e);
     }
-    newCpdTokens.save();
   }
 
   void saveIssue(BridgeServer.Issue issue) {
