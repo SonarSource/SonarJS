@@ -83,7 +83,8 @@ class AnalysisProcessorTest {
     cpd.location = new BridgeServer.Location(1, 2, 1, 1); // invalid range startCol > endCol
     response.cpdTokens = new BridgeServer.CpdToken[] { cpd };
     processor.processResponse(context, mock(JsTsChecks.class), file, response);
+    assertThat(context.cpdTokens(file.key())).isNull();
     assertThat(logTester.logs())
-      .contains("Failed to save CPD token in " + file.uri() + " at 1:2-1:1");
+      .contains("Failed to save CPD token in " + file.uri() + ". File will not be analyzed for duplications.");
   }
 }
