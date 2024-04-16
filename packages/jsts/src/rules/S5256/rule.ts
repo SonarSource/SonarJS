@@ -1,0 +1,208 @@
+/*
+ * SonarQube JavaScript Plugin
+ * Copyright (C) 2011-2024 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+// https://sonarsource.github.io/rspec/#/rspec/S5256/javascript
+
+import * as estree from 'estree';
+import { Rule } from 'eslint';
+import { TSESTree } from '@typescript-eslint/utils';
+
+type Cell = {
+  rowSpan: number;
+  isHeader: boolean;
+};
+
+export const rule: Rule.RuleModule = {
+  meta: {},
+  create(context: Rule.RuleContext) {
+    const computeSpan = (tree: TSESTree.JSXElement, spanKey: string): number => {
+      let span = 1;
+      tree.openingElement.attributes.forEach(attr => {
+        if (
+          attr.type === 'JSXAttribute' &&
+          attr.name.type === 'JSXIdentifier' &&
+          attr.name.name === spanKey
+        ) {
+          span = parseInt((attr.value as TSESTree.Literal).value as string);
+        }
+      });
+      return span;
+    };
+    const rowSpan = (tree: TSESTree.JSXElement): number => {
+      let value = computeSpan(tree, 'rowspan');
+      if (value > 65534) {
+        value = 65534;
+      }
+      return value;
+    };
+    const colSpan = (tree: TSESTree.JSXElement): number => {
+      let value = computeSpan(tree, 'colspan');
+      if (value > 10000) {
+        value = 1;
+      }
+      return value;
+    };
+    const extractRow = (tree: TSESTree.JSXElement): Cell[] => {
+      let row: Cell[] = [];
+      tree.children.forEach(child => {
+        if (child.type !== 'JSXElement') {
+          return;
+        }
+        const colSpanValue = colSpan(child);
+        const rowSpanValue = rowSpan(child);
+        for (let i = 0; i < colSpanValue; i++) {
+          row.push({
+            rowSpan: rowSpanValue,
+            isHeader:
+              child.openingElement.name.type === 'JSXIdentifier' &&
+              child.openingElement.name.name === 'th',
+          });
+        }
+      });
+      return row;
+    };
+    const extractRows = (tree: TSESTree.JSXElement): Cell[][] => {
+      let rows: Cell[][] = [];
+      tree.children.forEach(child => {
+        if (
+          child.type === 'JSXElement' &&
+          child.openingElement.name.type === 'JSXIdentifier' &&
+          child.openingElement.name.name === 'tr'
+        ) {
+          rows.push(extractRow(child));
+        } else if (child.type === 'JSXElement') {
+          if (
+            child.openingElement.name.type === 'JSXIdentifier' &&
+            child.openingElement.name.name === 'table'
+          ) {
+            return;
+          }
+          let extractedRows = extractRows(child);
+          if (extractedRows.length > 0) {
+            rows.push(...extractedRows);
+          }
+        }
+      });
+      return rows;
+    };
+    const computeGrid = (rows: Cell[][]): boolean[][] => {
+      if (rows.length === 0) {
+        return [];
+      }
+      let nbColumns = rows[0].length;
+      let columns: (Cell | undefined)[] = new Array(nbColumns);
+      let row = 0;
+      let result = [];
+      while (row < rows.length) {
+        let resultRow = [];
+        let rowIndex = 0;
+        let usedCurrentRow = false;
+        let onlyMaxRowSpan = true;
+        for (let column = 0; column < nbColumns; column++) {
+          if (!columns[column]) {
+            if (rowIndex === rows[row].length) {
+              break;
+            }
+            columns[column] = rows[row][rowIndex++];
+            usedCurrentRow = true;
+          }
+          resultRow.push(columns[column]!.isHeader);
+          if (columns[column]!.rowSpan > 0) {
+            onlyMaxRowSpan = false;
+            columns[column]!.rowSpan--;
+            if (columns[column]!.rowSpan === 0) {
+              columns[column] = undefined;
+            }
+          }
+        }
+        if (onlyMaxRowSpan) {
+          break;
+        }
+        result.push(resultRow);
+        if (usedCurrentRow) {
+          row++;
+        }
+      }
+      return result;
+    };
+    const checkValidTable = (_context: Rule.RuleContext, tree: TSESTree.JSXElement): boolean => {
+      let rows = extractRows(tree);
+      const grid = computeGrid(rows);
+      if (grid.length === 0) {
+        return false;
+      }
+      let hasHeader = false;
+      for (const element of grid) {
+        if (element.every(isHeader => isHeader)) {
+          hasHeader = true;
+          break;
+        }
+      }
+      for (let col = 0; col < grid.length; col++) {
+        if (grid.every(row => row[col])) {
+          hasHeader = true;
+          break;
+        }
+      }
+      return hasHeader;
+    };
+    return {
+      JSXElement(node: estree.Node) {
+        const tree = node as unknown as TSESTree.JSXElement;
+        if (
+          tree.openingElement.name.type === 'JSXIdentifier' &&
+          tree.openingElement.name.name === 'table'
+        ) {
+          const role = tree.openingElement.attributes.find(
+            attr =>
+              attr.type === 'JSXAttribute' &&
+              attr.name.type === 'JSXIdentifier' &&
+              attr.name.name === 'role',
+          );
+          if (
+            role &&
+            role.type === 'JSXAttribute' &&
+            role.value!.type === 'Literal' &&
+            (role.value!.value?.toString().toLowerCase() === 'presentation' ||
+              role.value!.value?.toString().toLowerCase() === 'none')
+          ) {
+            return;
+          }
+          const ariaHidden = tree.openingElement.attributes.find(
+            attr =>
+              attr.type === 'JSXAttribute' &&
+              attr.name.type === 'JSXIdentifier' &&
+              attr.name.name === 'aria-hidden' &&
+              attr.value?.type === 'Literal' &&
+              attr.value.value === 'true',
+          );
+          if (ariaHidden) {
+            return;
+          }
+          if (!checkValidTable(context, tree)) {
+            context.report({
+              node: node,
+              message: 'Add a valid header row or column to this "<table>".',
+            });
+          }
+        }
+      },
+    };
+  },
+};
