@@ -327,6 +327,7 @@ public final class CheckList {
       NoSparseArraysCheck.class,
       NoStaticElementInteractionsCheck.class,
       NoStringRefsCheck.class,
+      NoTableAsLayoutCheck.class,
       NoThisAliasCheck.class,
       NoThisInSfcCheck.class,
       NoUndefInitCheck.class,
