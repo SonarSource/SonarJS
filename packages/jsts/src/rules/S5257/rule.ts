@@ -20,23 +20,18 @@
 // https://sonarsource.github.io/rspec/#/rspec/S5257/javascript
 
 import { Rule } from 'eslint';
-import { SONAR_RUNTIME } from '../../linter/parameters';
 import getElementType from 'eslint-plugin-jsx-a11y/lib/util/getElementType';
 import { TSESTree } from '@typescript-eslint/utils';
 import { getProp, getLiteralPropValue } from 'jsx-ast-utils';
 import * as estree from 'estree';
 
-const message = `Replace this layout table with a CSS layout.`;
 const DISALLOWED_VALUES = ['presentation', 'none'];
 
 export const rule: Rule.RuleModule = {
   meta: {
-    schema: [
-      {
-        // internal parameter for rules having secondary locations
-        enum: [SONAR_RUNTIME],
-      },
-    ],
+    messages: {
+      noLayoutTable: 'Replace this layout table with a CSS layout.',
+    },
   },
   create(context: Rule.RuleContext) {
     const elementType = getElementType(context);
@@ -56,7 +51,7 @@ export const rule: Rule.RuleModule = {
         if (DISALLOWED_VALUES.includes(roleValue?.toLowerCase())) {
           context.report({
             node,
-            message,
+            messageId: 'noLayoutTable',
           });
         }
       },
