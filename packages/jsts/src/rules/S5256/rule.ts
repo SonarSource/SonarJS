@@ -55,8 +55,7 @@ export const rule: Rule.RuleModule = {
             return;
           }
           const ariaHidden = getProp(tree.openingElement.attributes, 'aria-hidden');
-          const val = getLiteralPropValue(ariaHidden);
-          if (val && ariaHidden && getLiteralPropValue(ariaHidden) === true) {
+          if (ariaHidden && getLiteralPropValue(ariaHidden) === true) {
             return;
           }
           if (!checkValidTable(tree)) {
