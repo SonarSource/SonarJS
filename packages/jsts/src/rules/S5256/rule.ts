@@ -25,7 +25,6 @@ import { Rule } from 'eslint';
 import { TSESTree } from '@typescript-eslint/utils';
 import { getProp, getLiteralPropValue } from 'jsx-ast-utils';
 import { computeGrid, isPresentationTable } from '../helpers';
-import { isHtmlElement } from '../helpers/isHtmlElement';
 
 export const rule: Rule.RuleModule = {
   meta: {},
@@ -40,12 +39,12 @@ export const rule: Rule.RuleModule = {
         return false;
       }
       for (const row of grid) {
-        if (row.every(isHeader => isHeader)) {
+        if (row.every(({isHeader}) => isHeader)) {
           return true;
         }
       }
       for (let col = 0; col < grid[0].length; col++) {
-        if (grid.every(row => col >= row.length || row[col])) {
+        if (grid.every(row => col >= row.length || row[col].isHeader)) {
           return true;
         }
       }

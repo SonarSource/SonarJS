@@ -1,3 +1,13 @@
+<table> {/* Noncompliant */}
+  <tbody>
+    <tr><td></td><td></td></tr>
+    <tr>
+      <td></td>
+      <th></th>
+    </tr>
+  </tbody>  
+</table>
+
 React.createClass({
   render() {
     let rows = Object.keys(this.props.value).map(key => {
@@ -169,15 +179,7 @@ React.createClass({
   <table></table> {/* Noncompliant */}
 </table>
 
-<table> {/* Noncompliant */}
-  <tbody>
-    <tr><td></td><td></td></tr>
-    <tr>
-      <td></td>
-      <th></th>
-    </tr>
-  </tbody>  
-</table>
+
 
 <table>
   <tbody>
