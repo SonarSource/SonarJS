@@ -27,11 +27,11 @@ export function isPresentationTable(context: Rule.RuleContext, node: TSESTree.JS
   const DISALLOWED_VALUES = ['presentation', 'none'];
   const type = getElementType(context)(node);
   if (type.toLowerCase() !== 'table') {
-    return;
+    return false;
   }
   const role = getProp(node.attributes, 'role');
   if (!role) {
-    return;
+    return false;
   }
   const roleValue = String(getLiteralPropValue(role));
 
