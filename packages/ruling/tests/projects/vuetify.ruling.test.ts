@@ -19,6 +19,7 @@
  */
 import { compareSync } from 'dir-compare';
 import { setupBeforeAll, testProject } from '../tools/testProject';
+import fs from 'fs';
 
 describe('Ruling', () => {
   const { project, expectedPath, actualPath } = setupBeforeAll(__filename);
@@ -26,11 +27,18 @@ describe('Ruling', () => {
     project.name,
     async () => {
       await testProject(project);
-      expect(
-        compareSync(expectedPath, actualPath, {
-          compareContent: true,
-        }).same,
-      ).toBeTruthy();
+      const compare = compareSync(expectedPath, actualPath, {
+        compareContent: true,
+      });
+      if (compare.same === false) {
+        compare.diffSet
+          .filter(diff => diff.state !== 'equal')
+          .map(diff => {
+            console.log(fs.readFileSync(diff.path1).toString());
+            console.log(fs.readFileSync(diff.path2).toString());
+          });
+      }
+      expect(compare.same).toBeTruthy();
     },
     10 * 60 * 1000,
   );
