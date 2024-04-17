@@ -1,0 +1,24 @@
+{
+  "title": "Tables should have headers",
+  "type": "BUG",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "MEDIUM"
+    },
+    "attribute": "COMPLETE"
+  },
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "2min"
+  },
+  "tags": [
+    "accessibility",
+    "wcag2-a"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-5256",
+  "sqKey": "S5256",
+  "scope": "Main",
+  "quickfix": "unknown"
+}

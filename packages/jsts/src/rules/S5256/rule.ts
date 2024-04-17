@@ -23,125 +23,10 @@ import * as estree from 'estree';
 import { Rule } from 'eslint';
 import { TSESTree } from '@typescript-eslint/utils';
 
-type Cell = {
-  rowSpan: number;
-  isHeader: boolean;
-};
-
 export const rule: Rule.RuleModule = {
   meta: {},
   create(context: Rule.RuleContext) {
-    const computeSpan = (tree: TSESTree.JSXElement, spanKey: string): number => {
-      let span = 1;
-      tree.openingElement.attributes.forEach(attr => {
-        if (
-          attr.type === 'JSXAttribute' &&
-          attr.name.type === 'JSXIdentifier' &&
-          attr.name.name === spanKey
-        ) {
-          span = parseInt((attr.value as TSESTree.Literal).value as string);
-        }
-      });
-      return span;
-    };
-    const rowSpan = (tree: TSESTree.JSXElement): number => {
-      let value = computeSpan(tree, 'rowspan');
-      if (value > 65534) {
-        value = 65534;
-      }
-      return value;
-    };
-    const colSpan = (tree: TSESTree.JSXElement): number => {
-      let value = computeSpan(tree, 'colspan');
-      if (value > 10000) {
-        value = 1;
-      }
-      return value;
-    };
-    const extractRow = (tree: TSESTree.JSXElement): Cell[] => {
-      let row: Cell[] = [];
-      tree.children.forEach(child => {
-        if (child.type !== 'JSXElement') {
-          return;
-        }
-        const colSpanValue = colSpan(child);
-        const rowSpanValue = rowSpan(child);
-        for (let i = 0; i < colSpanValue; i++) {
-          row.push({
-            rowSpan: rowSpanValue,
-            isHeader:
-              child.openingElement.name.type === 'JSXIdentifier' &&
-              child.openingElement.name.name === 'th',
-          });
-        }
-      });
-      return row;
-    };
-    const extractRows = (tree: TSESTree.JSXElement): Cell[][] => {
-      let rows: Cell[][] = [];
-      tree.children.forEach(child => {
-        if (
-          child.type === 'JSXElement' &&
-          child.openingElement.name.type === 'JSXIdentifier' &&
-          child.openingElement.name.name === 'tr'
-        ) {
-          rows.push(extractRow(child));
-        } else if (child.type === 'JSXElement') {
-          if (
-            child.openingElement.name.type === 'JSXIdentifier' &&
-            child.openingElement.name.name === 'table'
-          ) {
-            return;
-          }
-          let extractedRows = extractRows(child);
-          if (extractedRows.length > 0) {
-            rows.push(...extractedRows);
-          }
-        }
-      });
-      return rows;
-    };
-    const computeGrid = (rows: Cell[][]): boolean[][] => {
-      if (rows.length === 0) {
-        return [];
-      }
-      let nbColumns = rows[0].length;
-      let columns: (Cell | undefined)[] = new Array(nbColumns);
-      let row = 0;
-      let result = [];
-      while (row < rows.length) {
-        let resultRow = [];
-        let rowIndex = 0;
-        let usedCurrentRow = false;
-        let onlyMaxRowSpan = true;
-        for (let column = 0; column < nbColumns; column++) {
-          if (!columns[column]) {
-            if (rowIndex === rows[row].length) {
-              break;
-            }
-            columns[column] = rows[row][rowIndex++];
-            usedCurrentRow = true;
-          }
-          resultRow.push(columns[column]!.isHeader);
-          if (columns[column]!.rowSpan > 0) {
-            onlyMaxRowSpan = false;
-            columns[column]!.rowSpan--;
-            if (columns[column]!.rowSpan === 0) {
-              columns[column] = undefined;
-            }
-          }
-        }
-        if (onlyMaxRowSpan) {
-          break;
-        }
-        result.push(resultRow);
-        if (usedCurrentRow) {
-          row++;
-        }
-      }
-      return result;
-    };
-    const checkValidTable = (_context: Rule.RuleContext, tree: TSESTree.JSXElement): boolean => {
+    const checkValidTable = (tree: TSESTree.JSXElement): boolean => {
       let rows = extractRows(tree);
       const grid = computeGrid(rows);
       if (grid.length === 0) {
@@ -195,7 +80,7 @@ export const rule: Rule.RuleModule = {
           if (ariaHidden) {
             return;
           }
-          if (!checkValidTable(context, tree)) {
+          if (!checkValidTable(tree)) {
             context.report({
               node: node,
               message: 'Add a valid header row or column to this "<table>".',
@@ -206,3 +91,124 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
+
+type TableCell = {
+  rowSpan: number;
+  isHeader: boolean;
+};
+
+function computeSpan(tree: TSESTree.JSXElement, spanKey: string): number {
+  let span = 1;
+  tree.openingElement.attributes.forEach(attr => {
+    if (
+      attr.type === 'JSXAttribute' &&
+      attr.name.type === 'JSXIdentifier' &&
+      attr.name.name === spanKey
+    ) {
+      span = parseInt((attr.value as TSESTree.Literal).value as string);
+    }
+  });
+  return span;
+}
+
+function rowSpan(tree: TSESTree.JSXElement): number {
+  let value = computeSpan(tree, 'rowspan');
+  if (value > 65534) {
+    value = 65534;
+  }
+  return value;
+}
+
+function colSpan(tree: TSESTree.JSXElement): number {
+  let value = computeSpan(tree, 'colspan');
+  if (value > 10000) {
+    value = 1;
+  }
+  return value;
+}
+
+function extractRow(tree: TSESTree.JSXElement): TableCell[] {
+  let row: TableCell[] = [];
+  tree.children.forEach(child => {
+    if (child.type !== 'JSXElement') {
+      return;
+    }
+    const colSpanValue = colSpan(child);
+    const rowSpanValue = rowSpan(child);
+    for (let i = 0; i < colSpanValue; i++) {
+      row.push({
+        rowSpan: rowSpanValue,
+        isHeader:
+          child.openingElement.name.type === 'JSXIdentifier' &&
+          child.openingElement.name.name === 'th',
+      });
+    }
+  });
+  return row;
+}
+
+function extractRows(tree: TSESTree.JSXElement): TableCell[][] {
+  let rows: TableCell[][] = [];
+  tree.children.forEach(child => {
+    if (
+      child.type === 'JSXElement' &&
+      child.openingElement.name.type === 'JSXIdentifier' &&
+      child.openingElement.name.name === 'tr'
+    ) {
+      rows.push(extractRow(child));
+    } else if (child.type === 'JSXElement') {
+      if (
+        child.openingElement.name.type === 'JSXIdentifier' &&
+        child.openingElement.name.name === 'table'
+      ) {
+        return;
+      }
+      let extractedRows = extractRows(child);
+      if (extractedRows.length > 0) {
+        rows.push(...extractedRows);
+      }
+    }
+  });
+  return rows;
+}
+
+function computeGrid(rows: TableCell[][]): boolean[][] {
+  if (rows.length === 0) {
+    return [];
+  }
+  let nbColumns = rows[0].length;
+  let columns: (TableCell | undefined)[] = new Array(nbColumns);
+  let row = 0;
+  let result = [];
+  while (row < rows.length) {
+    let resultRow = [];
+    let rowIndex = 0;
+    let usedCurrentRow = false;
+    let onlyMaxRowSpan = true;
+    for (let column = 0; column < nbColumns; column++) {
+      if (!columns[column]) {
+        if (rowIndex === rows[row].length) {
+          break;
+        }
+        columns[column] = rows[row][rowIndex++];
+        usedCurrentRow = true;
+      }
+      resultRow.push(columns[column]!.isHeader);
+      if (columns[column]!.rowSpan > 0) {
+        onlyMaxRowSpan = false;
+        columns[column]!.rowSpan--;
+        if (columns[column]!.rowSpan === 0) {
+          columns[column] = undefined;
+        }
+      }
+    }
+    if (onlyMaxRowSpan) {
+      break;
+    }
+    result.push(resultRow);
+    if (usedCurrentRow) {
+      row++;
+    }
+  }
+  return result;
+}
