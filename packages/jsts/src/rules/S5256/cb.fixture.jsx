@@ -154,6 +154,7 @@
 
 <table> {/* Noncompliant */}
   <tbody>
+    <tr><td></td><td></td></tr>
     <tr>
       <td></td>
       <th></th>
