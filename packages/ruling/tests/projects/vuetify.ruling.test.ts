@@ -34,6 +34,7 @@ describe('Ruling', () => {
         compare.diffSet
           .filter(diff => diff.state !== 'equal')
           .map(diff => {
+            console.log(diff);
             console.log(fs.readFileSync(diff.path1).toString());
             console.log(fs.readFileSync(diff.path2).toString());
           });
