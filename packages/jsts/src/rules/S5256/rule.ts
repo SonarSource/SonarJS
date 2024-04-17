@@ -27,8 +27,7 @@ export const rule: Rule.RuleModule = {
   meta: {},
   create(context: Rule.RuleContext) {
     const checkValidTable = (tree: TSESTree.JSXElement): boolean => {
-      let rows = extractRows(tree);
-      const grid = computeGrid(rows);
+      const grid = computeGrid(tree);
       if (grid.length === 0) {
         return false;
       }
@@ -172,7 +171,8 @@ function extractRows(tree: TSESTree.JSXElement): TableCell[][] {
   return rows;
 }
 
-function computeGrid(rows: TableCell[][]): boolean[][] {
+function computeGrid(tree: TSESTree.JSXElement): boolean[][] {
+  let rows = extractRows(tree);
   if (rows.length === 0) {
     return [];
   }
