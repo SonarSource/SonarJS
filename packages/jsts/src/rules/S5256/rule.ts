@@ -32,14 +32,14 @@ export const rule: Rule.RuleModule = {
         return false;
       }
       let hasHeader = false;
-      for (const element of grid) {
-        if (element.every(isHeader => isHeader)) {
+      for (const row of grid) {
+        if (row.every(isHeader => isHeader)) {
           hasHeader = true;
           break;
         }
       }
       for (let col = 0; col < grid[0].length; col++) {
-        if (grid.every(row => row[col])) {
+        if (grid.every(row => col >= row.length || row[col])) {
           hasHeader = true;
           break;
         }
@@ -127,7 +127,7 @@ function colSpan(tree: TSESTree.JSXElement): number {
 }
 
 function extractRow(tree: TSESTree.JSXElement): TableCell[] {
-  let row: TableCell[] = [];
+  const row: TableCell[] = [];
   tree.children.forEach(child => {
     if (child.type !== 'JSXElement') {
       return;
@@ -147,7 +147,7 @@ function extractRow(tree: TSESTree.JSXElement): TableCell[] {
 }
 
 function extractRows(tree: TSESTree.JSXElement): TableCell[][] {
-  let rows: TableCell[][] = [];
+  const rows: TableCell[][] = [];
   tree.children.forEach(child => {
     if (
       child.type === 'JSXElement' &&
@@ -172,16 +172,16 @@ function extractRows(tree: TSESTree.JSXElement): TableCell[][] {
 }
 
 function computeGrid(tree: TSESTree.JSXElement): boolean[][] {
-  let rows = extractRows(tree);
+  const rows = extractRows(tree);
   if (rows.length === 0) {
     return [];
   }
-  let nbColumns = rows[0].length;
-  let columns: (TableCell | undefined)[] = new Array(nbColumns);
+  const nbColumns = rows[0].length;
+  const columns: (TableCell | undefined)[] = new Array(nbColumns);
   let row = 0;
-  let result = [];
+  const result = [];
   while (row < rows.length) {
-    let resultRow = [];
+    const resultRow = [];
     let rowIndex = 0;
     let usedCurrentRow = false;
     let onlyMaxRowSpan = true;
