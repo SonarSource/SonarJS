@@ -38,7 +38,7 @@ export const rule: Rule.RuleModule = {
           break;
         }
       }
-      for (let col = 0; col < grid.length; col++) {
+      for (let col = 0; col < grid[0].length; col++) {
         if (grid.every(row => row[col])) {
           hasHeader = true;
           break;
