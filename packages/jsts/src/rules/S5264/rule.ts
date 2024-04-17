@@ -50,7 +50,8 @@ export const rule: Rule.RuleModule = {
             if (child.expression.type === 'Identifier') {
               return child.expression.name !== 'undefined';
             }
-            return true;
+            return child.expression.type !== 'JSXEmptyExpression';
+
           default:
             return false;
         }
