@@ -58,6 +58,7 @@
           <basePlugin>javascript</basePlugin>
           <pluginApiMinVersion>${pluginApiMinVersion}</pluginApiMinVersion>
           <pluginClass>org.sonar.samples.javascript.EslintCustomRulesPlugin</pluginClass>
+          <requiredForLanguages>js</requiredForLanguages>
         </configuration>
       </plugin>
     </plugins>
