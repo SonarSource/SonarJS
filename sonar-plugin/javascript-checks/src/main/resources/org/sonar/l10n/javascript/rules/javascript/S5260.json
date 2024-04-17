@@ -1,0 +1,24 @@
+{
+  "title": "Table cells should reference their headers",
+  "type": "BUG",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "HIGH"
+    },
+    "attribute": "CLEAR"
+  },
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "accessibility",
+    "wcag2-a"
+  ],
+  "defaultSeverity": "Critical",
+  "ruleSpecification": "RSPEC-5260",
+  "sqKey": "S5260",
+  "scope": "All",
+  "quickfix": "unknown"
+}
