@@ -39,7 +39,7 @@ export function isPresentationTable(context: Rule.RuleContext, node: TSESTree.JS
   return DISALLOWED_VALUES.includes(roleValue?.toLowerCase());
 }
 
-type TableCell = {
+export type TableCell = {
   isHeader: boolean;
   headers?: string[];
   id?: string;
@@ -84,6 +84,14 @@ function getHeaders(tree: TSESTree.JSXElement): string[] | undefined {
   return undefined;
 }
 
+function getID(tree: TSESTree.JSXElement): string | undefined {
+  const id = getProp(tree.openingElement.attributes, 'id');
+  if (id) {
+    return String(getLiteralPropValue(id));
+  }
+  return undefined;
+}
+
 function extractRow(tree: TSESTree.JSXElement): TableCellInternal[] {
   const row: TableCellInternal[] = [];
   tree.children.forEach(child => {
@@ -93,7 +101,7 @@ function extractRow(tree: TSESTree.JSXElement): TableCellInternal[] {
     const colSpanValue = colSpan(child);
     const rowSpanValue = rowSpan(child);
     const headers = getHeaders(child);
-    const id = getProp(child.openingElement.attributes, 'id');
+    const id = getID(child);
     for (let i = 0; i < colSpanValue; i++) {
       row.push({
         rowSpan: rowSpanValue,
@@ -101,7 +109,7 @@ function extractRow(tree: TSESTree.JSXElement): TableCellInternal[] {
           child.openingElement.name.type === 'JSXIdentifier' &&
           child.openingElement.name.name === 'th',
         headers,
-        id: id ? String(getLiteralPropValue(id)) : undefined,
+        id,
       });
     }
   });
@@ -183,6 +191,7 @@ export function computeGrid(
       if (!currentCell) {
         continue;
       }
+      // Remove rowSpan and add the cell to the result
       resultRow.push((({ rowSpan, ...cell }) => cell)(currentCell));
       if (currentCell.rowSpan > 0) {
         // Mark that there is at least one cell that is not built entirely out of columns with rowSpan == 0

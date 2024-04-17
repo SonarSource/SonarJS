@@ -39,7 +39,7 @@ export const rule: Rule.RuleModule = {
         return false;
       }
       for (const row of grid) {
-        if (row.every(({isHeader}) => isHeader)) {
+        if (row.every(({ isHeader }) => isHeader)) {
           return true;
         }
       }

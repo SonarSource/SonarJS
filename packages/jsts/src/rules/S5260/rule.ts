@@ -19,14 +19,26 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S5260/javascript
 
+import getElementType from 'eslint-plugin-jsx-a11y/lib/util/getElementType';
 import * as estree from 'estree';
 import { Rule } from 'eslint';
+import { TSESTree } from '@typescript-eslint/utils';
+import { computeGrid } from '../helpers';
 
 export const rule: Rule.RuleModule = {
   meta: {},
-  create(_context: Rule.RuleContext) {
+  create(context: Rule.RuleContext) {
+    const verifyHeaderReferences = (tree: TSESTree.JSXElement) => {
+      const grid = computeGrid(tree);
+    };
     return {
-      JSXElement(_node: estree.Node) {},
+      JSXElement(node: estree.Node) {
+        const tree = node as unknown as TSESTree.JSXElement;
+        const elementType = getElementType(context)(tree.openingElement);
+        if (elementType === 'table') {
+          verifyHeaderReferences(tree);
+        }
+      },
     };
   },
 };
