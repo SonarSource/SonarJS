@@ -358,6 +358,7 @@ public final class CheckList {
       NonStandardImportCheck.class,
       NullDereferenceCheck.class,
       OSCommandCheck.class,
+      ObjectAltContentCheck.class,
       ObjectLiteralShorthandCheck.class,
       OctalNumberCheck.class,
       OneStatementPerLineCheck.class,

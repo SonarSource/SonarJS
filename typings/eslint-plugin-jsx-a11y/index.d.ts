@@ -4,7 +4,6 @@ declare module 'eslint-plugin-jsx-a11y' {
 }
 declare module 'eslint-plugin-jsx-a11y/lib/util/getElementType' {
   import { TSESTree } from '@typescript-eslint/utils';
-  import { boolean } from '../../its/sources/jsts/projects/vscode/src/vs/editor/common/config/editorOptions';
   type ESLintSettings = {
     [key: string]: mixed;
     'jsx-a11y'?: {
@@ -23,4 +22,18 @@ declare module 'eslint-plugin-jsx-a11y/lib/util/getElementType' {
     boolean;
 
   export default getElementType;
+}
+
+declare module 'eslint-plugin-jsx-a11y/lib/util/isHiddenFromScreenReader' {
+  const isHiddenFromScreenReader = (
+    type: string,
+    attributes: (TSESTree.JSXAttribute | TSESTree.JSXSpreadAttribute)[],
+  ) => boolean;
+  export default isHiddenFromScreenReader;
+}
+
+declare module 'eslint-plugin-jsx-a11y/lib/util/hasAccessibleChild' {
+  const hasAccessibleChild = (node: JSXElement, elementType: (JSXOpeningElement) => string) =>
+    boolean;
+  export default hasAccessibleChild;
 }
