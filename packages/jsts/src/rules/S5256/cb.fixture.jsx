@@ -1,6 +1,5 @@
 <>
 
-
 <table>
   <caption>
     Holidays taken in the last six months
@@ -180,15 +179,13 @@
 
 <table> {/* Noncompliant */}
   <tr>
-    <th colspan="2" rowspan="2"></th>
+    <th colspan={2} rowspan="2"></th>
     <td rowspan="2"></td>
   </tr>
   <tr>
     <td colspan="3"></td>
   </tr>
 </table>
-
-
 
 <table>
   	<tbody>

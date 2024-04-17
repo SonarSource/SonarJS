@@ -19,9 +19,12 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S5256/javascript
 
+import getElementType from 'eslint-plugin-jsx-a11y/lib/util/getElementType';
 import * as estree from 'estree';
 import { Rule } from 'eslint';
 import { TSESTree } from '@typescript-eslint/utils';
+import { getProp, getLiteralPropValue } from 'jsx-ast-utils';
+import { isPresentationTable } from '../helpers';
 
 export const rule: Rule.RuleModule = {
   meta: {},
@@ -46,39 +49,19 @@ export const rule: Rule.RuleModule = {
     return {
       JSXElement(node: estree.Node) {
         const tree = node as unknown as TSESTree.JSXElement;
-        if (
-          tree.openingElement.name.type === 'JSXIdentifier' &&
-          tree.openingElement.name.name === 'table'
-        ) {
-          const role = tree.openingElement.attributes.find(
-            attr =>
-              attr.type === 'JSXAttribute' &&
-              attr.name.type === 'JSXIdentifier' &&
-              attr.name.name === 'role',
-          );
-          if (
-            role &&
-            role.type === 'JSXAttribute' &&
-            role.value!.type === 'Literal' &&
-            (role.value!.value?.toString().toLowerCase() === 'presentation' ||
-              role.value!.value?.toString().toLowerCase() === 'none')
-          ) {
+        const elementType = getElementType(context)(tree.openingElement);
+        if (elementType === 'table') {
+          if (isPresentationTable(context, tree.openingElement)) {
             return;
           }
-          const ariaHidden = tree.openingElement.attributes.find(
-            attr =>
-              attr.type === 'JSXAttribute' &&
-              attr.name.type === 'JSXIdentifier' &&
-              attr.name.name === 'aria-hidden' &&
-              attr.value?.type === 'Literal' &&
-              attr.value.value === 'true',
-          );
-          if (ariaHidden) {
+          const ariaHidden = getProp(tree.openingElement.attributes, 'aria-hidden');
+          const val = getLiteralPropValue(ariaHidden);
+          if (val && ariaHidden && getLiteralPropValue(ariaHidden) === true) {
             return;
           }
           if (!checkValidTable(tree)) {
             context.report({
-              node: node,
+              node,
               message: 'Add a valid header row or column to this "<table>".',
             });
           }
@@ -95,29 +78,26 @@ type TableCell = {
 
 function computeSpan(tree: TSESTree.JSXElement, spanKey: string): number {
   let span = 1;
-  tree.openingElement.attributes.forEach(attr => {
-    if (
-      attr.type === 'JSXAttribute' &&
-      attr.name.type === 'JSXIdentifier' &&
-      attr.name.name === spanKey
-    ) {
-      span = parseInt((attr.value as TSESTree.Literal).value as string);
-    }
-  });
+  const spanAttr = getProp(tree.openingElement.attributes, spanKey);
+  if (spanAttr) {
+    span = parseInt(String(getLiteralPropValue(spanAttr)));
+  }
   return span;
 }
 
 function rowSpan(tree: TSESTree.JSXElement): number {
   let value = computeSpan(tree, 'rowspan');
-  if (value > 65534) {
-    value = 65534;
+  const MAX_ROW_SPAN = 65534;
+  if (value > MAX_ROW_SPAN) {
+    value = MAX_ROW_SPAN;
   }
   return value;
 }
 
 function colSpan(tree: TSESTree.JSXElement): number {
   let value = computeSpan(tree, 'colspan');
-  if (value > 10000) {
+  const MAX_INVALID_COL_SPAN = 10000;
+  if (value > MAX_INVALID_COL_SPAN) {
     value = 1;
   }
   return value;
@@ -174,36 +154,47 @@ function computeGrid(tree: TSESTree.JSXElement): boolean[][] {
     return [];
   }
   const nbColumns = rows[0].length;
-  const columns: (TableCell | undefined)[] = new Array(nbColumns);
+  const columns: (TableCell | undefined)[] = Array.from({ length: nbColumns });
   let row = 0;
   const result = [];
   while (row < rows.length) {
     const resultRow = [];
     let rowIndex = 0;
+    // Checks if any of the cells in the current row that is added was used from the incoming rows[row]
     let usedCurrentRow = false;
+    // Checks if row was built entirely out of columns with rowSpan == 0
     let onlyMaxRowSpan = true;
     for (let column = 0; column < nbColumns; column++) {
       if (!columns[column]) {
         if (rowIndex === rows[row].length) {
-          break;
+          // We have reached the end of the current row from the table definition
+          continue;
         }
-        columns[column] = rows[row][rowIndex++];
+        columns[column] = rows[row][rowIndex];
+        rowIndex++;
         usedCurrentRow = true;
       }
-      resultRow.push(columns[column]!.isHeader);
-      if (columns[column]!.rowSpan > 0) {
+      const currentCell = columns[column];
+      if (!currentCell) {
+        continue;
+      }
+      resultRow.push(currentCell.isHeader);
+      if (currentCell.rowSpan > 0) {
+        // Mark that there is at least one cell that is not built entirely out of columns with rowSpan == 0
         onlyMaxRowSpan = false;
-        columns[column]!.rowSpan--;
-        if (columns[column]!.rowSpan === 0) {
+        currentCell.rowSpan--;
+        if (currentCell.rowSpan === 0) {
           columns[column] = undefined;
         }
       }
     }
     if (onlyMaxRowSpan) {
+      // If the row was built entirely out of columns with rowSpan == 0, we finish the construction
       break;
     }
     result.push(resultRow);
     if (usedCurrentRow) {
+      // Increment the row index only if we used any of the cells from the incoming rows[row]
       row++;
     }
   }
