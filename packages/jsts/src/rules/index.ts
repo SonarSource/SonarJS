@@ -197,6 +197,7 @@ import { rule as S4324 } from './S4324'; // no-return-type-any
 import { rule as S5863 } from './S5863'; // no-same-argument-assert
 import { rule as S6679 } from './S6679'; // no-self-compare
 import { rule as S105 } from './S105'; // no-tab
+import { rule as S5257 } from './S5257'; // no-table-as-layout
 import { rule as S4327 } from './S4327'; // no-this-alias
 import { rule as S3696 } from './S3696'; // no-throw-literal
 import { rule as S4822 } from './S4822'; // no-try-promise
@@ -491,6 +492,7 @@ rules['no-return-type-any'] = S4324;
 rules['no-same-argument-assert'] = S5863;
 rules['no-self-compare'] = S6679;
 rules['no-tab'] = S105;
+rules['no-table-as-layout'] = S5257;
 rules['no-this-alias'] = S4327;
 rules['no-throw-literal'] = S3696;
 rules['no-try-promise'] = S4822;
