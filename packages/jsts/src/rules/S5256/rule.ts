@@ -31,20 +31,17 @@ export const rule: Rule.RuleModule = {
       if (grid.length === 0) {
         return false;
       }
-      let hasHeader = false;
       for (const row of grid) {
         if (row.every(isHeader => isHeader)) {
-          hasHeader = true;
-          break;
+          return true;
         }
       }
       for (let col = 0; col < grid[0].length; col++) {
         if (grid.every(row => col >= row.length || row[col])) {
-          hasHeader = true;
-          break;
+          return true;
         }
       }
-      return hasHeader;
+      return false;
     };
     return {
       JSXElement(node: estree.Node) {
@@ -162,7 +159,7 @@ function extractRows(tree: TSESTree.JSXElement): TableCell[][] {
       ) {
         return;
       }
-      let extractedRows = extractRows(child);
+      const extractedRows = extractRows(child);
       if (extractedRows.length > 0) {
         rows.push(...extractedRows);
       }
