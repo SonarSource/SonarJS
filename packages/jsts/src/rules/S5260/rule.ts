@@ -30,6 +30,30 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     const verifyHeaderReferences = (tree: TSESTree.JSXElement) => {
       const grid = computeGrid(tree);
+      const rowHeaders: Set<string>[] = Array.from({ length: grid.length }, (_, idx) => {
+        const ids = grid[idx]
+          .filter(({ isHeader, id }) => isHeader && id)
+          .map(({ id }) => id) as string[];
+        return new Set<string>(ids);
+      });
+      const colHeaders: Set<string>[] = Array.from({ length: grid[0].length }, (_, idx) => {
+        const ids = grid
+          .map(row => row[idx])
+          .filter(({ isHeader, id }) => isHeader && id)
+          .map(({ id }) => id) as string[];
+        return new Set<string>(ids);
+      });
+      for (let row = 0; row < grid.length; row++) {
+        for (let col = 0; col < grid[row].length; col++) {
+          const cell = grid[row][col];
+          if (!cell.headers) {
+            continue;
+          }
+          // const expected
+          // for (const header of cell.headers) {
+          // }
+        }
+      }
     };
     return {
       JSXElement(node: estree.Node) {

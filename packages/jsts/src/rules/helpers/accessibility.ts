@@ -43,6 +43,7 @@ export type TableCell = {
   isHeader: boolean;
   headers?: string[];
   id?: string;
+  node: TSESTree.JSXElement;
 };
 
 type TableCellInternal = TableCell & {
@@ -110,6 +111,7 @@ function extractRow(tree: TSESTree.JSXElement): TableCellInternal[] {
           child.openingElement.name.name === 'th',
         headers,
         id,
+        node: child,
       });
     }
   });
