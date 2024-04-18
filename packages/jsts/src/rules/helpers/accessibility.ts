@@ -44,6 +44,7 @@ export type TableCell = {
   headers?: string[];
   id?: string;
   node: TSESTree.JSXElement;
+  internalNodeId: number;
 };
 
 type TableCellInternal = TableCell & {
@@ -80,7 +81,10 @@ function colSpan(tree: TSESTree.JSXElement): number {
 function getHeaders(tree: TSESTree.JSXElement): string[] | undefined {
   const headers = getProp(tree.openingElement.attributes, 'headers');
   if (headers) {
-    return String(getLiteralPropValue(headers)).split(/\s+/);
+    const headerVal = String(getLiteralPropValue(headers)).trim();
+    if (headerVal !== '') {
+      return headerVal.split(/\s+/);
+    }
   }
   return undefined;
 }
@@ -93,36 +97,38 @@ function getID(tree: TSESTree.JSXElement): string | undefined {
   return undefined;
 }
 
-function extractRow(tree: TSESTree.JSXElement): TableCellInternal[] {
-  const row: TableCellInternal[] = [];
-  tree.children.forEach(child => {
-    if (child.type !== 'JSXElement') {
-      return;
-    }
-    const colSpanValue = colSpan(child);
-    const rowSpanValue = rowSpan(child);
-    const headers = getHeaders(child);
-    const id = getID(child);
-    for (let i = 0; i < colSpanValue; i++) {
-      row.push({
-        rowSpan: rowSpanValue,
-        isHeader:
-          child.openingElement.name.type === 'JSXIdentifier' &&
-          child.openingElement.name.name === 'th',
-        headers,
-        id,
-        node: child,
-      });
-    }
-  });
-  return row;
-}
-
 function extractRows(
   context: Rule.RuleContext,
   tree: TSESTree.JSXElement,
 ): TableCellInternal[][] | null {
   const rows: TableCellInternal[][] = [];
+  let internalNodeCount = 0;
+  const extractRow = (tree: TSESTree.JSXElement): TableCellInternal[] => {
+    const row: TableCellInternal[] = [];
+    tree.children.forEach(child => {
+      if (child.type !== 'JSXElement') {
+        return;
+      }
+      const colSpanValue = colSpan(child);
+      const rowSpanValue = rowSpan(child);
+      const headers = getHeaders(child);
+      const id = getID(child);
+      for (let i = 0; i < colSpanValue; i++) {
+        row.push({
+          rowSpan: rowSpanValue,
+          isHeader:
+            child.openingElement.name.type === 'JSXIdentifier' &&
+            child.openingElement.name.name === 'th',
+          headers,
+          id,
+          node: child,
+          internalNodeId: internalNodeCount,
+        });
+      }
+      internalNodeCount += 1;
+    });
+    return row;
+  };
   let unknownTableStructure = false;
   tree.children.forEach(child => {
     if (child.type === 'JSXElement') {

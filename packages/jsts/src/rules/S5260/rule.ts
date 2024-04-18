@@ -23,14 +23,27 @@ import getElementType from 'eslint-plugin-jsx-a11y/lib/util/getElementType';
 import * as estree from 'estree';
 import { Rule } from 'eslint';
 import { TSESTree } from '@typescript-eslint/utils';
-import { computeGrid } from '../helpers';
+import { computeGrid, TableCell } from '../helpers';
+
+type BlockInfo = {
+  minRow: number;
+  maxRow: number;
+  minCol: number;
+  maxCol: number;
+  cell: TableCell;
+};
 
 export const rule: Rule.RuleModule = {
-  meta: {},
+  meta: {
+    messages: {
+      messageUnknownHeader: `id {{header}} in "headers" does not reference any <th> header`,
+      messageInvalidHeader: `id {{header}} in "headers" references the header of another column/row`,
+    },
+  },
   create(context: Rule.RuleContext) {
     const verifyHeaderReferences = (tree: TSESTree.JSXElement) => {
       const grid = computeGrid(context, tree);
-      if (grid === null) {
+      if (grid === null || grid.length === 0) {
         return true;
       }
       const rowHeaders: Set<string>[] = Array.from({ length: grid.length }, (_, idx) => {
@@ -42,19 +55,89 @@ export const rule: Rule.RuleModule = {
       const colHeaders: Set<string>[] = Array.from({ length: grid[0].length }, (_, idx) => {
         const ids = grid
           .map(row => row[idx])
+          .filter(cell => cell)
           .filter(({ isHeader, id }) => isHeader && id)
           .map(({ id }) => id) as string[];
         return new Set<string>(ids);
       });
+      const allHeaders = new Set([
+        ...rowHeaders.reduce((headers, acc) => new Set([...headers, ...acc]), new Set()),
+        ...colHeaders.reduce((headers, acc) => new Set([...headers, ...acc]), new Set()),
+      ]);
+
+      const internalNodeToPositions = new Map<number, BlockInfo>();
       for (let row = 0; row < grid.length; row++) {
         for (let col = 0; col < grid[row].length; col++) {
           const cell = grid[row][col];
           if (!cell.headers) {
             continue;
           }
+          if (internalNodeToPositions.has(cell.internalNodeId)) {
+            const oldValue = internalNodeToPositions.get(cell.internalNodeId)!;
+            internalNodeToPositions.set(cell.internalNodeId, {
+              ...oldValue,
+              maxRow: row,
+              maxCol: col,
+            });
+          } else {
+            internalNodeToPositions.set(cell.internalNodeId, {
+              minRow: row,
+              maxRow: row,
+              minCol: col,
+              maxCol: col,
+              cell,
+            });
+          }
+        }
+      }
+      for (let { minRow, maxRow, minCol, maxCol, cell } of internalNodeToPositions.values()) {
+        if (!cell.headers || cell.headers.length === 0) {
+          continue;
+        }
+        const actualHeaders = [
+          ...colHeaders.slice(minCol, maxCol + 1),
+          ...rowHeaders.slice(minRow, maxRow + 1),
+        ].reduce((headers, acc) => new Set([...headers, ...acc]), new Set());
+        for (let header of cell.headers) {
+          if (!actualHeaders.has(header)) {
+            if (allHeaders.has(header)) {
+              context.report({
+                node: cell.node as unknown as estree.Node,
+                messageId: 'messageInvalidHeader',
+                data: {
+                  id: header,
+                },
+              });
+            } else {
+              context.report({
+                node: cell.node as unknown as estree.Node,
+                messageId: 'messageUnknownHeader',
+              });
+            }
+          }
         }
       }
     };
+    // for (const [k, v] : internalNodeToPositions.entries()) {
+    //   for (let header of cell.headers) {
+    //     if (!rowHeaders[row].has(header) && !colHeaders[col].has(header)) {
+    //       if (allHeaders.has(header)) {
+    //         context.report({
+    //           node: cell.node as unknown as estree.Node,
+    //           messageId: 'messageInvalidHeader',
+    //           data: {
+    //             id: header,
+    //           },
+    //         });
+    //       } else {
+    //         context.report({
+    //           node: cell.node as unknown as estree.Node,
+    //           messageId: 'messageUnknownHeader',
+    //         })
+    //       }
+    //     }
+    //   }
+    // }
     return {
       JSXElement(node: estree.Node) {
         const tree = node as unknown as TSESTree.JSXElement;

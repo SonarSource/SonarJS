@@ -41,7 +41,7 @@
 <table>
   <tr>
     <th id="foo"></th>
-    <td headers="foo"></td> {/* Noncompliant */}
+    <td headers="foo"></td> {/* Compliant */}
   </tr>
 </table>
 
@@ -321,7 +321,7 @@
     <th id="foo"></th>
   </tr>
   <tr>
-    <td headers="{foo()}"></td>
+    <td headers="{foo()}"></td> {/* Noncompliant */}
   </tr>
 </table>
 
