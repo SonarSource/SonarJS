@@ -12,7 +12,7 @@
   ],
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-6854",
-  "sqKey": "S6854",
+  "sqKey": "S1090",
   "scope": "All",
   "quickfix": "infeasible",
   "code": {
