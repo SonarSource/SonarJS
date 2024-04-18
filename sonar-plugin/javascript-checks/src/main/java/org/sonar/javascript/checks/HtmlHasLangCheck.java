@@ -23,10 +23,12 @@ import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.EslintBasedCheck;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
+import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @TypeScriptRule
 @JavaScriptRule
-@Rule(key = "S6849")
+@DeprecatedRuleKey(ruleKey = "S6849")
+@Rule(key = "S5254")
 public class HtmlHasLangCheck implements EslintBasedCheck {
 
   @Override
