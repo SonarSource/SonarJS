@@ -437,6 +437,7 @@ public final class CheckList {
       SwitchWithoutDefaultCheck.class,
       TabCharacterCheck.class,
       TabindexNoPositiveCheck.class,
+      TableHeaderCheck.class,
       TemplateStringMisuseCheck.class,
       TestCheckExceptionCheck.class,
       ThrowLiteralCheck.class,

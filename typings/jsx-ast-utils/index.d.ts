@@ -6,5 +6,5 @@ declare module 'jsx-ast-utils' {
     prop: string,
     options?: any,
   ) => JSXAttribute | undefined;
-  export const getLiteralPropValue: (attributes: JSXAttribute) => string;
+  export const getLiteralPropValue: (attributes: JSXAttribute) => unknown;
 }

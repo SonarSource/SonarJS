@@ -287,6 +287,7 @@ import { rule as S5739 } from './S5739'; // strict-transport-security
 import { rule as S3003 } from './S3003'; // strings-comparison
 import { rule as S3854 } from './S3854'; // super-invocation
 import { rule as S131 } from './S131'; // switch-without-default
+import { rule as S5256 } from './S5256'; // table-header
 import { rule as S5958 } from './S5958'; // test-check-exception
 import { rule as S1135 } from './S1135'; // todo-tag
 import { rule as S135 } from './S135'; // too-many-break-or-continue-in-loop
@@ -583,6 +584,7 @@ rules['strict-transport-security'] = S5739;
 rules['strings-comparison'] = S3003;
 rules['super-invocation'] = S3854;
 rules['switch-without-default'] = S131;
+rules['table-header'] = S5256;
 rules['test-check-exception'] = S5958;
 rules['todo-tag'] = S1135;
 rules['too-many-break-or-continue-in-loop'] = S135;

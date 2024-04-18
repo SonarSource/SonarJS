@@ -20,12 +20,9 @@
 // https://sonarsource.github.io/rspec/#/rspec/S5257/javascript
 
 import { Rule } from 'eslint';
-import getElementType from 'eslint-plugin-jsx-a11y/lib/util/getElementType';
 import { TSESTree } from '@typescript-eslint/utils';
-import { getProp, getLiteralPropValue } from 'jsx-ast-utils';
 import * as estree from 'estree';
-
-const DISALLOWED_VALUES = ['presentation', 'none'];
+import { isPresentationTable } from '../helpers';
 
 export const rule: Rule.RuleModule = {
   meta: {
@@ -34,21 +31,10 @@ export const rule: Rule.RuleModule = {
     },
   },
   create(context: Rule.RuleContext) {
-    const elementType = getElementType(context);
     return {
       JSXOpeningElement(node: estree.Node) {
         const jsxNode = node as unknown as TSESTree.JSXOpeningElement;
-        const type = elementType(jsxNode);
-        if (type.toLowerCase() !== 'table') {
-          return;
-        }
-        const role = getProp(jsxNode.attributes, 'role');
-        if (!role) {
-          return;
-        }
-        const roleValue = getLiteralPropValue(role);
-
-        if (DISALLOWED_VALUES.includes(roleValue?.toLowerCase())) {
+        if (isPresentationTable(context, jsxNode)) {
           context.report({
             node,
             messageId: 'noLayoutTable',
