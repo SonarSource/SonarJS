@@ -227,6 +227,7 @@ import { rule as S4426 } from './S4426'; // no-weak-keys
 import { rule as S2208 } from './S2208'; // no-wildcard-import
 import { rule as S3760 } from './S3760'; // non-number-in-arithmetic-expression
 import { rule as S2259 } from './S2259'; // null-dereference
+import { rule as S5264 } from './S5264'; // object-alt-content
 import { rule as S3498 } from './S3498'; // object-shorthand
 import { rule as S3757 } from './S3757'; // operation-returning-nan
 import { rule as S4721 } from './S4721'; // os-command
@@ -524,6 +525,7 @@ rules['no-weak-keys'] = S4426;
 rules['no-wildcard-import'] = S2208;
 rules['non-number-in-arithmetic-expression'] = S3760;
 rules['null-dereference'] = S2259;
+rules['object-alt-content'] = S5264;
 rules['object-shorthand'] = S3498;
 rules['operation-returning-nan'] = S3757;
 rules['os-command'] = S4721;
