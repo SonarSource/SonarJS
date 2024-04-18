@@ -25,12 +25,17 @@ import { Rule } from 'eslint';
 import { TSESTree } from '@typescript-eslint/utils';
 import { getProp, getLiteralPropValue } from 'jsx-ast-utils';
 import { isPresentationTable } from '../helpers';
+import { isHtmlElement } from '../helpers/isHtmlElement';
 
 export const rule: Rule.RuleModule = {
   meta: {},
   create(context: Rule.RuleContext) {
     const checkValidTable = (tree: TSESTree.JSXElement): boolean => {
-      const grid = computeGrid(tree);
+      const grid = computeGrid(context, tree);
+      if (grid === null) {
+        // Unknown table structure, dont raise issue
+        return true;
+      }
       if (grid.length === 0) {
         return false;
       }
@@ -122,33 +127,47 @@ function extractRow(tree: TSESTree.JSXElement): TableCell[] {
   return row;
 }
 
-function extractRows(tree: TSESTree.JSXElement): TableCell[][] {
+function extractRows(context: Rule.RuleContext, tree: TSESTree.JSXElement): TableCell[][] | null {
   const rows: TableCell[][] = [];
+  let unknownTableStructure = false;
   tree.children.forEach(child => {
-    if (
-      child.type === 'JSXElement' &&
-      child.openingElement.name.type === 'JSXIdentifier' &&
-      child.openingElement.name.name === 'tr'
+    if (child.type === 'JSXElement') {
+      const childType = getElementType(context)(child.openingElement).toLowerCase();
+      if (childType === 'tr') {
+        rows.push(extractRow(child));
+      } else if (childType === 'table') {
+        // skip
+      } else {
+        const KNOWN_TABLE_STRUCTURE_ELEMENTS = ['thead', 'tbody', 'tfoot'];
+        if (KNOWN_TABLE_STRUCTURE_ELEMENTS.includes(childType)) {
+          const extractedRows = extractRows(context, child);
+          if (extractedRows === null) {
+            unknownTableStructure = true;
+          } else if (extractedRows.length > 0) {
+            rows.push(...extractedRows);
+          }
+        } else if (!isHtmlElement(child)) {
+          unknownTableStructure = true;
+        }
+      }
+    } else if (
+      child.type === 'JSXExpressionContainer' &&
+      child.expression.type !== 'JSXEmptyExpression'
     ) {
-      rows.push(extractRow(child));
-    } else if (child.type === 'JSXElement') {
-      if (
-        child.openingElement.name.type === 'JSXIdentifier' &&
-        child.openingElement.name.name === 'table'
-      ) {
-        return;
-      }
-      const extractedRows = extractRows(child);
-      if (extractedRows.length > 0) {
-        rows.push(...extractedRows);
-      }
+      unknownTableStructure = true;
     }
   });
+  if (unknownTableStructure) {
+    return null;
+  }
   return rows;
 }
 
-function computeGrid(tree: TSESTree.JSXElement): boolean[][] {
-  const rows = extractRows(tree);
+function computeGrid(context: Rule.RuleContext, tree: TSESTree.JSXElement): boolean[][] | null {
+  const rows = extractRows(context, tree);
+  if (rows === null) {
+    return null;
+  }
   if (rows.length === 0) {
     return [];
   }
