@@ -29,7 +29,10 @@ export const rule: Rule.RuleModule = {
   meta: {},
   create(context: Rule.RuleContext) {
     const verifyHeaderReferences = (tree: TSESTree.JSXElement) => {
-      const grid = computeGrid(tree);
+      const grid = computeGrid(context, tree);
+      if (grid === null) {
+        return true;
+      }
       const rowHeaders: Set<string>[] = Array.from({ length: grid.length }, (_, idx) => {
         const ids = grid[idx]
           .filter(({ isHeader, id }) => isHeader && id)
@@ -49,9 +52,6 @@ export const rule: Rule.RuleModule = {
           if (!cell.headers) {
             continue;
           }
-          // const expected
-          // for (const header of cell.headers) {
-          // }
         }
       }
     };
