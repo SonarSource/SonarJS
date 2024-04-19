@@ -40,7 +40,7 @@ export const rule: Rule.RuleModule = {
       const grid = computeGrid(context, tree);
       if (grid === null || grid.length === 0) {
         // Unknown table structures as well as empty tables should be considered valid
-        return true;
+        return;
       }
       const rowHeaders: Set<string>[] = Array.from({ length: grid.length }, (_, idx) => {
         const ids = grid[idx]
