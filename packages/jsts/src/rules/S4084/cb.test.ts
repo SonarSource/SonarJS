@@ -23,6 +23,6 @@ import path from 'path';
 
 const sonarId = path.basename(__dirname);
 
-describe('Rule S6855', () => {
+describe('Rule S4084', () => {
   check(sonarId, rule, __dirname);
 });

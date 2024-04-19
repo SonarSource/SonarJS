@@ -23,10 +23,12 @@ import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.EslintBasedCheck;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
+import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
 @TypeScriptRule
-@Rule(key = "S6855")
+@DeprecatedRuleKey(ruleKey = "S6855")
+@Rule(key = "S4084")
 public class MediaHasCaptionCheck implements EslintBasedCheck {
 
   @Override

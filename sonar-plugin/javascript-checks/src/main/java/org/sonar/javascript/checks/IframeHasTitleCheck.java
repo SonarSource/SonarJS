@@ -23,10 +23,12 @@ import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.EslintBasedCheck;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
+import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
 @TypeScriptRule
-@Rule(key = "S6854")
+@DeprecatedRuleKey(ruleKey = "S6854")
+@Rule(key = "S1090")
 public class IframeHasTitleCheck implements EslintBasedCheck {
 
   @Override
