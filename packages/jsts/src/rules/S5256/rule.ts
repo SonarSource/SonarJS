@@ -24,7 +24,8 @@ import * as estree from 'estree';
 import { Rule } from 'eslint';
 import { TSESTree } from '@typescript-eslint/utils';
 import { getProp, getLiteralPropValue } from 'jsx-ast-utils';
-import { computeGrid, isPresentationTable } from '../helpers';
+import { computeGrid } from '../helpers/table';
+import { isPresentationTable } from '../helpers';
 
 export const rule: Rule.RuleModule = {
   meta: {},

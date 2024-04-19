@@ -34,7 +34,7 @@
     <th id="foo"></th>
   </tr>
   <tr>
-    <td headers="bar"></td> {/* Noncompliant */}
+    <td headers="bar"></td> {/* Noncompliant {{id "bar" in "headers" does not reference any <th> header.}} */}
   </tr>
 </table>
 
@@ -55,7 +55,7 @@
 <table>
   <tr>
     <th id="foo"></th>
-    <td headers="bar"></td> {/* Noncompliant */}
+    <td headers="bar"></td> {/* Noncompliant {{id "bar" in "headers" does not reference any <th> header.}} */}
   </tr>
 </table>
 
@@ -77,7 +77,7 @@
     <th id="bar"></th>
   </tr>
   <tr>
-    <td headers="oof"></td> {/* Noncompliant */}
+    <td headers="oof"></td> {/* Noncompliant {{id "oof" in "headers" does not reference any <th> header.}} */}
     <td headers="bar"></td> {/* Compliant */}
   </tr>
 </table>
@@ -88,8 +88,8 @@
     <th id="bar"></th>
   </tr>
   <tr>
-    <td headers="bar"></td> {/* Noncompliant */}
-    <td headers="foo"></td> {/* Noncompliant */}
+    <td headers="bar"></td> {/* Noncompliant {{id "bar" in "headers" references the header of another column/row.}} */}
+    <td headers="foo"></td> {/* Noncompliant {{id "foo" in "headers" references the header of another column/row.}} */}
   </tr>
 </table>
 
@@ -107,7 +107,7 @@
 <table>
   <tr>
     <th id="foo"></th>
-    <td headers="oof"></td> {/* Noncompliant */}
+    <td headers="oof"></td> {/* Noncompliant {{id "oof" in "headers" does not reference any <th> header.}} */}
   </tr>
   <tr>
     <th id="bar"></th>
@@ -118,11 +118,11 @@
 <table>
   <tr>
     <th id="foo"></th>
-    <td headers="bar"></td> {/* Noncompliant */}
+    <td headers="bar"></td> {/* Noncompliant {{id "bar" in "headers" references the header of another column/row.}} */}
   </tr>
   <tr>
     <th id="bar"></th>
-    <td headers="foo"></td> {/* Noncompliant */}
+    <td headers="foo"></td> {/* Noncompliant {{id "foo" in "headers" references the header of another column/row.}} */}
   </tr>
 </table>
 
@@ -151,7 +151,7 @@
     <th colspan="2" id="foo"></th>
   </tr>
   <tr>
-    <td headers="bar"></td> {/* Noncompliant */}
+    <td headers="bar"></td> {/* Noncompliant {{id "bar" in "headers" does not reference any <th> header.}} */}
     <td></td>
   </tr>
 </table>
@@ -219,14 +219,14 @@
     <th colspan="2" rowspan="2" id="foo"></th>
   </tr>
   <tr>
-    <td headers="bar"></td> {/* Noncompliant */}
+    <td headers="bar"></td> {/* Noncompliant {{id "bar" in "headers" does not reference any <th> header.}} */}
   </tr>
 </table>
 
 <table>
   <tr>
     <th colspan="2" rowspan="2" id="foo"></th>
-    <td headers="bar"></td> {/* Noncompliant */}
+    <td headers="bar"></td> {/* Noncompliant {{id "bar" in "headers" does not reference any <th> header.}} */}
   </tr>
 </table>
 
@@ -274,13 +274,13 @@
 
 <table>
   <tr>
-    <td rowspan="4" headers="foo"></td> {/* Noncompliant */}
+    <td rowspan="4" headers="foo"></td> {/* Noncompliant {{id "foo" in "headers" does not reference any <th> header.}} */}
   </tr>
 </table>
 
 <table>
   <tr>
-    <td colspan="4" headers="foo"></td> {/* Noncompliant */}
+    <td colspan="4" headers="foo"></td> {/* Noncompliant {{id "foo" in "headers" does not reference any <th> header.}} */}
   </tr>
 </table>
 
@@ -321,8 +321,28 @@
     <th id="foo"></th>
   </tr>
   <tr>
-    <td headers="{foo()}"></td> {/* Noncompliant */}
+    <td headers="{foo()}"></td> {/* Noncompliant {{id "{foo()}" in "headers" does not reference any <th> header.}}*/}
   </tr>
+</table>
+
+<table>
+  <tr>
+    <th id="foo"></th>
+  </tr>
+  <tr>
+    <td headers={foo}></td>
+  </tr>
+</table>
+
+<table>
+  <>
+    <tr>
+      <th id="bar"></th>
+    </tr>
+    <tr>
+      <td headers="foo"></td> {/* Noncompliant {{id "foo" in "headers" does not reference any <th> header.}} */}
+    </tr>
+  </>
 </table>
 
 <tr></tr>
