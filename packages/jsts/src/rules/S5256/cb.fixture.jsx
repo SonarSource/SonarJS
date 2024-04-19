@@ -176,7 +176,7 @@ React.createClass({
       <td></td>
       <th></th>
     </tr>
-  </tbody>  
+  </tbody>
 </table>
 
 <table>
