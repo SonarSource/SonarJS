@@ -100,6 +100,11 @@ export const rule: Rule.RuleModule = {
   },
 };
 
+/**
+ * Extracts an alternative representation of the blocks making up the table. Takes into account that a single block can
+ * span more than just a 1x1 cell thanks to the "rowspan" and "colspan" attributes. Each block is assigned an internal
+ * number during computation. Afterward, for each block, we compute its position in the resulting table.
+ */
 function compileBlockInfo(grid: TableCell[][]) {
   const internalNodeToPositions = new Map<number, BlockInfo>();
   for (let row = 0; row < grid.length; row++) {

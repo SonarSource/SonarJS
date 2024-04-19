@@ -172,19 +172,19 @@ export function computeGrid(
   const result: TableCell[][] = [];
   while (row < rows.length) {
     const resultRow: TableCell[] = [];
-    let rowIndex = 0;
+    let indexInRow = 0;
     // Checks if any of the cells in the current row that is added was used from the incoming rows[row]
     let usedCurrentRow = false;
     // Checks if row was built entirely out of columns with rowSpan == 0
     let onlyMaxRowSpan = true;
     for (let column = 0; column < nbColumns; column++) {
       if (!columns[column]) {
-        if (rowIndex === rows[row].length) {
+        if (indexInRow === rows[row].length) {
           // We have reached the end of the current row from the table definition
           continue;
         }
-        columns[column] = rows[row][rowIndex];
-        rowIndex++;
+        columns[column] = rows[row][indexInRow];
+        indexInRow++;
         usedCurrentRow = true;
       }
       const currentCell = columns[column];
