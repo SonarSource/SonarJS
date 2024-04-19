@@ -175,6 +175,6 @@ const HTML_TAG_NAMES = new Set([
 export function isHtmlElement(node: TSESTree.JSXElement) {
   return (
     node.openingElement.name.type === 'JSXIdentifier' &&
-    HTML_TAG_NAMES.has(node.openingElement.name.name.toLowerCase())
+    HTML_TAG_NAMES.has(node.openingElement.name.name)
   );
 }
