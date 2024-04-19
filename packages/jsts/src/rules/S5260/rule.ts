@@ -39,6 +39,7 @@ export const rule: Rule.RuleModule = {
     const verifyHeaderReferences = (tree: TSESTree.JSXElement) => {
       const grid = computeGrid(context, tree);
       if (grid === null || grid.length === 0) {
+        // Unknown table structures as well as empty tables should be considered valid
         return true;
       }
       const rowHeaders: Set<string>[] = Array.from({ length: grid.length }, (_, idx) => {
@@ -60,32 +61,8 @@ export const rule: Rule.RuleModule = {
         ...colHeaders.reduce((headers, acc) => new Set([...headers, ...acc]), new Set()),
       ]);
 
-      const internalNodeToPositions = new Map<number, BlockInfo>();
-      for (let row = 0; row < grid.length; row++) {
-        for (let col = 0; col < grid[row].length; col++) {
-          const cell = grid[row][col];
-          if (!cell.headers) {
-            continue;
-          }
-          if (internalNodeToPositions.has(cell.internalNodeId)) {
-            const oldValue = internalNodeToPositions.get(cell.internalNodeId)!;
-            internalNodeToPositions.set(cell.internalNodeId, {
-              ...oldValue,
-              maxRow: row,
-              maxCol: col,
-            });
-          } else {
-            internalNodeToPositions.set(cell.internalNodeId, {
-              minRow: row,
-              maxRow: row,
-              minCol: col,
-              maxCol: col,
-              cell,
-            });
-          }
-        }
-      }
-      for (let { minRow, maxRow, minCol, maxCol, cell } of internalNodeToPositions.values()) {
+      const internalNodeToPositions = compileBlockInfo(grid);
+      for (const { minRow, maxRow, minCol, maxCol, cell } of internalNodeToPositions.values()) {
         if (!cell.headers || cell.headers.length === 0) {
           continue;
         }
@@ -93,7 +70,7 @@ export const rule: Rule.RuleModule = {
           ...colHeaders.slice(minCol, maxCol + 1),
           ...rowHeaders.slice(minRow, maxRow + 1),
         ].reduce((headers, acc) => new Set([...headers, ...acc]), new Set());
-        for (let header of cell.headers) {
+        for (const header of cell.headers) {
           if (!actualHeaders.has(header)) {
             if (allHeaders.has(header)) {
               context.report({
@@ -103,7 +80,7 @@ export const rule: Rule.RuleModule = {
             } else {
               context.report({
                 node: cell.node as unknown as estree.Node,
-                message: `id "${header}" in \"headers\" does not reference any <th> header.`,
+                message: `id "${header}" in "headers" does not reference any <th> header.`,
               });
             }
           }
@@ -122,3 +99,32 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
+
+function compileBlockInfo(grid: TableCell[][]) {
+  const internalNodeToPositions = new Map<number, BlockInfo>();
+  for (let row = 0; row < grid.length; row++) {
+    for (let col = 0; col < grid[row].length; col++) {
+      const cell = grid[row][col];
+      if (!cell.headers) {
+        continue;
+      }
+      const oldValue = internalNodeToPositions.get(cell.internalNodeId);
+      if (oldValue !== undefined) {
+        internalNodeToPositions.set(cell.internalNodeId, {
+          ...oldValue,
+          maxRow: row,
+          maxCol: col,
+        });
+      } else {
+        internalNodeToPositions.set(cell.internalNodeId, {
+          minRow: row,
+          maxRow: row,
+          minCol: col,
+          maxCol: col,
+          cell,
+        });
+      }
+    }
+  }
+  return internalNodeToPositions;
+}
