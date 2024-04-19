@@ -36,6 +36,10 @@ type TableCellInternal = TableCell & {
   rowSpan: number;
 };
 
+const MAX_ROW_SPAN = 65534;
+const MAX_INVALID_COL_SPAN = 10000;
+const KNOWN_TABLE_STRUCTURE_ELEMENTS = ['thead', 'tbody', 'tfoot'];
+
 function computeSpan(tree: TSESTree.JSXElement, spanKey: string): number {
   let span = 1;
   const spanAttr = getProp(tree.openingElement.attributes, spanKey);
@@ -47,7 +51,6 @@ function computeSpan(tree: TSESTree.JSXElement, spanKey: string): number {
 
 function rowSpan(tree: TSESTree.JSXElement): number {
   let value = computeSpan(tree, 'rowspan');
-  const MAX_ROW_SPAN = 65534;
   if (value > MAX_ROW_SPAN) {
     value = MAX_ROW_SPAN;
   }
@@ -56,7 +59,6 @@ function rowSpan(tree: TSESTree.JSXElement): number {
 
 function colSpan(tree: TSESTree.JSXElement): number {
   let value = computeSpan(tree, 'colspan');
-  const MAX_INVALID_COL_SPAN = 10000;
   if (value > MAX_INVALID_COL_SPAN) {
     value = 1;
   }
@@ -134,7 +136,6 @@ function extractRows(
       } else if (childType === 'table') {
         // skip
       } else {
-        const KNOWN_TABLE_STRUCTURE_ELEMENTS = ['thead', 'tbody', 'tfoot'];
         if (KNOWN_TABLE_STRUCTURE_ELEMENTS.includes(childType)) {
           handleInternalStructure(child);
         } else if (!isHtmlElement(child)) {
