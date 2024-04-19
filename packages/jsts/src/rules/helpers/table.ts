@@ -135,12 +135,10 @@ function extractRows(
         rows.push(extractRow(child));
       } else if (childType === 'table') {
         // skip
-      } else {
-        if (KNOWN_TABLE_STRUCTURE_ELEMENTS.includes(childType)) {
-          handleInternalStructure(child);
-        } else if (!isHtmlElement(child)) {
-          unknownTableStructure = true;
-        }
+      } else if (KNOWN_TABLE_STRUCTURE_ELEMENTS.includes(childType)) {
+        handleInternalStructure(child);
+      } else if (!isHtmlElement(child)) {
+        unknownTableStructure = true;
       }
     } else if (
       child.type === 'JSXExpressionContainer' &&
