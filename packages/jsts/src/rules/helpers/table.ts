@@ -84,6 +84,12 @@ function getID(tree: TSESTree.JSXElement): string | undefined {
   return undefined;
 }
 
+function createTableCell(internalCell: TableCellInternal): TableCell {
+  // Drop rowSpan from the cell
+  const { rowSpan, ...tableCell } = internalCell;
+  return tableCell;
+}
+
 function extractRows(
   context: Rule.RuleContext,
   tree: TSESTree.JSXElement | TSESTree.JSXFragment,
@@ -191,8 +197,7 @@ export function computeGrid(
       if (!currentCell) {
         continue;
       }
-      // Remove rowSpan and add the cell to the result
-      resultRow.push((({ rowSpan, ...cell }) => cell)(currentCell));
+      resultRow.push(createTableCell(currentCell));
       if (currentCell.rowSpan > 0) {
         // Mark that there is at least one cell that is not built entirely out of columns with rowSpan == 0
         onlyMaxRowSpan = false;
