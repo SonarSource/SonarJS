@@ -49,7 +49,7 @@ into the directory with the expected issues `its/ruling/src/test/resources/expec
 
 From the project root, run: `npm run ruling-sync`
 
-You can review the Ruling difference by running `diff -rq its/ruling/src/test/expected/jsts packages/ruling/tests/target/actual/jsts`.
+You can review the Ruling difference by running `diff -rq its/ruling/src/test/expected/jsts packages/ruling/tests/actual/jsts`.
 For CSS, run `diff -rq its/ruling/src/test/expected/css `
 
 If you have modified rules or their configuration, you will need to update the rule data used for these tests with: `npm run update-ruling-data`.
