@@ -351,4 +351,19 @@
 
 <th></th>
 
+<table>
+  <tr>
+    <td colspan="2" headers="foo bar"></td>
+  </tr>
+  <tr>
+    {is_true ? <>
+      <th id="foo"></th>
+      <th id="bar"></th>
+    </> : <>
+      <th id="bar"></th>
+      <th id="foo"></th>
+    </>}
+  </tr>
+</table>
+
 </>

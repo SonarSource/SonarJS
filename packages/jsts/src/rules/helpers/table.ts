@@ -98,10 +98,24 @@ function extractRows(
   let internalNodeCount = 0;
   let unknownTableStructure = false;
 
-  const extractRow = (tree: TSESTree.JSXElement): TableCellInternal[] => {
+  const extractRow = (tree: TSESTree.JSXElement): TableCellInternal[] | null => {
     const row: TableCellInternal[] = [];
+    let unknownRowStructure = false;
     tree.children.forEach(child => {
-      if (child.type !== 'JSXElement') {
+      if (
+        (child.type === 'JSXExpressionContainer' &&
+          child.expression.type === 'JSXEmptyExpression') ||
+        child.type === 'JSXText'
+      ) {
+        // Skip comment
+        return;
+      }
+      const isTdOrTh =
+        child.type === 'JSXElement' &&
+        child.openingElement.name.type === 'JSXIdentifier' &&
+        ['td', 'th'].includes(child.openingElement.name.name);
+      if (!isTdOrTh) {
+        unknownRowStructure = true;
         return;
       }
       const colSpanValue = colSpan(child);
@@ -122,6 +136,9 @@ function extractRows(
       }
       internalNodeCount += 1;
     });
+    if (unknownRowStructure) {
+      return null;
+    }
     return row;
   };
 
@@ -138,7 +155,12 @@ function extractRows(
     if (child.type === 'JSXElement') {
       const childType = getElementType(context)(child.openingElement).toLowerCase();
       if (childType === 'tr') {
-        rows.push(extractRow(child));
+        const extractedRow = extractRow(child);
+        if (!extractedRow) {
+          unknownTableStructure = true;
+        } else {
+          rows.push(extractedRow);
+        }
       } else if (childType === 'table') {
         // skip
       } else if (KNOWN_TABLE_STRUCTURE_ELEMENTS.includes(childType)) {
