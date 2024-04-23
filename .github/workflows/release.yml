@@ -16,4 +16,4 @@ jobs:
     with:
       publishToBinaries: true
       mavenCentralSync: true
-      slackChannel:  team-lang-js-ts-css
+      slackChannel:  squad-js
