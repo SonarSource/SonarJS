@@ -7,12 +7,12 @@ on the type of the element. For example, an anchor tag &lt;a href="#" /&gt; has 
 <p>This rule ensures that the ARIA properties used on an element are ones that are supported by the role of that element. For instance, the ARIA
 property <code>aria-required</code> is not supported by the role <code>link</code>. Therefore, using <code>aria-required</code> on an anchor tag would
 violate this rule.</p>
-<h2>How to fix it in JSX</h2>
-<p>Check the spelling of the aria-* attributes and verify that they are actually supported by the element role.</p>
 <pre data-diff-id="1" data-diff-type="noncompliant">
 &lt;div role="checkbox" aria-chekd={isChecked}&gt;Unchecked&lt;/div&gt; {/* Noncompliant: aria-chekd is not supported */}
 </pre>
-<p>To fix the code remove non-compatible attributes or replace them with the correct ones.</p>
+<h2>How to fix it</h2>
+<p>Check the spelling of the aria-* attributes and verify that they are actually supported by the element role. Remove non-compatible attributes or
+replace them with the correct ones.</p>
 <pre data-diff-id="1" data-diff-type="compliant">
 &lt;div role="checkbox" aria-checked={isChecked}&gt;Unchecked&lt;/div&gt;
 </pre>

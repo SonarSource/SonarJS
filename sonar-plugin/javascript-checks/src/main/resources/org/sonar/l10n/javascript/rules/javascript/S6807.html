@@ -6,7 +6,7 @@ attributes are known as "required aria-* properties".</p>
 <p>For example, if an element has a role of "checkbox", it must also include the aria-checked property. This property indicates whether the checkbox
 is checked (true), unchecked (false), or in a mixed state (mixed).</p>
 <p>This rule checks that each element with a defined ARIA role also has all required attributes.</p>
-<h2>How to fix it in JSX</h2>
+<h2>How to fix it</h2>
 <p>Check that each element with a defined ARIA role also has all required attributes.</p>
 <pre data-diff-id="1" data-diff-type="noncompliant">
 &lt;div role="checkbox"&gt;Unchecked&lt;/div&gt; {/* Noncompliant: aria-checked is missing */}

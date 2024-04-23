@@ -6,14 +6,10 @@ HTML elements. These roles provide information about what an element does or the
 technologies like screen readers.</p>
 <p>For example, a <code>&lt;button&gt;</code> element has a default role of <code>button</code>. If you explicitly define the role of a
 <code>&lt;button&gt;</code> element as <code>button</code>, it’s considered redundant because it’s the default role of that element.</p>
-<h2>How to fix it in JSX</h2>
-<p>Remove redundant ARIA role attribute.</p>
-<h3>Code examples</h3>
-<h4>Noncompliant code example</h4>
 <pre data-diff-id="1" data-diff-type="noncompliant">
 &lt;button role="button" onClick={handleClick}&gt;OK&lt;/button&gt;
 </pre>
-<h4>Compliant solution</h4>
+<p>Remove ARIA role attributes when they are redundant.</p>
 <pre data-diff-id="1" data-diff-type="compliant">
 &lt;button onClick={handleClick}&gt;OK&lt;/button&gt;
 </pre>

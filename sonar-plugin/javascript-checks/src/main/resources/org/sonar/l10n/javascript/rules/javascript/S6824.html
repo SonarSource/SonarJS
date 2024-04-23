@@ -3,7 +3,7 @@
 provide additional information about an element’s role, state, properties, and values to assistive technologies like screen readers.</p>
 <p>This rule checks that ARIA roles or <code>aria-*</code> attributes are not used in unsupported DOM elements, which are mostly invisible such as
 <code>meta</code>, <code>html</code> or <code>head</code>.</p>
-<h2>How to fix it in JSX</h2>
+<h2>How to fix it</h2>
 <p>Check if you are using ARIA roles or <code>aria-*</code> attributes in unsupported DOM elements.</p>
 <pre data-diff-id="1" data-diff-type="noncompliant">
 &lt;title aria-hidden="false"&gt;My beautiful web page&lt;/title&gt;

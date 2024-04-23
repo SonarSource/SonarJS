@@ -3,7 +3,7 @@
 provide additional information about an element’s role, state, properties, and values to assistive technologies like screen readers.</p>
 <p>This rule checks that when using the <code>role</code> property in DOM elements, its value is a valid non-abstract ARIA role.</p>
 <p>This rule does not cover non-DOM elements, such as custom components.</p>
-<h2>How to fix it in JSX</h2>
+<h2>How to fix it</h2>
 <p>Check that each element with a defined ARIA role has a valid non-abstract value.</p>
 <pre data-diff-id="1" data-diff-type="noncompliant">
 &lt;div role="meth" aria-label="a^{2} + b^{2} = c^{2}"&gt;

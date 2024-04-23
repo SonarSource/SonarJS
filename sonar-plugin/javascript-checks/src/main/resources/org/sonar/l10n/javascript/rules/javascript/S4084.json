@@ -11,7 +11,7 @@
     "react"
   ],
   "defaultSeverity": "Minor",
-  "ruleSpecification": "RSPEC-6855",
+  "ruleSpecification": "RSPEC-4084",
   "sqKey": "S4084",
   "scope": "All",
   "quickfix": "infeasible",
