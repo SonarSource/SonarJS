@@ -8,8 +8,13 @@ helps identify the issue.</p>
 <p>Without assertions, a unit test doesn’t actually verify anything, making it ineffective in catching potential bugs or regressions. It will always
 pass, regardless of the implementation of the unit. This can lead to a false sense of security, as you may believe that your code is working correctly
 when it might not be.</p>
-<p>This rule raises an issue when the assertion library <code>chai</code>,<code>sinon</code> or <code>vitest</code> is imported but no assertion is
-used in a test.</p>
+<p>This rule raises an issue when one of the following assertion libraries is imported but no assertion is used in a test:</p>
+<ul>
+  <li> <code>chai</code> </li>
+  <li> <code>sinon</code> </li>
+  <li> <code>vitest</code> </li>
+  <li> <code>supertest</code> </li>
+</ul>
 <pre data-diff-id="1" data-diff-type="noncompliant">
 const expect = require("chai").expect;
 
