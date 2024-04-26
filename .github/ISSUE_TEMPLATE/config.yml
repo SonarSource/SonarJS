@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Sonar Community
+    url: https://community.sonarsource.com/
+    about: Ask and answer questions under the relevant product here. You can also submit suggestions of improvement, bugs, or report False Positives or False Negatives in the community. 
+  - name: SonarJS Jira Project
+    url: https://sonarsource.atlassian.net/browse/JS/
+    about: Browse existing issues here.
