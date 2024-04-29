@@ -389,7 +389,7 @@ export function getLiteralValue(
   if (isLiteral(node)) {
     return node;
   } else if (isIdentifier(node)) {
-    const usage = getUniqueWriteUsage(ctx, node.name);
+    const usage = getUniqueWriteUsage(ctx, node.name, node);
     if (usage) {
       return getLiteralValue(ctx, usage);
     }

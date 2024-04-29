@@ -146,7 +146,7 @@ class RegexPartFinder {
     } else if (isStaticTemplateLiteral(node)) {
       this.parts.push([node]);
     } else if (isIdentifier(node)) {
-      const initializer = getUniqueWriteUsage(this.context, node.name);
+      const initializer = getUniqueWriteUsage(this.context, node.name, node);
       if (initializer) {
         this.find(initializer);
       }

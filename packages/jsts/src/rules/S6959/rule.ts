@@ -36,7 +36,7 @@ export const rule: Rule.RuleModule = {
     },
   },
   create(context: Rule.RuleContext) {
-    const services = context.parserServices;
+    const services = context.sourceCode.parserServices;
 
     function isArray(node: estree.Node) {
       if (isRequiredParserServices(services)) {

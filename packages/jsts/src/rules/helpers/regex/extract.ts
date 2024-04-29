@@ -71,7 +71,7 @@ export function getPatternFromNode(
   } else if (isSimpleRawString(node)) {
     return { pattern: getSimpleRawStringValue(node), flags: '' };
   } else if (isIdentifier(node)) {
-    const assignedExpression = getUniqueWriteUsage(context, node.name);
+    const assignedExpression = getUniqueWriteUsage(context, node.name, node);
     if (
       assignedExpression &&
       (assignedExpression as TSESTree.Node).parent?.type === 'VariableDeclarator'

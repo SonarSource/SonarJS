@@ -139,7 +139,7 @@ const noAccessorFieldMismatchRule: Rule.RuleModule = {
         const accessorNode = node as TSESTree.Property;
         const accessorInfo = getSingleDescriptorAccessorInfo(accessorNode);
         if (accessorInfo) {
-          const fieldMap = getSingleVariableFieldMap(context, accessorInfo.name);
+          const fieldMap = getSingleVariableFieldMap(context, accessorInfo.name, node);
           checkAccessorNode(context, accessorNode, fieldMap, accessorInfo);
         }
       },
@@ -149,7 +149,7 @@ const noAccessorFieldMismatchRule: Rule.RuleModule = {
         const accessorNode = node as TSESTree.Property;
         const accessorInfo = getMultiDescriptorsAccessorInfo(accessorNode);
         if (accessorInfo) {
-          const fieldMap = getSingleVariableFieldMap(context, accessorInfo.name);
+          const fieldMap = getSingleVariableFieldMap(context, accessorInfo.name, node);
           checkAccessorNode(context, accessorNode, fieldMap, accessorInfo);
         }
       },
@@ -373,13 +373,9 @@ function getName(key: TSESTree.Node) {
   return null;
 }
 
-function getNodeFieldMap(
-  context: Rule.RuleContext,
-  node: TSESTree.Node | undefined | null,
-  info: AccessorInfo,
-) {
+function getNodeFieldMap(context: Rule.RuleContext, node: TSESTree.Node, info: AccessorInfo) {
   if (info.definition === 'descriptor') {
-    return getSingleVariableFieldMap(context, info.name);
+    return getSingleVariableFieldMap(context, info.name, node as estree.Node);
   } else if (node?.type === 'ObjectExpression') {
     return getObjectExpressionFieldMap(node);
   } else if (node?.type === 'ClassBody') {
@@ -389,10 +385,10 @@ function getNodeFieldMap(
   }
 }
 
-function getSingleVariableFieldMap(context: Rule.RuleContext, name: string) {
+function getSingleVariableFieldMap(context: Rule.RuleContext, name: string, node: estree.Node) {
   const fieldMap = new Map<string, Field>();
   for (const candidate of [name, `_${name}`, `${name}_`]) {
-    const variable = getVariableFromName(context, candidate);
+    const variable = getVariableFromName(context, candidate, node);
     if (variable != null && variable.defs.length > 0) {
       fieldMap.set(candidate, { name: candidate, node: variable.defs[0].node });
       break;

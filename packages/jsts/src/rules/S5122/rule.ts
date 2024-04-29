@@ -68,7 +68,7 @@ export const rule: Rule.RuleModule = {
             report(sensitiveCorsProperty);
           }
           if (arg?.type === 'Identifier') {
-            const usage = getUniqueWriteUsage(context, arg.name);
+            const usage = getUniqueWriteUsage(context, arg.name, arg);
             sensitiveCorsProperty = getSensitiveCorsProperty(usage, context);
             if (sensitiveCorsProperty) {
               report(sensitiveCorsProperty, arg);

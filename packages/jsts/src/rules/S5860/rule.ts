@@ -381,7 +381,7 @@ class RegexIntelliSense {
     const { callee, arguments: args } = callExpr;
     if (isMethodCall(callExpr) && args.length > 0) {
       const target = (callee as estree.MemberExpression).object;
-      const matcher = getLhsVariable(this.context);
+      const matcher = getLhsVariable(this.context, callExpr);
       if (matcher) {
         const method = (callee as estree.MemberExpression).property as estree.Identifier;
         if (isString(target, this.services) && ['match', 'matchAll'].includes(method.name)) {
@@ -415,7 +415,7 @@ class RegexIntelliSense {
       visited.add(node);
       const variable = this.findVariable(node);
       if (variable) {
-        const value = getUniqueWriteUsage(this.context, variable.name);
+        const value = getUniqueWriteUsage(this.context, variable.name, node);
         if (value) {
           const regex = this.findRegexRec(value, visited);
           if (regex) {
@@ -437,7 +437,7 @@ class RegexIntelliSense {
 
   private findVariable(node: estree.Node) {
     if (node.type === 'Identifier') {
-      return getVariableFromName(this.context, node.name);
+      return getVariableFromName(this.context, node.name, node);
     }
     return null;
   }

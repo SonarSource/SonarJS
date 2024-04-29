@@ -97,9 +97,9 @@ function extractRegexInvocation(
     callExpr.callee.object.type === 'Identifier'
   ) {
     const { object } = callExpr.callee;
-    const variable = getVariableFromName(context, object.name);
+    const variable = getVariableFromName(context, object.name, callExpr);
     if (variable) {
-      const value = getUniqueWriteUsage(context, variable.name);
+      const value = getUniqueWriteUsage(context, variable.name, callExpr);
       const regex = regexes.find(r => r.node === value);
       if (regex?.flags.includes('g')) {
         const usages = invocations.get(variable);
@@ -127,9 +127,9 @@ function extractResetRegex(
   ) {
     const parent = getParent(context);
     if (parent?.type === 'AssignmentExpression' && parent.left === node) {
-      const variable = getVariableFromName(context, node.object.name);
+      const variable = getVariableFromName(context, node.object.name, node);
       if (variable) {
-        const value = getUniqueWriteUsage(context, variable.name);
+        const value = getUniqueWriteUsage(context, variable.name, node);
         const regex = regexes.find(r => r.node === value);
         if (regex) {
           resets.add(variable);
