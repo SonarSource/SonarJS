@@ -99,7 +99,7 @@ export const rule: Rule.RuleModule = {
       } else if (expr.type === 'Literal') {
         return modeFromLiteral(expr);
       } else if (expr.type === 'Identifier') {
-        const usage = getUniqueWriteUsage(context, expr.name);
+        const usage = getUniqueWriteUsage(context, expr.name, expr);
         if (usage && !visited.has(usage)) {
           visited.add(usage);
           return modeFromExpression(usage, visited);

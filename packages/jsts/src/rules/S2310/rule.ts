@@ -47,7 +47,7 @@ export const rule: Rule.RuleModule = {
     }
 
     function checkCounter(counter: estree.Identifier, block: estree.Node) {
-      const variable = getVariableFromName(context, counter.name);
+      const variable = getVariableFromName(context, counter.name, block);
       if (!variable) {
         return;
       }

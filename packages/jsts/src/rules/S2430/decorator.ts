@@ -45,7 +45,7 @@ function isNotClassOrFunction(context: Rule.RuleContext, node: estree.CallExpres
   if (callee.type !== 'Identifier') {
     return false;
   }
-  const variable = getVariableFromName(context, callee.name);
+  const variable = getVariableFromName(context, callee.name, node);
   if (variable) {
     for (const def of variable.defs) {
       if (!(def.type === 'ClassName' || def.type === 'FunctionName')) {

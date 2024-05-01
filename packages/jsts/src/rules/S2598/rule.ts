@@ -100,7 +100,7 @@ function checkCallExpression(context: Rule.RuleContext, callExpression: estree.C
 
 function checkFormidable(context: Rule.RuleContext, callExpression: estree.CallExpression) {
   if (callExpression.arguments.length === 0) {
-    const formVariable = getLhsVariable(context);
+    const formVariable = getLhsVariable(context, callExpression);
     if (formVariable) {
       formidableObjects.set(formVariable, {
         uploadDirSet: false,
@@ -220,7 +220,7 @@ export function getVariablePropertyFromAssignment(
 
   const memberExpr = assignment.left;
   if (memberExpr.object.type === 'Identifier' && memberExpr.property.type === 'Identifier') {
-    const objectVariable = getVariableFromName(context, memberExpr.object.name);
+    const objectVariable = getVariableFromName(context, memberExpr.object.name, memberExpr);
     if (objectVariable) {
       return { objectVariable, property: memberExpr.property.name };
     }

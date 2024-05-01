@@ -22,6 +22,7 @@ import { Rule } from 'eslint';
 import { eslintRules } from '../core';
 import { decorate } from './decorator';
 import { getVariableFromName } from '../helpers';
+import type estree from 'estree';
 
 /**
  * Check if method with accessibility is not useless
@@ -72,7 +73,7 @@ function checkInheritance(node: TSESTree.MethodDefinition, context: Rule.RuleCon
     node.parent.parent.superClass
   ) {
     const superClass = node.parent.parent.superClass as TSESTree.Identifier;
-    const variable = getVariableFromName(context, superClass.name);
+    const variable = getVariableFromName(context, superClass.name, node as estree.Node);
     for (const def of variable?.defs ?? []) {
       if (def.type === 'ImportBinding') {
         return false;

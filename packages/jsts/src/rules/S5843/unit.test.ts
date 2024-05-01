@@ -28,6 +28,13 @@ ruleTesterThreshold0.run(
   {
     valid: [
       {
+        code: `let regex;
+
+if (isString(regex)) {
+  regex = new RegExp('^' + regex + '$');
+}`,
+      },
+      {
         code: `/ /`,
         options: [0],
       },

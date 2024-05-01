@@ -97,7 +97,7 @@ export const rule: Rule.RuleModule = {
         ident = parent.left;
       }
       if (ident) {
-        return getVariableFromName(context, ident.name);
+        return getVariableFromName(context, ident.name, node);
       }
       return null;
     }

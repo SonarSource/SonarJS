@@ -111,7 +111,7 @@ function getModuleNameOfImportedIdentifier(
     return importedDeclaration.source.value;
   }
   // check if importing using `const f = require('module_name').f` or `const { f } = require('module_name')`
-  const writeExpression = getUniqueWriteUsage(context, identifier.name);
+  const writeExpression = getUniqueWriteUsage(context, identifier.name, identifier);
   if (writeExpression) {
     let maybeRequireCall: estree.Node;
     if (

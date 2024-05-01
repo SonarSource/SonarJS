@@ -38,7 +38,7 @@ export const rule: Rule.RuleModule = {
       ExportDefaultDeclaration: (node: estree.Node) => {
         const declaration = (node as estree.ExportDefaultDeclaration).declaration;
         if (declaration.type === 'Identifier') {
-          const variable = getVariableFromName(context, declaration.name);
+          const variable = getVariableFromName(context, declaration.name, node);
           if (variable && variable.defs.length === 1) {
             const def = variable.defs[0];
             if (def.type === 'ClassName' || def.type === 'FunctionName' || isConst(def)) {

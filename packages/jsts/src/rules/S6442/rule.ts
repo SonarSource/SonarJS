@@ -117,7 +117,7 @@ export const rule: Rule.RuleModule = {
         const hookDeclarator = node as HookDeclarator;
 
         if (isHookCall(hookDeclarator.init)) {
-          const variable = getVariableFromName(context, hookDeclarator.id.elements[1].name);
+          const variable = getVariableFromName(context, hookDeclarator.id.elements[1].name, node);
           if (variable != null) {
             setters.push(variable);
           }
@@ -136,7 +136,7 @@ export const rule: Rule.RuleModule = {
 
         const maybeSetterCall = node as SetterCall;
 
-        const calleeVariable = getVariableFromName(context, maybeSetterCall.callee.name);
+        const calleeVariable = getVariableFromName(context, maybeSetterCall.callee.name, node);
         if (setters.some(variable => variable === calleeVariable)) {
           context.report({
             messageId: 'noHookSetterInBody',

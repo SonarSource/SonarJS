@@ -104,7 +104,7 @@ function checkCallExpression(context: Rule.RuleContext, callExpression: estree.C
 function checkFormidable(context: Rule.RuleContext, callExpression: estree.CallExpression) {
   if (callExpression.arguments.length === 0) {
     // options will be set later through member assignment
-    const formVariable = getLhsVariable(context);
+    const formVariable = getLhsVariable(context, callExpression);
     if (formVariable) {
       formidableObjects.set(formVariable, {
         maxFileSize: FORMIDABLE_DEFAULT_SIZE,

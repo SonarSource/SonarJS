@@ -79,7 +79,7 @@ const loaders: { [key: string]: Function } = {
    * Adds the rules from the Sonar ESLint plugin.
    */
   pluginRules(linter: Linter) {
-    linter.defineRules(pluginRules);
+    linter.defineRules(pluginRules as unknown as Record<string, Rule.RuleModule>);
   },
   /**
    * Loads internal rules

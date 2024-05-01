@@ -95,7 +95,7 @@ function checkExpression(
 
 function getVariable(node: estree.SimpleCallExpression, context: Rule.RuleContext) {
   if (node.callee.type === 'Identifier') {
-    return getVariableFromName(context, node.callee.name);
+    return getVariableFromName(context, node.callee.name, node);
   }
   return undefined;
 }

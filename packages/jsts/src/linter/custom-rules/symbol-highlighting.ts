@@ -19,12 +19,13 @@
  */
 import { CustomRule } from './custom-rule';
 import { rule as symbolHighlightingRule } from '../visitors/symbol-highlighting';
+import { Rule } from 'eslint';
 
 /**
  * The internal _symbol highlighting_ custom rule
  */
 export const rule: CustomRule = {
   ruleId: 'internal-symbol-highlighting',
-  ruleModule: symbolHighlightingRule,
+  ruleModule: symbolHighlightingRule as unknown as Rule.RuleModule,
   ruleConfig: [],
 };

@@ -174,7 +174,7 @@ function isUpdateByOne(
 
 function isUsedInsideBody(id: estree.Node, loopBody: estree.Node, context: Rule.RuleContext) {
   if (id.type === 'Identifier') {
-    const variable = getVariableFromName(context, id.name);
+    const variable = getVariableFromName(context, id.name, id);
     const bodyRange = loopBody.range;
     if (variable && bodyRange) {
       return variable.references.some(ref => isInBody(ref.identifier, bodyRange));

@@ -40,7 +40,7 @@ function reportExempting(
 }
 
 function isReferencedInsideGenerators(context: Rule.RuleContext, node: estree.Identifier) {
-  const variable = getVariableFromName(context, node.name);
+  const variable = getVariableFromName(context, node.name, node);
   if (variable) {
     for (const reference of variable.references) {
       let scope: Scope.Scope | null = reference.from;

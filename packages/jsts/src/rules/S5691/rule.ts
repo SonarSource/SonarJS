@@ -39,7 +39,7 @@ export const rule: Rule.RuleModule = {
         if (getFullyQualifiedName(context, callee) === SERVE_STATIC && args.length > 1) {
           let options: estree.Node | undefined = args[1];
           if (options.type === 'Identifier') {
-            options = getUniqueWriteUsage(context, options.name);
+            options = getUniqueWriteUsage(context, options.name, node);
           }
 
           const dotfilesProperty = getProperty(options, 'dotfiles', context);

@@ -19,6 +19,7 @@
  */
 import { rules as sonarjsESLintRules } from 'eslint-plugin-sonarjs';
 import { CustomRule } from './custom-rule';
+import { Rule } from 'eslint';
 
 /**
  * The internal _cognitive complexity_ custom rule
@@ -27,6 +28,6 @@ import { CustomRule } from './custom-rule';
  */
 export const rule: CustomRule = {
   ruleId: 'internal-cognitive-complexity',
-  ruleModule: sonarjsESLintRules['cognitive-complexity'],
+  ruleModule: sonarjsESLintRules['cognitive-complexity'] as unknown as Rule.RuleModule,
   ruleConfig: ['metric'],
 };

@@ -233,8 +233,8 @@ export function isReferenceTo(ref: Scope.Reference, node: estree.Node) {
   return node.type === 'Identifier' && node === ref.identifier;
 }
 
-export function getUniqueWriteUsage(context: Rule.RuleContext, name: string) {
-  const variable = getVariableFromName(context, name);
+export function getUniqueWriteUsage(context: Rule.RuleContext, name: string, node: estree.Node) {
+  const variable = getVariableFromName(context, name, node);
   return getUniqueWriteReference(variable);
 }
 
@@ -256,7 +256,7 @@ export function getUniqueWriteUsageOrNode(
   recursive = false,
 ): estree.Node {
   if (node.type === 'Identifier') {
-    const usage = getUniqueWriteUsage(context, node.name);
+    const usage = getUniqueWriteUsage(context, node.name, node);
     if (usage) {
       return recursive ? getUniqueWriteUsageOrNode(context, usage, recursive) : usage;
     } else {
@@ -280,7 +280,7 @@ export function getValueOfExpression<T extends estree.Node['type']>(
     return expr;
   }
   if (expr.type === 'Identifier') {
-    const usage = getUniqueWriteUsage(context, expr.name);
+    const usage = getUniqueWriteUsage(context, expr.name, expr);
     if (usage) {
       if (isNodeType(usage, type)) {
         return usage;
@@ -305,7 +305,10 @@ function isNodeType<T extends Node['type']>(
 /**
  * for `x = 42` or `let x = 42` when visiting '42' returns 'x' variable
  */
-export function getLhsVariable(context: Rule.RuleContext): Scope.Variable | undefined {
+export function getLhsVariable(
+  context: Rule.RuleContext,
+  node: estree.Node,
+): Scope.Variable | undefined {
   const parent = context.getAncestors()[context.getAncestors().length - 1];
   let formIdentifier: estree.Identifier | undefined;
   if (parent.type === 'VariableDeclarator' && parent.id.type === 'Identifier') {
@@ -314,7 +317,7 @@ export function getLhsVariable(context: Rule.RuleContext): Scope.Variable | unde
     formIdentifier = parent.left;
   }
   if (formIdentifier) {
-    return getVariableFromName(context, formIdentifier.name);
+    return getVariableFromName(context, formIdentifier.name, node);
   }
 
   return undefined;
@@ -329,8 +332,8 @@ export function getVariableFromScope(scope: Scope.Scope | null, name: string) {
   return variable;
 }
 
-export function getVariableFromName(context: Rule.RuleContext, name: string) {
-  const scope: Scope.Scope | null = context.getScope();
+export function getVariableFromName(context: Rule.RuleContext, name: string, node: estree.Node) {
+  const scope: Scope.Scope | null = context.sourceCode.getScope(node);
   return getVariableFromScope(scope, name);
 }
 
@@ -648,7 +651,7 @@ export function isUnresolved(node: estree.Node | undefined | null, ctx: Rule.Rul
   }
 
   if (nodeToCheck.type === 'Identifier') {
-    const variable = getVariableFromName(ctx, nodeToCheck.name);
+    const variable = getVariableFromName(ctx, nodeToCheck.name, node);
     const writeReferences = variable?.references.filter(reference => reference.isWrite());
     if (!variable || !writeReferences?.length) {
       return true;

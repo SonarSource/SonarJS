@@ -62,14 +62,18 @@ export const rule: Rule.RuleModule = {
           const { elements } = node.id as estree.ArrayPattern;
           const setter = (elements[1] as estree.Identifier).name;
           referencesBySetterName[setter] = {
-            setter: getVariableFromName(context, setter),
-            value: getVariableFromName(context, (elements[0] as estree.Identifier).name),
+            setter: getVariableFromName(context, setter, node),
+            value: getVariableFromName(context, (elements[0] as estree.Identifier).name, node),
           };
         }
       },
       [callSelector](node: estree.CallExpression) {
-        const setter = getVariableFromName(context, (node.callee as estree.Identifier).name);
-        const value = getVariableFromName(context, (node.arguments[0] as estree.Identifier).name);
+        const setter = getVariableFromName(context, (node.callee as estree.Identifier).name, node);
+        const value = getVariableFromName(
+          context,
+          (node.arguments[0] as estree.Identifier).name,
+          node,
+        );
         const key = setter?.name as string;
         if (
           setter &&
