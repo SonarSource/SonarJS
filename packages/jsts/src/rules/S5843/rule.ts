@@ -134,6 +134,9 @@ function findRegexParts(node: estree.Node, context: Rule.RuleContext): RegexPart
 
 class RegexPartFinder {
   readonly parts: RegexPart[][] = [];
+
+  readonly handledIdentifiers: Array<estree.Node> = [];
+
   constructor(private readonly context: Rule.RuleContext) {}
 
   find(node: estree.Node) {
@@ -146,9 +149,14 @@ class RegexPartFinder {
     } else if (isStaticTemplateLiteral(node)) {
       this.parts.push([node]);
     } else if (isIdentifier(node)) {
-      const initializer = getUniqueWriteUsage(this.context, node.name, node);
-      if (initializer) {
-        this.find(initializer);
+      if (!this.handledIdentifiers.includes(node)) {
+        this.handledIdentifiers.push(node);
+
+        const initializer = getUniqueWriteUsage(this.context, node.name, node);
+
+        if (initializer) {
+          this.find(initializer);
+        }
       }
     } else if (isBinaryPlus(node)) {
       const literals: estree.Literal[] = [];
