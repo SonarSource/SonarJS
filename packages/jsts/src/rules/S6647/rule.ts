@@ -22,7 +22,7 @@ import { Rule } from 'eslint';
 import { eslintRules } from '../core';
 import { decorate } from './decorator';
 import { getVariableFromName } from '../helpers';
-import estree from 'estree';
+import type estree from 'estree';
 
 /**
  * Check if method with accessibility is not useless
