@@ -40,7 +40,7 @@ export const rule: Rule.RuleModule = {
           const member = node as estree.MemberExpression;
           const object = member.object;
           if (isArray(object, services)) {
-            raiseIssue(context);
+            raiseIssue(context, node);
           }
         },
       };
@@ -49,8 +49,8 @@ export const rule: Rule.RuleModule = {
   },
 };
 
-function raiseIssue(context: Rule.RuleContext): void {
-  const deleteKeyword = context.sourceCode.getFirstToken(getParent(context)!);
+function raiseIssue(context: Rule.RuleContext, node: estree.Node): void {
+  const deleteKeyword = context.sourceCode.getFirstToken(getParent(context, node)!);
   context.report({
     messageId: 'removeDelete',
     loc: deleteKeyword!.loc,

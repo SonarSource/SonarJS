@@ -20,6 +20,7 @@
 package org.sonar.javascript.checks;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
@@ -52,11 +53,25 @@ public class ContentLengthCheck implements EslintBasedCheck {
 
   @Override
   public List<Object> configurations() {
-    return Arrays.asList(fileUploadSizeLimit, standardSizeLimit);
+    return Collections.singletonList(
+      new Config(fileUploadSizeLimit, standardSizeLimit)
+    );
   }
 
   @Override
   public String eslintKey() {
     return "content-length";
+  }
+
+  private static class Config {
+
+    long fileUploadSizeLimit;
+
+    long standardSizeLimit;
+
+    Config(long fileUploadSizeLimit, long standardSizeLimit) {
+      this.fileUploadSizeLimit = fileUploadSizeLimit;
+      this.standardSizeLimit = standardSizeLimit;
+    }
   }
 }

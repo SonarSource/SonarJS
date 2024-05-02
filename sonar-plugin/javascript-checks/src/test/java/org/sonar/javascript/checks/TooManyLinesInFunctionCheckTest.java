@@ -28,13 +28,13 @@ class TooManyLinesInFunctionCheckTest {
 
   @Test
   void test_configuration() {
-    TooManyLinesInFunctionCheck check = new TooManyLinesInFunctionCheck();
+    var check = new TooManyLinesInFunctionCheck();
 
     String defaultConfigAsString = new Gson().toJson(check.configurations());
-    assertThat(defaultConfigAsString).isEqualTo("[200]");
+    assertThat(defaultConfigAsString).isEqualTo("[{\"maximum\":200}]");
 
     check.max = 42;
     String configAsString = new Gson().toJson(check.configurations());
-    assertThat(configAsString).isEqualTo("[42]");
+    assertThat(configAsString).isEqualTo("[{\"maximum\":42}]");
   }
 }

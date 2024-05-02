@@ -19,9 +19,10 @@
  */
 import { RuleTester } from 'eslint';
 import { rule } from './';
+import type { Options } from './rule';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
-const options = [8_000_000, 2_000_000];
+const options: Options = [{ fileUploadSizeLimit: 8_000_000, standardSizeLimit: 2_000_000 }];
 
 ruleTester.run('Allowing requests with excessive content length is security-sensitive', rule, {
   valid: [
@@ -44,7 +45,7 @@ ruleTester.run('Allowing requests with excessive content length is security-sens
       import { formidable } from 'formidable';
       const form = formidable({}); // Ok, default is used which is less than parameter
       `,
-      options: [250_000_000, 2_000_000],
+      options: [{ fileUploadSizeLimit: 250_000_000, standardSizeLimit: 2_000_000 }],
     },
   ],
   invalid: [
@@ -230,7 +231,7 @@ ruleTester.run('Allowing requests with excessive content length is security-sens
           line: 5,
         },
       ],
-      options: [0, 1000],
+      options: [{ fileUploadSizeLimit: 0, standardSizeLimit: 1000 }],
     },
   ],
 });

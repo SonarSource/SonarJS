@@ -47,7 +47,7 @@ export const rule: Rule.RuleModule = {
             suggest: [
               {
                 messageId: 'suggestThrowError',
-                fix: fixer => fixer.insertTextBefore(getParent(context)!, 'throw '),
+                fix: fixer => fixer.insertTextBefore(getParent(context, node)!, 'throw '),
               },
             ],
           });

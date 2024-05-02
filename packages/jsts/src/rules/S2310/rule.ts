@@ -67,13 +67,13 @@ export const rule: Rule.RuleModule = {
 
     return {
       'ForStatement > BlockStatement': (node: estree.Node) => {
-        const forLoop = getParent(context) as estree.ForStatement;
+        const forLoop = getParent(context, node) as estree.ForStatement;
         if (forLoop.update) {
           checkLoop(forLoop.update, collectCountersFor, node);
         }
       },
       'ForInStatement > BlockStatement, ForOfStatement > BlockStatement': (node: estree.Node) => {
-        const { left } = getParent(context) as estree.ForOfStatement | estree.ForInStatement;
+        const { left } = getParent(context, node) as estree.ForOfStatement | estree.ForInStatement;
         checkLoop(left, collectCountersForX, node);
       },
     };

@@ -19,7 +19,7 @@
  */
 import { TSESTree } from '@typescript-eslint/utils';
 import { Rule } from 'eslint';
-import { Node } from 'estree';
+import estree, { Node } from 'estree';
 import { functionLike } from './ast';
 
 export function findFirstMatchingLocalAncestor(
@@ -54,8 +54,8 @@ export function ancestorsChain(node: TSESTree.Node, boundaryTypes: Set<string>) 
   return chain;
 }
 
-export function getParent(context: Rule.RuleContext) {
-  const ancestors = context.getAncestors();
+export function getParent(context: Rule.RuleContext, node: estree.Node) {
+  const ancestors = context.sourceCode.getAncestors(node);
   return ancestors.length > 0 ? ancestors[ancestors.length - 1] : undefined;
 }
 

@@ -20,6 +20,7 @@
 package org.sonar.javascript.checks;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.sonar.check.Rule;
@@ -42,15 +43,26 @@ public class ImplicitDependenciesCheck implements EslintBasedCheck {
 
   @Override
   public List<Object> configurations() {
-    return Arrays
-      .asList(whitelist.split(","))
-      .stream()
-      .map(String::trim)
-      .collect(Collectors.toList());
+    return Collections.singletonList(
+      new Config(
+        Arrays.stream(whitelist.split(","))
+          .map(String::trim)
+          .toArray(String[]::new)
+      )
+    );
   }
 
   @Override
   public String eslintKey() {
     return "no-implicit-dependencies";
+  }
+
+  private static class Config {
+
+    String[] whitelist;
+
+    Config(String[] whitelist) {
+      this.whitelist = whitelist;
+    }
   }
 }

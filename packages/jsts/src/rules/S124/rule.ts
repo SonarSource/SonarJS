@@ -21,8 +21,17 @@
 
 import { Rule } from 'eslint';
 import { TSESTree } from '@typescript-eslint/utils';
+import type { RuleModule } from '../../../../shared/src/types/rule';
 
-export const rule: Rule.RuleModule = {
+export type Options = [
+  {
+    regularExpression: string;
+    message: string;
+    flags: string;
+  },
+];
+
+export const rule: RuleModule<Options> = {
   meta: {
     schema: [
       {
@@ -42,7 +51,6 @@ export const rule: Rule.RuleModule = {
       },
     ],
   },
-
   create(context: Rule.RuleContext) {
     const options = context.options[0] || {};
     const flags = options.flags || '';

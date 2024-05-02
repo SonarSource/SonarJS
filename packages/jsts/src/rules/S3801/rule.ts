@@ -88,7 +88,7 @@ export const rule: Rule.RuleModule = {
           message,
           loc: getMainFunctionTokenLocation(
             node as TSESTree.FunctionLike,
-            getParent(context) as TSESTree.Node,
+            getParent(context, node as estree.Node) as TSESTree.Node,
             context as unknown as RuleContext,
           ),
         });

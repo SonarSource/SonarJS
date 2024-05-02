@@ -43,11 +43,22 @@ public class NoNestedFunctionsCheck implements EslintBasedCheck {
 
   @Override
   public List<Object> configurations() {
-    return Collections.singletonList(threshold);
+    return Collections.singletonList(
+      new Config(threshold)
+    );
   }
 
   @Override
   public String eslintKey() {
     return "no-nested-functions";
+  }
+
+  private static class Config {
+
+    int threshold;
+
+    Config(int threshold) {
+      this.threshold = threshold;
+    }
   }
 }

@@ -31,10 +31,10 @@ class ExpressionComplexityCheckTest {
     ExpressionComplexityCheck check = new ExpressionComplexityCheck();
 
     String defaultConfigAsString = new Gson().toJson(check.configurations());
-    assertThat(defaultConfigAsString).isEqualTo("[3]");
+    assertThat(defaultConfigAsString).isEqualTo("[{\"max\":3}]");
 
     check.max = 10;
     String configAsString = new Gson().toJson(check.configurations());
-    assertThat(configAsString).isEqualTo("[10]");
+    assertThat(configAsString).isEqualTo("[{\"max\":10}]");
   }
 }

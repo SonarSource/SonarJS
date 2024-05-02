@@ -160,9 +160,9 @@ export const rule: Rule.RuleModule = {
       }
     }
 
-    function isExceptionUrl(value: string) {
+    function isExceptionUrl(value: string, node: estree.Node) {
       if (INSECURE_PROTOCOLS.includes(value)) {
-        const parent = getParent(context);
+        const parent = getParent(context, node);
         return !(parent?.type === 'BinaryExpression' && parent.operator === '+');
       }
       return hasExceptionHost(value);
@@ -192,7 +192,7 @@ export const rule: Rule.RuleModule = {
         if (typeof literal.value === 'string') {
           const value = literal.value.trim().toLocaleLowerCase();
           const insecure = INSECURE_PROTOCOLS.find(protocol => value.startsWith(protocol));
-          if (insecure && !isExceptionUrl(value)) {
+          if (insecure && !isExceptionUrl(value, node)) {
             const protocol = insecure.substring(0, insecure.indexOf(':'));
             context.report({
               ...getMessageAndData(protocol),

@@ -21,6 +21,7 @@ import { RuleTester } from 'eslint';
 import { rule } from './';
 import path from 'path';
 import { clearPackageJsons, loadPackageJsons } from '@sonar/jsts';
+import type { Options } from './rule';
 
 //reset and search package.json files in rule dir
 clearPackageJsons();
@@ -28,7 +29,11 @@ loadPackageJsons(__dirname, []);
 
 const fixtures = path.join(__dirname, 'fixtures');
 const filename = path.join(fixtures, 'package-json-project/file.js');
-const options = [];
+const options: Options = [
+  {
+    whitelist: [],
+  },
+];
 const tsParserPath = require.resolve('@typescript-eslint/parser');
 const ruleTester = new RuleTester({
   parser: tsParserPath,
@@ -70,12 +75,12 @@ ruleTester.run('Dependencies should be explicit', rule, {
     {
       code: `import "whitelist";`,
       filename,
-      options: ['whitelist'],
+      options: [{ whitelist: ['whitelist'] }],
     },
     {
       code: `import "@whitelist/dependency";`,
       filename,
-      options: ['@whitelist/dependency'],
+      options: [{ whitelist: ['@whitelist/dependency'] }],
     },
     {
       code: `import "./relative";`,
@@ -190,6 +195,7 @@ ruleTesterNestedPackage.run('all levels of package.json should be considered', r
         import { f as f2 } from 'local-dependency';
       `,
       filename: filenameNestedPackage,
+      options,
     },
   ],
   invalid: [
@@ -198,6 +204,7 @@ ruleTesterNestedPackage.run('all levels of package.json should be considered', r
         import { f as f1 } from 'nonexistent';
       `,
       filename: filenameNestedPackage,
+      options,
       errors: 1,
     },
   ],
@@ -230,6 +237,7 @@ ruleTesterForPathMappings.run('Path aliases should be exempt', rule, {
         import { f as f9 } from 'dependency-in-package-json';
       `,
       filename: filenameForFileWithPathMappings,
+      options,
     },
   ],
   invalid: [
@@ -247,6 +255,7 @@ ruleTesterForPathMappings.run('Path aliases should be exempt', rule, {
         import { f as fA } from 'dependency-not-in-package-json';
       `,
       filename: filenameForFileWithPathMappings,
+      options,
       errors: 10,
     },
   ],
@@ -275,6 +284,7 @@ ruleTesterForBaseUrl.run('Imports based on baseUrl should be accepted', rule, {
         import { f as f4 } from 'dir/b';
       `,
       filename: filenameForBaseUrl,
+      options,
     },
   ],
   invalid: [
@@ -284,6 +294,7 @@ ruleTesterForBaseUrl.run('Imports based on baseUrl should be accepted', rule, {
         import { f as f1 } from 'dir/nonexistent';
       `,
       filename: filenameForBaseUrl,
+      options,
       errors: 2,
     },
   ],
@@ -313,6 +324,7 @@ ruleTesterForCatchAllExample.run(
           let f = require("this/might/be/generated").f;
         `,
         filename: filenameCatchAllExample,
+        options,
       },
     ],
     invalid: [],

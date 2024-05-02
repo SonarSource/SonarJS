@@ -21,17 +21,20 @@ package org.sonar.javascript.checks;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.gson.Gson;
 import org.junit.jupiter.api.Test;
 
 class GetterSetterCheckTest {
 
   @Test
-  void configutestrations() {
+  void configurations() {
     GetterSetterCheck check = new GetterSetterCheck();
     // default configuration
-    assertThat(check.configurations()).containsExactly(false);
+    String defaultConfigAsString = new Gson().toJson(check.configurations());
+    assertThat(defaultConfigAsString).isEqualTo("[{\"getWithoutSet\":false}]");
     // custom configuration
     check.getWithoutSet = true;
-    assertThat(check.configurations()).containsExactly(true);
+    String customConfigAsString = new Gson().toJson(check.configurations());
+    assertThat(customConfigAsString).isEqualTo("[{\"getWithoutSet\":true}]");
   }
 }

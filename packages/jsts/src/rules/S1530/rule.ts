@@ -39,7 +39,7 @@ export const rule: Rule.RuleModule = {
             messageId: 'blockedFunction',
             loc: getMainFunctionTokenLocation(
               node as TSESTree.FunctionDeclaration,
-              getParent(context) as TSESTree.Node,
+              getParent(context, node) as TSESTree.Node,
               context as unknown as RuleContext,
             ),
           });

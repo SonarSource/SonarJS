@@ -32,11 +32,11 @@ class ImplicitDependenciesCheckTest {
 
     // default configuration
     String defaultConfigAsString = new Gson().toJson(check.configurations());
-    assertThat(defaultConfigAsString).isEqualTo("[\"\"]");
+    assertThat(defaultConfigAsString).isEqualTo("[{\"whitelist\":[\"\"]}]");
 
     // custom configuration
     check.whitelist = "foo, bar";
     String customConfigAsString = new Gson().toJson(check.configurations());
-    assertThat(customConfigAsString).isEqualTo("[\"foo\",\"bar\"]");
+    assertThat(customConfigAsString).isEqualTo("[{\"whitelist\":[\"foo\",\"bar\"]}]");
   }
 }

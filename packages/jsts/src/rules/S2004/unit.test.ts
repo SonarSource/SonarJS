@@ -44,7 +44,7 @@ ruleTester.run('Functions should not be nested too deeply', rule, {
                 }
             }
         }`,
-      options: [2],
+      options: [{ threshold: 2 }],
       errors: 1,
     },
   ],

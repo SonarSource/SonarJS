@@ -20,6 +20,7 @@
 package org.sonar.javascript.checks;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
@@ -44,11 +45,24 @@ public class IntrusivePermissionsCheck implements EslintBasedCheck {
 
   @Override
   public List<Object> configurations() {
-    return Arrays.asList((Object[]) permissions.split("\\s*,\\s*"));
+    return Collections.singletonList(
+      new Config(
+        permissions.split("\\s*,\\s*")
+      )
+    );
   }
 
   @Override
   public String eslintKey() {
     return "no-intrusive-permissions";
+  }
+
+  private static class Config {
+
+    String[] permissions;
+
+    Config(String[] permissions) {
+      this.permissions = permissions;
+    }
   }
 }

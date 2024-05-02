@@ -95,7 +95,7 @@ export const rule: Rule.RuleModule = {
         const isReachable = currentCodePath!.currentSegments.some(
           s => s.reachable && !isAfterProcessExitCall(s, initialSegment),
         );
-        const { cases } = getParent(context) as estree.SwitchStatement;
+        const { cases } = getParent(context, node) as estree.SwitchStatement;
         if (
           isReachable &&
           switchCase.consequent.length > 0 &&

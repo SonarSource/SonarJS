@@ -20,13 +20,14 @@
 import { RuleTester } from 'eslint';
 import { rule } from './';
 import path from 'path';
+import type { Options } from './rule';
 
 const ruleTester = new RuleTester({
   parser: require.resolve('@typescript-eslint/parser'),
   parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
 });
 
-const options = ['password', 'pwd', 'passwd'];
+const options: Options = [{ credentialWords: ['password', 'pwd', 'passwd'] }];
 
 ruleTester.run('Hardcoded credentials should be avoided', rule, {
   valid: [
@@ -79,12 +80,12 @@ ruleTester.run('Hardcoded credentials should be avoided', rule, {
     },
     {
       code: `let secret = "foo"`,
-      options: ['secret'],
+      options: [{ credentialWords: ['secret'] }],
       errors: 1,
     },
     {
       code: `let url = "https://example.com?token=hl2OAIXXZ60";`,
-      options: ['token'],
+      options: [{ credentialWords: ['token'] }],
       errors: 1,
     },
     {

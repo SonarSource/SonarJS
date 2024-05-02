@@ -132,7 +132,7 @@ export const rule: Rule.RuleModule = {
 
       'ForStatement Identifier': (node: estree.Node) => {
         if (isInsideTest(node)) {
-          const parent = getParent(context)!;
+          const parent = getParent(context, node)!;
           if (parent.type !== 'MemberExpression' || parent.computed || parent.object === node) {
             peekFor().testedExpressions.push(node);
           }
@@ -142,8 +142,8 @@ export const rule: Rule.RuleModule = {
       'ForStatement MemberExpression': (node: estree.Node) => {
         if (
           isInsideTest(node) &&
-          getParent(context)!.type !== 'MemberExpression' &&
-          getParent(context)!.type !== 'CallExpression'
+          getParent(context, node)!.type !== 'MemberExpression' &&
+          getParent(context, node)!.type !== 'CallExpression'
         ) {
           peekFor().testedExpressions.push(node);
         }

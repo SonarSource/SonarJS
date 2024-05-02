@@ -75,7 +75,7 @@ export const rule: Rule.RuleModule = {
     return {
       AssignmentExpression: (node: estree.Node) => {
         const assignment = node as estree.AssignmentExpression;
-        const parent = getParent(context);
+        const parent = getParent(context, node);
         if (
           parent &&
           !isAssignmentStatement(parent) &&

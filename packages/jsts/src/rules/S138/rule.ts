@@ -27,6 +27,7 @@ import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
 import { getMainFunctionTokenLocation } from 'eslint-plugin-sonarjs/lib/utils/locations';
 import { getNodeParent, getParent, last, RuleContext } from '../helpers';
+import type { RuleModule } from '../../../../shared/src/types/rule';
 
 interface FunctionKnowledge {
   node: estree.Node;
@@ -35,16 +36,31 @@ interface FunctionKnowledge {
   returnsJSX: boolean;
 }
 
-export const rule: Rule.RuleModule = {
+export type Options = [
+  {
+    maximum: number;
+  },
+];
+
+export const rule: RuleModule<Options> = {
   meta: {
     messages: {
       functionMaxLine:
         'This function has {{lineCount}} lines, which is greater than the {{threshold}} lines authorized. Split it into smaller functions.',
     },
-    schema: [{ type: 'integer' }],
+    schema: [
+      {
+        type: 'object',
+        properties: {
+          maximum: {
+            type: 'integer',
+          },
+        },
+      },
+    ],
   },
   create(context: Rule.RuleContext) {
-    const [threshold] = context.options;
+    const [{ maximum: threshold }] = context.options as Options;
 
     const sourceCode = context.sourceCode;
     const lines = sourceCode.lines;
@@ -56,7 +72,7 @@ export const rule: Rule.RuleModule = {
     return {
       'FunctionDeclaration, FunctionExpression, ArrowFunctionExpression': (node: estree.Node) => {
         functionStack.push(node);
-        const parent = getParent(context);
+        const parent = getParent(context, node);
 
         if (!node.loc || isIIFE(node, parent as estree.Node)) {
           return;
@@ -95,7 +111,7 @@ export const rule: Rule.RuleModule = {
               messageId: 'functionMaxLine',
               data: {
                 lineCount: lineCount.toString(),
-                threshold,
+                threshold: `${threshold}`,
               },
               loc: getMainFunctionTokenLocation(
                 functionLike,

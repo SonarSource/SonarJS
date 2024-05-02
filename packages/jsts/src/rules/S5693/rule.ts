@@ -29,6 +29,7 @@ import {
   getFullyQualifiedName,
   getProperty,
 } from '../helpers';
+import type { RuleModule } from '../../../../shared/src/types/rule';
 
 const FORMIDABLE_MODULE = 'formidable';
 const MAX_FILE_SIZE = 'maxFileSize';
@@ -44,11 +45,31 @@ const BODY_PARSER_DEFAULT_SIZE = parse('100kb');
 const formidableObjects: Map<Scope.Variable, { maxFileSize: number; nodeToReport: estree.Node }> =
   new Map();
 
-export const rule: Rule.RuleModule = {
+export type Options = [
+  {
+    fileUploadSizeLimit: number;
+    standardSizeLimit: number;
+  },
+];
+
+export const rule: RuleModule<Options> = {
   meta: {
     messages: {
       safeLimit: 'Make sure the content length limit is safe here.',
     },
+    schema: [
+      {
+        type: 'object',
+        properties: {
+          fileUploadSizeLimit: {
+            type: 'integer',
+          },
+          standardSizeLimit: {
+            type: 'integer',
+          },
+        },
+      },
+    ],
   },
   create(context: Rule.RuleContext) {
     return {
@@ -217,7 +238,7 @@ function report(
   size?: number,
   useStandardSizeLimit = false,
 ) {
-  const [fileUploadSizeLimit, standardSizeLimit] = context.options;
+  const [{ fileUploadSizeLimit, standardSizeLimit }] = context.options as Options;
   const limitToCompare = useStandardSizeLimit ? standardSizeLimit : fileUploadSizeLimit;
   if (!size || size > limitToCompare) {
     context.report({

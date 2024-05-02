@@ -38,6 +38,14 @@ ruleTester.run(`Property getters and setters should come in pairs`, rule, {
         set m(a) { this.a = a; }
       }`,
     },
+    {
+      code: `
+class C {
+  get m() { return this.a; }
+  set m(a) { this.a = a; }
+}`,
+      options: [{ getWithoutSet: true }],
+    },
   ],
   invalid: [
     {
@@ -61,6 +69,14 @@ ruleTester.run(`Property getters and setters should come in pairs`, rule, {
         @NonAngularInput()
         set m(a) { this.a = a; }
       }`,
+      errors: 1,
+    },
+    {
+      code: `
+class C {
+  get m() { return this.a; }
+}`,
+      options: [{ getWithoutSet: true }],
       errors: 1,
     },
   ],

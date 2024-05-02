@@ -21,6 +21,7 @@ package org.sonar.javascript.checks;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.gson.Gson;
 import org.junit.jupiter.api.Test;
 
 class MaxUnionSizeCheckTest {
@@ -29,8 +30,9 @@ class MaxUnionSizeCheckTest {
   void configurations() {
     MaxUnionSizeCheck check = new MaxUnionSizeCheck();
     // default configuration
-    assertThat(check.configurations()).containsExactly(3);
+    String defaultConfigAsString = new Gson().toJson(check.configurations());
+    assertThat(defaultConfigAsString).isEqualTo("[{\"threshold\":3}]");
     check.threshold = 4;
-    assertThat(check.configurations()).containsExactly(4);
-  }
+    String customConfigAsString = new Gson().toJson(check.configurations());
+    assertThat(customConfigAsString).isEqualTo("[{\"threshold\":4}]");  }
 }

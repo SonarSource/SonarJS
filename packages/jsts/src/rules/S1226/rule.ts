@@ -154,7 +154,7 @@ export const rule: Rule.RuleModule = {
         _toSegment: Rule.CodePathSegment,
         node: estree.Node,
       ) {
-        const parent = getParent(context);
+        const parent = getParent(context, node);
         if (!isForEachLoopStart(node, parent)) {
           return;
         }

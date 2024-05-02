@@ -21,6 +21,7 @@ package org.sonar.javascript.checks;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.gson.Gson;
 import org.junit.jupiter.api.Test;
 
 class RegexComplexityCheckTest {
@@ -29,9 +30,11 @@ class RegexComplexityCheckTest {
   void configurations() {
     RegexComplexityCheck check = new RegexComplexityCheck();
     // default configuration
-    assertThat(check.configurations()).containsExactly(20);
+    var defaultConfigAsString = new Gson().toJson(check.configurations());
+    assertThat(defaultConfigAsString).isEqualTo("[{\"threshold\":20}]");
     // custom configuration
     check.threshold = 15;
-    assertThat(check.configurations()).containsExactly(15);
+    var customConfigAsString = new Gson().toJson(check.configurations());
+    assertThat(customConfigAsString).isEqualTo("[{\"threshold\":15}]");
   }
 }

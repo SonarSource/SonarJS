@@ -29,19 +29,34 @@ import {
   toEncodedMessage,
 } from '../helpers';
 import { SONAR_RUNTIME } from '../../linter/parameters';
+import type { RuleModule } from '../../../../shared/src/types/rule';
 
-export const rule: Rule.RuleModule = {
+export type Options = [
+  {
+    considerJSDoc: boolean;
+  },
+];
+
+export const rule: RuleModule<Options> = {
   meta: {
     schema: [
-      { type: 'object' },
       {
+        type: 'object',
+        properties: {
+          considerJSDoc: {
+            type: 'boolean',
+          },
+        },
+      },
+      {
+        type: 'string',
         // internal parameter for rules having secondary locations
         enum: [SONAR_RUNTIME],
       },
     ],
   },
   create(context: Rule.RuleContext) {
-    const { considerJSDoc } = context.options[0];
+    const { considerJSDoc } = (context.options as Options)[0];
     const services = context.sourceCode.parserServices;
     if (!isRequiredParserServices(services)) {
       return {};

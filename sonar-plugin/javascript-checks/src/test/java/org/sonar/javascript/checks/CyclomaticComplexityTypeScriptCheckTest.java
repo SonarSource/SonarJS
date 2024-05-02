@@ -21,6 +21,7 @@ package org.sonar.javascript.checks;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.gson.Gson;
 import org.junit.jupiter.api.Test;
 
 class CyclomaticComplexityTypeScriptCheckTest {
@@ -28,10 +29,14 @@ class CyclomaticComplexityTypeScriptCheckTest {
   @Test
   void configurations() {
     CyclomaticComplexityTypeScriptCheck check = new CyclomaticComplexityTypeScriptCheck();
+
     // default configuration
-    assertThat(check.configurations()).containsExactly(10);
+    var defaultConfigAsString = new Gson().toJson(check.configurations());
+    assertThat(defaultConfigAsString).isEqualTo("[{\"threshold\":10}]");
+
     // custom configuration
     check.threshold = 15;
-    assertThat(check.configurations()).containsExactly(15);
+    var customConfigAsString = new Gson().toJson(check.configurations());
+    assertThat(customConfigAsString).isEqualTo("[{\"threshold\":15}]");
   }
 }

@@ -21,6 +21,7 @@ package org.sonar.javascript.checks;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.gson.Gson;
 import org.junit.jupiter.api.Test;
 
 class IntrusivePermissionsCheckTest {
@@ -29,8 +30,10 @@ class IntrusivePermissionsCheckTest {
   void configurations() {
     IntrusivePermissionsCheck check = new IntrusivePermissionsCheck();
     // default configuration
-    assertThat(check.configurations()).containsExactly("geolocation");
+    String defaultConfigAsString = new Gson().toJson(check.configurations());
+    assertThat(defaultConfigAsString).isEqualTo("[{\"permissions\":[\"geolocation\"]}]");
     check.permissions = "camera, microphone";
-    assertThat(check.configurations()).containsExactly("camera", "microphone");
+    String customConfigAsString = new Gson().toJson(check.configurations());
+    assertThat(customConfigAsString).isEqualTo("[{\"permissions\":[\"camera\",\"microphone\"]}]");
   }
 }

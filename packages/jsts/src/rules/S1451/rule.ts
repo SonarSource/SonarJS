@@ -20,6 +20,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S1451/javascript
 
 import { Rule } from 'eslint';
+import type { RuleModule } from '../../../../shared/src/types/rule';
 
 let cached: {
   headerFormat: string;
@@ -29,11 +30,31 @@ let cached: {
   failedToCompile?: boolean;
 };
 
-export const rule: Rule.RuleModule = {
+export type Options = [
+  {
+    headerFormat: string;
+    isRegularExpression: boolean;
+  },
+];
+
+export const rule: RuleModule<Options> = {
   meta: {
     messages: {
       fixHeader: 'Add or update the header of this file.',
     },
+    schema: [
+      {
+        type: 'object',
+        properties: {
+          headerFormat: {
+            type: 'string',
+          },
+          isRegularExpression: {
+            type: 'boolean',
+          },
+        },
+      },
+    ],
   },
   create(context: Rule.RuleContext) {
     updateCache(context.options);
