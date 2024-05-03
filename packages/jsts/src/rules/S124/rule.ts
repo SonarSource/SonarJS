@@ -47,7 +47,6 @@ export const rule: RuleModule<Options> = {
             type: 'string',
           },
         },
-        additionalProperties: false,
       },
     ],
   },

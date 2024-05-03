@@ -36,7 +36,6 @@ export type Options = [
   {
     threshold: number;
   },
-  string?,
 ];
 
 export const rule: RuleModule<Options> = {
@@ -58,8 +57,7 @@ export const rule: RuleModule<Options> = {
     ],
   },
   create(context: Rule.RuleContext) {
-    const options = context.options as Options;
-    const threshold = options[0].threshold;
+    const [{ threshold }] = context.options as Options;
     let functionsWithParent: Map<estree.Node, estree.Node | undefined>;
     let functionsDefiningModule: estree.Node[];
     let functionsImmediatelyInvoked: estree.Node[];

@@ -30,7 +30,6 @@ export type Options = [
   {
     max: number;
   },
-  string?,
 ];
 
 export const rule: RuleModule<Options> = {

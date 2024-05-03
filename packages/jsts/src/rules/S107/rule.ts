@@ -62,7 +62,7 @@ export const rule: RuleModule<Options> = {
     const ruleDecoration: Rule.RuleModule = interceptReport(
       eslintMaxParams,
       function (context: Rule.RuleContext, descriptor: Rule.ReportDescriptor) {
-        const maxParams = (context.options as Options)[0].maximumFunctionParameters;
+        const [{ maximumFunctionParameters }] = context.options as Options;
         if ('node' in descriptor) {
           const functionLike = descriptor.node as TSESTree.FunctionLike;
           if (!isException(functionLike)) {
@@ -76,7 +76,8 @@ export const rule: RuleModule<Options> = {
 
         function isBeyondMaxParams(functionLike: TSESTree.FunctionLike) {
           return (
-            functionLike.params.filter(p => p.type !== 'TSParameterProperty').length <= maxParams
+            functionLike.params.filter(p => p.type !== 'TSParameterProperty').length <=
+            maximumFunctionParameters
           );
         }
 

@@ -49,7 +49,6 @@ export const rule: RuleModule<Options> = {
             type: 'boolean',
           },
         },
-        additionalProperties: false,
       },
     ],
   },

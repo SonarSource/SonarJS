@@ -18,38 +18,29 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { type Rule } from 'eslint';
-
-type Schemas = Extract<Rule.RuleModule['schema'], Array<unknown>>;
-type Schema = Schemas[number];
+import { SONAR_RUNTIME } from '../../../jsts/src/linter/parameters';
+import { JSONSchema } from '@typescript-eslint/utils';
 
 type BaseRuleModule = Omit<Rule.RuleModule, 'schema'>;
+type SonarRuntime = typeof SONAR_RUNTIME;
+type RuleOptions = [Record<string, unknown>, SonarRuntime?] | [SonarRuntime];
 
-type TypedJSONSchema<Options extends [Record<string, unknown>, string?]> = Omit<
-  Schema,
-  'type' | 'properties'
-> &
-  Schema['properties'] &
-  (
-    | {
-        type: 'object';
-        properties: { [key in keyof Options[0]]: Schema };
-      }
-    | {
-        type: 'string';
-        enum: Array<string>;
-      }
-  );
+type RuleModuleSchema<Options extends RuleOptions> =
+  | {
+      type: 'object';
+      properties: { [key in keyof Options[0]]: JSONSchema.JSONSchema4 };
+    }
+  | {
+      type: 'string';
+      enum: Array<string>;
+    };
 
-type RuleMetaData<Options extends [Record<string, unknown>, string?]> = Omit<
-  Rule.RuleMetaData,
-  'schema'
-> & {
-  schema: Array<TypedJSONSchema<Options>>;
+type RuleMetaData<Options extends RuleOptions> = Omit<Rule.RuleMetaData, 'schema'> & {
+  schema: Array<RuleModuleSchema<Options>>;
 };
 
-export type RuleModule<Options extends [Record<string, unknown>, string?] | null = null> =
-  Options extends [Record<string, unknown>, string?]
-    ? Omit<BaseRuleModule, 'meta'> & {
-        meta: RuleMetaData<Options>;
-      }
-    : BaseRuleModule;
+export type RuleModule<Options extends RuleOptions | null = null> = Options extends RuleOptions
+  ? Omit<BaseRuleModule, 'meta'> & {
+      meta: RuleMetaData<Options>;
+    }
+  : BaseRuleModule;
