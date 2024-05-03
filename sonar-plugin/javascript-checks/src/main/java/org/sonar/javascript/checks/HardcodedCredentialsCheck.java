@@ -45,7 +45,7 @@ public class HardcodedCredentialsCheck implements EslintBasedCheck {
   @Override
   public List<Object> configurations() {
     return Collections.singletonList(
-      new Config(credentialWords.split("\\s*,\\s*"))
+      new Config(this.credentialWords.split("\\s*,\\s*"))
     );
   }
 
