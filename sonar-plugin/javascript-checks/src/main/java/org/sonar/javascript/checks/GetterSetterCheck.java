@@ -44,7 +44,7 @@ public class GetterSetterCheck implements EslintBasedCheck {
   @Override
   public List<Object> configurations() {
     return Collections.singletonList(
-      new Config(this.getWithoutSet)
+      new Config(getWithoutSet)
     );
   }
 

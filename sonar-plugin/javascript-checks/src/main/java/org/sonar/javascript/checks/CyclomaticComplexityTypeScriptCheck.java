@@ -42,7 +42,7 @@ public class CyclomaticComplexityTypeScriptCheck implements EslintBasedCheck {
   @Override
   public List<Object> configurations() {
     return Collections.singletonList(
-      new Config(this.threshold)
+      new Config(threshold)
     );
   }
   @Override
