@@ -19,6 +19,7 @@
  */
 import { RuleTester } from 'eslint';
 import { rule } from './';
+import type { Options } from './rule';
 
 const ruleTester = new RuleTester({
   parser: require.resolve('@typescript-eslint/parser'),
@@ -28,47 +29,51 @@ const ruleTester = new RuleTester({
 const DEFAULT_THRESHOLD = 3;
 const CUSTOM_THRESHOLD = 4;
 
+const createOptions = (threshold: number): Options => {
+  return [{ threshold }];
+};
+
 ruleTester.run('Union types should not have too many elements', rule, {
   valid: [
     {
       code: `let smallUnionType: number | boolean | string;`,
-      options: [DEFAULT_THRESHOLD],
+      options: createOptions(DEFAULT_THRESHOLD),
     },
     {
       code: `let smallUnionType: number | boolean | string | any[];`,
-      options: [CUSTOM_THRESHOLD],
+      options: createOptions(CUSTOM_THRESHOLD),
     },
     {
       code: `function smallUnionType(a: number | boolean) {}`,
-      options: [DEFAULT_THRESHOLD],
+      options: createOptions(DEFAULT_THRESHOLD),
     },
     {
       code: `type T = A | B | C | D;`,
-      options: [DEFAULT_THRESHOLD],
+      options: createOptions(DEFAULT_THRESHOLD),
     },
     {
       code: `
         type T = A | B | C | D;
         function okFn(a: T) {}`,
-      options: [DEFAULT_THRESHOLD],
+      options: createOptions(DEFAULT_THRESHOLD),
     },
     {
       code: `
         type T = A | B | C | D;
         let okVarA : T;`,
-      options: [DEFAULT_THRESHOLD],
+      options: createOptions(DEFAULT_THRESHOLD),
     },
     {
       code: `
         type T = A | B | C | D;
         let okFunctionType: (param: any) => T`,
-      options: [DEFAULT_THRESHOLD],
+      options: createOptions(DEFAULT_THRESHOLD),
     },
     {
       code: `
         type T = A | B | C | D;
         let okTupleType: [string, T];`,
-      options: [DEFAULT_THRESHOLD],
+      options: createOptions(DEFAULT_THRESHOLD),
     },
     {
       code: `
@@ -82,13 +87,13 @@ ruleTester.run('Union types should not have too many elements', rule, {
         };
         type Bar = Pick<Foo, 'a' | 'b' | 'c' | 'd'>;
       `,
-      options: [DEFAULT_THRESHOLD],
+      options: createOptions(DEFAULT_THRESHOLD),
     },
   ],
   invalid: [
     {
       code: `let nokVarA: A | B | C | D`,
-      options: [DEFAULT_THRESHOLD],
+      options: createOptions(DEFAULT_THRESHOLD),
       errors: [
         {
           message: `Refactor this union type to have less than ${DEFAULT_THRESHOLD} elements.`,
@@ -101,7 +106,7 @@ ruleTester.run('Union types should not have too many elements', rule, {
     },
     {
       code: `let nokVarA: A | B | C | D | E`,
-      options: [CUSTOM_THRESHOLD],
+      options: createOptions(CUSTOM_THRESHOLD),
       errors: [
         {
           message: `Refactor this union type to have less than ${CUSTOM_THRESHOLD} elements.`,
@@ -114,7 +119,7 @@ ruleTester.run('Union types should not have too many elements', rule, {
     },
     {
       code: `function nokFn(a: A | B | C | D) {}`,
-      options: [DEFAULT_THRESHOLD],
+      options: createOptions(DEFAULT_THRESHOLD),
       errors: [
         {
           message: `Refactor this union type to have less than ${DEFAULT_THRESHOLD} elements.`,
@@ -123,7 +128,7 @@ ruleTester.run('Union types should not have too many elements', rule, {
     },
     {
       code: `let nokFunctionType: (param: any) => A | B | C | D`,
-      options: [DEFAULT_THRESHOLD],
+      options: createOptions(DEFAULT_THRESHOLD),
       errors: [
         {
           message: `Refactor this union type to have less than ${DEFAULT_THRESHOLD} elements.`,
@@ -132,7 +137,7 @@ ruleTester.run('Union types should not have too many elements', rule, {
     },
     {
       code: `let nokTupleType : [string, A | B | C | D];`,
-      options: [DEFAULT_THRESHOLD],
+      options: createOptions(DEFAULT_THRESHOLD),
       errors: [
         {
           message: `Refactor this union type to have less than ${DEFAULT_THRESHOLD} elements.`,
@@ -143,7 +148,7 @@ ruleTester.run('Union types should not have too many elements', rule, {
       code: `interface nokInterfaceDeclaration {
         prop: A | B | C | D;
       }`,
-      options: [DEFAULT_THRESHOLD],
+      options: createOptions(DEFAULT_THRESHOLD),
       errors: [
         {
           message: `Refactor this union type to have less than ${DEFAULT_THRESHOLD} elements.`,
@@ -152,7 +157,7 @@ ruleTester.run('Union types should not have too many elements', rule, {
     },
     {
       code: `type U = (A | B | C | D) & E;`,
-      options: [DEFAULT_THRESHOLD],
+      options: createOptions(DEFAULT_THRESHOLD),
       errors: [
         {
           message: `Refactor this union type to have less than ${DEFAULT_THRESHOLD} elements.`,

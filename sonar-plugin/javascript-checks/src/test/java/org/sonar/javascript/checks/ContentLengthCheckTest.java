@@ -21,6 +21,7 @@ package org.sonar.javascript.checks;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.gson.Gson;
 import org.junit.jupiter.api.Test;
 
 class ContentLengthCheckTest {
@@ -29,9 +30,11 @@ class ContentLengthCheckTest {
   void configurations() {
     ContentLengthCheck check = new ContentLengthCheck();
     // default configuration
-    assertThat(check.configurations()).containsExactly(8_000_000L, 2_000_000L);
+    String defaultConfigAsString = new Gson().toJson(check.configurations());
+    assertThat(defaultConfigAsString).isEqualTo("[{\"fileUploadSizeLimit\":8000000,\"standardSizeLimit\":2000000}]");
     check.fileUploadSizeLimit = 42;
     check.standardSizeLimit = 24;
-    assertThat(check.configurations()).containsExactly(42L, 24L);
+    String customConfigAsString = new Gson().toJson(check.configurations());
+    assertThat(customConfigAsString).isEqualTo("[{\"fileUploadSizeLimit\":42,\"standardSizeLimit\":24}]");
   }
 }

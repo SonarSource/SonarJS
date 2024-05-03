@@ -19,6 +19,11 @@
  */
 import { RuleTester } from 'eslint';
 import { rule } from './';
+import type { Options } from './rule';
+
+const createOptions = (maximum: number): Options => {
+  return [{ maximum }];
+};
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
 ruleTester.run('Too many lines in file', rule, {
@@ -27,7 +32,7 @@ ruleTester.run('Too many lines in file', rule, {
       code: `a;
              b;
              c;`,
-      options: [3],
+      options: createOptions(3),
     },
     {
       code: `a;
@@ -35,7 +40,7 @@ ruleTester.run('Too many lines in file', rule, {
              b;
              // comment
              c;`,
-      options: [3],
+      options: createOptions(3),
     },
   ],
   invalid: [
@@ -46,7 +51,7 @@ ruleTester.run('Too many lines in file', rule, {
       c;
       // comment
       d;`,
-      options: [3],
+      options: createOptions(3),
       errors: [
         {
           message: `This file has 4 lines, which is greater than 3 authorized. Split it into smaller files.`,

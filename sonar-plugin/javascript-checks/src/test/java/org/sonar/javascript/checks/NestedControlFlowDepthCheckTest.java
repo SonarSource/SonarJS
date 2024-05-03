@@ -21,6 +21,7 @@ package org.sonar.javascript.checks;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.gson.Gson;
 import org.junit.jupiter.api.Test;
 
 class NestedControlFlowDepthCheckTest {
@@ -28,8 +29,11 @@ class NestedControlFlowDepthCheckTest {
   @Test
   void testConfig() {
     NestedControlFlowDepthCheck check = new NestedControlFlowDepthCheck();
-    assertThat(check.configurations()).containsExactly(3);
+    var defaultConfigAsString = new Gson().toJson(check.configurations());
+    assertThat(defaultConfigAsString).isEqualTo("[{\"maximumNestingLevel\":3}]");
+
     check.maximumNestingLevel = 42;
-    assertThat(check.configurations()).containsExactly(42);
+    var customConfigAsString = new Gson().toJson(check.configurations());
+    assertThat(customConfigAsString).isEqualTo("[{\"maximumNestingLevel\":42}]");
   }
 }

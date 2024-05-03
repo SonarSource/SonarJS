@@ -31,10 +31,10 @@ class TooManyLinesInFileCheckTest {
     TooManyLinesInFileCheck check = new TooManyLinesInFileCheck();
 
     String defaultConfigAsString = new Gson().toJson(check.configurations());
-    assertThat(defaultConfigAsString).isEqualTo("[1000]");
+    assertThat(defaultConfigAsString).isEqualTo("[{\"maximum\":1000}]");
 
     check.maximum = 42;
     String configAsString = new Gson().toJson(check.configurations());
-    assertThat(configAsString).isEqualTo("[42]");
+    assertThat(configAsString).isEqualTo("[{\"maximum\":42}]");
   }
 }

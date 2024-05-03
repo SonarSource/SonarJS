@@ -46,7 +46,7 @@ export const rule: Rule.RuleModule = {
           messageId: 'addYield',
           loc: getMainFunctionTokenLocation(
             functionNode as TSESTree.FunctionLike,
-            getParent(context) as TSESTree.Node,
+            getParent(context, node) as TSESTree.Node,
             context as unknown as RuleContext,
           ),
         });

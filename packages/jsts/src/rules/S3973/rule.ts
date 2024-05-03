@@ -40,7 +40,7 @@ export const rule: Rule.RuleModule = {
     return {
       IfStatement: (node: estree.Node) => {
         const ifStatement = node as estree.IfStatement;
-        const parent = getParent(context);
+        const parent = getParent(context, node);
         if (parent && parent.type !== 'IfStatement') {
           const firstToken = sourceCode.getFirstToken(node);
           checkIndentation(firstToken, ifStatement.consequent, context);

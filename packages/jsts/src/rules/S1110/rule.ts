@@ -67,7 +67,7 @@ function checkRedundantParentheses(
   context: Rule.RuleContext,
 ) {
   const parenthesesPairsAroundNode = getParenthesesPairsAround(sourceCode, node, node);
-  const parent = getParent(context);
+  const parent = getParent(context, node);
 
   // Ignore parentheses pair from the parent node
   if (!!parent && isInParentNodeParentheses(node, parent)) {

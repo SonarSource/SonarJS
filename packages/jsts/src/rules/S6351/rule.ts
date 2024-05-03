@@ -125,7 +125,7 @@ function extractResetRegex(
     node.object.type === 'Identifier' &&
     node.property.name === 'lastIndex'
   ) {
-    const parent = getParent(context);
+    const parent = getParent(context, node);
     if (parent?.type === 'AssignmentExpression' && parent.left === node) {
       const variable = getVariableFromName(context, node.object.name, node);
       if (variable) {

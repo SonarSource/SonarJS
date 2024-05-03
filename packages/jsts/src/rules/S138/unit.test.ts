@@ -19,10 +19,15 @@
  */
 import { RuleTester } from 'eslint';
 import { rule } from './';
+import type { Options } from '../S104/rule';
 
 const ruleTester = new RuleTester({
   parserOptions: { ecmaVersion: 2018, ecmaFeatures: { jsx: true } },
 });
+
+const createOptions = (maximum: number): Options => {
+  return [{ maximum }];
+};
 
 ruleTester.run('Too many lines in functions', rule, {
   valid: [
@@ -30,7 +35,7 @@ ruleTester.run('Too many lines in functions', rule, {
       code: `function f() {
               console.log("a");
             }`,
-      options: [3],
+      options: createOptions(3),
     },
     {
       code: `function f() {
@@ -39,7 +44,7 @@ ruleTester.run('Too many lines in functions', rule, {
 
 
             }`,
-      options: [3],
+      options: createOptions(3),
     },
     {
       code: `function f() {
@@ -51,13 +56,13 @@ ruleTester.run('Too many lines in functions', rule, {
                 comment
               */
             }`,
-      options: [3],
+      options: createOptions(3),
     },
     {
       code: `function foo() {
               console.log("a"); // End of line comment
             }`,
-      options: [3],
+      options: createOptions(3),
     },
     {
       code: `
@@ -67,7 +72,7 @@ ruleTester.run('Too many lines in functions', rule, {
             }
             console.log("a");
             `,
-      options: [3],
+      options: createOptions(3),
     },
     {
       code: `function f() {
@@ -75,7 +80,7 @@ ruleTester.run('Too many lines in functions', rule, {
                 console.log("a");
               }
             }`,
-      options: [5],
+      options: createOptions(5),
     },
     {
       code: `(
@@ -85,7 +90,7 @@ function
 }
 )
 ()`, //IIFE are ignored
-      options: [6],
+      options: createOptions(6),
     },
     {
       // React Function Component
@@ -95,7 +100,7 @@ function
 
         return <h1>{greeting}</h1>
       }`,
-      options: [2],
+      options: createOptions(2),
     },
     {
       // React Function Component using function expressions and JSXFragments
@@ -105,7 +110,7 @@ function
 
         return <><h1>{greeting}</h1></>
       }`,
-      options: [2],
+      options: createOptions(2),
     },
     {
       // React Function Component - using arrow function
@@ -115,7 +120,7 @@ function
 
         return <h1>{greeting}</h1>
       }`,
-      options: [2],
+      options: createOptions(2),
     },
   ],
   invalid: [
@@ -124,7 +129,7 @@ function
             console.log("a");
             console.log("a");
           }`,
-      options: [3],
+      options: createOptions(3),
       errors: [
         {
           message: `This function has 4 lines, which is greater than the 3 lines authorized. Split it into smaller functions.`,
@@ -141,7 +146,7 @@ function
             console.log("a");
             console.log("b");
           }`,
-      options: [4],
+      options: createOptions(4),
       errors: [
         {
           message: `This function has 5 lines, which is greater than the 4 lines authorized. Split it into smaller functions.`,
@@ -166,7 +171,7 @@ function
 
         return <h1>{greeting}</h1>
       }`,
-      options: [2],
+      options: createOptions(2),
       errors: [
         {
           line: 5,

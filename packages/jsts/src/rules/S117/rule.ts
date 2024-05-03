@@ -23,17 +23,34 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
 import { resolveIdentifiers } from '../helpers';
+import type { RuleModule } from '../../../../shared/src/types/rule';
 
 interface FunctionLike {
   declare?: boolean;
   params: TSESTree.Parameter[];
 }
 
-export const rule: Rule.RuleModule = {
+export type Options = [
+  {
+    format: string;
+  },
+];
+
+export const rule: RuleModule<Options> = {
   meta: {
     messages: {
       renameSymbol: `Rename this {{symbolType}} "{{symbol}}" to match the regular expression {{format}}.`,
     },
+    schema: [
+      {
+        type: 'object',
+        properties: {
+          format: {
+            type: 'string',
+          },
+        },
+      },
+    ],
   },
   create(context: Rule.RuleContext) {
     return {
@@ -87,7 +104,7 @@ function raiseOnInvalidIdentifier(
   idType: string,
   context: Rule.RuleContext,
 ) {
-  const [{ format }] = context.options;
+  const [{ format }] = context.options as Options;
   const { name } = id;
   if (!name.match(format)) {
     context.report({

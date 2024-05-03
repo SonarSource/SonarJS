@@ -23,12 +23,29 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
 import { UTILITY_TYPES, isIdentifier } from '../helpers';
+import type { RuleModule } from '../../../../shared/src/types/rule';
 
-export const rule: Rule.RuleModule = {
+export type Options = [
+  {
+    threshold: number;
+  },
+];
+
+export const rule: RuleModule<Options> = {
   meta: {
     messages: {
       refactorUnion: 'Refactor this union type to have less than {{threshold}} elements.',
     },
+    schema: [
+      {
+        type: 'object',
+        properties: {
+          threshold: {
+            type: 'integer',
+          },
+        },
+      },
+    ],
   },
   create(context: Rule.RuleContext) {
     return {
@@ -37,12 +54,12 @@ export const rule: Rule.RuleModule = {
         if (isUsedWithUtilityType(union)) {
           return;
         }
-        const [threshold] = context.options;
+        const [{ threshold }] = context.options as Options;
         if (union.types.length > threshold && !isFromTypeStatement(union)) {
           context.report({
             messageId: 'refactorUnion',
             data: {
-              threshold,
+              threshold: `${threshold}`,
             },
             node,
           });

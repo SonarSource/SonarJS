@@ -19,13 +19,14 @@
  */
 import { RuleTester } from 'eslint';
 import { rule } from './';
+import type { Options } from './rule';
 
 const ruleTester = new RuleTester({
   parser: require.resolve('@typescript-eslint/parser'),
   parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
 });
 
-const defaultOptions = ['geolocation'];
+const defaultOptions: Options = [{ permissions: ['geolocation'] }];
 
 ruleTester.run('', rule, {
   valid: [
@@ -51,11 +52,11 @@ ruleTester.run('', rule, {
     },
     {
       code: `navigator.permissions.query({name:"foo"})`,
-      options: ['foo'],
+      options: [{ permissions: ['foo'] }],
     },
     {
       code: `navigator.geolocation.watchPosition()`,
-      options: ['camera'],
+      options: [{ permissions: ['camera'] }],
     },
     {
       code: `navigator.mediaDevices.getUserMedia()`,
@@ -63,19 +64,19 @@ ruleTester.run('', rule, {
     },
     {
       code: `navigator.mediaDevices.getUserMedia({ audio: true })`,
-      options: [],
+      options: [{ permissions: [] }],
     },
     {
       code: `param => navigator.mediaDevices.getUserMedia(param)`,
-      options: ['camera'],
+      options: [{ permissions: ['camera'] }],
     },
     {
       code: `navigator.mediaDevices.getUserMedia({ other: true })`,
-      options: ['camera'],
+      options: [{ permissions: ['camera'] }],
     },
     {
       code: `param => navigator.mediaDevices.getUserMedia({ ...param })`,
-      options: ['camera'],
+      options: [{ permissions: ['camera'] }],
     },
     {
       code: `Notification.requestPermission()`,
@@ -104,12 +105,12 @@ ruleTester.run('', rule, {
     },
     {
       code: `navigator.permissions.query({name: "camera"})`,
-      options: ['camera'],
+      options: [{ permissions: ['camera'] }],
       errors: 1,
     },
     {
       code: `navigator.permissions.query({name: "microphone"})`,
-      options: ['microphone'],
+      options: [{ permissions: ['microphone'] }],
       errors: [
         {
           message: 'Make sure the use of the microphone is necessary.',
@@ -118,12 +119,12 @@ ruleTester.run('', rule, {
     },
     {
       code: `navigator.permissions.query({name: "notifications"})`,
-      options: ['notifications'],
+      options: [{ permissions: ['notifications'] }],
       errors: 1,
     },
     {
       code: `navigator.permissions.query({name: "persistent-storage"})`,
-      options: ['persistent-storage'],
+      options: [{ permissions: ['persistent-storage'] }],
       errors: 1,
     },
     {
@@ -149,7 +150,7 @@ ruleTester.run('', rule, {
       navigator.mediaDevices.getUserMedia({ audio: true, video: true }) // Sensitive for camera and microphone    
       navigator.mediaDevices.getUserMedia({ audio: true, video: false }) // Sensitive for microphone      
       navigator.mediaDevices.getUserMedia({ audio: false, video: { /* something */} }) // Sensitive for camera only`,
-      options: ['camera', 'microphone'],
+      options: [{ permissions: ['camera', 'microphone'] }],
       errors: [
         {
           message: 'Make sure the use of the microphone and camera is necessary.',
@@ -167,22 +168,22 @@ ruleTester.run('', rule, {
     },
     {
       code: `Notification.requestPermission()`,
-      options: ['notifications'],
+      options: [{ permissions: ['notifications'] }],
       errors: 1,
     },
     {
       code: `new Notification()`,
-      options: ['notifications'],
+      options: [{ permissions: ['notifications'] }],
       errors: 1,
     },
     {
       code: `navigator.storage.persist()`,
-      options: ['persistent-storage'],
+      options: [{ permissions: ['persistent-storage'] }],
       errors: 1,
     },
     {
       code: `navigator.storage.anyMethod()`,
-      options: ['persistent-storage'],
+      options: [{ permissions: ['persistent-storage'] }],
       errors: 1,
     },
   ],

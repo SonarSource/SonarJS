@@ -23,12 +23,27 @@ import { Rule, AST } from 'eslint';
 import * as estree from 'estree';
 import { last, toEncodedMessage } from '../helpers';
 import { SONAR_RUNTIME } from '../../linter/parameters';
+import type { RuleModule } from '../../../../shared/src/types/rule';
 
-export const rule: Rule.RuleModule = {
+export type Options = [
+  {
+    maximumNestingLevel: number;
+  },
+];
+
+export const rule: RuleModule<Options> = {
   meta: {
     schema: [
-      { type: 'integer' },
       {
+        type: 'object',
+        properties: {
+          maximumNestingLevel: {
+            type: 'integer',
+          },
+        },
+      },
+      {
+        type: 'string',
         // internal parameter for rules having secondary locations
         enum: [SONAR_RUNTIME],
       },
@@ -37,7 +52,7 @@ export const rule: Rule.RuleModule = {
 
   create(context: Rule.RuleContext) {
     const sourceCode = context.sourceCode;
-    const [threshold] = context.options;
+    const [{ maximumNestingLevel: threshold }] = context.options as Options;
     const nodeStack: AST.Token[] = [];
     function push(n: AST.Token) {
       nodeStack.push(n);
@@ -58,7 +73,7 @@ export const rule: Rule.RuleModule = {
       }
     }
     function isElseIf(node: estree.Node) {
-      const parent = last(context.getAncestors());
+      const parent = last(context.sourceCode.getAncestors(node));
       return (
         node.type === 'IfStatement' && parent.type === 'IfStatement' && node === parent.alternate
       );

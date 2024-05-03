@@ -20,70 +20,79 @@
 import { RuleTester } from 'eslint';
 import { rule } from './';
 import { IssueLocation, EncodedMessage } from 'eslint-plugin-sonarjs/lib/utils/locations';
+import type { Options } from './rule';
 
 const ruleTester = new RuleTester({
   parserOptions: { ecmaVersion: 2018, sourceType: 'module', ecmaFeatures: { jsx: true } },
 });
 
-const MAX = 3;
+const options: Options = [
+  {
+    max: 3,
+  },
+];
 
 ruleTester.run('Expressions should not be too complex', rule, {
   valid: [
     {
       code: `let b = 1 || 2 || 3 || 4`,
-      options: [MAX],
+      options,
     },
     {
       code: `let b = 1 && 2 && 4 && 4`,
-      options: [MAX],
+      options,
     },
     {
       code: `let b = 1 ? ( 2 ? ( 3 ? true : false ) : false ) : false;`,
-      options: [MAX],
+      options,
     },
     {
       code: `let b = foo(1 || 2 || 3, 1 || 2 || 3);`,
-      options: [MAX],
+      options,
     },
     {
       code: `let b = 1 || 2 || 3 || foo(1 || 2);`,
-      options: [MAX],
+      options,
     },
     {
       code: `let b = {x: 1 || 2 || 3, y: 1 || 2 || 3};`,
-      options: [MAX],
+      options,
     },
     {
       code: `let b = 1 || 2 || 3 || {x: 1 || 2};`,
-      options: [MAX],
+      options,
     },
     {
       code: `let b = function () {1 || 2 || 3 || 4};`,
-      options: [MAX],
+      options,
     },
     {
       code: `let b = 1 || 2 || 3 || function () {1 || 2};`,
-      options: [MAX],
+      options,
     },
     {
       code: `let b = 1 || 2 || 3 || function () {1 || 2 || function () {1 || 2}};`,
-      options: [MAX],
+      options,
     },
     {
       code: `let b = 1 || 2 || 3 || function f() {1 || 2 || function g() {1 || 2}};`,
-      options: [MAX],
+      options,
     },
     {
       code: `let b = <div>{1 || 2 || 3 || 4}</div>;`,
-      options: [MAX],
+      options,
     },
     {
       code: `let b = 1 || 2 || 3 || <div>{1 || 2}</div>;`,
-      options: [MAX],
+      options,
     },
     {
       code: `let b = 1 || 2 || 3 || 4 || 5 || 6 || 7 || 8 || 9 || 10;`,
-      options: [10],
+      options: [
+        {
+          threshold: 10,
+        },
+      ],
     },
   ],
   invalid: [
@@ -132,7 +141,7 @@ ruleTester.run('Expressions should not be too complex', rule, {
   ],
 });
 
-function invalid(code: string, max = MAX) {
+function invalid(code: string, max = 3) {
   const issue = {
     complexity: 0,
     primaryLocation: {} as IssueLocation,
@@ -169,7 +178,15 @@ function invalid(code: string, max = MAX) {
     }
   }
   issue.secondaryLocations.sort((a, b) => b.column - a.column);
-  return { code, errors: [error(issue, max)], options: [max] };
+  return {
+    code,
+    errors: [error(issue, max)],
+    options: [
+      {
+        max,
+      },
+    ],
+  };
 }
 
 function error(

@@ -19,24 +19,21 @@
  */
 package org.sonar.javascript.checks;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.google.gson.Gson;
 import org.junit.jupiter.api.Test;
 
-class CyclomaticComplexityJavaScriptCheckTest {
+import static org.assertj.core.api.Assertions.assertThat;
+
+class NoNestedFunctionsCheckTest {
 
   @Test
-  void configurations() {
-    CyclomaticComplexityJavaScriptCheck check = new CyclomaticComplexityJavaScriptCheck();
-
-    // default configuration
+  void testConfig() {
+    var check = new NoNestedFunctionsCheck();
     var defaultConfigAsString = new Gson().toJson(check.configurations());
-    assertThat(defaultConfigAsString).isEqualTo("[{\"threshold\":10}]");
+    assertThat(defaultConfigAsString).isEqualTo("[{\"threshold\":4}]");
 
-    // custom configuration
-    check.threshold = 15;
+    check.threshold = 42;
     var customConfigAsString = new Gson().toJson(check.configurations());
-    assertThat(customConfigAsString).isEqualTo("[{\"threshold\":15}]");
+    assertThat(customConfigAsString).isEqualTo("[{\"threshold\":42}]");
   }
 }

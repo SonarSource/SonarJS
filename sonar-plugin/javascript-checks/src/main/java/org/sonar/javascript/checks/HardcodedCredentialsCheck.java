@@ -20,6 +20,7 @@
 package org.sonar.javascript.checks;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
@@ -43,11 +44,22 @@ public class HardcodedCredentialsCheck implements EslintBasedCheck {
 
   @Override
   public List<Object> configurations() {
-    return Arrays.asList((Object[]) credentialWords.split("\\s*,\\s*"));
+    return Collections.singletonList(
+      new Config(credentialWords.split("\\s*,\\s*"))
+    );
   }
 
   @Override
   public String eslintKey() {
     return "no-hardcoded-credentials";
+  }
+
+  private static class Config {
+
+    String[] credentialWords;
+
+    Config(String[] credentialWords) {
+      this.credentialWords = credentialWords;
+    }
   }
 }

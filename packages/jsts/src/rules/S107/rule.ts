@@ -30,12 +30,29 @@ import {
   interceptReport,
   mergeRules,
 } from '../helpers';
+import type { RuleModule } from '../../../../shared/src/types/rule';
 
 const eslintMaxParams = eslintRules['max-params'];
 
-export const rule: Rule.RuleModule = {
+export type Options = [
+  {
+    maximumFunctionParameters: number;
+  },
+];
+
+export const rule: RuleModule<Options> = {
   meta: {
     messages: { ...eslintMaxParams.meta?.messages },
+    schema: [
+      {
+        type: 'object',
+        properties: {
+          maximumFunctionParameters: {
+            type: 'integer',
+          },
+        },
+      },
+    ],
   },
   create(context: Rule.RuleContext) {
     /**
@@ -45,7 +62,7 @@ export const rule: Rule.RuleModule = {
     const ruleDecoration: Rule.RuleModule = interceptReport(
       eslintMaxParams,
       function (context: Rule.RuleContext, descriptor: Rule.ReportDescriptor) {
-        const maxParams = context.options[0] as number;
+        const [{ maximumFunctionParameters }] = context.options as Options;
         if ('node' in descriptor) {
           const functionLike = descriptor.node as TSESTree.FunctionLike;
           if (!isException(functionLike)) {
@@ -59,7 +76,8 @@ export const rule: Rule.RuleModule = {
 
         function isBeyondMaxParams(functionLike: TSESTree.FunctionLike) {
           return (
-            functionLike.params.filter(p => p.type !== 'TSParameterProperty').length <= maxParams
+            functionLike.params.filter(p => p.type !== 'TSParameterProperty').length <=
+            maximumFunctionParameters
           );
         }
 
@@ -119,7 +137,7 @@ export const rule: Rule.RuleModule = {
 
         function checkFunction(node: estree.Node) {
           const functionLike = node as unknown as TSESTree.FunctionLike;
-          const maxParams = context.options[0] as number;
+          const maxParams = (context.options as Options)[0].maximumFunctionParameters;
           const numParams = functionLike.params.length;
           if (numParams > maxParams) {
             context.report({

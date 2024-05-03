@@ -25,21 +25,36 @@ import { TSESTree } from '@typescript-eslint/utils';
 import { getMainFunctionTokenLocation } from 'eslint-plugin-sonarjs/lib/utils/locations';
 import { SONAR_RUNTIME } from '../../linter/parameters';
 import { RuleContext, toEncodedMessage } from '../helpers';
+import type { RuleModule } from '../../../../shared/src/types/rule';
 
 const DEFAULT_THRESHOLD = 4;
 
-export const rule: Rule.RuleModule = {
+export type Options = [
+  {
+    threshold: number;
+  },
+];
+
+export const rule: RuleModule<Options> = {
   meta: {
     schema: [
-      { type: 'integer' },
       {
+        type: 'object',
+        properties: {
+          threshold: {
+            type: 'integer',
+          },
+        },
+      },
+      {
+        type: 'string',
         // internal parameter for rules having secondary locations
         enum: [SONAR_RUNTIME],
       },
     ],
   },
   create(context: Rule.RuleContext) {
-    const max = context.options[0] || DEFAULT_THRESHOLD;
+    const max = (context.options as Options)[0]?.threshold || DEFAULT_THRESHOLD;
     const nestedStack: TSESTree.FunctionLike[] = [];
     return {
       ':function'(node: estree.Node) {

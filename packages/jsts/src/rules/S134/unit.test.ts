@@ -20,10 +20,15 @@
 import { RuleTester } from 'eslint';
 import { rule } from './';
 import { IssueLocation, EncodedMessage } from 'eslint-plugin-sonarjs/lib/utils/locations';
+import type { Options } from './rule';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
 
 const THRESHOLD = 3;
+
+const createOptions = (maximumNestingLevel: number): Options => {
+  return [{ maximumNestingLevel }];
+};
 
 ruleTester.run(
   'Refactor this code to not nest more than X if/for/while/switch/try statements.',
@@ -39,7 +44,7 @@ ruleTester.run(
         }
       }
     `,
-        options: [THRESHOLD],
+        options: createOptions(THRESHOLD),
       },
       {
         code: `
@@ -52,7 +57,7 @@ ruleTester.run(
         }
       }
     `,
-        options: [4],
+        options: createOptions(4),
       },
       {
         code: `
@@ -64,7 +69,7 @@ ruleTester.run(
             }
           }
         `,
-        options: [THRESHOLD],
+        options: createOptions(THRESHOLD),
       },
     ],
     invalid: [
@@ -136,7 +141,11 @@ function invalid(code: string, threshold = THRESHOLD) {
     }
   }
 
-  return { code, errors: [error(primaryLocation, secondaryLocations)], options: [threshold] };
+  return {
+    code,
+    errors: [error(primaryLocation, secondaryLocations)],
+    options: createOptions(threshold),
+  };
 }
 
 function error(primaryLocation: IssueLocation, secondaryLocations: IssueLocation[]) {

@@ -21,6 +21,7 @@ package org.sonar.javascript.checks;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.gson.Gson;
 import org.junit.jupiter.api.Test;
 
 class MaxParameterCheckTest {
@@ -29,8 +30,10 @@ class MaxParameterCheckTest {
   void configurations() {
     MaxParameterCheck check = new MaxParameterCheck();
     // default configuration
-    assertThat(check.configurations()).containsExactly(7);
+    String defaultConfigAsString = new Gson().toJson(check.configurations());
+    assertThat(defaultConfigAsString).isEqualTo("[{\"maximumFunctionParameters\":7}]");
     check.maximumFunctionParameters = 4;
-    assertThat(check.configurations()).containsExactly(4);
+    String customConfigAsString = new Gson().toJson(check.configurations());
+    assertThat(customConfigAsString).isEqualTo("[{\"maximumFunctionParameters\":4}]");
   }
 }

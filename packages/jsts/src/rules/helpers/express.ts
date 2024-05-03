@@ -59,12 +59,13 @@ export namespace Express {
   export function attemptFindAppInjection(
     functionDef: estree.Function,
     context: Rule.RuleContext,
+    node: estree.Node,
   ): estree.Identifier | undefined {
     const app = functionDef.params.find(
       param => param.type === 'Identifier' && param.name === 'app',
     ) as estree.Identifier | undefined;
     if (app) {
-      const parent = getParent(context);
+      const parent = getParent(context, node);
       if (parent?.type === 'AssignmentExpression') {
         const { left } = parent;
         if (
@@ -192,7 +193,7 @@ export namespace Express {
           ':function': (node: estree.Node) => {
             if (!app) {
               const functionDef = node as estree.Function;
-              const injectedApp = attemptFindAppInjection(functionDef, context);
+              const injectedApp = attemptFindAppInjection(functionDef, context, node);
               if (injectedApp) {
                 app = injectedApp;
               }

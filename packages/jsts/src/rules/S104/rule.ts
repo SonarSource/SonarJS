@@ -22,17 +22,33 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { getLocsNumber, getCommentLineNumbers } from '../S138/rule';
+import type { RuleModule } from '../../../../shared/src/types/rule';
 
-export const rule: Rule.RuleModule = {
+export type Options = [
+  {
+    maximum: number;
+  },
+];
+
+export const rule: RuleModule<Options> = {
   meta: {
     messages: {
       maxFileLine:
         'This file has {{lineCount}} lines, which is greater than {{threshold}} authorized. Split it into smaller files.',
     },
-    schema: [{ type: 'integer' }],
+    schema: [
+      {
+        type: 'object',
+        properties: {
+          maximum: {
+            type: 'integer',
+          },
+        },
+      },
+    ],
   },
   create(context: Rule.RuleContext) {
-    const [threshold] = context.options;
+    const [{ maximum: threshold }] = context.options as Options;
 
     const sourceCode = context.sourceCode;
     const lines = sourceCode.lines;
@@ -52,7 +68,7 @@ export const rule: Rule.RuleModule = {
             messageId: 'maxFileLine',
             data: {
               lineCount: lineCount.toString(),
-              threshold,
+              threshold: `${threshold}`,
             },
             loc: { line: 0, column: 0 },
           });

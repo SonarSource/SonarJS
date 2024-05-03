@@ -45,11 +45,22 @@ public class MaxParameterCheck implements EslintBasedCheck {
 
   @Override
   public List<Object> configurations() {
-    return Collections.singletonList(maximumFunctionParameters);
+    return Collections.singletonList(
+      new Config(maximumFunctionParameters)
+    );
   }
 
   @Override
   public String eslintKey() {
     return "sonar-max-params";
+  }
+
+  private static class Config {
+
+    int maximumFunctionParameters;
+
+    Config(int maximumFunctionParameters) {
+      this.maximumFunctionParameters = maximumFunctionParameters;
+    }
   }
 }

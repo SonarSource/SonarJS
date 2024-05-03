@@ -43,11 +43,22 @@ public class TooManyLinesInFileCheck implements EslintBasedCheck {
 
   @Override
   public List<Object> configurations() {
-    return Collections.singletonList(maximum);
+    return Collections.singletonList(
+      new Config(maximum)
+    );
   }
 
   @Override
   public String eslintKey() {
     return "sonar-max-lines";
+  }
+
+  private static class Config {
+
+    int maximum;
+
+    Config(int maximum) {
+      this.maximum = maximum;
+    }
   }
 }

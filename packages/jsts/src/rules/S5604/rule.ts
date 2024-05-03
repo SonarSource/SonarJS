@@ -22,14 +22,34 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { isIdentifier, isMemberExpression, getValueOfExpression } from '../helpers';
+import type { RuleModule } from '../../../../shared/src/types/rule';
 
 const permissions = ['geolocation', 'camera', 'microphone', 'notifications', 'persistent-storage'];
 
-export const rule: Rule.RuleModule = {
+export type Options = [
+  {
+    permissions: Array<string>;
+  },
+];
+
+export const rule: RuleModule<Options> = {
   meta: {
     messages: {
       checkPermission: 'Make sure the use of the {{feature}} is necessary.',
     },
+    schema: [
+      {
+        type: 'object',
+        properties: {
+          permissions: {
+            type: 'array',
+            items: {
+              type: 'string',
+            },
+          },
+        },
+      },
+    ],
   },
   create(context: Rule.RuleContext) {
     return {
@@ -44,7 +64,7 @@ export const rule: Rule.RuleModule = {
           return;
         }
         if (
-          context.options.includes('geolocation') &&
+          (context.options as Options)[0].permissions.includes('geolocation') &&
           isNavigatorMemberExpression(callee, 'geolocation', 'watchPosition', 'getCurrentPosition')
         ) {
           context.report({
@@ -65,7 +85,7 @@ export const rule: Rule.RuleModule = {
           return;
         }
         if (
-          context.options.includes('notifications') &&
+          (context.options as Options)[0].permissions.includes('notifications') &&
           isMemberExpression(callee, 'Notification', 'requestPermission')
         ) {
           context.report({
@@ -78,7 +98,7 @@ export const rule: Rule.RuleModule = {
           return;
         }
         if (
-          context.options.includes('persistent-storage') &&
+          (context.options as Options)[0].permissions.includes('persistent-storage') &&
           isMemberExpression(callee.object, 'navigator', 'storage')
         ) {
           context.report({
@@ -92,7 +112,10 @@ export const rule: Rule.RuleModule = {
       },
       NewExpression(node: estree.Node) {
         const { callee } = node as estree.NewExpression;
-        if (context.options.includes('notifications') && isIdentifier(callee, 'Notification')) {
+        if (
+          (context.options as Options)[0].permissions.includes('notifications') &&
+          isIdentifier(callee, 'Notification')
+        ) {
           context.report({
             messageId: 'checkPermission',
             data: {
@@ -114,8 +137,8 @@ function checkForCameraAndMicrophonePermissions(
   if (!firstArg) {
     return;
   }
-  const shouldCheckAudio = context.options.includes('microphone');
-  const shouldCheckVideo = context.options.includes('camera');
+  const shouldCheckAudio = (context.options as Options)[0].permissions.includes('microphone');
+  const shouldCheckVideo = (context.options as Options)[0].permissions.includes('camera');
   if (!shouldCheckAudio && !shouldCheckVideo) {
     return;
   }
@@ -191,7 +214,7 @@ function hasNamePropertyWithPermission(
       value &&
       typeof value.value === 'string' &&
       permissions.includes(value.value) &&
-      context.options.includes(value.value)
+      (context.options as Options)[0].permissions.includes(value.value)
     );
   }
   return false;

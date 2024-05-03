@@ -22,14 +22,31 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
+import type { RuleModule } from '../../../../shared/src/types/rule';
 
 type ClassOrInterfaceDeclaration = TSESTree.ClassDeclaration | TSESTree.TSInterfaceDeclaration;
 
-export const rule: Rule.RuleModule = {
+export type Options = [
+  {
+    format: string;
+  },
+];
+
+export const rule: RuleModule<Options> = {
   meta: {
     messages: {
       renameClass: 'Rename {{symbolType}} "{{symbol}}" to match the regular expression {{format}}.',
     },
+    schema: [
+      {
+        type: 'object',
+        properties: {
+          format: {
+            type: 'string',
+          },
+        },
+      },
+    ],
   },
   create(context: Rule.RuleContext) {
     return {

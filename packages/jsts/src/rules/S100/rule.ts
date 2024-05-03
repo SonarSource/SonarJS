@@ -22,6 +22,7 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { last, functionLike } from '../helpers';
+import type { RuleModule } from '../../../../shared/src/types/rule';
 
 interface FunctionKnowledge {
   node: estree.Identifier;
@@ -52,15 +53,31 @@ const functionExpressionVariable = [
   ')',
 ].join('');
 
-export const rule: Rule.RuleModule = {
+export type Options = [
+  {
+    format: string;
+  },
+];
+
+export const rule: RuleModule<Options> = {
   meta: {
     messages: {
       renameFunction:
         "Rename this '{{function}}' function to match the regular expression '{{format}}'.",
     },
+    schema: [
+      {
+        type: 'object',
+        properties: {
+          format: {
+            type: 'string',
+          },
+        },
+      },
+    ],
   },
   create(context: Rule.RuleContext) {
-    const [{ format }] = context.options;
+    const [{ format }] = context.options as Options;
     const knowledgeStack: FunctionKnowledge[] = [];
     return {
       [functionExpressionProperty]: (node: estree.Property) => {
@@ -111,7 +128,7 @@ export const rule: Rule.RuleModule = {
       },
       ReturnStatement: (node: estree.ReturnStatement) => {
         const knowledge = last(knowledgeStack);
-        const ancestors = context.getAncestors();
+        const ancestors = context.sourceCode.getAncestors(node);
 
         for (let i = ancestors.length - 1; i >= 0; i--) {
           if (functionLike.has(ancestors[i].type)) {

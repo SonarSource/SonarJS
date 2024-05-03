@@ -24,19 +24,35 @@ import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
 import { toEncodedMessage } from '../helpers';
 import { SONAR_RUNTIME } from '../../linter/parameters';
+import type { RuleModule } from '../../../../shared/src/types/rule';
 
-export const rule: Rule.RuleModule = {
+export type Options = [
+  {
+    max: number;
+  },
+];
+
+export const rule: RuleModule<Options> = {
   meta: {
     schema: [
-      { type: 'integer' },
       {
+        type: 'object',
+        properties: {
+          max: {
+            type: 'integer',
+          },
+        },
+      },
+      {
+        type: 'string',
         // internal parameter for rules having secondary locations
         enum: [SONAR_RUNTIME],
       },
     ],
   },
   create(context: Rule.RuleContext) {
-    const [max] = context.options;
+    const options = context.options as Options;
+    const threshold = options[0].max;
     const statementLevel: ExpressionComplexity[] = [new ExpressionComplexity()];
     return {
       '*': (node: estree.Node) => {
@@ -56,8 +72,8 @@ export const rule: Rule.RuleModule = {
           expr.decrementNestedExprLevel();
           if (expr.isOnFirstExprLevel()) {
             const operators = expr.getComplexityOperators();
-            if (operators.length > max) {
-              reportIssue(tree, operators, max, context);
+            if (operators.length > threshold) {
+              reportIssue(tree, operators, threshold, context);
             }
             expr.resetExpressionComplexityOperators();
           }

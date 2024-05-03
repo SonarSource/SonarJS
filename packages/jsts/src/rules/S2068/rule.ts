@@ -23,12 +23,32 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { isStringLiteral } from '../helpers';
 import path from 'path';
+import type { RuleModule } from '../../../../shared/src/types/rule';
 
-export const rule: Rule.RuleModule = {
+export type Options = [
+  {
+    credentialWords: Array<string>;
+  },
+];
+
+export const rule: RuleModule<Options> = {
   meta: {
     messages: {
       reviewCredential: 'Review this potentially hardcoded credential.',
     },
+    schema: [
+      {
+        type: 'object',
+        properties: {
+          credentialWords: {
+            type: 'array',
+            items: {
+              type: 'string',
+            },
+          },
+        },
+      },
+    ],
   },
   create(context: Rule.RuleContext) {
     const dir = path.dirname(context.physicalFilename);
@@ -37,7 +57,7 @@ export const rule: Rule.RuleModule = {
       return {};
     }
 
-    const variableNames = context.options;
+    const [{ credentialWords: variableNames }] = context.options as Options;
     const literalRegExp = variableNames.map(name => new RegExp(`${name}=.+`));
     return {
       VariableDeclarator: (node: estree.Node) => {

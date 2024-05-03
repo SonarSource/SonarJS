@@ -42,11 +42,22 @@ public class ExpressionComplexityCheck implements EslintBasedCheck {
 
   @Override
   public List<Object> configurations() {
-    return Collections.singletonList(max);
+    return Collections.singletonList(
+      new Config(this.max)
+    );
   }
 
   @Override
   public String eslintKey() {
     return "expression-complexity";
+  }
+
+  private static class Config {
+
+    int max;
+
+    Config(int max) {
+      this.max = max;
+    }
   }
 }

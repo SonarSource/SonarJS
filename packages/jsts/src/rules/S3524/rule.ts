@@ -22,13 +22,21 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
+import type { RuleModule } from '../../../../shared/src/types/rule';
 
 const MESSAGE_ADD_PARAMETER = 'Add parentheses around the parameter of this arrow function.';
 const MESSAGE_REMOVE_PARAMETER = 'Remove parentheses around the parameter of this arrow function.';
 const MESSAGE_ADD_BODY = 'Add curly braces and "return" to this arrow function body.';
 const MESSAGE_REMOVE_BODY = 'Remove curly braces and "return" from this arrow function body.';
 
-export const rule: Rule.RuleModule = {
+export type Options = [
+  {
+    requireParameterParentheses: boolean;
+    requireBodyBraces: boolean;
+  },
+];
+
+export const rule: RuleModule<Options> = {
   meta: {
     schema: [
       {
@@ -41,11 +49,9 @@ export const rule: Rule.RuleModule = {
             type: 'boolean',
           },
         },
-        additionalProperties: false,
       },
     ],
   },
-
   create(context: Rule.RuleContext) {
     const options = context.options[0] || {};
     const requireParameterParentheses = !!options.requireParameterParentheses;

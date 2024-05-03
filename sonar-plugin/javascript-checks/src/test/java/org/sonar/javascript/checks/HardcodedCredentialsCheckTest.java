@@ -21,6 +21,7 @@ package org.sonar.javascript.checks;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.gson.Gson;
 import org.junit.jupiter.api.Test;
 
 class HardcodedCredentialsCheckTest {
@@ -29,8 +30,11 @@ class HardcodedCredentialsCheckTest {
   void configurations() {
     HardcodedCredentialsCheck check = new HardcodedCredentialsCheck();
     // default configuration
-    assertThat(check.configurations()).containsExactly("password", "pwd", "passwd");
+    String defaultConfigAsString = new Gson().toJson(check.configurations());
+    assertThat(defaultConfigAsString).isEqualTo("[{\"credentialWords\":[\"password\",\"pwd\",\"passwd\"]}]");
+
     check.credentialWords = "foo, bar";
-    assertThat(check.configurations()).containsExactly("foo", "bar");
+    String customConfigAsString = new Gson().toJson(check.configurations());
+    assertThat(customConfigAsString).isEqualTo("[{\"credentialWords\":[\"foo\",\"bar\"]}]");
   }
 }

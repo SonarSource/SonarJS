@@ -30,20 +30,34 @@ import { FunctionNodeType, isFunctionNode, getParent, RuleContext } from '../hel
 import { TSESTree } from '@typescript-eslint/utils';
 import { SONAR_RUNTIME } from '../../linter/parameters';
 import { childrenOf } from '../../linter';
+import type { RuleModule } from '../../../../shared/src/types/rule';
 
-export const rule: Rule.RuleModule = {
+export type Options = [
+  {
+    threshold: number;
+  },
+];
+
+export const rule: RuleModule<Options> = {
   meta: {
     schema: [
-      { type: 'integer' },
       {
+        type: 'object',
+        properties: {
+          threshold: {
+            type: 'integer',
+          },
+        },
+      },
+      {
+        type: 'string',
         // internal parameter for rules having secondary locations
         enum: [SONAR_RUNTIME],
       },
     ],
   },
-
   create(context: Rule.RuleContext) {
-    const [threshold] = context.options;
+    const [{ threshold }] = context.options as Options;
     let functionsWithParent: Map<estree.Node, estree.Node | undefined>;
     let functionsDefiningModule: estree.Node[];
     let functionsImmediatelyInvoked: estree.Node[];
@@ -64,7 +78,7 @@ export const rule: Rule.RuleModule = {
         });
       },
       'FunctionDeclaration, FunctionExpression, ArrowFunctionExpression': (node: estree.Node) =>
-        functionsWithParent.set(node, getParent(context)),
+        functionsWithParent.set(node, getParent(context, node)),
       "CallExpression[callee.type='Identifier'][callee.name='define'] FunctionExpression": (
         node: estree.Node,
       ) => functionsDefiningModule.push(node),

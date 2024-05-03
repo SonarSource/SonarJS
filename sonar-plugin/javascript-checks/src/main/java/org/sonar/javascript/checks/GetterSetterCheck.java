@@ -43,11 +43,22 @@ public class GetterSetterCheck implements EslintBasedCheck {
 
   @Override
   public List<Object> configurations() {
-    return Collections.singletonList(getWithoutSet);
+    return Collections.singletonList(
+      new Config(getWithoutSet)
+    );
   }
 
   @Override
   public String eslintKey() {
     return "accessor-pairs";
+  }
+
+  private static class Config {
+
+    boolean getWithoutSet;
+
+    Config(boolean getWithoutSet) {
+      this.getWithoutSet = getWithoutSet;
+    }
   }
 }

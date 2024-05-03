@@ -20,10 +20,14 @@
 import { RuleTester } from 'eslint';
 import { rule } from './';
 import { IssueLocation, EncodedMessage } from 'eslint-plugin-sonarjs/lib/utils/locations';
+import type { Options } from './rule';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
-
-const THRESHOLD = 2;
+const options: Options = [
+  {
+    threshold: 2,
+  },
+];
 
 ruleTester.run('Functions should not be too complex', rule, {
   valid: [
@@ -33,7 +37,7 @@ ruleTester.run('Functions should not be too complex', rule, {
       if (x) {}
       if (x) {}
       `,
-      options: [THRESHOLD],
+      options,
     },
     {
       code: `
@@ -45,7 +49,7 @@ ruleTester.run('Functions should not be too complex', rule, {
         }
       }
       `,
-      options: [THRESHOLD],
+      options,
     },
     {
       code: `
@@ -58,7 +62,7 @@ ruleTester.run('Functions should not be too complex', rule, {
         }
       }
       `,
-      options: [THRESHOLD],
+      options,
     },
     {
       code: `
@@ -67,7 +71,7 @@ ruleTester.run('Functions should not be too complex', rule, {
         b = arr.map(s => s.length);   // OK     +0 for ok
       }
       `,
-      options: [THRESHOLD],
+      options,
     },
     {
       code: `
@@ -76,7 +80,7 @@ ruleTester.run('Functions should not be too complex', rule, {
         b = () => 10;          // OK            +0 for ok
       }
       `,
-      options: [THRESHOLD],
+      options,
     },
     {
       code: `
@@ -88,7 +92,7 @@ ruleTester.run('Functions should not be too complex', rule, {
         }
       }
       `,
-      options: [THRESHOLD],
+      options,
     },
     {
       code: `
@@ -100,7 +104,7 @@ ruleTester.run('Functions should not be too complex', rule, {
         };
       }
       `,
-      options: [THRESHOLD],
+      options,
     },
     {
       code: `
@@ -111,7 +115,7 @@ ruleTester.run('Functions should not be too complex', rule, {
         }
       }
       `,
-      options: [THRESHOLD],
+      options,
     },
     {
       code: `
@@ -121,7 +125,7 @@ ruleTester.run('Functions should not be too complex', rule, {
         if (x) {}
       })(34);
       `,
-      options: [THRESHOLD],
+      options,
     },
     {
       code: `
@@ -129,7 +133,7 @@ ruleTester.run('Functions should not be too complex', rule, {
         var a = true && false && true;
       }();
       `,
-      options: [THRESHOLD],
+      options,
     },
     {
       code: `
@@ -137,7 +141,7 @@ ruleTester.run('Functions should not be too complex', rule, {
         var a = true && false && true;
       })();
       `,
-      options: [THRESHOLD],
+      options,
     },
     {
       code: `
@@ -145,7 +149,7 @@ ruleTester.run('Functions should not be too complex', rule, {
         var a = true && false && true;
       });
       `,
-      options: [THRESHOLD],
+      options,
     },
     {
       code: `
@@ -153,7 +157,7 @@ ruleTester.run('Functions should not be too complex', rule, {
         var a = true && false && true;
       });
       `,
-      options: [THRESHOLD],
+      options,
     },
     // TODO not supported yet
     // {
@@ -174,7 +178,7 @@ ruleTester.run('Functions should not be too complex', rule, {
     //       var a = true && false && true;
     //   });
     //   `,
-    //   options: [THRESHOLD],
+    //   options,
     // },
   ],
   invalid: [
@@ -378,7 +382,7 @@ ruleTester.run('Functions should not be too complex', rule, {
   ],
 });
 
-function invalid(code: string, threshold = THRESHOLD) {
+function invalid(code: string, threshold = 2) {
   const issue = {
     complexity: 0,
     primaryLocation: {} as IssueLocation,
@@ -406,7 +410,15 @@ function invalid(code: string, threshold = THRESHOLD) {
     }
   }
 
-  return { code, errors: [error(issue, threshold)], options: [threshold] };
+  return {
+    code,
+    errors: [error(issue, threshold)],
+    options: [
+      {
+        threshold,
+      },
+    ],
+  };
 }
 
 function error(

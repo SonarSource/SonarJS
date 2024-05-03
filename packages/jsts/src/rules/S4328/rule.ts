@@ -27,15 +27,36 @@ import * as fs from 'fs';
 import * as ts from 'typescript';
 import { RequiredParserServices } from '../helpers';
 import { getDependencies } from '@sonar/jsts';
+import type { RuleModule } from '../../../../shared/src/types/rule';
 
-export const rule: Rule.RuleModule = {
+export type Options = [
+  {
+    whitelist: Array<string>;
+  },
+];
+
+export const rule: RuleModule<Options> = {
   meta: {
     messages: {
       removeOrAddDependency: 'Either remove this import or add it as a dependency.',
     },
+    schema: [
+      {
+        type: 'object',
+        properties: {
+          whitelist: {
+            type: 'array',
+            items: {
+              type: 'string',
+            },
+          },
+        },
+      },
+    ],
   },
   create(context: Rule.RuleContext) {
-    const whitelist = context.options;
+    const options = context.options as Options;
+    const whitelist = options.length > 0 ? options[0].whitelist : [];
     const dependencies = getDependencies(context.filename);
     const aliasedPathsMappingPatterns = extractPathMappingPatterns(
       context.sourceCode.parserServices,

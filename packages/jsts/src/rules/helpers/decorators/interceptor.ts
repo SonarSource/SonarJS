@@ -58,7 +58,7 @@ export function interceptReport(
           settings: originalContext.settings,
           parserPath: originalContext.parserPath,
           parserOptions: originalContext.parserOptions,
-          parserServices: originalContext.parserServices,
+          parserServices: originalContext.sourceCode.parserServices,
           sourceCode: originalContext.sourceCode,
           cwd: originalContext.cwd,
           filename: originalContext.filename,

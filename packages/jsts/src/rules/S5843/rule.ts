@@ -51,21 +51,37 @@ import {
   isStringRegexMethodCall,
 } from '../helpers/regex';
 import { SONAR_RUNTIME } from '../../linter/parameters';
+import type { RuleModule } from '../../../../shared/src/types/rule';
 
 const DEFAULT_THESHOLD = 20;
 
-export const rule: Rule.RuleModule = {
+export type Options = [
+  {
+    threshold: number;
+  },
+];
+
+export const rule: RuleModule<Options> = {
   meta: {
     schema: [
-      { type: 'integer' },
       {
+        type: 'object',
+        properties: {
+          threshold: {
+            type: 'integer',
+          },
+        },
+      },
+      {
+        type: 'string',
         // internal parameter for rules having secondary locations
         enum: [SONAR_RUNTIME],
       },
     ],
   },
   create(context: Rule.RuleContext) {
-    const threshold = context.options.length > 0 ? context.options[0] : DEFAULT_THESHOLD;
+    const options = context.options as Options;
+    const threshold = options.length > 0 ? options[0].threshold : DEFAULT_THESHOLD;
     const services = context.sourceCode.parserServices;
     const regexNodes: estree.Node[] = [];
     return {

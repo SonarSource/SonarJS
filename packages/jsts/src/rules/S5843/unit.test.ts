@@ -20,6 +20,11 @@
 import { RuleTester } from 'eslint';
 import { TypeScriptRuleTester } from '../tools';
 import { rule } from './';
+import type { Options } from './rule';
+
+const createOptions = (threshold: number): Options => {
+  return [{ threshold }];
+};
 
 const ruleTesterThreshold0 = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
 ruleTesterThreshold0.run(
@@ -36,67 +41,67 @@ if (isString(regex)) {
       },
       {
         code: `/ /`,
-        options: [0],
+        options: createOptions(0),
       },
       {
         code: `/abc/`,
-        options: [0],
+        options: createOptions(0),
       },
       {
         code: `/^abc$/`,
-        options: [0],
+        options: createOptions(0),
       },
       {
         code: `/(?:abc)/`,
-        options: [0],
+        options: createOptions(0),
       },
       {
         code: `/(abc)/`,
-        options: [0],
+        options: createOptions(0),
       },
       {
         code: `/\\w.u/`,
-        options: [0],
+        options: createOptions(0),
       },
       {
         code: `RegExp('abc')`,
-        options: [0],
+        options: createOptions(0),
       },
       {
         code: `new RegExp('abc')`,
-        options: [0],
+        options: createOptions(0),
       },
       {
         code: 'RegExp(`abc`)',
-        options: [0],
+        options: createOptions(0),
       },
       {
         code: `RegExp('[malformed')`,
-        options: [0],
+        options: createOptions(0),
       },
       {
         code: `RegExp(123)`,
-        options: [0],
+        options: createOptions(0),
       },
       {
         code: `RegExp(unknown)`,
-        options: [0],
+        options: createOptions(0),
       },
       {
         code: `let uninitialized; RegExp(uninitialized)`,
-        options: [0],
+        options: createOptions(0),
       },
       {
         code: `new Foo('abc')`,
-        options: [0],
+        options: createOptions(0),
       },
       {
         code: `Foo('abc')`,
-        options: [0],
+        options: createOptions(0),
       },
       {
         code: `RegExp('(a|' + 'b)')`,
-        options: [0],
+        options: createOptions(0),
       },
     ],
     invalid: [
@@ -115,7 +120,7 @@ if (isString(regex)) {
             endColumn: 10,
           },
         ],
-        options: [0],
+        options: createOptions(0),
       },
       {
         code: `RegExp('\\r?');`,
@@ -132,7 +137,7 @@ if (isString(regex)) {
             endColumn: 13,
           },
         ],
-        options: [0],
+        options: createOptions(0),
       },
       {
         code: `RegExp('\\\\r?');`,
@@ -151,7 +156,7 @@ if (isString(regex)) {
             endColumn: 14,
           },
         ],
-        options: [0],
+        options: createOptions(0),
       },
       {
         code: `/(?<=abc)/`,
@@ -168,7 +173,7 @@ if (isString(regex)) {
             endColumn: 11,
           },
         ],
-        options: [0],
+        options: createOptions(0),
       },
       {
         code: `/[a-z0-9]/`,
@@ -185,7 +190,7 @@ if (isString(regex)) {
             endColumn: 11,
           },
         ],
-        options: [0],
+        options: createOptions(0),
       },
       {
         code: `/x*/`,
@@ -202,7 +207,7 @@ if (isString(regex)) {
             endColumn: 5,
           },
         ],
-        options: [0],
+        options: createOptions(0),
       },
       {
         code: `/x{1,2}/`,
@@ -219,22 +224,22 @@ if (isString(regex)) {
             endColumn: 9,
           },
         ],
-        options: [0],
+        options: createOptions(0),
       },
       {
         code: `/(?:abc)*/`,
         errors: 1,
-        options: [0],
+        options: createOptions(0),
       },
       {
         code: `/((?:abc)*)/`,
         errors: 1,
-        options: [0],
+        options: createOptions(0),
       },
       {
         code: `/((?:abc)*)?/`,
         errors: 1,
-        options: [0],
+        options: createOptions(0),
       },
       {
         code: `/a|b/`,
@@ -251,7 +256,7 @@ if (isString(regex)) {
             endColumn: 6,
           },
         ],
-        options: [0],
+        options: createOptions(0),
       },
       {
         code: `/a|b|c/`,
@@ -271,12 +276,12 @@ if (isString(regex)) {
             endColumn: 8,
           },
         ],
-        options: [0],
+        options: createOptions(0),
       },
       {
         code: `/(?:a|b)*/`,
         errors: 1,
-        options: [0],
+        options: createOptions(0),
       },
       {
         code: `/(?:a|b|c)*/`,
@@ -303,7 +308,7 @@ if (isString(regex)) {
             endColumn: 13,
           },
         ],
-        options: [0],
+        options: createOptions(0),
       },
       {
         code: `/(foo)\\1/`,
@@ -320,7 +325,7 @@ if (isString(regex)) {
             endColumn: 10,
           },
         ],
-        options: [0],
+        options: createOptions(0),
       },
       {
         code: `RegExp('x*')`,
@@ -339,7 +344,7 @@ if (isString(regex)) {
             endColumn: 12,
           },
         ],
-        options: [0],
+        options: createOptions(0),
       },
       {
         code: `new RegExp('x*')`,
@@ -358,18 +363,18 @@ if (isString(regex)) {
             endColumn: 16,
           },
         ],
-        options: [0],
+        options: createOptions(0),
       },
       {
         code: 'RegExp(`x*`)',
         errors: 1,
-        options: [0],
+        options: createOptions(0),
       },
       {
         code: `
         RegExp('/s*')
         `,
-        options: [0],
+        options: createOptions(0),
         errors: [
           {
             message: JSON.stringify({
@@ -393,7 +398,7 @@ if (isString(regex)) {
         code: `
         RegExp('|/?[a-z]')
         `,
-        options: [0],
+        options: createOptions(0),
         errors: [
           {
             message: JSON.stringify({
@@ -431,19 +436,19 @@ ruleTesterThreshold1.run(
         const part2 = 'y*';
         RegExp(part1 + part2);
       `,
-        options: [1],
+        options: createOptions(1),
       },
     ],
     invalid: [
       {
         code: `RegExp('x*' + 'y*')`,
         errors: 1,
-        options: [1],
+        options: createOptions(1),
       },
       {
         code: `RegExp('x*' + 'y*' + 'z*')`,
         errors: 1,
-        options: [1],
+        options: createOptions(1),
       },
       {
         code: `
@@ -481,7 +486,7 @@ ruleTesterThreshold1.run(
             endColumn: 27,
           },
         ],
-        options: [1],
+        options: createOptions(1),
       },
     ],
   },
@@ -495,7 +500,7 @@ typeAwareRuleTester.run(
     valid: [
       {
         code: `'str'.search('abc')`,
-        options: [0],
+        options: createOptions(0),
       },
     ],
     invalid: [
@@ -516,7 +521,7 @@ typeAwareRuleTester.run(
             endColumn: 18,
           },
         ],
-        options: [0],
+        options: createOptions(0),
       },
     ],
   },

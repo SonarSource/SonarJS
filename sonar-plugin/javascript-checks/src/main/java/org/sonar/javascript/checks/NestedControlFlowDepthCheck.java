@@ -45,11 +45,20 @@ public class NestedControlFlowDepthCheck implements EslintBasedCheck {
 
   @Override
   public List<Object> configurations() {
-    return Collections.singletonList(maximumNestingLevel);
+    return Collections.singletonList(new Config(maximumNestingLevel));
   }
 
   @Override
   public String eslintKey() {
     return "nested-control-flow";
+  }
+
+  private static class Config {
+
+    int maximumNestingLevel;
+
+    Config(int maximumNestingLevel) {
+      this.maximumNestingLevel = maximumNestingLevel;
+    }
   }
 }
