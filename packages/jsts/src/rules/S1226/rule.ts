@@ -75,7 +75,7 @@ export const rule: Rule.RuleModule = {
           // default value reassignment
           if (
             isInsideIfStatement(context) ||
-            context.getAncestors().some(node => node.type === 'SwitchCase') // issue-2398
+            context.sourceCode.getAncestors(identifier).some(node => node.type === 'SwitchCase') // issue-2398
           ) {
             return;
           }
@@ -116,7 +116,7 @@ export const rule: Rule.RuleModule = {
 
     return {
       onCodePathStart(_codePath: Rule.CodePath, node: estree.Node) {
-        const currentScope = context.getScope();
+        const currentScope = context.sourceCode.getScope(node);
         if (currentScope && currentScope.type === 'function') {
           const { referencesByIdentifier, variablesToCheck, variablesToCheckInCurrentScope } =
             computeNewContextInfo(variableUsageContext, context, node);

@@ -110,7 +110,7 @@ export const rule: Rule.RuleModule = {
         ) {
           return;
         }
-        const scope = context.getScope();
+        const scope = context.sourceCode.getScope(node);
         const assignedVariable = scope.variables.find(v => v.name === left.name);
         if (!assignedVariable) {
           return;
