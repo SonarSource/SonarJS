@@ -134,16 +134,16 @@ export const rule: RuleModule<Options> = {
 
         function checkFunction(node: estree.Node) {
           const functionLike = node as unknown as TSESTree.FunctionLike;
-          const maxParams = (context.options as Options)[0].max;
+          const [{ max }] = context.options as Options;
           const numParams = functionLike.params.length;
-          if (numParams > maxParams) {
+          if (numParams > max) {
             context.report({
               messageId: 'exceed',
               loc: getFunctionHeaderLocation(functionLike),
               data: {
                 name: getFunctionNameWithKind(functionLike),
                 count: numParams.toString(),
-                max: maxParams.toString(),
+                max: max.toString(),
               },
             });
           }

@@ -24,8 +24,8 @@ import type { Options } from './rule';
 const MAX_PARAMS_3 = 3;
 const MAX_PARAMS_5 = 5;
 
-const createOptions = (maximumFunctionParameters: number): Options => {
-  return [{ max: maximumFunctionParameters }];
+const createOptions = (max: number): Options => {
+  return [{ max }];
 };
 
 const ruleTester = new TypeScriptRuleTester();
