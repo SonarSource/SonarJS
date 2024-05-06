@@ -55,7 +55,7 @@ export const rule: Rule.RuleModule = {
         reportIssue(node, expressions[expressions.length - 1], expressions.length);
       },
       'SwitchCase > LogicalExpression'(node: estree.Node) {
-        if (!isSwitchTrue(getEnclosingSwitchStatement(context))) {
+        if (!isSwitchTrue(getEnclosingSwitchStatement(context, node))) {
           const firstElemAndNesting = getFirstElementAndNestingLevel(
             node as estree.LogicalExpression,
             0,
@@ -69,8 +69,11 @@ export const rule: Rule.RuleModule = {
   },
 };
 
-function getEnclosingSwitchStatement(context: Rule.RuleContext): estree.SwitchStatement {
-  const ancestors = context.getAncestors();
+function getEnclosingSwitchStatement(
+  context: Rule.RuleContext,
+  node: estree.Node,
+): estree.SwitchStatement {
+  const ancestors = context.sourceCode.getAncestors(node);
   for (let i = ancestors.length - 1; i >= 0; i--) {
     if (ancestors[i].type === 'SwitchStatement') {
       return ancestors[i] as estree.SwitchStatement;

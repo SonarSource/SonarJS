@@ -23,6 +23,7 @@ import { Rule, Scope } from 'eslint';
 import { TSESTree } from '@typescript-eslint/utils';
 import { toEncodedMessage } from '../helpers';
 import { SONAR_RUNTIME } from '../../linter/parameters';
+import estree from 'estree';
 
 const MESSAGE = "Use the rest syntax to declare this function's arguments.";
 const SECONDARY_MESSAGE = 'Replace this reference to "arguments".';
@@ -39,9 +40,9 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
       // Ignore root scope containing global variables
-      'Program:exit': () =>
-        context
-          .getScope()
+      'Program:exit': (node: estree.Node) =>
+        context.sourceCode
+          .getScope(node)
           .childScopes.forEach(child => checkArgumentsUsageInScopeRecursively(context, child)),
     };
   },

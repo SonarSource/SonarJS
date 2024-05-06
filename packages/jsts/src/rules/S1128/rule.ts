@@ -247,7 +247,7 @@ function getSuggestion(
   context: Rule.RuleContext,
   { id, importDecl }: { id: estree.Identifier; importDecl: estree.ImportDeclaration },
 ): Rule.SuggestionReportDescriptor {
-  const variables = context.getDeclaredVariables(importDecl);
+  const variables = context.sourceCode.getDeclaredVariables(importDecl);
   if (variables.length === 1) {
     return {
       messageId: 'suggestRemoveWholeStatement',

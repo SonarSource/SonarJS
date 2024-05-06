@@ -273,7 +273,7 @@ function computeNewContextInfo(
   const referencesByIdentifier = new Map<estree.Identifier, Scope.Reference>();
   const variablesToCheck = new Set<string>(variableUsageContext.variablesToCheck);
   const variablesToCheckInCurrentScope = new Set<string>();
-  context.getDeclaredVariables(node).forEach(variable => {
+  context.sourceCode.getDeclaredVariables(node).forEach(variable => {
     variablesToCheck.add(variable.name);
     variablesToCheckInCurrentScope.add(variable.name);
     for (const currentRef of variable.references) {

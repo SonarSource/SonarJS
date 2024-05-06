@@ -21,6 +21,7 @@
 
 import { Rule } from 'eslint';
 import { flatMap, globalsByLibraries } from '../helpers';
+import estree from 'estree';
 
 const excludedNames = new Set(flatMap(Object.values(globalsByLibraries), globals => globals));
 
@@ -33,8 +34,8 @@ export const rule: Rule.RuleModule = {
   },
   create(context: Rule.RuleContext) {
     return {
-      'Program:exit'() {
-        const globalScope = context.getScope();
+      'Program:exit'(node: estree.Node) {
+        const globalScope = context.sourceCode.getScope(node);
         const alreadyReported: Set<string> = new Set();
         globalScope.through
           .filter(ref => ref.isWrite())

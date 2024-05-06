@@ -36,7 +36,7 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
       'VariableDeclaration[kind="const"]': (node: estree.Node) => {
-        context.getDeclaredVariables(node).forEach(variable =>
+        context.sourceCode.getDeclaredVariables(node).forEach(variable =>
           variable.references.filter(isModifyingReference).forEach(reference =>
             context.report({
               message: toEncodedMessage(

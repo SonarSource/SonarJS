@@ -77,7 +77,7 @@ export const rule: Rule.RuleModule = {
           return idRange[0] < scopeRange[0] || idRange[1] > scopeRange[1];
         }
 
-        context.getDeclaredVariables(node).forEach(variable => {
+        context.sourceCode.getDeclaredVariables(node).forEach(variable => {
           const referencesOutside = variable.references
             .map(ref => ref.identifier)
             .filter(isOutsideOfScope);

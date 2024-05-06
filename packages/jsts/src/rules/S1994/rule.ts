@@ -59,7 +59,7 @@ export const rule: Rule.RuleModule = {
     ) {
       if (forLoopStack.length > 0) {
         const currentLoop = peekFor();
-        const parentChain = context.getAncestors();
+        const parentChain = context.sourceCode.getAncestors(node);
         parentChain.push(node);
         const forLoopChild = getChild(currentLoop.forLoop);
         if (forLoopChild) {

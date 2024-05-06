@@ -27,9 +27,9 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     let catchWithDone = false;
 
-    function isInsideTest() {
-      return context
-        .getAncestors()
+    function isInsideTest(node: estree.Node) {
+      return context.sourceCode
+        .getAncestors(node)
         .some(n => n.type === 'CallExpression' && Mocha.isTestConstruct(n));
     }
 
@@ -38,7 +38,7 @@ export const rule: Rule.RuleModule = {
         catchWithDone = true;
       },
       'CatchClause:exit': (node: estree.Node) => {
-        if (!catchWithDone || !isInsideTest()) {
+        if (!catchWithDone || !isInsideTest(node)) {
           return;
         }
         catchWithDone = false;
@@ -57,7 +57,7 @@ export const rule: Rule.RuleModule = {
       CallExpression(node: estree.Node) {
         const callExpr = node as estree.CallExpression;
         if (
-          isInsideTest() &&
+          isInsideTest(node) &&
           isThrowAssertWithoutNot(callExpr) &&
           (callExpr.arguments.length === 0 ||
             (callExpr.arguments.length === 1 && isIdentifier(callExpr.arguments[0], 'Error')))

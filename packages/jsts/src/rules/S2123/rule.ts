@@ -47,7 +47,7 @@ export const rule: Rule.RuleModule = {
         if (
           !updateExpression.prefix &&
           argument.type === 'Identifier' &&
-          isLocalIdentifier(argument, context.getScope())
+          isLocalIdentifier(argument, context.sourceCode.getScope(node))
         ) {
           reportUpdateExpression(updateExpression);
         }

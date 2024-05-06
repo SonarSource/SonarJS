@@ -32,7 +32,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(rule, (context, reportDescriptor) => {
     const forStmt = (reportDescriptor as any).node as estree.ForStatement;
     const suggest: Rule.SuggestionReportDescriptor[] = [];
-    if (isFixable(context.getScope())) {
+    if (isFixable(context.sourceCode.getScope(forStmt))) {
       suggest.push({
         desc: 'Replace with "for of" loop',
         fix: fixer => rewriteForStatement(forStmt, context, fixer),
@@ -77,7 +77,7 @@ function rewriteForStatement(
   fixes.push(fixer.replaceTextRange(headerRange, headerText));
 
   /* rewrite `for` body: `<array>[<index>]` -> `element` */
-  const [indexVar] = context.getDeclaredVariables(forStmt.init!);
+  const [indexVar] = context.sourceCode.getDeclaredVariables(forStmt.init!);
   for (const reference of indexVar.references) {
     const id = reference.identifier;
     if (contains(forStmt.body, id)) {

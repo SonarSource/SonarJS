@@ -33,7 +33,7 @@ export const rule: Rule.RuleModule = {
       "UnaryExpression[operator='delete'][argument.type!='MemberExpression'][argument.type!='ChainExpression']":
         (node: estree.Node) => {
           const { argument } = node as estree.UnaryExpression;
-          if (!isGlobalProperty(argument, context.getScope().references)) {
+          if (!isGlobalProperty(argument, context.sourceCode.getScope(node).references)) {
             context.report({
               messageId: 'removeDelete',
               node,

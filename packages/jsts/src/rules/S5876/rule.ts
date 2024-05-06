@@ -76,7 +76,7 @@ export const rule: Rule.RuleModule = {
           if (hasSessionFalseOption(callExpression)) {
             return;
           }
-          const parent = last(context.getAncestors());
+          const parent = last(context.sourceCode.getAncestors(node));
           if (parent.type === 'CallExpression') {
             const callback = getValueOfExpression(
               context,

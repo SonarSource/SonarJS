@@ -35,9 +35,9 @@ export const rule: Rule.RuleModule = {
     return {
       'MemberExpression[object.type="ThisExpression"]'(node: estree.Node) {
         const memberExpression = node as estree.MemberExpression;
-        const scopeType = context.getScope().variableScope.type;
-        const isInsideClass = context
-          .getAncestors()
+        const scopeType = context.sourceCode.getScope(node).variableScope.type;
+        const isInsideClass = context.sourceCode
+          .getAncestors(node)
           .some(
             ancestor => ancestor.type === 'ClassDeclaration' || ancestor.type === 'ClassExpression',
           );

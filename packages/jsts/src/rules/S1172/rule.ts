@@ -74,7 +74,7 @@ function reportUnusedArgument(
     return;
   }
 
-  let parametersVariable = context.getDeclaredVariables(node);
+  let parametersVariable = context.sourceCode.getDeclaredVariables(node);
 
   if (functionId) {
     parametersVariable = parametersVariable.filter(v => v.name !== functionId.name);

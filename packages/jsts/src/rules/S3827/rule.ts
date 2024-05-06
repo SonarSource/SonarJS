@@ -47,10 +47,10 @@ export const rule: Rule.RuleModule = {
     const excludedNames = new Set();
     const undeclaredIdentifiersByName: Map<string, estree.Identifier[]> = new Map();
     return {
-      'Program:exit'() {
+      'Program:exit'(node: estree.Node) {
         excludedNames.clear();
         undeclaredIdentifiersByName.clear();
-        const globalScope = context.getScope();
+        const globalScope = context.sourceCode.getScope(node);
         globalScope.through.forEach(ref => {
           const identifier = ref.identifier;
           if (excludedNames.has(identifier.name)) {

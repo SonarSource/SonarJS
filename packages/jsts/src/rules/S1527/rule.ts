@@ -20,6 +20,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S1527/javascript
 
 import { Rule, Scope } from 'eslint';
+import estree from 'estree';
 
 const futureReservedWords = [
   'implements',
@@ -71,8 +72,8 @@ export const rule: Rule.RuleModule = {
     }
 
     return {
-      'Program:exit': () => {
-        checkVariablesByScope(context.getScope());
+      'Program:exit': (node: estree.Node) => {
+        checkVariablesByScope(context.sourceCode.getScope(node));
       },
     };
   },

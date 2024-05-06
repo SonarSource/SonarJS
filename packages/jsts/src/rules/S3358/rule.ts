@@ -31,7 +31,7 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
       'ConditionalExpression ConditionalExpression': (node: estree.Node) => {
-        if (!isNestingBroken(context.getAncestors())) {
+        if (!isNestingBroken(context.sourceCode.getAncestors(node))) {
           context.report({
             messageId: 'extractTernary',
             node,

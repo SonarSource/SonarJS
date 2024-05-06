@@ -44,7 +44,7 @@ export const rule: Rule.RuleModule = {
         const { value, parent } = numericLiteral;
         if (
           isPower(value) ||
-          isJSX(context) ||
+          isJSX(context, node) ||
           isBitwiseOperator(parent) ||
           isJsonStringify(parent)
         ) {
@@ -98,8 +98,8 @@ function isPower(value: number) {
   return Number.isInteger(Math.log10(value)) || Number.isInteger(Math.log2(value));
 }
 
-function isJSX(context: Rule.RuleContext) {
-  return context.getAncestors().some(node => node.type.startsWith('JSX'));
+function isJSX(context: Rule.RuleContext, node: estree.Node) {
+  return context.sourceCode.getAncestors(node).some(node => node.type.startsWith('JSX'));
 }
 
 function isBitwiseOperator(node: estree.Node) {
