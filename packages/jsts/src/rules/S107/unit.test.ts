@@ -25,7 +25,7 @@ const MAX_PARAMS_3 = 3;
 const MAX_PARAMS_5 = 5;
 
 const createOptions = (maximumFunctionParameters: number): Options => {
-  return [{ maximumFunctionParameters }];
+  return [{ max: maximumFunctionParameters }];
 };
 
 const ruleTester = new TypeScriptRuleTester();
