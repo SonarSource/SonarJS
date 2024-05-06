@@ -196,7 +196,7 @@ function checkMultipleInputsRegex(
 }
 
 function isWithinWhileCondition(node: estree.Node, context: Rule.RuleContext) {
-  const ancestors = context.getAncestors();
+  const ancestors = context.sourceCode.getAncestors(node);
   let parent: estree.Node | undefined;
   let child: estree.Node = node;
   while ((parent = ancestors.pop()) !== undefined) {

@@ -46,6 +46,8 @@ export const rule: Rule.RuleModule = {
     const reachingDefsMap = new Map<string, ReachingDefinitions>();
     // map from Variable to CodePath ids where variable is used
     const variableUsages = new Map<Variable, Set<string>>();
+    const codePathSegments: Rule.CodePathSegment[][] = [];
+    let currentCodePathSegments: Rule.CodePathSegment[] = [];
 
     return {
       ':matches(AssignmentExpression, VariableDeclarator[init])': (node: estree.Node) => {
@@ -55,7 +57,7 @@ export const rule: Rule.RuleModule = {
         popAssignmentContext();
       },
       Identifier: (node: estree.Node) => {
-        if (isEnumConstant()) {
+        if (isEnumConstant(node)) {
           return;
         }
         checkIdentifierUsage(node as estree.Identifier);
@@ -75,12 +77,19 @@ export const rule: Rule.RuleModule = {
       // CodePath events
       onCodePathSegmentStart: (segment: CodePathSegment) => {
         reachingDefsMap.set(segment.id, new ReachingDefinitions(segment));
+        currentCodePathSegments.push(segment);
       },
       onCodePathStart: codePath => {
         pushContext(new CodePathContext(codePath));
+        codePathSegments.push(currentCodePathSegments);
+        currentCodePathSegments = [];
       },
       onCodePathEnd: () => {
         popContext();
+        currentCodePathSegments = codePathSegments.pop() || [];
+      },
+      onCodePathSegmentEnd() {
+        currentCodePathSegments.pop();
       },
     };
 
@@ -164,8 +173,10 @@ export const rule: Rule.RuleModule = {
       );
     }
 
-    function isEnumConstant() {
-      return (context.getAncestors() as TSESTree.Node[]).some(n => n.type === 'TSEnumDeclaration');
+    function isEnumConstant(node: estree.Node) {
+      return (context.sourceCode.getAncestors(node) as TSESTree.Node[]).some(
+        n => n.type === 'TSEnumDeclaration',
+      );
     }
 
     function variableUsedOutsideOfCodePath(variable: Scope.Variable) {
@@ -188,7 +199,7 @@ export const rule: Rule.RuleModule = {
         const assignment = peek(assignmentStack);
         assignment.add(ref);
       } else {
-        peek(codePathStack).codePath.currentSegments.forEach(segment => {
+        currentCodePathSegments.forEach(segment => {
           const reachingDefs = reachingDefsForSegment(segment);
           reachingDefs.add(ref);
         });
@@ -246,7 +257,7 @@ export const rule: Rule.RuleModule = {
     }
 
     function resolveReference(node: estree.Identifier) {
-      return resolveReferenceRecursively(node, context.getScope());
+      return resolveReferenceRecursively(node, context.sourceCode.getScope(node));
     }
   },
 };

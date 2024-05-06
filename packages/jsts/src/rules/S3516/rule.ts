@@ -32,6 +32,7 @@ import {
   toEncodedMessage,
 } from '../helpers';
 import { SONAR_RUNTIME } from '../../linter/parameters';
+import CodePathSegment = Rule.CodePathSegment;
 
 interface FunctionContext {
   codePath: Rule.CodePath;
@@ -58,12 +59,14 @@ export const rule: Rule.RuleModule = {
 
   create(context: Rule.RuleContext) {
     const functionContextStack: FunctionContext[] = [];
+    const codePathSegments: Rule.CodePathSegment[][] = [];
+    let currentCodePathSegments: Rule.CodePathSegment[] = [];
 
     const checkOnFunctionExit = (node: estree.Node) =>
       checkInvariantReturnStatements(node, functionContextStack[functionContextStack.length - 1]);
 
     function checkInvariantReturnStatements(node: estree.Node, functionContext?: FunctionContext) {
-      if (!functionContext || hasDifferentReturnTypes(functionContext)) {
+      if (!functionContext || hasDifferentReturnTypes(functionContext, currentCodePathSegments)) {
         return;
       }
 
@@ -96,9 +99,18 @@ export const rule: Rule.RuleModule = {
           containsReturnWithoutValue: false,
           returnStatements: [],
         });
+        codePathSegments.push(currentCodePathSegments);
+        currentCodePathSegments = [];
       },
       onCodePathEnd() {
         functionContextStack.pop();
+        currentCodePathSegments = codePathSegments.pop() || [];
+      },
+      onCodePathSegmentStart: (segment: CodePathSegment) => {
+        currentCodePathSegments.push(segment);
+      },
+      onCodePathSegmentEnd() {
+        currentCodePathSegments.pop();
       },
       ReturnStatement(node: estree.Node) {
         const currentContext = functionContextStack[functionContextStack.length - 1];
@@ -116,13 +128,14 @@ export const rule: Rule.RuleModule = {
   },
 };
 
-function hasDifferentReturnTypes(functionContext: FunctionContext) {
+function hasDifferentReturnTypes(
+  functionContext: FunctionContext,
+  currentSegments: Rule.CodePathSegment[],
+) {
   // As this method is called at the exit point of a function definition, the current
   // segments are the ones leading to the exit point at the end of the function. If they
   // are reachable, it means there is an implicit return.
-  const hasImplicitReturn = functionContext.codePath.currentSegments.some(
-    segment => segment.reachable,
-  );
+  const hasImplicitReturn = currentSegments.some(segment => segment.reachable);
 
   return (
     hasImplicitReturn ||
