@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import org.sonar.check.Rule;

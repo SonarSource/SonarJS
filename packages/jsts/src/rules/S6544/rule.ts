@@ -25,6 +25,7 @@ import { eslintRules } from '../core';
 import { FUNCTION_NODES, RuleContext, interceptReport, mergeRules } from '../helpers';
 import { TSESTree } from '@typescript-eslint/utils';
 import { getMainFunctionTokenLocation } from 'eslint-plugin-sonarjs/lib/src/utils/locations';
+import type { RuleModule } from '../../../../shared/src/types/rule';
 
 /**
  * We keep a single occurence of issues raised by both rules, discarding the ones raised by 'no-async-promise-executor'
@@ -74,13 +75,19 @@ const decoratedNoAsyncPromiseExecutorRule = interceptReport(
   },
 );
 
-export const rule: Rule.RuleModule = {
+export const rule: RuleModule = {
   meta: {
     messages: {
       ...decoratedNoMisusedPromisesRule.meta!.messages,
       ...decoratedNoAsyncPromiseExecutorRule.meta!.messages,
     },
     hasSuggestions: true,
+    schema: [
+      {
+        type: 'object',
+        properties: {},
+      },
+    ],
   },
   create(context: Rule.RuleContext) {
     return {

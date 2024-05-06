@@ -39,8 +39,6 @@ type RuleMetaData<Options extends RuleOptions> = Omit<Rule.RuleMetaData, 'schema
   schema: Array<RuleModuleSchema<Options>>;
 };
 
-export type RuleModule<Options extends RuleOptions | null = null> = Options extends RuleOptions
-  ? Omit<BaseRuleModule, 'meta'> & {
-      meta: RuleMetaData<Options>;
-    }
-  : BaseRuleModule;
+export type RuleModule<Options extends RuleOptions = [{}]> = Omit<BaseRuleModule, 'meta'> & {
+  meta: RuleMetaData<Options>;
+};

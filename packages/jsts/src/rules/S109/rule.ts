@@ -23,12 +23,19 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { tsEslintRules } from '../typescript-eslint';
 import { getNodeParent, isMethodInvocation } from '../helpers';
+import type { RuleModule } from '../../../../shared/src/types/rule';
 
-export const rule: Rule.RuleModule = {
+export const rule: RuleModule = {
   meta: {
     messages: {
       noMagic: 'No magic number: {{raw}}.',
     },
+    schema: [
+      {
+        type: 'object',
+        properties: {},
+      },
+    ],
   },
   create(context: Rule.RuleContext) {
     const baseRule = tsEslintRules['no-magic-numbers'].create(context);
