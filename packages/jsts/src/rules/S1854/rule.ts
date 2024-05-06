@@ -50,7 +50,7 @@ export const rule: Rule.RuleModule = {
         popAssignmentContext();
       },
       Identifier: (node: estree.Node) => {
-        if (isEnumConstant()) {
+        if (isEnumConstant(node)) {
           return;
         }
         checkIdentifierUsage(node as estree.Identifier);
@@ -174,8 +174,10 @@ export const rule: Rule.RuleModule = {
       );
     }
 
-    function isEnumConstant() {
-      return (context.getAncestors() as TSESTree.Node[]).some(n => n.type === 'TSEnumDeclaration');
+    function isEnumConstant(node: estree.Node) {
+      return (context.sourceCode.getAncestors(node) as TSESTree.Node[]).some(
+        n => n.type === 'TSEnumDeclaration',
+      );
     }
 
     function isDefaultParameter(ref: ReferenceLike) {
@@ -246,7 +248,10 @@ export const rule: Rule.RuleModule = {
       if (isJSXAttributeName(node)) {
         return {};
       }
-      const jsxReference = new JSXReference(node, context.getScope());
+      const jsxReference = new JSXReference(
+        node,
+        context.sourceCode.getScope(node as any as estree.Node),
+      );
       return { ref: jsxReference, variable: jsxReference.resolved };
     }
 
@@ -303,7 +308,7 @@ export const rule: Rule.RuleModule = {
     }
 
     function resolveReference(node: estree.Identifier) {
-      return resolveReferenceRecursively(node, context.getScope());
+      return resolveReferenceRecursively(node, context.sourceCode.getScope(node));
     }
 
     function resolveReferenceRecursively(

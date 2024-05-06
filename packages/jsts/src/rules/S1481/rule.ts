@@ -109,8 +109,8 @@ export const rule: Rule.RuleModule = {
         jsxComponentsToIgnore.push((node as any).name);
       },
 
-      'Program:exit': () => {
-        checkScope(context.getScope(), 'nothing');
+      'Program:exit': (node: estree.Node) => {
+        checkScope(context.sourceCode.getScope(node), 'nothing');
         toIgnore = [];
         jsxComponentsToIgnore = [];
       },

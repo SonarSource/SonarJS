@@ -75,7 +75,10 @@ export const rule: Rule.RuleModule = {
             argumentIndex,
             functionCall,
           );
-          if (swappedArgumentName && !areComparedArguments([argumentName, swappedArgumentName])) {
+          if (
+            swappedArgumentName &&
+            !areComparedArguments([argumentName, swappedArgumentName], functionCall)
+          ) {
             raiseIssue(argumentName, swappedArgumentName, functionDeclaration, functionCall);
             return;
           }
@@ -83,7 +86,7 @@ export const rule: Rule.RuleModule = {
       }
     }
 
-    function areComparedArguments(argumentNames: string[]): boolean {
+    function areComparedArguments(argumentNames: string[], node: estree.Node): boolean {
       function getName(node: estree.Node): string | undefined {
         switch (node.type) {
           case 'Identifier':
@@ -102,8 +105,8 @@ export const rule: Rule.RuleModule = {
           argumentNames.length
         );
       }
-      const maybeIfStmt = context
-        .getAncestors()
+      const maybeIfStmt = context.sourceCode
+        .getAncestors(node)
         .reverse()
         .find(ancestor => ancestor.type === 'IfStatement');
       if (maybeIfStmt) {

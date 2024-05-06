@@ -74,7 +74,7 @@ export const rule: Rule.RuleModule = {
           // we do not raise issue when value is reassigned inside a top-level IfStatement, as it might be a shift or
           // default value reassignment
           if (
-            isInsideIfStatement(context) ||
+            isInsideIfStatement(context, identifier) ||
             context.sourceCode.getAncestors(identifier).some(node => node.type === 'SwitchCase') // issue-2398
           ) {
             return;
@@ -226,8 +226,8 @@ export const rule: Rule.RuleModule = {
   },
 };
 
-function isInsideIfStatement(context: Rule.RuleContext) {
-  const ancestors = context.getAncestors();
+function isInsideIfStatement(context: Rule.RuleContext, node: estree.Node): boolean {
+  const ancestors = context.sourceCode.getAncestors(node);
   for (let i = ancestors.length - 1; i >= 0; i--) {
     if (
       ancestors[i].type === 'IfStatement' &&
