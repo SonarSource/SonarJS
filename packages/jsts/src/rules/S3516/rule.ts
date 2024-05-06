@@ -70,7 +70,7 @@ export const rule: Rule.RuleModule = {
       const returnedValues = functionContext.returnStatements.map(
         returnStatement => returnStatement.argument as estree.Node,
       );
-      if (areAllSameValue(returnedValues, context.getScope())) {
+      if (areAllSameValue(returnedValues, context.sourceCode.getScope(node))) {
         const message = toEncodedMessage(
           `Refactor this function to not always return the same value.`,
           returnedValues as TSESTree.Node[],

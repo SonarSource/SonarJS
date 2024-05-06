@@ -154,7 +154,7 @@ export const rule: Rule.RuleModule = {
 
     const ruleListener = {
       ImportDeclaration: (node: estree.Node) => {
-        const variables = context.getDeclaredVariables(node);
+        const variables = context.sourceCode.getDeclaredVariables(node);
         for (const variable of variables) {
           if (!isExcluded(variable) && !isImplicitJsx(variable) && isUnused(variable)) {
             unusedImports.push({

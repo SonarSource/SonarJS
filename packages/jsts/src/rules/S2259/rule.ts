@@ -148,13 +148,15 @@ function checkNullDereference(
   if (node.type !== 'Identifier') {
     return;
   }
-  const scope = context.getScope();
+  const scope = context.sourceCode.getScope(node);
   const symbol = scope.references.find(v => v.identifier === node)?.resolved;
   if (!symbol) {
     return;
   }
 
-  const enclosingFunction = context.getAncestors().find(n => functionLike.has(n.type));
+  const enclosingFunction = context.sourceCode
+    .getAncestors(node)
+    .find(n => functionLike.has(n.type));
 
   if (
     !alreadyRaisedSymbols.has(symbol) &&

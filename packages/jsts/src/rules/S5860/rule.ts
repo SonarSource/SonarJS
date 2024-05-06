@@ -201,7 +201,7 @@ function checkNonExistingGroupReference(
 function extractGroupNodes(memberExpr: estree.MemberExpression, intellisense: RegexIntelliSense) {
   if (isDotNotation(memberExpr)) {
     const { property } = memberExpr;
-    const ancestors = intellisense.context.getAncestors();
+    const ancestors = intellisense.context.sourceCode.getAncestors(memberExpr);
     let parent = ancestors.pop();
     while ((parent as TSESTree.Node).type === 'TSNonNullExpression') {
       parent = ancestors.pop();

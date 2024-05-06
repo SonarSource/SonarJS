@@ -76,7 +76,7 @@ export const rule: Rule.RuleModule = {
           loopNode &&
           !isIIEF(node, context) &&
           !isAllowedCallbacks(context, node) &&
-          context.getScope().through.some(ref => !isSafe(ref, loopNode))
+          context.sourceCode.getScope(node).through.some(ref => !isSafe(ref, loopNode))
         ) {
           context.report({
             message: toEncodedMessage(message, [getMainLoopToken(loopNode, context)]),
