@@ -25,7 +25,7 @@ import {
   EncodedMessage,
   IssueLocation,
   getMainFunctionTokenLocation,
-} from 'eslint-plugin-sonarjs/lib/utils/locations';
+} from 'eslint-plugin-sonarjs/lib/src/utils/locations';
 import { FunctionNodeType, isFunctionNode, getParent, RuleContext } from '../helpers';
 import { TSESTree } from '@typescript-eslint/utils';
 import { SONAR_RUNTIME } from '../../linter/parameters';

@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { areEquivalent } from 'eslint-plugin-sonarjs/lib/utils/equivalence';
+import { areEquivalent } from 'eslint-plugin-sonarjs/lib/src/utils/equivalence';
 import { getParent, RuleContext } from '../helpers';
 import { TSESTree } from '@typescript-eslint/utils';
 

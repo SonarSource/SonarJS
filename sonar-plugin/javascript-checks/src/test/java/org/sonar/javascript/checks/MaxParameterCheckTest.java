@@ -31,9 +31,9 @@ class MaxParameterCheckTest {
     MaxParameterCheck check = new MaxParameterCheck();
     // default configuration
     String defaultConfigAsString = new Gson().toJson(check.configurations());
-    assertThat(defaultConfigAsString).isEqualTo("[{\"maximumFunctionParameters\":7}]");
+    assertThat(defaultConfigAsString).isEqualTo("[{\"max\":7}]");
     check.maximumFunctionParameters = 4;
     String customConfigAsString = new Gson().toJson(check.configurations());
-    assertThat(customConfigAsString).isEqualTo("[{\"maximumFunctionParameters\":4}]");
+    assertThat(customConfigAsString).isEqualTo("[{\"max\":4}]");
   }
 }

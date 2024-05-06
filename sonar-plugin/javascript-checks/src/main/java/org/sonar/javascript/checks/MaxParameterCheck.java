@@ -57,10 +57,10 @@ public class MaxParameterCheck implements EslintBasedCheck {
 
   private static class Config {
 
-    int maximumFunctionParameters;
+    int max;
 
     Config(int maximumFunctionParameters) {
-      this.maximumFunctionParameters = maximumFunctionParameters;
+      this.max = maximumFunctionParameters;
     }
   }
 }

@@ -36,7 +36,7 @@ const eslintMaxParams = eslintRules['max-params'];
 
 export type Options = [
   {
-    maximumFunctionParameters: number;
+    max: number;
   },
 ];
 
@@ -47,7 +47,7 @@ export const rule: RuleModule<Options> = {
       {
         type: 'object',
         properties: {
-          maximumFunctionParameters: {
+          max: {
             type: 'integer',
           },
         },
@@ -62,7 +62,7 @@ export const rule: RuleModule<Options> = {
     const ruleDecoration: Rule.RuleModule = interceptReport(
       eslintMaxParams,
       function (context: Rule.RuleContext, descriptor: Rule.ReportDescriptor) {
-        const [{ maximumFunctionParameters }] = context.options as Options;
+        const [{ max }] = context.options as Options;
         if ('node' in descriptor) {
           const functionLike = descriptor.node as TSESTree.FunctionLike;
           if (!isException(functionLike)) {
@@ -75,10 +75,7 @@ export const rule: RuleModule<Options> = {
         }
 
         function isBeyondMaxParams(functionLike: TSESTree.FunctionLike) {
-          return (
-            functionLike.params.filter(p => p.type !== 'TSParameterProperty').length <=
-            maximumFunctionParameters
-          );
+          return functionLike.params.filter(p => p.type !== 'TSParameterProperty').length <= max;
         }
 
         function isAngularConstructor(functionLike: TSESTree.FunctionLike) {
@@ -137,16 +134,16 @@ export const rule: RuleModule<Options> = {
 
         function checkFunction(node: estree.Node) {
           const functionLike = node as unknown as TSESTree.FunctionLike;
-          const maxParams = (context.options as Options)[0].maximumFunctionParameters;
+          const [{ max }] = context.options as Options;
           const numParams = functionLike.params.length;
-          if (numParams > maxParams) {
+          if (numParams > max) {
             context.report({
               messageId: 'exceed',
               loc: getFunctionHeaderLocation(functionLike),
               data: {
                 name: getFunctionNameWithKind(functionLike),
                 count: numParams.toString(),
-                max: maxParams.toString(),
+                max: max.toString(),
               },
             });
           }
