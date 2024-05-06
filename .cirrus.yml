@@ -300,7 +300,7 @@ perf_task:
   timeout_in: 240m
   depends_on:
     - build
-  only_if: $CIRRUS_CRON == "nightly"
+  trigger_type: manual
   eks_container:
     <<: *CONTAINER_DEFINITION
     image: ${CIRRUS_AWS_ACCOUNT}.dkr.ecr.eu-central-1.amazonaws.com/base:j17-latest
