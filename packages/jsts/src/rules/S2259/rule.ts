@@ -31,7 +31,7 @@ import {
   isNullLiteral,
   isUndefined,
 } from '../helpers';
-import { areEquivalent } from 'eslint-plugin-sonarjs/lib/utils/equivalence';
+import { areEquivalent } from 'eslint-plugin-sonarjs/lib/src/utils/equivalence';
 
 enum Null {
   confirmed,

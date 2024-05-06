@@ -24,7 +24,7 @@ import { tsEslintRules } from '../typescript-eslint';
 import { eslintRules } from '../core';
 import { FUNCTION_NODES, RuleContext, interceptReport, mergeRules } from '../helpers';
 import { TSESTree } from '@typescript-eslint/utils';
-import { getMainFunctionTokenLocation } from 'eslint-plugin-sonarjs/lib/utils/locations';
+import { getMainFunctionTokenLocation } from 'eslint-plugin-sonarjs/lib/src/utils/locations';
 
 /**
  * We keep a single occurence of issues raised by both rules, discarding the ones raised by 'no-async-promise-executor'

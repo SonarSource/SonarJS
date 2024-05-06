@@ -19,7 +19,7 @@
  */
 import { RuleTester } from 'eslint';
 import { rule } from './';
-import { IssueLocation, EncodedMessage } from 'eslint-plugin-sonarjs/lib/utils/locations';
+import { IssueLocation, EncodedMessage } from 'eslint-plugin-sonarjs/lib/src/utils/locations';
 import type { Options } from './rule';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
