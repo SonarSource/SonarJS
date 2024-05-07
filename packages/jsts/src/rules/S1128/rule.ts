@@ -154,7 +154,7 @@ export const rule: Rule.RuleModule = {
 
     const ruleListener = {
       ImportDeclaration: (node: estree.Node) => {
-        const variables = context.getDeclaredVariables(node);
+        const variables = context.sourceCode.getDeclaredVariables(node);
         for (const variable of variables) {
           if (!isExcluded(variable) && !isImplicitJsx(variable) && isUnused(variable)) {
             unusedImports.push({
@@ -247,7 +247,7 @@ function getSuggestion(
   context: Rule.RuleContext,
   { id, importDecl }: { id: estree.Identifier; importDecl: estree.ImportDeclaration },
 ): Rule.SuggestionReportDescriptor {
-  const variables = context.getDeclaredVariables(importDecl);
+  const variables = context.sourceCode.getDeclaredVariables(importDecl);
   if (variables.length === 1) {
     return {
       messageId: 'suggestRemoveWholeStatement',

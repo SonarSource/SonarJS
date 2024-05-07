@@ -41,6 +41,8 @@ export const rule: Rule.RuleModule = {
     const variableUsages = new Map<Variable, Set<string>>();
     const referencesUsedInDestructuring = new Set<ReferenceLike>();
     const destructuringStack: DestructuringContext[] = [];
+    const codePathSegments: CodePathSegment[][] = [];
+    let currentCodePathSegments: CodePathSegment[] = [];
 
     return {
       ':matches(AssignmentExpression, VariableDeclarator[init])': (node: estree.Node) => {
@@ -50,7 +52,7 @@ export const rule: Rule.RuleModule = {
         popAssignmentContext();
       },
       Identifier: (node: estree.Node) => {
-        if (isEnumConstant()) {
+        if (isEnumConstant(node)) {
           return;
         }
         checkIdentifierUsage(node as estree.Identifier);
@@ -89,12 +91,19 @@ export const rule: Rule.RuleModule = {
       // CodePath events
       onCodePathSegmentStart: (segment: CodePathSegment) => {
         liveVariablesMap.set(segment.id, new LiveVariables(segment));
+        currentCodePathSegments.push(segment);
       },
       onCodePathStart: codePath => {
         pushContext(new CodePathContext(codePath));
+        codePathSegments.push(currentCodePathSegments);
+        currentCodePathSegments = [];
+      },
+      onCodePathSegmentEnd() {
+        currentCodePathSegments.pop();
       },
       onCodePathEnd: () => {
         popContext();
+        currentCodePathSegments = codePathSegments.pop() || [];
       },
     };
 
@@ -174,8 +183,10 @@ export const rule: Rule.RuleModule = {
       );
     }
 
-    function isEnumConstant() {
-      return (context.getAncestors() as TSESTree.Node[]).some(n => n.type === 'TSEnumDeclaration');
+    function isEnumConstant(node: estree.Node) {
+      return (context.sourceCode.getAncestors(node) as TSESTree.Node[]).some(
+        n => n.type === 'TSEnumDeclaration',
+      );
     }
 
     function isDefaultParameter(ref: ReferenceLike) {
@@ -246,7 +257,10 @@ export const rule: Rule.RuleModule = {
       if (isJSXAttributeName(node)) {
         return {};
       }
-      const jsxReference = new JSXReference(node, context.getScope());
+      const jsxReference = new JSXReference(
+        node,
+        context.sourceCode.getScope(node as unknown as estree.Node),
+      );
       return { ref: jsxReference, variable: jsxReference.resolved };
     }
 
@@ -261,7 +275,7 @@ export const rule: Rule.RuleModule = {
         const assignment = peek(assignmentStack);
         assignment.add(ref);
       } else {
-        peek(codePathStack).codePath.currentSegments.forEach(segment => {
+        [...currentCodePathSegments].forEach(segment => {
           lvaForSegment(segment).add(ref);
         });
       }
@@ -303,7 +317,7 @@ export const rule: Rule.RuleModule = {
     }
 
     function resolveReference(node: estree.Identifier) {
-      return resolveReferenceRecursively(node, context.getScope());
+      return resolveReferenceRecursively(node, context.sourceCode.getScope(node));
     }
 
     function resolveReferenceRecursively(

@@ -277,7 +277,7 @@ export function isTypeAlias(node: TSESTree.TypeNode, context: Rule.RuleContext) 
   ) {
     return false;
   }
-  const scope = context.getScope();
+  const scope = context.sourceCode.getScope(node as unknown as estree.Node);
   const variable = getVariableFromScope(scope, node.typeName.name);
   return variable?.defs.some(def => def.node.type === 'TSTypeAliasDeclaration');
 }

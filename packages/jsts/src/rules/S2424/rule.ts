@@ -57,8 +57,8 @@ export const rule: Rule.RuleModule = {
     }
 
     return {
-      Program: () => {
-        checkScope(context.getScope());
+      Program: (node: estree.Node) => {
+        checkScope(context.sourceCode.getScope(node));
       },
       'Program:exit': () => {
         overriden.forEach(node => {

@@ -48,7 +48,7 @@ export const rule: Rule.RuleModule = {
           isString(right, services) &&
           !isLiteralException(left) &&
           !isLiteralException(right) &&
-          !isWithinSortCallback(context)
+          !isWithinSortCallback(context, node)
         ) {
           context.report({
             message: toEncodedMessage(
@@ -69,8 +69,8 @@ function isLiteralException(node: estree.Node) {
   return node.type === 'Literal' && node.raw!.length === 3;
 }
 
-function isWithinSortCallback(context: Rule.RuleContext) {
-  const ancestors = context.getAncestors().reverse();
+function isWithinSortCallback(context: Rule.RuleContext, node: estree.Node) {
+  const ancestors = context.sourceCode.getAncestors(node).reverse();
   const maybeCallback = ancestors.find(node =>
     ['ArrowFunctionExpression', 'FunctionExpression'].includes(node.type),
   );

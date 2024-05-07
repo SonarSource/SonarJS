@@ -31,8 +31,8 @@ export const rule: Rule.RuleModule = {
   },
   create(context: Rule.RuleContext) {
     return {
-      Program() {
-        const scope = context.getScope();
+      Program(node: estree.Node) {
+        const scope = context.sourceCode.getScope(node);
         // As we parse every file with "module" source type, we find user defined global variables in the module scope
         const moduleScope = findModuleScope(context);
         moduleScope?.variables.forEach(variable => {

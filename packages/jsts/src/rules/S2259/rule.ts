@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// https://sonarsource.github.io/rspec/#/rspec/S22259/javascript
+// https://sonarsource.github.io/rspec/#/rspec/S2259/javascript
 
 import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
@@ -69,7 +69,7 @@ export const rule: Rule.RuleModule = {
       'LogicalExpression MemberExpression'(node: estree.Node) {
         const { object, optional } = node as estree.MemberExpression;
         if (!optional) {
-          const ancestors = context.getAncestors();
+          const ancestors = context.sourceCode.getAncestors(node);
           const enclosingLogicalExpression = ancestors.find(
             n => n.type === 'LogicalExpression',
           ) as estree.LogicalExpression;
@@ -148,13 +148,15 @@ function checkNullDereference(
   if (node.type !== 'Identifier') {
     return;
   }
-  const scope = context.getScope();
+  const scope = context.sourceCode.getScope(node);
   const symbol = scope.references.find(v => v.identifier === node)?.resolved;
   if (!symbol) {
     return;
   }
 
-  const enclosingFunction = context.getAncestors().find(n => functionLike.has(n.type));
+  const enclosingFunction = context.sourceCode
+    .getAncestors(node)
+    .find(n => functionLike.has(n.type));
 
   if (
     !alreadyRaisedSymbols.has(symbol) &&

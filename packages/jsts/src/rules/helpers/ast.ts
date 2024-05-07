@@ -309,7 +309,8 @@ export function getLhsVariable(
   context: Rule.RuleContext,
   node: estree.Node,
 ): Scope.Variable | undefined {
-  const parent = context.getAncestors()[context.getAncestors().length - 1];
+  const ancestors = context.sourceCode.getAncestors(node);
+  const parent = ancestors[ancestors.length - 1];
   let formIdentifier: estree.Identifier | undefined;
   if (parent.type === 'VariableDeclarator' && parent.id.type === 'Identifier') {
     formIdentifier = parent.id;

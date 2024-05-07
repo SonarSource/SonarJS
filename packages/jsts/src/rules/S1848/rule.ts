@@ -59,7 +59,7 @@ export const rule: Rule.RuleModule = {
 };
 
 function isTryable(node: estree.Node, context: Rule.RuleContext) {
-  const ancestors = context.getAncestors();
+  const ancestors = context.sourceCode.getAncestors(node);
   let parent = undefined;
   let child = node;
   while ((parent = ancestors.pop()) !== undefined) {

@@ -41,7 +41,7 @@ export const rule: Rule.RuleModule = {
 
     return {
       UpdateExpression(node: estree.Node) {
-        if (!isIgnored(node, context.getAncestors())) {
+        if (!isIgnored(node, context.sourceCode.getAncestors(node))) {
           reportUpdateExpression(node as estree.UpdateExpression);
         }
       },

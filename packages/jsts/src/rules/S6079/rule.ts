@@ -58,8 +58,8 @@ export const rule: Rule.RuleModule = {
       if (done.type !== 'Identifier') {
         return;
       }
-      const callbackScope = context
-        .getScope()
+      const callbackScope = context.sourceCode
+        .getScope(node)
         .childScopes.find(scope => scope.block === testCase.callback);
       if (!callbackScope) {
         return;

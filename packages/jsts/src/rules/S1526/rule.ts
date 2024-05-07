@@ -38,7 +38,7 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
       "VariableDeclaration[kind='var']": (node: estree.Node) => {
-        const variables = context.getDeclaredVariables(node);
+        const variables = context.sourceCode.getDeclaredVariables(node);
         for (const variable of variables) {
           const declaration = variable.identifiers[0];
           const misused = variable.references

@@ -35,7 +35,7 @@ function reportExempting(
   return (context, reportDescriptor) => {
     if ('node' in reportDescriptor) {
       const node = reportDescriptor['node'] as AssignmentPattern;
-      const scope = context.getScope();
+      const scope = context.sourceCode.getScope(node);
       const variable = scope.variables.find(value => isIdentifier(node.left, value.name));
       const enclosingFunction = variable?.defs?.[0]?.node as BaseFunction;
       if (enclosingFunction && !exemptionCondition(enclosingFunction)) {

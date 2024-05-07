@@ -57,7 +57,7 @@ export const rule: Rule.RuleModule = {
           !isNumeric(expression.right)
         ) {
           lonelyBitwiseAndOr = expression;
-          lonelyBitwiseAndOrAncestors = [...context.getAncestors()];
+          lonelyBitwiseAndOrAncestors = [...context.sourceCode.getAncestors(node)];
         } else if (BITWISE_OPERATORS.includes(expression.operator)) {
           fileContainsSeveralBitwiseOperations = true;
         }

@@ -53,7 +53,11 @@ function checkErrorHandlerMiddleware(
   callExpression: estree.CallExpression,
 ) {
   const { callee, arguments: args } = callExpression;
-  if (isMemberWithProperty(callee, 'use') && args.length > 0 && !isInsideConditional(context)) {
+  if (
+    isMemberWithProperty(callee, 'use') &&
+    args.length > 0 &&
+    !isInsideConditional(context, callExpression)
+  ) {
     for (const m of flattenArgs(context, args)) {
       const middleware = getUniqueWriteUsageOrNode(context, m);
       if (
@@ -69,7 +73,7 @@ function checkErrorHandlerMiddleware(
   }
 }
 
-function isInsideConditional(context: Rule.RuleContext) {
-  const ancestors = context.getAncestors();
+function isInsideConditional(context: Rule.RuleContext, node: estree.Node): boolean {
+  const ancestors = context.sourceCode.getAncestors(node);
   return ancestors.some(ancestor => ancestor.type === 'IfStatement');
 }

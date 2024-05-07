@@ -62,13 +62,13 @@ export const rule: Rule.RuleModule = {
       );
     }
 
-    function getReactComponentScope(): Scope | null {
-      const scope = context.getScope();
+    function getReactComponentScope(node: estree.Node): Scope | null {
+      const scope = context.sourceCode.getScope(node);
       const isReact = isFunctionNode(scope.block) && matchesReactComponentName(scope.block, 1);
       return isReact ? scope : null;
     }
 
-    function isInsideFunctionScope(scope: Scope | null): boolean {
+    function isInsideFunctionScope(scope: Scope | null, node: estree.Node): boolean {
       function searchUpperFunctionScope(current: Scope | null): Scope | null {
         if (current === null) {
           return null;
@@ -79,7 +79,9 @@ export const rule: Rule.RuleModule = {
         }
       }
 
-      return scope !== null && searchUpperFunctionScope(context.getScope()) === scope;
+      return (
+        scope !== null && searchUpperFunctionScope(context.sourceCode.getScope(node)) === scope
+      );
     }
 
     function isInsideConditional(node: estree.Node): boolean {
@@ -93,12 +95,12 @@ export const rule: Rule.RuleModule = {
     const setters: Variable[] = []; // Setter variables returned by the React useState() function.
 
     return {
-      ':function'() {
-        reactComponentScope ??= getReactComponentScope(); // Store the top-most React component scope.
+      ':function'(node: estree.Node) {
+        reactComponentScope ??= getReactComponentScope(node); // Store the top-most React component scope.
       },
 
-      ':function:exit'() {
-        if (context.getScope() === reactComponentScope) {
+      ':function:exit'(node: estree.Node) {
+        if (context.sourceCode.getScope(node) === reactComponentScope) {
           // Clean variables when leaving the React component scope.
           reactComponentScope = null;
           setters.length = 0;
@@ -110,7 +112,7 @@ export const rule: Rule.RuleModule = {
         ':has(ArrayPattern[elements.length=2][elements.0.type="Identifier"][elements.1.type="Identifier"])'](
         node: estree.VariableDeclarator,
       ) {
-        if (!isInsideFunctionScope(reactComponentScope)) {
+        if (!isInsideFunctionScope(reactComponentScope, node)) {
           return;
         }
 
@@ -127,7 +129,7 @@ export const rule: Rule.RuleModule = {
       // Selector matching function calls like: setCount(1)
       'CallExpression[callee.type="Identifier"][arguments.length=1]'(node: estree.CallExpression) {
         if (
-          !isInsideFunctionScope(reactComponentScope) ||
+          !isInsideFunctionScope(reactComponentScope, node) ||
           setters.length === 0 ||
           isInsideConditional(node)
         ) {

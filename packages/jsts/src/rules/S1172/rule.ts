@@ -65,8 +65,8 @@ function reportUnusedArgument(
   }
 
   if (
-    context
-      .getScope()
+    context.sourceCode
+      .getScope(node)
       .variables.some(
         v => v.name === 'arguments' && v.identifiers.length === 0 && v.references.length > 0,
       )
@@ -74,7 +74,7 @@ function reportUnusedArgument(
     return;
   }
 
-  let parametersVariable = context.getDeclaredVariables(node);
+  let parametersVariable = context.sourceCode.getDeclaredVariables(node);
 
   if (functionId) {
     parametersVariable = parametersVariable.filter(v => v.name !== functionId.name);

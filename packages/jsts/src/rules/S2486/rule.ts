@@ -33,7 +33,7 @@ export const rule: Rule.RuleModule = {
     return {
       'CatchClause[param.type="Identifier"]'(node: estree.CatchClause) {
         const param = node.param as estree.Identifier;
-        const scope = context.getScope();
+        const scope = context.sourceCode.getScope(node);
         const variable = getVariableFromScope(scope, param.name);
         if (variable?.references.length === 0) {
           context.report({

@@ -74,8 +74,8 @@ export const rule: Rule.RuleModule = {
           // we do not raise issue when value is reassigned inside a top-level IfStatement, as it might be a shift or
           // default value reassignment
           if (
-            isInsideIfStatement(context) ||
-            context.getAncestors().some(node => node.type === 'SwitchCase') // issue-2398
+            isInsideIfStatement(context, identifier) ||
+            context.sourceCode.getAncestors(identifier).some(node => node.type === 'SwitchCase') // issue-2398
           ) {
             return;
           }
@@ -116,7 +116,7 @@ export const rule: Rule.RuleModule = {
 
     return {
       onCodePathStart(_codePath: Rule.CodePath, node: estree.Node) {
-        const currentScope = context.getScope();
+        const currentScope = context.sourceCode.getScope(node);
         if (currentScope && currentScope.type === 'function') {
           const { referencesByIdentifier, variablesToCheck, variablesToCheckInCurrentScope } =
             computeNewContextInfo(variableUsageContext, context, node);
@@ -226,8 +226,8 @@ export const rule: Rule.RuleModule = {
   },
 };
 
-function isInsideIfStatement(context: Rule.RuleContext) {
-  const ancestors = context.getAncestors();
+function isInsideIfStatement(context: Rule.RuleContext, node: estree.Node): boolean {
+  const ancestors = context.sourceCode.getAncestors(node);
   for (let i = ancestors.length - 1; i >= 0; i--) {
     if (
       ancestors[i].type === 'IfStatement' &&
@@ -273,7 +273,7 @@ function computeNewContextInfo(
   const referencesByIdentifier = new Map<estree.Identifier, Scope.Reference>();
   const variablesToCheck = new Set<string>(variableUsageContext.variablesToCheck);
   const variablesToCheckInCurrentScope = new Set<string>();
-  context.getDeclaredVariables(node).forEach(variable => {
+  context.sourceCode.getDeclaredVariables(node).forEach(variable => {
     variablesToCheck.add(variable.name);
     variablesToCheckInCurrentScope.add(variable.name);
     for (const currentRef of variable.references) {
