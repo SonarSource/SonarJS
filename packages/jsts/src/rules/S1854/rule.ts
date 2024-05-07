@@ -41,6 +41,8 @@ export const rule: Rule.RuleModule = {
     const variableUsages = new Map<Variable, Set<string>>();
     const referencesUsedInDestructuring = new Set<ReferenceLike>();
     const destructuringStack: DestructuringContext[] = [];
+    const codePathSegments: CodePathSegment[][] = [];
+    let currentCodePathSegments: CodePathSegment[] = [];
 
     return {
       ':matches(AssignmentExpression, VariableDeclarator[init])': (node: estree.Node) => {
@@ -89,12 +91,19 @@ export const rule: Rule.RuleModule = {
       // CodePath events
       onCodePathSegmentStart: (segment: CodePathSegment) => {
         liveVariablesMap.set(segment.id, new LiveVariables(segment));
+        currentCodePathSegments.push(segment);
       },
       onCodePathStart: codePath => {
         pushContext(new CodePathContext(codePath));
+        codePathSegments.push(currentCodePathSegments);
+        currentCodePathSegments = [];
+      },
+      onCodePathSegmentEnd() {
+        currentCodePathSegments.pop();
       },
       onCodePathEnd: () => {
         popContext();
+        currentCodePathSegments = codePathSegments.pop() || [];
       },
     };
 
@@ -266,7 +275,7 @@ export const rule: Rule.RuleModule = {
         const assignment = peek(assignmentStack);
         assignment.add(ref);
       } else {
-        peek(codePathStack).codePath.currentSegments.forEach(segment => {
+        currentCodePathSegments.forEach(segment => {
           lvaForSegment(segment).add(ref);
         });
       }
