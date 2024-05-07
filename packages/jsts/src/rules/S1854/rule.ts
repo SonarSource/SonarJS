@@ -275,7 +275,7 @@ export const rule: Rule.RuleModule = {
         const assignment = peek(assignmentStack);
         assignment.add(ref);
       } else {
-        currentCodePathSegments.forEach(segment => {
+        [...currentCodePathSegments].forEach(segment => {
           lvaForSegment(segment).add(ref);
         });
       }
