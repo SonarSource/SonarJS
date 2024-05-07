@@ -22,14 +22,21 @@
 import { Rule } from 'eslint';
 import { rules } from 'eslint-plugin-react';
 import { getNearestPackageJsons } from '@sonar/jsts';
+import type { RuleModule } from '../../../../shared/src/types/rule';
 
 const reactNoDeprecated = rules['no-deprecated'];
 
-export const rule: Rule.RuleModule = {
+export const rule: RuleModule = {
   meta: {
     messages: {
       deprecated: '{{oldMethod}} is deprecated since React {{version}}{{newMethod}}',
     },
+    schema: [
+      {
+        type: 'object',
+        properties: {},
+      },
+    ],
   },
   create(context: Rule.RuleContext) {
     function getVersionFromOptions() {
