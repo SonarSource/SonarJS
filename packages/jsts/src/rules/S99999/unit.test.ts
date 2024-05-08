@@ -17,16 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from 'eslint';
 import { rule } from './';
+import { TypeScriptRuleTester } from '../../../tests/tools';
 
-const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
-ruleTester.run('"Array.reduce()" calls should include an initial value', rule, {
+const ruleTester = new TypeScriptRuleTester();
+ruleTester.run('Proto', rule, {
   valid: [
     {
       code: `function simpleAssignment() {
   const x = 5;
 }`,
+      settings: {
+        name: 't1',
+      },
     },
   ],
   invalid: [
@@ -35,6 +38,9 @@ ruleTester.run('"Array.reduce()" calls should include an initial value', rule, {
   const x = 'txt';
 }`,
       errors: 1,
+      settings: {
+        name: 't2',
+      },
     },
   ],
 });

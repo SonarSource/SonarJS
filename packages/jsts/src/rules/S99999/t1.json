@@ -1,0 +1,44 @@
+{
+  "functionId": {
+    "simpleName": "simpleAssignment"
+  },
+  "values": {
+    "constants": [
+      {
+        "valueId": 1,
+        "value": "5",
+        "typeInfo": {
+          "qualifiedName": "number"
+        }
+      }
+    ]
+  },
+  "basicBlocks": [
+    {
+      "instructions": [
+        {
+          "callInstruction": {
+            "location": {
+              "startLine": 2,
+              "startColumn": 2,
+              "endLine": 2,
+              "endColumn": 14
+            },
+            "valueId": 1,
+            "variableName": "x",
+            "functionId": {
+              "simpleName": "#id#"
+            }
+          }
+        }
+      ],
+      "location": {
+        "startLine": 1,
+        "startColumn": 28,
+        "endLine": 3,
+        "endColumn": 1
+      }
+    }
+  ],
+  "fileId": "/Users/michal.zgliczynski/codes/SonarJS/packages/jsts/tests/tools/testers/typescript/fixtures/placeholder.tsx"
+}
