@@ -28,7 +28,8 @@
     "_:plugin:prepare-bridge": "npm pack && node tools/check-distribution-filepath-length.js && npm run _:plugin:copy-bridge",
     "_:plugin-fetch-node": "node tools/fetch-node/scripts/wrapper.mjs",
     "_:plugin:pre-build": "npm run bridge:build && npm run _:plugin:prepare-bridge && npm run _:plugin-fetch-node",
-    "_:plugin:copy-bridge": "cpy sonarjs-1.0.0.tgz sonar-plugin/sonar-javascript-plugin/target/classes"
+    "_:plugin:copy-bridge": "cpy sonarjs-1.0.0.tgz sonar-plugin/sonar-javascript-plugin/target/classes",
+    "gen-ir": "buf generate packages/jsts/dbd-ir"
   },
   "repository": {
     "type": "git",
@@ -78,6 +79,9 @@
     "@babel/preset-env": "7.24.3",
     "@babel/preset-flow": "7.24.1",
     "@babel/preset-react": "7.24.1",
+    "@bufbuild/buf": "^1.31.0",
+    "@bufbuild/protobuf": "^1.9.0",
+    "@bufbuild/protoc-gen-es": "^1.9.0",
     "@eslint-community/regexpp": "4.10.0",
     "@typescript-eslint/eslint-plugin": "^7.7.1",
     "@typescript-eslint/parser": "^7.7.1",

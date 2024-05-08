@@ -1,0 +1,23 @@
+syntax = "proto3";
+package sonarsource.ir;
+option java_outer_classname = "StatsProtos";
+option java_package = "com.sonarsource.ir.protobuf";
+option optimize_for = SPEED;
+
+message IrGenerationStats {
+  oneof stats {
+    UnknownCall unknown_call = 1;
+  }
+}
+
+enum UnknownCallReason {
+  UNKNOWN_SYMBOL = 0;
+  CALL_WITH_UNPACKING_OR_KEYWORD_ARGS = 1;
+  VARIADIC_PARAMS = 2;
+  VIRTUAL_CALL = 3;
+  MISSING_ARGUMENT = 4;
+}
+
+message UnknownCall {
+  UnknownCallReason reason = 1;
+}

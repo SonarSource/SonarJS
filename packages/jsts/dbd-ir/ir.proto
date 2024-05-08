@@ -1,0 +1,135 @@
+syntax = "proto3";
+package sonarsource.ir;
+option java_outer_classname = "IRProtos";
+option java_package = "com.sonarsource.ir.protobuf";
+option optimize_for = SPEED;
+
+message ValueTable {
+  Null null = 1;
+  repeated Constant constants = 2;
+  repeated Parameter parameters = 3;
+  repeated TypeName typeNames = 4;
+}
+
+message FunctionInfo {
+  FunctionId function_id = 1;
+  ValueTable values = 2;
+  repeated Parameter parameters = 3;
+  repeated BasicBlock basic_blocks = 4;
+  // fileId is the absolute path to the file
+  string file_id = 5;
+}
+
+message FunctionId {
+  string simple_name = 1;
+  optional string signature = 2;
+  optional TypeInfo return_type = 3;
+  bool isVirtual = 4;
+  bool is_standard_library_function = 5;
+}
+
+message BasicBlock {
+  int32 id = 1;
+  repeated Instruction instructions = 2;
+  optional BasicBlock exception_handler = 3;
+  optional Location location = 4;
+  optional int32 loopId = 5;
+  optional int32 parentLoopId = 6;
+  bool isLoopCondition = 7;
+}
+
+message Instruction {
+  oneof instr {
+    CallInstruction call_instruction = 1;
+    ReturnInstruction return_instruction = 2;
+    BranchingInstruction branching_instruction = 3;
+    ConditionalBranchingInstruction conditional_branching_instruction = 4;
+    PhiInstruction phi_instruction = 5;
+    ThrowInstruction throw_instruction = 6;
+  }
+}
+
+message CallInstruction {
+  Location location = 1;
+  int32 value_id = 2;
+  optional string variable_name = 3;
+  FunctionId function_id = 4;
+  repeated int32 arguments = 5;
+  optional TypeInfo staticType = 6;
+  bool isInstanceMethodCall = 7;
+}
+
+message ReturnInstruction {
+  Location location = 1;
+  optional int32 return_value = 2;
+}
+
+message BranchingInstruction {
+  Location location = 1;
+  int32 successor = 2;
+}
+
+message ConditionalBranchingInstruction {
+  Location location = 1;
+  int32 condition = 2;
+  int32 true_successor = 3;
+  int32 false_successor = 4;
+}
+
+message PhiInstruction {
+  int32 value_id = 1;
+  optional string variable_name = 2;
+  map<int32, int32> values_by_block = 3;
+}
+
+message ThrowInstruction {
+  Location location = 1;
+  int32 exception_value = 2;
+}
+
+message Constant {
+  int32 valueId = 1;
+  string value = 2;
+  optional TypeInfo typeInfo = 3;
+}
+
+message Null {
+  int32 valueId = 1;
+}
+
+message Parameter {
+  int32 valueId = 1;
+  string name = 2;
+  Location definitionLocation = 3;
+  optional TypeInfo typeInfo = 4;
+}
+
+message TypeInfo {
+  enum Kind {
+    PRIMITIVE = 0;
+    CLASS = 1;
+    INTERFACE = 2;
+    ARRAY = 3;
+  }
+  Kind kind = 1;
+  string qualified_name = 2;
+  repeated string super_types = 3;
+  bool has_incomplete_semantics = 4;
+}
+
+message TypeName {
+  int32 valueId = 1;
+  string name = 2;
+  optional TypeInfo type_info = 3;
+}
+
+message Location {
+  // The field `file_id` is normally unused, as the file name for the location should be set on the FunctionInfo
+  // object (see DBD-329). However, we still keep it to preserve backwards compatibility and make it possible
+  // to override the default behavior by setting a non-empty string to this field.
+  string file_id = 1;
+  int32 start_line = 2;
+  int32 start_column = 3;
+  int32 end_line = 4;
+  int32 end_column = 5;
+}
