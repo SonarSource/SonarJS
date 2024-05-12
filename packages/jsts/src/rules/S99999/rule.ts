@@ -21,22 +21,10 @@
 
 import * as estree from 'estree';
 import { Rule } from 'eslint';
-import {
-  BasicBlock,
-  CallInstruction,
-  Constant,
-  FunctionId,
-  FunctionInfo,
-  Instruction,
-  Location,
-  TypeInfo,
-  TypeInfo_Kind,
-  ValueTable,
-} from '../../dbd-ir-gen/ir_pb';
 import { TSESTree } from '@typescript-eslint/utils';
-import { isNumber, isRequiredParserServices, isString } from '../helpers';
 import { writeFileSync } from 'fs';
 import { join } from 'path';
+import { translateToIR } from '../../dbd/frontend/ir-generator';
 
 export const rule: Rule.RuleModule = {
   meta: {
@@ -60,75 +48,3 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
-
-function getLocation(node: TSESTree.Statement) {
-  return new Location({
-    startLine: node.loc.start.line,
-    endLine: node.loc.end.line,
-    startColumn: node.loc.start.column,
-    endColumn: node.loc.end.column,
-  });
-}
-
-function translateToIR(context: Rule.RuleContext, node: TSESTree.FunctionDeclaration) {
-  const functionId = new FunctionId({ simpleName: node.id?.name });
-  const parserServices = context.sourceCode.parserServices;
-  if (!isRequiredParserServices(parserServices)) {
-    return null;
-  }
-
-  let valueIdCounter = 1;
-  const valueTable = new ValueTable();
-
-  const getTypeQualifiedName = (node: estree.Node) => {
-    if (isString(node, parserServices)) {
-      return 'string';
-    } else if (isNumber(node, parserServices)) {
-      return 'number';
-    }
-    return 'unknown';
-  };
-  const parseNewValue = (declaration: TSESTree.VariableDeclaration): [number, string] => {
-    const variableDeclaration = declaration.declarations[0]!;
-    const variableName = (variableDeclaration.id as TSESTree.Identifier).name;
-    const value = String((variableDeclaration.init as TSESTree.Literal).value);
-    const valueId = valueIdCounter;
-    valueIdCounter++;
-
-    const typeInfo = new TypeInfo({
-      kind: TypeInfo_Kind.PRIMITIVE,
-      qualifiedName: getTypeQualifiedName(variableDeclaration as estree.Node),
-    });
-    const newConstant = new Constant({ value, valueId, typeInfo });
-    valueTable.constants.push(newConstant);
-    return [valueId, variableName];
-  };
-
-  const translateBlock = (node: TSESTree.BlockStatement) => {
-    const instructions = node.body
-      .filter<TSESTree.VariableDeclaration>(
-        (statement: TSESTree.Statement): statement is TSESTree.VariableDeclaration =>
-          statement.type === 'VariableDeclaration',
-      )
-      .map((statement: TSESTree.VariableDeclaration) => {
-        const functionId = new FunctionId({ simpleName: '#id#' });
-        const [valueId, variableName] = parseNewValue(statement);
-        const callInstruction = new CallInstruction({
-          location: getLocation(statement),
-          valueId,
-          variableName,
-          functionId,
-        });
-        return new Instruction({ instr: { case: 'callInstruction', value: callInstruction } });
-      });
-
-    return new BasicBlock({ id: 0, location: getLocation(node), instructions });
-  };
-  const basicBlock = translateBlock(node.body);
-  return new FunctionInfo({
-    functionId,
-    fileId: context.filename,
-    basicBlocks: [basicBlock],
-    values: valueTable,
-  });
-}

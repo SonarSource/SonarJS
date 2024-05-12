@@ -2,4 +2,4 @@ version: v1
 plugins:
   - plugin: es
     opt: target=ts
-    out: packages/jsts/src/dbd-ir-gen/
+    out: packages/jsts/src/dbd/ir-gen/
