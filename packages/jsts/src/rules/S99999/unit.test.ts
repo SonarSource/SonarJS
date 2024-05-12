@@ -31,6 +31,14 @@ ruleTester.run('Proto', rule, {
         name: 't1',
       },
     },
+    {
+      code: `function simpleAssignment() {
+  const x = null;
+}`,
+      settings: {
+        name: 't3',
+      },
+    },
   ],
   invalid: [
     {

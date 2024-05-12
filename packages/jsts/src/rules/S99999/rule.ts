@@ -37,7 +37,7 @@ export const rule: Rule.RuleModule = {
       'FunctionDeclaration, FunctionExpression, ArrowFunctionExpression'(node: estree.Node) {
         const result = translateToIR(context, node as TSESTree.FunctionDeclaration);
         if (result) {
-          const content = JSON.stringify(result.toJson(), null, '\t');
+          const content = JSON.stringify(result.toJson({ emitDefaultValues: true }), null, '\t');
           const fileName = join(__dirname, `${context.settings.name}`);
           writeFileSync(`${fileName}.json`, content, { flag: 'w' });
           writeFileSync(`${fileName}.buf`, result.toBinary(), { flag: 'w' });

@@ -44,38 +44,44 @@ function getLocation(node: TSESTree.Statement) {
   });
 }
 
-export function translateToIR(context: Rule.RuleContext, node: TSESTree.FunctionDeclaration) {
-  const functionId = new FunctionId({ simpleName: node.id?.name });
+const getTypeQualifiedName = (context: Rule.RuleContext, node: estree.Node) => {
   const parserServices = context.sourceCode.parserServices;
   if (!isRequiredParserServices(parserServices)) {
-    return null;
+    return 'unknown';
   }
+
+  if (isString(node, parserServices)) {
+    return 'string';
+  } else if (isNumber(node, parserServices)) {
+    return 'number';
+  }
+  return 'unknown';
+};
+
+export function translateToIR(context: Rule.RuleContext, node: TSESTree.FunctionDeclaration) {
+  const functionId = new FunctionId({ simpleName: node.id?.name });
 
   let valueIdCounter = 1;
   const valueTable = new ValueTable();
 
-  const getTypeQualifiedName = (node: estree.Node) => {
-    if (isString(node, parserServices)) {
-      return 'string';
-    } else if (isNumber(node, parserServices)) {
-      return 'number';
-    }
-    return 'unknown';
-  };
-  const parseNewValue = (declaration: TSESTree.VariableDeclaration): [number, string] => {
+  const parseNewValue = (declaration: TSESTree.VariableDeclaration): number => {
     const variableDeclaration = declaration.declarations[0]!;
-    const variableName = (variableDeclaration.id as TSESTree.Identifier).name;
-    const value = String((variableDeclaration.init as TSESTree.Literal).value);
-    const valueId = valueIdCounter;
-    valueIdCounter++;
+    const value = (variableDeclaration.init as TSESTree.Literal).value;
+    let valueId;
+    if (value === null) {
+      valueId = 0;
+    } else {
+      valueId = valueIdCounter;
+      valueIdCounter++;
 
-    const typeInfo = new TypeInfo({
-      kind: TypeInfo_Kind.PRIMITIVE,
-      qualifiedName: getTypeQualifiedName(variableDeclaration as estree.Node),
-    });
-    const newConstant = new Constant({ value, valueId, typeInfo });
-    valueTable.constants.push(newConstant);
-    return [valueId, variableName];
+      const typeInfo = new TypeInfo({
+        kind: TypeInfo_Kind.PRIMITIVE,
+        qualifiedName: getTypeQualifiedName(context, variableDeclaration as estree.Node),
+      });
+      const newConstant = new Constant({ value: String(value), valueId, typeInfo });
+      valueTable.constants.push(newConstant);
+    }
+    return valueId;
   };
 
   const translateBlock = (node: TSESTree.BlockStatement) => {
@@ -86,7 +92,8 @@ export function translateToIR(context: Rule.RuleContext, node: TSESTree.Function
       )
       .map((statement: TSESTree.VariableDeclaration) => {
         const functionId = new FunctionId({ simpleName: '#id#' });
-        const [valueId, variableName] = parseNewValue(statement);
+        const variableName = (statement.declarations[0]!.id as TSESTree.Identifier).name;
+        const valueId = parseNewValue(statement);
         const callInstruction = new CallInstruction({
           location: getLocation(statement),
           valueId,
