@@ -23,12 +23,28 @@ import { TypeScriptRuleTester } from '../../../tests/tools';
 const ruleTester = new TypeScriptRuleTester();
 ruleTester.run('Proto', rule, {
   valid: [
+    //     {
+    //       code: `function simpleAssignment() {
+    //   const x = 5;
+    // }`,
+    //       settings: {
+    //         name: 't1',
+    //       },
+    //     },
+    //     {
+    //       code: `function simpleAssignment() {
+    //   const x = null;
+    // }`,
+    //       settings: {
+    //         name: 't3',
+    //       },
+    //     },
     {
-      code: `function simpleAssignment() {
-  const x = 5;
+      code: `function simple_assignment(a: number, b: string) { 
+  const x = "txt";
 }`,
       settings: {
-        name: 't1',
+        name: 't4',
       },
     },
   ],

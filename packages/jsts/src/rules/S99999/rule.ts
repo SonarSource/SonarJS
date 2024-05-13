@@ -34,7 +34,7 @@ import {
   ValueTable,
 } from '../../dbd-ir-gen/ir_pb';
 import { TSESTree } from '@typescript-eslint/utils';
-import { isNumber, isRequiredParserServices, isString } from '../helpers';
+import { isNumber, isString } from '../helpers';
 import { writeFileSync } from 'fs';
 import { join } from 'path';
 
@@ -45,14 +45,16 @@ export const rule: Rule.RuleModule = {
     },
   },
   create(context: Rule.RuleContext) {
+    let functionNo = 0;
     return {
       'FunctionDeclaration, FunctionExpression, ArrowFunctionExpression'(node: estree.Node) {
-        const result = translateToIR(context, node as TSESTree.FunctionDeclaration);
+        const result = translateMethod(context, node as TSESTree.FunctionDeclaration);
         if (result) {
-          const content = JSON.stringify(result.toJson(), null, '\t');
-          const fileName = join(__dirname, `${context.settings.name}`);
-          writeFileSync(`${fileName}.json`, content, { flag: 'w' });
-          writeFileSync(`${fileName}.buf`, result.toBinary(), { flag: 'w' });
+          const content = JSON.stringify(result.toJson({ emitDefaultValues: true }), null, '\t');
+          const fileNameBase = join(__dirname, `${context.settings.name}`);
+          writeFileSync(`${fileNameBase}_${functionNo}.json`, content, { flag: 'w' });
+          writeFileSync(`${fileNameBase}_${functionNo}.buf`, result.toBinary(), { flag: 'w' });
+          functionNo++;
         } else {
           console.log("Couldn't parse");
         }
@@ -70,58 +72,88 @@ function getLocation(node: TSESTree.Statement) {
   });
 }
 
-function translateToIR(context: Rule.RuleContext, node: TSESTree.FunctionDeclaration) {
-  const functionId = new FunctionId({ simpleName: node.id?.name });
+const getTypeQualifiedName = (node: estree.Node, context: Rule.RuleContext) => {
   const parserServices = context.sourceCode.parserServices;
-  if (!isRequiredParserServices(parserServices)) {
-    return null;
+  if (!parserServices) {
+    return 'unknown';
   }
+  if (isString(node, parserServices)) {
+    return 'string';
+  } else if (isNumber(node, parserServices)) {
+    return 'number';
+  }
+  return 'unknown';
+};
+
+function translateMethod(context: Rule.RuleContext, node: TSESTree.FunctionDeclaration) {
+  const functionId = new FunctionId({ simpleName: node.id?.name });
 
   let valueIdCounter = 1;
   const valueTable = new ValueTable();
 
-  const getTypeQualifiedName = (node: estree.Node) => {
-    if (isString(node, parserServices)) {
-      return 'string';
-    } else if (isNumber(node, parserServices)) {
-      return 'number';
+  const handleExpressionLiteral = (literal: TSESTree.Literal): number => {
+    const value = literal.value;
+    let valueId;
+    if (value === null) {
+      valueId = 0;
+    } else {
+      valueId = valueIdCounter;
+      valueIdCounter++;
+      const typeInfo = new TypeInfo({
+        kind: TypeInfo_Kind.PRIMITIVE,
+        qualifiedName: getTypeQualifiedName(literal as estree.Node, context),
+      });
+      const newConstant = new Constant({ value: String(value), valueId, typeInfo });
+      valueTable.constants.push(newConstant);
     }
-    return 'unknown';
+    return valueId;
   };
+
+  const parseExpression = (expression: TSESTree.Expression | null) => {
+    if (!expression) {
+      throw new Error('Null Expression provided');
+    }
+    switch (expression.type) {
+      case TSESTree.AST_NODE_TYPES.Literal:
+        return handleExpressionLiteral(expression);
+      default:
+        throw new Error('Unhandled Expression');
+    }
+  };
+
   const parseNewValue = (declaration: TSESTree.VariableDeclaration): [number, string] => {
     const variableDeclaration = declaration.declarations[0]!;
     const variableName = (variableDeclaration.id as TSESTree.Identifier).name;
-    const value = String((variableDeclaration.init as TSESTree.Literal).value);
-    const valueId = valueIdCounter;
-    valueIdCounter++;
-
-    const typeInfo = new TypeInfo({
-      kind: TypeInfo_Kind.PRIMITIVE,
-      qualifiedName: getTypeQualifiedName(variableDeclaration as estree.Node),
-    });
-    const newConstant = new Constant({ value, valueId, typeInfo });
-    valueTable.constants.push(newConstant);
+    // const value = (variableDeclaration.init as TSESTree.Literal).value;
+    const valueId = parseExpression(variableDeclaration.init);
     return [valueId, variableName];
+  };
+
+  const parseVariableDeclaration = (declaration: TSESTree.VariableDeclaration): Instruction => {
+    const functionId = new FunctionId({ simpleName: '#id#' });
+    const [valueId, variableName] = parseNewValue(declaration);
+    const callInstruction = new CallInstruction({
+      location: getLocation(declaration),
+      valueId,
+      variableName,
+      functionId,
+    });
+    return new Instruction({ instr: { case: 'callInstruction', value: callInstruction } });
+  };
+
+  const parseStatement = (statement: TSESTree.Statement): Instruction | null => {
+    switch (statement.type) {
+      case 'VariableDeclaration':
+        return parseVariableDeclaration(statement);
+      default:
+        return null;
+    }
   };
 
   const translateBlock = (node: TSESTree.BlockStatement) => {
     const instructions = node.body
-      .filter<TSESTree.VariableDeclaration>(
-        (statement: TSESTree.Statement): statement is TSESTree.VariableDeclaration =>
-          statement.type === 'VariableDeclaration',
-      )
-      .map((statement: TSESTree.VariableDeclaration) => {
-        const functionId = new FunctionId({ simpleName: '#id#' });
-        const [valueId, variableName] = parseNewValue(statement);
-        const callInstruction = new CallInstruction({
-          location: getLocation(statement),
-          valueId,
-          variableName,
-          functionId,
-        });
-        return new Instruction({ instr: { case: 'callInstruction', value: callInstruction } });
-      });
-
+      .map(parseStatement)
+      .filter((instr): instr is Instruction => !!instr);
     return new BasicBlock({ id: 0, location: getLocation(node), instructions });
   };
   const basicBlock = translateBlock(node.body);
