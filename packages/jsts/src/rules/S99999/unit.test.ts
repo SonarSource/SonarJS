@@ -23,28 +23,28 @@ import { TypeScriptRuleTester } from '../../../tests/tools';
 const ruleTester = new TypeScriptRuleTester();
 ruleTester.run('Proto', rule, {
   valid: [
-    //     {
-    //       code: `function simpleAssignment() {
-    //   const x = 5;
-    // }`,
-    //       settings: {
-    //         name: 't1',
-    //       },
-    //     },
-    //     {
-    //       code: `function simpleAssignment() {
-    //   const x = null;
-    // }`,
-    //       settings: {
-    //         name: 't3',
-    //       },
-    //     },
     {
-      code: `function simple_assignment(a: number, b: string) { 
+      code: `function simpleAssignment() {
+      const x = 5;
+    }`,
+      settings: {
+        name: 'valid1',
+      },
+    },
+    {
+      code: `function simpleAssignment() {
+      const x = null;
+    }`,
+      settings: {
+        name: 'valid2',
+      },
+    },
+    {
+      code: `function simple_assignment(a: number, b: string) {
   const x = "txt";
 }`,
       settings: {
-        name: 't4',
+        name: 'valid3',
       },
     },
     {
@@ -52,7 +52,24 @@ ruleTester.run('Proto', rule, {
   const x = null;
 }`,
       settings: {
-        name: 't3',
+        name: 'valid4',
+      },
+    },
+    {
+      code: `function simple_assignment() {
+  const x = { key1: 2, key2: 'txt' };
+}`,
+      settings: {
+        name: 'valid5',
+      },
+    },
+    {
+      code: `function loadAll(pluginNames) {
+  pluginNames.x.foo(); // Noncompliant: pluginNames might be undefined
+}
+loadAll();`,
+      settings: {
+        name: 'valid6',
       },
     },
   ],
@@ -63,7 +80,7 @@ ruleTester.run('Proto', rule, {
 }`,
       errors: 1,
       settings: {
-        name: 't2',
+        name: 'invalid1',
       },
     },
   ],

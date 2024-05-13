@@ -5,7 +5,18 @@
     "isStandardLibraryFunction": false
   },
   "values": {
-    "constants": [],
+    "constants": [
+      {
+        "valueId": 1,
+        "value": "txt",
+        "typeInfo": {
+          "kind": "PRIMITIVE",
+          "qualifiedName": "string",
+          "superTypes": [],
+          "hasIncompleteSemantics": false
+        }
+      }
+    ],
     "parameters": [],
     "typeNames": []
   },
@@ -19,31 +30,42 @@
             "location": {
               "fileId": "",
               "startLine": 2,
-              "startColumn": 2,
+              "startColumn": 12,
               "endLine": 2,
               "endColumn": 17
             },
-            "valueId": 0,
+            "valueId": 1,
             "variableName": "x",
             "functionId": {
               "simpleName": "#id#",
               "isVirtual": false,
-              "isStandardLibraryFunction": false
+              "isStandardLibraryFunction": true
             },
             "arguments": [],
             "isInstanceMethodCall": false
+          }
+        },
+        {
+          "returnInstruction": {
+            "location": {
+              "fileId": "",
+              "startLine": 1,
+              "startColumn": 0,
+              "endLine": 3,
+              "endColumn": 1
+            }
           }
         }
       ],
       "location": {
         "fileId": "",
         "startLine": 1,
-        "startColumn": 28,
+        "startColumn": 0,
         "endLine": 3,
         "endColumn": 1
       },
       "isLoopCondition": false
     }
   ],
-  "fileId": "/Users/agniesia/sonar/codes/SonarJS/packages/jsts/tests/tools/testers/typescript/fixtures/placeholder.tsx"
+  "fileId": "/Users/michal.zgliczynski/codes/SonarJS/packages/jsts/tests/tools/testers/typescript/fixtures/placeholder.tsx"
 }

@@ -1,0 +1,83 @@
+{
+  "functionId": {
+    "simpleName": "loadAll",
+    "isVirtual": false,
+    "isStandardLibraryFunction": false
+  },
+  "values": {
+    "constants": [],
+    "parameters": [
+      {
+        "valueId": 1,
+        "name": "pluginNames"
+      }
+    ],
+    "typeNames": []
+  },
+  "parameters": [],
+  "basicBlocks": [
+    {
+      "id": 0,
+      "instructions": [
+        {
+          "callInstruction": {
+            "location": {
+              "fileId": "",
+              "startLine": 2,
+              "startColumn": 2,
+              "endLine": 2,
+              "endColumn": 15
+            },
+            "valueId": 2,
+            "functionId": {
+              "simpleName": "#get-field# x",
+              "isVirtual": false,
+              "isStandardLibraryFunction": true
+            },
+            "arguments": [1],
+            "isInstanceMethodCall": false
+          }
+        },
+        {
+          "callInstruction": {
+            "location": {
+              "fileId": "",
+              "startLine": 2,
+              "startColumn": 2,
+              "endLine": 2,
+              "endColumn": 21
+            },
+            "valueId": 3,
+            "functionId": {
+              "simpleName": "foo",
+              "isVirtual": false,
+              "isStandardLibraryFunction": false
+            },
+            "arguments": [2],
+            "isInstanceMethodCall": false
+          }
+        },
+        {
+          "returnInstruction": {
+            "location": {
+              "fileId": "",
+              "startLine": 1,
+              "startColumn": 0,
+              "endLine": 3,
+              "endColumn": 1
+            }
+          }
+        }
+      ],
+      "location": {
+        "fileId": "",
+        "startLine": 1,
+        "startColumn": 0,
+        "endLine": 3,
+        "endColumn": 1
+      },
+      "isLoopCondition": false
+    }
+  ],
+  "fileId": "/Users/michal.zgliczynski/codes/SonarJS/packages/jsts/tests/tools/testers/typescript/fixtures/placeholder.tsx"
+}

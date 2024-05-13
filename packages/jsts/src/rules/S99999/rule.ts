@@ -37,15 +37,11 @@ export const rule: Rule.RuleModule = {
     return {
       'FunctionDeclaration, FunctionExpression, ArrowFunctionExpression'(node: estree.Node) {
         const result = translateMethod(context, node as TSESTree.FunctionDeclaration);
-        if (result) {
-          const content = JSON.stringify(result.toJson({ emitDefaultValues: true }), null, '\t');
-          const fileNameBase = join(__dirname, `${context.settings.name}`);
-          writeFileSync(`${fileNameBase}_${functionNo}.json`, content, { flag: 'w' });
-          writeFileSync(`${fileNameBase}_${functionNo}.buf`, result.toBinary(), { flag: 'w' });
-          functionNo++;
-        } else {
-          console.log("Couldn't parse");
-        }
+        const content = JSON.stringify(result.toJson({ emitDefaultValues: true }), null, '\t');
+        const fileNameBase = join(__dirname, `${context.settings.name}`);
+        writeFileSync(`${fileNameBase}_${functionNo}.json`, content, { flag: 'w' });
+        writeFileSync(`${fileNameBase}_${functionNo}.buf`, result.toBinary(), { flag: 'w' });
+        functionNo++;
       },
     };
   },
