@@ -34,7 +34,16 @@
           }
         },
         {
-          "returnInstruction": {}
+          "returnInstruction": {
+            "location": {
+              "fileId": "",
+              "startLine": 1,
+              "startColumn": 0,
+              "endLine": 4,
+              "endColumn": 10
+            },
+            "returnValue": 0
+          }
         }
       ],
       "location": {

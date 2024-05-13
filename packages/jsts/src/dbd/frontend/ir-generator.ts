@@ -66,22 +66,16 @@ export class ScopeTranslator {
   basicBlock;
   variableMap;
   hasReturnInstruction;
-  node: TSESTree.Node | undefined;
 
   constructor(
     public context: Rule.RuleContext,
-    node: TSESTree.Node | undefined = undefined,
+    public node: TSESTree.Node,
   ) {
     this.valueIdCounter = 1;
     this.valueTable = new ValueTable();
-    this.basicBlock = new BasicBlock({});
+    this.basicBlock = new BasicBlock({ location: getLocation(node) });
     this.variableMap = new Map<string, number>();
     this.hasReturnInstruction = false;
-    this.node = node;
-
-    if (node) {
-      this.basicBlock.location = getLocation(node);
-    }
   }
 
   isEmpty() {
@@ -273,15 +267,13 @@ export class ScopeTranslator {
     );
   }
 
-  addReturnInstruction(
-    location: Location | undefined = undefined,
-    returnValue: number | undefined = undefined,
-  ) {
+  addReturnInstruction(location: Location, returnValue: number) {
     const returnInstruction = new ReturnInstruction({ location, returnValue });
     this.basicBlock.instructions.push(
       new Instruction({ instr: { case: 'returnInstruction', value: returnInstruction } }),
     );
     this.hasReturnInstruction = true;
+    return returnValue;
   }
 
   handleVariableDeclaration(declaration: TSESTree.VariableDeclaration) {
@@ -298,21 +290,21 @@ export class ScopeTranslator {
       throw new Error(`Unhandled declaration id type ${declarator.id.type}`);
     }
     const variableName = declarator.id.name;
-    this.handleExpression(declarator.init, variableName);
+    return this.handleExpression(declarator.init, variableName);
   }
 
-  addNullReturn(location: Location | undefined = undefined) {
-    this.addReturnInstruction(location);
+  addNullReturn(location: Location) {
+    return this.addReturnInstruction(location, 0);
   }
 
   handleReturnStatement(returnStatement: TSESTree.ReturnStatement) {
     if (returnStatement.argument === null) {
-      this.addNullReturn(getLocation(returnStatement));
+      return this.addNullReturn(getLocation(returnStatement));
     } else if (returnStatement.argument.type !== TSESTree.AST_NODE_TYPES.Literal) {
       throw new Error(`Unhandled return statement argument type ${returnStatement.argument.type}`);
     } else {
       const returnValue = this.handleLiteralWithoutCall(returnStatement.argument);
-      this.addReturnInstruction(getLocation(returnStatement), returnValue);
+      return this.addReturnInstruction(getLocation(returnStatement), returnValue);
     }
   }
 
@@ -331,7 +323,7 @@ export class ScopeTranslator {
 
   checkReturn() {
     if (!this.hasReturnInstruction) {
-      this.addNullReturn();
+      this.addNullReturn(getLocation(this.node));
     }
   }
 
@@ -354,7 +346,7 @@ export class ScopeTranslator {
 }
 
 export function translateTopLevel(context: Rule.RuleContext, node: TSESTree.Program) {
-  const scopeTranslator = new ScopeTranslator(context, node as TSESTree.Node);
+  const scopeTranslator = new ScopeTranslator(context, node);
   node.body.forEach(param => {
     if (param.type === TSESTree.AST_NODE_TYPES.FunctionDeclaration) {
       // skip function declarations

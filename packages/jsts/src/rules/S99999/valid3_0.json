@@ -55,7 +55,16 @@
           }
         },
         {
-          "returnInstruction": {}
+          "returnInstruction": {
+            "location": {
+              "fileId": "",
+              "startLine": 1,
+              "startColumn": 0,
+              "endLine": 3,
+              "endColumn": 1
+            },
+            "returnValue": 0
+          }
         }
       ],
       "location": {
