@@ -5,18 +5,7 @@
     "isStandardLibraryFunction": false
   },
   "values": {
-    "constants": [
-      {
-        "valueId": 1,
-        "value": "5",
-        "typeInfo": {
-          "kind": "PRIMITIVE",
-          "qualifiedName": "number",
-          "superTypes": [],
-          "hasIncompleteSemantics": false
-        }
-      }
-    ],
+    "constants": [],
     "parameters": [],
     "typeNames": []
   },
@@ -32,9 +21,9 @@
               "startLine": 2,
               "startColumn": 2,
               "endLine": 2,
-              "endColumn": 14
+              "endColumn": 17
             },
-            "valueId": 1,
+            "valueId": 0,
             "variableName": "x",
             "functionId": {
               "simpleName": "#id#",

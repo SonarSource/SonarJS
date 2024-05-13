@@ -29,7 +29,7 @@
     "_:plugin-fetch-node": "node tools/fetch-node/scripts/wrapper.mjs",
     "_:plugin:pre-build": "npm run bridge:build && npm run _:plugin:prepare-bridge && npm run _:plugin-fetch-node",
     "_:plugin:copy-bridge": "cpy sonarjs-1.0.0.tgz sonar-plugin/sonar-javascript-plugin/target/classes",
-    "gen-ir": "buf generate packages/jsts/dbd-ir"
+    "gen-ir": "buf generate packages/jsts/src/dbd/proto/"
   },
   "repository": {
     "type": "git",

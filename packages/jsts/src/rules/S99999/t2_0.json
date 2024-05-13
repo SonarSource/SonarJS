@@ -8,10 +8,10 @@
     "constants": [
       {
         "valueId": 1,
-        "value": "5",
+        "value": "txt",
         "typeInfo": {
           "kind": "PRIMITIVE",
-          "qualifiedName": "number",
+          "qualifiedName": "string",
           "superTypes": [],
           "hasIncompleteSemantics": false
         }
@@ -32,7 +32,7 @@
               "startLine": 2,
               "startColumn": 2,
               "endLine": 2,
-              "endColumn": 14
+              "endColumn": 18
             },
             "valueId": 1,
             "variableName": "x",
@@ -56,5 +56,5 @@
       "isLoopCondition": false
     }
   ],
-  "fileId": "/Users/agniesia/sonar/codes/SonarJS/packages/jsts/tests/tools/testers/typescript/fixtures/placeholder.tsx"
+  "fileId": "/Users/michal.zgliczynski/codes/SonarJS/packages/jsts/tests/tools/testers/typescript/fixtures/placeholder.tsx"
 }
