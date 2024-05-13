@@ -33,6 +33,8 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonar.plugins.javascript.CancellationException;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
+import org.sonar.plugins.javascript.api.JsFile;
+import org.sonar.plugins.javascript.api.JsFileConsumer;
 import org.sonar.plugins.javascript.bridge.BridgeServer.TsProgram;
 import org.sonar.plugins.javascript.bridge.BridgeServer.TsProgramRequest;
 import org.sonar.plugins.javascript.bridge.cache.CacheAnalysis;
@@ -54,7 +56,7 @@ public class AnalysisWithProgram extends AbstractAnalysis {
   }
 
   @Override
-  void analyzeFiles(List<InputFile> inputFiles, List<String> tsConfigs) throws IOException {
+  void analyzeFiles(List<InputFile> inputFiles, List<String> tsConfigs, JsFileConsumers consumers) throws IOException {
     progressReport = new ProgressReport(PROGRESS_REPORT_TITLE, PROGRESS_REPORT_PERIOD);
     progressReport.start(inputFiles.size(), inputFiles.iterator().next().toString());
     boolean success = false;
@@ -89,7 +91,7 @@ public class AnalysisWithProgram extends AbstractAnalysis {
           LOG.warn(msg);
           this.analysisWarnings.addUnique(msg);
         }
-        analyzeProgram(program, analyzedFiles);
+        analyzeProgram(program, analyzedFiles, consumers);
         workList.addAll(program.projectReferences);
         bridgeServer.deleteProgram(program);
       }
@@ -104,7 +106,7 @@ public class AnalysisWithProgram extends AbstractAnalysis {
         );
         for (var f : skippedFiles) {
           LOG.debug("File not part of any tsconfig.json: {}", f);
-          analyze(f, null);
+          analyze(f, null, consumers);
         }
       }
       success = true;
@@ -125,7 +127,7 @@ public class AnalysisWithProgram extends AbstractAnalysis {
     }
   }
 
-  private void analyzeProgram(TsProgram program, Set<InputFile> analyzedFiles) throws IOException {
+  private void analyzeProgram(TsProgram program, Set<InputFile> analyzedFiles, JsFileConsumers consumers) throws IOException {
     LOG.info("Starting analysis with current program");
     var fs = context.fileSystem();
     var counter = 0;
@@ -136,7 +138,7 @@ public class AnalysisWithProgram extends AbstractAnalysis {
         continue;
       }
       if (analyzedFiles.add(inputFile)) {
-        analyze(inputFile, program);
+        analyze(inputFile, program, consumers);
         counter++;
       } else {
         LOG.debug(
@@ -149,7 +151,7 @@ public class AnalysisWithProgram extends AbstractAnalysis {
     LOG.info("Analyzed {} file(s) with current program", counter);
   }
 
-  private void analyze(InputFile file, @Nullable TsProgram tsProgram) throws IOException {
+  private void analyze(InputFile file, @Nullable TsProgram tsProgram, JsFileConsumers consumers) throws IOException {
     if (context.isCancelled()) {
       throw new CancellationException(
         "Analysis interrupted because the SensorContext is in cancelled state"
@@ -168,6 +170,7 @@ public class AnalysisWithProgram extends AbstractAnalysis {
           : bridgeServer.analyzeTypeScript(request);
 
         analysisProcessor.processResponse(context, checks, file, response);
+        consumers.consume(new JsFile(file, response.ast));
         cacheStrategy.writeAnalysisToCache(
           CacheAnalysis.fromResponse(response.ucfgPaths, response.cpdTokens),
           file

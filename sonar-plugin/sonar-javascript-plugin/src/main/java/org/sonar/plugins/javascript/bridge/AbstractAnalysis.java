@@ -74,5 +74,5 @@ abstract class AbstractAnalysis {
     return inputFileLanguage(file).equals(JavaScriptLanguage.KEY);
   }
 
-  abstract void analyzeFiles(List<InputFile> inputFiles, List<String> tsConfigs) throws IOException;
+  abstract void analyzeFiles(List<InputFile> inputFiles, List<String> tsConfigs, JsFileConsumers consumers) throws IOException;
 }

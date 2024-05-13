@@ -20,6 +20,7 @@
 package org.sonar.plugins.javascript.bridge;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.StreamSupport;
 import javax.annotation.Nullable;
@@ -32,6 +33,7 @@ import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.plugins.javascript.JavaScriptFilePredicate;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
+import org.sonar.plugins.javascript.api.JsFileConsumer;
 import org.sonar.plugins.javascript.sonarlint.SonarLintTypeCheckingChecker;
 
 public class JsTsSensor extends AbstractBridgeSensor {
@@ -41,6 +43,7 @@ public class JsTsSensor extends AbstractBridgeSensor {
   private final AnalysisWithWatchProgram analysisWithWatchProgram;
   private final JsTsChecks checks;
   private final SonarLintTypeCheckingChecker javaScriptProjectChecker;
+  private JsFileConsumers consumers;
 
   // Constructor for SonarCloud without the optional dependency (Pico doesn't support optional dependencies)
   public JsTsSensor(
@@ -54,7 +57,8 @@ public class JsTsSensor extends AbstractBridgeSensor {
       bridgeServer,
       null,
       analysisWithProgram,
-      analysisWithWatchProgram
+      analysisWithWatchProgram,
+      new JsFileConsumers()
     );
   }
 
@@ -65,11 +69,23 @@ public class JsTsSensor extends AbstractBridgeSensor {
     AnalysisWithProgram analysisWithProgram,
     AnalysisWithWatchProgram analysisWithWatchProgram
   ) {
+    this(checks, bridgeServer, javaScriptProjectChecker, analysisWithProgram, analysisWithWatchProgram, new JsFileConsumers());
+  }
+
+  public JsTsSensor(
+    JsTsChecks checks,
+    BridgeServer bridgeServer,
+    @Nullable SonarLintTypeCheckingChecker javaScriptProjectChecker,
+    AnalysisWithProgram analysisWithProgram,
+    AnalysisWithWatchProgram analysisWithWatchProgram,
+    JsFileConsumers consumers
+  ) {
     super(bridgeServer, "JS/TS");
     this.analysisWithProgram = analysisWithProgram;
     this.analysisWithWatchProgram = analysisWithWatchProgram;
     this.checks = checks;
     this.javaScriptProjectChecker = javaScriptProjectChecker;
+    this.consumers = consumers;
   }
 
   @Override
@@ -116,7 +132,7 @@ public class JsTsSensor extends AbstractBridgeSensor {
       LOG.info("No tsconfig.json file found");
     }
     analysis.initialize(context, checks, analysisMode);
-    analysis.analyzeFiles(inputFiles, tsConfigs);
+    analysis.analyzeFiles(inputFiles, tsConfigs, consumers);
   }
 
   private String createTsConfigFile(String content) throws IOException {

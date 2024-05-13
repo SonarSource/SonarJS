@@ -30,6 +30,7 @@ import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonar.css.StylelintRule;
+import org.sonar.plugins.javascript.api.JsFile;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
 @ScannerSide
@@ -127,6 +128,7 @@ public interface BridgeServer extends Startable {
     CpdToken[] cpdTokens = {};
     Perf perf;
     List<String> ucfgPaths = List.of();
+    JsFile.Node ast;
   }
 
   class ParsingError {

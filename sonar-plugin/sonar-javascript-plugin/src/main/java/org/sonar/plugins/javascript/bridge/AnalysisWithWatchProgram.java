@@ -54,7 +54,7 @@ public class AnalysisWithWatchProgram extends AbstractAnalysis {
   }
 
   @Override
-  public void analyzeFiles(List<InputFile> inputFiles, List<String> tsConfigs) throws IOException {
+  public void analyzeFiles(List<InputFile> inputFiles, List<String> tsConfigs, JsFileConsumers consumers) throws IOException {
     boolean success = false;
     progressReport = new ProgressReport(PROGRESS_REPORT_TITLE, PROGRESS_REPORT_PERIOD);
     Map<TsConfigFile, List<InputFile>> filesByTsConfig = TsConfigFile.inputFilesByTsConfig(

@@ -29,7 +29,12 @@ public class EslintCustomRulesPlugin implements Plugin {
       EslintRulesBundle.class,
       CustomRulesDefinition.class,
       RuleRepository.class,
-      TsRepository.class
+      TsRepository.class,
+
+      //Armor
+      ArmorSensor.class,
+      ArmorConsumer.class
+
     );
   }
 }
