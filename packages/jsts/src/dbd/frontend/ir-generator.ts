@@ -34,7 +34,7 @@ import {
   TypeInfo_Kind,
   ValueTable,
 } from '../ir-gen/ir_pb';
-import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/utils';
+import { TSESTree } from '@typescript-eslint/utils';
 // import { isNumber, isRequiredParserServices, isString } from '../../rules/helpers';
 
 function getLocation(node: TSESTree.Node) {
@@ -136,7 +136,10 @@ export class ScopeTranslator {
       variableName,
     );
     expression.properties.forEach(prop => {
-      if (prop.type === 'SpreadElement' || prop.value.type === 'AssignmentPattern') {
+      if (
+        prop.type === TSESTree.AST_NODE_TYPES.SpreadElement ||
+        prop.value.type === TSESTree.AST_NODE_TYPES.AssignmentPattern
+      ) {
         throw new Error('Unsupported object expression parsing');
       }
       if (prop.value.type === 'TSEmptyBodyFunctionExpression') {
@@ -283,7 +286,7 @@ export class ScopeTranslator {
       );
     }
     const declarator = declaration.declarations[0];
-    if (!declarator || declarator.type !== AST_NODE_TYPES.VariableDeclarator) {
+    if (!declarator || declarator.type !== TSESTree.AST_NODE_TYPES.VariableDeclarator) {
       throw new Error('Unhandled declaration');
     }
     if (declarator.id.type !== TSESTree.AST_NODE_TYPES.Identifier) {
@@ -330,7 +333,7 @@ export class ScopeTranslator {
   finish() {
     this.checkReturn();
     let functionId;
-    if (this.node && this.node.type === AST_NODE_TYPES.FunctionDeclaration) {
+    if (this.node && this.node.type === TSESTree.AST_NODE_TYPES.FunctionDeclaration) {
       functionId = new FunctionId({ simpleName: this.node.id?.name });
     } else {
       functionId = new FunctionId({ simpleName: '#__main__' });
