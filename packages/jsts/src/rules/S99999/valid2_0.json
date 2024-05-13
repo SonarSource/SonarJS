@@ -35,15 +35,7 @@
           }
         },
         {
-          "returnInstruction": {
-            "location": {
-              "fileId": "",
-              "startLine": 1,
-              "startColumn": 0,
-              "endLine": 3,
-              "endColumn": 5
-            }
-          }
+          "returnInstruction": {}
         }
       ],
       "location": {

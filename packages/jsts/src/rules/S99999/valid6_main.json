@@ -1,32 +1,12 @@
 {
   "functionId": {
-    "simpleName": "simple_assignment",
+    "simpleName": "#__main__",
     "isVirtual": false,
     "isStandardLibraryFunction": false
   },
   "values": {
-    "constants": [
-      {
-        "valueId": 3,
-        "value": "txt",
-        "typeInfo": {
-          "kind": "PRIMITIVE",
-          "qualifiedName": "string",
-          "superTypes": [],
-          "hasIncompleteSemantics": false
-        }
-      }
-    ],
-    "parameters": [
-      {
-        "valueId": 1,
-        "name": "a"
-      },
-      {
-        "valueId": 2,
-        "name": "b"
-      }
-    ],
+    "constants": [],
+    "parameters": [],
     "typeNames": []
   },
   "parameters": [],
@@ -38,17 +18,16 @@
           "callInstruction": {
             "location": {
               "fileId": "",
-              "startLine": 2,
-              "startColumn": 12,
-              "endLine": 2,
-              "endColumn": 17
+              "startLine": 4,
+              "startColumn": 0,
+              "endLine": 4,
+              "endColumn": 9
             },
-            "valueId": 3,
-            "variableName": "x",
+            "valueId": 1,
             "functionId": {
-              "simpleName": "#id#",
+              "simpleName": "loadAll",
               "isVirtual": false,
-              "isStandardLibraryFunction": true
+              "isStandardLibraryFunction": false
             },
             "arguments": [],
             "isInstanceMethodCall": false
@@ -62,8 +41,8 @@
         "fileId": "",
         "startLine": 1,
         "startColumn": 0,
-        "endLine": 3,
-        "endColumn": 1
+        "endLine": 4,
+        "endColumn": 10
       },
       "isLoopCondition": false
     }

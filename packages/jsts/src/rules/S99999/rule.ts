@@ -24,7 +24,8 @@ import { Rule } from 'eslint';
 import { TSESTree } from '@typescript-eslint/utils';
 import { writeFileSync } from 'fs';
 import { join } from 'path';
-import { translateMethod } from '../../dbd/frontend/ir-generator';
+import { translateMethod, translateTopLevel } from '../../dbd/frontend/ir-generator';
+import { FunctionInfo } from '../../dbd/ir-gen/ir_pb';
 
 export const rule: Rule.RuleModule = {
   meta: {
@@ -34,13 +35,23 @@ export const rule: Rule.RuleModule = {
   },
   create(context: Rule.RuleContext) {
     let functionNo = 0;
+    const saveResults = (result: FunctionInfo, functionIdentifier: string) => {
+      const content = JSON.stringify(result.toJson({ emitDefaultValues: true }), null, '\t');
+      const fileNameBase = join(__dirname, `${context.settings.name}`);
+      writeFileSync(`${fileNameBase}_${functionIdentifier}.json`, content, { flag: 'w' });
+      writeFileSync(`${fileNameBase}_${functionIdentifier}.buf`, result.toBinary(), { flag: 'w' });
+    };
+
     return {
+      Program(node: estree.Node) {
+        const result = translateTopLevel(context, node as TSESTree.Program);
+        if (result) {
+          saveResults(result, 'main');
+        }
+      },
       'FunctionDeclaration, FunctionExpression, ArrowFunctionExpression'(node: estree.Node) {
         const result = translateMethod(context, node as TSESTree.FunctionDeclaration);
-        const content = JSON.stringify(result.toJson({ emitDefaultValues: true }), null, '\t');
-        const fileNameBase = join(__dirname, `${context.settings.name}`);
-        writeFileSync(`${fileNameBase}_${functionNo}.json`, content, { flag: 'w' });
-        writeFileSync(`${fileNameBase}_${functionNo}.buf`, result.toBinary(), { flag: 'w' });
+        saveResults(result, String(functionNo));
         functionNo++;
       },
     };

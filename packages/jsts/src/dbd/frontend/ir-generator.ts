@@ -60,74 +60,81 @@ function getLocation(node: TSESTree.Node) {
 //   return 'unknown';
 // };
 
-export function translateMethod(context: Rule.RuleContext, node: TSESTree.FunctionDeclaration) {
-  const functionId = new FunctionId({ simpleName: node.id?.name });
+export class ScopeTranslator {
+  valueIdCounter;
+  valueTable;
+  basicBlock;
+  variableMap;
+  hasReturnInstruction;
+  node: TSESTree.Node | undefined;
 
-  let valueIdCounter = 1;
-  const valueTable = new ValueTable();
-  const basicBlock = new BasicBlock({ id: 0, location: getLocation(node) });
-  const variableMap = new Map<string, number>();
-  let hasReturnInstruction = false;
+  constructor(
+    public context: Rule.RuleContext,
+    node: TSESTree.Node | undefined = undefined,
+  ) {
+    this.valueIdCounter = 1;
+    this.valueTable = new ValueTable();
+    this.basicBlock = new BasicBlock({});
+    this.variableMap = new Map<string, number>();
+    this.hasReturnInstruction = false;
+    this.node = node;
 
-  const getNewValueId = () => {
-    const resultValueId = valueIdCounter;
-    valueIdCounter++;
-    return resultValueId;
-  };
-
-  node.params.forEach(param => {
-    if (param.type !== 'Identifier') {
-      throw new Error(`Unknown method parameter type ${param.type}`);
+    if (node) {
+      this.basicBlock.location = getLocation(node);
     }
-    const valueId = getNewValueId();
-    valueTable.parameters.push(new Parameter({ valueId, name: param.name }));
-    variableMap.set(param.name, valueId);
-  });
+  }
 
-  const handleValueWithoutCall = (value: string | number | bigint | boolean | RegExp) => {
-    const valueId = getNewValueId();
+  isEmpty() {
+    return this.basicBlock.instructions.length === 0;
+  }
+
+  getNewValueId() {
+    const resultValueId = this.valueIdCounter;
+    this.valueIdCounter++;
+    return resultValueId;
+  }
+
+  handleValueWithoutCall(value: string | number | bigint | boolean | RegExp) {
+    const valueId = this.getNewValueId();
     const typeInfo = new TypeInfo({
       kind: TypeInfo_Kind.PRIMITIVE,
       qualifiedName: 'string', // TODO: Correctly handle variable type
     });
     const newConstant = new Constant({ value: String(value), valueId, typeInfo });
-    valueTable.constants.push(newConstant);
+    this.valueTable.constants.push(newConstant);
     return valueId;
-  };
+  }
 
-  const handleLiteralWithoutCall = (literal: TSESTree.Literal) => {
+  handleLiteralWithoutCall(literal: TSESTree.Literal) {
     const value = literal.value;
     let valueId;
     if (value === null) {
       valueId = 0;
     } else {
-      valueId = handleValueWithoutCall(value);
+      valueId = this.handleValueWithoutCall(value);
     }
     return valueId;
-  };
+  }
 
-  const handleExpressionLiteral = (literal: TSESTree.Literal, variableName: string | undefined) => {
+  handleExpressionLiteral(literal: TSESTree.Literal, variableName: string | undefined) {
     const functionId = new FunctionId({ simpleName: '#id#', isStandardLibraryFunction: true });
-    const valueId = handleLiteralWithoutCall(literal);
-    addCallExpression(getLocation(literal), valueId, functionId, [], variableName);
+    const valueId = this.handleLiteralWithoutCall(literal);
+    this.addCallExpression(getLocation(literal), valueId, functionId, [], variableName);
     if (variableName) {
-      variableMap.set(variableName, valueId);
+      this.variableMap.set(variableName, valueId);
     }
     return valueId;
-  };
+  }
 
-  const handleObjectExpression = (
-    expression: TSESTree.ObjectExpression,
-    variableName: string | undefined,
-  ) => {
-    const objectValueId = getNewValueId();
+  handleObjectExpression(expression: TSESTree.ObjectExpression, variableName: string | undefined) {
+    const objectValueId = this.getNewValueId();
     const typeInfo = new TypeInfo({
       kind: TypeInfo_Kind.CLASS,
       qualifiedName: 'object',
     });
     const newConstant = new Constant({ valueId: objectValueId, typeInfo });
-    valueTable.constants.push(newConstant);
-    addCallExpression(
+    this.valueTable.constants.push(newConstant);
+    this.addCallExpression(
       getLocation(expression),
       objectValueId,
       new FunctionId({ simpleName: '#new-object#', isStandardLibraryFunction: true }),
@@ -141,10 +148,10 @@ export function translateMethod(context: Rule.RuleContext, node: TSESTree.Functi
       if (prop.value.type === 'TSEmptyBodyFunctionExpression') {
         return;
       }
-      const keyId = parseExpression(prop.key);
-      const valueId = parseExpression(prop.value);
-      const resultValueId = getNewValueId();
-      addCallExpression(
+      const keyId = this.handleExpression(prop.key);
+      const valueId = this.handleExpression(prop.value);
+      const resultValueId = this.getNewValueId();
+      this.addCallExpression(
         getLocation(prop),
         resultValueId,
         new FunctionId({ simpleName: '#map-set#', isStandardLibraryFunction: true }),
@@ -152,12 +159,12 @@ export function translateMethod(context: Rule.RuleContext, node: TSESTree.Functi
       );
     });
     if (variableName) {
-      variableMap.set(variableName, objectValueId);
+      this.variableMap.set(variableName, objectValueId);
     }
     return objectValueId;
-  };
+  }
 
-  const handleMemberExpression = (memberExpression: TSESTree.MemberExpression): number => {
+  handleMemberExpression(memberExpression: TSESTree.MemberExpression): number {
     if (memberExpression.property.type !== TSESTree.AST_NODE_TYPES.Identifier) {
       throw new Error(
         `Unsupported member expression property type ${memberExpression.property.type} ${JSON.stringify(getLocation(memberExpression.property))}`,
@@ -165,9 +172,9 @@ export function translateMethod(context: Rule.RuleContext, node: TSESTree.Functi
     }
     let objectValueId;
     if (memberExpression.object.type === TSESTree.AST_NODE_TYPES.Identifier) {
-      objectValueId = variableMap.get(memberExpression.object.name);
+      objectValueId = this.variableMap.get(memberExpression.object.name);
     } else if (memberExpression.object.type === TSESTree.AST_NODE_TYPES.MemberExpression) {
-      objectValueId = handleMemberExpression(memberExpression.object);
+      objectValueId = this.handleMemberExpression(memberExpression.object);
     }
 
     if (!objectValueId) {
@@ -183,68 +190,77 @@ export function translateMethod(context: Rule.RuleContext, node: TSESTree.Functi
         simpleName: `#get-field# ${fieldName}`,
         isStandardLibraryFunction: true,
       });
-      const resultValueId = getNewValueId();
-      addCallExpression(getLocation(memberExpression), resultValueId, functionId, [objectValueId]);
+      const resultValueId = this.getNewValueId();
+      this.addCallExpression(getLocation(memberExpression), resultValueId, functionId, [
+        objectValueId,
+      ]);
       return resultValueId;
     }
-  };
+  }
 
-  const handleCallExpression = (callExpression: TSESTree.CallExpression) => {
+  handleCallExpression(callExpression: TSESTree.CallExpression) {
     let calleeValueId;
-    let functionSimpleName;
+    let simpleName;
     switch (callExpression.callee.type) {
       case TSESTree.AST_NODE_TYPES.MemberExpression:
-        calleeValueId = handleMemberExpression(callExpression.callee);
+        calleeValueId = this.handleMemberExpression(callExpression.callee);
         if (callExpression.callee.property.type !== TSESTree.AST_NODE_TYPES.Identifier) {
           throw new Error(
             `Unhandled method call ${JSON.stringify(getLocation(callExpression.callee.property))}`,
           );
         }
-        functionSimpleName = callExpression.callee.property.name;
+        simpleName = callExpression.callee.property.name;
+        break;
+      case TSESTree.AST_NODE_TYPES.Identifier:
+        simpleName = callExpression.callee.name;
         break;
       default:
         throw new Error(`Unsupported call expression callee ${callExpression.callee.type}`);
     }
-    const resultValueId = getNewValueId();
-    addCallExpression(
+    const resultValueId = this.getNewValueId();
+    let args: number[] = [];
+    if (calleeValueId) {
+      args = [calleeValueId];
+    }
+    this.addCallExpression(
       getLocation(callExpression),
       resultValueId,
-      new FunctionId({ simpleName: functionSimpleName }),
-      [calleeValueId],
+      new FunctionId({ simpleName }),
+      args,
     );
     return resultValueId;
-  };
+  }
 
-  const parseExpression = (
+  handleExpression(
     expression: TSESTree.Expression | null,
     variableName: string | undefined = undefined,
-  ): number => {
+  ): number {
     if (!expression) {
       throw new Error('Null Expression provided');
     }
     switch (expression.type) {
       case TSESTree.AST_NODE_TYPES.Literal:
-        return handleExpressionLiteral(expression, variableName);
+        return this.handleExpressionLiteral(expression, variableName);
       case TSESTree.AST_NODE_TYPES.ObjectExpression:
-        return handleObjectExpression(expression, variableName);
+        return this.handleObjectExpression(expression, variableName);
       case TSESTree.AST_NODE_TYPES.Identifier:
-        return handleValueWithoutCall(expression.name);
+        return this.handleValueWithoutCall(expression.name);
       case TSESTree.AST_NODE_TYPES.CallExpression:
-        return handleCallExpression(expression);
+        return this.handleCallExpression(expression);
       case TSESTree.AST_NODE_TYPES.MemberExpression:
-        return handleMemberExpression(expression);
+        return this.handleMemberExpression(expression);
       default:
         throw new Error(`Unhandled Expression type ${expression.type}`);
     }
-  };
+  }
 
-  const addCallExpression = (
+  addCallExpression(
     location: Location,
     valueId: number,
     functionId: FunctionId,
     args: number[] = [],
     variableName: string | undefined = undefined,
-  ) => {
+  ) {
     const callInstruction = new CallInstruction({
       location,
       valueId,
@@ -252,23 +268,23 @@ export function translateMethod(context: Rule.RuleContext, node: TSESTree.Functi
       functionId,
       arguments: args,
     });
-    basicBlock.instructions.push(
+    this.basicBlock.instructions.push(
       new Instruction({ instr: { case: 'callInstruction', value: callInstruction } }),
     );
-  };
+  }
 
-  const addReturnInstruction = (
-    location: Location,
+  addReturnInstruction(
+    location: Location | undefined = undefined,
     returnValue: number | undefined = undefined,
-  ) => {
+  ) {
     const returnInstruction = new ReturnInstruction({ location, returnValue });
-    basicBlock.instructions.push(
+    this.basicBlock.instructions.push(
       new Instruction({ instr: { case: 'returnInstruction', value: returnInstruction } }),
     );
-    hasReturnInstruction = true;
-  };
+    this.hasReturnInstruction = true;
+  }
 
-  const parseVariableDeclaration = (declaration: TSESTree.VariableDeclaration) => {
+  handleVariableDeclaration(declaration: TSESTree.VariableDeclaration) {
     if (declaration.declarations.length !== 1) {
       throw new Error(
         `Unable to handle declaration with ${declaration.declarations.length} declarations (${JSON.stringify(getLocation(declaration))})`,
@@ -282,46 +298,88 @@ export function translateMethod(context: Rule.RuleContext, node: TSESTree.Functi
       throw new Error(`Unhandled declaration id type ${declarator.id.type}`);
     }
     const variableName = declarator.id.name;
-    parseExpression(declarator.init, variableName);
-  };
+    this.handleExpression(declarator.init, variableName);
+  }
 
-  const addNullReturn = (location: Location) => {
-    addReturnInstruction(location);
-  };
+  addNullReturn(location: Location | undefined = undefined) {
+    this.addReturnInstruction(location);
+  }
 
-  const parseReturnStatement = (returnStatement: TSESTree.ReturnStatement) => {
+  handleReturnStatement(returnStatement: TSESTree.ReturnStatement) {
     if (returnStatement.argument === null) {
-      addNullReturn(getLocation(returnStatement));
+      this.addNullReturn(getLocation(returnStatement));
     } else if (returnStatement.argument.type !== TSESTree.AST_NODE_TYPES.Literal) {
       throw new Error(`Unhandled return statement argument type ${returnStatement.argument.type}`);
     } else {
-      const returnValue = handleLiteralWithoutCall(returnStatement.argument);
-      addReturnInstruction(getLocation(returnStatement), returnValue);
+      const returnValue = this.handleLiteralWithoutCall(returnStatement.argument);
+      this.addReturnInstruction(getLocation(returnStatement), returnValue);
     }
-  };
+  }
 
-  const parseStatement = (statement: TSESTree.Statement) => {
+  handleStatement(statement: TSESTree.Statement) {
     switch (statement.type) {
       case TSESTree.AST_NODE_TYPES.VariableDeclaration:
-        return parseVariableDeclaration(statement);
+        return this.handleVariableDeclaration(statement);
       case TSESTree.AST_NODE_TYPES.ExpressionStatement:
-        return parseExpression(statement.expression);
+        return this.handleExpression(statement.expression);
       case TSESTree.AST_NODE_TYPES.ReturnStatement:
-        return parseReturnStatement(statement);
+        return this.handleReturnStatement(statement);
       default:
         throw new Error(`Unhandled statement type ${statement.type}`);
     }
-  };
-
-  node.body.body.forEach(parseStatement);
-  if (!hasReturnInstruction) {
-    addNullReturn(getLocation(node));
   }
 
-  return new FunctionInfo({
-    functionId,
-    fileId: context.filename,
-    basicBlocks: [basicBlock],
-    values: valueTable,
+  checkReturn() {
+    if (!this.hasReturnInstruction) {
+      this.addNullReturn();
+    }
+  }
+
+  finish() {
+    this.checkReturn();
+    let functionId;
+    if (this.node && this.node.type === AST_NODE_TYPES.FunctionDeclaration) {
+      functionId = new FunctionId({ simpleName: this.node.id?.name });
+    } else {
+      functionId = new FunctionId({ simpleName: '#__main__' });
+    }
+
+    return new FunctionInfo({
+      functionId,
+      fileId: this.context.filename,
+      basicBlocks: [this.basicBlock],
+      values: this.valueTable,
+    });
+  }
+}
+
+export function translateTopLevel(context: Rule.RuleContext, node: TSESTree.Program) {
+  const scopeTranslator = new ScopeTranslator(context, node as TSESTree.Node);
+  node.body.forEach(param => {
+    if (param.type === TSESTree.AST_NODE_TYPES.FunctionDeclaration) {
+      // skip function declarations
+      return;
+    }
+    scopeTranslator.handleStatement(param);
   });
+  if (scopeTranslator.isEmpty()) {
+    return null;
+  }
+  return scopeTranslator.finish();
+}
+
+export function translateMethod(context: Rule.RuleContext, node: TSESTree.FunctionDeclaration) {
+  const scopeTranslator = new ScopeTranslator(context, node);
+
+  node.params.forEach(param => {
+    if (param.type !== 'Identifier') {
+      throw new Error(`Unknown method parameter type ${param.type}`);
+    }
+    const valueId = scopeTranslator.getNewValueId();
+    scopeTranslator.valueTable.parameters.push(new Parameter({ valueId, name: param.name }));
+    scopeTranslator.variableMap.set(param.name, valueId);
+  });
+
+  node.body.body.forEach(scopeTranslator.handleStatement, scopeTranslator);
+  return scopeTranslator.finish();
 }
