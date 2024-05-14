@@ -24,7 +24,7 @@ import { TSESTree } from '@typescript-eslint/utils';
 import { ScopeTranslator } from './scope-translator';
 import { handleStatement } from './statements';
 
-function augmentWithMetadata(scopeTranslator: ScopeTranslator): [FunctionInfo, string[]] {
+function returnWithMetadata(scopeTranslator: ScopeTranslator): [FunctionInfo, string[]] {
   const functionInfo = scopeTranslator.finish();
   const parentSignature = functionInfo.functionId!.signature!;
   const metadataCalls = [parentSignature, ...scopeTranslator.methodCalls];
@@ -46,7 +46,7 @@ export function translateTopLevel(
   if (scopeTranslator.isEmpty()) {
     return null;
   }
-  return augmentWithMetadata(scopeTranslator);
+  return returnWithMetadata(scopeTranslator);
 }
 
 export function translateMethod(
@@ -65,5 +65,5 @@ export function translateMethod(
   });
 
   node.body.body.forEach(statement => handleStatement(scopeTranslator, statement), scopeTranslator);
-  return augmentWithMetadata(scopeTranslator);
+  return returnWithMetadata(scopeTranslator);
 }
