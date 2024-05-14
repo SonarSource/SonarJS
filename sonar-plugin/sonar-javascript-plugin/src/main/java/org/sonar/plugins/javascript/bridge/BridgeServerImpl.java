@@ -312,7 +312,7 @@ public class BridgeServerImpl implements BridgeServer {
     List<String> environments,
     List<String> globals,
     AnalysisMode analysisMode,
-    String baseDir,
+    @Nullable String baseDir,
     List<String> exclusions
   ) throws IOException {
     initLinter(AnalysisMode.DEFAULT_LINTER_ID, rules, environments, globals, baseDir, exclusions);

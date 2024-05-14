@@ -171,7 +171,7 @@ public class AnalysisWithProgram extends AbstractAnalysis {
           : bridgeServer.analyzeTypeScript(request);
 
         analysisProcessor.processResponse(context, checks, file, response);
-        consumers.consume(new JsFile(file, null, response.ast));
+        consumers.consume(new JsFile(file, response.ast));
         cacheStrategy.writeAnalysisToCache(
           CacheAnalysis.fromResponse(response.ucfgPaths, response.cpdTokens),
           file

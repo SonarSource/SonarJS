@@ -29,7 +29,7 @@ public class ArmorSensor implements ProjectSensor {
     }
     for (JsFile jsFile : consumer.getFiles()) {
       // do something with jsFile
-      System.out.println(jsFile.jsonAst());
+      System.out.println(jsFile.ast());
     }
   }
 }
