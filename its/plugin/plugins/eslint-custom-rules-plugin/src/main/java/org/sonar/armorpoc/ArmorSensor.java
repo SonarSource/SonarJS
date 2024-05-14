@@ -1,21 +1,21 @@
-package org.sonar.samples.javascript;
+package org.sonar.armorpoc;
 
+import org.sonar.api.batch.DependsUpon;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.scanner.sensor.ProjectSensor;
 import org.sonar.plugins.javascript.api.JsFile;
-import org.sonar.plugins.javascript.api.SonarJsContext;
 
 @ScannerSide
+@DependsUpon("js-analysis")
 public class ArmorSensor implements ProjectSensor {
 
-  private final SonarJsContext sonarJsContext;
+  private final ArmorConsumer consumer;
 
-  public ArmorSensor(SonarJsContext sonarJsContext) {
-    this.sonarJsContext = sonarJsContext;
+  public ArmorSensor(ArmorConsumer consumer) {
+    this.consumer = consumer;
   }
-
 
   @Override
   public void describe(SensorDescriptor descriptor) {
@@ -24,9 +24,12 @@ public class ArmorSensor implements ProjectSensor {
 
   @Override
   public void execute(SensorContext context) {
-    for (JsFile jsFile : sonarJsContext.getJsFiles()) {
+    if (!consumer.isDone()) {
+      throw new IllegalStateException("Consumer didn't consume all files yet");
+    }
+    for (JsFile jsFile : consumer.getFiles()) {
       // do something with jsFile
-      System.out.println(jsFile.getProgram());
+      System.out.println(jsFile.jsonAst());
     }
   }
 }

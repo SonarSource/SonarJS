@@ -20,6 +20,8 @@
 package org.sonar.samples.javascript;
 
 import org.sonar.api.Plugin;
+import org.sonar.armorpoc.ArmorConsumer;
+import org.sonar.armorpoc.ArmorSensor;
 
 public class EslintCustomRulesPlugin implements Plugin {
 
@@ -34,7 +36,6 @@ public class EslintCustomRulesPlugin implements Plugin {
       //Armor
       ArmorSensor.class,
       ArmorConsumer.class
-
     );
   }
 }

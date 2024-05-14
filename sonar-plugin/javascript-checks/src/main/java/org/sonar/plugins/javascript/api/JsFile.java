@@ -3,24 +3,7 @@ package org.sonar.plugins.javascript.api;
 import java.util.Map;
 import org.sonar.api.batch.fs.InputFile;
 
-public class JsFile {
-
-  InputFile inputFile;
-  Node program;
-
-  public JsFile(InputFile inputFile, Node program) {
-    this.inputFile = inputFile;
-    this.program = program;
-  }
-
-  public InputFile getInputFile() {
-    return inputFile;
-  }
-
-  public Node getProgram() {
-    return program;
-  }
-
+public record JsFile(InputFile inputFile, Node node, String jsonAst) {
 
   public record Node(String type, Map<String, Node> children, Location location) {
 

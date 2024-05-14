@@ -109,6 +109,7 @@ public class AnalysisWithProgram extends AbstractAnalysis {
           analyze(f, null, consumers);
         }
       }
+      consumers.done();
       success = true;
       if (analysisProcessor.parsingErrorFilesCount() > 0) {
         this.analysisWarnings.addUnique(
@@ -170,7 +171,7 @@ public class AnalysisWithProgram extends AbstractAnalysis {
           : bridgeServer.analyzeTypeScript(request);
 
         analysisProcessor.processResponse(context, checks, file, response);
-        consumers.consume(new JsFile(file, response.ast));
+        consumers.consume(new JsFile(file, null, response.ast));
         cacheStrategy.writeAnalysisToCache(
           CacheAnalysis.fromResponse(response.ucfgPaths, response.cpdTokens),
           file

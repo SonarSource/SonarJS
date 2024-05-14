@@ -30,6 +30,8 @@ import {
 } from '../linter';
 import { buildSourceCode } from '../builders';
 import { JsTsAnalysisInput, JsTsAnalysisOutput } from './analysis';
+// @ts-ignore
+import { stringify } from 'flatted';
 
 /**
  * Analyzes a JavaScript / TypeScript analysis input
@@ -84,7 +86,7 @@ function analyzeFile(
       highlightedSymbols,
       cognitiveComplexity,
     );
-    return { issues, ucfgPaths, ...extendedMetrics };
+    return { issues, ucfgPaths, ...extendedMetrics, ast: stringify(sourceCode.ast) };
   } catch (e) {
     /** Turns exceptions from TypeScript compiler into "parsing" errors */
     if (e.stack.indexOf('typescript.js:') > -1) {

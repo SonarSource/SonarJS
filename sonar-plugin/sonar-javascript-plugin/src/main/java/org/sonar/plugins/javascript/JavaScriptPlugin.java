@@ -31,8 +31,6 @@ import org.sonar.css.CssProfileDefinition;
 import org.sonar.css.CssRulesDefinition;
 import org.sonar.css.StylelintReportSensor;
 import org.sonar.css.metrics.CssMetricSensor;
-import org.sonar.plugins.javascript.api.JsFileConsumer;
-import org.sonar.plugins.javascript.api.SonarJsContext;
 import org.sonar.plugins.javascript.bridge.AnalysisProcessor;
 import org.sonar.plugins.javascript.bridge.AnalysisWarningsWrapper;
 import org.sonar.plugins.javascript.bridge.AnalysisWithProgram;
@@ -165,7 +163,6 @@ public class JavaScriptPlugin implements Plugin {
       HtmlSensor.class,
       EmbeddedNode.class,
       Environment.class,
-      SonarJsContext.class,
       JsFileConsumers.class
     );
 

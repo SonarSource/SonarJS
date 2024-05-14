@@ -20,12 +20,12 @@
 package org.sonar.plugins.javascript.bridge;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.StreamSupport;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.batch.DependedUpon;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -33,9 +33,9 @@ import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.plugins.javascript.JavaScriptFilePredicate;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
-import org.sonar.plugins.javascript.api.JsFileConsumer;
 import org.sonar.plugins.javascript.sonarlint.SonarLintTypeCheckingChecker;
 
+@DependedUpon("js-analysis")
 public class JsTsSensor extends AbstractBridgeSensor {
 
   private static final Logger LOG = LoggerFactory.getLogger(JsTsSensor.class);
