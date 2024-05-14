@@ -53,8 +53,12 @@ export class ScopeTranslator {
     this.fileName = context.settings.name;
   }
 
+  getFunctionSignature(simpleName: string) {
+    return `${this.fileName}.${simpleName}`;
+  }
+
   getFunctionId(simpleName: string) {
-    return new FunctionId({ simpleName, signature: `${this.fileName}.${simpleName}` });
+    return new FunctionId({ simpleName, signature: this.getFunctionSignature(simpleName) });
   }
 
   isEmpty() {
@@ -82,7 +86,7 @@ export class ScopeTranslator {
       arguments: args,
     });
     if (!functionId.simpleName.startsWith('#')) {
-      this.methodCalls.add(functionId.simpleName);
+      this.methodCalls.add(this.getFunctionSignature(functionId.simpleName));
     }
     this.basicBlock.instructions.push(
       new Instruction({ instr: { case: 'callInstruction', value: callInstruction } }),
