@@ -1,0 +1,151 @@
+{
+  "functionId": {
+    "simpleName": "simple_assignment",
+    "signature": "valid5.simple_assignment",
+    "isVirtual": false,
+    "isStandardLibraryFunction": false
+  },
+  "values": {
+    "constants": [
+      {
+        "valueId": 1,
+        "value": "",
+        "typeInfo": {
+          "kind": "CLASS",
+          "qualifiedName": "object",
+          "superTypes": [],
+          "hasIncompleteSemantics": false
+        }
+      },
+      {
+        "valueId": 2,
+        "value": "key1",
+        "typeInfo": {
+          "kind": "PRIMITIVE",
+          "qualifiedName": "string",
+          "superTypes": [],
+          "hasIncompleteSemantics": false
+        }
+      },
+      {
+        "valueId": 3,
+        "value": "2",
+        "typeInfo": {
+          "kind": "PRIMITIVE",
+          "qualifiedName": "number",
+          "superTypes": [],
+          "hasIncompleteSemantics": false
+        }
+      },
+      {
+        "valueId": 5,
+        "value": "key2",
+        "typeInfo": {
+          "kind": "PRIMITIVE",
+          "qualifiedName": "string",
+          "superTypes": [],
+          "hasIncompleteSemantics": false
+        }
+      },
+      {
+        "valueId": 6,
+        "value": "3",
+        "typeInfo": {
+          "kind": "PRIMITIVE",
+          "qualifiedName": "string",
+          "superTypes": [],
+          "hasIncompleteSemantics": false
+        }
+      }
+    ],
+    "parameters": [],
+    "typeNames": []
+  },
+  "parameters": [],
+  "basicBlocks": [
+    {
+      "id": 0,
+      "instructions": [
+        {
+          "callInstruction": {
+            "location": {
+              "fileId": "",
+              "startLine": 2,
+              "startColumn": 12,
+              "endLine": 2,
+              "endColumn": 34
+            },
+            "valueId": 1,
+            "variableName": "x",
+            "functionId": {
+              "simpleName": "#new-object#",
+              "isVirtual": false,
+              "isStandardLibraryFunction": true
+            },
+            "arguments": [],
+            "isInstanceMethodCall": false
+          }
+        },
+        {
+          "callInstruction": {
+            "location": {
+              "fileId": "",
+              "startLine": 2,
+              "startColumn": 14,
+              "endLine": 2,
+              "endColumn": 21
+            },
+            "valueId": 4,
+            "functionId": {
+              "simpleName": "#map-set#",
+              "isVirtual": false,
+              "isStandardLibraryFunction": true
+            },
+            "arguments": [1, 2, 3],
+            "isInstanceMethodCall": false
+          }
+        },
+        {
+          "callInstruction": {
+            "location": {
+              "fileId": "",
+              "startLine": 2,
+              "startColumn": 23,
+              "endLine": 2,
+              "endColumn": 32
+            },
+            "valueId": 7,
+            "functionId": {
+              "simpleName": "#map-set#",
+              "isVirtual": false,
+              "isStandardLibraryFunction": true
+            },
+            "arguments": [1, 5, 6],
+            "isInstanceMethodCall": false
+          }
+        },
+        {
+          "returnInstruction": {
+            "location": {
+              "fileId": "",
+              "startLine": 1,
+              "startColumn": 0,
+              "endLine": 3,
+              "endColumn": 1
+            },
+            "returnValue": 0
+          }
+        }
+      ],
+      "location": {
+        "fileId": "",
+        "startLine": 1,
+        "startColumn": 0,
+        "endLine": 3,
+        "endColumn": 1
+      },
+      "isLoopCondition": false
+    }
+  ],
+  "fileId": "/Users/michal.zgliczynski/codes/SonarJS/packages/jsts/tests/tools/testers/typescript/fixtures/placeholder.tsx"
+}

@@ -1,0 +1,82 @@
+{
+  "functionId": {
+    "simpleName": "simple_assignment",
+    "signature": "valid3.simple_assignment",
+    "isVirtual": false,
+    "isStandardLibraryFunction": false
+  },
+  "values": {
+    "constants": [
+      {
+        "valueId": 3,
+        "value": "2",
+        "typeInfo": {
+          "kind": "PRIMITIVE",
+          "qualifiedName": "number",
+          "superTypes": [],
+          "hasIncompleteSemantics": false
+        }
+      }
+    ],
+    "parameters": [
+      {
+        "valueId": 1,
+        "name": "a"
+      },
+      {
+        "valueId": 2,
+        "name": "b"
+      }
+    ],
+    "typeNames": []
+  },
+  "parameters": [],
+  "basicBlocks": [
+    {
+      "id": 0,
+      "instructions": [
+        {
+          "callInstruction": {
+            "location": {
+              "fileId": "",
+              "startLine": 2,
+              "startColumn": 12,
+              "endLine": 2,
+              "endColumn": 13
+            },
+            "valueId": 3,
+            "variableName": "x",
+            "functionId": {
+              "simpleName": "#id#",
+              "isVirtual": false,
+              "isStandardLibraryFunction": true
+            },
+            "arguments": [],
+            "isInstanceMethodCall": false
+          }
+        },
+        {
+          "returnInstruction": {
+            "location": {
+              "fileId": "",
+              "startLine": 1,
+              "startColumn": 0,
+              "endLine": 3,
+              "endColumn": 1
+            },
+            "returnValue": 0
+          }
+        }
+      ],
+      "location": {
+        "fileId": "",
+        "startLine": 1,
+        "startColumn": 0,
+        "endLine": 3,
+        "endColumn": 1
+      },
+      "isLoopCondition": false
+    }
+  ],
+  "fileId": "/Users/michal.zgliczynski/codes/SonarJS/packages/jsts/tests/tools/testers/typescript/fixtures/placeholder.tsx"
+}
