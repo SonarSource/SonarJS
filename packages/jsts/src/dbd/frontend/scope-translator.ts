@@ -38,7 +38,7 @@ export class ScopeTranslator {
   variableMap;
   hasReturnInstruction;
   methodCalls: Set<string>;
-  signature: string;
+  fileName: string;
 
   constructor(
     public context: Rule.RuleContext,
@@ -50,7 +50,11 @@ export class ScopeTranslator {
     this.variableMap = new Map<string, number>();
     this.hasReturnInstruction = false;
     this.methodCalls = new Set<string>();
-    this.signature = context.settings.name;
+    this.fileName = context.settings.name;
+  }
+
+  getFunctionId(simpleName: string) {
+    return new FunctionId({ simpleName, signature: `${this.fileName}.${simpleName}` });
   }
 
   isEmpty() {
@@ -107,16 +111,14 @@ export class ScopeTranslator {
   finish() {
     this.checkReturn();
     let functionId;
-    if (this.node && this.node.type === TSESTree.AST_NODE_TYPES.FunctionDeclaration) {
-      functionId = new FunctionId({
-        simpleName: this.node.id?.name,
-        signature: this.signature + '.' + this.node.id?.name,
-      });
+    if (
+      this.node &&
+      this.node.type === TSESTree.AST_NODE_TYPES.FunctionDeclaration &&
+      this.node.id
+    ) {
+      functionId = this.getFunctionId(this.node.id?.name);
     } else {
-      functionId = new FunctionId({
-        simpleName: '#__main__',
-        signature: this.signature + '.#__main__',
-      });
+      functionId = this.getFunctionId('#__main__');
     }
 
     return new FunctionInfo({

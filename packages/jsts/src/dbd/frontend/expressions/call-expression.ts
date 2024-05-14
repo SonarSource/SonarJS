@@ -20,7 +20,6 @@
 import { TSESTree } from '@typescript-eslint/utils';
 import { handleMemberExpression } from './member-expression';
 import { getLocation } from '../utils';
-import { FunctionId } from '../../ir-gen/ir_pb';
 import { ScopeTranslator } from '../scope-translator';
 
 export function handleCallExpression(
@@ -53,7 +52,7 @@ export function handleCallExpression(
   scopeTranslator.addCallExpression(
     getLocation(callExpression),
     resultValueId,
-    new FunctionId({ simpleName, signature: scopeTranslator.signature + '.' + simpleName }),
+    scopeTranslator.getFunctionId(simpleName),
     args,
   );
   return resultValueId;
