@@ -35,11 +35,7 @@ export const rule: Rule.RuleModule = {
   },
   create(context: Rule.RuleContext) {
     let functionNo = 0;
-    const saveResults = (
-      result: FunctionInfo,
-      methods: Set<string>,
-      functionIdentifier: string,
-    ) => {
+    const saveResults = (result: FunctionInfo, methods: string[], functionIdentifier: string) => {
       const content = JSON.stringify(result.toJson({ emitDefaultValues: true }), null, 2);
       const fileNameBase = `${join(__dirname, 'ir', 'python', `${context.settings.name}`)}_${functionIdentifier}`;
       writeFileSync(`${fileNameBase}.json`, content, { flag: 'w' });

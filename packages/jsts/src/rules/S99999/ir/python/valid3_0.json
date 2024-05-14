@@ -6,18 +6,7 @@
     "isStandardLibraryFunction": false
   },
   "values": {
-    "constants": [
-      {
-        "valueId": 3,
-        "value": "2",
-        "typeInfo": {
-          "kind": "PRIMITIVE",
-          "qualifiedName": "number",
-          "superTypes": [],
-          "hasIncompleteSemantics": false
-        }
-      }
-    ],
+    "constants": [],
     "parameters": [
       {
         "valueId": 1,
@@ -40,18 +29,18 @@
             "location": {
               "fileId": "",
               "startLine": 2,
-              "startColumn": 12,
+              "startColumn": 2,
               "endLine": 2,
-              "endColumn": 13
+              "endColumn": 4
             },
             "valueId": 3,
-            "variableName": "x",
             "functionId": {
-              "simpleName": "#id#",
+              "simpleName": "#unaryop !",
+              "signature": "valid3.#unaryop !",
               "isVirtual": false,
-              "isStandardLibraryFunction": true
+              "isStandardLibraryFunction": false
             },
-            "arguments": [],
+            "arguments": [1],
             "isInstanceMethodCall": false
           }
         },

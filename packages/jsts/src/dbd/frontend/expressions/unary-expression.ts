@@ -22,26 +22,18 @@ import { ScopeTranslator } from '../scope-translator';
 import { TSESTree } from '@typescript-eslint/utils';
 import { handleExpression } from './index';
 import { getLocation } from '../utils';
-import { FunctionId } from '../../ir-gen/ir_pb';
 
-export function handleBinaryExpression(
+export function handleUnaryExpression(
   scopeTranslator: ScopeTranslator,
-  expression: TSESTree.BinaryExpression,
-  variableName: string | undefined = undefined,
+  expression: TSESTree.UnaryExpression,
 ) {
-  if (expression.left.type === TSESTree.AST_NODE_TYPES.PrivateIdentifier) {
-    throw new Error(`Unknown left operand of type ${expression.left.type}`);
-  }
-  const lhsId = handleExpression(scopeTranslator, expression.left);
-  const rhsId = handleExpression(scopeTranslator, expression.right);
+  const argId = handleExpression(scopeTranslator, expression.argument);
   const valueId = scopeTranslator.getNewValueId();
-  const functionId = new FunctionId({ simpleName: `#binop ${expression.operator}` });
   scopeTranslator.addCallExpression(
     getLocation(expression),
     valueId,
-    functionId,
-    [lhsId, rhsId],
-    variableName,
+    scopeTranslator.getFunctionId(`#unaryop ${expression.operator}`),
+    [argId],
   );
   return valueId;
 }
