@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-// import * as estree from 'estree';
 import { Rule } from 'eslint';
 import {
   BasicBlock,
@@ -35,7 +34,8 @@ import {
   ValueTable,
 } from '../ir-gen/ir_pb';
 import { TSESTree } from '@typescript-eslint/utils';
-// import { isNumber, isRequiredParserServices, isString } from '../../rules/helpers';
+
+type NonNullLiteral = string | number | bigint | boolean | RegExp;
 
 function getLocation(node: TSESTree.Node) {
   return new Location({
@@ -45,20 +45,6 @@ function getLocation(node: TSESTree.Node) {
     endColumn: node.loc.end.column,
   });
 }
-
-// const getTypeQualifiedName = (context: Rule.RuleContext, node: estree.Node) => {
-//   const parserServices = context.sourceCode.parserServices;
-//   if (!isRequiredParserServices(parserServices)) {
-//     return 'unknown';
-//   }
-//
-//   if (isString(node, parserServices)) {
-//     return 'string';
-//   } else if (isNumber(node, parserServices)) {
-//     return 'number';
-//   }
-//   return 'unknown';
-// };
 
 export class ScopeTranslator {
   valueIdCounter;
@@ -88,11 +74,14 @@ export class ScopeTranslator {
     return resultValueId;
   }
 
-  handleValueWithoutCall(value: string | number | bigint | boolean | RegExp) {
+  handleValueWithoutCall(value: NonNullLiteral) {
+    if (typeof value === 'string' && this.variableMap.has(value)) {
+      return this.variableMap.get(value);
+    }
     const valueId = this.getNewValueId();
     const typeInfo = new TypeInfo({
       kind: TypeInfo_Kind.PRIMITIVE,
-      qualifiedName: 'string', // TODO: Correctly handle variable type
+      qualifiedName: typeof value,
     });
     const newConstant = new Constant({ value: String(value), valueId, typeInfo });
     this.valueTable.constants.push(newConstant);

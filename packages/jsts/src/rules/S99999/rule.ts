@@ -37,9 +37,9 @@ export const rule: Rule.RuleModule = {
     let functionNo = 0;
     const saveResults = (result: FunctionInfo, functionIdentifier: string) => {
       const content = JSON.stringify(result.toJson({ emitDefaultValues: true }), null, 2);
-      const fileNameBase = join(__dirname, `${context.settings.name}`);
+      const fileNameBase = join(__dirname, 'ir', 'python', `${context.settings.name}`);
       writeFileSync(`${fileNameBase}_${functionIdentifier}.json`, content, { flag: 'w' });
-      writeFileSync(`${fileNameBase}_${functionIdentifier}.buf`, result.toBinary(), { flag: 'w' });
+      writeFileSync(`${fileNameBase}_${functionIdentifier}.ir`, result.toBinary(), { flag: 'w' });
     };
 
     return {

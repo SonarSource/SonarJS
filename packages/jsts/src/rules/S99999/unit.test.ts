@@ -65,7 +65,7 @@ ruleTester.run('Proto', rule, {
     },
     {
       code: `function loadAll(pluginNames) {
-  pluginNames.x.foo(); // Noncompliant: pluginNames might be undefined
+  pluginNames.foo(); // Noncompliant: pluginNames might be undefined
 }
 loadAll();`,
       settings: {
