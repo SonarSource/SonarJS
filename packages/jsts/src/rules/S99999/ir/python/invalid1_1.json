@@ -1,17 +1,12 @@
 {
   "functionId": {
-    "simpleName": "loadAll",
+    "simpleName": "two",
     "isVirtual": false,
     "isStandardLibraryFunction": false
   },
   "values": {
     "constants": [],
-    "parameters": [
-      {
-        "valueId": 1,
-        "name": "pluginNames"
-      }
-    ],
+    "parameters": [],
     "typeNames": []
   },
   "parameters": [],
@@ -23,14 +18,14 @@
           "callInstruction": {
             "location": {
               "fileId": "",
-              "startLine": 2,
+              "startLine": 5,
               "startColumn": 2,
-              "endLine": 2,
-              "endColumn": 15
+              "endLine": 5,
+              "endColumn": 20
             },
-            "valueId": 2,
+            "valueId": 1,
             "functionId": {
-              "simpleName": "pluginNames",
+              "simpleName": "simpleAssignment",
               "isVirtual": false,
               "isStandardLibraryFunction": false
             },
@@ -42,9 +37,9 @@
           "returnInstruction": {
             "location": {
               "fileId": "",
-              "startLine": 1,
+              "startLine": 4,
               "startColumn": 0,
-              "endLine": 3,
+              "endLine": 6,
               "endColumn": 1
             },
             "returnValue": 0
@@ -53,9 +48,9 @@
       ],
       "location": {
         "fileId": "",
-        "startLine": 1,
+        "startLine": 4,
         "startColumn": 0,
-        "endLine": 3,
+        "endLine": 6,
         "endColumn": 1
       },
       "isLoopCondition": false

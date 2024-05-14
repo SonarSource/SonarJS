@@ -35,23 +35,28 @@ export const rule: Rule.RuleModule = {
   },
   create(context: Rule.RuleContext) {
     let functionNo = 0;
-    const saveResults = (result: FunctionInfo, functionIdentifier: string) => {
+    const saveResults = (
+      result: FunctionInfo,
+      methods: Set<string>,
+      functionIdentifier: string,
+    ) => {
       const content = JSON.stringify(result.toJson({ emitDefaultValues: true }), null, 2);
-      const fileNameBase = join(__dirname, 'ir', 'python', `${context.settings.name}`);
-      writeFileSync(`${fileNameBase}_${functionIdentifier}.json`, content, { flag: 'w' });
-      writeFileSync(`${fileNameBase}_${functionIdentifier}.ir`, result.toBinary(), { flag: 'w' });
+      const fileNameBase = `${join(__dirname, 'ir', 'python', `${context.settings.name}`)}_${functionIdentifier}`;
+      writeFileSync(`${fileNameBase}.json`, content, { flag: 'w' });
+      writeFileSync(`${fileNameBase}.metadata`, [...methods].join('\n'), { flag: 'w' });
+      writeFileSync(`${fileNameBase}.ir`, result.toBinary(), { flag: 'w' });
     };
 
     return {
       Program(node: estree.Node) {
         const result = translateTopLevel(context, node as TSESTree.Program);
         if (result) {
-          saveResults(result, 'main');
+          saveResults(...result, 'main');
         }
       },
       'FunctionDeclaration, FunctionExpression, ArrowFunctionExpression'(node: estree.Node) {
         const result = translateMethod(context, node as TSESTree.FunctionDeclaration);
-        saveResults(result, String(functionNo));
+        saveResults(...result, String(functionNo));
         functionNo++;
       },
     };

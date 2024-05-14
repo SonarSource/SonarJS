@@ -52,6 +52,7 @@ export class ScopeTranslator {
   basicBlock;
   variableMap;
   hasReturnInstruction;
+  methodCalls: Set<string>;
 
   constructor(
     public context: Rule.RuleContext,
@@ -62,6 +63,7 @@ export class ScopeTranslator {
     this.basicBlock = new BasicBlock({ location: getLocation(node) });
     this.variableMap = new Map<string, number>();
     this.hasReturnInstruction = false;
+    this.methodCalls = new Set<string>();
   }
 
   isEmpty() {
@@ -76,7 +78,7 @@ export class ScopeTranslator {
 
   handleValueWithoutCall(value: NonNullLiteral) {
     if (typeof value === 'string' && this.variableMap.has(value)) {
-      return this.variableMap.get(value);
+      return this.variableMap.get(value)!;
     }
     const valueId = this.getNewValueId();
     const typeInfo = new TypeInfo({
@@ -100,10 +102,10 @@ export class ScopeTranslator {
   }
 
   handleExpressionLiteral(literal: TSESTree.Literal, variableName: string | undefined) {
-    const functionId = new FunctionId({ simpleName: '#id#', isStandardLibraryFunction: true });
     const valueId = this.handleLiteralWithoutCall(literal);
-    this.addCallExpression(getLocation(literal), valueId, functionId, [], variableName);
     if (variableName) {
+      const functionId = new FunctionId({ simpleName: '#id#', isStandardLibraryFunction: true });
+      this.addCallExpression(getLocation(literal), valueId, functionId, [], variableName);
       this.variableMap.set(variableName, valueId);
     }
     return valueId;
@@ -254,6 +256,9 @@ export class ScopeTranslator {
       functionId,
       arguments: args,
     });
+    if (!functionId.simpleName.startsWith('#')) {
+      this.methodCalls.add(functionId.simpleName);
+    }
     this.basicBlock.instructions.push(
       new Instruction({ instr: { case: 'callInstruction', value: callInstruction } }),
     );
@@ -337,7 +342,10 @@ export class ScopeTranslator {
   }
 }
 
-export function translateTopLevel(context: Rule.RuleContext, node: TSESTree.Program) {
+export function translateTopLevel(
+  context: Rule.RuleContext,
+  node: TSESTree.Program,
+): [FunctionInfo, Set<string>] | null {
   const scopeTranslator = new ScopeTranslator(context, node);
   node.body.forEach(param => {
     if (param.type === TSESTree.AST_NODE_TYPES.FunctionDeclaration) {
@@ -349,10 +357,13 @@ export function translateTopLevel(context: Rule.RuleContext, node: TSESTree.Prog
   if (scopeTranslator.isEmpty()) {
     return null;
   }
-  return scopeTranslator.finish();
+  return [scopeTranslator.finish(), scopeTranslator.methodCalls];
 }
 
-export function translateMethod(context: Rule.RuleContext, node: TSESTree.FunctionDeclaration) {
+export function translateMethod(
+  context: Rule.RuleContext,
+  node: TSESTree.FunctionDeclaration,
+): [FunctionInfo, Set<string>] {
   const scopeTranslator = new ScopeTranslator(context, node);
 
   node.params.forEach(param => {
@@ -365,5 +376,5 @@ export function translateMethod(context: Rule.RuleContext, node: TSESTree.Functi
   });
 
   node.body.body.forEach(scopeTranslator.handleStatement, scopeTranslator);
-  return scopeTranslator.finish();
+  return [scopeTranslator.finish(), scopeTranslator.methodCalls];
 }

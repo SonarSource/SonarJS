@@ -57,7 +57,7 @@ ruleTester.run('Proto', rule, {
     },
     {
       code: `function simple_assignment() {
-  const x = { key1: 2, key2: 'txt' };
+  const x = { key1: 2, key2: '3' }
 }`,
       settings: {
         name: 'valid5',
@@ -65,7 +65,7 @@ ruleTester.run('Proto', rule, {
     },
     {
       code: `function loadAll(pluginNames) {
-  pluginNames.foo(); // Noncompliant: pluginNames might be undefined
+  pluginNames(); // Noncompliant: pluginNames might be undefined
 }
 loadAll();`,
       settings: {
@@ -77,6 +77,9 @@ loadAll();`,
     {
       code: `function simpleAssignment() {
   const x = 'txt';
+}
+function two() {
+  simpleAssignment();
 }`,
       errors: 1,
       settings: {

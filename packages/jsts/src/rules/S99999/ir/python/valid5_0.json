@@ -48,7 +48,7 @@
       },
       {
         "valueId": 6,
-        "value": "txt",
+        "value": "3",
         "typeInfo": {
           "kind": "PRIMITIVE",
           "qualifiedName": "string",
@@ -72,31 +72,12 @@
               "startLine": 2,
               "startColumn": 12,
               "endLine": 2,
-              "endColumn": 36
+              "endColumn": 34
             },
             "valueId": 1,
             "variableName": "x",
             "functionId": {
               "simpleName": "#new-object#",
-              "isVirtual": false,
-              "isStandardLibraryFunction": true
-            },
-            "arguments": [],
-            "isInstanceMethodCall": false
-          }
-        },
-        {
-          "callInstruction": {
-            "location": {
-              "fileId": "",
-              "startLine": 2,
-              "startColumn": 20,
-              "endLine": 2,
-              "endColumn": 21
-            },
-            "valueId": 3,
-            "functionId": {
-              "simpleName": "#id#",
               "isVirtual": false,
               "isStandardLibraryFunction": true
             },
@@ -128,28 +109,9 @@
             "location": {
               "fileId": "",
               "startLine": 2,
-              "startColumn": 29,
-              "endLine": 2,
-              "endColumn": 34
-            },
-            "valueId": 6,
-            "functionId": {
-              "simpleName": "#id#",
-              "isVirtual": false,
-              "isStandardLibraryFunction": true
-            },
-            "arguments": [],
-            "isInstanceMethodCall": false
-          }
-        },
-        {
-          "callInstruction": {
-            "location": {
-              "fileId": "",
-              "startLine": 2,
               "startColumn": 23,
               "endLine": 2,
-              "endColumn": 34
+              "endColumn": 32
             },
             "valueId": 7,
             "functionId": {
