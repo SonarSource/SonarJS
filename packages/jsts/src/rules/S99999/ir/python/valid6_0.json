@@ -1,6 +1,7 @@
 {
   "functionId": {
     "simpleName": "loadAll",
+    "signature": "valid6.loadAll",
     "isVirtual": false,
     "isStandardLibraryFunction": false
   },
@@ -31,6 +32,7 @@
             "valueId": 2,
             "functionId": {
               "simpleName": "pluginNames",
+              "signature": "valid6.pluginNames",
               "isVirtual": false,
               "isStandardLibraryFunction": false
             },

@@ -23,6 +23,7 @@ import { ScopeTranslator } from '../scope-translator';
 import { handleExpressionLiteral, handleValueWithoutCall } from './literal';
 import { handleCallExpression } from './call-expression';
 import { handleMemberExpression } from './member-expression';
+// import {handleReturnStatement} from "../statements/return-statement";
 
 export function handleExpression(
   scopeTranslator: ScopeTranslator,
@@ -43,6 +44,8 @@ export function handleExpression(
       return handleCallExpression(scopeTranslator, expression);
     case TSESTree.AST_NODE_TYPES.MemberExpression:
       return handleMemberExpression(scopeTranslator, expression);
+    // case TSESTree.AST_NODE_TYPES.BinaryExpression:
+    //   return handleReturnStatement(scopeTranslator, expression);
     default:
       throw new Error(`Unhandled Expression type ${expression.type}`);
   }

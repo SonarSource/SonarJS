@@ -53,7 +53,7 @@ export function handleCallExpression(
   scopeTranslator.addCallExpression(
     getLocation(callExpression),
     resultValueId,
-    new FunctionId({ simpleName }),
+    new FunctionId({ simpleName, signature: scopeTranslator.signature + '.' + simpleName }),
     args,
   );
   return resultValueId;
