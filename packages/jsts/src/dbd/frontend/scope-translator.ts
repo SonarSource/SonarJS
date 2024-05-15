@@ -53,6 +53,17 @@ export class ScopeTranslator {
     this.fileName = context.settings.name;
   }
 
+  getResolvedVariable(expression: TSESTree.Expression) {
+    if (expression.type !== TSESTree.AST_NODE_TYPES.Identifier) {
+      throw new Error(`Unable to resolve variable given expression type ${expression.type}`);
+    }
+    const variableName = expression.name;
+    if (!this.variableMap.has(variableName)) {
+      throw new Error(`Unable to resolve variable with identifier "${variableName}"`);
+    }
+    return this.variableMap.get(variableName)!;
+  }
+
   getFunctionSignature(simpleName: string) {
     return `${this.fileName}.${simpleName}`;
   }
@@ -91,6 +102,7 @@ export class ScopeTranslator {
     this.basicBlock.instructions.push(
       new Instruction({ instr: { case: 'callInstruction', value: callInstruction } }),
     );
+    return valueId;
   }
 
   addReturnInstruction(location: Location, returnValue: number) {

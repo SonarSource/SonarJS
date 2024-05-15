@@ -41,7 +41,7 @@ ruleTester.run('Proto', rule, {
     },
     {
       code: `function simple_assignment(a: number, b: string) {
-  !a;
+  a = 2;
 }`,
       settings: {
         name: 'valid3',
@@ -49,7 +49,7 @@ ruleTester.run('Proto', rule, {
     },
     {
       code: `function simpleAssignment(x) {
-  x = 123;
+  x.y = 123;
 }`,
       settings: {
         name: 'valid4',

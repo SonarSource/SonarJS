@@ -6,7 +6,18 @@
     "isStandardLibraryFunction": false
   },
   "values": {
-    "constants": [],
+    "constants": [
+      {
+        "valueId": 3,
+        "value": "2",
+        "typeInfo": {
+          "kind": "PRIMITIVE",
+          "qualifiedName": "number",
+          "superTypes": [],
+          "hasIncompleteSemantics": false
+        }
+      }
+    ],
     "parameters": [
       {
         "valueId": 1,
@@ -31,16 +42,16 @@
               "startLine": 2,
               "startColumn": 2,
               "endLine": 2,
-              "endColumn": 4
+              "endColumn": 7
             },
-            "valueId": 3,
+            "valueId": 4,
+            "variableName": "a",
             "functionId": {
-              "simpleName": "#unaryop !",
-              "signature": "valid3.#unaryop !",
+              "simpleName": "#id",
               "isVirtual": false,
               "isStandardLibraryFunction": false
             },
-            "arguments": [1],
+            "arguments": [3],
             "isInstanceMethodCall": false
           }
         },

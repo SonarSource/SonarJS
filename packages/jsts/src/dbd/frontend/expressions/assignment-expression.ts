@@ -21,15 +21,41 @@
 import { ScopeTranslator } from '../scope-translator';
 import { TSESTree } from '@typescript-eslint/utils';
 import { handleExpression } from './index';
+import { getLocation } from '../utils';
+import { FunctionId } from '../../ir-gen/ir_pb';
 
-function handleAssignmentExpression(
+export function handleAssignmentExpression(
   scopeTranslator: ScopeTranslator,
   expression: TSESTree.AssignmentExpression,
 ) {
-  const lhsId = handleExpression(scopeTranslator, expression.left);
   const rhsId = handleExpression(scopeTranslator, expression.right);
-  const resultId = scopeTranslator.getNewValueId();
   switch (expression.operator) {
     case '=':
+      switch (expression.left.type) {
+        case TSESTree.AST_NODE_TYPES.Identifier:
+          return scopeTranslator.addCallExpression(
+            getLocation(expression),
+            scopeTranslator.getNewValueId(),
+            new FunctionId({ simpleName: '#id' }),
+            [rhsId],
+            expression.left.name,
+          );
+        case TSESTree.AST_NODE_TYPES.MemberExpression:
+          const objectValueId = scopeTranslator.getResolvedVariable(expression.left.object);
+          if (expression.left.property.type !== TSESTree.AST_NODE_TYPES.Identifier) {
+            throw new Error(`Unexpected member field type ${expression.left.property.type}`);
+          }
+          const fieldName = expression.left.property.name;
+          return scopeTranslator.addCallExpression(
+            getLocation(expression),
+            scopeTranslator.getNewValueId(),
+            new FunctionId({ simpleName: `#set-field# ${fieldName}` }),
+            [objectValueId, rhsId],
+          );
+        default:
+          throw new Error(`Unexpected left expression type ${expression.left.type}`);
+      }
+    default:
+      throw new Error(`Unexpected operator ${expression.operator}`);
   }
 }
