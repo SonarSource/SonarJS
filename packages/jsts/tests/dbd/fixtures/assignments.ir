@@ -1,0 +1,119 @@
+assignments.simple_assignment () {
+bb0:
+  x#1 = call #id#(null#0):NoneType
+  return null#0
+}
+assignments.assignment_to_int () {
+bb0:
+  x#2 = call #id#(42#1):int
+  return null#0
+}
+assignments.assignment_to_bool () {
+bb0:
+  x#2 = call #id#(true#1):bool
+  y#4 = call #id#(false#3):bool
+  return null#0
+}
+assignments.unpacking_assignment () {
+bb0:
+  #1 = call #new-object#():tuple
+  #2 = call #array-add-last#(#1, null#0)
+  #3 = call #array-add-last#(#1, null#0)
+  x#6 = call #python-unpack#(#1, 0#4, 2#5)
+  y#8 = call #python-unpack#(#1, 1#7, 2#5)
+  return null#0
+}
+assignments.unpacking_iterable (my_iterable#1) {
+bb0:
+  x#4 = call #python-unpack#(param my_iterable#1, 0#2, 2#3)
+  y#6 = call #python-unpack#(param my_iterable#1, 1#5, 2#3)
+  return null#0
+}
+assignments.unpacking_iterable_field_access (x#1, my_iterable#2) {
+bb0:
+  #5 = call #python-unpack#(param my_iterable#2, 0#3, 2#4)
+  #6 = call #set-field# my_field(param x#1, #5)
+  y#8 = call #python-unpack#(param my_iterable#2, 1#7, 2#4)
+  return null#0
+}
+assignments.augmented_assignment (x#1) {
+bb0:
+  x#3 = call #binop +#(param x#1, 42#2)
+  x#5 = call #binop -#(x#3, 2#4)
+  x#6 = call #binop *#(x#5, 2#4)
+  x#7 = call #binop /#(x#6, 2#4)
+  x#8 = call #binop %#(x#7, 2#4)
+  x#9 = call #binop *#(x#8, 2#4)
+  return null#0
+}
+assignments.augmented_assignment_undefined_name () {
+bb0:
+  unknown_name#3 = call #binop +#(unbound#2, 42#1)
+  return null#0
+}
+assignments.augmented_assignment_qualified_expression (x#1) {
+bb0:
+  #3 = call #get-field# y(param x#1)
+  #4 = call #binop +#(#3, 42#2)
+  #5 = call #set-field# y(param x#1, #4)
+  return null#0
+}
+assignments.augmented_assignment_subscription (x#1) {
+bb0:
+  #4 = call #array-read#(param x#1, 10#3)
+  #5 = call #binop +#(#4, 42#2)
+  #6 = call #array-write#(param x#1, 10#3, #5)
+  return null#0
+}
+assignments.subscription_assignment (arr#1) {
+bb0:
+  #4 = call #array-write#(param arr#1, 0#3, 42#2)
+  return null#0
+}
+assignments.subscription_to_dict (x#1) {
+bb0:
+  #4 = call #array-write#(param x#1, key#3, 42#2)
+  return null#0
+}
+assignments.attribute_assignment (obj#1) {
+bb0:
+  #3 = call #set-field# x(param obj#1, 42#2)
+  return null#0
+}
+assignments.foo (x#1) {
+bb0:
+  return null#0
+}
+assignments.assignment_expression () {
+bb0:
+  x#2 = call #id#(42#1)
+  #3 = call assignments.foo(42#1)
+  return null#0
+}
+assignments.assignment_expression_reassigned () {
+bb0:
+  x#2 = call #id#(42#1)
+  y#3 = call #id#(42#1)
+  return y#3
+}
+assignments.assignment_expression_if_stmt () {
+bb0:
+  #2 = call assignments.foo(true#1)
+  x#3 = call #id#(#2)
+  brif bb1, bb2, #2
+bb1:
+  #4 = call #get-field# bar(x#3)
+  return #4
+bb2:
+  return null#0
+}
+assignments.multiple_assignments (t#1) {
+bb0:
+  x#2 = call #id#(null#0):NoneType
+  y#3 = call #id#(null#0):NoneType
+  x#6 = call #python-unpack#(param t#1, 0#4, 2#5)
+  y#8 = call #python-unpack#(param t#1, 1#7, 2#5)
+  i#9 = call #python-unpack#(param t#1, 0#4, 2#5)
+  j#10 = call #python-unpack#(param t#1, 1#7, 2#5)
+  return null#0
+}

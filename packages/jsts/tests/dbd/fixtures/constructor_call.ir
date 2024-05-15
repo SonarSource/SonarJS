@@ -1,0 +1,64 @@
+constructor_call.A.__init__ (self#1, x#2, y#3) {
+bb0:
+  #4 = call #set-field# x(param self#1, param x#2)
+  #5 = call #set-field# y(param self#1, param y#3)
+  return null#0
+}
+constructor_call.B.__init__ (self#1, parent#2) {
+bb0:
+  #3 = call #set-field# parent(param self#1, param parent#2)
+  return null#0
+}
+constructor_call.constructor_call_with_literals () {
+bb0:
+  #3 = call #new-object#():constructor_call.A
+  #4 = call constructor_call.A.__init__(#3, 42#1, 666#2):NoneType
+  return #3
+}
+constructor_call.constructor_call_passing_parameters (x#1, y#2) {
+bb0:
+  #3 = call #new-object#():constructor_call.A
+  #4 = call constructor_call.A.__init__(#3, param x#1, param y#2):NoneType
+  return #3
+}
+constructor_call.constructor_call_missing_one_argument (x#1) {
+bb0:
+  #2 = call #unknown#()
+  #3 = call #new-object#():constructor_call.A
+  #4 = call constructor_call.A.__init__(#3, param x#1, #2):NoneType
+  return #3
+}
+constructor_call.constructor_call_without_arguments () {
+bb0:
+  #1 = call #unknown#()
+  #2 = call #unknown#()
+  #3 = call #new-object#():constructor_call.A
+  #4 = call constructor_call.A.__init__(#3, #1, #2):NoneType
+  return #3
+}
+constructor_call.constructor_call_with_keyword_arguments () {
+bb0:
+  a#3 = call #new-object#():constructor_call.A
+  #4 = call constructor_call.A.__init__(a#3, 42#1, 43#2):NoneType
+  a#5 = call #new-object#():constructor_call.A
+  #6 = call constructor_call.A.__init__(a#5, 42#1, 43#2):NoneType
+  #7 = call #unknown#()
+  a#8 = call #new-object#():constructor_call.A
+  #9 = call constructor_call.A.__init__(a#8, 42#1, #7):NoneType
+  #10 = call #unknown#()
+  a#11 = call #new-object#():constructor_call.A
+  #12 = call constructor_call.A.__init__(a#11, #10, 43#2):NoneType
+  return null#0
+}
+constructor_call.constructor_call_with_default_values () {
+bb0:
+  #1 = call #unknown#()
+  b#2 = call #new-object#():constructor_call.B
+  #3 = call constructor_call.B.__init__(b#2, #1):NoneType
+  return null#0
+}
+constructor_call.unknown_constructor_call () {
+bb0:
+  c#1 = call #unknown#()
+  return null#0
+}

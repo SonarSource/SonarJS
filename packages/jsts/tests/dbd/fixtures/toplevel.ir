@@ -1,0 +1,33 @@
+toplevel.gcd (x#1, y#2) {
+bb0:
+  return null#0
+}
+toplevel.Rational.__init__ (self#1, nom#2, denom#3) {
+bb0:
+  #4 = call #set-field# nom(param self#1, param nom#2)
+  #5 = call #set-field# denom(param self#1, param denom#3)
+  return null#0
+}
+toplevel.simplify (rational#1) {
+bb0:
+  #2 = call #get-field# nom(param rational#1)
+  #3 = call #get-field# denom(param rational#1)
+  d#4 = call toplevel.gcd(#2, #3)
+  #5 = call #get-field# nom(param rational#1)
+  #6 = call #binop /#(#5, d#4)
+  #7 = call #get-field# denom(param rational#1)
+  #8 = call #binop /#(#7, d#4)
+  #9 = call #new-object#():toplevel.Rational
+  #10 = call toplevel.Rational.__init__(#9, #6, #8):NoneType
+  return #9
+}
+toplevel.#__main__ () {
+bb0:
+  x#2 = call #id#(92#1):int
+  y#4 = call #id#(34#3):int
+  z#5 = call toplevel.gcd(x#2, y#4)
+  rational#6 = call #new-object#():toplevel.Rational
+  #7 = call toplevel.Rational.__init__(rational#6, x#2, y#4):NoneType
+  simplified#8 = call toplevel.simplify(rational#6)
+  return null#0
+}

@@ -29,7 +29,8 @@
     "_:plugin-fetch-node": "node tools/fetch-node/scripts/wrapper.mjs",
     "_:plugin:pre-build": "npm run bridge:build && npm run _:plugin:prepare-bridge && npm run _:plugin-fetch-node",
     "_:plugin:copy-bridge": "cpy sonarjs-1.0.0.tgz sonar-plugin/sonar-javascript-plugin/target/classes",
-    "gen-ir": "buf generate packages/jsts/src/dbd/proto/"
+    "gen-ir-helpers": "buf generate packages/jsts/src/dbd/proto/",
+    "gen-ir": "ts-node --project packages/tsconfig.json packages/jsts/src/dbd/gen-ir.ts"
   },
   "repository": {
     "type": "git",
@@ -70,6 +71,7 @@
     "rimraf": "3.0.2",
     "ts-jest": "29.1.2",
     "ts-node": "10.9.2",
+    "tsconfig-paths": "4.2.0",
     "typedoc": "0.25.12"
   },
   "dependencies": {

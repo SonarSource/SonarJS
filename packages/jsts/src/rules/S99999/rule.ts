@@ -23,9 +23,10 @@ import * as estree from 'estree';
 import { Rule } from 'eslint';
 import { TSESTree } from '@typescript-eslint/utils';
 import { writeFileSync } from 'fs';
-import { join } from 'path';
+import { join, parse } from 'path';
 import { translateMethod, translateTopLevel } from '../../dbd/frontend/ir-generator';
 import { FunctionInfo } from '../../dbd/ir-gen/ir_pb';
+import { mkdirpSync } from 'mkdirp';
 
 export const rule: Rule.RuleModule = {
   meta: {
@@ -34,10 +35,14 @@ export const rule: Rule.RuleModule = {
     },
   },
   create(context: Rule.RuleContext) {
+    const outputDir = context.settings?.dbd?.IRPath ?? join(__dirname, 'ir', 'python');
+    const basename = parse(context.filename).name;
+    mkdirpSync(outputDir);
+
     let functionNo = 0;
     const saveResults = (result: FunctionInfo, methods: string[], functionIdentifier: string) => {
       const content = JSON.stringify(result.toJson({ emitDefaultValues: true }), null, 2);
-      const fileNameBase = `${join(__dirname, 'ir', 'python', `${context.settings.name}`)}_${functionIdentifier}`;
+      const fileNameBase = join(outputDir, `${basename}_${functionIdentifier}`);
       writeFileSync(`${fileNameBase}.json`, content, { flag: 'w' });
       writeFileSync(`${fileNameBase}.metadata`, [...methods].join('\n'), { flag: 'w' });
       writeFileSync(`${fileNameBase}.ir`, result.toBinary(), { flag: 'w' });
