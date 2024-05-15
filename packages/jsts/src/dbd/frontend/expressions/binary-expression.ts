@@ -34,7 +34,7 @@ export function handleBinaryExpression(
   const lhsId = handleExpression(scopeTranslator, expression.left);
   const rhsId = handleExpression(scopeTranslator, expression.right);
   const valueId = scopeTranslator.getNewValueId();
-  const functionId = scopeTranslator.getFunctionId(`#binop ${expression.operator}`);
+  const functionId = scopeTranslator.getFunctionId(`#binop ${expression.operator}#`);
   scopeTranslator.addCallExpression(
     getLocation(expression),
     valueId,
