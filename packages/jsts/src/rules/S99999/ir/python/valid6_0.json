@@ -10,12 +10,31 @@
     "parameters": [
       {
         "valueId": 1,
-        "name": "pluginNames"
+        "name": "pluginNames",
+        "definitionLocation": {
+          "fileId": "",
+          "startLine": 1,
+          "startColumn": 17,
+          "endLine": 1,
+          "endColumn": 28
+        }
       }
     ],
     "typeNames": []
   },
-  "parameters": [],
+  "parameters": [
+    {
+      "valueId": 1,
+      "name": "pluginNames",
+      "definitionLocation": {
+        "fileId": "",
+        "startLine": 1,
+        "startColumn": 17,
+        "endLine": 1,
+        "endColumn": 28
+      }
+    }
+  ],
   "basicBlocks": [
     {
       "id": 0,

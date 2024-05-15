@@ -19,7 +19,7 @@
  */
 
 import { Rule } from 'eslint';
-import { FunctionInfo, Parameter } from '../ir-gen/ir_pb';
+import { FunctionInfo } from '../ir-gen/ir_pb';
 import { TSESTree } from '@typescript-eslint/utils';
 import { ScopeTranslator } from './scope-translator';
 import { handleStatement } from './statements';
@@ -55,15 +55,7 @@ export function translateMethod(
 ): [FunctionInfo, Array<string>] {
   const scopeTranslator = new ScopeTranslator(context, node);
 
-  node.params.forEach(param => {
-    if (param.type !== 'Identifier') {
-      throw new Error(`Unknown method parameter type ${param.type}`);
-    }
-    const valueId = scopeTranslator.getNewValueId();
-    scopeTranslator.valueTable.parameters.push(new Parameter({ valueId, name: param.name }));
-    scopeTranslator.variableMap.set(param.name, valueId);
-  });
-
+  node.params.forEach(param => scopeTranslator.addParameter(param));
   node.body.body.forEach(statement => handleStatement(scopeTranslator, statement), scopeTranslator);
   return returnWithMetadata(scopeTranslator);
 }

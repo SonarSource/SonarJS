@@ -21,16 +21,53 @@
     "parameters": [
       {
         "valueId": 1,
-        "name": "a"
+        "name": "a",
+        "definitionLocation": {
+          "fileId": "",
+          "startLine": 1,
+          "startColumn": 27,
+          "endLine": 1,
+          "endColumn": 36
+        }
       },
       {
         "valueId": 2,
-        "name": "b"
+        "name": "b",
+        "definitionLocation": {
+          "fileId": "",
+          "startLine": 1,
+          "startColumn": 38,
+          "endLine": 1,
+          "endColumn": 47
+        }
       }
     ],
     "typeNames": []
   },
-  "parameters": [],
+  "parameters": [
+    {
+      "valueId": 1,
+      "name": "a",
+      "definitionLocation": {
+        "fileId": "",
+        "startLine": 1,
+        "startColumn": 27,
+        "endLine": 1,
+        "endColumn": 36
+      }
+    },
+    {
+      "valueId": 2,
+      "name": "b",
+      "definitionLocation": {
+        "fileId": "",
+        "startLine": 1,
+        "startColumn": 38,
+        "endLine": 1,
+        "endColumn": 47
+      }
+    }
+  ],
   "basicBlocks": [
     {
       "id": 0,
