@@ -26,30 +26,27 @@ import {
   FunctionInfo,
   Instruction,
   Location,
+  Parameter,
   ReturnInstruction,
   ValueTable,
 } from '../ir-gen/ir_pb';
 import { getLocation } from './utils';
 
 export class ScopeTranslator {
-  valueIdCounter;
-  valueTable;
+  valueIdCounter = 1;
+  valueTable = new ValueTable();
   basicBlock;
-  variableMap;
-  hasReturnInstruction;
-  methodCalls: Set<string>;
+  variableMap = new Map<string, number>();
+  hasReturnInstruction = false;
+  methodCalls: Set<string> = new Set<string>();
   fileName: string;
+  parameters: Parameter[] = [];
 
   constructor(
     public context: Rule.RuleContext,
     public node: TSESTree.Node,
   ) {
-    this.valueIdCounter = 1;
-    this.valueTable = new ValueTable();
     this.basicBlock = new BasicBlock({ location: getLocation(node) });
-    this.variableMap = new Map<string, number>();
-    this.hasReturnInstruction = false;
-    this.methodCalls = new Set<string>();
     this.fileName = context.settings.name;
   }
 
@@ -59,6 +56,21 @@ export class ScopeTranslator {
 
   getFunctionId(simpleName: string) {
     return new FunctionId({ simpleName, signature: this.getFunctionSignature(simpleName) });
+  }
+
+  addParameter(param: TSESTree.Parameter) {
+    const valueId = this.getNewValueId();
+    if (param.type !== 'Identifier') {
+      throw new Error(`Unknown method parameter type ${param.type}`);
+    }
+    const parameter = new Parameter({
+      valueId,
+      name: param.name,
+      definitionLocation: getLocation(param),
+    });
+    this.valueTable.parameters.push(parameter);
+    this.variableMap.set(param.name, valueId);
+    this.parameters.push(parameter);
   }
 
   isEmpty() {
@@ -130,6 +142,7 @@ export class ScopeTranslator {
       fileId: this.context.filename,
       basicBlocks: [this.basicBlock],
       values: this.valueTable,
+      parameters: this.parameters,
     });
   }
 }
