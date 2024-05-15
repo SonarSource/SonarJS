@@ -22,6 +22,7 @@ import { Constant, TypeInfo, TypeInfo_Kind } from '../../ir-gen/ir_pb';
 import { getLocation } from '../utils';
 import { ScopeTranslator } from '../scope-translator';
 import { handleExpression } from './index';
+import { Function } from '../builtin-functions';
 
 export function handleObjectExpression(
   scopeTranslator: ScopeTranslator,
@@ -38,7 +39,7 @@ export function handleObjectExpression(
   scopeTranslator.addCallExpression(
     getLocation(expression),
     objectValueId,
-    scopeTranslator.getFunctionId('#new-object#'),
+    scopeTranslator.getFunctionId(Function.NewObject),
     [],
     variableName,
   );
@@ -58,7 +59,7 @@ export function handleObjectExpression(
     scopeTranslator.addCallExpression(
       getLocation(prop),
       resultValueId,
-      scopeTranslator.getFunctionId('#map-set#'),
+      scopeTranslator.getFunctionId(Function.MapSet),
       [objectValueId, keyId, valueId],
     );
   });

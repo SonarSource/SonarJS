@@ -49,8 +49,8 @@
             "valueId": 2,
             "variableName": "x",
             "functionId": {
-              "simpleName": "#id",
-              "signature": "invalid1.#id",
+              "simpleName": "#id#",
+              "signature": "#id#",
               "isVirtual": false,
               "isStandardLibraryFunction": false
             },

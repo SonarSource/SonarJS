@@ -21,6 +21,7 @@ import { TSESTree } from '@typescript-eslint/utils';
 import { Constant, TypeInfo, TypeInfo_Kind, TypeName } from '../../ir-gen/ir_pb';
 import { getLocation } from '../utils';
 import { ScopeTranslator } from '../scope-translator';
+import { Function } from '../builtin-functions';
 
 type NonNullLiteral = string | number | bigint | boolean | RegExp;
 
@@ -56,7 +57,7 @@ export function handleExpressionLiteral(
 ) {
   const constantId = handleLiteralWithoutCall(scopeTranslator, literal);
   if (variableName) {
-    const functionId = scopeTranslator.getFunctionId('#id');
+    const functionId = scopeTranslator.getFunctionId(Function.ID);
     const valueId = scopeTranslator.getNewValueId();
     scopeTranslator.addCallExpression(
       getLocation(literal),
