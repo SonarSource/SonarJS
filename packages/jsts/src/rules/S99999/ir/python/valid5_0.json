@@ -79,7 +79,7 @@
             "variableName": "x",
             "functionId": {
               "simpleName": "#new-object#",
-              "signature": "valid5.#new-object#",
+              "signature": "#new-object#",
               "isVirtual": false,
               "isStandardLibraryFunction": false
             },
@@ -99,7 +99,7 @@
             "valueId": 4,
             "functionId": {
               "simpleName": "#map-set#",
-              "signature": "valid5.#map-set#",
+              "signature": "#map-set#",
               "isVirtual": false,
               "isStandardLibraryFunction": false
             },
@@ -119,7 +119,7 @@
             "valueId": 7,
             "functionId": {
               "simpleName": "#map-set#",
-              "signature": "valid5.#map-set#",
+              "signature": "#map-set#",
               "isVirtual": false,
               "isStandardLibraryFunction": false
             },

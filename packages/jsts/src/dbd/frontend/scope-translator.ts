@@ -33,6 +33,7 @@ import {
   ValueTable,
 } from '../ir-gen/ir_pb';
 import { getLocation } from './utils';
+import { Function, isBuiltinFunction } from './builtin-functions';
 
 export class ScopeTranslator {
   valueIdCounter = 1;
@@ -83,6 +84,9 @@ export class ScopeTranslator {
   }
 
   getFunctionSignature(simpleName: string) {
+    if (isBuiltinFunction(simpleName) && simpleName !== Function.Main) {
+      return simpleName;
+    }
     return `${this.fileName}.${simpleName}`;
   }
 
@@ -129,7 +133,7 @@ export class ScopeTranslator {
       functionId,
       arguments: args,
     });
-    if (!functionId.simpleName.startsWith('#')) {
+    if (!isBuiltinFunction(functionId.simpleName)) {
       this.methodCalls.add(this.getFunctionSignature(functionId.simpleName));
     }
     this.basicBlock.instructions.push(
@@ -167,7 +171,7 @@ export class ScopeTranslator {
     ) {
       functionId = this.getFunctionId(this.node.id?.name);
     } else {
-      functionId = this.getFunctionId('#__main__');
+      functionId = this.getFunctionId(Function.Main);
     }
 
     return new FunctionInfo({

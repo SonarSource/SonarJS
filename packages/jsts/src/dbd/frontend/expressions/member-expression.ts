@@ -20,6 +20,7 @@
 import { TSESTree } from '@typescript-eslint/utils';
 import { getLocation } from '../utils';
 import { ScopeTranslator } from '../scope-translator';
+import { Function } from '../builtin-functions';
 
 export function handleMemberExpression(
   scopeTranslator: ScopeTranslator,
@@ -46,7 +47,7 @@ export function handleMemberExpression(
     return objectValueId;
   } else {
     const fieldName = memberExpression.property.name;
-    const functionId = scopeTranslator.getFunctionId(`#get-field# ${fieldName}`);
+    const functionId = scopeTranslator.getFunctionId(Function.GetField(fieldName));
     const resultValueId = scopeTranslator.getNewValueId();
     scopeTranslator.addCallExpression(getLocation(memberExpression), resultValueId, functionId, [
       objectValueId,

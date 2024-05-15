@@ -85,7 +85,7 @@
             "variableName": "a",
             "functionId": {
               "simpleName": "#id#",
-              "signature": "valid3.#id#",
+              "signature": "#id#",
               "isVirtual": false,
               "isStandardLibraryFunction": false
             },
