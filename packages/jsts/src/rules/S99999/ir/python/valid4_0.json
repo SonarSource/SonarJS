@@ -6,33 +6,41 @@
     "isStandardLibraryFunction": false
   },
   "values": {
-    "constants": [
-      {
-        "valueId": 2,
-        "value": "123",
-        "typeInfo": {
-          "kind": "PRIMITIVE",
-          "qualifiedName": "number",
-          "superTypes": [],
-          "hasIncompleteSemantics": false
-        }
-      }
-    ],
+    "constants": [],
     "parameters": [
       {
         "valueId": 1,
-        "name": "x"
+        "name": "x",
+        "definitionLocation": {
+          "fileId": "",
+          "startLine": 1,
+          "startColumn": 26,
+          "endLine": 1,
+          "endColumn": 27
+        }
       }
     ],
     "typeNames": []
   },
-  "parameters": [],
+  "parameters": [
+    {
+      "valueId": 1,
+      "name": "x",
+      "definitionLocation": {
+        "fileId": "",
+        "startLine": 1,
+        "startColumn": 26,
+        "endLine": 1,
+        "endColumn": 27
+      }
+    }
+  ],
   "basicBlocks": [
     {
       "id": 0,
       "instructions": [
         {
-          "callInstruction": {
+          "returnInstruction": {
             "location": {
               "fileId": "",
               "startLine": 2,
@@ -40,26 +48,7 @@
               "endLine": 2,
               "endColumn": 11
             },
-            "valueId": 3,
-            "functionId": {
-              "simpleName": "#set-field# y",
-              "isVirtual": false,
-              "isStandardLibraryFunction": false
-            },
-            "arguments": [1, 2],
-            "isInstanceMethodCall": false
-          }
-        },
-        {
-          "returnInstruction": {
-            "location": {
-              "fileId": "",
-              "startLine": 1,
-              "startColumn": 0,
-              "endLine": 3,
-              "endColumn": 1
-            },
-            "returnValue": 0
+            "returnValue": 1
           }
         }
       ],

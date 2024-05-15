@@ -20,7 +20,7 @@
 import { TSESTree } from '@typescript-eslint/utils';
 import { getLocation } from '../utils';
 import { ScopeTranslator } from '../scope-translator';
-import { handleLiteralWithoutCall } from '../expressions/literal';
+import { handleExpression } from '../expressions';
 
 export function handleReturnStatement(
   scopeTranslator: ScopeTranslator,
@@ -28,10 +28,8 @@ export function handleReturnStatement(
 ) {
   if (returnStatement.argument === null) {
     return scopeTranslator.addNullReturn(getLocation(returnStatement));
-  } else if (returnStatement.argument.type !== TSESTree.AST_NODE_TYPES.Literal) {
-    throw new Error(`Unhandled return statement argument type ${returnStatement.argument.type}`);
   } else {
-    const returnValue = handleLiteralWithoutCall(scopeTranslator, returnStatement.argument);
-    return scopeTranslator.addReturnInstruction(getLocation(returnStatement), returnValue);
+    const valueId = handleExpression(scopeTranslator, returnStatement.argument);
+    return scopeTranslator.addReturnInstruction(getLocation(returnStatement), valueId);
   }
 }

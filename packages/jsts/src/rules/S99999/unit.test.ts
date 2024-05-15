@@ -49,7 +49,7 @@ ruleTester.run('Proto', rule, {
     },
     {
       code: `function simpleAssignment(x) {
-  x.y = 123;
+  return x;
 }`,
       settings: {
         name: 'valid4',

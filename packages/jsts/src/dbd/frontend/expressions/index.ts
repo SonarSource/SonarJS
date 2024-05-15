@@ -26,7 +26,6 @@ import { handleMemberExpression } from './member-expression';
 import { handleBinaryExpression } from './binary-expression';
 import { handleUnaryExpression } from './unary-expression';
 import { handleAssignmentExpression } from './assignment-expression';
-// import {handleReturnStatement} from "../statements/return-statement";
 
 export function handleExpression(
   scopeTranslator: ScopeTranslator,
