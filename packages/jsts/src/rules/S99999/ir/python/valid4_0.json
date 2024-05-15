@@ -6,7 +6,18 @@
     "isStandardLibraryFunction": false
   },
   "values": {
-    "constants": [],
+    "constants": [
+      {
+        "valueId": 2,
+        "value": "x",
+        "typeInfo": {
+          "kind": "PRIMITIVE",
+          "qualifiedName": "string",
+          "superTypes": [],
+          "hasIncompleteSemantics": false
+        }
+      }
+    ],
     "parameters": [
       {
         "valueId": 1,
@@ -48,7 +59,7 @@
               "endLine": 2,
               "endColumn": 11
             },
-            "returnValue": 1
+            "returnValue": 2
           }
         }
       ],

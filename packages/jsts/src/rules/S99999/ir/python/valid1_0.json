@@ -19,7 +19,18 @@
       }
     ],
     "parameters": [],
-    "typeNames": []
+    "typeNames": [
+      {
+        "valueId": 2,
+        "name": "x",
+        "typeInfo": {
+          "kind": "PRIMITIVE",
+          "qualifiedName": "number",
+          "superTypes": [],
+          "hasIncompleteSemantics": false
+        }
+      }
+    ]
   },
   "parameters": [],
   "basicBlocks": [
@@ -35,14 +46,15 @@
               "endLine": 2,
               "endColumn": 17
             },
-            "valueId": 1,
+            "valueId": 2,
             "variableName": "x",
             "functionId": {
-              "simpleName": "#id#",
+              "simpleName": "#id",
+              "signature": "valid1.#id",
               "isVirtual": false,
-              "isStandardLibraryFunction": true
+              "isStandardLibraryFunction": false
             },
-            "arguments": [],
+            "arguments": [1],
             "isInstanceMethodCall": false
           }
         },

@@ -79,8 +79,9 @@
             "variableName": "x",
             "functionId": {
               "simpleName": "#new-object#",
+              "signature": "valid5.#new-object#",
               "isVirtual": false,
-              "isStandardLibraryFunction": true
+              "isStandardLibraryFunction": false
             },
             "arguments": [],
             "isInstanceMethodCall": false
@@ -98,8 +99,9 @@
             "valueId": 4,
             "functionId": {
               "simpleName": "#map-set#",
+              "signature": "valid5.#map-set#",
               "isVirtual": false,
-              "isStandardLibraryFunction": true
+              "isStandardLibraryFunction": false
             },
             "arguments": [1, 2, 3],
             "isInstanceMethodCall": false
@@ -117,8 +119,9 @@
             "valueId": 7,
             "functionId": {
               "simpleName": "#map-set#",
+              "signature": "valid5.#map-set#",
               "isVirtual": false,
-              "isStandardLibraryFunction": true
+              "isStandardLibraryFunction": false
             },
             "arguments": [1, 5, 6],
             "isInstanceMethodCall": false

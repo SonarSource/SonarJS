@@ -19,7 +19,6 @@
  */
 import { TSESTree } from '@typescript-eslint/utils';
 import { getLocation } from '../utils';
-import { FunctionId } from '../../ir-gen/ir_pb';
 import { ScopeTranslator } from '../scope-translator';
 
 export function handleMemberExpression(
@@ -47,10 +46,7 @@ export function handleMemberExpression(
     return objectValueId;
   } else {
     const fieldName = memberExpression.property.name;
-    const functionId = new FunctionId({
-      simpleName: `#get-field# ${fieldName}`,
-      isStandardLibraryFunction: true,
-    });
+    const functionId = scopeTranslator.getFunctionId(`#get-field# ${fieldName}`);
     const resultValueId = scopeTranslator.getNewValueId();
     scopeTranslator.addCallExpression(getLocation(memberExpression), resultValueId, functionId, [
       objectValueId,

@@ -8,7 +8,18 @@
   "values": {
     "constants": [],
     "parameters": [],
-    "typeNames": []
+    "typeNames": [
+      {
+        "valueId": 1,
+        "name": "x",
+        "typeInfo": {
+          "kind": "PRIMITIVE",
+          "qualifiedName": "null",
+          "superTypes": [],
+          "hasIncompleteSemantics": false
+        }
+      }
+    ]
   },
   "parameters": [],
   "basicBlocks": [
@@ -24,14 +35,15 @@
               "endLine": 2,
               "endColumn": 20
             },
-            "valueId": 0,
+            "valueId": 1,
             "variableName": "x",
             "functionId": {
-              "simpleName": "#id#",
+              "simpleName": "#id",
+              "signature": "valid2.#id",
               "isVirtual": false,
-              "isStandardLibraryFunction": true
+              "isStandardLibraryFunction": false
             },
-            "arguments": [],
+            "arguments": [0],
             "isInstanceMethodCall": false
           }
         },

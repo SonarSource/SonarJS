@@ -18,16 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { TSESTree } from '@typescript-eslint/utils';
-import { Constant, FunctionId, TypeInfo, TypeInfo_Kind } from '../../ir-gen/ir_pb';
+import { Constant, TypeInfo, TypeInfo_Kind, TypeName } from '../../ir-gen/ir_pb';
 import { getLocation } from '../utils';
 import { ScopeTranslator } from '../scope-translator';
 
 type NonNullLiteral = string | number | bigint | boolean | RegExp;
 
 export function handleValueWithoutCall(scopeTranslator: ScopeTranslator, value: NonNullLiteral) {
-  if (typeof value === 'string' && scopeTranslator.variableMap.has(value)) {
-    return scopeTranslator.variableMap.get(value)!;
-  }
   const valueId = scopeTranslator.getNewValueId();
   const typeInfo = new TypeInfo({
     kind: TypeInfo_Kind.PRIMITIVE,
@@ -57,11 +54,27 @@ export function handleExpressionLiteral(
   literal: TSESTree.Literal,
   variableName: string | undefined,
 ) {
-  const valueId = handleLiteralWithoutCall(scopeTranslator, literal);
+  const constantId = handleLiteralWithoutCall(scopeTranslator, literal);
   if (variableName) {
-    const functionId = new FunctionId({ simpleName: '#id#', isStandardLibraryFunction: true });
-    scopeTranslator.addCallExpression(getLocation(literal), valueId, functionId, [], variableName);
+    const functionId = scopeTranslator.getFunctionId('#id');
+    const valueId = scopeTranslator.getNewValueId();
+    scopeTranslator.addCallExpression(
+      getLocation(literal),
+      valueId,
+      functionId,
+      [constantId],
+      variableName,
+    );
+    scopeTranslator.valueTable.typeNames.push(
+      new TypeName({
+        valueId,
+        name: variableName,
+        typeInfo: scopeTranslator.getTypeInfo(constantId),
+      }),
+    );
     scopeTranslator.variableMap.set(variableName, valueId);
+    return valueId;
+  } else {
+    return constantId;
   }
-  return valueId;
 }

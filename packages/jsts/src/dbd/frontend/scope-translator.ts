@@ -28,6 +28,8 @@ import {
   Location,
   Parameter,
   ReturnInstruction,
+  TypeInfo,
+  TypeInfo_Kind,
   ValueTable,
 } from '../ir-gen/ir_pb';
 import { getLocation } from './utils';
@@ -48,6 +50,25 @@ export class ScopeTranslator {
   ) {
     this.basicBlock = new BasicBlock({ location: getLocation(node) });
     this.fileName = context.settings.name;
+  }
+
+  getTypeInfo(valueId: number): TypeInfo | undefined {
+    if (valueId === 0) {
+      return new TypeInfo({ kind: TypeInfo_Kind.PRIMITIVE, qualifiedName: 'null' });
+    }
+    const existingConstant = this.valueTable.constants.find(
+      constant => constant.valueId === valueId,
+    );
+    if (existingConstant) {
+      return existingConstant.typeInfo;
+    }
+    const existingTypeName = this.valueTable.typeNames.find(
+      typeName => typeName.valueId === valueId,
+    );
+    if (existingTypeName) {
+      return existingTypeName.typeInfo;
+    }
+    throw new Error(`Type info not found for ${valueId}`);
   }
 
   getResolvedVariable(expression: TSESTree.Expression) {

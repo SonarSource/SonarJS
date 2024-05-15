@@ -22,7 +22,6 @@ import { ScopeTranslator } from '../scope-translator';
 import { TSESTree } from '@typescript-eslint/utils';
 import { handleExpression } from './index';
 import { getLocation } from '../utils';
-import { FunctionId } from '../../ir-gen/ir_pb';
 
 export function handleAssignmentExpression(
   scopeTranslator: ScopeTranslator,
@@ -36,7 +35,7 @@ export function handleAssignmentExpression(
           return scopeTranslator.addCallExpression(
             getLocation(expression),
             scopeTranslator.getNewValueId(),
-            new FunctionId({ simpleName: '#id' }),
+            scopeTranslator.getFunctionId('#id#'),
             [rhsId],
             expression.left.name,
           );
@@ -49,7 +48,7 @@ export function handleAssignmentExpression(
           return scopeTranslator.addCallExpression(
             getLocation(expression),
             scopeTranslator.getNewValueId(),
-            new FunctionId({ simpleName: `#set-field# ${fieldName}` }),
+            scopeTranslator.getFunctionId(`#set-field# ${fieldName}`),
             [objectValueId, rhsId],
           );
         default:
