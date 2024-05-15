@@ -41,15 +41,15 @@ ruleTester.run('Proto', rule, {
     },
     {
       code: `function simple_assignment(a: number, b: string) {
-  !a;
+  a = 2;
 }`,
       settings: {
         name: 'valid3',
       },
     },
     {
-      code: `function simpleAssignment() {
-  const x = null;
+      code: `function simpleAssignment(x) {
+  x.y = 123;
 }`,
       settings: {
         name: 'valid4',

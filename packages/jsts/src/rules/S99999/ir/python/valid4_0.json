@@ -6,8 +6,24 @@
     "isStandardLibraryFunction": false
   },
   "values": {
-    "constants": [],
-    "parameters": [],
+    "constants": [
+      {
+        "valueId": 2,
+        "value": "123",
+        "typeInfo": {
+          "kind": "PRIMITIVE",
+          "qualifiedName": "number",
+          "superTypes": [],
+          "hasIncompleteSemantics": false
+        }
+      }
+    ],
+    "parameters": [
+      {
+        "valueId": 1,
+        "name": "x"
+      }
+    ],
     "typeNames": []
   },
   "parameters": [],
@@ -20,18 +36,17 @@
             "location": {
               "fileId": "",
               "startLine": 2,
-              "startColumn": 12,
+              "startColumn": 2,
               "endLine": 2,
-              "endColumn": 16
+              "endColumn": 11
             },
-            "valueId": 0,
-            "variableName": "x",
+            "valueId": 3,
             "functionId": {
-              "simpleName": "#id#",
+              "simpleName": "#set-field# y",
               "isVirtual": false,
-              "isStandardLibraryFunction": true
+              "isStandardLibraryFunction": false
             },
-            "arguments": [],
+            "arguments": [1, 2],
             "isInstanceMethodCall": false
           }
         },
