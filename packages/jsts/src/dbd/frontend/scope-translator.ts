@@ -34,6 +34,7 @@ import {
 } from '../ir-gen/ir_pb';
 import { getLocation } from './utils';
 import { Function, isBuiltinFunction } from './builtin-functions';
+import { parse } from 'path';
 
 export class ScopeTranslator {
   valueIdCounter = 1;
@@ -50,7 +51,7 @@ export class ScopeTranslator {
     public node: TSESTree.Node,
   ) {
     this.basicBlock = new BasicBlock({ location: getLocation(node) });
-    this.fileName = context.settings.name;
+    this.fileName = parse(context.filename).name;
   }
 
   getTypeInfo(valueId: number): TypeInfo | undefined {

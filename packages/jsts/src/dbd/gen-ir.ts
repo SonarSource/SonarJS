@@ -93,7 +93,7 @@ export async function proto2text(filePaths: string[]) {
                 callIns.functionId?.signature ?? `?.${callIns.functionId?.simpleName}`;
               const argumentsStr = callIns.arguments?.map(arg => valueToStr(arg)).join(', ') ?? '';
               const returnType = callIns.staticType ? `:${callIns.staticType.qualifiedName}` : '';
-              return `${callIns.variableName ?? ''}#${callIns.valueId} = call ${functionName} (${argumentsStr})${returnType}`;
+              return `${callIns.variableName ?? ''}#${callIns.valueId} = call ${functionName}(${argumentsStr})${returnType}`;
             }
           }
         })
@@ -106,6 +106,6 @@ export async function proto2text(filePaths: string[]) {
   return text;
 }
 
-function valueToStr(argument: number) {
-  return `${argument}`;
+function valueToStr(valueId: number) {
+  return `${valueId}`;
 }
