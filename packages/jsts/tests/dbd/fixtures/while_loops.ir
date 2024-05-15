@@ -1,0 +1,190 @@
+while_loops.basic (i#1) {
+bb0:
+  br bb1
+bb1(loopId=1, loopCondition):
+  i#2 = phi(bb0: param i#1, bb2: i#2)
+  #4 = call #binop <#(i#2, 24#3)
+  brif bb2, bb3, #4
+bb2(loopId=1):
+  #5 = call print(i#2):NoneType
+  br bb1
+bb3:
+  return null#0
+}
+while_loops.while_counting () {
+bb0:
+  i#2 = call #id#(0#1):int
+  br bb1
+bb1(loopId=1, loopCondition):
+  i#3 = phi(bb0: i#2, bb2: i#7)
+  #5 = call #binop <#(i#3, 24#4)
+  brif bb2, bb3, #5
+bb2(loopId=1):
+  i#7 = call #binop +#(i#3, 1#6)
+  br bb1
+bb3:
+  #8 = call print(i#3):NoneType
+  return null#0
+}
+while_loops.while_with_return (i#1) {
+bb0:
+  br bb1
+bb1(loopId=1, loopCondition):
+  i#2 = phi(bb0: param i#1)
+  #4 = call #binop <#(i#2, 24#3)
+  brif bb2, bb3, #4
+bb2(loopId=1):
+  #5 = call print(i#2):NoneType
+  return null#0
+bb3:
+  return null#0
+}
+while_loops.while_with_break (i#1) {
+bb0:
+  br bb1
+bb1(loopId=1, loopCondition):
+  i#2 = phi(bb0: param i#1, bb4: unbound#6)
+  #4 = call #binop <#(i#2, 24#3)
+  brif bb2, bb3, #4
+bb2(loopId=1):
+  #5 = call print(i#2):NoneType
+  br bb3
+bb3:
+  return null#0
+bb4(loopId=1):
+  br bb1
+}
+while_loops.nested_while (i#1, y#2) {
+bb0:
+  br bb1
+bb1(loopId=1, loopCondition):
+  y#11 = phi(bb0: param y#2, bb5: y#6)
+  i#3 = phi(bb0: param i#1, bb5: i#9)
+  #5 = call #binop <#(i#3, 24#4)
+  brif bb2, bb3, #5
+bb2(loopId=2, parentLoopId=1, loopCondition):
+  i#9 = phi(bb1: i#3, bb4: i#9)
+  y#6 = phi(bb1: y#11, bb4: y#6)
+  #8 = call #binop <#(y#6, 42#7)
+  brif bb4, bb5, #8
+bb3:
+  return null#0
+bb4(loopId=2, parentLoopId=1):
+  #10 = call print(i#9):NoneType
+  br bb2
+bb5(loopId=1):
+  br bb1
+}
+while_loops.nested_while_counting () {
+bb0:
+  i#2 = call #id#(0#1):int
+  br bb1
+bb1(loopId=1, loopCondition):
+  i#3 = phi(bb0: i#2, bb6: i#15)
+  #5 = call #binop <#(i#3, 24#4)
+  brif bb2, bb3, #5
+bb2(loopId=1):
+  j#6 = call #id#(0#1):int
+  br bb4
+bb3:
+  #16 = call print(i#3):NoneType
+  return null#0
+bb4(loopId=4, parentLoopId=1, loopCondition):
+  i#14 = phi(bb2: i#3, bb5: i#14)
+  j#7 = phi(bb2: j#6, bb5: j#12)
+  #9 = call #binop <#(j#7, 42#8)
+  brif bb5, bb6, #9
+bb5(loopId=4, parentLoopId=1):
+  #10 = call print(j#7):NoneType
+  j#12 = call #binop +#(j#7, 1#11)
+  br bb4
+bb6(loopId=1):
+  i#15 = call #binop +#(i#14, 1#11)
+  br bb1
+}
+while_loops.while_and_if (i#1, cond#2) {
+bb0:
+  br bb1
+bb1(loopId=1, loopCondition):
+  cond#6 = phi(bb0: param cond#2, bb5: cond#6)
+  i#3 = phi(bb0: param i#1, bb5: i#3)
+  #5 = call #binop <#(i#3, 24#4)
+  brif bb2, bb3, #5
+bb2(loopId=1):
+  brif bb4, bb5, cond#6
+bb3:
+  return null#0
+bb4(loopId=1):
+  #7 = call print(i#3):NoneType
+  br bb5
+bb5(loopId=1):
+  br bb1
+}
+while_loops.while_local_variable () {
+bb0:
+  i#2 = call #id#(0#1):int
+  x#3 = call #id#(0#1):int
+  br bb1
+bb1(loopId=1, loopCondition):
+  x#12 = phi(bb0: x#3, bb6: x#17)
+  i#4 = phi(bb0: i#2, bb6: i#16)
+  #6 = call #binop <#(i#4, 24#5)
+  brif bb2, bb3, #6
+bb2(loopId=1):
+  #8 = call #binop %#(i#4, 2#7)
+  #9 = call #binop ==#(#8, 0#1)
+  brif bb4, bb5, #9
+bb3:
+  return null#0
+bb4(loopId=1):
+  i#11 = call #binop +#(i#4, 1#10)
+  x#13 = call #binop +#(x#12, i#11)
+  br bb6
+bb5(loopId=1):
+  x#14 = call #binop -#(x#12, i#4)
+  br bb6
+bb6(loopId=1):
+  x#17 = phi(bb4: x#13, bb5: x#14)
+  i#16 = phi(bb4: i#11, bb5: i#4)
+  br bb1
+}
+while_loops.while_and_condition (i#1, cond#2) {
+bb0:
+  br bb1
+bb1(loopId=1, loopCondition):
+  i#3 = phi(bb0: param i#1, bb2: i#11)
+  #5 = call #binop <#(i#3, 24#4)
+  brif bb4, bb5, #5
+bb2(loopId=1):
+  i#11 = call #binop +#(i#3, 1#10)
+  #12 = call print(i#11):NoneType
+  br bb1
+bb3:
+  return null#0
+bb4(loopId=1, loopCondition):
+  #7 = call #binop >=#(i#3, 0#6)
+  br bb5
+bb5(loopId=1, loopCondition):
+  #8 = phi(bb1: #5, bb4: #7)
+  brif bb2, bb3, #8
+}
+while_loops.while_or_condition (i#1, cond#2) {
+bb0:
+  br bb1
+bb1(loopId=1, loopCondition):
+  i#3 = phi(bb0: param i#1, bb2: i#11)
+  #5 = call #binop <#(i#3, 24#4)
+  brif bb5, bb4, #5
+bb2(loopId=1):
+  i#11 = call #binop +#(i#3, 1#10)
+  #12 = call print(i#11):NoneType
+  br bb1
+bb3:
+  return null#0
+bb4(loopId=1, loopCondition):
+  #7 = call #binop >=#(i#3, 0#6)
+  br bb5
+bb5(loopId=1, loopCondition):
+  #8 = phi(bb1: #5, bb4: #7)
+  brif bb2, bb3, #8
+}

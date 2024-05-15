@@ -1,0 +1,99 @@
+source_location.assignments (param#1) {
+bb0:
+  brif bb1, bb2, 1#2
+bb1:
+  x#4 = call #id#(2#3):int
+  br bb2
+bb2:
+  x#6 = phi(bb0: unbound#5, bb1: x#4)
+  c#7 = call ?.foo(param param#1, x#6)
+  #9 = call #binop is#(unbound#5, 3#8)
+  brif bb3, bb4, #9
+bb3:
+  x#10 = call #id#(3#8):int
+  br bb4
+bb4:
+  x#11 = phi(bb2: x#6, bb3: x#10)
+  b#13 = call #is-instance#(x#11, type str#12):bool
+  #15 = call #binop is#(unbound#5, 4#14)
+  brif bb5, bb6, #15
+bb5:
+  x#16 = call #id#(4#14):int
+  br bb6
+bb6:
+  x#22 = phi(bb4: x#11, bb5: x#16)
+  c#17 = call #new-object#():numbers.Rational
+  #18 = call numbers.Rational.__init__(c#17, 1#2, 2#3):NoneType
+  #20 = call #binop is#(unbound#5, 5#19)
+  brif bb7, bb8, #20
+bb7:
+  x#21 = call #id#(5#19):int
+  br bb8
+bb8:
+  x#23 = phi(bb6: x#22, bb7: x#21)
+  #24 = call #unknown-expression#()
+  #25 = call #unknown-expression#()
+  #26 = call #array-write#(#24, #25, x#23)
+  #28 = call #binop is#(unbound#5, 6#27)
+  brif bb9, bb10, #28
+bb9:
+  x#29 = call #id#(6#27):int
+  #30 = call #get-field# numerator(c#17)
+  #31 = call #python-partial-apply#(#30, c#17)
+  #32 = call #binop +#(#31, x#29)
+  #33 = call #set-field# numerator(c#17, #32)
+  #34 = call #unknown-expression#()
+  #35 = call #unknown-expression#()
+  #36 = call #array-read#(#34, #35)
+  #37 = call #binop +#(#36, x#29)
+  #38 = call #unknown-expression#()
+  #39 = call #unknown-expression#()
+  #40 = call #array-write#(#38, #39, #37)
+  br bb10
+bb10:
+  #41 = call #new-object#():tuple
+  #42 = call #array-add-last#(#41, null#0)
+  #43 = call #array-add-last#(#41, null#0)
+  x#45 = call #python-unpack#(#41, 0#44, 2#3)
+  y#46 = call #python-unpack#(#41, 1#2, 2#3)
+  #47 = call #binop is#(y#46, 6#27)
+  brif bb11, bb12, #47
+bb11:
+  x#48 = call #id#(6#27):int
+  br bb12
+bb12:
+  x#49 = phi(bb10: x#45, bb11: x#48)
+  x#50 = call #binop +#(x#49, c#17)
+  return null#0
+}
+source_location.calls (param#1) {
+bb0:
+  brif bb1, bb2, 1#2
+bb1:
+  x#4 = call #id#(2#3):int
+  br bb2
+bb2:
+  x#6 = phi(bb0: unbound#5, bb1: x#4)
+  #7 = call ?.foo(param param#1, x#6)
+  #8 = call #unknown-expression#()
+  #10 = call #binop is#(#8, 3#9)
+  brif bb3, bb4, #10
+bb3:
+  x#11 = call #id#(3#9):int
+  #13 = call #new-object#():numbers.Rational
+  #14 = call numbers.Rational.__init__(#13, 3#9, 4#12):NoneType
+  br bb4
+bb4:
+  x#15 = phi(bb2: x#6, bb3: x#11)
+  #17 = call #is-instance#(x#15, type str#16):bool
+  #18 = call #unknown-expression#()
+  #19 = call #binop is#(#18, 4#12)
+  brif bb5, bb6, #19
+bb5:
+  x#20 = call #id#(4#12):int
+  br bb6
+bb6:
+  #21 = call #new-object#():numbers.Rational
+  #22 = call numbers.Rational.__init__(#21, 1#2, 2#3):NoneType
+  return null#0
+}

@@ -1,0 +1,43 @@
+for_loops.for_loop (my_list#1) {
+bb0:
+  #2 = call iter(param my_list#1):typing.Iterator
+  br bb1
+bb1(loopId=1, loopCondition):
+  #3 = call #has-next#(#2)
+  brif bb2, bb3, #3
+bb2(loopId=1):
+  i#4 = call next(#2)
+  #5 = call print(i#4):NoneType
+  br bb1
+bb3:
+  return null#0
+}
+for_loops.for_loop_return_in_body (my_list#1) {
+bb0:
+  #2 = call iter(param my_list#1):typing.Iterator
+  br bb1
+bb1(loopId=1, loopCondition):
+  #3 = call #has-next#(#2)
+  brif bb2, bb3, #3
+bb2(loopId=1):
+  i#4 = call next(#2)
+  #5 = call print(i#4):NoneType
+  return null#0
+bb3:
+  return null#0
+}
+for_loops.for_loop_unknown_iterable () {
+bb0:
+  #1 = call #unknown-expression#()
+  #2 = call iter(#1):typing.Iterator
+  br bb1
+bb1(loopId=1, loopCondition):
+  #3 = call #has-next#(#2)
+  brif bb2, bb3, #3
+bb2(loopId=1):
+  i#4 = call next(#2)
+  #5 = call print(i#4):NoneType
+  br bb1
+bb3:
+  return null#0
+}

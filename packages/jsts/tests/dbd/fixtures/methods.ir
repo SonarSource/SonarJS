@@ -1,0 +1,36 @@
+methods.A.__init__ (self#1) {
+bb0:
+  return null#0
+}
+methods.A.foo (self#1) {
+bb0:
+  return 42#2
+}
+methods.A.static_method (x#1, y#2) {
+bb0:
+  #3 = call #unknown-expression#()
+  return null#0
+}
+methods.A.property_method (x#1, y#2) {
+bb0:
+  #3 = call #unknown-expression#()
+  return null#0
+}
+methods.A.contextmanager_method (x#1, y#2) {
+bb0:
+  #3 = call #unknown-expression#()
+  return null#0
+}
+methods.bound_methods () {
+bb0:
+  a#1 = call #new-object#():methods.A
+  #2 = call methods.A.__init__(a#1):NoneType
+  #3 = call #get-field# foo(a#1)
+  #4 = call #python-partial-apply#(#3, a#1)
+  #5 = call #unknown#(#4)
+  #6 = call #get-field# static_method(a#1)
+  #7 = call #unknown#(#6)
+  #8 = call #get-field# prop(a#1)
+  #9 = call #unknown#(#8)
+  return null#0
+}

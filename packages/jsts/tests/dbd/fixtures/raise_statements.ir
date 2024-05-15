@@ -1,0 +1,19 @@
+raise_statements.raise_new_exception () {
+bb0:
+  #1 = call #unknown#()
+  throw #1
+}
+raise_statements.raise_param (param#1) {
+bb0:
+  throw param param#1
+}
+raise_statements.bare_raise () {
+bb0:
+  throw null#1
+}
+raise_statements.raise_from (param#1) {
+bb0:
+  #2 = call #unknown#()
+  #3 = call #set-field# __cause__(#2, param param#1)
+  throw #2
+}

@@ -34,6 +34,9 @@ export const rule: Rule.RuleModule = {
     },
   },
   create(context: Rule.RuleContext) {
+    function getPathFromOptions() {
+      return context.settings?.dbd?.IRPath;
+    }
     let functionNo = 0;
     const saveResults = (
       result: FunctionInfo,
@@ -41,7 +44,10 @@ export const rule: Rule.RuleModule = {
       functionIdentifier: string,
     ) => {
       const content = JSON.stringify(result.toJson({ emitDefaultValues: true }), null, 2);
-      const fileNameBase = `${join(__dirname, 'ir', 'python', `${context.settings.name}`)}_${functionIdentifier}`;
+      const fileNameBase = join(
+        getPathFromOptions() ?? join(__dirname, 'ir', 'python'),
+        `${context.settings.name}_${functionIdentifier}`,
+      );
       writeFileSync(`${fileNameBase}.json`, content, { flag: 'w' });
       writeFileSync(`${fileNameBase}.metadata`, [...methods].join('\n'), { flag: 'w' });
       writeFileSync(`${fileNameBase}.ir`, result.toBinary(), { flag: 'w' });
