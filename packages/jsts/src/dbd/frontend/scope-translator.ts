@@ -28,9 +28,12 @@ import {
   Location,
   Parameter,
   ReturnInstruction,
+  TypeInfo,
+  TypeInfo_Kind,
   ValueTable,
 } from '../ir-gen/ir_pb';
 import { getLocation } from './utils';
+import { Function, isBuiltinFunction } from './builtin-functions';
 
 export class ScopeTranslator {
   valueIdCounter = 1;
@@ -50,7 +53,40 @@ export class ScopeTranslator {
     this.fileName = context.settings.name;
   }
 
+  getTypeInfo(valueId: number): TypeInfo | undefined {
+    if (valueId === 0) {
+      return new TypeInfo({ kind: TypeInfo_Kind.PRIMITIVE, qualifiedName: 'null' });
+    }
+    const existingConstant = this.valueTable.constants.find(
+      constant => constant.valueId === valueId,
+    );
+    if (existingConstant) {
+      return existingConstant.typeInfo;
+    }
+    const existingTypeName = this.valueTable.typeNames.find(
+      typeName => typeName.valueId === valueId,
+    );
+    if (existingTypeName) {
+      return existingTypeName.typeInfo;
+    }
+    throw new Error(`Type info not found for ${valueId}`);
+  }
+
+  getResolvedVariable(expression: TSESTree.Expression) {
+    if (expression.type !== TSESTree.AST_NODE_TYPES.Identifier) {
+      throw new Error(`Unable to resolve variable given expression type ${expression.type}`);
+    }
+    const variableName = expression.name;
+    if (!this.variableMap.has(variableName)) {
+      throw new Error(`Unable to resolve variable with identifier "${variableName}"`);
+    }
+    return this.variableMap.get(variableName)!;
+  }
+
   getFunctionSignature(simpleName: string) {
+    if (isBuiltinFunction(simpleName) && simpleName !== Function.Main) {
+      return simpleName;
+    }
     return `${this.fileName}.${simpleName}`;
   }
 
@@ -97,12 +133,13 @@ export class ScopeTranslator {
       functionId,
       arguments: args,
     });
-    if (!functionId.simpleName.startsWith('#')) {
+    if (!isBuiltinFunction(functionId.simpleName)) {
       this.methodCalls.add(this.getFunctionSignature(functionId.simpleName));
     }
     this.basicBlock.instructions.push(
       new Instruction({ instr: { case: 'callInstruction', value: callInstruction } }),
     );
+    return valueId;
   }
 
   addReturnInstruction(location: Location, returnValue: number) {
@@ -134,7 +171,7 @@ export class ScopeTranslator {
     ) {
       functionId = this.getFunctionId(this.node.id?.name);
     } else {
-      functionId = this.getFunctionId('#__main__');
+      functionId = this.getFunctionId(Function.Main);
     }
 
     return new FunctionInfo({

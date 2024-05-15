@@ -18,23 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { ScopeTranslator } from '../scope-translator';
-import { TSESTree } from '@typescript-eslint/utils';
-import { handleExpression } from './index';
-import { getLocation } from '../utils';
-import { Function } from '../builtin-functions';
-
-export function handleUnaryExpression(
-  scopeTranslator: ScopeTranslator,
-  expression: TSESTree.UnaryExpression,
-) {
-  const argId = handleExpression(scopeTranslator, expression.argument);
-  const valueId = scopeTranslator.getNewValueId();
-  scopeTranslator.addCallExpression(
-    getLocation(expression),
-    valueId,
-    scopeTranslator.getFunctionId(Function.UnaryOp(expression.operator)),
-    [argId],
-  );
-  return valueId;
+export const Function = {
+  BinOp: (op: string) => `#binop ${op}#`,
+  GetField: (field: string) => `#get-field# ${field}`,
+  ID: '#id#',
+  Main: '#__main__',
+  MapSet: '#map-set#',
+  NewObject: '#new-object#',
+  SetField: (field: string) => `#set-field# ${field}`,
+  UnaryOp: (op: string) => `#unaryop ${op}#`,
+};
+export type BuiltinFunction = keyof typeof Function;
+export function isBuiltinFunction(simpleName: string): boolean {
+  return simpleName.startsWith('#');
 }
