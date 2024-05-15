@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { TSESTree } from '@typescript-eslint/utils';
-import { Constant, FunctionId, TypeInfo, TypeInfo_Kind } from '../../ir-gen/ir_pb';
+import { Constant, TypeInfo, TypeInfo_Kind } from '../../ir-gen/ir_pb';
 import { getLocation } from '../utils';
 import { ScopeTranslator } from '../scope-translator';
 import { handleExpression } from './index';
@@ -38,7 +38,7 @@ export function handleObjectExpression(
   scopeTranslator.addCallExpression(
     getLocation(expression),
     objectValueId,
-    new FunctionId({ simpleName: '#new-object#', isStandardLibraryFunction: true }),
+    scopeTranslator.getFunctionId('#new-object#'),
     [],
     variableName,
   );
@@ -58,7 +58,7 @@ export function handleObjectExpression(
     scopeTranslator.addCallExpression(
       getLocation(prop),
       resultValueId,
-      new FunctionId({ simpleName: '#map-set#', isStandardLibraryFunction: true }),
+      scopeTranslator.getFunctionId('#map-set#'),
       [objectValueId, keyId, valueId],
     );
   });

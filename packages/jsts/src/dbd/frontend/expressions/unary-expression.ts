@@ -32,7 +32,7 @@ export function handleUnaryExpression(
   scopeTranslator.addCallExpression(
     getLocation(expression),
     valueId,
-    scopeTranslator.getFunctionId(`#unaryop ${expression.operator}`),
+    scopeTranslator.getFunctionId(`#unaryop ${expression.operator}#`),
     [argId],
   );
   return valueId;

@@ -22,7 +22,6 @@ import { ScopeTranslator } from '../scope-translator';
 import { TSESTree } from '@typescript-eslint/utils';
 import { handleExpression } from './index';
 import { getLocation } from '../utils';
-import { FunctionId } from '../../ir-gen/ir_pb';
 
 export function handleBinaryExpression(
   scopeTranslator: ScopeTranslator,
@@ -35,7 +34,7 @@ export function handleBinaryExpression(
   const lhsId = handleExpression(scopeTranslator, expression.left);
   const rhsId = handleExpression(scopeTranslator, expression.right);
   const valueId = scopeTranslator.getNewValueId();
-  const functionId = new FunctionId({ simpleName: `#binop ${expression.operator}` });
+  const functionId = scopeTranslator.getFunctionId(`#binop ${expression.operator}#`);
   scopeTranslator.addCallExpression(
     getLocation(expression),
     valueId,
