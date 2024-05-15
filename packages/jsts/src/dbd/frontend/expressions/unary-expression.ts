@@ -17,27 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { TSESTree } from '@typescript-eslint/utils';
-import { getLocation } from '../utils';
-import { handleExpression } from '../expressions';
-import { ScopeTranslator } from '../scope-translator';
 
-export function handleVariableDeclaration(
+import { ScopeTranslator } from '../scope-translator';
+import { TSESTree } from '@typescript-eslint/utils';
+import { handleExpression } from './index';
+import { getLocation } from '../utils';
+
+export function handleUnaryExpression(
   scopeTranslator: ScopeTranslator,
-  declaration: TSESTree.VariableDeclaration,
+  expression: TSESTree.UnaryExpression,
 ) {
-  if (declaration.declarations.length !== 1) {
-    throw new Error(
-      `Unable to handle declaration with ${declaration.declarations.length} declarations (${JSON.stringify(getLocation(declaration))})`,
-    );
-  }
-  const declarator = declaration.declarations[0];
-  if (!declarator || declarator.type !== TSESTree.AST_NODE_TYPES.VariableDeclarator) {
-    throw new Error('Unhandled declaration');
-  }
-  if (declarator.id.type !== TSESTree.AST_NODE_TYPES.Identifier) {
-    throw new Error(`Unhandled declaration id type ${declarator.id.type}`);
-  }
-  const variableName = declarator.id.name;
-  return handleExpression(scopeTranslator, declarator.init, variableName);
+  const argId = handleExpression(scopeTranslator, expression.argument);
+  const valueId = scopeTranslator.getNewValueId();
+  scopeTranslator.addCallExpression(
+    getLocation(expression),
+    valueId,
+    scopeTranslator.getFunctionId(`#unaryop ${expression.operator}`),
+    [argId],
+  );
+  return valueId;
 }

@@ -1,6 +1,7 @@
 {
   "functionId": {
     "simpleName": "two",
+    "signature": "invalid1.two",
     "isVirtual": false,
     "isStandardLibraryFunction": false
   },
@@ -26,6 +27,7 @@
             "valueId": 1,
             "functionId": {
               "simpleName": "simpleAssignment",
+              "signature": "invalid1.simpleAssignment",
               "isVirtual": false,
               "isStandardLibraryFunction": false
             },

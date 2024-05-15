@@ -1,35 +1,62 @@
 {
   "functionId": {
     "simpleName": "simple_assignment",
+    "signature": "valid3.simple_assignment",
     "isVirtual": false,
     "isStandardLibraryFunction": false
   },
   "values": {
-    "constants": [
-      {
-        "valueId": 3,
-        "value": "txt",
-        "typeInfo": {
-          "kind": "PRIMITIVE",
-          "qualifiedName": "string",
-          "superTypes": [],
-          "hasIncompleteSemantics": false
-        }
-      }
-    ],
+    "constants": [],
     "parameters": [
       {
         "valueId": 1,
-        "name": "a"
+        "name": "a",
+        "definitionLocation": {
+          "fileId": "",
+          "startLine": 1,
+          "startColumn": 27,
+          "endLine": 1,
+          "endColumn": 36
+        }
       },
       {
         "valueId": 2,
-        "name": "b"
+        "name": "b",
+        "definitionLocation": {
+          "fileId": "",
+          "startLine": 1,
+          "startColumn": 38,
+          "endLine": 1,
+          "endColumn": 47
+        }
       }
     ],
     "typeNames": []
   },
-  "parameters": [],
+  "parameters": [
+    {
+      "valueId": 1,
+      "name": "a",
+      "definitionLocation": {
+        "fileId": "",
+        "startLine": 1,
+        "startColumn": 27,
+        "endLine": 1,
+        "endColumn": 36
+      }
+    },
+    {
+      "valueId": 2,
+      "name": "b",
+      "definitionLocation": {
+        "fileId": "",
+        "startLine": 1,
+        "startColumn": 38,
+        "endLine": 1,
+        "endColumn": 47
+      }
+    }
+  ],
   "basicBlocks": [
     {
       "id": 0,
@@ -39,18 +66,18 @@
             "location": {
               "fileId": "",
               "startLine": 2,
-              "startColumn": 12,
+              "startColumn": 2,
               "endLine": 2,
-              "endColumn": 17
+              "endColumn": 4
             },
             "valueId": 3,
-            "variableName": "x",
             "functionId": {
-              "simpleName": "#id#",
+              "simpleName": "#unaryop !",
+              "signature": "valid3.#unaryop !",
               "isVirtual": false,
-              "isStandardLibraryFunction": true
+              "isStandardLibraryFunction": false
             },
-            "arguments": [],
+            "arguments": [1],
             "isInstanceMethodCall": false
           }
         },

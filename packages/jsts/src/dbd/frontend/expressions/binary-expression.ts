@@ -17,27 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { TSESTree } from '@typescript-eslint/utils';
-import { getLocation } from '../utils';
-import { handleExpression } from '../expressions';
-import { ScopeTranslator } from '../scope-translator';
 
-export function handleVariableDeclaration(
+import { ScopeTranslator } from '../scope-translator';
+import { TSESTree } from '@typescript-eslint/utils';
+import { handleExpression } from './index';
+import { getLocation } from '../utils';
+import { FunctionId } from '../../ir-gen/ir_pb';
+
+export function handleBinaryExpression(
   scopeTranslator: ScopeTranslator,
-  declaration: TSESTree.VariableDeclaration,
+  expression: TSESTree.BinaryExpression,
+  variableName: string | undefined = undefined,
 ) {
-  if (declaration.declarations.length !== 1) {
-    throw new Error(
-      `Unable to handle declaration with ${declaration.declarations.length} declarations (${JSON.stringify(getLocation(declaration))})`,
-    );
+  if (expression.left.type === TSESTree.AST_NODE_TYPES.PrivateIdentifier) {
+    throw new Error(`Unknown left operand of type ${expression.left.type}`);
   }
-  const declarator = declaration.declarations[0];
-  if (!declarator || declarator.type !== TSESTree.AST_NODE_TYPES.VariableDeclarator) {
-    throw new Error('Unhandled declaration');
-  }
-  if (declarator.id.type !== TSESTree.AST_NODE_TYPES.Identifier) {
-    throw new Error(`Unhandled declaration id type ${declarator.id.type}`);
-  }
-  const variableName = declarator.id.name;
-  return handleExpression(scopeTranslator, declarator.init, variableName);
+  const lhsId = handleExpression(scopeTranslator, expression.left);
+  const rhsId = handleExpression(scopeTranslator, expression.right);
+  const valueId = scopeTranslator.getNewValueId();
+  const functionId = new FunctionId({ simpleName: `#binop ${expression.operator}` });
+  scopeTranslator.addCallExpression(
+    getLocation(expression),
+    valueId,
+    functionId,
+    [lhsId, rhsId],
+    variableName,
+  );
+  return valueId;
 }

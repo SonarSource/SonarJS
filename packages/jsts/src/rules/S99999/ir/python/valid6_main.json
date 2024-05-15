@@ -1,6 +1,7 @@
 {
   "functionId": {
     "simpleName": "#__main__",
+    "signature": "valid6.#__main__",
     "isVirtual": false,
     "isStandardLibraryFunction": false
   },
@@ -26,6 +27,7 @@
             "valueId": 1,
             "functionId": {
               "simpleName": "loadAll",
+              "signature": "valid6.loadAll",
               "isVirtual": false,
               "isStandardLibraryFunction": false
             },

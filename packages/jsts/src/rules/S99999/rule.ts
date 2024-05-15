@@ -38,11 +38,7 @@ export const rule: Rule.RuleModule = {
       return context.settings?.dbd?.IRPath;
     }
     let functionNo = 0;
-    const saveResults = (
-      result: FunctionInfo,
-      methods: Set<string>,
-      functionIdentifier: string,
-    ) => {
+    const saveResults = (result: FunctionInfo, methods: string[], functionIdentifier: string) => {
       const content = JSON.stringify(result.toJson({ emitDefaultValues: true }), null, 2);
       const fileNameBase = join(
         getPathFromOptions() ?? join(__dirname, 'ir', 'python'),

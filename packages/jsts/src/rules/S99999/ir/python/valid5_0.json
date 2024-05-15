@@ -1,6 +1,7 @@
 {
   "functionId": {
     "simpleName": "simple_assignment",
+    "signature": "valid5.simple_assignment",
     "isVirtual": false,
     "isStandardLibraryFunction": false
   },

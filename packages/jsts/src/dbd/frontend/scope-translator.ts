@@ -1,3 +1,22 @@
+/*
+ * SonarQube JavaScript Plugin
+ * Copyright (C) 2011-2024 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
 import { Rule } from 'eslint';
 import { TSESTree } from '@typescript-eslint/utils';
 import {
@@ -7,29 +26,51 @@ import {
   FunctionInfo,
   Instruction,
   Location,
+  Parameter,
   ReturnInstruction,
   ValueTable,
 } from '../ir-gen/ir_pb';
 import { getLocation } from './utils';
 
 export class ScopeTranslator {
-  valueIdCounter;
-  valueTable;
+  valueIdCounter = 1;
+  valueTable = new ValueTable();
   basicBlock;
-  variableMap;
-  hasReturnInstruction;
-  methodCalls: Set<string>;
+  variableMap = new Map<string, number>();
+  hasReturnInstruction = false;
+  methodCalls: Set<string> = new Set<string>();
+  fileName: string;
+  parameters: Parameter[] = [];
 
   constructor(
     public context: Rule.RuleContext,
     public node: TSESTree.Node,
   ) {
-    this.valueIdCounter = 1;
-    this.valueTable = new ValueTable();
     this.basicBlock = new BasicBlock({ location: getLocation(node) });
-    this.variableMap = new Map<string, number>();
-    this.hasReturnInstruction = false;
-    this.methodCalls = new Set<string>();
+    this.fileName = context.settings.name;
+  }
+
+  getFunctionSignature(simpleName: string) {
+    return `${this.fileName}.${simpleName}`;
+  }
+
+  getFunctionId(simpleName: string) {
+    return new FunctionId({ simpleName, signature: this.getFunctionSignature(simpleName) });
+  }
+
+  addParameter(param: TSESTree.Parameter) {
+    const valueId = this.getNewValueId();
+    if (param.type !== 'Identifier') {
+      throw new Error(`Unknown method parameter type ${param.type}`);
+    }
+    const parameter = new Parameter({
+      valueId,
+      name: param.name,
+      definitionLocation: getLocation(param),
+    });
+    this.valueTable.parameters.push(parameter);
+    this.variableMap.set(param.name, valueId);
+    this.parameters.push(parameter);
   }
 
   isEmpty() {
@@ -57,7 +98,7 @@ export class ScopeTranslator {
       arguments: args,
     });
     if (!functionId.simpleName.startsWith('#')) {
-      this.methodCalls.add(functionId.simpleName);
+      this.methodCalls.add(this.getFunctionSignature(functionId.simpleName));
     }
     this.basicBlock.instructions.push(
       new Instruction({ instr: { case: 'callInstruction', value: callInstruction } }),
@@ -86,10 +127,14 @@ export class ScopeTranslator {
   finish() {
     this.checkReturn();
     let functionId;
-    if (this.node && this.node.type === TSESTree.AST_NODE_TYPES.FunctionDeclaration) {
-      functionId = new FunctionId({ simpleName: this.node.id?.name });
+    if (
+      this.node &&
+      this.node.type === TSESTree.AST_NODE_TYPES.FunctionDeclaration &&
+      this.node.id
+    ) {
+      functionId = this.getFunctionId(this.node.id?.name);
     } else {
-      functionId = new FunctionId({ simpleName: '#__main__' });
+      functionId = this.getFunctionId('#__main__');
     }
 
     return new FunctionInfo({
@@ -97,6 +142,7 @@ export class ScopeTranslator {
       fileId: this.context.filename,
       basicBlocks: [this.basicBlock],
       values: this.valueTable,
+      parameters: this.parameters,
     });
   }
 }

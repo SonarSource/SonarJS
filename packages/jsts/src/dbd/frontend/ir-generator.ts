@@ -19,15 +19,22 @@
  */
 
 import { Rule } from 'eslint';
-import { FunctionInfo, Parameter } from '../ir-gen/ir_pb';
+import { FunctionInfo } from '../ir-gen/ir_pb';
 import { TSESTree } from '@typescript-eslint/utils';
 import { ScopeTranslator } from './scope-translator';
 import { handleStatement } from './statements';
 
+function returnWithMetadata(scopeTranslator: ScopeTranslator): [FunctionInfo, string[]] {
+  const functionInfo = scopeTranslator.finish();
+  const parentSignature = functionInfo.functionId!.signature!;
+  const metadataCalls = [parentSignature, ...scopeTranslator.methodCalls];
+  return [functionInfo, metadataCalls];
+}
+
 export function translateTopLevel(
   context: Rule.RuleContext,
   node: TSESTree.Program,
-): [FunctionInfo, Set<string>] | null {
+): [FunctionInfo, string[]] | null {
   const scopeTranslator = new ScopeTranslator(context, node);
   node.body.forEach(param => {
     if (param.type === TSESTree.AST_NODE_TYPES.FunctionDeclaration) {
@@ -39,24 +46,16 @@ export function translateTopLevel(
   if (scopeTranslator.isEmpty()) {
     return null;
   }
-  return [scopeTranslator.finish(), scopeTranslator.methodCalls];
+  return returnWithMetadata(scopeTranslator);
 }
 
 export function translateMethod(
   context: Rule.RuleContext,
   node: TSESTree.FunctionDeclaration,
-): [FunctionInfo, Set<string>] {
+): [FunctionInfo, Array<string>] {
   const scopeTranslator = new ScopeTranslator(context, node);
 
-  node.params.forEach(param => {
-    if (param.type !== 'Identifier') {
-      throw new Error(`Unknown method parameter type ${param.type}`);
-    }
-    const valueId = scopeTranslator.getNewValueId();
-    scopeTranslator.valueTable.parameters.push(new Parameter({ valueId, name: param.name }));
-    scopeTranslator.variableMap.set(param.name, valueId);
-  });
-
+  node.params.forEach(param => scopeTranslator.addParameter(param));
   node.body.body.forEach(statement => handleStatement(scopeTranslator, statement), scopeTranslator);
-  return [scopeTranslator.finish(), scopeTranslator.methodCalls];
+  return returnWithMetadata(scopeTranslator);
 }

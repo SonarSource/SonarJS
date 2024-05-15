@@ -41,7 +41,7 @@ ruleTester.run('Proto', rule, {
     },
     {
       code: `function simple_assignment(a: number, b: string) {
-  const x = "txt";
+  !a;
 }`,
       settings: {
         name: 'valid3',
