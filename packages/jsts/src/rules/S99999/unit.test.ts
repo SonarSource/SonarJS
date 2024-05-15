@@ -48,8 +48,8 @@ ruleTester.run('Proto', rule, {
       },
     },
     {
-      code: `function simpleAssignment() {
-  const x = null;
+      code: `function simpleAssignment(x) {
+  x = 123;
 }`,
       settings: {
         name: 'valid4',
