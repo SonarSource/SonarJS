@@ -1,0 +1,86 @@
+{
+  "functionId": {
+    "simpleName": "loadAll",
+    "signature": "custom.loadAll",
+    "isVirtual": false,
+    "isStandardLibraryFunction": false
+  },
+  "values": {
+    "constants": [],
+    "parameters": [
+      {
+        "valueId": 1,
+        "name": "pluginNames",
+        "definitionLocation": {
+          "fileId": "",
+          "startLine": 1,
+          "startColumn": 17,
+          "endLine": 1,
+          "endColumn": 28
+        }
+      }
+    ],
+    "typeNames": []
+  },
+  "parameters": [
+    {
+      "valueId": 1,
+      "name": "pluginNames",
+      "definitionLocation": {
+        "fileId": "",
+        "startLine": 1,
+        "startColumn": 17,
+        "endLine": 1,
+        "endColumn": 28
+      }
+    }
+  ],
+  "basicBlocks": [
+    {
+      "id": 0,
+      "instructions": [
+        {
+          "callInstruction": {
+            "location": {
+              "fileId": "",
+              "startLine": 2,
+              "startColumn": 13,
+              "endLine": 2,
+              "endColumn": 26
+            },
+            "valueId": 2,
+            "functionId": {
+              "simpleName": "pluginNames",
+              "signature": "custom.pluginNames",
+              "isVirtual": false,
+              "isStandardLibraryFunction": false
+            },
+            "arguments": [],
+            "isInstanceMethodCall": false
+          }
+        },
+        {
+          "returnInstruction": {
+            "location": {
+              "fileId": "",
+              "startLine": 1,
+              "startColumn": 0,
+              "endLine": 3,
+              "endColumn": 12
+            },
+            "returnValue": 0
+          }
+        }
+      ],
+      "location": {
+        "fileId": "",
+        "startLine": 1,
+        "startColumn": 0,
+        "endLine": 3,
+        "endColumn": 12
+      },
+      "isLoopCondition": false
+    }
+  ],
+  "fileId": "/Users/michal.zgliczynski/codes/SonarJS/packages/jsts/tests/dbd/fixtures/custom.js"
+}
