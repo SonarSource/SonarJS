@@ -19,6 +19,7 @@
  */
 import path from 'path';
 import { generateIR, proto2text } from '../../src/dbd/helpers';
+import { toUnixPath } from '@sonar/shared';
 
 const baseDir = path.join(__dirname, 'fixtures');
 
@@ -26,6 +27,7 @@ describe('DBD IR generation', () => {
   it('DBD rule should create correct IR', async () => {
     const filePath = path.join(baseDir, 'custom.js');
     const outDir = path.join(__dirname, 'ir', 'python');
+    const signature = toUnixPath(filePath.slice(baseDir.length + 1)).replace(/\//g, '_');
     await generateIR(
       filePath,
       outDir,
@@ -34,16 +36,16 @@ describe('DBD IR generation', () => {
            }
            loadAll(null);`,
     );
-    const files = [path.join(outDir, 'custom_main.ir'), path.join(outDir, 'custom_0.ir')];
+    const files = [path.join(outDir, 'ir0_main.ir'), path.join(outDir, 'ir0_0.ir')];
     const textIR = await proto2text(files);
-    expect(textIR).toEqual(`custom.#__main__ () {
+    expect(textIR).toEqual(`${signature}.#__main__ () {
 bb0:
-  #1 = call custom.loadAll(null#0)
+  #1 = call ${signature}.loadAll(null#0)
   return null#0
 }
-custom.loadAll (pluginNames#1) {
+${signature}.loadAll (pluginNames#1) {
 bb0:
-  #2 = call custom.pluginNames()
+  #2 = call ${signature}.pluginNames()
   return null#0
 }
 `);
