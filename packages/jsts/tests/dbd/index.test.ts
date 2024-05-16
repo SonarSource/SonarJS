@@ -38,13 +38,13 @@ describe('DBD IR generation', () => {
     const textIR = await proto2text(files);
     expect(textIR).toEqual(`custom.#__main__ () {
 bb0:
-  #1 = call custom.loadAll()
-  return 0
+  #1 = call custom.loadAll(null#0)
+  return null#0
 }
 custom.loadAll (pluginNames#1) {
 bb0:
   #2 = call custom.pluginNames()
-  return 0
+  return null#0
 }
 `);
   });

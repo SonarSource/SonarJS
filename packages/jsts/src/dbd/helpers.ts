@@ -2,7 +2,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import { readFile } from '@sonar/shared';
 import { buildSourceCode } from '@sonar/jsts';
-import { FunctionInfo } from './ir-gen/ir_pb';
+import { FunctionId, FunctionInfo } from './ir-gen/ir_pb';
 import { Linter } from 'eslint';
 import { rule } from '../rules/S99999';
 
@@ -52,6 +52,30 @@ export async function proto2text(filePaths: string[]) {
 }
 
 export function functionInto2Text(functionInfo: FunctionInfo) {
+  const values: { [key: number]: string } = { 0: 'null' };
+
+  if (functionInfo.values) {
+    for (const parameter of functionInfo.values.parameters) {
+      values[parameter.valueId] = parameter.typeInfo
+        ? `param ${parameter.typeInfo?.qualifiedName} ${parameter.name}`
+        : `param ${parameter.name}`;
+    }
+    for (const constant of functionInfo.values.constants) {
+      values[constant.valueId] = constant.value;
+    }
+    for (const typeName of functionInfo.values.typeNames) {
+      values[typeName.valueId] = `type ${typeName.name}`;
+    }
+  }
+  function valueToStr(valueId?: number, name?: string) {
+    if (typeof valueId === 'number') {
+      if (typeof name === 'string') {
+        return `${name}#${valueId}`;
+      }
+      return `${values[valueId] ?? ''}#${valueId}`;
+    }
+    return '';
+  }
   const params = functionInfo.parameters.map(p => `${p.name}#${p.valueId}`).join(', ');
   const header = `${functionInfo.functionId?.signature ?? `?.${functionInfo.functionId?.simpleName}`} (${params}) {\n`;
   const blocks = functionInfo.basicBlocks.map(b => {
@@ -71,24 +95,33 @@ export function functionInto2Text(functionInfo: FunctionInfo) {
       .map(i => {
         switch (i.instr.case) {
           case 'throwInstruction':
-            return `throw ${i.instr.value.exceptionValue}`;
+            return `throw ${valueToStr(i.instr.value.exceptionValue)}`;
           case 'returnInstruction':
-            return `return ${i.instr.value.returnValue}`;
+            return `return ${valueToStr(i.instr.value.returnValue)}`;
           case 'branchingInstruction':
             return `br bb${i.instr.value.successor}`;
           case 'conditionalBranchingInstruction': {
-            const condIf = i.instr.value;
-            return `brif bb${condIf.trueSuccessor}, bb${condIf.falseSuccessor} ${condIf.condition}`;
+            const { trueSuccessor, falseSuccessor, condition } = i.instr.value;
+            return `brif bb${trueSuccessor}, bb${falseSuccessor} ${valueToStr(condition)}`;
           }
           case 'phiInstruction':
-            break;
+            const { variableName, valueId, valuesByBlock } = i.instr.value;
+            const str = Object.entries(valuesByBlock)
+              .map(([blockId, valueId]) => `bb${blockId}: ${valueToStr(valueId)}`)
+              .join(', ');
+            return `${valueToStr(valueId, variableName)} = phi ${str}`;
           case 'callInstruction': {
-            const callIns = i.instr.value;
-            const functionName =
-              callIns.functionId?.signature ?? `?.${callIns.functionId?.simpleName}`;
-            const argumentsStr = callIns.arguments?.map(arg => valueToStr(arg)).join(', ') ?? '';
-            const returnType = callIns.staticType ? `:${callIns.staticType.qualifiedName}` : '';
-            return `${callIns.variableName ?? ''}#${callIns.valueId} = call ${functionName}(${argumentsStr})${returnType}`;
+            const {
+              functionId,
+              variableName,
+              valueId,
+              arguments: args,
+              staticType,
+            } = i.instr.value;
+            const name = functionName(functionId);
+            const argumentsStr = args?.map(arg => valueToStr(arg)).join(', ') ?? '';
+            const returnType = staticType ? `:${staticType.qualifiedName}` : '';
+            return `${valueToStr(valueId, variableName)} = call ${name}(${argumentsStr})${returnType}`;
           }
         }
       })
@@ -99,6 +132,6 @@ export function functionInto2Text(functionInfo: FunctionInfo) {
   return `${header}${blocks}\n}\n`;
 }
 
-function valueToStr(valueId: number) {
-  return `${valueId}`;
+function functionName(func?: FunctionId) {
+  return func ? func?.signature ?? `?.${func?.simpleName}` : '';
 }
