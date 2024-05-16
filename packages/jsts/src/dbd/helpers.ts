@@ -9,14 +9,19 @@ import { rule } from '../rules/S99999';
 const linter = new Linter();
 linter.defineRule('dbd-rule', rule);
 
-export async function generateDirIR(dirPath: string, outDir?: string, print = false) {
+export async function generateDirIR(
+  dirPath: string,
+  outDir?: string,
+  print = false,
+  root?: string,
+) {
   for (const file of await fs.readdir(dirPath, { withFileTypes: true })) {
     const filePath = path.join(dirPath, file.name);
 
     if (file.isDirectory()) {
-      await generateDirIR(filePath, outDir, print);
+      await generateDirIR(filePath, outDir, print, root);
     } else {
-      await generateIR(file.path, outDir, undefined, print);
+      await generateIR(file.path, outDir, undefined, print, root);
     }
   }
 }
@@ -26,6 +31,7 @@ export async function generateIR(
   outDir?: string,
   fileContent?: string,
   print = false,
+  root?: string,
 ) {
   if (!fileContent) {
     fileContent = await readFile(filePath);
@@ -36,7 +42,7 @@ export async function generateIR(
   );
   linter.verify(
     sourceCode,
-    { rules: { 'dbd-rule': 'error' }, settings: { dbd: { IRPath: outDir, print } } },
+    { rules: { 'dbd-rule': 'error' }, settings: { dbd: { outDir, print, root } } },
     { filename: filePath, allowInlineConfig: false },
   );
 }

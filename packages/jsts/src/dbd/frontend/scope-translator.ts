@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Rule } from 'eslint';
 import { TSESTree } from '@typescript-eslint/utils';
 import {
   BasicBlock,
@@ -34,7 +33,7 @@ import {
 } from '../ir-gen/ir_pb';
 import { getLocation } from './utils';
 import { Function, isBuiltinFunction } from './builtin-functions';
-import { parse } from 'path';
+import { toUnixPath } from '@sonar/shared';
 
 export class ScopeTranslator {
   valueIdCounter = 1;
@@ -42,16 +41,19 @@ export class ScopeTranslator {
   basicBlock;
   variableMap = new Map<string, number>();
   hasReturnInstruction = false;
+  signaturePrefix: string;
   methodCalls: Set<string> = new Set<string>();
-  fileName: string;
   parameters: Parameter[] = [];
 
   constructor(
-    public context: Rule.RuleContext,
+    public filename: string,
+    public root: string,
     public node: TSESTree.Node,
   ) {
+    const relativeFilename =
+      root && filename.startsWith(root) ? filename.slice(root.length + 1) : filename;
+    this.signaturePrefix = toUnixPath(relativeFilename).replace(/\//g, '_');
     this.basicBlock = new BasicBlock({ location: getLocation(node) });
-    this.fileName = parse(context.filename).name;
   }
 
   getTypeInfo(valueId: number): TypeInfo | undefined {
@@ -88,7 +90,7 @@ export class ScopeTranslator {
     if (isBuiltinFunction(simpleName) && simpleName !== Function.Main) {
       return simpleName;
     }
-    return `${this.fileName}.${simpleName}`;
+    return `${this.signaturePrefix}.${simpleName}`;
   }
 
   getFunctionId(simpleName: string) {
@@ -179,7 +181,7 @@ export class ScopeTranslator {
 
     return new FunctionInfo({
       functionId,
-      fileId: this.context.filename,
+      fileId: this.filename,
       basicBlocks: [this.basicBlock],
       values: this.valueTable,
       parameters: this.parameters,

@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { Rule } from 'eslint';
 import { FunctionInfo } from '../ir-gen/ir_pb';
 import { TSESTree } from '@typescript-eslint/utils';
 import { ScopeTranslator } from './scope-translator';
@@ -32,10 +31,11 @@ function returnWithMetadata(scopeTranslator: ScopeTranslator): [FunctionInfo, st
 }
 
 export function translateTopLevel(
-  context: Rule.RuleContext,
+  filename: string,
+  root: string,
   node: TSESTree.Program,
 ): [FunctionInfo, string[]] | null {
-  const scopeTranslator = new ScopeTranslator(context, node);
+  const scopeTranslator = new ScopeTranslator(filename, root, node);
   node.body.forEach(param => {
     if (param.type === TSESTree.AST_NODE_TYPES.FunctionDeclaration) {
       // skip function declarations
@@ -50,10 +50,11 @@ export function translateTopLevel(
 }
 
 export function translateMethod(
-  context: Rule.RuleContext,
+  filename: string,
+  root: string,
   node: TSESTree.FunctionDeclaration,
 ): [FunctionInfo, Array<string>] {
-  const scopeTranslator = new ScopeTranslator(context, node);
+  const scopeTranslator = new ScopeTranslator(filename, root, node);
 
   node.params.forEach(param => scopeTranslator.addParameter(param));
   node.body.body.forEach(statement => handleStatement(scopeTranslator, statement), scopeTranslator);

@@ -23,11 +23,13 @@ import * as estree from 'estree';
 import { Rule } from 'eslint';
 import { TSESTree } from '@typescript-eslint/utils';
 import { writeFileSync } from 'fs';
-import { join, parse } from 'path';
+import { join, dirname } from 'path';
 import { translateMethod, translateTopLevel } from '../../dbd/frontend/ir-generator';
 import { FunctionInfo } from '../../dbd/ir-gen/ir_pb';
 import { mkdirpSync } from 'mkdirp';
 import { functionInto2Text } from '../../dbd/helpers';
+
+let i = 0;
 
 export const rule: Rule.RuleModule = {
   meta: {
@@ -37,8 +39,8 @@ export const rule: Rule.RuleModule = {
   },
   create(context: Rule.RuleContext) {
     const print = context.settings?.dbd?.print;
-    const basename = parse(context.filename).name;
-    const outputDir = print ? '' : context.settings?.dbd?.IRPath ?? join(__dirname, 'ir', 'python');
+    const outputDir = print ? '' : context.settings?.dbd?.outDir ?? join(__dirname, 'ir', 'python');
+    const root = context.settings?.dbd?.root || dirname(context.filename);
     const irts: string[] = [];
     if (!print) {
       mkdirpSync(outputDir);
@@ -52,7 +54,7 @@ export const rule: Rule.RuleModule = {
         return;
       }
       const content = JSON.stringify(result.toJson({ emitDefaultValues: true }), null, 2);
-      const fileNameBase = join(outputDir, `${basename}_${functionIdentifier}`);
+      const fileNameBase = join(outputDir, `ir${i}_${functionIdentifier}`);
       writeFileSync(`${fileNameBase}.json`, content, { flag: 'w' });
       writeFileSync(`${fileNameBase}.metadata`, [...methods].join('\n'), { flag: 'w' });
       writeFileSync(`${fileNameBase}.ir`, result.toBinary(), { flag: 'w' });
@@ -61,20 +63,25 @@ export const rule: Rule.RuleModule = {
 
     return {
       Program(node: estree.Node) {
-        const result = translateTopLevel(context, node as TSESTree.Program);
+        const result = translateTopLevel(context.filename, root, node as TSESTree.Program);
         if (result) {
           saveResults(...result, 'main');
         }
       },
       'FunctionDeclaration, FunctionExpression, ArrowFunctionExpression'(node: estree.Node) {
-        const result = translateMethod(context, node as TSESTree.FunctionDeclaration);
+        const result = translateMethod(
+          context.filename,
+          root,
+          node as TSESTree.FunctionDeclaration,
+        );
         saveResults(...result, String(functionNo));
         functionNo++;
       },
       'Program:exit'() {
         if (!print) {
-          writeFileSync(join(outputDir, `${basename}.irt`), irts.join(''), { flag: 'w' });
+          writeFileSync(join(outputDir, `${i}.irt`), irts.join(''), { flag: 'w' });
         }
+        i++;
       },
     };
   },
