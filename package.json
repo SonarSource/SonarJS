@@ -56,6 +56,7 @@
     "@types/lodash.clone": "4.5.9",
     "@types/node": "20.11.30",
     "@types/tmp": "0.2.6",
+    "commander": "12.0.0",
     "cpy-cli": "4.2.0",
     "dir-compare": "4.2.0",
     "extract-zip": "2.0.1",

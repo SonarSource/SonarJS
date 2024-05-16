@@ -27,6 +27,7 @@ import { join, parse } from 'path';
 import { translateMethod, translateTopLevel } from '../../dbd/frontend/ir-generator';
 import { FunctionInfo } from '../../dbd/ir-gen/ir_pb';
 import { mkdirpSync } from 'mkdirp';
+import { functionInto2Text } from '../../dbd/helpers';
 
 export const rule: Rule.RuleModule = {
   meta: {
@@ -35,12 +36,19 @@ export const rule: Rule.RuleModule = {
     },
   },
   create(context: Rule.RuleContext) {
-    const outputDir = context.settings?.dbd?.IRPath ?? join(__dirname, 'ir', 'python');
+    const print = context.settings?.dbd?.print;
     const basename = parse(context.filename).name;
-    mkdirpSync(outputDir);
+    const outputDir = print ? '' : context.settings?.dbd?.IRPath ?? join(__dirname, 'ir', 'python');
+    if (!print) {
+      mkdirpSync(outputDir);
+    }
 
     let functionNo = 0;
     const saveResults = (result: FunctionInfo, methods: string[], functionIdentifier: string) => {
+      if (print) {
+        console.log(functionInto2Text(result));
+        return;
+      }
       const content = JSON.stringify(result.toJson({ emitDefaultValues: true }), null, 2);
       const fileNameBase = join(outputDir, `${basename}_${functionIdentifier}`);
       writeFileSync(`${fileNameBase}.json`, content, { flag: 'w' });

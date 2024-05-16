@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import path from 'path';
-import { generateIR, proto2text } from '../../src/dbd/gen-ir';
+import { generateIR, proto2text } from '../../src/dbd/helpers';
 
 const baseDir = path.join(__dirname, 'fixtures');
 
-describe('analyzeJSTS', () => {
+describe('DBD IR generation', () => {
   it('DBD rule should create correct IR', async () => {
     const filePath = path.join(baseDir, 'custom.js');
     const outDir = path.join(__dirname, 'ir', 'python');
@@ -35,6 +35,17 @@ describe('analyzeJSTS', () => {
            loadAll();`,
     );
     const files = [path.join(outDir, 'custom_main.ir'), path.join(outDir, 'custom_0.ir')];
-    console.log(await proto2text(files));
+    const textIR = await proto2text(files);
+    expect(textIR).toEqual(`custom.#__main__ () {
+bb0:
+  #1 = call custom.loadAll()
+  return 0
+}
+custom.loadAll (pluginNames#1) {
+bb0:
+  #2 = call custom.pluginNames()
+  return 0
+}
+`);
   });
 });
