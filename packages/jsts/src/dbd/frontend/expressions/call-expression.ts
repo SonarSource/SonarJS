@@ -21,6 +21,7 @@ import { TSESTree } from '@typescript-eslint/utils';
 import { handleMemberExpression } from './member-expression';
 import { getLocation } from '../utils';
 import { ScopeTranslator } from '../scope-translator';
+import { handleExpression } from './index';
 
 export function handleCallExpression(
   scopeTranslator: ScopeTranslator,
@@ -49,6 +50,12 @@ export function handleCallExpression(
   if (calleeValueId) {
     args = [calleeValueId];
   }
+  callExpression.arguments.forEach(arg => {
+    if (arg.type === TSESTree.AST_NODE_TYPES.SpreadElement) {
+      return;
+    }
+    args.push(handleExpression(scopeTranslator, arg));
+  });
   scopeTranslator.addCallExpression(
     getLocation(callExpression),
     resultValueId,
