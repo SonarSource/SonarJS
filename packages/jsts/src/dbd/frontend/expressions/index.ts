@@ -26,6 +26,7 @@ import { handleMemberExpression } from './member-expression';
 import { handleBinaryExpression } from './binary-expression';
 import { handleUnaryExpression } from './unary-expression';
 import { handleAssignmentExpression } from './assignment-expression';
+import { handleArrayExpression } from './array-expression';
 
 export function handleExpression(
   scopeTranslator: ScopeTranslator,
@@ -52,6 +53,8 @@ export function handleExpression(
       return handleUnaryExpression(scopeTranslator, expression);
     case TSESTree.AST_NODE_TYPES.AssignmentExpression:
       return handleAssignmentExpression(scopeTranslator, expression);
+    case TSESTree.AST_NODE_TYPES.ArrayExpression:
+      return handleArrayExpression(scopeTranslator, expression, variableName);
     default:
       throw new Error(`Unhandled Expression type ${expression.type}`);
   }

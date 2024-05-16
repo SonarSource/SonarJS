@@ -19,6 +19,8 @@
  */
 
 export const Function = {
+  ArrayAddLast: '#array-add-last#',
+  ArrayRead: '#array-read#',
   BinOp: (op: string) => `#binop ${op}#`,
   GetField: (field: string) => `#get-field# ${field}`,
   ID: '#id#',

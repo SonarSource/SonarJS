@@ -21,12 +21,17 @@ import { TSESTree } from '@typescript-eslint/utils';
 import { getLocation } from '../utils';
 import { ScopeTranslator } from '../scope-translator';
 import { Function } from '../builtin-functions';
+import { TypeInfo_Kind } from '../../ir-gen/ir_pb';
+import { handleLiteralWithoutCall } from './literal';
 
 export function handleMemberExpression(
   scopeTranslator: ScopeTranslator,
   memberExpression: TSESTree.MemberExpression,
 ): number {
-  if (memberExpression.property.type !== TSESTree.AST_NODE_TYPES.Identifier) {
+  if (
+    memberExpression.property.type !== TSESTree.AST_NODE_TYPES.Identifier &&
+    memberExpression.property.type !== TSESTree.AST_NODE_TYPES.Literal
+  ) {
     throw new Error(
       `Unsupported member expression property type ${memberExpression.property.type} ${JSON.stringify(getLocation(memberExpression.property))}`,
     );
@@ -46,9 +51,18 @@ export function handleMemberExpression(
   if (memberExpression.parent.type === TSESTree.AST_NODE_TYPES.CallExpression) {
     return objectValueId;
   } else {
-    const fieldName = memberExpression.property.name;
-    const functionId = scopeTranslator.getFunctionId(Function.GetField(fieldName));
+    let functionId;
+    const objectTypeInfo = scopeTranslator.getTypeInfo(objectValueId)!;
     const resultValueId = scopeTranslator.getNewValueId();
+    const propertyLiteralId =
+      memberExpression.property.type === TSESTree.AST_NODE_TYPES.Literal ??
+      handleLiteralWithoutCall(scopeTranslator, memberExpression.property);
+    if (objectTypeInfo?.kind === TypeInfo_Kind.ARRAY && propertyLiteralId) {
+      prop;
+      functionId = scopeTranslator.getFunctionId(Function.ArrayRead);
+    } else {
+      functionId = scopeTranslator.getFunctionId(Function.GetField(fieldName));
+    }
     scopeTranslator.addCallExpression(getLocation(memberExpression), resultValueId, functionId, [
       objectValueId,
     ]);
