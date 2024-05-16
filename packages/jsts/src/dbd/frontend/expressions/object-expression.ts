@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { TSESTree } from '@typescript-eslint/utils';
-import { Constant, TypeInfo, TypeInfo_Kind } from '../../ir-gen/ir_pb';
+import { Constant, TypeInfo, TypeInfo_Kind, TypeName } from '../../ir-gen/ir_pb';
 import { getLocation } from '../utils';
 import { ScopeTranslator } from '../scope-translator';
 import { handleExpression } from './index';
@@ -34,14 +34,24 @@ export function handleObjectExpression(
     kind: TypeInfo_Kind.CLASS,
     qualifiedName: 'object',
   });
-  const newConstant = new Constant({ valueId: objectValueId, typeInfo });
-  scopeTranslator.valueTable.constants.push(newConstant);
+  if (variableName) {
+    const newTypeName = new TypeName({
+      name: variableName,
+      typeInfo,
+      valueId: objectValueId,
+    });
+    scopeTranslator.valueTable.typeNames.push(newTypeName);
+  } else {
+    const newConstant = new Constant({ valueId: objectValueId, typeInfo });
+    scopeTranslator.valueTable.constants.push(newConstant);
+  }
   scopeTranslator.addCallExpression(
     getLocation(expression),
     objectValueId,
     scopeTranslator.getFunctionId(Function.NewObject),
     [],
     variableName,
+    typeInfo,
   );
   expression.properties.forEach(prop => {
     if (

@@ -18,19 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-export const Function = {
-  ArrayAddLast: '#array-add-last#',
-  ArrayRead: '#array-read#',
-  BinOp: (op: string) => `#binop ${op}#`,
-  GetField: (field: string) => `#get-field# ${field}`,
-  ID: '#id#',
-  Main: '#__main__',
-  MapSet: '#map-set#',
-  NewObject: '#new-object#',
-  SetField: (field: string) => `#set-field# ${field}`,
-  UnaryOp: (op: string) => `#unaryop ${op}#`,
-};
-export type BuiltinFunction = keyof typeof Function;
-export function isBuiltinFunction(simpleName: string): boolean {
-  return simpleName.startsWith('#');
+import { ScopeTranslator } from '../scope-translator';
+import { TSESTree } from '@typescript-eslint/utils';
+import { handleValueWithoutCall } from './literal';
+
+export function handleIdentifier(
+  scopeTranslator: ScopeTranslator,
+  expression: TSESTree.Identifier,
+) {
+  if (scopeTranslator.variableMap.has(expression.name)) {
+    return scopeTranslator.variableMap.get(expression.name)!;
+  }
+  return handleValueWithoutCall(scopeTranslator, expression.name);
 }
