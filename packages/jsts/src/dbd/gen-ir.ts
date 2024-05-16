@@ -2,6 +2,7 @@ import fs from 'fs/promises';
 import { program } from 'commander';
 import { generateDirIR, generateIR } from './helpers';
 import path from 'path';
+import * as process from 'node:process';
 
 program
   .option('-F, --file <file...>', 'Files to parse')
@@ -28,8 +29,8 @@ Promise.resolve()
       let i = 0;
       for (const contents of options.string) {
         await generateIR(
-          path.join(__dirname, `cli-snippet-${i++}.js`),
-          options.output,
+          path.join(process.cwd(), `cli-snippet-${i++}.js`),
+          options.output || process.cwd(),
           contents,
           options.print,
         );

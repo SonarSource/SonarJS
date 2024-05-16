@@ -39,14 +39,16 @@ export const rule: Rule.RuleModule = {
     const print = context.settings?.dbd?.print;
     const basename = parse(context.filename).name;
     const outputDir = print ? '' : context.settings?.dbd?.IRPath ?? join(__dirname, 'ir', 'python');
+    const irts: string[] = [];
     if (!print) {
       mkdirpSync(outputDir);
     }
 
     let functionNo = 0;
     const saveResults = (result: FunctionInfo, methods: string[], functionIdentifier: string) => {
+      const irt = functionInto2Text(result);
       if (print) {
-        console.log(functionInto2Text(result));
+        console.log(irt);
         return;
       }
       const content = JSON.stringify(result.toJson({ emitDefaultValues: true }), null, 2);
@@ -54,6 +56,7 @@ export const rule: Rule.RuleModule = {
       writeFileSync(`${fileNameBase}.json`, content, { flag: 'w' });
       writeFileSync(`${fileNameBase}.metadata`, [...methods].join('\n'), { flag: 'w' });
       writeFileSync(`${fileNameBase}.ir`, result.toBinary(), { flag: 'w' });
+      irts.push(irt);
     };
 
     return {
@@ -67,6 +70,11 @@ export const rule: Rule.RuleModule = {
         const result = translateMethod(context, node as TSESTree.FunctionDeclaration);
         saveResults(...result, String(functionNo));
         functionNo++;
+      },
+      'Program:exit'() {
+        if (!print) {
+          writeFileSync(join(outputDir, `${basename}.irt`), irts.join(''), { flag: 'w' });
+        }
       },
     };
   },
