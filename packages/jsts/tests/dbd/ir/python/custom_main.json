@@ -1,0 +1,62 @@
+{
+  "functionId": {
+    "simpleName": "#__main__",
+    "signature": "custom.#__main__",
+    "isVirtual": false,
+    "isStandardLibraryFunction": false
+  },
+  "values": {
+    "constants": [],
+    "parameters": [],
+    "typeNames": []
+  },
+  "parameters": [],
+  "basicBlocks": [
+    {
+      "id": 0,
+      "instructions": [
+        {
+          "callInstruction": {
+            "location": {
+              "fileId": "",
+              "startLine": 4,
+              "startColumn": 11,
+              "endLine": 4,
+              "endColumn": 24
+            },
+            "valueId": 1,
+            "functionId": {
+              "simpleName": "loadAll",
+              "signature": "custom.loadAll",
+              "isVirtual": false,
+              "isStandardLibraryFunction": false
+            },
+            "arguments": [0],
+            "isInstanceMethodCall": false
+          }
+        },
+        {
+          "returnInstruction": {
+            "location": {
+              "fileId": "",
+              "startLine": 1,
+              "startColumn": 0,
+              "endLine": 4,
+              "endColumn": 25
+            },
+            "returnValue": 0
+          }
+        }
+      ],
+      "location": {
+        "fileId": "",
+        "startLine": 1,
+        "startColumn": 0,
+        "endLine": 4,
+        "endColumn": 25
+      },
+      "isLoopCondition": false
+    }
+  ],
+  "fileId": "/Users/michal.zgliczynski/codes/SonarJS/packages/jsts/tests/dbd/fixtures/custom.js"
+}

@@ -32,7 +32,7 @@ describe('analyzeJSTS', () => {
       `function loadAll(pluginNames) {
              pluginNames(); // Noncompliant: pluginNames might be undefined
            }
-           loadAll();`,
+           loadAll(null);`,
     );
     const files = [path.join(outDir, 'custom_main.ir'), path.join(outDir, 'custom_0.ir')];
     console.log(await proto2text(files));
