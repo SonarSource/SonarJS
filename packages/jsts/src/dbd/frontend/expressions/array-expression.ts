@@ -48,6 +48,7 @@ export function handleArrayExpression(
     scopeTranslator.getFunctionId(Function.NewObject),
     [],
     variableName,
+    typeInfo,
   );
   expression.elements.forEach(element => {
     if (!element || element.type === TSESTree.AST_NODE_TYPES.SpreadElement) {
@@ -59,7 +60,6 @@ export function handleArrayExpression(
       scopeTranslator.getNewValueId(),
       scopeTranslator.getFunctionId(Function.ArrayAddLast),
       [valueId, elementId],
-      variableName,
     );
   });
   return valueId;

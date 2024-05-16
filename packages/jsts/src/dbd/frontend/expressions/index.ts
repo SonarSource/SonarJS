@@ -20,13 +20,14 @@
 import { TSESTree } from '@typescript-eslint/utils';
 import { handleObjectExpression } from './object-expression';
 import { ScopeTranslator } from '../scope-translator';
-import { handleExpressionLiteral, handleValueWithoutCall } from './literal';
+import { handleExpressionLiteral } from './literal';
 import { handleCallExpression } from './call-expression';
 import { handleMemberExpression } from './member-expression';
 import { handleBinaryExpression } from './binary-expression';
 import { handleUnaryExpression } from './unary-expression';
 import { handleAssignmentExpression } from './assignment-expression';
 import { handleArrayExpression } from './array-expression';
+import { handleIdentifier } from './identifier';
 
 export function handleExpression(
   scopeTranslator: ScopeTranslator,
@@ -42,7 +43,7 @@ export function handleExpression(
     case TSESTree.AST_NODE_TYPES.ObjectExpression:
       return handleObjectExpression(scopeTranslator, expression, variableName);
     case TSESTree.AST_NODE_TYPES.Identifier:
-      return handleValueWithoutCall(scopeTranslator, expression.name);
+      return handleIdentifier(scopeTranslator, expression);
     case TSESTree.AST_NODE_TYPES.CallExpression:
       return handleCallExpression(scopeTranslator, expression);
     case TSESTree.AST_NODE_TYPES.MemberExpression:

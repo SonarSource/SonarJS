@@ -26,6 +26,9 @@ import { Function } from '../builtin-functions';
 type NonNullLiteral = string | number | bigint | boolean | RegExp;
 
 export function handleValueWithoutCall(scopeTranslator: ScopeTranslator, value: NonNullLiteral) {
+  if (typeof value === 'string' && value === 'undefined') {
+    return 0;
+  }
   const valueId = scopeTranslator.getNewValueId();
   const typeInfo = new TypeInfo({
     kind: TypeInfo_Kind.PRIMITIVE,
