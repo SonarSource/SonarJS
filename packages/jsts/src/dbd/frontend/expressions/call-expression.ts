@@ -29,6 +29,7 @@ export function handleCallExpression(
 ) {
   let calleeValueId;
   let simpleName;
+  let calleObjectSimpleName;
   switch (callExpression.callee.type) {
     case TSESTree.AST_NODE_TYPES.MemberExpression:
       calleeValueId = handleMemberExpression(scopeTranslator, callExpression.callee);
@@ -36,6 +37,9 @@ export function handleCallExpression(
         throw new Error(
           `Unhandled method call ${JSON.stringify(getLocation(callExpression.callee.property))}`,
         );
+      }
+      if (callExpression.callee.object.type === TSESTree.AST_NODE_TYPES.Identifier) {
+        calleObjectSimpleName = callExpression.callee.object.name;
       }
       simpleName = callExpression.callee.property.name;
       break;
@@ -56,11 +60,16 @@ export function handleCallExpression(
     }
     args.push(handleExpression(scopeTranslator, arg));
   });
+  const isInstanceMethodCall =
+    calleObjectSimpleName !== undefined && scopeTranslator.variableMap.has(calleObjectSimpleName);
   scopeTranslator.addCallExpression(
     getLocation(callExpression),
     resultValueId,
     scopeTranslator.getFunctionId(simpleName),
     args,
+    undefined,
+    undefined,
+    isInstanceMethodCall,
   );
   return resultValueId;
 }
