@@ -129,6 +129,7 @@ export class ScopeTranslator {
     args: number[] = [],
     variableName?: string,
     staticType?: TypeInfo,
+    isInstanceMethodCall?: boolean,
   ) {
     const callInstruction = new CallInstruction({
       location,
@@ -137,6 +138,7 @@ export class ScopeTranslator {
       functionId,
       arguments: args,
       staticType,
+      isInstanceMethodCall,
     });
     if (!isBuiltinFunction(functionId.simpleName)) {
       this.methodCalls.add(this.getFunctionSignature(functionId.simpleName));
