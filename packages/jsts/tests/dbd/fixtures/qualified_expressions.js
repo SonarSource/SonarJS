@@ -1,24 +1,31 @@
-def access_param(x):
-    x.bar
+function accessParam(x) {
+  x.bar;
+}
 
-def access_local_variable():
-    x = None
-    x.bar
+function accessLocalVariable() {
+  let x = null;
+  x.bar;
+}
 
-some_global = None
+let someGlobal = null;
 
-def access_global():
-    some_global.bar
+function accessGlobal() {
+  someGlobal.bar;
+}
 
-def access_return_value():
-    x = abs(42)
-    x.bar
-def chain_of_assignments():
-    x = None
-    y = x
-    y.bar
+function accessReturnValue() {
+  let x = Math.abs(42);
+  x.bar;
+}
 
-def access_return_value_and_assignment():
-    x = f()
-    y = x
-    y.foo
+function chainOfAssignments() {
+  let x = null;
+  let y = x;
+  y.bar;
+}
+
+function accessReturnValueAndAssignment() {
+  let x = f();
+  let y = x;
+  y.foo;
+}

@@ -1,5 +1,5 @@
 function simple_assignment() {
-    x = None
+    x = null
 
 } 
 
@@ -9,33 +9,33 @@ function assignment_to_int() {
 } 
 
 function assignment_to_bool() {
-    x = True
-    y = False
+    x = true
+    y = false
 
 } 
 
 function unpacking_assignment() {
-    x, y = None, None
+    [x, y] = [null, null]
 
 } 
 
 function unpacking_iterable(my_iterable) {
-    x, y = my_iterable
+    [x, y] = my_iterable
 
 } 
 
 function unpacking_iterable_field_access(x, my_iterable) {
-    x.my_field, y = my_iterable
+    [x.my_field, y] = my_iterable
 
 } 
 
 function unpacking_iterable_star_token(my_iterable) {
-    x *y = my_iterable
+    [x, ...y] = my_iterable
 
 } 
 
 function unpacking_iterable_subscription(x, my_iterable) {
-    x[0], y = my_iterable
+    [x[0], y] = my_iterable
 
 } 
 
@@ -86,20 +86,20 @@ function foo(x) {
 } 
 
 function assignment_expression() {
-    foo(x:=42)
+    foo(x=42)
 
 } 
 
 function assignment_expression_reassigned() {
-    y = (x:=42)
+    y = (x=42)
     return y
 
 } 
 
 function assignment_expression_if_stmt() {
-   if x := foo(True):
-       return x.bar
-
+   if (x = foo(true)) {
+     return x.bar
+   }
 } 
 
 function assign_global_variable_assignement_exp() {

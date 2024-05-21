@@ -1,18 +1,19 @@
-def raise_new_exception():
-    raise ValueError()
+function raiseNewException() {
+  throw new Error();
+}
 
+function raiseParam(param) {
+  throw param;
+}
 
-def raise_param(param):
-    raise param
+function bareRaise() {
+  throw new Error();
+}
 
+function raiseFrom(param) {
+  throw new Error("ValueError");
+}
 
-def bare_raise():
-    raise
-
-
-def raise_from(param):
-    raise ValueError() from param
-
-
-def python2_raise_not_supported():
-    raise Exception, "a message"
+function python2RaiseNotSupported() {
+  throw new Error("a message");
+}

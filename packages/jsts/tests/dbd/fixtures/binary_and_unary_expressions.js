@@ -1,156 +1,173 @@
-def binary(x):
-  x is None
-  x is not None
-  x == None
-  x != None
+function binary(x) {
+  x === null;
+  x !== null;
+  x == null;
+  x != null;
+}
 
-def unary(x):
-  not x
+function unary(x) {
+  !x;
+}
 
+function binaryAnd() {
+  let a = 1;
+  let b = 2;
+  if (a && b) {
+    let x = 1;
+  } else {
+    let x = 2;
+  }
+  let x = 3;
+}
 
-def binary_and():
-    a = 1
-    b = 2
-    if a and b:
-        x = 1
-    else:
-        x = 2
-    x = 3
+function binaryAndChained() {
+  let a = 1;
+  let b = 2;
+  let c = 3;
+  if (a && b && c) {
+    let x = 1;
+  } else {
+    let x = 2;
+  }
+  let x = 3;
+}
 
-def binary_and_chained():
-    a = 1
-    b = 2
-    c = 3
-    if a and b and c:
-        x = 1
-    else:
-        x = 2
-    x = 3
+function binaryOr() {
+  let a = 1;
+  let b = 2;
+  if (a || b) {
+    let x = 1;
+  } else {
+    let x = 2;
+  }
+  let x = 3;
+}
 
-def binary_or():
-    a = 1
-    b = 2
-    if a or b:
-        x = 1
-    else:
-        x = 2
-    x = 3
+function binaryOrChained() {
+  let a = 1;
+  let b = 2;
+  let c = 3;
+  if (a || b || c) {
+    let x = 1;
+  } else {
+    let x = 2;
+  }
+  let x = 3;
+}
 
-def binary_or_chained():
-    a = 1
-    b = 2
-    c = 3
-    if a or b or c:
-        x = 1
-    else:
-        x = 2
-    x = 3
+function binaryAndOr() {
+  let a = 1;
+  let b = 2;
+  let c = 3;
+  if (a && b || c) {
+    let x = 1;
+  } else {
+    let x = 2;
+  }
+  let x = 3;
+}
 
+function nestedIs(a, b) {
+  if (a === b && b === null) {
+    let x = 1;
+  } else {
+    let x = 2;
+  }
+  let x = 3;
+}
 
-def binary_and_or():
-    a = 1
-    b = 2
-    c = 3
-    if a and b or c:
-        x = 1
-    else:
-        x = 2
-    x = 3
+function nestedIs2(a, b, c, d) {
+  if (a === b && b === c && c === d) {
+    let x = 1;
+  } else {
+    let x = 2;
+  }
+  let x = 3;
+}
 
+function nestedIsNot(a, b) {
+  if (a === b && b !== null) {
+    let x = 1;
+  } else {
+    let x = 2;
+  }
+  let x = 3;
+}
 
-def nested_is(a, b):
-    if a is b is None:
-        x = 1
-    else:
-        x = 2
-    x = 3
+function nestedIsNot2(a, b, c) {
+  if (a !== b && b !== c) {
+    let x = 1;
+  } else {
+    let x = 2;
+  }
+  let x = 3;
+}
 
+function nestedIsAssignedToVariable(x, y, z) {
+  let a = x() === y();
+  let b = x() === y() && y() === z();
+}
 
-def nested_is_2(a, b, c, d):
-    if a is b is c is d:
-        x = 1
-    else:
-        x = 2
-    x = 3
+function plusOperator(x, y) {
+  let z = x + y;
+  return x + y + z;
+}
 
+function unpackingExpression(param) {
+  some_fn({ ...param });
+  some_fn(...param);
+  let d = { 'k1': 42, ...param };
+}
 
-def nested_is_not(a, b):
-    if a is b is not None:
-        x = 1
-    else:
-        x = 2
-    x = 3
+function binaryAndWithFunctionCall() {
+  let a = 1;
+  let b = 2;
+  if (a && unary(b)) {
+    let x = 1;
+  } else {
+    let x = 2;
+  }
+}
 
-def nested_is_not_2(a, b, c):
-    if a is not b is not c:
-        x = 1
-    else:
-        x = 2
-    x = 3
+function ifIn(d) {
+  if ('k1' in d) {
+    console.log("k");
+  }
+  if (!('k2' in d)) {
+    console.log("k2");
+  }
+}
 
+function binaryArithmeticOperators(x, y, z) {
+  // plus
+  let plus = x + y;
+  let plusMultiple = x + y + z;
 
-def nested_is_assigned_to_variable(x, y, z):
-    a = x() is y()
-    b = x() is y() is z()
+  // minus
+  let minus = x - y;
+  let minusMultiple = x - y - z;
 
+  // multiply
+  let multiply = x * y;
+  let multiplyMultiple = x * y * z;
 
-def plus_operator(x, y):
-    z = x + y
-    return x + y + z
+  // divide
+  let divide = x / y;
+  let divideMultiple = x / y / z;
 
+  // mod
+  let mod = x % y;
+  let modMultiple = x % y % z;
 
-def unpacking_expression(param):
-    some_fn(**param)
-    some_fn(*param)
-    d = { 'k1' : 42, **param}
+  // power
+  let power = x ** y;
+  let powerMultiple = x ** y ** z;
+}
 
-
-def binary_and_with_function_call():
-    a = 1
-    b = 2
-    if a and unary(b):
-        x = 1
-    else:
-        x = 2
-
-def if_in(d):
-    if 'k1' in d:
-        print("k")
-    if 'k2' not in d:
-        print("k2")
-
-
-def binary_arithmetic_operators(x, y, z):
-    #  plus
-    plus = x + y
-    plusMultiple = x + y + z
-
-    #  minus
-    minus = x - y
-    minusMultiple = x - y - z
-
-    # multiply
-    multiply = x * y
-    multiplyMultiple = x * y * z
-
-    # divide
-    divide = x / y
-    divideMultiple = x / y / z
-
-    # mod
-    mod = x % y
-    modMultiple = x % y % z
-
-    # power
-    power = x ** y
-    powerMultiple = x ** y ** z
-
-
-def mix_of_binary_arithmetic_operators():
-    mix = 5 * 1 + 2 * 3
-    mix2 = 3 * 6 / 3
-    mix3 = 9 % 5 ** 2
-    mix4 = 2 + 3 + 4 + 5 * 3 + 2 + 7
-
-
+function mixOfBinaryArithmeticOperators() {
+  let mix = 5 * 1 + 2 * 3;
+  let mix2 = 3 * 6 / 3;
+  let mix3 = 9 % 5 ** 2;
+  let mix4 = 2 + 3 + 4 + 5 * 3 + 2 + 7;
+}
 

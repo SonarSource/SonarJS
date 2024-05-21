@@ -1,21 +1,27 @@
-def gcd(x, y):
-    pass
+// JavaScript
 
-x = 92
-y = 34
-z = gcd(x, y)
-assert z == 2
+function gcd(x, y) {
+  // Implementation of greatest common divisor
+}
 
-class Rational:
-    def __init__(self, nom, denom):
-        self.nom = nom
-        self.denom = denom
+let x = 92;
+let y = 34;
+let z = gcd(x, y);
+console.assert(z === 2);
 
-rational = Rational(x, y)
+class Rational {
+  constructor(nom, denom) {
+    this.nom = nom;
+    this.denom = denom;
+  }
+}
 
-def simplify(rational):
-    d = gcd(rational.nom, rational.denom)
-    return Rational(rational.nom / d, rational.denom / d)
+let rational = new Rational(x, y);
 
-simplified = simplify(rational)
-assert gcd(simplified.denom, simplified.nom) == 1
+function simplify(rational) {
+  let d = gcd(rational.nom, rational.denom);
+  return new Rational(rational.nom / d, rational.denom / d);
+}
+
+let simplified = simplify(rational);
+console.assert(gcd(simplified.denom, simplified.nom) === 1);

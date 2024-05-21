@@ -1,38 +1,36 @@
-class A:
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
+class A {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+  }
+}
 
+class B {
+  constructor(parent = null) {
+    this.parent = parent;
+  }
+}
 
-class B:
-    def __init__(self, parent=None):
-        self.parent = parent
+function constructor_call_with_literals() {
+  return new A(42, 666);
+}
 
+function constructor_call_passing_parameters(x, y) {
+  return new A(x, y);
+}
 
-def constructor_call_with_literals():
-    return A(42, 666)
+function constructor_call_missing_one_argument(x) {
+  return new A(x);
+}
 
+function constructor_call_without_arguments() {
+  return new A();
+}
 
-def constructor_call_passing_parameters(x: int, y: int):
-    return A(x, y)
+function constructor_call_with_default_values() {
+  let b = new B();
+}
 
-
-def constructor_call_missing_one_argument(x: int):
-    return A(x)
-
-
-def constructor_call_without_arguments():
-    return A()
-
-
-def constructor_call_with_keyword_arguments():
-    a = A(x=42, y=43)
-    a = A(y=43, x=42)
-    a = A(x=42)
-    a = A(y=43)
-
-def constructor_call_with_default_values():
-    b = B()
-
-def unknown_constructor_call():
-    c = C()
+function unknown_constructor_call() {
+  let c = new C();
+}

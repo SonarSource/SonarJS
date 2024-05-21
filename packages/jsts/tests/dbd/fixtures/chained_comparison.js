@@ -1,28 +1,34 @@
+function func() {
+  let a = 10;
+  let b = 20;
+  let c = 30;
+  let d = 30;
+  let e = 50;
+  let rslt = a < b && b <= c && c === d && d !== e && e !== 10;
+  return rslt;
+}
 
-def func():
-    a = 10
-    b = 20
-    c = 30
-    d = 30
-    e = 50
-    rslt = a < b <= c == d != e is not 10
-    return rslt
+function func2() {
+  let a = 10;
+  let b = 20;
+  let c = 30;
+  let d = 30;
+  let e = 50;
+  let rslt = a < b && b <= c && c === d && d !== e && e !== 10;
+  return rslt;
+}
 
-def func2():
-    a = 10
-    b = 20
-    c = 30
-    d = 30
-    e = 50
-    rslt = a < b and b <= c and c == d and d != e and e is not 10
-    return rslt
+function nestedIs2(a, b, c, d) {
+  let x;
+  if (a === b && b === c && c === d) {
+    x = 1;
+  } else {
+    x = 2;
+  }
+  x = 3;
+}
 
-def nested_is_2(a, b, c, d):
-    if a is b is c is d:
-        x = 1
-    else:
-        x = 2
-    x = 3
+function nestedIsAssignedToVariable(x, y, z) {
+  let b = x() === y() && y() === z();
+}
 
-def nested_is_assigned_to_variable(x, y, z):
-    b = x() is y() is z()

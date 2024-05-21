@@ -1,11 +1,15 @@
-def foo():
-    return 42
+function foo() {
+  return 42;
+}
 
-def bar():
-    return None
+function bar() {
+  return null;
+}
 
-def empty_return():
-    return
+function empty_return() {
+  return;
+}
 
-def return_multiple():
-    return 1,2
+function return_multiple() {
+  return [1, 2];
+}
