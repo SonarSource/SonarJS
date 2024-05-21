@@ -23,18 +23,14 @@ import { TSESTree } from '@typescript-eslint/utils';
 import { ScopeTranslator } from './scope-translator';
 import { handleStatement } from './statements';
 
-function returnWithMetadata(scopeTranslator: ScopeTranslator): [FunctionInfo, string[]] {
+function returnWithMetadata(scopeTranslator: ScopeTranslator): [FunctionInfo, string[], string[]] {
   const functionInfo = scopeTranslator.finish();
   const parentSignature = functionInfo.functionId!.signature!;
   const metadataCalls = [parentSignature, ...scopeTranslator.methodCalls];
-  return [functionInfo, metadataCalls];
+  return [functionInfo, metadataCalls, [...scopeTranslator.methodVariables]];
 }
 
-export function translateTopLevel(
-  filename: string,
-  root: string,
-  node: TSESTree.Program,
-): [FunctionInfo, string[]] | null {
+export function translateTopLevel(filename: string, root: string, node: TSESTree.Program) {
   const scopeTranslator = new ScopeTranslator(filename, root, node);
   node.body.forEach(param => {
     if (param.type === TSESTree.AST_NODE_TYPES.FunctionDeclaration) {
@@ -53,7 +49,7 @@ export function translateMethod(
   filename: string,
   root: string,
   node: TSESTree.FunctionDeclaration,
-): [FunctionInfo, Array<string>] {
+) {
   const scopeTranslator = new ScopeTranslator(filename, root, node);
 
   node.params.forEach(param => scopeTranslator.addParameter(param));

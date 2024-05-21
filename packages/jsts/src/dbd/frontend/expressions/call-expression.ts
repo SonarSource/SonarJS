@@ -30,6 +30,7 @@ export function handleCallExpression(
   let calleeValueId;
   let simpleName;
   let calleObjectSimpleName;
+  let isFunctionRef = false;
   switch (callExpression.callee.type) {
     case TSESTree.AST_NODE_TYPES.MemberExpression:
       calleeValueId = handleMemberExpression(scopeTranslator, callExpression.callee);
@@ -45,6 +46,9 @@ export function handleCallExpression(
       break;
     case TSESTree.AST_NODE_TYPES.Identifier:
       simpleName = callExpression.callee.name;
+      if (scopeTranslator.variableMap.has(simpleName)) {
+        isFunctionRef = true;
+      }
       break;
     default:
       throw new Error(`Unsupported call expression callee ${callExpression.callee.type}`);
@@ -65,7 +69,7 @@ export function handleCallExpression(
   scopeTranslator.addCallExpression(
     getLocation(callExpression),
     resultValueId,
-    scopeTranslator.getFunctionId(simpleName),
+    scopeTranslator.getFunctionId(simpleName, isFunctionRef),
     args,
     undefined,
     undefined,

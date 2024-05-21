@@ -26,6 +26,7 @@ message FunctionId {
   optional TypeInfo return_type = 3;
   bool isVirtual = 4;
   bool is_standard_library_function = 5;
+  bool isFunctionRef = 6;
 }
 
 message BasicBlock {
