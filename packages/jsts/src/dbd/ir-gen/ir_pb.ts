@@ -166,6 +166,11 @@ export class FunctionId extends Message<FunctionId> {
    */
   isStandardLibraryFunction = false;
 
+  /**
+   * @generated from field: bool isFunctionRef = 6;
+   */
+  isFunctionRef = false;
+
   constructor(data?: PartialMessage<FunctionId>) {
     super();
     proto3.util.initPartial(data, this);
@@ -179,6 +184,7 @@ export class FunctionId extends Message<FunctionId> {
     { no: 3, name: 'return_type', kind: 'message', T: TypeInfo, opt: true },
     { no: 4, name: 'isVirtual', kind: 'scalar', T: 8 /* ScalarType.BOOL */ },
     { no: 5, name: 'is_standard_library_function', kind: 'scalar', T: 8 /* ScalarType.BOOL */ },
+    { no: 6, name: 'isFunctionRef', kind: 'scalar', T: 8 /* ScalarType.BOOL */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): FunctionId {

@@ -43,6 +43,7 @@ export class ScopeTranslator {
   hasReturnInstruction = false;
   signaturePrefix: string;
   methodCalls: Set<string> = new Set<string>();
+  methodVariables: Set<string> = new Set<string>();
   parameters: Parameter[] = [];
 
   constructor(
@@ -93,8 +94,12 @@ export class ScopeTranslator {
     return `${this.signaturePrefix}.${simpleName}`;
   }
 
-  getFunctionId(simpleName: string) {
-    return new FunctionId({ simpleName, signature: this.getFunctionSignature(simpleName) });
+  getFunctionId(simpleName: string, isFunctionRef?: boolean) {
+    return new FunctionId({
+      simpleName,
+      signature: this.getFunctionSignature(simpleName),
+      isFunctionRef,
+    });
   }
 
   addParameter(param: TSESTree.Parameter) {
@@ -140,7 +145,9 @@ export class ScopeTranslator {
       staticType,
       isInstanceMethodCall,
     });
-    if (!isBuiltinFunction(functionId.simpleName)) {
+    if (functionId.isFunctionRef) {
+      this.methodVariables.add(this.getFunctionSignature(functionId.simpleName));
+    } else if (!isBuiltinFunction(functionId.simpleName)) {
       this.methodCalls.add(this.getFunctionSignature(functionId.simpleName));
     }
     this.basicBlock.instructions.push(
