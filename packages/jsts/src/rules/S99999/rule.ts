@@ -63,18 +63,26 @@ export const rule: Rule.RuleModule = {
 
     return {
       Program(node: estree.Node) {
-        const result = translateTopLevel(context.filename, root, node as TSESTree.Program);
-        if (result) {
-          saveResults(...result, 'main');
+        try {
+          const result = translateTopLevel(context.filename, root, node as TSESTree.Program);
+          if (result) {
+            saveResults(...result, 'main');
+          }
+        } catch (err) {
+          console.log('Error processing top level:', node, err);
         }
       },
       'FunctionDeclaration, FunctionExpression, ArrowFunctionExpression'(node: estree.Node) {
-        const result = translateMethod(
-          context.filename,
-          root,
-          node as TSESTree.FunctionDeclaration,
-        );
-        saveResults(...result, String(functionNo));
+        try {
+          const result = translateMethod(
+            context.filename,
+            root,
+            node as TSESTree.FunctionDeclaration,
+          );
+          saveResults(...result, String(functionNo));
+        } catch (err) {
+          console.log('Error processing node:', node, err);
+        }
         functionNo++;
       },
       'Program:exit'() {
