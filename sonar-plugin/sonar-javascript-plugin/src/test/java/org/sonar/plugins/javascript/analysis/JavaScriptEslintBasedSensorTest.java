@@ -29,6 +29,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.plugins.javascript.analysis.JsTsSensorTest.PLUGIN_VERSION;
 
 import com.google.gson.Gson;
 import java.io.File;
@@ -131,6 +132,8 @@ class JavaScriptEslintBasedSensorTest {
 
     // reset is required as this static value might be set by another test
     PluginInfo.setUcfgPluginVersion(null);
+    // this is required to avoid the test to use real plugin version from the manifest
+    PluginInfo.setVersion(PLUGIN_VERSION);
 
     // Avoid shortpaths on windows
     baseDir = baseDir.toRealPath();

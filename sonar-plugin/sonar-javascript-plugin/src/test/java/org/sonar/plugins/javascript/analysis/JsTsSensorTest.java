@@ -102,6 +102,7 @@ import org.sonar.plugins.javascript.bridge.TsConfigFile;
 class JsTsSensorTest {
 
   private static final String ESLINT_BASED_RULE = "S3923";
+  public static final String PLUGIN_VERSION = "1.0";
 
   @RegisterExtension
   public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
@@ -135,6 +136,8 @@ class JsTsSensorTest {
 
     // reset is required as this static value might be set by another test
     PluginInfo.setUcfgPluginVersion(null);
+    // this is required to avoid the test to use real plugin version from the manifest
+    PluginInfo.setVersion(PLUGIN_VERSION);
     tempFolder = new DefaultTempFolder(tempDir.toFile(), true);
     when(bridgeServerMock.isAlive()).thenReturn(true);
     when(bridgeServerMock.analyzeTypeScript(any())).thenReturn(new AnalysisResponse());

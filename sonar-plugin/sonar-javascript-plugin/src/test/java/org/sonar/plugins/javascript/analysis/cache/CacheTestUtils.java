@@ -77,28 +77,28 @@ public class CacheTestUtils {
     context.setCanSkipUnchangedFiles(true);
 
     var cache = context.previousCache();
-    when(cache.contains("jssecurity:ucfgs:JSON:moduleKey:" + filePath)).thenReturn(true);
-    when(cache.read("jssecurity:ucfgs:JSON:moduleKey:" + filePath))
+    when(cache.contains("jssecurity:ucfgs:JSON:1.0:moduleKey:" + filePath)).thenReturn(true);
+    when(cache.read("jssecurity:ucfgs:JSON:1.0:moduleKey:" + filePath))
       .thenReturn(new ByteArrayInputStream("{\"fileSizes\":[]}".getBytes(StandardCharsets.UTF_8)));
-    when(cache.contains("jssecurity:ucfgs:SEQ:moduleKey:" + filePath)).thenReturn(true);
-    when(cache.read("jssecurity:ucfgs:SEQ:moduleKey:" + filePath))
+    when(cache.contains("jssecurity:ucfgs:SEQ:1.0:moduleKey:" + filePath)).thenReturn(true);
+    when(cache.read("jssecurity:ucfgs:SEQ:1.0:moduleKey:" + filePath))
       .thenReturn(new ByteArrayInputStream(new byte[0]));
 
-    when(cache.contains("js:cpd:DATA:moduleKey:" + filePath)).thenReturn(true);
-    when(cache.contains("js:cpd:STRING_TABLE:moduleKey:" + filePath)).thenReturn(true);
+    when(cache.contains("js:cpd:DATA:1.0:moduleKey:" + filePath)).thenReturn(true);
+    when(cache.contains("js:cpd:STRING_TABLE:1.0:moduleKey:" + filePath)).thenReturn(true);
 
     try {
       var result = getSerializedCpdTokens(getCpdTokens());
-      when(cache.read("js:cpd:DATA:moduleKey:" + filePath))
+      when(cache.read("js:cpd:DATA:1.0:moduleKey:" + filePath))
         .thenReturn(new ByteArrayInputStream(result.getData()));
-      when(cache.read("js:cpd:STRING_TABLE:moduleKey:" + filePath))
+      when(cache.read("js:cpd:STRING_TABLE:1.0:moduleKey:" + filePath))
         .thenReturn(new ByteArrayInputStream(result.getStringTable()));
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }
 
-    when(cache.contains("js:filemetadata:moduleKey:" + filePath)).thenReturn(true);
-    when(cache.read("js:filemetadata:moduleKey:" + filePath))
+    when(cache.contains("js:filemetadata:1.0:moduleKey:" + filePath)).thenReturn(true);
+    when(cache.read("js:filemetadata:1.0:moduleKey:" + filePath))
       .thenReturn(
         inputStream(
           "{\"size\":34,\"hash\":[-58,-66,77,-102,-13,-49,96,126,-125,-65,-111,109,-34,85,27,97,46,-58,-76,113," +

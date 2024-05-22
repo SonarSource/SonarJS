@@ -20,6 +20,7 @@
 package org.sonar.plugins.javascript.bridge;
 
 import java.util.Optional;
+import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +36,7 @@ public class PluginInfo {
   public static synchronized String getVersion() {
     if (version == null) {
       version = PluginInfo.class.getPackage().getImplementationVersion();
+      LOG.debug("Plugin version: [{}]", version);
     }
     return version;
   }
@@ -43,8 +45,17 @@ public class PluginInfo {
     return Optional.ofNullable(ucfgPluginVersion);
   }
 
-  public static void setUcfgPluginVersion(String ucfgPluginVersion) {
+  public static void setUcfgPluginVersion(@Nullable String ucfgPluginVersion) {
     LOG.debug("Security Frontend version is available: [{}]", ucfgPluginVersion);
     PluginInfo.ucfgPluginVersion = ucfgPluginVersion;
+  }
+
+  /**
+   * Used by tests to set a specific version. Real version is read from manifest file in the jar.
+   *
+   * @param version version to set
+   */
+  public static synchronized void setVersion(@Nullable String version) {
+    PluginInfo.version = version;
   }
 }
