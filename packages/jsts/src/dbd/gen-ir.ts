@@ -9,7 +9,7 @@ program
   .option('-S, --string <string...>', 'String to parse')
   .option('-R, --root <string...>', 'Project root path')
   .option('-P, --print', 'Print instead of saving to disk')
-  .option('-O, --output', 'Path to save output files');
+  .option('-O, --output <path>', 'Path to save output files');
 
 const options = program.parse().opts();
 
