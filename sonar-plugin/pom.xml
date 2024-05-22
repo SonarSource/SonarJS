@@ -23,8 +23,10 @@
 
 
   <modules>
+    <module>bridge</module>
     <module>css</module>
     <module>javascript-checks</module>
+    <module>shared</module>
     <module>sonar-javascript-plugin</module>
   </modules>
 

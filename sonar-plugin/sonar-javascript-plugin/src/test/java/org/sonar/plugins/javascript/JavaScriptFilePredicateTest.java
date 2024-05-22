@@ -20,7 +20,7 @@
 package org.sonar.plugins.javascript;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.plugins.javascript.JavaScriptFilePredicate.isTypeScriptFile;
+import static org.sonar.plugins.javascript.bridge.JavaScriptFilePredicate.isTypeScriptFile;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,6 +36,7 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
+import org.sonar.plugins.javascript.bridge.JavaScriptFilePredicate;
 
 class JavaScriptFilePredicateTest {
 

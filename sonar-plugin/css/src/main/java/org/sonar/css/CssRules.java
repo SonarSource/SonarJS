@@ -56,6 +56,7 @@ import org.sonar.css.rules.SelectorPseudoElementNoUnknown;
 import org.sonar.css.rules.SelectorTypeNoUnknown;
 import org.sonar.css.rules.StringNoNewline;
 import org.sonar.css.rules.UnitNoUnknown;
+import org.sonar.plugins.javascript.bridge.StylelintRule;
 
 public class CssRules {
 
