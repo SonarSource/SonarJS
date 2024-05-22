@@ -1,36 +1,27 @@
-import contextlib
+class A {
+  constructor() {
+  }
 
-class A:
-    def __init__(self):
-        pass
+  foo() {
+    return 42;
+  }
 
-    def foo(self):
-        return 42
+  static static_method(x, y) {
+  }
 
-    @staticmethod
-    def static_method(x, y):
-        ...
+  property_method(x, y) {
+  }
 
-    @property
-    def property_method(x, y):
-       ...
+  static class_method() {
+  }
 
-    @contextlib.contextmanager
-    def contextmanager_method(x, y):
-       ...
+  some_method() {
+  }
+}
 
-    @classmethod
-    def class_method(cls):
-        ...
-
-    @decA
-    @decB
-    def some_method(self):
-        ...
-
-
-def bound_methods():
-    a = A()
-    other(a.foo)
-    other(a.static_method)
-    other(a.prop)
+function bound_methods() {
+  let a = new A();
+  other(a.foo);
+  other(A.static_method);
+  other(a.prop);
+}

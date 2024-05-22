@@ -1,6 +1,0 @@
-nested_functions_of_skipped_functions.foo.wrapped () {
-bb0:
-  #1 = call #unknown-expression#()
-  #2 = call len(#1):int
-  return null#0
-}

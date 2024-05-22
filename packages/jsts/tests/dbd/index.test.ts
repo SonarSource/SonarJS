@@ -20,8 +20,10 @@
 import path from 'path';
 import { generateIR, proto2text } from '../../src/dbd/helpers';
 import { toUnixPath } from '@sonar/shared';
+import fs from 'fs';
 
 const baseDir = path.join(__dirname, 'fixtures');
+const files = fs.readdirSync(baseDir).filter(file => file.endsWith('.js'));
 
 describe('DBD IR generation', () => {
   it('DBD rule should create correct IR', async () => {
@@ -49,5 +51,10 @@ bb0:
   return null#0
 }
 `);
+  });
+
+  it.each(files)('should process %s', async filePath => {
+    const outDir = path.join(__dirname, 'ir', 'python');
+    await generateIR(path.join(baseDir, filePath), outDir);
   });
 });

@@ -1,36 +1,36 @@
-def for_loop(my_list):
-    for i in my_list:
-        print(i)
+function forLoop(myList) {
+  for (let i of myList) {
+    console.log(i);
+  }
+}
 
+function forLoopReturnInBody(myList) {
+  for (let i of myList) {
+    console.log(i);
+    return;
+  }
+}
 
-def for_loop_return_in_body(my_list):
-    for i in my_list:
-        print(i)
-        return
+function forLoopUnknownIterable() {
+  for (let i of unknown) {
+    console.log(i);
+  }
+}
 
+function forLoopWithMultipleTarget(myList) {
+  for (let [i, j] of myList) {
+    console.log(i);
+  }
+}
 
-def for_loop_unknown_iterable():
-    for i in unknown:
-        print(i)
+function forLoopWithMultipleIterable(myList1, myList2) {
+  for (let i of [myList1, myList2]) {
+    console.log(i);
+  }
+}
 
-
-def for_loop_with_multiple_target(my_list):
-    for i, j in my_list:
-        print(i)
-
-
-def for_loop_with_multiple_iterable(my_list_1, my_list_2):
-    for i in my_list_1, my_list_2:
-        print(i)
-
-
-def for_loop_with_target_different_than_name(obj, my_list):
-    for obj.foo in my_list:
-        print(obj.foo)
-
-
-def for_loop_with_else(my_list):
-    for i in my_list:
-        print(i)
-    else:
-        print(42)
+function forLoopWithTargetDifferentThanName(obj, myList) {
+  for (obj.foo of myList) {
+    console.log(obj.foo);
+  }
+}

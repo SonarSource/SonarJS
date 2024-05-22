@@ -1,63 +1,56 @@
-def del_variable():
-    variable = 5
-    del variable
+// Delete a variable
+function deleteVariable() {
+  let variable = 5;
+  delete variable;
+}
 
-def del_tuple():
-    tuple = ('test', 30)
-    del tuple
+// Delete a tuple
+function deleteArray() {
+  let array = ['test', 30];
+  delete array;
+}
 
-def del_list():
-    list = [1, 2]
-    del list
+// Delete a dictionary
+function deleteDictionary() {
+  let dict = {name: 'Bob'};
+  delete dict;
+}
 
-def del_dictionary():
-    dict = {'name':'Bob'}
-    del dict
+// Delete a parameter
+function deleteParameter(x) {
+  delete x;
+}
 
-def del_parameter(x):
-    del x
+// Delete an object
+function deleteObject() {
+  class A {}
+  let a = new A();
+  delete a;
+}
 
-def del_object():
-    class A:...
-    a = A()
-    del a
+// Delete a class
+function deleteClass() {
+  class A {}
+  delete A;
+}
 
-def del_class():
-    class A:...
-    del A
+// Delete elements from a list
+function deleteListElement() {
+  let l1 = [1, 2];
+  delete l1[0];
+}
 
-def del_list_element():
-    l1 = [1, 2]
-    del l1[0]
-    l2 = [1, 2]
-    del l2[-1]
-    l3 = [1, 2]
-    del l3[+1]
-    l4 = [1, 2, 3, 4]
-    del l4[0:2]
-    l5 = [1, 2, 3, 4]
-    del l5[-1:-3]
-    l6 = [1, 2, 3, 4]
-    del l6[:2]
-    l7 = [1, 2, 3]
-    del l7[:]
-    l8 = [1, 2, 3, 4, 5, 6]
-    del l8[1:4:2]
-    l9 = [1, 2, 3, 4, 5, 6]
-    del l9[::2]
-    l10 = [1, 2, 3]
-    del l10[0], l10[1]
 
-def del_list_unary_op():
-    l = [1, 2, 3]
-    del l[-1]
+// Delete an element from a list using binary operator
+function deleteListBinaryOp() {
+  let l1 = [1, 2, 3];
+  delete l1[1+1];
+  let l2 = [1, 2, 3];
+  delete l2[1-1];
+}
 
-def del_list_binary_op():
-    l1 = [1, 2, 3]
-    del l1[1+1]
-    l2 = [1, 2, 3]
-    del l2[1-1]
-
-def del_dict_element():
-    person = {'name':'Bob', 'age':20}
-    del person['age']
+// Delete an element from a dictionary
+function deleteDictElement() {
+  let person = {name: 'Bob', age: 20};
+  delete person.age;
+}

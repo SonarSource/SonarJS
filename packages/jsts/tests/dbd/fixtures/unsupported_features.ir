@@ -1,4 +1,0 @@
-unsupported_features.pass_stmt () {
-bb0:
-  return null#0
-}

@@ -1,26 +1,29 @@
-def outer_function():
-    outer_var = 1
-    another_outer_var = 2
-    def inner_function():
-        inner_var = outer_var
-        return inner_var
-    inner_function()
+function outerFunction() {
+  let outerVar = 1;
+  let anotherOuterVar = 2;
+  function innerFunction() {
+    let innerVar = outerVar;
+    return innerVar;
+  }
+  innerFunction();
+}
 
-class Box:
-    def __init__(self):
-        self.x = 0
+class Box {
+  constructor() {
+    this.x = 0;
+  }
+}
 
-a = 3
-b = Box()
-c = 2
+let a = 3;
+let b = new Box();
+let c = 2;
 
-# Only a and b should be escaped, and only once
-def test_closure_variable_escape():
-    global a
-    a = 3
-    b.x = 2
-    b.x = 4
-    c = 4
-    outer_function()
-    d = Box()
+function testClosureVariableEscape() {
+  a = 3;
+  b.x = 2;
+  b.x = 4;
+  let c = 4;
+  outerFunction();
+  let d = new Box();
+}
 

@@ -1,16 +1,23 @@
-class Animal:
-    def speak(self):
-        print("Animal Speaking")
+class Animal {
+  speak() {
+    console.log("Animal Speaking");
+  }
+}
 
-class Dog(Animal):
-    def bark(self):
-        self.speak()
-        print("dog barking")
-    def speak(self):
-        print("Dog Speaking")
+class Dog extends Animal {
+  bark() {
+    this.speak();
+    console.log("dog barking");
+  }
+  speak() {
+    console.log("Dog Speaking");
+  }
+}
 
-class Main:
-    def main(self):
-        d = Dog()
-        d.bark()
-        d.speak()
+class Main {
+  main() {
+    let d = new Dog();
+    d.bark();
+    d.speak();
+  }
+}
