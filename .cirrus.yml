@@ -36,6 +36,19 @@ maven_cache_definition: &MAVEN_CACHE
     folder: ${CIRRUS_WORKING_DIR}/.m2/repository
     fingerprint_script: cat **/pom.xml
 
+orchestrator_cache_preparation_definition: &ORCHESTRATOR_CACHE
+  set_orchestrator_home_script: |
+    export TODAY=$(date '+%Y-%m-%d')
+    echo "TODAY=${TODAY}" >> $CIRRUS_ENV
+    echo "ORCHESTRATOR_HOME=${CIRRUS_WORKING_DIR}/orchestrator/${TODAY}" >> $CIRRUS_ENV
+  mkdir_orchestrator_home_script: |
+    echo "Create dir ${ORCHESTRATOR_HOME} if needed"
+    mkdir -p ${ORCHESTRATOR_HOME}
+  orchestrator_cache:
+    folder: ${ORCHESTRATOR_HOME}
+    fingerprint_script: echo ${TODAY}
+    reupload_on_changes: 'true'
+
 nodejs_runtimes_cache_definition: &RUNTIME_CACHE
   runtime_cache:
     folder: tools/fetch-node/downloads/
@@ -88,6 +101,7 @@ plugin_qa_body: &PLUGIN_QA_BODY
     CIRRUS_CLONE_DEPTH: 10
     SONARSOURCE_QA: true
   <<: *MAVEN_CACHE
+  <<: *ORCHESTRATOR_CACHE
   qa_script:
     - source cirrus-env QA
     - source set_maven_build_version $BUILD_NUMBER
@@ -220,6 +234,7 @@ plugin_qa_win_task:
       - TEST: 'CoverageTest,TypeScriptAnalysisTest,EslintBasedRulesTest,PRAnalysisTest,TypeCheckerConfigTest,VueAnalysisTest'
   <<: *WIN_SSD_AND_CLONE
   <<: *MAVEN_CACHE
+  <<: *ORCHESTRATOR_CACHE
   qa_script:
     - source /c/buildTools-docker/bin/cirrus-env QA
     - source /c/buildTools-docker/bin/set_maven_build_version $BUILD_NUMBER
@@ -284,6 +299,7 @@ css_ruling_task:
     CIRRUS_CLONE_DEPTH: 10
     SONARSOURCE_QA: true
   <<: *MAVEN_CACHE
+  <<: *ORCHESTRATOR_CACHE
   submodules_script:
     - git submodule update --init
   ruling_script:
@@ -308,6 +324,7 @@ perf_task:
     CIRRUS_CLONE_DEPTH: 10
     SONARSOURCE_QA: true
   <<: *MAVEN_CACHE
+  <<: *ORCHESTRATOR_CACHE
   submodules_script:
     - git submodule update --init
   perf_script:
