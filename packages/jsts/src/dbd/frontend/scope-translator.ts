@@ -45,6 +45,7 @@ export class ScopeTranslator {
   methodCalls: Set<string> = new Set<string>();
   methodVariables: Set<string> = new Set<string>();
   parameters: Parameter[] = [];
+  hasHOFCall: boolean = false;
 
   constructor(
     public filename: string,
@@ -147,6 +148,7 @@ export class ScopeTranslator {
     });
     if (functionId.isFunctionRef) {
       this.methodVariables.add(this.getFunctionSignature(functionId.simpleName));
+      this.hasHOFCall = true;
     } else if (!isBuiltinFunction(functionId.simpleName)) {
       this.methodCalls.add(this.getFunctionSignature(functionId.simpleName));
     }

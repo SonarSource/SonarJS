@@ -47,7 +47,13 @@ export const rule: Rule.RuleModule = {
     }
 
     let functionNo = 0;
-    const saveResults = (result: FunctionInfo, methods: string[], functionIdentifier: string) => {
+    const saveResults = (
+      result: FunctionInfo,
+      methods: string[],
+      methodVariables: string[],
+      hasOfCall: boolean,
+      functionIdentifier: string,
+    ) => {
       const irt = functionInto2Text(result);
       if (print) {
         console.log(irt);
@@ -55,8 +61,15 @@ export const rule: Rule.RuleModule = {
       }
       const content = JSON.stringify(result.toJson({ emitDefaultValues: true }), null, 2);
       const fileNameBase = join(outputDir, `ir${i}_${functionIdentifier}`);
+      let metadataContent = [...methods].join('\n');
+      if (hasOfCall) {
+        metadataContent += `\n****\nhasHOFCalls\n`;
+      }
+      if (methodVariables.length > 0) {
+        metadataContent += `\n----\n` + methodVariables.join('\n');
+      }
       writeFileSync(`${fileNameBase}.json`, content, { flag: 'w' });
-      writeFileSync(`${fileNameBase}.metadata`, [...methods].join('\n'), { flag: 'w' });
+      writeFileSync(`${fileNameBase}.metadata`, metadataContent, { flag: 'w' });
       writeFileSync(`${fileNameBase}.ir`, result.toBinary(), { flag: 'w' });
       irts.push(irt);
     };
