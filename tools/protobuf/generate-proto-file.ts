@@ -1,11 +1,16 @@
-const packageJson = require('../../package.json');
-const typesVersion = packageJson.devDependencies['@types/estree'];
-
 import ts from 'typescript';
 import fs from 'node:fs';
+import path from 'node:path';
 
-const path = '../../node_modules/@types/estree/index.d.ts';
-const file = ts.createSourceFile(path, fs.readFileSync(path, 'utf-8'), ts.ScriptTarget.ESNext);
+const packageJson = require(path.join('..', '..', 'package.json'));
+const typesVersion = packageJson.devDependencies['@types/estree'];
+
+const typesPath = path.join('..', '..', 'node_modules', '@types', 'estree', 'index.d.ts');
+const file = ts.createSourceFile(
+  typesPath,
+  fs.readFileSync(typesPath, 'utf-8'),
+  ts.ScriptTarget.ESNext,
+);
 
 for (const statement of file.statements) {
   // if (isTypeScriptDeclaration(statement)) {
