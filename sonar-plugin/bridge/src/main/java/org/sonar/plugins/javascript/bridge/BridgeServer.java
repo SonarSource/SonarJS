@@ -78,6 +78,17 @@ public interface BridgeServer extends Startable {
     public AnalysisResponse() {
       this(null, List.of(), List.of(), List.of(), new Metrics(), List.of(), List.of());
     }
+
+    public AnalysisResponse(@Nullable ParsingError parsingError, @Nullable List<Issue> issues, @Nullable List<Highlight> highlights,
+                            @Nullable List<HighlightedSymbol> highlightedSymbols, @Nullable Metrics metrics, @Nullable List<CpdToken> cpdTokens, List<String> ucfgPaths) {
+      this.parsingError = parsingError;
+      this.issues = issues != null ? issues : List.of();
+      this.highlights = highlights != null ? highlights : List.of();
+      this.highlightedSymbols = highlightedSymbols != null ? highlightedSymbols : List.of();
+      this.metrics = metrics != null ? metrics : new Metrics();
+      this.cpdTokens = cpdTokens != null ? cpdTokens : List.of();
+      this.ucfgPaths = ucfgPaths;
+    }
   }
 
   record ParsingError(String message, Integer line, ParsingErrorCode code) {
