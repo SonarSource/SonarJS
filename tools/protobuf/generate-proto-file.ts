@@ -234,7 +234,7 @@ function translateToProtoFormat(messages: Record<string, ProtobufMessage>): stri
         lines.push(`  oneof ${field.name} {`);
         for (const oneOfField of field.fieldValue.oneOfElements) {
           lines.push(
-            `    ${(oneOfField.fieldValue as ProtobufPrimitiveFieldValue).type} ${oneOfField.name} = ${index};`,
+            `    ${(oneOfField.fieldValue as ProtobufPrimitiveFieldValue).type} ${field.name}_${oneOfField.name} = ${index};`,
           );
           index++;
         }

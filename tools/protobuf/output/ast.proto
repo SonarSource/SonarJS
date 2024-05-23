@@ -6,10 +6,10 @@ message Program {
 }
 message ModuleDeclaration {
   oneof ModuleDeclaration {
-    ImportDeclaration importDeclaration = 1;
-    ExportNamedDeclaration exportNamedDeclaration = 2;
-    ExportDefaultDeclaration exportDefaultDeclaration = 3;
-    ExportAllDeclaration exportAllDeclaration = 4;
+    ImportDeclaration ModuleDeclaration_importDeclaration = 1;
+    ExportNamedDeclaration ModuleDeclaration_exportNamedDeclaration = 2;
+    ExportDefaultDeclaration ModuleDeclaration_exportDefaultDeclaration = 3;
+    ExportAllDeclaration ModuleDeclaration_exportAllDeclaration = 4;
   }
 }
 message ExportAllDeclaration {
@@ -18,8 +18,8 @@ message ExportAllDeclaration {
 }
 message Literal {
   oneof Literal {
-    SimpleLiteral simpleLiteral = 1;
-    BigIntLiteral bigIntLiteral = 2;
+    SimpleLiteral Literal_simpleLiteral = 1;
+    BigIntLiteral Literal_bigIntLiteral = 2;
   }
 }
 message BigIntLiteral {
@@ -29,9 +29,9 @@ message BigIntLiteral {
 }
 message SimpleLiteral {
   oneof value {
-    string string = 1;
-    bool boolean = 2;
-    int32 number = 3;
+    string value_string = 1;
+    bool value_boolean = 2;
+    int32 value_number = 3;
   }
   string raw = 4;
 }
@@ -40,38 +40,38 @@ message Identifier {
 }
 message ExportDefaultDeclaration {
   oneof declaration {
-    MaybeNamedFunctionDeclaration maybeNamedFunctionDeclaration = 1;
-    MaybeNamedClassDeclaration maybeNamedClassDeclaration = 2;
-    Expression expression = 3;
+    MaybeNamedFunctionDeclaration declaration_maybeNamedFunctionDeclaration = 1;
+    MaybeNamedClassDeclaration declaration_maybeNamedClassDeclaration = 2;
+    Expression declaration_expression = 3;
   }
 }
 message Expression {
   oneof Expression {
-    ArrayExpression arrayExpression = 1;
-    ArrowFunctionExpression arrowFunctionExpression = 2;
-    AssignmentExpression assignmentExpression = 3;
-    AwaitExpression awaitExpression = 4;
-    BinaryExpression binaryExpression = 5;
-    CallExpression callExpression = 6;
-    ChainExpression chainExpression = 7;
-    ClassExpression classExpression = 8;
-    ConditionalExpression conditionalExpression = 9;
-    FunctionExpression functionExpression = 10;
-    Identifier identifier = 11;
-    ImportExpression importExpression = 12;
-    Literal literal = 13;
-    LogicalExpression logicalExpression = 14;
-    MemberExpression memberExpression = 15;
-    MetaProperty metaProperty = 16;
-    NewExpression newExpression = 17;
-    ObjectExpression objectExpression = 18;
-    SequenceExpression sequenceExpression = 19;
-    TaggedTemplateExpression taggedTemplateExpression = 20;
-    TemplateLiteral templateLiteral = 21;
-    ThisExpression thisExpression = 22;
-    UnaryExpression unaryExpression = 23;
-    UpdateExpression updateExpression = 24;
-    YieldExpression yieldExpression = 25;
+    ArrayExpression Expression_arrayExpression = 1;
+    ArrowFunctionExpression Expression_arrowFunctionExpression = 2;
+    AssignmentExpression Expression_assignmentExpression = 3;
+    AwaitExpression Expression_awaitExpression = 4;
+    BinaryExpression Expression_binaryExpression = 5;
+    CallExpression Expression_callExpression = 6;
+    ChainExpression Expression_chainExpression = 7;
+    ClassExpression Expression_classExpression = 8;
+    ConditionalExpression Expression_conditionalExpression = 9;
+    FunctionExpression Expression_functionExpression = 10;
+    Identifier Expression_identifier = 11;
+    ImportExpression Expression_importExpression = 12;
+    Literal Expression_literal = 13;
+    LogicalExpression Expression_logicalExpression = 14;
+    MemberExpression Expression_memberExpression = 15;
+    MetaProperty Expression_metaProperty = 16;
+    NewExpression Expression_newExpression = 17;
+    ObjectExpression Expression_objectExpression = 18;
+    SequenceExpression Expression_sequenceExpression = 19;
+    TaggedTemplateExpression Expression_taggedTemplateExpression = 20;
+    TemplateLiteral Expression_templateLiteral = 21;
+    ThisExpression Expression_thisExpression = 22;
+    UnaryExpression Expression_unaryExpression = 23;
+    UpdateExpression Expression_updateExpression = 24;
+    YieldExpression Expression_yieldExpression = 25;
   }
 }
 message YieldExpression {
@@ -119,12 +119,12 @@ message SpreadElement {
 }
 message Property {
   oneof key {
-    Expression expression = 1;
-    PrivateIdentifier privateIdentifier = 2;
+    Expression key_expression = 1;
+    PrivateIdentifier key_privateIdentifier = 2;
   }
   oneof value {
-    Expression expression = 3;
-    Pattern pattern = 4;
+    Expression value_expression = 3;
+    Pattern value_pattern = 4;
   }
   string kind = 5;
   bool method = 6;
@@ -133,12 +133,12 @@ message Property {
 }
 message Pattern {
   oneof Pattern {
-    Identifier identifier = 1;
-    ObjectPattern objectPattern = 2;
-    ArrayPattern arrayPattern = 3;
-    RestElement restElement = 4;
-    AssignmentPattern assignmentPattern = 5;
-    MemberExpression memberExpression = 6;
+    Identifier Pattern_identifier = 1;
+    ObjectPattern Pattern_objectPattern = 2;
+    ArrayPattern Pattern_arrayPattern = 3;
+    RestElement Pattern_restElement = 4;
+    AssignmentPattern Pattern_assignmentPattern = 5;
+    MemberExpression Pattern_memberExpression = 6;
   }
 }
 message AssignmentPattern {
@@ -170,12 +170,12 @@ message MetaProperty {
 }
 message MemberExpression {
   oneof object {
-    Expression expression = 1;
-    Super super = 2;
+    Expression object_expression = 1;
+    Super object_super = 2;
   }
   oneof property {
-    Expression expression = 3;
-    PrivateIdentifier privateIdentifier = 4;
+    Expression property_expression = 3;
+    PrivateIdentifier property_privateIdentifier = 4;
   }
   bool computed = 5;
   bool optional = 6;
@@ -213,8 +213,8 @@ message ChainExpression {
 }
 message ChainElement {
   oneof ChainElement {
-    SimpleCallExpression simpleCallExpression = 1;
-    MemberExpression memberExpression = 2;
+    SimpleCallExpression ChainElement_simpleCallExpression = 1;
+    MemberExpression ChainElement_memberExpression = 2;
   }
 }
 message SimpleCallExpression {
@@ -222,8 +222,8 @@ message SimpleCallExpression {
 }
 message CallExpression {
   oneof CallExpression {
-    SimpleCallExpression simpleCallExpression = 1;
-    NewExpression newExpression = 2;
+    SimpleCallExpression CallExpression_simpleCallExpression = 1;
+    NewExpression CallExpression_newExpression = 2;
   }
 }
 message BinaryExpression {
@@ -240,8 +240,8 @@ message AwaitExpression {
 message AssignmentExpression {
   AssignmentOperator operator = 1;
   oneof left {
-    Pattern pattern = 2;
-    MemberExpression memberExpression = 3;
+    Pattern left_pattern = 2;
+    MemberExpression left_memberExpression = 3;
   }
   Expression right = 4;
 }
@@ -251,8 +251,8 @@ message AssignmentOperator {
 message ArrowFunctionExpression {
   bool expression = 1;
   oneof body {
-    BlockStatement blockStatement = 2;
-    Expression expression = 3;
+    BlockStatement body_blockStatement = 2;
+    Expression body_expression = 3;
   }
 }
 message ArrayExpression {
@@ -275,9 +275,9 @@ message ExportSpecifier {
 }
 message Declaration {
   oneof Declaration {
-    FunctionDeclaration functionDeclaration = 1;
-    VariableDeclaration variableDeclaration = 2;
-    ClassDeclaration classDeclaration = 3;
+    FunctionDeclaration Declaration_functionDeclaration = 1;
+    VariableDeclaration Declaration_variableDeclaration = 2;
+    ClassDeclaration Declaration_classDeclaration = 3;
   }
 }
 message ClassDeclaration {
@@ -307,26 +307,26 @@ message ImportSpecifier {
 }
 message Statement {
   oneof Statement {
-    ExpressionStatement expressionStatement = 1;
-    BlockStatement blockStatement = 2;
-    StaticBlock staticBlock = 3;
-    EmptyStatement emptyStatement = 4;
-    DebuggerStatement debuggerStatement = 5;
-    WithStatement withStatement = 6;
-    ReturnStatement returnStatement = 7;
-    LabeledStatement labeledStatement = 8;
-    BreakStatement breakStatement = 9;
-    ContinueStatement continueStatement = 10;
-    IfStatement ifStatement = 11;
-    SwitchStatement switchStatement = 12;
-    ThrowStatement throwStatement = 13;
-    TryStatement tryStatement = 14;
-    WhileStatement whileStatement = 15;
-    DoWhileStatement doWhileStatement = 16;
-    ForStatement forStatement = 17;
-    ForInStatement forInStatement = 18;
-    ForOfStatement forOfStatement = 19;
-    Declaration declaration = 20;
+    ExpressionStatement Statement_expressionStatement = 1;
+    BlockStatement Statement_blockStatement = 2;
+    StaticBlock Statement_staticBlock = 3;
+    EmptyStatement Statement_emptyStatement = 4;
+    DebuggerStatement Statement_debuggerStatement = 5;
+    WithStatement Statement_withStatement = 6;
+    ReturnStatement Statement_returnStatement = 7;
+    LabeledStatement Statement_labeledStatement = 8;
+    BreakStatement Statement_breakStatement = 9;
+    ContinueStatement Statement_continueStatement = 10;
+    IfStatement Statement_ifStatement = 11;
+    SwitchStatement Statement_switchStatement = 12;
+    ThrowStatement Statement_throwStatement = 13;
+    TryStatement Statement_tryStatement = 14;
+    WhileStatement Statement_whileStatement = 15;
+    DoWhileStatement Statement_doWhileStatement = 16;
+    ForStatement Statement_forStatement = 17;
+    ForInStatement Statement_forInStatement = 18;
+    ForOfStatement Statement_forOfStatement = 19;
+    Declaration Statement_declaration = 20;
   }
 }
 message ForOfStatement {
@@ -336,8 +336,8 @@ message ForInStatement {
 }
 message ForStatement {
   oneof init {
-    VariableDeclaration variableDeclaration = 1;
-    Expression expression = 2;
+    VariableDeclaration init_variableDeclaration = 1;
+    Expression init_expression = 2;
   }
   Expression test = 3;
   Expression update = 4;
