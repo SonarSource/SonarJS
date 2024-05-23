@@ -213,3 +213,33 @@ while (requestedTypes.length) {
 }
 var str = JSON.stringify(messages, null, 2);
 console.log(str);
+fs.writeFileSync('ast.json', str);
+fs.writeFileSync('ast.proto', translateToProtoFormat(messages));
+
+function translateToProtoFormat(messages: Record<string, ProtobufMessage>): string {
+  const lines: string[] = [];
+  for (const message of Object.values(messages)) {
+    lines.push(`message ${message.messageName} {`);
+    let index = 1;
+    for (const field of message.fields) {
+      if ('repeatedValue' in field.fieldValue) {
+        lines.push(
+          `  repeated ${(field.fieldValue.repeatedValue as ProtobufPrimitiveFieldValue).type} ${field.name} = ${index};`,
+        );
+      } else if ('oneOfElements' in field.fieldValue) {
+        lines.push(`  oneof ${field.name} {`);
+        for (const oneOfField of field.fieldValue.oneOfElements) {
+          lines.push(
+            `    ${(oneOfField.fieldValue as ProtobufPrimitiveFieldValue).type} ${oneOfField.name} = ${index};`,
+          );
+        }
+        lines.push('  }');
+      } else {
+        lines.push(`  ${field.name}: ${field.fieldValue.type} = ${index};`);
+      }
+      index++;
+    }
+    lines.push('}');
+  }
+  return lines.join('\n');
+}
