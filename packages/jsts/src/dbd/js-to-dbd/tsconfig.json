@@ -1,0 +1,8 @@
+{
+  "extends": "../../../../tsconfig.json",
+  "compilerOptions": {
+    "noUnusedLocals": true,
+    "noUnusedParameters": true
+  },
+  "include": ["index.ts"]
+}
