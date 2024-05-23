@@ -1844,17 +1844,6 @@
       }
     ]
   },
-  "BaseNodeWithoutComments": {
-    "messageName": "BaseNodeWithoutComments",
-    "fields": [
-      {
-        "name": "loc",
-        "fieldValue": {
-          "type": "SourceLocation"
-        }
-      }
-    ]
-  },
   "SourceLocation": {
     "messageName": "SourceLocation",
     "fields": [
@@ -1891,6 +1880,558 @@
         "name": "column",
         "fieldValue": {
           "type": "int32"
+        }
+      }
+    ]
+  },
+  "BaseNodeWithoutComments": {
+    "messageName": "BaseNodeWithoutComments",
+    "fields": [
+      {
+        "name": "type",
+        "fieldValue": {
+          "type": "string"
+        }
+      },
+      {
+        "name": "loc",
+        "fieldValue": {
+          "type": "SourceLocation"
+        }
+      },
+      {
+        "name": "node",
+        "fieldValue": {
+          "oneOfElements": [
+            {
+              "name": "program",
+              "fieldValue": {
+                "type": "Program"
+              }
+            },
+            {
+              "name": "moduleDeclaration",
+              "fieldValue": {
+                "type": "ModuleDeclaration"
+              }
+            },
+            {
+              "name": "exportAllDeclaration",
+              "fieldValue": {
+                "type": "ExportAllDeclaration"
+              }
+            },
+            {
+              "name": "literal",
+              "fieldValue": {
+                "type": "Literal"
+              }
+            },
+            {
+              "name": "bigIntLiteral",
+              "fieldValue": {
+                "type": "BigIntLiteral"
+              }
+            },
+            {
+              "name": "simpleLiteral",
+              "fieldValue": {
+                "type": "SimpleLiteral"
+              }
+            },
+            {
+              "name": "identifier",
+              "fieldValue": {
+                "type": "Identifier"
+              }
+            },
+            {
+              "name": "exportDefaultDeclaration",
+              "fieldValue": {
+                "type": "ExportDefaultDeclaration"
+              }
+            },
+            {
+              "name": "expression",
+              "fieldValue": {
+                "type": "Expression"
+              }
+            },
+            {
+              "name": "yieldExpression",
+              "fieldValue": {
+                "type": "YieldExpression"
+              }
+            },
+            {
+              "name": "updateExpression",
+              "fieldValue": {
+                "type": "UpdateExpression"
+              }
+            },
+            {
+              "name": "updateOperator",
+              "fieldValue": {
+                "type": "UpdateOperator"
+              }
+            },
+            {
+              "name": "unaryExpression",
+              "fieldValue": {
+                "type": "UnaryExpression"
+              }
+            },
+            {
+              "name": "unaryOperator",
+              "fieldValue": {
+                "type": "UnaryOperator"
+              }
+            },
+            {
+              "name": "thisExpression",
+              "fieldValue": {
+                "type": "ThisExpression"
+              }
+            },
+            {
+              "name": "templateLiteral",
+              "fieldValue": {
+                "type": "TemplateLiteral"
+              }
+            },
+            {
+              "name": "templateElement",
+              "fieldValue": {
+                "type": "TemplateElement"
+              }
+            },
+            {
+              "name": "taggedTemplateExpression",
+              "fieldValue": {
+                "type": "TaggedTemplateExpression"
+              }
+            },
+            {
+              "name": "sequenceExpression",
+              "fieldValue": {
+                "type": "SequenceExpression"
+              }
+            },
+            {
+              "name": "objectExpression",
+              "fieldValue": {
+                "type": "ObjectExpression"
+              }
+            },
+            {
+              "name": "spreadElement",
+              "fieldValue": {
+                "type": "SpreadElement"
+              }
+            },
+            {
+              "name": "property",
+              "fieldValue": {
+                "type": "Property"
+              }
+            },
+            {
+              "name": "pattern",
+              "fieldValue": {
+                "type": "Pattern"
+              }
+            },
+            {
+              "name": "assignmentPattern",
+              "fieldValue": {
+                "type": "AssignmentPattern"
+              }
+            },
+            {
+              "name": "restElement",
+              "fieldValue": {
+                "type": "RestElement"
+              }
+            },
+            {
+              "name": "arrayPattern",
+              "fieldValue": {
+                "type": "ArrayPattern"
+              }
+            },
+            {
+              "name": "objectPattern",
+              "fieldValue": {
+                "type": "ObjectPattern"
+              }
+            },
+            {
+              "name": "assignmentProperty",
+              "fieldValue": {
+                "type": "AssignmentProperty"
+              }
+            },
+            {
+              "name": "privateIdentifier",
+              "fieldValue": {
+                "type": "PrivateIdentifier"
+              }
+            },
+            {
+              "name": "newExpression",
+              "fieldValue": {
+                "type": "NewExpression"
+              }
+            },
+            {
+              "name": "metaProperty",
+              "fieldValue": {
+                "type": "MetaProperty"
+              }
+            },
+            {
+              "name": "memberExpression",
+              "fieldValue": {
+                "type": "MemberExpression"
+              }
+            },
+            {
+              "name": "super",
+              "fieldValue": {
+                "type": "Super"
+              }
+            },
+            {
+              "name": "logicalExpression",
+              "fieldValue": {
+                "type": "LogicalExpression"
+              }
+            },
+            {
+              "name": "logicalOperator",
+              "fieldValue": {
+                "type": "LogicalOperator"
+              }
+            },
+            {
+              "name": "importExpression",
+              "fieldValue": {
+                "type": "ImportExpression"
+              }
+            },
+            {
+              "name": "functionExpression",
+              "fieldValue": {
+                "type": "FunctionExpression"
+              }
+            },
+            {
+              "name": "blockStatement",
+              "fieldValue": {
+                "type": "BlockStatement"
+              }
+            },
+            {
+              "name": "conditionalExpression",
+              "fieldValue": {
+                "type": "ConditionalExpression"
+              }
+            },
+            {
+              "name": "classExpression",
+              "fieldValue": {
+                "type": "ClassExpression"
+              }
+            },
+            {
+              "name": "chainExpression",
+              "fieldValue": {
+                "type": "ChainExpression"
+              }
+            },
+            {
+              "name": "chainElement",
+              "fieldValue": {
+                "type": "ChainElement"
+              }
+            },
+            {
+              "name": "simpleCallExpression",
+              "fieldValue": {
+                "type": "SimpleCallExpression"
+              }
+            },
+            {
+              "name": "callExpression",
+              "fieldValue": {
+                "type": "CallExpression"
+              }
+            },
+            {
+              "name": "binaryExpression",
+              "fieldValue": {
+                "type": "BinaryExpression"
+              }
+            },
+            {
+              "name": "binaryOperator",
+              "fieldValue": {
+                "type": "BinaryOperator"
+              }
+            },
+            {
+              "name": "awaitExpression",
+              "fieldValue": {
+                "type": "AwaitExpression"
+              }
+            },
+            {
+              "name": "assignmentExpression",
+              "fieldValue": {
+                "type": "AssignmentExpression"
+              }
+            },
+            {
+              "name": "assignmentOperator",
+              "fieldValue": {
+                "type": "AssignmentOperator"
+              }
+            },
+            {
+              "name": "arrowFunctionExpression",
+              "fieldValue": {
+                "type": "ArrowFunctionExpression"
+              }
+            },
+            {
+              "name": "arrayExpression",
+              "fieldValue": {
+                "type": "ArrayExpression"
+              }
+            },
+            {
+              "name": "maybeNamedClassDeclaration",
+              "fieldValue": {
+                "type": "MaybeNamedClassDeclaration"
+              }
+            },
+            {
+              "name": "maybeNamedFunctionDeclaration",
+              "fieldValue": {
+                "type": "MaybeNamedFunctionDeclaration"
+              }
+            },
+            {
+              "name": "exportNamedDeclaration",
+              "fieldValue": {
+                "type": "ExportNamedDeclaration"
+              }
+            },
+            {
+              "name": "exportSpecifier",
+              "fieldValue": {
+                "type": "ExportSpecifier"
+              }
+            },
+            {
+              "name": "declaration",
+              "fieldValue": {
+                "type": "Declaration"
+              }
+            },
+            {
+              "name": "classDeclaration",
+              "fieldValue": {
+                "type": "ClassDeclaration"
+              }
+            },
+            {
+              "name": "variableDeclaration",
+              "fieldValue": {
+                "type": "VariableDeclaration"
+              }
+            },
+            {
+              "name": "variableDeclarator",
+              "fieldValue": {
+                "type": "VariableDeclarator"
+              }
+            },
+            {
+              "name": "functionDeclaration",
+              "fieldValue": {
+                "type": "FunctionDeclaration"
+              }
+            },
+            {
+              "name": "importDeclaration",
+              "fieldValue": {
+                "type": "ImportDeclaration"
+              }
+            },
+            {
+              "name": "importNamespaceSpecifier",
+              "fieldValue": {
+                "type": "ImportNamespaceSpecifier"
+              }
+            },
+            {
+              "name": "importDefaultSpecifier",
+              "fieldValue": {
+                "type": "ImportDefaultSpecifier"
+              }
+            },
+            {
+              "name": "importSpecifier",
+              "fieldValue": {
+                "type": "ImportSpecifier"
+              }
+            },
+            {
+              "name": "statement",
+              "fieldValue": {
+                "type": "Statement"
+              }
+            },
+            {
+              "name": "forOfStatement",
+              "fieldValue": {
+                "type": "ForOfStatement"
+              }
+            },
+            {
+              "name": "forInStatement",
+              "fieldValue": {
+                "type": "ForInStatement"
+              }
+            },
+            {
+              "name": "forStatement",
+              "fieldValue": {
+                "type": "ForStatement"
+              }
+            },
+            {
+              "name": "doWhileStatement",
+              "fieldValue": {
+                "type": "DoWhileStatement"
+              }
+            },
+            {
+              "name": "whileStatement",
+              "fieldValue": {
+                "type": "WhileStatement"
+              }
+            },
+            {
+              "name": "tryStatement",
+              "fieldValue": {
+                "type": "TryStatement"
+              }
+            },
+            {
+              "name": "catchClause",
+              "fieldValue": {
+                "type": "CatchClause"
+              }
+            },
+            {
+              "name": "throwStatement",
+              "fieldValue": {
+                "type": "ThrowStatement"
+              }
+            },
+            {
+              "name": "switchStatement",
+              "fieldValue": {
+                "type": "SwitchStatement"
+              }
+            },
+            {
+              "name": "switchCase",
+              "fieldValue": {
+                "type": "SwitchCase"
+              }
+            },
+            {
+              "name": "ifStatement",
+              "fieldValue": {
+                "type": "IfStatement"
+              }
+            },
+            {
+              "name": "continueStatement",
+              "fieldValue": {
+                "type": "ContinueStatement"
+              }
+            },
+            {
+              "name": "breakStatement",
+              "fieldValue": {
+                "type": "BreakStatement"
+              }
+            },
+            {
+              "name": "labeledStatement",
+              "fieldValue": {
+                "type": "LabeledStatement"
+              }
+            },
+            {
+              "name": "returnStatement",
+              "fieldValue": {
+                "type": "ReturnStatement"
+              }
+            },
+            {
+              "name": "withStatement",
+              "fieldValue": {
+                "type": "WithStatement"
+              }
+            },
+            {
+              "name": "debuggerStatement",
+              "fieldValue": {
+                "type": "DebuggerStatement"
+              }
+            },
+            {
+              "name": "emptyStatement",
+              "fieldValue": {
+                "type": "EmptyStatement"
+              }
+            },
+            {
+              "name": "staticBlock",
+              "fieldValue": {
+                "type": "StaticBlock"
+              }
+            },
+            {
+              "name": "expressionStatement",
+              "fieldValue": {
+                "type": "ExpressionStatement"
+              }
+            },
+            {
+              "name": "directive",
+              "fieldValue": {
+                "type": "Directive"
+              }
+            },
+            {
+              "name": "sourceLocation",
+              "fieldValue": {
+                "type": "SourceLocation"
+              }
+            },
+            {
+              "name": "position",
+              "fieldValue": {
+                "type": "Position"
+              }
+            }
+          ]
         }
       }
     ]
