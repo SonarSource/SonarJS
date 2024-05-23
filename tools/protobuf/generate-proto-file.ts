@@ -239,10 +239,20 @@ function extractInheritedFields(
   declaration: InterfaceDeclaration,
   messageFields: { name: string; fieldValue: ProtobufFieldValue }[],
 ) {
-  const inheritedTypes = declaration.heritageClauses?.flatMap(hc => hc.types);
-  for (const inheritedType of inheritedTypes || []) {
-    const inheritedTypeName = inheritedType.getText(file);
-    const inheritedDeclaration = declarations[inheritedTypeName] as InterfaceDeclaration;
+  function extractAllInheritedTypes(declaration: InterfaceDeclaration): string[] {
+    const inheritedTypes = declaration?.heritageClauses
+      ?.flatMap(hc => hc.types)
+      ?.flatMap(t => {
+        console.log('we re going deeper');
+        return extractAllInheritedTypes(declarations[t.getText(file)] as InterfaceDeclaration);
+      });
+    const ret: string[] = inheritedTypes || [];
+    ret.push(declaration?.name?.getText(file));
+    return ret;
+  }
+
+  for (const inheritedType of extractAllInheritedTypes(declaration)) {
+    const inheritedDeclaration = declarations[inheritedType] as InterfaceDeclaration;
     const inheritedFields = inheritedDeclaration?.members
       .filter(isPropertySignature)
       .filter(signature => signature.type && !ignoredMembers.has(signature.name.getText(file)))
