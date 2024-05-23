@@ -19,7 +19,6 @@
  */
 package org.sonar.plugins.javascript.bridge;
 
-import static java.util.Objects.requireNonNullElseGet;
 import static org.sonarsource.api.sonarlint.SonarLintSide.INSTANCE;
 
 import java.io.IOException;
@@ -37,14 +36,8 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
 public interface BridgeServer extends Startable {
   void startServerLazily(SensorContext context) throws IOException;
 
-  void initLinter(
-    List<EslintRule> rules,
-    List<String> environments,
-    List<String> globals,
-    AnalysisMode analysisMode,
-    String baseDir,
-    List<String> exclusions
-  ) throws IOException;
+  void initLinter(List<EslintRule> rules, List<String> environments, List<String> globals, AnalysisMode analysisMode, String baseDir,
+    List<String> exclusions) throws IOException;
 
   AnalysisResponse analyzeJavaScript(JsAnalysisRequest request) throws IOException;
 
@@ -72,118 +65,56 @@ public interface BridgeServer extends Startable {
 
   TsConfigFile createTsConfigFile(String content) throws IOException;
 
-  record JsAnalysisRequest(
-
-    String filePath,
-    String fileType,
-    String language,
-    @Nullable String fileContent,
-    boolean ignoreHeaderComments,
-    @Nullable List<String> tsConfigs,
-    @Nullable String programId,
-    String linterId
-   ) {
+  record JsAnalysisRequest(String filePath, String fileType, String language, @Nullable String fileContent, boolean ignoreHeaderComments,
+                           @Nullable List<String> tsConfigs, @Nullable String programId, String linterId) {
 
   }
 
-  record CssAnalysisRequest(
+  record CssAnalysisRequest(String filePath, @Nullable String fileContent, List<StylelintRule> rules) {
+  }
 
-    String filePath,
-    @Nullable String fileContent,
-    List<StylelintRule> rules) {
-    }
-
-  record AnalysisResponse(@Nullable ParsingError parsingError,
-                                 List<Issue> issues,
-                                 List<Highlight> highlights,
-                                 List<HighlightedSymbol> highlightedSymbols,
-                                 @Nullable Metrics metrics,
-                                 List<CpdToken> cpdTokens,
-                                 List<String> ucfgPaths) {
+  record AnalysisResponse(@Nullable ParsingError parsingError, List<Issue> issues, List<Highlight> highlights,
+                          List<HighlightedSymbol> highlightedSymbols, Metrics metrics, List<CpdToken> cpdTokens, List<String> ucfgPaths) {
     public AnalysisResponse() {
-      this(null, List.of(), List.of(), List.of(), null, List.of(), List.of());
-    }
-
-    public AnalysisResponse(@Nullable ParsingError parsingError,
-      List<Issue> issues,
-      List<Highlight> highlights,
-      List<HighlightedSymbol> highlightedSymbols,
-      @Nullable Metrics metrics,
-      List<CpdToken> cpdTokens,
-      List<String> ucfgPaths) {
-      this.parsingError = parsingError;
-      this.issues = requireNonNullElseGet(issues, List::of);
-      this.highlights = requireNonNullElseGet(highlights, List::of);
-      this.highlightedSymbols = requireNonNullElseGet(highlightedSymbols, List::of);
-      this.metrics = requireNonNullElseGet(metrics, Metrics::new);
-      this.cpdTokens = requireNonNullElseGet(cpdTokens, List::of);
-      this.ucfgPaths = ucfgPaths;
+      this(null, List.of(), List.of(), List.of(), new Metrics(), List.of(), List.of());
     }
   }
 
-  record ParsingError(
-
-    String message,
-    Integer line,
-    ParsingErrorCode code
-  ){}
+  record ParsingError(String message, Integer line, ParsingErrorCode code) {
+  }
 
   enum ParsingErrorCode {
-    PARSING,
-    FAILING_TYPESCRIPT,
-    GENERAL_ERROR,
+    PARSING, FAILING_TYPESCRIPT, GENERAL_ERROR,
   }
 
-  record Issue(
-    Integer line,
-    Integer column,
-    Integer endLine,
-    Integer endColumn,
-    String message,
-    String ruleId,
-    List<IssueLocation> secondaryLocations,
-    Double cost,
-    List<QuickFix> quickFixes) {
+  record Issue(Integer line, Integer column, Integer endLine, Integer endColumn, String message, String ruleId,
+               List<IssueLocation> secondaryLocations, Double cost, List<QuickFix> quickFixes) {
   }
 
-  record QuickFix(
-    String message,
-    List<QuickFixEdit> edits) {
+  record QuickFix(String message, List<QuickFixEdit> edits) {
   }
 
-  record QuickFixEdit(
-    String text,
-    IssueLocation loc
-  ) {}
+  record QuickFixEdit(String text, IssueLocation loc) {
+  }
 
   record IssueLocation(
 
-    Integer line,
-    Integer column,
-    Integer endLine,
-    Integer endColumn,
-    String message
-  ) {}
+    Integer line, Integer column, Integer endLine, Integer endColumn, String message) {
+  }
 
   record Highlight(
 
-    Location location,
-    String textType
-    ) {}
+    Location location, String textType) {
+  }
 
   record HighlightedSymbol(
 
-    Location declaration,
-    List<Location> references
-  ) {}
+    Location declaration, List<Location> references) {
+  }
 
   record Location(
 
-    int startLine,
-    int startCol,
-    int endLine,
-    int endCol
-  ) {
+    int startLine, int startCol, int endLine, int endCol) {
 
     public TextRange toTextRange(InputFile inputFile) {
       return inputFile.newRange(this.startLine, this.startCol, this.endLine, this.endCol);
@@ -197,16 +128,8 @@ public interface BridgeServer extends Startable {
 
   record Metrics(
 
-    List<Integer> ncloc,
-    List<Integer> commentLines,
-    List<Integer> nosonarLines,
-    List<Integer> executableLines,
-    int functions,
-    int statements,
-    int classes,
-    int complexity,
-    int cognitiveComplexity
-    ) {
+    List<Integer> ncloc, List<Integer> commentLines, List<Integer> nosonarLines, List<Integer> executableLines, int functions,
+    int statements, int classes, int complexity, int cognitiveComplexity) {
     public Metrics() {
       this(List.of(), List.of(), List.of(), List.of(), 0, 0, 0, 0, 0);
     }
@@ -214,8 +137,7 @@ public interface BridgeServer extends Startable {
 
   record CpdToken(
 
-    Location location,
-    String image) {
+    Location location, String image) {
   }
 
   class TsConfigResponse {
@@ -225,12 +147,7 @@ public interface BridgeServer extends Startable {
     final String error;
     final ParsingErrorCode errorCode;
 
-    TsConfigResponse(
-      List<String> files,
-      List<String> projectReferences,
-      @Nullable String error,
-      @Nullable ParsingErrorCode errorCode
-    ) {
+    TsConfigResponse(List<String> files, List<String> projectReferences, @Nullable String error, @Nullable ParsingErrorCode errorCode) {
       this.files = files;
       this.projectReferences = projectReferences;
       this.error = error;
@@ -239,28 +156,14 @@ public interface BridgeServer extends Startable {
   }
 
   record TsProgram(
+    @Nullable String programId, @Nullable List<String> files, @Nullable List<String> projectReferences, boolean missingTsConfig,
+    @Nullable String error) {
 
-    @Nullable String programId,
-    @Nullable List<String> files,
-    @Nullable List<String> projectReferences,
-    boolean missingTsConfig,
-    @Nullable String error
-  ) {
-
-    public TsProgram(
-      String programId,
-      @Nullable List<String> files,
-      @Nullable List<String> projectReferences
-    ) {
+    public TsProgram(String programId, @Nullable List<String> files, @Nullable List<String> projectReferences) {
       this(programId, files, projectReferences, false, null);
     }
 
-    public TsProgram(
-      String programId,
-      List<String> files,
-      List<String> projectReferences,
-      boolean missingTsConfig
-    ) {
+    public TsProgram(String programId, List<String> files, List<String> projectReferences, boolean missingTsConfig) {
       this(programId, files, projectReferences, missingTsConfig, null);
     }
 
@@ -271,25 +174,13 @@ public interface BridgeServer extends Startable {
     @Override
     public String toString() {
       if (error == null) {
-        return (
-          "TsProgram{" +
-          "programId='" +
-          programId +
-          '\'' +
-          ", files=" +
-          files +
-          ", projectReferences=" +
-          projectReferences +
-          '}'
-        );
+        return ("TsProgram{" + "programId='" + programId + '\'' + ", files=" + files + ", projectReferences=" + projectReferences + '}');
       } else {
         return "TsProgram{ error='" + error + "'}";
       }
     }
   }
 
-  record TsProgramRequest(
-
-    String tsConfig
-  ) {}
+  record TsProgramRequest(String tsConfig) {
+  }
 }
