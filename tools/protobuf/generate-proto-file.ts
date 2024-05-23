@@ -12,14 +12,14 @@ const file = ts.createSourceFile(
   ts.ScriptTarget.ESNext,
 );
 
-const ignoredMembers: string[] = [
+const ignoredMembers: Set<string> = new Set([
   // The "type" member is redundant in our context.
   'type',
   'comments',
   'innerComments',
   // In BaseNodeWithoutComments, but not required.
   'range',
-];
+]);
 
 // Types representing Protobuf
 type ProtobufMessage = {
@@ -184,7 +184,7 @@ while (requestedTypes.length) {
   if (ts.isInterfaceDeclaration(declaration)) {
     const messageFields = declaration.members
       .filter(isPropertySignature)
-      .filter(signature => signature.type && !ignoredMembers.includes(signature.name.getText(file)))
+      .filter(signature => signature.type && !ignoredMembers.has(signature.name.getText(file)))
       .map(signature => {
         return {
           name: signature.name.getText(file),
