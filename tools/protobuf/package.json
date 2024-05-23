@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "generate": "ts-node generate-proto-file.ts"
+    "generate": "ts-node generate-proto-file.ts",
+    "load": "ts-node load-proto.ts"
   },
   "author": "",
   "license": "ISC"

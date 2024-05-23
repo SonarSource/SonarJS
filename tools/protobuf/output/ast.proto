@@ -1,0 +1,420 @@
+syntax = "proto3";
+
+message Program {
+  string sourceType = 1;
+  repeated undefined body = 2;
+}
+message ModuleDeclaration {
+  oneof ModuleDeclaration {
+    ImportDeclaration importDeclaration = 1;
+    ExportNamedDeclaration exportNamedDeclaration = 2;
+    ExportDefaultDeclaration exportDefaultDeclaration = 3;
+    ExportAllDeclaration exportAllDeclaration = 4;
+  }
+}
+message ExportAllDeclaration {
+  Identifier exported = 1;
+  Literal source = 2;
+}
+message Literal {
+  oneof Literal {
+    SimpleLiteral simpleLiteral = 1;
+    BigIntLiteral bigIntLiteral = 2;
+  }
+}
+message BigIntLiteral {
+  int32 value = 1;
+  string bigint = 2;
+  string raw = 3;
+}
+message SimpleLiteral {
+  oneof value {
+    string string = 1;
+    bool boolean = 2;
+    int32 number = 3;
+  }
+  string raw = 4;
+}
+message Identifier {
+  string name = 1;
+}
+message ExportDefaultDeclaration {
+  oneof declaration {
+    MaybeNamedFunctionDeclaration maybeNamedFunctionDeclaration = 1;
+    MaybeNamedClassDeclaration maybeNamedClassDeclaration = 2;
+    Expression expression = 3;
+  }
+}
+message Expression {
+  oneof Expression {
+    ArrayExpression arrayExpression = 1;
+    ArrowFunctionExpression arrowFunctionExpression = 2;
+    AssignmentExpression assignmentExpression = 3;
+    AwaitExpression awaitExpression = 4;
+    BinaryExpression binaryExpression = 5;
+    CallExpression callExpression = 6;
+    ChainExpression chainExpression = 7;
+    ClassExpression classExpression = 8;
+    ConditionalExpression conditionalExpression = 9;
+    FunctionExpression functionExpression = 10;
+    Identifier identifier = 11;
+    ImportExpression importExpression = 12;
+    Literal literal = 13;
+    LogicalExpression logicalExpression = 14;
+    MemberExpression memberExpression = 15;
+    MetaProperty metaProperty = 16;
+    NewExpression newExpression = 17;
+    ObjectExpression objectExpression = 18;
+    SequenceExpression sequenceExpression = 19;
+    TaggedTemplateExpression taggedTemplateExpression = 20;
+    TemplateLiteral templateLiteral = 21;
+    ThisExpression thisExpression = 22;
+    UnaryExpression unaryExpression = 23;
+    UpdateExpression updateExpression = 24;
+    YieldExpression yieldExpression = 25;
+  }
+}
+message YieldExpression {
+  Expression argument = 1;
+  bool delegate = 2;
+}
+message UpdateExpression {
+  UpdateOperator operator = 1;
+  Expression argument = 2;
+  bool prefix = 3;
+}
+message UpdateOperator {
+  string UpdateOperator = 1;
+}
+message UnaryExpression {
+  UnaryOperator operator = 1;
+  bool prefix = 2;
+  Expression argument = 3;
+}
+message UnaryOperator {
+  string UnaryOperator = 1;
+}
+message ThisExpression {
+}
+message TemplateLiteral {
+  repeated TemplateElement quasis = 1;
+  repeated Expression expressions = 2;
+}
+message TemplateElement {
+  bool tail = 1;
+  ERROR_UNEXPECTED value = 2;
+}
+message TaggedTemplateExpression {
+  Expression tag = 1;
+  TemplateLiteral quasi = 2;
+}
+message SequenceExpression {
+  repeated Expression expressions = 1;
+}
+message ObjectExpression {
+  repeated undefined properties = 1;
+}
+message SpreadElement {
+  Expression argument = 1;
+}
+message Property {
+  oneof key {
+    Expression expression = 1;
+    PrivateIdentifier privateIdentifier = 2;
+  }
+  oneof value {
+    Expression expression = 3;
+    Pattern pattern = 4;
+  }
+  string kind = 5;
+  bool method = 6;
+  bool shorthand = 7;
+  bool computed = 8;
+}
+message Pattern {
+  oneof Pattern {
+    Identifier identifier = 1;
+    ObjectPattern objectPattern = 2;
+    ArrayPattern arrayPattern = 3;
+    RestElement restElement = 4;
+    AssignmentPattern assignmentPattern = 5;
+    MemberExpression memberExpression = 6;
+  }
+}
+message AssignmentPattern {
+  Pattern left = 1;
+  Expression right = 2;
+}
+message RestElement {
+  Pattern argument = 1;
+}
+message ArrayPattern {
+  repeated Pattern elements = 1;
+}
+message ObjectPattern {
+  repeated undefined properties = 1;
+}
+message AssignmentProperty {
+  Pattern value = 1;
+  string kind = 2;
+  bool method = 3;
+}
+message PrivateIdentifier {
+  string name = 1;
+}
+message NewExpression {
+}
+message MetaProperty {
+  Identifier meta = 1;
+  Identifier property = 2;
+}
+message MemberExpression {
+  oneof object {
+    Expression expression = 1;
+    Super super = 2;
+  }
+  oneof property {
+    Expression expression = 3;
+    PrivateIdentifier privateIdentifier = 4;
+  }
+  bool computed = 5;
+  bool optional = 6;
+}
+message Super {
+}
+message LogicalExpression {
+  LogicalOperator operator = 1;
+  Expression left = 2;
+  Expression right = 3;
+}
+message LogicalOperator {
+  string LogicalOperator = 1;
+}
+message ImportExpression {
+  Expression source = 1;
+}
+message FunctionExpression {
+  Identifier id = 1;
+  BlockStatement body = 2;
+}
+message BlockStatement {
+  repeated Statement body = 1;
+}
+message ConditionalExpression {
+  Expression test = 1;
+  Expression alternate = 2;
+  Expression consequent = 3;
+}
+message ClassExpression {
+  Identifier id = 1;
+}
+message ChainExpression {
+  ChainElement expression = 1;
+}
+message ChainElement {
+  oneof ChainElement {
+    SimpleCallExpression simpleCallExpression = 1;
+    MemberExpression memberExpression = 2;
+  }
+}
+message SimpleCallExpression {
+  bool optional = 1;
+}
+message CallExpression {
+  oneof CallExpression {
+    SimpleCallExpression simpleCallExpression = 1;
+    NewExpression newExpression = 2;
+  }
+}
+message BinaryExpression {
+  BinaryOperator operator = 1;
+  Expression left = 2;
+  Expression right = 3;
+}
+message BinaryOperator {
+  string BinaryOperator = 1;
+}
+message AwaitExpression {
+  Expression argument = 1;
+}
+message AssignmentExpression {
+  AssignmentOperator operator = 1;
+  oneof left {
+    Pattern pattern = 2;
+    MemberExpression memberExpression = 3;
+  }
+  Expression right = 4;
+}
+message AssignmentOperator {
+  string AssignmentOperator = 1;
+}
+message ArrowFunctionExpression {
+  bool expression = 1;
+  oneof body {
+    BlockStatement blockStatement = 2;
+    Expression expression = 3;
+  }
+}
+message ArrayExpression {
+  repeated undefined elements = 1;
+}
+message MaybeNamedClassDeclaration {
+  Identifier id = 1;
+}
+message MaybeNamedFunctionDeclaration {
+  Identifier id = 1;
+  BlockStatement body = 2;
+}
+message ExportNamedDeclaration {
+  Declaration declaration = 1;
+  repeated ExportSpecifier specifiers = 2;
+  Literal source = 3;
+}
+message ExportSpecifier {
+  Identifier exported = 1;
+}
+message Declaration {
+  oneof Declaration {
+    FunctionDeclaration functionDeclaration = 1;
+    VariableDeclaration variableDeclaration = 2;
+    ClassDeclaration classDeclaration = 3;
+  }
+}
+message ClassDeclaration {
+  Identifier id = 1;
+}
+message VariableDeclaration {
+  repeated VariableDeclarator declarations = 1;
+  string kind = 2;
+}
+message VariableDeclarator {
+  Pattern id = 1;
+  Expression init = 2;
+}
+message FunctionDeclaration {
+  Identifier id = 1;
+}
+message ImportDeclaration {
+  repeated undefined specifiers = 1;
+  Literal source = 2;
+}
+message ImportNamespaceSpecifier {
+}
+message ImportDefaultSpecifier {
+}
+message ImportSpecifier {
+  Identifier imported = 1;
+}
+message Statement {
+  oneof Statement {
+    ExpressionStatement expressionStatement = 1;
+    BlockStatement blockStatement = 2;
+    StaticBlock staticBlock = 3;
+    EmptyStatement emptyStatement = 4;
+    DebuggerStatement debuggerStatement = 5;
+    WithStatement withStatement = 6;
+    ReturnStatement returnStatement = 7;
+    LabeledStatement labeledStatement = 8;
+    BreakStatement breakStatement = 9;
+    ContinueStatement continueStatement = 10;
+    IfStatement ifStatement = 11;
+    SwitchStatement switchStatement = 12;
+    ThrowStatement throwStatement = 13;
+    TryStatement tryStatement = 14;
+    WhileStatement whileStatement = 15;
+    DoWhileStatement doWhileStatement = 16;
+    ForStatement forStatement = 17;
+    ForInStatement forInStatement = 18;
+    ForOfStatement forOfStatement = 19;
+    Declaration declaration = 20;
+  }
+}
+message ForOfStatement {
+  bool await = 1;
+}
+message ForInStatement {
+}
+message ForStatement {
+  oneof init {
+    VariableDeclaration variableDeclaration = 1;
+    Expression expression = 2;
+  }
+  Expression test = 3;
+  Expression update = 4;
+  Statement body = 5;
+}
+message DoWhileStatement {
+  Statement body = 1;
+  Expression test = 2;
+}
+message WhileStatement {
+  Expression test = 1;
+  Statement body = 2;
+}
+message TryStatement {
+  BlockStatement block = 1;
+  CatchClause handler = 2;
+  BlockStatement finalizer = 3;
+}
+message CatchClause {
+  Pattern param = 1;
+  BlockStatement body = 2;
+}
+message ThrowStatement {
+  Expression argument = 1;
+}
+message SwitchStatement {
+  Expression discriminant = 1;
+  repeated SwitchCase cases = 2;
+}
+message SwitchCase {
+  Expression test = 1;
+  repeated Statement consequent = 2;
+}
+message IfStatement {
+  Expression test = 1;
+  Statement consequent = 2;
+  Statement alternate = 3;
+}
+message ContinueStatement {
+  Identifier label = 1;
+}
+message BreakStatement {
+  Identifier label = 1;
+}
+message LabeledStatement {
+  Identifier label = 1;
+  Statement body = 2;
+}
+message ReturnStatement {
+  Expression argument = 1;
+}
+message WithStatement {
+  Expression object = 1;
+  Statement body = 2;
+}
+message DebuggerStatement {
+}
+message EmptyStatement {
+}
+message StaticBlock {
+}
+message ExpressionStatement {
+  Expression expression = 1;
+}
+message Directive {
+  Literal expression = 1;
+  string directive = 2;
+}
+message BaseNodeWithoutComments {
+  SourceLocation loc = 1;
+}
+message SourceLocation {
+  string source = 1;
+  Position start = 2;
+  Position end = 3;
+}
+message Position {
+  int32 line = 1;
+  int32 column = 2;
+}

@@ -241,7 +241,7 @@ function translateToProtoFormat(messages: Record<string, ProtobufMessage>): stri
         lines.push('  }');
         index--;
       } else {
-        lines.push(`  ${field.name}: ${field.fieldValue.type} = ${index};`);
+        lines.push(`  ${field.fieldValue.type} ${field.name} = ${index};`);
       }
       index++;
     }
