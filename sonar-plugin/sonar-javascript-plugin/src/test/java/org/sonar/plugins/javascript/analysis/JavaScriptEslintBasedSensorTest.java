@@ -642,9 +642,9 @@ class JavaScriptEslintBasedSensorTest {
 
     createSensor(mock(SonarLintTypeCheckingChecker.class)).execute(ctx);
     verify(bridgeServerMock).analyzeJavaScript(captor.capture());
-    assertThat(captor.getValue().fileContent)
+    assertThat(captor.getValue().fileContent())
       .isEqualTo("if (cond)\n" + "doFoo(); \n" + "else \n" + "doFoo();");
-    assertThat(captor.getValue().tsConfigs).containsExactly("/path/to/file");
+    assertThat(captor.getValue().tsConfigs()).containsExactly("/path/to/file");
 
     clearInvocations(bridgeServerMock);
     ctx = SensorContextTester.create(baseDir);
@@ -654,7 +654,7 @@ class JavaScriptEslintBasedSensorTest {
 
     createSensor().execute(ctx);
     verify(bridgeServerMock).analyzeJavaScript(captor.capture());
-    assertThat(captor.getValue().fileContent).isNull();
+    assertThat(captor.getValue().fileContent()).isNull();
   }
 
   @Test
@@ -678,7 +678,7 @@ class JavaScriptEslintBasedSensorTest {
     ArgumentCaptor<JsAnalysisRequest> captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
     createSensor().execute(ctx);
     verify(bridgeServerMock).analyzeJavaScript(captor.capture());
-    assertThat(captor.getValue().fileContent).isEqualTo(content);
+    assertThat(captor.getValue().fileContent()).isEqualTo(content);
   }
 
   @Test

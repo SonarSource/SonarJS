@@ -356,13 +356,13 @@ public class BridgeServerImpl implements BridgeServer {
   @Override
   public AnalysisResponse analyzeJavaScript(JsAnalysisRequest request) throws IOException {
     String json = GSON.toJson(request);
-    return response(request(json, "analyze-js"), request.filePath);
+    return response(request(json, "analyze-js"), request.filePath());
   }
 
   @Override
   public AnalysisResponse analyzeTypeScript(JsAnalysisRequest request) throws IOException {
     String json = GSON.toJson(request);
-    return response(request(json, "analyze-ts"), request.filePath);
+    return response(request(json, "analyze-ts"), request.filePath());
   }
 
   @Override
@@ -374,13 +374,13 @@ public class BridgeServerImpl implements BridgeServer {
   @Override
   public AnalysisResponse analyzeYaml(JsAnalysisRequest request) throws IOException {
     String json = GSON.toJson(request);
-    return response(request(json, "analyze-yaml"), request.filePath);
+    return response(request(json, "analyze-yaml"), request.filePath());
   }
 
   @Override
   public AnalysisResponse analyzeHtml(JsAnalysisRequest request) throws IOException {
     var json = GSON.toJson(request);
-    return response(request(json, "analyze-html"), request.filePath);
+    return response(request(json, "analyze-html"), request.filePath());
   }
 
   private String request(String json, String endpoint) throws IOException {

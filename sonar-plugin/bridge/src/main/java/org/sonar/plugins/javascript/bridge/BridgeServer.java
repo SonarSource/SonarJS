@@ -73,36 +73,18 @@ public interface BridgeServer extends Startable {
 
   TsConfigFile createTsConfigFile(String content) throws IOException;
 
-  class JsAnalysisRequest {
+  record JsAnalysisRequest(
 
-    public final String filePath;
-    public final String fileContent;
-    final String fileType;
-    final boolean ignoreHeaderComments;
-    public final List<String> tsConfigs;
-    final String programId;
-    final String linterId;
-    final String language;
+    String filePath,
+    String fileType,
+    String language,
+    String fileContent,
+    boolean ignoreHeaderComments,
+    List<String> tsConfigs,
+    String programId,
+    String linterId
+   ) {
 
-    public JsAnalysisRequest(
-      String filePath,
-      String fileType,
-      String language,
-      @Nullable String fileContent,
-      boolean ignoreHeaderComments,
-      @Nullable List<String> tsConfigs,
-      @Nullable String programId,
-      String linterId
-    ) {
-      this.filePath = filePath;
-      this.fileType = fileType;
-      this.language = language;
-      this.fileContent = fileContent;
-      this.ignoreHeaderComments = ignoreHeaderComments;
-      this.tsConfigs = tsConfigs;
-      this.programId = programId;
-      this.linterId = linterId;
-    }
   }
 
   record CssAnalysisRequest(

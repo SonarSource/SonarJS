@@ -341,7 +341,7 @@ class JsTsSensorTest {
     ArgumentCaptor<JsAnalysisRequest> captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
     createSensor().execute(ctx);
     verify(bridgeServerMock).analyzeTypeScript(captor.capture());
-    assertThat(captor.getValue().fileContent)
+    assertThat(captor.getValue().fileContent())
       .isEqualTo("if (cond)\n" + "doFoo(); \n" + "else \n" + "doFoo();");
   }
 
@@ -356,7 +356,7 @@ class JsTsSensorTest {
     createSensor().execute(ctx);
     var captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
     verify(bridgeServerMock).analyzeTypeScript(captor.capture());
-    assertThat(captor.getValue().fileContent).isNull();
+    assertThat(captor.getValue().fileContent()).isNull();
 
     var deleteCaptor = ArgumentCaptor.forClass(TsProgram.class);
     verify(bridgeServerMock).deleteProgram(deleteCaptor.capture());
@@ -383,7 +383,7 @@ class JsTsSensorTest {
     ArgumentCaptor<JsAnalysisRequest> captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
     createSensor().execute(ctx);
     verify(bridgeServerMock, times(2)).analyzeTypeScript(captor.capture());
-    assertThat(captor.getAllValues()).extracting(c -> c.fileContent).contains(content);
+    assertThat(captor.getAllValues()).extracting(c -> c.fileContent()).contains(content);
   }
 
   @Test
@@ -436,7 +436,7 @@ class JsTsSensorTest {
     createSensor().execute(context);
     verify(bridgeServerMock, times(4)).analyzeTypeScript(captor.capture());
     assertThat(captor.getAllValues())
-      .extracting(req -> req.filePath)
+      .extracting(req -> req.filePath())
       .containsExactlyInAnyOrder(
         file1.absolutePath(),
         file2.absolutePath(),
@@ -470,7 +470,7 @@ class JsTsSensorTest {
     createSensor().execute(context);
     verify(bridgeServerMock, times(1)).analyzeTypeScript(captor.capture());
     assertThat(captor.getAllValues())
-      .extracting(req -> req.filePath)
+      .extracting(req -> req.filePath())
       .containsExactlyInAnyOrder(file1.absolutePath());
 
     verify(bridgeServerMock, times(1)).deleteProgram(any());
@@ -526,7 +526,7 @@ class JsTsSensorTest {
     verify(bridgeServerMock, times(4)).analyzeTypeScript(captor.capture());
     verify(bridgeServerMock, times(4)).createProgram(captorProgram.capture());
     assertThat(captor.getAllValues())
-      .extracting(req -> req.filePath)
+      .extracting(req -> req.filePath())
       .containsExactlyInAnyOrder(
         file1.absolutePath(),
         file2.absolutePath(),
@@ -649,7 +649,7 @@ class JsTsSensorTest {
     verify(bridgeServerMock, times(3)).loadTsConfig(anyString());
     verify(bridgeServerMock, times(1)).analyzeTypeScript(captor.capture());
     assertThat(captor.getAllValues())
-      .extracting(req -> req.filePath)
+      .extracting(req -> req.filePath())
       .containsExactlyInAnyOrder(file1.absolutePath());
   }
 
