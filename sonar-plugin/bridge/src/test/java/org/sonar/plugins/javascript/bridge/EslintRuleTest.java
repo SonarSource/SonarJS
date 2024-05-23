@@ -60,6 +60,13 @@ class EslintRuleTest {
       .isInstanceOf(IllegalArgumentException.class);
   }
 
+  @Test
+  void getters() {
+    var rule = new EslintRule("key", List.of(), List.of(InputFile.Type.MAIN), "js");
+    assertThat(rule.getKey()).isEqualTo("key");
+    assertThat(rule.getConfigurations()).isEmpty();
+  }
+
   private static List<EslintRule> rules(String... keys) {
     return Arrays
       .stream(keys)
