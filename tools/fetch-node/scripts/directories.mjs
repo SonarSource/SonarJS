@@ -43,7 +43,7 @@ export const TARGET_DIR = path.join(
   '..',
   '..',
   'sonar-plugin',
-  'bridge',
+  'sonar-javascript-plugin',
   'target',
   'node',
 );

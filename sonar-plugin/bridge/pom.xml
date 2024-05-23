@@ -87,7 +87,7 @@
               <outputDirectory>${basedir}/target/test-classes</outputDirectory>
               <resources>
                 <resource>
-                  <directory>${project.build.directory}/node</directory>
+                  <directory>${basedir}/../sonar-javascript-plugin/target/node</directory>
                 </resource>
               </resources>
             </configuration>
