@@ -27,6 +27,7 @@ class PluginInfoTest {
 
   @Test
   void test() {
+    assertNull(PluginInfo.getVersion());
     PluginInfo.setVersion("1.0.0");
     assertEquals("1.0.0", PluginInfo.getVersion());
     PluginInfo.setUcfgPluginVersion("1.0.0");

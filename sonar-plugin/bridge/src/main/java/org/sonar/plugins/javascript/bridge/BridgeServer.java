@@ -101,10 +101,10 @@ public interface BridgeServer extends Startable {
                                  List<CpdToken> cpdTokens,
                                  List<String> ucfgPaths) {
     public AnalysisResponse() {
-      this(null, List.of(), List.of(), List.of(), null, null, null);
+      this(null, List.of(), List.of(), List.of(), null, List.of(), List.of());
     }
 
-    public AnalysisResponse(ParsingError parsingError,
+    public AnalysisResponse(@Nullable ParsingError parsingError,
       List<Issue> issues,
       List<Highlight> highlights,
       List<HighlightedSymbol> highlightedSymbols,

@@ -76,4 +76,12 @@ class TsConfigFileTest {
     );
     assertThat(result).isEmpty();
   }
+
+  @Test
+  void getters() {
+    var file = new TsConfigFile("dir1/tsconfig.json", singletonList("foo/dir1/file1.ts"), emptyList());
+    assertThat(file.getFilename()).isEqualTo("dir1/tsconfig.json");
+    assertThat(file.getProjectReferences()).isEmpty();
+    assertThat(file).hasToString("dir1/tsconfig.json");
+  }
 }
