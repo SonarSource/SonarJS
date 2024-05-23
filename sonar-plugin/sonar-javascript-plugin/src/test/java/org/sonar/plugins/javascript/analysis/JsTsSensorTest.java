@@ -83,12 +83,10 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.Version;
-import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.TestUtils;
 import org.sonar.plugins.javascript.analysis.cache.CacheTestUtils;
-import org.sonar.plugins.javascript.bridge.BridgeServer;
 import org.sonar.plugins.javascript.bridge.BridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.bridge.BridgeServer.JsAnalysisRequest;
 import org.sonar.plugins.javascript.bridge.BridgeServer.ParsingError;
@@ -258,7 +256,7 @@ class JsTsSensorTest {
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Analysis of JS/TS files failed");
 
-    assertThat(logTester.logs(LoggerLevel.ERROR))
+    assertThat(logTester.logs(Level.ERROR))
       .contains("Failed to get response while analyzing " + inputFile.uri());
     assertThat(context.allIssues()).isEmpty();
   }
@@ -299,7 +297,7 @@ class JsTsSensorTest {
     assertThat(issue.primaryLocation().textRange().start().line()).isEqualTo(3);
     assertThat(issue.primaryLocation().message()).isEqualTo("Parse error message");
     assertThat(context.allAnalysisErrors()).hasSize(1);
-    assertThat(logTester.logs(LoggerLevel.WARN))
+    assertThat(logTester.logs(Level.WARN))
       .contains("Failed to parse file [dir/file.ts] at line 3: Parse error message");
   }
 
@@ -321,7 +319,7 @@ class JsTsSensorTest {
     assertThat(issue.primaryLocation().textRange()).isNull(); // file level issueCheckListTest.testTypeScriptChecks
     assertThat(issue.primaryLocation().message()).isEqualTo("Parse error message");
     assertThat(context.allAnalysisErrors()).hasSize(2);
-    assertThat(logTester.logs(LoggerLevel.ERROR))
+    assertThat(logTester.logs(Level.ERROR))
       .contains(
         "Failed to analyze file [dir/file.ts]: Parse error message",
         "Failed to analyze file [file.vue]: Parse error message"
@@ -389,7 +387,7 @@ class JsTsSensorTest {
   @Test
   void should_log_when_failing_typescript() throws Exception {
     var err = new ParsingError("Debug Failure. False expression.", null, ParsingErrorCode.FAILING_TYPESCRIPT);
-    var parseError = new AnalysisResponse(err, null, null, null, null, null, null, null);
+    var parseError = new AnalysisResponse(err, null, null, null, null, null, null);
     when(bridgeServerMock.analyzeTypeScript(any())).thenReturn(parseError);
     var file1 = createInputFile(context, "dir/file1.ts");
     var file2 = createInputFile(context, "dir/file2.ts");
@@ -474,7 +472,7 @@ class JsTsSensorTest {
       .containsExactlyInAnyOrder(file1.absolutePath());
 
     verify(bridgeServerMock, times(1)).deleteProgram(any());
-    assertThat(logTester.logs(LoggerLevel.WARN))
+    assertThat(logTester.logs(Level.WARN))
       .contains(
         "At least one tsconfig.json was not found in the project. Please run 'npm install' for a more complete analysis. Check analysis logs for more details."
       );
@@ -536,20 +534,20 @@ class JsTsSensorTest {
 
     verify(bridgeServerMock, times(3)).deleteProgram(any());
 
-    assertThat(logTester.logs(LoggerLevel.DEBUG))
+    assertThat(logTester.logs(Level.DEBUG))
       .contains(
         "File already analyzed: '" +
         file2.absolutePath() +
         "'. Check your project configuration to avoid files being part of multiple projects."
       );
-    assertThat(logTester.logs(LoggerLevel.ERROR))
+    assertThat(logTester.logs(Level.ERROR))
       .contains("Failed to create program: something went wrong");
 
     Assertions.assertThat(analysisWarnings.warnings)
       .contains(
         String.format(
           "Failed to create TypeScript program with TSConfig file %s. Highest TypeScript supported version is %s.",
-          captorProgram.getAllValues().get(2).tsConfig,
+          captorProgram.getAllValues().get(2).tsConfig(),
           JavaScriptPlugin.TYPESCRIPT_VERSION
         )
       );
@@ -588,14 +586,14 @@ class JsTsSensorTest {
     createSensor().execute(context);
     verify(bridgeServerMock, times(2)).createProgram(captorProgram.capture());
     assertThat(captorProgram.getAllValues())
-      .extracting(req -> req.tsConfig)
+      .extracting(TsProgramRequest::tsConfig)
       .isEqualTo(List.of(tsconfig1, tsconfig2));
 
     verify(bridgeServerMock, times(2)).deleteProgram(any());
 
-    assertThat(logTester.logs(LoggerLevel.INFO))
+    assertThat(logTester.logs(Level.INFO))
       .containsOnlyOnce("TypeScript configuration file " + tsconfig1);
-    assertThat(logTester.logs(LoggerLevel.INFO))
+    assertThat(logTester.logs(Level.INFO))
       .containsOnlyOnce("TypeScript configuration file " + tsconfig2);
   }
 
@@ -607,12 +605,12 @@ class JsTsSensorTest {
     createInputFile(ctx);
     createSensor().execute(ctx);
 
-    assertThat(logTester.logs(LoggerLevel.INFO)).contains("No tsconfig.json file found");
-    assertThat(logTester.logs(LoggerLevel.INFO))
+    assertThat(logTester.logs(Level.INFO)).contains("No tsconfig.json file found");
+    assertThat(logTester.logs(Level.INFO))
       .contains(
         "Skipped 1 file(s) because they were not part of any tsconfig.json (enable debug logs to see the full list)"
       );
-    assertThat(logTester.logs(LoggerLevel.DEBUG))
+    assertThat(logTester.logs(Level.DEBUG))
       .contains("File not part of any tsconfig.json: dir/file.ts");
   }
 
@@ -693,7 +691,7 @@ class JsTsSensorTest {
     assertThatThrownBy(() -> createSensor().execute(context))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Analysis of JS/TS files failed");
-    assertThat(logTester.logs(LoggerLevel.ERROR))
+    assertThat(logTester.logs(Level.ERROR))
       .contains("Failed to analyze file [dir/file.ts]: Parse error message");
   }
 
@@ -705,7 +703,7 @@ class JsTsSensorTest {
     createTsConfigFile();
     context.setCancelled(true);
     sensor.execute(context);
-    assertThat(logTester.logs(LoggerLevel.INFO))
+    assertThat(logTester.logs(Level.INFO))
       .contains(
         "org.sonar.plugins.javascript.CancellationException: Analysis interrupted because the SensorContext is in cancelled state"
       );
@@ -721,7 +719,7 @@ class JsTsSensorTest {
     when(bridgeServerMock.analyzeTypeScript(any())).thenReturn(new AnalysisResponse());
 
     sensor.execute(context);
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Analyzing file: " + inputFile.uri());
+    assertThat(logTester.logs(Level.DEBUG)).contains("Analyzing file: " + inputFile.uri());
   }
 
   @Test
@@ -735,7 +733,7 @@ class JsTsSensorTest {
     createTsConfigFile();
 
     sensor.execute(context);
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Analyzing file: " + inputFile.uri());
+    assertThat(logTester.logs(Level.DEBUG)).contains("Analyzing file: " + inputFile.uri());
   }
 
   @Test
@@ -754,7 +752,7 @@ class JsTsSensorTest {
     sensor.execute(context);
 
     assertThat(context.cpdTokens(file.key())).hasSize(2);
-    assertThat(logTester.logs(LoggerLevel.DEBUG))
+    assertThat(logTester.logs(Level.DEBUG))
       .contains("Processing cache analysis of file: " + file.uri());
   }
 
@@ -774,7 +772,7 @@ class JsTsSensorTest {
     sensor.execute(context);
 
     assertThat(context.cpdTokens(file.key())).hasSize(2);
-    assertThat(logTester.logs(LoggerLevel.DEBUG))
+    assertThat(logTester.logs(Level.DEBUG))
       .contains("Processing cache analysis of file: " + file.uri());
   }
 

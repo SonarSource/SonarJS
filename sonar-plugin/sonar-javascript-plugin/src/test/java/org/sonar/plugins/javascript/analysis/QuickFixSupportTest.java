@@ -103,7 +103,7 @@ class QuickFixSupportTest {
   void test() {
     var context = createContext(Version.create(6, 3));
 
-    var response = new AnalysisResponse(null, List.of(issueWithQuickFix()), null, null, null, null, null, null);
+    var response = new AnalysisResponse(null, List.of(issueWithQuickFix()), null, null, null, null, null);
 
     var issueCaptor = ArgumentCaptor.forClass(DefaultSonarLintIssue.class);
     doNothing().when(sensorStorage).store(issueCaptor.capture());
@@ -135,7 +135,7 @@ class QuickFixSupportTest {
   @Test
   void test_old_version() {
     var context = createContext(Version.create(6, 2));
-    var response = new AnalysisResponse(null, List.of(issueWithQuickFix()), null, null, null, null, null, null);
+    var response = new AnalysisResponse(null, List.of(issueWithQuickFix()), null, null, null, null, null);
 
     var issueCaptor = ArgumentCaptor.forClass(DefaultSonarLintIssue.class);
     doNothing().when(sensorStorage).store(issueCaptor.capture());
@@ -148,7 +148,7 @@ class QuickFixSupportTest {
   void test_null() {
     var context = createContext(Version.create(6, 3));
     var issue = new Issue(1, 1, 1, 1,"", "no-extra-semi", List.of(), 1.0, null);
-    var response = new AnalysisResponse(null, List.of(issue), null, null, new Metrics(), null, null, null);
+    var response = new AnalysisResponse(null, List.of(issue), null, null, new Metrics(), null, null);
 
     var issueCaptor = ArgumentCaptor.forClass(DefaultSonarLintIssue.class);
     doNothing().when(sensorStorage).store(issueCaptor.capture());

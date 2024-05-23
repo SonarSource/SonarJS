@@ -29,10 +29,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
-import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
 
 class CacheReporterTest {
@@ -55,7 +55,7 @@ class CacheReporterTest {
   void should_report_cache_statistics() {
     var counter = new AtomicInteger(0);
 
-    logTester.setLevel(LoggerLevel.DEBUG);
+    logTester.setLevel(Level.DEBUG);
     when(inputFile.toString())
       .thenAnswer(invocation -> String.format("file-%02d.js", counter.incrementAndGet()));
 

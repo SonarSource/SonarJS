@@ -27,6 +27,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultTextPointer;
 import org.sonar.api.batch.fs.internal.DefaultTextRange;
@@ -35,7 +36,6 @@ import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.ExternalIssue;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
-import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 
 class EslintReportSensorTest {
@@ -63,7 +63,7 @@ class EslintReportSensorTest {
 
   @Test
   void should_add_issues_from_report() throws Exception {
-    logTester.setLevel(LoggerLevel.DEBUG);
+    logTester.setLevel(Level.DEBUG);
     setEslintReport("eslint-report.json");
     eslintReportSensor.execute(context);
 
@@ -90,16 +90,16 @@ class EslintReportSensorTest {
     assertThat(fourth.primaryLocation().inputComponent()).isEqualTo(tsInputFile);
     assertThat(tsInputFile.language()).isEqualTo("ts");
 
-    assertThat(logTester.logs(LoggerLevel.WARN))
+    assertThat(logTester.logs(Level.WARN))
       .contains(
         "No input file found for notExist.js. No ESLint issues will be imported on this file."
       );
-    assertThat(logTester.logs(LoggerLevel.WARN))
+    assertThat(logTester.logs(Level.WARN))
       .contains(
         "Parse error issue from ESLint will not be imported, file " + parseErrorInputFile.uri()
       );
 
-    assertThat(logTester.logs(LoggerLevel.DEBUG))
+    assertThat(logTester.logs(Level.DEBUG))
       .containsExactlyInAnyOrder(
         "Saving external ESLint issue { file:\"file.js\", id:use-isnan, message:\"Use the isNaN function to compare with NaN.\", line:2, offset:8, type: BUG, severity:MAJOR, remediation:5 }",
         "Saving external ESLint issue { file:\"file.js\", id:semi, message:\"Use the isNaN function to compare with NaN.\", line:3, offset:0, type: CODE_SMELL, severity:MAJOR, remediation:5 }",
@@ -116,7 +116,7 @@ class EslintReportSensorTest {
     Collection<ExternalIssue> externalIssues = context.allExternalIssues();
     assertThat(externalIssues).hasSize(0);
 
-    assertThat(logTester.logs(LoggerLevel.WARN))
+    assertThat(logTester.logs(Level.WARN))
       .contains("No issues information will be saved as the report file can't be read.");
   }
 
@@ -128,7 +128,7 @@ class EslintReportSensorTest {
     Collection<ExternalIssue> externalIssues = context.allExternalIssues();
     assertThat(externalIssues).hasSize(0);
 
-    assertThat(logTester.logs(LoggerLevel.WARN))
+    assertThat(logTester.logs(Level.WARN))
       .contains("No issues information will be saved as the report file can't be read.");
   }
 

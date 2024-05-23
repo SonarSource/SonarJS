@@ -47,6 +47,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.slf4j.event.Level;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
@@ -168,7 +169,7 @@ class NodeCommandTest {
     command.waitFor();
     Map map = new Gson().fromJson(output.toString(), Map.class);
     double total_available_size = (double) map.get("total_available_size");
-    assertThat(logTester.logs(LoggerLevel.INFO))
+    assertThat(logTester.logs(Level.INFO))
       .contains("Configured Node.js --max-old-space-size=" + maxOldSpaceSize + ".");
     assertThat(total_available_size).isGreaterThan(maxOldSpaceSize * 1000);
   }

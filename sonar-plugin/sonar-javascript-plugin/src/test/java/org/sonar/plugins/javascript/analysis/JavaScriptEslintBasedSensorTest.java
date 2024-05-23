@@ -77,7 +77,6 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.Version;
-import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.TestUtils;
 import org.sonar.plugins.javascript.analysis.cache.CacheTestUtils;
@@ -214,7 +213,7 @@ class JavaScriptEslintBasedSensorTest {
     assertThat(firstIssue.ruleKey().rule()).isEqualTo("S3923");
     assertThat(secondIssue.ruleKey().rule()).isEqualTo("S3923");
     assertThat(thirdIssue.ruleKey().rule()).isEqualTo("S1451");
-    assertThat(logTester.logs(LoggerLevel.WARN))
+    assertThat(logTester.logs(Level.WARN))
       .doesNotContain(
         "Custom JavaScript rules are deprecated and API will be removed in future version."
       );
@@ -463,7 +462,7 @@ class JavaScriptEslintBasedSensorTest {
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Analysis of JS/TS files failed");
 
-    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Failure during analysis");
+    assertThat(logTester.logs(Level.ERROR)).contains("Failure during analysis");
     assertThat(context.allIssues()).isEmpty();
   }
 
@@ -477,7 +476,7 @@ class JavaScriptEslintBasedSensorTest {
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Analysis of JS/TS files failed");
 
-    assertThat(logTester.logs(LoggerLevel.ERROR))
+    assertThat(logTester.logs(Level.ERROR))
       .contains("Failed to get response while analyzing " + inputFile.uri());
     assertThat(context.allIssues()).isEmpty();
   }
@@ -538,7 +537,7 @@ class JavaScriptEslintBasedSensorTest {
       analysisWithWatchProgram
     );
     javaScriptEslintBasedSensor.execute(context);
-    assertThat(logTester.logs(LoggerLevel.INFO)).contains("No input files found for analysis");
+    assertThat(logTester.logs(Level.INFO)).contains("No input files found for analysis");
   }
 
   @Test
@@ -559,7 +558,7 @@ class JavaScriptEslintBasedSensorTest {
       .isInstanceOf(IllegalStateException.class)
       .hasMessage(nodeExceptionMessage);
 
-    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Exception Message");
+    assertThat(logTester.logs(Level.ERROR)).contains("Exception Message");
   }
 
   @Test
@@ -594,7 +593,7 @@ class JavaScriptEslintBasedSensorTest {
     assertThat(issue.primaryLocation().textRange().start().line()).isEqualTo(3);
     assertThat(issue.primaryLocation().message()).isEqualTo("Parse error message");
     assertThat(context.allAnalysisErrors()).hasSize(1);
-    assertThat(logTester.logs(LoggerLevel.WARN))
+    assertThat(logTester.logs(Level.WARN))
       .contains("Failed to parse file [dir/file.js] at line 3: Parse error message");
   }
 
@@ -619,7 +618,7 @@ class JavaScriptEslintBasedSensorTest {
     Collection<Issue> issues = context.allIssues();
     assertThat(issues).isEmpty();
     assertThat(context.allAnalysisErrors()).hasSize(1);
-    assertThat(logTester.logs(LoggerLevel.WARN))
+    assertThat(logTester.logs(Level.WARN))
       .contains("Failed to parse file [dir/file.js] at line 3: Parse error message");
   }
 
@@ -707,7 +706,7 @@ class JavaScriptEslintBasedSensorTest {
     createInputFile(context);
     context.setCancelled(true);
     sensor.execute(context);
-    assertThat(logTester.logs(LoggerLevel.INFO))
+    assertThat(logTester.logs(Level.INFO))
       .contains(
         "org.sonar.plugins.javascript.CancellationException: Analysis interrupted because the SensorContext is in cancelled state"
       );
@@ -726,7 +725,7 @@ class JavaScriptEslintBasedSensorTest {
     sensor.execute(context);
 
     assertThat(context.cpdTokens(file.key())).hasSize(2);
-    assertThat(logTester.logs(LoggerLevel.DEBUG))
+    assertThat(logTester.logs(Level.DEBUG))
       .contains("Processing cache analysis of file: " + file.uri());
   }
 
@@ -736,7 +735,7 @@ class JavaScriptEslintBasedSensorTest {
     var sensor = createSensor();
     InputFile file = createInputFile(context);
     sensor.execute(context);
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Analyzing file: " + file.uri());
+    assertThat(logTester.logs(Level.DEBUG)).contains("Analyzing file: " + file.uri());
   }
 
   private static JsTsChecks checks(String... ruleKeys) {

@@ -41,7 +41,6 @@ import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
-import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 
 class CoverageSensorTest {
@@ -123,7 +122,7 @@ class CoverageSensorTest {
     settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, REPORT1);
     settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS_ALIAS, REPORT2);
     coverageSensor.execute(context);
-    assertThat(logTester.logs(LoggerLevel.INFO))
+    assertThat(logTester.logs(Level.INFO))
       .contains(
         String.format(
           "Merging coverage reports from %s and %s.",
@@ -138,7 +137,7 @@ class CoverageSensorTest {
   void test_used_property_log() {
     settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, TWO_REPORTS);
     coverageSensor.execute(context);
-    assertThat(logTester.logs(LoggerLevel.DEBUG))
+    assertThat(logTester.logs(Level.DEBUG))
       .contains(String.format("Property %s is used.", JavaScriptPlugin.LCOV_REPORT_PATHS));
   }
 
@@ -228,20 +227,20 @@ class CoverageSensorTest {
     assertThat(context.conditions("moduleKey:file1.js", 2)).isEqualTo(2);
     assertThat(context.coveredConditions("moduleKey:file1.js", 2)).isEqualTo(2);
 
-    assertThat(logTester.logs(LoggerLevel.DEBUG))
+    assertThat(logTester.logs(Level.DEBUG))
       .contains(
         "Problem during processing LCOV report: can't save DA data for line 3 of coverage report file (java.lang.NumberFormatException: For input string: \"1.\")."
       );
-    String stringIndexOutOfBoundLogMessage = logTester.logs(LoggerLevel.DEBUG).get(3);
+    String stringIndexOutOfBoundLogMessage = logTester.logs(Level.DEBUG).get(3);
     assertThat(stringIndexOutOfBoundLogMessage)
       .startsWith(
         "Problem during processing LCOV report: can't save DA data for line 4 of coverage report file (java.lang.StringIndexOutOfBoundsException:"
       );
-    assertThat(logTester.logs(LoggerLevel.DEBUG).get(logTester.logs(LoggerLevel.DEBUG).size() - 1))
+    assertThat(logTester.logs(Level.DEBUG).get(logTester.logs(Level.DEBUG).size() - 1))
       .startsWith(
         "Problem during processing LCOV report: can't save BRDA data for line 6 of coverage report file (java.lang.ArrayIndexOutOfBoundsException: "
       );
-    assertThat(logTester.logs(LoggerLevel.WARN))
+    assertThat(logTester.logs(Level.WARN))
       .contains(
         "Found 3 inconsistencies in coverage report. Re-run analyse in debug mode to see details."
       );

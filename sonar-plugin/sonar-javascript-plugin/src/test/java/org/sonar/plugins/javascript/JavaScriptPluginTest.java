@@ -36,7 +36,6 @@ import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.Version;
-import org.sonar.api.utils.log.LoggerLevel;
 
 class JavaScriptPluginTest {
 
@@ -84,7 +83,7 @@ class JavaScriptPluginTest {
     var context = mock(Plugin.Context.class);
 
     sonarLintPluginAPIManager.addSonarLintTypeCheckingChecker(context, sonarLintPluginAPIVersion);
-    assertThat(logTester.logs(LoggerLevel.DEBUG))
+    assertThat(logTester.logs(Level.DEBUG))
       .containsExactly("Error while trying to inject SonarLintTypeCheckingChecker");
   }
 

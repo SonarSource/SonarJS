@@ -29,7 +29,6 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
 import org.slf4j.event.Level;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
-import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.plugins.javascript.api.RulesBundle;
 
 class RulesBundlesTest {
@@ -69,10 +68,10 @@ class RulesBundlesTest {
     TestRulesBundle rulesBundle = new TestRulesBundle(filename);
     RulesBundles rulesBundles = new RulesBundles(new TestRulesBundle[] { rulesBundle });
     rulesBundles.deploy(tempDir);
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).hasSize(1);
-    assertThat(logTester.logs(LoggerLevel.DEBUG).get(0))
+    assertThat(logTester.logs(Level.DEBUG)).hasSize(1);
+    assertThat(logTester.logs(Level.DEBUG).get(0))
       .startsWith("Deploying custom rules bundle");
-    assertThat(logTester.logs(LoggerLevel.DEBUG).get(0)).contains(filename);
+    assertThat(logTester.logs(Level.DEBUG).get(0)).contains(filename);
   }
 
   @Test

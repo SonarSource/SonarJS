@@ -59,7 +59,6 @@ import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
-import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.TestUtils;
 import org.sonar.plugins.javascript.analysis.cache.CacheTestUtils;
@@ -160,7 +159,7 @@ class HtmlSensorTest {
 
     assertThat(firstIssue.ruleKey().rule()).isEqualTo("S3923");
     assertThat(secondIssue.ruleKey().rule()).isEqualTo("S3923");
-    assertThat(logTester.logs(LoggerLevel.WARN))
+    assertThat(logTester.logs(Level.WARN))
       .doesNotContain(
         "Custom JavaScript rules are deprecated and API will be removed in future version."
       );
@@ -191,9 +190,9 @@ class HtmlSensorTest {
     HtmlSensor sensor = createSensor();
     sensor.execute(context);
     verify(bridgeServerMock, times(2)).analyzeHtml(any());
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Analyzing file: " + htmFile.uri());
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Analyzing file: " + htmlFile.uri());
-    assertThat(logTester.logs(LoggerLevel.DEBUG))
+    assertThat(logTester.logs(Level.DEBUG)).contains("Analyzing file: " + htmFile.uri());
+    assertThat(logTester.logs(Level.DEBUG)).contains("Analyzing file: " + htmlFile.uri());
+    assertThat(logTester.logs(Level.DEBUG))
       .doesNotContain("Analyzing file: " + templateFile.uri());
   }
 
@@ -218,7 +217,7 @@ class HtmlSensorTest {
     assertThat(issue.primaryLocation().textRange().start().line()).isEqualTo(1);
     assertThat(issue.primaryLocation().message()).isEqualTo("Parse error message");
     assertThat(context.allAnalysisErrors()).hasSize(1);
-    assertThat(logTester.logs(LoggerLevel.WARN))
+    assertThat(logTester.logs(Level.WARN))
       .contains("Failed to parse file [dir/file.html] at line 1: Parse error message");
   }
 
@@ -232,7 +231,7 @@ class HtmlSensorTest {
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Analysis of JS in HTML files failed");
 
-    assertThat(logTester.logs(LoggerLevel.ERROR))
+    assertThat(logTester.logs(Level.ERROR))
       .contains("Failed to get response while analyzing " + inputFile.uri());
     assertThat(context.allIssues()).isEmpty();
   }
@@ -245,7 +244,7 @@ class HtmlSensorTest {
     context.setCancelled(true);
     sensor.execute(context);
 
-    assertThat(logTester.logs(LoggerLevel.INFO))
+    assertThat(logTester.logs(Level.INFO))
       .contains(
         "org.sonar.plugins.javascript.CancellationException: Analysis interrupted because the SensorContext is in cancelled state"
       );
@@ -259,7 +258,7 @@ class HtmlSensorTest {
     DefaultInputFile inputFile = createInputFile(context);
 
     sensor.execute(context);
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Analyzing file: " + inputFile.uri());
+    assertThat(logTester.logs(Level.DEBUG)).contains("Analyzing file: " + inputFile.uri());
   }
 
   @Test
@@ -274,7 +273,7 @@ class HtmlSensorTest {
     sensor.execute(context);
 
     assertThat(context.cpdTokens(file.key())).isNull();
-    assertThat(logTester.logs(LoggerLevel.DEBUG))
+    assertThat(logTester.logs(Level.DEBUG))
       .doesNotContain("Processing cache analysis of file: " + file.uri());
   }
 

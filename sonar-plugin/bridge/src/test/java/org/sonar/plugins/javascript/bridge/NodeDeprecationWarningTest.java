@@ -29,8 +29,8 @@ import java.util.List;
 import java.util.stream.IntStream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.slf4j.event.Level;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
-import org.sonar.api.utils.log.LoggerLevel;
 
 class NodeDeprecationWarningTest {
 
@@ -82,6 +82,6 @@ class NodeDeprecationWarningTest {
 
   private void assertWarnings(String... messages) {
     assertThat(analysisWarnings.warnings).containsExactly(messages);
-    assertThat(logTester.logs(LoggerLevel.WARN)).contains(messages);
+    assertThat(logTester.logs(Level.WARN)).contains(messages);
   }
 }

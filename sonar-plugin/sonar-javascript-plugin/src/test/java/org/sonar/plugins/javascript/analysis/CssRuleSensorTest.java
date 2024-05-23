@@ -64,7 +64,6 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.Version;
-import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.css.CssLanguage;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
 import org.sonar.plugins.javascript.bridge.BridgeServer.AnalysisResponse;
@@ -207,7 +206,7 @@ class CssRuleSensorTest {
       .extracting("primaryLocation.message")
       .containsOnly("Unexpected empty block");
 
-    assertThat(String.join("\n", logTester.logs(LoggerLevel.DEBUG)))
+    assertThat(String.join("\n", logTester.logs(Level.DEBUG)))
       .matches("(?s).*Analyzing file: \\S*file\\.css.*")
       .matches("(?s).*Found 1 issue\\(s\\).*");
   }
@@ -227,7 +226,7 @@ class CssRuleSensorTest {
       .extracting("primaryLocation.message")
       .containsOnly("some message");
 
-    assertThat(String.join("\n", logTester.logs(LoggerLevel.DEBUG)))
+    assertThat(String.join("\n", logTester.logs(Level.DEBUG)))
       .matches("(?s).*Analyzing file: \\S*file-with-rule-id-message\\.css.*")
       .matches("(?s).*Found 1 issue\\(s\\).*");
   }
@@ -264,8 +263,8 @@ class CssRuleSensorTest {
   void test_no_file_to_analyze() {
     sensor.execute(context);
     assertThat(context.allIssues()).isEmpty();
-    assertThat(logTester.logs(LoggerLevel.ERROR)).isEmpty();
-    assertThat(logTester.logs(LoggerLevel.INFO))
+    assertThat(logTester.logs(Level.ERROR)).isEmpty();
+    assertThat(logTester.logs(Level.INFO))
       .contains(
         "No CSS, PHP, HTML or VueJS files are found in the project. CSS analysis is skipped."
       );
@@ -283,7 +282,7 @@ class CssRuleSensorTest {
       .hasMessage(
         "Error while running Node.js. A supported version of Node.js is required for running the analysis of CSS files. Please make sure a supported version of Node.js is available in the PATH or an executable path is provided via 'sonar.nodejs.executable' property. Alternatively, you can exclude CSS files from your analysis using the 'sonar.exclusions' configuration property. See the docs for configuring the analysis environment: https://docs.sonarsource.com/sonarqube/latest/analyzing-source-code/languages/javascript-typescript-css/"
       );
-    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Exception Message");
+    assertThat(logTester.logs(Level.ERROR)).contains("Exception Message");
   }
 
   @Test
@@ -292,7 +291,7 @@ class CssRuleSensorTest {
     when(httpFile.filename()).thenReturn("file.css");
     when(httpFile.uri()).thenReturn(new URI("http://lost-on-earth.com/file.css"));
     sensor.analyzeFile(httpFile, context, Collections.emptyList());
-    assertThat(String.join("\n", logTester.logs(LoggerLevel.DEBUG)))
+    assertThat(String.join("\n", logTester.logs(Level.DEBUG)))
       .matches("(?s).*Skipping \\S*file.css as it has not 'file' scheme.*")
       .doesNotMatch("(?s).*\nAnalyzing \\S*file.css.*");
   }
@@ -303,7 +302,7 @@ class CssRuleSensorTest {
     context.setCancelled(true);
     sensor.execute(context);
     assertThat(context.allIssues()).isEmpty();
-    assertThat(logTester.logs(LoggerLevel.INFO))
+    assertThat(logTester.logs(Level.INFO))
       .contains(
         "org.sonar.plugins.javascript.CancellationException: Analysis interrupted because the SensorContext is in cancelled state"
       );
@@ -320,9 +319,9 @@ class CssRuleSensorTest {
     InputFile inputFileNotCss = addInputFile("syntax-error.html");
     sensor.execute(context);
     assertThat(context.allIssues()).isEmpty();
-    assertThat(logTester.logs(LoggerLevel.WARN))
+    assertThat(logTester.logs(Level.WARN))
       .contains("Failed to parse file " + inputFile.uri() + ", line 2, Missed semicolon");
-    assertThat(logTester.logs(LoggerLevel.DEBUG))
+    assertThat(logTester.logs(Level.DEBUG))
       .contains("Failed to parse file " + inputFileNotCss.uri() + ", line 2, Missed semicolon");
   }
 
@@ -337,7 +336,7 @@ class CssRuleSensorTest {
     sensor.execute(context);
 
     assertThat(context.allIssues()).isEmpty();
-    assertThat(logTester.logs(LoggerLevel.ERROR))
+    assertThat(logTester.logs(Level.ERROR))
       .contains("Unknown stylelint rule or rule not enabled: 'unknown-rule-key'");
   }
 

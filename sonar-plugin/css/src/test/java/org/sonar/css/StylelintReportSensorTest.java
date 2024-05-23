@@ -48,7 +48,6 @@ import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.Version;
-import org.sonar.api.utils.log.LoggerLevel;
 
 class StylelintReportSensorTest {
 
@@ -152,7 +151,7 @@ class StylelintReportSensorTest {
     stylelintReportSensor.execute(context);
 
     assertThat(context.allExternalIssues()).isEmpty();
-    assertThat(logTester.logs(LoggerLevel.ERROR))
+    assertThat(logTester.logs(Level.ERROR))
       .contains("Import of external issues requires SonarQube 7.2 or greater.");
   }
 
@@ -170,7 +169,7 @@ class StylelintReportSensorTest {
     stylelintReportSensor.execute(context);
 
     assertThat(context.allExternalIssues()).isEmpty();
-    assertThat(logTester.logs(LoggerLevel.ERROR))
+    assertThat(logTester.logs(Level.ERROR))
       .contains("No issues information will be saved as the report file can't be read.");
   }
 
@@ -180,7 +179,7 @@ class StylelintReportSensorTest {
     stylelintReportSensor.execute(context);
 
     assertThat(context.allExternalIssues()).hasSize(1);
-    assertThat(logTester.logs(LoggerLevel.WARN))
+    assertThat(logTester.logs(Level.WARN))
       .contains(
         "No input file found for not-exist.css. No stylelint issues will be imported on this file."
       );

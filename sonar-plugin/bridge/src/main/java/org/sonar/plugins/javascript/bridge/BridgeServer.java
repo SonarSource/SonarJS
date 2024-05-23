@@ -24,7 +24,6 @@ import static org.sonarsource.api.sonarlint.SonarLintSide.INSTANCE;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Objects;
 import javax.annotation.Nullable;
 import org.sonar.api.Startable;
 import org.sonar.api.batch.fs.InputFile;
@@ -100,10 +99,9 @@ public interface BridgeServer extends Startable {
                                  HighlightedSymbol[] highlightedSymbols,
                                  @Nullable Metrics metrics,
                                  CpdToken[] cpdTokens,
-                                 Perf perf,
                                  List<String> ucfgPaths) {
     public AnalysisResponse() {
-      this(null, List.of(), new BridgeServer.Highlight[0], new BridgeServer.HighlightedSymbol[0], null, null, null, null);
+      this(null, List.of(), new BridgeServer.Highlight[0], new BridgeServer.HighlightedSymbol[0], null, null, null);
     }
 
     public AnalysisResponse(ParsingError parsingError,
@@ -112,7 +110,6 @@ public interface BridgeServer extends Startable {
       HighlightedSymbol[] highlightedSymbols,
       @Nullable Metrics metrics,
       CpdToken[] cpdTokens,
-      Perf perf,
       List<String> ucfgPaths) {
       this.parsingError = parsingError;
       this.issues = requireNonNullElseGet(issues, List::of);
@@ -120,7 +117,6 @@ public interface BridgeServer extends Startable {
       this.highlightedSymbols = requireNonNullElseGet(highlightedSymbols, () -> new HighlightedSymbol[0]);
       this.metrics = requireNonNullElseGet(metrics, Metrics::new);
       this.cpdTokens = requireNonNullElseGet(cpdTokens, () -> new CpdToken[0]);
-      this.perf = perf;
       this.ucfgPaths = ucfgPaths;
     }
   }
@@ -222,12 +218,6 @@ public interface BridgeServer extends Startable {
     String image) {
   }
 
-  class Perf {
-
-    int parseTime;
-    int analysisTime;
-  }
-
   class TsConfigResponse {
 
     final List<String> files;
@@ -298,12 +288,8 @@ public interface BridgeServer extends Startable {
     }
   }
 
-  class TsProgramRequest {
+  record TsProgramRequest(
 
-    public final String tsConfig;
-
-    public TsProgramRequest(String tsConfig) {
-      this.tsConfig = tsConfig;
-    }
-  }
+    String tsConfig
+  ) {}
 }
