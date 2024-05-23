@@ -1,4 +1,4 @@
-import ts, { TypeNode, isPropertySignature } from 'typescript';
+import ts, { InterfaceDeclaration, TypeNode, isPropertySignature } from 'typescript';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -182,7 +182,7 @@ while (requestedTypes.length) {
   }
 
   if (ts.isInterfaceDeclaration(declaration)) {
-    const messageFields = declaration.members
+    let messageFields = declaration.members
       .filter(isPropertySignature)
       .filter(signature => signature.type && !ignoredMembers.has(signature.name.getText(file)))
       .map(signature => {
@@ -192,7 +192,13 @@ while (requestedTypes.length) {
         };
       });
 
-    messages[requestedType] = { messageName: requestedType, fields: messageFields };
+    const inheritedFields = extractInheritedFields(declaration, messageFields);
+    if (inheritedFields) messageFields = messageFields.concat(inheritedFields);
+
+    messages[requestedType] = {
+      messageName: requestedType,
+      fields: messageFields,
+    };
     continue;
   }
 
@@ -211,8 +217,43 @@ while (requestedTypes.length) {
 
   throw new Error(`unexpected declaration for ${requestedType}`);
 }
+
+function extractInheritedFields(
+  declaration: InterfaceDeclaration,
+  messageFields: { name: string; fieldValue: ProtobufFieldValue }[],
+) {
+  const inheritedTypes = declaration.heritageClauses?.flatMap(hc => hc.types);
+  for (const inheritedType of inheritedTypes || []) {
+    const inheritedTypeName = inheritedType.getText(file);
+    const inheritedDeclaration = declarations[inheritedTypeName] as InterfaceDeclaration;
+    const inheritedFields = inheritedDeclaration?.members
+      .filter(isPropertySignature)
+      .filter(signature => signature.type && !ignoredMembers.has(signature.name.getText(file)))
+      .filter(signature => !isAlreadyThere(messageFields, signature))
+      .map(signature => {
+        return {
+          name: signature.name.getText(file),
+          fieldValue: getFieldValueFromType(signature.type as TypeNode),
+        };
+      });
+    return inheritedFields;
+  }
+
+  function isAlreadyThere(
+    messageFields: { name: string; fieldValue: ProtobufFieldValue }[],
+    signature: ts.PropertySignature,
+  ) {
+    for (const field of messageFields) {
+      if (field.name === signature.name.getText(file)) {
+        return true;
+      }
+    }
+    return false;
+  }
+}
+
 var str = JSON.stringify(messages, null, 2);
-console.log(str);
+//console.log(str);
 fs.mkdirSync('output', { recursive: true });
 fs.writeFileSync(path.join('output', 'ast.json'), str);
 fs.writeFileSync(path.join('output', 'ast.proto'), addPrefix(translateToProtoFormat(messages)));
