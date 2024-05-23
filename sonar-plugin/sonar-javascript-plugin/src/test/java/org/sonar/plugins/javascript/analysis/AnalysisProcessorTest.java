@@ -41,7 +41,7 @@ class AnalysisProcessorTest {
       .build();
     var location = new Location(1, 2, 1, 1); // invalid range startCol > endCol
     var highlight = new Highlight(location, "");
-    var response = new AnalysisResponse(null, List.of(), new Highlight[]{highlight}, new HighlightedSymbol[0], null, null, null);
+    var response = new AnalysisResponse(null, List.of(), List.of(highlight), List.of(), null, null, null);
     processor.processResponse(context, mock(JsTsChecks.class), file, response);
     assertThat(logTester.logs())
       .contains("Failed to save highlight in " + file.uri() + " at 1:2-1:1");
@@ -58,15 +58,15 @@ class AnalysisProcessorTest {
       .setContents("var x  = 1;")
       .build();
     var declaration = new Location(1, 2, 1, 1); // invalid range startCol > endCol
-    var symbol = new HighlightedSymbol(declaration, new Location[] {});
-    var response = new AnalysisResponse(null, List.of(), null, new HighlightedSymbol[]{symbol}, null, null, null);
+    var symbol = new HighlightedSymbol(declaration, List.of());
+    var response = new AnalysisResponse(null, List.of(), null, List.of(symbol), null, null, null);
     processor.processResponse(context, mock(JsTsChecks.class), file, response);
     assertThat(logTester.logs())
       .contains("Failed to create symbol declaration in " + file.uri() + " at 1:2-1:1");
 
     context = SensorContextTester.create(baseDir);
-    symbol = new HighlightedSymbol(new Location(1, 1, 1, 2), new Location[]{new Location(2, 2, 2, 1)});
-    response = new AnalysisResponse(null, List.of(), null, new HighlightedSymbol[]{symbol}, null, null, null);
+    symbol = new HighlightedSymbol(new Location(1, 1, 1, 2), List.of(new Location(2, 2, 2, 1)));
+    response = new AnalysisResponse(null, List.of(), null, List.of(symbol), null, null, null);
     processor.processResponse(context, mock(JsTsChecks.class), file, response);
     assertThat(logTester.logs())
       .contains("Failed to create symbol reference in " + file.uri() + " at 2:2-2:1");
@@ -84,7 +84,7 @@ class AnalysisProcessorTest {
       .build();
     var location = new Location(1, 2, 1, 1); // invalid range startCol > endCol
     var cpd = new CpdToken(location, "img");
-    var response = new AnalysisResponse(null, List.of(), null, null, null, new CpdToken[]{cpd}, null);
+    var response = new AnalysisResponse(null, List.of(), null, null, null, List.of(cpd), null);
     processor.processResponse(context, mock(JsTsChecks.class), file, response);
     assertThat(context.cpdTokens(file.key())).isNull();
     assertThat(logTester.logs())

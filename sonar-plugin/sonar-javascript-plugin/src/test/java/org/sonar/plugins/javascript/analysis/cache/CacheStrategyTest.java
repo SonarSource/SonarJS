@@ -233,7 +233,7 @@ class CacheStrategyTest {
     assertThat(strategy.isAnalysisRequired()).isTrue();
 
     strategy.writeAnalysisToCache(
-      new CacheAnalysis(ucfgFiles, CPD_TOKENS.toArray(CpdToken[]::new)),
+      new CacheAnalysis(ucfgFiles, CPD_TOKENS),
       inputFile
     );
 
@@ -286,7 +286,7 @@ class CacheStrategyTest {
     var generatedFiles = List.of("inexistent.ucfg");
     var cacheAnalysis = new CacheAnalysis(
       generatedFiles,
-      CPD_TOKENS.toArray(CpdToken[]::new)
+      CPD_TOKENS
     );
     assertThatThrownBy(() -> strategy.writeAnalysisToCache(cacheAnalysis, inputFile))
       .isInstanceOf(UncheckedIOException.class);
@@ -327,7 +327,7 @@ class CacheStrategyTest {
     assertThat(strategy.isAnalysisRequired()).isTrue();
 
     strategy.writeAnalysisToCache(
-      CacheAnalysis.fromResponse(null, CPD_TOKENS.toArray(CpdToken[]::new)),
+      CacheAnalysis.fromResponse(null, CPD_TOKENS),
       inputFile
     );
     verify(nextCache).write(eq(jsonCacheKey), any(byte[].class));
@@ -369,7 +369,7 @@ class CacheStrategyTest {
       .map(Path::toString)
       .toList();
     strategy.writeAnalysisToCache(
-      new CacheAnalysis(ucfgPaths, CPD_TOKENS.toArray(CpdToken[]::new)),
+      new CacheAnalysis(ucfgPaths, CPD_TOKENS),
       inputFile
     );
     verify(nextCache).write(eq(jsonCacheKey), any(byte[].class));
@@ -566,7 +566,7 @@ class CacheStrategyTest {
       .map(Path::toString)
       .toList();
     strategy.writeAnalysisToCache(
-      new CacheAnalysis(ucfgPaths, CPD_TOKENS.toArray(CpdToken[]::new)),
+      new CacheAnalysis(ucfgPaths, CPD_TOKENS),
       inputFile
     );
     verify(nextCache).write(eq(jsonCacheKey), any(byte[].class));
@@ -606,7 +606,7 @@ class CacheStrategyTest {
       .map(Path::toString)
       .toList();
     strategy.writeAnalysisToCache(
-      new CacheAnalysis(ucfgPaths, CPD_TOKENS.toArray(CpdToken[]::new)),
+      new CacheAnalysis(ucfgPaths, CPD_TOKENS),
       inputFile
     );
     verify(nextCache).write(eq(jsonCacheKey), any(byte[].class));
@@ -620,7 +620,7 @@ class CacheStrategyTest {
     when(inputFile.toString()).thenReturn("test.js");
     assertThat(
       CacheStrategies.getLogMessage(
-        readAndWrite(CacheAnalysis.fromCache(new CpdToken[0]), serialization),
+        readAndWrite(CacheAnalysis.fromCache(List.of()), serialization),
         inputFile,
         "this is a test"
       )
@@ -713,7 +713,7 @@ class CacheStrategyTest {
     when(fileSystem.workDir()).thenReturn(tempDir.toFile());
     when(context.nextCache()).thenReturn(tempCache);
     serialization.writeToCache(
-      CacheAnalysis.fromResponse(ucfgFiles, new CpdToken[0]),
+      CacheAnalysis.fromResponse(ucfgFiles, List.of()),
       inputFile
     );
     when(fileSystem.workDir()).thenReturn(workDir.toFile());

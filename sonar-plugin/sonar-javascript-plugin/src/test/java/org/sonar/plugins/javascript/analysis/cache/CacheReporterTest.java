@@ -25,6 +25,7 @@ import static org.mockito.Mockito.when;
 import static org.sonar.plugins.javascript.analysis.cache.CacheStrategy.noCache;
 import static org.sonar.plugins.javascript.analysis.cache.CacheStrategy.writeOnly;
 
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,7 +34,6 @@ import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
-import org.sonar.plugins.javascript.bridge.BridgeServer.CpdToken;
 
 class CacheReporterTest {
 
@@ -106,7 +106,7 @@ class CacheReporterTest {
 
   private CacheStrategy createReadAndWrite() {
     return CacheStrategy.readAndWrite(
-      CacheAnalysis.fromCache(new CpdToken[0]),
+      CacheAnalysis.fromCache(List.of()),
       createSerialization()
     );
   }

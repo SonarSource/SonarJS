@@ -79,7 +79,7 @@ public interface BridgeServer extends Startable {
     String language,
     @Nullable String fileContent,
     boolean ignoreHeaderComments,
-    List<String> tsConfigs,
+    @Nullable List<String> tsConfigs,
     @Nullable String programId,
     String linterId
    ) {
@@ -93,30 +93,30 @@ public interface BridgeServer extends Startable {
     List<StylelintRule> rules) {
     }
 
-  record AnalysisResponse(ParsingError parsingError,
+  record AnalysisResponse(@Nullable ParsingError parsingError,
                                  List<Issue> issues,
-                                 Highlight[] highlights,
-                                 HighlightedSymbol[] highlightedSymbols,
+                                 List<Highlight> highlights,
+                                 List<HighlightedSymbol> highlightedSymbols,
                                  @Nullable Metrics metrics,
-                                 CpdToken[] cpdTokens,
+                                 List<CpdToken> cpdTokens,
                                  List<String> ucfgPaths) {
     public AnalysisResponse() {
-      this(null, List.of(), new Highlight[0], new HighlightedSymbol[0], null, null, null);
+      this(null, List.of(), List.of(), List.of(), null, null, null);
     }
 
     public AnalysisResponse(ParsingError parsingError,
       List<Issue> issues,
-      Highlight[] highlights,
-      HighlightedSymbol[] highlightedSymbols,
+      List<Highlight> highlights,
+      List<HighlightedSymbol> highlightedSymbols,
       @Nullable Metrics metrics,
-      CpdToken[] cpdTokens,
+      List<CpdToken> cpdTokens,
       List<String> ucfgPaths) {
       this.parsingError = parsingError;
       this.issues = requireNonNullElseGet(issues, List::of);
-      this.highlights = requireNonNullElseGet(highlights, () -> new Highlight[0]);
-      this.highlightedSymbols = requireNonNullElseGet(highlightedSymbols, () -> new HighlightedSymbol[0]);
+      this.highlights = requireNonNullElseGet(highlights, List::of);
+      this.highlightedSymbols = requireNonNullElseGet(highlightedSymbols, List::of);
       this.metrics = requireNonNullElseGet(metrics, Metrics::new);
-      this.cpdTokens = requireNonNullElseGet(cpdTokens, () -> new CpdToken[0]);
+      this.cpdTokens = requireNonNullElseGet(cpdTokens, List::of);
       this.ucfgPaths = ucfgPaths;
     }
   }
@@ -174,7 +174,7 @@ public interface BridgeServer extends Startable {
   record HighlightedSymbol(
 
     Location declaration,
-    Location[] references
+    List<Location> references
   ) {}
 
   record Location(
@@ -197,10 +197,10 @@ public interface BridgeServer extends Startable {
 
   record Metrics(
 
-    int[] ncloc,
-    int[] commentLines,
-    int[] nosonarLines,
-    int[] executableLines,
+    List<Integer> ncloc,
+    List<Integer> commentLines,
+    List<Integer> nosonarLines,
+    List<Integer> executableLines,
     int functions,
     int statements,
     int classes,
@@ -208,7 +208,7 @@ public interface BridgeServer extends Startable {
     int cognitiveComplexity
     ) {
     public Metrics() {
-      this(new int[0], new int[0], new int[0], new int[0], 0, 0, 0, 0, 0);
+      this(List.of(), List.of(), List.of(), List.of(), 0, 0, 0, 0, 0);
     }
   }
 

@@ -26,21 +26,21 @@ import org.sonar.plugins.javascript.bridge.BridgeServer.CpdToken;
 public class CacheAnalysis {
 
   private final List<String> ucfgPaths;
-  private final CpdToken[] cpdTokens;
+  private final List<CpdToken> cpdTokens;
 
-  public CacheAnalysis(@Nullable List<String> ucfgPaths, CpdToken[] cpdTokens) {
+  public CacheAnalysis(@Nullable List<String> ucfgPaths, List<CpdToken> cpdTokens) {
     this.ucfgPaths = ucfgPaths;
     this.cpdTokens = cpdTokens;
   }
 
   public static CacheAnalysis fromResponse(
     List<String> ucfgPaths,
-    CpdToken[] cpdTokens
+    List<CpdToken> cpdTokens
   ) {
     return new CacheAnalysis(ucfgPaths, cpdTokens);
   }
 
-  static CacheAnalysis fromCache(CpdToken[] cpdTokens) {
+  static CacheAnalysis fromCache(List<CpdToken> cpdTokens) {
     return new CacheAnalysis(null, cpdTokens);
   }
 
@@ -49,7 +49,7 @@ public class CacheAnalysis {
     return ucfgPaths;
   }
 
-  public CpdToken[] getCpdTokens() {
+  public List<CpdToken> getCpdTokens() {
     return cpdTokens;
   }
 }

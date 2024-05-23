@@ -28,10 +28,9 @@ import static org.sonar.plugins.javascript.bridge.JavaScriptFilePredicate.isType
 import static org.sonar.plugins.javascript.utils.UnicodeEscape.unicodeEscape;
 
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
@@ -193,7 +192,7 @@ public class AnalysisProcessor {
     }
   }
 
-  private void saveHighlights(Highlight[] highlights) {
+  private void saveHighlights(List<Highlight> highlights) {
     NewHighlighting highlighting = context.newHighlighting().onFile(file);
     for (Highlight highlight : highlights) {
       try {
@@ -210,7 +209,7 @@ public class AnalysisProcessor {
     highlighting.save();
   }
 
-  private void saveHighlightedSymbols(HighlightedSymbol[] highlightedSymbols) {
+  private void saveHighlightedSymbols(List<HighlightedSymbol> highlightedSymbols) {
     NewSymbolTable symbolTable = context.newSymbolTable().onFile(file);
     for (HighlightedSymbol highlightedSymbol : highlightedSymbols) {
       Location declaration = highlightedSymbol.declaration();
@@ -247,7 +246,7 @@ public class AnalysisProcessor {
     if (file.type() == InputFile.Type.TEST || contextUtils.isSonarLint()) {
       noSonarFilter.noSonarInFile(
         file,
-        Arrays.stream(metrics.nosonarLines()).boxed().collect(Collectors.toSet())
+        Set.copyOf(metrics.nosonarLines())
       );
       return;
     }
@@ -255,14 +254,14 @@ public class AnalysisProcessor {
     saveMetric(file, CoreMetrics.FUNCTIONS, metrics.functions());
     saveMetric(file, CoreMetrics.STATEMENTS, metrics.statements());
     saveMetric(file, CoreMetrics.CLASSES, metrics.classes());
-    saveMetric(file, CoreMetrics.NCLOC, metrics.ncloc().length);
-    saveMetric(file, CoreMetrics.COMMENT_LINES, metrics.commentLines().length);
+    saveMetric(file, CoreMetrics.NCLOC, metrics.ncloc().size());
+    saveMetric(file, CoreMetrics.COMMENT_LINES, metrics.commentLines().size());
     saveMetric(file, CoreMetrics.COMPLEXITY, metrics.complexity());
     saveMetric(file, CoreMetrics.COGNITIVE_COMPLEXITY, metrics.cognitiveComplexity());
 
     noSonarFilter.noSonarInFile(
       file,
-      Arrays.stream(metrics.nosonarLines()).boxed().collect(Collectors.toSet())
+      Set.copyOf(metrics.nosonarLines())
     );
 
     FileLinesContext fileLinesContext = fileLinesContextFactory.createFor(file);
@@ -281,7 +280,7 @@ public class AnalysisProcessor {
     context.<T>newMeasure().withValue(value).forMetric(metric).on(file).save();
   }
 
-  private void saveCpd(CpdToken[] cpdTokens) {
+  private void saveCpd(List<CpdToken> cpdTokens) {
     if (file.type().equals(InputFile.Type.TEST) || contextUtils.isSonarLint()) {
       // even providing empty 'NewCpdTokens' will trigger duplication computation so skipping
       return;

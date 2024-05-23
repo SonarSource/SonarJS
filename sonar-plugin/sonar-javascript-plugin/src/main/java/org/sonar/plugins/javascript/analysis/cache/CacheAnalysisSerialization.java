@@ -19,13 +19,10 @@
  */
 package org.sonar.plugins.javascript.analysis.cache;
 
-import static java.util.Arrays.asList;
-
 import java.io.IOException;
 import java.util.Optional;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
-import org.sonar.plugins.javascript.bridge.BridgeServer.CpdToken;
 
 public class CacheAnalysisSerialization extends CacheSerialization {
 
@@ -58,12 +55,12 @@ public class CacheAnalysisSerialization extends CacheSerialization {
     ucfgFileSerialization.readFromCache();
 
     var cpdData = cpdSerialization.readFromCache();
-    return CacheAnalysis.fromCache(cpdData.getCpdTokens().toArray(new CpdToken[0]));
+    return CacheAnalysis.fromCache(cpdData.getCpdTokens());
   }
 
   void writeToCache(CacheAnalysis analysis, InputFile file) throws IOException {
     ucfgFileSerialization.writeToCache(analysis.getUcfgPaths());
-    cpdSerialization.writeToCache(new CpdData(asList(analysis.getCpdTokens())));
+    cpdSerialization.writeToCache(new CpdData(analysis.getCpdTokens()));
     fileMetadataSerialization.writeToCache(FileMetadata.from(file));
   }
 
