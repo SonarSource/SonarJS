@@ -2,419 +2,615 @@ syntax = "proto3";
 
 message Program {
   string sourceType = 1;
-  repeated undefined body = 2;
+  repeated BaseNodeWithoutComments body = 2;
+  repeated Comment leadingComments = 3;
+  repeated Comment trailingComments = 4;
+}
+message Comment {
+  string value = 5;
+  SourceLocation loc = 6;
+}
+message SourceLocation {
+  string source = 7;
+  Position start = 8;
+  Position end = 9;
+}
+message Position {
+  int32 line = 10;
+  int32 end = 11;
 }
 message ModuleDeclaration {
-  oneof ModuleDeclaration {
-    ImportDeclaration ModuleDeclaration_importDeclaration = 3;
-    ExportNamedDeclaration ModuleDeclaration_exportNamedDeclaration = 4;
-    ExportDefaultDeclaration ModuleDeclaration_exportDefaultDeclaration = 5;
-    ExportAllDeclaration ModuleDeclaration_exportAllDeclaration = 6;
+  oneof moduleDeclaration {
+    ImportDeclaration moduleDeclaration_importDeclaration = 12;
+    ExportNamedDeclaration moduleDeclaration_exportNamedDeclaration = 13;
+    ExportDefaultDeclaration moduleDeclaration_exportDefaultDeclaration = 14;
+    ExportAllDeclaration moduleDeclaration_exportAllDeclaration = 15;
   }
 }
 message ExportAllDeclaration {
-  Identifier exported = 7;
-  Literal source = 8;
+  Identifier exported = 16;
+  Literal source = 17;
 }
 message Literal {
-  oneof Literal {
-    SimpleLiteral Literal_simpleLiteral = 9;
-    BigIntLiteral Literal_bigIntLiteral = 10;
+  oneof literal {
+    SimpleLiteral literal_simpleLiteral = 18;
+    BigIntLiteral literal_bigIntLiteral = 19;
   }
 }
 message BigIntLiteral {
-  int32 value = 11;
-  string bigint = 12;
-  string raw = 13;
+  int32 value = 20;
+  string bigint = 21;
+  string raw = 22;
+  repeated Comment leadingComments = 23;
+  repeated Comment trailingComments = 24;
 }
 message SimpleLiteral {
   oneof value {
-    string value_string = 14;
-    bool value_boolean = 15;
-    int32 value_number = 16;
+    string value_string = 25;
+    bool value_boolean = 26;
+    int32 value_number = 27;
   }
-  string raw = 17;
+  string raw = 28;
+  repeated Comment leadingComments = 29;
+  repeated Comment trailingComments = 30;
 }
 message Identifier {
-  string name = 18;
+  string name = 31;
+  repeated Comment leadingComments = 32;
+  repeated Comment trailingComments = 33;
 }
 message ExportDefaultDeclaration {
   oneof declaration {
-    MaybeNamedFunctionDeclaration declaration_maybeNamedFunctionDeclaration = 19;
-    MaybeNamedClassDeclaration declaration_maybeNamedClassDeclaration = 20;
-    Expression declaration_expression = 21;
+    MaybeNamedFunctionDeclaration declaration_maybeNamedFunctionDeclaration = 34;
+    MaybeNamedClassDeclaration declaration_maybeNamedClassDeclaration = 35;
+    Expression declaration_expression = 36;
   }
 }
 message Expression {
-  oneof Expression {
-    ArrayExpression Expression_arrayExpression = 22;
-    ArrowFunctionExpression Expression_arrowFunctionExpression = 23;
-    AssignmentExpression Expression_assignmentExpression = 24;
-    AwaitExpression Expression_awaitExpression = 25;
-    BinaryExpression Expression_binaryExpression = 26;
-    CallExpression Expression_callExpression = 27;
-    ChainExpression Expression_chainExpression = 28;
-    ClassExpression Expression_classExpression = 29;
-    ConditionalExpression Expression_conditionalExpression = 30;
-    FunctionExpression Expression_functionExpression = 31;
-    Identifier Expression_identifier = 32;
-    ImportExpression Expression_importExpression = 33;
-    Literal Expression_literal = 34;
-    LogicalExpression Expression_logicalExpression = 35;
-    MemberExpression Expression_memberExpression = 36;
-    MetaProperty Expression_metaProperty = 37;
-    NewExpression Expression_newExpression = 38;
-    ObjectExpression Expression_objectExpression = 39;
-    SequenceExpression Expression_sequenceExpression = 40;
-    TaggedTemplateExpression Expression_taggedTemplateExpression = 41;
-    TemplateLiteral Expression_templateLiteral = 42;
-    ThisExpression Expression_thisExpression = 43;
-    UnaryExpression Expression_unaryExpression = 44;
-    UpdateExpression Expression_updateExpression = 45;
-    YieldExpression Expression_yieldExpression = 46;
+  oneof expression {
+    ArrayExpression expression_arrayExpression = 37;
+    ArrowFunctionExpression expression_arrowFunctionExpression = 38;
+    AssignmentExpression expression_assignmentExpression = 39;
+    AwaitExpression expression_awaitExpression = 40;
+    BinaryExpression expression_binaryExpression = 41;
+    CallExpression expression_callExpression = 42;
+    ChainExpression expression_chainExpression = 43;
+    ClassExpression expression_classExpression = 44;
+    ConditionalExpression expression_conditionalExpression = 45;
+    FunctionExpression expression_functionExpression = 46;
+    Identifier expression_identifier = 47;
+    ImportExpression expression_importExpression = 48;
+    Literal expression_literal = 49;
+    LogicalExpression expression_logicalExpression = 50;
+    MemberExpression expression_memberExpression = 51;
+    MetaProperty expression_metaProperty = 52;
+    NewExpression expression_newExpression = 53;
+    ObjectExpression expression_objectExpression = 54;
+    SequenceExpression expression_sequenceExpression = 55;
+    TaggedTemplateExpression expression_taggedTemplateExpression = 56;
+    TemplateLiteral expression_templateLiteral = 57;
+    ThisExpression expression_thisExpression = 58;
+    UnaryExpression expression_unaryExpression = 59;
+    UpdateExpression expression_updateExpression = 60;
+    YieldExpression expression_yieldExpression = 61;
   }
 }
 message YieldExpression {
-  Expression argument = 47;
-  bool delegate = 48;
+  Expression argument = 62;
+  bool delegate = 63;
 }
 message UpdateExpression {
-  UpdateOperator operator = 49;
-  Expression argument = 50;
-  bool prefix = 51;
+  UpdateOperator operator = 64;
+  Expression argument = 65;
+  bool prefix = 66;
 }
 message UpdateOperator {
-  string UpdateOperator = 52;
+  string updateOperator = 67;
 }
 message UnaryExpression {
-  UnaryOperator operator = 53;
-  bool prefix = 54;
-  Expression argument = 55;
+  UnaryOperator operator = 68;
+  bool prefix = 69;
+  Expression argument = 70;
 }
 message UnaryOperator {
-  string UnaryOperator = 56;
+  string unaryOperator = 71;
 }
 message ThisExpression {
 }
 message TemplateLiteral {
-  repeated TemplateElement quasis = 57;
-  repeated Expression expressions = 58;
+  repeated TemplateElement quasis = 72;
+  repeated Expression expressions = 73;
 }
 message TemplateElement {
-  bool tail = 59;
-  ERROR_UNEXPECTED value = 60;
+  bool tail = 74;
+  ERROR_UNEXPECTED value = 75;
+  repeated Comment leadingComments = 76;
+  repeated Comment trailingComments = 77;
 }
 message TaggedTemplateExpression {
-  Expression tag = 61;
-  TemplateLiteral quasi = 62;
+  Expression tag = 78;
+  TemplateLiteral quasi = 79;
 }
 message SequenceExpression {
-  repeated Expression expressions = 63;
+  repeated Expression expressions = 80;
 }
 message ObjectExpression {
-  repeated undefined properties = 64;
+  repeated BaseNodeWithoutComments properties = 81;
 }
 message SpreadElement {
-  Expression argument = 65;
+  Expression argument = 82;
+  repeated Comment leadingComments = 83;
+  repeated Comment trailingComments = 84;
 }
 message Property {
   oneof key {
-    Expression key_expression = 66;
-    PrivateIdentifier key_privateIdentifier = 67;
+    Expression key_expression = 85;
+    PrivateIdentifier key_privateIdentifier = 86;
   }
   oneof value {
-    Expression value_expression = 68;
-    Pattern value_pattern = 69;
+    Expression value_expression = 87;
+    Pattern value_pattern = 88;
   }
-  string kind = 70;
-  bool method = 71;
-  bool shorthand = 72;
-  bool computed = 73;
+  string kind = 89;
+  bool method = 90;
+  bool shorthand = 91;
+  bool computed = 92;
+  repeated Comment leadingComments = 93;
+  repeated Comment trailingComments = 94;
 }
 message Pattern {
-  oneof Pattern {
-    Identifier Pattern_identifier = 74;
-    ObjectPattern Pattern_objectPattern = 75;
-    ArrayPattern Pattern_arrayPattern = 76;
-    RestElement Pattern_restElement = 77;
-    AssignmentPattern Pattern_assignmentPattern = 78;
-    MemberExpression Pattern_memberExpression = 79;
+  oneof pattern {
+    Identifier pattern_identifier = 95;
+    ObjectPattern pattern_objectPattern = 96;
+    ArrayPattern pattern_arrayPattern = 97;
+    RestElement pattern_restElement = 98;
+    AssignmentPattern pattern_assignmentPattern = 99;
+    MemberExpression pattern_memberExpression = 100;
   }
 }
 message AssignmentPattern {
-  Pattern left = 80;
-  Expression right = 81;
+  Pattern left = 101;
+  Expression right = 102;
 }
 message RestElement {
-  Pattern argument = 82;
+  Pattern argument = 103;
 }
 message ArrayPattern {
-  repeated Pattern elements = 83;
+  repeated Pattern elements = 104;
 }
 message ObjectPattern {
-  repeated undefined properties = 84;
+  repeated BaseNodeWithoutComments properties = 105;
 }
 message AssignmentProperty {
-  Pattern value = 85;
-  string kind = 86;
-  bool method = 87;
+  Pattern value = 106;
+  string kind = 107;
+  bool method = 108;
+  oneof key {
+    Expression key_expression = 109;
+    PrivateIdentifier key_privateIdentifier = 110;
+  }
+  bool shorthand = 111;
+  bool computed = 112;
 }
 message PrivateIdentifier {
-  string name = 88;
+  string name = 113;
+  repeated Comment leadingComments = 114;
+  repeated Comment trailingComments = 115;
 }
 message NewExpression {
+  oneof callee {
+    Expression callee_expression = 116;
+    Super callee_super = 117;
+  }
+  repeated BaseNodeWithoutComments arguments = 118;
+}
+message Super {
+  repeated Comment leadingComments = 119;
+  repeated Comment trailingComments = 120;
 }
 message MetaProperty {
-  Identifier meta = 89;
-  Identifier property = 90;
+  Identifier meta = 121;
+  Identifier property = 122;
 }
 message MemberExpression {
   oneof object {
-    Expression object_expression = 91;
-    Super object_super = 92;
+    Expression object_expression = 123;
+    Super object_super = 124;
   }
   oneof property {
-    Expression property_expression = 93;
-    PrivateIdentifier property_privateIdentifier = 94;
+    Expression property_expression = 125;
+    PrivateIdentifier property_privateIdentifier = 126;
   }
-  bool computed = 95;
-  bool optional = 96;
-}
-message Super {
+  bool computed = 127;
+  bool optional = 128;
 }
 message LogicalExpression {
-  LogicalOperator operator = 97;
-  Expression left = 98;
-  Expression right = 99;
+  LogicalOperator operator = 129;
+  Expression left = 130;
+  Expression right = 131;
 }
 message LogicalOperator {
-  string LogicalOperator = 100;
+  string logicalOperator = 132;
 }
 message ImportExpression {
-  Expression source = 101;
+  Expression source = 133;
 }
 message FunctionExpression {
-  Identifier id = 102;
-  BlockStatement body = 103;
+  Identifier id = 134;
+  BlockStatement body = 135;
+  repeated Pattern params = 136;
+  bool generator = 137;
+  bool async = 138;
 }
 message BlockStatement {
-  repeated Statement body = 104;
+  repeated Statement body = 139;
 }
 message ConditionalExpression {
-  Expression test = 105;
-  Expression alternate = 106;
-  Expression consequent = 107;
+  Expression test = 140;
+  Expression alternate = 141;
+  Expression consequent = 142;
 }
 message ClassExpression {
-  Identifier id = 108;
+  Identifier id = 143;
+  Expression superClass = 144;
+  ClassBody body = 145;
+}
+message ClassBody {
+  repeated BaseNodeWithoutComments body = 146;
+  repeated Comment leadingComments = 147;
+  repeated Comment trailingComments = 148;
+}
+message StaticBlock {
+}
+message PropertyDefinition {
+  oneof key {
+    Expression key_expression = 149;
+    PrivateIdentifier key_privateIdentifier = 150;
+  }
+  Expression value = 151;
+  bool computed = 152;
+  bool static = 153;
+  repeated Comment leadingComments = 154;
+  repeated Comment trailingComments = 155;
+}
+message MethodDefinition {
+  oneof key {
+    Expression key_expression = 156;
+    PrivateIdentifier key_privateIdentifier = 157;
+  }
+  FunctionExpression value = 158;
+  string kind = 159;
+  bool computed = 160;
+  bool static = 161;
+  repeated Comment leadingComments = 162;
+  repeated Comment trailingComments = 163;
 }
 message ChainExpression {
-  ChainElement expression = 109;
+  ChainElement expression = 164;
 }
 message ChainElement {
-  oneof ChainElement {
-    SimpleCallExpression ChainElement_simpleCallExpression = 110;
-    MemberExpression ChainElement_memberExpression = 111;
+  oneof chainElement {
+    SimpleCallExpression chainElement_simpleCallExpression = 165;
+    MemberExpression chainElement_memberExpression = 166;
   }
 }
 message SimpleCallExpression {
-  bool optional = 112;
+  bool optional = 167;
+  oneof callee {
+    Expression callee_expression = 168;
+    Super callee_super = 169;
+  }
+  repeated BaseNodeWithoutComments arguments = 170;
 }
 message CallExpression {
-  oneof CallExpression {
-    SimpleCallExpression CallExpression_simpleCallExpression = 113;
-    NewExpression CallExpression_newExpression = 114;
+  oneof callExpression {
+    SimpleCallExpression callExpression_simpleCallExpression = 171;
+    NewExpression callExpression_newExpression = 172;
   }
 }
 message BinaryExpression {
-  BinaryOperator operator = 115;
-  Expression left = 116;
-  Expression right = 117;
+  BinaryOperator operator = 173;
+  Expression left = 174;
+  Expression right = 175;
 }
 message BinaryOperator {
-  string BinaryOperator = 118;
+  string binaryOperator = 176;
 }
 message AwaitExpression {
-  Expression argument = 119;
+  Expression argument = 177;
 }
 message AssignmentExpression {
-  AssignmentOperator operator = 120;
+  AssignmentOperator operator = 178;
   oneof left {
-    Pattern left_pattern = 121;
-    MemberExpression left_memberExpression = 122;
+    Pattern left_pattern = 179;
+    MemberExpression left_memberExpression = 180;
   }
-  Expression right = 123;
+  Expression right = 181;
 }
 message AssignmentOperator {
-  string AssignmentOperator = 124;
+  string assignmentOperator = 182;
 }
 message ArrowFunctionExpression {
-  bool expression = 125;
+  bool expression = 183;
   oneof body {
-    BlockStatement body_blockStatement = 126;
-    Expression body_expression = 127;
+    BlockStatement body_blockStatement = 184;
+    Expression body_expression = 185;
   }
 }
 message ArrayExpression {
-  repeated undefined elements = 128;
+  repeated BaseNodeWithoutComments elements = 186;
 }
 message MaybeNamedClassDeclaration {
-  Identifier id = 129;
+  Identifier id = 187;
+  Expression superClass = 188;
+  ClassBody body = 189;
 }
 message MaybeNamedFunctionDeclaration {
-  Identifier id = 130;
-  BlockStatement body = 131;
+  Identifier id = 190;
+  BlockStatement body = 191;
+  repeated Pattern params = 192;
+  bool generator = 193;
+  bool async = 194;
 }
 message ExportNamedDeclaration {
-  Declaration declaration = 132;
-  repeated ExportSpecifier specifiers = 133;
-  Literal source = 134;
+  Declaration declaration = 195;
+  repeated ExportSpecifier specifiers = 196;
+  Literal source = 197;
 }
 message ExportSpecifier {
-  Identifier exported = 135;
+  Identifier exported = 198;
+  Identifier local = 199;
 }
 message Declaration {
-  oneof Declaration {
-    FunctionDeclaration Declaration_functionDeclaration = 136;
-    VariableDeclaration Declaration_variableDeclaration = 137;
-    ClassDeclaration Declaration_classDeclaration = 138;
+  oneof declaration {
+    FunctionDeclaration declaration_functionDeclaration = 200;
+    VariableDeclaration declaration_variableDeclaration = 201;
+    ClassDeclaration declaration_classDeclaration = 202;
   }
 }
 message ClassDeclaration {
-  Identifier id = 139;
+  Identifier id = 203;
 }
 message VariableDeclaration {
-  repeated VariableDeclarator declarations = 140;
-  string kind = 141;
+  repeated VariableDeclarator declarations = 204;
+  string kind = 205;
 }
 message VariableDeclarator {
-  Pattern id = 142;
-  Expression init = 143;
+  Pattern id = 206;
+  Expression init = 207;
+  repeated Comment leadingComments = 208;
+  repeated Comment trailingComments = 209;
 }
 message FunctionDeclaration {
-  Identifier id = 144;
+  Identifier id = 210;
+  BlockStatement body = 211;
 }
 message ImportDeclaration {
-  repeated undefined specifiers = 145;
-  Literal source = 146;
+  repeated BaseNodeWithoutComments specifiers = 212;
+  Literal source = 213;
 }
 message ImportNamespaceSpecifier {
+  Identifier local = 214;
 }
 message ImportDefaultSpecifier {
+  Identifier local = 215;
 }
 message ImportSpecifier {
-  Identifier imported = 147;
+  Identifier imported = 216;
+  Identifier local = 217;
 }
 message Statement {
-  oneof Statement {
-    ExpressionStatement Statement_expressionStatement = 148;
-    BlockStatement Statement_blockStatement = 149;
-    StaticBlock Statement_staticBlock = 150;
-    EmptyStatement Statement_emptyStatement = 151;
-    DebuggerStatement Statement_debuggerStatement = 152;
-    WithStatement Statement_withStatement = 153;
-    ReturnStatement Statement_returnStatement = 154;
-    LabeledStatement Statement_labeledStatement = 155;
-    BreakStatement Statement_breakStatement = 156;
-    ContinueStatement Statement_continueStatement = 157;
-    IfStatement Statement_ifStatement = 158;
-    SwitchStatement Statement_switchStatement = 159;
-    ThrowStatement Statement_throwStatement = 160;
-    TryStatement Statement_tryStatement = 161;
-    WhileStatement Statement_whileStatement = 162;
-    DoWhileStatement Statement_doWhileStatement = 163;
-    ForStatement Statement_forStatement = 164;
-    ForInStatement Statement_forInStatement = 165;
-    ForOfStatement Statement_forOfStatement = 166;
-    Declaration Statement_declaration = 167;
+  oneof statement {
+    ExpressionStatement statement_expressionStatement = 218;
+    BlockStatement statement_blockStatement = 219;
+    StaticBlock statement_staticBlock = 220;
+    EmptyStatement statement_emptyStatement = 221;
+    DebuggerStatement statement_debuggerStatement = 222;
+    WithStatement statement_withStatement = 223;
+    ReturnStatement statement_returnStatement = 224;
+    LabeledStatement statement_labeledStatement = 225;
+    BreakStatement statement_breakStatement = 226;
+    ContinueStatement statement_continueStatement = 227;
+    IfStatement statement_ifStatement = 228;
+    SwitchStatement statement_switchStatement = 229;
+    ThrowStatement statement_throwStatement = 230;
+    TryStatement statement_tryStatement = 231;
+    WhileStatement statement_whileStatement = 232;
+    DoWhileStatement statement_doWhileStatement = 233;
+    ForStatement statement_forStatement = 234;
+    ForInStatement statement_forInStatement = 235;
+    ForOfStatement statement_forOfStatement = 236;
+    Declaration statement_declaration = 237;
   }
 }
 message ForOfStatement {
-  bool await = 168;
+  bool await = 238;
+  oneof left {
+    VariableDeclaration left_variableDeclaration = 239;
+    Pattern left_pattern = 240;
+  }
+  Expression right = 241;
+  Statement body = 242;
 }
 message ForInStatement {
+  oneof left {
+    VariableDeclaration left_variableDeclaration = 243;
+    Pattern left_pattern = 244;
+  }
+  Expression right = 245;
+  Statement body = 246;
 }
 message ForStatement {
   oneof init {
-    VariableDeclaration init_variableDeclaration = 169;
-    Expression init_expression = 170;
+    VariableDeclaration init_variableDeclaration = 247;
+    Expression init_expression = 248;
   }
-  Expression test = 171;
-  Expression update = 172;
-  Statement body = 173;
+  Expression test = 249;
+  Expression update = 250;
+  Statement body = 251;
 }
 message DoWhileStatement {
-  Statement body = 174;
-  Expression test = 175;
+  Statement body = 252;
+  Expression test = 253;
 }
 message WhileStatement {
-  Expression test = 176;
-  Statement body = 177;
+  Expression test = 254;
+  Statement body = 255;
 }
 message TryStatement {
-  BlockStatement block = 178;
-  CatchClause handler = 179;
-  BlockStatement finalizer = 180;
+  BlockStatement block = 256;
+  CatchClause handler = 257;
+  BlockStatement finalizer = 258;
 }
 message CatchClause {
-  Pattern param = 181;
-  BlockStatement body = 182;
+  Pattern param = 259;
+  BlockStatement body = 260;
+  repeated Comment leadingComments = 261;
+  repeated Comment trailingComments = 262;
 }
 message ThrowStatement {
-  Expression argument = 183;
+  Expression argument = 263;
 }
 message SwitchStatement {
-  Expression discriminant = 184;
-  repeated SwitchCase cases = 185;
+  Expression discriminant = 264;
+  repeated SwitchCase cases = 265;
 }
 message SwitchCase {
-  Expression test = 186;
-  repeated Statement consequent = 187;
+  Expression test = 266;
+  repeated Statement consequent = 267;
+  repeated Comment leadingComments = 268;
+  repeated Comment trailingComments = 269;
 }
 message IfStatement {
-  Expression test = 188;
-  Statement consequent = 189;
-  Statement alternate = 190;
+  Expression test = 270;
+  Statement consequent = 271;
+  Statement alternate = 272;
 }
 message ContinueStatement {
-  Identifier label = 191;
+  Identifier label = 273;
 }
 message BreakStatement {
-  Identifier label = 192;
+  Identifier label = 274;
 }
 message LabeledStatement {
-  Identifier label = 193;
-  Statement body = 194;
+  Identifier label = 275;
+  Statement body = 276;
 }
 message ReturnStatement {
-  Expression argument = 195;
+  Expression argument = 277;
 }
 message WithStatement {
-  Expression object = 196;
-  Statement body = 197;
+  Expression object = 278;
+  Statement body = 279;
 }
 message DebuggerStatement {
 }
 message EmptyStatement {
 }
-message StaticBlock {
-}
 message ExpressionStatement {
-  Expression expression = 198;
+  Expression expression = 280;
 }
 message Directive {
-  Literal expression = 199;
-  string directive = 200;
+  Literal expression = 281;
+  string directive = 282;
+  repeated Comment leadingComments = 283;
+  repeated Comment trailingComments = 284;
 }
 message BaseNodeWithoutComments {
-  SourceLocation loc = 201;
-}
-message SourceLocation {
-  string source = 202;
-  Position start = 203;
-  Position end = 204;
-}
-message Position {
-  int32 line = 205;
-  int32 column = 206;
+  string type = 285;
+  SourceLocation loc = 286;
+  oneof node {
+    Program node_program = 287;
+    Comment node_comment = 288;
+    SourceLocation node_sourceLocation = 289;
+    Position node_position = 290;
+    ModuleDeclaration node_moduleDeclaration = 291;
+    ExportAllDeclaration node_exportAllDeclaration = 292;
+    Literal node_literal = 293;
+    BigIntLiteral node_bigIntLiteral = 294;
+    SimpleLiteral node_simpleLiteral = 295;
+    Identifier node_identifier = 296;
+    ExportDefaultDeclaration node_exportDefaultDeclaration = 297;
+    Expression node_expression = 298;
+    YieldExpression node_yieldExpression = 299;
+    UpdateExpression node_updateExpression = 300;
+    UpdateOperator node_updateOperator = 301;
+    UnaryExpression node_unaryExpression = 302;
+    UnaryOperator node_unaryOperator = 303;
+    ThisExpression node_thisExpression = 304;
+    TemplateLiteral node_templateLiteral = 305;
+    TemplateElement node_templateElement = 306;
+    TaggedTemplateExpression node_taggedTemplateExpression = 307;
+    SequenceExpression node_sequenceExpression = 308;
+    ObjectExpression node_objectExpression = 309;
+    SpreadElement node_spreadElement = 310;
+    Property node_property = 311;
+    Pattern node_pattern = 312;
+    AssignmentPattern node_assignmentPattern = 313;
+    RestElement node_restElement = 314;
+    ArrayPattern node_arrayPattern = 315;
+    ObjectPattern node_objectPattern = 316;
+    AssignmentProperty node_assignmentProperty = 317;
+    PrivateIdentifier node_privateIdentifier = 318;
+    NewExpression node_newExpression = 319;
+    Super node_super = 320;
+    MetaProperty node_metaProperty = 321;
+    MemberExpression node_memberExpression = 322;
+    LogicalExpression node_logicalExpression = 323;
+    LogicalOperator node_logicalOperator = 324;
+    ImportExpression node_importExpression = 325;
+    FunctionExpression node_functionExpression = 326;
+    BlockStatement node_blockStatement = 327;
+    ConditionalExpression node_conditionalExpression = 328;
+    ClassExpression node_classExpression = 329;
+    ClassBody node_classBody = 330;
+    StaticBlock node_staticBlock = 331;
+    PropertyDefinition node_propertyDefinition = 332;
+    MethodDefinition node_methodDefinition = 333;
+    ChainExpression node_chainExpression = 334;
+    ChainElement node_chainElement = 335;
+    SimpleCallExpression node_simpleCallExpression = 336;
+    CallExpression node_callExpression = 337;
+    BinaryExpression node_binaryExpression = 338;
+    BinaryOperator node_binaryOperator = 339;
+    AwaitExpression node_awaitExpression = 340;
+    AssignmentExpression node_assignmentExpression = 341;
+    AssignmentOperator node_assignmentOperator = 342;
+    ArrowFunctionExpression node_arrowFunctionExpression = 343;
+    ArrayExpression node_arrayExpression = 344;
+    MaybeNamedClassDeclaration node_maybeNamedClassDeclaration = 345;
+    MaybeNamedFunctionDeclaration node_maybeNamedFunctionDeclaration = 346;
+    ExportNamedDeclaration node_exportNamedDeclaration = 347;
+    ExportSpecifier node_exportSpecifier = 348;
+    Declaration node_declaration = 349;
+    ClassDeclaration node_classDeclaration = 350;
+    VariableDeclaration node_variableDeclaration = 351;
+    VariableDeclarator node_variableDeclarator = 352;
+    FunctionDeclaration node_functionDeclaration = 353;
+    ImportDeclaration node_importDeclaration = 354;
+    ImportNamespaceSpecifier node_importNamespaceSpecifier = 355;
+    ImportDefaultSpecifier node_importDefaultSpecifier = 356;
+    ImportSpecifier node_importSpecifier = 357;
+    Statement node_statement = 358;
+    ForOfStatement node_forOfStatement = 359;
+    ForInStatement node_forInStatement = 360;
+    ForStatement node_forStatement = 361;
+    DoWhileStatement node_doWhileStatement = 362;
+    WhileStatement node_whileStatement = 363;
+    TryStatement node_tryStatement = 364;
+    CatchClause node_catchClause = 365;
+    ThrowStatement node_throwStatement = 366;
+    SwitchStatement node_switchStatement = 367;
+    SwitchCase node_switchCase = 368;
+    IfStatement node_ifStatement = 369;
+    ContinueStatement node_continueStatement = 370;
+    BreakStatement node_breakStatement = 371;
+    LabeledStatement node_labeledStatement = 372;
+    ReturnStatement node_returnStatement = 373;
+    WithStatement node_withStatement = 374;
+    DebuggerStatement node_debuggerStatement = 375;
+    EmptyStatement node_emptyStatement = 376;
+    ExpressionStatement node_expressionStatement = 377;
+    Directive node_directive = 378;
+  }
 }

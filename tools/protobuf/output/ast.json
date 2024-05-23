@@ -12,27 +12,81 @@
         "name": "body",
         "fieldValue": {
           "repeatedValue": {
-            "oneOfElements": [
-              {
-                "name": "directive",
-                "fieldValue": {
-                  "type": "Directive"
-                }
-              },
-              {
-                "name": "statement",
-                "fieldValue": {
-                  "type": "Statement"
-                }
-              },
-              {
-                "name": "moduleDeclaration",
-                "fieldValue": {
-                  "type": "ModuleDeclaration"
-                }
-              }
-            ]
+            "type": "BaseNodeWithoutComments"
           }
+        }
+      },
+      {
+        "name": "leadingComments",
+        "fieldValue": {
+          "repeatedValue": {
+            "type": "Comment"
+          }
+        }
+      },
+      {
+        "name": "trailingComments",
+        "fieldValue": {
+          "repeatedValue": {
+            "type": "Comment"
+          }
+        }
+      }
+    ]
+  },
+  "Comment": {
+    "messageName": "Comment",
+    "fields": [
+      {
+        "name": "value",
+        "fieldValue": {
+          "type": "string"
+        }
+      },
+      {
+        "name": "loc",
+        "fieldValue": {
+          "type": "SourceLocation"
+        }
+      }
+    ]
+  },
+  "SourceLocation": {
+    "messageName": "SourceLocation",
+    "fields": [
+      {
+        "name": "source",
+        "fieldValue": {
+          "type": "string"
+        }
+      },
+      {
+        "name": "start",
+        "fieldValue": {
+          "type": "Position"
+        }
+      },
+      {
+        "name": "end",
+        "fieldValue": {
+          "type": "Position"
+        }
+      }
+    ]
+  },
+  "Position": {
+    "messageName": "Position",
+    "fields": [
+      {
+        "name": "line",
+        "fieldValue": {
+          "type": "int32"
+        }
+      },
+      {
+        "name": "end",
+        "fieldValue": {
+          "type": "int32"
         }
       }
     ]
@@ -41,7 +95,7 @@
     "messageName": "ModuleDeclaration",
     "fields": [
       {
-        "name": "ModuleDeclaration",
+        "name": "moduleDeclaration",
         "fieldValue": {
           "oneOfElements": [
             {
@@ -94,7 +148,7 @@
     "messageName": "Literal",
     "fields": [
       {
-        "name": "Literal",
+        "name": "literal",
         "fieldValue": {
           "oneOfElements": [
             {
@@ -134,6 +188,22 @@
         "fieldValue": {
           "type": "string"
         }
+      },
+      {
+        "name": "leadingComments",
+        "fieldValue": {
+          "repeatedValue": {
+            "type": "Comment"
+          }
+        }
+      },
+      {
+        "name": "trailingComments",
+        "fieldValue": {
+          "repeatedValue": {
+            "type": "Comment"
+          }
+        }
       }
     ]
   },
@@ -170,6 +240,22 @@
         "fieldValue": {
           "type": "string"
         }
+      },
+      {
+        "name": "leadingComments",
+        "fieldValue": {
+          "repeatedValue": {
+            "type": "Comment"
+          }
+        }
+      },
+      {
+        "name": "trailingComments",
+        "fieldValue": {
+          "repeatedValue": {
+            "type": "Comment"
+          }
+        }
       }
     ]
   },
@@ -180,6 +266,22 @@
         "name": "name",
         "fieldValue": {
           "type": "string"
+        }
+      },
+      {
+        "name": "leadingComments",
+        "fieldValue": {
+          "repeatedValue": {
+            "type": "Comment"
+          }
+        }
+      },
+      {
+        "name": "trailingComments",
+        "fieldValue": {
+          "repeatedValue": {
+            "type": "Comment"
+          }
         }
       }
     ]
@@ -218,7 +320,7 @@
     "messageName": "Expression",
     "fields": [
       {
-        "name": "Expression",
+        "name": "expression",
         "fieldValue": {
           "oneOfElements": [
             {
@@ -420,7 +522,7 @@
     "messageName": "UpdateOperator",
     "fields": [
       {
-        "name": "UpdateOperator",
+        "name": "updateOperator",
         "fieldValue": {
           "type": "string"
         }
@@ -454,7 +556,7 @@
     "messageName": "UnaryOperator",
     "fields": [
       {
-        "name": "UnaryOperator",
+        "name": "unaryOperator",
         "fieldValue": {
           "type": "string"
         }
@@ -500,6 +602,22 @@
         "fieldValue": {
           "type": "ERROR_UNEXPECTED"
         }
+      },
+      {
+        "name": "leadingComments",
+        "fieldValue": {
+          "repeatedValue": {
+            "type": "Comment"
+          }
+        }
+      },
+      {
+        "name": "trailingComments",
+        "fieldValue": {
+          "repeatedValue": {
+            "type": "Comment"
+          }
+        }
       }
     ]
   },
@@ -540,20 +658,7 @@
         "name": "properties",
         "fieldValue": {
           "repeatedValue": {
-            "oneOfElements": [
-              {
-                "name": "property",
-                "fieldValue": {
-                  "type": "Property"
-                }
-              },
-              {
-                "name": "spreadElement",
-                "fieldValue": {
-                  "type": "SpreadElement"
-                }
-              }
-            ]
+            "type": "BaseNodeWithoutComments"
           }
         }
       }
@@ -566,6 +671,22 @@
         "name": "argument",
         "fieldValue": {
           "type": "Expression"
+        }
+      },
+      {
+        "name": "leadingComments",
+        "fieldValue": {
+          "repeatedValue": {
+            "type": "Comment"
+          }
+        }
+      },
+      {
+        "name": "trailingComments",
+        "fieldValue": {
+          "repeatedValue": {
+            "type": "Comment"
+          }
         }
       }
     ]
@@ -634,6 +755,22 @@
         "fieldValue": {
           "type": "bool"
         }
+      },
+      {
+        "name": "leadingComments",
+        "fieldValue": {
+          "repeatedValue": {
+            "type": "Comment"
+          }
+        }
+      },
+      {
+        "name": "trailingComments",
+        "fieldValue": {
+          "repeatedValue": {
+            "type": "Comment"
+          }
+        }
       }
     ]
   },
@@ -641,7 +778,7 @@
     "messageName": "Pattern",
     "fields": [
       {
-        "name": "Pattern",
+        "name": "pattern",
         "fieldValue": {
           "oneOfElements": [
             {
@@ -733,20 +870,7 @@
         "name": "properties",
         "fieldValue": {
           "repeatedValue": {
-            "oneOfElements": [
-              {
-                "name": "assignmentProperty",
-                "fieldValue": {
-                  "type": "AssignmentProperty"
-                }
-              },
-              {
-                "name": "restElement",
-                "fieldValue": {
-                  "type": "RestElement"
-                }
-              }
-            ]
+            "type": "BaseNodeWithoutComments"
           }
         }
       }
@@ -772,6 +896,37 @@
         "fieldValue": {
           "type": "bool"
         }
+      },
+      {
+        "name": "key",
+        "fieldValue": {
+          "oneOfElements": [
+            {
+              "name": "expression",
+              "fieldValue": {
+                "type": "Expression"
+              }
+            },
+            {
+              "name": "privateIdentifier",
+              "fieldValue": {
+                "type": "PrivateIdentifier"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "name": "shorthand",
+        "fieldValue": {
+          "type": "bool"
+        }
+      },
+      {
+        "name": "computed",
+        "fieldValue": {
+          "type": "bool"
+        }
       }
     ]
   },
@@ -783,12 +938,77 @@
         "fieldValue": {
           "type": "string"
         }
+      },
+      {
+        "name": "leadingComments",
+        "fieldValue": {
+          "repeatedValue": {
+            "type": "Comment"
+          }
+        }
+      },
+      {
+        "name": "trailingComments",
+        "fieldValue": {
+          "repeatedValue": {
+            "type": "Comment"
+          }
+        }
       }
     ]
   },
   "NewExpression": {
     "messageName": "NewExpression",
-    "fields": []
+    "fields": [
+      {
+        "name": "callee",
+        "fieldValue": {
+          "oneOfElements": [
+            {
+              "name": "expression",
+              "fieldValue": {
+                "type": "Expression"
+              }
+            },
+            {
+              "name": "super",
+              "fieldValue": {
+                "type": "Super"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "name": "arguments",
+        "fieldValue": {
+          "repeatedValue": {
+            "type": "BaseNodeWithoutComments"
+          }
+        }
+      }
+    ]
+  },
+  "Super": {
+    "messageName": "Super",
+    "fields": [
+      {
+        "name": "leadingComments",
+        "fieldValue": {
+          "repeatedValue": {
+            "type": "Comment"
+          }
+        }
+      },
+      {
+        "name": "trailingComments",
+        "fieldValue": {
+          "repeatedValue": {
+            "type": "Comment"
+          }
+        }
+      }
+    ]
   },
   "MetaProperty": {
     "messageName": "MetaProperty",
@@ -862,10 +1082,6 @@
       }
     ]
   },
-  "Super": {
-    "messageName": "Super",
-    "fields": []
-  },
   "LogicalExpression": {
     "messageName": "LogicalExpression",
     "fields": [
@@ -893,7 +1109,7 @@
     "messageName": "LogicalOperator",
     "fields": [
       {
-        "name": "LogicalOperator",
+        "name": "logicalOperator",
         "fieldValue": {
           "type": "string"
         }
@@ -924,6 +1140,26 @@
         "name": "body",
         "fieldValue": {
           "type": "BlockStatement"
+        }
+      },
+      {
+        "name": "params",
+        "fieldValue": {
+          "repeatedValue": {
+            "type": "Pattern"
+          }
+        }
+      },
+      {
+        "name": "generator",
+        "fieldValue": {
+          "type": "bool"
+        }
+      },
+      {
+        "name": "async",
+        "fieldValue": {
+          "type": "bool"
         }
       }
     ]
@@ -972,6 +1208,173 @@
         "fieldValue": {
           "type": "Identifier"
         }
+      },
+      {
+        "name": "superClass",
+        "fieldValue": {
+          "type": "Expression"
+        }
+      },
+      {
+        "name": "body",
+        "fieldValue": {
+          "type": "ClassBody"
+        }
+      }
+    ]
+  },
+  "ClassBody": {
+    "messageName": "ClassBody",
+    "fields": [
+      {
+        "name": "body",
+        "fieldValue": {
+          "repeatedValue": {
+            "type": "BaseNodeWithoutComments"
+          }
+        }
+      },
+      {
+        "name": "leadingComments",
+        "fieldValue": {
+          "repeatedValue": {
+            "type": "Comment"
+          }
+        }
+      },
+      {
+        "name": "trailingComments",
+        "fieldValue": {
+          "repeatedValue": {
+            "type": "Comment"
+          }
+        }
+      }
+    ]
+  },
+  "StaticBlock": {
+    "messageName": "StaticBlock",
+    "fields": []
+  },
+  "PropertyDefinition": {
+    "messageName": "PropertyDefinition",
+    "fields": [
+      {
+        "name": "key",
+        "fieldValue": {
+          "oneOfElements": [
+            {
+              "name": "expression",
+              "fieldValue": {
+                "type": "Expression"
+              }
+            },
+            {
+              "name": "privateIdentifier",
+              "fieldValue": {
+                "type": "PrivateIdentifier"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "name": "value",
+        "fieldValue": {
+          "type": "Expression"
+        }
+      },
+      {
+        "name": "computed",
+        "fieldValue": {
+          "type": "bool"
+        }
+      },
+      {
+        "name": "static",
+        "fieldValue": {
+          "type": "bool"
+        }
+      },
+      {
+        "name": "leadingComments",
+        "fieldValue": {
+          "repeatedValue": {
+            "type": "Comment"
+          }
+        }
+      },
+      {
+        "name": "trailingComments",
+        "fieldValue": {
+          "repeatedValue": {
+            "type": "Comment"
+          }
+        }
+      }
+    ]
+  },
+  "MethodDefinition": {
+    "messageName": "MethodDefinition",
+    "fields": [
+      {
+        "name": "key",
+        "fieldValue": {
+          "oneOfElements": [
+            {
+              "name": "expression",
+              "fieldValue": {
+                "type": "Expression"
+              }
+            },
+            {
+              "name": "privateIdentifier",
+              "fieldValue": {
+                "type": "PrivateIdentifier"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "name": "value",
+        "fieldValue": {
+          "type": "FunctionExpression"
+        }
+      },
+      {
+        "name": "kind",
+        "fieldValue": {
+          "type": "string"
+        }
+      },
+      {
+        "name": "computed",
+        "fieldValue": {
+          "type": "bool"
+        }
+      },
+      {
+        "name": "static",
+        "fieldValue": {
+          "type": "bool"
+        }
+      },
+      {
+        "name": "leadingComments",
+        "fieldValue": {
+          "repeatedValue": {
+            "type": "Comment"
+          }
+        }
+      },
+      {
+        "name": "trailingComments",
+        "fieldValue": {
+          "repeatedValue": {
+            "type": "Comment"
+          }
+        }
       }
     ]
   },
@@ -990,7 +1393,7 @@
     "messageName": "ChainElement",
     "fields": [
       {
-        "name": "ChainElement",
+        "name": "chainElement",
         "fieldValue": {
           "oneOfElements": [
             {
@@ -1018,6 +1421,33 @@
         "fieldValue": {
           "type": "bool"
         }
+      },
+      {
+        "name": "callee",
+        "fieldValue": {
+          "oneOfElements": [
+            {
+              "name": "expression",
+              "fieldValue": {
+                "type": "Expression"
+              }
+            },
+            {
+              "name": "super",
+              "fieldValue": {
+                "type": "Super"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "name": "arguments",
+        "fieldValue": {
+          "repeatedValue": {
+            "type": "BaseNodeWithoutComments"
+          }
+        }
       }
     ]
   },
@@ -1025,7 +1455,7 @@
     "messageName": "CallExpression",
     "fields": [
       {
-        "name": "CallExpression",
+        "name": "callExpression",
         "fieldValue": {
           "oneOfElements": [
             {
@@ -1072,7 +1502,7 @@
     "messageName": "BinaryOperator",
     "fields": [
       {
-        "name": "BinaryOperator",
+        "name": "binaryOperator",
         "fieldValue": {
           "type": "string"
         }
@@ -1130,7 +1560,7 @@
     "messageName": "AssignmentOperator",
     "fields": [
       {
-        "name": "AssignmentOperator",
+        "name": "assignmentOperator",
         "fieldValue": {
           "type": "string"
         }
@@ -1174,20 +1604,7 @@
         "name": "elements",
         "fieldValue": {
           "repeatedValue": {
-            "oneOfElements": [
-              {
-                "name": "expression",
-                "fieldValue": {
-                  "type": "Expression"
-                }
-              },
-              {
-                "name": "spreadElement",
-                "fieldValue": {
-                  "type": "SpreadElement"
-                }
-              }
-            ]
+            "type": "BaseNodeWithoutComments"
           }
         }
       }
@@ -1200,6 +1617,18 @@
         "name": "id",
         "fieldValue": {
           "type": "Identifier"
+        }
+      },
+      {
+        "name": "superClass",
+        "fieldValue": {
+          "type": "Expression"
+        }
+      },
+      {
+        "name": "body",
+        "fieldValue": {
+          "type": "ClassBody"
         }
       }
     ]
@@ -1217,6 +1646,26 @@
         "name": "body",
         "fieldValue": {
           "type": "BlockStatement"
+        }
+      },
+      {
+        "name": "params",
+        "fieldValue": {
+          "repeatedValue": {
+            "type": "Pattern"
+          }
+        }
+      },
+      {
+        "name": "generator",
+        "fieldValue": {
+          "type": "bool"
+        }
+      },
+      {
+        "name": "async",
+        "fieldValue": {
+          "type": "bool"
         }
       }
     ]
@@ -1254,6 +1703,12 @@
         "fieldValue": {
           "type": "Identifier"
         }
+      },
+      {
+        "name": "local",
+        "fieldValue": {
+          "type": "Identifier"
+        }
       }
     ]
   },
@@ -1261,7 +1716,7 @@
     "messageName": "Declaration",
     "fields": [
       {
-        "name": "Declaration",
+        "name": "declaration",
         "fieldValue": {
           "oneOfElements": [
             {
@@ -1331,6 +1786,22 @@
         "fieldValue": {
           "type": "Expression"
         }
+      },
+      {
+        "name": "leadingComments",
+        "fieldValue": {
+          "repeatedValue": {
+            "type": "Comment"
+          }
+        }
+      },
+      {
+        "name": "trailingComments",
+        "fieldValue": {
+          "repeatedValue": {
+            "type": "Comment"
+          }
+        }
       }
     ]
   },
@@ -1342,6 +1813,12 @@
         "fieldValue": {
           "type": "Identifier"
         }
+      },
+      {
+        "name": "body",
+        "fieldValue": {
+          "type": "BlockStatement"
+        }
       }
     ]
   },
@@ -1352,26 +1829,7 @@
         "name": "specifiers",
         "fieldValue": {
           "repeatedValue": {
-            "oneOfElements": [
-              {
-                "name": "importSpecifier",
-                "fieldValue": {
-                  "type": "ImportSpecifier"
-                }
-              },
-              {
-                "name": "importDefaultSpecifier",
-                "fieldValue": {
-                  "type": "ImportDefaultSpecifier"
-                }
-              },
-              {
-                "name": "importNamespaceSpecifier",
-                "fieldValue": {
-                  "type": "ImportNamespaceSpecifier"
-                }
-              }
-            ]
+            "type": "BaseNodeWithoutComments"
           }
         }
       },
@@ -1385,17 +1843,37 @@
   },
   "ImportNamespaceSpecifier": {
     "messageName": "ImportNamespaceSpecifier",
-    "fields": []
+    "fields": [
+      {
+        "name": "local",
+        "fieldValue": {
+          "type": "Identifier"
+        }
+      }
+    ]
   },
   "ImportDefaultSpecifier": {
     "messageName": "ImportDefaultSpecifier",
-    "fields": []
+    "fields": [
+      {
+        "name": "local",
+        "fieldValue": {
+          "type": "Identifier"
+        }
+      }
+    ]
   },
   "ImportSpecifier": {
     "messageName": "ImportSpecifier",
     "fields": [
       {
         "name": "imported",
+        "fieldValue": {
+          "type": "Identifier"
+        }
+      },
+      {
+        "name": "local",
         "fieldValue": {
           "type": "Identifier"
         }
@@ -1406,7 +1884,7 @@
     "messageName": "Statement",
     "fields": [
       {
-        "name": "Statement",
+        "name": "statement",
         "fieldValue": {
           "oneOfElements": [
             {
@@ -1542,12 +2020,75 @@
         "fieldValue": {
           "type": "bool"
         }
+      },
+      {
+        "name": "left",
+        "fieldValue": {
+          "oneOfElements": [
+            {
+              "name": "variableDeclaration",
+              "fieldValue": {
+                "type": "VariableDeclaration"
+              }
+            },
+            {
+              "name": "pattern",
+              "fieldValue": {
+                "type": "Pattern"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "name": "right",
+        "fieldValue": {
+          "type": "Expression"
+        }
+      },
+      {
+        "name": "body",
+        "fieldValue": {
+          "type": "Statement"
+        }
       }
     ]
   },
   "ForInStatement": {
     "messageName": "ForInStatement",
-    "fields": []
+    "fields": [
+      {
+        "name": "left",
+        "fieldValue": {
+          "oneOfElements": [
+            {
+              "name": "variableDeclaration",
+              "fieldValue": {
+                "type": "VariableDeclaration"
+              }
+            },
+            {
+              "name": "pattern",
+              "fieldValue": {
+                "type": "Pattern"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "name": "right",
+        "fieldValue": {
+          "type": "Expression"
+        }
+      },
+      {
+        "name": "body",
+        "fieldValue": {
+          "type": "Statement"
+        }
+      }
+    ]
   },
   "ForStatement": {
     "messageName": "ForStatement",
@@ -1662,6 +2203,22 @@
         "fieldValue": {
           "type": "BlockStatement"
         }
+      },
+      {
+        "name": "leadingComments",
+        "fieldValue": {
+          "repeatedValue": {
+            "type": "Comment"
+          }
+        }
+      },
+      {
+        "name": "trailingComments",
+        "fieldValue": {
+          "repeatedValue": {
+            "type": "Comment"
+          }
+        }
       }
     ]
   },
@@ -1709,6 +2266,22 @@
         "fieldValue": {
           "repeatedValue": {
             "type": "Statement"
+          }
+        }
+      },
+      {
+        "name": "leadingComments",
+        "fieldValue": {
+          "repeatedValue": {
+            "type": "Comment"
+          }
+        }
+      },
+      {
+        "name": "trailingComments",
+        "fieldValue": {
+          "repeatedValue": {
+            "type": "Comment"
           }
         }
       }
@@ -1812,10 +2385,6 @@
     "messageName": "EmptyStatement",
     "fields": []
   },
-  "StaticBlock": {
-    "messageName": "StaticBlock",
-    "fields": []
-  },
   "ExpressionStatement": {
     "messageName": "ExpressionStatement",
     "fields": [
@@ -1841,6 +2410,22 @@
         "fieldValue": {
           "type": "string"
         }
+      },
+      {
+        "name": "leadingComments",
+        "fieldValue": {
+          "repeatedValue": {
+            "type": "Comment"
+          }
+        }
+      },
+      {
+        "name": "trailingComments",
+        "fieldValue": {
+          "repeatedValue": {
+            "type": "Comment"
+          }
+        }
       }
     ]
   },
@@ -1848,49 +2433,574 @@
     "messageName": "BaseNodeWithoutComments",
     "fields": [
       {
-        "name": "loc",
-        "fieldValue": {
-          "type": "SourceLocation"
-        }
-      }
-    ]
-  },
-  "SourceLocation": {
-    "messageName": "SourceLocation",
-    "fields": [
-      {
-        "name": "source",
+        "name": "type",
         "fieldValue": {
           "type": "string"
         }
       },
       {
-        "name": "start",
+        "name": "loc",
         "fieldValue": {
-          "type": "Position"
+          "type": "SourceLocation"
         }
       },
       {
-        "name": "end",
+        "name": "node",
         "fieldValue": {
-          "type": "Position"
-        }
-      }
-    ]
-  },
-  "Position": {
-    "messageName": "Position",
-    "fields": [
-      {
-        "name": "line",
-        "fieldValue": {
-          "type": "int32"
-        }
-      },
-      {
-        "name": "column",
-        "fieldValue": {
-          "type": "int32"
+          "oneOfElements": [
+            {
+              "name": "program",
+              "fieldValue": {
+                "type": "Program"
+              }
+            },
+            {
+              "name": "comment",
+              "fieldValue": {
+                "type": "Comment"
+              }
+            },
+            {
+              "name": "sourceLocation",
+              "fieldValue": {
+                "type": "SourceLocation"
+              }
+            },
+            {
+              "name": "position",
+              "fieldValue": {
+                "type": "Position"
+              }
+            },
+            {
+              "name": "moduleDeclaration",
+              "fieldValue": {
+                "type": "ModuleDeclaration"
+              }
+            },
+            {
+              "name": "exportAllDeclaration",
+              "fieldValue": {
+                "type": "ExportAllDeclaration"
+              }
+            },
+            {
+              "name": "literal",
+              "fieldValue": {
+                "type": "Literal"
+              }
+            },
+            {
+              "name": "bigIntLiteral",
+              "fieldValue": {
+                "type": "BigIntLiteral"
+              }
+            },
+            {
+              "name": "simpleLiteral",
+              "fieldValue": {
+                "type": "SimpleLiteral"
+              }
+            },
+            {
+              "name": "identifier",
+              "fieldValue": {
+                "type": "Identifier"
+              }
+            },
+            {
+              "name": "exportDefaultDeclaration",
+              "fieldValue": {
+                "type": "ExportDefaultDeclaration"
+              }
+            },
+            {
+              "name": "expression",
+              "fieldValue": {
+                "type": "Expression"
+              }
+            },
+            {
+              "name": "yieldExpression",
+              "fieldValue": {
+                "type": "YieldExpression"
+              }
+            },
+            {
+              "name": "updateExpression",
+              "fieldValue": {
+                "type": "UpdateExpression"
+              }
+            },
+            {
+              "name": "updateOperator",
+              "fieldValue": {
+                "type": "UpdateOperator"
+              }
+            },
+            {
+              "name": "unaryExpression",
+              "fieldValue": {
+                "type": "UnaryExpression"
+              }
+            },
+            {
+              "name": "unaryOperator",
+              "fieldValue": {
+                "type": "UnaryOperator"
+              }
+            },
+            {
+              "name": "thisExpression",
+              "fieldValue": {
+                "type": "ThisExpression"
+              }
+            },
+            {
+              "name": "templateLiteral",
+              "fieldValue": {
+                "type": "TemplateLiteral"
+              }
+            },
+            {
+              "name": "templateElement",
+              "fieldValue": {
+                "type": "TemplateElement"
+              }
+            },
+            {
+              "name": "taggedTemplateExpression",
+              "fieldValue": {
+                "type": "TaggedTemplateExpression"
+              }
+            },
+            {
+              "name": "sequenceExpression",
+              "fieldValue": {
+                "type": "SequenceExpression"
+              }
+            },
+            {
+              "name": "objectExpression",
+              "fieldValue": {
+                "type": "ObjectExpression"
+              }
+            },
+            {
+              "name": "spreadElement",
+              "fieldValue": {
+                "type": "SpreadElement"
+              }
+            },
+            {
+              "name": "property",
+              "fieldValue": {
+                "type": "Property"
+              }
+            },
+            {
+              "name": "pattern",
+              "fieldValue": {
+                "type": "Pattern"
+              }
+            },
+            {
+              "name": "assignmentPattern",
+              "fieldValue": {
+                "type": "AssignmentPattern"
+              }
+            },
+            {
+              "name": "restElement",
+              "fieldValue": {
+                "type": "RestElement"
+              }
+            },
+            {
+              "name": "arrayPattern",
+              "fieldValue": {
+                "type": "ArrayPattern"
+              }
+            },
+            {
+              "name": "objectPattern",
+              "fieldValue": {
+                "type": "ObjectPattern"
+              }
+            },
+            {
+              "name": "assignmentProperty",
+              "fieldValue": {
+                "type": "AssignmentProperty"
+              }
+            },
+            {
+              "name": "privateIdentifier",
+              "fieldValue": {
+                "type": "PrivateIdentifier"
+              }
+            },
+            {
+              "name": "newExpression",
+              "fieldValue": {
+                "type": "NewExpression"
+              }
+            },
+            {
+              "name": "super",
+              "fieldValue": {
+                "type": "Super"
+              }
+            },
+            {
+              "name": "metaProperty",
+              "fieldValue": {
+                "type": "MetaProperty"
+              }
+            },
+            {
+              "name": "memberExpression",
+              "fieldValue": {
+                "type": "MemberExpression"
+              }
+            },
+            {
+              "name": "logicalExpression",
+              "fieldValue": {
+                "type": "LogicalExpression"
+              }
+            },
+            {
+              "name": "logicalOperator",
+              "fieldValue": {
+                "type": "LogicalOperator"
+              }
+            },
+            {
+              "name": "importExpression",
+              "fieldValue": {
+                "type": "ImportExpression"
+              }
+            },
+            {
+              "name": "functionExpression",
+              "fieldValue": {
+                "type": "FunctionExpression"
+              }
+            },
+            {
+              "name": "blockStatement",
+              "fieldValue": {
+                "type": "BlockStatement"
+              }
+            },
+            {
+              "name": "conditionalExpression",
+              "fieldValue": {
+                "type": "ConditionalExpression"
+              }
+            },
+            {
+              "name": "classExpression",
+              "fieldValue": {
+                "type": "ClassExpression"
+              }
+            },
+            {
+              "name": "classBody",
+              "fieldValue": {
+                "type": "ClassBody"
+              }
+            },
+            {
+              "name": "staticBlock",
+              "fieldValue": {
+                "type": "StaticBlock"
+              }
+            },
+            {
+              "name": "propertyDefinition",
+              "fieldValue": {
+                "type": "PropertyDefinition"
+              }
+            },
+            {
+              "name": "methodDefinition",
+              "fieldValue": {
+                "type": "MethodDefinition"
+              }
+            },
+            {
+              "name": "chainExpression",
+              "fieldValue": {
+                "type": "ChainExpression"
+              }
+            },
+            {
+              "name": "chainElement",
+              "fieldValue": {
+                "type": "ChainElement"
+              }
+            },
+            {
+              "name": "simpleCallExpression",
+              "fieldValue": {
+                "type": "SimpleCallExpression"
+              }
+            },
+            {
+              "name": "callExpression",
+              "fieldValue": {
+                "type": "CallExpression"
+              }
+            },
+            {
+              "name": "binaryExpression",
+              "fieldValue": {
+                "type": "BinaryExpression"
+              }
+            },
+            {
+              "name": "binaryOperator",
+              "fieldValue": {
+                "type": "BinaryOperator"
+              }
+            },
+            {
+              "name": "awaitExpression",
+              "fieldValue": {
+                "type": "AwaitExpression"
+              }
+            },
+            {
+              "name": "assignmentExpression",
+              "fieldValue": {
+                "type": "AssignmentExpression"
+              }
+            },
+            {
+              "name": "assignmentOperator",
+              "fieldValue": {
+                "type": "AssignmentOperator"
+              }
+            },
+            {
+              "name": "arrowFunctionExpression",
+              "fieldValue": {
+                "type": "ArrowFunctionExpression"
+              }
+            },
+            {
+              "name": "arrayExpression",
+              "fieldValue": {
+                "type": "ArrayExpression"
+              }
+            },
+            {
+              "name": "maybeNamedClassDeclaration",
+              "fieldValue": {
+                "type": "MaybeNamedClassDeclaration"
+              }
+            },
+            {
+              "name": "maybeNamedFunctionDeclaration",
+              "fieldValue": {
+                "type": "MaybeNamedFunctionDeclaration"
+              }
+            },
+            {
+              "name": "exportNamedDeclaration",
+              "fieldValue": {
+                "type": "ExportNamedDeclaration"
+              }
+            },
+            {
+              "name": "exportSpecifier",
+              "fieldValue": {
+                "type": "ExportSpecifier"
+              }
+            },
+            {
+              "name": "declaration",
+              "fieldValue": {
+                "type": "Declaration"
+              }
+            },
+            {
+              "name": "classDeclaration",
+              "fieldValue": {
+                "type": "ClassDeclaration"
+              }
+            },
+            {
+              "name": "variableDeclaration",
+              "fieldValue": {
+                "type": "VariableDeclaration"
+              }
+            },
+            {
+              "name": "variableDeclarator",
+              "fieldValue": {
+                "type": "VariableDeclarator"
+              }
+            },
+            {
+              "name": "functionDeclaration",
+              "fieldValue": {
+                "type": "FunctionDeclaration"
+              }
+            },
+            {
+              "name": "importDeclaration",
+              "fieldValue": {
+                "type": "ImportDeclaration"
+              }
+            },
+            {
+              "name": "importNamespaceSpecifier",
+              "fieldValue": {
+                "type": "ImportNamespaceSpecifier"
+              }
+            },
+            {
+              "name": "importDefaultSpecifier",
+              "fieldValue": {
+                "type": "ImportDefaultSpecifier"
+              }
+            },
+            {
+              "name": "importSpecifier",
+              "fieldValue": {
+                "type": "ImportSpecifier"
+              }
+            },
+            {
+              "name": "statement",
+              "fieldValue": {
+                "type": "Statement"
+              }
+            },
+            {
+              "name": "forOfStatement",
+              "fieldValue": {
+                "type": "ForOfStatement"
+              }
+            },
+            {
+              "name": "forInStatement",
+              "fieldValue": {
+                "type": "ForInStatement"
+              }
+            },
+            {
+              "name": "forStatement",
+              "fieldValue": {
+                "type": "ForStatement"
+              }
+            },
+            {
+              "name": "doWhileStatement",
+              "fieldValue": {
+                "type": "DoWhileStatement"
+              }
+            },
+            {
+              "name": "whileStatement",
+              "fieldValue": {
+                "type": "WhileStatement"
+              }
+            },
+            {
+              "name": "tryStatement",
+              "fieldValue": {
+                "type": "TryStatement"
+              }
+            },
+            {
+              "name": "catchClause",
+              "fieldValue": {
+                "type": "CatchClause"
+              }
+            },
+            {
+              "name": "throwStatement",
+              "fieldValue": {
+                "type": "ThrowStatement"
+              }
+            },
+            {
+              "name": "switchStatement",
+              "fieldValue": {
+                "type": "SwitchStatement"
+              }
+            },
+            {
+              "name": "switchCase",
+              "fieldValue": {
+                "type": "SwitchCase"
+              }
+            },
+            {
+              "name": "ifStatement",
+              "fieldValue": {
+                "type": "IfStatement"
+              }
+            },
+            {
+              "name": "continueStatement",
+              "fieldValue": {
+                "type": "ContinueStatement"
+              }
+            },
+            {
+              "name": "breakStatement",
+              "fieldValue": {
+                "type": "BreakStatement"
+              }
+            },
+            {
+              "name": "labeledStatement",
+              "fieldValue": {
+                "type": "LabeledStatement"
+              }
+            },
+            {
+              "name": "returnStatement",
+              "fieldValue": {
+                "type": "ReturnStatement"
+              }
+            },
+            {
+              "name": "withStatement",
+              "fieldValue": {
+                "type": "WithStatement"
+              }
+            },
+            {
+              "name": "debuggerStatement",
+              "fieldValue": {
+                "type": "DebuggerStatement"
+              }
+            },
+            {
+              "name": "emptyStatement",
+              "fieldValue": {
+                "type": "EmptyStatement"
+              }
+            },
+            {
+              "name": "expressionStatement",
+              "fieldValue": {
+                "type": "ExpressionStatement"
+              }
+            },
+            {
+              "name": "directive",
+              "fieldValue": {
+                "type": "Directive"
+              }
+            }
+          ]
         }
       }
     ]
