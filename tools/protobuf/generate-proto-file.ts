@@ -216,6 +216,9 @@ console.log(str);
 fs.writeFileSync('ast.json', str);
 fs.writeFileSync('ast.proto', translateToProtoFormat(messages));
 
+/**
+ * Translate the messages to a protobuf file format.
+ */
 function translateToProtoFormat(messages: Record<string, ProtobufMessage>): string {
   const lines: string[] = [];
   for (const message of Object.values(messages)) {
@@ -232,8 +235,10 @@ function translateToProtoFormat(messages: Record<string, ProtobufMessage>): stri
           lines.push(
             `    ${(oneOfField.fieldValue as ProtobufPrimitiveFieldValue).type} ${oneOfField.name} = ${index};`,
           );
+          index++;
         }
         lines.push('  }');
+        index--;
       } else {
         lines.push(`  ${field.name}: ${field.fieldValue.type} = ${index};`);
       }
