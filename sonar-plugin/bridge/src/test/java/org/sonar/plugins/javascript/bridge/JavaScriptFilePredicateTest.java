@@ -17,18 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.javascript;
+package org.sonar.plugins.javascript.bridge;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.plugins.javascript.bridge.JavaScriptFilePredicate.isTypeScriptFile;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.sonar.api.batch.fs.FilePredicate;
@@ -36,7 +34,6 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
-import org.sonar.plugins.javascript.bridge.JavaScriptFilePredicate;
 
 class JavaScriptFilePredicateTest {
 
@@ -46,7 +43,7 @@ class JavaScriptFilePredicateTest {
   private static final String newLine = System.lineSeparator();
 
   @Test
-  void testJavaScriptPredicate() throws IOException {
+  void testJavaScriptPredicate() {
     DefaultFileSystem fs = new DefaultFileSystem(baseDir);
     fs.add(createInputFile(baseDir, "a.js"));
     fs.add(createInputFile(baseDir, "b.ts"));
@@ -126,13 +123,13 @@ class JavaScriptFilePredicateTest {
       .stream()
       .filter(f -> !isTypeScriptFile(f))
       .map(InputFile::filename)
-      .collect(Collectors.toList());
+      .toList();
     assertThat(filenames)
       .containsExactlyInAnyOrder("a.js", "c.vue", "d.vue", "e.vue", "f.vue", "h.vue", "j.jsx");
   }
 
   @Test
-  void testTypeScriptPredicate() throws IOException {
+  void testTypeScriptPredicate() {
     DefaultFileSystem fs = new DefaultFileSystem(baseDir);
     fs.add(createInputFile(baseDir, "a.js"));
     fs.add(createInputFile(baseDir, "b.ts"));
@@ -203,12 +200,12 @@ class JavaScriptFilePredicateTest {
       .stream()
       .filter(JavaScriptFilePredicate::isTypeScriptFile)
       .map(InputFile::filename)
-      .collect(Collectors.toList());
+      .toList();
     assertThat(filenames).containsExactlyInAnyOrder("b.ts", "e.vue", "f.vue", "j.tsx");
   }
 
   @Test
-  void testYamlPredicate() throws IOException {
+  void testYamlPredicate() {
     var baseYamlFile =
       "".concat("apiVersion: apps/v1")
         .concat(newLine)
@@ -238,7 +235,7 @@ class JavaScriptFilePredicateTest {
     List<File> files = new ArrayList<>();
     fs.files(predicate).forEach(files::add);
 
-    List<String> filenames = files.stream().map(File::getName).collect(Collectors.toList());
+    var filenames = files.stream().map(File::getName).toList();
     assertThat(filenames)
       .containsExactlyInAnyOrder(
         "single-quote.yaml",
@@ -252,22 +249,22 @@ class JavaScriptFilePredicateTest {
   void testIsTypeScriptFile() {
     var tsFile = TestInputFileBuilder
       .create("", "file.ts")
-      .setLanguage(TypeScriptLanguage.KEY)
+      .setLanguage("ts")
       .build();
     assertThat(isTypeScriptFile(tsFile)).isTrue();
     var jsFile = TestInputFileBuilder
       .create("", "file.js")
-      .setLanguage(JavaScriptLanguage.KEY)
+      .setLanguage("js")
       .build();
     assertThat(isTypeScriptFile(jsFile)).isFalse();
     var vueFile = TestInputFileBuilder
       .create("", "file.vue")
-      .setLanguage(JavaScriptLanguage.KEY)
+      .setLanguage("js")
       .build();
     assertThat(isTypeScriptFile(vueFile)).isFalse();
     var tsVueFile = TestInputFileBuilder
       .create("", "file.vue")
-      .setLanguage(JavaScriptLanguage.KEY)
+      .setLanguage("js")
       .setContents("<script lang='ts'>")
       .build();
     assertThat(isTypeScriptFile(tsVueFile)).isTrue();
@@ -278,11 +275,11 @@ class JavaScriptFilePredicateTest {
     var fs = new DefaultFileSystem(baseDir);
     var tsFile = TestInputFileBuilder
       .create("", "file.ts")
-      .setLanguage(TypeScriptLanguage.KEY)
+      .setLanguage("ts")
       .build();
     var jsFile = TestInputFileBuilder
       .create("", "file.js")
-      .setLanguage(JavaScriptLanguage.KEY)
+      .setLanguage("js")
       .build();
     var f = TestInputFileBuilder.create("", "file.cpp").setLanguage("c").build();
     var predicate = JavaScriptFilePredicate.getJsTsPredicate(fs);
@@ -296,22 +293,21 @@ class JavaScriptFilePredicateTest {
   }
 
   private static InputFile createInputFile(Path baseDir, String relativePath, String content) {
-    InputFile file = new TestInputFileBuilder("moduleKey", relativePath)
+    return new TestInputFileBuilder("moduleKey", relativePath)
       .setModuleBaseDir(baseDir)
       .setType(Type.MAIN)
       .setLanguage(getLanguage(relativePath))
       .setCharset(StandardCharsets.UTF_8)
       .setContents(content)
       .build();
-    return file;
   }
 
   private static String getLanguage(String path) {
     String fileExtension = path.substring(path.indexOf("."));
-    if (JavaScriptLanguage.FILE_SUFFIXES_DEFVALUE.contains(fileExtension)) {
-      return JavaScriptLanguage.KEY;
-    } else if (TypeScriptLanguage.FILE_SUFFIXES_DEFVALUE.contains(fileExtension)) {
-      return TypeScriptLanguage.KEY;
+    if (".js,.jsx,.cjs,.mjs,.vue".contains(fileExtension)) {
+      return "js";
+    } else if (".ts,.tsx,.cts,.mts".contains(fileExtension)) {
+      return "ts";
     } else {
       return path.split("\\.")[1];
     }
