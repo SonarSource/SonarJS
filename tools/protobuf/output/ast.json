@@ -1767,46 +1767,6 @@
       }
     ]
   },
-  "SourceLocation": {
-    "messageName": "SourceLocation",
-    "fields": [
-      {
-        "name": "source",
-        "fieldValue": {
-          "type": "string"
-        }
-      },
-      {
-        "name": "start",
-        "fieldValue": {
-          "type": "Position"
-        }
-      },
-      {
-        "name": "end",
-        "fieldValue": {
-          "type": "Position"
-        }
-      }
-    ]
-  },
-  "Position": {
-    "messageName": "Position",
-    "fields": [
-      {
-        "name": "line",
-        "fieldValue": {
-          "type": "int32"
-        }
-      },
-      {
-        "name": "column",
-        "fieldValue": {
-          "type": "int32"
-        }
-      }
-    ]
-  },
   "BaseNodeWithoutComments": {
     "messageName": "BaseNodeWithoutComments",
     "fields": [
@@ -2341,20 +2301,48 @@
               "fieldValue": {
                 "type": "Directive"
               }
-            },
-            {
-              "name": "sourceLocation",
-              "fieldValue": {
-                "type": "SourceLocation"
-              }
-            },
-            {
-              "name": "position",
-              "fieldValue": {
-                "type": "Position"
-              }
             }
           ]
+        }
+      }
+    ]
+  },
+  "SourceLocation": {
+    "messageName": "SourceLocation",
+    "fields": [
+      {
+        "name": "source",
+        "fieldValue": {
+          "type": "string"
+        }
+      },
+      {
+        "name": "start",
+        "fieldValue": {
+          "type": "Position"
+        }
+      },
+      {
+        "name": "end",
+        "fieldValue": {
+          "type": "Position"
+        }
+      }
+    ]
+  },
+  "Position": {
+    "messageName": "Position",
+    "fields": [
+      {
+        "name": "line",
+        "fieldValue": {
+          "type": "int32"
+        }
+      },
+      {
+        "name": "end",
+        "fieldValue": {
+          "type": "int32"
         }
       }
     ]
