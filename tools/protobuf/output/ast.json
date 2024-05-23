@@ -17,33 +17,6 @@
         }
       },
       {
-        "name": "leadingComments",
-        "fieldValue": {
-          "repeatedValue": {
-            "type": "Comment"
-          }
-        }
-      },
-      {
-        "name": "trailingComments",
-        "fieldValue": {
-          "repeatedValue": {
-            "type": "Comment"
-          }
-        }
-      }
-    ]
-  },
-  "Comment": {
-    "messageName": "Comment",
-    "fields": [
-      {
-        "name": "value",
-        "fieldValue": {
-          "type": "string"
-        }
-      },
-      {
         "name": "loc",
         "fieldValue": {
           "type": "SourceLocation"
@@ -141,6 +114,12 @@
         "fieldValue": {
           "type": "Literal"
         }
+      },
+      {
+        "name": "loc",
+        "fieldValue": {
+          "type": "SourceLocation"
+        }
       }
     ]
   },
@@ -190,19 +169,9 @@
         }
       },
       {
-        "name": "leadingComments",
+        "name": "loc",
         "fieldValue": {
-          "repeatedValue": {
-            "type": "Comment"
-          }
-        }
-      },
-      {
-        "name": "trailingComments",
-        "fieldValue": {
-          "repeatedValue": {
-            "type": "Comment"
-          }
+          "type": "SourceLocation"
         }
       }
     ]
@@ -242,19 +211,9 @@
         }
       },
       {
-        "name": "leadingComments",
+        "name": "loc",
         "fieldValue": {
-          "repeatedValue": {
-            "type": "Comment"
-          }
-        }
-      },
-      {
-        "name": "trailingComments",
-        "fieldValue": {
-          "repeatedValue": {
-            "type": "Comment"
-          }
+          "type": "SourceLocation"
         }
       }
     ]
@@ -269,19 +228,9 @@
         }
       },
       {
-        "name": "leadingComments",
+        "name": "loc",
         "fieldValue": {
-          "repeatedValue": {
-            "type": "Comment"
-          }
-        }
-      },
-      {
-        "name": "trailingComments",
-        "fieldValue": {
-          "repeatedValue": {
-            "type": "Comment"
-          }
+          "type": "SourceLocation"
         }
       }
     ]
@@ -312,6 +261,12 @@
               }
             }
           ]
+        }
+      },
+      {
+        "name": "loc",
+        "fieldValue": {
+          "type": "SourceLocation"
         }
       }
     ]
@@ -492,6 +447,12 @@
         "fieldValue": {
           "type": "bool"
         }
+      },
+      {
+        "name": "loc",
+        "fieldValue": {
+          "type": "SourceLocation"
+        }
       }
     ]
   },
@@ -514,6 +475,12 @@
         "name": "prefix",
         "fieldValue": {
           "type": "bool"
+        }
+      },
+      {
+        "name": "loc",
+        "fieldValue": {
+          "type": "SourceLocation"
         }
       }
     ]
@@ -549,6 +516,12 @@
         "fieldValue": {
           "type": "Expression"
         }
+      },
+      {
+        "name": "loc",
+        "fieldValue": {
+          "type": "SourceLocation"
+        }
       }
     ]
   },
@@ -565,7 +538,14 @@
   },
   "ThisExpression": {
     "messageName": "ThisExpression",
-    "fields": []
+    "fields": [
+      {
+        "name": "loc",
+        "fieldValue": {
+          "type": "SourceLocation"
+        }
+      }
+    ]
   },
   "TemplateLiteral": {
     "messageName": "TemplateLiteral",
@@ -584,6 +564,12 @@
           "repeatedValue": {
             "type": "Expression"
           }
+        }
+      },
+      {
+        "name": "loc",
+        "fieldValue": {
+          "type": "SourceLocation"
         }
       }
     ]
@@ -604,19 +590,9 @@
         }
       },
       {
-        "name": "leadingComments",
+        "name": "loc",
         "fieldValue": {
-          "repeatedValue": {
-            "type": "Comment"
-          }
-        }
-      },
-      {
-        "name": "trailingComments",
-        "fieldValue": {
-          "repeatedValue": {
-            "type": "Comment"
-          }
+          "type": "SourceLocation"
         }
       }
     ]
@@ -635,6 +611,12 @@
         "fieldValue": {
           "type": "TemplateLiteral"
         }
+      },
+      {
+        "name": "loc",
+        "fieldValue": {
+          "type": "SourceLocation"
+        }
       }
     ]
   },
@@ -647,6 +629,12 @@
           "repeatedValue": {
             "type": "Expression"
           }
+        }
+      },
+      {
+        "name": "loc",
+        "fieldValue": {
+          "type": "SourceLocation"
         }
       }
     ]
@@ -661,6 +649,12 @@
             "type": "BaseNodeWithoutComments"
           }
         }
+      },
+      {
+        "name": "loc",
+        "fieldValue": {
+          "type": "SourceLocation"
+        }
       }
     ]
   },
@@ -674,19 +668,9 @@
         }
       },
       {
-        "name": "leadingComments",
+        "name": "loc",
         "fieldValue": {
-          "repeatedValue": {
-            "type": "Comment"
-          }
-        }
-      },
-      {
-        "name": "trailingComments",
-        "fieldValue": {
-          "repeatedValue": {
-            "type": "Comment"
-          }
+          "type": "SourceLocation"
         }
       }
     ]
@@ -757,19 +741,9 @@
         }
       },
       {
-        "name": "leadingComments",
+        "name": "loc",
         "fieldValue": {
-          "repeatedValue": {
-            "type": "Comment"
-          }
-        }
-      },
-      {
-        "name": "trailingComments",
-        "fieldValue": {
-          "repeatedValue": {
-            "type": "Comment"
-          }
+          "type": "SourceLocation"
         }
       }
     ]
@@ -836,6 +810,12 @@
         "fieldValue": {
           "type": "Expression"
         }
+      },
+      {
+        "name": "loc",
+        "fieldValue": {
+          "type": "SourceLocation"
+        }
       }
     ]
   },
@@ -846,6 +826,12 @@
         "name": "argument",
         "fieldValue": {
           "type": "Pattern"
+        }
+      },
+      {
+        "name": "loc",
+        "fieldValue": {
+          "type": "SourceLocation"
         }
       }
     ]
@@ -860,6 +846,12 @@
             "type": "Pattern"
           }
         }
+      },
+      {
+        "name": "loc",
+        "fieldValue": {
+          "type": "SourceLocation"
+        }
       }
     ]
   },
@@ -872,6 +864,12 @@
           "repeatedValue": {
             "type": "BaseNodeWithoutComments"
           }
+        }
+      },
+      {
+        "name": "loc",
+        "fieldValue": {
+          "type": "SourceLocation"
         }
       }
     ]
@@ -898,34 +896,9 @@
         }
       },
       {
-        "name": "key",
+        "name": "loc",
         "fieldValue": {
-          "oneOfElements": [
-            {
-              "name": "expression",
-              "fieldValue": {
-                "type": "Expression"
-              }
-            },
-            {
-              "name": "privateIdentifier",
-              "fieldValue": {
-                "type": "PrivateIdentifier"
-              }
-            }
-          ]
-        }
-      },
-      {
-        "name": "shorthand",
-        "fieldValue": {
-          "type": "bool"
-        }
-      },
-      {
-        "name": "computed",
-        "fieldValue": {
-          "type": "bool"
+          "type": "SourceLocation"
         }
       }
     ]
@@ -940,19 +913,9 @@
         }
       },
       {
-        "name": "leadingComments",
+        "name": "loc",
         "fieldValue": {
-          "repeatedValue": {
-            "type": "Comment"
-          }
-        }
-      },
-      {
-        "name": "trailingComments",
-        "fieldValue": {
-          "repeatedValue": {
-            "type": "Comment"
-          }
+          "type": "SourceLocation"
         }
       }
     ]
@@ -961,51 +924,9 @@
     "messageName": "NewExpression",
     "fields": [
       {
-        "name": "callee",
+        "name": "loc",
         "fieldValue": {
-          "oneOfElements": [
-            {
-              "name": "expression",
-              "fieldValue": {
-                "type": "Expression"
-              }
-            },
-            {
-              "name": "super",
-              "fieldValue": {
-                "type": "Super"
-              }
-            }
-          ]
-        }
-      },
-      {
-        "name": "arguments",
-        "fieldValue": {
-          "repeatedValue": {
-            "type": "BaseNodeWithoutComments"
-          }
-        }
-      }
-    ]
-  },
-  "Super": {
-    "messageName": "Super",
-    "fields": [
-      {
-        "name": "leadingComments",
-        "fieldValue": {
-          "repeatedValue": {
-            "type": "Comment"
-          }
-        }
-      },
-      {
-        "name": "trailingComments",
-        "fieldValue": {
-          "repeatedValue": {
-            "type": "Comment"
-          }
+          "type": "SourceLocation"
         }
       }
     ]
@@ -1023,6 +944,12 @@
         "name": "property",
         "fieldValue": {
           "type": "Identifier"
+        }
+      },
+      {
+        "name": "loc",
+        "fieldValue": {
+          "type": "SourceLocation"
         }
       }
     ]
@@ -1079,6 +1006,23 @@
         "fieldValue": {
           "type": "bool"
         }
+      },
+      {
+        "name": "loc",
+        "fieldValue": {
+          "type": "SourceLocation"
+        }
+      }
+    ]
+  },
+  "Super": {
+    "messageName": "Super",
+    "fields": [
+      {
+        "name": "loc",
+        "fieldValue": {
+          "type": "SourceLocation"
+        }
       }
     ]
   },
@@ -1102,6 +1046,12 @@
         "fieldValue": {
           "type": "Expression"
         }
+      },
+      {
+        "name": "loc",
+        "fieldValue": {
+          "type": "SourceLocation"
+        }
       }
     ]
   },
@@ -1124,6 +1074,12 @@
         "fieldValue": {
           "type": "Expression"
         }
+      },
+      {
+        "name": "loc",
+        "fieldValue": {
+          "type": "SourceLocation"
+        }
       }
     ]
   },
@@ -1143,23 +1099,9 @@
         }
       },
       {
-        "name": "params",
+        "name": "loc",
         "fieldValue": {
-          "repeatedValue": {
-            "type": "Pattern"
-          }
-        }
-      },
-      {
-        "name": "generator",
-        "fieldValue": {
-          "type": "bool"
-        }
-      },
-      {
-        "name": "async",
-        "fieldValue": {
-          "type": "bool"
+          "type": "SourceLocation"
         }
       }
     ]
@@ -1173,6 +1115,12 @@
           "repeatedValue": {
             "type": "Statement"
           }
+        }
+      },
+      {
+        "name": "loc",
+        "fieldValue": {
+          "type": "SourceLocation"
         }
       }
     ]
@@ -1197,6 +1145,12 @@
         "fieldValue": {
           "type": "Expression"
         }
+      },
+      {
+        "name": "loc",
+        "fieldValue": {
+          "type": "SourceLocation"
+        }
       }
     ]
   },
@@ -1210,170 +1164,9 @@
         }
       },
       {
-        "name": "superClass",
+        "name": "loc",
         "fieldValue": {
-          "type": "Expression"
-        }
-      },
-      {
-        "name": "body",
-        "fieldValue": {
-          "type": "ClassBody"
-        }
-      }
-    ]
-  },
-  "ClassBody": {
-    "messageName": "ClassBody",
-    "fields": [
-      {
-        "name": "body",
-        "fieldValue": {
-          "repeatedValue": {
-            "type": "BaseNodeWithoutComments"
-          }
-        }
-      },
-      {
-        "name": "leadingComments",
-        "fieldValue": {
-          "repeatedValue": {
-            "type": "Comment"
-          }
-        }
-      },
-      {
-        "name": "trailingComments",
-        "fieldValue": {
-          "repeatedValue": {
-            "type": "Comment"
-          }
-        }
-      }
-    ]
-  },
-  "StaticBlock": {
-    "messageName": "StaticBlock",
-    "fields": []
-  },
-  "PropertyDefinition": {
-    "messageName": "PropertyDefinition",
-    "fields": [
-      {
-        "name": "key",
-        "fieldValue": {
-          "oneOfElements": [
-            {
-              "name": "expression",
-              "fieldValue": {
-                "type": "Expression"
-              }
-            },
-            {
-              "name": "privateIdentifier",
-              "fieldValue": {
-                "type": "PrivateIdentifier"
-              }
-            }
-          ]
-        }
-      },
-      {
-        "name": "value",
-        "fieldValue": {
-          "type": "Expression"
-        }
-      },
-      {
-        "name": "computed",
-        "fieldValue": {
-          "type": "bool"
-        }
-      },
-      {
-        "name": "static",
-        "fieldValue": {
-          "type": "bool"
-        }
-      },
-      {
-        "name": "leadingComments",
-        "fieldValue": {
-          "repeatedValue": {
-            "type": "Comment"
-          }
-        }
-      },
-      {
-        "name": "trailingComments",
-        "fieldValue": {
-          "repeatedValue": {
-            "type": "Comment"
-          }
-        }
-      }
-    ]
-  },
-  "MethodDefinition": {
-    "messageName": "MethodDefinition",
-    "fields": [
-      {
-        "name": "key",
-        "fieldValue": {
-          "oneOfElements": [
-            {
-              "name": "expression",
-              "fieldValue": {
-                "type": "Expression"
-              }
-            },
-            {
-              "name": "privateIdentifier",
-              "fieldValue": {
-                "type": "PrivateIdentifier"
-              }
-            }
-          ]
-        }
-      },
-      {
-        "name": "value",
-        "fieldValue": {
-          "type": "FunctionExpression"
-        }
-      },
-      {
-        "name": "kind",
-        "fieldValue": {
-          "type": "string"
-        }
-      },
-      {
-        "name": "computed",
-        "fieldValue": {
-          "type": "bool"
-        }
-      },
-      {
-        "name": "static",
-        "fieldValue": {
-          "type": "bool"
-        }
-      },
-      {
-        "name": "leadingComments",
-        "fieldValue": {
-          "repeatedValue": {
-            "type": "Comment"
-          }
-        }
-      },
-      {
-        "name": "trailingComments",
-        "fieldValue": {
-          "repeatedValue": {
-            "type": "Comment"
-          }
+          "type": "SourceLocation"
         }
       }
     ]
@@ -1385,6 +1178,12 @@
         "name": "expression",
         "fieldValue": {
           "type": "ChainElement"
+        }
+      },
+      {
+        "name": "loc",
+        "fieldValue": {
+          "type": "SourceLocation"
         }
       }
     ]
@@ -1423,30 +1222,9 @@
         }
       },
       {
-        "name": "callee",
+        "name": "loc",
         "fieldValue": {
-          "oneOfElements": [
-            {
-              "name": "expression",
-              "fieldValue": {
-                "type": "Expression"
-              }
-            },
-            {
-              "name": "super",
-              "fieldValue": {
-                "type": "Super"
-              }
-            }
-          ]
-        }
-      },
-      {
-        "name": "arguments",
-        "fieldValue": {
-          "repeatedValue": {
-            "type": "BaseNodeWithoutComments"
-          }
+          "type": "SourceLocation"
         }
       }
     ]
@@ -1495,6 +1273,12 @@
         "fieldValue": {
           "type": "Expression"
         }
+      },
+      {
+        "name": "loc",
+        "fieldValue": {
+          "type": "SourceLocation"
+        }
       }
     ]
   },
@@ -1516,6 +1300,12 @@
         "name": "argument",
         "fieldValue": {
           "type": "Expression"
+        }
+      },
+      {
+        "name": "loc",
+        "fieldValue": {
+          "type": "SourceLocation"
         }
       }
     ]
@@ -1552,6 +1342,12 @@
         "name": "right",
         "fieldValue": {
           "type": "Expression"
+        }
+      },
+      {
+        "name": "loc",
+        "fieldValue": {
+          "type": "SourceLocation"
         }
       }
     ]
@@ -1594,6 +1390,12 @@
             }
           ]
         }
+      },
+      {
+        "name": "loc",
+        "fieldValue": {
+          "type": "SourceLocation"
+        }
       }
     ]
   },
@@ -1606,6 +1408,12 @@
           "repeatedValue": {
             "type": "BaseNodeWithoutComments"
           }
+        }
+      },
+      {
+        "name": "loc",
+        "fieldValue": {
+          "type": "SourceLocation"
         }
       }
     ]
@@ -1620,15 +1428,9 @@
         }
       },
       {
-        "name": "superClass",
+        "name": "loc",
         "fieldValue": {
-          "type": "Expression"
-        }
-      },
-      {
-        "name": "body",
-        "fieldValue": {
-          "type": "ClassBody"
+          "type": "SourceLocation"
         }
       }
     ]
@@ -1649,23 +1451,9 @@
         }
       },
       {
-        "name": "params",
+        "name": "loc",
         "fieldValue": {
-          "repeatedValue": {
-            "type": "Pattern"
-          }
-        }
-      },
-      {
-        "name": "generator",
-        "fieldValue": {
-          "type": "bool"
-        }
-      },
-      {
-        "name": "async",
-        "fieldValue": {
-          "type": "bool"
+          "type": "SourceLocation"
         }
       }
     ]
@@ -1692,6 +1480,12 @@
         "fieldValue": {
           "type": "Literal"
         }
+      },
+      {
+        "name": "loc",
+        "fieldValue": {
+          "type": "SourceLocation"
+        }
       }
     ]
   },
@@ -1705,9 +1499,9 @@
         }
       },
       {
-        "name": "local",
+        "name": "loc",
         "fieldValue": {
-          "type": "Identifier"
+          "type": "SourceLocation"
         }
       }
     ]
@@ -1750,6 +1544,12 @@
         "fieldValue": {
           "type": "Identifier"
         }
+      },
+      {
+        "name": "loc",
+        "fieldValue": {
+          "type": "SourceLocation"
+        }
       }
     ]
   },
@@ -1768,6 +1568,12 @@
         "name": "kind",
         "fieldValue": {
           "type": "string"
+        }
+      },
+      {
+        "name": "loc",
+        "fieldValue": {
+          "type": "SourceLocation"
         }
       }
     ]
@@ -1788,19 +1594,9 @@
         }
       },
       {
-        "name": "leadingComments",
+        "name": "loc",
         "fieldValue": {
-          "repeatedValue": {
-            "type": "Comment"
-          }
-        }
-      },
-      {
-        "name": "trailingComments",
-        "fieldValue": {
-          "repeatedValue": {
-            "type": "Comment"
-          }
+          "type": "SourceLocation"
         }
       }
     ]
@@ -1815,9 +1611,9 @@
         }
       },
       {
-        "name": "body",
+        "name": "loc",
         "fieldValue": {
-          "type": "BlockStatement"
+          "type": "SourceLocation"
         }
       }
     ]
@@ -1838,6 +1634,12 @@
         "fieldValue": {
           "type": "Literal"
         }
+      },
+      {
+        "name": "loc",
+        "fieldValue": {
+          "type": "SourceLocation"
+        }
       }
     ]
   },
@@ -1845,9 +1647,9 @@
     "messageName": "ImportNamespaceSpecifier",
     "fields": [
       {
-        "name": "local",
+        "name": "loc",
         "fieldValue": {
-          "type": "Identifier"
+          "type": "SourceLocation"
         }
       }
     ]
@@ -1856,9 +1658,9 @@
     "messageName": "ImportDefaultSpecifier",
     "fields": [
       {
-        "name": "local",
+        "name": "loc",
         "fieldValue": {
-          "type": "Identifier"
+          "type": "SourceLocation"
         }
       }
     ]
@@ -1873,9 +1675,9 @@
         }
       },
       {
-        "name": "local",
+        "name": "loc",
         "fieldValue": {
-          "type": "Identifier"
+          "type": "SourceLocation"
         }
       }
     ]
@@ -2022,34 +1824,9 @@
         }
       },
       {
-        "name": "left",
+        "name": "loc",
         "fieldValue": {
-          "oneOfElements": [
-            {
-              "name": "variableDeclaration",
-              "fieldValue": {
-                "type": "VariableDeclaration"
-              }
-            },
-            {
-              "name": "pattern",
-              "fieldValue": {
-                "type": "Pattern"
-              }
-            }
-          ]
-        }
-      },
-      {
-        "name": "right",
-        "fieldValue": {
-          "type": "Expression"
-        }
-      },
-      {
-        "name": "body",
-        "fieldValue": {
-          "type": "Statement"
+          "type": "SourceLocation"
         }
       }
     ]
@@ -2058,34 +1835,9 @@
     "messageName": "ForInStatement",
     "fields": [
       {
-        "name": "left",
+        "name": "loc",
         "fieldValue": {
-          "oneOfElements": [
-            {
-              "name": "variableDeclaration",
-              "fieldValue": {
-                "type": "VariableDeclaration"
-              }
-            },
-            {
-              "name": "pattern",
-              "fieldValue": {
-                "type": "Pattern"
-              }
-            }
-          ]
-        }
-      },
-      {
-        "name": "right",
-        "fieldValue": {
-          "type": "Expression"
-        }
-      },
-      {
-        "name": "body",
-        "fieldValue": {
-          "type": "Statement"
+          "type": "SourceLocation"
         }
       }
     ]
@@ -2129,6 +1881,12 @@
         "fieldValue": {
           "type": "Statement"
         }
+      },
+      {
+        "name": "loc",
+        "fieldValue": {
+          "type": "SourceLocation"
+        }
       }
     ]
   },
@@ -2146,6 +1904,12 @@
         "fieldValue": {
           "type": "Expression"
         }
+      },
+      {
+        "name": "loc",
+        "fieldValue": {
+          "type": "SourceLocation"
+        }
       }
     ]
   },
@@ -2162,6 +1926,12 @@
         "name": "body",
         "fieldValue": {
           "type": "Statement"
+        }
+      },
+      {
+        "name": "loc",
+        "fieldValue": {
+          "type": "SourceLocation"
         }
       }
     ]
@@ -2186,6 +1956,12 @@
         "fieldValue": {
           "type": "BlockStatement"
         }
+      },
+      {
+        "name": "loc",
+        "fieldValue": {
+          "type": "SourceLocation"
+        }
       }
     ]
   },
@@ -2205,19 +1981,9 @@
         }
       },
       {
-        "name": "leadingComments",
+        "name": "loc",
         "fieldValue": {
-          "repeatedValue": {
-            "type": "Comment"
-          }
-        }
-      },
-      {
-        "name": "trailingComments",
-        "fieldValue": {
-          "repeatedValue": {
-            "type": "Comment"
-          }
+          "type": "SourceLocation"
         }
       }
     ]
@@ -2229,6 +1995,12 @@
         "name": "argument",
         "fieldValue": {
           "type": "Expression"
+        }
+      },
+      {
+        "name": "loc",
+        "fieldValue": {
+          "type": "SourceLocation"
         }
       }
     ]
@@ -2248,6 +2020,12 @@
           "repeatedValue": {
             "type": "SwitchCase"
           }
+        }
+      },
+      {
+        "name": "loc",
+        "fieldValue": {
+          "type": "SourceLocation"
         }
       }
     ]
@@ -2270,19 +2048,9 @@
         }
       },
       {
-        "name": "leadingComments",
+        "name": "loc",
         "fieldValue": {
-          "repeatedValue": {
-            "type": "Comment"
-          }
-        }
-      },
-      {
-        "name": "trailingComments",
-        "fieldValue": {
-          "repeatedValue": {
-            "type": "Comment"
-          }
+          "type": "SourceLocation"
         }
       }
     ]
@@ -2307,6 +2075,12 @@
         "fieldValue": {
           "type": "Statement"
         }
+      },
+      {
+        "name": "loc",
+        "fieldValue": {
+          "type": "SourceLocation"
+        }
       }
     ]
   },
@@ -2318,6 +2092,12 @@
         "fieldValue": {
           "type": "Identifier"
         }
+      },
+      {
+        "name": "loc",
+        "fieldValue": {
+          "type": "SourceLocation"
+        }
       }
     ]
   },
@@ -2328,6 +2108,12 @@
         "name": "label",
         "fieldValue": {
           "type": "Identifier"
+        }
+      },
+      {
+        "name": "loc",
+        "fieldValue": {
+          "type": "SourceLocation"
         }
       }
     ]
@@ -2346,6 +2132,12 @@
         "fieldValue": {
           "type": "Statement"
         }
+      },
+      {
+        "name": "loc",
+        "fieldValue": {
+          "type": "SourceLocation"
+        }
       }
     ]
   },
@@ -2356,6 +2148,12 @@
         "name": "argument",
         "fieldValue": {
           "type": "Expression"
+        }
+      },
+      {
+        "name": "loc",
+        "fieldValue": {
+          "type": "SourceLocation"
         }
       }
     ]
@@ -2374,15 +2172,39 @@
         "fieldValue": {
           "type": "Statement"
         }
+      },
+      {
+        "name": "loc",
+        "fieldValue": {
+          "type": "SourceLocation"
+        }
       }
     ]
   },
   "DebuggerStatement": {
     "messageName": "DebuggerStatement",
-    "fields": []
+    "fields": [
+      {
+        "name": "loc",
+        "fieldValue": {
+          "type": "SourceLocation"
+        }
+      }
+    ]
   },
   "EmptyStatement": {
     "messageName": "EmptyStatement",
+    "fields": [
+      {
+        "name": "loc",
+        "fieldValue": {
+          "type": "SourceLocation"
+        }
+      }
+    ]
+  },
+  "StaticBlock": {
+    "messageName": "StaticBlock",
     "fields": []
   },
   "ExpressionStatement": {
@@ -2392,6 +2214,12 @@
         "name": "expression",
         "fieldValue": {
           "type": "Expression"
+        }
+      },
+      {
+        "name": "loc",
+        "fieldValue": {
+          "type": "SourceLocation"
         }
       }
     ]
@@ -2412,19 +2240,9 @@
         }
       },
       {
-        "name": "leadingComments",
+        "name": "loc",
         "fieldValue": {
-          "repeatedValue": {
-            "type": "Comment"
-          }
-        }
-      },
-      {
-        "name": "trailingComments",
-        "fieldValue": {
-          "repeatedValue": {
-            "type": "Comment"
-          }
+          "type": "SourceLocation"
         }
       }
     ]
@@ -2452,12 +2270,6 @@
               "name": "program",
               "fieldValue": {
                 "type": "Program"
-              }
-            },
-            {
-              "name": "comment",
-              "fieldValue": {
-                "type": "Comment"
               }
             },
             {
@@ -2647,12 +2459,6 @@
               }
             },
             {
-              "name": "super",
-              "fieldValue": {
-                "type": "Super"
-              }
-            },
-            {
               "name": "metaProperty",
               "fieldValue": {
                 "type": "MetaProperty"
@@ -2662,6 +2468,12 @@
               "name": "memberExpression",
               "fieldValue": {
                 "type": "MemberExpression"
+              }
+            },
+            {
+              "name": "super",
+              "fieldValue": {
+                "type": "Super"
               }
             },
             {
@@ -2704,30 +2516,6 @@
               "name": "classExpression",
               "fieldValue": {
                 "type": "ClassExpression"
-              }
-            },
-            {
-              "name": "classBody",
-              "fieldValue": {
-                "type": "ClassBody"
-              }
-            },
-            {
-              "name": "staticBlock",
-              "fieldValue": {
-                "type": "StaticBlock"
-              }
-            },
-            {
-              "name": "propertyDefinition",
-              "fieldValue": {
-                "type": "PropertyDefinition"
-              }
-            },
-            {
-              "name": "methodDefinition",
-              "fieldValue": {
-                "type": "MethodDefinition"
               }
             },
             {
@@ -2986,6 +2774,12 @@
               "name": "emptyStatement",
               "fieldValue": {
                 "type": "EmptyStatement"
+              }
+            },
+            {
+              "name": "staticBlock",
+              "fieldValue": {
+                "type": "StaticBlock"
               }
             },
             {
