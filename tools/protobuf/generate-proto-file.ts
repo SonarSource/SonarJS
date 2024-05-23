@@ -213,8 +213,9 @@ while (requestedTypes.length) {
 }
 var str = JSON.stringify(messages, null, 2);
 console.log(str);
-fs.writeFileSync('ast.json', str);
-fs.writeFileSync('ast.proto', translateToProtoFormat(messages));
+fs.mkdirSync('output', { recursive: true });
+fs.writeFileSync(path.join('output', 'ast.json'), str);
+fs.writeFileSync(path.join('output', 'ast.proto'), addPrefix(translateToProtoFormat(messages)));
 
 /**
  * Translate the messages to a protobuf file format.
@@ -247,4 +248,8 @@ function translateToProtoFormat(messages: Record<string, ProtobufMessage>): stri
     lines.push('}');
   }
   return lines.join('\n');
+}
+
+function addPrefix(protoData: string) {
+  return `syntax = "proto3";\n\n${protoData}`;
 }
