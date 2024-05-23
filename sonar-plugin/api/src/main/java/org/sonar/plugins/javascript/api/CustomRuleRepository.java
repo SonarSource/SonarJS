@@ -32,7 +32,7 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
  */
 @ScannerSide
 @SonarLintSide
-@Deprecated
+@Deprecated(since = "6.0")
 public interface CustomRuleRepository {
   enum Language {
     JAVASCRIPT,
