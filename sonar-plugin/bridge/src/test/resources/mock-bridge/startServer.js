@@ -42,7 +42,14 @@ const requestHandler = (request, response) => {
       // /analyze-js
       // /analyze-ts
       // /analyze-css
-      response.end('{ issues: [] }');
+      // objects are created to have test coverage
+      response.end(`{ issues: [{line:0, column:0, endLine:0, endColumn:0, 
+        quickFixes: [
+          { 
+            edits: [{
+              loc: {}}]}]}], 
+        highlights: [{location: {startLine: 0, startColumn: 0, endLine: 0, endColumn: 0}}], 
+        metrics: {}, highlightedSymbols: [{}], cpdTokens: [{}] }`);
     }
   });
 };

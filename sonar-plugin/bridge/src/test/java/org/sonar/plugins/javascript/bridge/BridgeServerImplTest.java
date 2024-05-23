@@ -28,10 +28,10 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
-import static org.sonar.api.utils.log.LoggerLevel.DEBUG;
-import static org.sonar.api.utils.log.LoggerLevel.ERROR;
-import static org.sonar.api.utils.log.LoggerLevel.INFO;
-import static org.sonar.api.utils.log.LoggerLevel.WARN;
+import static org.slf4j.event.Level.DEBUG;
+import static org.slf4j.event.Level.ERROR;
+import static org.slf4j.event.Level.INFO;
+import static org.slf4j.event.Level.WARN;
 import static org.sonar.plugins.javascript.bridge.AnalysisMode.DEFAULT_LINTER_ID;
 import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_EXECUTABLE_PROPERTY;
 
@@ -52,7 +52,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
-import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
@@ -79,7 +78,7 @@ class BridgeServerImplTest {
   private static final int TEST_TIMEOUT_SECONDS = 1;
 
   @RegisterExtension
-  public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
+  public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(DEBUG);
 
   @TempDir
   Path moduleBase;
@@ -103,7 +102,7 @@ class BridgeServerImplTest {
   private EmbeddedNode unsupportedEmbeddedRuntime;
 
   @BeforeEach
-  public void setUp() throws Exception {
+  public void setUp() {
     context = SensorContextTester.create(moduleBase);
     context.fileSystem().setWorkDir(workDir);
     tempFolder = new DefaultTempFolder(tempDir, true);
@@ -124,7 +123,7 @@ class BridgeServerImplTest {
   }
 
   @Test
-  void should_throw_when_not_existing_script() throws Exception {
+  void should_throw_when_not_existing_script() {
     bridgeServer = createBridgeServer("NOT_EXISTING.js");
     List<Path> deployedBundles = emptyList();
 
@@ -134,7 +133,7 @@ class BridgeServerImplTest {
   }
 
   @Test
-  void should_throw_if_failed_to_build_node_command() throws Exception {
+  void should_throw_if_failed_to_build_node_command() {
     NodeCommandBuilder nodeCommandBuilder = mock(
       NodeCommandBuilder.class,
       invocation -> {
@@ -184,7 +183,7 @@ class BridgeServerImplTest {
       .setContents("alert('Fly, you fools!')")
       .build();
     JsAnalysisRequest request = createRequest(inputFile);
-    assertThat(bridgeServer.analyzeJavaScript(request).issues()).isEmpty();
+    assertThat(bridgeServer.analyzeJavaScript(request).issues()).hasSize(1);
   }
 
   @Test
@@ -238,7 +237,7 @@ class BridgeServerImplTest {
       null,
       DEFAULT_LINTER_ID
     );
-    assertThat(bridgeServer.analyzeTypeScript(request).issues()).isEmpty();
+    assertThat(bridgeServer.analyzeTypeScript(request).issues()).hasSize(1);
   }
 
   @Test
@@ -251,7 +250,7 @@ class BridgeServerImplTest {
       .setContents("alert('Fly, you fools!')")
       .build();
     var request = createRequest(inputFile);
-    assertThat(bridgeServer.analyzeYaml(request).issues()).isEmpty();
+    assertThat(bridgeServer.analyzeYaml(request).issues()).hasSize(1);
   }
 
   @Nonnull
@@ -280,7 +279,7 @@ class BridgeServerImplTest {
     // values from 'startServer.js'
     assertThat(programCreated.programId()).isEqualTo("42");
     assertThat(programCreated.projectReferences()).isEmpty();
-    assertThat(programCreated.files().size()).isEqualTo(3);
+    assertThat(programCreated.files()).hasSize(3);
 
     JsAnalysisRequest request = new JsAnalysisRequest(
       "/absolute/path/file.ts",
@@ -292,7 +291,7 @@ class BridgeServerImplTest {
       programCreated.programId(),
       DEFAULT_LINTER_ID
     );
-    assertThat(bridgeServer.analyzeTypeScript(request).issues()).isEmpty();
+    assertThat(bridgeServer.analyzeTypeScript(request).issues()).hasSize(1);
 
     assertThat(bridgeServer.deleteProgram(programCreated)).isTrue();
   }
@@ -333,11 +332,11 @@ class BridgeServerImplTest {
       inputFile.type().toString(),
       Collections.emptyList()
     );
-    assertThat(bridgeServer.analyzeCss(request).issues()).isEmpty();
+    assertThat(bridgeServer.analyzeCss(request).issues()).hasSize(1);
   }
 
   @Test
-  void should_throw_if_failed_to_start() throws Exception {
+  void should_throw_if_failed_to_start() {
     bridgeServer = createBridgeServer("throw.js");
     List<Path> deployedBundles = emptyList();
 
@@ -723,7 +722,7 @@ class BridgeServerImplTest {
   }
 
   @Test
-  void should_not_deploy_runtime_if_sonar_nodejs_executable_is_set() throws Exception {
+  void should_not_deploy_runtime_if_sonar_nodejs_executable_is_set() {
     var existingDoesntMatterScript = "logging.js";
     bridgeServer = createBridgeServer(existingDoesntMatterScript);
     context.setSettings(new MapSettings().setProperty(NODE_EXECUTABLE_PROPERTY, "whatever"));
