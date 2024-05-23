@@ -22,7 +22,7 @@
     "messageName": "ModuleDeclaration",
     "fields": [
       {
-        "name": "ModuleDeclaration",
+        "name": "moduleDeclaration",
         "fieldValue": {
           "oneOfElements": [
             {
@@ -75,7 +75,7 @@
     "messageName": "Literal",
     "fields": [
       {
-        "name": "Literal",
+        "name": "literal",
         "fieldValue": {
           "oneOfElements": [
             {
@@ -199,7 +199,7 @@
     "messageName": "Expression",
     "fields": [
       {
-        "name": "Expression",
+        "name": "expression",
         "fieldValue": {
           "oneOfElements": [
             {
@@ -401,7 +401,7 @@
     "messageName": "UpdateOperator",
     "fields": [
       {
-        "name": "UpdateOperator",
+        "name": "updateOperator",
         "fieldValue": {
           "type": "string"
         }
@@ -435,7 +435,7 @@
     "messageName": "UnaryOperator",
     "fields": [
       {
-        "name": "UnaryOperator",
+        "name": "unaryOperator",
         "fieldValue": {
           "type": "string"
         }
@@ -609,7 +609,7 @@
     "messageName": "Pattern",
     "fields": [
       {
-        "name": "Pattern",
+        "name": "pattern",
         "fieldValue": {
           "oneOfElements": [
             {
@@ -848,7 +848,7 @@
     "messageName": "LogicalOperator",
     "fields": [
       {
-        "name": "LogicalOperator",
+        "name": "logicalOperator",
         "fieldValue": {
           "type": "string"
         }
@@ -945,7 +945,7 @@
     "messageName": "ChainElement",
     "fields": [
       {
-        "name": "ChainElement",
+        "name": "chainElement",
         "fieldValue": {
           "oneOfElements": [
             {
@@ -980,7 +980,7 @@
     "messageName": "CallExpression",
     "fields": [
       {
-        "name": "CallExpression",
+        "name": "callExpression",
         "fieldValue": {
           "oneOfElements": [
             {
@@ -1027,7 +1027,7 @@
     "messageName": "BinaryOperator",
     "fields": [
       {
-        "name": "BinaryOperator",
+        "name": "binaryOperator",
         "fieldValue": {
           "type": "string"
         }
@@ -1085,7 +1085,7 @@
     "messageName": "AssignmentOperator",
     "fields": [
       {
-        "name": "AssignmentOperator",
+        "name": "assignmentOperator",
         "fieldValue": {
           "type": "string"
         }
@@ -1203,7 +1203,7 @@
     "messageName": "Declaration",
     "fields": [
       {
-        "name": "Declaration",
+        "name": "declaration",
         "fieldValue": {
           "oneOfElements": [
             {
@@ -1329,7 +1329,7 @@
     "messageName": "Statement",
     "fields": [
       {
-        "name": "Statement",
+        "name": "statement",
         "fieldValue": {
           "oneOfElements": [
             {

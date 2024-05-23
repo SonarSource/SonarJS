@@ -218,7 +218,7 @@ while (requestedTypes.length) {
       messageName: requestedType,
       fields: [
         {
-          name: declaration.name.getText(file),
+          name: lowerCaseFirstLetter(declaration.name.getText(file)),
           fieldValue: getFieldValueFromType(declaration.type),
         },
       ],
