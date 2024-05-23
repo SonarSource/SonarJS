@@ -12,26 +12,7 @@
         "name": "body",
         "fieldValue": {
           "repeatedValue": {
-            "oneOfElements": [
-              {
-                "name": "directive",
-                "fieldValue": {
-                  "type": "Directive"
-                }
-              },
-              {
-                "name": "statement",
-                "fieldValue": {
-                  "type": "Statement"
-                }
-              },
-              {
-                "name": "moduleDeclaration",
-                "fieldValue": {
-                  "type": "ModuleDeclaration"
-                }
-              }
-            ]
+            "type": "BaseNodeWithoutComments"
           }
         }
       }
@@ -540,20 +521,7 @@
         "name": "properties",
         "fieldValue": {
           "repeatedValue": {
-            "oneOfElements": [
-              {
-                "name": "property",
-                "fieldValue": {
-                  "type": "Property"
-                }
-              },
-              {
-                "name": "spreadElement",
-                "fieldValue": {
-                  "type": "SpreadElement"
-                }
-              }
-            ]
+            "type": "BaseNodeWithoutComments"
           }
         }
       }
@@ -733,20 +701,7 @@
         "name": "properties",
         "fieldValue": {
           "repeatedValue": {
-            "oneOfElements": [
-              {
-                "name": "assignmentProperty",
-                "fieldValue": {
-                  "type": "AssignmentProperty"
-                }
-              },
-              {
-                "name": "restElement",
-                "fieldValue": {
-                  "type": "RestElement"
-                }
-              }
-            ]
+            "type": "BaseNodeWithoutComments"
           }
         }
       }
@@ -1174,20 +1129,7 @@
         "name": "elements",
         "fieldValue": {
           "repeatedValue": {
-            "oneOfElements": [
-              {
-                "name": "expression",
-                "fieldValue": {
-                  "type": "Expression"
-                }
-              },
-              {
-                "name": "spreadElement",
-                "fieldValue": {
-                  "type": "SpreadElement"
-                }
-              }
-            ]
+            "type": "BaseNodeWithoutComments"
           }
         }
       }
@@ -1352,26 +1294,7 @@
         "name": "specifiers",
         "fieldValue": {
           "repeatedValue": {
-            "oneOfElements": [
-              {
-                "name": "importSpecifier",
-                "fieldValue": {
-                  "type": "ImportSpecifier"
-                }
-              },
-              {
-                "name": "importDefaultSpecifier",
-                "fieldValue": {
-                  "type": "ImportDefaultSpecifier"
-                }
-              },
-              {
-                "name": "importNamespaceSpecifier",
-                "fieldValue": {
-                  "type": "ImportNamespaceSpecifier"
-                }
-              }
-            ]
+            "type": "BaseNodeWithoutComments"
           }
         }
       },

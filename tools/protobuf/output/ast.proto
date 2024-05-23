@@ -2,7 +2,7 @@ syntax = "proto3";
 
 message Program {
   string sourceType = 1;
-  repeated undefined body = 2;
+  repeated BaseNodeWithoutComments body = 2;
 }
 message ModuleDeclaration {
   oneof ModuleDeclaration {
@@ -112,7 +112,7 @@ message SequenceExpression {
   repeated Expression expressions = 63;
 }
 message ObjectExpression {
-  repeated undefined properties = 64;
+  repeated BaseNodeWithoutComments properties = 64;
 }
 message SpreadElement {
   Expression argument = 65;
@@ -152,7 +152,7 @@ message ArrayPattern {
   repeated Pattern elements = 83;
 }
 message ObjectPattern {
-  repeated undefined properties = 84;
+  repeated BaseNodeWithoutComments properties = 84;
 }
 message AssignmentProperty {
   Pattern value = 85;
@@ -256,7 +256,7 @@ message ArrowFunctionExpression {
   }
 }
 message ArrayExpression {
-  repeated undefined elements = 128;
+  repeated BaseNodeWithoutComments elements = 128;
 }
 message MaybeNamedClassDeclaration {
   Identifier id = 129;
@@ -295,7 +295,7 @@ message FunctionDeclaration {
   Identifier id = 144;
 }
 message ImportDeclaration {
-  repeated undefined specifiers = 145;
+  repeated BaseNodeWithoutComments specifiers = 145;
   Literal source = 146;
 }
 message ImportNamespaceSpecifier {

@@ -72,7 +72,9 @@ function requestType(type: string) {
 function getFieldValueFromType(typeNode: TypeNode): ProtobufFieldValue {
   // The type is of shape "A[]", we want to generate repeated A
   if (ts.isArrayTypeNode(typeNode)) {
-    return { repeatedValue: getFieldValueFromType(typeNode.elementType) };
+    return {
+      repeatedValue: flattenRepeatedNodeInOneOf(getFieldValueFromType(typeNode.elementType)),
+    };
   }
   // The type is of shape "A | B", we want to generate oneof name {A a, B b}
   if (ts.isUnionTypeNode(typeNode)) {
@@ -121,7 +123,9 @@ function getFieldValueFromType(typeNode: TypeNode): ProtobufFieldValue {
     const name = typeNode.typeName.getText(file);
     if (name === 'Array' && typeNode.typeArguments?.length === 1) {
       // The type is of shape "Array<A>", we want to generate repeated A
-      return { repeatedValue: getFieldValueFromType(typeNode.typeArguments[0]) };
+      return {
+        repeatedValue: flattenRepeatedNodeInOneOf(getFieldValueFromType(typeNode.typeArguments[0])),
+      };
     }
     return requestType(typeNode.typeName.getText(file));
   }
@@ -170,6 +174,17 @@ function isNullOrUndefined(node: ts.TypeNode): boolean {
     );
   }
   return node.kind === ts.SyntaxKind.NullKeyword || node.kind === ts.SyntaxKind.UndefinedKeyword;
+}
+
+function flattenRepeatedNodeInOneOf(field: ProtobufFieldValue): ProtobufFieldValue {
+  // Protobuf does not support oneof with repeated fields, so we need to flatten them.
+  if ('oneOfElements' in field) {
+    // We naively put the value to be a Top Level Node. We loose a bit of compiler safety check
+    // (example: "Literal | Identifier" will be flattened to a Top Level Node, meaning that one could put any "Expression" in it, which is not correct)
+    // but it is a tradeoff we are willing to make for now.
+    return { type: TOP_LEVEL_NODE };
+  }
+  return field;
 }
 
 const messages: Record<string, ProtobufMessage> = {};
