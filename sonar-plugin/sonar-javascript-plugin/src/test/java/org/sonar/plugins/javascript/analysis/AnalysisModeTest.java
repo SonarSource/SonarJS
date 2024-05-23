@@ -57,16 +57,6 @@ class AnalysisModeTest {
   }
 
   @Test
-  void should_ignore_non_compatible_versions() {
-    when(context.runtime()).thenReturn(SonarRuntimeImpl.forSonarLint(Version.create(9, 3)));
-
-    var rules = rules("key1", "key2");
-    var mode = AnalysisMode.getMode(context, rules);
-    assertThat(mode).isEqualTo(AnalysisMode.DEFAULT);
-    verify(context, never()).canSkipUnchangedFiles();
-  }
-
-  @Test
   void should_reflect_non_skippable_analysis() {
     when(context.runtime()).thenReturn(SonarRuntimeImpl.forSonarLint(Version.create(9, 4)));
     when(context.canSkipUnchangedFiles()).thenReturn(false);

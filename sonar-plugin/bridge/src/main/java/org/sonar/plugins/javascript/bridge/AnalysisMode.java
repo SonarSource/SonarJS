@@ -37,17 +37,9 @@ public enum AnalysisMode {
   public static final String UNCHANGED_LINTER_ID = "unchanged";
   private static final Logger LOG = LoggerFactory.getLogger(AnalysisMode.class);
 
-  public static boolean isRuntimeApiCompatible(SensorContext context) {
-    return context.runtime().getApiVersion().isGreaterThanOrEqual(Version.create(9, 4));
-  }
 
   public static AnalysisMode getMode(SensorContext context, List<EslintRule> rules) {
     var logDefaultMode = "Analysis of unchanged files will not be skipped ({})";
-
-    if (!isRuntimeApiCompatible(context)) {
-      LOG.debug(logDefaultMode, "runtime API is not compatible");
-      return AnalysisMode.DEFAULT;
-    }
 
     var canSkipUnchangedFiles = context.canSkipUnchangedFiles();
     if (!canSkipUnchangedFiles) {

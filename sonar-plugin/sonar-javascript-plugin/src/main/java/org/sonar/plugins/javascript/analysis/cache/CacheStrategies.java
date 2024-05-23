@@ -83,7 +83,7 @@ public class CacheStrategies {
     var cacheKey = CacheKey.forFile(inputFile, pluginVersion);
     var serialization = new CacheAnalysisSerialization(context, cacheKey);
 
-    if (!AnalysisMode.isRuntimeApiCompatible(context) || !context.canSkipUnchangedFiles()) {
+    if (!context.canSkipUnchangedFiles()) {
       var strategy = writeOnly(serialization);
       REPORTER.logAndIncrement(strategy, inputFile, MissReason.ANALYSIS_MODE_INELIGIBLE);
       return strategy;
