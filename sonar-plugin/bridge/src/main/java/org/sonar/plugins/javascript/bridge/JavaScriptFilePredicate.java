@@ -19,10 +19,6 @@
  */
 package org.sonar.plugins.javascript.bridge;
 
-import static org.sonar.plugins.javascript.shared.Constants.JAVASCRIPT_LANGUAGE_KEY;
-import static org.sonar.plugins.javascript.shared.Constants.TYPESCRIPT_LANGUAGE_KEY;
-import static org.sonar.plugins.javascript.shared.Constants.YAML_LANGUAGE_KEY;
-
 import java.io.IOException;
 import java.util.Locale;
 import java.util.Scanner;
@@ -68,7 +64,7 @@ public class JavaScriptFilePredicate {
     return fs
       .predicates()
       .and(
-        fs.predicates().hasLanguage(YAML_LANGUAGE_KEY),
+        fs.predicates().hasLanguage("yaml"),
         inputFile -> {
           try (Scanner scanner = new Scanner(inputFile.inputStream(), inputFile.charset().name())) {
             while (scanner.hasNextLine()) {
@@ -91,7 +87,7 @@ public class JavaScriptFilePredicate {
   }
 
   public static FilePredicate getJsTsPredicate(FileSystem fs) {
-    return fs.predicates().hasLanguages(JAVASCRIPT_LANGUAGE_KEY, TYPESCRIPT_LANGUAGE_KEY);
+    return fs.predicates().hasLanguages("js", "ts");
   }
 
   private static boolean isVueTsFile(InputFile file) {
@@ -102,6 +98,6 @@ public class JavaScriptFilePredicate {
   }
 
   public static boolean isTypeScriptFile(InputFile file) {
-    return (TYPESCRIPT_LANGUAGE_KEY.equals(file.language()) || isVueTsFile(file));
+    return ("ts".equals(file.language()) || isVueTsFile(file));
   }
 }

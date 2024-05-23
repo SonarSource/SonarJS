@@ -34,7 +34,6 @@ import static org.sonar.api.utils.log.LoggerLevel.INFO;
 import static org.sonar.api.utils.log.LoggerLevel.WARN;
 import static org.sonar.plugins.javascript.bridge.AnalysisMode.DEFAULT_LINTER_ID;
 import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_EXECUTABLE_PROPERTY;
-import static org.sonar.plugins.javascript.shared.Constants.JAVASCRIPT_LANGUAGE_KEY;
 
 import java.io.File;
 import java.io.IOException;
@@ -198,7 +197,7 @@ class BridgeServerImplTest {
         "key",
         singletonList("config"),
         Collections.singletonList(InputFile.Type.MAIN),
-        JAVASCRIPT_LANGUAGE_KEY
+        "js"
       )
     );
     bridgeServer.initLinter(
@@ -232,7 +231,7 @@ class BridgeServerImplTest {
     JsAnalysisRequest request = new JsAnalysisRequest(
       inputFile.absolutePath(),
       inputFile.type().toString(),
-      JAVASCRIPT_LANGUAGE_KEY,
+      "js",
       null,
       true,
       singletonList(tsConfig.absolutePath()),
@@ -260,7 +259,7 @@ class BridgeServerImplTest {
     return new JsAnalysisRequest(
       inputFile.absolutePath(),
       inputFile.type().toString(),
-      JAVASCRIPT_LANGUAGE_KEY,
+      "js",
       null,
       true,
       null,
@@ -286,7 +285,7 @@ class BridgeServerImplTest {
     JsAnalysisRequest request = new JsAnalysisRequest(
       "/absolute/path/file.ts",
       "MAIN",
-      JAVASCRIPT_LANGUAGE_KEY,
+      "js",
       null,
       true,
       null,
@@ -504,7 +503,7 @@ class BridgeServerImplTest {
     JsAnalysisRequest request = new JsAnalysisRequest(
       inputFile.absolutePath(),
       inputFile.type().toString(),
-      JAVASCRIPT_LANGUAGE_KEY,
+      "js",
       null,
       true,
       null,
@@ -595,7 +594,7 @@ class BridgeServerImplTest {
       "key",
       emptyList(),
       Collections.singletonList(InputFile.Type.MAIN),
-      JAVASCRIPT_LANGUAGE_KEY
+      "js"
     );
     assertThat(rule).hasToString("key");
   }

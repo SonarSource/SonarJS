@@ -30,7 +30,6 @@ import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.plugins.javascript.shared.Constants;
 
 class EslintRuleTest {
 
@@ -64,7 +63,7 @@ class EslintRuleTest {
   private static List<EslintRule> rules(String... keys) {
     return Arrays
       .stream(keys)
-      .map(key -> new EslintRule(key, emptyList(), emptyList(), Constants.JAVASCRIPT_LANGUAGE_KEY))
+      .map(key -> new EslintRule(key, emptyList(), emptyList(), "js"))
       .collect(toList());
   }
 }

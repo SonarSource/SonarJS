@@ -19,10 +19,6 @@
       <artifactId>javascript-checks</artifactId>
     </dependency>
     <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>shared</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.sonarsource.api.plugin</groupId>
       <artifactId>sonar-plugin-api</artifactId>
     </dependency>
