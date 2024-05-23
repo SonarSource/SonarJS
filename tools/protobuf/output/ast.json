@@ -137,6 +137,12 @@
               }
             },
             {
+              "name": "regExpLiteral",
+              "fieldValue": {
+                "type": "RegExpLiteral"
+              }
+            },
+            {
               "name": "bigIntLiteral",
               "fieldValue": {
                 "type": "BigIntLiteral"
@@ -564,29 +570,6 @@
           "repeatedValue": {
             "type": "Expression"
           }
-        }
-      },
-      {
-        "name": "loc",
-        "fieldValue": {
-          "type": "SourceLocation"
-        }
-      }
-    ]
-  },
-  "TemplateElement": {
-    "messageName": "TemplateElement",
-    "fields": [
-      {
-        "name": "tail",
-        "fieldValue": {
-          "type": "bool"
-        }
-      },
-      {
-        "name": "value",
-        "fieldValue": {
-          "type": "ERROR_UNEXPECTED"
         }
       },
       {
@@ -2247,6 +2230,52 @@
       }
     ]
   },
+  "RegExpLiteral": {
+    "messageName": "RegExpLiteral",
+    "fields": [
+      {
+        "name": "pattern",
+        "fieldValue": {
+          "type": "string"
+        }
+      },
+      {
+        "name": "flags",
+        "fieldValue": {
+          "type": "string"
+        }
+      },
+      {
+        "name": "raw",
+        "fieldValue": {
+          "type": "string"
+        }
+      }
+    ]
+  },
+  "TemplateElement": {
+    "messageName": "TemplateElement",
+    "fields": [
+      {
+        "name": "tail",
+        "fieldValue": {
+          "type": "bool"
+        }
+      },
+      {
+        "name": "cooked",
+        "fieldValue": {
+          "type": "string"
+        }
+      },
+      {
+        "name": "raw",
+        "fieldValue": {
+          "type": "string"
+        }
+      }
+    ]
+  },
   "BaseNodeWithoutComments": {
     "messageName": "BaseNodeWithoutComments",
     "fields": [
@@ -2372,12 +2401,6 @@
               "name": "templateLiteral",
               "fieldValue": {
                 "type": "TemplateLiteral"
-              }
-            },
-            {
-              "name": "templateElement",
-              "fieldValue": {
-                "type": "TemplateElement"
               }
             },
             {
@@ -2792,6 +2815,18 @@
               "name": "directive",
               "fieldValue": {
                 "type": "Directive"
+              }
+            },
+            {
+              "name": "regExpLiteral",
+              "fieldValue": {
+                "type": "RegExpLiteral"
+              }
+            },
+            {
+              "name": "templateElement",
+              "fieldValue": {
+                "type": "TemplateElement"
               }
             }
           ]

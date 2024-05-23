@@ -23,6 +23,14 @@ const ignoredMembers: Set<string> = new Set([
   'range',
 ]);
 
+// Some types follow a different structure than the others, instead of adding special logic for them, we create them manually.
+const handWrittenTypes: Set<string> = new Set([
+  // RegExpLiteral declare RegExp, wich we can not map to Protobuf type.
+  'RegExpLiteral',
+  // TemplateElement is not following the common structure of the other nodes.
+  'TemplateElement',
+]);
+
 // Types representing Protobuf
 type ProtobufMessage = {
   messageName: string;
@@ -62,7 +70,7 @@ for (const statement of file.statements) {
 
 const requestedTypes: string[] = ['Program'];
 function requestType(type: string) {
-  if (!(type in messages) && !requestedTypes.includes(type)) {
+  if (!(type in messages) && !requestedTypes.includes(type) && !handWrittenTypes.has(type)) {
     requestedTypes.push(type);
   }
 
@@ -86,8 +94,6 @@ function getFieldValueFromType(typeNode: TypeNode): ProtobufFieldValue {
     }
 
     const interestingTypes = typeNode.types
-      // TODO: RegExpLiteral declare RegExp, where does it come from?
-      .filter(t => t.getText(file) !== 'RegExpLiteral')
       // We don't need to explicitly say that a value can be undefined or null, if it is the case during serialization, we will simply not put anything.
       .filter(t => !isNullOrUndefined(t));
 
@@ -278,6 +284,25 @@ function extractInheritedFields(
     return false;
   }
 }
+// Create node manually for 'RegExpLiteral' and 'TemplateElement'.
+messages['RegExpLiteral'] = {
+  messageName: 'RegExpLiteral',
+  fields: [
+    { name: 'pattern', fieldValue: { type: 'string' } },
+    { name: 'flags', fieldValue: { type: 'string' } },
+    { name: 'raw', fieldValue: { type: 'string' } },
+  ],
+};
+
+messages['TemplateElement'] = {
+  messageName: 'TemplateElement',
+  fields: [
+    { name: 'tail', fieldValue: { type: 'bool' } },
+    { name: 'cooked', fieldValue: { type: 'string' } },
+    { name: 'raw', fieldValue: { type: 'string' } },
+  ],
+};
+
 // We create manually the top level node "BaseNodeWithoutComments", holding all the other nodes. The name is taken directly from the index.d.ts file.
 // While we could generate this node with the same logic as the one used for all nodes, we do it manually as there would be too many edge cases to handle.
 const allNodeTypesAsFields = Object.keys(messages).map(nodeType => {
