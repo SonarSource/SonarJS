@@ -20,7 +20,6 @@
 package org.sonar.plugins.javascript.analysis.cache;
 
 import static java.util.Collections.emptyList;
-import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -68,13 +67,13 @@ import org.sonar.api.batch.sensor.cache.WriteCache;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.Version;
-import org.sonar.plugins.javascript.bridge.BridgeServer;
+import org.sonar.plugins.javascript.bridge.BridgeServer.CpdToken;
 import org.sonar.plugins.javascript.bridge.PluginInfo;
 
 @SuppressWarnings("resource")
 class CacheStrategyTest {
 
-  static final List<BridgeServer.CpdToken> CPD_TOKENS = CacheTestUtils.getCpdTokens();
+  static final List<CpdToken> CPD_TOKENS = CacheTestUtils.getCpdTokens();
   static final String PLUGIN_VERSION = "1.0.0";
 
   CacheAnalysisSerialization serialization;
@@ -222,7 +221,7 @@ class CacheStrategyTest {
       .map(workDir::resolve)
       .map(Path::toAbsolutePath)
       .map(Path::toString)
-      .collect(toList());
+      .toList();
     long bytesRead;
 
     when(previousCache.contains(anyString())).thenReturn(false);
@@ -234,7 +233,7 @@ class CacheStrategyTest {
     assertThat(strategy.isAnalysisRequired()).isTrue();
 
     strategy.writeAnalysisToCache(
-      new CacheAnalysis(ucfgFiles, CPD_TOKENS.toArray(BridgeServer.CpdToken[]::new)),
+      new CacheAnalysis(ucfgFiles, CPD_TOKENS.toArray(CpdToken[]::new)),
       inputFile
     );
 
@@ -287,7 +286,7 @@ class CacheStrategyTest {
     var generatedFiles = List.of("inexistent.ucfg");
     var cacheAnalysis = new CacheAnalysis(
       generatedFiles,
-      CPD_TOKENS.toArray(BridgeServer.CpdToken[]::new)
+      CPD_TOKENS.toArray(CpdToken[]::new)
     );
     assertThatThrownBy(() -> strategy.writeAnalysisToCache(cacheAnalysis, inputFile))
       .isInstanceOf(UncheckedIOException.class);
@@ -328,7 +327,7 @@ class CacheStrategyTest {
     assertThat(strategy.isAnalysisRequired()).isTrue();
 
     strategy.writeAnalysisToCache(
-      CacheAnalysis.fromResponse(null, CPD_TOKENS.toArray(BridgeServer.CpdToken[]::new)),
+      CacheAnalysis.fromResponse(null, CPD_TOKENS.toArray(CpdToken[]::new)),
       inputFile
     );
     verify(nextCache).write(eq(jsonCacheKey), any(byte[].class));
@@ -368,9 +367,9 @@ class CacheStrategyTest {
       .stream()
       .map(workDir::resolve)
       .map(Path::toString)
-      .collect(toList());
+      .toList();
     strategy.writeAnalysisToCache(
-      new CacheAnalysis(ucfgPaths, CPD_TOKENS.toArray(BridgeServer.CpdToken[]::new)),
+      new CacheAnalysis(ucfgPaths, CPD_TOKENS.toArray(CpdToken[]::new)),
       inputFile
     );
     verify(nextCache).write(eq(jsonCacheKey), any(byte[].class));
@@ -565,9 +564,9 @@ class CacheStrategyTest {
       .stream()
       .map(workDir::resolve)
       .map(Path::toString)
-      .collect(toList());
+      .toList();
     strategy.writeAnalysisToCache(
-      new CacheAnalysis(ucfgPaths, CPD_TOKENS.toArray(BridgeServer.CpdToken[]::new)),
+      new CacheAnalysis(ucfgPaths, CPD_TOKENS.toArray(CpdToken[]::new)),
       inputFile
     );
     verify(nextCache).write(eq(jsonCacheKey), any(byte[].class));
@@ -605,9 +604,9 @@ class CacheStrategyTest {
       .stream()
       .map(workDir::resolve)
       .map(Path::toString)
-      .collect(toList());
+      .toList();
     strategy.writeAnalysisToCache(
-      new CacheAnalysis(ucfgPaths, CPD_TOKENS.toArray(BridgeServer.CpdToken[]::new)),
+      new CacheAnalysis(ucfgPaths, CPD_TOKENS.toArray(CpdToken[]::new)),
       inputFile
     );
     verify(nextCache).write(eq(jsonCacheKey), any(byte[].class));
@@ -621,7 +620,7 @@ class CacheStrategyTest {
     when(inputFile.toString()).thenReturn("test.js");
     assertThat(
       CacheStrategies.getLogMessage(
-        readAndWrite(CacheAnalysis.fromCache(new BridgeServer.CpdToken[0]), serialization),
+        readAndWrite(CacheAnalysis.fromCache(new CpdToken[0]), serialization),
         inputFile,
         "this is a test"
       )
@@ -633,7 +632,7 @@ class CacheStrategyTest {
 
   @Test
   void should_iterate_files() {
-    var ucfgFiles = createUcfgFiles(tempDir).stream().map(tempDir::resolve).collect(toList());
+    var ucfgFiles = createUcfgFiles(tempDir).stream().map(tempDir::resolve).toList();
     var iterator = new FileIterator(ucfgFiles);
     IntStream
       .range(0, ucfgFiles.size())
@@ -690,7 +689,7 @@ class CacheStrategyTest {
       .map(tempDir::resolve)
       .map(this::createFile)
       .map(Path::toString)
-      .collect(toList());
+      .toList();
     var binFile = Files.createTempFile("ucfgs", ".bin");
     var jsonFile = Files.createTempFile("ucfgs", ".json");
 
@@ -714,7 +713,7 @@ class CacheStrategyTest {
     when(fileSystem.workDir()).thenReturn(tempDir.toFile());
     when(context.nextCache()).thenReturn(tempCache);
     serialization.writeToCache(
-      CacheAnalysis.fromResponse(ucfgFiles, new BridgeServer.CpdToken[0]),
+      CacheAnalysis.fromResponse(ucfgFiles, new CpdToken[0]),
       inputFile
     );
     when(fileSystem.workDir()).thenReturn(workDir.toFile());

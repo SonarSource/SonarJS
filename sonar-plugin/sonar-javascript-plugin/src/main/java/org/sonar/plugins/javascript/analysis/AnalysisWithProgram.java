@@ -37,6 +37,7 @@ import org.sonar.plugins.javascript.analysis.cache.CacheAnalysis;
 import org.sonar.plugins.javascript.analysis.cache.CacheStrategies;
 import org.sonar.plugins.javascript.bridge.AnalysisWarningsWrapper;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
+import org.sonar.plugins.javascript.bridge.BridgeServer.JsAnalysisRequest;
 import org.sonar.plugins.javascript.bridge.BridgeServer.TsProgram;
 import org.sonar.plugins.javascript.bridge.BridgeServer.TsProgramRequest;
 import org.sonar.plugins.javascript.utils.ProgressReport;
@@ -185,12 +186,12 @@ public class AnalysisWithProgram extends AbstractAnalysis {
     }
   }
 
-  private BridgeServer.JsAnalysisRequest getJsAnalysisRequest(
+  private JsAnalysisRequest getJsAnalysisRequest(
     InputFile file,
     @Nullable TsProgram tsProgram,
     @Nullable String fileContent
   ) {
-    return new BridgeServer.JsAnalysisRequest(
+    return new JsAnalysisRequest(
       file.absolutePath(),
       file.type().toString(),
       inputFileLanguage(file),

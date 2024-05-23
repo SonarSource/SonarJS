@@ -23,7 +23,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
 import javax.annotation.Nullable;
-import org.sonar.plugins.javascript.bridge.BridgeServer;
+import org.sonar.plugins.javascript.bridge.BridgeServer.CpdToken;
 
 class CpdSerializer {
 
@@ -58,7 +58,7 @@ class CpdSerializer {
     }
   }
 
-  private void write(BridgeServer.CpdToken cpdToken) throws IOException {
+  private void write(CpdToken cpdToken) throws IOException {
     var location = cpdToken.location();
     writeInt(location.startLine());
     writeInt(location.startCol());

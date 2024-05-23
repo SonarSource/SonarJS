@@ -22,7 +22,8 @@ package org.sonar.plugins.javascript.analysis.cache;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import org.sonar.plugins.javascript.bridge.BridgeServer;
+import org.sonar.plugins.javascript.bridge.BridgeServer.CpdToken;
+import org.sonar.plugins.javascript.bridge.BridgeServer.Location;
 
 public class CpdDeserializer {
 
@@ -46,7 +47,7 @@ public class CpdDeserializer {
       stringTable = readStringTable();
 
       var sizeOfCpdTokens = readInt();
-      var cpdTokens = new ArrayList<BridgeServer.CpdToken>(sizeOfCpdTokens);
+      var cpdTokens = new ArrayList<CpdToken>(sizeOfCpdTokens);
 
       for (int i = 0; i < sizeOfCpdTokens; i++) {
         readCpdToken(cpdTokens);
@@ -62,9 +63,9 @@ public class CpdDeserializer {
     }
   }
 
-  private void readCpdToken(List<BridgeServer.CpdToken> cpdTokens) throws IOException {
-    var location = new BridgeServer.Location(readInt(), readInt(), readInt(), readInt());
-    var cpdToken = new BridgeServer.CpdToken(location, readString());
+  private void readCpdToken(List<CpdToken> cpdTokens) throws IOException {
+    var location = new Location(readInt(), readInt(), readInt(), readInt());
+    var cpdToken = new CpdToken(location, readString());
     cpdTokens.add(cpdToken);
   }
 

@@ -38,6 +38,7 @@ import org.sonar.plugins.javascript.analysis.cache.CacheAnalysis;
 import org.sonar.plugins.javascript.analysis.cache.CacheStrategies;
 import org.sonar.plugins.javascript.bridge.AnalysisWarningsWrapper;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
+import org.sonar.plugins.javascript.bridge.BridgeServer.JsAnalysisRequest;
 import org.sonar.plugins.javascript.bridge.TsConfigFile;
 import org.sonar.plugins.javascript.utils.ProgressReport;
 import org.sonarsource.api.sonarlint.SonarLintSide;
@@ -140,7 +141,7 @@ public class AnalysisWithWatchProgram extends AbstractAnalysis {
         var tsConfigs = tsConfigFile == null
           ? Collections.<String>emptyList()
           : List.of(tsConfigFile.getFilename());
-        var request = new BridgeServer.JsAnalysisRequest(
+        var request = new JsAnalysisRequest(
           file.absolutePath(),
           file.type().toString(),
           inputFileLanguage(file),

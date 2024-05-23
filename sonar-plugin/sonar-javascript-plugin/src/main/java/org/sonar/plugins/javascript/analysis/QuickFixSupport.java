@@ -23,7 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.issue.NewIssue;
-import org.sonar.plugins.javascript.bridge.BridgeServer;
+import org.sonar.plugins.javascript.bridge.BridgeServer.Issue;
 
 /**
  * QuickFix logic is separated here, because it can't be used directly in the plugin extension class, otherwise
@@ -38,7 +38,7 @@ class QuickFixSupport {
   }
 
   static void addQuickFixes(
-    BridgeServer.Issue issue,
+    Issue issue,
     NewIssue sonarLintIssue,
     InputFile file
   ) {

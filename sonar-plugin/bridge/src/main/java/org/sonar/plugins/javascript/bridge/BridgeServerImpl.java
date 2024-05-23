@@ -467,7 +467,7 @@ public class BridgeServerImpl implements BridgeServer {
 
   @Override
   public TsConfigFile loadTsConfig(String filename) {
-    BridgeServer.TsConfigResponse tsConfigResponse = tsConfigFiles(filename);
+    var tsConfigResponse = tsConfigFiles(filename);
     if (tsConfigResponse.error != null) {
       LOG.error(tsConfigResponse.error);
     }

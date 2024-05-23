@@ -64,6 +64,6 @@ class EslintRuleTest {
     return Arrays
       .stream(keys)
       .map(key -> new EslintRule(key, emptyList(), emptyList(), "js"))
-      .collect(toList());
+      .toList();
   }
 }

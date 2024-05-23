@@ -42,9 +42,9 @@ import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.Version;
-import org.sonar.plugins.javascript.bridge.BridgeServer;
 import org.sonar.plugins.javascript.bridge.BridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.bridge.BridgeServer.Issue;
+import org.sonar.plugins.javascript.bridge.BridgeServer.IssueLocation;
 import org.sonar.plugins.javascript.bridge.BridgeServer.Metrics;
 import org.sonar.plugins.javascript.bridge.BridgeServer.QuickFix;
 import org.sonar.plugins.javascript.bridge.BridgeServer.QuickFixEdit;
@@ -126,7 +126,7 @@ class QuickFixSupportTest {
   }
 
   static Issue issueWithQuickFix() {
-    var quickFixEdit = new QuickFixEdit(";", new BridgeServer.IssueLocation(1, 2, 3, 4, ""));
+    var quickFixEdit = new QuickFixEdit(";", new IssueLocation(1, 2, 3, 4, ""));
     var quickFix = new QuickFix("QuickFix message", List.of(quickFixEdit));
     var issue = new Issue(1, 1, 1, 1,"", "no-extra-semi", List.of(), 1.0, List.of(quickFix));
     return issue;

@@ -136,7 +136,7 @@ class AnalysisModeTest {
     return Arrays
       .stream(keys)
       .map(key -> new EslintRule(key, emptyList(), emptyList(), JavaScriptLanguage.KEY))
-      .collect(toList());
+      .toList();
   }
 
   private static List<InputFile> changedFileList(int count) {
@@ -145,7 +145,7 @@ class AnalysisModeTest {
 
   @SafeVarargs
   private static List<InputFile> fileList(Stream<InputFile>... streams) {
-    return Arrays.stream(streams).flatMap(identity()).collect(toList());
+    return Arrays.stream(streams).flatMap(identity()).toList();
   }
 
   private static Stream<InputFile> changedFiles(int count) {

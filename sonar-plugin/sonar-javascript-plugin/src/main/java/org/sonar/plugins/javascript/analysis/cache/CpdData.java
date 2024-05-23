@@ -20,17 +20,17 @@
 package org.sonar.plugins.javascript.analysis.cache;
 
 import java.util.List;
-import org.sonar.plugins.javascript.bridge.BridgeServer;
+import org.sonar.plugins.javascript.bridge.BridgeServer.CpdToken;
 
 class CpdData {
 
-  private final List<BridgeServer.CpdToken> cpdTokens;
+  private final List<CpdToken> cpdTokens;
 
-  CpdData(List<BridgeServer.CpdToken> cpdTokens) {
+  CpdData(List<CpdToken> cpdTokens) {
     this.cpdTokens = List.copyOf(cpdTokens);
   }
 
-  List<BridgeServer.CpdToken> getCpdTokens() {
+  List<CpdToken> getCpdTokens() {
     return cpdTokens;
   }
 }

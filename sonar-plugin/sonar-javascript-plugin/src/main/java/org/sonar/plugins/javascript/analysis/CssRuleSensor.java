@@ -45,6 +45,8 @@ import org.sonar.css.CssLanguage;
 import org.sonar.css.CssRules;
 import org.sonar.plugins.javascript.CancellationException;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
+import org.sonar.plugins.javascript.bridge.BridgeServer.CssAnalysisRequest;
+import org.sonar.plugins.javascript.bridge.BridgeServer.Issue;
 import org.sonar.plugins.javascript.bridge.StylelintRule;
 import org.sonar.plugins.javascript.utils.ProgressReport;
 
@@ -135,12 +137,12 @@ public class CssRuleSensor extends AbstractBridgeSensor {
       String fileContent = contextUtils.shouldSendFileContent(inputFile)
         ? inputFile.contents()
         : null;
-      BridgeServer.CssAnalysisRequest request = new BridgeServer.CssAnalysisRequest(
+      CssAnalysisRequest request = new CssAnalysisRequest(
         new File(uri).getAbsolutePath(),
         fileContent,
         rules
       );
-      BridgeServer.AnalysisResponse analysisResponse = bridgeServer.analyzeCss(request);
+      var analysisResponse = bridgeServer.analyzeCss(request);
       LOG.debug("Found {} issue(s)", analysisResponse.issues().size());
       saveIssues(context, inputFile, analysisResponse.issues());
     } catch (IOException | RuntimeException e) {
@@ -151,9 +153,9 @@ public class CssRuleSensor extends AbstractBridgeSensor {
   private void saveIssues(
     SensorContext context,
     InputFile inputFile,
-    List<BridgeServer.Issue> issues
+    List<Issue> issues
   ) {
-    for (BridgeServer.Issue issue : issues) {
+    for (Issue issue : issues) {
       RuleKey ruleKey = cssRules.getActiveSonarKey(issue.ruleId());
       if (ruleKey == null) {
         if ("CssSyntaxError".equals(issue.ruleId())) {

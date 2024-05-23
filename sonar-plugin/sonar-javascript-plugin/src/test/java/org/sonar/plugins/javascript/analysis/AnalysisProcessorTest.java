@@ -15,7 +15,11 @@ import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
-import org.sonar.plugins.javascript.bridge.BridgeServer;
+import org.sonar.plugins.javascript.bridge.BridgeServer.AnalysisResponse;
+import org.sonar.plugins.javascript.bridge.BridgeServer.CpdToken;
+import org.sonar.plugins.javascript.bridge.BridgeServer.Highlight;
+import org.sonar.plugins.javascript.bridge.BridgeServer.HighlightedSymbol;
+import org.sonar.plugins.javascript.bridge.BridgeServer.Location;
 
 class AnalysisProcessorTest {
 
@@ -35,9 +39,9 @@ class AnalysisProcessorTest {
       .create("moduleKey", "file.js")
       .setContents("var x  = 1;")
       .build();
-    var location = new BridgeServer.Location(1, 2, 1, 1); // invalid range startCol > endCol
-    var highlight = new BridgeServer.Highlight(location, "");
-    var response = new BridgeServer.AnalysisResponse(null, List.of(), new BridgeServer.Highlight[]{highlight}, new BridgeServer.HighlightedSymbol[0], null, null, null);
+    var location = new Location(1, 2, 1, 1); // invalid range startCol > endCol
+    var highlight = new Highlight(location, "");
+    var response = new AnalysisResponse(null, List.of(), new Highlight[]{highlight}, new HighlightedSymbol[0], null, null, null);
     processor.processResponse(context, mock(JsTsChecks.class), file, response);
     assertThat(logTester.logs())
       .contains("Failed to save highlight in " + file.uri() + " at 1:2-1:1");
@@ -53,16 +57,16 @@ class AnalysisProcessorTest {
       .create("moduleKey", "file.js")
       .setContents("var x  = 1;")
       .build();
-    var declaration = new BridgeServer.Location(1, 2, 1, 1); // invalid range startCol > endCol
-    var symbol = new BridgeServer.HighlightedSymbol(declaration, new BridgeServer.Location[] {});
-    var response = new BridgeServer.AnalysisResponse(null, List.of(), null, new BridgeServer.HighlightedSymbol[]{symbol}, null, null, null);
+    var declaration = new Location(1, 2, 1, 1); // invalid range startCol > endCol
+    var symbol = new HighlightedSymbol(declaration, new Location[] {});
+    var response = new AnalysisResponse(null, List.of(), null, new HighlightedSymbol[]{symbol}, null, null, null);
     processor.processResponse(context, mock(JsTsChecks.class), file, response);
     assertThat(logTester.logs())
       .contains("Failed to create symbol declaration in " + file.uri() + " at 1:2-1:1");
 
     context = SensorContextTester.create(baseDir);
-    symbol = new BridgeServer.HighlightedSymbol(new BridgeServer.Location(1, 1, 1, 2), new BridgeServer.Location[]{new BridgeServer.Location(2, 2, 2, 1)});
-    response = new BridgeServer.AnalysisResponse(null, List.of(), null, new BridgeServer.HighlightedSymbol[]{symbol}, null, null, null);
+    symbol = new HighlightedSymbol(new Location(1, 1, 1, 2), new Location[]{new Location(2, 2, 2, 1)});
+    response = new AnalysisResponse(null, List.of(), null, new HighlightedSymbol[]{symbol}, null, null, null);
     processor.processResponse(context, mock(JsTsChecks.class), file, response);
     assertThat(logTester.logs())
       .contains("Failed to create symbol reference in " + file.uri() + " at 2:2-2:1");
@@ -78,9 +82,9 @@ class AnalysisProcessorTest {
       .create("moduleKey", "file.js")
       .setContents("var x  = 1;")
       .build();
-    var location = new BridgeServer.Location(1, 2, 1, 1); // invalid range startCol > endCol
-    var cpd = new BridgeServer.CpdToken(location, "img");
-    var response = new BridgeServer.AnalysisResponse(null, List.of(), null, null, null, new BridgeServer.CpdToken[]{cpd}, null);
+    var location = new Location(1, 2, 1, 1); // invalid range startCol > endCol
+    var cpd = new CpdToken(location, "img");
+    var response = new AnalysisResponse(null, List.of(), null, null, null, new CpdToken[]{cpd}, null);
     processor.processResponse(context, mock(JsTsChecks.class), file, response);
     assertThat(context.cpdTokens(file.key())).isNull();
     assertThat(logTester.logs())

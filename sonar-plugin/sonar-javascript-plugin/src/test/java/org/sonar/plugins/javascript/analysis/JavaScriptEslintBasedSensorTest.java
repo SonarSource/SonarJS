@@ -84,6 +84,7 @@ import org.sonar.plugins.javascript.bridge.AnalysisWarningsWrapper;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
 import org.sonar.plugins.javascript.bridge.BridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.bridge.BridgeServer.JsAnalysisRequest;
+import org.sonar.plugins.javascript.bridge.BridgeServer.TsProgram;
 import org.sonar.plugins.javascript.bridge.EslintRule;
 import org.sonar.plugins.javascript.bridge.PluginInfo;
 import org.sonar.plugins.javascript.bridge.ServerAlreadyFailedException;
@@ -123,11 +124,11 @@ class JavaScriptEslintBasedSensorTest {
   private AnalysisProcessor analysisProcessor;
   private AnalysisWithProgram analysisWithProgram;
   private AnalysisWithWatchProgram analysisWithWatchProgram;
-  private BridgeServer.TsProgram tsProgram;
+  private TsProgram tsProgram;
 
   @BeforeEach
   public void setUp() throws Exception {
-    MockitoAnnotations.initMocks(this);
+    MockitoAnnotations.openMocks(this).close();
 
     // reset is required as this static value might be set by another test
     PluginInfo.setUcfgPluginVersion(null);
@@ -147,7 +148,7 @@ class JavaScriptEslintBasedSensorTest {
       .thenReturn(
         new TsConfigFile(tempFolder.newFile().getAbsolutePath(), emptyList(), emptyList())
       );
-    tsProgram = new BridgeServer.TsProgram("", new ArrayList<>(), List.of());
+    tsProgram = new TsProgram("", new ArrayList<>(), List.of());
     when(bridgeServerMock.createProgram(any())).thenReturn(tsProgram);
     context = SensorContextTester.create(baseDir);
     context.fileSystem().setWorkDir(workDir);
@@ -482,7 +483,7 @@ class JavaScriptEslintBasedSensorTest {
   }
 
   @Test
-  void should_have_descriptor() throws Exception {
+  void should_have_descriptor() {
     DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor();
 
     createSensor().describe(descriptor);
@@ -491,7 +492,7 @@ class JavaScriptEslintBasedSensorTest {
   }
 
   @Test
-  void should_have_configured_rules() throws Exception {
+  void should_have_configured_rules() {
     ActiveRulesBuilder builder = new ActiveRulesBuilder();
     builder.addRule(
       new NewActiveRule.Builder()
@@ -528,8 +529,7 @@ class JavaScriptEslintBasedSensorTest {
   }
 
   @Test
-  void should_skip_analysis_when_no_files() throws Exception {
-    var analysisWarnings = new AnalysisWarningsWrapper();
+  void should_skip_analysis_when_no_files() {
     var javaScriptEslintBasedSensor = new JsTsSensor(
       checks(ESLINT_BASED_RULE),
       bridgeServerMock,
@@ -684,7 +684,7 @@ class JavaScriptEslintBasedSensorTest {
   void should_fail_fast() throws Exception {
     when(bridgeServerMock.analyzeJavaScript(any())).thenThrow(new IOException("error"));
     var sensor = createSensor();
-    DefaultInputFile inputFile = createInputFile(context);
+    createInputFile(context);
     assertThatThrownBy(() -> sensor.execute(context))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Analysis of JS/TS files failed");
@@ -701,7 +701,7 @@ class JavaScriptEslintBasedSensorTest {
   }
 
   @Test
-  void stop_analysis_if_cancelled() throws Exception {
+  void stop_analysis_if_cancelled() {
     var sensor = createSensor();
     createInputFile(context);
     context.setCancelled(true);

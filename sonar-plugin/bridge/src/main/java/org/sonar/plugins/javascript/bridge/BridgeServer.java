@@ -77,10 +77,10 @@ public interface BridgeServer extends Startable {
     String filePath,
     String fileType,
     String language,
-    String fileContent,
+    @Nullable String fileContent,
     boolean ignoreHeaderComments,
     List<String> tsConfigs,
-    String programId,
+    @Nullable String programId,
     String linterId
    ) {
 
@@ -89,7 +89,7 @@ public interface BridgeServer extends Startable {
   record CssAnalysisRequest(
 
     String filePath,
-    String fileContent,
+    @Nullable String fileContent,
     List<StylelintRule> rules) {
     }
 
@@ -101,7 +101,7 @@ public interface BridgeServer extends Startable {
                                  CpdToken[] cpdTokens,
                                  List<String> ucfgPaths) {
     public AnalysisResponse() {
-      this(null, List.of(), new BridgeServer.Highlight[0], new BridgeServer.HighlightedSymbol[0], null, null, null);
+      this(null, List.of(), new Highlight[0], new HighlightedSymbol[0], null, null, null);
     }
 
     public AnalysisResponse(ParsingError parsingError,

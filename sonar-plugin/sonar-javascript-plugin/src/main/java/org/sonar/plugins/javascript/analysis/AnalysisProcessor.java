@@ -52,9 +52,14 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonar.api.utils.Version;
 import org.sonar.plugins.javascript.analysis.cache.CacheAnalysis;
-import org.sonar.plugins.javascript.bridge.BridgeServer;
 import org.sonar.plugins.javascript.bridge.BridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.bridge.BridgeServer.CpdToken;
+import org.sonar.plugins.javascript.bridge.BridgeServer.Highlight;
+import org.sonar.plugins.javascript.bridge.BridgeServer.HighlightedSymbol;
+import org.sonar.plugins.javascript.bridge.BridgeServer.Location;
+import org.sonar.plugins.javascript.bridge.BridgeServer.Metrics;
+import org.sonar.plugins.javascript.bridge.BridgeServer.ParsingError;
+import org.sonar.plugins.javascript.bridge.BridgeServer.ParsingErrorCode;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 import org.sonarsource.sonarlint.plugin.api.SonarLintRuntime;
 
@@ -140,13 +145,13 @@ public class AnalysisProcessor {
     }
   }
 
-  private void processParsingError(BridgeServer.ParsingError parsingError) {
+  private void processParsingError(ParsingError parsingError) {
     Integer line = parsingError.line();
     String message = parsingError.message();
 
     if (line != null) {
       LOG.warn("Failed to parse file [{}] at line {}: {}", file, line, message);
-    } else if (parsingError.code() == BridgeServer.ParsingErrorCode.FAILING_TYPESCRIPT) {
+    } else if (parsingError.code() == ParsingErrorCode.FAILING_TYPESCRIPT) {
       LOG.error("Failed to analyze file [{}] from TypeScript: {}", file, message);
     } else {
       LOG.error("Failed to analyze file [{}]: {}", file, message);
@@ -188,9 +193,9 @@ public class AnalysisProcessor {
     }
   }
 
-  private void saveHighlights(BridgeServer.Highlight[] highlights) {
+  private void saveHighlights(Highlight[] highlights) {
     NewHighlighting highlighting = context.newHighlighting().onFile(file);
-    for (BridgeServer.Highlight highlight : highlights) {
+    for (Highlight highlight : highlights) {
       try {
         highlighting.highlight(
           highlight.location().toTextRange(file),
@@ -205,10 +210,10 @@ public class AnalysisProcessor {
     highlighting.save();
   }
 
-  private void saveHighlightedSymbols(BridgeServer.HighlightedSymbol[] highlightedSymbols) {
+  private void saveHighlightedSymbols(HighlightedSymbol[] highlightedSymbols) {
     NewSymbolTable symbolTable = context.newSymbolTable().onFile(file);
-    for (BridgeServer.HighlightedSymbol highlightedSymbol : highlightedSymbols) {
-      BridgeServer.Location declaration = highlightedSymbol.declaration();
+    for (HighlightedSymbol highlightedSymbol : highlightedSymbols) {
+      Location declaration = highlightedSymbol.declaration();
       NewSymbol newSymbol;
       try {
         newSymbol =
@@ -222,7 +227,7 @@ public class AnalysisProcessor {
         LOG.warn("Failed to create symbol declaration in {} at {}", file.uri(), declaration);
         continue;
       }
-      for (BridgeServer.Location reference : highlightedSymbol.references()) {
+      for (Location reference : highlightedSymbol.references()) {
         try {
           newSymbol.newReference(
             reference.startLine(),
@@ -238,7 +243,7 @@ public class AnalysisProcessor {
     symbolTable.save();
   }
 
-  private void saveMetrics(BridgeServer.Metrics metrics) {
+  private void saveMetrics(Metrics metrics) {
     if (file.type() == InputFile.Type.TEST || contextUtils.isSonarLint()) {
       noSonarFilter.noSonarInFile(
         file,
@@ -293,7 +298,7 @@ public class AnalysisProcessor {
     }
   }
 
-  void saveIssue(BridgeServer.Issue issue) {
+  void saveIssue(Issue issue) {
     var newIssue = context.newIssue();
     var location = newIssue.newLocation().on(file);
     if (issue.message() != null) {

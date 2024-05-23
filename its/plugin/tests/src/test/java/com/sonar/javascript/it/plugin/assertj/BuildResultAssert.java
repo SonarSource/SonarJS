@@ -78,7 +78,7 @@ public class BuildResultAssert extends AbstractAssert<BuildResultAssert, BuildRe
     try (
       var stream = Files.find(projectPath.resolve(".scannerwork"), 3, BuildResultAssert::isUcfgFile)
     ) {
-      return stream.collect(toList());
+      return stream.toList();
     }
   }
 
@@ -176,7 +176,7 @@ public class BuildResultAssert extends AbstractAssert<BuildResultAssert, BuildRe
     }
 
     public FileCacheStrategy withCachedFilesCounts(int... cachedFilesCounts) {
-      this.cachedFilesCounts = IntStream.of(cachedFilesCounts).boxed().collect(toList());
+      this.cachedFilesCounts = IntStream.of(cachedFilesCounts).boxed().toList();
       return this;
     }
 
