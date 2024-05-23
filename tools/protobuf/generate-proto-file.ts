@@ -222,9 +222,9 @@ fs.writeFileSync(path.join('output', 'ast.proto'), addPrefix(translateToProtoFor
  */
 function translateToProtoFormat(messages: Record<string, ProtobufMessage>): string {
   const lines: string[] = [];
+  let index = 1;
   for (const message of Object.values(messages)) {
     lines.push(`message ${message.messageName} {`);
-    let index = 1;
     for (const field of message.fields) {
       if ('repeatedValue' in field.fieldValue) {
         lines.push(
