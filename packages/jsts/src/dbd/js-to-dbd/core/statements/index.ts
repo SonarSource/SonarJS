@@ -5,6 +5,7 @@ import { AST_NODE_TYPES } from '@typescript-eslint/typescript-estree';
 import { handleExpressionStatement } from './expression-statement';
 import { handleIfStatement } from './if-statement';
 import { handleVariableDeclaration } from './variable-declaration';
+import { handleReturnStatement } from './return-statement';
 
 export function handleStatement(context: ContextManager, node: TSESTree.Statement) {
   switch (node.type) {
@@ -19,6 +20,9 @@ export function handleStatement(context: ContextManager, node: TSESTree.Statemen
       break;
     case AST_NODE_TYPES.VariableDeclaration:
       handleVariableDeclaration(context, node);
+      break;
+    case AST_NODE_TYPES.ReturnStatement:
+      handleReturnStatement(context, node);
       break;
     default:
       throw new Error(`Unable to handle ${node.type} statement`);

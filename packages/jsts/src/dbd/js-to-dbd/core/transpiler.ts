@@ -34,6 +34,7 @@ export const createTranspiler = (hostDefinedProperties: Array<Variable> = []): T
       functionInfos.push(functionInfo);
       // we might want to provide this to the function once, the main is handled
       const context = new ContextManager(functionInfo, node.loc, hostDefinedProperties);
+      node.params.forEach(param => context.addParameter(param));
       handleStatement(context, node.body);
       const currentBlock = context.block.getCurrentBlock();
       if (!isTerminated(currentBlock)) {

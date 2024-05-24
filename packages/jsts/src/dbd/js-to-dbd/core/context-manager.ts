@@ -10,6 +10,8 @@ import { createAssignment, createVariable, Variable } from './variable';
 import { createConstant } from './values/constant';
 import { createBranchingInstruction } from './instructions/branching-instruction';
 import { Location } from './location';
+import { TSESTree } from '@typescript-eslint/utils';
+import { createParameter } from './values/parameter';
 
 export class ContextManager {
   private readonly blockManager: BlockManager;
@@ -32,6 +34,17 @@ export class ContextManager {
 
   get block(): BlockManager {
     return this.blockManager;
+  }
+
+  addParameter(param: TSESTree.Parameter) {
+    if (param.type !== 'Identifier') {
+      throw new Error(`Unknown method parameter type ${param.type}`);
+    }
+    const valueId = this.scope.createValueIdentifier();
+    const parameter = createParameter(valueId, param.name, param.loc);
+    this.functionInfo.parameters.push(parameter);
+    const variable = createVariable(param.name);
+    this.scope.getCurrentScope().variables.set(param.name, variable);
   }
 
   setupGlobals() {
