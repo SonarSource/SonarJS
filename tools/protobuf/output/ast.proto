@@ -1,4 +1,5 @@
 syntax = "proto3";
+// Generated for @types/estree version: 1.0.5
 
 message Program {
   string sourceType = 1;
