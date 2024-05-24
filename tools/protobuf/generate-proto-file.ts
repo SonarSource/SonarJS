@@ -2,26 +2,6 @@ import ts, { InterfaceDeclaration, TypeNode, isPropertySignature } from 'typescr
 import fs from 'node:fs';
 import path from 'node:path';
 
-const packageJson = require(path.join('..', '..', 'package.json'));
-const typesVersion = packageJson.devDependencies['@types/estree'];
-
-const TOP_LEVEL_NODE = 'BaseNodeWithoutComments';
-
-const ignoredMembers: Set<string> = new Set([
-  // The "type" member is redundant in our context.
-  'type',
-  'comments',
-  'innerComments',
-]);
-
-// Some types follow a different structure than the others, instead of adding special logic for them, we create them manually.
-const handWrittenTypes: Set<string> = new Set([
-  // RegExpLiteral declare RegExp, wich we can not map to Protobuf type.
-  'RegExpLiteral',
-  // TemplateElement is not following the common structure of the other nodes.
-  'TemplateElement',
-]);
-
 // Types representing Protobuf messages.
 type ProtobufMessage = {
   messageName: string;
@@ -52,10 +32,30 @@ type ProtobufOneOfFieldValue = {
 
 type Declaration = ts.InterfaceDeclaration | ts.TypeAliasDeclaration;
 
-const typesPath = path.join('..', '..', 'node_modules', '@types', 'estree', 'index.d.ts');
+const packageJson = require(path.join('..', '..', 'package.json'));
+const typesVersion = packageJson.devDependencies['@types/estree'];
+
+const TOP_LEVEL_NODE = 'BaseNodeWithoutComments';
+
+const IGNORED_MEMBERS: Set<string> = new Set([
+  // The "type" member is redundant in our context.
+  'type',
+  'comments',
+  'innerComments',
+]);
+
+// Some types follow a different structure than the others, instead of adding special logic for them, we create them manually.
+const HAND_WRITTEN_TYPES: Set<string> = new Set([
+  // RegExpLiteral declare RegExp, wich we can not map to Protobuf type.
+  'RegExpLiteral',
+  // TemplateElement is not following the common structure of the other nodes.
+  'TemplateElement',
+]);
+
+const TYPES_PATH = path.join('..', '..', 'node_modules', '@types', 'estree', 'index.d.ts');
 const file = ts.createSourceFile(
-  typesPath,
-  fs.readFileSync(typesPath, 'utf-8'),
+  TYPES_PATH,
+  fs.readFileSync(TYPES_PATH, 'utf-8'),
   ts.ScriptTarget.ESNext,
 );
 const declarations: Record<string, Declaration> = declarationsFromFile(file);
@@ -116,7 +116,7 @@ function getProtobufMessagesFromDeclarations(declarations: Record<string, Declar
   }
 
   function requestType(type: string) {
-    if (!(type in messages) && !requestedTypes.includes(type) && !handWrittenTypes.has(type)) {
+    if (!(type in messages) && !requestedTypes.includes(type) && !HAND_WRITTEN_TYPES.has(type)) {
       requestedTypes.push(type);
     }
 
@@ -129,7 +129,7 @@ function getProtobufMessagesFromDeclarations(declarations: Record<string, Declar
   ) {
     return declaration.members
       .filter(isPropertySignature)
-      .filter(signature => signature.type && !ignoredMembers.has(signature.name.getText(file)))
+      .filter(signature => signature.type && !IGNORED_MEMBERS.has(signature.name.getText(file)))
       .filter(signature => !isAlreadyThere(messageFields, signature))
       .map(signature => {
         return {
