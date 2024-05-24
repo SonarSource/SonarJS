@@ -173,7 +173,7 @@ export const serialize = (
         result = {
           ...instruction,
           consequentBlock: instruction.consequentBlock.identifier,
-          alternateBlock: instruction.alternateBlock ? instruction.alternateBlock.identifier : 0,
+          alternateBlock: instruction.alternateBlock.identifier,
           condition: instruction.operands[0].identifier,
         };
       } else if (instruction.type === 'return') {

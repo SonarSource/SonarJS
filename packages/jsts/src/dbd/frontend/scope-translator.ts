@@ -45,7 +45,7 @@ export class ScopeTranslator {
   methodCalls: Set<string> = new Set<string>();
   methodVariables: Set<string> = new Set<string>();
   parameters: Parameter[] = [];
-  hasHOFCall: boolean = false;
+  hasHOFCall = false;
 
   constructor(
     public filename: string,

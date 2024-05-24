@@ -11,7 +11,7 @@ export const createConstant = (identifier: number, value: Constant['value']): Co
     ...createValue(identifier, 'constant'),
     typeInfo: {
       kind: 'PRIMITIVE',
-      qualifiedName: 'int',
+      qualifiedName: typeof value,
       hasIncompleteSemantics: true,
     },
     value,
