@@ -1,0 +1,54 @@
+import { createAssignment } from '../variable';
+import { createCallInstruction } from '../instructions/call-instruction';
+import { createSetFieldFunctionDefinition } from '../function-definition';
+import { createReference } from '../values/reference';
+import { TSESTree } from '@typescript-eslint/utils';
+import { ContextManager } from '../context-manager';
+import { CompilationResult, handleExpression } from './index';
+
+export function handleAssignmentExpression(
+  context: ContextManager,
+  node: TSESTree.AssignmentExpression,
+): CompilationResult {
+  let variableName: string;
+
+  const { left, right } = node;
+
+  if (left.type === TSESTree.AST_NODE_TYPES.Identifier) {
+    variableName = left.name;
+  } else {
+    // todo
+    variableName = left.type;
+  }
+
+  const { instructions: rightInstructions, value: rightValue } = handleExpression(context, right);
+
+  context.block.getCurrentBlock().instructions.push(...rightInstructions);
+
+  // An assignment to an identifier is an assignment to a property of the current scope
+  const variableAndOwner = context.scope.getVariableAndOwner(variableName);
+
+  if (variableAndOwner) {
+    const { variable, owner } = variableAndOwner;
+
+    const assignment = createAssignment(context.scope.createValueIdentifier(), variable);
+
+    context.scope.getCurrentScope().assignments.set(variableName, assignment);
+
+    const instruction = createCallInstruction(
+      assignment.identifier,
+      null,
+      createSetFieldFunctionDefinition(variable.name),
+      [createReference(owner.identifier), rightValue],
+      node.loc,
+    );
+
+    return {
+      instructions: [...rightInstructions, instruction],
+      value: rightValue,
+    };
+  } else {
+    throw new Error('Unable to derive AssignmentExpression identifier');
+    // todo: what do we do if there is no variable to assign to?
+  }
+}
