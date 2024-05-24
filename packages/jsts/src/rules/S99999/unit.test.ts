@@ -80,6 +80,7 @@ loadAll();`,
 }
 function two() {
   simpleAssignment();
+  bar();
 }`,
       errors: 1,
       settings: {

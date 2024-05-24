@@ -1,12 +1,6 @@
 import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/typescript-estree';
-import {
-  desugar,
-  type DesugaredBlockStatement,
-  DesugaredNode,
-  DesugaredStatement,
-} from './desugarer';
-import { createScope as _createScope, type Scope } from './scope';
-import { type Assignment, createAssignment, createVariable, type Variable } from './variable';
+import { type Scope } from './scope';
+import { createAssignment, createVariable, type Variable } from './variable';
 import { type Block } from './block';
 import type { Location } from './location';
 import {
@@ -23,11 +17,12 @@ import { createReturnInstruction } from './instructions/return-instruction';
 import { createConditionalBranchingInstruction } from './instructions/conditional-branching-instruction';
 import { isATerminatorInstruction } from './instructions/terminator-instruction';
 import type { Instruction } from './instruction';
-import { createCompiler } from './compiler';
 import type { Value } from './value';
 import { createNull } from './values/null';
 import { createFunctionInfo as _createFunctionInfo, type FunctionInfo } from './function-info';
 import { ContextManager } from './context-manager';
+import { handleExpression } from './expressions';
+import { getLocation } from '../../frontend/utils';
 
 export type Transpiler = (ast: TSESTree.Program, fileName: string) => Array<FunctionInfo>;
 
@@ -39,7 +34,7 @@ export const createTranspiler = (hostDefinedProperties: Array<Variable> = []): T
       return _createFunctionInfo(fileName, createFunctionDefinition2(name, signature));
     };
 
-    const processFunctionInfo = (functionInfo: FunctionInfo, node: DesugaredNode) => {
+    const processFunctionInfo = (functionInfo: FunctionInfo, node: TSESTree.Program) => {
       functionInfos.push(functionInfo);
       const context = new ContextManager(functionInfo);
 
@@ -74,63 +69,10 @@ export const createTranspiler = (hostDefinedProperties: Array<Variable> = []): T
         return instructions.length > 0 ? instructions[instructions.length - 1] : null;
       };
 
-      const compile = createCompiler(context.scope);
-
-      const visit = (node: DesugaredNode): void => {
+      const visitStatement = (node: TSESTree.Statement): void => {
         console.log('visit', node.type);
 
         switch (node.type) {
-          case AST_NODE_TYPES.AssignmentExpression: {
-            let variableName: string;
-
-            const { left, right } = node;
-
-            if (left.type === AST_NODE_TYPES.Identifier) {
-              variableName = left.name;
-            } else {
-              // todo
-              variableName = left.type;
-            }
-
-            const { instructions: rightInstructions, value: rightValue } = compile(right);
-
-            getCurrentBlock().instructions.push(...rightInstructions);
-
-            // An assignment to an identifier is an assignment to a property of the current scope
-            const variableAndOwner = context.scope.getVariableAndOwner(variableName);
-            const currentBlock = getCurrentBlock();
-
-            if (variableAndOwner) {
-              const { variable, owner } = variableAndOwner;
-
-              const assignment = createAssignment(context.scope.createValueIdentifier(), variable);
-
-              currentBlock.scope.assignments.set(variableName, assignment);
-
-              const instruction = createCallInstruction(
-                assignment.identifier,
-                null,
-                createSetFieldFunctionDefinition(variable.name),
-                [createReference(owner.identifier), rightValue],
-                node.loc,
-              );
-
-              currentBlock.instructions.push(instruction);
-            } else {
-              // todo: what do we do if there is no variable to assign to?
-            }
-
-            break;
-          }
-
-          case AST_NODE_TYPES.BinaryExpression: {
-            const { instructions } = compile(node);
-
-            getCurrentBlock().instructions.push(...instructions);
-
-            break;
-          }
-
           case AST_NODE_TYPES.BlockStatement: {
             const blockScope = context.scope.createScope();
             context.scope.push(blockScope);
@@ -153,8 +95,7 @@ export const createTranspiler = (hostDefinedProperties: Array<Variable> = []): T
             );
 
             getCurrentBlock().instructions.push(instruction);
-
-            node.body.forEach(visit);
+            node.body.forEach(visitStatement);
 
             context.scope.pop();
 
@@ -169,38 +110,18 @@ export const createTranspiler = (hostDefinedProperties: Array<Variable> = []): T
             break;
           }
 
-          case AST_NODE_TYPES.CallExpression: {
-            const { callee } = node;
-
-            const { instructions } = compile(callee);
-            const calleeName = (callee as TSESTree.Identifier).name;
-
-            getCurrentBlock().instructions.push(
-              ...instructions,
-              createCallInstruction(
-                context.scope.createValueIdentifier(),
-                null,
-                createFunctionDefinition2(calleeName, `${fileName}.${calleeName}`),
-                [],
-                node.loc,
-              ),
-            );
-
-            break;
-          }
-
           case AST_NODE_TYPES.ExpressionStatement: {
-            visit(node.expression);
-
+            const { instructions } = handleExpression(context, node.expression);
+            getCurrentBlock().instructions.push(...instructions);
             break;
           }
 
           case AST_NODE_TYPES.FunctionDeclaration: {
-            const { id } = node;
-
-            const functionInfo = createFunctionInfo(id!.name, '');
-
-            processFunctionInfo(functionInfo, node.body as DesugaredBlockStatement);
+            // const { id } = node;
+            //
+            // const functionInfo = createFunctionInfo(id!.name, '');
+            //
+            // processFunctionInfo(functionInfo, node.body);
 
             break;
           }
@@ -212,34 +133,36 @@ export const createTranspiler = (hostDefinedProperties: Array<Variable> = []): T
             // the "finally" block belongs to the same scope as the current block
             const finallyBlock = context.block.createScopedBlock(node.loc);
 
-            const processNode = (node: DesugaredStatement): Block => {
+            const processNode = (innerNode: TSESTree.Statement | null): Block => {
               const currentScope = context.scope.push(context.scope.createScope());
 
-              const block = context.block.createScopedBlock(node.loc);
-
-              block.instructions.push(createScopeDeclarationInstruction(currentScope, node.loc));
-
-              context.block.push(block);
-
-              if (node.type === AST_NODE_TYPES.BlockStatement) {
-                node.body.forEach(visit);
+              const loc = innerNode === null ? node.loc : innerNode.loc;
+              let block;
+              if (!innerNode) {
+                block = context.block.createScopedBlock(loc);
+                context.block.push(block);
               } else {
-                visit(node);
+                block = context.block.createScopedBlock(loc);
+
+                block.instructions.push(
+                  createScopeDeclarationInstruction(currentScope, innerNode.loc),
+                );
+
+                context.block.push(block);
+                visitStatement(innerNode);
               }
-
               context.scope.pop();
-
               if (!isTerminated(getCurrentBlock())) {
                 // branch the CURRENT BLOCK to the finally one
-                getCurrentBlock().instructions.push(
-                  createBranchingInstruction(finallyBlock, node.loc),
-                );
+                getCurrentBlock().instructions.push(createBranchingInstruction(finallyBlock, loc));
               }
-
               return block;
             };
 
-            const { instructions: testInstructions, value: testValue } = compile(test);
+            const { instructions: testInstructions, value: testValue } = handleExpression(
+              context,
+              test,
+            );
 
             currentBlock.instructions.push(...testInstructions);
 
@@ -264,42 +187,26 @@ export const createTranspiler = (hostDefinedProperties: Array<Variable> = []): T
             break;
           }
 
-          case AST_NODE_TYPES.MemberExpression: {
-            const { instructions } = compile(node);
-
-            getCurrentBlock().instructions.push(...instructions);
-
-            break;
-          }
-
-          case AST_NODE_TYPES.Program: {
-            node.body.forEach(visit);
-
-            break;
-          }
-
           case AST_NODE_TYPES.VariableDeclaration: {
-            node.declarations.forEach(visit);
-
-            break;
-          }
-
-          case AST_NODE_TYPES.VariableDeclarator: {
-            let variableName: string;
-
-            if (node.id.type === AST_NODE_TYPES.Identifier) {
-              variableName = node.id.name;
-            } else {
-              // todo: BindingName
-              variableName = node.id.type;
+            if (node.declarations.length !== 1) {
+              throw new Error(
+                `Unable to handle declaration with ${node.declarations.length} declarations (${JSON.stringify(getLocation(node))})`,
+              );
             }
-
+            const declarator = node.declarations[0];
+            if (!declarator || declarator.type !== TSESTree.AST_NODE_TYPES.VariableDeclarator) {
+              throw new Error('Unhandled declaration');
+            }
+            if (declarator.id.type !== TSESTree.AST_NODE_TYPES.Identifier) {
+              throw new Error(`Unhandled declaration id type ${declarator.id.type}`);
+            }
+            const variableName = declarator.id.name;
             const currentBlock = getCurrentBlock();
 
             let value: Value;
 
-            if (node.init) {
-              const result = compile(node.init);
+            if (declarator.init) {
+              const result = handleExpression(context, declarator.init);
 
               value = result.value;
 
@@ -337,7 +244,7 @@ export const createTranspiler = (hostDefinedProperties: Array<Variable> = []): T
           }
 
           default: {
-            // getCurrentBlock().instructions.push(`instruction for ${node.type}`);
+            throw new Error(`Unhandled statement ${node.type}`);
           }
         }
       };
@@ -377,9 +284,7 @@ export const createTranspiler = (hostDefinedProperties: Array<Variable> = []): T
         const { name } = globalVariable;
         const assignmentIdentifier = context.scope.createValueIdentifier();
 
-        let assignment: Assignment;
-
-        assignment = createAssignment(assignmentIdentifier, globalVariable);
+        const assignment = createAssignment(assignmentIdentifier, globalVariable);
 
         outerScope.variables.set(name, globalVariable);
         outerScope.assignments.set(name, assignment);
@@ -423,21 +328,18 @@ export const createTranspiler = (hostDefinedProperties: Array<Variable> = []): T
 
       rootBlock.instructions.push(instruction);
 
-      visit(node);
+      node.body.forEach(visitStatement);
+      const currentBlock = getCurrentBlock();
 
-      if (true) {
-        const currentBlock = getCurrentBlock();
-
-        if (!isTerminated(currentBlock)) {
-          currentBlock.instructions.push(createReturnInstruction(createNull(), location));
-        }
+      if (!isTerminated(currentBlock)) {
+        currentBlock.instructions.push(createReturnInstruction(createNull(), location));
       }
     };
 
     // process the program
     const mainFunctionInfo = createFunctionInfo('__main__', '#__main__');
 
-    processFunctionInfo(mainFunctionInfo, desugar(program));
+    processFunctionInfo(mainFunctionInfo, program);
 
     return functionInfos;
   };

@@ -7,8 +7,8 @@ export class BlockManager {
   blockIndex = 0;
 
   constructor(
-    private scopeManager: ScopeManager,
-    private functionInfo: FunctionInfo,
+    private readonly scopeManager: ScopeManager,
+    private readonly functionInfo: FunctionInfo,
   ) {}
 
   getCurrentBlock = () => this.functionInfo.blocks[this.functionInfo.blocks.length - 1];

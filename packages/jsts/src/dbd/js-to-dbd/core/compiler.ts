@@ -17,7 +17,6 @@ type CompilationResult = {
   instructions: Array<Instruction>;
   value: Value;
 };
-
 export type Compiler = (node: TSESTree.Node) => CompilationResult;
 
 export const createCompiler = (scopeManager: ScopeManager): Compiler => {
