@@ -164,7 +164,6 @@ function getFieldValueFromType(typeNode: TypeNode): ProtobufFieldValue {
         }),
     };
   }
-  return { type: 'ERROR_UNEXPECTED' };
   throw new Error(`Cannot generate Protobuf field Value for typeNode ${typeNode}`);
 }
 
@@ -328,10 +327,7 @@ messages['Position'] = {
   ],
 };
 
-var str = JSON.stringify(messages, null, 2);
-//console.log(str);
 fs.mkdirSync('output', { recursive: true });
-fs.writeFileSync(path.join('output', 'ast.json'), str);
 fs.writeFileSync(path.join('output', 'ast.proto'), addPrefix(translateToProtoFormat(messages)));
 
 /**
@@ -368,5 +364,5 @@ function translateToProtoFormat(messages: Record<string, ProtobufMessage>): stri
 }
 
 function addPrefix(protoData: string) {
-  return `syntax = "proto3";\n\n${protoData}`;
+  return `syntax = "proto3";\n// Generated for @types/estree version: ${typesVersion}\n\n${protoData}`;
 }
