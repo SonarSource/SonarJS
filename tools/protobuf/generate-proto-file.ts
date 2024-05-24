@@ -205,7 +205,7 @@ while (requestedTypes.length) {
   }
 
   if (ts.isInterfaceDeclaration(declaration)) {
-    const typeHierarchy = extractTypeHierarchy(declaration);
+    const typeHierarchy = extractTypeHierarchy(declaration).reverse();
     let messageFields: ProtobufMessageField[] = [];
 
     for (const currentType of typeHierarchy) {
@@ -247,6 +247,10 @@ while (requestedTypes.length) {
   throw new Error(`unexpected declaration for ${requestedType}`);
 }
 
+/**
+ * Returns the type hierarchy from top to bottom
+ * Example: [BaseStatement, BaseForXStatement, ForInStatement]
+ */
 function extractTypeHierarchy(declaration: InterfaceDeclaration): string[] {
   const inheritedTypes = declaration?.heritageClauses
     ?.flatMap(hc => hc.types)
