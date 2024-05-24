@@ -26,15 +26,19 @@
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>
+      <artifactId>api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
       <artifactId>bridge</artifactId>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>javascript-checks</artifactId>
+      <artifactId>css</artifactId>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>css</artifactId>
+      <artifactId>javascript-checks</artifactId>
     </dependency>
 
     <dependency>

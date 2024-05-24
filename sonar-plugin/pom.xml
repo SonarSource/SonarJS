@@ -23,6 +23,7 @@
 
 
   <modules>
+    <module>api</module>
     <module>bridge</module>
     <module>css</module>
     <module>javascript-checks</module>

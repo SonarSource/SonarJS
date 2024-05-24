@@ -14,9 +14,8 @@
 
   <dependencies>
     <dependency>
-      <!-- TODO this should be replaced by new API module -->
       <groupId>${project.groupId}</groupId>
-      <artifactId>javascript-checks</artifactId>
+      <artifactId>api</artifactId>
     </dependency>
     <dependency>
       <groupId>org.sonarsource.api.plugin</groupId>
