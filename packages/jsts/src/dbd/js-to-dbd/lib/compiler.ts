@@ -9,7 +9,7 @@ import {
 } from "./function-definition";
 import {createReference} from "./values/reference";
 import {createConstant} from "./values/constant";
-import type {ScopeManager} from "./scope-manager";
+import {ScopeManager} from "./scope-manager";
 import type {Value} from "./value";
 import {createNull} from "./values/null";
 
@@ -25,8 +25,6 @@ export type Compiler = (
 export const createCompiler = (
   scopeManager: ScopeManager
 ): Compiler => {
-  const {createValueIdentifier, getAssignment, getVariableAndOwner} = scopeManager;
-
   const compileNode: Compiler = (node) => {
     console.log('  compileNode', node.type);
 
@@ -39,7 +37,7 @@ export const createCompiler = (
         if (node.value === null) {
           value = createNull();
         } else {
-          value = createConstant(createValueIdentifier(), node.value);
+          value = createConstant(scopeManager.createValueIdentifier(), node.value);
         }
 
         return {
@@ -66,7 +64,7 @@ export const createCompiler = (
         instructions.push(...rightInstructions);
         instructions.push(...leftInstructions);
 
-        const value = createReference(createValueIdentifier());
+        const value = createReference(scopeManager.createValueIdentifier());
 
         instructions.push(createCallInstruction(
           value.identifier,
@@ -89,7 +87,7 @@ export const createCompiler = (
       case AST_NODE_TYPES.PrivateIdentifier: {
         const {name} = node;
 
-        const variableAndOwner = getVariableAndOwner(name);
+        const variableAndOwner = scopeManager.getVariableAndOwner(name);
 
         if (variableAndOwner) {
           const {variable} = variableAndOwner;
@@ -120,14 +118,14 @@ export const createCompiler = (
 
         if (object.type === AST_NODE_TYPES.Identifier) {
             const variableName = object.name;
-            const variableAndOwner = getVariableAndOwner(variableName);
+            const variableAndOwner = scopeManager.getVariableAndOwner(variableName);
 
             if (variableAndOwner) {
               const {variable, owner} = variableAndOwner;
-              const assignment = getAssignment(variable);
+              const assignment = scopeManager.getAssignment(variable);
 
               if (assignment) {
-                const objectValueIdentifier = createValueIdentifier();
+                const objectValueIdentifier = scopeManager.createValueIdentifier();
 
                 objectValue = createReference(objectValueIdentifier);
 
@@ -158,7 +156,7 @@ export const createCompiler = (
         }
 
         if (property.type === AST_NODE_TYPES.Identifier) {
-          const memberValueIdentifier = createValueIdentifier();
+          const memberValueIdentifier = scopeManager.createValueIdentifier();
 
           instructions.push(createCallInstruction(
             memberValueIdentifier,
@@ -193,7 +191,7 @@ export const createCompiler = (
       case AST_NODE_TYPES.ObjectExpression: {
         const {properties} = node;
 
-        const objectValueIdentifier = createValueIdentifier();
+        const objectValueIdentifier = scopeManager.createValueIdentifier();
         const objectValue = createReference(objectValueIdentifier);
 
         const instructions: Array<Instruction> = [createCallInstruction(
@@ -213,7 +211,7 @@ export const createCompiler = (
             instructions.push(...propertyValueInstructions);
 
             instructions.push(createCallInstruction(
-              createValueIdentifier(),
+              scopeManager.createValueIdentifier(),
               null,
               /**
                * todo

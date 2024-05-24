@@ -63,7 +63,7 @@ const functionDefinition = new Type('FunctionDefinition')
 const instruction = new Type('Instruction')
   .add(
     new OneOf('instr', {}, {})
-      .add(new Field('call_instruction', 1, 'CallInstruction'))
+      .add(new Field('call', 1, 'CallInstruction'))
       .add(new Field('return', 2, 'ReturnInstruction'))
       .add(new Field('branching', 3, 'BranchingInstruction'))
       .add(new Field('conditional_branching', 4, 'ConditionalBranchingInstruction'))

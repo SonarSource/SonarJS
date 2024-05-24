@@ -20,7 +20,7 @@ import type {Instruction} from "./instruction";
 import {createCompiler} from "./compiler";
 import type {Value} from "./value";
 import {createNull} from "./values/null";
-import type {ScopeManager} from "./scope-manager";
+import {ScopeManager} from "./scope-manager";
 import {createFunctionInfo as _createFunctionInfo, type FunctionInfo} from "./function-info";
 
 export type Transpiler = (ast: TSESTree.Program, fileName: string) => Array<FunctionInfo>;
@@ -30,6 +30,7 @@ export const createTranspiler = (
 ): Transpiler => {
   return (program, fileName) => {
     const functionInfos: Array<FunctionInfo> = [];
+    const scopeManager = new ScopeManager();
 
     const createFunctionInfo = (
       name: string,
@@ -50,10 +51,7 @@ export const createTranspiler = (
     ) => {
       functionInfos.push(functionInfo);
 
-      const scopes: Array<Scope> = [];
-
       const getCurrentFunctionInfo = () => functionInfo;
-      const getCurrentScope = () => scopes[0];
       const getCurrentBlock = () => {
         console.log(functionInfos);
 
@@ -73,53 +71,11 @@ export const createTranspiler = (
       };
 
       let blockIndex: number = 0;
-      let valueIndex: number = 0;
 
       const createScopedBlock = (
         location: Location
       ): Block => {
-        return createBlock(getCurrentScope(), blockIndex++, location);
-      };
-
-      const createScope = (): Scope => {
-        return _createScope(valueIndex++);
-      };
-
-      const getVariableAssigner = (variable: Variable): Scope | undefined => {
-        return scopes.find((scope) => {
-          return scope.assignments.has(variable.name);
-        });
-      };
-
-      /**
-       * @see {ScopeManager.getVariableAndOwner}
-       */
-      const getVariableAndOwner: ScopeManager["getVariableAndOwner"] = (name) => {
-        const owner = scopes.find((scope) => {
-          return scope.variables.has(name);
-        });
-
-        if (!owner) {
-          return null;
-        }
-
-        const variable = owner.variables.get(name);
-
-        return variable ? {
-          variable,
-          owner
-        } : null;
-      };
-
-      /**
-       * @see {ScopeManager.getAssignment}
-       */
-      const getAssignment: ScopeManager["getAssignment"] = (variable) => {
-        const {name} = variable;
-
-        const scope = getVariableAssigner(variable);
-
-        return scope?.assignments.get(name) || null;
+        return createBlock(scopeManager.getCurrentScope(), blockIndex++, location);
       };
 
       const createScopeDeclarationInstruction = (
@@ -141,13 +97,7 @@ export const createTranspiler = (
         return instructions.length > 0 ? instructions[instructions.length - 1] : null;
       };
 
-      const compile = createCompiler(
-        {
-          createValueIdentifier: () => valueIndex++,
-          getAssignment,
-          getVariableAndOwner
-        }
-      );
+      const compile = createCompiler(scopeManager);
 
       const visit = (node: DesugaredNode): void => {
         console.log('visit', node.type);
@@ -170,14 +120,14 @@ export const createTranspiler = (
             getCurrentBlock().instructions.push(...rightInstructions);
 
             // An assignment to an identifier is an assignment to a property of the current scope
-            const variableAndOwner = getVariableAndOwner(variableName);
+            const variableAndOwner = scopeManager.getVariableAndOwner(variableName);
             const currentBlock = getCurrentBlock();
 
             if (variableAndOwner) {
               const {variable, owner} = variableAndOwner;
 
               const assignment = createAssignment(
-                valueIndex++,
+                scopeManager.createValueIdentifier(),
                 variable
               );
 
@@ -211,9 +161,8 @@ export const createTranspiler = (
           }
 
           case AST_NODE_TYPES.BlockStatement: {
-            const blockScope = createScope();
-
-            scopes.unshift(blockScope);
+            const blockScope = scopeManager.createScope();
+            scopeManager.push(blockScope);
 
             const bbn = createScopedBlock(node.loc);
 
@@ -239,7 +188,7 @@ export const createTranspiler = (
 
             node.body.forEach(visit);
 
-            scopes.shift();
+            scopeManager.pop();
 
             const bbnPlusOne = createScopedBlock(node.loc);
 
@@ -264,7 +213,7 @@ export const createTranspiler = (
             getCurrentBlock().instructions.push(
               ...instructions,
               createCallInstruction(
-                valueIndex++,
+                scopeManager.createValueIdentifier(),
                 null,
                 createFunctionDefinition2(
                   calleeName,
@@ -307,12 +256,12 @@ export const createTranspiler = (
             const processNode = (
               node: DesugaredStatement
             ): Block => {
-              scopes.unshift(createScope());
+              const currentScope = scopeManager.push(scopeManager.createScope());
 
               const block = createScopedBlock(node.loc);
 
               block.instructions.push(createScopeDeclarationInstruction(
-                getCurrentScope(),
+                currentScope,
                 node.loc
               ));
 
@@ -324,7 +273,7 @@ export const createTranspiler = (
                 visit(node);
               }
 
-              scopes.shift();
+              scopeManager.pop();
 
               if (!isTerminated(getCurrentBlock())) {
                 // branch the CURRENT BLOCK to the finally one
@@ -405,7 +354,7 @@ export const createTranspiler = (
             }
 
             const currentScope = currentBlock.scope;
-            const referenceIdentifier = valueIndex++;
+            const referenceIdentifier = scopeManager.createValueIdentifier();
 
             // add the variable to the scope
             const variable = createVariable(variableName);
@@ -445,9 +394,8 @@ export const createTranspiler = (
 
       // create and declare the outer scope
       // https://262.ecma-international.org/14.0/#sec-global-environment-records
-      const outerScope: Scope = createScope();
-
-      scopes.unshift(outerScope);
+      const outerScope: Scope = scopeManager.createScope();
+      scopeManager.push(outerScope);
 
       const outerBlock = createScopedBlock(location);
 
@@ -457,7 +405,7 @@ export const createTranspiler = (
 
       // globalThis, a reference to the outer scope itself
       outerBlock.instructions.push(createCallInstruction(
-        valueIndex++,
+        scopeManager.createValueIdentifier(),
         null,
         createSetFieldFunctionDefinition('globalThis'),
         [
@@ -477,7 +425,7 @@ export const createTranspiler = (
 
       for (const globalVariable of globalVariables) {
         const {name} = globalVariable;
-        const assignmentIdentifier = valueIndex++;
+        const assignmentIdentifier = scopeManager.createValueIdentifier();
 
         let assignment: Assignment;
 
@@ -495,18 +443,18 @@ export const createTranspiler = (
           createSetFieldFunctionDefinition(name),
           [
             createReference(outerScope.identifier),
-            createConstant(valueIndex++, name) // todo: temporary workaround until we know how to declare the shape of globals
+            createConstant(scopeManager.createValueIdentifier(), name) // todo: temporary workaround until we know how to declare the shape of globals
           ],
           location
         ));
       }
 
-      scopes.push(outerScope);
+      scopeManager.push(outerScope);
 
       // create the first inner scope
-      const rootScope = createScope();
+      const rootScope = scopeManager.createScope();
 
-      scopes.unshift(rootScope);
+      scopeManager.push(rootScope);
 
       // create the first block and branch the outer block to it
       const rootBlock = createScopedBlock(location);
