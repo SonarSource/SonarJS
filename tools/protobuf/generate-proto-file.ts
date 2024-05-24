@@ -356,8 +356,8 @@ function writeMessagesToFile(messages: Record<string, ProtobufMessage>) {
    */
   function translateToProtoFormat(messages: Record<string, ProtobufMessage>): string {
     const lines: string[] = [];
-    let index = 1;
     for (const message of Object.values(messages)) {
+      let index = 1;
       lines.push(`message ${message.messageName} {`);
       for (const field of message.fields) {
         if ('repeatedValue' in field.fieldValue) {
