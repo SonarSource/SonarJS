@@ -24,7 +24,7 @@ import static org.sonar.plugins.javascript.api.CustomRuleRepository.Language.JAV
 import static org.sonar.plugins.javascript.api.CustomRuleRepository.Language.TYPESCRIPT;
 import static org.sonar.plugins.javascript.bridge.BridgeServer.Issue;
 import static org.sonar.plugins.javascript.bridge.BridgeServer.IssueLocation;
-import static org.sonar.plugins.javascript.bridge.JavaScriptFilePredicate.isTypeScriptFile;
+import static org.sonar.plugins.javascript.JavaScriptFilePredicate.isTypeScriptFile;
 import static org.sonar.plugins.javascript.utils.UnicodeEscape.unicodeEscape;
 
 import java.io.Serializable;

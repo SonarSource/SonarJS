@@ -44,7 +44,7 @@ import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
-import org.sonar.plugins.javascript.bridge.JavaScriptFilePredicate;
+import org.sonar.plugins.javascript.JavaScriptFilePredicate;
 import org.sonar.plugins.javascript.sonarlint.SonarLintTypeCheckingChecker;
 import org.sonarsource.analyzer.commons.FileProvider;
 

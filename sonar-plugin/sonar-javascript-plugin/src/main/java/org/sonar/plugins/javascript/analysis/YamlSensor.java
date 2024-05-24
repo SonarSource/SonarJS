@@ -19,7 +19,7 @@
  */
 package org.sonar.plugins.javascript.analysis;
 
-import static org.sonar.plugins.javascript.bridge.JavaScriptFilePredicate.getYamlPredicate;
+import static org.sonar.plugins.javascript.JavaScriptFilePredicate.getYamlPredicate;
 
 import java.io.IOException;
 import java.util.List;

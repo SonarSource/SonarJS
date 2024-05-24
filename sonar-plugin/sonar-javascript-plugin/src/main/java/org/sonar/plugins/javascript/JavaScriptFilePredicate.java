@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.javascript.bridge;
+package org.sonar.plugins.javascript;
 
 import java.io.IOException;
 import java.util.Locale;
@@ -27,6 +27,7 @@ import java.util.regex.Pattern;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.plugins.javascript.analysis.YamlSensor;
 
 public class JavaScriptFilePredicate {
 
@@ -64,7 +65,7 @@ public class JavaScriptFilePredicate {
     return fs
       .predicates()
       .and(
-        fs.predicates().hasLanguage("yaml"),
+        fs.predicates().hasLanguage(YamlSensor.LANGUAGE),
         inputFile -> {
           try (Scanner scanner = new Scanner(inputFile.inputStream(), inputFile.charset().name())) {
             while (scanner.hasNextLine()) {
@@ -87,7 +88,7 @@ public class JavaScriptFilePredicate {
   }
 
   public static FilePredicate getJsTsPredicate(FileSystem fs) {
-    return fs.predicates().hasLanguages("js", "ts");
+    return fs.predicates().hasLanguages(JavaScriptLanguage.KEY, TypeScriptLanguage.KEY);
   }
 
   private static boolean isVueTsFile(InputFile file) {
@@ -98,6 +99,6 @@ public class JavaScriptFilePredicate {
   }
 
   public static boolean isTypeScriptFile(InputFile file) {
-    return ("ts".equals(file.language()) || isVueTsFile(file));
+    return (TypeScriptLanguage.KEY.equals(file.language()) || isVueTsFile(file));
   }
 }
