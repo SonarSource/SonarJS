@@ -19,8 +19,6 @@ const ignoredMembers: Set<string> = new Set([
   'type',
   'comments',
   'innerComments',
-  // In BaseNodeWithoutComments, but not required.
-  'range',
 ]);
 
 // Some types follow a different structure than the others, instead of adding special logic for them, we create them manually.
@@ -31,7 +29,7 @@ const handWrittenTypes: Set<string> = new Set([
   'TemplateElement',
 ]);
 
-// Types representing Protobuf
+// Types representing Protobuf messages.
 type ProtobufMessage = {
   messageName: string;
   fields: ProtobufMessageField[];
@@ -62,13 +60,12 @@ type ProtobufOneOfFieldValue = {
 type Declaration = ts.InterfaceDeclaration | ts.TypeAliasDeclaration;
 
 const declarations: Record<string, Declaration> = {};
-
 for (const statement of file.statements) {
+  // The "index.d.ts" file contains only interfaces and type aliases.
   const declaration = statement as Declaration;
   declarations[declaration.name.getText(file)] = declaration;
 }
 
-const requestedTypes: string[] = ['Program'];
 function requestType(type: string) {
   if (!(type in messages) && !requestedTypes.includes(type) && !handWrittenTypes.has(type)) {
     requestedTypes.push(type);
@@ -84,6 +81,7 @@ function getFieldValueFromType(typeNode: TypeNode): ProtobufFieldValue {
       repeatedValue: flattenRepeatedNodeInOneOf(getFieldValueFromType(typeNode.elementType)),
     };
   }
+
   // The type is of shape "A | B", we want to generate oneof name {A a, B b}
   if (ts.isUnionTypeNode(typeNode)) {
     if (typeNode.types.every(t => ts.isLiteralTypeNode(t) && ts.isStringLiteral(t.literal))) {
@@ -125,6 +123,7 @@ function getFieldValueFromType(typeNode: TypeNode): ProtobufFieldValue {
       `unexpected literal type: ${ts.SyntaxKind[typeNode.literal.kind]} (${typeNode.literal.getText(file)})`,
     );
   }
+
   if (ts.isTypeReferenceNode(typeNode)) {
     const name = typeNode.typeName.getText(file);
     if (name === 'Array' && typeNode.typeArguments?.length === 1) {
@@ -164,7 +163,7 @@ function getFieldValueFromType(typeNode: TypeNode): ProtobufFieldValue {
         }),
     };
   }
-  throw new Error(`Cannot generate Protobuf field Value for typeNode ${typeNode}`);
+  throw new Error(`Cannot generate Protobuf field Value for typeNode ${typeNode.getText(file)}`);
 }
 
 function lowerCaseFirstLetter(str: string) {
@@ -194,12 +193,13 @@ function flattenRepeatedNodeInOneOf(field: ProtobufFieldValue): ProtobufFieldVal
 
 const messages: Record<string, ProtobufMessage> = {};
 
+const requestedTypes: string[] = ['Program'];
 while (requestedTypes.length) {
   const requestedType = requestedTypes.pop()!;
   const declaration = declarations[requestedType];
 
   if (!declaration) {
-    console.log('missing declaration for', requestedType);
+    console.log('Missing declaration for', requestedType);
     continue;
   }
 
@@ -243,7 +243,7 @@ while (requestedTypes.length) {
     continue;
   }
 
-  throw new Error(`unexpected declaration for ${requestedType}`);
+  throw new Error(`Unexpected declaration for ${requestedType}`);
 }
 
 /**
@@ -258,7 +258,7 @@ function extractTypeHierarchy(declaration: InterfaceDeclaration): string[] {
       const parentDeclaration = declarations[t.getText(file)];
       // We stop at BaseNode, we will handle it manually.
       if (parentDeclaration && typeName !== 'BaseNode') {
-        return extractTypeHierarchy(declarations[t.getText(file)] as InterfaceDeclaration);
+        return extractTypeHierarchy(parentDeclaration as InterfaceDeclaration);
       }
       return [];
     });
