@@ -1,6 +1,6 @@
-import type {Instruction} from "./instruction";
-import type {Location} from "./location";
-import type {Scope} from "./scope";
+import type { Instruction } from './instruction';
+import type { Location } from './location';
+import type { Scope } from './scope';
 
 export type Block = {
   readonly exceptionHandler?: Block;
@@ -13,11 +13,7 @@ export type Block = {
   readonly scope: Scope;
 };
 
-export const createBlock = (
-  scope: Scope,
-  identifier: number,
-  location: Location
-): Block => {
+export const createBlock = (scope: Scope, identifier: number, location: Location): Block => {
   return {
     exceptionHandler: undefined,
     identifier,
@@ -26,6 +22,6 @@ export const createBlock = (
     location,
     loopId: null,
     parentLoopId: null,
-    scope
+    scope,
   };
 };

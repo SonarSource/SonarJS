@@ -3,13 +3,10 @@ export type Assignment = {
   readonly variable: Variable;
 };
 
-export const createAssignment = (
-  identifier: number,
-  variable: Variable
-): Assignment => {
+export const createAssignment = (identifier: number, variable: Variable): Assignment => {
   return {
     identifier,
-    variable
+    variable,
   };
 };
 
@@ -21,8 +18,8 @@ export type Variable = {
 
 export const createVariable = (
   name: string,
-  type: string | "unknown" = "unknown",
-  writable: boolean = true
+  type: string | 'unknown' = 'unknown',
+  writable: boolean = true,
 ): Variable => {
   return {
     name,

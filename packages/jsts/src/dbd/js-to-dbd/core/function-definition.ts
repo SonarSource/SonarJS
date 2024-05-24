@@ -1,4 +1,4 @@
-import type {TypeInfo} from "./type-info";
+import type { TypeInfo } from './type-info';
 
 export type FunctionDefinition = {
   readonly name: string;
@@ -9,28 +9,23 @@ export type FunctionDefinition = {
   readonly isFunctionRef: boolean;
 };
 
-export const createFunctionDefinition = (
-  name: string
-): FunctionDefinition => {
+export const createFunctionDefinition = (name: string): FunctionDefinition => {
   return {
     name,
     signature: `#${name}#`,
     isVirtual: false,
     isAStandardLibraryFunction: false,
-    isFunctionRef: false
+    isFunctionRef: false,
   };
 };
 
-export const createFunctionDefinition2 = (
-  name: string,
-  signature: string
-): FunctionDefinition => {
+export const createFunctionDefinition2 = (name: string, signature: string): FunctionDefinition => {
   return {
     name,
     signature,
     isVirtual: false,
     isAStandardLibraryFunction: false,
-    isFunctionRef: false
+    isFunctionRef: false,
   };
 };
 
@@ -42,13 +37,11 @@ export const createIdentityFunctionDefinition = (): FunctionDefinition => {
     signature: `#${name}#`,
     isVirtual: false,
     isAStandardLibraryFunction: false,
-    isFunctionRef: false
+    isFunctionRef: false,
   };
 };
 
-export const createGetFieldFunctionDefinition = (
-  attributeName: string
-): FunctionDefinition => {
+export const createGetFieldFunctionDefinition = (attributeName: string): FunctionDefinition => {
   const name = 'get-field';
 
   return {
@@ -56,7 +49,7 @@ export const createGetFieldFunctionDefinition = (
     signature: `#${name}# ${attributeName}`,
     isVirtual: false,
     isAStandardLibraryFunction: false,
-    isFunctionRef: false
+    isFunctionRef: false,
   };
 };
 
@@ -68,13 +61,11 @@ export const createNewObjectFunctionDefinition = (): FunctionDefinition => {
     signature: `#${name}#`,
     isVirtual: false,
     isAStandardLibraryFunction: false,
-    isFunctionRef: false
+    isFunctionRef: false,
   };
 };
 
-export const createSetFieldFunctionDefinition = (
-  attributeName: string
-): FunctionDefinition => {
+export const createSetFieldFunctionDefinition = (attributeName: string): FunctionDefinition => {
   const name = 'set-field';
 
   return {
@@ -82,13 +73,11 @@ export const createSetFieldFunctionDefinition = (
     signature: `#${name}# ${attributeName}`,
     isVirtual: false,
     isAStandardLibraryFunction: false,
-    isFunctionRef: false
+    isFunctionRef: false,
   };
 };
 
-export const createBinaryOperationFunctionDefinition = (
-  operator: string
-): FunctionDefinition => {
+export const createBinaryOperationFunctionDefinition = (operator: string): FunctionDefinition => {
   const name = 'binop';
 
   return {
@@ -96,6 +85,6 @@ export const createBinaryOperationFunctionDefinition = (
     signature: `#${name} ${operator}#`,
     isVirtual: false,
     isAStandardLibraryFunction: false,
-    isFunctionRef: false
+    isFunctionRef: false,
   };
 };

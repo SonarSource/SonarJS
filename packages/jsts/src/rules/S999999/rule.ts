@@ -24,7 +24,7 @@ import { writeFileSync } from 'fs';
 import { mkdirpSync } from 'mkdirp';
 import { functionInto2Text2 } from '../../dbd/helpers';
 import { createTranspiler, type FunctionInfo, serialize } from '../../dbd/js-to-dbd';
-import { sonarSourceIRNamespace } from '../../dbd/js-to-dbd/lib/serializer';
+import { sonarSourceIRNamespace } from '../../dbd/js-to-dbd/core/serializer';
 import { join } from 'path';
 import { TSESTree } from '@typescript-eslint/utils';
 

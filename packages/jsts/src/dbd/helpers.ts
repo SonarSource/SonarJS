@@ -6,7 +6,7 @@ import { FunctionId, FunctionInfo } from './ir-gen/ir_pb';
 import { FunctionInfo as FunctionInfo2 } from './js-to-dbd';
 import { Linter } from 'eslint';
 import { rule } from '../rules/S99999';
-import type { FunctionDefinition } from './js-to-dbd/lib/function-definition';
+import type { FunctionDefinition } from './js-to-dbd/core/function-definition';
 
 const linter = new Linter();
 linter.defineRule('dbd-rule', rule);

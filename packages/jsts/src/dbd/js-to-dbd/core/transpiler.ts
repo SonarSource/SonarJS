@@ -1,53 +1,45 @@
-import {AST_NODE_TYPES, TSESTree} from "@typescript-eslint/typescript-estree";
-import {desugar, type DesugaredBlockStatement, DesugaredNode, DesugaredStatement} from "./desugarer";
-import {createScope as _createScope, type Scope} from "./scope";
-import {type Assignment, createAssignment, createVariable, type Variable} from "./variable";
-import {type Block} from "./block";
-import type {Location} from "./location";
+import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/typescript-estree';
 import {
-  createFunctionDefinition, createFunctionDefinition2,
+  desugar,
+  type DesugaredBlockStatement,
+  DesugaredNode,
+  DesugaredStatement,
+} from './desugarer';
+import { createScope as _createScope, type Scope } from './scope';
+import { type Assignment, createAssignment, createVariable, type Variable } from './variable';
+import { type Block } from './block';
+import type { Location } from './location';
+import {
+  createFunctionDefinition,
+  createFunctionDefinition2,
   createNewObjectFunctionDefinition,
-  createSetFieldFunctionDefinition
-} from "./function-definition";
-import {type CallInstruction, createCallInstruction} from "./instructions/call-instruction";
-import {createConstant} from "./values/constant";
-import {createBranchingInstruction} from "./instructions/branching-instruction";
-import {createReference} from "./values/reference";
-import {createReturnInstruction} from "./instructions/return-instruction";
-import {createConditionalBranchingInstruction} from "./instructions/conditional-branching-instruction";
-import {isATerminatorInstruction} from "./instructions/terminator-instruction";
-import type {Instruction} from "./instruction";
-import {createCompiler} from "./compiler";
-import type {Value} from "./value";
-import {createNull} from "./values/null";
-import {createFunctionInfo as _createFunctionInfo, type FunctionInfo} from "./function-info";
-import {ContextManager} from "./context-manager";
+  createSetFieldFunctionDefinition,
+} from './function-definition';
+import { type CallInstruction, createCallInstruction } from './instructions/call-instruction';
+import { createConstant } from './values/constant';
+import { createBranchingInstruction } from './instructions/branching-instruction';
+import { createReference } from './values/reference';
+import { createReturnInstruction } from './instructions/return-instruction';
+import { createConditionalBranchingInstruction } from './instructions/conditional-branching-instruction';
+import { isATerminatorInstruction } from './instructions/terminator-instruction';
+import type { Instruction } from './instruction';
+import { createCompiler } from './compiler';
+import type { Value } from './value';
+import { createNull } from './values/null';
+import { createFunctionInfo as _createFunctionInfo, type FunctionInfo } from './function-info';
+import { ContextManager } from './context-manager';
 
 export type Transpiler = (ast: TSESTree.Program, fileName: string) => Array<FunctionInfo>;
 
-export const createTranspiler = (
-  hostDefinedProperties: Array<Variable> = []
-): Transpiler => {
+export const createTranspiler = (hostDefinedProperties: Array<Variable> = []): Transpiler => {
   return (program, fileName) => {
     const functionInfos: Array<FunctionInfo> = [];
 
-    const createFunctionInfo = (
-      name: string,
-      signature: string
-    ): FunctionInfo => {
-      return _createFunctionInfo(
-        fileName,
-        createFunctionDefinition2(
-          name,
-          signature
-        ),
-      );
+    const createFunctionInfo = (name: string, signature: string): FunctionInfo => {
+      return _createFunctionInfo(fileName, createFunctionDefinition2(name, signature));
     };
 
-    const processFunctionInfo = (
-      functionInfo: FunctionInfo,
-      node: DesugaredNode
-    ) => {
+    const processFunctionInfo = (functionInfo: FunctionInfo, node: DesugaredNode) => {
       functionInfos.push(functionInfo);
       const context = new ContextManager(functionInfo);
 
@@ -55,29 +47,29 @@ export const createTranspiler = (
         console.log(functionInfos);
 
         return context.block.getCurrentBlock();
-      }
+      };
 
       const isTerminated = (block: Block): boolean => {
         const lastInstruction = getBlockLastInstruction(block);
 
-        return (lastInstruction !== null) && isATerminatorInstruction(lastInstruction);
+        return lastInstruction !== null && isATerminatorInstruction(lastInstruction);
       };
 
       const createScopeDeclarationInstruction = (
         scope: Scope,
-        location: Location
+        location: Location,
       ): CallInstruction => {
         return createCallInstruction(
           scope.identifier,
           null,
           createNewObjectFunctionDefinition(),
           [],
-          location
+          location,
         );
       };
 
       const getBlockLastInstruction = (block: Block): Instruction | null => {
-        const {instructions} = block;
+        const { instructions } = block;
 
         return instructions.length > 0 ? instructions[instructions.length - 1] : null;
       };
@@ -91,7 +83,7 @@ export const createTranspiler = (
           case AST_NODE_TYPES.AssignmentExpression: {
             let variableName: string;
 
-            const {left, right} = node;
+            const { left, right } = node;
 
             if (left.type === AST_NODE_TYPES.Identifier) {
               variableName = left.name;
@@ -100,7 +92,7 @@ export const createTranspiler = (
               variableName = left.type;
             }
 
-            const {instructions: rightInstructions, value: rightValue} = compile(right);
+            const { instructions: rightInstructions, value: rightValue } = compile(right);
 
             getCurrentBlock().instructions.push(...rightInstructions);
 
@@ -109,12 +101,9 @@ export const createTranspiler = (
             const currentBlock = getCurrentBlock();
 
             if (variableAndOwner) {
-              const {variable, owner} = variableAndOwner;
+              const { variable, owner } = variableAndOwner;
 
-              const assignment = createAssignment(
-                context.scope.createValueIdentifier(),
-                variable
-              );
+              const assignment = createAssignment(context.scope.createValueIdentifier(), variable);
 
               currentBlock.scope.assignments.set(variableName, assignment);
 
@@ -122,11 +111,8 @@ export const createTranspiler = (
                 assignment.identifier,
                 null,
                 createSetFieldFunctionDefinition(variable.name),
-                [
-                  createReference(owner.identifier),
-                  rightValue
-                ],
-                node.loc
+                [createReference(owner.identifier), rightValue],
+                node.loc,
               );
 
               currentBlock.instructions.push(instruction);
@@ -138,7 +124,7 @@ export const createTranspiler = (
           }
 
           case AST_NODE_TYPES.BinaryExpression: {
-            const {instructions} = compile(node);
+            const { instructions } = compile(node);
 
             getCurrentBlock().instructions.push(...instructions);
 
@@ -152,10 +138,7 @@ export const createTranspiler = (
             const bbn = context.block.createScopedBlock(node.loc);
 
             // branch current block to bbn
-            getCurrentBlock().instructions.push(createBranchingInstruction(
-              bbn,
-              node.loc
-            ));
+            getCurrentBlock().instructions.push(createBranchingInstruction(bbn, node.loc));
 
             // promote bbn as current block
             context.block.push(bbn);
@@ -166,7 +149,7 @@ export const createTranspiler = (
               null,
               createNewObjectFunctionDefinition(),
               [],
-              node.loc
+              node.loc,
             );
 
             getCurrentBlock().instructions.push(instruction);
@@ -178,10 +161,7 @@ export const createTranspiler = (
             const bbnPlusOne = context.block.createScopedBlock(node.loc);
 
             // branch the current block to bbnPlusOne
-            getCurrentBlock().instructions.push(createBranchingInstruction(
-              bbnPlusOne,
-              node.loc
-            ));
+            getCurrentBlock().instructions.push(createBranchingInstruction(bbnPlusOne, node.loc));
 
             // promote bbnPlusOne as current block
             context.block.push(bbnPlusOne);
@@ -190,9 +170,9 @@ export const createTranspiler = (
           }
 
           case AST_NODE_TYPES.CallExpression: {
-            const {callee} = node;
+            const { callee } = node;
 
-            const {instructions} = compile(callee);
+            const { instructions } = compile(callee);
             const calleeName = (callee as TSESTree.Identifier).name;
 
             getCurrentBlock().instructions.push(
@@ -200,13 +180,10 @@ export const createTranspiler = (
               createCallInstruction(
                 context.scope.createValueIdentifier(),
                 null,
-                createFunctionDefinition2(
-                  calleeName,
-                  `${fileName}.${calleeName}`
-                ),
+                createFunctionDefinition2(calleeName, `${fileName}.${calleeName}`),
                 [],
-                node.loc
-              )
+                node.loc,
+              ),
             );
 
             break;
@@ -219,12 +196,9 @@ export const createTranspiler = (
           }
 
           case AST_NODE_TYPES.FunctionDeclaration: {
-            const {id} = node;
+            const { id } = node;
 
-            const functionInfo = createFunctionInfo(
-              id!.name,
-              ''
-            );
+            const functionInfo = createFunctionInfo(id!.name, '');
 
             processFunctionInfo(functionInfo, node.body as DesugaredBlockStatement);
 
@@ -232,23 +206,18 @@ export const createTranspiler = (
           }
 
           case AST_NODE_TYPES.IfStatement: {
-            const {consequent, alternate, test} = node;
+            const { consequent, alternate, test } = node;
             const currentBlock = getCurrentBlock();
 
             // the "finally" block belongs to the same scope as the current block
             const finallyBlock = context.block.createScopedBlock(node.loc);
 
-            const processNode = (
-              node: DesugaredStatement
-            ): Block => {
+            const processNode = (node: DesugaredStatement): Block => {
               const currentScope = context.scope.push(context.scope.createScope());
 
               const block = context.block.createScopedBlock(node.loc);
 
-              block.instructions.push(createScopeDeclarationInstruction(
-                currentScope,
-                node.loc
-              ));
+              block.instructions.push(createScopeDeclarationInstruction(currentScope, node.loc));
 
               context.block.push(block);
 
@@ -262,16 +231,15 @@ export const createTranspiler = (
 
               if (!isTerminated(getCurrentBlock())) {
                 // branch the CURRENT BLOCK to the finally one
-                getCurrentBlock().instructions.push(createBranchingInstruction(
-                  finallyBlock,
-                  node.loc
-                ));
+                getCurrentBlock().instructions.push(
+                  createBranchingInstruction(finallyBlock, node.loc),
+                );
               }
 
               return block;
-            }
+            };
 
-            const {instructions: testInstructions, value: testValue} = compile(test);
+            const { instructions: testInstructions, value: testValue } = compile(test);
 
             currentBlock.instructions.push(...testInstructions);
 
@@ -282,12 +250,14 @@ export const createTranspiler = (
             const alternateBlock = processNode(alternate);
 
             // add the conditional branching instruction
-            currentBlock.instructions.push(createConditionalBranchingInstruction(
-              testValue,
-              consequentBlock,
-              alternateBlock,
-              node.loc
-            ));
+            currentBlock.instructions.push(
+              createConditionalBranchingInstruction(
+                testValue,
+                consequentBlock,
+                alternateBlock,
+                node.loc,
+              ),
+            );
 
             context.block.push(finallyBlock);
 
@@ -295,7 +265,7 @@ export const createTranspiler = (
           }
 
           case AST_NODE_TYPES.MemberExpression: {
-            const {instructions} = compile(node);
+            const { instructions } = compile(node);
 
             getCurrentBlock().instructions.push(...instructions);
 
@@ -347,21 +317,18 @@ export const createTranspiler = (
             currentScope.variables.set(variableName, variable);
 
             // create the assignment
-            currentScope.assignments.set(variableName, createAssignment(
-              referenceIdentifier,
-              variable
-            ));
+            currentScope.assignments.set(
+              variableName,
+              createAssignment(referenceIdentifier, variable),
+            );
 
             // todo: createScopeAssignmentInstruction...
             const instruction = createCallInstruction(
               referenceIdentifier,
               null,
               createSetFieldFunctionDefinition(variableName),
-              [
-                createReference(currentScope.identifier),
-                value
-              ],
-              node.loc
+              [createReference(currentScope.identifier), value],
+              node.loc,
             );
 
             currentBlock.instructions.push(instruction);
@@ -388,49 +355,47 @@ export const createTranspiler = (
       outerBlock.instructions.push(createScopeDeclarationInstruction(outerScope, location));
 
       // globalThis, a reference to the outer scope itself
-      outerBlock.instructions.push(createCallInstruction(
-        context.scope.createValueIdentifier(),
-        null,
-        createSetFieldFunctionDefinition('globalThis'),
-        [
-          createReference(outerScope.identifier),
-          createReference(outerScope.identifier)
-        ],
-        location
-      ));
+      outerBlock.instructions.push(
+        createCallInstruction(
+          context.scope.createValueIdentifier(),
+          null,
+          createSetFieldFunctionDefinition('globalThis'),
+          [createReference(outerScope.identifier), createReference(outerScope.identifier)],
+          location,
+        ),
+      );
 
       // assign global variables to the outer scope and declare them
       const globalVariables: Array<Variable> = [
         createVariable('NaN', 'NaN', false),
         createVariable('Infinity', 'int', false),
         createVariable('undefined', 'Record', false),
-        ...hostDefinedProperties
+        ...hostDefinedProperties,
       ];
 
       for (const globalVariable of globalVariables) {
-        const {name} = globalVariable;
+        const { name } = globalVariable;
         const assignmentIdentifier = context.scope.createValueIdentifier();
 
         let assignment: Assignment;
 
-        assignment = createAssignment(
-          assignmentIdentifier,
-          globalVariable
-        );
+        assignment = createAssignment(assignmentIdentifier, globalVariable);
 
         outerScope.variables.set(name, globalVariable);
         outerScope.assignments.set(name, assignment);
 
-        outerBlock.instructions.push(createCallInstruction(
-          assignment.identifier,
-          null,
-          createSetFieldFunctionDefinition(name),
-          [
-            createReference(outerScope.identifier),
-            createConstant(context.scope.createValueIdentifier(), name) // todo: temporary workaround until we know how to declare the shape of globals
-          ],
-          location
-        ));
+        outerBlock.instructions.push(
+          createCallInstruction(
+            assignment.identifier,
+            null,
+            createSetFieldFunctionDefinition(name),
+            [
+              createReference(outerScope.identifier),
+              createConstant(context.scope.createValueIdentifier(), name), // todo: temporary workaround until we know how to declare the shape of globals
+            ],
+            location,
+          ),
+        );
       }
 
       context.scope.push(outerScope);
@@ -443,10 +408,7 @@ export const createTranspiler = (
       // create the first block and branch the outer block to it
       const rootBlock = context.block.createScopedBlock(location);
 
-      outerBlock.instructions.push(createBranchingInstruction(
-        rootBlock,
-        location
-      ));
+      outerBlock.instructions.push(createBranchingInstruction(rootBlock, location));
 
       context.block.push(rootBlock);
 
@@ -456,7 +418,7 @@ export const createTranspiler = (
         null,
         createFunctionDefinition(`new-object`),
         [],
-        location
+        location,
       );
 
       rootBlock.instructions.push(instruction);
@@ -467,13 +429,10 @@ export const createTranspiler = (
         const currentBlock = getCurrentBlock();
 
         if (!isTerminated(currentBlock)) {
-          currentBlock.instructions.push(createReturnInstruction(
-            createNull(),
-            location
-          ));
+          currentBlock.instructions.push(createReturnInstruction(createNull(), location));
         }
       }
-    }
+    };
 
     // process the program
     const mainFunctionInfo = createFunctionInfo('__main__', '#__main__');

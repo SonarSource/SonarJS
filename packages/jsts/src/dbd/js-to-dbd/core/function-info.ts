@@ -1,5 +1,5 @@
-import type {Block} from "./block";
-import type {FunctionDefinition} from "./function-definition";
+import type { Block } from './block';
+import type { FunctionDefinition } from './function-definition';
 
 export type FunctionInfo = {
   readonly blocks: Array<Block>;
@@ -10,11 +10,11 @@ export type FunctionInfo = {
 export const createFunctionInfo = (
   fileName: string,
   definition: FunctionDefinition,
-  blocks: Array<Block> = []
+  blocks: Array<Block> = [],
 ): FunctionInfo => {
   return {
     definition,
     blocks,
-    fileName
-  }
+    fileName,
+  };
 };
