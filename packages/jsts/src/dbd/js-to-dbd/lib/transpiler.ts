@@ -2,7 +2,7 @@ import {AST_NODE_TYPES, TSESTree} from "@typescript-eslint/typescript-estree";
 import {desugar, type DesugaredBlockStatement, DesugaredNode, DesugaredStatement} from "./desugarer";
 import {createScope as _createScope, type Scope} from "./scope";
 import {type Assignment, createAssignment, createVariable, type Variable} from "./variable";
-import {type Block, createBlock} from "./block";
+import {type Block} from "./block";
 import type {Location} from "./location";
 import {
   createFunctionDefinition, createFunctionDefinition2,
@@ -20,8 +20,8 @@ import type {Instruction} from "./instruction";
 import {createCompiler} from "./compiler";
 import type {Value} from "./value";
 import {createNull} from "./values/null";
-import {ScopeManager} from "./scope-manager";
 import {createFunctionInfo as _createFunctionInfo, type FunctionInfo} from "./function-info";
+import {ContextManager} from "./context-manager";
 
 export type Transpiler = (ast: TSESTree.Program, fileName: string) => Array<FunctionInfo>;
 
@@ -30,7 +30,6 @@ export const createTranspiler = (
 ): Transpiler => {
   return (program, fileName) => {
     const functionInfos: Array<FunctionInfo> = [];
-    const scopeManager = new ScopeManager();
 
     const createFunctionInfo = (
       name: string,
@@ -50,32 +49,18 @@ export const createTranspiler = (
       node: DesugaredNode
     ) => {
       functionInfos.push(functionInfo);
+      const context = new ContextManager(functionInfo);
 
-      const getCurrentFunctionInfo = () => functionInfo;
       const getCurrentBlock = () => {
         console.log(functionInfos);
 
-        const {blocks} = getCurrentFunctionInfo();
-
-        return blocks[blocks.length - 1];
+        return context.block.getCurrentBlock();
       }
-
-      const pushBlock = (block: Block) => {
-        getCurrentFunctionInfo().blocks.push(block);
-      };
 
       const isTerminated = (block: Block): boolean => {
         const lastInstruction = getBlockLastInstruction(block);
 
         return (lastInstruction !== null) && isATerminatorInstruction(lastInstruction);
-      };
-
-      let blockIndex: number = 0;
-
-      const createScopedBlock = (
-        location: Location
-      ): Block => {
-        return createBlock(scopeManager.getCurrentScope(), blockIndex++, location);
       };
 
       const createScopeDeclarationInstruction = (
@@ -97,7 +82,7 @@ export const createTranspiler = (
         return instructions.length > 0 ? instructions[instructions.length - 1] : null;
       };
 
-      const compile = createCompiler(scopeManager);
+      const compile = createCompiler(context.scope);
 
       const visit = (node: DesugaredNode): void => {
         console.log('visit', node.type);
@@ -120,14 +105,14 @@ export const createTranspiler = (
             getCurrentBlock().instructions.push(...rightInstructions);
 
             // An assignment to an identifier is an assignment to a property of the current scope
-            const variableAndOwner = scopeManager.getVariableAndOwner(variableName);
+            const variableAndOwner = context.scope.getVariableAndOwner(variableName);
             const currentBlock = getCurrentBlock();
 
             if (variableAndOwner) {
               const {variable, owner} = variableAndOwner;
 
               const assignment = createAssignment(
-                scopeManager.createValueIdentifier(),
+                context.scope.createValueIdentifier(),
                 variable
               );
 
@@ -161,10 +146,10 @@ export const createTranspiler = (
           }
 
           case AST_NODE_TYPES.BlockStatement: {
-            const blockScope = scopeManager.createScope();
-            scopeManager.push(blockScope);
+            const blockScope = context.scope.createScope();
+            context.scope.push(blockScope);
 
-            const bbn = createScopedBlock(node.loc);
+            const bbn = context.block.createScopedBlock(node.loc);
 
             // branch current block to bbn
             getCurrentBlock().instructions.push(createBranchingInstruction(
@@ -173,7 +158,7 @@ export const createTranspiler = (
             ));
 
             // promote bbn as current block
-            pushBlock(bbn);
+            context.block.push(bbn);
 
             // create scope instruction
             const instruction = createCallInstruction(
@@ -188,9 +173,9 @@ export const createTranspiler = (
 
             node.body.forEach(visit);
 
-            scopeManager.pop();
+            context.scope.pop();
 
-            const bbnPlusOne = createScopedBlock(node.loc);
+            const bbnPlusOne = context.block.createScopedBlock(node.loc);
 
             // branch the current block to bbnPlusOne
             getCurrentBlock().instructions.push(createBranchingInstruction(
@@ -199,7 +184,7 @@ export const createTranspiler = (
             ));
 
             // promote bbnPlusOne as current block
-            pushBlock(bbnPlusOne);
+            context.block.push(bbnPlusOne);
 
             break;
           }
@@ -213,7 +198,7 @@ export const createTranspiler = (
             getCurrentBlock().instructions.push(
               ...instructions,
               createCallInstruction(
-                scopeManager.createValueIdentifier(),
+                context.scope.createValueIdentifier(),
                 null,
                 createFunctionDefinition2(
                   calleeName,
@@ -251,21 +236,21 @@ export const createTranspiler = (
             const currentBlock = getCurrentBlock();
 
             // the "finally" block belongs to the same scope as the current block
-            const finallyBlock = createScopedBlock(node.loc);
+            const finallyBlock = context.block.createScopedBlock(node.loc);
 
             const processNode = (
               node: DesugaredStatement
             ): Block => {
-              const currentScope = scopeManager.push(scopeManager.createScope());
+              const currentScope = context.scope.push(context.scope.createScope());
 
-              const block = createScopedBlock(node.loc);
+              const block = context.block.createScopedBlock(node.loc);
 
               block.instructions.push(createScopeDeclarationInstruction(
                 currentScope,
                 node.loc
               ));
 
-              pushBlock(block);
+              context.block.push(block);
 
               if (node.type === AST_NODE_TYPES.BlockStatement) {
                 node.body.forEach(visit);
@@ -273,7 +258,7 @@ export const createTranspiler = (
                 visit(node);
               }
 
-              scopeManager.pop();
+              context.scope.pop();
 
               if (!isTerminated(getCurrentBlock())) {
                 // branch the CURRENT BLOCK to the finally one
@@ -304,7 +289,7 @@ export const createTranspiler = (
               node.loc
             ));
 
-            pushBlock(finallyBlock);
+            context.block.push(finallyBlock);
 
             break;
           }
@@ -354,7 +339,7 @@ export const createTranspiler = (
             }
 
             const currentScope = currentBlock.scope;
-            const referenceIdentifier = scopeManager.createValueIdentifier();
+            const referenceIdentifier = context.scope.createValueIdentifier();
 
             // add the variable to the scope
             const variable = createVariable(variableName);
@@ -394,18 +379,17 @@ export const createTranspiler = (
 
       // create and declare the outer scope
       // https://262.ecma-international.org/14.0/#sec-global-environment-records
-      const outerScope: Scope = scopeManager.createScope();
-      scopeManager.push(outerScope);
+      const outerScope: Scope = context.scope.push(context.scope.createScope());
 
-      const outerBlock = createScopedBlock(location);
+      const outerBlock = context.block.createScopedBlock(location);
 
-      pushBlock(outerBlock);
+      context.block.push(outerBlock);
 
       outerBlock.instructions.push(createScopeDeclarationInstruction(outerScope, location));
 
       // globalThis, a reference to the outer scope itself
       outerBlock.instructions.push(createCallInstruction(
-        scopeManager.createValueIdentifier(),
+        context.scope.createValueIdentifier(),
         null,
         createSetFieldFunctionDefinition('globalThis'),
         [
@@ -425,7 +409,7 @@ export const createTranspiler = (
 
       for (const globalVariable of globalVariables) {
         const {name} = globalVariable;
-        const assignmentIdentifier = scopeManager.createValueIdentifier();
+        const assignmentIdentifier = context.scope.createValueIdentifier();
 
         let assignment: Assignment;
 
@@ -443,28 +427,28 @@ export const createTranspiler = (
           createSetFieldFunctionDefinition(name),
           [
             createReference(outerScope.identifier),
-            createConstant(scopeManager.createValueIdentifier(), name) // todo: temporary workaround until we know how to declare the shape of globals
+            createConstant(context.scope.createValueIdentifier(), name) // todo: temporary workaround until we know how to declare the shape of globals
           ],
           location
         ));
       }
 
-      scopeManager.push(outerScope);
+      context.scope.push(outerScope);
 
       // create the first inner scope
-      const rootScope = scopeManager.createScope();
+      const rootScope = context.scope.createScope();
 
-      scopeManager.push(rootScope);
+      context.scope.push(rootScope);
 
       // create the first block and branch the outer block to it
-      const rootBlock = createScopedBlock(location);
+      const rootBlock = context.block.createScopedBlock(location);
 
       outerBlock.instructions.push(createBranchingInstruction(
         rootBlock,
         location
       ));
 
-      pushBlock(rootBlock);
+      context.block.push(rootBlock);
 
       // create scope instruction
       const instruction = createCallInstruction(
