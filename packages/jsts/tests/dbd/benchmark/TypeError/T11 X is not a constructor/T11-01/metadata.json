@@ -1,0 +1,11 @@
+{
+  "project": {
+    "url": "https://github.com/gemini86/node-red-contrib-chart-image"
+  },
+  "filenames": ["src/chartImageNode.js"],
+  "fix": "https://github.com/gemini86/node-red-contrib-chart-image/commit/670787010aeb476f85435dae081c9ec4298d2bf5",
+  "location": {
+    "startLine": 86
+  },
+  "attribution": "free-search"
+}

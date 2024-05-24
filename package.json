@@ -30,7 +30,9 @@
     "_:plugin:pre-build": "npm run bridge:build && npm run _:plugin:prepare-bridge && npm run _:plugin-fetch-node",
     "_:plugin:copy-bridge": "cpy sonarjs-1.0.0.tgz sonar-plugin/sonar-javascript-plugin/target/classes",
     "gen-ir-helpers": "buf generate packages/jsts/src/dbd/proto/",
-    "gen-ir": "ts-node --project packages/tsconfig.json packages/jsts/src/dbd/gen-ir.ts"
+    "gen-ir": "ts-node --project packages/tsconfig.json packages/jsts/src/dbd/gen-ir.ts",
+    "generate-benchmark": "ts-node packages/jsts/tests/dbd/benchmark/generate.ts --",
+    "gb": "npm run generate-benchmark"
   },
   "repository": {
     "type": "git",

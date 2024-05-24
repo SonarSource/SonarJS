@@ -1,0 +1,15 @@
+{
+  "project": {
+    "url": "https://github.com/Swarga-codes/Let-s-Chat"
+  },
+  "filenames": [
+    "app/api/messages/[...chatId]/route.ts",
+    "https://github.com/nextauthjs/next-auth/blob/0168f3cb5cb019fc4a3ae4725b9a86b6d478ac73/packages/core/src/jwt.ts#L78",
+    ""
+  ],
+  "fix": "https://github.com/Swarga-codes/Let-s-Chat/commit/db81bc5035bbbaac9aaa5bd0fa35617d1bdbca44",
+  "location": {
+    "startLine": 14
+  },
+  "attribution": "free-search"
+}

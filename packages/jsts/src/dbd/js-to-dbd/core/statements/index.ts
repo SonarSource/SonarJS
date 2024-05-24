@@ -25,6 +25,6 @@ export function handleStatement(context: ContextManager, node: TSESTree.Statemen
       handleReturnStatement(context, node);
       break;
     default:
-      throw new Error(`Unable to handle ${node.type} statement`);
+      console.error(`Unable to handle ${node.type} statement`);
   }
 }

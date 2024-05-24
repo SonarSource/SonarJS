@@ -48,7 +48,11 @@ export function handleAssignmentExpression(
       value: rightValue,
     };
   } else {
-    throw new Error('Unable to derive AssignmentExpression identifier');
-    // todo: what do we do if there is no variable to assign to?
+    console.error('Unable to derive AssignmentExpression identifier');
+
+    return {
+      instructions: [],
+      value: rightValue,
+    };
   }
 }

@@ -1,0 +1,11 @@
+{
+  "project": {
+    "url": "https://github.com/mrpratikraut/nodeJS"
+  },
+  "filenames": ["lib/config.js"],
+  "fix": "https://github.com/mrpratikraut/nodeJS/commit/2221052e575c62a4d0510b04e846f6325f882313",
+  "location": {
+    "startLine": 1420
+  },
+  "attribution": "free-search"
+}

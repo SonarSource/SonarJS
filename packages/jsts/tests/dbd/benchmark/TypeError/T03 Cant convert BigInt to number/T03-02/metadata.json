@@ -1,0 +1,14 @@
+{
+  "project": {
+    "url": "https://github.com/nodepolus/nodepolus_old"
+  },
+  "filenames": [
+    "lib/util/player.ts",
+    "lib/packets/subpackets/gameDataPackets/rpcPackets/setInfected.ts"
+  ],
+  "fix": "https://github.com/nodepolus/nodepolus_old/commit/15e9d628b30b9a883848147cb72878bec5cc31bd", // wrong one
+  "location": {
+    "startLine": 357
+  },
+  "attribution": "free-search"
+}

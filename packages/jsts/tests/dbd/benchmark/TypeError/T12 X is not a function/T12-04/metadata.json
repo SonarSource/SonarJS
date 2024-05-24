@@ -1,0 +1,11 @@
+{
+  "project": {
+    "url": "https://github.com/BugsJS/shields/tree/Bug-4-full"
+  },
+  "filenames": ["lib/make-badge.js"],
+  "fix": "https://github.com/BugsJS/shields/compare/Bug-4-full...Bug-4-fix",
+  "location": {
+    "startLine": "98"
+  },
+  "attribution": "BugsJS"
+}

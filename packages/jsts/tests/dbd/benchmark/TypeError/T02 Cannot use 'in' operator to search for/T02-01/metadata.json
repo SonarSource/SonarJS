@@ -1,0 +1,11 @@
+{
+  "project": {
+    "url": "https://github.com/julianna-langston/chartjs2music"
+  },
+  "filenames": ["src/c2m-plugin.ts"],
+  "fix": "https://github.com/julianna-langston/chartjs2music/commit/6df7a83dbfe093476df9ee1b82bfc00501ef0e2f",
+  "location": {
+    "startLine": 111
+  },
+  "attribution": "free-search"
+}

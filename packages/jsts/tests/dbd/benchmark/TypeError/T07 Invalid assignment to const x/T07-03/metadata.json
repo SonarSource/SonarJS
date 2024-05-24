@@ -1,0 +1,11 @@
+{
+  "project": {
+    "url": "https://github.com/moongodhax/MusClassified"
+  },
+  "filenames": ["api/controllers/User.js"],
+  "fix": "https://github.com/moongodhax/MusClassified/commit/061f836b907276d6281addf84997cd17f877caed",
+  "location": {
+    "startLine": 30
+  },
+  "attribution": "free-search"
+}

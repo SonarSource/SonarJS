@@ -1,0 +1,11 @@
+{
+  "project": {
+    "url": "https://github.com/BugsJS/hexo/compare/Bug-1-full"
+  },
+  "filenames": ["lib/plugins/console/generate.js"],
+  "fix": "https://github.com/BugsJS/hexo/compare/Bug-1-full...Bug-1-fix",
+  "location": {
+    "startLine": "17"
+  },
+  "attribution": "BugsJS"
+}

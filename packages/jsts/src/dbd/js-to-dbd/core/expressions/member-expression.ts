@@ -72,7 +72,12 @@ export function handleMemberExpression(
 
     memberValue = createReference(memberValueIdentifier);
   } else {
-    throw new Error(`Unable to handle object property type ${property.type}`);
+    console.error(`Unable to handle object property type ${property.type}`);
+
+    return {
+      instructions: [],
+      value: createNull(),
+    };
   }
 
   const { instructions: propertyInstructions } = handleExpression(context, property);

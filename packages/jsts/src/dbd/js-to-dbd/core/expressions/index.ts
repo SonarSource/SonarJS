@@ -9,6 +9,7 @@ import { handleBinaryExpression } from './binary-expression';
 import { handleLiteral } from './literal';
 import { handleAssignmentExpression } from './assignment-expression';
 import { handleCallExpression } from './call-expression';
+import { createNull } from '../values/null';
 
 export type CompilationResult = {
   instructions: Array<Instruction>;
@@ -35,6 +36,11 @@ export function handleExpression(
     case AST_NODE_TYPES.CallExpression:
       return handleCallExpression(context, node);
     default:
-      throw new Error(`Unrecognized expression: ${node.type}`);
+      console.error(`Unrecognized expression: ${node.type}`);
+
+      return {
+        instructions: [],
+        value: createNull(),
+      };
   }
 }

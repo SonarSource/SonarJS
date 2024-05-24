@@ -1,0 +1,11 @@
+{
+  "project": {
+    "url": "https://github.com/3liz/lizmap-web-client"
+  },
+  "filenames": ["assets/src/legacy/map.js"],
+  "fix": "https://github.com/3liz/lizmap-web-client/commit/45411367a7782690325ff954bb71dc0ccce30415",
+  "location": {
+    "startLine": 4731
+  },
+  "attribution": "free-search"
+}

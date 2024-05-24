@@ -1,0 +1,13 @@
+{
+  "project": {
+    "url": "https://github.com/BugsJS/eslint/tree/Bug-154-full"
+  },
+  "filenames": [
+    "lib/rules/no-extend-native.js"
+  ],
+  "fix": "https://github.com/BugsJS/eslint/compare/Bug-154-full...Bug-154-fix",
+  "location": {
+    "startLine": "71"
+  },
+  "attribution": "BugsJS"
+}

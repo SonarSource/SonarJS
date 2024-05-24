@@ -26,6 +26,7 @@ import { createCallInstruction } from '../instructions/call-instruction';
 import { Value } from '../value';
 import { createReference } from '../values/reference';
 import { createFunctionDefinition2 } from '../function-definition';
+import { createNull } from '../values/null';
 
 export function handleCallExpression(
   context: ContextManager,
@@ -59,7 +60,12 @@ export function handleCallExpression(
       }
       break;
     default:
-      throw new Error(`Unsupported call expression callee ${callExpression.callee.type}`);
+      console.error(`Unsupported call expression callee ${callExpression.callee.type}`);
+
+      return {
+        instructions: [],
+        value: createNull(),
+      };
   }
 
   let args: Value[] = [];
