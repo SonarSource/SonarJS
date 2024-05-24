@@ -31,6 +31,7 @@ import org.sonar.css.CssProfileDefinition;
 import org.sonar.css.CssRulesDefinition;
 import org.sonar.css.StylelintReportSensor;
 import org.sonar.css.metrics.CssMetricSensor;
+import org.sonar.plugins.javascript.analysis.AnalysisConsumers;
 import org.sonar.plugins.javascript.analysis.AnalysisProcessor;
 import org.sonar.plugins.javascript.analysis.AnalysisWithProgram;
 import org.sonar.plugins.javascript.analysis.AnalysisWithWatchProgram;
@@ -40,6 +41,7 @@ import org.sonar.plugins.javascript.analysis.JsTsChecks;
 import org.sonar.plugins.javascript.analysis.JsTsSensor;
 import org.sonar.plugins.javascript.analysis.TsConfigProvider;
 import org.sonar.plugins.javascript.analysis.YamlSensor;
+import org.sonar.plugins.javascript.api.JsAnalysisConsumer;
 import org.sonar.plugins.javascript.bridge.AnalysisWarningsWrapper;
 import org.sonar.plugins.javascript.bridge.BridgeServerImpl;
 import org.sonar.plugins.javascript.bridge.BundleImpl;
@@ -138,6 +140,7 @@ public class JavaScriptPlugin implements Plugin {
   @Override
   public void define(Context context) {
     context.addExtensions(
+      AnalysisConsumers.class,
       JavaScriptLanguage.class,
       JavaScriptExclusionsFileFilter.class,
       JavaScriptRulesDefinition.class,
@@ -147,6 +150,7 @@ public class JavaScriptPlugin implements Plugin {
       BridgeServerImpl.class,
       NodeDeprecationWarning.class,
       BundleImpl.class,
+      JsAnalysisConsumer.class,
       JsTsSensor.class,
       TypeScriptLanguage.class,
       TypeScriptRulesDefinition.class,

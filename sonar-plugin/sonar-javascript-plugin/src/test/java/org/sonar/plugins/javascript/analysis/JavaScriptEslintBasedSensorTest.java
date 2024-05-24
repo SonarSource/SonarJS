@@ -534,7 +534,8 @@ class JavaScriptEslintBasedSensorTest {
       checks(ESLINT_BASED_RULE),
       bridgeServerMock,
       analysisWithProgram,
-      analysisWithWatchProgram
+      analysisWithWatchProgram,
+      new AnalysisConsumers()
     );
     javaScriptEslintBasedSensor.execute(context);
     assertThat(logTester.logs(Level.INFO)).contains("No input files found for analysis");
@@ -550,7 +551,8 @@ class JavaScriptEslintBasedSensorTest {
       checks(ESLINT_BASED_RULE),
       bridgeServerMock,
       analysisWithProgram,
-      analysisWithWatchProgram
+      analysisWithWatchProgram,
+      new AnalysisConsumers()
     );
     createInputFile(context);
 
@@ -612,7 +614,8 @@ class JavaScriptEslintBasedSensorTest {
       checks(ESLINT_BASED_RULE),
       bridgeServerMock,
       analysisWithProgram,
-      analysisWithWatchProgram
+      analysisWithWatchProgram,
+      new AnalysisConsumers()
     )
       .execute(context);
     Collection<Issue> issues = context.allIssues();
@@ -793,7 +796,8 @@ class JavaScriptEslintBasedSensorTest {
       bridgeServerMock,
       sonarlintTypeCheckingChecker,
       analysisWithProgram,
-      analysisWithWatchProgram
+      analysisWithWatchProgram,
+      new AnalysisConsumers()
     );
   }
 

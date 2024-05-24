@@ -32,6 +32,7 @@ import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
 import org.sonar.plugins.javascript.analysis.cache.CacheAnalysis;
 import org.sonar.plugins.javascript.analysis.cache.CacheStrategies;
+import org.sonar.plugins.javascript.api.JsFile;
 import org.sonar.plugins.javascript.bridge.AnalysisMode;
 import org.sonar.plugins.javascript.bridge.AnalysisWarningsWrapper;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
@@ -53,6 +54,7 @@ abstract class AbstractAnalysis {
   ProgressReport progressReport;
   AnalysisMode analysisMode;
   protected final AnalysisWarningsWrapper analysisWarnings;
+  private AnalysisConsumers consumers;
 
   AbstractAnalysis(
     BridgeServer bridgeServer,
@@ -70,12 +72,13 @@ abstract class AbstractAnalysis {
       : JavaScriptLanguage.KEY;
   }
 
-  void initialize(SensorContext context, JsTsChecks checks, AnalysisMode analysisMode) {
+  void initialize(SensorContext context, JsTsChecks checks, AnalysisMode analysisMode, AnalysisConsumers consumers) {
     LOG.debug("Initializing {}", getClass().getName());
     this.context = context;
     contextUtils = new ContextUtils(context);
     this.checks = checks;
     this.analysisMode = analysisMode;
+    this.consumers = consumers;
   }
 
   protected boolean isJavaScript(InputFile file) {
@@ -107,6 +110,7 @@ abstract class AbstractAnalysis {
           CacheAnalysis.fromResponse(response.ucfgPaths(), response.cpdTokens()),
           file
         );
+        consumers.accept(new JsFile(file));
       } catch (IOException e) {
         LOG.error("Failed to get response while analyzing " + file.uri(), e);
         throw e;
