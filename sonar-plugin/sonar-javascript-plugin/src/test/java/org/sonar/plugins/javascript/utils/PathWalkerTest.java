@@ -45,7 +45,7 @@ class PathWalkerTest {
     var depth = 5;
     var width = 2;
 
-    var folders = createFolder(root, depth, width).collect(toList());
+    var folders = createFolder(root, depth, width).toList();
     var createdPaths = getPaths(folders.stream(), 5);
     var iteratedPaths = getPaths(PathWalker.stream(root, depth), 5);
     assertThat(createdPaths).containsExactlyElementsOf(iteratedPaths);
@@ -57,7 +57,7 @@ class PathWalkerTest {
     var depth = 5;
     var width = 2;
 
-    var folders = createFolder(root, depth, width).collect(toList());
+    var folders = createFolder(root, depth, width).toList();
     var createdPaths = getPaths(folders.stream(), depth - 1);
     var iteratedPaths = getPaths(PathWalker.stream(root, depth), depth - 1);
     assertThat(createdPaths).containsExactlyElementsOf(iteratedPaths);
@@ -70,7 +70,7 @@ class PathWalkerTest {
       .filter(path -> StreamSupport.stream(path.spliterator(), false).count() <= maxDepth)
       .map(Path::toString)
       .sorted()
-      .collect(toList());
+      .toList();
   }
 
   private Stream<Path> createFolder(Path path, int depth, int width) {

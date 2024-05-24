@@ -26,10 +26,10 @@ import { NODE_VERSION, VERSION_FILENAME } from '../node-distros.mjs';
 /**
  * Copies tools/fetch-node/downloads/runtimes/{distro.id}/node{.exe}.xz
  * to
- * sonar-plugin/sonar-javascript-plugin/target/node/{distro.id}/node{.exe}.xz
+ * {target_dir}/{distro.id}/node{.exe}.xz
  *
  * Writes the
- * sonar-plugin/sonar-javascript-plugin/target/node/{distro.id}/version.txt files
+ * {target_dir}/{distro.id}/version.txt files
  */
 
 const runtimePaths = getRuntimePaths();

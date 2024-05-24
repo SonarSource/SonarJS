@@ -27,7 +27,7 @@ import java.util.regex.Pattern;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.plugins.javascript.bridge.YamlSensor;
+import org.sonar.plugins.javascript.analysis.YamlSensor;
 
 public class JavaScriptFilePredicate {
 

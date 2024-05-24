@@ -31,21 +31,22 @@ import org.sonar.css.CssProfileDefinition;
 import org.sonar.css.CssRulesDefinition;
 import org.sonar.css.StylelintReportSensor;
 import org.sonar.css.metrics.CssMetricSensor;
-import org.sonar.plugins.javascript.bridge.AnalysisProcessor;
+import org.sonar.plugins.javascript.analysis.AnalysisProcessor;
+import org.sonar.plugins.javascript.analysis.AnalysisWithProgram;
+import org.sonar.plugins.javascript.analysis.AnalysisWithWatchProgram;
+import org.sonar.plugins.javascript.analysis.CssRuleSensor;
+import org.sonar.plugins.javascript.analysis.HtmlSensor;
+import org.sonar.plugins.javascript.analysis.JsTsChecks;
+import org.sonar.plugins.javascript.analysis.JsTsSensor;
+import org.sonar.plugins.javascript.analysis.TsConfigProvider;
+import org.sonar.plugins.javascript.analysis.YamlSensor;
 import org.sonar.plugins.javascript.bridge.AnalysisWarningsWrapper;
-import org.sonar.plugins.javascript.bridge.AnalysisWithProgram;
-import org.sonar.plugins.javascript.bridge.AnalysisWithWatchProgram;
 import org.sonar.plugins.javascript.bridge.BridgeServerImpl;
 import org.sonar.plugins.javascript.bridge.BundleImpl;
-import org.sonar.plugins.javascript.bridge.CssRuleSensor;
 import org.sonar.plugins.javascript.bridge.EmbeddedNode;
 import org.sonar.plugins.javascript.bridge.Environment;
-import org.sonar.plugins.javascript.bridge.HtmlSensor;
-import org.sonar.plugins.javascript.bridge.JsTsChecks;
-import org.sonar.plugins.javascript.bridge.JsTsSensor;
 import org.sonar.plugins.javascript.bridge.NodeDeprecationWarning;
 import org.sonar.plugins.javascript.bridge.RulesBundles;
-import org.sonar.plugins.javascript.bridge.YamlSensor;
 import org.sonar.plugins.javascript.external.EslintReportSensor;
 import org.sonar.plugins.javascript.external.TslintReportSensor;
 import org.sonar.plugins.javascript.filter.JavaScriptExclusionsFileFilter;
@@ -132,9 +133,6 @@ public class JavaScriptPlugin implements Plugin {
 
   private static final String FILE_SUFFIXES_DESCRIPTION = "List of suffixes for files to analyze.";
 
-  public static final String TSCONFIG_PATHS = "sonar.typescript.tsconfigPaths";
-  public static final String TSCONFIG_PATHS_ALIAS = "sonar.typescript.tsconfigPath";
-
   public static final String PROPERTY_KEY_MAX_FILE_SIZE = "sonar.javascript.maxFileSize";
 
   @Override
@@ -196,7 +194,7 @@ public class JavaScriptPlugin implements Plugin {
         .multiValues(true)
         .build(),
       PropertyDefinition
-        .builder(TSCONFIG_PATHS)
+        .builder(TsConfigProvider.TSCONFIG_PATHS)
         .name("TypeScript tsconfig.json location")
         .description("Comma-delimited list of paths to TSConfig files. Wildcards are supported.")
         .onQualifiers(Qualifiers.PROJECT)

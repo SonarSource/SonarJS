@@ -30,8 +30,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.slf4j.Logger;
+import org.slf4j.event.Level;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
-import org.sonar.api.utils.log.LoggerLevel;
 
 class ProgressReportTest {
 
@@ -45,7 +45,7 @@ class ProgressReportTest {
     report.start(2, "foo.java");
     report.stop();
 
-    assertThat(logTester.logs(LoggerLevel.INFO)).isNotEmpty();
+    assertThat(logTester.logs(Level.INFO)).isNotEmpty();
   }
 
   @Test

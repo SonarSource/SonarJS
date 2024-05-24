@@ -23,6 +23,7 @@
 
 
   <modules>
+    <module>bridge</module>
     <module>css</module>
     <module>javascript-checks</module>
     <module>sonar-javascript-plugin</module>

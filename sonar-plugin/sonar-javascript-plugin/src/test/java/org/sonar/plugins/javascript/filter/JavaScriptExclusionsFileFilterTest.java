@@ -33,7 +33,6 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
-import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.css.CssLanguage;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
@@ -68,7 +67,7 @@ class JavaScriptExclusionsFileFilterTest {
     assertThat(filter.accept(inputFile("build/some_lib.js"))).isTrue();
     assertThat(filter.accept(inputFile("dist/some_lib.js"))).isFalse();
     assertThat(filter.accept(inputFile("external/some_lib.js"))).isFalse();
-    assertThat(logTester.logs(LoggerLevel.DEBUG))
+    assertThat(logTester.logs(Level.DEBUG))
       .contains(
         "File test_node_modules/node_modules/some_lib.js was excluded by sonar.javascript.exclusions or sonar.typescript.exclusions"
       );
@@ -84,7 +83,7 @@ class JavaScriptExclusionsFileFilterTest {
     assertThat(filter.accept(inputFile("some_app.js"))).isTrue();
     assertThat(filter.accept(inputFile("some_app.ts"))).isTrue();
     assertThat(filter.accept(inputFile("node_modules/some_lib.js"))).isFalse();
-    assertThat(logTester.logs(LoggerLevel.DEBUG))
+    assertThat(logTester.logs(Level.DEBUG))
       .contains(
         "File test_node_modules/node_modules/some_lib.js was excluded by sonar.javascript.exclusions or sonar.typescript.exclusions"
       );
@@ -193,7 +192,7 @@ class JavaScriptExclusionsFileFilterTest {
     JavaScriptExclusionsFileFilter filter = new JavaScriptExclusionsFileFilter(
       mapSettings.asConfig()
     );
-    assertThat(logTester.logs(LoggerLevel.WARN))
+    assertThat(logTester.logs(Level.WARN))
       .contains(
         "Maximum file size (sonar.javascript.maxFileSize) is not strictly positive: -42, falling back to 1000."
       );
@@ -206,7 +205,7 @@ class JavaScriptExclusionsFileFilterTest {
     JavaScriptExclusionsFileFilter filter = new JavaScriptExclusionsFileFilter(
       mapSettings.asConfig()
     );
-    assertThat(logTester.logs(LoggerLevel.WARN))
+    assertThat(logTester.logs(Level.WARN))
       .contains(
         "Maximum file size (sonar.javascript.maxFileSize) is not an integer: \"huge\", falling back to 1000."
       );
@@ -218,7 +217,7 @@ class JavaScriptExclusionsFileFilterTest {
     JavaScriptExclusionsFileFilter filter = new JavaScriptExclusionsFileFilter(settings.asConfig());
     assertThat(filter.accept(inputFile("foo.d.ts"))).isFalse();
     assertThat(filter.accept(inputFile("dir/foo.d.ts"))).isFalse();
-    assertThat(logTester.logs(LoggerLevel.DEBUG))
+    assertThat(logTester.logs(Level.DEBUG))
       .contains(
         "File test_node_modules/dir/foo.d.ts was excluded by sonar.javascript.exclusions or sonar.typescript.exclusions"
       );
@@ -296,7 +295,7 @@ class JavaScriptExclusionsFileFilterTest {
       .setCharset(StandardCharsets.UTF_8)
       .build();
     assertThat(filter.accept(inputFile)).isTrue();
-    assertThat(logTester.logs(LoggerLevel.INFO)).isEmpty();
+    assertThat(logTester.logs(Level.INFO)).isEmpty();
   }
 
   @Test
@@ -310,15 +309,15 @@ class JavaScriptExclusionsFileFilterTest {
     var config = new MapSettings().setProperty("sonar.javascript.detectBundles", "true").asConfig();
     var filter = new JavaScriptExclusionsFileFilter(config);
     assertThat(filter.accept(inputFile)).isFalse();
-    var logs = logTester.logs(LoggerLevel.INFO);
+    var logs = logTester.logs(Level.INFO);
     assertThat(logs).contains(INFO_LOG_MSG);
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains(DEBUG_LOG_MSG);
+    assertThat(logTester.logs(Level.DEBUG)).contains(DEBUG_LOG_MSG);
     logTester.clear();
 
     // test that INFO level msg is logged only once
     assertThat(filter.accept(inputFile)).isFalse();
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains(DEBUG_LOG_MSG);
-    assertThat(logTester.logs(LoggerLevel.INFO)).doesNotContain(INFO_LOG_MSG);
+    assertThat(logTester.logs(Level.DEBUG)).contains(DEBUG_LOG_MSG);
+    assertThat(logTester.logs(Level.INFO)).doesNotContain(INFO_LOG_MSG);
   }
 
   /**

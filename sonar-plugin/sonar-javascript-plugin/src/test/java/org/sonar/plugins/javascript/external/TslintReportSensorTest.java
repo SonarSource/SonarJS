@@ -33,6 +33,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
+import org.slf4j.event.Level;
 import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarRuntime;
@@ -46,7 +47,6 @@ import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.Version;
-import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 
 class TslintReportSensorTest {
@@ -82,7 +82,7 @@ class TslintReportSensorTest {
 
   @Test
   void should_add_issues_from_report() {
-    logTester.setLevel(LoggerLevel.DEBUG);
+    logTester.setLevel(Level.DEBUG);
     setTslintReport(TSLINT_REPORT_FILE_NAME);
     tslintReportSensor.execute(context);
 
@@ -100,7 +100,7 @@ class TslintReportSensorTest {
     assertThat(first.primaryLocation().message()).isEqualTo("Missing semicolon");
     assertThat(first.primaryLocation().textRange().start().line()).isEqualTo(1);
 
-    assertThat(logTester.logs(LoggerLevel.DEBUG))
+    assertThat(logTester.logs(Level.DEBUG))
       .containsExactlyInAnyOrder(
         "Saving external TSLint issue { file:\"myFile.ts\", id:semicolon, message:\"Missing semicolon\", line:1, offset:0, type: CODE_SMELL }",
         "Saving external TSLint issue { file:\"myFile.ts\", id:curly, message:\"misplaced opening brace\", line:3, offset:0, type: BUG }"
@@ -158,7 +158,7 @@ class TslintReportSensorTest {
     tslintReportSensor.execute(context);
 
     assertThat(context.allExternalIssues()).isEmpty();
-    assertThat(logTester.logs(LoggerLevel.ERROR))
+    assertThat(logTester.logs(Level.ERROR))
       .contains("No issues information will be saved as the report file can't be read.");
   }
 
@@ -168,7 +168,7 @@ class TslintReportSensorTest {
     tslintReportSensor.execute(context);
 
     assertThat(context.allExternalIssues()).hasSize(1);
-    assertThat(logTester.logs(LoggerLevel.WARN))
+    assertThat(logTester.logs(Level.WARN))
       .contains(
         "No input file found for not-exist.ts. No TSLint issues will be imported on this file."
       );
