@@ -205,18 +205,24 @@ while (requestedTypes.length) {
   }
 
   if (ts.isInterfaceDeclaration(declaration)) {
-    let messageFields = declaration.members
-      .filter(isPropertySignature)
-      .filter(signature => signature.type && !ignoredMembers.has(signature.name.getText(file)))
-      .map(signature => {
-        return {
-          name: signature.name.getText(file),
-          fieldValue: getFieldValueFromType(signature.type as TypeNode),
-        };
-      });
+    const typeHierarchy = extractTypeHierarchy(declaration);
+    let messageFields: ProtobufMessageField[] = [];
 
-    const inheritedFields = extractInheritedFields(declaration, messageFields);
-    if (inheritedFields) messageFields = messageFields.concat(inheritedFields);
+    for (const currentType of typeHierarchy) {
+      const currentDeclaration = declarations[currentType] as InterfaceDeclaration;
+      const currentFields = currentDeclaration.members
+        .filter(isPropertySignature)
+        .filter(signature => signature.type && !ignoredMembers.has(signature.name.getText(file)))
+        .filter(signature => !isAlreadyThere(messageFields, signature))
+        .map(signature => {
+          return {
+            name: signature.name.getText(file),
+            fieldValue: getFieldValueFromType(signature.type as TypeNode),
+          };
+        });
+
+      messageFields = messageFields.concat(currentFields);
+    }
 
     messages[requestedType] = {
       messageName: requestedType,
@@ -241,49 +247,35 @@ while (requestedTypes.length) {
   throw new Error(`unexpected declaration for ${requestedType}`);
 }
 
-function extractInheritedFields(
-  declaration: InterfaceDeclaration,
-  messageFields: { name: string; fieldValue: ProtobufFieldValue }[],
-) {
-  function extractAllInheritedTypes(declaration: InterfaceDeclaration): string[] {
-    const inheritedTypes = declaration?.heritageClauses
-      ?.flatMap(hc => hc.types)
-      ?.flatMap(t => {
-        console.log('we re going deeper');
-        return extractAllInheritedTypes(declarations[t.getText(file)] as InterfaceDeclaration);
-      });
-    const ret: string[] = inheritedTypes || [];
-    ret.push(declaration?.name?.getText(file));
-    return ret;
-  }
-
-  for (const inheritedType of extractAllInheritedTypes(declaration)) {
-    const inheritedDeclaration = declarations[inheritedType] as InterfaceDeclaration;
-    const inheritedFields = inheritedDeclaration?.members
-      .filter(isPropertySignature)
-      .filter(signature => signature.type && !ignoredMembers.has(signature.name.getText(file)))
-      .filter(signature => !isAlreadyThere(messageFields, signature))
-      .map(signature => {
-        return {
-          name: signature.name.getText(file),
-          fieldValue: getFieldValueFromType(signature.type as TypeNode),
-        };
-      });
-    return inheritedFields;
-  }
-
-  function isAlreadyThere(
-    messageFields: { name: string; fieldValue: ProtobufFieldValue }[],
-    signature: ts.PropertySignature,
-  ) {
-    for (const field of messageFields) {
-      if (field.name === signature.name.getText(file)) {
-        return true;
+function extractTypeHierarchy(declaration: InterfaceDeclaration): string[] {
+  const inheritedTypes = declaration?.heritageClauses
+    ?.flatMap(hc => hc.types)
+    ?.flatMap(t => {
+      const typeName = t.getText(file);
+      const parentDeclaration = declarations[t.getText(file)];
+      // We stop at BaseNode, we will handle it manually.
+      if (parentDeclaration && typeName !== 'BaseNode') {
+        return extractTypeHierarchy(declarations[t.getText(file)] as InterfaceDeclaration);
       }
-    }
-    return false;
-  }
+      return [];
+    });
+  const ret: string[] = inheritedTypes || [];
+  ret.push(declaration.name.getText(file));
+  return ret;
 }
+
+function isAlreadyThere(
+  messageFields: { name: string; fieldValue: ProtobufFieldValue }[],
+  signature: ts.PropertySignature,
+) {
+  for (const field of messageFields) {
+    if (field.name === signature.name.getText(file)) {
+      return true;
+    }
+  }
+  return false;
+}
+
 // Create node manually for 'RegExpLiteral' and 'TemplateElement'.
 messages['RegExpLiteral'] = {
   messageName: 'RegExpLiteral',

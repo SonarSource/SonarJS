@@ -15,52 +15,6 @@
             "type": "BaseNodeWithoutComments"
           }
         }
-      },
-      {
-        "name": "loc",
-        "fieldValue": {
-          "type": "SourceLocation"
-        }
-      }
-    ]
-  },
-  "SourceLocation": {
-    "messageName": "SourceLocation",
-    "fields": [
-      {
-        "name": "source",
-        "fieldValue": {
-          "type": "string"
-        }
-      },
-      {
-        "name": "start",
-        "fieldValue": {
-          "type": "Position"
-        }
-      },
-      {
-        "name": "end",
-        "fieldValue": {
-          "type": "Position"
-        }
-      }
-    ]
-  },
-  "Position": {
-    "messageName": "Position",
-    "fields": [
-      {
-        "name": "line",
-        "fieldValue": {
-          "type": "int32"
-        }
-      },
-      {
-        "name": "end",
-        "fieldValue": {
-          "type": "int32"
-        }
       }
     ]
   },
@@ -113,12 +67,6 @@
         "name": "source",
         "fieldValue": {
           "type": "Literal"
-        }
-      },
-      {
-        "name": "loc",
-        "fieldValue": {
-          "type": "SourceLocation"
         }
       }
     ]
@@ -173,12 +121,6 @@
         "fieldValue": {
           "type": "string"
         }
-      },
-      {
-        "name": "loc",
-        "fieldValue": {
-          "type": "SourceLocation"
-        }
       }
     ]
   },
@@ -215,12 +157,6 @@
         "fieldValue": {
           "type": "string"
         }
-      },
-      {
-        "name": "loc",
-        "fieldValue": {
-          "type": "SourceLocation"
-        }
       }
     ]
   },
@@ -231,12 +167,6 @@
         "name": "name",
         "fieldValue": {
           "type": "string"
-        }
-      },
-      {
-        "name": "loc",
-        "fieldValue": {
-          "type": "SourceLocation"
         }
       }
     ]
@@ -267,12 +197,6 @@
               }
             }
           ]
-        }
-      },
-      {
-        "name": "loc",
-        "fieldValue": {
-          "type": "SourceLocation"
         }
       }
     ]
@@ -453,12 +377,6 @@
         "fieldValue": {
           "type": "bool"
         }
-      },
-      {
-        "name": "loc",
-        "fieldValue": {
-          "type": "SourceLocation"
-        }
       }
     ]
   },
@@ -481,12 +399,6 @@
         "name": "prefix",
         "fieldValue": {
           "type": "bool"
-        }
-      },
-      {
-        "name": "loc",
-        "fieldValue": {
-          "type": "SourceLocation"
         }
       }
     ]
@@ -522,12 +434,6 @@
         "fieldValue": {
           "type": "Expression"
         }
-      },
-      {
-        "name": "loc",
-        "fieldValue": {
-          "type": "SourceLocation"
-        }
       }
     ]
   },
@@ -544,14 +450,7 @@
   },
   "ThisExpression": {
     "messageName": "ThisExpression",
-    "fields": [
-      {
-        "name": "loc",
-        "fieldValue": {
-          "type": "SourceLocation"
-        }
-      }
-    ]
+    "fields": []
   },
   "TemplateLiteral": {
     "messageName": "TemplateLiteral",
@@ -571,12 +470,6 @@
             "type": "Expression"
           }
         }
-      },
-      {
-        "name": "loc",
-        "fieldValue": {
-          "type": "SourceLocation"
-        }
       }
     ]
   },
@@ -594,12 +487,6 @@
         "fieldValue": {
           "type": "TemplateLiteral"
         }
-      },
-      {
-        "name": "loc",
-        "fieldValue": {
-          "type": "SourceLocation"
-        }
       }
     ]
   },
@@ -612,12 +499,6 @@
           "repeatedValue": {
             "type": "Expression"
           }
-        }
-      },
-      {
-        "name": "loc",
-        "fieldValue": {
-          "type": "SourceLocation"
         }
       }
     ]
@@ -632,12 +513,6 @@
             "type": "BaseNodeWithoutComments"
           }
         }
-      },
-      {
-        "name": "loc",
-        "fieldValue": {
-          "type": "SourceLocation"
-        }
       }
     ]
   },
@@ -648,12 +523,6 @@
         "name": "argument",
         "fieldValue": {
           "type": "Expression"
-        }
-      },
-      {
-        "name": "loc",
-        "fieldValue": {
-          "type": "SourceLocation"
         }
       }
     ]
@@ -722,12 +591,6 @@
         "fieldValue": {
           "type": "bool"
         }
-      },
-      {
-        "name": "loc",
-        "fieldValue": {
-          "type": "SourceLocation"
-        }
       }
     ]
   },
@@ -793,12 +656,6 @@
         "fieldValue": {
           "type": "Expression"
         }
-      },
-      {
-        "name": "loc",
-        "fieldValue": {
-          "type": "SourceLocation"
-        }
       }
     ]
   },
@@ -809,12 +666,6 @@
         "name": "argument",
         "fieldValue": {
           "type": "Pattern"
-        }
-      },
-      {
-        "name": "loc",
-        "fieldValue": {
-          "type": "SourceLocation"
         }
       }
     ]
@@ -829,12 +680,6 @@
             "type": "Pattern"
           }
         }
-      },
-      {
-        "name": "loc",
-        "fieldValue": {
-          "type": "SourceLocation"
-        }
       }
     ]
   },
@@ -848,12 +693,6 @@
             "type": "BaseNodeWithoutComments"
           }
         }
-      },
-      {
-        "name": "loc",
-        "fieldValue": {
-          "type": "SourceLocation"
-        }
       }
     ]
   },
@@ -861,9 +700,41 @@
     "messageName": "AssignmentProperty",
     "fields": [
       {
+        "name": "key",
+        "fieldValue": {
+          "oneOfElements": [
+            {
+              "name": "expression",
+              "fieldValue": {
+                "type": "Expression"
+              }
+            },
+            {
+              "name": "privateIdentifier",
+              "fieldValue": {
+                "type": "PrivateIdentifier"
+              }
+            }
+          ]
+        }
+      },
+      {
         "name": "value",
         "fieldValue": {
-          "type": "Pattern"
+          "oneOfElements": [
+            {
+              "name": "expression",
+              "fieldValue": {
+                "type": "Expression"
+              }
+            },
+            {
+              "name": "pattern",
+              "fieldValue": {
+                "type": "Pattern"
+              }
+            }
+          ]
         }
       },
       {
@@ -879,9 +750,15 @@
         }
       },
       {
-        "name": "loc",
+        "name": "shorthand",
         "fieldValue": {
-          "type": "SourceLocation"
+          "type": "bool"
+        }
+      },
+      {
+        "name": "computed",
+        "fieldValue": {
+          "type": "bool"
         }
       }
     ]
@@ -894,12 +771,6 @@
         "fieldValue": {
           "type": "string"
         }
-      },
-      {
-        "name": "loc",
-        "fieldValue": {
-          "type": "SourceLocation"
-        }
       }
     ]
   },
@@ -907,12 +778,37 @@
     "messageName": "NewExpression",
     "fields": [
       {
-        "name": "loc",
+        "name": "callee",
         "fieldValue": {
-          "type": "SourceLocation"
+          "oneOfElements": [
+            {
+              "name": "expression",
+              "fieldValue": {
+                "type": "Expression"
+              }
+            },
+            {
+              "name": "super",
+              "fieldValue": {
+                "type": "Super"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "name": "arguments",
+        "fieldValue": {
+          "repeatedValue": {
+            "type": "BaseNodeWithoutComments"
+          }
         }
       }
     ]
+  },
+  "Super": {
+    "messageName": "Super",
+    "fields": []
   },
   "MetaProperty": {
     "messageName": "MetaProperty",
@@ -927,12 +823,6 @@
         "name": "property",
         "fieldValue": {
           "type": "Identifier"
-        }
-      },
-      {
-        "name": "loc",
-        "fieldValue": {
-          "type": "SourceLocation"
         }
       }
     ]
@@ -989,23 +879,6 @@
         "fieldValue": {
           "type": "bool"
         }
-      },
-      {
-        "name": "loc",
-        "fieldValue": {
-          "type": "SourceLocation"
-        }
-      }
-    ]
-  },
-  "Super": {
-    "messageName": "Super",
-    "fields": [
-      {
-        "name": "loc",
-        "fieldValue": {
-          "type": "SourceLocation"
-        }
       }
     ]
   },
@@ -1029,12 +902,6 @@
         "fieldValue": {
           "type": "Expression"
         }
-      },
-      {
-        "name": "loc",
-        "fieldValue": {
-          "type": "SourceLocation"
-        }
       }
     ]
   },
@@ -1057,12 +924,6 @@
         "fieldValue": {
           "type": "Expression"
         }
-      },
-      {
-        "name": "loc",
-        "fieldValue": {
-          "type": "SourceLocation"
-        }
       }
     ]
   },
@@ -1070,21 +931,48 @@
     "messageName": "FunctionExpression",
     "fields": [
       {
-        "name": "id",
+        "name": "params",
         "fieldValue": {
-          "type": "Identifier"
+          "repeatedValue": {
+            "type": "Pattern"
+          }
+        }
+      },
+      {
+        "name": "generator",
+        "fieldValue": {
+          "type": "bool"
+        }
+      },
+      {
+        "name": "async",
+        "fieldValue": {
+          "type": "bool"
         }
       },
       {
         "name": "body",
         "fieldValue": {
-          "type": "BlockStatement"
+          "oneOfElements": [
+            {
+              "name": "blockStatement",
+              "fieldValue": {
+                "type": "BlockStatement"
+              }
+            },
+            {
+              "name": "expression",
+              "fieldValue": {
+                "type": "Expression"
+              }
+            }
+          ]
         }
       },
       {
-        "name": "loc",
+        "name": "id",
         "fieldValue": {
-          "type": "SourceLocation"
+          "type": "Identifier"
         }
       }
     ]
@@ -1098,12 +986,6 @@
           "repeatedValue": {
             "type": "Statement"
           }
-        }
-      },
-      {
-        "name": "loc",
-        "fieldValue": {
-          "type": "SourceLocation"
         }
       }
     ]
@@ -1128,12 +1010,6 @@
         "fieldValue": {
           "type": "Expression"
         }
-      },
-      {
-        "name": "loc",
-        "fieldValue": {
-          "type": "SourceLocation"
-        }
       }
     ]
   },
@@ -1141,15 +1017,128 @@
     "messageName": "ClassExpression",
     "fields": [
       {
+        "name": "superClass",
+        "fieldValue": {
+          "type": "Expression"
+        }
+      },
+      {
+        "name": "body",
+        "fieldValue": {
+          "type": "ClassBody"
+        }
+      },
+      {
         "name": "id",
         "fieldValue": {
           "type": "Identifier"
         }
+      }
+    ]
+  },
+  "ClassBody": {
+    "messageName": "ClassBody",
+    "fields": [
+      {
+        "name": "body",
+        "fieldValue": {
+          "repeatedValue": {
+            "type": "BaseNodeWithoutComments"
+          }
+        }
+      }
+    ]
+  },
+  "StaticBlock": {
+    "messageName": "StaticBlock",
+    "fields": []
+  },
+  "PropertyDefinition": {
+    "messageName": "PropertyDefinition",
+    "fields": [
+      {
+        "name": "key",
+        "fieldValue": {
+          "oneOfElements": [
+            {
+              "name": "expression",
+              "fieldValue": {
+                "type": "Expression"
+              }
+            },
+            {
+              "name": "privateIdentifier",
+              "fieldValue": {
+                "type": "PrivateIdentifier"
+              }
+            }
+          ]
+        }
       },
       {
-        "name": "loc",
+        "name": "value",
         "fieldValue": {
-          "type": "SourceLocation"
+          "type": "Expression"
+        }
+      },
+      {
+        "name": "computed",
+        "fieldValue": {
+          "type": "bool"
+        }
+      },
+      {
+        "name": "static",
+        "fieldValue": {
+          "type": "bool"
+        }
+      }
+    ]
+  },
+  "MethodDefinition": {
+    "messageName": "MethodDefinition",
+    "fields": [
+      {
+        "name": "key",
+        "fieldValue": {
+          "oneOfElements": [
+            {
+              "name": "expression",
+              "fieldValue": {
+                "type": "Expression"
+              }
+            },
+            {
+              "name": "privateIdentifier",
+              "fieldValue": {
+                "type": "PrivateIdentifier"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "name": "value",
+        "fieldValue": {
+          "type": "FunctionExpression"
+        }
+      },
+      {
+        "name": "kind",
+        "fieldValue": {
+          "type": "string"
+        }
+      },
+      {
+        "name": "computed",
+        "fieldValue": {
+          "type": "bool"
+        }
+      },
+      {
+        "name": "static",
+        "fieldValue": {
+          "type": "bool"
         }
       }
     ]
@@ -1161,12 +1150,6 @@
         "name": "expression",
         "fieldValue": {
           "type": "ChainElement"
-        }
-      },
-      {
-        "name": "loc",
-        "fieldValue": {
-          "type": "SourceLocation"
         }
       }
     ]
@@ -1199,15 +1182,36 @@
     "messageName": "SimpleCallExpression",
     "fields": [
       {
-        "name": "optional",
+        "name": "callee",
         "fieldValue": {
-          "type": "bool"
+          "oneOfElements": [
+            {
+              "name": "expression",
+              "fieldValue": {
+                "type": "Expression"
+              }
+            },
+            {
+              "name": "super",
+              "fieldValue": {
+                "type": "Super"
+              }
+            }
+          ]
         }
       },
       {
-        "name": "loc",
+        "name": "arguments",
         "fieldValue": {
-          "type": "SourceLocation"
+          "repeatedValue": {
+            "type": "BaseNodeWithoutComments"
+          }
+        }
+      },
+      {
+        "name": "optional",
+        "fieldValue": {
+          "type": "bool"
         }
       }
     ]
@@ -1256,12 +1260,6 @@
         "fieldValue": {
           "type": "Expression"
         }
-      },
-      {
-        "name": "loc",
-        "fieldValue": {
-          "type": "SourceLocation"
-        }
       }
     ]
   },
@@ -1283,12 +1281,6 @@
         "name": "argument",
         "fieldValue": {
           "type": "Expression"
-        }
-      },
-      {
-        "name": "loc",
-        "fieldValue": {
-          "type": "SourceLocation"
         }
       }
     ]
@@ -1326,12 +1318,6 @@
         "fieldValue": {
           "type": "Expression"
         }
-      },
-      {
-        "name": "loc",
-        "fieldValue": {
-          "type": "SourceLocation"
-        }
       }
     ]
   },
@@ -1350,7 +1336,21 @@
     "messageName": "ArrowFunctionExpression",
     "fields": [
       {
-        "name": "expression",
+        "name": "params",
+        "fieldValue": {
+          "repeatedValue": {
+            "type": "Pattern"
+          }
+        }
+      },
+      {
+        "name": "generator",
+        "fieldValue": {
+          "type": "bool"
+        }
+      },
+      {
+        "name": "async",
         "fieldValue": {
           "type": "bool"
         }
@@ -1375,9 +1375,9 @@
         }
       },
       {
-        "name": "loc",
+        "name": "expression",
         "fieldValue": {
-          "type": "SourceLocation"
+          "type": "bool"
         }
       }
     ]
@@ -1392,12 +1392,6 @@
             "type": "BaseNodeWithoutComments"
           }
         }
-      },
-      {
-        "name": "loc",
-        "fieldValue": {
-          "type": "SourceLocation"
-        }
       }
     ]
   },
@@ -1405,15 +1399,21 @@
     "messageName": "MaybeNamedClassDeclaration",
     "fields": [
       {
-        "name": "id",
+        "name": "superClass",
         "fieldValue": {
-          "type": "Identifier"
+          "type": "Expression"
         }
       },
       {
-        "name": "loc",
+        "name": "body",
         "fieldValue": {
-          "type": "SourceLocation"
+          "type": "ClassBody"
+        }
+      },
+      {
+        "name": "id",
+        "fieldValue": {
+          "type": "Identifier"
         }
       }
     ]
@@ -1422,21 +1422,48 @@
     "messageName": "MaybeNamedFunctionDeclaration",
     "fields": [
       {
-        "name": "id",
+        "name": "params",
         "fieldValue": {
-          "type": "Identifier"
+          "repeatedValue": {
+            "type": "Pattern"
+          }
+        }
+      },
+      {
+        "name": "generator",
+        "fieldValue": {
+          "type": "bool"
+        }
+      },
+      {
+        "name": "async",
+        "fieldValue": {
+          "type": "bool"
         }
       },
       {
         "name": "body",
         "fieldValue": {
-          "type": "BlockStatement"
+          "oneOfElements": [
+            {
+              "name": "blockStatement",
+              "fieldValue": {
+                "type": "BlockStatement"
+              }
+            },
+            {
+              "name": "expression",
+              "fieldValue": {
+                "type": "Expression"
+              }
+            }
+          ]
         }
       },
       {
-        "name": "loc",
+        "name": "id",
         "fieldValue": {
-          "type": "SourceLocation"
+          "type": "Identifier"
         }
       }
     ]
@@ -1463,12 +1490,6 @@
         "fieldValue": {
           "type": "Literal"
         }
-      },
-      {
-        "name": "loc",
-        "fieldValue": {
-          "type": "SourceLocation"
-        }
       }
     ]
   },
@@ -1476,15 +1497,15 @@
     "messageName": "ExportSpecifier",
     "fields": [
       {
-        "name": "exported",
+        "name": "local",
         "fieldValue": {
           "type": "Identifier"
         }
       },
       {
-        "name": "loc",
+        "name": "exported",
         "fieldValue": {
-          "type": "SourceLocation"
+          "type": "Identifier"
         }
       }
     ]
@@ -1523,15 +1544,21 @@
     "messageName": "ClassDeclaration",
     "fields": [
       {
-        "name": "id",
+        "name": "superClass",
         "fieldValue": {
-          "type": "Identifier"
+          "type": "Expression"
         }
       },
       {
-        "name": "loc",
+        "name": "body",
         "fieldValue": {
-          "type": "SourceLocation"
+          "type": "ClassBody"
+        }
+      },
+      {
+        "name": "id",
+        "fieldValue": {
+          "type": "Identifier"
         }
       }
     ]
@@ -1552,12 +1579,6 @@
         "fieldValue": {
           "type": "string"
         }
-      },
-      {
-        "name": "loc",
-        "fieldValue": {
-          "type": "SourceLocation"
-        }
       }
     ]
   },
@@ -1575,12 +1596,6 @@
         "fieldValue": {
           "type": "Expression"
         }
-      },
-      {
-        "name": "loc",
-        "fieldValue": {
-          "type": "SourceLocation"
-        }
       }
     ]
   },
@@ -1588,15 +1603,48 @@
     "messageName": "FunctionDeclaration",
     "fields": [
       {
-        "name": "id",
+        "name": "params",
         "fieldValue": {
-          "type": "Identifier"
+          "repeatedValue": {
+            "type": "Pattern"
+          }
         }
       },
       {
-        "name": "loc",
+        "name": "generator",
         "fieldValue": {
-          "type": "SourceLocation"
+          "type": "bool"
+        }
+      },
+      {
+        "name": "async",
+        "fieldValue": {
+          "type": "bool"
+        }
+      },
+      {
+        "name": "body",
+        "fieldValue": {
+          "oneOfElements": [
+            {
+              "name": "blockStatement",
+              "fieldValue": {
+                "type": "BlockStatement"
+              }
+            },
+            {
+              "name": "expression",
+              "fieldValue": {
+                "type": "Expression"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "name": "id",
+        "fieldValue": {
+          "type": "Identifier"
         }
       }
     ]
@@ -1617,12 +1665,6 @@
         "fieldValue": {
           "type": "Literal"
         }
-      },
-      {
-        "name": "loc",
-        "fieldValue": {
-          "type": "SourceLocation"
-        }
       }
     ]
   },
@@ -1630,9 +1672,9 @@
     "messageName": "ImportNamespaceSpecifier",
     "fields": [
       {
-        "name": "loc",
+        "name": "local",
         "fieldValue": {
-          "type": "SourceLocation"
+          "type": "Identifier"
         }
       }
     ]
@@ -1641,9 +1683,9 @@
     "messageName": "ImportDefaultSpecifier",
     "fields": [
       {
-        "name": "loc",
+        "name": "local",
         "fieldValue": {
-          "type": "SourceLocation"
+          "type": "Identifier"
         }
       }
     ]
@@ -1652,15 +1694,15 @@
     "messageName": "ImportSpecifier",
     "fields": [
       {
-        "name": "imported",
+        "name": "local",
         "fieldValue": {
           "type": "Identifier"
         }
       },
       {
-        "name": "loc",
+        "name": "imported",
         "fieldValue": {
-          "type": "SourceLocation"
+          "type": "Identifier"
         }
       }
     ]
@@ -1801,15 +1843,40 @@
     "messageName": "ForOfStatement",
     "fields": [
       {
-        "name": "await",
+        "name": "left",
         "fieldValue": {
-          "type": "bool"
+          "oneOfElements": [
+            {
+              "name": "variableDeclaration",
+              "fieldValue": {
+                "type": "VariableDeclaration"
+              }
+            },
+            {
+              "name": "pattern",
+              "fieldValue": {
+                "type": "Pattern"
+              }
+            }
+          ]
         }
       },
       {
-        "name": "loc",
+        "name": "right",
         "fieldValue": {
-          "type": "SourceLocation"
+          "type": "Expression"
+        }
+      },
+      {
+        "name": "body",
+        "fieldValue": {
+          "type": "Statement"
+        }
+      },
+      {
+        "name": "await",
+        "fieldValue": {
+          "type": "bool"
         }
       }
     ]
@@ -1818,9 +1885,34 @@
     "messageName": "ForInStatement",
     "fields": [
       {
-        "name": "loc",
+        "name": "left",
         "fieldValue": {
-          "type": "SourceLocation"
+          "oneOfElements": [
+            {
+              "name": "variableDeclaration",
+              "fieldValue": {
+                "type": "VariableDeclaration"
+              }
+            },
+            {
+              "name": "pattern",
+              "fieldValue": {
+                "type": "Pattern"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "name": "right",
+        "fieldValue": {
+          "type": "Expression"
+        }
+      },
+      {
+        "name": "body",
+        "fieldValue": {
+          "type": "Statement"
         }
       }
     ]
@@ -1864,12 +1956,6 @@
         "fieldValue": {
           "type": "Statement"
         }
-      },
-      {
-        "name": "loc",
-        "fieldValue": {
-          "type": "SourceLocation"
-        }
       }
     ]
   },
@@ -1887,12 +1973,6 @@
         "fieldValue": {
           "type": "Expression"
         }
-      },
-      {
-        "name": "loc",
-        "fieldValue": {
-          "type": "SourceLocation"
-        }
       }
     ]
   },
@@ -1909,12 +1989,6 @@
         "name": "body",
         "fieldValue": {
           "type": "Statement"
-        }
-      },
-      {
-        "name": "loc",
-        "fieldValue": {
-          "type": "SourceLocation"
         }
       }
     ]
@@ -1939,12 +2013,6 @@
         "fieldValue": {
           "type": "BlockStatement"
         }
-      },
-      {
-        "name": "loc",
-        "fieldValue": {
-          "type": "SourceLocation"
-        }
       }
     ]
   },
@@ -1962,12 +2030,6 @@
         "fieldValue": {
           "type": "BlockStatement"
         }
-      },
-      {
-        "name": "loc",
-        "fieldValue": {
-          "type": "SourceLocation"
-        }
       }
     ]
   },
@@ -1978,12 +2040,6 @@
         "name": "argument",
         "fieldValue": {
           "type": "Expression"
-        }
-      },
-      {
-        "name": "loc",
-        "fieldValue": {
-          "type": "SourceLocation"
         }
       }
     ]
@@ -2004,12 +2060,6 @@
             "type": "SwitchCase"
           }
         }
-      },
-      {
-        "name": "loc",
-        "fieldValue": {
-          "type": "SourceLocation"
-        }
       }
     ]
   },
@@ -2028,12 +2078,6 @@
           "repeatedValue": {
             "type": "Statement"
           }
-        }
-      },
-      {
-        "name": "loc",
-        "fieldValue": {
-          "type": "SourceLocation"
         }
       }
     ]
@@ -2058,12 +2102,6 @@
         "fieldValue": {
           "type": "Statement"
         }
-      },
-      {
-        "name": "loc",
-        "fieldValue": {
-          "type": "SourceLocation"
-        }
       }
     ]
   },
@@ -2075,12 +2113,6 @@
         "fieldValue": {
           "type": "Identifier"
         }
-      },
-      {
-        "name": "loc",
-        "fieldValue": {
-          "type": "SourceLocation"
-        }
       }
     ]
   },
@@ -2091,12 +2123,6 @@
         "name": "label",
         "fieldValue": {
           "type": "Identifier"
-        }
-      },
-      {
-        "name": "loc",
-        "fieldValue": {
-          "type": "SourceLocation"
         }
       }
     ]
@@ -2115,12 +2141,6 @@
         "fieldValue": {
           "type": "Statement"
         }
-      },
-      {
-        "name": "loc",
-        "fieldValue": {
-          "type": "SourceLocation"
-        }
       }
     ]
   },
@@ -2131,12 +2151,6 @@
         "name": "argument",
         "fieldValue": {
           "type": "Expression"
-        }
-      },
-      {
-        "name": "loc",
-        "fieldValue": {
-          "type": "SourceLocation"
         }
       }
     ]
@@ -2155,39 +2169,15 @@
         "fieldValue": {
           "type": "Statement"
         }
-      },
-      {
-        "name": "loc",
-        "fieldValue": {
-          "type": "SourceLocation"
-        }
       }
     ]
   },
   "DebuggerStatement": {
     "messageName": "DebuggerStatement",
-    "fields": [
-      {
-        "name": "loc",
-        "fieldValue": {
-          "type": "SourceLocation"
-        }
-      }
-    ]
+    "fields": []
   },
   "EmptyStatement": {
     "messageName": "EmptyStatement",
-    "fields": [
-      {
-        "name": "loc",
-        "fieldValue": {
-          "type": "SourceLocation"
-        }
-      }
-    ]
-  },
-  "StaticBlock": {
-    "messageName": "StaticBlock",
     "fields": []
   },
   "ExpressionStatement": {
@@ -2197,12 +2187,6 @@
         "name": "expression",
         "fieldValue": {
           "type": "Expression"
-        }
-      },
-      {
-        "name": "loc",
-        "fieldValue": {
-          "type": "SourceLocation"
         }
       }
     ]
@@ -2220,12 +2204,6 @@
         "name": "directive",
         "fieldValue": {
           "type": "string"
-        }
-      },
-      {
-        "name": "loc",
-        "fieldValue": {
-          "type": "SourceLocation"
         }
       }
     ]
@@ -2299,18 +2277,6 @@
               "name": "program",
               "fieldValue": {
                 "type": "Program"
-              }
-            },
-            {
-              "name": "sourceLocation",
-              "fieldValue": {
-                "type": "SourceLocation"
-              }
-            },
-            {
-              "name": "position",
-              "fieldValue": {
-                "type": "Position"
               }
             },
             {
@@ -2482,6 +2448,12 @@
               }
             },
             {
+              "name": "super",
+              "fieldValue": {
+                "type": "Super"
+              }
+            },
+            {
               "name": "metaProperty",
               "fieldValue": {
                 "type": "MetaProperty"
@@ -2491,12 +2463,6 @@
               "name": "memberExpression",
               "fieldValue": {
                 "type": "MemberExpression"
-              }
-            },
-            {
-              "name": "super",
-              "fieldValue": {
-                "type": "Super"
               }
             },
             {
@@ -2539,6 +2505,30 @@
               "name": "classExpression",
               "fieldValue": {
                 "type": "ClassExpression"
+              }
+            },
+            {
+              "name": "classBody",
+              "fieldValue": {
+                "type": "ClassBody"
+              }
+            },
+            {
+              "name": "staticBlock",
+              "fieldValue": {
+                "type": "StaticBlock"
+              }
+            },
+            {
+              "name": "propertyDefinition",
+              "fieldValue": {
+                "type": "PropertyDefinition"
+              }
+            },
+            {
+              "name": "methodDefinition",
+              "fieldValue": {
+                "type": "MethodDefinition"
               }
             },
             {
@@ -2800,12 +2790,6 @@
               }
             },
             {
-              "name": "staticBlock",
-              "fieldValue": {
-                "type": "StaticBlock"
-              }
-            },
-            {
               "name": "expressionStatement",
               "fieldValue": {
                 "type": "ExpressionStatement"
@@ -2830,6 +2814,46 @@
               }
             }
           ]
+        }
+      }
+    ]
+  },
+  "SourceLocation": {
+    "messageName": "SourceLocation",
+    "fields": [
+      {
+        "name": "source",
+        "fieldValue": {
+          "type": "string"
+        }
+      },
+      {
+        "name": "start",
+        "fieldValue": {
+          "type": "Position"
+        }
+      },
+      {
+        "name": "end",
+        "fieldValue": {
+          "type": "Position"
+        }
+      }
+    ]
+  },
+  "Position": {
+    "messageName": "Position",
+    "fields": [
+      {
+        "name": "line",
+        "fieldValue": {
+          "type": "int32"
+        }
+      },
+      {
+        "name": "end",
+        "fieldValue": {
+          "type": "int32"
         }
       }
     ]
