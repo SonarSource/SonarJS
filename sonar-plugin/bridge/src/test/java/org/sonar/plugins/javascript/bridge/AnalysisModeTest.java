@@ -17,11 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.javascript.analysis;
+package org.sonar.plugins.javascript.bridge;
 
 import static java.util.Collections.emptyList;
 import static java.util.function.Function.identity;
-import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -38,9 +37,6 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.utils.Version;
-import org.sonar.plugins.javascript.JavaScriptLanguage;
-import org.sonar.plugins.javascript.bridge.AnalysisMode;
-import org.sonar.plugins.javascript.bridge.EslintRule;
 
 class AnalysisModeTest {
 
@@ -135,13 +131,10 @@ class AnalysisModeTest {
   private static List<EslintRule> rules(String... keys) {
     return Arrays
       .stream(keys)
-      .map(key -> new EslintRule(key, emptyList(), emptyList(), JavaScriptLanguage.KEY))
+      .map(key -> new EslintRule(key, emptyList(), emptyList(), "js"))
       .toList();
   }
 
-  private static List<InputFile> changedFileList(int count) {
-    return fileList(changedFiles(count));
-  }
 
   @SafeVarargs
   private static List<InputFile> fileList(Stream<InputFile>... streams) {
