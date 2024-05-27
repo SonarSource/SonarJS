@@ -101,3 +101,16 @@ export const createBinaryOperationFunctionDefinition = (operator: string): Funct
     isInstanceMethodCall: false,
   };
 };
+
+export const createAddArrayLastFunctionDefinition = (): FunctionDefinition => {
+  const name = 'array-add-last';
+
+  return {
+    name,
+    signature: `#${name}#`,
+    isVirtual: false,
+    isAStandardLibraryFunction: false,
+    isFunctionRef: false,
+    isInstanceMethodCall: false,
+  };
+};
