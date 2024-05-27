@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2024 SonarSource SA
+ * Copyright (C) 2012-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,9 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.javascript.api;
+package org.sonar.samples.javascript.consumer;
 
-import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.Plugin;
 
-public record JsFile(InputFile inputFile /*,  ESTreeNode node */) {
+public class ConsumerPlugin implements Plugin {
+
+  @Override
+  public void define(Context context) {
+    context.addExtensions(
+      Consumer.class,
+      ConsumerSensor.class
+    );
+  }
 }

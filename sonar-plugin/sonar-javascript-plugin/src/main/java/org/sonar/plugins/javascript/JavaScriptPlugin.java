@@ -41,7 +41,6 @@ import org.sonar.plugins.javascript.analysis.JsTsChecks;
 import org.sonar.plugins.javascript.analysis.JsTsSensor;
 import org.sonar.plugins.javascript.analysis.TsConfigProvider;
 import org.sonar.plugins.javascript.analysis.YamlSensor;
-import org.sonar.plugins.javascript.api.JsAnalysisConsumer;
 import org.sonar.plugins.javascript.bridge.AnalysisWarningsWrapper;
 import org.sonar.plugins.javascript.bridge.BridgeServerImpl;
 import org.sonar.plugins.javascript.bridge.BundleImpl;
@@ -150,7 +149,6 @@ public class JavaScriptPlugin implements Plugin {
       BridgeServerImpl.class,
       NodeDeprecationWarning.class,
       BundleImpl.class,
-      JsAnalysisConsumer.class,
       JsTsSensor.class,
       TypeScriptLanguage.class,
       TypeScriptRulesDefinition.class,

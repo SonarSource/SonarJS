@@ -1,6 +1,6 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2024 SonarSource SA
+ * Copyright (C) 2012-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,41 +17,39 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.javascript.analysis;
+package org.sonar.samples.javascript.consumer;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.scanner.ScannerSide;
 import org.sonar.plugins.javascript.api.JsAnalysisConsumer;
 import org.sonar.plugins.javascript.api.JsFile;
-import org.sonarsource.api.sonarlint.SonarLintSide;
 
-@ScannerSide
-@SonarLintSide
-public class AnalysisConsumers implements JsAnalysisConsumer {
+public class Consumer implements JsAnalysisConsumer {
 
-  private static final Logger LOG = LoggerFactory.getLogger(AnalysisConsumers.class);
+  private static final Logger LOG = LoggerFactory.getLogger(Consumer.class);
 
-  private final List<JsAnalysisConsumer> consumers;
-
-  public AnalysisConsumers() {
-    consumers = List.of();
-    LOG.debug("No registered JsAnalysisConsumer.");
-  }
-
-  public AnalysisConsumers(List<JsAnalysisConsumer> consumers) {
-    this.consumers = List.copyOf(consumers);
-    LOG.debug("Registered JsAnalysisConsumers {}", this.consumers);
-  }
+  private final List<JsFile> jsFiles = new ArrayList<>();
+  private boolean done;
 
   @Override
   public void accept(JsFile jsFile) {
-    consumers.forEach(c -> c.accept(jsFile));
+    LOG.info("Accepted file: {}", jsFile.inputFile());
+    jsFiles.add(jsFile);
   }
 
   @Override
   public void doneAnalysis() {
-    consumers.forEach(JsAnalysisConsumer::doneAnalysis);
+    LOG.info("Done analysis");
+    done = true;
+  }
+
+  public List<JsFile> getJsFiles() {
+    return jsFiles;
+  }
+
+  public boolean isDone() {
+    return done;
   }
 }

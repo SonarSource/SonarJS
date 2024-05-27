@@ -17,9 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.javascript.api;
+@ParametersAreNonnullByDefault
+package org.sonar.samples.javascript.consumer;
 
-import org.sonar.api.batch.fs.InputFile;
-
-public record JsFile(InputFile inputFile /*,  ESTreeNode node */) {
-}
+import javax.annotation.ParametersAreNonnullByDefault;
