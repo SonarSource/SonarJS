@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { ContextManager } from '../context-manager';
 import { TSESTree } from '@typescript-eslint/utils';
 import { Instruction } from '../instruction';
 import { createCallInstruction } from '../instructions/call-instruction';
@@ -29,8 +28,12 @@ import {
 import { handleExpression } from './index';
 import { createTypeName } from '../values/type-name';
 import { createTypeInfo } from '../type-info';
+import type { ExpressionHandler } from '../expression-handler';
 
-export function handleArrayExpression(context: ContextManager, node: TSESTree.ArrayExpression) {
+export const handleArrayExpression: ExpressionHandler<TSESTree.ArrayExpression> = (
+  context,
+  node,
+) => {
   const arrayIdentifier = context.scope.createValueIdentifier();
   const typeInfo = createTypeInfo('ARRAY', 'object', false);
   const arrayValue = createTypeName(arrayIdentifier, 'list', typeInfo);
@@ -69,4 +72,4 @@ export function handleArrayExpression(context: ContextManager, node: TSESTree.Ar
     instructions,
     value: arrayValue,
   };
-}
+};

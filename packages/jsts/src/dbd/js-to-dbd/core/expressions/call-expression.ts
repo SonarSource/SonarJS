@@ -19,19 +19,19 @@
  */
 import { TSESTree } from '@typescript-eslint/utils';
 import { handleMemberExpression } from './member-expression';
-import { CompilationResult, handleExpression } from './index';
-import { ContextManager } from '../context-manager';
+import { handleExpression } from './index';
 import type { Instruction } from '../instruction';
 import { createCallInstruction } from '../instructions/call-instruction';
 import { Value } from '../value';
 import { createReference } from '../values/reference';
 import { createFunctionDefinition2 } from '../function-definition';
 import { createNull } from '../values/null';
+import type { ExpressionHandler } from '../expression-handler';
 
-export function handleCallExpression(
-  context: ContextManager,
-  callExpression: TSESTree.CallExpression,
-): CompilationResult {
+export const handleCallExpression: ExpressionHandler<TSESTree.CallExpression> = (
+  context,
+  callExpression,
+) => {
   const instructions: Instruction[] = [];
   let calleeValue;
   let simpleName;
@@ -99,4 +99,4 @@ export function handleCallExpression(
     instructions,
     value: resultValue,
   };
-}
+};

@@ -5,18 +5,16 @@ import { createReference } from '../values/reference';
 import { createCallInstruction } from '../instructions/call-instruction';
 import { createGetFieldFunctionDefinition } from '../function-definition';
 import { createNull } from '../values/null';
-import { ContextManager } from '../context-manager';
 import { TSESTree } from '@typescript-eslint/utils';
-import { CompilationResult, handleExpression } from './index';
+import { handleExpression } from './index';
+import type { ExpressionHandler } from '../expression-handler';
 
-export function handleMemberExpression(
-  context: ContextManager,
-  node: TSESTree.MemberExpression,
-): CompilationResult {
+export const handleMemberExpression: ExpressionHandler<TSESTree.MemberExpression> = (
+  context,
+  node,
+) => {
   const { object, property } = node;
   const instructions: Array<Instruction> = [];
-
-  console.log('>>>', object.type, property.type);
 
   let memberValue: Value;
   let objectValue: Value | null = null;
@@ -86,4 +84,4 @@ export function handleMemberExpression(
     instructions: [...instructions, ...propertyInstructions],
     value: memberValue,
   };
-}
+};

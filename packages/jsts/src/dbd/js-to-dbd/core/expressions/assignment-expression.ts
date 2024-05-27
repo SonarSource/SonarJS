@@ -3,13 +3,13 @@ import { createCallInstruction } from '../instructions/call-instruction';
 import { createSetFieldFunctionDefinition } from '../function-definition';
 import { createReference } from '../values/reference';
 import { TSESTree } from '@typescript-eslint/utils';
-import { ContextManager } from '../context-manager';
-import { CompilationResult, handleExpression } from './index';
+import { handleExpression } from './index';
+import type { ExpressionHandler } from '../expression-handler';
 
-export function handleAssignmentExpression(
-  context: ContextManager,
-  node: TSESTree.AssignmentExpression,
-): CompilationResult {
+export const handleAssignmentExpression: ExpressionHandler<TSESTree.AssignmentExpression> = (
+  context,
+  node,
+) => {
   let variableName: string;
 
   const { left, right } = node;
@@ -55,4 +55,4 @@ export function handleAssignmentExpression(
       value: rightValue,
     };
   }
-}
+};

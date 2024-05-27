@@ -3,11 +3,14 @@ import { AST_NODE_TYPES } from '@typescript-eslint/typescript-estree';
 import { createReference } from '../values/reference';
 import { createCallInstruction } from '../instructions/call-instruction';
 import { createBinaryOperationFunctionDefinition } from '../function-definition';
-import { ContextManager } from '../context-manager';
 import { TSESTree } from '@typescript-eslint/utils';
 import { handleExpression } from './index';
+import type { ExpressionHandler } from '../expression-handler';
 
-export function handleBinaryExpression(context: ContextManager, node: TSESTree.BinaryExpression) {
+export const handleBinaryExpression: ExpressionHandler<TSESTree.BinaryExpression> = (
+  context,
+  node,
+) => {
   const instructions: Array<Instruction> = [];
 
   const { left, right, operator } = node;
@@ -38,4 +41,4 @@ export function handleBinaryExpression(context: ContextManager, node: TSESTree.B
     instructions,
     value,
   };
-}
+};

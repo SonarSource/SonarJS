@@ -1,13 +1,9 @@
-import { ContextManager } from '../context-manager';
 import { createReference } from '../values/reference';
 import { createNull } from '../values/null';
 import { TSESTree } from '@typescript-eslint/utils';
-import { CompilationResult } from './index';
+import type { ExpressionHandler } from '../expression-handler';
 
-export function handleIdentifier(
-  context: ContextManager,
-  node: TSESTree.Identifier,
-): CompilationResult {
+export const handleIdentifier: ExpressionHandler<TSESTree.Identifier> = (context, node) => {
   const { name } = node;
 
   const variableAndOwner = context.scope.getVariableAndOwner(name);
@@ -28,4 +24,4 @@ export function handleIdentifier(
     instructions: [],
     value: createNull(),
   };
-}
+};

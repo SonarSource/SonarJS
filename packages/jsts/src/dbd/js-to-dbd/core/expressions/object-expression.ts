@@ -1,4 +1,3 @@
-import { ContextManager } from '../context-manager';
 import { createReference } from '../values/reference';
 import type { Instruction } from '../instruction';
 import { createCallInstruction } from '../instructions/call-instruction';
@@ -7,12 +6,13 @@ import {
   createSetFieldFunctionDefinition,
 } from '../function-definition';
 import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/typescript-estree';
-import { CompilationResult, handleExpression } from './index';
+import { handleExpression } from './index';
+import type { ExpressionHandler } from '../expression-handler';
 
-export function handleObjectExpression(
-  context: ContextManager,
-  node: TSESTree.ObjectExpression,
-): CompilationResult {
+export const handleObjectExpression: ExpressionHandler<TSESTree.ObjectExpression> = (
+  context,
+  node,
+) => {
   const { properties } = node;
 
   const objectValueIdentifier = context.scope.createValueIdentifier();
@@ -68,4 +68,4 @@ export function handleObjectExpression(
     instructions,
     value: objectValue,
   };
-}
+};

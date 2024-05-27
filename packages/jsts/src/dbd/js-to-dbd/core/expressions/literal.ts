@@ -1,12 +1,11 @@
-import { ContextManager } from '../context-manager';
 import { TSESTree } from '@typescript-eslint/utils';
-import { CompilationResult } from './index';
 import type { Instruction } from '../instruction';
 import type { Value } from '../value';
 import { createNull } from '../values/null';
 import { createConstant } from '../values/constant';
+import type { ExpressionHandler } from '../expression-handler';
 
-export function handleLiteral(context: ContextManager, node: TSESTree.Literal): CompilationResult {
+export const handleLiteral: ExpressionHandler<TSESTree.Literal> = (context, node) => {
   const instructions: Array<Instruction> = [];
 
   let value: Value;
@@ -21,4 +20,4 @@ export function handleLiteral(context: ContextManager, node: TSESTree.Literal): 
     instructions,
     value,
   };
-}
+};

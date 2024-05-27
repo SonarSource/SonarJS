@@ -1,5 +1,4 @@
-import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/typescript-estree';
-import { ContextManager } from '../context-manager';
+import { AST_NODE_TYPES } from '@typescript-eslint/typescript-estree';
 import type { Instruction } from '../instruction';
 import type { Value } from '../value';
 import { handleMemberExpression } from './member-expression';
@@ -11,16 +10,14 @@ import { handleAssignmentExpression } from './assignment-expression';
 import { handleCallExpression } from './call-expression';
 import { createNull } from '../values/null';
 import { handleArrayExpression } from './array-expression';
+import type { ExpressionHandler } from '../expression-handler';
 
 export type CompilationResult = {
   instructions: Array<Instruction>;
   value: Value;
 };
 
-export function handleExpression(
-  context: ContextManager,
-  node: TSESTree.Expression,
-): CompilationResult {
+export const handleExpression: ExpressionHandler = (context, node) => {
   switch (node.type) {
     case AST_NODE_TYPES.AssignmentExpression:
       return handleAssignmentExpression(context, node);
@@ -46,4 +43,4 @@ export function handleExpression(
         value: createNull(),
       };
   }
-}
+};
