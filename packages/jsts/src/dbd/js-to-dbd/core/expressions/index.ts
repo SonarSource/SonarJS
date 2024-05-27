@@ -10,6 +10,7 @@ import { handleLiteral } from './literal';
 import { handleAssignmentExpression } from './assignment-expression';
 import { handleCallExpression } from './call-expression';
 import { createNull } from '../values/null';
+import { handleArrayExpression } from './array-expression';
 
 export type CompilationResult = {
   instructions: Array<Instruction>;
@@ -35,6 +36,8 @@ export function handleExpression(
       return handleObjectExpression(context, node);
     case AST_NODE_TYPES.CallExpression:
       return handleCallExpression(context, node);
+    case AST_NODE_TYPES.ArrayExpression:
+      return handleArrayExpression(context, node);
     default:
       console.error(`Unrecognized expression: ${node.type}`);
 
