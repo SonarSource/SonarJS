@@ -137,7 +137,7 @@ export function functionInto2Text(functionInfo: FunctionInfo) {
       .join('\n');
     return blockStr;
   });
-  return `${header}${blocks}\n}\n`;
+  return `${header}${blocks.join('\n')}\n}\n\n`;
 }
 
 export function functionInto2Text2(functionInfo: FunctionInfo2) {

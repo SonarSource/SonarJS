@@ -24,8 +24,8 @@ export const createFunctionDefinition = (name: string): FunctionDefinition => {
 export const createFunctionDefinition2 = (
   name: string,
   signature: string,
-  isFunctionRef: boolean = false,
-  isInstanceMethodCall: boolean = false,
+  isFunctionRef = false,
+  isInstanceMethodCall = false,
 ): FunctionDefinition => {
   return {
     name,

@@ -22,11 +22,11 @@
 import { Rule } from 'eslint';
 import { writeFileSync } from 'fs';
 import { mkdirpSync } from 'mkdirp';
-import { functionInto2Text2 } from '../../dbd/helpers';
-import { createTranspiler, type FunctionInfo, serialize } from '../../dbd/js-to-dbd';
-import { sonarSourceIRNamespace } from '../../dbd/js-to-dbd/core/serializer';
+import { functionInto2Text } from '../../dbd/helpers';
+import { createTranspiler, serialize } from '../../dbd/js-to-dbd';
 import { join } from 'path';
 import { TSESTree } from '@typescript-eslint/utils';
+import { FunctionInfo } from '../../dbd/ir-gen/ir_pb';
 
 let i = 0;
 
@@ -55,7 +55,7 @@ export const rule: Rule.RuleModule = {
       functionIdentifier: string,
       data: Uint8Array,
     ) => {
-      const irt = functionInto2Text2(result);
+      const irt = functionInto2Text(result);
       if (print) {
         console.log(irt);
         return;
@@ -78,10 +78,11 @@ export const rule: Rule.RuleModule = {
     const { outputs, metadata } = serialize(functionInfos, context.filename);
 
     for (const { name, data } of outputs) {
-      const FunctionInfo = sonarSourceIRNamespace.lookupType('FunctionInfo');
-      const functionInfo = FunctionInfo.decode(data) as unknown as FunctionInfo;
-
+      const functionInfo = FunctionInfo.fromBinary(data);
       saveResults(functionInfo, metadata, [], false, name, data);
+    }
+    if (!print) {
+      writeFileSync(join(outputDir, `readable.tir`), irts.join('\n'), { flag: 'w' });
     }
 
     return {};
