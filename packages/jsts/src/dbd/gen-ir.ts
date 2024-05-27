@@ -40,5 +40,7 @@ Promise.resolve()
     }
   })
   .catch(err => {
+    console.error(err);
+
     console.log(`ERROR while generating IRs: ${err}`);
   });

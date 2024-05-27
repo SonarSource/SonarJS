@@ -37,10 +37,9 @@ export const rule: Rule.RuleModule = {
     },
   },
   create(context: Rule.RuleContext) {
-    console.log('running rule');
     const print = context.settings?.dbd?.print;
     const outputDir = print ? '' : context.settings?.dbd?.outDir ?? join(__dirname, 'ir', 'python');
-    const root = context.settings?.dbd?.root.replace(/\/+$/, '') || dirname(context.filename);
+    const root = context.settings?.dbd?.root?.replace(/\/+$/, '') || dirname(context.filename);
     const irts: string[] = [];
     if (!print) {
       mkdirpSync(outputDir);

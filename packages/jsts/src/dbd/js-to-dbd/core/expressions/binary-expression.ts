@@ -1,5 +1,4 @@
 import type { Instruction } from '../instruction';
-import { AST_NODE_TYPES } from '@typescript-eslint/typescript-estree';
 import { createReference } from '../values/reference';
 import { createCallInstruction } from '../instructions/call-instruction';
 import { createBinaryOperationFunctionDefinition } from '../function-definition';
@@ -10,17 +9,25 @@ import type { ExpressionHandler } from '../expression-handler';
 export const handleBinaryExpression: ExpressionHandler<TSESTree.BinaryExpression> = (
   context,
   node,
+  scope,
 ) => {
   const instructions: Array<Instruction> = [];
 
   const { left, right, operator } = node;
 
-  if (left.type === AST_NODE_TYPES.PrivateIdentifier) {
-    throw new Error(`Unable to compute binary expression with ${left.type}`);
-  }
-  const { instructions: rightInstructions, value: rightValue } = handleExpression(context, right);
+  // rhs
+  const { instructions: rightInstructions, value: rightValue } = handleExpression(
+    context,
+    right,
+    scope,
+  );
 
-  const { instructions: leftInstructions, value: leftValue } = handleExpression(context, left);
+  // lhs
+  const { instructions: leftInstructions, value: leftValue } = handleExpression(
+    context,
+    left,
+    scope,
+  );
 
   instructions.push(...rightInstructions);
   instructions.push(...leftInstructions);

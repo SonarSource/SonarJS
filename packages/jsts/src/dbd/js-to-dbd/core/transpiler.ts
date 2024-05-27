@@ -22,23 +22,39 @@ export const createTranspiler = (
       return _createFunctionInfo(fileName, createFunctionDefinition2(name, signature));
     };
 
-    const processTopLevel = (functionInfo: FunctionInfo, node: TSESTree.Program) => {
+    const processFunctions = (
+      functionInfo: FunctionInfo,
+      node: TSESTree.FunctionDeclaration | TSESTree.ArrowFunctionExpression,
+    ) => {
       functionInfos.push(functionInfo);
-      const context = new ContextManager(rootPath, functionInfo, node.loc, hostDefinedProperties);
-      node.body
-        .filter(statement => statement.type !== TSESTree.AST_NODE_TYPES.FunctionDeclaration)
-        .forEach(statement => handleStatement(context, statement));
+      // we might want to provide this to the function once, the main is handled
+      const context = new ContextManager(
+        rootPath,
+        functionInfo,
+        node.loc,
+        hostDefinedProperties,
+        (functionInfo, node) => processFunctions(functionInfo, node),
+      );
+      node.params.forEach(param => context.addParameter(param));
+      handleStatement(context, node.body as any); // todo;
       const currentBlock = context.block.getCurrentBlock();
       if (!isTerminated(currentBlock)) {
         currentBlock.instructions.push(createReturnInstruction(createNull(), node.loc));
       }
     };
-    const processFunctions = (functionInfo: FunctionInfo, node: TSESTree.FunctionDeclaration) => {
+
+    const processTopLevel = (functionInfo: FunctionInfo, node: TSESTree.Program) => {
       functionInfos.push(functionInfo);
-      // we might want to provide this to the function once, the main is handled
-      const context = new ContextManager(rootPath, functionInfo, node.loc, hostDefinedProperties);
-      node.params.forEach(param => context.addParameter(param));
-      handleStatement(context, node.body);
+      const context = new ContextManager(
+        rootPath,
+        functionInfo,
+        node.loc,
+        hostDefinedProperties,
+        (functionInfo, node) => processFunctions(functionInfo, node),
+      );
+      node.body
+        .filter(statement => statement.type !== TSESTree.AST_NODE_TYPES.FunctionDeclaration)
+        .forEach(statement => handleStatement(context, statement));
       const currentBlock = context.block.getCurrentBlock();
       if (!isTerminated(currentBlock)) {
         currentBlock.instructions.push(createReturnInstruction(createNull(), node.loc));

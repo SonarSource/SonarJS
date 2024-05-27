@@ -8,7 +8,9 @@ type ExpressionHandlerResult = {
   value: Value;
 };
 
-export type ExpressionHandler<Expression extends TSESTree.Expression = TSESTree.Expression> = (
-  context: ContextManager,
-  node: Expression,
-) => ExpressionHandlerResult;
+export type ExpressionHandler<
+  Expression extends Exclude<TSESTree.Node, TSESTree.Statement> = Exclude<
+    TSESTree.Node,
+    TSESTree.Statement
+  >,
+> = (context: ContextManager, node: Expression, scope?: Value) => ExpressionHandlerResult;

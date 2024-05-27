@@ -13,21 +13,34 @@ import { Location } from './location';
 import { TSESTree } from '@typescript-eslint/utils';
 import { createParameter } from './values/parameter';
 
+export interface ContextManager {
+  createAnonymousFunctionName(): string;
+}
+
 export class ContextManager {
   private readonly blockManager: BlockManager;
   private readonly scopeManager: ScopeManager;
   private readonly signaturePrefixStr: string;
+  private anonymousFunctionIndex: number = 0;
 
   constructor(
     readonly root: string,
-    private readonly functionInfo: FunctionInfo,
+    public readonly functionInfo: FunctionInfo,
     private readonly location: Location,
-    private readonly hostDefinedProperties: Array<Variable> = [],
+    public readonly hostDefinedProperties: Array<Variable> = [],
+    public readonly processFunction: (
+      functionInfo: FunctionInfo,
+      node: TSESTree.FunctionDeclaration | TSESTree.ArrowFunctionExpression,
+    ) => void,
   ) {
     this.scopeManager = new ScopeManager();
     this.blockManager = new BlockManager(this.scopeManager, this.functionInfo);
     this.signaturePrefixStr = getSignaturePrefix(root, functionInfo.fileName);
     this.setupGlobals();
+  }
+
+  createAnonymousFunctionName() {
+    return `anonymous_${this.anonymousFunctionIndex++}`;
   }
 
   get scope(): ScopeManager {

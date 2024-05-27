@@ -18,14 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { TSESTree } from '@typescript-eslint/utils';
-import { handleMemberExpression } from './member-expression';
 import { handleExpression } from './index';
 import type { Instruction } from '../instruction';
-import { createCallInstruction } from '../instructions/call-instruction';
+import { type CallInstruction, createCallInstruction } from '../instructions/call-instruction';
 import { Value } from '../value';
 import { createReference } from '../values/reference';
 import { createFunctionDefinition2 } from '../function-definition';
-import { createNull } from '../values/null';
 import type { ExpressionHandler } from '../expression-handler';
 
 export const handleCallExpression: ExpressionHandler<TSESTree.CallExpression> = (
@@ -38,21 +36,21 @@ export const handleCallExpression: ExpressionHandler<TSESTree.CallExpression> = 
   let calleObjectSimpleName;
   let isFunctionRef = false;
   switch (callExpression.callee.type) {
-    case TSESTree.AST_NODE_TYPES.MemberExpression: {
-      const memberExpressionResult = handleMemberExpression(context, callExpression.callee);
-      calleeValue = memberExpressionResult.value;
-      instructions.push(...memberExpressionResult.instructions);
-      if (callExpression.callee.property.type !== TSESTree.AST_NODE_TYPES.Identifier) {
-        throw new Error(
-          `Unhandled method call ${JSON.stringify(callExpression.callee.property.loc)}`,
-        );
-      }
-      if (callExpression.callee.object.type === TSESTree.AST_NODE_TYPES.Identifier) {
-        calleObjectSimpleName = callExpression.callee.object.name;
-      }
-      simpleName = callExpression.callee.property.name;
-      break;
-    }
+    // case TSESTree.AST_NODE_TYPES.MemberExpression: {
+    //   const memberExpressionResult = handleMemberExpression(context, callExpression.callee);
+    //   calleeValue = memberExpressionResult.value;
+    //   instructions.push(...memberExpressionResult.instructions);
+    //   if (callExpression.callee.property.type !== TSESTree.AST_NODE_TYPES.Identifier) {
+    //     throw new Error(
+    //       `Unhandled method call ${JSON.stringify(callExpression.callee.property.loc)}`,
+    //     );
+    //   }
+    //   if (callExpression.callee.object.type === TSESTree.AST_NODE_TYPES.Identifier) {
+    //     calleObjectSimpleName = callExpression.callee.object.name;
+    //   }
+    //   simpleName = callExpression.callee.property.name;
+    //   break;
+    // }
     case TSESTree.AST_NODE_TYPES.Identifier:
       simpleName = callExpression.callee.name;
       if (context.scope.getVariableAndOwner(simpleName)) {
@@ -60,11 +58,36 @@ export const handleCallExpression: ExpressionHandler<TSESTree.CallExpression> = 
       }
       break;
     default:
-      console.error(`Unsupported call expression callee ${callExpression.callee.type}`);
+      const { instructions: calleeInstructions, value } = handleExpression(
+        context,
+        callExpression.callee,
+      );
+
+      instructions.push(...calleeInstructions);
+
+      // hack
+      // todo: DBD should be able to handle calling functions by reference
+      const name = calleeInstructions
+        .map(i => {
+          const signature = (i as unknown as CallInstruction).functionDefinition.signature;
+
+          return signature.replace('#get-field# ', '');
+        })
+        .join('__');
+
+      instructions.push(
+        createCallInstruction(
+          context.scope.createValueIdentifier(),
+          null,
+          createFunctionDefinition2(name, name),
+          [],
+          callExpression.loc,
+        ),
+      );
 
       return {
-        instructions: [],
-        value: createNull(),
+        instructions,
+        value,
       };
   }
 
