@@ -1,0 +1,82 @@
+isinstance.is_instance_with_static_type (x#1) {
+bb0:
+  #3 = call #is-instance#(param x#1, type int#2):bool
+  return #3
+}
+isinstance.builtins_qualified_is_instance_with_static_type (x#1) {
+bb0:
+  #3 = call #is-instance#(param x#1, type int#2):bool
+  return #3
+}
+isinstance.__builtins__qualified_is_instance_with_static_type (x#1) {
+bb0:
+  #3 = call #is-instance#(param x#1, type int#2):bool
+  return #3
+}
+isinstance.other_qualified_is_instance_with_one_argument (x#1) {
+bb0:
+  #2 = call #unknown-expression#()
+  #3 = call ?.isinstance(#2, param x#1)
+  return #3
+}
+isinstance.other_qualified_is_instance_with_two_arguments (x#1) {
+bb0:
+  #2 = call #unknown-expression#()
+  #3 = call #unknown-expression#()
+  #4 = call ?.isinstance(#3, param x#1, #2)
+  return #4
+}
+isinstance.is_instance_with_runtime_type (x#1, t#2) {
+bb0:
+  #3 = call #unknown#()
+  #4 = call #is-instance#(param x#1, #3):bool
+  return #4
+}
+isinstance.is_instance_with_several_types_is_not_supported (x#1) {
+bb0:
+  #2 = call #unknown#()
+  #3 = call #is-instance#(param x#1, #2):bool
+  return #3
+}
+isinstance.is_instance_with_tuple_of_size_one_is_not_supported (x#1) {
+bb0:
+  #2 = call #unknown#()
+  #3 = call #is-instance#(param x#1, #2):bool
+  return #3
+}
+isinstance.is_instance_with_parentheses (x#1) {
+bb0:
+  #3 = call #is-instance#(param x#1, type int#2):bool
+  return #3
+}
+isinstance.is_instance_with_too_many_parameters (x#1) {
+bb0:
+  #2 = call #unknown-expression#()
+  #3 = call #unknown-expression#()
+  #4 = call isinstance(param x#1, #2, #3):bool
+  return #4
+}
+isinstance.is_instance_with_B (x#1) {
+bb0:
+  #3 = call #is-instance#(param x#1, type isinstance.B#2):bool
+  return #3
+}
+isinstance.is_instance_with_C (x#1) {
+bb0:
+  #3 = call #is-instance#(param x#1, type isinstance.C#2):bool
+  return #3
+}
+isinstance.a_function () {
+bb0:
+  return null#0
+}
+isinstance.is_instance_with_D (x#1) {
+bb0:
+  #3 = call #is-instance#(param x#1, type isinstance.D#2):bool
+  return #3
+}
+isinstance.#__main__ () {
+bb0:
+  a_var#2 = call #id#(3#1):int
+  return null#0
+}

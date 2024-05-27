@@ -28,7 +28,11 @@
     "_:plugin:prepare-bridge": "npm pack && node tools/check-distribution-filepath-length.js && npm run _:plugin:copy-bridge",
     "_:plugin-fetch-node": "node tools/fetch-node/scripts/wrapper.mjs",
     "_:plugin:pre-build": "npm run bridge:build && npm run _:plugin:prepare-bridge && npm run _:plugin-fetch-node",
-    "_:plugin:copy-bridge": "cpy sonarjs-1.0.0.tgz sonar-plugin/sonar-javascript-plugin/target/classes"
+    "_:plugin:copy-bridge": "cpy sonarjs-1.0.0.tgz sonar-plugin/sonar-javascript-plugin/target/classes",
+    "gen-ir-helpers": "buf generate packages/jsts/src/dbd/proto/",
+    "gen-ir": "ts-node --project packages/tsconfig.json packages/jsts/src/dbd/gen-ir.ts",
+    "generate-benchmark": "ts-node packages/jsts/tests/dbd/benchmark/generate.ts --",
+    "gb": "npm run generate-benchmark"
   },
   "repository": {
     "type": "git",
@@ -54,6 +58,7 @@
     "@types/lodash.clone": "4.5.9",
     "@types/node": "20.11.30",
     "@types/tmp": "0.2.6",
+    "commander": "12.0.0",
     "cpy-cli": "4.2.0",
     "dir-compare": "4.2.0",
     "extract-zip": "2.0.1",
@@ -69,6 +74,7 @@
     "rimraf": "3.0.2",
     "ts-jest": "29.1.2",
     "ts-node": "10.9.2",
+    "tsconfig-paths": "4.2.0",
     "typedoc": "0.25.12"
   },
   "dependencies": {
@@ -78,6 +84,9 @@
     "@babel/preset-env": "7.24.3",
     "@babel/preset-flow": "7.24.1",
     "@babel/preset-react": "7.24.1",
+    "@bufbuild/buf": "^1.31.0",
+    "@bufbuild/protobuf": "^1.9.0",
+    "@bufbuild/protoc-gen-es": "^1.9.0",
     "@eslint-community/regexpp": "4.10.0",
     "@typescript-eslint/eslint-plugin": "^7.7.1",
     "@typescript-eslint/parser": "^7.7.1",
@@ -104,6 +113,7 @@
     "postcss-scss": "4.0.9",
     "postcss-syntax": "0.36.2",
     "postcss-value-parser": "4.2.0",
+    "protobufjs": "^7.3.0",
     "run-node": "2.0.0",
     "scslre": "0.3.0",
     "semver": "7.6.0",

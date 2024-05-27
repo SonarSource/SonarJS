@@ -43,3 +43,5 @@ Desktop.ini
 # ---- Sonar
 .sonar
 .scannerwork
+
+ir/

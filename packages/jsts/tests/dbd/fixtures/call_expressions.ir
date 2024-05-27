@@ -1,0 +1,145 @@
+call_expressions.f (x#1) {
+bb0:
+  #2 = call #unknown-expression#()
+  return null#0
+}
+call_expressions.g (y#1) {
+bb0:
+  #3 = call call_expressions.f(42#2)
+  #4 = call #unaryop *#(param y#1)
+  #5 = call #unknown#(#4)
+  #6 = call call_expressions.f(42#2)
+  #7 = call #unknown#()
+  #9 = call #unknown-expression#()
+  #10 = call ?.choice(#9, 10#8, 42#2)
+  return null#0
+}
+call_expressions.qualified_call_to_static_function () {
+bb0:
+  #2 = call #unknown-expression#()
+  #3 = call ?.choice(#2, 10#1)
+  return null#0
+}
+call_expressions.ambiguous_call_to_class_method () {
+bb0:
+  #1 = call datetime.datetime.now()
+  return null#0
+}
+call_expressions.A.__init__ (self#1) {
+bb0:
+  return null#0
+}
+call_expressions.A.foo (self#1, x#2, y#3, z#4) {
+bb0:
+  #5 = call #unknown-expression#()
+  return null#0
+}
+call_expressions.A.bar () {
+bb0:
+  #1 = call #unknown-expression#()
+  return null#0
+}
+call_expressions.A.method_with_default_values (self#1, x#2) {
+bb0:
+  return null#0
+}
+call_expressions.A.method_with_args (self#1, args#2) {
+bb0:
+  return null#0
+}
+call_expressions.A.method_with_kwargs (self#1, kwargs#2) {
+bb0:
+  return null#0
+}
+call_expressions.call_to_instance_method (x#1, y#2, z#3) {
+bb0:
+  a#4 = call #new-object#():call_expressions.A
+  #5 = call call_expressions.A.__init__(a#4):NoneType
+  #6 = call ?.foo(a#4, param x#1, param y#2, param z#3)
+  #7 = call #unknown-expression#()
+  #8 = call ?.foo(#7)
+  #9 = call call_expressions.A.bar()
+  #10 = call ?.ambiguous_meth(a#4)
+  #11 = call ?.ambiguous_f(a#4)
+  return null#0
+}
+call_expressions.calling_ambiguous_functions () {
+bb0:
+  #1 = call ?.ambiguous_f()
+  return null#0
+}
+call_expressions.functions_with_kwargs (kwargs#1) {
+bb0:
+  #2 = call #unknown-expression#()
+  return null#0
+}
+call_expressions.function_with_args (args#1) {
+bb0:
+  #2 = call #unknown-expression#()
+  return null#0
+}
+call_expressions.function_with_default_value (param#1) {
+bb0:
+  #2 = call #unknown-expression#()
+  return null#0
+}
+call_expressions.function_with_default_value2 (param1#1, param2#2, param3#3) {
+bb0:
+  #4 = call #unknown-expression#()
+  return null#0
+}
+call_expressions.calling_functions_with_variadic_arguments () {
+bb0:
+  #1 = call #unknown#()
+  #2 = call #unknown#()
+  #3 = call #unknown#()
+  #4 = call call_expressions.function_with_default_value(#3)
+  #6 = call call_expressions.function_with_default_value(42#5)
+  #7 = call #unknown#()
+  #9 = call call_expressions.function_with_default_value2(42#5, #7, 1#8)
+  #11 = call call_expressions.function_with_default_value2(42#5, 2#10, 1#8)
+  #12 = call #unknown-expression#()
+  #13 = call ?.function_with_unknown_semantic(#12)
+  #14 = call ?.function_with_unknown_semantic()
+  return null#0
+}
+call_expressions.call_with_incorrect_number_of_args () {
+bb0:
+  #2 = call input(?#1):str
+  #3 = call #unknown#()
+  #4 = call call_expressions.f(#3)
+  return null#0
+}
+call_expressions.call_expressions () {
+bb0:
+  #2 = call call_expressions.f(1#1)
+  #3 = call #unknown#()
+  #4 = call call_expressions.function_with_default_value(#3)
+  #5 = call #unknown#(1#1)
+  #7 = call #unknown#(1#1, 2#6)
+  a#8 = call #new-object#():call_expressions.A
+  #9 = call call_expressions.A.__init__(a#8):NoneType
+  #11 = call ?.foo(a#8, 1#1, 2#6, 3#10)
+  #12 = call call_expressions.A.bar()
+  #13 = call #unknown#()
+  #14 = call ?.method_with_default_values(a#8, #13)
+  #15 = call #unknown#(a#8, 1#1)
+  #16 = call #unknown#(a#8, 1#1)
+  return null#0
+}
+call_expressions.#__main__ () {
+bb0:
+  #1 = call #unknown-expression#()
+  brif bb1, bb2, #1
+bb1:
+  br bb3
+bb2:
+  ambiguous_f#3 = call #id#(42#2):int
+  br bb3
+bb3:
+  ambiguous_f#6 = phi(bb1: unbound#5, bb2: ambiguous_f#3)
+  %closure#4 = call #new-object#()
+  #7 = call #set-field# ambiguous_f(%closure#4, ambiguous_f#6)
+  #8 = call #python-partial-apply#(%closure#4)
+  return null#0
+}

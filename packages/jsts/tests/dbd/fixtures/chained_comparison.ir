@@ -1,0 +1,108 @@
+chained_comparison.func () {
+bb0:
+  a#2 = call #id#(10#1):int
+  b#4 = call #id#(20#3):int
+  c#6 = call #id#(30#5):int
+  d#7 = call #id#(30#5):int
+  e#9 = call #id#(50#8):int
+  #10 = call #binop <#(a#2, b#4)
+  brif bb1, bb2, #10
+bb1:
+  #11 = call #binop <=#(b#4, c#6)
+  br bb2
+bb2:
+  #13 = phi(bb0: false#12, bb1: #11)
+  brif bb3, bb4, #13
+bb3:
+  #15 = call #binop ==#(c#6, d#7)
+  br bb4
+bb4:
+  #16 = phi(bb2: false#12, bb3: #15)
+  brif bb5, bb6, #16
+bb5:
+  #17 = call #binop !=#(d#7, e#9)
+  br bb6
+bb6:
+  #18 = phi(bb4: false#12, bb5: #17)
+  brif bb7, bb8, #18
+bb7:
+  #19 = call #binop is not#(e#9, 10#1)
+  br bb8
+bb8:
+  rslt#20 = phi(bb6: false#12, bb7: #19)
+  return rslt#20
+}
+chained_comparison.func2 () {
+bb0:
+  a#2 = call #id#(10#1):int
+  b#4 = call #id#(20#3):int
+  c#6 = call #id#(30#5):int
+  d#7 = call #id#(30#5):int
+  e#9 = call #id#(50#8):int
+  rslt#10 = call #binop <#(a#2, b#4)
+  brif bb1, bb2, rslt#10
+bb1:
+  rslt#11 = call #binop <=#(b#4, c#6)
+  br bb2
+bb2:
+  rslt#12 = phi(bb0: rslt#10, bb1: rslt#11)
+  brif bb3, bb4, rslt#12
+bb3:
+  rslt#14 = call #binop ==#(c#6, d#7)
+  br bb4
+bb4:
+  rslt#15 = phi(bb2: rslt#12, bb3: rslt#14)
+  brif bb5, bb6, rslt#15
+bb5:
+  rslt#16 = call #binop !=#(d#7, e#9)
+  br bb6
+bb6:
+  rslt#17 = phi(bb4: rslt#15, bb5: rslt#16)
+  brif bb7, bb8, rslt#17
+bb7:
+  rslt#18 = call #binop is not#(e#9, 10#1)
+  br bb8
+bb8:
+  rslt#19 = phi(bb6: rslt#17, bb7: rslt#18)
+  return rslt#19
+}
+chained_comparison.nested_is_2 (a#1, b#2, c#3, d#4) {
+bb0:
+  #5 = call #binop is#(param a#1, param b#2)
+  brif bb1, bb2, #5
+bb1:
+  #6 = call #binop is#(param b#2, param c#3)
+  br bb2
+bb2:
+  #8 = phi(bb0: false#7, bb1: #6)
+  brif bb3, bb4, #8
+bb3:
+  #10 = call #binop is#(param c#3, param d#4)
+  br bb4
+bb4:
+  #11 = phi(bb2: false#7, bb3: #10)
+  brif bb5, bb6, #11
+bb5:
+  x#13 = call #id#(1#12):int
+  br bb7
+bb6:
+  x#15 = call #id#(2#14):int
+  br bb7
+bb7:
+  x#17 = call #id#(3#16):int
+  return null#0
+}
+chained_comparison.nested_is_assigned_to_variable (x#1, y#2, z#3) {
+bb0:
+  #4 = call ?.x()
+  #5 = call ?.y()
+  #6 = call #binop is#(#4, #5)
+  brif bb1, bb2, #6
+bb1:
+  #7 = call ?.z()
+  #8 = call #binop is#(#5, #7)
+  br bb2
+bb2:
+  b#10 = phi(bb0: false#9, bb1: #8)
+  return null#0
+}

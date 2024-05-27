@@ -1,0 +1,22 @@
+break_statements.statement_after_break () {
+bb0:
+  #2 = call #new-object#():range
+  #3 = call range.__init__(#2, 3#1):NoneType
+  #4 = call iter(#2):typing.Iterator
+  br bb1
+bb1(loopId=1, loopCondition):
+  #5 = call #has-next#(#4)
+  brif bb2, bb3, #5
+bb2(loopId=1):
+  k#6 = call next(#4)
+  brif bb4, bb5, true#7
+bb3:
+  return null#0
+bb4(loopId=1):
+  br bb3
+bb5(loopId=1):
+  br bb1
+bb6(loopId=1):
+  b#9 = call #id#(2#8):int
+  br bb5
+}

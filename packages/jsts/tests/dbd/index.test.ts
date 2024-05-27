@@ -1,0 +1,60 @@
+/*
+ * SonarQube JavaScript Plugin
+ * Copyright (C) 2011-2024 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+import path from 'path';
+import { generateIR, proto2text } from '../../src/dbd/helpers';
+import { toUnixPath } from '@sonar/shared';
+import fs from 'fs';
+
+const baseDir = path.join(__dirname, 'fixtures');
+const files = fs.readdirSync(baseDir).filter(file => file.endsWith('.js'));
+
+describe('DBD IR generation', () => {
+  it('DBD rule should create correct IR', async () => {
+    const filePath = path.join(baseDir, 'custom.js');
+    const outDir = path.join(__dirname, 'ir', 'python');
+    const signature = toUnixPath(filePath.slice(baseDir.length + 1)).replace(/\//g, '_');
+    await generateIR(
+      filePath,
+      outDir,
+      `function loadAll(pluginNames) {
+             pluginNames(); // Noncompliant: pluginNames might be undefined
+           }
+           loadAll(null);`,
+    );
+    const files = [path.join(outDir, 'ir0_main.ir'), path.join(outDir, 'ir0_0.ir')];
+    const textIR = await proto2text(files);
+    expect(textIR).toEqual(`${signature}.#__main__ () {
+bb0:
+  #1 = call ${signature}.loadAll(null#0)
+  return null#0
+}
+${signature}.loadAll (pluginNames#1) {
+bb0:
+  #2 = call ${signature}.pluginNames()
+  return null#0
+}
+`);
+  });
+
+  it.each(files)('should process %s', async filePath => {
+    const outDir = path.join(__dirname, 'ir', 'python');
+    await generateIR(path.join(baseDir, filePath), outDir);
+  });
+});

@@ -1,0 +1,19 @@
+return_statements.foo () {
+bb0:
+  return 42#1
+}
+return_statements.bar () {
+bb0:
+  return null#0
+}
+return_statements.empty_return () {
+bb0:
+  return null#0
+}
+return_statements.return_multiple () {
+bb0:
+  #1 = call #new-object#():tuple
+  #3 = call #array-add-last#(#1, 1#2)
+  #5 = call #array-add-last#(#1, 2#4)
+  return #1
+}

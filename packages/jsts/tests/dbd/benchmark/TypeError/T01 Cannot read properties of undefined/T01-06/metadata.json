@@ -1,0 +1,13 @@
+{
+  "project": {
+    "url": "https://github.com/BugsJS/eslint/tree/Bug-30-full"
+  },
+  "filenames": [
+    "lib/rules/no-multiple-empty-lines.js"
+  ],
+  "fix": "https://github.com/BugsJS/eslint/compare/Bug-30-full...Bug-30-fix",
+  "location": {
+    "startLine": "101"
+  },
+  "attribution": "BugsJS"
+}

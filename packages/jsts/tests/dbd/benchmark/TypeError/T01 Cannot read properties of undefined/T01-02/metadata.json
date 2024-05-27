@@ -1,0 +1,12 @@
+{
+  "project": {
+    "url": "https://github.com/Succery-dev/Qube2"
+  },
+  "filenames": ["frontend/pages/projectDetails/[projectId].tsx"],
+  "fix": "https://github.com/Succery-dev/Qube2/commit/9bfbd19cff565a33fca7691206a11b51218ca83e",
+  "location": {
+    "startLine":390,
+    "endLine": 395
+  },
+  "attribution": "free-search"
+}

@@ -1,0 +1,12 @@
+{
+  "project": {
+    "url": "https://github.com/holonym-foundation/phone-number-server"
+  },
+  "filenames": ["sessions.js"],
+  "fix": "https://github.com/holonym-foundation/phone-number-server/commit/1e1b7838d1ec8da6f8b9545f67d3cbc96f08dcc7",
+  "location": {
+    "startLine": 399,
+    "endLine": 404
+  },
+  "attribution": "free-search"
+}

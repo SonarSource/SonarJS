@@ -1,0 +1,45 @@
+qualified_expressions.access_param (x#1) {
+bb0:
+  #2 = call #get-field# bar(param x#1)
+  return null#0
+}
+qualified_expressions.access_local_variable () {
+bb0:
+  x#1 = call #id#(null#0):NoneType
+  #2 = call #get-field# bar(x#1)
+  return null#0
+}
+qualified_expressions.access_global () {
+bb0:
+  #1 = call #unknown-expression#()
+  #2 = call #get-field# bar(#1)
+  return null#0
+}
+qualified_expressions.access_return_value () {
+bb0:
+  x#2 = call abs(42#1)
+  #3 = call #get-field# bar(x#2)
+  return null#0
+}
+qualified_expressions.chain_of_assignments () {
+bb0:
+  x#1 = call #id#(null#0):NoneType
+  y#2 = call #id#(x#1):NoneType
+  #3 = call #get-field# bar(y#2)
+  return null#0
+}
+qualified_expressions.access_return_value_and_assignment () {
+bb0:
+  x#1 = call #unknown#()
+  y#2 = call #id#(x#1)
+  #3 = call #get-field# foo(y#2)
+  return null#0
+}
+qualified_expressions.#__main__ () {
+bb0:
+  some_global#1 = call #id#(null#0):NoneType
+  %closure#2 = call #new-object#()
+  #3 = call #set-field# some_global(%closure#2, some_global#1)
+  #4 = call #python-partial-apply#(%closure#2)
+  return null#0
+}

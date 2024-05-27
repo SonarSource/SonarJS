@@ -1,0 +1,32 @@
+closure.outer_function () {
+bb0:
+  outer_var#2 = call #id#(1#1):int
+  another_outer_var#4 = call #id#(2#3):int
+  %closure#5 = call #new-object#()
+  #6 = call #set-field# outer_var(%closure#5, outer_var#2)
+  #7 = call #python-partial-apply#(%closure#5)
+  #8 = call closure.outer_function.inner_function()
+  return null#0
+}
+closure.outer_function.inner_function () {
+bb0:
+  inner_var#1 = call #unknown-expression#()
+  return inner_var#1
+}
+closure.Box.__init__ (self#1) {
+bb0:
+  #3 = call #set-field# x(param self#1, 0#2)
+  return null#0
+}
+closure.#__main__ () {
+bb0:
+  a#2 = call #id#(3#1):int
+  b#3 = call #new-object#():closure.Box
+  #4 = call closure.Box.__init__(b#3):NoneType
+  c#6 = call #id#(2#5):int
+  %closure#7 = call #new-object#()
+  #8 = call #set-field# a(%closure#7, a#2)
+  #9 = call #set-field# b(%closure#7, b#3)
+  #10 = call #python-partial-apply#(%closure#7)
+  return null#0
+}

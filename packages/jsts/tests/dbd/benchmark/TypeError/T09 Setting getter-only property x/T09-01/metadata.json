@@ -1,0 +1,13 @@
+{
+  "project": {
+    "url": "https://github.com/jeedom/core"
+  },
+  "filenames": [
+    "core/js/history.class.js"
+  ],
+  "fix": "https://github.com/jeedom/core/commit/dff00059f95378bf3ba267c06da0715029a4f730",
+  "location": {
+    "startLine": 1877
+  },
+  "attribution": "free-search"
+}

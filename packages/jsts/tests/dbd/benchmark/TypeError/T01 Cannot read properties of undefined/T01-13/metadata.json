@@ -1,0 +1,13 @@
+{
+  "project": {
+    "url": "https://github.com/BugsJS/eslint/tree/Bug-202-full"
+  },
+  "filenames": [
+    "lib/config/autoconfig.js"
+  ],
+  "fix": "https://github.com/BugsJS/eslint/compare/Bug-202-full...Bug-202-fix",
+  "location": {
+    "startLine": "313"
+  },
+  "attribution": "BugsJS"
+}

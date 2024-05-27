@@ -1,0 +1,13 @@
+{
+  "project": {
+    "url": "https://github.com/BugsJS/eslint/tree/Bug-103-full"
+  },
+  "filenames": [
+    "lib/rules/indent.js"
+  ],
+  "fix": "https://github.com/BugsJS/eslint/compare/Bug-103-full...Bug-103-fix",
+  "location": {
+    "startLine": "806",
+  },
+  "attribution": "BugsJS"
+}

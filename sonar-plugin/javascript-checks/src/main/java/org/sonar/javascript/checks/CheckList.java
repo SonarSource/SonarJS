@@ -127,6 +127,7 @@ public final class CheckList {
       CsrfCheck.class,
       CyclomaticComplexityJavaScriptCheck.class,
       CyclomaticComplexityTypeScriptCheck.class,
+      DbdTranslationRuleCheck.class,
       DeadStoreCheck.class,
       DebuggerStatementCheck.class,
       DeclarationInGlobalScopeCheck.class,

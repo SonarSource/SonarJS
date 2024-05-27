@@ -1,0 +1,12 @@
+{
+  "project": {
+    "url": "https://github.com/Strange-Quark-007/ludo-multiplayer-server"
+  },
+  "filenames": ["src/functions/connectionLogic.ts"],
+  "fix": "https://github.com/Strange-Quark-007/ludo-multiplayer-server/commit/1f10351e3a54f17e11a8f1f176578aca9278bb0f",
+  "location": {
+    "startLine": 40,
+    "endLine": 45
+  },
+  "attribution": "free-search"
+}

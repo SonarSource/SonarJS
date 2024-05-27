@@ -1,0 +1,17 @@
+syntax = "proto3";
+package sonarsource.ir;
+option java_outer_classname = "TypesProto";
+option java_package = "com.sonarsource.ir.protobuf";
+option optimize_for = SPEED;
+
+message TypeDefinition {
+  string qualified_name = 1;
+  repeated Method methods = 2;
+  repeated string super_type_ids = 3;
+  bool has_incomplete_semantics = 4;
+}
+
+message Method {
+  string name = 1;
+  string signature = 2;
+}

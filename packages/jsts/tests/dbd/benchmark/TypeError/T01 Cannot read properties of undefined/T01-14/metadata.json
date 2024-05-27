@@ -1,0 +1,11 @@
+{
+  "project": {
+    "url": "https://github.com/BugsJS/eslint/compare/Bug-327-full"
+  },
+  "filenames": ["lib/rules/no-extra-parens.js"],
+  "fix": "https://github.com/BugsJS/eslint/compare/Bug-327-full...Bug-327-fix",
+  "location": {
+    "startLine": "145"
+  },
+  "attribution": "BugsJS"
+}

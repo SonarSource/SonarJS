@@ -1,0 +1,8 @@
+{
+  "subPackages": [
+    {
+      "root": "pages/child",
+      "pages": null
+    }
+  ]
+}
