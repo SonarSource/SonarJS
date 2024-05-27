@@ -13,8 +13,12 @@ export function handleVariableDeclaration(
   node: TSESTree.VariableDeclaration,
 ) {
   for (const declarator of node.declarations) {
-    if (!declarator || declarator.type !== TSESTree.AST_NODE_TYPES.VariableDeclarator) {
-      throw new Error('Unhandled declaration');
+    if (declarator.type !== TSESTree.AST_NODE_TYPES.VariableDeclarator) {
+      console.error(`Unhandled declaration at ${declarator.type}`);
+      return {
+        instructions: [],
+        value: createNull(),
+      };
     }
     if (declarator.id.type !== TSESTree.AST_NODE_TYPES.Identifier) {
       console.error(`Unhandled declaration id type ${declarator.id.type}`);
@@ -28,7 +32,6 @@ export function handleVariableDeclaration(
     const currentBlock = context.block.getCurrentBlock();
 
     let value: Value;
-
     if (declarator.init) {
       const result = handleExpression(context, declarator.init);
 
@@ -57,6 +60,7 @@ export function handleVariableDeclaration(
       createSetFieldFunctionDefinition(variableName),
       [createReference(currentScope.identifier), value],
       node.loc,
+      value.typeInfo,
     );
 
     currentBlock.instructions.push(instruction);

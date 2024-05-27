@@ -6,6 +6,7 @@ export const createReference = (identifier: number): Reference => {
   return {
     identifier,
     type: 'reference',
+    typeInfo: undefined,
     users: [],
   };
 };

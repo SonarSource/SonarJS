@@ -7,7 +7,6 @@ import type { Location } from '../location';
 export type CallInstruction = BaseValueInstruction<'call'> & {
   readonly functionDefinition: FunctionDefinition;
   readonly isInstanceMethodCall: boolean;
-  readonly staticType: TypeInfo;
 };
 
 export const createCallInstruction = (
@@ -16,15 +15,15 @@ export const createCallInstruction = (
   functionDefinition: FunctionDefinition,
   operands: Array<Value>,
   location: Location,
+  staticType: TypeInfo = {
+    kind: 0,
+    qualifiedName: 'foo',
+    hasIncompleteSemantics: false,
+  },
 ): CallInstruction => {
   return {
-    ...createValueInstruction('call', valueIndex, variableName, operands, location),
+    ...createValueInstruction('call', valueIndex, variableName, operands, location, staticType),
     functionDefinition,
     isInstanceMethodCall: false,
-    staticType: {
-      kind: 0,
-      qualifiedName: 'foo',
-      hasIncompleteSemantics: false,
-    },
   };
 };
