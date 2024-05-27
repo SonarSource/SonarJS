@@ -90,7 +90,12 @@ export const handleCallExpression: ExpressionHandler<TSESTree.CallExpression> = 
     createCallInstruction(
       resultValueId,
       null,
-      createFunctionDefinition2(simpleName, 'FILENAME', isFunctionRef, isInstanceMethodCall),
+      createFunctionDefinition2(
+        simpleName,
+        `${context.filename()}.${simpleName}`,
+        isFunctionRef,
+        isInstanceMethodCall,
+      ),
       args,
       callExpression.loc,
     ),

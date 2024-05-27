@@ -19,7 +19,6 @@
  */
 import path from 'path';
 import { generateIR, proto2text } from '../../src/dbd/helpers';
-import { toUnixPath } from '@sonar/shared';
 import fs from 'fs';
 
 const baseDir = path.join(__dirname, 'fixtures');
@@ -29,7 +28,6 @@ describe('DBD IR generation', () => {
   it('DBD rule should create correct IR', async () => {
     const filePath = path.join(baseDir, 'custom.js');
     const outDir = path.join(__dirname, 'ir', 'python');
-    const signature = toUnixPath(filePath.slice(baseDir.length + 1)).replace(/\//g, '_');
     await generateIR(
       filePath,
       outDir,
@@ -38,18 +36,44 @@ describe('DBD IR generation', () => {
            }
            loadAll(null);`,
     );
-    const files = [path.join(outDir, 'ir0_main.ir'), path.join(outDir, 'ir0_0.ir')];
+    const files = [
+      path.join(outDir, 'ir0_custom___main__.ir'),
+      path.join(outDir, 'ir0_custom_loadAll.ir'),
+    ];
     const textIR = await proto2text(files);
-    expect(textIR).toEqual(`${signature}.#__main__ () {
+    expect(textIR).toEqual(`#__main__ () {
 bb0:
-  #1 = call ${signature}.loadAll(null#0)
-  return null#0
+  null#0 = call #new-object#():foo
+  #1 = call #set-field# globalThis(null#0, null#0):foo
+  #2 = call #set-field# NaN(null#0, NaN#3):foo
+  #4 = call #set-field# Infinity(null#0, Infinity#5):foo
+  #6 = call #set-field# undefined(null#0, undefined#7):foo
+  br bb1
+bb1:
+  #8 = call #new-object#():foo
+  #9 = call ${filePath}.loadAll(#-1):foo
+  return #-1
 }
-${signature}.loadAll (pluginNames#1) {
+
+loadAll (pluginNames#9) {
 bb0:
-  #2 = call ${signature}.pluginNames()
-  return null#0
+  null#0 = call #new-object#():foo
+  #1 = call #set-field# globalThis(null#0, null#0):foo
+  #2 = call #set-field# NaN(null#0, NaN#3):foo
+  #4 = call #set-field# Infinity(null#0, Infinity#5):foo
+  #6 = call #set-field# undefined(null#0, undefined#7):foo
+  br bb1
+bb1:
+  #8 = call #new-object#():foo
+  br bb2
+bb2:
+  #10 = call #new-object#():foo
+  #11 = call ${filePath}.pluginNames():foo
+  br bb3
+bb3:
+  return #-1
 }
+
 `);
   });
 

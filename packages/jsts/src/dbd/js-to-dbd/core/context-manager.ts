@@ -36,9 +36,14 @@ export class ContextManager {
     return this.blockManager;
   }
 
+  filename(): string {
+    return this.functionInfo.fileName;
+  }
+
   addParameter(param: TSESTree.Parameter) {
     if (param.type !== 'Identifier') {
-      throw new Error(`Unknown method parameter type ${param.type}`);
+      console.error(`Unknown method parameter type ${param.type}`);
+      return;
     }
     const valueId = this.scope.createValueIdentifier();
     const parameter = createParameter(valueId, param.name, param.loc);
