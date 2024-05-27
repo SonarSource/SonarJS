@@ -114,10 +114,12 @@ describe('router', () => {
     const filePath = path.join(fixtures, 'file.js');
     const fileType = 'MAIN';
     const data = { filePath, fileType, tsConfigs: [] };
-    const response = (await request(server, '/analyze-js', 'POST', data)) as string;
+    const response = (await request(server, '/analyze-js', 'POST', data, 'formdata')) as FormData;
+
+    const ast = response.get('ast');
     const {
       issues: [issue],
-    } = JSON.parse(response);
+    } = JSON.parse(response.get('json') as string);
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'prefer-regex-literals',
@@ -128,6 +130,7 @@ describe('router', () => {
         message: `Use a regular expression literal instead of the 'RegExp' constructor.`,
       }),
     );
+    expect(ast).toEqual('plop');
   });
 
   it('should route /analyze-ts requests', async () => {
