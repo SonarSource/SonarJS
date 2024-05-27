@@ -11,7 +11,10 @@ import { handleStatement } from './statements';
 
 export type Transpiler = (ast: TSESTree.Program, fileName: string) => Array<FunctionInfo>;
 
-export const createTranspiler = (hostDefinedProperties: Array<Variable> = []): Transpiler => {
+export const createTranspiler = (
+  rootPath: string,
+  hostDefinedProperties: Array<Variable> = [],
+): Transpiler => {
   return (program, fileName) => {
     const functionInfos: Array<FunctionInfo> = [];
 
@@ -21,7 +24,7 @@ export const createTranspiler = (hostDefinedProperties: Array<Variable> = []): T
 
     const processTopLevel = (functionInfo: FunctionInfo, node: TSESTree.Program) => {
       functionInfos.push(functionInfo);
-      const context = new ContextManager(functionInfo, node.loc, hostDefinedProperties);
+      const context = new ContextManager(rootPath, functionInfo, node.loc, hostDefinedProperties);
       node.body
         .filter(statement => statement.type !== TSESTree.AST_NODE_TYPES.FunctionDeclaration)
         .forEach(statement => handleStatement(context, statement));
@@ -33,7 +36,7 @@ export const createTranspiler = (hostDefinedProperties: Array<Variable> = []): T
     const processFunctions = (functionInfo: FunctionInfo, node: TSESTree.FunctionDeclaration) => {
       functionInfos.push(functionInfo);
       // we might want to provide this to the function once, the main is handled
-      const context = new ContextManager(functionInfo, node.loc, hostDefinedProperties);
+      const context = new ContextManager(rootPath, functionInfo, node.loc, hostDefinedProperties);
       node.params.forEach(param => context.addParameter(param));
       handleStatement(context, node.body);
       const currentBlock = context.block.getCurrentBlock();

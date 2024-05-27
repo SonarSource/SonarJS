@@ -24,7 +24,7 @@ import { writeFileSync } from 'fs';
 import { mkdirpSync } from 'mkdirp';
 import { functionInto2Text } from '../../dbd/helpers';
 import { createTranspiler, serialize } from '../../dbd/js-to-dbd';
-import { join } from 'path';
+import { dirname, join } from 'path';
 import { TSESTree } from '@typescript-eslint/utils';
 import { FunctionInfo } from '../../dbd/ir-gen/ir_pb';
 
@@ -39,12 +39,13 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     const print = context.settings?.dbd?.print;
     const outputDir = print ? '' : context.settings?.dbd?.outDir ?? join(__dirname, 'ir', 'python');
+    const root = context.settings?.dbd?.root || dirname(context.filename);
     const irts: string[] = [];
     if (!print) {
       mkdirpSync(outputDir);
     }
     const { ast } = context.sourceCode;
-    const transpile = createTranspiler([]);
+    const transpile = createTranspiler(root, []);
     const functionInfos = transpile(ast as TSESTree.Program, context.filename);
 
     const saveResults = (

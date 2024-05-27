@@ -12,19 +12,26 @@ import { createBranchingInstruction } from './instructions/branching-instruction
 import { Location } from './location';
 import { TSESTree } from '@typescript-eslint/utils';
 import { createParameter } from './values/parameter';
+import { toUnixPath } from '@sonar/shared';
 
 export class ContextManager {
   private readonly blockManager: BlockManager;
   private readonly scopeManager: ScopeManager;
+  private readonly signaturePrefixStr: string;
 
   constructor(
+    readonly root: string,
     private readonly functionInfo: FunctionInfo,
     private readonly location: Location,
     private readonly hostDefinedProperties: Array<Variable> = [],
   ) {
     this.scopeManager = new ScopeManager();
     this.blockManager = new BlockManager(this.scopeManager, this.functionInfo);
-
+    const relativeFilename =
+      root && functionInfo.fileName.startsWith(root)
+        ? functionInfo.fileName.slice(root.length + 1)
+        : functionInfo.fileName;
+    this.signaturePrefixStr = toUnixPath(relativeFilename).replace(/\//g, '_');
     this.setupGlobals();
   }
 
@@ -36,8 +43,8 @@ export class ContextManager {
     return this.blockManager;
   }
 
-  filename(): string {
-    return this.functionInfo.fileName;
+  signaturePrefix(): string {
+    return this.signaturePrefixStr;
   }
 
   addParameter(param: TSESTree.Parameter) {
