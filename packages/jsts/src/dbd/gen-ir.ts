@@ -7,7 +7,7 @@ import * as process from 'node:process';
 program
   .option('-F, --file <file...>', 'Files to parse')
   .option('-S, --string <string...>', 'String to parse')
-  .option('-R, --root <string...>', 'Project root path')
+  .option('-R, --root <string>', 'Project root path')
   .option('-P, --print', 'Print instead of saving to disk')
   .option('-O, --output <path>', 'Path to save output files');
 

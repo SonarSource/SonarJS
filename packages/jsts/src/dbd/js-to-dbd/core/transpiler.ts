@@ -6,7 +6,7 @@ import { createNull } from './values/null';
 import { createFunctionInfo as _createFunctionInfo, type FunctionInfo } from './function-info';
 import { ContextManager } from './context-manager';
 
-import { isTerminated } from './utils';
+import { getSignature, isTerminated } from './utils';
 import { handleStatement } from './statements';
 
 export type Transpiler = (ast: TSESTree.Program, fileName: string) => Array<FunctionInfo>;
@@ -46,13 +46,19 @@ export const createTranspiler = (
     };
 
     // process the program
-    const mainFunctionInfo = createFunctionInfo('__main__', '#__main__');
+    const mainFunctionInfo = createFunctionInfo(
+      '#__main__',
+      getSignature(rootPath, fileName, '#__main__'),
+    );
     processTopLevel(mainFunctionInfo, program);
     program.body.forEach(statement => {
       if (statement.type !== TSESTree.AST_NODE_TYPES.FunctionDeclaration) {
         return;
       }
-      const functionInfo = createFunctionInfo(statement.id.name, statement.id.name);
+      const functionInfo = createFunctionInfo(
+        statement.id.name,
+        getSignature(rootPath, fileName, statement.id.name),
+      );
       processFunctions(functionInfo, statement);
     });
 

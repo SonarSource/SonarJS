@@ -2,7 +2,7 @@ import { ScopeManager } from './scope-manager';
 import { BlockManager } from './block-manager';
 import { FunctionInfo } from './function-info';
 import type { Scope } from './scope';
-import { createScopeDeclarationInstruction } from './utils';
+import { createScopeDeclarationInstruction, getSignaturePrefix } from './utils';
 import { createCallInstruction } from './instructions/call-instruction';
 import { createFunctionDefinition, createSetFieldFunctionDefinition } from './function-definition';
 import { createReference } from './values/reference';
@@ -12,7 +12,6 @@ import { createBranchingInstruction } from './instructions/branching-instruction
 import { Location } from './location';
 import { TSESTree } from '@typescript-eslint/utils';
 import { createParameter } from './values/parameter';
-import { toUnixPath } from '@sonar/shared';
 
 export class ContextManager {
   private readonly blockManager: BlockManager;
@@ -27,11 +26,7 @@ export class ContextManager {
   ) {
     this.scopeManager = new ScopeManager();
     this.blockManager = new BlockManager(this.scopeManager, this.functionInfo);
-    const relativeFilename =
-      root && functionInfo.fileName.startsWith(root)
-        ? functionInfo.fileName.slice(root.length + 1)
-        : functionInfo.fileName;
-    this.signaturePrefixStr = toUnixPath(relativeFilename).replace(/\//g, '_');
+    this.signaturePrefixStr = getSignaturePrefix(root, functionInfo.fileName);
     this.setupGlobals();
   }
 

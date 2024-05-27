@@ -23,7 +23,7 @@ export async function generateDirIR(
     if (file.isDirectory()) {
       await generateDirIR(filePath, outDir, print, root);
     } else {
-      await generateIR(file.path, outDir, undefined, print, root);
+      await generateIR(filePath, outDir, undefined, print, root);
     }
   }
 }
@@ -35,6 +35,9 @@ export async function generateIR(
   print = false,
   root?: string,
 ) {
+  if (!filePath.endsWith('.js')) {
+    return;
+  }
   if (!fileContent) {
     fileContent = await readFile(filePath);
   }

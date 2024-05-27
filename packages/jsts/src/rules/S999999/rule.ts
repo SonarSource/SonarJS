@@ -37,9 +37,10 @@ export const rule: Rule.RuleModule = {
     },
   },
   create(context: Rule.RuleContext) {
+    console.log('running rule');
     const print = context.settings?.dbd?.print;
     const outputDir = print ? '' : context.settings?.dbd?.outDir ?? join(__dirname, 'ir', 'python');
-    const root = context.settings?.dbd?.root || dirname(context.filename);
+    const root = context.settings?.dbd?.root.replace(/\/+$/, '') || dirname(context.filename);
     const irts: string[] = [];
     if (!print) {
       mkdirpSync(outputDir);
@@ -70,6 +71,7 @@ export const rule: Rule.RuleModule = {
       if (methodVariables.length > 0) {
         metadataContent += `\n----\n` + methodVariables.join('\n');
       }
+      console.log(`Writing to file ${fileNameBase}`);
       writeFileSync(`${fileNameBase}.json`, content, { flag: 'w' });
       writeFileSync(`${fileNameBase}.metadata`, metadataContent, { flag: 'w' });
       writeFileSync(`${fileNameBase}.ir`, data, { flag: 'w' });
@@ -83,9 +85,9 @@ export const rule: Rule.RuleModule = {
       saveResults(functionInfo, metadata, [], false, name, data);
     }
     if (!print) {
-      writeFileSync(join(outputDir, `readable.tir`), irts.join('\n'), { flag: 'w' });
+      writeFileSync(join(outputDir, `ir${i}_readable.tir`), irts.join('\n'), { flag: 'w' });
     }
-
+    i++;
     return {};
   },
 };
