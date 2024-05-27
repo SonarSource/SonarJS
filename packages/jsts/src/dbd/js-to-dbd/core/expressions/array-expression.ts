@@ -20,7 +20,6 @@
 
 import { ContextManager } from '../context-manager';
 import { TSESTree } from '@typescript-eslint/utils';
-import { createReference } from '../values/reference';
 import { Instruction } from '../instruction';
 import { createCallInstruction } from '../instructions/call-instruction';
 import {
@@ -28,13 +27,23 @@ import {
   createNewObjectFunctionDefinition,
 } from '../function-definition';
 import { handleExpression } from './index';
+import { createTypeName } from '../values/type-name';
+import { createTypeInfo } from '../type-info';
 
 export function handleArrayExpression(context: ContextManager, node: TSESTree.ArrayExpression) {
   const arrayIdentifier = context.scope.createValueIdentifier();
-  const arrayValue = createReference(arrayIdentifier);
+  const typeInfo = createTypeInfo('ARRAY', 'object', false);
+  const arrayValue = createTypeName(arrayIdentifier, 'list', typeInfo);
 
   const instructions: Instruction[] = [
-    createCallInstruction(arrayIdentifier, null, createNewObjectFunctionDefinition(), [], node.loc),
+    createCallInstruction(
+      arrayIdentifier,
+      null,
+      createNewObjectFunctionDefinition(),
+      [],
+      node.loc,
+      typeInfo,
+    ),
   ];
   node.elements.forEach(element => {
     if (!element || element.type === TSESTree.AST_NODE_TYPES.SpreadElement) {
