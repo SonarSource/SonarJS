@@ -92,7 +92,7 @@ export const handleCallExpression: ExpressionHandler<TSESTree.CallExpression> = 
       null,
       createFunctionDefinition2(
         simpleName,
-        `${context.filename()}.${simpleName}`,
+        `${context.signaturePrefix()}.${simpleName}`,
         isFunctionRef,
         isInstanceMethodCall,
       ),
