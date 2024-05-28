@@ -11,7 +11,7 @@ export const handleIdentifier: ExpressionHandler<TSESTree.Identifier> = (context
   const { scope: scopeManager } = context;
   const { getVariableAndOwner, createValueIdentifier } = scopeManager;
 
-  let instructions: Array<Instruction> = [];
+  const instructions: Array<Instruction> = [];
 
   const getScopeReference = (name: string) => {
     const variableAndOwner = getVariableAndOwner(name);
