@@ -32,6 +32,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.file.Path;
 import java.time.Duration;
@@ -397,27 +398,8 @@ public class BridgeServerImpl implements BridgeServer {
 
     try {
       var response = client.send(request, BodyHandlers.ofString());
-
       if (isFormData) {
-        String boundary = "--" + response.headers().firstValue("Content-Type")
-            .orElseThrow(() -> new IllegalStateException("No Content-Type header"))
-            .split("boundary=")[1];
-        String[] parts = response.body().split(boundary);
-
-        for (String part : parts) {
-          // Split the part into headers and body
-          String[] splitPart = part.split("\r\n\r\n", 2);
-          if (splitPart.length < 2)
-            continue; // Skip if there's no body
-
-          String headers = splitPart[0];
-          String partBody = splitPart[1];
-
-          if (headers.contains("json")) {
-            return partBody;
-          }
-        }
-        throw new IllegalStateException("Data missing from response");
+        return parseFormData(response);
       } else {
         return response.body();
       }
@@ -426,6 +408,28 @@ public class BridgeServerImpl implements BridgeServer {
     } catch (IOException e) {
       throw new IllegalStateException("The bridge server is unresponsive", e);
     }
+  }
+
+  private static String parseFormData(HttpResponse<String> response) {
+    String boundary = "--" + response.headers().firstValue("Content-Type")
+      .orElseThrow(() -> new IllegalStateException("No Content-Type header"))
+      .split("boundary=")[1];
+    String[] parts = response.body().split(boundary);
+
+    for (String part : parts) {
+      // Split the part into headers and body
+      String[] splitPart = part.split("\r\n\r\n", 2);
+      if (splitPart.length < 2)
+        continue; // Skip if there's no body
+
+      String headers = splitPart[0];
+      String partBody = splitPart[1];
+
+      if (headers.contains("json")) {
+        return partBody;
+      }
+    }
+    throw new IllegalStateException("Data missing from response");
   }
 
   private static IllegalStateException handleInterruptedException(
