@@ -362,7 +362,7 @@ public class BridgeServerImpl implements BridgeServer {
   @Override
   public AnalysisResponse analyzeTypeScript(JsAnalysisRequest request) throws IOException {
     String json = GSON.toJson(request);
-    return response(request(json, "analyze-ts", true), request.filePath());
+    return response(request(json, "analyze-ts"), request.filePath());
   }
 
   @Override
@@ -403,7 +403,7 @@ public class BridgeServerImpl implements BridgeServer {
             .orElseThrow(() -> new IllegalStateException("No Content-Type header"))
             .split("boundary=")[1];
         String[] parts = response.body().split(boundary);
-        // Process each part
+
         for (String part : parts) {
           // Split the part into headers and body
           String[] splitPart = part.split("\r\n\r\n", 2);
@@ -416,13 +416,11 @@ public class BridgeServerImpl implements BridgeServer {
           if (headers.contains("json")) {
             return partBody;
           }
-
-          // Process the part body...
         }
+        throw new IllegalStateException("Data missing from response");
+      } else {
+        return response.body();
       }
-
-      // response.
-      return response.body();
     } catch (InterruptedException e) {
       throw handleInterruptedException(e, "Request " + endpoint + " was interrupted.");
     } catch (IOException e) {
