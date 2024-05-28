@@ -56,7 +56,7 @@ export class ContextManager {
   }
 
   addParameter(param: TSESTree.Parameter) {
-    if (param.type !== 'Identifier') {
+    if (param.type !== TSESTree.AST_NODE_TYPES.Identifier) {
       console.error(`Unknown method parameter type ${param.type}`);
       return;
     }
@@ -65,6 +65,17 @@ export class ContextManager {
     this.functionInfo.parameters.push(parameter);
     const variable = createVariable(param.name);
     this.scope.getCurrentScope().variables.set(param.name, variable);
+    this.block
+      .getCurrentBlock()
+      .instructions.push(
+        createCallInstruction(
+          this.scope.createValueIdentifier(),
+          null,
+          createSetFieldFunctionDefinition(param.name),
+          [createReference(this.scope.getCurrentScope().identifier), parameter],
+          param.loc,
+        ),
+      );
   }
 
   setupGlobals() {
