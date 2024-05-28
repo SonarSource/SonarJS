@@ -53,6 +53,7 @@ exports.delegate = function (worker, type) {
             fd.append('ast', message.result.ast);
             delete message.result.ast;
             fd.append('json', JSON.stringify(message.result));
+            // this adds the boundary string that will be used to separate the parts
             response.set('Content-Type', fd.getHeaders()['content-type']);
             response.set('Content-Length', fd.getLengthSync());
             fd.pipe(response);
