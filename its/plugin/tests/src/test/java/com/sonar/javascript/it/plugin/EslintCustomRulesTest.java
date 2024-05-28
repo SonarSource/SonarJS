@@ -128,7 +128,7 @@ class EslintCustomRulesTest {
     )
       .isEmpty();
     assertThat(buildResult.getLogsLines(l -> l.contains("TS API in custom rule: TS version 5.4.3")))
-      .hasSize(2);
+      .hasSize(3); // this is logged per each file
     List<Issue> issues = findIssues("eslint-custom-rules:sqKey", orchestrator);
     assertThat(issues).hasSize(2);
     assertThat(issues)
