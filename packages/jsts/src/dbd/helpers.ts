@@ -111,7 +111,7 @@ export function functionInto2Text(functionInfo: FunctionInfo) {
             return `br bb${i.instr.value.successor}`;
           case 'conditionalBranchingInstruction': {
             const { trueSuccessor, falseSuccessor, condition } = i.instr.value;
-            return `brif bb${trueSuccessor}, bb${falseSuccessor} ${valueToStr(condition)}`;
+            return `brif bb${trueSuccessor}, bb${falseSuccessor}, ${valueToStr(condition)}`;
           }
           case 'phiInstruction':
             const { variableName, valueId, valuesByBlock } = i.instr.value;
