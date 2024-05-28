@@ -4,6 +4,7 @@ import { basename, extname } from 'node:path';
 import type { Constant } from './values/constant';
 import { createNull } from './values/null';
 import type { Instruction } from './instruction';
+import { Parameter } from './values/parameter';
 
 const basicBlock = new Type('BasicBlock')
   .add(new Field('identifier', 1, 'int32'))
@@ -121,23 +122,29 @@ export const sonarSourceIRNamespace = new Root()
 export const serialize = (
   functionInfos: Array<FunctionInfo>,
   fileName: string,
-): {
-  outputs: Array<{
-    name: string;
-    data: Uint8Array;
-  }>;
+): Array<{
+  name: string;
+  data: Uint8Array;
   metadata: Array<string>;
-} => {
+}> => {
   const outputs: Array<{
     name: string;
     data: Uint8Array;
+    metadata: Array<string>;
   }> = [];
 
   /**
    * Creates and returns a serializable representation of the passed `functionInfo`.
    */
-  const createSerializableFunctionInfo = (functionInfo: FunctionInfo): Record<string, any> => {
+  const createSerializableFunctionInfo = (
+    functionInfo: FunctionInfo,
+  ): {
+    serializableFunctionInfo: Record<string, any>;
+    methodCalls: Array<string>;
+  } => {
     const constants: Array<Constant> = [];
+    const parameters: Array<Parameter> = [];
+    const methodCalls: Array<string> = [];
     const nullValue = createNull();
 
     const createSerializableInstruction = (instruction: Instruction): Record<string, any> => {
@@ -146,10 +153,15 @@ export const serialize = (
       for (const operand of instruction.operands) {
         if (operand.type === 'constant') {
           constants.push(operand);
+        } else if (operand.type === 'parameter') {
+          parameters.push(operand);
         }
       }
 
       if (instruction.type === 'call') {
+        if (!instruction.functionDefinition.signature.startsWith('#')) {
+          methodCalls.push(instruction.functionDefinition.signature);
+        }
         result = {
           ...instruction,
           valueIdentifier: instruction.valueIndex,
@@ -209,51 +221,59 @@ export const serialize = (
     };
 
     return {
-      ...functionInfo,
-      blocks: functionInfo.blocks.map(block => {
-        return {
-          ...block,
-          instructions: block.instructions.map(instruction => {
-            return {
-              [(instruction as Instruction).type]: createSerializableInstruction(
-                instruction as Instruction,
-              ),
-            };
-          }),
-        };
-      }),
-      valueTable: {
-        constants: constants.map(constant => {
+      serializableFunctionInfo: {
+        ...functionInfo,
+        blocks: functionInfo.blocks.map(block => {
           return {
-            ...constant,
-            value: `${constant.value}`,
+            ...block,
+            instructions: block.instructions.map(instruction => {
+              return {
+                [(instruction as Instruction).type]: createSerializableInstruction(
+                  instruction as Instruction,
+                ),
+              };
+            }),
           };
         }),
-        null: nullValue,
+        valueTable: {
+          constants: constants.map(constant => {
+            return {
+              ...constant,
+              value: `${constant.value}`,
+            };
+          }),
+          parameters: parameters.map(parameter => {
+            return {
+              ...parameter,
+              definitionLocations: parameter.location,
+            };
+          }),
+          null: nullValue,
+        },
       },
+      methodCalls,
     };
   };
-  const metadata: Array<string> = [];
   const slug = basename(fileName, extname(fileName));
   const FunctionInfo = sonarSourceIRNamespace.lookupType('FunctionInfo');
 
   for (const functionInfo of functionInfos) {
     const { definition } = functionInfo;
 
-    metadata.push(`${slug}.${definition.signature}`);
+    const metadata: Array<string> = [];
+    metadata.push(`${definition.signature}`);
 
-    const serializableFunctionInfo = createSerializableFunctionInfo(functionInfo);
+    const { serializableFunctionInfo, methodCalls } = createSerializableFunctionInfo(functionInfo);
     const message = FunctionInfo.create(serializableFunctionInfo);
     const data = FunctionInfo.encode(message).finish();
 
+    metadata.push(...methodCalls);
     outputs.push({
       data,
       name: `${slug}_${definition.name}`,
+      metadata,
     });
   }
 
-  return {
-    outputs,
-    metadata,
-  };
+  return outputs;
 };
