@@ -7,33 +7,15 @@ export type FunctionDefinition = {
   readonly isVirtual: boolean;
   readonly isAStandardLibraryFunction: boolean;
   readonly isFunctionRef: boolean;
-  readonly isInstanceMethodCall: boolean;
 };
 
-export const createFunctionDefinition = (name: string): FunctionDefinition => {
-  return {
-    name,
-    signature: `#${name}#`,
-    isVirtual: false,
-    isAStandardLibraryFunction: false,
-    isFunctionRef: false,
-    isInstanceMethodCall: false,
-  };
-};
-
-export const createFunctionDefinition2 = (
-  name: string,
-  signature: string,
-  isFunctionRef = false,
-  isInstanceMethodCall = false,
-): FunctionDefinition => {
+export const createFunctionDefinition = (name: string, signature: string): FunctionDefinition => {
   return {
     name,
     signature,
     isVirtual: false,
     isAStandardLibraryFunction: false,
-    isFunctionRef,
-    isInstanceMethodCall,
+    isFunctionRef: false,
   };
 };
 
@@ -46,7 +28,6 @@ export const createIdentityFunctionDefinition = (): FunctionDefinition => {
     isVirtual: false,
     isAStandardLibraryFunction: false,
     isFunctionRef: false,
-    isInstanceMethodCall: false,
   };
 };
 
@@ -59,7 +40,6 @@ export const createGetFieldFunctionDefinition = (attributeName: string): Functio
     isVirtual: false,
     isAStandardLibraryFunction: false,
     isFunctionRef: false,
-    isInstanceMethodCall: false,
   };
 };
 
@@ -72,7 +52,6 @@ export const createNewObjectFunctionDefinition = (): FunctionDefinition => {
     isVirtual: false,
     isAStandardLibraryFunction: false,
     isFunctionRef: false,
-    isInstanceMethodCall: false,
   };
 };
 
@@ -85,7 +64,6 @@ export const createSetFieldFunctionDefinition = (attributeName: string): Functio
     isVirtual: false,
     isAStandardLibraryFunction: false,
     isFunctionRef: false,
-    isInstanceMethodCall: false,
   };
 };
 
@@ -98,7 +76,6 @@ export const createBinaryOperationFunctionDefinition = (operator: string): Funct
     isVirtual: false,
     isAStandardLibraryFunction: false,
     isFunctionRef: false,
-    isInstanceMethodCall: false,
   };
 };
 
@@ -111,6 +88,9 @@ export const createAddArrayLastFunctionDefinition = (): FunctionDefinition => {
     isVirtual: false,
     isAStandardLibraryFunction: false,
     isFunctionRef: false,
-    isInstanceMethodCall: false,
   };
+};
+
+export const generateSignature = (name: string, fileName: string) => {
+  return `${fileName.replace(/[. ]/g, '_')}.${name}`;
 };

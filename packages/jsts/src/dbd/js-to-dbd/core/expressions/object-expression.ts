@@ -7,12 +7,12 @@ import { compileAsAssignment, handleExpression } from './index';
 import type { ExpressionHandler } from '../expression-handler';
 
 export const handleObjectExpression: ExpressionHandler<TSESTree.ObjectExpression> = (
-  context,
   node,
+  context,
 ) => {
   const { properties } = node;
 
-  const objectValue = createReference(context.scope.createValueIdentifier());
+  const objectValue = createReference(context.scopeManager.createValueIdentifier());
 
   const instructions: Array<Instruction> = [
     createCallInstruction(
@@ -34,15 +34,15 @@ export const handleObjectExpression: ExpressionHandler<TSESTree.ObjectExpression
       }
 
       const { value: propertyValue, instructions: propertyValueInstructions } = handleExpression(
-        context,
         property.value,
+        context,
         objectValue,
       );
 
       const propertyKeyInstructions = compileAsAssignment(
-        context,
         property.key,
         propertyValue,
+        context,
         objectValue,
       );
 

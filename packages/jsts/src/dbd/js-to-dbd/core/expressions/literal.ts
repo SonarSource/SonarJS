@@ -8,7 +8,8 @@ import { createCallInstruction } from '../instructions/call-instruction';
 import { createGetFieldFunctionDefinition } from '../function-definition';
 import { createReference } from '../values/reference';
 
-export const handleLiteral: ExpressionHandler<TSESTree.Literal> = (context, node, scope) => {
+export const handleLiteral: ExpressionHandler<TSESTree.Literal> = (node, context, scope) => {
+  const { createValueIdentifier } = context.scopeManager;
   const instructions: Array<Instruction> = [];
 
   let value: Value;
@@ -17,8 +18,8 @@ export const handleLiteral: ExpressionHandler<TSESTree.Literal> = (context, node
     value = createNull();
   } else {
     if (scope) {
-      // todo: if node.value is a number then this is an array access
-      value = createReference(context.scope.createValueIdentifier());
+      // todo: if node.value is a number then is this an array access?
+      value = createReference(createValueIdentifier());
 
       instructions.push(
         createCallInstruction(
@@ -30,7 +31,7 @@ export const handleLiteral: ExpressionHandler<TSESTree.Literal> = (context, node
         ),
       );
     } else {
-      value = createConstant(context.scope.createValueIdentifier(), node.value);
+      value = createConstant(createValueIdentifier(), node.value);
     }
   }
 

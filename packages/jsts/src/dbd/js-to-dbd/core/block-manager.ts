@@ -1,5 +1,5 @@
 import { Block, createBlock } from './block';
-import { ScopeManager } from './scope-manager';
+import { ScopeManagerClass } from './scope-manager';
 import type { Location } from './location';
 import { FunctionInfo } from './function-info';
 
@@ -7,7 +7,7 @@ export class BlockManager {
   blockIndex = 0;
 
   constructor(
-    private readonly scopeManager: ScopeManager,
+    private readonly scopeManager: ScopeManagerClass,
     private readonly functionInfo: FunctionInfo,
   ) {}
 

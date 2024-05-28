@@ -1,4 +1,3 @@
-import { ContextManager } from '../context-manager';
 import { TSESTree } from '@typescript-eslint/utils';
 import { handleExpression } from '../expressions';
 import type { Block } from '../block';
@@ -6,41 +5,58 @@ import { createBranchingInstruction } from '../instructions/branching-instructio
 import { createConditionalBranchingInstruction } from '../instructions/conditional-branching-instruction';
 import { createScopeDeclarationInstruction, isTerminated } from '../utils';
 import { handleStatement } from './index';
+import type { StatementHandler } from '../statement-handler';
+import { AST_NODE_TYPES } from '@typescript-eslint/typescript-estree';
 
-export function handleIfStatement(context: ContextManager, node: TSESTree.IfStatement) {
+export const handleIfStatement: StatementHandler<TSESTree.IfStatement> = (
+  node,
+  context,
+  fileName,
+) => {
   const { consequent, alternate, test } = node;
-  const currentBlock = context.block.getCurrentBlock();
+  const { scopeManager } = context;
+  const { getCurrentBlock, createScopedBlock, unshiftScope, createScope, pushBlock, shiftScope } =
+    scopeManager;
+
+  const currentBlock = getCurrentBlock();
 
   // the "finally" block belongs to the same scope as the current block
-  const finallyBlock = context.block.createScopedBlock(node.loc);
+  const finallyBlock = createScopedBlock(node.loc);
 
   const processNode = (innerNode: TSESTree.Statement | null): Block => {
-    const currentScope = context.scope.push(context.scope.createScope());
+    const currentScope = createScope();
 
-    const loc = innerNode === null ? node.loc : innerNode.loc;
+    unshiftScope(currentScope);
+
     let block;
-    if (!innerNode) {
-      block = context.block.createScopedBlock(loc);
-      context.block.push(block);
-    } else {
-      block = context.block.createScopedBlock(loc);
-
-      block.instructions.push(createScopeDeclarationInstruction(currentScope, innerNode.loc));
-
-      context.block.push(block);
-      handleStatement(context, innerNode);
+    if (innerNode === null) {
+      innerNode = {
+        type: AST_NODE_TYPES.BlockStatement,
+        parent: node.parent,
+        loc: node.loc,
+        range: node.range,
+        body: [],
+      };
     }
-    context.scope.pop();
-    if (!isTerminated(context.block.getCurrentBlock())) {
+    const loc = innerNode.loc;
+
+    block = createScopedBlock(loc);
+
+    block.instructions.push(createScopeDeclarationInstruction(currentScope, innerNode.loc));
+
+    pushBlock(block);
+
+    handleStatement(innerNode, context, fileName);
+
+    shiftScope();
+    if (!isTerminated(getCurrentBlock())) {
       // branch the CURRENT BLOCK to the finally one
-      context.block
-        .getCurrentBlock()
-        .instructions.push(createBranchingInstruction(finallyBlock, loc));
+      getCurrentBlock().instructions.push(createBranchingInstruction(finallyBlock, loc));
     }
     return block;
   };
 
-  const { instructions: testInstructions, value: testValue } = handleExpression(context, test);
+  const { instructions: testInstructions, value: testValue } = handleExpression(test, context);
 
   currentBlock.instructions.push(...testInstructions);
 
@@ -55,5 +71,5 @@ export function handleIfStatement(context: ContextManager, node: TSESTree.IfStat
     createConditionalBranchingInstruction(testValue, consequentBlock, alternateBlock, node.loc),
   );
 
-  context.block.push(finallyBlock);
-}
+  pushBlock(finallyBlock);
+};

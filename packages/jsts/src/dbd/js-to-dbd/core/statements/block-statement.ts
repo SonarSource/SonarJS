@@ -1,21 +1,25 @@
-import { ContextManager } from '../context-manager';
 import { TSESTree } from '@typescript-eslint/utils';
 import { createBranchingInstruction } from '../instructions/branching-instruction';
 import { createCallInstruction } from '../instructions/call-instruction';
 import { createNewObjectFunctionDefinition } from '../function-definition';
-import { handleStatement } from './index';
+import type { StatementHandler } from '../statement-handler';
 
-export function handleBlockStatement(context: ContextManager, node: TSESTree.BlockStatement) {
-  const blockScope = context.scope.createScope();
-  context.scope.push(blockScope);
+export const handleBlockStatement: StatementHandler<TSESTree.BlockStatement> = (node, context) => {
+  const { scopeManager } = context;
+  const { createScope, createScopedBlock, getCurrentBlock, pushBlock, unshiftScope, shiftScope } =
+    scopeManager;
 
-  const bbn = context.block.createScopedBlock(node.loc);
+  const blockScope = createScope();
+
+  unshiftScope(blockScope);
+
+  const bbn = createScopedBlock(node.loc);
 
   // branch current block to bbn
-  context.block.getCurrentBlock().instructions.push(createBranchingInstruction(bbn, node.loc));
+  getCurrentBlock().instructions.push(createBranchingInstruction(bbn, node.loc));
 
   // promote bbn as current block
-  context.block.push(bbn);
+  pushBlock(bbn);
 
   // create scope instruction
   const instruction = createCallInstruction(
@@ -26,18 +30,17 @@ export function handleBlockStatement(context: ContextManager, node: TSESTree.Blo
     node.loc,
   );
 
-  context.block.getCurrentBlock().instructions.push(instruction);
-  node.body.forEach(statement => handleStatement(context, statement));
+  getCurrentBlock().instructions.push(instruction);
 
-  context.scope.pop();
+  // node.body.forEach(handleStatement);
 
-  const bbnPlusOne = context.block.createScopedBlock(node.loc);
+  shiftScope();
+
+  const bbnPlusOne = createScopedBlock(node.loc);
 
   // branch the current block to bbnPlusOne
-  context.block
-    .getCurrentBlock()
-    .instructions.push(createBranchingInstruction(bbnPlusOne, node.loc));
+  getCurrentBlock().instructions.push(createBranchingInstruction(bbnPlusOne, node.loc));
 
   // promote bbnPlusOne as current block
-  context.block.push(bbnPlusOne);
-}
+  pushBlock(bbnPlusOne);
+};

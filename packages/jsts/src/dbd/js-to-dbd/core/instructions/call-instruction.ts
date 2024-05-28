@@ -17,7 +17,7 @@ export const createCallInstruction = (
   location: Location,
   staticType: TypeInfo = {
     kind: 0,
-    qualifiedName: 'foo',
+    qualifiedName: 'any',
     hasIncompleteSemantics: false,
   },
 ): CallInstruction => {

@@ -6,22 +6,46 @@ import { createNull } from '../values/null';
 import type { Instruction } from '../instruction';
 import { createCallInstruction } from '../instructions/call-instruction';
 
-export const handleIdentifier: ExpressionHandler<TSESTree.Identifier> = (context, node, scope) => {
+export const handleIdentifier: ExpressionHandler<TSESTree.Identifier> = (node, context, scope) => {
   const { name } = node;
-  const { scope: scopeManager } = context;
-  const { getVariableAndOwner, createValueIdentifier } = scopeManager;
+  const { scopeManager } = context;
+  const {
+    getVariableAndOwner,
+    createValueIdentifier,
+    getParameter,
+    getAssignment,
+    getScopeReference,
+  } = scopeManager;
 
-  const instructions: Array<Instruction> = [];
+  let instructions: Array<Instruction> = [];
 
-  const getScopeReference = (name: string) => {
-    const variableAndOwner = getVariableAndOwner(name);
+  // check if this is a reference to a parameter
+  const parameter = getParameter(node.name);
 
-    if (variableAndOwner) {
-      return createReference(variableAndOwner.owner.identifier);
+  if (parameter) {
+    return {
+      instructions,
+      value: parameter,
+    };
+  }
+
+  const variableAndOwner = getVariableAndOwner(name);
+
+  if (variableAndOwner) {
+    const assignment = getAssignment(variableAndOwner.variable);
+
+    if (assignment) {
+      return {
+        instructions,
+        value: createReference(assignment.identifier),
+      };
+    } else {
+      return {
+        instructions,
+        value: createNull(),
+      };
     }
-
-    return createNull();
-  };
+  }
 
   const value = createReference(createValueIdentifier());
 

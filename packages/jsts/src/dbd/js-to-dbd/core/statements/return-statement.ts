@@ -1,19 +1,21 @@
 import { TSESTree } from '@typescript-eslint/utils';
-import { ContextManager } from '../context-manager';
 import { createReturnInstruction } from '../instructions/return-instruction';
 import { createNull } from '../values/null';
 import { handleExpression } from '../expressions';
+import type { StatementHandler } from '../statement-handler';
 
-export function handleReturnStatement(context: ContextManager, node: TSESTree.ReturnStatement) {
+export const handleReturnStatement: StatementHandler<TSESTree.ReturnStatement> = (
+  node,
+  context,
+) => {
+  const { scopeManager } = context;
+  const { getCurrentBlock } = scopeManager;
+
   if (node.argument === null) {
-    context.block
-      .getCurrentBlock()
-      .instructions.push(createReturnInstruction(createNull(), node.loc));
+    getCurrentBlock().instructions.push(createReturnInstruction(createNull(), node.loc));
   } else {
-    const value = handleExpression(context, node.argument);
-    context.block.getCurrentBlock().instructions.push(...value.instructions);
-    context.block
-      .getCurrentBlock()
-      .instructions.push(createReturnInstruction(value.value, node.loc));
+    const value = handleExpression(node.argument, context);
+    getCurrentBlock().instructions.push(...value.instructions);
+    getCurrentBlock().instructions.push(createReturnInstruction(value.value, node.loc));
   }
-}
+};

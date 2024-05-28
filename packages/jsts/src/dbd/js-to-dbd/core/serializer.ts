@@ -1,5 +1,5 @@
 import { Enum, Field, MapField, OneOf, Root, Type } from 'protobufjs';
-import type { FunctionInfo } from './function-info';
+import { type FunctionInfo } from './function-info';
 import { basename, extname } from 'node:path';
 import type { Constant } from './values/constant';
 import { createNull } from './values/null';
@@ -121,16 +121,15 @@ export const sonarSourceIRNamespace = new Root()
 export const serialize = (
   functionInfos: Array<FunctionInfo>,
   fileName: string,
-): {
-  outputs: Array<{
-    name: string;
-    data: Uint8Array;
-  }>;
+): Array<{
+  name: string;
+  data: Uint8Array;
   metadata: Array<string>;
-} => {
+}> => {
   const outputs: Array<{
     name: string;
     data: Uint8Array;
+    metadata: Array<string>;
   }> = [];
 
   /**
@@ -173,7 +172,7 @@ export const serialize = (
         result = {
           ...instruction,
           consequentBlock: instruction.consequentBlock.identifier,
-          alternateBlock: instruction.alternateBlock.identifier,
+          alternateBlock: instruction.alternateBlock ? instruction.alternateBlock.identifier : 0,
           condition: instruction.operands[0].identifier,
         };
       } else if (instruction.type === 'return') {
@@ -230,17 +229,15 @@ export const serialize = (
           };
         }),
         null: nullValue,
+        parameters: functionInfo.parameters,
       },
     };
   };
-  const metadata: Array<string> = [];
   const slug = basename(fileName, extname(fileName));
   const FunctionInfo = sonarSourceIRNamespace.lookupType('FunctionInfo');
 
   for (const functionInfo of functionInfos) {
     const { definition } = functionInfo;
-
-    metadata.push(`${slug}.${definition.signature}`);
 
     const serializableFunctionInfo = createSerializableFunctionInfo(functionInfo);
     const message = FunctionInfo.create(serializableFunctionInfo);
@@ -249,11 +246,14 @@ export const serialize = (
     outputs.push({
       data,
       name: `${slug}_${definition.name}`,
+      metadata: [
+        functionInfo.definition.signature,
+        ...functionInfo.functionReferences.map(functionReference => {
+          return functionReference.functionInfo.definition.signature;
+        }),
+      ],
     });
   }
 
-  return {
-    outputs,
-    metadata,
-  };
+  return outputs;
 };

@@ -20,111 +20,92 @@
 import { TSESTree } from '@typescript-eslint/utils';
 import { handleExpression } from './index';
 import type { Instruction } from '../instruction';
-import { type CallInstruction, createCallInstruction } from '../instructions/call-instruction';
+import { createCallInstruction } from '../instructions/call-instruction';
 import { Value } from '../value';
 import { createReference } from '../values/reference';
-import { createFunctionDefinition2 } from '../function-definition';
 import type { ExpressionHandler } from '../expression-handler';
+import { createNull } from '../values/null';
+import { AST_NODE_TYPES } from '@typescript-eslint/typescript-estree';
 
-export const handleCallExpression: ExpressionHandler<TSESTree.CallExpression> = (
-  context,
-  callExpression,
-) => {
-  const instructions: Instruction[] = [];
-  let calleeValue;
-  let simpleName;
-  let calleObjectSimpleName;
-  let isFunctionRef = false;
-  switch (callExpression.callee.type) {
-    // case TSESTree.AST_NODE_TYPES.MemberExpression: {
-    //   const memberExpressionResult = handleMemberExpression(context, callExpression.callee);
-    //   calleeValue = memberExpressionResult.value;
-    //   instructions.push(...memberExpressionResult.instructions);
-    //   if (callExpression.callee.property.type !== TSESTree.AST_NODE_TYPES.Identifier) {
-    //     throw new Error(
-    //       `Unhandled method call ${JSON.stringify(callExpression.callee.property.loc)}`,
-    //     );
-    //   }
-    //   if (callExpression.callee.object.type === TSESTree.AST_NODE_TYPES.Identifier) {
-    //     calleObjectSimpleName = callExpression.callee.object.name;
-    //   }
-    //   simpleName = callExpression.callee.property.name;
-    //   break;
-    // }
-    case TSESTree.AST_NODE_TYPES.Identifier:
-      simpleName = callExpression.callee.name;
-      if (context.scope.getVariableAndOwner(simpleName)) {
-        isFunctionRef = true;
+export const handleCallExpression: ExpressionHandler<TSESTree.CallExpression> = (node, context) => {
+  const {
+    getFunctionReference,
+    createValueIdentifier,
+    getParameter,
+    getVariableAndOwner,
+    getAssignment,
+  } = context.scopeManager;
+  const instructions: Array<Instruction> = [];
+
+  let value: Value;
+
+  const { callee, arguments: argumentExpressions } = node;
+
+  const argumentValues: Array<Value> = [];
+
+  for (const argumentExpression of argumentExpressions) {
+    if (argumentExpression.type === AST_NODE_TYPES.Identifier) {
+      const parameter = getParameter(argumentExpression.name);
+
+      if (parameter) {
+        argumentValues.push(parameter);
+      } else {
+        // if not it may be a variable of the scope
+        const variableAndOwner = getVariableAndOwner(argumentExpression.name);
+
+        if (variableAndOwner) {
+          const assignment = getAssignment(variableAndOwner.variable);
+
+          if (assignment) {
+            argumentValues.push(createReference(assignment.identifier));
+          }
+        }
+
+        // todo
       }
-      break;
-    default:
-      const { instructions: calleeInstructions, value } = handleExpression(
-        context,
-        callExpression.callee,
-      );
+    } else {
+      const compilationResult = handleExpression(argumentExpression, context);
 
-      instructions.push(...calleeInstructions);
+      argumentValues.push(compilationResult.value);
 
-      // hack
-      // todo: DBD should be able to handle calling functions by reference
-      const name = calleeInstructions
-        .map(i => {
-          const signature = (i as unknown as CallInstruction).functionDefinition.signature;
-
-          return signature.replace('#get-field# ', '');
-        })
-        .join('__');
-
-      instructions.push(
-        createCallInstruction(
-          context.scope.createValueIdentifier(),
-          null,
-          createFunctionDefinition2(name, name),
-          [],
-          callExpression.loc,
-        ),
-      );
-
-      return {
-        instructions,
-        value,
-      };
-  }
-
-  let args: Value[] = [];
-  if (calleeValue) {
-    args = [calleeValue];
-  }
-  callExpression.arguments.forEach(arg => {
-    if (arg.type === TSESTree.AST_NODE_TYPES.SpreadElement) {
-      return;
+      instructions.push(...compilationResult.instructions);
     }
-    const argExpressionResult = handleExpression(context, arg);
-    instructions.push(...argExpressionResult.instructions);
-    args.push(argExpressionResult.value);
-  });
-  const isInstanceMethodCall =
-    calleObjectSimpleName !== undefined &&
-    context.scope.getVariableAndOwner(calleObjectSimpleName) !== null;
+  }
 
-  const resultValueId = context.scope.createValueIdentifier();
-  const resultValue = createReference(resultValueId);
-  instructions.push(
-    createCallInstruction(
-      resultValueId,
-      null,
-      createFunctionDefinition2(
-        simpleName,
-        `${context.signaturePrefix()}.${simpleName}`,
-        isFunctionRef,
-        isInstanceMethodCall,
-      ),
-      args,
-      callExpression.loc,
-    ),
+  const { instructions: calleeInstructions, value: calleeValue } = handleExpression(
+    callee,
+    context,
   );
+
+  instructions.push(...calleeInstructions);
+
+  // function reference
+  const functionReference = getFunctionReference(calleeValue.identifier);
+
+  if (functionReference) {
+    const { functionInfo } = functionReference;
+
+    let operands: Array<Value> = [];
+
+    for (let index = 0; index < functionInfo.parameters.length; index++) {
+      let argumentValue = argumentValues[index];
+
+      if (argumentValue === undefined) {
+        argumentValue = createNull();
+      }
+
+      operands.push(argumentValue);
+    }
+
+    value = createReference(createValueIdentifier());
+
+    instructions.push(
+      createCallInstruction(value.identifier, null, functionInfo.definition, operands, node.loc),
+    );
+  }
+
   return {
     instructions,
-    value: resultValue,
+    value: calleeValue,
   };
 };

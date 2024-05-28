@@ -31,10 +31,10 @@ import { createTypeInfo } from '../type-info';
 import type { ExpressionHandler } from '../expression-handler';
 
 export const handleArrayExpression: ExpressionHandler<TSESTree.ArrayExpression> = (
-  context,
   node,
+  context,
 ) => {
-  const arrayIdentifier = context.scope.createValueIdentifier();
+  const arrayIdentifier = context.scopeManager.createValueIdentifier();
   const typeInfo = createTypeInfo('ARRAY', 'object', false);
   const arrayValue = createTypeName(arrayIdentifier, 'list', typeInfo);
 
@@ -54,13 +54,13 @@ export const handleArrayExpression: ExpressionHandler<TSESTree.ArrayExpression> 
       return;
     }
     const { instructions: elementInstructions, value: elementValue } = handleExpression(
-      context,
       element,
+      context,
     );
     instructions.push(...elementInstructions);
     instructions.push(
       createCallInstruction(
-        context.scope.createValueIdentifier(),
+        context.scopeManager.createValueIdentifier(),
         null,
         createAddArrayLastFunctionDefinition(),
         [arrayValue, elementValue],

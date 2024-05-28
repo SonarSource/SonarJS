@@ -88,6 +88,7 @@
     "@bufbuild/protobuf": "^1.9.0",
     "@bufbuild/protoc-gen-es": "^1.9.0",
     "@eslint-community/regexpp": "4.10.0",
+    "@types/fs-extra": "^11.0.4",
     "@typescript-eslint/eslint-plugin": "^7.7.1",
     "@typescript-eslint/parser": "^7.7.1",
     "@typescript-eslint/utils": "^7.7.1",

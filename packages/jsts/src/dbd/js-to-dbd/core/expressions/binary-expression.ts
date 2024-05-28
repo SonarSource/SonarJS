@@ -7,8 +7,8 @@ import { handleExpression } from './index';
 import type { ExpressionHandler } from '../expression-handler';
 
 export const handleBinaryExpression: ExpressionHandler<TSESTree.BinaryExpression> = (
-  context,
   node,
+  context,
   scope,
 ) => {
   const instructions: Array<Instruction> = [];
@@ -17,22 +17,22 @@ export const handleBinaryExpression: ExpressionHandler<TSESTree.BinaryExpression
 
   // rhs
   const { instructions: rightInstructions, value: rightValue } = handleExpression(
-    context,
     right,
+    context,
     scope,
   );
 
   // lhs
   const { instructions: leftInstructions, value: leftValue } = handleExpression(
-    context,
     left,
+    context,
     scope,
   );
 
   instructions.push(...rightInstructions);
   instructions.push(...leftInstructions);
 
-  const value = createReference(context.scope.createValueIdentifier());
+  const value = createReference(context.scopeManager.createValueIdentifier());
 
   instructions.push(
     createCallInstruction(

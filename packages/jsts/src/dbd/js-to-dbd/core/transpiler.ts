@@ -1,82 +1,151 @@
 import { TSESTree } from '@typescript-eslint/typescript-estree';
-import { type Variable } from './variable';
-import { createFunctionDefinition2 } from './function-definition';
+import { type Assignment, createAssignment, createVariable, type Variable } from './variable';
+import {
+  createFunctionDefinition,
+  createNewObjectFunctionDefinition,
+  createSetFieldFunctionDefinition,
+} from './function-definition';
 import { createReturnInstruction } from './instructions/return-instruction';
 import { createNull } from './values/null';
-import { createFunctionInfo as _createFunctionInfo, type FunctionInfo } from './function-info';
-import { ContextManager } from './context-manager';
-
-import { getSignature, isTerminated } from './utils';
-import { handleStatement } from './statements';
+import {
+  createFunctionInfo,
+  createFunctionInfo as _createFunctionInfo,
+  type FunctionInfo,
+} from './function-info';
+import { createScopeDeclarationInstruction, isTerminated } from './utils';
+import { handleStatement as _handleStatement } from './statements';
+import { createScopeManager } from './scope-manager';
+import { type Scope } from './scope';
+import type { Location } from './location';
+import { createCallInstruction } from './instructions/call-instruction';
+import { createBranchingInstruction } from './instructions/branching-instruction';
+import { createConstant } from './values/constant';
+import { createReference } from './values/reference';
 
 export type Transpiler = (ast: TSESTree.Program, fileName: string) => Array<FunctionInfo>;
 
-export const createTranspiler = (
-  rootPath: string,
-  hostDefinedProperties: Array<Variable> = [],
-): Transpiler => {
+export const createTranspiler = (hostDefinedProperties: Array<Variable> = []): Transpiler => {
   return (program, fileName) => {
     const functionInfos: Array<FunctionInfo> = [];
 
-    const createFunctionInfo = (name: string, signature: string): FunctionInfo => {
-      return _createFunctionInfo(fileName, createFunctionDefinition2(name, signature));
-    };
-
-    const processFunctions = (
+    const processFunctionInfo = (
       functionInfo: FunctionInfo,
-      node: TSESTree.FunctionDeclaration | TSESTree.ArrowFunctionExpression,
-    ) => {
-      functionInfos.push(functionInfo);
-      // we might want to provide this to the function once, the main is handled
-      const context = new ContextManager(
-        rootPath,
-        functionInfo,
-        node.loc,
-        hostDefinedProperties,
-        (functionInfo, node) => processFunctions(functionInfo, node),
+      body: Array<TSESTree.Statement>,
+      location: Location,
+    ): void => {
+      const scopeManager = createScopeManager(functionInfo, functionInfos, processFunctionInfo);
+
+      const {
+        createScope,
+        unshiftScope,
+        createScopedBlock,
+        createValueIdentifier,
+        shiftScope,
+        getCurrentBlock,
+      } = scopeManager;
+
+      const handleStatement = (statement: TSESTree.Statement) => {
+        return _handleStatement(statement, { fileName, scopeManager }, fileName);
+      };
+
+      // create and declare the outer scope
+      // https://262.ecma-international.org/14.0/#sec-global-environment-records
+      const outerScope: Scope = createScope();
+
+      unshiftScope(outerScope);
+
+      const outerBlock = createScopedBlock(location);
+
+      outerBlock.instructions.push(createScopeDeclarationInstruction(outerScope, location));
+
+      // globalThis, a reference to the outer scope itself
+      outerBlock.instructions.push(
+        createCallInstruction(
+          createValueIdentifier(),
+          null,
+          createSetFieldFunctionDefinition('globalThis'),
+          [createReference(outerScope.identifier), createReference(outerScope.identifier)],
+          location,
+        ),
       );
-      node.params.forEach(param => context.addParameter(param));
-      handleStatement(context, node.body as any); // todo;
-      const currentBlock = context.block.getCurrentBlock();
+
+      // assign global variables to the outer scope and declare them
+      const globalVariables: Array<Variable> = [
+        createVariable('NaN', 'NaN', false),
+        createVariable('Infinity', 'int', false),
+        createVariable('undefined', 'Record', false),
+        ...hostDefinedProperties,
+      ];
+
+      for (const globalVariable of globalVariables) {
+        const { name } = globalVariable;
+        const assignmentIdentifier = createValueIdentifier();
+
+        let assignment: Assignment;
+
+        assignment = createAssignment(assignmentIdentifier, globalVariable);
+
+        outerScope.variables.set(name, globalVariable);
+        outerScope.assignments.set(name, assignment);
+
+        outerBlock.instructions.push(
+          createCallInstruction(
+            assignment.identifier,
+            null,
+            createSetFieldFunctionDefinition(name),
+            [
+              createReference(outerScope.identifier),
+              createConstant(createValueIdentifier(), name), // todo: temporary workaround until we know how to declare the shape of globals
+            ],
+            location,
+          ),
+        );
+      }
+
+      shiftScope();
+
+      // create the first inner scope
+      const rootScope = createScope();
+
+      unshiftScope(rootScope);
+
+      // create the first block and branch the outer block to it
+      const rootBlock = createScopedBlock(location);
+
+      outerBlock.instructions.push(createBranchingInstruction(rootBlock, location));
+
+      // create scope instruction
+      const instruction = createCallInstruction(
+        rootScope.identifier,
+        null,
+        createNewObjectFunctionDefinition(),
+        [],
+        location,
+      );
+
+      rootBlock.instructions.push(instruction);
+
+      functionInfo.blocks.push(...[outerBlock, rootBlock]);
+
+      functionInfos.push(functionInfo);
+
+      body.forEach(handleStatement);
+
+      const currentBlock = getCurrentBlock();
+
       if (!isTerminated(currentBlock)) {
-        currentBlock.instructions.push(createReturnInstruction(createNull(), node.loc));
+        currentBlock.instructions.push(createReturnInstruction(createNull(), location));
       }
     };
 
-    const processTopLevel = (functionInfo: FunctionInfo, node: TSESTree.Program) => {
-      functionInfos.push(functionInfo);
-      const context = new ContextManager(
-        rootPath,
-        functionInfo,
-        node.loc,
-        hostDefinedProperties,
-        (functionInfo, node) => processFunctions(functionInfo, node),
-      );
-      node.body
-        .filter(statement => statement.type !== TSESTree.AST_NODE_TYPES.FunctionDeclaration)
-        .forEach(statement => handleStatement(context, statement));
-      const currentBlock = context.block.getCurrentBlock();
-      if (!isTerminated(currentBlock)) {
-        currentBlock.instructions.push(createReturnInstruction(createNull(), node.loc));
-      }
-    };
-
-    // process the program
-    const mainFunctionInfo = createFunctionInfo(
-      '#__main__',
-      getSignature(rootPath, fileName, '#__main__'),
+    const functionInfo = createFunctionInfo(
+      fileName,
+      createFunctionDefinition('main', 'main'),
+      [],
+      [],
     );
-    processTopLevel(mainFunctionInfo, program);
-    program.body.forEach(statement => {
-      if (statement.type !== TSESTree.AST_NODE_TYPES.FunctionDeclaration) {
-        return;
-      }
-      const functionInfo = createFunctionInfo(
-        statement.id.name,
-        getSignature(rootPath, fileName, statement.id.name),
-      );
-      processFunctions(functionInfo, statement);
-    });
+
+    processFunctionInfo(functionInfo, program.body, program.loc);
 
     return functionInfos;
   };

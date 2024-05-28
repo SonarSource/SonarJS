@@ -1,31 +1,48 @@
-import { ContextManager } from '../context-manager';
-import { handleBlockStatement } from './block-statement';
-import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/typescript-estree';
-import { handleExpressionStatement } from './expression-statement';
-import { handleIfStatement } from './if-statement';
+import { AST_NODE_TYPES } from '@typescript-eslint/typescript-estree';
+import type { StatementHandler } from '../statement-handler';
+import { handleFunctionDeclaration } from './function-declaration';
 import { handleVariableDeclaration } from './variable-declaration';
+import { handleBlockStatement } from './block-statement';
+import { handleIfStatement } from './if-statement';
+import { handleExpressionStatement } from './expression-statement';
 import { handleReturnStatement } from './return-statement';
 
-export function handleStatement(context: ContextManager, node: TSESTree.Statement) {
+export const handleStatement: StatementHandler = (node, scopeManager, fileName) => {
   console.info('handleStatement', node.type);
 
+  let statementHandler: StatementHandler<any>;
+
   switch (node.type) {
-    case AST_NODE_TYPES.BlockStatement:
-      handleBlockStatement(context, node);
+    case AST_NODE_TYPES.BlockStatement: {
+      statementHandler = handleBlockStatement;
       break;
-    case AST_NODE_TYPES.ExpressionStatement:
-      handleExpressionStatement(context, node);
+    }
+    case AST_NODE_TYPES.ExpressionStatement: {
+      statementHandler = handleExpressionStatement;
       break;
-    case AST_NODE_TYPES.IfStatement:
-      handleIfStatement(context, node);
+    }
+    case AST_NODE_TYPES.FunctionDeclaration: {
+      statementHandler = handleFunctionDeclaration;
       break;
-    case AST_NODE_TYPES.VariableDeclaration:
-      handleVariableDeclaration(context, node);
+    }
+    case AST_NODE_TYPES.IfStatement: {
+      statementHandler = handleIfStatement;
       break;
-    case AST_NODE_TYPES.ReturnStatement:
-      handleReturnStatement(context, node);
+    }
+    case AST_NODE_TYPES.VariableDeclaration: {
+      statementHandler = handleVariableDeclaration;
       break;
-    default:
-      console.error(`Unable to handle ${node.type} statement`);
+    }
+    case AST_NODE_TYPES.ReturnStatement: {
+      statementHandler = handleReturnStatement;
+      break;
+    }
+    default: {
+      statementHandler = () => {
+        console.error(`Unable to handle ${node.type} statement`);
+      };
+    }
   }
-}
+
+  return statementHandler(node, scopeManager, fileName);
+};
