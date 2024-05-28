@@ -20,7 +20,7 @@
 import { AddressInfo } from 'net';
 import http from 'http';
 
-type ResponseType = 'text' | 'formdata';
+export type BridgeResponseType = 'text' | 'formdata';
 
 /**
  * Sends an HTTP request to a server's endpoint running on localhost.
@@ -30,7 +30,7 @@ export async function request(
   path: string,
   method: string,
   body: any = {},
-  format: ResponseType = 'text',
+  format: BridgeResponseType = 'text',
 ) {
   const res = await fetch(`http://127.0.0.1:${(server.address() as AddressInfo).port}${path}`, {
     headers: {
