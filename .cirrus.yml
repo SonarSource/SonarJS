@@ -209,7 +209,7 @@ plugin_qa_no_node_task:
   env:
     SQ_VERSION: LATEST_RELEASE
     SONARJS_ARTIFACT: multi
-    MVN_TEST: '-Dtest=!EslintCustomRulesTest,!SonarJsIntegrationTest --projects !org.sonarsource.javascript:eslint-custom-rules-plugin,!org.sonarsource.javascript:consumer-plugin'
+    MVN_TEST: '-Dtest=!EslintCustomRulesTest,!SonarJsIntegrationTest --projects !org.sonarsource.javascript:eslint-custom-rules-plugin'
 
 plugin_qa_sq_dev_task:
   <<: *PLUGIN_QA_BODY
@@ -218,7 +218,7 @@ plugin_qa_sq_dev_task:
   env:
     SQ_VERSION: DEV
     SONARJS_ARTIFACT: multi
-    MVN_TEST: '-Dtest=!EslintCustomRulesTest,!SonarJsIntegrationTest --projects !org.sonarsource.javascript:eslint-custom-rules-plugin,!org.sonarsource.javascript:consumer-plugin'
+    MVN_TEST: '-Dtest=!EslintCustomRulesTest,!SonarJsIntegrationTest --projects !org.sonarsource.javascript:eslint-custom-rules-plugin'
 
 # Plugin QA for Windows is split into 3 parts to make it faster
 plugin_qa_win_task:
