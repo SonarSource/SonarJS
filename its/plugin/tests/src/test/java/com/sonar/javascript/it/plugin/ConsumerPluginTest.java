@@ -97,6 +97,6 @@ class ConsumerPluginTest {
     var logMatch = ".*DEBUG: Registered JsAnalysisConsumers \\[org.sonar.samples.javascript.consumer.Consumer.*]";
     assertThat(buildResult.getLogsLines(l -> l.matches(logMatch))).hasSize(1);
 
-    assertThat(buildResult.getLogsLines(l -> l.matches(".*Processing file src/dir.*"))).hasSize(3);
+    assertThat(buildResult.getLogsLines(l -> l.matches(".*Processing file src/dir.*"))).hasSize(2);
   }
 }
