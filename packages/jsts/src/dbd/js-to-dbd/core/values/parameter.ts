@@ -1,4 +1,3 @@
-import { createTypeInfo } from '../type-info';
 import { type BaseValue, createValue } from '../value';
 import type { Location } from '../location';
 
@@ -12,7 +11,7 @@ export const createParameter = (
   location: Location,
 ): Parameter => {
   return {
-    ...createValue(identifier, 'parameter', createTypeInfo('PRIMITIVE', 'foo', true)),
+    ...createValue(identifier, 'parameter'),
     name,
     location,
   };

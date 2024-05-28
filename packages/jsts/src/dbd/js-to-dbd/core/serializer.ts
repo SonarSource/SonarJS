@@ -1,6 +1,5 @@
 import { Enum, Field, MapField, OneOf, Root, Type } from 'protobufjs';
 import type { FunctionInfo } from './function-info';
-import { basename, extname } from 'node:path';
 import type { Constant } from './values/constant';
 import { createNull } from './values/null';
 import type { Instruction } from './instruction';
@@ -121,7 +120,6 @@ export const sonarSourceIRNamespace = new Root()
 
 export const serialize = (
   functionInfos: Array<FunctionInfo>,
-  fileName: string,
 ): Array<{
   name: string;
   data: Uint8Array;
@@ -254,7 +252,6 @@ export const serialize = (
       methodCalls,
     };
   };
-  const slug = basename(fileName, extname(fileName));
   const FunctionInfo = sonarSourceIRNamespace.lookupType('FunctionInfo');
 
   for (const functionInfo of functionInfos) {
@@ -270,7 +267,7 @@ export const serialize = (
     metadata.push(...methodCalls);
     outputs.push({
       data,
-      name: `${slug}_${definition.name}`,
+      name: `${definition.name}`,
       metadata,
     });
   }
