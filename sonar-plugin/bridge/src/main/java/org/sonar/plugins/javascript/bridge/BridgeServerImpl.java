@@ -387,7 +387,7 @@ public class BridgeServerImpl implements BridgeServer {
   private BridgeResponse request(String json, String endpoint) throws IOException {
     return request(json, endpoint, false);
   }
-  private BridgeResponse request(String json, String endpoint, boolean isFormData) throws IOException {
+  private BridgeResponse request(String json, String endpoint, boolean isFormData) {
     var request = HttpRequest
       .newBuilder()
       .uri(url(endpoint))
