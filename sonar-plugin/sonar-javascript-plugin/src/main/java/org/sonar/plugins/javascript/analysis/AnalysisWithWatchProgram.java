@@ -22,7 +22,6 @@ package org.sonar.plugins.javascript.analysis;
 import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.List;
@@ -33,12 +32,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.scanner.ScannerSide;
-import org.sonar.plugins.javascript.CancellationException;
-import org.sonar.plugins.javascript.analysis.cache.CacheAnalysis;
-import org.sonar.plugins.javascript.analysis.cache.CacheStrategies;
 import org.sonar.plugins.javascript.bridge.AnalysisWarningsWrapper;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
-import org.sonar.plugins.javascript.bridge.BridgeServer.JsAnalysisRequest;
 import org.sonar.plugins.javascript.bridge.TsConfigFile;
 import org.sonar.plugins.javascript.utils.ProgressReport;
 import org.sonarsource.api.sonarlint.SonarLintSide;
@@ -121,52 +116,9 @@ public class AnalysisWithWatchProgram extends AbstractAnalysis {
 
   private void analyzeTsConfig(@Nullable TsConfigFile tsConfigFile, List<InputFile> files)
     throws IOException {
+    List<String> tsConfigs = tsConfigFile == null ? List.of() : List.of(tsConfigFile.getFilename());
     for (InputFile inputFile : files) {
-      if (context.isCancelled()) {
-        throw new CancellationException(
-          "Analysis interrupted because the SensorContext is in cancelled state"
-        );
-      }
-      analyze(inputFile, tsConfigFile);
-      progressReport.nextFile(inputFile.toString());
-    }
-  }
-
-  private void analyze(InputFile file, @Nullable TsConfigFile tsConfigFile) throws IOException {
-    var cacheStrategy = CacheStrategies.getStrategyFor(context, file);
-    if (cacheStrategy.isAnalysisRequired()) {
-      try {
-        LOG.debug("Analyzing file: {}", file);
-        var fileContent = contextUtils.shouldSendFileContent(file) ? file.contents() : null;
-        var tsConfigs = tsConfigFile == null
-          ? Collections.<String>emptyList()
-          : List.of(tsConfigFile.getFilename());
-        var request = new JsAnalysisRequest(
-          file.absolutePath(),
-          file.type().toString(),
-          inputFileLanguage(file),
-          fileContent,
-          contextUtils.ignoreHeaderComments(),
-          tsConfigs,
-          null,
-          analysisMode.getLinterIdFor(file)
-        );
-        var response = isJavaScript(file)
-          ? bridgeServer.analyzeJavaScript(request)
-          : bridgeServer.analyzeTypeScript(request);
-        analysisProcessor.processResponse(context, checks, file, response);
-        cacheStrategy.writeAnalysisToCache(
-          CacheAnalysis.fromResponse(response.ucfgPaths(), response.cpdTokens()),
-          file
-        );
-      } catch (IOException e) {
-        LOG.error("Failed to get response while analyzing " + file.uri(), e);
-        throw e;
-      }
-    } else {
-      LOG.debug("Processing cache analysis of file: {}", file.uri());
-      var cacheAnalysis = cacheStrategy.readAnalysisFromCache();
-      analysisProcessor.processCacheAnalysis(context, file, cacheAnalysis);
+      analyzeFile(inputFile, tsConfigs, null);
     }
   }
 }

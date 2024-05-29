@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.sonarsource.javascript</groupId>
+    <artifactId>javascript-it-plugin-plugins</artifactId>
+    <version>10.15.0-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>consumer-plugin</artifactId>
+  <packaging>sonar-plugin</packaging>
+
+  <name>JavaScript :: IT :: Plugin :: Plugins :: Consumer Plugin</name>
+  <description>Consumer Plugin</description>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.sonarsource.api.plugin</groupId>
+      <artifactId>sonar-plugin-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sonarsource.javascript</groupId>
+      <artifactId>api</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <scope>test</scope></dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.sonarsource.sonar-packaging-maven-plugin</groupId>
+        <artifactId>sonar-packaging-maven-plugin</artifactId>
+        <extensions>true</extensions>
+        <configuration>
+          <pluginApiMinVersion>${pluginApiMinVersion}</pluginApiMinVersion>
+          <pluginClass>org.sonar.samples.javascript.consumer.ConsumerPlugin</pluginClass>
+          <requiredForLanguages>js</requiredForLanguages>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>

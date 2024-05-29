@@ -39,6 +39,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
@@ -87,6 +88,8 @@ import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.TestUtils;
 import org.sonar.plugins.javascript.analysis.cache.CacheTestUtils;
+import org.sonar.plugins.javascript.api.JsAnalysisConsumer;
+import org.sonar.plugins.javascript.api.JsFile;
 import org.sonar.plugins.javascript.bridge.BridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.bridge.BridgeServer.JsAnalysisRequest;
 import org.sonar.plugins.javascript.bridge.BridgeServer.ParsingError;
@@ -776,12 +779,48 @@ class JsTsSensorTest {
       .contains("Processing cache analysis of file: " + file.uri());
   }
 
+  @Test
+  void should_invoke_analysis_consumers() throws Exception {
+    var consumer = new JsAnalysisConsumer() {
+      final List<JsFile> files = new ArrayList<>();
+      boolean done;
+
+      @Override
+      public void accept(JsFile jsFile) {
+        files.add(jsFile);
+      }
+
+      @Override
+      public void doneAnalysis() {
+        done = true;
+      }
+    };
+
+    var sensor = new JsTsSensor(
+      checks(ESLINT_BASED_RULE, "S2260"),
+      bridgeServerMock,
+      analysisWithProgram(),
+      analysisWithWatchProgram(),
+      new AnalysisConsumers(List.of(consumer))
+    );
+
+    var inputFile = createInputFile(context);
+    var tsProgram = new TsProgram("1", List.of(inputFile.absolutePath()), List.of(), false, null);
+    when(bridgeServerMock.createProgram(any())).thenReturn(tsProgram);
+
+    sensor.execute(context);
+    assertThat(consumer.files).hasSize(1);
+    assertThat(consumer.files.get(0).inputFile()).isEqualTo(inputFile);
+    assertThat(consumer.done).isTrue();
+  }
+
   private JsTsSensor createSensor() {
     return new JsTsSensor(
       checks(ESLINT_BASED_RULE, "S2260"),
       bridgeServerMock,
       analysisWithProgram(),
-      analysisWithWatchProgram()
+      analysisWithWatchProgram(),
+      new AnalysisConsumers()
     );
   }
 
