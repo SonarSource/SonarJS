@@ -7,12 +7,9 @@ import { createScopeDeclarationInstruction, isTerminated } from '../utils';
 import { handleStatement } from './index';
 import type { StatementHandler } from '../statement-handler';
 import { AST_NODE_TYPES } from '@typescript-eslint/typescript-estree';
+import { createReference } from '../values/reference';
 
-export const handleIfStatement: StatementHandler<TSESTree.IfStatement> = (
-  node,
-  context,
-  fileName,
-) => {
+export const handleIfStatement: StatementHandler<TSESTree.IfStatement> = (node, context) => {
   const { consequent, alternate, test } = node;
   const { blockManager, scopeManager } = context;
   const { createScopedBlock, unshiftScope, createScope, shiftScope } = scopeManager;
@@ -46,7 +43,7 @@ export const handleIfStatement: StatementHandler<TSESTree.IfStatement> = (
 
     pushBlock(block);
 
-    handleStatement(innerNode, context, fileName);
+    handleStatement(innerNode, context);
 
     shiftScope();
     if (!isTerminated(getCurrentBlock())) {
@@ -56,7 +53,11 @@ export const handleIfStatement: StatementHandler<TSESTree.IfStatement> = (
     return block;
   };
 
-  const { instructions: testInstructions, value: testValue } = handleExpression(test, context);
+  const { instructions: testInstructions, value: testValue } = handleExpression(
+    test,
+    context,
+    createReference(scopeManager.getCurrentScopeIdentifier()),
+  );
 
   currentBlock.instructions.push(...testInstructions);
 

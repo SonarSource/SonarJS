@@ -1,17 +1,19 @@
-import { createReference } from '../values/reference';
+import { createNull, createReference } from '../values/reference';
 import { TSESTree } from '@typescript-eslint/utils';
 import type { ExpressionHandler } from '../expression-handler';
 import { createGetFieldFunctionDefinition } from '../function-definition';
-import { createNull } from '../values/null';
 import type { Instruction } from '../instruction';
 import { createCallInstruction } from '../instructions/call-instruction';
 import { getParameter } from '../utils';
 
-export const handleIdentifier: ExpressionHandler<TSESTree.Identifier> = (node, context, scope) => {
+export const handleIdentifier: ExpressionHandler<TSESTree.Identifier> = (
+  node,
+  context,
+  scopeReference,
+) => {
   const { name } = node;
   const { functionInfo, scopeManager } = context;
-  const { getVariableAndOwner, createValueIdentifier, getAssignment, getScopeReference } =
-    scopeManager;
+  const { getVariableAndOwner, createValueIdentifier, getAssignment } = scopeManager;
 
   let instructions: Array<Instruction> = [];
 
@@ -25,10 +27,10 @@ export const handleIdentifier: ExpressionHandler<TSESTree.Identifier> = (node, c
     };
   }
 
-  let variableAndOwner = getVariableAndOwner(name, scope);
+  let variableAndOwner = getVariableAndOwner(name, scopeReference);
 
   if (variableAndOwner) {
-    const assignment = getAssignment(variableAndOwner.variable, scope);
+    const assignment = getAssignment(variableAndOwner.variable, scopeReference);
 
     if (assignment) {
       return {
@@ -50,7 +52,7 @@ export const handleIdentifier: ExpressionHandler<TSESTree.Identifier> = (node, c
       value.identifier,
       null,
       createGetFieldFunctionDefinition(name),
-      [scope || getScopeReference(name)],
+      [scopeReference],
       node.loc,
     ),
   );

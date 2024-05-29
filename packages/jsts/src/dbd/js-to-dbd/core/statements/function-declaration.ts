@@ -28,7 +28,7 @@ export const handleFunctionDeclaration: StatementHandler<TSESTree.FunctionDeclar
   const { name } = id;
 
   // a function declaration is a variable declaration and an assignment in the current scope
-  // todo: should be in the ***passed*** scope
+  // todo: should be in the ***passed*** scope?
   const variable = createVariable(name);
 
   addVariable(variable);
@@ -36,9 +36,7 @@ export const handleFunctionDeclaration: StatementHandler<TSESTree.FunctionDeclar
   const functionReferenceIdentifier = createValueIdentifier();
   // todo: we may need a common helper
   const functionName = `${currentFunctionInfo.definition.name}__${functionReferenceIdentifier}`;
-
   const functionInfo = processFunctionInfo(functionName, node.body.body, node.params, node.loc);
-
   const functionReference = createFunctionReference(functionInfo, functionReferenceIdentifier);
 
   currentFunctionInfo.functionReferences.push(functionReference);

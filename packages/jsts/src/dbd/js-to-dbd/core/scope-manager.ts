@@ -14,30 +14,30 @@ export interface ScopeManager {
 
   createScopedBlock(location: Location): Block;
 
-  addAssignment(key: string, value: Assignment): void;
+  addAssignment(key: string, value: Assignment, scopeReference?: Value): void;
 
   /**
    * Return the nearest assignment to `variable`.
+   * todo: improve the documentation
    */
-  getAssignment(variable: Variable, scope?: Value): Assignment | null;
+  getAssignment(variable: Variable, scopeReference?: Value): Assignment | null;
 
   getCurrentScopeIdentifier(): number;
-  getScopeFromRegistry(scopeValue: Value): Scope | null;
+  getScopeFromReference(scopeReference: Value): Scope | null;
 
   /**
    * Return the nearest variable registered under `name`, alongside its owner.
+   * todo: improve the documentation
    */
   getVariableAndOwner(
     name: string,
-    scope?: Value,
+    scopeReference?: Value,
   ): {
     variable: Variable;
     owner: Scope;
   } | null;
 
   addVariable(variable: Variable): void;
-
-  getFunctionInfo(name: string): FunctionInfo | null;
 
   getScopeReference(name: string): Reference;
 
@@ -51,58 +51,62 @@ export interface ScopeManager {
   unshiftScope(scope: Scope): void;
 
   shiftScope(): Scope | undefined;
-  scopeRegistry: Map<number, Scope>;
 }
 
 export const createScopeManager = (
-  functionInfos: Array<FunctionInfo>,
   processFunctionInfo: ScopeManager['processFunctionInfo'],
 ): ScopeManager => {
   const scopes: Array<Scope> = [];
+  const scopeRegistry = new Map<number, Scope>();
 
   let blockIndex: number = 0;
   let valueIndex = 0;
-  const scopeRegistry = new Map<number, Scope>();
 
   const getCurrentScope = () => scopes[0];
 
-  const getVariableAssigner = (variable: Variable): Scope | undefined => {
-    return scopes.find(scope => {
-      return scope.assignments.has(variable.name);
-    });
+  const getVariableAssigner = (variable: Variable): Scope | null => {
+    return (
+      scopes.find(scope => {
+        return scope.assignments.has(variable.name);
+      }) || null
+    );
   };
 
   /**
    * @see {ScopeManager.getAssignment}
    */
-  const getAssignment: ScopeManager['getAssignment'] = (variable, scopeValue) => {
+  const getAssignment: ScopeManager['getAssignment'] = (variable, scopeReference) => {
     const { name } = variable;
-    if (scopeValue && scopeRegistry.has(scopeValue.identifier)) {
-      return scopeRegistry.get(scopeValue.identifier)!.assignments.get(name) || null;
+
+    let scope: Scope | null;
+
+    if (scopeReference) {
+      scope = getScopeFromReference(scopeReference);
+    } else {
+      scope = getVariableAssigner(variable);
     }
 
-    const scope = getVariableAssigner(variable);
-
     return scope?.assignments.get(name) || null;
+  };
+
+  const getScopeFromReference: ScopeManager['getScopeFromReference'] = scopeReference => {
+    return scopeRegistry.get(scopeReference.identifier) || null;
   };
 
   /**
    * @see {ScopeManager.getVariableAndOwner}
    */
-  const getVariableAndOwner: ScopeManager['getVariableAndOwner'] = (name, scope) => {
-    if (scope && scopeRegistry.has(scope.identifier)) {
-      const relevantScope = scopeRegistry.get(scope.identifier);
-      const variable = relevantScope?.variables.get(name);
-      if (variable) {
-        return {
-          owner: relevantScope!,
-          variable,
-        };
-      }
+  const getVariableAndOwner: ScopeManager['getVariableAndOwner'] = (name, scopeReference) => {
+    let owner: Scope | null;
+
+    if (scopeReference) {
+      owner = getScopeFromReference(scopeReference);
+    } else {
+      owner =
+        scopes.find(scope => {
+          return scope.variables.has(name);
+        }) || null;
     }
-    const owner = scopes.find(scope => {
-      return scope.variables.has(name);
-    });
 
     if (!owner) {
       return null;
@@ -148,22 +152,23 @@ export const createScopeManager = (
     addVariable(variable: Variable) {
       return getCurrentScope().variables.set(variable.name, variable);
     },
-    addAssignment(key: string, value: Assignment) {
-      getCurrentScope().assignments.set(key, value);
+    addAssignment(key: string, value: Assignment, scopeReference) {
+      let scope: Scope | null = null;
+
+      if (scopeReference) {
+        scope = getScopeFromReference(scopeReference);
+      }
+
+      if (!scope) {
+        scope = getCurrentScope();
+      }
+
+      scope.assignments.set(key, value);
     },
     getCurrentScopeIdentifier() {
       return getCurrentScope().identifier;
     },
-    getScopeFromRegistry(scope) {
-      return scopeRegistry.get(scope.identifier) || null;
-    },
-    getFunctionInfo(name) {
-      return (
-        functionInfos.find(functionInfo => {
-          return functionInfo.definition.name === name;
-        }) || null
-      );
-    },
+    getScopeFromReference,
     processFunctionInfo,
     unshiftScope: scope => {
       scopeRegistry.set(scope.identifier, scope);
@@ -171,7 +176,6 @@ export const createScopeManager = (
     },
     shiftScope: () => scopes.shift(),
     getScopeReference,
-    scopeRegistry,
   };
 };
 

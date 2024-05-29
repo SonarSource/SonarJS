@@ -9,7 +9,7 @@ import type { ExpressionHandler } from '../expression-handler';
 export const handleBinaryExpression: ExpressionHandler<TSESTree.BinaryExpression> = (
   node,
   context,
-  scope,
+  scopeReference,
 ) => {
   const instructions: Array<Instruction> = [];
 
@@ -19,14 +19,14 @@ export const handleBinaryExpression: ExpressionHandler<TSESTree.BinaryExpression
   const { instructions: rightInstructions, value: rightValue } = handleExpression(
     right,
     context,
-    scope,
+    scopeReference,
   );
 
   // lhs
   const { instructions: leftInstructions, value: leftValue } = handleExpression(
     left,
     context,
-    scope,
+    scopeReference,
   );
 
   instructions.push(...rightInstructions);

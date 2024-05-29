@@ -1,14 +1,17 @@
 import { TSESTree } from '@typescript-eslint/utils';
 import type { Instruction } from '../instruction';
 import type { Value } from '../value';
-import { createNull } from '../values/null';
 import { createConstant } from '../values/constant';
 import type { ExpressionHandler } from '../expression-handler';
 import { createCallInstruction } from '../instructions/call-instruction';
 import { createGetFieldFunctionDefinition } from '../function-definition';
-import { createReference } from '../values/reference';
+import { createNull, createReference } from '../values/reference';
 
-export const handleLiteral: ExpressionHandler<TSESTree.Literal> = (node, context, scope) => {
+export const handleLiteral: ExpressionHandler<TSESTree.Literal> = (
+  node,
+  context,
+  scopeReference,
+) => {
   const { createValueIdentifier } = context.scopeManager;
   const instructions: Array<Instruction> = [];
 
@@ -17,7 +20,7 @@ export const handleLiteral: ExpressionHandler<TSESTree.Literal> = (node, context
   if (node.value === null) {
     value = createNull();
   } else {
-    if (scope) {
+    if (scopeReference) {
       // todo: if node.value is a number then is this an array access?
       value = createReference(createValueIdentifier());
 
@@ -26,7 +29,7 @@ export const handleLiteral: ExpressionHandler<TSESTree.Literal> = (node, context
           value.identifier,
           null,
           createGetFieldFunctionDefinition(`${node.value}`),
-          [scope],
+          [scopeReference],
           node.loc,
         ),
       );

@@ -22,16 +22,15 @@ import { handleExpression } from './index';
 import type { Instruction } from '../instruction';
 import { createCallInstruction } from '../instructions/call-instruction';
 import { Value } from '../value';
-import { createReference } from '../values/reference';
+import { createNull, createReference } from '../values/reference';
 import type { ExpressionHandler } from '../expression-handler';
-import { createNull } from '../values/null';
 import { AST_NODE_TYPES } from '@typescript-eslint/typescript-estree';
 import { getFunctionReference, getParameter } from '../utils';
 
 export const handleCallExpression: ExpressionHandler<TSESTree.CallExpression> = (
   node,
   context,
-  _scope,
+  scopeReference,
 ) => {
   const { functionInfo, scopeManager } = context;
 
@@ -52,10 +51,10 @@ export const handleCallExpression: ExpressionHandler<TSESTree.CallExpression> = 
         argumentValues.push(parameter);
       } else {
         // if not it may be a variable of the scope
-        const variableAndOwner = getVariableAndOwner(argumentExpression.name);
+        const variableAndOwner = getVariableAndOwner(argumentExpression.name, scopeReference);
 
         if (variableAndOwner) {
-          const assignment = getAssignment(variableAndOwner.variable);
+          const assignment = getAssignment(variableAndOwner.variable, scopeReference);
 
           if (assignment) {
             argumentValues.push(createReference(assignment.identifier));
@@ -65,7 +64,7 @@ export const handleCallExpression: ExpressionHandler<TSESTree.CallExpression> = 
         // todo
       }
     } else {
-      const compilationResult = handleExpression(argumentExpression, context);
+      const compilationResult = handleExpression(argumentExpression, context, scopeReference);
 
       argumentValues.push(compilationResult.value);
 
@@ -76,6 +75,7 @@ export const handleCallExpression: ExpressionHandler<TSESTree.CallExpression> = 
   const { instructions: calleeInstructions, value: calleeValue } = handleExpression(
     callee,
     context,
+    scopeReference,
   );
 
   instructions.push(...calleeInstructions);

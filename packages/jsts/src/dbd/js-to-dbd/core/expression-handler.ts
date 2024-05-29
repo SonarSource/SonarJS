@@ -1,9 +1,9 @@
 import { TSESTree } from '@typescript-eslint/utils';
 import type { Instruction } from './instruction';
-import type { Value } from './value';
 import type { Context } from './context-manager';
+import type { Value } from './value';
 
-type ExpressionHandlerResult = {
+export type ExpressionHandlerResult = {
   readonly instructions: Array<Instruction>;
   readonly value: Value;
 };
@@ -13,4 +13,4 @@ export type ExpressionHandler<
     TSESTree.Node,
     TSESTree.Statement
   >,
-> = (node: Expression, context: Context, scope?: Value) => ExpressionHandlerResult;
+> = (node: Expression, context: Context, scopeReference: Value) => ExpressionHandlerResult;

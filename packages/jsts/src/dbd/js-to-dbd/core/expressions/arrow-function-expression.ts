@@ -53,7 +53,6 @@ export const handleArrowFunctionExpression: ExpressionHandler<TSESTree.ArrowFunc
   // todo: we may need a common helper
   const functionName = `${currentFunctionInfo.definition.name}__${functionReferenceIdentifier}`;
   const functionInfo = processFunctionInfo(functionName, body, node.params, node.loc);
-
   const functionReference = createFunctionReference(functionInfo, functionReferenceIdentifier);
 
   currentFunctionInfo.functionReferences.push(functionReference);

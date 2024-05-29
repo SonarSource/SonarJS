@@ -33,6 +33,7 @@ import type { ExpressionHandler } from '../expression-handler';
 export const handleArrayExpression: ExpressionHandler<TSESTree.ArrayExpression> = (
   node,
   context,
+  scopeReference,
 ) => {
   const arrayIdentifier = context.scopeManager.createValueIdentifier();
   const typeInfo = createTypeInfo('ARRAY', 'object', false);
@@ -56,6 +57,7 @@ export const handleArrayExpression: ExpressionHandler<TSESTree.ArrayExpression> 
     const { instructions: elementInstructions, value: elementValue } = handleExpression(
       element,
       context,
+      scopeReference,
     );
     instructions.push(...elementInstructions);
     instructions.push(

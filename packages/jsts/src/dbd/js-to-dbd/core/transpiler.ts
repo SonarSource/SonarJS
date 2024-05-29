@@ -1,5 +1,5 @@
 import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/typescript-estree';
-import { type Assignment, createAssignment, type Variable } from './variable';
+import { type Assignment, createAssignment, createVariable, type Variable } from './variable';
 import {
   createFunctionDefinition,
   createNewObjectFunctionDefinition,
@@ -7,7 +7,6 @@ import {
   generateSignature,
 } from './function-definition';
 import { createReturnInstruction } from './instructions/return-instruction';
-import { createNull } from './values/null';
 import {
   createFunctionInfo,
   createFunctionInfo as _createFunctionInfo,
@@ -20,14 +19,14 @@ import { type Scope } from './scope';
 import { createCallInstruction } from './instructions/call-instruction';
 import { createBranchingInstruction } from './instructions/branching-instruction';
 import { createConstant } from './values/constant';
-import { createReference } from './values/reference';
+import { createNull, createReference } from './values/reference';
 import { createParameter } from './values/parameter';
 import { createContext } from './context-manager';
 import { createBlockManager } from './block-manager';
 
 export type Transpiler = (ast: TSESTree.Program, fileName: string) => Array<FunctionInfo>;
 
-export const createTranspiler = (_hostDefinedProperties: Array<Variable> = []): Transpiler => {
+export const createTranspiler = (hostDefinedProperties: Array<Variable> = []): Transpiler => {
   return (program, fileName) => {
     const functionInfos: Array<FunctionInfo> = [];
 
@@ -37,7 +36,7 @@ export const createTranspiler = (_hostDefinedProperties: Array<Variable> = []): 
       parameters,
       location,
     ) => {
-      const scopeManager = createScopeManager(functionInfos, processFunctionInfo);
+      const scopeManager = createScopeManager(processFunctionInfo);
 
       const { createScope, unshiftScope, createScopedBlock, createValueIdentifier, shiftScope } =
         scopeManager;
@@ -65,10 +64,10 @@ export const createTranspiler = (_hostDefinedProperties: Array<Variable> = []): 
 
       // assign global variables to the outer scope and declare them
       const globalVariables: Array<Variable> = [
-        // createVariable('NaN', 'NaN', false),
-        // createVariable('Infinity', 'int', false),
-        // createVariable('undefined', 'Record', false),
-        // ...hostDefinedProperties,
+        createVariable('NaN', 'NaN', false),
+        createVariable('Infinity', 'int', false),
+        createVariable('undefined', 'Record', false),
+        ...hostDefinedProperties,
       ];
 
       for (const globalVariable of globalVariables) {
@@ -142,7 +141,7 @@ export const createTranspiler = (_hostDefinedProperties: Array<Variable> = []): 
       const { getCurrentBlock, pushBlock } = blockManager;
 
       const handleStatement = (statement: TSESTree.Statement) => {
-        return _handleStatement(statement, context, fileName);
+        return _handleStatement(statement, context);
       };
 
       rootBlock.instructions.push(instruction);

@@ -10,3 +10,7 @@ export const createReference = (identifier: number): Reference => {
     users: [],
   };
 };
+
+export const createNull = (): Reference => {
+  return createReference(-1);
+};

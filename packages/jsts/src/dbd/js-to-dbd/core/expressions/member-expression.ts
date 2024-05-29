@@ -6,7 +6,7 @@ import type { ExpressionHandler } from '../expression-handler';
 export const handleMemberExpression: ExpressionHandler<TSESTree.MemberExpression> = (
   node,
   context,
-  scope,
+  scopeReference,
 ) => {
   const instructions: Array<Instruction> = [];
 
@@ -14,7 +14,7 @@ export const handleMemberExpression: ExpressionHandler<TSESTree.MemberExpression
   const { instructions: objectInstructions, value: objectValue } = handleExpression(
     object,
     context,
-    scope,
+    scopeReference,
   );
 
   instructions.push(...objectInstructions);

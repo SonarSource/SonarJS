@@ -3,6 +3,7 @@ import { createBranchingInstruction } from '../instructions/branching-instructio
 import { createCallInstruction } from '../instructions/call-instruction';
 import { createNewObjectFunctionDefinition } from '../function-definition';
 import type { StatementHandler } from '../statement-handler';
+import { handleStatement } from './index';
 
 export const handleBlockStatement: StatementHandler<TSESTree.BlockStatement> = (node, context) => {
   const { blockManager, scopeManager } = context;
@@ -32,7 +33,9 @@ export const handleBlockStatement: StatementHandler<TSESTree.BlockStatement> = (
 
   getCurrentBlock().instructions.push(instruction);
 
-  // node.body.forEach(handleStatement);
+  node.body.forEach(statement => {
+    return handleStatement(statement, context);
+  });
 
   shiftScope();
 

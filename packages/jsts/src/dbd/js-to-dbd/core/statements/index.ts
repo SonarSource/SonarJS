@@ -7,7 +7,7 @@ import { handleIfStatement } from './if-statement';
 import { handleExpressionStatement } from './expression-statement';
 import { handleReturnStatement } from './return-statement';
 
-export const handleStatement: StatementHandler = (node, scopeManager, fileName) => {
+export const handleStatement: StatementHandler = (node, scopeManager) => {
   console.info('handleStatement', node.type);
 
   let statementHandler: StatementHandler<any>;
@@ -44,5 +44,5 @@ export const handleStatement: StatementHandler = (node, scopeManager, fileName) 
     }
   }
 
-  return statementHandler(node, scopeManager, fileName);
+  return statementHandler(node, scopeManager);
 };

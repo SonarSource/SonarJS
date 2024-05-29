@@ -1,7 +1,7 @@
-import type { BaseValue } from '../value';
 import type { FunctionInfo } from '../function-info';
+import { createReference, type Reference } from './reference';
 
-export type FunctionReference = BaseValue<'function_reference'> & {
+export type FunctionReference = Reference & {
   functionInfo: FunctionInfo;
 };
 
@@ -10,10 +10,7 @@ export const createFunctionReference = (
   identifier: number,
 ): FunctionReference => {
   return {
+    ...createReference(identifier),
     functionInfo,
-    identifier,
-    type: 'function_reference',
-    users: [],
-    typeInfo: undefined,
   };
 };

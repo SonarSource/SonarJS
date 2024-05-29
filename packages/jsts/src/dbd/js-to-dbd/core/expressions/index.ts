@@ -1,12 +1,11 @@
 import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/typescript-estree';
 import type { Instruction } from '../instruction';
 import type { Value } from '../value';
-import { createNull } from '../values/null';
 import type { ExpressionHandler } from '../expression-handler';
 import { createCallInstruction } from '../instructions/call-instruction';
 import { createSetFieldFunctionDefinition } from '../function-definition';
 import { Context } from '../context-manager';
-import { createReference } from '../values/reference';
+import { createNull } from '../values/reference';
 import { handleAssignmentExpression } from './assignment-expression';
 import { handleArrowFunctionExpression } from './arrow-function-expression';
 import { handleLiteral } from './literal';
@@ -18,78 +17,50 @@ import { handleCallExpression } from './call-expression';
 import { handleArrayExpression } from './array-expression';
 import { handleVariableDeclarator } from './variable-declarator';
 import { createAssignment, createVariable, type Variable } from '../variable';
-import type { ScopeManager } from '../scope-manager';
-import type { Location } from '../location';
-
-export type CompilationResult = {
-  instructions: Array<Instruction>;
-  value: Value;
-};
-
-const processAssignment = (
-  variable: Variable,
-  value: Value,
-  location: Location,
-  scopeManager: ScopeManager,
-  scope?: Value,
-): CompilationResult => {
-  const { getCurrentScopeIdentifier, createValueIdentifier, addAssignment } = scopeManager;
-
-  const variableName = variable.name;
-  const instructions: Array<Instruction> = [];
-
-  // create the assignment
-  if (scope && scopeManager.getScopeFromRegistry(scope)) {
-    scopeManager
-      .getScopeFromRegistry(scope)!
-      .assignments.set(variable.name, createAssignment(value.identifier, variable));
-  } else {
-    addAssignment(variableName, createAssignment(value.identifier, variable));
-  }
-
-  instructions.push(
-    createCallInstruction(
-      createValueIdentifier(),
-      null,
-      createSetFieldFunctionDefinition(variableName),
-      [createReference(getCurrentScopeIdentifier()), value],
-      location,
-    ),
-  );
-
-  return {
-    instructions,
-    value,
-  };
-};
 
 export const compileAsAssignment = (
   node: Exclude<TSESTree.Node, TSESTree.Statement>,
   value: Value,
   context: Context,
-  scope?: Value,
+  scopeReference: Value,
 ): Array<Instruction> => {
   const { scopeManager } = context;
-  const { createValueIdentifier, getVariableAndOwner } = scopeManager;
+  const { getVariableAndOwner } = scopeManager;
 
   switch (node.type) {
     case AST_NODE_TYPES.Identifier: {
       const { name } = node;
       const { scopeManager } = context;
+      const instructions: Array<Instruction> = [];
 
       let variable: Variable;
 
-      const variableAndOwner = getVariableAndOwner(name, scope);
+      const variableAndOwner = getVariableAndOwner(name, scopeReference);
 
-      if (!variableAndOwner) {
-        variable = createVariable(name);
-
-        scopeManager.addVariable(variable);
-      } else {
+      if (variableAndOwner) {
         variable = variableAndOwner.variable;
+
+        const { createValueIdentifier, addAssignment } = scopeManager;
+
+        const variableName = variable.name;
+
+        // create the assignment
+        const assignment = createAssignment(value.identifier, variable);
+
+        addAssignment(variableName, assignment, scopeReference);
+
+        instructions.push(
+          createCallInstruction(
+            createValueIdentifier(),
+            null,
+            createSetFieldFunctionDefinition(variableName),
+            [scopeReference, value],
+            node.loc,
+          ),
+        );
       }
 
-      return processAssignment(variable, value, node.loc, scopeManager, scope).instructions;
+      return instructions;
     }
 
     case AST_NODE_TYPES.MemberExpression: {
@@ -99,20 +70,23 @@ export const compileAsAssignment = (
         const { instructions: objectInstructions, value: objectValue } = handleExpression(
           object,
           context,
+          scopeReference,
         );
-        const assignmentInstructions = compileAsAssignment(property, value, context, objectValue);
 
-        return [
-          ...objectInstructions,
-          ...assignmentInstructions,
-          createCallInstruction(
-            createValueIdentifier(),
-            null,
-            createSetFieldFunctionDefinition(property.name),
-            [objectValue, value],
-            node.loc,
-          ),
-        ];
+        /**
+         * ECMAScript allows assigning a value to a property that was not previously declared:
+         *
+         * ```js
+         * const foo = {};
+         *
+         * foo.bar = ;
+         * ```
+         *
+         * Hence, we must compile the property node as a declaration instead of an assignment.
+         */
+        const propertyInstructions = compileAsDeclaration(property, value, context, objectValue);
+
+        return [...objectInstructions, ...propertyInstructions];
       } else {
         console.error(`Not supported yet...`);
 
@@ -132,7 +106,7 @@ export const compileAsDeclaration = (
   node: Exclude<TSESTree.Node, TSESTree.Statement>,
   value: Value,
   context: Context,
-  scope?: Value, // todo: mandatory at some point
+  scopeReference: Value,
 ): Array<Instruction> => {
   const { scopeManager } = context;
 
@@ -141,12 +115,15 @@ export const compileAsDeclaration = (
       const { name } = node;
       const variable = createVariable(name);
 
-      scopeManager.addVariable(variable);
-      if (scope && scopeManager.getScopeFromRegistry(scope)) {
-        scopeManager.getScopeFromRegistry(scope)!.variables.set(name, variable);
+      const scope = scopeManager.getScopeFromReference(scopeReference);
+
+      if (scope) {
+        scope.variables.set(name, variable);
+      } else {
+        scopeManager.addVariable(variable);
       }
 
-      return processAssignment(variable, value, node.loc, scopeManager, scope).instructions;
+      return compileAsAssignment(node, value, context, scopeReference);
     }
 
     default: {
@@ -157,7 +134,7 @@ export const compileAsDeclaration = (
   }
 };
 
-export const handleExpression: ExpressionHandler = (node, context, scope) => {
+export const handleExpression: ExpressionHandler = (node, context, scopeReference) => {
   console.info(' handleExpression', node.type);
 
   let expressionHandler: ExpressionHandler<any>;
@@ -214,5 +191,5 @@ export const handleExpression: ExpressionHandler = (node, context, scope) => {
       };
   }
 
-  return expressionHandler(node, context, scope);
+  return expressionHandler(node, context, scopeReference);
 };
