@@ -420,8 +420,10 @@ public class BridgeServerImpl implements BridgeServer {
     for (String part : parts) {
       // Split the part into headers and body
       String[] splitPart = part.split("\r\n\r\n", 2);
-      if (splitPart.length < 2)
-        continue; // Skip if there's no body
+      if (splitPart.length < 2) {
+        // Skip if there's no body
+        continue;
+      }
 
       String headers = splitPart[0];
       String partBody = splitPart[1];

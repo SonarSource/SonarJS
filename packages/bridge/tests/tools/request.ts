@@ -43,10 +43,8 @@ export async function request(
   switch (format) {
     case 'text':
       return res.text();
-      break;
     case 'formdata':
       return res.formData();
-      break;
     default:
       throw new Error(`Unsupported format: ${format}`);
   }
