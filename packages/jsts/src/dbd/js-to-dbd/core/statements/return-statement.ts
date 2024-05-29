@@ -8,8 +8,8 @@ export const handleReturnStatement: StatementHandler<TSESTree.ReturnStatement> =
   node,
   context,
 ) => {
-  const { scopeManager } = context;
-  const { getCurrentBlock } = scopeManager;
+  const { blockManager } = context;
+  const { getCurrentBlock } = blockManager;
 
   if (node.argument === null) {
     getCurrentBlock().instructions.push(createReturnInstruction(createNull(), node.loc));

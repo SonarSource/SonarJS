@@ -1,8 +1,6 @@
 import { type Assignment, type Variable } from './variable';
 import { type Scope, createScope as _createScope } from './scope';
 import type { FunctionInfo } from './function-info';
-import type { FunctionReference } from './values/function-reference';
-import type { Parameter } from './values/parameter';
 import { TSESTree } from '@typescript-eslint/typescript-estree';
 import type { Location } from './location';
 import { type Block, createBlock } from './block';
@@ -34,25 +32,16 @@ export interface ScopeManager {
 
   addVariable(variable: Variable): void;
 
-  getCurrentBlock(): Block;
-
-  getCurrentFunctionInfo(): FunctionInfo;
-
   getFunctionInfo(name: string): FunctionInfo | null;
-
-  getFunctionReference(identifier: number): FunctionReference | null;
-
-  getParameter(name: string): Parameter | null;
 
   getScopeReference(name: string): Reference;
 
   processFunctionInfo(
-    functionInfo: FunctionInfo,
+    name: string,
     body: Array<TSESTree.Statement>,
+    parameters: Array<TSESTree.Parameter>,
     location: Location,
-  ): void;
-
-  pushBlock(block: Block): void;
+  ): FunctionInfo;
 
   unshiftScope(scope: Scope): void;
 
@@ -60,7 +49,6 @@ export interface ScopeManager {
 }
 
 export const createScopeManager = (
-  functionInfo: FunctionInfo,
   functionInfos: Array<FunctionInfo>,
   processFunctionInfo: ScopeManager['processFunctionInfo'],
 ): ScopeManager => {
@@ -69,16 +57,7 @@ export const createScopeManager = (
   let blockIndex: number = 0;
   let valueIndex = 0;
 
-  const getCurrentFunctionInfo = () => {
-    return functionInfo;
-  };
-
   const getCurrentScope = () => scopes[0];
-  const getCurrentBlock = () => {
-    const { blocks } = getCurrentFunctionInfo();
-
-    return blocks[blocks.length - 1];
-  };
 
   const getVariableAssigner = (variable: Variable): Scope | undefined => {
     return scopes.find(scope => {
@@ -119,24 +98,12 @@ export const createScopeManager = (
       : null;
   };
 
-  const getParameter = (name: string): Parameter | null => {
-    return (
-      getCurrentFunctionInfo().parameters.find(parameter => {
-        return parameter.name === name;
-      }) || null
-    );
-  };
-
   const createScopedBlock = (location: Location): Block => {
     return createBlock(getCurrentScope(), blockIndex++, location);
   };
 
   const createScope = (): Scope => {
     return _createScope(valueIndex++);
-  };
-
-  const pushBlock = (block: Block) => {
-    getCurrentFunctionInfo().blocks.push(block);
   };
 
   const getScopeReference = (name: string) => {
@@ -151,7 +118,9 @@ export const createScopeManager = (
   };
 
   return {
-    createValueIdentifier: () => valueIndex++,
+    createValueIdentifier: () => {
+      return valueIndex++;
+    },
     createScopedBlock,
     createScope,
     getAssignment,
@@ -162,8 +131,6 @@ export const createScopeManager = (
     addAssignment(key: string, value: Assignment) {
       getCurrentScope().assignments.set(key, value);
     },
-    getCurrentBlock,
-    getCurrentFunctionInfo,
     getCurrentScopeIdentifier() {
       return getCurrentScope().identifier;
     },
@@ -174,16 +141,7 @@ export const createScopeManager = (
         }) || null
       );
     },
-    getFunctionReference(identifier) {
-      return (
-        getCurrentFunctionInfo().functionReferences.find(functionReference => {
-          return functionReference.identifier === identifier;
-        }) || null
-      );
-    },
-    getParameter,
     processFunctionInfo,
-    pushBlock,
     unshiftScope: scope => {
       scopes.unshift(scope);
     },

@@ -3,7 +3,26 @@ import { ScopeManagerClass } from './scope-manager';
 import type { Location } from './location';
 import { FunctionInfo } from './function-info';
 
-export class BlockManager {
+export interface BlockManager {
+  getCurrentBlock(): Block;
+
+  pushBlock(block: Block): void;
+}
+
+export const createBlockManager = (functionInfo: FunctionInfo): BlockManager => {
+  return {
+    getCurrentBlock() {
+      const { blocks } = functionInfo;
+
+      return blocks[blocks.length - 1];
+    },
+    pushBlock: block => {
+      functionInfo.blocks.push(block);
+    },
+  };
+};
+
+export class BlockManagerClass {
   blockIndex = 0;
 
   constructor(

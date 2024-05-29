@@ -5,6 +5,9 @@ import { createNewObjectFunctionDefinition } from './function-definition';
 import type { Block } from './block';
 import { isATerminatorInstruction } from './instructions/terminator-instruction';
 import type { Instruction } from './instruction';
+import type { Parameter } from './values/parameter';
+import type { FunctionInfo } from './function-info';
+import type { FunctionReference } from './values/function-reference';
 
 export function createScopeDeclarationInstruction(
   scope: Scope,
@@ -30,3 +33,22 @@ function getBlockLastInstruction(block: Block): Instruction | null {
 
   return instructions.length > 0 ? instructions[instructions.length - 1] : null;
 }
+
+export const getFunctionReference = (
+  functionInfo: FunctionInfo,
+  identifier: number,
+): FunctionReference | null => {
+  return (
+    functionInfo.functionReferences.find(functionReference => {
+      return functionReference.identifier === identifier;
+    }) || null
+  );
+};
+
+export const getParameter = (functionInfo: FunctionInfo, name: string): Parameter | null => {
+  return (
+    functionInfo.parameters.find(parameter => {
+      return parameter.name === name;
+    }) || null
+  );
+};

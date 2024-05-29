@@ -5,22 +5,18 @@ import { createGetFieldFunctionDefinition } from '../function-definition';
 import { createNull } from '../values/null';
 import type { Instruction } from '../instruction';
 import { createCallInstruction } from '../instructions/call-instruction';
+import { getParameter } from '../utils';
 
 export const handleIdentifier: ExpressionHandler<TSESTree.Identifier> = (node, context, scope) => {
   const { name } = node;
-  const { scopeManager } = context;
-  const {
-    getVariableAndOwner,
-    createValueIdentifier,
-    getParameter,
-    getAssignment,
-    getScopeReference,
-  } = scopeManager;
+  const { functionInfo, scopeManager } = context;
+  const { getVariableAndOwner, createValueIdentifier, getAssignment, getScopeReference } =
+    scopeManager;
 
   let instructions: Array<Instruction> = [];
 
   // check if this is a reference to a parameter
-  const parameter = getParameter(node.name);
+  const parameter = getParameter(functionInfo, node.name);
 
   if (parameter) {
     return {

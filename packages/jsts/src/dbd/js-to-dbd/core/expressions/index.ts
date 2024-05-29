@@ -141,6 +141,7 @@ export const compileAsDeclaration = (
   _scope?: Value, // todo: mandatory at some point
 ): Array<Instruction> => {
   const { scopeManager } = context;
+  console.log('compileAsDeclaration', node, value);
 
   switch (node.type) {
     case AST_NODE_TYPES.Identifier: {

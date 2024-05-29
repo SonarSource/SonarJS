@@ -26,15 +26,12 @@ import { createReference } from '../values/reference';
 import type { ExpressionHandler } from '../expression-handler';
 import { createNull } from '../values/null';
 import { AST_NODE_TYPES } from '@typescript-eslint/typescript-estree';
+import { getFunctionReference, getParameter } from '../utils';
 
 export const handleCallExpression: ExpressionHandler<TSESTree.CallExpression> = (node, context) => {
-  const {
-    getFunctionReference,
-    createValueIdentifier,
-    getParameter,
-    getVariableAndOwner,
-    getAssignment,
-  } = context.scopeManager;
+  const { functionInfo, scopeManager } = context;
+
+  const { createValueIdentifier, getVariableAndOwner, getAssignment } = scopeManager;
   const instructions: Array<Instruction> = [];
 
   let value: Value;
@@ -45,7 +42,9 @@ export const handleCallExpression: ExpressionHandler<TSESTree.CallExpression> = 
 
   for (const argumentExpression of argumentExpressions) {
     if (argumentExpression.type === AST_NODE_TYPES.Identifier) {
-      const parameter = getParameter(argumentExpression.name);
+      const parameter = getParameter(functionInfo, argumentExpression.name);
+
+      console.log('DID WE?', parameter, argumentExpression.name);
 
       if (parameter) {
         argumentValues.push(parameter);
@@ -80,12 +79,14 @@ export const handleCallExpression: ExpressionHandler<TSESTree.CallExpression> = 
   instructions.push(...calleeInstructions);
 
   // function reference
-  const functionReference = getFunctionReference(calleeValue.identifier);
+  const functionReference = getFunctionReference(functionInfo, calleeValue.identifier);
 
   if (functionReference) {
     const { functionInfo } = functionReference;
 
     let operands: Array<Value> = [];
+
+    console.log('F INFO PARAMS', functionInfo.definition.signature, functionInfo.parameters);
 
     for (let index = 0; index < functionInfo.parameters.length; index++) {
       let argumentValue = argumentValues[index];

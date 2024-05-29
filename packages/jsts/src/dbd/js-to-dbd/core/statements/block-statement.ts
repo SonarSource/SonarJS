@@ -5,9 +5,9 @@ import { createNewObjectFunctionDefinition } from '../function-definition';
 import type { StatementHandler } from '../statement-handler';
 
 export const handleBlockStatement: StatementHandler<TSESTree.BlockStatement> = (node, context) => {
-  const { scopeManager } = context;
-  const { createScope, createScopedBlock, getCurrentBlock, pushBlock, unshiftScope, shiftScope } =
-    scopeManager;
+  const { blockManager, scopeManager } = context;
+  const { getCurrentBlock, pushBlock } = blockManager;
+  const { createScope, createScopedBlock, unshiftScope, shiftScope } = scopeManager;
 
   const blockScope = createScope();
 

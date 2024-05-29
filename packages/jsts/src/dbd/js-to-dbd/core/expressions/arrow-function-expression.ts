@@ -19,13 +19,7 @@
  */
 import type { ExpressionHandler } from '../expression-handler';
 import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/typescript-estree';
-import { createFunctionInfo } from '../function-info';
-import {
-  createFunctionDefinition,
-  createNewObjectFunctionDefinition,
-  generateSignature,
-} from '../function-definition';
-import { createParameter } from '../values/parameter';
+import { createNewObjectFunctionDefinition } from '../function-definition';
 import { createFunctionReference } from '../values/function-reference';
 import { createCallInstruction } from '../instructions/call-instruction';
 import type { Instruction } from '../instruction';
@@ -34,8 +28,8 @@ export const handleArrowFunctionExpression: ExpressionHandler<TSESTree.ArrowFunc
   node,
   context,
 ) => {
-  const { fileName, scopeManager } = context;
-  const { createValueIdentifier, processFunctionInfo, getCurrentFunctionInfo } = scopeManager;
+  const { functionInfo: currentFunctionInfo, scopeManager } = context;
+  const { createValueIdentifier, processFunctionInfo } = scopeManager;
   const instructions: Array<Instruction> = [];
 
   let body: Array<TSESTree.Statement>;
@@ -55,33 +49,14 @@ export const handleArrowFunctionExpression: ExpressionHandler<TSESTree.ArrowFunc
     body = (node.body as TSESTree.BlockStatement).body;
   }
 
-  const currentFunctionInfo = getCurrentFunctionInfo();
-
   const functionReferenceIdentifier = createValueIdentifier();
+  // todo: we may need a common helper
   const functionName = `${currentFunctionInfo.definition.name}__${functionReferenceIdentifier}`;
-
-  const functionInfo = createFunctionInfo(
-    fileName,
-    createFunctionDefinition(functionName, generateSignature(functionName, fileName)),
-    node.params.map(parameter => {
-      let parameterName: string;
-
-      if (parameter.type === AST_NODE_TYPES.Identifier) {
-        parameterName = parameter.name;
-      } else {
-        // todo
-        parameterName = '';
-      }
-
-      return createParameter(createValueIdentifier(), parameterName, parameter.loc);
-    }),
-  );
-
-  processFunctionInfo(functionInfo, body, node.loc);
+  const functionInfo = processFunctionInfo(functionName, body, node.params, node.loc);
 
   const functionReference = createFunctionReference(functionInfo, functionReferenceIdentifier);
 
-  getCurrentFunctionInfo().functionReferences.push(functionReference);
+  currentFunctionInfo.functionReferences.push(functionReference);
 
   instructions.push(
     createCallInstruction(

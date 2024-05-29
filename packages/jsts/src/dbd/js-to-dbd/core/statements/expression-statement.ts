@@ -6,8 +6,9 @@ export const handleExpressionStatement: StatementHandler<TSESTree.ExpressionStat
   node,
   context,
 ) => {
-  const { scopeManager } = context;
+  const { blockManager } = context;
+  const { getCurrentBlock } = blockManager;
 
   const { instructions } = handleExpression(node.expression, context);
-  scopeManager.getCurrentBlock().instructions.push(...instructions);
+  getCurrentBlock().instructions.push(...instructions);
 };

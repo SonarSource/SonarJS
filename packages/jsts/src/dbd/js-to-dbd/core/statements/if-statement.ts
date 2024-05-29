@@ -14,9 +14,9 @@ export const handleIfStatement: StatementHandler<TSESTree.IfStatement> = (
   fileName,
 ) => {
   const { consequent, alternate, test } = node;
-  const { scopeManager } = context;
-  const { getCurrentBlock, createScopedBlock, unshiftScope, createScope, pushBlock, shiftScope } =
-    scopeManager;
+  const { blockManager, scopeManager } = context;
+  const { createScopedBlock, unshiftScope, createScope, shiftScope } = scopeManager;
+  const { getCurrentBlock, pushBlock } = blockManager;
 
   const currentBlock = getCurrentBlock();
 

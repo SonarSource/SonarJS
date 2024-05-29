@@ -7,8 +7,8 @@ export const handleVariableDeclaration: StatementHandler<TSESTree.VariableDeclar
   node,
   context,
 ) => {
-  const { scopeManager } = context;
-  const { getCurrentBlock } = scopeManager;
+  const { blockManager } = context;
+  const { getCurrentBlock } = blockManager;
   const instructions: Array<Instruction> = [];
 
   for (const declaration of node.declarations) {

@@ -1,8 +1,23 @@
 import { type ScopeManager } from './scope-manager';
+import type { FunctionInfo } from './function-info';
+import type { BlockManager } from './block-manager';
 
 export type Context = {
-  readonly fileName: string;
+  readonly blockManager: BlockManager;
+  readonly functionInfo: FunctionInfo;
   readonly scopeManager: ScopeManager;
+};
+
+export const createContext = (
+  functionInfo: FunctionInfo,
+  blockManager: BlockManager,
+  scopeManager: ScopeManager,
+): Context => {
+  return {
+    blockManager,
+    functionInfo,
+    scopeManager,
+  };
 };
 
 // export interface ContextManager {

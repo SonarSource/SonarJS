@@ -1,15 +1,11 @@
 import type { StatementHandler } from '../statement-handler';
-import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/typescript-estree';
+import { TSESTree } from '@typescript-eslint/typescript-estree';
 import { createAssignment, createVariable } from '../variable';
-import { createFunctionInfo } from '../function-info';
-import { createParameter } from '../values/parameter';
 import { createFunctionReference } from '../values/function-reference';
 import { createCallInstruction } from '../instructions/call-instruction';
 import {
-  createFunctionDefinition,
   createNewObjectFunctionDefinition,
   createSetFieldFunctionDefinition,
-  generateSignature,
 } from '../function-definition';
 import { createConstant } from '../values/constant';
 import { createReference } from '../values/reference';
@@ -17,19 +13,17 @@ import { createReference } from '../values/reference';
 export const handleFunctionDeclaration: StatementHandler<TSESTree.FunctionDeclarationWithName> = (
   node,
   context,
-  fileName,
 ) => {
   const { id } = node;
-  const { scopeManager } = context;
+  const { blockManager, scopeManager, functionInfo: currentFunctionInfo } = context;
   const {
-    getCurrentBlock,
-    getCurrentFunctionInfo,
     processFunctionInfo,
     createValueIdentifier,
     getCurrentScopeIdentifier,
     addVariable,
     addAssignment,
   } = scopeManager;
+  const { getCurrentBlock } = blockManager;
 
   const { name } = id;
 
@@ -39,32 +33,15 @@ export const handleFunctionDeclaration: StatementHandler<TSESTree.FunctionDeclar
 
   addVariable(variable);
 
-  const currentFunctionInfo = getCurrentFunctionInfo();
-
-  // todo: use a factory, the next 3 statements are duplicated in ArrowFunctionExpression handler
   const functionReferenceIdentifier = createValueIdentifier();
+  // todo: we may need a common helper
   const functionName = `${currentFunctionInfo.definition.name}__${functionReferenceIdentifier}`;
 
-  const functionInfo = createFunctionInfo(
-    fileName,
-    createFunctionDefinition(functionName, generateSignature(functionName, fileName)),
-    node.params.map(parameter => {
-      let parameterName: string;
-
-      if (parameter.type === AST_NODE_TYPES.Identifier) {
-        parameterName = parameter.name;
-      } else {
-        // todo
-        parameterName = '';
-      }
-
-      return createParameter(createValueIdentifier(), parameterName, parameter.loc);
-    }),
-  );
+  const functionInfo = processFunctionInfo(functionName, node.body.body, node.params, node.loc);
 
   const functionReference = createFunctionReference(functionInfo, functionReferenceIdentifier);
 
-  getCurrentFunctionInfo().functionReferences.push(functionReference);
+  currentFunctionInfo.functionReferences.push(functionReference);
 
   // create the function object
   getCurrentBlock().instructions.push(
@@ -105,6 +82,4 @@ export const handleFunctionDeclaration: StatementHandler<TSESTree.FunctionDeclar
   const assignment = createAssignment(functionReference.identifier, variable);
 
   addAssignment(id.name, assignment);
-
-  processFunctionInfo(functionInfo, node.body.body, node.loc);
 };
