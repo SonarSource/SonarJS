@@ -55,8 +55,10 @@ export const handleArrowFunctionExpression: ExpressionHandler<TSESTree.ArrowFunc
     body = (node.body as TSESTree.BlockStatement).body;
   }
 
+  const currentFunctionInfo = getCurrentFunctionInfo();
+
   const functionReferenceIdentifier = createValueIdentifier();
-  const functionName = `${functionReferenceIdentifier}`;
+  const functionName = `${currentFunctionInfo.definition.name}__${functionReferenceIdentifier}`;
 
   const functionInfo = createFunctionInfo(
     fileName,
@@ -77,11 +79,7 @@ export const handleArrowFunctionExpression: ExpressionHandler<TSESTree.ArrowFunc
 
   processFunctionInfo(functionInfo, body, node.loc);
 
-  const functionReference = createFunctionReference(
-    functionInfo,
-    functionReferenceIdentifier,
-    functionInfo.definition.name,
-  );
+  const functionReference = createFunctionReference(functionInfo, functionReferenceIdentifier);
 
   getCurrentFunctionInfo().functionReferences.push(functionReference);
 

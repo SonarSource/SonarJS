@@ -77,9 +77,9 @@ export const rule: Rule.RuleModule = {
       irts.push(irt);
     };
 
-    const { outputs, metadata } = serialize(functionInfos, context.filename);
+    const outputs = serialize(functionInfos, context.filename);
 
-    for (const { name, data } of outputs) {
+    for (const { name, data, metadata } of outputs) {
       const functionInfo = FunctionInfo.fromBinary(data);
       saveResults(functionInfo, metadata, [], false, name, data);
     }

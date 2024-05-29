@@ -39,11 +39,16 @@ export const handleFunctionDeclaration: StatementHandler<TSESTree.FunctionDeclar
 
   addVariable(variable);
 
+  const currentFunctionInfo = getCurrentFunctionInfo();
+
+  // todo: use a factory, the next 3 statements are duplicated in ArrowFunctionExpression handler
+  const functionReferenceIdentifier = createValueIdentifier();
+  const functionName = `${currentFunctionInfo.definition.name}__${functionReferenceIdentifier}`;
+
   const functionInfo = createFunctionInfo(
     fileName,
-    createFunctionDefinition(name, generateSignature(name, fileName)),
+    createFunctionDefinition(functionName, generateSignature(functionName, fileName)),
     node.params.map(parameter => {
-      // todo: make a helper, it is duplicated in ArrowFunctionExpression handler
       let parameterName: string;
 
       if (parameter.type === AST_NODE_TYPES.Identifier) {
@@ -55,10 +60,9 @@ export const handleFunctionDeclaration: StatementHandler<TSESTree.FunctionDeclar
 
       return createParameter(createValueIdentifier(), parameterName, parameter.loc);
     }),
-    [],
   );
 
-  const functionReference = createFunctionReference(functionInfo, createValueIdentifier(), id.name);
+  const functionReference = createFunctionReference(functionInfo, functionReferenceIdentifier);
 
   getCurrentFunctionInfo().functionReferences.push(functionReference);
 

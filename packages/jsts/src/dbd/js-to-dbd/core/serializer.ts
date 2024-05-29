@@ -243,15 +243,20 @@ export const serialize = (
     const message = FunctionInfo.create(serializableFunctionInfo);
     const data = FunctionInfo.encode(message).finish();
 
+    const gatherMetadata = (functionInfo: FunctionInfo): Array<string> => {
+      const results = [functionInfo.definition.signature];
+
+      for (const functionReference of functionInfo.functionReferences) {
+        results.push(...gatherMetadata(functionReference.functionInfo));
+      }
+
+      return results;
+    };
+
     outputs.push({
       data,
       name: `${slug}_${definition.name}`,
-      metadata: [
-        functionInfo.definition.signature,
-        ...functionInfo.functionReferences.map(functionReference => {
-          return functionReference.functionInfo.definition.signature;
-        }),
-      ],
+      metadata: gatherMetadata(functionInfo),
     });
   }
 
