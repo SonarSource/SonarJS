@@ -29,6 +29,9 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.scanner.ScannerSide;
+import org.sonar.plugins.javascript.bridge.BridgeServer.AnalysisResponse;
+import org.sonar.plugins.javascript.bridge.BridgeServer.TsProgram;
+import org.sonar.plugins.javascript.bridge.BridgeServer.TsProgramRequest;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
 @ScannerSide
@@ -73,14 +76,24 @@ public interface BridgeServer extends Startable {
   record CssAnalysisRequest(String filePath, @Nullable String fileContent, List<StylelintRule> rules) {
   }
 
+  record BridgeResponse(String json, @Nullable String ast) {
+    public BridgeResponse(String json) {
+      this(json, null);
+    }
+  }
   record AnalysisResponse(@Nullable ParsingError parsingError, List<Issue> issues, List<Highlight> highlights,
-                          List<HighlightedSymbol> highlightedSymbols, Metrics metrics, List<CpdToken> cpdTokens, List<String> ucfgPaths) {
-    public AnalysisResponse() {
-      this(null, List.of(), List.of(), List.of(), new Metrics(), List.of(), List.of());
+                          List<HighlightedSymbol> highlightedSymbols, Metrics metrics, List<CpdToken> cpdTokens, List<String> ucfgPaths, String ast) {
+
+                            public AnalysisResponse(AnalysisResponse response, String ast) {
+      this(response.parsingError, response.issues, response.highlights, response.highlightedSymbols, response.metrics, response.cpdTokens, response.ucfgPaths, ast);
+    }
+
+                            public AnalysisResponse() {
+      this(null, List.of(), List.of(), List.of(), new Metrics(), List.of(), List.of(), null);
     }
 
     public AnalysisResponse(@Nullable ParsingError parsingError, @Nullable List<Issue> issues, @Nullable List<Highlight> highlights,
-                            @Nullable List<HighlightedSymbol> highlightedSymbols, @Nullable Metrics metrics, @Nullable List<CpdToken> cpdTokens, List<String> ucfgPaths) {
+                            @Nullable List<HighlightedSymbol> highlightedSymbols, @Nullable Metrics metrics, @Nullable List<CpdToken> cpdTokens, List<String> ucfgPaths, @Nullable String ast) {
       this.parsingError = parsingError;
       this.issues = issues != null ? issues : List.of();
       this.highlights = highlights != null ? highlights : List.of();
@@ -88,6 +101,7 @@ public interface BridgeServer extends Startable {
       this.metrics = metrics != null ? metrics : new Metrics();
       this.cpdTokens = cpdTokens != null ? cpdTokens : List.of();
       this.ucfgPaths = ucfgPaths;
+      this.ast = ast;
     }
   }
 

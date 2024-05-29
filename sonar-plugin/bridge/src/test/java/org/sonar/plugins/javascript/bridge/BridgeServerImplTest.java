@@ -183,7 +183,9 @@ class BridgeServerImplTest {
       .setContents("alert('Fly, you fools!')")
       .build();
     JsAnalysisRequest request = createRequest(inputFile);
-    assertThat(bridgeServer.analyzeJavaScript(request).issues()).hasSize(1);
+    var response = bridgeServer.analyzeJavaScript(request);
+    assertThat(response.issues()).hasSize(1);
+    assertThat(response.ast()).contains("plop");
   }
 
   @Test
