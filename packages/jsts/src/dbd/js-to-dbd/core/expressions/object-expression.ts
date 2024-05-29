@@ -3,14 +3,16 @@ import type { Instruction } from '../instruction';
 import { createCallInstruction } from '../instructions/call-instruction';
 import { createNewObjectFunctionDefinition } from '../function-definition';
 import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/typescript-estree';
-import { compileAsAssignment, handleExpression } from './index';
+import { compileAsDeclaration, handleExpression } from './index';
 import type { ExpressionHandler } from '../expression-handler';
+import { createScope } from '../scope';
 
 export const handleObjectExpression: ExpressionHandler<TSESTree.ObjectExpression> = (
   node,
   context,
 ) => {
   const { properties } = node;
+  const { scopeManager } = context;
 
   const objectValue = createReference(context.scopeManager.createValueIdentifier());
 
@@ -23,6 +25,8 @@ export const handleObjectExpression: ExpressionHandler<TSESTree.ObjectExpression
       node.loc,
     ),
   ];
+
+  scopeManager.unshiftScope(createScope(objectValue.identifier));
 
   for (const property of properties) {
     if (property.type === AST_NODE_TYPES.Property) {
@@ -39,7 +43,7 @@ export const handleObjectExpression: ExpressionHandler<TSESTree.ObjectExpression
         objectValue,
       );
 
-      const propertyKeyInstructions = compileAsAssignment(
+      const propertyKeyInstructions = compileAsDeclaration(
         property.key,
         propertyValue,
         context,
@@ -50,6 +54,8 @@ export const handleObjectExpression: ExpressionHandler<TSESTree.ObjectExpression
       instructions.push(...propertyKeyInstructions);
     }
   }
+
+  scopeManager.shiftScope();
 
   return {
     instructions,

@@ -7,6 +7,7 @@ import { createNull } from '../values/null';
 export const handleAssignmentExpression: ExpressionHandler<TSESTree.AssignmentExpression> = (
   node,
   context,
+  scope,
 ) => {
   const instructions: Array<Instruction> = [];
 
@@ -18,7 +19,7 @@ export const handleAssignmentExpression: ExpressionHandler<TSESTree.AssignmentEx
   instructions.push(...rightInstructions);
 
   // lhs
-  const leftInstructions = compileAsAssignment(left, rightValue, context);
+  const leftInstructions = compileAsAssignment(left, rightValue, context, scope);
 
   instructions.push(...leftInstructions);
 

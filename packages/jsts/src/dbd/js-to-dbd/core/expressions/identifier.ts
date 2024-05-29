@@ -25,10 +25,10 @@ export const handleIdentifier: ExpressionHandler<TSESTree.Identifier> = (node, c
     };
   }
 
-  const variableAndOwner = getVariableAndOwner(name);
+  let variableAndOwner = getVariableAndOwner(name, scope);
 
   if (variableAndOwner) {
-    const assignment = getAssignment(variableAndOwner.variable);
+    const assignment = getAssignment(variableAndOwner.variable, scope);
 
     if (assignment) {
       return {

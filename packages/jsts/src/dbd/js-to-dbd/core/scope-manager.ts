@@ -5,6 +5,7 @@ import { TSESTree } from '@typescript-eslint/typescript-estree';
 import type { Location } from './location';
 import { type Block, createBlock } from './block';
 import { createReference, type Reference } from './values/reference';
+import { Value } from './value';
 
 export interface ScopeManager {
   createValueIdentifier(): number;
@@ -18,14 +19,18 @@ export interface ScopeManager {
   /**
    * Return the nearest assignment to `variable`.
    */
-  getAssignment(variable: Variable): Assignment | null;
+  getAssignment(variable: Variable, scope?: Value): Assignment | null;
 
   getCurrentScopeIdentifier(): number;
+  getScopeFromRegistry(scopeValue: Value): Scope | null;
 
   /**
    * Return the nearest variable registered under `name`, alongside its owner.
    */
-  getVariableAndOwner(name: string): {
+  getVariableAndOwner(
+    name: string,
+    scope?: Value,
+  ): {
     variable: Variable;
     owner: Scope;
   } | null;
@@ -46,6 +51,7 @@ export interface ScopeManager {
   unshiftScope(scope: Scope): void;
 
   shiftScope(): Scope | undefined;
+  scopeRegistry: Map<number, Scope>;
 }
 
 export const createScopeManager = (
@@ -56,6 +62,7 @@ export const createScopeManager = (
 
   let blockIndex: number = 0;
   let valueIndex = 0;
+  const scopeRegistry = new Map<number, Scope>();
 
   const getCurrentScope = () => scopes[0];
 
@@ -68,8 +75,11 @@ export const createScopeManager = (
   /**
    * @see {ScopeManager.getAssignment}
    */
-  const getAssignment: ScopeManager['getAssignment'] = variable => {
+  const getAssignment: ScopeManager['getAssignment'] = (variable, scopeValue) => {
     const { name } = variable;
+    if (scopeValue && scopeRegistry.has(scopeValue.identifier)) {
+      return scopeRegistry.get(scopeValue.identifier)!.assignments.get(name) || null;
+    }
 
     const scope = getVariableAssigner(variable);
 
@@ -79,7 +89,17 @@ export const createScopeManager = (
   /**
    * @see {ScopeManager.getVariableAndOwner}
    */
-  const getVariableAndOwner: ScopeManager['getVariableAndOwner'] = name => {
+  const getVariableAndOwner: ScopeManager['getVariableAndOwner'] = (name, scope) => {
+    if (scope && scopeRegistry.has(scope.identifier)) {
+      const relevantScope = scopeRegistry.get(scope.identifier);
+      const variable = relevantScope?.variables.get(name);
+      if (variable) {
+        return {
+          owner: relevantScope!,
+          variable,
+        };
+      }
+    }
     const owner = scopes.find(scope => {
       return scope.variables.has(name);
     });
@@ -134,6 +154,9 @@ export const createScopeManager = (
     getCurrentScopeIdentifier() {
       return getCurrentScope().identifier;
     },
+    getScopeFromRegistry(scope) {
+      return scopeRegistry.get(scope.identifier) || null;
+    },
     getFunctionInfo(name) {
       return (
         functionInfos.find(functionInfo => {
@@ -143,10 +166,12 @@ export const createScopeManager = (
     },
     processFunctionInfo,
     unshiftScope: scope => {
+      scopeRegistry.set(scope.identifier, scope);
       scopes.unshift(scope);
     },
     shiftScope: () => scopes.shift(),
     getScopeReference,
+    scopeRegistry,
   };
 };
 

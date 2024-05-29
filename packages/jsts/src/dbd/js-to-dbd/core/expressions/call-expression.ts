@@ -28,7 +28,11 @@ import { createNull } from '../values/null';
 import { AST_NODE_TYPES } from '@typescript-eslint/typescript-estree';
 import { getFunctionReference, getParameter } from '../utils';
 
-export const handleCallExpression: ExpressionHandler<TSESTree.CallExpression> = (node, context) => {
+export const handleCallExpression: ExpressionHandler<TSESTree.CallExpression> = (
+  node,
+  context,
+  _scope,
+) => {
   const { functionInfo, scopeManager } = context;
 
   const { createValueIdentifier, getVariableAndOwner, getAssignment } = scopeManager;

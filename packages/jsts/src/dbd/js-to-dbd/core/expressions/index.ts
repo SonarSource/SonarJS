@@ -31,6 +31,7 @@ const processAssignment = (
   value: Value,
   location: Location,
   scopeManager: ScopeManager,
+  scope?: Value,
 ): CompilationResult => {
   const { getCurrentScopeIdentifier, createValueIdentifier, addAssignment } = scopeManager;
 
@@ -38,7 +39,13 @@ const processAssignment = (
   const instructions: Array<Instruction> = [];
 
   // create the assignment
-  addAssignment(variableName, createAssignment(value.identifier, variable));
+  if (scope && scopeManager.getScopeFromRegistry(scope)) {
+    scopeManager
+      .getScopeFromRegistry(scope)!
+      .assignments.set(variable.name, createAssignment(value.identifier, variable));
+  } else {
+    addAssignment(variableName, createAssignment(value.identifier, variable));
+  }
 
   instructions.push(
     createCallInstruction(
@@ -70,34 +77,19 @@ export const compileAsAssignment = (
       const { name } = node;
       const { scopeManager } = context;
 
-      if (scope === undefined) {
-        let variable: Variable;
+      let variable: Variable;
 
-        const variableAndOwner = getVariableAndOwner(name);
+      const variableAndOwner = getVariableAndOwner(name, scope);
 
-        if (!variableAndOwner) {
-          variable = createVariable(name);
+      if (!variableAndOwner) {
+        variable = createVariable(name);
 
-          scopeManager.addVariable(variable);
-        } else {
-          variable = variableAndOwner.variable;
-        }
-
-        return processAssignment(variable, value, node.loc, scopeManager).instructions;
+        scopeManager.addVariable(variable);
       } else {
-        // todo: it is time to streamline everything under a generic scope concept
-        const value = createReference(createValueIdentifier());
-
-        return [
-          createCallInstruction(
-            createValueIdentifier(),
-            null,
-            createSetFieldFunctionDefinition(name),
-            [scope, value],
-            node.loc,
-          ),
-        ];
+        variable = variableAndOwner.variable;
       }
+
+      return processAssignment(variable, value, node.loc, scopeManager, scope).instructions;
     }
 
     case AST_NODE_TYPES.MemberExpression: {
@@ -108,9 +100,11 @@ export const compileAsAssignment = (
           object,
           context,
         );
+        const assignmentInstructions = compileAsAssignment(property, value, context, objectValue);
 
         return [
           ...objectInstructions,
+          ...assignmentInstructions,
           createCallInstruction(
             createValueIdentifier(),
             null,
@@ -138,7 +132,7 @@ export const compileAsDeclaration = (
   node: Exclude<TSESTree.Node, TSESTree.Statement>,
   value: Value,
   context: Context,
-  _scope?: Value, // todo: mandatory at some point
+  scope?: Value, // todo: mandatory at some point
 ): Array<Instruction> => {
   const { scopeManager } = context;
 
@@ -148,8 +142,11 @@ export const compileAsDeclaration = (
       const variable = createVariable(name);
 
       scopeManager.addVariable(variable);
+      if (scope && scopeManager.getScopeFromRegistry(scope)) {
+        scopeManager.getScopeFromRegistry(scope)!.variables.set(name, variable);
+      }
 
-      return processAssignment(variable, value, node.loc, scopeManager).instructions;
+      return processAssignment(variable, value, node.loc, scopeManager, scope).instructions;
     }
 
     default: {

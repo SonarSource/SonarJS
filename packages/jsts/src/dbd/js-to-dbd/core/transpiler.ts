@@ -1,5 +1,5 @@
 import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/typescript-estree';
-import { type Assignment, createAssignment, createVariable, type Variable } from './variable';
+import { type Assignment, createAssignment, type Variable } from './variable';
 import {
   createFunctionDefinition,
   createNewObjectFunctionDefinition,
@@ -27,7 +27,7 @@ import { createBlockManager } from './block-manager';
 
 export type Transpiler = (ast: TSESTree.Program, fileName: string) => Array<FunctionInfo>;
 
-export const createTranspiler = (hostDefinedProperties: Array<Variable> = []): Transpiler => {
+export const createTranspiler = (_hostDefinedProperties: Array<Variable> = []): Transpiler => {
   return (program, fileName) => {
     const functionInfos: Array<FunctionInfo> = [];
 
