@@ -24,8 +24,6 @@ export const handleVariableDeclarator: ExpressionHandler<TSESTree.VariableDeclar
     initValue = createNull();
   }
 
-  console.log('WILL PROCESS VARIBALE DECL', node.id, initValue);
-
   const idInstructions = compileAsDeclaration(node.id, initValue, context, scope);
 
   instructions.push(...idInstructions);

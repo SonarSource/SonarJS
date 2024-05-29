@@ -44,8 +44,6 @@ export const handleCallExpression: ExpressionHandler<TSESTree.CallExpression> = 
     if (argumentExpression.type === AST_NODE_TYPES.Identifier) {
       const parameter = getParameter(functionInfo, argumentExpression.name);
 
-      console.log('DID WE?', parameter, argumentExpression.name);
-
       if (parameter) {
         argumentValues.push(parameter);
       } else {
@@ -85,8 +83,6 @@ export const handleCallExpression: ExpressionHandler<TSESTree.CallExpression> = 
     const { functionInfo } = functionReference;
 
     let operands: Array<Value> = [];
-
-    console.log('F INFO PARAMS', functionInfo.definition.signature, functionInfo.parameters);
 
     for (let index = 0; index < functionInfo.parameters.length; index++) {
       let argumentValue = argumentValues[index];

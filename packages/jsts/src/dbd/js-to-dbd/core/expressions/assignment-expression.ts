@@ -18,8 +18,6 @@ export const handleAssignmentExpression: ExpressionHandler<TSESTree.AssignmentEx
   instructions.push(...rightInstructions);
 
   // lhs
-  console.log('WILL PROCESS ASIGNEMTN', left, rightValue);
-
   const leftInstructions = compileAsAssignment(left, rightValue, context);
 
   instructions.push(...leftInstructions);

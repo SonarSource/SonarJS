@@ -65,10 +65,10 @@ export const createTranspiler = (hostDefinedProperties: Array<Variable> = []): T
 
       // assign global variables to the outer scope and declare them
       const globalVariables: Array<Variable> = [
-        createVariable('NaN', 'NaN', false),
-        createVariable('Infinity', 'int', false),
-        createVariable('undefined', 'Record', false),
-        ...hostDefinedProperties,
+        // createVariable('NaN', 'NaN', false),
+        // createVariable('Infinity', 'int', false),
+        // createVariable('undefined', 'Record', false),
+        // ...hostDefinedProperties,
       ];
 
       for (const globalVariable of globalVariables) {

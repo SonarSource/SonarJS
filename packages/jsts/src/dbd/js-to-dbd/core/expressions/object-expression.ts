@@ -46,8 +46,8 @@ export const handleObjectExpression: ExpressionHandler<TSESTree.ObjectExpression
         objectValue,
       );
 
-      instructions.push(...propertyKeyInstructions);
       instructions.push(...propertyValueInstructions);
+      instructions.push(...propertyKeyInstructions);
     }
   }
 
