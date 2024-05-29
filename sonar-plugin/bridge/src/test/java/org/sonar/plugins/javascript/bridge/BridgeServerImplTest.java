@@ -724,6 +724,19 @@ class BridgeServerImplTest {
   }
 
   @Test
+  void should_return_an_ast() throws Exception {
+    bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
+    bridgeServer.startServer(context, emptyList());
+
+    DefaultInputFile inputFile = TestInputFileBuilder
+      .create("foo", "foo.js")
+      .setContents("alert('Fly, you fools!')")
+      .build();
+    JsAnalysisRequest request = createRequest(inputFile);
+    var response = bridgeServer.analyzeJavaScript(request);
+    assertThat(response.ast()).contains("plop");
+  }
+  @Test
   void should_not_deploy_runtime_if_sonar_nodejs_executable_is_set() {
     var existingDoesntMatterScript = "logging.js";
     bridgeServer = createBridgeServer(existingDoesntMatterScript);
@@ -735,6 +748,21 @@ class BridgeServerImplTest {
       .contains(
         "'" + NODE_EXECUTABLE_PROPERTY + "' is set. Skipping embedded Node.js runtime deployment."
       );
+  }
+
+  @Test
+  void should_fail_if_form_data_is_malformed() throws Exception {
+    bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
+    bridgeServer.startServer(context, emptyList());
+
+    DefaultInputFile inputFile = TestInputFileBuilder
+      .create("foo", "foo.js")
+      .setContents("alert('Fly, you fools!')")
+      .build();
+    JsAnalysisRequest request = createRequest(inputFile);
+    var response = bridgeServer.analyzeJavaScript(request);
+    assertThat(response.issues()).hasSize(1);
+    assertThat(response.ast()).contains("plop");
   }
 
   private BridgeServerImpl createBridgeServer(String startServerScript) {
