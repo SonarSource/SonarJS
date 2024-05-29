@@ -124,7 +124,11 @@ if (parentPort) {
           await readFileLazily(data);
 
           const output = analyzeJSTS(data, 'ts');
-          parentThread.postMessage({ type: 'success', result: JSON.stringify(output) });
+          parentThread.postMessage({
+            type: 'success',
+            result: output,
+            format: 'multipart',
+          });
           break;
         }
 
