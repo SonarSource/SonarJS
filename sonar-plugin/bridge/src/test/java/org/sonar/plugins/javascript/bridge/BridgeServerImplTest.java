@@ -175,7 +175,7 @@ class BridgeServerImplTest {
 
   @Test
   void should_get_answer_from_server() throws Exception {
-    bridgeServer = createBridgeServer("startServer-fd.js");
+    bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
     bridgeServer.startServer(context, emptyList());
 
     DefaultInputFile inputFile = TestInputFileBuilder

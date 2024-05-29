@@ -363,7 +363,7 @@ public class BridgeServerImpl implements BridgeServer {
   @Override
   public AnalysisResponse analyzeTypeScript(JsAnalysisRequest request) throws IOException {
     String json = GSON.toJson(request);
-    return response(request(json, "analyze-ts"), request.filePath());
+    return response(request(json, "analyze-ts", true), request.filePath());
   }
 
   @Override
@@ -449,7 +449,10 @@ public class BridgeServerImpl implements BridgeServer {
 
   private static AnalysisResponse response(BridgeResponse result, String filePath) {
     try {
-      return new AnalysisResponse(GSON.fromJson(result.json(), AnalysisResponse.class), result.ast());
+      return new AnalysisResponse(
+        GSON.fromJson(result.json(), AnalysisResponse.class),
+        result.ast()
+      );
     } catch (JsonSyntaxException e) {
       String msg =
         "Failed to parse response for file " + filePath + ": \n-----\n" + result + "\n-----\n";
