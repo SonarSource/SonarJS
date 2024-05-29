@@ -45,7 +45,7 @@ export const rule: Rule.RuleModule = {
       mkdirpSync(outputDir);
     }
     const { ast } = context.sourceCode;
-    const transpile = createTranspiler(root, []);
+    const transpile = createTranspiler(root);
     const functionInfos = transpile(ast as TSESTree.Program, context.filename);
 
     const saveResults = (
