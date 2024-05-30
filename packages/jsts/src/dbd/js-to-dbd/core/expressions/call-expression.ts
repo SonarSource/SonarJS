@@ -34,7 +34,8 @@ export const handleCallExpression: ExpressionHandler<TSESTree.CallExpression> = 
 ) => {
   const { functionInfo, scopeManager } = context;
 
-  const { createValueIdentifier, getVariableAndOwner, getAssignment } = scopeManager;
+  const { createValueIdentifier, getVariableAndOwner, getAssignment, getCurrentScopeIdentifier } =
+    scopeManager;
   const instructions: Array<Instruction> = [];
 
   let value: Value;
@@ -88,8 +89,11 @@ export const handleCallExpression: ExpressionHandler<TSESTree.CallExpression> = 
 
     let operands: Array<Value> = [];
 
-    for (let index = 0; index < functionInfo.parameters.length; index++) {
-      let argumentValue = argumentValues[index];
+    // * first argument is the current scope
+    operands.push(createReference(getCurrentScopeIdentifier()));
+
+    for (let index = 1; index < functionInfo.parameters.length; index++) {
+      let argumentValue = argumentValues[index - 1];
 
       if (argumentValue === undefined) {
         argumentValue = createNull();
@@ -100,6 +104,7 @@ export const handleCallExpression: ExpressionHandler<TSESTree.CallExpression> = 
 
     value = createReference(createValueIdentifier());
 
+    // * second argument is an array of the passed arguments filled with null values
     instructions.push(
       createCallInstruction(value.identifier, null, functionInfo.definition, operands, node.loc),
     );

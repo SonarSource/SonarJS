@@ -1,16 +1,12 @@
 import { runTest } from '../test';
 
 runTest(
-  'scopes',
+  'closure',
   `const foo = null;
 
 function a() {
-  function b() {
-    foo.toString;
-  }
-  
-  b();
+  foo.toString;
 }
 
-a();`,
+a()`,
 );

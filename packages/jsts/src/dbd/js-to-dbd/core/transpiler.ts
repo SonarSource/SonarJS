@@ -14,15 +14,16 @@ import {
 } from './function-info';
 import { createScopeDeclarationInstruction, isTerminated } from './utils';
 import { handleStatement as _handleStatement } from './statements';
-import { createScopeManager, type ScopeManager } from './scope-manager';
+import { createScopeManager2, type ScopeManager } from './scope-manager';
 import { type Scope } from './scope';
 import { createCallInstruction } from './instructions/call-instruction';
 import { createBranchingInstruction } from './instructions/branching-instruction';
 import { createConstant } from './values/constant';
 import { createNull, createReference } from './values/reference';
-import { createParameter } from './values/parameter';
+import { createParameter, type Parameter } from './values/parameter';
 import { createContext } from './context-manager';
 import { createBlockManager } from './block-manager';
+import type { Value } from './value';
 
 export type Transpiler = (ast: TSESTree.Program, fileName: string) => Array<FunctionInfo>;
 
@@ -30,16 +31,18 @@ export const createTranspiler = (hostDefinedProperties: Array<Variable> = []): T
   return (program, fileName) => {
     const functionInfos: Array<FunctionInfo> = [];
 
+    const scopeManager = createScopeManager2();
+
     const processFunctionInfo: ScopeManager['processFunctionInfo'] = (
       name,
       body,
+      scopeReference,
       parameters,
       location,
     ) => {
-      const scopeManager = createScopeManager(processFunctionInfo);
+      const blockManager = createBlockManager();
 
-      const { createScope, unshiftScope, createScopedBlock, createValueIdentifier, shiftScope } =
-        scopeManager;
+      const { createScope, unshiftScope, createValueIdentifier, shiftScope } = scopeManager;
 
       // create and declare the outer scope
       // https://262.ecma-international.org/14.0/#sec-global-environment-records
@@ -47,7 +50,7 @@ export const createTranspiler = (hostDefinedProperties: Array<Variable> = []): T
 
       unshiftScope(outerScope);
 
-      const outerBlock = createScopedBlock(location);
+      const outerBlock = blockManager.createBlock(outerScope, location);
 
       outerBlock.instructions.push(createScopeDeclarationInstruction(outerScope, location));
 
@@ -63,14 +66,16 @@ export const createTranspiler = (hostDefinedProperties: Array<Variable> = []): T
       );
 
       // assign global variables to the outer scope and declare them
-      const globalVariables: Array<Variable> = [
-        createVariable('NaN', 'NaN', false),
-        createVariable('Infinity', 'int', false),
-        createVariable('undefined', 'Record', false),
-        ...hostDefinedProperties,
+      const globalVariables: Array<[Variable, Value]> = [
+        [createVariable('NaN', 'NaN', false), createNull()],
+        [createVariable('Infinity', 'int', false), createNull()],
+        [createVariable('undefined', 'Record', false), createNull()],
+        ...(hostDefinedProperties.map(property => {
+          return [property, createConstant(createValueIdentifier(), property.name)];
+        }) as Array<[Variable, Value]>),
       ];
 
-      for (const globalVariable of globalVariables) {
+      for (const [globalVariable, value] of globalVariables) {
         const { name } = globalVariable;
         const assignmentIdentifier = createValueIdentifier();
 
@@ -86,10 +91,7 @@ export const createTranspiler = (hostDefinedProperties: Array<Variable> = []): T
             assignment.identifier,
             null,
             createSetFieldFunctionDefinition(name),
-            [
-              createReference(outerScope.identifier),
-              createConstant(createValueIdentifier(), name), // todo: temporary workaround until we know how to declare the shape of globals
-            ],
+            [createReference(outerScope.identifier), value],
             location,
           ),
         );
@@ -97,16 +99,17 @@ export const createTranspiler = (hostDefinedProperties: Array<Variable> = []): T
 
       shiftScope();
 
-      // create the first inner scope
-      const rootScope = createScope();
+      // resolve the function parameters
+      const parentScopeName = '@parent';
+      const parentScopeParameter = createParameter(
+        createValueIdentifier(),
+        parentScopeName,
+        location,
+      );
 
-      unshiftScope(rootScope);
-
-      // create the function info
-      const functionInfo = createFunctionInfo(
-        fileName,
-        createFunctionDefinition(name, generateSignature(name, fileName)),
-        parameters.map(parameter => {
+      const functionParameters: Array<Parameter> = [
+        parentScopeParameter,
+        ...parameters.map(parameter => {
           let parameterName: string;
 
           if (parameter.type === AST_NODE_TYPES.Identifier) {
@@ -118,33 +121,57 @@ export const createTranspiler = (hostDefinedProperties: Array<Variable> = []): T
 
           return createParameter(createValueIdentifier(), parameterName, parameter.loc);
         }),
-        [outerBlock], // todo: it is possible that the outer block should not exist
+      ];
+
+      // create the function scope
+      const functionScope = createScope();
+
+      unshiftScope(functionScope);
+
+      // create the function info
+      const functionInfo = createFunctionInfo(
+        fileName,
+        createFunctionDefinition(name, generateSignature(name, fileName)),
+        functionParameters,
+        [outerBlock],
+        createReference(functionScope.identifier),
+        scopeReference,
       );
 
       // create the first block and branch the outer block to it
-      const rootBlock = createScopedBlock(location);
+      const rootBlock = blockManager.createBlock(functionScope, location);
 
       outerBlock.instructions.push(createBranchingInstruction(rootBlock, location));
 
       // create scope instruction
-      const instruction = createCallInstruction(
-        rootScope.identifier,
-        null,
-        createNewObjectFunctionDefinition(),
-        [],
-        location,
+      rootBlock.instructions.push(
+        createCallInstruction(
+          functionScope.identifier,
+          null,
+          createNewObjectFunctionDefinition(),
+          [],
+          location,
+        ),
       );
 
-      const context = createContext(functionInfo, createBlockManager(functionInfo), scopeManager);
+      // create the "bound scope" instruction
+      rootBlock.instructions.push(
+        createCallInstruction(
+          createValueIdentifier(),
+          null,
+          createSetFieldFunctionDefinition(parentScopeParameter.name),
+          [createReference(functionScope.identifier), parentScopeParameter],
+          location,
+        ),
+      );
 
-      const { blockManager } = context;
+      const context = createContext(functionInfo, blockManager, scopeManager, processFunctionInfo);
+
       const { getCurrentBlock, pushBlock } = blockManager;
 
       const handleStatement = (statement: TSESTree.Statement) => {
         return _handleStatement(statement, context);
       };
-
-      rootBlock.instructions.push(instruction);
 
       pushBlock(rootBlock);
 
@@ -157,12 +184,16 @@ export const createTranspiler = (hostDefinedProperties: Array<Variable> = []): T
         currentBlock.instructions.push(createReturnInstruction(createNull(), location));
       }
 
+      functionInfo.blocks.push(...blockManager.blocks);
+
       functionInfos.push(functionInfo);
+
+      shiftScope();
 
       return functionInfo;
     };
 
-    processFunctionInfo('main', program.body, [], program.loc);
+    processFunctionInfo('main', program.body, null, [], program.loc);
 
     return functionInfos;
   };

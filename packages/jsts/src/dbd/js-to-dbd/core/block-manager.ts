@@ -2,22 +2,33 @@ import { Block, createBlock } from './block';
 import { ScopeManagerClass } from './scope-manager';
 import type { Location } from './location';
 import { FunctionInfo } from './function-info';
+import type { Scope } from './scope';
 
 export interface BlockManager {
+  readonly blocks: Array<Block>;
+
+  createBlock(scope: Scope, location: Location): Block;
+
   getCurrentBlock(): Block;
 
   pushBlock(block: Block): void;
 }
 
-export const createBlockManager = (functionInfo: FunctionInfo): BlockManager => {
-  return {
-    getCurrentBlock() {
-      const { blocks } = functionInfo;
+export const createBlockManager = (): BlockManager => {
+  const blocks: Array<Block> = [];
 
+  let blockIndex: number = 0;
+
+  return {
+    blocks,
+    createBlock: (scope, location): Block => {
+      return createBlock(scope, blockIndex++, location);
+    },
+    getCurrentBlock() {
       return blocks[blocks.length - 1];
     },
     pushBlock: block => {
-      functionInfo.blocks.push(block);
+      blocks.push(block);
     },
   };
 };

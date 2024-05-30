@@ -11,8 +11,8 @@ import { createReference } from '../values/reference';
 
 export const handleIfStatement: StatementHandler<TSESTree.IfStatement> = (node, context) => {
   const { consequent, alternate, test } = node;
-  const { blockManager, scopeManager } = context;
-  const { createScopedBlock, unshiftScope, createScope, shiftScope } = scopeManager;
+  const { blockManager, scopeManager, createScopedBlock } = context;
+  const { unshiftScope, createScope, shiftScope } = scopeManager;
   const { getCurrentBlock, pushBlock } = blockManager;
 
   const currentBlock = getCurrentBlock();

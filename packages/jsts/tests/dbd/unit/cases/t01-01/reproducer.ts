@@ -16,7 +16,7 @@ const frappe = {
     },
 }
 
-frappe.ui.init_onboarding_tour = (frappe) => {
+frappe.ui.init_onboarding_tour = () => {
 	// As of now Tours are only for desktop as it is annoying on mobile.
 	// Also lot of elements are hidden on mobile so until we find a better way to do it.
 	//if (!window.matchMedia("(min-device-width: 992px)").matches) return; // removed as not relevant
@@ -27,6 +27,6 @@ frappe.ui.init_onboarding_tour = (frappe) => {
 	if (route.bar === "") return; // Noncompliant: route can be undefined
 }
 
-frappe.ui.init_onboarding_tour(frappe);`;
+frappe.ui.init_onboarding_tour();`;
 
 runTest('t01-01', code);

@@ -229,7 +229,7 @@ export const serialize = (
           };
         }),
         null: nullValue,
-        parameters: functionInfo.parameters,
+        parameters: [...functionInfo.parameters],
       },
     };
   };

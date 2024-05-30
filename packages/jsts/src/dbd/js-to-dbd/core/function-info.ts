@@ -2,6 +2,7 @@ import type { Block } from './block';
 import type { FunctionDefinition } from './function-definition';
 import type { Parameter } from './values/parameter';
 import type { FunctionReference } from './values/function-reference';
+import type { Reference } from './values/reference';
 
 export type FunctionInfo = {
   readonly blocks: Array<Block>;
@@ -9,6 +10,8 @@ export type FunctionInfo = {
   readonly definition: FunctionDefinition;
   readonly functionReferences: Array<FunctionReference>;
   readonly parameters: Array<Parameter>;
+  readonly scopeReference: Reference;
+  readonly parentScopeReference: Reference | null;
 };
 
 export const createFunctionInfo = (
@@ -16,6 +19,8 @@ export const createFunctionInfo = (
   definition: FunctionDefinition,
   parameters: Array<Parameter>,
   blocks: Array<Block> = [],
+  scopeReference: Reference,
+  parentScopeReference: Reference | null,
 ): FunctionInfo => {
   return {
     definition,
@@ -23,5 +28,7 @@ export const createFunctionInfo = (
     fileName,
     functionReferences: [],
     parameters,
+    scopeReference,
+    parentScopeReference,
   };
 };

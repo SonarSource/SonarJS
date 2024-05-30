@@ -7,9 +7,9 @@ import { handleStatement } from './index';
 import { isTerminated } from '../utils';
 
 export const handleBlockStatement: StatementHandler<TSESTree.BlockStatement> = (node, context) => {
-  const { blockManager, scopeManager } = context;
+  const { blockManager, scopeManager, createScopedBlock } = context;
   const { getCurrentBlock, pushBlock } = blockManager;
-  const { createScope, createScopedBlock, unshiftScope, shiftScope } = scopeManager;
+  const { createScope, unshiftScope, shiftScope } = scopeManager;
 
   const blockScope = createScope();
 

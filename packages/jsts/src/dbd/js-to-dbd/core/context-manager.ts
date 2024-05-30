@@ -1,22 +1,41 @@
 import { type ScopeManager } from './scope-manager';
 import type { FunctionInfo } from './function-info';
 import type { BlockManager } from './block-manager';
+import { TSESTree } from '@typescript-eslint/typescript-estree';
+import type { Reference } from './values/reference';
+import type { Location } from './location';
+import { type Block } from './block';
 
-export type Context = {
+export interface Context {
   readonly blockManager: BlockManager;
   readonly functionInfo: FunctionInfo;
   readonly scopeManager: ScopeManager;
-};
+
+  createScopedBlock(location: Location): Block;
+
+  processFunctionInfo(
+    name: string,
+    body: Array<TSESTree.Statement>,
+    scopeReference: Reference | null,
+    parameters: Array<TSESTree.Parameter>,
+    location: Location,
+  ): FunctionInfo;
+}
 
 export const createContext = (
   functionInfo: FunctionInfo,
   blockManager: BlockManager,
   scopeManager: ScopeManager,
+  processFunctionInfo: Context['processFunctionInfo'],
 ): Context => {
   return {
     blockManager,
     functionInfo,
     scopeManager,
+    processFunctionInfo,
+    createScopedBlock: location => {
+      return blockManager.createBlock(scopeManager.scopes[0], location); // todo: ScopeManager::getCurrentScope
+    },
   };
 };
 

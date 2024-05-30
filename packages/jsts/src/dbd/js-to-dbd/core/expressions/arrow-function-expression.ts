@@ -23,13 +23,16 @@ import { createNewObjectFunctionDefinition } from '../function-definition';
 import { createFunctionReference } from '../values/function-reference';
 import { createCallInstruction } from '../instructions/call-instruction';
 import type { Instruction } from '../instruction';
+import { createReference } from '../values/reference';
 
 export const handleArrowFunctionExpression: ExpressionHandler<TSESTree.ArrowFunctionExpression> = (
   node,
   context,
 ) => {
   const { functionInfo: currentFunctionInfo, scopeManager } = context;
-  const { createValueIdentifier, processFunctionInfo } = scopeManager;
+  const { createValueIdentifier, processFunctionInfo, getCurrentScopeIdentifier } = scopeManager;
+
+  const scopeReference = createReference(getCurrentScopeIdentifier());
   const instructions: Array<Instruction> = [];
 
   let body: Array<TSESTree.Statement>;
@@ -52,7 +55,13 @@ export const handleArrowFunctionExpression: ExpressionHandler<TSESTree.ArrowFunc
   const functionReferenceIdentifier = createValueIdentifier();
   // todo: we may need a common helper
   const functionName = `${currentFunctionInfo.definition.name}__${functionReferenceIdentifier}`;
-  const functionInfo = processFunctionInfo(functionName, body, node.params, node.loc);
+  const functionInfo = processFunctionInfo(
+    functionName,
+    body,
+    scopeReference,
+    node.params,
+    node.loc,
+  );
   const functionReference = createFunctionReference(functionInfo, functionReferenceIdentifier);
 
   currentFunctionInfo.functionReferences.push(functionReference);

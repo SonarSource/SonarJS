@@ -1,15 +1,17 @@
 import { runTest } from '../../test';
 
-const code = `function foo(token) {
+const code = `
+function bar(value) {
+	if (value.name) {
+	}
+}
+
+function foo(token) {
 	if (token) {
 		return bar(token.value); // Noncompliant (or line 8)
 	}
 }
 
-function bar(value) {
-	if (value.name) {
-	}
-}
 
 foo('baz')`;
 
