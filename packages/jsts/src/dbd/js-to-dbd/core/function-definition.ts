@@ -67,6 +67,18 @@ export const createSetFieldFunctionDefinition = (attributeName: string): Functio
   };
 };
 
+export const createUnaryOperationFunctionDefinition = (operator: string): FunctionDefinition => {
+  const name = 'unaryop';
+
+  return {
+    name,
+    signature: `#${name} ${operator}#`,
+    isVirtual: false,
+    isAStandardLibraryFunction: false,
+    isFunctionRef: false,
+  };
+};
+
 export const createBinaryOperationFunctionDefinition = (operator: string): FunctionDefinition => {
   const name = 'binop';
 
