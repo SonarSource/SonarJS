@@ -75,16 +75,31 @@ const requestHandler = (request, response) => {
         highlightedSymbols: [{}],
         cpdTokens: [{}],
       };
-      const fd = new formData();
-      fd.append('ast', 'plop');
-      //delete message.result.ast;
-      fd.append('json', JSON.stringify(res));
+      const boundary = '---------9051914041544843365972754266';
+      const contentTypeHeader = `multipart/form-data; boundary=${boundary}`;
+      let body = '';
+      body += `--${boundary}`;
+      body += `\r\n`;
+      body += `Content-Disposition: form-data; name="json"`;
+      body += `\r\n`;
+      body += `\r\n`;
+      body += `${JSON.stringify(res)}`;
+      body += `\r\n`;
+      body += `--${boundary}`;
+      body += `\r\n`;
+      body += `Content-Disposition: form-data; name="ast"`;
+      body += `\r\n`;
+      body += `\r\n`;
+      body += `plop`;
+      body += `\r\n`;
+      body += `--${boundary}--`;
+      body += `\r\n`;
       // this adds the boundary string that will be
       response.writeHead(200, {
-        'Content-Type': fd.getHeaders()['content-type'],
-        'Content-Length': fd.getLengthSync(),
+        'Content-Type': contentTypeHeader,
+        'Content-Length': Buffer.byteLength(body, 'utf-8'),
       });
-      fd.pipe(response);
+      response.end(body);
     }
   });
 };
