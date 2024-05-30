@@ -32,6 +32,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.file.Path;
 import java.time.Duration;
@@ -356,13 +357,13 @@ public class BridgeServerImpl implements BridgeServer {
   @Override
   public AnalysisResponse analyzeJavaScript(JsAnalysisRequest request) throws IOException {
     String json = GSON.toJson(request);
-    return response(request(json, "analyze-js", true), request.filePath());
+    return response(request(json, "analyze-js"), request.filePath());
   }
 
   @Override
   public AnalysisResponse analyzeTypeScript(JsAnalysisRequest request) throws IOException {
     String json = GSON.toJson(request);
-    return response(request(json, "analyze-ts", true), request.filePath());
+    return response(request(json, "analyze-ts"), request.filePath());
   }
 
   @Override
@@ -384,9 +385,6 @@ public class BridgeServerImpl implements BridgeServer {
   }
 
   private BridgeResponse request(String json, String endpoint) throws IOException {
-    return request(json, endpoint, false);
-  }
-  private BridgeResponse request(String json, String endpoint, boolean isFormData) throws IOException {
     var request = HttpRequest
       .newBuilder()
       .uri(url(endpoint))
@@ -397,7 +395,7 @@ public class BridgeServerImpl implements BridgeServer {
 
     try {
       var response = client.send(request, BodyHandlers.ofString());
-      if (isFormData) {
+      if (isFormData(response)) {
         return FormDataUtils.parseFormData(response);
       } else {
         return new BridgeResponse(response.body());
@@ -407,6 +405,11 @@ public class BridgeServerImpl implements BridgeServer {
     } catch (IOException e) {
       throw new IllegalStateException("The bridge server is unresponsive", e);
     }
+  }
+
+  private boolean isFormData(HttpResponse<String> response) {
+    var contentTypeHeader = response.headers().firstValue("Content-type").orElse("");
+    return contentTypeHeader.contains("multipart/form-data");
   }
 
   private static IllegalStateException handleInterruptedException(
