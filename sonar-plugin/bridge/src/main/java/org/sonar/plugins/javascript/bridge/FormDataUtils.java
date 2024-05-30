@@ -25,6 +25,7 @@ public class FormDataUtils {
   private FormDataUtils() {
     throw new IllegalStateException("Utility class");
   }
+
   public static BridgeServer.BridgeResponse parseFormData(HttpResponse<String> response) {
     String boundary = "--" + response.headers().firstValue("Content-Type")
       .orElseThrow(() -> new IllegalStateException("No Content-Type header"))
