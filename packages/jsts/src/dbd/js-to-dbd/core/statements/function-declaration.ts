@@ -7,7 +7,6 @@ import {
   createNewObjectFunctionDefinition,
   createSetFieldFunctionDefinition,
 } from '../function-definition';
-import { createConstant } from '../values/constant';
 import { createReference } from '../values/reference';
 
 export const handleFunctionDeclaration: StatementHandler<TSESTree.FunctionDeclarationWithName> = (
@@ -51,21 +50,6 @@ export const handleFunctionDeclaration: StatementHandler<TSESTree.FunctionDeclar
       node.loc,
     ),
   );
-
-  for (const attributeName of ['bind', 'call']) {
-    getCurrentBlock().instructions.push(
-      createCallInstruction(
-        createValueIdentifier(),
-        null,
-        createSetFieldFunctionDefinition(attributeName),
-        [
-          functionReference,
-          createConstant(createValueIdentifier(), attributeName), // todo: we need DBD to understand function reference
-        ],
-        node.loc,
-      ),
-    );
-  }
 
   getCurrentBlock().instructions.push(
     createCallInstruction(

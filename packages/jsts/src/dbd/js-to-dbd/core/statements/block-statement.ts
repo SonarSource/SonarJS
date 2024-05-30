@@ -4,6 +4,7 @@ import { createCallInstruction } from '../instructions/call-instruction';
 import { createNewObjectFunctionDefinition } from '../function-definition';
 import type { StatementHandler } from '../statement-handler';
 import { handleStatement } from './index';
+import { isTerminated } from '../utils';
 
 export const handleBlockStatement: StatementHandler<TSESTree.BlockStatement> = (node, context) => {
   const { blockManager, scopeManager } = context;
@@ -42,7 +43,9 @@ export const handleBlockStatement: StatementHandler<TSESTree.BlockStatement> = (
   const bbnPlusOne = createScopedBlock(node.loc);
 
   // branch the current block to bbnPlusOne
-  getCurrentBlock().instructions.push(createBranchingInstruction(bbnPlusOne, node.loc));
+  if (!isTerminated(getCurrentBlock())) {
+    getCurrentBlock().instructions.push(createBranchingInstruction(bbnPlusOne, node.loc));
+  }
 
   // promote bbnPlusOne as current block
   pushBlock(bbnPlusOne);

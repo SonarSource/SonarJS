@@ -46,10 +46,12 @@ export const handleIfStatement: StatementHandler<TSESTree.IfStatement> = (node, 
     handleStatement(innerNode, context);
 
     shiftScope();
+
     if (!isTerminated(getCurrentBlock())) {
       // branch the CURRENT BLOCK to the finally one
       getCurrentBlock().instructions.push(createBranchingInstruction(finallyBlock, loc));
     }
+
     return block;
   };
 
