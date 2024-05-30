@@ -3,6 +3,9 @@ package org.sonar.plugins.javascript.bridge;
 import java.net.http.HttpResponse;
 
 public class FormDataUtils {
+  private FormDataUtils() {
+    throw new IllegalStateException("Utility class");
+  }
   public static BridgeServer.BridgeResponse parseFormData(HttpResponse<String> response) {
     String boundary = "--" + response.headers().firstValue("Content-Type")
       .orElseThrow(() -> new IllegalStateException("No Content-Type header"))
@@ -31,9 +34,5 @@ public class FormDataUtils {
       throw new IllegalStateException("Data missing from response");
     }
     return new BridgeServer.BridgeResponse(json, ast);
-  }
-
-  private FormDataUtils() {
-    throw new IllegalStateException("Utility class");
   }
 }
