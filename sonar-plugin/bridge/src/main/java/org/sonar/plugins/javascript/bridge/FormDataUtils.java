@@ -32,4 +32,8 @@ public class FormDataUtils {
     }
     return new BridgeServer.BridgeResponse(json, ast);
   }
+
+  private FormDataUtils() {
+    throw new IllegalStateException("Utility class");
+  }
 }
