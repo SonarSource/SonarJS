@@ -20,15 +20,22 @@ public class FormDataUtilsTest {
     var values = new HashMap<String, List<String>>();
     values.put("Content-Type", List.of("multipart/form-data; boundary=---------------------------9051914041544843365972754266"));
     when(mockResponse.headers()).thenReturn(HttpHeaders.of(values, (_a, _b) -> true));
-    when(mockResponse.body()).thenReturn("-----------------------------9051914041544843365972754266\r\n" +
-      "Content-Disposition: form-data; name=\"json\"\r\n" +
+    when(mockResponse.body()).thenReturn("-----------------------------9051914041544843365972754266" +
       "\r\n" +
-      "{\"hello\":\"worlds\"}\r\n" +
-      "-----------------------------9051914041544843365972754266\r\n" +
-      "Content-Disposition: form-data; name=\"ast\"\r\n" +
+      "Content-Disposition: form-data; name=\"json\"" +
       "\r\n" +
-      "plop\r\n" +
-      "-----------------------------9051914041544843365972754266--\r\n");
+      "\r\n" +
+      "{\"hello\":\"worlds\"}" +
+      "\r\n" +
+      "-----------------------------9051914041544843365972754266" +
+      "\r\n" +
+      "Content-Disposition: form-data; name=\"ast\"" +
+      "\r\n" +
+      "\r\n" +
+      "plop" +
+      "\r\n" +
+      "-----------------------------9051914041544843365972754266--" +
+      "\r\n");
     BridgeServer.BridgeResponse response = parseFormData(mockResponse);
     assertThat(response.ast()).contains("plop");
     assertThat(response.json()).contains("{\"hello\":\"worlds\"}");
@@ -40,11 +47,15 @@ public class FormDataUtilsTest {
     var values = new HashMap<String, List<String>>();
     values.put("Content-Type", List.of("multipart/form-data; boundary=---------------------------9051914041544843365972754266"));
     when(mockResponse.headers()).thenReturn(HttpHeaders.of(values, (_a, _b) -> true));
-    when(mockResponse.body()).thenReturn("-----------------------------9051914041544843365972754266\r\n" +
-      "Content-Disposition: form-data; name=\"ast\"\r\n" +
+    when(mockResponse.body()).thenReturn("-----------------------------9051914041544843365972754266" +
       "\r\n" +
-      "plop\r\n" +
-      "-----------------------------9051914041544843365972754266--\r\n");
+      "Content-Disposition: form-data; name=\"ast\"" +
+      "\r\n" +
+      "\r\n" +
+      "plop" +
+      "\r\n" +
+      "-----------------------------9051914041544843365972754266--" +
+      "\r\n");
     assertThatThrownBy(() -> parseFormData(mockResponse))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Data missing from response");
@@ -56,11 +67,15 @@ public class FormDataUtilsTest {
     var values = new HashMap<String, List<String>>();
     values.put("Content-Type", List.of("multipart/form-data; boundary=---------------------------9051914041544843365972754266"));
     when(mockResponse.headers()).thenReturn(HttpHeaders.of(values, (_a, _b) -> true));
-    when(mockResponse.body()).thenReturn("-----------------------------9051914041544843365972754266\r\n" +
-      "Content-Disposition: form-data; name=\"json\"\r\n" +
+    when(mockResponse.body()).thenReturn("-----------------------------9051914041544843365972754266" +
       "\r\n" +
-      "{\"hello\":\"worlds\"}\r\n" +
-      "-----------------------------9051914041544843365972754266--\r\n");
+      "Content-Disposition: form-data; name=\"json\"" +
+      "\r\n" +
+      "\r\n" +
+      "{\"hello\":\"worlds\"}" +
+      "\r\n" +
+      "-----------------------------9051914041544843365972754266--" +
+      "\r\n");
     assertThatThrownBy(() -> parseFormData(mockResponse))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Data missing from response");
