@@ -350,7 +350,10 @@ function addHandWrittenMessages(messages: Record<string, ProtobufMessage>) {
 
 function writeMessagesToFile(messages: Record<string, ProtobufMessage>) {
   fs.mkdirSync('output', { recursive: true });
-  fs.writeFileSync(path.join('output', 'ast.proto'), addPrefix(translateToProtoFormat(messages)));
+  fs.writeFileSync(
+    path.join('output', 'estree.proto'),
+    addPrefix(translateToProtoFormat(messages)),
+  );
   /**
    * Translate the messages to a protobuf file format.
    */

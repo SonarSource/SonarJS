@@ -14,6 +14,7 @@
 
   <modules>
     <module>eslint-custom-rules-plugin</module>
+    <module>consumer-plugin</module>
   </modules>
 
 </project>

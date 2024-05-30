@@ -22,16 +22,22 @@ package org.sonar.plugins.javascript.analysis;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.plugins.javascript.CancellationException;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
+import org.sonar.plugins.javascript.analysis.cache.CacheAnalysis;
+import org.sonar.plugins.javascript.analysis.cache.CacheStrategies;
+import org.sonar.plugins.javascript.api.JsFile;
 import org.sonar.plugins.javascript.bridge.AnalysisMode;
 import org.sonar.plugins.javascript.bridge.AnalysisWarningsWrapper;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
 import org.sonar.plugins.javascript.JavaScriptFilePredicate;
+import org.sonar.plugins.javascript.bridge.BridgeServer.TsProgram;
 import org.sonar.plugins.javascript.utils.ProgressReport;
 
 abstract class AbstractAnalysis {
@@ -48,6 +54,7 @@ abstract class AbstractAnalysis {
   ProgressReport progressReport;
   AnalysisMode analysisMode;
   protected final AnalysisWarningsWrapper analysisWarnings;
+  private AnalysisConsumers consumers;
 
   AbstractAnalysis(
     BridgeServer bridgeServer,
@@ -65,12 +72,13 @@ abstract class AbstractAnalysis {
       : JavaScriptLanguage.KEY;
   }
 
-  void initialize(SensorContext context, JsTsChecks checks, AnalysisMode analysisMode) {
+  void initialize(SensorContext context, JsTsChecks checks, AnalysisMode analysisMode, AnalysisConsumers consumers) {
     LOG.debug("Initializing {}", getClass().getName());
     this.context = context;
     contextUtils = new ContextUtils(context);
     this.checks = checks;
     this.analysisMode = analysisMode;
+    this.consumers = consumers;
   }
 
   protected boolean isJavaScript(InputFile file) {
@@ -78,4 +86,57 @@ abstract class AbstractAnalysis {
   }
 
   abstract void analyzeFiles(List<InputFile> inputFiles, List<String> tsConfigs) throws IOException;
+
+  protected void analyzeFile(InputFile file, @Nullable List<String> tsConfigs, @Nullable TsProgram tsProgram) throws IOException {
+    if (context.isCancelled()) {
+      throw new CancellationException(
+        "Analysis interrupted because the SensorContext is in cancelled state"
+      );
+    }
+    var cacheStrategy = CacheStrategies.getStrategyFor(context, file);
+    if (cacheStrategy.isAnalysisRequired()) {
+      try {
+        LOG.debug("Analyzing file: {}", file.uri());
+        progressReport.nextFile(file.toString());
+        var fileContent = contextUtils.shouldSendFileContent(file) ? file.contents() : null;
+        var request = getJsAnalysisRequest(file, fileContent, tsProgram, tsConfigs);
+
+        var response = isJavaScript(file)
+          ? bridgeServer.analyzeJavaScript(request)
+          : bridgeServer.analyzeTypeScript(request);
+
+        analysisProcessor.processResponse(context, checks, file, response);
+        cacheStrategy.writeAnalysisToCache(
+          CacheAnalysis.fromResponse(response.ucfgPaths(), response.cpdTokens()),
+          file
+        );
+        consumers.accept(new JsFile(file));
+      } catch (IOException e) {
+        LOG.error("Failed to get response while analyzing " + file.uri(), e);
+        throw e;
+      }
+    } else {
+      LOG.debug("Processing cache analysis of file: {}", file.uri());
+      var cacheAnalysis = cacheStrategy.readAnalysisFromCache();
+      analysisProcessor.processCacheAnalysis(context, file, cacheAnalysis);
+    }
+  }
+
+  private BridgeServer.JsAnalysisRequest getJsAnalysisRequest(
+    InputFile file,
+    @Nullable String fileContent,
+    @Nullable TsProgram tsProgram,
+    @Nullable List<String> tsConfigs
+  ) {
+    return new BridgeServer.JsAnalysisRequest(
+      file.absolutePath(),
+      file.type().toString(),
+      inputFileLanguage(file),
+      fileContent,
+      contextUtils.ignoreHeaderComments(),
+      tsConfigs,
+      tsProgram != null ? tsProgram.programId() : null,
+      analysisMode.getLinterIdFor(file)
+    );
+  }
 }
