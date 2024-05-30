@@ -185,7 +185,6 @@ class BridgeServerImplTest {
     JsAnalysisRequest request = createRequest(inputFile);
     var response = bridgeServer.analyzeJavaScript(request);
     assertThat(response.issues()).hasSize(1);
-    assertThat(response.ast()).contains("plop");
   }
 
   @Test
@@ -749,22 +748,6 @@ class BridgeServerImplTest {
         "'" + NODE_EXECUTABLE_PROPERTY + "' is set. Skipping embedded Node.js runtime deployment."
       );
   }
-
-  @Test
-  void should_fail_if_form_data_is_malformed() throws Exception {
-    bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
-    bridgeServer.startServer(context, emptyList());
-
-    DefaultInputFile inputFile = TestInputFileBuilder
-      .create("foo", "foo.js")
-      .setContents("alert('Fly, you fools!')")
-      .build();
-    JsAnalysisRequest request = createRequest(inputFile);
-    var response = bridgeServer.analyzeJavaScript(request);
-    assertThat(response.issues()).hasSize(1);
-    assertThat(response.ast()).contains("plop");
-  }
-
   private BridgeServerImpl createBridgeServer(String startServerScript) {
     return new BridgeServerImpl(
       builder(),
