@@ -33,7 +33,7 @@ export async function generateIR(
   print = false,
   root?: string,
 ) {
-  if (!filePath.endsWith('.js')) {
+  if (!(filePath.endsWith('.js') || filePath.endsWith('.ts'))) {
     return;
   }
   if (!fileContent) {

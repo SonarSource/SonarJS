@@ -5,9 +5,8 @@ import path from 'path';
 import * as process from 'node:process';
 
 program
-  .option('-F, --file <file...>', 'Files to parse')
+  .option('-F, --file <file>', 'Path to directory or file to parse')
   .option('-S, --string <string...>', 'String to parse')
-  .option('-R, --root <string>', 'Project root path')
   .option('-P, --print', 'Print instead of saving to disk')
   .option('-O, --output <path>', 'Path to save output files');
 
@@ -16,14 +15,18 @@ const options = program.parse().opts();
 Promise.resolve()
   .then(async () => {
     if (options.file) {
-      for await (const dirPath of options.file) {
-        const stats = await fs.stat(dirPath);
-        if (stats.isDirectory()) {
-          await generateDirIR(dirPath, options.output, options.print, options.root);
-        }
-        if (stats.isFile()) {
-          await generateIR(dirPath, options.output, undefined, options.print, options.root);
-        }
+      const stats = await fs.stat(options.file);
+      if (stats.isDirectory()) {
+        await generateDirIR(options.file, options.output, options.print, options.file);
+      }
+      if (stats.isFile()) {
+        await generateIR(
+          options.file,
+          options.output,
+          undefined,
+          options.print,
+          path.dirname(options.file),
+        );
       }
     }
     if (options.string) {
@@ -34,7 +37,6 @@ Promise.resolve()
           options.output || process.cwd(),
           contents,
           options.print,
-          options.root,
         );
       }
     }
