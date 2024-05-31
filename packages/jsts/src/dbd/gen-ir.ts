@@ -3,6 +3,7 @@ import { program } from 'commander';
 import { generateDirIR, generateIR } from './helpers';
 import path from 'path';
 import * as process from 'node:process';
+import { readFile } from '@sonar/shared';
 
 program
   .option('-F, --file <file>', 'Path to directory or file to parse')
@@ -31,12 +32,8 @@ Promise.resolve()
         );
         root = path.dirname(options.file);
       }
-      await generateIR(
-        path.join(__dirname, 'js-to-dbd/builtin/builtin.js'),
-        options.output,
-        options.print,
-        root,
-      );
+      const builtinContents = await readFile(path.join(__dirname, 'js-to-dbd/builtin/builtin.js'));
+      await generateIR('builtin.js', options.output, builtinContents, options.print, root);
     }
     if (options.string) {
       let i = 0;

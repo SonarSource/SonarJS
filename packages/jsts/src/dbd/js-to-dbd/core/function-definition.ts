@@ -106,3 +106,23 @@ export const createAddArrayLastFunctionDefinition = (): FunctionDefinition => {
 export const generateSignature = (name: string, fileName: string) => {
   return `${fileName.replace(/[. ]/g, '_')}.${name}`;
 };
+
+export const createBuiltinLogicalExpressionFunctionDefinition = (operator: '||' | '&&' | '??') => {
+  let name;
+  switch (operator) {
+    case '||': {
+      name = 'logicalOr';
+      break;
+    }
+    case '&&': {
+      name = 'logicalAnd';
+      break;
+    }
+    case '??': {
+      name = 'nullCoalesce';
+      break;
+    }
+  }
+
+  return createFunctionDefinition(name, `builtin_js.${name}`);
+};
