@@ -16,8 +16,10 @@ Promise.resolve()
   .then(async () => {
     if (options.file) {
       const stats = await fs.stat(options.file);
+      let root;
       if (stats.isDirectory()) {
         await generateDirIR(options.file, options.output, options.print, options.file);
+        root = options.file;
       }
       if (stats.isFile()) {
         await generateIR(
@@ -27,7 +29,14 @@ Promise.resolve()
           options.print,
           path.dirname(options.file),
         );
+        root = path.dirname(options.file);
       }
+      await generateIR(
+        path.join(__dirname, 'js-to-dbd/builtin/builtin.js'),
+        options.output,
+        options.print,
+        root,
+      );
     }
     if (options.string) {
       let i = 0;
