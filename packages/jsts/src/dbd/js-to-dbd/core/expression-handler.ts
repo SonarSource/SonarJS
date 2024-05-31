@@ -1,9 +1,11 @@
 import { TSESTree } from '@typescript-eslint/utils';
-import type { Context } from './context-manager';
-import type { Value } from './value';
+import type { Context } from './context';
+import type { BaseValue } from './value';
+import type { Record } from './ecma/reference-record';
 
 export type ExpressionHandlerResult = {
-  readonly value: Value;
+  readonly record: Record;
+  readonly value: BaseValue<any>;
 };
 
 export type ExpressionHandler<
@@ -11,4 +13,4 @@ export type ExpressionHandler<
     TSESTree.Node,
     TSESTree.Statement
   >,
-> = (node: Expression, context: Context, scopeReference: Value) => ExpressionHandlerResult;
+> = (node: Expression, record: Record, context: Context) => ExpressionHandlerResult;

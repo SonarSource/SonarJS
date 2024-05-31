@@ -2,11 +2,18 @@ import { runTest } from '../test';
 
 runTest(
   'closure',
-  `const foo = null;
+  ` // #9
+const foo = { // scope#11
+  bar: {
+    // scope#13
+  },
+  missing: null
+};
 
-function a() {
-  foo.toString;
+foo.bar.getSomething = () => { 
+  // #19
+  return foo.missing.something;
 }
-
-a()`,
+// #9
+foo.bar.getSomething()`,
 );

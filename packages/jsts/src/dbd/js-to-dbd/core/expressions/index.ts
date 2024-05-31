@@ -1,11 +1,10 @@
 import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/typescript-estree';
 import type { Instruction } from '../instruction';
-import type { Value } from '../value';
-import type { ExpressionHandler } from '../expression-handler';
+import type { BaseValue, Value } from '../value';
+import { type ExpressionHandler } from '../expression-handler';
 import { createCallInstruction } from '../instructions/call-instruction';
 import { createSetFieldFunctionDefinition } from '../function-definition';
-import { Context } from '../context-manager';
-import { createNull } from '../values/reference';
+import { Context } from '../context';
 import { handleAssignmentExpression } from './assignment-expression';
 import { handleArrowFunctionExpression } from './arrow-function-expression';
 import { handleLiteral } from './literal';
@@ -16,52 +15,23 @@ import { handleObjectExpression } from './object-expression';
 import { handleCallExpression } from './call-expression';
 import { handleArrayExpression } from './array-expression';
 import { handleVariableDeclarator } from './variable-declarator';
-import { createAssignment, createVariable, type Variable } from '../variable';
 import { handleUnaryExpression } from './unary-expression';
 import { handleLogicalExpression } from './logical-expression';
 import { handleConditionalExpression } from './conditional-expression';
+import { type Record, putValue, unresolvable } from '../ecma/reference-record';
+import { createReference } from '../values/reference';
+import { type Constant, createNull } from '../values/constant';
+import { isAnEnvironmentRecord } from '../ecma/environment-record';
 
 export const compileAsAssignment = (
   node: Exclude<TSESTree.Node, TSESTree.Statement>,
-  value: Value,
+  record: Record,
   context: Context,
-  scopeReference: Value,
+  value: Value,
 ): Array<Instruction> => {
-  const { scopeManager } = context;
-  const { getVariableAndOwner } = scopeManager;
-
   switch (node.type) {
     case AST_NODE_TYPES.Identifier: {
-      const { name } = node;
-      const { scopeManager } = context;
       const instructions: Array<Instruction> = [];
-
-      let variable: Variable;
-
-      const variableAndOwner = getVariableAndOwner(name, scopeReference);
-
-      if (variableAndOwner) {
-        variable = variableAndOwner.variable;
-
-        const { createValueIdentifier, addAssignment } = scopeManager;
-
-        const variableName = variable.name;
-
-        // create the assignment
-        const assignment = createAssignment(value.identifier, variable);
-
-        addAssignment(variableName, assignment, scopeReference);
-
-        instructions.push(
-          createCallInstruction(
-            createValueIdentifier(),
-            null,
-            createSetFieldFunctionDefinition(variableName),
-            [scopeReference, value],
-            node.loc,
-          ),
-        );
-      }
 
       return instructions;
     }
@@ -70,7 +40,7 @@ export const compileAsAssignment = (
       const { object, property } = node;
 
       if (property.type === AST_NODE_TYPES.Identifier) {
-        const { value: objectValue } = handleExpression(object, context, scopeReference);
+        const { value: objectValue } = handleExpression(object, record, context);
 
         /**
          * ECMAScript allows assigning a value to a property that was not previously declared:
@@ -103,26 +73,40 @@ export const compileAsAssignment = (
 
 export const compileAsDeclaration = (
   node: Exclude<TSESTree.Node, TSESTree.Statement>,
-  value: Value,
+  base: Record,
   context: Context,
-  scopeReference: Value,
+  value: BaseValue<any>,
 ): Array<Instruction> => {
-  const { scopeManager } = context;
-
   switch (node.type) {
     case AST_NODE_TYPES.Identifier: {
       const { name } = node;
-      const variable = createVariable(name);
 
-      const scope = scopeManager.getScopeFromReference(scopeReference);
-
-      if (scope) {
-        scope.variables.set(name, variable);
-      } else {
-        scopeManager.addVariable(variable);
+      if (base === unresolvable) {
+        throw new Error('TODO: TRACK WHY IT IS HAPPENING');
       }
 
-      return compileAsAssignment(node, value, context, scopeReference);
+      if (isAnEnvironmentRecord(base)) {
+        putValue(
+          {
+            base,
+            referencedName: name,
+            strict: true,
+          },
+          value,
+        );
+      } else {
+        base.bindings.set(name, value);
+      }
+
+      return [
+        createCallInstruction(
+          context.scopeManager.createValueIdentifier(),
+          null,
+          createSetFieldFunctionDefinition(name),
+          [createReference(base.identifier), value as Constant],
+          node.loc,
+        ),
+      ];
     }
 
     default: {
@@ -133,12 +117,16 @@ export const compileAsDeclaration = (
   }
 };
 
-export const handleExpression: ExpressionHandler = (node, context, scopeReference) => {
+export const handleExpression: ExpressionHandler = (node, record, context) => {
   console.info(' handleExpression', node.type);
 
   let expressionHandler: ExpressionHandler<any>;
 
   switch (node.type) {
+    case AST_NODE_TYPES.ArrayExpression: {
+      expressionHandler = handleArrayExpression;
+      break;
+    }
     case AST_NODE_TYPES.ArrowFunctionExpression: {
       expressionHandler = handleArrowFunctionExpression;
       break;
@@ -147,20 +135,28 @@ export const handleExpression: ExpressionHandler = (node, context, scopeReferenc
       expressionHandler = handleAssignmentExpression;
       break;
     }
-    case AST_NODE_TYPES.Literal: {
-      expressionHandler = handleLiteral;
-      break;
-    }
-    case AST_NODE_TYPES.UnaryExpression: {
-      expressionHandler = handleUnaryExpression;
-      break;
-    }
     case AST_NODE_TYPES.BinaryExpression: {
       expressionHandler = handleBinaryExpression;
       break;
     }
+    case AST_NODE_TYPES.CallExpression: {
+      expressionHandler = handleCallExpression;
+      break;
+    }
+    case AST_NODE_TYPES.ConditionalExpression: {
+      expressionHandler = handleConditionalExpression;
+      break;
+    }
     case AST_NODE_TYPES.Identifier: {
       expressionHandler = handleIdentifier;
+      break;
+    }
+    case AST_NODE_TYPES.Literal: {
+      expressionHandler = handleLiteral;
+      break;
+    }
+    case AST_NODE_TYPES.LogicalExpression: {
+      expressionHandler = handleLogicalExpression;
       break;
     }
     case AST_NODE_TYPES.MemberExpression: {
@@ -171,24 +167,12 @@ export const handleExpression: ExpressionHandler = (node, context, scopeReferenc
       expressionHandler = handleObjectExpression;
       break;
     }
-    case AST_NODE_TYPES.CallExpression: {
-      expressionHandler = handleCallExpression;
-      break;
-    }
-    case AST_NODE_TYPES.ArrayExpression: {
-      expressionHandler = handleArrayExpression;
+    case AST_NODE_TYPES.UnaryExpression: {
+      expressionHandler = handleUnaryExpression;
       break;
     }
     case AST_NODE_TYPES.VariableDeclarator: {
       expressionHandler = handleVariableDeclarator;
-      break;
-    }
-    case AST_NODE_TYPES.LogicalExpression: {
-      expressionHandler = handleLogicalExpression;
-      break;
-    }
-    case AST_NODE_TYPES.ConditionalExpression: {
-      expressionHandler = handleConditionalExpression;
       break;
     }
     default:
@@ -197,10 +181,11 @@ export const handleExpression: ExpressionHandler = (node, context, scopeReferenc
 
         return {
           instructions: [],
+          record: record,
           value: createNull(),
         };
       };
   }
 
-  return expressionHandler(node, context, scopeReference);
+  return expressionHandler(node, record, context);
 };

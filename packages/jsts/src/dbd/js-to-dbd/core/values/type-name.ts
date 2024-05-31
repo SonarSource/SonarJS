@@ -7,7 +7,7 @@ export type TypeName = BaseValue<'type_name'> & {
 
 export const createTypeName = (identifier: number, name: string, typeInfo: TypeInfo): TypeName => {
   return {
-    ...createValue(identifier, 'type_name', typeInfo),
+    ...createValue('type_name', identifier, typeInfo),
     name,
   };
 };

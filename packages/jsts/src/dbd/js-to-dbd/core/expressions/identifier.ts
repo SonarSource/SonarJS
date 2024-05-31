@@ -1,112 +1,161 @@
-import { createNull, createReference } from '../values/reference';
-import { TSESTree } from '@typescript-eslint/utils';
-import type { ExpressionHandler } from '../expression-handler';
-import { createGetFieldFunctionDefinition } from '../function-definition';
-import type { Instruction } from '../instruction';
+import { type ExpressionHandler } from '../expression-handler';
+import { TSESTree } from '@typescript-eslint/typescript-estree';
 import { createCallInstruction } from '../instructions/call-instruction';
+import {
+  createGetFieldFunctionDefinition,
+  createIdentityFunctionDefinition,
+} from '../function-definition';
+import { createReference } from '../values/reference';
+import { createNull, isAConstant } from '../values/constant';
+import {
+  type EnvironmentRecord,
+  getIdentifierReference,
+  isAnEnvironmentRecord,
+} from '../ecma/environment-record';
+import { getValue, isUnresolvableReference, unresolvable } from '../ecma/reference-record';
+import { type BaseValue } from '../value';
 import { getParameter } from '../utils';
-import type { Value } from '../value';
-import type { Assignment } from '../variable';
-import type { Scope } from '../scope';
+import { isAParameter } from '../values/parameter';
 
-export const handleIdentifier: ExpressionHandler<TSESTree.Identifier> = (
-  node,
-  context,
-  scopeReference,
-) => {
-  const { name } = node;
-  const { functionInfo, scopeManager } = context;
-  const { createValueIdentifier, getCurrentScopeIdentifier } = scopeManager;
+export const handleIdentifier: ExpressionHandler<TSESTree.Identifier> = (node, record, context) => {
+  let value: BaseValue<any>;
 
-  console.log('IDENTIFIER', name);
+  if (record === unresolvable) {
+    throw new Error('CHECK WHY IT HAPPENS');
+  }
 
-  const instructions: Array<Instruction> = [];
+  if (isAnEnvironmentRecord(record)) {
+    // if the record is the current environment record, the identifier may be a parameter
+    if (record === context.scopeManager.getCurrentEnvironmentRecord()) {
+      const parameter = getParameter(context.functionInfo, node.name);
 
-  // @ts-ignore
-  let operand: Value | null = null;
-  // let variableAndOwner = scopeManager.getVariableAndOwner(name, scopeReference);
-  //
-  // if (variableAndOwner) {
-  //   const assignment = scopeManager.getAssignment(variableAndOwner.variable, scopeReference);
-  //
-  //   if (assignment) {
-  //     return {
-  //       instructions,
-  //       value: createReference(assignment.identifier),
-  //     };
-  //   } else {
-  //     // todo: should we resolve to null?
-  //   }
-  // }
+      if (parameter) {
+        return {
+          record: parameter,
+          value: parameter,
+        };
+      }
+    }
 
-  let assignment: Assignment | undefined;
-  let scope: Scope | null = null;
+    const identifierReference = getIdentifierReference(record, node.name);
 
-  // an identifier can reference a parameter or the parent scope *only* if the passed scope is the current scope
-  if (scopeReference.identifier === getCurrentScopeIdentifier()) {
-    console.log(name, 'CHALLENGE PARAMETERS');
+    if (isUnresolvableReference(identifierReference)) {
+      value = createReference(context.scopeManager.createValueIdentifier());
 
-    const parameter = getParameter(functionInfo, node.name);
+      context.addInstructions([
+        createCallInstruction(
+          value.identifier,
+          null,
+          createIdentityFunctionDefinition(),
+          [createNull()],
+          node.loc,
+        ),
+      ]);
 
-    if (parameter) {
-      console.log(name, 'IS A PARAMETER');
+      // todo: probably we have to emit a scope that always resolve bindings (see comment of this function)
 
-      return {
-        value: parameter,
-      };
+      record = value;
     } else {
-      // let's look up the scope stack until we find the symbol...or not
-      let distance = 0;
+      let identifierReferenceBase = identifierReference.base;
+      let operand = createReference(identifierReferenceBase.identifier);
 
-      const { scopes } = scopeManager;
+      value = getValue(identifierReference)!; // todo: this is guaranteed by !isUnresolvableReference but can we do better than "!"?
 
-      const lookUp = () => {
-        if (scopes.length > distance) {
-          scope = scopes[distance];
-          assignment = scope.assignments.get(name);
+      if (isAnEnvironmentRecord(identifierReferenceBase)) {
+        /**
+         * if the identifier reference belongs to another function info, we need to access the outer environment from the `@parent` field of the scope
+         */
+        if (identifierReferenceBase.functionInfo !== context.functionInfo) {
+          operand = createReference(record.identifier);
 
-          console.log('assignment', distance, assignment, scope.identifier);
+          let distance = 0;
+          let outerEnv: EnvironmentRecord | null = record;
 
-          if (!assignment) {
+          while (outerEnv !== null && outerEnv.identifier !== identifierReferenceBase.identifier) {
             distance++;
 
-            lookUp();
+            outerEnv = outerEnv.outerEnv;
+          }
+
+          for (let i = 0; i < distance; i++) {
+            const parentReference = createReference(context.scopeManager.createValueIdentifier());
+
+            context.addInstructions([
+              createCallInstruction(
+                parentReference.identifier,
+                null,
+                createGetFieldFunctionDefinition('@parent'),
+                [operand],
+                node.loc,
+              ),
+            ]);
+
+            operand = parentReference;
           }
         }
-      };
-
-      lookUp();
-
-      let lastValue: Value = createReference(getCurrentScopeIdentifier());
-
-      for (let i = 0; i < distance; i++) {
-        const operand = lastValue;
-
-        lastValue = createReference(createValueIdentifier());
-
-        instructions.push(
-          createCallInstruction(
-            lastValue.identifier,
-            null,
-            createGetFieldFunctionDefinition('@parent'),
-            [operand],
-            node.loc,
-          ),
-        );
       }
 
-      operand = lastValue;
+      // we need to keep track of the type of the value, so we create a new one from the existing one
+      // todo: this is only needed for function references so, whenever the DBD engine is able to call functions by reference, we can remove this
+      value = {
+        ...value,
+        identifier: context.scopeManager.createValueIdentifier(),
+      };
+
+      context.addInstructions([
+        createCallInstruction(
+          value.identifier,
+          null,
+          createGetFieldFunctionDefinition(node.name),
+          [operand],
+          node.loc,
+        ),
+      ]);
+
+      // if the value is a constant, we return the scope that belongs to the constant value type
+      if (isAConstant(value)) {
+        record = context.scopeManager.valueByConstantTypeRegistry.get(typeof value.value)!; // todo: we need to do better
+      } else {
+        record = value;
+      }
+    }
+  } else {
+    value = createReference(context.scopeManager.createValueIdentifier());
+
+    if (isAParameter(record) || record.bindings.has(node.name)) {
+      context.addInstructions([
+        createCallInstruction(
+          value.identifier,
+          null,
+          createGetFieldFunctionDefinition(node.name),
+          [createReference(record.identifier)],
+          node.loc,
+        ),
+      ]);
+    } else {
+      context.addInstructions([
+        createCallInstruction(
+          value.identifier,
+          null,
+          createIdentityFunctionDefinition(),
+          [createNull()],
+          node.loc,
+        ),
+      ]);
+
+      // return a scope that considers any name as a resolvable binding
+      record = {
+        ...value,
+        bindings: {
+          ...value.bindings,
+          has: () => true,
+        },
+      };
     }
   }
 
-  // we return the last assignment
-  if (assignment) {
-    return {
-      value: createReference(assignment.identifier),
-    };
-  }
-
   return {
-    value: createNull(),
+    value,
+    record,
   };
 };

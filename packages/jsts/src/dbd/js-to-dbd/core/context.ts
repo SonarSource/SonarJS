@@ -2,7 +2,6 @@ import { type ScopeManager } from './scope-manager';
 import type { FunctionInfo } from './function-info';
 import type { BlockManager } from './block-manager';
 import { TSESTree } from '@typescript-eslint/typescript-estree';
-import type { Reference } from './values/reference';
 import type { Location } from './location';
 import { type Block } from './block';
 import { Instruction } from './instruction';
@@ -15,10 +14,9 @@ export interface Context {
   createScopedBlock(location: Location): Block;
   addInstructions(instructions: Array<Instruction>): void;
 
-  processFunctionInfo(
+  processFunction(
     name: string,
     body: Array<TSESTree.Statement>,
-    scopeReference: Reference | null,
     parameters: Array<TSESTree.Parameter>,
     location: Location,
   ): FunctionInfo;
@@ -28,15 +26,15 @@ export const createContext = (
   functionInfo: FunctionInfo,
   blockManager: BlockManager,
   scopeManager: ScopeManager,
-  processFunctionInfo: Context['processFunctionInfo'],
+  processFunction: Context['processFunction'],
 ): Context => {
   return {
     blockManager,
     functionInfo,
     scopeManager,
-    processFunctionInfo,
+    processFunction,
     createScopedBlock: location => {
-      return blockManager.createBlock(scopeManager.scopes[0], location); // todo: ScopeManager::getCurrentScope
+      return blockManager.createBlock(scopeManager.getCurrentEnvironmentRecord(), location);
     },
     addInstructions: instructions => {
       blockManager.getCurrentBlock().instructions.push(...instructions);

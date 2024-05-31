@@ -1,31 +1,28 @@
-import { createReference } from '../values/reference';
 import { createCallInstruction } from '../instructions/call-instruction';
 import { createNewObjectFunctionDefinition } from '../function-definition';
 import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/typescript-estree';
 import { compileAsDeclaration, handleExpression } from './index';
-import type { ExpressionHandler } from '../expression-handler';
-import { createScope } from '../scope';
+import { type ExpressionHandler } from '../expression-handler';
 
 export const handleObjectExpression: ExpressionHandler<TSESTree.ObjectExpression> = (
   node,
+  record,
   context,
 ) => {
   const { properties } = node;
   const { scopeManager, addInstructions } = context;
 
-  const objectValue = createReference(context.scopeManager.createValueIdentifier());
+  const object = scopeManager.createBindingsHolder();
 
   addInstructions([
     createCallInstruction(
-      objectValue.identifier,
+      object.identifier,
       null,
       createNewObjectFunctionDefinition(),
       [],
       node.loc,
     ),
   ]);
-
-  scopeManager.unshiftScope(createScope(objectValue.identifier));
 
   for (const property of properties) {
     if (property.type === AST_NODE_TYPES.Property) {
@@ -36,21 +33,20 @@ export const handleObjectExpression: ExpressionHandler<TSESTree.ObjectExpression
         throw new Error(`Unable to handle object property type ${property.value.type}`);
       }
 
-      const { value: propertyValue } = handleExpression(property.value, context, objectValue);
+      const { value: propertyValue } = handleExpression(property.value, record, context);
 
       const propertyKeyInstructions = compileAsDeclaration(
         property.key,
-        propertyValue,
+        object,
         context,
-        objectValue,
+        propertyValue,
       );
       addInstructions(propertyKeyInstructions);
     }
   }
 
-  scopeManager.shiftScope();
-
   return {
-    value: objectValue,
+    record,
+    value: object,
   };
 };

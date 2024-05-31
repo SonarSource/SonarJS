@@ -1,29 +1,24 @@
 import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/typescript-estree';
-import { type Assignment, createAssignment, createVariable, type Variable } from './variable';
+import { createVariable, type Variable } from './variable';
 import {
   createFunctionDefinition,
-  createNewObjectFunctionDefinition,
   createSetFieldFunctionDefinition,
   generateSignature,
 } from './function-definition';
 import { createReturnInstruction } from './instructions/return-instruction';
-import {
-  createFunctionInfo,
-  createFunctionInfo as _createFunctionInfo,
-  type FunctionInfo,
-} from './function-info';
+import { createFunctionInfo, type FunctionInfo } from './function-info';
 import { createScopeDeclarationInstruction, isTerminated } from './utils';
 import { handleStatement as _handleStatement } from './statements';
-import { createScopeManager2, type ScopeManager } from './scope-manager';
-import { type Scope } from './scope';
+import { createScopeManager } from './scope-manager';
 import { createCallInstruction } from './instructions/call-instruction';
 import { createBranchingInstruction } from './instructions/branching-instruction';
-import { createConstant } from './values/constant';
-import { createNull, createReference } from './values/reference';
-import { createParameter, type Parameter } from './values/parameter';
-import { createContext } from './context-manager';
+import { createConstant, createNull } from './values/constant';
+import { createReference } from './values/reference';
+import { createParameter } from './values/parameter';
+import { type Context, createContext } from './context';
 import { createBlockManager } from './block-manager';
 import type { Value } from './value';
+import { putValue } from './ecma/reference-record';
 
 export type Transpiler = (ast: TSESTree.Program, fileName: string) => Array<FunctionInfo>;
 
@@ -31,84 +26,27 @@ export const createTranspiler = (hostDefinedProperties: Array<Variable> = []): T
   return (program, fileName) => {
     const functionInfos: Array<FunctionInfo> = [];
 
-    const scopeManager = createScopeManager2();
+    // create the function info
+    const functionInfo = createFunctionInfo(
+      fileName,
+      createFunctionDefinition('main', generateSignature('main', fileName)),
+      [],
+    );
 
-    const processFunctionInfo: ScopeManager['processFunctionInfo'] = (
+    const scopeManager = createScopeManager(functionInfo);
+
+    const processChildFunctionInfo: Context['processFunction'] = (
       name,
-      body,
-      scopeReference,
+      statements,
       parameters,
       location,
     ) => {
-      const blockManager = createBlockManager();
-
-      const { createScope, unshiftScope, createValueIdentifier, shiftScope } = scopeManager;
-
-      // create and declare the outer scope
-      // https://262.ecma-international.org/14.0/#sec-global-environment-records
-      const outerScope: Scope = createScope();
-
-      unshiftScope(outerScope);
-
-      const outerBlock = blockManager.createBlock(outerScope, location);
-
-      outerBlock.instructions.push(createScopeDeclarationInstruction(outerScope, location));
-
-      // globalThis, a reference to the outer scope itself
-      outerBlock.instructions.push(
-        createCallInstruction(
-          createValueIdentifier(),
-          null,
-          createSetFieldFunctionDefinition('globalThis'),
-          [createReference(outerScope.identifier), createReference(outerScope.identifier)],
-          location,
-        ),
-      );
-
-      // assign global variables to the outer scope and declare them
-      const globalVariables: Array<[Variable, Value]> = [
-        [createVariable('NaN', 'NaN', false), createNull()],
-        [createVariable('Infinity', 'int', false), createNull()],
-        [createVariable('undefined', 'Record', false), createNull()],
-        ...(hostDefinedProperties.map(property => {
-          return [property, createConstant(createValueIdentifier(), property.name)];
-        }) as Array<[Variable, Value]>),
-      ];
-
-      for (const [globalVariable, value] of globalVariables) {
-        const { name } = globalVariable;
-        const assignmentIdentifier = createValueIdentifier();
-
-        let assignment: Assignment;
-
-        assignment = createAssignment(assignmentIdentifier, globalVariable);
-
-        outerScope.variables.set(name, globalVariable);
-        outerScope.assignments.set(name, assignment);
-
-        outerBlock.instructions.push(
-          createCallInstruction(
-            assignment.identifier,
-            null,
-            createSetFieldFunctionDefinition(name),
-            [createReference(outerScope.identifier), value],
-            location,
-          ),
-        );
-      }
-
-      shiftScope();
+      const parentScopeName = '@parent';
+      const parentReference = createParameter(createValueIdentifier(), parentScopeName, location);
 
       // resolve the function parameters
-      const parentScopeName = '@parent';
-      const parentScopeParameter = createParameter(
-        createValueIdentifier(),
-        parentScopeName,
-        location,
-      );
-
-      const functionParameters: Array<Parameter> = [
-        parentScopeParameter,
+      const functionParameters = [
+        parentReference,
         ...parameters.map(parameter => {
           let parameterName: string;
 
@@ -123,77 +61,213 @@ export const createTranspiler = (hostDefinedProperties: Array<Variable> = []): T
         }),
       ];
 
-      // create the function scope
-      const functionScope = createScope();
-
-      unshiftScope(functionScope);
-
       // create the function info
       const functionInfo = createFunctionInfo(
         fileName,
         createFunctionDefinition(name, generateSignature(name, fileName)),
         functionParameters,
-        [outerBlock],
-        createReference(functionScope.identifier),
-        scopeReference,
       );
 
-      // create the first block and branch the outer block to it
-      const rootBlock = blockManager.createBlock(functionScope, location);
+      // create the function environment record
+      const functionEnvironmentRecord =
+        scopeManager.createDeclarativeEnvironmentRecord(functionInfo);
 
-      outerBlock.instructions.push(createBranchingInstruction(rootBlock, location));
+      scopeManager.pushEnvironmentRecord(functionEnvironmentRecord);
 
-      // create scope instruction
-      rootBlock.instructions.push(
+      // create the block manager
+      const blockManager = createBlockManager();
+
+      // create the main function block
+      const block = blockManager.createBlock(scopeManager.getCurrentEnvironmentRecord(), location);
+
+      blockManager.pushBlock(block);
+
+      // add the scope creation instruction
+      block.instructions.push(
+        createScopeDeclarationInstruction(scopeManager.getCurrentEnvironmentRecord(), location),
+      );
+
+      // add the "set parent" instruction
+      block.instructions.push(
         createCallInstruction(
-          functionScope.identifier,
+          scopeManager.createValueIdentifier(),
           null,
-          createNewObjectFunctionDefinition(),
-          [],
+          createSetFieldFunctionDefinition('@parent'),
+          [createReference(scopeManager.getCurrentEnvironmentRecord().identifier), parentReference],
           location,
         ),
       );
 
-      // create the "bound scope" instruction
-      rootBlock.instructions.push(
-        createCallInstruction(
-          createValueIdentifier(),
-          null,
-          createSetFieldFunctionDefinition(parentScopeParameter.name),
-          [createReference(functionScope.identifier), parentScopeParameter],
-          location,
-        ),
+      const context = createContext(
+        functionInfo,
+        blockManager,
+        scopeManager,
+        processChildFunctionInfo,
       );
-
-      const context = createContext(functionInfo, blockManager, scopeManager, processFunctionInfo);
-
-      const { getCurrentBlock, pushBlock } = blockManager;
 
       const handleStatement = (statement: TSESTree.Statement) => {
         return _handleStatement(statement, context);
       };
 
-      pushBlock(rootBlock);
-
       // handle the body statements
-      body.forEach(handleStatement);
+      statements.forEach(handleStatement);
 
-      const currentBlock = getCurrentBlock();
+      const lastBlock = blockManager.getCurrentBlock();
 
-      if (!isTerminated(currentBlock)) {
-        currentBlock.instructions.push(createReturnInstruction(createNull(), location));
+      if (!isTerminated(lastBlock)) {
+        lastBlock.instructions.push(createReturnInstruction(createNull(), location));
       }
+
+      scopeManager.popEnvironmentRecord();
 
       functionInfo.blocks.push(...blockManager.blocks);
 
       functionInfos.push(functionInfo);
 
-      shiftScope();
-
       return functionInfo;
     };
 
-    processFunctionInfo('main', program.body, null, [], program.loc);
+    const location = program.loc;
+    const blockManager = createBlockManager();
+
+    const { createValueIdentifier } = scopeManager;
+    const { pushBlock, createBlock } = blockManager;
+
+    /**
+     *  set up the global environment record
+     *  @see https://262.ecma-international.org/14.0/#sec-global-environment-records
+     */
+    const globalEnvironmentRecord = scopeManager.getCurrentEnvironmentRecord();
+    const globalBlock = createBlock(globalEnvironmentRecord, location);
+
+    pushBlock(globalBlock);
+
+    // add the scope creation instruction
+    globalBlock.instructions.push(
+      createScopeDeclarationInstruction(scopeManager.getCurrentEnvironmentRecord(), location),
+    );
+
+    // globalThis is a reference to the outer scope itself
+    globalBlock.instructions.push(
+      createCallInstruction(
+        createValueIdentifier(),
+        null,
+        createSetFieldFunctionDefinition('globalThis'),
+        [
+          createReference(globalEnvironmentRecord.identifier),
+          createReference(globalEnvironmentRecord.identifier),
+        ],
+        location,
+      ),
+    );
+
+    // assign global variables to the outer scope and declare them
+    const globalVariables: Array<[Variable, Value]> = [
+      [createVariable('NaN', 'NaN', false), createNull()],
+      [createVariable('Infinity', 'int', false), createNull()],
+      /**
+       * From the point of view of the DBD engine, `undefined` behaves like `null`
+       * From the point of view of ECMAScript, `undefined` is a binding of the global environment record
+       * From the point of view of this transpiler, `undefined` is a record that considers every binding as resolvable in order to overcome the conservative nature of the DBD engine
+       */
+      [
+        createVariable('undefined', 'Record', false),
+        {
+          ...createNull(),
+          bindings: {
+            ...createNull().bindings,
+            has: () => true,
+          },
+        },
+      ],
+      ...(hostDefinedProperties.map(property => {
+        return [property, createConstant(createValueIdentifier(), property.name)];
+      }) as Array<[Variable, Value]>),
+    ];
+
+    for (const [globalVariable, value] of globalVariables) {
+      const { name } = globalVariable;
+
+      putValue(
+        {
+          base: globalEnvironmentRecord,
+          referencedName: name,
+          strict: true,
+        },
+        value,
+      );
+
+      globalBlock.instructions.push(
+        createCallInstruction(
+          createValueIdentifier(),
+          null,
+          createSetFieldFunctionDefinition(name),
+          [createReference(globalEnvironmentRecord.identifier), value],
+          program.loc,
+        ),
+      );
+    }
+
+    const context = createContext(
+      functionInfo,
+      blockManager,
+      scopeManager,
+      processChildFunctionInfo,
+    );
+
+    // create the function environment record
+    const functionEnvironmentRecord = scopeManager.createDeclarativeEnvironmentRecord(functionInfo);
+
+    scopeManager.pushEnvironmentRecord(functionEnvironmentRecord);
+
+    // create the main function block
+    const mainBlock = blockManager.createBlock(
+      scopeManager.getCurrentEnvironmentRecord(),
+      location,
+    );
+
+    // branch the global block to the main block
+    globalBlock.instructions.push(createBranchingInstruction(mainBlock, location));
+
+    // add the scope creation instruction
+    mainBlock.instructions.push(
+      createScopeDeclarationInstruction(scopeManager.getCurrentEnvironmentRecord(), location),
+    );
+
+    // add the "set parent" instruction
+    mainBlock.instructions.push(
+      createCallInstruction(
+        scopeManager.createValueIdentifier(),
+        null,
+        createSetFieldFunctionDefinition('@parent'),
+        [
+          createReference(scopeManager.getCurrentEnvironmentRecord().identifier),
+          createReference(globalEnvironmentRecord.identifier),
+        ],
+        location,
+      ),
+    );
+
+    blockManager.pushBlock(mainBlock);
+
+    const handleStatement = (statement: TSESTree.Statement) => {
+      return _handleStatement(statement, context);
+    };
+
+    // handle the body statements
+    program.body.forEach(handleStatement);
+
+    const lastBlock = blockManager.getCurrentBlock();
+
+    if (!isTerminated(lastBlock)) {
+      lastBlock.instructions.push(createReturnInstruction(createNull(), location));
+    }
+
+    scopeManager.popEnvironmentRecord();
+
+    functionInfo.blocks.push(...blockManager.blocks);
+
+    functionInfos.push(functionInfo);
 
     return functionInfos;
   };

@@ -7,21 +7,19 @@ import { createScopeDeclarationInstruction, isTerminated } from '../utils';
 import { handleStatement } from './index';
 import type { StatementHandler } from '../statement-handler';
 import { AST_NODE_TYPES } from '@typescript-eslint/typescript-estree';
-import { createReference } from '../values/reference';
 
 export const handleIfStatement: StatementHandler<TSESTree.IfStatement> = (node, context) => {
   const { consequent, alternate, test } = node;
   const { blockManager, scopeManager, createScopedBlock } = context;
-  const { unshiftScope, createScope, shiftScope } = scopeManager;
   const { getCurrentBlock, pushBlock } = blockManager;
 
   // the "finally" block belongs to the same scope as the current block
   const finallyBlock = createScopedBlock(node.loc);
 
   const processNode = (innerNode: TSESTree.Statement | null): Block => {
-    const currentScope = createScope();
+    const environmentRecord = scopeManager.createDeclarativeEnvironmentRecord(context.functionInfo);
 
-    unshiftScope(currentScope);
+    scopeManager.pushEnvironmentRecord(environmentRecord);
 
     let block;
     if (innerNode === null) {
@@ -37,13 +35,13 @@ export const handleIfStatement: StatementHandler<TSESTree.IfStatement> = (node, 
 
     block = createScopedBlock(loc);
 
-    block.instructions.push(createScopeDeclarationInstruction(currentScope, innerNode.loc));
+    block.instructions.push(createScopeDeclarationInstruction(environmentRecord, innerNode.loc));
 
     pushBlock(block);
 
     handleStatement(innerNode, context);
 
-    shiftScope();
+    scopeManager.popEnvironmentRecord();
 
     if (!isTerminated(getCurrentBlock())) {
       // branch the CURRENT BLOCK to the finally one
@@ -55,8 +53,8 @@ export const handleIfStatement: StatementHandler<TSESTree.IfStatement> = (node, 
 
   const { value: testValue } = handleExpression(
     test,
+    scopeManager.getCurrentEnvironmentRecord(),
     context,
-    createReference(scopeManager.getCurrentScopeIdentifier()),
   );
 
   const currentBlock = getCurrentBlock();

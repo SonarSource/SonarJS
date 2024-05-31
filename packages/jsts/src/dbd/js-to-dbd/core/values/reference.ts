@@ -1,16 +1,9 @@
-import type { BaseValue } from '../value';
+import { type BaseValue, createValue } from '../value';
 
 export type Reference = BaseValue<'reference'>;
 
 export const createReference = (identifier: number): Reference => {
   return {
-    identifier,
-    type: 'reference',
-    typeInfo: undefined,
-    users: [],
+    ...createValue('reference', identifier),
   };
-};
-
-export const createNull = (): Reference => {
-  return createReference(-1);
 };

@@ -7,12 +7,12 @@ import { createUnaryOperationFunctionDefinition } from '../function-definition';
 
 export const handleUnaryExpression: ExpressionHandler<TSESTree.UnaryExpression> = (
   node,
+  record,
   context,
-  scopeReference,
 ) => {
   const { argument } = node;
 
-  const { value: argumentValue } = handleExpression(argument, context, scopeReference);
+  const { value: argumentValue } = handleExpression(argument, record, context);
 
   const value = createReference(context.scopeManager.createValueIdentifier());
   context.addInstructions([
@@ -26,6 +26,7 @@ export const handleUnaryExpression: ExpressionHandler<TSESTree.UnaryExpression> 
   ]);
 
   return {
+    record,
     value,
   };
 };

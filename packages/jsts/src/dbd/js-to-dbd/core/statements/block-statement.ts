@@ -1,19 +1,24 @@
 import { TSESTree } from '@typescript-eslint/utils';
 import { createBranchingInstruction } from '../instructions/branching-instruction';
 import { createCallInstruction } from '../instructions/call-instruction';
-import { createNewObjectFunctionDefinition } from '../function-definition';
+import {
+  createNewObjectFunctionDefinition,
+  createSetFieldFunctionDefinition,
+} from '../function-definition';
 import type { StatementHandler } from '../statement-handler';
 import { handleStatement } from './index';
 import { isTerminated } from '../utils';
+import { createReference } from '../values/reference';
 
 export const handleBlockStatement: StatementHandler<TSESTree.BlockStatement> = (node, context) => {
   const { blockManager, scopeManager, createScopedBlock, addInstructions } = context;
   const { getCurrentBlock, pushBlock } = blockManager;
-  const { createScope, unshiftScope, shiftScope } = scopeManager;
+  const { createDeclarativeEnvironmentRecord, getCurrentEnvironmentRecord } = scopeManager;
 
-  const blockScope = createScope();
+  const parentScopeIdentifier = getCurrentEnvironmentRecord().identifier;
+  const blockEnvironmentRecord = createDeclarativeEnvironmentRecord(context.functionInfo);
 
-  unshiftScope(blockScope);
+  scopeManager.pushEnvironmentRecord(blockEnvironmentRecord);
 
   const bbn = createScopedBlock(node.loc);
 
@@ -25,7 +30,7 @@ export const handleBlockStatement: StatementHandler<TSESTree.BlockStatement> = (
 
   // create scope instruction
   const instruction = createCallInstruction(
-    blockScope.identifier,
+    blockEnvironmentRecord.identifier,
     null,
     createNewObjectFunctionDefinition(),
     [],
@@ -34,11 +39,21 @@ export const handleBlockStatement: StatementHandler<TSESTree.BlockStatement> = (
 
   addInstructions([instruction]);
 
+  getCurrentBlock().instructions.push(
+    createCallInstruction(
+      scopeManager.createValueIdentifier(),
+      null,
+      createSetFieldFunctionDefinition('@parent'),
+      [createReference(blockEnvironmentRecord.identifier), createReference(parentScopeIdentifier)],
+      node.loc,
+    ),
+  );
+
   node.body.forEach(statement => {
     return handleStatement(statement, context);
   });
 
-  shiftScope();
+  scopeManager.popEnvironmentRecord();
 
   const bbnPlusOne = createScopedBlock(node.loc);
 

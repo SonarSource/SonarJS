@@ -1,7 +1,6 @@
 import { TSESTree } from '@typescript-eslint/typescript-estree';
 import type { StatementHandler } from '../statement-handler';
 import { handleExpression } from '../expressions';
-import { createReference } from '../values/reference';
 
 export const handleVariableDeclaration: StatementHandler<TSESTree.VariableDeclaration> = (
   node,
@@ -9,11 +8,13 @@ export const handleVariableDeclaration: StatementHandler<TSESTree.VariableDeclar
 ) => {
   const { scopeManager } = context;
 
+  const environmentRecord = scopeManager.getCurrentEnvironmentRecord();
+
   for (const declaration of node.declarations) {
     handleExpression(
       declaration,
+      environmentRecord,
       context,
-      createReference(scopeManager.getCurrentScopeIdentifier()),
     );
   }
 };
