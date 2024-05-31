@@ -1,6 +1,5 @@
 import type { ExpressionHandler } from '../expression-handler';
 import { TSESTree } from '@typescript-eslint/utils';
-import type { Instruction } from '../instruction';
 import { handleExpression } from './index';
 import { createReference } from '../values/reference';
 import { createCallInstruction } from '../instructions/call-instruction';
@@ -11,18 +10,12 @@ export const handleUnaryExpression: ExpressionHandler<TSESTree.UnaryExpression> 
   context,
   scopeReference,
 ) => {
-  const instructions: Array<Instruction> = [];
   const { argument } = node;
 
-  const { instructions: argumentInstructions, value: argumentValue } = handleExpression(
-    argument,
-    context,
-    scopeReference,
-  );
-  instructions.push(...argumentInstructions);
+  const { value: argumentValue } = handleExpression(argument, context, scopeReference);
 
   const value = createReference(context.scopeManager.createValueIdentifier());
-  instructions.push(
+  context.addInstructions([
     createCallInstruction(
       value.identifier,
       null,
@@ -30,10 +23,9 @@ export const handleUnaryExpression: ExpressionHandler<TSESTree.UnaryExpression> 
       [argumentValue],
       node.loc,
     ),
-  );
+  ]);
 
   return {
-    instructions,
     value,
   };
 };

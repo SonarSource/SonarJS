@@ -1,4 +1,3 @@
-import type { Instruction } from '../instruction';
 import { TSESTree } from '@typescript-eslint/utils';
 import { handleExpression } from './index';
 import type { ExpressionHandler } from '../expression-handler';
@@ -8,27 +7,12 @@ export const handleMemberExpression: ExpressionHandler<TSESTree.MemberExpression
   context,
   scopeReference,
 ) => {
-  const instructions: Array<Instruction> = [];
-
   const { object, property } = node;
-  const { instructions: objectInstructions, value: objectValue } = handleExpression(
-    object,
-    context,
-    scopeReference,
-  );
+  const { value: objectValue } = handleExpression(object, context, scopeReference);
 
-  instructions.push(...objectInstructions);
-
-  const { instructions: propertyInstructions, value: propertyValue } = handleExpression(
-    property,
-    context,
-    objectValue,
-  );
-
-  instructions.push(...propertyInstructions);
+  const { value: propertyValue } = handleExpression(property, context, objectValue);
 
   return {
-    instructions,
     value: propertyValue,
   };
 };

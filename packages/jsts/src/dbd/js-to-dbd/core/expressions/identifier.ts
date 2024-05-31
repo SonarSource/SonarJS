@@ -52,7 +52,6 @@ export const handleIdentifier: ExpressionHandler<TSESTree.Identifier> = (
       console.log(name, 'IS A PARAMETER');
 
       return {
-        instructions,
         value: parameter,
       };
     } else {
@@ -103,13 +102,11 @@ export const handleIdentifier: ExpressionHandler<TSESTree.Identifier> = (
   // we return the last assignment
   if (assignment) {
     return {
-      instructions,
       value: createReference(assignment.identifier),
     };
   }
 
   return {
-    instructions,
     value: createNull(),
   };
 };

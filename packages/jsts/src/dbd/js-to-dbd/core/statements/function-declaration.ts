@@ -15,14 +15,13 @@ export const handleFunctionDeclaration: StatementHandler<TSESTree.FunctionDeclar
 ) => {
   const { id } = node;
   const {
-    blockManager,
+    addInstructions,
     scopeManager,
     functionInfo: currentFunctionInfo,
     processFunctionInfo,
   } = context;
   const { createValueIdentifier, getCurrentScopeIdentifier, addVariable, addAssignment } =
     scopeManager;
-  const { getCurrentBlock } = blockManager;
   const { name } = id;
 
   const scopeReference = createReference(getCurrentScopeIdentifier());
@@ -53,7 +52,7 @@ export const handleFunctionDeclaration: StatementHandler<TSESTree.FunctionDeclar
   currentFunctionInfo.functionReferences.push(functionReference);
 
   // create the function object
-  getCurrentBlock().instructions.push(
+  addInstructions([
     createCallInstruction(
       functionReference.identifier,
       null,
@@ -61,9 +60,6 @@ export const handleFunctionDeclaration: StatementHandler<TSESTree.FunctionDeclar
       [],
       node.loc,
     ),
-  );
-
-  getCurrentBlock().instructions.push(
     createCallInstruction(
       createValueIdentifier(),
       null,
@@ -71,7 +67,7 @@ export const handleFunctionDeclaration: StatementHandler<TSESTree.FunctionDeclar
       [scopeReference, functionReference],
       node.loc,
     ),
-  );
+  ]);
 
   const assignment = createAssignment(functionReference.identifier, variable);
 

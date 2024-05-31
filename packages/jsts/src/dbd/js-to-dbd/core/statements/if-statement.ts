@@ -53,14 +53,13 @@ export const handleIfStatement: StatementHandler<TSESTree.IfStatement> = (node, 
     return block;
   };
 
-  const { instructions: testInstructions, value: testValue } = handleExpression(
+  const { value: testValue } = handleExpression(
     test,
     context,
     createReference(scopeManager.getCurrentScopeIdentifier()),
   );
 
   const currentBlock = getCurrentBlock();
-  currentBlock.instructions.push(...testInstructions);
 
   // process the consequent block
   const consequentBlock = processNode(consequent);

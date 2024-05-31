@@ -19,7 +19,6 @@
  */
 import { TSESTree } from '@typescript-eslint/utils';
 import { handleExpression } from './index';
-import type { Instruction } from '../instruction';
 import { createCallInstruction } from '../instructions/call-instruction';
 import { Value } from '../value';
 import { createNull, createReference } from '../values/reference';
@@ -32,11 +31,10 @@ export const handleCallExpression: ExpressionHandler<TSESTree.CallExpression> = 
   context,
   scopeReference,
 ) => {
-  const { functionInfo, scopeManager } = context;
+  const { functionInfo, scopeManager, addInstructions } = context;
 
   const { createValueIdentifier, getVariableAndOwner, getAssignment, getCurrentScopeIdentifier } =
     scopeManager;
-  const instructions: Array<Instruction> = [];
 
   let value: Value;
 
@@ -68,18 +66,10 @@ export const handleCallExpression: ExpressionHandler<TSESTree.CallExpression> = 
       const compilationResult = handleExpression(argumentExpression, context, scopeReference);
 
       argumentValues.push(compilationResult.value);
-
-      instructions.push(...compilationResult.instructions);
     }
   }
 
-  const { instructions: calleeInstructions, value: calleeValue } = handleExpression(
-    callee,
-    context,
-    scopeReference,
-  );
-
-  instructions.push(...calleeInstructions);
+  const { value: calleeValue } = handleExpression(callee, context, scopeReference);
 
   // function reference
   const functionReference = getFunctionReference(functionInfo, calleeValue.identifier);
@@ -105,13 +95,12 @@ export const handleCallExpression: ExpressionHandler<TSESTree.CallExpression> = 
     value = createReference(createValueIdentifier());
 
     // * second argument is an array of the passed arguments filled with null values
-    instructions.push(
+    addInstructions([
       createCallInstruction(value.identifier, null, functionInfo.definition, operands, node.loc),
-    );
+    ]);
   }
 
   return {
-    instructions,
     value: calleeValue,
   };
 };

@@ -14,33 +14,18 @@ export const handleConditionalExpression: ExpressionHandler<TSESTree.Conditional
   const { test, consequent, alternate } = node;
   const { blockManager, createScopedBlock } = context;
 
-  const { instructions: testInstructions, value: testValue } = handleExpression(
-    test,
-    context,
-    scopeReference,
-  );
+  const { value: testValue } = handleExpression(test, context, scopeReference);
   const currentBlock = blockManager.getCurrentBlock();
-  currentBlock.instructions.push(...testInstructions);
 
   const consequentBlock = createScopedBlock(consequent.loc);
   blockManager.pushBlock(consequentBlock);
-  const { instructions: consequentInstructions, value: consequentValue } = handleExpression(
-    consequent,
-    context,
-    scopeReference,
-  );
+  const { value: consequentValue } = handleExpression(consequent, context, scopeReference);
   const afterConsequentInstructionsBlock = blockManager.getCurrentBlock();
-  afterConsequentInstructionsBlock.instructions.push(...consequentInstructions);
 
   const alternateBlock = createScopedBlock(alternate.loc);
   blockManager.pushBlock(alternateBlock);
-  const { instructions: alternateInstructions, value: alternateValue } = handleExpression(
-    alternate,
-    context,
-    scopeReference,
-  );
+  const { value: alternateValue } = handleExpression(alternate, context, scopeReference);
   const afterAlternateInstructionsBlock = blockManager.getCurrentBlock();
-  afterAlternateInstructionsBlock.instructions.push(...alternateInstructions);
 
   currentBlock.instructions.push(
     createConditionalBranchingInstruction(testValue, consequentBlock, alternateBlock, test.loc),

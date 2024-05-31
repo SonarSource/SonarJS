@@ -1,10 +1,8 @@
 import { TSESTree } from '@typescript-eslint/utils';
-import type { Instruction } from './instruction';
 import type { Context } from './context-manager';
 import type { Value } from './value';
 
 export type ExpressionHandlerResult = {
-  readonly instructions: Array<Instruction>;
   readonly value: Value;
 };
 

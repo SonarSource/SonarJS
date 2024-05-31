@@ -1,6 +1,5 @@
 import type { ExpressionHandler } from '../expression-handler';
 import { TSESTree } from '@typescript-eslint/utils';
-import type { Instruction } from '../instruction';
 import type { Value } from '../value';
 import { compileAsDeclaration, handleExpression } from './index';
 import { createNull } from '../values/reference';
@@ -10,18 +9,10 @@ export const handleVariableDeclarator: ExpressionHandler<TSESTree.VariableDeclar
   context,
   scopeReference,
 ) => {
-  const instructions: Array<Instruction> = [];
-
   let initValue: Value;
 
   if (node.init) {
-    const { instructions: initInstructions, value } = handleExpression(
-      node.init,
-      context,
-      scopeReference,
-    );
-
-    instructions.push(...initInstructions);
+    const { value } = handleExpression(node.init, context, scopeReference);
 
     initValue = value;
   } else {
@@ -30,10 +21,9 @@ export const handleVariableDeclarator: ExpressionHandler<TSESTree.VariableDeclar
 
   const idInstructions = compileAsDeclaration(node.id, initValue, context, scopeReference);
 
-  instructions.push(...idInstructions);
+  context.addInstructions(idInstructions);
 
   return {
-    instructions,
     value: initValue,
   };
 };

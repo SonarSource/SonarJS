@@ -8,18 +8,16 @@ export const handleReturnStatement: StatementHandler<TSESTree.ReturnStatement> =
   node,
   context,
 ) => {
-  const { blockManager, scopeManager } = context;
-  const { getCurrentBlock } = blockManager;
+  const { scopeManager, addInstructions } = context;
 
   if (node.argument === null) {
-    getCurrentBlock().instructions.push(createReturnInstruction(createNull(), node.loc));
+    addInstructions([createReturnInstruction(createNull(), node.loc)]);
   } else {
-    const value = handleExpression(
+    const { value } = handleExpression(
       node.argument,
       context,
       createReference(scopeManager.getCurrentScopeIdentifier()),
     );
-    getCurrentBlock().instructions.push(...value.instructions);
-    getCurrentBlock().instructions.push(createReturnInstruction(value.value, node.loc));
+    addInstructions([createReturnInstruction(value, node.loc)]);
   }
 };
