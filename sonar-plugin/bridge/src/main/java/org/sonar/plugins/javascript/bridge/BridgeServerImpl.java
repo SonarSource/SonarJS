@@ -407,7 +407,7 @@ public class BridgeServerImpl implements BridgeServer {
     }
   }
 
-  private boolean isFormData(HttpResponse<String> response) {
+  private static boolean isFormData(HttpResponse<String> response) {
     var contentTypeHeader = response.headers().firstValue("Content-type").orElse("");
     return contentTypeHeader.contains("multipart/form-data");
   }
