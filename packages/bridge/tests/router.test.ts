@@ -114,10 +114,10 @@ describe('router', () => {
     const filePath = path.join(fixtures, 'file.js');
     const fileType = 'MAIN';
     const data = { filePath, fileType, tsConfigs: [] };
-    const response = (await request(server, '/analyze-js', 'POST', data)) as string;
+    const response = (await request(server, '/analyze-js', 'POST', data, 'formdata')) as FormData;
     const {
       issues: [issue],
-    } = JSON.parse(response);
+    } = JSON.parse(response.get('json') as string);
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'prefer-regex-literals',
@@ -128,6 +128,8 @@ describe('router', () => {
         message: `Use a regular expression literal instead of the 'RegExp' constructor.`,
       }),
     );
+    const ast = response.get('ast');
+    expect(ast).toEqual('plop');
   });
 
   it('should route /analyze-ts requests', async () => {
@@ -138,10 +140,10 @@ describe('router', () => {
     const fileType = 'MAIN';
     const tsConfig = path.join(fixtures, 'tsconfig.json');
     const data = { filePath, fileType, tsConfigs: [tsConfig] };
-    const response = (await request(server, '/analyze-ts', 'POST', data)) as string;
+    const response = (await request(server, '/analyze-ts', 'POST', data, 'formdata')) as FormData;
     const {
       issues: [issue],
-    } = JSON.parse(response);
+    } = JSON.parse(response.get('json') as string);
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'no-duplicate-in-composite',
@@ -152,6 +154,8 @@ describe('router', () => {
         message: `Remove this duplicated type or replace with another one.`,
       }),
     );
+    const ast = response.get('ast');
+    expect(ast).toEqual('plop');
   });
 
   it('should route /analyze-with-program requests', async () => {
@@ -165,10 +169,16 @@ describe('router', () => {
       (await request(server, '/create-program', 'POST', { tsConfig })) as string,
     );
     const data = { filePath, fileType, programId };
-    const response = (await request(server, '/analyze-with-program', 'POST', data)) as string;
+    const response = (await request(
+      server,
+      '/analyze-with-program',
+      'POST',
+      data,
+      'formdata',
+    )) as FormData;
     const {
       issues: [issue],
-    } = JSON.parse(response);
+    } = JSON.parse(response.get('json') as string);
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'no-duplicate-in-composite',

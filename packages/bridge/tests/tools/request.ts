@@ -20,15 +20,32 @@
 import { AddressInfo } from 'net';
 import http from 'http';
 
+export type BridgeResponseType = 'text' | 'formdata';
+
 /**
  * Sends an HTTP request to a server's endpoint running on localhost.
  */
-export async function request(server: http.Server, path: string, method: string, body: any = {}) {
-  return await fetch(`http://127.0.0.1:${(server.address() as AddressInfo).port}${path}`, {
+export async function request(
+  server: http.Server,
+  path: string,
+  method: string,
+  body: any = {},
+  format: BridgeResponseType = 'text',
+) {
+  const res = await fetch(`http://127.0.0.1:${(server.address() as AddressInfo).port}${path}`, {
     headers: {
       'Content-Type': 'application/json',
     },
     method,
     body: method !== 'GET' ? JSON.stringify(body) : undefined,
-  }).then(response => response.text());
+  });
+
+  switch (format) {
+    case 'text':
+      return res.text();
+    case 'formdata':
+      return res.formData();
+    default:
+      throw new Error(`Unsupported format: ${format}`);
+  }
 }

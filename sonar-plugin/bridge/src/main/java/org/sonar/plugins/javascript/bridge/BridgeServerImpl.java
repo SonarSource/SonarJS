@@ -32,6 +32,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.file.Path;
 import java.time.Duration;
@@ -347,7 +348,7 @@ public class BridgeServerImpl implements BridgeServer {
     );
     String request = GSON.toJson(initLinterRequest);
 
-    String response = request(request, "init-linter");
+    String response = request(request, "init-linter").json();
     if (!"OK!".equals(response)) {
       throw new IllegalStateException("Failed to initialize linter");
     }
@@ -383,7 +384,7 @@ public class BridgeServerImpl implements BridgeServer {
     return response(request(json, "analyze-html"), request.filePath());
   }
 
-  private String request(String json, String endpoint) throws IOException {
+  private BridgeResponse request(String json, String endpoint) throws IOException {
     var request = HttpRequest
       .newBuilder()
       .uri(url(endpoint))
@@ -394,12 +395,21 @@ public class BridgeServerImpl implements BridgeServer {
 
     try {
       var response = client.send(request, BodyHandlers.ofString());
-      return response.body();
+      if (isFormData(response)) {
+        return FormDataUtils.parseFormData(response);
+      } else {
+        return new BridgeResponse(response.body());
+      }
     } catch (InterruptedException e) {
       throw handleInterruptedException(e, "Request " + endpoint + " was interrupted.");
     } catch (IOException e) {
       throw new IllegalStateException("The bridge server is unresponsive", e);
     }
+  }
+
+  private static boolean isFormData(HttpResponse<String> response) {
+    var contentTypeHeader = response.headers().firstValue("Content-type").orElse("");
+    return contentTypeHeader.contains("multipart/form-data");
   }
 
   private static IllegalStateException handleInterruptedException(
@@ -411,9 +421,12 @@ public class BridgeServerImpl implements BridgeServer {
     return new IllegalStateException(msg, e);
   }
 
-  private static AnalysisResponse response(String result, String filePath) {
+  private static AnalysisResponse response(BridgeResponse result, String filePath) {
     try {
-      return GSON.fromJson(result, AnalysisResponse.class);
+      return new AnalysisResponse(
+        GSON.fromJson(result.json(), AnalysisResponse.class),
+        result.ast()
+      );
     } catch (JsonSyntaxException e) {
       String msg =
         "Failed to parse response for file " + filePath + ": \n-----\n" + result + "\n-----\n";
@@ -441,7 +454,7 @@ public class BridgeServerImpl implements BridgeServer {
   @Override
   public boolean newTsConfig() {
     try {
-      var response = request("", "new-tsconfig");
+      var response = request("", "new-tsconfig").json();
       return "OK!".equals(response);
     } catch (IOException e) {
       LOG.error("Failed to post new-tsconfig", e);
@@ -453,7 +466,7 @@ public class BridgeServerImpl implements BridgeServer {
     String result = null;
     try {
       TsConfigRequest tsConfigRequest = new TsConfigRequest(tsconfigAbsolutePath);
-      result = request(GSON.toJson(tsConfigRequest), "tsconfig-files");
+      result = request(GSON.toJson(tsConfigRequest), "tsconfig-files").json();
       return GSON.fromJson(result, TsConfigResponse.class);
     } catch (IOException e) {
       LOG.error("Failed to request files for tsconfig: " + tsconfigAbsolutePath, e);
@@ -482,20 +495,20 @@ public class BridgeServerImpl implements BridgeServer {
   @Override
   public TsProgram createProgram(TsProgramRequest tsProgramRequest) throws IOException {
     var response = request(GSON.toJson(tsProgramRequest), "create-program");
-    return GSON.fromJson(response, TsProgram.class);
+    return GSON.fromJson(response.json(), TsProgram.class);
   }
 
   @Override
   public boolean deleteProgram(TsProgram tsProgram) throws IOException {
     var programToDelete = new TsProgram(tsProgram.programId(), null, null);
-    var response = request(GSON.toJson(programToDelete), "delete-program");
+    var response = request(GSON.toJson(programToDelete), "delete-program").json();
     return "OK!".equals(response);
   }
 
   @Override
   public TsConfigFile createTsConfigFile(String content) throws IOException {
     var response = request(content, "create-tsconfig-file");
-    return GSON.fromJson(response, TsConfigFile.class);
+    return GSON.fromJson(response.json(), TsConfigFile.class);
   }
 
   private static <T> List<T> emptyListIfNull(@Nullable List<T> list) {

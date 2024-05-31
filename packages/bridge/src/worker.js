@@ -20,6 +20,7 @@
 
 require('module-alias/register');
 
+const formData = require('form-data');
 const { parentPort, workerData } = require('worker_threads');
 const {
   analyzeJSTS,
@@ -47,8 +48,20 @@ exports.delegate = function (worker, type) {
     worker.once('message', message => {
       switch (message.type) {
         case 'success':
-          response.send(message.result);
+          if (message.format === 'multipart') {
+            const fd = new formData();
+            fd.append('ast', message.result.ast);
+            delete message.result.ast;
+            fd.append('json', JSON.stringify(message.result));
+            // this adds the boundary string that will be used to separate the parts
+            response.set('Content-Type', fd.getHeaders()['content-type']);
+            response.set('Content-Length', fd.getLengthSync());
+            fd.pipe(response);
+          } else {
+            response.send(message.result);
+          }
           break;
+
         case 'failure':
           next(message.error);
           break;
@@ -92,7 +105,11 @@ if (parentPort) {
           await readFileLazily(data);
 
           const output = analyzeJSTS(data, 'js');
-          parentThread.postMessage({ type: 'success', result: JSON.stringify(output) });
+          parentThread.postMessage({
+            type: 'success',
+            result: output,
+            format: 'multipart',
+          });
           break;
         }
 
@@ -107,7 +124,11 @@ if (parentPort) {
           await readFileLazily(data);
 
           const output = analyzeJSTS(data, 'ts');
-          parentThread.postMessage({ type: 'success', result: JSON.stringify(output) });
+          parentThread.postMessage({
+            type: 'success',
+            result: output,
+            format: 'multipart',
+          });
           break;
         }
 

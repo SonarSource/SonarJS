@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 const http = require('http');
+const formData = require('form-data');
 const port = process.argv[2];
 const host = process.argv[3];
 
@@ -37,11 +38,7 @@ const requestHandler = (request, response) => {
       response.end('OK!');
     } else if (request.url === '/create-tsconfig-file') {
       response.end('{"filename":"/path/to/tsconfig.json"}');
-    } else {
-      // /analyze-with-program
-      // /analyze-js
-      // /analyze-ts
-      // /analyze-css
+    } else if (['/analyze-css', '/analyze-yaml', '/analyze-html'].includes(request.url)) {
       // objects are created to have test coverage
       response.end(`{ issues: [{line:0, column:0, endLine:0, endColumn:0, 
         quickFixes: [
@@ -50,6 +47,59 @@ const requestHandler = (request, response) => {
               loc: {}}]}]}], 
         highlights: [{location: {startLine: 0, startColumn: 0, endLine: 0, endColumn: 0}}], 
         metrics: {}, highlightedSymbols: [{}], cpdTokens: [{}] }`);
+    } else {
+      // /analyze-with-program
+      // /analyze-js
+      // /analyze-ts
+      // objects are created to have test coverage
+      const res = {
+        issues: [
+          {
+            line: 0,
+            column: 0,
+            endLine: 0,
+            endColumn: 0,
+            quickFixes: [
+              {
+                edits: [
+                  {
+                    loc: {},
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+        highlights: [{ location: { startLine: 0, startColumn: 0, endLine: 0, endColumn: 0 } }],
+        metrics: {},
+        highlightedSymbols: [{}],
+        cpdTokens: [{}],
+      };
+      const boundary = '---------9051914041544843365972754266';
+      const contentTypeHeader = `multipart/form-data; boundary=${boundary}`;
+      let body = '';
+      body += `--${boundary}`;
+      body += `\r\n`;
+      body += `Content-Disposition: form-data; name="json"`;
+      body += `\r\n`;
+      body += `\r\n`;
+      body += `${JSON.stringify(res)}`;
+      body += `\r\n`;
+      body += `--${boundary}`;
+      body += `\r\n`;
+      body += `Content-Disposition: form-data; name="ast"`;
+      body += `\r\n`;
+      body += `\r\n`;
+      body += `plop`;
+      body += `\r\n`;
+      body += `--${boundary}--`;
+      body += `\r\n`;
+      // this adds the boundary string that will be
+      response.writeHead(200, {
+        'Content-Type': contentTypeHeader,
+        'Content-Length': Buffer.byteLength(body, 'utf-8'),
+      });
+      response.end(body);
     }
   });
 };

@@ -930,4 +930,19 @@ describe('analyzeJSTS', () => {
     expect(vueIssues).toHaveLength(1);
     expect(vueIssues[0].message).toEqual('call');
   });
+
+  it('should return the AST along with the issues', async () => {
+    const rules = [
+      { key: 'prefer-default-last', configurations: [], fileTypeTarget: ['MAIN'] },
+    ] as RuleConfig[];
+    initializeLinter(rules);
+    initializeLinter([], [], [], 'empty');
+
+    const filePath = path.join(__dirname, 'fixtures', 'code.js');
+    const language = 'js';
+
+    const { ast } = analyzeJSTS(await jsTsInput({ filePath }), language) as JsTsAnalysisOutput;
+
+    expect(ast).toEqual('plop');
+  });
 });

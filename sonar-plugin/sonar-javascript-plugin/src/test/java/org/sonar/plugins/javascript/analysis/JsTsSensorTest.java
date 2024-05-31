@@ -390,7 +390,7 @@ class JsTsSensorTest {
   @Test
   void should_log_when_failing_typescript() throws Exception {
     var err = new ParsingError("Debug Failure. False expression.", null, ParsingErrorCode.FAILING_TYPESCRIPT);
-    var parseError = new AnalysisResponse(err, null, null, null, null, null, null);
+    var parseError = new AnalysisResponse(err, null, null, null, null, null, null, null);
     when(bridgeServerMock.analyzeTypeScript(any())).thenReturn(parseError);
     var file1 = createInputFile(context, "dir/file1.ts");
     var file2 = createInputFile(context, "dir/file2.ts");
