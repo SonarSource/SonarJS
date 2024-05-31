@@ -15,8 +15,6 @@ export const handleIfStatement: StatementHandler<TSESTree.IfStatement> = (node, 
   const { unshiftScope, createScope, shiftScope } = scopeManager;
   const { getCurrentBlock, pushBlock } = blockManager;
 
-  const currentBlock = getCurrentBlock();
-
   // the "finally" block belongs to the same scope as the current block
   const finallyBlock = createScopedBlock(node.loc);
 
@@ -61,6 +59,7 @@ export const handleIfStatement: StatementHandler<TSESTree.IfStatement> = (node, 
     createReference(scopeManager.getCurrentScopeIdentifier()),
   );
 
+  const currentBlock = getCurrentBlock();
   currentBlock.instructions.push(...testInstructions);
 
   // process the consequent block
