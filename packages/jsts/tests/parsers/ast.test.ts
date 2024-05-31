@@ -24,6 +24,7 @@ import {
   parseAst,
   parseForESLint,
   parsers,
+  serializeInProtobuf,
 } from '../../src/parsers';
 import { JsTsAnalysisInput } from '../../src/analysis';
 import path from 'path';
@@ -74,7 +75,8 @@ describe('parseAst', () => {
     async ({ parser, usingBabel }) => {
       const filePath = path.join(__dirname, 'fixtures', 'ast', 'base.js');
       const sc = await parseSourceCode(filePath, parser, usingBabel);
-      const nodes = gatherAstNodes(sc);
+      const buf = serializeInProtobuf(sc);
+      expect(buf).toBeDefined();
     },
   );
 });

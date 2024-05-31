@@ -4,6 +4,7 @@ import * as protobuf from 'protobufjs';
 import * as path from 'node:path';
 
 const PATH_TO_PROTOFILE = path.join(
+  __dirname,
   '..',
   '..',
   '..',
@@ -24,9 +25,15 @@ export function gatherAstNodes(sourceCode: SourceCode): any {
   return nodes;
 }
 
-export function serializeInProtobuf(sourceCode: SourceCode): any {
-  const nodes = gatherAstNodes(sourceCode);
-
+export function serializeInProtobuf(sourceCode: SourceCode): Uint8Array {
+  // Load the proto file
   const root = protobuf.loadSync(PATH_TO_PROTOFILE);
-  root.lookupTypeOrEnum('');
+
+  const Program = root.lookupType('Program');
+  // Create a new Program message
+  const message = Program.create(sourceCode.ast);
+  // Serialize the message to a buffer
+  const buffer = Program.encode(message).finish();
+
+  return buffer;
 }

@@ -30,6 +30,7 @@ import {
 } from '../linter';
 import { buildSourceCode } from '../builders';
 import { JsTsAnalysisInput, JsTsAnalysisOutput } from './analysis';
+import { serializeInProtobuf } from '../parsers';
 
 /**
  * Analyzes a JavaScript / TypeScript analysis input
@@ -84,7 +85,7 @@ function analyzeFile(
       highlightedSymbols,
       cognitiveComplexity,
     );
-    return { issues, ucfgPaths, ...extendedMetrics, ast: 'plop' };
+    return { issues, ucfgPaths, ...extendedMetrics, ast: serializeInProtobuf(sourceCode) };
   } catch (e) {
     /** Turns exceptions from TypeScript compiler into "parsing" errors */
     if (e.stack.indexOf('typescript.js:') > -1) {
