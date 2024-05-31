@@ -151,6 +151,7 @@
     "postcss-scss",
     "postcss-syntax",
     "postcss-value-parser",
+    "protobufjs",
     "run-node",
     "semver",
     "scslre",
