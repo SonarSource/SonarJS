@@ -35,7 +35,12 @@ export const handleFunctionDeclaration: StatementHandler<TSESTree.FunctionDeclar
 
   const functionReferenceIdentifier = createValueIdentifier();
   // todo: we may need a common helper
-  const functionName = `${currentFunctionInfo.definition.name}__${functionReferenceIdentifier}`;
+  let functionName;
+  if (currentFunctionInfo.definition.name === 'main') {
+    functionName = name;
+  } else {
+    functionName = `${currentFunctionInfo.definition.name}__${functionReferenceIdentifier}`;
+  }
   const functionInfo = processFunctionInfo(
     functionName,
     node.body.body,

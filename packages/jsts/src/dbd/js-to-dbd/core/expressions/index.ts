@@ -18,6 +18,7 @@ import { handleArrayExpression } from './array-expression';
 import { handleVariableDeclarator } from './variable-declarator';
 import { createAssignment, createVariable, type Variable } from '../variable';
 import { handleUnaryExpression } from './unary-expression';
+import { handleLogicalExpression } from './logical-expression';
 
 export const compileAsAssignment = (
   node: Exclude<TSESTree.Node, TSESTree.Statement>,
@@ -183,6 +184,10 @@ export const handleExpression: ExpressionHandler = (node, context, scopeReferenc
     }
     case AST_NODE_TYPES.VariableDeclarator: {
       expressionHandler = handleVariableDeclarator;
+      break;
+    }
+    case AST_NODE_TYPES.LogicalExpression: {
+      expressionHandler = handleLogicalExpression;
       break;
     }
     default:
