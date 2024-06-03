@@ -1,5 +1,4 @@
 import { TSESTree } from '@typescript-eslint/utils';
-import type { Instruction } from '../instruction';
 import { createConstant, createNull } from '../values/constant';
 import { type ExpressionHandler } from '../expression-handler';
 import { createCallInstruction } from '../instructions/call-instruction';
@@ -9,8 +8,6 @@ import { createValue } from '../value';
 export const handleLiteral: ExpressionHandler<TSESTree.Literal> = (node, _scope, context) => {
   const { constantRegistry, createValueIdentifier, valueByConstantTypeRegistry } =
     context.scopeManager;
-  const instructions: Array<Instruction> = [];
-
   if (node.value === null) {
     return createNull();
   }
@@ -30,7 +27,7 @@ export const handleLiteral: ExpressionHandler<TSESTree.Literal> = (node, _scope,
 
     valueByConstantTypeRegistry.set(typeof constant.value, value);
 
-    instructions.push(
+    context.addInstructions([
       createCallInstruction(
         value.identifier,
         null,
@@ -38,7 +35,7 @@ export const handleLiteral: ExpressionHandler<TSESTree.Literal> = (node, _scope,
         [],
         node.loc,
       ),
-    );
+    ]);
   }
 
   return constant;

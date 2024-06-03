@@ -8,6 +8,9 @@ export const createReference = (identifier: number): Reference => {
   };
 };
 
+/**
+ * @todo Rename this to something meaningful
+ */
 export const createReference2 = (identifier: number, value: BaseValue<any>): BaseValue<any> => {
   return {
     ...value,
