@@ -5,8 +5,8 @@ import {
   createGetFieldFunctionDefinition,
   createIdentityFunctionDefinition,
 } from '../function-definition';
-import { createReference } from '../values/reference';
-import { createNull, isAConstant } from '../values/constant';
+import { createReference, createReference2 } from '../values/reference';
+import { createNull } from '../values/constant';
 import {
   type EnvironmentRecord,
   getIdentifierReference,
@@ -30,10 +30,7 @@ export const handleIdentifier: ExpressionHandler<TSESTree.Identifier> = (node, r
       const parameter = getParameter(context.functionInfo, node.name);
 
       if (parameter) {
-        return {
-          record: parameter,
-          value: parameter,
-        };
+        return parameter;
       }
     }
 
@@ -51,10 +48,6 @@ export const handleIdentifier: ExpressionHandler<TSESTree.Identifier> = (node, r
           node.loc,
         ),
       ]);
-
-      // todo: probably we have to emit a scope that always resolve bindings (see comment of this function)
-
-      record = value;
     } else {
       let identifierReferenceBase = identifierReference.base;
       let operand = createReference(identifierReferenceBase.identifier);
@@ -95,12 +88,7 @@ export const handleIdentifier: ExpressionHandler<TSESTree.Identifier> = (node, r
         }
       }
 
-      // we need to keep track of the type of the value, so we create a new one from the existing one
-      // todo: this is only needed for function references so, whenever the DBD engine is able to call functions by reference, we can remove this
-      value = {
-        ...value,
-        identifier: context.scopeManager.createValueIdentifier(),
-      };
+      value = createReference2(context.scopeManager.createValueIdentifier(), value);
 
       context.addInstructions([
         createCallInstruction(
@@ -111,18 +99,30 @@ export const handleIdentifier: ExpressionHandler<TSESTree.Identifier> = (node, r
           node.loc,
         ),
       ]);
-
-      // if the value is a constant, we return the scope that belongs to the constant value type
-      if (isAConstant(value)) {
-        record = context.scopeManager.valueByConstantTypeRegistry.get(typeof value.value)!; // todo: we need to do better
-      } else {
-        record = value;
-      }
+      //
+      // // if the value is a constant, we return the scope that belongs to the constant value type
+      // if (isAConstant(value)) {
+      //   record = context.scopeManager.valueByConstantTypeRegistry.get(typeof value.value)!; // todo: we need to do better
+      // }
     }
-  } else {
-    value = createReference(context.scopeManager.createValueIdentifier());
+  } else if (isAParameter(record)) {
+    value = createReference2(context.scopeManager.createValueIdentifier(), record);
 
-    if (isAParameter(record) || record.bindings.has(node.name)) {
+    context.addInstructions([
+      createCallInstruction(
+        value.identifier,
+        null,
+        createGetFieldFunctionDefinition(node.name),
+        [createReference(record.identifier)],
+        node.loc,
+      ),
+    ]);
+  } else {
+    const binding = record.bindings.get(node.name);
+
+    if (binding) {
+      value = createReference2(context.scopeManager.createValueIdentifier(), binding);
+
       context.addInstructions([
         createCallInstruction(
           value.identifier,
@@ -133,6 +133,8 @@ export const handleIdentifier: ExpressionHandler<TSESTree.Identifier> = (node, r
         ),
       ]);
     } else {
+      value = createReference(context.scopeManager.createValueIdentifier());
+
       context.addInstructions([
         createCallInstruction(
           value.identifier,
@@ -143,19 +145,17 @@ export const handleIdentifier: ExpressionHandler<TSESTree.Identifier> = (node, r
         ),
       ]);
 
-      // return a scope that considers any name as a resolvable binding
-      record = {
+      // return a value that considers any binding as resolvable
+      value = {
         ...value,
         bindings: {
           ...value.bindings,
           has: () => true,
+          get: () => createNull(),
         },
       };
     }
   }
 
-  return {
-    value,
-    record,
-  };
+  return value;
 };

@@ -12,9 +12,7 @@ export const handleVariableDeclarator: ExpressionHandler<TSESTree.VariableDeclar
   let initValue: BaseValue<any>;
 
   if (node.init) {
-    const initResult = handleExpression(node.init, record, context);
-
-    initValue = initResult.value;
+    initValue = handleExpression(node.init, record, context);
   } else {
     initValue = createNull();
   }
@@ -23,8 +21,5 @@ export const handleVariableDeclarator: ExpressionHandler<TSESTree.VariableDeclar
 
   context.addInstructions(idInstructions);
 
-  return {
-    value: initValue,
-    record,
-  };
+  return initValue;
 };

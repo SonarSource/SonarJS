@@ -17,14 +17,14 @@ export const handleLogicalExpression: ExpressionHandler<TSESTree.LogicalExpressi
   const { left, right, operator } = node;
   const { createScopedBlock, blockManager, scopeManager } = context;
 
-  const { value: leftValue } = handleExpression(left, record, context);
+  const leftValue = handleExpression(left, record, context);
   const startingBlock = blockManager.getCurrentBlock();
 
   const finallyBlock = createScopedBlock(node.loc);
 
   const consequentBlock = createScopedBlock(node.right.loc);
   blockManager.pushBlock(consequentBlock);
-  const { value: rightValue } = handleExpression(right, record, context);
+  const rightValue = handleExpression(right, record, context);
   const blockAfterRightExpression = blockManager.getCurrentBlock();
   blockAfterRightExpression.instructions.push(createBranchingInstruction(finallyBlock, right.loc));
 
@@ -78,8 +78,5 @@ export const handleLogicalExpression: ExpressionHandler<TSESTree.LogicalExpressi
   );
 
   blockManager.pushBlock(finallyBlock);
-  return {
-    record,
-    value: returnValue,
-  };
+  return returnValue;
 };

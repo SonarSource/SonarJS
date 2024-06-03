@@ -21,7 +21,7 @@ import { handleConditionalExpression } from './conditional-expression';
 import { type Record, putValue, unresolvable } from '../ecma/reference-record';
 import { createReference } from '../values/reference';
 import { type Constant, createNull } from '../values/constant';
-import { isAnEnvironmentRecord } from '../ecma/environment-record';
+import { getIdentifierReference, isAnEnvironmentRecord } from '../ecma/environment-record';
 
 export const compileAsAssignment = (
   node: Exclude<TSESTree.Node, TSESTree.Statement>,
@@ -33,6 +33,28 @@ export const compileAsAssignment = (
     case AST_NODE_TYPES.Identifier: {
       const instructions: Array<Instruction> = [];
 
+      if (record === unresolvable) {
+        throw new Error('CHECK WHY IT HAPPENS');
+      }
+
+      if (isAnEnvironmentRecord(record)) {
+        const referenceRecord = getIdentifierReference(record, node.name);
+
+        putValue(referenceRecord, value);
+      } else {
+        record.bindings.set(node.name, value);
+      }
+
+      instructions.push(
+        createCallInstruction(
+          context.scopeManager.createValueIdentifier(),
+          null,
+          createSetFieldFunctionDefinition(node.name),
+          [createReference(record.identifier), value],
+          node.loc,
+        ),
+      );
+
       return instructions;
     }
 
@@ -40,20 +62,9 @@ export const compileAsAssignment = (
       const { object, property } = node;
 
       if (property.type === AST_NODE_TYPES.Identifier) {
-        const { value: objectValue } = handleExpression(object, record, context);
+        const objectValue = handleExpression(object, record, context);
 
-        /**
-         * ECMAScript allows assigning a value to a property that was not previously declared:
-         *
-         * ```js
-         * const foo = {};
-         *
-         * foo.bar = ;
-         * ```
-         *
-         * Hence, we must compile the property node as a declaration instead of an assignment.
-         */
-        const propertyInstructions = compileAsDeclaration(property, value, context, objectValue);
+        const propertyInstructions = compileAsAssignment(property, objectValue, context, value);
 
         return [...propertyInstructions];
       } else {
@@ -73,7 +84,7 @@ export const compileAsAssignment = (
 
 export const compileAsDeclaration = (
   node: Exclude<TSESTree.Node, TSESTree.Statement>,
-  base: Record,
+  record: Record,
   context: Context,
   value: BaseValue<any>,
 ): Array<Instruction> => {
@@ -81,21 +92,21 @@ export const compileAsDeclaration = (
     case AST_NODE_TYPES.Identifier: {
       const { name } = node;
 
-      if (base === unresolvable) {
+      if (record === unresolvable) {
         throw new Error('TODO: TRACK WHY IT IS HAPPENING');
       }
 
-      if (isAnEnvironmentRecord(base)) {
+      if (isAnEnvironmentRecord(record)) {
         putValue(
           {
-            base,
+            base: record,
             referencedName: name,
             strict: true,
           },
           value,
         );
       } else {
-        base.bindings.set(name, value);
+        record.bindings.set(name, value);
       }
 
       return [
@@ -103,7 +114,7 @@ export const compileAsDeclaration = (
           context.scopeManager.createValueIdentifier(),
           null,
           createSetFieldFunctionDefinition(name),
-          [createReference(base.identifier), value as Constant],
+          [createReference(record.identifier), value as Constant],
           node.loc,
         ),
       ];
@@ -179,11 +190,7 @@ export const handleExpression: ExpressionHandler = (node, record, context) => {
       expressionHandler = () => {
         console.error(`Unrecognized expression: ${node.type}`);
 
-        return {
-          instructions: [],
-          record: record,
-          value: createNull(),
-        };
+        return createNull();
       };
   }
 

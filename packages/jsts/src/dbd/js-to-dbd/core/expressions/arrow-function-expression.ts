@@ -25,7 +25,7 @@ import { createCallInstruction } from '../instructions/call-instruction';
 
 export const handleArrowFunctionExpression: ExpressionHandler<TSESTree.ArrowFunctionExpression> = (
   node,
-  record,
+  _record,
   context,
 ) => {
   const { functionInfo: currentFunctionInfo, processFunction, scopeManager } = context;
@@ -72,8 +72,5 @@ export const handleArrowFunctionExpression: ExpressionHandler<TSESTree.ArrowFunc
 
   // todo: add other functions symbols, through a common method shared with FunctionDeclaration handler
 
-  return {
-    record,
-    value: functionReference,
-  };
+  return functionReference;
 };

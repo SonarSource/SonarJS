@@ -166,9 +166,9 @@ export const createTranspiler = (hostDefinedProperties: Array<Variable> = []): T
       [createVariable('NaN', 'NaN', false), createNull()],
       [createVariable('Infinity', 'int', false), createNull()],
       /**
-       * From the point of view of the DBD engine, `undefined` behaves like `null`
+       * From the point of view of the DBD engine, `undefined` does not exist
        * From the point of view of ECMAScript, `undefined` is a binding of the global environment record
-       * From the point of view of this transpiler, `undefined` is a record that considers every binding as resolvable in order to overcome the conservative nature of the DBD engine
+       * From the point of view of this transpiler, `undefined` is a record that considers every binding as resolvable to the null value
        */
       [
         createVariable('undefined', 'Record', false),
@@ -177,6 +177,7 @@ export const createTranspiler = (hostDefinedProperties: Array<Variable> = []): T
           bindings: {
             ...createNull().bindings,
             has: () => true,
+            get: () => createNull(),
           },
         },
       ],

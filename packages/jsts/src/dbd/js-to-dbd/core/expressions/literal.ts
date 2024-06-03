@@ -12,11 +12,7 @@ export const handleLiteral: ExpressionHandler<TSESTree.Literal> = (node, _scope,
   const instructions: Array<Instruction> = [];
 
   if (node.value === null) {
-    return {
-      instructions,
-      record: createNull(),
-      value: createNull(),
-    };
+    return createNull();
   }
 
   let constant = constantRegistry.get(node.value);
@@ -45,8 +41,5 @@ export const handleLiteral: ExpressionHandler<TSESTree.Literal> = (node, _scope,
     );
   }
 
-  return {
-    record: value,
-    value: constant,
-  };
+  return constant;
 };

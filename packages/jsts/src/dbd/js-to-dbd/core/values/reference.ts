@@ -7,3 +7,10 @@ export const createReference = (identifier: number): Reference => {
     ...createValue('reference', identifier),
   };
 };
+
+export const createReference2 = (identifier: number, value: BaseValue<any>): BaseValue<any> => {
+  return {
+    ...value,
+    identifier,
+  };
+};

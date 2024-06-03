@@ -30,8 +30,16 @@ export const createValue = <Type extends string>(
   identifier: number,
   typeInfo: TypeInfo | undefined = undefined,
 ): BaseValue<Type> => {
+  const bindings: Map<string, BaseValue<any>> = new Map();
+
   return {
-    bindings: new Map(),
+    bindings: {
+      get: key => bindings.get(key),
+      set: (key, value) => {
+        bindings.set(key, value);
+      },
+      has: key => bindings.has(key),
+    },
     identifier,
     type,
     typeInfo,

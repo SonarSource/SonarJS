@@ -13,7 +13,7 @@ export const handleReturnStatement: StatementHandler<TSESTree.ReturnStatement> =
   if (node.argument === null) {
     addInstructions([createReturnInstruction(createNull(), node.loc)]);
   } else {
-    const { value } = handleExpression(
+    const value = handleExpression(
       node.argument,
       scopeManager.getCurrentEnvironmentRecord(),
       context,

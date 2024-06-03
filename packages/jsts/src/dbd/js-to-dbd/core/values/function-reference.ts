@@ -17,5 +17,8 @@ export const createFunctionReference = (
 };
 
 export const isAFunctionReference = (candidate: Value): candidate is FunctionReference => {
-  return (candidate as FunctionReference).functionInfo !== undefined;
+  return (
+    (candidate as FunctionReference).type === 'reference' &&
+    (candidate as FunctionReference).functionInfo !== undefined
+  );
 };

@@ -13,10 +13,10 @@ export const handleBinaryExpression: ExpressionHandler<TSESTree.BinaryExpression
   const { left, right, operator } = node;
 
   // rhs
-  const { value: rightValue } = handleExpression(right, record, context);
+  const rightValue = handleExpression(right, record, context);
 
   // lhs
-  const { value: leftValue } = handleExpression(left, record, context);
+  const leftValue = handleExpression(left, record, context);
 
   const value = createReference(context.scopeManager.createValueIdentifier());
 
@@ -32,8 +32,5 @@ export const handleBinaryExpression: ExpressionHandler<TSESTree.BinaryExpression
       ),
     );
 
-  return {
-    record,
-    value,
-  };
+  return value;
 };

@@ -51,11 +51,7 @@ export const handleIfStatement: StatementHandler<TSESTree.IfStatement> = (node, 
     return block;
   };
 
-  const { value: testValue } = handleExpression(
-    test,
-    scopeManager.getCurrentEnvironmentRecord(),
-    context,
-  );
+  const testValue = handleExpression(test, scopeManager.getCurrentEnvironmentRecord(), context);
 
   const currentBlock = getCurrentBlock();
 

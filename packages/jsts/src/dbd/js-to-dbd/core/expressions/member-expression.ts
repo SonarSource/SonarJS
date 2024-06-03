@@ -8,12 +8,9 @@ export const handleMemberExpression: ExpressionHandler<TSESTree.MemberExpression
   context,
 ) => {
   const { object, property } = node;
-  const { record: objectRecord } = handleExpression(object, record, context);
+  const objectValue = handleExpression(object, record, context);
 
-  const { value: propertyValue } = handleExpression(property, objectRecord, context);
+  const propertyValue = handleExpression(property, objectValue, context);
 
-  return {
-    record: objectRecord,
-    value: propertyValue,
-  };
+  return propertyValue;
 };

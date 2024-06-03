@@ -65,13 +65,13 @@ export const handleCallExpression: ExpressionHandler<TSESTree.CallExpression> = 
         // todo
       }
     } else {
-      const compilationResult = handleExpression(argumentExpression, record, context);
+      const argumentValue = handleExpression(argumentExpression, record, context);
 
-      argumentValues.push(compilationResult.value);
+      argumentValues.push(argumentValue);
     }
   }
 
-  const { value: calleeValue } = handleExpression(callee, record, context);
+  const calleeValue = handleExpression(callee, record, context);
 
   if (isAFunctionReference(calleeValue)) {
     const { functionInfo } = calleeValue;
@@ -99,8 +99,5 @@ export const handleCallExpression: ExpressionHandler<TSESTree.CallExpression> = 
     ]);
   }
 
-  return {
-    record,
-    value: calleeValue,
-  };
+  return calleeValue;
 };

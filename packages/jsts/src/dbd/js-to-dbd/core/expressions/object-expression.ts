@@ -1,7 +1,7 @@
 import { createCallInstruction } from '../instructions/call-instruction';
 import { createNewObjectFunctionDefinition } from '../function-definition';
 import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/typescript-estree';
-import { compileAsDeclaration, handleExpression } from './index';
+import { compileAsAssignment, handleExpression } from './index';
 import { type ExpressionHandler } from '../expression-handler';
 
 export const handleObjectExpression: ExpressionHandler<TSESTree.ObjectExpression> = (
@@ -33,9 +33,9 @@ export const handleObjectExpression: ExpressionHandler<TSESTree.ObjectExpression
         throw new Error(`Unable to handle object property type ${property.value.type}`);
       }
 
-      const { value: propertyValue } = handleExpression(property.value, record, context);
+      const propertyValue = handleExpression(property.value, record, context);
 
-      const propertyKeyInstructions = compileAsDeclaration(
+      const propertyKeyInstructions = compileAsAssignment(
         property.key,
         object,
         context,
@@ -45,8 +45,5 @@ export const handleObjectExpression: ExpressionHandler<TSESTree.ObjectExpression
     }
   }
 
-  return {
-    record,
-    value: object,
-  };
+  return object;
 };
