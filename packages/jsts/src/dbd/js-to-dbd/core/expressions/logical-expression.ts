@@ -15,25 +15,15 @@ export const handleLogicalExpression: ExpressionHandler<TSESTree.LogicalExpressi
   const { left, right, operator } = node;
   const { createScopedBlock, blockManager } = context;
 
-  const { instructions: leftInstructions, value: leftValue } = handleExpression(
-    left,
-    context,
-    scopeReference,
-  );
+  const { value: leftValue } = handleExpression(left, context, scopeReference);
   const startingBlock = blockManager.getCurrentBlock();
-  startingBlock.instructions.push(...leftInstructions);
 
   const finallyBlock = createScopedBlock(node.loc);
 
   const consequentBlock = createScopedBlock(node.right.loc);
   blockManager.pushBlock(consequentBlock);
-  const { instructions: rightInstructions, value: rightValue } = handleExpression(
-    right,
-    context,
-    scopeReference,
-  );
+  const { value: rightValue } = handleExpression(right, context, scopeReference);
   const blockAfterRightExpression = blockManager.getCurrentBlock();
-  blockAfterRightExpression.instructions.push(...rightInstructions);
 
   const handleLogicalOperators = (operator: '||' | '&&') => {
     const falsyBlock = createScopedBlock(node.loc);

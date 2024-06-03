@@ -22,7 +22,6 @@ import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/typescript-estree';
 import { createNewObjectFunctionDefinition } from '../function-definition';
 import { createFunctionReference } from '../values/function-reference';
 import { createCallInstruction } from '../instructions/call-instruction';
-import type { Instruction } from '../instruction';
 import { createReference } from '../values/reference';
 
 export const handleArrowFunctionExpression: ExpressionHandler<TSESTree.ArrowFunctionExpression> = (
@@ -33,7 +32,6 @@ export const handleArrowFunctionExpression: ExpressionHandler<TSESTree.ArrowFunc
   const { createValueIdentifier, processFunctionInfo, getCurrentScopeIdentifier } = scopeManager;
 
   const scopeReference = createReference(getCurrentScopeIdentifier());
-  const instructions: Array<Instruction> = [];
 
   let body: Array<TSESTree.Statement>;
 
@@ -66,20 +64,21 @@ export const handleArrowFunctionExpression: ExpressionHandler<TSESTree.ArrowFunc
 
   currentFunctionInfo.functionReferences.push(functionReference);
 
-  instructions.push(
-    createCallInstruction(
-      functionReference.identifier,
-      null,
-      createNewObjectFunctionDefinition(),
-      [],
-      node.loc,
-    ),
-  );
+  context.blockManager
+    .getCurrentBlock()
+    .instructions.push(
+      createCallInstruction(
+        functionReference.identifier,
+        null,
+        createNewObjectFunctionDefinition(),
+        [],
+        node.loc,
+      ),
+    );
 
   // todo: add other functions symbols, through a common method shared with FunctionDeclaration handler
 
   return {
-    instructions,
     value: functionReference,
   };
 };

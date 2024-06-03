@@ -70,11 +70,7 @@ export const compileAsAssignment = (
       const { object, property } = node;
 
       if (property.type === AST_NODE_TYPES.Identifier) {
-        const { instructions: objectInstructions, value: objectValue } = handleExpression(
-          object,
-          context,
-          scopeReference,
-        );
+        const { value: objectValue } = handleExpression(object, context, scopeReference);
 
         /**
          * ECMAScript allows assigning a value to a property that was not previously declared:
@@ -89,7 +85,7 @@ export const compileAsAssignment = (
          */
         const propertyInstructions = compileAsDeclaration(property, value, context, objectValue);
 
-        return [...objectInstructions, ...propertyInstructions];
+        return [...propertyInstructions];
       } else {
         console.error(`Not supported yet...`);
 

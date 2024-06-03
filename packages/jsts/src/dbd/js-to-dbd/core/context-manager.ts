@@ -5,6 +5,7 @@ import { TSESTree } from '@typescript-eslint/typescript-estree';
 import type { Reference } from './values/reference';
 import type { Location } from './location';
 import { type Block } from './block';
+import { Instruction } from './instruction';
 
 export interface Context {
   readonly blockManager: BlockManager;
@@ -12,6 +13,7 @@ export interface Context {
   readonly scopeManager: ScopeManager;
 
   createScopedBlock(location: Location): Block;
+  addInstructions(instructions: Array<Instruction>): void;
 
   processFunctionInfo(
     name: string,
@@ -35,6 +37,9 @@ export const createContext = (
     processFunctionInfo,
     createScopedBlock: location => {
       return blockManager.createBlock(scopeManager.scopes[0], location); // todo: ScopeManager::getCurrentScope
+    },
+    addInstructions: instructions => {
+      blockManager.getCurrentBlock().instructions.push(...instructions);
     },
   };
 };

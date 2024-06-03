@@ -1,4 +1,3 @@
-import type { Instruction } from '../instruction';
 import { createReference } from '../values/reference';
 import { createCallInstruction } from '../instructions/call-instruction';
 import { createBinaryOperationFunctionDefinition } from '../function-definition';
@@ -11,41 +10,29 @@ export const handleBinaryExpression: ExpressionHandler<TSESTree.BinaryExpression
   context,
   scopeReference,
 ) => {
-  const instructions: Array<Instruction> = [];
-
   const { left, right, operator } = node;
 
   // rhs
-  const { instructions: rightInstructions, value: rightValue } = handleExpression(
-    right,
-    context,
-    scopeReference,
-  );
+  const { value: rightValue } = handleExpression(right, context, scopeReference);
 
   // lhs
-  const { instructions: leftInstructions, value: leftValue } = handleExpression(
-    left,
-    context,
-    scopeReference,
-  );
-
-  instructions.push(...rightInstructions);
-  instructions.push(...leftInstructions);
+  const { value: leftValue } = handleExpression(left, context, scopeReference);
 
   const value = createReference(context.scopeManager.createValueIdentifier());
 
-  instructions.push(
-    createCallInstruction(
-      value.identifier,
-      null,
-      createBinaryOperationFunctionDefinition(operator),
-      [leftValue, rightValue],
-      node.loc,
-    ),
-  );
+  context.blockManager
+    .getCurrentBlock()
+    .instructions.push(
+      createCallInstruction(
+        value.identifier,
+        null,
+        createBinaryOperationFunctionDefinition(operator),
+        [leftValue, rightValue],
+        node.loc,
+      ),
+    );
 
   return {
-    instructions,
     value,
   };
 };

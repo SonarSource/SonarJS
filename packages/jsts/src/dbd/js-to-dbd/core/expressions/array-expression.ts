@@ -54,12 +54,7 @@ export const handleArrayExpression: ExpressionHandler<TSESTree.ArrayExpression> 
       console.error(`Unsupported array element at ${JSON.stringify(node.loc)}`);
       return;
     }
-    const { instructions: elementInstructions, value: elementValue } = handleExpression(
-      element,
-      context,
-      scopeReference,
-    );
-    instructions.push(...elementInstructions);
+    const { value: elementValue } = handleExpression(element, context, scopeReference);
     instructions.push(
       createCallInstruction(
         context.scopeManager.createValueIdentifier(),
@@ -70,8 +65,8 @@ export const handleArrayExpression: ExpressionHandler<TSESTree.ArrayExpression> 
       ),
     );
   });
+  context.blockManager.getCurrentBlock().instructions.push(...instructions);
   return {
-    instructions,
     value: arrayValue,
   };
 };

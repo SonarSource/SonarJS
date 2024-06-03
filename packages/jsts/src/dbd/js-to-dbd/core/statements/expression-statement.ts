@@ -7,13 +7,11 @@ export const handleExpressionStatement: StatementHandler<TSESTree.ExpressionStat
   node,
   context,
 ) => {
-  const { blockManager, scopeManager } = context;
-  const { getCurrentBlock } = blockManager;
+  const { scopeManager } = context;
 
-  const { instructions } = handleExpression(
+  handleExpression(
     node.expression,
     context,
     createReference(scopeManager.getCurrentScopeIdentifier()),
   );
-  getCurrentBlock().instructions.push(...instructions);
 };
