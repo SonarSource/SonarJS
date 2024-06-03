@@ -4,26 +4,27 @@ import { handleExpression } from './index';
 import { createBranchingInstruction } from '../instructions/branching-instruction';
 import { createConditionalBranchingInstruction } from '../instructions/conditional-branching-instruction';
 import { createPhiInstruction } from '../instructions/phi-instruction';
-import { createNull, createReference } from '../values/reference';
+import { createReference } from '../values/reference';
 import { createCallInstruction } from '../instructions/call-instruction';
 import { createBinaryOperationFunctionDefinition } from '../function-definition';
+import { createNull } from '../values/constant';
 
 export const handleLogicalExpression: ExpressionHandler<TSESTree.LogicalExpression> = (
   node,
+  record,
   context,
-  scopeReference,
 ) => {
   const { left, right, operator } = node;
   const { createScopedBlock, blockManager, scopeManager } = context;
 
-  const { value: leftValue } = handleExpression(left, context, scopeReference);
+  const leftValue = handleExpression(left, record, context);
   const startingBlock = blockManager.getCurrentBlock();
 
   const finallyBlock = createScopedBlock(node.loc);
 
   const consequentBlock = createScopedBlock(node.right.loc);
   blockManager.pushBlock(consequentBlock);
-  const { value: rightValue } = handleExpression(right, context, scopeReference);
+  const rightValue = handleExpression(right, record, context);
   const blockAfterRightExpression = blockManager.getCurrentBlock();
   blockAfterRightExpression.instructions.push(createBranchingInstruction(finallyBlock, right.loc));
 
@@ -77,8 +78,5 @@ export const handleLogicalExpression: ExpressionHandler<TSESTree.LogicalExpressi
   );
 
   blockManager.pushBlock(finallyBlock);
-  return {
-    instructions: [],
-    value: returnValue,
-  };
+  return returnValue;
 };

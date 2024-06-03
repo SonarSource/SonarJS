@@ -2,11 +2,11 @@ import { runTest } from '../test';
 
 runTest(
   'undefined',
-  `function foo(x) {
-  x.bar;
+  `undefined;
+{
+  const undefined = 5;
+  undefined.toString;
 }
-
-let undefined = 5;
-
-foo(undefined);`,
+undefined.toString;
+`,
 );

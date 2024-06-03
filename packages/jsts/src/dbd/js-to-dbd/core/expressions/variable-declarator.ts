@@ -1,29 +1,25 @@
-import type { ExpressionHandler } from '../expression-handler';
+import { type ExpressionHandler } from '../expression-handler';
 import { TSESTree } from '@typescript-eslint/utils';
-import type { Value } from '../value';
+import type { BaseValue } from '../value';
 import { compileAsDeclaration, handleExpression } from './index';
-import { createNull } from '../values/reference';
+import { createNull } from '../values/constant';
 
 export const handleVariableDeclarator: ExpressionHandler<TSESTree.VariableDeclarator> = (
   node,
+  record,
   context,
-  scopeReference,
 ) => {
-  let initValue: Value;
+  let initValue: BaseValue<any>;
 
   if (node.init) {
-    const { value } = handleExpression(node.init, context, scopeReference);
-
-    initValue = value;
+    initValue = handleExpression(node.init, record, context);
   } else {
     initValue = createNull();
   }
 
-  const idInstructions = compileAsDeclaration(node.id, initValue, context, scopeReference);
+  const idInstructions = compileAsDeclaration(node.id, record, context, initValue);
 
   context.addInstructions(idInstructions);
 
-  return {
-    value: initValue,
-  };
+  return initValue;
 };

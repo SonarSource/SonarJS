@@ -2,7 +2,7 @@ import { TSESTree } from '@typescript-eslint/utils';
 import { createReturnInstruction } from '../instructions/return-instruction';
 import { handleExpression } from '../expressions';
 import type { StatementHandler } from '../statement-handler';
-import { createNull, createReference } from '../values/reference';
+import { createNull } from '../values/constant';
 
 export const handleReturnStatement: StatementHandler<TSESTree.ReturnStatement> = (
   node,
@@ -13,10 +13,10 @@ export const handleReturnStatement: StatementHandler<TSESTree.ReturnStatement> =
   if (node.argument === null) {
     addInstructions([createReturnInstruction(createNull(), node.loc)]);
   } else {
-    const { value } = handleExpression(
+    const value = handleExpression(
       node.argument,
+      scopeManager.getCurrentEnvironmentRecord(),
       context,
-      createReference(scopeManager.getCurrentScopeIdentifier()),
     );
     addInstructions([createReturnInstruction(value, node.loc)]);
   }

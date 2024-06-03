@@ -1,6 +1,6 @@
 import type { Instruction } from './instruction';
 import type { Location } from './location';
-import type { Scope } from './scope';
+import type { EnvironmentRecord } from './ecma/environment-record';
 
 export type Block = {
   readonly exceptionHandler?: Block;
@@ -10,10 +10,14 @@ export type Block = {
   readonly location: Location;
   readonly loopId: number | null;
   readonly parentLoopId: number | null;
-  readonly scope: Scope;
+  readonly environmentRecord: EnvironmentRecord;
 };
 
-export const createBlock = (scope: Scope, identifier: number, location: Location): Block => {
+export const createBlock = (
+  environmentRecord: EnvironmentRecord,
+  identifier: number,
+  location: Location,
+): Block => {
   return {
     exceptionHandler: undefined,
     identifier,
@@ -22,6 +26,6 @@ export const createBlock = (scope: Scope, identifier: number, location: Location
     location,
     loopId: null,
     parentLoopId: null,
-    scope,
+    environmentRecord,
   };
 };

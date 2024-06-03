@@ -14,7 +14,7 @@ export const createParameter = (
   location: Location,
 ): Parameter => {
   return {
-    ...createValue(identifier, 'parameter'),
+    ...createValue('parameter', identifier),
     location,
     name,
     typeInfo: {
@@ -23,4 +23,8 @@ export const createParameter = (
       hasIncompleteSemantics: false,
     },
   };
+};
+
+export const isAParameter = (value: BaseValue<any>): value is Parameter => {
+  return (value as Parameter).type === 'parameter';
 };

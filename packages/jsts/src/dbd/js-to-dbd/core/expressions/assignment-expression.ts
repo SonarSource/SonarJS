@@ -1,23 +1,20 @@
 import { TSESTree } from '@typescript-eslint/utils';
 import { compileAsAssignment, handleExpression } from './index';
-import type { ExpressionHandler } from '../expression-handler';
-import { createNull } from '../values/reference';
+import { type ExpressionHandler } from '../expression-handler';
 
 export const handleAssignmentExpression: ExpressionHandler<TSESTree.AssignmentExpression> = (
   node,
+  record,
   context,
-  scopeReference,
 ) => {
   const { left, right } = node;
 
   // rhs
-  const { value: rightValue } = handleExpression(right, context, scopeReference);
+  const rightValue = handleExpression(right, record, context);
 
   // lhs
-  const leftInstructions = compileAsAssignment(left, rightValue, context, scopeReference);
+  const leftInstructions = compileAsAssignment(left, record, context, rightValue);
   context.blockManager.getCurrentBlock().instructions.push(...leftInstructions);
 
-  return {
-    value: createNull(),
-  };
+  return rightValue;
 };

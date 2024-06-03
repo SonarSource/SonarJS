@@ -7,16 +7,16 @@ import type { ExpressionHandler } from '../expression-handler';
 
 export const handleBinaryExpression: ExpressionHandler<TSESTree.BinaryExpression> = (
   node,
+  record,
   context,
-  scopeReference,
 ) => {
   const { left, right, operator } = node;
 
   // rhs
-  const { value: rightValue } = handleExpression(right, context, scopeReference);
+  const rightValue = handleExpression(right, record, context);
 
   // lhs
-  const { value: leftValue } = handleExpression(left, context, scopeReference);
+  const leftValue = handleExpression(left, record, context);
 
   const value = createReference(context.scopeManager.createValueIdentifier());
 
@@ -32,7 +32,5 @@ export const handleBinaryExpression: ExpressionHandler<TSESTree.BinaryExpression
       ),
     );
 
-  return {
-    value,
-  };
+  return value;
 };

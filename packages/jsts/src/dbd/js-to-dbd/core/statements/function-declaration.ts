@@ -1,12 +1,14 @@
 import type { StatementHandler } from '../statement-handler';
 import { TSESTree } from '@typescript-eslint/typescript-estree';
-import { createAssignment, createVariable } from '../variable';
+import { createVariable } from '../variable';
 import { createFunctionReference } from '../values/function-reference';
 import { createCallInstruction } from '../instructions/call-instruction';
 import {
   createNewObjectFunctionDefinition,
   createSetFieldFunctionDefinition,
 } from '../function-definition';
+import { putValue } from '../ecma/reference-record';
+import { getIdentifierReference } from '../ecma/environment-record';
 import { createReference } from '../values/reference';
 
 export const handleFunctionDeclaration: StatementHandler<TSESTree.FunctionDeclarationWithName> = (
@@ -18,19 +20,16 @@ export const handleFunctionDeclaration: StatementHandler<TSESTree.FunctionDeclar
     addInstructions,
     scopeManager,
     functionInfo: currentFunctionInfo,
-    processFunctionInfo,
+    processFunction,
   } = context;
-  const { createValueIdentifier, getCurrentScopeIdentifier, addVariable, addAssignment } =
-    scopeManager;
+  const { createValueIdentifier } = scopeManager;
   const { name } = id;
-
-  const scopeReference = createReference(getCurrentScopeIdentifier());
 
   // a function declaration is a variable declaration and an assignment in the current scope
   // todo: should be in the ***passed*** scope?
   const variable = createVariable(name);
-
-  addVariable(variable);
+  const currentEnvironmentRecord = context.scopeManager.getCurrentEnvironmentRecord();
+  const referenceIdentifier = getIdentifierReference(currentEnvironmentRecord, name);
 
   const functionReferenceIdentifier = createValueIdentifier();
   // todo: we may need a common helper
@@ -40,14 +39,10 @@ export const handleFunctionDeclaration: StatementHandler<TSESTree.FunctionDeclar
   } else {
     functionName = `${currentFunctionInfo.definition.name}__${functionReferenceIdentifier}`;
   }
-  const functionInfo = processFunctionInfo(
-    functionName,
-    node.body.body,
-    scopeReference,
-    node.params,
-    node.loc,
-  );
-  const functionReference = createFunctionReference(functionInfo, functionReferenceIdentifier);
+  const functionInfo = processFunction(functionName, node.body.body, node.params, node.loc);
+  const functionReference = createFunctionReference(functionReferenceIdentifier, functionInfo);
+
+  putValue(referenceIdentifier, functionReference);
 
   currentFunctionInfo.functionReferences.push(functionReference);
 
@@ -64,12 +59,8 @@ export const handleFunctionDeclaration: StatementHandler<TSESTree.FunctionDeclar
       createValueIdentifier(),
       null,
       createSetFieldFunctionDefinition(variable.name),
-      [scopeReference, functionReference],
+      [createReference(scopeManager.getCurrentEnvironmentRecord().identifier), functionReference],
       node.loc,
     ),
   ]);
-
-  const assignment = createAssignment(functionReference.identifier, variable);
-
-  addAssignment(id.name, assignment);
 };

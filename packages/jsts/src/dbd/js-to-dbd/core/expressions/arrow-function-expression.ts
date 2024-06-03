@@ -22,16 +22,14 @@ import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/typescript-estree';
 import { createNewObjectFunctionDefinition } from '../function-definition';
 import { createFunctionReference } from '../values/function-reference';
 import { createCallInstruction } from '../instructions/call-instruction';
-import { createReference } from '../values/reference';
 
 export const handleArrowFunctionExpression: ExpressionHandler<TSESTree.ArrowFunctionExpression> = (
   node,
+  _record,
   context,
 ) => {
-  const { functionInfo: currentFunctionInfo, scopeManager } = context;
-  const { createValueIdentifier, processFunctionInfo, getCurrentScopeIdentifier } = scopeManager;
-
-  const scopeReference = createReference(getCurrentScopeIdentifier());
+  const { functionInfo: currentFunctionInfo, processFunction, scopeManager } = context;
+  const { createValueIdentifier } = scopeManager;
 
   let body: Array<TSESTree.Statement>;
 
@@ -53,14 +51,10 @@ export const handleArrowFunctionExpression: ExpressionHandler<TSESTree.ArrowFunc
   const functionReferenceIdentifier = createValueIdentifier();
   // todo: we may need a common helper
   const functionName = `${currentFunctionInfo.definition.name}__${functionReferenceIdentifier}`;
-  const functionInfo = processFunctionInfo(
-    functionName,
-    body,
-    scopeReference,
-    node.params,
-    node.loc,
-  );
-  const functionReference = createFunctionReference(functionInfo, functionReferenceIdentifier);
+
+  const functionInfo = processFunction(functionName, body, node.params, node.loc);
+
+  const functionReference = createFunctionReference(functionReferenceIdentifier, functionInfo);
 
   currentFunctionInfo.functionReferences.push(functionReference);
 
@@ -78,7 +72,5 @@ export const handleArrowFunctionExpression: ExpressionHandler<TSESTree.ArrowFunc
 
   // todo: add other functions symbols, through a common method shared with FunctionDeclaration handler
 
-  return {
-    value: functionReference,
-  };
+  return functionReference;
 };

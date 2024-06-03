@@ -1,9 +1,8 @@
 import { Enum, Field, MapField, OneOf, Root, Type } from 'protobufjs';
 import { type FunctionInfo } from './function-info';
 import { basename, extname } from 'node:path';
-import type { Constant } from './values/constant';
+import { type Constant, createNull } from './values/constant';
 import type { Instruction } from './instruction';
-import { createNull } from './values/reference';
 
 const basicBlock = new Type('BasicBlock')
   .add(new Field('identifier', 1, 'int32'))

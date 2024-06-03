@@ -1,4 +1,3 @@
-import type { Scope } from './scope';
 import type { Location } from './location';
 import { CallInstruction, createCallInstruction } from './instructions/call-instruction';
 import { createNewObjectFunctionDefinition } from './function-definition';
@@ -10,7 +9,9 @@ import type { FunctionInfo } from './function-info';
 import type { FunctionReference } from './values/function-reference';
 
 export function createScopeDeclarationInstruction(
-  scope: Scope,
+  scope: {
+    identifier: number;
+  },
   location: Location,
 ): CallInstruction {
   return createCallInstruction(

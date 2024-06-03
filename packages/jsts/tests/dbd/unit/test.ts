@@ -7,6 +7,7 @@ import {
 } from '../../../src/dbd';
 import { outputFileSync, emptyDirSync } from 'fs-extra';
 import { createParser } from '../../../src/dbd/js-to-dbd/core/parser';
+import { createNull } from '../../../src/dbd/js-to-dbd/core/values/constant';
 
 const serializeOperands = (operands: Array<Value>): string => {
   return operands.map(serializeValue).join(',');
@@ -16,7 +17,15 @@ const serializeValue = (value: Value): string => {
   let result = '';
 
   if (value.type === 'constant') {
-    result += `<constant>${value.value}`;
+    result += `constant ${value.value}`;
+  }
+
+  if (value.type === 'parameter') {
+    result += `param `;
+  }
+
+  if (value.type === 'reference' && value.identifier === createNull().identifier) {
+    result += `null`;
   }
 
   result += `#${value.identifier}`;
@@ -81,7 +90,19 @@ export const runTest = (name: string, code: string) => {
             return {
               identifier: block.identifier,
               instructions: block.instructions.map(serializeInstruction),
-              scopeIdentifier: block.scope.identifier,
+              scopeIdentifier: block.environmentRecord.identifier,
+            };
+          }),
+          parameters: functionInfo.parameters.map(parameter => {
+            return {
+              identifier: parameter.identifier,
+              name: parameter.name,
+            };
+          }),
+          functionReferences: functionInfo.functionReferences.map(functionReference => {
+            return {
+              identifier: functionReference.identifier,
+              signature: functionReference.functionInfo.definition.signature,
             };
           }),
         };

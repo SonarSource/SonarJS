@@ -1,15 +1,3 @@
-export type Assignment = {
-  readonly identifier: number;
-  readonly variable: Variable;
-};
-
-export const createAssignment = (identifier: number, variable: Variable): Assignment => {
-  return {
-    identifier,
-    variable,
-  };
-};
-
 export type Variable = {
   readonly name: string;
   readonly type: string;

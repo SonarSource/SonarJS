@@ -21,20 +21,22 @@ import { TSESTree } from '@typescript-eslint/utils';
 import { handleExpression } from './index';
 import { createCallInstruction } from '../instructions/call-instruction';
 import { Value } from '../value';
-import { createNull, createReference } from '../values/reference';
+import { createReference } from '../values/reference';
 import type { ExpressionHandler } from '../expression-handler';
 import { AST_NODE_TYPES } from '@typescript-eslint/typescript-estree';
-import { getFunctionReference, getParameter } from '../utils';
+import { getParameter } from '../utils';
+import { createNull } from '../values/constant';
+import { isAFunctionReference } from '../values/function-reference';
+import { getIdentifierReference, isAnEnvironmentRecord } from '../ecma/environment-record';
+import { getValue } from '../ecma/reference-record';
 
 export const handleCallExpression: ExpressionHandler<TSESTree.CallExpression> = (
   node,
+  record,
   context,
-  scopeReference,
 ) => {
   const { functionInfo, scopeManager, addInstructions } = context;
-
-  const { createValueIdentifier, getVariableAndOwner, getAssignment, getCurrentScopeIdentifier } =
-    scopeManager;
+  const { createValueIdentifier } = scopeManager;
 
   let value: Value;
 
@@ -50,37 +52,34 @@ export const handleCallExpression: ExpressionHandler<TSESTree.CallExpression> = 
         argumentValues.push(parameter);
       } else {
         // if not it may be a variable of the scope
-        const variableAndOwner = getVariableAndOwner(argumentExpression.name, scopeReference);
+        if (isAnEnvironmentRecord(record)) {
+          const identifierReference = getIdentifierReference(record, argumentExpression.name);
 
-        if (variableAndOwner) {
-          const assignment = getAssignment(variableAndOwner.variable, scopeReference);
+          const value = getValue(identifierReference);
 
-          if (assignment) {
-            argumentValues.push(createReference(assignment.identifier));
+          if (value) {
+            argumentValues.push(value);
           }
         }
 
         // todo
       }
     } else {
-      const compilationResult = handleExpression(argumentExpression, context, scopeReference);
+      const argumentValue = handleExpression(argumentExpression, record, context);
 
-      argumentValues.push(compilationResult.value);
+      argumentValues.push(argumentValue);
     }
   }
 
-  const { value: calleeValue } = handleExpression(callee, context, scopeReference);
+  const calleeValue = handleExpression(callee, record, context);
 
-  // function reference
-  const functionReference = getFunctionReference(functionInfo, calleeValue.identifier);
-
-  if (functionReference) {
-    const { functionInfo } = functionReference;
+  if (isAFunctionReference(calleeValue)) {
+    const { functionInfo } = calleeValue;
 
     let operands: Array<Value> = [];
 
-    // * first argument is the current scope
-    operands.push(createReference(getCurrentScopeIdentifier()));
+    // first argument is the current scope
+    operands.push(createReference(scopeManager.getCurrentEnvironmentRecord().identifier));
 
     for (let index = 1; index < functionInfo.parameters.length; index++) {
       let argumentValue = argumentValues[index - 1];
@@ -100,7 +99,5 @@ export const handleCallExpression: ExpressionHandler<TSESTree.CallExpression> = 
     ]);
   }
 
-  return {
-    value: calleeValue,
-  };
+  return calleeValue;
 };

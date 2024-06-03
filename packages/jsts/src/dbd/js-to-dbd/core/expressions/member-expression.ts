@@ -4,15 +4,13 @@ import type { ExpressionHandler } from '../expression-handler';
 
 export const handleMemberExpression: ExpressionHandler<TSESTree.MemberExpression> = (
   node,
+  record,
   context,
-  scopeReference,
 ) => {
   const { object, property } = node;
-  const { value: objectValue } = handleExpression(object, context, scopeReference);
+  const objectValue = handleExpression(object, record, context);
 
-  const { value: propertyValue } = handleExpression(property, context, objectValue);
+  const propertyValue = handleExpression(property, objectValue, context);
 
-  return {
-    value: propertyValue,
-  };
+  return propertyValue;
 };
