@@ -78,7 +78,7 @@ export function addHandWrittenMessages(messages: Record<string, ESTreeNode>) {
     name: 'Position',
     fields: [
       { name: 'line', fieldValue: { type: 'int32' } },
-      { name: 'end', fieldValue: { type: 'int32' } },
+      { name: 'column', fieldValue: { type: 'int32' } },
     ],
   };
 }
