@@ -75,7 +75,7 @@ export function serialize(
   const message = PROTO_ROOT.lookupType(node.type);
   if (message) {
     try {
-      return message.fromObject(node);
+      return message.fromObject(res);
     } catch (e) {
       console.error(e);
       return undefined;
