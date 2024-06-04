@@ -67,12 +67,13 @@ export function serialize(
       continue;
     }
     if (childProps?.includes(key)) {
-      res[key] = serializeArray(value as any, sourceCode);
+      res[key] = serializeChild(value as any, sourceCode);
     } else {
       res[key] = node[key];
     }
   }
   const message = PROTO_ROOT.lookupType(node.type);
+  //
   if (message) {
     try {
       return message.fromObject(res);
@@ -83,17 +84,17 @@ export function serialize(
   } else {
     return undefined;
   }
-}
 
-function serializeArray(node: estree.Node, sourceCode: SourceCode) {
-  if (!Array.isArray(node)) {
-    return serialize(node, sourceCode);
+  function serializeChild(node: estree.Node, sourceCode: SourceCode) {
+    if (!Array.isArray(node)) {
+      return serialize(node, sourceCode);
+    }
+    const res = [];
+    for (const n of node) {
+      res.push(serialize(n, sourceCode));
+    }
+    return res;
   }
-  const res = [];
-  for (const n of node) {
-    res.push(serialize(n, sourceCode));
-  }
-  return res;
 }
 
 export function deserializeFromProtobuf(buffer: Uint8Array): any {
