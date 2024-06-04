@@ -66,7 +66,7 @@ export function serialize(
     if (!value) {
       continue;
     }
-    if (childProps.includes(key)) {
+    if (childProps?.includes(key)) {
       res[key] = serializeArray(value as any, sourceCode);
     } else {
       res[key] = node[key];
