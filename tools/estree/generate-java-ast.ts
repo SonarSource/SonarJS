@@ -19,7 +19,7 @@
  */
 
 import fs from 'node:fs';
-import { ESTreeNode } from './get-estree-nodes';
+import { ESTreeNode, NodeField } from './get-estree-nodes';
 
 const HEADER = `/*
  * SonarQube JavaScript Plugin
@@ -42,16 +42,55 @@ const HEADER = `/*
  */
 `;
 
-export function writeJavaClassesToDir(messages: Record<string, ESTreeNode>, output: string) {
-  for (const [name, message] of Object.entries(messages)) {
-    const filename = `${output}/${name}.java`;
-    const content = `${HEADER}
+export function writeJavaClassesToDir(nodes: Record<string, ESTreeNode>, output: string) {
+  const records = [];
+  for (const [name, node] of Object.entries(nodes)) {
+    const fields = [];
+    for (const field of node.fields) {
+      fields.push(`${javaType(field)} ${javaName(field.name)}`);
+    }
+    records.push(`  public record ${name}(${fields.join(', ')}) implements Node {}`);
+  }
+
+  const estree = `${HEADER}
 package org.sonar.plugins.javascript.api.estree;
 
-public record ${name}(
-  ) {
-}
-`;
-    fs.writeFileSync(filename, content, 'utf-8');
+
+public class ESTree {
+
+  private ESTree() {
+    // shouldn't be instantiated
   }
+  
+  sealed interface Node {
+
+  }
+${records.join('\n')}
+}
+
+`;
+  fs.writeFileSync('output/ESTree.java', estree, 'utf-8');
+}
+
+function javaType(field: NodeField) {
+  const { fieldValue } = field;
+  if ('type' in fieldValue) {
+    switch (fieldValue.type) {
+      case 'string':
+        return 'String';
+      case 'int32':
+        return 'int';
+      case 'bool':
+        return 'boolean';
+    }
+    return fieldValue.type;
+  }
+  return 'Node';
+}
+
+function javaName(name: string) {
+  if (name === 'static') {
+    return 'isStatic';
+  }
+  return name;
 }
