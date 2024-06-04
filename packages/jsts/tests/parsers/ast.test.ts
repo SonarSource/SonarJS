@@ -17,14 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import { readFile } from '@sonar/shared';
 import {
   buildParserOptions,
+  deserializeFromProtobuf,
   gatherAstNodes,
   parseAst,
   parseForESLint,
   parsers,
+  serialize,
   serializeInProtobuf,
+  verifyProtobuf,
 } from '../../src/parsers';
 import { JsTsAnalysisInput } from '../../src/analysis';
 import path from 'path';
@@ -77,6 +81,23 @@ describe('parseAst', () => {
       const sc = await parseSourceCode(filePath, parser, usingBabel);
       const buf = serializeInProtobuf(sc);
       expect(buf).toBeDefined();
+      //fs.writeFileSync(path.join(__dirname, 'fixtures', 'ast', 'base.data'), buf);
+      const debuf = deserializeFromProtobuf(buf);
+      debuf;
     },
   );
+
+  test.each(parseFunctions)('should verify the AST in protobuf', async ({ parser, usingBabel }) => {
+    const filePath = path.join(__dirname, 'fixtures', 'ast', 'base.js');
+    const sc = await parseSourceCode(filePath, parser, usingBabel);
+    const v = verifyProtobuf(sc);
+    expect(v).toBeDefined();
+  });
+
+  test.each(parseFunctions)('should do that smart serialize', async ({ parser, usingBabel }) => {
+    const filePath = path.join(__dirname, 'fixtures', 'ast', 'base.js');
+    const sc = await parseSourceCode(filePath, parser, usingBabel);
+    const v = serialize(sc.ast, sc);
+    expect(v).toBeDefined();
+  });
 });
