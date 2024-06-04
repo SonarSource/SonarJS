@@ -19,7 +19,7 @@
  */
 
 import fs from 'node:fs';
-import { ESTreeNode, NodeField } from './get-estree-nodes';
+import { ESTreeNode, NodeField, NodeFieldValue } from './get-estree-nodes';
 
 const HEADER = `/*
  * SonarQube JavaScript Plugin
@@ -42,12 +42,23 @@ const HEADER = `/*
  */
 `;
 
+const NODE_INTERFACE = `sealed interface Node {
+    
+    String type();
+    Location loc();
+  }
+  
+  public record Location(int startLine, int startCol, int endLine, int endCol) {}
+`;
+
+const SHARED_FIELDS = ['String type', 'Location loc'];
+
 export function writeJavaClassesToDir(nodes: Record<string, ESTreeNode>, output: string) {
   const records = [];
   for (const [name, node] of Object.entries(nodes)) {
-    const fields = [];
+    const fields = [...SHARED_FIELDS];
     for (const field of node.fields) {
-      fields.push(`${javaType(field)} ${javaName(field.name)}`);
+      fields.push(`${javaType(field.fieldValue)} ${javaName(field.name)}`);
     }
     records.push(`  public record ${name}(${fields.join(', ')}) implements Node {}`);
   }
@@ -55,6 +66,7 @@ export function writeJavaClassesToDir(nodes: Record<string, ESTreeNode>, output:
   const estree = `${HEADER}
 package org.sonar.plugins.javascript.api.estree;
 
+import java.util.List;
 
 public class ESTree {
 
@@ -62,9 +74,8 @@ public class ESTree {
     // shouldn't be instantiated
   }
   
-  sealed interface Node {
-
-  }
+  ${NODE_INTERFACE}
+        
 ${records.join('\n')}
 }
 
@@ -72,8 +83,7 @@ ${records.join('\n')}
   fs.writeFileSync('output/ESTree.java', estree, 'utf-8');
 }
 
-function javaType(field: NodeField) {
-  const { fieldValue } = field;
+function javaType(fieldValue: NodeFieldValue): string {
   if ('type' in fieldValue) {
     switch (fieldValue.type) {
       case 'string':
@@ -82,8 +92,13 @@ function javaType(field: NodeField) {
         return 'int';
       case 'bool':
         return 'boolean';
+      case 'BaseNodeWithoutComments':
+        return 'Node';
     }
     return fieldValue.type;
+  }
+  if ('elementValue' in fieldValue) {
+    return `List<${javaType(fieldValue.elementValue)}>`;
   }
   return 'Node';
 }
