@@ -26,6 +26,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.plugins.javascript.bridge.EmbeddedNode.Platform.DARWIN_ARM64;
 import static org.sonar.plugins.javascript.bridge.EmbeddedNode.Platform.DARWIN_X64;
+import static org.sonar.plugins.javascript.bridge.EmbeddedNode.Platform.LINUX_ARM64;
 import static org.sonar.plugins.javascript.bridge.EmbeddedNode.Platform.LINUX_X64;
 import static org.sonar.plugins.javascript.bridge.EmbeddedNode.Platform.UNSUPPORTED;
 import static org.sonar.plugins.javascript.bridge.EmbeddedNode.Platform.WIN_X64;
@@ -115,7 +116,14 @@ class EmbeddedNodeTest {
   }
 
   @Test
-  void should_detect_platform_for_linux_environment() {
+  void should_detect_platform_for_linux_arm64_environment() {
+    var platform = Platform.detect(createLinuxArm64Environment());
+    assertThat(platform).isEqualTo(LINUX_ARM64);
+    assertThat(platform.archivePathInJar()).isEqualTo("/linux-arm64/node.xz");
+  }
+
+  @Test
+  void should_detect_platform_for_linux_x64_environment() {
     var linux = mock(Environment.class);
     when(linux.getOsName()).thenReturn("linux");
     when(linux.getOsArch()).thenReturn("amd64");
@@ -185,6 +193,13 @@ class EmbeddedNodeTest {
     when(mockEnvironment.getSonarUserHome()).thenReturn(tempDir);
     when(mockEnvironment.getOsName()).thenReturn(currentEnvironment.getOsName());
     when(mockEnvironment.getOsArch()).thenReturn(currentEnvironment.getOsArch());
+    return mockEnvironment;
+  }
+
+  private Environment createLinuxArm64Environment() {
+    Environment mockEnvironment = mock(Environment.class);
+    when(mockEnvironment.getOsName()).thenReturn("linux");
+    when(mockEnvironment.getOsArch()).thenReturn("aarch64");
     return mockEnvironment;
   }
 

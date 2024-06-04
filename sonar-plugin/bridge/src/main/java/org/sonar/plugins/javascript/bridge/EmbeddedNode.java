@@ -62,6 +62,7 @@ public class EmbeddedNode {
 
   enum Platform {
     WIN_X64,
+    LINUX_ARM64,
     LINUX_X64,
     DARWIN_ARM64,
     DARWIN_X64,
@@ -71,6 +72,8 @@ public class EmbeddedNode {
       switch (this) {
         case WIN_X64:
           return "/win-x64/";
+        case LINUX_ARM64:
+          return "/linux-arm64/";
         case LINUX_X64:
           return "/linux-x64/";
         case DARWIN_ARM64:
@@ -115,6 +118,8 @@ public class EmbeddedNode {
       var lowerCaseOsName = osName.toLowerCase(Locale.ROOT);
       if (osName.contains("Windows") && isX64(env)) {
         return WIN_X64;
+      } else if (lowerCaseOsName.contains("linux") && isARM64(env) ) {
+        return LINUX_ARM64;
       } else if (lowerCaseOsName.contains("linux") && isX64(env) && !env.isAlpine()) {
         // alpine linux is using musl libc, which is not compatible with linux-x64
         return LINUX_X64;
