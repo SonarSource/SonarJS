@@ -59,4 +59,53 @@ describe('parseAst', () => {
       ret;
     },
   );
+
+  test.each(parseFunctions)(
+    'should not lose information between serialize and deserializing',
+    async ({ parser, usingBabel }) => {
+      const filePath = path.join(__dirname, 'fixtures', 'ast', 'base.js');
+      const sc = await parseSourceCode(filePath, parser, usingBabel);
+      const v = visitNode(sc.ast);
+      expect(v).toBeDefined();
+      const ret = deserialize(v);
+      ret;
+      compareASTs(v, ret);
+    },
+  );
 });
+
+/**
+ * Put breakpoints on the lines that throw to debug the AST comparison.
+ */
+function compareASTs(parsedAst, deserializedAst) {
+  let expected, received;
+  for (const [key, value] of Object.entries(parsedAst)) {
+    if (value !== undefined && deserializedAst[key] === undefined) {
+      throw new Error(`Key ${key} not found in ${deserializedAst.type}`);
+    }
+    if (key === 'type') continue;
+    if (Array.isArray(value)) {
+      if (!Array.isArray(deserializedAst[key])) {
+        throw new Error(`Expected array for key ${key} in ${parsedAst.type}`);
+      }
+      expected = value.length;
+      received = deserializedAst[key].length;
+      if (expected !== received) {
+        throw new Error(
+          `Length mismatch for key ${key} in ${parsedAst.type}. Expected ${expected}, got ${received}`,
+        );
+      }
+      for (let i = 0; i < value.length; i++) {
+        compareASTs(value[i], deserializedAst[key][i]);
+      }
+    } else if (typeof value === 'object') {
+      compareASTs(value, deserializedAst[key]);
+    } else {
+      if (value !== deserializedAst[key]) {
+        throw new Error(
+          `Value mismatch for key ${key} in ${parsedAst.type}. Expected ${value}, got ${deserializedAst[key]}`,
+        );
+      }
+    }
+  }
+}

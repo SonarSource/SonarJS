@@ -8,7 +8,7 @@ message SourceLocation {
 }
 message Position {
   int32 line = 1;
-  int32 end = 2;
+  int32 column = 2;
 }
 
 enum NodeType {
