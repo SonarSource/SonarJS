@@ -7,8 +7,7 @@ import {
   createNewObjectFunctionDefinition,
   createSetFieldFunctionDefinition,
 } from '../function-definition';
-import { putValue } from '../ecma/reference-record';
-import { getIdentifierReference } from '../ecma/environment-record';
+import { putValue, ReferenceRecord } from '../ecma/reference-record';
 import { createReference } from '../values/reference';
 
 export const handleFunctionDeclaration: StatementHandler<TSESTree.FunctionDeclarationWithName> = (
@@ -29,7 +28,6 @@ export const handleFunctionDeclaration: StatementHandler<TSESTree.FunctionDeclar
   // todo: should be in the ***passed*** scope?
   const variable = createVariable(name);
   const currentEnvironmentRecord = context.scopeManager.getCurrentEnvironmentRecord();
-  const referenceIdentifier = getIdentifierReference(currentEnvironmentRecord, name);
 
   const functionReferenceIdentifier = createValueIdentifier();
   // todo: we may need a common helper
@@ -42,6 +40,11 @@ export const handleFunctionDeclaration: StatementHandler<TSESTree.FunctionDeclar
   const functionInfo = processFunction(functionName, node.body.body, node.params, node.loc);
   const functionReference = createFunctionReference(functionReferenceIdentifier, functionInfo);
 
+  const referenceIdentifier: ReferenceRecord = {
+    referencedName: functionName,
+    base: currentEnvironmentRecord,
+    strict: true,
+  };
   putValue(referenceIdentifier, functionReference);
 
   currentFunctionInfo.functionReferences.push(functionReference);

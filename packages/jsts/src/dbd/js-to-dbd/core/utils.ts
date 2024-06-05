@@ -1,12 +1,16 @@
 import type { Location } from './location';
 import { CallInstruction, createCallInstruction } from './instructions/call-instruction';
-import { createNewObjectFunctionDefinition } from './function-definition';
+import {
+  createGetFieldFunctionDefinition,
+  createNewObjectFunctionDefinition,
+} from './function-definition';
 import type { Block } from './block';
 import { isATerminatorInstruction } from './instructions/terminator-instruction';
 import type { Instruction } from './instruction';
-import type { Parameter } from './values/parameter';
 import type { FunctionInfo } from './function-info';
 import type { FunctionReference } from './values/function-reference';
+import { Context } from './context';
+import { createParameter, Parameter } from './values/parameter';
 
 export function createScopeDeclarationInstruction(
   scope: {
@@ -46,10 +50,26 @@ export const getFunctionReference = (
   );
 };
 
-export const getParameter = (functionInfo: FunctionInfo, name: string): Parameter | null => {
-  return (
-    functionInfo.parameters.find(parameter => {
-      return parameter.name === name;
-    }) || null
-  );
+export const getParameter = (
+  context: Context,
+  functionInfo: FunctionInfo,
+  name: string,
+): Parameter | null => {
+  // replace lookup with eslint/escope find
+  const parameter = functionInfo.positionalParameters.find(parameter => parameter.name === name);
+  if (!parameter) {
+    return null;
+  }
+  const { position, location } = parameter;
+  const resultParam = createParameter(context.scopeManager.createValueIdentifier(), name, location);
+  context.addInstructions([
+    createCallInstruction(
+      resultParam.identifier,
+      null,
+      createGetFieldFunctionDefinition(String(position)),
+      [functionInfo.parameters[1]],
+      location,
+    ),
+  ]);
+  return resultParam;
 };

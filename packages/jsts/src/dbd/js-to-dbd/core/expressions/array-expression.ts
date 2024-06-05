@@ -23,7 +23,8 @@ import { Instruction } from '../instruction';
 import { createCallInstruction } from '../instructions/call-instruction';
 import {
   createAddArrayLastFunctionDefinition,
-  createNewObjectFunctionDefinition,
+  createDBDInternalFunctionDefinition,
+  FunctionID,
 } from '../function-definition';
 import { handleExpression } from './index';
 import { createTypeName } from '../values/type-name';
@@ -43,7 +44,7 @@ export const handleArrayExpression: ExpressionHandler<TSESTree.ArrayExpression> 
     createCallInstruction(
       arrayIdentifier,
       null,
-      createNewObjectFunctionDefinition(),
+      createDBDInternalFunctionDefinition(FunctionID.NEW_ARRAY),
       [],
       node.loc,
       typeInfo,

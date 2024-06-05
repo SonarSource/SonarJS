@@ -1,6 +1,6 @@
 import type { Block } from './block';
 import type { FunctionDefinition } from './function-definition';
-import type { Parameter } from './values/parameter';
+import type { Parameter, PositionalParameter } from './values/parameter';
 import type { FunctionReference } from './values/function-reference';
 
 export type FunctionInfo = {
@@ -9,19 +9,21 @@ export type FunctionInfo = {
   readonly definition: FunctionDefinition;
   readonly functionReferences: Array<FunctionReference>;
   readonly parameters: Array<Parameter>;
+  readonly positionalParameters: Array<PositionalParameter>;
 };
 
 export const createFunctionInfo = (
   fileName: string,
   definition: FunctionDefinition,
   parameters: Array<Parameter>,
-  blocks: Array<Block> = [],
+  positionalParameters: Array<PositionalParameter> = [],
 ): FunctionInfo => {
   return {
     definition,
-    blocks,
+    blocks: [],
     fileName,
     functionReferences: [],
     parameters,
+    positionalParameters,
   };
 };

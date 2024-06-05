@@ -25,10 +25,14 @@ import { createReference } from '../values/reference';
 import type { ExpressionHandler } from '../expression-handler';
 import { AST_NODE_TYPES } from '@typescript-eslint/typescript-estree';
 import { getParameter } from '../utils';
-import { createNull } from '../values/constant';
 import { isAFunctionReference } from '../values/function-reference';
 import { getIdentifierReference, isAnEnvironmentRecord } from '../ecma/environment-record';
 import { getValue } from '../ecma/reference-record';
+import {
+  createNewObjectFunctionDefinition,
+  createSetFieldFunctionDefinition,
+} from '../function-definition';
+import { createNull } from '../values/constant';
 
 export const handleCallExpression: ExpressionHandler<TSESTree.CallExpression> = (
   node,
@@ -46,7 +50,7 @@ export const handleCallExpression: ExpressionHandler<TSESTree.CallExpression> = 
 
   for (const argumentExpression of argumentExpressions) {
     if (argumentExpression.type === AST_NODE_TYPES.Identifier) {
-      const parameter = getParameter(functionInfo, argumentExpression.name);
+      const parameter = getParameter(context, functionInfo, argumentExpression.name);
 
       if (parameter) {
         argumentValues.push(parameter);
@@ -70,30 +74,43 @@ export const handleCallExpression: ExpressionHandler<TSESTree.CallExpression> = 
       argumentValues.push(argumentValue);
     }
   }
+  for (let i = 0; i < 10; i++) {
+    argumentValues.push(createNull());
+  }
 
   const calleeValue = handleExpression(callee, record, context);
 
   if (isAFunctionReference(calleeValue)) {
     const { functionInfo } = calleeValue;
-
-    let operands: Array<Value> = [];
+    const operands: Array<Value> = [];
 
     // first argument is the current scope
     operands.push(createReference(scopeManager.getCurrentEnvironmentRecord().identifier));
-
-    for (let index = 1; index < functionInfo.parameters.length; index++) {
-      let argumentValue = argumentValues[index - 1];
-
-      if (argumentValue === undefined) {
-        argumentValue = createNull();
-      }
-
-      operands.push(argumentValue);
-    }
-
     value = createReference(createValueIdentifier());
 
-    // * second argument is an array of the passed arguments filled with null values
+    // second argument is an array of the passed arguments filled
+    const argumentValue = createReference(scopeManager.createValueIdentifier());
+    addInstructions([
+      createCallInstruction(
+        argumentValue.identifier,
+        null,
+        createNewObjectFunctionDefinition(),
+        [],
+        node.loc,
+      ),
+      ...argumentValues.map((argument, position) => {
+        const value = createReference(scopeManager.createValueIdentifier());
+        return createCallInstruction(
+          value.identifier,
+          null,
+          createSetFieldFunctionDefinition(String(position)),
+          [argumentValue, argument],
+          node.loc,
+        );
+      }),
+    ]);
+    operands.push(argumentValue);
+
     addInstructions([
       createCallInstruction(value.identifier, null, functionInfo.definition, operands, node.loc),
     ]);
