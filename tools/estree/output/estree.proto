@@ -85,6 +85,7 @@ enum NodeType {
   Directive = 71;
   RegExpLiteral = 72;
   TemplateElement = 73;
+  FunctionExpression = 74;
 }
 message Node {
   NodeType type = 1;
@@ -163,6 +164,7 @@ message Node {
     Directive directive = 73;
     RegExpLiteral regExpLiteral = 74;
     TemplateElement templateElement = 75;
+    FunctionExpression functionExpression = 76;
   }
 }
 message Program {
@@ -465,4 +467,12 @@ message TemplateElement {
   bool tail = 1;
   string cooked = 2;
   string raw = 3;
+}
+
+message FunctionExpression {
+  Node id = 1;
+  Node body = 2;
+  repeated Node params = 3;
+  bool generator = 4;
+  bool async = 5;
 }

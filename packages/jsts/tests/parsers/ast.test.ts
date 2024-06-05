@@ -21,14 +21,13 @@
 import { readFile } from '@sonar/shared';
 import {
   buildParserOptions,
-  deserializeFromProtobuf,
   gatherAstNodes,
   parseAst,
   parseForESLint,
   parsers,
   serialize,
-  serializeInProtobuf,
   verifyProtobuf,
+  visitNode,
 } from '../../src/parsers';
 import { JsTsAnalysisInput } from '../../src/analysis';
 import path from 'path';
@@ -79,11 +78,9 @@ describe('parseAst', () => {
     async ({ parser, usingBabel }) => {
       const filePath = path.join(__dirname, 'fixtures', 'ast', 'base.js');
       const sc = await parseSourceCode(filePath, parser, usingBabel);
-      const buf = serializeInProtobuf(sc);
+      const buf = visitNode(sc.ast);
       expect(buf).toBeDefined();
       //fs.writeFileSync(path.join(__dirname, 'fixtures', 'ast', 'base.data'), buf);
-      const debuf = deserializeFromProtobuf(buf);
-      debuf;
     },
   );
 
