@@ -83,7 +83,8 @@ enum NodeType {
   EmptyStatement = 69;
   ExpressionStatement = 70;
   Directive = 71;
-  TemplateElement = 72;
+  RegExpLiteral = 72;
+  TemplateElement = 73;
 }
 message Node {
   NodeType type = 1;
@@ -160,7 +161,8 @@ message Node {
     EmptyStatement emptyStatement = 71;
     ExpressionStatement expressionStatement = 72;
     Directive directive = 73;
-    TemplateElement templateElement = 74;
+    RegExpLiteral regExpLiteral = 74;
+    TemplateElement templateElement = 75;
   }
 }
 message Program {
@@ -453,6 +455,11 @@ message ExpressionStatement {
 message Directive {
   Node expression = 1;
   string directive = 2;
+}
+message RegExpLiteral {
+  string pattern = 1;
+  string flags = 2;
+  string raw = 3;
 }
 message TemplateElement {
   bool tail = 1;

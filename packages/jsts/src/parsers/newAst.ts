@@ -20,7 +20,7 @@ function visitNode(node: estree.BaseNodeWithoutComments | undefined | null): pro
   if (!node) {
     return {};
   }
-  const protobufType = PROTO_ROOT.lookupType('Program');
+  const protobufType = PROTO_ROOT.lookupType('Node');
   return protobufType.create({
     type: node.type,
     loc: node.loc,
@@ -33,8 +33,9 @@ function visitNode(node: estree.BaseNodeWithoutComments | undefined | null): pro
         return visitProgram(node as estree.Program);
       case 'ExportAllDeclaration':
         return visitExportAllDeclaration(node as estree.ExportAllDeclaration);
-      case 'BigIntLiteral':
-        return visitBigIntLiteral(node as estree.BigIntLiteral);
+      case 'Literal':
+        // Special case: can be 'SimpleLiteral', 'RegExpLiteral', or 'BigIntLiteral'.
+        return visitLiteral(node as estree.BigIntLiteral);
       case 'SimpleLiteral':
         return visitSimpleLiteral(node as estree.SimpleLiteral);
       case 'Identifier':

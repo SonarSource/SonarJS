@@ -32,14 +32,14 @@ const typesVersion = packageJson.devDependencies['@types/estree'];
 export function addHandWrittenMessages(messages: ESTreeNode[]) {
   // Create node manually for 'RegExpLiteral' and 'TemplateElement'.
   // TODO: Decide how to handle regexp literals.
-  //messages['RegExpLiteral'] = {
-  //  name: 'RegExpLiteral',
-  //   fields: [
-  //    { name: 'pattern', fieldValue: { type: 'string' } },
-  //    { name: 'flags', fieldValue: { type: 'string' } },
-  //    { name: 'raw', fieldValue: { type: 'string' } },
-  //  ],
-  //};
+  messages.push({
+    name: 'RegExpLiteral',
+    fields: [
+      { name: 'pattern', fieldValue: { type: 'string' } },
+      { name: 'flags', fieldValue: { type: 'string' } },
+      { name: 'raw', fieldValue: { type: 'string' } },
+    ],
+  });
 
   messages.push({
     name: 'TemplateElement',
