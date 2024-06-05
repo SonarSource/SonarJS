@@ -21,13 +21,10 @@
 import { readFile } from '@sonar/shared';
 import {
   buildParserOptions,
-  gatherAstNodes,
-  parseAst,
   parseForESLint,
   parsers,
-  serialize,
-  verifyProtobuf,
-  visitNode,
+  deserialize,
+  serializeInProtobuf,
 } from '../../src/parsers';
 import { JsTsAnalysisInput } from '../../src/analysis';
 import path from 'path';
@@ -52,49 +49,63 @@ async function parseSourceCode(filePath, parser, usingBabel = false) {
 
 describe('parseAst', () => {
   test.each(parseFunctions)(
-    'should remove circular references from the AST',
-    async ({ parser, usingBabel }) => {
-      const filePath = path.join(__dirname, 'fixtures', 'ast', 'base.js');
-      const sourceCode = await parseSourceCode(filePath, parser, usingBabel);
-      const ast = parseAst(sourceCode);
-      JSON.stringify(ast);
-      expect(() => JSON.stringify(ast)).not.toThrow();
-    },
-  );
-
-  test.each(parseFunctions)(
-    'should parse ast into an array of nodes',
-    async ({ parser, usingBabel }) => {
-      const filePath = path.join(__dirname, 'fixtures', 'ast', 'base.js');
-      const sc = await parseSourceCode(filePath, parser, usingBabel);
-      const nodes = gatherAstNodes(sc);
-      expect(nodes).toBeDefined();
-      expect(nodes).toHaveLength(836);
-    },
-  );
-
-  test.each(parseFunctions)(
     'should serialize the AST in protobuf',
     async ({ parser, usingBabel }) => {
       const filePath = path.join(__dirname, 'fixtures', 'ast', 'base.js');
       const sc = await parseSourceCode(filePath, parser, usingBabel);
-      const buf = visitNode(sc.ast);
-      expect(buf).toBeDefined();
-      //fs.writeFileSync(path.join(__dirname, 'fixtures', 'ast', 'base.data'), buf);
+      const v = serializeInProtobuf(sc);
+      expect(v).toBeDefined();
+      const ret = deserialize(v);
+      ret;
     },
   );
 
-  test.each(parseFunctions)('should verify the AST in protobuf', async ({ parser, usingBabel }) => {
-    const filePath = path.join(__dirname, 'fixtures', 'ast', 'base.js');
-    const sc = await parseSourceCode(filePath, parser, usingBabel);
-    const v = verifyProtobuf(sc);
-    expect(v).toBeDefined();
-  });
-
-  test.each(parseFunctions)('should do that smart serialize', async ({ parser, usingBabel }) => {
-    const filePath = path.join(__dirname, 'fixtures', 'ast', 'base.js');
-    const sc = await parseSourceCode(filePath, parser, usingBabel);
-    const v = serialize(sc.ast, sc);
-    expect(v).toBeDefined();
-  });
+  test.each(parseFunctions)(
+    'should not lose information between serialize and deserializing',
+    async ({ parser, usingBabel }) => {
+      const filePath = path.join(__dirname, 'fixtures', 'ast', 'base.js');
+      const sc = await parseSourceCode(filePath, parser, usingBabel);
+      const v = serializeInProtobuf(sc);
+      expect(v).toBeDefined();
+      const ret = deserialize(v);
+      ret;
+      compareASTs(v, ret);
+    },
+  );
 });
+
+/**
+ * Put breakpoints on the lines that throw to debug the AST comparison.
+ */
+function compareASTs(parsedAst, deserializedAst) {
+  let expected, received;
+  for (const [key, value] of Object.entries(parsedAst)) {
+    if (value !== undefined && deserializedAst[key] === undefined) {
+      throw new Error(`Key ${key} not found in ${deserializedAst.type}`);
+    }
+    if (key === 'type') continue;
+    if (Array.isArray(value)) {
+      if (!Array.isArray(deserializedAst[key])) {
+        throw new Error(`Expected array for key ${key} in ${parsedAst.type}`);
+      }
+      expected = value.length;
+      received = deserializedAst[key].length;
+      if (expected !== received) {
+        throw new Error(
+          `Length mismatch for key ${key} in ${parsedAst.type}. Expected ${expected}, got ${received}`,
+        );
+      }
+      for (let i = 0; i < value.length; i++) {
+        compareASTs(value[i], deserializedAst[key][i]);
+      }
+    } else if (typeof value === 'object') {
+      compareASTs(value, deserializedAst[key]);
+    } else {
+      if (value !== deserializedAst[key]) {
+        throw new Error(
+          `Value mismatch for key ${key} in ${parsedAst.type}. Expected ${value}, got ${deserializedAst[key]}`,
+        );
+      }
+    }
+  }
+}

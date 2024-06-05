@@ -68,7 +68,7 @@ export function writeMessagesToDir(messages: Record<string, ESTreeNode>, outputD
   function translateToProtoFormat(messages: ESTreeNode[]): string {
     const lines: string[] = [];
     lines.push('enum NodeType {');
-    let index = 1;
+    let index = 0;
     for (const message of messages) {
       lines.push(`  ${message.name} = ${index};`);
       index++;
