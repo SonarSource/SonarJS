@@ -19,6 +19,17 @@ export const createFunctionDefinition = (name: string, signature: string): Funct
   };
 };
 
+export const FunctionID = {
+  ARRAY_ADD_ALL: 'array-add-all',
+  ARRAY_READ: 'array-read',
+  NEW_ARRAY: 'new-array',
+};
+export type BuiltinFunction = (typeof FunctionID)[keyof typeof FunctionID];
+
+export const createDBDInternalFunctionDefinition = (name: BuiltinFunction): FunctionDefinition => {
+  return createFunctionDefinition(name, `#${name}#`);
+};
+
 export const createIdentityFunctionDefinition = (): FunctionDefinition => {
   const name = 'id';
 

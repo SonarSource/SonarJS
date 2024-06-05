@@ -27,7 +27,7 @@ export const handleIdentifier: ExpressionHandler<TSESTree.Identifier> = (node, r
   if (isAnEnvironmentRecord(record)) {
     // if the record is the current environment record, the identifier may be a parameter
     if (record === context.scopeManager.getCurrentEnvironmentRecord()) {
-      const parameter = getParameter(context.functionInfo, node.name);
+      const parameter = getParameter(context, context.functionInfo, node.name);
 
       if (parameter) {
         return parameter;

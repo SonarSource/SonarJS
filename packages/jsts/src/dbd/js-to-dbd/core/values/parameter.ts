@@ -8,6 +8,12 @@ export type Parameter = BaseValue<'parameter'> & {
   readonly typeInfo: TypeInfo;
 };
 
+export type PositionalParameter = {
+  readonly location: Location;
+  readonly name: string;
+  readonly position: number;
+};
+
 export const createParameter = (
   identifier: number,
   name: string,

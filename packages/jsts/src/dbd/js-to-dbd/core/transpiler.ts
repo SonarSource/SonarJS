@@ -31,6 +31,7 @@ export const createTranspiler = (hostDefinedProperties: Array<Variable> = []): T
       fileName,
       createFunctionDefinition('main', generateSignature('main', fileName)),
       [],
+      [],
     );
 
     const scopeManager = createScopeManager(functionInfo);
@@ -45,27 +46,38 @@ export const createTranspiler = (hostDefinedProperties: Array<Variable> = []): T
       const parentReference = createParameter(createValueIdentifier(), parentScopeName, location);
 
       // resolve the function parameters
-      const functionParameters = [
-        parentReference,
-        ...parameters.map(parameter => {
-          let parameterName: string;
+      const functionParametersName = '@params';
+      const functionParametersReference = createParameter(
+        createValueIdentifier(),
+        functionParametersName,
+        location,
+      );
 
-          if (parameter.type === AST_NODE_TYPES.Identifier) {
-            parameterName = parameter.name;
-          } else {
-            // todo
-            parameterName = '';
-          }
+      const positionalParameters = parameters.map((parameter, position) => {
+        let parameterName: string;
 
-          return createParameter(createValueIdentifier(), parameterName, parameter.loc);
-        }),
-      ];
+        if (parameter.type === AST_NODE_TYPES.Identifier) {
+          parameterName = parameter.name;
+        } else {
+          // todo
+          parameterName = '';
+        }
+
+        return {
+          name: parameterName,
+          location: parameter.loc,
+          position,
+        };
+      });
+
+      const functionParameters = [parentReference, functionParametersReference];
 
       // create the function info
       const functionInfo = createFunctionInfo(
         fileName,
         createFunctionDefinition(name, generateSignature(name, fileName)),
         functionParameters,
+        positionalParameters,
       );
 
       // create the function environment record
