@@ -35,9 +35,7 @@ function visitNode(node: estree.BaseNodeWithoutComments | undefined | null): pro
         return visitExportAllDeclaration(node as estree.ExportAllDeclaration);
       case 'Literal':
         // Special case: can be 'SimpleLiteral', 'RegExpLiteral', or 'BigIntLiteral'.
-        return visitLiteral(node as estree.BigIntLiteral);
-      case 'SimpleLiteral':
-        return visitSimpleLiteral(node as estree.SimpleLiteral);
+        return visitLiteral(node as estree.Literal);
       case 'Identifier':
         return visitIdentifier(node as estree.Identifier);
       case 'ExportDefaultDeclaration':
@@ -100,7 +98,8 @@ function visitNode(node: estree.BaseNodeWithoutComments | undefined | null): pro
         return visitMethodDefinition(node as estree.MethodDefinition);
       case 'ChainExpression':
         return visitChainExpression(node as estree.ChainExpression);
-      case 'SimpleCallExpression':
+      case 'CallExpression':
+        // Special case: the name of the type is not the same as the interface.
         return visitSimpleCallExpression(node as estree.SimpleCallExpression);
       case 'BinaryExpression':
         return visitBinaryExpression(node as estree.BinaryExpression);
@@ -112,9 +111,11 @@ function visitNode(node: estree.BaseNodeWithoutComments | undefined | null): pro
         return visitArrowFunctionExpression(node as estree.ArrowFunctionExpression);
       case 'ArrayExpression':
         return visitArrayExpression(node as estree.ArrayExpression);
-      case 'MaybeNamedClassDeclaration':
+      case 'ClassDeclaration':
+        // Special case: the name is not the same as the type.
         return visitMaybeNamedClassDeclaration(node as estree.MaybeNamedClassDeclaration);
-      case 'MaybeNamedFunctionDeclaration':
+      case 'FunctionDeclaration':
+        // Special case: the name is not the same as the type.
         return visitMaybeNamedFunctionDeclaration(node as estree.MaybeNamedFunctionDeclaration);
       case 'ExportNamedDeclaration':
         return visitExportNamedDeclaration(node as estree.ExportNamedDeclaration);
@@ -169,9 +170,8 @@ function visitNode(node: estree.BaseNodeWithoutComments | undefined | null): pro
       case 'EmptyStatement':
         return visitEmptyStatement(node as estree.EmptyStatement);
       case 'ExpressionStatement':
+        // Special case: can be 'Directive' or 'ExpressionStatement'.
         return visitExpressionStatement(node as estree.ExpressionStatement);
-      case 'Directive':
-        return visitDirective(node as estree.Directive);
       case 'TemplateElement':
         return visitTemplateElement(node as estree.TemplateElement);
 
@@ -196,21 +196,28 @@ function visitNode(node: estree.BaseNodeWithoutComments | undefined | null): pro
     });
   }
 
-  function visitBigIntLiteral(node: estree.BigIntLiteral) {
-    const protobufType = PROTO_ROOT.lookupType('BigIntLiteral');
-    return protobufType.create({
-      value: node.value,
-      bigInt: node.bigint,
-      raw: node.raw,
-    });
-  }
-
-  function visitSimpleLiteral(node: estree.SimpleLiteral) {
-    const protobufType = PROTO_ROOT.lookupType('SimpleLiteral');
-    return protobufType.create({
-      value: node.value,
-      raw: node.raw,
-    });
+  function visitLiteral(node: estree.Literal) {
+    if ('bigint' in node) {
+      const protobufType = PROTO_ROOT.lookupType('BigIntLiteral');
+      return protobufType.create({
+        value: node.value,
+        bigInt: node.bigint,
+        raw: node.raw,
+      });
+    } else if ('regex' in node) {
+      const protobufType = PROTO_ROOT.lookupType('RegExpLiteral');
+      return protobufType.create({
+        flags: node.regex.flags,
+        pattern: node.regex.pattern,
+        raw: node.raw,
+      });
+    } else {
+      const protobufType = PROTO_ROOT.lookupType('SimpleLiteral');
+      return protobufType.create({
+        value: node.value,
+        raw: node.raw,
+      });
+    }
   }
 
   function visitIdentifier(node: estree.Identifier) {
@@ -732,18 +739,18 @@ function visitNode(node: estree.BaseNodeWithoutComments | undefined | null): pro
   }
 
   function visitExpressionStatement(node: estree.ExpressionStatement) {
-    const protobufType = PROTO_ROOT.lookupType('ExpressionStatement');
-    return protobufType.create({
-      expression: visitNode(node.expression),
-    });
-  }
-
-  function visitDirective(node: estree.Directive) {
-    const protobufType = PROTO_ROOT.lookupType('Directive');
-    return protobufType.create({
-      expression: visitNode(node.expression),
-      directive: node.directive,
-    });
+    if ('directive' in node) {
+      const protobufType = PROTO_ROOT.lookupType('Directive');
+      return protobufType.create({
+        expression: visitNode(node.expression),
+        directive: node.directive,
+      });
+    } else {
+      const protobufType = PROTO_ROOT.lookupType('ExpressionStatement');
+      return protobufType.create({
+        expression: visitNode(node.expression),
+      });
+    }
   }
 
   function visitTemplateElement(node: estree.TemplateElement) {
