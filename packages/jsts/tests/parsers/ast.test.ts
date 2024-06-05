@@ -21,13 +21,10 @@
 import { readFile } from '@sonar/shared';
 import {
   buildParserOptions,
-  gatherAstNodes,
-  parseAst,
   parseForESLint,
   parsers,
-  serialize,
-  verifyProtobuf,
   visitNode,
+  deserialize,
 } from '../../src/parsers';
 import { JsTsAnalysisInput } from '../../src/analysis';
 import path from 'path';
@@ -52,28 +49,6 @@ async function parseSourceCode(filePath, parser, usingBabel = false) {
 
 describe('parseAst', () => {
   test.each(parseFunctions)(
-    'should remove circular references from the AST',
-    async ({ parser, usingBabel }) => {
-      const filePath = path.join(__dirname, 'fixtures', 'ast', 'base.js');
-      const sourceCode = await parseSourceCode(filePath, parser, usingBabel);
-      const ast = parseAst(sourceCode);
-      JSON.stringify(ast);
-      expect(() => JSON.stringify(ast)).not.toThrow();
-    },
-  );
-
-  test.each(parseFunctions)(
-    'should parse ast into an array of nodes',
-    async ({ parser, usingBabel }) => {
-      const filePath = path.join(__dirname, 'fixtures', 'ast', 'base.js');
-      const sc = await parseSourceCode(filePath, parser, usingBabel);
-      const nodes = gatherAstNodes(sc);
-      expect(nodes).toBeDefined();
-      expect(nodes).toHaveLength(836);
-    },
-  );
-
-  test.each(parseFunctions)(
     'should serialize the AST in protobuf',
     async ({ parser, usingBabel }) => {
       const filePath = path.join(__dirname, 'fixtures', 'ast', 'base.js');
@@ -84,17 +59,12 @@ describe('parseAst', () => {
     },
   );
 
-  test.each(parseFunctions)('should verify the AST in protobuf', async ({ parser, usingBabel }) => {
-    const filePath = path.join(__dirname, 'fixtures', 'ast', 'base.js');
-    const sc = await parseSourceCode(filePath, parser, usingBabel);
-    const v = verifyProtobuf(sc);
-    expect(v).toBeDefined();
-  });
-
   test.each(parseFunctions)('should do that smart serialize', async ({ parser, usingBabel }) => {
     const filePath = path.join(__dirname, 'fixtures', 'ast', 'base.js');
     const sc = await parseSourceCode(filePath, parser, usingBabel);
-    const v = serialize(sc.ast, sc);
+    const v = visitNode(sc.ast);
     expect(v).toBeDefined();
+    const ret = deserialize(v);
+    ret;
   });
 });
