@@ -31,17 +31,26 @@ export function visitNode(
     return {};
   }
   const protobufType = PROTO_ROOT.lookupType('Node');
-  return protobufType.create({
-    type: node.type === 'FunctionExpression' ? 'FunctionExpressionType' : node.type,
-    loc: node.loc,
-    [lowerCaseFirstLetter(node.type)]: getMessageForNode(node),
-  });
+  const nodeOrTypeAndNode = getMessageForNode(node);
+  if ('node' in nodeOrTypeAndNode) {
+    return protobufType.create({
+      type: node.type === 'FunctionExpression' ? 'FunctionExpressionType' : node.type,
+      loc: node.loc,
+      [lowerCaseFirstLetter(nodeOrTypeAndNode.type)]: nodeOrTypeAndNode.node,
+    });
+  } else {
+    return protobufType.create({
+      type: node.type === 'FunctionExpression' ? 'FunctionExpressionType' : node.type,
+      loc: node.loc,
+      [lowerCaseFirstLetter(node.type)]: nodeOrTypeAndNode,
+    });
+  }
 
   function lowerCaseFirstLetter(str: string) {
     return str.charAt(0).toLowerCase() + str.slice(1);
   }
 
-  function getMessageForNode(node: estree.BaseNodeWithoutComments) {
+  function getMessageForNode(node: estree.BaseNodeWithoutComments): protobuf.Message | any {
     switch (node.type) {
       case 'Program':
         return visitProgram(node as estree.Program);
@@ -214,11 +223,14 @@ export function visitNode(
   function visitLiteral(node: estree.Literal) {
     if ('bigint' in node) {
       const protobufType = PROTO_ROOT.lookupType('BigIntLiteral');
-      return protobufType.create({
-        value: node.value,
-        bigInt: node.bigint,
-        raw: node.raw,
-      });
+      return {
+        node: protobufType.create({
+          value: node.value,
+          bigInt: node.bigint,
+          raw: node.raw,
+        }),
+        type: 'BigIntLiteral',
+      };
     } else if ('regex' in node) {
       const protobufType = PROTO_ROOT.lookupType('RegExpLiteral');
       return protobufType.create({
@@ -479,11 +491,14 @@ export function visitNode(
 
   function visitSimpleCallExpression(node: estree.SimpleCallExpression) {
     const protobufType = PROTO_ROOT.lookupType('SimpleCallExpression');
-    return protobufType.create({
-      optional: node.optional,
-      callee: visitNode(node.callee),
-      arguments: node.arguments.map(visitNode),
-    });
+    return {
+      node: protobufType.create({
+        optional: node.optional,
+        callee: visitNode(node.callee),
+        arguments: node.arguments.map(visitNode),
+      }),
+      type: 'SimpleCallExpression',
+    };
   }
 
   function visitBinaryExpression(node: estree.BinaryExpression) {
