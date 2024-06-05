@@ -110,7 +110,7 @@ export function visitNode(
   }
   const protobufType = PROTO_ROOT.lookupType('Node');
   return protobufType.create({
-    type: node.type,
+    type: node.type === 'FunctionExpression' ? 'FunctionExpressionType' : node.type,
     loc: node.loc,
     node: getMessageForNode(node),
   });
