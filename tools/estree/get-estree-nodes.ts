@@ -27,11 +27,10 @@ export type UnionFieldValue = {
 
 export type Declaration = ts.InterfaceDeclaration | ts.TypeAliasDeclaration;
 
-export const TOP_LEVEL_NODE = 'BaseNodeWithoutComments';
+export const TOP_LEVEL_NODE = 'Node';
 
 const IGNORED_MEMBERS: Set<string> = new Set([
   // The "type" member is redundant in our context.
-  'type',
   'comments',
   'innerComments',
 ]);
