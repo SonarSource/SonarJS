@@ -7,7 +7,8 @@
     "generate-proto": "ts-node main.ts proto",
     "generate-java": "ts-node main.ts java",
     "load": "ts-node load-proto.ts",
-    "compile": "tsc"
+    "compile": "tsc",
+    "protoc": "node generate-proto-classes.js"
   },
   "author": "",
   "license": "ISC"
