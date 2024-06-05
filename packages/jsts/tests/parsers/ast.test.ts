@@ -65,7 +65,7 @@ describe('parseAst', () => {
     async ({ parser, usingBabel }) => {
       const filePath = path.join(__dirname, 'fixtures', 'ast', 'base.js');
       const sc = await parseSourceCode(filePath, parser, usingBabel);
-      const v = visitNode(sc.ast);
+      const v = serializeInProtobuf(sc);
       expect(v).toBeDefined();
       const ret = deserialize(v);
       ret;
