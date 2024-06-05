@@ -2,6 +2,7 @@ import * as protobuf from 'protobufjs';
 import * as path from 'node:path';
 import * as _ from 'lodash';
 import * as estree from 'estree';
+import { SourceCode } from 'eslint';
 
 const PATH_TO_PROTOFILE = path.join(
   __dirname,
@@ -24,33 +25,40 @@ export function deserialize(proto: protobuf.Message | {}): any {
   return decoded;
 }
 
-export function visitNode(
-  node: estree.BaseNodeWithoutComments | undefined | null,
-): protobuf.Message | {} {
+export function serializeInProtobuf(sourceCode: SourceCode) {
+  const protobugShapedAST = visitNode(sourceCode.ast);
+  const protobufType = PROTO_ROOT.lookupType('Node');
+  return protobufType.create(protobugShapedAST);
+}
+
+export function visitNode(node: estree.BaseNodeWithoutComments | undefined | null): any {
   if (!node) {
     return {};
   }
-  const protobufType = PROTO_ROOT.lookupType('Node');
-  const nodeOrTypeAndNode = getMessageForNode(node);
-  if ('node' in nodeOrTypeAndNode) {
-    return protobufType.create({
-      type: node.type === 'FunctionExpression' ? 'FunctionExpressionType' : node.type,
-      loc: node.loc,
-      [lowerCaseFirstLetter(nodeOrTypeAndNode.type)]: nodeOrTypeAndNode.node,
-    });
+
+  const nodeOrTypeAndNode = getProtobufShapeForNode(node);
+  // The same type can be used for different nodes, we need an extra logic to create the correct message.
+  let messageType;
+  let protobufMessageNode;
+  if ('node' in nodeOrTypeAndNode && 'protobufMessageType' in nodeOrTypeAndNode.node) {
+    messageType = nodeOrTypeAndNode.protobufMessageType;
+    protobufMessageNode = nodeOrTypeAndNode.node;
   } else {
-    return protobufType.create({
-      type: node.type === 'FunctionExpression' ? 'FunctionExpressionType' : node.type,
-      loc: node.loc,
-      [lowerCaseFirstLetter(node.type)]: nodeOrTypeAndNode,
-    });
+    messageType = node.type;
+    protobufMessageNode = nodeOrTypeAndNode;
   }
+
+  return {
+    type: messageType + 'Type',
+    loc: node.loc,
+    [lowerCaseFirstLetter(messageType)]: protobufMessageNode,
+  };
 
   function lowerCaseFirstLetter(str: string) {
     return str.charAt(0).toLowerCase() + str.slice(1);
   }
 
-  function getMessageForNode(node: estree.BaseNodeWithoutComments): protobuf.Message | any {
+  function getProtobufShapeForNode(node: estree.BaseNodeWithoutComments): any {
     switch (node.type) {
       case 'Program':
         return visitProgram(node as estree.Program);
@@ -205,601 +213,543 @@ export function visitNode(
   }
 
   function visitProgram(node: estree.Program) {
-    const protobufType = PROTO_ROOT.lookupType('Program');
-    return protobufType.create({
+    return {
       sourceType: node.sourceType,
       body: node.body.map(visitNode),
-    });
+    };
   }
 
   function visitExportAllDeclaration(node: estree.ExportAllDeclaration) {
-    const protobufType = PROTO_ROOT.lookupType('ExportAllDeclaration');
-    return protobufType.create({
+    return {
       exported: visitNode(node.exported),
       source: visitNode(node.source),
-    });
+    };
   }
 
   function visitLiteral(node: estree.Literal) {
     if ('bigint' in node) {
-      const protobufType = PROTO_ROOT.lookupType('BigIntLiteral');
       return {
-        node: protobufType.create({
+        node: {
           value: node.value,
           bigInt: node.bigint,
           raw: node.raw,
-        }),
-        type: 'BigIntLiteral',
+        },
+        protobufMessageType: 'BigIntLiteral',
       };
     } else if ('regex' in node) {
-      const protobufType = PROTO_ROOT.lookupType('RegExpLiteral');
-      return protobufType.create({
-        flags: node.regex.flags,
-        pattern: node.regex.pattern,
-        raw: node.raw,
-      });
+      return {
+        node: {
+          flags: node.regex.flags,
+          pattern: node.regex.pattern,
+          raw: node.raw,
+        },
+        protobufMessageType: 'RegExpLiteral',
+      };
     } else {
-      const protobufType = PROTO_ROOT.lookupType('SimpleLiteral');
-      return protobufType.create({
-        value: node.value,
-        raw: node.raw,
-      });
+      return {
+        node: {
+          value: node.value,
+          raw: node.raw,
+        },
+        protobufMessageType: 'SimpleLiteral',
+      };
     }
   }
 
   function visitIdentifier(node: estree.Identifier) {
-    const protobufType = PROTO_ROOT.lookupType('Identifier');
-    return protobufType.create({
+    return {
       name: node.name,
-    });
+    };
   }
 
   function visitExportDefaultDeclaration(node: estree.ExportDefaultDeclaration) {
-    const protobufType = PROTO_ROOT.lookupType('ExportDefaultDeclaration');
-    return protobufType.create({
+    return {
       declaration: visitNode(node.declaration),
-    });
+    };
   }
 
   function visitYieldExpression(node: estree.YieldExpression) {
-    const protobufType = PROTO_ROOT.lookupType('YieldExpression');
-    return protobufType.create({
+    return {
       argument: visitNode(node.argument),
       delegate: node.delegate,
-    });
+    };
   }
 
   function visitUpdateExpression(node: estree.UpdateExpression) {
-    const protobufType = PROTO_ROOT.lookupType('UpdateExpression');
-    return protobufType.create({
+    return {
       operator: node.operator,
       argument: visitNode(node.argument),
       prefix: node.prefix,
-    });
+    };
   }
 
   function visitUnaryExpression(node: estree.UnaryExpression) {
-    const protobufType = PROTO_ROOT.lookupType('UnaryExpression');
-    return protobufType.create({
+    return {
       operator: node.operator,
       argument: visitNode(node.argument),
       prefix: node.prefix,
-    });
+    };
   }
 
   function visitThisExpression(_node: estree.ThisExpression) {
-    const protobufType = PROTO_ROOT.lookupType('ThisExpression');
-    return protobufType.create({});
+    return {};
   }
 
   function visitTemplateLiteral(node: estree.TemplateLiteral) {
-    const protobufType = PROTO_ROOT.lookupType('TemplateLiteral');
-    return protobufType.create({
+    return {
       quasis: node.quasis.map(visitNode),
       expressions: node.expressions.map(visitNode),
-    });
+    };
   }
 
   function visitTaggedTemplateExpression(node: estree.TaggedTemplateExpression) {
-    const protobufType = PROTO_ROOT.lookupType('TaggedTemplateExpression');
-    return protobufType.create({
+    return {
       tag: visitNode(node.tag),
       quasi: visitNode(node.quasi),
-    });
+    };
   }
 
   function visitSequenceExpression(node: estree.SequenceExpression) {
-    const protobufType = PROTO_ROOT.lookupType('SequenceExpression');
-    return protobufType.create({
+    return {
       expressions: node.expressions.map(visitNode),
-    });
+    };
   }
 
   function visitObjectExpression(node: estree.ObjectExpression) {
-    const protobufType = PROTO_ROOT.lookupType('ObjectExpression');
-    return protobufType.create({
+    return {
       properties: node.properties.map(visitNode),
-    });
+    };
   }
 
   function visitSpreadElement(node: estree.SpreadElement) {
-    const protobufType = PROTO_ROOT.lookupType('SpreadElement');
-    return protobufType.create({
+    return {
       argument: visitNode(node.argument),
-    });
+    };
   }
 
   function visitProperty(node: estree.Property) {
-    const protobufType = PROTO_ROOT.lookupType('Property');
-    return protobufType.create({
+    return {
       key: visitNode(node.key),
       value: visitNode(node.value),
       kind: node.kind,
       method: node.method,
       shorthand: node.shorthand,
       computed: node.computed,
-    });
+    };
   }
 
   function visitAssignmentPattern(node: estree.AssignmentPattern) {
-    const protobufType = PROTO_ROOT.lookupType('AssignmentPattern');
-    return protobufType.create({
+    return {
       left: visitNode(node.left),
       right: visitNode(node.right),
-    });
+    };
   }
 
   function visitRestElement(node: estree.RestElement) {
-    const protobufType = PROTO_ROOT.lookupType('RestElement');
-    return protobufType.create({
+    return {
       argument: visitNode(node.argument),
-    });
+    };
   }
 
   function visitArrayPattern(node: estree.ArrayPattern) {
-    const protobufType = PROTO_ROOT.lookupType('ArrayPattern');
-    return protobufType.create({
+    return {
       elements: node.elements.map(visitNode),
-    });
+    };
   }
 
   function visitObjectPattern(node: estree.ObjectPattern) {
-    const protobufType = PROTO_ROOT.lookupType('ObjectPattern');
-    return protobufType.create({
+    return {
       properties: node.properties.map(visitNode),
-    });
+    };
   }
 
   function visitPrivateIdentifier(node: estree.PrivateIdentifier) {
-    const protobufType = PROTO_ROOT.lookupType('PrivateIdentifier');
-    return protobufType.create({
+    return {
       name: node.name,
-    });
+    };
   }
 
   function visitNewExpression(node: estree.NewExpression) {
-    const protobufType = PROTO_ROOT.lookupType('NewExpression');
-    return protobufType.create({
+    return {
       callee: visitNode(node.callee),
       arguments: node.arguments.map(visitNode),
-    });
+    };
   }
 
   function visitSuper(_node: estree.Super) {
-    const protobufType = PROTO_ROOT.lookupType('Super');
-    return protobufType.create({});
+    return {};
   }
 
   function visitMetaProperty(node: estree.MetaProperty) {
-    const protobufType = PROTO_ROOT.lookupType('MetaProperty');
-    return protobufType.create({
+    return {
       meta: visitNode(node.meta),
       property: visitNode(node.property),
-    });
+    };
   }
 
   function visitMemberExpression(node: estree.MemberExpression) {
-    const protobufType = PROTO_ROOT.lookupType('MemberExpression');
-    return protobufType.create({
+    return {
       object: visitNode(node.object),
       property: visitNode(node.property),
       computed: node.computed,
       optional: node.optional,
-    });
+    };
   }
 
   function visitLogicalExpression(node: estree.LogicalExpression) {
-    const protobufType = PROTO_ROOT.lookupType('LogicalExpression');
-    return protobufType.create({
+    return {
       operator: node.operator,
       left: visitNode(node.left),
       right: visitNode(node.right),
-    });
+    };
   }
 
   function visitImportExpression(node: estree.ImportExpression) {
-    const protobufType = PROTO_ROOT.lookupType('ImportExpression');
-    return protobufType.create({
+    return {
       source: visitNode(node.source),
-    });
+    };
   }
 
   function visitBlockStatement(node: estree.BlockStatement) {
-    const protobufType = PROTO_ROOT.lookupType('BlockStatement');
-    return protobufType.create({
+    return {
       body: node.body.map(visitNode),
-    });
+    };
   }
 
   function visitConditionalExpression(node: estree.ConditionalExpression) {
-    const protobufType = PROTO_ROOT.lookupType('ConditionalExpression');
-    return protobufType.create({
+    return {
       test: visitNode(node.test),
       consequent: visitNode(node.consequent),
       alternate: visitNode(node.alternate),
-    });
+    };
   }
 
   function visitClassExpression(node: estree.ClassExpression) {
-    const protobufType = PROTO_ROOT.lookupType('ClassExpression');
-    return protobufType.create({
+    return {
       id: visitNode(node.id),
       superClass: visitNode(node.superClass),
       body: visitNode(node.body),
-    });
+    };
   }
 
   function visitClassBody(node: estree.ClassBody) {
-    const protobufType = PROTO_ROOT.lookupType('ClassBody');
-    return protobufType.create({
+    return {
       body: node.body.map(visitNode),
-    });
+    };
   }
 
   function visitStaticBlock(_node: estree.StaticBlock) {
-    const protobufType = PROTO_ROOT.lookupType('StaticBlock');
-    return protobufType.create({});
+    return {};
   }
 
   function visitPropertyDefinition(node: estree.PropertyDefinition) {
-    const protobufType = PROTO_ROOT.lookupType('PropertyDefinition');
-    return protobufType.create({
+    return {
       key: visitNode(node.key),
       value: visitNode(node.value),
       computed: node.computed,
       static: node.static,
-    });
+    };
   }
 
   function visitMethodDefinition(node: estree.MethodDefinition) {
-    const protobufType = PROTO_ROOT.lookupType('MethodDefinition');
-    return protobufType.create({
+    return {
       key: visitNode(node.key),
       value: visitNode(node.value),
       kind: node.kind,
       computed: node.computed,
       static: node.static,
-    });
+    };
   }
 
   function visitChainExpression(node: estree.ChainExpression) {
-    const protobufType = PROTO_ROOT.lookupType('ChainExpression');
-    return protobufType.create({
+    return {
       expression: visitNode(node.expression),
-    });
+    };
   }
 
   function visitSimpleCallExpression(node: estree.SimpleCallExpression) {
-    const protobufType = PROTO_ROOT.lookupType('SimpleCallExpression');
     return {
-      node: protobufType.create({
+      node: {
         optional: node.optional,
         callee: visitNode(node.callee),
         arguments: node.arguments.map(visitNode),
-      }),
-      type: 'SimpleCallExpression',
+      },
+      protobufMessageType: 'SimpleCallExpression',
     };
   }
 
   function visitBinaryExpression(node: estree.BinaryExpression) {
-    const protobufType = PROTO_ROOT.lookupType('BinaryExpression');
-    return protobufType.create({
+    return {
       operator: node.operator,
       left: visitNode(node.left),
       right: visitNode(node.right),
-    });
+    };
   }
 
   function visitAwaitExpression(node: estree.AwaitExpression) {
-    const protobufType = PROTO_ROOT.lookupType('AwaitExpression');
-    return protobufType.create({
+    return {
       argument: visitNode(node.argument),
-    });
+    };
   }
 
   function visitAssignmentExpression(node: estree.AssignmentExpression) {
-    const protobufType = PROTO_ROOT.lookupType('AssignmentExpression');
-    return protobufType.create({
+    return {
       operator: node.operator,
       left: visitNode(node.left),
       right: visitNode(node.right),
-    });
+    };
   }
 
   function visitArrowFunctionExpression(node: estree.ArrowFunctionExpression) {
-    const protobufType = PROTO_ROOT.lookupType('ArrowFunctionExpression');
-    return protobufType.create({
+    return {
       expression: node.expression,
       body: visitNode(node.body),
       params: node.params.map(visitNode),
       generator: node.generator,
       async: node.async,
-    });
+    };
   }
 
   function visitArrayExpression(node: estree.ArrayExpression) {
-    const protobufType = PROTO_ROOT.lookupType('ArrayExpression');
-    return protobufType.create({
+    return {
       elements: node.elements.map(visitNode),
-    });
+    };
   }
 
   function visitMaybeNamedClassDeclaration(node: estree.MaybeNamedClassDeclaration) {
-    const protobufType = PROTO_ROOT.lookupType('MaybeNamedClassDeclaration');
-    return protobufType.create({
-      id: visitNode(node.id),
-      superClass: visitNode(node.superClass),
-      body: visitNode(node.body),
-    });
+    return {
+      node: {
+        id: visitNode(node.id),
+        superClass: visitNode(node.superClass),
+        body: visitNode(node.body),
+      },
+      protobufMessageType: 'MaybeNamedFunctionDeclaration',
+    };
   }
 
   function visitMaybeNamedFunctionDeclaration(node: estree.MaybeNamedFunctionDeclaration) {
-    const protobufType = PROTO_ROOT.lookupType('MaybeNamedFunctionDeclaration');
-    return protobufType.create({
-      id: visitNode(node.id),
-      body: visitNode(node.body),
-      params: node.params.map(visitNode),
-      generator: node.generator,
-      async: node.async,
-    });
+    return {
+      node: {
+        id: visitNode(node.id),
+        body: visitNode(node.body),
+        params: node.params.map(visitNode),
+        generator: node.generator,
+        async: node.async,
+      },
+      protobufMessageType: 'MaybeNamedFunctionDeclaration',
+    };
   }
 
   function visitExportNamedDeclaration(node: estree.ExportNamedDeclaration) {
-    const protobufType = PROTO_ROOT.lookupType('ExportNamedDeclaration');
-    return protobufType.create({
+    return {
       declaration: visitNode(node.declaration),
       specifiers: node.specifiers.map(visitNode),
       source: visitNode(node.source),
-    });
+    };
   }
 
   function visitExportSpecifier(node: estree.ExportSpecifier) {
-    const protobufType = PROTO_ROOT.lookupType('ExportSpecifier');
-    return protobufType.create({
+    return {
       exported: visitNode(node.exported),
       local: visitNode(node.local),
-    });
+    };
   }
 
   function visitVariableDeclaration(node: estree.VariableDeclaration) {
-    const protobufType = PROTO_ROOT.lookupType('VariableDeclaration');
-    return protobufType.create({
+    return {
       declarations: node.declarations.map(visitNode),
       kind: node.kind,
-    });
+    };
   }
 
   function visitVariableDeclarator(node: estree.VariableDeclarator) {
-    const protobufType = PROTO_ROOT.lookupType('VariableDeclarator');
-    return protobufType.create({
+    return {
       id: visitNode(node.id),
       init: visitNode(node.init),
-    });
+    };
   }
 
   function visitImportDeclaration(node: estree.ImportDeclaration) {
-    const protobufType = PROTO_ROOT.lookupType('ImportDeclaration');
-    return protobufType.create({
+    return {
       specifiers: node.specifiers.map(visitNode),
       source: visitNode(node.source),
-    });
+    };
   }
 
   function visitImportNamespaceSpecifier(node: estree.ImportNamespaceSpecifier) {
-    const protobufType = PROTO_ROOT.lookupType('ImportNamespaceSpecifier');
-    return protobufType.create({
+    return {
       local: visitNode(node.local),
-    });
+    };
   }
 
   function visitImportDefaultSpecifier(node: estree.ImportDefaultSpecifier) {
-    const protobufType = PROTO_ROOT.lookupType('ImportDefaultSpecifier');
-    return protobufType.create({
+    return {
       local: visitNode(node.local),
-    });
+    };
   }
 
   function visitImportSpecifier(node: estree.ImportSpecifier) {
-    const protobufType = PROTO_ROOT.lookupType('ImportSpecifier');
-    return protobufType.create({
+    return {
       imported: visitNode(node.imported),
       local: visitNode(node.local),
-    });
+    };
   }
 
   function visitForOfStatement(node: estree.ForOfStatement) {
-    const protobufType = PROTO_ROOT.lookupType('ForOfStatement');
-    return protobufType.create({
+    return {
       await: node.await,
       left: visitNode(node.left),
       right: visitNode(node.right),
       body: visitNode(node.body),
-    });
+    };
   }
 
   function visitForInStatement(node: estree.ForInStatement) {
-    const protobufType = PROTO_ROOT.lookupType('ForInStatement');
-    return protobufType.create({
+    return {
       left: visitNode(node.left),
       right: visitNode(node.right),
       body: visitNode(node.body),
-    });
+    };
   }
 
   function visitForStatement(node: estree.ForStatement) {
-    const protobufType = PROTO_ROOT.lookupType('ForStatement');
-    return protobufType.create({
+    return {
       init: visitNode(node.init),
       test: visitNode(node.test),
       update: visitNode(node.update),
       body: visitNode(node.body),
-    });
+    };
   }
 
   function visitDoWhileStatement(node: estree.DoWhileStatement) {
-    const protobufType = PROTO_ROOT.lookupType('DoWhileStatement');
-    return protobufType.create({
+    return {
       body: visitNode(node.body),
       test: visitNode(node.test),
-    });
+    };
   }
 
   function visitWhileStatement(node: estree.WhileStatement) {
-    const protobufType = PROTO_ROOT.lookupType('WhileStatement');
-    return protobufType.create({
+    return {
       test: visitNode(node.test),
       body: visitNode(node.body),
-    });
+    };
   }
 
   function visitTryStatement(node: estree.TryStatement) {
-    const protobufType = PROTO_ROOT.lookupType('TryStatement');
-    return protobufType.create({
+    return {
       block: visitNode(node.block),
       handler: visitNode(node.handler),
       finalizer: visitNode(node.finalizer),
-    });
+    };
   }
 
   function visitCatchClause(node: estree.CatchClause) {
-    const protobufType = PROTO_ROOT.lookupType('CatchClause');
-    return protobufType.create({
+    return {
       param: visitNode(node.param),
       body: visitNode(node.body),
-    });
+    };
   }
 
   function visitThrowStatement(node: estree.ThrowStatement) {
-    const protobufType = PROTO_ROOT.lookupType('ThrowStatement');
-    return protobufType.create({
+    return {
       argument: visitNode(node.argument),
-    });
+    };
   }
 
   function visitSwitchStatement(node: estree.SwitchStatement) {
-    const protobufType = PROTO_ROOT.lookupType('SwitchStatement');
-    return protobufType.create({
+    return {
       discriminant: visitNode(node.discriminant),
       cases: node.cases.map(visitNode),
-    });
+    };
   }
 
   function visitSwitchCase(node: estree.SwitchCase) {
-    const protobufType = PROTO_ROOT.lookupType('SwitchCase');
-    return protobufType.create({
+    return {
       test: visitNode(node.test),
       consequent: node.consequent.map(visitNode),
-    });
+    };
   }
 
   function visitIfStatement(node: estree.IfStatement) {
-    const protobufType = PROTO_ROOT.lookupType('IfStatement');
-    return protobufType.create({
+    return {
       test: visitNode(node.test),
       consequent: visitNode(node.consequent),
       alternate: visitNode(node.alternate),
-    });
+    };
   }
 
   function visitContinueStatement(node: estree.ContinueStatement) {
-    const protobufType = PROTO_ROOT.lookupType('ContinueStatement');
-    return protobufType.create({
+    return {
       label: visitNode(node.label),
-    });
+    };
   }
 
   function visitBreakStatement(node: estree.BreakStatement) {
-    const protobufType = PROTO_ROOT.lookupType('BreakStatement');
-    return protobufType.create({
+    return {
       label: visitNode(node.label),
-    });
+    };
   }
 
   function visitLabeledStatement(node: estree.LabeledStatement) {
-    const protobufType = PROTO_ROOT.lookupType('LabeledStatement');
-    return protobufType.create({
+    return {
       label: visitNode(node.label),
       body: visitNode(node.body),
-    });
+    };
   }
 
   function visitReturnStatement(node: estree.ReturnStatement) {
-    const protobufType = PROTO_ROOT.lookupType('ReturnStatement');
-    return protobufType.create({
+    return {
       argument: visitNode(node.argument),
-    });
+    };
   }
 
   function visitWithStatement(node: estree.WithStatement) {
-    const protobufType = PROTO_ROOT.lookupType('WithStatement');
-    return protobufType.create({
+    return {
       object: visitNode(node.object),
       body: visitNode(node.body),
-    });
+    };
   }
 
   function visitDebuggerStatement(_node: estree.DebuggerStatement) {
-    const protobufType = PROTO_ROOT.lookupType('DebuggerStatement');
-    return protobufType.create({});
+    return {};
   }
 
   function visitEmptyStatement(_node: estree.EmptyStatement) {
-    const protobufType = PROTO_ROOT.lookupType('EmptyStatement');
-    return protobufType.create({});
+    return {};
   }
 
   function visitExpressionStatement(node: estree.ExpressionStatement) {
     if ('directive' in node) {
-      const protobufType = PROTO_ROOT.lookupType('Directive');
-      return protobufType.create({
-        expression: visitNode(node.expression),
-        directive: node.directive,
-      });
+      return {
+        node: {
+          expression: visitNode(node.expression),
+          directive: node.directive,
+        },
+        protobufMessageType: 'Directive',
+      };
     } else {
-      const protobufType = PROTO_ROOT.lookupType('ExpressionStatement');
-      return protobufType.create({
+      // The type is 'ExpressionStatement' otherwise.
+      return {
         expression: visitNode(node.expression),
-      });
+      };
     }
   }
 
   function visitTemplateElement(node: estree.TemplateElement) {
-    const protobufType = PROTO_ROOT.lookupType('TemplateElement');
-    return protobufType.create({
+    return {
       tail: node.tail,
       cooked: node.value.cooked,
       raw: node.value.raw,
-    });
+    };
   }
 
   function visitFunctionExpression(node: estree.FunctionExpression) {
-    const protobufType = PROTO_ROOT.lookupType('FunctionExpression');
-    return protobufType.create({
+    return {
       id: visitNode(node.id),
       body: visitNode(node.body),
       params: node.params.map(visitNode),
       generator: node.generator,
       async: node.async,
-    });
+    };
   }
 }

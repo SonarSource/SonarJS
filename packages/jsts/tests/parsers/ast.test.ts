@@ -23,8 +23,8 @@ import {
   buildParserOptions,
   parseForESLint,
   parsers,
-  visitNode,
   deserialize,
+  serializeInProtobuf,
 } from '../../src/parsers';
 import { JsTsAnalysisInput } from '../../src/analysis';
 import path from 'path';
@@ -53,18 +53,10 @@ describe('parseAst', () => {
     async ({ parser, usingBabel }) => {
       const filePath = path.join(__dirname, 'fixtures', 'ast', 'base.js');
       const sc = await parseSourceCode(filePath, parser, usingBabel);
-      const buf = visitNode(sc.ast);
-      expect(buf).toBeDefined();
-      //fs.writeFileSync(path.join(__dirname, 'fixtures', 'ast', 'base.data'), buf);
+      const v = serializeInProtobuf(sc);
+      expect(v).toBeDefined();
+      const ret = deserialize(v);
+      ret;
     },
   );
-
-  test.each(parseFunctions)('should do that smart serialize', async ({ parser, usingBabel }) => {
-    const filePath = path.join(__dirname, 'fixtures', 'ast', 'base.js');
-    const sc = await parseSourceCode(filePath, parser, usingBabel);
-    const v = visitNode(sc.ast);
-    expect(v).toBeDefined();
-    const ret = deserialize(v);
-    ret;
-  });
 });
