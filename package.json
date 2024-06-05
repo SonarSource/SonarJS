@@ -112,7 +112,6 @@
     "stylelint": "15.10.0",
     "tar": "6.2.1",
     "tmp": "0.2.3",
-    "ts-protoc-gen": "^0.15.0",
     "type-fest": "4.14.0",
     "typescript": "5.4.3",
     "vue-eslint-parser": "9.4.2",
