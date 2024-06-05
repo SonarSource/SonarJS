@@ -1,13 +1,11 @@
 import type { StatementHandler } from '../statement-handler';
 import { TSESTree } from '@typescript-eslint/typescript-estree';
-import { createVariable } from '../variable';
 import { createFunctionReference } from '../values/function-reference';
 import { createCallInstruction } from '../instructions/call-instruction';
 import {
   createNewObjectFunctionDefinition,
   createSetFieldFunctionDefinition,
 } from '../function-definition';
-import { putValue, ReferenceRecord } from '../ecma/reference-record';
 import { createReference } from '../values/reference';
 
 export const handleFunctionDeclaration: StatementHandler<TSESTree.FunctionDeclarationWithName> = (
@@ -37,7 +35,7 @@ export const handleFunctionDeclaration: StatementHandler<TSESTree.FunctionDeclar
   } else {
     functionName = `${currentFunctionInfo.definition.name}__${functionReferenceIdentifier}`;
   }
-  const functionInfo = processFunction(functionName, node.body.body, node.params, node.loc);
+  const functionInfo = processFunction(functionName, node);
   const functionReference = createFunctionReference(functionReferenceIdentifier, functionInfo);
 
   const referenceIdentifier: ReferenceRecord = {

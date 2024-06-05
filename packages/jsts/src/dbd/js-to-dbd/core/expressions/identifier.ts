@@ -7,12 +7,6 @@ import {
 } from '../function-definition';
 import { createReference, createReference2 } from '../values/reference';
 import { createNull } from '../values/constant';
-import {
-  type EnvironmentRecord,
-  getIdentifierReference,
-  isAnEnvironmentRecord,
-} from '../ecma/environment-record';
-import { getValue, isUnresolvableReference, unresolvable } from '../ecma/reference-record';
 import { type BaseValue } from '../value';
 import { getParameter } from '../utils';
 import { isAParameter } from '../values/parameter';

@@ -13,18 +13,10 @@ import { Context } from './context';
 import { createParameter, Parameter } from './values/parameter';
 
 export function createScopeDeclarationInstruction(
-  scope: {
-    identifier: number;
-  },
+  scopeId: number,
   location: Location,
 ): CallInstruction {
-  return createCallInstruction(
-    scope.identifier,
-    null,
-    createNewObjectFunctionDefinition(),
-    [],
-    location,
-  );
+  return createCallInstruction(scopeId, null, createNewObjectFunctionDefinition(), [], location);
 }
 
 export function isTerminated(block: Block): boolean {

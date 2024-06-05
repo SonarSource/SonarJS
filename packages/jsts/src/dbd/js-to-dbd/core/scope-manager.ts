@@ -1,13 +1,8 @@
-import { type BaseValue, createValue } from './value';
+import { type BaseValue } from './value';
 import { type Constant } from './values/constant';
-import {
-  type BaseEnvironmentRecord,
-  createDeclarativeEnvironmentRecord,
-  createGlobalEnvironmentRecord,
-  type DeclarativeEnvironmentRecord,
-  type EnvironmentRecord,
-} from './ecma/environment-record';
 import type { FunctionInfo } from './function-info';
+import { SourceCode } from '@typescript-eslint/utils/ts-eslint';
+import { TSESTree } from '@typescript-eslint/typescript-estree';
 
 type ConstantType =
   | 'bigint'
@@ -25,65 +20,34 @@ type ConstantType =
  * Basically analogous to the ECMAScript concept of Execution Context
  */
 export interface ScopeManager {
-  createBindingsHolder(): BaseValue<any>;
-
-  createDeclarativeEnvironmentRecord(functionInfo: FunctionInfo): DeclarativeEnvironmentRecord;
-
-  getCurrentEnvironmentRecord(): EnvironmentRecord;
-
-  pushEnvironmentRecord(environmentRecord: BaseEnvironmentRecord<any>): void;
-
-  popEnvironmentRecord(): void;
-
   readonly valueByConstantTypeRegistry: Map<ConstantType, BaseValue<any>>;
-
   readonly constantRegistry: Map<Constant['value'], Constant>;
-
+  readonly functionInfos: Array<FunctionInfo>;
   createValueIdentifier(): number;
+  addFunctionInfo(functionInfo: FunctionInfo): void;
+  getScopeId(node: TSESTree.Node): number;
 }
 
-export const createScopeManager = (functionInfo: FunctionInfo): ScopeManager => {
-  let valueIndex = 0;
+export const createScopeManager = (sourceCode: SourceCode): ScopeManager => {
+  const { scopes } = sourceCode.scopeManager!;
+  let valueIndex = scopes.length;
 
-  let currentEnvironmentRecord: BaseEnvironmentRecord<any> = createGlobalEnvironmentRecord(
-    valueIndex++,
-    functionInfo,
-    new Map(),
-  );
-
-  const ecmaScriptLanguageValueByConstantTypeRegistry: ScopeManager['valueByConstantTypeRegistry'] =
-    new Map([]);
+  const functionInfos: Array<FunctionInfo> = [];
+  const valueByConstantTypeRegistry: ScopeManager['valueByConstantTypeRegistry'] = new Map([]);
   const constantRegistry: ScopeManager['constantRegistry'] = new Map([]);
 
   return {
-    valueByConstantTypeRegistry: ecmaScriptLanguageValueByConstantTypeRegistry,
-    createBindingsHolder: () => {
-      return createValue('object', valueIndex++);
-    },
-    createDeclarativeEnvironmentRecord: functionInfo => {
-      return createDeclarativeEnvironmentRecord(
-        valueIndex++,
-        currentEnvironmentRecord,
-        functionInfo,
-      );
-    },
-
-    getCurrentEnvironmentRecord: () => currentEnvironmentRecord,
-
-    pushEnvironmentRecord: environmentRecord => {
-      currentEnvironmentRecord = environmentRecord;
-    },
-
-    popEnvironmentRecord: () => {
-      if (currentEnvironmentRecord.outerEnv === null) {
-        throw new Error('TRACK MISUSE OF THE API');
-      }
-
-      currentEnvironmentRecord = currentEnvironmentRecord.outerEnv;
-    },
+    functionInfos,
+    valueByConstantTypeRegistry,
     createValueIdentifier: () => {
       return valueIndex++;
     },
     constantRegistry,
+    addFunctionInfo(functionInfo) {
+      functionInfos.push(functionInfo);
+    },
+    getScopeId(node: TSESTree.Node) {
+      return scopes.indexOf(sourceCode.getScope(node));
+    },
   };
 };

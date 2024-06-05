@@ -1,11 +1,10 @@
 import { Block, createBlock } from './block';
 import type { Location } from './location';
-import type { EnvironmentRecord } from './ecma/environment-record';
 
 export interface BlockManager {
   readonly blocks: Array<Block>;
 
-  createBlock(environmentRecord: EnvironmentRecord, location: Location): Block;
+  createBlock(location: Location): Block;
 
   getCurrentBlock(): Block;
 
@@ -19,8 +18,8 @@ export const createBlockManager = (): BlockManager => {
 
   return {
     blocks,
-    createBlock: (environmentRecord, location) => {
-      return createBlock(environmentRecord, blockIndex++, location);
+    createBlock: location => {
+      return createBlock(blockIndex++, location);
     },
     getCurrentBlock() {
       return blocks[blocks.length - 1];

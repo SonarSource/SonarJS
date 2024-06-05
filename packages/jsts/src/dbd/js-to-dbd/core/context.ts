@@ -1,10 +1,22 @@
 import { type ScopeManager } from './scope-manager';
-import type { FunctionInfo } from './function-info';
-import type { BlockManager } from './block-manager';
-import { TSESTree } from '@typescript-eslint/typescript-estree';
+import { createFunctionInfo, FunctionInfo } from './function-info';
+import { BlockManager, createBlockManager } from './block-manager';
+import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/typescript-estree';
 import type { Location } from './location';
 import { type Block } from './block';
 import { Instruction } from './instruction';
+import { createParameter } from './values/parameter';
+import {
+  createFunctionDefinition,
+  createSetFieldFunctionDefinition,
+  generateSignature,
+} from './function-definition';
+import { createScopeDeclarationInstruction, isTerminated } from './utils';
+import { createCallInstruction } from './instructions/call-instruction';
+import { createReference } from './values/reference';
+import { handleStatement as _handleStatement } from './statements';
+import { createReturnInstruction } from './instructions/return-instruction';
+import { createNull } from './values/constant';
 
 export interface Context {
   readonly blockManager: BlockManager;
@@ -12,166 +24,115 @@ export interface Context {
   readonly scopeManager: ScopeManager;
 
   createScopedBlock(location: Location): Block;
+
   addInstructions(instructions: Array<Instruction>): void;
 
-  processFunction(
-    name: string,
-    body: Array<TSESTree.Statement>,
-    parameters: Array<TSESTree.Parameter>,
-    location: Location,
-  ): FunctionInfo;
+  processFunction(name: string, node: TSESTree.FunctionDeclarationWithName): FunctionInfo;
 }
 
 export const createContext = (
   functionInfo: FunctionInfo,
   blockManager: BlockManager,
   scopeManager: ScopeManager,
-  processFunction: Context['processFunction'],
 ): Context => {
   return {
     blockManager,
     functionInfo,
     scopeManager,
-    processFunction,
+    processFunction(name, node) {
+      const parentScopeName = '@parent';
+      const parentReference = createParameter(
+        scopeManager.createValueIdentifier(),
+        parentScopeName,
+        node.loc,
+      );
+
+      // resolve the function parameters
+      const functionParametersName = '@params';
+      const functionParametersReference = createParameter(
+        scopeManager.createValueIdentifier(),
+        functionParametersName,
+        node.loc,
+      );
+
+      const positionalParameters = node.params.map((parameter, position) => {
+        let parameterName: string;
+
+        if (parameter.type === AST_NODE_TYPES.Identifier) {
+          parameterName = parameter.name;
+        } else {
+          // todo
+          parameterName = '';
+        }
+
+        return {
+          name: parameterName,
+          location: parameter.loc,
+          position,
+        };
+      });
+
+      const functionParameters = [parentReference, functionParametersReference];
+
+      const { fileName } = functionInfo;
+
+      // create the function info
+      const childFunctionInfo = createFunctionInfo(
+        fileName,
+        createFunctionDefinition(name, generateSignature(name, fileName)),
+        functionParameters,
+        positionalParameters,
+      );
+
+      // create the block manager
+      const blockManager = createBlockManager();
+
+      // create the main function block
+      const block = blockManager.createBlock(node.loc);
+
+      blockManager.pushBlock(block);
+      const currentScopeId = scopeManager.getScopeId(node);
+
+      // add the scope creation instruction
+      block.instructions.push(createScopeDeclarationInstruction(currentScopeId, node.loc));
+
+      // add the "set parent" instruction
+      block.instructions.push(
+        createCallInstruction(
+          scopeManager.createValueIdentifier(),
+          null,
+          createSetFieldFunctionDefinition('@parent'),
+          [createReference(currentScopeId), parentReference],
+          node.loc,
+        ),
+      );
+
+      const context = createContext(childFunctionInfo, blockManager, scopeManager);
+
+      const handleStatement = (statement: TSESTree.Statement) => {
+        return _handleStatement(statement, context);
+      };
+
+      // handle the body statements
+      node.body.body.forEach(handleStatement);
+
+      const lastBlock = blockManager.getCurrentBlock();
+
+      if (!isTerminated(lastBlock)) {
+        lastBlock.instructions.push(createReturnInstruction(createNull(), node.loc));
+      }
+
+      childFunctionInfo.blocks.push(...blockManager.blocks);
+
+      scopeManager.addFunctionInfo(childFunctionInfo);
+
+      return childFunctionInfo;
+    },
     createScopedBlock: location => {
-      return blockManager.createBlock(scopeManager.getCurrentEnvironmentRecord(), location);
+      return blockManager.createBlock(location);
     },
     addInstructions: instructions => {
       blockManager.getCurrentBlock().instructions.push(...instructions);
     },
   };
 };
-
-// export interface ContextManager {
-//   createAnonymousFunctionName(): string;
-// }
-//
-// export class ContextManager {
-//   private readonly blockManager: BlockManager;
-//   private readonly scopeManager: ScopeManagerClass;
-//   private readonly signaturePrefixStr: string;
-//   private anonymousFunctionIndex: number = 0;
-//
-//   constructor(
-//     readonly root: string,
-//     public readonly functionInfo: FunctionInfo,
-//     private readonly location: Location,
-//     public readonly hostDefinedProperties: Array<Variable> = [],
-//     public readonly processFunction: (
-//       functionInfo: FunctionInfo,
-//       node: TSESTree.FunctionDeclaration | TSESTree.ArrowFunctionExpression,
-//     ) => void,
-//   ) {
-//     this.scopeManager = new ScopeManagerClass();
-//     this.blockManager = new BlockManager(this.scopeManager, this.functionInfo);
-//     this.signaturePrefixStr = getSignaturePrefix(root, functionInfo.fileName);
-//     this.setupGlobals();
-//   }
-//
-//   createAnonymousFunctionName() {
-//     return `anonymous_${this.anonymousFunctionIndex++}`;
-//   }
-//
-//   get scope(): ScopeManagerClass {
-//     return this.scopeManager;
-//   }
-//
-//   get block(): BlockManager {
-//     return this.blockManager;
-//   }
-//
-//   signaturePrefix(): string {
-//     return this.signaturePrefixStr;
-//   }
-//
-//   addParameter(param: TSESTree.Parameter) {
-//     if (param.type !== 'Identifier') {
-//       console.error(`Unknown method parameter type ${param.type}`);
-//       return;
-//     }
-//     const valueId = this.scope.createValueIdentifier();
-//     const parameter = createParameter(valueId, param.name, param.loc);
-//     this.functionInfo.parameters.push(parameter);
-//     const variable = createVariable(param.name);
-//     this.scope.getCurrentScope().variables.set(param.name, variable);
-//   }
-//
-//   setupGlobals() {
-//     // create and declare the outer scope
-//     // https://262.ecma-international.org/14.0/#sec-global-environment-records
-//     const outerScope: Scope = this.scope.push(this.scope.createScope());
-//
-//     const outerBlock = this.block.createScopedBlock(this.location);
-//
-//     this.block.push(outerBlock);
-//
-//     outerBlock.instructions.push(createScopeDeclarationInstruction(outerScope, this.location));
-//
-//     // globalThis, a reference to the outer scope itself
-//     outerBlock.instructions.push(
-//       createCallInstruction(
-//         this.scope.createValueIdentifier(),
-//         null,
-//         createSetFieldFunctionDefinition('globalThis'),
-//         [createReference(outerScope.identifier), createReference(outerScope.identifier)],
-//         this.location,
-//       ),
-//     );
-//
-//     // assign global variables to the outer scope and declare them
-//     const globalVariables: Array<Variable> = [
-//       createVariable('NaN', 'NaN', false),
-//       createVariable('Infinity', 'int', false),
-//       createVariable('undefined', 'Record', false),
-//       ...this.hostDefinedProperties,
-//     ];
-//
-//     for (const globalVariable of globalVariables) {
-//       const { name } = globalVariable;
-//       const assignmentIdentifier = this.scope.createValueIdentifier();
-//
-//       const assignment = createAssignment(assignmentIdentifier, globalVariable);
-//
-//       outerScope.variables.set(name, globalVariable);
-//       outerScope.assignments.set(name, assignment);
-//
-//       outerBlock.instructions.push(
-//         createCallInstruction(
-//           assignment.identifier,
-//           null,
-//           createSetFieldFunctionDefinition(name),
-//           [
-//             createReference(outerScope.identifier),
-//             createConstant(this.scope.createValueIdentifier(), name), // todo: temporary workaround until we know how to declare the shape of globals
-//           ],
-//           this.location,
-//         ),
-//       );
-//     }
-//
-//     this.scope.push(outerScope);
-//
-//     // create the first inner scope
-//     const rootScope = this.scope.createScope();
-//
-//     this.scope.push(rootScope);
-//
-//     // create the first block and branch the outer block to it
-//     const rootBlock = this.block.createScopedBlock(this.location);
-//
-//     outerBlock.instructions.push(createBranchingInstruction(rootBlock, this.location));
-//
-//     this.block.push(rootBlock);
-//
-//     // create scope instruction
-//     const instruction = createCallInstruction(
-//       rootScope.identifier,
-//       null,
-//       createFunctionDefinition(`new-object`),
-//       [],
-//       this.location,
-//     );
-//
-//     rootBlock.instructions.push(instruction);
-//   }
-// }
