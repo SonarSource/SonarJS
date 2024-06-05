@@ -112,8 +112,12 @@ export function visitNode(
   return protobufType.create({
     type: node.type === 'FunctionExpression' ? 'FunctionExpressionType' : node.type,
     loc: node.loc,
-    node: getMessageForNode(node),
+    [lowerCaseFirstLetter(node.type)]: getMessageForNode(node),
   });
+
+  function lowerCaseFirstLetter(str: string) {
+    return str.charAt(0).toLowerCase() + str.slice(1);
+  }
 
   function getMessageForNode(node: estree.BaseNodeWithoutComments) {
     switch (node.type) {
