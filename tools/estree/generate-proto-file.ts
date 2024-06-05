@@ -68,7 +68,7 @@ export function writeMessagesToDir(messages: Record<string, ESTreeNode>, outputD
   function translateToProtoFormat(messages: ESTreeNode[]): string {
     const lines: string[] = [];
     lines.push('enum NodeType {');
-    let index = 1;
+    let index = 0;
     for (const message of messages) {
       lines.push(`  ${message.name} = ${index};`);
       index++;
@@ -76,9 +76,9 @@ export function writeMessagesToDir(messages: Record<string, ESTreeNode>, outputD
     lines.push('}');
 
     lines.push('message Node {');
-    lines.push('  NodeType type = 1;');
-    lines.push('  SourceLocation loc = 2;');
-    index = 3;
+    lines.push('  NodeType type = 0;');
+    lines.push('  SourceLocation loc = 1;');
+    index = 2;
     lines.push('  oneof node {');
     for (const message of messages) {
       lines.push(`    ${message.name} ${lowerCaseFirstLetter(message.name)} = ${index};`);
@@ -88,7 +88,7 @@ export function writeMessagesToDir(messages: Record<string, ESTreeNode>, outputD
     lines.push('}');
 
     for (const message of Object.values(messages)) {
-      let index = 1;
+      let index = 0;
       lines.push(`message ${message.name} {`);
       for (const field of message.fields) {
         if (field.name === 'type') {
@@ -120,15 +120,17 @@ export function writeMessagesToDir(messages: Record<string, ESTreeNode>, outputD
   function addPrefix(protoData: string) {
     return `syntax = "proto3";
 // Generated for @types/estree version: ${typesVersion}
+option java_package="org.sonar.plugins.javascript.bridge.protobuf";
+option java_multiple_files = true;
 
 message SourceLocation {
-  string source = 1;
-  Position start = 2;
-  Position end = 3;
+  string source = 0;
+  Position start = 1;
+  Position end = 2;
 }
 message Position {
-  int32 line = 1;
-  int32 end = 2;
+  int32 line = 0;
+  int32 end = 1;
 }
 
 ${protoData}
