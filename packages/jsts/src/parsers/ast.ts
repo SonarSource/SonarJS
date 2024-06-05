@@ -12,7 +12,7 @@ const PATH_TO_PROTOFILE = path.join(
   '..',
   '..',
   'tools',
-  'protobuf',
+  'estree',
   'output',
   'estree.proto',
 );
