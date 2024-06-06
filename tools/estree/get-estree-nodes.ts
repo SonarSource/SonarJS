@@ -49,6 +49,25 @@ export function getEstreeNodes(file: ts.SourceFile) {
 
   const messages: Record<string, ESTreeNode> = {};
 
+  // Create node manually for 'RegExpLiteral' and 'TemplateElement'.
+  messages['RegExpLiteral'] = {
+    name: 'RegExpLiteral',
+    fields: [
+      { name: 'pattern', fieldValue: { type: 'string' } },
+      { name: 'flags', fieldValue: { type: 'string' } },
+      { name: 'raw', fieldValue: { type: 'string' } },
+    ],
+  };
+
+  messages['TemplateElement'] = {
+    name: 'TemplateElement',
+    fields: [
+      { name: 'tail', fieldValue: { type: 'bool' } },
+      { name: 'cooked', fieldValue: { type: 'string' } },
+      { name: 'raw', fieldValue: { type: 'string' } },
+    ],
+  };
+
   const requestedTypes: string[] = ['Program'];
   while (requestedTypes.length) {
     const requestedType = requestedTypes.pop()!;

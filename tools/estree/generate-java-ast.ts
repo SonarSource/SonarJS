@@ -42,25 +42,47 @@ const HEADER = `/*
  */
 `;
 
-const NODE_INTERFACE = `sealed interface Node {
+const NODE_INTERFACE = `public sealed interface Node {
     
-    String type();
     Location loc();
   }
   
-  public record Location(int startLine, int startCol, int endLine, int endCol) {}
+  public record Position(int line, int column) {}
+  public record Location(Position start, Position end) {}
 `;
 
-const SHARED_FIELDS = ['String type', 'Location loc'];
+const SHARED_FIELDS = ['Location loc'];
 
 export function writeJavaClassesToDir(nodes: Record<string, ESTreeNode>, output: string) {
   const records = [];
-  for (const [name, node] of Object.entries(nodes)) {
-    const fields = [...SHARED_FIELDS];
-    for (const field of node.fields) {
-      fields.push(`${javaType(field.fieldValue)} ${javaName(field.name)}`);
+  const entries = Object.entries(nodes).sort(([a], [b]) => (a < b ? -1 : 1));
+  const ifaces = entries
+    .filter(([, node]) => node.fields.length === 1 && 'unionElements' in node.fields[0].fieldValue)
+    .map(([name]) => name);
+
+  const impl = new Map<string, string>();
+  ifaces.forEach(iface => {
+    // @ts-ignore
+    const union = nodes[iface].fields[0].fieldValue.unionElements.map(e =>
+      upperCaseFirstLetter(e.name),
+    );
+    for (const u of union) {
+      impl.set(u, iface);
     }
-    records.push(`  public record ${name}(${fields.join(', ')}) implements Node {}`);
+  });
+
+  for (const [name, node] of entries) {
+    if (ifaces.includes(name)) {
+      records.push(`  public sealed interface ${name} extends Node {}`);
+    } else {
+      const fields = [...SHARED_FIELDS];
+      for (const field of node.fields) {
+        fields.push(`${javaType(field.fieldValue)} ${javaName(field.name)}`);
+      }
+      records.push(
+        `  public record ${name}(${fields.join(', ')}) implements ${impl.has(name) ? impl.get(name) : 'Node'} {}`,
+      );
+    }
   }
 
   const estree = `${HEADER}
@@ -74,13 +96,13 @@ public class ESTree {
     // shouldn't be instantiated
   }
   
-  ${NODE_INTERFACE}
+  ${NODE_INTERFACE}  
         
 ${records.join('\n')}
 }
 
 `;
-  fs.writeFileSync('output/ESTree.java', estree, 'utf-8');
+  fs.writeFileSync(output, estree, 'utf-8');
 }
 
 function javaType(fieldValue: NodeFieldValue): string {
@@ -108,4 +130,8 @@ function javaName(name: string) {
     return 'isStatic';
   }
   return name;
+}
+
+function upperCaseFirstLetter(s: string) {
+  return s.charAt(0).toUpperCase() + s.slice(1);
 }

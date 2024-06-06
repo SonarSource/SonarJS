@@ -10,11 +10,7 @@ class ESTreeTest {
 
   @Test
   void test() {
-    Node p = new Program("", null);
 
-    switch (p) {
-
-    }
   }
 
 }
