@@ -27,6 +27,7 @@ import {
   createAndSaveProgram,
   loadPackageJsons,
   getNearestPackageJsons,
+  deserializeProtobuf,
 } from '../../src';
 import { jsTsInput, parseJavaScriptSourceFile } from '../tools';
 import { Linter, Rule } from 'eslint';
@@ -942,7 +943,9 @@ describe('analyzeJSTS', () => {
     const language = 'js';
 
     const { ast } = analyzeJSTS(await jsTsInput({ filePath }), language) as JsTsAnalysisOutput;
-
-    expect(ast).toEqual('plop');
+    const protoMessage = deserializeProtobuf(ast);
+    expect(protoMessage.program).toBeDefined();
+    expect(protoMessage.program.body).toHaveLength(1);
+    expect(protoMessage.program.body[0].functionDeclaration.id.identifier.name).toEqual('f');
   });
 });
