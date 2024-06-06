@@ -150,8 +150,7 @@ export function visitNode(node: estree.BaseNodeWithoutComments | undefined | nul
       case 'ChainExpression':
         return visitChainExpression(node as estree.ChainExpression);
       case 'CallExpression':
-        // Special case: the name of the type is not the same as the interface.
-        return visitSimpleCallExpression(node as estree.SimpleCallExpression);
+        return visitCallExpression(node as estree.SimpleCallExpression);
       case 'BinaryExpression':
         return visitBinaryExpression(node as estree.BinaryExpression);
       case 'AwaitExpression':
@@ -164,10 +163,10 @@ export function visitNode(node: estree.BaseNodeWithoutComments | undefined | nul
         return visitArrayExpression(node as estree.ArrayExpression);
       case 'ClassDeclaration':
         // Special case: the name is not the same as the type.
-        return visitMaybeNamedClassDeclaration(node as estree.MaybeNamedClassDeclaration);
+        return visitClassDeclaration(node as estree.MaybeNamedClassDeclaration);
       case 'FunctionDeclaration':
         // Special case: the name is not the same as the type.
-        return visitMaybeNamedFunctionDeclaration(node as estree.MaybeNamedFunctionDeclaration);
+        return visitFunctionDeclaration(node as estree.MaybeNamedFunctionDeclaration);
       case 'ExportNamedDeclaration':
         return visitExportNamedDeclaration(node as estree.ExportNamedDeclaration);
       case 'ExportSpecifier':
@@ -249,30 +248,30 @@ export function visitNode(node: estree.BaseNodeWithoutComments | undefined | nul
   function visitLiteral(node: estree.Literal) {
     if ('bigint' in node) {
       return {
-        node: {
-          value: node.value,
-          bigInt: node.bigint,
-          raw: node.raw,
-        },
-        protobufMessageType: 'BigIntLiteral',
+        value: node.value,
+        bigInt: node.bigint,
+        raw: node.raw,
       };
     } else if ('regex' in node) {
       return {
-        node: {
-          flags: node.regex.flags,
-          pattern: node.regex.pattern,
-          raw: node.raw,
-        },
-        protobufMessageType: 'RegExpLiteral',
+        flags: node.regex.flags,
+        pattern: node.regex.pattern,
+        raw: node.raw,
       };
     } else {
-      return {
-        node: {
-          value: node.value,
-          raw: node.raw,
-        },
-        protobufMessageType: 'SimpleLiteral',
-      };
+      return Object.assign({ raw: node.raw }, translateValue(node.value));
+    }
+
+    function translateValue(value: any) {
+      if (typeof value === 'string') {
+        return { value_string: value };
+      }
+      if (typeof value === 'number') {
+        return { value_number: value };
+      }
+      if (typeof value === 'boolean') {
+        return { value_boolean: value };
+      }
     }
   }
 
@@ -487,14 +486,11 @@ export function visitNode(node: estree.BaseNodeWithoutComments | undefined | nul
     };
   }
 
-  function visitSimpleCallExpression(node: estree.SimpleCallExpression) {
+  function visitCallExpression(node: estree.SimpleCallExpression) {
     return {
-      node: {
-        optional: node.optional,
-        callee: visitNode(node.callee),
-        arguments: node.arguments.map(visitNode),
-      },
-      protobufMessageType: 'SimpleCallExpression',
+      optional: node.optional,
+      callee: visitNode(node.callee),
+      arguments: node.arguments.map(visitNode),
     };
   }
 
@@ -536,27 +532,21 @@ export function visitNode(node: estree.BaseNodeWithoutComments | undefined | nul
     };
   }
 
-  function visitMaybeNamedClassDeclaration(node: estree.MaybeNamedClassDeclaration) {
+  function visitClassDeclaration(node: estree.MaybeNamedClassDeclaration) {
     return {
-      node: {
-        id: visitNode(node.id),
-        superClass: visitNode(node.superClass),
-        body: visitNode(node.body),
-      },
-      protobufMessageType: 'MaybeNamedFunctionDeclaration',
+      id: visitNode(node.id),
+      superClass: visitNode(node.superClass),
+      body: visitNode(node.body),
     };
   }
 
-  function visitMaybeNamedFunctionDeclaration(node: estree.MaybeNamedFunctionDeclaration) {
+  function visitFunctionDeclaration(node: estree.MaybeNamedFunctionDeclaration) {
     return {
-      node: {
-        id: visitNode(node.id),
-        body: visitNode(node.body),
-        params: node.params.map(visitNode),
-        generator: node.generator,
-        async: node.async,
-      },
-      protobufMessageType: 'MaybeNamedFunctionDeclaration',
+      id: visitNode(node.id),
+      body: visitNode(node.body),
+      params: node.params.map(visitNode),
+      generator: node.generator,
+      async: node.async,
     };
   }
 
@@ -741,14 +731,10 @@ export function visitNode(node: estree.BaseNodeWithoutComments | undefined | nul
   function visitExpressionStatement(node: estree.ExpressionStatement) {
     if ('directive' in node) {
       return {
-        node: {
-          expression: visitNode(node.expression),
-          directive: node.directive,
-        },
-        protobufMessageType: 'Directive',
+        expression: visitNode(node.expression),
+        directive: node.directive,
       };
     } else {
-      // The type is 'ExpressionStatement' otherwise.
       return {
         expression: visitNode(node.expression),
       };
