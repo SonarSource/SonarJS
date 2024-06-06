@@ -24,7 +24,7 @@ import {
   buildParserOptions,
   parseForESLint,
   parsers,
-  deserialize,
+  deserializeProtobuf,
   parseInProtobuf,
   serializeInProtobuf,
 } from '../../src/parsers';
@@ -57,7 +57,7 @@ describe('ast', () => {
         const sc = await parseSourceCode(filePath, parser, usingBabel);
         const protoMessage = parseInProtobuf(sc.ast);
         const serialized = serializeInProtobuf(sc.ast);
-        const deserializedProtoMessage = deserialize(serialized);
+        const deserializedProtoMessage = deserializeProtobuf(serialized);
         compareASTs(protoMessage, deserializedProtoMessage);
       },
     );

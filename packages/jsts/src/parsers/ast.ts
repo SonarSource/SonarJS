@@ -55,7 +55,7 @@ export function parseInProtobuf(ast: AST.Program) {
 /**
  * Only used for tests
  */
-export function deserialize(serialized: Uint8Array): any {
+export function deserializeProtobuf(serialized: Uint8Array): any {
   const decoded = NODE_TYPE.decode(serialized);
   return decoded;
 }

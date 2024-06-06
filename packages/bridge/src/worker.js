@@ -50,7 +50,8 @@ exports.delegate = function (worker, type) {
         case 'success':
           if (message.format === 'multipart') {
             const fd = new formData();
-            fd.append('ast', message.result.ast);
+            const buf = Buffer.from(message.result.ast);
+            fd.append('ast', buf);
             delete message.result.ast;
             fd.append('json', JSON.stringify(message.result));
             // this adds the boundary string that will be used to separate the parts
