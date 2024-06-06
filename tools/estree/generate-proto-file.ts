@@ -31,7 +31,6 @@ const typesVersion = packageJson.devDependencies['@types/estree'];
 
 export function addHandWrittenMessages(messages: ESTreeNode[]) {
   // Create node manually for 'RegExpLiteral' and 'TemplateElement'.
-  // TODO: Decide how to handle regexp literals.
   messages.push({
     name: 'RegExpLiteral',
     fields: [
@@ -120,6 +119,8 @@ export function writeMessagesToDir(messages: Record<string, ESTreeNode>, outputD
   function addPrefix(protoData: string) {
     return `syntax = "proto3";
 // Generated for @types/estree version: ${typesVersion}
+option java_package="org.sonar.plugins.javascript.bridge.protobuf";
+option java_multiple_files = true;
 
 message SourceLocation {
   string source = 1;

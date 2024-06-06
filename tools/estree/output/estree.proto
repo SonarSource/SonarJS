@@ -1,5 +1,9 @@
 syntax = "proto3";
 // Generated for @types/estree version: 1.0.5
+// Note: this file was manually modified, to reach a working state faster.
+// We should eventually adapt the generator once we are happy with the exact structure.
+option java_package="org.sonar.plugins.javascript.bridge.protobuf";
+option java_multiple_files = true;
 
 message SourceLocation {
   string source = 1;
