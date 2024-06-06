@@ -270,6 +270,10 @@ export function visitNode(node: estree.BaseNodeWithoutComments | undefined | nul
       if (typeof value === 'boolean') {
         return { valueBoolean: value };
       }
+      // The null value is represented by the TS language value 'null'.
+      if (value === null) {
+        return {};
+      }
       throw new Error(`Unknown literal value "${value}" of type ${typeof value}`);
     }
   }

@@ -51,7 +51,7 @@ async function parseSourceCode(filePath, parser, usingBabel = false) {
 describe('ast', () => {
   describe('serializeInProtobuf()', () => {
     test.each(parseFunctions)(
-      'should not lose information between serialize and deserializing',
+      'should not lose information between serialize and deserializing JavaScript',
       async ({ parser, usingBabel }) => {
         const filePath = path.join(__dirname, 'fixtures', 'ast', 'base.js');
         const sc = await parseSourceCode(filePath, parser, usingBabel);
