@@ -175,9 +175,9 @@ message ExportAllDeclaration {
 }
 message Literal {
   string raw = 1;
-  string bigint = 2;
-  string pattern = 3;
-  string flags = 4;
+  optional string bigint = 2;
+  optional string pattern = 3;
+  optional string flags = 4;
   oneof value {
     string valueString = 5;
     bool valueBoolean = 6;
