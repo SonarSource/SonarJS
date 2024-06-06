@@ -21,7 +21,7 @@ import * as protobuf from 'protobufjs';
 import * as path from 'node:path';
 import * as _ from 'lodash';
 import * as estree from 'estree';
-import { SourceCode } from 'eslint';
+import { AST } from 'eslint';
 
 const PATH_TO_PROTOFILE = path.join(
   __dirname,
@@ -38,8 +38,16 @@ const PROTO_ROOT = protobuf.loadSync(PATH_TO_PROTOFILE);
 const NODE_TYPE = PROTO_ROOT.lookupType('Node');
 const NODE_TYPE_ENUM = PROTO_ROOT.lookupEnum('NodeType');
 
-export function serializeInProtobuf(sourceCode: SourceCode) {
-  const protobugShapedAST = visitNode(sourceCode.ast);
+export function serializeInProtobuf(ast: AST.Program): Uint8Array {
+  const protobufAST = parseInProtobuf(ast);
+  return NODE_TYPE.encode(NODE_TYPE.create(protobufAST)).finish();
+}
+
+/**
+ * Only used for tests
+ */
+export function parseInProtobuf(ast: AST.Program) {
+  const protobugShapedAST = visitNode(ast);
   const protobufType = PROTO_ROOT.lookupType('Node');
   return protobufType.create(protobugShapedAST);
 }
@@ -47,9 +55,7 @@ export function serializeInProtobuf(sourceCode: SourceCode) {
 /**
  * Only used for tests
  */
-export function deserialize(proto: protobuf.Message | {}): any {
-  if (!proto) return {};
-  const serialized = NODE_TYPE.encode(proto).finish();
+export function deserialize(serialized: Uint8Array): any {
   const decoded = NODE_TYPE.decode(serialized);
   return decoded;
 }

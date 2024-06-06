@@ -25,6 +25,7 @@ import {
   parseForESLint,
   parsers,
   deserialize,
+  parseInProtobuf,
   serializeInProtobuf,
 } from '../../src/parsers';
 import { JsTsAnalysisInput } from '../../src/analysis';
@@ -48,15 +49,16 @@ async function parseSourceCode(filePath, parser, usingBabel = false) {
 }
 
 describe('ast', () => {
-  describe('serializeInProtobuf', () => {
+  describe('serializeInProtobuf()', () => {
     test.each(parseFunctions)(
       'should not lose information between serialize and deserializing',
       async ({ parser, usingBabel }) => {
         const filePath = path.join(__dirname, 'fixtures', 'ast', 'base.js');
         const sc = await parseSourceCode(filePath, parser, usingBabel);
-        const serialized = serializeInProtobuf(sc);
-        const deserialized = deserialize(serialized);
-        compareASTs(serialized, deserialized);
+        const protoMessage = parseInProtobuf(sc.ast);
+        const serialized = serializeInProtobuf(sc.ast);
+        const deserializedProtoMessage = deserialize(serialized);
+        compareASTs(protoMessage, deserializedProtoMessage);
       },
     );
   });
