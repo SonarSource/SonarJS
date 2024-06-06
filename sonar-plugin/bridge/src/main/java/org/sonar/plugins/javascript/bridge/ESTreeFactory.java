@@ -8,7 +8,6 @@ import org.sonar.plugins.javascript.bridge.protobuf.SourceLocation;
 
 public class ESTreeFactory {
 
-
   ESTree.Node from(Node node) {
     switch (node.getType()) {
       case ProgramType:
@@ -20,7 +19,7 @@ public class ESTreeFactory {
 
   ESTree.Program fromProgram(Node node) {
     var program = node.getProgram();
-    return new ESTree.Program(ESTree.NodeType.Program, fromLocation(node.getLoc()), program.getSourceType(), from(program.getBodyList()));
+    return new ESTree.Program(fromLocation(node.getLoc()), program.getSourceType(), from(program.getBodyList()));
   }
 
   private List<ESTree.Node> from(List<Node> bodyList) {
@@ -29,7 +28,8 @@ public class ESTreeFactory {
 
 
   private static ESTree.Location fromLocation(SourceLocation location) {
-    return new ESTree.Location(location.getStart().getLine(), location.getStart().getEnd(), location.getEnd().getLine(), location.getEnd().getEnd());
+    return new ESTree.Location(new ESTree.Position(location.getStart().getLine(), location.getStart().getEnd()),
+        new ESTree.Position(location.getEnd().getLine(), location.getEnd().getEnd()));
   }
 
 }
