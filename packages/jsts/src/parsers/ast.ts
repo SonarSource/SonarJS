@@ -247,18 +247,19 @@ export function visitNode(node: estree.BaseNodeWithoutComments | undefined | nul
         raw: node.raw,
       };
     } else {
+      // simple literal
       return Object.assign({ raw: node.raw }, translateValue(node.value));
     }
 
     function translateValue(value: any) {
       if (typeof value === 'string') {
-        return { value_string: value };
+        return { valueString: value };
       }
       if (typeof value === 'number') {
-        return { value_number: value };
+        return { valueNumber: value };
       }
       if (typeof value === 'boolean') {
-        return { value_boolean: value };
+        return { valueBoolean: value };
       }
       throw new Error(`Unknown literal value "${value}" of type ${typeof value}`);
     }

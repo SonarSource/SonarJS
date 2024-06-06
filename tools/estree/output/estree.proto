@@ -174,15 +174,15 @@ message ExportAllDeclaration {
   Node source = 2;
 }
 message Literal {
+  string raw = 1;
+  string bigint = 2;
+  string pattern = 3;
+  string flags = 4;
   oneof value {
-    string value_string = 1;
-    bool value_boolean = 2;
-    int32 value_number = 3;
+    string valueString = 5;
+    bool valueBoolean = 6;
+    int32 valueNumber = 7;
   }
-  string raw = 4;
-  string bigint = 5;
-  string pattern = 6;
-  string flags = 7;
 }
 message Identifier {
   string name = 1;
@@ -264,7 +264,7 @@ message MemberExpression {
   bool optional = 4;
 }
 message LogicalExpression {
-  Node operator = 1;
+  string operator = 1;
   Node left = 2;
   Node right = 3;
 }
