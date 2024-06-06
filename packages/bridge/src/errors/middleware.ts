@@ -20,6 +20,7 @@
 import express from 'express';
 import { ErrorCode, error } from '@sonar/shared';
 import { JsTsAnalysisOutput } from '@sonar/jsts';
+import { Message } from 'protobufjs';
 
 /**
  * Express.js middleware for handling error while serving requests.
@@ -92,5 +93,5 @@ export const EMPTY_JSTS_ANALYSIS_OUTPUT: JsTsAnalysisOutput = {
     cognitiveComplexity: 0,
   },
   cpdTokens: [],
-  ast: new Uint8Array(),
+  ast: new Message(),
 };

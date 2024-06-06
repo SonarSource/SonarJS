@@ -19,6 +19,7 @@
  */
 import { FileType, JsTsLanguage, AnalysisInput, AnalysisOutput, ErrorCode } from '@sonar/shared';
 import { CpdToken, Issue, Metrics, SymbolHighlight, SyntaxHighlight } from '../linter';
+import { Message } from 'protobufjs';
 
 /**
  *
@@ -63,5 +64,5 @@ export interface JsTsAnalysisOutput extends AnalysisOutput {
   metrics?: Metrics;
   cpdTokens?: CpdToken[];
   ucfgPaths?: string[];
-  ast: Uint8Array;
+  ast: Message<{}>;
 }
