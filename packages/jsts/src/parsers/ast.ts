@@ -56,29 +56,17 @@ export function visitNode(node: estree.BaseNodeWithoutComments | undefined | nul
     return {};
   }
 
-  const nodeOrTypeAndNode = getProtobufShapeForNode(node);
-  // The same type can be used for different nodes, we need an extra logic to create the correct message.
-  let messageType;
-  let protobufMessageNode;
-  if ('node' in nodeOrTypeAndNode && 'protobufMessageType' in nodeOrTypeAndNode.node) {
-    messageType = nodeOrTypeAndNode.protobufMessageType;
-    protobufMessageNode = nodeOrTypeAndNode.node;
-  } else {
-    messageType = node.type;
-    protobufMessageNode = nodeOrTypeAndNode;
-  }
-
   return {
-    type: NODE_TYPE_ENUM.values[messageType + 'Type'],
+    type: NODE_TYPE_ENUM.values[node.type + 'Type'],
     loc: node.loc,
-    [lowerCaseFirstLetter(messageType)]: protobufMessageNode,
+    [lowerCaseFirstLetter(node.type)]: getProtobufShapeForNode(node),
   };
 
   function lowerCaseFirstLetter(str: string) {
     return str.charAt(0).toLowerCase() + str.slice(1);
   }
 
-  function getProtobufShapeForNode(node: estree.BaseNodeWithoutComments): any {
+  function getProtobufShapeForNode(node: estree.BaseNodeWithoutComments) {
     switch (node.type) {
       case 'Program':
         return visitProgram(node as estree.Program);
@@ -272,6 +260,7 @@ export function visitNode(node: estree.BaseNodeWithoutComments | undefined | nul
       if (typeof value === 'boolean') {
         return { value_boolean: value };
       }
+      throw new Error(`Unknown literal value "${value}" of type ${typeof value}`);
     }
   }
 
