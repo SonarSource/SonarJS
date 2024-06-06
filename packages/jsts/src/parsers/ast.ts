@@ -36,6 +36,7 @@ const PATH_TO_PROTOFILE = path.join(
 );
 const PROTO_ROOT = protobuf.loadSync(PATH_TO_PROTOFILE);
 const NODE_TYPE = PROTO_ROOT.lookupType('Node');
+const NODE_TYPE_ENUM = PROTO_ROOT.lookupEnum('NodeType');
 
 export function deserialize(proto: protobuf.Message | {}): any {
   if (!proto) return {};
@@ -68,7 +69,7 @@ export function visitNode(node: estree.BaseNodeWithoutComments | undefined | nul
   }
 
   return {
-    type: messageType + 'Type',
+    type: NODE_TYPE_ENUM.values[messageType + 'Type'],
     loc: node.loc,
     [lowerCaseFirstLetter(messageType)]: protobufMessageNode,
   };
