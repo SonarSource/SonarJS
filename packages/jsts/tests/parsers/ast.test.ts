@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import path from 'path';
 
 import { readFile } from '@sonar/shared';
 import {
@@ -27,7 +28,6 @@ import {
   serializeInProtobuf,
 } from '../../src/parsers';
 import { JsTsAnalysisInput } from '../../src/analysis';
-import path from 'path';
 
 const parseFunctions = [
   {
@@ -35,7 +35,7 @@ const parseFunctions = [
     usingBabel: true,
     errorMessage: 'Unterminated string constant. (1:0)',
   },
-  //{ parser: parsers.typescript, usingBabel: false, errorMessage: 'Unterminated string literal.' },
+  { parser: parsers.typescript, usingBabel: false, errorMessage: 'Unterminated string literal.' },
 ];
 
 async function parseSourceCode(filePath, parser, usingBabel = false) {
@@ -55,11 +55,7 @@ describe('parseAst', () => {
       const sc = await parseSourceCode(filePath, parser, usingBabel);
       const serialized = serializeInProtobuf(sc);
       const deserialized = deserialize(serialized);
-      try {
-        compareASTs(serialized, deserialized);
-      } catch (e) {
-        fail(e);
-      }
+      compareASTs(serialized, deserialized);
     },
   );
 });
@@ -91,11 +87,19 @@ function compareASTs(parsedAst, deserializedAst) {
     } else if (typeof value === 'object') {
       compareASTs(value, deserializedAst[key]);
     } else {
-      if (value !== deserializedAst[key]) {
+      if (areDifferent(value, deserializedAst[key])) {
         throw new Error(
           `Value mismatch for key ${key} in ${parsedAst.type}. Expected ${value}, got ${deserializedAst[key]}`,
         );
       }
+    }
+  }
+
+  function areDifferent(a, b) {
+    if (isNullOrUndefined(a) && isNullOrUndefined(b)) return false;
+    return a !== b;
+    function isNullOrUndefined(a) {
+      return a === null || a === undefined;
     }
   }
 }

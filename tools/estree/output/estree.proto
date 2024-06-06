@@ -449,7 +449,7 @@ message EmptyStatement {
 }
 message ExpressionStatement {
   Node expression = 1;
-  string directive = 2;
+  optional string directive = 2;
 }
 message TemplateElement {
   bool tail = 1;
