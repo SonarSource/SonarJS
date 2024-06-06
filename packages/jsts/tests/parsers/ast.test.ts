@@ -49,27 +49,17 @@ async function parseSourceCode(filePath, parser, usingBabel = false) {
 
 describe('parseAst', () => {
   test.each(parseFunctions)(
-    'should serialize the AST in protobuf',
-    async ({ parser, usingBabel }) => {
-      const filePath = path.join(__dirname, 'fixtures', 'ast', 'base.js');
-      const sc = await parseSourceCode(filePath, parser, usingBabel);
-      const v = serializeInProtobuf(sc);
-      expect(v).toBeDefined();
-      const ret = deserialize(v);
-      ret;
-    },
-  );
-
-  test.each(parseFunctions)(
     'should not lose information between serialize and deserializing',
     async ({ parser, usingBabel }) => {
       const filePath = path.join(__dirname, 'fixtures', 'ast', 'base.js');
       const sc = await parseSourceCode(filePath, parser, usingBabel);
-      const v = serializeInProtobuf(sc);
-      expect(v).toBeDefined();
-      const ret = deserialize(v);
-      ret;
-      compareASTs(v, ret);
+      const serialized = serializeInProtobuf(sc);
+      const deserialized = deserialize(serialized);
+      try {
+        compareASTs(serialized, deserialized);
+      } catch (e) {
+        fail(e);
+      }
     },
   );
 });

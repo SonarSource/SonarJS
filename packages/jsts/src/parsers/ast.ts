@@ -38,17 +38,20 @@ const PROTO_ROOT = protobuf.loadSync(PATH_TO_PROTOFILE);
 const NODE_TYPE = PROTO_ROOT.lookupType('Node');
 const NODE_TYPE_ENUM = PROTO_ROOT.lookupEnum('NodeType');
 
+export function serializeInProtobuf(sourceCode: SourceCode) {
+  const protobugShapedAST = visitNode(sourceCode.ast);
+  const protobufType = PROTO_ROOT.lookupType('Node');
+  return protobufType.create(protobugShapedAST);
+}
+
+/**
+ * Only used for tests
+ */
 export function deserialize(proto: protobuf.Message | {}): any {
   if (!proto) return {};
   const serialized = NODE_TYPE.encode(proto).finish();
   const decoded = NODE_TYPE.decode(serialized);
   return decoded;
-}
-
-export function serializeInProtobuf(sourceCode: SourceCode) {
-  const protobugShapedAST = visitNode(sourceCode.ast);
-  const protobufType = PROTO_ROOT.lookupType('Node');
-  return protobufType.create(protobugShapedAST);
 }
 
 export function visitNode(node: estree.BaseNodeWithoutComments | undefined | null): any {
