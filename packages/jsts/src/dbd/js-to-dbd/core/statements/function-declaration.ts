@@ -22,10 +22,8 @@ export const handleFunctionDeclaration: StatementHandler<TSESTree.FunctionDeclar
   const { createValueIdentifier } = scopeManager;
   const { name } = id;
 
-  // a function declaration is a variable declaration and an assignment in the current scope
-  // todo: should be in the ***passed*** scope?
-  const variable = createVariable(name);
-  const currentEnvironmentRecord = context.scopeManager.getCurrentEnvironmentRecord();
+  const currentScope = context.scopeManager.getScope(node);
+  const currentScopeId = context.scopeManager.getScopeId(currentScope);
 
   const functionReferenceIdentifier = createValueIdentifier();
   // todo: we may need a common helper
@@ -38,19 +36,12 @@ export const handleFunctionDeclaration: StatementHandler<TSESTree.FunctionDeclar
   const functionInfo = processFunction(functionName, node);
   const functionReference = createFunctionReference(functionReferenceIdentifier, functionInfo);
 
-  const referenceIdentifier: ReferenceRecord = {
-    referencedName: functionName,
-    base: currentEnvironmentRecord,
-    strict: true,
-  };
-  putValue(referenceIdentifier, functionReference);
-
   currentFunctionInfo.functionReferences.push(functionReference);
 
   // create the function object
   addInstructions([
     createCallInstruction(
-      functionReference.identifier,
+      functionReferenceIdentifier,
       null,
       createNewObjectFunctionDefinition(),
       [],
@@ -59,8 +50,8 @@ export const handleFunctionDeclaration: StatementHandler<TSESTree.FunctionDeclar
     createCallInstruction(
       createValueIdentifier(),
       null,
-      createSetFieldFunctionDefinition(variable.name),
-      [createReference(scopeManager.getCurrentEnvironmentRecord().identifier), functionReference],
+      createSetFieldFunctionDefinition(name),
+      [createReference(currentScopeId), functionReference],
       node.loc,
     ),
   ]);

@@ -3,16 +3,16 @@ import { createNewObjectFunctionDefinition } from '../function-definition';
 import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/typescript-estree';
 import { compileAsAssignment, handleExpression } from './index';
 import { type ExpressionHandler } from '../expression-handler';
+import { createValue } from '../value';
 
 export const handleObjectExpression: ExpressionHandler<TSESTree.ObjectExpression> = (
   node,
-  record,
   context,
 ) => {
   const { properties } = node;
   const { scopeManager, addInstructions } = context;
 
-  const object = scopeManager.createBindingsHolder();
+  const object = createValue('object', scopeManager.createValueIdentifier());
 
   addInstructions([
     createCallInstruction(
@@ -33,14 +33,9 @@ export const handleObjectExpression: ExpressionHandler<TSESTree.ObjectExpression
         throw new Error(`Unable to handle object property type ${property.value.type}`);
       }
 
-      const propertyValue = handleExpression(property.value, record, context);
+      const propertyValue = handleExpression(property.value, context);
 
-      const propertyKeyInstructions = compileAsAssignment(
-        property.key,
-        object,
-        context,
-        propertyValue,
-      );
+      const propertyKeyInstructions = compileAsAssignment(property.key, context, propertyValue);
       addInstructions(propertyKeyInstructions);
     }
   }

@@ -1,8 +1,54 @@
 import { type BaseValue } from './value';
 import { type Constant } from './values/constant';
 import type { FunctionInfo } from './function-info';
-import { SourceCode } from '@typescript-eslint/utils/ts-eslint';
+import { Scope, SourceCode } from '@typescript-eslint/utils/ts-eslint';
 import { TSESTree } from '@typescript-eslint/typescript-estree';
+import { createReference } from './values/reference';
+
+export type Record = BaseValue<any> | typeof unresolvable;
+
+export type BaseReferenceRecord = {
+  referencedName: string;
+};
+
+function getVariableFromIdentifier(sourceCode: SourceCode, node: TSESTree.Identifier) {
+  let scope: Scope.Scope | null = sourceCode.getScope(node);
+  while (scope != null) {
+    const variable = scope.variables.find(value => value.name === node.name);
+    if (variable) {
+      return variable;
+    }
+    scope = scope.upper;
+  }
+}
+
+function getDefinitionFromIdentifier(sourceCode: SourceCode, node: TSESTree.Identifier) {
+  const variable = getVariableFromIdentifier(sourceCode, node);
+  const definition = variable?.defs.findLast(value => {
+    if (
+      value.name.type === 'Identifier' &&
+      value.name.name === node.name &&
+      value.name.range[0] <= node.range[0]
+    )
+      return true;
+  });
+  return definition;
+}
+
+function isParameter(sourceCode: SourceCode, node: TSESTree.Identifier): boolean {
+  return getDefinitionFromIdentifier(sourceCode, node)?.type === 'Parameter';
+}
+
+export type ResolvableReferenceRecord = BaseReferenceRecord & {
+  base: BaseValue<any>;
+  variable: Scope.Variable;
+};
+
+export type UnresolvableReferenceRecord = BaseReferenceRecord & {
+  base: typeof unresolvable;
+};
+
+export type ReferenceRecord = ResolvableReferenceRecord | UnresolvableReferenceRecord;
 
 type ConstantType =
   | 'bigint'
@@ -25,13 +71,22 @@ export interface ScopeManager {
   readonly functionInfos: Array<FunctionInfo>;
   createValueIdentifier(): number;
   addFunctionInfo(functionInfo: FunctionInfo): void;
-  getScopeId(node: TSESTree.Node): number;
+  getScopeId(scope: Scope.Scope): number;
+  getScope(node: TSESTree.Node): Scope.Scope;
+  getIdentifierReference(node: TSESTree.Identifier): ReferenceRecord;
+  getVariableFromIdentifier(node: TSESTree.Identifier): Scope.Variable | undefined;
+  getDefinitionFromIdentifier(node: TSESTree.Identifier): Scope.Definition | undefined;
+  isParameter(node: TSESTree.Identifier): boolean;
 }
+export const unresolvable = Symbol();
 
 export const createScopeManager = (sourceCode: SourceCode): ScopeManager => {
   const { scopes } = sourceCode.scopeManager!;
   let valueIndex = scopes.length;
 
+  const createValueIdentifier = () => valueIndex++;
+
+  const variableIds = new Map<number, number>();
   const functionInfos: Array<FunctionInfo> = [];
   const valueByConstantTypeRegistry: ScopeManager['valueByConstantTypeRegistry'] = new Map([]);
   const constantRegistry: ScopeManager['constantRegistry'] = new Map([]);
@@ -39,15 +94,36 @@ export const createScopeManager = (sourceCode: SourceCode): ScopeManager => {
   return {
     functionInfos,
     valueByConstantTypeRegistry,
-    createValueIdentifier: () => {
-      return valueIndex++;
-    },
+    createValueIdentifier,
     constantRegistry,
     addFunctionInfo(functionInfo) {
       functionInfos.push(functionInfo);
     },
-    getScopeId(node: TSESTree.Node) {
-      return scopes.indexOf(sourceCode.getScope(node));
+    getScopeId(scope: Scope.Scope) {
+      return scopes.indexOf(scope);
     },
+    getScope(node: TSESTree.Node) {
+      return sourceCode.getScope(node);
+    },
+    getIdentifierReference(node: TSESTree.Identifier) {
+      const variable = getVariableFromIdentifier(sourceCode, node);
+      if (variable) {
+        if (!variableIds.has(variable.$id)) {
+          variableIds.set(variable.$id, createValueIdentifier());
+        }
+        return {
+          base: createReference(variableIds.get(variable.$id)!),
+          variable,
+          referencedName: node.name,
+        };
+      }
+      return {
+        base: unresolvable,
+        referencedName: node.name,
+      };
+    },
+    getVariableFromIdentifier: node => getVariableFromIdentifier(sourceCode, node),
+    getDefinitionFromIdentifier: node => getDefinitionFromIdentifier(sourceCode, node),
+    isParameter: node => isParameter(sourceCode, node),
   };
 };

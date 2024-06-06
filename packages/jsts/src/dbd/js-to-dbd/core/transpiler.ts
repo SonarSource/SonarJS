@@ -62,7 +62,6 @@ export const createTranspiler = (): Transpiler => {
       fileName,
       createFunctionDefinition('main', generateSignature('main', fileName)),
       [],
-      [],
     );
 
     const context = createContext(functionInfo, blockManager, scopeManager);

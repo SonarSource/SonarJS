@@ -18,32 +18,17 @@ import { handleVariableDeclarator } from './variable-declarator';
 import { handleUnaryExpression } from './unary-expression';
 import { handleLogicalExpression } from './logical-expression';
 import { handleConditionalExpression } from './conditional-expression';
-import { type Record, putValue, unresolvable } from '../ecma/reference-record';
 import { createReference } from '../values/reference';
 import { type Constant, createNull } from '../values/constant';
-import { getIdentifierReference, isAnEnvironmentRecord } from '../ecma/environment-record';
 
 export const compileAsAssignment = (
   node: Exclude<TSESTree.Node, TSESTree.Statement>,
-  record: Record,
   context: Context,
   value: Value,
 ): Array<Instruction> => {
   switch (node.type) {
     case AST_NODE_TYPES.Identifier: {
       const instructions: Array<Instruction> = [];
-
-      if (record === unresolvable) {
-        throw new Error('CHECK WHY IT HAPPENS');
-      }
-
-      if (isAnEnvironmentRecord(record)) {
-        const referenceRecord = getIdentifierReference(record, node.name);
-
-        putValue(referenceRecord, value);
-      } else {
-        record.bindings.set(node.name, value);
-      }
 
       instructions.push(
         createCallInstruction(
@@ -84,7 +69,6 @@ export const compileAsAssignment = (
 
 export const compileAsDeclaration = (
   node: Exclude<TSESTree.Node, TSESTree.Statement>,
-  record: Record,
   context: Context,
   value: BaseValue<any>,
 ): Array<Instruction> => {
@@ -128,7 +112,7 @@ export const compileAsDeclaration = (
   }
 };
 
-export const handleExpression: ExpressionHandler = (node, record, context) => {
+export const handleExpression: ExpressionHandler = (node, context) => {
   console.info(' handleExpression', node.type);
 
   let expressionHandler: ExpressionHandler<any>;
@@ -194,5 +178,5 @@ export const handleExpression: ExpressionHandler = (node, record, context) => {
       };
   }
 
-  return expressionHandler(node, record, context);
+  return expressionHandler(node, context);
 };

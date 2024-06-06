@@ -11,6 +11,7 @@ import type { FunctionInfo } from './function-info';
 import type { FunctionReference } from './values/function-reference';
 import { Context } from './context';
 import { createParameter, Parameter } from './values/parameter';
+import { TSESTree } from '@typescript-eslint/typescript-estree';
 
 export function createScopeDeclarationInstruction(
   scopeId: number,
@@ -42,24 +43,25 @@ export const getFunctionReference = (
   );
 };
 
-export const getParameter = (
-  context: Context,
-  functionInfo: FunctionInfo,
-  name: string,
-): Parameter | null => {
-  // replace lookup with eslint/escope find
-  const parameter = functionInfo.positionalParameters.find(parameter => parameter.name === name);
-  if (!parameter) {
-    return null;
+export const getParameter = (context: Context, node: TSESTree.Identifier): Parameter => {
+  const definition = context.scopeManager.getDefinitionFromIdentifier(node)?.name;
+  if (definition?.type !== 'Identifier') {
+    console.error("Definitions with type different than 'Identifier' are not supported");
+    throw new Error("Definitions with type different than 'Identifier' are not supported");
   }
-  const { position, location } = parameter;
-  const resultParam = createParameter(context.scopeManager.createValueIdentifier(), name, location);
+  const { loc: location } = definition;
+  const position = (node.parent as TSESTree.FunctionDeclaration).params.indexOf(node);
+  const resultParam = createParameter(
+    context.scopeManager.createValueIdentifier(),
+    node.name,
+    location,
+  );
   context.addInstructions([
     createCallInstruction(
       resultParam.identifier,
       null,
       createGetFieldFunctionDefinition(String(position)),
-      [functionInfo.parameters[1]],
+      [context.functionInfo.parameters[1]],
       location,
     ),
   ]);

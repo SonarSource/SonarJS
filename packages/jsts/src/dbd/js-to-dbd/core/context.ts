@@ -1,7 +1,7 @@
 import { type ScopeManager } from './scope-manager';
 import { createFunctionInfo, FunctionInfo } from './function-info';
 import { BlockManager, createBlockManager } from './block-manager';
-import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/typescript-estree';
+import { TSESTree } from '@typescript-eslint/typescript-estree';
 import type { Location } from './location';
 import { type Block } from './block';
 import { Instruction } from './instruction';
@@ -55,23 +55,6 @@ export const createContext = (
         node.loc,
       );
 
-      const positionalParameters = node.params.map((parameter, position) => {
-        let parameterName: string;
-
-        if (parameter.type === AST_NODE_TYPES.Identifier) {
-          parameterName = parameter.name;
-        } else {
-          // todo
-          parameterName = '';
-        }
-
-        return {
-          name: parameterName,
-          location: parameter.loc,
-          position,
-        };
-      });
-
       const functionParameters = [parentReference, functionParametersReference];
 
       const { fileName } = functionInfo;
@@ -81,7 +64,6 @@ export const createContext = (
         fileName,
         createFunctionDefinition(name, generateSignature(name, fileName)),
         functionParameters,
-        positionalParameters,
       );
 
       // create the block manager
@@ -91,7 +73,7 @@ export const createContext = (
       const block = blockManager.createBlock(node.loc);
 
       blockManager.pushBlock(block);
-      const currentScopeId = scopeManager.getScopeId(node);
+      const currentScopeId = scopeManager.getScopeId(scopeManager.getScope(node));
 
       // add the scope creation instruction
       block.instructions.push(createScopeDeclarationInstruction(currentScopeId, node.loc));
