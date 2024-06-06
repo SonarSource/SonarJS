@@ -47,17 +47,19 @@ async function parseSourceCode(filePath, parser, usingBabel = false) {
   return parseForESLint(fileContent, parser.parse, options);
 }
 
-describe('parseAst', () => {
-  test.each(parseFunctions)(
-    'should not lose information between serialize and deserializing',
-    async ({ parser, usingBabel }) => {
-      const filePath = path.join(__dirname, 'fixtures', 'ast', 'base.js');
-      const sc = await parseSourceCode(filePath, parser, usingBabel);
-      const serialized = serializeInProtobuf(sc);
-      const deserialized = deserialize(serialized);
-      compareASTs(serialized, deserialized);
-    },
-  );
+describe('ast', () => {
+  describe('serializeInProtobuf', () => {
+    test.each(parseFunctions)(
+      'should not lose information between serialize and deserializing',
+      async ({ parser, usingBabel }) => {
+        const filePath = path.join(__dirname, 'fixtures', 'ast', 'base.js');
+        const sc = await parseSourceCode(filePath, parser, usingBabel);
+        const serialized = serializeInProtobuf(sc);
+        const deserialized = deserialize(serialized);
+        compareASTs(serialized, deserialized);
+      },
+    );
+  });
 });
 
 /**
