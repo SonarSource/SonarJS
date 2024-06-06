@@ -67,8 +67,8 @@ export function addHandWrittenMessages(messages: Record<string, ESTreeNode>) {
 export function writeMessagesToDir(messages: Record<string, ESTreeNode>, outputDir: string) {
   addHandWrittenMessages(messages);
   fs.writeFileSync(
-    path.join(outputDir, 'estreeProto.proto'),
-    addPrefix(translateToProtoFormat(messages), messages),
+    path.join(outputDir, 'estree.proto'),
+    addPrefix(translateToProtoFormat(messages)),
   );
   /**
    * Translate the messages to a protobuf file format.
@@ -103,19 +103,7 @@ export function writeMessagesToDir(messages: Record<string, ESTreeNode>, outputD
     return lines.join('\n');
   }
 
-  function addPrefix(protoData: string, messages: Record<string, ESTreeNode>) {
-    return `syntax = "proto3";
-// Generated for @types/estree version: ${typesVersion}
-option java_package="org.sonar.plugins.javascript.bridge.protobuf";
-option java_multiple_files = true;
-
-enum NodeType {
-${Object.keys(messages)
-  .sort()
-  .map((n, i) => `${n} = ${i}`)
-  .join(';\n')}
-}
-
-${protoData}`;
+  function addPrefix(protoData: string) {
+    return `syntax = "proto3";\n// Generated for @types/estree version: ${typesVersion}\n\n${protoData}`;
   }
 }
