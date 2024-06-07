@@ -48,6 +48,7 @@
           <arguments>
             <argument>${project.basedir}/downloads/runtimes/darwin-arm64/node</argument>
             <argument>${project.basedir}/downloads/runtimes/darwin-x64/node</argument>
+            <argument>${project.basedir}/downloads/runtimes/linux-arm64/node</argument>
             <argument>${project.basedir}/downloads/runtimes/linux-x64/node</argument>
             <argument>${project.basedir}/downloads/runtimes/win-x64/node.exe</argument>
           </arguments>

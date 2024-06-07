@@ -34,6 +34,13 @@ export const DISTROS = [
     binPath: 'bin/node',
   },
   {
+    id: 'linux-arm64',
+    url: `${NODE_ORG_URL}-linux-arm64.tar.gz`,
+    artifactoryUrl: `${NODE_ARTIFACTORY_URL}-linux-arm64.tar.gz`,
+    sha: 'd2a7dbeeb274bfd16b579d2cafb92f673010df36c83a5b55de3916aad6806a6a',
+    binPath: 'bin/node',
+  },
+  {
     id: 'linux-x64',
     url: `${NODE_ORG_URL}-linux-x64.tar.gz`,
     artifactoryUrl: `${NODE_ARTIFACTORY_URL}-linux-x64.tar.gz`,
