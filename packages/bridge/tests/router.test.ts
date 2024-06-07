@@ -163,8 +163,9 @@ describe('router', () => {
         message: `Remove this duplicated type or replace with another one.`,
       }),
     );
-    const ast = response.get('ast');
-    expect(ast).toEqual('plop');
+    const ast = response.get('ast') as File;
+    const buffer = Buffer.from(await ast.arrayBuffer());
+    expect(buffer.toString()).toEqual('plop');
   });
 
   it('should route /analyze-with-program requests', async () => {

@@ -63,5 +63,5 @@ export interface JsTsAnalysisOutput extends AnalysisOutput {
   metrics?: Metrics;
   cpdTokens?: CpdToken[];
   ucfgPaths?: string[];
-  ast: Uint8Array;
+  ast: Uint8Array | string;
 }

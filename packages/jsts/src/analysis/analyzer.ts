@@ -85,7 +85,12 @@ function analyzeFile(
       highlightedSymbols,
       cognitiveComplexity,
     );
-    return { issues, ucfgPaths, ...extendedMetrics, ast: serializeInProtobuf(sourceCode.ast) };
+    return {
+      issues,
+      ucfgPaths,
+      ...extendedMetrics,
+      ast: serializeAst(sourceCode, filePath, language),
+    };
   } catch (e) {
     /** Turns exceptions from TypeScript compiler into "parsing" errors */
     if (e.stack.indexOf('typescript.js:') > -1) {
@@ -93,6 +98,17 @@ function analyzeFile(
     } else {
       throw e;
     }
+  }
+}
+
+/**
+ * Remove this when we figure out how to serialize the TypeScript AST
+ */
+function serializeAst(sourceCode: SourceCode, filePath: string, language?: JsTsLanguage) {
+  if (language === 'ts' || filePath.endsWith('.ts')) {
+    return 'plop';
+  } else {
+    return serializeInProtobuf(sourceCode.ast);
   }
 }
 

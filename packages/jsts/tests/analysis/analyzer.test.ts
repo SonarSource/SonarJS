@@ -943,7 +943,7 @@ describe('analyzeJSTS', () => {
     const language = 'js';
 
     const { ast } = analyzeJSTS(await jsTsInput({ filePath }), language) as JsTsAnalysisOutput;
-    const protoMessage = deserializeProtobuf(ast);
+    const protoMessage = deserializeProtobuf(ast as Uint8Array);
     expect(protoMessage.program).toBeDefined();
     expect(protoMessage.program.body).toHaveLength(1);
     expect(protoMessage.program.body[0].functionDeclaration.id.identifier.name).toEqual('f');
