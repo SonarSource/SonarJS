@@ -7,16 +7,15 @@ import type { ExpressionHandler } from '../expression-handler';
 
 export const handleBinaryExpression: ExpressionHandler<TSESTree.BinaryExpression> = (
   node,
-  record,
   context,
 ) => {
   const { left, right, operator } = node;
 
   // rhs
-  const rightValue = handleExpression(right, record, context);
+  const rightValue = handleExpression(right, context);
 
   // lhs
-  const leftValue = handleExpression(left, record, context);
+  const leftValue = handleExpression(left, context);
 
   const value = createReference(context.scopeManager.createValueIdentifier());
 

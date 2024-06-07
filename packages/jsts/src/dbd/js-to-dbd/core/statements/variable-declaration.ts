@@ -6,15 +6,7 @@ export const handleVariableDeclaration: StatementHandler<TSESTree.VariableDeclar
   node,
   context,
 ) => {
-  const { scopeManager } = context;
-
-  const environmentRecord = scopeManager.getCurrentEnvironmentRecord();
-
   for (const declaration of node.declarations) {
-    handleExpression(
-      declaration,
-      environmentRecord,
-      context,
-    );
+    handleExpression(declaration, context);
   }
 };

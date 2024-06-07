@@ -8,23 +8,22 @@ import { createReference } from '../values/reference';
 
 export const handleConditionalExpression: ExpressionHandler<TSESTree.ConditionalExpression> = (
   node,
-  record,
   context,
 ) => {
   const { test, consequent, alternate } = node;
   const { blockManager, createScopedBlock } = context;
 
-  const testValue = handleExpression(test, record, context);
+  const testValue = handleExpression(test, context);
   const currentBlock = blockManager.getCurrentBlock();
 
   const consequentBlock = createScopedBlock(consequent.loc);
   blockManager.pushBlock(consequentBlock);
-  const consequentValue = handleExpression(consequent, record, context);
+  const consequentValue = handleExpression(consequent, context);
   const afterConsequentInstructionsBlock = blockManager.getCurrentBlock();
 
   const alternateBlock = createScopedBlock(alternate.loc);
   blockManager.pushBlock(alternateBlock);
-  const alternateValue = handleExpression(alternate, record, context);
+  const alternateValue = handleExpression(alternate, context);
   const afterAlternateInstructionsBlock = blockManager.getCurrentBlock();
 
   currentBlock.instructions.push(

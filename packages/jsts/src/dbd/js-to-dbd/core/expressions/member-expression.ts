@@ -7,11 +7,10 @@ import { createGetFieldFunctionDefinition } from '../function-definition';
 
 export const handleMemberExpression: ExpressionHandler<TSESTree.MemberExpression> = (
   node,
-  record,
   context,
 ) => {
   const { object, property } = node;
-  const objectValue = handleExpression(object, record, context);
+  const objectValue = handleExpression(object, context);
 
   if (property.type === AST_NODE_TYPES.Literal) {
     const resultValue = createReference(context.scopeManager.createValueIdentifier());
@@ -26,7 +25,7 @@ export const handleMemberExpression: ExpressionHandler<TSESTree.MemberExpression
     ]);
     return resultValue;
   }
-  const propertyValue = handleExpression(property, objectValue, context);
+  const propertyValue = handleExpression(property, context);
 
   return propertyValue;
 };

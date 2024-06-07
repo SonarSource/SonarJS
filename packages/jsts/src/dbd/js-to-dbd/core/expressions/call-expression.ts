@@ -23,69 +23,37 @@ import { createCallInstruction } from '../instructions/call-instruction';
 import { Value } from '../value';
 import { createReference } from '../values/reference';
 import type { ExpressionHandler } from '../expression-handler';
-import { AST_NODE_TYPES } from '@typescript-eslint/typescript-estree';
-import { getParameter } from '../utils';
 import { isAFunctionReference } from '../values/function-reference';
-import { getIdentifierReference, isAnEnvironmentRecord } from '../ecma/environment-record';
-import { getValue } from '../ecma/reference-record';
 import {
   createNewObjectFunctionDefinition,
   createSetFieldFunctionDefinition,
 } from '../function-definition';
 import { createNull } from '../values/constant';
 
-export const handleCallExpression: ExpressionHandler<TSESTree.CallExpression> = (
-  node,
-  record,
-  context,
-) => {
-  const { functionInfo, scopeManager, addInstructions } = context;
+export const handleCallExpression: ExpressionHandler<TSESTree.CallExpression> = (node, context) => {
+  const { scopeManager, addInstructions } = context;
   const { createValueIdentifier } = scopeManager;
 
   let value: Value;
 
   const { callee, arguments: argumentExpressions } = node;
 
-  const argumentValues: Array<Value> = [];
+  const argumentValues: Array<Value> = argumentExpressions.map(expression =>
+    handleExpression(expression, context),
+  );
 
-  for (const argumentExpression of argumentExpressions) {
-    if (argumentExpression.type === AST_NODE_TYPES.Identifier) {
-      const parameter = getParameter(context, functionInfo, argumentExpression.name);
-
-      if (parameter) {
-        argumentValues.push(parameter);
-      } else {
-        // if not it may be a variable of the scope
-        if (isAnEnvironmentRecord(record)) {
-          const identifierReference = getIdentifierReference(record, argumentExpression.name);
-
-          const value = getValue(identifierReference);
-
-          if (value) {
-            argumentValues.push(value);
-          }
-        }
-
-        // todo
-      }
-    } else {
-      const argumentValue = handleExpression(argumentExpression, record, context);
-
-      argumentValues.push(argumentValue);
-    }
-  }
   for (let i = 0; i < 10; i++) {
     argumentValues.push(createNull());
   }
 
-  const calleeValue = handleExpression(callee, record, context);
+  const calleeValue = handleExpression(callee, context);
 
   if (isAFunctionReference(calleeValue)) {
     const { functionInfo } = calleeValue;
     const operands: Array<Value> = [];
 
     // first argument is the current scope
-    operands.push(createReference(scopeManager.getCurrentEnvironmentRecord().identifier));
+    operands.push(createReference(scopeManager.getScopeId(scopeManager.getScope(node))));
     value = createReference(createValueIdentifier());
 
     // second argument is an array of the passed arguments filled
