@@ -49,6 +49,25 @@ export function getEstreeNodes(file: ts.SourceFile) {
 
   const messages: Record<string, ESTreeNode> = {};
 
+  // Create node manually for 'RegExpLiteral' and 'TemplateElement'.
+  messages['RegExpLiteral'] = {
+    name: 'RegExpLiteral',
+    fields: [
+      { name: 'pattern', fieldValue: { type: 'string' } },
+      { name: 'flags', fieldValue: { type: 'string' } },
+      { name: 'raw', fieldValue: { type: 'string' } },
+    ],
+  };
+
+  messages['TemplateElement'] = {
+    name: 'TemplateElement',
+    fields: [
+      { name: 'tail', fieldValue: { type: 'bool' } },
+      { name: 'cooked', fieldValue: { type: 'string' } },
+      { name: 'raw', fieldValue: { type: 'string' } },
+    ],
+  };
+
   const requestedTypes: string[] = ['Program'];
   while (requestedTypes.length) {
     const requestedType = requestedTypes.pop()!;
@@ -168,9 +187,7 @@ export function getEstreeNodes(file: ts.SourceFile) {
       if (name === 'Array' && typeNode.typeArguments?.length === 1) {
         // The type is of shape "Array<A>", we want to generate repeated A
         return {
-          elementValue: flattenRepeatedNodeInOneOf(
-            getFieldValueFromType(typeNode.typeArguments[0]),
-          ),
+          elementValue: getFieldValueFromType(typeNode.typeArguments[0]),
         };
       }
       return requestType(typeNode.typeName.getText(file));

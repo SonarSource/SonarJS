@@ -122,7 +122,7 @@
               <protocArtifact>com.google.protobuf:protoc:${protobuf.version}:exe:${os.detected.classifier}
               </protocArtifact>
               <protoSourceRoot>${project.basedir}/src/main/protobuf</protoSourceRoot>
-              <outputDirectory>${project.build.directory}/generated-sources/protobuf</outputDirectory>
+              <outputDirectory>${project.build.directory}/generated-sources</outputDirectory>
             </configuration>
           </execution>
         </executions>

@@ -30,25 +30,6 @@ const packageJson = require(path.join('..', '..', 'package.json'));
 const typesVersion = packageJson.devDependencies['@types/estree'];
 
 export function addHandWrittenMessages(messages: Record<string, ESTreeNode>) {
-  // Create node manually for 'RegExpLiteral' and 'TemplateElement'.
-  messages['RegExpLiteral'] = {
-    name: 'RegExpLiteral',
-    fields: [
-      { name: 'pattern', fieldValue: { type: 'string' } },
-      { name: 'flags', fieldValue: { type: 'string' } },
-      { name: 'raw', fieldValue: { type: 'string' } },
-    ],
-  };
-
-  messages['TemplateElement'] = {
-    name: 'TemplateElement',
-    fields: [
-      { name: 'tail', fieldValue: { type: 'bool' } },
-      { name: 'cooked', fieldValue: { type: 'string' } },
-      { name: 'raw', fieldValue: { type: 'string' } },
-    ],
-  };
-
   // We create manually the top level node "BaseNodeWithoutComments", holding all the other nodes. The name is taken directly from the index.d.ts file.
   // While we could generate this node with the same logic as the one used for all nodes, we do it manually as there would be too many edge cases to handle.
   const allNodeTypesAsFields = Object.keys(messages).map(nodeType => {
