@@ -105,15 +105,14 @@ function analyzeFile(
  * Remove this when we figure out how to serialize the TypeScript AST
  */
 function serializeAst(sourceCode: SourceCode, filePath: string) {
-  if (isUnsupported(filePath)) {
-    return 'plop';
-  } else {
+  if (isSupported(filePath)) {
     return serializeInProtobuf(sourceCode.ast);
+  } else {
+    return 'plop';
   }
 
-  function isUnsupported(filePath: string) {
-    const UNSUPPORTED_FORMATS = ['.ts', '.tsx', '.jsx'];
-    return UNSUPPORTED_FORMATS.some(ext => filePath.endsWith(ext));
+  function isSupported(filePath: string) {
+    return filePath.endsWith('.js');
   }
 }
 
