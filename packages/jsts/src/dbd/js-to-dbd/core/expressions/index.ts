@@ -4,7 +4,6 @@ import type { BaseValue, Value } from '../value';
 import { type ExpressionHandler } from '../expression-handler';
 import { createCallInstruction } from '../instructions/call-instruction';
 import { createSetFieldFunctionDefinition } from '../function-definition';
-import { Context } from '../context';
 import { handleAssignmentExpression } from './assignment-expression';
 import { handleArrowFunctionExpression } from './arrow-function-expression';
 import { handleLiteral } from './literal';
@@ -20,10 +19,11 @@ import { handleLogicalExpression } from './logical-expression';
 import { handleConditionalExpression } from './conditional-expression';
 import { createReference } from '../values/reference';
 import { type Constant, createNull } from '../values/constant';
+import { FunctionInfo } from '../function-info';
 
 export const compileAsAssignment = (
   node: Exclude<TSESTree.Node, TSESTree.Statement>,
-  context: Context,
+  functionInfo: FunctionInfo,
   value: Value,
 ): Array<Instruction> => {
   switch (node.type) {
@@ -32,7 +32,7 @@ export const compileAsAssignment = (
 
       instructions.push(
         createCallInstruction(
-          context.scopeManager.createValueIdentifier(),
+          functionInfo.scopeManager.createValueIdentifier(),
           null,
           createSetFieldFunctionDefinition(node.name),
           [createReference(record.identifier), value],
@@ -112,7 +112,7 @@ export const compileAsDeclaration = (
   }
 };
 
-export const handleExpression: ExpressionHandler = (node, context) => {
+export const handleExpression: ExpressionHandler = (node, functionInfo) => {
   console.info(' handleExpression', node.type);
 
   let expressionHandler: ExpressionHandler<any>;
@@ -178,5 +178,5 @@ export const handleExpression: ExpressionHandler = (node, context) => {
       };
   }
 
-  return expressionHandler(node, context);
+  return expressionHandler(node, functionInfo);
 };

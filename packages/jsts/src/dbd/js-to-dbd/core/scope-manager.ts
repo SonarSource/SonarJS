@@ -66,13 +66,14 @@ type ConstantType =
  * Basically analogous to the ECMAScript concept of Execution Context
  */
 export interface ScopeManager {
+  readonly fileName: string;
   readonly valueByConstantTypeRegistry: Map<ConstantType, BaseValue<any>>;
   readonly constantRegistry: Map<Constant['value'], Constant>;
   readonly functionInfos: Array<FunctionInfo>;
   createValueIdentifier(): number;
   addFunctionInfo(functionInfo: FunctionInfo): void;
   getScopeId(scope: Scope.Scope): number;
-  getScope(node: TSESTree.Node): Scope.Scope;
+  getScope(node: TSESTree.NodeOrTokenData): Scope.Scope;
   getIdentifierReference(node: TSESTree.Identifier): ReferenceRecord;
   getVariableFromIdentifier(node: TSESTree.Identifier): Scope.Variable | undefined;
   getDefinitionFromIdentifier(node: TSESTree.Identifier): Scope.Definition | undefined;
@@ -80,7 +81,7 @@ export interface ScopeManager {
 }
 export const unresolvable = Symbol();
 
-export const createScopeManager = (sourceCode: SourceCode): ScopeManager => {
+export const createScopeManager = (sourceCode: SourceCode, fileName: string): ScopeManager => {
   const { scopes } = sourceCode.scopeManager!;
   let valueIndex = scopes.length;
 
@@ -92,6 +93,7 @@ export const createScopeManager = (sourceCode: SourceCode): ScopeManager => {
   const constantRegistry: ScopeManager['constantRegistry'] = new Map([]);
 
   return {
+    fileName,
     functionInfos,
     valueByConstantTypeRegistry,
     createValueIdentifier,

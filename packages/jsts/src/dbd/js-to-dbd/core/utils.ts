@@ -9,7 +9,6 @@ import { isATerminatorInstruction } from './instructions/terminator-instruction'
 import type { Instruction } from './instruction';
 import type { FunctionInfo } from './function-info';
 import type { FunctionReference } from './values/function-reference';
-import { Context } from './context';
 import { createParameter, Parameter } from './values/parameter';
 import { TSESTree } from '@typescript-eslint/typescript-estree';
 
@@ -43,8 +42,8 @@ export const getFunctionReference = (
   );
 };
 
-export const getParameter = (context: Context, node: TSESTree.Identifier): Parameter => {
-  const definition = context.scopeManager.getDefinitionFromIdentifier(node)?.name;
+export const getParameter = (functionInfo: FunctionInfo, node: TSESTree.Identifier): Parameter => {
+  const definition = functionInfo.scopeManager.getDefinitionFromIdentifier(node)?.name;
   if (definition?.type !== 'Identifier') {
     console.error("Definitions with type different than 'Identifier' are not supported");
     throw new Error("Definitions with type different than 'Identifier' are not supported");
@@ -52,16 +51,16 @@ export const getParameter = (context: Context, node: TSESTree.Identifier): Param
   const { loc: location } = definition;
   const position = (node.parent as TSESTree.FunctionDeclaration).params.indexOf(node);
   const resultParam = createParameter(
-    context.scopeManager.createValueIdentifier(),
+    functionInfo.scopeManager.createValueIdentifier(),
     node.name,
     location,
   );
-  context.addInstructions([
+  functionInfo.addInstructions([
     createCallInstruction(
       resultParam.identifier,
       null,
       createGetFieldFunctionDefinition(String(position)),
-      [context.functionInfo.parameters[1]],
+      [functionInfo.parameters[1]],
       location,
     ),
   ]);

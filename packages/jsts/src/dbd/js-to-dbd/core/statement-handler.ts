@@ -1,7 +1,7 @@
 import { TSESTree } from '@typescript-eslint/typescript-estree';
-import type { Context } from './context';
+import { FunctionInfo } from './function-info';
 
 export type StatementHandler<Statement extends TSESTree.Statement = TSESTree.Statement> = (
   node: Statement,
-  context: Context,
+  context: FunctionInfo,
 ) => void;
