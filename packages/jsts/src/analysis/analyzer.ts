@@ -89,7 +89,7 @@ function analyzeFile(
       issues,
       ucfgPaths,
       ...extendedMetrics,
-      ast: serializeAst(sourceCode, filePath, language),
+      ast: serializeAst(sourceCode, filePath),
     };
   } catch (e) {
     /** Turns exceptions from TypeScript compiler into "parsing" errors */
@@ -104,8 +104,8 @@ function analyzeFile(
 /**
  * Remove this when we figure out how to serialize the TypeScript AST
  */
-function serializeAst(sourceCode: SourceCode, filePath: string, language?: JsTsLanguage) {
-  if (language === 'ts' || filePath.endsWith('.ts')) {
+function serializeAst(sourceCode: SourceCode, filePath: string) {
+  if (filePath.endsWith('.ts')) {
     return 'plop';
   } else {
     return serializeInProtobuf(sourceCode.ast);
