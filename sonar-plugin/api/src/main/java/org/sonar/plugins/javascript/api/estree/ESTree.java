@@ -41,8 +41,8 @@ public class ESTree {
   public record Location(Position start, Position end) {}
   
   public sealed interface CallExpression extends Node {
-    Node callee();
-    List<Node> arguments();
+    ExpressionOrSuper callee();
+    List<ExpressionOrSpreadElement> arguments();
   }
   public sealed interface ChainElement extends Node {
     boolean optional();
@@ -53,7 +53,7 @@ public class ESTree {
   public sealed interface ExportDefaultDeclaration extends Node {
 
   }
-  public sealed interface Expression extends Node {
+  public sealed interface Expression extends ExpressionOrPattern, ExpressionOrSuper, ExpressionOrPrivateIdentifier, ExpressionOrSpreadElement, ExpressionOrVariableDeclaration {
 
   }
   public sealed interface Literal extends Node {
@@ -62,10 +62,10 @@ public class ESTree {
   public sealed interface ModuleDeclaration extends Node {
 
   }
-  public sealed interface Pattern extends Node {
+  public sealed interface Pattern extends ExpressionOrPattern {
 
   }
-  public sealed interface Statement extends Node {
+  public sealed interface Statement extends DirectiveOrModuleDeclarationOrStatement {
 
   }
 
@@ -82,8 +82,7 @@ public class ESTree {
   public sealed interface AssignmentPropertyOrRestElement extends Node {}
   public sealed interface DirectiveOrModuleDeclarationOrStatement extends Node {}
   public sealed interface ExpressionOrPattern extends Node {}
-  public sealed interface BooleanOrNumberOrString extends Node {}
-        
+
   public record ArrayExpression(Location loc, List<ExpressionOrSpreadElement> elements) implements Expression {}
   public record ArrayPattern(Location loc, List<Pattern> elements) implements Pattern {}
   public record ArrowFunctionExpression(Location loc, boolean expression, BlockStatementOrExpression body, List<Pattern> params, boolean generator, boolean async) implements Expression {}
@@ -144,7 +143,7 @@ public class ESTree {
   public record ReturnStatement(Location loc, Expression argument) implements Statement {}
   public record SequenceExpression(Location loc, List<Expression> expressions) implements Expression {}
   public record SimpleCallExpression(Location loc, boolean optional, ExpressionOrSuper callee, List<ExpressionOrSpreadElement> arguments) implements CallExpression, ChainElement {}
-  public record SimpleLiteral(Location loc, BooleanOrNumberOrString value, String raw) implements Literal {}
+  public record SimpleLiteral(Location loc, String value, String raw) implements Literal {}
   public record SpreadElement(Location loc, Expression argument) implements ExpressionOrSpreadElement, PropertyOrSpreadElement {}
   public record StaticBlock(Location loc) implements MethodDefinitionOrPropertyDefinitionOrStaticBlock, Statement {}
   public record Super(Location loc) implements ExpressionOrSuper {}
