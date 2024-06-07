@@ -214,7 +214,6 @@ export function visitNode(node: estree.BaseNodeWithoutComments | undefined | nul
         return visitFunctionExpression(node as estree.FunctionExpression);
       default:
         console.log(`Unknown node type: ${node.type}`);
-      //throw new Error(`Unknown node type: ${node.type}`);
     }
   }
 
