@@ -20,6 +20,7 @@
 
 package org.sonar.plugins.javascript.api.estree;
 
+import java.math.BigInteger;
 import java.util.List;
 
 /**
@@ -90,7 +91,7 @@ public class ESTree {
   public record AssignmentPattern(Location loc, Pattern left, Expression right) implements Pattern {}
   public record AssignmentProperty(Location loc, Pattern value, String kind, boolean method, ExpressionOrPrivateIdentifier key, boolean shorthand, boolean computed) implements Node {}
   public record AwaitExpression(Location loc, Expression argument) implements Expression {}
-  public record BigIntLiteral(Location loc, int value, String bigint, String raw) implements Literal {}
+  public record BigIntLiteral(Location loc, BigInteger value, String bigint, String raw) implements Literal {}
   public record BinaryExpression(Location loc, BinaryOperator operator, Expression left, Expression right) implements Expression {}
   public record BlockStatement(Location loc, List<Statement> body) implements BlockStatementOrExpression, Statement {}
   public record BreakStatement(Location loc, Identifier label) implements Statement {}

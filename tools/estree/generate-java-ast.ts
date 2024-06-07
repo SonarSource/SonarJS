@@ -235,6 +235,7 @@ export function writeJavaClassesToDir(nodes: Record<string, ESTreeNode>, output:
       fieldValue: { type: `List<ExpressionOrSpreadElement>` },
     },
   ];
+  nodes['BigIntLiteral'].fields[0].fieldValue = { type: 'BigInteger' };
 
   const records = [];
   const ifaceSrc: string[] = [];
@@ -318,6 +319,7 @@ export function writeJavaClassesToDir(nodes: Record<string, ESTreeNode>, output:
   const estree = `${HEADER}
 package org.sonar.plugins.javascript.api.estree;
 
+import java.math.BigInteger;
 import java.util.List;
 
 /**
