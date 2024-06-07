@@ -62,29 +62,8 @@ function isUnionNode(node: ESTreeNode) {
 }
 
 export function writeJavaClassesToDir(nodes: Record<string, ESTreeNode>, output: string) {
-  // adding some hardcoded interfaces which allow to treat loops in the AST consistently
-  nodes['HasBody'] = {
-    name: 'HasBody',
-    fields: [
-      {
-        name: 'body',
-        fieldValue: { type: 'Node' },
-      },
-    ],
-  };
-
-  nodes['HasTest'] = {
-    name: 'HasTest',
-    fields: [
-      {
-        name: 'test',
-        fieldValue: { type: 'Expression' },
-      },
-    ],
-  };
   const entries = Object.entries(nodes).sort(([a], [b]) => (a < b ? -1 : 1));
   const ifaces = entries.filter(([, n]) => isUnionNode(n)).map(([name]) => name);
-  ifaces.push('HasBody', 'HasTest');
 
   const impl = new Map<string, string[]>();
   ifaces
@@ -128,6 +107,7 @@ export function writeJavaClassesToDir(nodes: Record<string, ESTreeNode>, output:
 
   const records = [];
   const ifaceSrc = [];
+  const unionIfaces: string[] = [];
   for (const [name, node] of entries) {
     if (ifaces.includes(name)) {
       ifaceSrc.push(`  public sealed interface ${name} extends Node {\n${ifaceFields(node)}\n  }`);
@@ -140,6 +120,64 @@ export function writeJavaClassesToDir(nodes: Record<string, ESTreeNode>, output:
         `  public record ${name}(${fields.join(', ')}) implements ${implementsClause(impl, node)} {}`,
       );
     }
+  }
+
+  function javaType(fieldValue: NodeFieldValue): string {
+    if ('type' in fieldValue) {
+      switch (fieldValue.type) {
+        case 'string':
+          return 'String';
+        case 'int32':
+          return 'int';
+        case 'bool':
+          return 'boolean';
+        case 'BaseNodeWithoutComments':
+          return 'Node';
+      }
+      return fieldValue.type;
+    }
+    if (isArray(fieldValue)) {
+      return `List<${javaType(fieldValue.elementValue)}>`;
+    }
+    if ('unionElements' in fieldValue) {
+      let unionIface = fieldValue.unionElements
+        .map(e => upperCaseFirstLetter(e.name))
+        .sort()
+        .join('Or');
+      fieldValue.unionElements.forEach(e =>
+        impl.set(
+          upperCaseFirstLetter(e.name),
+          [unionIface].concat(impl.get(upperCaseFirstLetter(e.name)) || []),
+        ),
+      );
+      unionIfaces.push(unionIface);
+      return unionIface;
+    }
+    return 'Node';
+  }
+
+  function javaName(name: string) {
+    if (name === 'static') {
+      return 'isStatic';
+    }
+    return name;
+  }
+
+  function ifaceFields(node: ESTreeNode) {
+    return node.fields
+      .filter(f => !('unionElements' in f.fieldValue))
+      .map(f => `    ${javaType(f.fieldValue)} ${javaName(f.name)}();`)
+      .join('\n');
+  }
+
+  function implementsClause(impl: Map<string, string[]>, node: ESTreeNode) {
+    const ifaces = [];
+    if (impl.has(node.name)) {
+      ifaces.push(...impl.get(node.name)!);
+    } else {
+      ifaces.push('Node');
+    }
+    return unique(ifaces).join(', ');
   }
 
   const estree = `${HEADER}
@@ -160,6 +198,10 @@ public class ESTree {
   
   ${NODE_INTERFACE}  
 ${ifaceSrc.join('\n')}
+
+${unique(unionIfaces)
+  .map(i => `  public sealed interface ${i} extends Node {}`)
+  .join('\n')}
         
 ${records.join('\n')}
 }
@@ -168,60 +210,14 @@ ${records.join('\n')}
   fs.writeFileSync(output, estree, 'utf-8');
 }
 
-function javaType(fieldValue: NodeFieldValue): string {
-  if ('type' in fieldValue) {
-    switch (fieldValue.type) {
-      case 'string':
-        return 'String';
-      case 'int32':
-        return 'int';
-      case 'bool':
-        return 'boolean';
-      case 'BaseNodeWithoutComments':
-        return 'Node';
-    }
-    return fieldValue.type;
-  }
-  if (isArray(fieldValue)) {
-    return `List<${javaType(fieldValue.elementValue)}>`;
-  }
-  return 'Node';
-}
-
-function javaName(name: string) {
-  if (name === 'static') {
-    return 'isStatic';
-  }
-  return name;
-}
-
 function upperCaseFirstLetter(s: string) {
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
-function ifaceFields(node: ESTreeNode) {
-  return node.fields
-    .filter(f => !('unionElements' in f.fieldValue))
-    .map(f => `    ${javaType(f.fieldValue)} ${javaName(f.name)}();`)
-    .join('\n');
-}
-
-function implementsClause(impl: Map<string, string[]>, node: ESTreeNode) {
-  const ifaces = [];
-  if (impl.has(node.name)) {
-    ifaces.push(...impl.get(node.name)!);
-  } else {
-    ifaces.push('Node');
-  }
-  if (node.fields.some(f => f.name === 'body' && !isArray(f.fieldValue))) {
-    ifaces.push('HasBody');
-  }
-  if (node.fields.some(f => f.name === 'test')) {
-    ifaces.push('HasTest');
-  }
-  return ifaces.join(', ');
-}
-
 function isArray(fieldValue: NodeFieldValue): fieldValue is ArrayLikeFieldValue {
   return 'elementValue' in fieldValue;
+}
+
+function unique<T>(arr: T[]): T[] {
+  return arr.filter((v, i, self) => self.indexOf(v) === i);
 }

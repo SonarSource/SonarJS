@@ -187,9 +187,7 @@ export function getEstreeNodes(file: ts.SourceFile) {
       if (name === 'Array' && typeNode.typeArguments?.length === 1) {
         // The type is of shape "Array<A>", we want to generate repeated A
         return {
-          elementValue: flattenRepeatedNodeInOneOf(
-            getFieldValueFromType(typeNode.typeArguments[0]),
-          ),
+          elementValue: getFieldValueFromType(typeNode.typeArguments[0]),
         };
       }
       return requestType(typeNode.typeName.getText(file));
