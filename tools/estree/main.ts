@@ -40,7 +40,7 @@ fs.mkdirSync(output, { recursive: true });
 if (arg === 'proto') {
   writeMessagesToDir(nodes, output);
 } else if (arg === 'java') {
-  writeJavaClassesToDir(nodes, output);
+  writeJavaClassesToDir(nodes, path.join(output, 'ESTree.java'));
 } else {
   console.error('Error: Argument should be "proto" or "java"');
   process.exit(1); // Exit with a failure code

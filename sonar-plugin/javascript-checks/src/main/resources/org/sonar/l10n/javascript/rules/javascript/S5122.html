@@ -49,7 +49,7 @@ app2.use(cors(corsOptions));
 <p>User-controlled origin:</p>
 <pre>
 function (req, res) {
-  const origin = req.header('Origin');
+  const origin = req.headers.origin;
   res.setHeader('Access-Control-Allow-Origin', origin); // Sensitive
 };
 </pre>
@@ -77,9 +77,9 @@ app.use(cors(corsOptions));
 <p>User-controlled origin validated with an allow-list:</p>
 <pre>
 function (req, res) {
-  const origin = req.header('Origin');
+  const origin = req.headers.origin;
 
-  if (trustedOrigins.indexOf(origin) &gt;= 0) {
+  if (origin === 'trustedwebsite.com') {
     res.setHeader('Access-Control-Allow-Origin', origin);
   }
 };
