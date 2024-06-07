@@ -19,7 +19,6 @@
  */
 import * as protobuf from 'protobufjs';
 import * as path from 'node:path';
-import * as _ from 'lodash';
 import * as estree from 'estree';
 import { AST } from 'eslint';
 
@@ -257,10 +256,10 @@ export function visitNode(node: estree.BaseNodeWithoutComments | undefined | nul
       };
     } else {
       // simple literal
-      return Object.assign({ raw: node.raw }, translateValue(node.value));
+      return { raw: node.raw, ...translateValue(node.value) };
     }
 
-    function translateValue(value: any) {
+    function translateValue(value: string | number | boolean | null) {
       if (typeof value === 'string') {
         return { valueString: value };
       }
@@ -274,7 +273,6 @@ export function visitNode(node: estree.BaseNodeWithoutComments | undefined | nul
       if (value === null) {
         return {};
       }
-      throw new Error(`Unknown literal value "${value}" of type ${typeof value}`);
     }
   }
 
