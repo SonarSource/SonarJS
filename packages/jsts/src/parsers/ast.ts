@@ -213,7 +213,8 @@ export function visitNode(node: estree.BaseNodeWithoutComments | undefined | nul
       case 'FunctionExpression':
         return visitFunctionExpression(node as estree.FunctionExpression);
       default:
-        throw new Error(`Unknown node type: ${node.type}`);
+        console.log(`Unknown node type: ${node.type}`);
+      //throw new Error(`Unknown node type: ${node.type}`);
     }
   }
 
