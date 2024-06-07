@@ -5,7 +5,7 @@ import { createCallInstruction } from '../instructions/call-instruction';
 import { createNewObjectFunctionDefinition } from '../function-definition';
 import { createValue } from '../value';
 
-export const handleLiteral: ExpressionHandler<TSESTree.Literal> = (node, _scope, context) => {
+export const handleLiteral: ExpressionHandler<TSESTree.Literal> = (node, context) => {
   const { constantRegistry, createValueIdentifier, valueByConstantTypeRegistry } =
     context.scopeManager;
   if (node.value === null) {

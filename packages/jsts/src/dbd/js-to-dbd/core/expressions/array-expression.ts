@@ -33,7 +33,6 @@ import type { ExpressionHandler } from '../expression-handler';
 
 export const handleArrayExpression: ExpressionHandler<TSESTree.ArrayExpression> = (
   node,
-  record,
   context,
 ) => {
   const arrayIdentifier = context.scopeManager.createValueIdentifier();
@@ -55,7 +54,7 @@ export const handleArrayExpression: ExpressionHandler<TSESTree.ArrayExpression> 
       console.error(`Unsupported array element at ${JSON.stringify(node.loc)}`);
       return;
     }
-    const elementValue = handleExpression(element, record, context);
+    const elementValue = handleExpression(element, context);
     instructions.push(
       createCallInstruction(
         context.scopeManager.createValueIdentifier(),

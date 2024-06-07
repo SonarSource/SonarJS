@@ -6,11 +6,5 @@ export const handleExpressionStatement: StatementHandler<TSESTree.ExpressionStat
   node,
   context,
 ) => {
-  const { scopeManager } = context;
-
-  handleExpression(
-    node.expression,
-    scopeManager.getCurrentEnvironmentRecord(),
-    context,
-  );
+  handleExpression(node.expression, context);
 };

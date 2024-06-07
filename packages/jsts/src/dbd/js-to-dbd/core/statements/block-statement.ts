@@ -11,14 +11,12 @@ import { isTerminated } from '../utils';
 import { createReference } from '../values/reference';
 
 export const handleBlockStatement: StatementHandler<TSESTree.BlockStatement> = (node, context) => {
+  if (node.body.length === 0) {
+    return;
+  }
+
   const { blockManager, scopeManager, createScopedBlock, addInstructions } = context;
   const { getCurrentBlock, pushBlock } = blockManager;
-  const { createDeclarativeEnvironmentRecord, getCurrentEnvironmentRecord } = scopeManager;
-
-  const parentScopeIdentifier = getCurrentEnvironmentRecord().identifier;
-  const blockEnvironmentRecord = createDeclarativeEnvironmentRecord(context.functionInfo);
-
-  scopeManager.pushEnvironmentRecord(blockEnvironmentRecord);
 
   const bbn = createScopedBlock(node.loc);
 
@@ -28,9 +26,11 @@ export const handleBlockStatement: StatementHandler<TSESTree.BlockStatement> = (
   // promote bbn as current block
   pushBlock(bbn);
 
+  const currentScope = scopeManager.getScope(node);
+  const currentScopeReference = createReference(scopeManager.getScopeId(currentScope));
   // create scope instruction
   const instruction = createCallInstruction(
-    blockEnvironmentRecord.identifier,
+    currentScopeReference.identifier,
     null,
     createNewObjectFunctionDefinition(),
     [],
@@ -44,7 +44,10 @@ export const handleBlockStatement: StatementHandler<TSESTree.BlockStatement> = (
       scopeManager.createValueIdentifier(),
       null,
       createSetFieldFunctionDefinition('@parent'),
-      [createReference(blockEnvironmentRecord.identifier), createReference(parentScopeIdentifier)],
+      [
+        createReference(currentScopeReference.identifier),
+        createReference(context.scopeManager.getScopeId(currentScope.upper!)),
+      ],
       node.loc,
     ),
   );
@@ -52,8 +55,6 @@ export const handleBlockStatement: StatementHandler<TSESTree.BlockStatement> = (
   node.body.forEach(statement => {
     return handleStatement(statement, context);
   });
-
-  scopeManager.popEnvironmentRecord();
 
   const bbnPlusOne = createScopedBlock(node.loc);
 

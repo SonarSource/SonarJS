@@ -11,20 +11,19 @@ import { createNull } from '../values/constant';
 
 export const handleLogicalExpression: ExpressionHandler<TSESTree.LogicalExpression> = (
   node,
-  record,
   context,
 ) => {
   const { left, right, operator } = node;
   const { createScopedBlock, blockManager, scopeManager } = context;
 
-  const leftValue = handleExpression(left, record, context);
+  const leftValue = handleExpression(left, context);
   const startingBlock = blockManager.getCurrentBlock();
 
   const finallyBlock = createScopedBlock(node.loc);
 
   const consequentBlock = createScopedBlock(node.right.loc);
   blockManager.pushBlock(consequentBlock);
-  const rightValue = handleExpression(right, record, context);
+  const rightValue = handleExpression(right, context);
   const blockAfterRightExpression = blockManager.getCurrentBlock();
   blockAfterRightExpression.instructions.push(createBranchingInstruction(finallyBlock, right.loc));
 
