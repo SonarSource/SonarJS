@@ -23,17 +23,7 @@ import * as _ from 'lodash';
 import * as estree from 'estree';
 import { AST } from 'eslint';
 
-const PATH_TO_PROTOFILE = path.join(
-  __dirname,
-  '..',
-  '..',
-  '..',
-  '..',
-  'tools',
-  'estree',
-  'output',
-  'estree.proto',
-);
+const PATH_TO_PROTOFILE = path.join(__dirname, 'protobuf', 'estree.proto');
 const PROTO_ROOT = protobuf.loadSync(PATH_TO_PROTOFILE);
 const NODE_TYPE = PROTO_ROOT.lookupType('Node');
 const NODE_TYPE_ENUM = PROTO_ROOT.lookupEnum('NodeType');
