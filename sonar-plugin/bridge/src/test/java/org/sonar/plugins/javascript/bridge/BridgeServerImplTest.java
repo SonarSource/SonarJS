@@ -733,7 +733,7 @@ class BridgeServerImplTest {
       .build();
     JsAnalysisRequest request = createRequest(inputFile);
     var response = bridgeServer.analyzeJavaScript(request);
-    assertThat(response.ast()).contains("plop");
+    assertThat(response.ast()).isNotNull();
   }
   @Test
   void should_not_deploy_runtime_if_sonar_nodejs_executable_is_set() {

@@ -29,6 +29,7 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.scanner.ScannerSide;
+import org.sonar.plugins.javascript.bridge.protobuf.Node;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
 @ScannerSide
@@ -73,15 +74,15 @@ public interface BridgeServer extends Startable {
   record CssAnalysisRequest(String filePath, @Nullable String fileContent, List<StylelintRule> rules) {
   }
 
-  record BridgeResponse(String json, @Nullable String ast) {
+  record BridgeResponse(String json, @Nullable Node ast) {
     public BridgeResponse(String json) {
       this(json, null);
     }
   }
   record AnalysisResponse(@Nullable ParsingError parsingError, List<Issue> issues, List<Highlight> highlights,
-                          List<HighlightedSymbol> highlightedSymbols, Metrics metrics, List<CpdToken> cpdTokens, List<String> ucfgPaths, String ast) {
+                          List<HighlightedSymbol> highlightedSymbols, Metrics metrics, List<CpdToken> cpdTokens, List<String> ucfgPaths, Node ast) {
 
-    public AnalysisResponse(AnalysisResponse response, String ast) {
+    public AnalysisResponse(AnalysisResponse response, Node ast) {
       this(response.parsingError, response.issues, response.highlights, response.highlightedSymbols,
            response.metrics, response.cpdTokens, response.ucfgPaths, ast);
     }
@@ -92,7 +93,7 @@ public interface BridgeServer extends Startable {
 
     public AnalysisResponse(@Nullable ParsingError parsingError, @Nullable List<Issue> issues, @Nullable List<Highlight> highlights,
                             @Nullable List<HighlightedSymbol> highlightedSymbols, @Nullable Metrics metrics,
-                            @Nullable List<CpdToken> cpdTokens, List<String> ucfgPaths, @Nullable String ast) {
+                            @Nullable List<CpdToken> cpdTokens, List<String> ucfgPaths, @Nullable Node ast) {
       this.parsingError = parsingError;
       this.issues = issues != null ? issues : List.of();
       this.highlights = highlights != null ? highlights : List.of();

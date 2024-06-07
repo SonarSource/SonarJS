@@ -51,10 +51,7 @@ public class ESTree {
   public sealed interface Declaration extends Statement {
 
   }
-  public sealed interface ExportDefaultDeclaration extends ModuleDeclaration {
-
-  }
-  public sealed interface Expression extends ExpressionOrSpreadElement, ExpressionOrSuper, ExpressionOrPrivateIdentifier, ExpressionOrPattern, ExpressionOrVariableDeclaration, BlockStatementOrExpression, ExportDefaultDeclaration {
+  public sealed interface Expression extends ExpressionOrSpreadElement, ExpressionOrSuper, ExpressionOrPrivateIdentifier, ExpressionOrPattern, ExpressionOrVariableDeclaration, ExpressionOrMaybeNamedClassDeclarationOrMaybeNamedFunctionDeclaration, BlockStatementOrExpression {
 
   }
   public sealed interface Literal extends Expression {
@@ -75,6 +72,7 @@ public class ESTree {
   public sealed interface MemberExpressionOrPattern extends Node {}
   public sealed interface ExpressionOrPrivateIdentifier extends Node {}
   public sealed interface MethodDefinitionOrPropertyDefinitionOrStaticBlock extends Node {}
+  public sealed interface ExpressionOrMaybeNamedClassDeclarationOrMaybeNamedFunctionDeclaration extends Node {}
   public sealed interface PatternOrVariableDeclaration extends Node {}
   public sealed interface ExpressionOrVariableDeclaration extends Node {}
   public sealed interface ImportDefaultSpecifierOrImportNamespaceSpecifierOrImportSpecifier extends Node {}
@@ -107,6 +105,7 @@ public class ESTree {
   public record DoWhileStatement(Location loc, Statement body, Expression test) implements Statement {}
   public record EmptyStatement(Location loc) implements Statement {}
   public record ExportAllDeclaration(Location loc, Identifier exported, Literal source) implements ModuleDeclaration {}
+  public record ExportDefaultDeclaration(Location loc, ExpressionOrMaybeNamedClassDeclarationOrMaybeNamedFunctionDeclaration declaration) implements ModuleDeclaration {}
   public record ExportNamedDeclaration(Location loc, Declaration declaration, List<ExportSpecifier> specifiers, Literal source) implements ModuleDeclaration {}
   public record ExportSpecifier(Location loc, Identifier exported, Identifier local) implements Node {}
   public record ExpressionStatement(Location loc, Expression expression) implements Statement {}
@@ -124,8 +123,8 @@ public class ESTree {
   public record ImportSpecifier(Location loc, Identifier imported, Identifier local) implements ImportDefaultSpecifierOrImportNamespaceSpecifierOrImportSpecifier {}
   public record LabeledStatement(Location loc, Identifier label, Statement body) implements Statement {}
   public record LogicalExpression(Location loc, LogicalOperator operator, Expression left, Expression right) implements Expression {}
-  public record MaybeNamedClassDeclaration(Location loc, Identifier id, Expression superClass, ClassBody body) implements ExportDefaultDeclaration {}
-  public record MaybeNamedFunctionDeclaration(Location loc, Identifier id, BlockStatement body, List<Pattern> params, boolean generator, boolean async) implements ExportDefaultDeclaration {}
+  public record MaybeNamedClassDeclaration(Location loc, Identifier id, Expression superClass, ClassBody body) implements ExpressionOrMaybeNamedClassDeclarationOrMaybeNamedFunctionDeclaration {}
+  public record MaybeNamedFunctionDeclaration(Location loc, Identifier id, BlockStatement body, List<Pattern> params, boolean generator, boolean async) implements ExpressionOrMaybeNamedClassDeclarationOrMaybeNamedFunctionDeclaration {}
   public record MemberExpression(Location loc, ExpressionOrSuper object, ExpressionOrPrivateIdentifier property, boolean computed, boolean optional) implements MemberExpressionOrPattern, ChainElement, Expression, Pattern {}
   public record MetaProperty(Location loc, Identifier meta, Identifier property) implements Expression {}
   public record MethodDefinition(Location loc, ExpressionOrPrivateIdentifier key, FunctionExpression value, String kind, boolean computed, boolean isStatic) implements MethodDefinitionOrPropertyDefinitionOrStaticBlock {}
@@ -141,7 +140,7 @@ public class ESTree {
   public record ReturnStatement(Location loc, Expression argument) implements Statement {}
   public record SequenceExpression(Location loc, List<Expression> expressions) implements Expression {}
   public record SimpleCallExpression(Location loc, boolean optional, ExpressionOrSuper callee, List<ExpressionOrSpreadElement> arguments) implements CallExpression, ChainElement {}
-  public record SimpleLiteral(Location loc, Node value, String raw) implements Literal {}
+  public record SimpleLiteral(Location loc, String value, String raw) implements Literal {}
   public record SpreadElement(Location loc, Expression argument) implements ExpressionOrSpreadElement, PropertyOrSpreadElement {}
   public record StaticBlock(Location loc) implements MethodDefinitionOrPropertyDefinitionOrStaticBlock, Statement {}
   public record Super(Location loc) implements ExpressionOrSuper {}

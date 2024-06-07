@@ -56,7 +56,7 @@ public class FormDataUtilsTest {
       "-----------------------------9051914041544843365972754266--" +
       "\r\n");
     BridgeServer.BridgeResponse response = parseFormData(mockResponse);
-    assertThat(response.ast()).contains("plop");
+    assertThat(response.ast()).isNotNull();
     assertThat(response.json()).contains("{\"hello\":\"worlds\"}");
   }
 

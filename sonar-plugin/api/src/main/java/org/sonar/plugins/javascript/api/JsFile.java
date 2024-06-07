@@ -20,6 +20,7 @@
 package org.sonar.plugins.javascript.api;
 
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.plugins.javascript.api.estree.ESTree;
 
-public record JsFile(InputFile inputFile /*,  ESTreeNode node */) {
+public record JsFile(InputFile inputFile, ESTree.Program program) {
 }
