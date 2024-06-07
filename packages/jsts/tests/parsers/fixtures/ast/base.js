@@ -319,7 +319,7 @@ function Person(name) {
 
 function metaProperty() {
   return new.target;
-} 
+}
 
 function Foo() {
   if (!new.target) {
@@ -359,3 +359,10 @@ let num = 10;
 num++;
 num--;
 
+(1, 2)
+
+`hello ${num}`
+
+const [fooA, fooB] = foo;
+
+export foo from {}
