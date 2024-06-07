@@ -49,17 +49,9 @@ export function deserializeProtobuf(serialized: Uint8Array): any {
   return decoded;
 }
 
-type ProtobufShape = {
-  type: number;
-  loc: estree.SourceLocation | null | undefined;
-  [key: string]: any;
-};
-
-export function visitNode(
-  node: estree.BaseNodeWithoutComments | undefined | null,
-): ProtobufShape | undefined {
+export function visitNode(node: estree.BaseNodeWithoutComments | undefined | null): any {
   if (!node) {
-    return;
+    return {};
   }
 
   return {
@@ -221,7 +213,8 @@ export function visitNode(
       case 'FunctionExpression':
         return visitFunctionExpression(node as estree.FunctionExpression);
       default:
-        return;
+        console.log(`Unknown node type: ${node.type}`);
+      //throw new Error(`Unknown node type: ${node.type}`);
     }
   }
 
