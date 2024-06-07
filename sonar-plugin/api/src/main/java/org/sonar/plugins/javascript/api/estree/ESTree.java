@@ -40,29 +40,29 @@ public class ESTree {
   public record Position(int line, int column) {}
   public record Location(Position start, Position end) {}
   
-  public sealed interface CallExpression extends Node {
+  public sealed interface CallExpression extends Expression {
     ExpressionOrSuper callee();
     List<ExpressionOrSpreadElement> arguments();
   }
   public sealed interface ChainElement extends Node {
     boolean optional();
   }
-  public sealed interface Declaration extends Node {
+  public sealed interface Declaration extends Statement {
 
   }
-  public sealed interface ExportDefaultDeclaration extends Node {
+  public sealed interface ExportDefaultDeclaration extends ModuleDeclaration {
 
   }
-  public sealed interface Expression extends ExpressionOrPattern, ExpressionOrSuper, ExpressionOrPrivateIdentifier, ExpressionOrSpreadElement, ExpressionOrVariableDeclaration {
+  public sealed interface Expression extends ExpressionOrSpreadElement, ExpressionOrSuper, ExpressionOrPrivateIdentifier, ExpressionOrPattern, ExpressionOrVariableDeclaration, BlockStatementOrExpression, ExportDefaultDeclaration {
 
   }
-  public sealed interface Literal extends Node {
+  public sealed interface Literal extends Expression {
     String raw();
   }
-  public sealed interface ModuleDeclaration extends Node {
+  public sealed interface ModuleDeclaration extends DirectiveOrModuleDeclarationOrStatement {
 
   }
-  public sealed interface Pattern extends ExpressionOrPattern {
+  public sealed interface Pattern extends ExpressionOrPattern, PatternOrVariableDeclaration, MemberExpressionOrPattern {
 
   }
   public sealed interface Statement extends DirectiveOrModuleDeclarationOrStatement {
@@ -82,18 +82,16 @@ public class ESTree {
   public sealed interface AssignmentPropertyOrRestElement extends Node {}
   public sealed interface DirectiveOrModuleDeclarationOrStatement extends Node {}
   public sealed interface ExpressionOrPattern extends Node {}
-
+        
   public record ArrayExpression(Location loc, List<ExpressionOrSpreadElement> elements) implements Expression {}
   public record ArrayPattern(Location loc, List<Pattern> elements) implements Pattern {}
   public record ArrowFunctionExpression(Location loc, boolean expression, BlockStatementOrExpression body, List<Pattern> params, boolean generator, boolean async) implements Expression {}
   public record AssignmentExpression(Location loc, AssignmentOperator operator, MemberExpressionOrPattern left, Expression right) implements Expression {}
-  public record AssignmentOperator(Location loc, String assignmentOperator) implements Node {}
   public record AssignmentPattern(Location loc, Pattern left, Expression right) implements Pattern {}
   public record AssignmentProperty(Location loc, Pattern value, String kind, boolean method, ExpressionOrPrivateIdentifier key, boolean shorthand, boolean computed) implements Node {}
   public record AwaitExpression(Location loc, Expression argument) implements Expression {}
   public record BigIntLiteral(Location loc, int value, String bigint, String raw) implements Literal {}
   public record BinaryExpression(Location loc, BinaryOperator operator, Expression left, Expression right) implements Expression {}
-  public record BinaryOperator(Location loc, String binaryOperator) implements Node {}
   public record BlockStatement(Location loc, List<Statement> body) implements BlockStatementOrExpression, Statement {}
   public record BreakStatement(Location loc, Identifier label) implements Statement {}
   public record CatchClause(Location loc, Pattern param, BlockStatement body) implements Node {}
@@ -125,7 +123,6 @@ public class ESTree {
   public record ImportSpecifier(Location loc, Identifier imported, Identifier local) implements ImportDefaultSpecifierOrImportNamespaceSpecifierOrImportSpecifier {}
   public record LabeledStatement(Location loc, Identifier label, Statement body) implements Statement {}
   public record LogicalExpression(Location loc, LogicalOperator operator, Expression left, Expression right) implements Expression {}
-  public record LogicalOperator(Location loc, String logicalOperator) implements Node {}
   public record MaybeNamedClassDeclaration(Location loc, Identifier id, Expression superClass, ClassBody body) implements ExportDefaultDeclaration {}
   public record MaybeNamedFunctionDeclaration(Location loc, Identifier id, BlockStatement body, List<Pattern> params, boolean generator, boolean async) implements ExportDefaultDeclaration {}
   public record MemberExpression(Location loc, ExpressionOrSuper object, ExpressionOrPrivateIdentifier property, boolean computed, boolean optional) implements MemberExpressionOrPattern, ChainElement, Expression, Pattern {}
@@ -143,7 +140,7 @@ public class ESTree {
   public record ReturnStatement(Location loc, Expression argument) implements Statement {}
   public record SequenceExpression(Location loc, List<Expression> expressions) implements Expression {}
   public record SimpleCallExpression(Location loc, boolean optional, ExpressionOrSuper callee, List<ExpressionOrSpreadElement> arguments) implements CallExpression, ChainElement {}
-  public record SimpleLiteral(Location loc, String value, String raw) implements Literal {}
+  public record SimpleLiteral(Location loc, Node value, String raw) implements Literal {}
   public record SpreadElement(Location loc, Expression argument) implements ExpressionOrSpreadElement, PropertyOrSpreadElement {}
   public record StaticBlock(Location loc) implements MethodDefinitionOrPropertyDefinitionOrStaticBlock, Statement {}
   public record Super(Location loc) implements ExpressionOrSuper {}
@@ -156,13 +153,127 @@ public class ESTree {
   public record ThrowStatement(Location loc, Expression argument) implements Statement {}
   public record TryStatement(Location loc, BlockStatement block, CatchClause handler, BlockStatement finalizer) implements Statement {}
   public record UnaryExpression(Location loc, UnaryOperator operator, boolean prefix, Expression argument) implements Expression {}
-  public record UnaryOperator(Location loc, String unaryOperator) implements Node {}
   public record UpdateExpression(Location loc, UpdateOperator operator, Expression argument, boolean prefix) implements Expression {}
-  public record UpdateOperator(Location loc, String updateOperator) implements Node {}
   public record VariableDeclaration(Location loc, List<VariableDeclarator> declarations, String kind) implements ExpressionOrVariableDeclaration, PatternOrVariableDeclaration, Declaration {}
   public record VariableDeclarator(Location loc, Pattern id, Expression init) implements Node {}
   public record WhileStatement(Location loc, Expression test, Statement body) implements Statement {}
   public record WithStatement(Location loc, Expression object, Statement body) implements Statement {}
   public record YieldExpression(Location loc, Expression argument, boolean delegate) implements Expression {}
+
+  public interface Operator {
+    String raw();
+  }
+
+  public enum UnaryOperator implements Operator {
+    MINUS("-"), PLUS("+"), LOGICAL_NOT("!"), BITWISE_NOT("~"), TYPEOF("typeof"), VOID("void"), DELETE("delete");
+
+    private final String raw;
+
+    UnaryOperator(String raw) {
+      this.raw = raw;
+    }
+
+    @Override
+    public String raw() {
+      return raw;
+    }
+  }
+  
+  public enum BinaryOperator implements Operator {
+    EQUAL("=="), 
+    NOT_EQUAL("!="), 
+    STRICT_EQUAL("==="), 
+    STRICT_NOT_EQUAL("!=="), 
+    LESS_THAN("<"), 
+    LESS_THAN_OR_EQUAL("<="), 
+    GREATER_THAN(">"), 
+    GREATER_THAN_OR_EQUAL(">="), 
+    LEFT_SHIFT("<<"), 
+    RIGHT_SHIFT(">>"), 
+    UNSIGNED_RIGHT_SHIFT(">>>"), 
+    PLUS("+"), 
+    MINUS("-"), 
+    MULTIPLY("*"), 
+    DIVIDE("/"), 
+    MODULO("%"), 
+    EXPONENTIATION("**"), 
+    BITWISE_AND("&"), 
+    BITWISE_OR("|"), 
+    BITWISE_XOR("^"), 
+    IN("in"), 
+    INSTANCEOF("instanceof");
+
+    private final String raw;
+
+    BinaryOperator(String raw) {
+      this.raw = raw;
+    }
+
+    @Override
+    public String raw() {
+      return raw;
+    }
+  }
+  
+  public enum LogicalOperator implements Operator {
+    AND("&&"), OR("||"), NULLISH_COALESCING("??");
+
+    private final String raw;
+
+    LogicalOperator(String raw) {
+      this.raw = raw;
+    }
+
+    @Override
+    public String raw() {
+      return raw;
+    }
+  }
+  
+  public enum AssignmentOperator implements Operator {
+    ASSIGN("="), 
+    PLUS_ASSIGN("+="), 
+    MINUS_ASSIGN("-="), 
+    MULTIPLY_ASSIGN("*="), 
+    DIVIDE_ASSIGN("/="), 
+    MODULO_ASSIGN("%="),
+    EXPONENTIATION_ASSIGN("**="),
+    LEFT_SHIFT_ASSIGN("<<="),
+    RIGHT_SHIFT_ASSIGN(">>="),
+    UNSIGNED_RIGHT_SHIFT_ASSIGN(">>>="),
+    BITWISE_OR_ASSIGN("|="),
+    BITWISE_XOR_ASSIGN("^="),
+    BITWISE_AND_ASSIGN("&="),
+    LOGICAL_OR_ASSIGN("||="),
+    LOGICAL_AND_ASSIGN("&&="),
+    NULLISH_COALESCING_ASSIGN("??=")
+    ;
+
+    private final String raw;
+
+    AssignmentOperator(String raw) {
+      this.raw = raw;
+    }
+
+    @Override
+    public String raw() {
+      return raw;
+    }
+  }
+  
+  public enum UpdateOperator implements Operator {
+    INCREMENT("++"), DECREMENT("--");
+
+    private final String raw;
+
+    UpdateOperator(String raw) {
+      this.raw = raw;
+    }
+
+    @Override
+    public String raw() {
+      return raw;
+    }
+  }
 }
 

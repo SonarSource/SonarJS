@@ -22,6 +22,7 @@ import fs from 'node:fs';
 import {
   ArrayLikeFieldValue,
   ESTreeNode,
+  NodeField,
   NodeFieldValue,
   UnionFieldValue,
 } from './get-estree-nodes';
@@ -57,11 +58,141 @@ const NODE_INTERFACE = `public sealed interface Node {
 
 const SHARED_FIELDS = ['Location loc'];
 
+const OPERATORS = `  public interface Operator {
+    String raw();
+  }
+
+  public enum UnaryOperator implements Operator {
+    MINUS("-"), PLUS("+"), LOGICAL_NOT("!"), BITWISE_NOT("~"), TYPEOF("typeof"), VOID("void"), DELETE("delete");
+
+    private final String raw;
+
+    UnaryOperator(String raw) {
+      this.raw = raw;
+    }
+
+    @Override
+    public String raw() {
+      return raw;
+    }
+  }
+  
+  public enum BinaryOperator implements Operator {
+    EQUAL("=="), 
+    NOT_EQUAL("!="), 
+    STRICT_EQUAL("==="), 
+    STRICT_NOT_EQUAL("!=="), 
+    LESS_THAN("<"), 
+    LESS_THAN_OR_EQUAL("<="), 
+    GREATER_THAN(">"), 
+    GREATER_THAN_OR_EQUAL(">="), 
+    LEFT_SHIFT("<<"), 
+    RIGHT_SHIFT(">>"), 
+    UNSIGNED_RIGHT_SHIFT(">>>"), 
+    PLUS("+"), 
+    MINUS("-"), 
+    MULTIPLY("*"), 
+    DIVIDE("/"), 
+    MODULO("%"), 
+    EXPONENTIATION("**"), 
+    BITWISE_AND("&"), 
+    BITWISE_OR("|"), 
+    BITWISE_XOR("^"), 
+    IN("in"), 
+    INSTANCEOF("instanceof");
+
+    private final String raw;
+
+    BinaryOperator(String raw) {
+      this.raw = raw;
+    }
+
+    @Override
+    public String raw() {
+      return raw;
+    }
+  }
+  
+  public enum LogicalOperator implements Operator {
+    AND("&&"), OR("||"), NULLISH_COALESCING("??");
+
+    private final String raw;
+
+    LogicalOperator(String raw) {
+      this.raw = raw;
+    }
+
+    @Override
+    public String raw() {
+      return raw;
+    }
+  }
+  
+  public enum AssignmentOperator implements Operator {
+    ASSIGN("="), 
+    PLUS_ASSIGN("+="), 
+    MINUS_ASSIGN("-="), 
+    MULTIPLY_ASSIGN("*="), 
+    DIVIDE_ASSIGN("/="), 
+    MODULO_ASSIGN("%="),
+    EXPONENTIATION_ASSIGN("**="),
+    LEFT_SHIFT_ASSIGN("<<="),
+    RIGHT_SHIFT_ASSIGN(">>="),
+    UNSIGNED_RIGHT_SHIFT_ASSIGN(">>>="),
+    BITWISE_OR_ASSIGN("|="),
+    BITWISE_XOR_ASSIGN("^="),
+    BITWISE_AND_ASSIGN("&="),
+    LOGICAL_OR_ASSIGN("||="),
+    LOGICAL_AND_ASSIGN("&&="),
+    NULLISH_COALESCING_ASSIGN("??=")
+    ;
+
+    private final String raw;
+
+    AssignmentOperator(String raw) {
+      this.raw = raw;
+    }
+
+    @Override
+    public String raw() {
+      return raw;
+    }
+  }
+  
+  public enum UpdateOperator implements Operator {
+    INCREMENT("++"), DECREMENT("--");
+
+    private final String raw;
+
+    UpdateOperator(String raw) {
+      this.raw = raw;
+    }
+
+    @Override
+    public String raw() {
+      return raw;
+    }
+  }`;
+
 function isUnionNode(node: ESTreeNode) {
   return node.fields.length === 1 && 'unionElements' in node.fields[0].fieldValue;
 }
 
+function isPrimitive(f: NodeField) {
+  const fv = f.fieldValue;
+  return 'type' in fv && ['string', 'int32', 'bool'].some(s => s === fv.type);
+}
+
 export function writeJavaClassesToDir(nodes: Record<string, ESTreeNode>, output: string) {
+  // remove operators, they are hardcoded as enums
+  [
+    'UnaryOperator',
+    'BinaryOperator',
+    'LogicalOperator',
+    'AssignmentOperator',
+    'UpdateOperator',
+  ].forEach(o => delete nodes[o]);
+
   const entries = Object.entries(nodes).sort(([a], [b]) => (a < b ? -1 : 1));
   const ifaces = entries.filter(([, n]) => isUnionNode(n)).map(([name]) => name);
 
@@ -97,21 +228,19 @@ export function writeJavaClassesToDir(nodes: Record<string, ESTreeNode>, output:
   nodes['CallExpression'].fields = [
     {
       name: 'callee',
-      fieldValue: { type: 'Node' }, // more precise type is Expression | Super, but we can't represent union types in Java easily
+      fieldValue: { type: 'ExpressionOrSuper' }, // more precise type is Expression | Super, but we can't represent union types in Java easily
     },
     {
       name: 'arguments',
-      fieldValue: { type: `List<Node>` },
+      fieldValue: { type: `List<ExpressionOrSpreadElement>` },
     },
   ];
 
   const records = [];
-  const ifaceSrc = [];
+  const ifaceSrc: string[] = [];
   const unionIfaces: string[] = [];
   for (const [name, node] of entries) {
-    if (ifaces.includes(name)) {
-      ifaceSrc.push(`  public sealed interface ${name} extends Node {\n${ifaceFields(node)}\n  }`);
-    } else {
+    if (!ifaces.includes(name)) {
       const fields = [...SHARED_FIELDS];
       for (const field of node.fields) {
         fields.push(`${javaType(field.fieldValue)} ${javaName(field.name)}`);
@@ -121,6 +250,12 @@ export function writeJavaClassesToDir(nodes: Record<string, ESTreeNode>, output:
       );
     }
   }
+
+  ifaces.forEach(iface => {
+    const ext = implementsClause(impl, nodes[iface]);
+    const fields = ifaceFields(nodes[iface]);
+    ifaceSrc.push(`  public sealed interface ${iface} extends ${ext} {\n${fields}\n  }`);
+  });
 
   function javaType(fieldValue: NodeFieldValue): string {
     if ('type' in fieldValue) {
@@ -139,7 +274,7 @@ export function writeJavaClassesToDir(nodes: Record<string, ESTreeNode>, output:
     if (isArray(fieldValue)) {
       return `List<${javaType(fieldValue.elementValue)}>`;
     }
-    if ('unionElements' in fieldValue) {
+    if ('unionElements' in fieldValue && !fieldValue.unionElements.some(isPrimitive)) {
       let unionIface = fieldValue.unionElements
         .map(e => upperCaseFirstLetter(e.name))
         .sort()
@@ -204,6 +339,8 @@ ${unique(unionIfaces)
   .join('\n')}
         
 ${records.join('\n')}
+
+${OPERATORS}
 }
 
 `;
