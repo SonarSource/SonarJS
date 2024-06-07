@@ -39,9 +39,25 @@ const output = 'output';
 fs.mkdirSync(output, { recursive: true });
 if (arg === 'proto') {
   writeMessagesToDir(nodes, output);
+  copyProtoFileWhereUsed();
 } else if (arg === 'java') {
   writeJavaClassesToDir(nodes, output);
 } else {
   console.error('Error: Argument should be "proto" or "java"');
   process.exit(1); // Exit with a failure code
+}
+
+function copyProtoFileWhereUsed() {
+  const SOURCE_PATH = path.join(output, 'estree.proto');
+  const DEST_BRIDGE_PATH = path.join(
+    '..',
+    '..',
+    'packages',
+    'jsts',
+    'src',
+    'parsers',
+    'protobuf',
+    'estree.proto',
+  );
+  fs.copyFileSync(SOURCE_PATH, DEST_BRIDGE_PATH);
 }
