@@ -21,8 +21,73 @@ package org.sonar.plugins.javascript.bridge;
 
 import java.util.List;
 import org.sonar.plugins.javascript.api.estree.ESTree;
+import org.sonar.plugins.javascript.bridge.protobuf.ArrayExpression;
+import org.sonar.plugins.javascript.bridge.protobuf.ArrayPattern;
+import org.sonar.plugins.javascript.bridge.protobuf.ArrowFunctionExpression;
+import org.sonar.plugins.javascript.bridge.protobuf.AssignmentExpression;
+import org.sonar.plugins.javascript.bridge.protobuf.AssignmentPattern;
+import org.sonar.plugins.javascript.bridge.protobuf.AwaitExpression;
+import org.sonar.plugins.javascript.bridge.protobuf.BinaryExpression;
+import org.sonar.plugins.javascript.bridge.protobuf.BlockStatement;
+import org.sonar.plugins.javascript.bridge.protobuf.BreakStatement;
+import org.sonar.plugins.javascript.bridge.protobuf.CallExpression;
+import org.sonar.plugins.javascript.bridge.protobuf.CatchClause;
+import org.sonar.plugins.javascript.bridge.protobuf.ChainExpression;
+import org.sonar.plugins.javascript.bridge.protobuf.ClassBody;
+import org.sonar.plugins.javascript.bridge.protobuf.ClassDeclaration;
+import org.sonar.plugins.javascript.bridge.protobuf.ClassExpression;
+import org.sonar.plugins.javascript.bridge.protobuf.ConditionalExpression;
+import org.sonar.plugins.javascript.bridge.protobuf.ContinueStatement;
+import org.sonar.plugins.javascript.bridge.protobuf.DoWhileStatement;
+import org.sonar.plugins.javascript.bridge.protobuf.ExportAllDeclaration;
+import org.sonar.plugins.javascript.bridge.protobuf.ExportDefaultDeclaration;
+import org.sonar.plugins.javascript.bridge.protobuf.ExportNamedDeclaration;
+import org.sonar.plugins.javascript.bridge.protobuf.ExportSpecifier;
+import org.sonar.plugins.javascript.bridge.protobuf.ExpressionStatement;
+import org.sonar.plugins.javascript.bridge.protobuf.ForInStatement;
+import org.sonar.plugins.javascript.bridge.protobuf.ForOfStatement;
+import org.sonar.plugins.javascript.bridge.protobuf.ForStatement;
+import org.sonar.plugins.javascript.bridge.protobuf.FunctionDeclaration;
+import org.sonar.plugins.javascript.bridge.protobuf.FunctionExpression;
+import org.sonar.plugins.javascript.bridge.protobuf.Identifier;
+import org.sonar.plugins.javascript.bridge.protobuf.IfStatement;
+import org.sonar.plugins.javascript.bridge.protobuf.ImportDeclaration;
+import org.sonar.plugins.javascript.bridge.protobuf.ImportDefaultSpecifier;
+import org.sonar.plugins.javascript.bridge.protobuf.ImportExpression;
+import org.sonar.plugins.javascript.bridge.protobuf.ImportNamespaceSpecifier;
+import org.sonar.plugins.javascript.bridge.protobuf.ImportSpecifier;
+import org.sonar.plugins.javascript.bridge.protobuf.LabeledStatement;
+import org.sonar.plugins.javascript.bridge.protobuf.LogicalExpression;
+import org.sonar.plugins.javascript.bridge.protobuf.MemberExpression;
+import org.sonar.plugins.javascript.bridge.protobuf.MetaProperty;
+import org.sonar.plugins.javascript.bridge.protobuf.MethodDefinition;
+import org.sonar.plugins.javascript.bridge.protobuf.NewExpression;
 import org.sonar.plugins.javascript.bridge.protobuf.Node;
+import org.sonar.plugins.javascript.bridge.protobuf.ObjectExpression;
+import org.sonar.plugins.javascript.bridge.protobuf.ObjectPattern;
+import org.sonar.plugins.javascript.bridge.protobuf.PrivateIdentifier;
+import org.sonar.plugins.javascript.bridge.protobuf.Program;
+import org.sonar.plugins.javascript.bridge.protobuf.Property;
+import org.sonar.plugins.javascript.bridge.protobuf.PropertyDefinition;
+import org.sonar.plugins.javascript.bridge.protobuf.RestElement;
+import org.sonar.plugins.javascript.bridge.protobuf.ReturnStatement;
+import org.sonar.plugins.javascript.bridge.protobuf.SequenceExpression;
 import org.sonar.plugins.javascript.bridge.protobuf.SourceLocation;
+import org.sonar.plugins.javascript.bridge.protobuf.SpreadElement;
+import org.sonar.plugins.javascript.bridge.protobuf.SwitchCase;
+import org.sonar.plugins.javascript.bridge.protobuf.SwitchStatement;
+import org.sonar.plugins.javascript.bridge.protobuf.TaggedTemplateExpression;
+import org.sonar.plugins.javascript.bridge.protobuf.TemplateElement;
+import org.sonar.plugins.javascript.bridge.protobuf.TemplateLiteral;
+import org.sonar.plugins.javascript.bridge.protobuf.ThrowStatement;
+import org.sonar.plugins.javascript.bridge.protobuf.TryStatement;
+import org.sonar.plugins.javascript.bridge.protobuf.UnaryExpression;
+import org.sonar.plugins.javascript.bridge.protobuf.UpdateExpression;
+import org.sonar.plugins.javascript.bridge.protobuf.VariableDeclaration;
+import org.sonar.plugins.javascript.bridge.protobuf.VariableDeclarator;
+import org.sonar.plugins.javascript.bridge.protobuf.WhileStatement;
+import org.sonar.plugins.javascript.bridge.protobuf.WithStatement;
+import org.sonar.plugins.javascript.bridge.protobuf.YieldExpression;
 
 public class ESTreeFactory {
 
@@ -119,46 +184,53 @@ public class ESTreeFactory {
       new ESTree.Position(location.getEnd().getLine(), location.getEnd().getColumn()));
   }
 
-
   private static ESTree.Program fromProgramType(Node node) {
+    Program program = node.getProgram();
     return new ESTree.Program(fromLocation(node.getLoc()),
-      node.getProgram().getSourceType(),
-      from(node.getProgram().getBodyList(), ESTree.DirectiveOrModuleDeclarationOrStatement.class));
+      program.getSourceType(),
+      from(program.getBodyList(), ESTree.DirectiveOrModuleDeclarationOrStatement.class));
   }
 
   private static ESTree.ExportAllDeclaration fromExportAllDeclarationType(Node node) {
+    ExportAllDeclaration exportAllDeclaration = node.getExportAllDeclaration();
     return new ESTree.ExportAllDeclaration(fromLocation(node.getLoc()),
-      from(node.getExportAllDeclaration().getExported(), ESTree.Identifier.class),
-      from(node.getExportAllDeclaration().getSource(), ESTree.Literal.class));
+      from(exportAllDeclaration.getExported(), ESTree.Identifier.class),
+      from(exportAllDeclaration.getSource(), ESTree.Literal.class));
   }
 
   private static ESTree.Identifier fromIdentifierType(Node node) {
-    return new ESTree.Identifier(fromLocation(node.getLoc()), node.getIdentifier().getName());
+    Identifier identifier = node.getIdentifier();
+    return new ESTree.Identifier(fromLocation(node.getLoc()),
+      identifier.getName());
   }
 
   private static ESTree.ExportDefaultDeclaration fromExportDefaultDeclarationType(Node node) {
+    ExportDefaultDeclaration exportDefaultDeclaration = node.getExportDefaultDeclaration();
     return new ESTree.ExportDefaultDeclaration(fromLocation(node.getLoc()),
-      from(node.getExportDefaultDeclaration().getDeclaration(), ESTree.Expression.class));
+      from(exportDefaultDeclaration.getDeclaration(), ESTree.Expression.class));
   }
 
   private static ESTree.YieldExpression fromYieldExpressionType(Node node) {
+    YieldExpression yieldExpression = node.getYieldExpression();
     return new ESTree.YieldExpression(fromLocation(node.getLoc()),
-      from(node.getYieldExpression().getArgument(), ESTree.Expression.class),
-      node.getYieldExpression().getDelegate());
+      from(yieldExpression.getArgument(), ESTree.Expression.class),
+      yieldExpression.getDelegate());
   }
 
   private static ESTree.UpdateExpression fromUpdateExpressionType(Node node) {
+    UpdateExpression updateExpression = node.getUpdateExpression();
     return new ESTree.UpdateExpression(fromLocation(node.getLoc()),
-      ESTree.UpdateOperator.valueOf(node.getUpdateExpression().getOperator()),
-      from(node.getUpdateExpression().getArgument(), ESTree.Expression.class),
-      node.getUpdateExpression().getPrefix());
+      ESTree.UpdateOperator.valueOf(updateExpression.getOperator()),
+      from(updateExpression.getArgument(), ESTree.Expression.class),
+      updateExpression.getPrefix());
   }
 
   private static ESTree.UnaryExpression fromUnaryExpressionType(Node node) {
+    UnaryExpression unaryExpression = node.getUnaryExpression();
     return new ESTree.UnaryExpression(fromLocation(node.getLoc()),
-      ESTree.UnaryOperator.valueOf(node.getUnaryExpression().getOperator()),
-      node.getUnaryExpression().getPrefix(),
-      from(node.getUnaryExpression().getArgument(), ESTree.Expression.class));
+      ESTree.UnaryOperator.valueOf(unaryExpression.getOperator()),
+      unaryExpression.getPrefix(),
+      from(unaryExpression.getArgument(), ESTree.Expression.class));
   }
 
   private static ESTree.ThisExpression fromThisExpressionType(Node node) {
@@ -166,72 +238,84 @@ public class ESTreeFactory {
   }
 
   private static ESTree.TemplateLiteral fromTemplateLiteralType(Node node) {
+    TemplateLiteral templateLiteral = node.getTemplateLiteral();
     return new ESTree.TemplateLiteral(fromLocation(node.getLoc()),
-      from(node.getTemplateLiteral().getQuasisList(), ESTree.TemplateElement.class),
-      from(node.getTemplateLiteral().getExpressionsList(), ESTree.Expression.class));
+      from(templateLiteral.getQuasisList(), ESTree.TemplateElement.class),
+      from(templateLiteral.getExpressionsList(), ESTree.Expression.class));
   }
 
   private static ESTree.TaggedTemplateExpression fromTaggedTemplateExpressionType(Node node) {
+    TaggedTemplateExpression taggedTemplateExpression = node.getTaggedTemplateExpression();
     return new ESTree.TaggedTemplateExpression(fromLocation(node.getLoc()),
-      from(node.getTaggedTemplateExpression().getTag(), ESTree.Expression.class),
-      from(node.getTaggedTemplateExpression().getQuasi(), ESTree.TemplateLiteral.class));
+      from(taggedTemplateExpression.getTag(), ESTree.Expression.class),
+      from(taggedTemplateExpression.getQuasi(), ESTree.TemplateLiteral.class));
   }
 
   private static ESTree.SequenceExpression fromSequenceExpressionType(Node node) {
+    SequenceExpression sequenceExpression = node.getSequenceExpression();
     return new ESTree.SequenceExpression(fromLocation(node.getLoc()),
-      from(node.getSequenceExpression().getExpressionsList(), ESTree.Expression.class));
+      from(sequenceExpression.getExpressionsList(), ESTree.Expression.class));
   }
 
   private static ESTree.ObjectExpression fromObjectExpressionType(Node node) {
+    ObjectExpression objectExpression = node.getObjectExpression();
     return new ESTree.ObjectExpression(fromLocation(node.getLoc()),
-      from(node.getObjectExpression().getPropertiesList(), ESTree.PropertyOrSpreadElement.class));
+      from(objectExpression.getPropertiesList(), ESTree.PropertyOrSpreadElement.class));
   }
 
   private static ESTree.SpreadElement fromSpreadElementType(Node node) {
+    SpreadElement spreadElement = node.getSpreadElement();
     return new ESTree.SpreadElement(fromLocation(node.getLoc()),
-      from(node.getSpreadElement().getArgument(), ESTree.Expression.class));
+      from(spreadElement.getArgument(), ESTree.Expression.class));
   }
 
   private static ESTree.Property fromPropertyType(Node node) {
+    Property property = node.getProperty();
     return new ESTree.Property(fromLocation(node.getLoc()),
-      from(node.getProperty().getKey(), ESTree.Expression.class),
-      from(node.getProperty().getValue(), ESTree.Expression.class),
-      node.getProperty().getKind(),
-      node.getProperty().getMethod(),
-      node.getProperty().getShorthand(),
-      node.getProperty().getComputed());
+      from(property.getKey(), ESTree.Expression.class),
+      from(property.getValue(), ESTree.Expression.class),
+      property.getKind(),
+      property.getMethod(),
+      property.getShorthand(),
+      property.getComputed());
   }
 
   private static ESTree.AssignmentPattern fromAssignmentPatternType(Node node) {
+    AssignmentPattern assignmentPattern = node.getAssignmentPattern();
     return new ESTree.AssignmentPattern(fromLocation(node.getLoc()),
-      from(node.getAssignmentPattern().getLeft(), ESTree.Pattern.class),
-      from(node.getAssignmentPattern().getRight(), ESTree.Expression.class));
+      from(assignmentPattern.getLeft(), ESTree.Pattern.class),
+      from(assignmentPattern.getRight(), ESTree.Expression.class));
   }
 
   private static ESTree.RestElement fromRestElementType(Node node) {
+    RestElement restElement = node.getRestElement();
     return new ESTree.RestElement(fromLocation(node.getLoc()),
-      from(node.getRestElement().getArgument(), ESTree.Pattern.class));
+      from(restElement.getArgument(), ESTree.Pattern.class));
   }
 
   private static ESTree.ArrayPattern fromArrayPatternType(Node node) {
+    ArrayPattern arrayPattern = node.getArrayPattern();
     return new ESTree.ArrayPattern(fromLocation(node.getLoc()),
-      from(node.getArrayPattern().getElementsList(), ESTree.Pattern.class));
+      from(arrayPattern.getElementsList(), ESTree.Pattern.class));
   }
 
   private static ESTree.ObjectPattern fromObjectPatternType(Node node) {
+    ObjectPattern objectPattern = node.getObjectPattern();
     return new ESTree.ObjectPattern(fromLocation(node.getLoc()),
-      from(node.getObjectPattern().getPropertiesList(), ESTree.AssignmentPropertyOrRestElement.class));
+      from(objectPattern.getPropertiesList(), ESTree.AssignmentPropertyOrRestElement.class));
   }
 
   private static ESTree.PrivateIdentifier fromPrivateIdentifierType(Node node) {
+    PrivateIdentifier privateIdentifier = node.getPrivateIdentifier();
     return new ESTree.PrivateIdentifier(fromLocation(node.getLoc()),
-      node.getPrivateIdentifier().getName());
+      privateIdentifier.getName());
   }
 
   private static ESTree.NewExpression fromNewExpressionType(Node node) {
+    NewExpression newExpression = node.getNewExpression();
     return new ESTree.NewExpression(fromLocation(node.getLoc()),
-      from(node.getNewExpression().getCallee(), ESTree.Expression.class),
-      from(node.getNewExpression().getArgumentsList(), ESTree.ExpressionOrSpreadElement.class));
+      from(newExpression.getCallee(), ESTree.Expression.class),
+      from(newExpression.getArgumentsList(), ESTree.ExpressionOrSpreadElement.class));
   }
 
   private static ESTree.Super fromSuperType(Node node) {
@@ -239,52 +323,61 @@ public class ESTreeFactory {
   }
 
   private static ESTree.MetaProperty fromMetaPropertyType(Node node) {
+    MetaProperty metaProperty = node.getMetaProperty();
     return new ESTree.MetaProperty(fromLocation(node.getLoc()),
-      from(node.getMetaProperty().getMeta(), ESTree.Identifier.class),
-      from(node.getMetaProperty().getProperty(), ESTree.Identifier.class));
+      from(metaProperty.getMeta(), ESTree.Identifier.class),
+      from(metaProperty.getProperty(), ESTree.Identifier.class));
   }
 
   private static ESTree.MemberExpression fromMemberExpressionType(Node node) {
+    MemberExpression memberExpression = node.getMemberExpression();
     return new ESTree.MemberExpression(fromLocation(node.getLoc()),
-      from(node.getMemberExpression().getObject(),
-      ESTree.ExpressionOrSuper.class), from(node.getMemberExpression().getProperty(), ESTree.ExpressionOrPrivateIdentifier.class),
-      node.getMemberExpression().getComputed(), node.getMemberExpression().getOptional());
+      from(memberExpression.getObject(), ESTree.ExpressionOrSuper.class),
+      from(memberExpression.getProperty(), ESTree.ExpressionOrPrivateIdentifier.class),
+      memberExpression.getComputed(),
+      memberExpression.getOptional());
   }
 
   private static ESTree.LogicalExpression fromLogicalExpressionType(Node node) {
+    LogicalExpression logicalExpression = node.getLogicalExpression();
     return new ESTree.LogicalExpression(fromLocation(node.getLoc()),
-      ESTree.LogicalOperator.valueOf(node.getLogicalExpression().getOperator()),
-      from(node.getLogicalExpression().getLeft(), ESTree.Expression.class),
-      from(node.getLogicalExpression().getRight(), ESTree.Expression.class));
+      ESTree.LogicalOperator.valueOf(logicalExpression.getOperator()),
+      from(logicalExpression.getLeft(), ESTree.Expression.class),
+      from(logicalExpression.getRight(), ESTree.Expression.class));
   }
 
   private static ESTree.ImportExpression fromImportExpressionType(Node node) {
+    ImportExpression importExpression = node.getImportExpression();
     return new ESTree.ImportExpression(fromLocation(node.getLoc()),
-      from(node.getImportExpression().getSource(), ESTree.Expression.class));
+      from(importExpression.getSource(), ESTree.Expression.class));
   }
 
   private static ESTree.BlockStatement fromBlockStatementType(Node node) {
+    BlockStatement blockStatement = node.getBlockStatement();
     return new ESTree.BlockStatement(fromLocation(node.getLoc()),
-      from(node.getBlockStatement().getBodyList(), ESTree.Statement.class));
+      from(blockStatement.getBodyList(), ESTree.Statement.class));
   }
 
   private static ESTree.ConditionalExpression fromConditionalExpressionType(Node node) {
+    ConditionalExpression conditionalExpression = node.getConditionalExpression();
     return new ESTree.ConditionalExpression(fromLocation(node.getLoc()),
-      from(node.getConditionalExpression().getTest(), ESTree.Expression.class),
-      from(node.getConditionalExpression().getAlternate(), ESTree.Expression.class),
-      from(node.getConditionalExpression().getConsequent(), ESTree.Expression.class));
+      from(conditionalExpression.getTest(), ESTree.Expression.class),
+      from(conditionalExpression.getAlternate(), ESTree.Expression.class),
+      from(conditionalExpression.getConsequent(), ESTree.Expression.class));
   }
 
   private static ESTree.ClassExpression fromClassExpressionType(Node node) {
+    ClassExpression classExpression = node.getClassExpression();
     return new ESTree.ClassExpression(fromLocation(node.getLoc()),
-      from(node.getClassExpression().getId(), ESTree.Identifier.class),
-      from(node.getClassExpression().getSuperClass(), ESTree.Expression.class),
-      from(node.getClassExpression().getBody(), ESTree.ClassBody.class));
+      from(classExpression.getId(), ESTree.Identifier.class),
+      from(classExpression.getSuperClass(), ESTree.Expression.class),
+      from(classExpression.getBody(), ESTree.ClassBody.class));
   }
 
   private static ESTree.ClassBody fromClassBodyType(Node node) {
+    ClassBody classBody = node.getClassBody();
     return new ESTree.ClassBody(fromLocation(node.getLoc()),
-      from(node.getClassBody().getBodyList(), ESTree.MethodDefinitionOrPropertyDefinitionOrStaticBlock.class));
+      from(classBody.getBodyList(), ESTree.MethodDefinitionOrPropertyDefinitionOrStaticBlock.class));
   }
 
   private static ESTree.StaticBlock fromStaticBlockType(Node node) {
@@ -292,224 +385,261 @@ public class ESTreeFactory {
   }
 
   private static ESTree.PropertyDefinition fromPropertyDefinitionType(Node node) {
+    PropertyDefinition propertyDefinition = node.getPropertyDefinition();
     return new ESTree.PropertyDefinition(fromLocation(node.getLoc()),
-      from(node.getPropertyDefinition().getKey(), ESTree.Expression.class),
-      from(node.getPropertyDefinition().getValue(), ESTree.Expression.class),
-      node.getPropertyDefinition().getComputed(),
-      node.getPropertyDefinition().getStatic());
+      from(propertyDefinition.getKey(), ESTree.Expression.class),
+      from(propertyDefinition.getValue(), ESTree.Expression.class),
+      propertyDefinition.getComputed(),
+      propertyDefinition.getStatic());
   }
 
   private static ESTree.MethodDefinition fromMethodDefinitionType(Node node) {
-    return new ESTree.MethodDefinition(fromLocation(node.getLoc()), from(node.getMethodDefinition().getKey(), ESTree.Expression.class),
-      from(node.getMethodDefinition().getValue(), ESTree.FunctionExpression.class), node.getMethodDefinition().getKind(),
-      node.getMethodDefinition().getComputed(), node.getMethodDefinition().getStatic());
+    MethodDefinition methodDefinition = node.getMethodDefinition();
+    return new ESTree.MethodDefinition(fromLocation(node.getLoc()),
+      from(methodDefinition.getKey(), ESTree.Expression.class),
+      from(methodDefinition.getValue(), ESTree.FunctionExpression.class),
+      methodDefinition.getKind(),
+      methodDefinition.getComputed(), methodDefinition.getStatic());
   }
 
   private static ESTree.ChainExpression fromChainExpressionType(Node node) {
+    ChainExpression chainExpression = node.getChainExpression();
     return new ESTree.ChainExpression(fromLocation(node.getLoc()),
-      from(node.getChainExpression().getExpression(), ESTree.ChainElement.class));
+      from(chainExpression.getExpression(), ESTree.ChainElement.class));
   }
 
   private static ESTree.CallExpression fromCallExpressionType(Node node) {
+    CallExpression callExpression = node.getCallExpression();
     return new ESTree.SimpleCallExpression(fromLocation(node.getLoc()),
-      node.getCallExpression().getOptional(),
-      from(node.getCallExpression().getCallee(), ESTree.ExpressionOrSuper.class),
-      from(node.getCallExpression().getArgumentsList(), ESTree.ExpressionOrSpreadElement.class));
+      callExpression.getOptional(),
+      from(callExpression.getCallee(), ESTree.ExpressionOrSuper.class),
+      from(callExpression.getArgumentsList(), ESTree.ExpressionOrSpreadElement.class));
   }
 
   private static ESTree.BinaryExpression fromBinaryExpressionType(Node node) {
+    BinaryExpression binaryExpression = node.getBinaryExpression();
     return new ESTree.BinaryExpression(fromLocation(node.getLoc()),
-      ESTree.BinaryOperator.valueOf(node.getBinaryExpression().getOperator()),
-      from(node.getBinaryExpression().getLeft(), ESTree.Expression.class),
-      from(node.getBinaryExpression().getRight(), ESTree.Expression.class));
+      ESTree.BinaryOperator.valueOf(binaryExpression.getOperator()),
+      from(binaryExpression.getLeft(), ESTree.Expression.class),
+      from(binaryExpression.getRight(), ESTree.Expression.class));
   }
 
   private static ESTree.AwaitExpression fromAwaitExpressionType(Node node) {
+    AwaitExpression awaitExpression = node.getAwaitExpression();
     return new ESTree.AwaitExpression(fromLocation(node.getLoc()),
-      from(node.getAwaitExpression().getArgument(), ESTree.Expression.class));
+      from(awaitExpression.getArgument(), ESTree.Expression.class));
   }
 
   private static ESTree.AssignmentExpression fromAssignmentExpressionType(Node node) {
+    AssignmentExpression assignmentExpression = node.getAssignmentExpression();
     return new ESTree.AssignmentExpression(fromLocation(node.getLoc()),
-      ESTree.AssignmentOperator.valueOf(node.getAssignmentExpression().getOperator()),
-      from(node.getAssignmentExpression().getLeft(), ESTree.Pattern.class),
-      from(node.getAssignmentExpression().getRight(), ESTree.Expression.class));
+      ESTree.AssignmentOperator.valueOf(assignmentExpression.getOperator()),
+      from(assignmentExpression.getLeft(), ESTree.Pattern.class),
+      from(assignmentExpression.getRight(), ESTree.Expression.class));
   }
 
   private static ESTree.ArrowFunctionExpression fromArrowFunctionExpressionType(Node node) {
+    ArrowFunctionExpression arrowFunctionExpression = node.getArrowFunctionExpression();
     return new ESTree.ArrowFunctionExpression(fromLocation(node.getLoc()),
-      node.getArrowFunctionExpression().getExpression(),
-      from(node.getArrowFunctionExpression().getBody(), ESTree.BlockStatementOrExpression.class),
-      from(node.getArrowFunctionExpression().getParamsList(), ESTree.Pattern.class),
-      node.getArrowFunctionExpression().getGenerator(),
-      node.getArrowFunctionExpression().getAsync());
+      arrowFunctionExpression.getExpression(),
+      from(arrowFunctionExpression.getBody(), ESTree.BlockStatementOrExpression.class),
+      from(arrowFunctionExpression.getParamsList(), ESTree.Pattern.class),
+      arrowFunctionExpression.getGenerator(),
+      arrowFunctionExpression.getAsync());
   }
 
   private static ESTree.ArrayExpression fromArrayExpressionType(Node node) {
+    ArrayExpression arrayExpression = node.getArrayExpression();
     return new ESTree.ArrayExpression(fromLocation(node.getLoc()),
-      from(node.getArrayExpression().getElementsList(), ESTree.ExpressionOrSpreadElement.class));
+      from(arrayExpression.getElementsList(), ESTree.ExpressionOrSpreadElement.class));
   }
 
   private static ESTree.ClassDeclaration fromClassDeclarationType(Node node) {
+    ClassDeclaration classDeclaration = node.getClassDeclaration();
     return new ESTree.ClassDeclaration(fromLocation(node.getLoc()),
-      from(node.getClassDeclaration().getId(), ESTree.Identifier.class),
-      from(node.getClassDeclaration().getSuperClass(), ESTree.Expression.class),
-      from(node.getClassDeclaration().getBody(), ESTree.ClassBody.class));
+      from(classDeclaration.getId(), ESTree.Identifier.class),
+      from(classDeclaration.getSuperClass(), ESTree.Expression.class),
+      from(classDeclaration.getBody(), ESTree.ClassBody.class));
   }
 
   private static ESTree.FunctionDeclaration fromFunctionDeclarationType(Node node) {
+    FunctionDeclaration functionDeclaration = node.getFunctionDeclaration();
     return new ESTree.FunctionDeclaration(fromLocation(node.getLoc()),
-      from(node.getFunctionDeclaration().getId(), ESTree.Identifier.class),
-      from(node.getFunctionDeclaration().getBody(), ESTree.BlockStatement.class),
-      from(node.getFunctionDeclaration().getParamsList(), ESTree.Pattern.class),
-      node.getFunctionDeclaration().getGenerator(),
-      node.getFunctionDeclaration().getAsync());
+      from(functionDeclaration.getId(), ESTree.Identifier.class),
+      from(functionDeclaration.getBody(), ESTree.BlockStatement.class),
+      from(functionDeclaration.getParamsList(), ESTree.Pattern.class),
+      functionDeclaration.getGenerator(),
+      functionDeclaration.getAsync());
   }
 
   private static ESTree.ExportNamedDeclaration fromExportNamedDeclarationType(Node node) {
+    ExportNamedDeclaration exportNamedDeclaration = node.getExportNamedDeclaration();
     return new ESTree.ExportNamedDeclaration(fromLocation(node.getLoc()),
-      from(node.getExportNamedDeclaration().getDeclaration(), ESTree.Declaration.class),
-      from(node.getExportNamedDeclaration().getSpecifiersList(), ESTree.ExportSpecifier.class),
-      from(node.getExportNamedDeclaration().getSource(), ESTree.Literal.class));
+      from(exportNamedDeclaration.getDeclaration(), ESTree.Declaration.class),
+      from(exportNamedDeclaration.getSpecifiersList(), ESTree.ExportSpecifier.class),
+      from(exportNamedDeclaration.getSource(), ESTree.Literal.class));
   }
 
   private static ESTree.ExportSpecifier fromExportSpecifierType(Node node) {
+    ExportSpecifier exportSpecifier = node.getExportSpecifier();
     return new ESTree.ExportSpecifier(fromLocation(node.getLoc()),
-      from(node.getExportSpecifier().getExported(), ESTree.Identifier.class),
-      from(node.getExportSpecifier().getLocal(), ESTree.Identifier.class));
+      from(exportSpecifier.getExported(), ESTree.Identifier.class),
+      from(exportSpecifier.getLocal(), ESTree.Identifier.class));
   }
 
   private static ESTree.VariableDeclaration fromVariableDeclarationType(Node node) {
+    VariableDeclaration variableDeclaration = node.getVariableDeclaration();
     return new ESTree.VariableDeclaration(fromLocation(node.getLoc()),
-      from(node.getVariableDeclaration().getDeclarationsList(), ESTree.VariableDeclarator.class),
-      node.getVariableDeclaration().getKind());
+      from(variableDeclaration.getDeclarationsList(), ESTree.VariableDeclarator.class),
+      variableDeclaration.getKind());
   }
 
   private static ESTree.VariableDeclarator fromVariableDeclaratorType(Node node) {
+    VariableDeclarator variableDeclarator = node.getVariableDeclarator();
     return new ESTree.VariableDeclarator(fromLocation(node.getLoc()),
-      from(node.getVariableDeclarator().getId(), ESTree.Pattern.class),
-      from(node.getVariableDeclarator().getInit(), ESTree.Expression.class));
+      from(variableDeclarator.getId(), ESTree.Pattern.class),
+      from(variableDeclarator.getInit(), ESTree.Expression.class));
   }
 
   private static ESTree.ImportDeclaration fromImportDeclarationType(Node node) {
+    ImportDeclaration importDeclaration = node.getImportDeclaration();
     return new ESTree.ImportDeclaration(fromLocation(node.getLoc()),
-      from(node.getImportDeclaration().getSpecifiersList(), ESTree.ImportDefaultSpecifierOrImportNamespaceSpecifierOrImportSpecifier.class),
-      from(node.getImportDeclaration().getSource(), ESTree.Literal.class));
+      from(importDeclaration.getSpecifiersList(), ESTree.ImportDefaultSpecifierOrImportNamespaceSpecifierOrImportSpecifier.class),
+      from(importDeclaration.getSource(), ESTree.Literal.class));
   }
 
   private static ESTree.ImportNamespaceSpecifier fromImportNamespaceSpecifierType(Node node) {
+    ImportNamespaceSpecifier importNamespaceSpecifier = node.getImportNamespaceSpecifier();
     return new ESTree.ImportNamespaceSpecifier(fromLocation(node.getLoc()),
-      from(node.getImportNamespaceSpecifier().getLocal(), ESTree.Identifier.class));
+      from(importNamespaceSpecifier.getLocal(), ESTree.Identifier.class));
   }
 
   private static ESTree.ImportDefaultSpecifier fromImportDefaultSpecifierType(Node node) {
+    ImportDefaultSpecifier importDefaultSpecifier = node.getImportDefaultSpecifier();
     return new ESTree.ImportDefaultSpecifier(fromLocation(node.getLoc()),
-      from(node.getImportDefaultSpecifier().getLocal(), ESTree.Identifier.class));
+      from(importDefaultSpecifier.getLocal(), ESTree.Identifier.class));
   }
 
   private static ESTree.ImportSpecifier fromImportSpecifierType(Node node) {
+    ImportSpecifier importSpecifier = node.getImportSpecifier();
     return new ESTree.ImportSpecifier(fromLocation(node.getLoc()),
-      from(node.getImportSpecifier().getImported(), ESTree.Identifier.class),
-      from(node.getImportSpecifier().getLocal(), ESTree.Identifier.class));
+      from(importSpecifier.getImported(), ESTree.Identifier.class),
+      from(importSpecifier.getLocal(), ESTree.Identifier.class));
   }
 
   private static ESTree.ForOfStatement fromForOfStatementType(Node node) {
+    ForOfStatement forOfStatement = node.getForOfStatement();
     return new ESTree.ForOfStatement(fromLocation(node.getLoc()),
-      node.getForOfStatement().getAwait(),
-      from(node.getForOfStatement().getLeft(), ESTree.Pattern.class),
-      from(node.getForOfStatement().getRight(), ESTree.Expression.class),
-      from(node.getForOfStatement().getBody(), ESTree.Statement.class));
+      forOfStatement.getAwait(),
+      from(forOfStatement.getLeft(), ESTree.Pattern.class),
+      from(forOfStatement.getRight(), ESTree.Expression.class),
+      from(forOfStatement.getBody(), ESTree.Statement.class));
   }
 
   private static ESTree.ForInStatement fromForInStatementType(Node node) {
+    ForInStatement forInStatement = node.getForInStatement();
     return new ESTree.ForInStatement(fromLocation(node.getLoc()),
-      from(node.getForInStatement().getLeft(), ESTree.Pattern.class),
-      from(node.getForInStatement().getRight(), ESTree.Expression.class),
-      from(node.getForInStatement().getBody(), ESTree.Statement.class));
+      from(forInStatement.getLeft(), ESTree.Pattern.class),
+      from(forInStatement.getRight(), ESTree.Expression.class),
+      from(forInStatement.getBody(), ESTree.Statement.class));
   }
 
   private static ESTree.ForStatement fromForStatementType(Node node) {
+    ForStatement forStatement = node.getForStatement();
     return new ESTree.ForStatement(fromLocation(node.getLoc()),
-      from(node.getForStatement().getInit(), ESTree.ExpressionOrVariableDeclaration.class),
-      from(node.getForStatement().getTest(), ESTree.Expression.class),
-      from(node.getForStatement().getUpdate(), ESTree.Expression.class),
-      from(node.getForStatement().getBody(), ESTree.Statement.class));
+      from(forStatement.getInit(), ESTree.ExpressionOrVariableDeclaration.class),
+      from(forStatement.getTest(), ESTree.Expression.class),
+      from(forStatement.getUpdate(), ESTree.Expression.class),
+      from(forStatement.getBody(), ESTree.Statement.class));
   }
 
   private static ESTree.DoWhileStatement fromDoWhileStatementType(Node node) {
+    DoWhileStatement doWhileStatement = node.getDoWhileStatement();
     return new ESTree.DoWhileStatement(fromLocation(node.getLoc()),
-      from(node.getDoWhileStatement().getBody(), ESTree.Statement.class),
-      from(node.getDoWhileStatement().getTest(), ESTree.Expression.class));
+      from(doWhileStatement.getBody(), ESTree.Statement.class),
+      from(doWhileStatement.getTest(), ESTree.Expression.class));
   }
 
   private static ESTree.WhileStatement fromWhileStatementType(Node node) {
+    WhileStatement whileStatement = node.getWhileStatement();
     return new ESTree.WhileStatement(fromLocation(node.getLoc()),
-      from(node.getWhileStatement().getTest(), ESTree.Expression.class),
-      from(node.getWhileStatement().getBody(), ESTree.Statement.class));
+      from(whileStatement.getTest(), ESTree.Expression.class),
+      from(whileStatement.getBody(), ESTree.Statement.class));
   }
 
   private static ESTree.TryStatement fromTryStatementType(Node node) {
+    TryStatement tryStatement = node.getTryStatement();
     return new ESTree.TryStatement(fromLocation(node.getLoc()),
-      from(node.getTryStatement().getBlock(), ESTree.BlockStatement.class),
-      from(node.getTryStatement().getHandler(), ESTree.CatchClause.class),
-      from(node.getTryStatement().getFinalizer(), ESTree.BlockStatement.class));
+      from(tryStatement.getBlock(), ESTree.BlockStatement.class),
+      from(tryStatement.getHandler(), ESTree.CatchClause.class),
+      from(tryStatement.getFinalizer(), ESTree.BlockStatement.class));
   }
 
   private static ESTree.CatchClause fromCatchClauseType(Node node) {
+    CatchClause catchClause = node.getCatchClause();
     return new ESTree.CatchClause(fromLocation(node.getLoc()),
-      from(node.getCatchClause().getParam(), ESTree.Pattern.class),
-      from(node.getCatchClause().getBody(), ESTree.BlockStatement.class));
+      from(catchClause.getParam(), ESTree.Pattern.class),
+      from(catchClause.getBody(), ESTree.BlockStatement.class));
   }
 
   private static ESTree.ThrowStatement fromThrowStatementType(Node node) {
+    ThrowStatement throwStatement = node.getThrowStatement();
     return new ESTree.ThrowStatement(fromLocation(node.getLoc()),
-      from(node.getThrowStatement().getArgument(), ESTree.Expression.class));
+      from(throwStatement.getArgument(), ESTree.Expression.class));
   }
 
   private static ESTree.SwitchStatement fromSwitchStatementType(Node node) {
+    SwitchStatement switchStatement = node.getSwitchStatement();
     return new ESTree.SwitchStatement(fromLocation(node.getLoc()),
-      from(node.getSwitchStatement().getDiscriminant(), ESTree.Expression.class),
-      from(node.getSwitchStatement().getCasesList(), ESTree.SwitchCase.class));
+      from(switchStatement.getDiscriminant(), ESTree.Expression.class),
+      from(switchStatement.getCasesList(), ESTree.SwitchCase.class));
   }
 
   private static ESTree.SwitchCase fromSwitchCaseType(Node node) {
+    SwitchCase switchCase = node.getSwitchCase();
     return new ESTree.SwitchCase(fromLocation(node.getLoc()),
-      from(node.getSwitchCase().getTest(), ESTree.Expression.class),
-      from(node.getSwitchCase().getConsequentList(), ESTree.Statement.class));
+      from(switchCase.getTest(), ESTree.Expression.class),
+      from(switchCase.getConsequentList(), ESTree.Statement.class));
   }
 
   private static ESTree.IfStatement fromIfStatementType(Node node) {
+    IfStatement ifStatement = node.getIfStatement();
     return new ESTree.IfStatement(fromLocation(node.getLoc()),
-      from(node.getIfStatement().getTest(), ESTree.Expression.class),
-      from(node.getIfStatement().getConsequent(), ESTree.Statement.class),
-      from(node.getIfStatement().getAlternate(), ESTree.Statement.class));
+      from(ifStatement.getTest(), ESTree.Expression.class),
+      from(ifStatement.getConsequent(), ESTree.Statement.class),
+      from(ifStatement.getAlternate(), ESTree.Statement.class));
   }
 
   private static ESTree.ContinueStatement fromContinueStatementType(Node node) {
+    ContinueStatement continueStatement = node.getContinueStatement();
     return new ESTree.ContinueStatement(fromLocation(node.getLoc()),
-      from(node.getContinueStatement().getLabel(), ESTree.Identifier.class));
+      from(continueStatement.getLabel(), ESTree.Identifier.class));
   }
 
   private static ESTree.BreakStatement fromBreakStatementType(Node node) {
+    BreakStatement breakStatement = node.getBreakStatement();
     return new ESTree.BreakStatement(fromLocation(node.getLoc()),
-      from(node.getBreakStatement().getLabel(), ESTree.Identifier.class));
+      from(breakStatement.getLabel(), ESTree.Identifier.class));
   }
 
   private static ESTree.LabeledStatement fromLabeledStatementType(Node node) {
+    LabeledStatement labeledStatement = node.getLabeledStatement();
     return new ESTree.LabeledStatement(fromLocation(node.getLoc()),
-      from(node.getLabeledStatement().getLabel(), ESTree.Identifier.class),
-      from(node.getLabeledStatement().getBody(), ESTree.Statement.class));
+      from(labeledStatement.getLabel(), ESTree.Identifier.class),
+      from(labeledStatement.getBody(), ESTree.Statement.class));
   }
 
   private static ESTree.ReturnStatement fromReturnStatementType(Node node) {
+    ReturnStatement returnStatement = node.getReturnStatement();
     return new ESTree.ReturnStatement(fromLocation(node.getLoc()),
-      from(node.getReturnStatement().getArgument(), ESTree.Expression.class));
+      from(returnStatement.getArgument(), ESTree.Expression.class));
   }
 
   private static ESTree.WithStatement fromWithStatementType(Node node) {
+    WithStatement withStatement = node.getWithStatement();
     return new ESTree.WithStatement(fromLocation(node.getLoc()),
-      from(node.getWithStatement().getObject(), ESTree.Expression.class),
-      from(node.getWithStatement().getBody(), ESTree.Statement.class));
+      from(withStatement.getObject(), ESTree.Expression.class),
+      from(withStatement.getBody(), ESTree.Statement.class));
   }
 
   private static ESTree.DebuggerStatement fromDebuggerStatementType(Node node) {
@@ -522,8 +652,9 @@ public class ESTreeFactory {
 
   private static ESTree.ExpressionStatement fromExpressionStatementType(Node node) {
     // TODO: What about directive?
+    ExpressionStatement expressionStatement = node.getExpressionStatement();
     return new ESTree.ExpressionStatement(fromLocation(node.getLoc()),
-      from(node.getExpressionStatement().getExpression(), ESTree.Expression.class));
+      from(expressionStatement.getExpression(), ESTree.Expression.class));
   }
 
   private static ESTree.Literal fromLiteralType(Node node) {
@@ -532,20 +663,22 @@ public class ESTreeFactory {
   }
 
   private static ESTree.TemplateElement fromTemplateElementType(Node node) {
+    TemplateElement templateElement = node.getTemplateElement();
     return new ESTree.TemplateElement(fromLocation(node.getLoc()),
-      node.getTemplateElement().getTail(),
-      node.getTemplateElement().getCooked(),
-      node.getTemplateElement().getRaw()
+      templateElement.getTail(),
+      templateElement.getCooked(),
+      templateElement.getRaw()
     );
   }
 
   private static ESTree.FunctionExpression fromFunctionExpressionType(Node node) {
+    FunctionExpression functionExpression = node.getFunctionExpression();
     return new ESTree.FunctionExpression(fromLocation(node.getLoc()),
-      from(node.getFunctionExpression().getId(), ESTree.Identifier.class),
-      from(node.getFunctionExpression().getBody(), ESTree.BlockStatement.class),
-      from(node.getFunctionExpression().getParamsList(), ESTree.Pattern.class),
-      node.getFunctionExpression().getGenerator(),
-      node.getFunctionExpression().getAsync());
+      from(functionExpression.getId(), ESTree.Identifier.class),
+      from(functionExpression.getBody(), ESTree.BlockStatement.class),
+      from(functionExpression.getParamsList(), ESTree.Pattern.class),
+      functionExpression.getGenerator(),
+      functionExpression.getAsync());
   }
 
 }
