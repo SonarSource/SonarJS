@@ -19,10 +19,12 @@
  */
 package org.sonar.plugins.javascript.bridge;
 
+import java.math.BigInteger;
 import org.junit.jupiter.api.Test;
 import org.sonar.plugins.javascript.api.estree.ESTree;
 import org.sonar.plugins.javascript.bridge.protobuf.BlockStatement;
 import org.sonar.plugins.javascript.bridge.protobuf.ExpressionStatement;
+import org.sonar.plugins.javascript.bridge.protobuf.Literal;
 import org.sonar.plugins.javascript.bridge.protobuf.Node;
 import org.sonar.plugins.javascript.bridge.protobuf.NodeType;
 import org.sonar.plugins.javascript.bridge.protobuf.Position;
@@ -98,6 +100,119 @@ class ESTreeFactoryTest {
     ESTree.Node estreeExpressionStatement = ESTreeFactory.from(protobufNode, ESTree.Node.class);
     assertThat(estreeExpressionStatement).isInstanceOfSatisfying(ESTree.Directive.class,
       directive -> assertThat(directive.directive()).isEqualTo("directive"));
+  }
+
+  @Test
+  void should_create_BigIntLiteral() {
+    Literal literal = Literal.newBuilder()
+      .setBigint("1234")
+      .build();
+    Node protobufNode = Node.newBuilder()
+      .setType(NodeType.LiteralType)
+      .setLiteral(literal)
+      .build();
+
+    ESTree.Node estreeExpressionStatement = ESTreeFactory.from(protobufNode, ESTree.Node.class);
+    assertThat(estreeExpressionStatement).isInstanceOfSatisfying(ESTree.BigIntLiteral.class, bigIntLiteral -> {
+      assertThat(bigIntLiteral.bigint()).isEqualTo("1234");
+      assertThat(bigIntLiteral.value()).isEqualTo(new BigInteger("1234"));
+      // Default value.
+      assertThat(bigIntLiteral.raw()).isEmpty();
+    });
+  }
+
+  @Test
+  void should_create_simple_string_literal() {
+    Literal literal = Literal.newBuilder()
+      .setRaw("'raw'")
+      .setValueString("raw")
+      .build();
+    Node protobufNode = Node.newBuilder()
+      .setType(NodeType.LiteralType)
+      .setLiteral(literal)
+      .build();
+
+    ESTree.Node estreeExpressionStatement = ESTreeFactory.from(protobufNode, ESTree.Node.class);
+    assertThat(estreeExpressionStatement).isInstanceOfSatisfying(ESTree.SimpleLiteral.class, simpleLiteral -> {
+      assertThat(simpleLiteral.raw()).isEqualTo("'raw'");
+      assertThat(simpleLiteral.value()).isEqualTo("raw");
+    });
+  }
+
+  @Test
+  void should_create_simple_int_literal() {
+    Literal literal = Literal.newBuilder()
+      .setRaw("42")
+      .setValueNumber(42)
+      .build();
+    Node protobufNode = Node.newBuilder()
+      .setType(NodeType.LiteralType)
+      .setLiteral(literal)
+      .build();
+
+    ESTree.Node estreeExpressionStatement = ESTreeFactory.from(protobufNode, ESTree.Node.class);
+    assertThat(estreeExpressionStatement).isInstanceOfSatisfying(ESTree.SimpleLiteral.class, simpleLiteral -> {
+      assertThat(simpleLiteral.raw()).isEqualTo("42");
+      assertThat(simpleLiteral.value()).isEqualTo(42);
+    });
+  }
+
+  @Test
+  void should_create_simple_bool_literal() {
+    Literal literal = Literal.newBuilder()
+      .setRaw("true")
+      .setValueBoolean(true)
+      .build();
+    Node protobufNode = Node.newBuilder()
+      .setType(NodeType.LiteralType)
+      .setLiteral(literal)
+      .build();
+
+    ESTree.Node estreeExpressionStatement = ESTreeFactory.from(protobufNode, ESTree.Node.class);
+    assertThat(estreeExpressionStatement).isInstanceOfSatisfying(ESTree.SimpleLiteral.class, simpleLiteral -> {
+      assertThat(simpleLiteral.raw()).isEqualTo("true");
+      assertThat(simpleLiteral.value()).isEqualTo(true);
+    });
+  }
+
+
+  @Test
+  void should_create_reg_exp_literal() {
+    Literal literal = Literal.newBuilder()
+      .setPattern("1234")
+      .build();
+    Node protobufNode = Node.newBuilder()
+      .setType(NodeType.LiteralType)
+      .setLiteral(literal)
+      .build();
+
+    ESTree.Node estreeExpressionStatement = ESTreeFactory.from(protobufNode, ESTree.Node.class);
+    assertThat(estreeExpressionStatement).isInstanceOfSatisfying(ESTree.RegExpLiteral.class, regExpLiteral -> {
+      assertThat(regExpLiteral.pattern()).isEqualTo("1234");
+      assertThat(regExpLiteral.flags()).isEmpty();
+      // Default value.
+      assertThat(regExpLiteral.raw()).isEmpty();
+    });
+  }
+
+  @Test
+  void should_create_reg_exp_literal_with_flag() {
+    Literal literal = Literal.newBuilder()
+      .setPattern("1234")
+      .setFlags("flag")
+      .build();
+    Node protobufNode = Node.newBuilder()
+      .setType(NodeType.LiteralType)
+      .setLiteral(literal)
+      .build();
+
+    ESTree.Node estreeExpressionStatement = ESTreeFactory.from(protobufNode, ESTree.Node.class);
+    assertThat(estreeExpressionStatement).isInstanceOfSatisfying(ESTree.RegExpLiteral.class, regExpLiteral -> {
+      assertThat(regExpLiteral.pattern()).isEqualTo("1234");
+      assertThat(regExpLiteral.flags()).isEqualTo("flag");
+      // Default value.
+      assertThat(regExpLiteral.raw()).isEmpty();
+    });
   }
 
   @Test

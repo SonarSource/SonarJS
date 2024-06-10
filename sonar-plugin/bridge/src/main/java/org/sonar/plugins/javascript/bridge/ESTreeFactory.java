@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.javascript.bridge;
 
+import java.math.BigInteger;
 import java.util.List;
 import java.util.Optional;
 import org.sonar.plugins.javascript.api.estree.ESTree;
@@ -58,6 +59,7 @@ import org.sonar.plugins.javascript.bridge.protobuf.ImportExpression;
 import org.sonar.plugins.javascript.bridge.protobuf.ImportNamespaceSpecifier;
 import org.sonar.plugins.javascript.bridge.protobuf.ImportSpecifier;
 import org.sonar.plugins.javascript.bridge.protobuf.LabeledStatement;
+import org.sonar.plugins.javascript.bridge.protobuf.Literal;
 import org.sonar.plugins.javascript.bridge.protobuf.LogicalExpression;
 import org.sonar.plugins.javascript.bridge.protobuf.MemberExpression;
 import org.sonar.plugins.javascript.bridge.protobuf.MetaProperty;
@@ -674,8 +676,21 @@ public class ESTreeFactory {
   }
 
   private static ESTree.Literal fromLiteralType(Node node) {
-    // TODO handle different types of literals
-    return new ESTree.SimpleLiteral(fromLocation(node.getLoc()), node.getLiteral().getValueString(), node.getLiteral().getRaw());
+    Literal literal = node.getLiteral();
+    if (literal.hasBigint()) {
+      return new ESTree.BigIntLiteral(fromLocation(node.getLoc()), new BigInteger(literal.getBigint()), literal.getBigint(), literal.getRaw());
+    } else if (literal.hasPattern()) {
+      return new ESTree.RegExpLiteral(fromLocation(node.getLoc()), literal.getPattern(), literal.getFlags(), literal.getRaw());
+    } else {
+      if (literal.hasValueString()) {
+        return new ESTree.SimpleLiteral(fromLocation(node.getLoc()), literal.getValueString(), node.getLiteral().getRaw());
+      } else if (literal.hasValueBoolean()) {
+        return new ESTree.SimpleLiteral(fromLocation(node.getLoc()), literal.getValueBoolean(), node.getLiteral().getRaw());
+      } else {
+        return new ESTree.SimpleLiteral(fromLocation(node.getLoc()), literal.getValueNumber(), node.getLiteral().getRaw());
+      }
+      // We only store a String for String, Boolean and numbers.
+    }
   }
 
   private static ESTree.TemplateElement fromTemplateElementType(Node node) {
