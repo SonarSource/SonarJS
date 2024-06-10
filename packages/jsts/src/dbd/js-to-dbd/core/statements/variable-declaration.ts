@@ -4,9 +4,9 @@ import { handleExpression } from '../expressions';
 
 export const handleVariableDeclaration: StatementHandler<TSESTree.VariableDeclaration> = (
   node,
-  context,
+  functionInfo,
 ) => {
   for (const declaration of node.declarations) {
-    handleExpression(declaration, context);
+    handleExpression(declaration, functionInfo);
   }
 };

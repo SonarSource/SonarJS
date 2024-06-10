@@ -10,15 +10,17 @@ import { handleStatement } from './index';
 import { isTerminated } from '../utils';
 import { createReference } from '../values/reference';
 
-export const handleBlockStatement: StatementHandler<TSESTree.BlockStatement> = (node, context) => {
+export const handleBlockStatement: StatementHandler<TSESTree.BlockStatement> = (
+  node,
+  functionInfo,
+) => {
   if (node.body.length === 0) {
     return;
   }
 
-  const { blockManager, scopeManager, createScopedBlock, addInstructions } = context;
-  const { getCurrentBlock, pushBlock } = blockManager;
+  const { scopeManager, createBlock, getCurrentBlock, pushBlock, addInstructions } = functionInfo;
 
-  const bbn = createScopedBlock(node.loc);
+  const bbn = createBlock(node.loc);
 
   // branch current block to bbn
   addInstructions([createBranchingInstruction(bbn, node.loc)]);
@@ -46,17 +48,17 @@ export const handleBlockStatement: StatementHandler<TSESTree.BlockStatement> = (
       createSetFieldFunctionDefinition('@parent'),
       [
         createReference(currentScopeReference.identifier),
-        createReference(context.scopeManager.getScopeId(currentScope.upper!)),
+        createReference(functionInfo.scopeManager.getScopeId(currentScope.upper!)),
       ],
       node.loc,
     ),
   );
 
   node.body.forEach(statement => {
-    return handleStatement(statement, context);
+    return handleStatement(statement, functionInfo);
   });
 
-  const bbnPlusOne = createScopedBlock(node.loc);
+  const bbnPlusOne = createBlock(node.loc);
 
   // branch the current block to bbnPlusOne
   if (!isTerminated(getCurrentBlock())) {

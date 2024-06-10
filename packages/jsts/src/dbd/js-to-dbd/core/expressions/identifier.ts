@@ -12,19 +12,19 @@ import { getParameter } from '../utils';
 import { unresolvable } from '../scope-manager';
 import { Scope } from '@typescript-eslint/utils/ts-eslint';
 
-export const handleIdentifier: ExpressionHandler<TSESTree.Identifier> = (node, context) => {
+export const handleIdentifier: ExpressionHandler<TSESTree.Identifier> = (node, functionInfo) => {
   let value: BaseValue<any>;
 
-  const currentScope = context.scopeManager.getScope(node);
-  if (context.scopeManager.isParameter(node)) {
-    return getParameter(context, node);
+  const currentScope = functionInfo.scopeManager.getScope(node);
+  if (functionInfo.scopeManager.isParameter(node)) {
+    return getParameter(functionInfo, node);
   }
-  const identifierReference = context.scopeManager.getIdentifierReference(node);
+  const identifierReference = functionInfo.scopeManager.getIdentifierReference(node);
 
   if (identifierReference.base === unresolvable) {
-    value = createReference(context.scopeManager.createValueIdentifier());
+    value = createReference(functionInfo.scopeManager.createValueIdentifier());
 
-    context.addInstructions([
+    functionInfo.addInstructions([
       createCallInstruction(
         value.identifier,
         null,
@@ -36,12 +36,12 @@ export const handleIdentifier: ExpressionHandler<TSESTree.Identifier> = (node, c
   } else {
     let scopePointer: Scope.Scope | null = currentScope;
     while (scopePointer !== null && identifierReference.variable.scope !== scopePointer) {
-      context.addInstructions([
+      functionInfo.addInstructions([
         createCallInstruction(
-          context.scopeManager.getScopeId(scopePointer.upper!),
+          functionInfo.scopeManager.getScopeId(scopePointer.upper!),
           null,
           createGetFieldFunctionDefinition('@parent'),
-          [createReference(context.scopeManager.getScopeId(scopePointer))],
+          [createReference(functionInfo.scopeManager.getScopeId(scopePointer))],
           node.loc,
         ),
       ]);
@@ -50,12 +50,12 @@ export const handleIdentifier: ExpressionHandler<TSESTree.Identifier> = (node, c
 
     value = identifierReference.base;
 
-    context.addInstructions([
+    functionInfo.addInstructions([
       createCallInstruction(
         value.identifier,
         null,
         createGetFieldFunctionDefinition(node.name),
-        [createReference(context.scopeManager.getScopeId(identifierReference.variable.scope))],
+        [createReference(functionInfo.scopeManager.getScopeId(identifierReference.variable.scope))],
         node.loc,
       ),
     ]);

@@ -24,7 +24,7 @@ function getVariableFromIdentifier(sourceCode: SourceCode, node: TSESTree.Identi
 
 function getDefinitionFromIdentifier(sourceCode: SourceCode, node: TSESTree.Identifier) {
   const variable = getVariableFromIdentifier(sourceCode, node);
-  const definition = variable?.defs.findLast(value => {
+  return variable?.defs.findLast(value => {
     if (
       value.name.type === 'Identifier' &&
       value.name.name === node.name &&
@@ -32,7 +32,6 @@ function getDefinitionFromIdentifier(sourceCode: SourceCode, node: TSESTree.Iden
     )
       return true;
   });
-  return definition;
 }
 
 function isParameter(sourceCode: SourceCode, node: TSESTree.Identifier): boolean {

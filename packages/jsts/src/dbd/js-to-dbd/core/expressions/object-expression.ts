@@ -7,10 +7,10 @@ import { createValue } from '../value';
 
 export const handleObjectExpression: ExpressionHandler<TSESTree.ObjectExpression> = (
   node,
-  context,
+  functionInfo,
 ) => {
   const { properties } = node;
-  const { scopeManager, addInstructions } = context;
+  const { scopeManager, addInstructions } = functionInfo;
 
   const object = createValue('object', scopeManager.createValueIdentifier());
 
@@ -33,9 +33,13 @@ export const handleObjectExpression: ExpressionHandler<TSESTree.ObjectExpression
         throw new Error(`Unable to handle object property type ${property.value.type}`);
       }
 
-      const propertyValue = handleExpression(property.value, context);
+      const propertyValue = handleExpression(property.value, functionInfo);
 
-      const propertyKeyInstructions = compileAsAssignment(property.key, context, propertyValue);
+      const propertyKeyInstructions = compileAsAssignment(
+        property.key,
+        functionInfo,
+        propertyValue,
+      );
       addInstructions(propertyKeyInstructions);
     }
   }

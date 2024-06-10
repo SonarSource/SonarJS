@@ -6,14 +6,14 @@ import { createNull } from '../values/constant';
 
 export const handleReturnStatement: StatementHandler<TSESTree.ReturnStatement> = (
   node,
-  context,
+  functionInfo,
 ) => {
-  const { addInstructions } = context;
+  const { addInstructions } = functionInfo;
 
   if (node.argument === null) {
     addInstructions([createReturnInstruction(createNull(), node.loc)]);
   } else {
-    const value = handleExpression(node.argument, context);
+    const value = handleExpression(node.argument, functionInfo);
     addInstructions([createReturnInstruction(value, node.loc)]);
   }
 };

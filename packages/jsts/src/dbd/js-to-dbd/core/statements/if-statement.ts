@@ -8,18 +8,16 @@ import { handleStatement } from './index';
 import type { StatementHandler } from '../statement-handler';
 import { AST_NODE_TYPES } from '@typescript-eslint/typescript-estree';
 
-export const handleIfStatement: StatementHandler<TSESTree.IfStatement> = (node, context) => {
+export const handleIfStatement: StatementHandler<TSESTree.IfStatement> = (node, functionInfo) => {
   const { consequent, alternate, test } = node;
-  const { blockManager, createScopedBlock } = context;
-  const { getCurrentBlock, pushBlock } = blockManager;
+  const { getCurrentBlock, pushBlock, createBlock } = functionInfo;
 
   // the "finally" block belongs to the same scope as the current block
-  const finallyBlock = createScopedBlock(node.loc);
+  const finallyBlock = createBlock(node.loc);
 
   const processNode = (innerNode: TSESTree.Statement | null): Block => {
-    let block;
     const loc = innerNode?.loc ?? node.loc;
-    block = createScopedBlock(loc);
+    const block = createBlock(loc);
     if (innerNode === null) {
       innerNode = {
         type: AST_NODE_TYPES.BlockStatement,
@@ -32,7 +30,7 @@ export const handleIfStatement: StatementHandler<TSESTree.IfStatement> = (node, 
 
     pushBlock(block);
 
-    handleStatement(innerNode, context);
+    handleStatement(innerNode, functionInfo);
 
     if (!isTerminated(getCurrentBlock())) {
       // branch the CURRENT BLOCK to the finally one
@@ -42,7 +40,7 @@ export const handleIfStatement: StatementHandler<TSESTree.IfStatement> = (node, 
     return block;
   };
 
-  const testValue = handleExpression(test, context);
+  const testValue = handleExpression(test, functionInfo);
 
   const currentBlock = getCurrentBlock();
 

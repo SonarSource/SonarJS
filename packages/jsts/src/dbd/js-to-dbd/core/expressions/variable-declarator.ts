@@ -6,19 +6,19 @@ import { createNull } from '../values/constant';
 
 export const handleVariableDeclarator: ExpressionHandler<TSESTree.VariableDeclarator> = (
   node,
-  context,
+  functionInfo,
 ) => {
   let initValue: BaseValue<any>;
 
   if (node.init) {
-    initValue = handleExpression(node.init, context);
+    initValue = handleExpression(node.init, functionInfo);
   } else {
     initValue = createNull();
   }
 
-  const idInstructions = compileAsDeclaration(node.id, context, initValue);
+  const idInstructions = compileAsDeclaration(node.id, functionInfo, initValue);
 
-  context.addInstructions(idInstructions);
+  functionInfo.addInstructions(idInstructions);
 
   return initValue;
 };

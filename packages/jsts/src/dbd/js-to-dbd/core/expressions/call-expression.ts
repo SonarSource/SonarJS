@@ -30,8 +30,11 @@ import {
 } from '../function-definition';
 import { createNull } from '../values/constant';
 
-export const handleCallExpression: ExpressionHandler<TSESTree.CallExpression> = (node, context) => {
-  const { scopeManager, addInstructions } = context;
+export const handleCallExpression: ExpressionHandler<TSESTree.CallExpression> = (
+  node,
+  functionInfo,
+) => {
+  const { scopeManager, addInstructions } = functionInfo;
   const { createValueIdentifier } = scopeManager;
 
   let value: Value;
@@ -39,14 +42,14 @@ export const handleCallExpression: ExpressionHandler<TSESTree.CallExpression> = 
   const { callee, arguments: argumentExpressions } = node;
 
   const argumentValues: Array<Value> = argumentExpressions.map(expression =>
-    handleExpression(expression, context),
+    handleExpression(expression, functionInfo),
   );
 
   for (let i = 0; i < 10; i++) {
     argumentValues.push(createNull());
   }
 
-  const calleeValue = handleExpression(callee, context);
+  const calleeValue = handleExpression(callee, functionInfo);
 
   if (isAFunctionReference(calleeValue)) {
     const { functionInfo } = calleeValue;

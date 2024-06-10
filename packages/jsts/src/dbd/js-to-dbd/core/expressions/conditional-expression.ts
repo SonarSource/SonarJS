@@ -8,29 +8,29 @@ import { createReference } from '../values/reference';
 
 export const handleConditionalExpression: ExpressionHandler<TSESTree.ConditionalExpression> = (
   node,
-  context,
+  functionInfo,
 ) => {
   const { test, consequent, alternate } = node;
-  const { blockManager, createScopedBlock } = context;
+  const { createBlock, pushBlock, getCurrentBlock } = functionInfo;
 
-  const testValue = handleExpression(test, context);
-  const currentBlock = blockManager.getCurrentBlock();
+  const testValue = handleExpression(test, functionInfo);
+  const currentBlock = functionInfo.getCurrentBlock();
 
-  const consequentBlock = createScopedBlock(consequent.loc);
-  blockManager.pushBlock(consequentBlock);
-  const consequentValue = handleExpression(consequent, context);
-  const afterConsequentInstructionsBlock = blockManager.getCurrentBlock();
+  const consequentBlock = createBlock(consequent.loc);
+  pushBlock(consequentBlock);
+  const consequentValue = handleExpression(consequent, functionInfo);
+  const afterConsequentInstructionsBlock = getCurrentBlock();
 
-  const alternateBlock = createScopedBlock(alternate.loc);
-  blockManager.pushBlock(alternateBlock);
-  const alternateValue = handleExpression(alternate, context);
-  const afterAlternateInstructionsBlock = blockManager.getCurrentBlock();
+  const alternateBlock = createBlock(alternate.loc);
+  pushBlock(alternateBlock);
+  const alternateValue = handleExpression(alternate, functionInfo);
+  const afterAlternateInstructionsBlock = getCurrentBlock();
 
   currentBlock.instructions.push(
     createConditionalBranchingInstruction(testValue, consequentBlock, alternateBlock, test.loc),
   );
 
-  const finallyBlock = createScopedBlock(node.loc);
+  const finallyBlock = createBlock(node.loc);
 
   afterConsequentInstructionsBlock.instructions.push(
     createBranchingInstruction(finallyBlock, consequent.loc),
@@ -38,7 +38,7 @@ export const handleConditionalExpression: ExpressionHandler<TSESTree.Conditional
   afterAlternateInstructionsBlock.instructions.push(
     createBranchingInstruction(finallyBlock, alternate.loc),
   );
-  const resultValue = createReference(context.scopeManager.createValueIdentifier());
+  const resultValue = createReference(functionInfo.scopeManager.createValueIdentifier());
   finallyBlock.instructions.push(
     createPhiInstruction(
       resultValue,
@@ -50,6 +50,6 @@ export const handleConditionalExpression: ExpressionHandler<TSESTree.Conditional
       node.loc,
     ),
   );
-  blockManager.pushBlock(finallyBlock);
+  pushBlock(finallyBlock);
   return resultValue;
 };

@@ -4,7 +4,7 @@ import type { StatementHandler } from '../statement-handler';
 
 export const handleExpressionStatement: StatementHandler<TSESTree.ExpressionStatement> = (
   node,
-  context,
+  functionInfo,
 ) => {
-  handleExpression(node.expression, context);
+  handleExpression(node.expression, functionInfo);
 };

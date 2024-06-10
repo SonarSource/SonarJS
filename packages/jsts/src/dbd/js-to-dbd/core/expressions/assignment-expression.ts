@@ -4,16 +4,16 @@ import { type ExpressionHandler } from '../expression-handler';
 
 export const handleAssignmentExpression: ExpressionHandler<TSESTree.AssignmentExpression> = (
   node,
-  context,
+  functionInfo,
 ) => {
   const { left, right } = node;
 
   // rhs
-  const rightValue = handleExpression(right, context);
+  const rightValue = handleExpression(right, functionInfo);
 
   // lhs
-  const leftInstructions = compileAsAssignment(left, context, rightValue);
-  context.blockManager.getCurrentBlock().instructions.push(...leftInstructions);
+  const leftInstructions = compileAsAssignment(left, functionInfo, rightValue);
+  functionInfo.getCurrentBlock().instructions.push(...leftInstructions);
 
   return rightValue;
 };
