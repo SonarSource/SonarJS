@@ -23,6 +23,7 @@ import java.math.BigInteger;
 import org.junit.jupiter.api.Test;
 import org.sonar.plugins.javascript.api.estree.ESTree;
 import org.sonar.plugins.javascript.bridge.protobuf.BlockStatement;
+import org.sonar.plugins.javascript.bridge.protobuf.CallExpression;
 import org.sonar.plugins.javascript.bridge.protobuf.ExpressionStatement;
 import org.sonar.plugins.javascript.bridge.protobuf.Literal;
 import org.sonar.plugins.javascript.bridge.protobuf.Node;
@@ -216,6 +217,23 @@ class ESTreeFactoryTest {
   }
 
   @Test
+  void should_create_simple_call_expression() {
+    CallExpression callExpression = CallExpression.newBuilder()
+      .setCallee(Node.newBuilder().setType(NodeType.SuperType).build())
+      .build();
+    Node protobufNode = Node.newBuilder()
+      .setType(NodeType.CallExpressionType)
+      .setCallExpression(callExpression)
+      .build();
+
+    ESTree.Node estreeExpressionStatement = ESTreeFactory.from(protobufNode, ESTree.Node.class);
+    assertThat(estreeExpressionStatement).isInstanceOfSatisfying(ESTree.CallExpression.class, estreeCallExpression -> {
+      assertThat(estreeCallExpression.callee()).isInstanceOf(ESTree.Super.class);
+      assertThat(estreeCallExpression.arguments()).isEmpty();
+    });
+  }
+
+  @Test
   void throw_exception_from_unrecognized_type() {
     Node protobufNode = Node.newBuilder()
       .setTypeValue(-1)
@@ -225,5 +243,4 @@ class ESTreeFactoryTest {
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessageStartingWith("Unknown node type: UNRECOGNIZED");
   }
-
 }
