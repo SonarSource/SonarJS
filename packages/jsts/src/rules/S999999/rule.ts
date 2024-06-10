@@ -43,7 +43,7 @@ export const rule: Rule.RuleModule = {
     if (!print) {
       mkdirpSync(outputDir);
     }
-    const transpile = createTranspiler([]);
+    const transpile = createTranspiler();
     const functionInfos = transpile(context, root);
 
     const saveResults = (

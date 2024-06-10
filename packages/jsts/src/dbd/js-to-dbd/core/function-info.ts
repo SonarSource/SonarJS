@@ -1,12 +1,13 @@
 import { Block, createBlock } from './block';
 import {
   createFunctionDefinition,
+  createNewObjectFunctionDefinition,
   createSetFieldFunctionDefinition,
   FunctionDefinition,
   generateSignature,
 } from './function-definition';
 import { createParameter, Parameter } from './values/parameter';
-import type { FunctionReference } from './values/function-reference';
+import { createFunctionReference, FunctionReference } from './values/function-reference';
 import { createScopeDeclarationInstruction, isTerminated } from './utils';
 import { createCallInstruction } from './instructions/call-instruction';
 import { createReference } from './values/reference';
@@ -33,7 +34,7 @@ export type FunctionInfo = {
   addInstructions(instructions: Array<Instruction>): void;
 };
 
-export const createFunctionInfo = <T extends TSESTree.NodeOrTokenData>(
+export const createFunctionInfo = <T extends TSESTree.FunctionLike | TSESTree.Program>(
   name: string,
   node: T,
   scopeManager: ScopeManager,
@@ -94,7 +95,7 @@ export const createFunctionInfo = <T extends TSESTree.NodeOrTokenData>(
     scopeManager,
     fileName: scopeManager.fileName,
     definition,
-    blocks: [],
+    blocks,
     functionReferences: [],
     parameters,
     createBlock: location => {
@@ -127,14 +128,30 @@ export const createFunctionInfo = <T extends TSESTree.NodeOrTokenData>(
   return functionInfo;
 };
 
-function getBody(node: TSESTree.NodeOrTokenData): TSESTree.ProgramStatement[] {
-  if (node.type === AST_NODE_TYPES.FunctionDeclaration) {
-    return (node as TSESTree.FunctionDeclaration).body.body;
+function getBody(node: TSESTree.FunctionLike | TSESTree.Program): TSESTree.ProgramStatement[] {
+  switch (node.type) {
+    case AST_NODE_TYPES.Program:
+      return node.body;
+    case AST_NODE_TYPES.FunctionDeclaration:
+      return node.body.body;
+    case AST_NODE_TYPES.ArrowFunctionExpression:
+      if (node.body.type === AST_NODE_TYPES.BlockStatement) {
+        return node.body.body;
+      } else {
+        return [
+          {
+            type: AST_NODE_TYPES.ExpressionStatement,
+            expression: node.body,
+            loc: node.loc,
+            range: node.range,
+            directive: undefined,
+            parent: node,
+          },
+        ];
+      }
+    default:
+      throw new Error(`Type ${node.type} is not yet supported`);
   }
-  if (node.type === AST_NODE_TYPES.Program) {
-    return (node as TSESTree.Program).body;
-  }
-  throw new Error(`Type ${node.type} is not yet supported`);
 }
 
 function setGlobals(
@@ -153,4 +170,55 @@ function setGlobals(
       location,
     ),
   );
+}
+
+function getFunctionName(
+  functionReferenceIdentifier: number,
+  identifier: TSESTree.Identifier | null,
+  functionInfo: FunctionInfo,
+) {
+  if (identifier) {
+    const { name } = identifier;
+    if (functionInfo.definition.name === 'main') {
+      return name;
+    }
+  }
+  return `${functionInfo.definition.name}__${functionReferenceIdentifier}`;
+}
+
+export function handleFunctionLike(node: TSESTree.FunctionLike, functionInfo: FunctionInfo) {
+  const { addInstructions, scopeManager } = functionInfo;
+  const { createValueIdentifier } = scopeManager;
+
+  const functionReferenceIdentifier = createValueIdentifier();
+  const functionName = getFunctionName(functionReferenceIdentifier, node.id, functionInfo);
+  const newFunctionInfo = createFunctionInfo(functionName, node, scopeManager);
+  const functionReference = createFunctionReference(functionReferenceIdentifier, newFunctionInfo);
+
+  functionInfo.functionReferences.push(functionReference);
+
+  // create the function object
+  addInstructions([
+    createCallInstruction(
+      functionReferenceIdentifier,
+      null,
+      createNewObjectFunctionDefinition(),
+      [],
+      node.loc,
+    ),
+  ]);
+  if (node.id) {
+    const currentScope = functionInfo.scopeManager.getScope(node);
+    const currentScopeId = functionInfo.scopeManager.getScopeId(currentScope);
+    addInstructions([
+      createCallInstruction(
+        createValueIdentifier(),
+        null,
+        createSetFieldFunctionDefinition(node.id.name),
+        [createReference(currentScopeId), functionReference],
+        node.loc,
+      ),
+    ]);
+  }
+  return functionReference;
 }

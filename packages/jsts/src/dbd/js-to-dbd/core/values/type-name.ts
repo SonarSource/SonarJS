@@ -5,9 +5,9 @@ export type TypeName = BaseValue<'type_name'> & {
   readonly name: string;
 };
 
-export const createTypeName = (identifier: number, name: string, typeInfo: TypeInfo): TypeName => {
+export const createTypeName = (identifier: number, name: string, _typeInfo: TypeInfo): TypeName => {
   return {
-    ...createValue('type_name', identifier, typeInfo),
+    ...createValue('type_name', identifier),
     name,
   };
 };

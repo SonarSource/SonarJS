@@ -3,10 +3,10 @@
     "require": ["tsconfig-paths/register"]
   },
   "compilerOptions": {
-    "target": "ES2023",
+    "target": "ES2022",
     "module": "nodenext",
     "moduleResolution": "nodenext",
-    "lib": ["ES2023", "dom"],
+    "lib": ["ES2022", "dom"],
     "declaration": true,
     "outDir": "../lib",
     "strict": true,

@@ -12,8 +12,7 @@ export const handleAssignmentExpression: ExpressionHandler<TSESTree.AssignmentEx
   const rightValue = handleExpression(right, functionInfo);
 
   // lhs
-  const leftInstructions = compileAsAssignment(left, functionInfo, rightValue);
-  functionInfo.getCurrentBlock().instructions.push(...leftInstructions);
+  compileAsAssignment(left, functionInfo, rightValue);
 
   return rightValue;
 };

@@ -35,12 +35,7 @@ export const handleObjectExpression: ExpressionHandler<TSESTree.ObjectExpression
 
       const propertyValue = handleExpression(property.value, functionInfo);
 
-      const propertyKeyInstructions = compileAsAssignment(
-        property.key,
-        functionInfo,
-        propertyValue,
-      );
-      addInstructions(propertyKeyInstructions);
+      compileAsAssignment(property.key, functionInfo, propertyValue);
     }
   }
 

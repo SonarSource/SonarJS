@@ -12,20 +12,20 @@ export const handleMemberExpression: ExpressionHandler<TSESTree.MemberExpression
   const { object, property } = node;
   const objectValue = handleExpression(object, functionInfo);
 
-  if (property.type === AST_NODE_TYPES.Literal) {
+  if (property.type === AST_NODE_TYPES.Literal || property.type === AST_NODE_TYPES.Identifier) {
+    const propertyValue = property.type === AST_NODE_TYPES.Literal ? property.value : property.name;
     const resultValue = createReference(functionInfo.scopeManager.createValueIdentifier());
     functionInfo.addInstructions([
       createCallInstruction(
         resultValue.identifier,
         null,
-        createGetFieldFunctionDefinition(String(property.value)),
+        createGetFieldFunctionDefinition(String(propertyValue)),
         [objectValue],
         property.loc,
       ),
     ]);
     return resultValue;
   }
-  const propertyValue = handleExpression(property, functionInfo);
-
-  return propertyValue;
+  console.error(`Unsupported property type ${property.type}`);
+  return objectValue;
 };

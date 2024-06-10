@@ -1,6 +1,5 @@
 import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/typescript-estree';
-import type { Instruction } from '../instruction';
-import type { BaseValue, Value } from '../value';
+import type { Value } from '../value';
 import { type ExpressionHandler } from '../expression-handler';
 import { createCallInstruction } from '../instructions/call-instruction';
 import { createSetFieldFunctionDefinition } from '../function-definition';
@@ -13,101 +12,62 @@ import { handleMemberExpression } from './member-expression';
 import { handleObjectExpression } from './object-expression';
 import { handleCallExpression } from './call-expression';
 import { handleArrayExpression } from './array-expression';
-import { handleVariableDeclarator } from './variable-declarator';
 import { handleUnaryExpression } from './unary-expression';
 import { handleLogicalExpression } from './logical-expression';
 import { handleConditionalExpression } from './conditional-expression';
-import { createReference } from '../values/reference';
-import { type Constant, createNull } from '../values/constant';
+import { createNull } from '../values/constant';
 import { FunctionInfo } from '../function-info';
+import { unresolvable } from '../scope-manager';
 
 export const compileAsAssignment = (
   node: Exclude<TSESTree.Node, TSESTree.Statement>,
   functionInfo: FunctionInfo,
   value: Value,
-): Array<Instruction> => {
+) => {
   switch (node.type) {
     case AST_NODE_TYPES.Identifier: {
-      const instructions: Array<Instruction> = [];
+      const identifierReference = functionInfo.scopeManager.getIdentifierReference(node);
 
-      instructions.push(
-        createCallInstruction(
-          functionInfo.scopeManager.createValueIdentifier(),
-          null,
-          createSetFieldFunctionDefinition(node.name),
-          [createReference(record.identifier), value],
-          node.loc,
-        ),
-      );
-
-      return instructions;
+      if (identifierReference.base === unresolvable) {
+        console.error(`Unresolvable identifier: ${node.name}`);
+      } else {
+        functionInfo.addInstructions([
+          createCallInstruction(
+            functionInfo.scopeManager.createValueIdentifier(),
+            null,
+            createSetFieldFunctionDefinition(node.name),
+            [identifierReference.base, value],
+            node.loc,
+          ),
+        ]);
+      }
+      return;
     }
 
     case AST_NODE_TYPES.MemberExpression: {
       const { object, property } = node;
 
       if (property.type === AST_NODE_TYPES.Identifier) {
-        const objectValue = handleExpression(object, record, context);
-
-        const propertyInstructions = compileAsAssignment(property, objectValue, context, value);
-
-        return [...propertyInstructions];
+        const objectValue = handleExpression(object, functionInfo);
+        functionInfo.addInstructions([
+          createCallInstruction(
+            functionInfo.scopeManager.createValueIdentifier(),
+            null,
+            createSetFieldFunctionDefinition(property.name),
+            [objectValue, value],
+            node.loc,
+          ),
+        ]);
       } else {
-        console.error(`Not supported yet...`);
-
-        return [];
+        console.error(`Unsupported assignment in member expression ${property.type}`);
       }
+      return;
     }
 
     default: {
       console.error(`compileAsAssignment not supported for ${node.type}`);
 
-      return [];
-    }
-  }
-};
-
-export const compileAsDeclaration = (
-  node: Exclude<TSESTree.Node, TSESTree.Statement>,
-  context: Context,
-  value: BaseValue<any>,
-): Array<Instruction> => {
-  switch (node.type) {
-    case AST_NODE_TYPES.Identifier: {
-      const { name } = node;
-
-      if (record === unresolvable) {
-        throw new Error('TODO: TRACK WHY IT IS HAPPENING');
-      }
-
-      if (isAnEnvironmentRecord(record)) {
-        putValue(
-          {
-            base: record,
-            referencedName: name,
-            strict: true,
-          },
-          value,
-        );
-      } else {
-        record.bindings.set(name, value);
-      }
-
-      return [
-        createCallInstruction(
-          context.scopeManager.createValueIdentifier(),
-          null,
-          createSetFieldFunctionDefinition(name),
-          [createReference(record.identifier), value as Constant],
-          node.loc,
-        ),
-      ];
-    }
-
-    default: {
-      console.error(`compileAsDeclaration not supported for ${node.type}`);
-
-      return [];
+      return;
     }
   }
 };
@@ -164,10 +124,6 @@ export const handleExpression: ExpressionHandler = (node, functionInfo) => {
     }
     case AST_NODE_TYPES.UnaryExpression: {
       expressionHandler = handleUnaryExpression;
-      break;
-    }
-    case AST_NODE_TYPES.VariableDeclarator: {
-      expressionHandler = handleVariableDeclarator;
       break;
     }
     default:

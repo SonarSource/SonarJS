@@ -10,7 +10,7 @@ import type { Instruction } from './instruction';
 import type { FunctionInfo } from './function-info';
 import type { FunctionReference } from './values/function-reference';
 import { createParameter, Parameter } from './values/parameter';
-import { TSESTree } from '@typescript-eslint/typescript-estree';
+import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/typescript-estree';
 
 export function createScopeDeclarationInstruction(
   scopeId: number,
@@ -49,7 +49,13 @@ export const getParameter = (functionInfo: FunctionInfo, node: TSESTree.Identifi
     throw new Error("Definitions with type different than 'Identifier' are not supported");
   }
   const { loc: location } = definition;
-  const position = (node.parent as TSESTree.FunctionDeclaration).params.indexOf(node);
+  const scope = functionInfo.scopeManager.getScope(node);
+  const variable = functionInfo.scopeManager.getVariableFromIdentifier(node);
+  const position = (scope.block as TSESTree.FunctionDeclaration).params.findIndex(
+    parameter =>
+      parameter.type === AST_NODE_TYPES.Identifier &&
+      variable === functionInfo.scopeManager.getVariableFromIdentifier(parameter),
+  );
   const resultParam = createParameter(
     functionInfo.scopeManager.createValueIdentifier(),
     node.name,

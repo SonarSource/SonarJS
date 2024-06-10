@@ -24,13 +24,17 @@ function getVariableFromIdentifier(sourceCode: SourceCode, node: TSESTree.Identi
 
 function getDefinitionFromIdentifier(sourceCode: SourceCode, node: TSESTree.Identifier) {
   const variable = getVariableFromIdentifier(sourceCode, node);
-  return variable?.defs.findLast(value => {
-    if (
+  if (!variable) {
+    return undefined;
+  }
+  const defs = [...variable.defs];
+  defs.reverse();
+  return defs.find(value => {
+    return (
       value.name.type === 'Identifier' &&
       value.name.name === node.name &&
       value.name.range[0] <= node.range[0]
-    )
-      return true;
+    );
   });
 }
 

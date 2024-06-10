@@ -18,59 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import type { ExpressionHandler } from '../expression-handler';
-import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/typescript-estree';
-import { createNewObjectFunctionDefinition } from '../function-definition';
-import { createFunctionReference } from '../values/function-reference';
-import { createCallInstruction } from '../instructions/call-instruction';
+import { TSESTree } from '@typescript-eslint/typescript-estree';
+import { handleFunctionLike } from '../function-info';
 
 export const handleArrowFunctionExpression: ExpressionHandler<TSESTree.ArrowFunctionExpression> = (
   node,
-  _record,
-  context,
+  functionInfo,
 ) => {
-  const { functionInfo: currentFunctionInfo, processFunction, scopeManager } = context;
-  const { createValueIdentifier } = scopeManager;
-
-  let body: Array<TSESTree.Statement>;
-
-  if (node.expression) {
-    body = [
-      {
-        type: AST_NODE_TYPES.ExpressionStatement,
-        expression: node.body as TSESTree.Expression,
-        loc: node.loc,
-        range: node.range,
-        directive: undefined,
-        parent: node,
-      },
-    ];
-  } else {
-    body = (node.body as TSESTree.BlockStatement).body;
-  }
-
-  const functionReferenceIdentifier = createValueIdentifier();
-  // todo: we may need a common helper
-  const functionName = `${currentFunctionInfo.definition.name}__${functionReferenceIdentifier}`;
-
-  const functionInfo = processFunction(functionName, body, node.params, node.loc);
-
-  const functionReference = createFunctionReference(functionReferenceIdentifier, functionInfo);
-
-  currentFunctionInfo.functionReferences.push(functionReference);
-
-  context.blockManager
-    .getCurrentBlock()
-    .instructions.push(
-      createCallInstruction(
-        functionReference.identifier,
-        null,
-        createNewObjectFunctionDefinition(),
-        [],
-        node.loc,
-      ),
-    );
-
-  // todo: add other functions symbols, through a common method shared with FunctionDeclaration handler
-
-  return functionReference;
+  return handleFunctionLike(node, functionInfo);
 };
