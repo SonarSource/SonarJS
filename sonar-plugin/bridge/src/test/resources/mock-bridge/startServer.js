@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-
+const formData = require('form-data');
 const path = require('node:path');
 const fs = require('node:fs');
 const http = require('node:http');
@@ -76,39 +76,47 @@ const requestHandler = (request, response) => {
         highlightedSymbols: [{}],
         cpdTokens: [{}],
       };
-      const boundary = '---------9051914041544843365972754266';
-      const contentTypeHeader = `multipart/form-data; boundary=${boundary}`;
-      let firstPart = '';
-      firstPart += `--${boundary}`;
-      firstPart += `\r\n`;
-      firstPart += `Content-Disposition: form-data; name="json"`;
-      firstPart += `\r\n`;
-      firstPart += `\r\n`;
-      firstPart += `${JSON.stringify(res)}`;
-      firstPart += `\r\n`;
-      firstPart += `--${boundary}`;
-      firstPart += `\r\n`;
-      firstPart += `Content-Disposition: application/octet-stream; name="ast"`;
-      firstPart += `\r\n`;
-      firstPart += `\r\n`;
-      //body += `plop`;
-      const protoData = fs.readFileSync(path.join(__dirname, 'serialized.proto'));
-      let lastPart = '';
-      lastPart += `\r\n`;
-      lastPart += `--${boundary}--`;
-      lastPart += `\r\n`;
-      const body = Buffer.concat([
-        Buffer.from(firstPart),
-        protoData,
-        Buffer.from(lastPart),
-      ]);
-      const contentLength = body.length;
-      console.log('wala', 'sendin data of total length', contentLength);
+      const fd = new formData();
+      fd.append('json', JSON.stringify(res));
+      fd.append('ast', fs.readFileSync(path.join(__dirname, 'serialized.proto')));
       response.writeHead(200, {
-        'Content-Type': contentTypeHeader,
-        'Content-Length': contentLength,
+        'Content-Type': fd.getHeaders()['content-type'],
+        'Content-Length': fd.getLengthSync(),
       });
-      response.end(body);
+      fd.pipe(response);
+      // const boundary = '---------9051914041544843365972754266';
+      // const contentTypeHeader = `multipart/form-data; boundary=${boundary}`;
+      // let firstPart = '';
+      // firstPart += `--${boundary}`;
+      // firstPart += `\r\n`;
+      // firstPart += `Content-Disposition: form-data; name="json"`;
+      // firstPart += `\r\n`;
+      // firstPart += `\r\n`;
+      // firstPart += `${JSON.stringify(res)}`;
+      // firstPart += `\r\n`;
+      // firstPart += `--${boundary}`;
+      // firstPart += `\r\n`;
+      // firstPart += `Content-Disposition: application/octet-stream; name="ast"`;
+      // firstPart += `\r\n`;
+      // firstPart += `\r\n`;
+      // //body += `plop`;
+      // const protoData = fs.readFileSync(path.join(__dirname, 'serialized.proto'));
+      // let lastPart = '';
+      // lastPart += `\r\n`;
+      // lastPart += `--${boundary}--`;
+      // lastPart += `\r\n`;
+      // const body = Buffer.concat([
+      //   Buffer.from(firstPart),
+      //   protoData,
+      //   Buffer.from(lastPart),
+      // ]);
+      // const contentLength = body.length;
+      // console.log('wala', 'sendin data of total length', contentLength);
+      // response.writeHead(200, {
+      //   'Content-Type': contentTypeHeader,
+      //   'Content-Length': contentLength,
+      // });
+      // response.end(body);
     }
   });
 };
