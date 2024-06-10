@@ -22,15 +22,20 @@ package org.sonar.plugins.javascript.bridge;
 import java.math.BigInteger;
 import org.junit.jupiter.api.Test;
 import org.sonar.plugins.javascript.api.estree.ESTree;
+import org.sonar.plugins.javascript.bridge.protobuf.AssignmentExpression;
+import org.sonar.plugins.javascript.bridge.protobuf.BinaryExpression;
 import org.sonar.plugins.javascript.bridge.protobuf.BlockStatement;
 import org.sonar.plugins.javascript.bridge.protobuf.CallExpression;
 import org.sonar.plugins.javascript.bridge.protobuf.ExpressionStatement;
 import org.sonar.plugins.javascript.bridge.protobuf.Literal;
+import org.sonar.plugins.javascript.bridge.protobuf.LogicalExpression;
 import org.sonar.plugins.javascript.bridge.protobuf.Node;
 import org.sonar.plugins.javascript.bridge.protobuf.NodeType;
 import org.sonar.plugins.javascript.bridge.protobuf.Position;
 import org.sonar.plugins.javascript.bridge.protobuf.Program;
 import org.sonar.plugins.javascript.bridge.protobuf.SourceLocation;
+import org.sonar.plugins.javascript.bridge.protobuf.UnaryExpression;
+import org.sonar.plugins.javascript.bridge.protobuf.UpdateExpression;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
@@ -230,6 +235,106 @@ class ESTreeFactoryTest {
     assertThat(estreeExpressionStatement).isInstanceOfSatisfying(ESTree.CallExpression.class, estreeCallExpression -> {
       assertThat(estreeCallExpression.callee()).isInstanceOf(ESTree.Super.class);
       assertThat(estreeCallExpression.arguments()).isEmpty();
+    });
+  }
+
+  @Test
+  void should_create_binary_expression() {
+    BinaryExpression binaryExpression = BinaryExpression.newBuilder()
+      .setOperator("-")
+      .setLeft(Node.newBuilder().setType(NodeType.ThisExpressionType).build())
+      .setRight(Node.newBuilder().setType(NodeType.ThisExpressionType).build())
+      .build();
+    Node protobufNode = Node.newBuilder()
+      .setType(NodeType.BinaryExpressionType)
+      .setBinaryExpression(binaryExpression)
+      .build();
+
+    ESTree.Node estree = ESTreeFactory.from(protobufNode, ESTree.Node.class);
+    assertThat(estree).isInstanceOfSatisfying(ESTree.BinaryExpression.class, binary -> {
+      assertThat(binary.left()).isInstanceOf(ESTree.ThisExpression.class);
+      assertThat(binary.right()).isInstanceOf(ESTree.ThisExpression.class);
+      assertThat(binary.operator()).isEqualTo(ESTree.BinaryOperator.MINUS);
+    });
+  }
+
+  @Test
+  void should_create_unary_expression() {
+    UnaryExpression binaryExpression = UnaryExpression.newBuilder()
+      .setOperator("!")
+      .setArgument(Node.newBuilder().setType(NodeType.ThisExpressionType).build())
+      .setPrefix(true)
+      .build();
+    Node protobufNode = Node.newBuilder()
+      .setType(NodeType.UnaryExpressionType)
+      .setUnaryExpression(binaryExpression)
+      .build();
+
+    ESTree.Node estree = ESTreeFactory.from(protobufNode, ESTree.Node.class);
+    assertThat(estree).isInstanceOfSatisfying(ESTree.UnaryExpression.class, unary -> {
+      assertThat(unary.argument()).isInstanceOf(ESTree.ThisExpression.class);
+      assertThat(unary.prefix()).isTrue();
+      assertThat(unary.operator()).isEqualTo(ESTree.UnaryOperator.LOGICAL_NOT);
+    });
+  }
+
+
+  @Test
+  void should_create_logical_expression() {
+    LogicalExpression logicalExpression = LogicalExpression.newBuilder()
+      .setOperator("&&")
+      .setLeft(Node.newBuilder().setType(NodeType.ThisExpressionType).build())
+      .setRight(Node.newBuilder().setType(NodeType.ThisExpressionType).build())
+      .build();
+    Node protobufNode = Node.newBuilder()
+      .setType(NodeType.LogicalExpressionType)
+      .setLogicalExpression(logicalExpression)
+      .build();
+
+    ESTree.Node estree = ESTreeFactory.from(protobufNode, ESTree.Node.class);
+    assertThat(estree).isInstanceOfSatisfying(ESTree.LogicalExpression.class, logical -> {
+      assertThat(logical.left()).isInstanceOf(ESTree.ThisExpression.class);
+      assertThat(logical.right()).isInstanceOf(ESTree.ThisExpression.class);
+      assertThat(logical.operator()).isEqualTo(ESTree.LogicalOperator.AND);
+    });
+  }
+
+  @Test
+  void should_create_assignment_expression() {
+    AssignmentExpression assignmentExpression = AssignmentExpression.newBuilder()
+      .setOperator(">>>=")
+      .setLeft(Node.newBuilder().setType(NodeType.ArrayPatternType).build())
+      .setRight(Node.newBuilder().setType(NodeType.ThisExpressionType).build())
+      .build();
+    Node protobufNode = Node.newBuilder()
+      .setType(NodeType.AssignmentExpressionType)
+      .setAssignmentExpression(assignmentExpression)
+      .build();
+
+    ESTree.Node estree = ESTreeFactory.from(protobufNode, ESTree.Node.class);
+    assertThat(estree).isInstanceOfSatisfying(ESTree.AssignmentExpression.class, logical -> {
+      assertThat(logical.left()).isInstanceOf(ESTree.ArrayPattern.class);
+      assertThat(logical.right()).isInstanceOf(ESTree.ThisExpression.class);
+      assertThat(logical.operator()).isEqualTo(ESTree.AssignmentOperator.UNSIGNED_RIGHT_SHIFT_ASSIGN);
+    });
+  }
+
+  @Test
+  void should_create_update_expression() {
+    UpdateExpression updateExpression = UpdateExpression.newBuilder()
+      .setOperator("--")
+      .setArgument(Node.newBuilder().setType(NodeType.ThisExpressionType).build())
+      .build();
+    Node protobufNode = Node.newBuilder()
+      .setType(NodeType.UpdateExpressionType)
+      .setUpdateExpression(updateExpression)
+      .build();
+
+    ESTree.Node estree = ESTreeFactory.from(protobufNode, ESTree.Node.class);
+    assertThat(estree).isInstanceOfSatisfying(ESTree.UpdateExpression.class, logical -> {
+      assertThat(logical.argument()).isInstanceOf(ESTree.ThisExpression.class);
+      assertThat(logical.prefix()).isFalse();
+      assertThat(logical.operator()).isEqualTo(ESTree.UpdateOperator.DECREMENT);
     });
   }
 

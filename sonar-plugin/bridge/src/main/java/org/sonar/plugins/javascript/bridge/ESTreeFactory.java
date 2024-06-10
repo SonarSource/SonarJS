@@ -232,7 +232,7 @@ public class ESTreeFactory {
   private static ESTree.UpdateExpression fromUpdateExpressionType(Node node) {
     UpdateExpression updateExpression = node.getUpdateExpression();
     return new ESTree.UpdateExpression(fromLocation(node.getLoc()),
-      ESTree.UpdateOperator.valueOf(updateExpression.getOperator()),
+      ESTree.UpdateOperator.from(updateExpression.getOperator()),
       from(updateExpression.getArgument(), ESTree.Expression.class),
       updateExpression.getPrefix());
   }
@@ -240,7 +240,7 @@ public class ESTreeFactory {
   private static ESTree.UnaryExpression fromUnaryExpressionType(Node node) {
     UnaryExpression unaryExpression = node.getUnaryExpression();
     return new ESTree.UnaryExpression(fromLocation(node.getLoc()),
-      ESTree.UnaryOperator.valueOf(unaryExpression.getOperator()),
+      ESTree.UnaryOperator.from(unaryExpression.getOperator()),
       unaryExpression.getPrefix(),
       from(unaryExpression.getArgument(), ESTree.Expression.class));
   }
@@ -353,7 +353,7 @@ public class ESTreeFactory {
   private static ESTree.LogicalExpression fromLogicalExpressionType(Node node) {
     LogicalExpression logicalExpression = node.getLogicalExpression();
     return new ESTree.LogicalExpression(fromLocation(node.getLoc()),
-      ESTree.LogicalOperator.valueOf(logicalExpression.getOperator()),
+      ESTree.LogicalOperator.from(logicalExpression.getOperator()),
       from(logicalExpression.getLeft(), ESTree.Expression.class),
       from(logicalExpression.getRight(), ESTree.Expression.class));
   }
@@ -431,7 +431,7 @@ public class ESTreeFactory {
   private static ESTree.BinaryExpression fromBinaryExpressionType(Node node) {
     BinaryExpression binaryExpression = node.getBinaryExpression();
     return new ESTree.BinaryExpression(fromLocation(node.getLoc()),
-      ESTree.BinaryOperator.valueOf(binaryExpression.getOperator()),
+      ESTree.BinaryOperator.from(binaryExpression.getOperator()),
       from(binaryExpression.getLeft(), ESTree.Expression.class),
       from(binaryExpression.getRight(), ESTree.Expression.class));
   }
@@ -445,7 +445,7 @@ public class ESTreeFactory {
   private static ESTree.AssignmentExpression fromAssignmentExpressionType(Node node) {
     AssignmentExpression assignmentExpression = node.getAssignmentExpression();
     return new ESTree.AssignmentExpression(fromLocation(node.getLoc()),
-      ESTree.AssignmentOperator.valueOf(assignmentExpression.getOperator()),
+      ESTree.AssignmentOperator.from(assignmentExpression.getOperator()),
       from(assignmentExpression.getLeft(), ESTree.Pattern.class),
       from(assignmentExpression.getRight(), ESTree.Expression.class));
   }

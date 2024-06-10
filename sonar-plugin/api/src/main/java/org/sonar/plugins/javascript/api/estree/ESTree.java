@@ -21,7 +21,9 @@
 package org.sonar.plugins.javascript.api.estree;
 
 import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -183,6 +185,10 @@ public class ESTree {
     public String raw() {
       return raw;
     }
+
+    public static UnaryOperator from(String operator) {
+      return Arrays.stream(values()).filter(v -> Objects.equals(operator, v.raw)).findFirst().orElse(null);
+    }
   }
   
   public enum BinaryOperator implements Operator {
@@ -219,6 +225,10 @@ public class ESTree {
     public String raw() {
       return raw;
     }
+
+    public static BinaryOperator from(String operator) {
+      return Arrays.stream(values()).filter(v -> Objects.equals(operator, v.raw)).findFirst().orElse(null);
+    }
   }
   
   public enum LogicalOperator implements Operator {
@@ -233,6 +243,10 @@ public class ESTree {
     @Override
     public String raw() {
       return raw;
+    }
+
+    public static LogicalOperator from(String operator) {
+      return Arrays.stream(values()).filter(v -> Objects.equals(operator, v.raw)).findFirst().orElse(null);
     }
   }
   
@@ -265,6 +279,10 @@ public class ESTree {
     public String raw() {
       return raw;
     }
+
+    public static AssignmentOperator from(String operator) {
+      return Arrays.stream(values()).filter(v -> Objects.equals(operator, v.raw)).findFirst().orElse(null);
+    }
   }
   
   public enum UpdateOperator implements Operator {
@@ -279,6 +297,10 @@ public class ESTree {
     @Override
     public String raw() {
       return raw;
+    }
+
+    public static UpdateOperator from(String operator) {
+      return Arrays.stream(values()).filter(v -> Objects.equals(operator, v.raw)).findFirst().orElse(null);
     }
   }
 }
