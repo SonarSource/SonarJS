@@ -19,19 +19,25 @@
  */
 package org.sonar.plugins.javascript.bridge;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.net.http.HttpHeaders;
+import java.net.http.HttpResponse;
+import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.List;
+import org.junit.jupiter.api.Test;
+import org.sonar.plugins.javascript.bridge.protobuf.Node;
+import org.sonar.plugins.javascript.bridge.protobuf.NodeType;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.plugins.javascript.bridge.FormDataUtils.parseFormData;
 
-import java.net.http.HttpHeaders;
-import java.net.http.HttpResponse;
-import java.util.HashMap;
-import java.util.List;
-import org.junit.jupiter.api.Test;
-
-public class FormDataUtilsTest {
+class FormDataUtilsTest {
 
   @Test
   void should_parse_form_data_into_bridge_response() {
@@ -58,6 +64,14 @@ public class FormDataUtilsTest {
     BridgeServer.BridgeResponse response = parseFormData(mockResponse);
     assertThat(response.ast()).isNotNull();
     assertThat(response.json()).contains("{\"hello\":\"worlds\"}");
+  }
+
+  @Test
+  void should_parse_protobuf_data() throws IOException {
+    File protobufFile = Path.of("src", "test", "resources", "serialized-ast", "serialized.proto").toFile();
+    Node node = FormDataUtils.parseProtobuf(new FileInputStream(protobufFile));
+    assertThat(node).isNotNull();
+    assertThat(node.getType()).isEqualTo(NodeType.ProgramType);
   }
 
   @Test

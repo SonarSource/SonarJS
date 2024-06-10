@@ -20,9 +20,15 @@
 package org.sonar.plugins.javascript.bridge;
 
 import com.google.protobuf.InvalidProtocolBufferException;
+import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import org.sonar.plugins.javascript.bridge.protobuf.Node;
+import org.sonar.plugins.javascript.bridge.protobuf.Program;
 
 public class FormDataUtils {
   private FormDataUtils() {
@@ -57,9 +63,18 @@ public class FormDataUtils {
       throw new IllegalStateException("Data missing from response");
     }
     try {
-      return new BridgeServer.BridgeResponse(json, Node.parseFrom(ast.getBytes(StandardCharsets.UTF_8)));
-    } catch (InvalidProtocolBufferException e) {
+      return new BridgeServer.BridgeResponse(json, parseProtobuf(ast));
+    } catch (IOException e) {
       throw new IllegalStateException(e);
     }
+  }
+
+  public static Node parseProtobuf(String ast) throws IOException {
+    return parseProtobuf(new ByteArrayInputStream(ast.getBytes(StandardCharsets.UTF_8)));
+  }
+
+  // Visible for testing.
+  public static Node parseProtobuf(InputStream inputStream) throws IOException {
+    return Node.parseFrom(inputStream);
   }
 }
