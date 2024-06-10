@@ -23,12 +23,14 @@ import { createCallInstruction } from '../instructions/call-instruction';
 import { Value } from '../value';
 import { createReference } from '../values/reference';
 import type { ExpressionHandler } from '../expression-handler';
-import { isAFunctionReference } from '../values/function-reference';
 import {
+  createFunctionDefinition,
   createNewObjectFunctionDefinition,
   createSetFieldFunctionDefinition,
 } from '../function-definition';
 import { createNull } from '../values/constant';
+import { AST_NODE_TYPES } from '@typescript-eslint/typescript-estree';
+import { unresolvable } from '../scope-manager';
 
 export const handleCallExpression: ExpressionHandler<TSESTree.CallExpression> = (
   node,
@@ -49,43 +51,47 @@ export const handleCallExpression: ExpressionHandler<TSESTree.CallExpression> = 
     argumentValues.push(createNull());
   }
 
-  const calleeValue = handleExpression(callee, functionInfo);
-
-  if (isAFunctionReference(calleeValue)) {
-    const { functionInfo } = calleeValue;
-    const operands: Array<Value> = [];
-
-    // first argument is the current scope
-    operands.push(createReference(scopeManager.getScopeId(scopeManager.getScope(node))));
-    value = createReference(createValueIdentifier());
-
-    // second argument is an array of the passed arguments filled
-    const argumentValue = createReference(scopeManager.createValueIdentifier());
-    addInstructions([
-      createCallInstruction(
-        argumentValue.identifier,
-        null,
-        createNewObjectFunctionDefinition(),
-        [],
-        node.loc,
-      ),
-      ...argumentValues.map((argument, position) => {
-        const value = createReference(scopeManager.createValueIdentifier());
-        return createCallInstruction(
-          value.identifier,
-          null,
-          createSetFieldFunctionDefinition(String(position)),
-          [argumentValue, argument],
-          node.loc,
-        );
-      }),
-    ]);
-    operands.push(argumentValue);
-
-    addInstructions([
-      createCallInstruction(value.identifier, null, functionInfo.definition, operands, node.loc),
-    ]);
+  if (callee.type !== AST_NODE_TYPES.Identifier) {
+    console.error(`Unsupported call expression ${callee.type}`);
+    return createNull();
   }
 
-  return calleeValue;
+  const operands: Array<Value> = [];
+
+  // first argument is the current scope
+  operands.push(createReference(scopeManager.getScopeId(scopeManager.getScope(node))));
+  value = createReference(createValueIdentifier());
+
+  // second argument is an array of the passed arguments filled
+  const argumentValue = createReference(scopeManager.createValueIdentifier());
+  addInstructions([
+    createCallInstruction(
+      argumentValue.identifier,
+      null,
+      createNewObjectFunctionDefinition(),
+      [],
+      node.loc,
+    ),
+    ...argumentValues.map((argument, position) => {
+      const value = createReference(scopeManager.createValueIdentifier());
+      return createCallInstruction(
+        value.identifier,
+        null,
+        createSetFieldFunctionDefinition(String(position)),
+        [argumentValue, argument],
+        node.loc,
+      );
+    }),
+  ]);
+  operands.push(argumentValue);
+
+  const functionReference = functionInfo.scopeManager.getIdentifierReference(callee);
+  if (functionReference.base === unresolvable) {
+    return createNull();
+  }
+  addInstructions([
+    createCallInstruction(value.identifier, null, createFunctionDefinition(), operands, node.loc),
+  ]);
+
+  return value;
 };

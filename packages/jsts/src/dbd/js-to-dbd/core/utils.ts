@@ -8,7 +8,6 @@ import type { Block } from './block';
 import { isATerminatorInstruction } from './instructions/terminator-instruction';
 import type { Instruction } from './instruction';
 import type { FunctionInfo } from './function-info';
-import type { FunctionReference } from './values/function-reference';
 import { createParameter, Parameter } from './values/parameter';
 import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/typescript-estree';
 
@@ -30,17 +29,6 @@ function getBlockLastInstruction(block: Block): Instruction | null {
 
   return instructions.length > 0 ? instructions[instructions.length - 1] : null;
 }
-
-export const getFunctionReference = (
-  functionInfo: FunctionInfo,
-  identifier: number,
-): FunctionReference | null => {
-  return (
-    functionInfo.functionReferences.find(functionReference => {
-      return functionReference.identifier === identifier;
-    }) || null
-  );
-};
 
 export const getParameter = (functionInfo: FunctionInfo, node: TSESTree.Identifier): Parameter => {
   const definition = functionInfo.scopeManager.getDefinitionFromIdentifier(node)?.name;

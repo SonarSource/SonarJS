@@ -7,12 +7,11 @@ import {
   generateSignature,
 } from './function-definition';
 import { createParameter, Parameter } from './values/parameter';
-import { createFunctionReference, FunctionReference } from './values/function-reference';
 import { createScopeDeclarationInstruction, isTerminated } from './utils';
 import { createCallInstruction } from './instructions/call-instruction';
 import { createReference } from './values/reference';
 import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/typescript-estree';
-import { handleStatement as _handleStatement, handleStatement } from './statements';
+import { handleStatement } from './statements';
 import { createReturnInstruction } from './instructions/return-instruction';
 import { createNull } from './values/constant';
 import { ScopeManager } from './scope-manager';
@@ -25,7 +24,6 @@ export type FunctionInfo = {
   readonly fileName: string;
   readonly blocks: Array<Block>;
   readonly definition: FunctionDefinition;
-  readonly functionReferences: Array<FunctionReference>;
   readonly parameters: Array<Parameter>;
 
   createBlock(location: Location): Block;
@@ -96,7 +94,6 @@ export const createFunctionInfo = <T extends TSESTree.FunctionLike | TSESTree.Pr
     fileName: scopeManager.fileName,
     definition,
     blocks,
-    functionReferences: [],
     parameters,
     createBlock: location => {
       return createBlock(blockIndex++, location);
@@ -191,11 +188,9 @@ export function handleFunctionLike(node: TSESTree.FunctionLike, functionInfo: Fu
   const { createValueIdentifier } = scopeManager;
 
   const functionReferenceIdentifier = createValueIdentifier();
+  const functionReference = createReference(functionReferenceIdentifier);
   const functionName = getFunctionName(functionReferenceIdentifier, node.id, functionInfo);
-  const newFunctionInfo = createFunctionInfo(functionName, node, scopeManager);
-  const functionReference = createFunctionReference(functionReferenceIdentifier, newFunctionInfo);
-
-  functionInfo.functionReferences.push(functionReference);
+  createFunctionInfo(functionName, node, scopeManager);
 
   // create the function object
   addInstructions([

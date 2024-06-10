@@ -44,7 +44,7 @@ export const createIdentityFunctionDefinition = (): FunctionDefinition => {
 
 export const createGetFieldFunctionDefinition = (attributeName: string): FunctionDefinition => {
   const name = 'get-field';
-
+  createFunctionDefinition;
   return {
     name,
     signature: `#${name}# ${attributeName}`,
