@@ -64,9 +64,9 @@ public class FormDataUtils {
         if (headersStr.contains("json")) {
             json = new String(body, StandardCharsets.UTF_8);
         } else if (headersStr.contains("ast")) {
-            ast = body;
+            //ast = body;
             // I may have 2 extra bytes here for some reason
-            //ast = Arrays.copyOf(body, body.length-2);
+            ast = Arrays.copyOf(body, body.length-2);
         }
     }
     if (json == null || ast == null) {

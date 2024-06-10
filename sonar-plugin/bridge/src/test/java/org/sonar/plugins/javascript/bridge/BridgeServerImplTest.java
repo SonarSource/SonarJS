@@ -734,6 +734,9 @@ class BridgeServerImplTest {
     JsAnalysisRequest request = createRequest(inputFile);
     var response = bridgeServer.analyzeJavaScript(request);
     assertThat(response.ast()).isNotNull();
+    var node = response.ast();
+    assertThat(node.getProgram()).isNotNull();
+    assertThat(node.getProgram().getBodyList().get(0).getExpressionStatement()).isNotNull();
   }
   @Test
   void should_not_deploy_runtime_if_sonar_nodejs_executable_is_set() {
