@@ -689,7 +689,6 @@ public class ESTreeFactory {
       } else {
         return new ESTree.SimpleLiteral(fromLocation(node.getLoc()), literal.getValueNumber(), node.getLiteral().getRaw());
       }
-      // We only store a String for String, Boolean and numbers.
     }
   }
 
