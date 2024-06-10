@@ -20,6 +20,7 @@
 package org.sonar.plugins.javascript.bridge;
 
 import java.util.List;
+import java.util.Optional;
 import org.sonar.plugins.javascript.api.estree.ESTree;
 import org.sonar.plugins.javascript.bridge.protobuf.ArrayExpression;
 import org.sonar.plugins.javascript.bridge.protobuf.ArrayPattern;
@@ -216,7 +217,7 @@ public class ESTreeFactory {
   private static ESTree.ExportDefaultDeclaration fromExportDefaultDeclarationType(Node node) {
     ExportDefaultDeclaration exportDefaultDeclaration = node.getExportDefaultDeclaration();
     return new ESTree.ExportDefaultDeclaration(fromLocation(node.getLoc()),
-      from(exportDefaultDeclaration.getDeclaration(), ESTree.Expression.class));
+      from(exportDefaultDeclaration.getDeclaration(), ESTree.ExpressionOrClassDeclarationOrFunctionDeclaration.class));
   }
 
   private static ESTree.YieldExpression fromYieldExpressionType(Node node) {

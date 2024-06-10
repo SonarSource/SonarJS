@@ -22,6 +22,7 @@ package org.sonar.plugins.javascript.api.estree;
 
 import java.math.BigInteger;
 import java.util.List;
+import java.util.Optional;
 
 /**
   This file is generated. Do not modify it manually. Look at tools/estree instead.
@@ -51,7 +52,7 @@ public class ESTree {
   public sealed interface Declaration extends Statement {
 
   }
-  public sealed interface Expression extends ExpressionOrSpreadElement, ExpressionOrSuper, ExpressionOrPrivateIdentifier, ExpressionOrPattern, ExpressionOrVariableDeclaration, ExpressionOrMaybeNamedClassDeclarationOrMaybeNamedFunctionDeclaration, BlockStatementOrExpression {
+  public sealed interface Expression extends ExpressionOrSpreadElement, ExpressionOrSuper, ExpressionOrPrivateIdentifier, ExpressionOrPattern, ExpressionOrVariableDeclaration, ExpressionOrClassDeclarationOrFunctionDeclaration, BlockStatementOrExpression {
 
   }
   public sealed interface Literal extends Expression {
@@ -72,7 +73,7 @@ public class ESTree {
   public sealed interface MemberExpressionOrPattern extends Node {}
   public sealed interface ExpressionOrPrivateIdentifier extends Node {}
   public sealed interface MethodDefinitionOrPropertyDefinitionOrStaticBlock extends Node {}
-  public sealed interface ExpressionOrMaybeNamedClassDeclarationOrMaybeNamedFunctionDeclaration extends Node {}
+  public sealed interface ExpressionOrClassDeclarationOrFunctionDeclaration extends Node {}
   public sealed interface PatternOrVariableDeclaration extends Node {}
   public sealed interface ExpressionOrVariableDeclaration extends Node {}
   public sealed interface ImportDefaultSpecifierOrImportNamespaceSpecifierOrImportSpecifier extends Node {}
@@ -96,7 +97,8 @@ public class ESTree {
   public record CatchClause(Location loc, Pattern param, BlockStatement body) implements Node {}
   public record ChainExpression(Location loc, ChainElement expression) implements Expression {}
   public record ClassBody(Location loc, List<MethodDefinitionOrPropertyDefinitionOrStaticBlock> body) implements Node {}
-  public record ClassDeclaration(Location loc, Identifier id, Expression superClass, ClassBody body) implements Declaration {}
+  // See "ExportDefaultDeclaration" for explanation about the optional id field.
+  public record ClassDeclaration(Location loc, Optional<Identifier> id, Expression superClass, ClassBody body) implements Declaration, ExpressionOrClassDeclarationOrFunctionDeclaration {}
   public record ClassExpression(Location loc, Identifier id, Expression superClass, ClassBody body) implements Expression {}
   public record ConditionalExpression(Location loc, Expression test, Expression alternate, Expression consequent) implements Expression {}
   public record ContinueStatement(Location loc, Identifier label) implements Statement {}
@@ -105,14 +107,19 @@ public class ESTree {
   public record DoWhileStatement(Location loc, Statement body, Expression test) implements Statement {}
   public record EmptyStatement(Location loc) implements Statement {}
   public record ExportAllDeclaration(Location loc, Identifier exported, Literal source) implements ModuleDeclaration {}
-  public record ExportDefaultDeclaration(Location loc, ExpressionOrMaybeNamedClassDeclarationOrMaybeNamedFunctionDeclaration declaration) implements ModuleDeclaration {}
+  // In "d.ts" file, the declaration field has type: MaybeNamedFunctionDeclaration | MaybeNamedClassDeclaration | Expression.
+  // The "MaybeNamed" are there to show that the id is optional in this specific case.
+  // We decided to not create this extra class, and instead use the existing FunctionDeclaration and ClassDeclaration classes.
+  // The consequence is that the id field of these classes is now optional (while it is not in the "d.ts" file).
+  public record ExportDefaultDeclaration(Location loc, ExpressionOrClassDeclarationOrFunctionDeclaration declaration) implements ModuleDeclaration {}
   public record ExportNamedDeclaration(Location loc, Declaration declaration, List<ExportSpecifier> specifiers, Literal source) implements ModuleDeclaration {}
   public record ExportSpecifier(Location loc, Identifier exported, Identifier local) implements Node {}
   public record ExpressionStatement(Location loc, Expression expression) implements Statement {}
   public record ForInStatement(Location loc, PatternOrVariableDeclaration left, Expression right, Statement body) implements Statement {}
   public record ForOfStatement(Location loc, boolean await, PatternOrVariableDeclaration left, Expression right, Statement body) implements Statement {}
   public record ForStatement(Location loc, ExpressionOrVariableDeclaration init, Expression test, Expression update, Statement body) implements Statement {}
-  public record FunctionDeclaration(Location loc, Identifier id, BlockStatement body, List<Pattern> params, boolean generator, boolean async) implements Declaration {}
+  // See "ExportDefaultDeclaration" for explanation about the optional id field.
+  public record FunctionDeclaration(Location loc, Optional<Identifier> id, BlockStatement body, List<Pattern> params, boolean generator, boolean async) implements Declaration, ExpressionOrClassDeclarationOrFunctionDeclaration  {}
   public record FunctionExpression(Location loc, Identifier id, BlockStatement body, List<Pattern> params, boolean generator, boolean async) implements Expression {}
   public record Identifier(Location loc, String name) implements Expression, Pattern {}
   public record IfStatement(Location loc, Expression test, Statement consequent, Statement alternate) implements Statement {}
@@ -123,8 +130,6 @@ public class ESTree {
   public record ImportSpecifier(Location loc, Identifier imported, Identifier local) implements ImportDefaultSpecifierOrImportNamespaceSpecifierOrImportSpecifier {}
   public record LabeledStatement(Location loc, Identifier label, Statement body) implements Statement {}
   public record LogicalExpression(Location loc, LogicalOperator operator, Expression left, Expression right) implements Expression {}
-  public record MaybeNamedClassDeclaration(Location loc, Identifier id, Expression superClass, ClassBody body) implements ExpressionOrMaybeNamedClassDeclarationOrMaybeNamedFunctionDeclaration {}
-  public record MaybeNamedFunctionDeclaration(Location loc, Identifier id, BlockStatement body, List<Pattern> params, boolean generator, boolean async) implements ExpressionOrMaybeNamedClassDeclarationOrMaybeNamedFunctionDeclaration {}
   public record MemberExpression(Location loc, ExpressionOrSuper object, ExpressionOrPrivateIdentifier property, boolean computed, boolean optional) implements MemberExpressionOrPattern, ChainElement, Expression, Pattern {}
   public record MetaProperty(Location loc, Identifier meta, Identifier property) implements Expression {}
   public record MethodDefinition(Location loc, ExpressionOrPrivateIdentifier key, FunctionExpression value, String kind, boolean computed, boolean isStatic) implements MethodDefinitionOrPropertyDefinitionOrStaticBlock {}
