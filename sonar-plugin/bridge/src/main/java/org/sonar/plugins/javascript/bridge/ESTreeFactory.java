@@ -89,6 +89,9 @@ import org.sonar.plugins.javascript.bridge.protobuf.WhileStatement;
 import org.sonar.plugins.javascript.bridge.protobuf.WithStatement;
 import org.sonar.plugins.javascript.bridge.protobuf.YieldExpression;
 
+/**
+ * TODO: How to deserialize the optional nodes?
+ */
 public class ESTreeFactory {
 
   private ESTreeFactory() {
@@ -164,7 +167,13 @@ public class ESTreeFactory {
       case WithStatementType -> fromWithStatementType(node);
       case DebuggerStatementType -> fromDebuggerStatementType(node);
       case EmptyStatementType -> fromEmptyStatementType(node);
-      case ExpressionStatementType -> fromExpressionStatementType(node);
+      case ExpressionStatementType -> {
+        if (node.getExpressionStatement().hasDirective()) {
+          yield fromDirective(node);
+        } else {
+          yield fromExpressionStatementType(node);
+        }
+      }
       case LiteralType -> fromLiteralType(node);
       case TemplateElementType -> fromTemplateElementType(node);
       case FunctionExpressionType -> fromFunctionExpressionType(node);
@@ -651,10 +660,16 @@ public class ESTreeFactory {
   }
 
   private static ESTree.ExpressionStatement fromExpressionStatementType(Node node) {
-    // TODO: What about directive?
     ExpressionStatement expressionStatement = node.getExpressionStatement();
     return new ESTree.ExpressionStatement(fromLocation(node.getLoc()),
       from(expressionStatement.getExpression(), ESTree.Expression.class));
+  }
+
+  private static ESTree.Directive fromDirective(Node node) {
+    ExpressionStatement directive = node.getExpressionStatement();
+    return new ESTree.Directive(fromLocation(node.getLoc()),
+      from(directive.getExpression(), ESTree.Literal.class),
+      directive.getDirective());
   }
 
   private static ESTree.Literal fromLiteralType(Node node) {
