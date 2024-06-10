@@ -66,7 +66,11 @@ class ESTreeFactoryTest {
 
   @Test
   void should_create_expression_statement_when_directive_is_empty() {
+    Node expressionContent = Node.newBuilder()
+      .setType(NodeType.ThisExpressionType)
+      .build();
     ExpressionStatement expressionStatement = ExpressionStatement.newBuilder()
+      .setExpression(expressionContent)
       .build();
     Node protobufNode = Node.newBuilder()
       .setType(NodeType.ExpressionStatementType)
@@ -79,8 +83,12 @@ class ESTreeFactoryTest {
 
   @Test
   void should_create_directive_from_expression_statement() {
+    Node expressionContent = Node.newBuilder()
+      .setType(NodeType.LiteralType)
+      .build();
     ExpressionStatement expressionStatement = ExpressionStatement.newBuilder()
       .setDirective("directive")
+      .setExpression(expressionContent)
       .build();
     Node protobufNode = Node.newBuilder()
       .setType(NodeType.ExpressionStatementType)
