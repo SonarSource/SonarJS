@@ -94,8 +94,6 @@ import org.sonar.plugins.javascript.bridge.protobuf.YieldExpression;
 
 /**
  * TODO: Check what happen when ArrayPattern/ArrayExpression contain null
- *
- * TODO: Check why AssignmentProperty is not used.
  */
 public class ESTreeFactory {
 
@@ -316,7 +314,7 @@ public class ESTreeFactory {
   private static ESTree.ObjectPattern fromObjectPatternType(Node node) {
     ObjectPattern objectPattern = node.getObjectPattern();
     return new ESTree.ObjectPattern(fromLocation(node.getLoc()),
-      from(objectPattern.getPropertiesList(), ESTree.AssignmentPropertyOrRestElement.class));
+      from(objectPattern.getPropertiesList(), ESTree.PropertyOrRestElement.class));
   }
 
   private static ESTree.PrivateIdentifier fromPrivateIdentifierType(Node node) {

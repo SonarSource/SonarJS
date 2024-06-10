@@ -79,7 +79,7 @@ public class ESTree {
   public sealed interface ImportDefaultSpecifierOrImportNamespaceSpecifierOrImportSpecifier extends Node {}
   public sealed interface ExpressionOrSuper extends Node {}
   public sealed interface PropertyOrSpreadElement extends Node {}
-  public sealed interface AssignmentPropertyOrRestElement extends Node {}
+  public sealed interface PropertyOrRestElement extends Node {}
   public sealed interface DirectiveOrModuleDeclarationOrStatement extends Node {}
   public sealed interface ExpressionOrPattern extends Node {}
         
@@ -88,7 +88,6 @@ public class ESTree {
   public record ArrowFunctionExpression(Location loc, boolean expression, BlockStatementOrExpression body, List<Pattern> params, boolean generator, boolean async) implements Expression {}
   public record AssignmentExpression(Location loc, AssignmentOperator operator, MemberExpressionOrPattern left, Expression right) implements Expression {}
   public record AssignmentPattern(Location loc, Pattern left, Expression right) implements Pattern {}
-  public record AssignmentProperty(Location loc, Pattern value, String kind, boolean method, ExpressionOrPrivateIdentifier key, boolean shorthand, boolean computed) implements Node {}
   public record AwaitExpression(Location loc, Expression argument) implements Expression {}
   public record BigIntLiteral(Location loc, BigInteger value, String bigint, String raw) implements Literal {}
   public record BinaryExpression(Location loc, BinaryOperator operator, Expression left, Expression right) implements Expression {}
@@ -135,13 +134,15 @@ public class ESTree {
   public record MethodDefinition(Location loc, ExpressionOrPrivateIdentifier key, FunctionExpression value, String kind, boolean computed, boolean isStatic) implements MethodDefinitionOrPropertyDefinitionOrStaticBlock {}
   public record NewExpression(Location loc, ExpressionOrSuper callee, List<ExpressionOrSpreadElement> arguments) implements CallExpression, Expression {}
   public record ObjectExpression(Location loc, List<PropertyOrSpreadElement> properties) implements Expression {}
-  public record ObjectPattern(Location loc, List<AssignmentPropertyOrRestElement> properties) implements Pattern {}
+  public record ObjectPattern(Location loc, List<PropertyOrRestElement> properties) implements Pattern {}
   public record PrivateIdentifier(Location loc, String name) implements ExpressionOrPrivateIdentifier {}
   public record Program(Location loc, String sourceType, List<DirectiveOrModuleDeclarationOrStatement> body) implements Node {}
-  public record Property(Location loc, ExpressionOrPrivateIdentifier key, ExpressionOrPattern value, String kind, boolean method, boolean shorthand, boolean computed) implements PropertyOrSpreadElement {}
+  // In Estree "d.ts", we also have an "AssignmentProperty", which is a "Property" with a "kind" field set to "init".
+  // We decided to not create this extra class, and instead use the existing Property class, as it is not trivial to distinguish between the two.
+  public record Property(Location loc, ExpressionOrPrivateIdentifier key, ExpressionOrPattern value, String kind, boolean method, boolean shorthand, boolean computed) implements PropertyOrSpreadElement, PropertyOrRestElement {}
   public record PropertyDefinition(Location loc, ExpressionOrPrivateIdentifier key, Optional<Expression> value, boolean computed, boolean isStatic) implements MethodDefinitionOrPropertyDefinitionOrStaticBlock {}
   public record RegExpLiteral(Location loc, String pattern, String flags, String raw) implements Literal {}
-  public record RestElement(Location loc, Pattern argument) implements AssignmentPropertyOrRestElement, Pattern {}
+  public record RestElement(Location loc, Pattern argument) implements PropertyOrRestElement, Pattern {}
   public record ReturnStatement(Location loc, Optional<Expression> argument) implements Statement {}
   public record SequenceExpression(Location loc, List<Expression> expressions) implements Expression {}
   public record SimpleCallExpression(Location loc, boolean optional, ExpressionOrSuper callee, List<ExpressionOrSpreadElement> arguments) implements CallExpression, ChainElement {}
