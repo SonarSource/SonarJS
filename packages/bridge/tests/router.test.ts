@@ -19,7 +19,12 @@
  */
 import { setContext, toUnixPath } from '@sonar/shared';
 import http from 'http';
-import { createAndSaveProgram, ProjectAnalysisInput, RuleConfig } from '@sonar/jsts';
+import {
+  createAndSaveProgram,
+  deserializeProtobuf,
+  ProjectAnalysisInput,
+  RuleConfig,
+} from '@sonar/jsts';
 import path from 'path';
 import { start } from '../src/server';
 import { request } from './tools';
@@ -128,8 +133,12 @@ describe('router', () => {
         message: `Use a regular expression literal instead of the 'RegExp' constructor.`,
       }),
     );
-    const ast = response.get('ast');
-    expect(ast).toEqual('plop');
+    const ast = response.get('ast') as File;
+    const buffer = Buffer.from(await ast.arrayBuffer());
+    const protoMessage = deserializeProtobuf(buffer);
+    expect(protoMessage.type).toEqual(0);
+    expect(protoMessage.program.body).toHaveLength(1);
+    expect(protoMessage.program.body[0].expressionStatement.expression.newExpression).toBeDefined();
   });
 
   it('should route /analyze-ts requests', async () => {
@@ -154,8 +163,9 @@ describe('router', () => {
         message: `Remove this duplicated type or replace with another one.`,
       }),
     );
-    const ast = response.get('ast');
-    expect(ast).toEqual('plop');
+    const ast = response.get('ast') as File;
+    const buffer = Buffer.from(await ast.arrayBuffer());
+    expect(buffer.toString()).toEqual('plop');
   });
 
   it('should route /analyze-with-program requests', async () => {

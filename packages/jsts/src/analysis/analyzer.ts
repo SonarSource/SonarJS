@@ -30,6 +30,7 @@ import {
 } from '../linter';
 import { buildSourceCode } from '../builders';
 import { JsTsAnalysisInput, JsTsAnalysisOutput } from './analysis';
+import { serializeInProtobuf } from '../parsers';
 
 /**
  * Analyzes a JavaScript / TypeScript analysis input
@@ -84,7 +85,12 @@ function analyzeFile(
       highlightedSymbols,
       cognitiveComplexity,
     );
-    return { issues, ucfgPaths, ...extendedMetrics, ast: 'plop' };
+    return {
+      issues,
+      ucfgPaths,
+      ...extendedMetrics,
+      ast: serializeAst(sourceCode, filePath),
+    };
   } catch (e) {
     /** Turns exceptions from TypeScript compiler into "parsing" errors */
     if (e.stack.indexOf('typescript.js:') > -1) {
@@ -92,6 +98,21 @@ function analyzeFile(
     } else {
       throw e;
     }
+  }
+}
+
+/**
+ * Remove this when we figure out how to serialize the TypeScript AST
+ */
+function serializeAst(sourceCode: SourceCode, filePath: string) {
+  if (isSupported(filePath)) {
+    return serializeInProtobuf(sourceCode.ast);
+  } else {
+    return 'plop';
+  }
+
+  function isSupported(filePath: string) {
+    return filePath.endsWith('.js');
   }
 }
 

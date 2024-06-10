@@ -17,8 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
+let a = null;
 require('module-alias/register');
+
+import
+  * as console        // namespace import specifier
+  from 'console'
 
 const formData = require('form-data');
 const { parentPort, workerData } = require('worker_threads');
@@ -40,6 +44,7 @@ const { analyzeYAML } = require('@sonar/yaml');
 const { APIError, ErrorCode } = require('@sonar/shared/errors');
 const { logHeapStatistics } = require('@sonar/bridge/memory');
 
+export * from "module-name";
 /**
  * Delegate the handling of an HTTP request to a worker thread
  */
@@ -50,8 +55,7 @@ exports.delegate = function (worker, type) {
         case 'success':
           if (message.format === 'multipart') {
             const fd = new formData();
-            const buf = Buffer.from(message.result.ast);
-            fd.append('ast', buf);
+            fd.append('ast', message.result.ast);
             delete message.result.ast;
             fd.append('json', JSON.stringify(message.result));
             // this adds the boundary string that will be used to separate the parts
@@ -231,3 +235,133 @@ if (parentPort) {
     }
   }
 }
+
+// To improve coverage of different JS feature.
+debugger;
+let str = '';
+
+loop1: for (let i = 0; i < 5; i++) {
+  if (i === 1) {
+    continue loop1;
+  }
+  str = str + i;
+}
+while (true) {
+  break;
+}
+
+do {
+  str = str + 'a';
+} while (str.length < 10);
+
+const iterable = [10, 20, 30];
+let sum = 0;
+for (const value of iterable) {
+  sum += value;
+}
+
+const object = { a: 1, b: 2, c: 3 };
+for (const property in object) {
+  str = str + object[property];
+}
+
+export function functionName() { /* … */ }
+
+const z = y = x = f();
+
+class ClassWithStaticInitializationBlock {
+  static staticProperty1 = 'Property 1';
+  static staticProperty2;
+  static {
+    this.staticProperty2 = 'Property 2';
+  }
+}
+
+const object1 = {};
+
+Object.defineProperty(object1, 'property1', {
+  value: 42,
+  writable: false,
+});
+
+object1.property1 = 77;
+
+const Rectangle = class {
+  constructor(height, width) {
+    this.height = height;
+    this.width = width;
+  }
+  area() {
+    return this.height * this.width;
+  }
+};
+
+// Example of private identifier usage
+class Circle {
+  #radius;
+  constructor(radius) {
+    this.#radius = radius;
+  }
+  area() {
+    return Math.PI * this.#radius ** 2;
+  }
+}
+
+class Square extends Rectangle {
+  constructor(length) {
+    super(length, length);
+  }
+}
+
+function Person(name) {
+  this.name = name;
+}
+
+function metaProperty() {
+  return new.target;
+}
+
+function Foo() {
+  if (!new.target) {
+    throw new TypeError('calling Foo constructor without new is invalid');
+  }
+}
+
+try {
+  Foo();
+} catch (e) {
+  console.log(e);
+  // Expected output: TypeError: calling Foo constructor without new is invalid
+}
+
+const [a1, b1] = [1, 2];
+const [a2, ...b2] = [1, 2, 3];
+const arr1 = [1, 2, 3];
+const arr2 = [...arr1, 4, 5];
+
+let a3;
+a3 = 1, 2, 3;
+const myTag = (strs, ...values) => {
+  console.log(strs);
+  console.log(values);
+}
+
+function tag(strings, ...values) {
+  return { strings, values };
+}
+
+function* generator(i) {
+  yield i;
+  yield i + 10;
+}
+
+let num = 10;
+num++;
+num--;
+
+(1, 2)
+
+`hello ${num}`
+
+const [fooA, fooB] = foo;
+
