@@ -365,4 +365,3 @@ num--;
 
 const [fooA, fooB] = foo;
 
-export foo from {}
