@@ -20,7 +20,6 @@
 package org.sonar.plugins.javascript.bridge;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -37,19 +36,15 @@ public class FormDataUtils {
     String boundary = "--" + response.headers().firstValue("Content-Type")
       .orElseThrow(() -> new IllegalStateException("No Content-Type header"))
       .split("boundary=")[1];
+
     byte[] responseBody = response.body();
-
-    // Convert the boundary to bytes
     byte[] boundaryBytes = boundary.getBytes(StandardCharsets.ISO_8859_1);
-
-    // Split the response body into parts using the boundary
     List<byte[]> parts = split(responseBody, boundaryBytes);
 
     String json = null;
     byte[] ast = null;
 
     for (byte[] part : parts) {
-        // Split the part into headers and body
         int separatorIndex = indexOf(part, "\r\n\r\n".getBytes(StandardCharsets.ISO_8859_1));
         if (separatorIndex == -1) {
             // Skip if there's no body
@@ -64,8 +59,7 @@ public class FormDataUtils {
         if (headersStr.contains("json")) {
             json = new String(body, StandardCharsets.UTF_8);
         } else if (headersStr.contains("ast")) {
-            //ast = body;
-            // I may have 2 extra bytes here for some reason
+            // I have 2 extra bytes here for some reason
             ast = Arrays.copyOf(body, body.length-2);
         }
     }
@@ -81,21 +75,13 @@ public class FormDataUtils {
 
   public static Node parseProtobuf(byte[] ast) throws IOException {
     return Node.parseFrom(ast);
-    //return parseProtobuf(new ByteArrayInputStream(ast.getBytes(StandardCharsets.ISO_8859_1)));
   }
 
-
-
-  // Visible for testing.
-  public static Node parseProtobuf(InputStream inputStream) throws IOException {
-    return Node.parseFrom(inputStream);
-  }
-
-  private static int indexOf(byte[] outerArray, byte[] smallerArray) {
-    for(int i = 0; i < outerArray.length - smallerArray.length+1; ++i) {
+  private static int indexOf(byte[] array, byte[] pattern) {
+    for (int i = 0; i < array.length - pattern.length + 1; i++) {
         boolean found = true;
-        for(int j = 0; j < smallerArray.length; ++j) {
-           if (outerArray[i+j] != smallerArray[j]) {
+        for (int j = 0; j < pattern.length; j++) {
+           if (array[i+j] != pattern[j]) {
                found = false;
                break;
            }

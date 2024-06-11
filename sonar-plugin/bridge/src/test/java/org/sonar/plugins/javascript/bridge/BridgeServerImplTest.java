@@ -66,6 +66,7 @@ import org.sonar.plugins.javascript.bridge.BridgeServer.CssAnalysisRequest;
 import org.sonar.plugins.javascript.bridge.BridgeServer.JsAnalysisRequest;
 import org.sonar.plugins.javascript.bridge.BridgeServer.TsProgram;
 import org.sonar.plugins.javascript.bridge.BridgeServer.TsProgramRequest;
+import org.sonar.plugins.javascript.bridge.protobuf.Node;
 import org.sonar.plugins.javascript.nodejs.NodeCommandBuilder;
 import org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl;
 import org.sonar.plugins.javascript.nodejs.NodeCommandException;
@@ -734,7 +735,7 @@ class BridgeServerImplTest {
     JsAnalysisRequest request = createRequest(inputFile);
     var response = bridgeServer.analyzeJavaScript(request);
     assertThat(response.ast()).isNotNull();
-    var node = response.ast();
+    Node node = response.ast();
     assertThat(node.getProgram()).isNotNull();
     assertThat(node.getProgram().getBodyList().get(0).getExpressionStatement()).isNotNull();
   }
