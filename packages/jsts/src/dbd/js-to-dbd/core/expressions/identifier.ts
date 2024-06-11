@@ -10,12 +10,10 @@ import { createNull } from '../values/constant';
 import { type BaseValue } from '../value';
 import { getParameter } from '../utils';
 import { unresolvable } from '../scope-manager';
-import { Scope } from '@typescript-eslint/utils/ts-eslint';
 
 export const handleIdentifier: ExpressionHandler<TSESTree.Identifier> = (node, functionInfo) => {
   let value: BaseValue<any>;
 
-  const currentScope = functionInfo.scopeManager.getScope(node);
   if (functionInfo.scopeManager.isParameter(node)) {
     return getParameter(functionInfo, node);
   }
@@ -34,22 +32,7 @@ export const handleIdentifier: ExpressionHandler<TSESTree.Identifier> = (node, f
       ),
     ]);
   } else {
-    let scopePointer: Scope.Scope | null = currentScope;
-    while (scopePointer !== null && identifierReference.variable.scope !== scopePointer) {
-      functionInfo.addInstructions([
-        createCallInstruction(
-          functionInfo.scopeManager.getScopeId(scopePointer.upper!),
-          null,
-          createGetFieldFunctionDefinition('@parent'),
-          [createReference(functionInfo.scopeManager.getScopeId(scopePointer))],
-          node.loc,
-        ),
-      ]);
-      scopePointer = scopePointer.upper;
-    }
-
     value = identifierReference.base;
-
     functionInfo.addInstructions([
       createCallInstruction(
         value.identifier,

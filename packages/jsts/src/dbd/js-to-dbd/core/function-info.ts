@@ -1,6 +1,7 @@
 import { Block, createBlock } from './block';
 import {
   createFunctionDefinitionFromName,
+  createGetFieldFunctionDefinition,
   createNewObjectFunctionDefinition,
   createSetFieldFunctionDefinition,
   FunctionDefinition,
@@ -44,7 +45,8 @@ export const createFunctionInfo = <T extends TSESTree.FunctionLike | TSESTree.Pr
   const location = node.loc;
   const definition = createFunctionDefinitionFromName(name, scopeManager.fileName);
   // create the main function block
-  const currentScopeId = scopeManager.getScopeId(scopeManager.getScope(node));
+  const currentScope = scopeManager.getScope(node);
+  const currentScopeId = scopeManager.getScopeId(currentScope);
   const block = createBlock(blockIndex++, location);
   blocks.push(block);
   // add the scope creation instruction
@@ -79,6 +81,21 @@ export const createFunctionInfo = <T extends TSESTree.FunctionLike | TSESTree.Pr
         location,
       ),
     );
+
+    let pointerScope = currentScope;
+    while (pointerScope.upper) {
+      const parentScope = pointerScope.upper;
+      block.instructions.push(
+        createCallInstruction(
+          scopeManager.getScopeId(parentScope),
+          null,
+          createGetFieldFunctionDefinition('@parent'),
+          [createReference(scopeManager.getScopeId(pointerScope))],
+          location,
+        ),
+      );
+      pointerScope = parentScope;
+    }
   } else {
     setGlobals(scopeManager, block, location, currentScopeId);
 
