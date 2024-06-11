@@ -590,7 +590,7 @@ public class ESTreeFactory {
   private static ESTree.CatchClause fromCatchClauseType(Node node) {
     CatchClause catchClause = node.getCatchClause();
     return new ESTree.CatchClause(fromLocation(node.getLoc()),
-      from(catchClause.getParam(), ESTree.Pattern.class),
+      catchClause.hasParam() ? Optional.of(from(catchClause.getParam(), ESTree.Pattern.class)) : Optional.empty(),
       from(catchClause.getBody(), ESTree.BlockStatement.class));
   }
 

@@ -95,7 +95,7 @@ public class ESTree {
   public record BinaryExpression(Location loc, BinaryOperator operator, Expression left, Expression right) implements Expression {}
   public record BlockStatement(Location loc, List<Statement> body) implements BlockStatementOrExpression, Statement {}
   public record BreakStatement(Location loc, Optional<Identifier> label) implements Statement {}
-  public record CatchClause(Location loc, Pattern param, BlockStatement body) implements Node {}
+  public record CatchClause(Location loc, Optional<Pattern> param, BlockStatement body) implements Node {}
   public record ChainExpression(Location loc, ChainElement expression) implements Expression {}
   public record ClassBody(Location loc, List<MethodDefinitionOrPropertyDefinitionOrStaticBlock> body) implements Node {}
   // See "ExportDefaultDeclaration" for explanation about the optional id field.

@@ -407,7 +407,7 @@ message TryStatement {
   optional Node finalizer = 3;
 }
 message CatchClause {
-  Node param = 1;
+  optional Node param = 1;
   Node body = 2;
 }
 message ThrowStatement {

@@ -407,7 +407,7 @@ message TryStatement {
   optional Node finalizer = 3;
 }
 message CatchClause {
-  Node param = 1;
+  optional Node param = 1;
   Node body = 2;
 }
 message ThrowStatement {
@@ -456,7 +456,6 @@ message TemplateElement {
   optional string cooked = 2;
   string raw = 3;
 }
-
 message FunctionExpression {
   optional Node id = 1;
   Node body = 2;
