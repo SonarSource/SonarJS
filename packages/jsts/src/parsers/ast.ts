@@ -520,10 +520,7 @@ export function visitNode(node: estree.BaseNodeWithoutComments | undefined | nul
 
   function visitArrayExpression(node: estree.ArrayExpression) {
     return {
-      elements: node.elements
-        .filter(e => e !== null)
-        .map(visitNode)
-        .concat(undefined),
+      elements: node.elements.filter(e => e !== null).map(visitNode),
     };
   }
 
