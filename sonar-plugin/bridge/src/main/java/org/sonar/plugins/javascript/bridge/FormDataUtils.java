@@ -51,7 +51,8 @@ public class FormDataUtils {
             continue;
         }
 
-        byte[] headers = Arrays.copyOfRange(part, 0, separatorIndex);
+        // I remove the first 2 bytes, representing "\r\n" before the headers
+        byte[] headers = Arrays.copyOfRange(part, 2, separatorIndex);
         // I remove the first 4 bytes and last 2.
         // They are the "\r\n\r\n" before and "\r\n" after the payload
         byte[] body = Arrays.copyOfRange(part, separatorIndex + 4, part.length - 2);
