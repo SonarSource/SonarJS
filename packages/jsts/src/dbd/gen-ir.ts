@@ -17,15 +17,16 @@ Promise.resolve()
     if (options.file) {
       const stats = await fs.stat(options.file);
       if (stats.isDirectory()) {
-        await generateDirIR(options.file, options.output, options.print, options.file);
+        await generateDirIR(options.file, undefined, options.output, options.print, options.root);
       }
       if (stats.isFile()) {
         await generateIR(
           options.file,
+          undefined,
           options.output,
           undefined,
           options.print,
-          path.dirname(options.file),
+          options.root,
         );
       }
     }

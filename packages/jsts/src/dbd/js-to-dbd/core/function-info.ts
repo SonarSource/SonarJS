@@ -43,7 +43,10 @@ export const createFunctionInfo = <T extends TSESTree.FunctionLike | TSESTree.Pr
   let blockIndex: number = 0;
 
   const location = node.loc;
-  const definition = createFunctionDefinitionFromName(name, scopeManager.fileName);
+  const definition =
+    node.type !== AST_NODE_TYPES.Program
+      ? scopeManager.getFunctionDefinition(node)
+      : createFunctionDefinitionFromName(name, scopeManager.fileName);
   // create the main function block
   const currentScope = scopeManager.getScope(node);
   const currentScopeId = scopeManager.getScopeId(currentScope);

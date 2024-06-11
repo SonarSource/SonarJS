@@ -11,6 +11,7 @@ linter.defineRule('dbd-rule', rule);
 
 export async function generateDirIR(
   dirPath: string,
+  programId?: string,
   outDir?: string,
   print = false,
   root?: string,
@@ -19,15 +20,16 @@ export async function generateDirIR(
     const filePath = path.join(dirPath, file.name);
 
     if (file.isDirectory()) {
-      await generateDirIR(filePath, outDir, print, root);
+      await generateDirIR(filePath, programId, outDir, print, root);
     } else {
-      await generateIR(filePath, outDir, undefined, print, root);
+      await generateIR(filePath, programId, outDir, undefined, print, root);
     }
   }
 }
 
 export async function generateIR(
   filePath: string,
+  programId?: string,
   outDir?: string,
   fileContent?: string,
   print = false,
@@ -39,10 +41,7 @@ export async function generateIR(
   if (!fileContent) {
     fileContent = await readFile(filePath);
   }
-  const sourceCode = buildSourceCode(
-    { fileContent, filePath, tsConfigs: [], fileType: 'MAIN' },
-    'js',
-  );
+  const sourceCode = buildSourceCode({ fileContent, filePath, programId, fileType: 'MAIN' }, 'js');
   linter.verify(
     sourceCode,
     { rules: { 'dbd-rule': 'error' }, settings: { dbd: { outDir, print, root } } },

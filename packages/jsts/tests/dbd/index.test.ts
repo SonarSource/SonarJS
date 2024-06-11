@@ -21,25 +21,19 @@ import path from 'path';
 import { generateIR, proto2text } from '../../src/dbd/helpers';
 import fs from 'fs';
 import { toUnixPath } from '@sonar/shared';
+import { createAndSaveProgram } from '@sonar/jsts';
 
 const baseDir = path.join(__dirname, 'fixtures');
+const tsconfig = path.join(baseDir, 'tsconfig.json');
 const files = fs.readdirSync(baseDir).filter(file => file.endsWith('.js'));
+const { programId } = createAndSaveProgram(tsconfig);
 
 describe('DBD IR generation', () => {
   it('DBD rule should create correct IR', async () => {
     const filePath = path.join(baseDir, 'custom.js');
     const outDir = path.join(__dirname, 'ir', 'python');
     const signature = toUnixPath(filePath.slice(baseDir.length + 1)).replace(/\//g, '_');
-    await generateIR(
-      filePath,
-      outDir,
-      `function loadAll(pluginNames) {
-             pluginNames(); // Noncompliant: pluginNames might be undefined
-           }
-           loadAll(null);`,
-      false,
-      baseDir,
-    );
+    await generateIR(filePath, programId, outDir);
     const files = [
       path.join(outDir, 'ir0_custom___main__.ir'),
       path.join(outDir, 'ir0_custom_loadAll.ir'),
@@ -83,6 +77,6 @@ bb3:
 
   it.each(files)('should process %s', async filePath => {
     const outDir = path.join(__dirname, 'ir', 'python');
-    await generateIR(path.join(baseDir, filePath), outDir);
+    await generateIR(path.join(baseDir, filePath), programId, outDir);
   });
 });

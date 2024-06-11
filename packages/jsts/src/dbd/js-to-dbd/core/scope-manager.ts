@@ -2,9 +2,11 @@ import { type BaseValue } from './value';
 import { type Constant } from './values/constant';
 import type { FunctionInfo } from './function-info';
 import { Scope, SourceCode } from '@typescript-eslint/utils/ts-eslint';
-import { TSESTree } from '@typescript-eslint/typescript-estree';
+import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/typescript-estree';
 import { createReference } from './values/reference';
-import { createFunctionDefinition, FunctionDefinition } from './function-definition';
+import { createFunctionDefinitionFromName, FunctionDefinition } from './function-definition';
+import { ParserServicesWithTypeInformation } from '@typescript-eslint/utils';
+import ts from 'typescript';
 
 export type Record = BaseValue<any> | typeof unresolvable;
 
@@ -39,24 +41,42 @@ function getDefinitionFromIdentifier(sourceCode: SourceCode, node: TSESTree.Iden
   });
 }
 
-function getFunctionDefinition(sourceCode: SourceCode, callee: TSESTree.LeftHandSideExpression) {
-  const services = sourceCode.parserServices;
-  if (!services) {
-    return undefined;
+function getFunctionDefinition(sourceCode: SourceCode, node: TSESTree.Node) {
+  if (node.type === AST_NODE_TYPES.FunctionDeclaration && node.id) {
+    node = node.id;
+  } else if (node.parent && node.parent.type === AST_NODE_TYPES.Property) {
+    node = node.parent.key;
   }
-  const tsNode = services.esTreeNodeToTSNodeMap?.get(callee);
+  const services: ParserServicesWithTypeInformation =
+    sourceCode.parserServices as unknown as ParserServicesWithTypeInformation;
+  let filename = 'unknown';
+  let name = node.type === AST_NODE_TYPES.Identifier ? node.name : 'unknown';
+
+  if (!services) {
+    return createFunctionDefinitionFromName(name, filename);
+  }
+  const tsNode = services.esTreeNodeToTSNodeMap?.get(node);
   const program = services.program;
 
   if (!program || !tsNode) {
-    return undefined;
+    return createFunctionDefinitionFromName(name, filename);
   }
-  const type = program.getTypeChecker().getTypeAtLocation(tsNode);
-  if (type?.symbol) {
-    const declaration = type.symbol.declarations?.[0];
-    const filename = declaration?.getSourceFile()?.fileName;
-    //const { members: _members, valueDeclaration } = type.symbol;
-    return createFunctionDefinition(filename!, 'na');
+  let symbol = services.getSymbolAtLocation(node);
+
+  if (symbol) {
+    while (!symbolIsFunction(symbol) && getLinkedSymbol(symbol)) {
+      symbol = getLinkedSymbol(symbol);
+      if (symbol) {
+        symbol = getLinkedSymbol(symbol);
+      }
+    }
+    filename = symbol.declarations?.[0]?.getSourceFile()?.fileName ?? filename;
+    const symbolId = getSymbolId(symbol);
+    if (symbolId) {
+      name = `${symbolId}_${symbol.getName()}`;
+    }
   }
+  return createFunctionDefinitionFromName(name, filename);
 }
 
 function isParameter(sourceCode: SourceCode, node: TSESTree.Identifier): boolean {
@@ -103,7 +123,7 @@ export interface ScopeManager {
   getDefinitionFromIdentifier(node: TSESTree.Identifier): Scope.Definition | undefined;
   isParameter(node: TSESTree.Identifier): boolean;
   isModule(): boolean;
-  getFunctionDefinition(node: TSESTree.LeftHandSideExpression): FunctionDefinition;
+  getFunctionDefinition(node: TSESTree.Node): FunctionDefinition;
 }
 export const unresolvable = Symbol();
 
@@ -152,8 +172,20 @@ export const createScopeManager = (sourceCode: SourceCode, fileName: string): Sc
     isModule: () => {
       return sourceCode.scopeManager!.isModule();
     },
-    getFunctionDefinition(node: TSESTree.LeftHandSideExpression): FunctionDefinition {
+    getFunctionDefinition(node: TSESTree.Node): FunctionDefinition {
       return getFunctionDefinition(sourceCode, node)!;
     },
   };
 };
+
+function getLinkedSymbol(symbol: ts.Symbol) {
+  return ((symbol as any).links?.type as ts.Type)?.symbol;
+}
+
+function getSymbolId(symbol: ts.Symbol) {
+  return (symbol as any).id;
+}
+
+function symbolIsFunction(symbol: ts.Symbol) {
+  return !(symbol.flags & ts.SymbolFlags.Function);
+}

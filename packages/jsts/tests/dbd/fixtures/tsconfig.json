@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "strictNullChecks": true,
+    "allowJs": true,
+    "lib": ["ES2023"],
+    "target": "ESNext",
+    "allowSyntheticDefaultImports": true,
+    "moduleResolution": "Node",
+    "module": "ES2022",
+    "types": ["node"]
+  },
+  "files": ["custom.js"]
+}

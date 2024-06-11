@@ -24,13 +24,9 @@ import { Value } from '../value';
 import { createReference } from '../values/reference';
 import type { ExpressionHandler } from '../expression-handler';
 import {
-  createFunctionDefinitionFromName,
   createNewObjectFunctionDefinition,
   createSetFieldFunctionDefinition,
 } from '../function-definition';
-import { createNull } from '../values/constant';
-import { AST_NODE_TYPES } from '@typescript-eslint/typescript-estree';
-import { unresolvable } from '../scope-manager';
 import { getParameterField } from '../utils';
 
 export const handleCallExpression: ExpressionHandler<TSESTree.CallExpression> = (
@@ -45,11 +41,6 @@ export const handleCallExpression: ExpressionHandler<TSESTree.CallExpression> = 
   const argumentValues: Array<Value> = argumentExpressions.map(expression =>
     handleExpression(expression, functionInfo),
   );
-
-  if (callee.type !== AST_NODE_TYPES.Identifier) {
-    console.error(`Unsupported call expression ${callee.type}`);
-    return createNull();
-  }
 
   const operands: Array<Value> = [];
 
@@ -80,11 +71,7 @@ export const handleCallExpression: ExpressionHandler<TSESTree.CallExpression> = 
   ]);
   operands.push(argumentValue);
 
-  const functionReference = functionInfo.scopeManager.getIdentifierReference(callee);
-  if (functionReference.base === unresolvable) {
-    return createNull();
-  }
-  const functionDefinition = createFunctionDefinitionFromName(callee.name, scopeManager.fileName);
+  const functionDefinition = functionInfo.scopeManager.getFunctionDefinition(callee);
   functionInfo.addFunctionCall(functionDefinition);
   addInstructions([
     createCallInstruction(value.identifier, null, functionDefinition, operands, node.loc),
