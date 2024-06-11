@@ -170,7 +170,7 @@ message Program {
   repeated Node body = 2;
 }
 message ExportAllDeclaration {
-  Node exported = 1;
+  optional Node exported = 1;
   Node source = 2;
 }
 message Literal {
