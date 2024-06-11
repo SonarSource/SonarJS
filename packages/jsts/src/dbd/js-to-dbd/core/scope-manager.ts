@@ -4,6 +4,7 @@ import type { FunctionInfo } from './function-info';
 import { Scope, SourceCode } from '@typescript-eslint/utils/ts-eslint';
 import { TSESTree } from '@typescript-eslint/typescript-estree';
 import { createReference } from './values/reference';
+import { createFunctionDefinition, FunctionDefinition } from './function-definition';
 
 export type Record = BaseValue<any> | typeof unresolvable;
 
@@ -36,6 +37,26 @@ function getDefinitionFromIdentifier(sourceCode: SourceCode, node: TSESTree.Iden
       value.name.range[0] <= node.range[0]
     );
   });
+}
+
+function getFunctionDefinition(sourceCode: SourceCode, callee: TSESTree.LeftHandSideExpression) {
+  const services = sourceCode.parserServices;
+  if (!services) {
+    return undefined;
+  }
+  const tsNode = services.esTreeNodeToTSNodeMap?.get(callee);
+  const program = services.program;
+
+  if (!program || !tsNode) {
+    return undefined;
+  }
+  const type = program.getTypeChecker().getTypeAtLocation(tsNode);
+  if (type?.symbol) {
+    const declaration = type.symbol.declarations?.[0];
+    const filename = declaration?.getSourceFile()?.fileName;
+    //const { members: _members, valueDeclaration } = type.symbol;
+    return createFunctionDefinition(filename!, 'na');
+  }
 }
 
 function isParameter(sourceCode: SourceCode, node: TSESTree.Identifier): boolean {
@@ -82,6 +103,7 @@ export interface ScopeManager {
   getDefinitionFromIdentifier(node: TSESTree.Identifier): Scope.Definition | undefined;
   isParameter(node: TSESTree.Identifier): boolean;
   isModule(): boolean;
+  getFunctionDefinition(node: TSESTree.LeftHandSideExpression): FunctionDefinition;
 }
 export const unresolvable = Symbol();
 
@@ -129,6 +151,9 @@ export const createScopeManager = (sourceCode: SourceCode, fileName: string): Sc
     isParameter: node => isParameter(sourceCode, node),
     isModule: () => {
       return sourceCode.scopeManager!.isModule();
+    },
+    getFunctionDefinition(node: TSESTree.LeftHandSideExpression): FunctionDefinition {
+      return getFunctionDefinition(sourceCode, node)!;
     },
   };
 };

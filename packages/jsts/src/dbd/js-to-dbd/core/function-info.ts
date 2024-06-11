@@ -199,6 +199,7 @@ function getFunctionName(
     if (functionInfo.definition.name === 'main') {
       return name;
     }
+    return `${functionInfo.definition.name}__${name}__${functionReferenceIdentifier}`;
   }
   return `${functionInfo.definition.name}__${functionReferenceIdentifier}`;
 }
