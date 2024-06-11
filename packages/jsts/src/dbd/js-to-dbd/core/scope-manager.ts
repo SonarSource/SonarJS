@@ -91,7 +91,6 @@ export const createScopeManager = (sourceCode: SourceCode, fileName: string): Sc
 
   const createValueIdentifier = () => valueIndex++;
 
-  const variableIds = new Map<number, number>();
   const functionInfos: Array<FunctionInfo> = [];
   const valueByConstantTypeRegistry: ScopeManager['valueByConstantTypeRegistry'] = new Map([]);
   const constantRegistry: ScopeManager['constantRegistry'] = new Map([]);
@@ -114,11 +113,8 @@ export const createScopeManager = (sourceCode: SourceCode, fileName: string): Sc
     getIdentifierReference(node: TSESTree.Identifier) {
       const variable = getVariableFromIdentifier(sourceCode, node);
       if (variable) {
-        if (!variableIds.has(variable.$id)) {
-          variableIds.set(variable.$id, createValueIdentifier());
-        }
         return {
-          base: createReference(variableIds.get(variable.$id)!),
+          base: createReference(createValueIdentifier()),
           variable,
           referencedName: node.name,
         };

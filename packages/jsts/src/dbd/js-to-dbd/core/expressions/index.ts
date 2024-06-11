@@ -18,6 +18,7 @@ import { handleConditionalExpression } from './conditional-expression';
 import { createNull } from '../values/constant';
 import { FunctionInfo } from '../function-info';
 import { unresolvable } from '../scope-manager';
+import { createReference } from '../values/reference';
 
 export const compileAsAssignment = (
   node: Exclude<TSESTree.Node, TSESTree.Statement>,
@@ -31,12 +32,13 @@ export const compileAsAssignment = (
       if (identifierReference.base === unresolvable) {
         console.error(`Unresolvable identifier: ${node.name}`);
       } else {
+        const scopeId = functionInfo.scopeManager.getScopeId(identifierReference.variable.scope);
         functionInfo.addInstructions([
           createCallInstruction(
             functionInfo.scopeManager.createValueIdentifier(),
             null,
             createSetFieldFunctionDefinition(node.name),
-            [identifierReference.base, value],
+            [createReference(scopeId), value],
             node.loc,
           ),
         ]);
