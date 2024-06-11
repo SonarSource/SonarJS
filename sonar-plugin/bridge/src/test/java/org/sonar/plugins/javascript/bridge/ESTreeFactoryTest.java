@@ -19,7 +19,11 @@
  */
 package org.sonar.plugins.javascript.bridge;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.math.BigInteger;
+import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
 import org.sonar.plugins.javascript.api.estree.ESTree;
 import org.sonar.plugins.javascript.bridge.protobuf.AssignmentExpression;
@@ -41,6 +45,38 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
 class ESTreeFactoryTest {
+
+  @Test
+  void should_create_nodes_from_serialized_data() throws IOException {
+    File file = Path.of("src", "test", "resources", "files", "serialized.proto").toFile();
+
+    Node node;
+    try (FileInputStream fis = new FileInputStream(file)) {
+      node = Node.parseFrom(fis);
+    }
+    ESTree.Node root = ESTreeFactory.from(node, ESTree.Node.class);
+    assertThat(root).isInstanceOf(ESTree.Program.class);
+    ESTree.Program program = (ESTree.Program) root;
+    assertThat(program.body()).hasSize(52);
+    // Assert a few nodes.
+    assertThat(program.body().get(0)).isInstanceOfSatisfying(ESTree.VariableDeclaration.class, variableDeclaration -> {
+      assertThat(variableDeclaration.declarations()).hasSize(1);
+      assertThat(variableDeclaration.kind()).isEqualTo("let");
+      ESTree.VariableDeclarator variableDeclarator = variableDeclaration.declarations().get(0);
+      assertThat(variableDeclarator.id()).isInstanceOf(ESTree.Identifier.class);
+      assertThat(variableDeclarator.init()).contains(new ESTree.SimpleLiteral(
+          new ESTree.Location(new ESTree.Position(20, 8), new ESTree.Position(20, 12)),
+          "",
+          "null"
+        )
+      );
+    });
+    assertThat(program.body().get(14)).isInstanceOfSatisfying(ESTree.IfStatement.class, ifStatement -> {
+      assertThat(ifStatement.test()).isInstanceOf(ESTree.Identifier.class);
+      assertThat(ifStatement.consequent()).isInstanceOf(ESTree.BlockStatement.class);
+      assertThat(ifStatement.alternate()).isEmpty();
+    });
+  }
 
   @Test
   void should_create_program() {
