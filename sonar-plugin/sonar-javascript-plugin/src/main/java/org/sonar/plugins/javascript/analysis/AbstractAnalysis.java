@@ -40,6 +40,7 @@ import org.sonar.plugins.javascript.bridge.BridgeServer;
 import org.sonar.plugins.javascript.JavaScriptFilePredicate;
 import org.sonar.plugins.javascript.bridge.BridgeServer.TsProgram;
 import org.sonar.plugins.javascript.bridge.ESTreeFactory;
+import org.sonar.plugins.javascript.bridge.protobuf.Node;
 import org.sonar.plugins.javascript.utils.ProgressReport;
 
 abstract class AbstractAnalysis {
@@ -112,7 +113,10 @@ abstract class AbstractAnalysis {
           CacheAnalysis.fromResponse(response.ucfgPaths(), response.cpdTokens()),
           file
         );
-        consumers.accept(new JsFile(file, ESTreeFactory.from(response.ast(), ESTree.Program.class)));
+        Node responseAst = response.ast();
+        if (responseAst != null) {
+          consumers.accept(new JsFile(file, ESTreeFactory.from(responseAst, ESTree.Program.class)));
+        }
       } catch (IOException e) {
         LOG.error("Failed to get response while analyzing " + file.uri(), e);
         throw e;

@@ -19,8 +19,6 @@
  */
 package org.sonar.plugins.javascript.bridge;
 
-import static org.sonarsource.api.sonarlint.SonarLintSide.INSTANCE;
-
 import java.io.IOException;
 import java.util.List;
 import javax.annotation.Nullable;
@@ -31,6 +29,8 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonar.plugins.javascript.bridge.protobuf.Node;
 import org.sonarsource.api.sonarlint.SonarLintSide;
+
+import static org.sonarsource.api.sonarlint.SonarLintSide.INSTANCE;
 
 @ScannerSide
 @SonarLintSide(lifespan = INSTANCE)
@@ -80,9 +80,9 @@ public interface BridgeServer extends Startable {
     }
   }
   record AnalysisResponse(@Nullable ParsingError parsingError, List<Issue> issues, List<Highlight> highlights,
-                          List<HighlightedSymbol> highlightedSymbols, Metrics metrics, List<CpdToken> cpdTokens, List<String> ucfgPaths, Node ast) {
+                          List<HighlightedSymbol> highlightedSymbols, Metrics metrics, List<CpdToken> cpdTokens, List<String> ucfgPaths, @Nullable Node ast) {
 
-    public AnalysisResponse(AnalysisResponse response, Node ast) {
+    public AnalysisResponse(AnalysisResponse response, @Nullable Node ast) {
       this(response.parsingError, response.issues, response.highlights, response.highlightedSymbols,
            response.metrics, response.cpdTokens, response.ucfgPaths, ast);
     }
