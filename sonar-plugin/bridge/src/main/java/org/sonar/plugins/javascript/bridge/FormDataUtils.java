@@ -52,15 +52,16 @@ public class FormDataUtils {
         }
 
         byte[] headers = Arrays.copyOfRange(part, 0, separatorIndex);
-        byte[] body = Arrays.copyOfRange(part, separatorIndex + 4, part.length);
+        // I remove the first 4 bytes and last 2.
+        // They are the "\r\n\r\n" before and "\r\n" after the payload
+        byte[] body = Arrays.copyOfRange(part, separatorIndex + 4, part.length - 2);
 
         String headersStr = new String(headers, StandardCharsets.UTF_8);
 
         if (headersStr.contains("json")) {
             json = new String(body, StandardCharsets.UTF_8);
         } else if (headersStr.contains("ast")) {
-            // I have 2 extra bytes here for some reason
-            ast = Arrays.copyOf(body, body.length-2);
+            ast = body;
         }
     }
     if (json == null || ast == null) {
