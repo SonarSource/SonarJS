@@ -222,6 +222,25 @@ class ESTreeFactoryTest {
   }
 
   @Test
+  void should_create_simple_null_literal() {
+    // Null literal is represented as a raw value "null" in protobuf.
+    // The field "value" will not be set, resulting in an empty string.
+    Literal literal = Literal.newBuilder()
+      .setRaw("null")
+      .build();
+    Node protobufNode = Node.newBuilder()
+      .setType(NodeType.LiteralType)
+      .setLiteral(literal)
+      .build();
+
+    ESTree.Node estreeExpressionStatement = ESTreeFactory.from(protobufNode, ESTree.Node.class);
+    assertThat(estreeExpressionStatement).isInstanceOfSatisfying(ESTree.SimpleLiteral.class, simpleLiteral -> {
+      assertThat(simpleLiteral.raw()).isEqualTo("null");
+      assertThat(simpleLiteral.value()).isEqualTo("");
+    });
+  }
+
+  @Test
   void should_create_simple_call_expression() {
     CallExpression callExpression = CallExpression.newBuilder()
       .setCallee(Node.newBuilder().setType(NodeType.SuperType).build())

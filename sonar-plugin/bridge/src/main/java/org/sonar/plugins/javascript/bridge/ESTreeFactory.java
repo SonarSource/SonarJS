@@ -94,8 +94,6 @@ import org.sonar.plugins.javascript.bridge.protobuf.YieldExpression;
 
 /**
  * TODO: Check what happen when ArrayPattern/ArrayExpression contain null
- *
- * TODO: Check how "null" literal is handled.
  */
 public class ESTreeFactory {
 
@@ -684,12 +682,12 @@ public class ESTreeFactory {
     } else if (literal.hasPattern()) {
       return new ESTree.RegExpLiteral(fromLocation(node.getLoc()), literal.getPattern(), literal.getFlags(), literal.getRaw());
     } else {
-      if (literal.hasValueString()) {
-        return new ESTree.SimpleLiteral(fromLocation(node.getLoc()), literal.getValueString(), node.getLiteral().getRaw());
+      if (literal.hasValueNumber()) {
+        return new ESTree.SimpleLiteral(fromLocation(node.getLoc()), literal.getValueNumber(), node.getLiteral().getRaw());
       } else if (literal.hasValueBoolean()) {
         return new ESTree.SimpleLiteral(fromLocation(node.getLoc()), literal.getValueBoolean(), node.getLiteral().getRaw());
       } else {
-        return new ESTree.SimpleLiteral(fromLocation(node.getLoc()), literal.getValueNumber(), node.getLiteral().getRaw());
+        return new ESTree.SimpleLiteral(fromLocation(node.getLoc()), literal.getValueString(), node.getLiteral().getRaw());
       }
     }
   }
