@@ -88,13 +88,13 @@ export const handleCallExpression: ExpressionHandler<TSESTree.CallExpression> = 
   functionInfo.addFunctionCall(functionDefinition);
   addInstructions([
     createCallInstruction(value.identifier, null, functionDefinition, operands, node.loc),
-    createCallInstruction(
-      value.identifier,
-      null,
-      functionInfo.scopeManager.getFunctionDefinition(callee),
-      operands,
-      node.loc,
-    ),
+    // createCallInstruction(
+    //   value.identifier,
+    //   null,
+    //   functionInfo.scopeManager.getFunctionDefinition(callee),
+    //   operands,
+    //   node.loc,
+    // ),
   ]);
 
   return value;
