@@ -92,9 +92,6 @@ import org.sonar.plugins.javascript.bridge.protobuf.WhileStatement;
 import org.sonar.plugins.javascript.bridge.protobuf.WithStatement;
 import org.sonar.plugins.javascript.bridge.protobuf.YieldExpression;
 
-/**
- * TODO: Check what happen when ArrayPattern/ArrayExpression contain null
- */
 public class ESTreeFactory {
 
   private ESTreeFactory() {

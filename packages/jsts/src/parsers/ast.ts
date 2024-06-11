@@ -364,7 +364,7 @@ export function visitNode(node: estree.BaseNodeWithoutComments | undefined | nul
 
   function visitArrayPattern(node: estree.ArrayPattern) {
     return {
-      elements: node.elements.map(visitNode),
+      elements: node.elements.filter(e => e !== null).map(visitNode),
     };
   }
 
@@ -520,7 +520,10 @@ export function visitNode(node: estree.BaseNodeWithoutComments | undefined | nul
 
   function visitArrayExpression(node: estree.ArrayExpression) {
     return {
-      elements: node.elements.map(visitNode),
+      elements: node.elements
+        .filter(e => e !== null)
+        .map(visitNode)
+        .concat(undefined),
     };
   }
 
