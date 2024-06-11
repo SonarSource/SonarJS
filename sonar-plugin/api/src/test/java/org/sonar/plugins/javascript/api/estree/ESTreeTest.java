@@ -42,4 +42,33 @@ class ESTreeTest {
     assertThat(permittedSubclasses).hasSize(20);
   }
 
+  @Test
+  void unary_operator_from_should_return_correct_enum() {
+    assertThat(ESTree.UnaryOperator.from("-")).isEqualTo(ESTree.UnaryOperator.MINUS);
+    assertThat(ESTree.UnaryOperator.from("unknown")).isNull();
+  }
+
+  @Test
+  void binary_operator_from_should_return_correct_enum() {
+    assertThat(ESTree.BinaryOperator.from("+")).isEqualTo(ESTree.BinaryOperator.PLUS);
+    assertThat(ESTree.BinaryOperator.from("unknown")).isNull();
+  }
+
+  @Test
+  void logical_operator_from_should_return_correct_enum() {
+    assertThat(ESTree.LogicalOperator.from("&&")).isEqualTo(ESTree.LogicalOperator.AND);
+    assertThat(ESTree.LogicalOperator.from("unknown")).isNull();
+  }
+
+  @Test
+  void assignment_operator_from_should_return_correct_enum() {
+    assertThat(ESTree.AssignmentOperator.from("=")).isEqualTo(ESTree.AssignmentOperator.ASSIGN);
+    assertThat(ESTree.AssignmentOperator.from("unknown")).isNull();
+  }
+
+  @Test
+  void update_operator_from_should_return_correct_enum() {
+    assertThat(ESTree.UpdateOperator.from("++")).isEqualTo(ESTree.UpdateOperator.INCREMENT);
+    assertThat(ESTree.UpdateOperator.from("unknown")).isNull();
+  }
 }

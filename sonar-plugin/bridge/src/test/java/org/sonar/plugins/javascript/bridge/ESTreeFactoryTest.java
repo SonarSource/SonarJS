@@ -27,10 +27,17 @@ import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
 import org.sonar.plugins.javascript.api.estree.ESTree;
 import org.sonar.plugins.javascript.bridge.protobuf.AssignmentExpression;
+import org.sonar.plugins.javascript.bridge.protobuf.AssignmentPattern;
 import org.sonar.plugins.javascript.bridge.protobuf.BinaryExpression;
 import org.sonar.plugins.javascript.bridge.protobuf.BlockStatement;
 import org.sonar.plugins.javascript.bridge.protobuf.CallExpression;
+import org.sonar.plugins.javascript.bridge.protobuf.ClassDeclaration;
+import org.sonar.plugins.javascript.bridge.protobuf.ExportDefaultDeclaration;
+import org.sonar.plugins.javascript.bridge.protobuf.ExportSpecifier;
 import org.sonar.plugins.javascript.bridge.protobuf.ExpressionStatement;
+import org.sonar.plugins.javascript.bridge.protobuf.ImportDefaultSpecifier;
+import org.sonar.plugins.javascript.bridge.protobuf.ImportExpression;
+import org.sonar.plugins.javascript.bridge.protobuf.ImportSpecifier;
 import org.sonar.plugins.javascript.bridge.protobuf.Literal;
 import org.sonar.plugins.javascript.bridge.protobuf.LogicalExpression;
 import org.sonar.plugins.javascript.bridge.protobuf.Node;
@@ -391,6 +398,110 @@ class ESTreeFactoryTest {
       assertThat(logical.prefix()).isFalse();
       assertThat(logical.operator()).isEqualTo(ESTree.UpdateOperator.DECREMENT);
     });
+  }
+
+  @Test
+  void should_create_export_default_declaration() {
+    ClassDeclaration classDeclaration = ClassDeclaration.newBuilder()
+      .setBody(Node.newBuilder().setType(NodeType.ClassBodyType).build())
+      .build();
+    Node classDeclarationNode = Node.newBuilder()
+      .setType(NodeType.ClassDeclarationType)
+      .setClassDeclaration(classDeclaration)
+      .build();
+    ExportDefaultDeclaration declaration = ExportDefaultDeclaration.newBuilder()
+      .setDeclaration(classDeclarationNode)
+      .build();
+    Node protobufNode = Node.newBuilder()
+      .setType(NodeType.ExportDefaultDeclarationType)
+      .setExportDefaultDeclaration(declaration)
+      .build();
+
+    ESTree.Node estree = ESTreeFactory.from(protobufNode, ESTree.Node.class);
+    assertThat(estree).isInstanceOfSatisfying(ESTree.ExportDefaultDeclaration.class, export -> {
+      assertThat(export.declaration()).isInstanceOf(ESTree.ClassDeclaration.class);
+    });
+  }
+
+  @Test
+  void should_create_assignment_pattern() {
+    AssignmentPattern assignmentPattern = AssignmentPattern.newBuilder()
+      .setLeft(Node.newBuilder().setType(NodeType.ArrayPatternType).build())
+      .setRight(Node.newBuilder().setType(NodeType.ThisExpressionType).build())
+      .build();
+
+    Node protobufNode = Node.newBuilder()
+      .setType(NodeType.AssignmentPatternType)
+      .setAssignmentPattern(assignmentPattern)
+      .build();
+
+    ESTree.Node estree = ESTreeFactory.from(protobufNode, ESTree.Node.class);
+    assertThat(estree).isInstanceOfSatisfying(ESTree.AssignmentPattern.class, pattern -> {
+      assertThat(pattern.left()).isInstanceOf(ESTree.ArrayPattern.class);
+      assertThat(pattern.right()).isInstanceOf(ESTree.ThisExpression.class);
+    });
+  }
+
+  @Test
+  void should_create_import_expression() {
+    ImportExpression importExpression = ImportExpression.newBuilder()
+      .setSource(Node.newBuilder().setType(NodeType.ThisExpressionType).build())
+      .build();
+
+    Node protobufNode = Node.newBuilder()
+      .setType(NodeType.ImportExpressionType)
+      .setImportExpression(importExpression)
+      .build();
+
+    ESTree.Node estree = ESTreeFactory.from(protobufNode, ESTree.Node.class);
+    assertThat(estree).isInstanceOfSatisfying(ESTree.ImportExpression.class, expression -> assertThat(expression.source()).isInstanceOf(ESTree.ThisExpression.class));
+  }
+
+  @Test
+  void should_create_export_specifier_type() {
+    ExportSpecifier exportSpecifier = ExportSpecifier.newBuilder()
+      .setLocal(Node.newBuilder().setType(NodeType.IdentifierType).build())
+      .setExported(Node.newBuilder().setType(NodeType.IdentifierType).build())
+      .build();
+
+    Node protobufNode = Node.newBuilder()
+      .setType(NodeType.ExportSpecifierType)
+      .setExportSpecifier(exportSpecifier)
+      .build();
+
+    ESTree.Node estree = ESTreeFactory.from(protobufNode, ESTree.Node.class);
+    assertThat(estree).isInstanceOf(ESTree.ExportSpecifier.class);
+  }
+
+  @Test
+  void should_create_import_default_specifier_type() {
+    ImportDefaultSpecifier importDefaultSpecifier = ImportDefaultSpecifier.newBuilder()
+      .setLocal(Node.newBuilder().setType(NodeType.IdentifierType).build())
+      .build();
+
+    Node protobufNode = Node.newBuilder()
+      .setType(NodeType.ImportDefaultSpecifierType)
+      .setImportDefaultSpecifier(importDefaultSpecifier)
+      .build();
+
+    ESTree.Node estree = ESTreeFactory.from(protobufNode, ESTree.Node.class);
+    assertThat(estree).isInstanceOf(ESTree.ImportDefaultSpecifier.class);
+  }
+
+  @Test
+  void should_create_import_specifier_type() {
+    ImportSpecifier importSpecifier = ImportSpecifier.newBuilder()
+      .setLocal(Node.newBuilder().setType(NodeType.IdentifierType).build())
+      .setImported(Node.newBuilder().setType(NodeType.IdentifierType).build())
+      .build();
+
+    Node protobufNode = Node.newBuilder()
+      .setType(NodeType.ImportSpecifierType)
+      .setImportSpecifier(importSpecifier)
+      .build();
+
+    ESTree.Node estree = ESTreeFactory.from(protobufNode, ESTree.Node.class);
+    assertThat(estree).isInstanceOf(ESTree.ImportSpecifier.class);
   }
 
   @Test
