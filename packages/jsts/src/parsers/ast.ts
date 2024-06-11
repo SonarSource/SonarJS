@@ -51,7 +51,8 @@ export function deserializeProtobuf(serialized: Uint8Array): any {
 
 export function visitNode(node: estree.BaseNodeWithoutComments | undefined | null): any {
   if (!node) {
-    return {};
+    // Null and undefined will be both serialized as "not set" in protobuf when the field is optional.
+    return undefined;
   }
 
   return {

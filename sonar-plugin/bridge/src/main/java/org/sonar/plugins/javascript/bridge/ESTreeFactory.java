@@ -94,6 +94,8 @@ import org.sonar.plugins.javascript.bridge.protobuf.YieldExpression;
 
 /**
  * TODO: Check what happen when ArrayPattern/ArrayExpression contain null
+ *
+ * TODO: Check how "null" literal is handled.
  */
 public class ESTreeFactory {
 
