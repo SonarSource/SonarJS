@@ -45,27 +45,7 @@ public class FormDataUtilsTest {
     var values = new HashMap<String, List<String>>();
     values.put("Content-Type", List.of("multipart/form-data; boundary=---------------------------9051914041544843365972754266"));
     when(mockResponse.headers()).thenReturn(HttpHeaders.of(values, (_a, _b) -> true));
-    var firstPart = "-----------------------------9051914041544843365972754266" +
-      "\r\n" +
-      "Content-Disposition: form-data; name=\"json\"" +
-      "\r\n" +
-      "\r\n" +
-      "{\"hello\":\"worlds\"}" +
-      "\r\n" +
-      "-----------------------------9051914041544843365972754266" +
-      "\r\n" +
-      "Content-Disposition: application/octet-stream; name=\"ast\"" +
-      "\r\n" +
-      "\r\n";
-    var protoData = getSerializedProtoData();
-    var lastPart = "\r\n" +
-      "-----------------------------9051914041544843365972754266--" +
-      "\r\n";
-    var body = concatArrays(
-      firstPart.getBytes(StandardCharsets.UTF_8),
-      protoData,
-      lastPart.getBytes(StandardCharsets.UTF_8)
-    );
+    var body = buildPayload("{\"hello\":\"worlds\"}");
     when(mockResponse.body()).thenReturn(body);
     BridgeServer.BridgeResponse response = parseFormData(mockResponse);
     assertThat(response.json()).contains("{\"hello\":\"worlds\"}");
@@ -85,6 +65,30 @@ public class FormDataUtilsTest {
     outputStream.write(arr2);
     outputStream.write(arr3);
     return outputStream.toByteArray();
+  }
+
+  private static byte[] buildPayload(String jsonData) throws IOException {
+    var firstPart = "-----------------------------9051914041544843365972754266" +
+      "\r\n" +
+      "Content-Disposition: form-data; name=\"json\"" +
+      "\r\n" +
+      "\r\n" +
+      jsonData +
+      "\r\n" +
+      "-----------------------------9051914041544843365972754266" +
+      "\r\n" +
+      "Content-Disposition: application/octet-stream; name=\"ast\"" +
+      "\r\n" +
+      "\r\n";
+    var protoData = getSerializedProtoData();
+    var lastPart = "\r\n" +
+      "-----------------------------9051914041544843365972754266--" +
+      "\r\n";
+    return concatArrays(
+      firstPart.getBytes(StandardCharsets.UTF_8),
+      protoData,
+      lastPart.getBytes(StandardCharsets.UTF_8)
+    );
   }
 
   @Test
