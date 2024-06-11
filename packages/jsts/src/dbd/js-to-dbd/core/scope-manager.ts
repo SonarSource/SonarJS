@@ -81,6 +81,7 @@ export interface ScopeManager {
   getVariableFromIdentifier(node: TSESTree.Identifier): Scope.Variable | undefined;
   getDefinitionFromIdentifier(node: TSESTree.Identifier): Scope.Definition | undefined;
   isParameter(node: TSESTree.Identifier): boolean;
+  isModule(): boolean;
 }
 export const unresolvable = Symbol();
 
@@ -130,5 +131,8 @@ export const createScopeManager = (sourceCode: SourceCode, fileName: string): Sc
     getVariableFromIdentifier: node => getVariableFromIdentifier(sourceCode, node),
     getDefinitionFromIdentifier: node => getDefinitionFromIdentifier(sourceCode, node),
     isParameter: node => isParameter(sourceCode, node),
+    isModule: () => {
+      return sourceCode.scopeManager!.isModule();
+    },
   };
 };

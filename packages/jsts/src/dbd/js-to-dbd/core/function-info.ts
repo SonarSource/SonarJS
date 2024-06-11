@@ -1,10 +1,9 @@
 import { Block, createBlock } from './block';
 import {
-  createFunctionDefinition,
+  createFunctionDefinitionFromName,
   createNewObjectFunctionDefinition,
   createSetFieldFunctionDefinition,
   FunctionDefinition,
-  generateSignature,
 } from './function-definition';
 import { createParameter, Parameter } from './values/parameter';
 import { createScopeDeclarationInstruction, isTerminated } from './utils';
@@ -25,11 +24,13 @@ export type FunctionInfo = {
   readonly blocks: Array<Block>;
   readonly definition: FunctionDefinition;
   readonly parameters: Array<Parameter>;
+  readonly functionCalls: Set<string>;
 
   createBlock(location: Location): Block;
   getCurrentBlock(): Block;
   pushBlock(block: Block): void;
   addInstructions(instructions: Array<Instruction>): void;
+  addFunctionCall(callSignature: FunctionDefinition): void;
 };
 
 export const createFunctionInfo = <T extends TSESTree.FunctionLike | TSESTree.Program>(
@@ -41,7 +42,7 @@ export const createFunctionInfo = <T extends TSESTree.FunctionLike | TSESTree.Pr
   let blockIndex: number = 0;
 
   const location = node.loc;
-  const definition = createFunctionDefinition(name, generateSignature(name, scopeManager.fileName));
+  const definition = createFunctionDefinitionFromName(name, scopeManager.fileName);
   // create the main function block
   const currentScopeId = scopeManager.getScopeId(scopeManager.getScope(node));
   const block = createBlock(blockIndex++, location);
@@ -87,7 +88,22 @@ export const createFunctionInfo = <T extends TSESTree.FunctionLike | TSESTree.Pr
 
     // branch the global block to the main block
     block.instructions.push(createBranchingInstruction(mainBlock, location));
+
+    if (scopeManager.isModule()) {
+      const moduleScopeId = 1;
+      mainBlock.instructions.push(createScopeDeclarationInstruction(moduleScopeId, location));
+      mainBlock.instructions.push(
+        createCallInstruction(
+          scopeManager.createValueIdentifier(),
+          null,
+          createSetFieldFunctionDefinition('@parent'),
+          [createReference(moduleScopeId), createReference(0)],
+          location,
+        ),
+      );
+    }
   }
+  const functionCalls: Set<string> = new Set();
 
   const functionInfo: FunctionInfo = {
     scopeManager,
@@ -95,6 +111,10 @@ export const createFunctionInfo = <T extends TSESTree.FunctionLike | TSESTree.Pr
     definition,
     blocks,
     parameters,
+    functionCalls,
+    addFunctionCall: functionDefinition => {
+      functionCalls.add(functionDefinition.signature);
+    },
     createBlock: location => {
       return createBlock(blockIndex++, location);
     },
@@ -203,14 +223,14 @@ export function handleFunctionLike(node: TSESTree.FunctionLike, functionInfo: Fu
     ),
   ]);
   if (node.id) {
-    const currentScope = functionInfo.scopeManager.getScope(node);
-    const currentScopeId = functionInfo.scopeManager.getScopeId(currentScope);
+    const parentScope = functionInfo.scopeManager.getScope(node).upper!;
+    const parentScopeId = functionInfo.scopeManager.getScopeId(parentScope);
     addInstructions([
       createCallInstruction(
         createValueIdentifier(),
         null,
         createSetFieldFunctionDefinition(node.id.name),
-        [createReference(currentScopeId), functionReference],
+        [createReference(parentScopeId), functionReference],
         node.loc,
       ),
     ]);

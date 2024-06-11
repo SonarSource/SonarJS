@@ -24,7 +24,7 @@ import { Value } from '../value';
 import { createReference } from '../values/reference';
 import type { ExpressionHandler } from '../expression-handler';
 import {
-  createFunctionDefinition,
+  createFunctionDefinitionFromName,
   createNewObjectFunctionDefinition,
   createSetFieldFunctionDefinition,
 } from '../function-definition';
@@ -38,8 +38,6 @@ export const handleCallExpression: ExpressionHandler<TSESTree.CallExpression> = 
 ) => {
   const { scopeManager, addInstructions } = functionInfo;
   const { createValueIdentifier } = scopeManager;
-
-  let value: Value;
 
   const { callee, arguments: argumentExpressions } = node;
 
@@ -60,7 +58,7 @@ export const handleCallExpression: ExpressionHandler<TSESTree.CallExpression> = 
 
   // first argument is the current scope
   operands.push(createReference(scopeManager.getScopeId(scopeManager.getScope(node))));
-  value = createReference(createValueIdentifier());
+  const value = createReference(createValueIdentifier());
 
   // second argument is an array of the passed arguments filled
   const argumentValue = createReference(scopeManager.createValueIdentifier());
@@ -89,8 +87,10 @@ export const handleCallExpression: ExpressionHandler<TSESTree.CallExpression> = 
   if (functionReference.base === unresolvable) {
     return createNull();
   }
+  const functionDefinition = createFunctionDefinitionFromName(callee.name, scopeManager.fileName);
+  functionInfo.addFunctionCall(functionDefinition);
   addInstructions([
-    createCallInstruction(value.identifier, null, createFunctionDefinition(), operands, node.loc),
+    createCallInstruction(value.identifier, null, functionDefinition, operands, node.loc),
   ]);
 
   return value;

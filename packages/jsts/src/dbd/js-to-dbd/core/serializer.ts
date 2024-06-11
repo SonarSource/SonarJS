@@ -243,13 +243,7 @@ export const serialize = (
     const data = FunctionInfo.encode(message).finish();
 
     const gatherMetadata = (functionInfo: FunctionInfo): Array<string> => {
-      const results = [functionInfo.definition.signature];
-
-      for (const functionReference of functionInfo.functionReferences) {
-        results.push(...gatherMetadata(functionReference.functionInfo));
-      }
-
-      return results;
+      return [functionInfo.definition.signature, ...functionInfo.functionCalls];
     };
 
     outputs.push({

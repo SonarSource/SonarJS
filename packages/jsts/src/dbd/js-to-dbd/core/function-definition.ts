@@ -9,6 +9,10 @@ export type FunctionDefinition = {
   readonly isFunctionRef: boolean;
 };
 
+export const createFunctionDefinitionFromName = (name: string, fileName: string) => {
+  return createFunctionDefinition(name, generateSignature(name, fileName));
+};
+
 export const createFunctionDefinition = (name: string, signature: string): FunctionDefinition => {
   return {
     name,
@@ -44,7 +48,7 @@ export const createIdentityFunctionDefinition = (): FunctionDefinition => {
 
 export const createGetFieldFunctionDefinition = (attributeName: string): FunctionDefinition => {
   const name = 'get-field';
-  createFunctionDefinition;
+
   return {
     name,
     signature: `#${name}# ${attributeName}`,
@@ -114,6 +118,6 @@ export const createAddArrayLastFunctionDefinition = (): FunctionDefinition => {
   };
 };
 
-export const generateSignature = (name: string, fileName: string) => {
+const generateSignature = (name: string, fileName: string) => {
   return `${fileName.replace(/[. ]/g, '_')}.${name}`;
 };
