@@ -99,8 +99,8 @@ public class ESTree {
   public record ChainExpression(Location loc, ChainElement expression) implements Expression {}
   public record ClassBody(Location loc, List<MethodDefinitionOrPropertyDefinitionOrStaticBlock> body) implements Node {}
   // See "ExportDefaultDeclaration" for explanation about the optional id field.
-  public record ClassDeclaration(Location loc, Optional<Identifier> id, Expression superClass, ClassBody body) implements Declaration, ExpressionOrClassDeclarationOrFunctionDeclaration {}
-  public record ClassExpression(Location loc, Optional<Identifier> id, Expression superClass, ClassBody body) implements Expression {}
+  public record ClassDeclaration(Location loc, Optional<Identifier> id, Optional<Expression> superClass, ClassBody body) implements Declaration, ExpressionOrClassDeclarationOrFunctionDeclaration {}
+  public record ClassExpression(Location loc, Optional<Identifier> id, Optional<Expression> superClass, ClassBody body) implements Expression {}
   public record ConditionalExpression(Location loc, Expression test, Expression alternate, Expression consequent) implements Expression {}
   public record ContinueStatement(Location loc, Optional<Identifier> label) implements Statement {}
   public record DebuggerStatement(Location loc) implements Statement {}

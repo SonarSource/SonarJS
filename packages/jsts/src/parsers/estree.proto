@@ -281,7 +281,7 @@ message ConditionalExpression {
 }
 message ClassExpression {
   optional Node id = 1;
-  Node superClass = 2;
+  optional Node superClass = 2;
   Node body = 3;
 }
 message ClassBody {
@@ -335,7 +335,7 @@ message ArrayExpression {
 }
 message ClassDeclaration {
   optional Node id = 1;
-  Node superClass = 2;
+  optional Node superClass = 2;
   Node body = 3;
 }
 message FunctionDeclaration {

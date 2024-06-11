@@ -286,8 +286,8 @@ public class ESTreeFactory {
   private static ESTree.Property fromPropertyType(Node node) {
     Property property = node.getProperty();
     return new ESTree.Property(fromLocation(node.getLoc()),
-      from(property.getKey(), ESTree.Expression.class),
-      from(property.getValue(), ESTree.Expression.class),
+      from(property.getKey(), ESTree.ExpressionOrPrivateIdentifier.class),
+      from(property.getValue(), ESTree.ExpressionOrPattern.class),
       property.getKind(),
       property.getMethod(),
       property.getShorthand(),
@@ -328,7 +328,7 @@ public class ESTreeFactory {
   private static ESTree.NewExpression fromNewExpressionType(Node node) {
     NewExpression newExpression = node.getNewExpression();
     return new ESTree.NewExpression(fromLocation(node.getLoc()),
-      from(newExpression.getCallee(), ESTree.Expression.class),
+      from(newExpression.getCallee(), ESTree.ExpressionOrSuper.class),
       from(newExpression.getArgumentsList(), ESTree.ExpressionOrSpreadElement.class));
   }
 
@@ -384,7 +384,7 @@ public class ESTreeFactory {
     ClassExpression classExpression = node.getClassExpression();
     return new ESTree.ClassExpression(fromLocation(node.getLoc()),
       classExpression.hasId() ? Optional.of(from(classExpression.getId(), ESTree.Identifier.class)) : Optional.empty(),
-      from(classExpression.getSuperClass(), ESTree.Expression.class),
+      classExpression.hasSuperClass() ? Optional.of(from(classExpression.getSuperClass(), ESTree.Expression.class)) : Optional.empty(),
       from(classExpression.getBody(), ESTree.ClassBody.class));
   }
 
@@ -401,7 +401,7 @@ public class ESTreeFactory {
   private static ESTree.PropertyDefinition fromPropertyDefinitionType(Node node) {
     PropertyDefinition propertyDefinition = node.getPropertyDefinition();
     return new ESTree.PropertyDefinition(fromLocation(node.getLoc()),
-      from(propertyDefinition.getKey(), ESTree.Expression.class),
+      from(propertyDefinition.getKey(), ESTree.ExpressionOrPrivateIdentifier.class),
       propertyDefinition.hasValue() ? Optional.of(from(propertyDefinition.getValue(), ESTree.Expression.class)) : Optional.empty(),
       propertyDefinition.getComputed(),
       propertyDefinition.getStatic());
@@ -410,7 +410,7 @@ public class ESTreeFactory {
   private static ESTree.MethodDefinition fromMethodDefinitionType(Node node) {
     MethodDefinition methodDefinition = node.getMethodDefinition();
     return new ESTree.MethodDefinition(fromLocation(node.getLoc()),
-      from(methodDefinition.getKey(), ESTree.Expression.class),
+      from(methodDefinition.getKey(), ESTree.ExpressionOrPrivateIdentifier.class),
       from(methodDefinition.getValue(), ESTree.FunctionExpression.class),
       methodDefinition.getKind(),
       methodDefinition.getComputed(), methodDefinition.getStatic());
@@ -448,7 +448,7 @@ public class ESTreeFactory {
     AssignmentExpression assignmentExpression = node.getAssignmentExpression();
     return new ESTree.AssignmentExpression(fromLocation(node.getLoc()),
       ESTree.AssignmentOperator.from(assignmentExpression.getOperator()),
-      from(assignmentExpression.getLeft(), ESTree.Pattern.class),
+      from(assignmentExpression.getLeft(), ESTree.MemberExpressionOrPattern.class),
       from(assignmentExpression.getRight(), ESTree.Expression.class));
   }
 
@@ -472,7 +472,7 @@ public class ESTreeFactory {
     ClassDeclaration classDeclaration = node.getClassDeclaration();
     return new ESTree.ClassDeclaration(fromLocation(node.getLoc()),
       classDeclaration.hasId() ? Optional.of(from(classDeclaration.getId(), ESTree.Identifier.class)) : Optional.empty(),
-      from(classDeclaration.getSuperClass(), ESTree.Expression.class),
+      classDeclaration.hasSuperClass() ? Optional.of(from(classDeclaration.getSuperClass(), ESTree.Expression.class)) : Optional.empty(),
       from(classDeclaration.getBody(), ESTree.ClassBody.class));
   }
 
@@ -545,7 +545,7 @@ public class ESTreeFactory {
     ForOfStatement forOfStatement = node.getForOfStatement();
     return new ESTree.ForOfStatement(fromLocation(node.getLoc()),
       forOfStatement.getAwait(),
-      from(forOfStatement.getLeft(), ESTree.Pattern.class),
+      from(forOfStatement.getLeft(), ESTree.PatternOrVariableDeclaration.class),
       from(forOfStatement.getRight(), ESTree.Expression.class),
       from(forOfStatement.getBody(), ESTree.Statement.class));
   }
@@ -553,7 +553,7 @@ public class ESTreeFactory {
   private static ESTree.ForInStatement fromForInStatementType(Node node) {
     ForInStatement forInStatement = node.getForInStatement();
     return new ESTree.ForInStatement(fromLocation(node.getLoc()),
-      from(forInStatement.getLeft(), ESTree.Pattern.class),
+      from(forInStatement.getLeft(), ESTree.PatternOrVariableDeclaration.class),
       from(forInStatement.getRight(), ESTree.Expression.class),
       from(forInStatement.getBody(), ESTree.Statement.class));
   }
