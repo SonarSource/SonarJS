@@ -34,6 +34,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.HashMap;
@@ -394,11 +395,11 @@ public class BridgeServerImpl implements BridgeServer {
       .build();
 
     try {
-      var response = client.send(request, BodyHandlers.ofString());
+      HttpResponse<byte[]> response = client.send(request, BodyHandlers.ofByteArray());
       if (isFormData(response)) {
         return FormDataUtils.parseFormData(response);
       } else {
-        return new BridgeResponse(response.body());
+        return new BridgeResponse(new String(response.body(), StandardCharsets.UTF_8));
       }
     } catch (InterruptedException e) {
       throw handleInterruptedException(e, "Request " + endpoint + " was interrupted.");
@@ -407,7 +408,7 @@ public class BridgeServerImpl implements BridgeServer {
     }
   }
 
-  private static boolean isFormData(HttpResponse<String> response) {
+  private static boolean isFormData(HttpResponse<byte[]> response) {
     var contentTypeHeader = response.headers().firstValue("Content-type").orElse("");
     return contentTypeHeader.contains("multipart/form-data");
   }

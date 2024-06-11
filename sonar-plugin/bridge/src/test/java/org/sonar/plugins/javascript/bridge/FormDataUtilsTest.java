@@ -25,48 +25,79 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.plugins.javascript.bridge.FormDataUtils.parseFormData;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
 import java.net.http.HttpHeaders;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.sonar.plugins.javascript.bridge.protobuf.Node;
 
 public class FormDataUtilsTest {
 
   @Test
-  void should_parse_form_data_into_bridge_response() {
-    HttpResponse<String> mockResponse = mock(HttpResponse.class);
+  void should_parse_form_data_into_bridge_response() throws Exception {
+    HttpResponse<byte[]> mockResponse = mock(HttpResponse.class);
     var values = new HashMap<String, List<String>>();
     values.put("Content-Type", List.of("multipart/form-data; boundary=---------------------------9051914041544843365972754266"));
     when(mockResponse.headers()).thenReturn(HttpHeaders.of(values, (_a, _b) -> true));
-    when(mockResponse.body()).thenReturn("-----------------------------9051914041544843365972754266" +
+    var body = buildPayload("{\"hello\":\"worlds\"}");
+    when(mockResponse.body()).thenReturn(body);
+    BridgeServer.BridgeResponse response = parseFormData(mockResponse);
+    assertThat(response.json()).contains("{\"hello\":\"worlds\"}");
+    Node node = response.ast();
+    assertThat(node.getProgram()).isNotNull();
+    assertThat(node.getProgram().getBodyList().get(0).getExpressionStatement()).isNotNull();
+  }
+
+  private static byte[] getSerializedProtoData() throws IOException {
+    File file = new File("src/test/resources/files/serialized.proto");
+    return Files.readAllBytes(file.toPath());
+  }
+
+  private static byte[] concatArrays(byte[] arr1, byte[] arr2, byte[] arr3) throws IOException {
+    ByteArrayOutputStream outputStream =  new ByteArrayOutputStream();
+    outputStream.write(arr1);
+    outputStream.write(arr2);
+    outputStream.write(arr3);
+    return outputStream.toByteArray();
+  }
+
+  private static byte[] buildPayload(String jsonData) throws IOException {
+    var firstPart = "-----------------------------9051914041544843365972754266" +
       "\r\n" +
       "Content-Disposition: form-data; name=\"json\"" +
       "\r\n" +
       "\r\n" +
-      "{\"hello\":\"worlds\"}" +
+      jsonData +
       "\r\n" +
       "-----------------------------9051914041544843365972754266" +
       "\r\n" +
-      "Content-Disposition: form-data; name=\"ast\"" +
+      "Content-Disposition: application/octet-stream; name=\"ast\"" +
       "\r\n" +
-      "\r\n" +
-      "plop" +
-      "\r\n" +
+      "\r\n";
+    var protoData = getSerializedProtoData();
+    var lastPart = "\r\n" +
       "-----------------------------9051914041544843365972754266--" +
-      "\r\n");
-    BridgeServer.BridgeResponse response = parseFormData(mockResponse);
-    assertThat(response.ast()).isNotNull();
-    assertThat(response.json()).contains("{\"hello\":\"worlds\"}");
+      "\r\n";
+    return concatArrays(
+      firstPart.getBytes(StandardCharsets.UTF_8),
+      protoData,
+      lastPart.getBytes(StandardCharsets.UTF_8)
+    );
   }
 
   @Test
   void should_throw_an_error_if_json_is_missing() {
-    HttpResponse<String> mockResponse = mock(HttpResponse.class);
+    HttpResponse<byte[]> mockResponse = mock(HttpResponse.class);
     var values = new HashMap<String, List<String>>();
     values.put("Content-Type", List.of("multipart/form-data; boundary=---------------------------9051914041544843365972754266"));
     when(mockResponse.headers()).thenReturn(HttpHeaders.of(values, (_a, _b) -> true));
-    when(mockResponse.body()).thenReturn("-----------------------------9051914041544843365972754266" +
+    var body = "-----------------------------9051914041544843365972754266" +
       "\r\n" +
       "Content-Disposition: form-data; name=\"ast\"" +
       "\r\n" +
@@ -74,7 +105,8 @@ public class FormDataUtilsTest {
       "plop" +
       "\r\n" +
       "-----------------------------9051914041544843365972754266--" +
-      "\r\n");
+      "\r\n";
+    when(mockResponse.body()).thenReturn(body.getBytes(StandardCharsets.UTF_8));
     assertThatThrownBy(() -> parseFormData(mockResponse))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Data missing from response");
@@ -82,11 +114,11 @@ public class FormDataUtilsTest {
 
   @Test
   void should_throw_an_error_if_ast_is_missing() {
-    HttpResponse<String> mockResponse = mock(HttpResponse.class);
+    HttpResponse<byte[]> mockResponse = mock(HttpResponse.class);
     var values = new HashMap<String, List<String>>();
     values.put("Content-Type", List.of("multipart/form-data; boundary=---------------------------9051914041544843365972754266"));
     when(mockResponse.headers()).thenReturn(HttpHeaders.of(values, (_a, _b) -> true));
-    when(mockResponse.body()).thenReturn("-----------------------------9051914041544843365972754266" +
+    var body = "-----------------------------9051914041544843365972754266" +
       "\r\n" +
       "Content-Disposition: form-data; name=\"json\"" +
       "\r\n" +
@@ -94,7 +126,8 @@ public class FormDataUtilsTest {
       "{\"hello\":\"worlds\"}" +
       "\r\n" +
       "-----------------------------9051914041544843365972754266--" +
-      "\r\n");
+      "\r\n";
+    when(mockResponse.body()).thenReturn(body.getBytes(StandardCharsets.UTF_8));
     assertThatThrownBy(() -> parseFormData(mockResponse))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Data missing from response");

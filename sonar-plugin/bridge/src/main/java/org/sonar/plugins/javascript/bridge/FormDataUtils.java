@@ -19,9 +19,12 @@
  */
 package org.sonar.plugins.javascript.bridge;
 
-import com.google.protobuf.InvalidProtocolBufferException;
+import java.io.IOException;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 import org.sonar.plugins.javascript.bridge.protobuf.Node;
 
 public class FormDataUtils {
@@ -29,37 +32,84 @@ public class FormDataUtils {
     throw new IllegalStateException("Utility class");
   }
 
-  public static BridgeServer.BridgeResponse parseFormData(HttpResponse<String> response) {
+  public static BridgeServer.BridgeResponse parseFormData(HttpResponse<byte[]> response) {
     String boundary = "--" + response.headers().firstValue("Content-Type")
       .orElseThrow(() -> new IllegalStateException("No Content-Type header"))
       .split("boundary=")[1];
-    String[] parts = response.body().split(boundary);
+
+    byte[] responseBody = response.body();
+    byte[] boundaryBytes = boundary.getBytes(StandardCharsets.ISO_8859_1);
+    List<byte[]> parts = split(responseBody, boundaryBytes);
+
     String json = null;
-    String ast = null;
-    for (String part : parts) {
-      // Split the part into headers and body
-      String[] splitPart = part.split("\r\n\r\n", 2);
-      if (splitPart.length < 2) {
-        // Skip if there's no body
-        continue;
-      }
+    byte[] ast = null;
 
-      String headers = splitPart[0];
-      String partBody = splitPart[1];
+    for (byte[] part : parts) {
+        int separatorIndex = indexOf(part, "\r\n\r\n".getBytes(StandardCharsets.ISO_8859_1));
+        if (separatorIndex == -1) {
+            // Skip if there's no body
+            continue;
+        }
 
-      if (headers.contains("json")) {
-        json = partBody;
-      } else if (headers.contains("ast")) {
-        ast = partBody;
-      }
+        // I remove the first 2 bytes, representing "\r\n" before the headers
+        byte[] headers = Arrays.copyOfRange(part, 2, separatorIndex);
+        // I remove the first 4 bytes and last 2.
+        // They are the "\r\n\r\n" before and "\r\n" after the payload
+        byte[] body = Arrays.copyOfRange(part, separatorIndex + 4, part.length - 2);
+
+        String headersStr = new String(headers, StandardCharsets.UTF_8);
+
+        if (headersStr.contains("json")) {
+            json = new String(body, StandardCharsets.UTF_8);
+        } else if (headersStr.contains("ast")) {
+            ast = body;
+        }
     }
     if (json == null || ast == null) {
       throw new IllegalStateException("Data missing from response");
     }
     try {
-      return new BridgeServer.BridgeResponse(json, Node.parseFrom(ast.getBytes(StandardCharsets.UTF_8)));
-    } catch (InvalidProtocolBufferException e) {
+      return new BridgeServer.BridgeResponse(json, parseProtobuf(ast));
+    } catch (IOException e) {
       throw new IllegalStateException(e);
     }
   }
+
+  public static Node parseProtobuf(byte[] ast) throws IOException {
+    return Node.parseFrom(ast);
+  }
+
+  private static int indexOf(byte[] array, byte[] pattern) {
+    for (int i = 0; i < array.length - pattern.length + 1; i++) {
+        boolean found = true;
+        for (int j = 0; j < pattern.length; j++) {
+           if (array[i+j] != pattern[j]) {
+               found = false;
+               break;
+           }
+        }
+        if (found) return i;
+     }
+   return -1;
+  }
+  private static List<byte[]> split(byte[] array, byte[] delimiter) {
+        List<byte[]> byteArrays = new LinkedList<>();
+        if (delimiter.length == 0) {
+            return byteArrays;
+        }
+        int begin = 0;
+
+        outer:
+        for (int i = 0; i < array.length - delimiter.length + 1; i++) {
+            for (int j = 0; j < delimiter.length; j++) {
+                if (array[i + j] != delimiter[j]) {
+                    continue outer;
+                }
+            }
+            byteArrays.add(Arrays.copyOfRange(array, begin, i));
+            begin = i + delimiter.length;
+        }
+        byteArrays.add(Arrays.copyOfRange(array, begin, array.length));
+        return byteArrays;
+    }
 }

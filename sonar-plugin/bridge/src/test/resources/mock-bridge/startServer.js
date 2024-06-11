@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-
-const http = require('http');
-const formData = require('form-data');
+const path = require('node:path');
+const fs = require('node:fs');
+const http = require('node:http');
 const port = process.argv[2];
 const host = process.argv[3];
 
@@ -40,12 +40,12 @@ const requestHandler = (request, response) => {
       response.end('{"filename":"/path/to/tsconfig.json"}');
     } else if (['/analyze-css', '/analyze-yaml', '/analyze-html'].includes(request.url)) {
       // objects are created to have test coverage
-      response.end(`{ issues: [{line:0, column:0, endLine:0, endColumn:0, 
+      response.end(`{ issues: [{line:0, column:0, endLine:0, endColumn:0,
         quickFixes: [
-          { 
+          {
             edits: [{
-              loc: {}}]}]}], 
-        highlights: [{location: {startLine: 0, startColumn: 0, endLine: 0, endColumn: 0}}], 
+              loc: {}}]}]}],
+        highlights: [{location: {startLine: 0, startColumn: 0, endLine: 0, endColumn: 0}}],
         metrics: {}, highlightedSymbols: [{}], cpdTokens: [{}] }`);
     } else {
       // /analyze-with-program
@@ -77,27 +77,29 @@ const requestHandler = (request, response) => {
       };
       const boundary = '---------9051914041544843365972754266';
       const contentTypeHeader = `multipart/form-data; boundary=${boundary}`;
-      let body = '';
-      body += `--${boundary}`;
-      body += `\r\n`;
-      body += `Content-Disposition: form-data; name="json"`;
-      body += `\r\n`;
-      body += `\r\n`;
-      body += `${JSON.stringify(res)}`;
-      body += `\r\n`;
-      body += `--${boundary}`;
-      body += `\r\n`;
-      body += `Content-Disposition: form-data; name="ast"`;
-      body += `\r\n`;
-      body += `\r\n`;
-      body += `plop`;
-      body += `\r\n`;
-      body += `--${boundary}--`;
-      body += `\r\n`;
-      // this adds the boundary string that will be
+      let firstPart = '';
+      firstPart += `--${boundary}`;
+      firstPart += `\r\n`;
+      firstPart += `Content-Disposition: form-data; name="json"`;
+      firstPart += `\r\n`;
+      firstPart += `\r\n`;
+      firstPart += `${JSON.stringify(res)}`;
+      firstPart += `\r\n`;
+      firstPart += `--${boundary}`;
+      firstPart += `\r\n`;
+      firstPart += `Content-Disposition: application/octet-stream; name="ast"`;
+      firstPart += `\r\n`;
+      firstPart += `\r\n`;
+      const protoData = fs.readFileSync(path.join(__dirname, '..', 'files', 'serialized.proto'));
+      let lastPart = '';
+      lastPart += `\r\n`;
+      lastPart += `--${boundary}--`;
+      lastPart += `\r\n`;
+      const body = Buffer.concat([Buffer.from(firstPart), protoData, Buffer.from(lastPart)]);
+      const contentLength = body.length;
       response.writeHead(200, {
         'Content-Type': contentTypeHeader,
-        'Content-Length': Buffer.byteLength(body, 'utf-8'),
+        'Content-Length': contentLength,
       });
       response.end(body);
     }
