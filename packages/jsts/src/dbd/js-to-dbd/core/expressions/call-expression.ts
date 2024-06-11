@@ -31,6 +31,7 @@ import {
 import { createNull } from '../values/constant';
 import { AST_NODE_TYPES } from '@typescript-eslint/typescript-estree';
 import { unresolvable } from '../scope-manager';
+import { getParameterField } from '../utils';
 
 export const handleCallExpression: ExpressionHandler<TSESTree.CallExpression> = (
   node,
@@ -44,10 +45,6 @@ export const handleCallExpression: ExpressionHandler<TSESTree.CallExpression> = 
   const argumentValues: Array<Value> = argumentExpressions.map(expression =>
     handleExpression(expression, functionInfo),
   );
-
-  for (let i = 0; i < 10; i++) {
-    argumentValues.push(createNull());
-  }
 
   if (callee.type !== AST_NODE_TYPES.Identifier) {
     console.error(`Unsupported call expression ${callee.type}`);
@@ -75,7 +72,7 @@ export const handleCallExpression: ExpressionHandler<TSESTree.CallExpression> = 
       return createCallInstruction(
         value.identifier,
         null,
-        createSetFieldFunctionDefinition(String(position)),
+        createSetFieldFunctionDefinition(getParameterField(position)),
         [argumentValue, argument],
         node.loc,
       );

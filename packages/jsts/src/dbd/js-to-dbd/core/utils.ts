@@ -10,6 +10,7 @@ import type { Instruction } from './instruction';
 import type { FunctionInfo } from './function-info';
 import { createParameter, Parameter } from './values/parameter';
 import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/typescript-estree';
+import { Scope } from '@typescript-eslint/utils/ts-eslint';
 
 export function createScopeDeclarationInstruction(
   scopeId: number,
@@ -30,6 +31,10 @@ function getBlockLastInstruction(block: Block): Instruction | null {
   return instructions.length > 0 ? instructions[instructions.length - 1] : null;
 }
 
+export function getParameterField(position: number) {
+  return `param${position}`;
+}
+
 export const getParameter = (functionInfo: FunctionInfo, node: TSESTree.Identifier): Parameter => {
   const definition = functionInfo.scopeManager.getDefinitionFromIdentifier(node)?.name;
   if (definition?.type !== 'Identifier') {
@@ -37,7 +42,10 @@ export const getParameter = (functionInfo: FunctionInfo, node: TSESTree.Identifi
     throw new Error("Definitions with type different than 'Identifier' are not supported");
   }
   const { loc: location } = definition;
-  const scope = functionInfo.scopeManager.getScope(node);
+  let scope: Scope.Scope = functionInfo.scopeManager.getScope(node);
+  while (scope.type !== Scope.ScopeType.function && scope.upper) {
+    scope = scope.upper;
+  }
   const variable = functionInfo.scopeManager.getVariableFromIdentifier(node);
   const position = (scope.block as TSESTree.FunctionDeclaration).params.findIndex(
     parameter =>
@@ -53,7 +61,7 @@ export const getParameter = (functionInfo: FunctionInfo, node: TSESTree.Identifi
     createCallInstruction(
       resultParam.identifier,
       null,
-      createGetFieldFunctionDefinition(String(position)),
+      createGetFieldFunctionDefinition(getParameterField(position)),
       [functionInfo.parameters[1]],
       location,
     ),
