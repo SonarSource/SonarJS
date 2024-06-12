@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { APIError, debug, getContext, JsTsLanguage } from '@sonar/shared';
+import { APIError, debug, info, getContext, JsTsLanguage } from '@sonar/shared';
 import { SourceCode } from 'eslint';
 import {
   computeMetrics,
@@ -85,6 +85,7 @@ function analyzeFile(
       highlightedSymbols,
       cognitiveComplexity,
     );
+
     return {
       issues,
       ucfgPaths,
@@ -105,10 +106,15 @@ function analyzeFile(
  * Remove this when we figure out how to serialize the TypeScript AST
  */
 function serializeAst(sourceCode: SourceCode, filePath: string) {
-  if (isSupported(filePath)) {
+  if (!isSupported(filePath)) {
+    return 'not-supported';
+  }
+
+  try {
     return serializeInProtobuf(sourceCode.ast);
-  } else {
-    return 'plop';
+  } catch (e) {
+    info(`Failed to serialize AST for file "${filePath}"`);
+    return 'not-supported';
   }
 
   function isSupported(filePath: string) {

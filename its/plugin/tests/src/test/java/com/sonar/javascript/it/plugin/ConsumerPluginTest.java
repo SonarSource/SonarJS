@@ -19,9 +19,6 @@
  */
 package com.sonar.javascript.it.plugin;
 
-import static com.sonar.javascript.it.plugin.OrchestratorStarter.JAVASCRIPT_PLUGIN_LOCATION;
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
@@ -31,6 +28,9 @@ import java.io.File;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+
+import static com.sonar.javascript.it.plugin.OrchestratorStarter.JAVASCRIPT_PLUGIN_LOCATION;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class ConsumerPluginTest {
 
@@ -97,6 +97,7 @@ class ConsumerPluginTest {
     var logMatch = ".*DEBUG: Registered JsAnalysisConsumers \\[org.sonar.samples.javascript.consumer.Consumer.*]";
     assertThat(buildResult.getLogsLines(l -> l.matches(logMatch))).hasSize(1);
 
-    assertThat(buildResult.getLogsLines(l -> l.matches(".*Processing file src/dir.*"))).hasSize(2);
+    // TS file is not processed yet.
+    assertThat(buildResult.getLogsLines(l -> l.matches(".*Processing file src/dir.*"))).hasSize(1);
   }
 }

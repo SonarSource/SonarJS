@@ -244,6 +244,10 @@ export function writeJavaClassesToDir(nodes: Record<string, ESTreeNode>, output:
     if (!ifaces.includes(name)) {
       const fields = [...SHARED_FIELDS];
       for (const field of node.fields) {
+        if (field.name === 'type') {
+          // ignore 'type' field
+          continue;
+        }
         fields.push(`${javaType(field.fieldValue)} ${javaName(field.name)}`);
       }
       records.push(

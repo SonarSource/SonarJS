@@ -17,31 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+/**
+ * This script is out of date
+ * We have modified the `estree.proto` file by hand
+ */
+
 import fs from 'node:fs';
 import path from 'node:path';
-import {
-  ESTreeNode,
-  lowerCaseFirstLetter,
-  PrimitiveFieldValue,
-  TOP_LEVEL_NODE,
-} from './get-estree-nodes';
+import { ESTreeNode, lowerCaseFirstLetter, PrimitiveFieldValue } from './get-estree-nodes';
 
 const packageJson = require(path.join('..', '..', 'package.json'));
 const typesVersion = packageJson.devDependencies['@types/estree'];
 
-export function addHandWrittenMessages(messages: Record<string, ESTreeNode>) {
-  // We create manually the top level node "BaseNodeWithoutComments", holding all the other nodes. The name is taken directly from the index.d.ts file.
-  // While we could generate this node with the same logic as the one used for all nodes, we do it manually as there would be too many edge cases to handle.
-  const allNodeTypesAsFields = Object.keys(messages).map(nodeType => {
-    return { name: lowerCaseFirstLetter(nodeType), fieldValue: { type: nodeType } };
-  });
-}
-
 export function writeMessagesToDir(messages: Record<string, ESTreeNode>, outputDir: string) {
   // When serializing the AST to protobuf, we only need the concrete types (leafs of the AST).
   const concreteMessages = Object.values(messages).filter(m => m.fields[0].name === 'type');
-
-  addHandWrittenMessages(concreteMessages);
 
   fs.writeFileSync(
     path.join(outputDir, 'estree.proto'),

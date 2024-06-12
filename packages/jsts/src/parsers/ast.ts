@@ -51,7 +51,8 @@ export function deserializeProtobuf(serialized: Uint8Array): any {
 
 export function visitNode(node: estree.BaseNodeWithoutComments | undefined | null): any {
   if (!node) {
-    return {};
+    // Null and undefined will be both serialized as "not set" in protobuf when the field is optional.
+    return undefined;
   }
 
   return {
@@ -362,8 +363,10 @@ export function visitNode(node: estree.BaseNodeWithoutComments | undefined | nul
   }
 
   function visitArrayPattern(node: estree.ArrayPattern) {
+    // If the elements ever contain null together with other nodes, protobuf will fail to serialize the array.
+    // It is unclear from the estree documentation if this is possible, but as it is from a type perspective, we prefer to be safe.
     return {
-      elements: node.elements.map(visitNode),
+      elements: node.elements.filter(e => e !== null).map(visitNode),
     };
   }
 
@@ -518,8 +521,10 @@ export function visitNode(node: estree.BaseNodeWithoutComments | undefined | nul
   }
 
   function visitArrayExpression(node: estree.ArrayExpression) {
+    // If the elements ever contain null together with other nodes, protobuf will fail to serialize the array.
+    // It is unclear from the estree documentation if this is possible, but as it is from a type perspective, we prefer to be safe.
     return {
-      elements: node.elements.map(visitNode),
+      elements: node.elements.filter(e => e !== null).map(visitNode),
     };
   }
 

@@ -1,588 +1,10 @@
 syntax = "proto3";
 // Generated for @types/estree version: 1.0.5
+// Note: this file was manually modified, to reach a working state faster.
+// We should eventually adapt the generator once we are happy with the exact structure.
+option java_package="org.sonar.plugins.javascript.bridge.protobuf";
+option java_multiple_files = true;
 
-message Program {
-  string sourceType = 1;
-  repeated BaseNodeWithoutComments body = 2;
-}
-message ModuleDeclaration {
-  oneof moduleDeclaration {
-    ImportDeclaration moduleDeclaration_importDeclaration = 1;
-    ExportNamedDeclaration moduleDeclaration_exportNamedDeclaration = 2;
-    ExportDefaultDeclaration moduleDeclaration_exportDefaultDeclaration = 3;
-    ExportAllDeclaration moduleDeclaration_exportAllDeclaration = 4;
-  }
-}
-message ExportAllDeclaration {
-  Identifier exported = 1;
-  Literal source = 2;
-}
-message Literal {
-  oneof literal {
-    SimpleLiteral literal_simpleLiteral = 1;
-    RegExpLiteral literal_regExpLiteral = 2;
-    BigIntLiteral literal_bigIntLiteral = 3;
-  }
-}
-message BigIntLiteral {
-  int32 value = 1;
-  string bigint = 2;
-  string raw = 3;
-}
-message SimpleLiteral {
-  oneof value {
-    string value_string = 1;
-    bool value_boolean = 2;
-    int32 value_number = 3;
-  }
-  string raw = 4;
-}
-message Identifier {
-  string name = 1;
-}
-message ExportDefaultDeclaration {
-  oneof declaration {
-    MaybeNamedFunctionDeclaration declaration_maybeNamedFunctionDeclaration = 1;
-    MaybeNamedClassDeclaration declaration_maybeNamedClassDeclaration = 2;
-    Expression declaration_expression = 3;
-  }
-}
-message Expression {
-  oneof expression {
-    ArrayExpression expression_arrayExpression = 1;
-    ArrowFunctionExpression expression_arrowFunctionExpression = 2;
-    AssignmentExpression expression_assignmentExpression = 3;
-    AwaitExpression expression_awaitExpression = 4;
-    BinaryExpression expression_binaryExpression = 5;
-    CallExpression expression_callExpression = 6;
-    ChainExpression expression_chainExpression = 7;
-    ClassExpression expression_classExpression = 8;
-    ConditionalExpression expression_conditionalExpression = 9;
-    FunctionExpression expression_functionExpression = 10;
-    Identifier expression_identifier = 11;
-    ImportExpression expression_importExpression = 12;
-    Literal expression_literal = 13;
-    LogicalExpression expression_logicalExpression = 14;
-    MemberExpression expression_memberExpression = 15;
-    MetaProperty expression_metaProperty = 16;
-    NewExpression expression_newExpression = 17;
-    ObjectExpression expression_objectExpression = 18;
-    SequenceExpression expression_sequenceExpression = 19;
-    TaggedTemplateExpression expression_taggedTemplateExpression = 20;
-    TemplateLiteral expression_templateLiteral = 21;
-    ThisExpression expression_thisExpression = 22;
-    UnaryExpression expression_unaryExpression = 23;
-    UpdateExpression expression_updateExpression = 24;
-    YieldExpression expression_yieldExpression = 25;
-  }
-}
-message YieldExpression {
-  Expression argument = 1;
-  bool delegate = 2;
-}
-message UpdateExpression {
-  UpdateOperator operator = 1;
-  Expression argument = 2;
-  bool prefix = 3;
-}
-message UpdateOperator {
-  string updateOperator = 1;
-}
-message UnaryExpression {
-  UnaryOperator operator = 1;
-  bool prefix = 2;
-  Expression argument = 3;
-}
-message UnaryOperator {
-  string unaryOperator = 1;
-}
-message ThisExpression {
-}
-message TemplateLiteral {
-  repeated TemplateElement quasis = 1;
-  repeated Expression expressions = 2;
-}
-message TaggedTemplateExpression {
-  Expression tag = 1;
-  TemplateLiteral quasi = 2;
-}
-message SequenceExpression {
-  repeated Expression expressions = 1;
-}
-message ObjectExpression {
-  repeated BaseNodeWithoutComments properties = 1;
-}
-message SpreadElement {
-  Expression argument = 1;
-}
-message Property {
-  oneof key {
-    Expression key_expression = 1;
-    PrivateIdentifier key_privateIdentifier = 2;
-  }
-  oneof value {
-    Expression value_expression = 3;
-    Pattern value_pattern = 4;
-  }
-  string kind = 5;
-  bool method = 6;
-  bool shorthand = 7;
-  bool computed = 8;
-}
-message Pattern {
-  oneof pattern {
-    Identifier pattern_identifier = 1;
-    ObjectPattern pattern_objectPattern = 2;
-    ArrayPattern pattern_arrayPattern = 3;
-    RestElement pattern_restElement = 4;
-    AssignmentPattern pattern_assignmentPattern = 5;
-    MemberExpression pattern_memberExpression = 6;
-  }
-}
-message AssignmentPattern {
-  Pattern left = 1;
-  Expression right = 2;
-}
-message RestElement {
-  Pattern argument = 1;
-}
-message ArrayPattern {
-  repeated Pattern elements = 1;
-}
-message ObjectPattern {
-  repeated BaseNodeWithoutComments properties = 1;
-}
-message AssignmentProperty {
-  Pattern value = 1;
-  string kind = 2;
-  bool method = 3;
-  oneof key {
-    Expression key_expression = 4;
-    PrivateIdentifier key_privateIdentifier = 5;
-  }
-  bool shorthand = 6;
-  bool computed = 7;
-}
-message PrivateIdentifier {
-  string name = 1;
-}
-message NewExpression {
-  oneof callee {
-    Expression callee_expression = 1;
-    Super callee_super = 2;
-  }
-  repeated BaseNodeWithoutComments arguments = 3;
-}
-message Super {
-}
-message MetaProperty {
-  Identifier meta = 1;
-  Identifier property = 2;
-}
-message MemberExpression {
-  oneof object {
-    Expression object_expression = 1;
-    Super object_super = 2;
-  }
-  oneof property {
-    Expression property_expression = 3;
-    PrivateIdentifier property_privateIdentifier = 4;
-  }
-  bool computed = 5;
-  bool optional = 6;
-}
-message LogicalExpression {
-  LogicalOperator operator = 1;
-  Expression left = 2;
-  Expression right = 3;
-}
-message LogicalOperator {
-  string logicalOperator = 1;
-}
-message ImportExpression {
-  Expression source = 1;
-}
-message FunctionExpression {
-  Identifier id = 1;
-  BlockStatement body = 2;
-  repeated Pattern params = 3;
-  bool generator = 4;
-  bool async = 5;
-}
-message BlockStatement {
-  repeated Statement body = 1;
-}
-message ConditionalExpression {
-  Expression test = 1;
-  Expression alternate = 2;
-  Expression consequent = 3;
-}
-message ClassExpression {
-  Identifier id = 1;
-  Expression superClass = 2;
-  ClassBody body = 3;
-}
-message ClassBody {
-  repeated BaseNodeWithoutComments body = 1;
-}
-message StaticBlock {
-}
-message PropertyDefinition {
-  oneof key {
-    Expression key_expression = 1;
-    PrivateIdentifier key_privateIdentifier = 2;
-  }
-  Expression value = 3;
-  bool computed = 4;
-  bool static = 5;
-}
-message MethodDefinition {
-  oneof key {
-    Expression key_expression = 1;
-    PrivateIdentifier key_privateIdentifier = 2;
-  }
-  FunctionExpression value = 3;
-  string kind = 4;
-  bool computed = 5;
-  bool static = 6;
-}
-message ChainExpression {
-  ChainElement expression = 1;
-}
-message ChainElement {
-  oneof chainElement {
-    SimpleCallExpression chainElement_simpleCallExpression = 1;
-    MemberExpression chainElement_memberExpression = 2;
-  }
-}
-message SimpleCallExpression {
-  bool optional = 1;
-  oneof callee {
-    Expression callee_expression = 2;
-    Super callee_super = 3;
-  }
-  repeated BaseNodeWithoutComments arguments = 4;
-}
-message CallExpression {
-  oneof callExpression {
-    SimpleCallExpression callExpression_simpleCallExpression = 1;
-    NewExpression callExpression_newExpression = 2;
-  }
-}
-message BinaryExpression {
-  BinaryOperator operator = 1;
-  Expression left = 2;
-  Expression right = 3;
-}
-message BinaryOperator {
-  string binaryOperator = 1;
-}
-message AwaitExpression {
-  Expression argument = 1;
-}
-message AssignmentExpression {
-  AssignmentOperator operator = 1;
-  oneof left {
-    Pattern left_pattern = 2;
-    MemberExpression left_memberExpression = 3;
-  }
-  Expression right = 4;
-}
-message AssignmentOperator {
-  string assignmentOperator = 1;
-}
-message ArrowFunctionExpression {
-  bool expression = 1;
-  oneof body {
-    BlockStatement body_blockStatement = 2;
-    Expression body_expression = 3;
-  }
-  repeated Pattern params = 4;
-  bool generator = 5;
-  bool async = 6;
-}
-message ArrayExpression {
-  repeated BaseNodeWithoutComments elements = 1;
-}
-message MaybeNamedClassDeclaration {
-  Identifier id = 1;
-  Expression superClass = 2;
-  ClassBody body = 3;
-}
-message MaybeNamedFunctionDeclaration {
-  Identifier id = 1;
-  BlockStatement body = 2;
-  repeated Pattern params = 3;
-  bool generator = 4;
-  bool async = 5;
-}
-message ExportNamedDeclaration {
-  Declaration declaration = 1;
-  repeated ExportSpecifier specifiers = 2;
-  Literal source = 3;
-}
-message ExportSpecifier {
-  Identifier exported = 1;
-  Identifier local = 2;
-}
-message Declaration {
-  oneof declaration {
-    FunctionDeclaration declaration_functionDeclaration = 1;
-    VariableDeclaration declaration_variableDeclaration = 2;
-    ClassDeclaration declaration_classDeclaration = 3;
-  }
-}
-message ClassDeclaration {
-  Identifier id = 1;
-  Expression superClass = 2;
-  ClassBody body = 3;
-}
-message VariableDeclaration {
-  repeated VariableDeclarator declarations = 1;
-  string kind = 2;
-}
-message VariableDeclarator {
-  Pattern id = 1;
-  Expression init = 2;
-}
-message FunctionDeclaration {
-  Identifier id = 1;
-  BlockStatement body = 2;
-  repeated Pattern params = 3;
-  bool generator = 4;
-  bool async = 5;
-}
-message ImportDeclaration {
-  repeated BaseNodeWithoutComments specifiers = 1;
-  Literal source = 2;
-}
-message ImportNamespaceSpecifier {
-  Identifier local = 1;
-}
-message ImportDefaultSpecifier {
-  Identifier local = 1;
-}
-message ImportSpecifier {
-  Identifier imported = 1;
-  Identifier local = 2;
-}
-message Statement {
-  oneof statement {
-    ExpressionStatement statement_expressionStatement = 1;
-    BlockStatement statement_blockStatement = 2;
-    StaticBlock statement_staticBlock = 3;
-    EmptyStatement statement_emptyStatement = 4;
-    DebuggerStatement statement_debuggerStatement = 5;
-    WithStatement statement_withStatement = 6;
-    ReturnStatement statement_returnStatement = 7;
-    LabeledStatement statement_labeledStatement = 8;
-    BreakStatement statement_breakStatement = 9;
-    ContinueStatement statement_continueStatement = 10;
-    IfStatement statement_ifStatement = 11;
-    SwitchStatement statement_switchStatement = 12;
-    ThrowStatement statement_throwStatement = 13;
-    TryStatement statement_tryStatement = 14;
-    WhileStatement statement_whileStatement = 15;
-    DoWhileStatement statement_doWhileStatement = 16;
-    ForStatement statement_forStatement = 17;
-    ForInStatement statement_forInStatement = 18;
-    ForOfStatement statement_forOfStatement = 19;
-    Declaration statement_declaration = 20;
-  }
-}
-message ForOfStatement {
-  bool await = 1;
-  oneof left {
-    VariableDeclaration left_variableDeclaration = 2;
-    Pattern left_pattern = 3;
-  }
-  Expression right = 4;
-  Statement body = 5;
-}
-message ForInStatement {
-  oneof left {
-    VariableDeclaration left_variableDeclaration = 1;
-    Pattern left_pattern = 2;
-  }
-  Expression right = 3;
-  Statement body = 4;
-}
-message ForStatement {
-  oneof init {
-    VariableDeclaration init_variableDeclaration = 1;
-    Expression init_expression = 2;
-  }
-  Expression test = 3;
-  Expression update = 4;
-  Statement body = 5;
-}
-message DoWhileStatement {
-  Statement body = 1;
-  Expression test = 2;
-}
-message WhileStatement {
-  Expression test = 1;
-  Statement body = 2;
-}
-message TryStatement {
-  BlockStatement block = 1;
-  CatchClause handler = 2;
-  BlockStatement finalizer = 3;
-}
-message CatchClause {
-  Pattern param = 1;
-  BlockStatement body = 2;
-}
-message ThrowStatement {
-  Expression argument = 1;
-}
-message SwitchStatement {
-  Expression discriminant = 1;
-  repeated SwitchCase cases = 2;
-}
-message SwitchCase {
-  Expression test = 1;
-  repeated Statement consequent = 2;
-}
-message IfStatement {
-  Expression test = 1;
-  Statement consequent = 2;
-  Statement alternate = 3;
-}
-message ContinueStatement {
-  Identifier label = 1;
-}
-message BreakStatement {
-  Identifier label = 1;
-}
-message LabeledStatement {
-  Identifier label = 1;
-  Statement body = 2;
-}
-message ReturnStatement {
-  Expression argument = 1;
-}
-message WithStatement {
-  Expression object = 1;
-  Statement body = 2;
-}
-message DebuggerStatement {
-}
-message EmptyStatement {
-}
-message ExpressionStatement {
-  Expression expression = 1;
-}
-message Directive {
-  Literal expression = 1;
-  string directive = 2;
-}
-message RegExpLiteral {
-  string pattern = 1;
-  string flags = 2;
-  string raw = 3;
-}
-message TemplateElement {
-  bool tail = 1;
-  string cooked = 2;
-  string raw = 3;
-}
-message BaseNodeWithoutComments {
-  string type = 1;
-  SourceLocation loc = 2;
-  oneof node {
-    Program node_program = 3;
-    ModuleDeclaration node_moduleDeclaration = 4;
-    ExportAllDeclaration node_exportAllDeclaration = 5;
-    Literal node_literal = 6;
-    BigIntLiteral node_bigIntLiteral = 7;
-    SimpleLiteral node_simpleLiteral = 8;
-    Identifier node_identifier = 9;
-    ExportDefaultDeclaration node_exportDefaultDeclaration = 10;
-    Expression node_expression = 11;
-    YieldExpression node_yieldExpression = 12;
-    UpdateExpression node_updateExpression = 13;
-    UpdateOperator node_updateOperator = 14;
-    UnaryExpression node_unaryExpression = 15;
-    UnaryOperator node_unaryOperator = 16;
-    ThisExpression node_thisExpression = 17;
-    TemplateLiteral node_templateLiteral = 18;
-    TaggedTemplateExpression node_taggedTemplateExpression = 19;
-    SequenceExpression node_sequenceExpression = 20;
-    ObjectExpression node_objectExpression = 21;
-    SpreadElement node_spreadElement = 22;
-    Property node_property = 23;
-    Pattern node_pattern = 24;
-    AssignmentPattern node_assignmentPattern = 25;
-    RestElement node_restElement = 26;
-    ArrayPattern node_arrayPattern = 27;
-    ObjectPattern node_objectPattern = 28;
-    AssignmentProperty node_assignmentProperty = 29;
-    PrivateIdentifier node_privateIdentifier = 30;
-    NewExpression node_newExpression = 31;
-    Super node_super = 32;
-    MetaProperty node_metaProperty = 33;
-    MemberExpression node_memberExpression = 34;
-    LogicalExpression node_logicalExpression = 35;
-    LogicalOperator node_logicalOperator = 36;
-    ImportExpression node_importExpression = 37;
-    FunctionExpression node_functionExpression = 38;
-    BlockStatement node_blockStatement = 39;
-    ConditionalExpression node_conditionalExpression = 40;
-    ClassExpression node_classExpression = 41;
-    ClassBody node_classBody = 42;
-    StaticBlock node_staticBlock = 43;
-    PropertyDefinition node_propertyDefinition = 44;
-    MethodDefinition node_methodDefinition = 45;
-    ChainExpression node_chainExpression = 46;
-    ChainElement node_chainElement = 47;
-    SimpleCallExpression node_simpleCallExpression = 48;
-    CallExpression node_callExpression = 49;
-    BinaryExpression node_binaryExpression = 50;
-    BinaryOperator node_binaryOperator = 51;
-    AwaitExpression node_awaitExpression = 52;
-    AssignmentExpression node_assignmentExpression = 53;
-    AssignmentOperator node_assignmentOperator = 54;
-    ArrowFunctionExpression node_arrowFunctionExpression = 55;
-    ArrayExpression node_arrayExpression = 56;
-    MaybeNamedClassDeclaration node_maybeNamedClassDeclaration = 57;
-    MaybeNamedFunctionDeclaration node_maybeNamedFunctionDeclaration = 58;
-    ExportNamedDeclaration node_exportNamedDeclaration = 59;
-    ExportSpecifier node_exportSpecifier = 60;
-    Declaration node_declaration = 61;
-    ClassDeclaration node_classDeclaration = 62;
-    VariableDeclaration node_variableDeclaration = 63;
-    VariableDeclarator node_variableDeclarator = 64;
-    FunctionDeclaration node_functionDeclaration = 65;
-    ImportDeclaration node_importDeclaration = 66;
-    ImportNamespaceSpecifier node_importNamespaceSpecifier = 67;
-    ImportDefaultSpecifier node_importDefaultSpecifier = 68;
-    ImportSpecifier node_importSpecifier = 69;
-    Statement node_statement = 70;
-    ForOfStatement node_forOfStatement = 71;
-    ForInStatement node_forInStatement = 72;
-    ForStatement node_forStatement = 73;
-    DoWhileStatement node_doWhileStatement = 74;
-    WhileStatement node_whileStatement = 75;
-    TryStatement node_tryStatement = 76;
-    CatchClause node_catchClause = 77;
-    ThrowStatement node_throwStatement = 78;
-    SwitchStatement node_switchStatement = 79;
-    SwitchCase node_switchCase = 80;
-    IfStatement node_ifStatement = 81;
-    ContinueStatement node_continueStatement = 82;
-    BreakStatement node_breakStatement = 83;
-    LabeledStatement node_labeledStatement = 84;
-    ReturnStatement node_returnStatement = 85;
-    WithStatement node_withStatement = 86;
-    DebuggerStatement node_debuggerStatement = 87;
-    EmptyStatement node_emptyStatement = 88;
-    ExpressionStatement node_expressionStatement = 89;
-    Directive node_directive = 90;
-    RegExpLiteral node_regExpLiteral = 91;
-    TemplateElement node_templateElement = 92;
-  }
-}
 message SourceLocation {
   string source = 1;
   Position start = 2;
@@ -590,5 +12,454 @@ message SourceLocation {
 }
 message Position {
   int32 line = 1;
-  int32 end = 2;
+  int32 column = 2;
+}
+
+enum NodeType {
+  ProgramType = 0;
+  ExportAllDeclarationType = 1;
+  IdentifierType = 2;
+  ExportDefaultDeclarationType = 3;
+  YieldExpressionType = 4;
+  UpdateExpressionType = 5;
+  UnaryExpressionType = 6;
+  ThisExpressionType = 7;
+  TemplateLiteralType = 8;
+  TaggedTemplateExpressionType = 9;
+  SequenceExpressionType = 10;
+  ObjectExpressionType = 11;
+  SpreadElementType = 12;
+  PropertyType = 13;
+  AssignmentPatternType = 14;
+  RestElementType = 15;
+  ArrayPatternType = 16;
+  ObjectPatternType = 17;
+  PrivateIdentifierType = 18;
+  NewExpressionType = 19;
+  SuperType = 20;
+  MetaPropertyType = 21;
+  MemberExpressionType = 22;
+  LogicalExpressionType = 23;
+  ImportExpressionType = 24;
+  BlockStatementType = 25;
+  ConditionalExpressionType = 26;
+  ClassExpressionType = 27;
+  ClassBodyType = 28;
+  StaticBlockType = 29;
+  PropertyDefinitionType = 30;
+  MethodDefinitionType = 31;
+  ChainExpressionType = 32;
+  CallExpressionType = 33;
+  BinaryExpressionType = 34;
+  AwaitExpressionType = 35;
+  AssignmentExpressionType = 36;
+  ArrowFunctionExpressionType = 37;
+  ArrayExpressionType = 38;
+  ClassDeclarationType = 39;
+  FunctionDeclarationType = 40;
+  ExportNamedDeclarationType = 41;
+  ExportSpecifierType = 42;
+  VariableDeclarationType = 43;
+  VariableDeclaratorType = 44;
+  ImportDeclarationType = 45;
+  ImportNamespaceSpecifierType = 46;
+  ImportDefaultSpecifierType = 47;
+  ImportSpecifierType = 48;
+  ForOfStatementType = 49;
+  ForInStatementType = 50;
+  ForStatementType = 51;
+  DoWhileStatementType = 52;
+  WhileStatementType = 53;
+  TryStatementType = 54;
+  CatchClauseType = 55;
+  ThrowStatementType = 56;
+  SwitchStatementType = 57;
+  SwitchCaseType = 58;
+  IfStatementType = 59;
+  ContinueStatementType = 60;
+  BreakStatementType = 61;
+  LabeledStatementType = 62;
+  ReturnStatementType = 63;
+  WithStatementType = 64;
+  DebuggerStatementType = 65;
+  EmptyStatementType = 66;
+  ExpressionStatementType = 67;
+  LiteralType = 68;
+  TemplateElementType = 69;
+  FunctionExpressionType = 70;
+}
+message Node {
+  NodeType type = 1;
+  SourceLocation loc = 2;
+  oneof node {
+    Program program = 3;
+    ExportAllDeclaration exportAllDeclaration = 4;
+    Identifier identifier = 5;
+    ExportDefaultDeclaration exportDefaultDeclaration = 6;
+    YieldExpression yieldExpression = 7;
+    UpdateExpression updateExpression = 8;
+    UnaryExpression unaryExpression = 9;
+    ThisExpression thisExpression = 10;
+    TemplateLiteral templateLiteral = 11;
+    TaggedTemplateExpression taggedTemplateExpression = 12;
+    SequenceExpression sequenceExpression = 13;
+    ObjectExpression objectExpression = 14;
+    SpreadElement spreadElement = 15;
+    Property property = 16;
+    AssignmentPattern assignmentPattern = 17;
+    RestElement restElement = 18;
+    ArrayPattern arrayPattern = 19;
+    ObjectPattern objectPattern = 20;
+    PrivateIdentifier privateIdentifier = 21;
+    NewExpression newExpression = 22;
+    Super super = 23;
+    MetaProperty metaProperty = 24;
+    MemberExpression memberExpression = 25;
+    LogicalExpression logicalExpression = 26;
+    ImportExpression importExpression = 27;
+    BlockStatement blockStatement = 28;
+    ConditionalExpression conditionalExpression = 29;
+    ClassExpression classExpression = 30;
+    ClassBody classBody = 31;
+    StaticBlock staticBlock = 32;
+    PropertyDefinition propertyDefinition = 33;
+    MethodDefinition methodDefinition = 34;
+    ChainExpression chainExpression = 35;
+    CallExpression callExpression = 36;
+    BinaryExpression binaryExpression = 37;
+    AwaitExpression awaitExpression = 38;
+    AssignmentExpression assignmentExpression = 39;
+    ArrowFunctionExpression arrowFunctionExpression = 40;
+    ArrayExpression arrayExpression = 41;
+    ClassDeclaration classDeclaration = 42;
+    FunctionDeclaration functionDeclaration = 43;
+    ExportNamedDeclaration exportNamedDeclaration = 44;
+    ExportSpecifier exportSpecifier = 45;
+    VariableDeclaration variableDeclaration = 46;
+    VariableDeclarator variableDeclarator = 47;
+    ImportDeclaration importDeclaration = 48;
+    ImportNamespaceSpecifier importNamespaceSpecifier = 49;
+    ImportDefaultSpecifier importDefaultSpecifier = 50;
+    ImportSpecifier importSpecifier = 51;
+    ForOfStatement forOfStatement = 52;
+    ForInStatement forInStatement = 53;
+    ForStatement forStatement = 54;
+    DoWhileStatement doWhileStatement = 55;
+    WhileStatement whileStatement = 56;
+    TryStatement tryStatement = 57;
+    CatchClause catchClause = 58;
+    ThrowStatement throwStatement = 59;
+    SwitchStatement switchStatement = 60;
+    SwitchCase switchCase = 61;
+    IfStatement ifStatement = 62;
+    ContinueStatement continueStatement = 63;
+    BreakStatement breakStatement = 64;
+    LabeledStatement labeledStatement = 65;
+    ReturnStatement returnStatement = 66;
+    WithStatement withStatement = 67;
+    DebuggerStatement debuggerStatement = 68;
+    EmptyStatement emptyStatement = 69;
+    ExpressionStatement expressionStatement = 70;
+    Literal literal = 71;
+    TemplateElement templateElement = 72;
+    FunctionExpression functionExpression = 73;
+  }
+}
+message Program {
+  string sourceType = 1;
+  repeated Node body = 2;
+}
+message ExportAllDeclaration {
+  optional Node exported = 1;
+  Node source = 2;
+}
+message Literal {
+  string raw = 1;
+  optional string bigint = 2;
+  optional string pattern = 3;
+  optional string flags = 4;
+  oneof value {
+    string valueString = 5;
+    bool valueBoolean = 6;
+    int32 valueNumber = 7;
+  }
+}
+message Identifier {
+  string name = 1;
+}
+message ExportDefaultDeclaration {
+  Node declaration = 1;
+}
+message YieldExpression {
+  optional Node argument = 1;
+  bool delegate = 2;
+}
+message UpdateExpression {
+  string operator = 1;
+  Node argument = 2;
+  bool prefix = 3;
+}
+message UnaryExpression {
+  string operator = 1;
+  bool prefix = 2;
+  Node argument = 3;
+}
+message ThisExpression {
+}
+message TemplateLiteral {
+  repeated Node quasis = 1;
+  repeated Node expressions = 2;
+}
+message TaggedTemplateExpression {
+  Node tag = 1;
+  Node quasi = 2;
+}
+message SequenceExpression {
+  repeated Node expressions = 1;
+}
+message ObjectExpression {
+  repeated Node properties = 1;
+}
+message SpreadElement {
+  Node argument = 1;
+}
+message Property {
+  Node key = 1;
+  Node value = 2;
+  string kind = 3;
+  bool method = 4;
+  bool shorthand = 5;
+  bool computed = 6;
+}
+message AssignmentPattern {
+  Node left = 1;
+  Node right = 2;
+}
+message RestElement {
+  Node argument = 1;
+}
+message ArrayPattern {
+  repeated Node elements = 1;
+}
+message ObjectPattern {
+  repeated Node properties = 1;
+}
+message PrivateIdentifier {
+  string name = 1;
+}
+message NewExpression {
+  Node callee = 1;
+  repeated Node arguments = 2;
+}
+message Super {
+}
+message MetaProperty {
+  Node meta = 1;
+  Node property = 2;
+}
+message MemberExpression {
+  Node object = 1;
+  Node property = 2;
+  bool computed = 3;
+  bool optional = 4;
+}
+message LogicalExpression {
+  string operator = 1;
+  Node left = 2;
+  Node right = 3;
+}
+message ImportExpression {
+  Node source = 1;
+}
+message BlockStatement {
+  repeated Node body = 1;
+}
+message ConditionalExpression {
+  Node test = 1;
+  Node alternate = 2;
+  Node consequent = 3;
+}
+message ClassExpression {
+  optional Node id = 1;
+  optional Node superClass = 2;
+  Node body = 3;
+}
+message ClassBody {
+  repeated Node body = 1;
+}
+message StaticBlock {
+}
+message PropertyDefinition {
+  Node key = 1;
+  optional Node value = 2;
+  bool computed = 3;
+  bool static = 4;
+}
+message MethodDefinition {
+  Node key = 1;
+  Node value = 2;
+  string kind = 3;
+  bool computed = 4;
+  bool static = 5;
+}
+message ChainExpression {
+  Node expression = 1;
+}
+message CallExpression {
+  bool optional = 1;
+  Node callee = 2;
+  repeated Node arguments = 3;
+}
+message BinaryExpression {
+  string operator = 1;
+  Node left = 2;
+  Node right = 3;
+}
+message AwaitExpression {
+  Node argument = 1;
+}
+message AssignmentExpression {
+  string operator = 1;
+  Node left = 2;
+  Node right = 3;
+}
+message ArrowFunctionExpression {
+  bool expression = 1;
+  Node body = 2;
+  repeated Node params = 3;
+  optional bool generator = 4;
+  optional bool async = 5;
+}
+message ArrayExpression {
+  repeated Node elements = 1;
+}
+message ClassDeclaration {
+  optional Node id = 1;
+  optional Node superClass = 2;
+  Node body = 3;
+}
+message FunctionDeclaration {
+  Node id = 1;
+  Node body = 2;
+  repeated Node params = 3;
+  optional bool generator = 4;
+  optional bool async = 5;
+}
+message ExportNamedDeclaration {
+  optional Node declaration = 1;
+  repeated Node specifiers = 2;
+  optional Node source = 3;
+}
+message ExportSpecifier {
+  Node exported = 1;
+  Node local = 2;
+}
+message VariableDeclaration {
+  repeated Node declarations = 1;
+  string kind = 2;
+}
+message VariableDeclarator {
+  Node id = 1;
+  optional Node init = 2;
+}
+message ImportDeclaration {
+  repeated Node specifiers = 1;
+  Node source = 2;
+}
+message ImportNamespaceSpecifier {
+  Node local = 1;
+}
+message ImportDefaultSpecifier {
+  Node local = 1;
+}
+message ImportSpecifier {
+  Node imported = 1;
+  Node local = 2;
+}
+message ForOfStatement {
+  bool await = 1;
+  Node left = 2;
+  Node right = 3;
+  Node body = 4;
+}
+message ForInStatement {
+  Node left = 1;
+  Node right = 2;
+  Node body = 3;
+}
+message ForStatement {
+  optional Node init = 1;
+  optional Node test = 2;
+  optional Node update = 3;
+  Node body = 4;
+}
+message DoWhileStatement {
+  Node body = 1;
+  Node test = 2;
+}
+message WhileStatement {
+  Node test = 1;
+  Node body = 2;
+}
+message TryStatement {
+  Node block = 1;
+  optional Node handler = 2;
+  optional Node finalizer = 3;
+}
+message CatchClause {
+  optional Node param = 1;
+  Node body = 2;
+}
+message ThrowStatement {
+  Node argument = 1;
+}
+message SwitchStatement {
+  Node discriminant = 1;
+  repeated Node cases = 2;
+}
+message SwitchCase {
+  optional Node test = 1;
+  repeated Node consequent = 2;
+}
+message IfStatement {
+  Node test = 1;
+  Node consequent = 2;
+  optional Node alternate = 3;
+}
+message ContinueStatement {
+  optional Node label = 1;
+}
+message BreakStatement {
+  optional Node label = 1;
+}
+message LabeledStatement {
+  Node label = 1;
+  Node body = 2;
+}
+message ReturnStatement {
+  optional Node argument = 1;
+}
+message WithStatement {
+  Node object = 1;
+  Node body = 2;
+}
+message DebuggerStatement {
+}
+message EmptyStatement {
+}
+message ExpressionStatement {
+  Node expression = 1;
+  optional string directive = 2;
+}
+message TemplateElement {
+  bool tail = 1;
+  optional string cooked = 2;
+  string raw = 3;
+}
+message FunctionExpression {
+  optional Node id = 1;
+  Node body = 2;
+  repeated Node params = 3;
+  optional bool generator = 4;
+  optional bool async = 5;
 }

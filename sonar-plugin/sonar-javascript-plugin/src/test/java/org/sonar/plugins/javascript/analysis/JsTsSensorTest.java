@@ -19,18 +19,6 @@
  */
 package org.sonar.plugins.javascript.analysis;
 
-import static java.util.Collections.emptyList;
-import static java.util.Collections.singleton;
-import static java.util.Collections.singletonList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import com.google.gson.Gson;
 import java.io.File;
 import java.io.IOException;
@@ -90,6 +78,7 @@ import org.sonar.plugins.javascript.TestUtils;
 import org.sonar.plugins.javascript.analysis.cache.CacheTestUtils;
 import org.sonar.plugins.javascript.api.JsAnalysisConsumer;
 import org.sonar.plugins.javascript.api.JsFile;
+import org.sonar.plugins.javascript.bridge.BridgeServer;
 import org.sonar.plugins.javascript.bridge.BridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.bridge.BridgeServer.JsAnalysisRequest;
 import org.sonar.plugins.javascript.bridge.BridgeServer.ParsingError;
@@ -99,6 +88,23 @@ import org.sonar.plugins.javascript.bridge.BridgeServer.TsProgramRequest;
 import org.sonar.plugins.javascript.bridge.BridgeServerImpl;
 import org.sonar.plugins.javascript.bridge.PluginInfo;
 import org.sonar.plugins.javascript.bridge.TsConfigFile;
+import org.sonar.plugins.javascript.bridge.protobuf.Node;
+import org.sonar.plugins.javascript.bridge.protobuf.NodeType;
+import org.sonar.plugins.javascript.bridge.protobuf.Position;
+import org.sonar.plugins.javascript.bridge.protobuf.Program;
+import org.sonar.plugins.javascript.bridge.protobuf.SourceLocation;
+
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singleton;
+import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class JsTsSensorTest {
 
@@ -807,6 +813,20 @@ class JsTsSensorTest {
     var inputFile = createInputFile(context);
     var tsProgram = new TsProgram("1", List.of(inputFile.absolutePath()), List.of(), false, null);
     when(bridgeServerMock.createProgram(any())).thenReturn(tsProgram);
+
+    Program program = Program.newBuilder()
+      .build();
+    Node placeHolderNode = Node.newBuilder()
+      .setType(NodeType.ProgramType)
+      .setProgram(program)
+      .setLoc(SourceLocation.newBuilder()
+        .setStart(Position.newBuilder().setLine(1).setColumn(1))
+        .setEnd(Position.newBuilder().setLine(1).setColumn(1)))
+      .build();
+
+    when(bridgeServerMock.analyzeTypeScript(any())).thenReturn(
+      new AnalysisResponse(null, List.of(), List.of(), List.of(), new BridgeServer.Metrics(), List.of(), List.of(), placeHolderNode)
+    );
 
     sensor.execute(context);
     assertThat(consumer.files).hasSize(1);

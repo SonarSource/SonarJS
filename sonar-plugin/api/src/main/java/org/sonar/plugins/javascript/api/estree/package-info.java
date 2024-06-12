@@ -17,28 +17,5 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { AddressInfo } from 'net';
-import http from 'http';
-
-export type BridgeResponseType = 'text' | 'formdata';
-
-/**
- * Sends an HTTP request to a server's endpoint running on localhost.
- */
-export async function request(server: http.Server, path: string, method: string, body: any = {}) {
-  const res = await fetch(`http://127.0.0.1:${(server.address() as AddressInfo).port}${path}`, {
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    method,
-    body: method !== 'GET' ? JSON.stringify(body) : undefined,
-  });
-
-  const contentTypeHeader = res.headers.get('Content-Type');
-
-  if (contentTypeHeader?.includes('multipart/form-data')) {
-    return res.formData();
-  } else {
-    return res.text();
-  }
-}
+@javax.annotation.ParametersAreNonnullByDefault
+package org.sonar.plugins.javascript.api.estree;

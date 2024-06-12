@@ -50,8 +50,7 @@ exports.delegate = function (worker, type) {
         case 'success':
           if (message.format === 'multipart') {
             const fd = new formData();
-            const buf = Buffer.from(message.result.ast);
-            fd.append('ast', buf);
+            fd.append('ast', Buffer.from(message.result.ast));
             delete message.result.ast;
             fd.append('json', JSON.stringify(message.result));
             // this adds the boundary string that will be used to separate the parts
@@ -59,6 +58,7 @@ exports.delegate = function (worker, type) {
             response.set('Content-Length', fd.getLengthSync());
             fd.pipe(response);
           } else {
+            delete message.result.ast;
             response.send(message.result);
           }
           break;
@@ -109,7 +109,7 @@ if (parentPort) {
           parentThread.postMessage({
             type: 'success',
             result: output,
-            format: 'multipart',
+            format: isSupported(output.ast) ? 'multipart' : 'json',
           });
           break;
         }
@@ -128,7 +128,7 @@ if (parentPort) {
           parentThread.postMessage({
             type: 'success',
             result: output,
-            format: 'multipart',
+            format: isSupported(output.ast) ? 'multipart' : 'json',
           });
           break;
         }
@@ -230,4 +230,8 @@ if (parentPort) {
         return { code: ErrorCode.Unexpected, message: err };
     }
   }
+}
+
+function isSupported(ast) {
+  return ast !== 'not-supported';
 }

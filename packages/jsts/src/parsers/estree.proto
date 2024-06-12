@@ -170,7 +170,7 @@ message Program {
   repeated Node body = 2;
 }
 message ExportAllDeclaration {
-  Node exported = 1;
+  optional Node exported = 1;
   Node source = 2;
 }
 message Literal {
@@ -191,7 +191,7 @@ message ExportDefaultDeclaration {
   Node declaration = 1;
 }
 message YieldExpression {
-  Node argument = 1;
+  optional Node argument = 1;
   bool delegate = 2;
 }
 message UpdateExpression {
@@ -280,8 +280,8 @@ message ConditionalExpression {
   Node consequent = 3;
 }
 message ClassExpression {
-  Node id = 1;
-  Node superClass = 2;
+  optional Node id = 1;
+  optional Node superClass = 2;
   Node body = 3;
 }
 message ClassBody {
@@ -291,7 +291,7 @@ message StaticBlock {
 }
 message PropertyDefinition {
   Node key = 1;
-  Node value = 2;
+  optional Node value = 2;
   bool computed = 3;
   bool static = 4;
 }
@@ -327,28 +327,28 @@ message ArrowFunctionExpression {
   bool expression = 1;
   Node body = 2;
   repeated Node params = 3;
-  bool generator = 4;
-  bool async = 5;
+  optional bool generator = 4;
+  optional bool async = 5;
 }
 message ArrayExpression {
   repeated Node elements = 1;
 }
 message ClassDeclaration {
-  Node id = 1;
-  Node superClass = 2;
+  optional Node id = 1;
+  optional Node superClass = 2;
   Node body = 3;
 }
 message FunctionDeclaration {
   Node id = 1;
   Node body = 2;
   repeated Node params = 3;
-  bool generator = 4;
-  bool async = 5;
+  optional bool generator = 4;
+  optional bool async = 5;
 }
 message ExportNamedDeclaration {
-  Node declaration = 1;
+  optional Node declaration = 1;
   repeated Node specifiers = 2;
-  Node source = 3;
+  optional Node source = 3;
 }
 message ExportSpecifier {
   Node exported = 1;
@@ -360,7 +360,7 @@ message VariableDeclaration {
 }
 message VariableDeclarator {
   Node id = 1;
-  Node init = 2;
+  optional Node init = 2;
 }
 message ImportDeclaration {
   repeated Node specifiers = 1;
@@ -388,9 +388,9 @@ message ForInStatement {
   Node body = 3;
 }
 message ForStatement {
-  Node init = 1;
-  Node test = 2;
-  Node update = 3;
+  optional Node init = 1;
+  optional Node test = 2;
+  optional Node update = 3;
   Node body = 4;
 }
 message DoWhileStatement {
@@ -403,11 +403,11 @@ message WhileStatement {
 }
 message TryStatement {
   Node block = 1;
-  Node handler = 2;
-  Node finalizer = 3;
+  optional Node handler = 2;
+  optional Node finalizer = 3;
 }
 message CatchClause {
-  Node param = 1;
+  optional Node param = 1;
   Node body = 2;
 }
 message ThrowStatement {
@@ -418,26 +418,26 @@ message SwitchStatement {
   repeated Node cases = 2;
 }
 message SwitchCase {
-  Node test = 1;
+  optional Node test = 1;
   repeated Node consequent = 2;
 }
 message IfStatement {
   Node test = 1;
   Node consequent = 2;
-  Node alternate = 3;
+  optional Node alternate = 3;
 }
 message ContinueStatement {
-  Node label = 1;
+  optional Node label = 1;
 }
 message BreakStatement {
-  Node label = 1;
+  optional Node label = 1;
 }
 message LabeledStatement {
   Node label = 1;
   Node body = 2;
 }
 message ReturnStatement {
-  Node argument = 1;
+  optional Node argument = 1;
 }
 message WithStatement {
   Node object = 1;
@@ -453,14 +453,13 @@ message ExpressionStatement {
 }
 message TemplateElement {
   bool tail = 1;
-  string cooked = 2;
+  optional string cooked = 2;
   string raw = 3;
 }
-
 message FunctionExpression {
-  Node id = 1;
+  optional Node id = 1;
   Node body = 2;
   repeated Node params = 3;
-  bool generator = 4;
-  bool async = 5;
+  optional bool generator = 4;
+  optional bool async = 5;
 }
