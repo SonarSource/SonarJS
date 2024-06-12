@@ -237,7 +237,8 @@ class BridgeServerImplTest {
       true,
       singletonList(tsConfig.absolutePath()),
       null,
-      DEFAULT_LINTER_ID
+      DEFAULT_LINTER_ID,
+      false
     );
     assertThat(bridgeServer.analyzeTypeScript(request).issues()).hasSize(1);
   }
@@ -265,7 +266,8 @@ class BridgeServerImplTest {
       true,
       null,
       null,
-      DEFAULT_LINTER_ID
+      DEFAULT_LINTER_ID,
+      false
     );
   }
 
@@ -291,7 +293,8 @@ class BridgeServerImplTest {
       true,
       null,
       programCreated.programId(),
-      DEFAULT_LINTER_ID
+      DEFAULT_LINTER_ID,
+      false
     );
     assertThat(bridgeServer.analyzeTypeScript(request).issues()).hasSize(1);
 
@@ -509,7 +512,8 @@ class BridgeServerImplTest {
       true,
       null,
       null,
-      DEFAULT_LINTER_ID
+      DEFAULT_LINTER_ID,
+      false
     );
     assertThatThrownBy(() -> bridgeServer.analyzeJavaScript(request))
       .isInstanceOf(IllegalStateException.class);
@@ -739,6 +743,31 @@ class BridgeServerImplTest {
     assertThat(node.getProgram()).isNotNull();
     assertThat(node.getProgram().getBodyList().get(0).getExpressionStatement()).isNotNull();
   }
+
+  @Test
+  void should_omit_an_ast_if_skipAst_flag_is_set() throws Exception {
+    bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
+    bridgeServer.startServer(context, emptyList());
+
+    DefaultInputFile inputFile = TestInputFileBuilder
+      .create("foo", "foo.js")
+      .setContents("alert('Fly, you fools!')")
+      .build();
+    JsAnalysisRequest request = new JsAnalysisRequest(
+      inputFile.absolutePath(),
+      inputFile.type().toString(),
+      "js",
+      null,
+      true,
+      null,
+      null,
+      DEFAULT_LINTER_ID,
+      true
+    );
+    var response = bridgeServer.analyzeJavaScript(request);
+    assertThat(response.ast()).isNull();
+  }
+
   @Test
   void should_not_deploy_runtime_if_sonar_nodejs_executable_is_set() {
     var existingDoesntMatterScript = "logging.js";

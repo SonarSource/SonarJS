@@ -19,6 +19,8 @@
  */
 package org.sonar.plugins.javascript.bridge;
 
+import static org.sonarsource.api.sonarlint.SonarLintSide.INSTANCE;
+
 import java.io.IOException;
 import java.util.List;
 import javax.annotation.Nullable;
@@ -29,8 +31,6 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonar.plugins.javascript.bridge.protobuf.Node;
 import org.sonarsource.api.sonarlint.SonarLintSide;
-
-import static org.sonarsource.api.sonarlint.SonarLintSide.INSTANCE;
 
 @ScannerSide
 @SonarLintSide(lifespan = INSTANCE)
@@ -67,7 +67,7 @@ public interface BridgeServer extends Startable {
   TsConfigFile createTsConfigFile(String content) throws IOException;
 
   record JsAnalysisRequest(String filePath, String fileType, String language, @Nullable String fileContent, boolean ignoreHeaderComments,
-                           @Nullable List<String> tsConfigs, @Nullable String programId, String linterId) {
+                           @Nullable List<String> tsConfigs, @Nullable String programId, String linterId, boolean skipAst) {
 
   }
 
