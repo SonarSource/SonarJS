@@ -21,7 +21,7 @@ import { start } from '../src/server';
 import path from 'path';
 import { setContext } from '@sonar/shared';
 import { AddressInfo } from 'net';
-import { BridgeResponseType, request } from './tools';
+import { request } from './tools';
 import http from 'http';
 
 describe('server', () => {
@@ -75,7 +75,7 @@ describe('server', () => {
     });
 
     expect(await requestInitLinter(server, fileType, ruleId)).toBe('OK!');
-    const response = await requestAnalyzeJs(server, fileType, 'formdata');
+    const response = await requestAnalyzeJs(server, fileType);
     const {
       issues: [issue],
     } = JSON.parse(response.get('json'));
@@ -99,7 +99,7 @@ describe('server', () => {
     const fileType = 'MAIN';
 
     await requestInitLinter(server, fileType, ruleId);
-    const response = await requestAnalyzeJs(server, fileType, 'formdata');
+    const response = await requestAnalyzeJs(server, fileType);
 
     const {
       issues: [issue],
@@ -162,15 +162,11 @@ describe('server', () => {
   });
 });
 
-async function requestAnalyzeJs(
-  server: http.Server,
-  fileType: string,
-  format: BridgeResponseType = 'text',
-): Promise<any> {
+async function requestAnalyzeJs(server: http.Server, fileType: string): Promise<any> {
   const filePath = path.join(__dirname, 'fixtures', 'routing.js');
   const analysisInput = { filePath, fileType };
 
-  return await request(server, '/analyze-js', 'POST', analysisInput, format);
+  return await request(server, '/analyze-js', 'POST', analysisInput);
 }
 
 function requestInitLinter(server: http.Server, fileType: string, ruleId: string) {
