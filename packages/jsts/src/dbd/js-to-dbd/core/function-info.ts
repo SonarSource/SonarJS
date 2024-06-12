@@ -28,6 +28,7 @@ export type FunctionInfo = {
   readonly parameters: Array<Parameter>;
   readonly functionCalls: Set<string>;
   exportedObject: Map<string, Value> | undefined;
+  readonly importedFiles: Map<string, Value>;
 
   createBlock(location: Location): Block;
   getCurrentBlock(): Block;
@@ -36,6 +37,9 @@ export type FunctionInfo = {
   addFunctionCall(callSignature: FunctionDefinition): void;
   addDefaultExport(value: Value): void;
   addExport(key: string, value: Value): void;
+  addImport(filename: string, value: Value): void;
+  getImport(filename: string): Value;
+  hasImport(filename: string): boolean;
 };
 
 export const createFunctionInfo = <T extends TSESTree.FunctionLike | TSESTree.Program>(
@@ -127,8 +131,6 @@ export const createFunctionInfo = <T extends TSESTree.FunctionLike | TSESTree.Pr
       );
     }
   }
-  const functionCalls: Set<string> = new Set();
-  let exportedObject: Map<string, Value> | undefined = undefined;
 
   const functionInfo: FunctionInfo = {
     scopeManager,
@@ -136,10 +138,11 @@ export const createFunctionInfo = <T extends TSESTree.FunctionLike | TSESTree.Pr
     definition,
     blocks,
     parameters,
-    functionCalls,
-    exportedObject,
+    functionCalls: new Set(),
+    exportedObject: new Map(),
+    importedFiles: new Map(),
     addFunctionCall: functionDefinition => {
-      functionCalls.add(functionDefinition.signature);
+      functionInfo.functionCalls.add(functionDefinition.signature);
     },
     createBlock: location => {
       return createBlock(blockIndex++, location);
@@ -164,6 +167,15 @@ export const createFunctionInfo = <T extends TSESTree.FunctionLike | TSESTree.Pr
         functionInfo.exportedObject = new Map();
       }
       functionInfo.exportedObject.set(key, value);
+    },
+    addImport: (fileName, value) => {
+      functionInfo.importedFiles.set(fileName, value);
+    },
+    hasImport: fileName => {
+      return functionInfo.importedFiles.has(fileName);
+    },
+    getImport(filename: string): Value {
+      return functionInfo.importedFiles.get(filename)!;
     },
   };
 
