@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { APIError, debug, getContext, JsTsLanguage } from '@sonar/shared';
+import { APIError, debug, info, getContext, JsTsLanguage } from '@sonar/shared';
 import { SourceCode } from 'eslint';
 import {
   computeMetrics,
@@ -31,7 +31,6 @@ import {
 import { buildSourceCode } from '../builders';
 import { JsTsAnalysisInput, JsTsAnalysisOutput } from './analysis';
 import { serializeInProtobuf } from '../parsers';
-import { info } from '@sonar/shared';
 
 /**
  * Analyzes a JavaScript / TypeScript analysis input
