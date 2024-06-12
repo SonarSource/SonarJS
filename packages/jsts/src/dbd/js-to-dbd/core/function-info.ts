@@ -18,6 +18,7 @@ import { ScopeManager } from './scope-manager';
 import type { Location } from './location';
 import { Instruction } from './instruction';
 import { createBranchingInstruction } from './instructions/branching-instruction';
+import { Value } from './value';
 
 export type FunctionInfo = {
   readonly scopeManager: ScopeManager;
@@ -26,12 +27,15 @@ export type FunctionInfo = {
   readonly definition: FunctionDefinition;
   readonly parameters: Array<Parameter>;
   readonly functionCalls: Set<string>;
+  exportedObject: Map<string, Value> | undefined;
 
   createBlock(location: Location): Block;
   getCurrentBlock(): Block;
   pushBlock(block: Block): void;
   addInstructions(instructions: Array<Instruction>): void;
   addFunctionCall(callSignature: FunctionDefinition): void;
+  addDefaultExport(value: Value): void;
+  addExport(key: string, value: Value): void;
 };
 
 export const createFunctionInfo = <T extends TSESTree.FunctionLike | TSESTree.Program>(
@@ -124,6 +128,7 @@ export const createFunctionInfo = <T extends TSESTree.FunctionLike | TSESTree.Pr
     }
   }
   const functionCalls: Set<string> = new Set();
+  let exportedObject: Map<string, Value> | undefined = undefined;
 
   const functionInfo: FunctionInfo = {
     scopeManager,
@@ -132,6 +137,7 @@ export const createFunctionInfo = <T extends TSESTree.FunctionLike | TSESTree.Pr
     blocks,
     parameters,
     functionCalls,
+    exportedObject,
     addFunctionCall: functionDefinition => {
       functionCalls.add(functionDefinition.signature);
     },
@@ -147,6 +153,18 @@ export const createFunctionInfo = <T extends TSESTree.FunctionLike | TSESTree.Pr
     addInstructions: instructions => {
       blocks[blocks.length - 1].instructions.push(...instructions);
     },
+    addDefaultExport: value => {
+      if (functionInfo.exportedObject === undefined) {
+        functionInfo.exportedObject = new Map();
+      }
+      functionInfo.exportedObject.set('@default', value);
+    },
+    addExport: (key: string, value: Value) => {
+      if (functionInfo.exportedObject === undefined) {
+        functionInfo.exportedObject = new Map();
+      }
+      functionInfo.exportedObject.set(key, value);
+    },
   };
 
   // handle the body statements
@@ -157,7 +175,34 @@ export const createFunctionInfo = <T extends TSESTree.FunctionLike | TSESTree.Pr
   const lastBlock = blocks[blocks.length - 1];
 
   if (!isTerminated(lastBlock)) {
-    lastBlock.instructions.push(createReturnInstruction(createNull(), location));
+    if (node.type === AST_NODE_TYPES.Program && functionInfo.exportedObject) {
+      // Serialize the functionInfo.exportedObject
+      const returnValue = createReference(functionInfo.scopeManager.createValueIdentifier());
+      functionInfo.addInstructions([
+        createCallInstruction(
+          returnValue.identifier,
+          null,
+          createNewObjectFunctionDefinition(),
+          [],
+          location,
+        ),
+      ]);
+      functionInfo.addInstructions(
+        Array.from(functionInfo.exportedObject).map(item => {
+          const [key, value] = item;
+          return createCallInstruction(
+            scopeManager.createValueIdentifier(),
+            null,
+            createSetFieldFunctionDefinition(key),
+            [returnValue, value],
+            location, // TODO: improve to correctly link to the export
+          );
+        }),
+      );
+      functionInfo.addInstructions([createReturnInstruction(returnValue, location)]);
+    } else {
+      lastBlock.instructions.push(createReturnInstruction(createNull(), location));
+    }
   }
 
   scopeManager.addFunctionInfo(functionInfo);
