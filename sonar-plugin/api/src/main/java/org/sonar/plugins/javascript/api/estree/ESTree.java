@@ -104,7 +104,7 @@ public class ESTree {
   public record ConditionalExpression(Location loc, Expression test, Expression alternate, Expression consequent) implements Expression {}
   public record ContinueStatement(Location loc, Optional<Identifier> label) implements Statement {}
   public record DebuggerStatement(Location loc) implements Statement {}
-  public record Directive(Location loc, Literal expression, String directive) implements Node {}
+  public record Directive(Location loc, Literal expression, String directive) implements Node, DirectiveOrModuleDeclarationOrStatement {}
   public record DoWhileStatement(Location loc, Statement body, Expression test) implements Statement {}
   public record EmptyStatement(Location loc) implements Statement {}
   public record ExportAllDeclaration(Location loc, Optional<Identifier> exported, Literal source) implements ModuleDeclaration {}
