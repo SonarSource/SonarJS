@@ -115,6 +115,9 @@ abstract class AbstractAnalysis {
         );
         Node responseAst = response.ast();
         if (responseAst != null) {
+          // When we haven't serialized the AST:
+          // either because no consumer is listening
+          // or the file extension or AST nodes are unsupported
           consumers.accept(new JsFile(file, ESTreeFactory.from(responseAst, ESTree.Program.class)));
         }
       } catch (IOException e) {
