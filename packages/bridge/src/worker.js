@@ -58,6 +58,7 @@ exports.delegate = function (worker, type) {
             response.set('Content-Length', fd.getLengthSync());
             fd.pipe(response);
           } else {
+            delete message.result.ast;
             response.send(message.result);
           }
           break;
