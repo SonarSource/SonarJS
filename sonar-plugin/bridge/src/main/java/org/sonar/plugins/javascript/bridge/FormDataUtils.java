@@ -83,7 +83,7 @@ public class FormDataUtils {
     for (int i = 0; i < array.length - pattern.length + 1; i++) {
       boolean found = true;
       for (int j = 0; j < pattern.length; j++) {
-        if (array[i+j] != pattern[j]) {
+        if (array[i + j] != pattern[j]) {
           found = false;
           break;
         }
@@ -92,7 +92,8 @@ public class FormDataUtils {
     }
     return -1;
   }
-  private static List<byte[]> split(byte[] array, byte[] delimiter) {
+
+  public static List<byte[]> split(byte[] array, byte[] delimiter) {
     List<byte[]> byteArrays = new LinkedList<>();
     if (delimiter.length == 0) {
       return byteArrays;
