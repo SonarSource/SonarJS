@@ -131,10 +131,10 @@ public class ESTree {
   public record ImportSpecifier(Location loc, Identifier imported, Identifier local) implements ImportDefaultSpecifierOrImportNamespaceSpecifierOrImportSpecifier {}
   public record LabeledStatement(Location loc, Identifier label, Statement body) implements Statement {}
   public record LogicalExpression(Location loc, LogicalOperator operator, Expression left, Expression right) implements Expression {}
-  public record MemberExpression(Location loc, ExpressionOrSuper object, ExpressionOrPrivateIdentifier property, boolean computed, boolean optional) implements MemberExpressionOrPattern, ChainElement, Expression, Pattern {}
+  public record MemberExpression(Location loc, ExpressionOrSuper object, ExpressionOrPrivateIdentifier property, boolean computed, boolean optional) implements ChainElement, Expression, Pattern {}
   public record MetaProperty(Location loc, Identifier meta, Identifier property) implements Expression {}
   public record MethodDefinition(Location loc, ExpressionOrPrivateIdentifier key, FunctionExpression value, String kind, boolean computed, boolean isStatic) implements MethodDefinitionOrPropertyDefinitionOrStaticBlock {}
-  public record NewExpression(Location loc, ExpressionOrSuper callee, List<ExpressionOrSpreadElement> arguments) implements CallExpression, Expression {}
+  public record NewExpression(Location loc, ExpressionOrSuper callee, List<ExpressionOrSpreadElement> arguments) implements CallExpression {}
   public record ObjectExpression(Location loc, List<PropertyOrSpreadElement> properties) implements Expression {}
   public record ObjectPattern(Location loc, List<PropertyOrRestElement> properties) implements Pattern {}
   public record PrivateIdentifier(Location loc, String name) implements ExpressionOrPrivateIdentifier {}
