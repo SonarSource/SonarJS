@@ -106,9 +106,13 @@ function analyzeFile(
  * Remove this when we figure out how to serialize the TypeScript AST
  */
 function serializeAst(sourceCode: SourceCode, filePath: string) {
-  if (isSupported(filePath)) {
+  if (!isSupported(filePath)) {
+    return 'not-supported';
+  }
+
+  try {
     return serializeInProtobuf(sourceCode.ast);
-  } else {
+  } catch (e) {
     return 'not-supported';
   }
 
