@@ -45,25 +45,25 @@ public class FormDataUtils {
     byte[] ast = null;
 
     for (byte[] part : parts) {
-        int separatorIndex = indexOf(part, "\r\n\r\n".getBytes(StandardCharsets.ISO_8859_1));
-        if (separatorIndex == -1) {
-            // Skip if there's no body
-            continue;
-        }
+      int separatorIndex = indexOf(part, "\r\n\r\n".getBytes(StandardCharsets.ISO_8859_1));
+      if (separatorIndex == -1) {
+        // Skip if there's no body
+        continue;
+      }
 
-        // I remove the first 2 bytes, representing "\r\n" before the headers
-        byte[] headers = Arrays.copyOfRange(part, 2, separatorIndex);
-        // I remove the first 4 bytes and last 2.
-        // They are the "\r\n\r\n" before and "\r\n" after the payload
-        byte[] body = Arrays.copyOfRange(part, separatorIndex + 4, part.length - 2);
+      // I remove the first 2 bytes, representing "\r\n" before the headers
+      byte[] headers = Arrays.copyOfRange(part, 2, separatorIndex);
+      // I remove the first 4 bytes and last 2.
+      // They are the "\r\n\r\n" before and "\r\n" after the payload
+      byte[] body = Arrays.copyOfRange(part, separatorIndex + 4, part.length - 2);
 
-        String headersStr = new String(headers, StandardCharsets.UTF_8);
+      String headersStr = new String(headers, StandardCharsets.UTF_8);
 
-        if (headersStr.contains("json")) {
-            json = new String(body, StandardCharsets.UTF_8);
-        } else if (headersStr.contains("ast")) {
-            ast = body;
-        }
+      if (headersStr.contains("json")) {
+        json = new String(body, StandardCharsets.UTF_8);
+      } else if (headersStr.contains("ast")) {
+        ast = body;
+      }
     }
     if (json == null || ast == null) {
       throw new IllegalStateException("Data missing from response");
@@ -81,35 +81,35 @@ public class FormDataUtils {
 
   private static int indexOf(byte[] array, byte[] pattern) {
     for (int i = 0; i < array.length - pattern.length + 1; i++) {
-        boolean found = true;
-        for (int j = 0; j < pattern.length; j++) {
-           if (array[i+j] != pattern[j]) {
-               found = false;
-               break;
-           }
+      boolean found = true;
+      for (int j = 0; j < pattern.length; j++) {
+        if (array[i+j] != pattern[j]) {
+          found = false;
+          break;
         }
-        if (found) return i;
-     }
-   return -1;
+      }
+      if (found) return i;
+    }
+    return -1;
   }
   private static List<byte[]> split(byte[] array, byte[] delimiter) {
-        List<byte[]> byteArrays = new LinkedList<>();
-        if (delimiter.length == 0) {
-            return byteArrays;
-        }
-        int begin = 0;
-
-        outer:
-        for (int i = 0; i < array.length - delimiter.length + 1; i++) {
-            for (int j = 0; j < delimiter.length; j++) {
-                if (array[i + j] != delimiter[j]) {
-                    continue outer;
-                }
-            }
-            byteArrays.add(Arrays.copyOfRange(array, begin, i));
-            begin = i + delimiter.length;
-        }
-        byteArrays.add(Arrays.copyOfRange(array, begin, array.length));
-        return byteArrays;
+    List<byte[]> byteArrays = new LinkedList<>();
+    if (delimiter.length == 0) {
+      return byteArrays;
     }
+    int begin = 0;
+
+    outer:
+    for (int i = 0; i < array.length - delimiter.length + 1; i++) {
+      for (int j = 0; j < delimiter.length; j++) {
+        if (array[i + j] != delimiter[j]) {
+          continue outer;
+        }
+      }
+      byteArrays.add(Arrays.copyOfRange(array, begin, i));
+      begin = i + delimiter.length;
+    }
+    byteArrays.add(Arrays.copyOfRange(array, begin, array.length));
+    return byteArrays;
+  }
 }
