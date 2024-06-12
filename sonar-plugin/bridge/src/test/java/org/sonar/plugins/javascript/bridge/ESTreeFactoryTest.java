@@ -31,7 +31,9 @@ import org.sonar.plugins.javascript.bridge.protobuf.AssignmentPattern;
 import org.sonar.plugins.javascript.bridge.protobuf.BinaryExpression;
 import org.sonar.plugins.javascript.bridge.protobuf.BlockStatement;
 import org.sonar.plugins.javascript.bridge.protobuf.CallExpression;
+import org.sonar.plugins.javascript.bridge.protobuf.ChainExpression;
 import org.sonar.plugins.javascript.bridge.protobuf.ClassDeclaration;
+import org.sonar.plugins.javascript.bridge.protobuf.EmptyStatement;
 import org.sonar.plugins.javascript.bridge.protobuf.ExportDefaultDeclaration;
 import org.sonar.plugins.javascript.bridge.protobuf.ExportSpecifier;
 import org.sonar.plugins.javascript.bridge.protobuf.ExpressionStatement;
@@ -47,6 +49,7 @@ import org.sonar.plugins.javascript.bridge.protobuf.Program;
 import org.sonar.plugins.javascript.bridge.protobuf.SourceLocation;
 import org.sonar.plugins.javascript.bridge.protobuf.UnaryExpression;
 import org.sonar.plugins.javascript.bridge.protobuf.UpdateExpression;
+import org.sonar.plugins.javascript.bridge.protobuf.WithStatement;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
@@ -502,6 +505,59 @@ class ESTreeFactoryTest {
 
     ESTree.Node estree = ESTreeFactory.from(protobufNode, ESTree.Node.class);
     assertThat(estree).isInstanceOf(ESTree.ImportSpecifier.class);
+  }
+
+  @Test
+  void should_create_chain_expression_type() {
+    CallExpression callExpression = CallExpression.newBuilder()
+      .setCallee(Node.newBuilder().setType(NodeType.ThisExpressionType).build())
+      .build();
+    Node chainElement = Node.newBuilder()
+      .setType(NodeType.CallExpressionType)
+      .setCallExpression(callExpression)
+      .build();
+    ChainExpression chainExpression = ChainExpression.newBuilder()
+      .setExpression(chainElement)
+      .build();
+    Node protobufNode = Node.newBuilder()
+      .setType(NodeType.ChainExpressionType)
+      .setChainExpression(chainExpression)
+      .build();
+
+    ESTree.Node estree = ESTreeFactory.from(protobufNode, ESTree.Node.class);
+    assertThat(estree).isInstanceOfSatisfying(ESTree.ChainExpression.class, chain -> {
+      assertThat(chain.expression()).isInstanceOf(ESTree.CallExpression.class);
+    });
+  }
+
+  @Test
+  void should_create_with_statement_type() {
+    WithStatement withStatement = WithStatement.newBuilder()
+      .setObject(Node.newBuilder().setType(NodeType.ThisExpressionType).build())
+      .setBody(Node.newBuilder().setType(NodeType.BlockStatementType).build())
+      .build();
+    Node protobufNode = Node.newBuilder()
+      .setType(NodeType.WithStatementType)
+      .setWithStatement(withStatement)
+      .build();
+
+    ESTree.Node estree = ESTreeFactory.from(protobufNode, ESTree.Node.class);
+    assertThat(estree).isInstanceOfSatisfying(ESTree.WithStatement.class, with -> {
+      assertThat(with.object()).isInstanceOf(ESTree.ThisExpression.class);
+      assertThat(with.body()).isInstanceOf(ESTree.BlockStatement.class);
+    });
+  }
+
+  @Test
+  void should_create_empty_statement_type() {
+    EmptyStatement emptyStatement = EmptyStatement.newBuilder().build();
+    Node protobufNode = Node.newBuilder()
+      .setType(NodeType.EmptyStatementType)
+      .setEmptyStatement(emptyStatement)
+      .build();
+
+    ESTree.Node estree = ESTreeFactory.from(protobufNode, ESTree.Node.class);
+    assertThat(estree).isInstanceOf(ESTree.EmptyStatement.class);
   }
 
   @Test
