@@ -948,4 +948,21 @@ describe('analyzeJSTS', () => {
     expect(protoMessage.program.body).toHaveLength(1);
     expect(protoMessage.program.body[0].functionDeclaration.id.identifier.name).toEqual('f');
   });
+
+  it('should not return the AST if the skipAst flag is set', async () => {
+    const rules = [
+      { key: 'prefer-default-last', configurations: [], fileTypeTarget: ['MAIN'] },
+    ] as RuleConfig[];
+    initializeLinter(rules);
+    initializeLinter([], [], [], 'empty');
+
+    const filePath = path.join(__dirname, 'fixtures', 'code.js');
+    const language = 'js';
+
+    const { ast } = analyzeJSTS(
+      await jsTsInput({ filePath, skipAst: true }),
+      language,
+    ) as JsTsAnalysisOutput;
+    expect(ast).toBeUndefined();
+  });
 });

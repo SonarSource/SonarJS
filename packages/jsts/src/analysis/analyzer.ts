@@ -86,12 +86,18 @@ function analyzeFile(
       cognitiveComplexity,
     );
 
-    return {
+    const result: JsTsAnalysisOutput = {
       issues,
       ucfgPaths,
       ...extendedMetrics,
-      ast: serializeAst(sourceCode, filePath),
     };
+
+    const ast = serializeAst(sourceCode, filePath, input.skipAst);
+    if (ast) {
+      result.ast = ast;
+    }
+
+    return result;
   } catch (e) {
     /** Turns exceptions from TypeScript compiler into "parsing" errors */
     if (e.stack.indexOf('typescript.js:') > -1) {
@@ -102,21 +108,21 @@ function analyzeFile(
   }
 }
 
-/**
- * Remove this when we figure out how to serialize the TypeScript AST
- */
-function serializeAst(sourceCode: SourceCode, filePath: string) {
-  if (!isSupported(filePath)) {
-    return 'not-supported';
+function serializeAst(sourceCode: SourceCode, filePath: string, skipAst: boolean = false) {
+  if (!isSupported(filePath) || skipAst) {
+    return null;
   }
 
   try {
     return serializeInProtobuf(sourceCode.ast);
   } catch (e) {
     info(`Failed to serialize AST for file "${filePath}"`);
-    return 'not-supported';
+    return null;
   }
 
+  /**
+   * Remove this when we figure out how to serialize the TypeScript AST
+   */
   function isSupported(filePath: string) {
     return filePath.endsWith('.js');
   }

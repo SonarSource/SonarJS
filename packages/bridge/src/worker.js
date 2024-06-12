@@ -49,16 +49,8 @@ exports.delegate = function (worker, type) {
       switch (message.type) {
         case 'success':
           if (message.format === 'multipart') {
-            const fd = new formData();
-            fd.append('ast', Buffer.from(message.result.ast));
-            delete message.result.ast;
-            fd.append('json', JSON.stringify(message.result));
-            // this adds the boundary string that will be used to separate the parts
-            response.set('Content-Type', fd.getHeaders()['content-type']);
-            response.set('Content-Length', fd.getLengthSync());
-            fd.pipe(response);
+            sendFormData(message.result, response);
           } else {
-            delete message.result.ast;
             response.send(message.result);
           }
           break;
@@ -109,7 +101,7 @@ if (parentPort) {
           parentThread.postMessage({
             type: 'success',
             result: output,
-            format: isSupported(output.ast) ? 'multipart' : 'json',
+            format: output.ast ? 'multipart' : 'json',
           });
           break;
         }
@@ -128,7 +120,7 @@ if (parentPort) {
           parentThread.postMessage({
             type: 'success',
             result: output,
-            format: isSupported(output.ast) ? 'multipart' : 'json',
+            format: output.ast ? 'multipart' : 'json',
           });
           break;
         }
@@ -232,6 +224,13 @@ if (parentPort) {
   }
 }
 
-function isSupported(ast) {
-  return ast !== 'not-supported';
+function sendFormData(result, response) {
+  const fd = new formData();
+  fd.append('ast', Buffer.from(result.ast));
+  delete result.ast;
+  fd.append('json', JSON.stringify(result));
+  // this adds the boundary string that will be used to separate the parts
+  response.set('Content-Type', fd.getHeaders()['content-type']);
+  response.set('Content-Length', fd.getLengthSync());
+  fd.pipe(response);
 }
