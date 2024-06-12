@@ -85,6 +85,7 @@ function analyzeFile(
       highlightedSymbols,
       cognitiveComplexity,
     );
+
     return {
       issues,
       ucfgPaths,
@@ -108,7 +109,7 @@ function serializeAst(sourceCode: SourceCode, filePath: string) {
   if (isSupported(filePath)) {
     return serializeInProtobuf(sourceCode.ast);
   } else {
-    return 'plop';
+    return 'not-supported';
   }
 
   function isSupported(filePath: string) {

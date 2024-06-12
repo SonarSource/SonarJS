@@ -25,13 +25,7 @@ export type BridgeResponseType = 'text' | 'formdata';
 /**
  * Sends an HTTP request to a server's endpoint running on localhost.
  */
-export async function request(
-  server: http.Server,
-  path: string,
-  method: string,
-  body: any = {},
-  format: BridgeResponseType = 'text',
-) {
+export async function request(server: http.Server, path: string, method: string, body: any = {}) {
   const res = await fetch(`http://127.0.0.1:${(server.address() as AddressInfo).port}${path}`, {
     headers: {
       'Content-Type': 'application/json',
@@ -40,12 +34,11 @@ export async function request(
     body: method !== 'GET' ? JSON.stringify(body) : undefined,
   });
 
-  switch (format) {
-    case 'text':
-      return res.text();
-    case 'formdata':
-      return res.formData();
-    default:
-      throw new Error(`Unsupported format: ${format}`);
+  const contentTypeHeader = res.headers.get('Content-Type');
+
+  if (contentTypeHeader?.includes('multipart/form-data')) {
+    return res.formData();
+  } else {
+    return res.text();
   }
 }
