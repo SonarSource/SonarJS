@@ -34,6 +34,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.List;
+import javax.annotation.Nullable;
 import org.junit.jupiter.api.Test;
 import org.sonar.plugins.javascript.bridge.protobuf.Node;
 
@@ -68,6 +69,10 @@ public class FormDataUtilsTest {
   }
 
   private static byte[] buildPayload(String jsonData) throws IOException {
+    return buildPayload(jsonData, null);
+  }
+
+  private static byte[] buildPayload(String jsonData, @Nullable byte[] protoData) throws IOException {
     var firstPart = "-----------------------------9051914041544843365972754266" +
       "\r\n" +
       "Content-Disposition: form-data; name=\"json\"" +
@@ -80,7 +85,7 @@ public class FormDataUtilsTest {
       "Content-Disposition: application/octet-stream; name=\"ast\"" +
       "\r\n" +
       "\r\n";
-    var protoData = getSerializedProtoData();
+    protoData = protoData != null ? protoData : getSerializedProtoData();
     var lastPart = "\r\n" +
       "-----------------------------9051914041544843365972754266--" +
       "\r\n";
@@ -89,6 +94,19 @@ public class FormDataUtilsTest {
       protoData,
       lastPart.getBytes(StandardCharsets.UTF_8)
     );
+  }
+
+  @Test
+  void should_throw_an_error_if_ast_is_invalid() throws Exception {
+    HttpResponse<byte[]> mockResponse = mock(HttpResponse.class);
+    var values = new HashMap<String, List<String>>();
+    values.put("Content-Type", List.of("multipart/form-data; boundary=---------------------------9051914041544843365972754266"));
+    when(mockResponse.headers()).thenReturn(HttpHeaders.of(values, (_a, _b) -> true));
+    var invalidAst = new byte[]{42};
+    var body = buildPayload("{\"hello\":\"worlds\"}", invalidAst);
+    when(mockResponse.body()).thenReturn(body);
+    assertThatThrownBy(() -> parseFormData(mockResponse))
+      .isInstanceOf(IllegalStateException.class);
   }
 
   @Test
