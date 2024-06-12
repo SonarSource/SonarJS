@@ -31,6 +31,7 @@ import {
 import { buildSourceCode } from '../builders';
 import { JsTsAnalysisInput, JsTsAnalysisOutput } from './analysis';
 import { serializeInProtobuf } from '../parsers';
+import { info } from '@sonar/shared';
 
 /**
  * Analyzes a JavaScript / TypeScript analysis input
@@ -113,6 +114,7 @@ function serializeAst(sourceCode: SourceCode, filePath: string) {
   try {
     return serializeInProtobuf(sourceCode.ast);
   } catch (e) {
+    info(`Failed to serialize AST for file "${filePath}"`);
     return 'not-supported';
   }
 
