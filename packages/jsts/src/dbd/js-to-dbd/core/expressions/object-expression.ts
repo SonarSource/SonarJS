@@ -1,7 +1,10 @@
 import { createCallInstruction } from '../instructions/call-instruction';
-import { createNewObjectFunctionDefinition } from '../function-definition';
+import {
+  createNewObjectFunctionDefinition,
+  createSetFieldFunctionDefinition,
+} from '../function-definition';
 import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/typescript-estree';
-import { compileAsAssignment, handleExpression } from './index';
+import { handleExpression } from './index';
 import { type ExpressionHandler } from '../expression-handler';
 import { createValue } from '../value';
 
@@ -35,7 +38,23 @@ export const handleObjectExpression: ExpressionHandler<TSESTree.ObjectExpression
 
       const propertyValue = handleExpression(property.value, functionInfo);
 
-      compileAsAssignment(property.key, functionInfo, propertyValue);
+      if (property.key.type !== AST_NODE_TYPES.Identifier) {
+        console.error(`Unable to handle object property key of type ${property.key.type}`);
+        continue;
+      }
+      if (property.computed) {
+        console.error(`Unable to handle computed object keys`);
+        continue;
+      }
+      functionInfo.addInstructions([
+        createCallInstruction(
+          functionInfo.scopeManager.createValueIdentifier(),
+          null,
+          createSetFieldFunctionDefinition(property.key.name),
+          [object, propertyValue],
+          node.loc,
+        ),
+      ]);
     }
   }
 
