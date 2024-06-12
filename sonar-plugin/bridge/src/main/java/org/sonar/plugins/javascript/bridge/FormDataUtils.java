@@ -93,7 +93,7 @@ public class FormDataUtils {
     return -1;
   }
 
-  public static List<byte[]> split(byte[] array, byte[] delimiter) {
+  private static List<byte[]> split(byte[] array, byte[] delimiter) {
     List<byte[]> byteArrays = new LinkedList<>();
     if (delimiter.length == 0) {
       return byteArrays;
