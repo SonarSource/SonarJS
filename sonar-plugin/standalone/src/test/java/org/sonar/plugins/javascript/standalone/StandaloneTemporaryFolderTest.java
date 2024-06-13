@@ -29,7 +29,7 @@ import org.mockito.Mockito;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 
-class StandaloneTemporaryFolderTest {.StandaloneParser
+class StandaloneTemporaryFolderTest {
 
   private static final StandaloneTemporaryFolder STANDALONE_TEMPORARY_FOLDER = new StandaloneTemporaryFolder();
 
