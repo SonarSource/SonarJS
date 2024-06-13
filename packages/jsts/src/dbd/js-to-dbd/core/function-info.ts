@@ -160,7 +160,7 @@ export const createFunctionInfo = <T extends TSESTree.FunctionLike | TSESTree.Pr
       if (functionInfo.exportedObject === undefined) {
         functionInfo.exportedObject = new Map();
       }
-      functionInfo.exportedObject.set('@default', value);
+      functionInfo.exportedObject.set('default', value);
     },
     addExport: (key: string, value: Value) => {
       if (functionInfo.exportedObject === undefined) {

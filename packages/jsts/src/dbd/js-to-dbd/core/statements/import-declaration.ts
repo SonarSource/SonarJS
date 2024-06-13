@@ -3,9 +3,13 @@ import type { StatementHandler } from '../statement-handler';
 import { FunctionInfo } from '../function-info';
 import { createReference } from '../values/reference';
 import { createCallInstruction } from '../instructions/call-instruction';
-import { createFunctionDefinition } from '../function-definition';
-import { createNull } from '../values/constant';
+import {
+  createFunctionDefinitionFromName,
+  createGetFieldFunctionDefinition,
+  createSetFieldFunctionDefinition,
+} from '../function-definition';
 import { Value } from '../value';
+import { unresolvable } from '../scope-manager';
 
 export const handleImportDeclaration: StatementHandler<TSESTree.ImportDeclaration> = (
   node,
@@ -13,7 +17,7 @@ export const handleImportDeclaration: StatementHandler<TSESTree.ImportDeclaratio
 ) => {
   const importValue = resolveImportValue(node, functionInfo);
   if (!importValue) {
-    console.error(`Unable to resolve import declaration ${node.source}`);
+    console.error(`Unable to resolve import declaration ${node.source.value}`);
     return;
   }
   for (const specifier of node.specifiers) {
@@ -26,11 +30,55 @@ function handleSpecifier(
   functionInfo: FunctionInfo,
   importValue: Value,
 ) {
+  const { scopeManager } = functionInfo;
+  const referenceIdentifier = scopeManager.getIdentifierReference(node.local);
+  if (referenceIdentifier.base === unresolvable) {
+    console.error(`Unresolved import name ${node.local.name}`);
+    return;
+  }
+  const scopeReference = createReference(
+    scopeManager.getScopeId(referenceIdentifier.variable.scope),
+  );
+
+  const setImportedField = (extractedValue: Value) => {
+    functionInfo.addInstructions([
+      createCallInstruction(
+        scopeManager.createValueIdentifier(),
+        null,
+        createSetFieldFunctionDefinition(node.local.name),
+        [scopeReference, extractedValue],
+        node.loc,
+      ),
+    ]);
+  };
+
+  const getImportedValue = (exportedField: string) => {
+    const extractedValue = createReference(scopeManager.createValueIdentifier());
+    functionInfo.addInstructions([
+      createCallInstruction(
+        extractedValue.identifier,
+        null,
+        createGetFieldFunctionDefinition(exportedField),
+        [importValue],
+        node.loc,
+      ),
+    ]);
+    return extractedValue;
+  };
+
   switch (node.type) {
     case AST_NODE_TYPES.ImportNamespaceSpecifier:
-    case AST_NODE_TYPES.ImportSpecifier:
+      setImportedField(importValue);
+      break;
+    case AST_NODE_TYPES.ImportSpecifier: {
+      const extractedValue = getImportedValue(node.imported.name);
+      setImportedField(extractedValue);
+      break;
+    }
     case AST_NODE_TYPES.ImportDefaultSpecifier: {
-      const fieldName = node.local.name;
+      const extractedDefault = getImportedValue('default');
+      setImportedField(extractedDefault);
+      break;
     }
   }
 }
@@ -59,7 +107,7 @@ function resolveImportValue(node: TSESTree.ImportDeclaration, functionInfo: Func
       createCallInstruction(
         importValue.identifier,
         null,
-        createFunctionDefinition('main', filename),
+        createFunctionDefinitionFromName('main', filename),
         [],
         node.loc,
       ),
