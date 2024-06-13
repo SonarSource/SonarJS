@@ -371,6 +371,19 @@ class JsTsSensorTest {
   }
 
   @Test
+  void should_send_skipAst_flag_when_there_are_no_consumers() throws Exception {
+    var ctx = createSensorContext(baseDir);
+    var inputFile = createInputFile(ctx);
+    var tsProgram = new TsProgram("1", List.of(inputFile.absolutePath()), List.of());
+    when(bridgeServerMock.createProgram(any())).thenReturn(tsProgram);
+    when(bridgeServerMock.analyzeTypeScript(any())).thenReturn(new AnalysisResponse());
+    createSensor().execute(ctx);
+    var captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
+    verify(bridgeServerMock).analyzeTypeScript(captor.capture());
+    assertThat(captor.getValue().skipAst()).isTrue();
+  }
+
+  @Test
   void should_send_content_when_not_utf8() throws Exception {
     var ctx = createSensorContext(baseDir);
     createVueInputFile(ctx);
