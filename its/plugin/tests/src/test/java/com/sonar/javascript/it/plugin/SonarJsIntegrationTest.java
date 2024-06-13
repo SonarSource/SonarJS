@@ -227,7 +227,7 @@ class SonarJsIntegrationTest {
     String fileContent;
     String fileType = "MAIN";
 
-    boolean skipAst = false;
+    boolean skipAst = true;
   }
 
   static class InitLinter {
@@ -251,6 +251,4 @@ class SonarJsIntegrationTest {
     List<Object> configurations = Collections.emptyList();
     String fileTypeTarget = "MAIN";
   }
-
-  record BridgeResponse(String json, String ast) {}
 }
