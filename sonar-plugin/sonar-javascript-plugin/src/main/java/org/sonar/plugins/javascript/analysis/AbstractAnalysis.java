@@ -113,13 +113,7 @@ abstract class AbstractAnalysis {
           CacheAnalysis.fromResponse(response.ucfgPaths(), response.cpdTokens()),
           file
         );
-        Node responseAst = response.ast();
-        if (responseAst != null) {
-          // When we haven't serialized the AST:
-          // either because no consumer is listening
-          // or the file extension or AST nodes are unsupported
-          consumers.accept(new JsFile(file, ESTreeFactory.from(responseAst, ESTree.Program.class)));
-        }
+        acceptAstResponse(response, file);
       } catch (IOException e) {
         LOG.error("Failed to get response while analyzing " + file.uri(), e);
         throw e;
@@ -128,6 +122,21 @@ abstract class AbstractAnalysis {
       LOG.debug("Processing cache analysis of file: {}", file.uri());
       var cacheAnalysis = cacheStrategy.readAnalysisFromCache();
       analysisProcessor.processCacheAnalysis(context, file, cacheAnalysis);
+    }
+  }
+
+  private void acceptAstResponse(BridgeServer.AnalysisResponse response, InputFile file) {
+    Node responseAst = response.ast();
+    if (responseAst != null) {
+      // When we haven't serialized the AST:
+      // either because no consumer is listening
+      // or the file extension or AST nodes are unsupported
+      try {
+        ESTree.Program program = ESTreeFactory.from(responseAst, ESTree.Program.class);
+        consumers.accept(new JsFile(file, program));
+      } catch (Exception e) {
+        LOG.debug("Failed to deserialize AST for file: {}", file.uri(), e);
+      }
     }
   }
 
