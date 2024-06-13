@@ -19,18 +19,6 @@
  */
 package org.sonar.plugins.javascript.analysis;
 
-import static java.util.Collections.emptyList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.clearInvocations;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.sonar.plugins.javascript.analysis.JsTsSensorTest.PLUGIN_VERSION;
-
 import com.google.gson.Gson;
 import java.io.File;
 import java.io.IOException;
@@ -91,6 +79,18 @@ import org.sonar.plugins.javascript.bridge.ServerAlreadyFailedException;
 import org.sonar.plugins.javascript.bridge.TsConfigFile;
 import org.sonar.plugins.javascript.nodejs.NodeCommandException;
 import org.sonar.plugins.javascript.sonarlint.SonarLintTypeCheckingChecker;
+
+import static java.util.Collections.emptyList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.clearInvocations;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.sonar.plugins.javascript.analysis.JsTsSensorTest.PLUGIN_VERSION;
 
 class JavaScriptEslintBasedSensorTest {
 
@@ -454,7 +454,7 @@ class JavaScriptEslintBasedSensorTest {
   void should_catch_if_bridge_server_not_started() throws Exception {
     doThrow(new IllegalStateException("Failed to start the bridge server"))
       .when(bridgeServerMock)
-      .startServerLazily(context);
+      .startServerLazily(any());
 
     var sensor = createSensor();
     createInputFile(context);

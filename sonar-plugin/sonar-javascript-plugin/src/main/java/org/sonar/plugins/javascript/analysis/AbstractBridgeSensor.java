@@ -19,8 +19,6 @@
  */
 package org.sonar.plugins.javascript.analysis;
 
-import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_EXECUTABLE_PROPERTY;
-
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -33,9 +31,12 @@ import org.sonar.plugins.javascript.CancellationException;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.analysis.cache.CacheStrategies;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
+import org.sonar.plugins.javascript.bridge.BridgeServerConfig;
 import org.sonar.plugins.javascript.bridge.ServerAlreadyFailedException;
 import org.sonar.plugins.javascript.nodejs.NodeCommandException;
 import org.sonar.plugins.javascript.utils.Exclusions;
+
+import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_EXECUTABLE_PROPERTY;
 
 public abstract class AbstractBridgeSensor implements Sensor {
 
@@ -72,7 +73,7 @@ public abstract class AbstractBridgeSensor implements Sensor {
         LOG.info("No input files found for analysis");
         return;
       }
-      bridgeServer.startServerLazily(context);
+      bridgeServer.startServerLazily(BridgeServerConfig.fromSensorContext(context));
       analyzeFiles(inputFiles);
     } catch (CancellationException e) {
       // do not propagate the exception

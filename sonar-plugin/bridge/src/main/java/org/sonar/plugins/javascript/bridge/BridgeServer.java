@@ -25,7 +25,6 @@ import javax.annotation.Nullable;
 import org.sonar.api.Startable;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
-import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonar.plugins.javascript.bridge.protobuf.Node;
 import org.sonarsource.api.sonarlint.SonarLintSide;
@@ -35,7 +34,7 @@ import static org.sonarsource.api.sonarlint.SonarLintSide.INSTANCE;
 @ScannerSide
 @SonarLintSide(lifespan = INSTANCE)
 public interface BridgeServer extends Startable {
-  void startServerLazily(SensorContext context) throws IOException;
+  void startServerLazily(BridgeServerConfig context) throws IOException;
 
   void initLinter(List<EslintRule> rules, List<String> environments, List<String> globals, AnalysisMode analysisMode, String baseDir,
     List<String> exclusions) throws IOException;

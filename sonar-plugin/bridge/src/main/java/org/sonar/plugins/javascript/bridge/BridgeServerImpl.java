@@ -19,10 +19,6 @@
  */
 package org.sonar.plugins.javascript.bridge;
 
-import static java.util.Collections.emptyList;
-import static org.sonar.plugins.javascript.bridge.NetUtils.findOpenPort;
-import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_EXECUTABLE_PROPERTY;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import java.io.File;
@@ -51,12 +47,15 @@ import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.SonarProduct;
-import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.plugins.javascript.nodejs.NodeCommand;
 import org.sonar.plugins.javascript.nodejs.NodeCommandBuilder;
 import org.sonar.plugins.javascript.nodejs.NodeCommandException;
+
+import static java.util.Collections.emptyList;
+import static org.sonar.plugins.javascript.bridge.NetUtils.findOpenPort;
+import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_EXECUTABLE_PROPERTY;
 
 public class BridgeServerImpl implements BridgeServer {
 
@@ -176,7 +175,7 @@ public class BridgeServerImpl implements BridgeServer {
     embeddedNode.deploy();
   }
 
-  void startServer(SensorContext context, List<Path> deployedBundles) throws IOException {
+  void startServer(BridgeServerConfig serverConfig, List<Path> deployedBundles) throws IOException {
     LOG.debug("Starting server");
     long start = System.currentTimeMillis();
     port = findOpenPort();
@@ -193,7 +192,7 @@ public class BridgeServerImpl implements BridgeServer {
       .stream()
       .map(Path::toString)
       .collect(Collectors.joining(File.pathSeparator));
-    nodeCommand = initNodeCommand(context, scriptFile, bundles);
+    nodeCommand = initNodeCommand(serverConfig, scriptFile, bundles);
     nodeCommand.start();
 
     if (!waitServerToStart(timeoutSeconds * 1000)) {
@@ -226,12 +225,12 @@ public class BridgeServerImpl implements BridgeServer {
     return true;
   }
 
-  private NodeCommand initNodeCommand(SensorContext context, File scriptFile, String bundles)
+  private NodeCommand initNodeCommand(BridgeServerConfig serverConfig, File scriptFile, String bundles)
     throws IOException {
-    var workdir = context.fileSystem().workDir().getAbsolutePath();
-    var config = context.config();
+    var workdir = serverConfig.workDirAbsolutePath();
+    var config = serverConfig.config();
     var allowTsParserJsFiles = config.getBoolean(ALLOW_TS_PARSER_JS_FILES).orElse(true);
-    var isSonarLint = context.runtime().getProduct() == SonarProduct.SONARLINT;
+    var isSonarLint = serverConfig.product() == SonarProduct.SONARLINT;
     if (isSonarLint) {
       LOG.info("Running in SonarLint context, metrics will not be computed.");
     }
@@ -243,7 +242,7 @@ public class BridgeServerImpl implements BridgeServer {
       .embeddedNode(embeddedNode)
       .pathResolver(bundle)
       .minNodeVersion(NodeDeprecationWarning.MIN_SUPPORTED_NODE_VERSION)
-      .configuration(context.config())
+      .configuration(serverConfig.config())
       .script(scriptFile.getAbsolutePath())
       .scriptArgs(
         String.valueOf(port),
@@ -256,7 +255,7 @@ public class BridgeServerImpl implements BridgeServer {
       )
       .env(getEnv());
 
-    context
+    serverConfig
       .config()
       .getInt(MAX_OLD_SPACE_SIZE_PROPERTY)
       .ifPresent(nodeCommandBuilder::maxOldSpaceSize);
@@ -275,7 +274,7 @@ public class BridgeServerImpl implements BridgeServer {
   }
 
   @Override
-  public void startServerLazily(SensorContext context) throws IOException {
+  public void startServerLazily(BridgeServerConfig serverConfig) throws IOException {
     if (status == Status.FAILED) {
       // required for SonarLint context to avoid restarting already failed server
       throw new ServerAlreadyFailedException();
@@ -296,12 +295,12 @@ public class BridgeServerImpl implements BridgeServer {
         status = Status.FAILED;
         throw new ServerAlreadyFailedException();
       }
-      deploy(context.config());
+      deploy(serverConfig.config());
       List<Path> deployedBundles = rulesBundles.deploy(temporaryDeployLocation.resolve("package"));
       rulesBundles
         .getUcfgRulesBundle()
         .ifPresent(rulesBundle -> PluginInfo.setUcfgPluginVersion(rulesBundle.bundleVersion()));
-      startServer(context, deployedBundles);
+      startServer(serverConfig, deployedBundles);
     } catch (NodeCommandException e) {
       status = Status.FAILED;
       throw e;
