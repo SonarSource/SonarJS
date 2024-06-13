@@ -847,6 +847,51 @@ class JsTsSensorTest {
     assertThat(consumer.done).isTrue();
   }
 
+  @Test
+  void should_not_invoke_analysis_consumers_when_cannot_deserialize() throws Exception {
+    var consumer = new JsAnalysisConsumer() {
+      final List<JsFile> files = new ArrayList<>();
+      boolean done;
+
+      @Override
+      public void accept(JsFile jsFile) {
+        files.add(jsFile);
+      }
+
+      @Override
+      public void doneAnalysis() {
+        done = true;
+      }
+    };
+
+    var sensor = new JsTsSensor(
+      checks(ESLINT_BASED_RULE, "S2260"),
+      bridgeServerMock,
+      analysisWithProgram(),
+      analysisWithWatchProgram(),
+      new AnalysisConsumers(List.of(consumer))
+    );
+
+    var inputFile = createInputFile(context);
+    var tsProgram = new TsProgram("1", List.of(inputFile.absolutePath()), List.of(), false, null);
+    when(bridgeServerMock.createProgram(any())).thenReturn(tsProgram);
+
+    Node erroneousNode = Node.newBuilder()
+      .setType(NodeType.BlockStatementType)
+      .build();
+
+    when(bridgeServerMock.analyzeTypeScript(any())).thenReturn(
+      new AnalysisResponse(null, List.of(), List.of(), List.of(), new BridgeServer.Metrics(), List.of(), List.of(), erroneousNode)
+    );
+
+    sensor.execute(context);
+    assertThat(consumer.files).isEmpty();
+    assertThat(consumer.done).isTrue();
+
+    assertThat(logTester.logs(Level.DEBUG))
+      .contains("Failed to deserialize AST for file: " + inputFile.uri());
+  }
+
   private JsTsSensor createSensor() {
     return new JsTsSensor(
       checks(ESLINT_BASED_RULE, "S2260"),

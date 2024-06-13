@@ -572,4 +572,17 @@ class ESTreeFactoryTest {
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessageStartingWith("Unknown node type: UNRECOGNIZED");
   }
+
+  @Test
+  void throw_exception_for_incorrect_cast() {
+    Node block = Node.newBuilder()
+      .setType(NodeType.BlockStatementType)
+      .setBlockStatement(BlockStatement.newBuilder().build())
+      .build();
+
+    assertThatThrownBy(() -> ESTreeFactory.from(block, ESTree.Super.class))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Expected class org.sonar.plugins.javascript.api.estree.ESTree$Super " +
+        "but got class org.sonar.plugins.javascript.api.estree.ESTree$BlockStatement");
+  }
 }

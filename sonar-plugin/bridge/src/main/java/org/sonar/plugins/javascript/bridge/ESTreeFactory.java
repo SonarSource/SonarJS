@@ -180,6 +180,9 @@ public class ESTreeFactory {
       case UNRECOGNIZED ->
         throw new IllegalArgumentException("Unknown node type: " + node.getType() + " at " + node.getLoc());
     };
+    if (!clazz.isInstance(estreeNode)) {
+      throw new IllegalStateException("Expected " + clazz + " but got " + estreeNode.getClass());
+    }
     return clazz.cast(estreeNode);
   }
 
