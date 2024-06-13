@@ -108,7 +108,7 @@ function analyzeFile(
   }
 }
 
-function serializeAst(sourceCode: SourceCode, filePath: string, skipAst: boolean = false) {
+function serializeAst(sourceCode: SourceCode, filePath: string, skipAst = false) {
   if (!isSupported(filePath) || skipAst) {
     return null;
   }
