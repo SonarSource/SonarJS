@@ -226,6 +226,8 @@ class SonarJsIntegrationTest {
     String filePath;
     String fileContent;
     String fileType = "MAIN";
+
+    boolean skipAst = false;
   }
 
   static class InitLinter {
