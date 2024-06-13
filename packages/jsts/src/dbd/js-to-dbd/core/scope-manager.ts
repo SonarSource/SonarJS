@@ -124,6 +124,7 @@ export interface ScopeManager {
   isParameter(node: TSESTree.Identifier): boolean;
   isModule(): boolean;
   getFunctionDefinition(node: TSESTree.Node): FunctionDefinition;
+  getParserServices(): ParserServicesWithTypeInformation;
 }
 export const unresolvable = Symbol();
 
@@ -174,6 +175,9 @@ export const createScopeManager = (sourceCode: SourceCode, fileName: string): Sc
     },
     getFunctionDefinition(node: TSESTree.Node): FunctionDefinition {
       return getFunctionDefinition(sourceCode, node)!;
+    },
+    getParserServices() {
+      return sourceCode.parserServices as unknown as ParserServicesWithTypeInformation;
     },
   };
 };

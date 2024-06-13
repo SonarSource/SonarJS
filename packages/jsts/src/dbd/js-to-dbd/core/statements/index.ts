@@ -8,6 +8,7 @@ import { handleExpressionStatement } from './expression-statement';
 import { handleReturnStatement } from './return-statement';
 import { handleExportDefaultDeclaration } from './export-default-declaration';
 import { handleExportNamedDeclaration } from './export-named-declaration';
+import { handleImportDeclaration } from './import-declaration';
 
 export const handleStatement: StatementHandler = (node, scopeManager) => {
   console.info('handleStatement', node.type);
@@ -45,6 +46,10 @@ export const handleStatement: StatementHandler = (node, scopeManager) => {
     }
     case AST_NODE_TYPES.ExportNamedDeclaration: {
       statementHandler = handleExportNamedDeclaration;
+      break;
+    }
+    case AST_NODE_TYPES.ImportDeclaration: {
+      statementHandler = handleImportDeclaration;
       break;
     }
     default: {
