@@ -102,7 +102,7 @@ abstract class AbstractAnalysis {
         LOG.debug("Analyzing file: {}", file.uri());
         progressReport.nextFile(file.toString());
         var fileContent = contextUtils.shouldSendFileContent(file) ? file.contents() : null;
-        var skipAst = consumers.getSize() < 1;
+        var skipAst = !consumers.hasConsumers();
         var request = getJsAnalysisRequest(file, fileContent, tsProgram, tsConfigs, skipAst);
 
         var response = isJavaScript(file)

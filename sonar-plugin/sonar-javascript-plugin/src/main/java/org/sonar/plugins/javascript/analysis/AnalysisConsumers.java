@@ -55,7 +55,7 @@ public class AnalysisConsumers implements JsAnalysisConsumer {
     consumers.forEach(JsAnalysisConsumer::doneAnalysis);
   }
 
-  public int getSize() {
-    return consumers.size();
+  public boolean hasConsumers() {
+    return ! consumers.isEmpty();
   }
 }
