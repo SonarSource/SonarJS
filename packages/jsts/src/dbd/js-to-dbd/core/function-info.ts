@@ -21,13 +21,14 @@ import { createBranchingInstruction } from './instructions/branching-instruction
 import { Value } from './value';
 
 export type FunctionInfo = {
+  readonly scopeId: number;
   readonly scopeManager: ScopeManager;
   readonly fileName: string;
   readonly blocks: Array<Block>;
   readonly definition: FunctionDefinition;
   readonly parameters: Array<Parameter>;
   readonly functionCalls: Set<string>;
-  exportedObject: Map<string, Value> | undefined;
+  readonly exportedObject: Map<string, Value>;
   readonly importedFiles: Map<string, Value>;
 
   createBlock(location: Location): Block;
@@ -40,6 +41,7 @@ export type FunctionInfo = {
   addImport(filename: string, value: Value): void;
   getImport(filename: string): Value;
   hasImport(filename: string): boolean;
+  createReturnInstruction(value: Value, loc: Location): void;
 };
 
 export const createFunctionInfo = <T extends TSESTree.FunctionLike | TSESTree.Program>(
@@ -47,97 +49,22 @@ export const createFunctionInfo = <T extends TSESTree.FunctionLike | TSESTree.Pr
   node: T,
   scopeManager: ScopeManager,
 ): FunctionInfo => {
-  const blocks: Array<Block> = [];
   let blockIndex: number = 0;
-
+  const blocks: Array<Block> = [];
   const location = node.loc;
-  const definition =
-    node.type !== AST_NODE_TYPES.Program
-      ? scopeManager.getFunctionDefinition(node)
-      : createFunctionDefinitionFromName(name, scopeManager.fileName);
   // create the main function block
   const currentScope = scopeManager.getScope(node);
-  const currentScopeId = scopeManager.getScopeId(currentScope);
-  const block = createBlock(blockIndex++, location);
-  blocks.push(block);
-  // add the scope creation instruction
-  block.instructions.push(createScopeDeclarationInstruction(currentScopeId, location));
-  const parameters = [];
-
-  if (node.type !== AST_NODE_TYPES.Program) {
-    const parentScopeName = '@parent';
-    const parentReference = createParameter(
-      scopeManager.createValueIdentifier(),
-      parentScopeName,
-      location,
-    );
-    parameters.push(parentReference);
-
-    // resolve the function parameters
-    const functionParametersName = '@params';
-    const functionParametersReference = createParameter(
-      scopeManager.createValueIdentifier(),
-      functionParametersName,
-      location,
-    );
-    parameters.push(functionParametersReference);
-
-    // add the "set parent" instruction
-    block.instructions.push(
-      createCallInstruction(
-        scopeManager.createValueIdentifier(),
-        null,
-        createSetFieldFunctionDefinition('@parent'),
-        [createReference(currentScopeId), parentReference],
-        location,
-      ),
-    );
-
-    let pointerScope = currentScope;
-    while (pointerScope.upper) {
-      const parentScope = pointerScope.upper;
-      block.instructions.push(
-        createCallInstruction(
-          scopeManager.getScopeId(parentScope),
-          null,
-          createGetFieldFunctionDefinition('@parent'),
-          [createReference(scopeManager.getScopeId(pointerScope))],
-          location,
-        ),
-      );
-      pointerScope = parentScope;
-    }
-  } else {
-    setGlobals(scopeManager, block, location, currentScopeId);
-
-    // create the main function block
-    const mainBlock = createBlock(blockIndex++, location);
-    blocks.push(mainBlock);
-
-    // branch the global block to the main block
-    block.instructions.push(createBranchingInstruction(mainBlock, location));
-
-    if (scopeManager.isModule()) {
-      const moduleScopeId = 1;
-      mainBlock.instructions.push(createScopeDeclarationInstruction(moduleScopeId, location));
-      mainBlock.instructions.push(
-        createCallInstruction(
-          scopeManager.createValueIdentifier(),
-          null,
-          createSetFieldFunctionDefinition('@parent'),
-          [createReference(moduleScopeId), createReference(0)],
-          location,
-        ),
-      );
-    }
-  }
-
+  const scopeId = scopeManager.getScopeId(currentScope);
   const functionInfo: FunctionInfo = {
+    scopeId,
     scopeManager,
     fileName: scopeManager.fileName,
-    definition,
+    definition:
+      node.type !== AST_NODE_TYPES.Program
+        ? scopeManager.getFunctionDefinition(node)
+        : createFunctionDefinitionFromName(name, scopeManager.fileName),
     blocks,
-    parameters,
+    parameters: [],
     functionCalls: new Set(),
     exportedObject: new Map(),
     importedFiles: new Map(),
@@ -157,15 +84,9 @@ export const createFunctionInfo = <T extends TSESTree.FunctionLike | TSESTree.Pr
       blocks[blocks.length - 1].instructions.push(...instructions);
     },
     addDefaultExport: value => {
-      if (functionInfo.exportedObject === undefined) {
-        functionInfo.exportedObject = new Map();
-      }
       functionInfo.exportedObject.set('default', value);
     },
     addExport: (key: string, value: Value) => {
-      if (functionInfo.exportedObject === undefined) {
-        functionInfo.exportedObject = new Map();
-      }
       functionInfo.exportedObject.set(key, value);
     },
     addImport: (fileName, value) => {
@@ -177,19 +98,136 @@ export const createFunctionInfo = <T extends TSESTree.FunctionLike | TSESTree.Pr
     getImport(filename: string): Value {
       return functionInfo.importedFiles.get(filename)!;
     },
+    createReturnInstruction(value: Value, loc: Location) {
+      functionInfo.addInstructions([
+        createCallInstruction(
+          scopeManager.createValueIdentifier(),
+          null,
+          createSetFieldFunctionDefinition('@return'),
+          [returnReference, value],
+          loc,
+        ),
+        createReturnInstruction(returnReference, node.loc),
+      ]);
+    },
   };
+  functionInfo.pushBlock(functionInfo.createBlock(location));
+  // add the scope creation instruction
+  functionInfo.addInstructions([createScopeDeclarationInstruction(scopeId, location)]);
+
+  // Initialize the returnObject
+  const returnReference = createReference(scopeManager.createValueIdentifier());
+  functionInfo.addInstructions([
+    createCallInstruction(
+      returnReference.identifier,
+      null,
+      createNewObjectFunctionDefinition(),
+      [],
+      location,
+    ),
+  ]);
+
+  if (node.type !== AST_NODE_TYPES.Program) {
+    // prepare local scope in return object
+    functionInfo.addInstructions([
+      createCallInstruction(
+        scopeManager.createValueIdentifier(),
+        null,
+        createSetFieldFunctionDefinition('@scope'),
+        [returnReference, createReference(scopeId)],
+        location,
+      ),
+    ]);
+
+    const parentScopeName = '@parent';
+    const parentReference = createParameter(
+      scopeManager.createValueIdentifier(),
+      parentScopeName,
+      location,
+    );
+    functionInfo.parameters.push(parentReference);
+
+    // resolve the function parameters
+    const functionParametersName = '@params';
+    const functionParametersReference = createParameter(
+      scopeManager.createValueIdentifier(),
+      functionParametersName,
+      location,
+    );
+    functionInfo.parameters.push(functionParametersReference);
+
+    const parentScopeReference = scopeManager.createValueIdentifier();
+    // add the "set parent" instruction
+    functionInfo.addInstructions([
+      createCallInstruction(
+        parentScopeReference,
+        null,
+        createSetFieldFunctionDefinition('@parent'),
+        [createReference(scopeId), parentReference],
+        location,
+      ),
+    ]);
+
+    let pointerScope = currentScope;
+    while (pointerScope.upper) {
+      const parentScope = pointerScope.upper;
+      functionInfo.addInstructions([
+        createCallInstruction(
+          scopeManager.getScopeId(parentScope),
+          null,
+          createGetFieldFunctionDefinition('@parent'),
+          [createReference(scopeManager.getScopeId(pointerScope))],
+          location,
+        ),
+      ]);
+      pointerScope = parentScope;
+    }
+  } else {
+    setGlobals(functionInfo, location, scopeId);
+    // create the main function block
+    const mainBlock = functionInfo.createBlock(location);
+    functionInfo.addInstructions([createBranchingInstruction(mainBlock, location)]);
+    functionInfo.pushBlock(mainBlock);
+
+    // branch the global block to the main block
+
+    if (scopeManager.isModule()) {
+      // TODO: Check for a more solid approach to get a moduleId
+      const moduleScopeId = 1;
+      mainBlock.instructions.push(createScopeDeclarationInstruction(moduleScopeId, location));
+      mainBlock.instructions.push(
+        createCallInstruction(
+          scopeManager.createValueIdentifier(),
+          null,
+          createSetFieldFunctionDefinition('@parent'),
+          [createReference(moduleScopeId), createReference(0)],
+          location,
+        ),
+      );
+    }
+
+    // prepare local scope in return object
+    functionInfo.addInstructions([
+      createCallInstruction(
+        scopeManager.createValueIdentifier(),
+        null,
+        createSetFieldFunctionDefinition('@scope'),
+        [returnReference, createReference(scopeManager.isModule() ? 1 : 0)],
+        location,
+      ),
+    ]);
+  }
 
   // handle the body statements
   getBody(node).forEach((statement: TSESTree.Statement) => {
     return handleStatement(statement, functionInfo);
   });
 
-  const lastBlock = blocks[blocks.length - 1];
+  const lastBlock = functionInfo.getCurrentBlock();
 
   if (!isTerminated(lastBlock)) {
-    if (node.type === AST_NODE_TYPES.Program && functionInfo.exportedObject) {
-      // Serialize the functionInfo.exportedObject
-      const returnValue = createReference(functionInfo.scopeManager.createValueIdentifier());
+    if (node.type === AST_NODE_TYPES.Program) {
+      const returnValue = createReference(scopeManager.createValueIdentifier());
       functionInfo.addInstructions([
         createCallInstruction(
           returnValue.identifier,
@@ -211,9 +249,9 @@ export const createFunctionInfo = <T extends TSESTree.FunctionLike | TSESTree.Pr
           );
         }),
       );
-      functionInfo.addInstructions([createReturnInstruction(returnValue, location)]);
+      functionInfo.createReturnInstruction(returnValue, location);
     } else {
-      lastBlock.instructions.push(createReturnInstruction(createNull(), location));
+      functionInfo.createReturnInstruction(createNull(), location);
     }
   }
 
@@ -249,21 +287,20 @@ function getBody(node: TSESTree.FunctionLike | TSESTree.Program): TSESTree.Progr
 }
 
 function setGlobals(
-  scopeManager: ScopeManager,
-  block: Block,
+  functionInfo: FunctionInfo,
   location: TSESTree.SourceLocation,
   scopeId: number,
 ) {
   // globalThis is a reference to the outer scope itself
-  block.instructions.push(
+  functionInfo.addInstructions([
     createCallInstruction(
-      scopeManager.createValueIdentifier(),
+      functionInfo.scopeManager.createValueIdentifier(),
       null,
       createSetFieldFunctionDefinition('globalThis'),
       [createReference(scopeId), createReference(scopeId)],
       location,
     ),
-  );
+  ]);
 }
 
 function getFunctionName(
