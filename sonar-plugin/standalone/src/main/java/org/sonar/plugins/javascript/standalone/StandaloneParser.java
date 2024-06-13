@@ -85,7 +85,8 @@ public class StandaloneParser implements AutoCloseable {
     bridge.stop();
   }
 
-  private static class EmptyConfiguration implements org.sonar.api.config.Configuration {
+  // Visible for testing
+  static class EmptyConfiguration implements org.sonar.api.config.Configuration {
 
     @Override
     public Optional<String> get(String key) {

@@ -66,4 +66,12 @@ class StandaloneParserTest {
       .hasMessage("Failed to parse the code");
   }
 
+  @Test
+  void test_empty_configuration() {
+    StandaloneParser.EmptyConfiguration emptyConfiguration = new StandaloneParser.EmptyConfiguration();
+    assertThat(emptyConfiguration.get("key")).isEmpty();
+    assertThat(emptyConfiguration.hasKey("key")).isFalse();
+    assertThat(emptyConfiguration.getStringArray("key")).isEmpty();
+  }
+
 }
