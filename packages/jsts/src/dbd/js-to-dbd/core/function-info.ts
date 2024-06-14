@@ -212,7 +212,7 @@ export const createFunctionInfo = <T extends TSESTree.FunctionLike | TSESTree.Pr
         scopeManager.createValueIdentifier(),
         null,
         createSetFieldFunctionDefinition('@scope'),
-        [returnReference, createReference(scopeManager.isModule() ? 1 : 0)],
+        [returnReference, createReference(scopeManager.getTopLevelScopeId())],
         location,
       ),
     ]);

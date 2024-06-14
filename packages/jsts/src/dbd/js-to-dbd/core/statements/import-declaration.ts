@@ -10,6 +10,7 @@ import {
 } from '../function-definition';
 import { Value } from '../value';
 import { unresolvable } from '../scope-manager';
+import { executeCall } from '../expressions/call-expression';
 
 export const handleImportDeclaration: StatementHandler<TSESTree.ImportDeclaration> = (
   node,
@@ -100,20 +101,11 @@ function resolveImportValue(node: TSESTree.ImportDeclaration, functionInfo: Func
     console.error(`Unable to resolve filename at ${node.range}`);
     return null;
   }
-  let importValue;
   if (!functionInfo.hasImport(filename)) {
-    importValue = createReference(functionInfo.scopeManager.createValueIdentifier());
-    functionInfo.addInstructions([
-      createCallInstruction(
-        importValue.identifier,
-        null,
-        createFunctionDefinitionFromName('main', filename),
-        [],
-        node.loc,
-      ),
-    ]);
-    functionInfo.addImport(filename, importValue);
+    functionInfo.addImport(
+      filename,
+      executeCall(createFunctionDefinitionFromName('main', filename), functionInfo, [], node.loc),
+    );
   }
-  importValue = functionInfo.getImport(filename);
-  return importValue;
+  return functionInfo.getImport(filename);
 }

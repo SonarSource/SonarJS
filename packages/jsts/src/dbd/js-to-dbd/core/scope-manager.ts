@@ -116,6 +116,7 @@ export interface ScopeManager {
   readonly functionInfos: Array<FunctionInfo>;
   createValueIdentifier(): number;
   addFunctionInfo(functionInfo: FunctionInfo): void;
+  getTopLevelScopeId(): number;
   getScopeId(scope: Scope.Scope): number;
   getScope(node: TSESTree.NodeOrTokenData): Scope.Scope;
   getIdentifierReference(node: TSESTree.Identifier): ReferenceRecord;
@@ -137,6 +138,9 @@ export const createScopeManager = (sourceCode: SourceCode, fileName: string): Sc
   const functionInfos: Array<FunctionInfo> = [];
   const valueByConstantTypeRegistry: ScopeManager['valueByConstantTypeRegistry'] = new Map([]);
   const constantRegistry: ScopeManager['constantRegistry'] = new Map([]);
+  const isModule = () => {
+    return sourceCode.scopeManager!.isModule();
+  };
 
   return {
     fileName,
@@ -146,6 +150,9 @@ export const createScopeManager = (sourceCode: SourceCode, fileName: string): Sc
     constantRegistry,
     addFunctionInfo(functionInfo) {
       functionInfos.push(functionInfo);
+    },
+    getTopLevelScopeId() {
+      return isModule() ? 1 : 0;
     },
     getScopeId(scope: Scope.Scope) {
       return scopes.indexOf(scope);
@@ -170,9 +177,7 @@ export const createScopeManager = (sourceCode: SourceCode, fileName: string): Sc
     getVariableFromIdentifier: node => getVariableFromIdentifier(sourceCode, node),
     getDefinitionFromIdentifier: node => getDefinitionFromIdentifier(sourceCode, node),
     isParameter: node => isParameter(sourceCode, node),
-    isModule: () => {
-      return sourceCode.scopeManager!.isModule();
-    },
+    isModule,
     getFunctionDefinition(node: TSESTree.Node): FunctionDefinition {
       return getFunctionDefinition(sourceCode, node)!;
     },

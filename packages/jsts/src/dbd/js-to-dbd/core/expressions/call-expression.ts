@@ -17,24 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { TSESTree } from '@typescript-eslint/utils';
+import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/utils';
 import { handleExpression } from './index';
 import { createCallInstruction } from '../instructions/call-instruction';
 import { Value } from '../value';
 import { createReference } from '../values/reference';
 import type { ExpressionHandler } from '../expression-handler';
 import {
+  createGetFieldFunctionDefinition,
   createNewObjectFunctionDefinition,
   createSetFieldFunctionDefinition,
+  FunctionDefinition,
 } from '../function-definition';
 import { getParameterField } from '../utils';
+import { FunctionInfo } from '../function-info';
+import type { Location } from '../location';
+import { unresolvable } from '../scope-manager';
 
 export const handleCallExpression: ExpressionHandler<TSESTree.CallExpression> = (
   node,
   functionInfo,
 ) => {
   const { scopeManager, addInstructions } = functionInfo;
-  const { createValueIdentifier } = scopeManager;
 
   const { callee, arguments: argumentExpressions } = node;
 
@@ -44,9 +48,16 @@ export const handleCallExpression: ExpressionHandler<TSESTree.CallExpression> = 
 
   const operands: Array<Value> = [];
 
-  // first argument is the current scope
-  operands.push(createReference(scopeManager.getScopeId(scopeManager.getScope(node))));
-  const value = createReference(createValueIdentifier());
+  if (callee.type === AST_NODE_TYPES.Identifier) {
+    const identifierReference = functionInfo.scopeManager.getIdentifierReference(callee);
+    if (identifierReference.base !== unresolvable) {
+      const scopeId = functionInfo.scopeManager.getScopeId(identifierReference.variable.scope);
+      // first argument is the function declaration scope
+      operands.push(createReference(scopeId));
+    }
+  } else {
+    operands.push(createReference(0));
+  }
 
   // second argument is an array of the passed arguments filled
   const argumentValue = createReference(scopeManager.createValueIdentifier());
@@ -71,18 +82,42 @@ export const handleCallExpression: ExpressionHandler<TSESTree.CallExpression> = 
   ]);
   operands.push(argumentValue);
 
-  const functionDefinition = functionInfo.scopeManager.getFunctionDefinition(callee);
+  const functionDefinition = scopeManager.getFunctionDefinition(callee);
   functionInfo.addFunctionCall(functionDefinition);
+  return executeCall(functionDefinition, functionInfo, operands, node.loc);
+};
+
+export function executeCall(
+  functionDefinition: FunctionDefinition,
+  functionInfo: FunctionInfo,
+  operands: Array<Value>,
+  loc: Location,
+) {
+  const { scopeManager, addInstructions } = functionInfo;
+  const { createValueIdentifier } = scopeManager;
+
+  const value = createReference(createValueIdentifier());
+  const resultValue = createReference(scopeManager.createValueIdentifier());
   addInstructions([
-    createCallInstruction(value.identifier, null, functionDefinition, operands, node.loc),
+    createCallInstruction(resultValue.identifier, null, functionDefinition, operands, loc),
+    createCallInstruction(
+      value.identifier,
+      null,
+      createGetFieldFunctionDefinition('@return'),
+      [resultValue],
+      loc,
+    ),
+    // TODO: What to do with this closure scope? keep resultValue in scope manager?
+    //  * need to make sure we keep track of references created
+    //  * only create the call instruction if value.identifier is going to be used for a call?
     // createCallInstruction(
     //   value.identifier,
     //   null,
-    //   functionInfo.scopeManager.getFunctionDefinition(callee),
-    //   operands,
+    //   createGetFieldFunctionDefinition('@scope'),
+    //   [resultValue],
     //   node.loc,
     // ),
   ]);
 
   return value;
-};
+}
