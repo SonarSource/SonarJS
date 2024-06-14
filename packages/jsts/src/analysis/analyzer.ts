@@ -111,22 +111,11 @@ function analyzeFile(
 }
 
 function serializeAst(sourceCode: SourceCode, filePath: string) {
-  if (!isSupported(filePath)) {
-    return null;
-  }
-
   try {
     return serializeInProtobuf(sourceCode.ast);
   } catch (e) {
     info(`Failed to serialize AST for file "${filePath}"`);
     return null;
-  }
-
-  /**
-   * Remove this when we figure out how to serialize the TypeScript AST
-   */
-  function isSupported(filePath: string) {
-    return filePath.endsWith('.js');
   }
 }
 

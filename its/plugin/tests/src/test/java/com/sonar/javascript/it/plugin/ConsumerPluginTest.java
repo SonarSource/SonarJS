@@ -100,6 +100,6 @@ class ConsumerPluginTest {
     assertThat(buildResult.getLogsLines(l -> l.matches(logMatch))).hasSize(1);
 
     // TS file is not processed yet.
-    assertThat(buildResult.getLogsLines(l -> l.matches(".*Processing file src/dir.*"))).hasSize(1);
+    assertThat(buildResult.getLogsLines(l -> l.matches(".*Processing file src/dir.*"))).hasSize(2);
   }
 }

@@ -149,7 +149,7 @@ describe('router', () => {
     const filePath = path.join(fixtures, 'file.ts');
     const fileType = 'MAIN';
     const tsConfig = path.join(fixtures, 'tsconfig.json');
-    const data = { filePath, fileType, tsConfigs: [tsConfig] };
+    const data = { filePath, fileType, tsConfigs: [tsConfig], skipAst: true };
     const response = (await request(server, '/analyze-ts', 'POST', data)) as string;
     const {
       issues: [issue],
@@ -176,7 +176,7 @@ describe('router', () => {
     const { programId } = JSON.parse(
       (await request(server, '/create-program', 'POST', { tsConfig })) as string,
     );
-    const data = { filePath, fileType, programId };
+    const data = { filePath, fileType, programId, skipAst: true };
     const response = (await request(server, '/analyze-with-program', 'POST', data)) as string;
     const {
       issues: [issue],
