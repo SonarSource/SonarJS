@@ -97,9 +97,8 @@ class SonarJsIntegrationTest {
     r.fileContent =
       "function foo() { \n" + "  var a; \n" + "  var c; // NOSONAR\n" + "  var b = 42; \n" + "} \n";
     r.filePath = temp.resolve("file.js").toAbsolutePath().toString();
-    HttpResponse<String> response = bridge.request(gson.toJson(r), "analyze-js");
-    var parsedResponse = parseFormData(response);
-    JsonObject jsonObject = gson.fromJson(parsedResponse.json(), JsonObject.class);
+    String response = bridge.request(gson.toJson(r), "analyze-js");
+    JsonObject jsonObject = gson.fromJson(response, JsonObject.class);
     JsonArray issues = jsonObject.getAsJsonArray("issues");
     assertThat(issues).hasSize(3);
     assertThat(issues)
@@ -109,35 +108,6 @@ class SonarJsIntegrationTest {
     JsonObject metrics = jsonObject.getAsJsonObject("metrics");
     assertThat(metrics.entrySet()).hasSize(1);
     assertThat(metrics.get("nosonarLines").getAsJsonArray()).containsExactly(new JsonPrimitive(3));
-    // put back new assertion when we know how to parse this
-    //assertThat(parsedResponse.ast()).contains("plop");
-  }
-
-  private static BridgeResponse parseFormData(HttpResponse<String> response) {
-    String boundary = "--" + response.headers().firstValue("Content-Type")
-      .orElseThrow(() -> new IllegalStateException("No Content-Type header"))
-      .split("boundary=")[1];
-    String[] parts = response.body().split(boundary);
-    String json = null;
-    String ast = null;
-    for (String part : parts) {
-      // Split the part into headers and body
-      String[] splitPart = part.split("\r\n\r\n", 2);
-      if (splitPart.length < 2) {
-        // Skip if there's no body
-        continue;
-      }
-      
-      String headers = splitPart[0];
-      String partBody = splitPart[1];
-
-      if (headers.contains("json")) {
-        json = partBody;
-      } else if (headers.contains("ast")) {
-        ast = partBody;
-      }
-    }
-    return new BridgeResponse(json, ast);
   }
 
   private void assertStatus(Bridge bridge) {
@@ -216,14 +186,15 @@ class SonarJsIntegrationTest {
       process = pb.start();
     }
 
-    HttpResponse<String> request(String json, String endpoint) throws IOException, InterruptedException {
+    String request(String json, String endpoint) throws IOException, InterruptedException {
       var request = HttpRequest
         .newBuilder(url(endpoint))
         .header("Content-Type", "application/json")
         .POST(HttpRequest.BodyPublishers.ofString(json))
         .build();
 
-      return client.send(request, HttpResponse.BodyHandlers.ofString());
+      var response = client.send(request, HttpResponse.BodyHandlers.ofString());
+      return response.body();
     }
 
     String status() throws IOException, InterruptedException {
@@ -255,6 +226,8 @@ class SonarJsIntegrationTest {
     String filePath;
     String fileContent;
     String fileType = "MAIN";
+
+    boolean skipAst = true;
   }
 
   static class InitLinter {
@@ -278,6 +251,4 @@ class SonarJsIntegrationTest {
     List<Object> configurations = Collections.emptyList();
     String fileTypeTarget = "MAIN";
   }
-
-  record BridgeResponse(String json, String ast) {}
 }

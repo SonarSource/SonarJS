@@ -28,6 +28,7 @@ type allOptional = {
   tsConfigs?: string[];
   programId?: string;
   linterId?: string;
+  skipAst?: boolean;
 };
 
 export async function jsTsInput(input: allOptional): Promise<JsTsAnalysisInput> {
@@ -38,6 +39,7 @@ export async function jsTsInput(input: allOptional): Promise<JsTsAnalysisInput> 
     programId: input.programId,
     linterId: input.linterId ?? 'default',
     tsConfigs: input.tsConfigs ?? [],
+    skipAst: input.skipAst ?? false,
   };
 }
 

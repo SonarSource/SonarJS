@@ -164,7 +164,8 @@ public class YamlSensor extends AbstractBridgeSensor {
           contextUtils.ignoreHeaderComments(),
           null,
           null,
-          analysisMode.getLinterIdFor(file)
+          analysisMode.getLinterIdFor(file),
+          false
         );
         var response = bridgeServer.analyzeYaml(jsAnalysisRequest);
         analysisProcessor.processResponse(context, checks, file, response);

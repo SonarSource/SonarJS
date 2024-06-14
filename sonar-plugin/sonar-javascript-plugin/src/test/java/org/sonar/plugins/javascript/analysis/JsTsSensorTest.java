@@ -371,6 +371,36 @@ class JsTsSensorTest {
   }
 
   @Test
+  void should_send_skipAst_flag_when_there_are_no_consumers() throws Exception {
+    var ctx = createSensorContext(baseDir);
+    var inputFile = createInputFile(ctx);
+    var tsProgram = new TsProgram("1", List.of(inputFile.absolutePath()), List.of());
+    when(bridgeServerMock.createProgram(any())).thenReturn(tsProgram);
+    when(bridgeServerMock.analyzeTypeScript(any())).thenReturn(new AnalysisResponse());
+    createSensor().execute(ctx);
+    var captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
+    verify(bridgeServerMock).analyzeTypeScript(captor.capture());
+    assertThat(captor.getValue().skipAst()).isTrue();
+  }
+
+  @Test
+  void should_not_send_the_skipAst_flag_when_there_are_consumers() throws Exception {
+    var ctx = createSensorContext(baseDir);
+    var inputFile = createInputFile(ctx);
+    var tsProgram = new TsProgram("1", List.of(inputFile.absolutePath()), List.of());
+    var consumer = createConsumer();
+    var sensor = createSensorWithConsumer(consumer);
+    when(bridgeServerMock.createProgram(any())).thenReturn(tsProgram);
+    when(bridgeServerMock.analyzeTypeScript(any())).thenReturn(new AnalysisResponse());
+    sensor.execute(ctx);
+
+    createSensor().execute(context);
+    var captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
+    verify(bridgeServerMock).analyzeTypeScript(captor.capture());
+    assertThat(captor.getValue().skipAst()).isFalse();
+  }
+
+  @Test
   void should_send_content_when_not_utf8() throws Exception {
     var ctx = createSensorContext(baseDir);
     createVueInputFile(ctx);
@@ -836,6 +866,17 @@ class JsTsSensorTest {
 
   @Test
   void should_not_invoke_analysis_consumers_when_cannot_deserialize() throws Exception {
+    var inputFile = createInputFile(context);
+    var tsProgram = new TsProgram("1", List.of(inputFile.absolutePath()), List.of(), false, null);
+    when(bridgeServerMock.createProgram(any())).thenReturn(tsProgram);
+
+    Node erroneousNode = Node.newBuilder()
+      .setType(NodeType.BlockStatementType)
+      .build();
+
+    when(bridgeServerMock.analyzeTypeScript(any())).thenReturn(
+      new AnalysisResponse(null, List.of(), List.of(), List.of(), new BridgeServer.Metrics(), List.of(), List.of(), erroneousNode)
+    );
     var consumer = new JsAnalysisConsumer() {
       final List<JsFile> files = new ArrayList<>();
       boolean done;
@@ -850,33 +891,45 @@ class JsTsSensorTest {
         done = true;
       }
     };
-
-    var sensor = new JsTsSensor(
-      checks(ESLINT_BASED_RULE, "S2260"),
-      bridgeServerMock,
-      analysisWithProgram(),
-      analysisWithWatchProgram(),
-      new AnalysisConsumers(List.of(consumer))
-    );
-
-    var inputFile = createInputFile(context);
-    var tsProgram = new TsProgram("1", List.of(inputFile.absolutePath()), List.of(), false, null);
-    when(bridgeServerMock.createProgram(any())).thenReturn(tsProgram);
-
-    Node erroneousNode = Node.newBuilder()
-      .setType(NodeType.BlockStatementType)
-      .build();
-
-    when(bridgeServerMock.analyzeTypeScript(any())).thenReturn(
-      new AnalysisResponse(null, List.of(), List.of(), List.of(), new BridgeServer.Metrics(), List.of(), List.of(), erroneousNode)
-    );
-
+    var sensor = createSensorWithConsumer(consumer);
     sensor.execute(context);
     assertThat(consumer.files).isEmpty();
     assertThat(consumer.done).isTrue();
 
     assertThat(logTester.logs(Level.DEBUG))
       .contains("Failed to deserialize AST for file: " + inputFile.uri());
+  }
+
+  private JsAnalysisConsumer createConsumer() {
+    return new JsAnalysisConsumer() {
+      final List<JsFile> files = new ArrayList<>();
+      boolean done;
+
+      @Override
+      public void accept(JsFile jsFile) {
+        files.add(jsFile);
+      }
+
+      @Override
+      public void doneAnalysis() {
+        done = true;
+      }
+
+      public List<JsFile> getFiles() {
+        return this.files;
+      }
+    };
+  }
+
+  private JsTsSensor createSensorWithConsumer(JsAnalysisConsumer consumer) {
+
+    return new JsTsSensor(
+      checks(ESLINT_BASED_RULE, "S2260"),
+      bridgeServerMock,
+      analysisWithProgram(),
+      analysisWithWatchProgram(),
+      new AnalysisConsumers(List.of(consumer))
+    );
   }
 
   private JsTsSensor createSensor() {

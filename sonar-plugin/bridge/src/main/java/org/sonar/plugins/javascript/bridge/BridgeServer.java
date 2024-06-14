@@ -67,7 +67,7 @@ public interface BridgeServer extends Startable {
   TsConfigFile createTsConfigFile(String content) throws IOException;
 
   record JsAnalysisRequest(String filePath, String fileType, String language, @Nullable String fileContent, boolean ignoreHeaderComments,
-                           @Nullable List<String> tsConfigs, @Nullable String programId, String linterId) {
+                           @Nullable List<String> tsConfigs, @Nullable String programId, String linterId, boolean skipAst) {
 
   }
 

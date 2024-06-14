@@ -44,6 +44,7 @@ export interface JsTsAnalysisInput extends AnalysisInput {
   ignoreHeaderComments?: boolean;
   tsConfigs?: string[];
   programId?: string;
+  skipAst?: boolean;
 }
 
 export interface ParsingError {
@@ -63,5 +64,5 @@ export interface JsTsAnalysisOutput extends AnalysisOutput {
   metrics?: Metrics;
   cpdTokens?: CpdToken[];
   ucfgPaths?: string[];
-  ast: Uint8Array | string;
+  ast?: Uint8Array;
 }

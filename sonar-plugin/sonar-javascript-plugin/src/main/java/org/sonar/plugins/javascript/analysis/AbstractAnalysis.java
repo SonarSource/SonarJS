@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.plugins.javascript.CancellationException;
+import org.sonar.plugins.javascript.JavaScriptFilePredicate;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
 import org.sonar.plugins.javascript.analysis.cache.CacheAnalysis;
@@ -37,7 +38,6 @@ import org.sonar.plugins.javascript.api.estree.ESTree;
 import org.sonar.plugins.javascript.bridge.AnalysisMode;
 import org.sonar.plugins.javascript.bridge.AnalysisWarningsWrapper;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
-import org.sonar.plugins.javascript.JavaScriptFilePredicate;
 import org.sonar.plugins.javascript.bridge.BridgeServer.TsProgram;
 import org.sonar.plugins.javascript.bridge.ESTreeFactory;
 import org.sonar.plugins.javascript.bridge.protobuf.Node;
@@ -102,7 +102,8 @@ abstract class AbstractAnalysis {
         LOG.debug("Analyzing file: {}", file.uri());
         progressReport.nextFile(file.toString());
         var fileContent = contextUtils.shouldSendFileContent(file) ? file.contents() : null;
-        var request = getJsAnalysisRequest(file, fileContent, tsProgram, tsConfigs);
+        var skipAst = !consumers.hasConsumers();
+        var request = getJsAnalysisRequest(file, fileContent, tsProgram, tsConfigs, skipAst);
 
         var response = isJavaScript(file)
           ? bridgeServer.analyzeJavaScript(request)
@@ -144,7 +145,8 @@ abstract class AbstractAnalysis {
     InputFile file,
     @Nullable String fileContent,
     @Nullable TsProgram tsProgram,
-    @Nullable List<String> tsConfigs
+    @Nullable List<String> tsConfigs,
+    boolean skipAst
   ) {
     return new BridgeServer.JsAnalysisRequest(
       file.absolutePath(),
@@ -154,7 +156,8 @@ abstract class AbstractAnalysis {
       contextUtils.ignoreHeaderComments(),
       tsConfigs,
       tsProgram != null ? tsProgram.programId() : null,
-      analysisMode.getLinterIdFor(file)
+      analysisMode.getLinterIdFor(file),
+      skipAst
     );
   }
 }
