@@ -753,7 +753,7 @@ class BridgeServerImplTest {
   @Test
   void should_omit_an_ast_if_skipAst_flag_is_set() throws Exception {
     bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
-    bridgeServer.startServer(context, emptyList());
+    bridgeServer.startServer(BridgeServerConfig.fromSensorContext(context), emptyList());
 
     DefaultInputFile inputFile = TestInputFileBuilder
       .create("foo", "foo.js")
