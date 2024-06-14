@@ -21,6 +21,7 @@ import * as protobuf from 'protobufjs';
 import * as path from 'node:path';
 import * as estree from 'estree';
 import { AST } from 'eslint';
+import { debug } from '@sonar/shared';
 
 const PATH_TO_PROTOFILE = path.join(__dirname, 'estree.proto');
 const PROTO_ROOT = protobuf.loadSync(PATH_TO_PROTOFILE);
@@ -214,7 +215,7 @@ export function visitNode(node: estree.BaseNodeWithoutComments | undefined | nul
       case 'FunctionExpression':
         return visitFunctionExpression(node as estree.FunctionExpression);
       default:
-        console.log(`Unknown node type: ${node.type}`);
+        debug(`Unknown node type: ${node.type}`);
     }
   }
 
