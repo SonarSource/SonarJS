@@ -27,6 +27,9 @@ import org.sonar.plugins.javascript.JavaScriptPlugin;
 
 class ContextUtils {
 
+  /* Internal property to enable Armor (disabled by default) */
+  private static final String ARMOR_INTERNAL_ENABLED = "sonar.armor.internal.enabled";
+
   private final SensorContext context;
 
   ContextUtils(SensorContext context) {
@@ -58,5 +61,9 @@ class ContextUtils {
 
   SensorContext context() {
     return context;
+  }
+
+  boolean isSonarArmorEnabled() {
+    return context.config().getBoolean(ARMOR_INTERNAL_ENABLED).orElse(false);
   }
 }
