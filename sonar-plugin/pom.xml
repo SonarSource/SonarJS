@@ -28,6 +28,7 @@
     <module>css</module>
     <module>javascript-checks</module>
     <module>sonar-javascript-plugin</module>
+    <module>standalone</module>
   </modules>
 
 </project>
