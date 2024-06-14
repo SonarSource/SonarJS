@@ -110,8 +110,8 @@ function analyzeFile(
   }
 }
 
-function serializeAst(sourceCode: SourceCode, filePath: string, skipAst = false) {
-  if (!isSupported(filePath) || skipAst) {
+function serializeAst(sourceCode: SourceCode, filePath: string) {
+  if (!isSupported(filePath)) {
     return null;
   }
 
