@@ -92,9 +92,11 @@ function analyzeFile(
       ...extendedMetrics,
     };
 
-    const ast = serializeAst(sourceCode, filePath, input.skipAst);
-    if (ast) {
-      result.ast = ast;
+    if (!input.skipAst) {
+      const ast = serializeAst(sourceCode, filePath);
+      if (ast) {
+        result.ast = ast;
+      }
     }
 
     return result;
