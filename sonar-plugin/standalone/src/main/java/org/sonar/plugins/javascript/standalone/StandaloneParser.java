@@ -67,7 +67,8 @@ public class StandaloneParser implements AutoCloseable {
       true,
       null,
       null,
-      AnalysisMode.DEFAULT_LINTER_ID);
+      AnalysisMode.DEFAULT_LINTER_ID,
+      false);
     try {
       BridgeServer.AnalysisResponse result = bridge.analyzeJavaScript(request);
       Node ast = result.ast();
