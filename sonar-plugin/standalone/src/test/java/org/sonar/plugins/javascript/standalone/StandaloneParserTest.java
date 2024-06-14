@@ -62,7 +62,7 @@ class StandaloneParserTest {
   @Test
   void should_throw_exception_when_fail_to_parse_code() {
     assertThatThrownBy(() -> parser.parse("..."))
-      .isInstanceOf(IllegalStateException.class)
+      .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Failed to parse the code");
   }
 
