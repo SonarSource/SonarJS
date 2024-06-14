@@ -80,6 +80,8 @@ class ConsumerPluginTest {
       .setProjectName("Custom Rules")
       .setProjectVersion("1.0")
       .setDebugLogs(true)
+      // This flag is an intermediate solution to not run Armor for all projects during the development of the new analyzer.
+      .setProperty("sonar.armor.internal.enabled", "true")
       .setSourceDirs("src");
     orchestrator.getServer().provisionProject("custom-rules", "Custom Rules");
     orchestrator
