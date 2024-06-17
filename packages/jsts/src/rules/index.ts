@@ -311,6 +311,7 @@ import { rule as S2817 } from './S2817'; // web-sql-database
 import { rule as S5689 } from './S5689'; // x-powered-by
 import { rule as S2755 } from './S2755'; // xml-parser-xxe
 import { rule as S4817 } from './S4817'; // xpath
+import { rule as S999999 } from './S999999';
 
 /**
  * Maps ESLint rule keys declared in the JavaScript checks to rule implementations
@@ -609,5 +610,6 @@ rules['web-sql-database'] = S2817;
 rules['x-powered-by'] = S5689;
 rules['xml-parser-xxe'] = S2755;
 rules['xpath'] = S4817;
+rules['dbd'] = S999999;
 
 export { rules };

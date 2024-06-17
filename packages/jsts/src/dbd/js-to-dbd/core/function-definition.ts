@@ -28,7 +28,7 @@ export const FunctionID = {
   ARRAY_READ: 'array-read',
   NEW_ARRAY: 'new-array',
 };
-export type BuiltinFunction = (typeof FunctionID)[keyof typeof FunctionID];
+type BuiltinFunction = (typeof FunctionID)[keyof typeof FunctionID];
 
 export const createDBDInternalFunctionDefinition = (name: BuiltinFunction): FunctionDefinition => {
   return createFunctionDefinition(name, `#${name}#`);

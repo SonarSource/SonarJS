@@ -184,6 +184,9 @@ export const serialize = (
 
         for (const [block, value] of instruction.valuesByBlock) {
           valuesByBlock[block.identifier] = value.identifier;
+          if (value.type === 'constant') {
+            constants.push(value);
+          }
         }
 
         result = {

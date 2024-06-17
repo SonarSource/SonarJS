@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// https://sonarsource.github.io/rspec/#/rspec/S99999/javascript
+// https://sonarsource.github.io/rspec/#/rspec/S999999/javascript
 
 import { Rule } from 'eslint';
 import { writeFileSync } from 'fs';
 import { mkdirpSync } from 'mkdirp';
 import { functionInto2Text } from '../../dbd/helpers';
-import { createTranspiler, serialize } from '../../dbd';
+import { createTranspiler, FunctionInfo as FunctionInfoDBD, serialize } from '../../dbd';
 import { dirname, join } from 'path';
 import { FunctionInfo } from '../../dbd/ir-gen/ir_pb';
 
@@ -44,7 +44,12 @@ export const rule: Rule.RuleModule = {
       mkdirpSync(outputDir);
     }
     const transpile = createTranspiler();
-    const functionInfos = transpile(context, root);
+    let functionInfos: FunctionInfoDBD[] = [];
+    try {
+      functionInfos = transpile(context, root);
+    } catch (e) {
+      console.error(`Unable to transpile file ${context.filename}`);
+    }
 
     const saveResults = (
       result: FunctionInfo,
