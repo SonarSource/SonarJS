@@ -19,15 +19,22 @@
  */
 package org.sonar.plugins.javascript.bridge;
 
+import com.google.protobuf.InvalidProtocolBufferException;
 import java.io.IOException;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import javax.annotation.CheckForNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.plugins.javascript.bridge.protobuf.Node;
 
 public class FormDataUtils {
+
+  private static final Logger LOG = LoggerFactory.getLogger(FormDataUtils.class);
+
   private FormDataUtils() {
     throw new IllegalStateException("Utility class");
   }
@@ -75,8 +82,16 @@ public class FormDataUtils {
     }
   }
 
-  public static Node parseProtobuf(byte[] ast) throws IOException {
-    return Node.parseFrom(ast);
+  @CheckForNull
+  private static Node parseProtobuf(byte[] ast) throws IOException {
+    try {
+      return Node.parseFrom(ast);
+    } catch (InvalidProtocolBufferException e) {
+      // Failing to parse the protobuf message should not prevent the analysis from continuing.
+      // This also happen in the case of large recursion. See https://sonarsource.atlassian.net/browse/JS-185.
+      LOG.error("Failed to deserialize Protobuf message.", e);
+    }
+    return null;
   }
 
   private static int indexOf(byte[] array, byte[] pattern) {
