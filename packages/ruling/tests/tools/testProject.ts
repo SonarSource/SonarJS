@@ -122,28 +122,7 @@ export async function testProject(rulingInput: RulingInput) {
   const { jsTsFiles, htmlFiles, yamlFiles } = getProjectFiles(rulingInput, projectPath, exclusions);
 
   const payload: ProjectAnalysisInput = {
-    rules: [
-      {
-        key: 'dbd',
-        language: 'ts',
-        configurations: [
-          {
-            irDirectory: 'ir/python',
-          },
-        ],
-        fileTypeTarget: 'MAIN',
-      },
-      {
-        key: 'dbd',
-        language: 'js',
-        configurations: [
-          {
-            irDirectory: 'ir/python',
-          },
-        ],
-        fileTypeTarget: 'MAIN',
-      },
-    ] as RuleConfig[],
+    rules: rules as RuleConfig[],
     baseDir: projectPath,
     files: jsTsFiles,
   };
