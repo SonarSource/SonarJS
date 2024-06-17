@@ -19,12 +19,6 @@
  */
 package org.sonar.plugins.javascript.bridge;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.sonar.plugins.javascript.bridge.FormDataUtils.parseFormData;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -36,9 +30,21 @@ import java.util.HashMap;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.slf4j.event.Level;
+import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.plugins.javascript.bridge.protobuf.Node;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.sonar.plugins.javascript.bridge.FormDataUtils.parseFormData;
+
 public class FormDataUtilsTest {
+
+  @RegisterExtension
+  public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.ERROR);
 
   @Test
   void should_parse_form_data_into_bridge_response() throws Exception {
@@ -99,7 +105,7 @@ public class FormDataUtilsTest {
   }
 
   @Test
-  void should_throw_an_error_if_ast_is_invalid() throws Exception {
+  void should_log_error_if_ast_is_invalid() throws Exception {
     HttpResponse<byte[]> mockResponse = mock(HttpResponse.class);
     var values = new HashMap<String, List<String>>();
     values.put("Content-Type", List.of("multipart/form-data; boundary=---------------------------9051914041544843365972754266"));
@@ -107,8 +113,8 @@ public class FormDataUtilsTest {
     var invalidAst = new byte[]{42};
     var body = buildPayload("{\"hello\":\"worlds\"}", invalidAst);
     when(mockResponse.body()).thenReturn(body);
-    assertThatThrownBy(() -> parseFormData(mockResponse))
-      .isInstanceOf(IllegalStateException.class);
+    assertThat(parseFormData(mockResponse).ast()).isNull();
+    assertThat(logTester.logs(Level.ERROR)).containsExactly("Failed to deserialize Protobuf message.");
   }
 
   @Test
