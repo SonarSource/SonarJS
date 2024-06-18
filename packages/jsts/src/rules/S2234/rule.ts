@@ -22,7 +22,6 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
-import { EncodedMessage } from 'eslint-plugin-sonarjs/lib/src/utils/locations';
 import {
   FunctionNodeType,
   isRequiredParserServices,
@@ -31,6 +30,7 @@ import {
   getSignatureFromCallee,
   getTypeAsString,
   resolveIdentifiers,
+  EncodedMessage,
 } from '../helpers';
 import { SONAR_RUNTIME } from '../../linter/parameters';
 

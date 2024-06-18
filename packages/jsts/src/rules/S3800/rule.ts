@@ -21,10 +21,10 @@
 
 import { TSESTree } from '@typescript-eslint/utils';
 import { Rule } from 'eslint';
-import { getMainFunctionTokenLocation } from 'eslint-plugin-sonarjs/lib/src/utils/locations';
 import * as estree from 'estree';
 import * as ts from 'typescript';
 import {
+  getMainFunctionTokenLocation,
   getParent,
   getTypeFromTreeNode,
   isAny,

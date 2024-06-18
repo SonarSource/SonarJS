@@ -22,9 +22,14 @@
 import { Rule } from 'eslint';
 import { tsEslintRules } from '../typescript-eslint';
 import { eslintRules } from '../core';
-import { FUNCTION_NODES, RuleContext, interceptReport, mergeRules } from '../helpers';
+import {
+  FUNCTION_NODES,
+  RuleContext,
+  interceptReport,
+  mergeRules,
+  getMainFunctionTokenLocation,
+} from '../helpers';
 import { TSESTree } from '@typescript-eslint/utils';
-import { getMainFunctionTokenLocation } from 'eslint-plugin-sonarjs/lib/src/utils/locations';
 import type { RuleModule } from '../../../../shared/src/types/rule';
 
 /**

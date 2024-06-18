@@ -59,13 +59,6 @@ describe('BundleLoader', () => {
     expect(linter.getRules().get('custom-rule')).toBeUndefined();
     expect(linter.getRules().get('internal-cognitive-complexity')).toBeUndefined();
 
-    loadBundles(linter, ['pluginRules']);
-    expect(linter.getRules().get('no-small-switch')).toBeDefined();
-    expect(linter.getRules().get('react-in-jsx-scope')).toBeUndefined();
-    expect(linter.getRules().get('custom-rule-file')).toBeUndefined();
-    expect(linter.getRules().get('custom-rule')).toBeUndefined();
-    expect(linter.getRules().get('internal-cognitive-complexity')).toBeUndefined();
-
     loadBundles(linter, ['externalRules']);
     expect(linter.getRules().get('react-in-jsx-scope')).toBeDefined();
     expect(linter.getRules().get('custom-rule-file')).toBeUndefined();

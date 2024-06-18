@@ -20,7 +20,6 @@
 import { Linter, Rule } from 'eslint';
 import { eslintRules } from '../rules/core';
 import { tsEslintRules } from '../rules/typescript-eslint';
-import { rules as pluginRules } from 'eslint-plugin-sonarjs';
 import { rules as reactESLintRules } from 'eslint-plugin-react';
 import { rules as reactA11yRules } from 'eslint-plugin-jsx-a11y';
 import { rules as importRules } from 'eslint-plugin-import';
@@ -72,14 +71,6 @@ const loaders: { [key: string]: Function } = {
       }
     }
     linter.defineRules(externalRules);
-  },
-  /**
-   * Loads plugin rules
-   *
-   * Adds the rules from the Sonar ESLint plugin.
-   */
-  pluginRules(linter: Linter) {
-    linter.defineRules(pluginRules as unknown as Record<string, Rule.RuleModule>);
   },
   /**
    * Loads internal rules

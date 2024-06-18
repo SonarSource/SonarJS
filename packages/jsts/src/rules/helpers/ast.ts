@@ -61,6 +61,10 @@ export function isIdentifier(
   );
 }
 
+export function isIfStatement(node: TSESTree.Node | undefined): node is TSESTree.IfStatement {
+  return node !== undefined && node.type === 'IfStatement';
+}
+
 export function isMemberWithProperty(node: estree.Node, ...values: string[]) {
   return node.type === 'MemberExpression' && isIdentifier(node.property, ...values);
 }
@@ -78,6 +82,12 @@ export function isMemberExpression(
   }
 
   return false;
+}
+
+export function isLogicalExpression(
+  node: TSESTree.Node | undefined,
+): node is TSESTree.LogicalExpression {
+  return node !== undefined && node.type === 'LogicalExpression';
 }
 
 export function isBinaryPlus(

@@ -21,9 +21,8 @@
 
 import { TSESLint, TSESTree } from '@typescript-eslint/utils';
 import { Rule } from 'eslint';
-import { areEquivalent } from 'eslint-plugin-sonarjs/lib/src/utils/equivalence';
 import * as estree from 'estree';
-import { Chai, isIdentifier, isLiteral, toEncodedMessage } from '../helpers';
+import { areEquivalent, Chai, isIdentifier, isLiteral, toEncodedMessage } from '../helpers';
 import { SONAR_RUNTIME } from '../../linter/parameters';
 
 export const rule: Rule.RuleModule = {

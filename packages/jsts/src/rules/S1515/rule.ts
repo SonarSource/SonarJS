@@ -21,10 +21,10 @@
 
 import { AST, Rule, Scope } from 'eslint';
 import * as estree from 'estree';
-import { getMainFunctionTokenLocation } from 'eslint-plugin-sonarjs/lib/src/utils/locations';
 import { TSESTree } from '@typescript-eslint/utils';
 import {
   findFirstMatchingAncestor,
+  getMainFunctionTokenLocation,
   getParent,
   LoopLike,
   RuleContext,

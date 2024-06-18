@@ -21,8 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { getMainFunctionTokenLocation } from 'eslint-plugin-sonarjs/lib/src/utils/locations';
-import { getParent, RuleContext } from '../helpers';
+import { getMainFunctionTokenLocation, getParent, RuleContext } from '../helpers';
 import { TSESTree } from '@typescript-eslint/utils';
 
 export const rule: Rule.RuleModule = {

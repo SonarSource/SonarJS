@@ -30,8 +30,8 @@ import {
   RuleContext,
   isNullLiteral,
   isUndefined,
+  areEquivalent,
 } from '../helpers';
-import { areEquivalent } from 'eslint-plugin-sonarjs/lib/src/utils/equivalence';
 
 enum Null {
   confirmed,
@@ -95,9 +95,9 @@ function getNullState(
   const { left, right } = expr;
   if (
     (isNull(right) &&
-      areEquivalent(left as TSESTree.Node, node as TSESTree.Node, context.getSourceCode())) ||
+      areEquivalent(left as TSESTree.Node, node as TSESTree.Node, context.sourceCode)) ||
     (isNull(left) &&
-      areEquivalent(right as TSESTree.Node, node as TSESTree.Node, context.getSourceCode()))
+      areEquivalent(right as TSESTree.Node, node as TSESTree.Node, context.sourceCode))
   ) {
     if (notEqualOperators.includes(expr.operator)) {
       return Null.discarded;

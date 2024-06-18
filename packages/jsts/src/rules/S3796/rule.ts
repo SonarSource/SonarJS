@@ -22,7 +22,6 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
-import { getMainFunctionTokenLocation } from 'eslint-plugin-sonarjs/lib/src/utils/locations';
 import {
   isArray,
   isTypedArray,
@@ -32,6 +31,7 @@ import {
   RuleContext,
   isIndexNotation,
   isDotNotation,
+  getMainFunctionTokenLocation,
 } from '../helpers';
 
 const message = `Add a "return" statement to this callback.`;

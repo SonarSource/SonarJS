@@ -1,6 +1,6 @@
 /*
- * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2024 SonarSource SA
+ * eslint-plugin-sonarjs
+ * Copyright (C) 2018-2021 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,28 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export * from './accessibility';
-export * from './ancestor';
-export * from './ast';
-export * from './chai';
-export * from './collection';
-export * from './decorators';
-export * from './docs-url';
-export * from './equivalence';
-export * from './express';
-export * from './file';
-export * from './globals';
-export * from './jsx';
-export * from './location';
-export * from './lva';
-export * from './mocha';
-export * from './module';
-export * from './quickfix';
-export * from './reaching-definitions';
-export * from './rule-detect-react';
-export * from './sinon';
-export * from './type';
-export * from './vitest';
-export * from './vue';
 
-export * from './parser-services';
+import { toUnixPath } from '@sonar/shared';
+
+export function docsUrl(ruleFileName: string) {
+  const ruleId = toUnixPath(ruleFileName).split('/').at(-1);
+  return `https://github.com/SonarSource/rspec/blob/master/rules/${ruleId}/javascript/rule.adoc`;
+}

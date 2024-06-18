@@ -29,9 +29,9 @@ import {
   resolveFunction,
   isIdentifier,
   findFirstMatchingLocalAncestor,
+  isIfStatement,
 } from '../helpers';
 import { childrenOf } from '../../linter';
-import { isIfStatement } from 'eslint-plugin-sonarjs/lib/src/utils/nodes';
 
 const POST_MESSAGE = 'postMessage';
 const ADD_EVENT_LISTENER = 'addEventListener';

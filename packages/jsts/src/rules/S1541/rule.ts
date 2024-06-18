@@ -22,11 +22,14 @@
 import { Rule, AST } from 'eslint';
 import * as estree from 'estree';
 import {
+  FunctionNodeType,
+  isFunctionNode,
+  getParent,
+  RuleContext,
+  getMainFunctionTokenLocation,
   EncodedMessage,
   IssueLocation,
-  getMainFunctionTokenLocation,
-} from 'eslint-plugin-sonarjs/lib/src/utils/locations';
-import { FunctionNodeType, isFunctionNode, getParent, RuleContext } from '../helpers';
+} from '../helpers';
 import { TSESTree } from '@typescript-eslint/utils';
 import { SONAR_RUNTIME } from '../../linter/parameters';
 import { childrenOf } from '../../linter';
