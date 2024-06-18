@@ -207,7 +207,9 @@ public class ESTreeFactory {
   private static ESTree.ExportAllDeclaration fromExportAllDeclarationType(Node node) {
     ExportAllDeclaration exportAllDeclaration = node.getExportAllDeclaration();
     return new ESTree.ExportAllDeclaration(fromLocation(node.getLoc()),
-      exportAllDeclaration.hasExported() ? Optional.of(from(exportAllDeclaration.getExported(), ESTree.Identifier.class)) : Optional.empty(),
+      exportAllDeclaration.hasExported() ?
+        Optional.of(from(exportAllDeclaration.getExported(), ESTree.IdentifierOrLiteral.class)) :
+        Optional.empty(),
       from(exportAllDeclaration.getSource(), ESTree.Literal.class));
   }
 
