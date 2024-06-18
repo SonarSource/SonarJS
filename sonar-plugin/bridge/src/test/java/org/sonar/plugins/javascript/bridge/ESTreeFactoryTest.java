@@ -47,6 +47,7 @@ import org.sonar.plugins.javascript.bridge.protobuf.NodeType;
 import org.sonar.plugins.javascript.bridge.protobuf.Position;
 import org.sonar.plugins.javascript.bridge.protobuf.Program;
 import org.sonar.plugins.javascript.bridge.protobuf.SourceLocation;
+import org.sonar.plugins.javascript.bridge.protobuf.StaticBlock;
 import org.sonar.plugins.javascript.bridge.protobuf.UnaryExpression;
 import org.sonar.plugins.javascript.bridge.protobuf.UpdateExpression;
 import org.sonar.plugins.javascript.bridge.protobuf.WithStatement;
@@ -560,6 +561,23 @@ class ESTreeFactoryTest {
 
     ESTree.Node estree = ESTreeFactory.from(protobufNode, ESTree.Node.class);
     assertThat(estree).isInstanceOf(ESTree.EmptyStatement.class);
+  }
+
+  @Test
+  void should_create_static_block_type() {
+    StaticBlock staticBlock = StaticBlock.newBuilder()
+      .addBody(Node.newBuilder().setType(NodeType.EmptyStatementType).build())
+      .build();
+    Node protobufNode = Node.newBuilder()
+      .setType(NodeType.StaticBlockType)
+      .setStaticBlock(staticBlock)
+      .build();
+
+    ESTree.Node estree = ESTreeFactory.from(protobufNode, ESTree.Node.class);
+    assertThat(estree).isInstanceOfSatisfying(ESTree.StaticBlock.class, block -> {
+      assertThat(block.body().size()).isEqualTo(1);
+      assertThat(block.body().get(0)).isInstanceOf(ESTree.EmptyStatement.class);
+    });
   }
 
   @Test

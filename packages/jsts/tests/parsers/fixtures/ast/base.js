@@ -365,3 +365,8 @@ num--;
 
 const [fooA, fooB] = foo;
 
+class FooStatic {
+  static {
+    console.log('static block');
+  }
+}

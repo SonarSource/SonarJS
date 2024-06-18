@@ -452,8 +452,10 @@ export function visitNode(node: estree.BaseNodeWithoutComments | undefined | nul
     };
   }
 
-  function visitStaticBlock(_node: estree.StaticBlock) {
-    return {};
+  function visitStaticBlock(node: estree.StaticBlock) {
+    return {
+      body: node.body.map(visitNode),
+    };
   }
 
   function visitPropertyDefinition(node: estree.PropertyDefinition) {

@@ -150,7 +150,7 @@ public class ESTree {
   public record SimpleCallExpression(Location loc, boolean optional, ExpressionOrSuper callee, List<ExpressionOrSpreadElement> arguments) implements CallExpression, ChainElement {}
   public record SimpleLiteral(Location loc, Object value, String raw) implements Literal {}
   public record SpreadElement(Location loc, Expression argument) implements ExpressionOrSpreadElement, PropertyOrSpreadElement {}
-  public record StaticBlock(Location loc) implements MethodDefinitionOrPropertyDefinitionOrStaticBlock, Statement {}
+  public record StaticBlock(Location loc, List<Statement> body) implements MethodDefinitionOrPropertyDefinitionOrStaticBlock, Statement {}
   public record Super(Location loc) implements ExpressionOrSuper {}
   public record SwitchCase(Location loc, Optional<Expression> test, List<Statement> consequent) implements Node {}
   public record SwitchStatement(Location loc, Expression discriminant, List<SwitchCase> cases) implements Statement {}
