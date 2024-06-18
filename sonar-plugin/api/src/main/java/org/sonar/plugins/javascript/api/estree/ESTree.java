@@ -57,7 +57,7 @@ public class ESTree {
   public sealed interface Expression extends ExpressionOrSpreadElement, ExpressionOrSuper, ExpressionOrPrivateIdentifier, ExpressionOrPattern, ExpressionOrVariableDeclaration, ExpressionOrClassDeclarationOrFunctionDeclaration, BlockStatementOrExpression {
 
   }
-  public sealed interface Literal extends Expression {
+  public sealed interface Literal extends Expression, IdentifierOrLiteral {
     String raw();
   }
   public sealed interface ModuleDeclaration extends DirectiveOrModuleDeclarationOrStatement {
@@ -84,6 +84,7 @@ public class ESTree {
   public sealed interface PropertyOrRestElement extends Node {}
   public sealed interface DirectiveOrModuleDeclarationOrStatement extends Node {}
   public sealed interface ExpressionOrPattern extends Node {}
+  public sealed interface IdentifierOrLiteral extends Node {}
         
   public record ArrayExpression(Location loc, List<ExpressionOrSpreadElement> elements) implements Expression {}
   public record ArrayPattern(Location loc, List<Pattern> elements) implements Pattern {}
@@ -107,7 +108,7 @@ public class ESTree {
   public record Directive(Location loc, Literal expression, String directive) implements DirectiveOrModuleDeclarationOrStatement {}
   public record DoWhileStatement(Location loc, Statement body, Expression test) implements Statement {}
   public record EmptyStatement(Location loc) implements Statement {}
-  public record ExportAllDeclaration(Location loc, Optional<Identifier> exported, Literal source) implements ModuleDeclaration {}
+  public record ExportAllDeclaration(Location loc, Optional<IdentifierOrLiteral> exported, Literal source) implements ModuleDeclaration {}
   // In "d.ts" file, the declaration field has type: MaybeNamedFunctionDeclaration | MaybeNamedClassDeclaration | Expression.
   // The "MaybeNamed" are there to show that the id is optional in this specific case.
   // We decided to not create this extra class, and instead use the existing FunctionDeclaration and ClassDeclaration classes.
@@ -122,7 +123,7 @@ public class ESTree {
   // See "ExportDefaultDeclaration" for explanation about the optional id field.
   public record FunctionDeclaration(Location loc, Optional<Identifier> id, BlockStatement body, List<Pattern> params, boolean generator, boolean async) implements Declaration, ExpressionOrClassDeclarationOrFunctionDeclaration  {}
   public record FunctionExpression(Location loc, Optional<Identifier> id, BlockStatement body, List<Pattern> params, boolean generator, boolean async) implements Expression {}
-  public record Identifier(Location loc, String name) implements Expression, Pattern {}
+  public record Identifier(Location loc, String name) implements Expression, Pattern, IdentifierOrLiteral {}
   public record IfStatement(Location loc, Expression test, Statement consequent, Optional<Statement> alternate) implements Statement {}
   public record ImportDeclaration(Location loc, List<ImportDefaultSpecifierOrImportNamespaceSpecifierOrImportSpecifier> specifiers, Literal source) implements ModuleDeclaration {}
   public record ImportDefaultSpecifier(Location loc, Identifier local) implements ImportDefaultSpecifierOrImportNamespaceSpecifierOrImportSpecifier {}

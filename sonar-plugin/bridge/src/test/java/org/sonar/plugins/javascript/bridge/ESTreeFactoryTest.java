@@ -34,6 +34,7 @@ import org.sonar.plugins.javascript.bridge.protobuf.CallExpression;
 import org.sonar.plugins.javascript.bridge.protobuf.ChainExpression;
 import org.sonar.plugins.javascript.bridge.protobuf.ClassDeclaration;
 import org.sonar.plugins.javascript.bridge.protobuf.EmptyStatement;
+import org.sonar.plugins.javascript.bridge.protobuf.ExportAllDeclaration;
 import org.sonar.plugins.javascript.bridge.protobuf.ExportDefaultDeclaration;
 import org.sonar.plugins.javascript.bridge.protobuf.ExportSpecifier;
 import org.sonar.plugins.javascript.bridge.protobuf.ExpressionStatement;
@@ -577,6 +578,41 @@ class ESTreeFactoryTest {
     assertThat(estree).isInstanceOfSatisfying(ESTree.StaticBlock.class, block -> {
       assertThat(block.body().size()).isEqualTo(1);
       assertThat(block.body().get(0)).isInstanceOf(ESTree.EmptyStatement.class);
+    });
+  }
+
+  @Test
+  void should_create_export_all_declaration_type_using_a_literal() {
+    ExportAllDeclaration exportAllDeclaration = ExportAllDeclaration.newBuilder()
+      .setExported(
+        Node.newBuilder()
+          .setType(NodeType.LiteralType)
+          .setLiteral(
+            Literal.newBuilder()
+              .setValueString("4k")
+          )
+          .build()
+      )
+      .setSource(
+        Node.newBuilder()
+          .setType(NodeType.LiteralType)
+          .setLiteral(
+            Literal.newBuilder()
+              .setValueString("yolo")
+          )
+      )
+      .build();
+
+    Node protobufNode = Node.newBuilder()
+      .setType(NodeType.ExportAllDeclarationType)
+      .setExportAllDeclaration(exportAllDeclaration)
+      .build();
+
+    ESTree.Node estree = ESTreeFactory.from(protobufNode, ESTree.Node.class);
+    assertThat(estree).isInstanceOfSatisfying(ESTree.ExportAllDeclaration.class, declaration -> {
+      assertThat(declaration.exported().isPresent()).isTrue();
+      var exported = declaration.exported().get();
+      assertThat(exported).isInstanceOf(ESTree.Literal.class);
     });
   }
 
