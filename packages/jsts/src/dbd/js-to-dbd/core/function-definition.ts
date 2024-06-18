@@ -27,6 +27,7 @@ export const FunctionID = {
   ARRAY_ADD_ALL: 'array-add-all',
   ARRAY_READ: 'array-read',
   NEW_ARRAY: 'new-array',
+  UNKNOWN: 'unknown',
 };
 type BuiltinFunction = (typeof FunctionID)[keyof typeof FunctionID];
 

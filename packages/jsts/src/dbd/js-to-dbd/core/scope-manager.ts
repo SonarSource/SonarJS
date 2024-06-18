@@ -4,7 +4,12 @@ import type { FunctionInfo } from './function-info';
 import { Scope, SourceCode } from '@typescript-eslint/utils/ts-eslint';
 import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/typescript-estree';
 import { createReference } from './values/reference';
-import { createFunctionDefinitionFromName, FunctionDefinition } from './function-definition';
+import {
+  createDBDInternalFunctionDefinition,
+  createFunctionDefinitionFromName,
+  FunctionDefinition,
+  FunctionID,
+} from './function-definition';
 import { ParserServicesWithTypeInformation } from '@typescript-eslint/utils';
 import ts from 'typescript';
 
@@ -49,17 +54,25 @@ function getFunctionDefinition(sourceCode: SourceCode, node: TSESTree.Node) {
   }
   const services: ParserServicesWithTypeInformation =
     sourceCode.parserServices as unknown as ParserServicesWithTypeInformation;
-  let filename = 'unknown';
-  let name = node.type === AST_NODE_TYPES.Identifier ? node.name : 'unknown';
+  let filename = FunctionID.UNKNOWN;
+  let name = node.type === AST_NODE_TYPES.Identifier ? node.name : FunctionID.UNKNOWN;
+
+  const createResolvedFunctionDefinition = (name: string) => {
+    if (name === FunctionID.UNKNOWN) {
+      return createDBDInternalFunctionDefinition(FunctionID.UNKNOWN);
+    } else {
+      return createFunctionDefinitionFromName(name, filename);
+    }
+  };
 
   if (!services) {
-    return createFunctionDefinitionFromName(name, filename);
+    return createResolvedFunctionDefinition(name);
   }
   const tsNode = services.esTreeNodeToTSNodeMap?.get(node);
   const program = services.program;
 
   if (!program || !tsNode) {
-    return createFunctionDefinitionFromName(name, filename);
+    return createResolvedFunctionDefinition(name);
   }
   let symbol = services.getSymbolAtLocation(node);
 
@@ -76,7 +89,7 @@ function getFunctionDefinition(sourceCode: SourceCode, node: TSESTree.Node) {
       name = `${symbolId}_${symbol.getName()}`;
     }
   }
-  return createFunctionDefinitionFromName(name, filename);
+  return createResolvedFunctionDefinition(name);
 }
 
 function isParameter(sourceCode: SourceCode, node: TSESTree.Identifier): boolean {
