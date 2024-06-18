@@ -617,6 +617,31 @@ class ESTreeFactoryTest {
   }
 
   @Test
+  void directive_can_be_in_block_statement() {
+    BlockStatement blockStatement = BlockStatement.newBuilder()
+      .addBody(Node.newBuilder()
+        .setType(NodeType.ExpressionStatementType)
+        .setExpressionStatement(ExpressionStatement.newBuilder()
+          .setDirective("directiveName")
+          .setExpression(Node.newBuilder().setType(NodeType.LiteralType).build())
+          .build())
+        .build())
+      .build();
+    Node protobufNode = Node.newBuilder()
+      .setType(NodeType.BlockStatementType)
+      .setBlockStatement(blockStatement)
+      .build();
+
+    ESTree.Node estree = ESTreeFactory.from(protobufNode, ESTree.Node.class);
+    assertThat(estree).isInstanceOfSatisfying(ESTree.BlockStatement.class, block -> {
+      assertThat(block.body()).hasSize(1);
+      assertThat(block.body().get(0)).isInstanceOfSatisfying(ESTree.Directive.class, directive -> {
+        assertThat(directive.directive()).isEqualTo("directiveName");
+      });
+    });
+  }
+
+  @Test
   void throw_exception_from_unrecognized_type() {
     Node protobufNode = Node.newBuilder()
       .setTypeValue(-1)
