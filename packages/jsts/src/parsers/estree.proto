@@ -288,6 +288,7 @@ message ClassBody {
   repeated Node body = 1;
 }
 message StaticBlock {
+  repeated Node body = 1;
 }
 message PropertyDefinition {
   Node key = 1;

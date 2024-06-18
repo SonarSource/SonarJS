@@ -77,6 +77,7 @@ import org.sonar.plugins.javascript.bridge.protobuf.ReturnStatement;
 import org.sonar.plugins.javascript.bridge.protobuf.SequenceExpression;
 import org.sonar.plugins.javascript.bridge.protobuf.SourceLocation;
 import org.sonar.plugins.javascript.bridge.protobuf.SpreadElement;
+import org.sonar.plugins.javascript.bridge.protobuf.StaticBlock;
 import org.sonar.plugins.javascript.bridge.protobuf.SwitchCase;
 import org.sonar.plugins.javascript.bridge.protobuf.SwitchStatement;
 import org.sonar.plugins.javascript.bridge.protobuf.TaggedTemplateExpression;
@@ -393,7 +394,8 @@ public class ESTreeFactory {
   }
 
   private static ESTree.StaticBlock fromStaticBlockType(Node node) {
-    return new ESTree.StaticBlock(fromLocation(node.getLoc()));
+    StaticBlock staticBlock = node.getStaticBlock();
+    return new ESTree.StaticBlock(fromLocation(node.getLoc()), from(staticBlock.getBodyList(), ESTree.Statement.class));
   }
 
   private static ESTree.PropertyDefinition fromPropertyDefinitionType(Node node) {
