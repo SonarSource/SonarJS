@@ -33,7 +33,7 @@ public class FontFamilyNoMissingGenericFamilyKeyword implements CssRule {
 
   @RuleProperty(
     key = "ignoreFontFamilies",
-    description = "Comma-separated list of font families exempt from this rule (regular expressions supported).",
+    description = "Comma-separated list of font families to ignore. Each value can be a string or a regular expression with the syntax /pattern/.",
     defaultValue = "" + DEFAULT_IGNORE_FONT_FAMILIES
   )
   String ignoreFontFamilies = DEFAULT_IGNORE_FONT_FAMILIES;
