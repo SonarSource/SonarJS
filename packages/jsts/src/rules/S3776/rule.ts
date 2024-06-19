@@ -31,7 +31,10 @@ import {
   issueLocation,
   IssueLocation,
   report,
+  RuleContext,
 } from '../helpers';
+import { Rule } from 'eslint';
+import estree from 'estree';
 
 const DEFAULT_THRESHOLD = 15;
 
@@ -52,7 +55,8 @@ interface ScopeComplexity {
 const message =
   'Refactor this function to reduce its Cognitive Complexity from {{complexityAmount}} to the {{threshold}} allowed.';
 
-const rule: TSESLint.RuleModule<string, (number | 'metric' | 'sonar-runtime')[]> = {
+export const rule: Rule.RuleModule = {
+  defaultOptions: [],
   meta: {
     messages: {
       refactorFunction: message,
@@ -62,7 +66,6 @@ const rule: TSESLint.RuleModule<string, (number | 'metric' | 'sonar-runtime')[]>
     type: 'suggestion',
     docs: {
       description: 'Cognitive Complexity of functions should not be too high',
-      recommended: 'error',
       url: docsUrl(__filename),
     },
     schema: [
@@ -78,7 +81,7 @@ const rule: TSESLint.RuleModule<string, (number | 'metric' | 'sonar-runtime')[]>
     const { options } = context;
 
     /** Complexity threshold */
-    const threshold = typeof options[0] === 'number' ? options[0] : DEFAULT_THRESHOLD;
+    const threshold: any = typeof options[0] === 'number' ? options[0] : DEFAULT_THRESHOLD;
 
     /** Indicator if the file complexity should be reported */
     const isFileComplexity = context.options.includes('metric');
@@ -90,32 +93,32 @@ const rule: TSESLint.RuleModule<string, (number | 'metric' | 'sonar-runtime')[]>
     const scopes: ScopeComplexity[] = [];
 
     return {
-      ':function': (node: TSESTree.Node) => {
+      ':function': (node: estree.Node) => {
         onEnterFunction(node as TSESTree.FunctionLike);
       },
-      ':function:exit'(node: TSESTree.Node) {
+      ':function:exit'(node: estree.Node) {
         onLeaveFunction(node as TSESTree.FunctionLike);
       },
-      '*'(node: TSESTree.Node) {
-        if (scopes[scopes.length - 1]?.nestingNodes.has(node)) {
+      '*'(node: estree.Node) {
+        if (scopes[scopes.length - 1]?.nestingNodes.has(node as TSESTree.Node)) {
           scopes[scopes.length - 1].nestingLevel++;
         }
       },
-      '*:exit'(node: TSESTree.Node) {
-        if (scopes[scopes.length - 1]?.nestingNodes.has(node)) {
+      '*:exit'(node: estree.Node) {
+        if (scopes[scopes.length - 1]?.nestingNodes.has(node as TSESTree.Node)) {
           scopes[scopes.length - 1].nestingLevel--;
-          scopes[scopes.length - 1].nestingNodes.delete(node);
+          scopes[scopes.length - 1].nestingNodes.delete(node as TSESTree.Node);
         }
       },
-      Program(node: TSESTree.Program) {
+      Program(node: estree.Program) {
         scopes.push({
-          node,
+          node: node as TSESTree.Program,
           nestingLevel: 0,
           nestingNodes: new Set(),
           complexityPoints: [],
         });
       },
-      'Program:exit'(node: TSESTree.Node) {
+      'Program:exit'(node: estree.Node) {
         const programComplexity = scopes.pop()!;
         if (isFileComplexity) {
           // value from the message will be saved in SonarQube as file complexity metric
@@ -126,45 +129,45 @@ const rule: TSESLint.RuleModule<string, (number | 'metric' | 'sonar-runtime')[]>
               complexityAmount: programComplexity.complexityPoints.reduce(
                 (acc, cur) => acc + cur.complexity,
                 0,
-              ),
+              ) as any,
             },
           });
         }
       },
-      IfStatement(node: TSESTree.Node) {
+      IfStatement(node: estree.Node) {
         visitIfStatement(node as TSESTree.IfStatement);
       },
-      ForStatement(node: TSESTree.Node) {
+      ForStatement(node: estree.Node) {
         visitLoop(node as TSESTree.ForStatement);
       },
-      ForInStatement(node: TSESTree.Node) {
+      ForInStatement(node: estree.Node) {
         visitLoop(node as TSESTree.ForInStatement);
       },
-      ForOfStatement(node: TSESTree.Node) {
+      ForOfStatement(node: estree.Node) {
         visitLoop(node as TSESTree.ForOfStatement);
       },
-      DoWhileStatement(node: TSESTree.Node) {
+      DoWhileStatement(node: estree.Node) {
         visitLoop(node as TSESTree.DoWhileStatement);
       },
-      WhileStatement(node: TSESTree.Node) {
+      WhileStatement(node: estree.Node) {
         visitLoop(node as TSESTree.WhileStatement);
       },
-      SwitchStatement(node: TSESTree.Node) {
+      SwitchStatement(node: estree.Node) {
         visitSwitchStatement(node as TSESTree.SwitchStatement);
       },
-      ContinueStatement(node: TSESTree.Node) {
+      ContinueStatement(node: estree.Node) {
         visitContinueOrBreakStatement(node as TSESTree.ContinueStatement);
       },
-      BreakStatement(node: TSESTree.Node) {
+      BreakStatement(node: estree.Node) {
         visitContinueOrBreakStatement(node as TSESTree.BreakStatement);
       },
-      CatchClause(node: TSESTree.Node) {
+      CatchClause(node: estree.Node) {
         visitCatchClause(node as TSESTree.CatchClause);
       },
-      LogicalExpression(node: TSESTree.Node) {
+      LogicalExpression(node: estree.Node) {
         visitLogicalExpression(node as TSESTree.LogicalExpression);
       },
-      ConditionalExpression(node: TSESTree.Node) {
+      ConditionalExpression(node: estree.Node) {
         visitConditionalExpression(node as TSESTree.ConditionalExpression);
       },
     };
@@ -177,13 +180,13 @@ const rule: TSESLint.RuleModule<string, (number | 'metric' | 'sonar-runtime')[]>
       const functionComplexity = scopes.pop()!;
       checkFunction(
         functionComplexity.complexityPoints,
-        getMainFunctionTokenLocation(node, node.parent, context),
+        getMainFunctionTokenLocation(node, node.parent, context as unknown as RuleContext),
       );
     }
 
     function visitIfStatement(ifStatement: TSESTree.IfStatement) {
       const { parent } = ifStatement;
-      const { loc: ifLoc } = getFirstToken(ifStatement, context);
+      const { loc: ifLoc } = getFirstToken(ifStatement, context as unknown as RuleContext);
       // if the current `if` statement is `else if`, do not count it in structural complexity
       if (isIfStatement(parent) && parent.alternate === ifStatement) {
         addComplexity(ifLoc);
@@ -199,18 +202,23 @@ const rule: TSESLint.RuleModule<string, (number | 'metric' | 'sonar-runtime')[]>
       // - add +1 complexity
       if (ifStatement.alternate && !isIfStatement(ifStatement.alternate)) {
         scopes[scopes.length - 1].nestingNodes.add(ifStatement.alternate);
-        const elseTokenLoc = getFirstTokenAfter(ifStatement.consequent, context)!.loc;
+        const elseTokenLoc = getFirstTokenAfter(
+          ifStatement.consequent,
+          context as unknown as RuleContext,
+        )!.loc;
         addComplexity(elseTokenLoc);
       }
     }
 
     function visitLoop(loop: LoopStatement) {
-      addStructuralComplexity(getFirstToken(loop, context).loc);
+      addStructuralComplexity(getFirstToken(loop, context as unknown as RuleContext).loc);
       scopes[scopes.length - 1].nestingNodes.add(loop.body);
     }
 
     function visitSwitchStatement(switchStatement: TSESTree.SwitchStatement) {
-      addStructuralComplexity(getFirstToken(switchStatement, context).loc);
+      addStructuralComplexity(
+        getFirstToken(switchStatement, context as unknown as RuleContext).loc,
+      );
       for (const switchCase of switchStatement.cases) {
         scopes[scopes.length - 1].nestingNodes.add(switchCase);
       }
@@ -220,17 +228,20 @@ const rule: TSESLint.RuleModule<string, (number | 'metric' | 'sonar-runtime')[]>
       statement: TSESTree.ContinueStatement | TSESTree.BreakStatement,
     ) {
       if (statement.label) {
-        addComplexity(getFirstToken(statement, context).loc);
+        addComplexity(getFirstToken(statement, context as unknown as RuleContext).loc);
       }
     }
 
     function visitCatchClause(catchClause: TSESTree.CatchClause) {
-      addStructuralComplexity(getFirstToken(catchClause, context).loc);
+      addStructuralComplexity(getFirstToken(catchClause, context as unknown as RuleContext).loc);
       scopes[scopes.length - 1].nestingNodes.add(catchClause.body);
     }
 
     function visitConditionalExpression(conditionalExpression: TSESTree.ConditionalExpression) {
-      const questionTokenLoc = getFirstTokenAfter(conditionalExpression.test, context)!.loc;
+      const questionTokenLoc = getFirstTokenAfter(
+        conditionalExpression.test,
+        context as unknown as RuleContext,
+      )!.loc;
       addStructuralComplexity(questionTokenLoc);
       scopes[scopes.length - 1].nestingNodes.add(conditionalExpression.consequent);
       scopes[scopes.length - 1].nestingNodes.add(conditionalExpression.alternate);
@@ -253,7 +264,10 @@ const rule: TSESLint.RuleModule<string, (number | 'metric' | 'sonar-runtime')[]>
         let previous: TSESTree.LogicalExpression | undefined;
         for (const current of flattenedLogicalExpressions) {
           if (!previous || previous.operator !== current.operator) {
-            const operatorTokenLoc = getFirstTokenAfter(current.left, context)!.loc;
+            const operatorTokenLoc = getFirstTokenAfter(
+              current.left,
+              context as unknown as RuleContext,
+            )!.loc;
             addComplexity(operatorTokenLoc);
           }
           previous = current;
@@ -276,7 +290,8 @@ const rule: TSESLint.RuleModule<string, (number | 'metric' | 'sonar-runtime')[]>
           return (
             operators.includes(operator) &&
             literals.includes(right.type) &&
-            context.getSourceCode().getText(parent.left) === context.getSourceCode().getText(left)
+            context.sourceCode.getText((parent as estree.AssignmentExpression).left) ===
+              context.sourceCode.getText(left as estree.Node)
           );
         default:
           return false;
@@ -310,7 +325,7 @@ const rule: TSESLint.RuleModule<string, (number | 'metric' | 'sonar-runtime')[]>
       if (isFileComplexity) {
         return;
       }
-      const complexityAmount = complexity.reduce((acc, cur) => acc + cur.complexity, 0);
+      const complexityAmount: any = complexity.reduce((acc, cur) => acc + cur.complexity, 0);
       if (complexityAmount > threshold) {
         const secondaryLocations: IssueLocation[] = complexity.map(complexityPoint => {
           const { complexity, location } = complexityPoint;
@@ -337,8 +352,6 @@ const rule: TSESLint.RuleModule<string, (number | 'metric' | 'sonar-runtime')[]>
     }
   },
 };
-
-export = rule;
 
 type ComplexityPoint = {
   complexity: number;

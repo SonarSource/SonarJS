@@ -18,7 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as estree from 'estree';
-import { AST } from 'eslint';
+import { AST, Rule } from 'eslint';
+import RuleContext = Rule.RuleContext;
+import ReportDescriptor = Rule.ReportDescriptor;
 import { TSESLint, TSESTree } from '@typescript-eslint/utils';
 
 export type LocationHolder = AST.Token | TSESTree.Node | estree.Node | { loc: AST.SourceLocation };
@@ -92,9 +94,9 @@ function toSecondaryLocation(locationHolder: LocationHolder, message?: string): 
  * Encode those extra information in the issue message when rule is executed
  * in Sonar* environment.
  */
-export function report<T = string>(
-  context: TSESLint.RuleContext<string, T[]>,
-  reportDescriptor: MutableReportDescriptor,
+export function report(
+  context: RuleContext,
+  reportDescriptor: ReportDescriptor,
   secondaryLocations: IssueLocation[],
   message: string,
   cost?: number,
@@ -119,6 +121,21 @@ export function report<T = string>(
     JSON.stringify(encodedMessage);
 
   context.report(reportDescriptor);
+}
+
+function expandMessage(message: string, reportDescriptorData: Record<string, unknown> | undefined) {
+  let expandedMessage = message;
+  if (reportDescriptorData !== undefined) {
+    for (const [key, value] of Object.entries(reportDescriptorData)) {
+      expandedMessage = replaceAll(expandedMessage, `{{${key}}}`, (value as object).toString());
+    }
+  }
+
+  return expandedMessage;
+}
+
+function replaceAll(target: string, search: string, replacement: string): string {
+  return target.split(search).join(replacement);
 }
 
 /**
@@ -165,8 +182,8 @@ export function getMainFunctionTokenLocation<T = string>(
  * Converts `SourceLocation` range into `IssueLocation`
  */
 export function issueLocation(
-  startLoc: TSESTree.SourceLocation,
-  endLoc: TSESTree.SourceLocation = startLoc,
+  startLoc: estree.SourceLocation,
+  endLoc: estree.SourceLocation = startLoc,
   message = '',
   data: Record<string, unknown> = {},
 ): IssueLocation {
@@ -193,16 +210,16 @@ function getTokenByValue<T = string>(
   return context.sourceCode.getTokens(node).find(token => token.value === value);
 }
 
-export function getFirstToken<T = string>(
-  node: TSESTree.Node,
-  context: TSESLint.RuleContext<string, T[]>,
-): TSESLint.AST.Token {
-  return context.sourceCode.getTokens(node)[0];
-}
-
 export function getFirstTokenAfter<T = string>(
   node: TSESTree.Node,
   context: TSESLint.RuleContext<string, T[]>,
 ): TSESLint.AST.Token | null {
   return context.sourceCode.getTokenAfter(node);
+}
+
+export function getFirstToken<T = string>(
+  node: TSESTree.Node,
+  context: TSESLint.RuleContext<string, T[]>,
+): TSESLint.AST.Token {
+  return context.sourceCode.getTokens(node)[0];
 }
