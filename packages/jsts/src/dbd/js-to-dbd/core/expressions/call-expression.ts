@@ -28,11 +28,13 @@ import {
   createNewObjectFunctionDefinition,
   createSetFieldFunctionDefinition,
   FunctionDefinition,
+  FunctionID,
 } from '../function-definition';
-import { getParameterField } from '../utils';
+import { getParameterField, isBuiltinDBDFunction } from '../utils';
 import { FunctionInfo } from '../function-info';
 import type { Location } from '../location';
 import { unresolvable } from '../scope-manager';
+import { createNull } from '../values/constant';
 
 export const handleCallExpression: ExpressionHandler<TSESTree.CallExpression> = (
   node,
@@ -45,6 +47,11 @@ export const handleCallExpression: ExpressionHandler<TSESTree.CallExpression> = 
   const argumentValues: Array<Value> = argumentExpressions.map(expression =>
     handleExpression(expression, functionInfo),
   );
+  const functionDefinition = scopeManager.getFunctionDefinition(callee);
+  if (isBuiltinDBDFunction(functionDefinition)) {
+    // Treat this differently, as builtin functions do not rely on the scope
+    return handleBuiltinFunctionCall(functionInfo, callee, argumentValues, functionDefinition);
+  }
 
   const operands: Array<Value> = [];
 
@@ -82,10 +89,42 @@ export const handleCallExpression: ExpressionHandler<TSESTree.CallExpression> = 
   ]);
   operands.push(argumentValue);
 
-  const functionDefinition = scopeManager.getFunctionDefinition(callee);
   functionInfo.addFunctionCall(functionDefinition);
   return executeCall(functionDefinition, functionInfo, operands, node.loc);
 };
+
+function handleBuiltinFunctionCall(
+  functionInfo: FunctionInfo,
+  callee: TSESTree.LeftHandSideExpression,
+  argumentValues: Value[],
+  functionDefinition: FunctionDefinition,
+) {
+  if (callee.type !== AST_NODE_TYPES.MemberExpression) {
+    console.error(`Unable to process builtin call expression ${callee.type}`);
+    return createNull();
+  }
+  const { scopeManager, addInstructions } = functionInfo;
+  switch (functionDefinition.name) {
+    case FunctionID.ARRAY_ADD_LAST: {
+      const resultValue = createReference(scopeManager.createValueIdentifier());
+      const calleeValue = handleExpression(callee.object, functionInfo);
+      addInstructions([
+        createCallInstruction(
+          resultValue.identifier,
+          null,
+          functionDefinition,
+          [calleeValue, ...argumentValues],
+          callee.loc,
+        ),
+      ]);
+      return resultValue;
+    }
+    default: {
+      console.error(`Unable to handle builtin function call ${functionDefinition.name}`);
+      return createNull();
+    }
+  }
+}
 
 export function executeCall(
   functionDefinition: FunctionDefinition,

@@ -1,4 +1,5 @@
 import type { TypeInfo } from './type-info';
+import ts from 'typescript';
 
 export type FunctionDefinition = {
   readonly name: string;
@@ -25,6 +26,7 @@ export const createFunctionDefinition = (name: string, signature: string): Funct
 
 export const FunctionID = {
   ARRAY_ADD_ALL: 'array-add-all',
+  ARRAY_ADD_LAST: 'array-add-last',
   ARRAY_READ: 'array-read',
   NEW_ARRAY: 'new-array',
   UNKNOWN: 'unknown',
@@ -33,6 +35,14 @@ type BuiltinFunction = (typeof FunctionID)[keyof typeof FunctionID];
 
 export const createDBDInternalFunctionDefinition = (name: BuiltinFunction): FunctionDefinition => {
   return createFunctionDefinition(name, `#${name}#`);
+};
+
+export const createGlobalMethodFunctionDefinition = (symbol: ts.Symbol) => {
+  const parent = (symbol as any).parent as ts.Symbol;
+  if (parent.escapedName === 'Array' && symbol.escapedName === 'push') {
+    return createDBDInternalFunctionDefinition(FunctionID.ARRAY_ADD_LAST);
+  }
+  throw new Error(`Cannot create global method. Check isKnownGlobalMethod before calling this.`);
 };
 
 export const createIdentityFunctionDefinition = (): FunctionDefinition => {

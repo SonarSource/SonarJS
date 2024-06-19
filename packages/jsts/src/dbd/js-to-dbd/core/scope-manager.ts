@@ -7,11 +7,13 @@ import { createReference } from './values/reference';
 import {
   createDBDInternalFunctionDefinition,
   createFunctionDefinitionFromName,
+  createGlobalMethodFunctionDefinition,
   FunctionDefinition,
   FunctionID,
 } from './function-definition';
 import { ParserServicesWithTypeInformation } from '@typescript-eslint/utils';
 import ts from 'typescript';
+import { isKnownGlobalMethod } from './global-functions';
 
 export type Record = BaseValue<any> | typeof unresolvable;
 
@@ -79,14 +81,14 @@ function getFunctionDefinition(sourceCode: SourceCode, node: TSESTree.Node) {
   if (symbol) {
     while (!symbolIsFunction(symbol) && getLinkedSymbol(symbol)) {
       symbol = getLinkedSymbol(symbol);
-      if (symbol) {
-        symbol = getLinkedSymbol(symbol);
-      }
     }
     filename = symbol.declarations?.[0]?.getSourceFile()?.fileName ?? filename;
     const symbolId = getSymbolId(symbol);
     if (symbolId) {
       name = `${symbolId}_${symbol.getName()}`;
+    }
+    if (isKnownGlobalMethod(symbol)) {
+      return createGlobalMethodFunctionDefinition(symbol);
     }
   }
   return createResolvedFunctionDefinition(name);
@@ -209,5 +211,5 @@ function getSymbolId(symbol: ts.Symbol) {
 }
 
 function symbolIsFunction(symbol: ts.Symbol) {
-  return !(symbol.flags & ts.SymbolFlags.Function);
+  return !(symbol.flags & (ts.SymbolFlags.Function | ts.SymbolFlags.Method));
 }

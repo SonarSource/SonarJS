@@ -3,6 +3,7 @@ import { CallInstruction, createCallInstruction } from './instructions/call-inst
 import {
   createGetFieldFunctionDefinition,
   createNewObjectFunctionDefinition,
+  FunctionDefinition,
 } from './function-definition';
 import type { Block } from './block';
 import { isATerminatorInstruction } from './instructions/terminator-instruction';
@@ -23,6 +24,10 @@ export function isTerminated(block: Block): boolean {
   const lastInstruction = getBlockLastInstruction(block);
 
   return lastInstruction !== null && isATerminatorInstruction(lastInstruction);
+}
+
+export function isBuiltinDBDFunction(functionDefinition: FunctionDefinition) {
+  return functionDefinition.signature.startsWith('#');
 }
 
 function getBlockLastInstruction(block: Block): Instruction | null {
