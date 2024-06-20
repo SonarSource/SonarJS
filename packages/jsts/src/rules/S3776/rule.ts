@@ -19,7 +19,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S3776
 
-import type { TSESLint, TSESTree } from '@typescript-eslint/utils';
+import type { TSESTree } from '@typescript-eslint/utils';
 import {
   docsUrl,
   getFirstToken,
@@ -56,7 +56,6 @@ const message =
   'Refactor this function to reduce its Cognitive Complexity from {{complexityAmount}} to the {{threshold}} allowed.';
 
 export const rule: Rule.RuleModule = {
-  defaultOptions: [],
   meta: {
     messages: {
       refactorFunction: message,

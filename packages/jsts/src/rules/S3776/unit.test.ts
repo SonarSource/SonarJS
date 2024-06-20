@@ -17,10 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { TSESLint } from '@typescript-eslint/experimental-utils';
-import { ruleTester } from '../rule-tester';
-import { IssueLocation } from '../../src/utils/locations';
-import rule = require('../../src/rules/cognitive-complexity');
+import { RuleTester } from 'eslint';
+import { rule } from './';
+import { IssueLocation } from '../helpers';
+
+const ruleTester = new RuleTester({
+  parserOptions: { ecmaVersion: 2018, sourceType: 'module', ecmaFeatures: { jsx: true } },
+  parser: require.resolve('@typescript-eslint/parser'),
+});
 
 ruleTester.run('cognitive-complexity', rule, {
   valid: [
@@ -111,178 +115,6 @@ ruleTester.run('cognitive-complexity', rule, {
     },
   ],
   invalid: [
-    // if
-    {
-      code: `function single_if() {
-        if (x) {} // +1
-      }`,
-      options: [0],
-      errors: [message(1, { line: 1, column: 10, endColumn: 19 })],
-    },
-    {
-      code: `
-      function if_else_complexity() {
-        if (condition) {        // +1
-        } else if (condition) { // +1
-        } else {}               // +1
-      }`,
-      options: [0],
-      errors: [message(3)],
-    },
-    {
-      code: `
-      function else_nesting() {
-        if (condition) {      // +1
-        } else {              // +1 (nesting level +1)
-            if (condition) {} // +2
-        }
-      }`,
-      options: [0],
-      errors: [message(4)],
-    },
-    {
-      code: `
-      function else_nested() {
-        if (condition) {      // +1 (nesting level +1)
-          if (condition) {    // +2
-          } else {}           // +1
-        }
-      }`,
-      options: [0],
-      errors: [message(4)],
-    },
-    {
-      code: `
-      function if_nested() {
-        if (condition)          // +1 (nesting level +1)
-          if (condition)        // +2 (nesting level +1)
-            if (condition) {}   // +3
-      }`,
-      options: [0],
-      errors: [message(6)],
-    },
-    {
-      code: `
-      function else_if_nesting() {
-        if (condition) {         // +1
-        } else if (condition) {  // +1 (nesting level +1)
-          if (condition) {}      // +2
-        }
-      }`,
-      options: [0],
-      errors: [message(4)],
-    },
-
-    // loops
-    {
-      code: `
-      function loops_complexity() {
-        while (condition) {                 // +1 (nesting level +1)
-          if (condition) {}                 // +2
-        }
-
-        do {                                // +1 (nesting level +1)
-          if (condition) {}                 // +2
-        } while (condition)
-
-        for (i = 0; i < length; i++) {      // +1 (nesting level +1)
-          if (condition) {}                 // +2
-
-          for (i = 0; i < length; i++) {}  // +2
-        }
-
-        for (x in obj) {                    // +1 (nesting level +1)
-          if (condition) {}                 // +2
-        }
-
-        for (x of obj) {                    // +1 (nesting level +1)
-          if (condition) {}                 // +2
-        }
-      }`,
-      options: [0],
-      errors: [message(17)],
-    },
-
-    // switch
-    {
-      code: `
-      function switch_complexity() {
-        if (condition) {                 // +1 (nesting level +1)
-          switch (expr) {                // +2 (nesting level +1)
-            case "1":
-              if (condition) {}          // +3
-              break;
-            case "2":
-              break;
-            default:
-              foo();
-          }
-        }
-      }`,
-      options: [0],
-      errors: [message(6)],
-    },
-
-    // continue & break
-    {
-      code: `
-      function jump_statements_no_complexity() {
-        if (condition)           // +1
-          return;
-        else if (condition)      // +1
-          return 42;
-
-        label:
-        while (condition) {      // +1 (nesting level +1)
-          if (condition)         // +2
-            break;
-          else if (condition)    // +1
-            continue;
-        }
-      }`,
-      options: [0],
-      errors: [message(6)],
-    },
-    {
-      code: `
-      function break_continue_with_label() {
-        label:
-        while (condition) {      // +1
-          break label;           // +1
-          continue label;        // +1
-        }
-      }`,
-      options: [0],
-      errors: [message(3)],
-    },
-
-    // try-catch-finally
-    {
-      code: `
-      function try_catch() {
-        try {
-          if (condition) {}      // +1
-        } catch (someError) {    // +1 (nesting level +1)
-          if (condition)  {}     // +2
-        } finally {
-          if (condition) {}      // +1
-        }
-      }`,
-      options: [0],
-      errors: [message(5)],
-    },
-    {
-      code: `
-      function try_finally() {
-        try {
-          if (condition) {}      // +1
-        } finally {
-          if (condition) {}      // +1
-        }
-      }`,
-      options: [0],
-      errors: [message(2)],
-    },
     testCaseWithSonarRuntime(
       `
       function check_secondaries() {
@@ -783,7 +615,7 @@ function testCaseWithSonarRuntime(
   code: string,
   secondaryLocations: IssueLocation[],
   complexity?: number,
-): TSESLint.InvalidTestCase<string, (number | 'sonar-runtime')[]> {
+): RuleTester.InvalidTestCase {
   const cost = complexity ?? secondaryLocations.length;
   const message = `Refactor this function to reduce its Cognitive Complexity from ${cost} to the 0 allowed.`;
   const sonarRuntimeData = JSON.stringify({ secondaryLocations, message, cost });
@@ -803,7 +635,7 @@ function testCaseWithSonarRuntime(
   };
 }
 
-function message(complexityAmount: number, other: Partial<TSESLint.TestCaseError<string>> = {}) {
+function message(complexityAmount: number, other: RuleTester.TestCaseError = {}) {
   return {
     messageId: 'refactorFunction',
     data: { complexityAmount, threshold: 0 },

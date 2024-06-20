@@ -111,16 +111,19 @@ export function report(
     message: expandMessage(message, reportDescriptor.data),
     cost,
   };
-  reportDescriptor.messageId = 'sonarRuntime';
 
   if (reportDescriptor.data === undefined) {
     reportDescriptor.data = {};
   }
 
-  (reportDescriptor.data as Record<string, unknown>).sonarRuntimeData =
-    JSON.stringify(encodedMessage);
-
-  context.report(reportDescriptor);
+  context.report({
+    ...reportDescriptor,
+    messageId: 'sonarRuntime',
+    data: {
+      sonarRuntimeData: JSON.stringify(encodedMessage),
+      ...reportDescriptor.data,
+    },
+  });
 }
 
 function expandMessage(message: string, reportDescriptorData: Record<string, unknown> | undefined) {

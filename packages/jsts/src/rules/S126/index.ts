@@ -17,16 +17,4 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { rule as cognitiveComplexityRule } from '../../rules/S3776';
-import { CustomRule } from './custom-rule';
-
-/**
- * The internal _cognitive complexity_ custom rule
- *
- * The rule computes file-level cognitive complexity.
- */
-export const rule: CustomRule = {
-  ruleId: 'internal-cognitive-complexity',
-  ruleModule: cognitiveComplexityRule,
-  ruleConfig: ['metric'],
-};
+export { rule } from './rule';
