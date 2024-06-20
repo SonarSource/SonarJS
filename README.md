@@ -9,7 +9,7 @@ This SonarSource project is a [static code analyzer](https://en.wikipedia.org/wi
 # Features
 
 - Advanced rules based on pattern matching and control flow analysis
-- [397 JS rules](https://rules.sonarsource.com/javascript) and [402 TS rules](https://rules.sonarsource.com/typescript)
+- [401 JS rules](https://rules.sonarsource.com/javascript) and [406 TS rules](https://rules.sonarsource.com/typescript)
 - [26 CSS rules](https://rules.sonarsource.com/css)
 - Compatible with ECMAScript 2015-2020
 - React JSX, Flow, Vue, and AWS lambda functions support for JavaScript and TypeScript
