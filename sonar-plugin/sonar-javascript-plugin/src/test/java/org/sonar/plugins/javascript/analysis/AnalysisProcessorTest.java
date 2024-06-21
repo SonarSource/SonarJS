@@ -45,7 +45,7 @@ class AnalysisProcessorTest {
     var response = new AnalysisResponse(null, List.of(), List.of(highlight), List.of(), new Metrics(), List.of(), List.of(), null);
     processor.processResponse(context, mock(JsTsChecks.class), file, response);
     assertThat(logTester.logs())
-      .contains("Failed to save highlight in " + file.uri() + " at 1:2-1:1");
+      .contains("Failed to create highlight in " + file.uri() + " at 1:2-1:1");
   }
 
   @Test
