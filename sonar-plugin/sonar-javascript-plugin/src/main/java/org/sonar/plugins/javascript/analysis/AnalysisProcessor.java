@@ -200,13 +200,18 @@ public class AnalysisProcessor {
           highlight.location().toTextRange(file),
           TypeOfText.valueOf(highlight.textType())
         );
-      } catch (IllegalArgumentException e) {
-        LOG.warn("Failed to save highlight in {} at {}", file.uri(), highlight.location());
+      } catch (RuntimeException e) {
+        LOG.warn("Failed to create highlight in {} at {}", file.uri(), highlight.location());
         LOG.warn("Exception cause", e);
         // continue processing other highlights
       }
     }
-    highlighting.save();
+    try {
+      highlighting.save();
+    } catch (RuntimeException e) {
+      LOG.warn("Failed to save highlights in {}.", file.uri());
+      LOG.warn("Exception cause", e);
+    }
   }
 
   private void saveHighlightedSymbols(List<HighlightedSymbol> highlightedSymbols) {
@@ -222,7 +227,7 @@ public class AnalysisProcessor {
             declaration.endLine(),
             declaration.endCol()
           );
-      } catch (IllegalArgumentException e) {
+      } catch (RuntimeException e) {
         LOG.warn("Failed to create symbol declaration in {} at {}", file.uri(), declaration);
         continue;
       }
@@ -234,7 +239,7 @@ public class AnalysisProcessor {
             reference.endLine(),
             reference.endCol()
           );
-        } catch (IllegalArgumentException e) {
+        } catch (RuntimeException e) {
           LOG.warn("Failed to create symbol reference in {} at {}", file.uri(), reference);
         }
       }
@@ -291,7 +296,7 @@ public class AnalysisProcessor {
         newCpdTokens.addToken(cpdToken.location().toTextRange(file), cpdToken.image());
       }
       newCpdTokens.save();
-    } catch (IllegalArgumentException e) {
+    } catch (RuntimeException e) {
       LOG.warn("Failed to save CPD token in {}. File will not be analyzed for duplications.", file.uri());
       LOG.warn("Exception cause", e);
     }
