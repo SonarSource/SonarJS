@@ -59,6 +59,7 @@ import { rule as S6092 } from './S6092'; // chai-determinate-assertion
 import { rule as S101 } from './S101'; // class-name
 import { rule as S3525 } from './S3525'; // class-prototype
 import { rule as S1523 } from './S1523'; // code-eval
+import { rule as S3776 } from './S3776'; // cognitive-complexity
 import { rule as S3616 } from './S3616'; // comma-or-logical-or-case
 import { rule as S124 } from './S124'; // comment-regex
 import { rule as S6353 } from './S6353'; // concise-regex
@@ -82,6 +83,7 @@ import { rule as S5725 } from './S5725'; // disabled-resource-integrity
 import { rule as S6080 } from './S6080'; // disabled-timeout
 import { rule as S5743 } from './S5743'; // dns-prefetching
 import { rule as S5869 } from './S5869'; // duplicates-in-character-class
+import { rule as S126 } from './S126'; // elseif-without-else
 import { rule as S5842 } from './S5842'; // empty-string-repetition
 import { rule as S4787 } from './S4787'; // encryption
 import { rule as S5542 } from './S5542'; // encryption-secure-mode
@@ -117,6 +119,7 @@ import { rule as S6749 } from './S6749'; // jsx-no-useless-fragment
 import { rule as S6853 } from './S6853'; // label-has-associated-control
 import { rule as S1439 } from './S1439'; // label-position
 import { rule as S5148 } from './S5148'; // link-with-target-blank
+import { rule as S1479 } from './S1479'; // max-switch-cases
 import { rule as S4622 } from './S4622'; // max-union-size
 import { rule as S4084 } from './S4084'; // media-has-caption
 import { rule as S1994 } from './S1994'; // misplaced-loop-counter
@@ -125,6 +128,7 @@ import { rule as S134 } from './S134'; // nested-control-flow
 import { rule as S2430 } from './S2430'; // new-cap
 import { rule as S2999 } from './S2999'; // new-operator-misuse
 import { rule as S4275 } from './S4275'; // no-accessor-field-mismatch
+import { rule as S3923 } from './S3923'; // no-all-duplicated-branches
 import { rule as S2871 } from './S2871'; // no-alphabetical-sort
 import { rule as S6268 } from './S6268'; // no-angular-bypass-sanitization
 import { rule as S2870 } from './S2870'; // no-array-delete
@@ -135,14 +139,20 @@ import { rule as S2424 } from './S2424'; // no-built-in-override
 import { rule as S1219 } from './S1219'; // no-case-label-in-switch
 import { rule as S5332 } from './S5332'; // no-clear-text-protocols
 import { rule as S6079 } from './S6079'; // no-code-after-done
+import { rule as S1066 } from './S1066'; // no-collapsible-if
+import { rule as S3981 } from './S3981'; // no-collection-size-mischeck
 import { rule as S125 } from './S125'; // no-commented-code
 import { rule as S1854 } from './S1854'; // no-dead-store
 import { rule as S3001 } from './S3001'; // no-delete-var
 import { rule as S6957 } from './S6957'; // no-deprecated-react
 import { rule as S4621 } from './S4621'; // no-duplicate-in-composite
+import { rule as S1192 } from './S1192'; // no-duplicate-string
+import { rule as S1871 } from './S1871'; // no-duplicated-branches
+import { rule as S4143 } from './S4143'; // no-element-overwrite
 import { rule as S108 } from './S108'; // no-empty
 import { rule as S6019 } from './S6019'; // no-empty-after-reluctant
 import { rule as S6323 } from './S6323'; // no-empty-alternatives
+import { rule as S4158 } from './S4158'; // no-empty-collection
 import { rule as S1186 } from './S1186'; // no-empty-function
 import { rule as S6331 } from './S6331'; // no-empty-group
 import { rule as S4023 } from './S4023'; // no-empty-interface
@@ -150,19 +160,26 @@ import { rule as S2187 } from './S2187'; // no-empty-test-file
 import { rule as S888 } from './S888'; // no-equals-in-for-termination
 import { rule as S6426 } from './S6426'; // no-exclusive-tests
 import { rule as S6643 } from './S6643'; // no-extend-native
+import { rule as S930 } from './S930'; // no-extra-arguments
 import { rule as S1116 } from './S1116'; // no-extra-semi
 import { rule as S6788 } from './S6788'; // no-find-dom-node
 import { rule as S4139 } from './S4139'; // no-for-in-iterable
 import { rule as S1530 } from './S1530'; // no-function-declaration-in-block
 import { rule as S2990 } from './S2990'; // no-global-this
 import { rule as S2137 } from './S2137'; // no-globals-shadowing
+import { rule as S2589 } from './S2589'; // no-gratuitous-expressions
 import { rule as S2068 } from './S2068'; // no-hardcoded-credentials
 import { rule as S1313 } from './S1313'; // no-hardcoded-ip
 import { rule as S6442 } from './S6442'; // no-hook-setter-in-body
+import { rule as S1862 } from './S1862'; // no-identical-conditions
+import { rule as S1764 } from './S1764'; // no-identical-expressions
+import { rule as S4144 } from './S4144'; // no-identical-functions
 import { rule as S2486 } from './S2486'; // no-ignored-exceptions
+import { rule as S2201 } from './S2201'; // no-ignored-return
 import { rule as S4328 } from './S4328'; // no-implicit-dependencies
 import { rule as S2703 } from './S2703'; // no-implicit-global
 import { rule as S4619 } from './S4619'; // no-in-misuse
+import { rule as S1940 } from './S1940'; // no-inverted-boolean-check
 import { rule as S2970 } from './S2970'; // no-incomplete-assertions
 import { rule as S3801 } from './S3801'; // no-inconsistent-returns
 import { rule as S3402 } from './S3402'; // no-incorrect-string-concat
@@ -181,12 +198,17 @@ import { rule as S5730 } from './S5730'; // no-mixed-content
 import { rule as S1121 } from './S1121'; // no-nested-assignment
 import { rule as S3358 } from './S3358'; // no-nested-conditional
 import { rule as S2004 } from './S2004'; // no-nested-functions
+import { rule as S1821 } from './S1821'; // no-nested-switch
+import { rule as S4624 } from './S4624'; // no-nested-template-literals
 import { rule as S881 } from './S881'; // no-nested-incdec
+import { rule as S1751 } from './S1751'; // no-one-iteration-loop
 import { rule as S4036 } from './S4036'; // no-os-command-from-path
 import { rule as S1226 } from './S1226'; // no-parameter-reassignment
 import { rule as S1533 } from './S1533'; // no-primitive-wrappers
 import { rule as S2814 } from './S2814'; // no-redeclare
 import { rule as S4165 } from './S4165'; // no-redundant-assignments
+import { rule as S1125 } from './S1125'; // no-redundant-boolean
+import { rule as S3626 } from './S3626'; // no-redundant-jump
 import { rule as S4782 } from './S4782'; // no-redundant-optional
 import { rule as S1110 } from './S1110'; // no-redundant-parentheses
 import { rule as S6571 } from './S6571'; // no-redundant-type-constituents
@@ -195,7 +217,9 @@ import { rule as S5736 } from './S5736'; // no-referrer-policy
 import { rule as S3533 } from './S3533'; // no-require-or-define
 import { rule as S4324 } from './S4324'; // no-return-type-any
 import { rule as S5863 } from './S5863'; // no-same-argument-assert
+import { rule as S3972 } from './S3972'; // no-same-line-conditional
 import { rule as S6679 } from './S6679'; // no-self-compare
+import { rule as S1301 } from './S1301'; // no-small-switch
 import { rule as S105 } from './S105'; // no-tab
 import { rule as S5257 } from './S5257'; // no-table-as-layout
 import { rule as S4327 } from './S4327'; // no-this-alias
@@ -211,10 +235,13 @@ import { rule as S6791 } from './S6791'; // no-unsafe
 import { rule as S5042 } from './S5042'; // no-unsafe-unzip
 import { rule as S6478 } from './S6478'; // no-unstable-nested-components
 import { rule as S3984 } from './S3984'; // no-unthrown-error
+import { rule as S4030 } from './S4030'; // no-unused-collection
 import { rule as S905 } from './S905'; // no-unused-expressions
 import { rule as S1172 } from './S1172'; // no-unused-function-argument
 import { rule as S1068 } from './S1068'; // no-unused-private-class-members
+import { rule as S3699 } from './S3699'; // no-use-of-empty-return-value
 import { rule as S6676 } from './S6676'; // no-useless-call
+import { rule as S2737 } from './S2737'; // no-useless-catch
 import { rule as S6647 } from './S6647'; // no-useless-constructor
 import { rule as S2123 } from './S2123'; // no-useless-increment
 import { rule as S4335 } from './S4335'; // no-useless-intersection
@@ -225,6 +252,7 @@ import { rule as S6299 } from './S6299'; // no-vue-bypass-sanitization
 import { rule as S5547 } from './S5547'; // no-weak-cipher
 import { rule as S4426 } from './S4426'; // no-weak-keys
 import { rule as S2208 } from './S2208'; // no-wildcard-import
+import { rule as S2757 } from './S2757'; // non-existent-operator
 import { rule as S3760 } from './S3760'; // non-number-in-arithmetic-expression
 import { rule as S2259 } from './S2259'; // null-dereference
 import { rule as S5264 } from './S5264'; // object-alt-content
@@ -236,14 +264,18 @@ import { rule as S4524 } from './S4524'; // prefer-default-last
 import { rule as S6572 } from './S6572'; // prefer-enum-initializers
 import { rule as S4138 } from './S4138'; // prefer-for-of
 import { rule as S6598 } from './S6598'; // prefer-function-type
+import { rule as S1488 } from './S1488'; // prefer-immediate-return
 import { rule as S4156 } from './S4156'; // prefer-namespace-keyword
 import { rule as S6606 } from './S6606'; // prefer-nullish-coalescing
+import { rule as S2428 } from './S2428'; // prefer-object-literal
 import { rule as S6661 } from './S6661'; // prefer-object-spread
 import { rule as S4634 } from './S4634'; // prefer-promise-shorthand
+import { rule as S1126 } from './S1126'; // prefer-single-boolean-return
 import { rule as S6666 } from './S6666'; // prefer-spread
 import { rule as S6557 } from './S6557'; // prefer-string-starts-ends-with
 import { rule as S3512 } from './S3512'; // prefer-template
 import { rule as S4322 } from './S4322'; // prefer-type-guard
+import { rule as S1264 } from './S1264'; // prefer-while
 import { rule as S4823 } from './S4823'; // process-argv
 import { rule as S4507 } from './S4507'; // production-debug
 import { rule as S2245 } from './S2245'; // pseudo-random
@@ -357,6 +389,7 @@ rules['chai-determinate-assertion'] = S6092;
 rules['class-name'] = S101;
 rules['class-prototype'] = S3525;
 rules['code-eval'] = S1523;
+rules['cognitive-complexity'] = S3776;
 rules['comma-or-logical-or-case'] = S3616;
 rules['comment-regex'] = S124;
 rules['concise-regex'] = S6353;
@@ -380,6 +413,7 @@ rules['disabled-resource-integrity'] = S5725;
 rules['disabled-timeout'] = S6080;
 rules['dns-prefetching'] = S5743;
 rules['duplicates-in-character-class'] = S5869;
+rules['elseif-without-else'] = S126;
 rules['empty-string-repetition'] = S5842;
 rules['encryption'] = S4787;
 rules['encryption-secure-mode'] = S5542;
@@ -415,6 +449,7 @@ rules['jsx-no-useless-fragment'] = S6749;
 rules['label-has-associated-control'] = S6853;
 rules['label-position'] = S1439;
 rules['link-with-target-blank'] = S5148;
+rules['max-switch-cases'] = S1479;
 rules['max-union-size'] = S4622;
 rules['media-has-caption'] = S4084;
 rules['misplaced-loop-counter'] = S1994;
@@ -423,6 +458,7 @@ rules['nested-control-flow'] = S134;
 rules['new-cap'] = S2430;
 rules['new-operator-misuse'] = S2999;
 rules['no-accessor-field-mismatch'] = S4275;
+rules['no-all-duplicated-branches'] = S3923;
 rules['no-alphabetical-sort'] = S2871;
 rules['no-angular-bypass-sanitization'] = S6268;
 rules['no-array-delete'] = S2870;
@@ -433,14 +469,20 @@ rules['no-built-in-override'] = S2424;
 rules['no-case-label-in-switch'] = S1219;
 rules['no-clear-text-protocols'] = S5332;
 rules['no-code-after-done'] = S6079;
+rules['no-collapsible-if'] = S1066;
+rules['no-collection-size-mischeck'] = S3981;
 rules['no-commented-code'] = S125;
 rules['no-dead-store'] = S1854;
 rules['no-delete-var'] = S3001;
 rules['no-deprecated-react'] = S6957;
 rules['no-duplicate-in-composite'] = S4621;
+rules['no-duplicate-string'] = S1192;
+rules['no-duplicated-branches'] = S1871;
+rules['no-element-overwrite'] = S4143;
 rules['no-empty'] = S108;
 rules['no-empty-after-reluctant'] = S6019;
 rules['no-empty-alternatives'] = S6323;
+rules['no-empty-collection'] = S4158;
 rules['no-empty-function'] = S1186;
 rules['no-empty-group'] = S6331;
 rules['no-empty-interface'] = S4023;
@@ -448,16 +490,22 @@ rules['no-empty-test-file'] = S2187;
 rules['no-equals-in-for-termination'] = S888;
 rules['no-exclusive-tests'] = S6426;
 rules['no-extend-native'] = S6643;
+rules['no-extra-arguments'] = S930;
 rules['no-extra-semi'] = S1116;
 rules['no-find-dom-node'] = S6788;
 rules['no-for-in-iterable'] = S4139;
 rules['no-function-declaration-in-block'] = S1530;
 rules['no-global-this'] = S2990;
 rules['no-globals-shadowing'] = S2137;
+rules['no-gratuitous-expressions'] = S2589;
 rules['no-hardcoded-credentials'] = S2068;
 rules['no-hardcoded-ip'] = S1313;
 rules['no-hook-setter-in-body'] = S6442;
+rules['no-identical-conditions'] = S1862;
+rules['no-identical-expressions'] = S1764;
+rules['no-identical-functions'] = S4144;
 rules['no-ignored-exceptions'] = S2486;
+rules['no-ignored-return'] = S2201;
 rules['no-implicit-dependencies'] = S4328;
 rules['no-implicit-global'] = S2703;
 rules['no-in-misuse'] = S4619;
@@ -468,6 +516,7 @@ rules['no-infinite-loop'] = S2189;
 rules['no-intrusive-permissions'] = S5604;
 rules['no-invalid-await'] = S4123;
 rules['no-invariant-returns'] = S3516;
+rules['no-inverted-boolean-check'] = S1940;
 rules['no-ip-forward'] = S5759;
 rules['no-labels'] = S1119;
 rules['no-literal-call'] = S6958;
@@ -480,11 +529,16 @@ rules['no-nested-assignment'] = S1121;
 rules['no-nested-conditional'] = S3358;
 rules['no-nested-functions'] = S2004;
 rules['no-nested-incdec'] = S881;
+rules['no-nested-switch'] = S1821;
+rules['no-nested-template-literals'] = S4624;
+rules['no-one-iteration-loop'] = S1751;
 rules['no-os-command-from-path'] = S4036;
 rules['no-parameter-reassignment'] = S1226;
 rules['no-primitive-wrappers'] = S1533;
 rules['no-redeclare'] = S2814;
 rules['no-redundant-assignments'] = S4165;
+rules['no-redundant-boolean'] = S1125;
+rules['no-redundant-jump'] = S3626;
 rules['no-redundant-optional'] = S4782;
 rules['no-redundant-parentheses'] = S1110;
 rules['no-redundant-type-constituents'] = S6571;
@@ -493,7 +547,9 @@ rules['no-referrer-policy'] = S5736;
 rules['no-require-or-define'] = S3533;
 rules['no-return-type-any'] = S4324;
 rules['no-same-argument-assert'] = S5863;
+rules['no-same-line-conditional'] = S3972;
 rules['no-self-compare'] = S6679;
+rules['no-small-switch'] = S1301;
 rules['no-tab'] = S105;
 rules['no-table-as-layout'] = S5257;
 rules['no-this-alias'] = S4327;
@@ -509,10 +565,13 @@ rules['no-unsafe'] = S6791;
 rules['no-unsafe-unzip'] = S5042;
 rules['no-unstable-nested-components'] = S6478;
 rules['no-unthrown-error'] = S3984;
+rules['no-unused-collection'] = S4030;
 rules['no-unused-expressions'] = S905;
 rules['no-unused-function-argument'] = S1172;
 rules['no-unused-private-class-members'] = S1068;
+rules['no-use-of-empty-return-value'] = S3699;
 rules['no-useless-call'] = S6676;
+rules['no-useless-catch'] = S2737;
 rules['no-useless-constructor'] = S6647;
 rules['no-useless-increment'] = S2123;
 rules['no-useless-intersection'] = S4335;
@@ -523,6 +582,7 @@ rules['no-vue-bypass-sanitization'] = S6299;
 rules['no-weak-cipher'] = S5547;
 rules['no-weak-keys'] = S4426;
 rules['no-wildcard-import'] = S2208;
+rules['non-existent-operator'] = S2757;
 rules['non-number-in-arithmetic-expression'] = S3760;
 rules['null-dereference'] = S2259;
 rules['object-alt-content'] = S5264;
@@ -534,14 +594,18 @@ rules['prefer-default-last'] = S4524;
 rules['prefer-enum-initializers'] = S6572;
 rules['prefer-for-of'] = S4138;
 rules['prefer-function-type'] = S6598;
+rules['prefer-immediate-return'] = S1488;
 rules['prefer-namespace-keyword'] = S4156;
 rules['prefer-nullish-coalescing'] = S6606;
+rules['prefer-object-literal'] = S2428;
 rules['prefer-object-spread'] = S6661;
 rules['prefer-promise-shorthand'] = S4634;
+rules['prefer-single-boolean-return'] = S1126;
 rules['prefer-spread'] = S6666;
 rules['prefer-string-starts-ends-with'] = S6557;
 rules['prefer-template'] = S3512;
 rules['prefer-type-guard'] = S4322;
+rules['prefer-while'] = S1264;
 rules['process-argv'] = S4823;
 rules['production-debug'] = S4507;
 rules['pseudo-random'] = S2245;
