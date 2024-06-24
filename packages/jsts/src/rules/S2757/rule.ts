@@ -19,11 +19,12 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S2757
 
-import type { TSESLint, TSESTree } from '@typescript-eslint/utils';
-import docsUrl from '../utils/docs-url';
+import { AST, Rule } from 'eslint';
+import { docsUrl } from '../helpers';
+import estree from 'estree';
+import { TSESTree } from '@typescript-eslint/utils';
 
-const rule: TSESLint.RuleModule<string, string[]> = {
-  defaultOptions: [],
+export const rule: Rule.RuleModule = {
   meta: {
     messages: {
       useExistingOperator: 'Was "{{operator}}=" meant instead?',
@@ -34,30 +35,25 @@ const rule: TSESLint.RuleModule<string, string[]> = {
     hasSuggestions: true,
     docs: {
       description: 'Non-existent operators "=+", "=-" and "=!" should not be used',
-      recommended: 'recommended',
+      recommended: true,
       url: docsUrl(__filename),
     },
   },
   create(context) {
     return {
-      AssignmentExpression(node: TSESTree.Node) {
-        const assignmentExpression = node as TSESTree.AssignmentExpression;
+      AssignmentExpression(assignmentExpression: estree.AssignmentExpression) {
         if (assignmentExpression.operator === '=') {
           checkOperator(context, assignmentExpression.right);
         }
       },
-      VariableDeclarator(node: TSESTree.Node) {
-        const variableDeclarator = node as TSESTree.VariableDeclarator;
+      VariableDeclarator(variableDeclarator: estree.VariableDeclarator) {
         checkOperator(context, variableDeclarator.init);
       },
     };
   },
 };
 
-function checkOperator(
-  context: TSESLint.RuleContext<string, string[]>,
-  unaryNode?: TSESTree.Expression | null,
-) {
+function checkOperator(context: Rule.RuleContext, unaryNode?: estree.Expression | null) {
   if (
     unaryNode &&
     unaryNode.type === 'UnaryExpression' &&
@@ -78,8 +74,8 @@ function checkOperator(
       areAdjacent(assignmentOperatorToken, unaryOperatorToken) &&
       !areAdjacent(unaryOperatorToken, expressionFirstToken)
     ) {
-      const suggest: TSESLint.ReportSuggestionArray<string> = [];
-      if (unaryNode.parent?.type === 'AssignmentExpression') {
+      const suggest: Rule.SuggestionReportDescriptor[] = [];
+      if ((unaryNode as TSESTree.Node).parent?.type === 'AssignmentExpression') {
         const range: [number, number] = [
           assignmentOperatorToken.range[0],
           unaryOperatorToken.range[1],
@@ -105,14 +101,12 @@ function checkOperator(
   }
 }
 
-function isUnaryOperatorOfInterest(operator: TSESTree.UnaryExpression['operator']): boolean {
+function isUnaryOperatorOfInterest(operator: estree.UnaryExpression['operator']): boolean {
   return operator === '-' || operator === '+' || operator === '!';
 }
 
-function areAdjacent(first: TSESLint.AST.Token, second: TSESLint.AST.Token): boolean {
+function areAdjacent(first: AST.Token, second: AST.Token): boolean {
   return (
     first.loc.end.column === second.loc.start.column && first.loc.end.line === second.loc.start.line
   );
 }
-
-export = rule;

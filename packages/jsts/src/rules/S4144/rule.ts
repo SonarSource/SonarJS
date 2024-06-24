@@ -19,10 +19,17 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S4144
 
-import type { TSESTree, TSESLint } from '@typescript-eslint/utils';
-import { areEquivalent } from '../utils/equivalence';
-import { getMainFunctionTokenLocation, report, issueLocation } from '../utils/locations';
-import docsUrl from '../utils/docs-url';
+import type { TSESTree } from '@typescript-eslint/utils';
+import {
+  areEquivalent,
+  docsUrl,
+  getMainFunctionTokenLocation,
+  issueLocation,
+  report,
+  RuleContext,
+} from '../helpers';
+import { Rule } from 'eslint';
+import estree from 'estree';
 
 const DEFAULT_MIN_LINES = 3;
 
@@ -34,10 +41,7 @@ type FunctionNode =
 const message =
   'Update this function so that its implementation is not identical to the one on line {{line}}.';
 
-type Options = (number | 'sonar-runtime')[];
-
-const rule: TSESLint.RuleModule<string, Options> = {
-  defaultOptions: [DEFAULT_MIN_LINES],
+export const rule: Rule.RuleModule = {
   meta: {
     messages: {
       identicalFunctions: message,
@@ -46,7 +50,7 @@ const rule: TSESLint.RuleModule<string, Options> = {
     type: 'problem',
     docs: {
       description: 'Functions should not have identical implementations',
-      recommended: 'recommended',
+      recommended: true,
       url: docsUrl(__filename),
     },
     schema: [
@@ -63,16 +67,16 @@ const rule: TSESLint.RuleModule<string, Options> = {
       typeof context.options[0] === 'number' ? context.options[0] : DEFAULT_MIN_LINES;
 
     return {
-      FunctionDeclaration(node: TSESTree.Node) {
+      FunctionDeclaration(node: estree.Node) {
         visitFunction(node as TSESTree.FunctionDeclaration);
       },
       'VariableDeclarator > FunctionExpression, MethodDefinition > FunctionExpression': (
-        node: TSESTree.Node,
+        node: estree.Node,
       ) => {
         visitFunction(node as TSESTree.FunctionExpression);
       },
       'VariableDeclarator > ArrowFunctionExpression, MethodDefinition > ArrowFunctionExpression': (
-        node: TSESTree.Node,
+        node: estree.Node,
       ) => {
         visitFunction(node as TSESTree.ArrowFunctionExpression);
       },
@@ -83,7 +87,7 @@ const rule: TSESLint.RuleModule<string, Options> = {
     };
 
     function visitFunction(node: FunctionNode) {
-      if (isBigEnough(node.body)) {
+      if (isBigEnough(node.body as estree.Node)) {
         functions.push({ function: node, parent: node.parent });
       }
     }
@@ -96,18 +100,22 @@ const rule: TSESLint.RuleModule<string, Options> = {
           const originalFunction = functions[j].function;
 
           if (
-            areEquivalent(duplicatingFunction.body, originalFunction.body, context.sourceCode) &&
+            areEquivalent(
+              duplicatingFunction.body,
+              originalFunction.body,
+              (context as unknown as RuleContext).sourceCode,
+            ) &&
             originalFunction.loc
           ) {
             const loc = getMainFunctionTokenLocation(
               duplicatingFunction,
               functions[i].parent,
-              context,
+              context as unknown as RuleContext,
             );
             const originalFunctionLoc = getMainFunctionTokenLocation(
               originalFunction,
               functions[j].parent,
-              context,
+              context as unknown as RuleContext,
             );
             const secondaryLocations = [
               issueLocation(originalFunctionLoc, originalFunctionLoc, 'Original implementation'),
@@ -117,7 +125,7 @@ const rule: TSESLint.RuleModule<string, Options> = {
               {
                 messageId: 'identicalFunctions',
                 data: {
-                  line: originalFunction.loc.start.line,
+                  line: originalFunction.loc.start.line as any,
                 },
                 loc,
               },
@@ -130,7 +138,7 @@ const rule: TSESLint.RuleModule<string, Options> = {
       }
     }
 
-    function isBigEnough(node: TSESTree.Node) {
+    function isBigEnough(node: estree.Node) {
       const tokens = context.sourceCode.getTokens(node);
 
       if (tokens.length > 0 && tokens[0].value === '{') {
@@ -152,5 +160,3 @@ const rule: TSESLint.RuleModule<string, Options> = {
     }
   },
 };
-
-export = rule;

@@ -17,8 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ruleTester } from '../rule-tester';
-import rule = require('../../src/rules/no-redundant-jump');
+import { rule } from './rule';
+import { JavaScriptRuleTester } from '../../../tests/tools';
+
+const ruleTester = new JavaScriptRuleTester();
 
 function invalid(code: string) {
   const line = code.split('\n').findIndex(str => str.includes('// Noncompliant')) + 1;

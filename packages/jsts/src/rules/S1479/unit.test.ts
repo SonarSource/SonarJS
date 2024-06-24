@@ -17,69 +17,72 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// https://sonarsource.github.io/rspec/#/rspec/S1479
 
-import type { TSESTree, TSESLint } from '@typescript-eslint/utils';
-import docsUrl from '../utils/docs-url';
+import { rule } from './rule';
+import { JavaScriptRuleTester } from '../../../tests/tools';
 
-const DEFAULT_MAX_SWITCH_CASES = 30;
-let maxSwitchCases = DEFAULT_MAX_SWITCH_CASES;
+const ruleTester = new JavaScriptRuleTester();
 
-type Options = [number];
-
-const rule: TSESLint.RuleModule<string, Options> = {
-  defaultOptions: [DEFAULT_MAX_SWITCH_CASES],
-  meta: {
-    messages: {
-      reduceNumberOfNonEmptySwitchCases:
-        'Reduce the number of non-empty switch cases from {{numSwitchCases}} to at most {{maxSwitchCases}}.',
+ruleTester.run('max-switch-cases', rule, {
+  valid: [
+    {
+      code: `switch(i) {
+      case 1:
+        f();
+      case 2:
+        g();
+    }`,
     },
-    type: 'suggestion',
-    docs: {
-      description: '"switch" statements should not have too many "case" clauses',
-      recommended: 'recommended',
-      url: docsUrl(__filename),
+    // default branch is excluded
+    {
+      code: `switch(i) {
+      case 1:
+        f();
+      case 2:
+        g();
+      default:
+        console.log("foo");
+    }`,
+      options: [2],
     },
-    schema: [
-      {
-        type: 'integer',
-        minimum: 0,
-      },
-    ],
-  },
-  create(context) {
-    if (context.options.length > 0) {
-      maxSwitchCases = context.options[0];
-    }
-    return {
-      SwitchStatement: (node: TSESTree.Node) =>
-        visitSwitchStatement(node as TSESTree.SwitchStatement, context),
-    };
-  },
-};
-
-function visitSwitchStatement(
-  switchStatement: TSESTree.SwitchStatement,
-  context: TSESLint.RuleContext<string, Options>,
-) {
-  const nonEmptyCases = switchStatement.cases.filter(
-    switchCase => switchCase.consequent.length > 0 && !isDefaultCase(switchCase),
-  );
-  if (nonEmptyCases.length > maxSwitchCases) {
-    const switchKeyword = context.sourceCode.getFirstToken(switchStatement)!;
-    context.report({
-      messageId: 'reduceNumberOfNonEmptySwitchCases',
-      loc: switchKeyword.loc,
-      data: {
-        numSwitchCases: nonEmptyCases.length.toString(),
-        maxSwitchCases: maxSwitchCases.toString(),
-      },
-    });
-  }
-}
-
-function isDefaultCase(switchCase: TSESTree.SwitchCase) {
-  return switchCase.test === null;
-}
-
-export = rule;
+    // empty branches are not counted
+    {
+      code: `switch(i) {
+      case 1:
+      case 2:
+        g();
+      case 3:
+        console.log("foo");
+    }`,
+      options: [2],
+    },
+    // empty switch statement
+    {
+      code: `switch(i) {}`,
+    },
+  ],
+  invalid: [
+    {
+      code: `switch(i) {
+        case 1:
+          f();
+        case 2:
+          g();
+      }`,
+      options: [1],
+      errors: [
+        {
+          messageId: 'reduceNumberOfNonEmptySwitchCases',
+          data: {
+            numSwitchCases: 2,
+            maxSwitchCases: 1,
+          },
+          line: 1,
+          endLine: 1,
+          column: 1,
+          endColumn: 7,
+        },
+      ],
+    },
+  ],
+});

@@ -19,13 +19,14 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S3626
 
-import type { TSESTree, TSESLint } from '@typescript-eslint/utils';
-import docsUrl from '../utils/docs-url';
+import type { TSESTree } from '@typescript-eslint/utils';
+import { docsUrl, RuleContext } from '../helpers';
+import { Rule } from 'eslint';
+import estree from 'estree';
 
 const loops = 'WhileStatement, ForStatement, DoWhileStatement, ForInStatement, ForOfStatement';
 
-const rule: TSESLint.RuleModule<string, string[]> = {
-  defaultOptions: [],
+export const rule: Rule.RuleModule = {
   meta: {
     messages: {
       removeRedundantJump: 'Remove this redundant jump.',
@@ -36,7 +37,7 @@ const rule: TSESLint.RuleModule<string, string[]> = {
     hasSuggestions: true,
     docs: {
       description: 'Jump statements should not be redundant',
-      recommended: 'recommended',
+      recommended: true,
       url: docsUrl(__filename),
     },
   },
@@ -46,15 +47,17 @@ const rule: TSESLint.RuleModule<string, string[]> = {
       if (!withArgument) {
         const block = node.parent as TSESTree.BlockStatement;
         if (block.body[block.body.length - 1] === node && block.body.length > 1) {
-          const previousComments = context.sourceCode.getCommentsBefore(node);
+          const previousComments = (context as unknown as RuleContext).sourceCode.getCommentsBefore(
+            node,
+          );
           const previousToken =
             previousComments.length === 0
-              ? context.sourceCode.getTokenBefore(node)!
+              ? (context as unknown as RuleContext).sourceCode.getTokenBefore(node)!
               : previousComments[previousComments.length - 1];
 
           context.report({
             messageId: 'removeRedundantJump',
-            node,
+            node: node as estree.ContinueStatement,
             suggest: [
               {
                 messageId: 'suggestJumpRemoval',
@@ -69,7 +72,7 @@ const rule: TSESLint.RuleModule<string, string[]> = {
     function reportIfLastStatementInsideIf(
       node: TSESTree.ContinueStatement | TSESTree.ReturnStatement,
     ) {
-      const ancestors = context.sourceCode.getAncestors(node);
+      const ancestors = (context as unknown as RuleContext).sourceCode.getAncestors(node);
       const ifStatement = ancestors[ancestors.length - 2];
       const upperBlock = ancestors[ancestors.length - 3] as TSESTree.BlockStatement;
       if (upperBlock.body[upperBlock.body.length - 1] === ifStatement) {
@@ -78,27 +81,25 @@ const rule: TSESLint.RuleModule<string, string[]> = {
     }
 
     return {
-      [`:matches(${loops}) > BlockStatement > ContinueStatement`]: (node: TSESTree.Node) => {
+      [`:matches(${loops}) > BlockStatement > ContinueStatement`]: (node: estree.Node) => {
         reportIfLastStatement(node as TSESTree.ContinueStatement);
       },
 
       [`:matches(${loops}) > BlockStatement > IfStatement > BlockStatement > ContinueStatement`]: (
-        node: TSESTree.Node,
+        node: estree.Node,
       ) => {
         reportIfLastStatementInsideIf(node as TSESTree.ContinueStatement);
       },
 
-      ':function > BlockStatement > ReturnStatement': (node: TSESTree.Node) => {
+      ':function > BlockStatement > ReturnStatement': (node: estree.Node) => {
         reportIfLastStatement(node as TSESTree.ReturnStatement);
       },
 
       ':function > BlockStatement > IfStatement > BlockStatement > ReturnStatement': (
-        node: TSESTree.Node,
+        node: estree.Node,
       ) => {
         reportIfLastStatementInsideIf(node as TSESTree.ReturnStatement);
       },
     };
   },
 };
-
-export = rule;

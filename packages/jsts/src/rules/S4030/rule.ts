@@ -19,12 +19,19 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S4030
 
-import type { TSESLint, TSESTree } from '@typescript-eslint/utils';
-import { collectionConstructor, writingMethods } from '../utils/collections';
-import docsUrl from '../utils/docs-url';
+import type { TSESTree } from '@typescript-eslint/utils';
+import { Rule, Scope } from 'eslint';
+import {
+  collectionConstructor,
+  docsUrl,
+  findFirstMatchingAncestor,
+  isElementWrite,
+  isIdentifier,
+  writingMethods,
+} from '../helpers';
+import estree from 'estree';
 
-const rule: TSESLint.RuleModule<string, string[]> = {
-  defaultOptions: [],
+export const rule: Rule.RuleModule = {
   meta: {
     messages: {
       unusedCollection: "Either use this collection's contents or remove the collection.",
@@ -33,14 +40,14 @@ const rule: TSESLint.RuleModule<string, string[]> = {
     type: 'problem',
     docs: {
       description: 'Collection and array contents should be used',
-      recommended: 'recommended',
+      recommended: true,
       url: docsUrl(__filename),
     },
   },
   create(context) {
     return {
-      'Program:exit': (node: TSESTree.Node) => {
-        const unusedArrays: TSESLint.Scope.Variable[] = [];
+      'Program:exit': (node: estree.Node) => {
+        const unusedArrays: Scope.Variable[] = [];
         collectUnusedCollections(context.sourceCode.getScope(node), unusedArrays);
 
         unusedArrays.forEach(unusedArray => {
@@ -54,10 +61,7 @@ const rule: TSESLint.RuleModule<string, string[]> = {
   },
 };
 
-function collectUnusedCollections(
-  scope: TSESLint.Scope.Scope,
-  unusedArray: TSESLint.Scope.Variable[],
-) {
+function collectUnusedCollections(scope: Scope.Scope, unusedArray: Scope.Variable[]) {
   if (scope.type !== 'global') {
     scope.variables.filter(isUnusedCollection).forEach(v => {
       unusedArray.push(v);
@@ -69,12 +73,12 @@ function collectUnusedCollections(
   });
 }
 
-function isExported(variable: TSESLint.Scope.Variable) {
+function isExported(variable: Scope.Variable) {
   const definition = variable.defs[0];
   return definition && definition.node.parent?.parent?.type.startsWith('Export');
 }
 
-function isUnusedCollection(variable: TSESLint.Scope.Variable) {
+function isUnusedCollection(variable: Scope.Variable) {
   if (isExported(variable)) {
     return false;
   }
@@ -99,11 +103,11 @@ function isUnusedCollection(variable: TSESLint.Scope.Variable) {
   return assignCollection;
 }
 
-function isReferenceAssigningCollection(ref: TSESLint.Scope.Reference) {
+function isReferenceAssigningCollection(ref: Scope.Reference) {
   const declOrExprStmt = findFirstMatchingAncestor(
     ref.identifier as TSESTree.Node,
     n => n.type === 'VariableDeclarator' || n.type === 'ExpressionStatement',
-  ) as TSESTree.Node;
+  );
   if (declOrExprStmt) {
     if (declOrExprStmt.type === 'VariableDeclarator' && declOrExprStmt.init) {
       return isCollectionType(declOrExprStmt.init);
@@ -113,7 +117,7 @@ function isReferenceAssigningCollection(ref: TSESLint.Scope.Reference) {
       const { expression } = declOrExprStmt;
       return (
         expression.type === 'AssignmentExpression' &&
-        isReferenceTo(ref, expression.left) &&
+        isReferenceTo(ref, expression.left as estree.Node) &&
         isCollectionType(expression.right)
       );
     }
@@ -130,11 +134,11 @@ function isCollectionType(node: TSESTree.Node) {
   return false;
 }
 
-function isRead(ref: TSESLint.Scope.Reference) {
+function isRead(ref: Scope.Reference) {
   const expressionStatement = findFirstMatchingAncestor(
     ref.identifier as TSESTree.Node,
     n => n.type === 'ExpressionStatement',
-  ) as TSESTree.ExpressionStatement;
+  ) as estree.ExpressionStatement;
 
   if (expressionStatement) {
     return !(
@@ -150,13 +154,10 @@ function isRead(ref: TSESLint.Scope.Reference) {
  * Detect expression statements like the following:
  * myArray.push(1);
  */
-function isWritingMethodCall(
-  statement: TSESTree.ExpressionStatement,
-  ref: TSESLint.Scope.Reference,
-) {
+function isWritingMethodCall(statement: estree.ExpressionStatement, ref: Scope.Reference) {
   if (statement.expression.type === 'CallExpression') {
     const { callee } = statement.expression;
-    if (isMemberExpression(callee)) {
+    if (callee.type === 'MemberExpression') {
       const { property } = callee;
       return isReferenceTo(ref, callee.object) && isIdentifier(property, ...writingMethods);
     }
@@ -164,57 +165,6 @@ function isWritingMethodCall(
   return false;
 }
 
-function isMemberExpression(node: TSESTree.Node): node is TSESTree.MemberExpression {
-  return node.type === 'MemberExpression';
-}
-
-/**
- * Detect expression statements like the following:
- *  myArray[1] = 42;
- *  myArray[1] += 42;
- *  myObj.prop1 = 3;
- *  myObj.prop1 += 3;
- */
-function isElementWrite(statement: TSESTree.ExpressionStatement, ref: TSESLint.Scope.Reference) {
-  if (statement.expression.type === 'AssignmentExpression') {
-    const assignmentExpression = statement.expression;
-    const lhs = assignmentExpression.left;
-    return isMemberExpressionReference(lhs, ref);
-  }
-  return false;
-}
-
-function isMemberExpressionReference(lhs: TSESTree.Node, ref: TSESLint.Scope.Reference): boolean {
-  return lhs.type === 'MemberExpression' && isReferenceTo(ref, lhs.object);
-}
-
-function isIdentifier(node: TSESTree.Node, ...values: string[]): node is TSESTree.Identifier {
-  return node.type === 'Identifier' && values.some(value => value === node.name);
-}
-
-function isReferenceTo(ref: TSESLint.Scope.Reference, node: TSESTree.Node) {
+function isReferenceTo(ref: Scope.Reference, node: estree.Node) {
   return node.type === 'Identifier' && node === ref.identifier;
 }
-
-function findFirstMatchingAncestor(
-  node: TSESTree.Node,
-  predicate: (node: TSESTree.Node) => boolean,
-) {
-  return ancestorsChain(node, new Set()).find(predicate);
-}
-
-function ancestorsChain(node: TSESTree.Node, boundaryTypes: Set<string>) {
-  const chain: TSESTree.Node[] = [];
-
-  let currentNode = node.parent;
-  while (currentNode) {
-    chain.push(currentNode);
-    if (boundaryTypes.has(currentNode.type)) {
-      break;
-    }
-    currentNode = currentNode.parent;
-  }
-  return chain;
-}
-
-export = rule;

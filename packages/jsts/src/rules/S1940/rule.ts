@@ -19,9 +19,10 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S1940
 
-import type { TSESTree, TSESLint } from '@typescript-eslint/utils';
-import { isBinaryExpression } from '../utils/nodes';
-import docsUrl from '../utils/docs-url';
+import { Rule } from 'eslint';
+import estree from 'estree';
+import { docsUrl } from '../helpers';
+import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/utils';
 
 const invertedOperators: { [operator: string]: string } = {
   '==': '!=',
@@ -34,8 +35,7 @@ const invertedOperators: { [operator: string]: string } = {
   '<=': '>',
 };
 
-const rule: TSESLint.RuleModule<string, string[]> = {
-  defaultOptions: [],
+export const rule: Rule.RuleModule = {
   meta: {
     messages: {
       useOppositeOperator: 'Use the opposite operator ({{invertedOperator}}) instead.',
@@ -45,7 +45,7 @@ const rule: TSESLint.RuleModule<string, string[]> = {
     type: 'suggestion',
     docs: {
       description: 'Boolean checks should not be inverted',
-      recommended: 'recommended',
+      recommended: true,
       url: docsUrl(__filename),
     },
     hasSuggestions: true,
@@ -53,24 +53,25 @@ const rule: TSESLint.RuleModule<string, string[]> = {
   },
   create(context) {
     return {
-      UnaryExpression: (node: TSESTree.Node) =>
-        visitUnaryExpression(node as TSESTree.UnaryExpression, context),
+      UnaryExpression: (node: estree.UnaryExpression) => visitUnaryExpression(node, context),
     };
   },
 };
 
-function visitUnaryExpression(
-  unaryExpression: TSESTree.UnaryExpression,
-  context: TSESLint.RuleContext<string, string[]>,
-) {
-  if (unaryExpression.operator === '!' && isBinaryExpression(unaryExpression.argument)) {
-    const condition: TSESTree.BinaryExpression = unaryExpression.argument;
+function visitUnaryExpression(unaryExpression: estree.UnaryExpression, context: Rule.RuleContext) {
+  if (
+    unaryExpression.operator === '!' &&
+    unaryExpression.argument.type === AST_NODE_TYPES.BinaryExpression
+  ) {
+    const condition: estree.BinaryExpression = unaryExpression.argument;
     const invertedOperator = invertedOperators[condition.operator];
     if (invertedOperator) {
       const left = context.sourceCode.getText(condition.left);
       const right = context.sourceCode.getText(condition.right);
       const [start, end] =
-        unaryExpression.parent?.type === 'UnaryExpression' ? ['(', ')'] : ['', ''];
+        (unaryExpression as TSESTree.UnaryExpression).parent?.type === 'UnaryExpression'
+          ? ['(', ')']
+          : ['', ''];
       context.report({
         messageId: 'useOppositeOperator',
         suggest: [
@@ -89,5 +90,3 @@ function visitUnaryExpression(
     }
   }
 }
-
-export = rule;

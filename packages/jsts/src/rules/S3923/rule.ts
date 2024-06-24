@@ -19,14 +19,19 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S3923
 
-import type { TSESTree, TSESLint } from '@typescript-eslint/utils';
-import { isIfStatement } from '../utils/nodes';
-import { areEquivalent } from '../utils/equivalence';
-import { collectIfBranches, collectSwitchBranches } from '../utils/conditions';
-import docsUrl from '../utils/docs-url';
+import type { TSESTree } from '@typescript-eslint/utils';
+import { Rule } from 'eslint';
+import estree from 'estree';
+import {
+  areEquivalent,
+  collectIfBranches,
+  collectSwitchBranches,
+  docsUrl,
+  isIfStatement,
+  RuleContext,
+} from '../helpers';
 
-const rule: TSESLint.RuleModule<string, string[]> = {
-  defaultOptions: [],
+export const rule: Rule.RuleModule = {
   meta: {
     messages: {
       removeOrEditConditionalStructure:
@@ -39,35 +44,34 @@ const rule: TSESLint.RuleModule<string, string[]> = {
     docs: {
       description:
         'All branches in a conditional structure should not have exactly the same implementation',
-      recommended: 'recommended',
+      recommended: true,
       url: docsUrl(__filename),
     },
   },
   create(context) {
     return {
-      IfStatement(node: TSESTree.Node) {
-        const ifStmt = node as TSESTree.IfStatement;
-
+      IfStatement(ifStmt: estree.IfStatement) {
         // don't visit `else if` statements
-        if (!isIfStatement(node.parent)) {
-          const { branches, endsWithElse } = collectIfBranches(ifStmt);
+        if (!isIfStatement((ifStmt as TSESTree.IfStatement).parent)) {
+          const { branches, endsWithElse } = collectIfBranches(ifStmt as TSESTree.IfStatement);
           if (endsWithElse && allDuplicated(branches)) {
             context.report({ messageId: 'removeOrEditConditionalStructure', node: ifStmt });
           }
         }
       },
 
-      SwitchStatement(node: TSESTree.Node) {
-        const switchStmt = node as TSESTree.SwitchStatement;
-        const { branches, endsWithDefault } = collectSwitchBranches(switchStmt);
+      SwitchStatement(switchStmt: estree.SwitchStatement) {
+        const { branches, endsWithDefault } = collectSwitchBranches(
+          switchStmt as TSESTree.SwitchStatement,
+        );
         if (endsWithDefault && allDuplicated(branches)) {
           context.report({ messageId: 'removeOrEditConditionalStructure', node: switchStmt });
         }
       },
 
-      ConditionalExpression(node: TSESTree.Node) {
-        const conditional = node as TSESTree.ConditionalExpression;
-        const branches = [conditional.consequent, conditional.alternate];
+      ConditionalExpression(conditional: estree.ConditionalExpression) {
+        const condExprTS = conditional as TSESTree.ConditionalExpression;
+        const branches = [condExprTS.consequent, condExprTS.alternate];
         if (allDuplicated(branches)) {
           context.report({ messageId: 'returnsTheSameValue', node: conditional });
         }
@@ -78,11 +82,13 @@ const rule: TSESLint.RuleModule<string, string[]> = {
       return (
         branches.length > 1 &&
         branches.slice(1).every((branch, index) => {
-          return areEquivalent(branch, branches[index], context.sourceCode);
+          return areEquivalent(
+            branch,
+            branches[index],
+            (context as unknown as RuleContext).sourceCode,
+          );
         })
       );
     }
   },
 };
-
-export = rule;

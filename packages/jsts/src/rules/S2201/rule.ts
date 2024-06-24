@@ -19,12 +19,12 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S2201
 
-import type { TSESTree, TSESLint } from '@typescript-eslint/utils';
+import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/utils';
 import type { ParserServicesWithTypeInformation } from '@typescript-eslint/typescript-estree';
 import type { Type } from 'typescript';
-import { isParserServicesWithTypeInformation } from '../utils/parser-services';
-import docsUrl from '../utils/docs-url';
-import { getTypeFromTreeNode } from '../utils';
+import { Rule } from 'eslint';
+import { docsUrl, getTypeFromTreeNode, isRequiredParserServices } from '../helpers';
+import estree from 'estree';
 
 const METHODS_WITHOUT_SIDE_EFFECTS: { [index: string]: Set<string> } = {
   array: new Set([
@@ -173,8 +173,7 @@ const METHODS_WITHOUT_SIDE_EFFECTS: { [index: string]: Set<string> } = {
   ]),
 };
 
-const rule: TSESLint.RuleModule<string, string[]> = {
-  defaultOptions: [],
+export const rule: Rule.RuleModule = {
   meta: {
     messages: {
       useForEach: `Consider using "forEach" instead of "map" as its return value is not being used here.`,
@@ -184,23 +183,23 @@ const rule: TSESLint.RuleModule<string, string[]> = {
     type: 'problem',
     docs: {
       description: 'Return values from functions without side effects should not be ignored',
-      recommended: 'recommended',
+      recommended: true,
       url: docsUrl(__filename),
     },
   },
-  create(context: TSESLint.RuleContext<string, string[]>) {
+  create(context) {
     const services = context.sourceCode.parserServices;
-    if (!isParserServicesWithTypeInformation(services)) {
+    if (!isRequiredParserServices(services)) {
       return {};
     }
     return {
-      CallExpression: (node: TSESTree.Node) => {
-        const call = node as TSESTree.CallExpression;
+      CallExpression: (node: estree.Node) => {
+        const call = node as estree.CallExpression;
         const { callee } = call;
-        if (callee.type === 'MemberExpression') {
-          const { parent } = node;
+        if (callee.type === AST_NODE_TYPES.MemberExpression) {
+          const { parent } = node as TSESTree.MemberExpression;
           if (parent && parent.type === 'ExpressionStatement') {
-            const methodName = context.sourceCode.getText(callee.property);
+            const methodName = context.sourceCode.getText(callee.property as estree.Node);
             const objectType = services.program
               .getTypeChecker()
               .getTypeAtLocation(
@@ -221,7 +220,7 @@ const rule: TSESLint.RuleModule<string, string[]> = {
 
 function isReplaceWithCallback(
   methodName: string,
-  callArguments: Array<TSESTree.Expression | TSESTree.SpreadElement>,
+  callArguments: Array<estree.Expression | estree.SpreadElement>,
   services: ParserServicesWithTypeInformation,
 ) {
   if (methodName === 'replace' && callArguments.length > 1) {
@@ -229,17 +228,13 @@ function isReplaceWithCallback(
     const typeNode = services.program.getTypeChecker().typeToTypeNode(type, undefined, undefined);
     // dynamically import 'typescript' as classic 'import' will fail if project not using 'typescript' parser
     // we are sure it's available as 'RequiredParserServices' are available here
-    // eslint-disable-next-line import/no-extraneous-dependencies
     const ts = require('typescript');
     return typeNode && ts.isFunctionTypeNode(typeNode);
   }
   return false;
 }
 
-function reportDescriptor(
-  methodName: string,
-  node: TSESTree.Node,
-): TSESLint.ReportDescriptor<string> {
+function reportDescriptor(methodName: string, node: estree.Node): Rule.ReportDescriptor {
   if (methodName === 'map') {
     return {
       messageId: 'useForEach',
@@ -290,5 +285,3 @@ function typeToString(tp: Type, services: ParserServicesWithTypeInformation): st
 
   return null;
 }
-
-export = rule;

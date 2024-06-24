@@ -17,9 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { TSESLint } from '@typescript-eslint/utils';
-import { ruleTester } from '../rule-tester';
-import rule = require('../../src/rules/no-use-of-empty-return-value');
+import { rule } from './rule';
+import { JavaScriptRuleTester } from '../../../tests/tools';
+import { RuleTester } from 'eslint';
+
+const ruleTester = new JavaScriptRuleTester();
 
 const FUNCTION_NO_RETURN = 'function noReturn() { }\n ';
 
@@ -79,7 +81,7 @@ ruleTester.run('no-use-of-empty-return-value', rule, {
 function invalidPrefixWithFunction(
   code: string,
   functionName: string = 'noReturn',
-): { code: string; errors: TSESLint.TestCaseError<string>[] } {
+): { code: string; errors: RuleTester.TestCaseError[] } {
   return {
     code: 'function noReturn() { 1;} ' + code,
     errors: [
@@ -93,7 +95,7 @@ function invalidPrefixWithFunction(
   };
 }
 
-function invalid(code: string): { code: string; errors: TSESLint.TestCaseError<string>[] } {
+function invalid(code: string): { code: string; errors: RuleTester.TestCaseError[] } {
   return {
     code,
     errors: [

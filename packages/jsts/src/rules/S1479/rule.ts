@@ -17,69 +17,64 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ruleTester } from '../rule-tester';
-import rule = require('../../src/rules/max-switch-cases');
+// https://sonarsource.github.io/rspec/#/rspec/S1479
 
-ruleTester.run('max-switch-cases', rule, {
-  valid: [
-    {
-      code: `switch(i) {
-      case 1:
-        f();
-      case 2:
-        g();
-    }`,
+import { Rule } from 'eslint';
+import { docsUrl } from '../helpers';
+import estree from 'estree';
+
+const DEFAULT_MAX_SWITCH_CASES = 30;
+
+export const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      reduceNumberOfNonEmptySwitchCases:
+        'Reduce the number of non-empty switch cases from {{numSwitchCases}} to at most {{maxSwitchCases}}.',
     },
-    // default branch is excluded
-    {
-      code: `switch(i) {
-      case 1:
-        f();
-      case 2:
-        g();
-      default:
-        console.log("foo");
-    }`,
-      options: [2],
+    type: 'suggestion',
+    docs: {
+      description: '"switch" statements should not have too many "case" clauses',
+      recommended: true,
+      url: docsUrl(__filename),
     },
-    // empty branches are not counted
-    {
-      code: `switch(i) {
-      case 1:
-      case 2:
-        g();
-      case 3:
-        console.log("foo");
-    }`,
-      options: [2],
-    },
-    // empty switch statement
-    {
-      code: `switch(i) {}`,
-    },
-  ],
-  invalid: [
-    {
-      code: `switch(i) {
-        case 1:
-          f();
-        case 2:
-          g();
-      }`,
-      options: [1],
-      errors: [
-        {
-          messageId: 'reduceNumberOfNonEmptySwitchCases',
-          data: {
-            numSwitchCases: 2,
-            maxSwitchCases: 1,
-          },
-          line: 1,
-          endLine: 1,
-          column: 1,
-          endColumn: 7,
-        },
-      ],
-    },
-  ],
-});
+    schema: [
+      {
+        type: 'integer',
+        minimum: 0,
+      },
+    ],
+  },
+  create(context) {
+    const maxSwitchCases: number =
+      typeof context.options[0] === 'number' ? context.options[0] : DEFAULT_MAX_SWITCH_CASES;
+    return {
+      SwitchStatement: (node: estree.SwitchStatement) =>
+        visitSwitchStatement(node, context, maxSwitchCases),
+    };
+  },
+};
+
+function visitSwitchStatement(
+  switchStatement: estree.SwitchStatement,
+  context: Rule.RuleContext,
+  maxSwitchCases: number,
+) {
+  const nonEmptyCases = switchStatement.cases.filter(
+    switchCase => switchCase.consequent.length > 0 && !isDefaultCase(switchCase),
+  );
+  if (nonEmptyCases.length > maxSwitchCases) {
+    const switchKeyword = context.sourceCode.getFirstToken(switchStatement)!;
+    context.report({
+      messageId: 'reduceNumberOfNonEmptySwitchCases',
+      loc: switchKeyword.loc,
+      data: {
+        numSwitchCases: nonEmptyCases.length.toString(),
+        maxSwitchCases: maxSwitchCases.toString(),
+      },
+    });
+  }
+}
+
+function isDefaultCase(switchCase: estree.SwitchCase) {
+  return switchCase.test === null;
+}

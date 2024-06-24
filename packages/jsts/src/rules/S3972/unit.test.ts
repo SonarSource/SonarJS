@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-/* eslint-disable sonarjs/no-duplicate-string, import/newline-after-import */
-import { ruleTester } from '../rule-tester';
-import rule = require('../../src/rules/no-same-line-conditional');
+import { rule } from './rule';
+import { JavaScriptRuleTester } from '../../../tests/tools';
+
+const ruleTester = new JavaScriptRuleTester();
 
 ruleTester.run('Conditionals should start on new lines', rule, {
   valid: [

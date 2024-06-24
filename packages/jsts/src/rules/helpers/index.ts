@@ -22,6 +22,7 @@ export * from './ancestor';
 export * from './ast';
 export * from './chai';
 export * from './collection';
+export * from './conditions';
 export * from './decorators';
 export * from './docs-url';
 export * from './equivalence';

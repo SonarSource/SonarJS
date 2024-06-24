@@ -19,9 +19,16 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S3699
 
-import type { TSESTree, TSESLint } from '@typescript-eslint/utils';
-import { isFunctionExpression, isArrowFunctionExpression, isBlockStatement } from '../utils/nodes';
-import docsUrl from '../utils/docs-url';
+import type { TSESTree } from '@typescript-eslint/utils';
+import {
+  docsUrl,
+  isArrowFunctionExpression,
+  isBlockStatement,
+  isFunctionExpression,
+  RuleContext,
+} from '../helpers';
+import { Rule } from 'eslint';
+import estree from 'estree';
 
 const EMPTY_RETURN_VALUE_KEYWORDS = new Set([
   'TSVoidKeyword',
@@ -57,8 +64,7 @@ function isReturnValueUsed(callExpr: TSESTree.Node) {
   );
 }
 
-const rule: TSESLint.RuleModule<string, string[]> = {
-  defaultOptions: [],
+export const rule: Rule.RuleModule = {
   meta: {
     messages: {
       removeUseOfOutput:
@@ -68,7 +74,7 @@ const rule: TSESLint.RuleModule<string, string[]> = {
     type: 'problem',
     docs: {
       description: "The output of functions that don't return anything should not be used",
-      recommended: 'recommended',
+      recommended: true,
       url: docsUrl(__filename),
     },
   },
@@ -80,12 +86,12 @@ const rule: TSESLint.RuleModule<string, string[]> = {
     const functionsWithReturnValue: Set<TSESTree.FunctionLike> = new Set();
 
     return {
-      CallExpression(node: TSESTree.Node) {
+      CallExpression(node: estree.Node) {
         const callExpr = node as TSESTree.CallExpression;
         if (!isReturnValueUsed(callExpr)) {
           return;
         }
-        const scope = context.sourceCode.getScope(node);
+        const scope = (context as unknown as RuleContext).sourceCode.getScope(callExpr);
         const reference = scope.references.find(ref => ref.identifier === callExpr.callee);
         if (reference?.resolved) {
           const variable = reference.resolved;
@@ -103,7 +109,7 @@ const rule: TSESLint.RuleModule<string, string[]> = {
         }
       },
 
-      ReturnStatement(node: TSESTree.Node) {
+      ReturnStatement(node: estree.Node) {
         const returnStmt = node as TSESTree.ReturnStatement;
         if (returnStmt.argument) {
           const ancestors = [...context.sourceCode.getAncestors(node)].reverse();
@@ -118,14 +124,14 @@ const rule: TSESLint.RuleModule<string, string[]> = {
         }
       },
 
-      ArrowFunctionExpression(node: TSESTree.Node) {
+      ArrowFunctionExpression(node: estree.Node) {
         const arrowFunc = node as TSESTree.ArrowFunctionExpression;
         if (arrowFunc.expression) {
           functionsWithReturnValue.add(arrowFunc);
         }
       },
 
-      ':function'(node: TSESTree.Node) {
+      ':function'(node: estree.Node) {
         const func = node as
           | TSESTree.FunctionExpression
           | TSESTree.FunctionDeclaration
@@ -139,8 +145,8 @@ const rule: TSESLint.RuleModule<string, string[]> = {
         }
       },
 
-      TSDeclareFunction(node: TSESTree.Node) {
-        const declareFunction = node as TSESTree.TSDeclareFunction;
+      TSDeclareFunction(node: estree.Node) {
+        const declareFunction = node as unknown as TSESTree.TSDeclareFunction;
         if (
           declareFunction.returnType?.typeAnnotation.type &&
           !EMPTY_RETURN_VALUE_KEYWORDS.has(declareFunction.returnType?.typeAnnotation.type)
@@ -154,7 +160,7 @@ const rule: TSESLint.RuleModule<string, string[]> = {
           if (!functionsWithReturnValue.has(functionDeclaration)) {
             context.report({
               messageId: 'removeUseOfOutput',
-              node: callee,
+              node: callee as estree.Node,
               data: { name: callee.name },
             });
           }
@@ -163,5 +169,3 @@ const rule: TSESLint.RuleModule<string, string[]> = {
     };
   },
 };
-
-export = rule;

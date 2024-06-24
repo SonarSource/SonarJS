@@ -19,15 +19,13 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S1066
 
-import type { TSESTree, TSESLint } from '@typescript-eslint/utils';
-import { isIfStatement, isBlockStatement } from '../utils/nodes';
-import { report, issueLocation } from '../utils/locations';
-import docsUrl from '../utils/docs-url';
+import { Rule } from 'eslint';
+import estree from 'estree';
+import { docsUrl, isBlockStatement, isIfStatement, issueLocation, report } from '../helpers';
 
 const message = 'Merge this if statement with the nested one.';
 
-const rule: TSESLint.RuleModule<string, string[]> = {
-  defaultOptions: [],
+export const rule: Rule.RuleModule = {
   meta: {
     messages: {
       mergeNestedIfStatement: message,
@@ -36,7 +34,7 @@ const rule: TSESLint.RuleModule<string, string[]> = {
     type: 'suggestion',
     docs: {
       description: 'Collapsible "if" statements should be merged',
-      recommended: 'recommended',
+      recommended: true,
       url: docsUrl(__filename),
     },
     schema: [
@@ -49,8 +47,8 @@ const rule: TSESLint.RuleModule<string, string[]> = {
   },
   create(context) {
     return {
-      IfStatement(node: TSESTree.Node) {
-        let { consequent } = node as TSESTree.IfStatement;
+      IfStatement(node: estree.IfStatement) {
+        let { consequent } = node;
         if (isBlockStatement(consequent) && consequent.body.length === 1) {
           consequent = consequent.body[0];
         }
@@ -72,10 +70,8 @@ const rule: TSESLint.RuleModule<string, string[]> = {
       },
     };
 
-    function isIfStatementWithoutElse(node: TSESTree.Node): node is TSESTree.IfStatement {
+    function isIfStatementWithoutElse(node: estree.Node): node is estree.IfStatement {
       return isIfStatement(node) && !node.alternate;
     }
   },
 };
-
-export = rule;

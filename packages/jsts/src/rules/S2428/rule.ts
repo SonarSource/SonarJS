@@ -19,21 +19,12 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S2428
 
-import type { TSESLint, TSESTree } from '@typescript-eslint/utils';
-import {
-  isModuleDeclaration,
-  isVariableDeclaration,
-  isObjectExpression,
-  isExpressionStatement,
-  isAssignmentExpression,
-  isMemberExpression,
-  isIdentifier,
-} from '../utils/nodes';
-import { areEquivalent } from '../utils/equivalence';
-import docsUrl from '../utils/docs-url';
+import { AST_NODE_TYPES, TSESLint, TSESTree } from '@typescript-eslint/utils';
+import { Rule, SourceCode } from 'eslint';
+import { areEquivalent, docsUrl, isIdentifier, isModuleDeclaration } from '../helpers';
+import estree from 'estree';
 
-const rule: TSESLint.RuleModule<string, string[]> = {
-  defaultOptions: [],
+export const rule: Rule.RuleModule = {
   meta: {
     messages: {
       declarePropertiesInsideObject:
@@ -43,17 +34,17 @@ const rule: TSESLint.RuleModule<string, string[]> = {
     type: 'suggestion',
     docs: {
       description: 'Object literal syntax should be used',
-      recommended: 'recommended',
+      recommended: true,
       url: docsUrl(__filename),
     },
   },
   create(context) {
     return {
-      BlockStatement: (node: TSESTree.Node) =>
-        checkObjectInitialization((node as TSESTree.BlockStatement).body, context),
-      Program: (node: TSESTree.Node) => {
-        const statements = (node as TSESTree.Program).body.filter(
-          (statement): statement is TSESTree.Statement => !isModuleDeclaration(statement),
+      BlockStatement: (node: estree.BlockStatement) =>
+        checkObjectInitialization(node.body, context),
+      Program: (node: estree.Program) => {
+        const statements = node.body.filter(
+          (statement): statement is estree.Statement => !isModuleDeclaration(statement),
         );
         checkObjectInitialization(statements, context);
       },
@@ -61,14 +52,10 @@ const rule: TSESLint.RuleModule<string, string[]> = {
   },
 };
 
-function checkObjectInitialization(
-  statements: TSESTree.Statement[],
-  context: TSESLint.RuleContext<string, string[]>,
-) {
+function checkObjectInitialization(statements: estree.Statement[], context: Rule.RuleContext) {
   let index = 0;
   while (index < statements.length - 1) {
     const objectDeclaration = getObjectDeclaration(statements[index]);
-    // eslint-disable-next-line sonarjs/no-collapsible-if
     if (objectDeclaration && isIdentifier(objectDeclaration.id)) {
       const nextStmt = statements[index + 1];
       if (isPropertyAssignment(nextStmt, objectDeclaration.id, context.sourceCode)) {
@@ -79,8 +66,8 @@ function checkObjectInitialization(
   }
 }
 
-function getObjectDeclaration(statement: TSESTree.Statement) {
-  if (isVariableDeclaration(statement)) {
+function getObjectDeclaration(statement: estree.Statement) {
+  if (statement.type === AST_NODE_TYPES.VariableDeclaration) {
     return statement.declarations.find(
       declaration => !!declaration.init && isEmptyObjectExpression(declaration.init),
     );
@@ -88,44 +75,42 @@ function getObjectDeclaration(statement: TSESTree.Statement) {
   return undefined;
 }
 
-function isEmptyObjectExpression(expression: TSESTree.Expression) {
-  return isObjectExpression(expression) && expression.properties.length === 0;
+function isEmptyObjectExpression(expression: estree.Expression) {
+  return expression.type === AST_NODE_TYPES.ObjectExpression && expression.properties.length === 0;
 }
 
 function isPropertyAssignment(
-  statement: TSESTree.Statement,
-  objectIdentifier: TSESTree.Identifier,
-  sourceCode: TSESLint.SourceCode,
+  statement: estree.Statement,
+  objectIdentifier: estree.Identifier,
+  sourceCode: SourceCode,
 ) {
-  if (isExpressionStatement(statement) && isAssignmentExpression(statement.expression)) {
+  if (
+    statement.type === AST_NODE_TYPES.ExpressionStatement &&
+    statement.expression.type === AST_NODE_TYPES.AssignmentExpression
+  ) {
     const { left, right } = statement.expression;
-    if (isMemberExpression(left)) {
+    if (left.type === AST_NODE_TYPES.MemberExpression) {
       return (
         !left.computed &&
         isSingleLineExpression(right, sourceCode) &&
-        areEquivalent(left.object, objectIdentifier, sourceCode) &&
-        !isCircularReference(left, right, sourceCode)
+        areEquivalent(
+          left.object as TSESTree.Node,
+          objectIdentifier as TSESTree.Node,
+          sourceCode as unknown as TSESLint.SourceCode,
+        ) &&
+        !areEquivalent(
+          left.object as TSESTree.Node,
+          right as TSESTree.Node,
+          sourceCode as unknown as TSESLint.SourceCode,
+        )
       );
     }
   }
   return false;
 
-  function isSingleLineExpression(
-    expression: TSESTree.Expression,
-    sourceCode: TSESLint.SourceCode,
-  ) {
+  function isSingleLineExpression(expression: estree.Node, sourceCode: SourceCode) {
     const first = sourceCode.getFirstToken(expression)!.loc;
     const last = sourceCode.getLastToken(expression)!.loc;
     return first.start.line === last.end.line;
   }
-
-  function isCircularReference(
-    left: TSESTree.MemberExpression,
-    right: TSESTree.Expression,
-    sourceCode: TSESLint.SourceCode,
-  ) {
-    return areEquivalent(left.object, right, sourceCode);
-  }
 }
-
-export = rule;

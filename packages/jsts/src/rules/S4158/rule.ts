@@ -19,15 +19,17 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S4158
 
-import type { TSESLint, TSESTree } from '@typescript-eslint/utils';
+import type { TSESTree } from '@typescript-eslint/utils';
 import {
-  isIdentifier,
-  findFirstMatchingAncestor,
-  isReferenceTo,
-  collectionConstructor,
   ancestorsChain,
-} from '../utils';
-import docsUrl from '../utils/docs-url';
+  collectionConstructor,
+  docsUrl,
+  findFirstMatchingAncestor,
+  isIdentifier,
+  isReferenceTo,
+} from '../helpers';
+import { Scope, Rule } from 'eslint';
+import estree from 'estree';
 
 // Methods that mutate the collection but can't add elements
 const nonAdditiveMutatorMethods = [
@@ -79,8 +81,7 @@ const strictlyReadingMethods = new Set([
   ...iterationMethods,
 ]);
 
-const rule: TSESLint.RuleModule<string, string[]> = {
-  defaultOptions: [],
+export const rule: Rule.RuleModule = {
   meta: {
     messages: {
       reviewUsageOfIdentifier:
@@ -90,23 +91,20 @@ const rule: TSESLint.RuleModule<string, string[]> = {
     type: 'problem',
     docs: {
       description: 'Empty collections should not be accessed or iterated',
-      recommended: 'recommended',
+      recommended: true,
       url: docsUrl(__filename),
     },
   },
   create(context) {
     return {
-      'Program:exit': (node: TSESTree.Node) => {
+      'Program:exit': (node: estree.Node) => {
         reportEmptyCollectionsUsage(context.sourceCode.getScope(node), context);
       },
     };
   },
 };
 
-function reportEmptyCollectionsUsage(
-  scope: TSESLint.Scope.Scope,
-  context: TSESLint.RuleContext<string, string[]>,
-) {
+function reportEmptyCollectionsUsage(scope: Scope.Scope, context: Rule.RuleContext) {
   if (scope.type !== 'global') {
     scope.variables.forEach(v => {
       reportEmptyCollectionUsage(v, context);
@@ -118,10 +116,7 @@ function reportEmptyCollectionsUsage(
   });
 }
 
-function reportEmptyCollectionUsage(
-  variable: TSESLint.Scope.Variable,
-  context: TSESLint.RuleContext<string, string[]>,
-) {
+function reportEmptyCollectionUsage(variable: Scope.Variable, context: Rule.RuleContext) {
   if (variable.references.length <= 1) {
     return;
   }
@@ -165,7 +160,7 @@ function reportEmptyCollectionUsage(
   }
 }
 
-function isReferenceAssigningEmptyCollection(ref: TSESLint.Scope.Reference) {
+function isReferenceAssigningEmptyCollection(ref: Scope.Reference) {
   const declOrExprStmt = findFirstMatchingAncestor(
     ref.identifier as TSESTree.Node,
     n => n.type === 'VariableDeclarator' || n.type === 'ExpressionStatement',
@@ -179,7 +174,7 @@ function isReferenceAssigningEmptyCollection(ref: TSESLint.Scope.Reference) {
       const { expression } = declOrExprStmt;
       return (
         expression.type === 'AssignmentExpression' &&
-        isReferenceTo(ref, expression.left) &&
+        isReferenceTo(ref, expression.left as estree.Node) &&
         isEmptyCollectionType(expression.right)
       );
     }
@@ -196,11 +191,11 @@ function isEmptyCollectionType(node: TSESTree.Node) {
   return false;
 }
 
-function isReadingCollectionUsage(ref: TSESLint.Scope.Reference) {
+function isReadingCollectionUsage(ref: Scope.Reference) {
   return isStrictlyReadingMethodCall(ref) || isForIterationPattern(ref) || isElementRead(ref);
 }
 
-function isStrictlyReadingMethodCall(usage: TSESLint.Scope.Reference) {
+function isStrictlyReadingMethodCall(usage: Scope.Reference) {
   const { parent } = usage.identifier as TSESTree.Node;
   if (parent && parent.type === 'MemberExpression') {
     const memberExpressionParent = parent.parent;
@@ -211,7 +206,7 @@ function isStrictlyReadingMethodCall(usage: TSESLint.Scope.Reference) {
   return false;
 }
 
-function isForIterationPattern(ref: TSESLint.Scope.Reference) {
+function isForIterationPattern(ref: Scope.Reference) {
   const forInOrOfStatement = findFirstMatchingAncestor(
     ref.identifier as TSESTree.Node,
     n => n.type === 'ForOfStatement' || n.type === 'ForInStatement',
@@ -220,13 +215,18 @@ function isForIterationPattern(ref: TSESLint.Scope.Reference) {
   return forInOrOfStatement && forInOrOfStatement.right === ref.identifier;
 }
 
-function isElementRead(ref: TSESLint.Scope.Reference) {
+function isElementRead(ref: Scope.Reference) {
   const { parent } = ref.identifier as TSESTree.Node;
-  return parent && parent.type === 'MemberExpression' && parent.computed && !isElementWrite(parent);
+  return (
+    parent &&
+    parent.type === 'MemberExpression' &&
+    parent.computed &&
+    !isElementWrite(parent as estree.MemberExpression)
+  );
 }
 
-function isElementWrite(memberExpression: TSESTree.MemberExpression) {
-  const ancestors = ancestorsChain(memberExpression, new Set());
+function isElementWrite(memberExpression: estree.MemberExpression) {
+  const ancestors = ancestorsChain(memberExpression as TSESTree.Node, new Set());
   const assignment = ancestors.find(
     n => n.type === 'AssignmentExpression',
   ) as TSESTree.AssignmentExpression;
@@ -235,5 +235,3 @@ function isElementWrite(memberExpression: TSESTree.MemberExpression) {
   }
   return false;
 }
-
-export = rule;

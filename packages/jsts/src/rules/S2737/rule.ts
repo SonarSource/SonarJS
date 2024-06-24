@@ -19,13 +19,12 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S2737
 
-import type { TSESLint, TSESTree } from '@typescript-eslint/utils';
-import { isThrowStatement } from '../utils/nodes';
-import { areEquivalent } from '../utils/equivalence';
-import docsUrl from '../utils/docs-url';
+import { Rule, SourceCode } from 'eslint';
+import { areEquivalent, docsUrl, isThrowStatement } from '../helpers';
+import estree from 'estree';
+import { TSESLint, TSESTree } from '@typescript-eslint/utils';
 
-const rule: TSESLint.RuleModule<string, string[]> = {
-  defaultOptions: [],
+export const rule: Rule.RuleModule = {
   meta: {
     messages: {
       uselessCatch:
@@ -35,26 +34,23 @@ const rule: TSESLint.RuleModule<string, string[]> = {
     type: 'suggestion',
     docs: {
       description: '"catch" clauses should do more than rethrow',
-      recommended: 'recommended',
+      recommended: true,
       url: docsUrl(__filename),
     },
   },
   create(context) {
     return {
-      CatchClause: (node: TSESTree.Node) => visitCatchClause(node as TSESTree.CatchClause, context),
+      CatchClause: (node: estree.CatchClause) => visitCatchClause(node, context),
     };
   },
 };
 
-function visitCatchClause(
-  catchClause: TSESTree.CatchClause,
-  context: TSESLint.RuleContext<string, string[]>,
-) {
+function visitCatchClause(catchClause: estree.CatchClause, context: Rule.RuleContext) {
   const statements = catchClause.body.body;
   if (
     catchClause.param &&
     statements.length === 1 &&
-    onlyRethrows(statements[0], catchClause.param, context.sourceCode)
+    onlyRethrows(statements[0] as TSESTree.Statement, catchClause.param, context.sourceCode)
   ) {
     const catchKeyword = context.sourceCode.getFirstToken(catchClause)!;
     context.report({
@@ -66,15 +62,17 @@ function visitCatchClause(
 
 function onlyRethrows(
   statement: TSESTree.Statement,
-  catchParam: TSESTree.CatchClause['param'],
-  sourceCode: TSESLint.SourceCode,
+  catchParam: estree.CatchClause['param'],
+  sourceCode: SourceCode,
 ) {
   return (
     isThrowStatement(statement) &&
     catchParam !== null &&
     statement.argument !== null &&
-    areEquivalent(catchParam, statement.argument, sourceCode)
+    areEquivalent(
+      catchParam as TSESTree.Node,
+      statement.argument,
+      sourceCode as unknown as TSESLint.SourceCode,
+    )
   );
 }
-
-export = rule;

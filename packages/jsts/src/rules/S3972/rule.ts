@@ -20,8 +20,9 @@
 // https://sonarsource.github.io/rspec/#/rspec/S3972
 
 import type { TSESLint, TSESTree } from '@typescript-eslint/utils';
-import docsUrl from '../utils/docs-url';
-import { issueLocation, report } from '../utils/locations';
+import { AST, Rule } from 'eslint';
+import { docsUrl, issueLocation, report } from '../helpers';
+import estree from 'estree';
 
 const message = 'Move this "if" to a new line or add the missing "else".';
 
@@ -30,8 +31,7 @@ interface SiblingIfStatement {
   following: TSESTree.IfStatement;
 }
 
-const rule: TSESLint.RuleModule<string, string[]> = {
-  defaultOptions: [],
+export const rule: Rule.RuleModule = {
   meta: {
     messages: {
       sameLineCondition: message,
@@ -43,7 +43,7 @@ const rule: TSESLint.RuleModule<string, string[]> = {
     hasSuggestions: true,
     docs: {
       description: 'Conditionals should start on new lines',
-      recommended: 'recommended',
+      recommended: false,
       url: docsUrl(__filename),
     },
     schema: [
@@ -55,9 +55,9 @@ const rule: TSESLint.RuleModule<string, string[]> = {
     ],
   },
   create(context) {
-    function checkStatements(statements: TSESTree.Node[]) {
+    function checkStatements(statements: estree.Node[]) {
       const { sourceCode } = context;
-      const siblingIfStatements = getSiblingIfStatements(statements);
+      const siblingIfStatements = getSiblingIfStatements(statements as TSESTree.Node[]);
 
       siblingIfStatements.forEach(siblingIfStatement => {
         const precedingIf = siblingIfStatement.first;
@@ -68,8 +68,12 @@ const rule: TSESLint.RuleModule<string, string[]> = {
           precedingIf.loc.end.line === followingIf.loc.start.line &&
           precedingIf.loc.start.line !== followingIf.loc.end.line
         ) {
-          const precedingIfLastToken = sourceCode.getLastToken(precedingIf) as TSESLint.AST.Token;
-          const followingIfToken = sourceCode.getFirstToken(followingIf) as TSESLint.AST.Token;
+          const precedingIfLastToken = sourceCode.getLastToken(
+            precedingIf as estree.Node,
+          ) as TSESLint.AST.Token;
+          const followingIfToken = sourceCode.getFirstToken(
+            followingIf as estree.Node,
+          ) as TSESLint.AST.Token;
           report(
             context,
             {
@@ -78,7 +82,7 @@ const rule: TSESLint.RuleModule<string, string[]> = {
               suggest: [
                 {
                   messageId: 'suggestAddingElse',
-                  fix: fixer => fixer.insertTextBefore(followingIfToken, 'else '),
+                  fix: fixer => fixer.insertTextBefore(followingIfToken as AST.Token, 'else '),
                 },
                 {
                   messageId: 'suggestAddingNewline',
@@ -98,11 +102,9 @@ const rule: TSESLint.RuleModule<string, string[]> = {
     }
 
     return {
-      Program: (node: TSESTree.Node) => checkStatements((node as TSESTree.Program).body),
-      BlockStatement: (node: TSESTree.Node) =>
-        checkStatements((node as TSESTree.BlockStatement).body),
-      SwitchCase: (node: TSESTree.Node) =>
-        checkStatements((node as TSESTree.SwitchCase).consequent),
+      Program: (node: estree.Program) => checkStatements(node.body),
+      BlockStatement: (node: estree.BlockStatement) => checkStatements(node.body),
+      SwitchCase: (node: estree.SwitchCase) => checkStatements(node.consequent),
     };
   },
 };
@@ -120,5 +122,3 @@ function getSiblingIfStatements(statements: TSESTree.Node[]): SiblingIfStatement
     return siblingsArray;
   }, []);
 }
-
-export = rule;

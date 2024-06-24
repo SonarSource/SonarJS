@@ -89,7 +89,6 @@ const rule: TSESLint.RuleModule<string, string[]> = {
       }
     }
 
-    // eslint-disable-next-line max-params
     function fix(
       fixer: TSESLint.RuleFixer,
       last: TSESTree.Statement,

@@ -24,6 +24,23 @@ import { findFirstMatchingAncestor, flatMap, getFullyQualifiedName, toEncodedMes
 
 export type Node = estree.Node | TSESTree.Node;
 
+const MODULE_DECLARATION_NODES = [
+  'ImportDeclaration',
+  'ExportNamedDeclaration',
+  'ExportDefaultDeclaration',
+  'ExportAllDeclaration',
+];
+
+export function isModuleDeclaration(
+  node: estree.Node | undefined,
+): node is
+  | estree.ExportAllDeclaration
+  | estree.ExportDefaultDeclaration
+  | estree.ExportNamedDeclaration
+  | estree.ImportDeclaration {
+  return node !== undefined && MODULE_DECLARATION_NODES.includes(node.type);
+}
+
 export type LoopLike =
   | estree.WhileStatement
   | estree.DoWhileStatement
@@ -51,6 +68,22 @@ export const functionLike = new Set([
   'MethodDefinition',
 ]);
 
+export function isFunctionExpression(
+  node: TSESTree.Node | undefined,
+): node is TSESTree.FunctionExpression {
+  return node !== undefined && node.type === 'FunctionExpression';
+}
+
+export function isArrowFunctionExpression(
+  node: TSESTree.Node | undefined,
+): node is TSESTree.ArrowFunctionExpression {
+  return node !== undefined && node.type === 'ArrowFunctionExpression';
+}
+
+export function isBlockStatement(node: Node | undefined): node is TSESTree.BlockStatement {
+  return node !== undefined && node.type === 'BlockStatement';
+}
+
 export function isIdentifier(
   node: Node | undefined,
   ...values: string[]
@@ -61,12 +94,16 @@ export function isIdentifier(
   );
 }
 
-export function isIfStatement(node: TSESTree.Node | undefined): node is TSESTree.IfStatement {
+export function isIfStatement(node: Node | undefined): node is TSESTree.IfStatement {
   return node !== undefined && node.type === 'IfStatement';
 }
 
 export function isMemberWithProperty(node: estree.Node, ...values: string[]) {
   return node.type === 'MemberExpression' && isIdentifier(node.property, ...values);
+}
+
+export function isThrowStatement(node: Node | undefined): node is TSESTree.ThrowStatement {
+  return node !== undefined && node.type === 'ThrowStatement';
 }
 
 export function isMemberExpression(
@@ -156,6 +193,12 @@ export function isMethodCall(callExpr: estree.CallExpression): callExpr is estre
     !callExpr.callee.computed &&
     callExpr.callee.property.type === 'Identifier'
   );
+}
+
+export function isVariableDeclaration(
+  node: TSESTree.Node | undefined,
+): node is TSESTree.VariableDeclaration {
+  return node !== undefined && node.type === 'VariableDeclaration';
 }
 
 export function isCallingMethod(

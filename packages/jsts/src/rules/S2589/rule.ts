@@ -19,15 +19,14 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S2589
 
-import type { TSESLint, TSESTree } from '@typescript-eslint/utils';
-import { report } from '../utils/locations';
-import { isIdentifier, isIfStatement } from '../utils/nodes';
-import docsUrl from '../utils/docs-url';
+import type { TSESTree } from '@typescript-eslint/utils';
+import { Rule, Scope } from 'eslint';
+import { docsUrl, isIdentifier, isIfStatement, report, RuleContext } from '../helpers';
+import estree from 'estree';
 
 const message = 'This always evaluates to {{value}}. Consider refactoring this code.';
 
-const rule: TSESLint.RuleModule<string, string[]> = {
-  defaultOptions: [],
+export const rule: Rule.RuleModule = {
   meta: {
     messages: {
       refactorBooleanExpression: message,
@@ -36,7 +35,7 @@ const rule: TSESLint.RuleModule<string, string[]> = {
     type: 'suggestion',
     docs: {
       description: 'Boolean expressions should not be gratuitous',
-      recommended: 'recommended',
+      recommended: true,
       url: docsUrl(__filename),
     },
     schema: [
@@ -48,24 +47,26 @@ const rule: TSESLint.RuleModule<string, string[]> = {
     ],
   },
   create(context) {
-    const truthyMap: Map<TSESTree.Statement, TSESLint.Scope.Reference[]> = new Map();
-    const falsyMap: Map<TSESTree.Statement, TSESLint.Scope.Reference[]> = new Map();
+    const truthyMap: Map<TSESTree.Statement, Scope.Reference[]> = new Map();
+    const falsyMap: Map<TSESTree.Statement, Scope.Reference[]> = new Map();
 
-    function isInsideJSX(node: TSESTree.Node): boolean {
-      const ancestors = context.sourceCode.getAncestors(node);
+    function isInsideJSX(node: estree.Node): boolean {
+      const ancestors = (context as unknown as RuleContext).sourceCode.getAncestors(
+        node as TSESTree.Node,
+      );
       return !!ancestors.find(ancestor => ancestor.type === 'JSXExpressionContainer');
     }
 
     return {
-      IfStatement: (node: TSESTree.Node) => {
+      IfStatement: (node: estree.Node) => {
         const { test } = node as TSESTree.IfStatement;
         if (test.type === 'Literal' && typeof test.value === 'boolean') {
           reportIssue(test, undefined, context, test.value);
         }
       },
 
-      ':statement': (node: TSESTree.Node) => {
-        const { parent } = node;
+      ':statement': (node: estree.Node) => {
+        const { parent } = node as TSESTree.Node;
         if (isIfStatement(parent)) {
           // we visit 'consequent' and 'alternate' and not if-statement directly in order to get scope for 'consequent'
           const currentScope = context.sourceCode.getScope(node);
@@ -80,16 +81,16 @@ const rule: TSESLint.RuleModule<string, string[]> = {
         }
       },
 
-      ':statement:exit': (node: TSESTree.Node) => {
+      ':statement:exit': (node: estree.Node) => {
         const stmt = node as TSESTree.Statement;
         truthyMap.delete(stmt);
         falsyMap.delete(stmt);
       },
 
-      Identifier: (node: TSESTree.Node) => {
+      Identifier: (node: estree.Node) => {
         const id = node as TSESTree.Identifier;
         const symbol = getSymbol(id, context.sourceCode.getScope(node));
-        const { parent } = node;
+        const { parent } = node as TSESTree.Node;
         if (!symbol || !parent || (isInsideJSX(node) && isLogicalAndRhs(id, parent))) {
           return;
         }
@@ -103,7 +104,7 @@ const rule: TSESLint.RuleModule<string, string[]> = {
         }
 
         const checkIfKnownAndReport = (
-          map: Map<TSESTree.Statement, TSESLint.Scope.Reference[]>,
+          map: Map<TSESTree.Statement, Scope.Reference[]>,
           truthy: boolean,
         ) => {
           map.forEach(references => {
@@ -188,7 +189,7 @@ function isDefined<T>(x: T | undefined | null): x is T {
   return x != null;
 }
 
-function getSymbol(id: TSESTree.Identifier, scope: TSESLint.Scope.Scope) {
+function getSymbol(id: estree.Identifier, scope: Scope.Scope) {
   const ref = scope.references.find(r => r.identifier === id);
   if (ref) {
     return ref.resolved;
@@ -196,7 +197,7 @@ function getSymbol(id: TSESTree.Identifier, scope: TSESLint.Scope.Scope) {
   return null;
 }
 
-function getFunctionScope(scope: TSESLint.Scope.Scope): TSESLint.Scope.Scope | null {
+function getFunctionScope(scope: Scope.Scope): Scope.Scope | null {
   if (scope.type === 'function') {
     return scope;
   } else if (!scope.upper) {
@@ -205,13 +206,13 @@ function getFunctionScope(scope: TSESLint.Scope.Scope): TSESLint.Scope.Scope | n
   return getFunctionScope(scope.upper);
 }
 
-function mightBeWritten(symbol: TSESLint.Scope.Variable, currentScope: TSESLint.Scope.Scope) {
+function mightBeWritten(symbol: Scope.Variable, currentScope: Scope.Scope) {
   return symbol.references
     .filter(ref => ref.isWrite())
     .find(ref => {
       const refScope = ref.from;
 
-      let cur: TSESLint.Scope.Scope | null = refScope;
+      let cur: Scope.Scope | null = refScope;
       while (cur) {
         if (cur === currentScope) {
           return true;
@@ -225,7 +226,7 @@ function mightBeWritten(symbol: TSESLint.Scope.Variable, currentScope: TSESLint.
     });
 }
 
-function transformAndFilter(ids: TSESTree.Identifier[], currentScope: TSESLint.Scope.Scope) {
+function transformAndFilter(ids: TSESTree.Identifier[], currentScope: Scope.Scope) {
   return ids
     .map(id => currentScope.upper?.references.find(r => r.identifier === id))
     .filter(isDefined)
@@ -234,9 +235,9 @@ function transformAndFilter(ids: TSESTree.Identifier[], currentScope: TSESLint.S
 }
 
 function reportIssue(
-  id: TSESTree.Node,
-  ref: TSESLint.Scope.Reference | undefined,
-  context: TSESLint.RuleContext<string, string[]>,
+  id: estree.Node,
+  ref: Scope.Reference | undefined,
+  context: Rule.RuleContext,
   truthy: boolean,
 ) {
   const value = truthy ? 'truthy' : 'falsy';
@@ -254,7 +255,7 @@ function reportIssue(
   );
 }
 
-function getSecondaryLocations(ref: TSESLint.Scope.Reference | undefined, truthy: string) {
+function getSecondaryLocations(ref: Scope.Reference | undefined, truthy: string) {
   if (ref) {
     const secLoc = ref.identifier.loc!;
     return [
@@ -270,5 +271,3 @@ function getSecondaryLocations(ref: TSESLint.Scope.Reference | undefined, truthy
     return [];
   }
 }
-
-export = rule;

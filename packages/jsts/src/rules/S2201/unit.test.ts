@@ -17,23 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as path from 'path';
-import * as rule from '../../src/rules/no-ignored-return';
-import { RuleTester } from '../rule-tester';
+import { rule } from './rule';
+import { TypeScriptRuleTester } from '../../../tests/tools';
 
-const filename = path.resolve(`${__dirname}/../resources/file.ts`);
-const ruleTester = new RuleTester({
-  parser: '@typescript-eslint/parser',
-  parserOptions: {
-    ecmaVersion: 2018,
-    project: path.resolve(`${__dirname}/../resources/tsconfig.json`),
-  },
-});
+const ruleTester = new TypeScriptRuleTester();
 
 ruleTester.run('Return values from functions without side effects should not be ignored', rule, {
   valid: [
     {
-      filename,
       code: `
       function returnIsNotIgnored() {
         var x = "abc".concat("bcd");
@@ -44,7 +35,6 @@ ruleTester.run('Return values from functions without side effects should not be 
       }`,
     },
     {
-      filename,
       code: `
       function noSupportForUserTypes() {
         class A {
@@ -57,14 +47,12 @@ ruleTester.run('Return values from functions without side effects should not be 
       }`,
     },
     {
-      filename,
       code: `
       function unknownType(x: any) {
         x.foo();
       }`,
     },
     {
-      filename,
       code: `
       function computedPropertyOnDestructuring(source: any, property: string) { // OK, used as computed property name
         const { [property]: _, ...rest } = source;
@@ -72,7 +60,6 @@ ruleTester.run('Return values from functions without side effects should not be 
       }`,
     },
     {
-      filename,
       code: `
       // "some" and "every" are sometimes used to provide early termination for loops
       // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach
@@ -86,7 +73,6 @@ ruleTester.run('Return values from functions without side effects should not be 
             `,
     },
     {
-      filename,
       code: `
       function methodsOnString() {
         // "replace" with callback is OK
@@ -95,7 +81,6 @@ ruleTester.run('Return values from functions without side effects should not be 
       }`,
     },
     {
-      filename,
       code: `
       function myCallBack() {}
       function methodsOnString() {
@@ -106,7 +91,6 @@ ruleTester.run('Return values from functions without side effects should not be 
   ],
   invalid: [
     {
-      filename,
       code: `
       function methodsOnMath() {
         let x = -42;
@@ -124,7 +108,6 @@ ruleTester.run('Return values from functions without side effects should not be 
       ],
     },
     {
-      filename,
       code: `
       function mapOnArray() {
         let arr = [1, 2, 3];
@@ -137,7 +120,6 @@ ruleTester.run('Return values from functions without side effects should not be 
       ],
     },
     {
-      filename,
       code: `
       function methodsOnArray(arr1: any[]) {
         let arr = [1, 2, 3];
@@ -166,7 +148,6 @@ ruleTester.run('Return values from functions without side effects should not be 
       ],
     },
     {
-      filename,
       code: `
       function methodsOnString() {
         let x = "abc";
@@ -211,7 +192,6 @@ ruleTester.run('Return values from functions without side effects should not be 
       ],
     },
     {
-      filename,
       code: `
       function methodsOnNumbers() {
         var num = 43 * 53;
@@ -229,7 +209,6 @@ ruleTester.run('Return values from functions without side effects should not be 
       ],
     },
     {
-      filename,
       code: `
       function methodsOnRegexp() {
         var regexp = /abc/;

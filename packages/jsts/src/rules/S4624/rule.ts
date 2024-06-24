@@ -19,12 +19,12 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S4624
 
-import type { TSESTree, TSESLint } from '@typescript-eslint/utils';
-import { ancestorsChain } from '../utils';
-import docsUrl from '../utils/docs-url';
+import type { TSESTree } from '@typescript-eslint/utils';
+import { ancestorsChain, docsUrl } from '../helpers';
+import { Rule } from 'eslint';
+import estree from 'estree';
 
-const rule: TSESLint.RuleModule<string, string[]> = {
-  defaultOptions: [],
+export const rule: Rule.RuleModule = {
   meta: {
     messages: {
       nestedTemplateLiterals: 'Refactor this code to not use nested template literals.',
@@ -33,18 +33,18 @@ const rule: TSESLint.RuleModule<string, string[]> = {
     type: 'suggestion',
     docs: {
       description: 'Template literals should not be nested',
-      recommended: 'recommended',
+      recommended: true,
       url: docsUrl(__filename),
     },
   },
   create(context) {
     return {
-      'TemplateLiteral TemplateLiteral': (node: TSESTree.Node) => {
-        const ancestors = ancestorsChain(node, new Set(['TemplateLiteral']));
+      'TemplateLiteral TemplateLiteral': (node: estree.Node) => {
+        const ancestors = ancestorsChain(node as TSESTree.Node, new Set(['TemplateLiteral']));
         const nestingTemplate = ancestors[ancestors.length - 1];
 
         const { start: nestingStart, end: nestingEnd } = nestingTemplate.loc;
-        const { start: nestedStart, end: nestedEnd } = node.loc;
+        const { start: nestedStart, end: nestedEnd } = (node as TSESTree.Node).loc;
 
         if (nestedStart.line === nestingStart.line || nestedEnd.line === nestingEnd.line) {
           context.report({
@@ -56,5 +56,3 @@ const rule: TSESLint.RuleModule<string, string[]> = {
     };
   },
 };
-
-export = rule;

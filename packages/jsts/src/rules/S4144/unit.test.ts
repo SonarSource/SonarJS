@@ -17,10 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { TSESLint } from '@typescript-eslint/utils';
-import { ruleTester } from '../rule-tester';
-import { IssueLocation } from '../../src/utils/locations';
-import rule = require('../../src/rules/no-identical-functions');
+import { RuleTester } from 'eslint';
+import { rule } from './rule';
+import { IssueLocation } from '../helpers';
+
+const ruleTester = new RuleTester({
+  parserOptions: { ecmaVersion: 2018, sourceType: 'module', ecmaFeatures: { jsx: true } },
+  parser: require.resolve('@typescript-eslint/parser'),
+});
 
 ruleTester.run('no-identical-functions', rule, {
   valid: [
@@ -301,7 +305,7 @@ ruleTester.run('no-identical-functions', rule, {
   ],
 });
 
-function message(originalLine: number, duplicationLine: number): TSESLint.TestCaseError<string> {
+function message(originalLine: number, duplicationLine: number): RuleTester.TestCaseError {
   return {
     messageId: 'identicalFunctions',
     data: {
@@ -316,7 +320,7 @@ function encodedMessage(
   originalLine: number,
   duplicationLine: number,
   secondaries: IssueLocation[],
-): TSESLint.TestCaseError<string> {
+): RuleTester.TestCaseError {
   return {
     messageId: 'sonarRuntime',
     data: {

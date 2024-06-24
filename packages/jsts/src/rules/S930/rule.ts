@@ -68,7 +68,6 @@ const rule: TSESLint.RuleModule<string, string[]> = {
     const emptyFunctions: Set<TSESTree.Node> = new Set();
 
     return {
-      // eslint-disable-next-line sonarjs/cognitive-complexity
       CallExpression(node: TSESTree.Node) {
         const callExpr = node as TSESTree.CallExpression;
         if (isIdentifier(callExpr.callee)) {
@@ -162,14 +161,12 @@ const rule: TSESLint.RuleModule<string, string[]> = {
       const argsLength = callExpr.arguments.length;
       // prettier-ignore
       const expectedArguments =
-        // eslint-disable-next-line no-nested-ternary
         paramLength === 0 ? "no arguments" :
         paramLength === 1 ? "1 argument" :
         `${paramLength} arguments`;
 
       // prettier-ignore
       const providedArguments =
-        // eslint-disable-next-line no-nested-ternary
         argsLength === 0 ? "none was" :
         argsLength === 1 ? "1 was" :
         `${argsLength} were`;

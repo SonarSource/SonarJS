@@ -17,9 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { TSESLint } from '@typescript-eslint/utils';
-import { ruleTester } from '../rule-tester';
-import rule = require('../../src/rules/no-inverted-boolean-check');
+import { rule } from './rule';
+import { JavaScriptRuleTester } from '../../../tests/tools';
+import { RuleTester } from 'eslint';
+
+const ruleTester = new JavaScriptRuleTester();
 
 ruleTester.run('no-inverted-boolean-check', rule, {
   valid: [
@@ -109,7 +111,7 @@ ruleTester.run('no-inverted-boolean-check', rule, {
   ],
 });
 
-function error(invertedOperator: string, output: string): TSESLint.TestCaseError<string> {
+function error(invertedOperator: string, output: string): RuleTester.TestCaseError {
   return {
     messageId: 'useOppositeOperator',
     data: { invertedOperator },
