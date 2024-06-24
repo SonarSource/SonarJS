@@ -17,14 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as path from 'path';
-import { RuleTester } from '../rule-tester';
-import rule = require('../../src/rules/no-collection-size-mischeck');
+import { rule } from './rule';
+import { JavaScriptRuleTester, TypeScriptRuleTester } from '../../../tests/tools';
 
-// creates RuleTester with default parser without providing types
-const ruleTester = new RuleTester({
-  parser: '@typescript-eslint/parser',
-});
+const ruleTester = new JavaScriptRuleTester();
 
 ruleTester.run('Collection sizes and array length comparisons should make sense', rule, {
   valid: [
@@ -112,15 +108,7 @@ ruleTester.run('Collection sizes and array length comparisons should make sense'
   ],
 });
 
-const ruleTesterTs = new RuleTester({
-  parser: '@typescript-eslint/parser',
-  parserOptions: {
-    ecmaVersion: 2018,
-    project: path.resolve(`${__dirname}/../resources/tsconfig.json`),
-  },
-});
-
-const filename = path.resolve(`${__dirname}/../resources/file.ts`);
+const ruleTesterTs = new TypeScriptRuleTester();
 
 ruleTesterTs.run('Collection sizes and array length comparisons should make sense', rule, {
   valid: [
@@ -134,7 +122,6 @@ ruleTesterTs.run('Collection sizes and array length comparisons should make sens
       if (arr.length < 50) {}
       if (arr.length < 5 + 0) {}
       `,
-      filename,
     },
     {
       code: `
@@ -146,7 +133,6 @@ ruleTesterTs.run('Collection sizes and array length comparisons should make sens
       if (obj.length < 53) {}
       if (obj.length > 0)  {}
       `,
-      filename,
     },
   ],
   invalid: [
@@ -155,7 +141,6 @@ ruleTesterTs.run('Collection sizes and array length comparisons should make sens
       const arr = [];
       if (arr.length < 0) {}
       `,
-      filename,
       errors: [
         {
           messageId: 'fixCollectionSizeCheck',
@@ -175,7 +160,6 @@ ruleTesterTs.run('Collection sizes and array length comparisons should make sens
       const arr = [];
       if (arr.length >= 0) {}
       `,
-      filename,
       errors: [
         {
           messageId: 'fixCollectionSizeCheck',
@@ -195,7 +179,6 @@ ruleTesterTs.run('Collection sizes and array length comparisons should make sens
       const arr = new Array();
       if (arr.length >= 0) {}
       `,
-      filename,
       errors: [
         {
           messageId: 'fixCollectionSizeCheck',
@@ -215,7 +198,6 @@ ruleTesterTs.run('Collection sizes and array length comparisons should make sens
       const set = new Set();
       if (set.length < 0) {}
       `,
-      filename,
       errors: [
         {
           messageId: 'fixCollectionSizeCheck',
@@ -235,7 +217,6 @@ ruleTesterTs.run('Collection sizes and array length comparisons should make sens
       const map = new Map();
       if (map.length < 0) {}
       `,
-      filename,
       errors: [
         {
           messageId: 'fixCollectionSizeCheck',
@@ -255,7 +236,6 @@ ruleTesterTs.run('Collection sizes and array length comparisons should make sens
       const set = new WeakSet();
       if (set.length < 0) {}
       `,
-      filename,
       errors: [
         {
           messageId: 'fixCollectionSizeCheck',
@@ -275,7 +255,6 @@ ruleTesterTs.run('Collection sizes and array length comparisons should make sens
       const map = new WeakMap();
       if (map.length < 0) {}
       `,
-      filename,
       errors: [
         {
           messageId: 'fixCollectionSizeCheck',

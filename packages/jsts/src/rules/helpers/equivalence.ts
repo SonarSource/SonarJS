@@ -18,7 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { TSESLint, TSESTree } from '@typescript-eslint/utils';
+import { type Node } from './ast';
+import { AST, SourceCode } from 'eslint';
+import estree from 'estree';
 
 /**
  * Equivalence is implemented by comparing node types and their tokens.
@@ -26,9 +28,9 @@ import { TSESLint, TSESTree } from '@typescript-eslint/utils';
  * but "estree" doesn't provide access to children when node type is unknown
  */
 export function areEquivalent(
-  first: TSESTree.Node | TSESTree.Node[],
-  second: TSESTree.Node | TSESTree.Node[],
-  sourceCode: TSESLint.SourceCode,
+  first: Node | Node[],
+  second: Node | Node[],
+  sourceCode: SourceCode,
 ): boolean {
   if (Array.isArray(first) && Array.isArray(second)) {
     return (
@@ -38,13 +40,16 @@ export function areEquivalent(
   } else if (!Array.isArray(first) && !Array.isArray(second)) {
     return (
       first.type === second.type &&
-      compareTokens(sourceCode.getTokens(first), sourceCode.getTokens(second))
+      compareTokens(
+        sourceCode.getTokens(first as estree.Node),
+        sourceCode.getTokens(second as estree.Node),
+      )
     );
   }
   return false;
 }
 
-function compareTokens(firstTokens: TSESLint.AST.Token[], secondTokens: TSESLint.AST.Token[]) {
+function compareTokens(firstTokens: AST.Token[], secondTokens: AST.Token[]) {
   return (
     firstTokens.length === secondTokens.length &&
     firstTokens.every((firstToken, index) => firstToken.value === secondTokens[index].value)

@@ -80,10 +80,6 @@ export function isArrowFunctionExpression(
   return node !== undefined && node.type === 'ArrowFunctionExpression';
 }
 
-export function isBlockStatement(node: Node | undefined): node is TSESTree.BlockStatement {
-  return node !== undefined && node.type === 'BlockStatement';
-}
-
 export function isIdentifier(
   node: Node | undefined,
   ...values: string[]

@@ -19,9 +19,10 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S1192
 
-import type { TSESTree, TSESLint } from '@typescript-eslint/utils';
-import docsUrl from '../utils/docs-url';
-import { issueLocation, report } from '../utils/locations';
+import { TSESTree, AST_NODE_TYPES } from '@typescript-eslint/utils';
+import { docsUrl, issueLocation, report } from '../helpers';
+import { Rule } from 'eslint';
+import estree from 'estree';
 
 // Number of times a literal must be duplicated to trigger an issue
 const DEFAULT_THRESHOLD = 3;
@@ -37,18 +38,7 @@ const EXCLUDED_CONTEXTS = [
 ];
 const message = 'Define a constant instead of duplicating this literal {{times}} times.';
 
-type Options =
-  | [{ threshold?: number; ignoreStrings?: string } | undefined, 'sonar-runtime']
-  | [{ threshold?: number; ignoreStrings?: string } | undefined];
-type Context = TSESLint.RuleContext<string, Options>;
-
-const rule: TSESLint.RuleModule<string, Options> = {
-  defaultOptions: [
-    {
-      threshold: DEFAULT_THRESHOLD,
-      ignoreStrings: DEFAULT_IGNORE_STRINGS,
-    },
-  ],
+export const rule: Rule.RuleModule = {
   meta: {
     messages: {
       defineConstant: message,
@@ -57,7 +47,7 @@ const rule: TSESLint.RuleModule<string, Options> = {
     type: 'suggestion',
     docs: {
       description: 'String literals should not be duplicated',
-      recommended: 'recommended',
+      recommended: true,
       url: docsUrl(__filename),
     },
     schema: [
@@ -80,7 +70,7 @@ const rule: TSESLint.RuleModule<string, Options> = {
     const { threshold, ignoreStrings } = extractOptions(context);
     const whitelist = ignoreStrings.split(',');
     return {
-      Literal: (node: TSESTree.Node) => {
+      Literal: (node: estree.Node) => {
         const literal = node as TSESTree.Literal;
         const { parent } = literal;
         if (
@@ -127,28 +117,28 @@ const rule: TSESLint.RuleModule<string, Options> = {
   },
 };
 
-function isExcludedByUsageContext(context: Context, literal: TSESTree.Literal) {
-  const { parent } = literal;
+function isExcludedByUsageContext(context: Rule.RuleContext, literal: estree.Literal) {
+  const { parent } = literal as TSESTree.Literal;
   const parentType = parent.type;
 
   return (
     EXCLUDED_CONTEXTS.includes(parentType) ||
-    isRequireContext(parent, context) ||
-    isObjectPropertyKey(parent, literal)
+    isRequireContext(parent as estree.Node, context) ||
+    isObjectPropertyKey(parent as estree.Node, literal)
   );
 }
 
-function isRequireContext(parent: TSESTree.Node, context: Context) {
+function isRequireContext(parent: estree.Node, context: Rule.RuleContext) {
   return (
     parent.type === 'CallExpression' && context.sourceCode.getText(parent.callee) === 'require'
   );
 }
 
-function isObjectPropertyKey(parent: TSESTree.Node, literal: TSESTree.Literal) {
-  return parent.type === 'Property' && parent.key === literal;
+function isObjectPropertyKey(parent: estree.Node, literal: estree.Literal) {
+  return parent.type === AST_NODE_TYPES.Property && parent.key === literal;
 }
 
-function extractOptions(context: Context) {
+function extractOptions(context: Rule.RuleContext) {
   let threshold: number = DEFAULT_THRESHOLD;
   let ignoreStrings: string = DEFAULT_IGNORE_STRINGS;
   const options = context.options[0];
@@ -160,5 +150,3 @@ function extractOptions(context: Context) {
   }
   return { threshold, ignoreStrings };
 }
-
-export = rule;

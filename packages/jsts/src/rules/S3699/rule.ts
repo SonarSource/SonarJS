@@ -19,14 +19,8 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S3699
 
-import type { TSESTree } from '@typescript-eslint/utils';
-import {
-  docsUrl,
-  isArrowFunctionExpression,
-  isBlockStatement,
-  isFunctionExpression,
-  RuleContext,
-} from '../helpers';
+import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/utils';
+import { docsUrl, isArrowFunctionExpression, isFunctionExpression, RuleContext } from '../helpers';
 import { Rule } from 'eslint';
 import estree from 'estree';
 
@@ -139,7 +133,7 @@ export const rule: Rule.RuleModule = {
         if (
           func.async ||
           func.generator ||
-          (isBlockStatement(func.body) && func.body.body.length === 0)
+          (func.body.type === AST_NODE_TYPES.BlockStatement && func.body.body.length === 0)
         ) {
           functionsWithReturnValue.add(func);
         }

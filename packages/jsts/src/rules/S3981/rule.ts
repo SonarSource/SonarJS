@@ -19,16 +19,16 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S3981
 
-import type { TSESTree, TSESLint } from '@typescript-eslint/utils';
+import type { TSESTree } from '@typescript-eslint/utils';
 import { ParserServicesWithTypeInformation } from '@typescript-eslint/typescript-estree';
-import { isParserServicesWithTypeInformation } from '../utils/parser-services';
-import docsUrl from '../utils/docs-url';
+import { Rule } from 'eslint';
+import { docsUrl, isRequiredParserServices } from '../helpers';
+import estree from 'estree';
 
 const CollectionLike = ['Array', 'Map', 'Set', 'WeakMap', 'WeakSet'];
 const CollectionSizeLike = ['length', 'size'];
 
-const rule: TSESLint.RuleModule<string, string[]> = {
-  defaultOptions: [],
+export const rule: Rule.RuleModule = {
   meta: {
     messages: {
       fixCollectionSizeCheck:
@@ -40,19 +40,18 @@ const rule: TSESLint.RuleModule<string, string[]> = {
     hasSuggestions: true,
     docs: {
       description: 'Collection sizes and array length comparisons should make sense',
-      recommended: 'recommended',
+      recommended: true,
       url: docsUrl(__filename),
     },
   },
   create(context) {
     const services = context.sourceCode.parserServices;
-    const isTypeCheckerAvailable = isParserServicesWithTypeInformation(services);
+    const isTypeCheckerAvailable = isRequiredParserServices(services);
     return {
-      BinaryExpression: (node: TSESTree.Node) => {
-        const expr = node as TSESTree.BinaryExpression;
-        if (['<', '>='].includes(expr.operator)) {
-          const lhs = expr.left;
-          const rhs = expr.right;
+      BinaryExpression: (node: estree.BinaryExpression) => {
+        if (['<', '>='].includes(node.operator)) {
+          const lhs = node.left;
+          const rhs = node.right;
           if (isZeroLiteral(rhs) && lhs.type === 'MemberExpression') {
             const { object, property } = lhs;
             if (
@@ -67,7 +66,7 @@ const rule: TSESLint.RuleModule<string, string[]> = {
                   objectName: context.sourceCode.getText(object),
                 },
                 node,
-                suggest: getSuggestion(expr, property.name, context),
+                suggest: getSuggestion(node, property.name, context),
               });
             }
           }
@@ -77,21 +76,21 @@ const rule: TSESLint.RuleModule<string, string[]> = {
   },
 };
 
-function isZeroLiteral(node: TSESTree.Node) {
+function isZeroLiteral(node: estree.Node) {
   return node.type === 'Literal' && node.value === 0;
 }
 
-function isCollection(node: TSESTree.Node, services: ParserServicesWithTypeInformation) {
+function isCollection(node: estree.Node, services: ParserServicesWithTypeInformation) {
   const checker = services.program.getTypeChecker();
-  const tp = checker.getTypeAtLocation(services.esTreeNodeToTSNodeMap.get(node));
+  const tp = checker.getTypeAtLocation(services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node));
   return !!tp.symbol && CollectionLike.includes(tp.symbol.name);
 }
 
 function getSuggestion(
-  expr: TSESTree.BinaryExpression,
+  expr: estree.BinaryExpression,
   operation: string,
-  context: TSESLint.RuleContext<string, string[]>,
-): TSESLint.ReportSuggestionArray<string> {
+  context: Rule.RuleContext,
+): Rule.SuggestionReportDescriptor[] {
   const { left, operator } = expr;
   const operatorToken = context.sourceCode.getTokenAfter(left, token => token.value === operator)!;
   const fixedOperator = operator === '<' ? '==' : '>';
@@ -106,5 +105,3 @@ function getSuggestion(
     },
   ];
 }
-
-export = rule;

@@ -100,11 +100,7 @@ export const rule: Rule.RuleModule = {
           const originalFunction = functions[j].function;
 
           if (
-            areEquivalent(
-              duplicatingFunction.body,
-              originalFunction.body,
-              (context as unknown as RuleContext).sourceCode,
-            ) &&
+            areEquivalent(duplicatingFunction.body, originalFunction.body, context.sourceCode) &&
             originalFunction.loc
           ) {
             const loc = getMainFunctionTokenLocation(

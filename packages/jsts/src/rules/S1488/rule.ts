@@ -19,17 +19,12 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S1488
 
-import type { TSESLint, TSESTree } from '@typescript-eslint/utils';
-import {
-  isReturnStatement,
-  isThrowStatement,
-  isIdentifier,
-  isVariableDeclaration,
-} from '../utils/nodes';
-import docsUrl from '../utils/docs-url';
+import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/utils';
+import { docsUrl, isIdentifier } from '../helpers';
+import { Rule } from 'eslint';
+import estree from 'estree';
 
-const rule: TSESLint.RuleModule<string, string[]> = {
-  defaultOptions: [],
+export const rule: Rule.RuleModule = {
   meta: {
     messages: {
       doImmediateAction:
@@ -39,22 +34,22 @@ const rule: TSESLint.RuleModule<string, string[]> = {
     type: 'suggestion',
     docs: {
       description: 'Local variables should not be declared and then immediately returned or thrown',
-      recommended: 'recommended',
+      recommended: true,
       url: docsUrl(__filename),
     },
     fixable: 'code',
   },
   create(context) {
     return {
-      BlockStatement(node: TSESTree.Node) {
-        processStatements(node, (node as TSESTree.BlockStatement).body);
+      BlockStatement(node: estree.BlockStatement) {
+        processStatements(node, node.body);
       },
-      SwitchCase(node: TSESTree.Node) {
-        processStatements(node, (node as TSESTree.SwitchCase).consequent);
+      SwitchCase(node: estree.SwitchCase) {
+        processStatements(node, node.consequent);
       },
     };
 
-    function processStatements(node: TSESTree.Node, statements: TSESTree.Statement[]) {
+    function processStatements(node: estree.Node, statements: estree.Statement[]) {
       if (statements.length > 1) {
         const last = statements[statements.length - 1];
         const returnedIdentifier = getOnlyReturnedVariable(last);
@@ -77,7 +72,7 @@ const rule: TSESLint.RuleModule<string, string[]> = {
             context.report({
               messageId: 'doImmediateAction',
               data: {
-                action: isReturnStatement(last) ? 'return' : 'throw',
+                action: last.type === AST_NODE_TYPES.ReturnStatement ? 'return' : 'throw',
                 variable: returnedIdentifier.name,
               },
               node: declaredIdentifier.init,
@@ -90,44 +85,49 @@ const rule: TSESLint.RuleModule<string, string[]> = {
     }
 
     function fix(
-      fixer: TSESLint.RuleFixer,
-      last: TSESTree.Statement,
-      lastButOne: TSESTree.Statement,
-      expressionToReturn: TSESTree.Expression,
-      returnedExpression: TSESTree.Expression,
+      fixer: Rule.RuleFixer,
+      last: estree.Statement,
+      lastButOne: estree.Statement,
+      expressionToReturn: estree.Expression,
+      returnedExpression: estree.Expression,
     ): any {
       const expressionText = context.sourceCode.getText(expressionToReturn);
-      const rangeToRemoveStart = lastButOne.range[0];
+      const rangeToRemoveStart = (lastButOne as TSESTree.Statement).range[0];
       const commentsBetweenStatements = context.sourceCode.getCommentsAfter(lastButOne);
       const rangeToRemoveEnd =
         commentsBetweenStatements.length > 0
-          ? commentsBetweenStatements[0].range[0]
-          : last.range[0];
+          ? (commentsBetweenStatements[0] as TSESTree.Comment).range[0]
+          : (last as TSESTree.Statement).range[0];
       return [
         fixer.removeRange([rangeToRemoveStart, rangeToRemoveEnd]),
         fixer.replaceText(returnedExpression, expressionText),
       ];
     }
 
-    function getOnlyReturnedVariable(node: TSESTree.Statement) {
-      return (isReturnStatement(node) || isThrowStatement(node)) &&
+    function getOnlyReturnedVariable(node: estree.Statement) {
+      return (node.type === AST_NODE_TYPES.ReturnStatement ||
+        node.type === AST_NODE_TYPES.ThrowStatement) &&
         node.argument &&
         isIdentifier(node.argument)
         ? node.argument
         : undefined;
     }
 
-    function getOnlyDeclaredVariable(node: TSESTree.Statement) {
-      if (isVariableDeclaration(node) && node.declarations.length === 1) {
+    function getOnlyDeclaredVariable(node: estree.Statement) {
+      if (node.type === AST_NODE_TYPES.VariableDeclaration && node.declarations.length === 1) {
         const { id, init } = node.declarations[0];
-        if (isIdentifier(id) && init && !id.typeAnnotation) {
+        if (
+          id.type === AST_NODE_TYPES.Identifier &&
+          init &&
+          !(id as TSESTree.Identifier).typeAnnotation
+        ) {
           return { id, init };
         }
       }
       return undefined;
     }
 
-    function getVariables(node: TSESTree.Node, context: TSESLint.RuleContext<string, string[]>) {
+    function getVariables(node: estree.Node, context: Rule.RuleContext) {
       const { variableScope, variables: currentScopeVariables } = context.sourceCode.getScope(node);
       if (variableScope === context.sourceCode.getScope(node)) {
         return currentScopeVariables;
@@ -137,5 +137,3 @@ const rule: TSESLint.RuleModule<string, string[]> = {
     }
   },
 };
-
-export = rule;

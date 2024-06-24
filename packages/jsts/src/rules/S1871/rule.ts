@@ -19,18 +19,24 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S1871
 
-import type { TSESTree, TSESLint } from '@typescript-eslint/utils';
-import { isIfStatement, isBlockStatement } from '../utils/nodes';
-import { areEquivalent } from '../utils/equivalence';
-import { collectIfBranches, takeWithoutBreak, collectSwitchBranches } from '../utils/conditions';
-import { report, issueLocation } from '../utils/locations';
-import docsUrl from '../utils/docs-url';
+import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/utils';
+import {
+  areEquivalent,
+  collectIfBranches,
+  collectSwitchBranches,
+  docsUrl,
+  isIfStatement,
+  issueLocation,
+  report,
+  takeWithoutBreak,
+} from '../helpers';
+import { Rule } from 'eslint';
+import estree from 'estree';
 
 const message =
   "This {{type}}'s code block is the same as the block for the {{type}} on line {{line}}.";
 
-const rule: TSESLint.RuleModule<string, string[]> = {
-  defaultOptions: [],
+export const rule: Rule.RuleModule = {
   meta: {
     messages: {
       sameConditionalBlock: message,
@@ -40,7 +46,7 @@ const rule: TSESLint.RuleModule<string, string[]> = {
     docs: {
       description:
         'Two branches in a conditional structure should not have exactly the same implementation',
-      recommended: 'recommended',
+      recommended: true,
       url: docsUrl(__filename),
     },
     schema: [
@@ -53,16 +59,16 @@ const rule: TSESLint.RuleModule<string, string[]> = {
   },
   create(context) {
     return {
-      IfStatement(node: TSESTree.Node) {
-        visitIfStatement(node as TSESTree.IfStatement);
+      IfStatement(node: estree.IfStatement) {
+        visitIfStatement(node);
       },
-      SwitchStatement(node: TSESTree.Node) {
-        visitSwitchStatement(node as TSESTree.SwitchStatement);
+      SwitchStatement(node: estree.SwitchStatement) {
+        visitSwitchStatement(node);
       },
     };
 
-    function visitIfStatement(ifStmt: TSESTree.IfStatement) {
-      if (isIfStatement(ifStmt.parent)) {
+    function visitIfStatement(ifStmt: estree.IfStatement) {
+      if (isIfStatement((ifStmt as TSESTree.IfStatement).parent)) {
         return;
       }
       const { branches, endsWithElse } = collectIfBranches(ifStmt);
@@ -83,7 +89,7 @@ const rule: TSESLint.RuleModule<string, string[]> = {
       }
     }
 
-    function visitSwitchStatement(switchStmt: TSESTree.SwitchStatement) {
+    function visitSwitchStatement(switchStmt: estree.SwitchStatement) {
       const { cases } = switchStmt;
       const { endsWithDefault } = collectSwitchBranches(switchStmt);
       const nonEmptyCases = cases.filter(
@@ -122,7 +128,7 @@ const rule: TSESLint.RuleModule<string, string[]> = {
       }
     }
 
-    function hasRequiredSize(nodes: TSESTree.Statement[]) {
+    function hasRequiredSize(nodes: estree.Statement[]) {
       if (nodes.length > 0) {
         const tokens = [
           ...context.sourceCode.getTokens(nodes[0]),
@@ -135,7 +141,7 @@ const rule: TSESLint.RuleModule<string, string[]> = {
       return false;
     }
 
-    function compareIfBranches(a: TSESTree.Statement, b: TSESTree.Statement) {
+    function compareIfBranches(a: estree.Statement, b: estree.Statement) {
       const equivalent = areEquivalent(a, b, context.sourceCode);
       if (equivalent && b.loc) {
         reportIssue(a, b, 'branch');
@@ -143,10 +149,10 @@ const rule: TSESLint.RuleModule<string, string[]> = {
       return equivalent;
     }
 
-    function expandSingleBlockStatement(nodes: TSESTree.Statement[]) {
+    function expandSingleBlockStatement(nodes: estree.Statement[]) {
       if (nodes.length === 1) {
         const node = nodes[0];
-        if (isBlockStatement(node)) {
+        if (node.type === AST_NODE_TYPES.BlockStatement) {
           return node.body;
         }
       }
@@ -154,7 +160,7 @@ const rule: TSESLint.RuleModule<string, string[]> = {
     }
 
     function allEquivalentWithoutDefault(
-      branches: Array<TSESTree.Node | TSESTree.Node[]>,
+      branches: Array<estree.Node | estree.Node[]>,
       endsWithDefault: boolean,
     ) {
       return (
@@ -166,13 +172,13 @@ const rule: TSESLint.RuleModule<string, string[]> = {
       );
     }
 
-    function reportIssue(node: TSESTree.Node, equivalentNode: TSESTree.Node, type: string) {
-      const equivalentNodeLoc = equivalentNode.loc;
+    function reportIssue(node: estree.Node, equivalentNode: estree.Node, type: string) {
+      const equivalentNodeLoc = (equivalentNode as TSESTree.Node).loc;
       report(
         context,
         {
           messageId: 'sameConditionalBlock',
-          data: { type, line: String(equivalentNode.loc.start.line) },
+          data: { type, line: String(equivalentNodeLoc.start.line) },
           node,
         },
         [issueLocation(equivalentNodeLoc, equivalentNodeLoc, 'Original')],
@@ -181,5 +187,3 @@ const rule: TSESLint.RuleModule<string, string[]> = {
     }
   },
 };
-
-export = rule;

@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { areEquivalent, getParent, RuleContext } from '../helpers';
+import { areEquivalent, getParent } from '../helpers';
 import { TSESTree } from '@typescript-eslint/utils';
 
 class ForInfo {
@@ -86,7 +86,7 @@ export const rule: Rule.RuleModule = {
             areEquivalent(
               updatedExpr as TSESTree.Node,
               testedExpr as TSESTree.Node,
-              (context as unknown as RuleContext).sourceCode,
+              context.sourceCode,
             ),
           ),
         );

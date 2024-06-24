@@ -21,7 +21,8 @@
 
 import { Rule } from 'eslint';
 import estree from 'estree';
-import { docsUrl, isBlockStatement, isIfStatement, issueLocation, report } from '../helpers';
+import { docsUrl, issueLocation, report } from '../helpers';
+import { AST_NODE_TYPES } from '@typescript-eslint/utils';
 
 const message = 'Merge this if statement with the nested one.';
 
@@ -49,7 +50,7 @@ export const rule: Rule.RuleModule = {
     return {
       IfStatement(node: estree.IfStatement) {
         let { consequent } = node;
-        if (isBlockStatement(consequent) && consequent.body.length === 1) {
+        if (consequent.type === AST_NODE_TYPES.BlockStatement && consequent.body.length === 1) {
           consequent = consequent.body[0];
         }
         if (isIfStatementWithoutElse(node) && isIfStatementWithoutElse(consequent)) {
@@ -71,7 +72,7 @@ export const rule: Rule.RuleModule = {
     };
 
     function isIfStatementWithoutElse(node: estree.Node): node is estree.IfStatement {
-      return isIfStatement(node) && !node.alternate;
+      return node.type === AST_NODE_TYPES.IfStatement && !node.alternate;
     }
   },
 };

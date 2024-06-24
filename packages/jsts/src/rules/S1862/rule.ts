@@ -19,16 +19,15 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S1862
 
-import type { TSESTree, TSESLint } from '@typescript-eslint/utils';
-import { areEquivalent } from '../utils/equivalence';
-import { report, issueLocation } from '../utils/locations';
-import docsUrl from '../utils/docs-url';
+import { TSESTree, AST_NODE_TYPES } from '@typescript-eslint/utils';
+import { Rule, SourceCode } from 'eslint';
+import { areEquivalent, docsUrl, issueLocation, report } from '../helpers';
+import estree from 'estree';
 
 const duplicatedConditionMessage = 'This condition is covered by the one on line {{line}}';
 const duplicatedCaseMessage = 'This case duplicates the one on line {{line}}';
 
-const rule: TSESLint.RuleModule<string, string[]> = {
-  defaultOptions: [],
+export const rule: Rule.RuleModule = {
   meta: {
     messages: {
       duplicatedCondition: duplicatedConditionMessage,
@@ -39,7 +38,7 @@ const rule: TSESLint.RuleModule<string, string[]> = {
     docs: {
       description:
         'Related "if-else-if" and "switch-case" statements should not have the same condition',
-      recommended: 'recommended',
+      recommended: true,
       url: docsUrl(__filename),
     },
     schema: [
@@ -53,19 +52,19 @@ const rule: TSESLint.RuleModule<string, string[]> = {
   create(context) {
     const { sourceCode } = context;
     return {
-      IfStatement(node: TSESTree.Node) {
-        const { test } = node as TSESTree.IfStatement;
+      IfStatement(node: estree.IfStatement) {
+        const { test } = node;
         const conditionsToCheck =
           test.type === 'LogicalExpression' && test.operator === '&&'
             ? [test, ...splitByAnd(test)]
             : [test];
 
-        let current = node;
+        let current = node as TSESTree.Node;
         let operandsToCheck = conditionsToCheck.map(c => splitByOr(c).map(splitByAnd));
         while (current.parent?.type === 'IfStatement' && current.parent.alternate === current) {
           current = current.parent;
 
-          const currentOrOperands = splitByOr(current.test).map(splitByAnd);
+          const currentOrOperands = splitByOr(current.test as estree.Node).map(splitByAnd);
           operandsToCheck = operandsToCheck.map(orOperands =>
             orOperands.filter(
               orOperand =>
@@ -80,7 +79,7 @@ const rule: TSESLint.RuleModule<string, string[]> = {
               context,
               {
                 messageId: 'duplicatedCondition',
-                data: { line: current.test.loc.start.line },
+                data: { line: current.test.loc.start.line as any },
                 node: test,
               },
               [issueLocation(current.test.loc, current.test.loc, 'Covering')],
@@ -90,22 +89,21 @@ const rule: TSESLint.RuleModule<string, string[]> = {
           }
         }
       },
-      SwitchStatement(node: TSESTree.Node) {
-        const switchStmt = node as TSESTree.SwitchStatement;
-        const previousTests: TSESTree.Expression[] = [];
+      SwitchStatement(switchStmt: estree.SwitchStatement) {
+        const previousTests: estree.Expression[] = [];
         for (const switchCase of switchStmt.cases) {
           if (switchCase.test) {
             const { test } = switchCase;
             const duplicateTest = previousTests.find(previousTest =>
-              areEquivalent(test, previousTest, sourceCode),
-            );
+              areEquivalent(test as TSESTree.Node, previousTest as TSESTree.Node, sourceCode),
+            ) as TSESTree.Node;
             if (duplicateTest) {
               report(
                 context,
                 {
                   messageId: 'duplicatedCase',
                   data: {
-                    line: duplicateTest.loc.start.line,
+                    line: duplicateTest.loc.start.line as any,
                   },
                   node: test,
                 },
@@ -125,11 +123,8 @@ const rule: TSESLint.RuleModule<string, string[]> = {
 const splitByOr = splitByLogicalOperator.bind(null, '||');
 const splitByAnd = splitByLogicalOperator.bind(null, '&&');
 
-function splitByLogicalOperator(
-  operator: '??' | '&&' | '||',
-  node: TSESTree.Node,
-): TSESTree.Node[] {
-  if (node.type === 'LogicalExpression' && node.operator === operator) {
+function splitByLogicalOperator(operator: '??' | '&&' | '||', node: estree.Node): estree.Node[] {
+  if (node.type === AST_NODE_TYPES.LogicalExpression && node.operator === operator) {
     return [
       ...splitByLogicalOperator(operator, node.left),
       ...splitByLogicalOperator(operator, node.right),
@@ -138,24 +133,16 @@ function splitByLogicalOperator(
   return [node];
 }
 
-function isSubset(
-  first: TSESTree.Node[],
-  second: TSESTree.Node[],
-  sourceCode: TSESLint.SourceCode,
-): boolean {
+function isSubset(first: estree.Node[], second: estree.Node[], sourceCode: SourceCode): boolean {
   return first.every(fst => second.some(snd => isSubsetOf(fst, snd, sourceCode)));
 
-  function isSubsetOf(
-    first: TSESTree.Node,
-    second: TSESTree.Node,
-    sourceCode: TSESLint.SourceCode,
-  ): boolean {
+  function isSubsetOf(first: estree.Node, second: estree.Node, sourceCode: SourceCode): boolean {
     if (first.type !== second.type) {
       return false;
     }
 
-    if (first.type === 'LogicalExpression') {
-      const second1 = second as TSESTree.LogicalExpression;
+    if (first.type === AST_NODE_TYPES.LogicalExpression) {
+      const second1 = second as estree.LogicalExpression;
       if (
         (first.operator === '||' || first.operator === '&&') &&
         first.operator === second1.operator
@@ -169,8 +156,6 @@ function isSubset(
       }
     }
 
-    return areEquivalent(first, second, sourceCode);
+    return areEquivalent(first as TSESTree.Node, second as TSESTree.Node, sourceCode);
   }
 }
-
-export = rule;

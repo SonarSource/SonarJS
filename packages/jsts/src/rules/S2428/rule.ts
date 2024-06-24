@@ -19,7 +19,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S2428
 
-import { AST_NODE_TYPES, TSESLint, TSESTree } from '@typescript-eslint/utils';
+import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/utils';
 import { Rule, SourceCode } from 'eslint';
 import { areEquivalent, docsUrl, isIdentifier, isModuleDeclaration } from '../helpers';
 import estree from 'estree';
@@ -96,13 +96,9 @@ function isPropertyAssignment(
         areEquivalent(
           left.object as TSESTree.Node,
           objectIdentifier as TSESTree.Node,
-          sourceCode as unknown as TSESLint.SourceCode,
+          sourceCode,
         ) &&
-        !areEquivalent(
-          left.object as TSESTree.Node,
-          right as TSESTree.Node,
-          sourceCode as unknown as TSESLint.SourceCode,
-        )
+        !areEquivalent(left.object as TSESTree.Node, right as TSESTree.Node, sourceCode)
       );
     }
   }

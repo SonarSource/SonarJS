@@ -18,17 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { TSESTree } from '@typescript-eslint/utils';
-import { isIfStatement } from './ast';
+import { AST_NODE_TYPES } from '@typescript-eslint/utils';
+import estree from 'estree';
 
 /** Returns a list of statements corresponding to a `if - else if - else` chain */
-export function collectIfBranches(node: TSESTree.IfStatement) {
-  const branches: TSESTree.Statement[] = [node.consequent];
+export function collectIfBranches(node: estree.IfStatement) {
+  const branches: estree.Statement[] = [node.consequent];
   let endsWithElse = false;
   let statement = node.alternate;
 
   while (statement) {
-    if (isIfStatement(statement)) {
+    if (statement.type === AST_NODE_TYPES.IfStatement) {
       branches.push(statement.consequent);
       statement = statement.alternate;
     } else {
@@ -42,7 +42,7 @@ export function collectIfBranches(node: TSESTree.IfStatement) {
 }
 
 /** Returns a list of `switch` clauses (both `case` and `default`) */
-export function collectSwitchBranches(node: TSESTree.SwitchStatement) {
+export function collectSwitchBranches(node: estree.SwitchStatement) {
   let endsWithDefault = false;
   const branches = node.cases
     .filter((clause, index) => {
@@ -59,8 +59,8 @@ export function collectSwitchBranches(node: TSESTree.SwitchStatement) {
 }
 
 /** Excludes the break statement from the list */
-export function takeWithoutBreak(nodes: TSESTree.Statement[]) {
-  return nodes.length > 0 && nodes[nodes.length - 1].type === 'BreakStatement'
+export function takeWithoutBreak(nodes: estree.Statement[]) {
+  return nodes.length > 0 && nodes[nodes.length - 1].type === AST_NODE_TYPES.BreakStatement
     ? nodes.slice(0, -1)
     : nodes;
 }

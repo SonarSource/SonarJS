@@ -28,7 +28,6 @@ import {
   collectSwitchBranches,
   docsUrl,
   isIfStatement,
-  RuleContext,
 } from '../helpers';
 
 export const rule: Rule.RuleModule = {
@@ -53,7 +52,7 @@ export const rule: Rule.RuleModule = {
       IfStatement(ifStmt: estree.IfStatement) {
         // don't visit `else if` statements
         if (!isIfStatement((ifStmt as TSESTree.IfStatement).parent)) {
-          const { branches, endsWithElse } = collectIfBranches(ifStmt as TSESTree.IfStatement);
+          const { branches, endsWithElse } = collectIfBranches(ifStmt);
           if (endsWithElse && allDuplicated(branches)) {
             context.report({ messageId: 'removeOrEditConditionalStructure', node: ifStmt });
           }
@@ -61,32 +60,25 @@ export const rule: Rule.RuleModule = {
       },
 
       SwitchStatement(switchStmt: estree.SwitchStatement) {
-        const { branches, endsWithDefault } = collectSwitchBranches(
-          switchStmt as TSESTree.SwitchStatement,
-        );
+        const { branches, endsWithDefault } = collectSwitchBranches(switchStmt);
         if (endsWithDefault && allDuplicated(branches)) {
           context.report({ messageId: 'removeOrEditConditionalStructure', node: switchStmt });
         }
       },
 
       ConditionalExpression(conditional: estree.ConditionalExpression) {
-        const condExprTS = conditional as TSESTree.ConditionalExpression;
-        const branches = [condExprTS.consequent, condExprTS.alternate];
+        const branches = [conditional.consequent, conditional.alternate];
         if (allDuplicated(branches)) {
           context.report({ messageId: 'returnsTheSameValue', node: conditional });
         }
       },
     };
 
-    function allDuplicated(branches: Array<TSESTree.Node | TSESTree.Node[]>) {
+    function allDuplicated(branches: Array<estree.Node | estree.Node[]>) {
       return (
         branches.length > 1 &&
         branches.slice(1).every((branch, index) => {
-          return areEquivalent(
-            branch,
-            branches[index],
-            (context as unknown as RuleContext).sourceCode,
-          );
+          return areEquivalent(branch, branches[index], context.sourceCode);
         })
       );
     }

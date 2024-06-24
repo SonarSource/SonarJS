@@ -18,17 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 // https://sonarsource.github.io/rspec/#/rspec/S1126
-import type { TSESTree, TSESLint } from '@typescript-eslint/utils';
-import {
-  isReturnStatement,
-  isBlockStatement,
-  isBooleanLiteral,
-  isIfStatement,
-} from '../utils/nodes';
-import docsUrl from '../utils/docs-url';
+import { TSESTree, AST_NODE_TYPES } from '@typescript-eslint/utils';
+import { docsUrl } from '../helpers';
+import { Rule } from 'eslint';
+import estree from 'estree';
 
-const rule: TSESLint.RuleModule<string, string[]> = {
-  defaultOptions: [],
+export const rule: Rule.RuleModule = {
   meta: {
     messages: {
       replaceIfThenElseByReturn: 'Replace this if-then-else flow by a single return statement.',
@@ -43,73 +38,78 @@ const rule: TSESLint.RuleModule<string, string[]> = {
     docs: {
       description:
         'Return of boolean expressions should not be wrapped into an "if-then-else" statement',
-      recommended: 'recommended',
+      recommended: true,
       url: docsUrl(__filename),
     },
   },
   create(context) {
     return {
-      IfStatement(node: TSESTree.IfStatement) {
+      IfStatement(node: estree.IfStatement) {
+        const parent = (node as TSESTree.IfStatement).parent as estree.Node;
         if (
           // ignore `else if`
-          !isIfStatement(node.parent) &&
+          !(parent.type === AST_NODE_TYPES.IfStatement) &&
           returnsBoolean(node.consequent) &&
           alternateReturnsBoolean(node)
         ) {
           context.report({
             messageId: 'replaceIfThenElseByReturn',
             node,
-            suggest: getSuggestion(node),
+            suggest: getSuggestion(node, parent),
           });
         }
       },
     };
 
-    function alternateReturnsBoolean(node: TSESTree.IfStatement) {
+    function alternateReturnsBoolean(node: estree.IfStatement) {
       if (node.alternate) {
         return returnsBoolean(node.alternate);
       }
 
-      const { parent } = node;
-      if (parent?.type === 'BlockStatement') {
+      const { parent } = node as TSESTree.IfStatement;
+      if (parent?.type === AST_NODE_TYPES.BlockStatement) {
         const ifStmtIndex = parent.body.findIndex(stmt => stmt === node);
-        return isSimpleReturnBooleanLiteral(parent.body[ifStmtIndex + 1]);
+        return isSimpleReturnBooleanLiteral(parent.body[ifStmtIndex + 1] as estree.Statement);
       }
 
       return false;
     }
 
-    function returnsBoolean(statement: TSESTree.Statement | undefined) {
+    function returnsBoolean(statement: estree.Statement | undefined) {
       return (
         statement !== undefined &&
         (isBlockReturningBooleanLiteral(statement) || isSimpleReturnBooleanLiteral(statement))
       );
     }
 
-    function isBlockReturningBooleanLiteral(statement: TSESTree.Statement) {
+    function isBlockReturningBooleanLiteral(statement: estree.Statement) {
       return (
-        isBlockStatement(statement) &&
+        statement.type === AST_NODE_TYPES.BlockStatement &&
         statement.body.length === 1 &&
         isSimpleReturnBooleanLiteral(statement.body[0])
       );
     }
 
-    function isSimpleReturnBooleanLiteral(statement: TSESTree.Node) {
-      // `statement.argument` can be `null`, replace it with `undefined` in this case
-      return isReturnStatement(statement) && isBooleanLiteral(statement.argument || undefined);
+    function isSimpleReturnBooleanLiteral(statement: estree.Node) {
+      return (
+        statement.type === AST_NODE_TYPES.ReturnStatement &&
+        statement.argument?.type === AST_NODE_TYPES.Literal &&
+        typeof statement.argument.value === 'boolean'
+      );
     }
 
-    function getSuggestion(ifStmt: TSESTree.IfStatement) {
+    function getSuggestion(ifStmt: estree.IfStatement, parent: estree.Node) {
       const getFix = (condition: string) => {
-        return (fixer: TSESLint.RuleFixer) => {
+        return (fixer: Rule.RuleFixer) => {
           const singleReturn = `return ${condition};`;
           if (ifStmt.alternate) {
             return fixer.replaceText(ifStmt, singleReturn);
           } else {
-            const parent = ifStmt.parent as TSESTree.BlockStatement;
-            const ifStmtIndex = parent.body.findIndex(stmt => stmt === ifStmt);
-            const returnStmt = parent.body[ifStmtIndex + 1];
-            const range: [number, number] = [ifStmt.range[0], returnStmt.range[1]];
+            const ifStmtIndex = (parent as estree.BlockStatement).body.findIndex(
+              stmt => stmt === ifStmt,
+            );
+            const returnStmt = (parent as estree.BlockStatement).body[ifStmtIndex + 1];
+            const range: [number, number] = [ifStmt.range![0], returnStmt.range![1]];
             return fixer.replaceTextRange(range, singleReturn);
           }
         };
@@ -130,16 +130,17 @@ const rule: TSESLint.RuleModule<string, string[]> = {
       }
     }
 
-    function isReturningFalse(stmt: TSESTree.Statement): boolean {
+    function isReturningFalse(stmt: estree.Statement): boolean {
       const returnStmt = (
-        stmt.type === 'BlockStatement' ? stmt.body[0] : stmt
-      ) as TSESTree.ReturnStatement;
-      return (returnStmt.argument as TSESTree.Literal).value === false;
+        stmt.type === AST_NODE_TYPES.BlockStatement ? stmt.body[0] : stmt
+      ) as estree.ReturnStatement;
+      return (returnStmt.argument as estree.Literal).value === false;
     }
 
-    function isBooleanExpression(expr: TSESTree.Expression) {
+    function isBooleanExpression(expr: estree.Expression) {
       return (
-        (expr.type === 'UnaryExpression' || expr.type === 'BinaryExpression') &&
+        (expr.type === AST_NODE_TYPES.UnaryExpression ||
+          expr.type === AST_NODE_TYPES.BinaryExpression) &&
         ['!', '==', '===', '!=', '!==', '<', '<=', '>', '>=', 'in', 'instanceof'].includes(
           expr.operator,
         )
@@ -147,5 +148,3 @@ const rule: TSESLint.RuleModule<string, string[]> = {
     }
   },
 };
-
-export = rule;

@@ -19,11 +19,11 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S1821
 
-import type { TSESTree, TSESLint } from '@typescript-eslint/utils';
-import docsUrl from '../utils/docs-url';
+import { Rule } from 'eslint';
+import { docsUrl } from '../helpers';
+import estree from 'estree';
 
-const rule: TSESLint.RuleModule<string, string[]> = {
-  defaultOptions: [],
+export const rule: Rule.RuleModule = {
   meta: {
     messages: {
       removeNestedSwitch: 'Refactor the code to eliminate this nested "switch".',
@@ -32,13 +32,13 @@ const rule: TSESLint.RuleModule<string, string[]> = {
     type: 'suggestion',
     docs: {
       description: '"switch" statements should not be nested',
-      recommended: 'recommended',
+      recommended: true,
       url: docsUrl(__filename),
     },
   },
   create(context) {
     return {
-      'SwitchStatement SwitchStatement': (node: TSESTree.Node) => {
+      'SwitchStatement SwitchStatement': (node: estree.Node) => {
         const switchToken = context.sourceCode.getFirstToken(
           node,
           token => token.value === 'switch',
@@ -51,5 +51,3 @@ const rule: TSESLint.RuleModule<string, string[]> = {
     };
   },
 };
-
-export = rule;

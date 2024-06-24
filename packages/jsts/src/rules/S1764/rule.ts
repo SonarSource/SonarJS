@@ -19,11 +19,17 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S1764
 
-import type { TSESTree, TSESLint } from '@typescript-eslint/utils';
-import { isIdentifier, isLiteral } from '../utils/nodes';
-import { areEquivalent } from '../utils/equivalence';
-import { report, issueLocation, IssueLocation } from '../utils/locations';
-import docsUrl from '../utils/docs-url';
+import estree from 'estree';
+import {
+  areEquivalent,
+  docsUrl,
+  isIdentifier,
+  isLiteral,
+  issueLocation,
+  IssueLocation,
+  report,
+} from '../helpers';
+import { Rule } from 'eslint';
 
 const EQUALITY_OPERATOR_TOKEN_KINDS = new Set(['==', '===', '!=', '!==']);
 
@@ -41,18 +47,18 @@ const RELEVANT_OPERATOR_TOKEN_KINDS = new Set([
   '>=',
 ]);
 
-function hasRelevantOperator(node: TSESTree.BinaryExpression | TSESTree.LogicalExpression) {
+function hasRelevantOperator(node: estree.BinaryExpression | estree.LogicalExpression) {
   return (
     RELEVANT_OPERATOR_TOKEN_KINDS.has(node.operator) ||
     (EQUALITY_OPERATOR_TOKEN_KINDS.has(node.operator) && !hasIdentifierOperands(node))
   );
 }
 
-function hasIdentifierOperands(node: TSESTree.BinaryExpression | TSESTree.LogicalExpression) {
+function hasIdentifierOperands(node: estree.BinaryExpression | estree.LogicalExpression) {
   return isIdentifier(node.left) && isIdentifier(node.right);
 }
 
-function isOneOntoOneShifting(node: TSESTree.BinaryExpression | TSESTree.LogicalExpression) {
+function isOneOntoOneShifting(node: estree.BinaryExpression | estree.LogicalExpression) {
   return (
     node.operator === '<<' &&
     isLiteral(node.left) &&
@@ -63,8 +69,7 @@ function isOneOntoOneShifting(node: TSESTree.BinaryExpression | TSESTree.Logical
 const message =
   'Correct one of the identical sub-expressions on both sides of operator "{{operator}}"';
 
-const rule: TSESLint.RuleModule<string, string[]> = {
-  defaultOptions: [],
+export const rule: Rule.RuleModule = {
   meta: {
     messages: {
       correctIdenticalSubExpressions: message,
@@ -73,7 +78,7 @@ const rule: TSESLint.RuleModule<string, string[]> = {
     type: 'problem',
     docs: {
       description: 'Identical expressions should not be used on both sides of a binary operator',
-      recommended: 'recommended',
+      recommended: true,
       url: docsUrl(__filename),
     },
     schema: [
@@ -86,15 +91,15 @@ const rule: TSESLint.RuleModule<string, string[]> = {
   },
   create(context) {
     return {
-      LogicalExpression(node: TSESTree.Node) {
-        check(node as TSESTree.LogicalExpression);
+      LogicalExpression(node: estree.LogicalExpression) {
+        check(node);
       },
-      BinaryExpression(node: TSESTree.Node) {
-        check(node as TSESTree.BinaryExpression);
+      BinaryExpression(node: estree.BinaryExpression) {
+        check(node);
       },
     };
 
-    function check(expr: TSESTree.BinaryExpression | TSESTree.LogicalExpression) {
+    function check(expr: estree.BinaryExpression | estree.LogicalExpression) {
       if (
         hasRelevantOperator(expr) &&
         !isOneOntoOneShifting(expr) &&
@@ -124,5 +129,3 @@ const rule: TSESLint.RuleModule<string, string[]> = {
     }
   },
 };
-
-export = rule;
