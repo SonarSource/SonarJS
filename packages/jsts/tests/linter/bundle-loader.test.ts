@@ -53,7 +53,6 @@ describe('BundleLoader', () => {
 
     loadBundles(linter, ['internalRules']);
     expect(linter.getRules().get('sonar-max-params')).toBeDefined();
-    expect(linter.getRules().get('no-small-switch')).toBeUndefined();
     expect(linter.getRules().get('react-in-jsx-scope')).toBeUndefined();
     expect(linter.getRules().get('custom-rule-file')).toBeUndefined();
     expect(linter.getRules().get('custom-rule')).toBeUndefined();

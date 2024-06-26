@@ -142,7 +142,8 @@ function isRead(ref: Scope.Reference) {
 
   if (expressionStatement) {
     return !(
-      isElementWrite(expressionStatement, ref) || isWritingMethodCall(expressionStatement, ref)
+      isElementWrite(expressionStatement, ref, false) ||
+      isWritingMethodCall(expressionStatement, ref)
     );
   }
 

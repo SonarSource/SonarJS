@@ -271,19 +271,28 @@ export function isUndefined(node: Node): boolean {
  *  myObj.prop1 = 3;
  *  myObj.prop1 += 3;
  */
-export function isElementWrite(statement: estree.ExpressionStatement, ref: Scope.Reference) {
+export function isElementWrite(
+  statement: estree.ExpressionStatement,
+  ref: Scope.Reference,
+  recursive = true,
+): boolean {
   if (statement.expression.type === 'AssignmentExpression') {
     const assignmentExpression = statement.expression;
     const lhs = assignmentExpression.left;
-    return isMemberExpressionReference(lhs, ref);
+    return isMemberExpressionReference(lhs, ref, recursive);
   }
   return false;
 }
 
-function isMemberExpressionReference(lhs: estree.Node, ref: Scope.Reference): boolean {
+function isMemberExpressionReference(
+  lhs: estree.Node,
+  ref: Scope.Reference,
+  recursive = true,
+): boolean {
   return (
     lhs.type === 'MemberExpression' &&
-    (isReferenceTo(ref, lhs.object) || isMemberExpressionReference(lhs.object, ref))
+    (isReferenceTo(ref, lhs.object) ||
+      (recursive && isMemberExpressionReference(lhs.object, ref, recursive)))
   );
 }
 
