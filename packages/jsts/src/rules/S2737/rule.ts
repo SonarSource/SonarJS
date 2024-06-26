@@ -22,7 +22,7 @@
 import { Rule, SourceCode } from 'eslint';
 import { areEquivalent, docsUrl, isThrowStatement } from '../helpers';
 import estree from 'estree';
-import { TSESLint, TSESTree } from '@typescript-eslint/utils';
+import { TSESTree } from '@typescript-eslint/utils';
 
 export const rule: Rule.RuleModule = {
   meta: {
@@ -69,10 +69,6 @@ function onlyRethrows(
     isThrowStatement(statement) &&
     catchParam !== null &&
     statement.argument !== null &&
-    areEquivalent(
-      catchParam as TSESTree.Node,
-      statement.argument,
-      sourceCode as unknown as TSESLint.SourceCode,
-    )
+    areEquivalent(catchParam as TSESTree.Node, statement.argument, sourceCode)
   );
 }

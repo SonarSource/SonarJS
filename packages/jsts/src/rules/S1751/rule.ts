@@ -19,13 +19,12 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S1751
 
-import type { TSESTree, TSESLint } from '@typescript-eslint/utils';
+import { TSESTree, AST_NODE_TYPES } from '@typescript-eslint/utils';
 import { Rule } from 'eslint';
-import { isContinueStatement } from '../utils/nodes';
-import docsUrl from '../utils/docs-url';
+import { docsUrl } from '../helpers';
+import estree from 'estree';
 
-const rule: TSESLint.RuleModule<string, string[]> = {
-  defaultOptions: [],
+export const rule: Rule.RuleModule = {
   meta: {
     messages: {
       refactorLoop: 'Refactor this loop to do more than one iteration.',
@@ -34,29 +33,29 @@ const rule: TSESLint.RuleModule<string, string[]> = {
     type: 'problem',
     docs: {
       description: 'Loops with at most one iteration should be refactored',
-      recommended: 'recommended',
+      recommended: true,
       url: docsUrl(__filename),
     },
   },
   // @ts-ignore The typings of @typescript-eslint/utils does not contain the 'onX' methods.
   create(context) {
-    const loopingNodes: Set<TSESTree.Node> = new Set();
-    const loops: Set<TSESTree.Node> = new Set();
+    const loopingNodes: Set<estree.Node> = new Set();
+    const loops: Set<estree.Node> = new Set();
     const loopsAndTheirSegments: Array<{
-      loop: TSESTree.WhileStatement | TSESTree.ForStatement;
+      loop: estree.WhileStatement | estree.ForStatement;
       segments: Rule.CodePathSegment[];
     }> = [];
     const codePathSegments: Rule.CodePathSegment[][] = [];
     let currentCodePathSegments: Rule.CodePathSegment[] = [];
 
     return {
-      ForStatement(node: TSESTree.Node) {
+      ForStatement(node: estree.Node) {
         loops.add(node);
       },
-      WhileStatement(node: TSESTree.Node) {
+      WhileStatement(node: estree.Node) {
         loops.add(node);
       },
-      DoWhileStatement(node: TSESTree.Node) {
+      DoWhileStatement(node: estree.Node) {
         loops.add(node);
       },
       onCodePathStart() {
@@ -72,14 +71,14 @@ const rule: TSESLint.RuleModule<string, string[]> = {
       onCodePathEnd() {
         currentCodePathSegments = codePathSegments.pop()!;
       },
-      'WhileStatement > *'(node: TSESTree.Node) {
-        visitLoopChild(node.parent as TSESTree.WhileStatement);
+      'WhileStatement > *'(node: estree.Node) {
+        visitLoopChild((node as TSESTree.Node).parent as estree.WhileStatement);
       },
-      'ForStatement > *'(node: TSESTree.Node) {
-        visitLoopChild(node.parent as TSESTree.ForStatement);
+      'ForStatement > *'(node: estree.Node) {
+        visitLoopChild((node as TSESTree.Node).parent as estree.ForStatement);
       },
-      onCodePathSegmentLoop(_: unknown, toSegment: Rule.CodePathSegment, node: TSESTree.Node) {
-        if (isContinueStatement(node)) {
+      onCodePathSegmentLoop(_: unknown, toSegment: Rule.CodePathSegment, node: estree.Node) {
+        if (node.type === AST_NODE_TYPES.ContinueStatement) {
           loopsAndTheirSegments.forEach(({ segments, loop }) => {
             if (segments.includes(toSegment)) {
               loopingNodes.add(loop);
@@ -107,12 +106,10 @@ const rule: TSESLint.RuleModule<string, string[]> = {
     // that the "onCodePathSegmentLoop" event is triggered with a loop node. To work this special case around,
     // we visit loop children and collect corresponding path segments as these segments are "toSegment"
     // in "onCodePathSegmentLoop" event.
-    function visitLoopChild(parent: TSESTree.WhileStatement | TSESTree.ForStatement) {
+    function visitLoopChild(parent: estree.WhileStatement | estree.ForStatement) {
       if (currentCodePathSegments.length > 0) {
         loopsAndTheirSegments.push({ segments: [...currentCodePathSegments], loop: parent });
       }
     }
   },
 };
-
-export = rule;

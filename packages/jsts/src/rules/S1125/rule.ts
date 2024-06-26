@@ -19,12 +19,12 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S1125
 
-import type { TSESTree, TSESLint } from '@typescript-eslint/utils';
-import { isBooleanLiteral, isIfStatement, isConditionalExpression } from '../utils/nodes';
-import docsUrl from '../utils/docs-url';
+import { TSESTree, AST_NODE_TYPES } from '@typescript-eslint/utils';
+import { docsUrl, isBooleanLiteral } from '../helpers';
+import { Rule } from 'eslint';
+import estree from 'estree';
 
-const rule: TSESLint.RuleModule<string, string[]> = {
-  defaultOptions: [],
+export const rule: Rule.RuleModule = {
   meta: {
     messages: {
       removeUnnecessaryBoolean: 'Refactor the code to avoid using this boolean literal.',
@@ -33,22 +33,20 @@ const rule: TSESLint.RuleModule<string, string[]> = {
     type: 'suggestion',
     docs: {
       description: 'Boolean literals should not be redundant',
-      recommended: 'recommended',
+      recommended: true,
       url: docsUrl(__filename),
     },
   },
   create(context) {
     return {
-      BinaryExpression(node: TSESTree.Node) {
-        const expression = node as TSESTree.BinaryExpression;
+      BinaryExpression(expression: estree.BinaryExpression) {
         if (expression.operator === '==' || expression.operator === '!=') {
           checkBooleanLiteral(expression.left);
           checkBooleanLiteral(expression.right);
         }
       },
 
-      LogicalExpression(node: TSESTree.Node) {
-        const expression = node as TSESTree.LogicalExpression;
+      LogicalExpression(expression: estree.LogicalExpression) {
         checkBooleanLiteral(expression.left);
 
         if (expression.operator === '&&') {
@@ -56,29 +54,27 @@ const rule: TSESLint.RuleModule<string, string[]> = {
         }
 
         // ignore `x || true` and `x || false` expressions outside of conditional expressions and `if` statements
-        const { parent } = node;
+        const parent = (expression as TSESTree.Node).parent as estree.Node;
         if (
           expression.operator === '||' &&
-          ((isConditionalExpression(parent) && parent.test === expression) || isIfStatement(parent))
+          ((parent.type === AST_NODE_TYPES.ConditionalExpression && parent.test === expression) ||
+            parent.type === AST_NODE_TYPES.IfStatement)
         ) {
           checkBooleanLiteral(expression.right);
         }
       },
 
-      UnaryExpression(node: TSESTree.Node) {
-        const unaryExpression = node as TSESTree.UnaryExpression;
+      UnaryExpression(unaryExpression: estree.UnaryExpression) {
         if (unaryExpression.operator === '!') {
           checkBooleanLiteral(unaryExpression.argument);
         }
       },
     };
 
-    function checkBooleanLiteral(expression: TSESTree.Expression | TSESTree.PrivateIdentifier) {
+    function checkBooleanLiteral(expression: estree.Expression | estree.PrivateIdentifier) {
       if (isBooleanLiteral(expression)) {
         context.report({ messageId: 'removeUnnecessaryBoolean', node: expression });
       }
     }
   },
 };
-
-export = rule;

@@ -19,11 +19,11 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S1264
 
-import type { TSESLint, TSESTree } from '@typescript-eslint/utils';
-import docsUrl from '../utils/docs-url';
+import { docsUrl } from '../helpers';
+import { Rule } from 'eslint';
+import estree from 'estree';
 
-const rule: TSESLint.RuleModule<string, string[]> = {
-  defaultOptions: [],
+export const rule: Rule.RuleModule = {
   meta: {
     messages: {
       replaceForWithWhileLoop: 'Replace this "for" loop with a "while" loop.',
@@ -32,16 +32,15 @@ const rule: TSESLint.RuleModule<string, string[]> = {
     type: 'suggestion',
     docs: {
       description: 'A "while" loop should be used instead of a "for" loop',
-      recommended: 'recommended',
+      recommended: true,
       url: docsUrl(__filename),
     },
     fixable: 'code',
   },
   create(context) {
     return {
-      ForStatement(node: TSESTree.Node) {
-        const forLoop = node as TSESTree.ForStatement;
-        const forKeyword = context.sourceCode.getFirstToken(node);
+      ForStatement(forLoop: estree.ForStatement) {
+        const forKeyword = context.sourceCode.getFirstToken(forLoop);
         if (!forLoop.init && !forLoop.update && forLoop.test && forKeyword) {
           context.report({
             messageId: `replaceForWithWhileLoop`,
@@ -52,13 +51,13 @@ const rule: TSESLint.RuleModule<string, string[]> = {
       },
     };
 
-    function getFix(forLoop: TSESTree.ForStatement): any {
+    function getFix(forLoop: estree.ForStatement): any {
       const forLoopRange = forLoop.range;
       const closingParenthesisToken = context.sourceCode.getTokenBefore(forLoop.body);
       const condition = forLoop.test;
 
       if (condition && forLoopRange && closingParenthesisToken) {
-        return (fixer: TSESLint.RuleFixer) => {
+        return (fixer: Rule.RuleFixer) => {
           const start = forLoopRange[0];
           const end = closingParenthesisToken.range[1];
           const conditionText = context.sourceCode.getText(condition);
@@ -70,5 +69,3 @@ const rule: TSESLint.RuleModule<string, string[]> = {
     }
   },
 };
-
-export = rule;

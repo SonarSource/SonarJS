@@ -74,6 +74,12 @@ export function isFunctionExpression(
   return node !== undefined && node.type === 'FunctionExpression';
 }
 
+export function isFunctionDeclaration(
+  node: TSESTree.Node | undefined,
+): node is TSESTree.FunctionDeclaration {
+  return node !== undefined && node.type === 'FunctionDeclaration';
+}
+
 export function isArrowFunctionExpression(
   node: TSESTree.Node | undefined,
 ): node is TSESTree.ArrowFunctionExpression {
@@ -90,6 +96,9 @@ export function isIdentifier(
   );
 }
 
+export function getProgramStatements(program: estree.Program) {
+  return program.body.filter((node): node is estree.Statement => !isModuleDeclaration(node));
+}
 export function isIfStatement(node: Node | undefined): node is TSESTree.IfStatement {
   return node !== undefined && node.type === 'IfStatement';
 }

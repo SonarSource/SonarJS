@@ -19,24 +19,23 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S4143
 
-import type { TSESLint, TSESTree } from '@typescript-eslint/utils';
-import { areEquivalent } from '../utils/equivalence';
+import { AST_NODE_TYPES } from '@typescript-eslint/utils';
 import {
-  isExpressionStatement,
-  isMemberExpression,
-  isAssignmentExpression,
-  isLiteral,
+  areEquivalent,
+  docsUrl,
+  getProgramStatements,
   isIdentifier,
-  isCallExpression,
-} from '../utils/nodes';
-import { report, issueLocation } from '../utils/locations';
-import docsUrl from '../utils/docs-url';
+  isLiteral,
+  issueLocation,
+  report,
+} from '../helpers';
+import { AST, Rule } from 'eslint';
+import estree from 'estree';
 
 const message =
   'Verify this is the index that was intended; "{{index}}" was already set on line {{line}}.';
 
-const rule: TSESLint.RuleModule<string, string[]> = {
-  defaultOptions: [],
+export const rule: Rule.RuleModule = {
   meta: {
     messages: {
       verifyIntendedIndex: message,
@@ -45,7 +44,7 @@ const rule: TSESLint.RuleModule<string, string[]> = {
     type: 'problem',
     docs: {
       description: 'Collection elements should not be replaced unconditionally',
-      recommended: 'recommended',
+      recommended: true,
       url: docsUrl(__filename),
     },
     schema: [
@@ -58,25 +57,22 @@ const rule: TSESLint.RuleModule<string, string[]> = {
   },
   create(context) {
     return {
-      SwitchCase(node: TSESTree.Node) {
-        const switchCase = node as TSESTree.SwitchCase;
-        checkStatements(switchCase.consequent);
+      SwitchCase(node: estree.SwitchCase) {
+        checkStatements(node.consequent);
       },
 
-      BlockStatement(node: TSESTree.Node) {
-        const block = node as TSESTree.BlockStatement;
-        checkStatements(block.body);
+      BlockStatement(node: estree.BlockStatement) {
+        checkStatements(node.body);
       },
 
-      Program(node: TSESTree.Node) {
-        const program = node as TSESTree.Program;
-        checkStatements(program.body);
+      Program(node: estree.Program) {
+        checkStatements(getProgramStatements(node));
       },
     };
 
-    function checkStatements(statements: Array<TSESTree.ProgramStatement>) {
+    function checkStatements(statements: Array<estree.Statement>) {
       const usedKeys: Map<string, KeyWriteCollectionUsage> = new Map();
-      let collection: TSESTree.Node | undefined;
+      let collection: estree.Node | undefined;
       statements.forEach(statement => {
         const keyWriteUsage = getKeyWriteUsage(statement);
         if (keyWriteUsage) {
@@ -99,7 +95,7 @@ const rule: TSESLint.RuleModule<string, string[]> = {
                 messageId: 'verifyIntendedIndex',
                 data: {
                   index: keyWriteUsage.indexOrKey,
-                  line: sameKeyWriteUsage.node.loc.start.line,
+                  line: sameKeyWriteUsage.node.loc.start.line as any,
                 },
               },
               secondaryLocations,
@@ -114,16 +110,20 @@ const rule: TSESLint.RuleModule<string, string[]> = {
       });
     }
 
-    function getKeyWriteUsage(node: TSESTree.Node): KeyWriteCollectionUsage | undefined {
-      if (isExpressionStatement(node)) {
+    function getKeyWriteUsage(node: estree.Node): KeyWriteCollectionUsage | undefined {
+      if (node.type === AST_NODE_TYPES.ExpressionStatement) {
         return arrayKeyWriteUsage(node.expression) || mapOrSetKeyWriteUsage(node.expression);
       }
       return undefined;
     }
 
-    function arrayKeyWriteUsage(node: TSESTree.Node): KeyWriteCollectionUsage | undefined {
+    function arrayKeyWriteUsage(node: estree.Node): KeyWriteCollectionUsage | undefined {
       // a[b] = ...
-      if (isSimpleAssignment(node) && isMemberExpression(node.left) && node.left.computed) {
+      if (
+        isSimpleAssignment(node) &&
+        node.left.type === AST_NODE_TYPES.MemberExpression &&
+        node.left.computed
+      ) {
         const { left, right } = node;
         const index = extractIndex(left.property);
         if (index !== undefined && !isUsed(left.object, right)) {
@@ -137,8 +137,11 @@ const rule: TSESLint.RuleModule<string, string[]> = {
       return undefined;
     }
 
-    function mapOrSetKeyWriteUsage(node: TSESTree.Node): KeyWriteCollectionUsage | undefined {
-      if (isCallExpression(node) && isMemberExpression(node.callee)) {
+    function mapOrSetKeyWriteUsage(node: estree.Node): KeyWriteCollectionUsage | undefined {
+      if (
+        node.type === AST_NODE_TYPES.CallExpression &&
+        node.callee.type === AST_NODE_TYPES.MemberExpression
+      ) {
         const propertyAccess = node.callee;
         if (isIdentifier(propertyAccess.property)) {
           const methodName = propertyAccess.property.name;
@@ -160,7 +163,7 @@ const rule: TSESLint.RuleModule<string, string[]> = {
       return undefined;
     }
 
-    function extractIndex(node: TSESTree.Node): string | undefined {
+    function extractIndex(node: estree.Node): string | undefined {
       if (isLiteral(node)) {
         const { value } = node;
         return typeof value === 'number' || typeof value === 'string' ? String(value) : undefined;
@@ -170,7 +173,7 @@ const rule: TSESLint.RuleModule<string, string[]> = {
       return undefined;
     }
 
-    function isUsed(value: TSESTree.Node, expression: TSESTree.Expression) {
+    function isUsed(value: estree.Node, expression: estree.Expression) {
       const valueTokens = context.sourceCode.getTokens(value);
       const expressionTokens = context.sourceCode.getTokens(expression);
 
@@ -196,18 +199,16 @@ const rule: TSESLint.RuleModule<string, string[]> = {
   },
 };
 
-function eq(token1: TSESLint.AST.Token, token2: TSESLint.AST.Token) {
+function eq(token1: AST.Token, token2: AST.Token) {
   return token1.value === token2.value;
 }
 
-function isSimpleAssignment(node: TSESTree.Node): node is TSESTree.AssignmentExpression {
-  return isAssignmentExpression(node) && node.operator === '=';
+function isSimpleAssignment(node: estree.Node): node is estree.AssignmentExpression {
+  return node.type === AST_NODE_TYPES.AssignmentExpression && node.operator === '=';
 }
 
 interface KeyWriteCollectionUsage {
-  collectionNode: TSESTree.Node;
+  collectionNode: estree.Node;
   indexOrKey: string;
-  node: TSESTree.Node;
+  node: estree.Node;
 }
-
-export = rule;

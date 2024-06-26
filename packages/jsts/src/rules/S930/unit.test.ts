@@ -17,10 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { TSESLint } from '@typescript-eslint/utils';
-import { ruleTester, ruleTesterScript } from '../rule-tester';
-import { IssueLocation } from '../../src/utils/locations';
-import rule = require('../../src/rules/no-extra-arguments');
+import { rule } from './rule';
+import { JavaScriptRuleTester } from '../../../tests/tools';
+import { RuleTester } from 'eslint';
+import { IssueLocation } from '../helpers';
+
+const ruleTester = new JavaScriptRuleTester();
 
 ruleTester.run('no-extra-arguments', rule, {
   valid: [
@@ -177,6 +179,13 @@ ruleTester.run('no-extra-arguments', rule, {
   ],
 });
 
+const ruleTesterScript = new RuleTester({
+  parserOptions: {
+    ecmaVersion: 2018,
+    sourceType: 'script',
+  },
+});
+
 ruleTesterScript.run('no-extra-arguments script', rule, {
   valid: [],
   invalid: [
@@ -205,8 +214,8 @@ ruleTesterScript.run('no-extra-arguments script', rule, {
 function message(
   expected: number,
   provided: number,
-  extra: Partial<TSESLint.TestCaseError<string>> = {},
-): TSESLint.TestCaseError<string> {
+  extra: Partial<RuleTester.TestCaseError> = {},
+): RuleTester.TestCaseError {
   // prettier-ignore
   const expectedArguments =
     expected === 0 ? "no arguments" :

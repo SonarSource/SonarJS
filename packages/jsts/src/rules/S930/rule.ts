@@ -19,27 +19,25 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S930
 
-import type { TSESLint, TSESTree } from '@typescript-eslint/utils';
+import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/utils';
+import { Rule, Scope } from 'eslint';
 import {
+  docsUrl,
+  getMainFunctionTokenLocation,
   isArrowFunctionExpression,
   isFunctionDeclaration,
   isFunctionExpression,
   isIdentifier,
-  isBlockStatement,
-} from '../utils/nodes';
-import {
-  report,
   issueLocation,
-  getMainFunctionTokenLocation,
   IssueLocation,
-  toSecondaryLocation,
-} from '../utils/locations';
-import docsUrl from '../utils/docs-url';
+  report,
+  RuleContext,
+} from '../helpers';
+import estree from 'estree';
 
 const message = 'This function expects {{expectedArguments}}, but {{providedArguments}} provided.';
 
-const rule: TSESLint.RuleModule<string, string[]> = {
-  defaultOptions: [],
+export const rule: Rule.RuleModule = {
   meta: {
     messages: {
       tooManyArguments: message,
@@ -48,7 +46,7 @@ const rule: TSESLint.RuleModule<string, string[]> = {
     type: 'problem',
     docs: {
       description: 'Function calls should not pass extra arguments',
-      recommended: 'recommended',
+      recommended: true,
       url: docsUrl(__filename),
     },
     schema: [
@@ -61,52 +59,55 @@ const rule: TSESLint.RuleModule<string, string[]> = {
   },
   create(context) {
     const callExpressionsToCheck: Array<{
-      callExpr: TSESTree.CallExpression;
-      functionNode: TSESTree.FunctionLike;
+      callExpr: estree.CallExpression;
+      functionNode: estree.Function;
     }> = [];
-    const usingArguments: Set<TSESTree.Node> = new Set();
-    const emptyFunctions: Set<TSESTree.Node> = new Set();
+    const usingArguments: Set<estree.Node> = new Set();
+    const emptyFunctions: Set<estree.Node> = new Set();
 
     return {
-      CallExpression(node: TSESTree.Node) {
-        const callExpr = node as TSESTree.CallExpression;
+      CallExpression(callExpr: estree.CallExpression) {
         if (isIdentifier(callExpr.callee)) {
           const reference = context.sourceCode
-            .getScope(node)
+            .getScope(callExpr)
             .references.find(ref => ref.identifier === callExpr.callee);
           const definition = reference && getSingleDefinition(reference);
           if (definition) {
             if (definition.type === 'FunctionName') {
               checkFunction(callExpr, definition.node);
             } else if (definition.type === 'Variable') {
-              const { init } = definition.node;
+              const { init } = definition.node as TSESTree.VariableDeclarator;
               if (init && (isFunctionExpression(init) || isArrowFunctionExpression(init))) {
-                checkFunction(callExpr, init);
+                checkFunction(callExpr, init as estree.Function);
               }
             }
           }
         } else if (
-          isArrowFunctionExpression(callExpr.callee) ||
-          isFunctionExpression(callExpr.callee)
+          isArrowFunctionExpression(callExpr.callee as TSESTree.Node) ||
+          isFunctionExpression(callExpr.callee as TSESTree.Node)
         ) {
           // IIFE
-          checkFunction(callExpr, callExpr.callee);
+          checkFunction(callExpr, callExpr.callee as estree.Function);
         }
       },
 
-      ':function'(node: TSESTree.Node) {
+      ':function'(node: estree.Node) {
         const fn = node as TSESTree.FunctionExpression;
-        if (isBlockStatement(fn.body) && fn.body.body.length === 0 && fn.params.length === 0) {
+        if (
+          fn.body.type === AST_NODE_TYPES.BlockStatement &&
+          fn.body.body.length === 0 &&
+          fn.params.length === 0
+        ) {
           emptyFunctions.add(node);
         }
       },
 
-      'FunctionDeclaration > BlockStatement Identifier'(node: TSESTree.Node) {
-        checkArguments(node as TSESTree.Identifier);
+      'FunctionDeclaration > BlockStatement Identifier'(node: estree.Identifier) {
+        checkArguments(node);
       },
 
-      'FunctionExpression > BlockStatement Identifier'(node: TSESTree.Node) {
-        checkArguments(node as TSESTree.Identifier);
+      'FunctionExpression > BlockStatement Identifier'(node: estree.Identifier) {
+        checkArguments(node);
       },
 
       'Program:exit'() {
@@ -118,9 +119,7 @@ const rule: TSESLint.RuleModule<string, string[]> = {
       },
     };
 
-    function getSingleDefinition(
-      reference: TSESLint.Scope.Reference,
-    ): TSESLint.Scope.Definition | undefined {
+    function getSingleDefinition(reference: Scope.Reference): Scope.Definition | undefined {
       if (reference && reference.resolved) {
         const variable = reference.resolved;
         if (variable.defs.length === 1) {
@@ -130,7 +129,7 @@ const rule: TSESLint.RuleModule<string, string[]> = {
       return undefined;
     }
 
-    function checkArguments(identifier: TSESTree.Identifier) {
+    function checkArguments(identifier: estree.Identifier) {
       if (identifier.name === 'arguments') {
         const reference = context.sourceCode
           .getScope(identifier)
@@ -140,7 +139,9 @@ const rule: TSESLint.RuleModule<string, string[]> = {
         if (!definition) {
           const ancestors = context.sourceCode.getAncestors(identifier).reverse();
           const fn = ancestors.find(
-            node => isFunctionDeclaration(node) || isFunctionExpression(node),
+            node =>
+              isFunctionDeclaration(node as TSESTree.Node) ||
+              isFunctionExpression(node as TSESTree.Node),
           );
           if (fn) {
             usingArguments.add(fn);
@@ -149,14 +150,14 @@ const rule: TSESLint.RuleModule<string, string[]> = {
       }
     }
 
-    function checkFunction(callExpr: TSESTree.CallExpression, functionNode: TSESTree.FunctionLike) {
+    function checkFunction(callExpr: estree.CallExpression, functionNode: estree.Function) {
       const hasRest = functionNode.params.some(param => param.type === 'RestElement');
       if (!hasRest && callExpr.arguments.length > functionNode.params.length) {
         callExpressionsToCheck.push({ callExpr, functionNode });
       }
     }
 
-    function reportIssue(callExpr: TSESTree.CallExpression, functionNode: TSESTree.FunctionLike) {
+    function reportIssue(callExpr: estree.CallExpression, functionNode: estree.Function) {
       const paramLength = functionNode.params.length;
       const argsLength = callExpr.arguments.length;
       // prettier-ignore
@@ -186,19 +187,20 @@ const rule: TSESLint.RuleModule<string, string[]> = {
       );
     }
 
-    function getSecondaryLocations(
-      callExpr: TSESTree.CallExpression,
-      functionNode: TSESTree.FunctionLike,
-    ) {
+    function getSecondaryLocations(callExpr: estree.CallExpression, functionNode: estree.Function) {
       const paramLength = functionNode.params.length;
       const secondaryLocations: IssueLocation[] = [];
       if (paramLength > 0) {
-        const startLoc = functionNode.params[0].loc;
-        const endLoc = functionNode.params[paramLength - 1].loc;
+        const startLoc = (functionNode.params[0] as TSESTree.Parameter).loc;
+        const endLoc = (functionNode.params[paramLength - 1] as TSESTree.Parameter).loc;
         secondaryLocations.push(issueLocation(startLoc, endLoc, 'Formal parameters'));
       } else {
         // as we're not providing parent node, `getMainFunctionTokenLocation` may return `undefined`
-        const fnToken = getMainFunctionTokenLocation(functionNode, undefined, context);
+        const fnToken = getMainFunctionTokenLocation(
+          functionNode as TSESTree.FunctionLike,
+          undefined,
+          context as unknown as RuleContext,
+        );
         if (fnToken) {
           secondaryLocations.push(issueLocation(fnToken, fnToken, 'Formal parameters'));
         }
@@ -206,12 +208,17 @@ const rule: TSESLint.RuleModule<string, string[]> = {
       // find actual extra arguments to highlight
       callExpr.arguments.forEach((argument, index) => {
         if (index >= paramLength) {
-          secondaryLocations.push(toSecondaryLocation(argument, 'Extra argument'));
+          const { loc } = argument as TSESTree.CallExpressionArgument;
+          secondaryLocations.push({
+            message: 'Extra argument',
+            column: loc.start.column,
+            line: loc.start.line,
+            endColumn: loc.end.column,
+            endLine: loc.end.line,
+          });
         }
       });
       return secondaryLocations;
     }
   },
 };
-
-export = rule;

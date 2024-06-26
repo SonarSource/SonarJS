@@ -21,7 +21,7 @@
 
 import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/utils';
 import { Rule, SourceCode } from 'eslint';
-import { areEquivalent, docsUrl, isIdentifier, isModuleDeclaration } from '../helpers';
+import { areEquivalent, docsUrl, getProgramStatements, isIdentifier } from '../helpers';
 import estree from 'estree';
 
 export const rule: Rule.RuleModule = {
@@ -43,10 +43,7 @@ export const rule: Rule.RuleModule = {
       BlockStatement: (node: estree.BlockStatement) =>
         checkObjectInitialization(node.body, context),
       Program: (node: estree.Program) => {
-        const statements = node.body.filter(
-          (statement): statement is estree.Statement => !isModuleDeclaration(statement),
-        );
-        checkObjectInitialization(statements, context);
+        checkObjectInitialization(getProgramStatements(node), context);
       },
     };
   },

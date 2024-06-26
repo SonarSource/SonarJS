@@ -27,7 +27,6 @@ import {
   functionLike,
   isUndefinedOrNull,
   findFirstMatchingAncestor,
-  RuleContext,
   isNullLiteral,
   isUndefined,
   areEquivalent,
@@ -90,7 +89,7 @@ export const rule: Rule.RuleModule = {
 function getNullState(
   expr: estree.BinaryExpression,
   node: estree.Node,
-  context: RuleContext,
+  context: Rule.RuleContext,
 ): Null {
   const { left, right } = expr;
   if (
@@ -115,7 +114,7 @@ function checkLogicalNullDereference(
   context: Rule.RuleContext,
 ) {
   if (expr.left.type === 'BinaryExpression') {
-    const nullState = getNullState(expr.left, node, context as unknown as RuleContext);
+    const nullState = getNullState(expr.left, node, context);
     if (
       (nullState === Null.confirmed && expr.operator === '&&') ||
       (nullState === Null.discarded && expr.operator === '||')

@@ -19,11 +19,11 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S1301
 
-import type { TSESTree, TSESLint } from '@typescript-eslint/utils';
-import docsUrl from '../utils/docs-url';
+import { Rule } from 'eslint';
+import { docsUrl } from '../helpers';
+import estree from 'estree';
 
-const rule: TSESLint.RuleModule<string, string[]> = {
-  defaultOptions: [],
+export const rule: Rule.RuleModule = {
   meta: {
     messages: {
       smallSwitch: '"switch" statements should have at least 3 "case" clauses',
@@ -32,15 +32,14 @@ const rule: TSESLint.RuleModule<string, string[]> = {
     type: 'suggestion',
     docs: {
       description: '"switch" statements should have at least 3 "case" clauses',
-      recommended: 'recommended',
+      recommended: true,
       url: docsUrl(__filename),
     },
   },
   create(context) {
     return {
-      SwitchStatement(node: TSESTree.Node) {
-        const switchStatement = node as TSESTree.SwitchStatement;
-        const { cases } = switchStatement;
+      SwitchStatement(node: estree.SwitchStatement) {
+        const { cases } = node;
         const hasDefault = cases.some(x => !x.test);
         if (cases.length < 2 || (cases.length === 2 && hasDefault)) {
           const firstToken = context.sourceCode.getFirstToken(node);
@@ -55,5 +54,3 @@ const rule: TSESLint.RuleModule<string, string[]> = {
     };
   },
 };
-
-export = rule;
