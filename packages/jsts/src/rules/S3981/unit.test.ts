@@ -18,9 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { rule } from './rule';
-import { JavaScriptRuleTester, TypeScriptRuleTester } from '../../../tests/tools';
+import { TypeScriptRuleTester } from '../../../tests/tools';
+import { RuleTester } from 'eslint';
 
-const ruleTester = new JavaScriptRuleTester();
+const ruleTester = new RuleTester({
+  parserOptions: {
+    ecmaVersion: 2018,
+    sourceType: 'module',
+  },
+});
 
 ruleTester.run('Collection sizes and array length comparisons should make sense', rule, {
   valid: [

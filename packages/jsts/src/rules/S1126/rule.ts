@@ -92,7 +92,7 @@ export const rule: Rule.RuleModule = {
 
     function isSimpleReturnBooleanLiteral(statement: estree.Node) {
       return (
-        statement.type === AST_NODE_TYPES.ReturnStatement &&
+        statement?.type === AST_NODE_TYPES.ReturnStatement &&
         statement.argument?.type === AST_NODE_TYPES.Literal &&
         typeof statement.argument.value === 'boolean'
       );
