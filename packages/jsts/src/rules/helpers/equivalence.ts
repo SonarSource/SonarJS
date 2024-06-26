@@ -1,6 +1,6 @@
 /*
- * eslint-plugin-sonarjs
- * Copyright (C) 2018-2021 SonarSource SA
+ * SonarQube JavaScript Plugin
+ * Copyright (C) 2011-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 import { type Node } from './ast';
 import { AST, SourceCode } from 'eslint';
 import estree from 'estree';
