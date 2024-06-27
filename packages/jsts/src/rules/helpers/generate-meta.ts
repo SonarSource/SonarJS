@@ -17,9 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { Rule } from 'eslint';
+import fs from 'fs';
+import { basename, join } from 'path/posix';
 import { toUnixPath } from '@sonar/shared';
 
-export function docsUrl(ruleFileName: string) {
-  const ruleId = toUnixPath(ruleFileName).split('/').at(-1);
-  return `https://github.com/SonarSource/rspec/blob/master/rules/${ruleId}/javascript/rule.adoc`;
+export function generateMeta(
+  dirname: string,
+  messages: Rule.RuleMetaData['messages'],
+  schema: Rule.RuleMetaData['messages'],
+  fixable: boolean,
+  hasSuggestions = false,
+): Rule.RuleMetaData {
+  const ruleId = basename(toUnixPath(dirname));
+  const meta = JSON.parse(fs.readFileSync(join(dirname, 'meta.json'), 'utf8')) as Rule.RuleMetaData;
+  if (meta.fixable && !fixable) {
+    throw new Error(
+      `Mismatch between RSPEC metadata and implementation for rule $${ruleId} for fixable attribute`,
+    );
+  }
+  meta.messages = messages;
+  meta.schema = schema;
+  meta.hasSuggestions = hasSuggestions;
+  return meta;
 }
