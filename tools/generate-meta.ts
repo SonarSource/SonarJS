@@ -28,6 +28,19 @@ function toUnixPath(path: string) {
   return path.replace(/[\\/]+/g, '/');
 }
 
+const typeMatrix = {
+  CODE_SMELL: 'suggestion',
+  BUG: 'problem',
+  SECURITY_HOTSPOT: 'problem',
+  VULNERABILITY: 'problem',
+} as const;
+
+type rspecMeta = {
+  type: keyof typeof typeMatrix;
+  status: 'ready' | 'beta' | 'closed' | 'deprecated' | 'superseded';
+  title: string;
+  quickfix: 'covered' | undefined;
+};
 const RULES_FOLDER = join(toUnixPath(__dirname), '../packages/jsts/src/rules/');
 const METADATA_FOLDER = join(
   toUnixPath(__dirname),
@@ -36,16 +49,11 @@ const METADATA_FOLDER = join(
 const sonarWayProfileFile = join(METADATA_FOLDER, `Sonar_way_profile.json`);
 const sonarWayProfile = JSON.parse(readFileSync(sonarWayProfileFile, 'utf-8'));
 
-const typeMatrix = {
-  CODE_SMELL: 'suggestion',
-  BUG: 'problem',
-  SECURITY_HOTSPOT: 'problem',
-  VULNERABILITY: 'problem',
-};
-
 // Check rule rspec metadata docs in https://github.com/SonarSource/rspec/blob/master/docs/metadata.adoc
 function generateMetaForRule(ruleDir: string, ruleId: string) {
-  const ruleRspecMeta = JSON.parse(readFileSync(join(METADATA_FOLDER, `${ruleId}.json`), 'utf-8'));
+  const ruleRspecMeta = JSON.parse(
+    readFileSync(join(METADATA_FOLDER, `${ruleId}.json`), 'utf-8'),
+  ) as rspecMeta;
   if (!typeMatrix[ruleRspecMeta.type]) {
     console.log(`Type not found for rule ${ruleId}`);
   }
