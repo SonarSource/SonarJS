@@ -169,8 +169,8 @@ build_win_task:
   cleanup_before_cache_script: cleanup_maven_repository
 
 ws_scan_task:
-  depends_on:
-    - build
+  #  depends_on:
+  #    - build
   eks_container:
     <<: *CONTAINER_DEFINITION
     dockerfile: .cirrus/nodejs.Dockerfile
