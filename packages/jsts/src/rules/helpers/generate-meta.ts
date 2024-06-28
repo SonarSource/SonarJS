@@ -23,22 +23,18 @@ import fs from 'fs';
 import { basename, join } from 'path/posix';
 import { toUnixPath } from '@sonar/shared';
 
-export function generateMeta(
-  dirname: string,
-  messages: Rule.RuleMetaData['messages'],
-  schema: Rule.RuleMetaData['messages'],
-  fixable: boolean,
-  hasSuggestions = false,
-): Rule.RuleMetaData {
+export function generateMeta(dirname: string, ruleMeta: Rule.RuleMetaData): Rule.RuleMetaData {
   const ruleId = basename(toUnixPath(dirname));
-  const meta = JSON.parse(fs.readFileSync(join(dirname, 'meta.json'), 'utf8')) as Rule.RuleMetaData;
-  if (meta.fixable && !fixable) {
+  const rspecMeta = JSON.parse(
+    fs.readFileSync(join(dirname, 'meta.json'), 'utf8'),
+  ) as Rule.RuleMetaData;
+  if (rspecMeta.fixable && !ruleMeta.fixable) {
     throw new Error(
       `Mismatch between RSPEC metadata and implementation for rule $${ruleId} for fixable attribute`,
     );
   }
-  meta.messages = messages;
-  meta.schema = schema;
-  meta.hasSuggestions = hasSuggestions;
-  return meta;
+  return {
+    ...ruleMeta,
+    ...rspecMeta,
+  };
 }

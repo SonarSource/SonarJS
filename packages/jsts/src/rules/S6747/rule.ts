@@ -25,13 +25,13 @@ import { rules as jsxA11yRules } from 'eslint-plugin-jsx-a11y';
 import { interceptReport, mergeRules } from '../helpers';
 import { decorate } from './decorator';
 import { TSESTree } from '@typescript-eslint/utils';
-import type { RuleModule } from '../../../../shared/src/types/rule';
+import { generateMeta } from '../helpers/generate-meta';
 
-const noUnkownProp = reactRules['no-unknown-property'];
-const decoratedNoUnkownProp = decorate(noUnkownProp);
+const noUnknownProp = reactRules['no-unknown-property'];
+const decoratedNoUnknownProp = decorate(noUnknownProp);
 
 /**
- * We keep a single occurence of issues raised by both rules, keeping the ones raised by 'aria-props'
+ * We keep a single occurrence of issues raised by both rules, keeping the ones raised by 'aria-props'
  * in case of duplicate.
  * The current logic relies on the fact that the listener of 'aria-props' runs first because
  * it is alphabetically "smaller", which is how we set them up in mergeRules.
@@ -53,27 +53,24 @@ const decoratedAriaPropsRule = interceptReport(ariaPropsRule, (context, descript
   }
 });
 
-const twiceDecoratedNoUnkownProp = interceptReport(decoratedNoUnkownProp, (context, descriptor) => {
-  if ('node' in descriptor) {
-    const start = (descriptor.node as TSESTree.Node).range[0];
-    if (!flaggedNodeStarts.get(start)) {
-      context.report(descriptor);
+const twiceDecoratedNoUnknownProp = interceptReport(
+  decoratedNoUnknownProp,
+  (context, descriptor) => {
+    if ('node' in descriptor) {
+      const start = (descriptor.node as TSESTree.Node).range[0];
+      if (!flaggedNodeStarts.get(start)) {
+        context.report(descriptor);
+      }
     }
-  }
-});
-
-export type Options = [
-  {
-    ignore: Array<string>;
   },
-];
+);
 
-export const rule: RuleModule<Options> = {
-  meta: {
+export const rule: Rule.RuleModule = {
+  meta: generateMeta(__dirname, {
     hasSuggestions: true,
     messages: {
       ...decoratedAriaPropsRule.meta!.messages,
-      ...twiceDecoratedNoUnkownProp.meta!.messages,
+      ...twiceDecoratedNoUnknownProp.meta!.messages,
     },
     schema: [
       {
@@ -88,12 +85,12 @@ export const rule: RuleModule<Options> = {
         },
       },
     ],
-  },
+  }),
 
   create(context: Rule.RuleContext) {
     const ariaPropsListener: Rule.RuleListener = decoratedAriaPropsRule.create(context);
-    const noUnkownPropListener: Rule.RuleListener = twiceDecoratedNoUnkownProp.create(context);
+    const noUnknownPropListener: Rule.RuleListener = twiceDecoratedNoUnknownProp.create(context);
 
-    return mergeRules(ariaPropsListener, noUnkownPropListener);
+    return mergeRules(ariaPropsListener, noUnknownPropListener);
   },
 };

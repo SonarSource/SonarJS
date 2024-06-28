@@ -20,7 +20,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S1488
 
 import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/utils';
-import { docsUrl, isIdentifier } from '../helpers';
+import { isIdentifier } from '../helpers';
 import { Rule } from 'eslint';
 import estree from 'estree';
 
@@ -31,12 +31,6 @@ export const rule: Rule.RuleModule = {
         'Immediately {{action}} this expression instead of assigning it to the temporary variable "{{variable}}".',
     },
     schema: [],
-    type: 'suggestion',
-    docs: {
-      description: 'Local variables should not be declared and then immediately returned or thrown',
-      recommended: true,
-      url: docsUrl(__filename),
-    },
     fixable: 'code',
   },
   create(context) {

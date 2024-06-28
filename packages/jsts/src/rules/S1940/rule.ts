@@ -21,7 +21,6 @@
 
 import { Rule } from 'eslint';
 import estree from 'estree';
-import { docsUrl } from '../helpers';
 import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/utils';
 
 const invertedOperators: { [operator: string]: string } = {
@@ -42,12 +41,6 @@ export const rule: Rule.RuleModule = {
       suggestOperationInversion: 'Invert inner operation (apply if NaN is not expected)',
     },
     schema: [],
-    type: 'suggestion',
-    docs: {
-      description: 'Boolean checks should not be inverted',
-      recommended: true,
-      url: docsUrl(__filename),
-    },
     hasSuggestions: true,
     fixable: 'code',
   },

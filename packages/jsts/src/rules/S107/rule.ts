@@ -30,30 +30,34 @@ import {
   interceptReport,
   mergeRules,
 } from '../helpers';
-import type { RuleModule } from '../../../../shared/src/types/rule';
+import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
+import { generateMeta } from '../helpers/generate-meta';
+import { FromSchema } from 'json-schema-to-ts';
 
 const eslintMaxParams = eslintRules['max-params'];
 
-export type Options = [
-  {
-    max: number;
-  },
-];
+const DEFAULT_MAXIMUM_FUNCTION_PARAMETERS = 7;
 
-export const rule: RuleModule<Options> = {
-  meta: {
-    messages: { ...eslintMaxParams.meta?.messages },
-    schema: [
-      {
-        type: 'object',
-        properties: {
-          max: {
-            type: 'integer',
-          },
+const messages = { ...eslintMaxParams.meta?.messages };
+const schema = {
+  type: 'array',
+  minItems: 0,
+  maxItems: 1,
+  items: [
+    {
+      type: 'object',
+      properties: {
+        max: {
+          type: 'integer',
         },
       },
-    ],
-  },
+      additionalProperties: false,
+    },
+  ],
+} as const satisfies JSONSchema4;
+
+export const rule: Rule.RuleModule = {
+  meta: generateMeta(__dirname, { messages, schema }),
   create(context: Rule.RuleContext) {
     /**
      * Decorates ESLint `max-params` to ignore TypeScript constructor when its parameters
@@ -62,7 +66,9 @@ export const rule: RuleModule<Options> = {
     const ruleDecoration: Rule.RuleModule = interceptReport(
       eslintMaxParams,
       function (context: Rule.RuleContext, descriptor: Rule.ReportDescriptor) {
-        const [{ max }] = context.options as Options;
+        const max =
+          (context.options as FromSchema<typeof schema>)[0]?.max ||
+          DEFAULT_MAXIMUM_FUNCTION_PARAMETERS;
         if ('node' in descriptor) {
           const functionLike = descriptor.node as TSESTree.FunctionLike;
           if (!isException(functionLike)) {
@@ -134,7 +140,9 @@ export const rule: RuleModule<Options> = {
 
         function checkFunction(node: estree.Node) {
           const functionLike = node as unknown as TSESTree.FunctionLike;
-          const [{ max }] = context.options as Options;
+          const max =
+            (context.options as FromSchema<typeof schema>)[0]?.max ||
+            DEFAULT_MAXIMUM_FUNCTION_PARAMETERS;
           const numParams = functionLike.params.length;
           if (numParams > max) {
             context.report({

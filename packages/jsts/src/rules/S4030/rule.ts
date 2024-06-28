@@ -23,7 +23,6 @@ import type { TSESTree } from '@typescript-eslint/utils';
 import { Rule, Scope } from 'eslint';
 import {
   collectionConstructor,
-  docsUrl,
   findFirstMatchingAncestor,
   isElementWrite,
   isIdentifier,
@@ -37,12 +36,6 @@ export const rule: Rule.RuleModule = {
       unusedCollection: "Either use this collection's contents or remove the collection.",
     },
     schema: [],
-    type: 'problem',
-    docs: {
-      description: 'Collection and array contents should be used',
-      recommended: true,
-      url: docsUrl(__filename),
-    },
   },
   create(context) {
     return {

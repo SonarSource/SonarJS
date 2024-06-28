@@ -21,7 +21,6 @@
 
 import type { TSESTree } from '@typescript-eslint/utils';
 import {
-  docsUrl,
   getFirstToken,
   getFirstTokenAfter,
   getJsxShortCircuitNodes,
@@ -61,11 +60,6 @@ export const rule: Rule.RuleModule = {
       refactorFunction: message,
       sonarRuntime: '{{sonarRuntimeData}}',
       fileComplexity: '{{complexityAmount}}',
-    },
-    type: 'suggestion',
-    docs: {
-      description: 'Cognitive Complexity of functions should not be too high',
-      url: docsUrl(__filename),
     },
     schema: [
       { type: 'integer', minimum: 0 },

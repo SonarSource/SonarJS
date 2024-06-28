@@ -22,13 +22,7 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import { Rule } from 'eslint';
 import estree from 'estree';
-import {
-  areEquivalent,
-  collectIfBranches,
-  collectSwitchBranches,
-  docsUrl,
-  isIfStatement,
-} from '../helpers';
+import { areEquivalent, collectIfBranches, collectSwitchBranches, isIfStatement } from '../helpers';
 
 export const rule: Rule.RuleModule = {
   meta: {
@@ -39,13 +33,6 @@ export const rule: Rule.RuleModule = {
         'This conditional operation returns the same value whether the condition is "true" or "false".',
     },
     schema: [],
-    type: 'problem',
-    docs: {
-      description:
-        'All branches in a conditional structure should not have exactly the same implementation',
-      recommended: true,
-      url: docsUrl(__filename),
-    },
   },
   create(context) {
     return {

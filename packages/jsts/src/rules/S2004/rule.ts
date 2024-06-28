@@ -24,36 +24,37 @@ import { Rule } from 'eslint';
 import { TSESTree } from '@typescript-eslint/utils';
 import { SONAR_RUNTIME } from '../../linter/parameters';
 import { getMainFunctionTokenLocation, RuleContext, toEncodedMessage } from '../helpers';
-import type { RuleModule } from '../../../../shared/src/types/rule';
+import { generateMeta } from '../helpers/generate-meta';
+import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
+import { FromSchema } from 'json-schema-to-ts';
 
 const DEFAULT_THRESHOLD = 4;
-
-export type Options = [
-  {
-    threshold: number;
-  },
-];
-
-export const rule: RuleModule<Options> = {
-  meta: {
-    schema: [
-      {
-        type: 'object',
-        properties: {
-          threshold: {
-            type: 'integer',
-          },
+const schema = {
+  type: 'array',
+  minItems: 0,
+  maxItems: 1,
+  items: [
+    {
+      type: 'object',
+      properties: {
+        threshold: {
+          type: 'integer',
         },
       },
-      {
-        type: 'string',
-        // internal parameter for rules having secondary locations
-        enum: [SONAR_RUNTIME],
-      },
-    ],
-  },
+      additionalProperties: false,
+    },
+    {
+      type: 'string',
+      // internal parameter for rules having secondary locations
+      enum: [SONAR_RUNTIME],
+    },
+  ],
+} as const satisfies JSONSchema4;
+
+export const rule: Rule.RuleModule = {
+  meta: generateMeta(__dirname, { schema }),
   create(context: Rule.RuleContext) {
-    const max = (context.options as Options)[0]?.threshold || DEFAULT_THRESHOLD;
+    const max = (context.options as FromSchema<typeof schema>)[0]?.threshold || DEFAULT_THRESHOLD;
     const nestedStack: TSESTree.FunctionLike[] = [];
     return {
       ':function'(node: estree.Node) {

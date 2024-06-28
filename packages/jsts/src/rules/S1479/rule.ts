@@ -20,7 +20,6 @@
 // https://sonarsource.github.io/rspec/#/rspec/S1479
 
 import { Rule } from 'eslint';
-import { docsUrl } from '../helpers';
 import estree from 'estree';
 
 const DEFAULT_MAX_SWITCH_CASES = 30;
@@ -30,12 +29,6 @@ export const rule: Rule.RuleModule = {
     messages: {
       reduceNumberOfNonEmptySwitchCases:
         'Reduce the number of non-empty switch cases from {{numSwitchCases}} to at most {{maxSwitchCases}}.',
-    },
-    type: 'suggestion',
-    docs: {
-      description: '"switch" statements should not have too many "case" clauses',
-      recommended: true,
-      url: docsUrl(__filename),
     },
     schema: [
       {

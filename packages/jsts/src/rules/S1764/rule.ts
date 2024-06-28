@@ -22,7 +22,6 @@
 import estree from 'estree';
 import {
   areEquivalent,
-  docsUrl,
   isIdentifier,
   isLiteral,
   issueLocation,
@@ -74,12 +73,6 @@ export const rule: Rule.RuleModule = {
     messages: {
       correctIdenticalSubExpressions: message,
       sonarRuntime: '{{sonarRuntimeData}}',
-    },
-    type: 'problem',
-    docs: {
-      description: 'Identical expressions should not be used on both sides of a binary operator',
-      recommended: true,
-      url: docsUrl(__filename),
     },
     schema: [
       {

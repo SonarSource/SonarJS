@@ -21,7 +21,6 @@
 
 import { TSESTree, AST_NODE_TYPES } from '@typescript-eslint/utils';
 import { Rule } from 'eslint';
-import { docsUrl } from '../helpers';
 import estree from 'estree';
 
 export const rule: Rule.RuleModule = {
@@ -30,12 +29,6 @@ export const rule: Rule.RuleModule = {
       refactorLoop: 'Refactor this loop to do more than one iteration.',
     },
     schema: [],
-    type: 'problem',
-    docs: {
-      description: 'Loops with at most one iteration should be refactored',
-      recommended: true,
-      url: docsUrl(__filename),
-    },
   },
   // @ts-ignore The typings of @typescript-eslint/utils does not contain the 'onX' methods.
   create(context) {

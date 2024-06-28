@@ -21,7 +21,7 @@
 
 import type { TSESLint, TSESTree } from '@typescript-eslint/utils';
 import { AST, Rule } from 'eslint';
-import { docsUrl, issueLocation, report } from '../helpers';
+import { issueLocation, report } from '../helpers';
 import estree from 'estree';
 
 const message = 'Move this "if" to a new line or add the missing "else".';
@@ -38,13 +38,6 @@ export const rule: Rule.RuleModule = {
       sonarRuntime: '{{sonarRuntimeData}}',
       suggestAddingElse: 'Add "else" keyword',
       suggestAddingNewline: 'Move this "if" to a new line',
-    },
-    type: 'problem',
-    hasSuggestions: true,
-    docs: {
-      description: 'Conditionals should start on new lines',
-      recommended: false,
-      url: docsUrl(__filename),
     },
     schema: [
       {

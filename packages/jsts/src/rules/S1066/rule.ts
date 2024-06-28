@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import estree from 'estree';
-import { docsUrl, issueLocation, report } from '../helpers';
+import { issueLocation, report } from '../helpers';
 import { AST_NODE_TYPES } from '@typescript-eslint/utils';
 
 const message = 'Merge this if statement with the nested one.';
@@ -31,12 +31,6 @@ export const rule: Rule.RuleModule = {
     messages: {
       mergeNestedIfStatement: message,
       sonarRuntime: '{{sonarRuntimeData}}',
-    },
-    type: 'suggestion',
-    docs: {
-      description: 'Collapsible "if" statements should be merged',
-      recommended: true,
-      url: docsUrl(__filename),
     },
     schema: [
       {

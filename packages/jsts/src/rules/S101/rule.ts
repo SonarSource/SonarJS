@@ -22,32 +22,36 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
-import type { RuleModule } from '../../../../shared/src/types/rule';
+import { generateMeta } from '../helpers/generate-meta';
+import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
+import { FromSchema } from 'json-schema-to-ts';
 
 type ClassOrInterfaceDeclaration = TSESTree.ClassDeclaration | TSESTree.TSInterfaceDeclaration;
 
-export type Options = [
-  {
-    format: string;
-  },
-];
+const DEFAULT_FORMAT = '^[A-Z][a-zA-Z0-9]*$';
+const messages = {
+  renameClass: 'Rename {{symbolType}} "{{symbol}}" to match the regular expression {{format}}.',
+};
 
-export const rule: RuleModule<Options> = {
-  meta: {
-    messages: {
-      renameClass: 'Rename {{symbolType}} "{{symbol}}" to match the regular expression {{format}}.',
-    },
-    schema: [
-      {
-        type: 'object',
-        properties: {
-          format: {
-            type: 'string',
-          },
+const schema = {
+  type: 'array',
+  minItems: 0,
+  maxItems: 1,
+  items: [
+    {
+      type: 'object',
+      properties: {
+        format: {
+          type: 'string',
         },
       },
-    ],
-  },
+      additionalProperties: false,
+    },
+  ],
+} as const satisfies JSONSchema4;
+
+export const rule: Rule.RuleModule = {
+  meta: generateMeta(__dirname, { messages, schema }),
   create(context: Rule.RuleContext) {
     return {
       ClassDeclaration: (node: estree.Node) =>
@@ -63,7 +67,7 @@ function checkName(
   declarationType: string,
   context: Rule.RuleContext,
 ) {
-  const [{ format }] = context.options;
+  const format = (context.options as FromSchema<typeof schema>)[0]?.format || DEFAULT_FORMAT;
   if (node.id) {
     const name = node.id.name;
     if (!name.match(format)) {

@@ -20,7 +20,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S3626
 
 import type { TSESTree } from '@typescript-eslint/utils';
-import { docsUrl, RuleContext } from '../helpers';
+import { RuleContext } from '../helpers';
 import { Rule } from 'eslint';
 import estree from 'estree';
 
@@ -35,11 +35,6 @@ export const rule: Rule.RuleModule = {
     schema: [],
     type: 'suggestion',
     hasSuggestions: true,
-    docs: {
-      description: 'Jump statements should not be redundant',
-      recommended: true,
-      url: docsUrl(__filename),
-    },
   },
   create(context) {
     function reportIfLastStatement(node: TSESTree.ContinueStatement | TSESTree.ReturnStatement) {

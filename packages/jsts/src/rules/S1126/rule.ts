@@ -19,7 +19,6 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S1126
 import { TSESTree, AST_NODE_TYPES } from '@typescript-eslint/utils';
-import { docsUrl } from '../helpers';
 import { Rule } from 'eslint';
 import estree from 'estree';
 
@@ -33,14 +32,7 @@ export const rule: Rule.RuleModule = {
         'Replace with single return statement without cast (condition should be boolean!)',
     },
     schema: [],
-    type: 'suggestion',
     hasSuggestions: true,
-    docs: {
-      description:
-        'Return of boolean expressions should not be wrapped into an "if-then-else" statement',
-      recommended: true,
-      url: docsUrl(__filename),
-    },
   },
   create(context) {
     return {

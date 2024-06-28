@@ -22,25 +22,38 @@
 import { Rule } from 'eslint';
 import { rules } from 'eslint-plugin-react';
 import { getNearestPackageJsons } from '@sonar/jsts';
-import type { RuleModule } from '../../../../shared/src/types/rule';
+import { generateMeta } from '../helpers/generate-meta';
+import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
+import { FromSchema } from 'json-schema-to-ts';
 
 const reactNoDeprecated = rules['no-deprecated'];
 
-export const rule: RuleModule = {
-  meta: {
-    messages: {
-      deprecated: '{{oldMethod}} is deprecated since React {{version}}{{newMethod}}',
-    },
-    schema: [
-      {
-        type: 'object',
-        properties: {},
+const messages = {
+  deprecated: '{{oldMethod}} is deprecated since React {{version}}{{newMethod}}',
+};
+
+const schema = {
+  type: 'array',
+  minItems: 0,
+  maxItems: 1,
+  items: [
+    {
+      type: 'object',
+      properties: {
+        'react-version': {
+          type: 'string',
+        },
       },
-    ],
-  },
+      additionalProperties: false,
+    },
+  ],
+} as const satisfies JSONSchema4;
+
+export const rule: Rule.RuleModule = {
+  meta: generateMeta(__dirname, { messages, schema }),
   create(context: Rule.RuleContext) {
     function getVersionFromOptions() {
-      return context.options?.[0]?.['react-version'];
+      return (context.options as FromSchema<typeof schema>)[0]?.['react-version'];
     }
     function getVersionFromPackageJson() {
       for (const { contents: packageJson } of getNearestPackageJsons(context.filename)) {

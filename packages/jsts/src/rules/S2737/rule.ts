@@ -20,7 +20,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S2737
 
 import { Rule, SourceCode } from 'eslint';
-import { areEquivalent, docsUrl, isThrowStatement } from '../helpers';
+import { areEquivalent, isThrowStatement } from '../helpers';
 import estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
 
@@ -31,12 +31,6 @@ export const rule: Rule.RuleModule = {
         'Add logic to this catch clause or eliminate it and rethrow the exception automatically.',
     },
     schema: [],
-    type: 'suggestion',
-    docs: {
-      description: '"catch" clauses should do more than rethrow',
-      recommended: true,
-      url: docsUrl(__filename),
-    },
   },
   create(context) {
     return {

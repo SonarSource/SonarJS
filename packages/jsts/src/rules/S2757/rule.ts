@@ -20,7 +20,6 @@
 // https://sonarsource.github.io/rspec/#/rspec/S2757
 
 import { AST, Rule } from 'eslint';
-import { docsUrl } from '../helpers';
 import estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
 
@@ -31,13 +30,7 @@ export const rule: Rule.RuleModule = {
       suggestExistingOperator: 'Replace with "{{operator}}" operator',
     },
     schema: [],
-    type: 'problem',
     hasSuggestions: true,
-    docs: {
-      description: 'Non-existent operators "=+", "=-" and "=!" should not be used',
-      recommended: true,
-      url: docsUrl(__filename),
-    },
   },
   create(context) {
     return {

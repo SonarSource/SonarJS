@@ -19,14 +19,13 @@
  */
 import { RuleTester } from 'eslint';
 import { rule } from './';
-import type { Options } from './rule';
 
 const ruleTester = new RuleTester({
   parser: require.resolve('@typescript-eslint/parser'),
   parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
 });
 
-const defaultOptions: Options = [{ permissions: ['geolocation'] }];
+const defaultOptions = [{ permissions: ['geolocation'] }];
 
 ruleTester.run('', rule, {
   valid: [

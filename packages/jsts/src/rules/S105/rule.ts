@@ -20,13 +20,14 @@
 // https://sonarsource.github.io/rspec/#/rspec/S105/javascript
 
 import { Rule } from 'eslint';
+import { generateMeta } from '../helpers/generate-meta';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(__dirname, {
     messages: {
       replaceTab: 'Replace all tab characters in this file by sequences of white-spaces.',
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     return {
       'Program:exit'() {

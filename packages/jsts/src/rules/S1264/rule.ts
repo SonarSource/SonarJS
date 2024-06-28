@@ -19,7 +19,6 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S1264
 
-import { docsUrl } from '../helpers';
 import { Rule } from 'eslint';
 import estree from 'estree';
 
@@ -29,12 +28,6 @@ export const rule: Rule.RuleModule = {
       replaceForWithWhileLoop: 'Replace this "for" loop with a "while" loop.',
     },
     schema: [],
-    type: 'suggestion',
-    docs: {
-      description: 'A "while" loop should be used instead of a "for" loop',
-      recommended: true,
-      url: docsUrl(__filename),
-    },
     fixable: 'code',
   },
   create(context) {

@@ -19,14 +19,13 @@
  */
 import { RuleTester } from 'eslint';
 import { rule } from './';
-import type { Options } from './rule';
 import { EncodedMessage, IssueLocation } from '../helpers';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
 
 const THRESHOLD = 3;
 
-const createOptions = (maximumNestingLevel: number): Options => {
+const createOptions = (maximumNestingLevel: number) => {
   return [{ maximumNestingLevel }];
 };
 

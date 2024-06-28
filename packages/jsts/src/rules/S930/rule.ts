@@ -22,7 +22,6 @@
 import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/utils';
 import { Rule, Scope } from 'eslint';
 import {
-  docsUrl,
   getMainFunctionTokenLocation,
   isArrowFunctionExpression,
   isFunctionDeclaration,
@@ -42,12 +41,6 @@ export const rule: Rule.RuleModule = {
     messages: {
       tooManyArguments: message,
       sonarRuntime: '{{sonarRuntimeData}}',
-    },
-    type: 'problem',
-    docs: {
-      description: 'Function calls should not pass extra arguments',
-      recommended: true,
-      url: docsUrl(__filename),
     },
     schema: [
       {

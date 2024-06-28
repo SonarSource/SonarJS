@@ -19,14 +19,13 @@
  */
 import { RuleTester } from 'eslint';
 import { rule } from './';
-import type { Options } from './rule';
 import { EncodedMessage, IssueLocation } from '../helpers';
 
 const ruleTester = new RuleTester({
   parserOptions: { ecmaVersion: 2018, sourceType: 'module', ecmaFeatures: { jsx: true } },
 });
 
-const options: Options = [
+const options = [
   {
     max: 3,
   },

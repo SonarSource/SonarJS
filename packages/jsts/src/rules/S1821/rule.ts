@@ -20,7 +20,6 @@
 // https://sonarsource.github.io/rspec/#/rspec/S1821
 
 import { Rule } from 'eslint';
-import { docsUrl } from '../helpers';
 import estree from 'estree';
 
 export const rule: Rule.RuleModule = {
@@ -29,12 +28,6 @@ export const rule: Rule.RuleModule = {
       removeNestedSwitch: 'Refactor the code to eliminate this nested "switch".',
     },
     schema: [],
-    type: 'suggestion',
-    docs: {
-      description: '"switch" statements should not be nested',
-      recommended: true,
-      url: docsUrl(__filename),
-    },
   },
   create(context) {
     return {

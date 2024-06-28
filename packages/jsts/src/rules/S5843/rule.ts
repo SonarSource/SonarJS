@@ -51,37 +51,44 @@ import {
   isStringRegexMethodCall,
 } from '../helpers/regex';
 import { SONAR_RUNTIME } from '../../linter/parameters';
-import type { RuleModule } from '../../../../shared/src/types/rule';
+import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
+import { generateMeta } from '../helpers/generate-meta';
+import { FromSchema } from 'json-schema-to-ts';
 
-const DEFAULT_THESHOLD = 20;
+const DEFAULT_THRESHOLD = 20;
 
-export type Options = [
-  {
-    threshold: number;
-  },
-];
+const messages = {
+  renameFunction:
+    "Rename this '{{function}}' function to match the regular expression '{{format}}'.",
+};
 
-export const rule: RuleModule<Options> = {
-  meta: {
-    schema: [
-      {
-        type: 'object',
-        properties: {
-          threshold: {
-            type: 'integer',
-          },
+const schema = {
+  type: 'array',
+  minItems: 0,
+  maxItems: 2,
+  items: [
+    {
+      type: 'object',
+      properties: {
+        threshold: {
+          type: 'integer',
         },
       },
-      {
-        type: 'string',
-        // internal parameter for rules having secondary locations
-        enum: [SONAR_RUNTIME],
-      },
-    ],
-  },
+      additionalProperties: false,
+    },
+    {
+      type: 'string',
+      // internal parameter for rules having secondary locations
+      enum: [SONAR_RUNTIME],
+    },
+  ],
+} as const satisfies JSONSchema4;
+
+export const rule: Rule.RuleModule = {
+  meta: generateMeta(__dirname, { messages, schema }),
   create(context: Rule.RuleContext) {
-    const options = context.options as Options;
-    const threshold = options.length > 0 ? options[0].threshold : DEFAULT_THESHOLD;
+    const threshold =
+      (context.options as FromSchema<typeof schema>)[0]?.threshold || DEFAULT_THRESHOLD;
     const services = context.sourceCode.parserServices;
     const regexNodes: estree.Node[] = [];
     return {

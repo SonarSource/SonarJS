@@ -20,7 +20,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S3699
 
 import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/utils';
-import { docsUrl, isArrowFunctionExpression, isFunctionExpression, RuleContext } from '../helpers';
+import { isArrowFunctionExpression, isFunctionExpression, RuleContext } from '../helpers';
 import { Rule } from 'eslint';
 import estree from 'estree';
 
@@ -65,12 +65,6 @@ export const rule: Rule.RuleModule = {
         'Remove this use of the output from "{{name}}"; "{{name}}" doesn\'t return anything.',
     },
     schema: [],
-    type: 'problem',
-    docs: {
-      description: "The output of functions that don't return anything should not be used",
-      recommended: true,
-      url: docsUrl(__filename),
-    },
   },
   create(context) {
     const callExpressionsToCheck: Map<

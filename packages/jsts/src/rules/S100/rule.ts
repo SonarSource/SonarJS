@@ -22,7 +22,9 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { last, functionLike } from '../helpers';
-import type { RuleModule } from '../../../../shared/src/types/rule';
+import { generateMeta } from '../helpers/generate-meta';
+import { FromSchema } from 'json-schema-to-ts';
+import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
 
 interface FunctionKnowledge {
   node: estree.Identifier;
@@ -53,31 +55,33 @@ const functionExpressionVariable = [
   ')',
 ].join('');
 
-export type Options = [
-  {
-    format: string;
-  },
-];
+const DEFAULT_FORMAT = '^[_a-z][a-zA-Z0-9]*$';
+const messages = {
+  renameFunction:
+    "Rename this '{{function}}' function to match the regular expression '{{format}}'.",
+};
 
-export const rule: RuleModule<Options> = {
-  meta: {
-    messages: {
-      renameFunction:
-        "Rename this '{{function}}' function to match the regular expression '{{format}}'.",
-    },
-    schema: [
-      {
-        type: 'object',
-        properties: {
-          format: {
-            type: 'string',
-          },
+const schema = {
+  type: 'array',
+  minItems: 0,
+  maxItems: 1,
+  items: [
+    {
+      type: 'object',
+      properties: {
+        format: {
+          type: 'string',
         },
       },
-    ],
-  },
+      additionalProperties: false,
+    },
+  ],
+} as const satisfies JSONSchema4;
+
+export const rule: Rule.RuleModule = {
+  meta: generateMeta(__dirname, { messages, schema }),
   create(context: Rule.RuleContext) {
-    const [{ format }] = context.options as Options;
+    const format = (context.options as FromSchema<typeof schema>)[0]?.format || DEFAULT_FORMAT;
     const knowledgeStack: FunctionKnowledge[] = [];
     return {
       [functionExpressionProperty]: (node: estree.Property) => {

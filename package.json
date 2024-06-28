@@ -94,6 +94,7 @@
     "form-data": "4.0.0",
     "functional-red-black-tree": "1.0.1",
     "htmlparser2": "9.1.0",
+    "json-schema-to-ts": "3.1.0",
     "jsx-ast-utils": "3.3.5",
     "lodash.clone": "4.5.0",
     "minimatch": "9.0.3",

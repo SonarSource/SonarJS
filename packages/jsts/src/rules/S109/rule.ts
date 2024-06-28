@@ -23,22 +23,13 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { tsEslintRules } from '../typescript-eslint';
 import { getNodeParent, isMethodInvocation } from '../helpers';
-import type { RuleModule } from '../../../../shared/src/types/rule';
+import { generateMeta } from '../helpers/generate-meta';
 
-export const rule: RuleModule = {
-  meta: {
-    messages: {
-      noMagic: 'No magic number: {{raw}}.',
-    },
-    schema: [
-      {
-        type: 'object',
-        properties: {},
-      },
-    ],
-  },
+const baseRuleModule = tsEslintRules['no-magic-numbers'];
+export const rule: Rule.RuleModule = {
+  meta: generateMeta(__dirname, baseRuleModule.meta!),
   create(context: Rule.RuleContext) {
-    const baseRule = tsEslintRules['no-magic-numbers'].create(context);
+    const baseRule = baseRuleModule.create(context);
     return {
       Literal: (node: estree.Node) => {
         if (!isNumericLiteral(node)) {

@@ -32,7 +32,9 @@ import {
   last,
   RuleContext,
 } from '../helpers';
-import type { RuleModule } from '../../../../shared/src/types/rule';
+import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
+import { FromSchema } from 'json-schema-to-ts';
+import { generateMeta } from '../helpers/generate-meta';
 
 interface FunctionKnowledge {
   node: estree.Node;
@@ -41,31 +43,34 @@ interface FunctionKnowledge {
   returnsJSX: boolean;
 }
 
-export type Options = [
-  {
-    maximum: number;
-  },
-];
+const DEFAULT = 200;
 
-export const rule: RuleModule<Options> = {
-  meta: {
-    messages: {
-      functionMaxLine:
-        'This function has {{lineCount}} lines, which is greater than the {{threshold}} lines authorized. Split it into smaller functions.',
-    },
-    schema: [
-      {
-        type: 'object',
-        properties: {
-          maximum: {
-            type: 'integer',
-          },
+const messages = {
+  renameFunction:
+    "Rename this '{{function}}' function to match the regular expression '{{format}}'.",
+};
+
+const schema = {
+  type: 'array',
+  minItems: 0,
+  maxItems: 1,
+  items: [
+    {
+      type: 'object',
+      properties: {
+        maximum: {
+          type: 'integer',
         },
       },
-    ],
-  },
+      additionalProperties: false,
+    },
+  ],
+} as const satisfies JSONSchema4;
+
+export const rule: Rule.RuleModule = {
+  meta: generateMeta(__dirname, { messages, schema }),
   create(context: Rule.RuleContext) {
-    const [{ maximum: threshold }] = context.options as Options;
+    const threshold = (context.options as FromSchema<typeof schema>)[0]?.maximum || DEFAULT;
 
     const sourceCode = context.sourceCode;
     const lines = sourceCode.lines;

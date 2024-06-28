@@ -21,7 +21,7 @@
 
 import { TSESTree, AST_NODE_TYPES } from '@typescript-eslint/utils';
 import { Rule, SourceCode } from 'eslint';
-import { areEquivalent, docsUrl, issueLocation, report } from '../helpers';
+import { areEquivalent, issueLocation, report } from '../helpers';
 import estree from 'estree';
 
 const duplicatedConditionMessage = 'This condition is covered by the one on line {{line}}';
@@ -33,13 +33,6 @@ export const rule: Rule.RuleModule = {
       duplicatedCondition: duplicatedConditionMessage,
       duplicatedCase: duplicatedCaseMessage,
       sonarRuntime: '{{sonarRuntimeData}}',
-    },
-    type: 'problem',
-    docs: {
-      description:
-        'Related "if-else-if" and "switch-case" statements should not have the same condition',
-      recommended: true,
-      url: docsUrl(__filename),
     },
     schema: [
       {

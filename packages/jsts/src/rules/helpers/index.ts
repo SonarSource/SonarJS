@@ -24,7 +24,6 @@ export * from './chai';
 export * from './collection';
 export * from './conditions';
 export * from './decorators';
-export * from './docs-url';
 export * from './equivalence';
 export * from './express';
 export * from './file';

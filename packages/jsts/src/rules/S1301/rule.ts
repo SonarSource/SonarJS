@@ -20,7 +20,6 @@
 // https://sonarsource.github.io/rspec/#/rspec/S1301
 
 import { Rule } from 'eslint';
-import { docsUrl } from '../helpers';
 import estree from 'estree';
 
 export const rule: Rule.RuleModule = {
@@ -29,12 +28,6 @@ export const rule: Rule.RuleModule = {
       smallSwitch: '"switch" statements should have at least 3 "case" clauses',
     },
     schema: [],
-    type: 'suggestion',
-    docs: {
-      description: '"switch" statements should have at least 3 "case" clauses',
-      recommended: true,
-      url: docsUrl(__filename),
-    },
   },
   create(context) {
     return {

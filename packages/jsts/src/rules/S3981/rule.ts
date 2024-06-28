@@ -22,7 +22,7 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import { ParserServicesWithTypeInformation } from '@typescript-eslint/typescript-estree';
 import { Rule } from 'eslint';
-import { docsUrl, isRequiredParserServices } from '../helpers';
+import { isRequiredParserServices } from '../helpers';
 import estree from 'estree';
 
 const CollectionLike = ['Array', 'Map', 'Set', 'WeakMap', 'WeakSet'];
@@ -38,11 +38,6 @@ export const rule: Rule.RuleModule = {
     schema: [],
     type: 'problem',
     hasSuggestions: true,
-    docs: {
-      description: 'Collection sizes and array length comparisons should make sense',
-      recommended: true,
-      url: docsUrl(__filename),
-    },
   },
   create(context) {
     const services = context.sourceCode.parserServices;

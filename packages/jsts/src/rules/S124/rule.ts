@@ -21,37 +21,37 @@
 
 import { Rule } from 'eslint';
 import { TSESTree } from '@typescript-eslint/utils';
-import type { RuleModule } from '../../../../shared/src/types/rule';
+import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
+import { generateMeta } from '../helpers/generate-meta';
+import { FromSchema } from 'json-schema-to-ts';
 
-export type Options = [
-  {
-    regularExpression: string;
-    message: string;
-    flags: string;
-  },
-];
-
-export const rule: RuleModule<Options> = {
-  meta: {
-    schema: [
-      {
-        type: 'object',
-        properties: {
-          regularExpression: {
-            type: 'string',
-          },
-          message: {
-            type: 'string',
-          },
-          flags: {
-            type: 'string',
-          },
+const schema = {
+  type: 'array',
+  minItems: 0,
+  maxItems: 1,
+  items: [
+    {
+      type: 'object',
+      properties: {
+        regularExpression: {
+          type: 'string',
+        },
+        message: {
+          type: 'string',
+        },
+        flags: {
+          type: 'string',
         },
       },
-    ],
-  },
+      additionalProperties: false,
+    },
+  ],
+} as const satisfies JSONSchema4;
+
+export const rule: Rule.RuleModule = {
+  meta: generateMeta(__dirname, { schema }),
   create(context: Rule.RuleContext) {
-    const options = context.options[0] || {};
+    const options = (context.options as FromSchema<typeof schema>)[0] || {};
     const flags = options.flags || '';
     const cleanedFlags = 'gimusy'
       .split('')

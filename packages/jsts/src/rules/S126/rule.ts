@@ -20,7 +20,6 @@
 // https://sonarsource.github.io/rspec/#/rspec/S126
 
 import { Rule } from 'eslint';
-import { docsUrl } from '../helpers';
 import estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
 
@@ -30,12 +29,6 @@ export const rule: Rule.RuleModule = {
       addMissingElseClause: 'Add the missing "else" clause.',
     },
     schema: [],
-    type: 'suggestion',
-    docs: {
-      description: '"if ... else if" constructs should end with "else" clauses',
-      recommended: false,
-      url: docsUrl(__filename),
-    },
   },
   create(context) {
     return {

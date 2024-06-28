@@ -23,7 +23,7 @@ import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/utils';
 import type { ParserServicesWithTypeInformation } from '@typescript-eslint/typescript-estree';
 import type { Type } from 'typescript';
 import { Rule } from 'eslint';
-import { docsUrl, getTypeFromTreeNode, isRequiredParserServices } from '../helpers';
+import { getTypeFromTreeNode, isRequiredParserServices } from '../helpers';
 import estree from 'estree';
 
 const METHODS_WITHOUT_SIDE_EFFECTS: { [index: string]: Set<string> } = {
@@ -180,12 +180,6 @@ export const rule: Rule.RuleModule = {
       returnValueMustBeUsed: 'The return value of "{{methodName}}" must be used.',
     },
     schema: [],
-    type: 'problem',
-    docs: {
-      description: 'Return values from functions without side effects should not be ignored',
-      recommended: true,
-      url: docsUrl(__filename),
-    },
   },
   create(context) {
     const services = context.sourceCode.parserServices;

@@ -20,7 +20,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S1192
 
 import { TSESTree, AST_NODE_TYPES } from '@typescript-eslint/utils';
-import { docsUrl, issueLocation, report } from '../helpers';
+import { issueLocation, report } from '../helpers';
 import { Rule } from 'eslint';
 import estree from 'estree';
 
@@ -43,12 +43,6 @@ export const rule: Rule.RuleModule = {
     messages: {
       defineConstant: message,
       sonarRuntime: '{{sonarRuntimeData}}',
-    },
-    type: 'suggestion',
-    docs: {
-      description: 'String literals should not be duplicated',
-      recommended: true,
-      url: docsUrl(__filename),
     },
     schema: [
       {

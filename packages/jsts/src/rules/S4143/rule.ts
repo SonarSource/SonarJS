@@ -22,7 +22,6 @@
 import { AST_NODE_TYPES } from '@typescript-eslint/utils';
 import {
   areEquivalent,
-  docsUrl,
   getProgramStatements,
   isIdentifier,
   isLiteral,
@@ -40,12 +39,6 @@ export const rule: Rule.RuleModule = {
     messages: {
       verifyIntendedIndex: message,
       sonarRuntime: '{{sonarRuntimeData}}',
-    },
-    type: 'problem',
-    docs: {
-      description: 'Collection elements should not be replaced unconditionally',
-      recommended: true,
-      url: docsUrl(__filename),
     },
     schema: [
       {

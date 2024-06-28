@@ -20,7 +20,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S1125
 
 import { TSESTree, AST_NODE_TYPES } from '@typescript-eslint/utils';
-import { docsUrl, isBooleanLiteral } from '../helpers';
+import { isBooleanLiteral } from '../helpers';
 import { Rule } from 'eslint';
 import estree from 'estree';
 
@@ -30,12 +30,6 @@ export const rule: Rule.RuleModule = {
       removeUnnecessaryBoolean: 'Refactor the code to avoid using this boolean literal.',
     },
     schema: [],
-    type: 'suggestion',
-    docs: {
-      description: 'Boolean literals should not be redundant',
-      recommended: true,
-      url: docsUrl(__filename),
-    },
   },
   create(context) {
     return {

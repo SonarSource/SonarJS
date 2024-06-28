@@ -24,7 +24,6 @@ import {
   areEquivalent,
   collectIfBranches,
   collectSwitchBranches,
-  docsUrl,
   isIfStatement,
   issueLocation,
   report,
@@ -41,13 +40,6 @@ export const rule: Rule.RuleModule = {
     messages: {
       sameConditionalBlock: message,
       sonarRuntime: '{{sonarRuntimeData}}',
-    },
-    type: 'problem',
-    docs: {
-      description:
-        'Two branches in a conditional structure should not have exactly the same implementation',
-      recommended: true,
-      url: docsUrl(__filename),
     },
     schema: [
       {

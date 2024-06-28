@@ -20,8 +20,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S1186/javascript
 
 import * as estree from 'estree';
-import { Rule } from 'eslint';
-import { suggestEmptyBlockQuickFix } from '../S108/decorator';
+import { AST, Rule } from 'eslint';
 import { interceptReport, FunctionNodeType, isFunctionNode, isIdentifier } from '../helpers';
 
 type RuleFunctionNode = FunctionNodeType & Rule.Node;
@@ -99,4 +98,30 @@ function reportWithQuickFix(
   const openingBrace = context.sourceCode.getFirstToken(func.body)!;
   const closingBrace = context.sourceCode.getLastToken(func.body)!;
   suggestEmptyBlockQuickFix(context, reportDescriptor, name, openingBrace, closingBrace);
+}
+
+function suggestEmptyBlockQuickFix(
+  context: Rule.RuleContext,
+  descriptor: Rule.ReportDescriptor,
+  blockType: string,
+  openingBrace: AST.Token,
+  closingBrace: AST.Token,
+) {
+  let commentPlaceholder: string;
+  if (openingBrace.loc.start.line === closingBrace.loc.start.line) {
+    commentPlaceholder = ` /* TODO document why this ${blockType} is empty */ `;
+  } else {
+    const columnOffset = closingBrace.loc.start.column;
+    const padding = ' '.repeat(columnOffset);
+    commentPlaceholder = `\n${padding}  // TODO document why this ${blockType} is empty\n${padding}`;
+  }
+  context.report({
+    ...descriptor,
+    suggest: [
+      {
+        desc: 'Insert placeholder comment',
+        fix: fixer => fixer.insertTextAfter(openingBrace, commentPlaceholder),
+      },
+    ],
+  });
 }

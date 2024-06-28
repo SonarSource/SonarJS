@@ -21,7 +21,7 @@
 
 import type { TSESTree } from '@typescript-eslint/utils';
 import { Rule, Scope } from 'eslint';
-import { docsUrl, isIdentifier, isIfStatement, report, RuleContext } from '../helpers';
+import { isIdentifier, isIfStatement, report, RuleContext } from '../helpers';
 import estree from 'estree';
 
 const message = 'This always evaluates to {{value}}. Consider refactoring this code.';
@@ -31,12 +31,6 @@ export const rule: Rule.RuleModule = {
     messages: {
       refactorBooleanExpression: message,
       sonarRuntime: '{{sonarRuntimeData}}',
-    },
-    type: 'suggestion',
-    docs: {
-      description: 'Boolean expressions should not be gratuitous',
-      recommended: true,
-      url: docsUrl(__filename),
     },
     schema: [
       {

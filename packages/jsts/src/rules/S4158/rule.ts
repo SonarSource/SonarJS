@@ -23,7 +23,6 @@ import type { TSESTree } from '@typescript-eslint/utils';
 import {
   ancestorsChain,
   collectionConstructor,
-  docsUrl,
   findFirstMatchingAncestor,
   isIdentifier,
   isReferenceTo,
@@ -88,12 +87,6 @@ export const rule: Rule.RuleModule = {
         'Review this usage of "{{identifierName}}" as it can only be empty here.',
     },
     schema: [],
-    type: 'problem',
-    docs: {
-      description: 'Empty collections should not be accessed or iterated',
-      recommended: true,
-      url: docsUrl(__filename),
-    },
   },
   create(context) {
     return {

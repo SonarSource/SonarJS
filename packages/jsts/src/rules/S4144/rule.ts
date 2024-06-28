@@ -22,7 +22,6 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import {
   areEquivalent,
-  docsUrl,
   getMainFunctionTokenLocation,
   issueLocation,
   report,
@@ -46,12 +45,6 @@ export const rule: Rule.RuleModule = {
     messages: {
       identicalFunctions: message,
       sonarRuntime: '{{sonarRuntimeData}}',
-    },
-    type: 'problem',
-    docs: {
-      description: 'Functions should not have identical implementations',
-      recommended: true,
-      url: docsUrl(__filename),
     },
     schema: [
       { type: 'integer', minimum: 3 },

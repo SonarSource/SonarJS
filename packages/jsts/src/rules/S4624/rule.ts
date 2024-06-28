@@ -20,7 +20,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S4624
 
 import type { TSESTree } from '@typescript-eslint/utils';
-import { ancestorsChain, docsUrl } from '../helpers';
+import { ancestorsChain } from '../helpers';
 import { Rule } from 'eslint';
 import estree from 'estree';
 
@@ -30,12 +30,6 @@ export const rule: Rule.RuleModule = {
       nestedTemplateLiterals: 'Refactor this code to not use nested template literals.',
     },
     schema: [],
-    type: 'suggestion',
-    docs: {
-      description: 'Template literals should not be nested',
-      recommended: true,
-      url: docsUrl(__filename),
-    },
   },
   create(context) {
     return {

@@ -19,10 +19,9 @@
  */
 import { RuleTester } from 'eslint';
 import { rule } from './';
-import type { Options } from './rule';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
-const options: Options = [{ fileUploadSizeLimit: 8_000_000, standardSizeLimit: 2_000_000 }];
+const options = [{ fileUploadSizeLimit: 8_000_000, standardSizeLimit: 2_000_000 }];
 
 ruleTester.run('Allowing requests with excessive content length is security-sensitive', rule, {
   valid: [

@@ -149,7 +149,6 @@ import { rule as S4621 } from './S4621'; // no-duplicate-in-composite
 import { rule as S1192 } from './S1192'; // no-duplicate-string
 import { rule as S1871 } from './S1871'; // no-duplicated-branches
 import { rule as S4143 } from './S4143'; // no-element-overwrite
-import { rule as S108 } from './S108'; // no-empty
 import { rule as S6019 } from './S6019'; // no-empty-after-reluctant
 import { rule as S6323 } from './S6323'; // no-empty-alternatives
 import { rule as S4158 } from './S4158'; // no-empty-collection
@@ -479,7 +478,6 @@ rules['no-duplicate-in-composite'] = S4621;
 rules['no-duplicate-string'] = S1192;
 rules['no-duplicated-branches'] = S1871;
 rules['no-element-overwrite'] = S4143;
-rules['no-empty'] = S108;
 rules['no-empty-after-reluctant'] = S6019;
 rules['no-empty-alternatives'] = S6323;
 rules['no-empty-collection'] = S4158;

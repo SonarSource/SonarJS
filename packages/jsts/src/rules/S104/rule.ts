@@ -22,33 +22,43 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { getLocsNumber, getCommentLineNumbers } from '../S138/rule';
-import type { RuleModule } from '../../../../shared/src/types/rule';
+import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
+import { generateMeta } from '../helpers/generate-meta';
+import { FromSchema } from 'json-schema-to-ts';
 
+const DEFAULT = 1000;
 export type Options = [
   {
     maximum: number;
   },
 ];
 
-export const rule: RuleModule<Options> = {
-  meta: {
-    messages: {
-      maxFileLine:
-        'This file has {{lineCount}} lines, which is greater than {{threshold}} authorized. Split it into smaller files.',
-    },
-    schema: [
-      {
-        type: 'object',
-        properties: {
-          maximum: {
-            type: 'integer',
-          },
+const schema = {
+  type: 'array',
+  minItems: 0,
+  maxItems: 1,
+  items: [
+    {
+      type: 'object',
+      properties: {
+        maximum: {
+          type: 'integer',
         },
       },
-    ],
-  },
+      additionalProperties: false,
+    },
+  ],
+} as const satisfies JSONSchema4;
+
+const messages = {
+  maxFileLine:
+    'This file has {{lineCount}} lines, which is greater than {{threshold}} authorized. Split it into smaller files.',
+};
+
+export const rule: Rule.RuleModule = {
+  meta: generateMeta(__dirname, { messages, schema }),
   create(context: Rule.RuleContext) {
-    const [{ maximum: threshold }] = context.options as Options;
+    const threshold = (context.options as FromSchema<typeof schema>)[0]?.maximum || DEFAULT;
 
     const sourceCode = context.sourceCode;
     const lines = sourceCode.lines;

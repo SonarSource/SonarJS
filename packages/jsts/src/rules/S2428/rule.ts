@@ -21,7 +21,7 @@
 
 import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/utils';
 import { Rule, SourceCode } from 'eslint';
-import { areEquivalent, docsUrl, getProgramStatements, isIdentifier } from '../helpers';
+import { areEquivalent, getProgramStatements, isIdentifier } from '../helpers';
 import estree from 'estree';
 
 export const rule: Rule.RuleModule = {
@@ -31,12 +31,6 @@ export const rule: Rule.RuleModule = {
         'Declare one or more properties of this object inside of the object literal syntax instead of using separate statements.',
     },
     schema: [],
-    type: 'suggestion',
-    docs: {
-      description: 'Object literal syntax should be used',
-      recommended: true,
-      url: docsUrl(__filename),
-    },
   },
   create(context) {
     return {
