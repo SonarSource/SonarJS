@@ -1,7 +1,8 @@
 {
   "compilerOptions": {
     "target": "es2018",
-    "allowJs": true
+    "allowJs": true,
+    "resolveJsonModule": true
   },
   "include": [
     "**/*.fixture.js",
