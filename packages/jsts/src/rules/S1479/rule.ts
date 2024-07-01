@@ -21,25 +21,31 @@
 
 import { Rule } from 'eslint';
 import estree from 'estree';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
+import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
+import { FromSchema } from 'json-schema-to-ts';
 
 const DEFAULT_MAX_SWITCH_CASES = 30;
 
+const schema = {
+  type: 'array',
+  minItems: 0,
+  maxItems: 1,
+  items: [{ type: 'integer', minimum: 0 }],
+} as const satisfies JSONSchema4;
+
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       reduceNumberOfNonEmptySwitchCases:
         'Reduce the number of non-empty switch cases from {{numSwitchCases}} to at most {{maxSwitchCases}}.',
     },
-    schema: [
-      {
-        type: 'integer',
-        minimum: 0,
-      },
-    ],
-  },
+    schema,
+  }),
   create(context) {
-    const maxSwitchCases: number =
-      typeof context.options[0] === 'number' ? context.options[0] : DEFAULT_MAX_SWITCH_CASES;
+    const maxSwitchCases =
+      (context.options as FromSchema<typeof schema>)[0] || DEFAULT_MAX_SWITCH_CASES;
     return {
       SwitchStatement: (node: estree.SwitchStatement) =>
         visitSwitchStatement(node, context, maxSwitchCases),

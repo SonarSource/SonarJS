@@ -21,14 +21,15 @@
 
 import { Rule } from 'eslint';
 import estree from 'estree';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       removeNestedSwitch: 'Refactor the code to eliminate this nested "switch".',
     },
-    schema: [],
-  },
+  }),
   create(context) {
     return {
       'SwitchStatement SwitchStatement': (node: estree.Node) => {

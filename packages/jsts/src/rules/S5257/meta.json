@@ -1,0 +1,8 @@
+{
+  "type": "suggestion",
+  "docs": {
+    "description": "HTML \"<table>\" should not be used for layout purposes",
+    "recommended": true,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S5257/javascript/rule.adoc"
+  }
+}

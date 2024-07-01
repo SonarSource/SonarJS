@@ -22,31 +22,37 @@
 import { Rule } from 'eslint';
 import { AST } from '@eslint-community/regexpp';
 import { createRegExpRule } from '../helpers/regex';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 enum Position {
   BEGINNING,
   END,
 }
 
-export const rule: Rule.RuleModule = createRegExpRule(context => {
-  return {
-    onPatternEnter: (pattern: AST.Pattern) => {
-      const { alternatives } = pattern;
-      if (
-        alternatives.length > 1 &&
-        (anchoredAt(alternatives, Position.BEGINNING) || anchoredAt(alternatives, Position.END)) &&
-        notAnchoredElseWhere(alternatives)
-      ) {
-        context.reportRegExpNode({
-          message:
-            'Group parts of the regex together to make the intended operator precedence explicit.',
-          node: context.node,
-          regexpNode: pattern,
-        });
-      }
-    },
-  };
-});
+export const rule: Rule.RuleModule = createRegExpRule(
+  context => {
+    return {
+      onPatternEnter: (pattern: AST.Pattern) => {
+        const { alternatives } = pattern;
+        if (
+          alternatives.length > 1 &&
+          (anchoredAt(alternatives, Position.BEGINNING) ||
+            anchoredAt(alternatives, Position.END)) &&
+          notAnchoredElseWhere(alternatives)
+        ) {
+          context.reportRegExpNode({
+            message:
+              'Group parts of the regex together to make the intended operator precedence explicit.',
+            node: context.node,
+            regexpNode: pattern,
+          });
+        }
+      },
+    };
+  },
+  generateMeta(rspecMeta as Rule.RuleMetaData),
+);
 
 function anchoredAt(alternatives: AST.Alternative[], position: Position): boolean {
   const itemIndex = position === Position.BEGINNING ? 0 : alternatives.length - 1;

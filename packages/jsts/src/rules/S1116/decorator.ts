@@ -20,6 +20,8 @@
 import { AST, Rule } from 'eslint';
 import * as estree from 'estree';
 import { interceptReport } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 type NullableToken = AST.Token | null | undefined;
 type NodeCondition = (context: Rule.RuleContext, node: estree.Node) => boolean;
@@ -27,7 +29,13 @@ type NodeCondition = (context: Rule.RuleContext, node: estree.Node) => boolean;
 // core implementation of this rule raises issues when using semicolon-free style and
 // using semicolon to protect code on purpose.
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
-  return interceptReport(rule, reportExempting(isProtectionSemicolon));
+  return interceptReport(
+    {
+      ...rule,
+      meta: generateMeta(rspecMeta as Rule.RuleMetaData, rule.meta!),
+    },
+    reportExempting(isProtectionSemicolon),
+  );
 }
 
 function reportExempting(exemptionCondition: NodeCondition) {

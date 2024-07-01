@@ -31,6 +31,7 @@ import {
 } from '../helpers';
 import { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 /**
  * We keep a single occurrence of issues raised by both rules, discarding the ones raised by 'no-async-promise-executor'
@@ -81,7 +82,7 @@ const decoratedNoAsyncPromiseExecutorRule = interceptReport(
 );
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(__dirname, {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       ...decoratedNoMisusedPromisesRule.meta!.messages,
       ...decoratedNoAsyncPromiseExecutorRule.meta!.messages,

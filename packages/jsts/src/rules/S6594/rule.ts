@@ -29,15 +29,17 @@ import {
   isString,
 } from '../helpers';
 import { getParsedRegex } from '../helpers/regex';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     hasSuggestions: true,
     messages: {
       useExec: 'Use the "RegExp.exec()" method instead.',
       suggestExec: 'Replace with "RegExp.exec()"',
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     const services = context.sourceCode.parserServices;
     if (!isRequiredParserServices(services)) {

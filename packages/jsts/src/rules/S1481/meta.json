@@ -1,0 +1,8 @@
+{
+  "type": "suggestion",
+  "docs": {
+    "description": "Unused local variables and functions should be removed",
+    "recommended": true,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S1481/javascript/rule.adoc"
+  }
+}

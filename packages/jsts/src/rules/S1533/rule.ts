@@ -21,11 +21,13 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 const WRAPPER_TYPES = ['Boolean', 'Number', 'String'];
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     hasSuggestions: true,
     messages: {
       removeConstructor: 'Remove this use of "{{constructor}}" constructor.',
@@ -34,7 +36,7 @@ export const rule: Rule.RuleModule = {
       suggestRemoveNew: 'Remove "new" operator',
       suggestReplaceWrapper: 'Replace "{{wrapper}}" with "{{primitive}}"',
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     return {
       NewExpression(node: estree.Node) {

@@ -1,0 +1,8 @@
+{
+  "type": "suggestion",
+  "docs": {
+    "description": "Chai assertions should have only one reason to succeed",
+    "recommended": true,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S6092/javascript/rule.adoc"
+  }
+}

@@ -28,19 +28,27 @@ import {
   getMainFunctionTokenLocation,
 } from '../helpers';
 import { TSESTree } from '@typescript-eslint/utils';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
-  return interceptReportForReact(rule, (context, report) => {
-    const message =
-      'Move this component definition out of the parent component and pass data as props.';
-    const { node } = report as { node: estree.Node };
-    const loc = getMainNodeLocation(node, context);
-    if (loc) {
-      context.report({ ...report, loc, message });
-    } else {
-      context.report({ ...report, message });
-    }
-  });
+  return interceptReportForReact(
+    {
+      ...rule,
+      meta: generateMeta(rspecMeta as Rule.RuleMetaData, rule.meta!),
+    },
+    (context, report) => {
+      const message =
+        'Move this component definition out of the parent component and pass data as props.';
+      const { node } = report as { node: estree.Node };
+      const loc = getMainNodeLocation(node, context);
+      if (loc) {
+        context.report({ ...report, loc, message });
+      } else {
+        context.report({ ...report, message });
+      }
+    },
+  );
 
   function getMainNodeLocation(node: estree.Node, context: Rule.RuleContext) {
     /* class components */

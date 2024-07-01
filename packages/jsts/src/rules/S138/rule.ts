@@ -35,6 +35,7 @@ import {
 import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
 import { FromSchema } from 'json-schema-to-ts';
 import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from '../S101/meta.json';
 
 interface FunctionKnowledge {
   node: estree.Node;
@@ -68,7 +69,7 @@ const schema = {
 } as const satisfies JSONSchema4;
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(__dirname, { messages, schema }),
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, { messages, schema }),
   create(context: Rule.RuleContext) {
     const threshold = (context.options as FromSchema<typeof schema>)[0]?.maximum || DEFAULT;
 

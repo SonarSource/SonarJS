@@ -21,6 +21,8 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 const UNIX_DIRECTORIES = [
   '/tmp/',
@@ -43,11 +45,11 @@ const WINDOWS_DIRECTORIES_PATTERN = new RegExp(
 const SENSITIVE_ENV_VARIABLES = ['TMPDIR', 'TMP', 'TEMPDIR', 'TEMP'];
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       safeDirectory: 'Make sure publicly writable directories are used safely here.',
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     return {
       Literal: (node: estree.Node) => {

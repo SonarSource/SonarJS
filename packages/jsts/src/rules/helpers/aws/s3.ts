@@ -37,15 +37,15 @@ import { normalizeFQN } from './cdk';
  * ```new s3.Bucket(...)```
  *
  * @param callback the callback invoked on visiting S3 Bucket's instantiation
- * @param metadata the instantiated rule metadata
+ * @param meta the instantiated rule metadata
  * @returns the instantiated rule definition
  */
 export function S3BucketTemplate(
   callback: (bucketConstructor: estree.NewExpression, context: Rule.RuleContext) => void,
-  metadata: { meta: Rule.RuleMetaData } = { meta: {} },
+  meta?: Rule.RuleMetaData,
 ): Rule.RuleModule {
   return {
-    ...metadata,
+    meta,
     create(context: Rule.RuleContext) {
       return {
         NewExpression: (node: estree.NewExpression) => {

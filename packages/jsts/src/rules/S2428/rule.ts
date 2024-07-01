@@ -23,15 +23,16 @@ import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/utils';
 import { Rule, SourceCode } from 'eslint';
 import { areEquivalent, getProgramStatements, isIdentifier } from '../helpers';
 import estree from 'estree';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       declarePropertiesInsideObject:
         'Declare one or more properties of this object inside of the object literal syntax instead of using separate statements.',
     },
-    schema: [],
-  },
+  }),
   create(context) {
     return {
       BlockStatement: (node: estree.BlockStatement) =>

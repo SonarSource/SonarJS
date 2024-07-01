@@ -23,6 +23,8 @@ import { AST, Rule, Scope } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
 import { getParent, resolveIdentifiers } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 type ContextType = 'catch' | 'function' | 'foreach' | 'global';
 
@@ -36,12 +38,12 @@ interface ReassignmentContext {
 }
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       noReassignment:
         'Introduce a new variable or use its initial value before reassigning "{{reference}}".',
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     let variableUsageContext: ReassignmentContext = {
       type: 'global',

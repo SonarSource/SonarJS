@@ -1,0 +1,8 @@
+{
+  "type": "suggestion",
+  "docs": {
+    "description": "Function call arguments should not start on new lines",
+    "recommended": true,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S1472/javascript/rule.adoc"
+  }
+}

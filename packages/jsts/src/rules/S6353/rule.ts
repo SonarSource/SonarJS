@@ -22,23 +22,28 @@
 import { Rule } from 'eslint';
 import { CharacterClass, Flags, Quantifier, RegExpLiteral } from '@eslint-community/regexpp/ast';
 import { createRegExpRule, RegexRuleContext } from '../helpers/regex';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
-export const rule: Rule.RuleModule = createRegExpRule(context => {
-  let flags: Flags;
-  return {
-    onRegExpLiteralEnter: (node: RegExpLiteral) => {
-      ({ flags } = node);
-    },
-    onCharacterClassEnter: (node: CharacterClass) => {
-      checkBulkyAnyCharacterClass(node, flags, context);
-      checkBulkyNumericCharacterClass(node, context);
-      checkBulkyAlphaNumericCharacterClass(node, context);
-    },
-    onQuantifierEnter: (node: Quantifier) => {
-      checkBulkyQuantifier(node, context);
-    },
-  };
-});
+export const rule: Rule.RuleModule = createRegExpRule(
+  context => {
+    let flags: Flags;
+    return {
+      onRegExpLiteralEnter: (node: RegExpLiteral) => {
+        ({ flags } = node);
+      },
+      onCharacterClassEnter: (node: CharacterClass) => {
+        checkBulkyAnyCharacterClass(node, flags, context);
+        checkBulkyNumericCharacterClass(node, context);
+        checkBulkyAlphaNumericCharacterClass(node, context);
+      },
+      onQuantifierEnter: (node: Quantifier) => {
+        checkBulkyQuantifier(node, context);
+      },
+    };
+  },
+  generateMeta(rspecMeta as Rule.RuleMetaData),
+);
 
 function checkBulkyAnyCharacterClass(
   node: CharacterClass,

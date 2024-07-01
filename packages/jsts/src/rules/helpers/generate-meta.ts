@@ -19,18 +19,14 @@
  */
 
 import { Rule } from 'eslint';
-import fs from 'fs';
-import { basename, join } from 'path/posix';
-import { toUnixPath } from '@sonar/shared';
 
-export function generateMeta(dirname: string, ruleMeta: Rule.RuleMetaData): Rule.RuleMetaData {
-  const ruleId = basename(toUnixPath(dirname));
-  const rspecMeta = JSON.parse(
-    fs.readFileSync(join(dirname, 'meta.json'), 'utf8'),
-  ) as Rule.RuleMetaData;
-  if (rspecMeta.fixable && !ruleMeta.fixable) {
+export function generateMeta(
+  rspecMeta: Rule.RuleMetaData,
+  ruleMeta?: Rule.RuleMetaData,
+): Rule.RuleMetaData {
+  if (rspecMeta.fixable && !ruleMeta?.fixable) {
     throw new Error(
-      `Mismatch between RSPEC metadata and implementation for rule $${ruleId} for fixable attribute`,
+      `Mismatch between RSPEC metadata and implementation for fixable attribute in rule ${rspecMeta.docs!.url}`,
     );
   }
   return {

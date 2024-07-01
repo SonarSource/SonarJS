@@ -1,0 +1,9 @@
+{
+  "type": "suggestion",
+  "docs": {
+    "description": "\"in\" should not be used on arrays",
+    "recommended": true,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S4619/javascript/rule.adoc"
+  },
+  "fixable": "code"
+}

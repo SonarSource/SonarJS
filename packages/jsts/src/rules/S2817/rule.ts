@@ -27,15 +27,17 @@ import {
   getSymbolAtLocation,
   getTypeAsString,
 } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 const OPEN_DATABASE = 'openDatabase';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       convertWebSQLUse: 'Convert this use of a Web SQL database to another technology.',
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     const services = context.sourceCode.parserServices;
     if (!isRequiredParserServices(services)) {

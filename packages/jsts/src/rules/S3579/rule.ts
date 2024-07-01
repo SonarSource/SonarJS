@@ -22,14 +22,16 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { isArray, isString, isRequiredParserServices } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       noAssociativeArray:
         'Make it an object if it must have named properties; otherwise, use a numeric index here.',
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     const services = context.sourceCode.parserServices;
 

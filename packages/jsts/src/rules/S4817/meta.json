@@ -1,0 +1,9 @@
+{
+  "type": "problem",
+  "docs": {
+    "description": "Executing XPath expressions is security-sensitive",
+    "recommended": false,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S4817/javascript/rule.adoc"
+  },
+  "deprecated": true
+}

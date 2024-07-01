@@ -22,16 +22,18 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { isIdentifier, isMemberWithProperty, getFullyQualifiedName } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 const getEncryptionRuleModule = (
   clientSideMethods: string[],
   serverSideMethods: string[],
 ): Rule.RuleModule => ({
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       safeEncryption: 'Make sure that encrypting data is safe here.',
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     // for client side
     let usingCryptoInFile = false;

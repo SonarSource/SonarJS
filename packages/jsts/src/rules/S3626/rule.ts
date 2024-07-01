@@ -23,19 +23,19 @@ import type { TSESTree } from '@typescript-eslint/utils';
 import { RuleContext } from '../helpers';
 import { Rule } from 'eslint';
 import estree from 'estree';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 const loops = 'WhileStatement, ForStatement, DoWhileStatement, ForInStatement, ForOfStatement';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       removeRedundantJump: 'Remove this redundant jump.',
       suggestJumpRemoval: 'Remove this redundant jump',
     },
-    schema: [],
-    type: 'suggestion',
     hasSuggestions: true,
-  },
+  }),
   create(context) {
     function reportIfLastStatement(node: TSESTree.ContinueStatement | TSESTree.ReturnStatement) {
       const withArgument = node.type === 'ContinueStatement' ? !!node.label : !!node.argument;

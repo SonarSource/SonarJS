@@ -22,6 +22,9 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { Express, getFullyQualifiedName, getPropertyWithValue } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
+import { SONAR_RUNTIME } from '../../linter/parameters';
 
 const HELMET = 'helmet';
 const NO_SNIFF = 'noSniff';
@@ -29,6 +32,14 @@ const NO_SNIFF = 'noSniff';
 export const rule: Rule.RuleModule = Express.SensitiveMiddlewarePropertyRule(
   findFalseNoSniffPropertyFromHelmet,
   `Make sure allowing browsers to sniff MIME types is safe here.`,
+  generateMeta(rspecMeta as Rule.RuleMetaData, {
+    schema: [
+      {
+        // internal parameter for rules having secondary locations
+        enum: [SONAR_RUNTIME],
+      },
+    ],
+  }),
 );
 
 /**

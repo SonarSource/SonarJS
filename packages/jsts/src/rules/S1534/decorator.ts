@@ -22,40 +22,50 @@
 import { Rule, AST } from 'eslint';
 import { interceptReport } from '../helpers';
 import * as estree from 'estree';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 // core implementation of ESLint 'no-dupe-keys' does not provide quick fixes
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
-  rule.meta!.hasSuggestions = true;
-  return interceptReport(rule, (context, reportDescriptor) => {
-    context.report({
-      ...reportDescriptor,
-      suggest: [
-        {
-          desc: 'Remove this duplicate property',
-          fix(fixer) {
-            const propertyToRemove = getPropertyNode(reportDescriptor, context)!;
-            const commaAfter = context.sourceCode.getTokenAfter(
-              propertyToRemove,
-              token => token.value === ',',
-            );
-            const commaBefore = context.sourceCode.getTokenBefore(
-              propertyToRemove,
-              token => token.value === ',',
-            )!;
+  return interceptReport(
+    {
+      ...rule,
+      meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+        ...rule.meta!,
+        hasSuggestions: true,
+      }),
+    },
+    (context, reportDescriptor) => {
+      context.report({
+        ...reportDescriptor,
+        suggest: [
+          {
+            desc: 'Remove this duplicate property',
+            fix(fixer) {
+              const propertyToRemove = getPropertyNode(reportDescriptor, context)!;
+              const commaAfter = context.sourceCode.getTokenAfter(
+                propertyToRemove,
+                token => token.value === ',',
+              );
+              const commaBefore = context.sourceCode.getTokenBefore(
+                propertyToRemove,
+                token => token.value === ',',
+              )!;
 
-            let start = commaBefore.range[1];
-            let end = propertyToRemove.range![1];
-            if (commaAfter) {
-              end = commaAfter.range[1];
-            } else {
-              start = commaBefore.range[0];
-            }
-            return fixer.removeRange([start, end]);
+              let start = commaBefore.range[1];
+              let end = propertyToRemove.range![1];
+              if (commaAfter) {
+                end = commaAfter.range[1];
+              } else {
+                start = commaBefore.range[0];
+              }
+              return fixer.removeRange([start, end]);
+            },
           },
-        },
-      ],
-    });
-  });
+        ],
+      });
+    },
+  );
 }
 
 function getPropertyNode(reportDescriptor: Rule.ReportDescriptor, context: Rule.RuleContext) {

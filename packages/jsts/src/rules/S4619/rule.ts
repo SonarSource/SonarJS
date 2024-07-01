@@ -23,16 +23,18 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { isArray, isNumber, isRequiredParserServices } from '../helpers';
 import { TSESTree } from '@typescript-eslint/utils';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     hasSuggestions: true,
     messages: {
       inMisuse: 'Use "indexOf" or "includes" (available from ES2016) instead.',
       suggestIndexOf: 'Replace with "indexOf" method',
       suggestIncludes: 'Replace with "includes" method',
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     const services = context.sourceCode.parserServices;
 

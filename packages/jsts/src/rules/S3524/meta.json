@@ -1,0 +1,8 @@
+{
+  "type": "suggestion",
+  "docs": {
+    "description": "Braces and parentheses should be used consistently with arrow functions",
+    "recommended": false,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S3524/javascript/rule.adoc"
+  }
+}

@@ -22,13 +22,15 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { isIdentifier } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       safeCookie: 'Make sure that cookie is written safely here.',
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     let usingExpressFramework = false;
 

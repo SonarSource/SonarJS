@@ -21,6 +21,8 @@
 
 import { Rule } from 'eslint';
 import { interceptReport } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 /**
  * The core implementation of the rule includes a fix without a message.
@@ -29,19 +31,27 @@ import { interceptReport } from '../helpers';
  * and adds to it a dynamic description rather than a fixed one.
  */
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
-  rule.meta!.hasSuggestions = true;
-  return interceptReport(rule, (context, descriptor) => {
-    const { messageId, fix, data, ...rest } = descriptor as any;
-    if (messageId !== 'unknownPropWithStandardName') {
-      context.report(descriptor);
-      return;
-    }
-    const suggest: Rule.SuggestionReportDescriptor[] = [
-      {
-        desc: `Replace with '${data.standardName}'`,
-        fix,
-      },
-    ];
-    context.report({ messageId, data, suggest, ...rest });
-  });
+  return interceptReport(
+    {
+      ...rule,
+      meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+        ...rule.meta!,
+        hasSuggestions: true,
+      }),
+    },
+    (context, descriptor) => {
+      const { messageId, fix, data, ...rest } = descriptor as any;
+      if (messageId !== 'unknownPropWithStandardName') {
+        context.report(descriptor);
+        return;
+      }
+      const suggest: Rule.SuggestionReportDescriptor[] = [
+        {
+          desc: `Replace with '${data.standardName}'`,
+          fix,
+        },
+      ];
+      context.report({ messageId, data, suggest, ...rest });
+    },
+  );
 }

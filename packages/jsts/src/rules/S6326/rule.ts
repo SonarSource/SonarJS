@@ -22,6 +22,8 @@
 import { AST, Rule } from 'eslint';
 import * as regexpp from '@eslint-community/regexpp';
 import { createRegExpRule, getRegexpRange } from '../helpers/regex';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = createRegExpRule(
   context => {
@@ -61,11 +63,7 @@ export const rule: Rule.RuleModule = createRegExpRule(
       },
     };
   },
-  {
-    meta: {
-      hasSuggestions: true,
-    },
-  },
+  generateMeta(rspecMeta as Rule.RuleMetaData, { hasSuggestions: true }),
 );
 
 function countSpacesBefore(pattern: string, index: number) {

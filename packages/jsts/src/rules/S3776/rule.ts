@@ -34,6 +34,8 @@ import {
 } from '../helpers';
 import { Rule } from 'eslint';
 import estree from 'estree';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 const DEFAULT_THRESHOLD = 15;
 
@@ -55,7 +57,7 @@ const message =
   'Refactor this function to reduce its Cognitive Complexity from {{complexityAmount}} to the {{threshold}} allowed.';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       refactorFunction: message,
       sonarRuntime: '{{sonarRuntimeData}}',
@@ -69,7 +71,7 @@ export const rule: Rule.RuleModule = {
         enum: ['sonar-runtime', 'metric'],
       },
     ],
-  },
+  }),
   create(context) {
     const { options } = context;
 

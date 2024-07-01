@@ -23,16 +23,17 @@ import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/utils';
 import { isIdentifier } from '../helpers';
 import { Rule } from 'eslint';
 import estree from 'estree';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       doImmediateAction:
         'Immediately {{action}} this expression instead of assigning it to the temporary variable "{{variable}}".',
     },
-    schema: [],
     fixable: 'code',
-  },
+  }),
   create(context) {
     return {
       BlockStatement(node: estree.BlockStatement) {

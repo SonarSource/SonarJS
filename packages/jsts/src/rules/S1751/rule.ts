@@ -22,14 +22,15 @@
 import { TSESTree, AST_NODE_TYPES } from '@typescript-eslint/utils';
 import { Rule } from 'eslint';
 import estree from 'estree';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       refactorLoop: 'Refactor this loop to do more than one iteration.',
     },
-    schema: [],
-  },
+  }),
   // @ts-ignore The typings of @typescript-eslint/utils does not contain the 'onX' methods.
   create(context) {
     const loopingNodes: Set<estree.Node> = new Set();

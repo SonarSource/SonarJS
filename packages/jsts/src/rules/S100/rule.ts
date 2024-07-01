@@ -25,6 +25,7 @@ import { last, functionLike } from '../helpers';
 import { generateMeta } from '../helpers/generate-meta';
 import { FromSchema } from 'json-schema-to-ts';
 import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
+import rspecMeta from './meta.json';
 
 interface FunctionKnowledge {
   node: estree.Identifier;
@@ -79,7 +80,7 @@ const schema = {
 } as const satisfies JSONSchema4;
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(__dirname, { messages, schema }),
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, { messages, schema }),
   create(context: Rule.RuleContext) {
     const format = (context.options as FromSchema<typeof schema>)[0]?.format || DEFAULT_FORMAT;
     const knowledgeStack: FunctionKnowledge[] = [];

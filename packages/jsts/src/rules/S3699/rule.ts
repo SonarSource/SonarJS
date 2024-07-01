@@ -23,6 +23,8 @@ import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/utils';
 import { isArrowFunctionExpression, isFunctionExpression, RuleContext } from '../helpers';
 import { Rule } from 'eslint';
 import estree from 'estree';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 const EMPTY_RETURN_VALUE_KEYWORDS = new Set([
   'TSVoidKeyword',
@@ -59,13 +61,12 @@ function isReturnValueUsed(callExpr: TSESTree.Node) {
 }
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       removeUseOfOutput:
         'Remove this use of the output from "{{name}}"; "{{name}}" doesn\'t return anything.',
     },
-    schema: [],
-  },
+  }),
   create(context) {
     const callExpressionsToCheck: Map<
       TSESTree.Identifier | TSESTree.JSXIdentifier,

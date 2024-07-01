@@ -21,6 +21,8 @@ import { Rule } from 'eslint';
 import { interceptReport } from '../helpers';
 import { hasAnyProp } from 'jsx-ast-utils';
 import { TSESTree } from '@typescript-eslint/utils';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 /**
  * This fix was introduced in eslint-plugin-jsx-a11y e6bfd5cb7c,
@@ -33,13 +35,21 @@ import { TSESTree } from '@typescript-eslint/utils';
  * - all files in the `rules/S6827/` directory
  */
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
-  rule.meta!.hasSuggestions = true;
-  return interceptReport(rule, (context, reportDescriptor) => {
-    const node = (reportDescriptor as any).node as TSESTree.JSXOpeningElement;
+  return interceptReport(
+    {
+      ...rule,
+      meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+        ...rule.meta!,
+        hasSuggestions: true,
+      }),
+    },
+    (context, reportDescriptor) => {
+      const node = (reportDescriptor as any).node as TSESTree.JSXOpeningElement;
 
-    if (hasAnyProp(node.attributes, ['title', 'aria-label'])) {
-      return;
-    }
-    context.report({ ...reportDescriptor });
-  });
+      if (hasAnyProp(node.attributes, ['title', 'aria-label'])) {
+        return;
+      }
+      context.report({ ...reportDescriptor });
+    },
+  );
 }

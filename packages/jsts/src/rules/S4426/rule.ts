@@ -22,6 +22,8 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { isIdentifier, getValueOfExpression, getProperty } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 const MINIMAL_MODULUS_LENGTH = 2048;
 const MINIMAL_DIVISOR_LENGTH = 224;
@@ -53,7 +55,7 @@ const WEAK_CURVES = [
 ];
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       modulusLength:
         'Use a modulus length of at least {{minimalLength}} bits for {{algorithm}} cipher algorithm.',
@@ -61,7 +63,7 @@ export const rule: Rule.RuleModule = {
         'Use a divisor length of at least {{minimalLength}} bits for {{algorithm}} cipher algorithm.',
       strongerCurve: `{{curve}} doesn't provide enough security. Use a stronger curve.`,
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     function getNumericValue(node: estree.Node | undefined) {
       const literal = getValueOfExpression(context, node, 'Literal');

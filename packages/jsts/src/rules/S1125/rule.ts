@@ -23,14 +23,15 @@ import { TSESTree, AST_NODE_TYPES } from '@typescript-eslint/utils';
 import { isBooleanLiteral } from '../helpers';
 import { Rule } from 'eslint';
 import estree from 'estree';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       removeUnnecessaryBoolean: 'Refactor the code to avoid using this boolean literal.',
     },
-    schema: [],
-  },
+  }),
   create(context) {
     return {
       BinaryExpression(expression: estree.BinaryExpression) {

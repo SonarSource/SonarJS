@@ -22,16 +22,17 @@
 import { AST, Rule } from 'eslint';
 import estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       useExistingOperator: 'Was "{{operator}}=" meant instead?',
       suggestExistingOperator: 'Replace with "{{operator}}" operator',
     },
-    schema: [],
     hasSuggestions: true,
-  },
+  }),
   create(context) {
     return {
       AssignmentExpression(assignmentExpression: estree.AssignmentExpression) {

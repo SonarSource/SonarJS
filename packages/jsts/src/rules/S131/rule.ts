@@ -23,6 +23,8 @@ import * as estree from 'estree';
 import { Rule, SourceCode } from 'eslint';
 import { tsEslintRules } from '../typescript-eslint';
 import { isRequiredParserServices, isUnion, interceptReport, mergeRules } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from '../S101/meta.json';
 
 /**
  * This rule raises issues on switch statements without a default branch if, and only if,
@@ -129,13 +131,14 @@ function fixSwitch(
 }
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     hasSuggestions: true,
     messages: {
       ...switchWithoutDefaultRule.meta?.messages,
       ...decoratedSwitchExhaustivenessRule.meta?.messages,
     },
-  },
+    schema: switchExhaustivenessRule.schema,
+  }),
   create(context: Rule.RuleContext) {
     return mergeRules(
       switchWithoutDefaultRule.create(context),

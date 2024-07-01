@@ -24,14 +24,16 @@ import * as estree from 'estree';
 import * as ts from 'typescript';
 import { TSESTree } from '@typescript-eslint/utils';
 import { isRequiredParserServices } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from '.meta.json';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       removeIntersection: 'Remove this type without members or change this type intersection.',
       simplifyIntersection: 'Simplify this intersection as it always has type "{{type}}".',
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     const services = context.sourceCode.parserServices;
     if (isRequiredParserServices(services)) {

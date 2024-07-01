@@ -1,0 +1,8 @@
+{
+  "type": "problem",
+  "docs": {
+    "description": "Loops should not be infinite",
+    "recommended": true,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S2189/javascript/rule.adoc"
+  }
+}

@@ -23,11 +23,13 @@ import type { TSESTree } from '@typescript-eslint/utils';
 import { Rule, Scope } from 'eslint';
 import { isIdentifier, isIfStatement, report, RuleContext } from '../helpers';
 import estree from 'estree';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 const message = 'This always evaluates to {{value}}. Consider refactoring this code.';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       refactorBooleanExpression: message,
       sonarRuntime: '{{sonarRuntimeData}}',
@@ -39,7 +41,7 @@ export const rule: Rule.RuleModule = {
         enum: ['sonar-runtime'],
       },
     ],
-  },
+  }),
   create(context) {
     const truthyMap: Map<TSESTree.Statement, Scope.Reference[]> = new Map();
     const falsyMap: Map<TSESTree.Statement, Scope.Reference[]> = new Map();

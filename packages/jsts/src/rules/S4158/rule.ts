@@ -29,6 +29,8 @@ import {
 } from '../helpers';
 import { Scope, Rule } from 'eslint';
 import estree from 'estree';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 // Methods that mutate the collection but can't add elements
 const nonAdditiveMutatorMethods = [
@@ -81,13 +83,12 @@ const strictlyReadingMethods = new Set([
 ]);
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       reviewUsageOfIdentifier:
         'Review this usage of "{{identifierName}}" as it can only be empty here.',
     },
-    schema: [],
-  },
+  }),
   create(context) {
     return {
       'Program:exit': (node: estree.Node) => {

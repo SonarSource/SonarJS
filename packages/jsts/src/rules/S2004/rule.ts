@@ -27,12 +27,13 @@ import { getMainFunctionTokenLocation, RuleContext, toEncodedMessage } from '../
 import { generateMeta } from '../helpers/generate-meta';
 import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
 import { FromSchema } from 'json-schema-to-ts';
+import rspecMeta from './meta.json';
 
 const DEFAULT_THRESHOLD = 4;
 const schema = {
   type: 'array',
   minItems: 0,
-  maxItems: 1,
+  maxItems: 2,
   items: [
     {
       type: 'object',
@@ -52,7 +53,7 @@ const schema = {
 } as const satisfies JSONSchema4;
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(__dirname, { schema }),
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, { schema }),
   create(context: Rule.RuleContext) {
     const max = (context.options as FromSchema<typeof schema>)[0]?.threshold || DEFAULT_THRESHOLD;
     const nestedStack: TSESTree.FunctionLike[] = [];

@@ -1,0 +1,8 @@
+{
+  "type": "problem",
+  "docs": {
+    "description": "Values should not be uselessly incremented",
+    "recommended": true,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S2123/javascript/rule.adoc"
+  }
+}

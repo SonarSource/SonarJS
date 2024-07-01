@@ -21,13 +21,15 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from '.meta.json';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       extractTernary: 'Extract this nested ternary operation into an independent statement.',
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     return {
       'ConditionalExpression ConditionalExpression': (node: estree.Node) => {

@@ -22,44 +22,54 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { isIdentifier, isMemberExpression, interceptReport } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 // core implementation of this rule does not provide quick fixes
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
-  rule.meta!.hasSuggestions = true;
-  return interceptReport(rule, (context, reportDescriptor) => {
-    const suggest: Rule.SuggestionReportDescriptor[] = [];
-    const node = (reportDescriptor as any).node as estree.Node;
-    if (node.type === 'BinaryExpression') {
-      const { left, operator, right } = node;
-      let negate: boolean | null = null;
-      switch (operator) {
-        case '!=':
-        case '!==':
-          negate = true;
-          break;
-        case '==':
-        case '===':
-          negate = false;
-          break;
+  return interceptReport(
+    {
+      ...rule,
+      meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+        ...rule.meta!,
+        hasSuggestions: true,
+      }),
+    },
+    (context, reportDescriptor) => {
+      const suggest: Rule.SuggestionReportDescriptor[] = [];
+      const node = (reportDescriptor as any).node as estree.Node;
+      if (node.type === 'BinaryExpression') {
+        const { left, operator, right } = node;
+        let negate: boolean | null = null;
+        switch (operator) {
+          case '!=':
+          case '!==':
+            negate = true;
+            break;
+          case '==':
+          case '===':
+            negate = false;
+            break;
+        }
+        if (negate !== null) {
+          const arg = isNaNIdentifier(left) ? right : left;
+          const argText = context.sourceCode.getText(arg);
+          const prefix = negate ? '!' : '';
+          suggest.push(
+            {
+              desc: 'Use "isNaN()"',
+              fix: fixer => fixer.replaceText(node, `${prefix}isNaN(${argText})`),
+            },
+            {
+              desc: 'Use "Number.isNaN()"',
+              fix: fixer => fixer.replaceText(node, `${prefix}Number.isNaN(${argText})`),
+            },
+          );
+        }
       }
-      if (negate !== null) {
-        const arg = isNaNIdentifier(left) ? right : left;
-        const argText = context.sourceCode.getText(arg);
-        const prefix = negate ? '!' : '';
-        suggest.push(
-          {
-            desc: 'Use "isNaN()"',
-            fix: fixer => fixer.replaceText(node, `${prefix}isNaN(${argText})`),
-          },
-          {
-            desc: 'Use "Number.isNaN()"',
-            fix: fixer => fixer.replaceText(node, `${prefix}Number.isNaN(${argText})`),
-          },
-        );
-      }
-    }
-    context.report({ ...reportDescriptor, suggest });
-  });
+      context.report({ ...reportDescriptor, suggest });
+    },
+  );
 }
 
 function isNaNIdentifier(node: estree.Node) {

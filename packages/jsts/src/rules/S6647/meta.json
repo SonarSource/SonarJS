@@ -1,0 +1,9 @@
+{
+  "type": "suggestion",
+  "docs": {
+    "description": "Unnecessary constructors should be removed",
+    "recommended": true,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S6647/javascript/rule.adoc"
+  },
+  "fixable": "code"
+}

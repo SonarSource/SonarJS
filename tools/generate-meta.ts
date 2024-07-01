@@ -71,7 +71,7 @@ function generateMetaForRule(ruleDir: string, ruleId: string) {
   if (ruleRspecMeta.status === 'deprecated') {
     metadata.deprecated = true;
   }
-  writeFileSync(join(ruleDir, ruleId, 'meta.json'), JSON.stringify(metadata));
+  writeFileSync(join(ruleDir, ruleId, 'meta.json'), JSON.stringify(metadata, null, 2));
 }
 
 function generateMetaForRules(ruleDir: string) {

@@ -26,13 +26,14 @@ import { SONAR_RUNTIME } from '../../linter/parameters';
 import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
 import { generateMeta } from '../helpers/generate-meta';
 import { FromSchema } from 'json-schema-to-ts';
+import rspecMeta from '../S101/meta.json';
 
 const DEFAULT_MAXIMUM_NESTING_LEVEL = 3;
 
 const schema = {
   type: 'array',
   minItems: 0,
-  maxItems: 1,
+  maxItems: 2,
   items: [
     {
       type: 'object',
@@ -52,7 +53,7 @@ const schema = {
 } as const satisfies JSONSchema4;
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(__dirname, { schema }),
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, { schema }),
 
   create(context: Rule.RuleContext) {
     const sourceCode = context.sourceCode;

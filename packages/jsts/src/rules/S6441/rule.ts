@@ -22,6 +22,8 @@
 import { Rule } from 'eslint';
 import { rules as reactRules } from 'eslint-plugin-react';
 import { rule as detectReact, mergeRules } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 const noUnusedClassComponentMethod = reactRules['no-unused-class-component-methods'];
 
@@ -31,14 +33,16 @@ function overrideContext(context: Rule.RuleContext, overrides: any): Rule.RuleCo
 }
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+    ...noUnusedClassComponentMethod.meta,
     messages: {
+      ...noUnusedClassComponentMethod.meta!.messages,
       unused:
         'Remove this property or method or refactor this component, as "{{name}}" is not used inside component body',
       unusedWithClass:
         'Remove this property or method or refactor "{{className}}", as "{{name}}" is not used inside component body',
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     let isReact = false;
 

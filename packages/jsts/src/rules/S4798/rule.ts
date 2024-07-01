@@ -22,6 +22,8 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 type FunctionLike =
   | TSESTree.FunctionDeclaration
@@ -29,14 +31,14 @@ type FunctionLike =
   | TSESTree.ArrowFunctionExpression;
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       provideDefault:
         "Provide a default value for '{{parameter}}' so that " +
         'the logic of the function is more evident when this parameter is missing. ' +
         'Consider defining another function if providing default value is not possible.',
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     return {
       'FunctionDeclaration, FunctionExpression, ArrowFunctionExpression': (node: estree.Node) => {

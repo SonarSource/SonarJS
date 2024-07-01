@@ -23,17 +23,18 @@ import type { TSESTree } from '@typescript-eslint/utils';
 import { Rule } from 'eslint';
 import estree from 'estree';
 import { areEquivalent, collectIfBranches, collectSwitchBranches, isIfStatement } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       removeOrEditConditionalStructure:
         "Remove this conditional structure or edit its code blocks so that they're not all the same.",
       returnsTheSameValue:
         'This conditional operation returns the same value whether the condition is "true" or "false".',
     },
-    schema: [],
-  },
+  }),
   create(context) {
     return {
       IfStatement(ifStmt: estree.IfStatement) {

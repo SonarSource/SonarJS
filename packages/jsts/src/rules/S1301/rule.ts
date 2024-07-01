@@ -21,14 +21,15 @@
 
 import { Rule } from 'eslint';
 import estree from 'estree';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       smallSwitch: '"switch" statements should have at least 3 "case" clauses',
     },
-    schema: [],
-  },
+  }),
   create(context) {
     return {
       SwitchStatement(node: estree.SwitchStatement) {

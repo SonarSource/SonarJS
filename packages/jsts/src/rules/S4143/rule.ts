@@ -30,12 +30,14 @@ import {
 } from '../helpers';
 import { AST, Rule } from 'eslint';
 import estree from 'estree';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 const message =
   'Verify this is the index that was intended; "{{index}}" was already set on line {{line}}.';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       verifyIntendedIndex: message,
       sonarRuntime: '{{sonarRuntimeData}}',
@@ -47,7 +49,7 @@ export const rule: Rule.RuleModule = {
         enum: ['sonar-runtime'],
       },
     ],
-  },
+  }),
   create(context) {
     return {
       SwitchCase(node: estree.SwitchCase) {

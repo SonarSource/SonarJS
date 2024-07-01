@@ -22,16 +22,24 @@
 import { TSESTree } from '@typescript-eslint/utils';
 import { Rule } from 'eslint';
 import { isGenericType, interceptReport } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
-  return interceptReport(rule, (context, reportDescriptor) => {
-    if ('node' in reportDescriptor) {
-      const services = context.sourceCode.parserServices;
-      if (isGenericType(reportDescriptor.node as TSESTree.Node, services)) {
-        // we skip
-      } else {
-        context.report(reportDescriptor);
+  return interceptReport(
+    {
+      ...rule,
+      meta: generateMeta(rspecMeta as Rule.RuleMetaData, rule.meta!),
+    },
+    (context, reportDescriptor) => {
+      if ('node' in reportDescriptor) {
+        const services = context.sourceCode.parserServices;
+        if (isGenericType(reportDescriptor.node as TSESTree.Node, services)) {
+          // we skip
+        } else {
+          context.report(reportDescriptor);
+        }
       }
-    }
-  });
+    },
+  );
 }

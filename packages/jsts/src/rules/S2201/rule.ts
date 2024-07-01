@@ -25,6 +25,8 @@ import type { Type } from 'typescript';
 import { Rule } from 'eslint';
 import { getTypeFromTreeNode, isRequiredParserServices } from '../helpers';
 import estree from 'estree';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 const METHODS_WITHOUT_SIDE_EFFECTS: { [index: string]: Set<string> } = {
   array: new Set([
@@ -174,13 +176,12 @@ const METHODS_WITHOUT_SIDE_EFFECTS: { [index: string]: Set<string> } = {
 };
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       useForEach: `Consider using "forEach" instead of "map" as its return value is not being used here.`,
       returnValueMustBeUsed: 'The return value of "{{methodName}}" must be used.',
     },
-    schema: [],
-  },
+  }),
   create(context) {
     const services = context.sourceCode.parserServices;
     if (!isRequiredParserServices(services)) {

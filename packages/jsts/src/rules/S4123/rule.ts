@@ -24,13 +24,15 @@ import * as estree from 'estree';
 import * as ts from 'typescript';
 import { isRequiredParserServices, getTypeFromTreeNode, getSignatureFromCallee } from '../helpers';
 import { ParserServicesWithTypeInformation } from '@typescript-eslint/utils';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       refactorAwait: "Refactor this redundant 'await' on a non-promise.",
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     const services = context.sourceCode.parserServices;
     if (isRequiredParserServices(services)) {
