@@ -23,7 +23,7 @@ import { Rule } from 'eslint';
 import { Character, Quantifier, RegExpLiteral } from '@eslint-community/regexpp/ast';
 import { LocationHolder, toEncodedMessage } from '../helpers';
 import { createRegExpRule, getRegexpLocation } from '../helpers/regex';
-import { SONAR_RUNTIME } from '../../linter/parameters';
+import { SONAR_RUNTIME } from '../parameters';
 
 export const rule: Rule.RuleModule = createRegExpRule(
   context => {

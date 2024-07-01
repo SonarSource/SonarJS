@@ -33,7 +33,7 @@ import {
   toEncodedMessage,
 } from '../helpers';
 import { getFlags, isRegExpConstructor } from '../helpers/regex';
-import { SONAR_RUNTIME } from '../../linter/parameters';
+import { SONAR_RUNTIME } from '../parameters';
 
 type RegexInfo = { node: estree.Node; flags: string };
 

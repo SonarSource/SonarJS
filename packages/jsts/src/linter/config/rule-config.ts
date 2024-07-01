@@ -19,7 +19,8 @@
  */
 import { Rule } from 'eslint';
 import { FileType, getContext, JsTsLanguage } from '@sonar/shared';
-import { hasSonarContextOption, hasSonarRuntimeOption, SONAR_RUNTIME } from '../parameters';
+import { hasSonarContextOption } from '../parameters';
+import { hasSonarRuntimeOption, SONAR_RUNTIME } from '../../rules/parameters';
 
 /**
  * An input rule configuration for linting

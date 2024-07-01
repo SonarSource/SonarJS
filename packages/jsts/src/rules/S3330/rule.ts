@@ -22,7 +22,7 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { CookieFlagCheck } from '../helpers/cookie-flag-check';
-import { SONAR_RUNTIME } from '../../linter/parameters';
+import { SONAR_RUNTIME } from '../parameters';
 
 export const rule: Rule.RuleModule = {
   meta: {

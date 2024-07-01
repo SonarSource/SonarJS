@@ -27,7 +27,7 @@ import {
   getRegexpLocation,
   SimplifiedRegexCharacterClass,
 } from '../helpers/regex';
-import { SONAR_RUNTIME } from '../../linter/parameters';
+import { SONAR_RUNTIME } from '../parameters';
 
 export const rule: Rule.RuleModule = createRegExpRule(
   context => {

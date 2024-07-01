@@ -28,7 +28,7 @@ import {
   isNumberLiteral,
   toEncodedMessage,
 } from '../helpers';
-import { SONAR_RUNTIME } from '../../linter/parameters';
+import { SONAR_RUNTIME } from '../parameters';
 
 const MAX_INDEX = 4;
 const isAllowedIndex = (idx: number) => idx >= 0 && idx <= MAX_INDEX;

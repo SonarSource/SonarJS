@@ -33,7 +33,7 @@ import {
   toEncodedMessage,
 } from '../helpers';
 import { TSESTree } from '@typescript-eslint/utils';
-import { SONAR_RUNTIME } from '../../linter/parameters';
+import { SONAR_RUNTIME } from '../parameters';
 
 const MESSAGE = `Make sure that enabling CORS is safe here.`;
 const SECONDARY_MESSAGE = 'Sensitive configuration';

@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import { Node } from 'estree';
-import { SONAR_RUNTIME } from '../../linter/parameters';
+import { SONAR_RUNTIME } from '../parameters';
 import { getValueOfExpression, toEncodedMessage, getNodeParent } from '../helpers';
 import { getProperty, S3BucketTemplate } from '../helpers/aws/s3';
 

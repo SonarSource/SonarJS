@@ -20,7 +20,7 @@
 import { CallExpression, NewExpression, Node } from 'estree';
 import { Rule } from 'eslint';
 import { AwsCdkTemplate, normalizeFQN } from './cdk';
-import { SONAR_RUNTIME } from '../../../linter/parameters';
+import { SONAR_RUNTIME } from '../../parameters';
 import { getResultOfExpression, Result } from '../result';
 import { flattenArgs, isStringLiteral, StringLiteral } from '../ast';
 import { getFullyQualifiedName } from '../module';

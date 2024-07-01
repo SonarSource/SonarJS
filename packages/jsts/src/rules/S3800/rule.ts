@@ -34,7 +34,7 @@ import {
   RuleContext,
   toEncodedMessage,
 } from '../helpers';
-import { SONAR_RUNTIME } from '../../linter/parameters';
+import { SONAR_RUNTIME } from '../parameters';
 import { type UnionType } from 'typescript';
 
 class FunctionScope {

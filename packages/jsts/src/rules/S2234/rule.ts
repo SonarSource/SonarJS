@@ -32,7 +32,7 @@ import {
   resolveIdentifiers,
   EncodedMessage,
 } from '../helpers';
-import { SONAR_RUNTIME } from '../../linter/parameters';
+import { SONAR_RUNTIME } from '../parameters';
 
 interface FunctionSignature {
   params: Array<string | undefined>;

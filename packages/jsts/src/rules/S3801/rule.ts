@@ -23,7 +23,7 @@ import { AST, Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
 import { getMainFunctionTokenLocation, getParent, RuleContext, toEncodedMessage } from '../helpers';
-import { SONAR_RUNTIME } from '../../linter/parameters';
+import { SONAR_RUNTIME } from '../parameters';
 
 interface FunctionContext {
   codePath: Rule.CodePath;

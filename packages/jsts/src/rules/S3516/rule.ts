@@ -31,7 +31,7 @@ import {
   RuleContext,
   toEncodedMessage,
 } from '../helpers';
-import { SONAR_RUNTIME } from '../../linter/parameters';
+import { SONAR_RUNTIME } from '../parameters';
 import CodePathSegment = Rule.CodePathSegment;
 
 interface FunctionContext {

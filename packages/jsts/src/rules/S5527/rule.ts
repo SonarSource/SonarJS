@@ -28,7 +28,7 @@ import {
   getFullyQualifiedName,
   getProperty,
 } from '../helpers';
-import { SONAR_RUNTIME } from '../../linter/parameters';
+import { SONAR_RUNTIME } from '../parameters';
 import { childrenOf } from '../../linter';
 
 export const rule: Rule.RuleModule = {

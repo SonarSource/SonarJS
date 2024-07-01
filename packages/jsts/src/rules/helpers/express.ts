@@ -28,7 +28,7 @@ import {
   getParent,
   toEncodedMessage,
 } from '.';
-import { SONAR_RUNTIME } from '../../linter/parameters';
+import { SONAR_RUNTIME } from '../parameters';
 
 /**
  * This modules provides utilities for writing rules about Express.js.

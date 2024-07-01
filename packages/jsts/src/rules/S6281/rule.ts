@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import { NewExpression, ObjectExpression, Property } from 'estree';
-import { SONAR_RUNTIME } from '../../linter/parameters';
+import { SONAR_RUNTIME } from '../parameters';
 import {
   getFullyQualifiedName,
   getValueOfExpression,

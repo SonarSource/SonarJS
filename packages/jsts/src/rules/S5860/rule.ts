@@ -45,7 +45,7 @@ import {
   isStringRegexMethodCall,
   isStringReplaceCall,
 } from '../helpers/regex';
-import { SONAR_RUNTIME } from '../../linter/parameters';
+import { SONAR_RUNTIME } from '../parameters';
 import { TSESTree } from '@typescript-eslint/utils';
 
 export const rule: Rule.RuleModule = {

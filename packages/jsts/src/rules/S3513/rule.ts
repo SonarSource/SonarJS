@@ -22,7 +22,7 @@
 import { Rule, Scope } from 'eslint';
 import { TSESTree } from '@typescript-eslint/utils';
 import { toEncodedMessage } from '../helpers';
-import { SONAR_RUNTIME } from '../../linter/parameters';
+import { SONAR_RUNTIME } from '../parameters';
 import estree from 'estree';
 
 const MESSAGE = "Use the rest syntax to declare this function's arguments.";
