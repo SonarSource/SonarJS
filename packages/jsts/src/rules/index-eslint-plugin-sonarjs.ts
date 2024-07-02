@@ -675,7 +675,7 @@ rules['x-powered-by'] = S5689;
 rules['xml-parser-xxe'] = S2755;
 rules['xpath'] = S4817;
 
-//import { name, version } from './package.json';
+import { name, version } from './package.json';
 const recommendedLegacyConfig: TSESLint.Linter.ConfigType = { plugins: ['sonarjs'], rules: {} };
 const recommendedConfig: FlatConfig.Config = {
   plugins: {
@@ -701,8 +701,8 @@ const configs = {
 };
 
 const meta = {
-  name: 'eslint-plugin-sonarjs',
-  version: '1.0.3',
+  name,
+  version,
 };
 
 export { rules, configs, meta };
