@@ -24,7 +24,7 @@ export function generateMeta(
   rspecMeta: Rule.RuleMetaData,
   ruleMeta?: Rule.RuleMetaData,
 ): Rule.RuleMetaData {
-  if (rspecMeta.fixable && !ruleMeta?.fixable) {
+  if (rspecMeta.fixable && !ruleMeta?.fixable && !ruleMeta?.hasSuggestions) {
     throw new Error(
       `Mismatch between RSPEC metadata and implementation for fixable attribute in rule ${rspecMeta.docs!.url}`,
     );

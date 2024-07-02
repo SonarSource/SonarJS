@@ -35,6 +35,7 @@ interface SiblingIfStatement {
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+    hasSuggestions: true,
     messages: {
       sameLineCondition: message,
       sonarRuntime: '{{sonarRuntimeData}}',
