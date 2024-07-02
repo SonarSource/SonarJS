@@ -27,6 +27,8 @@ import {
   isLiteral,
   getFullyQualifiedName,
 } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 const xpathModule = 'xpath';
 
@@ -34,11 +36,11 @@ const xpathEvalMethods = ['select', 'select1', 'evaluate'];
 const ieEvalMethods = ['selectNodes', 'SelectSingleNode'];
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       checkXPath: 'Make sure that executing this XPATH expression is safe.',
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     return {
       MemberExpression: (node: estree.Node) => {

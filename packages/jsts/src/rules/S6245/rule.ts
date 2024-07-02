@@ -25,6 +25,8 @@ import { SONAR_RUNTIME } from '../parameters';
 import { getFullyQualifiedName, getValueOfExpression, toEncodedMessage } from '../helpers';
 import { normalizeFQN } from '../helpers/aws/cdk';
 import { findPropagatedSetting, getProperty, S3BucketTemplate } from '../helpers/aws/s3';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 const ENCRYPTED_KEY = 'encryption';
 
@@ -68,14 +70,12 @@ export const rule: Rule.RuleModule = S3BucketTemplate(
       );
     }
   },
-  {
-    meta: {
-      schema: [
-        {
-          // internal parameter for rules having secondary locations
-          enum: [SONAR_RUNTIME],
-        },
-      ],
-    },
-  },
+  generateMeta(rspecMeta as Rule.RuleMetaData, {
+    schema: [
+      {
+        // internal parameter for rules having secondary locations
+        enum: [SONAR_RUNTIME],
+      },
+    ],
+  }),
 );

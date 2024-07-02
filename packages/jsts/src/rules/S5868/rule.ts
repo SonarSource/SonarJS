@@ -31,6 +31,8 @@ import { RegExpValidator } from '@eslint-community/regexpp';
 import { Character, CharacterClassElement } from '@eslint-community/regexpp/ast';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 const MODIFIABLE_REGEXP_FLAGS_TYPES: estree.Node['type'][] = [
   'Literal',
@@ -38,216 +40,218 @@ const MODIFIABLE_REGEXP_FLAGS_TYPES: estree.Node['type'][] = [
   'TaggedTemplateExpression',
 ];
 
-const metadata = {
-  meta: {
-    hasSuggestions: true,
-  },
-};
+export const rule: Rule.RuleModule = createRegExpRule(
+  context => {
+    function characters(nodes: CharacterClassElement[]): Character[][] {
+      let current: Character[] = [];
+      const sequences: Character[][] = [current];
+      for (const node of nodes) {
+        if (node.type === 'Character') {
+          current.push(node);
+        } else if (node.type === 'CharacterClassRange') {
+          // for following regexp [xa-z] we produce [[xa],[z]]
+          // we would report for example if instead of 'xa' there would be unicode combined class
+          current.push(node.min);
+          current = [node.max];
+          sequences.push(current);
+        } else if (node.type === 'CharacterSet' && current.length > 0) {
+          // CharacterSet is for example [\d], ., or \p{ASCII}
+          // see https://github.com/mysticatea/regexpp/blob/master/src/ast.ts#L222
+          current = [];
+          sequences.push(current);
+        }
+      }
+      return sequences;
+    }
 
-export const rule: Rule.RuleModule = createRegExpRule(context => {
-  function characters(nodes: CharacterClassElement[]): Character[][] {
-    let current: Character[] = [];
-    const sequences: Character[][] = [current];
-    for (const node of nodes) {
-      if (node.type === 'Character') {
-        current.push(node);
-      } else if (node.type === 'CharacterClassRange') {
-        // for following regexp [xa-z] we produce [[xa],[z]]
-        // we would report for example if instead of 'xa' there would be unicode combined class
-        current.push(node.min);
-        current = [node.max];
-        sequences.push(current);
-      } else if (node.type === 'CharacterSet' && current.length > 0) {
-        // CharacterSet is for example [\d], ., or \p{ASCII}
-        // see https://github.com/mysticatea/regexpp/blob/master/src/ast.ts#L222
-        current = [];
-        sequences.push(current);
+    function checkSequence(sequence: Character[]) {
+      // Stop on the first illegal character in the sequence
+      for (let index = 0; index < sequence.length; index++) {
+        if (checkCharacter(sequence[index], index, sequence)) {
+          return;
+        }
       }
     }
-    return sequences;
-  }
 
-  function checkSequence(sequence: Character[]) {
-    // Stop on the first illegal character in the sequence
-    for (let index = 0; index < sequence.length; index++) {
-      if (checkCharacter(sequence[index], index, sequence)) {
-        return;
+    function checkCharacter(character: Character, index: number, characters: Character[]) {
+      // Stop on the first failed check as there may be overlaps between checks
+      // for instance a zero-width-sequence containing a modified emoji.
+      for (const check of characterChecks) {
+        if (check(character, index, characters)) {
+          return true;
+        }
       }
+      return false;
     }
-  }
 
-  function checkCharacter(character: Character, index: number, characters: Character[]) {
-    // Stop on the first failed check as there may be overlaps between checks
-    // for instance a zero-width-sequence containing a modified emoji.
-    for (const check of characterChecks) {
-      if (check(character, index, characters)) {
-        return true;
+    function checkCombinedCharacter(character: Character, index: number, characters: Character[]) {
+      let reported = false;
+      if (
+        index !== 0 &&
+        isCombiningCharacter(character.value) &&
+        !isCombiningCharacter(characters[index - 1].value)
+      ) {
+        const combinedChar = characters[index - 1].raw + characters[index].raw;
+        const message = `Move this Unicode combined character '${combinedChar}' outside of the character class`;
+        context.reportRegExpNode({ regexpNode: characters[index], node: context.node, message });
+        reported = true;
       }
+      return reported;
     }
-    return false;
-  }
 
-  function checkCombinedCharacter(character: Character, index: number, characters: Character[]) {
-    let reported = false;
-    if (
-      index !== 0 &&
-      isCombiningCharacter(character.value) &&
-      !isCombiningCharacter(characters[index - 1].value)
+    function checkSurrogatePairTailCharacter(
+      character: Character,
+      index: number,
+      characters: Character[],
     ) {
-      const combinedChar = characters[index - 1].raw + characters[index].raw;
-      const message = `Move this Unicode combined character '${combinedChar}' outside of the character class`;
-      context.reportRegExpNode({ regexpNode: characters[index], node: context.node, message });
-      reported = true;
+      let reported = false;
+      if (index !== 0 && isSurrogatePair(characters[index - 1].value, character.value)) {
+        const surrogatePair = characters[index - 1].raw + characters[index].raw;
+        const message = `Move this Unicode surrogate pair '${surrogatePair}' outside of the character class or use 'u' flag`;
+        const pattern = getPatternFromNode(context.node, context)?.pattern;
+        let suggest: Rule.ReportDescriptorOptions['suggest'];
+
+        if (pattern && isValidWithUnicodeFlag(pattern)) {
+          suggest = [
+            {
+              desc: "Add unicode 'u' flag to regex",
+              fix: fixer => addUnicodeFlag(fixer, context.node),
+            },
+          ];
+        }
+
+        context.reportRegExpNode({
+          regexpNode: characters[index],
+          node: context.node,
+          message,
+          suggest,
+        });
+        reported = true;
+      }
+      return reported;
     }
-    return reported;
-  }
 
-  function checkSurrogatePairTailCharacter(
-    character: Character,
-    index: number,
-    characters: Character[],
-  ) {
-    let reported = false;
-    if (index !== 0 && isSurrogatePair(characters[index - 1].value, character.value)) {
-      const surrogatePair = characters[index - 1].raw + characters[index].raw;
-      const message = `Move this Unicode surrogate pair '${surrogatePair}' outside of the character class or use 'u' flag`;
-      const pattern = getPatternFromNode(context.node, context)?.pattern;
-      let suggest: Rule.ReportDescriptorOptions['suggest'];
-
-      if (pattern && isValidWithUnicodeFlag(pattern)) {
-        suggest = [
-          {
-            desc: "Add unicode 'u' flag to regex",
-            fix: fixer => addUnicodeFlag(fixer, context.node),
-          },
-        ];
+    function addUnicodeFlag(fixer: Rule.RuleFixer, node: estree.Node) {
+      if (isRegexLiteral(node)) {
+        return insertTextAfter(fixer, node, 'u');
       }
 
-      context.reportRegExpNode({
-        regexpNode: characters[index],
-        node: context.node,
-        message,
-        suggest,
-      });
-      reported = true;
-    }
-    return reported;
-  }
+      const regExpConstructor = getRegExpConstructor(node);
+      if (!regExpConstructor) {
+        return null;
+      }
 
-  function addUnicodeFlag(fixer: Rule.RuleFixer, node: estree.Node) {
-    if (isRegexLiteral(node)) {
-      return insertTextAfter(fixer, node, 'u');
-    }
+      const args = regExpConstructor.arguments;
+      if (args.length === 1) {
+        const token = sourceCode.getLastToken(regExpConstructor, { skip: 1 });
+        return insertTextAfter(fixer, token, ', "u"');
+      }
 
-    const regExpConstructor = getRegExpConstructor(node);
-    if (!regExpConstructor) {
+      if (args.length > 1 && args[1]?.range && hasModifiableFlags(regExpConstructor)) {
+        const [start, end] = args[1].range;
+        return fixer.insertTextAfterRange([start, end - 1], 'u');
+      }
+
       return null;
     }
 
-    const args = regExpConstructor.arguments;
-    if (args.length === 1) {
-      const token = sourceCode.getLastToken(regExpConstructor, { skip: 1 });
-      return insertTextAfter(fixer, token, ', "u"');
-    }
-
-    if (args.length > 1 && args[1]?.range && hasModifiableFlags(regExpConstructor)) {
-      const [start, end] = args[1].range;
-      return fixer.insertTextAfterRange([start, end - 1], 'u');
-    }
-
-    return null;
-  }
-
-  function checkModifiedEmojiCharacter(
-    character: Character,
-    index: number,
-    characters: Character[],
-  ) {
-    let reported = false;
-    if (
-      index !== 0 &&
-      isEmojiModifier(character.value) &&
-      !isEmojiModifier(characters[index - 1].value)
+    function checkModifiedEmojiCharacter(
+      character: Character,
+      index: number,
+      characters: Character[],
     ) {
-      const modifiedEmoji = characters[index - 1].raw + characters[index].raw;
-      const message = `Move this Unicode modified Emoji '${modifiedEmoji}' outside of the character class`;
-      context.reportRegExpNode({ regexpNode: characters[index], node: context.node, message });
-      reported = true;
-    }
-    return reported;
-  }
-
-  function checkRegionalIndicatorCharacter(
-    character: Character,
-    index: number,
-    characters: Character[],
-  ) {
-    let reported = false;
-    if (
-      index !== 0 &&
-      isRegionalIndicator(character.value) &&
-      isRegionalIndicator(characters[index - 1].value)
-    ) {
-      const regionalIndicator = characters[index - 1].raw + characters[index].raw;
-      const message = `Move this Unicode regional indicator '${regionalIndicator}' outside of the character class`;
-      context.reportRegExpNode({ regexpNode: characters[index], node: context.node, message });
-      reported = true;
-    }
-    return reported;
-  }
-
-  function checkZeroWidthJoinerCharacter(
-    character: Character,
-    index: number,
-    characters: Character[],
-  ) {
-    let reported = false;
-    if (
-      index !== 0 &&
-      index !== characters.length - 1 &&
-      isZeroWidthJoiner(character.value) &&
-      !isZeroWidthJoiner(characters[index - 1].value) &&
-      !isZeroWidthJoiner(characters[index + 1].value)
-    ) {
-      // It's practically difficult to determine the full joined character sequence
-      // as it may join more than 2 elements that consist of characters or modified Emojis
-      // see: https://unicode.org/emoji/charts/emoji-zwj-sequences.html
-      const message = 'Move this Unicode joined character sequence outside of the character class';
-      context.reportRegExpNode({ regexpNode: characters[index - 1], node: context.node, message });
-      reported = true;
-    }
-    return reported;
-  }
-
-  function isValidWithUnicodeFlag(pattern: string) {
-    try {
-      validator.validatePattern(pattern, undefined, undefined, true);
-      return true;
-    } catch {
-      return false;
-    }
-  }
-
-  const sourceCode = context.sourceCode;
-  const validator = new RegExpValidator();
-
-  // The order matters as surrogate pair check may trigger at the same time as zero-width-joiner.
-  const characterChecks = [
-    checkCombinedCharacter,
-    checkZeroWidthJoinerCharacter,
-    checkModifiedEmojiCharacter,
-    checkRegionalIndicatorCharacter,
-    checkSurrogatePairTailCharacter,
-  ];
-
-  return {
-    onCharacterClassEnter(ccNode) {
-      for (const chars of characters(ccNode.elements)) {
-        checkSequence(chars);
+      let reported = false;
+      if (
+        index !== 0 &&
+        isEmojiModifier(character.value) &&
+        !isEmojiModifier(characters[index - 1].value)
+      ) {
+        const modifiedEmoji = characters[index - 1].raw + characters[index].raw;
+        const message = `Move this Unicode modified Emoji '${modifiedEmoji}' outside of the character class`;
+        context.reportRegExpNode({ regexpNode: characters[index], node: context.node, message });
+        reported = true;
       }
-    },
-  };
-}, metadata);
+      return reported;
+    }
+
+    function checkRegionalIndicatorCharacter(
+      character: Character,
+      index: number,
+      characters: Character[],
+    ) {
+      let reported = false;
+      if (
+        index !== 0 &&
+        isRegionalIndicator(character.value) &&
+        isRegionalIndicator(characters[index - 1].value)
+      ) {
+        const regionalIndicator = characters[index - 1].raw + characters[index].raw;
+        const message = `Move this Unicode regional indicator '${regionalIndicator}' outside of the character class`;
+        context.reportRegExpNode({ regexpNode: characters[index], node: context.node, message });
+        reported = true;
+      }
+      return reported;
+    }
+
+    function checkZeroWidthJoinerCharacter(
+      character: Character,
+      index: number,
+      characters: Character[],
+    ) {
+      let reported = false;
+      if (
+        index !== 0 &&
+        index !== characters.length - 1 &&
+        isZeroWidthJoiner(character.value) &&
+        !isZeroWidthJoiner(characters[index - 1].value) &&
+        !isZeroWidthJoiner(characters[index + 1].value)
+      ) {
+        // It's practically difficult to determine the full joined character sequence
+        // as it may join more than 2 elements that consist of characters or modified Emojis
+        // see: https://unicode.org/emoji/charts/emoji-zwj-sequences.html
+        const message =
+          'Move this Unicode joined character sequence outside of the character class';
+        context.reportRegExpNode({
+          regexpNode: characters[index - 1],
+          node: context.node,
+          message,
+        });
+        reported = true;
+      }
+      return reported;
+    }
+
+    function isValidWithUnicodeFlag(pattern: string) {
+      try {
+        validator.validatePattern(pattern, undefined, undefined, true);
+        return true;
+      } catch {
+        return false;
+      }
+    }
+
+    const sourceCode = context.sourceCode;
+    const validator = new RegExpValidator();
+
+    // The order matters as surrogate pair check may trigger at the same time as zero-width-joiner.
+    const characterChecks = [
+      checkCombinedCharacter,
+      checkZeroWidthJoinerCharacter,
+      checkModifiedEmojiCharacter,
+      checkRegionalIndicatorCharacter,
+      checkSurrogatePairTailCharacter,
+    ];
+
+    return {
+      onCharacterClassEnter(ccNode) {
+        for (const chars of characters(ccNode.elements)) {
+          checkSequence(chars);
+        }
+      },
+    };
+  },
+  generateMeta(rspecMeta as Rule.RuleMetaData, { hasSuggestions: true }),
+);
 
 function isCombiningCharacter(codePoint: number) {
   return /^[\p{Mc}\p{Me}\p{Mn}]$/u.test(String.fromCodePoint(codePoint));

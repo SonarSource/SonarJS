@@ -1,0 +1,8 @@
+{
+  "type": "suggestion",
+  "docs": {
+    "description": "Image, area, button with image and object elements should have an alternative text",
+    "recommended": true,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S1077/javascript/rule.adoc"
+  }
+}

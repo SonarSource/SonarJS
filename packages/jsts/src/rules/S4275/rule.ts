@@ -32,7 +32,11 @@ import {
 } from '../helpers';
 import { SONAR_RUNTIME } from '../parameters';
 import { eslintRules } from '../core';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
+import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
 
+const getterReturnRule = eslintRules['getter-return'];
 type AccessorNode = TSESTree.Property | TSESTree.MethodDefinition;
 
 function isAccessorNode(node: TSESTree.Node | null | undefined): node is AccessorNode {
@@ -63,14 +67,16 @@ interface Field {
 
 // The rule is the merger of a decorated ESLint 'getter-return' with the SonarJS 'no-accessor-field-mismatch'.
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+    ...getterReturnRule.meta,
     schema: [
+      ...(getterReturnRule.meta!.schema as JSONSchema4[]),
       {
         // internal parameter for rules having secondary locations
         enum: [SONAR_RUNTIME],
       },
     ],
-  },
+  }),
   create(context: Rule.RuleContext): Rule.RuleListener {
     const getterReturnListener = getterReturnDecorator.create(context);
     const noAccessorFieldMismatchListener = noAccessorFieldMismatchRule.create(context);
@@ -100,7 +106,7 @@ function decorateGetterReturn(rule: Rule.RuleModule): Rule.RuleModule {
   });
 }
 
-const getterReturnDecorator = decorateGetterReturn(eslintRules['getter-return']);
+const getterReturnDecorator = decorateGetterReturn(getterReturnRule);
 
 const noAccessorFieldMismatchRule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {

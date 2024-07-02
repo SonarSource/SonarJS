@@ -23,26 +23,36 @@ import { Rule, AST, Scope } from 'eslint';
 import { interceptReport } from '../helpers';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 const element = 'element';
 
 // core implementation of this rule does not provide quick fixes
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
-  rule.meta!.hasSuggestions = true;
-  return interceptReport(rule, (context, reportDescriptor) => {
-    const forStmt = (reportDescriptor as any).node as estree.ForStatement;
-    const suggest: Rule.SuggestionReportDescriptor[] = [];
-    if (isFixable(context.sourceCode.getScope(forStmt))) {
-      suggest.push({
-        desc: 'Replace with "for of" loop',
-        fix: fixer => rewriteForStatement(forStmt, context, fixer),
+  return interceptReport(
+    {
+      ...rule,
+      meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+        ...rule.meta!,
+        hasSuggestions: true,
+      }),
+    },
+    (context, reportDescriptor) => {
+      const forStmt = (reportDescriptor as any).node as estree.ForStatement;
+      const suggest: Rule.SuggestionReportDescriptor[] = [];
+      if (isFixable(context.sourceCode.getScope(forStmt))) {
+        suggest.push({
+          desc: 'Replace with "for of" loop',
+          fix: fixer => rewriteForStatement(forStmt, context, fixer),
+        });
+      }
+      context.report({
+        ...reportDescriptor,
+        suggest,
       });
-    }
-    context.report({
-      ...reportDescriptor,
-      suggest,
-    });
-  });
+    },
+  );
 }
 
 function isFixable(scope: Scope.Scope): boolean {

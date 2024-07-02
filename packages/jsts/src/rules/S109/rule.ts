@@ -24,10 +24,11 @@ import * as estree from 'estree';
 import { tsEslintRules } from '../typescript-eslint';
 import { getNodeParent, isMethodInvocation } from '../helpers';
 import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 const baseRuleModule = tsEslintRules['no-magic-numbers'];
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(__dirname, baseRuleModule.meta!),
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, baseRuleModule.meta!),
   create(context: Rule.RuleContext) {
     const baseRule = baseRuleModule.create(context);
     return {

@@ -30,6 +30,8 @@ import {
   last,
 } from '../helpers';
 import * as ts from 'typescript';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 /**
  * Stacks return statements per function.
@@ -39,13 +41,13 @@ interface FunctionInfo {
 }
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     hasSuggestions: true,
     messages: {
       readOnlyProps: 'Mark the props of the component as read-only.',
       readOnlyPropsFix: 'Mark the props as read-only',
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     const services = context.sourceCode.parserServices;
     if (!isRequiredParserServices(services)) {

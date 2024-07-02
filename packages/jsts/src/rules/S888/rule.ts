@@ -22,6 +22,8 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { getVariableFromName } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from '../S101/meta.json';
 
 const allEqualityOperators = ['!=', '==', '!==', '==='];
 const notEqualOperators = ['!==', '!='];
@@ -36,12 +38,12 @@ interface CompleteForStatement extends estree.BaseStatement {
 }
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       replaceOperator:
         "Replace '{{operator}}' operator with one of '<=', '>=', '<', or '>' comparison operators.",
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     return {
       ForStatement: (node: estree.Node) => {

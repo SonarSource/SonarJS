@@ -26,6 +26,7 @@ import { UTILITY_TYPES, isIdentifier } from '../helpers';
 import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
 import { generateMeta } from '../helpers/generate-meta';
 import { FromSchema } from 'json-schema-to-ts';
+import rspecMeta from './meta.json';
 
 const DEFAULT_THRESHOLD = 3;
 
@@ -51,7 +52,7 @@ const schema = {
 } as const satisfies JSONSchema4;
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(__dirname, { messages, schema }),
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, { messages, schema }),
   create(context: Rule.RuleContext) {
     return {
       TSUnionType: (node: estree.Node) => {
@@ -60,7 +61,7 @@ export const rule: Rule.RuleModule = {
           return;
         }
         const threshold =
-          (context.options as FromSchema<typeof schema>)[0]?.threshold || DEFAULT_THRESHOLD;
+          (context.options as FromSchema<typeof schema>)[0]?.threshold ?? DEFAULT_THRESHOLD;
         if (union.types.length > threshold && !isFromTypeStatement(union)) {
           context.report({
             messageId: 'refactorUnion',

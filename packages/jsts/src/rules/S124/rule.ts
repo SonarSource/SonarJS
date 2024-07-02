@@ -24,6 +24,7 @@ import { TSESTree } from '@typescript-eslint/utils';
 import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
 import { generateMeta } from '../helpers/generate-meta';
 import { FromSchema } from 'json-schema-to-ts';
+import rspecMeta from './meta.json';
 
 const schema = {
   type: 'array',
@@ -49,7 +50,7 @@ const schema = {
 } as const satisfies JSONSchema4;
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(__dirname, { schema }),
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, { schema }),
   create(context: Rule.RuleContext) {
     const options = (context.options as FromSchema<typeof schema>)[0] || {};
     const flags = options.flags || '';

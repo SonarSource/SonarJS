@@ -23,11 +23,13 @@ import { Rule } from 'eslint';
 import { rule as librariesRule } from './rule.lib';
 import { rule as awsRule } from './rule.aws';
 import { mergeRules } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: { ...librariesRule.meta!.messages, ...awsRule.meta!.messages },
-  },
+  }),
   create(context: Rule.RuleContext) {
     return mergeRules(librariesRule.create(context), awsRule.create(context));
   },

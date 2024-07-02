@@ -28,16 +28,18 @@ import {
   getFullyQualifiedName,
 } from '../helpers';
 import { SONAR_RUNTIME } from '../parameters';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     schema: [
       {
         // internal parameter for rules having secondary locations
         enum: [SONAR_RUNTIME],
       },
     ],
-  },
+  }),
   create(context: Rule.RuleContext) {
     const MESSAGE = 'Enable server certificate validation on this SSL/TLS connection.';
     const SECONDARY_MESSAGE = 'Set "rejectUnauthorized" to "true".';

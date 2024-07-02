@@ -29,6 +29,8 @@ import {
   report,
 } from '../helpers';
 import { Rule } from 'eslint';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 const EQUALITY_OPERATOR_TOKEN_KINDS = new Set(['==', '===', '!=', '!==']);
 
@@ -69,7 +71,7 @@ const message =
   'Correct one of the identical sub-expressions on both sides of operator "{{operator}}"';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       correctIdenticalSubExpressions: message,
       sonarRuntime: '{{sonarRuntimeData}}',
@@ -81,7 +83,7 @@ export const rule: Rule.RuleModule = {
         enum: ['sonar-runtime'],
       },
     ],
-  },
+  }),
   create(context) {
     return {
       LogicalExpression(node: estree.LogicalExpression) {

@@ -32,6 +32,8 @@ import {
   sortLike,
   copyingSortLike,
 } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 const compareNumberFunctionPlaceholder = '(a, b) => (a - b)';
 const compareBigIntFunctionPlaceholder = [
@@ -48,7 +50,7 @@ const compareBigIntFunctionPlaceholder = [
 const languageSensitiveOrderPlaceholder = '(a, b) => a.localeCompare(b)';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     hasSuggestions: true,
     messages: {
       provideCompareFunction:
@@ -59,7 +61,7 @@ export const rule: Rule.RuleModule = {
       suggestLanguageSensitiveOrder:
         'Add a comparator function to sort in ascending language-sensitive order',
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     const sourceCode = context.sourceCode;
     const services = context.sourceCode.parserServices;

@@ -33,11 +33,13 @@ import {
   RuleContext,
 } from '../helpers';
 import estree from 'estree';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 const message = 'This function expects {{expectedArguments}}, but {{providedArguments}} provided.';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       tooManyArguments: message,
       sonarRuntime: '{{sonarRuntimeData}}',
@@ -49,7 +51,7 @@ export const rule: Rule.RuleModule = {
         enum: ['sonar-runtime'],
       },
     ],
-  },
+  }),
   create(context) {
     const callExpressionsToCheck: Array<{
       callExpr: estree.CallExpression;

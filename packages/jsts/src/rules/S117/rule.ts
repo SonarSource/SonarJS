@@ -26,6 +26,7 @@ import { resolveIdentifiers } from '../helpers';
 import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
 import { generateMeta } from '../helpers/generate-meta';
 import { FromSchema } from 'json-schema-to-ts';
+import rspecMeta from './meta.json';
 
 interface FunctionLike {
   declare?: boolean;
@@ -58,7 +59,7 @@ const schema = {
 } as const satisfies JSONSchema4;
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(__dirname, { messages, schema }),
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, { messages, schema }),
   create(context: Rule.RuleContext) {
     return {
       VariableDeclaration: (node: estree.Node) =>
@@ -111,7 +112,7 @@ function raiseOnInvalidIdentifier(
   idType: string,
   context: Rule.RuleContext,
 ) {
-  const format = (context.options as FromSchema<typeof schema>)[0]?.format || DEFAULT_FORMAT;
+  const format = (context.options as FromSchema<typeof schema>)[0]?.format ?? DEFAULT_FORMAT;
   const { name } = id;
   if (!name.match(format)) {
     context.report({

@@ -19,30 +19,18 @@
  */
 
 import { Rule } from 'eslint';
-import fs from 'fs';
-import { basename, join } from 'path/posix';
 
-export function generateMeta(dirname: string, ruleMeta: Rule.RuleMetaData): Rule.RuleMetaData {
-  const ruleId = basename(toUnixPath(dirname));
-  const rspecMeta = JSON.parse(
-    fs.readFileSync(join(dirname, 'meta.json'), 'utf8'),
-  ) as Rule.RuleMetaData;
-  if (rspecMeta.fixable && !ruleMeta.fixable) {
+export function generateMeta(
+  rspecMeta: Rule.RuleMetaData,
+  ruleMeta?: Rule.RuleMetaData,
+): Rule.RuleMetaData {
+  if (rspecMeta.fixable && !ruleMeta?.fixable && !ruleMeta?.hasSuggestions) {
     throw new Error(
-      `Mismatch between RSPEC metadata and implementation for rule $${ruleId} for fixable attribute`,
+      `Mismatch between RSPEC metadata and implementation for fixable attribute in rule ${rspecMeta.docs!.url}`,
     );
   }
   return {
     ...ruleMeta,
     ...rspecMeta,
   };
-}
-
-/**
- * Converts a path to Unix format
- * @param path the path to convert
- * @returns the converted path
- */
-function toUnixPath(path: string) {
-  return path.replace(/[\\/]+/g, '/');
 }

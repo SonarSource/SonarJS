@@ -27,16 +27,18 @@ import {
   getFullyQualifiedName,
   isMemberWithProperty,
 } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 const ERRORHANDLER_MODULE = 'errorhandler';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       deactivateDebug:
         'Make sure this debug feature is deactivated before delivering the code in production.',
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     return {
       CallExpression(node: estree.Node) {

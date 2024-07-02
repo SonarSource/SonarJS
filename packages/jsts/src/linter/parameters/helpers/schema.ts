@@ -33,6 +33,5 @@ export function getRuleSchema(ruleModule: Rule.RuleModule | undefined, ruleId: s
   if (!ruleModule.meta?.schema) {
     return undefined;
   }
-  const { schema } = ruleModule.meta;
-  return Array.isArray(schema) ? schema : [schema];
+  return ruleModule.meta.schema;
 }

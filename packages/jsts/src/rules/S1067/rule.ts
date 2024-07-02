@@ -27,13 +27,14 @@ import { SONAR_RUNTIME } from '../parameters';
 import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
 import { generateMeta } from '../helpers/generate-meta';
 import { FromSchema } from 'json-schema-to-ts';
+import rspecMeta from './meta.json';
 
 const DEFAULT = 3;
 
 const schema = {
   type: 'array',
   minItems: 0,
-  maxItems: 1,
+  maxItems: 2,
   items: [
     {
       type: 'object',
@@ -53,9 +54,9 @@ const schema = {
 } as const satisfies JSONSchema4;
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(__dirname, { schema }),
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, { schema }),
   create(context: Rule.RuleContext) {
-    const threshold = (context.options as FromSchema<typeof schema>)[0]?.max || DEFAULT;
+    const threshold = (context.options as FromSchema<typeof schema>)[0]?.max ?? DEFAULT;
     const statementLevel: ExpressionComplexity[] = [new ExpressionComplexity()];
     return {
       '*': (node: estree.Node) => {

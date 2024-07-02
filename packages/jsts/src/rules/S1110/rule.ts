@@ -23,6 +23,8 @@ import { AST, Rule, SourceCode } from 'eslint';
 import * as estree from 'estree';
 import { getParent, toEncodedMessage } from '../helpers';
 import { SONAR_RUNTIME } from '../parameters';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 interface ParenthesesPair {
   openingParenthesis: AST.Token;
@@ -43,7 +45,7 @@ const parenthesized: { [key: string]: string } = {
 };
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     schema: [
       {
         // internal parameter for rules having secondary locations
@@ -51,7 +53,7 @@ export const rule: Rule.RuleModule = {
       },
     ],
     hasSuggestions: true,
-  },
+  }),
   create(context: Rule.RuleContext) {
     return {
       '*'(node: estree.Node) {

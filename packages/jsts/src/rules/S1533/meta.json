@@ -1,0 +1,9 @@
+{
+  "type": "suggestion",
+  "docs": {
+    "description": "Wrapper objects should not be used for primitive types",
+    "recommended": true,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S1533/javascript/rule.adoc"
+  },
+  "fixable": "code"
+}

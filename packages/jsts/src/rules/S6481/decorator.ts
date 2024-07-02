@@ -20,9 +20,17 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6481/javascript
 
 import { Rule } from 'eslint';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
-  return changeRuleMessagesWith(rule, lineRemover());
+  return changeRuleMessagesWith(
+    {
+      ...rule,
+      meta: generateMeta(rspecMeta as Rule.RuleMetaData, rule.meta!),
+    },
+    lineRemover(),
+  );
 }
 
 function changeRuleMessagesWith(

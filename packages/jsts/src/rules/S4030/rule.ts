@@ -29,14 +29,15 @@ import {
   writingMethods,
 } from '../helpers';
 import estree from 'estree';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       unusedCollection: "Either use this collection's contents or remove the collection.",
     },
-    schema: [],
-  },
+  }),
   create(context) {
     return {
       'Program:exit': (node: estree.Node) => {

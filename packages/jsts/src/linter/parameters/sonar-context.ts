@@ -55,5 +55,12 @@ export function hasSonarContextOption(
   ruleId: string,
 ): boolean {
   const schema = getRuleSchema(ruleModule, ruleId);
-  return !!schema && schema.some(option => option.title === SONAR_CONTEXT);
+
+  if (Array.isArray(schema)) {
+    return schema.some(option => option.title === SONAR_CONTEXT);
+  }
+  if (schema?.type === 'array' && Array.isArray(schema.items)) {
+    return schema.items.some(option => option.title === SONAR_CONTEXT);
+  }
+  return false;
 }

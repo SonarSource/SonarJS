@@ -24,6 +24,8 @@ import { Character, Quantifier, RegExpLiteral } from '@eslint-community/regexpp/
 import { LocationHolder, toEncodedMessage } from '../helpers';
 import { createRegExpRule, getRegexpLocation } from '../helpers/regex';
 import { SONAR_RUNTIME } from '../parameters';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = createRegExpRule(
   context => {
@@ -151,14 +153,12 @@ export const rule: Rule.RuleModule = createRegExpRule(
       },
     };
   },
-  {
-    meta: {
-      schema: [
-        {
-          // internal parameter for rules having secondary locations
-          enum: [SONAR_RUNTIME],
-        },
-      ],
-    },
-  },
+  generateMeta(rspecMeta as Rule.RuleMetaData, {
+    schema: [
+      {
+        // internal parameter for rules having secondary locations
+        enum: [SONAR_RUNTIME],
+      },
+    ],
+  }),
 );

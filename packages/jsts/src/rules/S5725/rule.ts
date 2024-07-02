@@ -24,13 +24,15 @@ import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
 import { Variable } from 'eslint-scope';
 import { isIdentifier, isRequiredParserServices, getTypeAsString } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       safeResource: 'Make sure not using resource integrity feature is safe here.',
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     const services = context.sourceCode.parserServices;
     if (!isRequiredParserServices(services)) {

@@ -1,0 +1,8 @@
+{
+  "type": "suggestion",
+  "docs": {
+    "description": "Magic numbers should not be used",
+    "recommended": false,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S109/javascript/rule.adoc"
+  }
+}

@@ -22,16 +22,18 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { getParent, isArray, isRequiredParserServices } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 const ArrayDeleteExpression =
   "UnaryExpression[operator='delete'] > MemberExpression[computed=true]";
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       removeDelete: 'Remove this use of "delete".',
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     const services = context.sourceCode.parserServices;
     if (isRequiredParserServices(services)) {

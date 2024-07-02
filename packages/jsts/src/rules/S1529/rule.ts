@@ -23,6 +23,8 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import * as ts from 'typescript';
 import { getTypeFromTreeNode } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 const BITWISE_AND_OR = ['&', '|'];
 const BITWISE_OPERATORS = [
@@ -42,6 +44,7 @@ const BITWISE_OPERATORS = [
 ];
 
 export const rule: Rule.RuleModule = {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData),
   create(context: Rule.RuleContext) {
     const isNumeric = getNumericTypeChecker(context);
     let lonelyBitwiseAndOr: null | estree.BinaryExpression = null;

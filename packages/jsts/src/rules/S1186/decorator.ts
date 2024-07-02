@@ -22,6 +22,8 @@
 import * as estree from 'estree';
 import { AST, Rule } from 'eslint';
 import { interceptReport, FunctionNodeType, isFunctionNode, isIdentifier } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 type RuleFunctionNode = FunctionNodeType & Rule.Node;
 
@@ -31,8 +33,16 @@ function isRuleFunctionNode(node: estree.Node): node is RuleFunctionNode {
 
 // core implementation of this rule does not provide quick fixes
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
-  rule.meta!.hasSuggestions = true;
-  return interceptReport(rule, reportWithQuickFixIfApplicable);
+  return interceptReport(
+    {
+      ...rule,
+      meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+        ...rule.meta!,
+        hasSuggestions: true,
+      }),
+    },
+    reportWithQuickFixIfApplicable,
+  );
 }
 
 export function reportWithQuickFixIfApplicable(

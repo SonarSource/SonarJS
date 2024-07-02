@@ -1,0 +1,8 @@
+{
+  "type": "problem",
+  "docs": {
+    "description": "\"const\" variables should not be reassigned",
+    "recommended": true,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S3500/javascript/rule.adoc"
+  }
+}

@@ -38,6 +38,8 @@ import {
   isUnresolved,
   reduceToIdentifier,
 } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 const TYPES_WITH_CONNECTIONS = [
   'aws_cdk_lib.aws_docdb.DatabaseCluster.connections',
@@ -155,15 +157,16 @@ templateCallback['aws_cdk_lib.aws_ec2.CfnSecurityGroupIngress'] = (
   checkIngressObject(ctx, expr.arguments[2]);
 };
 
-export const rule: Rule.RuleModule = AwsCdkTemplate(templateCallback, {
-  meta: {
+export const rule: Rule.RuleModule = AwsCdkTemplate(
+  templateCallback,
+  generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       allowFromAnyIpv4:
         'Change this method for "allowFrom" and set "other" to a subset of trusted IP addresses.',
       allowFrom: 'Change this IP range to a subset of trusted IP addresses.',
     },
-  },
-});
+  }),
+);
 
 const invalidDefaultPortChecker = AwsCdkCheckArguments(
   'allowFrom',

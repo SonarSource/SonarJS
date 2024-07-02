@@ -24,6 +24,8 @@ import { Node } from 'estree';
 import { SONAR_RUNTIME } from '../parameters';
 import { getValueOfExpression, toEncodedMessage, getNodeParent } from '../helpers';
 import { getProperty, S3BucketTemplate } from '../helpers/aws/s3';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 const VERSIONED_KEY = 'versioned';
 
@@ -59,14 +61,12 @@ export const rule: Rule.RuleModule = S3BucketTemplate(
       });
     }
   },
-  {
-    meta: {
-      schema: [
-        {
-          // internal parameter for rules having secondary locations
-          enum: [SONAR_RUNTIME],
-        },
-      ],
-    },
-  },
+  generateMeta(rspecMeta as Rule.RuleMetaData, {
+    schema: [
+      {
+        // internal parameter for rules having secondary locations
+        enum: [SONAR_RUNTIME],
+      },
+    ],
+  }),
 );

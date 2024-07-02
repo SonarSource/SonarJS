@@ -23,14 +23,15 @@ import type { TSESTree } from '@typescript-eslint/utils';
 import { ancestorsChain } from '../helpers';
 import { Rule } from 'eslint';
 import estree from 'estree';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       nestedTemplateLiterals: 'Refactor this code to not use nested template literals.',
     },
-    schema: [],
-  },
+  }),
   create(context) {
     return {
       'TemplateLiteral TemplateLiteral': (node: estree.Node) => {

@@ -8,6 +8,7 @@
   "include": [
     "server.ts",
     "*/src/**/*.ts",
+    "*/src/**/*.json",
     "bridge/src/worker.js",
     "ruling/tools/*.ts",
     "ruling/filter/*.ts"

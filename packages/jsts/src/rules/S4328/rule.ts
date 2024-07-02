@@ -30,6 +30,7 @@ import { getDependencies } from '@sonar/jsts';
 import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
 import { generateMeta } from '../helpers/generate-meta';
 import { FromSchema } from 'json-schema-to-ts';
+import rspecMeta from './meta.json';
 
 const messages = {
   removeOrAddDependency: 'Either remove this import or add it as a dependency.',
@@ -56,7 +57,7 @@ const schema = {
 } as const satisfies JSONSchema4;
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(__dirname, { messages, schema }),
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, { messages, schema }),
   create(context: Rule.RuleContext) {
     const whitelist = (context.options as FromSchema<typeof schema>)[0]?.whitelist || [];
     const dependencies = getDependencies(context.filename);

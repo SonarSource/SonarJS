@@ -29,13 +29,26 @@ import {
   isAnyLiteral,
   PolicyCheckerOptions,
 } from '../helpers/aws/iam';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
+import { SONAR_RUNTIME } from '../../linter/parameters';
 
 const MESSAGES = {
   message: 'Make sure granting all privileges is safe here.',
   secondary: 'Related effect',
 };
 
-export const rule: Rule.RuleModule = AwsIamPolicyTemplate(allPrivilegesStatementChecker);
+export const rule: Rule.RuleModule = AwsIamPolicyTemplate(
+  allPrivilegesStatementChecker,
+  generateMeta(rspecMeta as Rule.RuleMetaData, {
+    schema: [
+      {
+        // internal parameter for rules having secondary locations
+        enum: [SONAR_RUNTIME],
+      },
+    ],
+  }),
+);
 
 function allPrivilegesStatementChecker(
   expr: Node,

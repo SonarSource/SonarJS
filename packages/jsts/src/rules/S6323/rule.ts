@@ -23,32 +23,37 @@ import { Rule } from 'eslint';
 import * as regexpp from '@eslint-community/regexpp';
 import { last } from '../helpers';
 import { Alternation, createRegExpRule } from '../helpers/regex';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
-export const rule: Rule.RuleModule = createRegExpRule(context => {
-  function checkAlternation(alternation: Alternation) {
-    const { alternatives: alts } = alternation;
-    if (alts.length <= 1) {
-      return;
-    }
-    for (let i = 0; i < alts.length; i++) {
-      const alt = alts[i];
-      if (alt.elements.length === 0 && !isLastEmptyInGroup(alt)) {
-        context.reportRegExpNode({
-          message: 'Remove this empty alternative.',
-          regexpNode: alt,
-          offset: i === alts.length - 1 ? [-1, 0] : [0, 1], // we want to raise the issue on the |
-          node: context.node,
-        });
+export const rule: Rule.RuleModule = createRegExpRule(
+  context => {
+    function checkAlternation(alternation: Alternation) {
+      const { alternatives: alts } = alternation;
+      if (alts.length <= 1) {
+        return;
+      }
+      for (let i = 0; i < alts.length; i++) {
+        const alt = alts[i];
+        if (alt.elements.length === 0 && !isLastEmptyInGroup(alt)) {
+          context.reportRegExpNode({
+            message: 'Remove this empty alternative.',
+            regexpNode: alt,
+            offset: i === alts.length - 1 ? [-1, 0] : [0, 1], // we want to raise the issue on the |
+            node: context.node,
+          });
+        }
       }
     }
-  }
 
-  return {
-    onPatternEnter: checkAlternation,
-    onGroupEnter: checkAlternation,
-    onCapturingGroupEnter: checkAlternation,
-  };
-});
+    return {
+      onPatternEnter: checkAlternation,
+      onGroupEnter: checkAlternation,
+      onCapturingGroupEnter: checkAlternation,
+    };
+  },
+  generateMeta(rspecMeta as Rule.RuleMetaData),
+);
 
 function isLastEmptyInGroup(alt: regexpp.AST.Alternative) {
   const group = alt.parent;

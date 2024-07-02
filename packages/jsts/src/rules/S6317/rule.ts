@@ -24,6 +24,9 @@ import { Node } from 'estree';
 import { StringLiteral, toEncodedMessage } from '../helpers';
 import { getResultOfExpression, Result } from '../helpers/result';
 import { AwsIamPolicyTemplate, getSensitiveEffect, PolicyCheckerOptions } from '../helpers/aws/iam';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
+import { SONAR_RUNTIME } from '../../linter/parameters';
 
 const SENSITIVE_RESOURCE = /^(\*|arn:[^:]*:[^:]*:[^:]*:[^:]*:(role|user|group)\/\*)$/;
 
@@ -63,7 +66,17 @@ const MESSAGES = {
   secondary: 'Permissions are granted on all resources.',
 };
 
-export const rule: Rule.RuleModule = AwsIamPolicyTemplate(privilegeEscalationStatementChecker);
+export const rule: Rule.RuleModule = AwsIamPolicyTemplate(
+  privilegeEscalationStatementChecker,
+  generateMeta(rspecMeta as Rule.RuleMetaData, {
+    schema: [
+      {
+        // internal parameter for rules having secondary locations
+        enum: [SONAR_RUNTIME],
+      },
+    ],
+  }),
+);
 
 function privilegeEscalationStatementChecker(
   expr: Node,

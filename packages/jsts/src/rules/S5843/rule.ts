@@ -54,13 +54,9 @@ import { SONAR_RUNTIME } from '../parameters';
 import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
 import { generateMeta } from '../helpers/generate-meta';
 import { FromSchema } from 'json-schema-to-ts';
+import rspecMeta from './meta.json';
 
 const DEFAULT_THRESHOLD = 20;
-
-const messages = {
-  renameFunction:
-    "Rename this '{{function}}' function to match the regular expression '{{format}}'.",
-};
 
 const schema = {
   type: 'array',
@@ -85,10 +81,10 @@ const schema = {
 } as const satisfies JSONSchema4;
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(__dirname, { messages, schema }),
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, { schema }),
   create(context: Rule.RuleContext) {
     const threshold =
-      (context.options as FromSchema<typeof schema>)[0]?.threshold || DEFAULT_THRESHOLD;
+      (context.options as FromSchema<typeof schema>)[0]?.threshold ?? DEFAULT_THRESHOLD;
     const services = context.sourceCode.parserServices;
     const regexNodes: estree.Node[] = [];
     return {

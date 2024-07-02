@@ -26,6 +26,7 @@ import path from 'path';
 import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
 import { generateMeta } from '../helpers/generate-meta';
 import { FromSchema } from 'json-schema-to-ts';
+import rspecMeta from './meta.json';
 
 const DEFAULT_NAMES = ['password', 'pwd', 'passwd'];
 
@@ -54,7 +55,7 @@ const schema = {
 } as const satisfies JSONSchema4;
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(__dirname, { messages, schema }),
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, { messages, schema }),
   create(context: Rule.RuleContext) {
     const dir = path.dirname(context.physicalFilename);
     const parts = dir.split(path.sep).map(part => part.toLowerCase());
@@ -63,7 +64,7 @@ export const rule: Rule.RuleModule = {
     }
 
     const variableNames =
-      (context.options as FromSchema<typeof schema>)[0]?.credentialWords || DEFAULT_NAMES;
+      (context.options as FromSchema<typeof schema>)[0]?.credentialWords ?? DEFAULT_NAMES;
     const literalRegExp = variableNames.map(name => new RegExp(`${name}=.+`));
     return {
       VariableDeclarator: (node: estree.Node) => {

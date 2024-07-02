@@ -23,18 +23,20 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { checkSensitiveCall, getFullyQualifiedName } from '../helpers';
 import { SONAR_RUNTIME } from '../parameters';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 const MESSAGE = 'Make sure allowing browsers to perform DNS prefetching is safe here.';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     schema: [
       {
         // internal parameter for rules having secondary locations
         enum: [SONAR_RUNTIME],
       },
     ],
-  },
+  }),
   create(context: Rule.RuleContext) {
     return {
       CallExpression: (node: estree.Node) => {

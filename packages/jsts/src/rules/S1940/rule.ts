@@ -22,6 +22,8 @@
 import { Rule } from 'eslint';
 import estree from 'estree';
 import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/utils';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 const invertedOperators: { [operator: string]: string } = {
   '==': '!=',
@@ -35,15 +37,14 @@ const invertedOperators: { [operator: string]: string } = {
 };
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       useOppositeOperator: 'Use the opposite operator ({{invertedOperator}}) instead.',
       suggestOperationInversion: 'Invert inner operation (apply if NaN is not expected)',
     },
-    schema: [],
     hasSuggestions: true,
     fixable: 'code',
-  },
+  }),
   create(context) {
     return {
       UnaryExpression: (node: estree.UnaryExpression) => visitUnaryExpression(node, context),

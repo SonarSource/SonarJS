@@ -22,6 +22,8 @@
 import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 type FunctionLike =
   | TSESTree.ArrowFunctionExpression
@@ -29,7 +31,7 @@ type FunctionLike =
   | TSESTree.FunctionExpression;
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     hasSuggestions: true,
     messages: {
       removeOrRenameParameter:
@@ -37,7 +39,7 @@ export const rule: Rule.RuleModule = {
       suggestRemoveParameter: 'Remove "{{param}}" (beware of call sites)',
       suggestRenameParameter: 'Rename "{{param}}" to "_{{param}}"',
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     return {
       'FunctionDeclaration, FunctionExpression'(node: estree.Node) {

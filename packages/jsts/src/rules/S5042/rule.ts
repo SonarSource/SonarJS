@@ -22,13 +22,15 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { isIdentifier, isLiteral, getValueOfExpression, getFullyQualifiedName } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       safeExpanding: 'Make sure that expanding this archive file is safe here.',
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     function canBeProperty(prop: estree.Property | estree.SpreadElement, name: string) {
       return (
@@ -38,7 +40,7 @@ export const rule: Rule.RuleModule = {
       );
     }
 
-    function isSensiteTarCall(call: estree.CallExpression, fqn: string | null) {
+    function isSensitiveTarCall(call: estree.CallExpression, fqn: string | null) {
       if (fqn === 'tar.x') {
         const firstArg = call.arguments.length > 0 ? call.arguments[0] : null;
         if (!firstArg) {
@@ -52,7 +54,7 @@ export const rule: Rule.RuleModule = {
       return false;
     }
 
-    function isSensiteExtractZipCall(call: estree.CallExpression, fqn: string | null) {
+    function isSensitiveExtractZipCall(call: estree.CallExpression, fqn: string | null) {
       if (fqn === 'extract-zip') {
         const secondArg = call.arguments.length > 1 ? call.arguments[1] : null;
         if (!secondArg) {
@@ -72,8 +74,8 @@ export const rule: Rule.RuleModule = {
         const call = node as estree.CallExpression;
         const fqn = getFullyQualifiedName(context, call);
         if (
-          isSensiteTarCall(call, fqn) ||
-          isSensiteExtractZipCall(call, fqn) ||
+          isSensitiveTarCall(call, fqn) ||
+          isSensitiveExtractZipCall(call, fqn) ||
           fqn === 'jszip.loadAsync' ||
           fqn === 'yauzl.open' ||
           fqn === 'adm-zip.extractAllTo'

@@ -24,8 +24,11 @@ import * as estree from 'estree';
 import { getTypeFromTreeNode, isRequiredParserServices } from '../helpers';
 import { TSESTree } from '@typescript-eslint/utils';
 import ts, { SyntaxKind } from 'typescript';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData),
   create(context: Rule.RuleContext) {
     const services = context.sourceCode.parserServices;
     if (!isRequiredParserServices(services)) {

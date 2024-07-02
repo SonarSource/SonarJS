@@ -21,9 +21,10 @@
 
 import { Rule } from 'eslint';
 import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(__dirname, {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       replaceTab: 'Replace all tab characters in this file by sequences of white-spaces.',
     },

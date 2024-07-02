@@ -23,6 +23,8 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
 import { isTypeAlias } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 const COMMON_NODE_TYPES = new Set([
   'TSAnyKeyword',
@@ -39,12 +41,12 @@ const COMMON_NODE_TYPES = new Set([
 ]);
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       redundantTypeAlias:
         'Remove this redundant type alias and replace its occurrences with "{{type}}".',
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     return {
       TSTypeAliasDeclaration(node: estree.Node) {

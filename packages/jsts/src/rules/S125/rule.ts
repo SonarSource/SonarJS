@@ -25,6 +25,8 @@ import { TSESTree } from '@typescript-eslint/utils';
 import * as babel from '@babel/eslint-parser';
 import { buildParserOptions } from '../../parsers';
 import { CodeRecognizer, JavaScriptFootPrint } from '../../linter/recognizers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 const EXCLUDED_STATEMENTS = ['BreakStatement', 'LabeledStatement', 'ContinueStatement'];
 
@@ -36,13 +38,13 @@ interface GroupComment {
 }
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       commentedCode: 'Remove this commented out code.',
       commentedCodeFix: 'Remove this commented out code',
     },
     hasSuggestions: true,
-  },
+  }),
   create(context: Rule.RuleContext) {
     function getGroupedComments(comments: TSESTree.Comment[]): GroupComment[] {
       const groupedComments: GroupComment[] = [];

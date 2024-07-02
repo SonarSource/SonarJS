@@ -22,9 +22,17 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { getVariableFromName, interceptReport } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from '../S1788/meta.json';
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
-  return interceptReport(rule, reportExempting(isNotClassOrFunction));
+  return interceptReport(
+    {
+      ...rule,
+      meta: generateMeta(rspecMeta as Rule.RuleMetaData, rule.meta!),
+    },
+    reportExempting(isNotClassOrFunction),
+  );
 }
 
 function reportExempting(

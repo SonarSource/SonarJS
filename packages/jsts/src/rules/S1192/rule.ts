@@ -23,10 +23,12 @@ import { TSESTree, AST_NODE_TYPES } from '@typescript-eslint/utils';
 import { issueLocation, report } from '../helpers';
 import { Rule } from 'eslint';
 import estree from 'estree';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
+import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
+import { FromSchema } from 'json-schema-to-ts';
 
 // Number of times a literal must be duplicated to trigger an issue
-const DEFAULT_THRESHOLD = 3;
-const DEFAULT_IGNORE_STRINGS = 'application/json';
 const MIN_LENGTH = 10;
 const NO_SEPARATOR_REGEXP = /^\w*$/;
 const EXCLUDED_CONTEXTS = [
@@ -38,30 +40,45 @@ const EXCLUDED_CONTEXTS = [
 ];
 const message = 'Define a constant instead of duplicating this literal {{times}} times.';
 
-export const rule: Rule.RuleModule = {
-  meta: {
-    messages: {
-      defineConstant: message,
-      sonarRuntime: '{{sonarRuntimeData}}',
+const DEFAULT_OPTIONS = {
+  threshold: 3,
+  ignoreStrings: 'application/json',
+};
+
+const messages = {
+  defineConstant: message,
+  sonarRuntime: '{{sonarRuntimeData}}',
+};
+
+const schema = {
+  type: 'array',
+  minItems: 0,
+  maxItems: 2,
+  items: [
+    {
+      type: 'object',
+      properties: {
+        threshold: { type: 'integer', minimum: 2 },
+        ignoreStrings: { type: 'string' },
+      },
+      additionalProperties: false,
     },
-    schema: [
-      {
-        type: 'object',
-        properties: {
-          threshold: { type: 'integer', minimum: 2 },
-          ignoreStrings: { type: 'string', default: DEFAULT_IGNORE_STRINGS },
-        },
-      },
-      {
-        type: 'string',
-        enum: ['sonar-runtime'] /* internal parameter for rules having secondary locations */,
-      },
-    ],
-  },
+    {
+      type: 'string',
+      enum: ['sonar-runtime'] /* internal parameter for rules having secondary locations */,
+    },
+  ],
+} as const satisfies JSONSchema4;
+
+export const rule: Rule.RuleModule = {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, { messages, schema }),
 
   create(context) {
     const literalsByValue: Map<string, TSESTree.Literal[]> = new Map();
-    const { threshold, ignoreStrings } = extractOptions(context);
+    const { threshold, ignoreStrings } = {
+      ...DEFAULT_OPTIONS,
+      ...(context.options as FromSchema<typeof schema>)[0],
+    };
     const whitelist = ignoreStrings.split(',');
     return {
       Literal: (node: estree.Node) => {
@@ -130,17 +147,4 @@ function isRequireContext(parent: estree.Node, context: Rule.RuleContext) {
 
 function isObjectPropertyKey(parent: estree.Node, literal: estree.Literal) {
   return parent.type === AST_NODE_TYPES.Property && parent.key === literal;
-}
-
-function extractOptions(context: Rule.RuleContext) {
-  let threshold: number = DEFAULT_THRESHOLD;
-  let ignoreStrings: string = DEFAULT_IGNORE_STRINGS;
-  const options = context.options[0];
-  if (typeof options?.threshold === 'number') {
-    threshold = options.threshold;
-  }
-  if (typeof options?.ignoreStrings === 'string') {
-    ignoreStrings = options.ignoreStrings;
-  }
-  return { threshold, ignoreStrings };
 }

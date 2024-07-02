@@ -24,21 +24,21 @@ import { ParserServicesWithTypeInformation } from '@typescript-eslint/typescript
 import { Rule } from 'eslint';
 import { isRequiredParserServices } from '../helpers';
 import estree from 'estree';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 const CollectionLike = ['Array', 'Map', 'Set', 'WeakMap', 'WeakSet'];
 const CollectionSizeLike = ['length', 'size'];
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       fixCollectionSizeCheck:
         'Fix this expression; {{propertyName}} of "{{objectName}}" is always greater or equal to zero.',
       suggestFixedSizeCheck: 'Use "{{operator}}" for {{operation}} check',
     },
-    schema: [],
-    type: 'problem',
     hasSuggestions: true,
-  },
+  }),
   create(context) {
     const services = context.sourceCode.parserServices;
     const isTypeCheckerAvailable = isRequiredParserServices(services);

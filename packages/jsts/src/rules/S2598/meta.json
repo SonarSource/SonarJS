@@ -1,0 +1,8 @@
+{
+  "type": "problem",
+  "docs": {
+    "description": "File uploads should be restricted",
+    "recommended": true,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S2598/javascript/rule.adoc"
+  }
+}

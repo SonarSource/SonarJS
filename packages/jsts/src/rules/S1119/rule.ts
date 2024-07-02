@@ -20,13 +20,15 @@
 // https://sonarsource.github.io/rspec/#/rspec/S1119/javascript
 
 import { Rule } from 'eslint';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       removeLabel: 'Refactor the code to remove this label and the need for it.',
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     return {
       LabeledStatement(node) {

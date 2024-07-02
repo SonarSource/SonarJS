@@ -23,12 +23,14 @@ import { TSESTree, AST_NODE_TYPES } from '@typescript-eslint/utils';
 import { Rule, SourceCode } from 'eslint';
 import { areEquivalent, issueLocation, report } from '../helpers';
 import estree from 'estree';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 const duplicatedConditionMessage = 'This condition is covered by the one on line {{line}}';
 const duplicatedCaseMessage = 'This case duplicates the one on line {{line}}';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       duplicatedCondition: duplicatedConditionMessage,
       duplicatedCase: duplicatedCaseMessage,
@@ -41,7 +43,7 @@ export const rule: Rule.RuleModule = {
         enum: ['sonar-runtime'],
       },
     ],
-  },
+  }),
   create(context) {
     const { sourceCode } = context;
     return {

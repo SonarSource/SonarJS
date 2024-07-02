@@ -24,19 +24,21 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { getProperty, toEncodedMessage, getFullyQualifiedName } from '../helpers';
 import { SONAR_RUNTIME } from '../parameters';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 const XML_LIBRARY = 'libxmljs';
 const XML_PARSERS = ['parseXml', 'parseXmlString'];
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     schema: [
       {
         // internal parameter for rules having secondary locations
         enum: [SONAR_RUNTIME],
       },
     ],
-  },
+  }),
   create(context: Rule.RuleContext) {
     function isXmlParserCall(call: estree.CallExpression) {
       const fqn = getFullyQualifiedName(context, call);

@@ -21,15 +21,16 @@
 
 import { Rule } from 'eslint';
 import estree from 'estree';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       replaceForWithWhileLoop: 'Replace this "for" loop with a "while" loop.',
     },
-    schema: [],
     fixable: 'code',
-  },
+  }),
   create(context) {
     return {
       ForStatement(forLoop: estree.ForStatement) {

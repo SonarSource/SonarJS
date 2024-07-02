@@ -25,6 +25,7 @@ import { getNearestPackageJsons } from '@sonar/jsts';
 import { generateMeta } from '../helpers/generate-meta';
 import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
 import { FromSchema } from 'json-schema-to-ts';
+import rspecMeta from './meta.json';
 
 const reactNoDeprecated = rules['no-deprecated'];
 
@@ -50,7 +51,7 @@ const schema = {
 } as const satisfies JSONSchema4;
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(__dirname, { messages, schema }),
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, { messages, schema }),
   create(context: Rule.RuleContext) {
     function getVersionFromOptions() {
       return (context.options as FromSchema<typeof schema>)[0]?.['react-version'];

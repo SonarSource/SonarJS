@@ -22,35 +22,45 @@
 import { Rule, AST } from 'eslint';
 import * as estree from 'estree';
 import { interceptReport } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 // core implementation of this rule does not provide quick fixes
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
-  rule.meta!.hasSuggestions = true;
-  return interceptReport(rule, (context, reportDescriptor) => {
-    const suggest: Rule.SuggestionReportDescriptor[] = [];
-    const node = (reportDescriptor as any).node as estree.Node;
-    if (
-      node.type === 'CallExpression' &&
-      node.callee.type === 'MemberExpression' &&
-      node.arguments.length === 2
-    ) {
-      const {
-        callee: { object, property },
-        arguments: [, args],
-      } = node;
+  return interceptReport(
+    {
+      ...rule,
+      meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+        ...rule.meta!,
+        hasSuggestions: true,
+      }),
+    },
+    (context, reportDescriptor) => {
+      const suggest: Rule.SuggestionReportDescriptor[] = [];
+      const node = (reportDescriptor as any).node as estree.Node;
       if (
-        property.type === 'Identifier' &&
-        property.name === 'apply' &&
-        object.range &&
-        args.range
+        node.type === 'CallExpression' &&
+        node.callee.type === 'MemberExpression' &&
+        node.arguments.length === 2
       ) {
-        const range: AST.Range = [object.range[1], args.range[0]];
-        suggest.push({
-          desc: 'Replace apply() with spread syntax',
-          fix: fixer => fixer.replaceTextRange(range, '(...'),
-        });
+        const {
+          callee: { object, property },
+          arguments: [, args],
+        } = node;
+        if (
+          property.type === 'Identifier' &&
+          property.name === 'apply' &&
+          object.range &&
+          args.range
+        ) {
+          const range: AST.Range = [object.range[1], args.range[0]];
+          suggest.push({
+            desc: 'Replace apply() with spread syntax',
+            fix: fixer => fixer.replaceTextRange(range, '(...'),
+          });
+        }
       }
-    }
-    context.report({ ...reportDescriptor, suggest });
-  });
+      context.report({ ...reportDescriptor, suggest });
+    },
+  );
 }
