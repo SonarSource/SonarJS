@@ -70,7 +70,7 @@ export type AwsCdkConsumerMap = { [key: FullyQualifiedName]: AwsCdkConsumer };
  */
 export function AwsCdkTemplate(
   mapOrFactory: AwsCdkConsumerMap | ((ctx: Rule.RuleContext) => AwsCdkConsumerMap),
-  meta: Rule.RuleMetaData,
+  meta?: Rule.RuleMetaData,
 ): Rule.RuleModule {
   return {
     meta,

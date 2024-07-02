@@ -39,11 +39,9 @@ export const rule: Rule.RuleModule = createRegExpRule(
       },
     };
   },
-  {
-    meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
-      messages: {
-        issue: "Rework this empty character class that doesn't match anything.",
-      },
-    }),
-  },
+  generateMeta(rspecMeta as Rule.RuleMetaData, {
+    messages: {
+      issue: "Rework this empty character class that doesn't match anything.",
+    },
+  }),
 );

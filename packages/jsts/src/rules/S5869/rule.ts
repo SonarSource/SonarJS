@@ -29,7 +29,7 @@ import {
 } from '../helpers/regex';
 import { SONAR_RUNTIME } from '../../linter/parameters';
 import { generateMeta } from '../helpers/generate-meta';
-import rspecMeta from '.meta.json';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = createRegExpRule(
   context => {

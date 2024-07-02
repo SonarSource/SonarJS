@@ -32,7 +32,7 @@ import {
 import { Rule } from 'eslint';
 import estree from 'estree';
 import { generateMeta } from '../helpers/generate-meta';
-import rspecMeta from '.meta.json';
+import rspecMeta from './meta.json';
 
 const message =
   "This {{type}}'s code block is the same as the block for the {{type}} on line {{line}}.";
