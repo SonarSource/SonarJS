@@ -21,7 +21,6 @@
 import { Rule } from 'eslint';
 import fs from 'fs';
 import { basename, join } from 'path/posix';
-import { toUnixPath } from '@sonar/shared';
 
 export function generateMeta(dirname: string, ruleMeta: Rule.RuleMetaData): Rule.RuleMetaData {
   const ruleId = basename(toUnixPath(dirname));
@@ -37,4 +36,13 @@ export function generateMeta(dirname: string, ruleMeta: Rule.RuleMetaData): Rule
     ...ruleMeta,
     ...rspecMeta,
   };
+}
+
+/**
+ * Converts a path to Unix format
+ * @param path the path to convert
+ * @returns the converted path
+ */
+function toUnixPath(path: string) {
+  return path.replace(/[\\/]+/g, '/');
 }
