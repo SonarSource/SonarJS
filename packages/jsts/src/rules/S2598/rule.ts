@@ -30,7 +30,7 @@ import {
   getFullyQualifiedName,
   getProperty,
 } from '../helpers';
-import { SONAR_RUNTIME } from '../../linter/parameters';
+import { SONAR_RUNTIME } from '../parameters';
 import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
 

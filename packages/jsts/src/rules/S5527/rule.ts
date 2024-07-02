@@ -28,8 +28,8 @@ import {
   getFullyQualifiedName,
   getProperty,
 } from '../helpers';
-import { SONAR_RUNTIME } from '../../linter/parameters';
-import { childrenOf } from '../../linter';
+import { SONAR_RUNTIME } from '../parameters';
+import { childrenOf } from '../../linter/visitors/visitor';
 import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
 

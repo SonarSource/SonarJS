@@ -31,7 +31,7 @@ import {
   findFirstMatchingLocalAncestor,
   isIfStatement,
 } from '../helpers';
-import { childrenOf } from '../../linter';
+import { childrenOf } from '../../linter/visitors/visitor';
 import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
 

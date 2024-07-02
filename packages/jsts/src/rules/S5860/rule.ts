@@ -45,7 +45,7 @@ import {
   isStringRegexMethodCall,
   isStringReplaceCall,
 } from '../helpers/regex';
-import { SONAR_RUNTIME } from '../../linter/parameters';
+import { SONAR_RUNTIME } from '../parameters';
 import { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';

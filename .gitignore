@@ -43,3 +43,6 @@ Desktop.ini
 # ---- Sonar
 .sonar
 .scannerwork
+
+# eslint-plugin-sonarjs
+eslint-plugin-sonarjs-*

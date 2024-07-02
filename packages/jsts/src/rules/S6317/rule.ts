@@ -26,7 +26,7 @@ import { getResultOfExpression, Result } from '../helpers/result';
 import { AwsIamPolicyTemplate, getSensitiveEffect, PolicyCheckerOptions } from '../helpers/aws/iam';
 import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
-import { SONAR_RUNTIME } from '../../linter/parameters';
+import { SONAR_RUNTIME } from '../parameters';
 
 const SENSITIVE_RESOURCE = /^(\*|arn:[^:]*:[^:]*:[^:]*:[^:]*:(role|user|group)\/\*)$/;
 

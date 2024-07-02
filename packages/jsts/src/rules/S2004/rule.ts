@@ -22,7 +22,7 @@
 import * as estree from 'estree';
 import { Rule } from 'eslint';
 import { TSESTree } from '@typescript-eslint/utils';
-import { SONAR_RUNTIME } from '../../linter/parameters';
+import { SONAR_RUNTIME } from '../parameters';
 import { getMainFunctionTokenLocation, RuleContext, toEncodedMessage } from '../helpers';
 import { generateMeta } from '../helpers/generate-meta';
 import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';

@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Rule } from 'eslint';
-import { debug } from '@sonar/shared';
 
 /**
  * Extracts the schema of a rule
@@ -27,8 +26,8 @@ import { debug } from '@sonar/shared';
  * @returns the extracted rule schema, if any
  */
 export function getRuleSchema(ruleModule: Rule.RuleModule | undefined, ruleId: string) {
+  ruleId;
   if (!ruleModule) {
-    debug(`ruleModule not found for rule ${ruleId}`);
     return undefined;
   }
   if (!ruleModule.meta?.schema) {

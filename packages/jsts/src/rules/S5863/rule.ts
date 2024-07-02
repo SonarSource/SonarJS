@@ -23,7 +23,7 @@ import { TSESTree } from '@typescript-eslint/utils';
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { areEquivalent, Chai, isIdentifier, isLiteral, toEncodedMessage } from '../helpers';
-import { SONAR_RUNTIME } from '../../linter/parameters';
+import { SONAR_RUNTIME } from '../parameters';
 import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
 
