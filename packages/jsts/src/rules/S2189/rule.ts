@@ -22,7 +22,7 @@
 import { Rule, Scope } from 'eslint';
 import { eslintRules } from '../core';
 import * as estree from 'estree';
-import { childrenOf } from '../../linter';
+import { childrenOf } from '../../linter/visitors/visitor';
 import { TSESTree } from '@typescript-eslint/utils';
 import { isUndefined, interceptReport, mergeRules } from '../helpers';
 

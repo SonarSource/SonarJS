@@ -20,7 +20,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S2699/javascript
 import { Rule, SourceCode } from 'eslint';
 import * as estree from 'estree';
-import { childrenOf } from '../../linter';
+import { childrenOf } from '../../linter/visitors/visitor';
 import { Chai, isFunctionCall, Mocha, resolveFunction, Sinon, Vitest } from '../helpers';
 import { Supertest } from '../helpers/supertest';
 

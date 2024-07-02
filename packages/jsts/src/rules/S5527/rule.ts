@@ -29,7 +29,7 @@ import {
   getProperty,
 } from '../helpers';
 import { SONAR_RUNTIME } from '../parameters';
-import { childrenOf } from '../../linter';
+import { childrenOf } from '../../linter/visitors/visitor';
 
 export const rule: Rule.RuleModule = {
   meta: {

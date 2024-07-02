@@ -31,7 +31,7 @@ import {
   findFirstMatchingLocalAncestor,
   isIfStatement,
 } from '../helpers';
-import { childrenOf } from '../../linter';
+import { childrenOf } from '../../linter/visitors/visitor';
 
 const POST_MESSAGE = 'postMessage';
 const ADD_EVENT_LISTENER = 'addEventListener';

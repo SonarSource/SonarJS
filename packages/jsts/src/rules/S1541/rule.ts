@@ -32,7 +32,7 @@ import {
 } from '../helpers';
 import { TSESTree } from '@typescript-eslint/utils';
 import { SONAR_RUNTIME } from '../parameters';
-import { childrenOf } from '../../linter';
+import { childrenOf } from '../../linter/visitors/visitor';
 import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
 import { generateMeta } from '../helpers/generate-meta';
 import { FromSchema } from 'json-schema-to-ts';
