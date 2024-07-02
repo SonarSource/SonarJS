@@ -42,7 +42,7 @@ import { normalizeFQN } from './cdk';
  */
 export function S3BucketTemplate(
   callback: (bucketConstructor: estree.NewExpression, context: Rule.RuleContext) => void,
-  meta?: Rule.RuleMetaData,
+  meta: Rule.RuleMetaData = {},
 ): Rule.RuleModule {
   return {
     meta,

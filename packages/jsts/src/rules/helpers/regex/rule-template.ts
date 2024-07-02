@@ -52,7 +52,7 @@ type RegexReportDescriptor = RegexReportData & RegexReportMessage & RegexReportO
  */
 export function createRegExpRule(
   handlers: (context: RegexRuleContext) => RegExpVisitor.Handlers,
-  meta?: Rule.RuleMetaData,
+  meta: Rule.RuleMetaData = {},
 ): Rule.RuleModule {
   return {
     meta,

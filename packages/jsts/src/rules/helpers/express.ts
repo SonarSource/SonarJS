@@ -136,7 +136,7 @@ export namespace Express {
       middlewareCall: estree.CallExpression,
     ) => estree.Property[],
     message: string,
-    meta?: Rule.RuleMetaData,
+    meta: Rule.RuleMetaData = {},
   ): Rule.RuleModule {
     return {
       meta,
