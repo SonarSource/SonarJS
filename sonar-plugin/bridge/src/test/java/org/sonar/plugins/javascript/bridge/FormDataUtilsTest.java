@@ -114,7 +114,9 @@ public class FormDataUtilsTest {
     var body = buildPayload("{\"hello\":\"worlds\"}", invalidAst);
     when(mockResponse.body()).thenReturn(body);
     assertThat(parseFormData(mockResponse).ast()).isNull();
-    assertThat(logTester.logs(Level.ERROR)).containsExactly("Failed to deserialize Protobuf message.");
+    assertThat(logTester.logs(Level.ERROR)).containsExactly(
+      "Failed to deserialize Protobuf message: While parsing a protocol message, the input ended unexpectedly in the middle of a field.  " +
+        "This could mean either that the input has been truncated or that an embedded message misreported its own length.");
   }
 
   @Test

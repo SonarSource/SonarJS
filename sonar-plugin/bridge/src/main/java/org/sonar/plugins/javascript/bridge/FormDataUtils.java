@@ -89,7 +89,8 @@ public class FormDataUtils {
     } catch (InvalidProtocolBufferException e) {
       // Failing to parse the protobuf message should not prevent the analysis from continuing.
       // This also happen in the case of large recursion. See https://sonarsource.atlassian.net/browse/JS-185.
-      LOG.error("Failed to deserialize Protobuf message.", e);
+      // Note: we do not print the stack trace as it is huge and does not contain useful information.
+      LOG.error("Failed to deserialize Protobuf message: {}", e.getMessage());
     }
     return null;
   }
