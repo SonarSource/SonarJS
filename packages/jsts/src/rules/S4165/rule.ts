@@ -33,14 +33,16 @@ import {
   resolveAssignedValues,
   Values,
 } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       reviewAssignment:
         'Review this redundant assignment: "{{symbol}}" already holds the assigned value along all execution paths.',
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     const codePathStack: CodePathContext[] = [];
     const reachingDefsMap = new Map<string, ReachingDefinitions>();

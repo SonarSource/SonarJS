@@ -26,9 +26,11 @@ import { TSESTree } from '@typescript-eslint/utils';
 import { getProp, getLiteralPropValue } from 'jsx-ast-utils';
 import { computeGrid } from '../helpers/table';
 import { isPresentationTable } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {
-  meta: {},
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData),
   create(context: Rule.RuleContext) {
     const checkValidTable = (tree: TSESTree.JSXElement): boolean => {
       const grid = computeGrid(context, tree);

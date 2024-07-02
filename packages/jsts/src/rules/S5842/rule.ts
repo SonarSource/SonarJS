@@ -22,21 +22,26 @@
 import { Rule } from 'eslint';
 import { Node, Quantifier } from '@eslint-community/regexpp/ast';
 import { createRegExpRule } from '../helpers/regex';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
-export const rule: Rule.RuleModule = createRegExpRule(context => {
-  return {
-    onQuantifierEnter: (node: Quantifier) => {
-      const { element } = node;
-      if (matchEmptyString(element)) {
-        context.reportRegExpNode({
-          message: `Rework this part of the regex to not match the empty string.`,
-          node: context.node,
-          regexpNode: element,
-        });
-      }
-    },
-  };
-});
+export const rule: Rule.RuleModule = createRegExpRule(
+  context => {
+    return {
+      onQuantifierEnter: (node: Quantifier) => {
+        const { element } = node;
+        if (matchEmptyString(element)) {
+          context.reportRegExpNode({
+            message: `Rework this part of the regex to not match the empty string.`,
+            node: context.node,
+            regexpNode: element,
+          });
+        }
+      },
+    };
+  },
+  generateMeta(rspecMeta as Rule.RuleMetaData),
+);
 
 function matchEmptyString(node: Node): boolean {
   switch (node.type) {

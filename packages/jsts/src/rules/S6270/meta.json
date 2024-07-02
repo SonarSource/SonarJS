@@ -1,0 +1,8 @@
+{
+  "type": "problem",
+  "docs": {
+    "description": "Policies authorizing public access to resources are security-sensitive",
+    "recommended": true,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S6270/javascript/rule.adoc"
+  }
+}

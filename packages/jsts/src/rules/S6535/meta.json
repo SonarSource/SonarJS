@@ -1,0 +1,9 @@
+{
+  "type": "suggestion",
+  "docs": {
+    "description": "Unnecessary character escapes should be removed",
+    "recommended": true,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S6535/javascript/rule.adoc"
+  },
+  "fixable": "code"
+}

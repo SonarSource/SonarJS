@@ -23,13 +23,15 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import * as helpers from '../helpers';
 import { isStringLiteral } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       standardImport: 'Use a standard "import" statement instead of "{{adhocImport}}".',
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     const services = context.sourceCode.parserServices;
     return {

@@ -1,0 +1,8 @@
+{
+  "type": "suggestion",
+  "docs": {
+    "description": "Tests should be stable",
+    "recommended": true,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S5973/javascript/rule.adoc"
+  }
+}

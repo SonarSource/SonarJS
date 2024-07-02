@@ -1,0 +1,8 @@
+{
+  "type": "suggestion",
+  "docs": {
+    "description": "Single-character alternations in regular expressions should be replaced with character classes",
+    "recommended": true,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S6035/javascript/rule.adoc"
+  }
+}

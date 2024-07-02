@@ -1,0 +1,8 @@
+{
+  "type": "suggestion",
+  "docs": {
+    "description": "Functions should not have too many parameters",
+    "recommended": true,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S107/javascript/rule.adoc"
+  }
+}

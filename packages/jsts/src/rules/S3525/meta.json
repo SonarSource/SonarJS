@@ -1,0 +1,8 @@
+{
+  "type": "suggestion",
+  "docs": {
+    "description": "Class methods should be used instead of \"prototype\" assignments",
+    "recommended": false,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S3525/javascript/rule.adoc"
+  }
+}

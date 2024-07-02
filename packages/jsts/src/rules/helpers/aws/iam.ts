@@ -20,7 +20,6 @@
 import { CallExpression, NewExpression, Node } from 'estree';
 import { Rule } from 'eslint';
 import { AwsCdkTemplate, normalizeFQN } from './cdk';
-import { SONAR_RUNTIME } from '../../../linter/parameters';
 import { getResultOfExpression, Result } from '../result';
 import { flattenArgs, isStringLiteral, StringLiteral } from '../ast';
 import { getFullyQualifiedName } from '../module';
@@ -103,7 +102,7 @@ const JSON_OPTIONS: PolicyCheckerOptions = {
   },
 };
 
-export function AwsIamPolicyTemplate(statementChecker: StatementChecker) {
+export function AwsIamPolicyTemplate(statementChecker: StatementChecker, meta: Rule.RuleMetaData) {
   return AwsCdkTemplate(
     {
       'aws-cdk-lib.aws-iam.PolicyStatement': {
@@ -116,16 +115,7 @@ export function AwsIamPolicyTemplate(statementChecker: StatementChecker) {
         callExpression: policyDocumentChecker(statementChecker, JSON_OPTIONS),
       },
     },
-    {
-      meta: {
-        schema: [
-          {
-            // internal parameter for rules having secondary locations
-            enum: [SONAR_RUNTIME],
-          },
-        ],
-      },
-    },
+    meta,
   );
 }
 

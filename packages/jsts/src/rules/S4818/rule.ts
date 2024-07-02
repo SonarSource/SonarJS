@@ -22,13 +22,15 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { getFullyQualifiedName } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       safeSocket: 'Make sure that sockets are used safely here.',
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     return {
       NewExpression: (node: estree.Node) =>

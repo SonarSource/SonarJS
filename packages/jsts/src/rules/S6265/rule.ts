@@ -39,6 +39,8 @@ import {
   isS3BucketConstructor,
   getProperty,
 } from '../helpers/aws/s3';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 const messages = {
   accessLevel: (param: string) => `Make sure granting ${param} access is safe here.`,
@@ -52,20 +54,20 @@ const PUBLIC_READ_ACCESS_KEY = 'publicReadAccess';
 const INVALID_PUBLIC_READ_ACCESS_VALUE = true;
 
 export const rule: Rule.RuleModule = {
-  create(context: Rule.RuleContext) {
-    return mergeRules(
-      s3BucketConstructorRule.create(context),
-      s3BucketDeploymentConstructorRule.create(context),
-      handleGrantPublicAccess.create(context),
-    );
-  },
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     schema: [
       {
         // internal parameter for rules having secondary locations
         enum: [SONAR_RUNTIME],
       },
     ],
+  }),
+  create(context: Rule.RuleContext) {
+    return mergeRules(
+      s3BucketConstructorRule.create(context),
+      s3BucketDeploymentConstructorRule.create(context),
+      handleGrantPublicAccess.create(context),
+    );
   },
 };
 

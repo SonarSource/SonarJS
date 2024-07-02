@@ -27,15 +27,17 @@ import {
   getUniqueWriteUsage,
   getFullyQualifiedName,
 } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 const chmodLikeFunction = ['chmod', 'chmodSync', 'fchmod', 'fchmodSync', 'lchmod', 'lchmodSync'];
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       safePermission: 'Make sure this permission is safe.',
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     function isChmodLikeFunction(node: estree.CallExpression) {
       const { callee } = node;

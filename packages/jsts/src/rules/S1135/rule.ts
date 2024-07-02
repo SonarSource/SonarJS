@@ -21,16 +21,18 @@
 
 import { Rule } from 'eslint';
 import { TSESTree } from '@typescript-eslint/utils';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 const todoPattern = 'todo';
 const letterPattern = /[\p{Letter}]/u;
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       completeTODO: 'Complete the task associated to this "TODO" comment.',
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     return {
       'Program:exit': () => {

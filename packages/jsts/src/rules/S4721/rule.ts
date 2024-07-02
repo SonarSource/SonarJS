@@ -27,6 +27,8 @@ import {
   isStaticTemplateLiteral,
   isLiteral,
 } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 const EXEC_FUNCTIONS = ['exec', 'execSync'];
 
@@ -37,11 +39,11 @@ const CHILD_PROCESS_MODULE = 'child_process';
 type Argument = estree.Expression | estree.SpreadElement;
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       safeOSCommand: 'Make sure that executing this OS command is safe here.',
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     return {
       CallExpression: (node: estree.Node) => checkOSCommand(context, node as estree.CallExpression),

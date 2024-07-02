@@ -21,16 +21,17 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { getMainFunctionTokenLocation } from 'eslint-plugin-sonarjs/lib/src/utils/locations';
 import { TSESTree } from '@typescript-eslint/utils';
-import { getParent, RuleContext } from '../helpers';
+import { getMainFunctionTokenLocation, getParent, RuleContext } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       blockedFunction: 'Do not use function declarations within blocks.',
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     return {
       ':not(FunctionDeclaration, FunctionExpression, ArrowFunctionExpression) > BlockStatement > FunctionDeclaration':

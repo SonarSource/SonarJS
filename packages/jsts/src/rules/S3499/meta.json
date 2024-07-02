@@ -1,0 +1,8 @@
+{
+  "type": "suggestion",
+  "docs": {
+    "description": "Shorthand object properties should be grouped at the beginning or end of an object declaration",
+    "recommended": false,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S3499/javascript/rule.adoc"
+  }
+}

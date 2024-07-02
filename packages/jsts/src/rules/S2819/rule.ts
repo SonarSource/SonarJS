@@ -29,20 +29,22 @@ import {
   resolveFunction,
   isIdentifier,
   findFirstMatchingLocalAncestor,
+  isIfStatement,
 } from '../helpers';
 import { childrenOf } from '../../linter';
-import { isIfStatement } from 'eslint-plugin-sonarjs/lib/src/utils/nodes';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 const POST_MESSAGE = 'postMessage';
 const ADD_EVENT_LISTENER = 'addEventListener';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       specifyTarget: `Specify a target origin for this message.`,
       verifyOrigin: `Verify the origin of the received message.`,
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     const services = context.sourceCode.parserServices;
     if (!isRequiredParserServices(services)) {

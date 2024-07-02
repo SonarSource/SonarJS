@@ -27,12 +27,6 @@ describe('getRuleSchema', () => {
     ).toEqual([42]);
   });
 
-  it('should return an array of the schema', () => {
-    expect(
-      getRuleSchema({ meta: { schema: 'foo' } } as unknown as Rule.RuleModule, 'schema'),
-    ).toEqual(['foo']);
-  });
-
   it('should return undefined on an undefined rule', () => {
     console.log = jest.fn();
     expect(getRuleSchema(undefined, 'undefined-rule')).toBeUndefined();

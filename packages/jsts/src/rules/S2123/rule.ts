@@ -21,13 +21,15 @@
 
 import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       removeIncrement: 'Remove this {{updateOperator}}rement or correct the code not to waste it.',
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     function reportUpdateExpression(updateExpression: estree.UpdateExpression) {
       const updateOperator = updateExpression.operator === '++' ? 'inc' : 'dec';

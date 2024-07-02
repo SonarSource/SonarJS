@@ -22,6 +22,8 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { getFullyQualifiedName, getUniqueWriteUsageOrNode, isStringLiteral } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 const message = 'Make sure this weak hash algorithm is not used in a sensitive context here.';
 const CRYPTO_UNSECURE_HASH_ALGORITHMS = new Set([
@@ -41,6 +43,7 @@ const CRYPTO_UNSECURE_HASH_ALGORITHMS = new Set([
 const SUBTLE_UNSECURE_HASH_ALGORITHMS = new Set(['sha-1']);
 
 export const rule: Rule.RuleModule = {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData),
   create(context: Rule.RuleContext) {
     function checkNodejsCrypto(fqn: string | null, node: estree.CallExpression) {
       // crypto#createHash

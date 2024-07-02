@@ -1,0 +1,8 @@
+{
+  "type": "problem",
+  "docs": {
+    "description": "Assertions should not be given twice the same argument",
+    "recommended": true,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S5863/javascript/rule.adoc"
+  }
+}

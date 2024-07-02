@@ -24,13 +24,15 @@ import isHiddenFromScreenReader from 'eslint-plugin-jsx-a11y/lib/util/isHiddenFr
 import getElementType from 'eslint-plugin-jsx-a11y/lib/util/getElementType';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       addContent: 'Add an accessible content to this "<object>" tag.',
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     const elementType = getElementType(context);
 

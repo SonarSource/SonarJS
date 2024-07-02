@@ -22,16 +22,24 @@
 import { Rule } from 'eslint';
 import { CallExpression } from 'estree';
 import { interceptReport } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
-  return interceptReport(rule, (context, reportDescriptor) => {
-    if ('node' in reportDescriptor) {
-      const { node, ...rest } = reportDescriptor;
-      const call = node as CallExpression;
-      context.report({
-        node: call.callee,
-        ...rest,
-      });
-    }
-  });
+  return interceptReport(
+    {
+      ...rule,
+      meta: generateMeta(rspecMeta as Rule.RuleMetaData, rule.meta!),
+    },
+    (context, reportDescriptor) => {
+      if ('node' in reportDescriptor) {
+        const { node, ...rest } = reportDescriptor;
+        const call = node as CallExpression;
+        context.report({
+          node: call.callee,
+          ...rest,
+        });
+      }
+    },
+  );
 }

@@ -21,13 +21,15 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       restrictLoop: 'Restrict what this loop acts on by testing each property.',
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     function isAttrCopy(statement: estree.Node) {
       if (statement.type !== 'ExpressionStatement') {

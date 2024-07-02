@@ -21,16 +21,18 @@
 
 import { AST, Rule, Scope } from 'eslint';
 import * as estree from 'estree';
-import { getMainFunctionTokenLocation } from 'eslint-plugin-sonarjs/lib/src/utils/locations';
 import { TSESTree } from '@typescript-eslint/utils';
 import {
   findFirstMatchingAncestor,
+  getMainFunctionTokenLocation,
   getParent,
   LoopLike,
   RuleContext,
   toEncodedMessage,
 } from '../helpers';
 import { SONAR_RUNTIME } from '../../linter/parameters';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 const message = 'Make sure this function is not called after the loop completes.';
 
@@ -54,14 +56,14 @@ const allowedCallbacks = [
 ];
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     schema: [
       {
         // internal parameter for rules having secondary locations
         enum: [SONAR_RUNTIME],
       },
     ],
-  },
+  }),
   create(context: Rule.RuleContext) {
     function getLocalEnclosingLoop(node: estree.Node): LoopLike | undefined {
       return findFirstMatchingAncestor(node as TSESTree.Node, n => loopLike.includes(n.type)) as

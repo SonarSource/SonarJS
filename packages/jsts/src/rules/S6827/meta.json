@@ -1,0 +1,8 @@
+{
+  "type": "suggestion",
+  "docs": {
+    "description": "Anchors should contain accessible content",
+    "recommended": true,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S6827/javascript/rule.adoc"
+  }
+}

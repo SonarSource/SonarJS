@@ -21,7 +21,6 @@ import { RuleTester } from 'eslint';
 import { rule } from './';
 import path from 'path';
 import { clearPackageJsons, loadPackageJsons } from '@sonar/jsts';
-import type { Options } from './rule';
 
 //reset and search package.json files in rule dir
 clearPackageJsons();
@@ -29,7 +28,7 @@ loadPackageJsons(__dirname, []);
 
 const fixtures = path.join(__dirname, 'fixtures');
 const filename = path.join(fixtures, 'package-json-project/file.js');
-const options: Options = [
+const options = [
   {
     whitelist: [],
   },

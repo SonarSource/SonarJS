@@ -1,0 +1,8 @@
+{
+  "type": "suggestion",
+  "docs": {
+    "description": "Wildcard imports should not be used",
+    "recommended": false,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S2208/javascript/rule.adoc"
+  }
+}

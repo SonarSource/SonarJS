@@ -22,15 +22,17 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { isFunctionNode } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     hasSuggestions: true,
     messages: {
       promiseAction: 'Replace this trivial promise with "Promise.{{action}}".',
       suggestPromiseAction: 'Replace with "Promise.{{action}}"',
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     return {
       NewExpression: (node: estree.Node) => {

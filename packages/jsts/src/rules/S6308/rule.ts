@@ -24,6 +24,8 @@ import { AwsCdkTemplate } from '../helpers/aws/cdk';
 import { NewExpression, Node } from 'estree';
 import { getFullyQualifiedName, isBooleanLiteral, isStringLiteral } from '../helpers';
 import { getResultOfExpression } from '../helpers/result';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 const DOMAIN_PROPS_POSITION = 2;
 const ENABLED_PROPERTY = 'enabled';
@@ -74,16 +76,14 @@ export const rule: Rule.RuleModule = AwsCdkTemplate(
       },
     }),
   },
-  {
-    meta: {
-      messages: {
-        encryptionDisabled: 'Make sure that using unencrypted {{search}} domains is safe here.',
-        encryptionOmitted:
-          'Omitting {{encryptionPropertyName}} causes encryption of data at rest to be ' +
-          'disabled for this {{search}} domain. Make sure it is safe here.',
-      },
+  generateMeta(rspecMeta as Rule.RuleMetaData, {
+    messages: {
+      encryptionDisabled: 'Make sure that using unencrypted {{search}} domains is safe here.',
+      encryptionOmitted:
+        'Omitting {{encryptionPropertyName}} causes encryption of data at rest to be ' +
+        'disabled for this {{search}} domain. Make sure it is safe here.',
     },
-  },
+  }),
 );
 
 function domainChecker(options: DomainCheckerOptions) {

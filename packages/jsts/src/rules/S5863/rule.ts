@@ -19,22 +19,23 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S5863/javascript
 
-import { TSESLint, TSESTree } from '@typescript-eslint/utils';
+import { TSESTree } from '@typescript-eslint/utils';
 import { Rule } from 'eslint';
-import { areEquivalent } from 'eslint-plugin-sonarjs/lib/src/utils/equivalence';
 import * as estree from 'estree';
-import { Chai, isIdentifier, isLiteral, toEncodedMessage } from '../helpers';
+import { areEquivalent, Chai, isIdentifier, isLiteral, toEncodedMessage } from '../helpers';
 import { SONAR_RUNTIME } from '../../linter/parameters';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     schema: [
       {
         // internal parameter for rules having secondary locations
         enum: [SONAR_RUNTIME],
       },
     ],
-  },
+  }),
   create(context: Rule.RuleContext) {
     if (!Chai.isImported(context)) {
       return {};
@@ -107,13 +108,12 @@ function checkShould(context: Rule.RuleContext, expression: estree.Expression) {
 }
 
 function findDuplicates(context: Rule.RuleContext, args: estree.Node[]) {
-  const castedContext = context.sourceCode as unknown as TSESLint.SourceCode;
   for (let i = 0; i < args.length; i++) {
     for (let j = i + 1; j < args.length; j++) {
       const duplicates = areEquivalent(
         args[i] as TSESTree.Node,
         args[j] as TSESTree.Node,
-        castedContext,
+        context.sourceCode,
       );
       if (duplicates && !isLiteral(args[i])) {
         const message = toEncodedMessage(`Replace this argument or its duplicate.`, [args[j]]);

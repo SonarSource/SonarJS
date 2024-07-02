@@ -1,0 +1,8 @@
+{
+  "type": "suggestion",
+  "docs": {
+    "description": "Variable, property and parameter names should comply with a naming convention",
+    "recommended": false,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S117/javascript/rule.adoc"
+  }
+}

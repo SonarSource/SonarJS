@@ -23,14 +23,16 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import * as ts from 'typescript';
 import { isRequiredParserServices, getTypeFromTreeNode } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       uselessStringOp:
         '{{symbol}} is an immutable object; you must either store or return the result of the operation.',
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     const services = context.sourceCode.parserServices;
     if (!isRequiredParserServices(services)) {

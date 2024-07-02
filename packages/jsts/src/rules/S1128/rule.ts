@@ -28,6 +28,8 @@ import {
   removeNodeWithLeadingWhitespaces,
   isInsideVueSetupScript,
 } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 const EXCLUDED_IMPORTS = ['React'];
 const JSDOC_TAGS = [
@@ -123,14 +125,14 @@ const JSDOC_TAGS = [
 ];
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       removeUnusedImport: `Remove this unused import of '{{symbol}}'.`,
       suggestRemoveWholeStatement: `Remove this import statement`,
       suggestRemoveOneVariable: `Remove this variable import`,
     },
     hasSuggestions: true,
-  },
+  }),
   create(context: Rule.RuleContext) {
     const isJsxPragmaSet =
       context.sourceCode.getAllComments().findIndex(comment => comment.value.includes('@jsx jsx')) >

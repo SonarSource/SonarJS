@@ -177,13 +177,10 @@ export const rule: Rule.RuleModule = AwsCdkTemplate(
     ),
   },
   {
-    meta: {
-      messages: {
-        replicationGroup: 'Make sure that disabling transit encryption is safe here.',
-        noSSLTLS:
-          'Make sure that using network protocols without an SSL/TLS underlay is safe here.',
-        streamEncryptionDisabled: 'Make sure that disabling stream encryption is safe here.',
-      },
+    messages: {
+      replicationGroup: 'Make sure that disabling transit encryption is safe here.',
+      noSSLTLS: 'Make sure that using network protocols without an SSL/TLS underlay is safe here.',
+      streamEncryptionDisabled: 'Make sure that disabling stream encryption is safe here.',
     },
   },
 );

@@ -1,0 +1,8 @@
+{
+  "type": "suggestion",
+  "docs": {
+    "description": "Variables declared with \"var\" should be declared before they are used",
+    "recommended": false,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S1526/javascript/rule.adoc"
+  }
+}

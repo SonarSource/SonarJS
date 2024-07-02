@@ -24,6 +24,23 @@ import { findFirstMatchingAncestor, flatMap, getFullyQualifiedName, toEncodedMes
 
 export type Node = estree.Node | TSESTree.Node;
 
+const MODULE_DECLARATION_NODES = [
+  'ImportDeclaration',
+  'ExportNamedDeclaration',
+  'ExportDefaultDeclaration',
+  'ExportAllDeclaration',
+];
+
+export function isModuleDeclaration(
+  node: estree.Node | undefined,
+): node is
+  | estree.ExportAllDeclaration
+  | estree.ExportDefaultDeclaration
+  | estree.ExportNamedDeclaration
+  | estree.ImportDeclaration {
+  return node !== undefined && MODULE_DECLARATION_NODES.includes(node.type);
+}
+
 export type LoopLike =
   | estree.WhileStatement
   | estree.DoWhileStatement
@@ -51,6 +68,24 @@ export const functionLike = new Set([
   'MethodDefinition',
 ]);
 
+export function isFunctionExpression(
+  node: TSESTree.Node | undefined,
+): node is TSESTree.FunctionExpression {
+  return node !== undefined && node.type === 'FunctionExpression';
+}
+
+export function isFunctionDeclaration(
+  node: TSESTree.Node | undefined,
+): node is TSESTree.FunctionDeclaration {
+  return node !== undefined && node.type === 'FunctionDeclaration';
+}
+
+export function isArrowFunctionExpression(
+  node: TSESTree.Node | undefined,
+): node is TSESTree.ArrowFunctionExpression {
+  return node !== undefined && node.type === 'ArrowFunctionExpression';
+}
+
 export function isIdentifier(
   node: Node | undefined,
   ...values: string[]
@@ -61,8 +96,19 @@ export function isIdentifier(
   );
 }
 
+export function getProgramStatements(program: estree.Program) {
+  return program.body.filter((node): node is estree.Statement => !isModuleDeclaration(node));
+}
+export function isIfStatement(node: Node | undefined): node is TSESTree.IfStatement {
+  return node !== undefined && node.type === 'IfStatement';
+}
+
 export function isMemberWithProperty(node: estree.Node, ...values: string[]) {
   return node.type === 'MemberExpression' && isIdentifier(node.property, ...values);
+}
+
+export function isThrowStatement(node: Node | undefined): node is TSESTree.ThrowStatement {
+  return node !== undefined && node.type === 'ThrowStatement';
 }
 
 export function isMemberExpression(
@@ -78,6 +124,12 @@ export function isMemberExpression(
   }
 
   return false;
+}
+
+export function isLogicalExpression(
+  node: TSESTree.Node | undefined,
+): node is TSESTree.LogicalExpression {
+  return node !== undefined && node.type === 'LogicalExpression';
 }
 
 export function isBinaryPlus(
@@ -148,6 +200,12 @@ export function isMethodCall(callExpr: estree.CallExpression): callExpr is estre
   );
 }
 
+export function isVariableDeclaration(
+  node: TSESTree.Node | undefined,
+): node is TSESTree.VariableDeclaration {
+  return node !== undefined && node.type === 'VariableDeclaration';
+}
+
 export function isCallingMethod(
   callExpr: estree.CallExpression,
   arity: number,
@@ -213,19 +271,28 @@ export function isUndefined(node: Node): boolean {
  *  myObj.prop1 = 3;
  *  myObj.prop1 += 3;
  */
-export function isElementWrite(statement: estree.ExpressionStatement, ref: Scope.Reference) {
+export function isElementWrite(
+  statement: estree.ExpressionStatement,
+  ref: Scope.Reference,
+  recursive = true,
+): boolean {
   if (statement.expression.type === 'AssignmentExpression') {
     const assignmentExpression = statement.expression;
     const lhs = assignmentExpression.left;
-    return isMemberExpressionReference(lhs, ref);
+    return isMemberExpressionReference(lhs, ref, recursive);
   }
   return false;
 }
 
-function isMemberExpressionReference(lhs: estree.Node, ref: Scope.Reference): boolean {
+function isMemberExpressionReference(
+  lhs: estree.Node,
+  ref: Scope.Reference,
+  recursive = true,
+): boolean {
   return (
     lhs.type === 'MemberExpression' &&
-    (isReferenceTo(ref, lhs.object) || isMemberExpressionReference(lhs.object, ref))
+    (isReferenceTo(ref, lhs.object) ||
+      (recursive && isMemberExpressionReference(lhs.object, ref, recursive)))
   );
 }
 

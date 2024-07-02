@@ -1,0 +1,8 @@
+{
+  "type": "problem",
+  "docs": {
+    "description": "Formatting SQL queries is security-sensitive",
+    "recommended": true,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S2077/javascript/rule.adoc"
+  }
+}

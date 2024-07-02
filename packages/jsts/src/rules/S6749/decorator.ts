@@ -21,26 +21,36 @@
 
 import { Rule } from 'eslint';
 import { interceptReport } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 /**
  * The core implementation of the rule reports on empty React fragments.
  * Also, one of the two issue messages include a Unicode character.
  */
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
-  rule.meta!.hasSuggestions = true;
-  rule.meta!.messages = {
-    ...rule.meta!.messages,
-    /* Map to a more friendly message */
-    NeedsMoreChildren: 'A fragment with only one child is redundant.',
-  };
-  return interceptReport(rule, (context, descriptor) => {
-    const { node } = descriptor as any;
+  return interceptReport(
+    {
+      ...rule,
+      meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+        ...rule.meta!,
+        hasSuggestions: true,
+        messages: {
+          ...rule.meta!.messages,
+          /* Map to a more friendly message */
+          NeedsMoreChildren: 'A fragment with only one child is redundant.',
+        },
+      }),
+    },
+    (context, descriptor) => {
+      const { node } = descriptor as any;
 
-    /* Ignore empty fragments */
-    if (node.type === 'JSXFragment' && node.children.length === 0) {
-      return;
-    }
+      /* Ignore empty fragments */
+      if (node.type === 'JSXFragment' && node.children.length === 0) {
+        return;
+      }
 
-    context.report(descriptor);
-  });
+      context.report(descriptor);
+    },
+  );
 }

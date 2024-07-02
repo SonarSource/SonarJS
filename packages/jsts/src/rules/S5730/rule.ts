@@ -22,6 +22,9 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { Express, getFullyQualifiedName, getProperty } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
+import { SONAR_RUNTIME } from '../../linter/parameters';
 
 const HELMET = 'helmet';
 const HELMET_CSP = 'helmet-csp';
@@ -33,6 +36,14 @@ const BLOCK_ALL_MIXED_CONTENT_HYPHEN = 'block-all-mixed-content';
 export const rule: Rule.RuleModule = Express.SensitiveMiddlewarePropertyRule(
   findDirectivesWithMissingMixedContentPropertyFromHelmet,
   `Make sure allowing mixed-content is safe here.`,
+  generateMeta(rspecMeta as Rule.RuleMetaData, {
+    schema: [
+      {
+        // internal parameter for rules having secondary locations
+        enum: [SONAR_RUNTIME],
+      },
+    ],
+  }),
 );
 
 function findDirectivesWithMissingMixedContentPropertyFromHelmet(

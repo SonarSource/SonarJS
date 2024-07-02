@@ -24,9 +24,11 @@ import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
 import { toEncodedMessage } from '../helpers';
 import { SONAR_RUNTIME } from '../../linter/parameters';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     hasSuggestions: true,
     schema: [
       {
@@ -34,7 +36,7 @@ export const rule: Rule.RuleModule = {
         enum: [SONAR_RUNTIME],
       },
     ],
-  },
+  }),
 
   create(context: Rule.RuleContext) {
     return {

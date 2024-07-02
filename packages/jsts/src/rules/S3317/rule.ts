@@ -23,13 +23,15 @@ import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
 import path from 'path';
 import { getVariableFromName } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       renameFile: 'Rename this file to "{{exported}}"',
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     let isOnlyExport = true;
     let nameOfExported: string | undefined = undefined;

@@ -21,14 +21,16 @@
 
 import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       unusedFunction: `Remove unused function '{{symbol}}'.`,
       unusedVariable: `Remove the declaration of the unused '{{symbol}}' variable.`,
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     let toIgnore: estree.Identifier[] = [];
     let jsxComponentsToIgnore: string[] = [];

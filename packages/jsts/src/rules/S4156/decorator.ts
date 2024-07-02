@@ -20,15 +20,26 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { interceptReport } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from '../S1788/meta.json';
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
-  return interceptReport(rule, (context: Rule.RuleContext, descriptor: Rule.ReportDescriptor) => {
-    const { node } = descriptor as { node: estree.Node };
-    const moduleKeyword = context.sourceCode.getFirstToken(node, token => token.value === 'module');
-    if (moduleKeyword?.loc) {
-      context.report({ ...descriptor, loc: moduleKeyword.loc });
-    } else {
-      context.report(descriptor);
-    }
-  });
+  return interceptReport(
+    {
+      ...rule,
+      meta: generateMeta(rspecMeta as Rule.RuleMetaData, rule.meta!),
+    },
+    (context: Rule.RuleContext, descriptor: Rule.ReportDescriptor) => {
+      const { node } = descriptor as { node: estree.Node };
+      const moduleKeyword = context.sourceCode.getFirstToken(
+        node,
+        token => token.value === 'module',
+      );
+      if (moduleKeyword?.loc) {
+        context.report({ ...descriptor, loc: moduleKeyword.loc });
+      } else {
+        context.report(descriptor);
+      }
+    },
+  );
 }

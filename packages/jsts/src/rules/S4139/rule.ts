@@ -28,13 +28,15 @@ import {
   isArrayLikeType,
   isRequiredParserServices,
 } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       useForOf: 'Use "for...of" to iterate over this "{{iterable}}".',
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     const services = context.sourceCode.parserServices;
     if (!isRequiredParserServices(services)) {

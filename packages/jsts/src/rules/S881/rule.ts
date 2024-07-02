@@ -21,13 +21,15 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from '../S101/meta.json';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       extractOperation: 'Extract this {{incrementType}} operation into a dedicated statement.',
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     function reportUpdateExpression(node: estree.UpdateExpression) {
       context.report({

@@ -52,10 +52,10 @@ type RegexReportDescriptor = RegexReportData & RegexReportMessage & RegexReportO
  */
 export function createRegExpRule(
   handlers: (context: RegexRuleContext) => RegExpVisitor.Handlers,
-  metadata: { meta: Rule.RuleMetaData } = { meta: {} },
+  meta: Rule.RuleMetaData = {},
 ): Rule.RuleModule {
   return {
-    ...metadata,
+    meta,
     create(context: Rule.RuleContext) {
       const services = isRequiredParserServices(context.sourceCode.parserServices)
         ? context.sourceCode.parserServices

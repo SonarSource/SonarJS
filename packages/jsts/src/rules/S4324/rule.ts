@@ -24,15 +24,17 @@ import { TSESTree } from '@typescript-eslint/utils';
 import { isRequiredParserServices, RequiredParserServices } from '../helpers';
 import * as estree from 'estree';
 import * as ts from 'typescript';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 type ReturnedExpression = estree.Expression | undefined | null;
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       removeOrChangeType: 'Remove this return type or change it to a more specific.',
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     const services = context.sourceCode.parserServices;
 

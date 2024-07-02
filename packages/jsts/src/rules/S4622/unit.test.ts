@@ -19,7 +19,6 @@
  */
 import { RuleTester } from 'eslint';
 import { rule } from './';
-import type { Options } from './rule';
 
 const ruleTester = new RuleTester({
   parser: require.resolve('@typescript-eslint/parser'),
@@ -29,7 +28,7 @@ const ruleTester = new RuleTester({
 const DEFAULT_THRESHOLD = 3;
 const CUSTOM_THRESHOLD = 4;
 
-const createOptions = (threshold: number): Options => {
+const createOptions = (threshold: number) => {
   return [{ threshold }];
 };
 

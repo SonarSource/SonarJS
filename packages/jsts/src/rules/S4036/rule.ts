@@ -22,16 +22,18 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { isStringLiteral, getValueOfExpression, getFullyQualifiedName } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 const SENSITIVE_METHODS = ['exec', 'execSync', 'spawn', 'spawnSync', 'execFile', 'execFileSync'];
 const REQUIRED_PATH_PREFIXES = ['./', '.\\', '../', '..\\', '/', '\\', 'C:\\'];
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       issue: 'Make sure the "PATH" used to find this command includes only what you intend.',
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     return {
       CallExpression: (node: estree.CallExpression) => {

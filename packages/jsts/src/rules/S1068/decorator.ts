@@ -22,17 +22,27 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { interceptReport } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 // core implementation of this rule does not provide quick fixes
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
-  rule.meta!.hasSuggestions = true;
-  return interceptReport(rule, (context, reportDescriptor) => {
-    const suggest: Rule.SuggestionReportDescriptor[] = [];
-    const node = (reportDescriptor as any).node as estree.Node;
-    suggest.push({
-      desc: 'Remove unused private class member',
-      fix: fixer => fixer.remove(node),
-    });
-    context.report({ ...reportDescriptor, suggest });
-  });
+  return interceptReport(
+    {
+      ...rule,
+      meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+        ...rule.meta!,
+        hasSuggestions: true,
+      }),
+    },
+    (context, reportDescriptor) => {
+      const suggest: Rule.SuggestionReportDescriptor[] = [];
+      const node = (reportDescriptor as any).node as estree.Node;
+      suggest.push({
+        desc: 'Remove unused private class member',
+        fix: fixer => fixer.remove(node),
+      });
+      context.report({ ...reportDescriptor, suggest });
+    },
+  );
 }

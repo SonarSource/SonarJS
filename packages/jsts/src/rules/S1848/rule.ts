@@ -22,15 +22,17 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { getFullyQualifiedName, isTestCode } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       removeInstantiationOf:
         'Either remove this useless object instantiation of "{{constructor}}" or use it.',
       removeInstantiation: 'Either remove this useless object instantiation or use it.',
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     const sourceCode = context.sourceCode;
     return {

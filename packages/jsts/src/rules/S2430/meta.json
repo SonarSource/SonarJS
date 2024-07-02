@@ -1,0 +1,8 @@
+{
+  "type": "suggestion",
+  "docs": {
+    "description": "Constructor names should start with an upper case letter",
+    "recommended": true,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S2430/javascript/rule.adoc"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "type": "suggestion",
+  "docs": {
+    "description": "Tabulation characters should not be used",
+    "recommended": false,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S105/javascript/rule.adoc"
+  },
+  "deprecated": true
+}

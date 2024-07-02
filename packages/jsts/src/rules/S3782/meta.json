@@ -1,0 +1,8 @@
+{
+  "type": "suggestion",
+  "docs": {
+    "description": "Arguments to built-in functions should match documented types",
+    "recommended": true,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S3782/javascript/rule.adoc"
+  }
+}

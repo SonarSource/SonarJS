@@ -21,9 +21,10 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { areEquivalent } from 'eslint-plugin-sonarjs/lib/src/utils/equivalence';
-import { getParent, RuleContext } from '../helpers';
+import { areEquivalent, getParent } from '../helpers';
 import { TSESTree } from '@typescript-eslint/utils';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 class ForInfo {
   updatedExpressions: estree.Node[] = [];
@@ -33,11 +34,11 @@ class ForInfo {
 }
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       misplacedCounter: `This loop's stop condition tests "{{test}}" but the incrementer updates "{{update}}".`,
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     const forLoopStack: ForInfo[] = [];
 
@@ -87,7 +88,7 @@ export const rule: Rule.RuleModule = {
             areEquivalent(
               updatedExpr as TSESTree.Node,
               testedExpr as TSESTree.Node,
-              (context as unknown as RuleContext).getSourceCode(),
+              context.sourceCode,
             ),
           ),
         );

@@ -21,6 +21,8 @@
 
 import { Rule } from 'eslint';
 import { AwsCdkCheckArguments, AwsCdkTemplate } from '../helpers/aws/cdk';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = AwsCdkTemplate(
   {
@@ -37,14 +39,12 @@ export const rule: Rule.RuleModule = AwsCdkTemplate(
       { primitives: { valid: [true] } },
     ),
   },
-  {
-    meta: {
-      messages: {
-        FSEncryptionDisabled: 'Make sure that using unencrypted file systems is safe here.',
-        CFSEncryptionDisabled: 'Make sure that using unencrypted file systems is safe here.',
-        CFSEncryptionOmitted:
-          'Omitting "encrypted" disables EFS encryption. Make sure it is safe here.',
-      },
+  generateMeta(rspecMeta as Rule.RuleMetaData, {
+    messages: {
+      FSEncryptionDisabled: 'Make sure that using unencrypted file systems is safe here.',
+      CFSEncryptionDisabled: 'Make sure that using unencrypted file systems is safe here.',
+      CFSEncryptionOmitted:
+        'Omitting "encrypted" disables EFS encryption. Make sure it is safe here.',
     },
-  },
+  }),
 );

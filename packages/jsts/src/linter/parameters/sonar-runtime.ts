@@ -61,5 +61,14 @@ export function hasSonarRuntimeOption(
   ruleId: string,
 ): boolean {
   const schema = getRuleSchema(ruleModule, ruleId);
-  return !!schema && schema.some(option => !!option.enum && option.enum.includes(SONAR_RUNTIME));
+
+  if (Array.isArray(schema)) {
+    return schema.some(option => !!option.enum && option.enum.includes(SONAR_RUNTIME));
+  }
+  if (schema?.type === 'array' && Array.isArray(schema.items)) {
+    return schema.items.some(
+      option => option.type === 'string' && option.enum?.includes(SONAR_RUNTIME),
+    );
+  }
+  return false;
 }

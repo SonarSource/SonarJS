@@ -1,0 +1,10 @@
+{
+  "type": "suggestion",
+  "docs": {
+    "description": "Extra semicolons should be removed",
+    "recommended": false,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S1116/javascript/rule.adoc"
+  },
+  "fixable": "code",
+  "deprecated": true
+}

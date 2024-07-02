@@ -22,14 +22,16 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { getParent } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from '../S101/meta.json';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       switchEnd:
         'End this switch case with an unconditional break, continue, return or throw statement.',
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     let currentCodePath: Rule.CodePath | null = null;
     let currentCodeSegment: Rule.CodePathSegment | null = null;

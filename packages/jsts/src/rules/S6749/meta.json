@@ -1,0 +1,9 @@
+{
+  "type": "suggestion",
+  "docs": {
+    "description": "Redundant React fragments should be removed",
+    "recommended": true,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S6749/javascript/rule.adoc"
+  },
+  "fixable": "code"
+}

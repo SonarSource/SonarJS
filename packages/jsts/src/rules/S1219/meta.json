@@ -1,0 +1,8 @@
+{
+  "type": "suggestion",
+  "docs": {
+    "description": "\"switch\" statements should not contain non-case labels",
+    "recommended": true,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S1219/javascript/rule.adoc"
+  }
+}

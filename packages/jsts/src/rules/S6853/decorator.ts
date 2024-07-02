@@ -22,22 +22,30 @@ import { Rule } from 'eslint';
 import { TSESTree } from '@typescript-eslint/utils';
 import { Node } from 'estree';
 import { interceptReport } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
-  return interceptReport(rule, (context, reportDescriptor) => {
-    const { node } = reportDescriptor as unknown as { node: TSESTree.JSXOpeningElement };
-    const parent = node.parent as TSESTree.JSXElement;
-    if (parent.children !== undefined) {
-      for (const child of parent.children) {
-        if (child.type === 'JSXElement' && isCustomComponent(child)) {
-          // we ignore the issue
-          return;
+  return interceptReport(
+    {
+      ...rule,
+      meta: generateMeta(rspecMeta as Rule.RuleMetaData, rule.meta!),
+    },
+    (context, reportDescriptor) => {
+      const { node } = reportDescriptor as unknown as { node: TSESTree.JSXOpeningElement };
+      const parent = node.parent as TSESTree.JSXElement;
+      if (parent.children !== undefined) {
+        for (const child of parent.children) {
+          if (child.type === 'JSXElement' && isCustomComponent(child)) {
+            // we ignore the issue
+            return;
+          }
         }
       }
-    }
-    const name = node.name as unknown as Node;
-    context.report({ ...reportDescriptor, node: name });
-  });
+      const name = node.name as unknown as Node;
+      context.report({ ...reportDescriptor, node: name });
+    },
+  );
 }
 
 function isCustomComponent(node: TSESTree.JSXElement) {

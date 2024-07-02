@@ -34,18 +34,20 @@ import {
 } from '../helpers';
 import { getFlags, isRegExpConstructor } from '../helpers/regex';
 import { SONAR_RUNTIME } from '../../linter/parameters';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 type RegexInfo = { node: estree.Node; flags: string };
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     schema: [
       {
         // internal parameter for rules having secondary locations
         enum: [SONAR_RUNTIME],
       },
     ],
-  },
+  }),
   create(context: Rule.RuleContext) {
     const invocations = new Map<Scope.Variable, estree.CallExpression[]>();
     const regexes: RegexInfo[] = [];

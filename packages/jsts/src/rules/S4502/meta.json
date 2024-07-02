@@ -1,0 +1,8 @@
+{
+  "type": "problem",
+  "docs": {
+    "description": "Disabling CSRF protections is security-sensitive",
+    "recommended": true,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S4502/javascript/rule.adoc"
+  }
+}

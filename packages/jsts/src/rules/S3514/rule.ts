@@ -29,19 +29,21 @@ import {
   toEncodedMessage,
 } from '../helpers';
 import { SONAR_RUNTIME } from '../../linter/parameters';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 const MAX_INDEX = 4;
 const isAllowedIndex = (idx: number) => idx >= 0 && idx <= MAX_INDEX;
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     schema: [
       {
         // internal parameter for rules having secondary locations
         enum: [SONAR_RUNTIME],
       },
     ],
-  },
+  }),
 
   create(context: Rule.RuleContext) {
     function visitStatements(statements: Array<estree.Statement | estree.ModuleDeclaration>) {

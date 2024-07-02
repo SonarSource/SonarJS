@@ -1,0 +1,10 @@
+{
+  "type": "suggestion",
+  "docs": {
+    "description": "Statements should end with semicolons",
+    "recommended": false,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S1438/javascript/rule.adoc"
+  },
+  "fixable": "code",
+  "deprecated": true
+}

@@ -17,9 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { rules as sonarjsESLintRules } from 'eslint-plugin-sonarjs';
+import { rule as cognitiveComplexityRule } from '../../rules/S3776';
 import { CustomRule } from './custom-rule';
-import { Rule } from 'eslint';
 
 /**
  * The internal _cognitive complexity_ custom rule
@@ -28,6 +27,6 @@ import { Rule } from 'eslint';
  */
 export const rule: CustomRule = {
   ruleId: 'internal-cognitive-complexity',
-  ruleModule: sonarjsESLintRules['cognitive-complexity'] as unknown as Rule.RuleModule,
+  ruleModule: cognitiveComplexityRule,
   ruleConfig: ['metric'],
 };

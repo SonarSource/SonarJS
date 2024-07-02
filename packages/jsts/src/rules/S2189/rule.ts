@@ -25,13 +25,15 @@ import * as estree from 'estree';
 import { childrenOf } from '../../linter';
 import { TSESTree } from '@typescript-eslint/utils';
 import { isUndefined, interceptReport, mergeRules } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 const noUnmodifiedLoopEslint = eslintRules['no-unmodified-loop-condition'];
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: { ...noUnmodifiedLoopEslint.meta!.messages },
-  },
+  }),
   create(context: Rule.RuleContext) {
     /**
      * Decorates ESLint `no-unmodified-loop-condition` to raise one issue per symbol.

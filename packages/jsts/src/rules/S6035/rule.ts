@@ -22,31 +22,36 @@
 import { Rule } from 'eslint';
 import { AST } from '@eslint-community/regexpp';
 import { Alternation, createRegExpRule } from '../helpers/regex';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
-export const rule: Rule.RuleModule = createRegExpRule(context => {
-  function checkAlternation(alternation: Alternation) {
-    const { alternatives } = alternation;
-    if (alternatives.length <= 1) {
-      return;
-    }
-    if (
-      alternatives.every(alt => alt.elements.length === 1 && alt.elements[0].type === 'Character')
-    ) {
-      context.reportRegExpNode({
-        message: 'Replace this alternation with a character class.',
-        node: context.node,
-        regexpNode: alternation,
-      });
-    }
-  }
-  return {
-    onPatternEnter: checkAlternation,
-    onGroupEnter: checkAlternation,
-    onCapturingGroupEnter: checkAlternation,
-    onAssertionEnter(node: AST.Assertion) {
-      if (node.kind === 'lookahead' || node.kind === 'lookbehind') {
-        checkAlternation(node as Alternation);
+export const rule: Rule.RuleModule = createRegExpRule(
+  context => {
+    function checkAlternation(alternation: Alternation) {
+      const { alternatives } = alternation;
+      if (alternatives.length <= 1) {
+        return;
       }
-    },
-  };
-});
+      if (
+        alternatives.every(alt => alt.elements.length === 1 && alt.elements[0].type === 'Character')
+      ) {
+        context.reportRegExpNode({
+          message: 'Replace this alternation with a character class.',
+          node: context.node,
+          regexpNode: alternation,
+        });
+      }
+    }
+    return {
+      onPatternEnter: checkAlternation,
+      onGroupEnter: checkAlternation,
+      onCapturingGroupEnter: checkAlternation,
+      onAssertionEnter(node: AST.Assertion) {
+        if (node.kind === 'lookahead' || node.kind === 'lookbehind') {
+          checkAlternation(node as Alternation);
+        }
+      },
+    };
+  },
+  generateMeta(rspecMeta as Rule.RuleMetaData),
+);

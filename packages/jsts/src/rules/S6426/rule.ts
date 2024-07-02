@@ -22,15 +22,17 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { isMethodCall, isIdentifier } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     hasSuggestions: true,
     messages: {
       issue: 'Remove ".only()" from your test case.',
       quickfix: 'Remove ."only()".',
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     return {
       CallExpression: (node: estree.CallExpression) => {

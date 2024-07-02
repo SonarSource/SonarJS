@@ -21,24 +21,32 @@
 
 import { Rule } from 'eslint';
 import { interceptReport } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
-  return interceptReport(rule, (context, reportDescriptor) => {
-    if ('node' in reportDescriptor && 'messageId' in reportDescriptor) {
-      const { node, messageId, ...rest } = reportDescriptor;
+  return interceptReport(
+    {
+      ...rule,
+      meta: generateMeta(rspecMeta as Rule.RuleMetaData, rule.meta!),
+    },
+    (context, reportDescriptor) => {
+      if ('node' in reportDescriptor && 'messageId' in reportDescriptor) {
+        const { node, messageId, ...rest } = reportDescriptor;
 
-      if (node.type === 'IfStatement' && node.loc && messageId === 'unexpectedLonelyIf') {
-        const { start } = node.loc;
+        if (node.type === 'IfStatement' && node.loc && messageId === 'unexpectedLonelyIf') {
+          const { start } = node.loc;
 
-        context.report({
-          message: "'If' statement should not be the only statement in 'else' block",
-          loc: {
-            start,
-            end: { line: start.line, column: start.column + 2 },
-          },
-          ...rest,
-        });
+          context.report({
+            message: "'If' statement should not be the only statement in 'else' block",
+            loc: {
+              start,
+              end: { line: start.line, column: start.column + 2 },
+            },
+            ...rest,
+          });
+        }
       }
-    }
-  });
+    },
+  );
 }

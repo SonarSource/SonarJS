@@ -31,6 +31,8 @@ import {
 
 import * as estree from 'estree';
 import { AwsCdkTemplate, normalizeFQN } from '../helpers/aws/cdk';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 const CfnDBCluster = 'CfnDBCluster';
 const CfnDBInstance = 'CfnDBInstance';
@@ -48,14 +50,12 @@ export const rule: Rule.RuleModule = AwsCdkTemplate(
     'aws-cdk-lib.aws_rds.DatabaseInstance': checkStorage(DatabaseInstance),
     'aws-cdk-lib.aws_rds.DatabaseInstanceReadReplica': checkStorage(DatabaseInstanceReadReplica),
   },
-  {
-    meta: {
-      messages: {
-        unsafe: 'Make sure that using unencrypted storage is safe here.',
-        omitted: 'Omitting storageEncrypted disables RDS encryption. Make sure it is safe here.',
-      },
+  generateMeta(rspecMeta as Rule.RuleMetaData, {
+    messages: {
+      unsafe: 'Make sure that using unencrypted storage is safe here.',
+      omitted: 'Omitting storageEncrypted disables RDS encryption. Make sure it is safe here.',
     },
-  },
+  }),
 );
 
 const PROPS_ARGUMENT_POSITION = 2;

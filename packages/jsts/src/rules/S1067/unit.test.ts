@@ -19,14 +19,13 @@
  */
 import { RuleTester } from 'eslint';
 import { rule } from './';
-import { IssueLocation, EncodedMessage } from 'eslint-plugin-sonarjs/lib/src/utils/locations';
-import type { Options } from './rule';
+import { EncodedMessage, IssueLocation } from '../helpers';
 
 const ruleTester = new RuleTester({
   parserOptions: { ecmaVersion: 2018, sourceType: 'module', ecmaFeatures: { jsx: true } },
 });
 
-const options: Options = [
+const options = [
   {
     max: 3,
   },
@@ -90,7 +89,7 @@ ruleTester.run('Expressions should not be too complex', rule, {
       code: `let b = 1 || 2 || 3 || 4 || 5 || 6 || 7 || 8 || 9 || 10;`,
       options: [
         {
-          threshold: 10,
+          max: 10,
         },
       ],
     },

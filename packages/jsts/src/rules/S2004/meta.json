@@ -1,0 +1,8 @@
+{
+  "type": "suggestion",
+  "docs": {
+    "description": "Functions should not be nested too deeply",
+    "recommended": true,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S2004/javascript/rule.adoc"
+  }
+}

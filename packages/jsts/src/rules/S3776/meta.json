@@ -1,0 +1,8 @@
+{
+  "type": "suggestion",
+  "docs": {
+    "description": "Cognitive Complexity of functions should not be too high",
+    "recommended": true,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S3776/javascript/rule.adoc"
+  }
+}

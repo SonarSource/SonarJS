@@ -21,19 +21,19 @@
 
 import { Rule } from 'eslint';
 import { AwsCdkCheckArguments, AwsCdkTemplate } from '../helpers/aws/cdk';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = AwsCdkTemplate(
   {
     'aws-cdk-lib.aws_sns.Topic': AwsCdkCheckArguments('SNSTopic', true, 'masterKey'),
     'aws-cdk-lib.aws_sns.CfnTopic': AwsCdkCheckArguments('SNSCfnTopic', true, 'kmsMasterKeyId'),
   },
-  {
-    meta: {
-      messages: {
-        SNSTopic: 'Omitting "masterKey" disables SNS topics encryption. Make sure it is safe here.',
-        SNSCfnTopic:
-          'Omitting "kmsMasterKeyId" disables SNS topics encryption. Make sure it is safe here.',
-      },
+  generateMeta(rspecMeta as Rule.RuleMetaData, {
+    messages: {
+      SNSTopic: 'Omitting "masterKey" disables SNS topics encryption. Make sure it is safe here.',
+      SNSCfnTopic:
+        'Omitting "kmsMasterKeyId" disables SNS topics encryption. Make sure it is safe here.',
     },
-  },
+  }),
 );

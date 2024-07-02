@@ -1,0 +1,9 @@
+{
+  "type": "suggestion",
+  "docs": {
+    "description": "\"for of\" should be used with Iterables",
+    "recommended": true,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S4138/javascript/rule.adoc"
+  },
+  "fixable": "code"
+}

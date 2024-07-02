@@ -1,0 +1,9 @@
+{
+  "type": "suggestion",
+  "docs": {
+    "description": "Boolean checks should not be inverted",
+    "recommended": true,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S1940/javascript/rule.adoc"
+  },
+  "fixable": "code"
+}

@@ -22,7 +22,6 @@ import { Rule } from 'eslint';
 import {
   getFullyQualifiedName,
   getImportDeclarations,
-  getProperty,
   getUniqueWriteUsage,
   isIdentifier,
 } from '../../../../src/rules/helpers';
@@ -56,29 +55,11 @@ export const rule: Rule.RuleModule = {
             getModuleNameOfImportedIdentifier(context, callee) === '../helpers';
         }
       },
-      ObjectExpression: (node: estree.Node) => {
+      Identifier: (node: estree.Identifier) => {
         if (isSecondaryLocationEnabled) {
           return;
         }
-        const maybeMeta = getProperty(node, 'meta', context);
-        if (!maybeMeta) {
-          return;
-        }
-        const maybeSchema = getProperty(maybeMeta.value, 'schema', context);
-        if (maybeSchema?.value.type !== 'ArrayExpression') {
-          return;
-        }
-        const schema = maybeSchema.value;
-        for (const element of schema.elements) {
-          const maybeEnum = getProperty(element, 'enum', context);
-          if (maybeEnum) {
-            isSecondaryLocationEnabled =
-              maybeEnum.value.type === 'ArrayExpression' &&
-              maybeEnum.value.elements.length === 1 &&
-              maybeEnum.value.elements[0].type === 'Identifier' &&
-              maybeEnum.value.elements[0].name === 'SONAR_RUNTIME';
-          }
-        }
+        isSecondaryLocationEnabled = node.name === 'SONAR_RUNTIME';
       },
       'Program:exit': (node: estree.Node) => {
         if (isSecondaryLocationUsed && !isSecondaryLocationEnabled) {

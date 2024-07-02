@@ -1,0 +1,8 @@
+{
+  "type": "suggestion",
+  "docs": {
+    "description": "Arithmetic operators should only have numbers as operands",
+    "recommended": false,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S3760/javascript/rule.adoc"
+  }
+}

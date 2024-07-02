@@ -21,15 +21,17 @@
 
 import { Rule } from 'eslint';
 import { reportPatternInComment } from '../S1135/rule';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 const fixmePattern = 'fixme';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       fixme: 'Take the required action to fix the issue indicated by this comment.',
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     return {
       'Program:exit': () => {

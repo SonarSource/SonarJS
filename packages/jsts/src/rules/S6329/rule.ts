@@ -25,6 +25,8 @@ import * as estree from 'estree';
 import { Node } from 'estree';
 import { getResultOfExpression, Result } from '../helpers/result';
 import { getFullyQualifiedName, isCallingMethod } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 const PROPERTIES_POSITION = 2;
 
@@ -59,13 +61,11 @@ export const rule: Rule.RuleModule = AwsCdkTemplate(
       { primitives: { invalid: [true] } },
     ),
   },
-  {
-    meta: {
-      messages: {
-        publicNetwork: 'Make sure allowing public network access is safe here.',
-      },
+  generateMeta(rspecMeta as Rule.RuleMetaData, {
+    messages: {
+      publicNetwork: 'Make sure allowing public network access is safe here.',
     },
-  },
+  }),
 );
 
 function checkCfnInstance(expr: estree.NewExpression, ctx: Rule.RuleContext) {

@@ -1,0 +1,8 @@
+{
+  "type": "suggestion",
+  "docs": {
+    "description": "Increment (++) and decrement (--) operators should not be used in a method call or mixed with other operators in an expression",
+    "recommended": false,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S881/javascript/rule.adoc"
+  }
+}

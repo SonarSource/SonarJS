@@ -21,15 +21,17 @@
 
 import { Rule } from 'eslint';
 import { PropertyDefinition } from 'estree';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     hasSuggestions: true,
     messages: {
       message: `Make this public static property readonly.`,
       fix: 'Add "readonly" keyword',
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     return {
       'PropertyDefinition[readonly!=true][static=true][accessibility!="private"][accessibility!="protected"]'(

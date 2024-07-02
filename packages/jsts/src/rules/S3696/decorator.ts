@@ -22,27 +22,37 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { isBinaryPlus, isStringLiteral, interceptReport } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 // core implementation of this rule does not provide quick fixes
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
-  rule.meta!.hasSuggestions = true;
-  return interceptReport(rule, (context, reportDescriptor) => {
-    const suggest: Rule.SuggestionReportDescriptor[] = [];
-    if ('node' in reportDescriptor) {
-      const { argument: thrown } = reportDescriptor.node as estree.ThrowStatement;
-      if (isStringLike(thrown)) {
-        const thrownText = context.sourceCode.getText(thrown);
-        suggest.push({
-          desc: 'Throw an error object',
-          fix: fixer => fixer.replaceText(thrown, `new Error(${thrownText})`),
-        });
+  return interceptReport(
+    {
+      ...rule,
+      meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+        ...rule.meta!,
+        hasSuggestions: true,
+      }),
+    },
+    (context, reportDescriptor) => {
+      const suggest: Rule.SuggestionReportDescriptor[] = [];
+      if ('node' in reportDescriptor) {
+        const { argument: thrown } = reportDescriptor.node as estree.ThrowStatement;
+        if (isStringLike(thrown)) {
+          const thrownText = context.sourceCode.getText(thrown);
+          suggest.push({
+            desc: 'Throw an error object',
+            fix: fixer => fixer.replaceText(thrown, `new Error(${thrownText})`),
+          });
+        }
       }
-    }
-    context.report({
-      ...reportDescriptor,
-      suggest,
-    });
-  });
+      context.report({
+        ...reportDescriptor,
+        suggest,
+      });
+    },
+  );
 }
 
 function isStringLike(node: estree.Node): boolean {

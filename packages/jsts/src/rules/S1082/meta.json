@@ -1,0 +1,8 @@
+{
+  "type": "problem",
+  "docs": {
+    "description": "Mouse events should have corresponding keyboard events",
+    "recommended": true,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S1082/javascript/rule.adoc"
+  }
+}

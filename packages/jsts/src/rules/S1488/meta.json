@@ -1,0 +1,9 @@
+{
+  "type": "suggestion",
+  "docs": {
+    "description": "Local variables should not be declared and then immediately returned or thrown",
+    "recommended": false,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S1488/javascript/rule.adoc"
+  },
+  "fixable": "code"
+}

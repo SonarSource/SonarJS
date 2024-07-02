@@ -22,13 +22,15 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { getFullyQualifiedName } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       safeGenerator: 'Make sure that using this pseudorandom number generator is safe here.',
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     return {
       CallExpression(node: estree.CallExpression) {

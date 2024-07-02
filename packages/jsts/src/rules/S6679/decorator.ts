@@ -21,35 +21,45 @@
 
 import { Rule } from 'eslint';
 import { interceptReport } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
-  return interceptReport(rule, (context, reportDescriptor) => {
-    rule.meta!.hasSuggestions = true;
-    if ('node' in reportDescriptor && 'messageId' in reportDescriptor) {
-      const { node, messageId, ...rest } = reportDescriptor,
-        operators = new Set(['===', '==', '!==', '!=']);
+  return interceptReport(
+    {
+      ...rule,
+      meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+        ...rule.meta!,
+        hasSuggestions: true,
+      }),
+    },
+    (context, reportDescriptor) => {
+      if ('node' in reportDescriptor && 'messageId' in reportDescriptor) {
+        const { node, messageId, ...rest } = reportDescriptor,
+          operators = new Set(['===', '==', '!==', '!=']);
 
-      if (
-        node.type === 'BinaryExpression' &&
-        operators.has(node.operator) &&
-        node.left.type !== 'Literal'
-      ) {
-        const prefix = node.operator.startsWith('!') ? '' : '!',
-          value = context.sourceCode.getText(node.left),
-          suggest: Rule.SuggestionReportDescriptor[] = [
-            {
-              desc: 'Replace self-compare with Number.isNaN()',
-              fix: fixer => fixer.replaceText(node, `${prefix}Number.isNaN(${value})`),
-            },
-          ];
+        if (
+          node.type === 'BinaryExpression' &&
+          operators.has(node.operator) &&
+          node.left.type !== 'Literal'
+        ) {
+          const prefix = node.operator.startsWith('!') ? '' : '!',
+            value = context.sourceCode.getText(node.left),
+            suggest: Rule.SuggestionReportDescriptor[] = [
+              {
+                desc: 'Replace self-compare with Number.isNaN()',
+                fix: fixer => fixer.replaceText(node, `${prefix}Number.isNaN(${value})`),
+              },
+            ];
 
-        context.report({
-          node,
-          message: "Use 'Number.isNaN()' to check for 'NaN' value",
-          ...rest,
-          suggest,
-        });
+          context.report({
+            node,
+            message: "Use 'Number.isNaN()' to check for 'NaN' value",
+            ...rest,
+            suggest,
+          });
+        }
       }
-    }
-  });
+    },
+  );
 }

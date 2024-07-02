@@ -1,0 +1,8 @@
+{
+  "type": "suggestion",
+  "docs": {
+    "description": "\"delete\" should not be used on arrays",
+    "recommended": true,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S2870/javascript/rule.adoc"
+  }
+}

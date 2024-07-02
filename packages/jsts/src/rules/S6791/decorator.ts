@@ -22,15 +22,28 @@
 import { Rule /*, AST*/ } from 'eslint';
 import * as estree from 'estree';
 import { interceptReportForReact } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
-  rule.meta!.messages!['unsafeMethod'] = '{{method}} is unsafe for use in async rendering.';
-  return interceptReportForReact(rule, (context, descriptor) => {
-    const {
-      node: { key },
-    } = descriptor as unknown as {
-      node: estree.Property | estree.PropertyDefinition | estree.MethodDefinition;
-    };
-    context.report({ ...descriptor, loc: key.loc! });
-  });
+  return interceptReportForReact(
+    {
+      ...rule,
+      meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+        ...rule.meta!,
+        messages: {
+          ...rule.meta!.messages,
+          unsafeMethod: '{{method}} is unsafe for use in async rendering.',
+        },
+      }),
+    },
+    (context, descriptor) => {
+      const {
+        node: { key },
+      } = descriptor as unknown as {
+        node: estree.Property | estree.PropertyDefinition | estree.MethodDefinition;
+      };
+      context.report({ ...descriptor, loc: key.loc! });
+    },
+  );
 }

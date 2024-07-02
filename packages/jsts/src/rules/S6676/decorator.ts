@@ -22,38 +22,48 @@
 import { Rule, AST } from 'eslint';
 import * as estree from 'estree';
 import { interceptReport } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 // core implementation of this rule does not provide quick fixes
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
-  rule.meta!.hasSuggestions = true;
-  return interceptReport(rule, (context, reportDescriptor) => {
-    const suggest: Rule.SuggestionReportDescriptor[] = [];
-    const node = (reportDescriptor as any).node as estree.Node;
+  return interceptReport(
+    {
+      ...rule,
+      meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+        ...rule.meta!,
+        hasSuggestions: true,
+      }),
+    },
+    (context, reportDescriptor) => {
+      const suggest: Rule.SuggestionReportDescriptor[] = [];
+      const node = (reportDescriptor as any).node as estree.Node;
 
-    if (node.type === 'CallExpression') {
-      const { callee, arguments: args } = node;
-      if (callee.type === 'MemberExpression') {
-        const { object, property } = callee;
-        if (property.type === 'Identifier' && property.name === 'call') {
-          const desc = 'Remove redundant call()';
+      if (node.type === 'CallExpression') {
+        const { callee, arguments: args } = node;
+        if (callee.type === 'MemberExpression') {
+          const { object, property } = callee;
+          if (property.type === 'Identifier' && property.name === 'call') {
+            const desc = 'Remove redundant call()';
 
-          if (args.length > 1) {
-            addFixForCall(suggest, desc, object.range, args[1].range);
-          } else {
-            addFixForCallNoArgs(suggest, desc, object.range, node.range);
+            if (args.length > 1) {
+              addFixForCall(suggest, desc, object.range, args[1].range);
+            } else {
+              addFixForCallNoArgs(suggest, desc, object.range, node.range);
+            }
+          }
+
+          if (property.type === 'Identifier' && property.name === 'apply') {
+            const desc = 'Remove redundant apply()',
+              argsText = context.sourceCode.getText(args[1], -1, -1);
+            addFixForApply(suggest, desc, argsText, object.range, node.range);
           }
         }
-
-        if (property.type === 'Identifier' && property.name === 'apply') {
-          const desc = 'Remove redundant apply()',
-            argsText = context.sourceCode.getText(args[1], -1, -1);
-          addFixForApply(suggest, desc, argsText, object.range, node.range);
-        }
       }
-    }
 
-    context.report({ ...reportDescriptor, suggest });
-  });
+      context.report({ ...reportDescriptor, suggest });
+    },
+  );
 }
 
 function addFixForCall(

@@ -22,17 +22,19 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { getValueOfExpression, isIdentifier, isMethodCall, isStringLiteral } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 const REQUIRED_OPTION = 'noopener';
 const REQUIRED_OPTION_INDEX = 2;
 const URL_INDEX = 0;
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       missingNoopener: 'Make sure not using "noopener" is safe here.',
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     return {
       CallExpression: (node: estree.CallExpression) => {

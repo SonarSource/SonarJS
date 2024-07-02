@@ -28,6 +28,9 @@ import {
   getFullyQualifiedName,
   getProperty,
 } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
+import { SONAR_RUNTIME } from '../../linter/parameters';
 
 const HSTS = 'hsts';
 const HELMET = 'helmet';
@@ -38,6 +41,14 @@ const RECOMMENDED_MAX_AGE = 15552000;
 export const rule: Rule.RuleModule = Express.SensitiveMiddlewarePropertyRule(
   findSensitiveTransportSecurityPolicyProperty,
   `Disabling Strict-Transport-Security policy is security-sensitive.`,
+  generateMeta(rspecMeta as Rule.RuleMetaData, {
+    schema: [
+      {
+        // internal parameter for rules having secondary locations
+        enum: [SONAR_RUNTIME],
+      },
+    ],
+  }),
 );
 
 function findSensitiveTransportSecurityPolicyProperty(

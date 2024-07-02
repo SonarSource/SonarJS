@@ -21,13 +21,15 @@
 
 import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       removeDelete: 'Remove this "delete" operator or pass an object property to it.',
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     return {
       "UnaryExpression[operator='delete'][argument.type!='MemberExpression'][argument.type!='ChainExpression']":

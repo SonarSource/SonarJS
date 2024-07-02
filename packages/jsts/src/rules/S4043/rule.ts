@@ -31,18 +31,20 @@ import {
   getSymbolAtLocation,
   localAncestorsChain,
 } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 const arrayMutatingMethods = ['reverse', "'reverse'", '"reverse"', ...sortLike];
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     hasSuggestions: true,
     messages: {
       moveMethod:
         'Move this array "{{method}}" operation to a separate statement or replace it with "{{suggestedMethod}}".',
       suggestMethod: 'Replace with "{{suggestedMethod}}" method',
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     const services = context.sourceCode.parserServices;
     if (!isRequiredParserServices(services)) {

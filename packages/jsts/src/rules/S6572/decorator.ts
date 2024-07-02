@@ -23,6 +23,8 @@ import estree from 'estree';
 import { Rule } from 'eslint';
 import { TSESTree } from '@typescript-eslint/utils';
 import { interceptReport, isNumberLiteral } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 // The core implementation of this rule reports all enums for which there is a member value that is
 // not initialized explicitly. Here, the decorator's purpose is to restrict the scope of the rule only
@@ -31,14 +33,22 @@ import { interceptReport, isNumberLiteral } from '../helpers';
 // In other words, the decorated rule ignores enums that don't initialize any member value or those
 // that initialize their first member with a number literal.
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
-  rule.meta!.hasSuggestions = true;
-  return interceptReport(rule, (context, descriptor) => {
-    const enumMember = (descriptor as any).node as TSESTree.TSEnumMember;
-    const enumDecl = enumMember.parent as TSESTree.TSEnumDeclaration;
-    if (anyInitialized(enumDecl) && !numericalOrder(enumDecl)) {
-      context.report(descriptor);
-    }
-  });
+  return interceptReport(
+    {
+      ...rule,
+      meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+        ...rule.meta!,
+        hasSuggestions: true,
+      }),
+    },
+    (context, descriptor) => {
+      const enumMember = (descriptor as any).node as TSESTree.TSEnumMember;
+      const enumDecl = enumMember.parent as TSESTree.TSEnumDeclaration;
+      if (anyInitialized(enumDecl) && !numericalOrder(enumDecl)) {
+        context.report(descriptor);
+      }
+    },
+  );
 }
 
 function anyInitialized(enumDecl: TSESTree.TSEnumDeclaration) {

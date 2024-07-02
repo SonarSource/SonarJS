@@ -22,6 +22,8 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { globalsByLibraries } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 const illegalNames = ['arguments'];
 const objectPrototypeProperties = [
@@ -46,12 +48,12 @@ const getModificationIssue = (functionName: string) => ({
 });
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       removeModification: 'Remove the modification of "{{symbol}}".',
       forbidDeclaration: 'Do not use "{{symbol}}" to declare a {{type}} - use another name.',
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     return {
       'FunctionDeclaration, FunctionExpression'(node: estree.Node) {

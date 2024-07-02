@@ -22,6 +22,8 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { isIdentifier, isNumberLiteral } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 const assertionFunctions = [
   'a',
@@ -111,6 +113,7 @@ const gettersOrModifiers = [
 ];
 
 export const rule: Rule.RuleModule = {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData),
   create(context: Rule.RuleContext) {
     return {
       ExpressionStatement(node: estree.Node) {

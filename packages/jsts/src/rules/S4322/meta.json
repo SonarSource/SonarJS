@@ -1,0 +1,9 @@
+{
+  "type": "suggestion",
+  "docs": {
+    "description": "Type predicates should be used",
+    "recommended": true,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S4322/javascript/rule.adoc"
+  },
+  "fixable": "code"
+}

@@ -1,0 +1,9 @@
+{
+  "type": "suggestion",
+  "docs": {
+    "description": "Unused function parameters should be removed",
+    "recommended": false,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S1172/javascript/rule.adoc"
+  },
+  "fixable": "code"
+}

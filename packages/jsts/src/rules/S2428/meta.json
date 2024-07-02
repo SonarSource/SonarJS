@@ -1,0 +1,8 @@
+{
+  "type": "suggestion",
+  "docs": {
+    "description": "Object literal syntax should be used",
+    "recommended": false,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S2428/javascript/rule.adoc"
+  }
+}

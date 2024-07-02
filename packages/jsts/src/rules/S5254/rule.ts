@@ -23,6 +23,8 @@ import { TSESTree } from '@typescript-eslint/utils';
 import { Rule } from 'eslint';
 import { rules as jsxA11yRules } from 'eslint-plugin-jsx-a11y';
 import { interceptReport, mergeRules } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 const langRule = jsxA11yRules['lang'];
 const htmlHasLangRule = jsxA11yRules['html-has-lang'];
@@ -37,13 +39,13 @@ function decorate(rule: Rule.RuleModule): Rule.RuleModule {
 }
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     hasSuggestions: true,
     messages: {
       ...langRule.meta!.messages,
       ...decoratedHasLangRule.meta!.messages,
     },
-  },
+  }),
 
   create(context: Rule.RuleContext) {
     const langListener: Rule.RuleListener = langRule.create(context);

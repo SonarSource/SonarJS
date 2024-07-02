@@ -30,16 +30,18 @@ import {
   isNumberType,
   isBigIntType,
 } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 const comparisonOperators = new Set(['>', '<', '>=', '<=']);
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       reEvaluateDataFlow:
         'Re-evaluate the data flow; this operand of a numeric comparison could be of type {{type}}.',
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     const services: RequiredParserServices = context.sourceCode.parserServices;
 

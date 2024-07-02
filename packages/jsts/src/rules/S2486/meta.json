@@ -1,0 +1,8 @@
+{
+  "type": "suggestion",
+  "docs": {
+    "description": "Exceptions should not be ignored",
+    "recommended": true,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S2486/javascript/rule.adoc"
+  }
+}

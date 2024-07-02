@@ -1,0 +1,8 @@
+{
+  "type": "suggestion",
+  "docs": {
+    "description": "Redundant type aliases should not be used",
+    "recommended": true,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S6564/javascript/rule.adoc"
+  }
+}

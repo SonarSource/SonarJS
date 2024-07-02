@@ -21,13 +21,15 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       wildcardImport: 'Explicitly {{xPort}} the specific member needed.',
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     function report(node: estree.Node, xPort: string) {
       context.report({

@@ -1,0 +1,8 @@
+{
+  "type": "suggestion",
+  "docs": {
+    "description": "Dependencies should be explicit",
+    "recommended": false,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S4328/javascript/rule.adoc"
+  }
+}

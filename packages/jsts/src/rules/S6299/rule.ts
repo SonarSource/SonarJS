@@ -22,13 +22,15 @@
 import * as estree from 'estree';
 import { Rule } from 'eslint';
 import { AST } from 'vue-eslint-parser';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       safeVueBypassing: 'Make sure bypassing Vue built-in sanitization is safe here.',
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     const services = context.sourceCode.parserServices;
 

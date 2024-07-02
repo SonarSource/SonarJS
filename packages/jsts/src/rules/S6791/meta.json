@@ -1,0 +1,8 @@
+{
+  "type": "suggestion",
+  "docs": {
+    "description": "React legacy lifecycle methods should not be used",
+    "recommended": true,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S6791/javascript/rule.adoc"
+  }
+}

@@ -20,9 +20,8 @@
 import { RuleTester } from 'eslint';
 import { TypeScriptRuleTester } from '../tools';
 import { rule } from './';
-import type { Options } from './rule';
 
-const createOptions = (threshold: number): Options => {
+const createOptions = (threshold: number) => {
   return [{ threshold }];
 };
 

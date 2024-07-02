@@ -1,0 +1,8 @@
+{
+  "type": "suggestion",
+  "docs": {
+    "description": "\"indexOf\" checks should not be for positive numbers",
+    "recommended": true,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S2692/javascript/rule.adoc"
+  }
+}

@@ -29,14 +29,16 @@ import {
   getValueOfExpression,
   getFullyQualifiedName,
 } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       createSession:
         'Create a new session during user authentication to prevent session fixation attacks.',
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     let sessionRegenerate = false;
 

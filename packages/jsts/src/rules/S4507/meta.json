@@ -1,0 +1,8 @@
+{
+  "type": "problem",
+  "docs": {
+    "description": "Delivering code in production with debug features activated is security-sensitive",
+    "recommended": true,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S4507/javascript/rule.adoc"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "type": "suggestion",
+  "docs": {
+    "description": "\"void\" should not be used",
+    "recommended": true,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S3735/javascript/rule.adoc"
+  }
+}

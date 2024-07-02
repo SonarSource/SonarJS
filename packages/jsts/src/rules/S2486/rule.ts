@@ -22,13 +22,15 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { getVariableFromScope } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       handleException: "Handle this exception or don't catch it at all.",
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     return {
       'CatchClause[param.type="Identifier"]'(node: estree.CatchClause) {

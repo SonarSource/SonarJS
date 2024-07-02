@@ -99,10 +99,7 @@ function checkInheritance(node: TSESTree.MethodDefinition, context: Rule.RuleCon
 const eslintNoUselessConstructor = eslintRules['no-useless-constructor'];
 
 const originalRule: Rule.RuleModule = {
-  meta: {
-    hasSuggestions: true,
-    messages: eslintNoUselessConstructor.meta!.messages,
-  },
+  meta: eslintNoUselessConstructor.meta,
 
   create(context) {
     const rules = eslintNoUselessConstructor.create(context);

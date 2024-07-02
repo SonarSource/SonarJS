@@ -1,0 +1,9 @@
+{
+  "type": "suggestion",
+  "docs": {
+    "description": "Public \"static\" fields should be read-only",
+    "recommended": true,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S1444/javascript/rule.adoc"
+  },
+  "fixable": "code"
+}

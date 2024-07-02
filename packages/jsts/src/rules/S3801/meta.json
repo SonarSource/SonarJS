@@ -1,0 +1,8 @@
+{
+  "type": "suggestion",
+  "docs": {
+    "description": "Functions should use \"return\" consistently",
+    "recommended": false,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S3801/javascript/rule.adoc"
+  }
+}

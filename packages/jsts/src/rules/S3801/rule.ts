@@ -22,9 +22,10 @@
 import { AST, Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
-import { getMainFunctionTokenLocation } from 'eslint-plugin-sonarjs/lib/src/utils/locations';
-import { getParent, RuleContext, toEncodedMessage } from '../helpers';
+import { getMainFunctionTokenLocation, getParent, RuleContext, toEncodedMessage } from '../helpers';
 import { SONAR_RUNTIME } from '../../linter/parameters';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 interface FunctionContext {
   codePath: Rule.CodePath;
@@ -41,14 +42,14 @@ interface FunctionLikeDeclaration {
 }
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     schema: [
       {
         // internal parameter for rules having secondary locations
         enum: [SONAR_RUNTIME],
       },
     ],
-  },
+  }),
 
   create(context: Rule.RuleContext) {
     const sourceCode = context.sourceCode;

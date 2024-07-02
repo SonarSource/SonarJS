@@ -1,0 +1,8 @@
+{
+  "type": "problem",
+  "docs": {
+    "description": "Function declarations should not be made within blocks",
+    "recommended": false,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S1530/javascript/rule.adoc"
+  }
+}

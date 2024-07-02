@@ -1,0 +1,9 @@
+{
+  "type": "suggestion",
+  "docs": {
+    "description": "Spread syntax should be used instead of \"apply()\"",
+    "recommended": true,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S6666/javascript/rule.adoc"
+  },
+  "fixable": "code"
+}

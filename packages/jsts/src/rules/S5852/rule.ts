@@ -23,19 +23,24 @@ import { Rule } from 'eslint';
 import { RegExpLiteral } from '@eslint-community/regexpp/ast';
 import { analyse } from 'scslre';
 import { createRegExpRule } from '../helpers/regex';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 const message = `Make sure the regex used here, which is vulnerable to super-linear runtime due to backtracking, cannot lead to denial of service.`;
 
-export const rule: Rule.RuleModule = createRegExpRule(context => {
-  return {
-    onRegExpLiteralEnter: (node: RegExpLiteral) => {
-      const { reports } = analyse(node);
-      if (reports.length > 0) {
-        context.report({
-          message,
-          node: context.node,
-        });
-      }
-    },
-  };
-});
+export const rule: Rule.RuleModule = createRegExpRule(
+  context => {
+    return {
+      onRegExpLiteralEnter: (node: RegExpLiteral) => {
+        const { reports } = analyse(node);
+        if (reports.length > 0) {
+          context.report({
+            message,
+            node: context.node,
+          });
+        }
+      },
+    };
+  },
+  generateMeta(rspecMeta as Rule.RuleMetaData),
+);

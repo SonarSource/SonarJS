@@ -1,0 +1,9 @@
+{
+  "type": "suggestion",
+  "docs": {
+    "description": "Unnecessary imports should be removed",
+    "recommended": true,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S1128/javascript/rule.adoc"
+  },
+  "fixable": "code"
+}

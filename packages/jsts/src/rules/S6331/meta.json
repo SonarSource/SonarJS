@@ -1,0 +1,8 @@
+{
+  "type": "suggestion",
+  "docs": {
+    "description": "Regular expressions should not contain empty groups",
+    "recommended": true,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S6331/javascript/rule.adoc"
+  }
+}

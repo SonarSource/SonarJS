@@ -1,0 +1,8 @@
+{
+  "type": "problem",
+  "docs": {
+    "description": "Cipher algorithms should be robust",
+    "recommended": true,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S5547/javascript/rule.adoc"
+  }
+}

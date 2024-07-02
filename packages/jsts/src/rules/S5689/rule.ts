@@ -22,6 +22,8 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { Express, isMethodInvocation, getFullyQualifiedName } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 const HELMET = 'helmet';
 const HIDE_POWERED_BY = 'hide-powered-by';
@@ -31,13 +33,13 @@ const PROTECTING_MIDDLEWARES = [HELMET, HIDE_POWERED_BY];
 const APP_SET_NUM_ARGS = 2;
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       headerSet: 'Make sure disclosing the fingerprinting of this web technology is safe here.',
       headerDefault:
         'This framework implicitly discloses version information by default. Make sure it is safe here.',
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     let appInstantiation: estree.Identifier | null = null;
     let isSafe = false;

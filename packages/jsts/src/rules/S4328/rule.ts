@@ -27,36 +27,39 @@ import * as fs from 'fs';
 import * as ts from 'typescript';
 import { RequiredParserServices } from '../helpers';
 import { getDependencies } from '@sonar/jsts';
-import type { RuleModule } from '../../../../shared/src/types/rule';
+import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
+import { generateMeta } from '../helpers/generate-meta';
+import { FromSchema } from 'json-schema-to-ts';
+import rspecMeta from './meta.json';
 
-export type Options = [
-  {
-    whitelist: Array<string>;
-  },
-];
+const messages = {
+  removeOrAddDependency: 'Either remove this import or add it as a dependency.',
+};
 
-export const rule: RuleModule<Options> = {
-  meta: {
-    messages: {
-      removeOrAddDependency: 'Either remove this import or add it as a dependency.',
-    },
-    schema: [
-      {
-        type: 'object',
-        properties: {
-          whitelist: {
-            type: 'array',
-            items: {
-              type: 'string',
-            },
+const schema = {
+  type: 'array',
+  minItems: 0,
+  maxItems: 1,
+  items: [
+    {
+      type: 'object',
+      properties: {
+        whitelist: {
+          type: 'array',
+          items: {
+            type: 'string',
           },
         },
       },
-    ],
-  },
+      additionalProperties: false,
+    },
+  ],
+} as const satisfies JSONSchema4;
+
+export const rule: Rule.RuleModule = {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, { messages, schema }),
   create(context: Rule.RuleContext) {
-    const options = context.options as Options;
-    const whitelist = options.length > 0 ? options[0].whitelist : [];
+    const whitelist = (context.options as FromSchema<typeof schema>)[0]?.whitelist || [];
     const dependencies = getDependencies(context.filename);
     const aliasedPathsMappingPatterns = extractPathMappingPatterns(
       context.sourceCode.parserServices,

@@ -22,13 +22,15 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { getParent } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       extractAssignment: 'Extract the assignment of "{{symbol}}" from this expression.',
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     function isAssignmentStatement(parent: estree.Node) {
       return parent.type === 'ExpressionStatement';

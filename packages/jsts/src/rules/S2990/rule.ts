@@ -21,16 +21,18 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     hasSuggestions: true,
     messages: {
       removeThis: `Remove the use of "this".`,
       suggestRemoveThis: 'Remove "this"',
       suggestUseWindow: 'Replace "this" with "window" object',
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     return {
       'MemberExpression[object.type="ThisExpression"]'(node: estree.Node) {

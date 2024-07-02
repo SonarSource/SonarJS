@@ -22,14 +22,19 @@
 import { Rule } from 'eslint';
 import * as regexpp from '@eslint-community/regexpp';
 import { createRegExpRule, RegexRuleContext } from '../helpers/regex';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
-export const rule: Rule.RuleModule = createRegExpRule(context => {
-  return {
-    onRegExpLiteralEnter: (node: regexpp.AST.RegExpLiteral) => {
-      node.pattern.alternatives.forEach(({ elements }) => checkElements(elements, context));
-    },
-  };
-});
+export const rule: Rule.RuleModule = createRegExpRule(
+  context => {
+    return {
+      onRegExpLiteralEnter: (node: regexpp.AST.RegExpLiteral) => {
+        node.pattern.alternatives.forEach(({ elements }) => checkElements(elements, context));
+      },
+    };
+  },
+  generateMeta(rspecMeta as Rule.RuleMetaData),
+);
 
 function report(quantifier: regexpp.AST.Quantifier, context: RegexRuleContext) {
   const ending = quantifier.min === 1 ? '' : 's';

@@ -1,0 +1,8 @@
+{
+  "type": "suggestion",
+  "docs": {
+    "description": "Mergeable \"if\" statements should be combined",
+    "recommended": false,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S1066/javascript/rule.adoc"
+  }
+}

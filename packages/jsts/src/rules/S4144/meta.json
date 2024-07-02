@@ -1,0 +1,8 @@
+{
+  "type": "suggestion",
+  "docs": {
+    "description": "Functions should not have identical implementations",
+    "recommended": true,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S4144/javascript/rule.adoc"
+  }
+}

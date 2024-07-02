@@ -22,6 +22,8 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { isMemberWithProperty, isLiteral } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 const bypassMethods = [
   'bypassSecurityTrustHtml',
@@ -32,11 +34,11 @@ const bypassMethods = [
 ];
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       checkAngularBypass: 'Make sure disabling Angular built-in sanitization is safe here.',
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     return {
       CallExpression: (node: estree.Node) => {

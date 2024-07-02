@@ -21,13 +21,15 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       removeLabel: 'Remove this misleading "{{label}}" label.',
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     const stack: number[] = [0];
     function enterCase() {

@@ -20,11 +20,13 @@
 // https://sonarsource.github.io/rspec/#/rspec/S1528/javascript
 import { Rule } from 'eslint';
 import * as estree from 'estree';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     hasSuggestions: true,
-  },
+  }),
   create(context: Rule.RuleContext) {
     function checkNewExpression(node: estree.Node) {
       const newExpression = node as estree.NewExpression;

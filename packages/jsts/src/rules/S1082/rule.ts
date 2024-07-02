@@ -22,19 +22,20 @@
 import { Rule } from 'eslint';
 import { mergeRules } from '../helpers';
 import { rules as jsxA11yRules } from 'eslint-plugin-jsx-a11y';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 const mouseEventsHaveKeyEvents = jsxA11yRules['mouse-events-have-key-events'];
 const clickEventsHaveKeyEvents = jsxA11yRules['click-events-have-key-events'];
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     hasSuggestions: true,
     messages: {
       ...mouseEventsHaveKeyEvents.meta!.messages,
       ...clickEventsHaveKeyEvents.meta!.messages,
     },
-  },
-
+  }),
   create(context: Rule.RuleContext) {
     const mouseEventsHaveKeyEventsListener = mouseEventsHaveKeyEvents.create(context);
     const clickEventsHaveKeyEventsListener = clickEventsHaveKeyEvents.create(context);

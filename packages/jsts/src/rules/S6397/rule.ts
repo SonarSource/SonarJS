@@ -22,6 +22,8 @@
 import { Rule } from 'eslint';
 import { CharacterClass, CharacterClassElement } from '@eslint-community/regexpp/ast';
 import { createRegExpRule } from '../helpers/regex';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 const FORBIDDEN_TYPES = [
   'EscapeCharacterSet',
@@ -45,13 +47,12 @@ export const rule: Rule.RuleModule = createRegExpRule(
       },
     };
   },
-  {
-    meta: {
-      messages: {
-        issue: 'Replace this character class by the character itself.',
-      },
+
+  generateMeta(rspecMeta as Rule.RuleMetaData, {
+    messages: {
+      issue: 'Replace this character class by the character itself.',
     },
-  },
+  }),
 );
 
 function hasSingleForbiddenCharacter(elems: CharacterClassElement[]) {
