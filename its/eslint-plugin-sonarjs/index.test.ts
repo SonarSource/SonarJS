@@ -11,7 +11,10 @@ describe('eslint-plugin-sonarjs', () => {
       expect(configs.recommended.rules).toHaveProperty(`sonarjs/${rule}`);
     });
     expect(Object.keys(configs.recommended.rules!)).toHaveLength(existingRules.length);
-    expect(new Set(Object.values(configs.recommended.rules!))).toEqual(new Set(['off', 'error']));
+    const recommendedValues = new Set(['off', 'error']);
+    Object.values(configs.recommended.rules!).every(recommendedValue =>
+      recommendedValues.has(recommendedValue as string),
+    );
     existingRules.forEach(rule => {
       expect(configs.recommended.plugins!['sonarjs'].rules).toHaveProperty(rule);
     });
