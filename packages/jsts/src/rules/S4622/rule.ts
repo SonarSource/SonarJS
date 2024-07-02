@@ -61,7 +61,7 @@ export const rule: Rule.RuleModule = {
           return;
         }
         const threshold =
-          (context.options as FromSchema<typeof schema>)[0]?.threshold || DEFAULT_THRESHOLD;
+          (context.options as FromSchema<typeof schema>)[0]?.threshold ?? DEFAULT_THRESHOLD;
         if (union.types.length > threshold && !isFromTypeStatement(union)) {
           context.report({
             messageId: 'refactorUnion',

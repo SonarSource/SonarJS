@@ -47,8 +47,8 @@ interface FunctionKnowledge {
 const DEFAULT = 200;
 
 const messages = {
-  renameFunction:
-    "Rename this '{{function}}' function to match the regular expression '{{format}}'.",
+  functionMaxLine:
+    'This function has {{lineCount}} lines, which is greater than the {{threshold}} lines authorized. Split it into smaller functions.',
 };
 
 const schema = {
@@ -71,7 +71,7 @@ const schema = {
 export const rule: Rule.RuleModule = {
   meta: generateMeta(rspecMeta as Rule.RuleMetaData, { messages, schema }),
   create(context: Rule.RuleContext) {
-    const threshold = (context.options as FromSchema<typeof schema>)[0]?.maximum || DEFAULT;
+    const threshold = (context.options as FromSchema<typeof schema>)[0]?.maximum ?? DEFAULT;
 
     const sourceCode = context.sourceCode;
     const lines = sourceCode.lines;

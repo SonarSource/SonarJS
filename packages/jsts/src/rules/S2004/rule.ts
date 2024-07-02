@@ -55,7 +55,7 @@ const schema = {
 export const rule: Rule.RuleModule = {
   meta: generateMeta(rspecMeta as Rule.RuleMetaData, { schema }),
   create(context: Rule.RuleContext) {
-    const max = (context.options as FromSchema<typeof schema>)[0]?.threshold || DEFAULT_THRESHOLD;
+    const max = (context.options as FromSchema<typeof schema>)[0]?.threshold ?? DEFAULT_THRESHOLD;
     const nestedStack: TSESTree.FunctionLike[] = [];
     return {
       ':function'(node: estree.Node) {

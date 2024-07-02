@@ -75,7 +75,7 @@ const ruleDecoration: Rule.RuleModule = interceptReport(
   eslintMaxParams,
   function (context: Rule.RuleContext, descriptor: Rule.ReportDescriptor) {
     const max =
-      (context.options as FromSchema<typeof schema>)[0]?.max || DEFAULT_MAXIMUM_FUNCTION_PARAMETERS;
+      (context.options as FromSchema<typeof schema>)[0]?.max ?? DEFAULT_MAXIMUM_FUNCTION_PARAMETERS;
     if ('node' in descriptor) {
       const functionLike = descriptor.node as TSESTree.FunctionLike;
       if (!isException(functionLike)) {

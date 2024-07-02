@@ -45,7 +45,7 @@ export const rule: Rule.RuleModule = {
   }),
   create(context) {
     const maxSwitchCases =
-      (context.options as FromSchema<typeof schema>)[0] || DEFAULT_MAX_SWITCH_CASES;
+      (context.options as FromSchema<typeof schema>)[0] ?? DEFAULT_MAX_SWITCH_CASES;
     return {
       SwitchStatement: (node: estree.SwitchStatement) =>
         visitSwitchStatement(node, context, maxSwitchCases),

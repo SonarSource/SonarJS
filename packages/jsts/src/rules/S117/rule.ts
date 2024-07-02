@@ -112,7 +112,7 @@ function raiseOnInvalidIdentifier(
   idType: string,
   context: Rule.RuleContext,
 ) {
-  const format = (context.options as FromSchema<typeof schema>)[0]?.format || DEFAULT_FORMAT;
+  const format = (context.options as FromSchema<typeof schema>)[0]?.format ?? DEFAULT_FORMAT;
   const { name } = id;
   if (!name.match(format)) {
     context.report({

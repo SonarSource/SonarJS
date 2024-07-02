@@ -56,7 +56,7 @@ const schema = {
 export const rule: Rule.RuleModule = {
   meta: generateMeta(rspecMeta as Rule.RuleMetaData, { schema }),
   create(context: Rule.RuleContext) {
-    const threshold = (context.options as FromSchema<typeof schema>)[0]?.max || DEFAULT;
+    const threshold = (context.options as FromSchema<typeof schema>)[0]?.max ?? DEFAULT;
     const statementLevel: ExpressionComplexity[] = [new ExpressionComplexity()];
     return {
       '*': (node: estree.Node) => {

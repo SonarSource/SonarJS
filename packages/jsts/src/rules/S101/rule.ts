@@ -68,7 +68,7 @@ function checkName(
   declarationType: string,
   context: Rule.RuleContext,
 ) {
-  const format = (context.options as FromSchema<typeof schema>)[0]?.format || DEFAULT_FORMAT;
+  const format = (context.options as FromSchema<typeof schema>)[0]?.format ?? DEFAULT_FORMAT;
   if (node.id) {
     const name = node.id.name;
     if (!name.match(format)) {

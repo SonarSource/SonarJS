@@ -66,7 +66,7 @@ export const rule: Rule.RuleModule = {
   meta: generateMeta(rspecMeta as Rule.RuleMetaData, { schema }),
   create(context: Rule.RuleContext) {
     const threshold =
-      (context.options as FromSchema<typeof schema>)[0]?.threshold || DEFAULT_THRESHOLD;
+      (context.options as FromSchema<typeof schema>)[0]?.threshold ?? DEFAULT_THRESHOLD;
     let functionsWithParent: Map<estree.Node, estree.Node | undefined>;
     let functionsDefiningModule: estree.Node[];
     let functionsImmediatelyInvoked: estree.Node[];

@@ -65,7 +65,7 @@ export const rule: Rule.RuleModule = {
   meta: generateMeta(rspecMeta as Rule.RuleMetaData, { messages, schema }),
   create(context: Rule.RuleContext) {
     const permissions =
-      (context.options as FromSchema<typeof schema>)[0]?.permissions || DEFAULT_PERMISSIONS;
+      (context.options as FromSchema<typeof schema>)[0]?.permissions ?? DEFAULT_PERMISSIONS;
     return {
       'CallExpression[callee.type="MemberExpression"]'(node: estree.Node) {
         const call = node as estree.CallExpression;

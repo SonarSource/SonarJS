@@ -89,7 +89,7 @@ ruleTester.run('Expressions should not be too complex', rule, {
       code: `let b = 1 || 2 || 3 || 4 || 5 || 6 || 7 || 8 || 9 || 10;`,
       options: [
         {
-          threshold: 10,
+          max: 10,
         },
       ],
     },

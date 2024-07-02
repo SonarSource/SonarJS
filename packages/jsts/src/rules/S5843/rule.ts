@@ -58,11 +58,6 @@ import rspecMeta from './meta.json';
 
 const DEFAULT_THRESHOLD = 20;
 
-const messages = {
-  renameFunction:
-    "Rename this '{{function}}' function to match the regular expression '{{format}}'.",
-};
-
 const schema = {
   type: 'array',
   minItems: 0,
@@ -86,10 +81,10 @@ const schema = {
 } as const satisfies JSONSchema4;
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, { messages, schema }),
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, { schema }),
   create(context: Rule.RuleContext) {
     const threshold =
-      (context.options as FromSchema<typeof schema>)[0]?.threshold || DEFAULT_THRESHOLD;
+      (context.options as FromSchema<typeof schema>)[0]?.threshold ?? DEFAULT_THRESHOLD;
     const services = context.sourceCode.parserServices;
     const regexNodes: estree.Node[] = [];
     return {

@@ -67,7 +67,7 @@ export const rule: Rule.RuleModule = {
   }),
   create(context) {
     const functions: Array<{ function: FunctionNode; parent: TSESTree.Node | undefined }> = [];
-    const minLines = (context.options as FromSchema<typeof schema>)[0] || DEFAULT_MIN_LINES;
+    const minLines = (context.options as FromSchema<typeof schema>)[0] ?? DEFAULT_MIN_LINES;
 
     return {
       FunctionDeclaration(node: estree.Node) {

@@ -82,7 +82,7 @@ const schema = {
 export const rule: Rule.RuleModule = {
   meta: generateMeta(rspecMeta as Rule.RuleMetaData, { messages, schema }),
   create(context: Rule.RuleContext) {
-    const format = (context.options as FromSchema<typeof schema>)[0]?.format || DEFAULT_FORMAT;
+    const format = (context.options as FromSchema<typeof schema>)[0]?.format ?? DEFAULT_FORMAT;
     const knowledgeStack: FunctionKnowledge[] = [];
     return {
       [functionExpressionProperty]: (node: estree.Property) => {
