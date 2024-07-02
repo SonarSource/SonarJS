@@ -17,9 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as fs from 'fs';
-import * as path from 'path';
-import { ruleIdToName } from './rulesMaps';
 import { TSESLint } from '@typescript-eslint/utils';
 import { FlatConfig } from '@typescript-eslint/utils/ts-eslint';
 import { Rule } from 'eslint';
@@ -180,7 +177,7 @@ import { rule as S1764 } from './S1764'; // no-identical-expressions
 import { rule as S4144 } from './S4144'; // no-identical-functions
 import { rule as S2486 } from './S2486'; // no-ignored-exceptions
 import { rule as S2201 } from './S2201'; // no-ignored-return
-import { rule as S4328 } from './S4328'; // no-implicit-dependencies
+//import { rule as S4328 } from './S4328'; // no-implicit-dependencies
 import { rule as S2703 } from './S2703'; // no-implicit-global
 import { rule as S4619 } from './S4619'; // no-in-misuse
 import { rule as S1940 } from './S1940'; // no-inverted-boolean-check
@@ -272,7 +269,7 @@ import { rule as S1488 } from './S1488'; // prefer-immediate-return
 import { rule as S4156 } from './S4156'; // prefer-namespace-keyword
 import { rule as S6606 } from './S6606'; // prefer-nullish-coalescing
 import { rule as S2428 } from './S2428'; // prefer-object-literal
-import { rule as S6661 } from './S6661'; // prefer-object-spread
+//import { rule as S6661 } from './S6661'; // prefer-object-spread
 import { rule as S4634 } from './S4634'; // prefer-promise-shorthand
 import { rule as S1126 } from './S1126'; // prefer-single-boolean-return
 import { rule as S6666 } from './S6666'; // prefer-spread
@@ -316,7 +313,7 @@ import { rule as S6582 } from './S6582'; // sonar-prefer-optional-chain
 import { rule as S6759 } from './S6759'; // sonar-prefer-read-only-props
 import { rule as S6594 } from './S6594'; // sonar-prefer-regexp-exec
 import { rule as S2077 } from './S2077'; // sql-queries
-import { rule as S5973 } from './S5973'; // stable-tests
+//import { rule as S5973 } from './S5973'; // stable-tests
 import { rule as S4829 } from './S4829'; // standard-input
 import { rule as S6351 } from './S6351'; // stateful-regex
 import { rule as S5739 } from './S5739'; // strict-transport-security
@@ -347,6 +344,7 @@ import { rule as S2817 } from './S2817'; // web-sql-database
 import { rule as S5689 } from './S5689'; // x-powered-by
 import { rule as S2755 } from './S2755'; // xml-parser-xxe
 import { rule as S4817 } from './S4817'; // xpath
+import { ruleNameToId } from './rulesMaps';
 
 /**
  * Maps ESLint rule keys declared in the JavaScript checks to rule implementations
@@ -509,7 +507,7 @@ rules['no-identical-expressions'] = S1764;
 rules['no-identical-functions'] = S4144;
 rules['no-ignored-exceptions'] = S2486;
 rules['no-ignored-return'] = S2201;
-rules['no-implicit-dependencies'] = S4328;
+//rules['no-implicit-dependencies'] = S4328;
 rules['no-implicit-global'] = S2703;
 rules['no-in-misuse'] = S4619;
 rules['no-incomplete-assertions'] = S2970;
@@ -601,7 +599,7 @@ rules['prefer-immediate-return'] = S1488;
 rules['prefer-namespace-keyword'] = S4156;
 rules['prefer-nullish-coalescing'] = S6606;
 rules['prefer-object-literal'] = S2428;
-rules['prefer-object-spread'] = S6661;
+//rules['prefer-object-spread'] = S6661;
 rules['prefer-promise-shorthand'] = S4634;
 rules['prefer-single-boolean-return'] = S1126;
 rules['prefer-spread'] = S6666;
@@ -645,7 +643,7 @@ rules['sonar-prefer-optional-chain'] = S6582;
 rules['sonar-prefer-read-only-props'] = S6759;
 rules['sonar-prefer-regexp-exec'] = S6594;
 rules['sql-queries'] = S2077;
-rules['stable-tests'] = S5973;
+//rules['stable-tests'] = S5973;
 rules['standard-input'] = S4829;
 rules['stateful-regex'] = S6351;
 rules['strict-transport-security'] = S5739;
@@ -688,7 +686,7 @@ const recommendedConfig: FlatConfig.Config = {
   rules: {},
 };
 
-for (const key in rules) {
+for (const key of Object.keys(rules)) {
   const rule = rules[key as keyof typeof rules];
   const recommended = rule.meta?.docs?.recommended;
 
