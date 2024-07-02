@@ -38,7 +38,7 @@ import {
 import { normalizeFQN } from '../helpers/aws/cdk';
 import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
-import { SONAR_RUNTIME } from '../../linter/parameters';
+import { SONAR_RUNTIME } from '../parameters';
 
 const AWS_PRINCIPAL_PROPERTY = 'AWS';
 

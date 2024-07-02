@@ -24,7 +24,7 @@ import * as estree from 'estree';
 import { Express, getFullyQualifiedName, getPropertyWithValue } from '../helpers';
 import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
-import { SONAR_RUNTIME } from '../../linter/parameters';
+import { SONAR_RUNTIME } from '../parameters';
 
 const HELMET = 'helmet';
 const CONTENT_SECURITY_POLICY = 'contentSecurityPolicy';
