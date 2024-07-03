@@ -37,8 +37,8 @@ import { EncodedMessage } from '../../rules/helpers';
  * @throws a runtime error in case of an invalid encoding
  * @returns the decoded issue (or the original one)
  */
-export function decodeSonarRuntime(ruleModule: Rule.RuleModule, issue: Issue): Issue {
-  if (hasSonarRuntimeOption(ruleModule, issue.ruleId)) {
+export function decodeSonarRuntime(ruleModule: Rule.RuleModule | undefined, issue: Issue): Issue {
+  if (hasSonarRuntimeOption(ruleModule)) {
     try {
       const encodedMessage: EncodedMessage = JSON.parse(issue.message);
       return { ...issue, ...encodedMessage };

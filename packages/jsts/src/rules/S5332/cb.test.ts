@@ -19,10 +19,7 @@
  */
 import { check } from '../tools';
 import { rule } from './';
-import path from 'path';
-
-const sonarId = path.basename(__dirname);
 
 describe('Rule S5332', () => {
-  check(sonarId, rule, __dirname);
+  check(rule, __dirname);
 });

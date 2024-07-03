@@ -47,14 +47,10 @@ export const SONAR_CONTEXT = 'sonar-context';
 /**
  * Checks if the rule schema sets the `sonar-context` internal parameter
  * @param ruleModule the rule definition
- * @param ruleId the ESLint rule key
  * @returns true if the rule definition includes the parameter
  */
-export function hasSonarContextOption(
-  ruleModule: Rule.RuleModule | undefined,
-  ruleId: string,
-): boolean {
-  const schema = getRuleSchema(ruleModule, ruleId);
+export function hasSonarContextOption(ruleModule: Rule.RuleModule | undefined): boolean {
+  const schema = getRuleSchema(ruleModule);
 
   if (Array.isArray(schema)) {
     return schema.some(option => option.title === SONAR_CONTEXT);

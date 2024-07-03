@@ -25,8 +25,7 @@ import { Rule } from 'eslint';
  * @param ruleId the rule id
  * @returns the extracted rule schema, if any
  */
-export function getRuleSchema(ruleModule: Rule.RuleModule | undefined, ruleId: string) {
-  ruleId;
+export function getRuleSchema(ruleModule: Rule.RuleModule | undefined) {
   if (!ruleModule) {
     return undefined;
   }

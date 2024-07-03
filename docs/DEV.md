@@ -181,7 +181,7 @@ describe('Rule S5973', () => {
   afterAll(() => {
     clearPackageJsons();
   });
-  check(sonarId, rule, __dirname);
+  check(rule, __dirname);
 });
 ```
 

@@ -53,11 +53,10 @@ export const SONAR_RUNTIME = 'sonar-runtime';
 /**
  * Checks if the rule schema sets the `sonar-runtime` internal parameter
  * @param ruleModule the rule definition
- * @param ruleId the ESLint rule key
  * @returns true if the rule definition includes the parameter
  */
-export function hasSonarRuntimeOption(ruleModule: Rule.RuleModule, ruleId: string): boolean {
-  const schema = getRuleSchema(ruleModule, ruleId);
+export function hasSonarRuntimeOption(ruleModule: Rule.RuleModule | undefined): boolean {
+  const schema = getRuleSchema(ruleModule);
 
   if (Array.isArray(schema)) {
     return schema.some(option => !!option.enum && option.enum.includes(SONAR_RUNTIME));

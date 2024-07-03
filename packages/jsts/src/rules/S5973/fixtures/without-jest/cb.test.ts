@@ -17,13 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import path from 'path';
 import { clearPackageJsons, loadPackageJsons } from '../../../../';
 import { check } from '../../../tools';
 import { rule } from '../../';
 
 
-const sonarId = path.basename(__dirname);
+
 
 describe('Rule S5973', () => {
   beforeEach(() => {
@@ -32,5 +31,5 @@ describe('Rule S5973', () => {
   afterAll(() => {
     clearPackageJsons();
   });
-  check(sonarId, rule, __dirname);
+  check(rule, __dirname);
 });

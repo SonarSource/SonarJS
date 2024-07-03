@@ -22,23 +22,19 @@ import { getRuleSchema } from '../../../../src/linter/parameters/helpers';
 
 describe('getRuleSchema', () => {
   it('should return the schema', () => {
-    expect(
-      getRuleSchema({ meta: { schema: [42] } } as unknown as Rule.RuleModule, 'schema'),
-    ).toEqual([42]);
+    expect(getRuleSchema({ meta: { schema: [42] } } as unknown as Rule.RuleModule)).toEqual([42]);
   });
 
   it('should return undefined on an undefined rule', () => {
     console.log = jest.fn();
-    expect(getRuleSchema(undefined, 'undefined-rule')).toBeUndefined();
+    expect(getRuleSchema(undefined)).toBeUndefined();
   });
 
   it('should return undefined on a meta-less rule', () => {
-    expect(getRuleSchema({ meta: undefined } as Rule.RuleModule, 'meta-less')).toBeUndefined();
+    expect(getRuleSchema({ meta: undefined } as Rule.RuleModule)).toBeUndefined();
   });
 
   it('should return undefined on a schema-less rule', () => {
-    expect(
-      getRuleSchema({ meta: { schema: undefined } } as Rule.RuleModule, 'schema-less'),
-    ).toBeUndefined();
+    expect(getRuleSchema({ meta: { schema: undefined } } as Rule.RuleModule)).toBeUndefined();
   });
 });

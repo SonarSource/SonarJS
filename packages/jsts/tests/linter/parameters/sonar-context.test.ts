@@ -21,18 +21,16 @@ import { hasSonarContextOption, SONAR_CONTEXT } from '../../../src/linter/parame
 
 describe('hasSonarContextOption', () => {
   it('should return true for a rule that has `sonar-context` option', () => {
-    expect(
-      hasSonarContextOption({ meta: { schema: [{ title: SONAR_CONTEXT }] } } as any, 'fake'),
-    ).toEqual(true);
-  });
-
-  it('should return false for a rule that has not `sonar-context` option', () => {
-    expect(hasSonarContextOption({ meta: { schema: [{ title: 42 }] } } as any, 'fake')).toEqual(
-      false,
+    expect(hasSonarContextOption({ meta: { schema: [{ title: SONAR_CONTEXT }] } } as any)).toEqual(
+      true,
     );
   });
 
+  it('should return false for a rule that has not `sonar-context` option', () => {
+    expect(hasSonarContextOption({ meta: { schema: [{ title: 42 }] } } as any)).toEqual(false);
+  });
+
   it('should return false for a rule without any schema', () => {
-    expect(hasSonarContextOption({ meta: {} } as any, 'fake')).toEqual(false);
+    expect(hasSonarContextOption({ meta: {} } as any)).toEqual(false);
   });
 });
