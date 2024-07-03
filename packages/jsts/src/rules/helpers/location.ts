@@ -46,9 +46,9 @@ export function encodeContents(
   cost?: number,
 ) {
   return JSON.stringify({
+    secondaryLocations,
     message,
     cost,
-    secondaryLocations,
   });
 }
 
@@ -74,15 +74,18 @@ function toEncodedMessage(
   cost?: number,
 ): Rule.ReportDescriptor {
   if (!('message' in reportDescriptor)) {
-    throw new Error('Cannot encode report without "message" field');
+    throw new Error(
+      'Field "message" is mandatory in the report descriptor for sonar runtime encoding',
+    );
   }
 
   if (reportDescriptor.data === undefined) {
     reportDescriptor.data = {};
   }
 
+  const { message: _, ...rest } = reportDescriptor;
   return {
-    ...reportDescriptor,
+    ...rest,
     messageId: 'sonarRuntime',
     data: {
       sonarRuntimeData: encodeContents(
@@ -116,11 +119,11 @@ export function toSecondaryLocation(
   }
   const endLocation = typeof endLoc !== 'string' && endLoc.loc ? endLoc.loc : startLoc.loc;
   return {
-    message: typeof endLoc === 'string' ? endLoc : message,
-    column: startLoc.loc.start.column,
     line: startLoc.loc.start.line,
-    endColumn: endLocation.end.column,
+    column: startLoc.loc.start.column,
     endLine: endLocation.end.line,
+    endColumn: endLocation.end.column,
+    message: typeof endLoc === 'string' ? endLoc : message,
   };
 }
 
@@ -136,7 +139,12 @@ export function report(
   cost?: number,
 ) {
   if ((context.options[context.options.length - 1] as unknown) !== 'sonar-runtime') {
-    context.report(reportDescriptor);
+    if ('message' in reportDescriptor && 'messageId' in reportDescriptor) {
+      const { message: _, ...rest } = reportDescriptor;
+      context.report(rest as ReportDescriptor);
+    } else {
+      context.report(reportDescriptor);
+    }
   } else {
     context.report(toEncodedMessage(reportDescriptor, secondaryLocations, cost));
   }
