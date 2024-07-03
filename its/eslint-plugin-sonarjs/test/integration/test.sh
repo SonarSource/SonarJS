@@ -1,3 +1,3 @@
-#! bin/sh
+#! /bin/sh
 
 npx eslint . file.js
