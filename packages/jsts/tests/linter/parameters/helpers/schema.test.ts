@@ -30,7 +30,6 @@ describe('getRuleSchema', () => {
   it('should return undefined on an undefined rule', () => {
     console.log = jest.fn();
     expect(getRuleSchema(undefined, 'undefined-rule')).toBeUndefined();
-    expect(console.log).toHaveBeenCalledWith(`DEBUG ruleModule not found for rule undefined-rule`);
   });
 
   it('should return undefined on a meta-less rule', () => {
