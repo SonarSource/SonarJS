@@ -1,0 +1,17 @@
+{
+  "name": "eslint-plugin-sonarjs",
+  "version": "1.0.3",
+  "description": "SonarJS rules for ESLint",
+  "main": "lib/eslint-plugin-sonarjs/src/index.js",
+  "types": "lib/eslint-plugin-sonarjs/src/index.d.ts",
+  "keywords": [
+    "sonarjs",
+    "eslint",
+    "eslintplugin"
+  ],
+  "files": [
+    "lib/jsts/src/rules/",
+    "lib/jsts/src/linter/",
+    "LICENSE"
+  ]
+}

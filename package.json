@@ -2,6 +2,9 @@
   "name": "sonarjs",
   "version": "1.0.0",
   "description": "SonarJS code analyzer",
+  "workspaces": [
+    "packages/eslint-plugin-sonarjs"
+  ],
   "scripts": {
     "format": "prettier --write .",
     "check-format": "prettier --list-different .",
@@ -29,7 +32,8 @@
     "_:plugin:prepare-bridge": "npm pack && node tools/check-distribution-filepath-length.js && npm run _:plugin:copy-bridge",
     "_:plugin-fetch-node": "node tools/fetch-node/scripts/wrapper.mjs",
     "_:plugin:pre-build": "npm run bridge:build && npm run _:plugin:prepare-bridge && npm run _:plugin-fetch-node",
-    "_:plugin:copy-bridge": "cpy sonarjs-1.0.0.tgz sonar-plugin/sonar-javascript-plugin/target/classes && cpy sonarjs-1.0.0.tgz sonar-plugin/standalone/target/classes"
+    "_:plugin:copy-bridge": "cpy sonarjs-1.0.0.tgz sonar-plugin/sonar-javascript-plugin/target/classes && cpy sonarjs-1.0.0.tgz sonar-plugin/standalone/target/classes",
+    "eslint-plugin:pack": "cpy lib packages/eslint-plugin-sonarjs && npm pack --workspaces && rm -rf packages/eslint-plugin-sonarjs/lib"
   },
   "repository": {
     "type": "git",

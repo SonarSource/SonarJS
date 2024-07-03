@@ -56,10 +56,7 @@ export const SONAR_RUNTIME = 'sonar-runtime';
  * @param ruleId the ESLint rule key
  * @returns true if the rule definition includes the parameter
  */
-export function hasSonarRuntimeOption(
-  ruleModule: Rule.RuleModule | undefined,
-  ruleId: string,
-): boolean {
+export function hasSonarRuntimeOption(ruleModule: Rule.RuleModule, ruleId: string): boolean {
   const schema = getRuleSchema(ruleModule, ruleId);
 
   if (Array.isArray(schema)) {

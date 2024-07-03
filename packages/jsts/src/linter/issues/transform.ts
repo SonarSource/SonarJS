@@ -81,7 +81,11 @@ export function transformMessages(
     } else {
       let issue = convertMessage(ctx.sourceCode, message);
       if (issue !== null) {
-        issue = normalizeLocation(decodeSonarRuntime(ctx.rules.get(issue.ruleId), issue));
+        const rule = ctx.rules.get(issue.ruleId);
+        if (!rule) {
+          throw new Error(`Rule ${issue.ruleId} not found`);
+        }
+        issue = normalizeLocation(decodeSonarRuntime(rule, issue));
         issues.push(issue);
       }
     }

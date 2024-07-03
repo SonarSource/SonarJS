@@ -56,6 +56,9 @@ export interface RuleConfig {
  * @returns the extended rule configuration
  */
 export function extendRuleConfig(ruleModule: Rule.RuleModule | undefined, inputRule: RuleConfig) {
+  if (!ruleModule) {
+    throw new Error('Rule module is undefined');
+  }
   const options = [...inputRule.configurations];
   if (hasSonarRuntimeOption(ruleModule, inputRule.key)) {
     options.push(SONAR_RUNTIME);
