@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import { Node } from 'estree';
-import { StringLiteral, toEncodedMessage } from '../helpers';
+import { report, StringLiteral, toSecondaryLocation } from '../helpers';
 import { getResultOfExpression, Result } from '../helpers/result';
 import {
   AwsIamPolicyTemplate,
@@ -66,15 +66,19 @@ function allResourcesAccessibleStatementCheck(
   }
 
   if (effect.isMissing && resource) {
-    ctx.report({
-      message: toEncodedMessage(MESSAGES.message),
+    report(ctx, {
+      message: MESSAGES.message,
       node: resource,
     });
   } else if (effect.isFound && resource) {
-    ctx.report({
-      message: toEncodedMessage(MESSAGES.message, [effect.node], [MESSAGES.secondary]),
-      node: resource,
-    });
+    report(
+      ctx,
+      {
+        message: MESSAGES.message,
+        node: resource,
+      },
+      [toSecondaryLocation(effect.node, MESSAGES.secondary)],
+    );
   }
 }
 

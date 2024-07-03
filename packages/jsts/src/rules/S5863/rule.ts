@@ -22,7 +22,14 @@
 import { TSESTree } from '@typescript-eslint/utils';
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { areEquivalent, Chai, isIdentifier, isLiteral, toEncodedMessage } from '../helpers';
+import {
+  areEquivalent,
+  Chai,
+  isIdentifier,
+  isLiteral,
+  report,
+  toSecondaryLocation,
+} from '../helpers';
 import { SONAR_RUNTIME } from '../../linter/parameters';
 import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
@@ -116,8 +123,9 @@ function findDuplicates(context: Rule.RuleContext, args: estree.Node[]) {
         context.sourceCode,
       );
       if (duplicates && !isLiteral(args[i])) {
-        const message = toEncodedMessage(`Replace this argument or its duplicate.`, [args[j]]);
-        context.report({ message, node: args[i] });
+        report(context, { message: `Replace this argument or its duplicate.`, node: args[i] }, [
+          toSecondaryLocation(args[j]),
+        ]);
       }
     }
   }

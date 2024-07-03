@@ -34,7 +34,7 @@
  */
 
 import { RuleTester } from 'eslint';
-import { toEncodedMessage } from '../../../../src/rules/helpers';
+import { encodeContents } from '../../../../src/rules/helpers';
 import { FileIssues, LineIssues } from './helpers';
 import { Change, QuickFix } from './helpers/quickfixes';
 
@@ -55,7 +55,7 @@ export function extractExpectations(
   usesSecondaryLocations: boolean,
 ): ExpectationsResult {
   const expectedIssues = new FileIssues(fileContent, filePath).getExpectedIssues();
-  const encodeMessageIfNeeded = usesSecondaryLocations ? toEncodedMessage : message => message;
+  const encodeMessageIfNeeded = usesSecondaryLocations ? encodeContents : message => message;
   const result: ExpectationsResult = { errors: [], output: fileContent };
   expectedIssues.forEach(issue => {
     const line = issue.line;
@@ -75,8 +75,7 @@ export function extractExpectations(
         if (secondary.length) {
           error.message = encodeMessageIfNeeded(
             message,
-            secondary.map(s => s.range.toLocationHolder()),
-            secondary.map(s => s.message),
+            secondary.map(node => node.range),
           );
         }
       }

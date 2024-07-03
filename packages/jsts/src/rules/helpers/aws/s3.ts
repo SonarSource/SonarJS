@@ -25,6 +25,7 @@ import {
   getValueOfExpression,
   isIdentifier,
   isProperty,
+  toSecondaryLocation,
 } from '..';
 import { normalizeFQN } from './cdk';
 
@@ -121,11 +122,8 @@ export function findPropagatedSetting(
   sensitiveProperty: estree.Property,
   propagatedValue: estree.Node,
 ) {
-  const propagated = { locations: [] as estree.Node[], messages: [] as string[] };
   const isPropagatedProperty = sensitiveProperty.value !== propagatedValue;
   if (isPropagatedProperty) {
-    propagated.locations = [getNodeParent(propagatedValue)];
-    propagated.messages = ['Propagated setting.'];
+    return toSecondaryLocation(getNodeParent(propagatedValue), 'Propagated setting.');
   }
-  return propagated;
 }

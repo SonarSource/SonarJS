@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { TSESTree } from '@typescript-eslint/utils';
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import {
@@ -26,7 +25,8 @@ import {
   isMethodInvocation,
   flattenArgs,
   getParent,
-  toEncodedMessage,
+  report,
+  toSecondaryLocation,
 } from '.';
 
 /**
@@ -166,10 +166,14 @@ export namespace Express {
               const isSafe = !isUsingMiddleware(context, callExpr, app, isExposing);
               if (!isSafe) {
                 for (const sensitive of sensitiveProperties) {
-                  context.report({
-                    node: callExpr,
-                    message: toEncodedMessage(message, [sensitive as TSESTree.Property]),
-                  });
+                  report(
+                    context,
+                    {
+                      node: callExpr,
+                      message,
+                    },
+                    [toSecondaryLocation(sensitive)],
+                  );
                 }
                 sensitiveProperties = [];
               }

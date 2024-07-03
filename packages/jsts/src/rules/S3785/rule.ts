@@ -22,7 +22,12 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import * as ts from 'typescript';
-import { isRequiredParserServices, getTypeFromTreeNode, toEncodedMessage } from '../helpers';
+import {
+  isRequiredParserServices,
+  getTypeFromTreeNode,
+  report,
+  toSecondaryLocation,
+} from '../helpers';
 import { SONAR_RUNTIME } from '../../linter/parameters';
 import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
@@ -58,13 +63,14 @@ export const rule: Rule.RuleModule = {
           const opToken = context.sourceCode
             .getTokensBetween(left, right)
             .find(token => token.type === 'Keyword' && token.value === operator)!;
-          context.report({
-            message: toEncodedMessage(
-              'TypeError can be thrown as this operand might have primitive type.',
-              [opToken],
-            ),
-            node: right,
-          });
+          report(
+            context,
+            {
+              message: 'TypeError can be thrown as this operand might have primitive type.',
+              node: right,
+            },
+            [toSecondaryLocation(opToken)],
+          );
         }
       },
     };

@@ -29,7 +29,7 @@ import {
   isIdentifier,
   isMethodCall,
   mergeRules,
-  toEncodedMessage,
+  report,
 } from '../helpers';
 import { normalizeFQN } from '../helpers/aws/cdk';
 import {
@@ -113,10 +113,14 @@ function checkBooleanParam(
   const propertyLiteralValue = getValueOfExpression(context, property.value, 'Literal');
   if (propertyLiteralValue?.value === propValue) {
     const secondary = findPropagatedSetting(property, propertyLiteralValue);
-    context.report({
-      message: toEncodedMessage(messages.unrestricted, secondary.locations, secondary.messages),
-      node: property,
-    });
+    report(
+      context,
+      {
+        message: messages.unrestricted,
+        node: property,
+      },
+      secondary ? [secondary] : [],
+    );
   }
 }
 
@@ -137,14 +141,14 @@ function checkConstantParam(
       `aws_cdk_lib.aws_s3.${paramQualifiers.join('.')}`
   ) {
     const secondary = findPropagatedSetting(property, propertyLiteralValue);
-    context.report({
-      message: toEncodedMessage(
-        messages.accessLevel(paramQualifiers[paramQualifiers.length - 1]),
-        secondary.locations,
-        secondary.messages,
-      ),
-      node: property,
-    });
+    report(
+      context,
+      {
+        message: messages.accessLevel(paramQualifiers[paramQualifiers.length - 1]),
+        node: property,
+      },
+      secondary ? [secondary] : [],
+    );
   }
 }
 
@@ -167,8 +171,8 @@ const handleGrantPublicAccess: Rule.RuleModule = {
         if (!isS3bucketInstance) {
           return;
         }
-        context.report({
-          message: toEncodedMessage(messages.unrestricted),
+        report(context, {
+          message: messages.unrestricted,
           node: property,
         });
       },

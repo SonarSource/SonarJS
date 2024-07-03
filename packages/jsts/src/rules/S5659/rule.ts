@@ -24,10 +24,11 @@ import * as estree from 'estree';
 import {
   getPropertyWithValue,
   getValueOfExpression,
-  toEncodedMessage,
   isNullLiteral,
   getFullyQualifiedName,
   getProperty,
+  report,
+  toSecondaryLocation,
 } from '../helpers';
 import { SONAR_RUNTIME } from '../../linter/parameters';
 import { generateMeta } from '../helpers/generate-meta';
@@ -106,14 +107,14 @@ export const rule: Rule.RuleModule = {
     }
 
     function raiseIssueOn(node: estree.Node, message: string, secondaryLocations: estree.Node[]) {
-      context.report({
-        node,
-        message: toEncodedMessage(
+      report(
+        context,
+        {
+          node,
           message,
-          secondaryLocations,
-          Array(secondaryLocations.length).fill(SECONDARY_MESSAGE),
-        ),
-      });
+        },
+        secondaryLocations.map(node => toSecondaryLocation(node, SECONDARY_MESSAGE)),
+      );
     }
 
     return {

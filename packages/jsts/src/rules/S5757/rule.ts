@@ -21,12 +21,12 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { TSESTree } from '@typescript-eslint/utils';
 import {
   getValueOfExpression,
-  toEncodedMessage,
   getFullyQualifiedName,
   getProperty,
+  report,
+  toSecondaryLocation,
 } from '../helpers';
 import { SONAR_RUNTIME } from '../../linter/parameters';
 import { generateMeta } from '../helpers/generate-meta';
@@ -51,7 +51,7 @@ export const rule: Rule.RuleModule = {
           return;
         }
         if (newExpression.arguments.length === 0) {
-          context.report({ node: callee, message: toEncodedMessage(MESSAGE, []) });
+          report(context, { node: callee, message: MESSAGE });
           return;
         }
         const firstArgument = getValueOfExpression(
@@ -69,15 +69,23 @@ export const rule: Rule.RuleModule = {
           secrets.value.type === 'ArrayExpression' &&
           secrets.value.elements.length === 0
         ) {
-          context.report({
-            node: callee,
-            message: toEncodedMessage(MESSAGE, [secrets as TSESTree.Node]),
-          });
+          report(
+            context,
+            {
+              node: callee,
+              message: MESSAGE,
+            },
+            [toSecondaryLocation(secrets)],
+          );
         } else if (!secrets) {
-          context.report({
-            node: callee,
-            message: toEncodedMessage(MESSAGE, [firstArgument as TSESTree.Node]),
-          });
+          report(
+            context,
+            {
+              node: callee,
+              message: MESSAGE,
+            },
+            [toSecondaryLocation(firstArgument)],
+          );
         }
       },
     };

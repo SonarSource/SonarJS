@@ -25,8 +25,8 @@ import {
   getProgramStatements,
   isIdentifier,
   isLiteral,
-  issueLocation,
   report,
+  toSecondaryLocation,
 } from '../helpers';
 import { AST, Rule } from 'eslint';
 import estree from 'estree';
@@ -79,22 +79,20 @@ export const rule: Rule.RuleModule = {
           }
           const sameKeyWriteUsage = usedKeys.get(keyWriteUsage.indexOrKey);
           if (sameKeyWriteUsage && sameKeyWriteUsage.node.loc) {
-            const sameKeyWriteUsageLoc = sameKeyWriteUsage.node.loc;
             const secondaryLocations = [
-              issueLocation(sameKeyWriteUsageLoc, sameKeyWriteUsageLoc, 'Original value'),
+              toSecondaryLocation(sameKeyWriteUsage.node, 'Original value'),
             ];
             report(
               context,
               {
                 node: keyWriteUsage.node,
-                messageId: 'verifyIntendedIndex',
+                message,
                 data: {
                   index: keyWriteUsage.indexOrKey,
                   line: sameKeyWriteUsage.node.loc.start.line as any,
                 },
               },
               secondaryLocations,
-              message,
             );
           }
           usedKeys.set(keyWriteUsage.indexOrKey, keyWriteUsage);

@@ -19,17 +19,17 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S4502/javascript
 
-import { TSESTree } from '@typescript-eslint/utils';
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import {
   isIdentifier,
   isLiteral,
   flattenArgs,
-  toEncodedMessage,
   getFullyQualifiedName,
   isRequireModule,
   getProperty,
+  report,
+  toSecondaryLocation,
 } from '../helpers';
 import { SONAR_RUNTIME } from '../../linter/parameters';
 import { generateMeta } from '../helpers/generate-meta';
@@ -59,13 +59,14 @@ export const rule: Rule.RuleModule = {
           .filter(e => typeof e.value === 'string' && !SAFE_METHODS.includes(e.value));
         if (unsafeMethods.length > 0) {
           const [first, ...rest] = unsafeMethods;
-          context.report({
-            message: toEncodedMessage(
-              'Make sure disabling CSRF protection is safe here.',
-              rest as TSESTree.Node[],
-            ),
-            node: first,
-          });
+          report(
+            context,
+            {
+              message: 'Make sure disabling CSRF protection is safe here.',
+              node: first,
+            },
+            rest.map(toSecondaryLocation),
+          );
         }
       }
     }
@@ -105,8 +106,8 @@ export const rule: Rule.RuleModule = {
           importedCsrfMiddleware &&
           !callExpression.arguments.some(arg => isCsurfMiddleware(arg))
         ) {
-          context.report({
-            message: toEncodedMessage('Make sure not using CSRF protection is safe here.', []),
+          report(context, {
+            message: 'Make sure not using CSRF protection is safe here.',
             node: callee,
           });
         }

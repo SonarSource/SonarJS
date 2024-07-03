@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import { Node } from 'estree';
-import { StringLiteral, toEncodedMessage } from '../helpers';
+import { report, StringLiteral, toSecondaryLocation } from '../helpers';
 import { getResultOfExpression, Result } from '../helpers/result';
 import { AwsIamPolicyTemplate, getSensitiveEffect, PolicyCheckerOptions } from '../helpers/aws/iam';
 import { generateMeta } from '../helpers/generate-meta';
@@ -94,10 +94,14 @@ function privilegeEscalationStatementChecker(
     resource &&
     action
   ) {
-    ctx.report({
-      message: toEncodedMessage(MESSAGES.message(action.value), [action], [MESSAGES.secondary]),
-      node: resource,
-    });
+    report(
+      ctx,
+      {
+        message: MESSAGES.message(action.value),
+        node: resource,
+      },
+      [toSecondaryLocation(action, MESSAGES.secondary)],
+    );
   }
 }
 

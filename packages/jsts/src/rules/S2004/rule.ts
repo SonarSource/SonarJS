@@ -23,7 +23,7 @@ import * as estree from 'estree';
 import { Rule } from 'eslint';
 import { TSESTree } from '@typescript-eslint/utils';
 import { SONAR_RUNTIME } from '../../linter/parameters';
-import { getMainFunctionTokenLocation, RuleContext, toEncodedMessage } from '../helpers';
+import { getMainFunctionTokenLocation, report, RuleContext, toSecondaryLocation } from '../helpers';
 import { generateMeta } from '../helpers/generate-meta';
 import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
 import { FromSchema } from 'json-schema-to-ts';
@@ -63,16 +63,21 @@ export const rule: Rule.RuleModule = {
         nestedStack.push(fn);
         if (nestedStack.length === max + 1) {
           const secondaries = nestedStack.slice(0, -1);
-          context.report({
-            loc: getMainFunctionTokenLocation(fn, fn.parent, context as unknown as RuleContext),
-            message: toEncodedMessage(
-              `Refactor this code to not nest functions more than ${max} levels deep.`,
-              secondaries.map(n => ({
-                loc: getMainFunctionTokenLocation(n, n.parent, context as unknown as RuleContext),
-              })),
-              secondaries.map(_ => 'Nesting +1'),
+          report(
+            context,
+            {
+              loc: getMainFunctionTokenLocation(fn, fn.parent, context as unknown as RuleContext),
+              message: `Refactor this code to not nest functions more than ${max} levels deep.`,
+            },
+            secondaries.map(n =>
+              toSecondaryLocation(
+                {
+                  loc: getMainFunctionTokenLocation(n, n.parent, context as unknown as RuleContext),
+                },
+                'Nesting +1',
+              ),
             ),
-          });
+          );
         }
       },
       ':function:exit'() {

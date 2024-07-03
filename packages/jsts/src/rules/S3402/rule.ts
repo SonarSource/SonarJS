@@ -26,8 +26,9 @@ import {
   RequiredParserServices,
   isRequiredParserServices,
   getTypeFromTreeNode,
-  toEncodedMessage,
   isStringLiteral,
+  report,
+  toSecondaryLocation,
 } from '../helpers';
 import { SONAR_RUNTIME } from '../../linter/parameters';
 import { generateMeta } from '../helpers/generate-meta';
@@ -85,17 +86,20 @@ export const rule: Rule.RuleModule = {
         isStringPlusNonString(leftType, rightType) ||
         isStringPlusNonString(rightType, leftType)
       ) {
-        context.report({
-          message: toEncodedMessage(
+        report(
+          context,
+          {
             message,
-            [left, right],
-            [
-              `left operand has type ${checker.typeToString(leftType)}.`,
+            loc: getOperatorLocation(left, right),
+          },
+          [
+            toSecondaryLocation(left, `left operand has type ${checker.typeToString(leftType)}.`),
+            toSecondaryLocation(
+              right,
               `right operand has type ${checker.typeToString(rightType)}.`,
-            ],
-          ),
-          loc: getOperatorLocation(left, right),
-        });
+            ),
+          ],
+        );
       }
     }
 

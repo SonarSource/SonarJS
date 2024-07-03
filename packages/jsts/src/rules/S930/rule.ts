@@ -27,10 +27,10 @@ import {
   isFunctionDeclaration,
   isFunctionExpression,
   isIdentifier,
-  issueLocation,
   IssueLocation,
   report,
   RuleContext,
+  toSecondaryLocation,
 } from '../helpers';
 import estree from 'estree';
 import { generateMeta } from '../helpers/generate-meta';
@@ -170,7 +170,7 @@ export const rule: Rule.RuleModule = {
       report(
         context,
         {
-          messageId: 'tooManyArguments',
+          message,
           data: {
             expectedArguments,
             providedArguments,
@@ -178,7 +178,6 @@ export const rule: Rule.RuleModule = {
           node: callExpr.callee,
         },
         getSecondaryLocations(callExpr, functionNode),
-        message,
       );
     }
 
@@ -186,9 +185,13 @@ export const rule: Rule.RuleModule = {
       const paramLength = functionNode.params.length;
       const secondaryLocations: IssueLocation[] = [];
       if (paramLength > 0) {
-        const startLoc = (functionNode.params[0] as TSESTree.Parameter).loc;
-        const endLoc = (functionNode.params[paramLength - 1] as TSESTree.Parameter).loc;
-        secondaryLocations.push(issueLocation(startLoc, endLoc, 'Formal parameters'));
+        secondaryLocations.push(
+          toSecondaryLocation(
+            functionNode.params[0],
+            functionNode.params[paramLength - 1],
+            'Formal parameters',
+          ),
+        );
       } else {
         // as we're not providing parent node, `getMainFunctionTokenLocation` may return `undefined`
         const fnToken = getMainFunctionTokenLocation(
@@ -197,7 +200,7 @@ export const rule: Rule.RuleModule = {
           context as unknown as RuleContext,
         );
         if (fnToken) {
-          secondaryLocations.push(issueLocation(fnToken, fnToken, 'Formal parameters'));
+          secondaryLocations.push(toSecondaryLocation({ loc: fnToken }, 'Formal parameters'));
         }
       }
       // find actual extra arguments to highlight

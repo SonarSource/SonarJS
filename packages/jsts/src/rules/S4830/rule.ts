@@ -24,8 +24,10 @@ import * as estree from 'estree';
 import {
   getValueOfExpression,
   getPropertyWithValue,
-  toEncodedMessage,
   getFullyQualifiedName,
+  report,
+  IssueLocation,
+  toSecondaryLocation,
 } from '../helpers';
 import { SONAR_RUNTIME } from '../../linter/parameters';
 import { generateMeta } from '../helpers/generate-meta';
@@ -51,15 +53,13 @@ export const rule: Rule.RuleModule = {
         return;
       }
       const sensitiveArgument = callExpression.arguments[sensitiveArgumentIndex];
-      const secondaryLocations: estree.Node[] = [];
-      const secondaryMessages: (string | undefined)[] = [];
+      const secondaryLocations: IssueLocation[] = [];
       const argumentValue = getValueOfExpression(context, sensitiveArgument, 'ObjectExpression');
       if (!argumentValue) {
         return;
       }
       if (sensitiveArgument !== argumentValue) {
-        secondaryLocations.push(argumentValue);
-        secondaryMessages.push(undefined);
+        secondaryLocations.push(toSecondaryLocation(argumentValue));
       }
       const unsafeRejectUnauthorizedConfiguration = getPropertyWithValue(
         context,
@@ -68,12 +68,17 @@ export const rule: Rule.RuleModule = {
         false,
       );
       if (unsafeRejectUnauthorizedConfiguration) {
-        secondaryLocations.push(unsafeRejectUnauthorizedConfiguration);
-        secondaryMessages.push(SECONDARY_MESSAGE);
-        context.report({
-          node: callExpression.callee,
-          message: toEncodedMessage(MESSAGE, secondaryLocations, secondaryMessages),
-        });
+        secondaryLocations.push(
+          toSecondaryLocation(unsafeRejectUnauthorizedConfiguration, SECONDARY_MESSAGE),
+        );
+        report(
+          context,
+          {
+            node: callExpression.callee,
+            message: MESSAGE,
+          },
+          secondaryLocations,
+        );
       }
     }
 

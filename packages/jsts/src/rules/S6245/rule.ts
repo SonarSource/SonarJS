@@ -22,7 +22,7 @@
 import { Rule } from 'eslint';
 import { MemberExpression } from 'estree';
 import { SONAR_RUNTIME } from '../../linter/parameters';
-import { getFullyQualifiedName, getValueOfExpression, toEncodedMessage } from '../helpers';
+import { getFullyQualifiedName, getValueOfExpression, report } from '../helpers';
 import { normalizeFQN } from '../helpers/aws/cdk';
 import { findPropagatedSetting, getProperty, S3BucketTemplate } from '../helpers/aws/s3';
 import { generateMeta } from '../helpers/generate-meta';
@@ -39,8 +39,8 @@ export const rule: Rule.RuleModule = S3BucketTemplate(
   (bucket, context) => {
     const encryptedProperty = getProperty(context, bucket, ENCRYPTED_KEY);
     if (encryptedProperty == null) {
-      context.report({
-        message: toEncodedMessage(messages['omitted'], [], []),
+      report(context, {
+        message: messages['omitted'],
         node: bucket.callee,
       });
       return;
@@ -53,14 +53,14 @@ export const rule: Rule.RuleModule = S3BucketTemplate(
     );
     if (encryptedValue && isUnencrypted(encryptedValue)) {
       const propagated = findPropagatedSetting(encryptedProperty, encryptedValue);
-      context.report({
-        message: toEncodedMessage(
-          messages['unencrypted'],
-          propagated.locations,
-          propagated.messages,
-        ),
-        node: encryptedProperty,
-      });
+      report(
+        context,
+        {
+          message: messages['unencrypted'],
+          node: encryptedProperty,
+        },
+        propagated ? [propagated] : [],
+      );
     }
 
     function isUnencrypted(encrypted: MemberExpression) {

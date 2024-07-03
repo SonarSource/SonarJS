@@ -21,7 +21,12 @@
 import { TSESTree } from '@typescript-eslint/utils';
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { findFirstMatchingAncestor, toEncodedMessage, isInsideVueSetupScript } from '../helpers';
+import {
+  findFirstMatchingAncestor,
+  isInsideVueSetupScript,
+  report,
+  toSecondaryLocation,
+} from '../helpers';
 import { SONAR_RUNTIME } from '../../linter/parameters';
 import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
@@ -77,13 +82,14 @@ export const rule: Rule.RuleModule = {
           }
         });
         undeclaredIdentifiersByName.forEach((identifiers, name) => {
-          context.report({
-            node: identifiers[0],
-            message: toEncodedMessage(
-              `"${name}" does not exist. Change its name or declare it so that its usage doesn't result in a "ReferenceError".`,
-              identifiers.slice(1),
-            ),
-          });
+          report(
+            context,
+            {
+              node: identifiers[0],
+              message: `"${name}" does not exist. Change its name or declare it so that its usage doesn't result in a "ReferenceError".`,
+            },
+            identifiers.slice(1).map(toSecondaryLocation),
+          );
         });
       },
     };

@@ -20,7 +20,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S1192
 
 import { TSESTree, AST_NODE_TYPES } from '@typescript-eslint/utils';
-import { issueLocation, report } from '../helpers';
+import { report, toSecondaryLocation } from '../helpers';
 import { Rule } from 'eslint';
 import estree from 'estree';
 import { generateMeta } from '../helpers/generate-meta';
@@ -109,17 +109,16 @@ export const rule: Rule.RuleModule = {
           if (literals.length >= threshold) {
             const [primaryNode, ...secondaryNodes] = literals;
             const secondaryIssues = secondaryNodes.map(node =>
-              issueLocation(node.loc, node.loc, 'Duplication'),
+              toSecondaryLocation(node, 'Duplication'),
             );
             report(
               context,
               {
-                messageId: 'defineConstant',
+                message,
                 node: primaryNode,
                 data: { times: literals.length.toString() },
               },
               secondaryIssues,
-              message,
             );
           }
         });

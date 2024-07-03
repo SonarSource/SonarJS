@@ -26,7 +26,9 @@ import {
   isRequiredParserServices,
   getTypeFromTreeNode,
   isStringType,
-  toEncodedMessage,
+  report,
+  IssueLocation,
+  toSecondaryLocation,
 } from '../helpers';
 import { SONAR_RUNTIME } from '../../linter/parameters';
 import { generateMeta } from '../helpers/generate-meta';
@@ -80,9 +82,9 @@ export const rule: Rule.RuleModule = {
         const unaryExpression = node as estree.UnaryExpression;
         const type = getTypeFromTreeNode(unaryExpression.argument, services);
         if (isBooleanStringOrDate(type)) {
-          context.report({
+          report(context, {
             node: unaryExpression.argument,
-            message: toEncodedMessage(MESSAGE, []),
+            message: MESSAGE,
           });
         }
       },
@@ -90,9 +92,9 @@ export const rule: Rule.RuleModule = {
         const updateExpression = node as estree.UpdateExpression;
         const type = getTypeFromTreeNode(updateExpression.argument, services);
         if (isBooleanStringOrDate(type)) {
-          context.report({
+          report(context, {
             node: updateExpression.argument,
-            message: toEncodedMessage(MESSAGE, []),
+            message: MESSAGE,
           });
         }
       },
@@ -127,15 +129,15 @@ function checkPlus(
   context: Rule.RuleContext,
 ) {
   if (isNumber(leftType) && isBooleanOrDate(rightType)) {
-    context.report({
+    report(context, {
       node: expression.right,
-      message: toEncodedMessage(MESSAGE, [expression.left]),
+      message: MESSAGE,
     });
   }
   if (isNumber(rightType) && isBooleanOrDate(leftType)) {
-    context.report({
+    report(context, {
       node: expression.left,
-      message: toEncodedMessage(MESSAGE, [expression.right]),
+      message: MESSAGE,
     });
   }
 }
@@ -147,14 +149,14 @@ function checkComparison(
   context: Rule.RuleContext,
 ) {
   if (isBooleanOrNumber(leftType) && isBooleanStringOrDate(rightType)) {
-    context.report({
+    report(context, {
       node: expression.right,
-      message: toEncodedMessage(MESSAGE, []),
+      message: MESSAGE,
     });
   } else if (isBooleanOrNumber(rightType) && isBooleanStringOrDate(leftType)) {
-    context.report({
+    report(context, {
       node: expression.left,
-      message: toEncodedMessage(MESSAGE, []),
+      message: MESSAGE,
     });
   }
 }
@@ -168,21 +170,22 @@ function checkArithmetic(
   if (isDateMinusDateException(leftType, rightType, expression.operator)) {
     return;
   }
-  const secondaryLocations = [];
+  const secondaryLocations: IssueLocation[] = [];
   if (isBooleanStringOrDate(leftType)) {
-    secondaryLocations.push(expression.left);
+    secondaryLocations.push(toSecondaryLocation(expression.left));
   }
   if (isBooleanStringOrDate(rightType)) {
-    secondaryLocations.push(expression.right);
+    secondaryLocations.push(toSecondaryLocation(expression.right));
   }
   if (secondaryLocations.length !== 0) {
-    context.report({
-      node: expression,
-      message: toEncodedMessage(
-        'Convert the operands of this operation into numbers.',
-        secondaryLocations,
-      ),
-    });
+    report(
+      context,
+      {
+        node: expression,
+        message: 'Convert the operands of this operation into numbers.',
+      },
+      secondaryLocations,
+    );
   }
 }
 

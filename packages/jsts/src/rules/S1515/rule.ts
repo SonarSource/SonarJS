@@ -27,8 +27,9 @@ import {
   getMainFunctionTokenLocation,
   getParent,
   LoopLike,
+  report,
   RuleContext,
-  toEncodedMessage,
+  toSecondaryLocation,
 } from '../helpers';
 import { SONAR_RUNTIME } from '../../linter/parameters';
 import { generateMeta } from '../helpers/generate-meta';
@@ -80,14 +81,18 @@ export const rule: Rule.RuleModule = {
           !isAllowedCallbacks(context, node) &&
           context.sourceCode.getScope(node).through.some(ref => !isSafe(ref, loopNode))
         ) {
-          context.report({
-            message: toEncodedMessage(message, [getMainLoopToken(loopNode, context)]),
-            loc: getMainFunctionTokenLocation(
-              node as TSESTree.FunctionLike,
-              getParent(context, node) as TSESTree.Node,
-              context as unknown as RuleContext,
-            ),
-          });
+          report(
+            context,
+            {
+              message,
+              loc: getMainFunctionTokenLocation(
+                node as TSESTree.FunctionLike,
+                getParent(context, node) as TSESTree.Node,
+                context as unknown as RuleContext,
+              ),
+            },
+            [toSecondaryLocation(getMainLoopToken(loopNode, context))],
+          );
         }
       },
     };

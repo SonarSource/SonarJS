@@ -21,7 +21,7 @@
 
 import { AST, Rule, SourceCode } from 'eslint';
 import * as estree from 'estree';
-import { getParent, toEncodedMessage } from '../helpers';
+import { getParent, report, toSecondaryLocation } from '../helpers';
 import { SONAR_RUNTIME } from '../../linter/parameters';
 import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
@@ -79,23 +79,25 @@ function checkRedundantParentheses(
   parenthesesPairsAroundNode.shift();
 
   parenthesesPairsAroundNode.forEach(parentheses => {
-    context.report({
-      message: toEncodedMessage(`Remove these redundant parentheses.`, [
-        parentheses.closingParenthesis,
-      ]),
-      loc: parentheses.openingParenthesis.loc,
-      suggest: [
-        {
-          desc: 'Remove these redundant parentheses',
-          fix(fixer) {
-            return [
-              fixer.remove(parentheses.openingParenthesis),
-              fixer.remove(parentheses.closingParenthesis),
-            ];
+    report(
+      context,
+      {
+        message: `Remove these redundant parentheses.`,
+        loc: parentheses.openingParenthesis.loc,
+        suggest: [
+          {
+            desc: 'Remove these redundant parentheses',
+            fix(fixer) {
+              return [
+                fixer.remove(parentheses.openingParenthesis),
+                fixer.remove(parentheses.closingParenthesis),
+              ];
+            },
           },
-        },
-      ],
-    });
+        ],
+      },
+      [toSecondaryLocation(parentheses.closingParenthesis)],
+    );
   });
 }
 

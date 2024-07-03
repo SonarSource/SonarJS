@@ -21,8 +21,7 @@
 
 import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
-import { TSESTree } from '@typescript-eslint/utils';
-import { getVariableFromName, toEncodedMessage } from '../helpers';
+import { getVariableFromName, report, toSecondaryLocation } from '../helpers';
 import { SONAR_RUNTIME } from '../../linter/parameters';
 import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
@@ -83,10 +82,14 @@ function checkExpression(
         `Correct the use of this function; ` +
         `on line ${otherTypeUsage.loc.start.line} it was called with${tail} "new".`;
 
-      context.report({
-        node: callExpression.callee,
-        message: toEncodedMessage(message, [otherTypeUsage.callee as TSESTree.Node]),
-      });
+      report(
+        context,
+        {
+          node: callExpression.callee,
+          message,
+        },
+        [toSecondaryLocation(otherTypeUsage.callee)],
+      );
 
       hasIssue.push(variable);
     } else {

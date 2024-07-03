@@ -17,15 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { TSESTree } from '@typescript-eslint/utils';
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import {
   isIdentifier,
   getValueOfExpression,
-  toEncodedMessage,
   getFullyQualifiedName,
   getProperty,
+  report,
+  toSecondaryLocation,
+  IssueLocation,
 } from '.';
 
 export class CookieFlagCheck {
@@ -63,10 +64,14 @@ export class CookieFlagCheck {
         'Literal',
       );
       if (cookiePropertyLiteral?.value === true) {
-        this.context.report({
-          node: callExpression.callee,
-          message: toEncodedMessage(this.issueMessage, [cookiePropertyLiteral as TSESTree.Node]),
-        });
+        report(
+          this.context,
+          {
+            node: callExpression.callee,
+            message: this.issueMessage,
+          },
+          [toSecondaryLocation(cookiePropertyLiteral)],
+        );
       }
     }
   }
@@ -143,14 +148,18 @@ export class CookieFlagCheck {
     if (flagProperty) {
       const flagPropertyValue = getValueOfExpression(this.context, flagProperty.value, 'Literal');
       if (flagPropertyValue?.value === false) {
-        const secondaryLocations: estree.Node[] = [flagPropertyValue];
+        const secondaryLocations: IssueLocation[] = [toSecondaryLocation(flagPropertyValue)];
         if (firstArgument !== objectExpression) {
-          secondaryLocations.push(objectExpression);
+          secondaryLocations.push(toSecondaryLocation(objectExpression));
         }
-        this.context.report({
-          node: callExpression.callee,
-          message: toEncodedMessage(this.issueMessage, secondaryLocations as TSESTree.Node[]),
-        });
+        report(
+          this.context,
+          {
+            node: callExpression.callee,
+            message: this.issueMessage,
+          },
+          secondaryLocations,
+        );
       }
     }
   }

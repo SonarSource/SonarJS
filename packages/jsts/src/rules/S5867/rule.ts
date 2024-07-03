@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import { Character, Quantifier, RegExpLiteral } from '@eslint-community/regexpp/ast';
-import { LocationHolder, toEncodedMessage } from '../helpers';
+import { IssueLocation, toSecondaryLocation } from '../helpers';
 import { createRegExpRule, getRegexpLocation } from '../helpers/regex';
 import { SONAR_RUNTIME } from '../../linter/parameters';
 import { generateMeta } from '../helpers/generate-meta';
@@ -124,31 +124,27 @@ export const rule: Rule.RuleModule = createRegExpRule(
       },
       onRegExpLiteralLeave: (regexp: RegExpLiteral) => {
         if (!isUnicodeEnabled && (unicodeProperties.length > 0 || unicodeCharacters.length > 0)) {
-          const secondaryLocations: LocationHolder[] = [];
-          const secondaryMessages: string[] = [];
+          const secondaryLocations: IssueLocation[] = [];
           unicodeProperties.forEach(p => {
             const loc = getRegexpLocation(context.node, p.character, context, [0, p.offset]);
             if (loc) {
-              secondaryLocations.push({ loc });
-              secondaryMessages.push('Unicode property');
+              secondaryLocations.push(toSecondaryLocation({ loc }, 'Unicode property'));
             }
           });
           unicodeCharacters.forEach(c => {
             const loc = getRegexpLocation(context.node, c, context);
             if (loc) {
-              secondaryLocations.push({ loc });
-              secondaryMessages.push('Unicode character');
+              secondaryLocations.push(toSecondaryLocation({ loc }, 'Unicode character'));
             }
           });
-          context.reportRegExpNode({
-            message: toEncodedMessage(
-              `Enable the 'u' flag for this regex using Unicode constructs.`,
-              secondaryLocations,
-              secondaryMessages,
-            ),
-            node: context.node,
-            regexpNode: regexp,
-          });
+          context.reportRegExpNode(
+            {
+              message: `Enable the 'u' flag for this regex using Unicode constructs.`,
+              node: context.node,
+              regexpNode: regexp,
+            },
+            secondaryLocations,
+          );
         }
       },
     };

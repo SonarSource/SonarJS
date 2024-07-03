@@ -25,9 +25,9 @@ import {
   collectIfBranches,
   collectSwitchBranches,
   isIfStatement,
-  issueLocation,
   report,
   takeWithoutBreak,
+  toSecondaryLocation,
 } from '../helpers';
 import { Rule } from 'eslint';
 import estree from 'estree';
@@ -171,12 +171,11 @@ export const rule: Rule.RuleModule = {
       report(
         context,
         {
-          messageId: 'sameConditionalBlock',
+          message,
           data: { type, line: String(equivalentNodeLoc.start.line) },
           node,
         },
-        [issueLocation(equivalentNodeLoc, equivalentNodeLoc, 'Original')],
-        message,
+        [toSecondaryLocation(equivalentNode, 'Original')],
       );
     }
   },

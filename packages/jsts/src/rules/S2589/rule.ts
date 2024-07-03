@@ -21,7 +21,7 @@
 
 import type { TSESTree } from '@typescript-eslint/utils';
 import { Rule, Scope } from 'eslint';
-import { isIdentifier, isIfStatement, report, RuleContext } from '../helpers';
+import { isIdentifier, isIfStatement, report, RuleContext, toSecondaryLocation } from '../helpers';
 import estree from 'estree';
 import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
@@ -240,30 +240,12 @@ function reportIssue(
   report(
     context,
     {
-      messageId: 'refactorBooleanExpression',
+      message,
       data: {
         value,
       },
       node: id,
     },
-    getSecondaryLocations(ref, value),
-    message,
+    ref?.identifier ? [toSecondaryLocation(ref.identifier, `Evaluated here to be ${value}`)] : [],
   );
-}
-
-function getSecondaryLocations(ref: Scope.Reference | undefined, truthy: string) {
-  if (ref) {
-    const secLoc = ref.identifier.loc!;
-    return [
-      {
-        message: `Evaluated here to be ${truthy}`,
-        line: secLoc.start.line,
-        column: secLoc.start.column,
-        endLine: secLoc.end.line,
-        endColumn: secLoc.end.column,
-      },
-    ];
-  } else {
-    return [];
-  }
 }
