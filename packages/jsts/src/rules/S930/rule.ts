@@ -42,7 +42,6 @@ export const rule: Rule.RuleModule = {
   meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       tooManyArguments: message,
-      sonarRuntime: '{{sonarRuntimeData}}',
     },
     schema: [
       {

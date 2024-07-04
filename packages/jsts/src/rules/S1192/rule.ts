@@ -47,7 +47,6 @@ const DEFAULT_OPTIONS = {
 
 const messages = {
   defineConstant: message,
-  sonarRuntime: '{{sonarRuntimeData}}',
 };
 
 const schema = {

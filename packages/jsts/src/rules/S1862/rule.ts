@@ -34,7 +34,6 @@ export const rule: Rule.RuleModule = {
     messages: {
       duplicatedCondition: duplicatedConditionMessage,
       duplicatedCase: duplicatedCaseMessage,
-      sonarRuntime: '{{sonarRuntimeData}}',
     },
     schema: [
       {

@@ -61,7 +61,6 @@ export const rule: Rule.RuleModule = {
   meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       identicalFunctions: message,
-      sonarRuntime: '{{sonarRuntimeData}}',
     },
     schema,
   }),

@@ -46,8 +46,8 @@ export function encodeContents(
   cost?: number,
 ) {
   return JSON.stringify({
-    secondaryLocations,
     message,
+    secondaryLocations,
     cost,
   });
 }
@@ -119,11 +119,11 @@ export function toSecondaryLocation(
   }
   const endLocation = typeof endLoc !== 'string' && endLoc.loc ? endLoc.loc : startLoc.loc;
   return {
-    line: startLoc.loc.start.line,
-    column: startLoc.loc.start.column,
-    endLine: endLocation.end.line,
-    endColumn: endLocation.end.column,
     message: typeof endLoc === 'string' ? endLoc : message,
+    column: startLoc.loc.start.column,
+    line: startLoc.loc.start.line,
+    endColumn: endLocation.end.column,
+    endLine: endLocation.end.line,
   };
 }
 

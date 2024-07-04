@@ -32,7 +32,6 @@ export const rule: Rule.RuleModule = {
   meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       refactorBooleanExpression: message,
-      sonarRuntime: '{{sonarRuntimeData}}',
     },
     schema: [
       {

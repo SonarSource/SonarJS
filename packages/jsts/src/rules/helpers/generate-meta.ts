@@ -29,8 +29,16 @@ export function generateMeta(
       `Mismatch between RSPEC metadata and implementation for fixable attribute in rule ${rspecMeta.docs!.url}`,
     );
   }
-  return {
+  const metadata = {
     ...ruleMeta,
     ...rspecMeta,
   };
+
+  if (!metadata.messages) {
+    metadata.messages = {};
+  }
+
+  metadata.messages.sonarRuntime = '{{sonarRuntimeData}}';
+
+  return metadata;
 }

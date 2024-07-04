@@ -40,7 +40,6 @@ export const rule: Rule.RuleModule = {
   meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       verifyIntendedIndex: message,
-      sonarRuntime: '{{sonarRuntimeData}}',
     },
     schema: [
       {

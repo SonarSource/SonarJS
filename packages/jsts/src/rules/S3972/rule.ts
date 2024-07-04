@@ -38,7 +38,6 @@ export const rule: Rule.RuleModule = {
     hasSuggestions: true,
     messages: {
       sameLineCondition: message,
-      sonarRuntime: '{{sonarRuntimeData}}',
       suggestAddingElse: 'Add "else" keyword',
       suggestAddingNewline: 'Move this "if" to a new line',
     },
