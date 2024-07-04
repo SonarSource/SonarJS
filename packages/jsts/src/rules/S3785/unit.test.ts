@@ -56,6 +56,7 @@ ruleTesterTs.run(`"in" should not be used with primitive types [ts]`, rule, {
           endColumn: 13,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `unknown in 'str';`,

@@ -112,7 +112,7 @@ export function toSecondaryLocation(
 export function toSecondaryLocation(
   startLoc: LocationHolder,
   endLoc: string | LocationHolder = startLoc,
-  message = '',
+  message?: string,
 ): IssueLocation {
   if (!startLoc.loc) {
     throw new Error('Invalid secondary location');

@@ -88,7 +88,7 @@ export const rule: Rule.RuleModule = {
               node: identifiers[0],
               message: `"${name}" does not exist. Change its name or declare it so that its usage doesn't result in a "ReferenceError".`,
             },
-            identifiers.slice(1).map(toSecondaryLocation),
+            identifiers.slice(1).map(node => toSecondaryLocation(node)),
           );
         });
       },

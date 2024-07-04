@@ -184,6 +184,7 @@ function invalid(code: string, max = 3) {
       {
         max,
       },
+      'sonar-runtime',
     ],
   };
 }
@@ -209,8 +210,8 @@ function error(
 function encode(complexity: number, max: number, secondaryLocations: IssueLocation[]): string {
   const encodedMessage: EncodedMessage = {
     message: `Reduce the number of conditional operators (${complexity}) used in the expression (maximum allowed ${max}).`,
-    cost: complexity - max,
     secondaryLocations,
+    cost: complexity - max,
   };
   return JSON.stringify(encodedMessage);
 }

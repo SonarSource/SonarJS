@@ -85,6 +85,7 @@ export const rule: Rule.RuleModule = {
               context,
               {
                 node: keyWriteUsage.node,
+                messageId: 'verifyIntendedIndex',
                 message,
                 data: {
                   index: keyWriteUsage.indexOrKey,

@@ -126,7 +126,7 @@ function toEncodedMessage(
   const encodedMessage: EncodedMessage = {
     message: `Function has a complexity of ${complexity} which is greater than ${threshold} authorized.`,
     cost: complexity - threshold,
-    secondaryLocations: tokens.map(toSecondaryLocation),
+    secondaryLocations: tokens.map(node => toSecondaryLocation(node)),
   };
   return JSON.stringify(encodedMessage);
 }

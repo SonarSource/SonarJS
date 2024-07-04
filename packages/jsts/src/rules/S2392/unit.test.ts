@@ -74,6 +74,7 @@ ruleTester.run('Variables should be used in the blocks where they are declared',
           endColumn: 18,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `
@@ -90,6 +91,7 @@ ruleTester.run('Variables should be used in the blocks where they are declared',
           line: 4,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `
@@ -108,6 +110,7 @@ ruleTester.run('Variables should be used in the blocks where they are declared',
           endColumn: 21,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `

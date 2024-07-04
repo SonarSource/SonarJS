@@ -126,6 +126,7 @@ ruleTester.run('Disabling content security policy fetch directives is security-s
           endColumn: 10,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `
@@ -156,6 +157,7 @@ ruleTester.run('Disabling content security policy fetch directives is security-s
           endColumn: 12,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `
@@ -186,6 +188,7 @@ ruleTester.run('Disabling content security policy fetch directives is security-s
           endColumn: 12,
         },
       ],
+      options: ['sonar-runtime'],
     },
   ],
 });

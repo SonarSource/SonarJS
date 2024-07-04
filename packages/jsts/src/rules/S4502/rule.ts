@@ -65,7 +65,7 @@ export const rule: Rule.RuleModule = {
               message: 'Make sure disabling CSRF protection is safe here.',
               node: first,
             },
-            rest.map(toSecondaryLocation),
+            rest.map(node => toSecondaryLocation(node)),
           );
         }
       }

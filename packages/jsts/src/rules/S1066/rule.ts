@@ -55,6 +55,7 @@ export const rule: Rule.RuleModule = {
             report(
               context,
               {
+                messageId: 'mergeNestedIfStatement',
                 message,
                 loc: enclosingIfKeyword.loc,
               },

@@ -125,6 +125,7 @@ ruleTester.run('Disabling strict HTTP no-referrer policy is security-sensitive',
           endColumn: 10,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `

@@ -83,17 +83,16 @@ ruleTester.run('no-identical-expressions', rule, {
           data: {
             operator: '||',
             sonarRuntimeData: JSON.stringify({
-              secondaryLocations: [
-                {
-                  line: 1,
-                  column: 0,
-                  endLine: 1,
-                  endColumn: 6,
-                  message: '',
-                },
-              ],
               message:
                 'Correct one of the identical sub-expressions on both sides of operator "||"',
+              secondaryLocations: [
+                {
+                  column: 0,
+                  line: 1,
+                  endColumn: 6,
+                  endLine: 1,
+                },
+              ],
             }),
           },
           line: 1,

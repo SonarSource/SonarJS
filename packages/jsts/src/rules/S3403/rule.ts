@@ -78,7 +78,7 @@ export const rule: Rule.RuleModule = {
                 },
               ],
             },
-            [left, right].map(toSecondaryLocation),
+            [left, right].map(node => toSecondaryLocation(node)),
           );
         }
       },

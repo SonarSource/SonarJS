@@ -172,6 +172,7 @@ const testCases = {
           endColumn: 35,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `
@@ -187,6 +188,7 @@ const testCases = {
           endColumn: 39,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `

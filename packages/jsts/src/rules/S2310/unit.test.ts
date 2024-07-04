@@ -50,6 +50,7 @@ ruleTester.run('Loop counter should not be updated inside loop', rule, {
           message: `{"message":"Remove this assignment of \\"i\\".","secondaryLocations":[{"message":"Counter variable update","column":38,"line":2,"endColumn":39,"endLine":2}]}`,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `
@@ -97,6 +98,7 @@ ruleTester.run('Loop counter should not be updated inside loop', rule, {
           message: `{"message":"Remove this assignment of \\"x\\".","secondaryLocations":[{"message":"Counter variable update","column":28,"line":4,"endColumn":29,"endLine":4}]}`,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `
@@ -244,6 +246,7 @@ ruleTester.run('Loop counter should not be updated inside loop', rule, {
           message: `{"message":"Remove this assignment of \\"i\\".","secondaryLocations":[{"message":"Counter variable update","column":39,"line":4,"endColumn":40,"endLine":4}]}`,
         },
       ],
+      options: ['sonar-runtime'],
     },
   ],
 });

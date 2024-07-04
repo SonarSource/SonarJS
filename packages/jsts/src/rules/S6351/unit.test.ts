@@ -153,6 +153,7 @@ ruleTester.run('Regular expressions with the global flag should be used with cau
           endColumn: 17,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `RegExp('globalsticky', 'gy');`,
@@ -176,6 +177,7 @@ ruleTester.run('Regular expressions with the global flag should be used with cau
           endColumn: 14,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `do {} while (/foo/g.exec(input));`,
@@ -214,6 +216,7 @@ ruleTester.run('Regular expressions with the global flag should be used with cau
           endColumn: 26,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `

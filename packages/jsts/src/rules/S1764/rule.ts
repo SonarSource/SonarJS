@@ -107,6 +107,7 @@ export const rule: Rule.RuleModule = {
           context,
           {
             message,
+            messageId: 'correctIdenticalSubExpressions',
             data: {
               operator: expr.operator,
             },

@@ -160,6 +160,7 @@ ruleTester.run(
             endColumn: 10,
           },
         ],
+        options: ['sonar-runtime'],
       },
       {
         code: `
@@ -192,6 +193,7 @@ ruleTester.run(
             endColumn: 10,
           },
         ],
+        options: ['sonar-runtime'],
       },
       {
         code: `

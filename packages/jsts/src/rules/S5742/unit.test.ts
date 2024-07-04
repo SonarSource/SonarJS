@@ -133,6 +133,7 @@ ruleTester.run('Disabling Certificate Transparency monitoring is security-sensit
           endColumn: 10,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `
@@ -160,6 +161,7 @@ ruleTester.run('Disabling Certificate Transparency monitoring is security-sensit
           endColumn: 19,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `
@@ -190,6 +192,7 @@ ruleTester.run('Disabling Certificate Transparency monitoring is security-sensit
           endColumn: 12,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `
@@ -220,6 +223,7 @@ ruleTester.run('Disabling Certificate Transparency monitoring is security-sensit
           endColumn: 12,
         },
       ],
+      options: ['sonar-runtime'],
     },
   ],
 });

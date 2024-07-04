@@ -57,6 +57,7 @@ ruleTester.run(
             endColumn: 21,
           },
         ],
+        options: ['sonar-runtime'],
       },
       {
         code: `
@@ -82,6 +83,7 @@ ruleTester.run(
             endLine: 3,
           },
         ],
+        options: ['sonar-runtime'],
       },
       {
         code: `interface T { p?: undefined | number; }`,

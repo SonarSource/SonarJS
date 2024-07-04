@@ -60,7 +60,7 @@ export const rule: Rule.RuleModule = {
                 .getTokensBetween(left, right)
                 .find(token => token.type === 'Punctuator' && token.value === operator)!.loc,
             },
-            [left, right].map(toSecondaryLocation),
+            [left, right].map(node => toSecondaryLocation(node)),
           );
         }
       },
