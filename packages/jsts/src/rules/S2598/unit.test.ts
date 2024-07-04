@@ -114,6 +114,7 @@ ruleTester.run('File uploads should be restricted', rule, {
         { message: encodedMessage('Restrict folder destination of uploaded files.'), line: 7 },
         { message: encodedMessage('Restrict folder destination of uploaded files.'), line: 8 },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `
@@ -138,6 +139,7 @@ ruleTester.run('File uploads should be restricted', rule, {
         { message: encodedMessage('Restrict the extension of uploaded files.'), line: 11 },
         { message: encodedMessage('Restrict the extension of uploaded files.'), line: 14 },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `
@@ -174,6 +176,7 @@ ruleTester.run('File uploads should be restricted', rule, {
           line: 17,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `
@@ -198,6 +201,7 @@ ruleTester.run('File uploads should be restricted', rule, {
           endColumn: 32,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `
@@ -267,6 +271,7 @@ ruleTester.run('File uploads should be restricted', rule, {
           line: 9,
         },
       ],
+      options: ['sonar-runtime'],
     },
   ],
 });

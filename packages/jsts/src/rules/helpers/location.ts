@@ -31,7 +31,6 @@ export interface IssueLocation {
   endColumn: number;
   endLine: number;
   message?: string;
-  data?: Record<string, unknown>;
 }
 
 export interface EncodedMessage {
@@ -68,7 +67,7 @@ export function encodeContents(
  * @param cost the optional cost to fix
  * @returns the encoded message with secondary locations
  */
-function toEncodedMessage(
+export function toEncodedMessage(
   reportDescriptor: Rule.ReportDescriptor,
   secondaryLocations?: IssueLocation[],
   cost?: number,
@@ -142,6 +141,9 @@ export function report(
     if ('message' in reportDescriptor && 'messageId' in reportDescriptor) {
       const { message: _, ...rest } = reportDescriptor;
       context.report(rest as ReportDescriptor);
+    } else if ('message' in reportDescriptor && 'data' in reportDescriptor) {
+      const { data, ...rest } = reportDescriptor;
+      context.report({ ...rest, message: expandMessage(rest.message, data) } as ReportDescriptor);
     } else {
       context.report(reportDescriptor);
     }
@@ -150,7 +152,10 @@ export function report(
   }
 }
 
-function expandMessage(message: string, reportDescriptorData: Record<string, unknown> | undefined) {
+export function expandMessage(
+  message: string,
+  reportDescriptorData: Record<string, unknown> | undefined,
+) {
   let expandedMessage = message;
   if (reportDescriptorData !== undefined) {
     for (const [key, value] of Object.entries(reportDescriptorData)) {

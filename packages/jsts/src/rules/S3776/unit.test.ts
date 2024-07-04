@@ -137,29 +137,29 @@ ruleTester.run('cognitive-complexity', rule, {
         return foo(a && b) && c; // +1 "&&", +1 "&&"
       }`,
       [
-        { line: 3, column: 8, endLine: 3, endColumn: 10, message: '+1' }, // if
-        { line: 7, column: 10, endLine: 7, endColumn: 14, message: '+1' }, // else
+        { message: '+1', column: 8, line: 3, endColumn: 10, endLine: 3 }, // if
+        { message: '+1', column: 10, line: 7, endColumn: 14, endLine: 7 }, // else
         {
+          message: '+2 (incl. 1 for nesting)',
+          column: 10,
           line: 4,
-          column: 10,
-          endLine: 4,
           endColumn: 12,
-          message: '+2 (incl. 1 for nesting)',
+          endLine: 4,
         }, // if
-        { line: 4, column: 28, endLine: 4, endColumn: 32, message: '+1' }, // else
+        { message: '+1', column: 28, line: 4, endColumn: 32, endLine: 4 }, // else
         {
-          line: 6,
-          column: 10,
-          endLine: 6,
-          endColumn: 15,
           message: '+2 (incl. 1 for nesting)',
+          column: 10,
+          line: 6,
+          endColumn: 15,
+          endLine: 6,
         }, // catch
-        { line: 11, column: 8, endLine: 11, endColumn: 13, message: '+1' }, // while
-        { line: 12, column: 10, endLine: 12, endColumn: 15, message: '+1' }, // break
-        { line: 15, column: 10, endLine: 15, endColumn: 11, message: '+1' }, // ?
-        { line: 17, column: 8, endLine: 17, endColumn: 14, message: '+1' }, // switch
-        { line: 19, column: 27, endLine: 19, endColumn: 29, message: '+1' }, // &&
-        { line: 19, column: 21, endLine: 19, endColumn: 23, message: '+1' }, // &&
+        { message: '+1', column: 8, line: 11, endColumn: 13, endLine: 11 }, // while
+        { message: '+1', column: 10, line: 12, endColumn: 15, endLine: 12 }, // break
+        { message: '+1', column: 10, line: 15, endColumn: 11, endLine: 15 }, // ?
+        { message: '+1', column: 8, line: 17, endColumn: 14, endLine: 17 }, // switch
+        { message: '+1', column: 27, line: 19, endColumn: 29, endLine: 19 }, // &&
+        { message: '+1', column: 21, line: 19, endColumn: 23, endLine: 19 }, // &&
       ],
       13,
     ),
@@ -171,9 +171,9 @@ ruleTester.run('cognitive-complexity', rule, {
         foo(1 && 2 || 3 && 4);
       }`,
       [
-        { line: 3, column: 14, endLine: 3, endColumn: 16, message: '+1' }, // &&
-        { line: 3, column: 19, endLine: 3, endColumn: 21, message: '+1' }, // ||
-        { line: 3, column: 24, endLine: 3, endColumn: 26, message: '+1' }, // &&
+        { message: '+1', column: 14, line: 3, endColumn: 16, endLine: 3 }, // &&
+        { message: '+1', column: 19, line: 3, endColumn: 21, endLine: 3 }, // ||
+        { message: '+1', column: 24, line: 3, endColumn: 26, endLine: 3 }, // &&
       ],
     ),
     {
@@ -440,8 +440,8 @@ ruleTester.run('cognitive-complexity', rule, {
         );
       }`,
       [
-        { line: 5, column: 41, endLine: 5, endColumn: 43, message: '+1' }, // ??
-        { line: 5, column: 56, endLine: 5, endColumn: 57, message: '+1' }, // ?:
+        { message: '+1', column: 41, line: 5, endColumn: 43, endLine: 5 }, // ??
+        { message: '+1', column: 56, line: 5, endColumn: 57, endLine: 5 }, // ?:
       ],
     ),
     testCaseWithSonarRuntime(
@@ -454,8 +454,8 @@ ruleTester.run('cognitive-complexity', rule, {
         );
       }`,
       [
-        { line: 5, column: 25, endLine: 5, endColumn: 27, message: '+1' }, // &&
-        { line: 5, column: 38, endLine: 5, endColumn: 40, message: '+1' }, // ||
+        { message: '+1', column: 25, line: 5, endColumn: 27, endLine: 5 }, // &&
+        { message: '+1', column: 38, line: 5, endColumn: 40, endLine: 5 }, // ||
       ],
     ),
     testCaseWithSonarRuntime(
@@ -468,8 +468,8 @@ ruleTester.run('cognitive-complexity', rule, {
         );
       }`,
       [
-        { line: 5, column: 25, endLine: 5, endColumn: 27, message: '+1' }, // &&
-        { line: 5, column: 40, endLine: 5, endColumn: 41, message: '+1' }, // ||
+        { message: '+1', column: 25, line: 5, endColumn: 27, endLine: 5 }, // &&
+        { message: '+1', column: 40, line: 5, endColumn: 41, endLine: 5 }, // ||
       ],
     ),
   ],
@@ -618,7 +618,7 @@ function testCaseWithSonarRuntime(
 ): RuleTester.InvalidTestCase {
   const cost = complexity ?? secondaryLocations.length;
   const message = `Refactor this function to reduce its Cognitive Complexity from ${cost} to the 0 allowed.`;
-  const sonarRuntimeData = JSON.stringify({ secondaryLocations, message, cost });
+  const sonarRuntimeData = JSON.stringify({ message, secondaryLocations, cost });
   return {
     code,
     parserOptions: { ecmaFeatures: { jsx: true } },

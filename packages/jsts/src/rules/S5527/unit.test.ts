@@ -214,6 +214,7 @@ const testCasesHttps = {
           }),
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `
@@ -284,6 +285,7 @@ const testCasesHttps = {
           }),
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `
@@ -401,6 +403,7 @@ const testCasesRequest = {
           }),
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `

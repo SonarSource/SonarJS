@@ -129,16 +129,24 @@ function checkPlus(
   context: Rule.RuleContext,
 ) {
   if (isNumber(leftType) && isBooleanOrDate(rightType)) {
-    report(context, {
-      node: expression.right,
-      message: MESSAGE,
-    });
+    report(
+      context,
+      {
+        node: expression.right,
+        message: MESSAGE,
+      },
+      [toSecondaryLocation(expression.left)],
+    );
   }
   if (isNumber(rightType) && isBooleanOrDate(leftType)) {
-    report(context, {
-      node: expression.left,
-      message: MESSAGE,
-    });
+    report(
+      context,
+      {
+        node: expression.left,
+        message: MESSAGE,
+      },
+      [toSecondaryLocation(expression.right)],
+    );
   }
 }
 

@@ -87,16 +87,16 @@ ruleTester.run('no-identical-conditions', rule, {
           data: {
             line: 2,
             sonarRuntimeData: JSON.stringify({
+              message: 'This condition is covered by the one on line 2',
               secondaryLocations: [
                 {
-                  line: 2,
-                  column: 12,
-                  endLine: 2,
-                  endColumn: 13,
                   message: 'Covering',
+                  column: 12,
+                  line: 2,
+                  endColumn: 13,
+                  endLine: 2,
                 },
               ],
-              message: 'This condition is covered by the one on line 2',
             }),
           },
         },
@@ -155,16 +155,16 @@ ruleTester.run('no-identical-conditions', rule, {
           data: {
             line: 2,
             sonarRuntimeData: JSON.stringify({
+              message: 'This condition is covered by the one on line 2',
               secondaryLocations: [
                 {
-                  line: 2,
-                  column: 12,
-                  endLine: 2,
-                  endColumn: 18,
                   message: 'Covering',
+                  column: 12,
+                  line: 2,
+                  endColumn: 18,
+                  endLine: 2,
                 },
               ],
-              message: 'This condition is covered by the one on line 2',
             }),
           },
         },
@@ -281,16 +281,16 @@ ruleTester.run('no-identical-conditions', rule, {
             column: 15,
             endColumn: 16,
             sonarRuntimeData: JSON.stringify({
+              message: 'This case duplicates the one on line 3',
               secondaryLocations: [
                 {
-                  line: 3,
-                  column: 15,
-                  endLine: 3,
-                  endColumn: 16,
                   message: 'Original',
+                  column: 15,
+                  line: 3,
+                  endColumn: 16,
+                  endLine: 3,
                 },
               ],
-              message: 'This case duplicates the one on line 3',
             }),
           },
         },

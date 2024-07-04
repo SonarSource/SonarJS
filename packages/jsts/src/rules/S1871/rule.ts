@@ -171,6 +171,7 @@ export const rule: Rule.RuleModule = {
         context,
         {
           message,
+          messageId: 'sameConditionalBlock',
           data: { type, line: String(equivalentNodeLoc.start.line) },
           node,
         },

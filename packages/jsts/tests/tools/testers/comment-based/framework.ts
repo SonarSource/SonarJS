@@ -75,7 +75,13 @@ export function extractExpectations(
         if (secondary.length) {
           error.message = encodeMessageIfNeeded(
             message,
-            secondary.map(node => node.range),
+            secondary.map(node => ({
+              message: node.message,
+              column: node.range.column,
+              line: node.range.line,
+              endColumn: node.range.endColumn,
+              endLine: node.range.endLine,
+            })),
           );
         }
       }

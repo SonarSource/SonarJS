@@ -72,6 +72,7 @@ export const rule: Rule.RuleModule = {
           report(
             context,
             {
+              messageId: 'sameLineCondition',
               message,
               loc: followingIfToken.loc,
               suggest: [
