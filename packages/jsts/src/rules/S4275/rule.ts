@@ -28,9 +28,10 @@ import {
   isStringLiteral,
   interceptReport,
   mergeRules,
-  toEncodedMessage,
+  report,
+  toSecondaryLocation,
 } from '../helpers';
-import { SONAR_RUNTIME } from '../parameters';
+import { SONAR_RUNTIME } from '../../linter/parameters';
 import { eslintRules } from '../core';
 import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
@@ -219,7 +220,7 @@ function reportWithSonarFormat(
   descriptor: Rule.ReportDescriptor,
   message: string,
 ) {
-  context.report({ ...descriptor, messageId: undefined, message: toEncodedMessage(message) });
+  report(context, { ...descriptor, messageId: undefined, message });
 }
 
 function reportWithSecondaryLocation(context: Rule.RuleContext, accessor: Accessor) {
@@ -228,13 +229,20 @@ function reportWithSecondaryLocation(context: Rule.RuleContext, accessor: Access
   const primaryMessage =
     `Refactor this ${accessor.info.type} ` +
     `so that it actually refers to the ${ref} '${fieldToRefer.name}'.`;
-  const secondaryLocations = [fieldToRefer.node];
-  const secondaryMessages = [`${ref[0].toUpperCase()}${ref.slice(1)} which should be referred.`];
 
-  context.report({
-    message: toEncodedMessage(primaryMessage, secondaryLocations, secondaryMessages),
-    loc: accessor.node.key.loc,
-  });
+  report(
+    context,
+    {
+      message: primaryMessage,
+      loc: accessor.node.key.loc,
+    },
+    [
+      toSecondaryLocation(
+        fieldToRefer.node,
+        `${ref[0].toUpperCase()}${ref.slice(1)} which should be referred.`,
+      ),
+    ],
+  );
 }
 
 function isPropertyDefinitionCall(call: estree.CallExpression | undefined) {

@@ -22,8 +22,8 @@
 import { Rule, SourceCode } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
-import { isRequiredParserServices, isThenable, toEncodedMessage } from '../helpers';
-import { SONAR_RUNTIME } from '../parameters';
+import { isRequiredParserServices, isThenable, report, toSecondaryLocation } from '../helpers';
+import { SONAR_RUNTIME } from '../../linter/parameters';
 import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
 
@@ -125,10 +125,14 @@ function checkForWrongCatch(
     const ending = openPromises.length > 1 ? 's' : '';
     const message = `Consider using 'await' for the promise${ending} inside this 'try' or replace it with 'Promise.prototype.catch(...)' usage${ending}.`;
     const token = context.sourceCode.getFirstToken(tryStmt as estree.Node);
-    context.report({
-      message: toEncodedMessage(message, openPromises, Array(openPromises.length).fill('Promise')),
-      loc: token!.loc,
-    });
+    report(
+      context,
+      {
+        message: message,
+        loc: token!.loc,
+      },
+      openPromises.map(node => toSecondaryLocation(node, 'Promise')),
+    );
   }
 }
 
@@ -142,14 +146,14 @@ function checkForUselessCatch(
     const ending = capturedPromises.length > 1 ? 's' : '';
     const message = `Consider removing this 'try' statement as promise${ending} rejection is already captured by '.catch()' method.`;
     const token = context.sourceCode.getFirstToken(tryStmt as estree.Node);
-    context.report({
-      message: toEncodedMessage(
+    report(
+      context,
+      {
         message,
-        capturedPromises,
-        Array(capturedPromises.length).fill('Caught promise'),
-      ),
-      loc: token!.loc,
-    });
+        loc: token!.loc,
+      },
+      capturedPromises.map(node => toSecondaryLocation(node, 'Caught promise')),
+    );
   }
 }
 

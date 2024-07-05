@@ -31,13 +31,24 @@ export interface IssueLocation {
   endColumn: number;
   endLine: number;
   message?: string;
-  data?: Record<string, unknown>;
 }
 
 export interface EncodedMessage {
   message: string;
   cost?: number;
   secondaryLocations: IssueLocation[];
+}
+
+export function encodeContents(
+  message: string,
+  secondaryLocations?: IssueLocation[],
+  cost?: number,
+) {
+  return JSON.stringify({
+    message,
+    secondaryLocations,
+    cost,
+  });
 }
 
 /**
@@ -51,41 +62,67 @@ export interface EncodedMessage {
  * on the condition that the rule definition of the flagged problem
  * defines the internal `sonar-runtime` parameter in its schema.
  *
- * @param message the ESLint descriptor message
- * @param secondaryLocationsHolder the secondary locations
- * @param secondaryMessages the messages for each secondary location
+ * @param reportDescriptor the ESLint report descriptor
+ * @param secondaryLocations the secondary locations
  * @param cost the optional cost to fix
  * @returns the encoded message with secondary locations
  */
 export function toEncodedMessage(
-  message: string,
-  secondaryLocationsHolder: Array<LocationHolder> = [],
-  secondaryMessages?: (string | undefined)[],
+  reportDescriptor: Rule.ReportDescriptor,
+  secondaryLocations?: IssueLocation[],
   cost?: number,
-): string {
-  const encodedMessage: EncodedMessage = {
-    message,
-    cost,
-    secondaryLocations: secondaryLocationsHolder.map((locationHolder, index) =>
-      toSecondaryLocation(
-        locationHolder,
-        !!secondaryMessages ? secondaryMessages[index] : undefined,
+): Rule.ReportDescriptor {
+  if (!('message' in reportDescriptor)) {
+    throw new Error(
+      'Field "message" is mandatory in the report descriptor for sonar runtime encoding',
+    );
+  }
+
+  if (reportDescriptor.data === undefined) {
+    reportDescriptor.data = {};
+  }
+
+  const { message: _, ...rest } = reportDescriptor;
+  return {
+    ...rest,
+    messageId: 'sonarRuntime',
+    data: {
+      sonarRuntimeData: encodeContents(
+        expandMessage(reportDescriptor.message, reportDescriptor.data),
+        secondaryLocations,
+        cost,
       ),
-    ),
+      ...reportDescriptor.data,
+    },
   };
-  return JSON.stringify(encodedMessage);
 }
 
-function toSecondaryLocation(locationHolder: LocationHolder, message?: string): IssueLocation {
-  if (!locationHolder.loc) {
+export function toSecondaryLocation(startLoc: LocationHolder): IssueLocation;
+export function toSecondaryLocation(startLoc: LocationHolder, message: string): IssueLocation;
+export function toSecondaryLocation(
+  startLoc: LocationHolder,
+  endLoc: LocationHolder,
+): IssueLocation;
+export function toSecondaryLocation(
+  startLoc: LocationHolder,
+  endLoc: LocationHolder,
+  message: string,
+): IssueLocation;
+export function toSecondaryLocation(
+  startLoc: LocationHolder,
+  endLoc: string | LocationHolder = startLoc,
+  message?: string,
+): IssueLocation {
+  if (!startLoc.loc) {
     throw new Error('Invalid secondary location');
   }
+  const endLocation = typeof endLoc !== 'string' && endLoc.loc ? endLoc.loc : startLoc.loc;
   return {
-    message,
-    column: locationHolder.loc.start.column,
-    line: locationHolder.loc.start.line,
-    endColumn: locationHolder.loc.end.column,
-    endLine: locationHolder.loc.end.line,
+    message: typeof endLoc === 'string' ? endLoc : message,
+    column: startLoc.loc.start.column,
+    line: startLoc.loc.start.line,
+    endColumn: endLocation.end.column,
+    endLine: endLocation.end.line,
   };
 }
 
@@ -97,36 +134,28 @@ function toSecondaryLocation(locationHolder: LocationHolder, message?: string): 
 export function report(
   context: RuleContext,
   reportDescriptor: ReportDescriptor,
-  secondaryLocations: IssueLocation[],
-  message: string,
+  secondaryLocations: IssueLocation[] = [],
   cost?: number,
 ) {
   if ((context.options[context.options.length - 1] as unknown) !== 'sonar-runtime') {
-    context.report(reportDescriptor);
-    return;
+    if ('message' in reportDescriptor && 'messageId' in reportDescriptor) {
+      const { message: _, ...rest } = reportDescriptor;
+      context.report(rest as ReportDescriptor);
+    } else if ('message' in reportDescriptor && 'data' in reportDescriptor) {
+      const { data, ...rest } = reportDescriptor;
+      context.report({ ...rest, message: expandMessage(rest.message, data) } as ReportDescriptor);
+    } else {
+      context.report(reportDescriptor);
+    }
+  } else {
+    context.report(toEncodedMessage(reportDescriptor, secondaryLocations, cost));
   }
-
-  const encodedMessage: EncodedMessage = {
-    secondaryLocations,
-    message: expandMessage(message, reportDescriptor.data),
-    cost,
-  };
-
-  if (reportDescriptor.data === undefined) {
-    reportDescriptor.data = {};
-  }
-
-  context.report({
-    ...reportDescriptor,
-    messageId: 'sonarRuntime',
-    data: {
-      sonarRuntimeData: JSON.stringify(encodedMessage),
-      ...reportDescriptor.data,
-    },
-  });
 }
 
-function expandMessage(message: string, reportDescriptorData: Record<string, unknown> | undefined) {
+export function expandMessage(
+  message: string,
+  reportDescriptorData: Record<string, unknown> | undefined,
+) {
   let expandedMessage = message;
   if (reportDescriptorData !== undefined) {
     for (const [key, value] of Object.entries(reportDescriptorData)) {
@@ -179,30 +208,6 @@ export function getMainFunctionTokenLocation<T = string>(
   }
 
   return location!;
-}
-
-/**
- * Converts `SourceLocation` range into `IssueLocation`
- */
-export function issueLocation(
-  startLoc: estree.SourceLocation,
-  endLoc: estree.SourceLocation = startLoc,
-  message = '',
-  data: Record<string, unknown> = {},
-): IssueLocation {
-  const issueLocation: IssueLocation = {
-    line: startLoc.start.line,
-    column: startLoc.start.column,
-    endLine: endLoc.end.line,
-    endColumn: endLoc.end.column,
-    message,
-  };
-
-  if (data !== undefined && Object.keys(data).length > 0) {
-    issueLocation.data = data;
-  }
-
-  return issueLocation;
 }
 
 function getTokenByValue<T = string>(

@@ -27,10 +27,10 @@ import {
   getMainFunctionTokenLocation,
   isIfStatement,
   isLogicalExpression,
-  issueLocation,
   IssueLocation,
   report,
   RuleContext,
+  toSecondaryLocation,
 } from '../helpers';
 import { Rule } from 'eslint';
 import estree from 'estree';
@@ -60,7 +60,6 @@ export const rule: Rule.RuleModule = {
   meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       refactorFunction: message,
-      sonarRuntime: '{{sonarRuntimeData}}',
       fileComplexity: '{{complexityAmount}}',
     },
     schema: [
@@ -326,13 +325,14 @@ export const rule: Rule.RuleModule = {
           const { complexity, location } = complexityPoint;
           const message =
             complexity === 1 ? '+1' : `+${complexity} (incl. ${complexity - 1} for nesting)`;
-          return issueLocation(location, undefined, message);
+          return toSecondaryLocation({ loc: location }, message);
         });
 
         report(
           context,
           {
             messageId: 'refactorFunction',
+            message,
             data: {
               complexityAmount,
               threshold,
@@ -340,7 +340,6 @@ export const rule: Rule.RuleModule = {
             loc,
           },
           secondaryLocations,
-          message,
           complexityAmount - threshold,
         );
       }

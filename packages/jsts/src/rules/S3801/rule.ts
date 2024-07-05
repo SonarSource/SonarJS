@@ -19,11 +19,17 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S3801/javascript
 
-import { AST, Rule } from 'eslint';
+import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
-import { getMainFunctionTokenLocation, getParent, RuleContext, toEncodedMessage } from '../helpers';
-import { SONAR_RUNTIME } from '../parameters';
+import {
+  getMainFunctionTokenLocation,
+  getParent,
+  report,
+  RuleContext,
+  toSecondaryLocation,
+} from '../helpers';
+import { SONAR_RUNTIME } from '../../linter/parameters';
 import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
 
@@ -75,24 +81,20 @@ export const rule: Rule.RuleModule = {
       checkFunctionForImplicitReturn(functionContext);
 
       if (hasInconsistentReturns(functionContext)) {
-        const [secondaryLocationsHolder, secondaryLocationMessages] = getSecondaryLocations(
-          functionContext,
-          node as estree.Node,
-        );
-        const message = toEncodedMessage(
-          `Refactor this function to use "return" consistently.`,
-          secondaryLocationsHolder,
-          secondaryLocationMessages,
-        );
+        const secondaryLocations = getSecondaryLocations(functionContext, node as estree.Node);
 
-        context.report({
-          message,
-          loc: getMainFunctionTokenLocation(
-            node as TSESTree.FunctionLike,
-            getParent(context, node as estree.Node) as TSESTree.Node,
-            context as unknown as RuleContext,
-          ),
-        });
+        report(
+          context,
+          {
+            message: `Refactor this function to use "return" consistently.`,
+            loc: getMainFunctionTokenLocation(
+              node as TSESTree.FunctionLike,
+              getParent(context, node as estree.Node) as TSESTree.Node,
+              context as unknown as RuleContext,
+            ),
+          },
+          secondaryLocations,
+        );
       }
     }
 
@@ -105,25 +107,26 @@ export const rule: Rule.RuleModule = {
       );
     }
 
-    function getSecondaryLocations(
-      functionContext: FunctionContext,
-      node: estree.Node,
-    ): [Array<AST.Token | TSESTree.Node>, Array<string>] {
-      const secondaryLocationsHolder = functionContext.returnStatements.slice() as TSESTree.Node[];
-      const secondaryLocationMessages: string[] = functionContext.returnStatements.map(
-        returnStatement =>
-          returnStatement.argument ? 'Return with value' : 'Return without value',
-      );
+    function getSecondaryLocations(functionContext: FunctionContext, node: estree.Node) {
+      const secondaryLocations = functionContext.returnStatements
+        .slice()
+        .map(returnStatement =>
+          toSecondaryLocation(
+            returnStatement,
+            returnStatement.argument ? 'Return with value' : 'Return without value',
+          ),
+        );
 
       if (functionContext.containsImplicitReturn) {
         const closeCurlyBraceToken = sourceCode.getLastToken(node, token => token.value === '}');
         if (!!closeCurlyBraceToken) {
-          secondaryLocationsHolder.push(closeCurlyBraceToken as TSESTree.Node);
-          secondaryLocationMessages.push('Implicit return without value');
+          secondaryLocations.push(
+            toSecondaryLocation(closeCurlyBraceToken, 'Implicit return without value'),
+          );
         }
       }
 
-      return [secondaryLocationsHolder, secondaryLocationMessages];
+      return secondaryLocations;
     }
 
     return {

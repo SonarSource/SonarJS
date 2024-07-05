@@ -99,6 +99,7 @@ ruleTester.run(`A conditionally executed single line should be denoted by indent
           endColumn: 11,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `
@@ -115,6 +116,7 @@ ruleTester.run(`A conditionally executed single line should be denoted by indent
           endColumn: 15,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `
@@ -131,6 +133,7 @@ ruleTester.run(`A conditionally executed single line should be denoted by indent
           endColumn: 16,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `
@@ -146,6 +149,7 @@ ruleTester.run(`A conditionally executed single line should be denoted by indent
           endColumn: 14,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `

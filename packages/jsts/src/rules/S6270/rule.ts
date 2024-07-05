@@ -25,8 +25,9 @@ import {
   getFullyQualifiedName,
   isArrayExpression,
   isStringLiteral,
+  report,
   StringLiteral,
-  toEncodedMessage,
+  toSecondaryLocation,
 } from '../helpers';
 import { getResultOfExpression, Result } from '../helpers/result';
 import {
@@ -38,7 +39,7 @@ import {
 import { normalizeFQN } from '../helpers/aws/cdk';
 import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
-import { SONAR_RUNTIME } from '../parameters';
+import { SONAR_RUNTIME } from '../../linter/parameters';
 
 const AWS_PRINCIPAL_PROPERTY = 'AWS';
 
@@ -71,15 +72,19 @@ function publicAccessStatementChecker(
   const principal = getSensitivePrincipal(properties, ctx, options);
 
   if (effect.isMissing && principal) {
-    ctx.report({
-      message: toEncodedMessage(MESSAGES.message),
+    report(ctx, {
+      message: MESSAGES.message,
       node: principal,
     });
   } else if (effect.isFound && principal) {
-    ctx.report({
-      message: toEncodedMessage(MESSAGES.message, [effect.node], [MESSAGES.secondary]),
-      node: principal,
-    });
+    report(
+      ctx,
+      {
+        message: MESSAGES.message,
+        node: principal,
+      },
+      [toSecondaryLocation(effect.node, MESSAGES.secondary)],
+    );
   }
 }
 

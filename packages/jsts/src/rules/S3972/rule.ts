@@ -21,7 +21,7 @@
 
 import type { TSESLint, TSESTree } from '@typescript-eslint/utils';
 import { AST, Rule } from 'eslint';
-import { issueLocation, report } from '../helpers';
+import { report, toSecondaryLocation } from '../helpers';
 import estree from 'estree';
 import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
@@ -38,7 +38,6 @@ export const rule: Rule.RuleModule = {
     hasSuggestions: true,
     messages: {
       sameLineCondition: message,
-      sonarRuntime: '{{sonarRuntimeData}}',
       suggestAddingElse: 'Add "else" keyword',
       suggestAddingNewline: 'Move this "if" to a new line',
     },
@@ -74,6 +73,7 @@ export const rule: Rule.RuleModule = {
             context,
             {
               messageId: 'sameLineCondition',
+              message,
               loc: followingIfToken.loc,
               suggest: [
                 {
@@ -90,8 +90,7 @@ export const rule: Rule.RuleModule = {
                 },
               ],
             },
-            [issueLocation(precedingIfLastToken.loc)],
-            message,
+            [toSecondaryLocation(precedingIfLastToken)],
           );
         }
       });

@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import { Node } from 'estree';
-import { StringLiteral, toEncodedMessage } from '../helpers';
+import { report, StringLiteral, toSecondaryLocation } from '../helpers';
 import { getResultOfExpression, Result } from '../helpers/result';
 import {
   AwsIamPolicyTemplate,
@@ -31,7 +31,7 @@ import {
 } from '../helpers/aws/iam';
 import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
-import { SONAR_RUNTIME } from '../parameters';
+import { SONAR_RUNTIME } from '../../linter/parameters';
 
 const MESSAGES = {
   message: 'Make sure granting access to all resources is safe here.',
@@ -66,15 +66,19 @@ function allResourcesAccessibleStatementCheck(
   }
 
   if (effect.isMissing && resource) {
-    ctx.report({
-      message: toEncodedMessage(MESSAGES.message),
+    report(ctx, {
+      message: MESSAGES.message,
       node: resource,
     });
   } else if (effect.isFound && resource) {
-    ctx.report({
-      message: toEncodedMessage(MESSAGES.message, [effect.node], [MESSAGES.secondary]),
-      node: resource,
-    });
+    report(
+      ctx,
+      {
+        message: MESSAGES.message,
+        node: resource,
+      },
+      [toSecondaryLocation(effect.node, MESSAGES.secondary)],
+    );
   }
 }
 

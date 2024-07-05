@@ -24,11 +24,13 @@ import * as estree from 'estree';
 import {
   getValueOfExpression,
   getPropertyWithValue,
-  toEncodedMessage,
   getFullyQualifiedName,
   getProperty,
+  report,
+  IssueLocation,
+  toSecondaryLocation,
 } from '../helpers';
-import { SONAR_RUNTIME } from '../parameters';
+import { SONAR_RUNTIME } from '../../linter/parameters';
 import { childrenOf } from '../../linter/visitors/visitor';
 import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
@@ -53,16 +55,14 @@ export const rule: Rule.RuleModule = {
         return;
       }
       const sensitiveArgument = callExpression.arguments[sensitiveArgumentIndex];
-      const secondaryLocations: estree.Node[] = [];
-      const secondaryMessages: (string | undefined)[] = [];
+      const secondaryLocations: IssueLocation[] = [];
       let shouldReport = false;
       const argumentValue = getValueOfExpression(context, sensitiveArgument, 'ObjectExpression');
       if (!argumentValue) {
         return;
       }
       if (sensitiveArgument !== argumentValue) {
-        secondaryLocations.push(argumentValue);
-        secondaryMessages.push(undefined);
+        secondaryLocations.push(toSecondaryLocation(argumentValue));
       }
       const unsafeRejectUnauthorizedConfiguration = getPropertyWithValue(
         context,
@@ -71,8 +71,9 @@ export const rule: Rule.RuleModule = {
         false,
       );
       if (unsafeRejectUnauthorizedConfiguration) {
-        secondaryLocations.push(unsafeRejectUnauthorizedConfiguration);
-        secondaryMessages.push(SECONDARY_MESSAGE);
+        secondaryLocations.push(
+          toSecondaryLocation(unsafeRejectUnauthorizedConfiguration, SECONDARY_MESSAGE),
+        );
         shouldReport = true;
       }
       const checkServerIdentityProperty = getProperty(
@@ -84,15 +85,18 @@ export const rule: Rule.RuleModule = {
         checkServerIdentityProperty &&
         shouldReportOnCheckServerIdentityCallBack(checkServerIdentityProperty)
       ) {
-        secondaryLocations.push(checkServerIdentityProperty);
-        secondaryMessages.push(undefined);
+        secondaryLocations.push(toSecondaryLocation(checkServerIdentityProperty));
         shouldReport = true;
       }
       if (shouldReport) {
-        context.report({
-          node: callExpression.callee,
-          message: toEncodedMessage(MESSAGE, secondaryLocations, secondaryMessages),
-        });
+        report(
+          context,
+          {
+            node: callExpression.callee,
+            message: MESSAGE,
+          },
+          secondaryLocations,
+        );
       }
     }
 

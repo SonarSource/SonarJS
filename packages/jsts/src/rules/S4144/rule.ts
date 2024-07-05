@@ -23,9 +23,9 @@ import type { TSESTree } from '@typescript-eslint/utils';
 import {
   areEquivalent,
   getMainFunctionTokenLocation,
-  issueLocation,
   report,
   RuleContext,
+  toSecondaryLocation,
 } from '../helpers';
 import { Rule } from 'eslint';
 import estree from 'estree';
@@ -61,7 +61,6 @@ export const rule: Rule.RuleModule = {
   meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       identicalFunctions: message,
-      sonarRuntime: '{{sonarRuntimeData}}',
     },
     schema,
   }),
@@ -117,19 +116,18 @@ export const rule: Rule.RuleModule = {
               context as unknown as RuleContext,
             );
             const secondaryLocations = [
-              issueLocation(originalFunctionLoc, originalFunctionLoc, 'Original implementation'),
+              toSecondaryLocation({ loc: originalFunctionLoc }, 'Original implementation'),
             ];
             report(
               context,
               {
-                messageId: 'identicalFunctions',
+                message,
                 data: {
                   line: originalFunction.loc.start.line as any,
                 },
                 loc,
               },
               secondaryLocations,
-              message,
             );
             break;
           }

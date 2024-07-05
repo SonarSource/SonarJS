@@ -22,8 +22,14 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
-import { toEncodedMessage, getVariableFromName, resolveIdentifiers, getParent } from '../helpers';
-import { SONAR_RUNTIME } from '../parameters';
+import {
+  getVariableFromName,
+  resolveIdentifiers,
+  getParent,
+  report,
+  toSecondaryLocation,
+} from '../helpers';
+import { SONAR_RUNTIME } from '../../linter/parameters';
 import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
 
@@ -55,14 +61,15 @@ export const rule: Rule.RuleModule = {
       }
       variable.references.forEach(ref => {
         if (ref.isWrite() && isUsedInsideBody(ref.identifier, block)) {
-          context.report({
-            node: ref.identifier,
-            message: toEncodedMessage(
-              `Remove this assignment of "${counter.name}".`,
-              [counter as TSESTree.Node],
-              ['Counter variable update'],
-            ),
-          });
+          report(
+            context,
+            {
+              node: ref.identifier,
+              message: `Remove this assignment of "${counter.name}".`,
+            },
+
+            [toSecondaryLocation(counter, 'Counter variable update')],
+          );
         }
       });
     }

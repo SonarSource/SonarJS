@@ -91,6 +91,7 @@ ruleTester.run('Disabling CSRF protections is security-sensitive', rule, {
           endColumn: 97,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `
@@ -121,6 +122,7 @@ ruleTester.run('Disabling CSRF protections is security-sensitive', rule, {
           message: encodedMessage('Make sure not using CSRF protection is safe here.'),
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `

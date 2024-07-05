@@ -22,8 +22,8 @@
 import { TSESTree } from '@typescript-eslint/utils';
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { getProperty, toEncodedMessage, getFullyQualifiedName } from '../helpers';
-import { SONAR_RUNTIME } from '../parameters';
+import { getProperty, getFullyQualifiedName, report, toSecondaryLocation } from '../helpers';
+import { SONAR_RUNTIME } from '../../linter/parameters';
 import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
 
@@ -55,12 +55,14 @@ export const rule: Rule.RuleModule = {
         if (isXmlParserCall(call)) {
           const noent = getProperty(call.arguments[1], 'noent', context);
           if (noent && isNoEntSet(noent)) {
-            context.report({
-              message: toEncodedMessage('Disable access to external entities in XML parsing.', [
-                call.callee as TSESTree.Node,
-              ]),
-              node: noent,
-            });
+            report(
+              context,
+              {
+                message: 'Disable access to external entities in XML parsing.',
+                node: noent,
+              },
+              [toSecondaryLocation(call.callee as TSESTree.Node)],
+            );
           }
         }
       },

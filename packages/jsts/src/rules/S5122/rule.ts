@@ -29,11 +29,12 @@ import {
   getValueOfExpression,
   isCallingMethod,
   isIdentifier,
+  report,
   resolveFunction,
-  toEncodedMessage,
+  toSecondaryLocation,
 } from '../helpers';
 import { TSESTree } from '@typescript-eslint/utils';
-import { SONAR_RUNTIME } from '../parameters';
+import { SONAR_RUNTIME } from '../../linter/parameters';
 import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
 
@@ -155,10 +156,14 @@ function checkNodeHttp(context: Rule.RuleContext, node: estree.CallExpression) {
     // Check if the 'Access-Control-Allow-Origin' property is set to '*'
     const accessValue = getValueOfExpression(context, accessProperty.value, 'Literal');
     if (accessValue?.value === '*') {
-      context.report({
-        node: writeHeadCall.callee,
-        message: toEncodedMessage(MESSAGE, [accessProperty], [SECONDARY_MESSAGE]),
-      });
+      report(
+        context,
+        {
+          node: writeHeadCall.callee,
+          message: MESSAGE,
+        },
+        [toSecondaryLocation(accessProperty, SECONDARY_MESSAGE)],
+      );
     }
   }
 }
@@ -188,9 +193,9 @@ function checkExpressCors(context: Rule.RuleContext, node: estree.CallExpression
   // Check if the call to the 'cors' method has an argument (default configuration is sensitive)
   const corsOptions = argValue.arguments[0];
   if (!corsOptions) {
-    context.report({
+    report(context, {
       node,
-      message: toEncodedMessage(MESSAGE, [], []),
+      message: MESSAGE,
     });
     return;
   }
@@ -204,20 +209,28 @@ function checkExpressCors(context: Rule.RuleContext, node: estree.CallExpression
   // Check if the 'origin' property is defined  (default configuration is sensitive)
   const originProperty = getProperty(corsOptionsValue, 'origin', context);
   if (!originProperty) {
-    context.report({
-      node: node.callee,
-      message: toEncodedMessage(MESSAGE, [corsOptions], [SECONDARY_MESSAGE]),
-    });
+    report(
+      context,
+      {
+        node: node.callee,
+        message: MESSAGE,
+      },
+      [toSecondaryLocation(corsOptions, SECONDARY_MESSAGE)],
+    );
     return;
   }
 
   // Check if the 'origin' property is set to '*'
   const originValue = getValueOfExpression(context, originProperty.value, 'Literal');
   if (originValue?.value === '*') {
-    context.report({
-      node: node.callee,
-      message: toEncodedMessage(MESSAGE, [originProperty], [SECONDARY_MESSAGE]),
-    });
+    report(
+      context,
+      {
+        node: node.callee,
+        message: MESSAGE,
+      },
+      [toSecondaryLocation(originProperty, SECONDARY_MESSAGE)],
+    );
   }
 }
 
@@ -303,10 +316,14 @@ function checkExpressUserControlledOrigin(context: Rule.RuleContext, node: estre
             originValue.value.toLowerCase() === 'origin' &&
             !isValidated(callback, headerArg)
           ) {
-            context.report({
-              node: setHeaderCall.callee,
-              message: toEncodedMessage(MESSAGE, [headerValue], [SECONDARY_MESSAGE]),
-            });
+            report(
+              context,
+              {
+                node: setHeaderCall.callee,
+                message: MESSAGE,
+              },
+              [toSecondaryLocation(headerValue, SECONDARY_MESSAGE)],
+            );
           }
         }
         break;
@@ -318,10 +335,14 @@ function checkExpressUserControlledOrigin(context: Rule.RuleContext, node: estre
           headerValueText === `${reqParameter.name}.headers.origin` &&
           !isValidated(callback, headerArg)
         ) {
-          context.report({
-            node: setHeaderCall.callee,
-            message: toEncodedMessage(MESSAGE, [headerValue], [SECONDARY_MESSAGE]),
-          });
+          report(
+            context,
+            {
+              node: setHeaderCall.callee,
+              message: MESSAGE,
+            },
+            [toSecondaryLocation(headerValue, SECONDARY_MESSAGE)],
+          );
         }
         break;
       }

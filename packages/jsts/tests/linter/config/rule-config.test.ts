@@ -20,8 +20,7 @@
 import { Rule } from 'eslint';
 import { setContext } from '@sonar/shared';
 import { extendRuleConfig, RuleConfig } from '../../../src/linter/config';
-import { SONAR_CONTEXT } from '../../../src/linter/parameters';
-import { SONAR_RUNTIME } from '../../../src/rules/parameters';
+import { SONAR_CONTEXT, SONAR_RUNTIME } from '../../../src/linter/parameters';
 
 describe('extendRuleConfig', () => {
   it('should include `sonar-runtime`', () => {

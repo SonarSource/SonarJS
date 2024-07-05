@@ -183,6 +183,7 @@ ruleTesterTs.run(`Strict equality operators should not be used with dissimilar t
           endColumn: 16,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `

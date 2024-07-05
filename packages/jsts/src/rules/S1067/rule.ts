@@ -22,12 +22,12 @@
 import { Rule, AST } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
-import { toEncodedMessage } from '../helpers';
-import { SONAR_RUNTIME } from '../parameters';
+import { SONAR_RUNTIME } from '../../linter/parameters';
 import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
 import { generateMeta } from '../helpers/generate-meta';
 import { FromSchema } from 'json-schema-to-ts';
 import rspecMeta from './meta.json';
+import { report, toSecondaryLocation } from '../helpers';
 
 const DEFAULT = 3;
 
@@ -155,12 +155,14 @@ function reportIssue(
   context: Rule.RuleContext,
 ) {
   const complexity = operators.length;
-  const message = `Reduce the number of conditional operators (${complexity}) used in the expression (maximum allowed ${max}).`;
-  const secondaryLocationsHolder = operators;
-  const secondaryMessages = Array(complexity).fill('+1');
   const cost = complexity - max;
-  context.report({
-    node: node as estree.Node,
-    message: toEncodedMessage(message, secondaryLocationsHolder, secondaryMessages, cost),
-  });
+  report(
+    context,
+    {
+      node: node as estree.Node,
+      message: `Reduce the number of conditional operators (${complexity}) used in the expression (maximum allowed ${max}).`,
+    },
+    operators.map(node => toSecondaryLocation(node, '+1')),
+    cost,
+  );
 }

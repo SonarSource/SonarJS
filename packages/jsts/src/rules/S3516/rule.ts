@@ -28,10 +28,11 @@ import {
   getMainFunctionTokenLocation,
   getParent,
   isElementWrite,
+  report,
   RuleContext,
-  toEncodedMessage,
+  toSecondaryLocation,
 } from '../helpers';
-import { SONAR_RUNTIME } from '../parameters';
+import { SONAR_RUNTIME } from '../../linter/parameters';
 import CodePathSegment = Rule.CodePathSegment;
 import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
@@ -76,21 +77,19 @@ export const rule: Rule.RuleModule = {
         returnStatement => returnStatement.argument as estree.Node,
       );
       if (areAllSameValue(returnedValues, context.sourceCode.getScope(node))) {
-        const message = toEncodedMessage(
-          `Refactor this function to not always return the same value.`,
-          returnedValues as TSESTree.Node[],
-          returnedValues.map(_ => 'Returned value.'),
+        report(
+          context,
+          {
+            message: `Refactor this function to not always return the same value.`,
+            loc: getMainFunctionTokenLocation(
+              node as TSESTree.FunctionLike,
+              getParent(context, node) as TSESTree.Node,
+              context as unknown as RuleContext,
+            ),
+          },
+          returnedValues.map(node => toSecondaryLocation(node, 'Returned value.')),
           returnedValues.length,
         );
-
-        context.report({
-          message,
-          loc: getMainFunctionTokenLocation(
-            node as TSESTree.FunctionLike,
-            getParent(context, node) as TSESTree.Node,
-            context as unknown as RuleContext,
-          ),
-        });
       }
     }
 

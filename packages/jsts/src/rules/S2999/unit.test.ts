@@ -141,7 +141,7 @@ ruleTester.run(`"new" operators should be used with functions [ts]`, rule, {
           endColumn: 20,
         },
       ],
-      options: [{ considerJSDoc: false }],
+      options: [{ considerJSDoc: false }, 'sonar-runtime'],
     },
     {
       code: `
@@ -186,7 +186,7 @@ ruleTester.run(`"new" operators should be used with functions [ts]`, rule, {
           endColumn: 13,
         },
       ],
-      options: [{ considerJSDoc: true }],
+      options: [{ considerJSDoc: true }, 'sonar-runtime'],
     },
   ],
 });

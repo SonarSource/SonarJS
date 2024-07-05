@@ -19,7 +19,7 @@
  */
 import { Rule } from 'eslint';
 import { Issue } from './issue';
-import { hasSonarRuntimeOption } from '../../rules/parameters';
+import { hasSonarRuntimeOption } from '../parameters';
 import { EncodedMessage } from '../../rules/helpers';
 
 /**

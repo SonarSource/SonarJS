@@ -21,11 +21,10 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { TSESTree } from '@typescript-eslint/utils';
-import { toEncodedMessage } from '../helpers';
-import { SONAR_RUNTIME } from '../parameters';
+import { SONAR_RUNTIME } from '../../linter/parameters';
 import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from '../S101/meta.json';
+import { report, toSecondaryLocation } from '../helpers';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
@@ -90,15 +89,16 @@ export const rule: Rule.RuleModule = {
             varDeclaration.declarations.includes(def.node),
           );
           if (definition && !reported.includes(definition.name)) {
-            context.report({
-              node: definition.name,
-              message: toEncodedMessage(
-                `Consider moving declaration of '${variable.name}' ` +
+            report(
+              context,
+              {
+                node: definition.name,
+                message:
+                  `Consider moving declaration of '${variable.name}' ` +
                   `as it is referenced outside current binding context.`,
-                referencesOutside as TSESTree.Node[],
-                Array(referencesOutside.length).fill('Outside reference.'),
-              ),
-            });
+              },
+              referencesOutside.map(node => toSecondaryLocation(node, 'Outside reference.')),
+            );
             variable.defs.map(def => def.name).forEach(defId => reported.push(defId));
           }
         });

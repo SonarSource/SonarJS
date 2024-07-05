@@ -19,7 +19,7 @@
  */
 import { Issue } from '../../../src/linter/issues';
 import { decodeSonarRuntime } from '../../../src/linter/issues/decode';
-import { SONAR_RUNTIME } from '../../../src/rules/parameters';
+import { SONAR_RUNTIME } from '../../../src/linter/parameters';
 
 describe('decodeSonarRuntime', () => {
   it('should decode sonar-runtime-like issues', () => {

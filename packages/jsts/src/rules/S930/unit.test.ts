@@ -229,7 +229,6 @@ function message(
     `${provided} were`;
 
   return {
-    messageId: 'tooManyArguments',
     data: {
       expectedArguments,
       providedArguments,

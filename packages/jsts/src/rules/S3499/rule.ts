@@ -21,11 +21,10 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { TSESTree } from '@typescript-eslint/utils';
-import { toEncodedMessage } from '../helpers';
-import { SONAR_RUNTIME } from '../parameters';
+import { SONAR_RUNTIME } from '../../linter/parameters';
 import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
+import { IssueLocation, report, toSecondaryLocation } from '../helpers';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
@@ -44,27 +43,23 @@ export const rule: Rule.RuleModule = {
       positionMessage: string,
     ) {
       const properties = node.properties;
-      const secondaryNodes = [];
-      const secondaryMessages = [];
+      const secondaryLocations: IssueLocation[] = [];
 
       for (let i = begin; i < end; i++) {
         const prop = properties[i] as estree.Property;
         if (prop.shorthand) {
-          secondaryNodes.push(prop);
-          secondaryMessages.push(`Move to ${positionMessage}`);
+          secondaryLocations.push(toSecondaryLocation(prop, `Move to ${positionMessage}`));
         }
       }
 
-      const message = toEncodedMessage(
-        `Group all shorthand properties at ${positionMessage} of this object declaration.`,
-        secondaryNodes as TSESTree.Node[],
-        secondaryMessages,
+      report(
+        context,
+        {
+          message: `Group all shorthand properties at ${positionMessage} of this object declaration.`,
+          loc: context.sourceCode.getFirstToken(node)!.loc,
+        },
+        secondaryLocations,
       );
-
-      context.report({
-        message,
-        loc: context.sourceCode.getFirstToken(node)!.loc,
-      });
     }
     return {
       ObjectExpression(node: estree.Node) {

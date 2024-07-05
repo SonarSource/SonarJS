@@ -31,10 +31,11 @@ import {
   isBooleanTrueType,
   isRequiredParserServices,
   isStringType,
+  report,
   RuleContext,
-  toEncodedMessage,
+  toSecondaryLocation,
 } from '../helpers';
-import { SONAR_RUNTIME } from '../parameters';
+import { SONAR_RUNTIME } from '../../linter/parameters';
 import { type UnionType } from 'typescript';
 import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
@@ -96,18 +97,20 @@ export const rule: Rule.RuleModule = {
         if (stmtsTypes.every(isAny)) {
           return;
         }
-        context.report({
-          message: toEncodedMessage(
-            'Refactor this function to always return the same type.',
-            stmts,
-            stmtsTypes.map(stmtType => `Returns ${prettyPrint(stmtType, checker)}`),
+        report(
+          context,
+          {
+            message: 'Refactor this function to always return the same type.',
+            loc: getMainFunctionTokenLocation(
+              node as TSESTree.FunctionLike,
+              getParent(context, node) as TSESTree.Node,
+              context as unknown as RuleContext,
+            ),
+          },
+          stmts.map((stmt, i) =>
+            toSecondaryLocation(stmt, `Returns ${prettyPrint(stmtsTypes[i], checker)}`),
           ),
-          loc: getMainFunctionTokenLocation(
-            node as TSESTree.FunctionLike,
-            getParent(context, node) as TSESTree.Node,
-            context as unknown as RuleContext,
-          ),
-        });
+        );
       }
     }
 

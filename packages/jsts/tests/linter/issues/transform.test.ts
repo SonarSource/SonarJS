@@ -111,7 +111,7 @@ describe('transformMessages', () => {
     const sourceCode = await parseTypeScriptSourceFile(filePath, tsConfigs);
 
     const ruleId = 'no-duplicate-in-composite';
-    const config = { rules: { [ruleId]: 'error' } } as any;
+    const config = { rules: { [ruleId]: ['error', 'sonar-runtime'] } } as any;
 
     const linter = new Linter();
     linter.defineRule(ruleId, noDuplicateInComposite);

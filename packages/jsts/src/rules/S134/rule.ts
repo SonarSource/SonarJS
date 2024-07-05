@@ -21,8 +21,8 @@
 
 import { Rule, AST } from 'eslint';
 import * as estree from 'estree';
-import { last, toEncodedMessage } from '../helpers';
-import { SONAR_RUNTIME } from '../parameters';
+import { last, report, toSecondaryLocation } from '../helpers';
+import { SONAR_RUNTIME } from '../../linter/parameters';
 import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
 import { generateMeta } from '../helpers/generate-meta';
 import { FromSchema } from 'json-schema-to-ts';
@@ -69,14 +69,14 @@ export const rule: Rule.RuleModule = {
     }
     function check(node: estree.Node) {
       if (nodeStack.length === threshold) {
-        context.report({
-          message: toEncodedMessage(
-            `Refactor this code to not nest more than ${threshold} if/for/while/switch/try statements.`,
-            nodeStack,
-            nodeStack.map(_n => '+1'),
-          ),
-          loc: sourceCode.getFirstToken(node)!.loc,
-        });
+        report(
+          context,
+          {
+            message: `Refactor this code to not nest more than ${threshold} if/for/while/switch/try statements.`,
+            loc: sourceCode.getFirstToken(node)!.loc,
+          },
+          nodeStack.map(n => toSecondaryLocation(n, '+1')),
+        );
       }
     }
     function isElseIf(node: estree.Node) {

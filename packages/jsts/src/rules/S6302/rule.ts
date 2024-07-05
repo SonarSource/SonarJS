@@ -21,7 +21,6 @@
 
 import { Rule } from 'eslint';
 import { Node } from 'estree';
-import { toEncodedMessage } from '../helpers';
 import { getResultOfExpression, Result } from '../helpers/result';
 import {
   AwsIamPolicyTemplate,
@@ -31,7 +30,8 @@ import {
 } from '../helpers/aws/iam';
 import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
-import { SONAR_RUNTIME } from '../parameters';
+import { SONAR_RUNTIME } from '../../linter/parameters';
+import { report, toSecondaryLocation } from '../helpers';
 
 const MESSAGES = {
   message: 'Make sure granting all privileges is safe here.',
@@ -60,15 +60,19 @@ function allPrivilegesStatementChecker(
   const action = getSensitiveAction(properties, options);
 
   if (effect.isMissing && action) {
-    ctx.report({
-      message: toEncodedMessage(MESSAGES.message),
+    report(ctx, {
+      message: MESSAGES.message,
       node: action,
     });
   } else if (effect.isFound && action) {
-    ctx.report({
-      message: toEncodedMessage(MESSAGES.message, [effect.node], [MESSAGES.secondary]),
-      node: action,
-    });
+    report(
+      ctx,
+      {
+        message: MESSAGES.message,
+        node: action,
+      },
+      [toSecondaryLocation(effect.node, MESSAGES.secondary)],
+    );
   }
 }
 

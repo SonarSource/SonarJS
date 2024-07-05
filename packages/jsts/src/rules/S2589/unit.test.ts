@@ -23,16 +23,16 @@ import { JavaScriptRuleTester } from '../../../tests/tools';
 const ruleTester = new JavaScriptRuleTester();
 
 const falsySonarRuntimeData = JSON.stringify({
-  secondaryLocations: [
-    { message: 'Evaluated here to be falsy', line: 3, column: 12, endLine: 3, endColumn: 13 },
-  ],
   message: 'This always evaluates to falsy. Consider refactoring this code.',
+  secondaryLocations: [
+    { message: 'Evaluated here to be falsy', column: 12, line: 3, endColumn: 13, endLine: 3 },
+  ],
 });
 const truthySonarRuntimeData = JSON.stringify({
-  secondaryLocations: [
-    { message: 'Evaluated here to be truthy', line: 3, column: 12, endLine: 3, endColumn: 13 },
-  ],
   message: 'This always evaluates to truthy. Consider refactoring this code.',
+  secondaryLocations: [
+    { message: 'Evaluated here to be truthy', column: 12, line: 3, endColumn: 13, endLine: 3 },
+  ],
 });
 
 ruleTester.run('no-gratuitous-expressions', rule, {
@@ -109,8 +109,8 @@ ruleTester.run('no-gratuitous-expressions', rule, {
           data: {
             value: 'truthy',
             sonarRuntimeData: JSON.stringify({
-              secondaryLocations: [],
               message: 'This always evaluates to truthy. Consider refactoring this code.',
+              secondaryLocations: [],
             }),
           },
           line: 2,
@@ -120,8 +120,8 @@ ruleTester.run('no-gratuitous-expressions', rule, {
           data: {
             value: 'falsy',
             sonarRuntimeData: JSON.stringify({
-              secondaryLocations: [],
               message: 'This always evaluates to falsy. Consider refactoring this code.',
+              secondaryLocations: [],
             }),
           },
           line: 3,
@@ -154,16 +154,16 @@ ruleTester.run('no-gratuitous-expressions', rule, {
           data: {
             value: 'truthy',
             sonarRuntimeData: JSON.stringify({
+              message: 'This always evaluates to truthy. Consider refactoring this code.',
               secondaryLocations: [
                 {
                   message: 'Evaluated here to be truthy',
-                  line: 3,
                   column: 17,
-                  endLine: 3,
+                  line: 3,
                   endColumn: 18,
+                  endLine: 3,
                 },
               ],
-              message: 'This always evaluates to truthy. Consider refactoring this code.',
             }),
           },
           line: 5,
@@ -213,16 +213,16 @@ ruleTester.run('no-gratuitous-expressions', rule, {
           data: {
             value: 'truthy',
             sonarRuntimeData: JSON.stringify({
+              message: 'This always evaluates to truthy. Consider refactoring this code.',
               secondaryLocations: [
                 {
                   message: 'Evaluated here to be truthy',
-                  line: 4,
                   column: 12,
-                  endLine: 4,
+                  line: 4,
                   endColumn: 13,
+                  endLine: 4,
                 },
               ],
-              message: 'This always evaluates to truthy. Consider refactoring this code.',
             }),
           },
           line: 5,
@@ -269,16 +269,16 @@ ruleTester.run('no-gratuitous-expressions', rule, {
           data: {
             value: 'falsy',
             sonarRuntimeData: JSON.stringify({
+              message: 'This always evaluates to falsy. Consider refactoring this code.',
               secondaryLocations: [
                 {
                   message: 'Evaluated here to be falsy',
-                  line: 3,
                   column: 13,
-                  endLine: 3,
+                  line: 3,
                   endColumn: 14,
+                  endLine: 3,
                 },
               ],
-              message: 'This always evaluates to falsy. Consider refactoring this code.',
             }),
           },
           line: 4,
@@ -363,16 +363,16 @@ ruleTester.run('no-gratuitous-expressions', rule, {
           data: {
             value: 'truthy',
             sonarRuntimeData: JSON.stringify({
+              message: 'This always evaluates to truthy. Consider refactoring this code.',
               secondaryLocations: [
                 {
                   message: 'Evaluated here to be truthy',
-                  line: 3,
                   column: 14,
-                  endLine: 3,
+                  line: 3,
                   endColumn: 15,
+                  endLine: 3,
                 },
               ],
-              message: 'This always evaluates to truthy. Consider refactoring this code.',
             }),
           },
           line: 4,
@@ -401,16 +401,16 @@ ruleTester.run('no-gratuitous-expressions', rule, {
           data: {
             value: 'truthy',
             sonarRuntimeData: JSON.stringify({
+              message: 'This always evaluates to truthy. Consider refactoring this code.',
               secondaryLocations: [
                 {
                   message: 'Evaluated here to be truthy',
-                  line: 3,
                   column: 12,
-                  endLine: 3,
+                  line: 3,
                   endColumn: 17,
+                  endLine: 3,
                 },
               ],
-              message: 'This always evaluates to truthy. Consider refactoring this code.',
             }),
           },
           line: 6,

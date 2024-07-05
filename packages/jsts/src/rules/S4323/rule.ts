@@ -22,10 +22,10 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
-import { toEncodedMessage } from '../helpers';
-import { SONAR_RUNTIME } from '../parameters';
+import { SONAR_RUNTIME } from '../../linter/parameters';
 import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
+import { report, toSecondaryLocation } from '../helpers';
 
 const TYPE_THRESHOLD = 2;
 const USAGE_THRESHOLD = 2;
@@ -48,12 +48,12 @@ export const rule: Rule.RuleModule = {
           if (nodes.length > USAGE_THRESHOLD) {
             const [node, ...rest] = nodes;
             const kind = node.type === 'TSUnionType' ? 'union' : 'intersection';
-            const message = toEncodedMessage(
-              `Replace this ${kind} type with a type alias.`,
-              rest,
-              Array(rest.length).fill('Following occurrence.'),
+            const message = `Replace this ${kind} type with a type alias.`;
+            report(
+              context,
+              { message, loc: node.loc },
+              rest.map(node => toSecondaryLocation(node, 'Following occurrence.')),
             );
-            context.report({ message, loc: node.loc });
           }
         }),
       'TSUnionType, TSIntersectionType': (node: estree.Node) => {

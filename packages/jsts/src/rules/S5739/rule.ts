@@ -30,7 +30,7 @@ import {
 } from '../helpers';
 import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
-import { SONAR_RUNTIME } from '../parameters';
+import { SONAR_RUNTIME } from '../../linter/parameters';
 
 const HSTS = 'hsts';
 const HELMET = 'helmet';

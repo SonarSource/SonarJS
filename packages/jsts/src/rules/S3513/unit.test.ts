@@ -73,6 +73,7 @@ const foo2 = function() {
   foo(arguments[1]);
 }
 `,
+      options: ['sonar-runtime'],
       errors: [
         {
           message: JSON.stringify({

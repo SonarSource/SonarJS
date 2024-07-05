@@ -21,7 +21,7 @@
 
 import { TSESTree, AST_NODE_TYPES } from '@typescript-eslint/utils';
 import { Rule, SourceCode } from 'eslint';
-import { areEquivalent, issueLocation, report } from '../helpers';
+import { areEquivalent, report, toSecondaryLocation } from '../helpers';
 import estree from 'estree';
 import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
@@ -34,7 +34,6 @@ export const rule: Rule.RuleModule = {
     messages: {
       duplicatedCondition: duplicatedConditionMessage,
       duplicatedCase: duplicatedCaseMessage,
-      sonarRuntime: '{{sonarRuntimeData}}',
     },
     schema: [
       {
@@ -73,12 +72,12 @@ export const rule: Rule.RuleModule = {
             report(
               context,
               {
+                message: duplicatedConditionMessage,
                 messageId: 'duplicatedCondition',
                 data: { line: current.test.loc.start.line as any },
                 node: test,
               },
-              [issueLocation(current.test.loc, current.test.loc, 'Covering')],
-              duplicatedConditionMessage,
+              [toSecondaryLocation({ loc: current.test.loc }, 'Covering')],
             );
             break;
           }
@@ -97,13 +96,13 @@ export const rule: Rule.RuleModule = {
                 context,
                 {
                   messageId: 'duplicatedCase',
+                  message: duplicatedCaseMessage,
                   data: {
                     line: duplicateTest.loc.start.line as any,
                   },
                   node: test,
                 },
-                [issueLocation(duplicateTest.loc, duplicateTest.loc, 'Original')],
-                duplicatedCaseMessage,
+                [toSecondaryLocation({ loc: duplicateTest.loc }, 'Original')],
               );
             } else {
               previousTests.push(test);

@@ -27,10 +27,10 @@ import {
   isRequiredParserServices,
   resolveFromFunctionReference,
   checkSensitiveCall,
-  toEncodedMessage,
   getFullyQualifiedName,
+  report,
 } from '../helpers';
-import { SONAR_RUNTIME } from '../parameters';
+import { SONAR_RUNTIME } from '../../linter/parameters';
 import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
 
@@ -137,9 +137,9 @@ export const rule: Rule.RuleModule = {
           return;
         }
         if (isInvalidSanitizerFunction(right)) {
-          context.report({
+          report(context, {
             node: left,
-            message: toEncodedMessage(MESSAGE),
+            message: MESSAGE,
           });
         }
       },

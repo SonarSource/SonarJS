@@ -26,9 +26,10 @@ import {
   isRequiredParserServices,
   getTypeFromTreeNode,
   getSignatureFromCallee,
-  toEncodedMessage,
+  report,
+  toSecondaryLocation,
 } from '../helpers';
-import { SONAR_RUNTIME } from '../parameters';
+import { SONAR_RUNTIME } from '../../linter/parameters';
 import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
 import { generateMeta } from '../helpers/generate-meta';
 import { FromSchema } from 'json-schema-to-ts';
@@ -80,10 +81,14 @@ export const rule: Rule.RuleModule = {
           )!;
           const text = isFunction(type) ? 'this function' : context.sourceCode.getText(callee);
           const loc = callee.type === 'FunctionExpression' ? functionToken!.loc : callee.loc!;
-          context.report({
-            message: toEncodedMessage(`Replace ${text} with a constructor function.`, [newToken]),
-            loc,
-          });
+          report(
+            context,
+            {
+              message: `Replace ${text} with a constructor function.`,
+              loc,
+            },
+            [toSecondaryLocation(newToken)],
+          );
         }
       },
     };

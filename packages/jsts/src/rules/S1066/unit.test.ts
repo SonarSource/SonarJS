@@ -72,16 +72,16 @@ ruleTester.run('no-collapsible-if', rule, {
           messageId: 'sonarRuntime',
           data: {
             sonarRuntimeData: JSON.stringify({
+              message: 'Merge this if statement with the nested one.',
               secondaryLocations: [
                 {
-                  line: 4,
-                  column: 8,
-                  endLine: 4,
-                  endColumn: 10,
                   message: 'Nested "if" statement.',
+                  column: 8,
+                  line: 4,
+                  endColumn: 10,
+                  endLine: 4,
                 },
               ],
-              message: 'Merge this if statement with the nested one.',
             }),
           },
           line: 2,

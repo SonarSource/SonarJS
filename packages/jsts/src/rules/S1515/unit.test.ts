@@ -311,6 +311,7 @@ ruleTester.run(`Functions should not be defined inside loops`, rule, {
           line: 33,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `

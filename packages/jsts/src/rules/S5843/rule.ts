@@ -40,8 +40,10 @@ import {
   isRequiredParserServices,
   isStaticTemplateLiteral,
   isStringLiteral,
+  IssueLocation,
   LocationHolder,
-  toEncodedMessage,
+  report,
+  toSecondaryLocation,
 } from '../helpers';
 import {
   getParsedRegex,
@@ -50,7 +52,7 @@ import {
   isRegExpConstructor,
   isStringRegexMethodCall,
 } from '../helpers/regex';
-import { SONAR_RUNTIME } from '../parameters';
+import { SONAR_RUNTIME } from '../../linter/parameters';
 import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
 import { generateMeta } from '../helpers/generate-meta';
 import { FromSchema } from 'json-schema-to-ts';
@@ -118,27 +120,25 @@ function checkRegexComplexity(
 ) {
   for (const regexParts of findRegexParts(regexNode, context)) {
     let complexity = 0;
-    const secondaryLocations: LocationHolder[] = [];
-    const secondaryMessages: string[] = [];
+    const secondaryLocations: IssueLocation[] = [];
     for (const regexPart of regexParts) {
       const calculator = new ComplexityCalculator(regexPart, context);
       calculator.visit();
       calculator.components.forEach(component => {
-        secondaryLocations.push(component.location);
-        secondaryMessages.push(component.message);
+        secondaryLocations.push(toSecondaryLocation(component.location, component.message));
       });
       complexity += calculator.complexity;
     }
     if (complexity > threshold) {
-      context.report({
-        message: toEncodedMessage(
-          `Simplify this regular expression to reduce its complexity from ${complexity} to the ${threshold} allowed.`,
-          secondaryLocations,
-          secondaryMessages,
-          complexity - threshold,
-        ),
-        node: regexParts[0],
-      });
+      report(
+        context,
+        {
+          message: `Simplify this regular expression to reduce its complexity from ${complexity} to the ${threshold} allowed.`,
+          node: regexParts[0],
+        },
+        secondaryLocations,
+        complexity - threshold,
+      );
     }
   }
 }

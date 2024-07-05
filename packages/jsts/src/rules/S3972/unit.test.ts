@@ -143,16 +143,15 @@ ruleTester.run('Conditionals should start on new lines', rule, {
           messageId: 'sonarRuntime',
           data: {
             sonarRuntimeData: JSON.stringify({
+              message: 'Move this "if" to a new line or add the missing "else".',
               secondaryLocations: [
                 {
-                  line: 6,
                   column: 10,
-                  endLine: 6,
+                  line: 6,
                   endColumn: 11,
-                  message: '',
+                  endLine: 6,
                 },
               ],
-              message: 'Move this "if" to a new line or add the missing "else".',
             }),
           },
           line: 6,
@@ -164,16 +163,15 @@ ruleTester.run('Conditionals should start on new lines', rule, {
           messageId: 'sonarRuntime',
           data: {
             sonarRuntimeData: JSON.stringify({
+              message: 'Move this "if" to a new line or add the missing "else".',
               secondaryLocations: [
                 {
-                  line: 11,
                   column: 10,
-                  endLine: 11,
+                  line: 11,
                   endColumn: 11,
-                  message: '',
+                  endLine: 11,
                 },
               ],
-              message: 'Move this "if" to a new line or add the missing "else".',
             }),
           },
           line: 11,
@@ -195,16 +193,15 @@ ruleTester.run('Conditionals should start on new lines', rule, {
           messageId: 'sonarRuntime',
           data: {
             sonarRuntimeData: JSON.stringify({
+              message: 'Move this "if" to a new line or add the missing "else".',
               secondaryLocations: [
                 {
-                  line: 4,
                   column: 6,
-                  endLine: 4,
+                  line: 4,
                   endColumn: 7,
-                  message: '',
+                  endLine: 4,
                 },
               ],
-              message: 'Move this "if" to a new line or add the missing "else".',
             }),
           },
         },
@@ -224,16 +221,15 @@ ruleTester.run('Conditionals should start on new lines', rule, {
           messageId: 'sonarRuntime',
           data: {
             sonarRuntimeData: JSON.stringify({
+              message: 'Move this "if" to a new line or add the missing "else".',
               secondaryLocations: [
                 {
-                  line: 5,
                   column: 10,
-                  endLine: 5,
+                  line: 5,
                   endColumn: 11,
-                  message: '',
+                  endLine: 5,
                 },
               ],
-              message: 'Move this "if" to a new line or add the missing "else".',
             }),
           },
         },
@@ -253,16 +249,15 @@ ruleTester.run('Conditionals should start on new lines', rule, {
           messageId: 'sonarRuntime',
           data: {
             sonarRuntimeData: JSON.stringify({
+              message: 'Move this "if" to a new line or add the missing "else".',
               secondaryLocations: [
                 {
-                  line: 5,
                   column: 8,
-                  endLine: 5,
+                  line: 5,
                   endColumn: 9,
-                  message: '',
+                  endLine: 5,
                 },
               ],
-              message: 'Move this "if" to a new line or add the missing "else".',
             }),
           },
         },
@@ -281,16 +276,15 @@ ruleTester.run('Conditionals should start on new lines', rule, {
           messageId: 'sonarRuntime',
           data: {
             sonarRuntimeData: JSON.stringify({
+              message: 'Move this "if" to a new line or add the missing "else".',
               secondaryLocations: [
                 {
-                  line: 4,
                   column: 8,
-                  endLine: 4,
+                  line: 4,
                   endColumn: 9,
-                  message: '',
+                  endLine: 4,
                 },
               ],
-              message: 'Move this "if" to a new line or add the missing "else".',
             }),
           },
           suggestions: [

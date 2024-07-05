@@ -21,11 +21,10 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { toEncodedMessage } from '../helpers';
-import { TSESTree } from '@typescript-eslint/utils';
-import { SONAR_RUNTIME } from '../parameters';
+import { SONAR_RUNTIME } from '../../linter/parameters';
 import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
+import { report, toSecondaryLocation } from '../helpers';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
@@ -49,14 +48,14 @@ export const rule: Rule.RuleModule = {
         const wrongDirection = getWrongDirection(test, loopIncrement);
         if (wrongDirection !== 0 && wrongDirection === loopIncrement.direction) {
           const movement: string = wrongDirection > 0 ? 'incremented' : 'decremented';
-          const message = toEncodedMessage(
-            `"${loopIncrement.identifier.name}" is ${movement} and will never reach its stop condition.`,
-            [test as TSESTree.Node],
+          report(
+            context,
+            {
+              message: `"${loopIncrement.identifier.name}" is ${movement} and will never reach its stop condition.`,
+              node: forStatement.update,
+            },
+            [toSecondaryLocation(test)],
           );
-          context.report({
-            message,
-            node: forStatement.update,
-          });
         }
       },
     };

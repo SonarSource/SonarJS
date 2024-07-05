@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import { isRequiredParserServices } from '../helpers';
-import { SONAR_RUNTIME } from '../parameters';
+import { SONAR_RUNTIME } from '../../linter/parameters';
 import * as estree from 'estree';
 
 const message = `TODO: add message`;

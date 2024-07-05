@@ -183,10 +183,7 @@ ruleTester.run('no-duplicate-string', rule, {
     console.log('some message');`,
       errors: [
         {
-          messageId: 'defineConstant',
-          data: {
-            times: 3,
-          },
+          message: 'Define a constant instead of duplicating this literal 3 times.',
           column: 17,
           endColumn: 31,
         },
@@ -201,16 +198,16 @@ ruleTester.run('no-duplicate-string', rule, {
           messageId: 'sonarRuntime',
           data: {
             sonarRuntimeData: JSON.stringify({
+              message: 'Define a constant instead of duplicating this literal 2 times.',
               secondaryLocations: [
                 {
-                  line: 3,
-                  column: 16,
-                  endLine: 3,
-                  endColumn: 30,
                   message: 'Duplication',
+                  column: 16,
+                  line: 3,
+                  endColumn: 30,
+                  endLine: 3,
                 },
               ],
-              message: 'Define a constant instead of duplicating this literal 2 times.',
             }),
           },
           line: 2,
@@ -230,10 +227,7 @@ ruleTester.run('no-duplicate-string', rule, {
       `,
       errors: [
         {
-          messageId: 'defineConstant',
-          data: {
-            times: 3,
-          },
+          message: 'Define a constant instead of duplicating this literal 3 times.',
           line: 5,
         },
       ],
@@ -244,10 +238,7 @@ ruleTester.run('no-duplicate-string', rule, {
     console.log('some message');`,
       errors: [
         {
-          messageId: 'defineConstant',
-          data: {
-            times: 2,
-          },
+          message: 'Define a constant instead of duplicating this literal 2 times.',
           line: 2,
         },
       ],
@@ -266,10 +257,7 @@ ruleTester.run('no-duplicate-string', rule, {
     };`,
       errors: [
         {
-          messageId: 'defineConstant',
-          data: {
-            times: 3,
-          },
+          message: 'Define a constant instead of duplicating this literal 3 times.',
           line: 3,
         },
       ],

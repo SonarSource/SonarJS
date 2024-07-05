@@ -31,7 +31,7 @@ import {
   IssueLocation,
 } from '../helpers';
 import { TSESTree } from '@typescript-eslint/utils';
-import { SONAR_RUNTIME } from '../parameters';
+import { SONAR_RUNTIME } from '../../linter/parameters';
 import { childrenOf } from '../../linter/visitors/visitor';
 import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
 import { generateMeta } from '../helpers/generate-meta';
@@ -126,7 +126,7 @@ function toEncodedMessage(
   const encodedMessage: EncodedMessage = {
     message: `Function has a complexity of ${complexity} which is greater than ${threshold} authorized.`,
     cost: complexity - threshold,
-    secondaryLocations: tokens.map(toSecondaryLocation),
+    secondaryLocations: tokens.map(node => toSecondaryLocation(node)),
   };
   return JSON.stringify(encodedMessage);
 }

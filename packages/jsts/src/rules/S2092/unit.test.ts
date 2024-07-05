@@ -78,6 +78,7 @@ const cookieSessionTestCases = {
           endColumn: 35,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `
@@ -98,6 +99,7 @@ const cookieSessionTestCases = {
           endColumn: 35,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `
@@ -119,6 +121,7 @@ const cookieSessionTestCases = {
           endColumn: 35,
         },
       ],
+      options: ['sonar-runtime'],
     },
   ],
 };
@@ -194,6 +197,7 @@ const cookiesTestCases = {
           endColumn: 18,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `
@@ -215,6 +219,7 @@ const cookiesTestCases = {
           endColumn: 18,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `
@@ -237,6 +242,7 @@ const cookiesTestCases = {
           endColumn: 18,
         },
       ],
+      options: ['sonar-runtime'],
     },
   ],
 };
@@ -285,6 +291,7 @@ const csurfTestCases = {
           endColumn: 32,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `
@@ -302,6 +309,7 @@ const csurfTestCases = {
           endColumn: 32,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `
@@ -318,6 +326,7 @@ const csurfTestCases = {
           endColumn: 32,
         },
       ],
+      options: ['sonar-runtime'],
     },
   ],
 };

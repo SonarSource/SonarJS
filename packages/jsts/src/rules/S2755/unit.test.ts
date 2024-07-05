@@ -74,6 +74,7 @@ const tests = {
           endColumn: 74,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `

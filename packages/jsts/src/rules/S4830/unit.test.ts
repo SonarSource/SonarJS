@@ -134,6 +134,7 @@ const testCasesHttps = {
           }),
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `

@@ -26,7 +26,7 @@ const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceTy
 const THRESHOLD = 3;
 
 const createOptions = (maximumNestingLevel: number) => {
-  return [{ maximumNestingLevel }];
+  return [{ maximumNestingLevel }, 'sonar-runtime'];
 };
 
 ruleTester.run(

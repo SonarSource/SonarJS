@@ -57,6 +57,7 @@ ruleTester.run(
             endColumn: 37,
           },
         ],
+        options: ['sonar-runtime'],
       },
 
       {
@@ -70,6 +71,7 @@ ruleTester.run(
             endColumn: 38,
           },
         ],
+        options: ['sonar-runtime'],
       },
       {
         code: `

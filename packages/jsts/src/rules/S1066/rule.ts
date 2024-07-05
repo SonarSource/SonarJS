@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import estree from 'estree';
-import { issueLocation, report } from '../helpers';
+import { report, toSecondaryLocation } from '../helpers';
 import { AST_NODE_TYPES } from '@typescript-eslint/utils';
 import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
@@ -32,7 +32,6 @@ export const rule: Rule.RuleModule = {
   meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       mergeNestedIfStatement: message,
-      sonarRuntime: '{{sonarRuntimeData}}',
     },
     schema: [
       {
@@ -57,10 +56,10 @@ export const rule: Rule.RuleModule = {
               context,
               {
                 messageId: 'mergeNestedIfStatement',
+                message,
                 loc: enclosingIfKeyword.loc,
               },
-              [issueLocation(ifKeyword.loc, ifKeyword.loc, 'Nested "if" statement.')],
-              message,
+              [toSecondaryLocation(ifKeyword, 'Nested "if" statement.')],
             );
           }
         }

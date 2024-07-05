@@ -20,7 +20,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { Rule, RuleTester } from 'eslint';
-import { hasSonarRuntimeOption } from '../../../../src/rules/parameters';
+import { hasSonarRuntimeOption } from '../../../../src/linter/parameters';
 import { buildSourceCode } from '../../../../src/builders';
 import { FileType, JsTsLanguage } from '@sonar/shared';
 import { extractExpectations } from './framework';
@@ -45,14 +45,14 @@ export function check(ruleModule: Rule.RuleModule, ruleDir: string) {
   }
 
   for (const fixture of fixtures) {
+    const options = extractRuleOptions(ruleDir);
     const code = fs.readFileSync(fixture, { encoding: 'utf8' }).replace(/\r?\n|\r/g, '\n');
     const { errors, output } = extractExpectations(
       code,
       fixture,
-      hasSonarRuntimeOption(ruleModule),
+      hasSonarRuntimeOption(ruleModule) && options.includes('sonar-runtime'),
     );
 
-    const options = extractRuleOptions(ruleDir);
     const tests = {
       valid: [],
       invalid: [{ code, filename: fixture, errors, options, output }],

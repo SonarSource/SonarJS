@@ -24,9 +24,9 @@ import {
   areEquivalent,
   isIdentifier,
   isLiteral,
-  issueLocation,
   IssueLocation,
   report,
+  toSecondaryLocation,
 } from '../helpers';
 import { Rule } from 'eslint';
 import { generateMeta } from '../helpers/generate-meta';
@@ -74,7 +74,6 @@ export const rule: Rule.RuleModule = {
   meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       correctIdenticalSubExpressions: message,
-      sonarRuntime: '{{sonarRuntimeData}}',
     },
     schema: [
       {
@@ -102,11 +101,12 @@ export const rule: Rule.RuleModule = {
       ) {
         const secondaryLocations: IssueLocation[] = [];
         if (expr.left.loc) {
-          secondaryLocations.push(issueLocation(expr.left.loc));
+          secondaryLocations.push(toSecondaryLocation(expr.left));
         }
         report(
           context,
           {
+            message,
             messageId: 'correctIdenticalSubExpressions',
             data: {
               operator: expr.operator,
@@ -114,7 +114,6 @@ export const rule: Rule.RuleModule = {
             node: isSonarRuntime() ? expr.right : expr,
           },
           secondaryLocations,
-          message,
         );
       }
     }

@@ -19,7 +19,7 @@
  */
 import { RuleTester } from 'eslint';
 import { rule } from './rule';
-import { IssueLocation } from '../helpers';
+import { expandMessage, IssueLocation } from '../helpers';
 
 const ruleTester = new RuleTester({
   parserOptions: { ecmaVersion: 2018, sourceType: 'module', ecmaFeatures: { jsx: true } },
@@ -171,55 +171,43 @@ ruleTester.run('no-identical-functions', rule, {
         message(2, 8),
         message(2, 14),
         {
-          messageId: 'identicalFunctions',
-          data: {
-            line: 2,
-          },
+          message:
+            'Update this function so that its implementation is not identical to the one on line 2.',
           line: 21,
           column: 9,
           endColumn: 20,
         }, // constructor
         {
-          messageId: 'identicalFunctions',
-          data: {
-            line: 2,
-          },
+          message:
+            'Update this function so that its implementation is not identical to the one on line 2.',
           line: 27,
           column: 9,
           endColumn: 15,
         }, // method
         {
-          messageId: 'identicalFunctions',
-          data: {
-            line: 2,
-          },
+          message:
+            'Update this function so that its implementation is not identical to the one on line 2.',
           line: 33,
           column: 13,
           endColumn: 19,
         }, // setter
         {
-          messageId: 'identicalFunctions',
-          data: {
-            line: 2,
-          },
+          message:
+            'Update this function so that its implementation is not identical to the one on line 2.',
           line: 39,
           column: 13,
           endColumn: 19,
         }, // getter
         {
-          messageId: 'identicalFunctions',
-          data: {
-            line: 2,
-          },
+          message:
+            'Update this function so that its implementation is not identical to the one on line 2.',
           line: 46,
           column: 22,
           endColumn: 35,
         }, // async declaration
         {
-          messageId: 'identicalFunctions',
-          data: {
-            line: 2,
-          },
+          message:
+            'Update this function so that its implementation is not identical to the one on line 2.',
           line: 52,
           column: 35,
           endColumn: 43,
@@ -242,7 +230,7 @@ ruleTester.run('no-identical-functions', rule, {
       options: [3, 'sonar-runtime'],
       errors: [
         encodedMessage(2, 7, [
-          { line: 2, column: 17, endLine: 2, endColumn: 20, message: 'Original implementation' },
+          { message: 'Original implementation', column: 17, line: 2, endColumn: 20, endLine: 2 },
         ]),
       ],
     },
@@ -266,7 +254,7 @@ ruleTester.run('no-identical-functions', rule, {
       options: [3, 'sonar-runtime'],
       errors: [
         encodedMessage(2, 9, [
-          { line: 2, column: 17, endLine: 2, endColumn: 20, message: 'Original implementation' },
+          { message: 'Original implementation', column: 17, line: 2, endColumn: 20, endLine: 2 },
         ]),
       ],
     },
@@ -307,10 +295,12 @@ ruleTester.run('no-identical-functions', rule, {
 
 function message(originalLine: number, duplicationLine: number): RuleTester.TestCaseError {
   return {
-    messageId: 'identicalFunctions',
-    data: {
-      line: originalLine,
-    },
+    message: expandMessage(
+      'Update this function so that its implementation is not identical to the one on line {{line}}.',
+      {
+        line: originalLine,
+      },
+    ),
     line: duplicationLine,
     endLine: duplicationLine,
   };
@@ -326,8 +316,8 @@ function encodedMessage(
     data: {
       line: originalLine,
       sonarRuntimeData: JSON.stringify({
-        secondaryLocations: secondaries,
         message: `Update this function so that its implementation is not identical to the one on line ${originalLine}.`,
+        secondaryLocations: secondaries,
       }),
     },
     line: duplicationLine,

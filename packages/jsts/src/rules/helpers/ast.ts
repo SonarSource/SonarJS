@@ -20,7 +20,13 @@
 import { TSESTree } from '@typescript-eslint/utils';
 import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
-import { findFirstMatchingAncestor, flatMap, getFullyQualifiedName, toEncodedMessage } from '.';
+import {
+  findFirstMatchingAncestor,
+  flatMap,
+  getFullyQualifiedName,
+  report,
+  toSecondaryLocation,
+} from '.';
 
 export type Node = estree.Node | TSESTree.Node;
 
@@ -610,10 +616,14 @@ export function checkSensitiveCall(
     sensitivePropertyValue,
   );
   if (unsafeProperty) {
-    context.report({
-      node: callExpression.callee,
-      message: toEncodedMessage(message, [unsafeProperty]),
-    });
+    report(
+      context,
+      {
+        node: callExpression.callee,
+        message,
+      },
+      [toSecondaryLocation(unsafeProperty)],
+    );
   }
 }
 

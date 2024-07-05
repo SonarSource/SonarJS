@@ -83,6 +83,7 @@ ruleTester.run('Variables should be defined before being used', rule, {
           endColumn: 13,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `
@@ -120,6 +121,7 @@ ruleTester.run('Variables should be defined before being used', rule, {
           endColumn: 15,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `

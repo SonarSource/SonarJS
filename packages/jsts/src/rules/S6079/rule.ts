@@ -20,10 +20,14 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6079/javascript
 
 import { Rule, Scope } from 'eslint';
-import { getVariableFromIdentifier, Mocha, toEncodedMessage } from '../helpers';
+import {
+  getVariableFromIdentifier,
+  Mocha,
+  report as contextReport,
+  toSecondaryLocation,
+} from '../helpers';
 import * as estree from 'estree';
-import { TSESTree } from '@typescript-eslint/utils';
-import { SONAR_RUNTIME } from '../parameters';
+import { SONAR_RUNTIME } from '../../linter/parameters';
 import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
 
@@ -78,12 +82,14 @@ export const rule: Rule.RuleModule = {
     }
 
     function report(statementAfterDone: estree.Node) {
-      context.report({
-        node: statementAfterDone,
-        message: toEncodedMessage(`Move this code before the call to "done".`, [
-          doneCall as TSESTree.Node,
-        ]),
-      });
+      contextReport(
+        context,
+        {
+          node: statementAfterDone,
+          message: `Move this code before the call to "done".`,
+        },
+        [toSecondaryLocation(doneCall!)],
+      );
 
       doneSegment = undefined;
       doneCall = undefined;

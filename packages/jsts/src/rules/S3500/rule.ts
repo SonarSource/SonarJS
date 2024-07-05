@@ -21,10 +21,10 @@
 
 import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
-import { toEncodedMessage } from '../helpers';
-import { SONAR_RUNTIME } from '../parameters';
+import { SONAR_RUNTIME } from '../../linter/parameters';
 import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
+import { report, toSecondaryLocation } from '../helpers';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
@@ -40,14 +40,14 @@ export const rule: Rule.RuleModule = {
       'VariableDeclaration[kind="const"]': (node: estree.Node) => {
         context.sourceCode.getDeclaredVariables(node).forEach(variable =>
           variable.references.filter(isModifyingReference).forEach(reference =>
-            context.report({
-              message: toEncodedMessage(
-                `Correct this attempt to modify "${reference.identifier.name}" or use "let" in its declaration.`,
-                [node],
-                ['Const declaration'],
-              ),
-              node: reference.identifier,
-            }),
+            report(
+              context,
+              {
+                message: `Correct this attempt to modify "${reference.identifier.name}" or use "let" in its declaration.`,
+                node: reference.identifier,
+              },
+              [toSecondaryLocation(node, 'Const declaration')],
+            ),
           ),
         );
       },

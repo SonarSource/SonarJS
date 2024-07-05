@@ -25,9 +25,9 @@ import {
   collectIfBranches,
   collectSwitchBranches,
   isIfStatement,
-  issueLocation,
   report,
   takeWithoutBreak,
+  toSecondaryLocation,
 } from '../helpers';
 import { Rule } from 'eslint';
 import estree from 'estree';
@@ -41,7 +41,6 @@ export const rule: Rule.RuleModule = {
   meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       sameConditionalBlock: message,
-      sonarRuntime: '{{sonarRuntimeData}}',
     },
     schema: [
       {
@@ -171,12 +170,12 @@ export const rule: Rule.RuleModule = {
       report(
         context,
         {
+          message,
           messageId: 'sameConditionalBlock',
           data: { type, line: String(equivalentNodeLoc.start.line) },
           node,
         },
-        [issueLocation(equivalentNodeLoc, equivalentNodeLoc, 'Original')],
-        message,
+        [toSecondaryLocation(equivalentNode, 'Original')],
       );
     }
   },

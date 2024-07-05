@@ -79,6 +79,7 @@ ruleTester.run('ip forwarding should be avoided', rule, {
           endColumn: 34,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `

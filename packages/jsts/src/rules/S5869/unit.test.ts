@@ -110,6 +110,7 @@ ruleTester.run('Duplicated characters in character classes', rule, {
           endColumn: 6,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `/[90-9]/`,

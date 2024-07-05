@@ -123,10 +123,10 @@ ruleTester.run('no-element-overwrite', rule, {
             index: 1,
             line: 2,
             sonarRuntimeData: JSON.stringify({
-              secondaryLocations: [
-                { line: 2, column: 6, endLine: 2, endColumn: 26, message: 'Original value' },
-              ],
               message: `Verify this is the index that was intended; "1" was already set on line 2.`,
+              secondaryLocations: [
+                { message: 'Original value', column: 6, line: 2, endColumn: 26, endLine: 2 },
+              ],
             }),
           },
         },
