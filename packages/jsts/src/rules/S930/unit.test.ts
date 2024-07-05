@@ -103,7 +103,7 @@ ruleTester.run('no-extra-arguments', rule, {
             expectedArguments: '2 arguments',
             providedArguments: '3 were',
             sonarRuntimeData: encodedMessage(2, 3, [
-              { line: 2, column: 21, endLine: 2, endColumn: 27, message: 'Formal parameters' },
+              { message: 'Formal parameters', column: 21, line: 2, endColumn: 27, endLine: 2 },
               { message: 'Extra argument', column: 18, line: 4, endColumn: 19, endLine: 4 },
             ]),
           },
@@ -136,7 +136,7 @@ ruleTester.run('no-extra-arguments', rule, {
             expectedArguments: 'no arguments',
             providedArguments: '1 was',
             sonarRuntimeData: encodedMessage(0, 1, [
-              { line: 4, column: 18, endLine: 4, endColumn: 26, message: 'Formal parameters' },
+              { message: 'Formal parameters', column: 18, line: 4, endColumn: 26, endLine: 4 },
               { message: 'Extra argument', column: 12, line: 2, endColumn: 13, endLine: 2 },
             ]),
           },
@@ -229,6 +229,7 @@ function message(
     `${provided} were`;
 
   return {
+    messageId: 'tooManyArguments',
     data: {
       expectedArguments,
       providedArguments,
@@ -241,7 +242,7 @@ function encodedMessage(expected: number, provided: number, secondaryLocations: 
   const testCaseError = message(expected, provided);
 
   return JSON.stringify({
-    secondaryLocations,
     message: `This function expects ${testCaseError.data?.expectedArguments}, but ${testCaseError.data?.providedArguments} provided.`,
+    secondaryLocations,
   });
 }
