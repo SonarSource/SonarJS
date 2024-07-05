@@ -29,6 +29,7 @@ export function generateMeta(
       `Mismatch between RSPEC metadata and implementation for fixable attribute in rule ${rspecMeta.docs!.url}`,
     );
   }
+  //rspec metadata should overwrite eslint metadata for decorated rules, our titles and docs should be shown instead
   const metadata = {
     ...ruleMeta,
     ...rspecMeta,

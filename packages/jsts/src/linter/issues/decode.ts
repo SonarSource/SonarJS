@@ -20,7 +20,7 @@
 import { Rule } from 'eslint';
 import { Issue } from './issue';
 import { hasSonarRuntimeOption } from '../parameters';
-import { EncodedMessage } from '../../rules/helpers';
+import { type EncodedMessage } from '../../rules/helpers';
 
 /**
  * Decodes an issue with secondary locations, if any
