@@ -170,6 +170,7 @@ export const rule: Rule.RuleModule = {
         context,
         {
           message,
+          messageId: 'tooManyArguments',
           data: {
             expectedArguments,
             providedArguments,

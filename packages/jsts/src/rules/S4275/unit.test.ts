@@ -41,6 +41,7 @@ function invalid(code: string) {
   return {
     code: code,
     errors,
+    options: [{}, 'sonar-runtime'],
   };
 }
 
@@ -48,6 +49,7 @@ function missingReturn(...codes: string[]) {
   return codes.map(code => ({
     code,
     errors: ['{"message":"Refactor this getter to return a value.","secondaryLocations":[]}'],
+    options: [{}, 'sonar-runtime'],
   }));
 }
 
@@ -57,6 +59,7 @@ function missingAlwaysReturn(...codes: string[]) {
     errors: [
       '{"message":"Refactor this getter to always return a value.","secondaryLocations":[]}',
     ],
+    options: [{}, 'sonar-runtime'],
   }));
 }
 
@@ -309,6 +312,7 @@ ruleTester.run('Getters and setters should access the expected fields', rule, {
           endColumn: 21,
         },
       ],
+      options: [{}, 'sonar-runtime'],
     },
     {
       code: `
@@ -352,6 +356,7 @@ ruleTester.run('Getters and setters should access the expected fields', rule, {
           endColumn: 21,
         },
       ],
+      options: [{}, 'sonar-runtime'],
     },
     {
       code: `const foo = {
@@ -379,6 +384,7 @@ ruleTester.run('Getters and setters should access the expected fields', rule, {
           endColumn: 16,
         },
       ],
+      options: [{}, 'sonar-runtime'],
     },
     {
       code: `class foo {
@@ -406,6 +412,7 @@ ruleTester.run('Getters and setters should access the expected fields', rule, {
           endColumn: 16,
         },
       ],
+      options: [{}, 'sonar-runtime'],
     },
     {
       code: `
@@ -432,6 +439,7 @@ ruleTester.run('Getters and setters should access the expected fields', rule, {
           endColumn: 46,
         },
       ],
+      options: [{}, 'sonar-runtime'],
     },
     {
       code: `
@@ -459,6 +467,7 @@ ruleTester.run('Getters and setters should access the expected fields', rule, {
           endColumn: 50,
         },
       ],
+      options: [{}, 'sonar-runtime'],
     },
     {
       code: `class foo {
@@ -486,6 +495,7 @@ ruleTester.run('Getters and setters should access the expected fields', rule, {
           endColumn: 16,
         },
       ],
+      options: [{}, 'sonar-runtime'],
     },
     {
       code: `const foo = {
@@ -504,6 +514,7 @@ ruleTester.run('Getters and setters should access the expected fields', rule, {
           endColumn: 16,
         },
       ],
+      options: [{}, 'sonar-runtime'],
     },
     {
       code: `class Foo {
@@ -521,6 +532,7 @@ ruleTester.run('Getters and setters should access the expected fields', rule, {
           endColumn: 16,
         },
       ],
+      options: [{}, 'sonar-runtime'],
     },
     {
       code: `
@@ -575,6 +587,7 @@ ruleTester.run('Getters and setters should access the expected fields', rule, {
           endColumn: 14,
         },
       ],
+      options: [{}, 'sonar-runtime'],
     },
     {
       code: `
@@ -627,6 +640,7 @@ ruleTester.run('Getters and setters should access the expected fields', rule, {
           endColumn: 14,
         },
       ],
+      options: [{}, 'sonar-runtime'],
     },
     {
       code: `
@@ -758,6 +772,7 @@ ruleTester.run('Getters and setters should access the expected fields', rule, {
           endColumn: 16,
         },
       ],
+      options: [{}, 'sonar-runtime'],
     },
     {
       code: `

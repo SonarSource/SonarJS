@@ -220,7 +220,7 @@ function reportWithSonarFormat(
   descriptor: Rule.ReportDescriptor,
   message: string,
 ) {
-  report(context, { ...descriptor, messageId: undefined, message });
+  report(context, { ...descriptor, message });
 }
 
 function reportWithSecondaryLocation(context: Rule.RuleContext, accessor: Accessor) {

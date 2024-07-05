@@ -73,26 +73,28 @@ eslintRuleTester.run('Parameters should be passed in the correct order', rule, {
         f1(p2, p1, p3);`,
       errors: [
         {
-          message: `{"message":"Arguments 'p2' and 'p1' have the same names but not the same order as the function parameters.","secondaryLocations":[{"message":"Formal parameters","line":2,"column":20,"endLine":2,"endColumn":30}]}`,
+          message: `{"message":"Arguments 'p2' and 'p1' have the same names but not the same order as the function parameters.","secondaryLocations":[{"message":"Formal parameters","column":20,"line":2,"endColumn":30,"endLine":2}]}`,
           line: 3,
           endLine: 3,
           column: 12,
           endColumn: 22,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `
         (function(p1, p2) {})(p2, p1);`,
       errors: [
         {
-          message: `{"message":"Arguments 'p2' and 'p1' have the same names but not the same order as the function parameters.","secondaryLocations":[{"message":"Formal parameters","line":2,"column":18,"endLine":2,"endColumn":24}]}`,
+          message: `{"message":"Arguments 'p2' and 'p1' have the same names but not the same order as the function parameters.","secondaryLocations":[{"message":"Formal parameters","column":18,"line":2,"endColumn":24,"endLine":2}]}`,
           line: 2,
           endLine: 2,
           column: 31,
           endColumn: 37,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `
@@ -100,11 +102,12 @@ eslintRuleTester.run('Parameters should be passed in the correct order', rule, {
         withInitializer(p2, p1);`,
       errors: [
         {
-          message: `{"message":"Arguments 'p2' and 'p1' have the same names but not the same order as the function parameters.","secondaryLocations":[{"message":"Formal parameters","line":2,"column":33,"endLine":2,"endColumn":45}]}`,
+          message: `{"message":"Arguments 'p2' and 'p1' have the same names but not the same order as the function parameters.","secondaryLocations":[{"message":"Formal parameters","column":33,"line":2,"endColumn":45,"endLine":2}]}`,
           line: 3,
           endLine: 3,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `
@@ -191,13 +194,14 @@ typeScriptRuleTester.run('Parameters should be passed in the correct order', rul
         }`,
       errors: [
         {
-          message: `{"message":"Arguments 'z' and 'y' have the same names but not the same order as the function parameters.","secondaryLocations":[{"message":"Formal parameters","line":2,"column":32,"endLine":2,"endColumn":60}]}`,
+          message: `{"message":"Arguments 'z' and 'y' have the same names but not the same order as the function parameters.","secondaryLocations":[{"message":"Formal parameters","column":32,"line":2,"endColumn":60,"endLine":2}]}`,
           line: 4,
           endLine: 4,
           column: 26,
           endColumn: 39,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `
@@ -210,13 +214,14 @@ typeScriptRuleTester.run('Parameters should be passed in the correct order', rul
         }`,
       errors: [
         {
-          message: `{"message":"Arguments 'a2' and 'a1' have the same names but not the same order as the function parameters.","secondaryLocations":[{"message":"Formal parameters","line":6,"column":12,"endLine":6,"endColumn":24}]}`,
+          message: `{"message":"Arguments 'a2' and 'a1' have the same names but not the same order as the function parameters.","secondaryLocations":[{"message":"Formal parameters","column":12,"line":6,"endColumn":24,"endLine":6}]}`,
           line: 7,
           endLine: 7,
           column: 34,
           endColumn: 40,
         },
       ],
+      options: ['sonar-runtime'],
     },
     invalid(`
         const from = 1, length = 2;
@@ -281,5 +286,6 @@ function invalid(code: string) {
   return {
     code: code,
     errors,
+    options: ['sonar-runtime'],
   };
 }
