@@ -11,3 +11,8 @@
 ## tests
 
 in `its/eslint-plugin/sonarjs`
+
+## Upgrade
+
+- Sync versions: `tools/eslint-plugin-sonarjs/sync-version.mjs`
+- Sync other: `tools/eslint-plugin-sonarjs/sync-package-jsons.mjs`
