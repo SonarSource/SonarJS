@@ -21,14 +21,27 @@
 
 import { Rule } from 'eslint';
 import { interceptReport } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 // Rewording issue message reported by the core implementation.
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
-  rule.meta!.messages!['noFindDOMNode'] =
-    "Do not use findDOMNode. It doesn't work with function components and is deprecated in StrictMode.";
-  return interceptReport(rule, (context, reportDescriptor) => {
-    context.report({
-      ...reportDescriptor,
-    });
-  });
+  return interceptReport(
+    {
+      ...rule,
+      meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+        ...rule.meta!,
+        messages: {
+          ...rule.meta!.messages,
+          noFindDOMNode:
+            "Do not use findDOMNode. It doesn't work with function components and is deprecated in StrictMode.",
+        },
+      }),
+    },
+    (context, reportDescriptor) => {
+      context.report({
+        ...reportDescriptor,
+      });
+    },
+  );
 }

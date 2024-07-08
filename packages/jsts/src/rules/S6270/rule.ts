@@ -25,8 +25,9 @@ import {
   getFullyQualifiedName,
   isArrayExpression,
   isStringLiteral,
+  report,
   StringLiteral,
-  toEncodedMessage,
+  toSecondaryLocation,
 } from '../helpers';
 import { getResultOfExpression, Result } from '../helpers/result';
 import {
@@ -36,6 +37,9 @@ import {
   PolicyCheckerOptions,
 } from '../helpers/aws/iam';
 import { normalizeFQN } from '../helpers/aws/cdk';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
+import { SONAR_RUNTIME } from '../../linter/parameters';
 
 const AWS_PRINCIPAL_PROPERTY = 'AWS';
 
@@ -46,7 +50,17 @@ const MESSAGES = {
   secondary: 'Related effect',
 };
 
-export const rule: Rule.RuleModule = AwsIamPolicyTemplate(publicAccessStatementChecker);
+export const rule: Rule.RuleModule = AwsIamPolicyTemplate(
+  publicAccessStatementChecker,
+  generateMeta(rspecMeta as Rule.RuleMetaData, {
+    schema: [
+      {
+        // internal parameter for rules having secondary locations
+        enum: [SONAR_RUNTIME],
+      },
+    ],
+  }),
+);
 
 function publicAccessStatementChecker(
   expr: Node,
@@ -58,15 +72,19 @@ function publicAccessStatementChecker(
   const principal = getSensitivePrincipal(properties, ctx, options);
 
   if (effect.isMissing && principal) {
-    ctx.report({
-      message: toEncodedMessage(MESSAGES.message),
+    report(ctx, {
+      message: MESSAGES.message,
       node: principal,
     });
   } else if (effect.isFound && principal) {
-    ctx.report({
-      message: toEncodedMessage(MESSAGES.message, [effect.node], [MESSAGES.secondary]),
-      node: principal,
-    });
+    report(
+      ctx,
+      {
+        message: MESSAGES.message,
+        node: principal,
+      },
+      [toSecondaryLocation(effect.node, MESSAGES.secondary)],
+    );
   }
 }
 

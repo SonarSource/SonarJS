@@ -20,28 +20,36 @@
 import { Rule } from 'eslint';
 import { interceptReport } from '../helpers';
 import estree from 'estree';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from '../S1788/meta.json';
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
-  return interceptReport(rule, (context, reportDescriptor) => {
-    if ('node' in reportDescriptor) {
-      const { node, ...rest } = reportDescriptor;
-      const {
-        declarations: [firstDecl, ..._],
-      } = node as estree.VariableDeclaration;
+  return interceptReport(
+    {
+      ...rule,
+      meta: generateMeta(rspecMeta as Rule.RuleMetaData, rule.meta),
+    },
+    (context, reportDescriptor) => {
+      if ('node' in reportDescriptor) {
+        const { node, ...rest } = reportDescriptor;
+        const {
+          declarations: [firstDecl, ..._],
+        } = node as estree.VariableDeclaration;
 
-      const varToken = context.sourceCode.getTokenBefore(firstDecl.id);
-      const identifierEnd = firstDecl.id.loc!.end;
-      if (varToken == null) {
-        // impossible
-        return;
+        const varToken = context.sourceCode.getTokenBefore(firstDecl.id);
+        const identifierEnd = firstDecl.id.loc!.end;
+        if (varToken == null) {
+          // impossible
+          return;
+        }
+        context.report({
+          loc: {
+            start: varToken.loc.start,
+            end: identifierEnd,
+          },
+          ...rest,
+        });
       }
-      context.report({
-        loc: {
-          start: varToken.loc.start,
-          end: identifierEnd,
-        },
-        ...rest,
-      });
-    }
-  });
+    },
+  );
 }

@@ -22,17 +22,20 @@
 import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
-import { getMainFunctionTokenLocation } from 'eslint-plugin-sonarjs/lib/src/utils/locations';
 import {
   findFirstMatchingAncestor,
   FUNCTION_NODES,
+  getMainFunctionTokenLocation,
   getParent,
   isElementWrite,
+  report,
   RuleContext,
-  toEncodedMessage,
+  toSecondaryLocation,
 } from '../helpers';
 import { SONAR_RUNTIME } from '../../linter/parameters';
 import CodePathSegment = Rule.CodePathSegment;
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 interface FunctionContext {
   codePath: Rule.CodePath;
@@ -48,14 +51,14 @@ interface SingleWriteVariable {
 type LiteralValue = number | RegExp | string | null | boolean | bigint;
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     schema: [
       {
         // internal parameter for rules having secondary locations
         enum: [SONAR_RUNTIME],
       },
     ],
-  },
+  }),
 
   create(context: Rule.RuleContext) {
     const functionContextStack: FunctionContext[] = [];
@@ -74,21 +77,19 @@ export const rule: Rule.RuleModule = {
         returnStatement => returnStatement.argument as estree.Node,
       );
       if (areAllSameValue(returnedValues, context.sourceCode.getScope(node))) {
-        const message = toEncodedMessage(
-          `Refactor this function to not always return the same value.`,
-          returnedValues as TSESTree.Node[],
-          returnedValues.map(_ => 'Returned value.'),
+        report(
+          context,
+          {
+            message: `Refactor this function to not always return the same value.`,
+            loc: getMainFunctionTokenLocation(
+              node as TSESTree.FunctionLike,
+              getParent(context, node) as TSESTree.Node,
+              context as unknown as RuleContext,
+            ),
+          },
+          returnedValues.map(node => toSecondaryLocation(node, 'Returned value.')),
           returnedValues.length,
         );
-
-        context.report({
-          message,
-          loc: getMainFunctionTokenLocation(
-            node as TSESTree.FunctionLike,
-            getParent(context, node) as TSESTree.Node,
-            context as unknown as RuleContext,
-          ),
-        });
       }
     }
 

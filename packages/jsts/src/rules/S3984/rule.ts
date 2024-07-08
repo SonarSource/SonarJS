@@ -22,15 +22,17 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { getParent } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     hasSuggestions: true,
     messages: {
       throwOrRemoveError: 'Throw this error or remove this useless statement.',
       suggestThrowError: 'Throw this error',
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     function looksLikeAnError(expression: estree.Expression | estree.Super): boolean {
       const text = context.sourceCode.getText(expression);

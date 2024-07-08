@@ -26,13 +26,15 @@ import CodePath = Rule.CodePath;
 import Variable = Scope.Variable;
 import CodePathSegment = Rule.CodePathSegment;
 import { LiveVariables, lva, ReferenceLike, isNullLiteral } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       removeAssignment: 'Remove this useless assignment to variable "{{variable}}".',
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     const codePathStack: CodePathContext[] = [];
     const liveVariablesMap = new Map<string, LiveVariables>();

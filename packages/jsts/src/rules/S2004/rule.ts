@@ -22,39 +22,40 @@
 import * as estree from 'estree';
 import { Rule } from 'eslint';
 import { TSESTree } from '@typescript-eslint/utils';
-import { getMainFunctionTokenLocation } from 'eslint-plugin-sonarjs/lib/src/utils/locations';
 import { SONAR_RUNTIME } from '../../linter/parameters';
-import { RuleContext, toEncodedMessage } from '../helpers';
-import type { RuleModule } from '../../../../shared/src/types/rule';
+import { getMainFunctionTokenLocation, report, RuleContext, toSecondaryLocation } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
+import { FromSchema } from 'json-schema-to-ts';
+import rspecMeta from './meta.json';
 
 const DEFAULT_THRESHOLD = 4;
-
-export type Options = [
-  {
-    threshold: number;
-  },
-];
-
-export const rule: RuleModule<Options> = {
-  meta: {
-    schema: [
-      {
-        type: 'object',
-        properties: {
-          threshold: {
-            type: 'integer',
-          },
+const schema = {
+  type: 'array',
+  minItems: 0,
+  maxItems: 2,
+  items: [
+    {
+      type: 'object',
+      properties: {
+        threshold: {
+          type: 'integer',
         },
       },
-      {
-        type: 'string',
-        // internal parameter for rules having secondary locations
-        enum: [SONAR_RUNTIME],
-      },
-    ],
-  },
+      additionalProperties: false,
+    },
+    {
+      type: 'string',
+      // internal parameter for rules having secondary locations
+      enum: [SONAR_RUNTIME],
+    },
+  ],
+} as const satisfies JSONSchema4;
+
+export const rule: Rule.RuleModule = {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, { schema }),
   create(context: Rule.RuleContext) {
-    const max = (context.options as Options)[0]?.threshold || DEFAULT_THRESHOLD;
+    const max = (context.options as FromSchema<typeof schema>)[0]?.threshold ?? DEFAULT_THRESHOLD;
     const nestedStack: TSESTree.FunctionLike[] = [];
     return {
       ':function'(node: estree.Node) {
@@ -62,16 +63,21 @@ export const rule: RuleModule<Options> = {
         nestedStack.push(fn);
         if (nestedStack.length === max + 1) {
           const secondaries = nestedStack.slice(0, -1);
-          context.report({
-            loc: getMainFunctionTokenLocation(fn, fn.parent, context as unknown as RuleContext),
-            message: toEncodedMessage(
-              `Refactor this code to not nest functions more than ${max} levels deep.`,
-              secondaries.map(n => ({
-                loc: getMainFunctionTokenLocation(n, n.parent, context as unknown as RuleContext),
-              })),
-              secondaries.map(_ => 'Nesting +1'),
+          report(
+            context,
+            {
+              loc: getMainFunctionTokenLocation(fn, fn.parent, context as unknown as RuleContext),
+              message: `Refactor this code to not nest functions more than ${max} levels deep.`,
+            },
+            secondaries.map(n =>
+              toSecondaryLocation(
+                {
+                  loc: getMainFunctionTokenLocation(n, n.parent, context as unknown as RuleContext),
+                },
+                'Nesting +1',
+              ),
             ),
-          });
+          );
         }
       },
       ':function:exit'() {

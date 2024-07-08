@@ -115,6 +115,7 @@ ruleTester.run('Destructuring syntax should be used for assignments', rule, {
           line: 16,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `function foo(arr1, arr2) {
@@ -135,6 +136,7 @@ ruleTester.run('Destructuring syntax should be used for assignments', rule, {
           line: 8,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `// switch cases

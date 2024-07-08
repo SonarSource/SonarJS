@@ -21,8 +21,15 @@
 import { TSESTree } from '@typescript-eslint/utils';
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { findFirstMatchingAncestor, toEncodedMessage, isInsideVueSetupScript } from '../helpers';
+import {
+  findFirstMatchingAncestor,
+  isInsideVueSetupScript,
+  report,
+  toSecondaryLocation,
+} from '../helpers';
 import { SONAR_RUNTIME } from '../../linter/parameters';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 // https://vuejs.org/api/sfc-script-setup.html#defineprops-defineemits
 const vueMacroNames = new Set([
@@ -35,14 +42,14 @@ const vueMacroNames = new Set([
 ]);
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     schema: [
       {
         // internal parameter for rules having secondary locations
         enum: [SONAR_RUNTIME],
       },
     ],
-  },
+  }),
   create(context: Rule.RuleContext) {
     const excludedNames = new Set();
     const undeclaredIdentifiersByName: Map<string, estree.Identifier[]> = new Map();
@@ -75,13 +82,14 @@ export const rule: Rule.RuleModule = {
           }
         });
         undeclaredIdentifiersByName.forEach((identifiers, name) => {
-          context.report({
-            node: identifiers[0],
-            message: toEncodedMessage(
-              `"${name}" does not exist. Change its name or declare it so that its usage doesn't result in a "ReferenceError".`,
-              identifiers.slice(1),
-            ),
-          });
+          report(
+            context,
+            {
+              node: identifiers[0],
+              message: `"${name}" does not exist. Change its name or declare it so that its usage doesn't result in a "ReferenceError".`,
+            },
+            identifiers.slice(1).map(node => toSecondaryLocation(node)),
+          );
         });
       },
     };

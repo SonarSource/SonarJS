@@ -22,40 +22,48 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
-import type { RuleModule } from '../../../../shared/src/types/rule';
+import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
+import { generateMeta } from '../helpers/generate-meta';
+import { FromSchema } from 'json-schema-to-ts';
+import rspecMeta from './meta.json';
 
 const MESSAGE_ADD_PARAMETER = 'Add parentheses around the parameter of this arrow function.';
 const MESSAGE_REMOVE_PARAMETER = 'Remove parentheses around the parameter of this arrow function.';
 const MESSAGE_ADD_BODY = 'Add curly braces and "return" to this arrow function body.';
 const MESSAGE_REMOVE_BODY = 'Remove curly braces and "return" from this arrow function body.';
 
-export type Options = [
-  {
-    requireParameterParentheses: boolean;
-    requireBodyBraces: boolean;
-  },
-];
+const DEFAULT_OPTIONS = {
+  requireParameterParentheses: false,
+  requireBodyBraces: false,
+};
 
-export const rule: RuleModule<Options> = {
-  meta: {
-    schema: [
-      {
-        type: 'object',
-        properties: {
-          requireParameterParentheses: {
-            type: 'boolean',
-          },
-          requireBodyBraces: {
-            type: 'boolean',
-          },
+const schema = {
+  type: 'array',
+  minItems: 0,
+  maxItems: 1,
+  items: [
+    {
+      type: 'object',
+      properties: {
+        requireParameterParentheses: {
+          type: 'boolean',
+        },
+        requireBodyBraces: {
+          type: 'boolean',
         },
       },
-    ],
-  },
+      additionalProperties: false,
+    },
+  ],
+} as const satisfies JSONSchema4;
+
+export const rule: Rule.RuleModule = {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, { schema }),
   create(context: Rule.RuleContext) {
-    const options = context.options[0] || {};
-    const requireParameterParentheses = !!options.requireParameterParentheses;
-    const requireBodyBraces = !!options.requireBodyBraces;
+    const { requireParameterParentheses, requireBodyBraces } = {
+      ...DEFAULT_OPTIONS,
+      ...(context.options as FromSchema<typeof schema>)[0],
+    };
     return {
       ArrowFunctionExpression(node: estree.Node) {
         const arrowFunction = node as estree.ArrowFunctionExpression;

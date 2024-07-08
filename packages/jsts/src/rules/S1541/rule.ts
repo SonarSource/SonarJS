@@ -22,42 +22,51 @@
 import { Rule, AST } from 'eslint';
 import * as estree from 'estree';
 import {
+  FunctionNodeType,
+  isFunctionNode,
+  getParent,
+  RuleContext,
+  getMainFunctionTokenLocation,
   EncodedMessage,
   IssueLocation,
-  getMainFunctionTokenLocation,
-} from 'eslint-plugin-sonarjs/lib/src/utils/locations';
-import { FunctionNodeType, isFunctionNode, getParent, RuleContext } from '../helpers';
+} from '../helpers';
 import { TSESTree } from '@typescript-eslint/utils';
 import { SONAR_RUNTIME } from '../../linter/parameters';
 import { childrenOf } from '../../linter';
-import type { RuleModule } from '../../../../shared/src/types/rule';
+import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
+import { generateMeta } from '../helpers/generate-meta';
+import { FromSchema } from 'json-schema-to-ts';
+import rspecMeta from './meta.json';
 
-export type Options = [
-  {
-    threshold: number;
-  },
-];
+const DEFAULT_THRESHOLD = 10;
 
-export const rule: RuleModule<Options> = {
-  meta: {
-    schema: [
-      {
-        type: 'object',
-        properties: {
-          threshold: {
-            type: 'integer',
-          },
+const schema = {
+  type: 'array',
+  minItems: 0,
+  maxItems: 2,
+  items: [
+    {
+      type: 'object',
+      properties: {
+        threshold: {
+          type: 'integer',
         },
       },
-      {
-        type: 'string',
-        // internal parameter for rules having secondary locations
-        enum: [SONAR_RUNTIME],
-      },
-    ],
-  },
+      additionalProperties: false,
+    },
+    {
+      type: 'string',
+      // internal parameter for rules having secondary locations
+      enum: [SONAR_RUNTIME],
+    },
+  ],
+} as const satisfies JSONSchema4;
+
+export const rule: Rule.RuleModule = {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, { schema }),
   create(context: Rule.RuleContext) {
-    const [{ threshold }] = context.options as Options;
+    const threshold =
+      (context.options as FromSchema<typeof schema>)[0]?.threshold ?? DEFAULT_THRESHOLD;
     let functionsWithParent: Map<estree.Node, estree.Node | undefined>;
     let functionsDefiningModule: estree.Node[];
     let functionsImmediatelyInvoked: estree.Node[];
@@ -117,7 +126,7 @@ function toEncodedMessage(
   const encodedMessage: EncodedMessage = {
     message: `Function has a complexity of ${complexity} which is greater than ${threshold} authorized.`,
     cost: complexity - threshold,
-    secondaryLocations: tokens.map(toSecondaryLocation),
+    secondaryLocations: tokens.map(node => toSecondaryLocation(node)),
   };
   return JSON.stringify(encodedMessage);
 }

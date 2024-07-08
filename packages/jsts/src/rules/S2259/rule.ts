@@ -27,11 +27,12 @@ import {
   functionLike,
   isUndefinedOrNull,
   findFirstMatchingAncestor,
-  RuleContext,
   isNullLiteral,
   isUndefined,
+  areEquivalent,
 } from '../helpers';
-import { areEquivalent } from 'eslint-plugin-sonarjs/lib/src/utils/equivalence';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 enum Null {
   confirmed,
@@ -47,12 +48,12 @@ const equalOperators = ['==', '==='];
 const notEqualOperators = ['!=', '!=='];
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       nullDereference: 'TypeError can be thrown as "{{symbol}}" might be null or undefined here.',
       shortCircuitError: 'TypeError can be thrown as expression might be null or undefined here.',
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     if (!isRequiredParserServices(context.sourceCode.parserServices)) {
       return {};
@@ -90,14 +91,14 @@ export const rule: Rule.RuleModule = {
 function getNullState(
   expr: estree.BinaryExpression,
   node: estree.Node,
-  context: RuleContext,
+  context: Rule.RuleContext,
 ): Null {
   const { left, right } = expr;
   if (
     (isNull(right) &&
-      areEquivalent(left as TSESTree.Node, node as TSESTree.Node, context.getSourceCode())) ||
+      areEquivalent(left as TSESTree.Node, node as TSESTree.Node, context.sourceCode)) ||
     (isNull(left) &&
-      areEquivalent(right as TSESTree.Node, node as TSESTree.Node, context.getSourceCode()))
+      areEquivalent(right as TSESTree.Node, node as TSESTree.Node, context.sourceCode))
   ) {
     if (notEqualOperators.includes(expr.operator)) {
       return Null.discarded;
@@ -115,7 +116,7 @@ function checkLogicalNullDereference(
   context: Rule.RuleContext,
 ) {
   if (expr.left.type === 'BinaryExpression') {
-    const nullState = getNullState(expr.left, node, context as unknown as RuleContext);
+    const nullState = getNullState(expr.left, node, context);
     if (
       (nullState === Null.confirmed && expr.operator === '&&') ||
       (nullState === Null.discarded && expr.operator === '||')

@@ -125,6 +125,7 @@ ruleTesterTs.run('Arithmetic operators should only have numbers as operands', ru
           }),
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `
@@ -151,6 +152,7 @@ ruleTesterTs.run('Arithmetic operators should only have numbers as operands', ru
           }),
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `
@@ -210,6 +212,7 @@ ruleTesterTs.run('Arithmetic operators should only have numbers as operands', ru
           }),
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `
@@ -296,6 +299,7 @@ ruleTesterTs.run('Arithmetic operators should only have numbers as operands', ru
           endColumn: 39,
         },
       ],
+      options: ['sonar-runtime'],
     },
   ],
 });

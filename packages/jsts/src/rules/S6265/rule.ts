@@ -29,7 +29,7 @@ import {
   isIdentifier,
   isMethodCall,
   mergeRules,
-  toEncodedMessage,
+  report,
 } from '../helpers';
 import { normalizeFQN } from '../helpers/aws/cdk';
 import {
@@ -39,6 +39,8 @@ import {
   isS3BucketConstructor,
   getProperty,
 } from '../helpers/aws/s3';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 const messages = {
   accessLevel: (param: string) => `Make sure granting ${param} access is safe here.`,
@@ -52,20 +54,20 @@ const PUBLIC_READ_ACCESS_KEY = 'publicReadAccess';
 const INVALID_PUBLIC_READ_ACCESS_VALUE = true;
 
 export const rule: Rule.RuleModule = {
-  create(context: Rule.RuleContext) {
-    return mergeRules(
-      s3BucketConstructorRule.create(context),
-      s3BucketDeploymentConstructorRule.create(context),
-      handleGrantPublicAccess.create(context),
-    );
-  },
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     schema: [
       {
         // internal parameter for rules having secondary locations
         enum: [SONAR_RUNTIME],
       },
     ],
+  }),
+  create(context: Rule.RuleContext) {
+    return mergeRules(
+      s3BucketConstructorRule.create(context),
+      s3BucketDeploymentConstructorRule.create(context),
+      handleGrantPublicAccess.create(context),
+    );
   },
 };
 
@@ -111,10 +113,14 @@ function checkBooleanParam(
   const propertyLiteralValue = getValueOfExpression(context, property.value, 'Literal');
   if (propertyLiteralValue?.value === propValue) {
     const secondary = findPropagatedSetting(property, propertyLiteralValue);
-    context.report({
-      message: toEncodedMessage(messages.unrestricted, secondary.locations, secondary.messages),
-      node: property,
-    });
+    report(
+      context,
+      {
+        message: messages.unrestricted,
+        node: property,
+      },
+      secondary ? [secondary] : [],
+    );
   }
 }
 
@@ -135,14 +141,14 @@ function checkConstantParam(
       `aws_cdk_lib.aws_s3.${paramQualifiers.join('.')}`
   ) {
     const secondary = findPropagatedSetting(property, propertyLiteralValue);
-    context.report({
-      message: toEncodedMessage(
-        messages.accessLevel(paramQualifiers[paramQualifiers.length - 1]),
-        secondary.locations,
-        secondary.messages,
-      ),
-      node: property,
-    });
+    report(
+      context,
+      {
+        message: messages.accessLevel(paramQualifiers[paramQualifiers.length - 1]),
+        node: property,
+      },
+      secondary ? [secondary] : [],
+    );
   }
 }
 
@@ -165,8 +171,8 @@ const handleGrantPublicAccess: Rule.RuleModule = {
         if (!isS3bucketInstance) {
           return;
         }
-        context.report({
-          message: toEncodedMessage(messages.unrestricted),
+        report(context, {
+          message: messages.unrestricted,
           node: property,
         });
       },

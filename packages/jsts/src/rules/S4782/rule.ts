@@ -22,11 +22,13 @@
 import { Rule, AST } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
-import { isRequiredParserServices, toEncodedMessage } from '../helpers';
+import { isRequiredParserServices, report, toSecondaryLocation } from '../helpers';
 import { SONAR_RUNTIME } from '../../linter/parameters';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     hasSuggestions: true,
     schema: [
       {
@@ -34,7 +36,7 @@ export const rule: Rule.RuleModule = {
         enum: [SONAR_RUNTIME],
       },
     ],
-  },
+  }),
 
   create(context: Rule.RuleContext) {
     if (!isRequiredParserServices(context.sourceCode.parserServices)) {
@@ -53,16 +55,17 @@ export const rule: Rule.RuleModule = {
       const typeNode = getUndefinedTypeAnnotation(tsNode.typeAnnotation);
       if (typeNode) {
         const suggest = getQuickFixSuggestions(context, optionalToken, typeNode);
-        const secondaryLocations = [typeNode];
-        const message = toEncodedMessage(
-          "Consider removing 'undefined' type or '?' specifier, one of them is redundant.",
-          secondaryLocations,
+
+        report(
+          context,
+          {
+            message:
+              "Consider removing 'undefined' type or '?' specifier, one of them is redundant.",
+            loc: optionalToken.loc,
+            suggest,
+          },
+          [toSecondaryLocation(typeNode)],
         );
-        context.report({
-          message,
-          loc: optionalToken.loc,
-          suggest,
-        });
       }
     }
 

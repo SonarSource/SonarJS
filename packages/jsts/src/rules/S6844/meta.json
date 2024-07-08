@@ -1,0 +1,8 @@
+{
+  "type": "suggestion",
+  "docs": {
+    "description": "Anchor tags should not be used as buttons",
+    "recommended": true,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S6844/javascript/rule.adoc"
+  }
+}

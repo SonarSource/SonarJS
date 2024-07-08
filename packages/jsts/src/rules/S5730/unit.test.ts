@@ -148,6 +148,7 @@ ruleTester.run('Allowing mixed-content is security-sensitive', rule, {
           endColumn: 10,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `

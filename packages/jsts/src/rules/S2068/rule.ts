@@ -23,33 +23,39 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { isStringLiteral } from '../helpers';
 import path from 'path';
-import type { RuleModule } from '../../../../shared/src/types/rule';
+import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
+import { generateMeta } from '../helpers/generate-meta';
+import { FromSchema } from 'json-schema-to-ts';
+import rspecMeta from './meta.json';
 
-export type Options = [
-  {
-    credentialWords: Array<string>;
-  },
-];
+const DEFAULT_NAMES = ['password', 'pwd', 'passwd'];
 
-export const rule: RuleModule<Options> = {
-  meta: {
-    messages: {
-      reviewCredential: 'Review this potentially hardcoded credential.',
-    },
-    schema: [
-      {
-        type: 'object',
-        properties: {
-          credentialWords: {
-            type: 'array',
-            items: {
-              type: 'string',
-            },
+const messages = {
+  reviewCredential: 'Review this potentially hardcoded credential.',
+};
+
+const schema = {
+  type: 'array',
+  minItems: 0,
+  maxItems: 1,
+  items: [
+    {
+      type: 'object',
+      properties: {
+        credentialWords: {
+          type: 'array',
+          items: {
+            type: 'string',
           },
         },
       },
-    ],
-  },
+      additionalProperties: false,
+    },
+  ],
+} as const satisfies JSONSchema4;
+
+export const rule: Rule.RuleModule = {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, { messages, schema }),
   create(context: Rule.RuleContext) {
     const dir = path.dirname(context.physicalFilename);
     const parts = dir.split(path.sep).map(part => part.toLowerCase());
@@ -57,7 +63,8 @@ export const rule: RuleModule<Options> = {
       return {};
     }
 
-    const [{ credentialWords: variableNames }] = context.options as Options;
+    const variableNames =
+      (context.options as FromSchema<typeof schema>)[0]?.credentialWords ?? DEFAULT_NAMES;
     const literalRegExp = variableNames.map(name => new RegExp(`${name}=.+`));
     return {
       VariableDeclarator: (node: estree.Node) => {

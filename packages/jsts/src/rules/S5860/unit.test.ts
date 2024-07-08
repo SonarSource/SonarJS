@@ -249,6 +249,7 @@ typeAwareRuleTester.run('Regular expressions named groups should be used', rule,
           endColumn: 20,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `
@@ -296,6 +297,7 @@ typeAwareRuleTester.run('Regular expressions named groups should be used', rule,
           endColumn: 47,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `
@@ -342,6 +344,7 @@ typeAwareRuleTester.run('Regular expressions named groups should be used', rule,
           endColumn: 29,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `
@@ -420,6 +423,7 @@ typeAwareRuleTester.run('Regular expressions named groups should be used', rule,
           endColumn: 37,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `
@@ -461,6 +465,7 @@ typeAwareRuleTester.run('Regular expressions named groups should be used', rule,
           endColumn: 51,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `
@@ -505,6 +510,7 @@ typeAwareRuleTester.run('Regular expressions named groups should be used', rule,
           endColumn: 22,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `'str'.search('(?<foo>\\w)\\\\1(?<bar>\\w)\\\\k<bar>(?<baz>\\w)'); // Noncompliant: 'foo' referenced by index`,
@@ -534,6 +540,7 @@ typeAwareRuleTester.run('Regular expressions named groups should be used', rule,
           endColumn: 47,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `
@@ -559,6 +566,7 @@ typeAwareRuleTester.run('Regular expressions named groups should be used', rule,
           endColumn: 47,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `

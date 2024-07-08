@@ -1,0 +1,8 @@
+{
+  "type": "suggestion",
+  "docs": {
+    "description": "\"for\" loop increment clauses should modify the loops' counters",
+    "recommended": true,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S1994/javascript/rule.adoc"
+  }
+}

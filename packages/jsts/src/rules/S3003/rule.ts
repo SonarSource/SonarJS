@@ -22,18 +22,20 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
-import { isString, isRequiredParserServices, toEncodedMessage } from '../helpers';
+import { isString, isRequiredParserServices, report, toSecondaryLocation } from '../helpers';
 import { SONAR_RUNTIME } from '../../linter/parameters';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     schema: [
       {
         // internal parameter for rules having secondary locations
         enum: [SONAR_RUNTIME],
       },
     ],
-  },
+  }),
   create(context: Rule.RuleContext) {
     const services = context.sourceCode.parserServices;
     if (!isRequiredParserServices(services)) {
@@ -50,15 +52,16 @@ export const rule: Rule.RuleModule = {
           !isLiteralException(right) &&
           !isWithinSortCallback(context, node)
         ) {
-          context.report({
-            message: toEncodedMessage(
-              `Convert operands of this use of "${operator}" to number type.`,
-              [left, right],
-            ),
-            loc: context.sourceCode
-              .getTokensBetween(left, right)
-              .find(token => token.type === 'Punctuator' && token.value === operator)!.loc,
-          });
+          report(
+            context,
+            {
+              message: `Convert operands of this use of "${operator}" to number type.`,
+              loc: context.sourceCode
+                .getTokensBetween(left, right)
+                .find(token => token.type === 'Punctuator' && token.value === operator)!.loc,
+            },
+            [left, right].map(node => toSecondaryLocation(node)),
+          );
         }
       },
     };

@@ -20,7 +20,10 @@
 // https://sonarsource.github.io/rspec/#/rspec/S1451/javascript
 
 import { Rule } from 'eslint';
-import type { RuleModule } from '../../../../shared/src/types/rule';
+import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
+import { generateMeta } from '../helpers/generate-meta';
+import { FromSchema } from 'json-schema-to-ts';
+import rspecMeta from './meta.json';
 
 let cached: {
   headerFormat: string;
@@ -30,32 +33,37 @@ let cached: {
   failedToCompile?: boolean;
 };
 
-export type Options = [
-  {
-    headerFormat: string;
-    isRegularExpression: boolean;
-  },
-];
+const DEFAULT_OPTIONS = {
+  headerFormat: '',
+  isRegularExpression: false,
+};
 
-export const rule: RuleModule<Options> = {
-  meta: {
-    messages: {
-      fixHeader: 'Add or update the header of this file.',
-    },
-    schema: [
-      {
-        type: 'object',
-        properties: {
-          headerFormat: {
-            type: 'string',
-          },
-          isRegularExpression: {
-            type: 'boolean',
-          },
+const messages = {
+  fixHeader: 'Add or update the header of this file.',
+};
+
+const schema = {
+  type: 'array',
+  minItems: 0,
+  maxItems: 1,
+  items: [
+    {
+      type: 'object',
+      properties: {
+        headerFormat: {
+          type: 'string',
+        },
+        isRegularExpression: {
+          type: 'boolean',
         },
       },
-    ],
-  },
+      additionalProperties: false,
+    },
+  ],
+} as const satisfies JSONSchema4;
+
+export const rule: Rule.RuleModule = {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, { messages, schema }),
   create(context: Rule.RuleContext) {
     updateCache(context.options);
 
@@ -115,7 +123,10 @@ function addFileIssue(context: Rule.RuleContext) {
 }
 
 function updateCache(options: any[]) {
-  const [{ headerFormat, isRegularExpression }] = options;
+  const { headerFormat, isRegularExpression } = {
+    ...DEFAULT_OPTIONS,
+    ...(options as FromSchema<typeof schema>)[0],
+  };
 
   if (
     !cached ||

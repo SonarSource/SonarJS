@@ -84,6 +84,7 @@ ruleTester.run('Redundant pairs of parentheses should be removed', rule, {
           ],
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `const a = ((((a * b) + c)) / 2.0);`,
@@ -97,6 +98,7 @@ ruleTester.run('Redundant pairs of parentheses should be removed', rule, {
           endColumn: 13,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `
@@ -123,6 +125,7 @@ ruleTester.run('Redundant pairs of parentheses should be removed', rule, {
           endColumn: 11,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       // Type assertion test requiring @typescript-eslint/parser
@@ -137,6 +140,7 @@ ruleTester.run('Redundant pairs of parentheses should be removed', rule, {
           endColumn: 16,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `(((((a)))))`,

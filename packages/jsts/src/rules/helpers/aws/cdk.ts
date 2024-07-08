@@ -65,15 +65,15 @@ export type AwsCdkConsumerMap = { [key: FullyQualifiedName]: AwsCdkConsumer };
  * A rule template for AWS CDK resources
  *
  * @param mapOrFactory callbacks to invoke when a new expression or a call expression matches a fully qualified name
- * @param metadata the rule metadata
+ * @param meta the rule metadata
  * @returns the instantiated rule module
  */
 export function AwsCdkTemplate(
   mapOrFactory: AwsCdkConsumerMap | ((ctx: Rule.RuleContext) => AwsCdkConsumerMap),
-  metadata: { meta: Rule.RuleMetaData } = { meta: {} },
+  meta: Rule.RuleMetaData = {},
 ): Rule.RuleModule {
   return {
-    ...metadata,
+    meta,
     create(ctx: Rule.RuleContext) {
       const consumers = typeof mapOrFactory === 'function' ? mapOrFactory(ctx) : mapOrFactory;
       return {

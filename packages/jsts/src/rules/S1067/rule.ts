@@ -22,37 +22,41 @@
 import { Rule, AST } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
-import { toEncodedMessage } from '../helpers';
 import { SONAR_RUNTIME } from '../../linter/parameters';
-import type { RuleModule } from '../../../../shared/src/types/rule';
+import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
+import { generateMeta } from '../helpers/generate-meta';
+import { FromSchema } from 'json-schema-to-ts';
+import rspecMeta from './meta.json';
+import { report, toSecondaryLocation } from '../helpers';
 
-export type Options = [
-  {
-    max: number;
-  },
-];
+const DEFAULT = 3;
 
-export const rule: RuleModule<Options> = {
-  meta: {
-    schema: [
-      {
-        type: 'object',
-        properties: {
-          max: {
-            type: 'integer',
-          },
+const schema = {
+  type: 'array',
+  minItems: 0,
+  maxItems: 2,
+  items: [
+    {
+      type: 'object',
+      properties: {
+        max: {
+          type: 'integer',
         },
       },
-      {
-        type: 'string',
-        // internal parameter for rules having secondary locations
-        enum: [SONAR_RUNTIME],
-      },
-    ],
-  },
+      additionalProperties: false,
+    },
+    {
+      type: 'string',
+      // internal parameter for rules having secondary locations
+      enum: [SONAR_RUNTIME],
+    },
+  ],
+} as const satisfies JSONSchema4;
+
+export const rule: Rule.RuleModule = {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, { schema }),
   create(context: Rule.RuleContext) {
-    const options = context.options as Options;
-    const threshold = options[0].max;
+    const threshold = (context.options as FromSchema<typeof schema>)[0]?.max ?? DEFAULT;
     const statementLevel: ExpressionComplexity[] = [new ExpressionComplexity()];
     return {
       '*': (node: estree.Node) => {
@@ -151,12 +155,14 @@ function reportIssue(
   context: Rule.RuleContext,
 ) {
   const complexity = operators.length;
-  const message = `Reduce the number of conditional operators (${complexity}) used in the expression (maximum allowed ${max}).`;
-  const secondaryLocationsHolder = operators;
-  const secondaryMessages = Array(complexity).fill('+1');
   const cost = complexity - max;
-  context.report({
-    node: node as estree.Node,
-    message: toEncodedMessage(message, secondaryLocationsHolder, secondaryMessages, cost),
-  });
+  report(
+    context,
+    {
+      node: node as estree.Node,
+      message: `Reduce the number of conditional operators (${complexity}) used in the expression (maximum allowed ${max}).`,
+    },
+    operators.map(node => toSecondaryLocation(node, '+1')),
+    cost,
+  );
 }

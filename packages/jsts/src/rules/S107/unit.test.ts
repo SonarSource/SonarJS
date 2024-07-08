@@ -19,12 +19,11 @@
  */
 import { rule } from './';
 import { TypeScriptRuleTester } from '../tools';
-import type { Options } from './rule';
 
 const MAX_PARAMS_3 = 3;
 const MAX_PARAMS_5 = 5;
 
-const createOptions = (max: number): Options => {
+const createOptions = (max: number) => {
   return [{ max }];
 };
 

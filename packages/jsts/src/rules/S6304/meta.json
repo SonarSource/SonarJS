@@ -1,0 +1,8 @@
+{
+  "type": "problem",
+  "docs": {
+    "description": "Policies granting access to all resources of an account are security-sensitive",
+    "recommended": false,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S6304/javascript/rule.adoc"
+  }
+}

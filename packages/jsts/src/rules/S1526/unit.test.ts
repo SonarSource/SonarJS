@@ -80,6 +80,7 @@ ruleTester.run(`Variables declared with "var" should be declared before they are
           endColumn: 14,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `
@@ -96,6 +97,7 @@ ruleTester.run(`Variables declared with "var" should be declared before they are
           endColumn: 14,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `

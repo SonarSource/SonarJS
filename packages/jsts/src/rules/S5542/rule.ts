@@ -22,6 +22,8 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { getFullyQualifiedName, getValueOfExpression } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 const aliases: string[] = [
   'AES128',
@@ -46,11 +48,11 @@ const aliases: string[] = [
 ];
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       useSecureMode: 'Use a secure mode and padding scheme.',
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     const patterns: RegExp[] = [/CBC/i, /ECB/i];
     aliases.forEach(alias => patterns.push(new RegExp(`^${alias}$`, 'i')));

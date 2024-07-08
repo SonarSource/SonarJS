@@ -19,11 +19,10 @@
  */
 import { RuleTester } from 'eslint';
 import { rule } from './';
-import { IssueLocation, EncodedMessage } from 'eslint-plugin-sonarjs/lib/src/utils/locations';
-import type { Options } from './rule';
+import { EncodedMessage, IssueLocation } from '../helpers';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
-const options: Options = [
+const options = [
   {
     threshold: 2,
   },

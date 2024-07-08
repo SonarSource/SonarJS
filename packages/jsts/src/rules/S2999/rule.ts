@@ -26,37 +26,41 @@ import {
   isRequiredParserServices,
   getTypeFromTreeNode,
   getSignatureFromCallee,
-  toEncodedMessage,
+  report,
+  toSecondaryLocation,
 } from '../helpers';
 import { SONAR_RUNTIME } from '../../linter/parameters';
-import type { RuleModule } from '../../../../shared/src/types/rule';
+import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
+import { generateMeta } from '../helpers/generate-meta';
+import { FromSchema } from 'json-schema-to-ts';
+import rspecMeta from './meta.json';
 
-export type Options = [
-  {
-    considerJSDoc: boolean;
-  },
-];
-
-export const rule: RuleModule<Options> = {
-  meta: {
-    schema: [
-      {
-        type: 'object',
-        properties: {
-          considerJSDoc: {
-            type: 'boolean',
-          },
+const schema = {
+  type: 'array',
+  minItems: 0,
+  maxItems: 2,
+  items: [
+    {
+      type: 'object',
+      properties: {
+        considerJSDoc: {
+          type: 'boolean',
         },
       },
-      {
-        type: 'string',
-        // internal parameter for rules having secondary locations
-        enum: [SONAR_RUNTIME],
-      },
-    ],
-  },
+      additionalProperties: false,
+    },
+    {
+      type: 'string',
+      // internal parameter for rules having secondary locations
+      enum: [SONAR_RUNTIME],
+    },
+  ],
+} as const satisfies JSONSchema4;
+
+export const rule: Rule.RuleModule = {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, { schema }),
   create(context: Rule.RuleContext) {
-    const { considerJSDoc } = (context.options as Options)[0];
+    const considerJSDoc = !!(context.options as FromSchema<typeof schema>)[0]?.considerJSDoc;
     const services = context.sourceCode.parserServices;
     if (!isRequiredParserServices(services)) {
       return {};
@@ -77,10 +81,14 @@ export const rule: RuleModule<Options> = {
           )!;
           const text = isFunction(type) ? 'this function' : context.sourceCode.getText(callee);
           const loc = callee.type === 'FunctionExpression' ? functionToken!.loc : callee.loc!;
-          context.report({
-            message: toEncodedMessage(`Replace ${text} with a constructor function.`, [newToken]),
-            loc,
-          });
+          report(
+            context,
+            {
+              message: `Replace ${text} with a constructor function.`,
+              loc,
+            },
+            [toSecondaryLocation(newToken)],
+          );
         }
       },
     };

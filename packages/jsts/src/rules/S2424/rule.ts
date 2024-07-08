@@ -23,13 +23,15 @@ import { globalsByLibraries } from '../helpers';
 import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       removeOverride: 'Remove this override of "{{overridden}}".',
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     const overriden: Set<estree.Identifier> = new Set();
 

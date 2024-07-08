@@ -23,21 +23,24 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import {
   getValueOfExpression,
-  toEncodedMessage,
   getFullyQualifiedName,
   getProperty,
+  report,
+  toSecondaryLocation,
 } from '../helpers';
 import { SONAR_RUNTIME } from '../../linter/parameters';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     schema: [
       {
         // internal parameter for rules having secondary locations
         enum: [SONAR_RUNTIME],
       },
     ],
-  },
+  }),
   create(context: Rule.RuleContext) {
     return {
       CallExpression(node: estree.Node) {
@@ -50,12 +53,14 @@ export const rule: Rule.RuleModule = {
           }
           const xfwdValue = getValueOfExpression(context, xfwdProp.value, 'Literal');
           if (xfwdValue?.value === true) {
-            context.report({
-              node: callee,
-              message: toEncodedMessage('Make sure forwarding client IP address is safe here.', [
-                xfwdProp,
-              ]),
-            });
+            report(
+              context,
+              {
+                node: callee,
+                message: 'Make sure forwarding client IP address is safe here.',
+              },
+              [toSecondaryLocation(xfwdProp)],
+            );
           }
         }
       },

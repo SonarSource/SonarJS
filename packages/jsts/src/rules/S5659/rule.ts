@@ -24,22 +24,25 @@ import * as estree from 'estree';
 import {
   getPropertyWithValue,
   getValueOfExpression,
-  toEncodedMessage,
   isNullLiteral,
   getFullyQualifiedName,
   getProperty,
+  report,
+  toSecondaryLocation,
 } from '../helpers';
 import { SONAR_RUNTIME } from '../../linter/parameters';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     schema: [
       {
         // internal parameter for rules having secondary locations
         enum: [SONAR_RUNTIME],
       },
     ],
-  },
+  }),
   create(context: Rule.RuleContext) {
     const SIGN_MESSAGE = 'Use only strong cipher algorithms when signing this JWT.';
     const VERIFY_MESSAGE =
@@ -104,14 +107,14 @@ export const rule: Rule.RuleModule = {
     }
 
     function raiseIssueOn(node: estree.Node, message: string, secondaryLocations: estree.Node[]) {
-      context.report({
-        node,
-        message: toEncodedMessage(
+      report(
+        context,
+        {
+          node,
           message,
-          secondaryLocations,
-          Array(secondaryLocations.length).fill(SECONDARY_MESSAGE),
-        ),
-      });
+        },
+        secondaryLocations.map(node => toSecondaryLocation(node, SECONDARY_MESSAGE)),
+      );
     }
 
     return {

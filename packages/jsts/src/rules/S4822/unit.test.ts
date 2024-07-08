@@ -119,6 +119,7 @@ ruleTester.run(`Promise rejections should not be caught by 'try' block`, rule, {
           endColumn: 12,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `
@@ -140,6 +141,7 @@ ruleTester.run(`Promise rejections should not be caught by 'try' block`, rule, {
           endColumn: 12,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `

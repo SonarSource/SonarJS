@@ -1,0 +1,8 @@
+{
+  "type": "suggestion",
+  "docs": {
+    "description": "Comparison operators should not be used with strings",
+    "recommended": false,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S3003/javascript/rule.adoc"
+  }
+}

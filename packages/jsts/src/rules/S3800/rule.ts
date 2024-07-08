@@ -21,21 +21,24 @@
 
 import { TSESTree } from '@typescript-eslint/utils';
 import { Rule } from 'eslint';
-import { getMainFunctionTokenLocation } from 'eslint-plugin-sonarjs/lib/src/utils/locations';
 import * as estree from 'estree';
 import * as ts from 'typescript';
 import {
+  getMainFunctionTokenLocation,
   getParent,
   getTypeFromTreeNode,
   isAny,
   isBooleanTrueType,
   isRequiredParserServices,
   isStringType,
+  report,
   RuleContext,
-  toEncodedMessage,
+  toSecondaryLocation,
 } from '../helpers';
 import { SONAR_RUNTIME } from '../../linter/parameters';
 import { type UnionType } from 'typescript';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 class FunctionScope {
   private readonly returnStatements: estree.ReturnStatement[] = [];
@@ -56,14 +59,14 @@ const isASanitationFunction = (signature: ts.Signature) => {
 };
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     schema: [
       {
         // internal parameter for rules having secondary locations
         enum: [SONAR_RUNTIME],
       },
     ],
-  },
+  }),
   create(context: Rule.RuleContext) {
     let scopes: FunctionScope[] = [];
 
@@ -94,18 +97,20 @@ export const rule: Rule.RuleModule = {
         if (stmtsTypes.every(isAny)) {
           return;
         }
-        context.report({
-          message: toEncodedMessage(
-            'Refactor this function to always return the same type.',
-            stmts,
-            stmtsTypes.map(stmtType => `Returns ${prettyPrint(stmtType, checker)}`),
+        report(
+          context,
+          {
+            message: 'Refactor this function to always return the same type.',
+            loc: getMainFunctionTokenLocation(
+              node as TSESTree.FunctionLike,
+              getParent(context, node) as TSESTree.Node,
+              context as unknown as RuleContext,
+            ),
+          },
+          stmts.map((stmt, i) =>
+            toSecondaryLocation(stmt, `Returns ${prettyPrint(stmtsTypes[i], checker)}`),
           ),
-          loc: getMainFunctionTokenLocation(
-            node as TSESTree.FunctionLike,
-            getParent(context, node) as TSESTree.Node,
-            context as unknown as RuleContext,
-          ),
-        });
+        );
       }
     }
 

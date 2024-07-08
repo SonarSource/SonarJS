@@ -172,6 +172,7 @@ ruleTester.run('Disabling Strict-Transport-Security policy is security-sensitive
           endColumn: 12,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `
@@ -220,6 +221,7 @@ ruleTester.run('Disabling Strict-Transport-Security policy is security-sensitive
           endColumn: 12,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `

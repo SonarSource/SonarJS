@@ -28,11 +28,16 @@ import {
   isStringLiteral,
   interceptReport,
   mergeRules,
-  toEncodedMessage,
+  report,
+  toSecondaryLocation,
 } from '../helpers';
 import { SONAR_RUNTIME } from '../../linter/parameters';
 import { eslintRules } from '../core';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
+import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
 
+const getterReturnRule = eslintRules['getter-return'];
 type AccessorNode = TSESTree.Property | TSESTree.MethodDefinition;
 
 function isAccessorNode(node: TSESTree.Node | null | undefined): node is AccessorNode {
@@ -63,14 +68,16 @@ interface Field {
 
 // The rule is the merger of a decorated ESLint 'getter-return' with the SonarJS 'no-accessor-field-mismatch'.
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+    ...getterReturnRule.meta,
     schema: [
+      ...(getterReturnRule.meta!.schema as JSONSchema4[]),
       {
         // internal parameter for rules having secondary locations
         enum: [SONAR_RUNTIME],
       },
     ],
-  },
+  }),
   create(context: Rule.RuleContext): Rule.RuleListener {
     const getterReturnListener = getterReturnDecorator.create(context);
     const noAccessorFieldMismatchListener = noAccessorFieldMismatchRule.create(context);
@@ -100,7 +107,7 @@ function decorateGetterReturn(rule: Rule.RuleModule): Rule.RuleModule {
   });
 }
 
-const getterReturnDecorator = decorateGetterReturn(eslintRules['getter-return']);
+const getterReturnDecorator = decorateGetterReturn(getterReturnRule);
 
 const noAccessorFieldMismatchRule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
@@ -213,7 +220,7 @@ function reportWithSonarFormat(
   descriptor: Rule.ReportDescriptor,
   message: string,
 ) {
-  context.report({ ...descriptor, messageId: undefined, message: toEncodedMessage(message) });
+  report(context, { ...descriptor, message });
 }
 
 function reportWithSecondaryLocation(context: Rule.RuleContext, accessor: Accessor) {
@@ -222,13 +229,20 @@ function reportWithSecondaryLocation(context: Rule.RuleContext, accessor: Access
   const primaryMessage =
     `Refactor this ${accessor.info.type} ` +
     `so that it actually refers to the ${ref} '${fieldToRefer.name}'.`;
-  const secondaryLocations = [fieldToRefer.node];
-  const secondaryMessages = [`${ref[0].toUpperCase()}${ref.slice(1)} which should be referred.`];
 
-  context.report({
-    message: toEncodedMessage(primaryMessage, secondaryLocations, secondaryMessages),
-    loc: accessor.node.key.loc,
-  });
+  report(
+    context,
+    {
+      message: primaryMessage,
+      loc: accessor.node.key.loc,
+    },
+    [
+      toSecondaryLocation(
+        fieldToRefer.node,
+        `${ref[0].toUpperCase()}${ref.slice(1)} which should be referred.`,
+      ),
+    ],
+  );
 }
 
 function isPropertyDefinitionCall(call: estree.CallExpression | undefined) {

@@ -29,7 +29,10 @@ import {
   getFullyQualifiedName,
   getProperty,
 } from '../helpers';
-import type { RuleModule } from '../../../../shared/src/types/rule';
+import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
+import { generateMeta } from '../helpers/generate-meta';
+import { FromSchema } from 'json-schema-to-ts';
+import rspecMeta from './meta.json';
 
 const FORMIDABLE_MODULE = 'formidable';
 const MAX_FILE_SIZE = 'maxFileSize';
@@ -45,32 +48,37 @@ const BODY_PARSER_DEFAULT_SIZE = parse('100kb');
 const formidableObjects: Map<Scope.Variable, { maxFileSize: number; nodeToReport: estree.Node }> =
   new Map();
 
-export type Options = [
-  {
-    fileUploadSizeLimit: number;
-    standardSizeLimit: number;
-  },
-];
+const DEFAULT_OPTIONS = {
+  fileUploadSizeLimit: 8_000_000,
+  standardSizeLimit: 2_000_000,
+};
 
-export const rule: RuleModule<Options> = {
-  meta: {
-    messages: {
-      safeLimit: 'Make sure the content length limit is safe here.',
-    },
-    schema: [
-      {
-        type: 'object',
-        properties: {
-          fileUploadSizeLimit: {
-            type: 'integer',
-          },
-          standardSizeLimit: {
-            type: 'integer',
-          },
+const messages = {
+  safeLimit: 'Make sure the content length limit is safe here.',
+};
+
+const schema = {
+  type: 'array',
+  minItems: 0,
+  maxItems: 1,
+  items: [
+    {
+      type: 'object',
+      properties: {
+        fileUploadSizeLimit: {
+          type: 'integer',
+        },
+        standardSizeLimit: {
+          type: 'integer',
         },
       },
-    ],
-  },
+      additionalProperties: false,
+    },
+  ],
+} as const satisfies JSONSchema4;
+
+export const rule: Rule.RuleModule = {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, { messages, schema }),
   create(context: Rule.RuleContext) {
     return {
       NewExpression(node: estree.Node) {
@@ -238,7 +246,10 @@ function report(
   size?: number,
   useStandardSizeLimit = false,
 ) {
-  const [{ fileUploadSizeLimit, standardSizeLimit }] = context.options as Options;
+  const { fileUploadSizeLimit, standardSizeLimit } = {
+    ...DEFAULT_OPTIONS,
+    ...(context.options as FromSchema<typeof schema>)[0],
+  };
   const limitToCompare = useStandardSizeLimit ? standardSizeLimit : fileUploadSizeLimit;
   if (!size || size > limitToCompare) {
     context.report({

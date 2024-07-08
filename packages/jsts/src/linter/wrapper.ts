@@ -53,7 +53,6 @@ export interface WrapperOptions {
  */
 const defaultRuleBundles = [
   'externalRules',
-  'pluginRules',
   'internalRules',
   'contextRules',
   'internalCustomRules',

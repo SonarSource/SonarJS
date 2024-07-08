@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { TSESTree } from '@typescript-eslint/utils';
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import {
@@ -26,9 +25,9 @@ import {
   isMethodInvocation,
   flattenArgs,
   getParent,
-  toEncodedMessage,
+  report,
+  toSecondaryLocation,
 } from '.';
-import { SONAR_RUNTIME } from '../../linter/parameters';
 
 /**
  * This modules provides utilities for writing rules about Express.js.
@@ -128,6 +127,7 @@ export namespace Express {
    *
    * @param sensitivePropertyFinder - a function looking for a sensitive setting on a middleware call
    * @param message - the reported message when an issue is raised
+   * @param meta - the rule metadata
    * @returns a rule module that raises issues when a sensitive property is found
    */
   export function SensitiveMiddlewarePropertyRule(
@@ -136,16 +136,10 @@ export namespace Express {
       middlewareCall: estree.CallExpression,
     ) => estree.Property[],
     message: string,
+    meta: Rule.RuleMetaData = {},
   ): Rule.RuleModule {
     return {
-      meta: {
-        schema: [
-          {
-            // internal parameter for rules having secondary locations
-            enum: [SONAR_RUNTIME],
-          },
-        ],
-      },
+      meta,
       create(context: Rule.RuleContext) {
         let app: estree.Identifier | null;
         let sensitiveProperties: estree.Property[];
@@ -172,10 +166,14 @@ export namespace Express {
               const isSafe = !isUsingMiddleware(context, callExpr, app, isExposing);
               if (!isSafe) {
                 for (const sensitive of sensitiveProperties) {
-                  context.report({
-                    node: callExpr,
-                    message: toEncodedMessage(message, [sensitive as TSESTree.Property]),
-                  });
+                  report(
+                    context,
+                    {
+                      node: callExpr,
+                      message,
+                    },
+                    [toSecondaryLocation(sensitive)],
+                  );
                 }
                 sensitiveProperties = [];
               }

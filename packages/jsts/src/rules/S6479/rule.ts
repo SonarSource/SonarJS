@@ -25,9 +25,16 @@
 import { rules } from 'eslint-plugin-react';
 import { interceptReportForReact } from '../helpers';
 import { Rule } from 'eslint';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
+
+const baseRule = rules['no-array-index-key'];
 
 export const rule = interceptReportForReact(
-  rules['no-array-index-key'],
+  {
+    ...baseRule,
+    meta: generateMeta(rspecMeta as Rule.RuleMetaData, baseRule.meta),
+  },
   (context, reportDescriptor) => {
     const { node } = reportDescriptor as Rule.ReportDescriptor & {
       node: Rule.Node;

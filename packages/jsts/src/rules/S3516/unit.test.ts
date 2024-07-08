@@ -234,11 +234,11 @@ ruleTester.run(`Function returns should not be invariant`, rule, {
         {
           message: JSON.stringify({
             message: 'Refactor this function to not always return the same value.',
-            cost: 2,
             secondaryLocations: [
               { message: 'Returned value.', column: 21, line: 4, endColumn: 23, endLine: 4 },
               { message: 'Returned value.', column: 17, line: 6, endColumn: 19, endLine: 6 },
             ],
+            cost: 2,
           }),
           line: 2,
           endLine: 2,
@@ -246,6 +246,7 @@ ruleTester.run(`Function returns should not be invariant`, rule, {
           endColumn: 25,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `
@@ -261,17 +262,18 @@ ruleTester.run(`Function returns should not be invariant`, rule, {
         {
           message: JSON.stringify({
             message: 'Refactor this function to not always return the same value.',
-            cost: 3,
             secondaryLocations: [
               { message: 'Returned value.', column: 21, line: 4, endColumn: 26, endLine: 4 },
               { message: 'Returned value.', column: 21, line: 6, endColumn: 26, endLine: 6 },
               { message: 'Returned value.', column: 19, line: 8, endColumn: 24, endLine: 8 },
             ],
+            cost: 3,
           }),
           line: 2,
           endLine: 2,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `var arrowNok = (p) => { if (p) { return "foo"; } return "foo"; };`,
@@ -279,16 +281,17 @@ ruleTester.run(`Function returns should not be invariant`, rule, {
         {
           message: JSON.stringify({
             message: 'Refactor this function to not always return the same value.',
-            cost: 2,
             secondaryLocations: [
               { message: 'Returned value.', column: 40, line: 1, endColumn: 45, endLine: 1 },
               { message: 'Returned value.', column: 56, line: 1, endColumn: 61, endLine: 1 },
             ],
+            cost: 2,
           }),
           line: 1,
           endLine: 1,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `
@@ -303,16 +306,17 @@ ruleTester.run(`Function returns should not be invariant`, rule, {
         {
           message: JSON.stringify({
             message: 'Refactor this function to not always return the same value.',
-            cost: 2,
             secondaryLocations: [
               { message: 'Returned value.', column: 21, line: 5, endColumn: 22, endLine: 5 },
               { message: 'Returned value.', column: 17, line: 7, endColumn: 18, endLine: 7 },
             ],
+            cost: 2,
           }),
           line: 2,
           endLine: 2,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `
@@ -329,16 +333,17 @@ ruleTester.run(`Function returns should not be invariant`, rule, {
         {
           message: JSON.stringify({
             message: 'Refactor this function to not always return the same value.',
-            cost: 2,
             secondaryLocations: [
               { message: 'Returned value.', column: 19, line: 5, endColumn: 24, endLine: 5 },
               { message: 'Returned value.', column: 17, line: 9, endColumn: 22, endLine: 9 },
             ],
+            cost: 2,
           }),
           line: 2,
           endLine: 2,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `
@@ -353,16 +358,17 @@ ruleTester.run(`Function returns should not be invariant`, rule, {
         {
           message: JSON.stringify({
             message: 'Refactor this function to not always return the same value.',
-            cost: 2,
             secondaryLocations: [
               { message: 'Returned value.', column: 21, line: 4, endColumn: 23, endLine: 4 },
               { message: 'Returned value.', column: 17, line: 7, endColumn: 19, endLine: 7 },
             ],
+            cost: 2,
           }),
           line: 2,
           endLine: 2,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `
@@ -377,16 +383,17 @@ ruleTester.run(`Function returns should not be invariant`, rule, {
         {
           message: JSON.stringify({
             message: 'Refactor this function to not always return the same value.',
-            cost: 2,
             secondaryLocations: [
               { message: 'Returned value.', column: 51, line: 6, endColumn: 53, endLine: 6 },
               { message: 'Returned value.', column: 64, line: 6, endColumn: 66, endLine: 6 },
             ],
+            cost: 2,
           }),
           line: 6,
           endLine: 6,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `
@@ -402,14 +409,15 @@ ruleTester.run(`Function returns should not be invariant`, rule, {
         {
           message: JSON.stringify({
             message: 'Refactor this function to not always return the same value.',
-            cost: 2,
             secondaryLocations: [
               { message: 'Returned value.', column: 21, line: 6, endColumn: 22, endLine: 6 },
               { message: 'Returned value.', column: 17, line: 8, endColumn: 18, endLine: 8 },
             ],
+            cost: 2,
           }),
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `
@@ -427,14 +435,15 @@ ruleTester.run(`Function returns should not be invariant`, rule, {
         {
           message: JSON.stringify({
             message: 'Refactor this function to not always return the same value.',
-            cost: 2,
             secondaryLocations: [
               { message: 'Returned value.', column: 21, line: 8, endColumn: 23, endLine: 8 },
               { message: 'Returned value.', column: 17, line: 10, endColumn: 19, endLine: 10 },
             ],
+            cost: 2,
           }),
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `
@@ -450,16 +459,17 @@ ruleTester.run(`Function returns should not be invariant`, rule, {
         {
           message: JSON.stringify({
             message: 'Refactor this function to not always return the same value.',
-            cost: 2,
             secondaryLocations: [
               { message: 'Returned value.', column: 23, line: 6, endColumn: 24, endLine: 6 },
               { message: 'Returned value.', column: 19, line: 8, endColumn: 20, endLine: 8 },
             ],
+            cost: 2,
           }),
           line: 3,
           endLine: 3,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `

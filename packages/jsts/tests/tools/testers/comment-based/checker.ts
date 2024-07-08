@@ -45,14 +45,14 @@ export function check(ruleId: string, ruleModule: Rule.RuleModule, ruleDir: stri
   }
 
   for (const fixture of fixtures) {
+    const options = extractRuleOptions(ruleDir);
     const code = fs.readFileSync(fixture, { encoding: 'utf8' }).replace(/\r?\n|\r/g, '\n');
     const { errors, output } = extractExpectations(
       code,
       fixture,
-      hasSonarRuntimeOption(ruleModule, ruleId),
+      hasSonarRuntimeOption(ruleModule, ruleId) && options.includes('sonar-runtime'),
     );
 
-    const options = extractRuleOptions(ruleDir);
     const tests = {
       valid: [],
       invalid: [{ code, filename: fixture, errors, options, output }],

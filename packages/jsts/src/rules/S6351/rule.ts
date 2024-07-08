@@ -30,22 +30,25 @@ import {
   isDotNotation,
   isMethodCall,
   isRegexLiteral,
-  toEncodedMessage,
+  report,
+  toSecondaryLocation,
 } from '../helpers';
 import { getFlags, isRegExpConstructor } from '../helpers/regex';
 import { SONAR_RUNTIME } from '../../linter/parameters';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 type RegexInfo = { node: estree.Node; flags: string };
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     schema: [
       {
         // internal parameter for rules having secondary locations
         enum: [SONAR_RUNTIME],
       },
     ],
-  },
+  }),
   create(context: Rule.RuleContext) {
     const invocations = new Map<Scope.Variable, estree.CallExpression[]>();
     const regexes: RegexInfo[] = [];
@@ -146,8 +149,8 @@ function checkWhileConditionRegex(callExpr: estree.CallExpression, context: Rule
     if ((isRegexLiteral(object) || isRegExpConstructor(object)) && property.name === 'exec') {
       const flags = object.type === 'Literal' ? object.regex.flags : getFlags(object);
       if (flags?.includes('g') && isWithinWhileCondition(callExpr, context)) {
-        context.report({
-          message: toEncodedMessage('Extract this regular expression to avoid infinite loop.', []),
+        report(context, {
+          message: 'Extract this regular expression to avoid infinite loop.',
           node: object,
         });
       }
@@ -158,11 +161,8 @@ function checkWhileConditionRegex(callExpr: estree.CallExpression, context: Rule
 function checkGlobalStickyRegex(regex: RegexInfo, context: Rule.RuleContext) {
   /* RegExp with `g` and `y` flags */
   if (regex.flags.includes('g') && regex.flags.includes('y')) {
-    context.report({
-      message: toEncodedMessage(
-        `Remove the 'g' flag from this regex as it is shadowed by the 'y' flag.`,
-        [],
-      ),
+    report(context, {
+      message: `Remove the 'g' flag from this regex as it is shadowed by the 'y' flag.`,
       node: regex.node,
     });
   }
@@ -183,14 +183,14 @@ function checkMultipleInputsRegex(
     const regexReset = uniqueInputs.has(`''`) || uniqueInputs.has(`""`);
     if (definition && uniqueInputs.size > 1 && !regexReset) {
       const pattern = definition.node.init as estree.Expression;
-      context.report({
-        message: toEncodedMessage(
-          `Remove the 'g' flag from this regex as it is used on different inputs.`,
-          usages,
-          usages.map((_, idx) => `Usage ${idx + 1}`),
-        ),
-        node: pattern,
-      });
+      report(
+        context,
+        {
+          message: `Remove the 'g' flag from this regex as it is used on different inputs.`,
+          node: pattern,
+        },
+        usages.map((node, idx) => toSecondaryLocation(node, `Usage ${idx + 1}`)),
+      );
     }
   }
 }

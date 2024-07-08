@@ -34,9 +34,10 @@ import {
   isObjectDestructuring,
   isRequiredParserServices,
   isString,
-  LocationHolder,
+  IssueLocation,
+  report,
   RequiredParserServices,
-  toEncodedMessage,
+  toSecondaryLocation,
 } from '../helpers';
 import {
   extractReferences,
@@ -47,16 +48,18 @@ import {
 } from '../helpers/regex';
 import { SONAR_RUNTIME } from '../../linter/parameters';
 import { TSESTree } from '@typescript-eslint/utils';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     schema: [
       {
         // internal parameter for rules having secondary locations
         enum: [SONAR_RUNTIME],
       },
     ],
-  },
+  }),
   create(context: Rule.RuleContext) {
     const services = context.sourceCode.parserServices;
     if (!isRequiredParserServices(services)) {
@@ -117,20 +120,15 @@ function checkStringReplaceGroupReferences(
       });
       const indexedGroups = regex.groups.filter(group => indexes.has(group.index));
       if (indexedGroups.length > 0) {
-        const { locations, messages } = prepareSecondaries(
-          regex,
-          indexedGroups,
-          intellisense,
-          'Group',
+        const locations = prepareSecondaries(regex, indexedGroups, intellisense, 'Group');
+        report(
+          intellisense.context,
+          {
+            message: `Directly use the group names instead of their numbers.`,
+            node: substr,
+          },
+          locations,
         );
-        intellisense.context.report({
-          message: toEncodedMessage(
-            `Directly use the group names instead of their numbers.`,
-            locations,
-            messages,
-          ),
-          node: substr,
-        });
       }
     }
   }
@@ -149,15 +147,15 @@ function checkIndexBasedGroupReference(
       const group = regex.groups.find(grp => grp.index === index);
       if (group) {
         group.used = true;
-        const { locations, messages } = prepareSecondaries(regex, [group], intellisense, 'Group');
-        intellisense.context.report({
-          message: toEncodedMessage(
-            `Directly use '${group.name}' instead of its group number.`,
-            locations,
-            messages,
-          ),
-          node: property,
-        });
+        const locations = prepareSecondaries(regex, [group], intellisense, 'Group');
+        report(
+          intellisense.context,
+          {
+            message: `Directly use '${group.name}' instead of its group number.`,
+            node: property,
+          },
+          locations,
+        );
       }
     }
   }
@@ -178,21 +176,16 @@ function checkNonExistingGroupReference(
       if (group) {
         group.used = true;
       } else {
-        const { locations, messages } = prepareSecondaries(
-          regex,
-          regex.groups,
-          intellisense,
-          'Named group',
-        );
+        const locations = prepareSecondaries(regex, regex.groups, intellisense, 'Named group');
 
-        intellisense.context.report({
-          message: toEncodedMessage(
-            `There is no group named '${groupName}' in the regular expression.`,
-            locations,
-            messages,
-          ),
-          node: groupNode,
-        });
+        report(
+          intellisense.context,
+          {
+            message: `There is no group named '${groupName}' in the regular expression.`,
+            node: groupNode,
+          },
+          locations,
+        );
       }
     }
   }
@@ -249,21 +242,16 @@ function checkUnusedGroups(intellisense: RegexIntelliSense) {
     if (regex.matched) {
       const unusedGroups = regex.groups.filter(group => !group.used);
       if (unusedGroups.length) {
-        const { locations, messages } = prepareSecondaries(
-          regex,
-          unusedGroups,
-          intellisense,
-          'Named group',
-        );
+        const locations = prepareSecondaries(regex, unusedGroups, intellisense, 'Named group');
 
-        intellisense.context.report({
-          message: toEncodedMessage(
-            'Use the named groups of this regex or remove the names.',
-            locations,
-            messages,
-          ),
-          node: regex.node,
-        });
+        report(
+          intellisense.context,
+          {
+            message: 'Use the named groups of this regex or remove the names.',
+            node: regex.node,
+          },
+          locations,
+        );
       }
     }
   });
@@ -275,8 +263,7 @@ function prepareSecondaries(
   intellisense: RegexIntelliSense,
   label: string,
 ) {
-  const locations: LocationHolder[] = [];
-  const messages: string[] = [];
+  const locations: IssueLocation[] = [];
   for (const grp of groups) {
     const loc: AST.SourceLocation | null = getRegexpLocation(
       regex.node,
@@ -284,29 +271,28 @@ function prepareSecondaries(
       intellisense.context,
     );
     if (loc) {
-      locations.push({ loc });
-      messages.push(`${label} '${grp.name}'`);
+      locations.push(toSecondaryLocation({ loc }, `${label} '${grp.name}'`));
     }
   }
-  return { locations, messages };
+  return locations;
 }
 
 function checkIndexedGroups(intellisense: RegexIntelliSense) {
   intellisense.getKnowledge().forEach(regex => {
     regex.groups.forEach(group => {
-      const { locations, messages } = prepareSecondaries(regex, [group], intellisense, 'Group');
+      const locations = prepareSecondaries(regex, [group], intellisense, 'Group');
 
       group.node.references.forEach(reference => {
         const loc = getRegexpLocation(regex.node, reference, intellisense.context);
         if (loc && typeof reference.ref === 'number') {
-          intellisense.context.report({
-            message: toEncodedMessage(
-              `Directly use '${group.name}' instead of its group number.`,
-              locations,
-              messages,
-            ),
-            loc,
-          });
+          report(
+            intellisense.context,
+            {
+              message: `Directly use '${group.name}' instead of its group number.`,
+              loc,
+            },
+            locations,
+          );
         }
       });
     });

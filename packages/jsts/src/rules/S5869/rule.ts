@@ -21,13 +21,15 @@
 
 import { AST, Rule } from 'eslint';
 import { CharacterClass, Flags, Node, RegExpLiteral } from '@eslint-community/regexpp/ast';
-import { LocationHolder, toEncodedMessage } from '../helpers';
+import { IssueLocation, toSecondaryLocation } from '../helpers';
 import {
   createRegExpRule,
   getRegexpLocation,
   SimplifiedRegexCharacterClass,
 } from '../helpers/regex';
 import { SONAR_RUNTIME } from '../../linter/parameters';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = createRegExpRule(
   context => {
@@ -51,8 +53,7 @@ export const rule: Rule.RuleModule = createRegExpRule(
         });
         if (duplicates.size > 0) {
           const [primary, ...secondaries] = duplicates;
-          const secondaryLocations: LocationHolder[] = [];
-          const messages: string[] = [];
+          const secondaryLocations: IssueLocation[] = [];
           for (const secondary of secondaries) {
             const loc: AST.SourceLocation | null = getRegexpLocation(
               context.node,
@@ -60,31 +61,27 @@ export const rule: Rule.RuleModule = createRegExpRule(
               context,
             );
             if (loc) {
-              secondaryLocations.push({ loc });
-              messages.push('Additional duplicate');
+              secondaryLocations.push(toSecondaryLocation({ loc }, 'Additional duplicate'));
             }
           }
-          context.reportRegExpNode({
-            message: toEncodedMessage(
-              'Remove duplicates in this character class.',
-              secondaryLocations,
-              messages,
-            ),
-            node: context.node,
-            regexpNode: primary,
-          });
+          context.reportRegExpNode(
+            {
+              message: 'Remove duplicates in this character class.',
+              node: context.node,
+              regexpNode: primary,
+            },
+            secondaryLocations,
+          );
         }
       },
     };
   },
-  {
-    meta: {
-      schema: [
-        {
-          // internal parameter for rules having secondary locations
-          enum: [SONAR_RUNTIME],
-        },
-      ],
-    },
-  },
+  generateMeta(rspecMeta as Rule.RuleMetaData, {
+    schema: [
+      {
+        // internal parameter for rules having secondary locations
+        enum: [SONAR_RUNTIME],
+      },
+    ],
+  }),
 );

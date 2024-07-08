@@ -21,19 +21,20 @@
 
 import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
-import { TSESTree } from '@typescript-eslint/utils';
-import { getVariableFromName, toEncodedMessage } from '../helpers';
+import { getVariableFromName, report, toSecondaryLocation } from '../helpers';
 import { SONAR_RUNTIME } from '../../linter/parameters';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     schema: [
       {
         // internal parameter for rules having secondary locations
         enum: [SONAR_RUNTIME],
       },
     ],
-  },
+  }),
 
   create(context: Rule.RuleContext) {
     const usedInNew: Map<Scope.Variable, estree.SimpleCallExpression> = new Map();
@@ -81,10 +82,14 @@ function checkExpression(
         `Correct the use of this function; ` +
         `on line ${otherTypeUsage.loc.start.line} it was called with${tail} "new".`;
 
-      context.report({
-        node: callExpression.callee,
-        message: toEncodedMessage(message, [otherTypeUsage.callee as TSESTree.Node]),
-      });
+      report(
+        context,
+        {
+          node: callExpression.callee,
+          message,
+        },
+        [toSecondaryLocation(otherTypeUsage.callee)],
+      );
 
       hasIssue.push(variable);
     } else {

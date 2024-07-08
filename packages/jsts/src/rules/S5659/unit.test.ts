@@ -140,6 +140,7 @@ const testCases = {
           endColumn: 27,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `
@@ -174,6 +175,7 @@ const testCases = {
           endColumn: 27,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `
@@ -208,6 +210,7 @@ const testCases = {
           endColumn: 27,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `
@@ -250,6 +253,7 @@ const testCases = {
           endColumn: 27,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `
@@ -275,6 +279,7 @@ const testCases = {
           endColumn: 47,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `
@@ -316,6 +321,7 @@ const testCases = {
           endColumn: 17,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `
@@ -343,6 +349,7 @@ const testCases = {
           endColumn: 17,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `

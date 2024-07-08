@@ -22,20 +22,21 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
-import { getMainFunctionTokenLocation } from 'eslint-plugin-sonarjs/lib/src/utils/locations';
-import { getParent, RuleContext, isUndefined } from '../helpers';
+import { getParent, RuleContext, isUndefined, getMainFunctionTokenLocation } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 type FunctionLikeDeclaration = TSESTree.FunctionDeclaration | TSESTree.FunctionExpression;
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     hasSuggestions: true,
     messages: {
       useTypePredicate:
         'Declare this function return type using type predicate "{{castedExpressionText}} is {{castedTypeText}}".',
       suggestTypePredicate: 'Use type predicate',
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     return {
       "MethodDefinition[kind='method'] FunctionExpression"(node: estree.Node) {

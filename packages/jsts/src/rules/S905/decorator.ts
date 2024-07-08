@@ -21,10 +21,15 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
 import { interceptReport } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from '../S101/meta.json';
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(
-    rule,
+    {
+      ...rule,
+      meta: generateMeta(rspecMeta as Rule.RuleMetaData, rule.meta),
+    },
     reportExempting(
       expr =>
         isNegatedIife(expr) ||

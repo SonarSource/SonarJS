@@ -183,6 +183,7 @@ ruleTester.run(`Functions should use "return" consistently`, rule, {
           endColumn: 37,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `
@@ -201,6 +202,7 @@ ruleTester.run(`Functions should use "return" consistently`, rule, {
           endColumn: 43,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `var inconsistentArrow = (p) => {if (p) { return true; } return; };`,
@@ -214,6 +216,7 @@ ruleTester.run(`Functions should use "return" consistently`, rule, {
           endColumn: 31,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `
@@ -236,6 +239,7 @@ ruleTester.run(`Functions should use "return" consistently`, rule, {
           endColumn: 40,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `
@@ -258,6 +262,7 @@ ruleTester.run(`Functions should use "return" consistently`, rule, {
           endColumn: 23,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `

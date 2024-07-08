@@ -20,6 +20,8 @@
 import { TSESTree } from '@typescript-eslint/utils';
 import { type Rule } from 'eslint';
 import { type Node } from 'estree';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 const NODES = new Set<string>([
   TSESTree.AST_NODE_TYPES.ArrayExpression,
@@ -30,12 +32,12 @@ const NODES = new Set<string>([
 ]);
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       asFunction: 'Literal should not be used as function.',
       asTagFunction: 'Literal should not be used as tag function.',
     },
-  },
+  }),
 
   create(context) {
     const processNode = (node: Node, messageId: string): void => {

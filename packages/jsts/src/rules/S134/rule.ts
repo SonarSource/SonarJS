@@ -21,38 +21,45 @@
 
 import { Rule, AST } from 'eslint';
 import * as estree from 'estree';
-import { last, toEncodedMessage } from '../helpers';
+import { last, report, toSecondaryLocation } from '../helpers';
 import { SONAR_RUNTIME } from '../../linter/parameters';
-import type { RuleModule } from '../../../../shared/src/types/rule';
+import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
+import { generateMeta } from '../helpers/generate-meta';
+import { FromSchema } from 'json-schema-to-ts';
+import rspecMeta from '../S101/meta.json';
 
-export type Options = [
-  {
-    maximumNestingLevel: number;
-  },
-];
+const DEFAULT_MAXIMUM_NESTING_LEVEL = 3;
 
-export const rule: RuleModule<Options> = {
-  meta: {
-    schema: [
-      {
-        type: 'object',
-        properties: {
-          maximumNestingLevel: {
-            type: 'integer',
-          },
+const schema = {
+  type: 'array',
+  minItems: 0,
+  maxItems: 2,
+  items: [
+    {
+      type: 'object',
+      properties: {
+        maximumNestingLevel: {
+          type: 'integer',
         },
       },
-      {
-        type: 'string',
-        // internal parameter for rules having secondary locations
-        enum: [SONAR_RUNTIME],
-      },
-    ],
-  },
+      additionalProperties: false,
+    },
+    {
+      type: 'string',
+      // internal parameter for rules having secondary locations
+      enum: [SONAR_RUNTIME],
+    },
+  ],
+} as const satisfies JSONSchema4;
+
+export const rule: Rule.RuleModule = {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, { schema }),
 
   create(context: Rule.RuleContext) {
     const sourceCode = context.sourceCode;
-    const [{ maximumNestingLevel: threshold }] = context.options as Options;
+    const threshold =
+      (context.options as FromSchema<typeof schema>)[0]?.maximumNestingLevel ??
+      DEFAULT_MAXIMUM_NESTING_LEVEL;
     const nodeStack: AST.Token[] = [];
     function push(n: AST.Token) {
       nodeStack.push(n);
@@ -62,14 +69,14 @@ export const rule: RuleModule<Options> = {
     }
     function check(node: estree.Node) {
       if (nodeStack.length === threshold) {
-        context.report({
-          message: toEncodedMessage(
-            `Refactor this code to not nest more than ${threshold} if/for/while/switch/try statements.`,
-            nodeStack,
-            nodeStack.map(_n => '+1'),
-          ),
-          loc: sourceCode.getFirstToken(node)!.loc,
-        });
+        report(
+          context,
+          {
+            message: `Refactor this code to not nest more than ${threshold} if/for/while/switch/try statements.`,
+            loc: sourceCode.getFirstToken(node)!.loc,
+          },
+          nodeStack.map(n => toSecondaryLocation(n, '+1')),
+        );
       }
     }
     function isElseIf(node: estree.Node) {

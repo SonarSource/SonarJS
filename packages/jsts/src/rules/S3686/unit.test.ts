@@ -68,6 +68,7 @@ ruleTester.run('Functions should not be called both with and without "new"', rul
           endColumn: 29,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `function MyObj() { }
@@ -86,6 +87,7 @@ ruleTester.run('Functions should not be called both with and without "new"', rul
           endColumn: 22,
         },
       ],
+      options: ['sonar-runtime'],
     },
   ],
 });

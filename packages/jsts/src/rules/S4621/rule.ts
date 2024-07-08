@@ -22,11 +22,13 @@
 import { Rule, AST } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
-import { toEncodedMessage } from '../helpers';
 import { SONAR_RUNTIME } from '../../linter/parameters';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
+import { IssueLocation, report, toSecondaryLocation } from '../helpers';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     hasSuggestions: true,
     schema: [
       {
@@ -34,7 +36,7 @@ export const rule: Rule.RuleModule = {
         enum: [SONAR_RUNTIME],
       },
     ],
-  },
+  }),
 
   create(context: Rule.RuleContext) {
     return {
@@ -58,19 +60,19 @@ export const rule: Rule.RuleModule = {
           if (duplicates.length > 1) {
             const suggest = getSuggestions(compositeType, duplicates, context);
             const primaryNode = duplicates.splice(1, 1)[0];
-            const secondaryMessages = Array(duplicates.length);
-            secondaryMessages[0] = `Original`;
-            secondaryMessages.fill(`Another duplicate`, 1, duplicates.length);
+            const secondaryLocations: IssueLocation[] = duplicates.map((node, index) =>
+              toSecondaryLocation(node, index ? 'Another duplicate' : 'Original'),
+            );
 
-            context.report({
-              message: toEncodedMessage(
-                `Remove this duplicated type or replace with another one.`,
-                duplicates,
-                secondaryMessages,
-              ),
-              loc: primaryNode.loc,
-              suggest,
-            });
+            report(
+              context,
+              {
+                message: `Remove this duplicated type or replace with another one.`,
+                loc: primaryNode.loc,
+                suggest,
+              },
+              secondaryLocations,
+            );
           }
         });
       },

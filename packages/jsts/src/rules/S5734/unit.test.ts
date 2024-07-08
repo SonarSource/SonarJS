@@ -155,6 +155,7 @@ ruleTester.run('Allowing browsers to sniff MIME types is security-sensitive', ru
           endColumn: 10,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `
@@ -182,6 +183,7 @@ ruleTester.run('Allowing browsers to sniff MIME types is security-sensitive', ru
           endColumn: 19,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `
@@ -212,6 +214,7 @@ ruleTester.run('Allowing browsers to sniff MIME types is security-sensitive', ru
           endColumn: 12,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `
@@ -242,6 +245,7 @@ ruleTester.run('Allowing browsers to sniff MIME types is security-sensitive', ru
           endColumn: 12,
         },
       ],
+      options: ['sonar-runtime'],
     },
   ],
 });

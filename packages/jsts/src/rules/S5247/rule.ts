@@ -27,22 +27,24 @@ import {
   isRequiredParserServices,
   resolveFromFunctionReference,
   checkSensitiveCall,
-  toEncodedMessage,
   getFullyQualifiedName,
+  report,
 } from '../helpers';
 import { SONAR_RUNTIME } from '../../linter/parameters';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 const MESSAGE = 'Make sure disabling auto-escaping feature is safe here.';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     schema: [
       {
         // internal parameter for rules having secondary locations
         enum: [SONAR_RUNTIME],
       },
     ],
-  },
+  }),
   create(context: Rule.RuleContext) {
     const services = context.sourceCode.parserServices;
 
@@ -135,9 +137,9 @@ export const rule: Rule.RuleModule = {
           return;
         }
         if (isInvalidSanitizerFunction(right)) {
-          context.report({
+          report(context, {
             node: left,
-            message: toEncodedMessage(MESSAGE),
+            message: MESSAGE,
           });
         }
       },

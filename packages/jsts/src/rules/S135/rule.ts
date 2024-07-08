@@ -21,18 +21,20 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { toEncodedMessage } from '../helpers';
 import { SONAR_RUNTIME } from '../../linter/parameters';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from '../S101/meta.json';
+import { report, toSecondaryLocation } from '../helpers';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     schema: [
       {
         // internal parameter for rules having secondary locations
         enum: [SONAR_RUNTIME],
       },
     ],
-  },
+  }),
   create(context: Rule.RuleContext) {
     let jumpTargets: JumpTarget[] = [];
 
@@ -58,16 +60,20 @@ export const rule: Rule.RuleModule = {
       if (jumps && jumps.length > 1) {
         const sourceCode = context.sourceCode;
         const firstToken = sourceCode.getFirstToken(node);
-        context.report({
-          loc: firstToken!.loc,
-          message: toEncodedMessage(
-            'Reduce the total number of "break" and "continue" statements in this loop to use one at most.',
-            jumps,
-            jumps.map(jmp =>
+        report(
+          context,
+          {
+            loc: firstToken!.loc,
+            message:
+              'Reduce the total number of "break" and "continue" statements in this loop to use one at most.',
+          },
+          jumps.map(jmp =>
+            toSecondaryLocation(
+              jmp,
               jmp.type === 'BreakStatement' ? '"break" statement.' : '"continue" statement.',
             ),
           ),
-        });
+        );
       }
     }
 

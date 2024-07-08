@@ -22,27 +22,37 @@
 import { Rule, AST } from 'eslint';
 import * as estree from 'estree';
 import { interceptReport, removeNodeWithLeadingWhitespaces } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 // core implementation of this rule does not provide quick fixes
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
-  rule.meta!.hasSuggestions = true;
-  return interceptReport(rule, (context, reportDescriptor) => {
-    const loc = (reportDescriptor as any).loc as AST.SourceLocation;
-    const node = (reportDescriptor as any).node as estree.Node;
-    context.report({
-      ...reportDescriptor,
-      suggest: [
-        {
-          desc: 'Remove unreachable code',
-          fix: fixer =>
-            removeNodeWithLeadingWhitespaces(
-              context,
-              node,
-              fixer,
-              context.sourceCode.getIndexFromLoc(loc.end),
-            ),
-        },
-      ],
-    });
-  });
+  return interceptReport(
+    {
+      ...rule,
+      meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+        ...rule.meta!,
+        hasSuggestions: true,
+      }),
+    },
+    (context, reportDescriptor) => {
+      const loc = (reportDescriptor as any).loc as AST.SourceLocation;
+      const node = (reportDescriptor as any).node as estree.Node;
+      context.report({
+        ...reportDescriptor,
+        suggest: [
+          {
+            desc: 'Remove unreachable code',
+            fix: fixer =>
+              removeNodeWithLeadingWhitespaces(
+                context,
+                node,
+                fixer,
+                context.sourceCode.getIndexFromLoc(loc.end),
+              ),
+          },
+        ],
+      });
+    },
+  );
 }

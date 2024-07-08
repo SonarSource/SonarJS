@@ -1,0 +1,8 @@
+{
+  "type": "problem",
+  "docs": {
+    "description": "Regular expressions with the global flag should be used with caution",
+    "recommended": true,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S6351/javascript/rule.adoc"
+  }
+}

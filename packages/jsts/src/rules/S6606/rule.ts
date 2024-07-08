@@ -27,34 +27,42 @@ import {
   isBooleanType,
 } from '../helpers';
 import { type LogicalExpression } from 'estree';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 const preferNullishCoalescingRule = tsEslintRules['prefer-nullish-coalescing'];
 
-export const rule = interceptReport(preferNullishCoalescingRule, (context, reportDescriptor) => {
-  const { node: token, messageId } = reportDescriptor as Rule.ReportDescriptor & {
-    node: Rule.Node;
-    messageId: string;
-  };
+export const rule = interceptReport(
+  {
+    ...preferNullishCoalescingRule,
+    meta: generateMeta(rspecMeta as Rule.RuleMetaData, preferNullishCoalescingRule.meta),
+  },
+  (context, reportDescriptor) => {
+    const { node: token, messageId } = reportDescriptor as Rule.ReportDescriptor & {
+      node: Rule.Node;
+      messageId: string;
+    };
 
-  if (messageId === 'preferNullishOverOr') {
-    const services = context.sourceCode.parserServices;
-    const rangeIndex = (
-      token as {
-        range: [number, number];
+    if (messageId === 'preferNullishOverOr') {
+      const services = context.sourceCode.parserServices;
+      const rangeIndex = (
+        token as {
+          range: [number, number];
+        }
+      ).range[0];
+      const node = context.sourceCode.getNodeByRangeIndex(rangeIndex) as LogicalExpression;
+      const leftOperand = node.left;
+      const leftOperandType = getTypeFromTreeNode(leftOperand, services);
+
+      if (
+        leftOperandType.isUnion() &&
+        leftOperandType.types.some(isNullOrUndefinedType) &&
+        (leftOperandType.types.some(isBooleanType) || leftOperandType.types.some(isObjectType))
+      ) {
+        return;
       }
-    ).range[0];
-    const node = context.sourceCode.getNodeByRangeIndex(rangeIndex) as LogicalExpression;
-    const leftOperand = node.left;
-    const leftOperandType = getTypeFromTreeNode(leftOperand, services);
-
-    if (
-      leftOperandType.isUnion() &&
-      leftOperandType.types.some(isNullOrUndefinedType) &&
-      (leftOperandType.types.some(isBooleanType) || leftOperandType.types.some(isObjectType))
-    ) {
-      return;
     }
-  }
 
-  context.report(reportDescriptor);
-});
+    context.report(reportDescriptor);
+  },
+);

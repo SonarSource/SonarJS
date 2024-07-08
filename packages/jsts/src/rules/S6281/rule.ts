@@ -27,10 +27,12 @@ import {
   getValueOfExpression,
   isIdentifier,
   isProperty,
-  toEncodedMessage,
+  report,
 } from '../helpers';
 import { normalizeFQN } from '../helpers/aws/cdk';
 import { findPropagatedSetting, getProperty, S3BucketTemplate } from '../helpers/aws/s3';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 const BLOCK_PUBLIC_ACCESS_KEY = 'blockPublicAccess';
 const BLOCK_PUBLIC_ACCESS_PROPERTY_KEYS = [
@@ -51,8 +53,8 @@ export const rule: Rule.RuleModule = S3BucketTemplate(
   (bucket, context) => {
     const blockPublicAccess = getProperty(context, bucket, BLOCK_PUBLIC_ACCESS_KEY);
     if (blockPublicAccess == null) {
-      context.report({
-        message: toEncodedMessage(messages['omitted']),
+      report(context, {
+        message: messages['omitted'],
         node: bucket.callee,
       });
     } else {
@@ -73,10 +75,14 @@ export const rule: Rule.RuleModule = S3BucketTemplate(
           'aws_cdk_lib.aws_s3.BlockPublicAccess.BLOCK_ACLS'
       ) {
         const propagated = findPropagatedSetting(blockPublicAccess, blockPublicAccessMember);
-        context.report({
-          message: toEncodedMessage(messages['public'], propagated.locations, propagated.messages),
-          node: blockPublicAccess,
-        });
+        report(
+          context,
+          {
+            message: messages['public'],
+            node: blockPublicAccess,
+          },
+          propagated ? [propagated] : [],
+        );
       }
     }
 
@@ -97,8 +103,8 @@ export const rule: Rule.RuleModule = S3BucketTemplate(
           'ObjectExpression',
         );
         if (blockPublicAccessConfig === undefined) {
-          context.report({
-            message: toEncodedMessage(messages['omitted']),
+          report(context, {
+            message: messages['omitted'],
             node: blockPublicAccessNew,
           });
         } else {
@@ -126,14 +132,14 @@ export const rule: Rule.RuleModule = S3BucketTemplate(
               blockPublicAccessProperty,
               blockPublicAccessValue,
             );
-            context.report({
-              message: toEncodedMessage(
-                messages['public'],
-                propagated.locations,
-                propagated.messages,
-              ),
-              node: blockPublicAccessProperty,
-            });
+            report(
+              context,
+              {
+                message: messages['public'],
+                node: blockPublicAccessProperty,
+              },
+              propagated ? [propagated] : [],
+            );
           }
         }
       }
@@ -147,14 +153,12 @@ export const rule: Rule.RuleModule = S3BucketTemplate(
       }
     }
   },
-  {
-    meta: {
-      schema: [
-        {
-          // internal parameter for rules having secondary locations
-          enum: [SONAR_RUNTIME],
-        },
-      ],
-    },
-  },
+  generateMeta(rspecMeta as Rule.RuleMetaData, {
+    schema: [
+      {
+        // internal parameter for rules having secondary locations
+        enum: [SONAR_RUNTIME],
+      },
+    ],
+  }),
 );

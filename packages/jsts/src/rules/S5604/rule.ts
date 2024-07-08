@@ -22,36 +22,50 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { isIdentifier, isMemberExpression, getValueOfExpression } from '../helpers';
-import type { RuleModule } from '../../../../shared/src/types/rule';
+import { FromSchema } from 'json-schema-to-ts';
+import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
-const permissions = ['geolocation', 'camera', 'microphone', 'notifications', 'persistent-storage'];
+const GEOLOCATION = 'geolocation';
+const CAMERA = 'camera';
+const MICROPHONE = 'microphone';
+const NOTIFICATIONS = 'notifications';
+const PERSISTENT_STORAGE = 'persistent-storage';
 
-export type Options = [
-  {
-    permissions: Array<string>;
-  },
-];
+const supportedPermissions = [GEOLOCATION, CAMERA, MICROPHONE, NOTIFICATIONS, PERSISTENT_STORAGE];
 
-export const rule: RuleModule<Options> = {
-  meta: {
-    messages: {
-      checkPermission: 'Make sure the use of the {{feature}} is necessary.',
-    },
-    schema: [
-      {
-        type: 'object',
-        properties: {
-          permissions: {
-            type: 'array',
-            items: {
-              type: 'string',
-            },
+const DEFAULT_PERMISSIONS = [GEOLOCATION];
+
+const messages = {
+  checkPermission: 'Make sure the use of the {{feature}} is necessary.',
+};
+
+const schema = {
+  type: 'array',
+  minItems: 0,
+  maxItems: 1,
+  items: [
+    {
+      type: 'object',
+      properties: {
+        permissions: {
+          type: 'array',
+          items: {
+            type: 'string',
           },
         },
       },
-    ],
-  },
+      additionalProperties: false,
+    },
+  ],
+} as const satisfies JSONSchema4;
+
+export const rule: Rule.RuleModule = {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, { messages, schema }),
   create(context: Rule.RuleContext) {
+    const permissions =
+      (context.options as FromSchema<typeof schema>)[0]?.permissions ?? DEFAULT_PERMISSIONS;
     return {
       'CallExpression[callee.type="MemberExpression"]'(node: estree.Node) {
         const call = node as estree.CallExpression;
@@ -60,17 +74,17 @@ export const rule: RuleModule<Options> = {
           isNavigatorMemberExpression(callee, 'permissions', 'query') &&
           call.arguments.length > 0
         ) {
-          checkPermissions(context, call);
+          checkPermissions(context, call, permissions);
           return;
         }
         if (
-          (context.options as Options)[0].permissions.includes('geolocation') &&
-          isNavigatorMemberExpression(callee, 'geolocation', 'watchPosition', 'getCurrentPosition')
+          permissions.includes(GEOLOCATION) &&
+          isNavigatorMemberExpression(callee, GEOLOCATION, 'watchPosition', 'getCurrentPosition')
         ) {
           context.report({
             messageId: 'checkPermission',
             data: {
-              feature: 'geolocation',
+              feature: GEOLOCATION,
             },
             node: callee,
           });
@@ -81,30 +95,30 @@ export const rule: RuleModule<Options> = {
           call.arguments.length > 0
         ) {
           const firstArg = getValueOfExpression(context, call.arguments[0], 'ObjectExpression');
-          checkForCameraAndMicrophonePermissions(context, callee, firstArg);
+          checkForCameraAndMicrophonePermissions(context, permissions, callee, firstArg);
           return;
         }
         if (
-          (context.options as Options)[0].permissions.includes('notifications') &&
+          permissions.includes(NOTIFICATIONS) &&
           isMemberExpression(callee, 'Notification', 'requestPermission')
         ) {
           context.report({
             messageId: 'checkPermission',
             data: {
-              feature: 'notifications',
+              feature: NOTIFICATIONS,
             },
             node: callee,
           });
           return;
         }
         if (
-          (context.options as Options)[0].permissions.includes('persistent-storage') &&
+          permissions.includes(PERSISTENT_STORAGE) &&
           isMemberExpression(callee.object, 'navigator', 'storage')
         ) {
           context.report({
             messageId: 'checkPermission',
             data: {
-              feature: 'persistent-storage',
+              feature: PERSISTENT_STORAGE,
             },
             node: callee,
           });
@@ -112,14 +126,11 @@ export const rule: RuleModule<Options> = {
       },
       NewExpression(node: estree.Node) {
         const { callee } = node as estree.NewExpression;
-        if (
-          (context.options as Options)[0].permissions.includes('notifications') &&
-          isIdentifier(callee, 'Notification')
-        ) {
+        if (permissions.includes(NOTIFICATIONS) && isIdentifier(callee, 'Notification')) {
           context.report({
             messageId: 'checkPermission',
             data: {
-              feature: 'notifications',
+              feature: NOTIFICATIONS,
             },
             node: callee,
           });
@@ -131,14 +142,15 @@ export const rule: RuleModule<Options> = {
 
 function checkForCameraAndMicrophonePermissions(
   context: Rule.RuleContext,
+  permissions: string[],
   callee: estree.MemberExpression,
   firstArg: estree.ObjectExpression | undefined,
 ) {
   if (!firstArg) {
     return;
   }
-  const shouldCheckAudio = (context.options as Options)[0].permissions.includes('microphone');
-  const shouldCheckVideo = (context.options as Options)[0].permissions.includes('camera');
+  const shouldCheckAudio = permissions.includes('microphone');
+  const shouldCheckVideo = permissions.includes(CAMERA);
   if (!shouldCheckAudio && !shouldCheckVideo) {
     return;
   }
@@ -153,7 +165,7 @@ function checkForCameraAndMicrophonePermissions(
         shouldCheckVideo &&
         isOtherThanFalse(context, value)
       ) {
-        perms.push('camera');
+        perms.push(CAMERA);
       }
     }
   }
@@ -176,10 +188,16 @@ function isOtherThanFalse(context: Rule.RuleContext, value: estree.Node) {
   return true;
 }
 
-function checkPermissions(context: Rule.RuleContext, call: estree.CallExpression) {
+function checkPermissions(
+  context: Rule.RuleContext,
+  call: estree.CallExpression,
+  permissions: string[],
+) {
   const firstArg = getValueOfExpression(context, call.arguments[0], 'ObjectExpression');
   if (firstArg?.type === 'ObjectExpression') {
-    const nameProp = firstArg.properties.find(prop => hasNamePropertyWithPermission(prop, context));
+    const nameProp = firstArg.properties.find(prop =>
+      hasNamePropertyWithPermission(prop, context, permissions),
+    );
     if (nameProp) {
       const { value } = (nameProp as estree.Property).value as estree.Literal;
       context.report({
@@ -207,14 +225,15 @@ function isNavigatorMemberExpression(
 function hasNamePropertyWithPermission(
   prop: estree.Property | estree.SpreadElement,
   context: Rule.RuleContext,
+  permissions: string[],
 ) {
   if (prop.type === 'Property' && isIdentifier(prop.key, 'name')) {
     const value = getValueOfExpression(context, prop.value, 'Literal');
     return (
       value &&
       typeof value.value === 'string' &&
-      permissions.includes(value.value) &&
-      (context.options as Options)[0].permissions.includes(value.value)
+      supportedPermissions.includes(value.value) &&
+      permissions.includes(value.value)
     );
   }
   return false;

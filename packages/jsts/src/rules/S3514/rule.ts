@@ -26,22 +26,25 @@ import {
   findFirstMatchingAncestor,
   isIdentifier,
   isNumberLiteral,
-  toEncodedMessage,
+  report,
+  toSecondaryLocation,
 } from '../helpers';
 import { SONAR_RUNTIME } from '../../linter/parameters';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 const MAX_INDEX = 4;
 const isAllowedIndex = (idx: number) => idx >= 0 && idx <= MAX_INDEX;
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     schema: [
       {
         // internal parameter for rules having secondary locations
         enum: [SONAR_RUNTIME],
       },
     ],
-  },
+  }),
 
   create(context: Rule.RuleContext) {
     function visitStatements(statements: Array<estree.Statement | estree.ModuleDeclaration>) {
@@ -103,14 +106,14 @@ export const rule: Rule.RuleModule = {
           const firstKind = getKind(declarations[0]);
           const tail = declarations.slice(1);
           if (tail.every(decl => getKind(decl) === firstKind)) {
-            context.report({
-              node: declarations[0],
-              message: toEncodedMessage(
-                `Use destructuring syntax for these assignments from "${key}".`,
-                tail as TSESTree.Node[],
-                Array(tail.length).fill('Replace this assignment.'),
-              ),
-            });
+            report(
+              context,
+              {
+                node: declarations[0],
+                message: `Use destructuring syntax for these assignments from "${key}".`,
+              },
+              tail.map(node => toSecondaryLocation(node, 'Replace this assignment.')),
+            );
           }
         }
       });

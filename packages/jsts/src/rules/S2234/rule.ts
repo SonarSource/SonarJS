@@ -22,7 +22,6 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
-import { EncodedMessage } from 'eslint-plugin-sonarjs/lib/src/utils/locations';
 import {
   FunctionNodeType,
   isRequiredParserServices,
@@ -31,8 +30,12 @@ import {
   getSignatureFromCallee,
   getTypeAsString,
   resolveIdentifiers,
+  report,
+  toSecondaryLocation,
 } from '../helpers';
 import { SONAR_RUNTIME } from '../../linter/parameters';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 interface FunctionSignature {
   params: Array<string | undefined>;
@@ -40,14 +43,14 @@ interface FunctionSignature {
 }
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     schema: [
       {
         // internal parameter for rules having secondary locations
         enum: [SONAR_RUNTIME],
       },
     ],
-  },
+  }),
 
   create(context: Rule.RuleContext) {
     const services = context.sourceCode.parserServices;
@@ -209,16 +212,14 @@ export const rule: Rule.RuleModule = {
       functionDeclaration: FunctionNodeType | undefined,
       node: estree.CallExpression,
     ) {
-      const primaryMessage = `Arguments '${arg1}' and '${arg2}' have the same names but not the same order as the function parameters.`;
-      const encodedMessage: EncodedMessage = {
-        message: primaryMessage,
-        secondaryLocations: getSecondaryLocations(functionDeclaration),
-      };
-
-      context.report({
-        message: JSON.stringify(encodedMessage),
-        loc: getParametersClauseLocation(node.arguments),
-      });
+      report(
+        context,
+        {
+          message: `Arguments '${arg1}' and '${arg2}' have the same names but not the same order as the function parameters.`,
+          loc: getParametersClauseLocation(node.arguments),
+        },
+        getSecondaryLocations(functionDeclaration),
+      );
     }
 
     return {
@@ -245,15 +246,7 @@ function extractFunctionParameters(functionDeclaration: FunctionNodeType) {
 function getSecondaryLocations(functionDeclaration: FunctionNodeType | undefined) {
   if (functionDeclaration?.params && functionDeclaration.params.length > 0) {
     const { start, end } = getParametersClauseLocation(functionDeclaration.params);
-    return [
-      {
-        message: 'Formal parameters',
-        line: start.line,
-        column: start.column,
-        endLine: end.line,
-        endColumn: end.column,
-      },
-    ];
+    return [toSecondaryLocation({ loc: { start, end } }, 'Formal parameters')];
   }
   return [];
 }

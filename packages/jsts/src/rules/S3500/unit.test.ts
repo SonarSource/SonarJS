@@ -38,6 +38,7 @@ ruleTester.run('Attempts should not be made to update "const" variables', rule, 
           endColumn: 10,
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `

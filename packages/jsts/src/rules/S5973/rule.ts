@@ -23,14 +23,16 @@ import { Rule } from 'eslint';
 import { Mocha, getFullyQualifiedName, isIdentifier, isMethodInvocation } from '../helpers';
 import * as estree from 'estree';
 import { getDependencies } from '@sonar/jsts';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       stable:
         'Make your tests stable so that they pass on the first try, or remove the flaky ones.',
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     const describes: estree.Node[] = [];
 

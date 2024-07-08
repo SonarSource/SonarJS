@@ -21,6 +21,8 @@
 
 import { Rule } from 'eslint';
 import { AwsCdkCheckArguments, AwsCdkTemplate } from '../helpers/aws/cdk';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = AwsCdkTemplate(
   {
@@ -31,13 +33,11 @@ export const rule: Rule.RuleModule = AwsCdkTemplate(
       { primitives: { invalid: [false] } },
     ),
   },
-  {
-    meta: {
-      messages: {
-        encryptionDisabled: 'Make sure that using unencrypted volumes is safe here.',
-        encryptionOmitted:
-          'Omitting "encrypted" disables volumes encryption. Make sure it is safe here.',
-      },
+  generateMeta(rspecMeta as Rule.RuleMetaData, {
+    messages: {
+      encryptionDisabled: 'Make sure that using unencrypted volumes is safe here.',
+      encryptionOmitted:
+        'Omitting "encrypted" disables volumes encryption. Make sure it is safe here.',
     },
-  },
+  }),
 );

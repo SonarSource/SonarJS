@@ -22,17 +22,25 @@
 import { Rule } from 'eslint';
 import { TSESTree } from '@typescript-eslint/utils';
 import { UTILITY_TYPES, interceptReport } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from '../S1788/meta.json';
 
 // core implementation of this rule raises issues on empty interface extending TypeScript utility types
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
-  return interceptReport(rule, (context, reportDescriptor) => {
-    const id = (reportDescriptor as any).node as TSESTree.Identifier;
-    const decl = id.parent as TSESTree.TSInterfaceDeclaration;
-    if (decl.extends?.length === 1 && isUtilityType(decl.extends[0])) {
-      return;
-    }
-    context.report(reportDescriptor);
-  });
+  return interceptReport(
+    {
+      ...rule,
+      meta: generateMeta(rspecMeta as Rule.RuleMetaData, rule.meta),
+    },
+    (context, reportDescriptor) => {
+      const id = (reportDescriptor as any).node as TSESTree.Identifier;
+      const decl = id.parent as TSESTree.TSInterfaceDeclaration;
+      if (decl.extends?.length === 1 && isUtilityType(decl.extends[0])) {
+        return;
+      }
+      context.report(reportDescriptor);
+    },
+  );
 }
 
 function isUtilityType(node: TSESTree.TSInterfaceHeritage) {

@@ -1,0 +1,8 @@
+{
+  "type": "suggestion",
+  "docs": {
+    "description": "HTML elements should have a valid language attribute",
+    "recommended": true,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S5254/javascript/rule.adoc"
+  }
+}

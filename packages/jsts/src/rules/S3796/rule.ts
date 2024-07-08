@@ -22,7 +22,6 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
-import { getMainFunctionTokenLocation } from 'eslint-plugin-sonarjs/lib/src/utils/locations';
 import {
   isArray,
   isTypedArray,
@@ -32,7 +31,10 @@ import {
   RuleContext,
   isIndexNotation,
   isDotNotation,
+  getMainFunctionTokenLocation,
 } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 const message = `Add a "return" statement to this callback.`;
 
@@ -65,6 +67,7 @@ function hasCallBackWithoutReturn(argument: estree.Node, services: RequiredParse
 }
 
 export const rule: Rule.RuleModule = {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData),
   create(context: Rule.RuleContext) {
     const services = context.sourceCode.parserServices;
 

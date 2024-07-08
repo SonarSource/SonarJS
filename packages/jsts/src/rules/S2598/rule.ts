@@ -19,18 +19,21 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S2598/javascript
 
-import { TSESTree } from '@typescript-eslint/utils';
 import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
 import {
   getLhsVariable,
   getValueOfExpression,
   getVariableFromName,
-  toEncodedMessage,
   getFullyQualifiedName,
   getProperty,
+  report as contextReport,
+  IssueLocation,
+  toSecondaryLocation,
 } from '../helpers';
 import { SONAR_RUNTIME } from '../../linter/parameters';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 const FORMIDABLE_MODULE = 'formidable';
 const KEEP_EXTENSIONS = 'keepExtensions';
@@ -46,14 +49,14 @@ const formidableObjects: Map<
 > = new Map();
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     schema: [
       {
         // internal parameter for rules having secondary locations
         enum: [SONAR_RUNTIME],
       },
     ],
-  },
+  }),
   create(context: Rule.RuleContext) {
     return {
       NewExpression(node: estree.Node) {
@@ -143,10 +146,13 @@ function checkMulter(context: Rule.RuleContext, callExpression: estree.CallExpre
     if (storageValue) {
       const diskStorageCallee = getDiskStorageCalleeIfUnsafeStorage(context, storageValue);
       if (diskStorageCallee) {
-        report(context, false, false, callExpression, {
-          node: diskStorageCallee,
-          message: 'no destination specified',
-        });
+        report(
+          context,
+          false,
+          false,
+          callExpression,
+          toSecondaryLocation(diskStorageCallee, 'no destination specified'),
+        );
       }
     }
   }
@@ -234,7 +240,7 @@ function report(
   uploadDirSet: boolean,
   keepExtensions: boolean,
   callExpression: estree.CallExpression,
-  secondaryLocation?: { node: estree.Node; message: string },
+  secondaryLocation?: IssueLocation,
 ) {
   let message;
 
@@ -247,19 +253,13 @@ function report(
   }
 
   if (message) {
-    if (secondaryLocation) {
-      message = toEncodedMessage(
+    contextReport(
+      context,
+      {
         message,
-        [secondaryLocation.node as TSESTree.Node],
-        [secondaryLocation.message],
-      );
-    } else {
-      message = toEncodedMessage(message, []);
-    }
-
-    context.report({
-      message,
-      node: callExpression.callee,
-    });
+        node: callExpression.callee,
+      },
+      secondaryLocation ? [secondaryLocation] : [],
+    );
   }
 }

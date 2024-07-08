@@ -21,16 +21,17 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { getMainFunctionTokenLocation } from 'eslint-plugin-sonarjs/lib/src/utils/locations';
-import { getParent, RuleContext } from '../helpers';
+import { getMainFunctionTokenLocation, getParent, RuleContext } from '../helpers';
 import { TSESTree } from '@typescript-eslint/utils';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       addYield: 'Add a "yield" statement to this generator.',
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     const yieldStack: number[] = [];
 

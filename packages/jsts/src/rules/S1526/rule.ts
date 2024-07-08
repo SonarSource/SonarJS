@@ -21,19 +21,20 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { TSESTree } from '@typescript-eslint/utils';
-import { toEncodedMessage } from '../helpers';
 import { SONAR_RUNTIME } from '../../linter/parameters';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
+import { report, toSecondaryLocation } from '../helpers';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     schema: [
       {
         // internal parameter for rules having secondary locations
         enum: [SONAR_RUNTIME],
       },
     ],
-  },
+  }),
 
   create(context: Rule.RuleContext) {
     return {
@@ -45,14 +46,14 @@ export const rule: Rule.RuleModule = {
             .filter(reference => !reference.init && comesBefore(reference.identifier, declaration))
             .map(reference => reference.identifier);
           if (misused.length > 0) {
-            context.report({
-              message: toEncodedMessage(
-                `Move the declaration of "${declaration.name}" before this usage.`,
-                [declaration as TSESTree.Node],
-                ['Declaration'],
-              ),
-              node: misused[0],
-            });
+            report(
+              context,
+              {
+                message: `Move the declaration of "${declaration.name}" before this usage.`,
+                node: misused[0],
+              },
+              [toSecondaryLocation(declaration, 'Declaration')],
+            );
           }
         }
       },

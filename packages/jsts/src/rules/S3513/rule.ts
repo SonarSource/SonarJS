@@ -21,22 +21,24 @@
 
 import { Rule, Scope } from 'eslint';
 import { TSESTree } from '@typescript-eslint/utils';
-import { toEncodedMessage } from '../helpers';
 import { SONAR_RUNTIME } from '../../linter/parameters';
 import estree from 'estree';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
+import { report, toSecondaryLocation } from '../helpers';
 
 const MESSAGE = "Use the rest syntax to declare this function's arguments.";
 const SECONDARY_MESSAGE = 'Replace this reference to "arguments".';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     schema: [
       {
         // internal parameter for rules having secondary locations
         enum: [SONAR_RUNTIME],
       },
     ],
-  },
+  }),
   create(context: Rule.RuleContext) {
     return {
       // Ignore root scope containing global variables
@@ -70,14 +72,14 @@ function checkArgumentsVariableWithoutDefinition(
   if (!isLocalVariableOrParameter && references.length > 0) {
     const firstReference = references[0];
     const secondaryLocations = references.slice(1).map(ref => ref.identifier) as TSESTree.Node[];
-    context.report({
-      node: firstReference.identifier,
-      message: toEncodedMessage(
-        MESSAGE,
-        secondaryLocations,
-        Array(secondaryLocations.length).fill(SECONDARY_MESSAGE),
-      ),
-    });
+    report(
+      context,
+      {
+        node: firstReference.identifier,
+        message: MESSAGE,
+      },
+      secondaryLocations.map(node => toSecondaryLocation(node, SECONDARY_MESSAGE)),
+    );
   }
 }
 

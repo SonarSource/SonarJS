@@ -22,17 +22,19 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { isRequireModule, isMemberWithProperty } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 const dbModules = ['pg', 'mysql', 'mysql2', 'sequelize'];
 
 type Argument = estree.Expression | estree.SpreadElement;
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       safeQuery: `Make sure that executing SQL queries is safe here.`,
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     let isDbModuleImported = false;
 

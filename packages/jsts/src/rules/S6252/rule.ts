@@ -20,10 +20,17 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6252/javascript
 
 import { Rule } from 'eslint';
-import { Node } from 'estree';
 import { SONAR_RUNTIME } from '../../linter/parameters';
-import { getValueOfExpression, toEncodedMessage, getNodeParent } from '../helpers';
+import {
+  getValueOfExpression,
+  getNodeParent,
+  report,
+  IssueLocation,
+  toSecondaryLocation,
+} from '../helpers';
 import { getProperty, S3BucketTemplate } from '../helpers/aws/s3';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 const VERSIONED_KEY = 'versioned';
 
@@ -38,8 +45,8 @@ export const rule: Rule.RuleModule = S3BucketTemplate(
   (bucketConstructor, context) => {
     const versionedProperty = getProperty(context, bucketConstructor, VERSIONED_KEY);
     if (versionedProperty == null) {
-      context.report({
-        message: toEncodedMessage(messages.omitted),
+      report(context, {
+        message: messages.omitted,
         node: bucketConstructor.callee,
       });
       return;
@@ -47,26 +54,29 @@ export const rule: Rule.RuleModule = S3BucketTemplate(
     const propertyLiteralValue = getValueOfExpression(context, versionedProperty.value, 'Literal');
 
     if (propertyLiteralValue?.value === false) {
-      const secondary = { locations: [] as Node[], messages: [] as string[] };
+      const secondaries: IssueLocation[] = [];
       const isPropagatedProperty = versionedProperty.value !== propertyLiteralValue;
       if (isPropagatedProperty) {
-        secondary.locations = [getNodeParent(propertyLiteralValue)];
-        secondary.messages = [messages.secondary];
+        secondaries.push(
+          toSecondaryLocation(getNodeParent(propertyLiteralValue), messages.secondary),
+        );
       }
-      context.report({
-        message: toEncodedMessage(messages.unversioned, secondary.locations, secondary.messages),
-        node: versionedProperty,
-      });
+      report(
+        context,
+        {
+          message: messages.unversioned,
+          node: versionedProperty,
+        },
+        secondaries,
+      );
     }
   },
-  {
-    meta: {
-      schema: [
-        {
-          // internal parameter for rules having secondary locations
-          enum: [SONAR_RUNTIME],
-        },
-      ],
-    },
-  },
+  generateMeta(rspecMeta as Rule.RuleMetaData, {
+    schema: [
+      {
+        // internal parameter for rules having secondary locations
+        enum: [SONAR_RUNTIME],
+      },
+    ],
+  }),
 );

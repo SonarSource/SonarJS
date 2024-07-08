@@ -22,8 +22,11 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { getVariableFromIdentifier, isIdentifier, Mocha } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData),
   create(context: Rule.RuleContext) {
     let catchWithDone = false;
 

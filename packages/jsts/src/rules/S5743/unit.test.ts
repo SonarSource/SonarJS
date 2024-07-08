@@ -98,6 +98,7 @@ ruleTester.run('Allowing browsers to perform DNS prefetching is security-sensiti
           }),
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `
@@ -123,6 +124,7 @@ ruleTester.run('Allowing browsers to perform DNS prefetching is security-sensiti
           }),
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `
@@ -148,6 +150,7 @@ ruleTester.run('Allowing browsers to perform DNS prefetching is security-sensiti
           }),
         },
       ],
+      options: ['sonar-runtime'],
     },
   ],
 });

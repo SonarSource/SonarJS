@@ -98,6 +98,7 @@ ruleTester.run('Allowing confidential information to be logged is security-sensi
           }),
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `
@@ -119,6 +120,7 @@ ruleTester.run('Allowing confidential information to be logged is security-sensi
           }),
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `
@@ -140,6 +142,7 @@ ruleTester.run('Allowing confidential information to be logged is security-sensi
           }),
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `
@@ -158,6 +161,7 @@ ruleTester.run('Allowing confidential information to be logged is security-sensi
           }),
         },
       ],
+      options: ['sonar-runtime'],
     },
     {
       code: `
@@ -172,6 +176,7 @@ ruleTester.run('Allowing confidential information to be logged is security-sensi
           }),
         },
       ],
+      options: ['sonar-runtime'],
     },
   ],
 });

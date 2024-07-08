@@ -21,14 +21,28 @@
 
 import { Rule } from 'eslint';
 import { interceptReport } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 // Rewording one of the issue messages reported by the core implementation.
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
-  rule.meta!.messages!['functionTypeOverCallableType'] =
-    '{{ literalOrInterface }} has only a call signature, you should use a function type instead.';
-  return interceptReport(rule, (context, reportDescriptor) => {
-    context.report({
-      ...reportDescriptor,
-    });
-  });
+  return interceptReport(
+    {
+      ...rule,
+      meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+        ...rule.meta!,
+        messages: {
+          ...rule.meta!.messages,
+          /* Map to a more friendly message */
+          functionTypeOverCallableType:
+            '{{ literalOrInterface }} has only a call signature, you should use a function type instead.',
+        },
+      }),
+    },
+    (context, reportDescriptor) => {
+      context.report({
+        ...reportDescriptor,
+      });
+    },
+  );
 }

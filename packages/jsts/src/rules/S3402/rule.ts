@@ -26,23 +26,26 @@ import {
   RequiredParserServices,
   isRequiredParserServices,
   getTypeFromTreeNode,
-  toEncodedMessage,
   isStringLiteral,
+  report,
+  toSecondaryLocation,
 } from '../helpers';
 import { SONAR_RUNTIME } from '../../linter/parameters';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 const message = `Review this expression to be sure that the concatenation was intended.`;
 const objectLikeTypes = new Set(['object', 'Object']);
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     schema: [
       {
         // internal parameter for rules having secondary locations
         enum: [SONAR_RUNTIME],
       },
     ],
-  },
+  }),
   create(context: Rule.RuleContext) {
     const services: RequiredParserServices = context.sourceCode.parserServices;
 
@@ -83,17 +86,20 @@ export const rule: Rule.RuleModule = {
         isStringPlusNonString(leftType, rightType) ||
         isStringPlusNonString(rightType, leftType)
       ) {
-        context.report({
-          message: toEncodedMessage(
+        report(
+          context,
+          {
             message,
-            [left, right],
-            [
-              `left operand has type ${checker.typeToString(leftType)}.`,
+            loc: getOperatorLocation(left, right),
+          },
+          [
+            toSecondaryLocation(left, `left operand has type ${checker.typeToString(leftType)}.`),
+            toSecondaryLocation(
+              right,
               `right operand has type ${checker.typeToString(rightType)}.`,
-            ],
-          ),
-          loc: getOperatorLocation(left, right),
-        });
+            ),
+          ],
+        );
       }
     }
 

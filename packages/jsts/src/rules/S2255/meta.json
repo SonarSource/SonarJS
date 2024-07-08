@@ -1,0 +1,9 @@
+{
+  "type": "problem",
+  "docs": {
+    "description": "Writing cookies is security-sensitive",
+    "recommended": false,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S2255/javascript/rule.adoc"
+  },
+  "deprecated": true
+}

@@ -21,8 +21,17 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { isIdentifier, isLiteral, isMethodCall, Mocha, toEncodedMessage } from '../helpers';
+import {
+  isIdentifier,
+  isLiteral,
+  isMethodCall,
+  Mocha,
+  report,
+  toSecondaryLocation,
+} from '../helpers';
 import { SONAR_RUNTIME } from '../../linter/parameters';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 const ASSERT_FUNCTIONS = [
   'equal',
@@ -36,7 +45,7 @@ const ASSERT_FUNCTIONS = [
 ];
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     hasSuggestions: true,
     schema: [
       {
@@ -44,7 +53,7 @@ export const rule: Rule.RuleModule = {
         enum: [SONAR_RUNTIME],
       },
     ],
-  },
+  }),
   create(context: Rule.RuleContext) {
     const testCases: estree.Node[] = [];
     return {
@@ -71,24 +80,23 @@ function checkInvertedArguments(node: estree.CallExpression, context: Rule.RuleC
   if (args) {
     const [actual, expected, format] = args;
     if (isLiteral(actual) && !isLiteral(expected)) {
-      const message = toEncodedMessage(
-        `Swap these 2 arguments so they are in the correct order: ${format}.`,
-        [actual],
-        ['Other argument to swap.'],
+      report(
+        context,
+        {
+          node: expected,
+          message: `Swap these 2 arguments so they are in the correct order: ${format}.`,
+          suggest: [
+            {
+              desc: 'Swap arguments',
+              fix: fixer => [
+                fixer.replaceText(actual, context.sourceCode.getText(expected)),
+                fixer.replaceText(expected, context.sourceCode.getText(actual)),
+              ],
+            },
+          ],
+        },
+        [toSecondaryLocation(actual, 'Other argument to swap.')],
       );
-      context.report({
-        node: expected,
-        message,
-        suggest: [
-          {
-            desc: 'Swap arguments',
-            fix: fixer => [
-              fixer.replaceText(actual, context.sourceCode.getText(expected)),
-              fixer.replaceText(expected, context.sourceCode.getText(actual)),
-            ],
-          },
-        ],
-      });
     }
   }
 }

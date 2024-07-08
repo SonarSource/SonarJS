@@ -23,30 +23,36 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
 import { UTILITY_TYPES, isIdentifier } from '../helpers';
-import type { RuleModule } from '../../../../shared/src/types/rule';
+import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
+import { generateMeta } from '../helpers/generate-meta';
+import { FromSchema } from 'json-schema-to-ts';
+import rspecMeta from './meta.json';
 
-export type Options = [
-  {
-    threshold: number;
-  },
-];
+const DEFAULT_THRESHOLD = 3;
 
-export const rule: RuleModule<Options> = {
-  meta: {
-    messages: {
-      refactorUnion: 'Refactor this union type to have less than {{threshold}} elements.',
-    },
-    schema: [
-      {
-        type: 'object',
-        properties: {
-          threshold: {
-            type: 'integer',
-          },
+const messages = {
+  refactorUnion: 'Refactor this union type to have less than {{threshold}} elements.',
+};
+
+const schema = {
+  type: 'array',
+  minItems: 0,
+  maxItems: 1,
+  items: [
+    {
+      type: 'object',
+      properties: {
+        threshold: {
+          type: 'integer',
         },
       },
-    ],
-  },
+      additionalProperties: false,
+    },
+  ],
+} as const satisfies JSONSchema4;
+
+export const rule: Rule.RuleModule = {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, { messages, schema }),
   create(context: Rule.RuleContext) {
     return {
       TSUnionType: (node: estree.Node) => {
@@ -54,7 +60,8 @@ export const rule: RuleModule<Options> = {
         if (isUsedWithUtilityType(union)) {
           return;
         }
-        const [{ threshold }] = context.options as Options;
+        const threshold =
+          (context.options as FromSchema<typeof schema>)[0]?.threshold ?? DEFAULT_THRESHOLD;
         if (union.types.length > threshold && !isFromTypeStatement(union)) {
           context.report({
             messageId: 'refactorUnion',

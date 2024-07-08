@@ -22,14 +22,16 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { isArray, isRequiredParserServices, RequiredParserServices } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       considerIncludes:
         "This check ignores index 0; consider using 'includes' method to make this check safe and explicit.",
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     const services = context.sourceCode.parserServices;
     if (!isRequiredParserServices(services)) {

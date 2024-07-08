@@ -23,35 +23,43 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
 import { resolveIdentifiers } from '../helpers';
-import type { RuleModule } from '../../../../shared/src/types/rule';
+import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
+import { generateMeta } from '../helpers/generate-meta';
+import { FromSchema } from 'json-schema-to-ts';
+import rspecMeta from './meta.json';
 
 interface FunctionLike {
   declare?: boolean;
   params: TSESTree.Parameter[];
 }
 
-export type Options = [
-  {
-    format: string;
-  },
-];
+const CAMEL_CASED = '^[_$A-Za-z][$A-Za-z0-9]*$';
+const UPPER_CASED = '^[_$A-Z][_$A-Z0-9]+$';
+const DEFAULT_FORMAT = `${CAMEL_CASED}|${UPPER_CASED}`;
 
-export const rule: RuleModule<Options> = {
-  meta: {
-    messages: {
-      renameSymbol: `Rename this {{symbolType}} "{{symbol}}" to match the regular expression {{format}}.`,
-    },
-    schema: [
-      {
-        type: 'object',
-        properties: {
-          format: {
-            type: 'string',
-          },
+const messages = {
+  renameSymbol: `Rename this {{symbolType}} "{{symbol}}" to match the regular expression {{format}}.`,
+};
+
+const schema = {
+  type: 'array',
+  minItems: 0,
+  maxItems: 1,
+  items: [
+    {
+      type: 'object',
+      properties: {
+        format: {
+          type: 'string',
         },
       },
-    ],
-  },
+      additionalProperties: false,
+    },
+  ],
+} as const satisfies JSONSchema4;
+
+export const rule: Rule.RuleModule = {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, { messages, schema }),
   create(context: Rule.RuleContext) {
     return {
       VariableDeclaration: (node: estree.Node) =>
@@ -104,7 +112,7 @@ function raiseOnInvalidIdentifier(
   idType: string,
   context: Rule.RuleContext,
 ) {
-  const [{ format }] = context.options as Options;
+  const format = (context.options as FromSchema<typeof schema>)[0]?.format ?? DEFAULT_FORMAT;
   const { name } = id;
   if (!name.match(format)) {
     context.report({

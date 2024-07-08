@@ -22,13 +22,19 @@
 import { Rule } from 'eslint';
 import { tsEslintRules } from '../typescript-eslint';
 import { eslintRules } from '../core';
-import { FUNCTION_NODES, RuleContext, interceptReport, mergeRules } from '../helpers';
+import {
+  FUNCTION_NODES,
+  RuleContext,
+  interceptReport,
+  mergeRules,
+  getMainFunctionTokenLocation,
+} from '../helpers';
 import { TSESTree } from '@typescript-eslint/utils';
-import { getMainFunctionTokenLocation } from 'eslint-plugin-sonarjs/lib/src/utils/locations';
-import type { RuleModule } from '../../../../shared/src/types/rule';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 /**
- * We keep a single occurence of issues raised by both rules, discarding the ones raised by 'no-async-promise-executor'
+ * We keep a single occurrence of issues raised by both rules, discarding the ones raised by 'no-async-promise-executor'
  * The current logic relies on the fact that the listener of 'no-misused-promises' runs first because
  * it is alphabetically "smaller", which is how we set them up in mergeRules.
  */
@@ -75,8 +81,8 @@ const decoratedNoAsyncPromiseExecutorRule = interceptReport(
   },
 );
 
-export const rule: RuleModule = {
-  meta: {
+export const rule: Rule.RuleModule = {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       ...decoratedNoMisusedPromisesRule.meta!.messages,
       ...decoratedNoAsyncPromiseExecutorRule.meta!.messages,
@@ -88,7 +94,7 @@ export const rule: RuleModule = {
         properties: {},
       },
     ],
-  },
+  }),
   create(context: Rule.RuleContext) {
     return {
       'Program:exit': () => {

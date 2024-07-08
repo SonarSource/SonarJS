@@ -77,6 +77,7 @@ ruleTesterTs.run(`Comparison operators should not be used with strings [ts]`, ru
       code: `
         let str1 = 'hello', str2 = 'world';
         str1 < str2;`,
+      options: ['sonar-runtime'],
       errors: [
         {
           message:

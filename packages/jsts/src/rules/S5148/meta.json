@@ -1,0 +1,8 @@
+{
+  "type": "problem",
+  "docs": {
+    "description": "Authorizing an opened window to access back to the originating window is security-sensitive",
+    "recommended": true,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S5148/javascript/rule.adoc"
+  }
+}

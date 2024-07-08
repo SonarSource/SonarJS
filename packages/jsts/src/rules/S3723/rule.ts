@@ -20,9 +20,15 @@
 // https://sonarsource.github.io/rspec/#/rspec/S3723/javascript
 
 import { eslintRules } from '../core';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from '../S1788/meta.json';
+import { Rule } from 'eslint';
 
 /**
  * S1537 ('comma-dangle') and S3723 ('enforce-trailing-comma') both depend on the
  * same ESLint implementation, but the plugin doesn't allow rule key duplicates.
  */
-export const rule = eslintRules['comma-dangle'];
+export const rule = {
+  ...eslintRules['comma-dangle'],
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, eslintRules['comma-dangle'].meta),
+};

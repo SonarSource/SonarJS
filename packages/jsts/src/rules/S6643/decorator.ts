@@ -22,18 +22,26 @@
 import * as estree from 'estree';
 import { Rule } from 'eslint';
 import { interceptReport } from '../helpers';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
-  return interceptReport(rule, (context, reportDescriptor) => {
-    const node = (reportDescriptor as any).node as estree.Node;
-    let reportedNode: estree.Node;
-    if (node.type === 'CallExpression') {
-      // `*.prototype` <- CallExpression
-      reportedNode = node.arguments[0];
-    } else {
-      // `*.prototype` <- MemberExpression <- AssignmentExpression
-      reportedNode = (node as estree.AssignmentExpression).left;
-    }
-    context.report({ ...reportDescriptor, node: reportedNode });
-  });
+  return interceptReport(
+    {
+      ...rule,
+      meta: generateMeta(rspecMeta as Rule.RuleMetaData, rule.meta),
+    },
+    (context, reportDescriptor) => {
+      const node = (reportDescriptor as any).node as estree.Node;
+      let reportedNode: estree.Node;
+      if (node.type === 'CallExpression') {
+        // `*.prototype` <- CallExpression
+        reportedNode = node.arguments[0];
+      } else {
+        // `*.prototype` <- MemberExpression <- AssignmentExpression
+        reportedNode = (node as estree.AssignmentExpression).left;
+      }
+      context.report({ ...reportDescriptor, node: reportedNode });
+    },
+  );
 }

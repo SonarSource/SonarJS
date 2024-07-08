@@ -24,7 +24,7 @@ import type { RegExpVisitor } from '@eslint-community/regexpp/visitor';
 import { isStringRegexMethodCall } from './ast';
 import { getParsedRegex } from './extract';
 import { getRegexpLocation } from './location';
-import { isRequiredParserServices } from '..';
+import { isRequiredParserServices, IssueLocation, report } from '..';
 
 /**
  * Rule context for regex rules that also includes the original ESLint node
@@ -32,7 +32,10 @@ import { isRequiredParserServices } from '..';
  */
 export type RegexRuleContext = Rule.RuleContext & {
   node: estree.Node;
-  reportRegExpNode: (descriptor: RegexReportDescriptor) => void;
+  reportRegExpNode: (
+    descriptor: RegexReportDescriptor,
+    secondaryLocations?: IssueLocation[],
+  ) => void;
 };
 
 type RegexReportMessage = Rule.ReportDescriptorMessage;
@@ -52,10 +55,10 @@ type RegexReportDescriptor = RegexReportData & RegexReportMessage & RegexReportO
  */
 export function createRegExpRule(
   handlers: (context: RegexRuleContext) => RegExpVisitor.Handlers,
-  metadata: { meta: Rule.RuleMetaData } = { meta: {} },
+  meta: Rule.RuleMetaData = {},
 ): Rule.RuleModule {
   return {
-    ...metadata,
+    meta,
     create(context: Rule.RuleContext) {
       const services = isRequiredParserServices(context.sourceCode.parserServices)
         ? context.sourceCode.parserServices
@@ -71,11 +74,14 @@ export function createRegExpRule(
         regexpp.visitRegExpAST(regExpAST, handlers(ctx));
       }
 
-      function reportRegExpNode(descriptor: RegexReportDescriptor) {
+      function reportRegExpNode(
+        descriptor: RegexReportDescriptor,
+        secondaryLocations?: IssueLocation[],
+      ) {
         const { node, regexpNode, offset = [0, 0], ...rest } = descriptor;
         const loc = getRegexpLocation(node, regexpNode, context, offset);
         if (loc) {
-          context.report({ ...rest, loc });
+          report(context, { ...rest, loc }, secondaryLocations);
         }
       }
 

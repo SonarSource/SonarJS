@@ -21,11 +21,18 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { isRequiredParserServices, getTypeFromTreeNode, toEncodedMessage } from '../helpers';
+import {
+  isRequiredParserServices,
+  getTypeFromTreeNode,
+  report,
+  toSecondaryLocation,
+} from '../helpers';
 import { SONAR_RUNTIME } from '../../linter/parameters';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     hasSuggestions: true,
     schema: [
       {
@@ -33,7 +40,7 @@ export const rule: Rule.RuleModule = {
         enum: [SONAR_RUNTIME],
       },
     ],
-  },
+  }),
   create(context: Rule.RuleContext) {
     const services = context.sourceCode.parserServices;
     if (!isRequiredParserServices(services)) {
@@ -59,19 +66,20 @@ export const rule: Rule.RuleModule = {
           const operatorToken = context.sourceCode
             .getTokensBetween(left, right)
             .find(token => token.type === 'Punctuator' && token.value === operator)!;
-          context.report({
-            message: toEncodedMessage(
-              `Remove this "${actual}" check; it will always be ${outcome}. Did you mean to use "${expected}"?`,
-              [left, right],
-            ),
-            loc: operatorToken.loc,
-            suggest: [
-              {
-                desc: `Replace "${actual}" with "${expected}"`,
-                fix: fixer => fixer.replaceText(operatorToken, expected),
-              },
-            ],
-          });
+          report(
+            context,
+            {
+              message: `Remove this "${actual}" check; it will always be ${outcome}. Did you mean to use "${expected}"?`,
+              loc: operatorToken.loc,
+              suggest: [
+                {
+                  desc: `Replace "${actual}" with "${expected}"`,
+                  fix: fixer => fixer.replaceText(operatorToken, expected),
+                },
+              ],
+            },
+            [left, right].map(node => toSecondaryLocation(node)),
+          );
         }
       },
     };

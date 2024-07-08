@@ -114,7 +114,6 @@ describe('Comment-based Testing Framework', () => {
           line: 6,
           message: JSON.stringify({
             message: 'Rule message',
-            secondaryLocations: [],
           }),
         },
       ]),

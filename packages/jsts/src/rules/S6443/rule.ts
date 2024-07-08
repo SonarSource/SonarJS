@@ -22,6 +22,8 @@
 import { Rule, Scope } from 'eslint';
 import { getFullyQualifiedName, getVariableFromName } from '../helpers';
 import * as estree from 'estree';
+import { generateMeta } from '../helpers/generate-meta';
+import rspecMeta from './meta.json';
 
 type Reference = {
   setter: Scope.Variable | undefined;
@@ -48,11 +50,11 @@ const callSelector = [
 ].join('');
 
 export const rule: Rule.RuleModule = {
-  meta: {
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       uselessSetState: 'Change the argument of this setter to not use its matching state variable',
     },
-  },
+  }),
   create(context: Rule.RuleContext) {
     const referencesBySetterName: { [key: string]: Reference } = {};
 

@@ -1,0 +1,8 @@
+{
+  "type": "problem",
+  "docs": {
+    "description": "Cryptographic keys should be robust",
+    "recommended": true,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S4426/javascript/rule.adoc"
+  }
+}
