@@ -126,4 +126,5 @@ export function findPropagatedSetting(
   if (isPropagatedProperty) {
     return toSecondaryLocation(getNodeParent(propagatedValue), 'Propagated setting.');
   }
+  return undefined;
 }

@@ -36,6 +36,8 @@ import { Rule } from 'eslint';
 import estree from 'estree';
 import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
+import { FromSchema } from 'json-schema-to-ts';
+import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
 
 const DEFAULT_THRESHOLD = 15;
 
@@ -56,26 +58,31 @@ interface ScopeComplexity {
 const message =
   'Refactor this function to reduce its Cognitive Complexity from {{complexityAmount}} to the {{threshold}} allowed.';
 
+const schema = {
+  type: 'array',
+  minItems: 0,
+  maxItems: 1,
+  items: [
+    { type: 'integer', minimum: 0 },
+    {
+      // internal parameter
+      type: 'string',
+      enum: ['sonar-runtime', 'metric'],
+    },
+  ],
+} as const satisfies JSONSchema4;
+
 export const rule: Rule.RuleModule = {
   meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
     messages: {
       refactorFunction: message,
       fileComplexity: '{{complexityAmount}}',
     },
-    schema: [
-      { type: 'integer', minimum: 0 },
-      {
-        // internal parameter
-        type: 'string',
-        enum: ['sonar-runtime', 'metric'],
-      },
-    ],
+    schema,
   }),
   create(context) {
-    const { options } = context;
-
     /** Complexity threshold */
-    const threshold: any = typeof options[0] === 'number' ? options[0] : DEFAULT_THRESHOLD;
+    const threshold = (context.options as FromSchema<typeof schema>)[0] ?? DEFAULT_THRESHOLD;
 
     /** Indicator if the file complexity should be reported */
     const isFileComplexity = context.options.includes('metric');
@@ -319,7 +326,7 @@ export const rule: Rule.RuleModule = {
       if (isFileComplexity) {
         return;
       }
-      const complexityAmount: any = complexity.reduce((acc, cur) => acc + cur.complexity, 0);
+      const complexityAmount = complexity.reduce((acc, cur) => acc + cur.complexity, 0);
       if (complexityAmount > threshold) {
         const secondaryLocations: IssueLocation[] = complexity.map(complexityPoint => {
           const { complexity, location } = complexityPoint;
@@ -334,8 +341,8 @@ export const rule: Rule.RuleModule = {
             messageId: 'refactorFunction',
             message,
             data: {
-              complexityAmount,
-              threshold,
+              complexityAmount: complexityAmount as any,
+              threshold: threshold as any, //currently typings do not accept number
             },
             loc,
           },

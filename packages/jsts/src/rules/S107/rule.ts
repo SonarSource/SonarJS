@@ -145,7 +145,7 @@ const ruleExtension: Rule.RuleModule = {
     function checkFunction(node: estree.Node) {
       const functionLike = node as unknown as TSESTree.FunctionLike;
       const max =
-        (context.options as FromSchema<typeof schema>)[0]?.max ||
+        (context.options as FromSchema<typeof schema>)[0]?.max ??
         DEFAULT_MAXIMUM_FUNCTION_PARAMETERS;
       const numParams = functionLike.params.length;
       if (numParams > max) {

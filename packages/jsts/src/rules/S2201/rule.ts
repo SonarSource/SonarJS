@@ -20,7 +20,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S2201
 
 import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/utils';
-import type { ParserServicesWithTypeInformation } from '@typescript-eslint/typescript-estree';
+import type { ParserServicesWithTypeInformation } from '@typescript-eslint/utils';
 import type { Type } from 'typescript';
 import { Rule } from 'eslint';
 import { getTypeFromTreeNode, isRequiredParserServices } from '../helpers';
@@ -252,7 +252,7 @@ function hasSideEffect(
   const typeAsString = typeToString(objectType, services);
   if (typeAsString !== null) {
     const methods = METHODS_WITHOUT_SIDE_EFFECTS[typeAsString];
-    return !(methods && methods.has(methodName));
+    return !methods?.has(methodName);
   }
   return true;
 }

@@ -45,7 +45,7 @@ export const rule: Rule.RuleModule = {
       },
     };
 
-    function getFix(forLoop: estree.ForStatement): any {
+    function getFix(forLoop: estree.ForStatement): Rule.ReportFixer | undefined {
       const forLoopRange = forLoop.range;
       const closingParenthesisToken = context.sourceCode.getTokenBefore(forLoop.body);
       const condition = forLoop.test;

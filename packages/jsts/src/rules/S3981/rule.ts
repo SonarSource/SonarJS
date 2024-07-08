@@ -19,8 +19,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S3981
 
-import type { TSESTree } from '@typescript-eslint/utils';
-import { ParserServicesWithTypeInformation } from '@typescript-eslint/typescript-estree';
+import type { TSESTree, ParserServicesWithTypeInformation } from '@typescript-eslint/utils';
 import { Rule } from 'eslint';
 import { isRequiredParserServices } from '../helpers';
 import estree from 'estree';

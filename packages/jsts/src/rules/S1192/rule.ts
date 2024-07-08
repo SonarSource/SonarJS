@@ -94,7 +94,7 @@ export const rule: Rule.RuleModule = {
             !whitelist.includes(literal.value) &&
             !isExcludedByUsageContext(context, literal) &&
             stringContent.length >= MIN_LENGTH &&
-            !stringContent.match(NO_SEPARATOR_REGEXP)
+            !NO_SEPARATOR_REGEXP.exec(stringContent)
           ) {
             const sameStringLiterals = literalsByValue.get(stringContent) || [];
             sameStringLiterals.push(literal);

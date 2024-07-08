@@ -128,7 +128,7 @@ function checkForWrongCatch(
     report(
       context,
       {
-        message: message,
+        message,
         loc: token!.loc,
       },
       openPromises.map(node => toSecondaryLocation(node, 'Promise')),

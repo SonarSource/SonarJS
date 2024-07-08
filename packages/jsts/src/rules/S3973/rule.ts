@@ -92,7 +92,7 @@ function checkIndentation(
       report(
         context,
         {
-          message: message,
+          message,
           loc: tokenToReport.loc,
         },
         [toSecondaryLocation(firstStatementToken)],

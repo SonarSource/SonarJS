@@ -77,7 +77,7 @@ export const rule: Rule.RuleModule = {
             usedKeys.clear();
           }
           const sameKeyWriteUsage = usedKeys.get(keyWriteUsage.indexOrKey);
-          if (sameKeyWriteUsage && sameKeyWriteUsage.node.loc) {
+          if (sameKeyWriteUsage?.node.loc) {
             const secondaryLocations = [
               toSecondaryLocation(sameKeyWriteUsage.node, 'Original value'),
             ];

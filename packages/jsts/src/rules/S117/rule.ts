@@ -35,7 +35,7 @@ interface FunctionLike {
 
 const CAMEL_CASED = '^[_$A-Za-z][$A-Za-z0-9]*$';
 const UPPER_CASED = '^[_$A-Z][_$A-Z0-9]+$';
-const DEFAULT_FORMAT = CAMEL_CASED + '|' + UPPER_CASED;
+const DEFAULT_FORMAT = `${CAMEL_CASED}|${UPPER_CASED}`;
 
 const messages = {
   renameSymbol: `Rename this {{symbolType}} "{{symbol}}" to match the regular expression {{format}}.`,

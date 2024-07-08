@@ -85,7 +85,7 @@ export const rule: Rule.RuleModule = {
       lastButOne: estree.Statement,
       expressionToReturn: estree.Expression,
       returnedExpression: estree.Expression,
-    ): any {
+    ): Rule.Fix[] {
       const expressionText = context.sourceCode.getText(expressionToReturn);
       const rangeToRemoveStart = (lastButOne as TSESTree.Statement).range[0];
       const commentsBetweenStatements = context.sourceCode.getCommentsAfter(lastButOne);

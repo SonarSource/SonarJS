@@ -189,14 +189,14 @@ export function getMainFunctionTokenLocation<T = string>(
       location = fn.id.loc;
     } else {
       const token = getTokenByValue(fn, 'function', context);
-      location = token && token.loc;
+      location = token?.loc;
     }
   } else if (fn.type === 'FunctionExpression') {
     if (parent && (parent.type === 'MethodDefinition' || parent.type === 'Property')) {
       location = parent.key.loc;
     } else {
       const token = getTokenByValue(fn, 'function', context);
-      location = token && token.loc;
+      location = token?.loc;
     }
   } else if (fn.type === 'ArrowFunctionExpression') {
     const token = context.sourceCode
@@ -204,7 +204,7 @@ export function getMainFunctionTokenLocation<T = string>(
       .reverse()
       .find(token => token.value === '=>');
 
-    location = token && token.loc;
+    location = token?.loc;
   }
 
   return location!;

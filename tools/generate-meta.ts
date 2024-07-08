@@ -62,7 +62,8 @@ function generateMetaForRule(ruleDir: string, ruleId: string) {
     docs: {
       description: ruleRspecMeta.title,
       recommended: sonarWayProfile.ruleKeys.includes(ruleId),
-      url: `https://github.com/SonarSource/rspec/blob/master/rules/${ruleId}/javascript/rule.adoc`,
+      //url: `https://github.com/SonarSource/rspec/blob/master/rules/${ruleId}/javascript/rule.adoc`,
+      url: `https://sonarsource.github.io/rspec/#/rspec/${ruleId}/javascript`,
     },
   };
   if (ruleRspecMeta.quickfix === 'covered') {

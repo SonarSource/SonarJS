@@ -41,7 +41,7 @@ export const rule: Rule.RuleModule = {
         const parent = (node as TSESTree.IfStatement).parent as estree.Node;
         if (
           // ignore `else if`
-          !(parent.type === AST_NODE_TYPES.IfStatement) &&
+          parent.type !== AST_NODE_TYPES.IfStatement &&
           returnsBoolean(node.consequent) &&
           alternateReturnsBoolean(node)
         ) {

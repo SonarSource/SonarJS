@@ -58,7 +58,7 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     const sourceCode = context.sourceCode;
     const threshold =
-      (context.options as FromSchema<typeof schema>)[0]?.maximumNestingLevel ||
+      (context.options as FromSchema<typeof schema>)[0]?.maximumNestingLevel ??
       DEFAULT_MAXIMUM_NESTING_LEVEL;
     const nodeStack: AST.Token[] = [];
     function push(n: AST.Token) {

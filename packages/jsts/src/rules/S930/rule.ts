@@ -114,7 +114,7 @@ export const rule: Rule.RuleModule = {
     };
 
     function getSingleDefinition(reference: Scope.Reference): Scope.Definition | undefined {
-      if (reference && reference.resolved) {
+      if (reference.resolved) {
         const variable = reference.resolved;
         if (variable.defs.length === 1) {
           return variable.defs[0];
