@@ -1,12 +1,8 @@
 # eslint-plugin-sonarjs dev notes
 
-## build package
+## build package (and copy it to ITs)
 
-- in root `package.json`, run `npm run eslint-plugin:pack`
-
-## build it for integration tests
-
-- run `tools/eslint-plugin-sonarjs/build-to-its.sh`
+- in root `package.json`, run `npm run eslint-plugin:build`
 
 ## tests
 

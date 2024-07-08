@@ -20,14 +20,14 @@ const USED_DEPENDENCIES = new Set([
   'bytes',
   'scslre',
 ]);
-console.log(rootPackageJson);
+
 Object.keys(rootPackageJson.dependencies).map(dependency => {
   if (USED_DEPENDENCIES.has(dependency)) {
     pluginPackageJson.dependencies[dependency] = rootPackageJson.dependencies[dependency];
   }
 });
 pluginPackageJson.engines = rootPackageJson.engines;
-console.log('writin', pluginPackageJson);
+
 fs.writeFileSync(
   path.join(__dirname, '..', '..', 'packages', 'eslint-plugin-sonarjs', 'package.json'),
   JSON.stringify(pluginPackageJson, null, 2),
