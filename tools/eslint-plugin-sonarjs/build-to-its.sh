@@ -11,5 +11,3 @@ cd its/eslint-plugin-sonarjs
 rm -rf node_modules/eslint-plugin-sonarjs
 
 npm i ./eslint-plugin-sonarjs-1.0.3.tgz --no-save
-
-npm test
