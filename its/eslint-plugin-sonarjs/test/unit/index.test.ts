@@ -1,5 +1,3 @@
-import * as fs from 'fs';
-import * as path from 'path';
 import { valid } from 'semver';
 import { configs, rules, meta } from 'eslint-plugin-sonarjs';
 
