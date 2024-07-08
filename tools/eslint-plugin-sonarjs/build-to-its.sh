@@ -2,7 +2,11 @@
 
 npm run bridge:compile
 
-npm run eslint-plugin:pack
+cpy lib packages/eslint-plugin-sonarjs
+
+npm pack --workspaces
+
+rm -rf packages/eslint-plugin-sonarjs/lib
 
 cp eslint-plugin-sonarjs-1.0.3.tgz its/eslint-plugin-sonarjs
 

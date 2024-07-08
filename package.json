@@ -33,7 +33,7 @@
     "_:plugin-fetch-node": "node tools/fetch-node/scripts/wrapper.mjs",
     "_:plugin:pre-build": "npm run bridge:build && npm run _:plugin:prepare-bridge && npm run _:plugin-fetch-node",
     "_:plugin:copy-bridge": "cpy sonarjs-1.0.0.tgz sonar-plugin/sonar-javascript-plugin/target/classes && cpy sonarjs-1.0.0.tgz sonar-plugin/standalone/target/classes",
-    "eslint-plugin:pack": "cpy lib packages/eslint-plugin-sonarjs && npm pack --workspaces && rm -rf packages/eslint-plugin-sonarjs/lib"
+    "eslint-plugin:build": "./tools/eslint-plugin-sonarjs/build-to-its.sh"
   },
   "repository": {
     "type": "git",
