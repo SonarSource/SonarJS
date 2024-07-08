@@ -61,7 +61,7 @@ const message =
 const schema = {
   type: 'array',
   minItems: 0,
-  maxItems: 1,
+  maxItems: 2,
   items: [
     { type: 'integer', minimum: 0 },
     {
