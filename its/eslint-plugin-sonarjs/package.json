@@ -3,7 +3,9 @@
   "version": "1.0.3",
   "description": "Test suite for eslint-plugin-sonarjs",
   "scripts": {
-    "test": "jest ./test/unit/index.test.ts"
+    "build": "npm i ./eslint-plugin-sonarjs-1.0.3.tgz",
+    "test": "jest ./test/unit/index.test.ts",
+    "test-integration": "cd test/integration && ./test.sh"
   },
   "devDependencies": {
     "eslint": "^9.6.0",
