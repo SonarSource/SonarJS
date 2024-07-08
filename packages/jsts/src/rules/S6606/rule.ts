@@ -35,7 +35,7 @@ const preferNullishCoalescingRule = tsEslintRules['prefer-nullish-coalescing'];
 export const rule = interceptReport(
   {
     ...preferNullishCoalescingRule,
-    meta: generateMeta(rspecMeta as Rule.RuleMetaData, preferNullishCoalescingRule.meta!),
+    meta: generateMeta(rspecMeta as Rule.RuleMetaData, preferNullishCoalescingRule.meta),
   },
   (context, reportDescriptor) => {
     const { node: token, messageId } = reportDescriptor as Rule.ReportDescriptor & {

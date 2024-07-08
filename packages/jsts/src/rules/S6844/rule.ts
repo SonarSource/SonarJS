@@ -30,7 +30,7 @@ const anchorIsValid = jsxA11yRules['anchor-is-valid'];
 export const rule = interceptReport(
   {
     ...anchorIsValid,
-    meta: generateMeta(rspecMeta as Rule.RuleMetaData, anchorIsValid.meta!),
+    meta: generateMeta(rspecMeta as Rule.RuleMetaData, anchorIsValid.meta),
   },
   (context, reportDescriptor) => {
     const descriptor = reportDescriptor as any;

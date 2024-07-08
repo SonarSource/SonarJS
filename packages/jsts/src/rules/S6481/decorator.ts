@@ -27,7 +27,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return changeRuleMessagesWith(
     {
       ...rule,
-      meta: generateMeta(rspecMeta as Rule.RuleMetaData, rule.meta!),
+      meta: generateMeta(rspecMeta as Rule.RuleMetaData, rule.meta),
     },
     lineRemover(),
   );

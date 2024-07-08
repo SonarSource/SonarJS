@@ -33,7 +33,7 @@ const baseRule = rules['no-array-index-key'];
 export const rule = interceptReportForReact(
   {
     ...baseRule,
-    meta: generateMeta(rspecMeta as Rule.RuleMetaData, baseRule.meta!),
+    meta: generateMeta(rspecMeta as Rule.RuleMetaData, baseRule.meta),
   },
   (context, reportDescriptor) => {
     const { node } = reportDescriptor as Rule.ReportDescriptor & {

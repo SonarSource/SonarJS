@@ -30,5 +30,5 @@ import { Rule } from 'eslint';
  */
 export const rule = {
   ...eslintRules['comma-dangle'],
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, eslintRules['comma-dangle'].meta!),
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, eslintRules['comma-dangle'].meta),
 };

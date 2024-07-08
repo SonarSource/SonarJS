@@ -35,7 +35,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReportForReact(
     {
       ...rule,
-      meta: generateMeta(rspecMeta as Rule.RuleMetaData, rule.meta!),
+      meta: generateMeta(rspecMeta as Rule.RuleMetaData, rule.meta),
     },
     (context, report) => {
       const message =
