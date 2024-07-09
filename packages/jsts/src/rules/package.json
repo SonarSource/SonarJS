@@ -1,0 +1,42 @@
+{
+  "name": "eslint-plugin-sonarjs",
+  "version": "1.0.3",
+  "description": "SonarJS rules for ESLint",
+  "main": "index.js",
+  "type": "commonjs",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SonarSource/SonarJS.git"
+  },
+  "author": "",
+  "license": "LGPL-3.0-only",
+  "bugs": {
+    "url": "https://github.com/SonarSource/SonarJS/issues"
+  },
+  "homepage": "https://github.com/SonarSource/SonarJS#readme",
+  "dependencies": {
+    "@eslint-community/regexpp": "4.10.0",
+    "@typescript-eslint/eslint-plugin": "7.16.0",
+    "builtin-modules": "3.3.0",
+    "eslint": "8.57.0",
+    "eslint-plugin-jsx-a11y": "6.9.0",
+    "eslint-scope": "8.0.1",
+    "functional-red-black-tree": "1.0.1",
+    "scslre": "0.3.0",
+    "semver": "7.6.2",
+    "vue-eslint-parser": "9.4.3"
+  },
+  "devDependencies": {
+    "@types/bytes": "3.1.4",
+    "@types/eslint": "8.56.10",
+    "@types/eslint-scope": "3.7.7",
+    "@types/functional-red-black-tree": "1.0.6",
+    "@types/node": "20.14.10",
+    "@types/semver": "7.5.8",
+    "json-schema-to-ts": "3.1.0",
+    "typescript": "5.5.3"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "type": "problem",
+  "docs": {
+    "description": "Alternation in regular expressions should not contain empty alternatives",
+    "recommended": true,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S6323/javascript/rule.adoc"
+  }
+}

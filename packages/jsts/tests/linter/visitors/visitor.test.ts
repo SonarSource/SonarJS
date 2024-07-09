@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { childrenOf, visit } from '../../../src/linter/visitors';
+import { visit } from '../../../src/linter/visitors';
 import path from 'path';
 import { parseTypeScriptSourceFile } from '../../tools/helpers';
+import { childrenOf } from 'eslint-plugin-sonarjs/helpers';
 
 describe('visitor', () => {
   describe('visit', () => {

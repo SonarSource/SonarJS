@@ -1,0 +1,8 @@
+{
+  "type": "suggestion",
+  "docs": {
+    "description": "Test files should contain at least one test case",
+    "recommended": true,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S2187/javascript/rule.adoc"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "type": "problem",
+  "docs": {
+    "description": "Getters and setters should access the expected fields",
+    "recommended": true,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S4275/javascript/rule.adoc"
+  }
+}

@@ -179,8 +179,5 @@
     "@sonar/jsts": "lib/jsts/src",
     "@sonar/shared": "lib/shared/src",
     "@sonar/yaml": "lib/yaml/src"
-  },
-  "workspaces": [
-    "packages/jsts/src/rules"
-  ]
+  }
 }

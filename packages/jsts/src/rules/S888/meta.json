@@ -1,0 +1,8 @@
+{
+  "type": "suggestion",
+  "docs": {
+    "description": "Equality operators should not be used in \"for\" loop termination conditions",
+    "recommended": true,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S888/javascript/rule.adoc"
+  }
+}

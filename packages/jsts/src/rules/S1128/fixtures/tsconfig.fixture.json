@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "jsxFactory": "h",
+    "jsxFragmentFactory": "Fragment"
+  },
+  "files": [
+    "file.tsx"
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "type": "suggestion",
+  "docs": {
+    "description": "Union and intersection types should not include duplicated constituents",
+    "recommended": true,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S4621/javascript/rule.adoc"
+  },
+  "fixable": "code"
+}

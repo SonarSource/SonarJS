@@ -1,0 +1,8 @@
+{
+  "type": "suggestion",
+  "docs": {
+    "description": "Arithmetic operations should not result in \"NaN\"",
+    "recommended": false,
+    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S3757/javascript/rule.adoc"
+  }
+}

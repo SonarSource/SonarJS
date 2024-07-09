@@ -25,12 +25,14 @@ import {
   analyzeJSTS,
   JsTsAnalysisOutput,
   createAndSaveProgram,
-  loadPackageJsons,
-  getNearestPackageJsons,
   deserializeProtobuf,
 } from '../../src';
 import { jsTsInput, parseJavaScriptSourceFile } from '../tools';
 import { Linter, Rule } from 'eslint';
+import {
+  getNearestPackageJsons,
+  loadPackageJsons,
+} from 'eslint-plugin-sonarjs/helpers/package-json';
 describe('analyzeJSTS', () => {
   beforeEach(() => {
     jest.resetModules();
