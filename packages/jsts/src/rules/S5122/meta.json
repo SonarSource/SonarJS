@@ -1,8 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "Having a permissive Cross-Origin Resource Sharing policy is security-sensitive",
-    "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S5122/javascript/rule.adoc"
-  }
-}

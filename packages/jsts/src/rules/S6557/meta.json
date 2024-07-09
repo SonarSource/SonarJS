@@ -1,9 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "Ends of strings should be checked with \"startsWith()\" and \"endsWith()\"",
-    "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S6557/javascript/rule.adoc"
-  },
-  "fixable": "code"
-}

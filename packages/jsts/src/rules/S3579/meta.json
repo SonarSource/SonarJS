@@ -1,8 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "Array indexes should be numeric",
-    "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S3579/javascript/rule.adoc"
-  }
-}

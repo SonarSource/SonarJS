@@ -1,9 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "Using regular expressions is security-sensitive",
-    "recommended": false,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S4784/javascript/rule.adoc"
-  },
-  "deprecated": true
-}

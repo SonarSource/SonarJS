@@ -1,8 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "\"default\" clauses should be last",
-    "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S4524/javascript/rule.adoc"
-  }
-}

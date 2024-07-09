@@ -1,9 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "Template strings should be used instead of concatenation",
-    "recommended": false,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S3512/javascript/rule.adoc"
-  },
-  "fixable": "code"
-}

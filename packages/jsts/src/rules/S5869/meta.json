@@ -1,8 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "Character classes in regular expressions should not contain the same character twice",
-    "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S5869/javascript/rule.adoc"
-  }
-}

@@ -1,8 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "Tests should include assertions",
-    "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S2699/javascript/rule.adoc"
-  }
-}

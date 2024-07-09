@@ -1,8 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "Empty collections should not be accessed or iterated",
-    "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S4158/javascript/rule.adoc"
-  }
-}

@@ -1,8 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "Alternatives in regular expressions should be grouped when used with anchors",
-    "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S5850/javascript/rule.adoc"
-  }
-}

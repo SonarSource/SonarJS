@@ -1,8 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "Table cells should reference their headers",
-    "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S5260/javascript/rule.adoc"
-  }
-}

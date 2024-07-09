@@ -1,8 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "Track comments matching a regular expression",
-    "recommended": false,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S124/javascript/rule.adoc"
-  }
-}

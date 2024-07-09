@@ -1,9 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "Member names should not be duplicated within a class or object literal",
-    "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S1534/javascript/rule.adoc"
-  },
-  "fixable": "code"
-}

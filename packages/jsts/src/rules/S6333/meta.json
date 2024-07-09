@@ -1,8 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "Creating public APIs is security-sensitive",
-    "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S6333/javascript/rule.adoc"
-  }
-}

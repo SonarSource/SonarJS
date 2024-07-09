@@ -1,8 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "Server certificates should be verified during SSL/TLS connections",
-    "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S4830/javascript/rule.adoc"
-  }
-}

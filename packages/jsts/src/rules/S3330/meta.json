@@ -1,8 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "Creating cookies without the \"HttpOnly\" flag is security-sensitive",
-    "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S3330/javascript/rule.adoc"
-  }
-}

@@ -1,8 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "Objects and classes converted or coerced to strings should define a \"toString()\" method",
-    "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S6551/javascript/rule.adoc"
-  }
-}

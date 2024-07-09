@@ -1,8 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "Optional chaining should be preferred",
-    "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S6582/javascript/rule.adoc"
-  }
-}

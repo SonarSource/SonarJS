@@ -1,9 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "\"undefined\" should not be passed as the value of optional parameters",
-    "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S4623/javascript/rule.adoc"
-  },
-  "fixable": "code"
-}

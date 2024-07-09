@@ -1,8 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "\"for...in\" loops should filter properties before acting on them",
-    "recommended": false,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S1535/javascript/rule.adoc"
-  }
-}

@@ -1,8 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "Files should not have too many lines of code",
-    "recommended": false,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S104/javascript/rule.adoc"
-  }
-}

@@ -1,8 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "\"new\" should only be used with functions and classes",
-    "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S2999/javascript/rule.adoc"
-  }
-}

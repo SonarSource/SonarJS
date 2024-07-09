@@ -1,8 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "\"in\" should not be used with primitive types",
-    "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S3785/javascript/rule.adoc"
-  }
-}

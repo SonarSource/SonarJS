@@ -1,8 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "Special identifiers should not be bound or assigned",
-    "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S2137/javascript/rule.adoc"
-  }
-}

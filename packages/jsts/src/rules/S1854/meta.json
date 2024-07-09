@@ -1,8 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "Unused assignments should be removed",
-    "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S1854/javascript/rule.adoc"
-  }
-}

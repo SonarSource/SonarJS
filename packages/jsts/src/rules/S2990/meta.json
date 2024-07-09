@@ -1,9 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "The global \"this\" object should not be used",
-    "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S2990/javascript/rule.adoc"
-  },
-  "fixable": "code"
-}

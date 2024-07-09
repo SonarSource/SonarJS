@@ -1,9 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "Object literal shorthand syntax should be used",
-    "recommended": false,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S3498/javascript/rule.adoc"
-  },
-  "fixable": "code"
-}

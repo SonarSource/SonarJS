@@ -1,8 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "Function returns should not be invariant",
-    "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S3516/javascript/rule.adoc"
-  }
-}

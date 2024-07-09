@@ -1,8 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "Type intersections should use meaningful types",
-    "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S4335/javascript/rule.adoc"
-  }
-}

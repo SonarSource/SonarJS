@@ -1,8 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "Prototypes of builtin objects should not be modified",
-    "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S6643/javascript/rule.adoc"
-  }
-}

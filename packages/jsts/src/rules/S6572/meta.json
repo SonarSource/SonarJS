@@ -1,9 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "Enum member values should be either all initialized or none",
-    "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S6572/javascript/rule.adoc"
-  },
-  "fixable": "code"
-}

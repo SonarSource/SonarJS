@@ -1,8 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "Objects should not be created to be dropped immediately without being used",
-    "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S1848/javascript/rule.adoc"
-  }
-}

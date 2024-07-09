@@ -1,8 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "\"delete\" should be used only with object properties",
-    "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S3001/javascript/rule.adoc"
-  }
-}

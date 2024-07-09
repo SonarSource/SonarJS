@@ -1,8 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "React's useState hook should not be used directly in the render function or body of a component",
-    "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S6442/javascript/rule.adoc"
-  }
-}

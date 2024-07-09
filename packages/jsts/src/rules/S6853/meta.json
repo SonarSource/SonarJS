@@ -1,8 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "Label elements should have a text label and an associated control",
-    "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S6853/javascript/rule.adoc"
-  }
-}

@@ -1,8 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "Type constituents of unions and intersections should not be redundant",
-    "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S6571/javascript/rule.adoc"
-  }
-}

@@ -1,9 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "React props should be read-only",
-    "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S6759/javascript/rule.adoc"
-  },
-  "fixable": "code"
-}

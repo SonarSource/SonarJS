@@ -1,9 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "Reading the Standard Input is security-sensitive",
-    "recommended": false,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S4829/javascript/rule.adoc"
-  },
-  "deprecated": true
-}

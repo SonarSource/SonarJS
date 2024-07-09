@@ -1,8 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "Callbacks of array methods should have return statements",
-    "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S3796/javascript/rule.adoc"
-  }
-}

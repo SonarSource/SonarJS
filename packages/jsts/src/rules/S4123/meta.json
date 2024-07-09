@@ -1,8 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "\"await\" should only be used with promises",
-    "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S4123/javascript/rule.adoc"
-  }
-}

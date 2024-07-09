@@ -1,8 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "React Context Provider values should have stable identities",
-    "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S6481/javascript/rule.adoc"
-  }
-}

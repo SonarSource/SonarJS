@@ -1,8 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "JSX list components should not use array indexes as key",
-    "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S6479/javascript/rule.adoc"
-  }
-}

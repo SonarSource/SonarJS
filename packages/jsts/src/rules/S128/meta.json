@@ -1,8 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "Switch cases should end with an unconditional \"break\" statement",
-    "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S128/javascript/rule.adoc"
-  }
-}

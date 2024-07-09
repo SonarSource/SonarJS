@@ -1,9 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "\"Number.isNaN()\" should be used to check for \"NaN\" value",
-    "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S6679/javascript/rule.adoc"
-  },
-  "fixable": "code"
-}

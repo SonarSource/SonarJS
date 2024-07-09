@@ -1,8 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "Literals should not be used as functions",
-    "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S6958/javascript/rule.adoc"
-  }
-}

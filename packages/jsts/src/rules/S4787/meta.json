@@ -1,9 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "Encrypting data is security-sensitive",
-    "recommended": false,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S4787/javascript/rule.adoc"
-  },
-  "deprecated": true
-}

@@ -1,8 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "Deprecated React APIs should not be used",
-    "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S6957/javascript/rule.adoc"
-  }
-}

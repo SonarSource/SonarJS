@@ -1,8 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "Properties of variables with \"null\" or \"undefined\" values should not be accessed",
-    "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S2259/javascript/rule.adoc"
-  }
-}

@@ -1,8 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "Generators should explicitly \"yield\" a value",
-    "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S3531/javascript/rule.adoc"
-  }
-}

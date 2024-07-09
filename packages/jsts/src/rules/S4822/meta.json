@@ -1,8 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "Promise rejections should not be caught by \"try\" blocks",
-    "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S4822/javascript/rule.adoc"
-  }
-}

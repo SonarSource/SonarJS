@@ -1,8 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "Replacement strings should reference existing regular expression groups",
-    "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S6328/javascript/rule.adoc"
-  }
-}

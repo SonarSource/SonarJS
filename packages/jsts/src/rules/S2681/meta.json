@@ -1,8 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "Multiline blocks should be enclosed in curly braces",
-    "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S2681/javascript/rule.adoc"
-  }
-}

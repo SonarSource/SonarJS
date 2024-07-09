@@ -1,8 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "Ternary operators should not be nested",
-    "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S3358/javascript/rule.adoc"
-  }
-}

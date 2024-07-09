@@ -1,9 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "The return value of \"useState\" should be destructured and named symmetrically",
-    "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S6754/javascript/rule.adoc"
-  },
-  "fixable": "code"
-}

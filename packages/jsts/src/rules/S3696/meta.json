@@ -1,9 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "Literals should not be thrown",
-    "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S3696/javascript/rule.adoc"
-  },
-  "fixable": "code"
-}

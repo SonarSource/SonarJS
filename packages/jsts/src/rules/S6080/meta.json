@@ -1,8 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "Disabling Mocha timeouts should be explicit",
-    "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S6080/javascript/rule.adoc"
-  }
-}

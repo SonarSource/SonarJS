@@ -1,8 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "Functions should be called consistently with or without \"new\"",
-    "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S3686/javascript/rule.adoc"
-  }
-}

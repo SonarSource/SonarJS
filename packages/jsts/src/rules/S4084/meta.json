@@ -1,8 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "Media elements should have captions",
-    "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S4084/javascript/rule.adoc"
-  }
-}

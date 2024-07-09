@@ -1,9 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "\"RegExp.exec()\" should be preferred over \"String.match()\"",
-    "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S6594/javascript/rule.adoc"
-  },
-  "fixable": "code"
-}

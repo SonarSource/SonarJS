@@ -1,9 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "Exclusive tests should not be commited to version control",
-    "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S6426/javascript/rule.adoc"
-  },
-  "fixable": "code"
-}

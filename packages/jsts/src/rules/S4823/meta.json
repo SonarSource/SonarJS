@@ -1,9 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "Using command line arguments is security-sensitive",
-    "recommended": false,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S4823/javascript/rule.adoc"
-  },
-  "deprecated": true
-}

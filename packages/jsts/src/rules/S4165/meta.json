@@ -1,8 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "Assignments should not be redundant",
-    "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S4165/javascript/rule.adoc"
-  }
-}

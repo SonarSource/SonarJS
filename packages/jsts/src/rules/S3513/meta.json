@@ -1,8 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "\"arguments\" should not be accessed directly",
-    "recommended": false,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S3513/javascript/rule.adoc"
-  }
-}

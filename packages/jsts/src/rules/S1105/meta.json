@@ -1,9 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "An open curly brace should be located at the end of a line",
-    "recommended": false,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S1105/javascript/rule.adoc"
-  },
-  "deprecated": true
-}

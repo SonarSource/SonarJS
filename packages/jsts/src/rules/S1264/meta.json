@@ -1,9 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "A \"while\" loop should be used instead of a \"for\" loop",
-    "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S1264/javascript/rule.adoc"
-  },
-  "fixable": "code"
-}

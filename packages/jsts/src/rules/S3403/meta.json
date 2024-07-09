@@ -1,9 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "Strict equality operators should not be used with dissimilar types",
-    "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S3403/javascript/rule.adoc"
-  },
-  "fixable": "code"
-}

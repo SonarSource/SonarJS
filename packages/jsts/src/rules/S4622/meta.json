@@ -1,8 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "Union types should not have too many elements",
-    "recommended": false,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S4622/javascript/rule.adoc"
-  }
-}

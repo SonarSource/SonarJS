@@ -1,8 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "Identical expressions should not be used on both sides of a binary operator",
-    "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S1764/javascript/rule.adoc"
-  }
-}

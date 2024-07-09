@@ -1,8 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "Collection contents should be used",
-    "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S4030/javascript/rule.adoc"
-  }
-}

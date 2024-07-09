@@ -1,8 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "Built-in objects should not be overridden",
-    "recommended": false,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S2424/javascript/rule.adoc"
-  }
-}

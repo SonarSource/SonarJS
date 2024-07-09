@@ -1,8 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "\"import\" should be used to include external code",
-    "recommended": false,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S3533/javascript/rule.adoc"
-  }
-}

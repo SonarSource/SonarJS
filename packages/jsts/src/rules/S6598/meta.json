@@ -1,9 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "Function types should be preferred",
-    "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S6598/javascript/rule.adoc"
-  },
-  "fixable": "code"
-}

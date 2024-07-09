@@ -1,8 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "AWS IAM policies should limit the scope of permissions given",
-    "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S6317/javascript/rule.adoc"
-  }
-}

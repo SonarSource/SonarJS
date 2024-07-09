@@ -1,8 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "\"this\" should not be assigned to variables",
-    "recommended": false,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S4327/javascript/rule.adoc"
-  }
-}

@@ -1,9 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "Trailing commas should be used",
-    "recommended": false,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S3723/javascript/rule.adoc"
-  },
-  "deprecated": true
-}

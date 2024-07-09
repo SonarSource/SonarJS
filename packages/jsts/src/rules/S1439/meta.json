@@ -1,8 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "Only \"while\", \"do\", \"for\" and \"switch\" statements should be labelled",
-    "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S1439/javascript/rule.adoc"
-  }
-}

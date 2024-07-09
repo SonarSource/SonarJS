@@ -1,8 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "Origins should be verified during cross-origin communications",
-    "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S2819/javascript/rule.adoc"
-  }
-}

@@ -1,8 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "Primitive return types should be used",
-    "recommended": false,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S4324/javascript/rule.adoc"
-  }
-}

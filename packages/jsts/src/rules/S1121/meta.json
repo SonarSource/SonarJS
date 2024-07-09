@@ -1,8 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "Assignments should not be made from within sub-expressions",
-    "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S1121/javascript/rule.adoc"
-  }
-}

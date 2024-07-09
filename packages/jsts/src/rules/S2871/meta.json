@@ -1,9 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "\"Array.prototype.sort()\" and \"Array.prototype.toSorted()\" should use a compare function",
-    "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S2871/javascript/rule.adoc"
-  },
-  "fixable": "code"
-}

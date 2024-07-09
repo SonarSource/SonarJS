@@ -1,9 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "Collection size and array length comparisons should make sense",
-    "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S3981/javascript/rule.adoc"
-  },
-  "fixable": "code"
-}

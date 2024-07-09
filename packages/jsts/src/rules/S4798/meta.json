@@ -1,8 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "Optional boolean parameters should have default value",
-    "recommended": false,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S4798/javascript/rule.adoc"
-  }
-}

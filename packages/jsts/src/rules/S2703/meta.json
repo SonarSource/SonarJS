@@ -1,8 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "Variables should be declared explicitly",
-    "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S2703/javascript/rule.adoc"
-  }
-}

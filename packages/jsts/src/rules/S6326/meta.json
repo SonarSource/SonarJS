@@ -1,9 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "Regular expressions should not contain multiple spaces",
-    "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S6326/javascript/rule.adoc"
-  },
-  "fixable": "code"
-}

@@ -33,29 +33,3 @@ export function visit(sourceCode: SourceCode, callback: (node: estree.Node) => v
     stack.push(...childrenOf(node, sourceCode.visitorKeys).reverse());
   }
 }
-
-/**
- * Returns the direct children of a node
- * @param node the node to get the children
- * @param visitorKeys the visitor keys provided by the source code
- * @returns the node children
- */
-export function childrenOf(node: estree.Node, visitorKeys: SourceCode.VisitorKeys): estree.Node[] {
-  const keys = visitorKeys[node.type];
-  const children = [];
-  if (keys) {
-    for (const key of keys) {
-      /**
-       * A node's child may be a node or an array of nodes, e.g., `body` in `estree.Program`.
-       * If it's an array, we extract all the nodes from it; if not, we just add the node.
-       */
-      const child = (node as any)[key];
-      if (Array.isArray(child)) {
-        children.push(...child);
-      } else {
-        children.push(child);
-      }
-    }
-  }
-  return children.filter(Boolean);
-}

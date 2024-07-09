@@ -1,8 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "Loops with at most one iteration should be refactored",
-    "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S1751/javascript/rule.adoc"
-  }
-}
