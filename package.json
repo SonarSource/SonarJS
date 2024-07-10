@@ -54,6 +54,7 @@
     "@types/jest": "29.5.12",
     "@types/lodash.clone": "4.5.9",
     "@types/node": "20.11.30",
+    "@types/semver": "^7.5.8",
     "@types/tmp": "0.2.6",
     "cpy-cli": "4.2.0",
     "dir-compare": "4.2.0",
