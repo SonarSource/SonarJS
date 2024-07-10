@@ -21,6 +21,6 @@
     "composite": true,
     "allowJs": true
   },
-  "include": ["**/*.ts", "**/*.json"],
+  "include": ["**/*.ts", "**/meta.json"],
   "exclude": ["**/*.test.ts", "**/*.fixture.*", "**/fixtures"]
 }
