@@ -39,8 +39,7 @@
 import fs from 'fs';
 import path from 'path';
 import { Minimatch } from 'minimatch';
-import { toUnixPath } from './files';
-import { readFileSync } from 'node:fs';
+import { toUnixPath, readFileSync } from './files';
 import { debug } from 'node:util';
 
 // Patterns enforced to be ignored no matter what the user configures on sonar.properties
@@ -130,7 +129,7 @@ function filterAndParse(
       return;
     }
     try {
-      const contents = readFileSync(filename, 'utf-8');
+      const contents = readFileSync(filename);
       db.push({ filename, contents: parser(filename, contents) });
     } catch (e) {
       debug(`Error parsing file ${filename}: ${e}`);
