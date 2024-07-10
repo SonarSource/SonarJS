@@ -5,7 +5,7 @@
     "moduleResolution": "nodenext",
     "lib": ["ES2021", "dom"],
     "declaration": true,
-    "outDir": "../lib",
+    "outDir": "../../../../lib/jsts/src/rules",
     "strict": true,
     "sourceMap": true,
     "noUnusedLocals": true,

@@ -32,6 +32,9 @@
     },
     {
       "path": "./tsconfig.test.json"
+    },
+    {
+      "path": "./jsts/src/rules/tsconfig.json"
     }
   ],
   "files": [],

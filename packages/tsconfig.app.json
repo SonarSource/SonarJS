@@ -4,7 +4,11 @@
     "composite": true,
     "allowJs": true
   },
-  "references": [],
+  "references": [
+    {
+      "path": "./jsts/src/rules/tsconfig.json"
+    }
+  ],
   "include": [
     "server.ts",
     "*/src/**/*.ts",
