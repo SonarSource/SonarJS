@@ -18,6 +18,12 @@
   },
   "homepage": "https://github.com/SonarSource/SonarJS#readme",
   "dependencies": {
+    "@babel/core": "^7.24.3",
+    "@babel/eslint-parser": "^7.24.1",
+    "@babel/plugin-proposal-decorators": "^7.24.1",
+    "@babel/preset-env": "^7.24.3",
+    "@babel/preset-flow": "^7.24.1",
+    "@babel/preset-react": "^7.24.1",
     "@eslint-community/regexpp": "4.10.0",
     "@typescript-eslint/eslint-plugin": "7.16.0",
     "builtin-modules": "3.3.0",
