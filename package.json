@@ -15,7 +15,7 @@
     "bridge:compile": "tsc -b packages profiling && npm run _:bridge:copy-protofile",
     "bridge:test": "jest --maxWorkers=8 --coverage --testPathIgnorePatterns=/packages/ruling/tests/",
     "bridge:build": "npm run bridge:build:fast && npm run bridge:test",
-    "bridge:build:fast": "npm ci && npm run _:bridge:clear && npm run bridge:compile",
+    "bridge:build:fast": "npm ci && npm run _:bridge:clear && npm run bridge:compile && cd packages/jsts/src/rules && npm ci",
     "bbf": "npm run bridge:build:fast",
     "plugin:build-no-bridge": "mvn install",
     "plugin:build:fast": "npm run plugin:build-no-bridge -- -DskipTests",

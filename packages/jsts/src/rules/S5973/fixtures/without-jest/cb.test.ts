@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import path from 'path';
-import { clearPackageJsons, loadPackageJsons } from '../../../../';
-import { check } from '../../../tools';
+import { basename } from 'path';
+import { check } from '../../../../../tests/tools';
 import { rule } from '../../';
+import { clearPackageJsons, loadPackageJsons } from '../../../helpers';
 
 
-const sonarId = path.basename(__dirname);
+const sonarId = basename(__dirname);
 
 describe('Rule S5973', () => {
   beforeEach(() => {
