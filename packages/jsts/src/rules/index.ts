@@ -673,3 +673,4 @@ rules['xml-parser-xxe'] = S2755;
 rules['xpath'] = S4817;
 
 export { rules };
+export * from './helpers';

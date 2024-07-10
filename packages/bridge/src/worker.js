@@ -30,6 +30,7 @@ const {
   deleteProgram,
   initializeLinter,
   writeTSConfigFile,
+  loadPackageJsons,
   analyzeProject,
 } = require('@sonar/jsts');
 const { readFile, setContext } = require('@sonar/shared/helpers');
@@ -38,7 +39,6 @@ const { analyzeHTML } = require('@sonar/html');
 const { analyzeYAML } = require('@sonar/yaml');
 const { APIError, ErrorCode } = require('@sonar/shared/errors');
 const { logHeapStatistics } = require('@sonar/bridge/memory');
-const { loadPackageJsons } = require('../../jsts/src/rules/helpers');
 
 /**
  * Delegate the handling of an HTTP request to a worker thread
