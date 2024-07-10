@@ -76,6 +76,12 @@
     "typedoc": "0.25.12"
   },
   "dependencies": {
+    "@babel/core": "^7.24.3",
+    "@babel/eslint-parser": "^7.24.1",
+    "@babel/plugin-proposal-decorators": "^7.24.1",
+    "@babel/preset-env": "^7.24.3",
+    "@babel/preset-flow": "^7.24.1",
+    "@babel/preset-react": "^7.24.1",
     "@eslint-community/regexpp": "4.10.0",
     "@typescript-eslint/eslint-plugin": "^7.7.1",
     "@typescript-eslint/parser": "^7.7.1",
