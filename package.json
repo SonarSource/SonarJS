@@ -71,6 +71,7 @@
     "rimraf": "3.0.2",
     "ts-jest": "29.1.2",
     "ts-node": "10.9.2",
+    "type-fest": "^4.21.0",
     "typedoc": "0.25.12"
   },
   "dependencies": {
@@ -107,7 +108,6 @@
     "stylelint": "15.10.0",
     "tar": "6.2.1",
     "tmp": "0.2.3",
-    "type-fest": "4.14.0",
     "typescript": "5.4.3",
     "vue-eslint-parser": "9.4.2",
     "yaml": "2.4.1"

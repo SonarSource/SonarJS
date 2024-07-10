@@ -25,7 +25,8 @@ import {
   JsTsFiles,
   ProjectAnalysisOutput,
 } from '../../';
-import { error, readFile } from '@sonar/shared';
+import { error } from '@sonar/shared';
+import { readFile } from '../../rules/helpers';
 
 /**
  * Analyzes JavaScript / TypeScript files using TypeScript programs. Only the files

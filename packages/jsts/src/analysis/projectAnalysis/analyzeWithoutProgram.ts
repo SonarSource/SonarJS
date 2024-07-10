@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { analyzeFile, DEFAULT_LANGUAGE, JsTsFiles, ProjectAnalysisOutput } from '../../';
-import { readFile } from '@sonar/shared';
+import { readFile } from '../../rules/helpers';
 
 /**
  * Analyzes JavaScript / TypeScript files without type-checking.

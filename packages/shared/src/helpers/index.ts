@@ -18,8 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 export * from './context';
-export * from './logging';
 export * from './files';
+export * from './logging';
 export * from './language';
 export * from './escape';
-export * from './find-files';

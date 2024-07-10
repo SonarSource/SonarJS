@@ -25,7 +25,7 @@ import {
   JsTsFiles,
   ProjectAnalysisOutput,
 } from '../../';
-import { readFile } from '@sonar/shared';
+import { readFile } from '../../rules/helpers';
 
 /**
  * Analyzes JavaScript / TypeScript files using TypeScript watchPrograms. Only the files

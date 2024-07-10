@@ -43,6 +43,7 @@
     "@types/node": "20.14.10",
     "@types/semver": "7.5.8",
     "json-schema-to-ts": "3.1.0",
+    "type-fest": "^4.21.0",
     "typescript": "5.5.3"
   }
 }

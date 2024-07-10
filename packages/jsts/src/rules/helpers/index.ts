@@ -28,6 +28,7 @@ export * from './equivalence';
 export * from './express';
 export * from './file';
 export * from './files';
+export * from './find-files';
 export * from './globals';
 export * from './jsx';
 export * from './location';
