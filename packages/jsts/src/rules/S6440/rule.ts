@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import { rules as reactHooksRules } from 'eslint-plugin-react-hooks';
-import { mergeRules, rule as detectReact } from '../helpers';
+import { mergeRules, detectReactRule } from '../helpers';
 import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
 
@@ -37,7 +37,7 @@ export const rule: Rule.RuleModule = {
 
     let isReact = false;
 
-    const detectReactListener = detectReact.create(
+    const detectReactListener = detectReactRule.create(
       overrideContext({
         report(_descriptor: Rule.ReportDescriptor): void {
           isReact = true;
