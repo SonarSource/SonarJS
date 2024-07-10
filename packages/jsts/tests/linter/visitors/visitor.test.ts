@@ -20,7 +20,7 @@
 import { visit } from '../../../src/linter/visitors';
 import path from 'path';
 import { parseTypeScriptSourceFile } from '../../tools/helpers';
-import { childrenOf } from 'eslint-plugin-sonarjs/helpers';
+import { childrenOf } from '../../../src/rules/helpers';
 
 describe('visitor', () => {
   describe('visit', () => {

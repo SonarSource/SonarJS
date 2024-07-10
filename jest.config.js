@@ -7,7 +7,7 @@ const config = {
   moduleNameMapper: {
     '^@sonar/(\\w+)(.*)$': '<rootDir>/packages/$1/src$2',
   },
-  modulePathIgnorePatterns: ['<rootDir>/packages/jsts/src/rules/.*/package.json$', '<rootDir>/its'],
+  modulePathIgnorePatterns: ['<rootDir>/packages/jsts/src/rules', '<rootDir>/its'],
   resolver: '<rootDir>/jest-resolver.js',
   testResultsProcessor: 'jest-sonar-reporter',
   transform: {

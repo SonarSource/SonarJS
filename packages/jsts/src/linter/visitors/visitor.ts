@@ -19,7 +19,7 @@
  */
 import * as estree from 'estree';
 import { SourceCode } from 'eslint';
-import { childrenOf } from 'eslint-plugin-sonarjs/helpers';
+import { childrenOf } from '../../rules/helpers';
 
 /**
  * Visits the abstract syntax tree of an ESLint source code

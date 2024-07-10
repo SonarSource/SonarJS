@@ -30,11 +30,7 @@ import { analyzeWithWatchProgram } from './analyzeWithWatchProgram';
 import { analyzeWithoutProgram } from './analyzeWithoutProgram';
 import { initializeLinter } from '../../linter';
 import { TSCONFIG_JSON, setTSConfigs, getTSConfigsIterator } from '../../program';
-import {
-  PACKAGE_JSON,
-  parsePackageJson,
-  setPackageJsons,
-} from 'eslint-plugin-sonarjs/helpers/package-json';
+import { PACKAGE_JSON, parsePackageJson, setPackageJsons } from '../../rules/helpers/package-json';
 
 /**
  * Analyzes a JavaScript / TypeScript project in a single run

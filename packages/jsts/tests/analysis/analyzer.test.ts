@@ -29,10 +29,7 @@ import {
 } from '../../src';
 import { jsTsInput, parseJavaScriptSourceFile } from '../tools';
 import { Linter, Rule } from 'eslint';
-import {
-  getNearestPackageJsons,
-  loadPackageJsons,
-} from 'eslint-plugin-sonarjs/helpers/package-json';
+import { getNearestPackageJsons, loadPackageJsons } from '../../src/rules/helpers';
 describe('analyzeJSTS', () => {
   beforeEach(() => {
     jest.resetModules();

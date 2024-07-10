@@ -24,9 +24,9 @@ import {
   getAllPackageJsons,
   getNearestPackageJsons,
   getPackageJsonsCount,
+  isSupported,
   loadPackageJsons,
-} from 'eslint-plugin-sonarjs/helpers/package-json';
-import { isSupported } from 'eslint-plugin-sonarjs/helpers/validate-version';
+} from '../../src/rules/helpers';
 
 describe('initialize package.json files', () => {
   const baseDir = path.posix.join(toUnixPath(__dirname), 'fixtures', 'package-json');
