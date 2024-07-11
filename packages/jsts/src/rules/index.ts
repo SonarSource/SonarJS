@@ -18,6 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Rule } from 'eslint';
+import type { TSESLint } from '@typescript-eslint/utils';
+import type { FlatConfig } from '@typescript-eslint/utils/ts-eslint';
+import { name, version } from './package.json';
 
 import { rule as S2376 } from './S2376'; // accessor-pairs
 import { rule as S1077 } from './S1077'; // alt-text
@@ -672,5 +675,37 @@ rules['x-powered-by'] = S5689;
 rules['xml-parser-xxe'] = S2755;
 rules['xpath'] = S4817;
 
+const recommendedLegacyConfig: TSESLint.Linter.ConfigType = { plugins: ['sonarjs'], rules: {} };
+const recommendedConfig: FlatConfig.Config = {
+  plugins: {
+    sonarjs: {
+      rules,
+    },
+  },
+  rules: {},
+};
+
+for (const key in rules) {
+  const rule = rules[key as keyof typeof rules];
+  const recommended = rule.meta!.docs?.recommended;
+
+  recommendedConfig.rules![`sonarjs/${key}`] = recommended === undefined ? 'off' : 'error';
+}
+
+recommendedLegacyConfig.rules = recommendedConfig.rules;
+
+export const configs = {
+  recommended: recommendedConfig,
+  'recommended-legacy': recommendedLegacyConfig,
+};
+
+export const meta = {
+  name,
+  version,
+};
+
 export { rules };
+
+export default { rules, configs, meta };
+
 export * from './helpers';
