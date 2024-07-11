@@ -2,9 +2,8 @@
   "name": "eslint-plugin-sonarjs-tests",
   "description": "Test suite for eslint-plugin-sonarjs",
   "scripts": {
-    "build": "npm i ../../packages/jsts/src/rules/eslint-plugin-sonarjs-*.tgz --no-save",
-    "test": "jest ./test/unit/index.test.ts",
-    "test-integration": "jest ./test/integration/index.test.ts"
+    "build": "npm i ../../packages/jsts/src/rules/lib/eslint-plugin-sonarjs-1.0.3.tgz --no-save",
+    "test": "jest index.test.ts"
   },
   "devDependencies": {
     "eslint": "8.57.0",
