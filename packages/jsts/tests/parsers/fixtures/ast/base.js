@@ -338,6 +338,8 @@ const [a1, b1] = [1, 2];
 const [a2, ...b2] = [1, 2, 3];
 const arr1 = [1, 2, 3];
 const arr2 = [...arr1, 4, 5];
+const arrWithEmptyElements = [, , 5];
+const [, pattern, withEmpty, , elements] = [1, 2, 3, 4, 5, 6]
 
 let a3;
 a3 = 1, 2, 3;

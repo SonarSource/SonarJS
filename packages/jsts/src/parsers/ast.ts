@@ -364,10 +364,9 @@ export function visitNode(node: estree.BaseNodeWithoutComments | undefined | nul
   }
 
   function visitArrayPattern(node: estree.ArrayPattern) {
-    // If the elements ever contain null together with other nodes, protobuf will fail to serialize the array.
-    // It is unclear from the estree documentation if this is possible, but as it is from a type perspective, we prefer to be safe.
+    // When an entry is empty, it is represented as null in the array.
     return {
-      elements: node.elements.filter(e => e !== null).map(visitNode),
+      elements: node.elements.map(visitArrayElement),
     };
   }
 
@@ -524,10 +523,17 @@ export function visitNode(node: estree.BaseNodeWithoutComments | undefined | nul
   }
 
   function visitArrayExpression(node: estree.ArrayExpression) {
-    // If the elements ever contain null together with other nodes, protobuf will fail to serialize the array.
-    // It is unclear from the estree documentation if this is possible, but as it is from a type perspective, we prefer to be safe.
+    // When an entry is empty, it is represented as null in the array.
     return {
-      elements: node.elements.filter(e => e !== null).map(visitNode),
+      elements: node.elements.map(visitArrayElement),
+    };
+  }
+
+  function visitArrayElement(
+    element: estree.Pattern | estree.Expression | estree.SpreadElement | null,
+  ) {
+    return {
+      element: visitNode(element),
     };
   }
 

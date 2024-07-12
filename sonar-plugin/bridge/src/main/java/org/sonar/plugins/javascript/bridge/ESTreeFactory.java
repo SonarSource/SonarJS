@@ -23,6 +23,7 @@ import java.math.BigInteger;
 import java.util.List;
 import java.util.Optional;
 import org.sonar.plugins.javascript.api.estree.ESTree;
+import org.sonar.plugins.javascript.bridge.protobuf.ArrayElement;
 import org.sonar.plugins.javascript.bridge.protobuf.ArrayExpression;
 import org.sonar.plugins.javascript.bridge.protobuf.ArrayPattern;
 import org.sonar.plugins.javascript.bridge.protobuf.ArrowFunctionExpression;
@@ -311,7 +312,11 @@ public class ESTreeFactory {
   private static ESTree.ArrayPattern fromArrayPatternType(Node node) {
     ArrayPattern arrayPattern = node.getArrayPattern();
     return new ESTree.ArrayPattern(fromLocation(node.getLoc()),
-      from(arrayPattern.getElementsList(), ESTree.Pattern.class));
+      arrayPattern.getElementsList().stream().map(ESTreeFactory::fromArrayPatternElement).toList());
+  }
+
+  private static Optional<ESTree.Pattern> fromArrayPatternElement(ArrayElement element) {
+    return element.hasElement() ? Optional.of(from(element.getElement(), ESTree.Pattern.class)) : Optional.empty();
   }
 
   private static ESTree.ObjectPattern fromObjectPatternType(Node node) {
@@ -467,7 +472,11 @@ public class ESTreeFactory {
   private static ESTree.ArrayExpression fromArrayExpressionType(Node node) {
     ArrayExpression arrayExpression = node.getArrayExpression();
     return new ESTree.ArrayExpression(fromLocation(node.getLoc()),
-      from(arrayExpression.getElementsList(), ESTree.ExpressionOrSpreadElement.class));
+      arrayExpression.getElementsList().stream().map(ESTreeFactory::fromArrayExpressionElement).toList());
+  }
+
+  private static Optional<ESTree.ExpressionOrSpreadElement> fromArrayExpressionElement(ArrayElement element) {
+    return element.hasElement() ? Optional.of(from(element.getElement(), ESTree.ExpressionOrSpreadElement.class)) : Optional.empty();
   }
 
   private static ESTree.ClassDeclaration fromClassDeclarationType(Node node) {
