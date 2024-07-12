@@ -304,7 +304,7 @@ eslint_plugin_test_task:
   <<: *NPMRC_SCRIPT_DEFINITION
   # needed because we need to build the plugin
   <<: *RUNTIME_CACHE
-  ruling_script:
+  eslint_its_script:
     - . ~/.profile
     - source cirrus-env QA
     - source set_maven_build_version $BUILD_NUMBER
