@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { getFullyQualifiedName, isTestCode } from '../helpers';
+import { getFullyQualifiedName } from '../helpers';
 import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
 
@@ -37,7 +37,7 @@ export const rule: Rule.RuleModule = {
     const sourceCode = context.sourceCode;
     return {
       'ExpressionStatement > NewExpression': (node: estree.NewExpression) => {
-        if (isTestCode(context) || isTryable(node, context)) {
+        if (isTryable(node, context)) {
           return;
         }
         const { callee } = node;

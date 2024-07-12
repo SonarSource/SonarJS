@@ -26,7 +26,6 @@ export * from './conditions';
 export * from './decorators';
 export * from './equivalence';
 export * from './express';
-export * from './file';
 export * from './files';
 export * from './find-files';
 export * from './globals';

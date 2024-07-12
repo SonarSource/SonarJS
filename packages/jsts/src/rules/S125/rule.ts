@@ -26,7 +26,6 @@ import * as babel from '@babel/eslint-parser';
 import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
 import { CodeRecognizer, JavaScriptFootPrint } from '../helpers/recognizers';
-import { buildParserOptions } from '../helpers/options';
 
 const EXCLUDED_STATEMENTS = ['BreakStatement', 'LabeledStatement', 'ContinueStatement'];
 
@@ -148,11 +147,34 @@ function containsCode(value: string) {
   }
 
   try {
-    const options = buildParserOptions(
-      { filePath: 'some/filePath', tsConfigs: [], fileContent: '', fileType: 'MAIN' },
-      true,
-    );
-    const result = babel.parse(value, options);
+    const pluginPath = `${__dirname}/../node_modules`;
+    const result = babel.parse(value, {
+      filename: 'some/filePath',
+      tokens: true,
+      comment: true,
+      loc: true,
+      range: true,
+      ecmaVersion: 2018,
+      sourceType: 'module',
+      codeFrame: false,
+      ecmaFeatures: {
+        jsx: true,
+        globalReturn: false,
+        legacyDecorators: true,
+      },
+      targets: 'defaults',
+      presets: [
+        `${pluginPath}/@babel/preset-react`,
+        `${pluginPath}/@babel/preset-flow`,
+        `${pluginPath}/@babel/preset-env`,
+      ],
+      plugins: [[`${pluginPath}/@babel/plugin-proposal-decorators`, { version: '2022-03' }]],
+      babelrc: false,
+      configFile: false,
+      parserOpts: {
+        allowReturnOutsideFunction: true,
+      },
+    });
     const parseResult = new SourceCode(value, result);
     return parseResult.ast.body.length > 0 && !isExclusion(parseResult.ast.body, parseResult);
   } catch (exception) {
