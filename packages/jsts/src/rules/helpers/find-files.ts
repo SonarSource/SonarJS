@@ -40,7 +40,10 @@ import fs from 'fs';
 import path from 'path';
 import { Minimatch } from 'minimatch';
 import { toUnixPath, readFileSync } from './files';
-import { debug } from 'node:util';
+
+function debug(message: string) {
+  console.log(`DEBUG ${message}`);
+}
 
 // Patterns enforced to be ignored no matter what the user configures on sonar.properties
 const IGNORED_PATTERNS = ['.scannerwork'];

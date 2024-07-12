@@ -24,7 +24,7 @@ import {
   getImportDeclarations,
   getUniqueWriteUsage,
   isIdentifier,
-} from '../../../../src/rules/helpers';
+} from '../../../../src/rules';
 
 /**
  *

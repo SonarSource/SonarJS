@@ -21,7 +21,7 @@
 import path from 'path';
 
 import { Linter, Rule } from 'eslint';
-import { getProperty } from '../../../src/rules/helpers/ast';
+import { getProperty } from '../../../src/rules';
 
 import { parseJavaScriptSourceFile } from '../../tools';
 

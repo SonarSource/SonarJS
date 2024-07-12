@@ -26,7 +26,7 @@ import {
   getPackageJsonsCount,
   isSupported,
   loadPackageJsons,
-} from '../../src/rules/helpers';
+} from '../../src/rules';
 
 describe('initialize package.json files', () => {
   const baseDir = path.posix.join(toUnixPath(__dirname), 'fixtures', 'package-json');

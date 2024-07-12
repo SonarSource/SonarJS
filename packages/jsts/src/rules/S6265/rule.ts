@@ -30,15 +30,13 @@ import {
   isMethodCall,
   mergeRules,
   report,
-} from '../helpers';
-import { normalizeFQN } from '../helpers/aws/cdk';
-import {
+  normalizeFQN,
   S3BucketTemplate,
   isS3BucketDeploymentConstructor,
   findPropagatedSetting,
   isS3BucketConstructor,
-  getProperty,
-} from '../helpers/aws/s3';
+  getBucketProperty,
+} from '../helpers';
 import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
 
@@ -106,7 +104,7 @@ function checkBooleanParam(
   propName: string,
   propValue: boolean,
 ) {
-  const property = getProperty(context, bucketConstructor, propName);
+  const property = getBucketProperty(context, bucketConstructor, propName);
   if (property == null) {
     return;
   }
@@ -130,7 +128,7 @@ function checkConstantParam(
   propName: string,
   paramQualifiers: string[],
 ) {
-  const property = getProperty(context, bucketConstructor, propName);
+  const property = getBucketProperty(context, bucketConstructor, propName);
   if (property == null) {
     return;
   }

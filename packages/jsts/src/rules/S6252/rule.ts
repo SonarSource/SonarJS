@@ -20,16 +20,17 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6252/javascript
 
 import { Rule } from 'eslint';
-import { SONAR_RUNTIME } from '../helpers';
 import {
+  SONAR_RUNTIME,
   getValueOfExpression,
   getNodeParent,
   report,
   IssueLocation,
   toSecondaryLocation,
+  getBucketProperty,
+  S3BucketTemplate,
+  generateMeta,
 } from '../helpers';
-import { getProperty, S3BucketTemplate } from '../helpers/aws/s3';
-import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
 
 const VERSIONED_KEY = 'versioned';
@@ -43,7 +44,7 @@ const messages = {
 
 export const rule: Rule.RuleModule = S3BucketTemplate(
   (bucketConstructor, context) => {
-    const versionedProperty = getProperty(context, bucketConstructor, VERSIONED_KEY);
+    const versionedProperty = getBucketProperty(context, bucketConstructor, VERSIONED_KEY);
     if (versionedProperty == null) {
       report(context, {
         message: messages.omitted,

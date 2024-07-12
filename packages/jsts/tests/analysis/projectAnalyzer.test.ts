@@ -20,7 +20,7 @@
 import path from 'path';
 import { getContext, setContext, toUnixPath } from '@sonar/shared';
 import { analyzeProject, clearTSConfigs, ProjectAnalysisInput, RuleConfig } from '@sonar/jsts';
-import { searchFiles, File } from '../../src/rules/helpers';
+import { searchFiles, File } from '../../src/rules';
 
 const defaultRules: RuleConfig[] = [
   { key: 'no-duplicate-in-composite', configurations: [], fileTypeTarget: ['MAIN'] },

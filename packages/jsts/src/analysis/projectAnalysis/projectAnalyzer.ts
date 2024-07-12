@@ -29,14 +29,8 @@ import { analyzeWithWatchProgram } from './analyzeWithWatchProgram';
 import { analyzeWithoutProgram } from './analyzeWithoutProgram';
 import { initializeLinter } from '../../linter';
 import { TSCONFIG_JSON, setTSConfigs, getTSConfigsIterator } from '../../program';
-import {
-  PACKAGE_JSON,
-  parsePackageJson,
-  setPackageJsons,
-  File,
-  searchFiles,
-  toUnixPath,
-} from '../../rules/helpers';
+import { PACKAGE_JSON, parsePackageJson, setPackageJsons, File, searchFiles } from '../../rules';
+import { toUnixPath } from '@sonar/shared';
 
 /**
  * Analyzes a JavaScript / TypeScript project in a single run

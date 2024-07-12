@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RuleTester } from 'eslint';
-import { S3BucketTemplate } from '../../../../src/rules/helpers/aws/s3';
+import { S3BucketTemplate } from '../../../../src/rules';
 
 const rule = S3BucketTemplate((node, context) => {
   if (node.arguments.length > 0) {

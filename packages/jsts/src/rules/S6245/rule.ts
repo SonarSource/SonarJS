@@ -21,11 +21,17 @@
 
 import { Rule } from 'eslint';
 import { MemberExpression } from 'estree';
-import { SONAR_RUNTIME } from '../helpers';
-import { getFullyQualifiedName, getValueOfExpression, report } from '../helpers';
-import { normalizeFQN } from '../helpers/aws/cdk';
-import { findPropagatedSetting, getProperty, S3BucketTemplate } from '../helpers/aws/s3';
-import { generateMeta } from '../helpers/generate-meta';
+import {
+  SONAR_RUNTIME,
+  getFullyQualifiedName,
+  getValueOfExpression,
+  report,
+  normalizeFQN,
+  findPropagatedSetting,
+  getBucketProperty,
+  S3BucketTemplate,
+  generateMeta,
+} from '../helpers';
 import rspecMeta from './meta.json';
 
 const ENCRYPTED_KEY = 'encryption';
@@ -37,7 +43,7 @@ const messages = {
 
 export const rule: Rule.RuleModule = S3BucketTemplate(
   (bucket, context) => {
-    const encryptedProperty = getProperty(context, bucket, ENCRYPTED_KEY);
+    const encryptedProperty = getBucketProperty(context, bucket, ENCRYPTED_KEY);
     if (encryptedProperty == null) {
       report(context, {
         message: messages['omitted'],

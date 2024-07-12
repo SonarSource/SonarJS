@@ -21,17 +21,19 @@
 
 import { Rule } from 'eslint';
 import { NewExpression, ObjectExpression, Property } from 'estree';
-import { SONAR_RUNTIME } from '../helpers';
 import {
+  SONAR_RUNTIME,
   getFullyQualifiedName,
   getValueOfExpression,
   isIdentifier,
   isProperty,
   report,
+  normalizeFQN,
+  findPropagatedSetting,
+  getBucketProperty,
+  S3BucketTemplate,
+  generateMeta,
 } from '../helpers';
-import { normalizeFQN } from '../helpers/aws/cdk';
-import { findPropagatedSetting, getProperty, S3BucketTemplate } from '../helpers/aws/s3';
-import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
 
 const BLOCK_PUBLIC_ACCESS_KEY = 'blockPublicAccess';
@@ -51,7 +53,7 @@ const messages = {
 
 export const rule: Rule.RuleModule = S3BucketTemplate(
   (bucket, context) => {
-    const blockPublicAccess = getProperty(context, bucket, BLOCK_PUBLIC_ACCESS_KEY);
+    const blockPublicAccess = getBucketProperty(context, bucket, BLOCK_PUBLIC_ACCESS_KEY);
     if (blockPublicAccess == null) {
       report(context, {
         message: messages['omitted'],

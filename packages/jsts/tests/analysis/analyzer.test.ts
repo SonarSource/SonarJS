@@ -29,7 +29,7 @@ import {
 } from '../../src';
 import { jsTsInput, parseJavaScriptSourceFile } from '../tools';
 import { Linter, Rule } from 'eslint';
-import { getNearestPackageJsons, loadPackageJsons } from '../../src/rules/helpers';
+import { getNearestPackageJsons, loadPackageJsons } from '../../src/rules';
 describe('analyzeJSTS', () => {
   beforeEach(() => {
     jest.resetModules();

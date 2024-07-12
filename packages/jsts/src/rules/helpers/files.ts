@@ -46,7 +46,7 @@ export function readFileSync(filePath: string) {
  * @param str the input string
  * @returns the stripped string
  */
-export function stripBOM(str: string) {
+function stripBOM(str: string) {
   if (str.charCodeAt(0) === BOM_BYTE) {
     return str.slice(1);
   }

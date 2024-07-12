@@ -17,20 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as estree from 'estree';
-import { SourceCode } from 'eslint';
-import { childrenOf } from '../../rules';
-
-/**
- * Visits the abstract syntax tree of an ESLint source code
- * @param sourceCode the source code to visit
- * @param callback a callback function invoked at each node visit
- */
-export function visit(sourceCode: SourceCode, callback: (node: estree.Node) => void): void {
-  const stack: estree.Node[] = [sourceCode.ast];
-  while (stack.length) {
-    const node = stack.pop() as estree.Node;
-    callback(node);
-    stack.push(...childrenOf(node, sourceCode.visitorKeys).reverse());
-  }
-}
+export * from './cdk';
+export * from './iam';
+export * from './s3';
