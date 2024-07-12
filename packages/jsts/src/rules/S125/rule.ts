@@ -147,7 +147,6 @@ function containsCode(value: string) {
   }
 
   try {
-    const pluginPath = `${__dirname}/../node_modules`;
     const result = babel.parse(value, {
       filename: 'some/filePath',
       tokens: true,
@@ -162,17 +161,16 @@ function containsCode(value: string) {
         globalReturn: false,
         legacyDecorators: true,
       },
-      targets: 'defaults',
-      presets: [
-        `${pluginPath}/@babel/preset-react`,
-        `${pluginPath}/@babel/preset-flow`,
-        `${pluginPath}/@babel/preset-env`,
-      ],
-      plugins: [[`${pluginPath}/@babel/plugin-proposal-decorators`, { version: '2022-03' }]],
-      babelrc: false,
-      configFile: false,
-      parserOpts: {
-        allowReturnOutsideFunction: true,
+      requireConfigFile: false,
+      babelOptions: {
+        targets: 'defaults',
+        presets: [`@babel/preset-react`, `@babel/preset-flow`, `@babel/preset-env`],
+        plugins: [[`@babel/plugin-proposal-decorators`, { version: '2022-03' }]],
+        babelrc: false,
+        configFile: false,
+        parserOpts: {
+          allowReturnOutsideFunction: true,
+        },
       },
     });
     const parseResult = new SourceCode(value, result);

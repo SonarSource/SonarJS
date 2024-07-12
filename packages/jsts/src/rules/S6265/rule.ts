@@ -36,8 +36,8 @@ import {
   findPropagatedSetting,
   isS3BucketConstructor,
   getBucketProperty,
+  generateMeta,
 } from '../helpers';
-import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
 
 const messages = {

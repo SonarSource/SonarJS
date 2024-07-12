@@ -31,3 +31,17 @@ function S2376() {
     }
   }
 }
+
+/*
+
+function S2376() {
+  class C {
+    set m(a) {
+      this.a = a;
+    }
+  }
+}
+
+ */
+
+// if (something) {}
