@@ -30,6 +30,7 @@ import {
   normalizeFQN,
 } from '../helpers/aws/cdk';
 import {
+  generateMeta,
   getFullyQualifiedName,
   getProperty,
   getUniqueWriteUsageOrNode,
@@ -38,7 +39,6 @@ import {
   isUnresolved,
   reduceToIdentifier,
 } from '../helpers';
-import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 const TYPES_WITH_CONNECTIONS = [

@@ -21,8 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { isIdentifier, getValueOfExpression, getProperty } from '../helpers';
-import { generateMeta } from '../helpers';
+import { generateMeta, getProperty, getValueOfExpression, isIdentifier } from '../helpers';
 import rspecMeta from './meta.json';
 
 const MINIMAL_MODULUS_LENGTH = 2048;

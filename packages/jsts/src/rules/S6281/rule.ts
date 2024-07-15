@@ -22,17 +22,17 @@
 import { Rule } from 'eslint';
 import { NewExpression, ObjectExpression, Property } from 'estree';
 import {
-  SONAR_RUNTIME,
+  findPropagatedSetting,
+  generateMeta,
+  getBucketProperty,
   getFullyQualifiedName,
   getValueOfExpression,
   isIdentifier,
   isProperty,
-  report,
   normalizeFQN,
-  findPropagatedSetting,
-  getBucketProperty,
+  report,
   S3BucketTemplate,
-  generateMeta,
+  SONAR_RUNTIME,
 } from '../helpers';
 import rspecMeta from './meta.json';
 

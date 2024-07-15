@@ -23,15 +23,15 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import ts from 'typescript';
 import {
-  isRequiredParserServices,
+  generateMeta,
   getTypeFromTreeNode,
+  isRequiredParserServices,
   isStringType,
-  report,
   IssueLocation,
+  report,
+  SONAR_RUNTIME,
   toSecondaryLocation,
 } from '../helpers';
-import { SONAR_RUNTIME } from '../helpers';
-import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 const MESSAGE = 'Convert this operand into a number.';

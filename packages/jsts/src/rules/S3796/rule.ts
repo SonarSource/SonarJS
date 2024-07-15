@@ -23,17 +23,17 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
 import {
+  generateMeta,
+  getMainFunctionTokenLocation,
   isArray,
+  isDotNotation,
+  isIndexNotation,
+  isMemberExpression,
+  isRequiredParserServices,
   isTypedArray,
   RequiredParserServices,
-  isRequiredParserServices,
-  isMemberExpression,
   RuleContext,
-  isIndexNotation,
-  isDotNotation,
-  getMainFunctionTokenLocation,
 } from '../helpers';
-import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 const message = `Add a "return" statement to this callback.`;

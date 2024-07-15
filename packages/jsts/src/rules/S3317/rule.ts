@@ -22,8 +22,7 @@
 import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
 import path from 'path';
-import { getVariableFromName } from '../helpers';
-import { generateMeta } from '../helpers';
+import { generateMeta, getVariableFromName } from '../helpers';
 import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {

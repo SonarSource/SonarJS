@@ -20,8 +20,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S3798/javascript
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { isIdentifier } from '../helpers';
-import { generateMeta } from '../helpers';
+import { generateMeta, isIdentifier } from '../helpers';
 import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {

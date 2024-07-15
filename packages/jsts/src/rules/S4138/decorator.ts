@@ -19,11 +19,10 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S4138/javascript
 
-import { Rule, AST, Scope } from 'eslint';
-import { interceptReport } from '../helpers';
+import { AST, Rule, Scope } from 'eslint';
+import { generateMeta, interceptReport } from '../helpers';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
-import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 const element = 'element';

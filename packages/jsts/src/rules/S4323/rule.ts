@@ -22,10 +22,8 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
-import { SONAR_RUNTIME } from '../helpers';
-import { generateMeta } from '../helpers';
+import { generateMeta, report, SONAR_RUNTIME, toSecondaryLocation } from '../helpers';
 import rspecMeta from './meta.json';
-import { report, toSecondaryLocation } from '../helpers';
 
 const TYPE_THRESHOLD = 2;
 const USAGE_THRESHOLD = 2;

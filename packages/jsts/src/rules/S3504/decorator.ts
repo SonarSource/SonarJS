@@ -18,9 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Rule } from 'eslint';
-import { interceptReport } from '../helpers';
+import { generateMeta, interceptReport } from '../helpers';
 import estree from 'estree';
-import { generateMeta } from '../helpers';
 import rspecMeta from '../S1788/meta.json';
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {

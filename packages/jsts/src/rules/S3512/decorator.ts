@@ -19,8 +19,7 @@
  */
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { interceptReport } from '../helpers';
-import { generateMeta } from '../helpers';
+import { generateMeta, interceptReport } from '../helpers';
 import rspecMeta from '../S1788/meta.json';
 
 // core implementation of this rule raises issues on binary expressions with string literal operand(s)

@@ -21,22 +21,22 @@
 
 import { Rule } from 'eslint';
 import estree from 'estree';
-import { SONAR_RUNTIME } from '../helpers';
 import {
+  findPropagatedSetting,
+  generateMeta,
+  getBucketProperty,
   getFullyQualifiedName,
   getUniqueWriteUsageOrNode,
   getValueOfExpression,
   isIdentifier,
   isMethodCall,
-  mergeRules,
-  report,
-  normalizeFQN,
-  S3BucketTemplate,
-  isS3BucketDeploymentConstructor,
-  findPropagatedSetting,
   isS3BucketConstructor,
-  getBucketProperty,
-  generateMeta,
+  isS3BucketDeploymentConstructor,
+  mergeRules,
+  normalizeFQN,
+  report,
+  S3BucketTemplate,
+  SONAR_RUNTIME,
 } from '../helpers';
 import rspecMeta from './meta.json';
 

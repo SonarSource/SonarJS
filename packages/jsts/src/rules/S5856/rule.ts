@@ -21,6 +21,7 @@
 
 import { Rule } from 'eslint';
 import {
+  generateMeta,
   getTypeFromTreeNode,
   isIdentifier,
   isRequiredParserServices,
@@ -29,7 +30,6 @@ import {
 } from '../helpers';
 import * as estree from 'estree';
 import { RegExpValidator } from '@eslint-community/regexpp';
-import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 const validator = new RegExpValidator();

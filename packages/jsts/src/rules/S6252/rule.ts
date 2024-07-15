@@ -21,15 +21,15 @@
 
 import { Rule } from 'eslint';
 import {
-  SONAR_RUNTIME,
-  getValueOfExpression,
-  getNodeParent,
-  report,
-  IssueLocation,
-  toSecondaryLocation,
-  getBucketProperty,
-  S3BucketTemplate,
   generateMeta,
+  getBucketProperty,
+  getNodeParent,
+  getValueOfExpression,
+  IssueLocation,
+  report,
+  S3BucketTemplate,
+  SONAR_RUNTIME,
+  toSecondaryLocation,
 } from '../helpers';
 import rspecMeta from './meta.json';
 

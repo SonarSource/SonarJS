@@ -23,6 +23,7 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import {
   Chai,
+  generateMeta,
   getUniqueWriteUsageOrNode,
   isIdentifier,
   isMethodCall,
@@ -30,7 +31,6 @@ import {
   isThisExpression,
   Mocha,
 } from '../helpers';
-import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 const MESSAGE =

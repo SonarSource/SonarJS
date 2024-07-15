@@ -22,9 +22,14 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
-import { isString, isRequiredParserServices, report, toSecondaryLocation } from '../helpers';
-import { SONAR_RUNTIME } from '../helpers';
-import { generateMeta } from '../helpers';
+import {
+  generateMeta,
+  isRequiredParserServices,
+  isString,
+  report,
+  SONAR_RUNTIME,
+  toSecondaryLocation,
+} from '../helpers';
 import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {

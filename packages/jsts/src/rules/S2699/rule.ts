@@ -20,10 +20,17 @@
 // https://sonarsource.github.io/rspec/#/rspec/S2699/javascript
 import { Rule, SourceCode } from 'eslint';
 import * as estree from 'estree';
-import { childrenOf } from '../helpers';
-import { Chai, isFunctionCall, Mocha, resolveFunction, Sinon, Vitest } from '../helpers';
+import {
+  Chai,
+  childrenOf,
+  generateMeta,
+  isFunctionCall,
+  Mocha,
+  resolveFunction,
+  Sinon,
+  Vitest,
+} from '../helpers';
 import { Supertest } from '../helpers/supertest';
-import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 /**

@@ -1,4 +1,4 @@
-import {aws_apigateway as apigateway, aws_apigatewayv2 as apigatewayv2, Stack} from "aws-cdk-lib"
+import { aws_apigateway as apigateway, aws_apigatewayv2 as apigatewayv2, Stack } from 'aws-cdk-lib';
 
 export class CfnRestApi2Stack extends Stack {
   constructor(scope, id, props) {

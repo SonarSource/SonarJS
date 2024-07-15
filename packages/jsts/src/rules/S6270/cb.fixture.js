@@ -1,5 +1,5 @@
-import * as cdk from "aws-cdk-lib";
-import {aws_iam as iam, aws_kms as kms, aws_s3 as s3} from "aws-cdk-lib";
+import * as cdk from 'aws-cdk-lib';
+import { aws_iam as iam, aws_kms as kms, aws_s3 as s3 } from 'aws-cdk-lib';
 
 export class IAMStack extends cdk.Stack {
   constructor(scope, id, props) {

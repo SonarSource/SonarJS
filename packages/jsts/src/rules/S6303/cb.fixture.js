@@ -1,15 +1,5 @@
-import {
-  Alias,
-  Key
-} from 'aws-cdk-lib/aws-kms';
-import {
-  CfnDBCluster,
-  CfnDBInstance,
-  DatabaseCluster,
-  DatabaseClusterFromSnapshot,
-  DatabaseInstance,
-  DatabaseInstanceReadReplica
-} from 'aws-cdk-lib/aws-rds';
+import { Alias, Key } from 'aws-cdk-lib/aws-kms';
+import { CfnDBCluster, CfnDBInstance, DatabaseCluster, DatabaseClusterFromSnapshot, DatabaseInstance, DatabaseInstanceReadReplica } from 'aws-cdk-lib/aws-rds';
 
 function cfnDBCluster() {
 

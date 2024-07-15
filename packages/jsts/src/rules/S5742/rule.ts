@@ -21,10 +21,14 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { Express, getFullyQualifiedName, getPropertyWithValue } from '../helpers';
-import { generateMeta } from '../helpers';
+import {
+  Express,
+  generateMeta,
+  getFullyQualifiedName,
+  getPropertyWithValue,
+  SONAR_RUNTIME,
+} from '../helpers';
 import rspecMeta from './meta.json';
-import { SONAR_RUNTIME } from '../helpers';
 
 const HELMET = 'helmet';
 const EXPECT_CERTIFICATE_TRANSPARENCY = 'expectCt';

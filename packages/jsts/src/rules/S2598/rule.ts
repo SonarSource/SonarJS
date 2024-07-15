@@ -22,17 +22,17 @@
 import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
 import {
+  generateMeta,
+  getFullyQualifiedName,
   getLhsVariable,
+  getProperty,
   getValueOfExpression,
   getVariableFromName,
-  getFullyQualifiedName,
-  getProperty,
-  report as contextReport,
   IssueLocation,
+  report as contextReport,
+  SONAR_RUNTIME,
   toSecondaryLocation,
 } from '../helpers';
-import { SONAR_RUNTIME } from '../helpers';
-import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 const FORMIDABLE_MODULE = 'formidable';

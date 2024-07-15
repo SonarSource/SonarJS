@@ -21,8 +21,7 @@
 
 import { Rule } from 'eslint';
 import { rules as reactRules } from 'eslint-plugin-react';
-import { detectReactRule, mergeRules } from '../helpers';
-import { generateMeta } from '../helpers';
+import { detectReactRule, generateMeta, mergeRules } from '../helpers';
 import rspecMeta from './meta.json';
 
 const noUnusedClassComponentMethod = reactRules['no-unused-class-component-methods'];

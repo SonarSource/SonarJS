@@ -1,4 +1,4 @@
-import react, { useState } from "react";
+import react, { useState } from 'react';
 
 function ShowLanguage1() {
   const [language, setLanguage] = react.useState("fr-FR");

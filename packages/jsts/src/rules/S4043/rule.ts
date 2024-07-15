@@ -24,14 +24,14 @@ import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
 import * as ts from 'typescript';
 import {
-  isArray,
-  sortLike,
-  isRequiredParserServices,
-  RequiredParserServices,
+  generateMeta,
   getSymbolAtLocation,
+  isArray,
+  isRequiredParserServices,
   localAncestorsChain,
+  RequiredParserServices,
+  sortLike,
 } from '../helpers';
-import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 const arrayMutatingMethods = ['reverse', "'reverse'", '"reverse"', ...sortLike];

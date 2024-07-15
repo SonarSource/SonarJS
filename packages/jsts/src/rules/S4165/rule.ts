@@ -22,19 +22,19 @@
 import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
+import {
+  generateMeta,
+  getVariableFromIdentifier,
+  ReachingDefinitions,
+  reachingDefinitions,
+  resolveAssignedValues,
+  Values,
+} from '../helpers';
+import rspecMeta from './meta.json';
 import CodePath = Rule.CodePath;
 import Variable = Scope.Variable;
 import Reference = Scope.Reference;
 import CodePathSegment = Rule.CodePathSegment;
-import {
-  getVariableFromIdentifier,
-  reachingDefinitions,
-  ReachingDefinitions,
-  resolveAssignedValues,
-  Values,
-} from '../helpers';
-import { generateMeta } from '../helpers';
-import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(rspecMeta as Rule.RuleMetaData, {

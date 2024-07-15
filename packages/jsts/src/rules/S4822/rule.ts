@@ -24,13 +24,13 @@ import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
 import {
   childrenOf,
+  generateMeta,
   isRequiredParserServices,
   isThenable,
   report,
+  SONAR_RUNTIME,
   toSecondaryLocation,
 } from '../helpers';
-import { SONAR_RUNTIME } from '../helpers';
-import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 type CallLikeExpression =

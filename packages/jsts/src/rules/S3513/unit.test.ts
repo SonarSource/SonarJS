@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RuleTester } from 'eslint';
+import { rule } from './';
 
 const ruleTester = new RuleTester({
   parserOptions: {
@@ -26,8 +27,6 @@ const ruleTester = new RuleTester({
     sourceType: 'script',
   },
 });
-
-import { rule } from './';
 
 ruleTester.run(`"arguments" should not be accessed directly`, rule, {
   valid: [

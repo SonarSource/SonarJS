@@ -24,12 +24,12 @@ import {
   ancestorsChain,
   collectionConstructor,
   findFirstMatchingAncestor,
+  generateMeta,
   isIdentifier,
   isReferenceTo,
 } from '../helpers';
-import { Scope, Rule } from 'eslint';
+import { Rule, Scope } from 'eslint';
 import estree from 'estree';
-import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 // Methods that mutate the collection but can't add elements

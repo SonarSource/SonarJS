@@ -25,17 +25,17 @@ import { TSESTree } from '@typescript-eslint/utils';
 import {
   findFirstMatchingAncestor,
   FUNCTION_NODES,
+  generateMeta,
   getMainFunctionTokenLocation,
   getParent,
   isElementWrite,
   report,
   RuleContext,
+  SONAR_RUNTIME,
   toSecondaryLocation,
 } from '../helpers';
-import { SONAR_RUNTIME } from '../helpers';
-import CodePathSegment = Rule.CodePathSegment;
-import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
+import CodePathSegment = Rule.CodePathSegment;
 
 interface FunctionContext {
   codePath: Rule.CodePath;

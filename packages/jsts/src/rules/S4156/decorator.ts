@@ -19,8 +19,7 @@
  */
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { interceptReport } from '../helpers';
-import { generateMeta } from '../helpers';
+import { generateMeta, interceptReport } from '../helpers';
 import rspecMeta from '../S1788/meta.json';
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {

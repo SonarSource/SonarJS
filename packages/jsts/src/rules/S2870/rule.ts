@@ -21,8 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { getParent, isArray, isRequiredParserServices } from '../helpers';
-import { generateMeta } from '../helpers';
+import { generateMeta, getParent, isArray, isRequiredParserServices } from '../helpers';
 import rspecMeta from './meta.json';
 
 const ArrayDeleteExpression =

@@ -21,8 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { isMemberWithProperty, isLiteral } from '../helpers';
-import { generateMeta } from '../helpers';
+import { generateMeta, isLiteral, isMemberWithProperty } from '../helpers';
 import rspecMeta from './meta.json';
 
 const bypassMethods = [

@@ -20,9 +20,8 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6443/javascript
 
 import { Rule, Scope } from 'eslint';
-import { getFullyQualifiedName, getVariableFromName } from '../helpers';
+import { generateMeta, getFullyQualifiedName, getVariableFromName } from '../helpers';
 import * as estree from 'estree';
-import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 type Reference = {

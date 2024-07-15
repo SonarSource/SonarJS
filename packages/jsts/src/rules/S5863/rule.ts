@@ -25,13 +25,13 @@ import * as estree from 'estree';
 import {
   areEquivalent,
   Chai,
+  generateMeta,
   isIdentifier,
   isLiteral,
   report,
+  SONAR_RUNTIME,
   toSecondaryLocation,
 } from '../helpers';
-import { SONAR_RUNTIME } from '../helpers';
-import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {

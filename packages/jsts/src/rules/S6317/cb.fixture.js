@@ -1,5 +1,5 @@
 import * as cdk from 'aws-cdk-lib';
-import {aws_iam as iam, aws_lambda as lambda} from 'aws-cdk-lib';
+import { aws_iam as iam, aws_lambda as lambda } from 'aws-cdk-lib';
 
 export class LoginStack extends cdk.Stack {
   constructor(scope, id, props) {

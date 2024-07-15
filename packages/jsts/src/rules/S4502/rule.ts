@@ -22,17 +22,17 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import {
+  flattenArgs,
+  generateMeta,
+  getFullyQualifiedName,
+  getProperty,
   isIdentifier,
   isLiteral,
-  flattenArgs,
-  getFullyQualifiedName,
   isRequireModule,
-  getProperty,
   report,
+  SONAR_RUNTIME,
   toSecondaryLocation,
 } from '../helpers';
-import { SONAR_RUNTIME } from '../helpers';
-import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 const CSURF_MODULE = 'csurf';

@@ -22,6 +22,7 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import {
   areEquivalent,
+  generateMeta,
   getMainFunctionTokenLocation,
   report,
   RuleContext,
@@ -29,7 +30,6 @@ import {
 } from '../helpers';
 import { Rule } from 'eslint';
 import estree from 'estree';
-import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
 import { FromSchema } from 'json-schema-to-ts';

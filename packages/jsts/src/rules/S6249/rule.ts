@@ -20,8 +20,12 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6249/javascript
 
 import { Rule } from 'eslint';
-import { getValueOfExpression, getBucketProperty, S3BucketTemplate } from '../helpers';
-import { generateMeta } from '../helpers';
+import {
+  generateMeta,
+  getBucketProperty,
+  getValueOfExpression,
+  S3BucketTemplate,
+} from '../helpers';
 import rspecMeta from './meta.json';
 
 const ENFORCE_SSL_KEY = 'enforceSSL';

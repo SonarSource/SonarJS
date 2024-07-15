@@ -21,9 +21,15 @@
 
 import type { TSESTree } from '@typescript-eslint/utils';
 import { Rule, Scope } from 'eslint';
-import { isIdentifier, isIfStatement, report, RuleContext, toSecondaryLocation } from '../helpers';
+import {
+  generateMeta,
+  isIdentifier,
+  isIfStatement,
+  report,
+  RuleContext,
+  toSecondaryLocation,
+} from '../helpers';
 import estree from 'estree';
-import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 const message = 'This always evaluates to {{value}}. Consider refactoring this code.';

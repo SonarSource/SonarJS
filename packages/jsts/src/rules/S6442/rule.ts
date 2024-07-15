@@ -20,19 +20,19 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6442/javascript
 
 import { Rule, Scope as ESLintScope } from 'eslint';
-import Variable = ESLintScope.Variable;
-import Scope = ESLintScope.Scope;
 import * as estree from 'estree';
 import {
   findFirstMatchingLocalAncestor,
+  generateMeta,
   getFullyQualifiedName,
   getVariableFromName,
   isFunctionNode,
   isIdentifier,
 } from '../helpers';
 import { TSESTree } from '@typescript-eslint/utils';
-import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
+import Variable = ESLintScope.Variable;
+import Scope = ESLintScope.Scope;
 
 type HookDeclarator = estree.VariableDeclarator & {
   id: {

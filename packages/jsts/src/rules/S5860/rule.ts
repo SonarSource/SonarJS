@@ -24,6 +24,7 @@ import * as estree from 'estree';
 import * as regexpp from '@eslint-community/regexpp';
 import { Backreference, CapturingGroup, RegExpLiteral } from '@eslint-community/regexpp/ast';
 import {
+  generateMeta,
   getLhsVariable,
   getUniqueWriteUsage,
   getValueOfExpression,
@@ -37,6 +38,7 @@ import {
   IssueLocation,
   report,
   RequiredParserServices,
+  SONAR_RUNTIME,
   toSecondaryLocation,
 } from '../helpers';
 import {
@@ -46,9 +48,7 @@ import {
   isStringRegexMethodCall,
   isStringReplaceCall,
 } from '../helpers/regex';
-import { SONAR_RUNTIME } from '../helpers';
 import { TSESTree } from '@typescript-eslint/utils';
-import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {

@@ -22,9 +22,14 @@
 import { TSESTree } from '@typescript-eslint/utils';
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { getProperty, getFullyQualifiedName, report, toSecondaryLocation } from '../helpers';
-import { SONAR_RUNTIME } from '../helpers';
-import { generateMeta } from '../helpers';
+import {
+  generateMeta,
+  getFullyQualifiedName,
+  getProperty,
+  report,
+  SONAR_RUNTIME,
+  toSecondaryLocation,
+} from '../helpers';
 import rspecMeta from './meta.json';
 
 const XML_LIBRARY = 'libxmljs';

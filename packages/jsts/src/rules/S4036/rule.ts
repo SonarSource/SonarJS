@@ -21,8 +21,12 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { isStringLiteral, getValueOfExpression, getFullyQualifiedName } from '../helpers';
-import { generateMeta } from '../helpers';
+import {
+  generateMeta,
+  getFullyQualifiedName,
+  getValueOfExpression,
+  isStringLiteral,
+} from '../helpers';
 import rspecMeta from './meta.json';
 
 const SENSITIVE_METHODS = ['exec', 'execSync', 'spawn', 'spawnSync', 'execFile', 'execFileSync'];

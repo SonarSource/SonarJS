@@ -21,9 +21,13 @@
 
 import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
-import { getVariableFromName, report, toSecondaryLocation } from '../helpers';
-import { SONAR_RUNTIME } from '../helpers';
-import { generateMeta } from '../helpers';
+import {
+  generateMeta,
+  getVariableFromName,
+  report,
+  SONAR_RUNTIME,
+  toSecondaryLocation,
+} from '../helpers';
 import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {

@@ -1,5 +1,5 @@
 import * as cdk from 'aws-cdk-lib';
-import {aws_dms as dms, aws_ec2 as ec2, aws_iam as iam, aws_rds as rds, RemovalPolicy} from 'aws-cdk-lib';
+import { aws_dms as dms, aws_ec2 as ec2, aws_rds as rds, RemovalPolicy } from 'aws-cdk-lib';
 
 export class CfnDatabaseInstanceStack extends cdk.Stack {
   constructor(scope, id, props) {

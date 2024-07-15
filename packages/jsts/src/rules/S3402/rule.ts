@@ -23,15 +23,15 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import * as tsTypes from 'typescript';
 import {
-  RequiredParserServices,
-  isRequiredParserServices,
+  generateMeta,
   getTypeFromTreeNode,
+  isRequiredParserServices,
   isStringLiteral,
   report,
+  RequiredParserServices,
+  SONAR_RUNTIME,
   toSecondaryLocation,
 } from '../helpers';
-import { SONAR_RUNTIME } from '../helpers';
-import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 const message = `Review this expression to be sure that the concatenation was intended.`;

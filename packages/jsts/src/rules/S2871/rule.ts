@@ -23,6 +23,8 @@ import { Rule } from 'eslint';
 import ts from 'typescript';
 import * as estree from 'estree';
 import {
+  copyingSortLike,
+  generateMeta,
   getTypeFromTreeNode,
   isArrayLikeType,
   isBigIntArray,
@@ -30,9 +32,7 @@ import {
   isRequiredParserServices,
   isStringArray,
   sortLike,
-  copyingSortLike,
 } from '../helpers';
-import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 const compareNumberFunctionPlaceholder = '(a, b) => (a - b)';

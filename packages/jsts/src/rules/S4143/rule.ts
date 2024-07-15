@@ -22,6 +22,7 @@
 import { AST_NODE_TYPES } from '@typescript-eslint/utils';
 import {
   areEquivalent,
+  generateMeta,
   getProgramStatements,
   isIdentifier,
   isLiteral,
@@ -30,7 +31,6 @@ import {
 } from '../helpers';
 import { AST, Rule } from 'eslint';
 import estree from 'estree';
-import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 const message =

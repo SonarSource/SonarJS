@@ -22,12 +22,12 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import {
+  generateMeta,
+  getFullyQualifiedName,
+  isLiteral,
   isMemberExpression,
   isMemberWithProperty,
-  isLiteral,
-  getFullyQualifiedName,
 } from '../helpers';
-import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 const xpathModule = 'xpath';

@@ -19,11 +19,10 @@
  */
 import { RuleTester } from 'eslint';
 import { TypeScriptRuleTester } from '../../../tests/tools';
+import { rule } from './';
 
 const ruleTesterTs = new TypeScriptRuleTester();
 const ruleTesterJs = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
-
-import { rule } from './';
 
 ruleTesterTs.run(
   'Values not convertible to numbers should not be used in numeric comparisons [TS]',

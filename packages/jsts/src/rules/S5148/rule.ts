@@ -21,8 +21,13 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { getValueOfExpression, isIdentifier, isMethodCall, isStringLiteral } from '../helpers';
-import { generateMeta } from '../helpers';
+import {
+  generateMeta,
+  getValueOfExpression,
+  isIdentifier,
+  isMethodCall,
+  isStringLiteral,
+} from '../helpers';
 import rspecMeta from './meta.json';
 
 const REQUIRED_OPTION = 'noopener';

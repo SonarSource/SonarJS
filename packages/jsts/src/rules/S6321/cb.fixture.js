@@ -1,4 +1,4 @@
-import { aws_ec2 as ec2 } from 'aws-cdk-lib'
+import { aws_ec2 as ec2 } from 'aws-cdk-lib';
 
 const badPort = 22;
 const goodPort = 1234;

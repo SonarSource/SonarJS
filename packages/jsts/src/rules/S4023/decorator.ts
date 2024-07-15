@@ -21,8 +21,7 @@
 
 import { Rule } from 'eslint';
 import { TSESTree } from '@typescript-eslint/utils';
-import { UTILITY_TYPES, interceptReport } from '../helpers';
-import { generateMeta } from '../helpers';
+import { generateMeta, interceptReport, UTILITY_TYPES } from '../helpers';
 import rspecMeta from '../S1788/meta.json';
 
 // core implementation of this rule raises issues on empty interface extending TypeScript utility types

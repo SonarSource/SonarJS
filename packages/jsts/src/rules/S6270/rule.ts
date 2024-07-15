@@ -22,10 +22,12 @@
 import { Rule } from 'eslint';
 import { NewExpression, Node } from 'estree';
 import {
+  generateMeta,
   getFullyQualifiedName,
   isArrayExpression,
   isStringLiteral,
   report,
+  SONAR_RUNTIME,
   StringLiteral,
   toSecondaryLocation,
 } from '../helpers';
@@ -37,9 +39,7 @@ import {
   PolicyCheckerOptions,
 } from '../helpers/aws/iam';
 import { normalizeFQN } from '../helpers/aws/cdk';
-import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
-import { SONAR_RUNTIME } from '../helpers';
 
 const AWS_PRINCIPAL_PROPERTY = 'AWS';
 

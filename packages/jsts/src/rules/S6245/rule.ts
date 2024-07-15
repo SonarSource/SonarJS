@@ -22,15 +22,15 @@
 import { Rule } from 'eslint';
 import { MemberExpression } from 'estree';
 import {
-  SONAR_RUNTIME,
+  findPropagatedSetting,
+  generateMeta,
+  getBucketProperty,
   getFullyQualifiedName,
   getValueOfExpression,
-  report,
   normalizeFQN,
-  findPropagatedSetting,
-  getBucketProperty,
+  report,
   S3BucketTemplate,
-  generateMeta,
+  SONAR_RUNTIME,
 } from '../helpers';
 import rspecMeta from './meta.json';
 

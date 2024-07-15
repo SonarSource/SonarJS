@@ -20,10 +20,9 @@
 // https://sonarsource.github.io/rspec/#/rspec/S2737
 
 import { Rule, SourceCode } from 'eslint';
-import { areEquivalent, isThrowStatement } from '../helpers';
+import { areEquivalent, generateMeta, isThrowStatement } from '../helpers';
 import estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
-import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {

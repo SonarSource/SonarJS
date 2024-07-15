@@ -22,8 +22,7 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import * as helpers from '../helpers';
-import { isStringLiteral } from '../helpers';
-import { generateMeta } from '../helpers';
+import { generateMeta, isStringLiteral } from '../helpers';
 import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {

@@ -22,7 +22,7 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { URL } from 'url';
-import { getValueOfExpression, getParent, getFullyQualifiedName, getProperty } from '../helpers';
+import { getFullyQualifiedName, getParent, getProperty, getValueOfExpression } from '../helpers';
 import { normalizeFQN } from '../helpers/aws/cdk';
 
 const INSECURE_PROTOCOLS = ['http://', 'ftp://', 'telnet://'];

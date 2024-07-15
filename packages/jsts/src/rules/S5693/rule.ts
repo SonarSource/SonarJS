@@ -24,13 +24,13 @@ import * as estree from 'estree';
 import { getVariablePropertyFromAssignment } from '../S2598/rule';
 import { parse } from 'bytes';
 import {
-  getLhsVariable,
-  getValueOfExpression,
+  generateMeta,
   getFullyQualifiedName,
+  getLhsVariable,
   getProperty,
+  getValueOfExpression,
 } from '../helpers';
 import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
-import { generateMeta } from '../helpers';
 import { FromSchema } from 'json-schema-to-ts';
 import rspecMeta from './meta.json';
 

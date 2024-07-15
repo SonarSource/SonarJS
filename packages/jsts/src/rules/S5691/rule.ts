@@ -21,8 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { getUniqueWriteUsage, getFullyQualifiedName, getProperty } from '../helpers';
-import { generateMeta } from '../helpers';
+import { generateMeta, getFullyQualifiedName, getProperty, getUniqueWriteUsage } from '../helpers';
 import rspecMeta from './meta.json';
 
 const SERVE_STATIC = 'serve-static';

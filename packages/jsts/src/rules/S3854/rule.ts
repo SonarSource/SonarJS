@@ -21,8 +21,7 @@
 
 import { Rule } from 'eslint';
 import { eslintRules } from '../core';
-import { mergeRules } from '../helpers';
-import { generateMeta } from '../helpers';
+import { generateMeta, mergeRules } from '../helpers';
 import rspecMeta from './meta.json';
 
 const constructorSuperRule = eslintRules['constructor-super'];

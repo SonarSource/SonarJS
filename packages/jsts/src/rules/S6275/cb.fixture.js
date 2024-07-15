@@ -1,5 +1,5 @@
-import { Volume } from "aws-cdk-lib/aws-ec2";
-import { Stack, Size } from "aws-cdk-lib";
+import { Volume } from 'aws-cdk-lib/aws-ec2';
+import { Size, Stack } from 'aws-cdk-lib';
 
 class NonCompliantStack extends Stack {
   constructor(scope, id) {

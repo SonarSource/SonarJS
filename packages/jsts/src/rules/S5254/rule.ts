@@ -22,8 +22,7 @@
 import { TSESTree } from '@typescript-eslint/utils';
 import { Rule } from 'eslint';
 import { rules as jsxA11yRules } from 'eslint-plugin-jsx-a11y';
-import { interceptReport, mergeRules } from '../helpers';
-import { generateMeta } from '../helpers';
+import { generateMeta, interceptReport, mergeRules } from '../helpers';
 import rspecMeta from './meta.json';
 
 const langRule = jsxA11yRules['lang'];
