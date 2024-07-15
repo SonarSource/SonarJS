@@ -21,7 +21,7 @@
 
 import { Rule, Scope } from 'eslint';
 import estree from 'estree';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 const futureReservedWords = [

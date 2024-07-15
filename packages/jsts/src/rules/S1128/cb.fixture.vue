@@ -7,9 +7,7 @@
   <another-THING/>
   <library.item/>
 </template>
-<script lang="ts">
-  import Comp from './some.vue'; // Noncompliant
-</script>
+<script lang="ts"></script>
 <script setup lang="ts">
   import Foo from './Foo.vue';
   import Bar from './Bar.vue'; // Noncompliant

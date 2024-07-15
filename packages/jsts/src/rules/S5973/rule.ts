@@ -22,7 +22,7 @@
 import { Rule } from 'eslint';
 import { Mocha, getFullyQualifiedName, isIdentifier, isMethodInvocation } from '../helpers';
 import * as estree from 'estree';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 import { getDependencies } from '../helpers/package-json';
 

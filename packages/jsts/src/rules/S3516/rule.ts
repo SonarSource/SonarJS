@@ -34,7 +34,7 @@ import {
 } from '../helpers';
 import { SONAR_RUNTIME } from '../helpers';
 import CodePathSegment = Rule.CodePathSegment;
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 interface FunctionContext {

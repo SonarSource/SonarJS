@@ -31,7 +31,7 @@ import {
   getSymbolAtLocation,
   localAncestorsChain,
 } from '../helpers';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 const arrayMutatingMethods = ['reverse', "'reverse'", '"reverse"', ...sortLike];

@@ -37,7 +37,7 @@ import {
 } from '../helpers';
 import { SONAR_RUNTIME } from '../helpers';
 import { type UnionType } from 'typescript';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 class FunctionScope {

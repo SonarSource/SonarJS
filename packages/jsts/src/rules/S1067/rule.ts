@@ -19,15 +19,13 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S1067/javascript
 
-import { Rule, AST } from 'eslint';
+import { AST, Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
-import { SONAR_RUNTIME } from '../helpers';
+import { generateMeta, report, SONAR_RUNTIME, toSecondaryLocation } from '../helpers';
 import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
-import { generateMeta } from '../helpers/generate-meta';
 import { FromSchema } from 'json-schema-to-ts';
 import rspecMeta from './meta.json';
-import { report, toSecondaryLocation } from '../helpers';
 
 const DEFAULT = 3;
 

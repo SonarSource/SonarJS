@@ -28,7 +28,7 @@ import {
   getFullyQualifiedName,
   getProperty,
 } from '../helpers';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 import { SONAR_RUNTIME } from '../helpers';
 

@@ -27,7 +27,7 @@ import {
   getUniqueWriteUsage,
   getFullyQualifiedName,
 } from '../helpers';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 const chmodLikeFunction = ['chmod', 'chmodSync', 'fchmod', 'fchmodSync', 'lchmod', 'lchmodSync'];

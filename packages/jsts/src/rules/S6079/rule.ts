@@ -28,7 +28,7 @@ import {
 } from '../helpers';
 import * as estree from 'estree';
 import { SONAR_RUNTIME } from '../helpers';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {

@@ -21,9 +21,8 @@
 
 import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/utils';
 import { Rule, SourceCode } from 'eslint';
-import { areEquivalent, getProgramStatements, isIdentifier } from '../helpers';
+import { areEquivalent, generateMeta, getProgramStatements, isIdentifier } from '../helpers';
 import estree from 'estree';
-import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {

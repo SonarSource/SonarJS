@@ -22,7 +22,7 @@
 import { Rule } from 'eslint';
 import { AST } from '@eslint-community/regexpp';
 import { createRegExpRule } from '../helpers/regex';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 enum Position {

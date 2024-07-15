@@ -23,15 +23,15 @@ import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
 import {
-  isRequiredParserServices,
-  functionLike,
-  isUndefinedOrNull,
-  findFirstMatchingAncestor,
-  isNullLiteral,
-  isUndefined,
   areEquivalent,
+  findFirstMatchingAncestor,
+  functionLike,
+  generateMeta,
+  isNullLiteral,
+  isRequiredParserServices,
+  isUndefined,
+  isUndefinedOrNull,
 } from '../helpers';
-import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
 
 enum Null {

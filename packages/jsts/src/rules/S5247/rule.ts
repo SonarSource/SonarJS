@@ -31,7 +31,7 @@ import {
   report,
 } from '../helpers';
 import { SONAR_RUNTIME } from '../helpers';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 const MESSAGE = 'Make sure disabling auto-escaping feature is safe here.';

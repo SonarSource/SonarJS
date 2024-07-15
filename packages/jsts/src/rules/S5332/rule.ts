@@ -23,7 +23,7 @@ import { Rule } from 'eslint';
 import { mergeRules } from '../helpers';
 import { rule as networkProtocolsRule } from './rule.lib';
 import { rule as awsRule } from './rule.aws';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {

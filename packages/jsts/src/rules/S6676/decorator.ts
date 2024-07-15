@@ -22,7 +22,7 @@
 import { Rule, AST } from 'eslint';
 import * as estree from 'estree';
 import { interceptReport } from '../helpers';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 // core implementation of this rule does not provide quick fixes

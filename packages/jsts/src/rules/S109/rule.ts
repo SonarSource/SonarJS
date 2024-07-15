@@ -22,8 +22,7 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { tsEslintRules } from '../typescript-eslint';
-import { getNodeParent, isMethodInvocation } from '../helpers';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta, getNodeParent, isMethodInvocation } from '../helpers';
 import rspecMeta from './meta.json';
 
 const baseRuleModule = tsEslintRules['no-magic-numbers'];

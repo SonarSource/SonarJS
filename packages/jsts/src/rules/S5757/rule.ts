@@ -29,7 +29,7 @@ import {
   toSecondaryLocation,
 } from '../helpers';
 import { SONAR_RUNTIME } from '../helpers';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 const MESSAGE = 'Make sure confidential information is not logged here.';

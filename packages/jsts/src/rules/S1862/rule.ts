@@ -19,11 +19,10 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S1862
 
-import { TSESTree, AST_NODE_TYPES } from '@typescript-eslint/utils';
+import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/utils';
 import { Rule, SourceCode } from 'eslint';
-import { areEquivalent, report, toSecondaryLocation } from '../helpers';
+import { areEquivalent, generateMeta, report, toSecondaryLocation } from '../helpers';
 import estree from 'estree';
-import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
 
 const duplicatedConditionMessage = 'This condition is covered by the one on line {{line}}';

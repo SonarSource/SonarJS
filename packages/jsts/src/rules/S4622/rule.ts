@@ -24,7 +24,7 @@ import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
 import { UTILITY_TYPES, isIdentifier } from '../helpers';
 import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta } from '../helpers';
 import { FromSchema } from 'json-schema-to-ts';
 import rspecMeta from './meta.json';
 

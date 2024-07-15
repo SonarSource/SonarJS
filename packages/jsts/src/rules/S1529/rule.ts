@@ -22,8 +22,7 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import * as ts from 'typescript';
-import { getTypeFromTreeNode } from '../helpers';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta, getTypeFromTreeNode } from '../helpers';
 import rspecMeta from './meta.json';
 
 const BITWISE_AND_OR = ['&', '|'];

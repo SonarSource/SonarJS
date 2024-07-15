@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import { interceptReport } from '../helpers';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 // Core implementation of this rule does not provide a message for quick fixes. Normally, we would

@@ -22,8 +22,7 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
-import { getMainFunctionTokenLocation, getParent, RuleContext } from '../helpers';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta, getMainFunctionTokenLocation, getParent, RuleContext } from '../helpers';
 import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {

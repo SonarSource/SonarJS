@@ -22,8 +22,13 @@
 import * as estree from 'estree';
 import { Rule, SourceCode } from 'eslint';
 import { tsEslintRules } from '../typescript-eslint';
-import { isRequiredParserServices, isUnion, interceptReport, mergeRules } from '../helpers';
-import { generateMeta } from '../helpers/generate-meta';
+import {
+  generateMeta,
+  interceptReport,
+  isRequiredParserServices,
+  isUnion,
+  mergeRules,
+} from '../helpers';
 import rspecMeta from '../S101/meta.json';
 
 /**

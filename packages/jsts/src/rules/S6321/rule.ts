@@ -38,7 +38,7 @@ import {
   isUnresolved,
   reduceToIdentifier,
 } from '../helpers';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 const TYPES_WITH_CONNECTIONS = [

@@ -21,7 +21,7 @@
 
 import { rules as jsxA11yRules } from 'eslint-plugin-jsx-a11y';
 import { interceptReport } from '../helpers';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 import { Rule } from 'eslint';
 

@@ -23,7 +23,7 @@ import { Rule, SourceCode } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
 import * as babel from '@babel/eslint-parser';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 import { CodeRecognizer, JavaScriptFootPrint } from '../helpers/recognizers';
 

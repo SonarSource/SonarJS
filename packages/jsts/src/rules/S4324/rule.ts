@@ -24,7 +24,7 @@ import { TSESTree } from '@typescript-eslint/utils';
 import { isRequiredParserServices, RequiredParserServices } from '../helpers';
 import * as estree from 'estree';
 import * as ts from 'typescript';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 type ReturnedExpression = estree.Expression | undefined | null;

@@ -22,7 +22,7 @@
 import * as estree from 'estree';
 import { Rule } from 'eslint';
 import { AST } from 'vue-eslint-parser';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {

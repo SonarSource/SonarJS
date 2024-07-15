@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import { TSESTree } from '@typescript-eslint/utils';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 const todoPattern = 'todo';

@@ -21,7 +21,7 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { interceptReport } from '../helpers';
 import { TSESTree } from '@typescript-eslint/utils';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta } from '../helpers';
 import rspecMeta from '../S1788/meta.json';
 
 // core implementation of this rule raises issues on type exports

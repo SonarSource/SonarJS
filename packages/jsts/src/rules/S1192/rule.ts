@@ -19,11 +19,10 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S1192
 
-import { TSESTree, AST_NODE_TYPES } from '@typescript-eslint/utils';
-import { report, toSecondaryLocation } from '../helpers';
+import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/utils';
+import { generateMeta, report, toSecondaryLocation } from '../helpers';
 import { Rule } from 'eslint';
 import estree from 'estree';
-import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
 import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
 import { FromSchema } from 'json-schema-to-ts';

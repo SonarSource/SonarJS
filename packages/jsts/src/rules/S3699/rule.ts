@@ -23,7 +23,7 @@ import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/utils';
 import { isArrowFunctionExpression, isFunctionExpression, RuleContext } from '../helpers';
 import { Rule } from 'eslint';
 import estree from 'estree';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 const EMPTY_RETURN_VALUE_KEYWORDS = new Set([

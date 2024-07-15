@@ -22,7 +22,7 @@
 import { Rule /*, AST*/ } from 'eslint';
 import * as estree from 'estree';
 import { interceptReportForReact } from '../helpers';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {

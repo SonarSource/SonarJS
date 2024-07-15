@@ -23,7 +23,7 @@ import { Rule } from 'eslint';
 import { TSESTree } from '@typescript-eslint/utils';
 import * as estree from 'estree';
 import { isPresentationTable } from '../helpers';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {

@@ -21,7 +21,7 @@ import { Rule } from 'eslint';
 import { interceptReport } from '../helpers';
 import { hasAnyProp } from 'jsx-ast-utils';
 import { TSESTree } from '@typescript-eslint/utils';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 /**

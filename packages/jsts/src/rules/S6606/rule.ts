@@ -27,7 +27,7 @@ import {
   isBooleanType,
 } from '../helpers';
 import { type LogicalExpression } from 'estree';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 const preferNullishCoalescingRule = tsEslintRules['prefer-nullish-coalescing'];

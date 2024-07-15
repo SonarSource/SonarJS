@@ -21,8 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { isRequireModule, isMemberWithProperty } from '../helpers';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta, isMemberWithProperty, isRequireModule } from '../helpers';
 import rspecMeta from './meta.json';
 
 const dbModules = ['pg', 'mysql', 'mysql2', 'sequelize'];

@@ -24,7 +24,7 @@ import { AwsCdkTemplate } from '../helpers/aws/cdk';
 import { NewExpression, Node } from 'estree';
 import { getFullyQualifiedName, isBooleanLiteral, isStringLiteral } from '../helpers';
 import { getResultOfExpression } from '../helpers/result';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 const DOMAIN_PROPS_POSITION = 2;

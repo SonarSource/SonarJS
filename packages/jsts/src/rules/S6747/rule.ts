@@ -25,7 +25,7 @@ import { rules as jsxA11yRules } from 'eslint-plugin-jsx-a11y';
 import { interceptReport, mergeRules } from '../helpers';
 import { decorate } from './decorator';
 import { TSESTree } from '@typescript-eslint/utils';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 const noUnknownProp = reactRules['no-unknown-property'];

@@ -25,7 +25,7 @@
 import { rules } from 'eslint-plugin-react';
 import { interceptReportForReact } from '../helpers';
 import { Rule } from 'eslint';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 const baseRule = rules['no-array-index-key'];

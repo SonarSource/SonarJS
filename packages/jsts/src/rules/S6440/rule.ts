@@ -22,7 +22,7 @@
 import { Rule } from 'eslint';
 import { rules as reactHooksRules } from 'eslint-plugin-react-hooks';
 import { mergeRules, detectReactRule } from '../helpers';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 const rulesOfHooks = reactHooksRules['rules-of-hooks'];

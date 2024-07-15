@@ -23,7 +23,7 @@ import * as estree from 'estree';
 import { childrenOf } from '../helpers';
 import { Chai, isFunctionCall, Mocha, resolveFunction, Sinon, Vitest } from '../helpers';
 import { Supertest } from '../helpers/supertest';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 /**

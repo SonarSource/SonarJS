@@ -21,8 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { last, functionLike } from '../helpers';
-import { generateMeta } from '../helpers/generate-meta';
+import { functionLike, generateMeta, last } from '../helpers';
 import { FromSchema } from 'json-schema-to-ts';
 import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
 import rspecMeta from './meta.json';

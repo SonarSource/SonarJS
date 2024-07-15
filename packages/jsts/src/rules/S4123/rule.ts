@@ -24,7 +24,7 @@ import * as estree from 'estree';
 import * as ts from 'typescript';
 import { isRequiredParserServices, getTypeFromTreeNode, getSignatureFromCallee } from '../helpers';
 import { ParserServicesWithTypeInformation } from '@typescript-eslint/utils';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {

@@ -22,7 +22,7 @@
 import { Rule } from 'eslint';
 import { Chai, isDotNotation, isIdentifier } from '../helpers';
 import * as estree from 'estree';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 const message = 'Refactor this uncertain assertion; it can succeed for multiple reasons.';

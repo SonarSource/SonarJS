@@ -23,7 +23,7 @@ import type { TSESTree, ParserServicesWithTypeInformation } from '@typescript-es
 import { Rule } from 'eslint';
 import { isRequiredParserServices } from '../helpers';
 import estree from 'estree';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 const CollectionLike = ['Array', 'Map', 'Set', 'WeakMap', 'WeakSet'];

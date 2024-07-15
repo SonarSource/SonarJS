@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import { rules } from 'eslint-plugin-react';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta } from '../helpers';
 import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
 import { FromSchema } from 'json-schema-to-ts';
 import rspecMeta from './meta.json';

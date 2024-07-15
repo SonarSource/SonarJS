@@ -22,6 +22,7 @@
 import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/utils';
 import { Rule, Scope } from 'eslint';
 import {
+  generateMeta,
   getMainFunctionTokenLocation,
   isArrowFunctionExpression,
   isFunctionDeclaration,
@@ -33,7 +34,6 @@ import {
   toSecondaryLocation,
 } from '../helpers';
 import estree from 'estree';
-import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
 
 const message = 'This function expects {{expectedArguments}}, but {{providedArguments}} provided.';

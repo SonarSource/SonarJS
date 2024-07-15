@@ -23,9 +23,8 @@ import { Rule } from 'eslint';
 import { eslintRules } from '../core';
 import { tsEslintRules } from '../typescript-eslint';
 import { rules as reactRules } from 'eslint-plugin-react';
-import { mergeRules } from '../helpers';
+import { generateMeta, mergeRules } from '../helpers';
 import { decorate } from './decorator';
-import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
 
 const noDupeKeysRule = decorate(eslintRules['no-dupe-keys']);

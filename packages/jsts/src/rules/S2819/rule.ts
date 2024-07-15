@@ -32,7 +32,7 @@ import {
   isIfStatement,
 } from '../helpers';
 import { childrenOf } from '../helpers';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 const POST_MESSAGE = 'postMessage';

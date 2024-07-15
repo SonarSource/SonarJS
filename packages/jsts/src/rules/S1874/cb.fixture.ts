@@ -142,20 +142,24 @@ deprecatedCallSignature2(); // Noncompliant
 /* separator */
 
 import * as allDeprecations from './cb.fixture.deprecations';
+import defaultImport, {
+  anotherDeprecatedFunction as aliasForDeprecated,
+  ClassWithDeprecatedConstructor,
+  ClassWithOneDeprecatedConstructor,
+  DeprecatedClass,
+  deprecatedFunction,
+} from './cb.fixture.deprecations'; // Noncompliant 2 // Noncompliant
+import * as deprecationsExport from './cb.fixture.deprecationsExport';
+
 z(allDeprecations.deprecatedFunction);
 
-import defaultImport, {deprecatedFunction, anotherDeprecatedFunction as aliasForDeprecated, notDeprecated1, notDeprecated2} from './cb.fixture.deprecations'; // Noncompliant 2
 defaultImport(); // Noncompliant
 deprecatedFunction(); // Noncompliant
 deprecatedFunction(1);
 aliasForDeprecated(); // Noncompliant
 noDeprecated1(); // OK
 noDeprecated2(); // OK
-
-import * as deprecationsExport from './cb.fixture.deprecationsExport';
 z(deprecationsExport); // Noncompliant
-
-import {DeprecatedClass, ClassWithDeprecatedConstructor, ClassWithOneDeprecatedConstructor} from "./cb.fixture.deprecations" // Noncompliant
 const myObj2: DeprecatedClass = new DeprecatedClass();  // Noncompliant 2
 const myObj3: DeprecatedConstructorClass = new ClassWithDeprecatedConstructor(); // Noncompliant
 new ClassWithOneDeprecatedConstructor();

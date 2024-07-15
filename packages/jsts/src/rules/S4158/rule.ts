@@ -29,7 +29,7 @@ import {
 } from '../helpers';
 import { Scope, Rule } from 'eslint';
 import estree from 'estree';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 // Methods that mutate the collection but can't add elements

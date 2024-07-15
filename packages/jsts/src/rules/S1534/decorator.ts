@@ -19,10 +19,9 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S1534/javascript
 
-import { Rule, AST } from 'eslint';
-import { interceptReport } from '../helpers';
+import { AST, Rule } from 'eslint';
+import { generateMeta, interceptReport } from '../helpers';
 import * as estree from 'estree';
-import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
 
 // core implementation of ESLint 'no-dupe-keys' does not provide quick fixes

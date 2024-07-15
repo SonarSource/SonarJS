@@ -35,7 +35,7 @@ import {
 } from '../helpers';
 import { getFlags, isRegExpConstructor } from '../helpers/regex';
 import { SONAR_RUNTIME } from '../helpers';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 type RegexInfo = { node: estree.Node; flags: string };

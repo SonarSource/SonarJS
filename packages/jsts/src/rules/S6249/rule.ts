@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import { getValueOfExpression, getBucketProperty, S3BucketTemplate } from '../helpers';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 const ENFORCE_SSL_KEY = 'enforceSSL';

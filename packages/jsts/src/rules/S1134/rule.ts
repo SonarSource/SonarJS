@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import { reportPatternInComment } from '../S1135/rule';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 const fixmePattern = 'fixme';

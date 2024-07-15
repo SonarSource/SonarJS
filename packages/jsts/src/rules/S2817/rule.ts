@@ -27,7 +27,7 @@ import {
   getSymbolAtLocation,
   getTypeAsString,
 } from '../helpers';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 const OPEN_DATABASE = 'openDatabase';

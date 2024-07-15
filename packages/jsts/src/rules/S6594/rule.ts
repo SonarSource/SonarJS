@@ -29,7 +29,7 @@ import {
   isString,
 } from '../helpers';
 import { getParsedRegex } from '../helpers/regex';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {

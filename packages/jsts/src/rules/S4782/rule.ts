@@ -24,7 +24,7 @@ import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
 import { isRequiredParserServices, report, toSecondaryLocation } from '../helpers';
 import { SONAR_RUNTIME } from '../helpers';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {

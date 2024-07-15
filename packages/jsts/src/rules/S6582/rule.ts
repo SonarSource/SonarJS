@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import { tsEslintRules } from '../typescript-eslint';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 /**

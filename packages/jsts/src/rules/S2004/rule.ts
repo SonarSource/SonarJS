@@ -22,9 +22,14 @@
 import * as estree from 'estree';
 import { Rule } from 'eslint';
 import { TSESTree } from '@typescript-eslint/utils';
-import { SONAR_RUNTIME } from '../helpers';
-import { getMainFunctionTokenLocation, report, RuleContext, toSecondaryLocation } from '../helpers';
-import { generateMeta } from '../helpers/generate-meta';
+import {
+  generateMeta,
+  getMainFunctionTokenLocation,
+  report,
+  RuleContext,
+  SONAR_RUNTIME,
+  toSecondaryLocation,
+} from '../helpers';
 import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
 import { FromSchema } from 'json-schema-to-ts';
 import rspecMeta from './meta.json';

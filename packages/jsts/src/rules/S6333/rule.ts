@@ -29,7 +29,7 @@ import {
   isMemberWithProperty,
   isMethodCall,
 } from '../helpers';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 const REST_API_PROPERTIES_POSITION = 2;

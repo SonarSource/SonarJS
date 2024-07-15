@@ -19,22 +19,22 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S1541/javascript
 
-import { Rule, AST } from 'eslint';
+import { AST, Rule } from 'eslint';
 import * as estree from 'estree';
 import {
-  FunctionNodeType,
-  isFunctionNode,
-  getParent,
-  RuleContext,
-  getMainFunctionTokenLocation,
+  childrenOf,
   EncodedMessage,
+  FunctionNodeType,
+  generateMeta,
+  getMainFunctionTokenLocation,
+  getParent,
+  isFunctionNode,
   IssueLocation,
+  RuleContext,
+  SONAR_RUNTIME,
 } from '../helpers';
 import { TSESTree } from '@typescript-eslint/utils';
-import { SONAR_RUNTIME } from '../helpers';
-import { childrenOf } from '../helpers';
 import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
-import { generateMeta } from '../helpers/generate-meta';
 import { FromSchema } from 'json-schema-to-ts';
 import rspecMeta from './meta.json';
 

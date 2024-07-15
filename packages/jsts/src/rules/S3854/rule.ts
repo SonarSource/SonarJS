@@ -22,7 +22,7 @@
 import { Rule } from 'eslint';
 import { eslintRules } from '../core';
 import { mergeRules } from '../helpers';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 const constructorSuperRule = eslintRules['constructor-super'];

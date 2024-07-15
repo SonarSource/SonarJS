@@ -21,9 +21,8 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { areEquivalent, getParent } from '../helpers';
+import { areEquivalent, generateMeta, getParent } from '../helpers';
 import { TSESTree } from '@typescript-eslint/utils';
-import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
 
 class ForInfo {

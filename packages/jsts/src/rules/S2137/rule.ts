@@ -21,8 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { globalsByLibraries } from '../helpers';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta, globalsByLibraries } from '../helpers';
 import rspecMeta from './meta.json';
 
 const illegalNames = ['arguments'];

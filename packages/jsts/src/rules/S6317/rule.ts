@@ -24,7 +24,7 @@ import { Node } from 'estree';
 import { report, StringLiteral, toSecondaryLocation } from '../helpers';
 import { getResultOfExpression, Result } from '../helpers/result';
 import { AwsIamPolicyTemplate, getSensitiveEffect, PolicyCheckerOptions } from '../helpers/aws/iam';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 import { SONAR_RUNTIME } from '../helpers';
 

@@ -23,7 +23,7 @@ import { Rule, Scope } from 'eslint';
 import { TSESTree } from '@typescript-eslint/utils';
 import { SONAR_RUNTIME } from '../helpers';
 import estree from 'estree';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 import { report, toSecondaryLocation } from '../helpers';
 

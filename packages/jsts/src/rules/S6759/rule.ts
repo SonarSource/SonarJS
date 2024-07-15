@@ -30,7 +30,7 @@ import {
   last,
 } from '../helpers';
 import * as ts from 'typescript';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 /**

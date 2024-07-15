@@ -30,7 +30,7 @@ import {
   getProperty,
 } from '../helpers';
 import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta } from '../helpers';
 import { FromSchema } from 'json-schema-to-ts';
 import rspecMeta from './meta.json';
 

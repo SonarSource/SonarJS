@@ -23,7 +23,7 @@ import type { TSESTree } from '@typescript-eslint/utils';
 import { Rule } from 'eslint';
 import estree from 'estree';
 import { areEquivalent, collectIfBranches, collectSwitchBranches, isIfStatement } from '../helpers';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {

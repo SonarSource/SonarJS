@@ -25,7 +25,7 @@ import * as estree from 'estree';
 import { Node } from 'estree';
 import { getResultOfExpression, Result } from '../helpers/result';
 import { getFullyQualifiedName, isCallingMethod } from '../helpers';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 const PROPERTIES_POSITION = 2;
