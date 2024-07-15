@@ -21,8 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { Express, isMethodInvocation, getFullyQualifiedName } from '../helpers';
-import { generateMeta } from '../helpers/generate-meta';
+import { Express, generateMeta, getFullyQualifiedName, isMethodInvocation } from '../helpers';
 import rspecMeta from './meta.json';
 
 const HELMET = 'helmet';

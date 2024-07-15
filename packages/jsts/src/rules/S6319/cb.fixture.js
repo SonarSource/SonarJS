@@ -1,4 +1,4 @@
-import { CfnNotebookInstance } from "aws-cdk-lib/aws-sagemaker";
+import { CfnNotebookInstance } from 'aws-cdk-lib/aws-sagemaker';
 
 new CfnNotebookInstance(this, "CfnNotebookInstance", { kmsKeyId: 'kmsKeyId' }); // Compliant
 new CfnNotebookInstance(this, "CfnNotebookInstance", { kmsKeyId: null }); // Compliant (null are ignored)

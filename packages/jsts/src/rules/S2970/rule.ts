@@ -21,8 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { isIdentifier, isNumberLiteral } from '../helpers';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta, isIdentifier, isNumberLiteral } from '../helpers';
 import rspecMeta from './meta.json';
 
 const assertionFunctions = [

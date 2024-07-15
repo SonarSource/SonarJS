@@ -33,6 +33,7 @@ import {
   Quantifier,
 } from '@eslint-community/regexpp/ast';
 import {
+  generateMeta,
   getUniqueWriteUsage,
   isBinaryPlus,
   isIdentifier,
@@ -43,6 +44,7 @@ import {
   IssueLocation,
   LocationHolder,
   report,
+  SONAR_RUNTIME,
   toSecondaryLocation,
 } from '../helpers';
 import {
@@ -52,9 +54,7 @@ import {
   isRegExpConstructor,
   isStringRegexMethodCall,
 } from '../helpers/regex';
-import { SONAR_RUNTIME } from '../../linter/parameters';
 import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
-import { generateMeta } from '../helpers/generate-meta';
 import { FromSchema } from 'json-schema-to-ts';
 import rspecMeta from './meta.json';
 

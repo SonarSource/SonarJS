@@ -19,7 +19,7 @@
  */
 import { rule } from './';
 import { RuleTester } from 'eslint';
-import { JavaScriptRuleTester } from '../tools';
+import { JavaScriptRuleTester } from '../../../tests/tools';
 
 const typeAwareRuleTester = new JavaScriptRuleTester();
 typeAwareRuleTester.run('Regular expressions named groups should be used', rule, {

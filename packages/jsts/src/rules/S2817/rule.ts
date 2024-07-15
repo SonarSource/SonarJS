@@ -22,12 +22,12 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import {
-  isIdentifier,
-  isRequiredParserServices,
+  generateMeta,
   getSymbolAtLocation,
   getTypeAsString,
+  isIdentifier,
+  isRequiredParserServices,
 } from '../helpers';
-import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
 
 const OPEN_DATABASE = 'openDatabase';

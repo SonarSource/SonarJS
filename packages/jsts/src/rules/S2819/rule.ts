@@ -23,16 +23,16 @@ import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
 import {
-  isRequiredParserServices,
-  getValueOfExpression,
-  getTypeAsString,
-  resolveFunction,
-  isIdentifier,
+  childrenOf,
   findFirstMatchingLocalAncestor,
+  generateMeta,
+  getTypeAsString,
+  getValueOfExpression,
+  isIdentifier,
   isIfStatement,
+  isRequiredParserServices,
+  resolveFunction,
 } from '../helpers';
-import { childrenOf } from '../../linter';
-import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
 
 const POST_MESSAGE = 'postMessage';

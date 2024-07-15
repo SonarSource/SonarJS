@@ -21,10 +21,15 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { Express, getPropertyWithValue, getFullyQualifiedName, getProperty } from '../helpers';
-import { generateMeta } from '../helpers/generate-meta';
+import {
+  Express,
+  generateMeta,
+  getFullyQualifiedName,
+  getProperty,
+  getPropertyWithValue,
+  SONAR_RUNTIME,
+} from '../helpers';
 import rspecMeta from './meta.json';
-import { SONAR_RUNTIME } from '../../linter/parameters';
 
 const HELMET = 'helmet';
 const POLICY = 'policy';

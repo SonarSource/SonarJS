@@ -22,16 +22,16 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import {
-  isIdentifier,
-  getValueOfExpression,
-  isRequiredParserServices,
-  resolveFromFunctionReference,
   checkSensitiveCall,
+  generateMeta,
   getFullyQualifiedName,
+  getValueOfExpression,
+  isIdentifier,
+  isRequiredParserServices,
   report,
+  resolveFromFunctionReference,
+  SONAR_RUNTIME,
 } from '../helpers';
-import { SONAR_RUNTIME } from '../../linter/parameters';
-import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
 
 const MESSAGE = 'Make sure disabling auto-escaping feature is safe here.';

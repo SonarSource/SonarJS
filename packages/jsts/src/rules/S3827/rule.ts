@@ -23,12 +23,12 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import {
   findFirstMatchingAncestor,
+  generateMeta,
   isInsideVueSetupScript,
   report,
+  SONAR_RUNTIME,
   toSecondaryLocation,
 } from '../helpers';
-import { SONAR_RUNTIME } from '../../linter/parameters';
-import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
 
 // https://vuejs.org/api/sfc-script-setup.html#defineprops-defineemits

@@ -21,10 +21,8 @@
 
 import { Rule } from 'eslint';
 import { Character, Quantifier, RegExpLiteral } from '@eslint-community/regexpp/ast';
-import { IssueLocation, toSecondaryLocation } from '../helpers';
+import { generateMeta, IssueLocation, SONAR_RUNTIME, toSecondaryLocation } from '../helpers';
 import { createRegExpRule, getRegexpLocation } from '../helpers/regex';
-import { SONAR_RUNTIME } from '../../linter/parameters';
-import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = createRegExpRule(

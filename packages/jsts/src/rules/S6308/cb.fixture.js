@@ -1,8 +1,7 @@
 import * as cdk from 'aws-cdk-lib';
-import { aws_opensearchservice as opensearchservice } from 'aws-cdk-lib';
+import { aws_elasticsearch as elasticsearch, aws_opensearchservice as opensearchservice } from 'aws-cdk-lib';
 import { EngineVersion } from 'aws-cdk-lib/aws-opensearchservice';
 import { ElasticsearchVersion } from 'aws-cdk-lib/aws-elasticsearch';
-import { aws_elasticsearch as elasticsearch } from 'aws-cdk-lib';
 
 class NonCompliantS6308Stack extends cdk.Stack {
   constructor(app: cdk.App, id: string) {

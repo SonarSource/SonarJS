@@ -27,7 +27,7 @@ import { sanitize } from './sanitize';
  */
 const sanitized: Record<string, Rule.RuleModule> = {};
 for (const ruleKey of Object.keys(rules)) {
-  sanitized[ruleKey] = sanitize(rules[ruleKey]);
+  sanitized[ruleKey] = sanitize(rules[ruleKey] as unknown as Rule.RuleModule);
 }
 
 /**

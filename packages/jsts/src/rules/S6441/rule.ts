@@ -21,8 +21,7 @@
 
 import { Rule } from 'eslint';
 import { rules as reactRules } from 'eslint-plugin-react';
-import { rule as detectReact, mergeRules } from '../helpers';
-import { generateMeta } from '../helpers/generate-meta';
+import { detectReactRule, generateMeta, mergeRules } from '../helpers';
 import rspecMeta from './meta.json';
 
 const noUnusedClassComponentMethod = reactRules['no-unused-class-component-methods'];
@@ -46,7 +45,7 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     let isReact = false;
 
-    const detectReactListener: Rule.RuleListener = detectReact.create(
+    const detectReactListener: Rule.RuleListener = detectReactRule.create(
       overrideContext(context, {
         report(_descriptor: Rule.ReportDescriptor): void {
           isReact = true;

@@ -19,7 +19,7 @@
  */
 import { rule } from './';
 import { RuleTester } from 'eslint';
-import { JavaScriptRuleTester, TypeScriptRuleTester } from '../tools';
+import { JavaScriptRuleTester, TypeScriptRuleTester } from '../../../tests/tools';
 
 const ruleTester = new TypeScriptRuleTester();
 ruleTester.run('await should only be used with promises.', rule, {

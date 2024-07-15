@@ -20,9 +20,12 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6249/javascript
 
 import { Rule } from 'eslint';
-import { getValueOfExpression } from '../helpers';
-import { getProperty, S3BucketTemplate } from '../helpers/aws/s3';
-import { generateMeta } from '../helpers/generate-meta';
+import {
+  generateMeta,
+  getBucketProperty,
+  getValueOfExpression,
+  S3BucketTemplate,
+} from '../helpers';
 import rspecMeta from './meta.json';
 
 const ENFORCE_SSL_KEY = 'enforceSSL';
@@ -34,7 +37,7 @@ const messages = {
 
 export const rule: Rule.RuleModule = S3BucketTemplate(
   (bucket, context) => {
-    const enforceSSLProperty = getProperty(context, bucket, ENFORCE_SSL_KEY);
+    const enforceSSLProperty = getBucketProperty(context, bucket, ENFORCE_SSL_KEY);
     if (enforceSSLProperty == null) {
       context.report({
         message: messages['omitted'],

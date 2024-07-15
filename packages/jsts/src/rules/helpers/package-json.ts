@@ -18,8 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import path from 'path';
-import { File, searchFiles, toUnixPath } from '@sonar/shared';
 import { PackageJson } from 'type-fest';
+import { searchFiles, File } from './find-files';
+import { toUnixPath } from './files';
 
 export const PACKAGE_JSON = 'package.json';
 export const parsePackageJson = (_filename: string, contents: string | null) =>

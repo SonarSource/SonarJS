@@ -21,25 +21,23 @@
 
 import { Rule } from 'eslint';
 import estree from 'estree';
-import { SONAR_RUNTIME } from '../../linter/parameters';
 import {
+  findPropagatedSetting,
+  generateMeta,
+  getBucketProperty,
   getFullyQualifiedName,
   getUniqueWriteUsageOrNode,
   getValueOfExpression,
   isIdentifier,
   isMethodCall,
-  mergeRules,
-  report,
-} from '../helpers';
-import { normalizeFQN } from '../helpers/aws/cdk';
-import {
-  S3BucketTemplate,
-  isS3BucketDeploymentConstructor,
-  findPropagatedSetting,
   isS3BucketConstructor,
-  getProperty,
-} from '../helpers/aws/s3';
-import { generateMeta } from '../helpers/generate-meta';
+  isS3BucketDeploymentConstructor,
+  mergeRules,
+  normalizeFQN,
+  report,
+  S3BucketTemplate,
+  SONAR_RUNTIME,
+} from '../helpers';
 import rspecMeta from './meta.json';
 
 const messages = {
@@ -106,7 +104,7 @@ function checkBooleanParam(
   propName: string,
   propValue: boolean,
 ) {
-  const property = getProperty(context, bucketConstructor, propName);
+  const property = getBucketProperty(context, bucketConstructor, propName);
   if (property == null) {
     return;
   }
@@ -130,7 +128,7 @@ function checkConstantParam(
   propName: string,
   paramQualifiers: string[],
 ) {
-  const property = getProperty(context, bucketConstructor, propName);
+  const property = getBucketProperty(context, bucketConstructor, propName);
   if (property == null) {
     return;
   }

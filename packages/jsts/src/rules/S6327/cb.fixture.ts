@@ -1,4 +1,4 @@
-import { Topic, CfnTopic } from 'aws-cdk-lib/aws-sns';
+import { CfnTopic, Topic } from 'aws-cdk-lib/aws-sns';
 import { Key } from 'aws-cdk-lib/aws-kms';
 
 function compliant() {

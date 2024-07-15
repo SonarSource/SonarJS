@@ -23,11 +23,11 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import {
   flattenArgs,
-  getUniqueWriteUsageOrNode,
+  generateMeta,
   getFullyQualifiedName,
+  getUniqueWriteUsageOrNode,
   isMemberWithProperty,
 } from '../helpers';
-import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
 
 const ERRORHANDLER_MODULE = 'errorhandler';

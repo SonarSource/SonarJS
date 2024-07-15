@@ -22,12 +22,12 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import {
-  isIdentifier,
+  generateMeta,
   getFullyQualifiedName,
-  isStaticTemplateLiteral,
+  isIdentifier,
   isLiteral,
+  isStaticTemplateLiteral,
 } from '../helpers';
-import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
 
 const EXEC_FUNCTIONS = ['exec', 'execSync'];

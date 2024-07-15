@@ -24,15 +24,15 @@ import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
 import {
   findFirstMatchingAncestor,
+  generateMeta,
   getMainFunctionTokenLocation,
   getParent,
   LoopLike,
   report,
   RuleContext,
+  SONAR_RUNTIME,
   toSecondaryLocation,
 } from '../helpers';
-import { SONAR_RUNTIME } from '../../linter/parameters';
-import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
 
 const message = 'Make sure this function is not called after the loop completes.';

@@ -31,12 +31,12 @@
 import path from 'path';
 import ts from 'typescript';
 import {
-  addTsConfigIfDirectory,
   debug,
   error,
+  warn,
+  addTsConfigIfDirectory,
   readFileSync,
   toUnixPath,
-  warn,
 } from '@sonar/shared';
 import tmp from 'tmp';
 import { promisify } from 'util';

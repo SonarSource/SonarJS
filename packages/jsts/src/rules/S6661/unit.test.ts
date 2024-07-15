@@ -19,7 +19,7 @@
  */
 import { RuleTester } from 'eslint';
 import { rule } from './';
-import { clearPackageJsons, loadPackageJsons } from '@sonar/jsts';
+import { clearPackageJsons, loadPackageJsons } from '../helpers/package-json';
 import path from 'path';
 
 clearPackageJsons();

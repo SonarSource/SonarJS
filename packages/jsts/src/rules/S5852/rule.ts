@@ -23,7 +23,7 @@ import { Rule } from 'eslint';
 import { RegExpLiteral } from '@eslint-community/regexpp/ast';
 import { analyse } from 'scslre';
 import { createRegExpRule } from '../helpers/regex';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 const message = `Make sure the regex used here, which is vulnerable to super-linear runtime due to backtracking, cannot lead to denial of service.`;

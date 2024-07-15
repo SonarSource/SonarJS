@@ -21,10 +21,9 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { getTypeFromTreeNode, isRequiredParserServices } from '../helpers';
+import { generateMeta, getTypeFromTreeNode, isRequiredParserServices } from '../helpers';
 import { TSESTree } from '@typescript-eslint/utils';
 import ts, { SyntaxKind } from 'typescript';
-import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {

@@ -24,12 +24,12 @@ import { AwsCdkCheckArguments, AwsCdkTemplate, normalizeFQN } from '../helpers/a
 import { CallExpression, MemberExpression, NewExpression, Node } from 'estree';
 import { getResultOfExpression } from '../helpers/result';
 import {
+  generateMeta,
   getFullyQualifiedName,
   getUniqueWriteUsageOrNode,
   isMemberWithProperty,
   isMethodCall,
 } from '../helpers';
-import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
 
 const REST_API_PROPERTIES_POSITION = 2;

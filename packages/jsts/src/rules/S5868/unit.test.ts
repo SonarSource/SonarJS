@@ -19,6 +19,7 @@
  */
 import { RuleTester } from 'eslint';
 import { rule } from './';
+
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2015 } });
 
 const combiningClass = c =>

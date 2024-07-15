@@ -21,10 +21,8 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { SONAR_RUNTIME } from '../../linter/parameters';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta, report, SONAR_RUNTIME, toSecondaryLocation } from '../helpers';
 import rspecMeta from './meta.json';
-import { report, toSecondaryLocation } from '../helpers';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(rspecMeta as Rule.RuleMetaData, {

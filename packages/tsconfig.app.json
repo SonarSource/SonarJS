@@ -4,7 +4,11 @@
     "composite": true,
     "allowJs": true
   },
-  "references": [],
+  "references": [
+    {
+      "path": "./jsts/src/rules/tsconfig.json"
+    }
+  ],
   "include": [
     "server.ts",
     "*/src/**/*.ts",
@@ -14,7 +18,7 @@
     "ruling/filter/*.ts"
   ],
   "exclude": [
-    "*/src/rules/tools",
+    "jsts/src/rules",
     "*/src/rules/*/*.test.ts",
     "*/src/rules/*/*.fixture.*",
     "*/src/rules/*/fixtures"

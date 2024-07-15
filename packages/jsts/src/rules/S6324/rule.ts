@@ -22,7 +22,7 @@
 import { Rule } from 'eslint';
 import { Character } from '@eslint-community/regexpp/ast';
 import { createRegExpRule } from '../helpers/regex';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 const EXCEPTIONS = ['\t', '\n'];

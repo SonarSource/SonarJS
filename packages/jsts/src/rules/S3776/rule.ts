@@ -21,6 +21,7 @@
 
 import type { TSESTree } from '@typescript-eslint/utils';
 import {
+  generateMeta,
   getFirstToken,
   getFirstTokenAfter,
   getJsxShortCircuitNodes,
@@ -34,7 +35,6 @@ import {
 } from '../helpers';
 import { Rule } from 'eslint';
 import estree from 'estree';
-import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
 import { FromSchema } from 'json-schema-to-ts';
 import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';

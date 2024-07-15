@@ -21,15 +21,15 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { childrenOf } from '../../linter';
 import {
-  isIdentifier,
-  getPropertyWithValue,
-  last,
-  getValueOfExpression,
+  childrenOf,
+  generateMeta,
   getFullyQualifiedName,
+  getPropertyWithValue,
+  getValueOfExpression,
+  isIdentifier,
+  last,
 } from '../helpers';
-import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {

@@ -21,8 +21,12 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { getFullyQualifiedName, getUniqueWriteUsageOrNode, isStringLiteral } from '../helpers';
-import { generateMeta } from '../helpers/generate-meta';
+import {
+  generateMeta,
+  getFullyQualifiedName,
+  getUniqueWriteUsageOrNode,
+  isStringLiteral,
+} from '../helpers';
 import rspecMeta from './meta.json';
 
 const message = 'Make sure this weak hash algorithm is not used in a sensitive context here.';

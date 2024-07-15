@@ -21,8 +21,7 @@
 
 import { Rule } from 'eslint';
 import { eslintRules } from '../core';
-import { interceptReport, mergeRules } from '../helpers';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta, interceptReport, mergeRules } from '../helpers';
 import rspecMeta from './meta.json';
 
 /**

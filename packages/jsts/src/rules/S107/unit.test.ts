@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { rule } from './';
-import { TypeScriptRuleTester } from '../tools';
+import { TypeScriptRuleTester } from '../../../tests/tools';
 
 const MAX_PARAMS_3 = 3;
 const MAX_PARAMS_5 = 5;

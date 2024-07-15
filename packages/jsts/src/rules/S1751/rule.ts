@@ -19,10 +19,10 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S1751
 
-import { TSESTree, AST_NODE_TYPES } from '@typescript-eslint/utils';
+import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/utils';
 import { Rule } from 'eslint';
 import estree from 'estree';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {

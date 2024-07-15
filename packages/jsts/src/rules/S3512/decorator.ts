@@ -19,9 +19,8 @@
  */
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { interceptReport } from '../helpers';
-import { generateMeta } from '../helpers/generate-meta';
-import rspecMeta from '../S1788/meta.json';
+import { generateMeta, interceptReport } from '../helpers';
+import rspecMeta from './meta.json';
 
 // core implementation of this rule raises issues on binary expressions with string literal operand(s)
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {

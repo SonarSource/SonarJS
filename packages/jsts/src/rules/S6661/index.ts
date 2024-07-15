@@ -20,7 +20,7 @@
 import { Rule } from 'eslint';
 import { eslintRules } from '../core';
 import { decorate } from './decorator';
-import { isSupported } from '@sonar/jsts';
+import { isSupported } from '../helpers/validate-version';
 
 const decorated = decorate(eslintRules['prefer-object-spread']);
 

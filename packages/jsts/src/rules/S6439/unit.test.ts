@@ -19,7 +19,7 @@
  */
 import { RuleTester } from 'eslint';
 import { rule } from './';
-import { TypeScriptRuleTester } from '../tools';
+import { TypeScriptRuleTester } from '../../../tests/tools';
 
 const ruleTesterTs = new TypeScriptRuleTester();
 const ruleTesterJs = new RuleTester({

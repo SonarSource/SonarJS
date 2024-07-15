@@ -20,9 +20,8 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
-import { interceptReport } from '../helpers';
-import { generateMeta } from '../helpers/generate-meta';
-import rspecMeta from '../S101/meta.json';
+import { generateMeta, interceptReport } from '../helpers';
+import rspecMeta from './meta.json';
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(

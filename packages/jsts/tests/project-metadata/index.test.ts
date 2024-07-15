@@ -20,13 +20,13 @@
 import path from 'path';
 import { toUnixPath } from '@sonar/shared';
 import {
-  loadPackageJsons,
+  clearPackageJsons,
   getAllPackageJsons,
   getNearestPackageJsons,
-  clearPackageJsons,
   getPackageJsonsCount,
   isSupported,
-} from '@sonar/jsts';
+  loadPackageJsons,
+} from '../../src/rules';
 
 describe('initialize package.json files', () => {
   const baseDir = path.posix.join(toUnixPath(__dirname), 'fixtures', 'package-json');

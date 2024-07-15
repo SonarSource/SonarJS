@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { File, searchFiles } from '@sonar/shared';
 import { createTSConfigFile, writeTSConfigFile } from '../program';
 import { DEFAULT_MAX_FILES_FOR_TYPE_CHECKING } from '../../analysis';
+import { File, searchFiles } from '../../rules';
 
 export const TSCONFIG_JSON = 'tsconfig.json';
 

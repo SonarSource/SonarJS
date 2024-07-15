@@ -21,9 +21,7 @@
 
 import { AST, Rule, SourceCode } from 'eslint';
 import * as estree from 'estree';
-import { getParent, report, toSecondaryLocation } from '../helpers';
-import { SONAR_RUNTIME } from '../../linter/parameters';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta, getParent, report, SONAR_RUNTIME, toSecondaryLocation } from '../helpers';
 import rspecMeta from './meta.json';
 
 interface ParenthesesPair {

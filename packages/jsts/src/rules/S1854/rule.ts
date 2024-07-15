@@ -22,12 +22,11 @@
 import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
+import { generateMeta, isNullLiteral, LiveVariables, lva, ReferenceLike } from '../helpers';
+import rspecMeta from './meta.json';
 import CodePath = Rule.CodePath;
 import Variable = Scope.Variable;
 import CodePathSegment = Rule.CodePathSegment;
-import { LiveVariables, lva, ReferenceLike, isNullLiteral } from '../helpers';
-import { generateMeta } from '../helpers/generate-meta';
-import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(rspecMeta as Rule.RuleMetaData, {

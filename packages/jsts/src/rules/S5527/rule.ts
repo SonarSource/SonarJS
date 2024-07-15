@@ -22,17 +22,17 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import {
-  getValueOfExpression,
-  getPropertyWithValue,
+  childrenOf,
+  generateMeta,
   getFullyQualifiedName,
   getProperty,
-  report,
+  getPropertyWithValue,
+  getValueOfExpression,
   IssueLocation,
+  report,
+  SONAR_RUNTIME,
   toSecondaryLocation,
 } from '../helpers';
-import { SONAR_RUNTIME } from '../../linter/parameters';
-import { childrenOf } from '../../linter';
-import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {

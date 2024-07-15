@@ -24,14 +24,14 @@ import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
 import { eslintRules } from '../core';
 import {
+  generateMeta,
   getFullyQualifiedName,
+  interceptReport,
   isFunctionCall,
   isIdentifier,
-  interceptReport,
   mergeRules,
 } from '../helpers';
 import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
-import { generateMeta } from '../helpers/generate-meta';
 import { FromSchema } from 'json-schema-to-ts';
 import rspecMeta from './meta.json';
 

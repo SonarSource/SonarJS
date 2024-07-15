@@ -23,14 +23,14 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import * as ts from 'typescript';
 import {
-  isRequiredParserServices,
-  RequiredParserServices,
+  generateMeta,
   getTypeFromTreeNode,
-  isStringType,
-  isNumberType,
   isBigIntType,
+  isNumberType,
+  isRequiredParserServices,
+  isStringType,
+  RequiredParserServices,
 } from '../helpers';
-import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
 
 const comparisonOperators = new Set(['>', '<', '>=', '<=']);

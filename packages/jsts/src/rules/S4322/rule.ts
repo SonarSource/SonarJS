@@ -22,8 +22,13 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
-import { getParent, RuleContext, isUndefined, getMainFunctionTokenLocation } from '../helpers';
-import { generateMeta } from '../helpers/generate-meta';
+import {
+  generateMeta,
+  getMainFunctionTokenLocation,
+  getParent,
+  isUndefined,
+  RuleContext,
+} from '../helpers';
 import rspecMeta from './meta.json';
 
 type FunctionLikeDeclaration = TSESTree.FunctionDeclaration | TSESTree.FunctionExpression;

@@ -23,7 +23,7 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { eslintRules } from '../core';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 const noScriptUrlRule = eslintRules['no-script-url'];

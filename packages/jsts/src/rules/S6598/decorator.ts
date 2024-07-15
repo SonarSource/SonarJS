@@ -20,8 +20,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6598/javascript
 
 import { Rule } from 'eslint';
-import { interceptReport } from '../helpers';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta, interceptReport } from '../helpers';
 import rspecMeta from './meta.json';
 
 // Rewording one of the issue messages reported by the core implementation.

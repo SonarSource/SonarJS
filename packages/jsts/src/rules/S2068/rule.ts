@@ -21,10 +21,9 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { isStringLiteral } from '../helpers';
+import { generateMeta, isStringLiteral } from '../helpers';
 import path from 'path';
 import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
-import { generateMeta } from '../helpers/generate-meta';
 import { FromSchema } from 'json-schema-to-ts';
 import rspecMeta from './meta.json';
 

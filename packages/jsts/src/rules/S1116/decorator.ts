@@ -19,8 +19,7 @@
  */
 import { AST, Rule } from 'eslint';
 import * as estree from 'estree';
-import { interceptReport } from '../helpers';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta, interceptReport } from '../helpers';
 import rspecMeta from './meta.json';
 
 type NullableToken = AST.Token | null | undefined;

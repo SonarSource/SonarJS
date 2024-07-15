@@ -21,11 +21,9 @@
 
 import { Rule, Scope } from 'eslint';
 import { TSESTree } from '@typescript-eslint/utils';
-import { SONAR_RUNTIME } from '../../linter/parameters';
+import { generateMeta, report, SONAR_RUNTIME, toSecondaryLocation } from '../helpers';
 import estree from 'estree';
-import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
-import { report, toSecondaryLocation } from '../helpers';
 
 const MESSAGE = "Use the rest syntax to declare this function's arguments.";
 const SECONDARY_MESSAGE = 'Replace this reference to "arguments".';

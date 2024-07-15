@@ -22,7 +22,7 @@
 import { Rule } from 'eslint';
 import { CharacterClass, Flags, Quantifier, RegExpLiteral } from '@eslint-community/regexpp/ast';
 import { createRegExpRule, RegexRuleContext } from '../helpers/regex';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = createRegExpRule(

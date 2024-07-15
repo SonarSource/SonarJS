@@ -23,6 +23,7 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import {
   findFirstMatchingLocalAncestor,
+  generateMeta,
   getFullyQualifiedName,
   getProperty,
   getUniqueWriteUsageOrNode,
@@ -31,11 +32,10 @@ import {
   isIdentifier,
   report,
   resolveFunction,
+  SONAR_RUNTIME,
   toSecondaryLocation,
 } from '../helpers';
 import { TSESTree } from '@typescript-eslint/utils';
-import { SONAR_RUNTIME } from '../../linter/parameters';
-import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
 
 const MESSAGE = `Make sure that enabling CORS is safe here.`;

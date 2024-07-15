@@ -21,10 +21,14 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { Express, getFullyQualifiedName, getProperty } from '../helpers';
-import { generateMeta } from '../helpers/generate-meta';
+import {
+  Express,
+  generateMeta,
+  getFullyQualifiedName,
+  getProperty,
+  SONAR_RUNTIME,
+} from '../helpers';
 import rspecMeta from './meta.json';
-import { SONAR_RUNTIME } from '../../linter/parameters';
 
 const HELMET = 'helmet';
 const HELMET_CSP = 'helmet-csp';

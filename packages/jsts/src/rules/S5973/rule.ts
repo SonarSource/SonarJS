@@ -20,10 +20,15 @@
 // https://sonarsource.github.io/rspec/#/rspec/S5973/javascript
 
 import { Rule } from 'eslint';
-import { Mocha, getFullyQualifiedName, isIdentifier, isMethodInvocation } from '../helpers';
+import {
+  generateMeta,
+  getDependencies,
+  getFullyQualifiedName,
+  isIdentifier,
+  isMethodInvocation,
+  Mocha,
+} from '../helpers';
 import * as estree from 'estree';
-import { getDependencies } from '@sonar/jsts';
-import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {

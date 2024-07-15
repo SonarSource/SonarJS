@@ -17,4 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export * from '../../../tests/tools';
+declare module '@typescript-eslint/eslint-plugin' {
+  import { Rule } from 'eslint';
+  export const rules: { [name: string]: Rule.RuleModule };
+}

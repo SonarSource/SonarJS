@@ -38,8 +38,12 @@
  */
 import fs from 'fs';
 import path from 'path';
-import { toUnixPath, debug, readFileSync } from '@sonar/shared';
 import { Minimatch } from 'minimatch';
+import { toUnixPath, readFileSync } from './files';
+
+function debug(message: string) {
+  console.log(`DEBUG ${message}`);
+}
 
 // Patterns enforced to be ignored no matter what the user configures on sonar.properties
 const IGNORED_PATTERNS = ['.scannerwork'];

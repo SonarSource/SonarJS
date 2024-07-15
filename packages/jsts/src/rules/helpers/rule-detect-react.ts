@@ -30,7 +30,7 @@ const detectReactSelector = [
   ')',
 ].join('');
 
-export const rule: Rule.RuleModule = {
+export const detectReactRule: Rule.RuleModule = {
   meta: {
     messages: {
       reactDetected: 'React detected',

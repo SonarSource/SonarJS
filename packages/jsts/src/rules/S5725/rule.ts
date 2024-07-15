@@ -23,8 +23,7 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
 import { Variable } from 'eslint-scope';
-import { isIdentifier, isRequiredParserServices, getTypeAsString } from '../helpers';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta, getTypeAsString, isIdentifier, isRequiredParserServices } from '../helpers';
 import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {

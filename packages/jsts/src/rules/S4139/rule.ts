@@ -23,12 +23,12 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import ts from 'typescript';
 import {
+  generateMeta,
   getTypeFromTreeNode,
-  isStringType,
   isArrayLikeType,
   isRequiredParserServices,
+  isStringType,
 } from '../helpers';
-import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {

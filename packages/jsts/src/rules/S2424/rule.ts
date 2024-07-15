@@ -19,11 +19,10 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S2424/javascript
 
-import { globalsByLibraries } from '../helpers';
+import { generateMeta, globalsByLibraries } from '../helpers';
 import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
-import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {

@@ -24,12 +24,12 @@ import { Rule, Scope } from 'eslint';
 import {
   collectionConstructor,
   findFirstMatchingAncestor,
+  generateMeta,
   isElementWrite,
   isIdentifier,
   writingMethods,
 } from '../helpers';
 import estree from 'estree';
-import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {

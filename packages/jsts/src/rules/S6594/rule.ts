@@ -22,14 +22,14 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import {
+  generateMeta,
   getNodeParent,
+  getParsedRegex,
   getVariableFromName,
   isMemberWithProperty,
   isRequiredParserServices,
   isString,
 } from '../helpers';
-import { getParsedRegex } from '../helpers/regex';
-import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {

@@ -19,13 +19,17 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S4621/javascript
 
-import { Rule, AST } from 'eslint';
+import { AST, Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
-import { SONAR_RUNTIME } from '../../linter/parameters';
-import { generateMeta } from '../helpers/generate-meta';
+import {
+  generateMeta,
+  IssueLocation,
+  report,
+  SONAR_RUNTIME,
+  toSecondaryLocation,
+} from '../helpers';
 import rspecMeta from './meta.json';
-import { IssueLocation, report, toSecondaryLocation } from '../helpers';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(rspecMeta as Rule.RuleMetaData, {

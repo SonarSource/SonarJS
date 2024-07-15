@@ -19,7 +19,7 @@
  */
 import { rule } from './';
 import { RuleTester } from 'eslint';
-import { TypeScriptRuleTester } from '../tools';
+import { TypeScriptRuleTester } from '../../../tests/tools';
 
 const ruleTesterJS = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
 const ruleTesterTS = new TypeScriptRuleTester();

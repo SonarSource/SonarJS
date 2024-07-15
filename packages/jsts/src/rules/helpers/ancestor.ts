@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { TSESTree } from '@typescript-eslint/utils';
-import { Rule } from 'eslint';
+import { Rule, SourceCode } from 'eslint';
 import estree, { Node } from 'estree';
 import { functionLike } from './ast';
 
@@ -75,4 +75,30 @@ export function getParent(context: Rule.RuleContext, node: estree.Node) {
  */
 export function getNodeParent(node: Node) {
   return (node as TSESTree.Node).parent as Node;
+}
+
+/**
+ * Returns the direct children of a node
+ * @param node the node to get the children
+ * @param visitorKeys the visitor keys provided by the source code
+ * @returns the node children
+ */
+export function childrenOf(node: estree.Node, visitorKeys: SourceCode.VisitorKeys): estree.Node[] {
+  const keys = visitorKeys[node.type];
+  const children = [];
+  if (keys) {
+    for (const key of keys) {
+      /**
+       * A node's child may be a node or an array of nodes, e.g., `body` in `estree.Program`.
+       * If it's an array, we extract all the nodes from it; if not, we just add the node.
+       */
+      const child = (node as any)[key];
+      if (Array.isArray(child)) {
+        children.push(...child);
+      } else {
+        children.push(child);
+      }
+    }
+  }
+  return children.filter(Boolean);
 }

@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import { Node } from 'estree';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 const APIs = new Set([

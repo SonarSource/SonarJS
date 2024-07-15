@@ -28,10 +28,8 @@ import {
   isAnyLiteral,
   PolicyCheckerOptions,
 } from '../helpers/aws/iam';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta, report, SONAR_RUNTIME, toSecondaryLocation } from '../helpers';
 import rspecMeta from './meta.json';
-import { SONAR_RUNTIME } from '../../linter/parameters';
-import { report, toSecondaryLocation } from '../helpers';
 
 const MESSAGES = {
   message: 'Make sure granting all privileges is safe here.',

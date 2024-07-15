@@ -24,17 +24,17 @@ import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
 import {
   FunctionNodeType,
-  isRequiredParserServices,
-  isFunctionNode,
-  resolveFromFunctionReference,
+  generateMeta,
   getSignatureFromCallee,
   getTypeAsString,
-  resolveIdentifiers,
+  isFunctionNode,
+  isRequiredParserServices,
   report,
+  resolveFromFunctionReference,
+  resolveIdentifiers,
+  SONAR_RUNTIME,
   toSecondaryLocation,
 } from '../helpers';
-import { SONAR_RUNTIME } from '../../linter/parameters';
-import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
 
 interface FunctionSignature {

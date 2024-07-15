@@ -19,7 +19,7 @@
  */
 import { rule } from './';
 import { RuleTester } from 'eslint';
-import { TypeScriptRuleTester } from '../tools';
+import { TypeScriptRuleTester } from '../../../tests/tools';
 
 const ruleTesterJs = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
 ruleTesterJs.run('Results of operations on strings should not be ignored [js]', rule, {

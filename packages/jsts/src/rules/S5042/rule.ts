@@ -21,8 +21,13 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { isIdentifier, isLiteral, getValueOfExpression, getFullyQualifiedName } from '../helpers';
-import { generateMeta } from '../helpers/generate-meta';
+import {
+  generateMeta,
+  getFullyQualifiedName,
+  getValueOfExpression,
+  isIdentifier,
+  isLiteral,
+} from '../helpers';
 import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {

@@ -22,13 +22,13 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import {
+  generateMeta,
   getTypeFromTreeNode,
   isBigIntType,
   isNumberType,
   isRequiredParserServices,
   isStringType,
 } from '../helpers';
-import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
 
 const detectReactNativeSelector = [

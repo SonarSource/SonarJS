@@ -24,7 +24,7 @@ import isHiddenFromScreenReader from 'eslint-plugin-jsx-a11y/lib/util/isHiddenFr
 import getElementType from 'eslint-plugin-jsx-a11y/lib/util/getElementType';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {

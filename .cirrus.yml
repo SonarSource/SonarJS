@@ -64,6 +64,8 @@ win_vm_definition: &WINDOWS_VM_DEFINITION
 npmrc_script_definition: &NPMRC_SCRIPT_DEFINITION
   npmrc_script:
     - cp .cirrus/npmrc $CIRRUS_WORKING_DIR/.npmrc
+    - cp .cirrus/npmrc $CIRRUS_WORKING_DIR/packages/jsts/src/rules/.npmrc
+    - cp .cirrus/npmrc $CIRRUS_WORKING_DIR/its/eslint-plugin-sonarjs/.npmrc
 
 win_ssd_and_clone:
   &WIN_SSD_AND_CLONE # copy&paste from https://github.com/SonarSource/sonar-cpp/blob/a8c6f1e45a12393508682a013ac7ee35eb92bece/.cirrus.yml#L45
@@ -283,6 +285,30 @@ js_ts_ruling_task:
     - npm run update-ruling-data
     - npm run ruling -- --maxWorkers=8
   cleanup_before_cache_script: cleanup_maven_repository
+
+eslint_plugin_test_task:
+  eks_container:
+    <<: *CONTAINER_DEFINITION
+    dockerfile: .cirrus/nodejs.Dockerfile
+    docker_arguments:
+      CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
+      NODE_VERSION: 20
+  env:
+    CIRRUS_CLONE_DEPTH: 1
+    SONARSOURCE_QA: true
+  <<: *MAVEN_CACHE
+  <<: *NPMRC_SCRIPT_DEFINITION
+  # needed because we need to build the plugin
+  <<: *RUNTIME_CACHE
+  eslint_its_script:
+    - . ~/.profile
+    - source cirrus-env QA
+    - source set_maven_build_version $BUILD_NUMBER
+    - cd packages/jsts/src/rules
+    - npm run build
+    - cd ../../../../its/eslint-plugin-sonarjs
+    - npm run build
+    - npm run test
 
 css_ruling_task:
   depends_on:

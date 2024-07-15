@@ -18,8 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import path from 'path';
-import { File, getContext, searchFiles, setContext, toUnixPath } from '@sonar/shared';
+import { getContext, setContext, toUnixPath } from '@sonar/shared';
 import { analyzeProject, clearTSConfigs, ProjectAnalysisInput, RuleConfig } from '@sonar/jsts';
+import { searchFiles, File } from '../../src/rules';
 
 const defaultRules: RuleConfig[] = [
   { key: 'no-duplicate-in-composite', configurations: [], fileTypeTarget: ['MAIN'] },

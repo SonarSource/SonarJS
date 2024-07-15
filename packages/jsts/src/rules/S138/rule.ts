@@ -26,6 +26,7 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
 import {
+  generateMeta,
   getMainFunctionTokenLocation,
   getNodeParent,
   getParent,
@@ -34,8 +35,7 @@ import {
 } from '../helpers';
 import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
 import { FromSchema } from 'json-schema-to-ts';
-import { generateMeta } from '../helpers/generate-meta';
-import rspecMeta from '../S101/meta.json';
+import rspecMeta from './meta.json';
 
 interface FunctionKnowledge {
   node: estree.Node;

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { rule } from './';
-import { JavaScriptRuleTester } from '../tools';
+import { JavaScriptRuleTester } from '../../../tests/tools';
 
 const ruleTester = new JavaScriptRuleTester();
 

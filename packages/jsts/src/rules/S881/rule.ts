@@ -21,8 +21,8 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { generateMeta } from '../helpers/generate-meta';
-import rspecMeta from '../S101/meta.json';
+import { generateMeta } from '../helpers';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(rspecMeta as Rule.RuleMetaData, {

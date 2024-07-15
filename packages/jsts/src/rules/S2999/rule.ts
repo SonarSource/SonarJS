@@ -23,15 +23,15 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import * as ts from 'typescript';
 import {
-  isRequiredParserServices,
-  getTypeFromTreeNode,
+  generateMeta,
   getSignatureFromCallee,
+  getTypeFromTreeNode,
+  isRequiredParserServices,
   report,
+  SONAR_RUNTIME,
   toSecondaryLocation,
 } from '../helpers';
-import { SONAR_RUNTIME } from '../../linter/parameters';
 import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
-import { generateMeta } from '../helpers/generate-meta';
 import { FromSchema } from 'json-schema-to-ts';
 import rspecMeta from './meta.json';
 

@@ -21,8 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { isIdentifier, isMemberWithProperty } from '../helpers';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta, isIdentifier, isMemberWithProperty } from '../helpers';
 import rspecMeta from './meta.json';
 
 const stringMethods = ['match', 'search', 'split'];

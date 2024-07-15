@@ -19,13 +19,12 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S2201
 
-import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/utils';
 import type { ParserServicesWithTypeInformation } from '@typescript-eslint/utils';
+import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/utils';
 import type { Type } from 'typescript';
 import { Rule } from 'eslint';
-import { getTypeFromTreeNode, isRequiredParserServices } from '../helpers';
+import { generateMeta, getTypeFromTreeNode, isRequiredParserServices } from '../helpers';
 import estree from 'estree';
-import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
 
 const METHODS_WITHOUT_SIDE_EFFECTS: { [index: string]: Set<string> } = {

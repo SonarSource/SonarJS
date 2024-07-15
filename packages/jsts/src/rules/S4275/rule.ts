@@ -23,17 +23,17 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
 import {
+  generateMeta,
   getVariableFromName,
+  interceptReport,
   isMethodInvocation,
   isStringLiteral,
-  interceptReport,
   mergeRules,
   report,
+  SONAR_RUNTIME,
   toSecondaryLocation,
 } from '../helpers';
-import { SONAR_RUNTIME } from '../../linter/parameters';
 import { eslintRules } from '../core';
-import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
 import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
 

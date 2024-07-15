@@ -1,0 +1,61 @@
+{
+  "name": "eslint-plugin-sonarjs",
+  "version": "1.0.3",
+  "description": "SonarJS rules for ESLint",
+  "types": "index.d.ts",
+  "type": "commonjs",
+  "scripts": {
+    "build": "npm ci && npm run clear && npm run compile && cp LICENSE lib/ && cd lib && npm pack",
+    "compile": "tsc --outDir lib",
+    "clear": "rimraf lib/*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SonarSource/SonarJS.git"
+  },
+  "author": "",
+  "license": "LGPL-3.0-only",
+  "keywords": [
+    "sonarjs",
+    "eslint",
+    "eslintplugin"
+  ],
+  "bugs": {
+    "url": "https://community.sonarsource.com/"
+  },
+  "peerDependencies": {
+    "eslint": "^8.0.0 || ^9.0.0"
+  },
+  "homepage": "https://github.com/SonarSource/SonarJS#readme",
+  "dependencies": {
+    "@babel/core": "7.24.3",
+    "@babel/eslint-parser": "7.24.1",
+    "@babel/plugin-proposal-decorators": "7.24.1",
+    "@babel/preset-env": "7.24.3",
+    "@babel/preset-flow": "7.24.1",
+    "@babel/preset-react": "7.24.1",
+    "@eslint-community/regexpp": "4.10.0",
+    "@typescript-eslint/eslint-plugin": "7.7.1",
+    "builtin-modules": "3.3.0",
+    "bytes": "3.1.2",
+    "eslint-plugin-jsx-a11y": "6.8.0",
+    "eslint-plugin-react": "7.34.1",
+    "eslint-plugin-react-hooks": "4.6.0",
+    "eslint-scope": "8.0.1",
+    "functional-red-black-tree": "1.0.1",
+    "scslre": "0.3.0",
+    "semver": "7.6.0",
+    "vue-eslint-parser": "9.4.3"
+  },
+  "devDependencies": {
+    "@types/bytes": "3.1.4",
+    "@types/eslint": "8.56.10",
+    "@types/eslint-scope": "3.7.7",
+    "@types/functional-red-black-tree": "1.0.2",
+    "@types/node": "20.11.30",
+    "@types/semver": "7.5.8",
+    "json-schema-to-ts": "3.1.0",
+    "type-fest": "4.21.0",
+    "typescript": "5.4.3"
+  }
+}

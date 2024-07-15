@@ -19,7 +19,7 @@
  */
 import { rule } from './';
 import { RuleTester } from 'eslint';
-import { TypeScriptRuleTester } from '../tools';
+import { TypeScriptRuleTester } from '../../../tests/tools';
 
 const typeAwareRuleTester = new TypeScriptRuleTester();
 typeAwareRuleTester.run('Existing regular expression groups', rule, {

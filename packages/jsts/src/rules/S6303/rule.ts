@@ -21,6 +21,7 @@
 
 import { Rule } from 'eslint';
 import {
+  generateMeta,
   getFullyQualifiedName,
   getProperty,
   getUniqueWriteUsageOrNode,
@@ -31,7 +32,6 @@ import {
 
 import * as estree from 'estree';
 import { AwsCdkTemplate, normalizeFQN } from '../helpers/aws/cdk';
-import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
 
 const CfnDBCluster = 'CfnDBCluster';

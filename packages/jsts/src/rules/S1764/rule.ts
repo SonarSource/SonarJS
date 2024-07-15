@@ -22,6 +22,7 @@
 import estree from 'estree';
 import {
   areEquivalent,
+  generateMeta,
   isIdentifier,
   isLiteral,
   IssueLocation,
@@ -29,7 +30,6 @@ import {
   toSecondaryLocation,
 } from '../helpers';
 import { Rule } from 'eslint';
-import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
 
 const EQUALITY_OPERATOR_TOKEN_KINDS = new Set(['==', '===', '!=', '!==']);

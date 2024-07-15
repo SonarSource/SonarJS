@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { rule } from './';
-import { TypeScriptRuleTester } from '../tools';
+import { TypeScriptRuleTester } from '../../../tests/tools';
 
 const ruleTester = new TypeScriptRuleTester();
 ruleTester.run('Array-mutating methods should not be used misleadingly.', rule, {

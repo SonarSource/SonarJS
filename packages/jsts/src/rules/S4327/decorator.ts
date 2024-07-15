@@ -19,9 +19,8 @@
  */
 import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
-import { getVariableFromName, interceptReport } from '../helpers';
-import { generateMeta } from '../helpers/generate-meta';
-import rspecMeta from '../S1788/meta.json';
+import { generateMeta, getVariableFromName, interceptReport } from '../helpers';
+import rspecMeta from './meta.json';
 
 // core implementation of this rule raises false positives for generators
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {

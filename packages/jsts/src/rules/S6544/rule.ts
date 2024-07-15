@@ -24,13 +24,13 @@ import { tsEslintRules } from '../typescript-eslint';
 import { eslintRules } from '../core';
 import {
   FUNCTION_NODES,
-  RuleContext,
+  generateMeta,
+  getMainFunctionTokenLocation,
   interceptReport,
   mergeRules,
-  getMainFunctionTokenLocation,
+  RuleContext,
 } from '../helpers';
 import { TSESTree } from '@typescript-eslint/utils';
-import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
 
 /**

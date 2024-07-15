@@ -21,8 +21,7 @@
 
 import { TSESTree } from '@typescript-eslint/utils';
 import { Rule } from 'eslint';
-import { isGenericType, interceptReport } from '../helpers';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta, interceptReport, isGenericType } from '../helpers';
 import rspecMeta from './meta.json';
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {

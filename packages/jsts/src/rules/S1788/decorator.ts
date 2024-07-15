@@ -21,8 +21,7 @@
 
 import { Rule } from 'eslint';
 import { AssignmentPattern, BaseFunction } from 'estree';
-import { interceptReport, isIdentifier } from '../helpers';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta, interceptReport, isIdentifier } from '../helpers';
 import rspecMeta from './meta.json';
 
 const NUM_ARGS_REDUX_REDUCER = 2;

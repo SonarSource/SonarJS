@@ -23,10 +23,9 @@ import { Rule, SourceCode } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
 import * as babel from '@babel/eslint-parser';
-import { buildParserOptions } from '../../parsers';
-import { CodeRecognizer, JavaScriptFootPrint } from '../../linter/recognizers';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
+import { CodeRecognizer, JavaScriptFootPrint } from '../helpers/recognizers';
 
 const EXCLUDED_STATEMENTS = ['BreakStatement', 'LabeledStatement', 'ContinueStatement'];
 
@@ -148,11 +147,32 @@ function containsCode(value: string) {
   }
 
   try {
-    const options = buildParserOptions(
-      { filePath: 'some/filePath', tsConfigs: [], fileContent: '', fileType: 'MAIN' },
-      true,
-    );
-    const result = babel.parse(value, options);
+    const result = babel.parse(value, {
+      filename: 'some/filePath',
+      tokens: true,
+      comment: true,
+      loc: true,
+      range: true,
+      ecmaVersion: 2018,
+      sourceType: 'module',
+      codeFrame: false,
+      ecmaFeatures: {
+        jsx: true,
+        globalReturn: false,
+        legacyDecorators: true,
+      },
+      requireConfigFile: false,
+      babelOptions: {
+        targets: 'defaults',
+        presets: [`@babel/preset-react`, `@babel/preset-flow`, `@babel/preset-env`],
+        plugins: [[`@babel/plugin-proposal-decorators`, { version: '2022-03' }]],
+        babelrc: false,
+        configFile: false,
+        parserOpts: {
+          allowReturnOutsideFunction: true,
+        },
+      },
+    });
     const parseResult = new SourceCode(value, result);
     return parseResult.ast.body.length > 0 && !isExclusion(parseResult.ast.body, parseResult);
   } catch (exception) {

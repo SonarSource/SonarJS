@@ -20,14 +20,14 @@
 import { tsEslintRules } from '../typescript-eslint';
 import { type Rule } from 'eslint';
 import {
+  generateMeta,
   getTypeFromTreeNode,
   interceptReport,
+  isBooleanType,
   isNullOrUndefinedType,
   isObjectType,
-  isBooleanType,
 } from '../helpers';
 import { type LogicalExpression } from 'estree';
-import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
 
 const preferNullishCoalescingRule = tsEslintRules['prefer-nullish-coalescing'];

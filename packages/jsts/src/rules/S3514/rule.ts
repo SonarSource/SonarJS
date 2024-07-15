@@ -24,13 +24,13 @@ import { TSESTree } from '@typescript-eslint/utils';
 import * as estree from 'estree';
 import {
   findFirstMatchingAncestor,
+  generateMeta,
   isIdentifier,
   isNumberLiteral,
   report,
+  SONAR_RUNTIME,
   toSecondaryLocation,
 } from '../helpers';
-import { SONAR_RUNTIME } from '../../linter/parameters';
-import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
 
 const MAX_INDEX = 4;

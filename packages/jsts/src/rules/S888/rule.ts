@@ -21,9 +21,8 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { getVariableFromName } from '../helpers';
-import { generateMeta } from '../helpers/generate-meta';
-import rspecMeta from '../S101/meta.json';
+import { generateMeta, getVariableFromName } from '../helpers';
+import rspecMeta from './meta.json';
 
 const allEqualityOperators = ['!=', '==', '!==', '==='];
 const notEqualOperators = ['!==', '!='];

@@ -19,7 +19,7 @@
  */
 import { rule } from './';
 import { RuleTester } from 'eslint';
-import { JavaScriptRuleTester, TypeScriptRuleTester } from '../tools';
+import { JavaScriptRuleTester, TypeScriptRuleTester } from '../../../tests/tools';
 
 const ruleTesterJs = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
 ruleTesterJs.run('Functions should always return the same type [js]', rule, {

@@ -25,12 +25,11 @@ import builtins from 'builtin-modules';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as ts from 'typescript';
-import { RequiredParserServices } from '../helpers';
-import { getDependencies } from '@sonar/jsts';
+import { generateMeta, RequiredParserServices } from '../helpers';
 import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
-import { generateMeta } from '../helpers/generate-meta';
 import { FromSchema } from 'json-schema-to-ts';
 import rspecMeta from './meta.json';
+import { getDependencies } from '../helpers/package-json';
 
 const messages = {
   removeOrAddDependency: 'Either remove this import or add it as a dependency.',

@@ -22,10 +22,8 @@
 import { Rule, Scope } from 'eslint';
 import { eslintRules } from '../core';
 import * as estree from 'estree';
-import { childrenOf } from '../../linter';
+import { childrenOf, generateMeta, interceptReport, isUndefined, mergeRules } from '../helpers';
 import { TSESTree } from '@typescript-eslint/utils';
-import { isUndefined, interceptReport, mergeRules } from '../helpers';
-import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
 
 const noUnmodifiedLoopEslint = eslintRules['no-unmodified-loop-condition'];

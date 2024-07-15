@@ -23,14 +23,14 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import {
   Express,
-  getPropertyWithValue,
-  getValueOfExpression,
+  generateMeta,
   getFullyQualifiedName,
   getProperty,
+  getPropertyWithValue,
+  getValueOfExpression,
+  SONAR_RUNTIME,
 } from '../helpers';
-import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
-import { SONAR_RUNTIME } from '../../linter/parameters';
 
 const HSTS = 'hsts';
 const HELMET = 'helmet';

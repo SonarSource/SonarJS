@@ -21,10 +21,14 @@
 
 import { Rule } from 'eslint';
 import { TSESTree } from '@typescript-eslint/utils';
-import { isRequiredParserServices, isUndefined, RequiredParserServices } from '../helpers';
+import {
+  generateMeta,
+  isRequiredParserServices,
+  isUndefined,
+  RequiredParserServices,
+} from '../helpers';
 import * as estree from 'estree';
 import * as ts from 'typescript';
-import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {

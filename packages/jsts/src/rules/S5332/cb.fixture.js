@@ -1,9 +1,16 @@
-import { Stack, StackProps, RemovalPolicy } from 'aws-cdk-lib';
+import { Stack } from 'aws-cdk-lib';
 import { CfnReplicationGroup } from 'aws-cdk-lib/aws-elasticache';
-import { Construct } from 'constructs';
-import { Stream, CfnStream, StreamEncryption } from 'aws-cdk-lib/aws-kinesis';
-import { LoadBalancer, LoadBalancingProtocol, CfnLoadBalancer } from 'aws-cdk-lib/aws-elasticloadbalancing';
-import { ApplicationListener, ApplicationProtocol, ApplicationLoadBalancer, NetworkLoadBalancer, Protocol, NetworkListener, CfnListener } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
+import { CfnStream, Stream, StreamEncryption } from 'aws-cdk-lib/aws-kinesis';
+import { CfnLoadBalancer, LoadBalancer, LoadBalancingProtocol } from 'aws-cdk-lib/aws-elasticloadbalancing';
+import {
+  ApplicationListener,
+  ApplicationLoadBalancer,
+  ApplicationProtocol,
+  CfnListener,
+  NetworkListener,
+  NetworkLoadBalancer,
+  Protocol,
+} from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 
 function compliant() {
 

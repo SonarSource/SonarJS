@@ -23,14 +23,13 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import * as regexpp from '@eslint-community/regexpp';
 import { RegExpLiteral } from '@eslint-community/regexpp/ast';
-import { isRequiredParserServices } from '../helpers';
+import { generateMeta, isRequiredParserServices } from '../helpers';
 import {
-  GroupReference,
   extractReferences,
   getParsedRegex,
+  GroupReference,
   isStringReplaceCall,
 } from '../helpers/regex';
-import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {

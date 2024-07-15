@@ -21,9 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { checkSensitiveCall, getFullyQualifiedName } from '../helpers';
-import { SONAR_RUNTIME } from '../../linter/parameters';
-import { generateMeta } from '../helpers/generate-meta';
+import { checkSensitiveCall, generateMeta, getFullyQualifiedName, SONAR_RUNTIME } from '../helpers';
 import rspecMeta from './meta.json';
 
 const MESSAGE = 'Make sure allowing browsers to perform DNS prefetching is safe here.';

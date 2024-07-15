@@ -22,13 +22,13 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import {
-  RuleContext,
   functionLike,
-  interceptReportForReact,
+  generateMeta,
   getMainFunctionTokenLocation,
+  interceptReportForReact,
+  RuleContext,
 } from '../helpers';
 import { TSESTree } from '@typescript-eslint/utils';
-import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {

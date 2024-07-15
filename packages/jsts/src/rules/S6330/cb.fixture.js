@@ -1,5 +1,5 @@
 import { Stack } from 'aws-cdk-lib';
-import { Queue, CfnQueue, QueueEncryption } from 'aws-cdk-lib/aws-sqs';
+import { CfnQueue, Queue, QueueEncryption } from 'aws-cdk-lib/aws-sqs';
 import { Construct } from 'constructs';
 import { Key } from 'aws-cdk-lib/aws-kms';
 

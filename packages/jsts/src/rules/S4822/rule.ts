@@ -19,12 +19,18 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S4822/javascript
 
-import { Rule, SourceCode } from 'eslint';
+import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
-import { isRequiredParserServices, isThenable, report, toSecondaryLocation } from '../helpers';
-import { SONAR_RUNTIME } from '../../linter/parameters';
-import { generateMeta } from '../helpers/generate-meta';
+import {
+  childrenOf,
+  generateMeta,
+  isRequiredParserServices,
+  isThenable,
+  report,
+  SONAR_RUNTIME,
+  toSecondaryLocation,
+} from '../helpers';
 import rspecMeta from './meta.json';
 
 type CallLikeExpression =
@@ -98,21 +104,21 @@ class CallLikeExpressionVisitor {
   }
 
   private visit(root: TSESTree.Node, context: Rule.RuleContext) {
-    const visitNode = (node: TSESTree.Node) => {
+    const visitNode = (node: estree.Node) => {
       switch (node.type) {
         case 'AwaitExpression':
         case 'CallExpression':
         case 'NewExpression':
-          this.callLikeExpressions.push(node);
+          this.callLikeExpressions.push(node as TSESTree.NewExpression);
           break;
         case 'FunctionDeclaration':
         case 'FunctionExpression':
         case 'ArrowFunctionExpression':
           return;
       }
-      childrenOf(node, context.sourceCode.visitorKeys).forEach(visitNode);
+      childrenOf(node as estree.Node, context.sourceCode.visitorKeys).forEach(visitNode);
     };
-    visitNode(root);
+    visitNode(root as estree.Node);
   }
 }
 
@@ -189,20 +195,4 @@ function isCatch(callExpr: CallLikeExpression) {
     callExpr.callee.property.type === 'Identifier' &&
     callExpr.callee.property.name === 'catch'
   );
-}
-
-function childrenOf(node: TSESTree.Node, visitorKeys: SourceCode.VisitorKeys) {
-  const keys = visitorKeys[node.type];
-  const children = [];
-  if (keys) {
-    for (const key of keys) {
-      const child = (node as any)[key];
-      if (Array.isArray(child)) {
-        children.push(...child);
-      } else {
-        children.push(child);
-      }
-    }
-  }
-  return children.filter(Boolean);
 }

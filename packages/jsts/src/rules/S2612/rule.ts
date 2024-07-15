@@ -22,12 +22,12 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import {
+  generateMeta,
+  getFullyQualifiedName,
+  getUniqueWriteUsage,
   isIdentifier,
   isMemberExpression,
-  getUniqueWriteUsage,
-  getFullyQualifiedName,
 } from '../helpers';
-import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
 
 const chmodLikeFunction = ['chmod', 'chmodSync', 'fchmod', 'fchmodSync', 'lchmod', 'lchmodSync'];

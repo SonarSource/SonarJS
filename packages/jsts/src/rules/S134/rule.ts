@@ -19,14 +19,12 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S134/javascript
 
-import { Rule, AST } from 'eslint';
+import { AST, Rule } from 'eslint';
 import * as estree from 'estree';
-import { last, report, toSecondaryLocation } from '../helpers';
-import { SONAR_RUNTIME } from '../../linter/parameters';
+import { generateMeta, last, report, SONAR_RUNTIME, toSecondaryLocation } from '../helpers';
 import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
-import { generateMeta } from '../helpers/generate-meta';
 import { FromSchema } from 'json-schema-to-ts';
-import rspecMeta from '../S101/meta.json';
+import rspecMeta from './meta.json';
 
 const DEFAULT_MAXIMUM_NESTING_LEVEL = 3;
 

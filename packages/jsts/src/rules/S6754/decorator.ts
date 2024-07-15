@@ -20,14 +20,21 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6754/javascript
 
 import { Rule } from 'eslint';
-import { interceptReportForReact } from '../helpers';
+import { generateMeta, interceptReportForReact } from '../helpers';
+import rspecMeta from './meta.json';
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
-  return interceptReportForReact(rule, (context, descriptor) => {
-    const { node } = descriptor as any;
-    if (node.type === 'ArrayPattern' && node.elements.length === 1) {
-      return;
-    }
-    context.report(descriptor);
-  });
+  return interceptReportForReact(
+    {
+      ...rule,
+      meta: generateMeta(rspecMeta as Rule.RuleMetaData, rule.meta),
+    },
+    (context, descriptor) => {
+      const { node } = descriptor as any;
+      if (node.type === 'ArrayPattern' && node.elements.length === 1) {
+        return;
+      }
+      context.report(descriptor);
+    },
+  );
 }

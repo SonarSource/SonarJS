@@ -19,7 +19,7 @@
  */
 import { Rule, RuleTester } from 'eslint';
 import * as estree from 'estree';
-import { Express, getProperty } from '../../../src/rules/helpers';
+import { Express, getProperty } from '../../../src/rules';
 
 const rule = Express.SensitiveMiddlewarePropertyRule(
   (context: Rule.RuleContext, node: estree.CallExpression): estree.Property[] => {

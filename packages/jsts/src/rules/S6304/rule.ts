@@ -21,7 +21,13 @@
 
 import { Rule } from 'eslint';
 import { Node } from 'estree';
-import { report, StringLiteral, toSecondaryLocation } from '../helpers';
+import {
+  generateMeta,
+  report,
+  SONAR_RUNTIME,
+  StringLiteral,
+  toSecondaryLocation,
+} from '../helpers';
 import { getResultOfExpression, Result } from '../helpers/result';
 import {
   AwsIamPolicyTemplate,
@@ -29,9 +35,7 @@ import {
   isAnyLiteral,
   PolicyCheckerOptions,
 } from '../helpers/aws/iam';
-import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
-import { SONAR_RUNTIME } from '../../linter/parameters';
 
 const MESSAGES = {
   message: 'Make sure granting access to all resources is safe here.',

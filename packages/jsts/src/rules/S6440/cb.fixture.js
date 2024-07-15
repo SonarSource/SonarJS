@@ -21,7 +21,7 @@
   return Form;
 })();
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 function Form() {
   const [name, setName] = useState('Mary');

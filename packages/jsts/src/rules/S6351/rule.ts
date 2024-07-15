@@ -23,6 +23,7 @@ import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
 import {
   functionLike,
+  generateMeta,
   getParent,
   getUniqueWriteUsage,
   getVariableFromName,
@@ -31,11 +32,10 @@ import {
   isMethodCall,
   isRegexLiteral,
   report,
+  SONAR_RUNTIME,
   toSecondaryLocation,
 } from '../helpers';
 import { getFlags, isRegExpConstructor } from '../helpers/regex';
-import { SONAR_RUNTIME } from '../../linter/parameters';
-import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
 
 type RegexInfo = { node: estree.Node; flags: string };

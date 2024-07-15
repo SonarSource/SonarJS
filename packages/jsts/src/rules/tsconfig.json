@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "target": "ES2021",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "lib": ["ES2021", "dom"],
+    "declaration": true,
+    "outDir": "../../../../lib/jsts/src/rules",
+    "strict": true,
+    "sourceMap": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "useUnknownInCatchVariables": false,
+    "forceConsistentCasingInFileNames": true,
+    "typeRoots": ["./node_modules/@types", "./typings"],
+    "baseUrl": ".",
+    "composite": true,
+    "allowJs": true
+  },
+  "include": ["**/*.ts", "**/meta.json", "package.json"],
+  "exclude": ["**/*.test.ts", "**/*.fixture.*", "**/fixtures"]
+}

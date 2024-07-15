@@ -101,7 +101,11 @@ export function isS3BucketDeploymentConstructor(
  * @param key the key of the property to extract
  * @returns the extracted property
  */
-export function getProperty(context: Rule.RuleContext, bucket: estree.NewExpression, key: string) {
+export function getBucketProperty(
+  context: Rule.RuleContext,
+  bucket: estree.NewExpression,
+  key: string,
+) {
   const args = bucket.arguments as estree.Expression[];
 
   const optionsArg = args[2];

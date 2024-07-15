@@ -20,25 +20,32 @@
 export * from './accessibility';
 export * from './ancestor';
 export * from './ast';
+export * from './aws';
 export * from './chai';
 export * from './collection';
 export * from './conditions';
 export * from './decorators';
 export * from './equivalence';
 export * from './express';
-export * from './file';
+export * from './files';
+export * from './find-files';
+export * from './generate-meta';
 export * from './globals';
 export * from './jsx';
 export * from './location';
 export * from './lva';
 export * from './mocha';
 export * from './module';
+export * from './package-json';
 export * from './quickfix';
 export * from './reaching-definitions';
+export * from './regex';
 export * from './rule-detect-react';
 export * from './sinon';
 export * from './type';
+export * from './validate-version';
 export * from './vitest';
 export * from './vue';
-
 export * from './parser-services';
+
+export const SONAR_RUNTIME = 'sonar-runtime';

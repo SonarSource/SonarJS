@@ -19,11 +19,10 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S1125
 
-import { TSESTree, AST_NODE_TYPES } from '@typescript-eslint/utils';
-import { isBooleanLiteral } from '../helpers';
+import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/utils';
+import { generateMeta, isBooleanLiteral } from '../helpers';
 import { Rule } from 'eslint';
 import estree from 'estree';
-import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {

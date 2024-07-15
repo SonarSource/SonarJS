@@ -22,8 +22,7 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import ts, { TypeFlags } from 'typescript';
-import { isRequiredParserServices, getTypeFromTreeNode } from '../helpers';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta, getTypeFromTreeNode, isRequiredParserServices } from '../helpers';
 import rspecMeta from './meta.json';
 
 const BINARY_OPERATORS = ['/', '*', '%', '-', '-=', '*=', '/=', '%='];

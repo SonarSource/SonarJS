@@ -19,11 +19,10 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S3981
 
-import type { TSESTree, ParserServicesWithTypeInformation } from '@typescript-eslint/utils';
+import type { ParserServicesWithTypeInformation, TSESTree } from '@typescript-eslint/utils';
 import { Rule } from 'eslint';
-import { isRequiredParserServices } from '../helpers';
+import { generateMeta, isRequiredParserServices } from '../helpers';
 import estree from 'estree';
-import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
 
 const CollectionLike = ['Array', 'Map', 'Set', 'WeakMap', 'WeakSet'];

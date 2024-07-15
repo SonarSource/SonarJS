@@ -21,8 +21,13 @@
 
 import * as estree from 'estree';
 import { AST, Rule } from 'eslint';
-import { interceptReport, FunctionNodeType, isFunctionNode, isIdentifier } from '../helpers';
-import { generateMeta } from '../helpers/generate-meta';
+import {
+  FunctionNodeType,
+  generateMeta,
+  interceptReport,
+  isFunctionNode,
+  isIdentifier,
+} from '../helpers';
 import rspecMeta from './meta.json';
 
 type RuleFunctionNode = FunctionNodeType & Rule.Node;

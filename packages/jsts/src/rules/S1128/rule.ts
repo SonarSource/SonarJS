@@ -24,11 +24,11 @@ import * as estree from 'estree';
 import { AST } from 'vue-eslint-parser';
 import { TSESTree } from '@typescript-eslint/utils';
 import {
+  generateMeta,
+  isInsideVueSetupScript,
   isRequiredParserServices,
   removeNodeWithLeadingWhitespaces,
-  isInsideVueSetupScript,
 } from '../helpers';
-import { generateMeta } from '../helpers/generate-meta';
 import rspecMeta from './meta.json';
 
 const EXCLUDED_IMPORTS = ['React'];

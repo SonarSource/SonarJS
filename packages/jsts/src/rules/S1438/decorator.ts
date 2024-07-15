@@ -20,8 +20,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S1438/javascript
 
 import { Rule } from 'eslint';
-import { interceptReport } from '../helpers';
-import { generateMeta } from '../helpers/generate-meta';
+import { generateMeta, interceptReport } from '../helpers';
 import rspecMeta from './meta.json';
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {

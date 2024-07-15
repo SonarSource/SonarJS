@@ -22,9 +22,14 @@
 import * as estree from 'estree';
 import { Rule, SourceCode } from 'eslint';
 import { tsEslintRules } from '../typescript-eslint';
-import { isRequiredParserServices, isUnion, interceptReport, mergeRules } from '../helpers';
-import { generateMeta } from '../helpers/generate-meta';
-import rspecMeta from '../S101/meta.json';
+import {
+  generateMeta,
+  interceptReport,
+  isRequiredParserServices,
+  isUnion,
+  mergeRules,
+} from '../helpers';
+import rspecMeta from './meta.json';
 
 /**
  * This rule raises issues on switch statements without a default branch if, and only if,

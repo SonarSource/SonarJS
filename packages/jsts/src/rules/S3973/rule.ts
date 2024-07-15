@@ -19,11 +19,16 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S3973/javascript
 
-import { Rule, AST, SourceCode } from 'eslint';
+import { AST, Rule, SourceCode } from 'eslint';
 import * as estree from 'estree';
-import { getParent, LoopLike, report, toSecondaryLocation } from '../helpers';
-import { SONAR_RUNTIME } from '../../linter/parameters';
-import { generateMeta } from '../helpers/generate-meta';
+import {
+  generateMeta,
+  getParent,
+  LoopLike,
+  report,
+  SONAR_RUNTIME,
+  toSecondaryLocation,
+} from '../helpers';
 import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {

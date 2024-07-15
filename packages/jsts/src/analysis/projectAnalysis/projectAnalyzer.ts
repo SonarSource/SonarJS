@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { File, searchFiles, toUnixPath } from '@sonar/shared';
 import {
   DEFAULT_ENVIRONMENTS,
   DEFAULT_GLOBALS,
@@ -30,7 +29,8 @@ import { analyzeWithWatchProgram } from './analyzeWithWatchProgram';
 import { analyzeWithoutProgram } from './analyzeWithoutProgram';
 import { initializeLinter } from '../../linter';
 import { TSCONFIG_JSON, setTSConfigs, getTSConfigsIterator } from '../../program';
-import { PACKAGE_JSON, parsePackageJson, setPackageJsons } from '../../project-metadata';
+import { PACKAGE_JSON, parsePackageJson, setPackageJsons, File, searchFiles } from '../../rules';
+import { toUnixPath } from '@sonar/shared';
 
 /**
  * Analyzes a JavaScript / TypeScript project in a single run

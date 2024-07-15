@@ -18,12 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RuleTester } from 'eslint';
-import { TypeScriptRuleTester } from '../tools';
+import { TypeScriptRuleTester } from '../../../tests/tools';
+import { rule } from './';
 
 const ruleTesterTs = new TypeScriptRuleTester();
 const ruleTesterJs = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
-
-import { rule } from './';
 
 ruleTesterTs.run('Array indexes should be numeric [TS]', rule, {
   valid: [

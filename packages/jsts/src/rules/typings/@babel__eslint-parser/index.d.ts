@@ -17,17 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Rule } from 'eslint';
-import { FileType } from '@sonar/shared';
-
-export function isMainCode(context: Rule.RuleContext) {
-  return !isTestCode(context);
-}
-
-export function isTestCode(context: Rule.RuleContext) {
-  return getFileType(context) === 'TEST';
-}
-
-function getFileType(context: Rule.RuleContext): FileType {
-  return context.settings['fileType'];
+declare module '@babel/eslint-parser' {
+  import { AST, Linter, Scope, SourceCode } from 'eslint';
+  function parse(input: string, config?: Linter.ParserOptions): AST.Program;
+  function parseForESLint(
+    input: string,
+    config?: Linter.ParserOptions,
+  ): {
+    ast: AST.Program;
+    parserServices: SourceCode.ParserServices;
+    scopeManager: Scope.ScopeManager;
+    visitorKeys: SourceCode.VisitorKeys;
+  };
 }
