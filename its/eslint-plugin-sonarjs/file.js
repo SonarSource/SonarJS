@@ -14,13 +14,9 @@ function S3776(foo) {
   }
 }
 
-function S126(foo) {
+function S2703(foo) {
   if (x == 0) {
     x = 42;
-  } else if (x == 1) {
-    x = -42;
-  } else if (x == 2) {
-    x = 0;
   }
 }
 
@@ -34,7 +30,7 @@ function S2376() {
 
 /*
 
-function S2376() {
+function S125() {
   class C {
     set m(a) {
       this.a = a;

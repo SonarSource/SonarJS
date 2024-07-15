@@ -9,7 +9,7 @@ test('should work with CommonJS config', async t => {
   });
   const output = result.stdout;
   const errorLines = output.split('\n').filter(line => line.includes('error'));
-  assert(errorLines.length > 10);
+  assert(errorLines.length > 4);
 });
 
 test('should work with ECMAScript modules config', async t => {
@@ -19,5 +19,5 @@ test('should work with ECMAScript modules config', async t => {
   });
   const output = result.stdout;
   const errorLines = output.split('\n').filter(line => line.includes('error'));
-  assert(errorLines.length > 10);
+  assert(errorLines.length > 4);
 });
