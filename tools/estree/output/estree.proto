@@ -239,7 +239,7 @@ message RestElement {
   Node argument = 1;
 }
 message ArrayPattern {
-  repeated Node elements = 1;
+  repeated ArrayElement elements = 1;
 }
 message ObjectPattern {
   repeated Node properties = 1;
@@ -332,7 +332,10 @@ message ArrowFunctionExpression {
   optional bool async = 5;
 }
 message ArrayExpression {
-  repeated Node elements = 1;
+  repeated ArrayElement elements = 1;
+}
+message ArrayElement {
+  optional Node element = 1;
 }
 message ClassDeclaration {
   optional Node id = 1;

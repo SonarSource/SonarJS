@@ -24,8 +24,12 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.file.Path;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.sonar.plugins.javascript.api.estree.ESTree;
+import org.sonar.plugins.javascript.bridge.protobuf.ArrayElement;
+import org.sonar.plugins.javascript.bridge.protobuf.ArrayExpression;
+import org.sonar.plugins.javascript.bridge.protobuf.ArrayPattern;
 import org.sonar.plugins.javascript.bridge.protobuf.AssignmentExpression;
 import org.sonar.plugins.javascript.bridge.protobuf.AssignmentPattern;
 import org.sonar.plugins.javascript.bridge.protobuf.BinaryExpression;
@@ -71,7 +75,7 @@ class ESTreeFactoryTest {
     ESTree.Node root = ESTreeFactory.from(node, ESTree.Node.class);
     assertThat(root).isInstanceOf(ESTree.Program.class);
     ESTree.Program program = (ESTree.Program) root;
-    assertThat(program.body()).hasSize(52);
+    assertThat(program.body()).hasSize(55);
     // Assert a few nodes.
     assertThat(program.body().get(0)).isInstanceOfSatisfying(ESTree.VariableDeclaration.class, variableDeclaration -> {
       assertThat(variableDeclaration.declarations()).hasSize(1);
@@ -89,6 +93,18 @@ class ESTreeFactoryTest {
       assertThat(ifStatement.test()).isInstanceOf(ESTree.Identifier.class);
       assertThat(ifStatement.consequent()).isInstanceOf(ESTree.BlockStatement.class);
       assertThat(ifStatement.alternate()).isEmpty();
+    });
+
+    // Source code: [, , 5]
+    assertThat(program.body().get(42)).isInstanceOfSatisfying(ESTree.VariableDeclaration.class, declaration -> {
+      Optional<ESTree.Expression> initializer = declaration.declarations().get(0).init();
+      assertThat(initializer).isPresent();
+      assertThat(initializer.get()).isInstanceOfSatisfying(ESTree.ArrayExpression.class, arrayExpression -> {
+        assertThat(arrayExpression.elements()).hasSize(3);
+        assertThat(arrayExpression.elements().get(0)).isEmpty();
+        assertThat(arrayExpression.elements().get(1)).isEmpty();
+        assertThat(arrayExpression.elements().get(2)).isNotEmpty();
+      });
     });
   }
 
@@ -638,6 +654,46 @@ class ESTreeFactoryTest {
       assertThat(block.body().get(0)).isInstanceOfSatisfying(ESTree.Directive.class, directive -> {
         assertThat(directive.directive()).isEqualTo("directiveName");
       });
+    });
+  }
+
+  @Test
+  void array_expression_can_contain_empty_elements() {
+    Node protobufNode = Node.newBuilder()
+      .setType(NodeType.ArrayExpressionType)
+      .setArrayExpression(ArrayExpression.newBuilder()
+        .addElements(ArrayElement.newBuilder().build())
+        .addElements(ArrayElement.newBuilder().setElement(Node.newBuilder().setType(NodeType.ThisExpressionType).build()).build())
+        .addElements(ArrayElement.newBuilder().build())
+        .build())
+      .build();
+
+    ESTree.Node estree = ESTreeFactory.from(protobufNode, ESTree.Node.class);
+    assertThat(estree).isInstanceOfSatisfying(ESTree.ArrayExpression.class, array -> {
+      assertThat(array.elements()).hasSize(3);
+      assertThat(array.elements().get(0)).isEmpty();
+      assertThat(array.elements().get(1).get()).isInstanceOf(ESTree.ThisExpression.class);
+      assertThat(array.elements().get(2)).isEmpty();
+    });
+  }
+
+  @Test
+  void array_pattern_can_contain_empty_elements() {
+    Node protobufNode = Node.newBuilder()
+      .setType(NodeType.ArrayPatternType)
+      .setArrayPattern(ArrayPattern.newBuilder()
+        .addElements(ArrayElement.newBuilder().build())
+        .addElements(ArrayElement.newBuilder().setElement(Node.newBuilder().setType(NodeType.IdentifierType).build()).build())
+        .addElements(ArrayElement.newBuilder().build())
+        .build())
+      .build();
+
+    ESTree.Node estree = ESTreeFactory.from(protobufNode, ESTree.Node.class);
+    assertThat(estree).isInstanceOfSatisfying(ESTree.ArrayPattern.class, array -> {
+      assertThat(array.elements()).hasSize(3);
+      assertThat(array.elements().get(0)).isEmpty();
+      assertThat(array.elements().get(1).get()).isInstanceOf(ESTree.Identifier.class);
+      assertThat(array.elements().get(2)).isEmpty();
     });
   }
 

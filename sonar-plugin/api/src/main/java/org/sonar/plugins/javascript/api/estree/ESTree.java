@@ -86,8 +86,8 @@ public class ESTree {
   public sealed interface ExpressionOrPattern extends Node {}
   public sealed interface IdentifierOrLiteral extends Node {}
         
-  public record ArrayExpression(Location loc, List<ExpressionOrSpreadElement> elements) implements Expression {}
-  public record ArrayPattern(Location loc, List<Pattern> elements) implements Pattern {}
+  public record ArrayExpression(Location loc, List<Optional<ExpressionOrSpreadElement>> elements) implements Expression {}
+  public record ArrayPattern(Location loc, List<Optional<Pattern>> elements) implements Pattern {}
   public record ArrowFunctionExpression(Location loc, boolean expression, BlockStatementOrExpression body, List<Pattern> params, boolean generator, boolean async) implements Expression {}
   public record AssignmentExpression(Location loc, AssignmentOperator operator, MemberExpressionOrPattern left, Expression right) implements Expression {}
   public record AssignmentPattern(Location loc, Pattern left, Expression right) implements Pattern {}
