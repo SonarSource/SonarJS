@@ -19,12 +19,16 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S4782/javascript
 
-import { Rule, AST } from 'eslint';
+import { AST, Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
-import { isRequiredParserServices, report, toSecondaryLocation } from '../helpers';
-import { SONAR_RUNTIME } from '../helpers';
-import { generateMeta } from '../helpers';
+import {
+  generateMeta,
+  isRequiredParserServices,
+  report,
+  SONAR_RUNTIME,
+  toSecondaryLocation,
+} from '../helpers';
 import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {

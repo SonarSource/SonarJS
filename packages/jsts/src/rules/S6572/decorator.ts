@@ -22,8 +22,7 @@
 import estree from 'estree';
 import { Rule } from 'eslint';
 import { TSESTree } from '@typescript-eslint/utils';
-import { interceptReport, isNumberLiteral } from '../helpers';
-import { generateMeta } from '../helpers';
+import { generateMeta, interceptReport, isNumberLiteral } from '../helpers';
 import rspecMeta from './meta.json';
 
 // The core implementation of this rule reports all enums for which there is a member value that is

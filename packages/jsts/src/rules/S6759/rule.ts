@@ -23,14 +23,14 @@ import { Rule } from 'eslint';
 import { Function, Node, ReturnStatement } from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
 import {
-  RequiredParserServices,
+  generateMeta,
   getTypeFromTreeNode,
   getUniqueWriteUsageOrNode,
   isRequiredParserServices,
   last,
+  RequiredParserServices,
 } from '../helpers';
 import * as ts from 'typescript';
-import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 /**

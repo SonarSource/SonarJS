@@ -19,10 +19,9 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6666/javascript
 
-import { Rule, AST } from 'eslint';
+import { AST, Rule } from 'eslint';
 import * as estree from 'estree';
-import { interceptReport } from '../helpers';
-import { generateMeta } from '../helpers';
+import { generateMeta, interceptReport } from '../helpers';
 import rspecMeta from './meta.json';
 
 // core implementation of this rule does not provide quick fixes

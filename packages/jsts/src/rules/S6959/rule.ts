@@ -22,13 +22,13 @@
 import * as estree from 'estree';
 import { Rule } from 'eslint';
 import {
+  generateMeta,
   getUniqueWriteUsageOrNode,
   isArray as isArrayType,
   isArrayExpression,
   isCallingMethod,
   isRequiredParserServices,
 } from '../helpers';
-import { generateMeta } from '../helpers';
 import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {

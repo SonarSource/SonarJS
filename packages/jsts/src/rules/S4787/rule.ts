@@ -21,8 +21,12 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { isIdentifier, isMemberWithProperty, getFullyQualifiedName } from '../helpers';
-import { generateMeta } from '../helpers';
+import {
+  generateMeta,
+  getFullyQualifiedName,
+  isIdentifier,
+  isMemberWithProperty,
+} from '../helpers';
 import rspecMeta from './meta.json';
 
 const getEncryptionRuleModule = (

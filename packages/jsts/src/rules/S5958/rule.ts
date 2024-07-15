@@ -21,8 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { getVariableFromIdentifier, isIdentifier, Mocha } from '../helpers';
-import { generateMeta } from '../helpers';
+import { generateMeta, getVariableFromIdentifier, isIdentifier, Mocha } from '../helpers';
 import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {

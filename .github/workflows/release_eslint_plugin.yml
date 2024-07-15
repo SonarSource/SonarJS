@@ -1,0 +1,59 @@
+name: Release eslint-plugin-sonarjs
+
+# Workflow runs when manually triggered using the UI or API.
+on:
+  workflow_dispatch:
+    # Inputs the workflow accepts.
+    inputs:
+      release_version:
+        description: 'Version (semver)'
+        required: true
+
+jobs:
+  publish:
+    permissions:
+      id-token: write # required for SonarSource/vault-action-wrapper
+    runs-on: ubuntu-latest
+    env:
+      RELEASE_TAG: ${{ github.event.inputs.release_version }}
+      NPM_REPOSITORY: "sonarsource-npm-public"
+      SCOPE: ""
+      PACKAGE: "eslint-plugin-sonarjs"
+    steps:
+      - name: Vault
+        id: secrets
+        uses: SonarSource/vault-action-wrapper@d1c1ab4ca5ad07fd9cdfe1eff038a39673dfca64  # tag=2.4.2-1
+        with:
+          secrets:
+            development/kv/data/repox url | repox_url;
+            development/artifactory/token/SonarSource-eslint-plugin-sonarjs-qa-deployer access_token  | qa_deployer_access_token;
+            development/artifactory/token/SonarSource-eslint-plugin-sonarjs-promoter access_token  | promoter_access_token;
+            development/kv/data/npmjs sonartech_npm_token  | npm_token;
+      - name: Setup JFrog for deploy
+        uses: SonarSource/jfrog-setup-wrapper@eb712d76540e5d1f3756303f30387657fb204e52  # tag=2.4.1-1
+        with:
+          jfrogAccessToken: ${{ fromJSON(steps.secrets.outputs.vault).qa_deployer_access_token }}
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 18
+      - run: mv .github/workflows/.npmrc .npmrc
+      - run: mv .github/workflows/.npmrc packages/jsts/src/rules/.npmrc
+      - name: Publish npm package
+        env:
+          NPM_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).npm_token }}
+        run: |
+          jfrog rt npm-config --repo-resolve npm --repo-deploy sonarsource-npm-public-qa
+          jfrog rt npm-ci
+          cd packages/jsts/src/rules/
+          npm run build
+          npm publish
+          jfrog rt npm-publish --build-name=eslint-plugin-sonarjs --build-number=${{ github.event.inputs.release_version }}
+          jfrog rt build-publish eslint-plugin-sonarjs ${{ github.event.inputs.release_version }}
+      - name: Promote npm package
+        env:
+          PROMOTER_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).promoter_access_token }}
+          REPOX_URL: ${{ fromJSON(steps.secrets.outputs.vault).repox_url }}
+        run: |
+          jfrog rt bpr --access-token $PROMOTER_TOKEN --url $REPOX_URL --status it-passed eslint-plugin-sonarjs ${{ github.event.inputs.release_version }} sonarsource-npm-public-builds
+          jfrog rt bpr --access-token $PROMOTER_TOKEN --url $REPOX_URL --status released eslint-plugin-sonarjs ${{ github.event.inputs.release_version }} sonarsource-npm-public-releases
