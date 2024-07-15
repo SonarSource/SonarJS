@@ -1,3 +1,5 @@
+import {expect} from 'chai';
+
 describe('test suite', () => {
 
   it('unexpected timeout disabling', () => {
