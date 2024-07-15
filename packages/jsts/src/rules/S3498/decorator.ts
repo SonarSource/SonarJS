@@ -23,7 +23,7 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta, interceptReport } from '../helpers';
-import rspecMeta from '../S1788/meta.json';
+import rspecMeta from './meta.json';
 
 // core implementation of this rule raises issues on aura lightning components
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {

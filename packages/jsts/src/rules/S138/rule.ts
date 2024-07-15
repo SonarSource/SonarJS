@@ -35,7 +35,7 @@ import {
 } from '../helpers';
 import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
 import { FromSchema } from 'json-schema-to-ts';
-import rspecMeta from '../S101/meta.json';
+import rspecMeta from './meta.json';
 
 interface FunctionKnowledge {
   node: estree.Node;

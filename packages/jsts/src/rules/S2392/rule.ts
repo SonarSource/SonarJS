@@ -22,7 +22,7 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { generateMeta, report, SONAR_RUNTIME, toSecondaryLocation } from '../helpers';
-import rspecMeta from '../S101/meta.json';
+import rspecMeta from './meta.json';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(rspecMeta as Rule.RuleMetaData, {

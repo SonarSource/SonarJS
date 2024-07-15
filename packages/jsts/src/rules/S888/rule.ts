@@ -22,7 +22,7 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { generateMeta, getVariableFromName } from '../helpers';
-import rspecMeta from '../S101/meta.json';
+import rspecMeta from './meta.json';
 
 const allEqualityOperators = ['!=', '==', '!==', '==='];
 const notEqualOperators = ['!==', '!='];

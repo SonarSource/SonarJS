@@ -685,11 +685,10 @@ const recommendedConfig: FlatConfig.Config = {
   rules: {},
 };
 
-for (const key in rules) {
-  const rule = rules[key as keyof typeof rules];
-  const recommended = rule.meta!.docs?.recommended;
+for (const [key, rule] of Object.entries(rules)) {
+  const recommended = !!rule.meta!.docs?.recommended;
 
-  recommendedConfig.rules![`sonarjs/${key}`] = recommended === undefined ? 'off' : 'error';
+  recommendedConfig.rules![`sonarjs/${key}`] = recommended ? 'error' : 'off';
 }
 
 recommendedLegacyConfig.rules = recommendedConfig.rules;

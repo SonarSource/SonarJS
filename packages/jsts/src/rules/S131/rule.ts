@@ -29,7 +29,7 @@ import {
   isUnion,
   mergeRules,
 } from '../helpers';
-import rspecMeta from '../S101/meta.json';
+import rspecMeta from './meta.json';
 
 /**
  * This rule raises issues on switch statements without a default branch if, and only if,

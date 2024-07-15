@@ -17,22 +17,48 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { rules as mapping } from '../../src/rules';
+
+import { configs, rules, meta } from '../../src/rules';
 import fs from 'fs';
 import path from 'path';
+import { valid } from 'semver';
 
 describe('index', () => {
   it('should map keys to rules definitions', () => {
     const ruleFolder = path.join(__dirname, '../../src/rules');
     const sonarKeys = fs.readdirSync(ruleFolder).filter(name => /^S\d+/.test(name));
-    const mappedRules = new Map(Object.values(mapping).map(rule => [rule, true]));
+    const mappedRules = new Map(Object.entries(rules).map(([eslintId, rule]) => [rule, eslintId]));
     const missing = [];
     for (const sonarKey of sonarKeys) {
       const { rule } = require(path.join(ruleFolder, sonarKey));
+      const ruleMeta = require(path.join(ruleFolder, sonarKey, 'meta.json'));
+      const eslintId = mappedRules.get(rule);
       if (!mappedRules.has(rule)) {
         missing.push(sonarKey);
       }
+      if (ruleMeta.docs.recommended) {
+        expect(configs.recommended.rules).toHaveProperty(`sonarjs/${eslintId}`);
+        expect(configs.recommended.rules[`sonarjs/${eslintId}`]).toEqual('error');
+      } else {
+        expect(configs.recommended.rules[`sonarjs/${eslintId}`]).toEqual('off');
+      }
+      expect(configs.recommended.plugins!['sonarjs'].rules).toHaveProperty(eslintId);
+      expect(rule.meta.docs!.url).toBe(
+        `https://github.com/SonarSource/rspec/blob/master/rules/${sonarKey}/javascript/rule.adoc`,
+      );
     }
     expect(missing).toHaveLength(0);
+    expect(Object.keys(rules)).toHaveLength(mappedRules.size);
+  });
+
+  it('should export legacy config', () => {
+    const legacyConfig = configs['recommended-legacy'];
+    expect(legacyConfig.plugins).toEqual(['sonarjs']);
+    expect(legacyConfig.rules).toEqual(configs.recommended.rules);
+  });
+
+  it('should export meta', () => {
+    expect(meta.name).toEqual('eslint-plugin-sonarjs');
+    expect(valid(meta.version)).toBeTruthy();
   });
 });

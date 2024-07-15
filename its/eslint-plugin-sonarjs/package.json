@@ -6,7 +6,7 @@
     "test": "node index.test.js"
   },
   "devDependencies": {
-    "cross-spawn": "^7.0.3",
+    "cross-spawn": "7.0.3",
     "eslint": "8.57.0"
   }
 }

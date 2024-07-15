@@ -20,7 +20,7 @@
 import { Rule } from 'eslint';
 import { generateMeta, interceptReport } from '../helpers';
 import estree from 'estree';
-import rspecMeta from '../S1788/meta.json';
+import rspecMeta from './meta.json';
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(

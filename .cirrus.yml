@@ -313,7 +313,6 @@ eslint_plugin_test_task:
     - cd ../../../../its/eslint-plugin-sonarjs
     - npm run build
     - npm run test
-  cleanup_before_cache_script: cleanup_maven_repository
 
 css_ruling_task:
   depends_on:

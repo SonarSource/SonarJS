@@ -21,7 +21,7 @@
 
 import { eslintRules } from '../core';
 import { generateMeta } from '../helpers';
-import rspecMeta from '../S1788/meta.json';
+import rspecMeta from './meta.json';
 import { Rule } from 'eslint';
 
 /**
