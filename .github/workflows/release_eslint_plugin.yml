@@ -46,7 +46,7 @@ jobs:
           jfrog rt npm-config --repo-resolve npm --repo-deploy sonarsource-npm-public-qa
           jfrog rt npm-ci
           cd packages/jsts/src/rules/
-          npm run ci
+          npm ci
           npm run build
           cp .npmrc ./lib/.npmrc
           cd lib/
