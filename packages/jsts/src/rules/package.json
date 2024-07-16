@@ -5,7 +5,7 @@
   "types": "index.d.ts",
   "type": "commonjs",
   "scripts": {
-    "build": "npm ci && npm run clear && npm run compile && cp LICENSE lib/ && cd lib && npm pack",
+    "build": "npm ci && npm run clear && npm run compile && cp LICENSE lib/",
     "compile": "tsc --outDir lib",
     "clear": "rimraf lib/*"
   },
