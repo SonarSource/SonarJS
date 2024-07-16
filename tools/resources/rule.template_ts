@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import {
-  isRequiredParserServices
+  isRequiredParserServices,
   generateMeta,
   report,
   SONAR_RUNTIME,
@@ -30,7 +30,7 @@ import {
 import * as estree from 'estree';
 import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
 import { FromSchema } from 'json-schema-to-ts';
-import rspecMeta from './meta.json';
+import rspecMeta from './meta.json'; // run "npx ts-node tools/generate-meta.ts" to generate meta.json files
 
 const messages = {
   //TODO: add needed messages
@@ -77,12 +77,15 @@ export const rule: Rule.RuleModule = {
     return {
       //example
       Identifier(node: estree.Identifier) {
+        const secondaries: estree.Node[] = [];
+        const message = 'message body';
+        const messageId = 'messageId'; // must exist in messages object of rule metadata
         if (param) {
           report(
             context,
             {
               node,
-              message: messages[messageId],
+              message,
               messageId,
             },
             secondaries.map(n => toSecondaryLocation(n, 'Optional secondary location message'))
