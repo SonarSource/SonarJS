@@ -37,8 +37,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 18
-      - run: mv .github/workflows/.npmrc .npmrc
-      - run: mv .github/workflows/.npmrc packages/jsts/src/rules/.npmrc
+      - run: cp .github/workflows/.npmrc .npmrc
+      - run: cp .github/workflows/.npmrc packages/jsts/src/rules/.npmrc
       - name: Publish npm package
         env:
           NPM_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).npm_token }}
