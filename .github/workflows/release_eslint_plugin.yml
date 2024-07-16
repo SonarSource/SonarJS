@@ -30,7 +30,7 @@ jobs:
             development/artifactory/token/{REPO_OWNER_NAME_DASH}-promoter access_token  | promoter_access_token;
             development/kv/data/npmjs sonartech_npm_token  | npm_token;
       - name: Setup JFrog for deploy
-        uses: SonarSource/jfrog-setup-wrapper@eb712d76540e5d1f3756303f30387657fb204e52  # tag=2.4.1-1
+        uses: SonarSource/jfrog-setup-wrapper@907e87c3d2081a98d2ab8cb03284ee6711f1ee83 # tag=3.2.3
         with:
           jfrogAccessToken: ${{ fromJSON(steps.secrets.outputs.vault).qa_deployer_access_token }}
       - uses: actions/checkout@v4
@@ -55,8 +55,10 @@ jobs:
           jfrog rt build-publish eslint-plugin-sonarjs ${{ github.event.inputs.release_version }}
       - name: Promote npm package
         env:
-          PROMOTER_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).promoter_access_token }}
           REPOX_URL: ${{ fromJSON(steps.secrets.outputs.vault).repox_url }}
+          PROMOTE_ACCESS_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).promoter_access_token }}
         run: |
-          jfrog rt bpr --access-token $PROMOTER_TOKEN --url $REPOX_URL --status it-passed eslint-plugin-sonarjs ${{ github.event.inputs.release_version }} sonarsource-npm-public-builds
-          jfrog rt bpr --access-token $PROMOTER_TOKEN --url $REPOX_URL --status released eslint-plugin-sonarjs ${{ github.event.inputs.release_version }} sonarsource-npm-public-releases
+          jfrog config add repox --artifactory-url $REPOX_URL --access-token $PROMOTE_ACCESS_TOKEN
+          jfrog config use repox
+          jfrog rt bpr --status it-passed $PACKAGE $RELEASE_TAG sonarsource-npm-public-builds
+          jfrog rt bpr --status released $PACKAGE $RELEASE_TAG sonarsource-npm-public-releases
