@@ -46,7 +46,13 @@ jobs:
           jfrog rt npm-config --repo-resolve npm --repo-deploy sonarsource-npm-public-qa
           jfrog rt npm-ci
           cd packages/jsts/src/rules/
+          npm run ci
           npm run build
+          cp .npmrc ./lib/.npmrc
+          cd lib/
+          npm publish
+          jfrog rt npm-publish --build-name=eslint-plugin-sonarjs --build-number=${{ github.event.inputs.release_version }}
+          jfrog rt build-publish eslint-plugin-sonarjs ${{ github.event.inputs.release_version }}
       - name: Promote npm package
         env:
           PROMOTER_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).promoter_access_token }}
