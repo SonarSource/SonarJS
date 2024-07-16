@@ -20,28 +20,78 @@
 // https://sonarsource.github.io/rspec/#/rspec/___RULE_KEY___/javascript
 
 import { Rule } from 'eslint';
-import { isRequiredParserServices } from '../helpers';
-import { SONAR_RUNTIME } from '../../linter/parameters';
+import {
+  isRequiredParserServices,
+  generateMeta,
+  report,
+  SONAR_RUNTIME,
+  toSecondaryLocation,
+} from '../helpers';
 import * as estree from 'estree';
+import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
+import { FromSchema } from 'json-schema-to-ts';
+import rspecMeta from './meta.json'; // run "npx ts-node tools/generate-meta.ts" to generate meta.json files
 
-const message = `TODO: add message`;
+const messages = {
+  //TODO: add needed messages
+  messageId: 'message body',
+};
+
+const DEFAULT_PARAM = 10;
+
+const schema = {
+  type: 'array',
+  minItems: 0,
+  maxItems: 1,
+  items: [
+    {
+      // example of parameter, remove if rule has no parameters
+      type: 'object',
+      properties: {
+        param: {
+          type: 'integer',
+        },
+      },
+      additionalProperties: false,
+    },
+    {
+      // internal parameter for rules having secondary locations, remove if there are no secondaries
+      type: 'string',
+      enum: [SONAR_RUNTIME],
+    },
+  ],
+} as const satisfies JSONSchema4;
 
 export const rule: Rule.RuleModule = {
-  meta: {
-    schema: [
-      {
-        // internal parameter for rules having secondary locations
-        enum: [SONAR_RUNTIME],
-      },
-    ],
-  },  
+  meta: generateMeta(rspecMeta as Rule.RuleMetaData, { schema, messages }),
   create(context: Rule.RuleContext) {
+    // get typed rule options with FromSchema helper
+    const param = (context.options as FromSchema<typeof schema>)[0]?.param ?? DEFAULT_PARAM;
     const services = context.parserServices;
 
+    // remove this condition if the rule does not depend on TS type-checker
     if (!isRequiredParserServices(services)) {
       return {};
     }
 
-    return {};
+    return {
+      //example
+      Identifier(node: estree.Identifier) {
+        const secondaries: estree.Node[] = [];
+        const message = 'message body';
+        const messageId = 'messageId'; // must exist in messages object of rule metadata
+        if (param) {
+          report(
+            context,
+            {
+              node,
+              message,
+              messageId,
+            },
+            secondaries.map(n => toSecondaryLocation(n, 'Optional secondary location message'))
+          );
+        }
+      },
+    };
   },
 };
