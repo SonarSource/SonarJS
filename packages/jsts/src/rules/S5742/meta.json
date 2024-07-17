@@ -3,6 +3,6 @@
   "docs": {
     "description": "Disabling Certificate Transparency monitoring is security-sensitive",
     "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S5742/javascript/rule.adoc"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S5742/javascript"
   }
 }

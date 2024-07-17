@@ -3,7 +3,7 @@
   "docs": {
     "description": "Assertion arguments should be passed in the correct order",
     "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S3415/javascript/rule.adoc"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S3415/javascript"
   },
   "fixable": "code"
 }

@@ -3,7 +3,7 @@
   "docs": {
     "description": "\"module\" should not be used",
     "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S4156/javascript/rule.adoc"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S4156/javascript"
   },
   "fixable": "code"
 }

@@ -3,7 +3,7 @@
   "docs": {
     "description": "Statements should end with semicolons",
     "recommended": false,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S1438/javascript/rule.adoc"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S1438/javascript"
   },
   "fixable": "code",
   "deprecated": true

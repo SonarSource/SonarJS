@@ -3,7 +3,7 @@
   "docs": {
     "description": "Calls to \".call()\" and \".apply()\" methods should not be redundant",
     "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S6676/javascript/rule.adoc"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S6676/javascript"
   },
   "fixable": "code"
 }

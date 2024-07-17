@@ -3,6 +3,6 @@
   "docs": {
     "description": "Values not convertible to numbers should not be used in numeric comparisons",
     "recommended": false,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S3758/javascript/rule.adoc"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S3758/javascript"
   }
 }

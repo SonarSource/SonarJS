@@ -44,7 +44,7 @@ describe('index', () => {
       }
       expect(configs.recommended.plugins!['sonarjs'].rules).toHaveProperty(eslintId);
       expect(rule.meta.docs!.url).toBe(
-        `https://github.com/SonarSource/rspec/blob/master/rules/${sonarKey}/javascript/rule.adoc`,
+        `https://sonarsource.github.io/rspec/#/rspec/${sonarKey}/javascript`,
       );
     }
     expect(missing).toHaveLength(0);

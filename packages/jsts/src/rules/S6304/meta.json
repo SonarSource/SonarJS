@@ -3,6 +3,6 @@
   "docs": {
     "description": "Policies granting access to all resources of an account are security-sensitive",
     "recommended": false,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S6304/javascript/rule.adoc"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S6304/javascript"
   }
 }

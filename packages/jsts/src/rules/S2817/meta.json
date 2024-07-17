@@ -3,7 +3,7 @@
   "docs": {
     "description": "Web SQL databases should not be used",
     "recommended": false,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S2817/javascript/rule.adoc"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S2817/javascript"
   },
   "deprecated": true
 }

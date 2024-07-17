@@ -3,6 +3,6 @@
   "docs": {
     "description": "\"undefined\" should not be assigned",
     "recommended": false,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S2138/javascript/rule.adoc"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S2138/javascript"
   }
 }

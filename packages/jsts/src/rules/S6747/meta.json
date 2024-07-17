@@ -3,7 +3,7 @@
   "docs": {
     "description": "JSX elements should not use unknown properties and attributes",
     "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S6747/javascript/rule.adoc"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S6747/javascript"
   },
   "fixable": "code"
 }

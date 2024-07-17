@@ -3,6 +3,6 @@
   "docs": {
     "description": "\"if/else if\" chains and \"switch\" cases should not have the same condition",
     "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S1862/javascript/rule.adoc"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S1862/javascript"
   }
 }

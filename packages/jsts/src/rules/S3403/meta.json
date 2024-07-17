@@ -3,7 +3,7 @@
   "docs": {
     "description": "Strict equality operators should not be used with dissimilar types",
     "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S3403/javascript/rule.adoc"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S3403/javascript"
   },
   "fixable": "code"
 }

@@ -3,6 +3,6 @@
   "docs": {
     "description": "Unicode Grapheme Clusters should be avoided inside regex character classes",
     "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S5868/javascript/rule.adoc"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S5868/javascript"
   }
 }

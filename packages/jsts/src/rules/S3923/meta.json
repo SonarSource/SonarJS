@@ -3,6 +3,6 @@
   "docs": {
     "description": "All branches in a conditional structure should not have exactly the same implementation",
     "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S3923/javascript/rule.adoc"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S3923/javascript"
   }
 }

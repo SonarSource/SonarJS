@@ -3,6 +3,6 @@
   "docs": {
     "description": "Disabling auto-escaping in template engines is security-sensitive",
     "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S5247/javascript/rule.adoc"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S5247/javascript"
   }
 }

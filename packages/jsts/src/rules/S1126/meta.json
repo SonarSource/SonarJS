@@ -3,7 +3,7 @@
   "docs": {
     "description": "Return of boolean expressions should not be wrapped into an \"if-then-else\" statement",
     "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S1126/javascript/rule.adoc"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S1126/javascript"
   },
   "fixable": "code"
 }

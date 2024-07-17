@@ -3,6 +3,6 @@
   "docs": {
     "description": "Character classes in regular expressions should not contain only one character",
     "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S6397/javascript/rule.adoc"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S6397/javascript"
   }
 }

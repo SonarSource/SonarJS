@@ -3,6 +3,6 @@
   "docs": {
     "description": "Cyclomatic Complexity of functions should not be too high",
     "recommended": false,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S1541/javascript/rule.adoc"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S1541/javascript"
   }
 }

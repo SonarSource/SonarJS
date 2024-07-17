@@ -3,6 +3,6 @@
   "docs": {
     "description": "Class methods should be used instead of \"prototype\" assignments",
     "recommended": false,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S3525/javascript/rule.adoc"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S3525/javascript"
   }
 }

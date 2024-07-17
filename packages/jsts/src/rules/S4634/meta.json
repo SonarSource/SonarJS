@@ -3,7 +3,7 @@
   "docs": {
     "description": "Shorthand promises should be used",
     "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S4634/javascript/rule.adoc"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S4634/javascript"
   },
   "fixable": "code"
 }

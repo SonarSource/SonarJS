@@ -3,7 +3,7 @@
   "docs": {
     "description": "Results of operations on strings should not be ignored",
     "recommended": false,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S1154/javascript/rule.adoc"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S1154/javascript"
   },
   "deprecated": true
 }

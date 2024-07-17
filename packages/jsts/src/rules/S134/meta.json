@@ -3,6 +3,6 @@
   "docs": {
     "description": "Control flow statements \"if\", \"for\", \"while\", \"switch\" and \"try\" should not be nested too deeply",
     "recommended": false,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S134/javascript/rule.adoc"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S134/javascript"
   }
 }

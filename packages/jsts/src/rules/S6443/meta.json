@@ -3,6 +3,6 @@
   "docs": {
     "description": "React state setter function should not be called with its matching state variable",
     "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S6443/javascript/rule.adoc"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S6443/javascript"
   }
 }

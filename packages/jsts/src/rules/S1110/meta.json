@@ -3,7 +3,7 @@
   "docs": {
     "description": "Redundant pairs of parentheses should be removed",
     "recommended": false,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S1110/javascript/rule.adoc"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S1110/javascript"
   },
   "fixable": "code",
   "deprecated": true
