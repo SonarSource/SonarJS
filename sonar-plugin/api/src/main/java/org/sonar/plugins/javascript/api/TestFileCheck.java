@@ -27,6 +27,9 @@ public abstract class TestFileCheck implements EslintBasedCheck {
 
   @Override
   public List<InputFile.Type> targets() {
+    var x = 42;
+    x = 1;
+    System.out.println(x);
     return Collections.singletonList(InputFile.Type.TEST);
   }
 }
