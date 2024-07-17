@@ -47,6 +47,7 @@ jobs:
           jfrog rt npm-ci
           npm version $RELEASE_TAG
           npm run build
+          cp .npmrc ./lib/.npmrc
           cd lib/
           npm publish
           jfrog rt npm-publish --build-name=eslint-plugin-sonarjs --build-number=${{ github.event.inputs.release_version }}
