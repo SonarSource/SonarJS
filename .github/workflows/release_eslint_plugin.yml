@@ -37,7 +37,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 18
-      - run: cp .github/workflows/.npmrc .npmrc
       - run: cp .github/workflows/.npmrc packages/jsts/src/rules/.npmrc
       - name: Publish npm package
         env:
@@ -47,9 +46,7 @@ jobs:
           jfrog rt npm-config --repo-resolve npm --repo-deploy sonarsource-npm-public-qa
           jfrog rt npm-ci
           npm version $RELEASE_TAG
-          npm ci
           npm run build
-          cp .npmrc ./lib/.npmrc
           cd lib/
           npm publish
           jfrog rt npm-publish --build-name=eslint-plugin-sonarjs --build-number=${{ github.event.inputs.release_version }}
