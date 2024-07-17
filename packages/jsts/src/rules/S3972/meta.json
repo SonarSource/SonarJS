@@ -3,7 +3,7 @@
   "docs": {
     "description": "Conditionals should start on new lines",
     "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S3972/javascript/rule.adoc"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S3972/javascript"
   },
   "fixable": "code"
 }

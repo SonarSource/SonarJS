@@ -3,6 +3,6 @@
   "docs": {
     "description": "Objects should not be created to be dropped immediately without being used",
     "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S1848/javascript/rule.adoc"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S1848/javascript"
   }
 }

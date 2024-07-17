@@ -3,7 +3,7 @@
   "docs": {
     "description": "\"RegExp.exec()\" should be preferred over \"String.match()\"",
     "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S6594/javascript/rule.adoc"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S6594/javascript"
   },
   "fixable": "code"
 }

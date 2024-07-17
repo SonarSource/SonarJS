@@ -3,7 +3,7 @@
   "docs": {
     "description": "Regular expressions should not contain multiple spaces",
     "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S6326/javascript/rule.adoc"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S6326/javascript"
   },
   "fixable": "code"
 }

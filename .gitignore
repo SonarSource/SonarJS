@@ -46,3 +46,4 @@ Desktop.ini
 
 # eslint-plugin-sonarjs
 eslint-plugin-sonarjs-*.tgz
+its/eslint-plugin-sonarjs/package-lock.json

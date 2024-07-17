@@ -3,7 +3,7 @@
   "docs": {
     "description": "Unnecessary character escapes should be removed",
     "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S6535/javascript/rule.adoc"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S6535/javascript"
   },
   "fixable": "code"
 }

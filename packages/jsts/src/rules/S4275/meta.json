@@ -3,6 +3,6 @@
   "docs": {
     "description": "Getters and setters should access the expected fields",
     "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S4275/javascript/rule.adoc"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S4275/javascript"
   }
 }

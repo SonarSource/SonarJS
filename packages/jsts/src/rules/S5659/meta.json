@@ -3,6 +3,6 @@
   "docs": {
     "description": "JWT should be signed and verified with strong cipher algorithms",
     "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S5659/javascript/rule.adoc"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S5659/javascript"
   }
 }

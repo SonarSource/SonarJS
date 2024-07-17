@@ -3,6 +3,6 @@
   "docs": {
     "description": "Variables declared with \"var\" should be declared before they are used",
     "recommended": false,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S1526/javascript/rule.adoc"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S1526/javascript"
   }
 }

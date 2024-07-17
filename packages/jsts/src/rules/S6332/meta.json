@@ -3,6 +3,6 @@
   "docs": {
     "description": "Using unencrypted EFS file systems is security-sensitive",
     "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S6332/javascript/rule.adoc"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S6332/javascript"
   }
 }

@@ -3,6 +3,6 @@
   "docs": {
     "description": "React's \"findDOMNode\" should not be used",
     "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S6788/javascript/rule.adoc"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S6788/javascript"
   }
 }

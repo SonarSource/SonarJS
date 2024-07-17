@@ -3,6 +3,6 @@
   "docs": {
     "description": "Repeated patterns in regular expressions should not match the empty string",
     "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S5842/javascript/rule.adoc"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S5842/javascript"
   }
 }

@@ -3,7 +3,7 @@
   "docs": {
     "description": "Extra semicolons should be removed",
     "recommended": false,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S1116/javascript/rule.adoc"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S1116/javascript"
   },
   "fixable": "code",
   "deprecated": true

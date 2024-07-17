@@ -3,6 +3,6 @@
   "docs": {
     "description": "Administration services access should be restricted to specific IP addresses",
     "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S6321/javascript/rule.adoc"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S6321/javascript"
   }
 }

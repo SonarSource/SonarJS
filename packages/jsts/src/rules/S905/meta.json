@@ -3,6 +3,6 @@
   "docs": {
     "description": "Non-empty statements should change control flow or have at least one side-effect",
     "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S905/javascript/rule.adoc"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S905/javascript"
   }
 }

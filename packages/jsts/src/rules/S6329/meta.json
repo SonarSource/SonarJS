@@ -3,6 +3,6 @@
   "docs": {
     "description": "Allowing public network access to cloud resources is security-sensitive",
     "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S6329/javascript/rule.adoc"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S6329/javascript"
   }
 }

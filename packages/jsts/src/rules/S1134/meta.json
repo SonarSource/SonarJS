@@ -3,6 +3,6 @@
   "docs": {
     "description": "Track uses of \"FIXME\" tags",
     "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S1134/javascript/rule.adoc"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S1134/javascript"
   }
 }

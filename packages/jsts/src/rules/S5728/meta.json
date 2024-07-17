@@ -3,6 +3,6 @@
   "docs": {
     "description": "Disabling content security policy fetch directives is security-sensitive",
     "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S5728/javascript/rule.adoc"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S5728/javascript"
   }
 }

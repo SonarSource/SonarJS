@@ -3,7 +3,7 @@
   "docs": {
     "description": "Object literal shorthand syntax should be used",
     "recommended": false,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S3498/javascript/rule.adoc"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S3498/javascript"
   },
   "fixable": "code"
 }

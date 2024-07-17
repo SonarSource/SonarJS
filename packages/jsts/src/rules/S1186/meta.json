@@ -3,7 +3,7 @@
   "docs": {
     "description": "Functions should not be empty",
     "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S1186/javascript/rule.adoc"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S1186/javascript"
   },
   "fixable": "code"
 }

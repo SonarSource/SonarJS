@@ -3,6 +3,6 @@
   "docs": {
     "description": "Comma and logical OR operators should not be used in switch cases",
     "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S3616/javascript/rule.adoc"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S3616/javascript"
   }
 }

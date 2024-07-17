@@ -3,7 +3,7 @@
   "docs": {
     "description": "Function types should be preferred",
     "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S6598/javascript/rule.adoc"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S6598/javascript"
   },
   "fixable": "code"
 }

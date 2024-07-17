@@ -3,6 +3,6 @@
   "docs": {
     "description": "A \"for\" loop update clause should move the counter in the right direction",
     "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S2251/javascript/rule.adoc"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S2251/javascript"
   }
 }

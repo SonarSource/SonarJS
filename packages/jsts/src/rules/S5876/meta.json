@@ -3,6 +3,6 @@
   "docs": {
     "description": "A new session should be created during user authentication",
     "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S5876/javascript/rule.adoc"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S5876/javascript"
   }
 }

@@ -3,6 +3,6 @@
   "docs": {
     "description": "Default export names and file names should match",
     "recommended": false,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S3317/javascript/rule.adoc"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S3317/javascript"
   }
 }

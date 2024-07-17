@@ -3,6 +3,6 @@
   "docs": {
     "description": "Future reserved words should not be used as identifiers",
     "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S1527/javascript/rule.adoc"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S1527/javascript"
   }
 }

@@ -3,6 +3,6 @@
   "docs": {
     "description": "JSX list components keys should match up between renders",
     "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S6486/javascript/rule.adoc"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S6486/javascript"
   }
 }

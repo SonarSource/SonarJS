@@ -3,7 +3,7 @@
   "docs": {
     "description": "Unused private class members should be removed",
     "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S1068/javascript/rule.adoc"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S1068/javascript"
   },
   "fixable": "code"
 }

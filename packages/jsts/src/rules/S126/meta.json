@@ -3,6 +3,6 @@
   "docs": {
     "description": "\"if ... else if\" constructs should end with \"else\" clauses",
     "recommended": false,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S126/javascript/rule.adoc"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S126/javascript"
   }
 }

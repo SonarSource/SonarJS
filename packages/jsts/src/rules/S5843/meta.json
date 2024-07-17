@@ -3,6 +3,6 @@
   "docs": {
     "description": "Regular expressions should not be too complicated",
     "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S5843/javascript/rule.adoc"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S5843/javascript"
   }
 }

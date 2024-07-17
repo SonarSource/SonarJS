@@ -3,6 +3,6 @@
   "docs": {
     "description": "\"indexOf\" checks should not be for positive numbers",
     "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S2692/javascript/rule.adoc"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S2692/javascript"
   }
 }

@@ -3,6 +3,6 @@
   "docs": {
     "description": "Boolean literals should not be used in comparisons",
     "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S1125/javascript/rule.adoc"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S1125/javascript"
   }
 }

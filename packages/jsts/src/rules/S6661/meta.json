@@ -3,7 +3,7 @@
   "docs": {
     "description": "Object spread syntax should be used instead of \"Object.assign\"",
     "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S6661/javascript/rule.adoc"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S6661/javascript"
   },
   "fixable": "code"
 }

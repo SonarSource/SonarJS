@@ -3,7 +3,7 @@
   "docs": {
     "description": "A conditionally executed single line should be denoted by indentation",
     "recommended": false,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S3973/javascript/rule.adoc"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S3973/javascript"
   },
   "deprecated": true
 }

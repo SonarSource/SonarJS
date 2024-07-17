@@ -3,6 +3,6 @@
   "docs": {
     "description": "Boolean expressions should not be gratuitous",
     "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S2589/javascript/rule.adoc"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S2589/javascript"
   }
 }

@@ -3,7 +3,7 @@
   "docs": {
     "description": "Collection size and array length comparisons should make sense",
     "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S3981/javascript/rule.adoc"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S3981/javascript"
   },
   "fixable": "code"
 }

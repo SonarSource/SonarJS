@@ -3,6 +3,6 @@
   "docs": {
     "description": "Arithmetic operations should not result in \"NaN\"",
     "recommended": false,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S3757/javascript/rule.adoc"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S3757/javascript"
   }
 }

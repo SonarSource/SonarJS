@@ -3,6 +3,6 @@
   "docs": {
     "description": "Function parameters with default values should be last",
     "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S1788/javascript/rule.adoc"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S1788/javascript"
   }
 }

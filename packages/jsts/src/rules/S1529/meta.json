@@ -3,6 +3,6 @@
   "docs": {
     "description": "Bitwise operators should not be used in boolean contexts",
     "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S1529/javascript/rule.adoc"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S1529/javascript"
   }
 }

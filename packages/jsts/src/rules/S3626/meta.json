@@ -3,7 +3,7 @@
   "docs": {
     "description": "Jump statements should not be redundant",
     "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S3626/javascript/rule.adoc"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S3626/javascript"
   },
   "fixable": "code"
 }

@@ -3,6 +3,6 @@
   "docs": {
     "description": "Function calls should not pass extra arguments",
     "recommended": true,
-    "url": "https://github.com/SonarSource/rspec/blob/master/rules/S930/javascript/rule.adoc"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S930/javascript"
   }
 }
