@@ -25,6 +25,7 @@ import {
   getValueOfExpression,
   isIdentifier,
   isProperty,
+  IssueLocation,
   toSecondaryLocation,
 } from '..';
 import { normalizeFQN } from './cdk';
@@ -125,7 +126,7 @@ export function getBucketProperty(
 export function findPropagatedSetting(
   sensitiveProperty: estree.Property,
   propagatedValue: estree.Node,
-) {
+): IssueLocation | undefined {
   const isPropagatedProperty = sensitiveProperty.value !== propagatedValue;
   if (isPropagatedProperty) {
     return toSecondaryLocation(getNodeParent(propagatedValue), 'Propagated setting.');
