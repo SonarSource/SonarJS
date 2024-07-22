@@ -65,7 +65,8 @@ npmrc_script_definition: &NPMRC_SCRIPT_DEFINITION
   npmrc_script:
     - cp .cirrus/npmrc $CIRRUS_WORKING_DIR/.npmrc
     - cp .cirrus/npmrc $CIRRUS_WORKING_DIR/packages/jsts/src/rules/.npmrc
-    - cp .cirrus/npmrc $CIRRUS_WORKING_DIR/its/eslint-plugin-sonarjs/.npmrc
+    - cp .cirrus/npmrc $CIRRUS_WORKING_DIR/its/eslint8-plugin-sonarjs/.npmrc
+    - cp .cirrus/npmrc $CIRRUS_WORKING_DIR/its/eslint9-plugin-sonarjs/.npmrc
 
 win_ssd_and_clone:
   &WIN_SSD_AND_CLONE # copy&paste from https://github.com/SonarSource/sonar-cpp/blob/a8c6f1e45a12393508682a013ac7ee35eb92bece/.cirrus.yml#L45
