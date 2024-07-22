@@ -683,6 +683,11 @@ const recommendedConfig: FlatConfig.Config = {
     },
   },
   rules: {},
+  settings: {
+    react: {
+      version: '999.999.999',
+    },
+  },
 };
 
 for (const [key, rule] of Object.entries(rules)) {

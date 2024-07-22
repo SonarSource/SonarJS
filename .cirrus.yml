@@ -306,7 +306,10 @@ eslint_plugin_test_task:
     - source set_maven_build_version $BUILD_NUMBER
     - cd packages/jsts/src/rules
     - npm run build
-    - cd ../../../../its/eslint-plugin-sonarjs
+    - cd ../../../../its/eslint8-plugin-sonarjs
+    - npm run build
+    - npm run test
+    - cd ../../its/eslint9-plugin-sonarjs
     - npm run build
     - npm run test
 

@@ -1,0 +1,12 @@
+{
+  "name": "eslint8-plugin-sonarjs-tests",
+  "description": "Test suite for eslint-plugin-sonarjs",
+  "scripts": {
+    "build": "npm install && cp ../../packages/jsts/src/rules/lib/eslint-plugin-sonarjs-* ./plugin.tgz && npm i ./plugin.tgz --no-save && rm -f plugin.tgz",
+    "test": "node index.test.js"
+  },
+  "devDependencies": {
+    "cross-spawn": "7.0.3",
+    "eslint": "8.57.0"
+  }
+}
