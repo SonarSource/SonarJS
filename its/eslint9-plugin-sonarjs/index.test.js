@@ -8,6 +8,7 @@ test('should work with CommonJS config', async t => {
     encoding: 'utf-8',
   });
   const output = result.stdout;
+  console.log(output);
   const errorLines = output.split('\n').filter(line => line.includes('error'));
   assert(errorLines.length > 4);
 });
