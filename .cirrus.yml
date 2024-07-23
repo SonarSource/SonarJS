@@ -309,11 +309,13 @@ eslint_plugin_test_task:
     - npm run build
     - cd ../../../../its/eslint8-plugin-sonarjs
     - npm run build
-    - npx eslint file.js || true
+    - npx eslint file.js || true # to check output in CI
+    - npx tsc --noEmit # check typings for tseslint.config.ts
     - npm run test
     - cd ../eslint9-plugin-sonarjs
     - npm run build
-    - npx eslint file.js || true
+    - npx eslint file.js || true # to check output in CI
+    - npx tsc --noEmit # check typings for tseslint.config.ts
     - npm run test
 
 css_ruling_task:
