@@ -22,4 +22,4 @@ import { Linter } from 'eslint';
 /**
  * ESLint core rules.
  */
-export const eslintRules = Object.fromEntries(new Linter().getRules());
+export const eslintRules = Object.fromEntries(new Linter({ configType: 'eslintrc' }).getRules());
