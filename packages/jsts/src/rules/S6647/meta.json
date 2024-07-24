@@ -3,7 +3,8 @@
   "docs": {
     "description": "Unnecessary constructors should be removed",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S6647/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S6647/javascript",
+    "requiresTypeChecking": false
   },
   "fixable": "code"
 }

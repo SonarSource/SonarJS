@@ -3,7 +3,8 @@
   "docs": {
     "description": "Variables should be declared with \"let\" or \"const\"",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S3504/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S3504/javascript",
+    "requiresTypeChecking": false
   },
   "fixable": "code"
 }

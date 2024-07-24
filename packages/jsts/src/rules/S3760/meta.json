@@ -3,6 +3,7 @@
   "docs": {
     "description": "Arithmetic operators should only have numbers as operands",
     "recommended": false,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S3760/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S3760/javascript",
+    "requiresTypeChecking": true
   }
 }

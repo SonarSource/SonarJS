@@ -3,7 +3,8 @@
   "docs": {
     "description": "The return value of \"useState\" should be destructured and named symmetrically",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S6754/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S6754/javascript",
+    "requiresTypeChecking": false
   },
   "fixable": "code"
 }

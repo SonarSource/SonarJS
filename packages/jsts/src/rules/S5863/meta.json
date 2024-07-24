@@ -3,6 +3,7 @@
   "docs": {
     "description": "Assertions should not be given twice the same argument",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S5863/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S5863/javascript",
+    "requiresTypeChecking": false
   }
 }

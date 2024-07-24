@@ -3,6 +3,7 @@
   "docs": {
     "description": "Regular expressions with the global flag should be used with caution",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S6351/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S6351/javascript",
+    "requiresTypeChecking": false
   }
 }

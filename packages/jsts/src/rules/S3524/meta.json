@@ -3,6 +3,7 @@
   "docs": {
     "description": "Braces and parentheses should be used consistently with arrow functions",
     "recommended": false,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S3524/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S3524/javascript",
+    "requiresTypeChecking": false
   }
 }

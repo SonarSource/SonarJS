@@ -3,6 +3,7 @@
   "docs": {
     "description": "React components should not be nested",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S6478/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S6478/javascript",
+    "requiresTypeChecking": false
   }
 }

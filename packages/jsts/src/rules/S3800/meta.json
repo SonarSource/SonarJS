@@ -3,6 +3,7 @@
   "docs": {
     "description": "Functions should always return the same type",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S3800/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S3800/javascript",
+    "requiresTypeChecking": true
   }
 }

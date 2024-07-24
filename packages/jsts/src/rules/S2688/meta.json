@@ -3,7 +3,8 @@
   "docs": {
     "description": "\"NaN\" should not be used in comparisons",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S2688/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S2688/javascript",
+    "requiresTypeChecking": false
   },
   "fixable": "code"
 }

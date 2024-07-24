@@ -3,6 +3,7 @@
   "docs": {
     "description": "Equality operators should not be used in \"for\" loop termination conditions",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S888/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S888/javascript",
+    "requiresTypeChecking": false
   }
 }

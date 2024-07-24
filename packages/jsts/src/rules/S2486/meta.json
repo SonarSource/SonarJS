@@ -3,6 +3,7 @@
   "docs": {
     "description": "Exceptions should not be ignored",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S2486/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S2486/javascript",
+    "requiresTypeChecking": false
   }
 }

@@ -3,7 +3,8 @@
   "docs": {
     "description": "Non-existent operators '=+', '=-' and '=!' should not be used",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S2757/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S2757/javascript",
+    "requiresTypeChecking": false
   },
   "fixable": "code"
 }

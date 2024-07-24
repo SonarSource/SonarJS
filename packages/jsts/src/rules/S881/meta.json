@@ -3,6 +3,7 @@
   "docs": {
     "description": "Increment (++) and decrement (--) operators should not be used in a method call or mixed with other operators in an expression",
     "recommended": false,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S881/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S881/javascript",
+    "requiresTypeChecking": false
   }
 }

@@ -3,6 +3,7 @@
   "docs": {
     "description": "Shorthand object properties should be grouped at the beginning or end of an object declaration",
     "recommended": false,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S3499/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S3499/javascript",
+    "requiresTypeChecking": false
   }
 }

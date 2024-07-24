@@ -3,6 +3,7 @@
   "docs": {
     "description": "\"<object>\" tags should provide an alternative content",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S5264/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S5264/javascript",
+    "requiresTypeChecking": false
   }
 }

@@ -3,7 +3,8 @@
   "docs": {
     "description": "Nullish coalescing should be preferred",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S6606/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S6606/javascript",
+    "requiresTypeChecking": true
   },
   "fixable": "code"
 }

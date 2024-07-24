@@ -3,6 +3,7 @@
   "docs": {
     "description": "Dynamically executing code is security-sensitive",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S1523/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S1523/javascript",
+    "requiresTypeChecking": false
   }
 }

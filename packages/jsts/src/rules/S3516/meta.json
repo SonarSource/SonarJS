@@ -3,6 +3,7 @@
   "docs": {
     "description": "Function returns should not be invariant",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S3516/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S3516/javascript",
+    "requiresTypeChecking": false
   }
 }

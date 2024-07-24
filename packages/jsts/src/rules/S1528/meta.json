@@ -3,7 +3,8 @@
   "docs": {
     "description": "Array constructors should not be used",
     "recommended": false,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S1528/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S1528/javascript",
+    "requiresTypeChecking": false
   },
   "fixable": "code"
 }

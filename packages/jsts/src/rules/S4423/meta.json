@@ -3,6 +3,7 @@
   "docs": {
     "description": "Weak SSL/TLS protocols should not be used",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S4423/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S4423/javascript",
+    "requiresTypeChecking": false
   }
 }

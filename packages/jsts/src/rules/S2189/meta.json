@@ -3,6 +3,7 @@
   "docs": {
     "description": "Loops should not be infinite",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S2189/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S2189/javascript",
+    "requiresTypeChecking": false
   }
 }

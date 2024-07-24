@@ -3,6 +3,7 @@
   "docs": {
     "description": "\"switch\" statements should not contain non-case labels",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S1219/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S1219/javascript",
+    "requiresTypeChecking": false
   }
 }

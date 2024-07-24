@@ -3,6 +3,7 @@
   "docs": {
     "description": "Allowing confidential information to be logged is security-sensitive",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S5757/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S5757/javascript",
+    "requiresTypeChecking": false
   }
 }

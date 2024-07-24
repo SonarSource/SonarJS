@@ -3,7 +3,8 @@
   "docs": {
     "description": "Template strings should be used instead of concatenation",
     "recommended": false,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S3512/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S3512/javascript",
+    "requiresTypeChecking": false
   },
   "fixable": "code"
 }

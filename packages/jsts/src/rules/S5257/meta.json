@@ -3,6 +3,7 @@
   "docs": {
     "description": "HTML \"<table>\" should not be used for layout purposes",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S5257/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S5257/javascript",
+    "requiresTypeChecking": false
   }
 }

@@ -3,6 +3,7 @@
   "docs": {
     "description": "Formatting SQL queries is security-sensitive",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S2077/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S2077/javascript",
+    "requiresTypeChecking": false
   }
 }

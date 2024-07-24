@@ -3,6 +3,7 @@
   "docs": {
     "description": "Expanding archive files without controlling resource consumption is security-sensitive",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S5042/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S5042/javascript",
+    "requiresTypeChecking": false
   }
 }

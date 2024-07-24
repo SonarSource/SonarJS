@@ -3,6 +3,7 @@
   "docs": {
     "description": "Regular expressions should be syntactically valid",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S5856/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S5856/javascript",
+    "requiresTypeChecking": true
   }
 }

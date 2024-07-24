@@ -3,6 +3,7 @@
   "docs": {
     "description": "Empty character classes should not be used",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S2639/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S2639/javascript",
+    "requiresTypeChecking": true
   }
 }

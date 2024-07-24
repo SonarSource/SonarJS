@@ -3,7 +3,8 @@
   "docs": {
     "description": "Spread syntax should be used instead of \"apply()\"",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S6666/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S6666/javascript",
+    "requiresTypeChecking": false
   },
   "fixable": "code"
 }

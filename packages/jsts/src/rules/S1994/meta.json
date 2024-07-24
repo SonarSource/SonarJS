@@ -3,6 +3,7 @@
   "docs": {
     "description": "\"for\" loop increment clauses should modify the loops' counters",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S1994/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S1994/javascript",
+    "requiresTypeChecking": false
   }
 }

@@ -3,7 +3,8 @@
   "docs": {
     "description": "Redundant React fragments should be removed",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S6749/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S6749/javascript",
+    "requiresTypeChecking": false
   },
   "fixable": "code"
 }

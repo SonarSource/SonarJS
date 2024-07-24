@@ -3,6 +3,7 @@
   "docs": {
     "description": "Generators should explicitly \"yield\" a value",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S3531/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S3531/javascript",
+    "requiresTypeChecking": false
   }
 }

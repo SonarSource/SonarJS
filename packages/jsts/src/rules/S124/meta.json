@@ -3,6 +3,7 @@
   "docs": {
     "description": "Track comments matching a regular expression",
     "recommended": false,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S124/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S124/javascript",
+    "requiresTypeChecking": false
   }
 }

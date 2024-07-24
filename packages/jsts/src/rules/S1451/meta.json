@@ -3,6 +3,7 @@
   "docs": {
     "description": "Track lack of copyright and license headers",
     "recommended": false,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S1451/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S1451/javascript",
+    "requiresTypeChecking": false
   }
 }

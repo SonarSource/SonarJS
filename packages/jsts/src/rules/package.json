@@ -4,12 +4,15 @@
   "publishConfig": {
     "tag": "next"
   },
+  "main": "./lib/index.js",
+  "exports": "./lib/index.js",
   "description": "SonarJS rules for ESLint",
   "types": "index.d.ts",
   "type": "commonjs",
   "scripts": {
     "build": "npm ci && npm run clear && npm run compile && cp LICENSE lib/ && cp README.md lib/ && cd lib && npm pack",
     "compile": "tsc --outDir lib",
+    "eslint-docs": "eslint-doc-generator",
     "clear": "rimraf lib/*"
   },
   "repository": {
@@ -57,6 +60,7 @@
     "@types/functional-red-black-tree": "1.0.2",
     "@types/node": "20.11.30",
     "@types/semver": "7.5.8",
+    "eslint-doc-generator": "1.7.1",
     "json-schema-to-ts": "3.1.0",
     "type-fest": "4.21.0",
     "typescript": "5.4.3"

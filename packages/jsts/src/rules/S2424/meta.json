@@ -3,6 +3,7 @@
   "docs": {
     "description": "Built-in objects should not be overridden",
     "recommended": false,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S2424/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S2424/javascript",
+    "requiresTypeChecking": false
   }
 }

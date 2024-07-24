@@ -3,7 +3,8 @@
   "docs": {
     "description": "Disabling server-side encryption of S3 buckets is security-sensitive",
     "recommended": false,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S6245/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S6245/javascript",
+    "requiresTypeChecking": false
   },
   "deprecated": true
 }

@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "module": "NodeNext",
+    "target": "es6",
+    "allowJs": true,
+    "moduleResolution": "NodeNext"
+  },
+  "files": ["generate-meta.ts"]
+}

@@ -3,6 +3,7 @@
   "docs": {
     "description": "JSX list components should have a key property",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S6477/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S6477/javascript",
+    "requiresTypeChecking": false
   }
 }

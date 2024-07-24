@@ -3,7 +3,8 @@
   "docs": {
     "description": "Public \"static\" fields should be read-only",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S1444/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S1444/javascript",
+    "requiresTypeChecking": false
   },
   "fixable": "code"
 }

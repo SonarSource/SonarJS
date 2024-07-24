@@ -3,6 +3,7 @@
   "docs": {
     "description": "Promises should not be misused",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S6544/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S6544/javascript",
+    "requiresTypeChecking": true
   }
 }

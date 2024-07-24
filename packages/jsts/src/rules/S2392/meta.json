@@ -3,6 +3,7 @@
   "docs": {
     "description": "Variables should be used in the blocks where they are declared",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S2392/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S2392/javascript",
+    "requiresTypeChecking": false
   }
 }

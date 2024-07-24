@@ -3,7 +3,8 @@
   "docs": {
     "description": "\"for of\" should be used with Iterables",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S4138/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S4138/javascript",
+    "requiresTypeChecking": false
   },
   "fixable": "code"
 }

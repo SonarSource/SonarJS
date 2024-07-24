@@ -3,6 +3,7 @@
   "docs": {
     "description": "Table cells should reference their headers",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S5260/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S5260/javascript",
+    "requiresTypeChecking": false
   }
 }

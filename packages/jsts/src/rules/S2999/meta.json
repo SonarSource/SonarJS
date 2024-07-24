@@ -3,6 +3,7 @@
   "docs": {
     "description": "\"new\" should only be used with functions and classes",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S2999/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S2999/javascript",
+    "requiresTypeChecking": true
   }
 }

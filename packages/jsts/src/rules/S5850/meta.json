@@ -3,6 +3,7 @@
   "docs": {
     "description": "Alternatives in regular expressions should be grouped when used with anchors",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S5850/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S5850/javascript",
+    "requiresTypeChecking": true
   }
 }

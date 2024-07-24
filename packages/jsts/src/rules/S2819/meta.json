@@ -3,6 +3,7 @@
   "docs": {
     "description": "Origins should be verified during cross-origin communications",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S2819/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S2819/javascript",
+    "requiresTypeChecking": true
   }
 }

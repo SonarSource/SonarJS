@@ -3,6 +3,7 @@
   "docs": {
     "description": "\"for...in\" loops should filter properties before acting on them",
     "recommended": false,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S1535/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S1535/javascript",
+    "requiresTypeChecking": false
   }
 }

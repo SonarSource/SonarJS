@@ -3,6 +3,7 @@
   "docs": {
     "description": "Alternation in regular expressions should not contain empty alternatives",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S6323/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S6323/javascript",
+    "requiresTypeChecking": true
   }
 }

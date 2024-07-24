@@ -3,6 +3,7 @@
   "docs": {
     "description": "Policies granting access to all resources of an account are security-sensitive",
     "recommended": false,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S6304/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S6304/javascript",
+    "requiresTypeChecking": false
   }
 }

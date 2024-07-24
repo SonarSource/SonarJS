@@ -3,6 +3,7 @@
   "docs": {
     "description": "Cipher algorithms should be robust",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S5547/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S5547/javascript",
+    "requiresTypeChecking": false
   }
 }

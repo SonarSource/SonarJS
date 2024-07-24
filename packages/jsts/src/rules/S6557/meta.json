@@ -3,7 +3,8 @@
   "docs": {
     "description": "Ends of strings should be checked with \"startsWith()\" and \"endsWith()\"",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S6557/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S6557/javascript",
+    "requiresTypeChecking": true
   },
   "fixable": "code"
 }

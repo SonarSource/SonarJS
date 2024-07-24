@@ -3,7 +3,8 @@
   "docs": {
     "description": "React components should not render non-boolean condition values",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S6439/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S6439/javascript",
+    "requiresTypeChecking": true
   },
   "fixable": "code"
 }

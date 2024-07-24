@@ -3,6 +3,7 @@
   "docs": {
     "description": "Callbacks of array methods should have return statements",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S3796/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S3796/javascript",
+    "requiresTypeChecking": true
   }
 }

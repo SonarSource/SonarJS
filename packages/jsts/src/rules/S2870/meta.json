@@ -3,6 +3,7 @@
   "docs": {
     "description": "\"delete\" should not be used on arrays",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S2870/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S2870/javascript",
+    "requiresTypeChecking": true
   }
 }

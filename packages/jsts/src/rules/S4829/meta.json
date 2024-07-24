@@ -3,7 +3,8 @@
   "docs": {
     "description": "Reading the Standard Input is security-sensitive",
     "recommended": false,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S4829/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S4829/javascript",
+    "requiresTypeChecking": false
   },
   "deprecated": true
 }

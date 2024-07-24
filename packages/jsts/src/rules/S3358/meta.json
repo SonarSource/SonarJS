@@ -3,6 +3,7 @@
   "docs": {
     "description": "Ternary operators should not be nested",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S3358/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S3358/javascript",
+    "requiresTypeChecking": false
   }
 }

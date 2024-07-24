@@ -3,6 +3,7 @@
   "docs": {
     "description": "Switch cases should end with an unconditional \"break\" statement",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S128/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S128/javascript",
+    "requiresTypeChecking": false
   }
 }

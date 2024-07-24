@@ -3,7 +3,8 @@
   "docs": {
     "description": "Errors should not be created without being thrown",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S3984/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S3984/javascript",
+    "requiresTypeChecking": false
   },
   "fixable": "code"
 }

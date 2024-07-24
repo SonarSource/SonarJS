@@ -3,7 +3,8 @@
   "docs": {
     "description": "\"undefined\" should not be passed as the value of optional parameters",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S4623/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S4623/javascript",
+    "requiresTypeChecking": true
   },
   "fixable": "code"
 }

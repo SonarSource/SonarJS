@@ -3,7 +3,8 @@
   "docs": {
     "description": "Unused function parameters should be removed",
     "recommended": false,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S1172/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S1172/javascript",
+    "requiresTypeChecking": false
   },
   "fixable": "code"
 }

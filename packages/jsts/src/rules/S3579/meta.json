@@ -3,6 +3,7 @@
   "docs": {
     "description": "Array indexes should be numeric",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S3579/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S3579/javascript",
+    "requiresTypeChecking": true
   }
 }

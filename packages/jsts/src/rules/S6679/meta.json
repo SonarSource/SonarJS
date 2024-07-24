@@ -3,7 +3,8 @@
   "docs": {
     "description": "\"Number.isNaN()\" should be used to check for \"NaN\" value",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S6679/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S6679/javascript",
+    "requiresTypeChecking": false
   },
   "fixable": "code"
 }

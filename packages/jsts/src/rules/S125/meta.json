@@ -3,7 +3,8 @@
   "docs": {
     "description": "Sections of code should not be commented out",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S125/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S125/javascript",
+    "requiresTypeChecking": false
   },
   "fixable": "code"
 }
