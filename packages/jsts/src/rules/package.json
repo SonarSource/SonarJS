@@ -4,8 +4,6 @@
   "publishConfig": {
     "tag": "next"
   },
-  "main": "./lib/index.js",
-  "exports": "./lib/index.js",
   "description": "SonarJS rules for ESLint",
   "types": "index.d.ts",
   "type": "commonjs",
