@@ -6,7 +6,7 @@ module.exports = {
   searchInComments: true,
   plugin: ['searchable-parameters-plugin'],
   readme: './main.md',
-  tsconfig: '../packages/tsconfig.json',
+  tsconfig: '../packages/jsts/src/rules/tsconfig.json',
   json: 'models/reflections.json',
   pretty: true,
   sidebarLinks: {
