@@ -21,7 +21,7 @@
     "plugin:build-no-bridge": "mvn install",
     "plugin:build:fast": "npm run plugin:build-no-bridge -- -DskipTests",
     "pbf": "npm run plugin:build:fast",
-    "td": "node typedoc/scripts/setup-plugins.js && ./node_modules/.bin/typedoc --options typedoc/typedoc.js",
+    "td": "node typedoc/scripts/setup-plugins.js && npx typedoc --options typedoc/typedoc.js",
     "prepare": "husky install",
     "precommit": "pretty-quick --staged",
     "count-rules": "node tools/count-rules.js",
