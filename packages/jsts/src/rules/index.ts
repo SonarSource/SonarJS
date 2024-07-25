@@ -680,6 +680,7 @@ rules['xpath'] = S4817;
 
 const recommendedLegacyConfig: TSESLint.Linter.ConfigType = { plugins: ['sonarjs'], rules: {} };
 const recommendedConfig: FlatConfig.Config = {
+  name: 'sonarjs/recommended',
   plugins: {
     sonarjs: {
       rules,
