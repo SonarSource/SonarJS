@@ -6,6 +6,7 @@ const config = {
   moduleDirectories: ['node_modules', '<rootDir>packages/*/tests/**/fixtures'],
   moduleNameMapper: {
     '^@sonar/(\\w+)(.*)$': '<rootDir>/packages/$1/src$2',
+    '../package.json': '<rootDir>/packages/jsts/src/rules/package.json', // rules/index.ts points to ../package.json which is only available after building project
   },
   modulePathIgnorePatterns: ['<rootDir>/packages/jsts/src/rules/.*/package.json$', '<rootDir>/its'],
   resolver: '<rootDir>/jest-resolver.js',
