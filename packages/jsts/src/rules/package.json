@@ -4,13 +4,15 @@
   "publishConfig": {
     "tag": "next"
   },
+  "main": "./lib/index.js",
+  "exports": "./lib/index.js",
   "description": "SonarJS rules for ESLint",
-  "types": "index.d.ts",
+  "types": "./lib/index.d.ts",
   "type": "commonjs",
   "scripts": {
-    "build": "npm ci && npm run clear && npm run compile && cp LICENSE lib/ && cp README.md lib/ && cd lib && npm pack",
-    "compile": "tsc --outDir lib",
-    "eslint-docs": "eslint-doc-generator",
+    "build": "npm ci && npm run compile && npm pack",
+    "compile": "npm run clear && tsc --outDir lib",
+    "eslint-docs": "npm run compile && eslint-doc-generator --init-rule-docs && rimraf docs",
     "clear": "rimraf lib/*"
   },
   "repository": {
@@ -27,6 +29,11 @@
   "bugs": {
     "url": "https://community.sonarsource.com/"
   },
+  "files": [
+    "README.md",
+    "LICENSE",
+    "lib"
+  ],
   "peerDependencies": {
     "eslint": "^8.0.0 || ^9.0.0"
   },

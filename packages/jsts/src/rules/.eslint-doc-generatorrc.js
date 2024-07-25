@@ -7,6 +7,9 @@ const config = {
   },
   postprocess: content => content.replace('<table>', '&lt;table&gt;'),
   ignoreConfig: ['recommended-legacy'],
+  pathRuleDoc(name) {
+    return `docs/${name}.md`;
+  },
 };
 
 module.exports = config;

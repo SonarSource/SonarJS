@@ -20,7 +20,7 @@
 import { Rule } from 'eslint';
 import type { TSESLint } from '@typescript-eslint/utils';
 import type { FlatConfig } from '@typescript-eslint/utils/ts-eslint';
-import { name, version } from './package.json';
+const { name, version } = require('../package.json');
 
 import { rule as S2376 } from './S2376'; // accessor-pairs
 import { rule as S1077 } from './S1077'; // alt-text
