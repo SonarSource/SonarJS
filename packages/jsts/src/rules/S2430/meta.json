@@ -3,6 +3,7 @@
   "docs": {
     "description": "Constructor names should start with an upper case letter",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S2430/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S2430/javascript",
+    "requiresTypeChecking": false
   }
 }

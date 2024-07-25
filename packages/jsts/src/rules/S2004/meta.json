@@ -3,6 +3,7 @@
   "docs": {
     "description": "Functions should not be nested too deeply",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S2004/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S2004/javascript",
+    "requiresTypeChecking": false
   }
 }

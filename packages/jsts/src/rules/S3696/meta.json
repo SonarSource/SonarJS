@@ -3,7 +3,8 @@
   "docs": {
     "description": "Literals should not be thrown",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S3696/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S3696/javascript",
+    "requiresTypeChecking": true
   },
   "fixable": "code"
 }

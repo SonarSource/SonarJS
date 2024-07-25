@@ -3,7 +3,8 @@
   "docs": {
     "description": "The global \"this\" object should not be used",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S2990/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S2990/javascript",
+    "requiresTypeChecking": false
   },
   "fixable": "code"
 }

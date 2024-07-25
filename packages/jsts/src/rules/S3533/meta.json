@@ -3,6 +3,7 @@
   "docs": {
     "description": "\"import\" should be used to include external code",
     "recommended": false,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S3533/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S3533/javascript",
+    "requiresTypeChecking": true
   }
 }

@@ -3,7 +3,8 @@
   "docs": {
     "description": "\"in\" should not be used on arrays",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S4619/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S4619/javascript",
+    "requiresTypeChecking": true
   },
   "fixable": "code"
 }

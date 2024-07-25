@@ -3,6 +3,7 @@
   "docs": {
     "description": "Allowing public ACLs or policies on a S3 bucket is security-sensitive",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S6281/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S6281/javascript",
+    "requiresTypeChecking": false
   }
 }

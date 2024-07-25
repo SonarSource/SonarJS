@@ -3,6 +3,7 @@
   "docs": {
     "description": "\"default\" clauses should be last",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S4524/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S4524/javascript",
+    "requiresTypeChecking": false
   }
 }

@@ -3,6 +3,7 @@
   "docs": {
     "description": "File uploads should be restricted",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S2598/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S2598/javascript",
+    "requiresTypeChecking": false
   }
 }

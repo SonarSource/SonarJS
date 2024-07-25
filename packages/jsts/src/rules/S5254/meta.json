@@ -3,6 +3,7 @@
   "docs": {
     "description": "HTML elements should have a valid language attribute",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S5254/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S5254/javascript",
+    "requiresTypeChecking": false
   }
 }

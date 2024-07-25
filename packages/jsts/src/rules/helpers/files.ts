@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import fs from 'fs';
+import path from 'path';
 
 /**
  * Byte Order Marker
@@ -59,4 +60,22 @@ function stripBOM(str: string) {
  */
 export function toUnixPath(path: string) {
   return path.replace(/[\\/]+/g, '/');
+}
+
+/**
+ * Find nearest file with a given name in current or parent dirs
+ * @param dir
+ * @param name filename to search for
+ */
+
+export function findParent(dir: string, name: string): string | null {
+  const filename = path.join(dir, name);
+  if (fs.existsSync(filename)) {
+    return filename;
+  }
+  const parentDir = path.resolve(dir, '..');
+  if (dir === parentDir) {
+    return null;
+  }
+  return findParent(parentDir, name);
 }

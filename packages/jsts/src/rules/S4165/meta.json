@@ -3,6 +3,7 @@
   "docs": {
     "description": "Assignments should not be redundant",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S4165/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S4165/javascript",
+    "requiresTypeChecking": false
   }
 }

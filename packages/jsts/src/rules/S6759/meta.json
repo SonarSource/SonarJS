@@ -3,7 +3,8 @@
   "docs": {
     "description": "React props should be read-only",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S6759/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S6759/javascript",
+    "requiresTypeChecking": true
   },
   "fixable": "code"
 }

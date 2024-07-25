@@ -3,6 +3,7 @@
   "docs": {
     "description": "Labels should not be used",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S1119/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S1119/javascript",
+    "requiresTypeChecking": false
   }
 }

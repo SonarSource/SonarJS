@@ -3,6 +3,7 @@
   "docs": {
     "description": "String literals should not be duplicated",
     "recommended": false,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S1192/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S1192/javascript",
+    "requiresTypeChecking": false
   }
 }

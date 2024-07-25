@@ -3,6 +3,7 @@
   "docs": {
     "description": "Loops should not contain more than a single \"break\" or \"continue\" statement",
     "recommended": false,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S135/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S135/javascript",
+    "requiresTypeChecking": false
   }
 }

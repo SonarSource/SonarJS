@@ -3,7 +3,8 @@
   "docs": {
     "description": "Enum member values should be either all initialized or none",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S6572/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S6572/javascript",
+    "requiresTypeChecking": false
   },
   "fixable": "code"
 }

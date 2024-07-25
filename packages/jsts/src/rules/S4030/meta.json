@@ -3,6 +3,7 @@
   "docs": {
     "description": "Collection contents should be used",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S4030/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S4030/javascript",
+    "requiresTypeChecking": false
   }
 }

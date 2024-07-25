@@ -3,6 +3,7 @@
   "docs": {
     "description": "Only \"while\", \"do\", \"for\" and \"switch\" statements should be labelled",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S1439/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S1439/javascript",
+    "requiresTypeChecking": false
   }
 }

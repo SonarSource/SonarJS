@@ -3,6 +3,7 @@
   "docs": {
     "description": "Mergeable \"if\" statements should be combined",
     "recommended": false,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S1066/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S1066/javascript",
+    "requiresTypeChecking": false
   }
 }

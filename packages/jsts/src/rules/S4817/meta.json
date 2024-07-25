@@ -3,7 +3,8 @@
   "docs": {
     "description": "Executing XPath expressions is security-sensitive",
     "recommended": false,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S4817/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S4817/javascript",
+    "requiresTypeChecking": false
   },
   "deprecated": true
 }

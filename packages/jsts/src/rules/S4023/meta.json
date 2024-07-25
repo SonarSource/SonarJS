@@ -3,7 +3,8 @@
   "docs": {
     "description": "Interfaces should not be empty",
     "recommended": false,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S4023/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S4023/javascript",
+    "requiresTypeChecking": false
   },
   "fixable": "code"
 }

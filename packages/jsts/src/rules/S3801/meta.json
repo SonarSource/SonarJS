@@ -3,6 +3,7 @@
   "docs": {
     "description": "Functions should use \"return\" consistently",
     "recommended": false,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S3801/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S3801/javascript",
+    "requiresTypeChecking": false
   }
 }

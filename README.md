@@ -4,7 +4,7 @@ This SonarSource project is a [static code analyzer](https://en.wikipedia.org/wi
 
 :arrow_right: [Have some feedback?](#support)
 
-:arrow_right: [eslint-plugin-sonarjs](https://github.com/SonarSource/eslint-plugin-sonarjs), our plugin for ESLint
+This repository now hosts [eslint-plugin-sonarjs](./packages/jsts/src/rules/README.md), our plugin for ESLint.
 
 # Features
 

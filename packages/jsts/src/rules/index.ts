@@ -17,10 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import fs from 'fs';
+import { findParent } from './helpers';
+import { PackageJson } from 'type-fest';
 import { Rule } from 'eslint';
 import type { TSESLint } from '@typescript-eslint/utils';
 import type { FlatConfig } from '@typescript-eslint/utils/ts-eslint';
-import { name, version } from './package.json';
 
 import { rule as S2376 } from './S2376'; // accessor-pairs
 import { rule as S1077 } from './S1077'; // alt-text
@@ -703,6 +706,14 @@ export const configs = {
   'recommended-legacy': recommendedLegacyConfig,
 };
 
+/*
+ package.json may be in current or parent dir depending on running with ts-jest or built js files
+ we need to find it in both cases
+ */
+const packageJsonPath = findParent(__dirname, 'package.json');
+const { name, version } = (
+  packageJsonPath ? JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8')) : {}
+) as PackageJson;
 export const meta = {
   name,
   version,

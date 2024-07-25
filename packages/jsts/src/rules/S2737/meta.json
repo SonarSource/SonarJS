@@ -3,6 +3,7 @@
   "docs": {
     "description": "\"catch\" clauses should do more than rethrow",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S2737/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S2737/javascript",
+    "requiresTypeChecking": false
   }
 }

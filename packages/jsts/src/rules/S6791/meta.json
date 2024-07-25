@@ -3,6 +3,7 @@
   "docs": {
     "description": "React legacy lifecycle methods should not be used",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S6791/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S6791/javascript",
+    "requiresTypeChecking": false
   }
 }

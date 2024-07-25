@@ -3,6 +3,7 @@
   "docs": {
     "description": "Identical expressions should not be used on both sides of a binary operator",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S1764/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S1764/javascript",
+    "requiresTypeChecking": false
   }
 }

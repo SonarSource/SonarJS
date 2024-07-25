@@ -3,6 +3,7 @@
   "docs": {
     "description": "Values should not be uselessly incremented",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S2123/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S2123/javascript",
+    "requiresTypeChecking": false
   }
 }

@@ -3,7 +3,8 @@
   "docs": {
     "description": "Array-mutating methods should not be used misleadingly",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S4043/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S4043/javascript",
+    "requiresTypeChecking": true
   },
   "fixable": "code"
 }

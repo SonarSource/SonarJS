@@ -3,6 +3,7 @@
   "docs": {
     "description": "Properties of variables with \"null\" or \"undefined\" values should not be accessed",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S2259/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S2259/javascript",
+    "requiresTypeChecking": true
   }
 }

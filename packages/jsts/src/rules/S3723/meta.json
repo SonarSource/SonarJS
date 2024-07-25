@@ -3,7 +3,8 @@
   "docs": {
     "description": "Trailing commas should be used",
     "recommended": false,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S3723/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S3723/javascript",
+    "requiresTypeChecking": false
   },
   "deprecated": true
 }

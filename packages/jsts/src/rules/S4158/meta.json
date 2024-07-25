@@ -3,6 +3,7 @@
   "docs": {
     "description": "Empty collections should not be accessed or iterated",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S4158/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S4158/javascript",
+    "requiresTypeChecking": false
   }
 }

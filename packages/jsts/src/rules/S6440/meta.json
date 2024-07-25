@@ -3,6 +3,7 @@
   "docs": {
     "description": "React Hooks should be properly called",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S6440/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S6440/javascript",
+    "requiresTypeChecking": false
   }
 }

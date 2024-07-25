@@ -3,6 +3,7 @@
   "docs": {
     "description": "Forwarding client IP address is security-sensitive",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S5759/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S5759/javascript",
+    "requiresTypeChecking": false
   }
 }

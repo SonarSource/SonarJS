@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { Rule } from 'eslint';
+import { RuleMetaData } from '@typescript-eslint/utils/ts-eslint';
 import { readdirSync, readFileSync, writeFileSync } from 'fs';
 import { join } from 'node:path/posix';
 
@@ -40,6 +40,7 @@ type rspecMeta = {
   status: 'ready' | 'beta' | 'closed' | 'deprecated' | 'superseded';
   title: string;
   quickfix: 'covered' | undefined;
+  tags: string[];
 };
 const RULES_FOLDER = join(toUnixPath(__dirname), '../packages/jsts/src/rules/');
 const METADATA_FOLDER = join(
@@ -57,13 +58,14 @@ function generateMetaForRule(ruleDir: string, ruleId: string) {
   if (!typeMatrix[ruleRspecMeta.type]) {
     console.log(`Type not found for rule ${ruleId}`);
   }
-  const metadata: Rule.RuleMetaData = {
+  const metadata: Omit<RuleMetaData<any, any>, 'schema' | 'messages'> = {
     type: typeMatrix[ruleRspecMeta.type],
     docs: {
       description: ruleRspecMeta.title,
       recommended: sonarWayProfile.ruleKeys.includes(ruleId),
       //url: `https://github.com/SonarSource/rspec/blob/master/rules/${ruleId}/javascript/rule.adoc`,
       url: `https://sonarsource.github.io/rspec/#/rspec/${ruleId}/javascript`,
+      requiresTypeChecking: ruleRspecMeta.tags.includes('type-dependent'),
     },
   };
   if (ruleRspecMeta.quickfix === 'covered') {
@@ -72,7 +74,7 @@ function generateMetaForRule(ruleDir: string, ruleId: string) {
   if (ruleRspecMeta.status === 'deprecated') {
     metadata.deprecated = true;
   }
-  writeFileSync(join(ruleDir, ruleId, 'meta.json'), JSON.stringify(metadata, null, 2));
+  writeFileSync(join(ruleDir, ruleId, 'meta.json'), JSON.stringify(metadata, null, 2) + '\n');
 }
 
 function generateMetaForRules(ruleDir: string) {

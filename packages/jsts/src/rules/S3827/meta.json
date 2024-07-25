@@ -3,6 +3,7 @@
   "docs": {
     "description": "Variables should be defined before being used",
     "recommended": false,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S3827/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S3827/javascript",
+    "requiresTypeChecking": false
   }
 }

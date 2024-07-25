@@ -3,6 +3,7 @@
   "docs": {
     "description": "Union types should not have too many elements",
     "recommended": false,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S4622/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S4622/javascript",
+    "requiresTypeChecking": false
   }
 }

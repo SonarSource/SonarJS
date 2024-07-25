@@ -3,6 +3,7 @@
   "docs": {
     "description": "Multiline blocks should be enclosed in curly braces",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S2681/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S2681/javascript",
+    "requiresTypeChecking": false
   }
 }

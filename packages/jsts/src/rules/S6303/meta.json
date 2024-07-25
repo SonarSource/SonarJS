@@ -3,6 +3,7 @@
   "docs": {
     "description": "Using unencrypted RDS DB resources is security-sensitive",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S6303/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S6303/javascript",
+    "requiresTypeChecking": false
   }
 }

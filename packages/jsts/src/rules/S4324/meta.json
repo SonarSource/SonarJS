@@ -3,6 +3,7 @@
   "docs": {
     "description": "Primitive return types should be used",
     "recommended": false,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S4324/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S4324/javascript",
+    "requiresTypeChecking": true
   }
 }

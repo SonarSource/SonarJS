@@ -3,6 +3,7 @@
   "docs": {
     "description": "Loops with at most one iteration should be refactored",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S1751/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S1751/javascript",
+    "requiresTypeChecking": false
   }
 }

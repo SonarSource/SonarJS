@@ -3,6 +3,7 @@
   "docs": {
     "description": "Unused assignments should be removed",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S1854/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S1854/javascript",
+    "requiresTypeChecking": false
   }
 }

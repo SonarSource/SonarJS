@@ -3,6 +3,7 @@
   "docs": {
     "description": "Tests should not execute any code after \"done()\" is called",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S6079/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S6079/javascript",
+    "requiresTypeChecking": false
   }
 }

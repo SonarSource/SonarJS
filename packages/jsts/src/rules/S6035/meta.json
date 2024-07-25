@@ -3,6 +3,7 @@
   "docs": {
     "description": "Single-character alternations in regular expressions should be replaced with character classes",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S6035/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S6035/javascript",
+    "requiresTypeChecking": true
   }
 }

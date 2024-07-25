@@ -3,6 +3,7 @@
   "docs": {
     "description": "Server certificates should be verified during SSL/TLS connections",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S4830/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S4830/javascript",
+    "requiresTypeChecking": false
   }
 }

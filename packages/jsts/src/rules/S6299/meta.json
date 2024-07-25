@@ -3,6 +3,7 @@
   "docs": {
     "description": "Disabling Vue.js built-in escaping is security-sensitive",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S6299/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S6299/javascript",
+    "requiresTypeChecking": false
   }
 }

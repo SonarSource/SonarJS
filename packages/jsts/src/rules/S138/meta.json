@@ -3,6 +3,7 @@
   "docs": {
     "description": "Functions should not have too many lines of code",
     "recommended": false,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S138/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S138/javascript",
+    "requiresTypeChecking": false
   }
 }

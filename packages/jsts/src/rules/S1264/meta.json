@@ -3,7 +3,8 @@
   "docs": {
     "description": "A \"while\" loop should be used instead of a \"for\" loop",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S1264/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S1264/javascript",
+    "requiresTypeChecking": false
   },
   "fixable": "code"
 }

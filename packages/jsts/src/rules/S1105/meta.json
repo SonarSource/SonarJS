@@ -3,7 +3,8 @@
   "docs": {
     "description": "An open curly brace should be located at the end of a line",
     "recommended": false,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S1105/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S1105/javascript",
+    "requiresTypeChecking": false
   },
   "deprecated": true
 }

@@ -3,7 +3,8 @@
   "docs": {
     "description": "Optional property declarations should not use both '?' and 'undefined' syntax",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S4782/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S4782/javascript",
+    "requiresTypeChecking": true
   },
   "fixable": "code"
 }

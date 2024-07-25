@@ -3,7 +3,8 @@
   "docs": {
     "description": "\"switch\" statements should have \"default\" clauses",
     "recommended": false,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S131/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S131/javascript",
+    "requiresTypeChecking": true
   },
   "fixable": "code"
 }

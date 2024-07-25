@@ -3,6 +3,7 @@
   "docs": {
     "description": "Regular expressions using Unicode character classes or property escapes should enable the unicode flag",
     "recommended": false,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S5867/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S5867/javascript",
+    "requiresTypeChecking": true
   }
 }

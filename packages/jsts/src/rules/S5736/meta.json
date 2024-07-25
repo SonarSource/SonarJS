@@ -3,6 +3,7 @@
   "docs": {
     "description": "Disabling strict HTTP no-referrer policy is security-sensitive",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S5736/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S5736/javascript",
+    "requiresTypeChecking": false
   }
 }

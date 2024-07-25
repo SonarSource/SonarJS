@@ -3,6 +3,7 @@
   "docs": {
     "description": "Disclosing fingerprints from web application technologies is security-sensitive",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S5689/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S5689/javascript",
+    "requiresTypeChecking": false
   }
 }

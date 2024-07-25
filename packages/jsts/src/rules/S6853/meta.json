@@ -3,6 +3,7 @@
   "docs": {
     "description": "Label elements should have a text label and an associated control",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S6853/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S6853/javascript",
+    "requiresTypeChecking": false
   }
 }

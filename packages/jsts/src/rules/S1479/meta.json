@@ -3,6 +3,7 @@
   "docs": {
     "description": "\"switch\" statements should not have too many \"case\" clauses",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S1479/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S1479/javascript",
+    "requiresTypeChecking": false
   }
 }

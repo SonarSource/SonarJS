@@ -3,6 +3,7 @@
   "docs": {
     "description": "Reluctant quantifiers in regular expressions should be followed by an expression that can't match the empty string",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S6019/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S6019/javascript",
+    "requiresTypeChecking": true
   }
 }

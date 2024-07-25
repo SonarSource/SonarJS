@@ -3,6 +3,7 @@
   "docs": {
     "description": "Initial values of parameters, caught exceptions, and loop variables should not be ignored",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S1226/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S1226/javascript",
+    "requiresTypeChecking": false
   }
 }

@@ -3,7 +3,8 @@
   "docs": {
     "description": "Using command line arguments is security-sensitive",
     "recommended": false,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S4823/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S4823/javascript",
+    "requiresTypeChecking": false
   },
   "deprecated": true
 }

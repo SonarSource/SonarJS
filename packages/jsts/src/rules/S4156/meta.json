@@ -3,7 +3,8 @@
   "docs": {
     "description": "\"module\" should not be used",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S4156/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S4156/javascript",
+    "requiresTypeChecking": false
   },
   "fixable": "code"
 }

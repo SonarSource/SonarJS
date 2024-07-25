@@ -3,6 +3,7 @@
   "docs": {
     "description": "Optional boolean parameters should have default value",
     "recommended": false,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S4798/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S4798/javascript",
+    "requiresTypeChecking": false
   }
 }

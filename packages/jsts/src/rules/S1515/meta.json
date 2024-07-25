@@ -3,6 +3,7 @@
   "docs": {
     "description": "Functions should not be defined inside loops",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S1515/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S1515/javascript",
+    "requiresTypeChecking": false
   }
 }

@@ -3,6 +3,7 @@
   "docs": {
     "description": "Regular expression quantifiers and character classes should be used concisely",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S6353/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S6353/javascript",
+    "requiresTypeChecking": true
   }
 }

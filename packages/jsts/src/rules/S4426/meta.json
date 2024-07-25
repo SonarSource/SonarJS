@@ -3,6 +3,7 @@
   "docs": {
     "description": "Cryptographic keys should be robust",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S4426/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S4426/javascript",
+    "requiresTypeChecking": false
   }
 }

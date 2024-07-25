@@ -3,6 +3,7 @@
   "docs": {
     "description": "Searching OS commands in PATH is security-sensitive",
     "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S4036/javascript"
+    "url": "https://sonarsource.github.io/rspec/#/rspec/S4036/javascript",
+    "requiresTypeChecking": false
   }
 }
