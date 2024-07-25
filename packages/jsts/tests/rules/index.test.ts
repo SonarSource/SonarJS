@@ -23,29 +23,33 @@ import fs from 'fs';
 import path from 'path';
 import { valid } from 'semver';
 
+const mappedRules = new Map(
+  Object.entries(rules).map(([eslintId, rule]) => [rule.meta.docs.url, eslintId]),
+);
+
 describe('index', () => {
   it('should map keys to rules definitions', () => {
     const ruleFolder = path.join(__dirname, '../../src/rules');
     const sonarKeys = fs.readdirSync(ruleFolder).filter(name => /^S\d+/.test(name));
-    const mappedRules = new Map(Object.entries(rules).map(([eslintId, rule]) => [rule, eslintId]));
     const missing = [];
     for (const sonarKey of sonarKeys) {
       const { rule } = require(path.join(ruleFolder, sonarKey));
-      const ruleMeta = require(path.join(ruleFolder, sonarKey, 'meta.json'));
-      const eslintId = mappedRules.get(rule);
-      if (!mappedRules.has(rule)) {
-        missing.push(sonarKey);
-      }
-      if (ruleMeta.docs.recommended) {
-        expect(configs.recommended.rules).toHaveProperty(`sonarjs/${eslintId}`);
-        expect(configs.recommended.rules[`sonarjs/${eslintId}`]).toEqual('error');
-      } else {
-        expect(configs.recommended.rules[`sonarjs/${eslintId}`]).toEqual('off');
-      }
-      expect(configs.recommended.plugins!['sonarjs'].rules).toHaveProperty(eslintId);
       expect(rule.meta.docs!.url).toBe(
         `https://sonarsource.github.io/rspec/#/rspec/${sonarKey}/javascript`,
       );
+      const ruleMeta = require(path.join(ruleFolder, sonarKey, 'meta.json'));
+      const eslintId = mappedRules.get(rule.meta.docs.url);
+      if (!eslintId) {
+        missing.push(sonarKey);
+      } else {
+        if (ruleMeta.docs.recommended) {
+          expect(configs.recommended.rules).toHaveProperty(`sonarjs/${eslintId}`);
+          expect(configs.recommended.rules[`sonarjs/${eslintId}`]).toEqual('error');
+        } else {
+          expect(configs.recommended.rules[`sonarjs/${eslintId}`]).toEqual('off');
+        }
+        expect(configs.recommended.plugins!['sonarjs'].rules).toHaveProperty(eslintId);
+      }
     }
     expect(missing).toHaveLength(0);
     expect(Object.keys(rules)).toHaveLength(mappedRules.size);
