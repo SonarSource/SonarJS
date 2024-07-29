@@ -97,7 +97,7 @@ public class FormDataUtils {
   @CheckForNull
   private static Node parseProtobuf(byte[] ast) throws IOException {
     try {
-      CodedInputStream input = CodedInputStream.newInstance(ast, 0, ast.length);
+      CodedInputStream input = CodedInputStream.newInstance(ast);
       input.setRecursionLimit(PROTOBUF_RECURSION_LIMIT);
       return Node.parseFrom(input);
     } catch (InvalidProtocolBufferException e) {
