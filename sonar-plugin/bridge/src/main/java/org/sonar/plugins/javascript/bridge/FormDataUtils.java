@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.javascript.bridge;
 
+import com.google.protobuf.CodedInputStream;
 import com.google.protobuf.InvalidProtocolBufferException;
 import java.io.IOException;
 import java.net.http.HttpResponse;
@@ -34,6 +35,17 @@ import org.sonar.plugins.javascript.bridge.protobuf.Node;
 public class FormDataUtils {
 
   private static final Logger LOG = LoggerFactory.getLogger(FormDataUtils.class);
+  /**
+   * Our protobuf messages are not really optimized with respect to recursion. For every layer in the original AST,
+   * we have two layers in the protobuf message. This is because we have a top level message "Node" wrapping every node.
+   * While the default value (100) set by protobuf is a bit short (= 50 layers in the original AST), we observed in practice that
+   * it does not go a lot deeper than that, even on the convoluted code of the onion benchmark.
+   * We set it to 300 to be on the safe side.
+   * It is also worth to mention that the default limit is there to prevent "Malicious inputs".
+   * It makes sense as a general default limit for protobuf users, but in our case, we are producing the input ourselves,
+   * and even if users are controlling the code, it is not a new security risk, as any analyzer would have to deal with the same limit.
+   */
+  private static final int PROTOBUF_RECURSION_LIMIT = 300;
 
   private FormDataUtils() {
     throw new IllegalStateException("Utility class");
@@ -85,11 +97,12 @@ public class FormDataUtils {
   @CheckForNull
   private static Node parseProtobuf(byte[] ast) throws IOException {
     try {
-      return Node.parseFrom(ast);
+      CodedInputStream input = CodedInputStream.newInstance(ast);
+      input.setRecursionLimit(PROTOBUF_RECURSION_LIMIT);
+      return Node.parseFrom(input);
     } catch (InvalidProtocolBufferException e) {
       // Failing to parse the protobuf message should not prevent the analysis from continuing.
-      // This also happen in the case of large recursion. See https://sonarsource.atlassian.net/browse/JS-185.
-      // Note: we do not print the stack trace as it is huge and does not contain useful information.
+      // Note: we do not print the stack trace as it is usually huge and does not contain useful information.
       LOG.error("Failed to deserialize Protobuf message: {}", e.getMessage());
     }
     return null;
