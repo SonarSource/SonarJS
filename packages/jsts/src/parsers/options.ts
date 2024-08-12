@@ -18,6 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Linter } from 'eslint';
+const babelReactPreset = require('@babel/preset-react').default;
+const babelFlowPreset = require('@babel/preset-flow').default;
+const babelEnvPreset = require('@babel/preset-env').default;
+const babelDecoratorProposalPlugin = require('@babel/plugin-proposal-decorators').default;
 
 /**
  * Builds ESLint parser options
@@ -69,16 +73,11 @@ export function buildParserOptions(initialOptions: Linter.ParserOptions, usingBa
  * @param options the parser options to extend
  * @returns the extend parser options
  */
-function babelParserOptions(options: Linter.ParserOptions) {
-  const pluginPath = `${__dirname}/../../../../node_modules`;
-  const babelOptions = {
+function babelParserOptions(options: Linter.ParserOptions): Linter.ParserOptions {
+  const babelOptions: Linter.ParserOptions = {
     targets: 'defaults',
-    presets: [
-      `${pluginPath}/@babel/preset-react`,
-      `${pluginPath}/@babel/preset-flow`,
-      `${pluginPath}/@babel/preset-env`,
-    ],
-    plugins: [[`${pluginPath}/@babel/plugin-proposal-decorators`, { version: '2022-03' }]],
+    presets: [babelReactPreset, babelFlowPreset, babelEnvPreset],
+    plugins: [[babelDecoratorProposalPlugin, { version: '2022-03' }]],
     babelrc: false,
     configFile: false,
     parserOpts: {
