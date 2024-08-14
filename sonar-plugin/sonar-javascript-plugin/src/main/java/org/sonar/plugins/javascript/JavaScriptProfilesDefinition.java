@@ -46,7 +46,8 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
   public static final String SONAR_WAY_JSON = RESOURCE_PATH + "/Sonar_way_profile.json";
 
   private static final Map<String, String> PROFILES = new HashMap<>();
-  static final String SECURITY_RULES_CLASS_NAME = "com.sonar.plugins.security.api.JsRules";
+  static final String SONAR_SECURITY_RULES_CLASS_NAME = "com.sonar.plugins.security.api.JsRules";
+  static final String SONAR_ARMOR_RULES_CLASS_NAME = "com.sonar.armor.plugin.api.JsRules";
   public static final String SECURITY_RULE_KEYS_METHOD_NAME = "getSecurityRuleKeys";
 
   static {
@@ -95,20 +96,26 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
   }
 
   /**
-   * Security rules are added by reflectively invoking specific class from sonar-security-plugin, which provides
+   * Security rules are added by reflectively invoking specific class from SonarSecurity or Armor plugin, which provides
    * rule keys to add to the built-in profiles.
-   *
-   * It is expected for reflective call to fail in case sonar-security-plugin is not available, e.g. in SQ community
-   * edition
+   * It is expected for reflective call to fail in case any plugin is not available, e.g. in SQ community edition.
    */
   private static void addSecurityRules(NewBuiltInQualityProfile newProfile, String language) {
-    Set<RuleKey> ruleKeys = getSecurityRuleKeys(
-      SECURITY_RULES_CLASS_NAME,
+    Set<RuleKey> sonarSecurityRuleKeys = getSecurityRuleKeys(
+      SONAR_SECURITY_RULES_CLASS_NAME,
       SECURITY_RULE_KEYS_METHOD_NAME,
       language
     );
-    LOG.debug("Adding security ruleKeys {}", ruleKeys);
-    ruleKeys.forEach(r -> newProfile.activateRule(r.repository(), r.rule()));
+    LOG.debug("Adding security ruleKeys {}", sonarSecurityRuleKeys);
+    sonarSecurityRuleKeys.forEach(r -> newProfile.activateRule(r.repository(), r.rule()));
+
+    Set<RuleKey> sonarArmorRuleKeys = getSecurityRuleKeys(
+      SONAR_ARMOR_RULES_CLASS_NAME,
+      SECURITY_RULE_KEYS_METHOD_NAME,
+      language
+    );
+    LOG.debug("Adding security ruleKeys {}", sonarArmorRuleKeys);
+    sonarArmorRuleKeys.forEach(r -> newProfile.activateRule(r.repository(), r.rule()));
   }
 
   // Visible for testing
