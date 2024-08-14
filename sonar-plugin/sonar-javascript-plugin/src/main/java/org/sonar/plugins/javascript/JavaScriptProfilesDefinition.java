@@ -47,7 +47,7 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
 
   private static final Map<String, String> PROFILES = new HashMap<>();
   static final String SONAR_SECURITY_RULES_CLASS_NAME = "com.sonar.plugins.security.api.JsRules";
-  static final String SONAR_ARMOR_RULES_CLASS_NAME = "com.sonar.armor.plugin.api.JsRules";
+  static final String SONAR_ARMOR_RULES_CLASS_NAME = "com.sonar.plugins.armor.api.JsRules";
   public static final String SECURITY_RULE_KEYS_METHOD_NAME = "getSecurityRuleKeys";
 
   static {
