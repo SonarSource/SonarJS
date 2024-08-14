@@ -21,11 +21,11 @@ import { compareSync } from 'dir-compare';
 import { setupBeforeAll, testProject } from '../tools/testProject';
 
 describe('Ruling', () => {
-  const { project, expectedPath, actualPath } = setupBeforeAll(__filename);
+  const { project, expectedPath, actualPath, rules } = setupBeforeAll(__filename);
   it(
     project.name,
     async () => {
-      await testProject(project);
+      await testProject(project, actualPath, rules);
       expect(
         compareSync(expectedPath, actualPath, {
           compareContent: true,
