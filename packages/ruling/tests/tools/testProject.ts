@@ -87,12 +87,7 @@ const DEFAULT_EXCLUSIONS = [
 ].map(pattern => new Minimatch(pattern, { nocase: true }));
 
 export function setupBeforeAll(projectFile: string, customRules?: CustomRule[]) {
-  const {
-    project,
-    rules,
-    expectedPath,
-    actualPath,
-  } = extractParameters(projectFile);
+  const { project, rules, expectedPath, actualPath } = extractParameters(projectFile);
 
   beforeAll(() => {
     setContext({
@@ -119,7 +114,7 @@ function initializeRules(rules: RuleConfig[], customRules?: CustomRule[]) {
     loadCustomRules(htmlLinter.linter, customRules);
   }
   initializeLinter(rules, DEFAULT_ENVIRONMENTS, DEFAULT_GLOBALS);
-  const htmlRules = (rules).filter(rule => rule.key !== 'no-var');
+  const htmlRules = rules.filter(rule => rule.key !== 'no-var');
   initializeLinter(htmlRules, DEFAULT_ENVIRONMENTS, DEFAULT_GLOBALS, HTML_LINTER_ID);
 }
 function getProjectName(testFilePath: string) {
@@ -139,9 +134,13 @@ function extractParameters(projectFile: string) {
   return {
     project,
     rules: params.rules || loadRules(),
-    expectedPath: params.expectedPath ? path.join(params.expectedPath, project.name) : path.join(expectedPath, project.name),
-    actualPath: params.actualPath ? path.join(params.actualPath, project.name) : path.join(actualPath, project.name),
-  }
+    expectedPath: params.expectedPath
+      ? path.join(params.expectedPath, project.name)
+      : path.join(expectedPath, project.name),
+    actualPath: params.actualPath
+      ? path.join(params.actualPath, project.name)
+      : path.join(actualPath, project.name),
+  };
 }
 function extractSettingsFromFile(pathToSettings: string) {
   if (!fs.existsSync(pathToSettings)) {
@@ -153,7 +152,11 @@ function extractSettingsFromFile(pathToSettings: string) {
 /**
  * Load files and analyze project
  */
-export async function testProject(rulingInput: RulingInput, actualPath: string, rules: RuleConfig[]) {
+export async function testProject(
+  rulingInput: RulingInput,
+  actualPath: string,
+  rules: RuleConfig[],
+) {
   const projectPath = path.join(jsTsProjectsPath, rulingInput.folder ?? rulingInput.name);
   const exclusions = setExclusions(rulingInput.exclusions, rulingInput.testDir);
 
