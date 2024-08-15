@@ -66,6 +66,7 @@ const expectedPath = path.join(
 );
 const actualPath = path.join(__dirname, '..', 'actual', 'jsts');
 
+const SETTINGS_KEY = 'SONAR_RULING_SETTINGS';
 const HTML_LINTER_ID = 'html';
 
 type RulingInput = {
@@ -123,10 +124,10 @@ function getProjectName(testFilePath: string) {
   return filename.substring(0, filename.length - SUFFIX.length);
 }
 function extractParameters(projectFile: string) {
-  const args = process.argv;
+  const settingsPath = process.env[SETTINGS_KEY];
   let params: any = {};
-  if (args.length > 3) {
-    params = extractSettingsFromFile(args[3]);
+  if (settingsPath) {
+    params = extractSettingsFromFile(settingsPath);
   }
   const projectName = getProjectName(toUnixPath(projectFile));
   const project = projects.find(p => p.name === projectName);
@@ -143,9 +144,6 @@ function extractParameters(projectFile: string) {
   };
 }
 function extractSettingsFromFile(pathToSettings: string) {
-  if (!fs.existsSync(pathToSettings)) {
-    throw new Error(`Settings file not found: ${pathToSettings}`);
-  }
   return require(pathToSettings);
 }
 
