@@ -28,7 +28,7 @@ import org.junit.jupiter.api.Test;
 
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2020 SonarSource SA
+ * Copyright (C) 2011-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
