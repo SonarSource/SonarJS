@@ -125,7 +125,7 @@ function getProjectName(testFilePath: string) {
 }
 function extractParameters(projectFile: string) {
   const settingsPath = process.env[SETTINGS_KEY];
-  let params: any = {};
+  let params;
   if (settingsPath) {
     params = extractSettingsFromFile(settingsPath);
   }
@@ -134,12 +134,12 @@ function extractParameters(projectFile: string) {
 
   return {
     project,
-    rules: params.rules || loadRules(),
-    expectedPath: params.expectedPath
-      ? path.join(params.expectedPath, project.name)
+    rules: params?.rules || loadRules(),
+    expectedPath: params?.expectedPath
+      ? path.join(params?.expectedPath, project.name)
       : path.join(expectedPath, project.name),
-    actualPath: params.actualPath
-      ? path.join(params.actualPath, project.name)
+    actualPath: params?.actualPath
+      ? path.join(params?.actualPath, project.name)
       : path.join(actualPath, project.name),
   };
 }
