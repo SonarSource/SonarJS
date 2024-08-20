@@ -23,14 +23,14 @@ import java.util.Collections;
 import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @JavaScriptRule
 @TypeScriptRule
 @Rule(key = "S2004")
-public class NoNestedFunctionsCheck implements EslintBasedCheck {
+public class NoNestedFunctionsCheck extends Check {
 
   private static final int DEFAULT_THRESHOLD = 4;
 
@@ -48,10 +48,7 @@ public class NoNestedFunctionsCheck implements EslintBasedCheck {
     );
   }
 
-  @Override
-  public String eslintKey() {
-    return "no-nested-functions";
-  }
+
 
   private static class Config {
 

@@ -20,15 +20,12 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @TypeScriptRule
 @Rule(key = "S4324")
-public class NoReturnTypeAnyCheck implements EslintBasedCheck {
+public class NoReturnTypeAnyCheck extends Check {
 
-  @Override
-  public String eslintKey() {
-    return "no-return-type-any";
-  }
+
 }

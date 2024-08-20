@@ -21,22 +21,19 @@ package org.sonar.javascript.checks;
 
 import java.util.List;
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @TypeScriptRule
 @Rule(key = "S6550")
-public class PreferLiteralEnumMemberCheck implements EslintBasedCheck {
+public class PreferLiteralEnumMemberCheck extends Check {
 
   @Override
   public List<Object> configurations() {
     return List.of(new Config());
   }
 
-  @Override
-  public String eslintKey() {
-    return "prefer-literal-enum-member";
-  }
+
 
   private static class Config {
 

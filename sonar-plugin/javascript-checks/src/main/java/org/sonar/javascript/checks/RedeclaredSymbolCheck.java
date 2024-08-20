@@ -22,22 +22,19 @@ package org.sonar.javascript.checks;
 import java.util.Collections;
 import java.util.List;
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 
 @JavaScriptRule
 @Rule(key = "S2814")
-public class RedeclaredSymbolCheck implements EslintBasedCheck {
+public class RedeclaredSymbolCheck extends Check {
 
   @Override
   public List<Object> configurations() {
     return Collections.singletonList(new Config());
   }
 
-  @Override
-  public String eslintKey() {
-    return "no-redeclare";
-  }
+  
 
   private static class Config {
 

@@ -22,19 +22,16 @@ package org.sonar.javascript.checks;
 import java.util.Collections;
 import java.util.List;
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @JavaScriptRule
 @TypeScriptRule
 @Rule(key = "S1186")
-public class EmptyFunctionCheck implements EslintBasedCheck {
+public class EmptyFunctionCheck extends Check {
 
-  @Override
-  public String eslintKey() {
-    return "no-empty-function";
-  }
+
 
   @Override
   public List<Object> configurations() {

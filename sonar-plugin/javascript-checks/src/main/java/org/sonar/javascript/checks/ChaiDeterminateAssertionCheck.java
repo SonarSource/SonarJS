@@ -29,8 +29,5 @@ import org.sonar.plugins.javascript.api.TypeScriptRule;
 @Rule(key = "S6092")
 public class ChaiDeterminateAssertionCheck extends TestFileCheck {
 
-  @Override
-  public String eslintKey() {
-    return "chai-determinate-assertion";
-  }
+
 }

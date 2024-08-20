@@ -20,15 +20,12 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 
 @JavaScriptRule
 @Rule(key = "S2703")
-public class VariableDeclarationWithoutVarCheck implements EslintBasedCheck {
+public class VariableDeclarationWithoutVarCheck extends Check {
 
-  @Override
-  public String eslintKey() {
-    return "no-implicit-global";
-  }
+  
 }

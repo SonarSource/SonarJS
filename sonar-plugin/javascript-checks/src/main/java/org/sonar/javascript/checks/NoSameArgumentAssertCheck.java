@@ -29,8 +29,5 @@ import org.sonar.plugins.javascript.api.TypeScriptRule;
 @Rule(key = "S5863")
 public class NoSameArgumentAssertCheck extends TestFileCheck {
 
-  @Override
-  public String eslintKey() {
-    return "no-same-argument-assert";
-  }
+  
 }

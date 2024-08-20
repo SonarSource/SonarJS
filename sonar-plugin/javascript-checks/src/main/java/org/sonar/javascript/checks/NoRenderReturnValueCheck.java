@@ -20,17 +20,14 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @TypeScriptRule
 @JavaScriptRule
 @Rule(key = "S6750")
-public class NoRenderReturnValueCheck implements EslintBasedCheck {
+public class NoRenderReturnValueCheck extends Check {
 
-  @Override
-  public String eslintKey() {
-    return "no-render-return-value";
-  }
+  
 }

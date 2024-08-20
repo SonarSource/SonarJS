@@ -32,6 +32,7 @@ import org.junit.jupiter.api.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.CheckList;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.CustomRuleRepository;
 import org.sonar.plugins.javascript.api.EslintBasedCheck;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
@@ -44,7 +45,7 @@ class JsTsChecksTest {
   void test() {
     JsTsChecks checks = new JsTsChecks(checkFactory(CheckList.TS_REPOSITORY_KEY, "S3923"));
 
-    assertThat(checks.ruleKeyByEslintKey("no-all-duplicated-branches", TYPESCRIPT))
+    assertThat(checks.ruleKeyByEslintKey("S3923", TYPESCRIPT))
       .isEqualTo(RuleKey.of("typescript", "S3923"));
     assertThat(checks.ruleKeyByEslintKey("unknown-rule-key", JAVASCRIPT)).isNull();
   }
@@ -56,7 +57,7 @@ class JsTsChecksTest {
       new CustomRuleRepository[] { new TsRepository(), new JsRepository() }
     );
     assertThat(checks.eslintBasedChecks()).hasSize(1);
-    assertThat(checks.ruleKeyByEslintKey("key", TYPESCRIPT))
+    assertThat(checks.ruleKeyByEslintKey("customcheck", TYPESCRIPT))
       .isEqualTo(RuleKey.parse("repo:customcheck"));
   }
 
@@ -69,9 +70,9 @@ class JsTsChecksTest {
       new CustomRuleRepository[] { new TsRepository(), new JsRepository() }
     );
     assertThat(checks.eslintBasedChecks()).hasSize(2);
-    assertThat(checks.ruleKeyByEslintKey("key", JAVASCRIPT))
+    assertThat(checks.ruleKeyByEslintKey("customcheck", JAVASCRIPT))
       .isEqualTo(RuleKey.parse("js-repo:customcheck"));
-    assertThat(checks.ruleKeyByEslintKey("key", TYPESCRIPT))
+    assertThat(checks.ruleKeyByEslintKey("customcheck", TYPESCRIPT))
       .isEqualTo(RuleKey.parse("repo:customcheck"));
   }
 
@@ -124,11 +125,7 @@ class JsTsChecksTest {
   @TypeScriptRule
   @JavaScriptRule
   @Rule(key = "customcheck")
-  public static class CustomTsCheck implements EslintBasedCheck {
+  public static class CustomTsCheck extends Check {
 
-    @Override
-    public String eslintKey() {
-      return "key";
-    }
   }
 }

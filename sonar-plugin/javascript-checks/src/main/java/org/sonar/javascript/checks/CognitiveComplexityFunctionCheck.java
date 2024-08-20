@@ -23,14 +23,14 @@ import java.util.Collections;
 import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @JavaScriptRule
 @TypeScriptRule
 @Rule(key = "S3776")
-public class CognitiveComplexityFunctionCheck implements EslintBasedCheck {
+public class CognitiveComplexityFunctionCheck extends Check {
 
   private static final int DEFAULT_THRESHOLD = 15;
 
@@ -41,10 +41,7 @@ public class CognitiveComplexityFunctionCheck implements EslintBasedCheck {
   )
   int threshold = DEFAULT_THRESHOLD;
 
-  @Override
-  public String eslintKey() {
-    return "cognitive-complexity";
-  }
+
 
   @Override
   public List<Object> configurations() {

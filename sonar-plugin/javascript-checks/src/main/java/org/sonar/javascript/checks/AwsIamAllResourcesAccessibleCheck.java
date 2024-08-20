@@ -20,17 +20,14 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @TypeScriptRule
 @JavaScriptRule
 @Rule(key = "S6304")
-public class AwsIamAllResourcesAccessibleCheck implements EslintBasedCheck {
+public class AwsIamAllResourcesAccessibleCheck extends Check {
 
-  @Override
-  public String eslintKey() {
-    return "aws-iam-all-resources-accessible";
-  }
+  
 }

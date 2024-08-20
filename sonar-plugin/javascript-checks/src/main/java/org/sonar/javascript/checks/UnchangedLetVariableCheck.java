@@ -22,19 +22,16 @@ package org.sonar.javascript.checks;
 import java.util.Collections;
 import java.util.List;
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @JavaScriptRule
 @TypeScriptRule
 @Rule(key = "S3353")
-public class UnchangedLetVariableCheck implements EslintBasedCheck {
+public class UnchangedLetVariableCheck extends Check {
 
-  @Override
-  public String eslintKey() {
-    return "prefer-const";
-  }
+
 
   @Override
   public List<Object> configurations() {

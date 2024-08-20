@@ -22,19 +22,16 @@ package org.sonar.javascript.checks;
 import java.util.Collections;
 import java.util.List;
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @TypeScriptRule
 @JavaScriptRule
 @Rule(key = "S2094")
-public class NoEmptyClassCheck implements EslintBasedCheck {
+public class NoEmptyClassCheck extends Check {
 
-  @Override
-  public String eslintKey() {
-    return "no-extraneous-class";
-  }
+
 
   @Override
   public List<Object> configurations() {

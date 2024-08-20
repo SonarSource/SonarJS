@@ -20,17 +20,14 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @JavaScriptRule
 @TypeScriptRule
 @Rule(key = "S6327")
-public class AwsSnsUnencryptedTopicsCheck implements EslintBasedCheck {
+public class AwsSnsUnencryptedTopicsCheck extends Check {
 
-  @Override
-  public String eslintKey() {
-    return "aws-sns-unencrypted-topics";
-  }
+
 }

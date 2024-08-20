@@ -22,22 +22,19 @@ package org.sonar.javascript.checks;
 import java.util.Collections;
 import java.util.List;
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @TypeScriptRule
 @Rule(key = "S6606")
-public class PreferNullishCoalescingCheck implements EslintBasedCheck {
+public class PreferNullishCoalescingCheck extends Check {
 
   @Override
   public List<Object> configurations() {
     return Collections.singletonList(new Config());
   }
 
-  @Override
-  public String eslintKey() {
-    return "prefer-nullish-coalescing";
-  }
+  
 
   private static class Config {
 

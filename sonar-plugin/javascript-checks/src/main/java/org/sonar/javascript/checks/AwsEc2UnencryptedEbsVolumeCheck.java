@@ -20,17 +20,14 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @TypeScriptRule
 @JavaScriptRule
 @Rule(key = "S6275")
-public class AwsEc2UnencryptedEbsVolumeCheck implements EslintBasedCheck {
+public class AwsEc2UnencryptedEbsVolumeCheck extends Check {
 
-  @Override
-  public String eslintKey() {
-    return "aws-ec2-unencrypted-ebs-volume";
-  }
+
 }

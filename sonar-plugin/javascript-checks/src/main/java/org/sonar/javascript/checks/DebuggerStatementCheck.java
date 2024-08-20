@@ -20,7 +20,7 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
@@ -29,10 +29,7 @@ import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 @TypeScriptRule
 @DeprecatedRuleKey(ruleKey = "DebuggerStatement")
 @Rule(key = "S1525")
-public class DebuggerStatementCheck implements EslintBasedCheck {
+public class DebuggerStatementCheck extends Check {
 
-  @Override
-  public String eslintKey() {
-    return "no-debugger";
-  }
+
 }

@@ -23,14 +23,14 @@ import java.util.Collections;
 import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @JavaScriptRule
 @TypeScriptRule
 @Rule(key = "S2068")
-public class HardcodedCredentialsCheck implements EslintBasedCheck {
+public class HardcodedCredentialsCheck extends Check {
 
   private static final String DEFAULT = "password, pwd, passwd";
 
@@ -48,10 +48,7 @@ public class HardcodedCredentialsCheck implements EslintBasedCheck {
     );
   }
 
-  @Override
-  public String eslintKey() {
-    return "no-hardcoded-credentials";
-  }
+
 
   private static class Config {
 

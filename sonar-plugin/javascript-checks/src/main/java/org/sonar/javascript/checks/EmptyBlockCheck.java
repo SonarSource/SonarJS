@@ -22,7 +22,7 @@ package org.sonar.javascript.checks;
 import java.util.Collections;
 import java.util.List;
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
@@ -31,17 +31,14 @@ import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 @TypeScriptRule
 @DeprecatedRuleKey(ruleKey = "EmptyBlock")
 @Rule(key = "S108")
-public class EmptyBlockCheck implements EslintBasedCheck {
+public class EmptyBlockCheck extends Check {
 
   @Override
   public List<Object> configurations() {
     return Collections.singletonList(new Config());
   }
 
-  @Override
-  public String eslintKey() {
-    return "no-empty";
-  }
+  
 
   private static class Config {
 

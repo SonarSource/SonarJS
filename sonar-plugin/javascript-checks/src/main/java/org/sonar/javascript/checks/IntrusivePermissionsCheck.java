@@ -23,14 +23,14 @@ import java.util.Collections;
 import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @JavaScriptRule
 @TypeScriptRule
 @Rule(key = "S5604")
-public class IntrusivePermissionsCheck implements EslintBasedCheck {
+public class IntrusivePermissionsCheck extends Check {
 
   private static final String DEFAULT = "geolocation";
 
@@ -51,10 +51,7 @@ public class IntrusivePermissionsCheck implements EslintBasedCheck {
     );
   }
 
-  @Override
-  public String eslintKey() {
-    return "no-intrusive-permissions";
-  }
+
 
   private static class Config {
 

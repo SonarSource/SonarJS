@@ -23,14 +23,14 @@ import java.util.Arrays;
 import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @JavaScriptRule
 @TypeScriptRule
 @Rule(key = "S1105")
-public class OpenCurlyBracesAtEOLCheck implements EslintBasedCheck {
+public class OpenCurlyBracesAtEOLCheck extends Check {
 
   private static final String DEFAULT_BRACE_STYLE = "1tbs";
 
@@ -46,10 +46,7 @@ public class OpenCurlyBracesAtEOLCheck implements EslintBasedCheck {
     return Arrays.asList(braceStyle, new Config());
   }
 
-  @Override
-  public String eslintKey() {
-    return "brace-style";
-  }
+
 
   private static class Config {
 

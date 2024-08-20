@@ -175,9 +175,9 @@ class JavaScriptEslintBasedSensorTest {
   void should_create_issues() throws Exception {
     AnalysisResponse responseIssues = response(
       "{ issues: [{" +
-      "\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"no-all-duplicated-branches\",\"message\":\"Issue message\", \"secondaryLocations\": []}," +
-      "{\"line\":1,\"column\":1,\"ruleId\":\"no-all-duplicated-branches\",\"message\":\"Line issue message\", \"secondaryLocations\": []}," +
-      "{\"line\":0,\"column\":1,\"ruleId\":\"file-header\",\"message\":\"File issue message\", \"secondaryLocations\": []}" +
+      "\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"S3923\",\"message\":\"Issue message\", \"secondaryLocations\": []}," +
+      "{\"line\":1,\"column\":1,\"ruleId\":\"S3923\",\"message\":\"Line issue message\", \"secondaryLocations\": []}," +
+      "{\"line\":0,\"column\":1,\"ruleId\":\"S1451\",\"message\":\"File issue message\", \"secondaryLocations\": []}" +
       "]}"
     );
     when(bridgeServerMock.analyzeJavaScript(any())).thenReturn(responseIssues);
@@ -224,7 +224,7 @@ class JavaScriptEslintBasedSensorTest {
   void should_set_quickfixavailable() throws Exception {
     AnalysisResponse responseIssues = response(
       "{ issues: [{" +
-      "\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"no-all-duplicated-branches\",\"message\":\"Issue message\", \"secondaryLocations\": []," +
+      "\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"S3923\",\"message\":\"Issue message\", \"secondaryLocations\": []," +
       "\"quickFixes\": [{ message: \"msg\", edits: [] }] " +
       "}" +
       "]}"
@@ -261,7 +261,7 @@ class JavaScriptEslintBasedSensorTest {
     when(bridgeServerMock.analyzeJavaScript(any()))
       .thenReturn(
         response(
-          "{ issues: [{\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"no-all-duplicated-branches\",\"message\":\"Issue message\", " +
+          "{ issues: [{\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"S3923\",\"message\":\"Issue message\", " +
           "\"cost\": 14," +
           "\"secondaryLocations\": [" +
           "{ message: \"Secondary\", \"line\":2,\"column\":0,\"endLine\":2,\"endColumn\":3}," +
@@ -302,7 +302,7 @@ class JavaScriptEslintBasedSensorTest {
     when(bridgeServerMock.analyzeJavaScript(any()))
       .thenReturn(
         response(
-          "{ issues: [{\"line\":1,\"column\":3,\"endLine\":3,\"endColumn\":5,\"ruleId\":\"no-all-duplicated-branches\",\"message\":\"Issue message\", " +
+          "{ issues: [{\"line\":1,\"column\":3,\"endLine\":3,\"endColumn\":5,\"ruleId\":\"S3923\",\"message\":\"Issue message\", " +
           "\"secondaryLocations\": [" +
           "{ message: \"Secondary\", \"line\":2,\"column\":1,\"endLine\":null,\"endColumn\":4}" +
           "]}]}"
@@ -326,7 +326,7 @@ class JavaScriptEslintBasedSensorTest {
     when(bridgeServerMock.analyzeJavaScript(any()))
       .thenReturn(
         response(
-          "{ issues: [{\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"no-all-duplicated-branches\",\"message\":\"Issue message\", " +
+          "{ issues: [{\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"S3923\",\"message\":\"Issue message\", " +
           "\"cost\": 42," +
           "\"secondaryLocations\": []}]}"
         )
@@ -509,7 +509,7 @@ class JavaScriptEslintBasedSensorTest {
       new NewActiveRule.Builder()
         .setRuleKey(RuleKey.of(CheckList.JS_REPOSITORY_KEY, "S3923"))
         .build()
-    ); // no-all-duplicated-branches, without config
+    ); // S3923, without config
     CheckFactory checkFactory = new CheckFactory(builder.build());
 
     var checks = new JsTsChecks(checkFactory);
@@ -517,14 +517,14 @@ class JavaScriptEslintBasedSensorTest {
 
     assertThat(rules).hasSize(3);
 
-    assertThat(rules.get(0).getKey()).isEqualTo("no-duplicate-string");
+    assertThat(rules.get(0).getKey()).isEqualTo("S1192");
     assertThat(new Gson().toJson(rules.get(0).getConfigurations()))
       .isEqualTo("[{\"threshold\":3,\"ignoreStrings\":\"application/json\"}]");
 
-    assertThat(rules.get(1).getKey()).isEqualTo("max-switch-cases");
+    assertThat(rules.get(1).getKey()).isEqualTo("S1479");
     assertThat(rules.get(1).getConfigurations()).containsExactly(42);
 
-    assertThat(rules.get(2).getKey()).isEqualTo("no-all-duplicated-branches");
+    assertThat(rules.get(2).getKey()).isEqualTo("S3923");
     assertThat(rules.get(2).getConfigurations()).isEmpty();
   }
 

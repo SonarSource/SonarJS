@@ -23,7 +23,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
@@ -33,12 +33,9 @@ import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 // deprecated key in TS
 @DeprecatedRuleKey(ruleKey = "S2228")
 @Rule(key = "S106")
-public class ConsoleLoggingCheck implements EslintBasedCheck {
+public class ConsoleLoggingCheck extends Check {
 
-  @Override
-  public String eslintKey() {
-    return "no-console";
-  }
+  
 
   @Override
   public List<Object> configurations() {

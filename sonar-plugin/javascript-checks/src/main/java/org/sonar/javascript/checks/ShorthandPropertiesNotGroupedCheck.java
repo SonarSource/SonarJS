@@ -20,17 +20,14 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @JavaScriptRule
 @TypeScriptRule
 @Rule(key = "S3499")
-public class ShorthandPropertiesNotGroupedCheck implements EslintBasedCheck {
+public class ShorthandPropertiesNotGroupedCheck extends Check {
 
-  @Override
-  public String eslintKey() {
-    return "shorthand-property-grouping";
-  }
+  
 }

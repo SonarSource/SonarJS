@@ -23,14 +23,14 @@ import java.util.Arrays;
 import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @TypeScriptRule
 @JavaScriptRule
 @Rule(key = "S1192")
-public class NoDuplicateStringCheck implements EslintBasedCheck {
+public class NoDuplicateStringCheck extends Check {
 
   private static final int DEFAULT_THRESHOLD = 3;
   private static final String DEFAULT_IGNORED_STRINGS = "application/json";
@@ -54,10 +54,7 @@ public class NoDuplicateStringCheck implements EslintBasedCheck {
     return Arrays.asList(new Config(threshold, ignoreStrings));
   }
 
-  @Override
-  public String eslintKey() {
-    return "no-duplicate-string";
-  }
+
 
   private static class Config {
 

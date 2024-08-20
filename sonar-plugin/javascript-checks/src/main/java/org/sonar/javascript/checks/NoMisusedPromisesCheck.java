@@ -22,14 +22,14 @@ package org.sonar.javascript.checks;
 import java.util.Collections;
 import java.util.List;
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @TypeScriptRule
 @JavaScriptRule
 @Rule(key = "S6544")
-public class NoMisusedPromisesCheck implements EslintBasedCheck {
+public class NoMisusedPromisesCheck extends Check {
 
   private static class Config {
 
@@ -49,8 +49,5 @@ public class NoMisusedPromisesCheck implements EslintBasedCheck {
     return Collections.singletonList(new Config());
   }
 
-  @Override
-  public String eslintKey() {
-    return "no-misused-promises";
-  }
+
 }

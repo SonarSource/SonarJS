@@ -20,15 +20,12 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @TypeScriptRule
 @Rule(key = "S6565")
-public class PreferReturnThisTypeCheck implements EslintBasedCheck {
+public class PreferReturnThisTypeCheck extends Check {
 
-  @Override
-  public String eslintKey() {
-    return "prefer-return-this-type";
-  }
+
 }

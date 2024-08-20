@@ -23,7 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
@@ -32,7 +32,7 @@ import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 @TypeScriptRule
 @DeprecatedRuleKey(ruleKey = "SingleQuote")
 @Rule(key = "S1441")
-public class StringLiteralsQuotesCheck implements EslintBasedCheck {
+public class StringLiteralsQuotesCheck extends Check {
 
   private static final boolean DEFAULT = true;
 
@@ -48,10 +48,7 @@ public class StringLiteralsQuotesCheck implements EslintBasedCheck {
     return Arrays.asList(singleQuotes ? "single" : "double", new Config());
   }
 
-  @Override
-  public String eslintKey() {
-    return "quotes";
-  }
+
 
   private static class Config {
 

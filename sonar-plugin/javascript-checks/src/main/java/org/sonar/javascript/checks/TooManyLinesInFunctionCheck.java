@@ -23,14 +23,14 @@ import java.util.Collections;
 import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @JavaScriptRule
 @TypeScriptRule
 @Rule(key = "S138")
-public class TooManyLinesInFunctionCheck implements EslintBasedCheck {
+public class TooManyLinesInFunctionCheck extends Check {
 
   private static final int DEFAULT = 200;
 
@@ -48,10 +48,7 @@ public class TooManyLinesInFunctionCheck implements EslintBasedCheck {
     );
   }
 
-  @Override
-  public String eslintKey() {
-    return "sonar-max-lines-per-function";
-  }
+
 
   private static class Config {
 

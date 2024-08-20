@@ -20,7 +20,7 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
@@ -29,10 +29,7 @@ import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 @TypeScriptRule
 @DeprecatedRuleKey(ruleKey = "NonEmptyCaseWithoutBreak")
 @Rule(key = "S128")
-public class NonEmptyCaseWithoutBreakCheck implements EslintBasedCheck {
+public class NonEmptyCaseWithoutBreakCheck extends Check {
 
-  @Override
-  public String eslintKey() {
-    return "sonar-no-fallthrough";
-  }
+
 }

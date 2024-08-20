@@ -95,17 +95,20 @@ function isInvalidRule(ruleKey: string, eslintKey?: string) {
  */
 function applyRulingConfig(rule: RuleData) {
   switch (rule.key) {
-    case 'no-ignored-exceptions': {
+    case 'no-ignored-exceptions':
+    case 'S2486': {
       // for some reason the scope is different
       rule.fileTypeTarget = ['TEST'];
       break;
     }
-    case 'no-exclusive-tests': {
+    case 'no-exclusive-tests':
+    case 'S6426': {
       // for some reason the scope is different
       rule.fileTypeTarget = ['TEST'];
       break;
     }
-    case 'file-header': {
+    case 'file-header':
+    case 'S1451': {
       if (rule.language === 'js') {
         rule.configurations[0].headerFormat =
           '// Copyright 20\\d\\d The Closure Library Authors. All Rights Reserved.';
@@ -116,12 +119,14 @@ function applyRulingConfig(rule: RuleData) {
       }
       break;
     }
-    case 'comment-regex': {
+    case 'comment-regex':
+    case 'S124': {
       rule.configurations[0].regularExpression = '.*TODO.*';
       rule.configurations[0].flags = 'i';
       break;
     }
-    case 'no-duplicate-string': {
+    case 'no-duplicate-string':
+    case 'S1192': {
       if (rule.language === 'js') {
         rule.configurations[0]!.threshold = 4;
       }

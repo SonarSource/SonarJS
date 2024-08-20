@@ -29,8 +29,5 @@ import org.sonar.plugins.javascript.api.TypeScriptRule;
 @Rule(key = "S6426")
 public class NoExclusiveTestsCheck extends TestFileCheck {
 
-  @Override
-  public String eslintKey() {
-    return "no-exclusive-tests";
-  }
+
 }

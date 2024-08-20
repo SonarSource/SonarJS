@@ -35,7 +35,7 @@ class JavaScriptChecksTest {
       TestUtils.checkFactory(CheckList.JS_REPOSITORY_KEY, "S3923")
     );
 
-    assertThat(checks.ruleKeyByEslintKey("no-all-duplicated-branches", JAVASCRIPT))
+    assertThat(checks.ruleKeyByEslintKey("S3923", JAVASCRIPT))
       .isEqualTo(RuleKey.of("javascript", "S3923"));
     assertThat(checks.ruleKeyByEslintKey("unknown-rule-key", JAVASCRIPT)).isNull();
   }

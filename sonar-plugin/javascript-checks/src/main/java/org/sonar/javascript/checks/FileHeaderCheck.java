@@ -23,14 +23,14 @@ import java.util.Collections;
 import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @JavaScriptRule
 @TypeScriptRule
 @Rule(key = "S1451")
-public class FileHeaderCheck implements EslintBasedCheck {
+public class FileHeaderCheck extends Check {
 
   private static final String DEFAULT_HEADER_FORMAT = "";
 
@@ -54,10 +54,7 @@ public class FileHeaderCheck implements EslintBasedCheck {
     return Collections.singletonList(new Config(headerFormat, isRegularExpression));
   }
 
-  @Override
-  public String eslintKey() {
-    return "file-header";
-  }
+
 
   private static class Config {
 

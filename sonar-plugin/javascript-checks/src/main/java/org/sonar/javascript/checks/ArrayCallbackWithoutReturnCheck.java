@@ -20,15 +20,12 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 
 @JavaScriptRule
 @Rule(key = "S3796")
-public class ArrayCallbackWithoutReturnCheck implements EslintBasedCheck {
+public class ArrayCallbackWithoutReturnCheck extends Check {
 
-  @Override
-  public String eslintKey() {
-    return "array-callback-without-return";
-  }
+
 }

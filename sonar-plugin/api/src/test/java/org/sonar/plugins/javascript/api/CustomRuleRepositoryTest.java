@@ -24,6 +24,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.Collections;
 import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.sonar.check.Rule;
 
 class CustomRuleRepositoryTest {
 
@@ -42,15 +43,11 @@ class CustomRuleRepositoryTest {
 
     @Override
     public List<Class<? extends JavaScriptCheck>> checkClasses() {
-      return Collections.singletonList(Check.class);
+      return Collections.singletonList(CustomCheck.class);
     }
   }
 
-  static class Check implements EslintBasedCheck {
-
-    @Override
-    public String eslintKey() {
-      return "rulekey";
-    }
+  @Rule(key="key")
+  static class CustomCheck extends Check {
   }
 }

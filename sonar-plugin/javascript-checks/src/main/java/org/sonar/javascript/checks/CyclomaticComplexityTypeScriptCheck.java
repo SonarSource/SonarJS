@@ -23,12 +23,12 @@ import java.util.Collections;
 import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @TypeScriptRule
 @Rule(key = "S1541")
-public class CyclomaticComplexityTypeScriptCheck implements EslintBasedCheck {
+public class CyclomaticComplexityTypeScriptCheck extends Check {
 
   private static final int DEFAULT_THRESHOLD = 10;
 
@@ -45,10 +45,7 @@ public class CyclomaticComplexityTypeScriptCheck implements EslintBasedCheck {
       new Config(threshold)
     );
   }
-  @Override
-  public String eslintKey() {
-    return "cyclomatic-complexity";
-  }
+
 
   private static class Config {
 

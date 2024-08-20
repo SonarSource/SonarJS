@@ -20,15 +20,12 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 
 @JavaScriptRule
 @Rule(key = "S3757")
-public class ArithmeticOperationReturningNanCheck implements EslintBasedCheck {
+public class ArithmeticOperationReturningNanCheck extends Check {
 
-  @Override
-  public String eslintKey() {
-    return "operation-returning-nan";
-  }
+
 }

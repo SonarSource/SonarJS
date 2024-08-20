@@ -21,17 +21,14 @@ package org.sonar.javascript.checks;
 
 import java.util.List;
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @TypeScriptRule
 @Rule(key = "S4023")
-public class NoEmptyInterfaceCheck implements EslintBasedCheck {
+public class NoEmptyInterfaceCheck extends Check {
 
-  @Override
-  public String eslintKey() {
-    return "no-empty-interface";
-  }
+  
 
   @Override
   public List<Object> configurations() {

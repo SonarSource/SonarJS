@@ -20,17 +20,14 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @TypeScriptRule
 @JavaScriptRule
 @Rule(key = "S6270")
-public class AwsIamPublicAccessCheck implements EslintBasedCheck {
+public class AwsIamPublicAccessCheck extends Check {
 
-  @Override
-  public String eslintKey() {
-    return "aws-iam-public-access";
-  }
+
 }

@@ -23,12 +23,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.check.Rule;
 
 class EslintBasedCheckTest {
 
+  @Rule(key="key")
+  static class CustomCheck extends Check {
+  }
+
   @Test
   void test() {
-    EslintBasedCheck check = () -> "key";
+    var check = new CustomCheck();
 
     assertThat(check.eslintKey()).isEqualTo("key");
     assertThat(check.configurations()).isEmpty();

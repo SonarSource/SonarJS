@@ -22,19 +22,16 @@ package org.sonar.javascript.checks;
 import java.util.Collections;
 import java.util.List;
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @TypeScriptRule
 @JavaScriptRule
 @Rule(key = "S6766")
-public class NoUnescapedEntitiesCheck implements EslintBasedCheck {
+public class NoUnescapedEntitiesCheck extends Check {
 
-  @Override
-  public String eslintKey() {
-    return "no-unescaped-entities";
-  }
+
 
   @Override
   public List<Object> configurations() {

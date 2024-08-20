@@ -22,24 +22,21 @@ package org.sonar.javascript.checks;
 import java.util.Collections;
 import java.util.List;
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @JavaScriptRule
 @TypeScriptRule
 @Rule(key = "S905")
-public class UselessExpressionStatementCheck implements EslintBasedCheck {
+public class UselessExpressionStatementCheck extends Check {
 
   @Override
   public List<Object> configurations() {
     return Collections.singletonList(new Config());
   }
 
-  @Override
-  public String eslintKey() {
-    return "no-unused-expressions";
-  }
+
 
   private static class Config {
 

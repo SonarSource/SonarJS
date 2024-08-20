@@ -22,22 +22,19 @@ package org.sonar.javascript.checks;
 import java.util.Collections;
 import java.util.List;
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @TypeScriptRule
 @Rule(key = "S4137")
-public class AngleBracketTypeAssertionCheck implements EslintBasedCheck {
+public class AngleBracketTypeAssertionCheck extends Check {
 
   @Override
   public List<Object> configurations() {
     return Collections.singletonList(new Config());
   }
 
-  @Override
-  public String eslintKey() {
-    return "consistent-type-assertions";
-  }
+
 
   private static class Config {
 

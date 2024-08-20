@@ -24,12 +24,12 @@ import java.util.Collections;
 import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @TypeScriptRule
 @Rule(key = "S4328")
-public class ImplicitDependenciesCheck implements EslintBasedCheck {
+public class ImplicitDependenciesCheck extends Check {
 
   private static final String DEFAULT = "";
 
@@ -51,10 +51,7 @@ public class ImplicitDependenciesCheck implements EslintBasedCheck {
     );
   }
 
-  @Override
-  public String eslintKey() {
-    return "no-implicit-dependencies";
-  }
+
 
   private static class Config {
 

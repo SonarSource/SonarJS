@@ -20,15 +20,12 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 
 @JavaScriptRule
 @Rule(key = "S1126")
-public class ReturnOfBooleanExpressionCheck implements EslintBasedCheck {
+public class ReturnOfBooleanExpressionCheck extends Check {
 
-  @Override
-  public String eslintKey() {
-    return "prefer-single-boolean-return";
-  }
+
 }

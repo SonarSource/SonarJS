@@ -29,8 +29,5 @@ import org.sonar.plugins.javascript.api.TypeScriptRule;
 @Rule(key = "S2187")
 public class NoEmptyTestFileCheck extends TestFileCheck {
 
-  @Override
-  public String eslintKey() {
-    return "no-empty-test-file";
-  }
+
 }
