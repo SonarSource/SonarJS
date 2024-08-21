@@ -37,12 +37,12 @@ describe('index', () => {
       expect(rule.meta.docs!.url).toBe(
         `https://sonarsource.github.io/rspec/#/rspec/${sonarKey}/javascript`,
       );
-      const ruleMeta = require(path.join(ruleFolder, sonarKey, 'meta.json'));
+      const { meta } = require(path.join(ruleFolder, sonarKey, 'meta.ts'));
       const eslintId = mappedRules.get(rule.meta.docs.url);
       if (!eslintId) {
         missing.push(sonarKey);
       } else {
-        if (ruleMeta.docs.recommended) {
+        if (meta.docs.recommended) {
           expect(configs.recommended.rules).toHaveProperty(`sonarjs/${eslintId}`);
           expect(configs.recommended.rules[`sonarjs/${eslintId}`]).toEqual('error');
         } else {
