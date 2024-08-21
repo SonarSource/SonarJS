@@ -37,6 +37,8 @@ import {
   RuleConfig,
   analyzeProject,
   initializeLinter,
+  getLinter,
+  CustomRule,
 } from '../../../jsts/src';
 import { accept } from '../filter/JavaScriptExclusionsFilter';
 import { writeResults } from './lits';
@@ -44,8 +46,7 @@ import { analyzeHTML } from '../../../html/src';
 import { isHtmlFile, isJsFile, isTsFile, isYamlFile } from './languages';
 import { analyzeYAML } from '../../../yaml/src';
 import projects from '../data/projects.json';
-
-let rules: RuleConfig[] = [];
+import { loadCustomRules } from '../../../jsts/src/linter/bundle-loader';
 
 const sourcesPath = path.join(__dirname, '..', '..', '..', '..', '..', 'sonarjs-ruling-sources');
 const jsTsProjectsPath = path.join(sourcesPath, 'jsts', 'projects');
@@ -65,6 +66,7 @@ const expectedPath = path.join(
 );
 const actualPath = path.join(__dirname, '..', 'actual', 'jsts');
 
+const SETTINGS_KEY = 'SONAR_RULING_SETTINGS';
 const HTML_LINTER_ID = 'html';
 
 type RulingInput = {
@@ -85,10 +87,9 @@ const DEFAULT_EXCLUSIONS = [
   '**/external/**',
 ].map(pattern => new Minimatch(pattern, { nocase: true }));
 
-export function setupBeforeAll(projectFile: string) {
-  rules = loadRules();
-  const projectName = getProjectName(toUnixPath(projectFile));
-  const project = projects.find(p => p.name === projectName);
+export function setupBeforeAll(projectFile: string, customRules?: CustomRule[]) {
+  const { project, rules, expectedPath, actualPath } = extractParameters(projectFile);
+
   beforeAll(() => {
     setContext({
       workDir: path.join(os.tmpdir(), 'sonarjs'),
@@ -96,33 +97,71 @@ export function setupBeforeAll(projectFile: string) {
       sonarlint: false,
       bundles: [],
     });
-    initializeLinter(rules as RuleConfig[], DEFAULT_ENVIRONMENTS, DEFAULT_GLOBALS);
-    const htmlRules = (rules as RuleConfig[]).filter(rule => rule.key !== 'no-var');
-    initializeLinter(htmlRules, DEFAULT_ENVIRONMENTS, DEFAULT_GLOBALS, HTML_LINTER_ID);
+    initializeRules(rules, customRules);
   });
+
   return {
     project,
-    expectedPath: path.join(expectedPath, project.name),
-    actualPath: path.join(actualPath, project.name),
+    expectedPath,
+    actualPath,
+    rules,
   };
+}
+function initializeRules(rules: RuleConfig[], customRules?: CustomRule[]) {
+  if (customRules) {
+    const defaultLinter = getLinter();
+    const htmlLinter = getLinter(HTML_LINTER_ID);
+    loadCustomRules(defaultLinter.linter, customRules);
+    loadCustomRules(htmlLinter.linter, customRules);
+  }
+  initializeLinter(rules, DEFAULT_ENVIRONMENTS, DEFAULT_GLOBALS);
+  const htmlRules = rules.filter(rule => rule.key !== 'no-var');
+  initializeLinter(htmlRules, DEFAULT_ENVIRONMENTS, DEFAULT_GLOBALS, HTML_LINTER_ID);
 }
 function getProjectName(testFilePath: string) {
   const SUFFIX = '.ruling.test.ts';
   const filename = path.basename(testFilePath);
   return filename.substring(0, filename.length - SUFFIX.length);
 }
+function extractParameters(projectFile: string) {
+  const settingsPath = process.env[SETTINGS_KEY];
+  let params;
+  if (settingsPath) {
+    params = extractSettingsFromFile(settingsPath);
+  }
+  const projectName = getProjectName(toUnixPath(projectFile));
+  const project = projects.find(p => p.name === projectName);
+
+  return {
+    project,
+    rules: params?.rules || loadRules(),
+    expectedPath: params?.expectedPath
+      ? path.join(params?.expectedPath, project.name)
+      : path.join(expectedPath, project.name),
+    actualPath: params?.actualPath
+      ? path.join(params?.actualPath, project.name)
+      : path.join(actualPath, project.name),
+  };
+}
+function extractSettingsFromFile(pathToSettings: string) {
+  return require(pathToSettings);
+}
 
 /**
  * Load files and analyze project
  */
-export async function testProject(rulingInput: RulingInput) {
+export async function testProject(
+  rulingInput: RulingInput,
+  actualPath: string,
+  rules: RuleConfig[],
+) {
   const projectPath = path.join(jsTsProjectsPath, rulingInput.folder ?? rulingInput.name);
   const exclusions = setExclusions(rulingInput.exclusions, rulingInput.testDir);
 
   const { jsTsFiles, htmlFiles, yamlFiles } = getProjectFiles(rulingInput, projectPath, exclusions);
 
   const payload: ProjectAnalysisInput = {
-    rules: rules as RuleConfig[],
+    rules,
     baseDir: projectPath,
     files: jsTsFiles,
   };

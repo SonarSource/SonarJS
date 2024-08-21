@@ -11,6 +11,7 @@
     "new-rule": "ts-node tools/newRule.ts",
     "generate-meta": "ts-node tools/generate-meta.ts && cd packages/jsts/src/rules && npm run eslint-docs",
     "ruling": "node tools/prepare-ruling.js && jest ./packages/ruling/tests/projects/*.ruling.test.ts",
+    "ruling-parametrized": "node tools/prepare-ruling.js && SONAR_RULING_SETTINGS=../settings.js jest ./packages/ruling/tests/projects/*.ruling.test.ts",
     "ruling-sync": "rsync -avh packages/ruling/tests/actual/jsts/ its/ruling/src/test/expected/jsts/ --delete",
     "update-ruling-data": "mvn -f sonar-plugin/sonar-javascript-plugin/pom.xml compile && ts-node packages/ruling/tests/tools/parseRulesData.ts",
     "bridge:compile": "tsc -b packages profiling && npm run _:bridge:copy-protofile",

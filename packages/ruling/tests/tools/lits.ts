@@ -50,7 +50,7 @@ export function writeResults(
   actualPath: string,
 ) {
   const eslintIdToSonarId = loadKeysMapping();
-  const targetProjectPath = path.join(actualPath, projectName);
+  const targetProjectPath = path.join(actualPath);
   try {
     fs.rmSync(targetProjectPath, { recursive: true });
   } catch {}
