@@ -26,7 +26,7 @@ import { generateMeta, isRequiredParserServices, report, toSecondaryLocation } f
 import { meta } from './meta';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, undefined, true),
+  meta: generateMeta(meta as Rule.RuleMetaData, { hasSuggestions: true }, true),
 
   create(context: Rule.RuleContext) {
     if (!isRequiredParserServices(context.sourceCode.parserServices)) {

@@ -31,7 +31,7 @@ import {
 import { meta } from './meta';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, undefined, true),
+  meta: generateMeta(meta as Rule.RuleMetaData, { hasSuggestions: true }, true),
   create(context: Rule.RuleContext) {
     const services = context.sourceCode.parserServices;
     if (!isRequiredParserServices(services)) {

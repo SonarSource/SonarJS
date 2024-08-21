@@ -26,7 +26,7 @@ import { generateMeta, IssueLocation, report, toSecondaryLocation } from '../hel
 import { meta } from './meta';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, undefined, true),
+  meta: generateMeta(meta as Rule.RuleMetaData, { hasSuggestions: true }, true),
 
   create(context: Rule.RuleContext) {
     return {

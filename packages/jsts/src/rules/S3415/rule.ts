@@ -44,7 +44,7 @@ const ASSERT_FUNCTIONS = [
 ];
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, undefined, true),
+  meta: generateMeta(meta as Rule.RuleMetaData, { hasSuggestions: true }, true),
   create(context: Rule.RuleContext) {
     const testCases: estree.Node[] = [];
     return {
