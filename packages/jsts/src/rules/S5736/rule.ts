@@ -27,9 +27,8 @@ import {
   getFullyQualifiedName,
   getProperty,
   getPropertyWithValue,
-  SONAR_RUNTIME,
 } from '../helpers';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 const HELMET = 'helmet';
 const POLICY = 'policy';
@@ -39,14 +38,7 @@ const UNSAFE_REFERRER_POLICY_VALUES = ['', 'unsafe-url', 'no-referrer-when-downg
 export const rule: Rule.RuleModule = Express.SensitiveMiddlewarePropertyRule(
   findNoReferrerPolicyPropertyFromHelmet,
   `Make sure disabling strict HTTP no-referrer policy is safe here.`,
-  generateMeta(rspecMeta as Rule.RuleMetaData, {
-    schema: [
-      {
-        // internal parameter for rules having secondary locations
-        enum: [SONAR_RUNTIME],
-      },
-    ],
-  }),
+  generateMeta(meta as Rule.RuleMetaData, undefined, true),
 );
 
 function findNoReferrerPolicyPropertyFromHelmet(

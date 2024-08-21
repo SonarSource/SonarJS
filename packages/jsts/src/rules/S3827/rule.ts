@@ -26,10 +26,9 @@ import {
   generateMeta,
   isInsideVueSetupScript,
   report,
-  SONAR_RUNTIME,
   toSecondaryLocation,
 } from '../helpers';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 // https://vuejs.org/api/sfc-script-setup.html#defineprops-defineemits
 const vueMacroNames = new Set([
@@ -42,14 +41,7 @@ const vueMacroNames = new Set([
 ]);
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
-    schema: [
-      {
-        // internal parameter for rules having secondary locations
-        enum: [SONAR_RUNTIME],
-      },
-    ],
-  }),
+  meta: generateMeta(meta as Rule.RuleMetaData, undefined, true),
   create(context: Rule.RuleContext) {
     const excludedNames = new Set();
     const undeclaredIdentifiersByName: Map<string, estree.Identifier[]> = new Map();

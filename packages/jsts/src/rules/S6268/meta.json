@@ -1,9 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "Disabling Angular built-in sanitization is security-sensitive",
-    "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S6268/javascript",
-    "requiresTypeChecking": false
-  }
-}

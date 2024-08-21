@@ -1,9 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "Tests should check which exception is thrown",
-    "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S5958/javascript",
-    "requiresTypeChecking": false
-  }
-}

@@ -31,10 +31,9 @@ import {
   isElementWrite,
   report,
   RuleContext,
-  SONAR_RUNTIME,
   toSecondaryLocation,
 } from '../helpers';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 import CodePathSegment = Rule.CodePathSegment;
 
 interface FunctionContext {
@@ -51,14 +50,7 @@ interface SingleWriteVariable {
 type LiteralValue = number | RegExp | string | null | boolean | bigint;
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
-    schema: [
-      {
-        // internal parameter for rules having secondary locations
-        enum: [SONAR_RUNTIME],
-      },
-    ],
-  }),
+  meta: generateMeta(meta as Rule.RuleMetaData, undefined, true),
 
   create(context: Rule.RuleContext) {
     const functionContextStack: FunctionContext[] = [];

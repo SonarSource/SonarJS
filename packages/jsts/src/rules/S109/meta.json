@@ -1,9 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "Magic numbers should not be used",
-    "recommended": false,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S109/javascript",
-    "requiresTypeChecking": false
-  }
-}

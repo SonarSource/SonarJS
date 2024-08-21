@@ -1,9 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "Object literal syntax should be used",
-    "recommended": false,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S2428/javascript",
-    "requiresTypeChecking": false
-  }
-}

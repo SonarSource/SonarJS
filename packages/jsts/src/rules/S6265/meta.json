@@ -1,9 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "Granting access to S3 buckets to all or authenticated users is security-sensitive",
-    "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S6265/javascript",
-    "requiresTypeChecking": false
-  }
-}

@@ -33,7 +33,7 @@ import {
   isStringArray,
   sortLike,
 } from '../helpers';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 const compareNumberFunctionPlaceholder = '(a, b) => (a - b)';
 const compareBigIntFunctionPlaceholder = [
@@ -50,7 +50,7 @@ const compareBigIntFunctionPlaceholder = [
 const languageSensitiveOrderPlaceholder = '(a, b) => a.localeCompare(b)';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+  meta: generateMeta(meta as Rule.RuleMetaData, {
     hasSuggestions: true,
     messages: {
       provideCompareFunction:

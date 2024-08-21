@@ -1,9 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "Boolean literals should not be used in comparisons",
-    "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S1125/javascript",
-    "requiresTypeChecking": false
-  }
-}

@@ -28,37 +28,13 @@ import {
   getTypeFromTreeNode,
   isRequiredParserServices,
   report,
-  SONAR_RUNTIME,
   toSecondaryLocation,
 } from '../helpers';
-import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
 import { FromSchema } from 'json-schema-to-ts';
-import rspecMeta from './meta.json';
-
-const schema = {
-  type: 'array',
-  minItems: 0,
-  maxItems: 2,
-  items: [
-    {
-      type: 'object',
-      properties: {
-        considerJSDoc: {
-          type: 'boolean',
-        },
-      },
-      additionalProperties: false,
-    },
-    {
-      type: 'string',
-      // internal parameter for rules having secondary locations
-      enum: [SONAR_RUNTIME],
-    },
-  ],
-} as const satisfies JSONSchema4;
+import { meta, schema } from './meta';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, { schema }),
+  meta: generateMeta(meta as Rule.RuleMetaData, { schema }),
   create(context: Rule.RuleContext) {
     const considerJSDoc = !!(context.options as FromSchema<typeof schema>)[0]?.considerJSDoc;
     const services = context.sourceCode.parserServices;

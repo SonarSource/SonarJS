@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import { generateMeta, interceptReport } from '../helpers';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 // Core implementation of this rule does not provide a message for quick fixes. Normally, we would
 // just map the rule id to a message in src/linter/quickfixes/messages.ts. However,
@@ -30,7 +30,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(
     {
       ...rule,
-      meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+      meta: generateMeta(meta as Rule.RuleMetaData, {
         ...rule.meta!,
         hasSuggestions: true,
       }),

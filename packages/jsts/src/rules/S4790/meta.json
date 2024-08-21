@@ -1,9 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "Using weak hashing algorithms is security-sensitive",
-    "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S4790/javascript",
-    "requiresTypeChecking": false
-  }
-}

@@ -24,7 +24,7 @@ import { AwsCdkTemplate } from '../helpers/aws/cdk';
 import { NewExpression, Node } from 'estree';
 import { generateMeta, getFullyQualifiedName, isBooleanLiteral, isStringLiteral } from '../helpers';
 import { getResultOfExpression } from '../helpers/result';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 const DOMAIN_PROPS_POSITION = 2;
 const ENABLED_PROPERTY = 'enabled';
@@ -75,7 +75,7 @@ export const rule: Rule.RuleModule = AwsCdkTemplate(
       },
     }),
   },
-  generateMeta(rspecMeta as Rule.RuleMetaData, {
+  generateMeta(meta as Rule.RuleMetaData, {
     messages: {
       encryptionDisabled: 'Make sure that using unencrypted {{search}} domains is safe here.',
       encryptionOmitted:

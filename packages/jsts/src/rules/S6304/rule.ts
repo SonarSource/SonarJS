@@ -21,13 +21,7 @@
 
 import { Rule } from 'eslint';
 import { Node } from 'estree';
-import {
-  generateMeta,
-  report,
-  SONAR_RUNTIME,
-  StringLiteral,
-  toSecondaryLocation,
-} from '../helpers';
+import { generateMeta, report, StringLiteral, toSecondaryLocation } from '../helpers';
 import { getResultOfExpression, Result } from '../helpers/result';
 import {
   AwsIamPolicyTemplate,
@@ -35,7 +29,7 @@ import {
   isAnyLiteral,
   PolicyCheckerOptions,
 } from '../helpers/aws/iam';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 const MESSAGES = {
   message: 'Make sure granting access to all resources is safe here.',
@@ -46,14 +40,7 @@ const KMS_PREFIX = 'kms:';
 
 export const rule: Rule.RuleModule = AwsIamPolicyTemplate(
   allResourcesAccessibleStatementCheck,
-  generateMeta(rspecMeta as Rule.RuleMetaData, {
-    schema: [
-      {
-        // internal parameter for rules having secondary locations
-        enum: [SONAR_RUNTIME],
-      },
-    ],
-  }),
+  generateMeta(meta as Rule.RuleMetaData, undefined, true),
 );
 
 function allResourcesAccessibleStatementCheck(

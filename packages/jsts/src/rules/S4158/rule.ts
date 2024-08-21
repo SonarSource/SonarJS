@@ -30,7 +30,7 @@ import {
 } from '../helpers';
 import { Rule, Scope } from 'eslint';
 import estree from 'estree';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 // Methods that mutate the collection but can't add elements
 const nonAdditiveMutatorMethods = [
@@ -83,7 +83,7 @@ const strictlyReadingMethods = new Set([
 ]);
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+  meta: generateMeta(meta as Rule.RuleMetaData, {
     messages: {
       reviewUsageOfIdentifier:
         'Review this usage of "{{identifierName}}" as it can only be empty here.',

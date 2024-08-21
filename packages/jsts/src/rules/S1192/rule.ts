@@ -23,8 +23,7 @@ import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/utils';
 import { generateMeta, report, toSecondaryLocation } from '../helpers';
 import { Rule } from 'eslint';
 import estree from 'estree';
-import rspecMeta from './meta.json';
-import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
+import { meta, schema } from './meta';
 import { FromSchema } from 'json-schema-to-ts';
 
 // Number of times a literal must be duplicated to trigger an issue
@@ -48,28 +47,8 @@ const messages = {
   defineConstant: message,
 };
 
-const schema = {
-  type: 'array',
-  minItems: 0,
-  maxItems: 2,
-  items: [
-    {
-      type: 'object',
-      properties: {
-        threshold: { type: 'integer', minimum: 2 },
-        ignoreStrings: { type: 'string' },
-      },
-      additionalProperties: false,
-    },
-    {
-      type: 'string',
-      enum: ['sonar-runtime'] /* internal parameter for rules having secondary locations */,
-    },
-  ],
-} as const satisfies JSONSchema4;
-
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, { messages, schema }),
+  meta: generateMeta(meta as Rule.RuleMetaData, { messages, schema }, true),
 
   create(context) {
     const literalsByValue: Map<string, TSESTree.Literal[]> = new Map();

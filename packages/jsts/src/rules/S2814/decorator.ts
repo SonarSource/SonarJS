@@ -21,14 +21,14 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { generateMeta, interceptReport } from '../helpers';
 import { TSESTree } from '@typescript-eslint/utils';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 // core implementation of this rule raises issues on type exports
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(
     {
       ...rule,
-      meta: generateMeta(rspecMeta as Rule.RuleMetaData, rule.meta),
+      meta: generateMeta(meta as Rule.RuleMetaData, rule.meta),
     },
     reportExempting(isTypeDeclaration),
   );

@@ -1,9 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "\"void\" should not be used",
-    "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S3735/javascript",
-    "requiresTypeChecking": true
-  }
-}

@@ -1,9 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "The return value of void functions should not be used",
-    "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S3699/javascript",
-    "requiresTypeChecking": false
-  }
-}

@@ -21,14 +21,8 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import {
-  Express,
-  generateMeta,
-  getFullyQualifiedName,
-  getProperty,
-  SONAR_RUNTIME,
-} from '../helpers';
-import rspecMeta from './meta.json';
+import { Express, generateMeta, getFullyQualifiedName, getProperty } from '../helpers';
+import { meta } from './meta';
 
 const HELMET = 'helmet';
 const HELMET_CSP = 'helmet-csp';
@@ -40,14 +34,7 @@ const BLOCK_ALL_MIXED_CONTENT_HYPHEN = 'block-all-mixed-content';
 export const rule: Rule.RuleModule = Express.SensitiveMiddlewarePropertyRule(
   findDirectivesWithMissingMixedContentPropertyFromHelmet,
   `Make sure allowing mixed-content is safe here.`,
-  generateMeta(rspecMeta as Rule.RuleMetaData, {
-    schema: [
-      {
-        // internal parameter for rules having secondary locations
-        enum: [SONAR_RUNTIME],
-      },
-    ],
-  }),
+  generateMeta(meta as Rule.RuleMetaData, undefined, true),
 );
 
 function findDirectivesWithMissingMixedContentPropertyFromHelmet(

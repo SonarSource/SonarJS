@@ -1,9 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "Server hostnames should be verified during SSL/TLS connections",
-    "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S5527/javascript",
-    "requiresTypeChecking": false
-  }
-}

@@ -22,7 +22,7 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { generateMeta, getProperty, getValueOfExpression, isIdentifier } from '../helpers';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 const MINIMAL_MODULUS_LENGTH = 2048;
 const MINIMAL_DIVISOR_LENGTH = 224;
@@ -54,7 +54,7 @@ const WEAK_CURVES = [
 ];
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+  meta: generateMeta(meta as Rule.RuleMetaData, {
     messages: {
       modulusLength:
         'Use a modulus length of at least {{minimalLength}} bits for {{algorithm}} cipher algorithm.',

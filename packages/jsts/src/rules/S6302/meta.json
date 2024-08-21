@@ -1,9 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "Policies granting all privileges are security-sensitive",
-    "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S6302/javascript",
-    "requiresTypeChecking": false
-  }
-}

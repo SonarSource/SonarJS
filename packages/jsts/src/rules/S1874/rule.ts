@@ -22,10 +22,10 @@
 import { Rule } from 'eslint';
 import { generateMeta, isRequiredParserServices } from '../helpers';
 import * as ts from 'typescript';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+  meta: generateMeta(meta as Rule.RuleMetaData, {
     messages: {
       deprecation: '{{deprecation}}',
     },

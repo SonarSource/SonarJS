@@ -28,12 +28,12 @@ import {
   isIdentifier,
   isMemberExpression,
 } from '../helpers';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 const chmodLikeFunction = ['chmod', 'chmodSync', 'fchmod', 'fchmodSync', 'lchmod', 'lchmodSync'];
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+  meta: generateMeta(meta as Rule.RuleMetaData, {
     messages: {
       safePermission: 'Make sure this permission is safe.',
     },

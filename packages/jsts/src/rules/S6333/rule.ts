@@ -30,7 +30,7 @@ import {
   isMemberWithProperty,
   isMethodCall,
 } from '../helpers';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 const REST_API_PROPERTIES_POSITION = 2;
 const RESOURCE_ADD_RESOURCE_PROPERTIES_POSITION = 1;
@@ -147,5 +147,5 @@ function isDefaultFromCallee(node: Node): node is CallExpression {
 
 export const rule: Rule.RuleModule = AwsCdkTemplate(
   consumersFactory,
-  generateMeta(rspecMeta as Rule.RuleMetaData, { messages }),
+  generateMeta(meta as Rule.RuleMetaData, { messages }),
 );

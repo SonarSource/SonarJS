@@ -1,9 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "React state setter function should not be called with its matching state variable",
-    "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S6443/javascript",
-    "requiresTypeChecking": false
-  }
-}

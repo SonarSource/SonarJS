@@ -1,9 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "Cognitive Complexity of functions should not be too high",
-    "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S3776/javascript",
-    "requiresTypeChecking": false
-  }
-}

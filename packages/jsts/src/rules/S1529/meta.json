@@ -1,9 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "Bitwise operators should not be used in boolean contexts",
-    "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S1529/javascript",
-    "requiresTypeChecking": false
-  }
-}

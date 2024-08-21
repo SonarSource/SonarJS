@@ -21,14 +21,8 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import {
-  Express,
-  generateMeta,
-  getFullyQualifiedName,
-  getProperty,
-  SONAR_RUNTIME,
-} from '../helpers';
-import rspecMeta from './meta.json';
+import { Express, generateMeta, getFullyQualifiedName, getProperty } from '../helpers';
+import { meta } from './meta';
 
 const HELMET = 'helmet';
 const HELMET_CSP = 'helmet-csp';
@@ -41,14 +35,7 @@ const FRAME_ANCESTORS_HYPHEN = 'frame-ancestors';
 export const rule: Rule.RuleModule = Express.SensitiveMiddlewarePropertyRule(
   findDirectivesWithSensitiveFrameAncestorsPropertyFromHelmet,
   `Make sure disabling content security policy frame-ancestors directive is safe here.`,
-  generateMeta(rspecMeta as Rule.RuleMetaData, {
-    schema: [
-      {
-        // internal parameter for rules having secondary locations
-        enum: [SONAR_RUNTIME],
-      },
-    ],
-  }),
+  generateMeta(meta as Rule.RuleMetaData, undefined, true),
 );
 
 function findDirectivesWithSensitiveFrameAncestorsPropertyFromHelmet(

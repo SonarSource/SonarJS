@@ -19,10 +19,12 @@
  */
 
 import { Rule } from 'eslint';
+import { SONAR_RUNTIME } from './';
 
 export function generateMeta(
   rspecMeta: Rule.RuleMetaData,
   ruleMeta?: Rule.RuleMetaData,
+  hasSecondaries = false,
 ): Rule.RuleMetaData {
   if (rspecMeta.fixable && !ruleMeta?.fixable && !ruleMeta?.hasSuggestions) {
     throw new Error(
@@ -41,5 +43,31 @@ export function generateMeta(
 
   metadata.messages.sonarRuntime = '{{sonarRuntimeData}}';
 
+  if (hasSecondaries) {
+    const sonarOptions = {
+      type: 'string',
+      enum: [SONAR_RUNTIME, 'metric'], // 'metric' only used by S3776
+    };
+
+    if (metadata.schema) {
+      if (Array.isArray(metadata.schema)) {
+        metadata.schema = [...metadata.schema, sonarOptions];
+      } else if (metadata.schema.type === 'array') {
+        if (Array.isArray(metadata.schema.items)) {
+          metadata.schema = {
+            ...metadata.schema,
+            items: [...metadata.schema.items, sonarOptions],
+          };
+        } else {
+          metadata.schema = {
+            ...metadata.schema,
+            items: [metadata.schema.items, sonarOptions],
+          };
+        }
+      }
+    } else {
+      metadata.schema = [sonarOptions];
+    }
+  }
   return metadata;
 }

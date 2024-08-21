@@ -1,9 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "Special identifiers should not be bound or assigned",
-    "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S2137/javascript",
-    "requiresTypeChecking": false
-  }
-}

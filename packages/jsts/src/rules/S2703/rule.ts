@@ -22,12 +22,12 @@
 import { Rule } from 'eslint';
 import { flatMap, generateMeta, globalsByLibraries } from '../helpers';
 import estree from 'estree';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 const excludedNames = new Set(flatMap(Object.values(globalsByLibraries), globals => globals));
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+  meta: generateMeta(meta as Rule.RuleMetaData, {
     messages: {
       explicitModifier:
         'Add the "let", "const" or "var" keyword to this declaration of "{{variable}}" to make it explicit.',

@@ -25,14 +25,14 @@ import { tsEslintRules } from '../typescript-eslint';
 import { rules as reactRules } from 'eslint-plugin-react';
 import { generateMeta, mergeRules } from '../helpers';
 import { decorate } from './decorator';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 const noDupeKeysRule = decorate(eslintRules['no-dupe-keys']);
 const noDupeClassMembersRule = tsEslintRules['no-dupe-class-members'];
 const jsxNoDuplicatePropsRule = reactRules['jsx-no-duplicate-props'];
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+  meta: generateMeta(meta as Rule.RuleMetaData, {
     hasSuggestions: true,
     messages: {
       ...noDupeKeysRule.meta!.messages,

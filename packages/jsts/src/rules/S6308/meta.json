@@ -1,9 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "Using unencrypted Elasticsearch domains is security-sensitive",
-    "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S6308/javascript",
-    "requiresTypeChecking": false
-  }
-}

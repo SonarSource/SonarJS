@@ -29,7 +29,7 @@ import {
   isUnion,
   mergeRules,
 } from '../helpers';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 /**
  * This rule raises issues on switch statements without a default branch if, and only if,
@@ -136,7 +136,7 @@ function fixSwitch(
 }
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+  meta: generateMeta(meta as Rule.RuleMetaData, {
     hasSuggestions: true,
     messages: {
       ...switchWithoutDefaultRule.meta?.messages,

@@ -23,7 +23,7 @@ import { Rule } from 'eslint';
 import { AST } from '@eslint-community/regexpp';
 import { createRegExpRule } from '../helpers/regex';
 import { generateMeta } from '../helpers';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 export const rule: Rule.RuleModule = createRegExpRule(
   context => {
@@ -42,5 +42,5 @@ export const rule: Rule.RuleModule = createRegExpRule(
       onCapturingGroupEnter: checkEmptyGroup,
     };
   },
-  generateMeta(rspecMeta as Rule.RuleMetaData),
+  generateMeta(meta as Rule.RuleMetaData),
 );

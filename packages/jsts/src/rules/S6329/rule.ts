@@ -25,7 +25,7 @@ import * as estree from 'estree';
 import { Node } from 'estree';
 import { getResultOfExpression, Result } from '../helpers/result';
 import { generateMeta, getFullyQualifiedName, isCallingMethod } from '../helpers';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 const PROPERTIES_POSITION = 2;
 
@@ -60,7 +60,7 @@ export const rule: Rule.RuleModule = AwsCdkTemplate(
       { primitives: { invalid: [true] } },
     ),
   },
-  generateMeta(rspecMeta as Rule.RuleMetaData, {
+  generateMeta(meta as Rule.RuleMetaData, {
     messages: {
       publicNetwork: 'Make sure allowing public network access is safe here.',
     },

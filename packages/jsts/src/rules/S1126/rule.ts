@@ -22,10 +22,10 @@ import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/utils';
 import { Rule } from 'eslint';
 import estree from 'estree';
 import { generateMeta } from '../helpers';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+  meta: generateMeta(meta as Rule.RuleMetaData, {
     messages: {
       replaceIfThenElseByReturn: 'Replace this if-then-else flow by a single return statement.',
       suggest: 'Replace with single return statement',

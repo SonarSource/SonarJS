@@ -24,7 +24,7 @@ import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
 import * as babel from '@babel/eslint-parser';
 import { generateMeta } from '../helpers';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 import { CodeRecognizer, JavaScriptFootPrint } from '../helpers/recognizers';
 
 const EXCLUDED_STATEMENTS = ['BreakStatement', 'LabeledStatement', 'ContinueStatement'];
@@ -37,7 +37,7 @@ interface GroupComment {
 }
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+  meta: generateMeta(meta as Rule.RuleMetaData, {
     messages: {
       commentedCode: 'Remove this commented out code.',
       commentedCodeFix: 'Remove this commented out code',

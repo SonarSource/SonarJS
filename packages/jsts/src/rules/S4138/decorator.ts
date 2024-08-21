@@ -23,7 +23,7 @@ import { AST, Rule, Scope } from 'eslint';
 import { generateMeta, interceptReport } from '../helpers';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 const element = 'element';
 
@@ -32,7 +32,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(
     {
       ...rule,
-      meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+      meta: generateMeta(meta as Rule.RuleMetaData, {
         ...rule.meta!,
         hasSuggestions: true,
       }),

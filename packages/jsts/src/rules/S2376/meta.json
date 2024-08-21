@@ -1,9 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "Property getters and setters should come in pairs",
-    "recommended": false,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S2376/javascript",
-    "requiresTypeChecking": false
-  }
-}

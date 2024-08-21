@@ -31,24 +31,21 @@ import {
 } from '../helpers';
 import { AST, Rule } from 'eslint';
 import estree from 'estree';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 const message =
   'Verify this is the index that was intended; "{{index}}" was already set on line {{line}}.';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
-    messages: {
-      verifyIntendedIndex: message,
-    },
-    schema: [
-      {
-        // internal parameter
-        type: 'string',
-        enum: ['sonar-runtime'],
+  meta: generateMeta(
+    meta as Rule.RuleMetaData,
+    {
+      messages: {
+        verifyIntendedIndex: message,
       },
-    ],
-  }),
+    },
+    true,
+  ),
   create(context) {
     return {
       SwitchCase(node: estree.SwitchCase) {

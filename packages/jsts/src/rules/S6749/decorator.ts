@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import { generateMeta, interceptReport } from '../helpers';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 /**
  * The core implementation of the rule reports on empty React fragments.
@@ -31,7 +31,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(
     {
       ...rule,
-      meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+      meta: generateMeta(meta as Rule.RuleMetaData, {
         ...rule.meta!,
         hasSuggestions: true,
         messages: {

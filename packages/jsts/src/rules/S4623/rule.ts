@@ -29,10 +29,10 @@ import {
 } from '../helpers';
 import * as estree from 'estree';
 import * as ts from 'typescript';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+  meta: generateMeta(meta as Rule.RuleMetaData, {
     hasSuggestions: true,
     messages: {
       removeUndefined: 'Remove this redundant "undefined".',

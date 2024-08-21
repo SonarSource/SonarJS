@@ -1,9 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "Track uses of \"TODO\" tags",
-    "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S1135/javascript",
-    "requiresTypeChecking": false
-  }
-}

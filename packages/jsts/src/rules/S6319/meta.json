@@ -1,9 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "Using unencrypted SageMaker notebook instances is security-sensitive",
-    "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S6319/javascript",
-    "requiresTypeChecking": false
-  }
-}

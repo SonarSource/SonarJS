@@ -22,10 +22,9 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
-import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
 import { generateMeta } from '../helpers';
 import { FromSchema } from 'json-schema-to-ts';
-import rspecMeta from './meta.json';
+import { meta, schema } from './meta';
 
 const MESSAGE_ADD_PARAMETER = 'Add parentheses around the parameter of this arrow function.';
 const MESSAGE_REMOVE_PARAMETER = 'Remove parentheses around the parameter of this arrow function.';
@@ -37,28 +36,8 @@ const DEFAULT_OPTIONS = {
   requireBodyBraces: false,
 };
 
-const schema = {
-  type: 'array',
-  minItems: 0,
-  maxItems: 1,
-  items: [
-    {
-      type: 'object',
-      properties: {
-        requireParameterParentheses: {
-          type: 'boolean',
-        },
-        requireBodyBraces: {
-          type: 'boolean',
-        },
-      },
-      additionalProperties: false,
-    },
-  ],
-} as const satisfies JSONSchema4;
-
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, { schema }),
+  meta: generateMeta(meta as Rule.RuleMetaData, { schema }),
   create(context: Rule.RuleContext) {
     const { requireParameterParentheses, requireBodyBraces } = {
       ...DEFAULT_OPTIONS,

@@ -22,7 +22,7 @@
 import { Rule } from 'eslint';
 import { Node } from 'estree';
 import { generateMeta } from '../helpers';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 const APIs = new Set([
   // Jasmine
@@ -79,7 +79,7 @@ const APIs = new Set([
 ]);
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+  meta: generateMeta(meta as Rule.RuleMetaData, {
     messages: {
       missingTest: 'Add some tests to this file or delete it.',
     },

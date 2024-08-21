@@ -22,7 +22,7 @@
 import { Rule } from 'eslint';
 import { rules as reactRules } from 'eslint-plugin-react';
 import { detectReactRule, generateMeta, mergeRules } from '../helpers';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 const noUnusedClassComponentMethod = reactRules['no-unused-class-component-methods'];
 
@@ -32,7 +32,7 @@ function overrideContext(context: Rule.RuleContext, overrides: any): Rule.RuleCo
 }
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+  meta: generateMeta(meta as Rule.RuleMetaData, {
     ...noUnusedClassComponentMethod.meta,
     messages: {
       ...noUnusedClassComponentMethod.meta!.messages,

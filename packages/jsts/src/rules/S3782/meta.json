@@ -1,9 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "Arguments to built-in functions should match documented types",
-    "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S3782/javascript",
-    "requiresTypeChecking": true
-  }
-}

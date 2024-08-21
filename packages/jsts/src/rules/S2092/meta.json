@@ -1,9 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "Creating cookies without the \"secure\" flag is security-sensitive",
-    "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S2092/javascript",
-    "requiresTypeChecking": false
-  }
-}

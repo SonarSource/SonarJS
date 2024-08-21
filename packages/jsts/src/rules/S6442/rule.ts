@@ -30,7 +30,7 @@ import {
   isIdentifier,
 } from '../helpers';
 import { TSESTree } from '@typescript-eslint/utils';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 import Variable = ESLintScope.Variable;
 import Scope = ESLintScope.Scope;
 
@@ -50,7 +50,7 @@ const REACT_PATTERN = /^[^a-z]/;
 const HOOK_FUNCTION = 'useState';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+  meta: generateMeta(meta as Rule.RuleMetaData, {
     messages: {
       noHookSetterInBody:
         'Remove this state setter call, perhaps move it to an event handler or JSX attribute',

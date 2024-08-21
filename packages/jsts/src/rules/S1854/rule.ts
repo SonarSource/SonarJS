@@ -23,13 +23,13 @@ import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta, isNullLiteral, LiveVariables, lva, ReferenceLike } from '../helpers';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 import CodePath = Rule.CodePath;
 import Variable = Scope.Variable;
 import CodePathSegment = Rule.CodePathSegment;
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+  meta: generateMeta(meta as Rule.RuleMetaData, {
     messages: {
       removeAssignment: 'Remove this useless assignment to variable "{{variable}}".',
     },

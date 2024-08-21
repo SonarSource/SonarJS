@@ -23,10 +23,10 @@ import { AST, Rule } from 'eslint';
 import estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta } from '../helpers';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+  meta: generateMeta(meta as Rule.RuleMetaData, {
     messages: {
       useExistingOperator: 'Was "{{operator}}=" meant instead?',
       suggestExistingOperator: 'Replace with "{{operator}}" operator',

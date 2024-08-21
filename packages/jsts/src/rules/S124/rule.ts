@@ -21,36 +21,12 @@
 
 import { Rule } from 'eslint';
 import { TSESTree } from '@typescript-eslint/utils';
-import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
 import { generateMeta } from '../helpers';
 import { FromSchema } from 'json-schema-to-ts';
-import rspecMeta from './meta.json';
-
-const schema = {
-  type: 'array',
-  minItems: 0,
-  maxItems: 1,
-  items: [
-    {
-      type: 'object',
-      properties: {
-        regularExpression: {
-          type: 'string',
-        },
-        message: {
-          type: 'string',
-        },
-        flags: {
-          type: 'string',
-        },
-      },
-      additionalProperties: false,
-    },
-  ],
-} as const satisfies JSONSchema4;
+import { meta, schema } from './meta';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, { schema }),
+  meta: generateMeta(meta as Rule.RuleMetaData, { schema }),
   create(context: Rule.RuleContext) {
     const options = (context.options as FromSchema<typeof schema>)[0] || {};
     const flags = options.flags || '';

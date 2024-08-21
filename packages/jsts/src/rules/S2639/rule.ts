@@ -23,7 +23,7 @@ import { Rule } from 'eslint';
 import { CharacterClass } from '@eslint-community/regexpp/ast';
 import { createRegExpRule } from '../helpers/regex';
 import { generateMeta } from '../helpers';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 export const rule: Rule.RuleModule = createRegExpRule(
   context => {
@@ -39,7 +39,7 @@ export const rule: Rule.RuleModule = createRegExpRule(
       },
     };
   },
-  generateMeta(rspecMeta as Rule.RuleMetaData, {
+  generateMeta(meta as Rule.RuleMetaData, {
     messages: {
       issue: "Rework this empty character class that doesn't match anything.",
     },

@@ -23,23 +23,20 @@ import { Rule } from 'eslint';
 import estree from 'estree';
 import { generateMeta, report, toSecondaryLocation } from '../helpers';
 import { AST_NODE_TYPES } from '@typescript-eslint/utils';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 const message = 'Merge this if statement with the nested one.';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
-    messages: {
-      mergeNestedIfStatement: message,
-    },
-    schema: [
-      {
-        // internal parameter
-        type: 'string',
-        enum: ['sonar-runtime'],
+  meta: generateMeta(
+    meta as Rule.RuleMetaData,
+    {
+      messages: {
+        mergeNestedIfStatement: message,
       },
-    ],
-  }),
+    },
+    true,
+  ),
   create(context) {
     return {
       IfStatement(node: estree.IfStatement) {

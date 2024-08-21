@@ -1,9 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "Collection elements should not be replaced unconditionally",
-    "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S4143/javascript",
-    "requiresTypeChecking": false
-  }
-}

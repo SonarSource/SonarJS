@@ -1,9 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "Boolean expressions should not be gratuitous",
-    "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S2589/javascript",
-    "requiresTypeChecking": false
-  }
-}

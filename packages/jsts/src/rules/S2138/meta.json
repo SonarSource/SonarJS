@@ -1,9 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "\"undefined\" should not be assigned",
-    "recommended": false,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S2138/javascript",
-    "requiresTypeChecking": false
-  }
-}

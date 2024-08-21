@@ -26,10 +26,10 @@ import { Rule } from 'eslint';
 import { generateMeta, isMemberExpression } from '../helpers';
 import { TSESTree } from '@typescript-eslint/utils';
 import * as estree from 'estree';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+  meta: generateMeta(meta as Rule.RuleMetaData, {
     messages: {
       noGeneratedKeys: 'Do not use generated values for keys of React list components.',
     },

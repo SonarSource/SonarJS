@@ -1,9 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "Character classes in regular expressions should not contain only one character",
-    "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S6397/javascript",
-    "requiresTypeChecking": true
-  }
-}

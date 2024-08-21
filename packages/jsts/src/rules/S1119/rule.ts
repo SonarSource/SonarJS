@@ -21,10 +21,10 @@
 
 import { Rule } from 'eslint';
 import { generateMeta } from '../helpers';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+  meta: generateMeta(meta as Rule.RuleMetaData, {
     messages: {
       removeLabel: 'Refactor the code to remove this label and the need for it.',
     },

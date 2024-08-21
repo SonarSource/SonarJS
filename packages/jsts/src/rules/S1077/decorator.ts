@@ -23,13 +23,13 @@ import { Rule } from 'eslint';
 import { Node } from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta, interceptReport } from '../helpers';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(
     {
       ...rule,
-      meta: generateMeta(rspecMeta as Rule.RuleMetaData, rule.meta),
+      meta: generateMeta(meta as Rule.RuleMetaData, rule.meta),
     },
     (context, descriptor) => {
       const { node } = descriptor as unknown as { node: TSESTree.JSXOpeningElement };

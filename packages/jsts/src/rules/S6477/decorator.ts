@@ -20,13 +20,13 @@
 import { TSESTree } from '@typescript-eslint/utils';
 import { Rule } from 'eslint';
 import { generateMeta, interceptReportForReact } from '../helpers';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReportForReact(
     {
       ...rule,
-      meta: generateMeta(rspecMeta as Rule.RuleMetaData, rule.meta),
+      meta: generateMeta(meta as Rule.RuleMetaData, rule.meta),
     },
     reportExempting(hasSpreadOperator),
   );

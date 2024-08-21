@@ -32,7 +32,7 @@ import {
   isUndefined,
   isUndefinedOrNull,
 } from '../helpers';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 enum Null {
   confirmed,
@@ -48,7 +48,7 @@ const equalOperators = ['==', '==='];
 const notEqualOperators = ['!=', '!=='];
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+  meta: generateMeta(meta as Rule.RuleMetaData, {
     messages: {
       nullDereference: 'TypeError can be thrown as "{{symbol}}" might be null or undefined here.',
       shortCircuitError: 'TypeError can be thrown as expression might be null or undefined here.',

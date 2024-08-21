@@ -22,18 +22,11 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { CookieFlagCheck } from '../helpers/cookie-flag-check';
-import { generateMeta, SONAR_RUNTIME } from '../helpers';
-import rspecMeta from './meta.json';
+import { generateMeta } from '../helpers';
+import { meta } from './meta';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
-    schema: [
-      {
-        // internal parameter for rules having secondary locations
-        enum: [SONAR_RUNTIME],
-      },
-    ],
-  }),
+  meta: generateMeta(meta as Rule.RuleMetaData, undefined, true),
   create(context: Rule.RuleContext) {
     return {
       CallExpression: (node: estree.Node) =>

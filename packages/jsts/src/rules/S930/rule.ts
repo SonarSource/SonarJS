@@ -34,23 +34,20 @@ import {
   toSecondaryLocation,
 } from '../helpers';
 import estree from 'estree';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 const message = 'This function expects {{expectedArguments}}, but {{providedArguments}} provided.';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
-    messages: {
-      tooManyArguments: message,
-    },
-    schema: [
-      {
-        // internal parameter
-        type: 'string',
-        enum: ['sonar-runtime'],
+  meta: generateMeta(
+    meta as Rule.RuleMetaData,
+    {
+      messages: {
+        tooManyArguments: message,
       },
-    ],
-  }),
+    },
+    true,
+  ),
   create(context) {
     const callExpressionsToCheck: Array<{
       callExpr: estree.CallExpression;

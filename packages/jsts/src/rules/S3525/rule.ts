@@ -28,10 +28,10 @@ import {
   isRequiredParserServices,
   RequiredParserServices,
 } from '../helpers';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+  meta: generateMeta(meta as Rule.RuleMetaData, {
     messages: {
       declareClass:
         'Declare a "{{class}}" class and move this declaration of "{{declaration}}" into it.',

@@ -1,9 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "Comma and logical OR operators should not be used in switch cases",
-    "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S3616/javascript",
-    "requiresTypeChecking": false
-  }
-}

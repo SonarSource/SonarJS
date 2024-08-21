@@ -23,13 +23,13 @@ import type { ParserServicesWithTypeInformation, TSESTree } from '@typescript-es
 import { Rule } from 'eslint';
 import { generateMeta, isRequiredParserServices } from '../helpers';
 import estree from 'estree';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 const CollectionLike = ['Array', 'Map', 'Set', 'WeakMap', 'WeakSet'];
 const CollectionSizeLike = ['length', 'size'];
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+  meta: generateMeta(meta as Rule.RuleMetaData, {
     messages: {
       fixCollectionSizeCheck:
         'Fix this expression; {{propertyName}} of "{{objectName}}" is always greater or equal to zero.',

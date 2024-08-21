@@ -28,10 +28,9 @@ import {
   IssueLocation,
   report,
   S3BucketTemplate,
-  SONAR_RUNTIME,
   toSecondaryLocation,
 } from '../helpers';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 const VERSIONED_KEY = 'versioned';
 
@@ -72,12 +71,5 @@ export const rule: Rule.RuleModule = S3BucketTemplate(
       );
     }
   },
-  generateMeta(rspecMeta as Rule.RuleMetaData, {
-    schema: [
-      {
-        // internal parameter for rules having secondary locations
-        enum: [SONAR_RUNTIME],
-      },
-    ],
-  }),
+  generateMeta(meta as Rule.RuleMetaData, undefined, true),
 );

@@ -1,9 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "Values not convertible to numbers should not be used in numeric comparisons",
-    "recommended": false,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S3758/javascript",
-    "requiresTypeChecking": true
-  }
-}

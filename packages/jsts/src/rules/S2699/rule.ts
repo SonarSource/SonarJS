@@ -31,7 +31,7 @@ import {
   Vitest,
 } from '../helpers';
 import { Supertest } from '../helpers/supertest';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 /**
  * We assume that the user is using a single assertion library per file,
@@ -39,7 +39,7 @@ import rspecMeta from './meta.json';
  * libX and the imported library was libY.
  */
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData),
+  meta: generateMeta(meta as Rule.RuleMetaData),
   create(context: Rule.RuleContext) {
     const visitedNodes: Set<estree.Node> = new Set();
     const potentialIssues: Rule.ReportDescriptor[] = [];

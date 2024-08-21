@@ -1,9 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "Functions should not have identical implementations",
-    "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S4144/javascript",
-    "requiresTypeChecking": false
-  }
-}

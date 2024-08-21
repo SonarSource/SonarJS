@@ -1,9 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "Replacement strings should reference existing regular expression groups",
-    "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S6328/javascript",
-    "requiresTypeChecking": true
-  }
-}

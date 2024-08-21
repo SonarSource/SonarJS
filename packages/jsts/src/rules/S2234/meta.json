@@ -1,9 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "Parameters should be passed in the correct order",
-    "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S2234/javascript",
-    "requiresTypeChecking": true
-  }
-}

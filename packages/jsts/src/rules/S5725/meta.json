@@ -1,9 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "Using remote artifacts without integrity checks is security-sensitive",
-    "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S5725/javascript",
-    "requiresTypeChecking": true
-  }
-}

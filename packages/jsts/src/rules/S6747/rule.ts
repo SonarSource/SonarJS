@@ -25,7 +25,7 @@ import { rules as jsxA11yRules } from 'eslint-plugin-jsx-a11y';
 import { generateMeta, interceptReport, mergeRules } from '../helpers';
 import { decorate } from './decorator';
 import { TSESTree } from '@typescript-eslint/utils';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 const noUnknownProp = reactRules['no-unknown-property'];
 const decoratedNoUnknownProp = decorate(noUnknownProp);
@@ -66,7 +66,7 @@ const twiceDecoratedNoUnknownProp = interceptReport(
 );
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+  meta: generateMeta(meta as Rule.RuleMetaData, {
     hasSuggestions: true,
     messages: {
       ...decoratedAriaPropsRule.meta!.messages,

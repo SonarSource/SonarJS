@@ -23,10 +23,10 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { generateMeta, isArray, isNumber, isRequiredParserServices } from '../helpers';
 import { TSESTree } from '@typescript-eslint/utils';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+  meta: generateMeta(meta as Rule.RuleMetaData, {
     hasSuggestions: true,
     messages: {
       inMisuse: 'Use "indexOf" or "includes" (available from ES2016) instead.',

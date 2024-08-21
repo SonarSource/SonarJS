@@ -27,38 +27,15 @@ import {
   getMainFunctionTokenLocation,
   report,
   RuleContext,
-  SONAR_RUNTIME,
   toSecondaryLocation,
 } from '../helpers';
-import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
 import { FromSchema } from 'json-schema-to-ts';
-import rspecMeta from './meta.json';
+import { meta, schema } from './meta';
 
 const DEFAULT_THRESHOLD = 4;
-const schema = {
-  type: 'array',
-  minItems: 0,
-  maxItems: 2,
-  items: [
-    {
-      type: 'object',
-      properties: {
-        threshold: {
-          type: 'integer',
-        },
-      },
-      additionalProperties: false,
-    },
-    {
-      type: 'string',
-      // internal parameter for rules having secondary locations
-      enum: [SONAR_RUNTIME],
-    },
-  ],
-} as const satisfies JSONSchema4;
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, { schema }),
+  meta: generateMeta(meta as Rule.RuleMetaData, { schema }, true),
   create(context: Rule.RuleContext) {
     const max = (context.options as FromSchema<typeof schema>)[0]?.threshold ?? DEFAULT_THRESHOLD;
     const nestedStack: TSESTree.FunctionLike[] = [];

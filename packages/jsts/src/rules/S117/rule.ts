@@ -23,9 +23,8 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta, resolveIdentifiers } from '../helpers';
-import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
 import { FromSchema } from 'json-schema-to-ts';
-import rspecMeta from './meta.json';
+import { meta, schema } from './meta';
 
 interface FunctionLike {
   declare?: boolean;
@@ -40,25 +39,8 @@ const messages = {
   renameSymbol: `Rename this {{symbolType}} "{{symbol}}" to match the regular expression {{format}}.`,
 };
 
-const schema = {
-  type: 'array',
-  minItems: 0,
-  maxItems: 1,
-  items: [
-    {
-      type: 'object',
-      properties: {
-        format: {
-          type: 'string',
-        },
-      },
-      additionalProperties: false,
-    },
-  ],
-} as const satisfies JSONSchema4;
-
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, { messages, schema }),
+  meta: generateMeta(meta as Rule.RuleMetaData, { messages, schema }),
   create(context: Rule.RuleContext) {
     return {
       VariableDeclaration: (node: estree.Node) =>

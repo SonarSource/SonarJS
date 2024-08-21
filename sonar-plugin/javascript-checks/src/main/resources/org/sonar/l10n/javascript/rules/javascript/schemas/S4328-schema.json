@@ -1,0 +1,19 @@
+{
+  "type": "array",
+  "minItems": 0,
+  "maxItems": 1,
+  "items": [
+    {
+      "type": "object",
+      "properties": {
+        "whitelist": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  ]
+}

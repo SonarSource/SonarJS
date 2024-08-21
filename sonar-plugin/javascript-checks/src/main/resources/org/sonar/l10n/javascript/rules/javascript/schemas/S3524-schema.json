@@ -1,0 +1,19 @@
+{
+  "type": "array",
+  "minItems": 0,
+  "maxItems": 1,
+  "items": [
+    {
+      "type": "object",
+      "properties": {
+        "requireParameterParentheses": {
+          "type": "boolean"
+        },
+        "requireBodyBraces": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    }
+  ]
+}

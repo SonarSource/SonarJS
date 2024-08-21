@@ -22,7 +22,7 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { generateMeta, getFullyQualifiedName, getValueOfExpression } from '../helpers';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 const aliases: string[] = [
   'AES128',
@@ -47,7 +47,7 @@ const aliases: string[] = [
 ];
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+  meta: generateMeta(meta as Rule.RuleMetaData, {
     messages: {
       useSecureMode: 'Use a secure mode and padding scheme.',
     },

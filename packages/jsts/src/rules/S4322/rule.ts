@@ -29,12 +29,12 @@ import {
   isUndefined,
   RuleContext,
 } from '../helpers';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 type FunctionLikeDeclaration = TSESTree.FunctionDeclaration | TSESTree.FunctionExpression;
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+  meta: generateMeta(meta as Rule.RuleMetaData, {
     hasSuggestions: true,
     messages: {
       useTypePredicate:

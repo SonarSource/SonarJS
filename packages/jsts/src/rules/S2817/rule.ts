@@ -28,12 +28,12 @@ import {
   isIdentifier,
   isRequiredParserServices,
 } from '../helpers';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 const OPEN_DATABASE = 'openDatabase';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+  meta: generateMeta(meta as Rule.RuleMetaData, {
     messages: {
       convertWebSQLUse: 'Convert this use of a Web SQL database to another technology.',
     },

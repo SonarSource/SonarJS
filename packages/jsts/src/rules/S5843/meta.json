@@ -1,9 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "Regular expressions should not be too complicated",
-    "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S5843/javascript",
-    "requiresTypeChecking": true
-  }
-}

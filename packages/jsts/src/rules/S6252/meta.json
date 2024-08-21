@@ -1,9 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "Disabling versioning of S3 buckets is security-sensitive",
-    "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S6252/javascript",
-    "requiresTypeChecking": false
-  }
-}

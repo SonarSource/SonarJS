@@ -1,9 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "\"indexOf\" checks should not be for positive numbers",
-    "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S2692/javascript",
-    "requiresTypeChecking": true
-  }
-}

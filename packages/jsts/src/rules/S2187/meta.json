@@ -1,9 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "Test files should contain at least one test case",
-    "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S2187/javascript",
-    "requiresTypeChecking": false
-  }
-}

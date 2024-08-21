@@ -1,9 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "Assertions should be complete",
-    "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S2970/javascript",
-    "requiresTypeChecking": false
-  }
-}

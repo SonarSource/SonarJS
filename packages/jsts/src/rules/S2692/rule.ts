@@ -27,10 +27,10 @@ import {
   isRequiredParserServices,
   RequiredParserServices,
 } from '../helpers';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+  meta: generateMeta(meta as Rule.RuleMetaData, {
     messages: {
       considerIncludes:
         "This check ignores index 0; consider using 'includes' method to make this check safe and explicit.",

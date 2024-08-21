@@ -26,7 +26,7 @@ import {
   getValueOfExpression,
   S3BucketTemplate,
 } from '../helpers';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 const ENFORCE_SSL_KEY = 'enforceSSL';
 
@@ -54,5 +54,5 @@ export const rule: Rule.RuleModule = S3BucketTemplate(
       });
     }
   },
-  generateMeta(rspecMeta as Rule.RuleMetaData),
+  generateMeta(meta as Rule.RuleMetaData),
 );

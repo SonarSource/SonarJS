@@ -20,10 +20,9 @@
 // https://sonarsource.github.io/rspec/#/rspec/S1451/javascript
 
 import { Rule } from 'eslint';
-import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
 import { generateMeta } from '../helpers';
 import { FromSchema } from 'json-schema-to-ts';
-import rspecMeta from './meta.json';
+import { meta, schema } from './meta';
 
 let cached: {
   headerFormat: string;
@@ -42,28 +41,8 @@ const messages = {
   fixHeader: 'Add or update the header of this file.',
 };
 
-const schema = {
-  type: 'array',
-  minItems: 0,
-  maxItems: 1,
-  items: [
-    {
-      type: 'object',
-      properties: {
-        headerFormat: {
-          type: 'string',
-        },
-        isRegularExpression: {
-          type: 'boolean',
-        },
-      },
-      additionalProperties: false,
-    },
-  ],
-} as const satisfies JSONSchema4;
-
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, { messages, schema }),
+  meta: generateMeta(meta as Rule.RuleMetaData, { messages, schema }),
   create(context: Rule.RuleContext) {
     updateCache(context.options);
 

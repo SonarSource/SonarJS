@@ -22,14 +22,14 @@
 import { AST, Rule } from 'eslint';
 import { generateMeta, interceptReport } from '../helpers';
 import * as estree from 'estree';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 // core implementation of ESLint 'no-dupe-keys' does not provide quick fixes
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(
     {
       ...rule,
-      meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+      meta: generateMeta(meta as Rule.RuleMetaData, {
         ...rule.meta!,
         hasSuggestions: true,
       }),

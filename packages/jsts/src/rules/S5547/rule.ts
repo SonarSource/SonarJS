@@ -22,12 +22,12 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { generateMeta, getFullyQualifiedName, getValueOfExpression } from '../helpers';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 const WEAK_CIPHERS = ['bf', 'blowfish', 'des', 'rc2', 'rc4'];
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+  meta: generateMeta(meta as Rule.RuleMetaData, {
     messages: {
       strongerCipher: 'Use a strong cipher algorithm.',
     },

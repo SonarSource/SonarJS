@@ -1,9 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "Names of regular expressions named groups should be used",
-    "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S5860/javascript",
-    "requiresTypeChecking": true
-  }
-}

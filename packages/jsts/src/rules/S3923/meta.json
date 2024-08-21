@@ -1,9 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "All branches in a conditional structure should not have exactly the same implementation",
-    "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S3923/javascript",
-    "requiresTypeChecking": false
-  }
-}

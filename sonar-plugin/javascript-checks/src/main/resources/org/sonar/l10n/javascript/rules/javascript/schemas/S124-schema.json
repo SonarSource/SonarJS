@@ -1,0 +1,22 @@
+{
+  "type": "array",
+  "minItems": 0,
+  "maxItems": 1,
+  "items": [
+    {
+      "type": "object",
+      "properties": {
+        "regularExpression": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "flags": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  ]
+}

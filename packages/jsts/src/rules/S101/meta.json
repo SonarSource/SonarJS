@@ -1,9 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "Class names should comply with a naming convention",
-    "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S101/javascript",
-    "requiresTypeChecking": false
-  }
-}

@@ -30,23 +30,15 @@ import {
   isLiteral,
   isRequireModule,
   report,
-  SONAR_RUNTIME,
   toSecondaryLocation,
 } from '../helpers';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 const CSURF_MODULE = 'csurf';
 const SAFE_METHODS = ['GET', 'HEAD', 'OPTIONS'];
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
-    schema: [
-      {
-        // internal parameter for rules having secondary locations
-        enum: [SONAR_RUNTIME],
-      },
-    ],
-  }),
+  meta: generateMeta(meta as Rule.RuleMetaData, undefined, true),
   create(context: Rule.RuleContext) {
     let globalCsrfProtection = false;
     let importedCsrfMiddleware = false;

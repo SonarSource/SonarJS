@@ -30,10 +30,10 @@ import {
   GroupReference,
   isStringReplaceCall,
 } from '../helpers/regex';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+  meta: generateMeta(meta as Rule.RuleMetaData, {
     messages: {
       nonExistingGroup: 'Referencing non-existing group{{groups}}.',
     },

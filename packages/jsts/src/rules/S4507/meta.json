@@ -1,9 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "Delivering code in production with debug features activated is security-sensitive",
-    "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S4507/javascript",
-    "requiresTypeChecking": false
-  }
-}

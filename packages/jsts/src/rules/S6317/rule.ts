@@ -21,16 +21,10 @@
 
 import { Rule } from 'eslint';
 import { Node } from 'estree';
-import {
-  generateMeta,
-  report,
-  SONAR_RUNTIME,
-  StringLiteral,
-  toSecondaryLocation,
-} from '../helpers';
+import { generateMeta, report, StringLiteral, toSecondaryLocation } from '../helpers';
 import { getResultOfExpression, Result } from '../helpers/result';
 import { AwsIamPolicyTemplate, getSensitiveEffect, PolicyCheckerOptions } from '../helpers/aws/iam';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 const SENSITIVE_RESOURCE = /^(\*|arn:[^:]*:[^:]*:[^:]*:[^:]*:(role|user|group)\/\*)$/;
 
@@ -72,14 +66,7 @@ const MESSAGES = {
 
 export const rule: Rule.RuleModule = AwsIamPolicyTemplate(
   privilegeEscalationStatementChecker,
-  generateMeta(rspecMeta as Rule.RuleMetaData, {
-    schema: [
-      {
-        // internal parameter for rules having secondary locations
-        enum: [SONAR_RUNTIME],
-      },
-    ],
-  }),
+  generateMeta(meta as Rule.RuleMetaData, undefined, true),
 );
 
 function privilegeEscalationStatementChecker(

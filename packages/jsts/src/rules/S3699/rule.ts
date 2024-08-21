@@ -28,7 +28,7 @@ import {
 } from '../helpers';
 import { Rule } from 'eslint';
 import estree from 'estree';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 const EMPTY_RETURN_VALUE_KEYWORDS = new Set([
   'TSVoidKeyword',
@@ -65,7 +65,7 @@ function isReturnValueUsed(callExpr: TSESTree.Node) {
 }
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+  meta: generateMeta(meta as Rule.RuleMetaData, {
     messages: {
       removeUseOfOutput:
         'Remove this use of the output from "{{name}}"; "{{name}}" doesn\'t return anything.',

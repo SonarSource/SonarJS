@@ -30,9 +30,8 @@ import {
   getProperty,
   getValueOfExpression,
 } from '../helpers';
-import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
 import { FromSchema } from 'json-schema-to-ts';
-import rspecMeta from './meta.json';
+import { meta, schema } from './meta';
 
 const FORMIDABLE_MODULE = 'formidable';
 const MAX_FILE_SIZE = 'maxFileSize';
@@ -57,28 +56,8 @@ const messages = {
   safeLimit: 'Make sure the content length limit is safe here.',
 };
 
-const schema = {
-  type: 'array',
-  minItems: 0,
-  maxItems: 1,
-  items: [
-    {
-      type: 'object',
-      properties: {
-        fileUploadSizeLimit: {
-          type: 'integer',
-        },
-        standardSizeLimit: {
-          type: 'integer',
-        },
-      },
-      additionalProperties: false,
-    },
-  ],
-} as const satisfies JSONSchema4;
-
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, { messages, schema }),
+  meta: generateMeta(meta as Rule.RuleMetaData, { messages, schema }),
   create(context: Rule.RuleContext) {
     return {
       NewExpression(node: estree.Node) {

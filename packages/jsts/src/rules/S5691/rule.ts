@@ -22,12 +22,12 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { generateMeta, getFullyQualifiedName, getProperty, getUniqueWriteUsage } from '../helpers';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 const SERVE_STATIC = 'serve-static';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+  meta: generateMeta(meta as Rule.RuleMetaData, {
     messages: {
       safeHiddenFile: 'Make sure serving hidden files is safe here.',
     },

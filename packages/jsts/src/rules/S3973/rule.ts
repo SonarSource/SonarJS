@@ -21,25 +21,11 @@
 
 import { AST, Rule, SourceCode } from 'eslint';
 import * as estree from 'estree';
-import {
-  generateMeta,
-  getParent,
-  LoopLike,
-  report,
-  SONAR_RUNTIME,
-  toSecondaryLocation,
-} from '../helpers';
-import rspecMeta from './meta.json';
+import { generateMeta, getParent, LoopLike, report, toSecondaryLocation } from '../helpers';
+import { meta } from './meta';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
-    schema: [
-      {
-        // internal parameter for rules having secondary locations
-        enum: [SONAR_RUNTIME],
-      },
-    ],
-  }),
+  meta: generateMeta(meta as Rule.RuleMetaData, undefined, true),
 
   create(context: Rule.RuleContext) {
     const sourceCode = context.sourceCode;

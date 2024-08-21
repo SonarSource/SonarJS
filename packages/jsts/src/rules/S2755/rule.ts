@@ -27,23 +27,15 @@ import {
   getFullyQualifiedName,
   getProperty,
   report,
-  SONAR_RUNTIME,
   toSecondaryLocation,
 } from '../helpers';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 const XML_LIBRARY = 'libxmljs';
 const XML_PARSERS = ['parseXml', 'parseXmlString'];
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
-    schema: [
-      {
-        // internal parameter for rules having secondary locations
-        enum: [SONAR_RUNTIME],
-      },
-    ],
-  }),
+  meta: generateMeta(meta as Rule.RuleMetaData, undefined, true),
   create(context: Rule.RuleContext) {
     function isXmlParserCall(call: estree.CallExpression) {
       const fqn = getFullyQualifiedName(context, call);

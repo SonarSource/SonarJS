@@ -23,8 +23,7 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { generateMeta, getValueOfExpression, isIdentifier, isMemberExpression } from '../helpers';
 import { FromSchema } from 'json-schema-to-ts';
-import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
-import rspecMeta from './meta.json';
+import { meta, schema } from './meta';
 
 const GEOLOCATION = 'geolocation';
 const CAMERA = 'camera';
@@ -40,28 +39,8 @@ const messages = {
   checkPermission: 'Make sure the use of the {{feature}} is necessary.',
 };
 
-const schema = {
-  type: 'array',
-  minItems: 0,
-  maxItems: 1,
-  items: [
-    {
-      type: 'object',
-      properties: {
-        permissions: {
-          type: 'array',
-          items: {
-            type: 'string',
-          },
-        },
-      },
-      additionalProperties: false,
-    },
-  ],
-} as const satisfies JSONSchema4;
-
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, { messages, schema }),
+  meta: generateMeta(meta as Rule.RuleMetaData, { messages, schema }),
   create(context: Rule.RuleContext) {
     const permissions =
       (context.options as FromSchema<typeof schema>)[0]?.permissions ?? DEFAULT_PERMISSIONS;

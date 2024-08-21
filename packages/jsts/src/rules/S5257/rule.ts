@@ -23,10 +23,10 @@ import { Rule } from 'eslint';
 import { TSESTree } from '@typescript-eslint/utils';
 import * as estree from 'estree';
 import { generateMeta, isPresentationTable } from '../helpers';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+  meta: generateMeta(meta as Rule.RuleMetaData, {
     messages: {
       noLayoutTable: 'Replace this layout table with a CSS layout.',
     },

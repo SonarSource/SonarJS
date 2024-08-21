@@ -22,10 +22,10 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { generateMeta, isMemberExpression } from '../helpers';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+  meta: generateMeta(meta as Rule.RuleMetaData, {
     messages: {
       safeStdin: `Make sure that reading the standard input is safe here.`,
     },

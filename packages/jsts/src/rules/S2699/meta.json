@@ -1,9 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "Tests should include assertions",
-    "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S2699/javascript",
-    "requiresTypeChecking": false
-  }
-}

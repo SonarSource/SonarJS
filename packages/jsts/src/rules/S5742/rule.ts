@@ -21,14 +21,8 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import {
-  Express,
-  generateMeta,
-  getFullyQualifiedName,
-  getPropertyWithValue,
-  SONAR_RUNTIME,
-} from '../helpers';
-import rspecMeta from './meta.json';
+import { Express, generateMeta, getFullyQualifiedName, getPropertyWithValue } from '../helpers';
+import { meta } from './meta';
 
 const HELMET = 'helmet';
 const EXPECT_CERTIFICATE_TRANSPARENCY = 'expectCt';
@@ -36,14 +30,7 @@ const EXPECT_CERTIFICATE_TRANSPARENCY = 'expectCt';
 export const rule: Rule.RuleModule = Express.SensitiveMiddlewarePropertyRule(
   findFalseCertificateTransparencyPropertyFromHelmet,
   `Make sure disabling Certificate Transparency monitoring is safe here.`,
-  generateMeta(rspecMeta as Rule.RuleMetaData, {
-    schema: [
-      {
-        // internal parameter for rules having secondary locations
-        enum: [SONAR_RUNTIME],
-      },
-    ],
-  }),
+  generateMeta(meta as Rule.RuleMetaData, undefined, true),
 );
 
 /**

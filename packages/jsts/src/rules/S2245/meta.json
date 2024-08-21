@@ -1,9 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "Using pseudorandom number generators (PRNGs) is security-sensitive",
-    "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S2245/javascript",
-    "requiresTypeChecking": false
-  }
-}

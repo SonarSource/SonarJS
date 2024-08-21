@@ -29,10 +29,10 @@ import {
   isRequiredParserServices,
 } from '../helpers';
 import { ParserServicesWithTypeInformation } from '@typescript-eslint/utils';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+  meta: generateMeta(meta as Rule.RuleMetaData, {
     messages: {
       refactorAwait: "Refactor this redundant 'await' on a non-promise.",
     },

@@ -28,14 +28,14 @@ import {
   isMethodCall,
   isStringLiteral,
 } from '../helpers';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 const REQUIRED_OPTION = 'noopener';
 const REQUIRED_OPTION_INDEX = 2;
 const URL_INDEX = 0;
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+  meta: generateMeta(meta as Rule.RuleMetaData, {
     messages: {
       missingNoopener: 'Make sure not using "noopener" is safe here.',
     },

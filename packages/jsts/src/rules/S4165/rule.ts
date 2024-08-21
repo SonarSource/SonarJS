@@ -30,14 +30,14 @@ import {
   resolveAssignedValues,
   Values,
 } from '../helpers';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 import CodePath = Rule.CodePath;
 import Variable = Scope.Variable;
 import Reference = Scope.Reference;
 import CodePathSegment = Rule.CodePathSegment;
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+  meta: generateMeta(meta as Rule.RuleMetaData, {
     messages: {
       reviewAssignment:
         'Review this redundant assignment: "{{symbol}}" already holds the assigned value along all execution paths.',

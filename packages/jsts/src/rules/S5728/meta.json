@@ -1,9 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "Disabling content security policy fetch directives is security-sensitive",
-    "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S5728/javascript",
-    "requiresTypeChecking": false
-  }
-}

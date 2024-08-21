@@ -24,7 +24,7 @@ import { RegExpLiteral } from '@eslint-community/regexpp/ast';
 import { analyse } from 'scslre';
 import { createRegExpRule } from '../helpers/regex';
 import { generateMeta } from '../helpers';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 const message = `Make sure the regex used here, which is vulnerable to super-linear runtime due to backtracking, cannot lead to denial of service.`;
 
@@ -42,5 +42,5 @@ export const rule: Rule.RuleModule = createRegExpRule(
       },
     };
   },
-  generateMeta(rspecMeta as Rule.RuleMetaData),
+  generateMeta(meta as Rule.RuleMetaData),
 );

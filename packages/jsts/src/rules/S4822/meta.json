@@ -1,9 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "Promise rejections should not be caught by \"try\" blocks",
-    "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S4822/javascript",
-    "requiresTypeChecking": true
-  }
-}

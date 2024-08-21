@@ -27,13 +27,13 @@ import {
   isIdentifier,
   isMemberWithProperty,
 } from '../helpers';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 const getEncryptionRuleModule = (
   clientSideMethods: string[],
   serverSideMethods: string[],
 ): Rule.RuleModule => ({
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+  meta: generateMeta(meta as Rule.RuleMetaData, {
     messages: {
       safeEncryption: 'Make sure that encrypting data is safe here.',
     },

@@ -21,7 +21,7 @@
 
 import { rules as jsxA11yRules } from 'eslint-plugin-jsx-a11y';
 import { generateMeta, interceptReport } from '../helpers';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 import { Rule } from 'eslint';
 
 const anchorIsValid = jsxA11yRules['anchor-is-valid'];
@@ -29,7 +29,7 @@ const anchorIsValid = jsxA11yRules['anchor-is-valid'];
 export const rule = interceptReport(
   {
     ...anchorIsValid,
-    meta: generateMeta(rspecMeta as Rule.RuleMetaData, anchorIsValid.meta),
+    meta: generateMeta(meta as Rule.RuleMetaData, anchorIsValid.meta),
   },
   (context, reportDescriptor) => {
     const descriptor = reportDescriptor as any;

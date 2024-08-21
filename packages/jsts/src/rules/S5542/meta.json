@@ -1,9 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "Encryption algorithms should be used with secure mode and padding scheme",
-    "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S5542/javascript",
-    "requiresTypeChecking": false
-  }
-}

@@ -22,7 +22,7 @@
 import { Rule } from 'eslint';
 import { AssignmentPattern, BaseFunction } from 'estree';
 import { generateMeta, interceptReport, isIdentifier } from '../helpers';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 const NUM_ARGS_REDUX_REDUCER = 2;
 
@@ -30,7 +30,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(
     {
       ...rule,
-      meta: generateMeta(rspecMeta as Rule.RuleMetaData, rule.meta),
+      meta: generateMeta(meta as Rule.RuleMetaData, rule.meta),
     },
     reportExempting(isReduxReducer),
   );
