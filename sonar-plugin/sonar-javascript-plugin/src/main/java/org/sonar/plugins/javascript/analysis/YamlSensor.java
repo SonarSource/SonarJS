@@ -74,7 +74,7 @@ public class YamlSensor extends AbstractBridgeSensor {
 
   @Override
   protected void analyzeFiles(List<InputFile> inputFiles) throws IOException {
-    analysisMode = AnalysisMode.getMode(context, checks.eslintRules());
+    analysisMode = AnalysisMode.getMode(context);
     var progressReport = new ProgressReport("Analysis progress", TimeUnit.SECONDS.toMillis(10));
     var success = false;
     try {

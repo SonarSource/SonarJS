@@ -68,7 +68,7 @@ public class HtmlSensor extends AbstractBridgeSensor {
   @Override
   protected void analyzeFiles(List<InputFile> inputFiles) throws IOException {
     var progressReport = new ProgressReport("Analysis progress", TimeUnit.SECONDS.toMillis(10));
-    analysisMode = AnalysisMode.getMode(context, checks.eslintRules());
+    analysisMode = AnalysisMode.getMode(context);
     var success = false;
     try {
       progressReport.start(inputFiles.size(), inputFiles.iterator().next().toString());

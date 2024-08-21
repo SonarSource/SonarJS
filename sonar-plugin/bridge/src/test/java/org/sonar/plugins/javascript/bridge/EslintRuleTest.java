@@ -20,10 +20,8 @@
 package org.sonar.plugins.javascript.bridge;
 
 import static java.util.Collections.emptyList;
-import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.sonar.plugins.javascript.bridge.EslintRule.containsRuleWithKey;
 import static org.sonar.plugins.javascript.bridge.EslintRule.findFirstRuleWithKey;
 
 import java.util.Arrays;
@@ -32,13 +30,6 @@ import org.junit.jupiter.api.Test;
 import org.sonar.api.batch.fs.InputFile;
 
 class EslintRuleTest {
-
-  @Test
-  void should_search_rules() {
-    assertThat(containsRuleWithKey(rules(), "key1")).isFalse();
-    assertThat(containsRuleWithKey(rules("key1"), "key1")).isTrue();
-    assertThat(containsRuleWithKey(rules("key1", "key2"), "key3")).isFalse();
-  }
 
   @Test
   void should_find_first_rule() {

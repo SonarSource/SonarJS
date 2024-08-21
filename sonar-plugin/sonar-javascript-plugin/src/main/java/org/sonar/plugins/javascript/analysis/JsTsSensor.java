@@ -35,6 +35,7 @@ import org.sonar.plugins.javascript.TypeScriptLanguage;
 import org.sonar.plugins.javascript.bridge.AnalysisMode;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
 import org.sonar.plugins.javascript.JavaScriptFilePredicate;
+import org.sonar.plugins.javascript.bridge.EslintRule;
 import org.sonar.plugins.javascript.sonarlint.SonarLintTypeCheckingChecker;
 
 @DependedUpon("js-analysis")
@@ -99,7 +100,7 @@ public class JsTsSensor extends AbstractBridgeSensor {
 
   @Override
   protected void analyzeFiles(List<InputFile> inputFiles) throws IOException {
-    var analysisMode = AnalysisMode.getMode(context, checks.eslintRules());
+    var analysisMode = AnalysisMode.getMode(context);
     bridgeServer.initLinter(
       checks.eslintRules(),
       environments,
