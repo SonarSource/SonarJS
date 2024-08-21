@@ -22,9 +22,7 @@ package org.sonar.plugins.javascript.bridge;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
-import java.util.stream.Stream;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.rule.ActiveRules;
 
 public class EslintRule {
 

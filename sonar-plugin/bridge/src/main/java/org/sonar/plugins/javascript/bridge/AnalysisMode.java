@@ -23,6 +23,7 @@ import static java.util.Collections.emptyList;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
@@ -51,8 +52,7 @@ public enum AnalysisMode {
     // (possible if all sonar-security rules are deactivated for analysis)
     // This is used to avoid creating instance of "unchaged" linter when not needed. However, linter id mechanism should be replaced by using
     // configuration instead, same as we do for MAIN and TEST files
-    var containsUcfgRule = hasSecurityRules(context.activeRules());
-    if (!containsUcfgRule) {
+    if (!hasSecurityRules(context.activeRules())) {
       LOG.debug(logDefaultMode, "security rules are not available");
       return AnalysisMode.DEFAULT;
     }
@@ -64,13 +64,7 @@ public enum AnalysisMode {
   }
 
   private static boolean hasSecurityRules(ActiveRules activeRules) {
-    if (!activeRules.findByRepository("jssecurity").isEmpty()) {
-      return true;
-    }
-    if (!activeRules.findByRepository("tssecurity").isEmpty()) {
-      return true;
-    }
-    return false;
+    return Stream.of("jssecurity", "tssecurity").anyMatch(r -> !activeRules.findByRepository(r).isEmpty());
   }
 
   public static List<EslintRule> getUnchangedFileRules(List<EslintRule> rules) {

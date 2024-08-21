@@ -30,12 +30,11 @@ import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorDescriptor;
+import org.sonar.plugins.javascript.JavaScriptFilePredicate;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
 import org.sonar.plugins.javascript.bridge.AnalysisMode;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
-import org.sonar.plugins.javascript.JavaScriptFilePredicate;
-import org.sonar.plugins.javascript.bridge.EslintRule;
 import org.sonar.plugins.javascript.sonarlint.SonarLintTypeCheckingChecker;
 
 @DependedUpon("js-analysis")
