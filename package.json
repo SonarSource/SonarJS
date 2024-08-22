@@ -39,7 +39,7 @@
   },
   "license": "LGPL-3.0-only",
   "bugs": {
-    "url": "https://github.com/SonarSource/SonarJS/issues"
+    "url": "https://community.sonarsource.com/"
   },
   "homepage": "https://github.com/SonarSource/SonarJS#readme",
   "engines": {
