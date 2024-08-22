@@ -1,9 +1,6 @@
 {
   "name": "eslint-plugin-sonarjs",
-  "version": "1.0.3",
-  "publishConfig": {
-    "tag": "next"
-  },
+  "version": "2.0.0",
   "main": "./lib/index.js",
   "exports": "./lib/index.js",
   "description": "SonarJS rules for ESLint",
