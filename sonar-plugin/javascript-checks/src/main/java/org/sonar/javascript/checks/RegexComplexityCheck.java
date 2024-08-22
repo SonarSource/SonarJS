@@ -23,14 +23,14 @@ import java.util.Collections;
 import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @JavaScriptRule
 @TypeScriptRule
 @Rule(key = "S5843")
-public class RegexComplexityCheck implements EslintBasedCheck {
+public class RegexComplexityCheck extends Check {
 
   private static final int DEFAULT_THRESHOLD = 20;
 
@@ -48,10 +48,7 @@ public class RegexComplexityCheck implements EslintBasedCheck {
     );
   }
 
-  @Override
-  public String eslintKey() {
-    return "regex-complexity";
-  }
+
 
   private static class Config {
 

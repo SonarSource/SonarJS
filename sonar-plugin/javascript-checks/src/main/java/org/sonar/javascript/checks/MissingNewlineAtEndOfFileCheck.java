@@ -22,7 +22,7 @@ package org.sonar.javascript.checks;
 import java.util.Collections;
 import java.util.List;
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
@@ -31,15 +31,12 @@ import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 @TypeScriptRule
 @DeprecatedRuleKey(ruleKey = "MissingNewlineAtEndOfFile")
 @Rule(key = "S113")
-public class MissingNewlineAtEndOfFileCheck implements EslintBasedCheck {
+public class MissingNewlineAtEndOfFileCheck extends Check {
 
   @Override
   public List<Object> configurations() {
     return Collections.singletonList("always");
   }
 
-  @Override
-  public String eslintKey() {
-    return "eol-last";
-  }
+
 }

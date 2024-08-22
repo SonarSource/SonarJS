@@ -128,7 +128,7 @@ class QuickFixSupportTest {
   static Issue issueWithQuickFix() {
     var quickFixEdit = new QuickFixEdit(";", new IssueLocation(1, 2, 3, 4, ""));
     var quickFix = new QuickFix("QuickFix message", List.of(quickFixEdit));
-    var issue = new Issue(1, 1, 1, 1,"", "no-extra-semi", List.of(), 1.0, List.of(quickFix));
+    var issue = new Issue(1, 1, 1, 1,"", "S1116", List.of(), 1.0, List.of(quickFix));
     return issue;
   }
 
@@ -147,7 +147,7 @@ class QuickFixSupportTest {
   @Test
   void test_null() {
     var context = createContext(Version.create(6, 3));
-    var issue = new Issue(1, 1, 1, 1,"", "no-extra-semi", List.of(), 1.0, List.of());
+    var issue = new Issue(1, 1, 1, 1,"", "S1116", List.of(), 1.0, List.of());
     var response = new AnalysisResponse(null, List.of(issue), List.of(), List.of(), new Metrics(), List.of(), List.of(), null);
 
     var issueCaptor = ArgumentCaptor.forClass(DefaultSonarLintIssue.class);

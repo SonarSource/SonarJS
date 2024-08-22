@@ -22,14 +22,14 @@ package org.sonar.javascript.checks;
 import java.util.Collections;
 import java.util.List;
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @JavaScriptRule
 @TypeScriptRule
 @Rule(key = "S4144")
-public class IdenticalFunctionsCheck implements EslintBasedCheck {
+public class IdenticalFunctionsCheck extends Check {
 
   private static final int DEFAULT_THRESHOLD = 3;
 
@@ -38,8 +38,5 @@ public class IdenticalFunctionsCheck implements EslintBasedCheck {
     return Collections.singletonList(DEFAULT_THRESHOLD);
   }
 
-  @Override
-  public String eslintKey() {
-    return "no-identical-functions";
-  }
+  
 }

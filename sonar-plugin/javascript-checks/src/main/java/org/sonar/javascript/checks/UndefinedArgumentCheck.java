@@ -20,15 +20,12 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @TypeScriptRule
 @Rule(key = "S4623")
-public class UndefinedArgumentCheck implements EslintBasedCheck {
+public class UndefinedArgumentCheck extends Check {
 
-  @Override
-  public String eslintKey() {
-    return "no-undefined-argument";
-  }
+
 }

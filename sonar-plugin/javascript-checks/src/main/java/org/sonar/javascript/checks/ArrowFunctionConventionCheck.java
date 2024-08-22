@@ -23,14 +23,14 @@ import java.util.Collections;
 import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @JavaScriptRule
 @TypeScriptRule
 @Rule(key = "S3524")
-public class ArrowFunctionConventionCheck implements EslintBasedCheck {
+public class ArrowFunctionConventionCheck extends Check {
 
   private static final boolean DEFAULT_PARAMETER_PARENS = false;
   private static final boolean DEFAULT_BODY_BRACES = false;
@@ -49,10 +49,7 @@ public class ArrowFunctionConventionCheck implements EslintBasedCheck {
   )
   boolean bodyBraces = DEFAULT_BODY_BRACES;
 
-  @Override
-  public String eslintKey() {
-    return "arrow-function-convention";
-  }
+  
 
   @Override
   public List<Object> configurations() {

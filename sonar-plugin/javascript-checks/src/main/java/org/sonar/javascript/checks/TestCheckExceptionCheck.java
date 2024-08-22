@@ -29,8 +29,5 @@ import org.sonar.plugins.javascript.api.TypeScriptRule;
 @Rule(key = "S5958")
 public class TestCheckExceptionCheck extends TestFileCheck {
 
-  @Override
-  public String eslintKey() {
-    return "test-check-exception";
-  }
+
 }

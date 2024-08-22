@@ -20,15 +20,12 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 
 @JavaScriptRule
 @Rule(key = "S6645")
-public class NoUndefInitCheck implements EslintBasedCheck {
+public class NoUndefInitCheck extends Check {
 
-  @Override
-  public String eslintKey() {
-    return "no-undef-init";
-  }
+
 }

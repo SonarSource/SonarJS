@@ -89,27 +89,6 @@ class CheckListTest {
   }
 
   @Test
-  void test_eslint_key() throws IllegalAccessException, InstantiationException {
-    List<Class<? extends JavaScriptCheck>> checks = CheckList.getAllChecks();
-    List<String> keys = new ArrayList<>();
-
-    for (Class<? extends JavaScriptCheck> cls : checks) {
-      if (isEslintBasedCheck(cls)) {
-        EslintBasedCheck eslintBasedCheck = (EslintBasedCheck) cls.newInstance();
-        keys.add(eslintBasedCheck.eslintKey());
-        assertThat(eslintBasedCheck.eslintKey())
-          .as("Invalid key for " + eslintBasedCheck.getClass())
-          .matches("[a-z\\d\\-]+");
-      }
-    }
-
-    // this rule has the same implementation for TS and JS, but defines a different rule property
-    keys.remove("cyclomatic-complexity");
-
-    assertThat(keys).doesNotHaveDuplicates();
-  }
-
-  @Test
   void testTypeScriptChecks() {
     var typeScriptChecks = CheckList.getTypeScriptChecks();
     assertThat(typeScriptChecks)

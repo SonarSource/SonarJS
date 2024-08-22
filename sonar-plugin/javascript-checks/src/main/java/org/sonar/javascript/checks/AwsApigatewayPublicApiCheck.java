@@ -20,17 +20,14 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @TypeScriptRule
 @JavaScriptRule
 @Rule(key = "S6333")
-public class AwsApigatewayPublicApiCheck implements EslintBasedCheck {
+public class AwsApigatewayPublicApiCheck extends Check {
 
-  @Override
-  public String eslintKey() {
-    return "aws-apigateway-public-api";
-  }
+
 }

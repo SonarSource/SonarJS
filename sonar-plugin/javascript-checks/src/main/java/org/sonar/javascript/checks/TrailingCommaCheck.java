@@ -20,7 +20,7 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
@@ -32,10 +32,7 @@ import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 @TypeScriptRule
 @Rule(key = "S1537")
 @DeprecatedRuleKey(ruleKey = "TrailingComma")
-public class TrailingCommaCheck implements EslintBasedCheck {
+public class TrailingCommaCheck extends Check {
 
-  @Override
-  public String eslintKey() {
-    return "comma-dangle";
-  }
+
 }

@@ -23,7 +23,7 @@ import java.util.Collections;
 import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
@@ -32,7 +32,7 @@ import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 @TypeScriptRule
 @Rule(key = "S139")
 @DeprecatedRuleKey(ruleKey = "TrailingComment")
-public class TrailingCommentCheck implements EslintBasedCheck {
+public class TrailingCommentCheck extends Check {
 
   private static final String DEFAULT_LEGAL_COMMENT_PATTERN = "^\\s*[^\\s]+$";
 
@@ -43,10 +43,7 @@ public class TrailingCommentCheck implements EslintBasedCheck {
   )
   String legalCommentPattern = DEFAULT_LEGAL_COMMENT_PATTERN;
 
-  @Override
-  public String eslintKey() {
-    return "line-comment-position";
-  }
+
 
   @Override
   public List<Object> configurations() {

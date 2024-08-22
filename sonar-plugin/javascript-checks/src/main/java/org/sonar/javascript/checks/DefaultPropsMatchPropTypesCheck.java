@@ -20,17 +20,14 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @TypeScriptRule
 @JavaScriptRule
 @Rule(key = "S6775")
-public class DefaultPropsMatchPropTypesCheck implements EslintBasedCheck {
+public class DefaultPropsMatchPropTypesCheck extends Check {
 
-  @Override
-  public String eslintKey() {
-    return "default-props-match-prop-types";
-  }
+  
 }

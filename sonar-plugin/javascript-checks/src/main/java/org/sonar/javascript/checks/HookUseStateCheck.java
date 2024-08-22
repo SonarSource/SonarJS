@@ -22,19 +22,16 @@ package org.sonar.javascript.checks;
 import java.util.Collections;
 import java.util.List;
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @JavaScriptRule
 @TypeScriptRule
 @Rule(key = "S6754")
-public class HookUseStateCheck implements EslintBasedCheck {
+public class HookUseStateCheck extends Check {
 
-  @Override
-  public String eslintKey() {
-    return "hook-use-state";
-  }
+
 
   @Override
   public List<Object> configurations() {

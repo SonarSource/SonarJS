@@ -20,7 +20,7 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
@@ -29,10 +29,7 @@ import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 @TypeScriptRule
 @Rule(key = "S1314")
 @DeprecatedRuleKey(ruleKey = "OctalNumber")
-public class OctalNumberCheck implements EslintBasedCheck {
+public class OctalNumberCheck extends Check {
 
-  @Override
-  public String eslintKey() {
-    return "no-octal";
-  }
+
 }

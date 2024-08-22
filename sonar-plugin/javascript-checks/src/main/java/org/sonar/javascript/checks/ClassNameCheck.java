@@ -23,14 +23,14 @@ import java.util.Collections;
 import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @JavaScriptRule
 @TypeScriptRule
 @Rule(key = "S101")
-public class ClassNameCheck implements EslintBasedCheck {
+public class ClassNameCheck extends Check {
 
   private static final String DEFAULT_FORMAT = "^[A-Z][a-zA-Z0-9]*$";
 
@@ -46,8 +46,5 @@ public class ClassNameCheck implements EslintBasedCheck {
     return Collections.singletonList(new FormatRuleProperty(format));
   }
 
-  @Override
-  public String eslintKey() {
-    return "class-name";
-  }
+
 }

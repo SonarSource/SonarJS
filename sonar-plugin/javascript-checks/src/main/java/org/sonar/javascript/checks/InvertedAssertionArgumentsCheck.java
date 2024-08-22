@@ -23,19 +23,14 @@ import java.util.Collections;
 import java.util.List;
 import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @JavaScriptRule
 @TypeScriptRule
 @Rule(key = "S3415")
-public class InvertedAssertionArgumentsCheck implements EslintBasedCheck {
-
-  @Override
-  public String eslintKey() {
-    return "inverted-assertion-arguments";
-  }
+public class InvertedAssertionArgumentsCheck extends Check {
 
   @Override
   public List<Type> targets() {

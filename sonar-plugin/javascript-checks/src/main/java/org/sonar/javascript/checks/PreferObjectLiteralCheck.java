@@ -20,15 +20,12 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 
 @JavaScriptRule
 @Rule(key = "S2428")
-public class PreferObjectLiteralCheck implements EslintBasedCheck {
+public class PreferObjectLiteralCheck extends Check {
 
-  @Override
-  public String eslintKey() {
-    return "prefer-object-literal";
-  }
+
 }

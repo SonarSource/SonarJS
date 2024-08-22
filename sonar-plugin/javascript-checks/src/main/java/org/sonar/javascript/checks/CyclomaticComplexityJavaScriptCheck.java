@@ -23,7 +23,7 @@ import java.util.Collections;
 import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
@@ -33,7 +33,7 @@ import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 @JavaScriptRule
 @DeprecatedRuleKey(ruleKey = "FunctionComplexity")
 @Rule(key = "S1541")
-public class CyclomaticComplexityJavaScriptCheck implements EslintBasedCheck {
+public class CyclomaticComplexityJavaScriptCheck extends Check {
 
   private static final int DEFAULT_THRESHOLD = 10;
 
@@ -51,10 +51,7 @@ public class CyclomaticComplexityJavaScriptCheck implements EslintBasedCheck {
     );
   }
 
-  @Override
-  public String eslintKey() {
-    return "cyclomatic-complexity";
-  }
+
 
   private static class Config {
 

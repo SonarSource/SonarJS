@@ -20,15 +20,12 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @TypeScriptRule
 @Rule(key = "S6759")
-public class PreferReadOnlyPropsCheck implements EslintBasedCheck {
+public class PreferReadOnlyPropsCheck extends Check {
 
-  @Override
-  public String eslintKey() {
-    return "sonar-prefer-read-only-props";
-  }
+  
 }

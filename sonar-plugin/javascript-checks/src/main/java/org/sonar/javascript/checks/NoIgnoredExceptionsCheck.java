@@ -29,8 +29,5 @@ import org.sonar.plugins.javascript.api.TypeScriptRule;
 @Rule(key = "S2486")
 public class NoIgnoredExceptionsCheck extends TestFileCheck {
 
-  @Override
-  public String eslintKey() {
-    return "no-ignored-exceptions";
-  }
+
 }

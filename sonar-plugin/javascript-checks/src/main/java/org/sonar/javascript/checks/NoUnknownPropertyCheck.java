@@ -24,14 +24,14 @@ import java.util.Collections;
 import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @JavaScriptRule
 @TypeScriptRule
 @Rule(key = "S6747")
-public class NoUnknownPropertyCheck implements EslintBasedCheck {
+public class NoUnknownPropertyCheck extends Check {
 
   @RuleProperty(
     key = "whitelist",
@@ -47,10 +47,7 @@ public class NoUnknownPropertyCheck implements EslintBasedCheck {
     );
   }
 
-  @Override
-  public String eslintKey() {
-    return "no-unknown-property";
-  }
+
 
   private static class Config {
 

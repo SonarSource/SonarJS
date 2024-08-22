@@ -52,7 +52,6 @@ describe('index', () => {
       }
     }
     expect(missing).toHaveLength(0);
-    expect(Object.keys(rules)).toHaveLength(mappedRules.size);
   });
 
   it('should export legacy config', () => {

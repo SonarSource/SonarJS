@@ -20,17 +20,14 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @TypeScriptRule
 @JavaScriptRule
 @Rule(key = "S6523")
-public class NoUnsafeOptionalChainingCheck implements EslintBasedCheck {
+public class NoUnsafeOptionalChainingCheck extends Check {
 
-  @Override
-  public String eslintKey() {
-    return "no-unsafe-optional-chaining";
-  }
+
 }

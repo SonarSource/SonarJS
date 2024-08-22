@@ -93,7 +93,7 @@ class PRAnalysisTest {
         .withCachedFilesCounts(1, 1)
         .isUsed()
         .logsOnce(format("%s\" with linterId \"default\"", indexFile))
-        .logsTimes(Main.ANALYZER_REPORTED_ISSUES, "DEBUG: Saving issue for rule no-extra-semi")
+        .logsTimes(Main.ANALYZER_REPORTED_ISSUES, "DEBUG: Saving issue for rule S1116")
         .logsOnce(format("%s\" with linterId \"default\"", helloFile))
         .logsOnce(
           "INFO: Hit the cache for 0 out of 2",
@@ -125,7 +125,7 @@ class PRAnalysisTest {
         .withCachedFilesCounts(1)
         .isUsed()
         .logsOnce(format("%s\" with linterId \"default\"", helloFile))
-        .logsTimes(PR.ANALYZER_REPORTED_ISSUES, "DEBUG: Saving issue for rule no-extra-semi")
+        .logsTimes(PR.ANALYZER_REPORTED_ISSUES, "DEBUG: Saving issue for rule S1116")
         .logsOnce(
           "INFO: Hit the cache for 1 out of 2",
           "INFO: Miss the cache for 1 out of 2: FILE_CHANGED [1/2]"
@@ -198,7 +198,7 @@ class PRAnalysisTest {
         .withCachedFilesCounts(1)
         .isUsed()
         .logsOnce("file2.yaml\" with linterId \"default\"")
-        .logsTimes(PR.ANALYZER_REPORTED_ISSUES, "DEBUG: Saving issue for rule no-extra-semi")
+        .logsTimes(PR.ANALYZER_REPORTED_ISSUES, "DEBUG: Saving issue for rule S1116")
         .logsOnce(
           "INFO: Hit the cache for 1 out of 2",
           "INFO: Miss the cache for 1 out of 2: FILE_CHANGED [1/2]"

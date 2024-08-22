@@ -20,15 +20,12 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @TypeScriptRule
 @Rule(key = "S6578")
-public class NoDuplicateEnumValuesCheck implements EslintBasedCheck {
+public class NoDuplicateEnumValuesCheck extends Check {
 
-  @Override
-  public String eslintKey() {
-    return "no-duplicate-enum-values";
-  }
+
 }

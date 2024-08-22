@@ -29,8 +29,5 @@ import org.sonar.plugins.javascript.api.TypeScriptRule;
 @Rule(key = "S2970")
 public class NoIncompleteAssertionsCheck extends TestFileCheck {
 
-  @Override
-  public String eslintKey() {
-    return "no-incomplete-assertions";
-  }
+  
 }

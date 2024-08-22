@@ -20,17 +20,14 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
 @JavaScriptRule
 @Rule(key = "S1536")
 @DeprecatedRuleKey(ruleKey = "DuplicateFunctionArgument")
-public class DuplicateFunctionArgumentCheck implements EslintBasedCheck {
+public class DuplicateFunctionArgumentCheck extends Check {
 
-  @Override
-  public String eslintKey() {
-    return "no-dupe-args";
-  }
+  
 }

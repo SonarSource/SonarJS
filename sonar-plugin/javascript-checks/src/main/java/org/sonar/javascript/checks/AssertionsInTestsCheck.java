@@ -29,8 +29,5 @@ import org.sonar.plugins.javascript.api.TypeScriptRule;
 @Rule(key = "S2699")
 public class AssertionsInTestsCheck extends TestFileCheck {
 
-  @Override
-  public String eslintKey() {
-    return "assertions-in-tests";
-  }
+
 }

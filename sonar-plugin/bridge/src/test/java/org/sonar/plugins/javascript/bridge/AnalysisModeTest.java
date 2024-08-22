@@ -122,7 +122,7 @@ class AnalysisModeTest {
 
   @Test
   void should_filter_out_rules_for_html() {
-    var rules = rules("key1", "key2", "ucfg", "no-var");
+    var rules = rules("key1", "key2", "ucfg", "S3504");
     var filteredRules = AnalysisMode.getHtmlFileRules(rules);
     assertThat(filteredRules)
       .hasSize(2)

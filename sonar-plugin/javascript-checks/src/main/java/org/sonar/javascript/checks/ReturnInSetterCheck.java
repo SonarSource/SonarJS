@@ -20,15 +20,12 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 
 @JavaScriptRule
 @Rule(key = "S2432")
-public class ReturnInSetterCheck implements EslintBasedCheck {
+public class ReturnInSetterCheck extends Check {
 
-  @Override
-  public String eslintKey() {
-    return "no-setter-return";
-  }
+
 }

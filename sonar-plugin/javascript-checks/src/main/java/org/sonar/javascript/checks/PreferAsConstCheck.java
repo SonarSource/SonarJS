@@ -20,15 +20,12 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @TypeScriptRule
 @Rule(key = "S6590")
-public class PreferAsConstCheck implements EslintBasedCheck {
+public class PreferAsConstCheck extends Check {
 
-  @Override
-  public String eslintKey() {
-    return "prefer-as-const";
-  }
+
 }

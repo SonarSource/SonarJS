@@ -23,14 +23,14 @@ import java.util.Collections;
 import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @JavaScriptRule
 @TypeScriptRule
 @Rule(key = "S2999")
-public class NewOperatorMisuseCheck implements EslintBasedCheck {
+public class NewOperatorMisuseCheck extends Check {
 
   public static final boolean CONSIDER_JSDOC = false;
 
@@ -41,10 +41,7 @@ public class NewOperatorMisuseCheck implements EslintBasedCheck {
   )
   public boolean considerJSDoc = CONSIDER_JSDOC;
 
-  @Override
-  public String eslintKey() {
-    return "new-operator-misuse";
-  }
+
 
   @Override
   public List<Object> configurations() {

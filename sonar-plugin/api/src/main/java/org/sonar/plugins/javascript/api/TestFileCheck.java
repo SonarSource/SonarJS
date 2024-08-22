@@ -22,8 +22,9 @@ package org.sonar.plugins.javascript.api;
 import java.util.Collections;
 import java.util.List;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.check.Rule;
 
-public abstract class TestFileCheck implements EslintBasedCheck {
+public abstract class TestFileCheck extends Check {
 
   @Override
   public List<InputFile.Type> targets() {

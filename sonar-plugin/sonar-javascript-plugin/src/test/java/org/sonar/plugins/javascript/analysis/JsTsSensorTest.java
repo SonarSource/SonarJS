@@ -202,7 +202,7 @@ class JsTsSensorTest {
     assertThat(logTester.logs(Level.DEBUG))
       .contains(
         String.format(
-          "Saving issue for rule no-all-duplicated-branches on file %s at line 1",
+          "Saving issue for rule S3923 on file %s at line 1",
           inputFile
         )
       );
@@ -990,8 +990,8 @@ class JsTsSensorTest {
   private String createIssues() {
     return (
       "issues: [{" +
-      "\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"no-all-duplicated-branches\",\"message\":\"Issue message\", \"secondaryLocations\": []}," +
-      "{\"line\":1,\"column\":1,\"ruleId\":\"no-all-duplicated-branches\",\"message\":\"Line issue message\", \"secondaryLocations\": []" +
+      "\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"S3923\",\"message\":\"Issue message\", \"secondaryLocations\": []}," +
+      "{\"line\":1,\"column\":1,\"ruleId\":\"S3923\",\"message\":\"Line issue message\", \"secondaryLocations\": []" +
       "}]"
     );
   }

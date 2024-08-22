@@ -20,15 +20,12 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @TypeScriptRule
 @Rule(key = "S6564")
-public class RedundantTypeAliasesCheck implements EslintBasedCheck {
+public class RedundantTypeAliasesCheck extends Check {
 
-  @Override
-  public String eslintKey() {
-    return "redundant-type-aliases";
-  }
+
 }

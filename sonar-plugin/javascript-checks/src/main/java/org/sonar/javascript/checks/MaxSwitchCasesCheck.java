@@ -23,14 +23,14 @@ import java.util.Collections;
 import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @JavaScriptRule
 @TypeScriptRule
 @Rule(key = "S1479")
-public class MaxSwitchCasesCheck implements EslintBasedCheck {
+public class MaxSwitchCasesCheck extends Check {
 
   private static final int DEFAULT_MAXIMUM = 30;
 
@@ -46,8 +46,5 @@ public class MaxSwitchCasesCheck implements EslintBasedCheck {
     return Collections.singletonList(maximum);
   }
 
-  @Override
-  public String eslintKey() {
-    return "max-switch-cases";
-  }
+
 }

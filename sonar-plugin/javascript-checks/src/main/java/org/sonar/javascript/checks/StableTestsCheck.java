@@ -29,8 +29,5 @@ import org.sonar.plugins.javascript.api.TypeScriptRule;
 @Rule(key = "S5973")
 public class StableTestsCheck extends TestFileCheck {
 
-  @Override
-  public String eslintKey() {
-    return "stable-tests";
-  }
+  
 }

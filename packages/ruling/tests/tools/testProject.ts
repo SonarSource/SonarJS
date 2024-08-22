@@ -115,7 +115,7 @@ function initializeRules(rules: RuleConfig[], customRules?: CustomRule[]) {
     loadCustomRules(htmlLinter.linter, customRules);
   }
   initializeLinter(rules, DEFAULT_ENVIRONMENTS, DEFAULT_GLOBALS);
-  const htmlRules = rules.filter(rule => rule.key !== 'no-var');
+  const htmlRules = rules.filter(rule => rule.key !== 'S3504');
   initializeLinter(htmlRules, DEFAULT_ENVIRONMENTS, DEFAULT_GLOBALS, HTML_LINTER_ID);
 }
 function getProjectName(testFilePath: string) {

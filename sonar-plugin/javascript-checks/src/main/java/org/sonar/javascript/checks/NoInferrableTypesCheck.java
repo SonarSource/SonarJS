@@ -20,15 +20,12 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @TypeScriptRule
 @Rule(key = "S3257")
-public class NoInferrableTypesCheck implements EslintBasedCheck {
+public class NoInferrableTypesCheck extends Check {
 
-  @Override
-  public String eslintKey() {
-    return "no-inferrable-types";
-  }
+
 }

@@ -29,8 +29,5 @@ import org.sonar.plugins.javascript.api.TypeScriptRule;
 @Rule(key = "S6079")
 public class NoCodeAfterDoneCheck extends TestFileCheck {
 
-  @Override
-  public String eslintKey() {
-    return "no-code-after-done";
-  }
+
 }

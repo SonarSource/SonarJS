@@ -93,7 +93,7 @@ class RulesMetadataForSonarLintTest {
         "      }\n" +
         "    ],\n" +
         "    \"scope\": \"MAIN\",\n" +
-        "    \"eslintKey\": \"quotes\",\n" +
+        "    \"eslintKey\": \"S1441\",\n" +
         "    \"activatedByDefault\": false\n" +
         "  },\n" +
         "  {\n" +

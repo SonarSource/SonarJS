@@ -23,14 +23,14 @@ import java.util.Collections;
 import java.util.List;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
+import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 
 @JavaScriptRule
 @TypeScriptRule
 @Rule(key = "S117")
-public class VariableNameCheck implements EslintBasedCheck {
+public class VariableNameCheck extends Check {
 
   private static final String CAMEL_CASED = "^[_$A-Za-z][$A-Za-z0-9]*$";
   private static final String UPPER_CASED = "^[_$A-Z][_$A-Z0-9]+$";
@@ -49,8 +49,5 @@ public class VariableNameCheck implements EslintBasedCheck {
     return Collections.singletonList(new FormatRuleProperty(format));
   }
 
-  @Override
-  public String eslintKey() {
-    return "variable-name";
-  }
+
 }
