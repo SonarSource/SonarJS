@@ -52,8 +52,6 @@ describe('index', () => {
       }
     }
     expect(missing).toHaveLength(0);
-    // todo: this test is fragile and does not guarantee anything relevant: that a certain number of symbols are exported does not mean that the expected symbols are exported; we need to implement a relevant test
-    //expect(Object.keys(rules)).toHaveLength(mappedRules.size);
   });
 
   it('should export legacy config', () => {

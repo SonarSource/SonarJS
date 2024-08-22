@@ -24,7 +24,6 @@ import java.util.List;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.check.Rule;
 
-@Rule(key="key")
 public abstract class TestFileCheck extends Check {
 
   @Override
