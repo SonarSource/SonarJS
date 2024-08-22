@@ -62,10 +62,6 @@ public class EslintRule {
     return configurations;
   }
 
-  static boolean containsRuleWithKey(List<EslintRule> rules, String eslintKey) {
-    return rules.stream().anyMatch(ruleMatcher(eslintKey));
-  }
-
   static EslintRule findFirstRuleWithKey(List<EslintRule> rules, String eslintKey) {
     return rules.stream().filter(ruleMatcher(eslintKey)).findFirst().orElse(null);
   }

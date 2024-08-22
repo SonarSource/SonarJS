@@ -34,6 +34,8 @@ import java.util.stream.Stream;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.rule.ActiveRule;
+import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.utils.Version;
@@ -56,8 +58,7 @@ class AnalysisModeTest {
     when(context.runtime()).thenReturn(SonarRuntimeImpl.forSonarLint(Version.create(9, 4)));
     when(context.canSkipUnchangedFiles()).thenReturn(false);
 
-    var rules = rules("key1", "key2");
-    var mode = AnalysisMode.getMode(context, rules);
+    var mode = AnalysisMode.getMode(context);
     assertThat(mode).isEqualTo(AnalysisMode.DEFAULT);
     verify(context).canSkipUnchangedFiles();
   }
@@ -66,9 +67,9 @@ class AnalysisModeTest {
   void should_reflect_skippable_without_security_analysis() {
     when(context.runtime()).thenReturn(SonarRuntimeImpl.forSonarLint(Version.create(9, 4)));
     when(context.canSkipUnchangedFiles()).thenReturn(true);
+    when(context.activeRules()).thenReturn(mock(ActiveRules.class));
 
-    var rules = rules("key1", "key2");
-    var mode = AnalysisMode.getMode(context, rules);
+    var mode = AnalysisMode.getMode(context);
     assertThat(mode).isEqualTo(AnalysisMode.DEFAULT);
     verify(context).canSkipUnchangedFiles();
 
@@ -84,8 +85,7 @@ class AnalysisModeTest {
     when(context.runtime()).thenReturn(SonarRuntimeImpl.forSonarLint(Version.create(9, 4)));
     when(context.canSkipUnchangedFiles()).thenReturn(false);
 
-    var rules = rules("key1", "key2", "ucfg");
-    var mode = AnalysisMode.getMode(context, rules);
+    var mode = AnalysisMode.getMode(context);
     assertThat(mode).isEqualTo(AnalysisMode.DEFAULT);
     verify(context).canSkipUnchangedFiles();
 
@@ -100,9 +100,11 @@ class AnalysisModeTest {
   void should_reflect_pr_analysis() {
     when(context.runtime()).thenReturn(SonarRuntimeImpl.forSonarLint(Version.create(9, 4)));
     when(context.canSkipUnchangedFiles()).thenReturn(true);
+    ActiveRules activeRules = mock(ActiveRules.class);
+    when(activeRules.findByRepository("jssecurity")).thenReturn(List.of(mock(ActiveRule.class)));
+    when(context.activeRules()).thenReturn(activeRules);
 
-    var rules = rules("key1", "key2", "ucfg");
-    var mode = AnalysisMode.getMode(context, rules);
+    var mode = AnalysisMode.getMode(context);
     assertThat(mode).isEqualTo(AnalysisMode.SKIP_UNCHANGED);
     verify(context).canSkipUnchangedFiles();
 
