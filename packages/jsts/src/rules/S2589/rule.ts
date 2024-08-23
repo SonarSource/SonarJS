@@ -30,23 +30,20 @@ import {
   toSecondaryLocation,
 } from '../helpers';
 import estree from 'estree';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 const message = 'This always evaluates to {{value}}. Consider refactoring this code.';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
-    messages: {
-      refactorBooleanExpression: message,
-    },
-    schema: [
-      {
-        // internal parameter for rules having secondary locations
-        type: 'string',
-        enum: ['sonar-runtime'],
+  meta: generateMeta(
+    meta as Rule.RuleMetaData,
+    {
+      messages: {
+        refactorBooleanExpression: message,
       },
-    ],
-  }),
+    },
+    true,
+  ),
   create(context) {
     const truthyMap: Map<TSESTree.Statement, Scope.Reference[]> = new Map();
     const falsyMap: Map<TSESTree.Statement, Scope.Reference[]> = new Map();

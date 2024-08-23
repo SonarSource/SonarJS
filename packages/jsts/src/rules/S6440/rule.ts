@@ -22,12 +22,12 @@
 import { Rule } from 'eslint';
 import { rules as reactHooksRules } from 'eslint-plugin-react-hooks';
 import { detectReactRule, generateMeta, mergeRules } from '../helpers';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 const rulesOfHooks = reactHooksRules['rules-of-hooks'];
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, { ...rulesOfHooks.meta }),
+  meta: generateMeta(meta as Rule.RuleMetaData, { ...rulesOfHooks.meta }),
   create(context: Rule.RuleContext) {
     function overrideContext(overrides: any) {
       Object.setPrototypeOf(overrides, context);

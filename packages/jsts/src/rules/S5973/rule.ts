@@ -29,10 +29,10 @@ import {
   Mocha,
 } from '../helpers';
 import * as estree from 'estree';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+  meta: generateMeta(meta as Rule.RuleMetaData, {
     messages: {
       stable:
         'Make your tests stable so that they pass on the first try, or remove the flaky ones.',

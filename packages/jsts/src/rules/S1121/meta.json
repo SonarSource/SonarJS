@@ -1,9 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "Assignments should not be made from within sub-expressions",
-    "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S1121/javascript",
-    "requiresTypeChecking": false
-  }
-}

@@ -1,9 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "\"switch\" statements should not be nested",
-    "recommended": false,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S1821/javascript",
-    "requiresTypeChecking": false
-  }
-}

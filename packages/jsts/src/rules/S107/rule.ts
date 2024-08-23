@@ -31,34 +31,17 @@ import {
   isIdentifier,
   mergeRules,
 } from '../helpers';
-import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
 import { FromSchema } from 'json-schema-to-ts';
-import rspecMeta from './meta.json';
+import { meta, schema } from './meta';
 
 const eslintMaxParams = eslintRules['max-params'];
 
 const DEFAULT_MAXIMUM_FUNCTION_PARAMETERS = 7;
 
 const messages = { ...eslintMaxParams.meta?.messages };
-const schema = {
-  type: 'array',
-  minItems: 0,
-  maxItems: 1,
-  items: [
-    {
-      type: 'object',
-      properties: {
-        max: {
-          type: 'integer',
-        },
-      },
-      additionalProperties: false,
-    },
-  ],
-} as const satisfies JSONSchema4;
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, { messages, schema }),
+  meta: generateMeta(meta as Rule.RuleMetaData, { messages, schema }),
   create(context: Rule.RuleContext) {
     const decorationListeners: Rule.RuleListener = ruleDecoration.create(context);
     const extensionListeners: Rule.RuleListener = ruleExtension.create(context);

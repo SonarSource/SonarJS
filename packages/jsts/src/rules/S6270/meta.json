@@ -1,9 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "Policies authorizing public access to resources are security-sensitive",
-    "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S6270/javascript",
-    "requiresTypeChecking": false
-  }
-}

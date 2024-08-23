@@ -28,12 +28,12 @@ import {
   getUniqueWriteUsageOrNode,
   isMemberWithProperty,
 } from '../helpers';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 const ERRORHANDLER_MODULE = 'errorhandler';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+  meta: generateMeta(meta as Rule.RuleMetaData, {
     messages: {
       deactivateDebug:
         'Make sure this debug feature is deactivated before delivering the code in production.',

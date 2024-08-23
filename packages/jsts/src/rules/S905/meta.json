@@ -1,9 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "Non-empty statements should change control flow or have at least one side-effect",
-    "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S905/javascript",
-    "requiresTypeChecking": false
-  }
-}

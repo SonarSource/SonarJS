@@ -39,7 +39,7 @@ import {
   isUnresolved,
   reduceToIdentifier,
 } from '../helpers';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 const TYPES_WITH_CONNECTIONS = [
   'aws_cdk_lib.aws_docdb.DatabaseCluster.connections',
@@ -159,7 +159,7 @@ templateCallback['aws_cdk_lib.aws_ec2.CfnSecurityGroupIngress'] = (
 
 export const rule: Rule.RuleModule = AwsCdkTemplate(
   templateCallback,
-  generateMeta(rspecMeta as Rule.RuleMetaData, {
+  generateMeta(meta as Rule.RuleMetaData, {
     messages: {
       allowFromAnyIpv4:
         'Change this method for "allowFrom" and set "other" to a subset of trusted IP addresses.',

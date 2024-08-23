@@ -21,7 +21,7 @@ import { Rule } from 'eslint';
 import { generateMeta, interceptReport } from '../helpers';
 import { hasAnyProp } from 'jsx-ast-utils';
 import { TSESTree } from '@typescript-eslint/utils';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 /**
  * This fix was introduced in eslint-plugin-jsx-a11y e6bfd5cb7c,
@@ -37,7 +37,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(
     {
       ...rule,
-      meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+      meta: generateMeta(meta as Rule.RuleMetaData, {
         ...rule.meta!,
         hasSuggestions: true,
       }),

@@ -1,9 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "Template literals should not be nested",
-    "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S4624/javascript",
-    "requiresTypeChecking": false
-  }
-}

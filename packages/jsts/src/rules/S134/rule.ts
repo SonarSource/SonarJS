@@ -21,37 +21,14 @@
 
 import { AST, Rule } from 'eslint';
 import * as estree from 'estree';
-import { generateMeta, last, report, SONAR_RUNTIME, toSecondaryLocation } from '../helpers';
-import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
+import { generateMeta, last, report, toSecondaryLocation } from '../helpers';
 import { FromSchema } from 'json-schema-to-ts';
-import rspecMeta from './meta.json';
+import { meta, schema } from './meta';
 
 const DEFAULT_MAXIMUM_NESTING_LEVEL = 3;
 
-const schema = {
-  type: 'array',
-  minItems: 0,
-  maxItems: 2,
-  items: [
-    {
-      type: 'object',
-      properties: {
-        maximumNestingLevel: {
-          type: 'integer',
-        },
-      },
-      additionalProperties: false,
-    },
-    {
-      type: 'string',
-      // internal parameter for rules having secondary locations
-      enum: [SONAR_RUNTIME],
-    },
-  ],
-} as const satisfies JSONSchema4;
-
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, { schema }),
+  meta: generateMeta(meta as Rule.RuleMetaData, { schema }, true),
 
   create(context: Rule.RuleContext) {
     const sourceCode = context.sourceCode;

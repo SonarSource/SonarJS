@@ -1,9 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "Destructuring syntax should be used for assignments",
-    "recommended": false,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S3514/javascript",
-    "requiresTypeChecking": false
-  }
-}

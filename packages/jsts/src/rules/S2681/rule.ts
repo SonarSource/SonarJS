@@ -23,7 +23,7 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta } from '../helpers';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 const NestingStatementLike = [
   'IfStatement',
@@ -43,7 +43,7 @@ type NestingStatement =
   | estree.WhileStatement;
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData),
+  meta: generateMeta(meta as Rule.RuleMetaData),
   create(context: Rule.RuleContext) {
     return {
       Program: (node: estree.Node) => checkStatements((node as estree.Program).body, context),

@@ -1,9 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "A new session should be created during user authentication",
-    "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S5876/javascript",
-    "requiresTypeChecking": false
-  }
-}

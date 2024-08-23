@@ -30,10 +30,9 @@ import {
   LoopLike,
   report,
   RuleContext,
-  SONAR_RUNTIME,
   toSecondaryLocation,
 } from '../helpers';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 const message = 'Make sure this function is not called after the loop completes.';
 
@@ -57,14 +56,7 @@ const allowedCallbacks = [
 ];
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
-    schema: [
-      {
-        // internal parameter for rules having secondary locations
-        enum: [SONAR_RUNTIME],
-      },
-    ],
-  }),
+  meta: generateMeta(meta as Rule.RuleMetaData, undefined, true),
   create(context: Rule.RuleContext) {
     function getLocalEnclosingLoop(node: estree.Node): LoopLike | undefined {
       return findFirstMatchingAncestor(node as TSESTree.Node, n => loopLike.includes(n.type)) as

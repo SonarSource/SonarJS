@@ -1,9 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "Tests should be stable",
-    "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S5973/javascript",
-    "requiresTypeChecking": false
-  }
-}

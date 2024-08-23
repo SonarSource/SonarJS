@@ -1,0 +1,19 @@
+{
+  "type": "array",
+  "minItems": 0,
+  "maxItems": 1,
+  "items": [
+    {
+      "type": "object",
+      "properties": {
+        "headerFormat": {
+          "type": "string"
+        },
+        "isRegularExpression": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    }
+  ]
+}

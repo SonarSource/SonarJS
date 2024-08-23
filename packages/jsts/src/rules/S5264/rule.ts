@@ -25,10 +25,10 @@ import getElementType from 'eslint-plugin-jsx-a11y/lib/util/getElementType';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta } from '../helpers';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+  meta: generateMeta(meta as Rule.RuleMetaData, {
     messages: {
       addContent: 'Add an accessible content to this "<object>" tag.',
     },

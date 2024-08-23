@@ -28,10 +28,9 @@ import {
   isMethodCall,
   Mocha,
   report,
-  SONAR_RUNTIME,
   toSecondaryLocation,
 } from '../helpers';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 const ASSERT_FUNCTIONS = [
   'equal',
@@ -45,15 +44,7 @@ const ASSERT_FUNCTIONS = [
 ];
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
-    hasSuggestions: true,
-    schema: [
-      {
-        // internal parameter for rules having secondary locations
-        enum: [SONAR_RUNTIME],
-      },
-    ],
-  }),
+  meta: generateMeta(meta as Rule.RuleMetaData, { hasSuggestions: true }, true),
   create(context: Rule.RuleContext) {
     const testCases: estree.Node[] = [];
     return {

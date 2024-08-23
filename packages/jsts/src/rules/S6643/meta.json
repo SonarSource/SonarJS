@@ -1,9 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "Prototypes of builtin objects should not be modified",
-    "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S6643/javascript",
-    "requiresTypeChecking": false
-  }
-}

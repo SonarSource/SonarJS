@@ -22,10 +22,10 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { generateMeta, isIdentifier } from '../helpers';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+  meta: generateMeta(meta as Rule.RuleMetaData, {
     messages: {
       safeCookie: 'Make sure that cookie is written safely here.',
     },

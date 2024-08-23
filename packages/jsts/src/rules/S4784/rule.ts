@@ -22,14 +22,14 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { generateMeta, isIdentifier, isMemberWithProperty } from '../helpers';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 const stringMethods = ['match', 'search', 'split'];
 const minPatternLength = 3;
 const specialChars = ['+', '*', '{'];
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+  meta: generateMeta(meta as Rule.RuleMetaData, {
     messages: {
       safeRegex: 'Make sure that using a regular expression is safe here.',
     },

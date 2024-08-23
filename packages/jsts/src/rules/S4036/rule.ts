@@ -27,13 +27,13 @@ import {
   getValueOfExpression,
   isStringLiteral,
 } from '../helpers';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 const SENSITIVE_METHODS = ['exec', 'execSync', 'spawn', 'spawnSync', 'execFile', 'execFileSync'];
 const REQUIRED_PATH_PREFIXES = ['./', '.\\', '../', '..\\', '/', '\\', 'C:\\'];
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+  meta: generateMeta(meta as Rule.RuleMetaData, {
     messages: {
       issue: 'Make sure the "PATH" used to find this command includes only what you intend.',
     },

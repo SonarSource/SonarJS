@@ -1,9 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "Disabling content security policy frame-ancestors directive is security-sensitive",
-    "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S5732/javascript",
-    "requiresTypeChecking": false
-  }
-}

@@ -23,7 +23,7 @@ import { Rule } from 'eslint';
 import { AST } from '@eslint-community/regexpp';
 import { createRegExpRule } from '../helpers/regex';
 import { generateMeta } from '../helpers';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 enum Position {
   BEGINNING,
@@ -51,7 +51,7 @@ export const rule: Rule.RuleModule = createRegExpRule(
       },
     };
   },
-  generateMeta(rspecMeta as Rule.RuleMetaData),
+  generateMeta(meta as Rule.RuleMetaData),
 );
 
 function anchoredAt(alternatives: AST.Alternative[], position: Position): boolean {

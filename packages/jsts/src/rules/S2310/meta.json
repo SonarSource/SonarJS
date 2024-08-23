@@ -1,9 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "Loop counters should not be assigned within the loop body",
-    "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S2310/javascript",
-    "requiresTypeChecking": false
-  }
-}

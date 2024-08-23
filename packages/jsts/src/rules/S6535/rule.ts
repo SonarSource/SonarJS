@@ -22,7 +22,7 @@
 import { Rule } from 'eslint';
 import { eslintRules } from '../core';
 import { generateMeta, interceptReport, mergeRules } from '../helpers';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 /**
  * We want to merge ESLint rules 'no-useless-escape' and 'no-nonoctal-decimal-escape'. However,
@@ -43,7 +43,7 @@ const decoratedNoNonoctalDecimalEscapeRule = decorateNoNonoctalDecimalEscape(
 );
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+  meta: generateMeta(meta as Rule.RuleMetaData, {
     ...decoratedNoNonoctalDecimalEscapeRule.meta,
     ...noUselessEscapeRule.meta,
     messages: {

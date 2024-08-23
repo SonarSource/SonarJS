@@ -35,9 +35,8 @@ import {
 } from '../helpers';
 import { Rule } from 'eslint';
 import estree from 'estree';
-import rspecMeta from './meta.json';
+import { meta, schema } from './meta';
 import { FromSchema } from 'json-schema-to-ts';
-import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
 
 const DEFAULT_THRESHOLD = 15;
 
@@ -58,28 +57,18 @@ interface ScopeComplexity {
 const message =
   'Refactor this function to reduce its Cognitive Complexity from {{complexityAmount}} to the {{threshold}} allowed.';
 
-const schema = {
-  type: 'array',
-  minItems: 0,
-  maxItems: 2,
-  items: [
-    { type: 'integer', minimum: 0 },
-    {
-      // internal parameter
-      type: 'string',
-      enum: ['sonar-runtime', 'metric'],
-    },
-  ],
-} as const satisfies JSONSchema4;
-
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
-    messages: {
-      refactorFunction: message,
-      fileComplexity: '{{complexityAmount}}',
+  meta: generateMeta(
+    meta as Rule.RuleMetaData,
+    {
+      messages: {
+        refactorFunction: message,
+        fileComplexity: '{{complexityAmount}}',
+      },
+      schema,
     },
-    schema,
-  }),
+    true,
+  ),
   create(context) {
     /** Complexity threshold */
     const threshold = (context.options as FromSchema<typeof schema>)[0] ?? DEFAULT_THRESHOLD;

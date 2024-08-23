@@ -1,9 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "\"if/else if\" chains and \"switch\" cases should not have the same condition",
-    "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S1862/javascript",
-    "requiresTypeChecking": false
-  }
-}

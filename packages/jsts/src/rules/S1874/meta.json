@@ -1,9 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "Deprecated APIs should not be used",
-    "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S1874/javascript",
-    "requiresTypeChecking": true
-  }
-}

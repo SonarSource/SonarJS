@@ -34,7 +34,7 @@ import {
   RequiredParserServices,
   RuleContext,
 } from '../helpers';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 const message = `Add a "return" statement to this callback.`;
 
@@ -67,7 +67,7 @@ function hasCallBackWithoutReturn(argument: estree.Node, services: RequiredParse
 }
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData),
+  meta: generateMeta(meta as Rule.RuleMetaData),
   create(context: Rule.RuleContext) {
     const services = context.sourceCode.parserServices;
 

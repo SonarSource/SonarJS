@@ -24,10 +24,10 @@ import * as estree from 'estree';
 import { Position } from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta } from '../helpers';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+  meta: generateMeta(meta as Rule.RuleMetaData, {
     messages: {
       moveArguments: 'Make those call arguments start on line {{line}}.',
       moveTemplateLiteral: 'Make this template literal start on line {{line}}.',

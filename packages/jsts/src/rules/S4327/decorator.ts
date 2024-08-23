@@ -20,14 +20,14 @@
 import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
 import { generateMeta, getVariableFromName, interceptReport } from '../helpers';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 // core implementation of this rule raises false positives for generators
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(
     {
       ...rule,
-      meta: generateMeta(rspecMeta as Rule.RuleMetaData, rule.meta),
+      meta: generateMeta(meta as Rule.RuleMetaData, rule.meta),
     },
     reportExempting(isReferencedInsideGenerators),
   );

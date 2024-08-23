@@ -33,13 +33,13 @@ import {
   isRequiredParserServices,
   resolveFunction,
 } from '../helpers';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 const POST_MESSAGE = 'postMessage';
 const ADD_EVENT_LISTENER = 'addEventListener';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+  meta: generateMeta(meta as Rule.RuleMetaData, {
     messages: {
       specifyTarget: `Specify a target origin for this message.`,
       verifyOrigin: `Verify the origin of the received message.`,

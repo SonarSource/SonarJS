@@ -21,10 +21,10 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { generateMeta, isIdentifier } from '../helpers';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+  meta: generateMeta(meta as Rule.RuleMetaData, {
     messages: {
       defineLocally:
         'Define this declaration in a local scope or bind explicitly the property to the global object.',

@@ -1,9 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "Allowing browsers to sniff MIME types is security-sensitive",
-    "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S5734/javascript",
-    "requiresTypeChecking": false
-  }
-}

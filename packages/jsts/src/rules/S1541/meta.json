@@ -1,9 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "Cyclomatic Complexity of functions should not be too high",
-    "recommended": false,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S1541/javascript",
-    "requiresTypeChecking": false
-  }
-}

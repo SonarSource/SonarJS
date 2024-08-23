@@ -1,9 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "\"arguments\" should not be accessed directly",
-    "recommended": false,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S3513/javascript",
-    "requiresTypeChecking": false
-  }
-}

@@ -27,7 +27,6 @@ import {
   isArrayExpression,
   isStringLiteral,
   report,
-  SONAR_RUNTIME,
   StringLiteral,
   toSecondaryLocation,
 } from '../helpers';
@@ -39,7 +38,7 @@ import {
   PolicyCheckerOptions,
 } from '../helpers/aws/iam';
 import { normalizeFQN } from '../helpers/aws/cdk';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 const AWS_PRINCIPAL_PROPERTY = 'AWS';
 
@@ -52,14 +51,7 @@ const MESSAGES = {
 
 export const rule: Rule.RuleModule = AwsIamPolicyTemplate(
   publicAccessStatementChecker,
-  generateMeta(rspecMeta as Rule.RuleMetaData, {
-    schema: [
-      {
-        // internal parameter for rules having secondary locations
-        enum: [SONAR_RUNTIME],
-      },
-    ],
-  }),
+  generateMeta(meta as Rule.RuleMetaData, undefined, true),
 );
 
 function publicAccessStatementChecker(

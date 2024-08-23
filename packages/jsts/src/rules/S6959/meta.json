@@ -1,9 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "\"Array.reduce()\" calls should include an initial value",
-    "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S6959/javascript",
-    "requiresTypeChecking": true
-  }
-}

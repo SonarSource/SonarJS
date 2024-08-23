@@ -1,9 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "\"delete\" should be used only with object properties",
-    "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S3001/javascript",
-    "requiresTypeChecking": false
-  }
-}

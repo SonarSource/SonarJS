@@ -32,24 +32,21 @@ import {
 } from '../helpers';
 import { Rule } from 'eslint';
 import estree from 'estree';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 const message =
   "This {{type}}'s code block is the same as the block for the {{type}} on line {{line}}.";
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
-    messages: {
-      sameConditionalBlock: message,
-    },
-    schema: [
-      {
-        // internal parameter
-        type: 'string',
-        enum: ['sonar-runtime'],
+  meta: generateMeta(
+    meta as Rule.RuleMetaData,
+    {
+      messages: {
+        sameConditionalBlock: message,
       },
-    ],
-  }),
+    },
+    true,
+  ),
   create(context) {
     return {
       IfStatement(node: estree.IfStatement) {

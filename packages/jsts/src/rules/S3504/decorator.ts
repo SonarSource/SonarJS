@@ -20,13 +20,13 @@
 import { Rule } from 'eslint';
 import { generateMeta, interceptReport } from '../helpers';
 import estree from 'estree';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(
     {
       ...rule,
-      meta: generateMeta(rspecMeta as Rule.RuleMetaData, rule.meta),
+      meta: generateMeta(meta as Rule.RuleMetaData, rule.meta),
     },
     (context, reportDescriptor) => {
       if ('node' in reportDescriptor) {

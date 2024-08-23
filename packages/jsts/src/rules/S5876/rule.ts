@@ -30,10 +30,10 @@ import {
   isIdentifier,
   last,
 } from '../helpers';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+  meta: generateMeta(meta as Rule.RuleMetaData, {
     messages: {
       createSession:
         'Create a new session during user authentication to prevent session fixation attacks.',

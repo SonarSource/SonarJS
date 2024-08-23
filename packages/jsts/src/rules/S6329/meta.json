@@ -1,9 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "Allowing public network access to cloud resources is security-sensitive",
-    "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S6329/javascript",
-    "requiresTypeChecking": false
-  }
-}

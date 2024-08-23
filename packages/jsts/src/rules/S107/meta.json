@@ -1,9 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "Functions should not have too many parameters",
-    "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S107/javascript",
-    "requiresTypeChecking": false
-  }
-}

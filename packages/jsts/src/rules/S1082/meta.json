@@ -1,9 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "Mouse events should have corresponding keyboard events",
-    "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S1082/javascript",
-    "requiresTypeChecking": false
-  }
-}

@@ -31,14 +31,14 @@ import {
   isThisExpression,
   Mocha,
 } from '../helpers';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 const MESSAGE =
   'Set this timeout to 0 if you want to disable it, otherwise use a value lower than 2147483648.';
 const MAX_DELAY_VALUE = 2_147_483_647;
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData),
+  meta: generateMeta(meta as Rule.RuleMetaData),
   create(context: Rule.RuleContext) {
     if (!Chai.isImported(context)) {
       return {};

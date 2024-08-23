@@ -30,8 +30,7 @@ import {
 } from '../helpers';
 import { Rule } from 'eslint';
 import estree from 'estree';
-import rspecMeta from './meta.json';
-import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
+import { meta, schema } from './meta';
 import { FromSchema } from 'json-schema-to-ts';
 
 const DEFAULT_MIN_LINES = 3;
@@ -44,26 +43,17 @@ type FunctionNode =
 const message =
   'Update this function so that its implementation is not identical to the one on line {{line}}.';
 
-const schema = {
-  type: 'array',
-  minItems: 0,
-  maxItems: 2,
-  items: [
-    { type: 'integer', minimum: 3 },
-    {
-      type: 'string',
-      enum: ['sonar-runtime'],
-    },
-  ],
-} as const satisfies JSONSchema4;
-
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
-    messages: {
-      identicalFunctions: message,
+  meta: generateMeta(
+    meta as Rule.RuleMetaData,
+    {
+      messages: {
+        identicalFunctions: message,
+      },
+      schema,
     },
-    schema,
-  }),
+    true,
+  ),
   create(context) {
     const functions: Array<{ function: FunctionNode; parent: TSESTree.Node | undefined }> = [];
     const minLines = (context.options as FromSchema<typeof schema>)[0] ?? DEFAULT_MIN_LINES;

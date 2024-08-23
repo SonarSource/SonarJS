@@ -23,10 +23,10 @@ import { Rule, SourceCode } from 'eslint';
 import { areEquivalent, generateMeta, isThrowStatement } from '../helpers';
 import estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+  meta: generateMeta(meta as Rule.RuleMetaData, {
     messages: {
       uselessCatch:
         'Add logic to this catch clause or eliminate it and rethrow the exception automatically.',

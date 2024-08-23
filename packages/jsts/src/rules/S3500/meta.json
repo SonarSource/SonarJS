@@ -1,9 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "\"const\" variables should not be reassigned",
-    "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S3500/javascript",
-    "requiresTypeChecking": false
-  }
-}

@@ -1,9 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "XML parsers should not be vulnerable to XXE attacks",
-    "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S2755/javascript",
-    "requiresTypeChecking": false
-  }
-}

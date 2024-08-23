@@ -1,9 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "Regular expressions should not contain control characters",
-    "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S6324/javascript",
-    "requiresTypeChecking": true
-  }
-}

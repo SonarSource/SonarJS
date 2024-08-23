@@ -21,7 +21,7 @@
 
 import { eslintRules } from '../core';
 import { generateMeta } from '../helpers';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 import { Rule } from 'eslint';
 
 /**
@@ -30,5 +30,5 @@ import { Rule } from 'eslint';
  */
 export const rule = {
   ...eslintRules['comma-dangle'],
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, eslintRules['comma-dangle'].meta),
+  meta: generateMeta(meta as Rule.RuleMetaData, eslintRules['comma-dangle'].meta),
 };

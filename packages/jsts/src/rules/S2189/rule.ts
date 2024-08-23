@@ -24,12 +24,12 @@ import { eslintRules } from '../core';
 import * as estree from 'estree';
 import { childrenOf, generateMeta, interceptReport, isUndefined, mergeRules } from '../helpers';
 import { TSESTree } from '@typescript-eslint/utils';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 const noUnmodifiedLoopEslint = eslintRules['no-unmodified-loop-condition'];
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+  meta: generateMeta(meta as Rule.RuleMetaData, {
     messages: { ...noUnmodifiedLoopEslint.meta!.messages },
   }),
   create(context: Rule.RuleContext) {

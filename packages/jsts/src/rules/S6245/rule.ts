@@ -30,9 +30,8 @@ import {
   normalizeFQN,
   report,
   S3BucketTemplate,
-  SONAR_RUNTIME,
 } from '../helpers';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 const ENCRYPTED_KEY = 'encryption';
 
@@ -76,12 +75,5 @@ export const rule: Rule.RuleModule = S3BucketTemplate(
       );
     }
   },
-  generateMeta(rspecMeta as Rule.RuleMetaData, {
-    schema: [
-      {
-        // internal parameter for rules having secondary locations
-        enum: [SONAR_RUNTIME],
-      },
-    ],
-  }),
+  generateMeta(meta as Rule.RuleMetaData, undefined, true),
 );

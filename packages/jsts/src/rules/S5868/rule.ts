@@ -31,7 +31,7 @@ import { RegExpValidator } from '@eslint-community/regexpp';
 import { Character, CharacterClassElement } from '@eslint-community/regexpp/ast';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 const MODIFIABLE_REGEXP_FLAGS_TYPES: estree.Node['type'][] = [
   'Literal',
@@ -249,7 +249,7 @@ export const rule: Rule.RuleModule = createRegExpRule(
       },
     };
   },
-  generateMeta(rspecMeta as Rule.RuleMetaData, { hasSuggestions: true }),
+  generateMeta(meta as Rule.RuleMetaData, { hasSuggestions: true }),
 );
 
 function isCombiningCharacter(codePoint: number) {

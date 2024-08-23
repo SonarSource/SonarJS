@@ -32,11 +32,10 @@ import {
   isIdentifier,
   report,
   resolveFunction,
-  SONAR_RUNTIME,
   toSecondaryLocation,
 } from '../helpers';
 import { TSESTree } from '@typescript-eslint/utils';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 const MESSAGE = `Make sure that enabling CORS is safe here.`;
 const SECONDARY_MESSAGE = 'Sensitive configuration';
@@ -69,14 +68,7 @@ const ROUTINE_METHODS = new Set([
 ]);
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
-    schema: [
-      {
-        // internal parameter for rules having secondary locations
-        enum: [SONAR_RUNTIME],
-      },
-    ],
-  }),
+  meta: generateMeta(meta as Rule.RuleMetaData, undefined, true),
   create(context: Rule.RuleContext) {
     return {
       CallExpression(node: estree.CallExpression) {

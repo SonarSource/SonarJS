@@ -31,12 +31,12 @@ import {
   isStringType,
   RequiredParserServices,
 } from '../helpers';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 const comparisonOperators = new Set(['>', '<', '>=', '<=']);
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+  meta: generateMeta(meta as Rule.RuleMetaData, {
     messages: {
       reEvaluateDataFlow:
         'Re-evaluate the data flow; this operand of a numeric comparison could be of type {{type}}.',

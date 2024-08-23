@@ -1,9 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "Image, area, button with image and object elements should have an alternative text",
-    "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S1077/javascript",
-    "requiresTypeChecking": false
-  }
-}

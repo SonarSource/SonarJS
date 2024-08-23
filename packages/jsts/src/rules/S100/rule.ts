@@ -23,8 +23,7 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { functionLike, generateMeta, last } from '../helpers';
 import { FromSchema } from 'json-schema-to-ts';
-import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
-import rspecMeta from './meta.json';
+import { meta, schema } from './meta';
 
 interface FunctionKnowledge {
   node: estree.Identifier;
@@ -61,25 +60,8 @@ const messages = {
     "Rename this '{{function}}' function to match the regular expression '{{format}}'.",
 };
 
-const schema = {
-  type: 'array',
-  minItems: 0,
-  maxItems: 1,
-  items: [
-    {
-      type: 'object',
-      properties: {
-        format: {
-          type: 'string',
-        },
-      },
-      additionalProperties: false,
-    },
-  ],
-} as const satisfies JSONSchema4;
-
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, { messages, schema }),
+  meta: generateMeta(meta as Rule.RuleMetaData, { messages, schema }),
   create(context: Rule.RuleContext) {
     const format = (context.options as FromSchema<typeof schema>)[0]?.format ?? DEFAULT_FORMAT;
     const knowledgeStack: FunctionKnowledge[] = [];

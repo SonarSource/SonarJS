@@ -1,9 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "\"super()\" should be invoked appropriately",
-    "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S3854/javascript",
-    "requiresTypeChecking": false
-  }
-}

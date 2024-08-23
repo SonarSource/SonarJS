@@ -22,21 +22,14 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
-import { generateMeta, report, SONAR_RUNTIME, toSecondaryLocation } from '../helpers';
-import rspecMeta from './meta.json';
+import { generateMeta, report, toSecondaryLocation } from '../helpers';
+import { meta } from './meta';
 
 const TYPE_THRESHOLD = 2;
 const USAGE_THRESHOLD = 2;
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
-    schema: [
-      {
-        // internal parameter for rules having secondary locations
-        enum: [SONAR_RUNTIME],
-      },
-    ],
-  }),
+  meta: generateMeta(meta as Rule.RuleMetaData, undefined, true),
   create(context: Rule.RuleContext) {
     let usage: Map<string, TSESTree.Node[]>;
     return {

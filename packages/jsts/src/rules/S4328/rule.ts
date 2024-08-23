@@ -25,38 +25,16 @@ import builtins from 'builtin-modules';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as ts from 'typescript';
-import { generateMeta, RequiredParserServices } from '../helpers';
-import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
+import { generateMeta, RequiredParserServices, getDependencies } from '../helpers';
 import { FromSchema } from 'json-schema-to-ts';
-import rspecMeta from './meta.json';
-import { getDependencies } from '../helpers/package-json';
+import { meta, schema } from './meta';
 
 const messages = {
   removeOrAddDependency: 'Either remove this import or add it as a dependency.',
 };
 
-const schema = {
-  type: 'array',
-  minItems: 0,
-  maxItems: 1,
-  items: [
-    {
-      type: 'object',
-      properties: {
-        whitelist: {
-          type: 'array',
-          items: {
-            type: 'string',
-          },
-        },
-      },
-      additionalProperties: false,
-    },
-  ],
-} as const satisfies JSONSchema4;
-
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, { messages, schema }),
+  meta: generateMeta(meta as Rule.RuleMetaData, { messages, schema }),
   create(context: Rule.RuleContext) {
     const whitelist = (context.options as FromSchema<typeof schema>)[0]?.whitelist || [];
     const dependencies = getDependencies(context.filename);

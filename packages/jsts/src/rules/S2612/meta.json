@@ -1,9 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "Setting loose POSIX file permissions is security-sensitive",
-    "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S2612/javascript",
-    "requiresTypeChecking": false
-  }
-}

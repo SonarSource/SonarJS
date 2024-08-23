@@ -23,10 +23,10 @@ import { Rule } from 'eslint';
 import { generateMeta, mergeRules } from '../helpers';
 import { rule as networkProtocolsRule } from './rule.lib';
 import { rule as awsRule } from './rule.aws';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+  meta: generateMeta(meta as Rule.RuleMetaData, {
     messages: { ...networkProtocolsRule.meta!.messages, ...awsRule.meta!.messages },
   }),
   create(context: Rule.RuleContext) {

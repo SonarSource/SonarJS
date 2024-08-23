@@ -22,7 +22,7 @@
 import { Rule, Scope } from 'eslint';
 import estree from 'estree';
 import { generateMeta } from '../helpers';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 const futureReservedWords = [
   'implements',
@@ -45,7 +45,7 @@ const futureReservedWords = [
 ];
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+  meta: generateMeta(meta as Rule.RuleMetaData, {
     messages: {
       renameReserved:
         'Rename "{{reserved}}" identifier to prevent potential conflicts with future evolutions of the JavaScript language.',

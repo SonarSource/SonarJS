@@ -29,7 +29,7 @@ import {
   isRequiredParserServices,
   removeNodeWithLeadingWhitespaces,
 } from '../helpers';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 const EXCLUDED_IMPORTS = ['React'];
 const JSDOC_TAGS = [
@@ -125,7 +125,7 @@ const JSDOC_TAGS = [
 ];
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+  meta: generateMeta(meta as Rule.RuleMetaData, {
     messages: {
       removeUnusedImport: `Remove this unused import of '{{symbol}}'.`,
       suggestRemoveWholeStatement: `Remove this import statement`,

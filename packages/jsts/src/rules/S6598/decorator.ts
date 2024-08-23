@@ -21,14 +21,14 @@
 
 import { Rule } from 'eslint';
 import { generateMeta, interceptReport } from '../helpers';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 // Rewording one of the issue messages reported by the core implementation.
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(
     {
       ...rule,
-      meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+      meta: generateMeta(meta as Rule.RuleMetaData, {
         ...rule.meta!,
         messages: {
           ...rule.meta!.messages,

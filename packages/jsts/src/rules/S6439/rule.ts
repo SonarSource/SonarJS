@@ -29,7 +29,7 @@ import {
   isRequiredParserServices,
   isStringType,
 } from '../helpers';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 const detectReactNativeSelector = [
   ':matches(',
@@ -41,7 +41,7 @@ const detectReactNativeSelector = [
 ].join('');
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+  meta: generateMeta(meta as Rule.RuleMetaData, {
     hasSuggestions: true,
     messages: {
       nonBooleanMightRender: 'Convert the conditional to a boolean to avoid leaked value',

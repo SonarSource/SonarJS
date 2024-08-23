@@ -30,7 +30,7 @@ import {
   toSecondaryLocation,
 } from '../helpers';
 import { Rule } from 'eslint';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 const EQUALITY_OPERATOR_TOKEN_KINDS = new Set(['==', '===', '!=', '!==']);
 
@@ -71,18 +71,15 @@ const message =
   'Correct one of the identical sub-expressions on both sides of operator "{{operator}}"';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
-    messages: {
-      correctIdenticalSubExpressions: message,
-    },
-    schema: [
-      {
-        // internal parameter
-        type: 'string',
-        enum: ['sonar-runtime'],
+  meta: generateMeta(
+    meta as Rule.RuleMetaData,
+    {
+      messages: {
+        correctIdenticalSubExpressions: message,
       },
-    ],
-  }),
+    },
+    true,
+  ),
   create(context) {
     return {
       LogicalExpression(node: estree.LogicalExpression) {

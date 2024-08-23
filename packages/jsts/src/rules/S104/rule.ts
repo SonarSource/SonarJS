@@ -22,34 +22,11 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { getCommentLineNumbers, getLocsNumber } from '../S138/rule';
-import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
 import { generateMeta } from '../helpers';
 import { FromSchema } from 'json-schema-to-ts';
-import rspecMeta from './meta.json';
+import { meta, schema } from './meta';
 
 const DEFAULT = 1000;
-export type Options = [
-  {
-    maximum: number;
-  },
-];
-
-const schema = {
-  type: 'array',
-  minItems: 0,
-  maxItems: 1,
-  items: [
-    {
-      type: 'object',
-      properties: {
-        maximum: {
-          type: 'integer',
-        },
-      },
-      additionalProperties: false,
-    },
-  ],
-} as const satisfies JSONSchema4;
 
 const messages = {
   maxFileLine:
@@ -57,7 +34,7 @@ const messages = {
 };
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, { messages, schema }),
+  meta: generateMeta(meta as Rule.RuleMetaData, { messages, schema }),
   create(context: Rule.RuleContext) {
     const threshold = (context.options as FromSchema<typeof schema>)[0]?.maximum ?? DEFAULT;
 

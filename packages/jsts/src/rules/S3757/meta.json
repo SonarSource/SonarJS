@@ -1,9 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "Arithmetic operations should not result in \"NaN\"",
-    "recommended": false,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S3757/javascript",
-    "requiresTypeChecking": true
-  }
-}

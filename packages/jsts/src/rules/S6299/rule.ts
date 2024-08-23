@@ -23,10 +23,10 @@ import * as estree from 'estree';
 import { Rule } from 'eslint';
 import { AST } from 'vue-eslint-parser';
 import { generateMeta } from '../helpers';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+  meta: generateMeta(meta as Rule.RuleMetaData, {
     messages: {
       safeVueBypassing: 'Make sure bypassing Vue built-in sanitization is safe here.',
     },

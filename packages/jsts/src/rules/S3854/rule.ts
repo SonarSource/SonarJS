@@ -22,13 +22,13 @@
 import { Rule } from 'eslint';
 import { eslintRules } from '../core';
 import { generateMeta, mergeRules } from '../helpers';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 const constructorSuperRule = eslintRules['constructor-super'];
 const noThisBeforeSuperRule = eslintRules['no-this-before-super'];
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+  meta: generateMeta(meta as Rule.RuleMetaData, {
     messages: { ...constructorSuperRule.meta!.messages, ...noThisBeforeSuperRule.meta!.messages },
   }),
   create(context: Rule.RuleContext) {

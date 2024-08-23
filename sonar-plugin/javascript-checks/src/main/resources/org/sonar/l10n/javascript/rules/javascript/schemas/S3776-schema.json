@@ -1,0 +1,8 @@
+{
+  "type": "array",
+  "minItems": 0,
+  "maxItems": 2,
+  "items": [
+    { "type": "integer", "minimum": 0 }
+  ]
+}

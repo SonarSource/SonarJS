@@ -1,9 +1,0 @@
-{
-  "type": "problem",
-  "docs": {
-    "description": "Authorizing HTTP communications with S3 buckets is security-sensitive",
-    "recommended": true,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S6249/javascript",
-    "requiresTypeChecking": false
-  }
-}

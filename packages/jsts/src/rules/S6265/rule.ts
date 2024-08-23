@@ -36,9 +36,8 @@ import {
   normalizeFQN,
   report,
   S3BucketTemplate,
-  SONAR_RUNTIME,
 } from '../helpers';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 const messages = {
   accessLevel: (param: string) => `Make sure granting ${param} access is safe here.`,
@@ -52,14 +51,7 @@ const PUBLIC_READ_ACCESS_KEY = 'publicReadAccess';
 const INVALID_PUBLIC_READ_ACCESS_VALUE = true;
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
-    schema: [
-      {
-        // internal parameter for rules having secondary locations
-        enum: [SONAR_RUNTIME],
-      },
-    ],
-  }),
+  meta: generateMeta(meta as Rule.RuleMetaData, undefined, true),
   create(context: Rule.RuleContext) {
     return mergeRules(
       s3BucketConstructorRule.create(context),

@@ -30,10 +30,10 @@ import {
   writingMethods,
 } from '../helpers';
 import estree from 'estree';
-import rspecMeta from './meta.json';
+import { meta } from './meta';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {
+  meta: generateMeta(meta as Rule.RuleMetaData, {
     messages: {
       unusedCollection: "Either use this collection's contents or remove the collection.",
     },

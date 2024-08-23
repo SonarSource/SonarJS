@@ -1,9 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "Comparison operators should not be used with strings",
-    "recommended": false,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S3003/javascript",
-    "requiresTypeChecking": true
-  }
-}

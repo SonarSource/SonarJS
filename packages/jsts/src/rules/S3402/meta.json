@@ -1,9 +1,0 @@
-{
-  "type": "suggestion",
-  "docs": {
-    "description": "Strings and non-strings should not be added",
-    "recommended": false,
-    "url": "https://sonarsource.github.io/rspec/#/rspec/S3402/javascript",
-    "requiresTypeChecking": true
-  }
-}
