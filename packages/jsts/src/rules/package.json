@@ -52,6 +52,7 @@
     "eslint-plugin-react-hooks": "4.6.0",
     "eslint-scope": "8.0.1",
     "functional-red-black-tree": "1.0.1",
+    "jsx-ast-utils": "^3.3.5",
     "scslre": "0.3.0",
     "semver": "7.6.0",
     "vue-eslint-parser": "9.4.3"
