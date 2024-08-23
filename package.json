@@ -10,6 +10,7 @@
     "bf": "npm run build:fast",
     "new-rule": "ts-node tools/newRule.ts",
     "generate-meta": "ts-node tools/generate-meta.ts && cd packages/jsts/src/rules && npm run eslint-docs",
+    "generate-rules-list": "node tools/generate-rules-list.js",
     "ruling": "node tools/prepare-ruling.js && jest ./packages/ruling/tests/projects/*.ruling.test.ts",
     "ruling-parametrized": "node tools/prepare-ruling.js && SONAR_RULING_SETTINGS=../settings.js jest ./packages/ruling/tests/projects/*.ruling.test.ts",
     "ruling-sync": "rsync -avh packages/ruling/tests/actual/jsts/ its/ruling/src/test/expected/jsts/ --delete",
@@ -28,7 +29,7 @@
     "count-rules": "node tools/count-rules.js",
     "_:bridge:copy-protofile": "node tools/estree/copy-to-lib.js",
     "_:bridge:clear": "rimraf lib/*",
-    "_:plugin:prepare-bridge": "npm pack && node tools/check-distribution-filepath-length.js && npm run _:plugin:copy-bridge",
+    "_:plugin:prepare-bridge": "npm pack && node tools/check-distribution-filepath-length.js && npm run _:plugin:copy-bridge && npm run generate-rules-list",
     "_:plugin-fetch-node": "node tools/fetch-node/scripts/wrapper.mjs",
     "_:plugin:pre-build": "npm run bridge:build && npm run _:plugin:prepare-bridge && npm run _:plugin-fetch-node",
     "_:plugin:copy-bridge": "cpy sonarjs-1.0.0.tgz sonar-plugin/sonar-javascript-plugin/target/classes && cpy sonarjs-1.0.0.tgz sonar-plugin/standalone/target/classes"

@@ -1168,7 +1168,7 @@ export const meta = {
   version,
 };
 
-export { rules };
+export { rules, bridgeRules };
 
 export default { rules, configs, meta };
 
