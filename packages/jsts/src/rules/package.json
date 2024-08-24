@@ -45,15 +45,20 @@
     "@eslint-community/regexpp": "4.10.0",
     "@types/eslint": "8.56.10",
     "@typescript-eslint/eslint-plugin": "7.16.1",
+    "@typescript-eslint/utils": "^7.16.1",
     "builtin-modules": "3.3.0",
     "bytes": "3.1.2",
-    "eslint-plugin-jsx-a11y": "6.8.0",
-    "eslint-plugin-react": "7.35.0",
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-jsx-a11y": "^6.8.0",
+    "eslint-plugin-react": "^7.35.0",
     "eslint-plugin-react-hooks": "4.6.0",
     "eslint-scope": "8.0.1",
     "functional-red-black-tree": "1.0.1",
+    "jsx-ast-utils": "^3.3.5",
+    "minimatch": "^9.0.3",
     "scslre": "0.3.0",
     "semver": "7.6.0",
+    "typescript": "5.4.3",
     "vue-eslint-parser": "9.4.3"
   },
   "devDependencies": {
@@ -64,7 +69,6 @@
     "@types/semver": "7.5.8",
     "eslint-doc-generator": "1.7.1",
     "json-schema-to-ts": "3.1.0",
-    "type-fest": "4.21.0",
-    "typescript": "5.4.3"
+    "type-fest": "4.21.0"
   }
 }

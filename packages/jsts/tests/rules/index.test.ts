@@ -58,6 +58,7 @@ describe('index', () => {
     const legacyConfig = configs['recommended-legacy'];
     expect(legacyConfig.plugins).toEqual(['sonarjs']);
     expect(legacyConfig.rules).toEqual(configs.recommended.rules);
+    expect(legacyConfig.settings).toEqual(configs.recommended.settings);
   });
 
   it('should export meta', () => {

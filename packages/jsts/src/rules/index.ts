@@ -1149,6 +1149,7 @@ for (const [key, rule] of Object.entries(pluginRules)) {
 }
 
 recommendedLegacyConfig.rules = recommendedConfig.rules;
+recommendedLegacyConfig.settings = recommendedConfig.settings;
 
 export const configs = {
   recommended: recommendedConfig,
