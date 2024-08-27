@@ -3,7 +3,9 @@
     "module": "NodeNext",
     "target": "es6",
     "allowJs": true,
-    "moduleResolution": "NodeNext"
+    "moduleResolution": "NodeNext",
+    "skipLibCheck": false,
+    "strict": true
   },
   "files": ["tseslint.config.mjs"]
 }

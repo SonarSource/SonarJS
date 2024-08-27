@@ -107,6 +107,186 @@ plugin_qa_body: &PLUGIN_QA_BODY
     - mvn -f its/plugin/pom.xml -Dsonar.runtimeVersion=${SQ_VERSION} ${MVN_TEST} -B -e -V verify surefire-report:report
   cleanup_before_cache_script: cleanup_maven_repository
 
+build_task:
+  eks_container:
+    <<: *CONTAINER_DEFINITION
+    dockerfile: .cirrus/nodejs.Dockerfile
+    docker_arguments:
+      CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
+  env:
+    #allow deployment of pull request artifacts to repox
+    DEPLOY_PULL_REQUEST: true
+    #sign artifacts
+    SIGN_KEY: VAULT[development/kv/data/sign data.key]
+    PGP_PASSPHRASE: VAULT[development/kv/data/sign data.passphrase]
+    SONAR_TOKEN: VAULT[development/kv/data/next data.token]
+    SONAR_HOST_URL: https://next.sonarqube.com/sonarqube
+    ARTIFACTORY_DEPLOY_ACCESS_TOKEN: VAULT[development/artifactory/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-qa-deployer access_token]
+  <<: *MAVEN_CACHE
+  <<: *RUNTIME_CACHE
+  <<: *NPMRC_SCRIPT_DEFINITION
+  build_and_deploy_script:
+    - source cirrus-env BUILD
+    - npm ci
+    - npm run check-format
+    - npm run build
+    - regular_mvn_build_deploy_analyze -Dmaven.test.skip=true -Dmaven.install.skip=true -Dsonar.skip=true
+  cleanup_before_cache_script: cleanup_maven_repository
+
+analyze_task:
+  eks_container:
+    <<: *CONTAINER_DEFINITION
+    dockerfile: .cirrus/nodejs.Dockerfile
+    docker_arguments:
+      CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
+  depends_on:
+    - build
+  env:
+    # analysis on next
+    SONAR_TOKEN: VAULT[development/kv/data/next data.token]
+    SONAR_HOST_URL: https://next.sonarqube.com/sonarqube
+    ARTIFACTORY_DEPLOY_ACCESS_TOKEN: VAULT[development/artifactory/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-qa-deployer access_token]
+  <<: *MAVEN_CACHE
+  <<: *RUNTIME_CACHE
+  <<: *NPMRC_SCRIPT_DEFINITION
+  build_and_analyze_script:
+    - source cirrus-env QA
+    - npm run build
+    - PULL_REQUEST_SHA=$GIT_SHA1 regular_mvn_build_deploy_analyze -P-deploy-sonarsource,-release,-sign -Dcommercial -Dmaven.shade.skip=true -Dmaven.install.skip=true -Dmaven.deploy.skip=true -Dsonar.coverage.jacoco.xmlReportPaths=$CIRRUS_WORKING_DIR/report-aggregate/target/site/jacoco-aggregate/jacoco.xml
+
+build_win_task:
+  depends_on:
+    - build
+  <<: *WINDOWS_VM_DEFINITION
+  <<: *ONLY_SONARSOURCE_QA
+  <<: *MAVEN_CACHE
+  <<: *RUNTIME_CACHE
+  <<: *NPMRC_SCRIPT_DEFINITION
+  build_script:
+    - source cirrus-env CI
+    - npm run build
+  cleanup_before_cache_script: cleanup_maven_repository
+
+ws_scan_task:
+  depends_on:
+    - build
+  eks_container:
+    <<: *CONTAINER_DEFINITION
+    dockerfile: .cirrus/nodejs.Dockerfile
+    docker_arguments:
+      CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
+    cpu: 4
+    memory: 8G
+  # run only on master and long-term branches
+  only_if: $CIRRUS_USER_COLLABORATOR == 'true' && ($CIRRUS_BRANCH == "master" || $CIRRUS_BRANCH =~ "branch-.*")
+  env:
+    WS_APIKEY: VAULT[development/kv/data/mend data.apikey]
+  <<: *MAVEN_CACHE
+  <<: *NPMRC_SCRIPT_DEFINITION
+  whitesource_script:
+    - source cirrus-env QA
+    - source set_maven_build_version $BUILD_NUMBER
+    - npm ci
+    - source ws_scan.sh
+  allow_failures: 'true'
+  always:
+    ws_artifacts:
+      path: 'whitesource/**/*'
+
+plugin_qa_with_node_task:
+  <<: *PLUGIN_QA_BODY
+  eks_container:
+    dockerfile: .cirrus/nodejs.Dockerfile
+  env:
+    SQ_VERSION: LATEST_RELEASE
+    MVN_TEST: ''
+
+plugin_qa_no_node_task:
+  <<: *PLUGIN_QA_BODY
+  eks_container:
+    image: ${CIRRUS_AWS_ACCOUNT}.dkr.ecr.eu-central-1.amazonaws.com/base:j17-latest
+  env:
+    SQ_VERSION: LATEST_RELEASE
+    SONARJS_ARTIFACT: multi
+    MVN_TEST: '-Dtest=!EslintCustomRulesTest,!SonarJsIntegrationTest --projects !org.sonarsource.javascript:eslint-custom-rules-plugin'
+
+plugin_qa_sq_dev_task:
+  <<: *PLUGIN_QA_BODY
+  eks_container:
+    image: ${CIRRUS_AWS_ACCOUNT}.dkr.ecr.eu-central-1.amazonaws.com/base:j17-latest
+  env:
+    SQ_VERSION: DEV
+    SONARJS_ARTIFACT: multi
+    MVN_TEST: '-Dtest=!EslintCustomRulesTest,!SonarJsIntegrationTest --projects !org.sonarsource.javascript:eslint-custom-rules-plugin'
+
+# Plugin QA for Windows is split into 3 parts to make it faster
+plugin_qa_win_task:
+  depends_on:
+    - build
+  <<: *WINDOWS_VM_DEFINITION
+  <<: *ONLY_SONARSOURCE_QA
+  env:
+    SONARSOURCE_QA: true
+    SQ_VERSION: LATEST_RELEASE
+    matrix:
+      - TEST: '!CoverageTest,!TypeScriptAnalysisTest,!EslintBasedRulesTest,!PRAnalysisTest,!TypeCheckerConfigTest,!VueAnalysisTest'
+      - TEST: 'CoverageTest,TypeScriptAnalysisTest,EslintBasedRulesTest,PRAnalysisTest,TypeCheckerConfigTest,VueAnalysisTest'
+  <<: *WIN_SSD_AND_CLONE
+  <<: *MAVEN_CACHE
+  <<: *ORCHESTRATOR_CACHE
+  qa_script:
+    - source /c/buildTools-docker/bin/cirrus-env QA
+    - source /c/buildTools-docker/bin/set_maven_build_version $BUILD_NUMBER
+    # building the custom plugin required for the further tests
+    - mvn clean package -f its/plugin/plugins/pom.xml
+    - mvn -f its/plugin/tests/pom.xml -Dsonar.runtimeVersion=${SQ_VERSION} "-Dtest=${TEST}" -B -e -V verify surefire-report:report
+  cleanup_before_cache_script: cleanup_maven_repository
+
+# Plugin QA for Windows is split into 3 parts to make it faster
+plugin_qa_win_sonarlint_task:
+  depends_on:
+    - build
+  <<: *WINDOWS_VM_DEFINITION
+  <<: *ONLY_SONARSOURCE_QA
+  env:
+    SONARSOURCE_QA: true
+    SQ_VERSION: LATEST_RELEASE
+  <<: *WIN_SSD_AND_CLONE
+  <<: *MAVEN_CACHE
+  qa_script:
+    - source /c/buildTools-docker/bin/cirrus-env QA
+    - source /c/buildTools-docker/bin/set_maven_build_version $BUILD_NUMBER
+    - mvn -f its/plugin/sonarlint-tests/pom.xml -Dsonar.runtimeVersion=${SQ_VERSION} -B -e -V verify surefire-report:report
+  cleanup_before_cache_script: cleanup_maven_repository
+
+js_ts_ruling_task:
+  depends_on:
+    - build
+  <<: *ONLY_SONARSOURCE_QA
+  eks_container:
+    <<: *CONTAINER_DEFINITION
+    dockerfile: .cirrus/nodejs.Dockerfile
+    docker_arguments:
+      CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
+      NODE_VERSION: 20
+  env:
+    CIRRUS_CLONE_DEPTH: 1
+    SONARSOURCE_QA: true
+  <<: *MAVEN_CACHE
+  <<: *NPMRC_SCRIPT_DEFINITION
+  # needed because we need to build the plugin
+  <<: *RUNTIME_CACHE
+  submodules_script:
+    - git submodule update --init
+  ruling_script:
+    - . ~/.profile
+    - source cirrus-env QA
+    - source set_maven_build_version $BUILD_NUMBER
+    - npm run build:fast
+    - npm run update-ruling-data
+    - npm run ruling -- --maxWorkers=8
+  cleanup_before_cache_script: cleanup_maven_repository
+
 eslint_plugin_test_task:
   eks_container:
     <<: *CONTAINER_DEFINITION
@@ -135,3 +315,77 @@ eslint_plugin_test_task:
     - npm run build
     - npx tsc --noEmit # check typings for tseslint.config.ts
     - npm run test
+
+css_ruling_task:
+  depends_on:
+    - build
+  <<: *ONLY_SONARSOURCE_QA
+  eks_container:
+    <<: *CONTAINER_DEFINITION
+    image: ${CIRRUS_AWS_ACCOUNT}.dkr.ecr.eu-central-1.amazonaws.com/base:j17-latest
+  env:
+    CIRRUS_CLONE_DEPTH: 10
+    SONARSOURCE_QA: true
+  <<: *MAVEN_CACHE
+  <<: *ORCHESTRATOR_CACHE
+  submodules_script:
+    - git submodule update --init
+  ruling_script:
+    - source cirrus-env QA
+    - source set_maven_build_version $BUILD_NUMBER
+    - cd its/ruling
+    - mvn verify -Dtest=CssRulingTest -Dsonar.runtimeVersion=LATEST_RELEASE -Dmaven.test.redirectTestOutputToFile=false -Djunit.jupiter.execution.parallel.config.dynamic.factor=1 -B -e -V
+  cleanup_before_cache_script: cleanup_maven_repository
+  on_failure:
+    diff_artifacts:
+      path: '**/target/actual/**/*'
+
+perf_task:
+  timeout_in: 240m
+  depends_on:
+    - build
+  trigger_type: manual
+  eks_container:
+    <<: *CONTAINER_DEFINITION
+    image: ${CIRRUS_AWS_ACCOUNT}.dkr.ecr.eu-central-1.amazonaws.com/base:j17-latest
+  env:
+    CIRRUS_CLONE_DEPTH: 10
+    SONARSOURCE_QA: true
+  <<: *MAVEN_CACHE
+  <<: *ORCHESTRATOR_CACHE
+  submodules_script:
+    - git submodule update --init
+  perf_script:
+    - source cirrus-env QA
+    - source set_maven_build_version $BUILD_NUMBER
+    - cd its/perf
+    - mvn -B -e -V package
+    - mvn exec:exec -Dexec.args="-classpath %classpath org.sonar.javascript.it.perf.SonarJsPerfBenchmark LATEST_RELEASE $BUILD_NUMBER"
+  perf_result_artifacts:
+    path: 'its/perf/target/perf.txt'
+  cleanup_before_cache_script: cleanup_maven_repository
+
+promote_task:
+  depends_on:
+    - ws_scan
+    - build_win
+    - plugin_qa_with_node
+    - plugin_qa_no_node
+    - plugin_qa_sq_dev
+    - plugin_qa_win
+    - plugin_qa_win_sonarlint
+    - css_ruling
+    - js_ts_ruling
+    - analyze
+  <<: *ONLY_SONARSOURCE_QA
+  eks_container:
+    <<: *CONTAINER_DEFINITION
+    image: ${CIRRUS_AWS_ACCOUNT}.dkr.ecr.eu-central-1.amazonaws.com/base:j17-latest
+    cpu: 2
+    memory: 4G
+  env:
+    ARTIFACTORY_PROMOTE_ACCESS_TOKEN: VAULT[development/artifactory/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-promoter access_token]
+    GITHUB_TOKEN: VAULT[development/github/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-promotion token]
+  <<: *MAVEN_CACHE
+  script: cirrus_promote_maven
+  cleanup_before_cache_script: cleanup_maven_repository
