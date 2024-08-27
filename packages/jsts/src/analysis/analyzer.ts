@@ -31,6 +31,7 @@ import {
 import { buildSourceCode } from '../builders';
 import { JsTsAnalysisInput, JsTsAnalysisOutput } from './analysis';
 import { serializeInProtobuf } from '../parsers';
+import { TSESTree } from '@typescript-eslint/utils';
 
 /**
  * Analyzes a JavaScript / TypeScript analysis input
@@ -112,7 +113,7 @@ function analyzeFile(
 
 function serializeAst(sourceCode: SourceCode, filePath: string) {
   try {
-    return serializeInProtobuf(sourceCode.ast);
+    return serializeInProtobuf(sourceCode.ast as TSESTree.Program);
   } catch (e) {
     info(`Failed to serialize AST for file "${filePath}"`);
     return null;
