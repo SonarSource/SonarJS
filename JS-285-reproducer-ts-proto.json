@@ -1,0 +1,161 @@
+{
+  "type": "ProgramType",
+  "loc": {
+    "start": {
+      "line": 1,
+      "column": 0
+    },
+    "end": {
+      "line": 4,
+      "column": 0
+    }
+  },
+  "program": {
+    "sourceType": "module",
+    "body": [
+      {
+        "type": "IfStatementType",
+        "loc": {
+          "start": {
+            "line": 1,
+            "column": 0
+          },
+          "end": {
+            "line": 3,
+            "column": 1
+          }
+        },
+        "ifStatement": {
+          "test": {
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 4
+              },
+              "end": {
+                "line": 1,
+                "column": 18
+              }
+            }
+          },
+          "consequent": {
+            "type": "BlockStatementType",
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 20
+              },
+              "end": {
+                "line": 3,
+                "column": 1
+              }
+            },
+            "blockStatement": {
+              "body": [
+                {
+                  "type": "ExpressionStatementType",
+                  "loc": {
+                    "start": {
+                      "line": 2,
+                      "column": 4
+                    },
+                    "end": {
+                      "line": 2,
+                      "column": 20
+                    }
+                  },
+                  "expressionStatement": {
+                    "expression": {
+                      "type": "CallExpressionType",
+                      "loc": {
+                        "start": {
+                          "line": 2,
+                          "column": 4
+                        },
+                        "end": {
+                          "line": 2,
+                          "column": 19
+                        }
+                      },
+                      "callExpression": {
+                        "optional": false,
+                        "callee": {
+                          "type": "MemberExpressionType",
+                          "loc": {
+                            "start": {
+                              "line": 2,
+                              "column": 4
+                            },
+                            "end": {
+                              "line": 2,
+                              "column": 15
+                            }
+                          },
+                          "memberExpression": {
+                            "object": {
+                              "type": "IdentifierType",
+                              "loc": {
+                                "start": {
+                                  "line": 2,
+                                  "column": 4
+                                },
+                                "end": {
+                                  "line": 2,
+                                  "column": 11
+                                }
+                              },
+                              "identifier": {
+                                "name": "console"
+                              }
+                            },
+                            "property": {
+                              "type": "IdentifierType",
+                              "loc": {
+                                "start": {
+                                  "line": 2,
+                                  "column": 12
+                                },
+                                "end": {
+                                  "line": 2,
+                                  "column": 15
+                                }
+                              },
+                              "identifier": {
+                                "name": "log"
+                              }
+                            },
+                            "computed": false,
+                            "optional": false
+                          }
+                        },
+                        "arguments": [
+                          {
+                            "type": "LiteralType",
+                            "loc": {
+                              "start": {
+                                "line": 2,
+                                "column": 16
+                              },
+                              "end": {
+                                "line": 2,
+                                "column": 18
+                              }
+                            },
+                            "literal": {
+                              "raw": "\"\"",
+                              "valueString": ""
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    ]
+  }
+}

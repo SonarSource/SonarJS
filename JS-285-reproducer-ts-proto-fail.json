@@ -1,0 +1,603 @@
+{
+  "type": "ProgramType",
+  "loc": {
+    "start": {
+      "line": 1,
+      "column": 0
+    },
+    "end": {
+      "line": 11,
+      "column": 0
+    }
+  },
+  "program": {
+    "sourceType": "module",
+    "body": [
+      {
+        "type": "VariableDeclarationType",
+        "loc": {
+          "start": {
+            "line": 1,
+            "column": 0
+          },
+          "end": {
+            "line": 1,
+            "column": 39
+          }
+        },
+        "variableDeclaration": {
+          "declarations": [
+            {
+              "type": "VariableDeclaratorType",
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 6
+                },
+                "end": {
+                  "line": 1,
+                  "column": 38
+                }
+              },
+              "variableDeclarator": {
+                "id": {
+                  "type": "IdentifierType",
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 6
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 15
+                    }
+                  },
+                  "identifier": {
+                    "name": "__sonar__"
+                  }
+                },
+                "init": {
+                  "type": "CallExpressionType",
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 18
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 38
+                    }
+                  },
+                  "callExpression": {
+                    "optional": false,
+                    "callee": {
+                      "type": "IdentifierType",
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 18
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 25
+                        }
+                      },
+                      "identifier": {
+                        "name": "require"
+                      }
+                    },
+                    "arguments": [
+                      {
+                        "type": "LiteralType",
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 26
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 37
+                          }
+                        },
+                        "literal": {
+                          "raw": "\"__sonar__\"",
+                          "valueString": "__sonar__"
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          ],
+          "kind": "const"
+        }
+      },
+      {
+        "type": "VariableDeclarationType",
+        "loc": {
+          "start": {
+            "line": 2,
+            "column": 0
+          },
+          "end": {
+            "line": 2,
+            "column": 42
+          }
+        },
+        "variableDeclaration": {
+          "declarations": [
+            {
+              "type": "VariableDeclaratorType",
+              "loc": {
+                "start": {
+                  "line": 2,
+                  "column": 6
+                },
+                "end": {
+                  "line": 2,
+                  "column": 41
+                }
+              },
+              "variableDeclarator": {
+                "id": {
+                  "type": "IdentifierType",
+                  "loc": {
+                    "start": {
+                      "line": 2,
+                      "column": 6
+                    },
+                    "end": {
+                      "line": 2,
+                      "column": 10
+                    }
+                  },
+                  "identifier": {
+                    "name": "sink"
+                  }
+                },
+                "init": {
+                  "type": "MemberExpressionType",
+                  "loc": {
+                    "start": {
+                      "line": 2,
+                      "column": 13
+                    },
+                    "end": {
+                      "line": 2,
+                      "column": 41
+                    }
+                  },
+                  "memberExpression": {
+                    "object": {
+                      "type": "IdentifierType",
+                      "loc": {
+                        "start": {
+                          "line": 2,
+                          "column": 13
+                        },
+                        "end": {
+                          "line": 2,
+                          "column": 22
+                        }
+                      },
+                      "identifier": {
+                        "name": "__sonar__"
+                      }
+                    },
+                    "property": {
+                      "type": "IdentifierType",
+                      "loc": {
+                        "start": {
+                          "line": 2,
+                          "column": 23
+                        },
+                        "end": {
+                          "line": 2,
+                          "column": 41
+                        }
+                      },
+                      "identifier": {
+                        "name": "SQL_INJECTION_SINK"
+                      }
+                    },
+                    "computed": false,
+                    "optional": false
+                  }
+                }
+              }
+            }
+          ],
+          "kind": "const"
+        }
+      },
+      {
+        "type": "VariableDeclarationType",
+        "loc": {
+          "start": {
+            "line": 3,
+            "column": 0
+          },
+          "end": {
+            "line": 3,
+            "column": 46
+          }
+        },
+        "variableDeclaration": {
+          "declarations": [
+            {
+              "type": "VariableDeclaratorType",
+              "loc": {
+                "start": {
+                  "line": 3,
+                  "column": 6
+                },
+                "end": {
+                  "line": 3,
+                  "column": 45
+                }
+              },
+              "variableDeclarator": {
+                "id": {
+                  "type": "IdentifierType",
+                  "loc": {
+                    "start": {
+                      "line": 3,
+                      "column": 6
+                    },
+                    "end": {
+                      "line": 3,
+                      "column": 12
+                    }
+                  },
+                  "identifier": {
+                    "name": "source"
+                  }
+                },
+                "init": {
+                  "type": "MemberExpressionType",
+                  "loc": {
+                    "start": {
+                      "line": 3,
+                      "column": 15
+                    },
+                    "end": {
+                      "line": 3,
+                      "column": 45
+                    }
+                  },
+                  "memberExpression": {
+                    "object": {
+                      "type": "IdentifierType",
+                      "loc": {
+                        "start": {
+                          "line": 3,
+                          "column": 15
+                        },
+                        "end": {
+                          "line": 3,
+                          "column": 24
+                        }
+                      },
+                      "identifier": {
+                        "name": "__sonar__"
+                      }
+                    },
+                    "property": {
+                      "type": "IdentifierType",
+                      "loc": {
+                        "start": {
+                          "line": 3,
+                          "column": 25
+                        },
+                        "end": {
+                          "line": 3,
+                          "column": 45
+                        }
+                      },
+                      "identifier": {
+                        "name": "SQL_INJECTION_SOURCE"
+                      }
+                    },
+                    "computed": false,
+                    "optional": false
+                  }
+                }
+              }
+            }
+          ],
+          "kind": "const"
+        }
+      },
+      {
+        "type": "VariableDeclarationType",
+        "loc": {
+          "start": {
+            "line": 5,
+            "column": 0
+          },
+          "end": {
+            "line": 5,
+            "column": 25
+          }
+        },
+        "variableDeclaration": {
+          "declarations": [
+            {
+              "type": "VariableDeclaratorType",
+              "loc": {
+                "start": {
+                  "line": 5,
+                  "column": 6
+                },
+                "end": {
+                  "line": 5,
+                  "column": 24
+                }
+              },
+              "variableDeclarator": {
+                "id": {
+                  "type": "IdentifierType",
+                  "loc": {
+                    "start": {
+                      "line": 5,
+                      "column": 6
+                    },
+                    "end": {
+                      "line": 5,
+                      "column": 13
+                    }
+                  },
+                  "identifier": {
+                    "name": "tainted"
+                  }
+                },
+                "init": {
+                  "type": "CallExpressionType",
+                  "loc": {
+                    "start": {
+                      "line": 5,
+                      "column": 16
+                    },
+                    "end": {
+                      "line": 5,
+                      "column": 24
+                    }
+                  },
+                  "callExpression": {
+                    "optional": false,
+                    "callee": {
+                      "type": "IdentifierType",
+                      "loc": {
+                        "start": {
+                          "line": 5,
+                          "column": 16
+                        },
+                        "end": {
+                          "line": 5,
+                          "column": 22
+                        }
+                      },
+                      "identifier": {
+                        "name": "source"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ],
+          "kind": "const"
+        }
+      },
+      {
+        "type": "IfStatementType",
+        "loc": {
+          "start": {
+            "line": 7,
+            "column": 0
+          },
+          "end": {
+            "line": 9,
+            "column": 1
+          }
+        },
+        "ifStatement": {
+          "test": {
+            "loc": {
+              "start": {
+                "line": 7,
+                "column": 4
+              },
+              "end": {
+                "line": 7,
+                "column": 18
+              }
+            }
+          },
+          "consequent": {
+            "type": "BlockStatementType",
+            "loc": {
+              "start": {
+                "line": 7,
+                "column": 20
+              },
+              "end": {
+                "line": 9,
+                "column": 1
+              }
+            },
+            "blockStatement": {
+              "body": [
+                {
+                  "type": "ExpressionStatementType",
+                  "loc": {
+                    "start": {
+                      "line": 8,
+                      "column": 4
+                    },
+                    "end": {
+                      "line": 8,
+                      "column": 20
+                    }
+                  },
+                  "expressionStatement": {
+                    "expression": {
+                      "type": "CallExpressionType",
+                      "loc": {
+                        "start": {
+                          "line": 8,
+                          "column": 4
+                        },
+                        "end": {
+                          "line": 8,
+                          "column": 19
+                        }
+                      },
+                      "callExpression": {
+                        "optional": false,
+                        "callee": {
+                          "type": "MemberExpressionType",
+                          "loc": {
+                            "start": {
+                              "line": 8,
+                              "column": 4
+                            },
+                            "end": {
+                              "line": 8,
+                              "column": 15
+                            }
+                          },
+                          "memberExpression": {
+                            "object": {
+                              "type": "IdentifierType",
+                              "loc": {
+                                "start": {
+                                  "line": 8,
+                                  "column": 4
+                                },
+                                "end": {
+                                  "line": 8,
+                                  "column": 11
+                                }
+                              },
+                              "identifier": {
+                                "name": "console"
+                              }
+                            },
+                            "property": {
+                              "type": "IdentifierType",
+                              "loc": {
+                                "start": {
+                                  "line": 8,
+                                  "column": 12
+                                },
+                                "end": {
+                                  "line": 8,
+                                  "column": 15
+                                }
+                              },
+                              "identifier": {
+                                "name": "log"
+                              }
+                            },
+                            "computed": false,
+                            "optional": false
+                          }
+                        },
+                        "arguments": [
+                          {
+                            "type": "LiteralType",
+                            "loc": {
+                              "start": {
+                                "line": 8,
+                                "column": 16
+                              },
+                              "end": {
+                                "line": 8,
+                                "column": 18
+                              }
+                            },
+                            "literal": {
+                              "raw": "\"\"",
+                              "valueString": ""
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "type": "ExpressionStatementType",
+        "loc": {
+          "start": {
+            "line": 10,
+            "column": 0
+          },
+          "end": {
+            "line": 10,
+            "column": 14
+          }
+        },
+        "expressionStatement": {
+          "expression": {
+            "type": "CallExpressionType",
+            "loc": {
+              "start": {
+                "line": 10,
+                "column": 0
+              },
+              "end": {
+                "line": 10,
+                "column": 13
+              }
+            },
+            "callExpression": {
+              "optional": false,
+              "callee": {
+                "type": "IdentifierType",
+                "loc": {
+                  "start": {
+                    "line": 10,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 10,
+                    "column": 4
+                  }
+                },
+                "identifier": {
+                  "name": "sink"
+                }
+              },
+              "arguments": [
+                {
+                  "type": "IdentifierType",
+                  "loc": {
+                    "start": {
+                      "line": 10,
+                      "column": 5
+                    },
+                    "end": {
+                      "line": 10,
+                      "column": 12
+                    }
+                  },
+                  "identifier": {
+                    "name": "tainted"
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    ]
+  }
+}

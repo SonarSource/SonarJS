@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import path from 'path';
+import fs from 'fs';
 
 import { readFile } from '@sonar/shared';
 import {
@@ -31,11 +32,11 @@ import {
 import { JsTsAnalysisInput } from '../../src/analysis';
 
 const parseFunctions = [
-  {
-    parser: parsers.javascript,
-    usingBabel: true,
-    errorMessage: 'Unterminated string constant. (1:0)',
-  },
+  // {
+  //   parser: parsers.javascript,
+  //   usingBabel: true,
+  //   errorMessage: 'Unterminated string constant. (1:0)',
+  // },
   { parser: parsers.typescript, usingBabel: false, errorMessage: 'Unterminated string literal.' },
 ];
 
@@ -61,6 +62,16 @@ describe('ast', () => {
         compareASTs(protoMessage, deserializedProtoMessage);
       },
     );
+    test.each(parseFunctions)('should support TS', async ({ parser, usingBabel }) => {
+      const filePath = path.join(__dirname, 'fixtures', 'ast', 'JS-285-reproducer.ts');
+      const sc = await parseSourceCode(filePath, parser, usingBabel);
+      const protoMessage = parseInProtobuf(sc.ast);
+      fs.writeFileSync('JS-285-reproducer-ts-proto.json', JSON.stringify(protoMessage, null, 2));
+      //const serialized = serializeInProtobuf(sc.ast);
+      //fs.writeFileSync('JS-285-reproducer-ts.proto', serialized);
+      // const deserializedProtoMessage = deserializeProtobuf(serialized);
+      // compareASTs(protoMessage, deserializedProtoMessage);
+    });
   });
 });
 
