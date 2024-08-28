@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { configs, rules, meta } from '../../src/rules';
+import { configs, rules, meta } from '../../src/rules/plugin';
 import fs from 'fs';
 import path from 'path';
 import { valid } from 'semver';
@@ -27,7 +27,7 @@ const mappedRules = new Map(
   Object.entries(rules).map(([eslintId, rule]) => [rule.meta.docs.url, eslintId]),
 );
 
-describe('index', () => {
+describe('Plugin public API', () => {
   it('should map keys to rules definitions', () => {
     const ruleFolder = path.join(__dirname, '../../src/rules');
     const sonarKeys = fs.readdirSync(ruleFolder).filter(name => /^S\d+/.test(name));

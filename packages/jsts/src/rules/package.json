@@ -1,14 +1,14 @@
 {
   "name": "eslint-plugin-sonarjs",
   "version": "2.0.0",
-  "main": "./lib/index.js",
-  "exports": "./lib/index.js",
+  "main": "./lib/plugin.js",
+  "exports": "./lib/plugin.js",
   "description": "SonarJS rules for ESLint",
-  "types": "./lib/index.d.ts",
+  "types": "./lib/plugin.d.ts",
   "type": "commonjs",
   "scripts": {
     "build": "npm ci && npm run compile && npm pack",
-    "compile": "npm run clear && tsc --outDir lib",
+    "compile": "npm run clear && tsc -p tsconfig-plugin.json --outDir lib",
     "eslint-docs": "npm run compile && eslint-doc-generator --init-rule-docs && rimraf docs",
     "clear": "rimraf lib/*"
   },
