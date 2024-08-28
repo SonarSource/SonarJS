@@ -728,7 +728,7 @@ public class ESTreeFactory {
 
   private static ESTree.UnknownNode fromUnknownNodeType(Node node) {
     UnknownNode unknownNode = node.getUnknownNode();
-    return new ESTree.UnknownNode(fromLocation(node.getLoc()), unknownNode.getAstNodeType());
+    return new ESTree.UnknownNode(fromLocation(node.getLoc()), unknownNode.getRawType());
   }
 
 }

@@ -471,5 +471,5 @@ message FunctionExpression {
 }
 
 message UnknownNode {
-  string astNodeType = 1;
+  string rawType = 1;
 }

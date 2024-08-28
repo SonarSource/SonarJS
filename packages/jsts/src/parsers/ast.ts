@@ -777,7 +777,7 @@ export function visitNode(node: estree.BaseNodeWithoutComments | undefined | nul
 
   function visitUnknownNode(node: estree.BaseNodeWithoutComments) {
     return {
-      astNodeType: node.type,
+      rawType: node.type,
     };
   }
 }
