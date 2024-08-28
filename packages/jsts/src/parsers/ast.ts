@@ -310,7 +310,6 @@ export function visitNode(node: TSESTree.Node | undefined | null): any {
       case 'TSUnknownKeyword':
       case 'TSVoidKeyword': {
         // visitUnknownNode()
-        debug(`Unknown node type: ${node.type}`);
         break;
       }
       default: {
@@ -835,10 +834,16 @@ export function visitNode(node: TSESTree.Node | undefined | null): any {
   }
 
   function visitExpressionStatement(node: TSESTree.ExpressionStatement) {
-    return {
-      expression: visitNode(node.expression),
-      directive: node.directive,
-    };
+    if (node.directive !== undefined) {
+      return {
+        expression: visitNode(node.expression),
+        directive: node.directive,
+      };
+    } else {
+      return {
+        expression: visitNode(node.expression),
+      };
+    }
   }
 
   function visitTemplateElement(node: TSESTree.TemplateElement) {
