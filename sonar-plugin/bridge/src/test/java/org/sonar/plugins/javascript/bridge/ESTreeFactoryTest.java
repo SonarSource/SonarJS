@@ -80,7 +80,6 @@ class ESTreeFactoryTest {
       assertThat(ifStatement.test()).isInstanceOf(ESTree.UnknownNode.class);
       ESTree.UnknownNode unknownNode = (ESTree.UnknownNode)ifStatement.test();
       assertThat(unknownNode.rawType()).isEqualTo("TSAsExpression");
-
     });
   }
 
