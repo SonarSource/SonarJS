@@ -30,6 +30,7 @@ import {
   NODE_TYPE_ENUM,
 } from '../../src/parsers';
 import { JsTsAnalysisInput } from '../../src/analysis';
+import fs from 'fs';
 
 const parseFunctions = [
   {
@@ -67,9 +68,11 @@ describe('ast', () => {
     const filePath = path.join(__dirname, 'fixtures', 'ast', 'unknownNode.ts');
     const sc = await parseSourceCode(filePath, parsers.typescript);
     const protoMessage = parseInProtobuf(sc.ast);
-    expect(
-      (protoMessage as any).program.body[0].ifStatement.test.type ===
-        NODE_TYPE_ENUM.values['UnknownType'],
+    fs.writeFileSync('JS-285-reproducer-ts-proto.json', JSON.stringify(protoMessage, null, 2));
+    const serialized = serializeInProtobuf(sc.ast);
+    fs.writeFileSync('JS-285-reproducer-ts.proto', serialized);
+    expect((protoMessage as any).program.body[0].ifStatement.test.type).toEqual(
+      NODE_TYPE_ENUM.values['UnknownNodeType'],
     );
   });
 });

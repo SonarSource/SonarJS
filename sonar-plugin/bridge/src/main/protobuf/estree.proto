@@ -87,7 +87,7 @@ enum NodeType {
   LiteralType = 68;
   TemplateElementType = 69;
   FunctionExpressionType = 70;
-  UnknownType = 1000;
+  UnknownNodeType = 1000;
 }
 message Node {
   NodeType type = 1;
@@ -471,5 +471,5 @@ message FunctionExpression {
 }
 
 message UnknownNode {
-
+  string astNodeType = 1;
 }

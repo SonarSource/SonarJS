@@ -56,11 +56,21 @@ export function visitNode(node: estree.BaseNodeWithoutComments | undefined | nul
     return undefined;
   }
 
-  return {
-    type: NODE_TYPE_ENUM.values[node.type + 'Type'] ?? NODE_TYPE_ENUM.values['UnknownType'],
-    loc: node.loc,
-    [lowerCaseFirstLetter(node.type)]: getProtobufShapeForNode(node),
-  };
+  const protoType = NODE_TYPE_ENUM.values[node.type + 'Type'];
+
+  if (typeof protoType !== 'undefined') {
+    return {
+      type: protoType,
+      loc: node.loc,
+      [lowerCaseFirstLetter(node.type)]: getProtobufShapeForNode(node),
+    };
+  } else {
+    return {
+      type: NODE_TYPE_ENUM.values['UnknownNodeType'],
+      loc: node.loc,
+      unknownNode: getProtobufShapeForNode(node),
+    };
+  }
 
   function lowerCaseFirstLetter(str: string) {
     return str.charAt(0).toLowerCase() + str.slice(1);
@@ -216,6 +226,7 @@ export function visitNode(node: estree.BaseNodeWithoutComments | undefined | nul
         return visitFunctionExpression(node as estree.FunctionExpression);
       default:
         debug(`Unknown node type: ${node.type}`);
+        return visitUnknownNode(node);
     }
   }
 
@@ -761,6 +772,12 @@ export function visitNode(node: estree.BaseNodeWithoutComments | undefined | nul
       params: node.params.map(visitNode),
       generator: node.generator,
       async: node.async,
+    };
+  }
+
+  function visitUnknownNode(node: estree.BaseNodeWithoutComments) {
+    return {
+      astNodeType: node.type,
     };
   }
 }

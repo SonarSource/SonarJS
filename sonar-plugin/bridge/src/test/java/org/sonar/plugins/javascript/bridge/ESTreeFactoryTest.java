@@ -78,6 +78,9 @@ class ESTreeFactoryTest {
     assertThat(program.body()).hasSize(1);
     assertThat(program.body().get(0)).isInstanceOfSatisfying(ESTree.IfStatement.class, ifStatement -> {
       assertThat(ifStatement.test()).isInstanceOf(ESTree.UnknownNode.class);
+      ESTree.UnknownNode unknownNode = (ESTree.UnknownNode)ifStatement.test();
+      assertThat(unknownNode.astNodeType()).isEqualTo("TSAsExpression");
+
     });
   }
 
