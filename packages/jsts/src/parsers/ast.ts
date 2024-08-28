@@ -318,7 +318,7 @@ export function visitNode(node: TSESTree.Node | undefined | null): any {
       case 'TSUndefinedKeyword':
       case 'TSUnionType':
       case 'TSUnknownKeyword':
-      case 'TSVoidKeyword': {
+      case 'TSVoidKeyword':
       default: {
         debug(`Unknown node type: ${node.type}`);
         return visitUnknownNode(node);
@@ -871,7 +871,7 @@ export function visitNode(node: TSESTree.Node | undefined | null): any {
     };
   }
 
-  function visitUnknownNode(node: estree.BaseNodeWithoutComments) {
+  function visitUnknownNode(node: TSESTree.Node) {
     return {
       rawType: node.type,
     };
