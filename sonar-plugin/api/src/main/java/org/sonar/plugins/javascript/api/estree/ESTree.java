@@ -168,6 +168,7 @@ public class ESTree {
   public record WhileStatement(Location loc, Expression test, Statement body) implements Statement {}
   public record WithStatement(Location loc, Expression object, Statement body) implements Statement {}
   public record YieldExpression(Location loc, Optional<Expression> argument, boolean delegate) implements Expression {}
+  public record UnknownNode(Location loc) implements Expression {}
 
   public interface Operator {
     String raw();

@@ -179,6 +179,7 @@ public class ESTreeFactory {
       case LiteralType -> fromLiteralType(node);
       case TemplateElementType -> fromTemplateElementType(node);
       case FunctionExpressionType -> fromFunctionExpressionType(node);
+      case UnknownType -> fromUnknownType(node);
       case UNRECOGNIZED ->
         throw new IllegalArgumentException("Unknown node type: " + node.getType() + " at " + node.getLoc());
     };
@@ -722,6 +723,10 @@ public class ESTreeFactory {
       from(functionExpression.getParamsList(), ESTree.Pattern.class),
       functionExpression.getGenerator(),
       functionExpression.getAsync());
+  }
+
+  private static ESTree.UnknownNode fromUnknownType(Node node) {
+    return new ESTree.UnknownNode(fromLocation(node.getLoc()));
   }
 
 }

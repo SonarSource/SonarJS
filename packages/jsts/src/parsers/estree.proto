@@ -87,6 +87,7 @@ enum NodeType {
   LiteralType = 68;
   TemplateElementType = 69;
   FunctionExpressionType = 70;
+  UnknownType = 1000;
 }
 message Node {
   NodeType type = 1;
@@ -163,6 +164,7 @@ message Node {
     Literal literal = 71;
     TemplateElement templateElement = 72;
     FunctionExpression functionExpression = 73;
+    UnknownNode unknownNode = 1000;
   }
 }
 message Program {
@@ -466,4 +468,8 @@ message FunctionExpression {
   repeated Node params = 3;
   optional bool generator = 4;
   optional bool async = 5;
+}
+
+message UnknownNode {
+
 }

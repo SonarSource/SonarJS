@@ -26,7 +26,7 @@ import { debug } from '@sonar/shared';
 const PATH_TO_PROTOFILE = path.join(__dirname, 'estree.proto');
 const PROTO_ROOT = protobuf.loadSync(PATH_TO_PROTOFILE);
 const NODE_TYPE = PROTO_ROOT.lookupType('Node');
-const NODE_TYPE_ENUM = PROTO_ROOT.lookupEnum('NodeType');
+export const NODE_TYPE_ENUM = PROTO_ROOT.lookupEnum('NodeType');
 
 export function serializeInProtobuf(ast: AST.Program): Uint8Array {
   const protobufAST = parseInProtobuf(ast);
@@ -57,7 +57,7 @@ export function visitNode(node: estree.BaseNodeWithoutComments | undefined | nul
   }
 
   return {
-    type: NODE_TYPE_ENUM.values[node.type + 'Type'],
+    type: NODE_TYPE_ENUM.values[node.type + 'Type'] ?? NODE_TYPE_ENUM.values['UnknownType'],
     loc: node.loc,
     [lowerCaseFirstLetter(node.type)]: getProtobufShapeForNode(node),
   };

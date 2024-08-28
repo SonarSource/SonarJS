@@ -27,6 +27,7 @@ import {
   deserializeProtobuf,
   parseInProtobuf,
   serializeInProtobuf,
+  NODE_TYPE_ENUM,
 } from '../../src/parsers';
 import { JsTsAnalysisInput } from '../../src/analysis';
 
@@ -60,6 +61,15 @@ describe('ast', () => {
         const deserializedProtoMessage = deserializeProtobuf(serialized);
         compareASTs(protoMessage, deserializedProtoMessage);
       },
+    );
+  });
+  test('should encode unknown nodes', async () => {
+    const filePath = path.join(__dirname, 'fixtures', 'ast', 'unknownNode.ts');
+    const sc = await parseSourceCode(filePath, parsers.typescript);
+    const protoMessage = parseInProtobuf(sc.ast);
+    expect(
+      (protoMessage as any).program.body[0].ifStatement.test.type ===
+        NODE_TYPE_ENUM.values['UnknownType'],
     );
   });
 });
