@@ -19,8 +19,7 @@
  */
 import * as protobuf from 'protobufjs';
 import * as path from 'node:path';
-import * as estree from 'estree';
-import { AST } from 'eslint';
+import { TSESTree } from '@typescript-eslint/utils';
 import { debug } from '@sonar/shared';
 
 const PATH_TO_PROTOFILE = path.join(__dirname, 'estree.proto');
@@ -28,7 +27,7 @@ const PROTO_ROOT = protobuf.loadSync(PATH_TO_PROTOFILE);
 const NODE_TYPE = PROTO_ROOT.lookupType('Node');
 const NODE_TYPE_ENUM = PROTO_ROOT.lookupEnum('NodeType');
 
-export function serializeInProtobuf(ast: AST.Program): Uint8Array {
+export function serializeInProtobuf(ast: TSESTree.Program): Uint8Array {
   const protobufAST = parseInProtobuf(ast);
   return NODE_TYPE.encode(NODE_TYPE.create(protobufAST)).finish();
 }
@@ -36,7 +35,7 @@ export function serializeInProtobuf(ast: AST.Program): Uint8Array {
 /**
  * Only used for tests
  */
-export function parseInProtobuf(ast: AST.Program) {
+export function parseInProtobuf(ast: TSESTree.Program) {
   const protobugShapedAST = visitNode(ast);
   const protobufType = PROTO_ROOT.lookupType('Node');
   return protobufType.create(protobugShapedAST);
@@ -50,7 +49,7 @@ export function deserializeProtobuf(serialized: Uint8Array): any {
   return decoded;
 }
 
-export function visitNode(node: estree.BaseNodeWithoutComments | undefined | null): any {
+export function visitNode(node: TSESTree.Node | undefined | null): any {
   if (!node) {
     // Null and undefined will be both serialized as "not set" in protobuf when the field is optional.
     return undefined;
@@ -66,174 +65,275 @@ export function visitNode(node: estree.BaseNodeWithoutComments | undefined | nul
     return str.charAt(0).toLowerCase() + str.slice(1);
   }
 
-  function getProtobufShapeForNode(node: estree.BaseNodeWithoutComments) {
+  function getProtobufShapeForNode(node: TSESTree.Node) {
     switch (node.type) {
       case 'Program':
-        return visitProgram(node as estree.Program);
+        return visitProgram(node);
       case 'ExportAllDeclaration':
-        return visitExportAllDeclaration(node as estree.ExportAllDeclaration);
+        return visitExportAllDeclaration(node);
       case 'Literal':
         // Special case: can be 'SimpleLiteral', 'RegExpLiteral', or 'BigIntLiteral'.
-        return visitLiteral(node as estree.Literal);
+        return visitLiteral(node);
       case 'Identifier':
-        return visitIdentifier(node as estree.Identifier);
+        return visitIdentifier(node);
       case 'ExportDefaultDeclaration':
-        return visitExportDefaultDeclaration(node as estree.ExportDefaultDeclaration);
+        return visitExportDefaultDeclaration(node);
       case 'YieldExpression':
-        return visitYieldExpression(node as estree.YieldExpression);
+        return visitYieldExpression(node);
       case 'UpdateExpression':
-        return visitUpdateExpression(node as estree.UpdateExpression);
+        return visitUpdateExpression(node);
       case 'UnaryExpression':
-        return visitUnaryExpression(node as estree.UnaryExpression);
+        return visitUnaryExpression(node);
       case 'ThisExpression':
-        return visitThisExpression(node as estree.ThisExpression);
+        return visitThisExpression(node);
       case 'TemplateLiteral':
-        return visitTemplateLiteral(node as estree.TemplateLiteral);
+        return visitTemplateLiteral(node);
       case 'TaggedTemplateExpression':
-        return visitTaggedTemplateExpression(node as estree.TaggedTemplateExpression);
+        return visitTaggedTemplateExpression(node);
       case 'SequenceExpression':
-        return visitSequenceExpression(node as estree.SequenceExpression);
+        return visitSequenceExpression(node);
       case 'ObjectExpression':
-        return visitObjectExpression(node as estree.ObjectExpression);
+        return visitObjectExpression(node);
       case 'SpreadElement':
-        return visitSpreadElement(node as estree.SpreadElement);
+        return visitSpreadElement(node);
       case 'Property':
-        return visitProperty(node as estree.Property);
+        return visitProperty(node);
       case 'AssignmentPattern':
-        return visitAssignmentPattern(node as estree.AssignmentPattern);
+        return visitAssignmentPattern(node);
       case 'RestElement':
-        return visitRestElement(node as estree.RestElement);
+        return visitRestElement(node);
       case 'ArrayPattern':
-        return visitArrayPattern(node as estree.ArrayPattern);
+        return visitArrayPattern(node);
       case 'ObjectPattern':
-        return visitObjectPattern(node as estree.ObjectPattern);
+        return visitObjectPattern(node);
       case 'PrivateIdentifier':
-        return visitPrivateIdentifier(node as estree.PrivateIdentifier);
+        return visitPrivateIdentifier(node);
       case 'NewExpression':
-        return visitNewExpression(node as estree.NewExpression);
+        return visitNewExpression(node);
       case 'Super':
-        return visitSuper(node as estree.Super);
+        return visitSuper(node);
       case 'MetaProperty':
-        return visitMetaProperty(node as estree.MetaProperty);
+        return visitMetaProperty(node);
       case 'MemberExpression':
-        return visitMemberExpression(node as estree.MemberExpression);
+        return visitMemberExpression(node);
       case 'LogicalExpression':
-        return visitLogicalExpression(node as estree.LogicalExpression);
+        return visitLogicalExpression(node);
       case 'ImportExpression':
-        return visitImportExpression(node as estree.ImportExpression);
+        return visitImportExpression(node);
       case 'BlockStatement':
-        return visitBlockStatement(node as estree.BlockStatement);
+        return visitBlockStatement(node);
       case 'ConditionalExpression':
-        return visitConditionalExpression(node as estree.ConditionalExpression);
+        return visitConditionalExpression(node);
       case 'ClassExpression':
-        return visitClassExpression(node as estree.ClassExpression);
+        return visitClassExpression(node);
       case 'ClassBody':
-        return visitClassBody(node as estree.ClassBody);
+        return visitClassBody(node);
       case 'StaticBlock':
-        return visitStaticBlock(node as estree.StaticBlock);
+        return visitStaticBlock(node);
       case 'PropertyDefinition':
-        return visitPropertyDefinition(node as estree.PropertyDefinition);
+        return visitPropertyDefinition(node);
       case 'MethodDefinition':
-        return visitMethodDefinition(node as estree.MethodDefinition);
+        return visitMethodDefinition(node);
       case 'ChainExpression':
-        return visitChainExpression(node as estree.ChainExpression);
+        return visitChainExpression(node);
       case 'CallExpression':
-        return visitCallExpression(node as estree.SimpleCallExpression);
+        return visitCallExpression(node);
       case 'BinaryExpression':
-        return visitBinaryExpression(node as estree.BinaryExpression);
+        return visitBinaryExpression(node);
       case 'AwaitExpression':
-        return visitAwaitExpression(node as estree.AwaitExpression);
+        return visitAwaitExpression(node);
       case 'AssignmentExpression':
-        return visitAssignmentExpression(node as estree.AssignmentExpression);
+        return visitAssignmentExpression(node);
       case 'ArrowFunctionExpression':
-        return visitArrowFunctionExpression(node as estree.ArrowFunctionExpression);
+        return visitArrowFunctionExpression(node);
       case 'ArrayExpression':
-        return visitArrayExpression(node as estree.ArrayExpression);
+        return visitArrayExpression(node);
       case 'ClassDeclaration':
         // Special case: the name is not the same as the type.
-        return visitClassDeclaration(node as estree.MaybeNamedClassDeclaration);
+        return visitClassDeclaration(node);
       case 'FunctionDeclaration':
         // Special case: the name is not the same as the type.
-        return visitFunctionDeclaration(node as estree.MaybeNamedFunctionDeclaration);
+        return visitFunctionDeclaration(node);
       case 'ExportNamedDeclaration':
-        return visitExportNamedDeclaration(node as estree.ExportNamedDeclaration);
+        return visitExportNamedDeclaration(node);
       case 'ExportSpecifier':
-        return visitExportSpecifier(node as estree.ExportSpecifier);
+        return visitExportSpecifier(node);
       case 'VariableDeclaration':
-        return visitVariableDeclaration(node as estree.VariableDeclaration);
+        return visitVariableDeclaration(node);
       case 'VariableDeclarator':
-        return visitVariableDeclarator(node as estree.VariableDeclarator);
+        return visitVariableDeclarator(node);
       case 'ImportDeclaration':
-        return visitImportDeclaration(node as estree.ImportDeclaration);
+        return visitImportDeclaration(node);
       case 'ImportNamespaceSpecifier':
-        return visitImportNamespaceSpecifier(node as estree.ImportNamespaceSpecifier);
+        return visitImportNamespaceSpecifier(node);
       case 'ImportDefaultSpecifier':
-        return visitImportDefaultSpecifier(node as estree.ImportDefaultSpecifier);
+        return visitImportDefaultSpecifier(node);
       case 'ImportSpecifier':
-        return visitImportSpecifier(node as estree.ImportSpecifier);
+        return visitImportSpecifier(node);
       case 'ForOfStatement':
-        return visitForOfStatement(node as estree.ForOfStatement);
+        return visitForOfStatement(node);
       case 'ForInStatement':
-        return visitForInStatement(node as estree.ForInStatement);
+        return visitForInStatement(node);
       case 'ForStatement':
-        return visitForStatement(node as estree.ForStatement);
+        return visitForStatement(node);
       case 'DoWhileStatement':
-        return visitDoWhileStatement(node as estree.DoWhileStatement);
+        return visitDoWhileStatement(node);
       case 'WhileStatement':
-        return visitWhileStatement(node as estree.WhileStatement);
+        return visitWhileStatement(node);
       case 'TryStatement':
-        return visitTryStatement(node as estree.TryStatement);
+        return visitTryStatement(node);
       case 'CatchClause':
-        return visitCatchClause(node as estree.CatchClause);
+        return visitCatchClause(node);
       case 'ThrowStatement':
-        return visitThrowStatement(node as estree.ThrowStatement);
+        return visitThrowStatement(node);
       case 'SwitchStatement':
-        return visitSwitchStatement(node as estree.SwitchStatement);
+        return visitSwitchStatement(node);
       case 'SwitchCase':
-        return visitSwitchCase(node as estree.SwitchCase);
+        return visitSwitchCase(node);
       case 'IfStatement':
-        return visitIfStatement(node as estree.IfStatement);
+        return visitIfStatement(node);
       case 'ContinueStatement':
-        return visitContinueStatement(node as estree.ContinueStatement);
+        return visitContinueStatement(node);
       case 'BreakStatement':
-        return visitBreakStatement(node as estree.BreakStatement);
+        return visitBreakStatement(node);
       case 'LabeledStatement':
-        return visitLabeledStatement(node as estree.LabeledStatement);
+        return visitLabeledStatement(node);
       case 'ReturnStatement':
-        return visitReturnStatement(node as estree.ReturnStatement);
+        return visitReturnStatement(node);
       case 'WithStatement':
-        return visitWithStatement(node as estree.WithStatement);
+        return visitWithStatement(node);
       case 'DebuggerStatement':
-        return visitDebuggerStatement(node as estree.DebuggerStatement);
+        return visitDebuggerStatement(node);
       case 'EmptyStatement':
-        return visitEmptyStatement(node as estree.EmptyStatement);
+        return visitEmptyStatement(node);
       case 'ExpressionStatement':
         // Special case: can be 'Directive' or 'ExpressionStatement'.
-        return visitExpressionStatement(node as estree.ExpressionStatement);
+        return visitExpressionStatement(node);
       case 'TemplateElement':
-        return visitTemplateElement(node as estree.TemplateElement);
+        return visitTemplateElement(node);
       case 'FunctionExpression':
-        return visitFunctionExpression(node as estree.FunctionExpression);
-      default:
+        return visitFunctionExpression(node);
+      case 'AccessorProperty':
+      case 'Decorator':
+      case 'ImportAttribute':
+      case 'JSXAttribute':
+      case 'JSXClosingElement':
+      case 'JSXClosingFragment':
+      case 'JSXElement':
+      case 'JSXEmptyExpression':
+      case 'JSXExpressionContainer':
+      case 'JSXFragment':
+      case 'JSXIdentifier':
+      case 'JSXMemberExpression':
+      case 'JSXNamespacedName':
+      case 'JSXOpeningElement':
+      case 'JSXOpeningFragment':
+      case 'JSXSpreadAttribute':
+      case 'JSXSpreadChild':
+      case 'JSXText':
+      case 'TSAbstractAccessorProperty':
+      case 'TSAbstractKeyword':
+      case 'TSAbstractMethodDefinition':
+      case 'TSAbstractPropertyDefinition':
+      case 'TSAnyKeyword':
+      case 'TSArrayType':
+      case 'TSAsExpression':
+      case 'TSAsyncKeyword':
+      case 'TSBigIntKeyword':
+      case 'TSBooleanKeyword':
+      case 'TSCallSignatureDeclaration':
+      case 'TSClassImplements':
+      case 'TSConditionalType':
+      case 'TSConstructorType':
+      case 'TSConstructSignatureDeclaration':
+      case 'TSDeclareFunction':
+      case 'TSDeclareKeyword':
+      case 'TSEmptyBodyFunctionExpression':
+      case 'TSEnumDeclaration':
+      case 'TSEnumMember':
+      case 'TSExportAssignment':
+      case 'TSExportKeyword':
+      case 'TSExternalModuleReference':
+      case 'TSFunctionType':
+      case 'TSInstantiationExpression':
+      case 'TSImportEqualsDeclaration':
+      case 'TSImportType':
+      case 'TSIndexedAccessType':
+      case 'TSIndexSignature':
+      case 'TSInferType':
+      case 'TSInterfaceBody':
+      case 'TSInterfaceDeclaration':
+      case 'TSInterfaceHeritage':
+      case 'TSIntersectionType':
+      case 'TSIntrinsicKeyword':
+      case 'TSLiteralType':
+      case 'TSMappedType':
+      case 'TSMethodSignature':
+      case 'TSModuleBlock':
+      case 'TSModuleDeclaration':
+      case 'TSNamedTupleMember':
+      case 'TSNamespaceExportDeclaration':
+      case 'TSNeverKeyword':
+      case 'TSNonNullExpression':
+      case 'TSNullKeyword':
+      case 'TSNumberKeyword':
+      case 'TSObjectKeyword':
+      case 'TSOptionalType':
+      case 'TSParameterProperty':
+      case 'TSPrivateKeyword':
+      case 'TSPropertySignature':
+      case 'TSProtectedKeyword':
+      case 'TSPublicKeyword':
+      case 'TSQualifiedName':
+      case 'TSReadonlyKeyword':
+      case 'TSRestType':
+      case 'TSSatisfiesExpression':
+      case 'TSStaticKeyword':
+      case 'TSStringKeyword':
+      case 'TSSymbolKeyword':
+      case 'TSTemplateLiteralType':
+      case 'TSThisType':
+      case 'TSTupleType':
+      case 'TSTypeAliasDeclaration':
+      case 'TSTypeAnnotation':
+      case 'TSTypeAssertion':
+      case 'TSTypeLiteral':
+      case 'TSTypeOperator':
+      case 'TSTypeParameter':
+      case 'TSTypeParameterDeclaration':
+      case 'TSTypeParameterInstantiation':
+      case 'TSTypePredicate':
+      case 'TSTypeQuery':
+      case 'TSTypeReference':
+      case 'TSUndefinedKeyword':
+      case 'TSUnionType':
+      case 'TSUnknownKeyword':
+      case 'TSVoidKeyword': {
+        // visitUnknownNode()
+        break;
+      }
+      default: {
+        // visitUnknownNode()
         debug(`Unknown node type: ${node.type}`);
+      }
     }
   }
 
-  function visitProgram(node: estree.Program) {
+  function visitProgram(node: TSESTree.Program) {
     return {
       sourceType: node.sourceType,
       body: node.body.map(visitNode),
     };
   }
 
-  function visitExportAllDeclaration(node: estree.ExportAllDeclaration) {
+  function visitExportAllDeclaration(node: TSESTree.ExportAllDeclaration) {
     return {
       exported: visitNode(node.exported),
       source: visitNode(node.source),
     };
   }
 
-  function visitLiteral(node: estree.Literal) {
+  function visitLiteral(node: TSESTree.Literal) {
     if ('bigint' in node) {
       return {
         value: node.value,
@@ -268,26 +368,26 @@ export function visitNode(node: estree.BaseNodeWithoutComments | undefined | nul
     }
   }
 
-  function visitIdentifier(node: estree.Identifier) {
+  function visitIdentifier(node: TSESTree.Identifier) {
     return {
       name: node.name,
     };
   }
 
-  function visitExportDefaultDeclaration(node: estree.ExportDefaultDeclaration) {
+  function visitExportDefaultDeclaration(node: TSESTree.ExportDefaultDeclaration) {
     return {
       declaration: visitNode(node.declaration),
     };
   }
 
-  function visitYieldExpression(node: estree.YieldExpression) {
+  function visitYieldExpression(node: TSESTree.YieldExpression) {
     return {
       argument: visitNode(node.argument),
       delegate: node.delegate,
     };
   }
 
-  function visitUpdateExpression(node: estree.UpdateExpression) {
+  function visitUpdateExpression(node: TSESTree.UpdateExpression) {
     return {
       operator: node.operator,
       argument: visitNode(node.argument),
@@ -295,7 +395,7 @@ export function visitNode(node: estree.BaseNodeWithoutComments | undefined | nul
     };
   }
 
-  function visitUnaryExpression(node: estree.UnaryExpression) {
+  function visitUnaryExpression(node: TSESTree.UnaryExpression) {
     return {
       operator: node.operator,
       argument: visitNode(node.argument),
@@ -303,43 +403,43 @@ export function visitNode(node: estree.BaseNodeWithoutComments | undefined | nul
     };
   }
 
-  function visitThisExpression(_node: estree.ThisExpression) {
+  function visitThisExpression(_node: TSESTree.ThisExpression) {
     return {};
   }
 
-  function visitTemplateLiteral(node: estree.TemplateLiteral) {
+  function visitTemplateLiteral(node: TSESTree.TemplateLiteral) {
     return {
       quasis: node.quasis.map(visitNode),
       expressions: node.expressions.map(visitNode),
     };
   }
 
-  function visitTaggedTemplateExpression(node: estree.TaggedTemplateExpression) {
+  function visitTaggedTemplateExpression(node: TSESTree.TaggedTemplateExpression) {
     return {
       tag: visitNode(node.tag),
       quasi: visitNode(node.quasi),
     };
   }
 
-  function visitSequenceExpression(node: estree.SequenceExpression) {
+  function visitSequenceExpression(node: TSESTree.SequenceExpression) {
     return {
       expressions: node.expressions.map(visitNode),
     };
   }
 
-  function visitObjectExpression(node: estree.ObjectExpression) {
+  function visitObjectExpression(node: TSESTree.ObjectExpression) {
     return {
       properties: node.properties.map(visitNode),
     };
   }
 
-  function visitSpreadElement(node: estree.SpreadElement) {
+  function visitSpreadElement(node: TSESTree.SpreadElement) {
     return {
       argument: visitNode(node.argument),
     };
   }
 
-  function visitProperty(node: estree.Property) {
+  function visitProperty(node: TSESTree.Property) {
     return {
       key: visitNode(node.key),
       value: visitNode(node.value),
@@ -350,57 +450,57 @@ export function visitNode(node: estree.BaseNodeWithoutComments | undefined | nul
     };
   }
 
-  function visitAssignmentPattern(node: estree.AssignmentPattern) {
+  function visitAssignmentPattern(node: TSESTree.AssignmentPattern) {
     return {
       left: visitNode(node.left),
       right: visitNode(node.right),
     };
   }
 
-  function visitRestElement(node: estree.RestElement) {
+  function visitRestElement(node: TSESTree.RestElement) {
     return {
       argument: visitNode(node.argument),
     };
   }
 
-  function visitArrayPattern(node: estree.ArrayPattern) {
+  function visitArrayPattern(node: TSESTree.ArrayPattern) {
     // When an entry is empty, it is represented as null in the array.
     return {
       elements: node.elements.map(visitArrayElement),
     };
   }
 
-  function visitObjectPattern(node: estree.ObjectPattern) {
+  function visitObjectPattern(node: TSESTree.ObjectPattern) {
     return {
       properties: node.properties.map(visitNode),
     };
   }
 
-  function visitPrivateIdentifier(node: estree.PrivateIdentifier) {
+  function visitPrivateIdentifier(node: TSESTree.PrivateIdentifier) {
     return {
       name: node.name,
     };
   }
 
-  function visitNewExpression(node: estree.NewExpression) {
+  function visitNewExpression(node: TSESTree.NewExpression) {
     return {
       callee: visitNode(node.callee),
       arguments: node.arguments.map(visitNode),
     };
   }
 
-  function visitSuper(_node: estree.Super) {
+  function visitSuper(_node: TSESTree.Super) {
     return {};
   }
 
-  function visitMetaProperty(node: estree.MetaProperty) {
+  function visitMetaProperty(node: TSESTree.MetaProperty) {
     return {
       meta: visitNode(node.meta),
       property: visitNode(node.property),
     };
   }
 
-  function visitMemberExpression(node: estree.MemberExpression) {
+  function visitMemberExpression(node: TSESTree.MemberExpression) {
     return {
       object: visitNode(node.object),
       property: visitNode(node.property),
@@ -409,7 +509,7 @@ export function visitNode(node: estree.BaseNodeWithoutComments | undefined | nul
     };
   }
 
-  function visitLogicalExpression(node: estree.LogicalExpression) {
+  function visitLogicalExpression(node: TSESTree.LogicalExpression) {
     return {
       operator: node.operator,
       left: visitNode(node.left),
@@ -417,19 +517,19 @@ export function visitNode(node: estree.BaseNodeWithoutComments | undefined | nul
     };
   }
 
-  function visitImportExpression(node: estree.ImportExpression) {
+  function visitImportExpression(node: TSESTree.ImportExpression) {
     return {
       source: visitNode(node.source),
     };
   }
 
-  function visitBlockStatement(node: estree.BlockStatement) {
+  function visitBlockStatement(node: TSESTree.BlockStatement) {
     return {
       body: node.body.map(visitNode),
     };
   }
 
-  function visitConditionalExpression(node: estree.ConditionalExpression) {
+  function visitConditionalExpression(node: TSESTree.ConditionalExpression) {
     return {
       test: visitNode(node.test),
       consequent: visitNode(node.consequent),
@@ -437,7 +537,7 @@ export function visitNode(node: estree.BaseNodeWithoutComments | undefined | nul
     };
   }
 
-  function visitClassExpression(node: estree.ClassExpression) {
+  function visitClassExpression(node: TSESTree.ClassExpression) {
     return {
       id: visitNode(node.id),
       superClass: visitNode(node.superClass),
@@ -445,19 +545,19 @@ export function visitNode(node: estree.BaseNodeWithoutComments | undefined | nul
     };
   }
 
-  function visitClassBody(node: estree.ClassBody) {
+  function visitClassBody(node: TSESTree.ClassBody) {
     return {
       body: node.body.map(visitNode),
     };
   }
 
-  function visitStaticBlock(node: estree.StaticBlock) {
+  function visitStaticBlock(node: TSESTree.StaticBlock) {
     return {
       body: node.body.map(visitNode),
     };
   }
 
-  function visitPropertyDefinition(node: estree.PropertyDefinition) {
+  function visitPropertyDefinition(node: TSESTree.PropertyDefinition) {
     return {
       key: visitNode(node.key),
       value: visitNode(node.value),
@@ -466,7 +566,7 @@ export function visitNode(node: estree.BaseNodeWithoutComments | undefined | nul
     };
   }
 
-  function visitMethodDefinition(node: estree.MethodDefinition) {
+  function visitMethodDefinition(node: TSESTree.MethodDefinition) {
     return {
       key: visitNode(node.key),
       value: visitNode(node.value),
@@ -476,13 +576,13 @@ export function visitNode(node: estree.BaseNodeWithoutComments | undefined | nul
     };
   }
 
-  function visitChainExpression(node: estree.ChainExpression) {
+  function visitChainExpression(node: TSESTree.ChainExpression) {
     return {
       expression: visitNode(node.expression),
     };
   }
 
-  function visitCallExpression(node: estree.SimpleCallExpression) {
+  function visitCallExpression(node: TSESTree.CallExpression) {
     return {
       optional: node.optional,
       callee: visitNode(node.callee),
@@ -490,7 +590,7 @@ export function visitNode(node: estree.BaseNodeWithoutComments | undefined | nul
     };
   }
 
-  function visitBinaryExpression(node: estree.BinaryExpression) {
+  function visitBinaryExpression(node: TSESTree.BinaryExpression) {
     return {
       operator: node.operator,
       left: visitNode(node.left),
@@ -498,13 +598,13 @@ export function visitNode(node: estree.BaseNodeWithoutComments | undefined | nul
     };
   }
 
-  function visitAwaitExpression(node: estree.AwaitExpression) {
+  function visitAwaitExpression(node: TSESTree.AwaitExpression) {
     return {
       argument: visitNode(node.argument),
     };
   }
 
-  function visitAssignmentExpression(node: estree.AssignmentExpression) {
+  function visitAssignmentExpression(node: TSESTree.AssignmentExpression) {
     return {
       operator: node.operator,
       left: visitNode(node.left),
@@ -512,7 +612,7 @@ export function visitNode(node: estree.BaseNodeWithoutComments | undefined | nul
     };
   }
 
-  function visitArrowFunctionExpression(node: estree.ArrowFunctionExpression) {
+  function visitArrowFunctionExpression(node: TSESTree.ArrowFunctionExpression) {
     return {
       expression: node.expression,
       body: visitNode(node.body),
@@ -522,7 +622,7 @@ export function visitNode(node: estree.BaseNodeWithoutComments | undefined | nul
     };
   }
 
-  function visitArrayExpression(node: estree.ArrayExpression) {
+  function visitArrayExpression(node: TSESTree.ArrayExpression) {
     // When an entry is empty, it is represented as null in the array.
     return {
       elements: node.elements.map(visitArrayElement),
@@ -530,14 +630,14 @@ export function visitNode(node: estree.BaseNodeWithoutComments | undefined | nul
   }
 
   function visitArrayElement(
-    element: estree.Pattern | estree.Expression | estree.SpreadElement | null,
+    element: TSESTree.DestructuringPattern | TSESTree.Expression | TSESTree.SpreadElement | null,
   ) {
     return {
       element: visitNode(element),
     };
   }
 
-  function visitClassDeclaration(node: estree.MaybeNamedClassDeclaration) {
+  function visitClassDeclaration(node: TSESTree.ClassDeclaration) {
     return {
       id: visitNode(node.id),
       superClass: visitNode(node.superClass),
@@ -545,7 +645,7 @@ export function visitNode(node: estree.BaseNodeWithoutComments | undefined | nul
     };
   }
 
-  function visitFunctionDeclaration(node: estree.MaybeNamedFunctionDeclaration) {
+  function visitFunctionDeclaration(node: TSESTree.FunctionDeclaration) {
     return {
       id: visitNode(node.id),
       body: visitNode(node.body),
@@ -555,7 +655,7 @@ export function visitNode(node: estree.BaseNodeWithoutComments | undefined | nul
     };
   }
 
-  function visitExportNamedDeclaration(node: estree.ExportNamedDeclaration) {
+  function visitExportNamedDeclaration(node: TSESTree.ExportNamedDeclaration) {
     return {
       declaration: visitNode(node.declaration),
       specifiers: node.specifiers.map(visitNode),
@@ -563,54 +663,54 @@ export function visitNode(node: estree.BaseNodeWithoutComments | undefined | nul
     };
   }
 
-  function visitExportSpecifier(node: estree.ExportSpecifier) {
+  function visitExportSpecifier(node: TSESTree.ExportSpecifier) {
     return {
       exported: visitNode(node.exported),
       local: visitNode(node.local),
     };
   }
 
-  function visitVariableDeclaration(node: estree.VariableDeclaration) {
+  function visitVariableDeclaration(node: TSESTree.VariableDeclaration) {
     return {
       declarations: node.declarations.map(visitNode),
       kind: node.kind,
     };
   }
 
-  function visitVariableDeclarator(node: estree.VariableDeclarator) {
+  function visitVariableDeclarator(node: TSESTree.VariableDeclarator) {
     return {
       id: visitNode(node.id),
       init: visitNode(node.init),
     };
   }
 
-  function visitImportDeclaration(node: estree.ImportDeclaration) {
+  function visitImportDeclaration(node: TSESTree.ImportDeclaration) {
     return {
       specifiers: node.specifiers.map(visitNode),
       source: visitNode(node.source),
     };
   }
 
-  function visitImportNamespaceSpecifier(node: estree.ImportNamespaceSpecifier) {
+  function visitImportNamespaceSpecifier(node: TSESTree.ImportNamespaceSpecifier) {
     return {
       local: visitNode(node.local),
     };
   }
 
-  function visitImportDefaultSpecifier(node: estree.ImportDefaultSpecifier) {
+  function visitImportDefaultSpecifier(node: TSESTree.ImportDefaultSpecifier) {
     return {
       local: visitNode(node.local),
     };
   }
 
-  function visitImportSpecifier(node: estree.ImportSpecifier) {
+  function visitImportSpecifier(node: TSESTree.ImportSpecifier) {
     return {
       imported: visitNode(node.imported),
       local: visitNode(node.local),
     };
   }
 
-  function visitForOfStatement(node: estree.ForOfStatement) {
+  function visitForOfStatement(node: TSESTree.ForOfStatement) {
     return {
       await: node.await,
       left: visitNode(node.left),
@@ -619,7 +719,7 @@ export function visitNode(node: estree.BaseNodeWithoutComments | undefined | nul
     };
   }
 
-  function visitForInStatement(node: estree.ForInStatement) {
+  function visitForInStatement(node: TSESTree.ForInStatement) {
     return {
       left: visitNode(node.left),
       right: visitNode(node.right),
@@ -627,7 +727,7 @@ export function visitNode(node: estree.BaseNodeWithoutComments | undefined | nul
     };
   }
 
-  function visitForStatement(node: estree.ForStatement) {
+  function visitForStatement(node: TSESTree.ForStatement) {
     return {
       init: visitNode(node.init),
       test: visitNode(node.test),
@@ -636,21 +736,21 @@ export function visitNode(node: estree.BaseNodeWithoutComments | undefined | nul
     };
   }
 
-  function visitDoWhileStatement(node: estree.DoWhileStatement) {
+  function visitDoWhileStatement(node: TSESTree.DoWhileStatement) {
     return {
       body: visitNode(node.body),
       test: visitNode(node.test),
     };
   }
 
-  function visitWhileStatement(node: estree.WhileStatement) {
+  function visitWhileStatement(node: TSESTree.WhileStatement) {
     return {
       test: visitNode(node.test),
       body: visitNode(node.body),
     };
   }
 
-  function visitTryStatement(node: estree.TryStatement) {
+  function visitTryStatement(node: TSESTree.TryStatement) {
     return {
       block: visitNode(node.block),
       handler: visitNode(node.handler),
@@ -658,34 +758,34 @@ export function visitNode(node: estree.BaseNodeWithoutComments | undefined | nul
     };
   }
 
-  function visitCatchClause(node: estree.CatchClause) {
+  function visitCatchClause(node: TSESTree.CatchClause) {
     return {
       param: visitNode(node.param),
       body: visitNode(node.body),
     };
   }
 
-  function visitThrowStatement(node: estree.ThrowStatement) {
+  function visitThrowStatement(node: TSESTree.ThrowStatement) {
     return {
       argument: visitNode(node.argument),
     };
   }
 
-  function visitSwitchStatement(node: estree.SwitchStatement) {
+  function visitSwitchStatement(node: TSESTree.SwitchStatement) {
     return {
       discriminant: visitNode(node.discriminant),
       cases: node.cases.map(visitNode),
     };
   }
 
-  function visitSwitchCase(node: estree.SwitchCase) {
+  function visitSwitchCase(node: TSESTree.SwitchCase) {
     return {
       test: visitNode(node.test),
       consequent: node.consequent.map(visitNode),
     };
   }
 
-  function visitIfStatement(node: estree.IfStatement) {
+  function visitIfStatement(node: TSESTree.IfStatement) {
     return {
       test: visitNode(node.test),
       consequent: visitNode(node.consequent),
@@ -693,48 +793,48 @@ export function visitNode(node: estree.BaseNodeWithoutComments | undefined | nul
     };
   }
 
-  function visitContinueStatement(node: estree.ContinueStatement) {
+  function visitContinueStatement(node: TSESTree.ContinueStatement) {
     return {
       label: visitNode(node.label),
     };
   }
 
-  function visitBreakStatement(node: estree.BreakStatement) {
+  function visitBreakStatement(node: TSESTree.BreakStatement) {
     return {
       label: visitNode(node.label),
     };
   }
 
-  function visitLabeledStatement(node: estree.LabeledStatement) {
+  function visitLabeledStatement(node: TSESTree.LabeledStatement) {
     return {
       label: visitNode(node.label),
       body: visitNode(node.body),
     };
   }
 
-  function visitReturnStatement(node: estree.ReturnStatement) {
+  function visitReturnStatement(node: TSESTree.ReturnStatement) {
     return {
       argument: visitNode(node.argument),
     };
   }
 
-  function visitWithStatement(node: estree.WithStatement) {
+  function visitWithStatement(node: TSESTree.WithStatement) {
     return {
       object: visitNode(node.object),
       body: visitNode(node.body),
     };
   }
 
-  function visitDebuggerStatement(_node: estree.DebuggerStatement) {
+  function visitDebuggerStatement(_node: TSESTree.DebuggerStatement) {
     return {};
   }
 
-  function visitEmptyStatement(_node: estree.EmptyStatement) {
+  function visitEmptyStatement(_node: TSESTree.EmptyStatement) {
     return {};
   }
 
-  function visitExpressionStatement(node: estree.ExpressionStatement) {
-    if ('directive' in node) {
+  function visitExpressionStatement(node: TSESTree.ExpressionStatement) {
+    if (node.directive !== undefined) {
       return {
         expression: visitNode(node.expression),
         directive: node.directive,
@@ -746,7 +846,7 @@ export function visitNode(node: estree.BaseNodeWithoutComments | undefined | nul
     }
   }
 
-  function visitTemplateElement(node: estree.TemplateElement) {
+  function visitTemplateElement(node: TSESTree.TemplateElement) {
     return {
       tail: node.tail,
       cooked: node.value.cooked,
@@ -754,7 +854,7 @@ export function visitNode(node: estree.BaseNodeWithoutComments | undefined | nul
     };
   }
 
-  function visitFunctionExpression(node: estree.FunctionExpression) {
+  function visitFunctionExpression(node: TSESTree.FunctionExpression) {
     return {
       id: visitNode(node.id),
       body: visitNode(node.body),
