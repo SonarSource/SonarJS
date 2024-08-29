@@ -25,6 +25,8 @@ import { debug } from '@sonar/shared';
 const PATH_TO_PROTOFILE = path.join(__dirname, 'estree.proto');
 const PROTO_ROOT = protobuf.loadSync(PATH_TO_PROTOFILE);
 const NODE_TYPE = PROTO_ROOT.lookupType('Node');
+const IGNORED_CONTAINER_TYPES = new Set(['TSAsExpression']);
+
 export const NODE_TYPE_ENUM = PROTO_ROOT.lookupEnum('NodeType');
 
 export function serializeInProtobuf(ast: TSESTree.Program): Uint8Array {
@@ -61,231 +63,182 @@ export function visitNode(node: TSESTree.Node | undefined | null): VisitNodeRetu
     return undefined;
   }
 
-  return getProtobufShapeForNode(node);
+  if (IGNORED_CONTAINER_TYPES.has(node.type)) {
+    return visitNode(extractNode(node));
+  }
+
+  const protoType = NODE_TYPE_ENUM.values[node.type + 'Type'];
+
+  if (typeof protoType === 'undefined') {
+    return {
+      type: NODE_TYPE_ENUM.values['UnknownNodeType'],
+      loc: node.loc,
+      unknownNode: getProtobufShapeForNode(node),
+    };
+  }
+
+  return {
+    type: protoType,
+    loc: node.loc,
+    [lowerCaseFirstLetter(node.type)]: getProtobufShapeForNode(node),
+  };
+}
+
+function extractNode(node: TSESTree.Node) {
+  switch (node.type) {
+    case 'TSAsExpression':
+      return node.expression;
+  }
 }
 
 function getProtobufShapeForNode(node: TSESTree.Node) {
-  let shape: any;
   switch (node.type) {
     case 'Program':
-      shape = visitProgram(node);
-      break;
+      return visitProgram(node);
     case 'ExportAllDeclaration':
-      shape = visitExportAllDeclaration(node);
-      break;
+      return visitExportAllDeclaration(node);
     case 'Literal':
       // Special case: can be 'SimpleLiteral', 'RegExpLiteral', or 'BigIntLiteral'.
-      shape = visitLiteral(node);
-      break;
+      return visitLiteral(node);
     case 'Identifier':
-      shape = visitIdentifier(node);
-      break;
+      return visitIdentifier(node);
     case 'ExportDefaultDeclaration':
-      shape = visitExportDefaultDeclaration(node);
-      break;
+      return visitExportDefaultDeclaration(node);
     case 'YieldExpression':
-      shape = visitYieldExpression(node);
-      break;
+      return visitYieldExpression(node);
     case 'UpdateExpression':
-      shape = visitUpdateExpression(node);
-      break;
+      return visitUpdateExpression(node);
     case 'UnaryExpression':
-      shape = visitUnaryExpression(node);
-      break;
+      return visitUnaryExpression(node);
     case 'ThisExpression':
-      shape = visitThisExpression(node);
-      break;
+      return visitThisExpression(node);
     case 'TemplateLiteral':
-      shape = visitTemplateLiteral(node);
-      break;
+      return visitTemplateLiteral(node);
     case 'TaggedTemplateExpression':
-      shape = visitTaggedTemplateExpression(node);
-      break;
+      return visitTaggedTemplateExpression(node);
     case 'SequenceExpression':
-      shape = visitSequenceExpression(node);
-      break;
+      return visitSequenceExpression(node);
     case 'ObjectExpression':
-      shape = visitObjectExpression(node);
-      break;
+      return visitObjectExpression(node);
     case 'SpreadElement':
-      shape = visitSpreadElement(node);
-      break;
+      return visitSpreadElement(node);
     case 'Property':
-      shape = visitProperty(node);
-      break;
+      return visitProperty(node);
     case 'AssignmentPattern':
-      shape = visitAssignmentPattern(node);
-      break;
+      return visitAssignmentPattern(node);
     case 'RestElement':
-      shape = visitRestElement(node);
-      break;
+      return visitRestElement(node);
     case 'ArrayPattern':
-      shape = visitArrayPattern(node);
-      break;
+      return visitArrayPattern(node);
     case 'ObjectPattern':
-      shape = visitObjectPattern(node);
-      break;
+      return visitObjectPattern(node);
     case 'PrivateIdentifier':
-      shape = visitPrivateIdentifier(node);
-      break;
+      return visitPrivateIdentifier(node);
     case 'NewExpression':
-      shape = visitNewExpression(node);
-      break;
+      return visitNewExpression(node);
     case 'Super':
-      shape = visitSuper(node);
-      break;
+      return visitSuper(node);
     case 'MetaProperty':
-      shape = visitMetaProperty(node);
-      break;
+      return visitMetaProperty(node);
     case 'MemberExpression':
-      shape = visitMemberExpression(node);
-      break;
+      return visitMemberExpression(node);
     case 'LogicalExpression':
-      shape = visitLogicalExpression(node);
-      break;
+      return visitLogicalExpression(node);
     case 'ImportExpression':
-      shape = visitImportExpression(node);
-      break;
+      return visitImportExpression(node);
     case 'BlockStatement':
-      shape = visitBlockStatement(node);
-      break;
+      return visitBlockStatement(node);
     case 'ConditionalExpression':
-      shape = visitConditionalExpression(node);
-      break;
+      return visitConditionalExpression(node);
     case 'ClassExpression':
-      shape = visitClassExpression(node);
-      break;
+      return visitClassExpression(node);
     case 'ClassBody':
-      shape = visitClassBody(node);
-      break;
+      return visitClassBody(node);
     case 'StaticBlock':
-      shape = visitStaticBlock(node);
-      break;
+      return visitStaticBlock(node);
     case 'PropertyDefinition':
-      shape = visitPropertyDefinition(node);
-      break;
+      return visitPropertyDefinition(node);
     case 'MethodDefinition':
-      shape = visitMethodDefinition(node);
-      break;
+      return visitMethodDefinition(node);
     case 'ChainExpression':
-      shape = visitChainExpression(node);
-      break;
+      return visitChainExpression(node);
     case 'CallExpression':
-      shape = visitCallExpression(node);
-      break;
+      return visitCallExpression(node);
     case 'BinaryExpression':
-      shape = visitBinaryExpression(node);
-      break;
+      return visitBinaryExpression(node);
     case 'AwaitExpression':
-      shape = visitAwaitExpression(node);
-      break;
+      return visitAwaitExpression(node);
     case 'AssignmentExpression':
-      shape = visitAssignmentExpression(node);
-      break;
+      return visitAssignmentExpression(node);
     case 'ArrowFunctionExpression':
-      shape = visitArrowFunctionExpression(node);
-      break;
+      return visitArrowFunctionExpression(node);
     case 'ArrayExpression':
-      shape = visitArrayExpression(node);
-      break;
+      return visitArrayExpression(node);
     case 'ClassDeclaration':
       // Special case: the name is not the same as the type.
-      shape = visitClassDeclaration(node);
-      break;
+      return visitClassDeclaration(node);
     case 'FunctionDeclaration':
       // Special case: the name is not the same as the type.
-      shape = visitFunctionDeclaration(node);
-      break;
+      return visitFunctionDeclaration(node);
     case 'ExportNamedDeclaration':
-      shape = visitExportNamedDeclaration(node);
-      break;
+      return visitExportNamedDeclaration(node);
     case 'ExportSpecifier':
-      shape = visitExportSpecifier(node);
-      break;
+      return visitExportSpecifier(node);
     case 'VariableDeclaration':
-      shape = visitVariableDeclaration(node);
-      break;
+      return visitVariableDeclaration(node);
     case 'VariableDeclarator':
-      shape = visitVariableDeclarator(node);
-      break;
+      return visitVariableDeclarator(node);
     case 'ImportDeclaration':
-      shape = visitImportDeclaration(node);
-      break;
+      return visitImportDeclaration(node);
     case 'ImportNamespaceSpecifier':
-      shape = visitImportNamespaceSpecifier(node);
-      break;
+      return visitImportNamespaceSpecifier(node);
     case 'ImportDefaultSpecifier':
-      shape = visitImportDefaultSpecifier(node);
-      break;
+      return visitImportDefaultSpecifier(node);
     case 'ImportSpecifier':
-      shape = visitImportSpecifier(node);
-      break;
+      return visitImportSpecifier(node);
     case 'ForOfStatement':
-      shape = visitForOfStatement(node);
-      break;
+      return visitForOfStatement(node);
     case 'ForInStatement':
-      shape = visitForInStatement(node);
-      break;
+      return visitForInStatement(node);
     case 'ForStatement':
-      shape = visitForStatement(node);
-      break;
+      return visitForStatement(node);
     case 'DoWhileStatement':
-      shape = visitDoWhileStatement(node);
-      break;
+      return visitDoWhileStatement(node);
     case 'WhileStatement':
-      shape = visitWhileStatement(node);
-      break;
+      return visitWhileStatement(node);
     case 'TryStatement':
-      shape = visitTryStatement(node);
-      break;
+      return visitTryStatement(node);
     case 'CatchClause':
-      shape = visitCatchClause(node);
-      break;
+      return visitCatchClause(node);
     case 'ThrowStatement':
-      shape = visitThrowStatement(node);
-      break;
+      return visitThrowStatement(node);
     case 'SwitchStatement':
-      shape = visitSwitchStatement(node);
-      break;
+      return visitSwitchStatement(node);
     case 'SwitchCase':
-      shape = visitSwitchCase(node);
-      break;
+      return visitSwitchCase(node);
     case 'IfStatement':
-      shape = visitIfStatement(node);
-      break;
+      return visitIfStatement(node);
     case 'ContinueStatement':
-      shape = visitContinueStatement(node);
-      break;
+      return visitContinueStatement(node);
     case 'BreakStatement':
-      shape = visitBreakStatement(node);
-      break;
+      return visitBreakStatement(node);
     case 'LabeledStatement':
-      shape = visitLabeledStatement(node);
-      break;
+      return visitLabeledStatement(node);
     case 'ReturnStatement':
-      shape = visitReturnStatement(node);
-      break;
+      return visitReturnStatement(node);
     case 'WithStatement':
-      shape = visitWithStatement(node);
-      break;
+      return visitWithStatement(node);
     case 'DebuggerStatement':
-      shape = visitDebuggerStatement(node);
-      break;
+      return visitDebuggerStatement(node);
     case 'EmptyStatement':
-      shape = visitEmptyStatement(node);
-      break;
+      return visitEmptyStatement(node);
     case 'ExpressionStatement':
       // Special case: can be 'Directive' or 'ExpressionStatement'.
-      shape = visitExpressionStatement(node);
-      break;
+      return visitExpressionStatement(node);
     case 'TemplateElement':
-      shape = visitTemplateElement(node);
-      break;
+      return visitTemplateElement(node);
     case 'FunctionExpression':
-      shape = visitFunctionExpression(node);
-      break;
-    case 'TSAsExpression':
-      return visitNode(node.expression);
+      return visitFunctionExpression(node);
     case 'AccessorProperty':
     case 'Decorator':
     case 'ImportAttribute':
@@ -310,6 +263,7 @@ function getProtobufShapeForNode(node: TSESTree.Node) {
     case 'TSAbstractPropertyDefinition':
     case 'TSAnyKeyword':
     case 'TSArrayType':
+    case 'TSAsExpression':
     case 'TSAsyncKeyword':
     case 'TSBigIntKeyword':
     case 'TSBooleanKeyword':
@@ -381,14 +335,11 @@ function getProtobufShapeForNode(node: TSESTree.Node) {
     case 'TSUnionType':
     case 'TSUnknownKeyword':
     case 'TSVoidKeyword':
-    default:
+    default: {
       debug(`Unknown node type: ${node.type}`);
+      return visitUnknownNode(node);
+    }
   }
-  return {
-    type: NODE_TYPE_ENUM.values[node.type + 'Type'] ?? NODE_TYPE_ENUM.values['UnknownNodeType'],
-    loc: node.loc,
-    [lowerCaseFirstLetter(node.type)]: shape || visitUnknownNode(node),
-  };
 }
 function visitProgram(node: TSESTree.Program) {
   return {
