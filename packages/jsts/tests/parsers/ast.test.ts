@@ -28,6 +28,8 @@ import {
   parseInProtobuf,
   serializeInProtobuf,
   NODE_TYPE_ENUM,
+  type ParseFunction,
+  visitNode,
 } from '../../src/parsers';
 import { JsTsAnalysisInput } from '../../src/analysis';
 import { TSESTree } from '@typescript-eslint/utils';
@@ -41,7 +43,7 @@ const parseFunctions = [
   { parser: parsers.typescript, usingBabel: false, errorMessage: 'Unterminated string literal.' },
 ];
 
-async function parseSourceCode(filePath, parser, usingBabel = false) {
+async function parseSourceFile(filePath, parser, usingBabel = false) {
   const fileContent = await readFile(filePath);
   const fileType = 'MAIN';
 
@@ -50,13 +52,22 @@ async function parseSourceCode(filePath, parser, usingBabel = false) {
   return parseForESLint(fileContent, parser.parse, options);
 }
 
+async function parseSourceCode(code: string, parser: { parse: ParseFunction }) {
+  return parseForESLint(code, parser.parse, {
+    comment: true,
+    loc: true,
+    range: true,
+    tokens: true,
+  }).ast;
+}
+
 describe('ast', () => {
   describe('serializeInProtobuf()', () => {
     test.each(parseFunctions)(
       'should not lose information between serialize and deserializing JavaScript',
       async ({ parser, usingBabel }) => {
         const filePath = path.join(__dirname, 'fixtures', 'ast', 'base.js');
-        const sc = await parseSourceCode(filePath, parser, usingBabel);
+        const sc = await parseSourceFile(filePath, parser, usingBabel);
         const protoMessage = parseInProtobuf(sc.ast as TSESTree.Program);
         const serialized = serializeInProtobuf(sc.ast as TSESTree.Program);
         const deserializedProtoMessage = deserializeProtobuf(serialized);
@@ -66,11 +77,32 @@ describe('ast', () => {
   });
   test('should encode unknown nodes', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'ast', 'unknownNode.ts');
-    const sc = await parseSourceCode(filePath, parsers.typescript);
+    const sc = await parseSourceFile(filePath, parsers.typescript);
     const protoMessage = parseInProtobuf(sc.ast as TSESTree.Program);
     expect((protoMessage as any).program.body[0].ifStatement.test.type).toEqual(
       NODE_TYPE_ENUM.values['UnknownNodeType'],
     );
+  });
+  test('should support TSAsExpression nodes', async () => {
+    const code = `const foo = '5' as string;`;
+    const ast = await parseSourceCode(code, parsers.typescript);
+    const serializedAST = visitNode(ast as TSESTree.Program);
+
+    // we are only interested in checking that the serialized AST only contains nodes relevant at runtime
+    expect(serializedAST.type).toEqual(0); // Program
+    expect(serializedAST.program.body[0].type).toEqual(
+      NODE_TYPE_ENUM.values['VariableDeclarationType'],
+    ); // VariableDeclaration
+    expect(serializedAST.program.body[0].variableDeclaration.declarations[0].type).toEqual(
+      NODE_TYPE_ENUM.values['VariableDeclaratorType'],
+    ); // VariableDeclarator
+    expect(
+      serializedAST.program.body[0].variableDeclaration.declarations[0].variableDeclarator.id.type,
+    ).toEqual(NODE_TYPE_ENUM.values['IdentifierType']); // Identifier
+    expect(
+      serializedAST.program.body[0].variableDeclaration.declarations[0].variableDeclarator.init
+        .type,
+    ).toEqual(NODE_TYPE_ENUM.values['LiteralType']); // Literal
   });
 });
 
