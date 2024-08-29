@@ -10,6 +10,7 @@
 
   <artifactId>javascript-it-plugin-sonarlint-tests</artifactId>
   <name>JavaScript :: IT :: Plugin :: SonarLint Tests</name>
+  <packaging>pom</packaging>
 
   <properties>
     <surefire.argLine>-server</surefire.argLine>

@@ -1,9 +1,9 @@
 package org.sonar.plugins.javascript.api.estree;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.Arrays;
 import org.junit.jupiter.api.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 class ESTreeTest {
 
@@ -11,14 +11,14 @@ class ESTreeTest {
   void test() {
 
     Class<?>[] classes = ESTree.class.getDeclaredClasses();
-    assertThat(classes).hasSize(106);
+    assertThat(classes).hasSize(107);
 
     //filter all classes that are interface
     var ifaceCount = Arrays.stream(classes).filter(Class::isInterface).count();
     assertThat(ifaceCount).isEqualTo(25);
 
     var recordCount = Arrays.stream(classes).filter(Class::isRecord).count();
-    assertThat(recordCount).isEqualTo(76);
+    assertThat(recordCount).isEqualTo(77);
   }
 
   @Test
@@ -32,7 +32,7 @@ class ESTreeTest {
   void test_expression_subclasses() {
     Class<?> sealedClass = ESTree.Expression.class;
     Class<?>[] permittedSubclasses = sealedClass.getPermittedSubclasses();
-    assertThat(permittedSubclasses).hasSize(24);
+    assertThat(permittedSubclasses).hasSize(25);
   }
 
   @Test

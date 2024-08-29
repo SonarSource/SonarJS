@@ -27,8 +27,10 @@ import {
   deserializeProtobuf,
   parseInProtobuf,
   serializeInProtobuf,
+  NODE_TYPE_ENUM,
 } from '../../src/parsers';
 import { JsTsAnalysisInput } from '../../src/analysis';
+import { TSESTree } from '@typescript-eslint/utils';
 
 const parseFunctions = [
   {
@@ -55,11 +57,19 @@ describe('ast', () => {
       async ({ parser, usingBabel }) => {
         const filePath = path.join(__dirname, 'fixtures', 'ast', 'base.js');
         const sc = await parseSourceCode(filePath, parser, usingBabel);
-        const protoMessage = parseInProtobuf(sc.ast);
-        const serialized = serializeInProtobuf(sc.ast);
+        const protoMessage = parseInProtobuf(sc.ast as TSESTree.Program);
+        const serialized = serializeInProtobuf(sc.ast as TSESTree.Program);
         const deserializedProtoMessage = deserializeProtobuf(serialized);
         compareASTs(protoMessage, deserializedProtoMessage);
       },
+    );
+  });
+  test('should encode unknown nodes', async () => {
+    const filePath = path.join(__dirname, 'fixtures', 'ast', 'unknownNode.ts');
+    const sc = await parseSourceCode(filePath, parsers.typescript);
+    const protoMessage = parseInProtobuf(sc.ast as TSESTree.Program);
+    expect((protoMessage as any).program.body[0].ifStatement.test.type).toEqual(
+      NODE_TYPE_ENUM.values['UnknownNodeType'],
     );
   });
 });
