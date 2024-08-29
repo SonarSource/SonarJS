@@ -27,7 +27,7 @@
     "prepare": "husky install",
     "precommit": "pretty-quick --staged",
     "count-rules": "node tools/count-rules.js",
-    "_:bridge:copy-protofile": "node tools/estree/copy-to-lib.js",
+    "_:bridge:copy-protofiles": "cpy packages/jsts/src/parsers/estree.proto sonar-plugin/bridge/src/main/protobuf/ && cpy packages/jsts/src/parsers/estree.proto lib/jsts/src/parsers/",
     "_:bridge:clear": "rimraf lib/*",
     "_:plugin:prepare-bridge": "npm pack && node tools/check-distribution-filepath-length.js && npm run _:plugin:copy-bridge && npm run generate-rules-list",
     "_:plugin-fetch-node": "node tools/fetch-node/scripts/wrapper.mjs",
