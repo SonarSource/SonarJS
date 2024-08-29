@@ -79,7 +79,7 @@ describe('ast', () => {
     const filePath = path.join(__dirname, 'fixtures', 'ast', 'unknownNode.ts');
     const sc = await parseSourceFile(filePath, parsers.typescript);
     const protoMessage = parseInProtobuf(sc.ast as TSESTree.Program);
-    expect((protoMessage as any).program.body[0].ifStatement.test.type).toEqual(
+    expect((protoMessage as any).program.body[0].type).toEqual(
       NODE_TYPE_ENUM.values['UnknownNodeType'],
     );
   });
