@@ -1,3 +1,1 @@
-if ("ts" as Object) {
-    console.log("");
-}
+type foo = 42;
