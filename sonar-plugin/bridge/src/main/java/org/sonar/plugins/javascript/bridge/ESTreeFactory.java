@@ -87,6 +87,7 @@ import org.sonar.plugins.javascript.bridge.protobuf.TemplateLiteral;
 import org.sonar.plugins.javascript.bridge.protobuf.ThrowStatement;
 import org.sonar.plugins.javascript.bridge.protobuf.TryStatement;
 import org.sonar.plugins.javascript.bridge.protobuf.UnaryExpression;
+import org.sonar.plugins.javascript.bridge.protobuf.UnknownNode;
 import org.sonar.plugins.javascript.bridge.protobuf.UpdateExpression;
 import org.sonar.plugins.javascript.bridge.protobuf.VariableDeclaration;
 import org.sonar.plugins.javascript.bridge.protobuf.VariableDeclarator;
@@ -179,6 +180,7 @@ public class ESTreeFactory {
       case LiteralType -> fromLiteralType(node);
       case TemplateElementType -> fromTemplateElementType(node);
       case FunctionExpressionType -> fromFunctionExpressionType(node);
+      case UnknownNodeType -> fromUnknownNodeType(node);
       case UNRECOGNIZED ->
         throw new IllegalArgumentException("Unknown node type: " + node.getType() + " at " + node.getLoc());
     };
@@ -722,6 +724,11 @@ public class ESTreeFactory {
       from(functionExpression.getParamsList(), ESTree.Pattern.class),
       functionExpression.getGenerator(),
       functionExpression.getAsync());
+  }
+
+  private static ESTree.UnknownNode fromUnknownNodeType(Node node) {
+    UnknownNode unknownNode = node.getUnknownNode();
+    return new ESTree.UnknownNode(fromLocation(node.getLoc()), unknownNode.getRawType());
   }
 
 }

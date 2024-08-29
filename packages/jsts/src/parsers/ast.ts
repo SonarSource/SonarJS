@@ -25,7 +25,7 @@ import { debug } from '@sonar/shared';
 const PATH_TO_PROTOFILE = path.join(__dirname, 'estree.proto');
 const PROTO_ROOT = protobuf.loadSync(PATH_TO_PROTOFILE);
 const NODE_TYPE = PROTO_ROOT.lookupType('Node');
-const NODE_TYPE_ENUM = PROTO_ROOT.lookupEnum('NodeType');
+export const NODE_TYPE_ENUM = PROTO_ROOT.lookupEnum('NodeType');
 
 export function serializeInProtobuf(ast: TSESTree.Program): Uint8Array {
   const protobufAST = parseInProtobuf(ast);
@@ -55,11 +55,21 @@ export function visitNode(node: TSESTree.Node | undefined | null): any {
     return undefined;
   }
 
-  return {
-    type: NODE_TYPE_ENUM.values[node.type + 'Type'],
-    loc: node.loc,
-    [lowerCaseFirstLetter(node.type)]: getProtobufShapeForNode(node),
-  };
+  const protoType = NODE_TYPE_ENUM.values[node.type + 'Type'];
+
+  if (typeof protoType !== 'undefined') {
+    return {
+      type: protoType,
+      loc: node.loc,
+      [lowerCaseFirstLetter(node.type)]: getProtobufShapeForNode(node),
+    };
+  } else {
+    return {
+      type: NODE_TYPE_ENUM.values['UnknownNodeType'],
+      loc: node.loc,
+      unknownNode: getProtobufShapeForNode(node),
+    };
+  }
 
   function lowerCaseFirstLetter(str: string) {
     return str.charAt(0).toLowerCase() + str.slice(1);
@@ -308,13 +318,10 @@ export function visitNode(node: TSESTree.Node | undefined | null): any {
       case 'TSUndefinedKeyword':
       case 'TSUnionType':
       case 'TSUnknownKeyword':
-      case 'TSVoidKeyword': {
-        // visitUnknownNode()
-        break;
-      }
+      case 'TSVoidKeyword':
       default: {
-        // visitUnknownNode()
         debug(`Unknown node type: ${node.type}`);
+        return visitUnknownNode(node);
       }
     }
   }
@@ -861,6 +868,12 @@ export function visitNode(node: TSESTree.Node | undefined | null): any {
       params: node.params.map(visitNode),
       generator: node.generator,
       async: node.async,
+    };
+  }
+
+  function visitUnknownNode(node: TSESTree.Node) {
+    return {
+      rawType: node.type,
     };
   }
 }
