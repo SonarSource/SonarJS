@@ -57,7 +57,7 @@
     "minimatch": "^9.0.3",
     "scslre": "0.3.0",
     "semver": "7.6.0",
-    "typescript": "5.4.3",
+    "typescript": "*",
     "vue-eslint-parser": "9.4.3"
   },
   "devDependencies": {
