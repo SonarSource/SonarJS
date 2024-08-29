@@ -49,7 +49,13 @@ export function deserializeProtobuf(serialized: Uint8Array): any {
   return decoded;
 }
 
-export function visitNode(node: TSESTree.Node | undefined | null): any {
+type VisitNodeReturnType = {
+  type: number;
+  loc: TSESTree.SourceLocation;
+  [key: string]: any;
+};
+
+export function visitNode(node: TSESTree.Node | undefined | null): VisitNodeReturnType | undefined {
   if (!node) {
     // Null and undefined will be both serialized as "not set" in protobuf when the field is optional.
     return undefined;
