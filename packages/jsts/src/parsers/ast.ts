@@ -285,6 +285,7 @@ function getProtobufShapeForNode(node: TSESTree.Node) {
       shape = visitFunctionExpression(node);
       break;
     case 'TSAsExpression':
+      // skipping node
       return visitNode(node.expression);
     case 'AccessorProperty':
     case 'Decorator':
