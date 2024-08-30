@@ -123,6 +123,16 @@ describe('ast', () => {
     expect(identifier.type).toEqual(NODE_TYPE_ENUM.values['IdentifierType']);
     expect(identifier.identifier.name).toEqual('foo');
   });
+
+  test('should support TSTypeAssertion nodes', async () => {
+    const code = `<Foo>foo;`;
+    const ast = await parseSourceCode(code, parsers.typescript);
+    const serializedAST = visitNode(ast as TSESTree.Program);
+
+    const identifier = serializedAST.program.body[0].expressionStatement.expression;
+    expect(identifier.type).toEqual(NODE_TYPE_ENUM.values['IdentifierType']);
+    expect(identifier.identifier.name).toEqual('foo');
+  });
 });
 
 /**
