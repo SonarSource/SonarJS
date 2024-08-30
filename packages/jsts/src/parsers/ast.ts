@@ -287,6 +287,9 @@ function getProtobufShapeForNode(node: TSESTree.Node) {
     case 'TSAsExpression':
       // skipping node
       return visitNode(node.expression);
+    case 'TSSatisfiesExpression':
+      // skipping node
+      return visitNode(node.expression);
     case 'TSNonNullExpression':
       // skipping node
       return visitNode(node.expression);
@@ -362,7 +365,6 @@ function getProtobufShapeForNode(node: TSESTree.Node) {
     case 'TSQualifiedName':
     case 'TSReadonlyKeyword':
     case 'TSRestType':
-    case 'TSSatisfiesExpression':
     case 'TSStaticKeyword':
     case 'TSStringKeyword':
     case 'TSSymbolKeyword':
