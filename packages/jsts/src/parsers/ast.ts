@@ -293,6 +293,9 @@ function getProtobufShapeForNode(node: TSESTree.Node) {
     case 'TSNonNullExpression':
       // skipping node
       return visitNode(node.expression);
+    case 'TSTypeAssertion':
+      // skipping node
+      return visitNode(node.expression);
     case 'TSParameterProperty':
       // skipping node
       return visitNode(node.parameter);
@@ -375,7 +378,6 @@ function getProtobufShapeForNode(node: TSESTree.Node) {
     case 'TSTupleType':
     case 'TSTypeAliasDeclaration':
     case 'TSTypeAnnotation':
-    case 'TSTypeAssertion':
     case 'TSTypeLiteral':
     case 'TSTypeOperator':
     case 'TSTypeParameter':
