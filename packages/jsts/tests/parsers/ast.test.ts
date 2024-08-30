@@ -123,6 +123,22 @@ describe('ast', () => {
     expect(identifier.type).toEqual(NODE_TYPE_ENUM.values['IdentifierType']);
     expect(identifier.identifier.name).toEqual('foo');
   });
+
+  test('should support TSParameterProperty nodes', async () => {
+    const code = `
+    class Point {
+      constructor(public foo: number) {}
+    }
+    `;
+    const ast = await parseSourceCode(code, parsers.typescript);
+    const serializedAST = visitNode(ast as TSESTree.Program);
+
+    const classDeclaration = serializedAST.program.body[0].classDeclaration;
+    const methodDefinition = classDeclaration.body.classBody.body[0].methodDefinition;
+    const functionParameter = methodDefinition.value.functionExpression.params[0];
+    expect(functionParameter.type).toEqual(NODE_TYPE_ENUM.values['IdentifierType']);
+    expect(functionParameter.identifier.name).toEqual('foo');
+  });
 });
 
 /**
