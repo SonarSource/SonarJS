@@ -390,6 +390,8 @@ function getProtobufShapeForNode(node: TSESTree.Node) {
     case 'TSUnionType':
     case 'TSUnknownKeyword':
     case 'TSVoidKeyword':
+      // do not log unsupported known nodes
+      break;
     default:
       debug(`Unknown node type: ${node.type}`);
   }
