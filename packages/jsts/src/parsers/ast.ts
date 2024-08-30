@@ -287,6 +287,9 @@ function getProtobufShapeForNode(node: TSESTree.Node) {
     case 'TSAsExpression':
       // skipping node
       return visitNode(node.expression);
+    case 'TSNonNullExpression':
+      // skipping node
+      return visitNode(node.expression);
     case 'AccessorProperty':
     case 'Decorator':
     case 'ImportAttribute':
@@ -347,7 +350,6 @@ function getProtobufShapeForNode(node: TSESTree.Node) {
     case 'TSNamedTupleMember':
     case 'TSNamespaceExportDeclaration':
     case 'TSNeverKeyword':
-    case 'TSNonNullExpression':
     case 'TSNullKeyword':
     case 'TSNumberKeyword':
     case 'TSObjectKeyword':

@@ -104,6 +104,16 @@ describe('ast', () => {
         .type,
     ).toEqual(NODE_TYPE_ENUM.values['LiteralType']); // Literal
   });
+
+  test('should support TSNonNullExpression nodes', async () => {
+    const code = `foo!;`;
+    const ast = await parseSourceCode(code, parsers.typescript);
+    const serializedAST = visitNode(ast as TSESTree.Program);
+
+    const identifier = serializedAST.program.body[0].expressionStatement.expression;
+    expect(identifier.type).toEqual(NODE_TYPE_ENUM.values['IdentifierType']);
+    expect(identifier.identifier.name).toEqual('foo');
+  });
 });
 
 /**
