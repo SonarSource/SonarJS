@@ -135,6 +135,14 @@ describe('ast', () => {
   });
 });
 
+test('should not generate a node for known unsupported nodes', async () => {
+  const code = `type foo = 42`;
+  const ast = await parseSourceCode(code, parsers.typescript);
+  const serializedAST = visitNode(ast as TSESTree.Program);
+
+  expect(serializedAST.program.body[0]).toEqual(undefined);
+});
+
 /**
  * Put breakpoints on the lines that throw to debug the AST comparison.
  */

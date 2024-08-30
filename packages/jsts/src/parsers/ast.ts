@@ -66,6 +66,7 @@ export function visitNode(node: TSESTree.Node | undefined | null): VisitNodeRetu
 
 function getProtobufShapeForNode(node: TSESTree.Node) {
   let shape: any;
+  let skipUnsupported = false;
   switch (node.type) {
     case 'Program':
       shape = visitProgram(node);
@@ -388,8 +389,15 @@ function getProtobufShapeForNode(node: TSESTree.Node) {
     case 'TSUnionType':
     case 'TSUnknownKeyword':
     case 'TSVoidKeyword':
+      // do nothing for unsupported nodes
+      skipUnsupported = true;
+      break;
     default:
+      // log unknown nodes
       debug(`Unknown node type: ${node.type}`);
+  }
+  if (skipUnsupported) {
+    return;
   }
   return {
     type: NODE_TYPE_ENUM.values[node.type + 'Type'] ?? NODE_TYPE_ENUM.values['UnknownNodeType'],
