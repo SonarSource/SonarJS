@@ -104,6 +104,15 @@ describe('ast', () => {
         .type,
     ).toEqual(NODE_TYPE_ENUM.values['LiteralType']); // Literal
   });
+
+  test('should support TSSatisfiesExpression nodes', async () => {
+    const code = `42 satisfies Bar;`;
+    const ast = await parseSourceCode(code, parsers.typescript);
+    const serializedAST = visitNode(ast as TSESTree.Program);
+    const literalNode = serializedAST.program.body[0].expressionStatement.expression.literal;
+    expect(literalNode.type).toEqual(NODE_TYPE_ENUM.values['Literal']);
+    expect(literalNode.valueNumber).toEqual(42);
+  });
 });
 
 /**
