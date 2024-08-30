@@ -296,6 +296,9 @@ function getProtobufShapeForNode(node: TSESTree.Node) {
     case 'TSTypeAssertion':
       // skipping node
       return visitNode(node.expression);
+    case 'TSParameterProperty':
+      // skipping node
+      return visitNode(node.parameter);
     case 'AccessorProperty':
     case 'Decorator':
     case 'ImportAttribute':
@@ -360,7 +363,6 @@ function getProtobufShapeForNode(node: TSESTree.Node) {
     case 'TSNumberKeyword':
     case 'TSObjectKeyword':
     case 'TSOptionalType':
-    case 'TSParameterProperty':
     case 'TSPrivateKeyword':
     case 'TSPropertySignature':
     case 'TSProtectedKeyword':
