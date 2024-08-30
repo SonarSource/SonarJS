@@ -105,6 +105,25 @@ describe('ast', () => {
     ).toEqual(NODE_TYPE_ENUM.values['LiteralType']); // Literal
   });
 
+  test('should support TSSatisfiesExpression nodes', async () => {
+    const code = `42 satisfies Bar;`;
+    const ast = await parseSourceCode(code, parsers.typescript);
+    const serializedAST = visitNode(ast as TSESTree.Program);
+    const literalNode = serializedAST.program.body[0].expressionStatement.expression.literal;
+    expect(literalNode.type).toEqual(NODE_TYPE_ENUM.values['Literal']);
+    expect(literalNode.valueNumber).toEqual(42);
+  });
+
+  test('should support TSNonNullExpression nodes', async () => {
+    const code = `foo!;`;
+    const ast = await parseSourceCode(code, parsers.typescript);
+    const serializedAST = visitNode(ast as TSESTree.Program);
+
+    const identifier = serializedAST.program.body[0].expressionStatement.expression;
+    expect(identifier.type).toEqual(NODE_TYPE_ENUM.values['IdentifierType']);
+    expect(identifier.identifier.name).toEqual('foo');
+  });
+
   test('should support TSTypeAssertion nodes', async () => {
     const code = `<Foo>foo;`;
     const ast = await parseSourceCode(code, parsers.typescript);
