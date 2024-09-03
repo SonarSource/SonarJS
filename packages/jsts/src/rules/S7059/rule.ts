@@ -20,29 +20,53 @@
 // https://sonarsource.github.io/rspec/#/rspec/S7059/javascript
 
 import { Rule } from 'eslint';
-import { isRequiredParserServices, generateMeta } from '../helpers';
+import { isRequiredParserServices, generateMeta, isThenable } from '../helpers';
 import * as estree from 'estree';
 import { meta } from './meta';
+import { AST_NODE_TYPES } from '@typescript-eslint/utils';
 
-const messages = {
-  //TODO: add needed messages
-  messageId: 'message body',
-};
+const flaggedConstructors = new Set();
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, { messages }),
+  meta: generateMeta(meta as Rule.RuleMetaData, {
+    messages: {
+      noAsyncConstructor: 'Move this asynchronous operation outside of the constructor.',
+    },
+  }),
   create(context: Rule.RuleContext) {
-    const services = context.parserServices;
-
-    // remove this condition if the rule does not depend on TS type-checker
+    const services = context.sourceCode.parserServices;
     if (!isRequiredParserServices(services)) {
       return {};
     }
+    function isPromiseLike(expr: estree.Expression) {
+      return isRequiredParserServices(services) && isThenable(expr, services);
+    }
+
+    function containingConstructor(node: estree.Expression) {
+      return context.sourceCode.getAncestors(node).find(node => {
+        return (
+          node.type === AST_NODE_TYPES.MethodDefinition &&
+          node.key.type === AST_NODE_TYPES.Identifier &&
+          node.key.name === 'constructor'
+        );
+      });
+    }
 
     return {
-      //example
-      Identifier(_node: estree.Identifier) {
-        null;
+      CallExpression(node: estree.CallExpression) {
+        const constructor = containingConstructor(node);
+        if (constructor && isPromiseLike(node)) {
+          flaggedConstructors.add(constructor);
+        }
+      },
+      'Program:exit'() {
+        flaggedConstructors.forEach(node => {
+          context.report({
+            node: node as estree.Node,
+            messageId: 'noAsyncConstructor',
+          });
+        });
+        flaggedConstructors.clear();
       },
     };
   },
