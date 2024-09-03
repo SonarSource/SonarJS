@@ -349,6 +349,7 @@ import { rule as S5689 } from './S5689';
 import { rule as S2755 } from './S2755';
 import { rule as S4817 } from './S4817';
 import type { Rule, Linter } from 'eslint';
+import { rule as S7059 } from './S7059';
 
 export const rules: Record<string, Rule.RuleModule> = {
   'accessor-pairs': S2376,
@@ -466,6 +467,7 @@ export const rules: Record<string, Rule.RuleModule> = {
   'no-array-delete': S2870,
   'no-array-index-key': S6479,
   'no-associative-arrays': S3579,
+  'no-async-constructor': S7059,
   'no-base-to-string': S6551,
   'no-built-in-override': S2424,
   'no-case-label-in-switch': S1219,

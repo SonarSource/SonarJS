@@ -134,6 +134,7 @@ import { rule as S6268 } from './S6268'; // no-angular-bypass-sanitization
 import { rule as S2870 } from './S2870'; // no-array-delete
 import { rule as S6479 } from './S6479'; // no-array-index-key
 import { rule as S3579 } from './S3579'; // no-associative-arrays
+import { rule as S7059 } from './S7059'; // no-async-constructor
 import { rule as S6551 } from './S6551'; // no-base-to-string
 import { rule as S2424 } from './S2424'; // no-built-in-override
 import { rule as S1219 } from './S1219'; // no-case-label-in-switch
@@ -779,6 +780,7 @@ const bridgeRules: { [key: string]: Rule.RuleModule } = {
   S6957,
   S6958,
   S6959,
+  S7059,
   S878: eslintRules['no-sequences'],
   S881,
   S888,
