@@ -285,6 +285,7 @@ public final class CheckList {
       NoIncompleteAssertionsCheck.class,
       NoInferrableTypesCheck.class,
       NoInteractiveElementToNoninteractiveRoleCheck.class,
+      NoInternalApiUseCheck.class,
       NoInvalidAwaitCheck.class,
       NoInvertedBooleanCheckCheck.class,
       NoIsMountedCheck.class,

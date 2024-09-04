@@ -183,6 +183,7 @@ import { rule as S2970 } from './S2970'; // no-incomplete-assertions
 import { rule as S3801 } from './S3801'; // no-inconsistent-returns
 import { rule as S3402 } from './S3402'; // no-incorrect-string-concat
 import { rule as S2189 } from './S2189'; // no-infinite-loop
+import { rule as S6627 } from './S6627'; // no-internal-api-use
 import { rule as S5604 } from './S5604'; // no-intrusive-permissions
 import { rule as S4123 } from './S4123'; // no-invalid-await
 import { rule as S3516 } from './S3516'; // no-invariant-returns
@@ -712,6 +713,7 @@ const bridgeRules: { [key: string]: Rule.RuleModule } = {
   S6594,
   S6598,
   S6606,
+  S6627,
   S6635: eslintRules['no-constructor-return'],
   S6637: eslintRules['no-extra-bind'],
   S6638: eslintRules['no-constant-binary-expression'],
