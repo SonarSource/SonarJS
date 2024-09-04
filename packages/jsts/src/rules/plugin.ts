@@ -348,6 +348,7 @@ import { rule as S2817 } from './S2817';
 import { rule as S5689 } from './S5689';
 import { rule as S2755 } from './S2755';
 import { rule as S4817 } from './S4817';
+import { rule as S6627 } from './S6627';
 import type { Rule, Linter } from 'eslint';
 
 export const rules: Record<string, Rule.RuleModule> = {
@@ -514,6 +515,7 @@ export const rules: Record<string, Rule.RuleModule> = {
   'no-inconsistent-returns': S3801,
   'no-incorrect-string-concat': S3402,
   'no-infinite-loop': S2189,
+  'no-internal-api-use': S6627,
   'no-intrusive-permissions': S5604,
   'no-invalid-await': S4123,
   'no-invariant-returns': S3516,

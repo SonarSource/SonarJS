@@ -20,69 +20,33 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6627/javascript
 
 import { Rule } from 'eslint';
-import { isRequiredParserServices, generateMeta, report, toSecondaryLocation } from '../helpers';
-import * as estree from 'estree';
-import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
-import { FromSchema } from 'json-schema-to-ts';
-import rspecMeta from './meta.json'; // run "npx ts-node tools/generate-meta.ts" to generate meta.json files
+import estree from 'estree';
+import { generateMeta, isIdentifier } from '../helpers';
+import { meta } from './meta'; // run "npx ts-node tools/generate-meta.ts" to generate meta.json files
 
 const messages = {
   //TODO: add needed messages
-  messageId: 'message body',
+  require: 'message body',
 };
 
-const DEFAULT_PARAM = 10;
-
-const schema = {
-  type: 'array',
-  minItems: 0,
-  maxItems: 1,
-  items: [
-    {
-      // example of parameter, remove if rule has no parameters
-      type: 'object',
-      properties: {
-        param: {
-          type: 'integer',
-        },
-      },
-      additionalProperties: false,
-    },
-  ],
-} as const satisfies JSONSchema4;
-
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(
-    rspecMeta as Rule.RuleMetaData,
-    { schema, messages },
-    true | false /* true if secondary locations */,
-  ),
+  meta: generateMeta(meta as Rule.RuleMetaData, { messages }),
   create(context: Rule.RuleContext) {
-    // get typed rule options with FromSchema helper
-    const param = (context.options as FromSchema<typeof schema>)[0]?.param ?? DEFAULT_PARAM;
-    const services = context.parserServices;
-
-    // remove this condition if the rule does not depend on TS type-checker
-    if (!isRequiredParserServices(services)) {
-      return {};
-    }
-
     return {
       //example
-      Identifier(node: estree.Identifier) {
-        const secondaries: estree.Node[] = [];
-        const message = 'message body';
-        const messageId = 'messageId'; // must exist in messages object of rule metadata
-        if (param) {
-          report(
-            context,
-            {
+      CallExpression(node: estree.CallExpression) {
+        if (isIdentifier(node.callee, 'require') && node.arguments.length === 1) {
+          const [arg] = node.arguments;
+          if (
+            arg.type === 'Literal' &&
+            typeof arg.value === 'string' &&
+            arg.value.includes('node_modules')
+          ) {
+            context.report({
               node,
-              message,
-              messageId,
-            },
-            secondaries.map(n => toSecondaryLocation(n, 'Optional secondary location message')),
-          );
+              messageId: 'require',
+            });
+          }
         }
       },
     };
