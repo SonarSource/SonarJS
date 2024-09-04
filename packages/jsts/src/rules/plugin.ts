@@ -348,6 +348,7 @@ import { rule as S2817 } from './S2817';
 import { rule as S5689 } from './S5689';
 import { rule as S2755 } from './S2755';
 import { rule as S4817 } from './S4817';
+import { rule as S1607 } from './S1607';
 import type { Rule, Linter } from 'eslint';
 
 export const rules: Record<string, Rule.RuleModule> = {
@@ -550,6 +551,7 @@ export const rules: Record<string, Rule.RuleModule> = {
   'no-same-argument-assert': S5863,
   'no-same-line-conditional': S3972,
   'no-self-compare': S6679,
+  'no-skipped-test': S1607,
   'no-small-switch': S1301,
   'no-tab': S105,
   'no-table-as-layout': S5257,

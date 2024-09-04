@@ -60,7 +60,7 @@ export function getAllPackageJsons() {
 }
 
 export function getPackageJsonsCount() {
-  return Object.keys(PackageJsonsByBaseDir).length;
+  return PackageJsonsByBaseDir ? Object.keys(PackageJsonsByBaseDir).length : 0;
 }
 
 export function clearPackageJsons() {

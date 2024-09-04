@@ -324,6 +324,7 @@ public final class CheckList {
       NoReturnTypeAnyCheck.class,
       NoSameArgumentAssertCheck.class,
       NoSelfCompareCheck.class,
+      NoSkippedTestsCheck.class,
       NoSparseArraysCheck.class,
       NoStaticElementInteractionsCheck.class,
       NoStringRefsCheck.class,
