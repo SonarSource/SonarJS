@@ -54,9 +54,9 @@ export const rule: Rule.RuleModule = {
 
     return {
       CallExpression(node: estree.CallExpression) {
-        const constructor = containingConstructor(node);
-        if (constructor && isPromiseLike(node) && !flaggedConstructors.has(constructor)) {
-          flaggedConstructors.add(constructor);
+        const classConstructor = containingConstructor(node);
+        if (classConstructor && isPromiseLike(node) && !flaggedConstructors.has(classConstructor)) {
+          flaggedConstructors.add(classConstructor);
           context.report({
             node: node as estree.Node,
             messageId: 'noAsyncConstructor',
