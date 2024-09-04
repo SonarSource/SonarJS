@@ -1,0 +1,27 @@
+{
+  "title": "Methods should not contain selector arguments",
+  "type": "CODE_SMELL",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "MEDIUM"
+    },
+    "attribute": "FOCUSED"
+  },
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "15min"
+  },
+  "tags": [
+    "design"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-2301",
+  "sqKey": "S2301",
+  "scope": "Main",
+  "quickfix": "unknown",
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]
+}

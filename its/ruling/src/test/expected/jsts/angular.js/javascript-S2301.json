@@ -1,0 +1,29 @@
+{
+"angular.js:src/Angular.js": [
+2004
+],
+"angular.js:src/ng/compile.js": [
+2230
+],
+"angular.js:src/ng/http.js": [
+367
+],
+"angular.js:src/ng/interpolate.js": [
+245,
+312
+],
+"angular.js:src/ng/log.js": [
+69
+],
+"angular.js:src/ng/q.js": [
+249,
+398
+],
+"angular.js:src/ng/rootScope.js": [
+249,
+274
+],
+"angular.js:src/ngMock/angular-mocks.js": [
+1653
+]
+}

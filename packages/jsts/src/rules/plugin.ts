@@ -352,6 +352,7 @@ import { rule as S6627 } from './S6627';
 import { rule as S1607 } from './S1607';
 import { rule as S7060 } from './S7060';
 import type { Rule, Linter } from 'eslint';
+import { S2301 } from './S2301';
 import { rule as S7059 } from './S7059';
 
 export const rules: Record<string, Rule.RuleModule> = {
@@ -682,6 +683,7 @@ export const rules: Record<string, Rule.RuleModule> = {
   'x-powered-by': S5689,
   'xml-parser-xxe': S2755,
   xpath: S4817,
+  s2301: S2301,
 };
 
 const recommendedLegacyConfig: Linter.Config = { plugins: ['sonarjs'], rules: {} };

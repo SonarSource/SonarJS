@@ -1,0 +1,19 @@
+{
+"it-tools:src/composable/copy.ts": [
+25
+],
+"it-tools:src/tools/lorem-ipsum-generator/lorem-ipsum-generator.service.ts": [
+207,
+211
+],
+"it-tools:src/tools/string-obfuscator/string-obfuscator.model.ts": [
+12
+],
+"it-tools:src/utils/base64.ts": [
+9,
+9,
+14,
+32,
+37
+]
+}
