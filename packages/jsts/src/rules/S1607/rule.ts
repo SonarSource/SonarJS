@@ -238,7 +238,10 @@ export const rule: Rule.RuleModule = {
      */
     function hasExplanationComment(node: estree.Node): boolean {
       const comments = context.sourceCode.getCommentsBefore(node);
-      return comments.some(comment => comment.loc!.end.line === node.loc!.start.line - 1);
+      return comments.some(
+        comment =>
+          comment.loc!.end.line === node.loc!.start.line - 1 && comment.value.trim().length > 0,
+      );
     }
   },
 };

@@ -34,3 +34,10 @@ xdescribe('foo', function() { // Noncompliant
     done();
   });
 });
+
+describe('foo', function() {
+  //
+  xit('should do something', function(done) { // Noncompliant
+    done();
+  });
+});
