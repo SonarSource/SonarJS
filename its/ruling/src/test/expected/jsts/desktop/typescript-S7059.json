@@ -1,0 +1,50 @@
+{
+"desktop:app/src/crash/crash-app.tsx": [
+97
+],
+"desktop:app/src/lib/databases/github-user-database.ts": [
+69
+],
+"desktop:app/src/lib/databases/issues-database.ts": [
+18
+],
+"desktop:app/src/lib/databases/pull-request-database.ts": [
+89
+],
+"desktop:app/src/lib/databases/repositories-database.ts": [
+107
+],
+"desktop:app/src/lib/stats/stats-store.ts": [
+423
+],
+"desktop:app/src/lib/stores/accounts-store.ts": [
+63
+],
+"desktop:app/src/lib/stores/app-store.ts": [
+527
+],
+"desktop:app/src/lib/stores/commit-status-store.ts": [
+167
+],
+"desktop:app/src/lib/stores/pull-request-coordinator.ts": [
+54
+],
+"desktop:app/src/main-process/ordered-webrequest.ts": [
+146
+],
+"desktop:app/src/ui/add-repository/create-repository.tsx": [
+142
+],
+"desktop:app/src/ui/app.tsx": [
+231
+],
+"desktop:app/src/ui/check-runs/ci-check-run-rerun-dialog.tsx": [
+61
+],
+"desktop:app/src/ui/clone-repository/clone-repository.tsx": [
+183
+],
+"desktop:app/src/ui/preferences/appearance.tsx": [
+71
+]
+}
