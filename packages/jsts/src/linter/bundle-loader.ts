@@ -23,6 +23,7 @@ import { tsEslintRules } from '../rules/typescript-eslint';
 import { rules as reactESLintRules } from 'eslint-plugin-react';
 import { rules as reactA11yRules } from 'eslint-plugin-jsx-a11y';
 import { rules as importRules } from 'eslint-plugin-import';
+import { rules as pluginTopLevelRules } from '@ericcornelissen/eslint-plugin-top';
 import { rules as internalRules } from '../rules';
 import { customRules as internalCustomRules, CustomRule } from './custom-rules';
 import { debug, getContext } from '@sonar/shared';
@@ -64,6 +65,7 @@ const loaders: { [key: string]: Function } = {
       reactESLintRules,
       reactA11yRules,
       importRules,
+      pluginTopLevelRules,
     ];
     for (const dependencyRules of dependencies) {
       for (const [name, module] of Object.entries(dependencyRules)) {

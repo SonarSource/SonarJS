@@ -17,25 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.checks;
-
-import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.Check;
-import org.sonar.plugins.javascript.api.JavaScriptRule;
-import org.sonar.plugins.javascript.api.TypeScriptRule;
-
-import java.util.Collections;
-import java.util.List;
-
-@TypeScriptRule
-@JavaScriptRule
-@Rule(key = "S7063")
-public class NoTopLevelSideEffectsCheck extends Check {
-  @Override
-  public List<Object> configurations() {
-    return Collections.singletonList(new Config());
-  }
-  private static class Config {
-    boolean commonjs = true;
-  }
+declare module '@ericcornelissen/eslint-plugin-top' {
+  import { Rule } from 'eslint';
+  export const rules: { [name: string]: Rule.RuleModule };
 }

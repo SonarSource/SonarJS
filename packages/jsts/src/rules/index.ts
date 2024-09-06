@@ -24,7 +24,6 @@ import { rules as a11yPluginRules } from 'eslint-plugin-jsx-a11y';
 import { tsEslintRules } from './typescript-eslint';
 import { rules as importPluginRules } from 'eslint-plugin-import';
 import { rules as reactPluginRules } from 'eslint-plugin-react';
-import { rules as pluginTopLevelRules } from '@ericcornelissen/eslint-plugin-top';
 import { rules as pluginRules } from './plugin';
 import { rule as S2376 } from './S2376'; // accessor-pairs
 import { rule as S1077 } from './S1077'; // alt-text
@@ -231,6 +230,7 @@ import { rule as S105 } from './S105'; // no-tab
 import { rule as S5257 } from './S5257'; // no-table-as-layout
 import { rule as S4327 } from './S4327'; // no-this-alias
 import { rule as S3696 } from './S3696'; // no-throw-literal
+import { rule as S7063 } from './S7063'; // no-top-level-side-effects
 import { rule as S4822 } from './S4822'; // no-try-promise
 import { rule as S4623 } from './S4623'; // no-undefined-argument
 import { rule as S2138 } from './S2138'; // no-undefined-assignment
@@ -782,7 +782,7 @@ const bridgeRules: { [key: string]: Rule.RuleModule } = {
   S6957,
   S6958,
   S6959,
-  S7063: pluginTopLevelRules['no-top-level-side-effects'],
+  S7063,
   S878: eslintRules['no-sequences'],
   S881,
   S888,

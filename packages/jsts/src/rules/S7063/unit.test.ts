@@ -17,25 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.checks;
+import { rule } from './';
+import { JavaScriptRuleTester } from '../../../tests/tools';
 
-import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.Check;
-import org.sonar.plugins.javascript.api.JavaScriptRule;
-import org.sonar.plugins.javascript.api.TypeScriptRule;
+const ruleTester = new JavaScriptRuleTester();
 
-import java.util.Collections;
-import java.util.List;
-
-@TypeScriptRule
-@JavaScriptRule
-@Rule(key = "S7063")
-public class NoTopLevelSideEffectsCheck extends Check {
-  @Override
-  public List<Object> configurations() {
-    return Collections.singletonList(new Config());
-  }
-  private static class Config {
-    boolean commonjs = true;
-  }
-}
+ruleTester.run(`Decorated rule should provide suggestion with proper message`, rule, {
+  valid: [
+    {
+      code: `const x = 10; export const x;`,
+    },
+  ],
+  invalid: [
+    {
+      code: `console.log('Small log'); export const x = 10;`,
+      errors: [
+        {
+          message: 'Side effects at the top level are not allowed',
+        },
+      ],
+    },
+  ],
+});

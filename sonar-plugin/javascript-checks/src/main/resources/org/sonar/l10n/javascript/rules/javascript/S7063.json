@@ -20,5 +20,9 @@
       "RELIABILITY": "HIGH"
     },
     "attribute": "MODULAR"
-  }
+  },
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]
 }
