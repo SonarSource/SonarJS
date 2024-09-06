@@ -21,32 +21,34 @@
 
 import { Rule } from 'eslint';
 import estree from 'estree';
-import { generateMeta, isIdentifier } from '../helpers';
-import { meta } from './meta'; // run "npx ts-node tools/generate-meta.ts" to generate meta.json files
+import { generateMeta, isIdentifier, isStringLiteral } from '../helpers';
+import { meta } from './meta';
 
 const messages = {
-  //TODO: add needed messages
-  require: 'message body',
+  default: 'Do not use internal APIs of your dependencies',
 };
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta as Rule.RuleMetaData, { messages }),
   create(context: Rule.RuleContext) {
     return {
-      //example
       CallExpression(node: estree.CallExpression) {
         if (isIdentifier(node.callee, 'require') && node.arguments.length === 1) {
           const [arg] = node.arguments;
-          if (
-            arg.type === 'Literal' &&
-            typeof arg.value === 'string' &&
-            arg.value.includes('node_modules')
-          ) {
+          if (isStringLiteral(arg) && arg.value.includes('node_modules')) {
             context.report({
               node,
-              messageId: 'require',
+              messageId: 'default',
             });
           }
+        }
+      },
+      ImportDeclaration(node: estree.ImportDeclaration) {
+        if (isStringLiteral(node.source) && node.source.value.includes('node_modules')) {
+          context.report({
+            node,
+            messageId: 'default',
+          });
         }
       },
     };
