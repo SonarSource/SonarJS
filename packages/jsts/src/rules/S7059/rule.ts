@@ -39,7 +39,7 @@ export const rule: Rule.RuleModule = {
       return {};
     }
     function isPromiseLike(expr: estree.Expression) {
-      return isRequiredParserServices(services) && isThenable(expr, services);
+      return isThenable(expr, services);
     }
 
     function containingConstructor(node: estree.Expression) {
