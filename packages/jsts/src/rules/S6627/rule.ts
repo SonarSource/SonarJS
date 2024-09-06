@@ -44,7 +44,8 @@ export const rule: Rule.RuleModule = {
         }
       },
       ImportDeclaration(node: estree.ImportDeclaration) {
-        if (isStringLiteral(node.source) && node.source.value.includes('node_modules')) {
+         const moduleName = node.source.value as string;
+        if (moduleName.includes('node_modules')) {
           context.report({
             node,
             messageId: 'default',
