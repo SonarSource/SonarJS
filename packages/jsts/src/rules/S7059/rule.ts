@@ -30,7 +30,7 @@ const flaggedConstructors = new Set();
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta as Rule.RuleMetaData, {
     messages: {
-      noAsyncConstructor: 'Move this asynchronous operation outside of the constructor.',
+      noAsyncConstructor: 'Refactor this asynchronous operation outside of the constructor.',
     },
   }),
   create(context: Rule.RuleContext) {
