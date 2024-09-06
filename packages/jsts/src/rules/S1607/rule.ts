@@ -234,14 +234,21 @@ export const rule: Rule.RuleModule = {
     }
 
     /**
-     * Checks if the node denoting a test has an explanation comment on the line above.
+     * Checks if the node denoting a test has an adjacent explanation comment.
      */
-    function hasExplanationComment(node: estree.Node): boolean {
-      const comments = context.sourceCode.getCommentsBefore(node);
-      return comments.some(
-        comment =>
-          comment.loc!.end.line === node.loc!.start.line - 1 && comment.value.trim().length > 0,
-      );
+    function hasExplanationComment(node: estree.CallExpression) {
+      function isAdjacent(comment: estree.Comment, node: estree.Node) {
+        const commentLine = comment.loc!.end.line;
+        const nodeLine = node.loc!.start.line;
+        return Math.abs(commentLine - nodeLine) <= 1;
+      }
+
+      function hasContent(comment: estree.Comment) {
+        return /\p{L}/u.test(comment.value.trim());
+      }
+
+      const comments = context.sourceCode.getAllComments();
+      return comments.some(comment => isAdjacent(comment, node) && hasContent(comment));
     }
   },
 };
