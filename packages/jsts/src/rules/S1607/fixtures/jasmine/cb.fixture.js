@@ -8,42 +8,56 @@ describe('foo', function() {
 
 describe('foo', function() {
   // Reason: There is a bug in the code
-  xit('should do something', function(done) { // Compliant
+  xit('should do something', function(done) {
     done();
   });
 });
 
 describe('foo', function() {
-  xit('should do something', function(done) { // Compliant
+  xit('should do something', function(done) { // Reason: There is a bug in the code
+    done();
+  });
+});
+
+describe('foo', function() {
+  xit('should do something', function(done) {
     // Reason: There is a bug in the code
     done();
   });
 });
 
+// Noncompliant@32 {{Remove this unit test or explain why it is ignored.}}
+
 describe('foo', function() {
-  xit('should do something', function(done) { // Noncompliant {{Remove this unit test or explain why it is ignored.}}
+  xit('should do something', function(done) {
 //^^^
     done();
   });
 });
 
+// Noncompliant@41
+
 describe('foo', function() {
-  xcontext('foo', function() { // Noncompliant
+  xcontext('foo', function() {
     it('should do something', function(done) {
       done();
     });
   });
 });
 
-xdescribe('foo', function() { // Noncompliant
+// Noncompliant@50
+
+xdescribe('foo', function() {
   it('should do something', function(done) {
     done();
   });
 });
 
+// Noncompliant@60
+
 describe('foo', function() {
   //
-  xit('should do something', function(done) { // Noncompliant
+  xit('should do something', function(done) {
     done();
   });
 });

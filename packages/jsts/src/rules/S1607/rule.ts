@@ -240,7 +240,7 @@ export const rule: Rule.RuleModule = {
       function isAdjacent(comment: estree.Comment, node: estree.Node) {
         const commentLine = comment.loc!.end.line;
         const nodeLine = node.loc!.start.line;
-        return commentLine === nodeLine - 1 || commentLine === nodeLine + 1;
+        return Math.abs(commentLine - nodeLine) <= 1;
       }
 
       function hasContent(comment: estree.Comment) {
