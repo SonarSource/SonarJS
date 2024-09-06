@@ -28,7 +28,7 @@
     "precommit": "pretty-quick --staged",
     "count-rules": "node tools/count-rules.js",
     "_:bridge:copy-protofiles": "cpy --flat packages/jsts/src/parsers/estree.proto sonar-plugin/bridge/src/main/protobuf && cpy --flat packages/jsts/src/parsers/estree.proto lib/jsts/src/parsers",
-    "_:bridge:clear": "rimraf lib/*",
+    "_:bridge:clear": "rimraf lib/* && rimraf packages/jsts/src/rules/lib",
     "_:plugin:prepare-bridge": "npm pack && node tools/check-distribution-filepath-length.js && npm run _:plugin:copy-bridge && npm run generate-rules-list",
     "_:plugin-fetch-node": "node tools/fetch-node/scripts/wrapper.mjs",
     "_:plugin:pre-build": "npm run bridge:build && npm run _:plugin:prepare-bridge && npm run _:plugin-fetch-node",

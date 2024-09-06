@@ -219,6 +219,7 @@ import { rule as S4324 } from './S4324'; // no-return-type-any
 import { rule as S5863 } from './S5863'; // no-same-argument-assert
 import { rule as S3972 } from './S3972'; // no-same-line-conditional
 import { rule as S6679 } from './S6679'; // no-self-compare
+import { rule as S1607 } from './S1607'; // no-skipped-tests
 import { rule as S1301 } from './S1301'; // no-small-switch
 import { rule as S105 } from './S105'; // no-tab
 import { rule as S5257 } from './S5257'; // no-table-as-layout
@@ -431,6 +432,7 @@ const bridgeRules: { [key: string]: Rule.RuleModule } = {
   S1537: tsEslintRules['comma-dangle'],
   S1539: eslintRules['strict'],
   S1541,
+  S1607,
   S1656: eslintRules['no-self-assign'],
   S1751,
   S1763,
