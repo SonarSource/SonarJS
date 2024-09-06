@@ -20,12 +20,12 @@
 // https://sonarsource.github.io/rspec/#/rspec/S7059/javascript
 
 import { Rule } from 'eslint';
-import { isRequiredParserServices, generateMeta, isThenable } from '../helpers';
+import { isRequiredParserServices, generateMeta, isThenable, isFunctionNode } from '../helpers';
 import * as estree from 'estree';
 import { meta } from './meta';
 import { AST_NODE_TYPES } from '@typescript-eslint/utils';
 
-const flaggedConstructors = new Set();
+const flaggedStatements = new Set();
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta as Rule.RuleMetaData, {
@@ -38,25 +38,38 @@ export const rule: Rule.RuleModule = {
     if (!isRequiredParserServices(services)) {
       return {};
     }
-    function isPromiseLike(expr: estree.Expression) {
-      return isThenable(expr, services);
-    }
 
-    function containingConstructor(node: estree.Expression) {
-      return context.sourceCode.getAncestors(node).find(node => {
-        return (
+    function asyncStatementInsideConstructor(node: estree.Expression) {
+      let classConstructor: estree.MethodDefinition | undefined;
+      let statement: estree.Statement | undefined;
+      context.sourceCode.getAncestors(node).forEach(node => {
+        if (
           node.type === AST_NODE_TYPES.MethodDefinition &&
           node.key.type === AST_NODE_TYPES.Identifier &&
           node.key.name === 'constructor'
-        );
+        ) {
+          classConstructor = node;
+        }
+        if (classConstructor && node.type.endsWith('Statement')) {
+          statement = node as estree.Statement;
+        }
+        // If we find a function declaration it should not be considered as part of the constructor
+        if (classConstructor && statement && isFunctionNode(node)) {
+          statement = undefined;
+          classConstructor = undefined;
+        }
       });
+      return statement;
     }
 
     return {
       CallExpression(node: estree.CallExpression) {
-        const classConstructor = containingConstructor(node);
-        if (classConstructor && isPromiseLike(node) && !flaggedConstructors.has(classConstructor)) {
-          flaggedConstructors.add(classConstructor);
+        if (!isThenable(node, services)) {
+          return;
+        }
+        const statement = asyncStatementInsideConstructor(node);
+        if (statement && !flaggedStatements.has(statement)) {
+          flaggedStatements.add(statement);
           context.report({
             node: node as estree.Node,
             messageId: 'noAsyncConstructor',
@@ -64,7 +77,7 @@ export const rule: Rule.RuleModule = {
         }
       },
       'Program:exit'() {
-        flaggedConstructors.clear();
+        flaggedStatements.clear();
       },
     };
   },
