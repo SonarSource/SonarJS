@@ -51,6 +51,7 @@
     "eslint-plugin-jsx-a11y": "^6.8.0",
     "eslint-plugin-react": "^7.35.0",
     "eslint-plugin-react-hooks": "4.6.0",
+    "@ericcornelissen/eslint-plugin-top": "3.4.0",
     "eslint-scope": "8.0.1",
     "functional-red-black-tree": "1.0.1",
     "jsx-ast-utils": "^3.3.5",
