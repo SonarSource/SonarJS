@@ -6,8 +6,8 @@ for disabling tests are essential to ensure they are revisited and re-enabled on
 <p>This rule raises an issue when a test construct from Jasmine, Jest, Mocha, or Node.js Test Runner is disabled without providing an explanation. It
 relies on the presence of a package.json file and looks at the dependencies to determine which testing framework is used.</p>
 <h2>How to fix it in Jasmine</h2>
-<p>A comment should be added before the line of the unit test explaining why the test was disabled. Alternatively, if the test is no longer relevant,
-it should be removed entirely.</p>
+<p>A comment should be added before or after the line of the unit test explaining why the test was disabled. Alternatively, if the test is no longer
+relevant, it should be removed entirely.</p>
 <h3>Code examples</h3>
 <h4>Noncompliant code example</h4>
 <pre data-diff-id="1" data-diff-type="noncompliant">
@@ -27,8 +27,8 @@ describe('foo', function() {
 });
 </pre>
 <h2>How to fix it in Jest</h2>
-<p>A comment should be added before the line of the unit test explaining why the test was disabled. Alternatively, if the test is no longer relevant,
-it should be removed entirely.</p>
+<p>A comment should be added before or after the line of the unit test explaining why the test was disabled. Alternatively, if the test is no longer
+relevant, it should be removed entirely.</p>
 <h3>Code examples</h3>
 <h4>Noncompliant code example</h4>
 <pre data-diff-id="2" data-diff-type="noncompliant">
@@ -48,8 +48,8 @@ describe('foo', function() {
 });
 </pre>
 <h2>How to fix it in Mocha</h2>
-<p>A comment should be added before the line of the unit test explaining why the test was disabled. Alternatively, if the test is no longer relevant,
-it should be removed entirely.</p>
+<p>A comment should be added before or after the line of the unit test explaining why the test was disabled. Alternatively, if the test is no longer
+relevant, it should be removed entirely.</p>
 <h3>Code examples</h3>
 <h4>Noncompliant code example</h4>
 <pre data-diff-id="3" data-diff-type="noncompliant">

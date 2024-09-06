@@ -13,6 +13,12 @@ describe('foo', function() {
   });
 });
 
+describe('foo', function() {
+  xit('should do something', function(done) { // Compliant
+    // Reason: There is a bug in the code
+    done();
+  });
+});
 
 describe('foo', function() {
   xit('should do something', function(done) { // Noncompliant {{Remove this unit test or explain why it is ignored.}}
