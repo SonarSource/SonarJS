@@ -4,6 +4,7 @@ async function fetchData() {
 
 class MyClass {
   constructor() {
+    this.init = () => this.data = fetchData(); // compliant, declarations are not executed
     this.data = null;
   }
 
@@ -20,6 +21,7 @@ class MyClass {
 
 class MyClass {
   constructor() {
+    console.log('correct');
     Promise.resolve().then(() => this.data = fetchData()); //Noncompliant
   }
 }

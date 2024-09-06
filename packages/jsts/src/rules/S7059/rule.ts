@@ -39,15 +39,23 @@ export const rule: Rule.RuleModule = {
       return {};
     }
 
+    /**
+     * Given a Promise call, get the parent statement of the async call.
+     * We want to ensure that it is inside a constructor, but not part of a function declaration:
+     * constructor() {
+     *  foo();
+     * }
+     * and not
+     * constructor() {
+     *  myFunction = () => { foo() }
+     * }
+     * @param node : promise call
+     */
     function asyncStatementInsideConstructor(node: estree.Expression) {
       let classConstructor: estree.MethodDefinition | undefined;
       let statement: estree.Statement | undefined;
       context.sourceCode.getAncestors(node).forEach(node => {
-        if (
-          node.type === AST_NODE_TYPES.MethodDefinition &&
-          node.key.type === AST_NODE_TYPES.Identifier &&
-          node.key.name === 'constructor'
-        ) {
+        if (node.type === AST_NODE_TYPES.MethodDefinition && node.kind === 'constructor') {
           classConstructor = node;
         }
         if (classConstructor && node.type.endsWith('Statement')) {
@@ -67,11 +75,12 @@ export const rule: Rule.RuleModule = {
         if (!isThenable(node, services)) {
           return;
         }
+        // we want to raise on the parent statement
         const statement = asyncStatementInsideConstructor(node);
         if (statement && !flaggedStatements.has(statement)) {
           flaggedStatements.add(statement);
           context.report({
-            node: node as estree.Node,
+            node: statement,
             messageId: 'noAsyncConstructor',
           });
         }
