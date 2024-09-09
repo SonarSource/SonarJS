@@ -32,6 +32,9 @@ ruleTester.run('"Array.reduce()" calls should include an initial value', rule, {
     {
       code: `require('needed'); export const x = 10;`,
     },
+    {
+      code: `console.log('Hello World!');`,
+    },
   ],
   invalid: [
     {
@@ -64,6 +67,14 @@ ruleTester.run('"Array.reduce()" calls should include an initial value', rule, {
 })
 
 export default rootReducer`,
+      errors: 1,
+    },
+    {
+      code: `if (true) {} export const x = 10;`,
+      errors: 1,
+    },
+    {
+      code: `let x = 10; x = externalApi(); export const y = 10;`,
       errors: 1,
     },
   ],
