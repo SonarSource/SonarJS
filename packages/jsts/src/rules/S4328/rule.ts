@@ -28,6 +28,7 @@ import * as ts from 'typescript';
 import { generateMeta, RequiredParserServices, getDependencies } from '../helpers';
 import { FromSchema } from 'json-schema-to-ts';
 import { meta, schema } from './meta';
+import { Minimatch } from 'minimatch';
 
 const messages = {
   removeOrAddDependency: 'Either remove this import or add it as a dependency.',
@@ -38,14 +39,8 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     const whitelist = (context.options as FromSchema<typeof schema>)[0]?.whitelist || [];
     const dependencies = getDependencies(context.filename);
-    const aliasedPathsMappingPatterns = extractPathMappingPatterns(
-      context.sourceCode.parserServices,
-    );
+    const aliases = extractPathMappingPatterns(context.sourceCode.parserServices);
     const baseUrl = getBaseUrl(context.sourceCode.parserServices);
-    if (aliasedPathsMappingPatterns === 'matchAll') {
-      // deactivates this rule altogether.
-      return {};
-    }
     return {
       CallExpression: (node: estree.Node) => {
         const call = node as estree.CallExpression;
@@ -61,8 +56,8 @@ export const rule: Rule.RuleModule = {
               argument,
               requireToken.loc!,
               dependencies,
+              aliases,
               whitelist,
-              aliasedPathsMappingPatterns,
               baseUrl,
               context,
             );
@@ -76,8 +71,8 @@ export const rule: Rule.RuleModule = {
           module,
           importToken!.loc,
           dependencies,
+          aliases,
           whitelist,
-          aliasedPathsMappingPatterns,
           baseUrl,
           context,
         );
@@ -89,9 +84,9 @@ export const rule: Rule.RuleModule = {
 function raiseOnImplicitImport(
   module: estree.Literal,
   loc: estree.SourceLocation,
-  dependencies: Set<string>,
+  dependencies: Set<string | Minimatch>,
+  aliases: Minimatch[],
   whitelist: string[],
-  aliasedPathsMappingPatterns: PathMappingPattern[],
   baseUrl: string | undefined,
   context: Rule.RuleContext,
 ) {
@@ -104,7 +99,7 @@ function raiseOnImplicitImport(
     return;
   }
 
-  if (aliasedPathsMappingPatterns.some(pattern => pattern.isApplicableTo(moduleName))) {
+  if (aliases.some(pattern => pattern.match(moduleName))) {
     return;
   }
 
@@ -121,16 +116,28 @@ function raiseOnImplicitImport(
   }
 
   const packageName = getPackageName(moduleName);
-  if (
-    !whitelist.includes(packageName) &&
-    !builtins.includes(packageName) &&
-    !dependencies.has(packageName)
-  ) {
-    context.report({
-      messageId: 'removeOrAddDependency',
-      loc,
-    });
+  if (whitelist.includes(packageName)) {
+    return;
   }
+
+  if (builtins.includes(packageName)) {
+    return;
+  }
+
+  for (const dependency of dependencies) {
+    if (typeof dependency === 'string') {
+      if (dependency === packageName) {
+        return;
+      }
+    } else if (dependency.match(moduleName)) {
+      return;
+    }
+  }
+
+  context.report({
+    messageId: 'removeOrAddDependency',
+    loc,
+  });
 }
 
 function getPackageName(name: string) {
@@ -142,7 +149,7 @@ function getPackageName(name: string) {
   if (!name.startsWith('@')) {
     return parts[0];
   } else {
-    return `${parts[0]}/${parts[1]}`;
+    return parts[1];
   }
 }
 
@@ -150,56 +157,11 @@ function getPackageName(name: string) {
  * The matching pattern part of a path mapping specified
  * in `paths` in `tsconfig.json`.
  */
-interface PathMappingPattern {
-  isApplicableTo(name: string): boolean;
-}
-
-class PathMappingNoAsteriskPattern implements PathMappingPattern {
-  constructor(private readonly value: string) {}
-  isApplicableTo(name: string): boolean {
-    return name === this.value;
-  }
-}
-
-class PathMappingSingleAsteriskPattern implements PathMappingPattern {
-  constructor(
-    private readonly prefix: string,
-    private readonly suffix: string,
-  ) {}
-  isApplicableTo(name: string): boolean {
-    return name.startsWith(this.prefix) && name.endsWith(this.suffix);
-  }
-}
-
-const PATH_MAPPING_ASTERISK_PATTERN = /^([^*]*)\*([^*]*)$/; // matches any string with single asterisk '*'
-const PATH_MAPPING_ASTERISK_PATTERN_PREFIX_IDX = 1;
-const PATH_MAPPING_ASTERISK_PATTERN_SUFFIX_IDX = 2;
-function extractPathMappingPatterns(
-  parserServices: RequiredParserServices,
-): PathMappingPattern[] | 'matchAll' {
+function extractPathMappingPatterns(parserServices: RequiredParserServices): Minimatch[] {
   const compilerOptions = parserServices.program?.getCompilerOptions();
-  const paths = compilerOptions?.paths ?? [];
-  const pathMappingPatterns: PathMappingPattern[] = [];
-  for (const p in paths) {
-    if (p === '*') {
-      return 'matchAll';
-    } else {
-      const m = p.match(PATH_MAPPING_ASTERISK_PATTERN);
-      if (m) {
-        pathMappingPatterns.push(
-          new PathMappingSingleAsteriskPattern(
-            m[PATH_MAPPING_ASTERISK_PATTERN_PREFIX_IDX],
-            m[PATH_MAPPING_ASTERISK_PATTERN_SUFFIX_IDX],
-          ),
-        );
-      } else if (!p.includes('*')) {
-        pathMappingPatterns.push(new PathMappingNoAsteriskPattern(p));
-      } else {
-        // This case should not occur: `tsc` emits error if there is more than one asterisk
-      }
-    }
-  }
-  return pathMappingPatterns;
+  return compilerOptions?.paths
+    ? Object.keys(compilerOptions?.paths).map(pattern => new Minimatch(pattern, { nocase: true }))
+    : [];
 }
 
 function getBaseUrl(parserServices: RequiredParserServices): string | undefined {

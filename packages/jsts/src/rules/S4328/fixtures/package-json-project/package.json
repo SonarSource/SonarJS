@@ -9,5 +9,15 @@
   },
   "peerDependencies": {
     "peerDependency": "latest"
-  }
+  },
+  "optionalDependencies": {
+    "optionalDependency": "latest"
+  },
+  "_moduleAliases": {
+    "moduleAlias": "./module1"
+  },
+  "workspaces": [
+    "project1",
+    "project2"
+  ]
 }
