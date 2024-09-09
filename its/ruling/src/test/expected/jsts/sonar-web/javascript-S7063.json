@@ -1,0 +1,79 @@
+{
+"sonar-web:src/main/js/apps/issues/workspace-home-view.js": [
+5
+],
+"sonar-web:src/main/js/apps/overview/components/coverage-measures-list.js": [
+24
+],
+"sonar-web:src/main/js/apps/overview/gate/gate-condition.js": [
+8
+],
+"sonar-web:src/main/js/apps/update-center/plugins.js": [
+6
+],
+"sonar-web:src/main/js/components/charts/donut-chart.js": [
+8
+],
+"sonar-web:src/main/js/components/charts/treemap.js": [
+9
+],
+"sonar-web:src/main/js/components/navigator/filters/ajax-select-filters.js": [
+12,
+50,
+65,
+74,
+101,
+214,
+347,
+376,
+407,
+437
+],
+"sonar-web:src/main/js/components/navigator/filters/base-filters.js": [
+8,
+20,
+25,
+45
+],
+"sonar-web:src/main/js/components/navigator/filters/choice-filters.js": [
+8,
+195
+],
+"sonar-web:src/main/js/components/navigator/filters/favorite-filters.js": [
+8,
+46
+],
+"sonar-web:src/main/js/components/navigator/filters/metric-filters.js": [
+6
+],
+"sonar-web:src/main/js/components/navigator/filters/more-criteria-filters.js": [
+7,
+59
+],
+"sonar-web:src/main/js/components/navigator/filters/range-filters.js": [
+6,
+51,
+166
+],
+"sonar-web:src/main/js/components/navigator/filters/string-filters.js": [
+6
+],
+"sonar-web:src/main/js/components/source-viewer/helpers/code-with-issue-locations-helper.js": [
+120
+],
+"sonar-web:src/main/js/helpers/latinize.js": [
+353
+],
+"sonar-web:src/main/js/main/nav/global/search-view.js": [
+11,
+34,
+39
+],
+"sonar-web:src/main/js/widgets/issue-filter/widget.js": [
+203,
+218,
+231,
+236,
+237
+]
+}

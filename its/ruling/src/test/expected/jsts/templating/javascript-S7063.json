@@ -1,0 +1,13 @@
+{
+"templating:src/lib/index.js": [
+25,
+28
+],
+"templating:src/lib/index_ce_di.js": [
+15
+],
+"templating:src/lib/load_barrier.js": [
+24,
+30
+]
+}

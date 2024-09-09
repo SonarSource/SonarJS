@@ -1,0 +1,18 @@
+{
+"fireact:src/App.js": [
+43
+],
+"fireact:src/components/FirebaseAuth/firebase.js": [
+7,
+8,
+9
+],
+"fireact:src/components/Layout/index.js": [
+33,
+42,
+60
+],
+"fireact:src/serviceWorker.js": [
+13
+]
+}

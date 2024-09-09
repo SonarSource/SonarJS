@@ -1,0 +1,196 @@
+{
+"console:src/__mocks__/redux-mock-store.ts": [
+5
+],
+"console:src/components/Datepicker/Datepicker.tsx": [
+11
+],
+"console:src/components/RedirectOnMount/RedirectOnMount.tsx": [
+11
+],
+"console:src/utils/metrics.ts": [
+4
+],
+"console:src/views/FunctionsView/FunctionLogs/FunctionLogs.tsx": [
+152
+],
+"console:src/views/FunctionsView/FunctionLogs/Log.tsx": [
+130
+],
+"console:src/views/FunctionsView/FunctionPopup/FunctionPopup.tsx": [
+582,
+584
+],
+"console:src/views/FunctionsView/FunctionRow.tsx": [
+267
+],
+"console:src/views/FunctionsView/FunctionsList.tsx": [
+68
+],
+"console:src/views/FunctionsView/FunctionsView.tsx": [
+45
+],
+"console:src/views/Integrations/Algolia/AlgoliaView.tsx": [
+312,
+316
+],
+"console:src/views/Integrations/Algolia/CreateAlgoliaIndex.tsx": [
+252,
+254
+],
+"console:src/views/Integrations/AlgoliaPopup/AlgoliaIndexPopup/AlgoliaIndexPopup.tsx": [
+204
+],
+"console:src/views/Integrations/AlgoliaPopup/AlgoliaIndexPopup/AlgoliaIndexPopupModels.tsx": [
+92
+],
+"console:src/views/Integrations/AlgoliaPopup/AlgoliaPopup.tsx": [
+154,
+158
+],
+"console:src/views/PermissionsView/PermissionPopup/AffectedFields.tsx": [
+138
+],
+"console:src/views/PermissionsView/PermissionPopup/PermissionPopup.tsx": [
+508,
+510
+],
+"console:src/views/PermissionsView/PermissionsList/ModelPermissions/ModelPermissionFields.tsx": [
+70
+],
+"console:src/views/PermissionsView/PermissionsList/ModelPermissions/ModelPermissionList.tsx": [
+38
+],
+"console:src/views/PermissionsView/PermissionsList/ModelPermissions/ModelPermissionsHeader.tsx": [
+95
+],
+"console:src/views/PermissionsView/PermissionsList/PermissionsList.tsx": [
+39
+],
+"console:src/views/PermissionsView/PermissionsView.tsx": [
+51
+],
+"console:src/views/PermissionsView/RelationPermissionPopup/RelationPermissionPopup.tsx": [
+424,
+426
+],
+"console:src/views/PermissionsView/RelationPermissionsList/AllRelationPermissionsList.tsx": [
+37
+],
+"console:src/views/PermissionsView/RelationPermissionsList/RelationPermissions/RelationPermissionList.tsx": [
+39
+],
+"console:src/views/ProjectRootView/CloneProjectPopup.tsx": [
+275,
+277
+],
+"console:src/views/ProjectRootView/ProjectRootView.tsx": [
+375,
+380
+],
+"console:src/views/ProjectRootView/RootRedirectView.tsx": [
+73
+],
+"console:src/views/ProjectRootView/SideNav.tsx": [
+522,
+536
+],
+"console:src/views/ProjectSettingsView/PermanentAuthTokenRow.tsx": [
+94
+],
+"console:src/views/ProjectSettingsView/ProjectSettingsView.tsx": [
+230
+],
+"console:src/views/RelationsPopup/RelationPopup.tsx": [
+733
+],
+"console:src/views/SchemaView/EnumsOverview/EnumBox.tsx": [
+330
+],
+"console:src/views/SchemaView/EnumsOverview/EnumList.tsx": [
+93
+],
+"console:src/views/SchemaView/SchemaEditor.tsx": [
+375
+],
+"console:src/views/SchemaView/SchemaOverview/TypeBox.tsx": [
+474
+],
+"console:src/views/Settings/Authentication/Tokens.tsx": [
+185
+],
+"console:src/views/Settings/Billing/Billing.tsx": [
+418
+],
+"console:src/views/Settings/Billing/CreditCardInputSection.tsx": [
+516
+],
+"console:src/views/Settings/Export/Export.tsx": [
+158
+],
+"console:src/views/Settings/General/DangerZone.tsx": [
+234
+],
+"console:src/views/Settings/General/ProjectInfo.tsx": [
+368
+],
+"console:src/views/Settings/Team/EmptyRow.tsx": [
+191
+],
+"console:src/views/Settings/Team/Team.tsx": [
+114
+],
+"console:src/views/account/AccountView/SettingsTab.tsx": [
+136
+],
+"console:src/views/models/AuthProviderPopup/AuthProviderPopup.tsx": [
+181
+],
+"console:src/views/models/AuthProviderPopup/AuthProviderSidePanel.tsx": [
+537
+],
+"console:src/views/models/DatabrowserView/Cell.tsx": [
+416
+],
+"console:src/views/models/DatabrowserView/Cell/SelectNodesCell/SelectNodesCell.tsx": [
+456
+],
+"console:src/views/models/DatabrowserView/DataActionRow.tsx": [
+46
+],
+"console:src/views/models/DatabrowserView/DataActionRow/DeleteNodeRow.tsx": [
+59
+],
+"console:src/views/models/DatabrowserView/DataActionRow/NewNodeRow.tsx": [
+80
+],
+"console:src/views/models/DatabrowserView/DatabrowserView.tsx": [
+770,
+775
+],
+"console:src/views/models/DatabrowserView/HeaderCell.tsx": [
+111
+],
+"console:src/views/models/DatabrowserView/NewRow.tsx": [
+197
+],
+"console:src/views/models/DatabrowserView/RelationsPopup.tsx": [
+284
+],
+"console:src/views/models/FieldPopup/FieldPopup.tsx": [
+543,
+553
+],
+"console:src/views/models/ModelDescription.tsx": [
+104
+],
+"console:src/views/models/ModelHeader.tsx": [
+320
+],
+"console:src/views/models/ModelRedirectView.tsx": [
+38
+],
+"console:src/views/playground/PlaygroundView/PlaygroundView.tsx": [
+227
+]
+}

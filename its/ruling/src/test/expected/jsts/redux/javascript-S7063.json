@@ -1,0 +1,42 @@
+{
+"redux:examples/async/reducers/index.js": [
+56
+],
+"redux:examples/async/store/configureStore.js": [
+6
+],
+"redux:examples/counter/reducers/index.js": [
+4
+],
+"redux:examples/counter/store/configureStore.js": [
+5
+],
+"redux:examples/real-world/middleware/api.js": [
+61
+],
+"redux:examples/real-world/reducers/index.js": [
+30,
+49
+],
+"redux:examples/real-world/store/configureStore.dev.js": [
+11
+],
+"redux:examples/real-world/store/configureStore.prod.js": [
+9
+],
+"redux:examples/todomvc/reducers/index.js": [
+4
+],
+"redux:examples/todos-with-undo/reducers.js": [
+39
+],
+"redux:examples/universal/common/reducers/index.js": [
+4
+],
+"redux:examples/universal/common/store/configureStore.js": [
+5
+],
+"redux:src/utils/isPlainObject.js": [
+2
+]
+}

@@ -1,0 +1,123 @@
+{
+"vuetify:packages/docs/build/api-plugin.ts": [
+9
+],
+"vuetify:packages/docs/build/markdown-it.ts": [
+43
+],
+"vuetify:packages/docs/src/components/app/TooltipBtn.vue": [
+40,
+49
+],
+"vuetify:packages/docs/src/components/app/list/List.vue": [
+109,
+117,
+118,
+120
+],
+"vuetify:packages/docs/src/components/sponsor/Sponsors.vue": [
+33,
+40,
+42
+],
+"vuetify:packages/docs/src/main.ts": [
+36,
+38,
+39,
+41,
+45
+],
+"vuetify:packages/docs/src/plugins/i18n.ts": [
+7
+],
+"vuetify:packages/vuetify/dev/Playground.datatable.vue": [
+121,
+123
+],
+"vuetify:packages/vuetify/src/components/VGrid/VCol.ts": [
+16,
+26,
+36
+],
+"vuetify:packages/vuetify/src/components/VGrid/VRow.ts": [
+29,
+37,
+45
+],
+"vuetify:packages/vuetify/src/components/VList/VListGroup.tsx": [
+23
+],
+"vuetify:packages/vuetify/src/components/VOtpInput/VOtpInput.ts": [
+22
+],
+"vuetify:packages/vuetify/src/components/VStepper/VStepper.ts": [
+25
+],
+"vuetify:packages/vuetify/src/components/VStepper/VStepperContent.ts": [
+22
+],
+"vuetify:packages/vuetify/src/components/VStepper/VStepperStep.ts": [
+24
+],
+"vuetify:packages/vuetify/src/components/VStepper/index.ts": [
+6,
+7
+],
+"vuetify:packages/vuetify/src/components/VTimePicker/VTimePicker.ts": [
+21,
+22,
+23,
+24
+],
+"vuetify:packages/vuetify/src/components/VTreeview/VTreeviewNode.ts": [
+23,
+97
+],
+"vuetify:packages/vuetify/src/composables/forwardRefs.ts": [
+4
+],
+"vuetify:packages/vuetify/src/composables/stack.ts": [
+9,
+15
+],
+"vuetify:packages/vuetify/src/directives/ripple/index.ts": [
+12
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/composables/group.ts": [
+24
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/composables/paginate.ts": [
+29
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/composables/sort.ts": [
+25
+],
+"vuetify:packages/vuetify/src/util/colors.ts": [
+1,
+18,
+35,
+52,
+69,
+86,
+103,
+120,
+137,
+154,
+171,
+188,
+205,
+222,
+239,
+256,
+273,
+286,
+299,
+312
+],
+"vuetify:packages/vuetify/test/index.ts": [
+111
+],
+"vuetify:packages/vuetify/test/util/to-have-been-warned.ts": [
+6
+]
+}

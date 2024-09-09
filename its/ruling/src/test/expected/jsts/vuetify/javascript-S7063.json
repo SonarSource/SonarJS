@@ -1,0 +1,33 @@
+{
+"vuetify:packages/docs/src/components/app/Figure.vue": [
+23,
+25,
+29
+],
+"vuetify:packages/docs/src/components/home/Sponsors.vue": [
+48,
+50
+],
+"vuetify:packages/docs/src/components/promoted/Base.vue": [
+24,
+32,
+34,
+42
+],
+"vuetify:packages/docs/src/components/promoted/Promoted.vue": [
+55,
+64,
+65,
+67,
+68,
+75
+],
+"vuetify:packages/vuetify/vite.config.mjs": [
+11,
+14,
+16,
+17,
+18,
+19
+]
+}

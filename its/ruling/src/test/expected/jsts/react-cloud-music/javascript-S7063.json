@@ -1,0 +1,71 @@
+{
+"react-cloud-music:src/api/config.js": [
+6,
+10
+],
+"react-cloud-music:src/api/utils.js": [
+49
+],
+"react-cloud-music:src/application/Album/store/reducer.js": [
+4
+],
+"react-cloud-music:src/application/Player/store/reducer.js": [
+6
+],
+"react-cloud-music:src/application/Rank/store/index.js": [
+30
+],
+"react-cloud-music:src/application/Recommend/store/reducer.js": [
+4
+],
+"react-cloud-music:src/application/Search/store/reducer.js": [
+4
+],
+"react-cloud-music:src/application/Singer/store/reducer.js": [
+4
+],
+"react-cloud-music:src/application/Singers/store/reducer.js": [
+4
+],
+"react-cloud-music:src/application/SongList/index.jsx": [
+8
+],
+"react-cloud-music:src/application/User/Login/LoginForm/index.jsx": [
+7
+],
+"react-cloud-music:src/application/User/Login/store/reducer.js": [
+4
+],
+"react-cloud-music:src/baseUI/confirm/index.jsx": [
+78
+],
+"react-cloud-music:src/baseUI/header/index.jsx": [
+28
+],
+"react-cloud-music:src/baseUI/music-note/index.jsx": [
+23
+],
+"react-cloud-music:src/baseUI/scroll/index.jsx": [
+80
+],
+"react-cloud-music:src/baseUI/toast/index.jsx": [
+35
+],
+"react-cloud-music:src/routes/index.jsx": [
+14,
+15,
+16,
+17,
+18,
+19
+],
+"react-cloud-music:src/serviceWorker.js": [
+13
+],
+"react-cloud-music:src/store/index.js": [
+6
+],
+"react-cloud-music:ts-music/src/serviceWorker.js": [
+13
+]
+}

@@ -1,0 +1,13 @@
+{
+"reddit-mobile:src/config.es6.js": [
+11
+],
+"reddit-mobile:src/propTypes.es6.js": [
+5,
+9,
+15
+],
+"reddit-mobile:test/helpers/buildProps.es6.js": [
+8
+]
+}

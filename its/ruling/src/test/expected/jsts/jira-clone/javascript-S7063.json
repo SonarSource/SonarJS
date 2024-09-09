@@ -1,0 +1,30 @@
+{
+"jira-clone:client/src/Project/IssueCreate/index.jsx": [
+129,
+134
+],
+"jira-clone:client/src/Project/ProjectSettings/index.jsx": [
+65
+],
+"jira-clone:client/src/shared/components/Button/index.jsx": [
+31
+],
+"jira-clone:client/src/shared/components/DatePicker/DateSection.jsx": [
+99
+],
+"jira-clone:client/src/shared/components/Form/index.jsx": [
+40
+],
+"jira-clone:client/src/shared/components/Input/index.jsx": [
+24
+],
+"jira-clone:client/src/shared/components/Modal/index.jsx": [
+96
+],
+"jira-clone:client/src/shared/components/Textarea/index.jsx": [
+23
+],
+"jira-clone:client/src/shared/components/Tooltip/index.jsx": [
+109
+]
+}

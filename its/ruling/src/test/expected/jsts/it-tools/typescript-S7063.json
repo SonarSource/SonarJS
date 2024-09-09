@@ -1,0 +1,23 @@
+{
+"it-tools:src/plugins/i18n.plugin.ts": [
+6
+],
+"it-tools:src/router.ts": [
+9,
+15,
+21
+],
+"it-tools:src/tools/date-time-converter/date-time-converter.models.ts": [
+33,
+34,
+35,
+36,
+37,
+38,
+39,
+41
+],
+"it-tools:src/ui/demo/demo.routes.ts": [
+4
+]
+}

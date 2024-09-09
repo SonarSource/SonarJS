@@ -1,0 +1,41 @@
+{
+"p5.js:src/core/environment.js": [
+15,
+159,
+411,
+426
+],
+"p5.js:src/core/error_helpers.js": [
+51,
+807
+],
+"p5.js:src/core/main.js": [
+693
+],
+"p5.js:src/core/p5.Graphics.js": [
+62
+],
+"p5.js:src/core/p5.Renderer.js": [
+60
+],
+"p5.js:src/core/p5.Renderer2D.js": [
+22
+],
+"p5.js:src/data/p5.TypedDict.js": [
+413,
+431
+],
+"p5.js:src/dom/dom.js": [
+377,
+1188,
+1195,
+2301
+],
+"p5.js:src/webgl/p5.Matrix.js": [
+14
+],
+"p5.js:src/webgl/p5.RendererGL.js": [
+11,
+226
+]
+}

@@ -1,0 +1,307 @@
+{
+"eigen:dangerfile.ts": [
+144
+],
+"eigen:src/app/App.tsx": [
+35,
+36,
+38
+],
+"eigen:src/app/AppRegistry.tsx": [
+129,
+137,
+138,
+159,
+170,
+452
+],
+"eigen:src/app/Components/AnimatableHeader/AnimatableHeaderFlatList.tsx": [
+8
+],
+"eigen:src/app/Components/AnimatableHeader/AnimatableHeaderScrollView.tsx": [
+8
+],
+"eigen:src/app/Components/Artist/ArtistShows/SmallList.tsx": [
+26
+],
+"eigen:src/app/Components/ArtistAutosuggest/ArtistAutosuggestResults.tsx": [
+121
+],
+"eigen:src/app/Components/ArtworkFilter/ArtworkFilterNavigator.tsx": [
+99
+],
+"eigen:src/app/Components/ArtworkGrids/ArtworksFilterHeader.stories.tsx": [
+14
+],
+"eigen:src/app/Components/ArtworkGrids/GenericGrid.tsx": [
+200,
+212
+],
+"eigen:src/app/Components/ArtworkGrids/InfiniteScrollArtworksGrid.tsx": [
+471
+],
+"eigen:src/app/Components/ArtworkGrids/SaleArtworkGridItem.tsx": [
+122
+],
+"eigen:src/app/Components/Bidding/Screens/BillingAddress.tsx": [
+21
+],
+"eigen:src/app/Components/Bidding/Screens/ConfirmBid/PriceSummary.tsx": [
+56
+],
+"eigen:src/app/Components/Bidding/Screens/Registration.tsx": [
+483
+],
+"eigen:src/app/Components/Bidding/Screens/RegistrationResult.tsx": [
+70
+],
+"eigen:src/app/Components/Bidding/Screens/SelectMaxBid.tsx": [
+102
+],
+"eigen:src/app/Components/DottedLine.tsx": [
+16
+],
+"eigen:src/app/Components/HeaderArtworksFilter/HeaderArtworksFilter.tsx": [
+19
+],
+"eigen:src/app/Components/LocationMap/LocationMap.tsx": [
+15
+],
+"eigen:src/app/Components/Markdown.tsx": [
+15
+],
+"eigen:src/app/Components/Modal.tsx": [
+32
+],
+"eigen:src/app/Components/Portal.tsx": [
+3
+],
+"eigen:src/app/Components/Spinner.tsx": [
+18
+],
+"eigen:src/app/Components/StickyTabPage/StickyTabPageFlatList.tsx": [
+16
+],
+"eigen:src/app/Components/Toast/ToastComponent.tsx": [
+10
+],
+"eigen:src/app/Components/Toast/toastHook.tsx": [
+9
+],
+"eigen:src/app/Components/WorksForYou/Notification.tsx": [
+84
+],
+"eigen:src/app/NativeModules/Admin.tsx": [
+5
+],
+"eigen:src/app/NativeModules/CityGuideView.tsx": [
+3
+],
+"eigen:src/app/NativeModules/LiveAuctionView.tsx": [
+5
+],
+"eigen:src/app/Scenes/AuctionBuyersPremium/AuctionBuyersPremium.tsx": [
+93
+],
+"eigen:src/app/Scenes/BottomTabs/BottomTabsNavigator.tsx": [
+8
+],
+"eigen:src/app/Scenes/City/CityPicker.tsx": [
+19
+],
+"eigen:src/app/Scenes/Favorites/FavoriteArtists.tsx": [
+123
+],
+"eigen:src/app/Scenes/Favorites/FavoriteArtworks.tsx": [
+141
+],
+"eigen:src/app/Scenes/Favorites/FavoriteCategories.tsx": [
+115
+],
+"eigen:src/app/Scenes/Favorites/FavoriteShows.tsx": [
+110
+],
+"eigen:src/app/Scenes/Feature/Feature.tsx": [
+189
+],
+"eigen:src/app/Scenes/Gene/Gene.tsx": [
+111
+],
+"eigen:src/app/Scenes/Inbox/Components/Typography/index.tsx": [
+117
+],
+"eigen:src/app/Scenes/Map/GlobalMap.tsx": [
+40,
+42
+],
+"eigen:src/app/Scenes/Map/NewMap.tsx": [
+11,
+13,
+38
+],
+"eigen:src/app/Scenes/MyAccount/MyAccountEditName.tsx": [
+59
+],
+"eigen:src/app/Scenes/MyAccount/MyAccountEditPhone.tsx": [
+65
+],
+"eigen:src/app/Scenes/MyCollection/Screens/Artwork/Components/ArtworkInsights/RequestForPriceEstimate/RequestForPriceEstimateScreen.tsx": [
+31
+],
+"eigen:src/app/Scenes/MyCollection/Screens/ArtworkForm/MyCollectionArtworkForm.tsx": [
+277
+],
+"eigen:src/app/Scenes/MyProfile/LoggedInUserInfo.tsx": [
+21
+],
+"eigen:src/app/Scenes/MyProfile/MyProfile.tsx": [
+9
+],
+"eigen:src/app/Scenes/MyProfile/MyProfileEditForm.tsx": [
+58
+],
+"eigen:src/app/Scenes/MyProfile/MyProfilePayment.tsx": [
+188
+],
+"eigen:src/app/Scenes/MyProfile/MyProfilePaymentNewCreditCard.tsx": [
+66
+],
+"eigen:src/app/Scenes/MyProfile/MyProfilePushNotifications.tsx": [
+28,
+282
+],
+"eigen:src/app/Scenes/Onboarding/Onboarding.tsx": [
+50
+],
+"eigen:src/app/Scenes/Onboarding/OnboardingCreateAccount/OnboardingCreateAccount.tsx": [
+35
+],
+"eigen:src/app/Scenes/Onboarding/OnboardingPersonalization/OnboardingPersonalization.tsx": [
+29
+],
+"eigen:src/app/Scenes/Onboarding/OnboardingWelcome.tsx": [
+16
+],
+"eigen:src/app/Scenes/Partner/Components/PartnerMap.tsx": [
+15
+],
+"eigen:src/app/Scenes/Partner/Components/PartnerShowRailItem.tsx": [
+13
+],
+"eigen:src/app/Scenes/SaleInfo/SaleInfo.tsx": [
+65
+],
+"eigen:src/app/Scenes/SavedAddresses/SavedAddressesForm.tsx": [
+70
+],
+"eigen:src/app/Scenes/SavedSearchAlert/CreateSavedSearchAlert.tsx": [
+13
+],
+"eigen:src/app/Scenes/SavedSearchAlert/containers/CreateSavedSearchContentContainer.tsx": [
+105
+],
+"eigen:src/app/Scenes/Search/AutosuggestResults.tsx": [
+187
+],
+"eigen:src/app/Scenes/Search/Search.tsx": [
+43
+],
+"eigen:src/app/Scenes/Search/SearchResults.tsx": [
+86,
+87
+],
+"eigen:src/app/Scenes/Search/UserPrefsModel.tsx": [
+17
+],
+"eigen:src/app/Scenes/SellWithArtsy/SellWithArtsyHome.tsx": [
+58
+],
+"eigen:src/app/Scenes/SellWithArtsy/SubmitArtwork/ContactInformation/ContactInformation.tests.tsx": [
+12,
+18,
+20
+],
+"eigen:src/app/Scenes/SellWithArtsy/SubmitArtwork/SubmitArtwork.tsx": [
+200
+],
+"eigen:src/app/Scenes/Show/Components/ShowLocationHours.tsx": [
+8
+],
+"eigen:src/app/Scenes/VanityURL/VanityURLEntity.tsx": [
+40
+],
+"eigen:src/app/Websockets/GravityWebsocketContext.tsx": [
+17
+],
+"eigen:src/app/Websockets/auctions/AuctionSocketContext.tsx": [
+33
+],
+"eigen:src/app/navigation/ModalStack.tsx": [
+9
+],
+"eigen:src/app/navigation/NavStack.tsx": [
+11
+],
+"eigen:src/app/store/GlobalStore.tsx": [
+93,
+99
+],
+"eigen:src/app/store/NativeModel.ts": [
+67
+],
+"eigen:src/app/tests/MockRelayRendererFixtures.tsx": [
+13,
+51
+],
+"eigen:src/app/utils/AdminMenu.tsx": [
+45,
+49
+],
+"eigen:src/app/utils/Context.tsx": [
+16
+],
+"eigen:src/app/utils/__legacy_do_not_use__navigator-ios-shim.tsx": [
+6
+],
+"eigen:src/app/utils/devCacheBust.ts": [
+2
+],
+"eigen:src/app/utils/loggers.ts": [
+12
+],
+"eigen:src/app/utils/placeholders.tsx": [
+9
+],
+"eigen:src/app/utils/refreshHelpers.ts": [
+4
+],
+"eigen:src/app/utils/renderWithPlaceholder.tsx": [
+105
+],
+"eigen:src/palette/elements/Button/Button.tsx": [
+456,
+457
+],
+"eigen:src/palette/elements/CollapsibleMenuItem/CollapsibleMenuItem.stories.tsx": [
+153
+],
+"eigen:src/palette/elements/Header/ArtsyLogoHeader.tsx": [
+20
+],
+"eigen:src/palette/elements/Input/PhoneInput/PhoneInput.tsx": [
+204
+],
+"eigen:src/palette/elements/Input/PhoneInput/countries.ts": [
+2084
+],
+"eigen:src/palette/elements/Pill/Pill.tsx": [
+195,
+196
+],
+"eigen:src/palette/organisms/screenStructure/Screen.tsx": [
+26
+],
+"eigen:src/shared/utils/normalizeText.ts": [
+236
+]
+}
