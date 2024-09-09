@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import estree from 'estree';
-import { generateMeta, isIdentifier, isStringLiteral } from '../helpers';
+import { generateMeta, isRequire, isStringLiteral } from '../helpers';
 import { meta } from './meta';
 
 const messages = {
@@ -33,7 +33,7 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
       CallExpression(node: estree.CallExpression) {
-        if (isIdentifier(node.callee, 'require') && node.arguments.length === 1) {
+        if (isRequire(node)) {
           const [arg] = node.arguments;
           if (isStringLiteral(arg) && arg.value.includes('node_modules')) {
             context.report({
@@ -44,7 +44,7 @@ export const rule: Rule.RuleModule = {
         }
       },
       ImportDeclaration(node: estree.ImportDeclaration) {
-         const moduleName = node.source.value as string;
+        const moduleName = node.source.value as string;
         if (moduleName.includes('node_modules')) {
           context.report({
             node,
