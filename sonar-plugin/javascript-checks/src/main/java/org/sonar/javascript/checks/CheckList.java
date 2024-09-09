@@ -247,6 +247,7 @@ public final class CheckList {
       NoAriaHiddenOnFocusableCheck.class,
       NoArrayDeleteCheck.class,
       NoArrayIndexKeyCheck.class,
+      NoAsyncConstructorCheck.class,
       NoBaseToStringCheck.class,
       NoCaseDeclarationsCheck.class,
       NoChildrenPropCheck.class,
