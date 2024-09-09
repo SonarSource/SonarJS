@@ -50,5 +50,12 @@ ruleTester.run('"Array.reduce()" calls should include an initial value', rule, {
       `,
       errors: 1,
     },
+    {
+      code: `
+        const v = methodCall();
+        export const x = 10;
+      `,
+      errors: 1,
+    },
   ],
 });

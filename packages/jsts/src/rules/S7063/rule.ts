@@ -74,15 +74,29 @@ function handleTopLevelStatement(
     });
   } else if (topLevelStatement.type === 'ExpressionStatement') {
     const expression = topLevelStatement.expression;
-    if (expression.type === 'CallExpression' && !isRequireExpression(expression)) {
-      context.report({
-        message: 'Do not include method calls on module top level',
-        node: topLevelStatement,
-      });
+    if (expression.type === 'CallExpression') {
+      checkCallExpression(context, expression);
+    } else if (
+      expression.type === 'AssignmentExpression' &&
+      expression.right.type === 'CallExpression'
+    ) {
+      checkCallExpression(context, expression.right);
     }
+  } else if (topLevelStatement.type === 'VariableDeclaration') {
+    topLevelStatement.declarations.forEach(declaration => {
+      if (declaration.init?.type === 'CallExpression') {
+        checkCallExpression(context, declaration.init);
+      }
+    });
   }
 }
 
-function isRequireExpression(expression: CallExpression): boolean {
-  return expression.callee.type === 'Identifier' && expression.callee.name === 'require';
+function checkCallExpression(context: Rule.RuleContext, expression: CallExpression) {
+  if (expression.callee.type === 'Identifier' && expression.callee.name === 'require') {
+    return;
+  }
+  context.report({
+    message: 'Do not include method calls on module top level',
+    node: expression,
+  });
 }
