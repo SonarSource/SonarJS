@@ -21,24 +21,68 @@
 
 import { Rule } from 'eslint';
 import { generateMeta } from '../helpers';
-import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
-import { meta } from './meta'; // run "npx ts-node tools/generate-meta.ts" to generate meta.json files
+import { meta } from './meta';
+import { Directive, ModuleDeclaration, Statement, Program, CallExpression } from 'estree';
 
-const messages = {
-  //TODO: add needed messages
-  messageId: 'message body',
-};
+const EXPORT_STATEMENTS = [
+  'ExportNamedDeclaration',
+  'ExportDefaultDeclaration',
+  'ExportAllDeclaration',
+];
 
-const schema = {
-  type: 'array',
-  minItems: 0,
-  maxItems: 0,
-  items: [],
-} as const satisfies JSONSchema4;
+const LOOP_STATEMENTS = [
+  'ForStatement',
+  'ForInStatement',
+  'ForOfStatement',
+  'DoWhileStatement',
+  'WhileStatement',
+];
+
+const CONDITIONAL_STATEMENTS = ['IfStatement', 'SwitchStatement'];
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, { schema, messages }, false),
+  meta: generateMeta(meta as Rule.RuleMetaData, {}, false),
   create(context: Rule.RuleContext) {
-    return {};
+    return {
+      Program(node: Program) {
+        if (!hasExport(node)) {
+          return;
+        }
+        node.body.forEach(topLevelStatement => handleTopLevelStatement(context, topLevelStatement));
+      },
+    };
   },
 };
+
+function hasExport(program: Program): boolean {
+  return program.body.filter(node => EXPORT_STATEMENTS.includes(node.type)).length > 0;
+}
+
+function handleTopLevelStatement(
+  context: Rule.RuleContext,
+  topLevelStatement: Directive | Statement | ModuleDeclaration,
+) {
+  if (LOOP_STATEMENTS.includes(topLevelStatement.type)) {
+    context.report({
+      message: 'Do not include loop statements on module top level',
+      node: topLevelStatement,
+    });
+  } else if (CONDITIONAL_STATEMENTS.includes(topLevelStatement.type)) {
+    context.report({
+      message: 'Do not include conditional statements on module top level',
+      node: topLevelStatement,
+    });
+  } else if (topLevelStatement.type === 'ExpressionStatement') {
+    const expression = topLevelStatement.expression;
+    if (expression.type === 'CallExpression' && !isRequireExpression(expression)) {
+      context.report({
+        message: 'Do not include method calls on module top level',
+        node: topLevelStatement,
+      });
+    }
+  }
+}
+
+function isRequireExpression(expression: CallExpression): boolean {
+  return expression.callee.type === 'Identifier' && expression.callee.name === 'require';
+}
