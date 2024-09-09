@@ -332,6 +332,7 @@ public final class CheckList {
       NoTableAsLayoutCheck.class,
       NoThisAliasCheck.class,
       NoThisInSfcCheck.class,
+      NoTopLevelSideEffectsCheck.class,
       NoUndefInitCheck.class,
       NoUnescapedEntitiesCheck.class,
       NoUniqKeyCheck.class,

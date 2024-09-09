@@ -1,0 +1,28 @@
+{
+  "title": "Module with exports should not include side effects",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "20min"
+  },
+  "tags": [
+    "architecture"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-7063",
+  "sqKey": "S7063",
+  "scope": "All",
+  "quickfix": "infeasible",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "HIGH",
+      "RELIABILITY": "HIGH"
+    },
+    "attribute": "MODULAR"
+  },
+  "compatibleLanguages": [
+    "JAVASCRIPT",
+    "TYPESCRIPT"
+  ]
+}

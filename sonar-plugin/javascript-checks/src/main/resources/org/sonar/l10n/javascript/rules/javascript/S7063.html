@@ -1,0 +1,42 @@
+<h2>Why is this an issue?</h2>
+<p>Side effects in a module can lead to unpredictable behavior, making the module harder to understand and debug. They complicate testing by requiring
+complex setup and teardown procedures, reducing the module’s reusability since its behavior depends on specific states or external systems. Side
+effects can also introduce concurrency issues, such as race conditions, and make the codebase harder to maintain and more prone to breaking.
+Additionally, they increase the complexity and reduce the readability of the code, while breaking encapsulation and leading to tighter coupling
+between modules. Minimizing side effects helps create more predictable, testable, reusable, and maintainable code.</p>
+<h3>Code examples</h3>
+<h4>Noncompliant code example</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+console.log('hello world');
+if (typeof Array.prototype.map !== 'function') {
+  Array.prototype.map = () =&gt; {
+    // Implement polyfill
+  };
+}
+let s = 0;
+for (let i = 0; i &lt; 10; i++) {
+  s += i;
+}
+fetch('/api').then((res) =&gt; res.text());
+</pre>
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+export default function () {
+  console.log('hello world');
+
+  let s = 0;
+  for (let i = 0; i &lt; 10; i++) {
+    s += i;
+  }
+
+  fetch('/api').then((res) =&gt; res.text());
+}
+</pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+<ul>
+  <li> MDN web docs - <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules">Modules</a> </li>
+  <li> MDN web docs - <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import">import</a> </li>
+  <li> MDN web docs - <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/export">export</a> </li>
+</ul>
+

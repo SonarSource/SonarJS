@@ -19,6 +19,12 @@
  */
 import { Rule } from 'eslint';
 
+import { eslintRules } from './core';
+import { rules as a11yPluginRules } from 'eslint-plugin-jsx-a11y';
+import { tsEslintRules } from './typescript-eslint';
+import { rules as importPluginRules } from 'eslint-plugin-import';
+import { rules as reactPluginRules } from 'eslint-plugin-react';
+import { rules as pluginRules } from './plugin';
 import { rule as S2376 } from './S2376'; // accessor-pairs
 import { rule as S1077 } from './S1077'; // alt-text
 import { rule as S6827 } from './S6827'; // anchor-has-content
@@ -179,7 +185,6 @@ import { rule as S2201 } from './S2201'; // no-ignored-return
 import { rule as S4328 } from './S4328'; // no-implicit-dependencies
 import { rule as S2703 } from './S2703'; // no-implicit-global
 import { rule as S4619 } from './S4619'; // no-in-misuse
-import { rule as S1940 } from './S1940'; // no-inverted-boolean-check
 import { rule as S2970 } from './S2970'; // no-incomplete-assertions
 import { rule as S3801 } from './S3801'; // no-inconsistent-returns
 import { rule as S3402 } from './S3402'; // no-incorrect-string-concat
@@ -187,6 +192,7 @@ import { rule as S2189 } from './S2189'; // no-infinite-loop
 import { rule as S5604 } from './S5604'; // no-intrusive-permissions
 import { rule as S4123 } from './S4123'; // no-invalid-await
 import { rule as S3516 } from './S3516'; // no-invariant-returns
+import { rule as S1940 } from './S1940'; // no-inverted-boolean-check
 import { rule as S5759 } from './S5759'; // no-ip-forward
 import { rule as S1119 } from './S1119'; // no-labels
 import { rule as S6958 } from './S6958'; // no-literal-call
@@ -198,9 +204,9 @@ import { rule as S5730 } from './S5730'; // no-mixed-content
 import { rule as S1121 } from './S1121'; // no-nested-assignment
 import { rule as S3358 } from './S3358'; // no-nested-conditional
 import { rule as S2004 } from './S2004'; // no-nested-functions
+import { rule as S881 } from './S881'; // no-nested-incdec
 import { rule as S1821 } from './S1821'; // no-nested-switch
 import { rule as S4624 } from './S4624'; // no-nested-template-literals
-import { rule as S881 } from './S881'; // no-nested-incdec
 import { rule as S1751 } from './S1751'; // no-one-iteration-loop
 import { rule as S4036 } from './S4036'; // no-os-command-from-path
 import { rule as S1226 } from './S1226'; // no-parameter-reassignment
@@ -225,6 +231,7 @@ import { rule as S105 } from './S105'; // no-tab
 import { rule as S5257 } from './S5257'; // no-table-as-layout
 import { rule as S4327 } from './S4327'; // no-this-alias
 import { rule as S3696 } from './S3696'; // no-throw-literal
+import { rule as S7063 } from './S7063'; // no-top-level-side-effects
 import { rule as S4822 } from './S4822'; // no-try-promise
 import { rule as S4623 } from './S4623'; // no-undefined-argument
 import { rule as S2138 } from './S2138'; // no-undefined-assignment
@@ -344,12 +351,6 @@ import { rule as S2817 } from './S2817'; // web-sql-database
 import { rule as S5689 } from './S5689'; // x-powered-by
 import { rule as S2755 } from './S2755'; // xml-parser-xxe
 import { rule as S4817 } from './S4817'; // xpath
-import { eslintRules } from './core';
-import { rules as a11yPluginRules } from 'eslint-plugin-jsx-a11y';
-import { tsEslintRules } from './typescript-eslint';
-import { rules as importPluginRules } from 'eslint-plugin-import';
-import { rules as reactPluginRules } from 'eslint-plugin-react';
-import { rules as pluginRules } from './plugin';
 
 const bridgeRules: { [key: string]: Rule.RuleModule } = {
   S100,
@@ -783,6 +784,7 @@ const bridgeRules: { [key: string]: Rule.RuleModule } = {
   S6958,
   S6959,
   S7059,
+  S7063,
   S878: eslintRules['no-sequences'],
   S881,
   S888,

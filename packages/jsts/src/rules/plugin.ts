@@ -351,6 +351,7 @@ import { rule as S4817 } from './S4817';
 import { rule as S1607 } from './S1607';
 import type { Rule, Linter } from 'eslint';
 import { rule as S7059 } from './S7059';
+import { rule as S7063 } from './S7063';
 
 export const rules: Record<string, Rule.RuleModule> = {
   'accessor-pairs': S2376,
@@ -559,6 +560,7 @@ export const rules: Record<string, Rule.RuleModule> = {
   'no-table-as-layout': S5257,
   'no-this-alias': S4327,
   'no-throw-literal': S3696,
+  'no-top-level-side-effects': S7063,
   'no-try-promise': S4822,
   'no-undefined-argument': S4623,
   'no-undefined-assignment': S2138,
