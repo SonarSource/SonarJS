@@ -27,6 +27,8 @@ export const PACKAGE_JSON = 'package.json';
 export const parsePackageJson = (_filename: string, contents: string | null) =>
   contents ? (JSON.parse(contents) as PackageJson) : {};
 
+const DefinitelyTyped = '@types/';
+
 /**
  * Cache for each dirname the dependencies of the package.json in this directory, empty set when no package.json.
  */
@@ -144,7 +146,7 @@ function getDependenciesFromPackageJson(content: PackageJson) {
     addDependencies(result, content.optionalDependencies);
   }
   if (content._moduleAliases !== undefined) {
-    addDependencies(result, content._moduleAliases as PackageJson.Dependency, true);
+    addDependencies(result, content._moduleAliases as PackageJson.Dependency);
   }
   if (Array.isArray(content.workspaces)) {
     addDependenciesArray(result, content.workspaces);
@@ -175,7 +177,9 @@ function addDependency(result: Set<string | Minimatch>, dependency: string, isGl
     result.add(new Minimatch(dependency, { nocase: true, matchBase: true }));
   } else {
     result.add(
-      dependency.startsWith('@') ? dependency.substring(dependency.indexOf('/') + 1) : dependency,
+      dependency.startsWith(DefinitelyTyped)
+        ? dependency.substring(DefinitelyTyped.length)
+        : dependency,
     );
   }
 }

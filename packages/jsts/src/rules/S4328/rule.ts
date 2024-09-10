@@ -22,10 +22,8 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import builtins from 'builtin-modules';
-import * as path from 'path';
-import * as fs from 'fs';
 import * as ts from 'typescript';
-import { generateMeta, RequiredParserServices, getDependencies } from '../helpers';
+import { generateMeta, getDependencies } from '../helpers';
 import { FromSchema } from 'json-schema-to-ts';
 import { meta, schema } from './meta';
 import { Minimatch } from 'minimatch';
@@ -39,8 +37,12 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     const whitelist = (context.options as FromSchema<typeof schema>)[0]?.whitelist || [];
     const dependencies = getDependencies(context.filename);
-    const aliases = extractPathMappingPatterns(context.sourceCode.parserServices);
-    const baseUrl = getBaseUrl(context.sourceCode.parserServices);
+    const program = context.sourceCode.parserServices?.program;
+    let options: ts.CompilerOptions, host: ts.ModuleResolutionHost;
+    if (program) {
+      options = program?.getCompilerOptions();
+      host = ts.createCompilerHost(options);
+    }
     return {
       CallExpression: (node: estree.Node) => {
         const call = node as estree.CallExpression;
@@ -56,9 +58,10 @@ export const rule: Rule.RuleModule = {
               argument,
               requireToken.loc!,
               dependencies,
-              aliases,
+              context.filename,
+              host,
+              options,
               whitelist,
-              baseUrl,
               context,
             );
           }
@@ -71,9 +74,10 @@ export const rule: Rule.RuleModule = {
           module,
           importToken!.loc,
           dependencies,
-          aliases,
+          context.filename,
+          host,
+          options,
           whitelist,
-          baseUrl,
           context,
         );
       },
@@ -85,9 +89,10 @@ function raiseOnImplicitImport(
   module: estree.Literal,
   loc: estree.SourceLocation,
   dependencies: Set<string | Minimatch>,
-  aliases: Minimatch[],
+  filename: string,
+  host: ts.ModuleResolutionHost | undefined,
+  options: ts.CompilerOptions | undefined,
   whitelist: string[],
-  baseUrl: string | undefined,
   context: Rule.RuleContext,
 ) {
   const moduleName = module.value;
@@ -99,20 +104,8 @@ function raiseOnImplicitImport(
     return;
   }
 
-  if (aliases.some(pattern => pattern.match(moduleName))) {
-    return;
-  }
-
   if (['node:', 'data:', 'file:'].some(prefix => moduleName.startsWith(prefix))) {
     return;
-  }
-
-  if (baseUrl) {
-    const underBaseUrlPath = path.join(baseUrl, moduleName);
-    const extensions = ['', '.ts', '.d.ts', '.tsx', '.js', '.jsx', '.vue', '.mjs'];
-    if (extensions.some(extension => fs.existsSync(underBaseUrlPath + extension))) {
-      return;
-    }
   }
 
   const packageName = getPackageName(moduleName);
@@ -134,6 +127,13 @@ function raiseOnImplicitImport(
     }
   }
 
+  if (host && options) {
+    const resolved = ts.resolveModuleName(moduleName, filename, options, host);
+    if (resolved?.resolvedModule && !resolved.resolvedModule.isExternalLibraryImport) {
+      return;
+    }
+  }
+
   context.report({
     messageId: 'removeOrAddDependency',
     loc,
@@ -149,21 +149,6 @@ function getPackageName(name: string) {
   if (!name.startsWith('@')) {
     return parts[0];
   } else {
-    return parts[1];
+    return `${parts[0]}/${parts[1]}`;
   }
-}
-
-/**
- * The matching pattern part of a path mapping specified
- * in `paths` in `tsconfig.json`.
- */
-function extractPathMappingPatterns(parserServices: RequiredParserServices): Minimatch[] {
-  const compilerOptions = parserServices.program?.getCompilerOptions();
-  return compilerOptions?.paths
-    ? Object.keys(compilerOptions?.paths).map(pattern => new Minimatch(pattern, { nocase: true }))
-    : [];
-}
-
-function getBaseUrl(parserServices: RequiredParserServices): string | undefined {
-  return parserServices.program?.getCompilerOptions().baseUrl;
 }
