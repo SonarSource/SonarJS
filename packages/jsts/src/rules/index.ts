@@ -220,6 +220,7 @@ import { rule as S4324 } from './S4324'; // no-return-type-any
 import { rule as S5863 } from './S5863'; // no-same-argument-assert
 import { rule as S3972 } from './S3972'; // no-same-line-conditional
 import { rule as S6679 } from './S6679'; // no-self-compare
+import { rule as S7060 } from './S7060'; // no-self-import
 import { rule as S1607 } from './S1607'; // no-skipped-tests
 import { rule as S1301 } from './S1301'; // no-small-switch
 import { rule as S105 } from './S105'; // no-tab
@@ -785,6 +786,7 @@ const bridgeRules: { [key: string]: Rule.RuleModule } = {
   S6958,
   S6959,
   S7059,
+  S7060,
   S878: eslintRules['no-sequences'],
   S881,
   S888,

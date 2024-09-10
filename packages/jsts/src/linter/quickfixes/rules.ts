@@ -233,6 +233,7 @@ export const quickFixRules = new Set([
   'S1128',
 
   // eslint-plugin-import
-  'S6859',
   'S3863',
+  'S6859',
+  'S7060',
 ]);
