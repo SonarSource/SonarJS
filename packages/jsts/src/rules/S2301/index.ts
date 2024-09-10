@@ -27,7 +27,7 @@ import {
   report,
   toSecondaryLocation,
 } from '../helpers';
-import type { Pattern, Node as ESTreeNode } from 'estree';
+import type { Node as ESTreeNode } from 'estree';
 import NodeParentExtension = Rule.NodeParentExtension;
 import { meta as rspecMeta } from './meta';
 
@@ -72,26 +72,22 @@ export const S2301: Rule.RuleModule = {
           return testNode === node || isAChildOf(node, testNode);
         });
 
-        if (testNode !== undefined) {
-          const variable = getVariableFromIdentifier(node, context.getScope());
+        if (testNode === undefined) {
+          return;
+        }
 
-          if (variable) {
-            const booleanParameters: Array<Pattern> = [];
+        const variable = getVariableFromIdentifier(node, context.getScope());
 
-            const definition = variable.defs[variable.defs.length - 1];
+        if (variable) {
+          const definition = variable.defs[variable.defs.length - 1];
 
-            if (
-              definition?.type === 'Parameter' &&
-              isRequiredParserServices(context.parserServices)
-            ) {
-              const type = getTypeFromTreeNode(definition.name, context.parserServices);
+          if (
+            definition?.type === 'Parameter' &&
+            isRequiredParserServices(context.parserServices)
+          ) {
+            const type = getTypeFromTreeNode(definition.name, context.parserServices);
 
-              if (isBooleanType(type)) {
-                booleanParameters.push(definition.name);
-              }
-            }
-
-            for (const booleanParameter of booleanParameters) {
+            if (isBooleanType(type)) {
               report(
                 context,
                 {
@@ -104,7 +100,7 @@ export const S2301: Rule.RuleModule = {
                 },
                 [
                   toSecondaryLocation(
-                    booleanParameter,
+                    definition.name,
                     `Parameter "${variable.name}" was declared here`,
                   ),
                 ],

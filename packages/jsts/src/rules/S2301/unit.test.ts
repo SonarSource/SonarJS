@@ -125,6 +125,189 @@ const nestedTest = (foo: boolean) => {
         },
       ],
     },
+    {
+      name: 'function with multiple boolean parameters that create a path',
+      code: `const unaryTest = (foo: boolean, bar: boolean) => {
+  if (foo) {
+    return 5;
+  }
+  
+  if (bar) {
+    return 10;
+  }
+  
+  return 15;
+};
+
+const binaryTest = (foo: boolean, bar: boolean) => {
+  if (foo === true) {
+    return 5;
+  }
+  
+  if (bar === true) {
+    return 10;
+  }
+  
+  return 15;
+};
+
+const nestedTest = (foo: boolean, bar: boolean) => {
+  if (true) {
+    if (foo === true) {
+      return 5;
+    }
+  }
+  
+  if (true) {
+    if (bar === true) {
+      return 10;
+    }
+  }
+  
+  return 15;
+};`,
+      options: ['sonar-runtime'],
+      errors: [
+        {
+          line: 2,
+          column: 7,
+          endLine: 2,
+          endColumn: 10,
+          messageId: 'sonarRuntime',
+          data: {
+            parameterName: 'foo',
+            sonarRuntimeData: JSON.stringify({
+              message:
+                'Provide multiple methods instead of using "foo" to determine which action to take.',
+              secondaryLocations: [
+                {
+                  message: 'Parameter "foo" was declared here',
+                  column: 19,
+                  line: 1,
+                  endColumn: 31,
+                  endLine: 1,
+                },
+              ],
+            }),
+          },
+        },
+        {
+          line: 6,
+          column: 7,
+          endLine: 6,
+          endColumn: 10,
+          messageId: 'sonarRuntime',
+          data: {
+            parameterName: 'bar',
+            sonarRuntimeData: JSON.stringify({
+              message:
+                'Provide multiple methods instead of using "bar" to determine which action to take.',
+              secondaryLocations: [
+                {
+                  message: 'Parameter "bar" was declared here',
+                  column: 33,
+                  line: 1,
+                  endColumn: 45,
+                  endLine: 1,
+                },
+              ],
+            }),
+          },
+        },
+        {
+          line: 14,
+          column: 7,
+          endLine: 14,
+          endColumn: 10,
+          messageId: 'sonarRuntime',
+          data: {
+            parameterName: 'foo',
+            sonarRuntimeData: JSON.stringify({
+              message:
+                'Provide multiple methods instead of using "foo" to determine which action to take.',
+              secondaryLocations: [
+                {
+                  message: 'Parameter "foo" was declared here',
+                  column: 20,
+                  line: 13,
+                  endColumn: 32,
+                  endLine: 13,
+                },
+              ],
+            }),
+          },
+        },
+        {
+          line: 18,
+          column: 7,
+          endLine: 18,
+          endColumn: 10,
+          messageId: 'sonarRuntime',
+          data: {
+            parameterName: 'bar',
+            sonarRuntimeData: JSON.stringify({
+              message:
+                'Provide multiple methods instead of using "bar" to determine which action to take.',
+              secondaryLocations: [
+                {
+                  message: 'Parameter "bar" was declared here',
+                  column: 34,
+                  line: 13,
+                  endColumn: 46,
+                  endLine: 13,
+                },
+              ],
+            }),
+          },
+        },
+        {
+          line: 27,
+          column: 9,
+          endLine: 27,
+          endColumn: 12,
+          messageId: 'sonarRuntime',
+          data: {
+            parameterName: 'foo',
+            sonarRuntimeData: JSON.stringify({
+              message:
+                'Provide multiple methods instead of using "foo" to determine which action to take.',
+              secondaryLocations: [
+                {
+                  message: 'Parameter "foo" was declared here',
+                  column: 20,
+                  line: 25,
+                  endColumn: 32,
+                  endLine: 25,
+                },
+              ],
+            }),
+          },
+        },
+        {
+          line: 33,
+          column: 9,
+          endLine: 33,
+          endColumn: 12,
+          messageId: 'sonarRuntime',
+          data: {
+            parameterName: 'bar',
+            sonarRuntimeData: JSON.stringify({
+              message:
+                'Provide multiple methods instead of using "bar" to determine which action to take.',
+              secondaryLocations: [
+                {
+                  message: 'Parameter "bar" was declared here',
+                  column: 34,
+                  line: 25,
+                  endColumn: 46,
+                  endLine: 25,
+                },
+              ],
+            }),
+          },
+        },
+      ],
+    },
   ],
   valid: [
     {
