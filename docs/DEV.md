@@ -97,6 +97,7 @@ When using this for the ruling tests, make sure that you run them in series (and
 ### Implementing a rule
 
 1. Generate rule metadata (JSON and HTML files) from [RSPEC](https://github.com/SonarSource/rspec#4-implement-the-rule), by running this command from the project's root:
+
 - to obtain the 'rule-api-[RELEASE].jar', see here [sonar-rule-api repo](https://github.com/SonarSource/sonar-rule-api)
 
 ```sh
