@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { S2301 } from './index';
+import { rule as S2301 } from './index';
 import { TypeScriptRuleTester } from '../../../tests/tools';
 import { RuleTester } from 'eslint';
 
