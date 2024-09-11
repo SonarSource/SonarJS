@@ -123,11 +123,13 @@ function raiseOnImplicitImport(
         return;
       }
     } else if (dependency.match(moduleName)) {
+      //dependencies are globs for workspaces
       return;
     }
   }
 
   if (host && options) {
+    // check if Typescript can resolve path aliases and 'baseDir'-based import
     const resolved = ts.resolveModuleName(moduleName, filename, options, host);
     if (resolved?.resolvedModule && !resolved.resolvedModule.isExternalLibraryImport) {
       return;

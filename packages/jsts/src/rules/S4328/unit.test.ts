@@ -62,6 +62,21 @@ ruleTester.run('Dependencies should be explicit', rule, {
       options,
     },
     {
+      code: `import "optionalDependency";`,
+      filename,
+      options,
+    },
+    {
+      code: `import "moduleAlias/bla";`,
+      filename,
+      options,
+    },
+    {
+      code: `import "project1";`,
+      filename,
+      options,
+    },
+    {
       code: `import "@namespaced/dependency";`,
       filename,
       options,
