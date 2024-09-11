@@ -85,7 +85,7 @@ const DEFAULT_EXCLUSIONS = [
   '**/dist/**',
   '**/vendor/**',
   '**/external/**',
-].map(pattern => new Minimatch(pattern, { nocase: true }));
+].map(pattern => new Minimatch(pattern, { nocase: true, dot: true }));
 
 export function setupBeforeAll(projectFile: string, customRules?: CustomRule[]) {
   const { project, rules, expectedPath, actualPath } = extractParameters(projectFile);
