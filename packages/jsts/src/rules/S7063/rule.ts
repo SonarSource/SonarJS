@@ -127,12 +127,12 @@ function handleTopLevelStatement(
   if (LOOP_STATEMENTS.includes(topLevelStatement.type)) {
     context.report({
       message: 'Do not include loop statements on module top level.',
-      node: topLevelStatement,
+      loc: context.sourceCode.getFirstToken(topLevelStatement)!.loc,
     });
   } else if (CONDITIONAL_STATEMENTS.includes(topLevelStatement.type)) {
     context.report({
       message: 'Do not include conditional statements on module top level.',
-      node: topLevelStatement,
+      loc: context.sourceCode.getFirstToken(topLevelStatement)!.loc,
     });
   } else if (topLevelStatement.type === 'ExpressionStatement') {
     const expression = topLevelStatement.expression;

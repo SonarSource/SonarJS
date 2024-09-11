@@ -41,6 +41,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.apache.commons.lang.StringUtils;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.parallel.Execution;
@@ -139,6 +140,11 @@ class JsTsRulingTest {
       jsTsProject("yaml", "../sources/yaml", "", ""),
       jsTsProject("file-for-rules", "../sources/jsts/custom", "", "tests")
     );
+  }
+
+  @AfterAll
+  public static void tearDown() {
+    LOG.info("Finished all tests");
   }
 
   private static Arguments jsTsProject(String project) {
