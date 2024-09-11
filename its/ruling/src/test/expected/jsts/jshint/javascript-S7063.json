@@ -1,0 +1,21 @@
+{
+"jshint:data/ascii-identifier-data.js": [
+3,
+13
+],
+"jshint:scripts/build.js": [
+7
+],
+"jshint:src/messages.js": [
+256,
+260,
+264
+],
+"jshint:src/name-stack.js": [
+27
+],
+"jshint:src/options.js": [
+1079,
+1086
+]
+}

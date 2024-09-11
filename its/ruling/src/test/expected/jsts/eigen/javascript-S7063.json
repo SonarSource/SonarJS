@@ -1,0 +1,21 @@
+{
+"eigen:__mocks__/react-relay.js": [
+4
+],
+"eigen:alias.js": [
+4,
+11
+],
+"eigen:apollo.config.js": [
+1
+],
+"eigen:scripts/changelog/generateChangelogSectionTemplate.js": [
+52
+],
+"eigen:scripts/check-flags/check-flags.js": [
+70
+],
+"eigen:scripts/preheatGraphQLCache.js": [
+6
+]
+}

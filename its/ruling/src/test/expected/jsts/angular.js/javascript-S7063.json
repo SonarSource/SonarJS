@@ -1,0 +1,45 @@
+{
+"angular.js:Gruntfile.js": [
+20,
+27,
+28,
+36,
+37,
+48
+],
+"angular.js:docs/config/index.js": [
+10
+],
+"angular.js:docs/config/inline-tag-defs/type.js": [
+4
+],
+"angular.js:karma-jquery-2.1.conf.js": [
+5
+],
+"angular.js:karma-jquery-2.2.conf.js": [
+5
+],
+"angular.js:karma-jquery.conf.js": [
+5
+],
+"angular.js:lib/promises-aplus/promises-aplus-test-adapter.js": [
+41
+],
+"angular.js:lib/versions/version-info.js": [
+220,
+225,
+233,
+234
+],
+"angular.js:protractor-travis-conf.js": [
+5
+],
+"angular.js:scripts/code.angularjs.org-firebase/functions/index.js": [
+4,
+231,
+232
+],
+"angular.js:scripts/docs.angularjs.org-firebase/functions/index.js": [
+49
+]
+}

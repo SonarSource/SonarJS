@@ -1,0 +1,29 @@
+{
+"rxjs:perf/macro/specbuilder.js": [
+3
+],
+"rxjs:perf/micro/current-thread-scheduler/operators/concatall.js": [
+4
+],
+"rxjs:perf/micro/current-thread-scheduler/operators/exhaust.js": [
+4
+],
+"rxjs:perf/micro/current-thread-scheduler/operators/mergeall.js": [
+4
+],
+"rxjs:perf/micro/current-thread-scheduler/operators/switch.js": [
+4
+],
+"rxjs:perf/micro/immediate-scheduler/operators/concatall.js": [
+4
+],
+"rxjs:perf/micro/immediate-scheduler/operators/exhaust.js": [
+4
+],
+"rxjs:perf/micro/immediate-scheduler/operators/mergeall.js": [
+4
+],
+"rxjs:perf/micro/immediate-scheduler/operators/switch.js": [
+4
+]
+}
