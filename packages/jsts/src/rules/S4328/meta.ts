@@ -24,7 +24,7 @@ export const meta = {
   type: 'suggestion',
   docs: {
     description: 'Dependencies should be explicit',
-    recommended: false,
+    recommended: true,
     url: 'https://sonarsource.github.io/rspec/#/rspec/S4328/javascript',
     requiresTypeChecking: false,
   },
