@@ -28,6 +28,7 @@ export const meta = {
     url: 'https://sonarsource.github.io/rspec/#/rspec/S7060/javascript',
     requiresTypeChecking: false,
   },
+  fixable: 'code',
 };
 
 export const sonarKey = 'S7060';

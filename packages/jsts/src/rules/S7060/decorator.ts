@@ -42,23 +42,25 @@ function reportWithQuickFix(context: Rule.RuleContext, reportDescriptor: Rule.Re
     return;
   }
   const { node } = reportDescriptor;
-  let suggestion: Rule.SuggestionReportDescriptor | undefined;
+  const suggest: Rule.SuggestionReportDescriptor[] = [];
   if (node.type === 'ImportDeclaration') {
-    suggestion = {
+    suggest.push({
       desc: 'Remove this import',
       fix: fixer => fixer.remove(node),
-    };
+    });
   } else if (node.type === 'CallExpression') {
     const variableDecl = findRequireVariableDeclaration(node);
     if (variableDecl) {
-      suggestion = {
+      suggest.push({
         desc: 'Remove this require',
         fix: fixer => fixer.remove(variableDecl),
-      };
+      });
     }
   }
-  const rd = suggestion ? { ...reportDescriptor, suggest: [suggestion] } : reportDescriptor;
-  context.report(rd);
+  context.report({
+    ...reportDescriptor,
+    suggest,
+  });
 }
 
 function findRequireVariableDeclaration(node: estree.Node) {
