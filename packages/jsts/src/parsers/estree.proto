@@ -87,7 +87,7 @@ enum NodeType {
   LiteralType = 68;
   TemplateElementType = 69;
   FunctionExpressionType = 70;
-  ExportAssignment = 71;
+  ExportAssignmentType = 71;
   UnknownNodeType = 1000;
 }
 message Node {

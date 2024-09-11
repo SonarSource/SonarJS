@@ -719,6 +719,23 @@ class ESTreeFactoryTest {
   }
 
   @Test
+  void should_create_export_assignment() {
+    CallExpression callExpression = CallExpression.newBuilder()
+      .setCallee(Node.newBuilder().build())
+      .build();
+    Node protobufNode = Node.newBuilder()
+      .setType(NodeType.ExportAssignmentType)
+      .setCallExpression(callExpression)
+      .build();
+
+    ESTree.Node estreeExpressionStatement = ESTreeFactory.from(protobufNode, ESTree.Node.class);
+    assertThat(estreeExpressionStatement).isInstanceOfSatisfying(ESTree.ExportAssignment.class, exportAssignment -> {
+      assertThat(exportAssignment.expression()).isInstanceOf(CallExpression.class);
+      assertThat(exportAssignment.expression()).isNotNull();
+    });
+  }
+
+  @Test
   void throw_exception_from_unrecognized_type() {
     Node protobufNode = Node.newBuilder()
       .setTypeValue(-1)
