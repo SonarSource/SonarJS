@@ -149,6 +149,16 @@ describe('ast', () => {
     expect(functionParameter.type).toEqual(NODE_TYPE_ENUM.values['IdentifierType']);
     expect(functionParameter.identifier.name).toEqual('foo');
   });
+
+  test('should support TSExportAssignment nodes', async () => {
+    const code = `export = foo();`;
+    const ast = await parseSourceCode(code, parsers.typescript);
+    const serializedAST = visitNode(ast as TSESTree.Program);
+
+    const expression = serializedAST.program.body[0].tSExportAssignment.expression;
+    expect(expression.type).toEqual(NODE_TYPE_ENUM.values['CallExpressionType']);
+    expect(expression.callExpression.callee.identifier.name).toEqual('foo');
+  });
 });
 
 /**
