@@ -37,6 +37,10 @@ export function generateMeta(
     ...rspecMeta,
   };
 
+  // RSPEC metadata can include fixable also for rules with suggestions, because RSPEC doesn't differentiate between fix
+  // and suggestion like ESLint does. That's why we set fixable using ruleMeta
+  metadata.fixable = ruleMeta?.fixable;
+
   if (!metadata.messages) {
     metadata.messages = {};
   }
