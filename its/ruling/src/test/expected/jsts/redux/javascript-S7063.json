@@ -5,11 +5,21 @@
 "redux:examples/async/store/configureStore.js": [
 6
 ],
+"redux:examples/async/webpack.config.js": [
+33,
+34,
+36
+],
 "redux:examples/counter/reducers/index.js": [
 4
 ],
 "redux:examples/counter/store/configureStore.js": [
 5
+],
+"redux:examples/counter/webpack.config.js": [
+35,
+36,
+38
 ],
 "redux:examples/real-world/middleware/api.js": [
 61
@@ -24,11 +34,31 @@
 "redux:examples/real-world/store/configureStore.prod.js": [
 9
 ],
+"redux:examples/real-world/webpack.config.js": [
+33,
+34,
+36
+],
+"redux:examples/shopping-cart/webpack.config.js": [
+39,
+40,
+42
+],
 "redux:examples/todomvc/reducers/index.js": [
 4
 ],
+"redux:examples/todomvc/webpack.config.js": [
+37,
+38,
+40
+],
 "redux:examples/todos-with-undo/reducers.js": [
 39
+],
+"redux:examples/todos-with-undo/webpack.config.js": [
+33,
+34,
+36
 ],
 "redux:examples/universal/common/reducers/index.js": [
 4
@@ -36,7 +66,18 @@
 "redux:examples/universal/common/store/configureStore.js": [
 5
 ],
+"redux:examples/universal/webpack.config.js": [
+56,
+57,
+59
+],
 "redux:src/utils/isPlainObject.js": [
 2
+],
+"redux:webpack.config.development.js": [
+6
+],
+"redux:webpack.config.production.js": [
+6
 ]
 }

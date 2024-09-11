@@ -1,6 +1,12 @@
 {
+"qunit:Gruntfile.js": [
+10
+],
 "qunit:reporter/html.js": [
 39
+],
+"qunit:src/cli/run.js": [
+9
 ],
 "qunit:src/core.js": [
 39,

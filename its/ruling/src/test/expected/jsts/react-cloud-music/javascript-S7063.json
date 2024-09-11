@@ -1,4 +1,26 @@
 {
+"react-cloud-music:config/env.js": [
+11,
+18,
+33,
+52,
+53
+],
+"react-cloud-music:config/modules.js": [
+84
+],
+"react-cloud-music:config/paths.js": [
+9
+],
+"react-cloud-music:config/webpack.config.js": [
+38
+],
+"react-cloud-music:server.js": [
+8,
+10,
+12,
+14
+],
 "react-cloud-music:src/api/config.js": [
 6,
 10
@@ -64,6 +86,24 @@
 ],
 "react-cloud-music:src/store/index.js": [
 6
+],
+"react-cloud-music:ts-music/config/env.js": [
+11,
+18,
+33,
+52,
+53
+],
+"react-cloud-music:ts-music/config/modules.js": [
+141
+],
+"react-cloud-music:ts-music/config/paths.js": [
+9,
+18
+],
+"react-cloud-music:ts-music/config/webpack.config.js": [
+40,
+45
 ],
 "react-cloud-music:ts-music/src/serviceWorker.js": [
 13

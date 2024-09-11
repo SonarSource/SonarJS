@@ -1,4 +1,13 @@
 {
+"vuetify:ecosystem-win.config.js": [
+7,
+8,
+13,
+14
+],
+"vuetify:packages/docs/jest.config.js": [
+3
+],
 "vuetify:packages/docs/src/components/app/Figure.vue": [
 23,
 25,

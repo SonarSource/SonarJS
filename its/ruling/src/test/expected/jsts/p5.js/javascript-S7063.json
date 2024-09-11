@@ -1,4 +1,10 @@
 {
+"p5.js:docs/yuidoc-p5-theme/helpers/helpers_dev.js": [
+13
+],
+"p5.js:docs/yuidoc-p5-theme/helpers/helpers_prod.js": [
+12
+],
 "p5.js:src/core/environment.js": [
 15,
 159,
@@ -37,5 +43,15 @@
 "p5.js:src/webgl/p5.RendererGL.js": [
 11,
 226
+],
+"p5.js:tasks/test/mocha-chrome.js": [
+9,
+10
+],
+"p5.js:utils/sample-linter.js": [
+11,
+19,
+23,
+235
 ]
 }
