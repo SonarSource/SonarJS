@@ -20,9 +20,16 @@
 // https://sonarsource.github.io/rspec/#/rspec/S7063/javascript
 
 import { Rule } from 'eslint';
-import { generateMeta } from '../helpers';
+import { generateMeta, isRequire } from '../helpers';
 import { meta } from './meta';
-import { Directive, ModuleDeclaration, Statement, Program, CallExpression } from 'estree';
+import {
+  Directive,
+  ModuleDeclaration,
+  Statement,
+  Program,
+  CallExpression,
+  AssignmentExpression,
+} from 'estree';
 
 const EXPORT_STATEMENTS = [
   'ExportNamedDeclaration',
@@ -54,7 +61,62 @@ export const rule: Rule.RuleModule = {
   },
 };
 
+function isExportsAssignment(node: AssignmentExpression): boolean {
+  return node.left.type === 'Identifier' && node.left.name === 'exports';
+}
+
+function isExportPropertyAssignment(node: AssignmentExpression): boolean {
+  return (
+    node.left.type === 'MemberExpression' &&
+    node.left.object.type === 'Identifier' &&
+    node.left.object.name === 'exports'
+  );
+}
+
+function isModuleAssignment(node: AssignmentExpression): boolean {
+  return (
+    node.left.type === 'MemberExpression' &&
+    node.left.object.type === 'Identifier' &&
+    node.left.object.name === 'module'
+  );
+}
+
+function isModulePropertyAssignment(node: AssignmentExpression): boolean {
+  return (
+    node.left.type === 'MemberExpression' &&
+    node.left.object.type === 'MemberExpression' &&
+    node.left.object.object.type === 'Identifier' &&
+    node.left.object.object.name === 'module' &&
+    node.left.object.property.type === 'Identifier' &&
+    node.left.object.property.name === 'exports'
+  );
+}
+
+function isCommonJSExport(node: AssignmentExpression): boolean {
+  return (
+    isExportsAssignment(node) ||
+    isExportPropertyAssignment(node) ||
+    isModuleAssignment(node) ||
+    isModulePropertyAssignment(node)
+  );
+}
+
 function hasExport(program: Program): boolean {
+  return hasESMModuleExport(program) || hasCommonJSExport(program);
+}
+
+function hasCommonJSExport(program: Program): boolean {
+  return (
+    program.body.filter(
+      statement =>
+        statement.type === 'ExpressionStatement' &&
+        statement.expression.type === 'AssignmentExpression' &&
+        isCommonJSExport(statement.expression),
+    ).length > 0
+  );
+}
+
+function hasESMModuleExport(program: Program): boolean {
   return program.body.filter(node => EXPORT_STATEMENTS.includes(node.type)).length > 0;
 }
 
@@ -64,12 +126,12 @@ function handleTopLevelStatement(
 ) {
   if (LOOP_STATEMENTS.includes(topLevelStatement.type)) {
     context.report({
-      message: 'Do not include loop statements on module top level',
+      message: 'Do not include loop statements on module top level.',
       node: topLevelStatement,
     });
   } else if (CONDITIONAL_STATEMENTS.includes(topLevelStatement.type)) {
     context.report({
-      message: 'Do not include conditional statements on module top level',
+      message: 'Do not include conditional statements on module top level.',
       node: topLevelStatement,
     });
   } else if (topLevelStatement.type === 'ExpressionStatement') {
@@ -92,11 +154,11 @@ function handleTopLevelStatement(
 }
 
 function checkCallExpression(context: Rule.RuleContext, expression: CallExpression) {
-  if (expression.callee.type === 'Identifier' && expression.callee.name === 'require') {
+  if (isRequire(expression)) {
     return;
   }
   context.report({
-    message: 'Do not include method calls on module top level',
+    message: 'Do not include method calls on module top level.',
     node: expression,
   });
 }

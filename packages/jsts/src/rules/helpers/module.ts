@@ -52,7 +52,7 @@ export function getRequireCalls(context: Rule.RuleContext) {
   return required;
 }
 
-function isRequire(node: Node) {
+export function isRequire(node: Node) {
   return (
     node.type === 'CallExpression' &&
     node.callee.type === 'Identifier' &&

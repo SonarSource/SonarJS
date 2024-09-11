@@ -21,7 +21,7 @@ import { RuleTester } from 'eslint';
 import { rule } from './';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
-ruleTester.run('"Array.reduce()" calls should include an initial value', rule, {
+ruleTester.run('Module with exports should not include side effects', rule, {
   valid: [
     {
       code: 'export const x = 10;',
@@ -75,6 +75,22 @@ export default rootReducer`,
     },
     {
       code: `let x = 10; x = externalApi(); export const y = 10;`,
+      errors: 1,
+    },
+    {
+      code: `const x = 10; console.log(x); module.exports = x;`,
+      errors: 1,
+    },
+    {
+      code: `const x = 10; console.log(x); exports = x;`,
+      errors: 1,
+    },
+    {
+      code: `const x = 10; console.log(x); exports.x = x;`,
+      errors: 1,
+    },
+    {
+      code: `const x = 10; console.log(x); module.exports.x = x;`,
       errors: 1,
     },
   ],
