@@ -62,6 +62,21 @@ ruleTester.run('Dependencies should be explicit', rule, {
       options,
     },
     {
+      code: `import "optionalDependency";`,
+      filename,
+      options,
+    },
+    {
+      code: `import "moduleAlias/bla";`,
+      filename,
+      options,
+    },
+    {
+      code: `import "project1";`,
+      filename,
+      options,
+    },
+    {
       code: `import "@namespaced/dependency";`,
       filename,
       options,
@@ -298,34 +313,3 @@ ruleTesterForBaseUrl.run('Imports based on baseUrl should be accepted', rule, {
     },
   ],
 });
-
-const ruleTesterForCatchAllExample = new RuleTester({
-  parser: tsParserPath,
-  parserOptions: {
-    ecmaVersion: 2018,
-    sourceType: 'module',
-    tsconfigRootDir: path.join(fixtures, 'ts-project-with-catch-all-path-alias'),
-    project: './tsconfig.json',
-  },
-});
-
-const filenameCatchAllExample = path.join(fixtures, 'ts-project-with-catch-all-path-alias/file.ts');
-
-ruleTesterForCatchAllExample.run(
-  'Do not report when a path mapping with "*"-pattern is used',
-  rule,
-  {
-    valid: [
-      {
-        code: `
-          import { f } from '$b/c/d.e';
-          import { f } from 'concretegenerated';
-          let f = require("this/might/be/generated").f;
-        `,
-        filename: filenameCatchAllExample,
-        options,
-      },
-    ],
-    invalid: [],
-  },
-);

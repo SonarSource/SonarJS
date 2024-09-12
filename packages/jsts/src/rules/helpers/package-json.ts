@@ -21,6 +21,7 @@ import path from 'path';
 import { PackageJson } from 'type-fest';
 import { searchFiles, File } from './find-files';
 import { toUnixPath } from './files';
+import { Minimatch } from 'minimatch';
 
 export const PACKAGE_JSON = 'package.json';
 export const parsePackageJson = (_filename: string, contents: string | null) =>
@@ -36,7 +37,7 @@ const dirCache: Map<string, Set<string>> = new Map();
 /**
  * Cache for the available dependencies by dirname.
  */
-const cache: Map<string, Set<string>> = new Map();
+const cache: Map<string, Set<string | Minimatch>> = new Map();
 
 let PackageJsonsByBaseDir: Record<string, File<PackageJson>[]>;
 
@@ -84,7 +85,7 @@ export function getDependencies(fileName: string) {
     return cached;
   }
 
-  const result = new Set<string>();
+  const result = new Set<string | Minimatch>();
   cache.set(dirname, result);
 
   for (const packageJson of getNearestPackageJsons(fileName)) {
@@ -141,11 +142,44 @@ function getDependenciesFromPackageJson(content: PackageJson) {
   if (content.peerDependencies !== undefined) {
     addDependencies(result, content.peerDependencies);
   }
+  if (content.optionalDependencies !== undefined) {
+    addDependencies(result, content.optionalDependencies);
+  }
+  if (content._moduleAliases !== undefined) {
+    addDependencies(result, content._moduleAliases as PackageJson.Dependency);
+  }
+  if (Array.isArray(content.workspaces)) {
+    addDependenciesArray(result, content.workspaces);
+  } else if (content.workspaces?.packages) {
+    addDependenciesArray(result, content.workspaces?.packages);
+  }
   return result;
 }
 
-function addDependencies(result: Set<string>, dependencies: any) {
-  Object.keys(dependencies).forEach(name =>
-    result.add(name.startsWith(DefinitelyTyped) ? name.substring(DefinitelyTyped.length) : name),
-  );
+function addDependencies(
+  result: Set<string | Minimatch>,
+  dependencies: PackageJson.Dependency,
+  isGlob = false,
+) {
+  Object.keys(dependencies).forEach(name => addDependency(result, name, isGlob));
+}
+
+function addDependenciesArray(
+  result: Set<string | Minimatch>,
+  dependencies: string[],
+  isGlob = true,
+) {
+  dependencies.forEach(name => addDependency(result, name, isGlob));
+}
+
+function addDependency(result: Set<string | Minimatch>, dependency: string, isGlob: boolean) {
+  if (isGlob) {
+    result.add(new Minimatch(dependency, { nocase: true, matchBase: true }));
+  } else {
+    result.add(
+      dependency.startsWith(DefinitelyTyped)
+        ? dependency.substring(DefinitelyTyped.length)
+        : dependency,
+    );
+  }
 }

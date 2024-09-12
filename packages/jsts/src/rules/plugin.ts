@@ -348,7 +348,9 @@ import { rule as S2817 } from './S2817';
 import { rule as S5689 } from './S5689';
 import { rule as S2755 } from './S2755';
 import { rule as S4817 } from './S4817';
+import { rule as S6627 } from './S6627';
 import { rule as S1607 } from './S1607';
+import { rule as S7060 } from './S7060';
 import type { Rule, Linter } from 'eslint';
 import { rule as S7059 } from './S7059';
 
@@ -517,6 +519,7 @@ export const rules: Record<string, Rule.RuleModule> = {
   'no-inconsistent-returns': S3801,
   'no-incorrect-string-concat': S3402,
   'no-infinite-loop': S2189,
+  'no-internal-api-use': S6627,
   'no-intrusive-permissions': S5604,
   'no-invalid-await': S4123,
   'no-invariant-returns': S3516,
@@ -553,6 +556,7 @@ export const rules: Record<string, Rule.RuleModule> = {
   'no-same-argument-assert': S5863,
   'no-same-line-conditional': S3972,
   'no-self-compare': S6679,
+  'no-self-import': S7060,
   'no-skipped-test': S1607,
   'no-small-switch': S1301,
   'no-tab': S105,

@@ -96,7 +96,9 @@ When using this for the ruling tests, make sure that you run them in series (and
 
 ### Implementing a rule
 
-1. Generate rule metadata (JSON and HTML files) from [RSPEC](https://github.com/SonarSource/rspec#4-implement-the-rule) by running this command from the project's root:
+1. Generate rule metadata (JSON and HTML files) from [RSPEC](https://github.com/SonarSource/rspec#4-implement-the-rule), by running this command from the project's root:
+
+- to obtain the 'rule-api-[RELEASE].jar', see here [sonar-rule-api repo](https://github.com/SonarSource/sonar-rule-api)
 
 ```sh
 java -jar <location of rule-api jar> generate -rule S1234 [-branch <RSPEC branch>]
@@ -337,3 +339,11 @@ You can simply copy and paste compliant and non-compliant examples from your RSP
 - Use issue number for a branch name, e.g. `issue-1234`
 - You can use [AST explorer](https://astexplorer.net/) to explore the tree share. Use the `regexpp` parser when implementing a Regex rule.
 - [ESlint's working with rules](https://eslint.org/docs/developer-guide/working-with-rules)
+
+## Issue tracking
+
+### Working on a rule
+
+You don't need to make separate Jira tickets for RSPEC and rule implementation, a single one is good enough.
+
+Add a link to the RSPEC PR from the SonarJS PR as shown in [this example](https://github.com/SonarSource/SonarJS/pull/4802#issue-2505105904).

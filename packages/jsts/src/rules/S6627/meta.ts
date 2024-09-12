@@ -23,31 +23,11 @@
 export const meta = {
   type: 'suggestion',
   docs: {
-    description: 'Dependencies should be explicit',
+    description: 'Users should not use internal APIs',
     recommended: true,
-    url: 'https://sonarsource.github.io/rspec/#/rspec/S4328/javascript',
+    url: 'https://sonarsource.github.io/rspec/#/rspec/S6627/javascript',
     requiresTypeChecking: false,
   },
 };
 
-export const sonarKey = 'S4328';
-import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
-export const schema = {
-  type: 'array',
-  minItems: 0,
-  maxItems: 1,
-  items: [
-    {
-      type: 'object',
-      properties: {
-        whitelist: {
-          type: 'array',
-          items: {
-            type: 'string',
-          },
-        },
-      },
-      additionalProperties: false,
-    },
-  ],
-} as const satisfies JSONSchema4;
+export const sonarKey = 'S6627';
