@@ -10,6 +10,16 @@ const config = {
   pathRuleDoc(name) {
     return `docs/${name}.md`;
   },
+  ruleListColumns: [
+    'name',
+    'description',
+    'configsError',
+    'fixable',
+    'hasSuggestions',
+    'requiresTypeChecking',
+    'deprecated',
+  ],
+  initRuleDocs: true,
 };
 
 module.exports = config;

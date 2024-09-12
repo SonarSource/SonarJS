@@ -624,7 +624,7 @@ export const rules: Record<string, Rule.RuleModule> = {
   'redundant-type-aliases': S6564,
   'regex-complexity': S5843,
   'regular-expr': S4784,
-  'pluginRules-of-hooks': S6440,
+  'rules-of-hooks': S6440,
   semi: S1438,
   'session-regeneration': S5876,
   'shorthand-property-grouping': S3499,
