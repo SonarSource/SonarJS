@@ -35,6 +35,8 @@ export const rule: Rule.RuleModule = {
     let currentCodePath: Rule.CodePath | null = null;
     let currentCodeSegment: Rule.CodePathSegment | null = null;
     let enteringSwitchCase = false;
+    let currentSegments: Set<Rule.CodePathSegment>;
+    const allCurrentSegments: Set<Rule.CodePathSegment>[] = [];
     const segmentsWithExit: Set<string> = new Set();
     const initialSegmentBySwitchCase: Map<estree.SwitchCase, Rule.CodePathSegment> = new Map();
     const switchCaseStack: estree.SwitchCase[] = [];
@@ -66,11 +68,15 @@ export const rule: Rule.RuleModule = {
     return {
       onCodePathStart(codePath: Rule.CodePath) {
         currentCodePath = codePath;
+        allCurrentSegments.push(currentSegments);
+        currentSegments = new Set();
       },
       onCodePathEnd() {
         currentCodePath = currentCodePath!.upper;
+        currentSegments = allCurrentSegments.pop()!;
       },
       onCodePathSegmentStart(segment: Rule.CodePathSegment) {
+        currentSegments.add(segment);
         currentCodeSegment = segment;
         if (enteringSwitchCase) {
           initialSegmentBySwitchCase.set(
@@ -79,6 +85,15 @@ export const rule: Rule.RuleModule = {
           );
           enteringSwitchCase = false;
         }
+      },
+      onCodePathSegmentEnd(segment: Rule.CodePathSegment) {
+        currentSegments.delete(segment);
+      },
+      onUnreachableCodePathSegmentStart(segment: Rule.CodePathSegment) {
+        currentSegments.add(segment);
+      },
+      onUnreachableCodePathSegmentEnd(segment: Rule.CodePathSegment) {
+        currentSegments.delete(segment);
       },
       CallExpression(node: estree.Node) {
         const callExpr = node as estree.CallExpression;
@@ -93,7 +108,7 @@ export const rule: Rule.RuleModule = {
       'SwitchCase:exit'(node: estree.Node) {
         const switchCase = node as estree.SwitchCase;
         const initialSegment: Rule.CodePathSegment = initialSegmentBySwitchCase.get(switchCase)!;
-        const isReachable = currentCodePath!.currentSegments.some(
+        const isReachable = Array.from(currentSegments).some(
           s => s.reachable && !isAfterProcessExitCall(s, initialSegment),
         );
         const { cases } = getParent(context, node) as estree.SwitchStatement;
