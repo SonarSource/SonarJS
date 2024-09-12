@@ -274,6 +274,9 @@ function getProtobufShapeForNode(node: TSESTree.Node) {
     case 'EmptyStatement':
       shape = visitEmptyStatement(node);
       break;
+    case 'TSExportAssignment':
+      shape = visitExportAssignment(node);
+      break;
     case 'ExpressionStatement':
       // Special case: can be 'Directive' or 'ExpressionStatement'.
       shape = visitExpressionStatement(node);
@@ -336,7 +339,6 @@ function getProtobufShapeForNode(node: TSESTree.Node) {
     case 'TSEmptyBodyFunctionExpression':
     case 'TSEnumDeclaration':
     case 'TSEnumMember':
-    case 'TSExportAssignment':
     case 'TSExportKeyword':
     case 'TSExternalModuleReference':
     case 'TSFunctionType':
@@ -561,6 +563,12 @@ function visitObjectPattern(node: TSESTree.ObjectPattern) {
 function visitPrivateIdentifier(node: TSESTree.PrivateIdentifier) {
   return {
     name: node.name,
+  };
+}
+
+function visitExportAssignment(node: TSESTree.TSExportAssignment) {
+  return {
+    expression: visitNode(node.expression),
   };
 }
 

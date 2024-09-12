@@ -42,6 +42,7 @@ import org.sonar.plugins.javascript.bridge.protobuf.ChainExpression;
 import org.sonar.plugins.javascript.bridge.protobuf.ClassDeclaration;
 import org.sonar.plugins.javascript.bridge.protobuf.EmptyStatement;
 import org.sonar.plugins.javascript.bridge.protobuf.ExportAllDeclaration;
+import org.sonar.plugins.javascript.bridge.protobuf.ExportAssignment;
 import org.sonar.plugins.javascript.bridge.protobuf.ExportDefaultDeclaration;
 import org.sonar.plugins.javascript.bridge.protobuf.ExportSpecifier;
 import org.sonar.plugins.javascript.bridge.protobuf.ExpressionStatement;
@@ -715,6 +716,30 @@ class ESTreeFactoryTest {
       assertThat(array.elements().get(0)).isEmpty();
       assertThat(array.elements().get(1).get()).isInstanceOf(ESTree.Identifier.class);
       assertThat(array.elements().get(2)).isEmpty();
+    });
+  }
+
+  @Test
+  void should_create_export_assignment() {
+    CallExpression callExpression = CallExpression.newBuilder()
+      .setCallee(Node.newBuilder().setType(NodeType.SuperType).build())
+      .build();
+    Node node = Node.newBuilder()
+      .setType(NodeType.CallExpressionType)
+      .setCallExpression(callExpression)
+      .build();
+    //
+    ExportAssignment exportAssignment = ExportAssignment.newBuilder()
+      .setExpression(node)
+      .build();
+    Node protobufNode = Node.newBuilder()
+      .setType(NodeType.ExportAssignmentType)
+      .setExportAssignment(exportAssignment)
+      .build();
+
+    ESTree.Node estreeExpressionStatement = ESTreeFactory.from(protobufNode, ESTree.Node.class);
+    assertThat(estreeExpressionStatement).isInstanceOfSatisfying(ESTree.ExportAssignment.class, export -> {
+      assertThat(export.expression()).isInstanceOf(ESTree.CallExpression.class);
     });
   }
 

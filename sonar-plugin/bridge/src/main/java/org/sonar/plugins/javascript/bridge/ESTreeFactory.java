@@ -43,6 +43,7 @@ import org.sonar.plugins.javascript.bridge.protobuf.ConditionalExpression;
 import org.sonar.plugins.javascript.bridge.protobuf.ContinueStatement;
 import org.sonar.plugins.javascript.bridge.protobuf.DoWhileStatement;
 import org.sonar.plugins.javascript.bridge.protobuf.ExportAllDeclaration;
+import org.sonar.plugins.javascript.bridge.protobuf.ExportAssignment;
 import org.sonar.plugins.javascript.bridge.protobuf.ExportDefaultDeclaration;
 import org.sonar.plugins.javascript.bridge.protobuf.ExportNamedDeclaration;
 import org.sonar.plugins.javascript.bridge.protobuf.ExportSpecifier;
@@ -180,6 +181,7 @@ public class ESTreeFactory {
       case LiteralType -> fromLiteralType(node);
       case TemplateElementType -> fromTemplateElementType(node);
       case FunctionExpressionType -> fromFunctionExpressionType(node);
+      case ExportAssignmentType -> fromExportAssignment(node);
       case UnknownNodeType -> fromUnknownNodeType(node);
       case UNRECOGNIZED ->
         throw new IllegalArgumentException("Unknown node type: " + node.getType() + " at " + node.getLoc());
@@ -214,6 +216,12 @@ public class ESTreeFactory {
         Optional.of(from(exportAllDeclaration.getExported(), ESTree.IdentifierOrLiteral.class)) :
         Optional.empty(),
       from(exportAllDeclaration.getSource(), ESTree.Literal.class));
+  }
+
+  private static ESTree.ExportAssignment fromExportAssignment(Node node) {
+    ExportAssignment exportAssignment = node.getExportAssignment();
+    return new ESTree.ExportAssignment(fromLocation(node.getLoc()),
+      from(exportAssignment.getExpression(), ESTree.Expression.class));
   }
 
   private static ESTree.Identifier fromIdentifierType(Node node) {

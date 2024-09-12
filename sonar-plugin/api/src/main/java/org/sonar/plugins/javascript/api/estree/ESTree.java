@@ -109,6 +109,7 @@ public class ESTree {
   public record DoWhileStatement(Location loc, Statement body, Expression test) implements Statement {}
   public record EmptyStatement(Location loc) implements Statement {}
   public record ExportAllDeclaration(Location loc, Optional<IdentifierOrLiteral> exported, Literal source) implements ModuleDeclaration {}
+  public record ExportAssignment(Location loc, Expression expression) implements Statement {}
   // In "d.ts" file, the declaration field has type: MaybeNamedFunctionDeclaration | MaybeNamedClassDeclaration | Expression.
   // The "MaybeNamed" are there to show that the id is optional in this specific case.
   // We decided to not create this extra class, and instead use the existing FunctionDeclaration and ClassDeclaration classes.
