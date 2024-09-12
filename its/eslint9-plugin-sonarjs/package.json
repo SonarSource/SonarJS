@@ -6,9 +6,11 @@
     "test": "node index.test.js"
   },
   "devDependencies": {
+    "@types/eslint": "^8.56.12",
     "cross-spawn": "7.0.3",
-    "eslint": "^9.10.0",
+    "eslint": "8.57.0",
+    "eslint-plugin-import": "2.29.1",
     "typescript": "5.5.4",
-    "typescript-eslint": "^8.5.0"
+    "typescript-eslint": "7.16.1"
   }
 }
