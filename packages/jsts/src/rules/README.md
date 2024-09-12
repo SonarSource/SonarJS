@@ -6,7 +6,6 @@ SonarJS rules for ESLint to help developers produce [Clean Code](https://www.son
 
 - Node.js (>=16.x).
 - ESLint 8.x (version 9.X not yet supported)
-- typescript-eslint/parser 7.X (version 8.X not yet supported)
 
 ## Usage
 
