@@ -26,51 +26,42 @@ const ruleTester = new TypeScriptRuleTester();
 ruleTester.run('S2301:TypeScript', S2301, {
   invalid: [
     {
-      name: 'function with a boolean parameter that creates a path',
-      code: `const unaryTest = (foo: boolean) => {
-  if (foo) {
-    return 5;
+      name: 'RSPEC non-compliant code example',
+      code: `function tempt1(name: string, ofAge: boolean) {
+  if (ofAge) {
+    offerLiquor(name);
+  } else {
+    offerCandy(name);
   }
-  
-  return 10;
-};
+}
 
-const binaryTest = (foo: boolean) => {
-  if (foo === true) {
-    return 5;
-  }
-  
-  return 10;
-};
+function tempt2(name: string, ofAge: boolean) {
+  ofAge ? offerLiquor(name) : offerCandy(name);
+}
 
-const nestedTest = (foo: boolean) => {
-  if (true) {
-    if (foo === true) {
-      return 5;
-    }
-  }
-  
-  return 10;
-};`,
+function tempt3(name: string, ofAge: boolean) {
+  return ofAge ? offerLiquor(name) : offerCandy(name);
+}
+`,
       options: ['sonar-runtime'],
       errors: [
         {
           line: 2,
           column: 7,
           endLine: 2,
-          endColumn: 10,
+          endColumn: 12,
           messageId: 'sonarRuntime',
           data: {
             parameterName: 'foo',
             sonarRuntimeData: JSON.stringify({
               message:
-                'Provide multiple methods instead of using "foo" to determine which action to take.',
+                'Provide multiple methods instead of using "ofAge" to determine which action to take.',
               secondaryLocations: [
                 {
-                  message: 'Parameter "foo" was declared here',
-                  column: 19,
+                  message: 'Parameter "ofAge" was declared here',
+                  column: 30,
                   line: 1,
-                  endColumn: 31,
+                  endColumn: 44,
                   endLine: 1,
                 },
               ],
@@ -79,21 +70,21 @@ const nestedTest = (foo: boolean) => {
         },
         {
           line: 10,
-          column: 7,
+          column: 3,
           endLine: 10,
-          endColumn: 10,
+          endColumn: 8,
           messageId: 'sonarRuntime',
           data: {
             parameterName: 'foo',
             sonarRuntimeData: JSON.stringify({
               message:
-                'Provide multiple methods instead of using "foo" to determine which action to take.',
+                'Provide multiple methods instead of using "ofAge" to determine which action to take.',
               secondaryLocations: [
                 {
-                  message: 'Parameter "foo" was declared here',
-                  column: 20,
+                  message: 'Parameter "ofAge" was declared here',
+                  column: 30,
                   line: 9,
-                  endColumn: 32,
+                  endColumn: 44,
                   endLine: 9,
                 },
               ],
@@ -101,206 +92,23 @@ const nestedTest = (foo: boolean) => {
           },
         },
         {
-          line: 19,
-          column: 9,
-          endLine: 19,
-          endColumn: 12,
-          messageId: 'sonarRuntime',
-          data: {
-            parameterName: 'foo',
-            sonarRuntimeData: JSON.stringify({
-              message:
-                'Provide multiple methods instead of using "foo" to determine which action to take.',
-              secondaryLocations: [
-                {
-                  message: 'Parameter "foo" was declared here',
-                  column: 20,
-                  line: 17,
-                  endColumn: 32,
-                  endLine: 17,
-                },
-              ],
-            }),
-          },
-        },
-      ],
-    },
-    {
-      name: 'function with multiple boolean parameters that create a path',
-      code: `const unaryTest = (foo: boolean, bar: boolean) => {
-  if (foo) {
-    return 5;
-  }
-  
-  if (bar) {
-    return 10;
-  }
-  
-  return 15;
-};
-
-const binaryTest = (foo: boolean, bar: boolean) => {
-  if (foo === true) {
-    return 5;
-  }
-  
-  if (bar === true) {
-    return 10;
-  }
-  
-  return 15;
-};
-
-const nestedTest = (foo: boolean, bar: boolean) => {
-  if (true) {
-    if (foo === true) {
-      return 5;
-    }
-  }
-  
-  if (true) {
-    if (bar === true) {
-      return 10;
-    }
-  }
-  
-  return 15;
-};`,
-      options: ['sonar-runtime'],
-      errors: [
-        {
-          line: 2,
-          column: 7,
-          endLine: 2,
-          endColumn: 10,
-          messageId: 'sonarRuntime',
-          data: {
-            parameterName: 'foo',
-            sonarRuntimeData: JSON.stringify({
-              message:
-                'Provide multiple methods instead of using "foo" to determine which action to take.',
-              secondaryLocations: [
-                {
-                  message: 'Parameter "foo" was declared here',
-                  column: 19,
-                  line: 1,
-                  endColumn: 31,
-                  endLine: 1,
-                },
-              ],
-            }),
-          },
-        },
-        {
-          line: 6,
-          column: 7,
-          endLine: 6,
-          endColumn: 10,
-          messageId: 'sonarRuntime',
-          data: {
-            parameterName: 'bar',
-            sonarRuntimeData: JSON.stringify({
-              message:
-                'Provide multiple methods instead of using "bar" to determine which action to take.',
-              secondaryLocations: [
-                {
-                  message: 'Parameter "bar" was declared here',
-                  column: 33,
-                  line: 1,
-                  endColumn: 45,
-                  endLine: 1,
-                },
-              ],
-            }),
-          },
-        },
-        {
           line: 14,
-          column: 7,
+          column: 10,
           endLine: 14,
-          endColumn: 10,
+          endColumn: 15,
           messageId: 'sonarRuntime',
           data: {
             parameterName: 'foo',
             sonarRuntimeData: JSON.stringify({
               message:
-                'Provide multiple methods instead of using "foo" to determine which action to take.',
+                'Provide multiple methods instead of using "ofAge" to determine which action to take.',
               secondaryLocations: [
                 {
-                  message: 'Parameter "foo" was declared here',
-                  column: 20,
+                  message: 'Parameter "ofAge" was declared here',
+                  column: 30,
                   line: 13,
-                  endColumn: 32,
+                  endColumn: 44,
                   endLine: 13,
-                },
-              ],
-            }),
-          },
-        },
-        {
-          line: 18,
-          column: 7,
-          endLine: 18,
-          endColumn: 10,
-          messageId: 'sonarRuntime',
-          data: {
-            parameterName: 'bar',
-            sonarRuntimeData: JSON.stringify({
-              message:
-                'Provide multiple methods instead of using "bar" to determine which action to take.',
-              secondaryLocations: [
-                {
-                  message: 'Parameter "bar" was declared here',
-                  column: 34,
-                  line: 13,
-                  endColumn: 46,
-                  endLine: 13,
-                },
-              ],
-            }),
-          },
-        },
-        {
-          line: 27,
-          column: 9,
-          endLine: 27,
-          endColumn: 12,
-          messageId: 'sonarRuntime',
-          data: {
-            parameterName: 'foo',
-            sonarRuntimeData: JSON.stringify({
-              message:
-                'Provide multiple methods instead of using "foo" to determine which action to take.',
-              secondaryLocations: [
-                {
-                  message: 'Parameter "foo" was declared here',
-                  column: 20,
-                  line: 25,
-                  endColumn: 32,
-                  endLine: 25,
-                },
-              ],
-            }),
-          },
-        },
-        {
-          line: 33,
-          column: 9,
-          endLine: 33,
-          endColumn: 12,
-          messageId: 'sonarRuntime',
-          data: {
-            parameterName: 'bar',
-            sonarRuntimeData: JSON.stringify({
-              message:
-                'Provide multiple methods instead of using "bar" to determine which action to take.',
-              secondaryLocations: [
-                {
-                  message: 'Parameter "bar" was declared here',
-                  column: 34,
-                  line: 25,
-                  endColumn: 46,
-                  endLine: 25,
                 },
               ],
             }),
@@ -311,70 +119,70 @@ const nestedTest = (foo: boolean, bar: boolean) => {
   ],
   valid: [
     {
-      name: `function with no parameter`,
+      name: `RSPEC compliant code example`,
       options: ['sonar-runtime'],
-      code: `function legacy() {
-  if (foo) {
-    return true;
-  }
-  
-  return false;
+      code: `function temptAdult(name: string) {
+  offerLiquor(name);
 }
 
-const arrow = () => {
-  if (foo) {
-    return true;
-  }
-  
-  return false;
+function temptChild(name: string) {
+  offerCandy(name);
 }
 
-const arrow = () => {
-  let foo: boolean;
+function tempt1(name: string, ofAge: boolean) {
+  const foo = 5;
 
-  if (foo) {
-    return true;
-  }
-  
-  return false;
-}
-`,
-    },
-    {
-      name: `function with a boolean parameter that does not create a path`,
-      options: ['sonar-runtime'],
-      code: `function legacy(bar: boolean) {
-  if (foo) {
-    return true;
-  }
-  
-  return false;
+  ofAge ? offerLiquor(name) : offerCandy(name);
 }
 
-const arrow = (bar: boolean) => {
-  if (foo) {
-    return true;
-  }
-  
-  return false;
+function tempt2(name: string, ofAge: boolean) {
+  const foo = 5;
+
+  ofAge ? offerLiquor(name) : offerCandy(name);
 }
 
-const arrow = (foo2: boolean) => {
-  let foo2: boolean;
+function tempt3(name: string, ofAge: boolean) {
+  ofAge ? offerLiquor(name) : offerCandy(name);
 
-  if (foo2) {
-    return true;
-  }
-  
-  return false;
+  const foo = 5;
 }
 
-const arrow = (foo: boolean) => {
-  if (true) {
-    return foo;
+function tempt4(name: string, ofAge: boolean) {
+  const foo = 5;
+
+  return ofAge ? offerLiquor(name) : offerCandy(name);
+}
+
+function tempt5(name: string, ofAge: boolean) {
+  return ofAge ? offerLiquor(name) : offerCandy(name);
+
+  const foo = 5;
+}
+
+function tempt6(name: string, ofAge: boolean) {
+  const foo = 5;
+
+  if (ofAge) {
+    offerLiquor(name);
+  } else {
+    offerCandy(name);
   }
-  
-  return false;
+}
+
+function tempt7(name: string, ofAge: boolean) {
+  if (ofAge) {
+    offerLiquor(name);
+  } else {
+    offerCandy(name);
+  }
+
+  const foo = 5;
+}
+
+function tempt8(name: string, ofAge: boolean) {
+  if (ofAge) {
+    offerLiquor(name);
+  }
 }
 `,
     },
@@ -391,101 +199,82 @@ javaScriptRuleTester.run('S2301:JavaScript', S2301, {
   invalid: [],
   valid: [
     {
-      name: `function with no parameter`,
+      name: `RSPEC compliant code example`,
       options: ['sonar-runtime'],
-      code: `function legacy() {
-  if (foo) {
-    return true;
-  }
-  
-  return false;
+      code: `function temptAdult(name) {
+  offerLiquor(name);
 }
 
-const arrow1 = () => {
-  if (foo) {
-    return true;
-  }
-  
-  return false;
+function temptChild(name) {
+  offerCandy(name);
 }
 
-const arrow2 = () => {
-  let foo = true;
+function tempt1(name, ofAge) {
+  const foo = 5;
 
-  if (foo) {
-    return true;
+  ofAge ? offerLiquor(name) : offerCandy(name);
+}
+
+function tempt2(name, ofAge) {
+  const foo = 5;
+
+  ofAge ? offerLiquor(name) : offerCandy(name);
+}
+
+function tempt3(name, ofAge) {
+  ofAge ? offerLiquor(name) : offerCandy(name);
+
+  const foo = 5;
+}
+
+function tempt4(name, ofAge) {
+  const foo = 5;
+
+  return ofAge ? offerLiquor(name) : offerCandy(name);
+}
+
+function tempt5(name, ofAge) {
+  return ofAge ? offerLiquor(name) : offerCandy(name);
+
+  const foo = 5;
+}
+
+function tempt6(name, ofAge) {
+  const foo = 5;
+
+  if (ofAge) {
+    offerLiquor(name);
+  } else {
+    offerCandy(name);
   }
-  
-  return false;
+}
+
+function tempt7(name, ofAge) {
+  if (ofAge) {
+    offerLiquor(name);
+  } else {
+    offerCandy(name);
+  }
+
+  const foo = 5;
+}
+
+function tempt8(name, ofAge) {
+  if (ofAge) {
+    offerLiquor(name);
+  } else {
+    offerCandy(name);
+  }
+}
+
+function tempt9(name, ofAge) {
+  ofAge ? offerLiquor(name) : offerCandy(name);
+}
+
+function tempt10(name, ofAge) {
+  return ofAge ? offerLiquor(name) : offerCandy(name);
 }
 `,
-    },
-    {
-      name: `function with a boolean parameter that does not create a path`,
-      options: ['sonar-runtime'],
-      code: `function legacy(bar) {
-  if (foo) {
-    return true;
-  }
-  
-  return false;
-}
-
-const arrow1 = (bar) => {
-  if (foo) {
-    return true;
-  }
-  
-  return false;
-}
-
-const arrow2 = (foo2) => {
-  foo2 = true;
-
-  if (foo2) {
-    return true;
-  }
-  
-  return false;
-}
-
-const arrow3 = (foo) => {
-  if (true) {
-    return foo;
-  }
-  
-  return false;
-}
-`,
-    },
-    {
-      name: 'function with a boolean parameter that creates a path',
-      code: `const unaryTest = (foo) => {
-  if (foo) {
-    return 5;
-  }
-  
-  return 10;
-};
-
-const binaryTest = (foo) => {
-  if (foo === true) {
-    return 5;
-  }
-  
-  return 10;
-};
-
-const nestedTest = (foo) => {
-  if (true) {
-    if (foo === true) {
-      return 5;
-    }
-  }
-  
-  return 10;
-};`,
-      options: ['sonar-runtime'],
     },
   ],
 });

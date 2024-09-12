@@ -1,9 +1,8 @@
 <h2>Why is this an issue?</h2>
-<p>A selector argument is a <code>boolean</code> argument that’s used to determine which of two paths to take through a method. Specifying such a
+<p>A selector parameter is a <code>boolean</code> parameter that’s used to determine which of two paths to take through a method. Specifying such a
 parameter may seem innocuous, particularly if it’s well named.</p>
 <p>Unfortunately, developers calling the method won’t see the parameter name, only its value. They’ll be forced either to guess at the meaning or to
 take extra time to look the method up.</p>
-<p>Instead, separate methods should be written.</p>
 <p>This rule finds methods with a <code>boolean</code> that’s used to determine which path to take through the method.</p>
 <h3>Noncompliant code example</h3>
 <pre>
@@ -21,6 +20,7 @@ function corrupt() {
 }
 </pre>
 <h3>Compliant solution</h3>
+<p>Instead, separate methods should be written.</p>
 <pre>
 function temptAdult(name: string) {
   offerLiquor(name);

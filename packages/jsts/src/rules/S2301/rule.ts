@@ -29,7 +29,7 @@ import {
   report,
   toSecondaryLocation,
 } from '../helpers';
-import type { Node as ESTreeNode } from 'estree';
+import type { BlockStatement, Node as ESTreeNode } from 'estree';
 import NodeParentExtension = Rule.NodeParentExtension;
 import { meta as rspecMeta } from './meta';
 
@@ -38,18 +38,37 @@ type Node = ESTreeNode & NodeParentExtension;
 const message =
   'Provide multiple methods instead of using "{{parameterName}}" to determine which action to take.';
 
+/**
+ * A suspect test node is a test node that is the only child of a function body
+ */
 export const S2301: Rule.RuleModule = {
   meta: generateMeta(rspecMeta as Rule.RuleMetaData, {}, true),
   create: context => {
-    const ifTestNodes: Array<Node> = [];
+    const suspectTestNodes: Array<Node> = [];
+    const suspectBodies: Array<Node> = [];
+    const suspectReturnStatements: Array<Node> = [];
+
+    const handleFunctionBody = (node: BlockStatement) => {
+      const statements = node.body;
+
+      if (statements.length === 1) {
+        suspectBodies.push(statements[0] as Node);
+      }
+    };
 
     return {
+      FunctionDeclaration: node => {
+        handleFunctionBody(node.body);
+      },
+      FunctionExpression: node => {
+        handleFunctionBody(node.body);
+      },
+      ArrowFunctionExpression: node => {
+        if (node.body.type === 'BlockStatement') {
+          handleFunctionBody(node.body);
+        }
+      },
       Identifier: node => {
-        /**
-         * A suspect identifier is an identifier that:
-         * * is a direct or undirect child of a test node
-         * * has been defined by a parameter of type boolean
-         */
         const isAChildOf = (identifier: Node, node: Node): boolean => {
           if (identifier.parent === node) {
             return true;
@@ -62,11 +81,14 @@ export const S2301: Rule.RuleModule = {
           return isAChildOf(identifier.parent, node);
         };
 
-        const ifTestNode = ifTestNodes.find(testNode => {
-          return testNode === node || isAChildOf(node, testNode);
-        });
+        // An identifier is suspect if it is a direct or indirect child of a suspect node,
+        // or if it is a suspect node itself
+        const isSuspect =
+          suspectTestNodes.find(testNode => {
+            return testNode === node || isAChildOf(node, testNode);
+          }) !== undefined;
 
-        if (ifTestNode === undefined) {
+        if (!isSuspect) {
           return;
         }
 
@@ -102,11 +124,35 @@ export const S2301: Rule.RuleModule = {
           }
         }
       },
-      IfStatement: node => {
-        ifTestNodes.push(node.test as Node);
+      ConditionalExpression: node => {
+        /**
+         * A conditional expression is suspect if it is the direct child of a suspect body or the direct child of a suspect return statement
+         */
+        const parent = node.parent;
+
+        if (suspectBodies.includes(parent) || suspectReturnStatements.includes(parent)) {
+          suspectTestNodes.push(node.test as Node);
+        }
       },
-      'IfStatement:exit': () => {
-        ifTestNodes.pop();
+      IfStatement: node => {
+        if (suspectBodies.includes(node) && node.alternate) {
+          suspectTestNodes.push(node.test as Node);
+        }
+      },
+      'IfStatement:exit': node => {
+        if (suspectBodies.includes(node) && node.alternate) {
+          suspectTestNodes.pop();
+        }
+      },
+      ReturnStatement: node => {
+        if (suspectBodies.includes(node)) {
+          suspectReturnStatements.push(node);
+        }
+      },
+      'ReturnStatement:exit': node => {
+        if (suspectBodies.includes(node)) {
+          suspectReturnStatements.pop();
+        }
       },
     };
   },

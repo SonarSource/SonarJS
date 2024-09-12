@@ -1,5 +1,5 @@
 {
-  "title": "Methods should not contain selector arguments",
+  "title": "Methods should not contain selector parameters",
   "type": "CODE_SMELL",
   "code": {
     "impacts": {

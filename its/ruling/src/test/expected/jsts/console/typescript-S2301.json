@@ -1,46 +1,5 @@
 {
-"console:src/utils/polyfils.ts": [
-170,
-175,
-180
-],
-"console:src/utils/utils.ts": [
-120
-],
-"console:src/utils/valueparser.ts": [
-28,
-46,
-101,
-129,
-149
-],
-"console:src/views/Integrations/AlgoliaPopup/AlgoliaPopupFooter.tsx": [
-39
-],
-"console:src/views/PermissionsView/PermissionPopup/OldPermissionPopupFooter.tsx": [
-49,
-53
-],
-"console:src/views/PermissionsView/PermissionPopup/PermissionPopupState.ts": [
-28
-],
-"console:src/views/PermissionsView/PermissionPopup/ast.ts": [
-106
-],
-"console:src/views/Settings/Billing/CreditCardInputSection.tsx": [
-387
-],
-"console:src/views/models/DatabrowserView/Cell.tsx": [
-142,
-170,
-180,
-191
-],
 "console:src/views/models/DatabrowserView/DatabrowserView.tsx": [
 685
-],
-"console:src/views/models/DatabrowserView/RelationsPopup.tsx": [
-264,
-270
 ]
 }

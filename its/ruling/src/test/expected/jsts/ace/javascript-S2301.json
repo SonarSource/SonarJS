@@ -1,84 +1,11 @@
 {
-"ace:lib/ace/mode/css/csslint.js": [
-3088
-],
-"ace:lib/ace/mode/javascript/jshint.js": [
-343,
-931,
-1016,
-1147,
-5774,
-6193,
-6199,
-6574,
-6581,
-6591,
-6592,
-6624,
-6655,
-6665,
-10487,
-10487,
-10491,
-10521,
-10521,
-10543,
-16279
-],
-"ace:lib/ace/mode/yaml/yaml-lint.js": [
-4677,
-5006
-],
-"ace:src/anchor.js": [
-133
-],
 "ace:src/edit_session.js": [
-590,
-615,
-1132,
-1160,
-1467,
-1473
-],
-"ace:src/editor.js": [
-2664
+648
 ],
 "ace:src/ext/language_tools.js": [
 172
 ],
-"ace:src/ext/menu_tools/overlay_page.js": [
-57
-],
-"ace:src/keyboard/vim.js": [
-4632,
-4632,
-4632,
-4632,
-4652,
-4652,
-4659,
-4659,
-4661,
-4661,
-6517
-],
-"ace:src/multi_select.js": [
-284,
-602,
-681
-],
-"ace:src/scrollbar_custom.js": [
-207,
-351
-],
-"ace:src/selection.js": [
-792
-],
 "ace:src/virtual_renderer.js": [
-303,
-351,
-354,
-1357,
-1362
+303
 ]
 }

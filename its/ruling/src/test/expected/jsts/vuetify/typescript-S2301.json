@@ -1,89 +1,11 @@
 {
-"vuetify:packages/vuetify/src/components/VCalendar/mixins/calendar-with-events.ts": [
-461
-],
-"vuetify:packages/vuetify/src/components/VCalendar/mixins/calendar-with-intervals.ts": [
-140
-],
 "vuetify:packages/vuetify/src/components/VCalendar/modes/common.ts": [
-93,
-103,
-134
-],
-"vuetify:packages/vuetify/src/components/VCalendar/modes/stack.ts": [
-173
-],
-"vuetify:packages/vuetify/src/components/VCalendar/util/timestamp.ts": [
-133,
-143,
-211,
-229,
-229,
-231
-],
-"vuetify:packages/vuetify/src/components/VColorPicker/util/index.ts": [
-44
-],
-"vuetify:packages/vuetify/src/components/VData/VData.ts": [
-287,
-296
-],
-"vuetify:packages/vuetify/src/components/VDataIterator/VDataIterator.ts": [
-202,
-207,
-214,
-240
-],
-"vuetify:packages/vuetify/src/components/VDatePicker/mixins/date-picker-table.ts": [
-126
-],
-"vuetify:packages/vuetify/src/components/VList/list.ts": [
-32
-],
-"vuetify:packages/vuetify/src/components/VOtpInput/VOtpInput.ts": [
-272
+35
 ],
 "vuetify:packages/vuetify/src/components/VOverflowBtn/VOverflowBtn.ts": [
 105
 ],
-"vuetify:packages/vuetify/src/components/VTabs/VTab.tsx": [
-67
-],
-"vuetify:packages/vuetify/src/components/VTextField/VTextField.tsx": [
-94
-],
-"vuetify:packages/vuetify/src/components/VTextarea/VTextarea.tsx": [
-93
-],
-"vuetify:packages/vuetify/src/components/VTimePicker/__tests__/VTimePicker.spec.ts": [
-407
-],
-"vuetify:packages/vuetify/src/components/VTimePicker/__tests__/VTimePickerTitle.spec.ts": [
-158
-],
-"vuetify:packages/vuetify/src/components/VTreeview/VTreeview.ts": [
-343
-],
-"vuetify:packages/vuetify/src/composables/group.ts": [
-109
-],
 "vuetify:packages/vuetify/src/composables/nested/openStrategies.ts": [
-27,
-49,
-70
-],
-"vuetify:packages/vuetify/src/composables/nested/selectStrategies.ts": [
-38,
-168
-],
-"vuetify:packages/vuetify/src/directives/ripple/index.ts": [
-286,
-309
-],
-"vuetify:packages/vuetify/src/labs/VDataTable/__tests__/VDataTableHeader.spec.ts": [
-119
-],
-"vuetify:packages/vuetify/src/labs/VDataTable/composables/expand.ts": [
-46
+27
 ]
 }
