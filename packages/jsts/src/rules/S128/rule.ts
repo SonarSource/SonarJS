@@ -35,7 +35,7 @@ export const rule: Rule.RuleModule = {
     let currentCodePath: Rule.CodePath | null = null;
     let currentCodeSegment: Rule.CodePathSegment | null = null;
     let enteringSwitchCase = false;
-    let currentSegments: Set<Rule.CodePathSegment>;
+    let currentSegments: Set<Rule.CodePathSegment> = new Set();
     const allCurrentSegments: Set<Rule.CodePathSegment>[] = [];
     const segmentsWithExit: Set<string> = new Set();
     const initialSegmentBySwitchCase: Map<estree.SwitchCase, Rule.CodePathSegment> = new Map();
@@ -73,7 +73,7 @@ export const rule: Rule.RuleModule = {
       },
       onCodePathEnd() {
         currentCodePath = currentCodePath!.upper;
-        currentSegments = allCurrentSegments.pop()!;
+        currentSegments = allCurrentSegments.pop() as Set<Rule.CodePathSegment>;
       },
       onCodePathSegmentStart(segment: Rule.CodePathSegment) {
         currentSegments.add(segment);
