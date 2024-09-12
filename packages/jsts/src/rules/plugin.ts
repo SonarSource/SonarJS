@@ -683,7 +683,9 @@ export const rules: Record<string, Rule.RuleModule> = {
 };
 
 const recommendedLegacyConfig: Linter.Config = { plugins: ['sonarjs'], rules: {} };
-const recommendedConfig: Linter.FlatConfig = {
+const recommendedConfig: Linter.FlatConfig & {
+  rules: Linter.RulesRecord;
+} = {
   name: 'sonarjs/recommended',
   plugins: {
     sonarjs: {
@@ -701,7 +703,7 @@ const recommendedConfig: Linter.FlatConfig = {
 for (const [key, rule] of Object.entries(rules)) {
   const recommended = rule.meta?.docs?.recommended || false;
 
-  recommendedConfig.rules![`sonarjs/${key}`] = recommended ? 'error' : 'off';
+  recommendedConfig.rules[`sonarjs/${key}`] = recommended ? 'error' : 'off';
 }
 
 recommendedLegacyConfig.rules = recommendedConfig.rules;
