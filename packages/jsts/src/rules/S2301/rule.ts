@@ -42,8 +42,20 @@ const message =
  * A suspect test node is a test node that is the only child of a function body
  */
 export const S2301: Rule.RuleModule = {
-  meta: generateMeta(rspecMeta as Rule.RuleMetaData, {}, true),
+  meta: generateMeta(
+    rspecMeta as Rule.RuleMetaData,
+    {
+      messages: {
+        message,
+      },
+    },
+    true,
+  ),
   create: context => {
+    if (!isRequiredParserServices(context.parserServices)) {
+      return {};
+    }
+
     const suspectTestNodes: Array<Node> = [];
     const suspectBodies: Array<Node> = [];
     const suspectReturnStatements: Array<Node> = [];
@@ -54,6 +66,18 @@ export const S2301: Rule.RuleModule = {
       if (statements.length === 1) {
         suspectBodies.push(statements[0] as Node);
       }
+    };
+
+    const isAChildOf = (identifier: Node, node: Node): boolean => {
+      if (identifier.parent === node) {
+        return true;
+      }
+
+      if (identifier.parent === null) {
+        return false;
+      }
+
+      return isAChildOf(identifier.parent, node);
     };
 
     return {
@@ -69,18 +93,6 @@ export const S2301: Rule.RuleModule = {
         }
       },
       Identifier: node => {
-        const isAChildOf = (identifier: Node, node: Node): boolean => {
-          if (identifier.parent === node) {
-            return true;
-          }
-
-          if (identifier.parent === null) {
-            return false;
-          }
-
-          return isAChildOf(identifier.parent, node);
-        };
-
         // An identifier is suspect if it is a direct or indirect child of a suspect node,
         // or if it is a suspect node itself
         const isSuspect =
@@ -97,10 +109,7 @@ export const S2301: Rule.RuleModule = {
         if (variable) {
           const definition = variable.defs[variable.defs.length - 1];
 
-          if (
-            definition?.type === 'Parameter' &&
-            isRequiredParserServices(context.parserServices)
-          ) {
+          if (definition?.type === 'Parameter') {
             const type = getTypeFromTreeNode(definition.name, context.parserServices);
 
             if (isBooleanType(type)) {
