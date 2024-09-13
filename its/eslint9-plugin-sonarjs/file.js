@@ -28,6 +28,18 @@ function S2376() {
   }
 }
 
+function doSomething() {
+  doSmth();
+}
+switch (x) {
+  case 0:
+    doSomething();
+  case 1:
+    doSomething();
+  default:
+    doSomethingElse();
+}
+
 /*
 
 function S125() {
