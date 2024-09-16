@@ -26,7 +26,7 @@ export const meta = {
     description: 'Methods should not contain selector arguments',
     recommended: false,
     url: 'https://sonarsource.github.io/rspec/#/rspec/S2301/javascript',
-    requiresTypeChecking: false,
+    requiresTypeChecking: true,
   },
 };
 
