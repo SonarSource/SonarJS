@@ -352,6 +352,7 @@ import { tsEslintRules } from './typescript-eslint';
 import { rules as importPluginRules } from 'eslint-plugin-import';
 import { rules as reactPluginRules } from 'eslint-plugin-react';
 import { rules as pluginRules } from './plugin';
+import { rule as S2301 } from './S2301';
 
 const bridgeRules: { [key: string]: Rule.RuleModule } = {
   S100,
@@ -466,6 +467,7 @@ const bridgeRules: { [key: string]: Rule.RuleModule } = {
   S2251,
   S2255,
   S2259,
+  S2301,
   S2310,
   S2376,
   S2392,

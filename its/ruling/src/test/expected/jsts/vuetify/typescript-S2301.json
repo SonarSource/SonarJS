@@ -1,0 +1,11 @@
+{
+"vuetify:packages/vuetify/src/components/VCalendar/modes/common.ts": [
+35
+],
+"vuetify:packages/vuetify/src/components/VOverflowBtn/VOverflowBtn.ts": [
+105
+],
+"vuetify:packages/vuetify/src/composables/nested/openStrategies.ts": [
+27
+]
+}

@@ -492,7 +492,8 @@ public final class CheckList {
       WrongScopeDeclarationCheck.class,
       XMLParserXXEVulnerableCheck.class,
       XPoweredByCheck.class,
-      XpathCheck.class
+      XpathCheck.class,
+      S2301Check.class
     );
   }
 }

@@ -1,0 +1,26 @@
+{
+"TypeScript:src/compiler/checker.ts": [
+4042,
+10963
+],
+"TypeScript:src/compiler/core.ts": [
+2306
+],
+"TypeScript:src/compiler/declarationEmitter.ts": [
+660
+],
+"TypeScript:src/compiler/emitter.ts": [
+2479
+],
+"TypeScript:src/compiler/parser.ts": [
+764,
+2177
+],
+"TypeScript:src/compiler/transformers/destructuring.ts": [
+435
+],
+"TypeScript:src/compiler/transformers/es2015.ts": [
+2956,
+3634
+]
+}
