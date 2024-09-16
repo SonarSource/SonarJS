@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import { rules as reactHooksRules } from 'eslint-plugin-react-hooks';
-import { detectReactRule, generateMeta, mergeRules } from '../helpers';
+import { detectReactRule, generateMeta, interceptReport, mergeRules } from '../helpers';
 import { meta } from './meta';
 
 const rulesOfHooks = reactHooksRules['rules-of-hooks'];
@@ -29,30 +29,20 @@ const rulesOfHooks = reactHooksRules['rules-of-hooks'];
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta as Rule.RuleMetaData, { ...rulesOfHooks.meta }),
   create(context: Rule.RuleContext) {
-    function overrideContext(overrides: any) {
-      Object.setPrototypeOf(overrides, context);
-      return overrides;
-    }
-
     let isReact = false;
 
-    const detectReactListener = detectReactRule.create(
-      overrideContext({
-        report(_descriptor: Rule.ReportDescriptor): void {
-          isReact = true;
-        },
-      }),
-    );
-    const rulesOfHooksListener = rulesOfHooks.create(
-      overrideContext({
-        report(descriptor: Rule.ReportDescriptor): void {
-          if (isReact) {
-            context.report(descriptor);
-          }
-        },
-      }),
+    const detectReactListener: Rule.RuleModule = interceptReport(detectReactRule, function () {
+      isReact = true;
+    });
+    const rulesOfHooksListener: Rule.RuleModule = interceptReport(
+      rulesOfHooks,
+      function (context: Rule.RuleContext, descriptor: Rule.ReportDescriptor) {
+        if (isReact) {
+          context.report(descriptor);
+        }
+      },
     );
 
-    return mergeRules(detectReactListener, rulesOfHooksListener);
+    return mergeRules(detectReactListener.create(context), rulesOfHooksListener.create(context));
   },
 };

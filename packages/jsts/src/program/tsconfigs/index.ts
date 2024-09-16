@@ -19,7 +19,7 @@
  */
 import { createTSConfigFile, writeTSConfigFile } from '../program';
 import { DEFAULT_MAX_FILES_FOR_TYPE_CHECKING } from '../../analysis';
-import { File, searchFiles } from '../../rules';
+import { File, searchFiles } from '../../rules/helpers';
 
 export const TSCONFIG_JSON = 'tsconfig.json';
 
