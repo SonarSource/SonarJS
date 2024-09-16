@@ -79,7 +79,7 @@ const loaders: { [key: string]: Function } = {
    * /src/rules
    */
   internalRules(linter: Linter) {
-    linter.defineRules(internalRules);
+    linter.defineRules(internalRules as unknown as { [name: string]: Rule.RuleModule });
   },
   /**
    * Loads global context rules
