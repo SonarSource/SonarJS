@@ -104,7 +104,7 @@ export const S2301: Rule.RuleModule = {
           return;
         }
 
-        const variable = getVariableFromIdentifier(node, context.getScope());
+        const variable = getVariableFromIdentifier(node, context.sourceCode.getScope(node));
 
         if (variable) {
           const definition = variable.defs[variable.defs.length - 1];

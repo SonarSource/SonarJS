@@ -42,7 +42,9 @@ export const rule: Rule.RuleModule = {
       function (context: Rule.RuleContext, descriptor: Rule.ReportDescriptor) {
         const node = (descriptor as any).node as estree.Node;
 
-        const symbol = context.getScope().references.find(v => v.identifier === node)?.resolved;
+        const symbol = context.sourceCode
+          .getScope(node)
+          .references.find(v => v.identifier === node)?.resolved;
         /** Ignoring symbols that have already been reported */
         if (isUndefined(node) || (symbol && alreadyRaisedSymbols.has(symbol))) {
           return;
