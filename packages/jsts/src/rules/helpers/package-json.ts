@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import path from 'path';
-import { PackageJson } from 'type-fest';
+import Path from 'path';
+import { type PackageJson } from 'type-fest';
 import { searchFiles, File } from './find-files';
 import { toUnixPath } from './files';
 import { Minimatch } from 'minimatch';
@@ -79,7 +79,7 @@ export function setPackageJsons(db: Record<string, File<PackageJson>[]>) {
  * @returns
  */
 export function getDependencies(fileName: string) {
-  let dirname = path.posix.dirname(toUnixPath(fileName));
+  let dirname = Path.posix.dirname(toUnixPath(fileName));
   const cached = cache.get(dirname);
   if (cached) {
     return cached;
@@ -89,7 +89,7 @@ export function getDependencies(fileName: string) {
   cache.set(dirname, result);
 
   for (const packageJson of getNearestPackageJsons(fileName)) {
-    dirname = path.posix.dirname(packageJson.filename);
+    dirname = Path.posix.dirname(packageJson.filename);
     const dirCached = dirCache.get(dirname);
     if (dirCached) {
       dirCached.forEach(d => result.add(d));
@@ -117,18 +117,18 @@ export function getNearestPackageJsons(file: string) {
   if (getPackageJsonsCount() === 0) {
     return results;
   }
-  let currentDir = path.posix.dirname(path.posix.normalize(toUnixPath(file)));
+  let currentDir = Path.posix.dirname(Path.posix.normalize(toUnixPath(file)));
   do {
     const packageJson = PackageJsonsByBaseDir[currentDir];
     if (packageJson?.length) {
       results.push(...packageJson);
     }
-    currentDir = path.posix.dirname(currentDir);
-  } while (currentDir !== path.posix.dirname(currentDir));
+    currentDir = Path.posix.dirname(currentDir);
+  } while (currentDir !== Path.posix.dirname(currentDir));
   return results;
 }
 
-function getDependenciesFromPackageJson(content: PackageJson) {
+export function getDependenciesFromPackageJson(content: PackageJson) {
   const result = new Set<string>();
   if (content.name) {
     addDependencies(result, { [content.name]: '*' });
@@ -183,3 +183,53 @@ function addDependency(result: Set<string | Minimatch>, dependency: string, isGl
     );
   }
 }
+
+/**
+ * Returns the project manifests that are used to resolve the dependencies imported by
+ * the module named `fileName`, up to the passed working directory.
+ */
+export const getManifests = (
+  fileName: string,
+  workingDirectory: string,
+  fileSystem: {
+    readdirSync: (path: string) => Array<string>;
+    readFileSync: (path: string) => Buffer;
+  },
+): Array<PackageJson> => {
+  // if the fileName is not a child of the working directory, we bail
+  const relativePath = Path.relative(workingDirectory, fileName);
+
+  if (relativePath.startsWith('..')) {
+    return [];
+  }
+
+  const getManifestsAtPath = (path: string): Array<PackageJson> => {
+    const results: Array<PackageJson> = [];
+    const entries = fileSystem.readdirSync(path);
+
+    for (const entry of entries) {
+      const entryPath = Path.resolve(path, entry);
+
+      if (Path.basename(entryPath) === 'package.json') {
+        const content = fileSystem.readFileSync(entryPath);
+
+        try {
+          results.push(JSON.parse(content.toString()));
+        } catch (error) {
+          console.debug(`Error parsing file ${entryPath}: ${error}`);
+        }
+      }
+    }
+
+    // we stop as soon as the working directory has been reached
+    if (path !== workingDirectory) {
+      const parentDirectory = Path.dirname(path);
+
+      results.push(...getManifestsAtPath(parentDirectory));
+    }
+
+    return results;
+  };
+
+  return getManifestsAtPath(Path.dirname(fileName));
+};

@@ -54,7 +54,7 @@ describe('analyzeJSTS', () => {
       { key: 'prefer-default-last', configurations: [], fileTypeTarget: ['MAIN'] },
     ] as RuleConfig[];
     initializeLinter(rules);
-    initializeLinter([], [], [], 'empty');
+    initializeLinter([], [], [], undefined, 'empty');
 
     const filePath = path.join(__dirname, 'fixtures', 'code.js');
     const language = 'js';
@@ -82,7 +82,7 @@ describe('analyzeJSTS', () => {
       { key: 'bool-param-default', configurations: [], fileTypeTarget: ['MAIN'] },
     ] as RuleConfig[];
     initializeLinter(rules);
-    initializeLinter([], [], [], 'empty');
+    initializeLinter([], [], [], undefined, 'empty');
 
     const filePath = path.join(__dirname, 'fixtures', 'code.ts');
     const tsConfigs = [path.join(__dirname, 'fixtures', 'tsconfig.json')];

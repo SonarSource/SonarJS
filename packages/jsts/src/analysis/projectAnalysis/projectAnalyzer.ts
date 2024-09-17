@@ -63,7 +63,7 @@ export async function analyzeProject(input: ProjectAnalysisInput): Promise<Proje
   }
   const pendingFiles: Set<string> = new Set(inputFilenames);
   const watchProgram = input.isSonarlint;
-  initializeLinter(rules, environments, globals);
+  initializeLinter(rules, environments, globals, baseDir);
   loadTSConfigAndPackageJsonFiles(baseDir, exclusions);
   const tsConfigs = getTSConfigsIterator(
     inputFilenames,

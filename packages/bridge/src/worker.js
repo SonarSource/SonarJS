@@ -162,7 +162,7 @@ if (parentPort) {
 
         case 'on-init-linter': {
           const { rules, environments, globals, linterId, baseDir, exclusions } = data;
-          initializeLinter(rules, environments, globals, linterId);
+          initializeLinter(rules, environments, globals, baseDir, linterId);
           if (baseDir) {
             loadPackageJsons(baseDir, exclusions);
           }

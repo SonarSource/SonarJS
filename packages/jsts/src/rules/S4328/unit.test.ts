@@ -20,11 +20,6 @@
 import { RuleTester } from 'eslint';
 import { rule } from './';
 import path from 'path';
-import { clearPackageJsons, loadPackageJsons } from '../helpers';
-
-//reset and search package.json files in rule dir
-clearPackageJsons();
-loadPackageJsons(__dirname, []);
 
 const fixtures = path.join(__dirname, 'fixtures');
 const filename = path.join(fixtures, 'package-json-project/file.js');
@@ -112,11 +107,6 @@ ruleTester.run('Dependencies should be explicit', rule, {
       options,
     },
     {
-      code: `import "dependency";`,
-      filename: path.join(fixtures, 'bom-package-json-project/file.js'),
-      options,
-    },
-    {
       code: `const fs = require("node:fs/promises");`,
       filename,
       options,
@@ -186,7 +176,14 @@ ruleTester.run('Dependencies should be explicit', rule, {
     },
     {
       code: `import "foo";`,
-      filename: '/',
+      filename: '/file.js',
+      options,
+      errors: 1,
+    },
+    {
+      name: 'with a non-parsable manifest',
+      code: `import "dependency";`,
+      filename: path.join(fixtures, 'bom-package-json-project/file.js'),
       options,
       errors: 1,
     },

@@ -116,7 +116,7 @@ function initializeRules(rules: RuleConfig[], customRules?: CustomRule[]) {
   }
   initializeLinter(rules, DEFAULT_ENVIRONMENTS, DEFAULT_GLOBALS);
   const htmlRules = rules.filter(rule => rule.key !== 'S3504');
-  initializeLinter(htmlRules, DEFAULT_ENVIRONMENTS, DEFAULT_GLOBALS, HTML_LINTER_ID);
+  initializeLinter(htmlRules, DEFAULT_ENVIRONMENTS, DEFAULT_GLOBALS, undefined, HTML_LINTER_ID);
 }
 function getProjectName(testFilePath: string) {
   const SUFFIX = '.ruling.test.ts';
