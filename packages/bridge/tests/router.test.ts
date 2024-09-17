@@ -134,7 +134,7 @@ describe('router', () => {
         message: `Use a regular expression literal instead of the 'RegExp' constructor.`,
       }),
     );
-    expect(response.get('ast')).toBeInstanceOf(File);
+    expect(response.get('ast')).toBeInstanceOf(Blob);
     const ast = response.get('ast') as File;
     const buffer = Buffer.from(await ast.arrayBuffer());
     const protoMessage = deserializeProtobuf(buffer);
