@@ -9,7 +9,7 @@ This repository now hosts [eslint-plugin-sonarjs](./packages/jsts/src/rules/READ
 # Features
 
 - Advanced rules based on pattern matching and control flow analysis
-- [401 JS rules](https://rules.sonarsource.com/javascript) and [406 TS rules](https://rules.sonarsource.com/typescript)
+- [406 JS rules](https://rules.sonarsource.com/javascript) and [411 TS rules](https://rules.sonarsource.com/typescript)
 - [26 CSS rules](https://rules.sonarsource.com/css)
 - Compatible with ECMAScript 2015-2020
 - React JSX, Flow, Vue, and AWS lambda functions support for JavaScript and TypeScript

@@ -1,5 +1,4 @@
 {
-  "title": "Optional chaining should be preferred",
   "type": "CODE_SMELL",
   "code": {
     "impacts": {
@@ -18,6 +17,7 @@
   "sqKey": "S6582",
   "scope": "All",
   "quickfix": "infeasible",
+  "title": "Optional chaining should be preferred",
   "compatibleLanguages": [
     "JAVASCRIPT",
     "TYPESCRIPT"

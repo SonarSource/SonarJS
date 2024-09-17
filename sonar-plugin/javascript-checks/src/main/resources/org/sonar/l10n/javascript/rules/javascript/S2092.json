@@ -45,6 +45,9 @@
       "6.1.1",
       "6.1.2",
       "6.1.3"
+    ],
+    "STIG ASD_V5R3": [
+      "V-222576"
     ]
   },
   "compatibleLanguages": [

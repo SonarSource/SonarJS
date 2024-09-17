@@ -23,8 +23,8 @@
 export const meta = {
   type: 'suggestion',
   docs: {
-    description: 'Methods should not contain selector arguments',
-    recommended: false,
+    description: 'Methods should not contain selector parameters',
+    recommended: true,
     url: 'https://sonarsource.github.io/rspec/#/rspec/S2301/javascript',
     requiresTypeChecking: true,
   },
