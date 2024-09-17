@@ -92,7 +92,7 @@
     <sonar.api.version>10.7.0.2191</sonar.api.version>
     <sonar-orchestrator.version>4.9.0.1920</sonar-orchestrator.version>
     <gson.version>2.11.0</gson.version>
-    <analyzer-commons.version>2.7.0.1482</analyzer-commons.version>
+    <analyzer-commons.version>2.13.0.3004</analyzer-commons.version>
     <sslr.version>1.22</sslr.version>
     <sonarlint.plugin.api.version>9.1.1.74346</sonarlint.plugin.api.version>
 
