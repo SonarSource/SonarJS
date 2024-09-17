@@ -50,9 +50,7 @@ describe('analyzeJSTS', () => {
   });
 
   it('should analyze JavaScript code with the given linter', async () => {
-    const rules = [
-      { key: 'prefer-default-last', configurations: [], fileTypeTarget: ['MAIN'] },
-    ] as RuleConfig[];
+    const rules = [{ key: 'S4524', configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
     initializeLinter(rules);
     initializeLinter([], [], [], 'empty');
 
@@ -70,7 +68,7 @@ describe('analyzeJSTS', () => {
 
     expect(issue).toEqual(
       expect.objectContaining({
-        ruleId: 'prefer-default-last',
+        ruleId: 'S4524',
       }),
     );
 
@@ -78,9 +76,7 @@ describe('analyzeJSTS', () => {
   });
 
   it('should analyze TypeScript code with the given linter', async () => {
-    const rules = [
-      { key: 'bool-param-default', configurations: [], fileTypeTarget: ['MAIN'] },
-    ] as RuleConfig[];
+    const rules = [{ key: 'S4798', configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
     initializeLinter(rules);
     initializeLinter([], [], [], 'empty');
 
@@ -98,7 +94,7 @@ describe('analyzeJSTS', () => {
 
     expect(issue).toEqual(
       expect.objectContaining({
-        ruleId: 'bool-param-default',
+        ruleId: 'S4798',
       }),
     );
     expect(issues).toHaveLength(0);
@@ -124,9 +120,7 @@ describe('analyzeJSTS', () => {
   });
 
   it('should not analyze Vue.js with type checking', async () => {
-    const rules = [
-      { key: 'strings-comparison', configurations: [], fileTypeTarget: ['MAIN'] },
-    ] as RuleConfig[];
+    const rules = [{ key: 'S3003', configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
     initializeLinter(rules);
 
     const filePath = path.join(__dirname, 'fixtures', 'vue_ts', 'file.vue');
@@ -339,9 +333,7 @@ describe('analyzeJSTS', () => {
   });
 
   it('should fail with types using tsconfig without paths aliases', async () => {
-    const rules = [
-      { key: 'strings-comparison', configurations: [], fileTypeTarget: ['MAIN'] },
-    ] as RuleConfig[];
+    const rules = [{ key: 'S3003', configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
     initializeLinter(rules);
 
     const filePath = path.join(__dirname, 'fixtures', 'paths', 'file.ts');
@@ -355,15 +347,13 @@ describe('analyzeJSTS', () => {
     } = analyzeJSTS(await jsTsInput({ filePath, programId }), language) as JsTsAnalysisOutput;
     expect(issue).toEqual(
       expect.not.objectContaining({
-        ruleId: 'strings-comparison',
+        ruleId: 'S3003',
       }),
     );
   });
 
   it('different tsconfig module resolution affects files included in program', async () => {
-    const rules = [
-      { key: 'strings-comparison', configurations: [], fileTypeTarget: ['MAIN'] },
-    ] as RuleConfig[];
+    const rules = [{ key: 'S3003', configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
     initializeLinter(rules);
 
     const language = 'ts';
@@ -401,7 +391,7 @@ describe('analyzeJSTS', () => {
     ) as JsTsAnalysisOutput;
     expect(nodeIssue).toEqual(
       expect.objectContaining({
-        ruleId: 'strings-comparison',
+        ruleId: 'S3003',
       }),
     );
 
@@ -418,7 +408,7 @@ describe('analyzeJSTS', () => {
     ) as JsTsAnalysisOutput;
     expect(nodenextIssue).toEqual(
       expect.objectContaining({
-        ruleId: 'strings-comparison',
+        ruleId: 'S3003',
       }),
     );
 
@@ -435,7 +425,7 @@ describe('analyzeJSTS', () => {
     ) as JsTsAnalysisOutput;
     expect(classicIssue).toEqual(
       expect.objectContaining({
-        ruleId: 'strings-comparison',
+        ruleId: 'S3003',
       }),
     );
   });
@@ -491,9 +481,7 @@ describe('analyzeJSTS', () => {
   });
 
   it('should report secondary locations', async () => {
-    const rules = [
-      { key: 'destructuring-assignment-syntax', configurations: [], fileTypeTarget: ['MAIN'] },
-    ] as RuleConfig[];
+    const rules = [{ key: 'S3514', configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
     initializeLinter(rules);
 
     const filePath = path.join(__dirname, 'fixtures', 'secondary.js');
@@ -514,9 +502,7 @@ describe('analyzeJSTS', () => {
   });
 
   it('should report quick fixes', async () => {
-    const rules = [
-      { key: 'no-unused-function-argument', configurations: [], fileTypeTarget: ['MAIN'] },
-    ] as RuleConfig[];
+    const rules = [{ key: 'S1172', configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
     initializeLinter(rules);
 
     const filePath = path.join(__dirname, 'fixtures', 'quickfix.js');
@@ -932,9 +918,7 @@ describe('analyzeJSTS', () => {
   });
 
   it('should return the AST along with the issues', async () => {
-    const rules = [
-      { key: 'prefer-default-last', configurations: [], fileTypeTarget: ['MAIN'] },
-    ] as RuleConfig[];
+    const rules = [{ key: 'S4524', configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
     initializeLinter(rules);
     initializeLinter([], [], [], 'empty');
 
@@ -949,9 +933,7 @@ describe('analyzeJSTS', () => {
   });
 
   it('should not return the AST if the skipAst flag is set', async () => {
-    const rules = [
-      { key: 'prefer-default-last', configurations: [], fileTypeTarget: ['MAIN'] },
-    ] as RuleConfig[];
+    const rules = [{ key: 'S4524', configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
     initializeLinter(rules);
     initializeLinter([], [], [], 'empty');
 

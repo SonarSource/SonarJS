@@ -46,9 +46,7 @@ describe('analyzeYAML', () => {
   });
 
   it('should analyze YAML file', async () => {
-    initializeLinter([
-      { key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: ['MAIN'] },
-    ]);
+    initializeLinter([{ key: 'S3923', configurations: [], fileTypeTarget: ['MAIN'] }]);
     const {
       issues: [issue],
     } = analyzeEmbedded(
@@ -57,7 +55,7 @@ describe('analyzeYAML', () => {
     );
     expect(issue).toEqual(
       expect.objectContaining({
-        ruleId: 'no-all-duplicated-branches',
+        ruleId: 'S3923',
         line: 8,
         column: 17,
         endLine: 8,
@@ -102,10 +100,10 @@ describe('analyzeYAML', () => {
     ]);
   });
 
-  it('should not break when using "enforce-trailing-comma" rule', async () => {
+  it('should not break when using "S3723" rule', async () => {
     initializeLinter([
       {
-        key: 'enforce-trailing-comma',
+        key: 'S3723',
         configurations: ['always-multiline'],
         fileTypeTarget: ['MAIN'],
       },
@@ -134,9 +132,7 @@ describe('analyzeYAML', () => {
   });
 
   it('should not break when using a rule with secondary locations', async () => {
-    initializeLinter([
-      { key: 'for-loop-increment-sign', configurations: [], fileTypeTarget: ['MAIN'] },
-    ]);
+    initializeLinter([{ key: 'S2251', configurations: [], fileTypeTarget: ['MAIN'] }]);
     const result = analyzeEmbedded(
       await embeddedInput({ filePath: join(fixturesPath, 'secondary.yaml') }),
       parseAwsFromYaml,
@@ -157,9 +153,7 @@ describe('analyzeYAML', () => {
   });
 
   it('should not break when using a regex rule', async () => {
-    initializeLinter([
-      { key: 'sonar-no-regex-spaces', configurations: [], fileTypeTarget: ['MAIN'] },
-    ]);
+    initializeLinter([{ key: 'S6326', configurations: [], fileTypeTarget: ['MAIN'] }]);
     const result = analyzeEmbedded(
       await embeddedInput({ filePath: join(fixturesPath, 'regex.yaml') }),
       parseAwsFromYaml,
