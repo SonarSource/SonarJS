@@ -18,11 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Linter, Rule } from 'eslint';
-import { eslintRules } from '../rules/core';
-import { tsEslintRules } from '../rules/typescript-eslint';
-import { rules as reactESLintRules } from 'eslint-plugin-react';
-import { rules as reactA11yRules } from 'eslint-plugin-jsx-a11y';
-import { rules as importRules } from 'eslint-plugin-import';
 import { rules as internalRules } from '../rules';
 import { customRules as internalCustomRules, CustomRule } from './custom-rules';
 import { debug, getContext } from '@sonar/shared';
@@ -44,34 +39,6 @@ export function loadBundles(linter: Linter, rulesBundles: (keyof typeof loaders)
  * different data structure (array/record/object).
  */
 const loaders: { [key: string]: Function } = {
-  /**
-   * Loads external rules
-   *
-   * The external ESLint-based rules include all the rules that are
-   * not implemented internally, in other words, rules from external
-   * dependencies which include ESLint core rules.
-   */
-  externalRules(linter: Linter) {
-    const externalRules: { [key: string]: Rule.RuleModule } = {};
-    /**
-     * The order of defining rules from external dependencies is important here.
-     * Core ESLint rules could be overridden by the implementation from specific
-     * dependencies, which should be the default behaviour in most cases.
-     */
-    const dependencies = [
-      eslintRules,
-      tsEslintRules,
-      reactESLintRules,
-      reactA11yRules,
-      importRules,
-    ];
-    for (const dependencyRules of dependencies) {
-      for (const [name, module] of Object.entries(dependencyRules)) {
-        externalRules[name] = module;
-      }
-    }
-    linter.defineRules(externalRules);
-  },
   /**
    * Loads internal rules
    *
