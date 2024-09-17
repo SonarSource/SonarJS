@@ -226,7 +226,7 @@ if (parentPort) {
 
 function sendFormData(result, response) {
   const fd = new formData();
-  fd.append('ast', Buffer.from(result.ast));
+  fd.append('ast', Buffer.from(result.ast), { filename: 'ast' });
   delete result.ast;
   fd.append('json', JSON.stringify(result));
   // this adds the boundary string that will be used to separate the parts
