@@ -65,7 +65,7 @@ class EmbeddedNodeTest {
 
     var buildResult = orchestrator.executeBuild(build);
     assertThat(buildResult.isSuccess()).isTrue();
-    assertThat(buildResult.getLogs()).contains("INFO: Using embedded Node.js runtime");
+    assertThat(buildResult.getLogs()).contains("INFO: Using embedded Node.js runtime.");
     assertThat(buildResult.getLogsLines(l -> l.startsWith("ERROR"))).isEmpty();
     orchestrator.stop();
   }
