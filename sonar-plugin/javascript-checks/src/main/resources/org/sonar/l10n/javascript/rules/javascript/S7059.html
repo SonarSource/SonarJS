@@ -11,8 +11,7 @@ class MyClass {
   }
 }
 </pre>
-<h2>How to fix it</h2>
-<p>Create an asynchronous method that performs the necessary asynchronous operations after the object has been constructed</p>
+<p>Instead, you can create an asynchronous method that performs the necessary asynchronous operations after the object has been constructed</p>
 <pre>
 class MyClass {
   constructor() {
@@ -29,7 +28,7 @@ class MyClass {
   await myObject.initialize();
 })();
 </pre>
-<p>Otherwise, you can use a factory function that returns a promise resolving to an instance of the class after performing the asynchronous
+<p>Otherwise, you can use a static factory method that returns a promise resolving to an instance of the class after performing the asynchronous
 operations.</p>
 <pre>
 class MyClass {

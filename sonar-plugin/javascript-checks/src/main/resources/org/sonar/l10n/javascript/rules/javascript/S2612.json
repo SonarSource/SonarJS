@@ -39,6 +39,9 @@
     ],
     "ASVS 4.0": [
       "4.3.3"
+    ],
+    "STIG ASD_V5R3": [
+      "V-222430"
     ]
   },
   "compatibleLanguages": [

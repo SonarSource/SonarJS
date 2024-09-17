@@ -1,5 +1,4 @@
 {
-  "title": "\"await\" should only be used with promises",
   "type": "CODE_SMELL",
   "code": {
     "impacts": {
@@ -21,6 +20,7 @@
   "sqKey": "S4123",
   "scope": "Main",
   "quickfix": "unknown",
+  "title": "\"await\" should only be used with promises",
   "compatibleLanguages": [
     "JAVASCRIPT",
     "TYPESCRIPT"

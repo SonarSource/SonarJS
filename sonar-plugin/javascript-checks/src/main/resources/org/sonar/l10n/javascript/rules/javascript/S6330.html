@@ -15,13 +15,17 @@ further modifications to the application are necessary.</p>
 <pre>
 import { Queue } from 'aws-cdk-lib/aws-sqs';
 
-new Queue(this, 'example'); // Sensitive
+new Queue(this, 'example', {
+    encryption: QueueEncryption.UNENCRYPTED // Sensitive
+});
 </pre>
 <p>For <a href="https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_sqs.CfnQueue.html"><code>aws-cdk-lib.aws-sqs.CfnQueue</code></a></p>
 <pre>
 import { CfnQueue } from 'aws-cdk-lib/aws-sqs';
 
-new CfnQueue(this, 'example'); // Sensitive
+new CfnQueue(this, 'example', {
+    sqsManagedSseEnabled: false // Sensitive
+});
 </pre>
 <h2>Compliant Solution</h2>
 <p>For <a href="https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_sqs.Queue.html"><code>aws-cdk-lib.aws-sqs.Queue</code></a></p>
@@ -29,19 +33,15 @@ new CfnQueue(this, 'example'); // Sensitive
 import { Queue } from 'aws-cdk-lib/aws-sqs';
 
 new Queue(this, 'example', {
-    encryption: QueueEncryption.KMS_MANAGED
+    encryption: QueueEncryption.SQS_MANAGED
 });
 </pre>
 <p>For <a href="https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_sqs.CfnQueue.html"><code>aws-cdk-lib.aws-sqs.CfnQueue</code></a></p>
 <pre>
 import { CfnQueue } from 'aws-cdk-lib/aws-sqs';
 
-const encryptionKey = new Key(this, 'example', {
-    enableKeyRotation: true,
-});
-
 new CfnQueue(this, 'example', {
-    kmsMasterKeyId: encryptionKey.keyId
+    sqsManagedSseEnabled: true
 });
 </pre>
 <h2>See</h2>
@@ -49,5 +49,8 @@ new CfnQueue(this, 'example', {
   <li> <a href="https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-server-side-encryption.html">AWS Documentation</a> -
   Encryption at rest </li>
   <li> CWE - <a href="https://cwe.mitre.org/data/definitions/311">CWE-311 - Missing Encryption of Sensitive Data</a> </li>
+  <li> STIG Viewer - <a href="https://stigviewer.com/stig/application_security_and_development/2023-06-08/finding/V-222588">Application Security and
+  Development: V-222588</a> - The application must implement approved cryptographic mechanisms to prevent unauthorized modification of information at
+  rest. </li>
 </ul>
 

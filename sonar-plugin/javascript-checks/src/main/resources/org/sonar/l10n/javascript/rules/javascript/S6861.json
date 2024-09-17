@@ -17,7 +17,7 @@
       "MAINTAINABILITY": "HIGH",
       "RELIABILITY": "MEDIUM"
     },
-    "attribute": "CONVENTIONAL"
+    "attribute": "MODULAR"
   },
   "compatibleLanguages": [
     "JAVASCRIPT",

@@ -30,6 +30,9 @@
     ],
     "PCI DSS 4.0": [
       "6.2.4"
+    ],
+    "STIG ASD_V5R3": [
+      "V-222620"
     ]
   },
   "compatibleLanguages": [
