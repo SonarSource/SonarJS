@@ -316,19 +316,7 @@
 ],
 "TypeScript:src/harness/harness.ts": [
 36,
-743,
 1102
-],
-"TypeScript:src/harness/harnessLanguageService.ts": [
-151,
-190
-],
-"TypeScript:src/harness/virtualFileSystem.ts": [
-45,
-50,
-69,
-152,
-170
 ],
 "TypeScript:src/server/editorServices.ts": [
 1123

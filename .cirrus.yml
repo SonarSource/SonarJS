@@ -285,6 +285,8 @@ js_ts_ruling_task:
     - npm run build:fast
     - npm run update-ruling-data
     - npm run ruling -- --maxWorkers=8
+  on_failure:
+    debug_script: diff -rq its/ruling/src/test/expected/jsts packages/ruling/tests/actual/jsts
   cleanup_before_cache_script: cleanup_maven_repository
 
 eslint_plugin_test_task:
