@@ -49,7 +49,6 @@ export function writeResults(
   fileSet: JsTsFiles[],
   actualPath: string,
 ) {
-  const eslintIdToSonarId = loadKeysMapping();
   const targetProjectPath = path.join(actualPath);
   try {
     fs.rmSync(targetProjectPath, { recursive: true });
@@ -57,9 +56,8 @@ export function writeResults(
   fs.mkdirSync(targetProjectPath, { recursive: true });
   const litsResults = transformResults(projectPath, projectName, results, fileSet);
   for (const [ruleId, { js: jsIssues, ts: tsIssues }] of Object.entries(litsResults.issues)) {
-    const sonarRuleId = eslintIdToSonarId[ruleId] || ruleId;
-    writeIssues(targetProjectPath, sonarRuleId, jsIssues);
-    writeIssues(targetProjectPath, sonarRuleId, tsIssues, false);
+    writeIssues(targetProjectPath, ruleId, jsIssues);
+    writeIssues(targetProjectPath, ruleId, tsIssues, false);
   }
 }
 
@@ -143,12 +141,4 @@ function writeIssues(projectDir: string, ruleId: string, issues: FileIssues, isJ
       return 'CommentRegexTestTS';
     }
   }
-}
-
-/**
- * Loading this through `fs` and not import because the file is absent at compile time
- */
-function loadKeysMapping() {
-  const pathToKeysMapping = path.join(__dirname, '..', 'data', 'eslint-to-sonar-id.json');
-  return JSON.parse(fs.readFileSync(pathToKeysMapping, 'utf8'));
 }
