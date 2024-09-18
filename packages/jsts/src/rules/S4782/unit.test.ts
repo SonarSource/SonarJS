@@ -19,6 +19,8 @@
  */
 import { TypeScriptRuleTester } from '../../../tests/tools';
 import { rule } from './';
+import { RuleTester } from 'eslint';
+import path from 'path';
 
 const ruleTester = new TypeScriptRuleTester();
 ruleTester.run(
@@ -222,3 +224,23 @@ ruleTester.run(
     ],
   },
 );
+
+const noopRuleTester = new RuleTester({
+  parser: require.resolve('@typescript-eslint/parser'),
+  parserOptions: {
+    ecmaVersion: 2018,
+    sourceType: 'module',
+    project: `tsconfig.json`,
+    tsconfigRootDir: path.join(__dirname, 'fixtures'),
+  },
+});
+
+noopRuleTester.run('S4782 becomes noop when exactOptionalPropertyTypes is enabled', rule, {
+  valid: [
+    {
+      code: 'interface T { p?: string | undefined; }',
+      filename: path.join(__dirname, 'fixtures', 'index.ts'),
+    },
+  ],
+  invalid: [],
+});

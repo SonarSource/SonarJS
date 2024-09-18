@@ -33,6 +33,11 @@ export const rule: Rule.RuleModule = {
       return {};
     }
 
+    const compilerOptions = context.sourceCode.parserServices.program.getCompilerOptions();
+    if (compilerOptions.exactOptionalPropertyTypes) {
+      return {};
+    }
+
     function checkProperty(node: estree.Node) {
       const tsNode = node as TSESTree.Node as
         | TSESTree.PropertyDefinition
