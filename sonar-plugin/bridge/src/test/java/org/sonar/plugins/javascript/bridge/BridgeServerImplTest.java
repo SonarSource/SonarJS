@@ -72,6 +72,8 @@ import static org.slf4j.event.Level.INFO;
 import static org.slf4j.event.Level.WARN;
 import static org.sonar.plugins.javascript.bridge.AnalysisMode.DEFAULT_LINTER_ID;
 import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_EXECUTABLE_PROPERTY;
+import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_FORCE_HOST_PROPERTY;
+import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.SKIP_NODE_PROVISIONING_PROPERTY;
 
 class BridgeServerImplTest {
 
@@ -788,6 +790,41 @@ class BridgeServerImplTest {
         "'" + NODE_EXECUTABLE_PROPERTY + "' is set. Skipping embedded Node.js runtime deployment."
       );
   }
+
+  @Test
+  void should_not_deploy_runtime_if_skip_node_provisioning_is_set() throws Exception {
+    var script = "logging.js";
+    bridgeServer = createBridgeServer(script);
+
+    var settings = new MapSettings().setProperty(SKIP_NODE_PROVISIONING_PROPERTY, true);
+    context.setSettings(settings);
+
+    var config = BridgeServerConfig.fromSensorContext(context);
+    bridgeServer.startServerLazily(config);
+
+    assertThat(logTester.logs(INFO))
+      .contains(
+        "'" + SKIP_NODE_PROVISIONING_PROPERTY + "' is set. Skipping embedded Node.js runtime deployment."
+      );
+  }
+
+  @Test
+  void should_not_deploy_runtime_if_node_force_host_is_set() throws Exception {
+    var script = "logging.js";
+    bridgeServer = createBridgeServer(script);
+
+    var settings = new MapSettings().setProperty(NODE_FORCE_HOST_PROPERTY, true);
+    context.setSettings(settings);
+
+    var config = BridgeServerConfig.fromSensorContext(context);
+    bridgeServer.startServerLazily(config);
+
+    assertThat(logTester.logs(INFO))
+      .contains(
+        "'" + NODE_FORCE_HOST_PROPERTY + "' is set. Skipping embedded Node.js runtime deployment."
+      );
+  }
+
   private BridgeServerImpl createBridgeServer(String startServerScript) {
     return new BridgeServerImpl(
       builder(),

@@ -49,8 +49,8 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
     "package/node_modules/run-node/run-node";
 
   public static final String NODE_EXECUTABLE_PROPERTY = "sonar.nodejs.executable";
-  private static final String NODE_FORCE_HOST_PROPERTY = "sonar.nodejs.forceHost";
-  private static final String SKIP_NODE_PROVISIONING_PROPERTY = "sonar.scanner.skipNodeProvisioning";
+  public static final String NODE_FORCE_HOST_PROPERTY = "sonar.nodejs.forceHost";
+  public static final String SKIP_NODE_PROVISIONING_PROPERTY = "sonar.scanner.skipNodeProvisioning";
 
   private static final Pattern NODEJS_VERSION_PATTERN = Pattern.compile(
     "v?(\\d+)\\.(\\d+)\\.(\\d+)"
