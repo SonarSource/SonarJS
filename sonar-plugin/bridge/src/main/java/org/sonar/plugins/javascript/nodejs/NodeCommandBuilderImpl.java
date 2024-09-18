@@ -50,6 +50,7 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
 
   public static final String NODE_EXECUTABLE_PROPERTY = "sonar.nodejs.executable";
   private static final String NODE_FORCE_HOST_PROPERTY = "sonar.nodejs.forceHost";
+  private static final String SKIP_NODE_PROVISIONING_PROPERTY = "sonar.scanner.skipNodeProvisioning";
 
   private static final Pattern NODEJS_VERSION_PATTERN = Pattern.compile(
     "v?(\\d+)\\.(\\d+)\\.(\\d+)"
@@ -247,7 +248,7 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
   private String locateNode(boolean isForceHost) throws IOException {
     var defaultNode = NODE_EXECUTABLE_DEFAULT;
     if (embeddedNode.isAvailable() && !isForceHost) {
-      LOG.info("Using embedded Node.js runtime");
+      LOG.info("Using embedded Node.js runtime.");
       defaultNode = embeddedNode.binary().toString();
     } else if (processWrapper.isMac()) {
       defaultNode = locateNodeOnMac();
@@ -255,12 +256,16 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
       defaultNode = locateNodeOnWindows();
     }
 
+    if (isForceHost) {
+      LOG.info("Forcing to use Node.js from the host.");
+    }
+
     LOG.info("Using Node.js executable: '{}'.", defaultNode);
     return defaultNode;
   }
 
   private static boolean isForceHost(Configuration configuration) {
-    return configuration.getBoolean(NODE_FORCE_HOST_PROPERTY).orElse(false);
+    return configuration.getBoolean(NODE_FORCE_HOST_PROPERTY).orElse(configuration.getBoolean(SKIP_NODE_PROVISIONING_PROPERTY).orElse(false));
   }
 
   private String locateNodeOnMac() throws IOException {

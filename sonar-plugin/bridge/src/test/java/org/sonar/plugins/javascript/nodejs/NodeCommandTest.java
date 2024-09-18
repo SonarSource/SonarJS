@@ -436,6 +436,23 @@ class NodeCommandTest {
       .endsWith("src/test/resources/package/node_modules/run-node/run-node");
   }
 
+  @Test
+  void test_skipping_nodejs_provisioning_property() throws Exception {
+    var skipNodePropvisioning = "sonar.scanner.skipNodeProvisioning";
+    var settings = new MapSettings();
+    settings.setProperty(skipNodePropvisioning, true);
+
+    builder()
+      .configuration(settings.asConfig())
+      .script("script.js")
+      .pathResolver(getPathResolver())
+      .build();
+
+    assertThat(logTester.logs(Level.INFO))
+      .doesNotContain("Using embedded Node.js runtime")
+      .contains("Forcing to use Node.js from the host.");
+  }
+
   private static String resourceScript(String script) throws URISyntaxException {
     return new File(NodeCommandTest.class.getResource("/" + script).toURI()).getAbsolutePath();
   }
