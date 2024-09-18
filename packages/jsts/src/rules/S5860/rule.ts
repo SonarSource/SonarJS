@@ -22,7 +22,12 @@
 import { AST, Rule, Scope } from 'eslint';
 import * as estree from 'estree';
 import * as regexpp from '@eslint-community/regexpp';
-import { Backreference, CapturingGroup, RegExpLiteral } from '@eslint-community/regexpp/ast';
+import {
+  AmbiguousBackreference,
+  Backreference,
+  CapturingGroup,
+  RegExpLiteral,
+} from '@eslint-community/regexpp/ast';
 import {
   generateMeta,
   getLhsVariable,
@@ -305,11 +310,22 @@ interface GroupKnowledge {
   index: number;
 }
 
+function isAmbiguousGroup(reference: Backreference): reference is AmbiguousBackreference {
+  return reference.ambiguous;
+}
+
 function makeRegexKnowledge(node: estree.Node, regexp: RegExpLiteral): RegexKnowledge {
   const capturingGroups: CapturingGroup[] = [];
   const backreferences: Backreference[] = [];
   regexpp.visitRegExpAST(regexp, {
-    onBackreferenceEnter: reference => reference.resolved.name && backreferences.push(reference),
+    onBackreferenceEnter: reference => {
+      const shouldSaveReference = isAmbiguousGroup(reference)
+        ? reference.resolved.filter(capturingGroup => capturingGroup.name).length > 0
+        : reference.resolved.name !== null;
+      if (shouldSaveReference) {
+        backreferences.push(reference);
+      }
+    },
     onCapturingGroupEnter: group => capturingGroups.push(group),
   });
   const groups: GroupKnowledge[] = [];
@@ -326,7 +342,11 @@ function makeGroupKnowledge(
   index: number,
 ): GroupKnowledge {
   const name = node.name!;
-  const used = backreferences.some(backreference => backreference.resolved === node);
+  const used = backreferences.some(backreference =>
+    backreference.ambiguous
+      ? backreference.resolved.includes(node)
+      : backreference.resolved === node,
+  );
   return { node, name, used, index };
 }
 
