@@ -76,8 +76,8 @@ describe('getCpdTokens', () => {
     expect(images(await tokens('import.js'))).toEqual(['import', '(', 'lib', ')', ';']);
   });
 
-  it('should ignore require calls', async () => {
-    expect(images(await tokens('require.js'))).toEqual(['const', 'fs', '=', ';']);
+  it('should ignore require declarations', async () => {
+    expect(images(await tokens('require.js'))).toHaveLength(0);
   });
 });
 

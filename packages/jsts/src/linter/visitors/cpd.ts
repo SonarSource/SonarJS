@@ -113,11 +113,46 @@ function extractTokens(sourceCode: SourceCode): {
       case 'ImportDeclaration':
         importTokens.push(...sourceCode.getTokens(tsNode as estree.Node));
         break;
-      case 'CallExpression':
-        if (tsNode.callee.type === 'Identifier' && tsNode.callee.name === 'require') {
-          requireTokens.push(...sourceCode.getTokens(tsNode as estree.Node));
+      case 'VariableDeclaration': {
+        if (tsNode.declarations.length === 1) {
+          const declaration = tsNode.declarations[0];
+
+          // `const x = require('y')`
+          if (isRequireCall(declaration.init)) {
+            requireTokens.push(...sourceCode.getTokens(node));
+            break;
+          }
+
+          // `const x = require('y')()`
+          if (
+            declaration.init?.type === 'CallExpression' &&
+            isRequireCall(declaration.init.callee)
+          ) {
+            requireTokens.push(...sourceCode.getTokens(node));
+            break;
+          }
+
+          // `const x = require('y').z`
+          if (
+            declaration.init?.type === 'MemberExpression' &&
+            isRequireCall(declaration.init.object)
+          ) {
+            requireTokens.push(...sourceCode.getTokens(node));
+            break;
+          }
+
+          // `const x = require('y').z()`
+          if (
+            declaration.init?.type === 'CallExpression' &&
+            declaration.init.callee.type === 'MemberExpression' &&
+            isRequireCall(declaration.init.callee.object)
+          ) {
+            requireTokens.push(...sourceCode.getTokens(node));
+            break;
+          }
         }
         break;
+      }
     }
   });
   return { jsxTokens, importTokens, requireTokens };
@@ -125,4 +160,12 @@ function extractTokens(sourceCode: SourceCode): {
 
 function isStringLiteralToken(token: AST.Token) {
   return token.value.startsWith('"') || token.value.startsWith("'") || token.value.startsWith('`');
+}
+
+function isRequireCall(node: TSESTree.Node | null): boolean {
+  return (
+    node?.type === 'CallExpression' &&
+    node.callee.type === 'Identifier' &&
+    node.callee.name === 'require'
+  );
 }
