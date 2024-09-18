@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import Path from 'path';
+import Path from 'path/posix';
 import { type PackageJson } from 'type-fest';
 import { searchFiles, File } from './find-files';
 import { toUnixPath } from './files';
@@ -79,7 +79,7 @@ export function setPackageJsons(db: Record<string, File<PackageJson>[]>) {
  * @returns
  */
 export function getDependencies(fileName: string) {
-  let dirname = Path.posix.dirname(toUnixPath(fileName));
+  let dirname = Path.dirname(toUnixPath(fileName));
   const cached = cache.get(dirname);
   if (cached) {
     return cached;
@@ -89,7 +89,7 @@ export function getDependencies(fileName: string) {
   cache.set(dirname, result);
 
   for (const packageJson of getNearestPackageJsons(fileName)) {
-    dirname = Path.posix.dirname(packageJson.filename);
+    dirname = Path.dirname(packageJson.filename);
     const dirCached = dirCache.get(dirname);
     if (dirCached) {
       dirCached.forEach(d => result.add(d));
@@ -117,14 +117,14 @@ export function getNearestPackageJsons(file: string) {
   if (getPackageJsonsCount() === 0) {
     return results;
   }
-  let currentDir = Path.posix.dirname(Path.posix.normalize(toUnixPath(file)));
+  let currentDir = Path.dirname(Path.normalize(toUnixPath(file)));
   do {
     const packageJson = PackageJsonsByBaseDir[currentDir];
     if (packageJson?.length) {
       results.push(...packageJson);
     }
-    currentDir = Path.posix.dirname(currentDir);
-  } while (currentDir !== Path.posix.dirname(currentDir));
+    currentDir = Path.dirname(currentDir);
+  } while (currentDir !== Path.dirname(currentDir));
   return results;
 }
 
