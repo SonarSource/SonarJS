@@ -265,7 +265,16 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
   }
 
   private static boolean isForceHost(Configuration configuration) {
-    return configuration.getBoolean(NODE_FORCE_HOST_PROPERTY).orElse(configuration.getBoolean(SKIP_NODE_PROVISIONING_PROPERTY).orElse(false));
+    var forceHost = configuration.getBoolean(NODE_FORCE_HOST_PROPERTY);
+    if (forceHost.isPresent()) {
+      LOG.warn(
+        "Property '{}' is deprecated and will be removed in a future version. Please use '{}' instead.",
+        NODE_FORCE_HOST_PROPERTY,
+        SKIP_NODE_PROVISIONING_PROPERTY
+      );
+      return forceHost.get();
+    }
+    return configuration.getBoolean(SKIP_NODE_PROVISIONING_PROPERTY).orElse(false);
   }
 
   private String locateNodeOnMac() throws IOException {

@@ -453,6 +453,25 @@ class NodeCommandTest {
       .contains("Forcing to use Node.js from the host.");
   }
 
+  @Test
+  void test_node_force_host_property_deprecation() throws Exception {
+    var forceHostProp = "sonar.nodejs.forceHost";
+    var settings = new MapSettings();
+    settings.setProperty(forceHostProp, true);
+
+    builder()
+      .configuration(settings.asConfig())
+      .script("script.js")
+      .pathResolver(getPathResolver())
+      .build();
+
+    assertThat(logTester.logs(Level.WARN))
+      .contains(
+        "Property 'sonar.nodejs.forceHost' is deprecated and will be removed in a future version. " +
+        "Please use 'sonar.scanner.skipNodeProvisioning' instead."
+      );
+  }
+
   private static String resourceScript(String script) throws URISyntaxException {
     return new File(NodeCommandTest.class.getResource("/" + script).toURI()).getAbsolutePath();
   }
