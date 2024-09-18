@@ -8,8 +8,7 @@
 144
 ],
 "ant-design:components/anchor/Anchor.tsx": [
-27,
-258
+27
 ],
 "ant-design:components/anchor/__tests__/Anchor.test.tsx": [
 61,
@@ -129,9 +128,6 @@
 "ant-design:components/mentions/index.tsx": [
 142
 ],
-"ant-design:components/message/index.tsx": [
-107
-],
 "ant-design:components/popconfirm/index.tsx": [
 152
 ],
@@ -167,8 +163,9 @@
 "ant-design:components/tag/index.tsx": [
 55
 ],
-"ant-design:components/timeline/Timeline.tsx": [
-48
+"ant-design:components/time-picker/index.tsx": [
+72,
+74
 ],
 "ant-design:components/transfer/__tests__/dropdown.test.tsx": [
 54,

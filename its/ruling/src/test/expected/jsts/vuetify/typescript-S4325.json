@@ -2,6 +2,9 @@
 "vuetify:packages/vuetify/cypress/support/mount.ts": [
 32
 ],
+"vuetify:packages/vuetify/src/components/VCalendar/mixins/mouse.ts": [
+100
+],
 "vuetify:packages/vuetify/src/components/VData/VData.ts": [
 382
 ],
@@ -29,8 +32,17 @@
 55,
 57
 ],
+"vuetify:packages/vuetify/src/components/VRangeSlider/VRangeSlider.tsx": [
+95
+],
 "vuetify:packages/vuetify/src/components/VSelectionControl/__tests__/VSelectionControl.spec.tsx": [
 17
+],
+"vuetify:packages/vuetify/src/components/VStepper/VStepper.ts": [
+109,
+111,
+112,
+119
 ],
 "vuetify:packages/vuetify/src/components/VTextarea/VTextarea.tsx": [
 163,
@@ -50,14 +62,12 @@
 25,
 65
 ],
-"vuetify:packages/vuetify/src/composables/forwardRefs.ts": [
-66
-],
-"vuetify:packages/vuetify/src/composables/proxiedModel.ts": [
-47
+"vuetify:packages/vuetify/src/composables/router.tsx": [
+53
 ],
 "vuetify:packages/vuetify/src/composables/theme.ts": [
-237
+237,
+310
 ],
 "vuetify:packages/vuetify/src/composables/transition.ts": [
 27,
@@ -69,17 +79,8 @@
 38,
 42
 ],
-"vuetify:packages/vuetify/src/framework.ts": [
-131
-],
-"vuetify:packages/vuetify/src/util/defineComponent.tsx": [
-195
-],
 "vuetify:packages/vuetify/src/util/helpers.ts": [
 121,
 123
-],
-"vuetify:packages/vuetify/src/util/useRender.ts": [
-8
 ]
 }

@@ -43,12 +43,10 @@ describe('program', () => {
     const { programId, files, projectReferences } = createAndSaveProgram(tsConfig);
 
     expect(programId).toBeDefined();
-    expect(files).toEqual(
-      expect.arrayContaining([
-        toUnixPath(path.join(fixtures, 'file.ts')),
-        toUnixPath(path.join(reference, 'file.ts')),
-      ]),
-    );
+    expect(files).toContain(toUnixPath(path.join(fixtures, 'file.ts')));
+    // behavior changed in TS 5.5, program will no longer include files from referenced projects
+    expect(files).not.toContain(toUnixPath(path.join(reference, 'file.ts')));
+
     expect(projectReferences).toEqual([path.join(reference, 'tsconfig.json')]);
   });
 
@@ -177,8 +175,11 @@ describe('program', () => {
     const program = getProgramById(programId);
 
     expect(program.getCompilerOptions().configFilePath).toEqual(toUnixPath(tsConfig));
-    expect(program.getRootFileNames()).toEqual(
-      files.map(toUnixPath).filter(file => file.startsWith(toUnixPath(fixtures))),
+    // behavior in TS 5.5 changed, program will no longer include files from referenced projects
+    expect(program.getSourceFiles().map(s => s.fileName)).toEqual(
+      expect.arrayContaining(
+        files.map(toUnixPath).filter(file => file.startsWith(toUnixPath(fixtures))),
+      ),
     );
   });
 
