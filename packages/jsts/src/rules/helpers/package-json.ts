@@ -208,15 +208,16 @@ export const getManifests = (
     const entries = fileSystem.readdirSync(path);
 
     for (const entry of entries) {
-      const entryPath = Path.resolve(path, entry);
+      const entryUnixPath = toUnixPath(entry);
+      const absoluteEntryPath = Path.join(path, entryUnixPath);
 
-      if (Path.basename(entryPath) === 'package.json') {
-        const content = fileSystem.readFileSync(entryPath);
+      if (Path.basename(absoluteEntryPath) === 'package.json') {
+        const content = fileSystem.readFileSync(absoluteEntryPath);
 
         try {
           results.push(JSON.parse(content.toString()));
         } catch (error) {
-          console.debug(`Error parsing file ${entryPath}: ${error}`);
+          console.debug(`Error parsing file ${absoluteEntryPath}: ${error}`);
         }
       }
     }

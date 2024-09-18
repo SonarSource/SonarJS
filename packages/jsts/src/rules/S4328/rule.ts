@@ -23,7 +23,7 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import builtins from 'builtin-modules';
 import * as ts from 'typescript';
-import { generateMeta, getDependenciesFromPackageJson } from '../helpers';
+import { generateMeta, getDependenciesFromPackageJson, toUnixPath } from '../helpers';
 import { FromSchema } from 'json-schema-to-ts';
 import { meta, schema } from './meta';
 import { Minimatch } from 'minimatch';
@@ -38,7 +38,12 @@ export const rule: Rule.RuleModule = {
   meta: generateMeta(meta as Rule.RuleMetaData, { messages, schema }),
   create(context: Rule.RuleContext) {
     // we need to find all the npm manifests from the directory of the analyzed file to the context working directory
-    const manifests = getManifests(context.filename, context.cwd, fs);
+    const cwd = toUnixPath(context.cwd);
+    const fileName = toUnixPath(context.filename);
+    const manifests = getManifests(fileName, cwd, fs);
+
+    console.log('S4328, manifests', manifests);
+
     const dependencies: Set<string> = new Set();
 
     manifests.forEach(manifest => {
