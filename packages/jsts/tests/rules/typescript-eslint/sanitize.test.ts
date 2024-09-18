@@ -42,7 +42,7 @@ describe('sanitize', () => {
   test.each(cases)(
     'should $action a sanitized rule raise issues when type information is $typing',
     async ({ tsConfigFiles, issues }) => {
-      const ruleId = 'S2933';
+      const ruleId = 'prefer-readonly';
       const sanitizedRule = sanitize(typescriptESLintRules[ruleId]);
 
       const linter = new Linter();

@@ -37,75 +37,7 @@ describe('LinterWrapper', () => {
     const filePath = path.join(__dirname, 'fixtures', 'wrapper', 'internal.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
-    const ruleId = 'for-loop-increment-sign';
-    const rules = [{ key: ruleId, configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
-
-    const linter = new LinterWrapper({ inputRules: rules });
-    const { issues } = linter.lint(sourceCode, filePath);
-
-    expect(issues).toEqual([
-      expect.objectContaining({
-        ruleId,
-      }),
-    ]);
-  });
-
-  it('should report issues from ESLint rules', async () => {
-    const filePath = path.join(__dirname, 'fixtures', 'wrapper', 'eslint.js');
-    const sourceCode = await parseJavaScriptSourceFile(filePath);
-
-    const ruleId = 'S1116';
-    const rules = [{ key: ruleId, configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
-
-    const linter = new LinterWrapper({ inputRules: rules });
-    const { issues } = linter.lint(sourceCode, filePath);
-
-    expect(issues).toEqual([
-      expect.objectContaining({
-        ruleId,
-      }),
-    ]);
-  });
-
-  it('should report issues from TypeScript ESLint rules', async () => {
-    const filePath = path.join(__dirname, 'fixtures', 'wrapper', 'typescript-eslint.ts');
-    const sourceCode = await parseTypeScriptSourceFile(filePath, []);
-
-    const ruleId = 'array-type';
-    const rules = [{ key: ruleId, configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
-
-    const linter = new LinterWrapper({ inputRules: rules });
-    const { issues } = linter.lint(sourceCode, filePath);
-
-    expect(issues).toEqual([
-      expect.objectContaining({
-        ruleId,
-      }),
-    ]);
-  });
-
-  it('should report issues from eslint-plugin-react rules', async () => {
-    const filePath = path.join(__dirname, 'fixtures', 'wrapper', 'eslint-plugin-react.js');
-    const sourceCode = await parseTypeScriptSourceFile(filePath, []);
-
-    const ruleId = 'jsx-no-comment-textnodes';
-    const rules = [{ key: ruleId, configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
-
-    const linter = new LinterWrapper({ inputRules: rules });
-    const { issues } = linter.lint(sourceCode, filePath);
-
-    expect(issues).toEqual([
-      expect.objectContaining({
-        ruleId,
-      }),
-    ]);
-  });
-
-  it('should report issues from eslint-plugin-sonarjs rules', async () => {
-    const filePath = path.join(__dirname, 'fixtures', 'wrapper', 'eslint-plugin-sonarjs.js');
-    const sourceCode = await parseJavaScriptSourceFile(filePath);
-
-    const ruleId = 'S3923';
+    const ruleId = 'S2251';
     const rules = [{ key: ruleId, configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
 
     const linter = new LinterWrapper({ inputRules: rules });
@@ -218,7 +150,7 @@ describe('LinterWrapper', () => {
     const filePath = path.join(__dirname, 'fixtures', 'wrapper', 'secondary-location.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
-    const ruleId = 'no-redundant-parentheses';
+    const ruleId = 'S1110';
     const rules = [{ key: ruleId, configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
 
     const linter = new LinterWrapper({ inputRules: rules });
@@ -250,13 +182,13 @@ describe('LinterWrapper', () => {
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
     const rules = [
-      { key: 'super-invocation', configurations: [], fileTypeTarget: [fileType] },
+      { key: 'S3854', configurations: [], fileTypeTarget: [fileType] },
     ] as RuleConfig[];
     const linter = new LinterWrapper({ inputRules: rules });
     const { issues } = linter.lint(sourceCode, filePath);
 
     expect(issues).toHaveLength(4);
-    expect(issues.every(issue => issue.ruleId === 'super-invocation')).toBe(true);
+    expect(issues.every(issue => issue.ruleId === 'S3854')).toBe(true);
   });
 
   it('should not take into account comment-based eslint configurations', async () => {
@@ -378,7 +310,7 @@ describe('LinterWrapper', () => {
     const filePath = path.join(__dirname, 'fixtures', 'wrapper', 'quickfixes', 'disabled.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
-    const ruleId = 'brace-style';
+    const ruleId = 'S1105';
     const rules = [{ key: ruleId, configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
 
     const linter = new LinterWrapper({ inputRules: rules });

@@ -25,7 +25,7 @@ import * as externalRules from './external';
 export const rules = {
   ...originalRules,
   ...decoratedRules,
-  ...externalRules,
+  ...externalRules.rules,
 };
 
 export * from './helpers';
