@@ -52,7 +52,7 @@ export const S2301: Rule.RuleModule = {
     true,
   ),
   create: context => {
-    if (!isRequiredParserServices(context.parserServices)) {
+    if (!isRequiredParserServices(context.sourceCode.parserServices)) {
       return {};
     }
 
@@ -104,13 +104,13 @@ export const S2301: Rule.RuleModule = {
           return;
         }
 
-        const variable = getVariableFromIdentifier(node, context.getScope());
+        const variable = getVariableFromIdentifier(node, context.sourceCode.getScope(node));
 
         if (variable) {
           const definition = variable.defs[variable.defs.length - 1];
 
           if (definition?.type === 'Parameter') {
-            const type = getTypeFromTreeNode(definition.name, context.parserServices);
+            const type = getTypeFromTreeNode(definition.name, context.sourceCode.parserServices);
 
             if (isBooleanType(type)) {
               report(
