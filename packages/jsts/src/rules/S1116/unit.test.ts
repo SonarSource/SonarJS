@@ -77,7 +77,7 @@ ruleTester.run('Extra semicolons should be removed', rule, {
   ],
 });
 
-it('no-extra-semi handles null nodes', () => {
+it('S1116 handles null nodes', () => {
   const context = {
     sourceCode: {
       getTokenBefore: jest.fn().mockReturnValue(null),

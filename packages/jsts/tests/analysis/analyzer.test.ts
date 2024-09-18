@@ -101,9 +101,7 @@ describe('analyzeJSTS', () => {
   });
 
   it('should analyze Vue.js code', async () => {
-    const rules = [
-      { key: 'sonar-no-dupe-keys', configurations: [], fileTypeTarget: ['MAIN'] },
-    ] as RuleConfig[];
+    const rules = [{ key: 'S1534', configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
     initializeLinter(rules);
 
     const filePath = path.join(__dirname, 'fixtures', 'code.vue');
@@ -114,7 +112,7 @@ describe('analyzeJSTS', () => {
     } = analyzeJSTS(await jsTsInput({ filePath }), language) as JsTsAnalysisOutput;
     expect(issue).toEqual(
       expect.objectContaining({
-        ruleId: 'sonar-no-dupe-keys',
+        ruleId: 'S1534',
       }),
     );
   });
@@ -148,8 +146,8 @@ describe('analyzeJSTS', () => {
 
   it('should analyze main files', async () => {
     const rules = [
-      { key: 'prefer-promise-shorthand', configurations: [], fileTypeTarget: ['MAIN'] },
-      { key: 'no-same-argument-assert', configurations: [], fileTypeTarget: ['TEST'] },
+      { key: 'S4634', configurations: [], fileTypeTarget: ['MAIN'] },
+      { key: 'S5863', configurations: [], fileTypeTarget: ['TEST'] },
     ] as RuleConfig[];
     initializeLinter(rules);
 
@@ -160,15 +158,15 @@ describe('analyzeJSTS', () => {
     expect(issues).toHaveLength(1);
     expect(issues[0]).toEqual(
       expect.objectContaining({
-        ruleId: 'prefer-promise-shorthand',
+        ruleId: 'S4634',
       }),
     );
   });
 
   it('should analyze test files', async () => {
     const rules = [
-      { key: 'no-with', configurations: [], fileTypeTarget: ['MAIN'] },
-      { key: 'no-same-argument-assert', configurations: [], fileTypeTarget: ['TEST'] },
+      { key: 'S1321', configurations: [], fileTypeTarget: ['MAIN'] },
+      { key: 'S5863', configurations: [], fileTypeTarget: ['TEST'] },
     ] as RuleConfig[];
     initializeLinter(rules);
 
@@ -184,15 +182,15 @@ describe('analyzeJSTS', () => {
     expect(issues).toHaveLength(1);
     expect(issues[0]).toEqual(
       expect.objectContaining({
-        ruleId: 'no-same-argument-assert',
+        ruleId: 'S5863',
       }),
     );
   });
 
   it('should analyze main and test files', async () => {
     const rules = [
-      { key: 'no-throw-literal', configurations: [], fileTypeTarget: ['MAIN', 'TEST'] },
-      { key: 'no-exclusive-tests', configurations: [], fileTypeTarget: ['TEST'] },
+      { key: 'S3696', configurations: [], fileTypeTarget: ['MAIN', 'TEST'] },
+      { key: 'S6426', configurations: [], fileTypeTarget: ['TEST'] },
     ] as RuleConfig[];
     initializeLinter(rules);
 
@@ -205,15 +203,11 @@ describe('analyzeJSTS', () => {
       language,
     ) as JsTsAnalysisOutput;
     expect(issues).toHaveLength(2);
-    expect(issues.map(issue => issue.ruleId)).toEqual(
-      expect.arrayContaining(['no-exclusive-tests', 'no-throw-literal']),
-    );
+    expect(issues.map(issue => issue.ruleId)).toEqual(expect.arrayContaining(['S6426', 'S3696']));
   });
 
   it('should analyze shebang files', async () => {
-    const rules = [
-      { key: 'object-shorthand', configurations: [], fileTypeTarget: ['MAIN'] },
-    ] as RuleConfig[];
+    const rules = [{ key: 'S3498', configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
     initializeLinter(rules);
 
     const filePath = path.join(__dirname, 'fixtures', 'shebang.js');
@@ -224,15 +218,13 @@ describe('analyzeJSTS', () => {
     } = analyzeJSTS(await jsTsInput({ filePath }), language) as JsTsAnalysisOutput;
     expect(issue).toEqual(
       expect.objectContaining({
-        ruleId: 'object-shorthand',
+        ruleId: 'S3498',
       }),
     );
   });
 
   it('should analyze BOM files', async () => {
-    const rules = [
-      { key: 'no-extra-semi', configurations: [], fileTypeTarget: ['MAIN'] },
-    ] as RuleConfig[];
+    const rules = [{ key: 'S1116', configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
     initializeLinter(rules);
 
     const filePath = path.join(__dirname, 'fixtures', 'bom.js');
@@ -243,15 +235,13 @@ describe('analyzeJSTS', () => {
     } = analyzeJSTS(await jsTsInput({ filePath }), language) as JsTsAnalysisOutput;
     expect(issue).toEqual(
       expect.objectContaining({
-        ruleId: 'no-extra-semi',
+        ruleId: 'S1116',
       }),
     );
   });
 
   it('should analyze file contents', async () => {
-    const rules = [
-      { key: 'prefer-template', configurations: [], fileTypeTarget: ['MAIN'] },
-    ] as RuleConfig[];
+    const rules = [{ key: 'S3512', configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
     initializeLinter(rules);
 
     const filePath = '/tmp/dir';
@@ -263,15 +253,13 @@ describe('analyzeJSTS', () => {
     } = analyzeJSTS(await jsTsInput({ filePath, fileContent }), language) as JsTsAnalysisOutput;
     expect(issue).toEqual(
       expect.objectContaining({
-        ruleId: 'prefer-template',
+        ruleId: 'S3512',
       }),
     );
   });
 
   it('should analyze using TSConfig', async () => {
-    const rules = [
-      { key: 'no-useless-intersection', configurations: [], fileTypeTarget: ['MAIN'] },
-    ] as RuleConfig[];
+    const rules = [{ key: 'S4335', configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
     initializeLinter(rules);
 
     const filePath = path.join(__dirname, 'fixtures', 'tsconfig.ts');
@@ -283,15 +271,13 @@ describe('analyzeJSTS', () => {
     } = analyzeJSTS(await jsTsInput({ filePath, tsConfigs }), language) as JsTsAnalysisOutput;
     expect(issue).toEqual(
       expect.objectContaining({
-        ruleId: 'no-useless-intersection',
+        ruleId: 'S4335',
       }),
     );
   });
 
   it('should analyze using TypeScript program', async () => {
-    const rules = [
-      { key: 'no-array-delete', configurations: [], fileTypeTarget: ['MAIN'] },
-    ] as RuleConfig[];
+    const rules = [{ key: 'S2870', configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
     initializeLinter(rules);
 
     const filePath = path.join(__dirname, 'fixtures', 'program.ts');
@@ -305,15 +291,13 @@ describe('analyzeJSTS', () => {
     } = analyzeJSTS(await jsTsInput({ filePath, programId }), language) as JsTsAnalysisOutput;
     expect(issue).toEqual(
       expect.objectContaining({
-        ruleId: 'no-array-delete',
+        ruleId: 'S2870',
       }),
     );
   });
 
   it('should succeed with types using tsconfig with path aliases', async () => {
-    const rules = [
-      { key: 'strings-comparison', configurations: [], fileTypeTarget: ['MAIN'] },
-    ] as RuleConfig[];
+    const rules = [{ key: 'S3003', configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
     initializeLinter(rules);
 
     const filePath = path.join(__dirname, 'fixtures', 'paths', 'file.ts');
@@ -327,7 +311,7 @@ describe('analyzeJSTS', () => {
     } = analyzeJSTS(await jsTsInput({ filePath, programId }), language) as JsTsAnalysisOutput;
     expect(issue).toEqual(
       expect.objectContaining({
-        ruleId: 'strings-comparison',
+        ruleId: 'S3003',
       }),
     );
   });
@@ -437,9 +421,7 @@ describe('analyzeJSTS', () => {
       sonarlint: false,
       bundles: [],
     });
-    const rules = [
-      { key: 'different-types-comparison', configurations: [], fileTypeTarget: ['MAIN'] },
-    ] as RuleConfig[];
+    const rules = [{ key: 'S3403', configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
     initializeLinter(rules);
 
     const filePath = path.join(__dirname, 'fixtures', 'type.js');
@@ -451,15 +433,13 @@ describe('analyzeJSTS', () => {
     } = analyzeJSTS(await jsTsInput({ filePath, tsConfigs }), language) as JsTsAnalysisOutput;
     expect(issue).toEqual(
       expect.objectContaining({
-        ruleId: 'different-types-comparison',
+        ruleId: 'S3403',
       }),
     );
   });
 
   it('should report issues', async () => {
-    const rules = [
-      { key: 'no-octal', configurations: [], fileTypeTarget: ['MAIN'] },
-    ] as RuleConfig[];
+    const rules = [{ key: 'S1314', configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
     initializeLinter(rules);
 
     const filePath = path.join(__dirname, 'fixtures', 'issue.js');
@@ -468,7 +448,7 @@ describe('analyzeJSTS', () => {
     const { issues } = analyzeJSTS(await jsTsInput({ filePath }), language) as JsTsAnalysisOutput;
     expect(issues).toEqual([
       {
-        ruleId: 'no-octal',
+        ruleId: 'S1314',
         line: 1,
         column: 8,
         endLine: 1,

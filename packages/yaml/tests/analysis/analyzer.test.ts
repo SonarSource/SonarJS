@@ -65,9 +65,7 @@ describe('analyzeYAML', () => {
   });
 
   it('should return an empty issues list on parsing error', async () => {
-    initializeLinter([
-      { key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: ['MAIN'] },
-    ]);
+    initializeLinter([{ key: 'S3923', configurations: [], fileTypeTarget: ['MAIN'] }]);
     const analysisInput = await embeddedInput({ filePath: join(fixturesPath, 'malformed.yaml') });
     expect(() => analyzeEmbedded(analysisInput, parseAwsFromYaml)).toThrow(
       APIError.parsingError('Map keys must be unique', { line: 2 }),
@@ -75,7 +73,7 @@ describe('analyzeYAML', () => {
   });
 
   it('should not break when using a rule with a quickfix', async () => {
-    initializeLinter([{ key: 'no-extra-semi', configurations: [], fileTypeTarget: ['MAIN'] }]);
+    initializeLinter([{ key: 'S1116', configurations: [], fileTypeTarget: ['MAIN'] }]);
     const result = analyzeEmbedded(
       await embeddedInput({ filePath: join(fixturesPath, 'quickfix.yaml') }),
       parseAwsFromYaml,
@@ -173,8 +171,8 @@ describe('analyzeYAML', () => {
 
   it('should not return issues outside of the embedded JS', async () => {
     initializeLinter([
-      { key: 'no-trailing-spaces', configurations: [], fileTypeTarget: ['MAIN'] },
-      { key: 'file-header', configurations: [{ headerFormat: '' }], fileTypeTarget: ['MAIN'] },
+      { key: 'S1131', configurations: [], fileTypeTarget: ['MAIN'] },
+      { key: 'S1451', configurations: [{ headerFormat: '' }], fileTypeTarget: ['MAIN'] },
     ]);
     const { issues } = analyzeEmbedded(
       await embeddedInput({ filePath: join(fixturesPath, 'outside.yaml') }),

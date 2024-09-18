@@ -63,7 +63,7 @@ describe('router', () => {
     const payload: ProjectAnalysisInput = {
       rules: [
         {
-          key: 'no-duplicate-in-composite',
+          key: 'S4621',
           configurations: [],
           fileTypeTarget: ['MAIN'],
           language: 'ts',
@@ -85,7 +85,7 @@ describe('router', () => {
     } = JSON.parse(response);
     expect(issue).toEqual(
       expect.objectContaining({
-        ruleId: 'no-duplicate-in-composite',
+        ruleId: 'S4621',
         line: 1,
         column: 28,
         endLine: 1,
@@ -114,7 +114,7 @@ describe('router', () => {
 
   it('should route /analyze-js requests', async () => {
     await requestInitLinter(server, [
-      { key: 'prefer-regex-literals', configurations: [], fileTypeTarget: ['MAIN'] },
+      { key: 'S6325', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
     const filePath = path.join(fixtures, 'file.js');
     const fileType = 'MAIN';
@@ -126,7 +126,7 @@ describe('router', () => {
     } = responseData;
     expect(issue).toEqual(
       expect.objectContaining({
-        ruleId: 'prefer-regex-literals',
+        ruleId: 'S6325',
         line: 1,
         column: 0,
         endLine: 1,
@@ -144,7 +144,7 @@ describe('router', () => {
 
   it('should route /analyze-ts requests', async () => {
     await requestInitLinter(server, [
-      { key: 'no-duplicate-in-composite', configurations: [], fileTypeTarget: ['MAIN'] },
+      { key: 'S4621', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
     const filePath = path.join(fixtures, 'file.ts');
     const fileType = 'MAIN';
@@ -156,7 +156,7 @@ describe('router', () => {
     } = JSON.parse(response);
     expect(issue).toEqual(
       expect.objectContaining({
-        ruleId: 'no-duplicate-in-composite',
+        ruleId: 'S4621',
         line: 1,
         column: 28,
         endLine: 1,
@@ -168,7 +168,7 @@ describe('router', () => {
 
   it('should route /analyze-with-program requests', async () => {
     await requestInitLinter(server, [
-      { key: 'no-duplicate-in-composite', configurations: [], fileTypeTarget: ['MAIN'] },
+      { key: 'S4621', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
     const filePath = path.join(fixtures, 'file.ts');
     const fileType = 'MAIN';
@@ -183,7 +183,7 @@ describe('router', () => {
     } = JSON.parse(response);
     expect(issue).toEqual(
       expect.objectContaining({
-        ruleId: 'no-duplicate-in-composite',
+        ruleId: 'S4621',
         line: 1,
         column: 28,
         endLine: 1,
@@ -195,7 +195,7 @@ describe('router', () => {
 
   it('should route /analyze-yaml requests', async () => {
     await requestInitLinter(server, [
-      { key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: ['MAIN'] },
+      { key: 'S3923', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
     const filePath = path.join(fixtures, 'file.yaml');
     const data = { filePath };
@@ -204,7 +204,7 @@ describe('router', () => {
       issues: [issue],
     } = JSON.parse(response);
     expect(issue).toEqual({
-      ruleId: 'no-all-duplicated-branches',
+      ruleId: 'S3923',
       line: 8,
       column: 17,
       endLine: 8,
@@ -218,7 +218,7 @@ describe('router', () => {
 
   it('should route /analyze-html requests', async () => {
     await requestInitLinter(server, [
-      { key: 'no-all-duplicated-branches', configurations: [], fileTypeTarget: ['MAIN'] },
+      { key: 'S3923', configurations: [], fileTypeTarget: ['MAIN'] },
     ]);
     const filePath = path.join(fixtures, 'file.html');
     const data = { filePath };
@@ -227,7 +227,7 @@ describe('router', () => {
       issues: [issue],
     } = JSON.parse(response);
     expect(issue).toEqual({
-      ruleId: 'no-all-duplicated-branches',
+      ruleId: 'S3923',
       line: 10,
       column: 2,
       endLine: 10,

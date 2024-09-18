@@ -22,7 +22,7 @@ import { JavaScriptRuleTester } from '../../../tests/tools';
 
 const ruleTester = new JavaScriptRuleTester();
 
-ruleTester.run('no-duplicate-string', rule, {
+ruleTester.run('S1192', rule, {
   valid: [
     {
       code: `

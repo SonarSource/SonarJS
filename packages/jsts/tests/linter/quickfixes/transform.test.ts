@@ -30,7 +30,7 @@ describe('transformFixes', () => {
     const filePath = path.join(__dirname, 'fixtures', 'eslint.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
-    const ruleId = 'no-extra-semi';
+    const ruleId = 'S1116';
     const rules = { [ruleId]: 'error' } as any;
 
     const linter = new Linter();
@@ -55,7 +55,7 @@ describe('transformFixes', () => {
     const filePath = path.join(__dirname, 'fixtures', 'sonarjs.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
-    const ruleId = 'no-exclusive-tests';
+    const ruleId = 'S6426';
     const rules = { [ruleId]: 'error' } as any;
 
     const linter = new Linter();

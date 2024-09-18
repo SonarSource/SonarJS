@@ -54,7 +54,7 @@ describe('LinterWrapper', () => {
     const filePath = path.join(__dirname, 'fixtures', 'wrapper', 'eslint.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
-    const ruleId = 'no-extra-semi';
+    const ruleId = 'S1116';
     const rules = [{ key: ruleId, configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
 
     const linter = new LinterWrapper({ inputRules: rules });
@@ -105,7 +105,7 @@ describe('LinterWrapper', () => {
     const filePath = path.join(__dirname, 'fixtures', 'wrapper', 'eslint-plugin-sonarjs.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
-    const ruleId = 'no-all-duplicated-branches';
+    const ruleId = 'S3923';
     const rules = [{ key: ruleId, configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
 
     const linter = new LinterWrapper({ inputRules: rules });
@@ -125,7 +125,7 @@ describe('LinterWrapper', () => {
 
     const sourceCode = await parseJavaScriptSourceFile(filePath, [tsConfig]);
 
-    const ruleId = 'different-types-comparison';
+    const ruleId = 'S3403';
     const rules = [{ key: ruleId, configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
 
     const linter = new LinterWrapper({ inputRules: rules });
@@ -176,8 +176,8 @@ describe('LinterWrapper', () => {
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
     const rules = [
-      { key: 'no-extra-semi', configurations: [], fileTypeTarget: ['MAIN'] },
-      { key: 'no-var', configurations: [], fileTypeTarget: ['TEST'] },
+      { key: 'S1116', configurations: [], fileTypeTarget: ['MAIN'] },
+      { key: 'S3504', configurations: [], fileTypeTarget: ['TEST'] },
     ] as RuleConfig[];
 
     const linter = new LinterWrapper({ inputRules: rules });
@@ -185,7 +185,7 @@ describe('LinterWrapper', () => {
 
     expect(issues).toEqual([
       expect.objectContaining({
-        ruleId: 'no-var',
+        ruleId: 'S3504',
       }),
     ]);
   });
@@ -194,7 +194,7 @@ describe('LinterWrapper', () => {
     const filePath = path.join(__dirname, 'fixtures', 'wrapper', 'decorated.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
-    const ruleId = 'prefer-template';
+    const ruleId = 'S3512';
     const rules = [{ key: ruleId, configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
 
     const linter = new LinterWrapper({ inputRules: rules });
@@ -207,9 +207,7 @@ describe('LinterWrapper', () => {
     const filePath = path.join(__dirname, 'fixtures', 'wrapper', 'sanitized.ts');
     const sourceCode = await parseTypeScriptSourceFile(filePath, [], 'MAIN');
 
-    const rules = [
-      { key: 'prefer-readonly', configurations: [], fileTypeTarget: ['MAIN'] },
-    ] as RuleConfig[];
+    const rules = [{ key: 'S2933', configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
     const linter = new LinterWrapper({ inputRules: rules });
     const { issues } = linter.lint(sourceCode, filePath);
 
@@ -279,7 +277,7 @@ describe('LinterWrapper', () => {
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
     const rules = [
-      { key: 'declarations-in-global-scope', configurations: [], fileTypeTarget: [fileType] },
+      { key: 'S3798', configurations: [], fileTypeTarget: [fileType] },
     ] as RuleConfig[];
     const env = ['browser'];
 
@@ -298,7 +296,7 @@ describe('LinterWrapper', () => {
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
     const rules = [
-      { key: 'declarations-in-global-scope', configurations: [], fileTypeTarget: [fileType] },
+      { key: 'S3798', configurations: [], fileTypeTarget: [fileType] },
     ] as RuleConfig[];
     const globals = ['angular'];
 

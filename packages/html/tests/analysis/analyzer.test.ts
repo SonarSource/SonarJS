@@ -57,7 +57,7 @@ describe('analyzeHTML', () => {
   });
 
   it('should not break when using a rule with a quickfix', async () => {
-    initializeLinter([{ key: 'no-extra-semi', configurations: [], fileTypeTarget: ['MAIN'] }]);
+    initializeLinter([{ key: 'S1116', configurations: [], fileTypeTarget: ['MAIN'] }]);
     const result = analyzeEmbedded(
       await embeddedInput({ filePath: join(fixturesPath, 'quickfix.html') }),
       parseHTML,

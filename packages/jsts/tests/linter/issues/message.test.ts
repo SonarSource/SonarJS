@@ -27,7 +27,7 @@ describe('convertMessage', () => {
     const filePath = path.join(__dirname, 'fixtures', 'convert.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
-    const ruleId = 'no-extra-semi';
+    const ruleId = 'S1116';
     const config = { rules: { [ruleId]: 'error' } } as Linter.Config;
 
     const linter = new Linter();

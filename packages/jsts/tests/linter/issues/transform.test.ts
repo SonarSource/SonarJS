@@ -29,7 +29,7 @@ describe('transformMessages', () => {
     const filePath = path.join(__dirname, 'fixtures', 'message.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
-    const ruleId = 'no-var';
+    const ruleId = 'S3504';
     const config = { rules: { [ruleId]: 'error' } } as any;
 
     const linter = new Linter();
@@ -52,7 +52,7 @@ describe('transformMessages', () => {
     const filePath = path.join(__dirname, 'fixtures', 'location.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
-    const ruleId = 'no-unused-function-argument';
+    const ruleId = 'S1172';
     const config = { rules: { [ruleId]: 'error' } } as any;
 
     const linter = new Linter();
@@ -76,7 +76,7 @@ describe('transformMessages', () => {
     const filePath = path.join(__dirname, 'fixtures', 'fix.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
-    const ruleId = 'no-extra-semi';
+    const ruleId = 'S1116';
     const config = { rules: { [ruleId]: 'error' } } as any;
 
     const linter = new Linter();
@@ -110,7 +110,7 @@ describe('transformMessages', () => {
     const tsConfigs = [];
     const sourceCode = await parseTypeScriptSourceFile(filePath, tsConfigs);
 
-    const ruleId = 'no-duplicate-in-composite';
+    const ruleId = 'S4621';
     const config = { rules: { [ruleId]: ['error', 'sonar-runtime'] } } as any;
 
     const linter = new Linter();
