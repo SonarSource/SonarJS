@@ -41,16 +41,18 @@ const linters: Linters = {};
  * @param inputRules the rules from the active quality profiles
  * @param environments the JavaScript execution environments
  * @param globals the global variables
+ * @param workingDirectory the working directory
  * @param linterId key of the linter
  */
 export function initializeLinter(
   inputRules: RuleConfig[],
   environments: string[] = [],
   globals: string[] = [],
+  workingDirectory?: string,
   linterId = 'default',
 ) {
   debug(`Initializing linter "${linterId}" with ${inputRules.map(rule => rule.key)}`);
-  linters[linterId] = new LinterWrapper({ inputRules, environments, globals });
+  linters[linterId] = new LinterWrapper({ inputRules, environments, globals, workingDirectory });
 }
 
 /**

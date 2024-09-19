@@ -52,7 +52,7 @@ describe('analyzeJSTS', () => {
   it('should analyze JavaScript code with the given linter', async () => {
     const rules = [{ key: 'S4524', configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
     initializeLinter(rules);
-    initializeLinter([], [], [], 'empty');
+    initializeLinter([], [], [], undefined, 'empty');
 
     const filePath = path.join(__dirname, 'fixtures', 'code.js');
     const language = 'js';
@@ -78,7 +78,7 @@ describe('analyzeJSTS', () => {
   it('should analyze TypeScript code with the given linter', async () => {
     const rules = [{ key: 'S4798', configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
     initializeLinter(rules);
-    initializeLinter([], [], [], 'empty');
+    initializeLinter([], [], [], undefined, 'empty');
 
     const filePath = path.join(__dirname, 'fixtures', 'code.ts');
     const tsConfigs = [path.join(__dirname, 'fixtures', 'tsconfig.json')];

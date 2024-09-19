@@ -41,6 +41,7 @@ export interface WrapperOptions {
   globals?: string[];
   ruleBundles?: string[];
   customRules?: CustomRule[];
+  workingDirectory?: string;
 }
 
 /**
@@ -113,7 +114,9 @@ export class LinterWrapper {
    * @param options the wrapper's options
    */
   constructor(private readonly options: WrapperOptions = {}) {
-    this.linter = new Linter();
+    this.linter = new Linter({
+      cwd: options.workingDirectory,
+    });
     loadBundles(this.linter, options.ruleBundles ?? defaultRuleBundles);
     loadCustomRules(this.linter, options.customRules);
     this.config = this.createConfig();
