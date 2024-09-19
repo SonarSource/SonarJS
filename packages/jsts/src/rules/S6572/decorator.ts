@@ -50,8 +50,15 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   );
 }
 
+function isEnumWithBody(
+  enumDecl: TSESTree.TSEnumDeclaration,
+): enumDecl is TSESTree.TSEnumDeclaration & { body: { members: TSESTree.TSEnumMember[] } } {
+  return (enumDecl as any).body;
+}
+
 function anyInitialized(enumDecl: TSESTree.TSEnumDeclaration) {
-  return enumDecl.members.some(m => m.initializer !== undefined);
+  const members = isEnumWithBody(enumDecl) ? enumDecl.body.members : enumDecl.members;
+  return members.some(m => m.initializer !== undefined);
 }
 
 function numericalOrder(enumDecl: TSESTree.TSEnumDeclaration) {

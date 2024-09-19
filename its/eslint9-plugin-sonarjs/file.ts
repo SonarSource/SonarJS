@@ -66,3 +66,9 @@ function Form() {
   }
   return 1;
 }
+
+enum LogType {
+  LOG,
+  ERROR,
+  WARN,
+}
