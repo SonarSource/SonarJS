@@ -201,7 +201,15 @@ public class EmbeddedNode {
       LOG.debug("Deployed node version {}", detected);
       isAvailable = true;
     } catch (Exception e) {
-      LOG.warn("Embedded Node.js failed to deploy. Will fallback to host Node.js.", e);
+      LOG.warn("""
+        Embedded Node.js failed to deploy in {}.
+        You can change the location by setting the option `sonar.userHome` or the environment variable `SONAR_USER_HOME`.
+        Otherwise, it will default to {}.
+        Will fallback to host Node.js.""",
+        Environment.defaultSonarUserHome(),
+        deployLocation,
+        e
+      );
     }
   }
 

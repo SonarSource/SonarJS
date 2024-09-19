@@ -179,7 +179,7 @@ class EmbeddedNodeTest {
     en.deploy();
     assertThat(logTester.logs())
       .anyMatch(l ->
-        l.startsWith("Embedded Node.js failed to deploy. Will fallback to host Node.js")
+        l.startsWith("Embedded Node.js failed to deploy in ") && l.contains("You can change the location by setting the option `sonar.userHome` or the environment variable `SONAR_USER_HOME`.") && l.endsWith("Will fallback to host Node.js.")
       );
   }
 
