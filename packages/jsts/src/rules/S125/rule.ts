@@ -146,6 +146,13 @@ function containsCode(value: string) {
     return false;
   }
 
+  const presets = [`@babel/preset-flow`, `@babel/preset-env`];
+
+  try {
+    require.resolve('@babel/preset-react');
+    presets.push(`@babel/preset-react`);
+  } catch {}
+
   try {
     const result = babel.parse(value, {
       filename: 'some/filePath',
@@ -164,7 +171,7 @@ function containsCode(value: string) {
       requireConfigFile: false,
       babelOptions: {
         targets: 'defaults',
-        presets: [`@babel/preset-react`, `@babel/preset-flow`, `@babel/preset-env`],
+        presets,
         plugins: [[`@babel/plugin-proposal-decorators`, { version: '2022-03' }]],
         babelrc: false,
         configFile: false,

@@ -22,30 +22,41 @@
 import { Rule } from 'eslint';
 import { eslintRules } from '../core';
 import { tsEslintRules } from '../typescript-eslint';
-import { rules as reactRules } from 'eslint-plugin-react';
 import { generateMeta, mergeRules } from '../helpers';
 import { decorate } from './decorator';
 import { meta } from './meta';
 
-const noDupeKeysRule = decorate(eslintRules['no-dupe-keys']);
-const noDupeClassMembersRule = tsEslintRules['no-dupe-class-members'];
-const jsxNoDuplicatePropsRule = reactRules['jsx-no-duplicate-props'];
+export const rule: Rule.RuleModule = (async () => {
+  const noDupeKeysRule = decorate(eslintRules['no-dupe-keys']);
+  const noDupeClassMembersRule = tsEslintRules['no-dupe-class-members'];
 
-export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta as Rule.RuleMetaData, {
+  const ruleMeta = {
     hasSuggestions: true,
     messages: {
       ...noDupeKeysRule.meta!.messages,
       ...noDupeClassMembersRule.meta!.messages,
-      ...jsxNoDuplicatePropsRule.meta!.messages,
-    },
-    schema: jsxNoDuplicatePropsRule.schema, // the other 2 rules have no options
-  }),
-  create(context: Rule.RuleContext) {
-    const noDupeKeysListener: Rule.RuleListener = noDupeKeysRule.create(context);
-    const noDupeClassMembersListener: Rule.RuleListener = noDupeClassMembersRule.create(context);
-    const jsxNoDuplicatePropsListener: Rule.RuleListener = jsxNoDuplicatePropsRule.create(context);
+    }
+  };
 
-    return mergeRules(noDupeKeysListener, noDupeClassMembersListener, jsxNoDuplicatePropsListener);
-  },
-};
+  const noDupeKeysListener: Rule.RuleListener = noDupeKeysRule.create;
+  const noDupeClassMembersListener: Rule.RuleListener = noDupeClassMembersRule.create;
+
+  const rules = [noDupeKeysListener, noDupeClassMembersListener];
+
+  try {
+    require.resolve('eslint-plugin-react');
+    const { rules: reactRules } = await import('eslint-plugin-react');
+    const jsxNoDuplicatePropsRule = reactRules['jsx-no-duplicate-props'];
+    Object.assign(ruleMeta.messages, jsxNoDuplicatePropsRule);
+    ruleMeta.schema = jsxNoDuplicatePropsRule.schema; // the other 2 rules have no options
+    const jsxNoDuplicatePropsListener: Rule.RuleListener = jsxNoDuplicatePropsRule.create;
+    rules.push(jsxNoDuplicatePropsListener);
+  } catch {}
+
+  return {
+    meta: generateMeta(meta as Rule.RuleMetaData, ruleMeta),
+    create(context: Rule.RuleContext) {
+      return mergeRules(rules.map((rule) => rule(context)));
+    }
+  }
+})();

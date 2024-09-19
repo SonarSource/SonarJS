@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { eslintRules } from './core';
-import { rules as reactPluginRules } from 'eslint-plugin-react';
 import { tsEslintRules } from './typescript-eslint';
 import { rules as a11yPluginRules } from 'eslint-plugin-jsx-a11y';
 import { rules as importPluginRules } from 'eslint-plugin-import';
@@ -72,9 +71,34 @@ export const rules = {
   S4325: tsEslintRules['no-unnecessary-type-assertion'],
   S4326: eslintRules['no-return-await'],
   S6325: eslintRules['prefer-regex-literals'],
-  S6435: reactPluginRules['require-render-return'],
-  S6438: reactPluginRules['jsx-no-comment-textnodes'],
-  S6480: reactPluginRules['jsx-no-bind'],
+  ...await (async () => {
+    try {
+      require.resolve('eslint-plugin-react');
+      const { rules: reactPluginRules } = await import('eslint-plugin-react');
+      return {
+        S6435: reactPluginRules['require-render-return'],
+        S6438: reactPluginRules['jsx-no-comment-textnodes'],
+        S6480: reactPluginRules['jsx-no-bind'],
+        S6746: reactPluginRules['no-direct-mutation-state'],
+        S6748: reactPluginRules['no-children-prop'],
+        S6750: reactPluginRules['no-render-return-value'],
+        S6756: reactPluginRules['no-access-state-in-setstate'],
+        S6757: reactPluginRules['no-this-in-sfc'],
+        S6761: reactPluginRules['no-danger-with-children'],
+        S6763: reactPluginRules['no-redundant-should-component-update'],
+        S6766: reactPluginRules['no-unescaped-entities'],
+        S6767: reactPluginRules['no-unused-prop-types'],
+        S6770: reactPluginRules['jsx-pascal-case'],
+        S6772: reactPluginRules['jsx-child-element-spacing'],
+        S6774: reactPluginRules['prop-types'],
+        S6775: reactPluginRules['default-props-match-prop-types'],
+        S6789: reactPluginRules['no-is-mounted'],
+        S6790: reactPluginRules['no-string-refs'],
+      };
+    } catch {
+      return {};
+    }
+  })(),
   S6509: eslintRules['no-extra-boolean-cast'],
   S6522: eslintRules['no-import-assign'],
   S6523: eslintRules['no-unsafe-optional-chaining'],
@@ -96,21 +120,6 @@ export const rules = {
   S6654: eslintRules['no-proto'],
   S6657: eslintRules['no-octal-escape'],
   S6671: tsEslintRules['prefer-promise-reject-errors'],
-  S6746: reactPluginRules['no-direct-mutation-state'],
-  S6748: reactPluginRules['no-children-prop'],
-  S6750: reactPluginRules['no-render-return-value'],
-  S6756: reactPluginRules['no-access-state-in-setstate'],
-  S6757: reactPluginRules['no-this-in-sfc'],
-  S6761: reactPluginRules['no-danger-with-children'],
-  S6763: reactPluginRules['no-redundant-should-component-update'],
-  S6766: reactPluginRules['no-unescaped-entities'],
-  S6767: reactPluginRules['no-unused-prop-types'],
-  S6770: reactPluginRules['jsx-pascal-case'],
-  S6772: reactPluginRules['jsx-child-element-spacing'],
-  S6774: reactPluginRules['prop-types'],
-  S6775: reactPluginRules['default-props-match-prop-types'],
-  S6789: reactPluginRules['no-is-mounted'],
-  S6790: reactPluginRules['no-string-refs'],
   S6793: a11yPluginRules['aria-proptypes'],
   S6807: a11yPluginRules['role-has-required-aria-props'],
   S6811: a11yPluginRules['role-supports-aria-props'],

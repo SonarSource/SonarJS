@@ -71,13 +71,19 @@ export function buildParserOptions(initialOptions: Linter.ParserOptions, usingBa
  */
 function babelParserOptions(options: Linter.ParserOptions) {
   const pluginPath = `${__dirname}/../../../../node_modules`;
+  const presets = [
+    `${pluginPath}/@babel/preset-flow`,
+    `${pluginPath}/@babel/preset-env`,
+  ];
+
+  try {
+    require.resolve('@babel/preset-react');
+    presets.push(`${pluginPath}/@babel/preset-react`);
+  } catch {}
+
   const babelOptions = {
     targets: 'defaults',
-    presets: [
-      `${pluginPath}/@babel/preset-react`,
-      `${pluginPath}/@babel/preset-flow`,
-      `${pluginPath}/@babel/preset-env`,
-    ],
+    presets,
     plugins: [[`${pluginPath}/@babel/plugin-proposal-decorators`, { version: '2022-03' }]],
     babelrc: false,
     configFile: false,

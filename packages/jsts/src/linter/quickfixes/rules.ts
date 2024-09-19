@@ -76,9 +76,18 @@ export const quickFixRules = new Set([
   'S1264',
 
   // eslint-plugin-react
-  'S6754',
-  'S6479',
-  'S6747',
+  ...(() => {
+    try {
+      require.resolve('eslint-plugin-react');
+      return [
+        'S6754',
+        'S6479',
+        'S6747',
+      ];
+    } catch {
+      return [];
+    }
+  })(),
 
   // @typescript-eslint plugin
   'S6568',

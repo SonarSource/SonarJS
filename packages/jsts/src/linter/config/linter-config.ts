@@ -53,9 +53,12 @@ export function createLinterConfig(
     globals,
     parserOptions,
     rules: {},
-    /* using "max" version to prevent `eslint-plugin-react` from printing a warning */
-    settings: { react: { version: '999.999.999' } },
   };
+  try {
+    require.resolve('eslint-plugin-react');
+    /* using "max" version to prevent `eslint-plugin-react` from printing a warning */
+    config.settings = { react: { version: '999.999.999' } };
+  } catch {}
   enableRules(config, inputRules, linterRules);
   enableInternalCustomRules(config);
   return config;
