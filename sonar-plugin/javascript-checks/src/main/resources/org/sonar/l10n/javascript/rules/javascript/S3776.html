@@ -15,6 +15,10 @@ to read, understand, test, and modify.</p>
   apply to recursive calls, those will increment cognitive score. </li>
 </ul>
 <p>The method of computation is fully detailed in the pdf linked in the resources.</p>
+<p>Note that the calculation of cognitive complexity at function level deviates from the documented process. Given the functional nature of
+JavaScript, nesting functions is a prevalent practice, especially within frameworks like React.js. Consequently, the cognitive complexity of functions
+remains independent from one another. This means that the complexity of a nesting function does not increase with the complexity of nested
+functions.</p>
 <h3>What is the potential impact?</h3>
 <p>Developers spend more time reading and understanding code than writing it. High cognitive complexity slows down changes and increases the cost of
 maintenance.</p>
@@ -39,9 +43,6 @@ function greet(name) {
   <li> <strong>Use null-safe operations (if available in the language).</strong><br> When available the <code>.?</code> or <code>??</code> operator
   replaces multiple tests and simplifies the flow. </li>
 </ul>
-<p>Note that the calculation of cognitive complexity deviates from the documented process when functions are nested. Given the functional nature of
-JavaScript, nesting functions is a prevalent practice, especially within frameworks like React.js. Consequently, the cognitive complexity of functions
-remains independent of each other.</p>
 <h3>Code examples</h3>
 <p><strong>Extraction of a complex condition in a new function.</strong></p>
 <h4>Noncompliant code example</h4>
