@@ -41,9 +41,6 @@ export const rule: Rule.RuleModule = {
     const cwd = toUnixPath(context.cwd);
     const fileName = toUnixPath(context.filename);
     const manifests = getManifests(fileName, cwd, fs);
-
-    console.log('S4328, manifests', manifests);
-
     const dependencies: Set<string> = new Set();
 
     manifests.forEach(manifest => {

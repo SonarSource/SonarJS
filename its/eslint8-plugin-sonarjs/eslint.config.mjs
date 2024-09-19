@@ -8,5 +8,10 @@ export default [
     languageOptions: { sourceType: 'commonjs' },
   },
   plugin.configs.recommended,
-  { rules: { 'sonarjs/accessor-pairs': 'error' } },
+  {
+    rules: {
+      'sonarjs/accessor-pairs': 'error',
+      'sonarjs/no-implicit-dependencies': 'error',
+    },
+  },
 ];
