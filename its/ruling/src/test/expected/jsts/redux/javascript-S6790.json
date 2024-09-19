@@ -1,11 +1,8 @@
 {
 "redux:examples/real-world/components/Explore.js": [
-19,
-26,
 44
 ],
 "redux:examples/todos-with-undo/components/AddTodo.js": [
-6,
 18
 ]
 }
