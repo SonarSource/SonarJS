@@ -34,7 +34,7 @@
  */
 
 import { RuleTester } from 'eslint';
-import { encodeContents } from '../../../../src/rules';
+import { encodeContents } from '../../../../src/rules/helpers';
 import { FileIssues, LineIssues } from './helpers';
 import { Change, QuickFix } from './helpers/quickfixes';
 

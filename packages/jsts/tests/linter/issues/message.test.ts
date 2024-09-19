@@ -21,16 +21,18 @@ import { Linter, SourceCode } from 'eslint';
 import { convertMessage } from '../../../src/linter/issues';
 import path from 'path';
 import { parseJavaScriptSourceFile } from '../../tools';
+import { S1116 } from '../../../src/rules/decorated';
 
 describe('convertMessage', () => {
   it('should convert an ESLint message into a Sonar issue', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'convert.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
-    const ruleId = 'no-extra-semi';
+    const ruleId = 'S1116';
     const config = { rules: { [ruleId]: 'error' } } as Linter.Config;
 
     const linter = new Linter();
+    linter.defineRule(ruleId, S1116);
     const [message] = linter.verify(sourceCode, config);
 
     expect(convertMessage(sourceCode, message)).toEqual({

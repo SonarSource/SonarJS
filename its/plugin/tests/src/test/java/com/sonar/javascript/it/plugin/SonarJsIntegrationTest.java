@@ -85,7 +85,7 @@ class SonarJsIntegrationTest {
       extractArchive(fileToExtract, temp);
       bridge.start(temp);
       assertStatus(bridge);
-      bridge.request(gson.toJson(InitLinter.build("sonar-no-unused-vars")), "init-linter");
+      bridge.request(gson.toJson(InitLinter.build("S1481")), "init-linter");
       assertAnalyzeJs(bridge);
     } finally {
       bridge.stop();

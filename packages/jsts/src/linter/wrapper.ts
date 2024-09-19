@@ -51,12 +51,7 @@ export interface WrapperOptions {
  * will be overridden by the implementation of the same rule key in a
  * subsequent bundle.
  */
-const defaultRuleBundles = [
-  'externalRules',
-  'internalRules',
-  'contextRules',
-  'internalCustomRules',
-];
+const defaultRuleBundles = ['internalRules', 'contextRules', 'internalCustomRules'];
 
 interface LinterConfigurationKey {
   language: JsTsLanguage;

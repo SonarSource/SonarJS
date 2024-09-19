@@ -22,7 +22,7 @@ import { JavaScriptRuleTester } from '../../../tests/tools';
 
 const ruleTester = new JavaScriptRuleTester();
 
-ruleTester.run('no-all-duplicated-branches if', rule, {
+ruleTester.run('S3923 if', rule, {
   valid: [
     { code: "if (a) { first('const'); } else { first('var'); }" },
     { code: 'if (a) { first(); } else { second(); }' },
@@ -97,7 +97,7 @@ ruleTester.run('no-all-duplicated-branches if', rule, {
   ],
 });
 
-ruleTester.run('no-all-duplicated-branches switch', rule, {
+ruleTester.run('S3923 switch', rule, {
   valid: [
     {
       // Ok, no default
@@ -241,7 +241,7 @@ ruleTester.run('no-all-duplicated-branches switch', rule, {
   ],
 });
 
-ruleTester.run('no-all-duplicated-branches conditional', rule, {
+ruleTester.run('S3923 conditional', rule, {
   valid: [{ code: 'a ? first : second;' }],
   invalid: [
     {

@@ -1,4 +1,4 @@
-const { bridgeRules } = require('../lib/jsts/src/rules');
+const { rules } = require('../lib/jsts/src/rules/index');
 const { writeFileSync } = require('node:fs');
 const { join } = require('node:path');
 const { mkdirpSync } = require('mkdirp');
@@ -13,4 +13,4 @@ const targetDir = join(
 );
 
 mkdirpSync(targetDir);
-writeFileSync(join(targetDir, 'rules.json'), JSON.stringify(Object.keys(bridgeRules)));
+writeFileSync(join(targetDir, 'rules.json'), JSON.stringify(Object.keys(rules)));

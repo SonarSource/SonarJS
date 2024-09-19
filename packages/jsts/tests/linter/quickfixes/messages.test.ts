@@ -21,7 +21,7 @@ import { getQuickFixMessage } from '../../../src/linter/quickfixes';
 
 describe('messages', () => {
   it('should return a quick fix message', () => {
-    expect(getQuickFixMessage('comma-dangle')).toEqual('Remove this trailing comma');
+    expect(getQuickFixMessage('S1537')).toEqual('Remove this trailing comma');
   });
 
   it('should fail returning a quick fix message for an unknown rule', () => {

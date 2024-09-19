@@ -21,18 +21,18 @@ import { Linter } from 'eslint';
 import path from 'path';
 import { parseJavaScriptSourceFile, parseTypeScriptSourceFile } from '../../tools';
 import { transformMessages } from '../../../src/linter/issues';
-import { rule as noDuplicateInComposite } from '../../../src/rules/S4621';
-import { rule as noUnusedFunctionArgument } from '../../../src/rules/S1172';
+import { rules } from '../../../src/rules/index';
 
 describe('transformMessages', () => {
   it('should transform ESLint messages', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'message.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
-    const ruleId = 'no-var';
+    const ruleId = 'S3504';
     const config = { rules: { [ruleId]: 'error' } } as any;
 
     const linter = new Linter();
+    linter.defineRule(ruleId, rules[ruleId]);
     const messages = linter.verify(sourceCode, config);
 
     const [issue] = transformMessages(messages, { sourceCode, rules: linter.getRules() }).issues;
@@ -42,7 +42,7 @@ describe('transformMessages', () => {
         line: 1,
         column: 0,
         endLine: 1,
-        endColumn: 11,
+        endColumn: 5,
         message: 'Unexpected var, use let or const instead.',
       }),
     );
@@ -52,11 +52,11 @@ describe('transformMessages', () => {
     const filePath = path.join(__dirname, 'fixtures', 'location.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
-    const ruleId = 'no-unused-function-argument';
+    const ruleId = 'S1172';
     const config = { rules: { [ruleId]: 'error' } } as any;
 
     const linter = new Linter();
-    linter.defineRule(ruleId, noUnusedFunctionArgument);
+    linter.defineRule(ruleId, rules[ruleId]);
 
     const messages = linter.verify(sourceCode, config);
 
@@ -76,10 +76,11 @@ describe('transformMessages', () => {
     const filePath = path.join(__dirname, 'fixtures', 'fix.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
-    const ruleId = 'no-extra-semi';
+    const ruleId = 'S1116';
     const config = { rules: { [ruleId]: 'error' } } as any;
 
     const linter = new Linter();
+    linter.defineRule(ruleId, rules[ruleId]);
     const messages = linter.verify(sourceCode, config);
 
     const [issue] = transformMessages(messages, { sourceCode, rules: linter.getRules() }).issues;
@@ -110,11 +111,11 @@ describe('transformMessages', () => {
     const tsConfigs = [];
     const sourceCode = await parseTypeScriptSourceFile(filePath, tsConfigs);
 
-    const ruleId = 'no-duplicate-in-composite';
+    const ruleId = 'S4621';
     const config = { rules: { [ruleId]: ['error', 'sonar-runtime'] } } as any;
 
     const linter = new Linter();
-    linter.defineRule(ruleId, noDuplicateInComposite);
+    linter.defineRule(ruleId, rules[ruleId]);
 
     const messages = linter.verify(sourceCode, config);
 
