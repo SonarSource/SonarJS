@@ -19,21 +19,21 @@
  */
 import { Linter } from 'eslint';
 import path from 'path';
-import { rule as noLabelsRule } from '../../../src/rules/S1119';
 import { rule as noExclusiveTests } from '../../../src/rules/S6426';
 import { transformFixes } from '../../../src/linter/quickfixes';
-import { rule as noEmptyFunction } from '../../../src/rules/S1186';
 import { parseJavaScriptSourceFile } from '../../tools/helpers';
+import { rules as allRules } from '../../../src/rules/index';
 
 describe('transformFixes', () => {
   it('should transform an ESLint core fix', async () => {
     const filePath = path.join(__dirname, 'fixtures', 'eslint.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
-    const ruleId = 'no-extra-semi';
+    const ruleId = 'S1116';
     const rules = { [ruleId]: 'error' } as any;
 
     const linter = new Linter();
+    linter.defineRule(ruleId, allRules[ruleId]);
     const [message] = linter.verify(sourceCode, { rules });
     expect(message).toEqual(expect.objectContaining({ ruleId }));
 
@@ -55,10 +55,11 @@ describe('transformFixes', () => {
     const filePath = path.join(__dirname, 'fixtures', 'sonarjs.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
-    const ruleId = 'no-exclusive-tests';
+    const ruleId = 'S6426';
     const rules = { [ruleId]: 'error' } as any;
 
     const linter = new Linter();
+    linter.defineRule(ruleId, allRules[ruleId]);
     linter.defineRule(ruleId, noExclusiveTests);
 
     const [message] = linter.verify(sourceCode, { rules });
@@ -82,11 +83,11 @@ describe('transformFixes', () => {
     const filePath = path.join(__dirname, 'fixtures', 'decorated.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
-    const ruleId = 'no-empty-function';
+    const ruleId = 'S1186';
     const rules = { [ruleId]: 'error' } as any;
 
     const linter = new Linter();
-    linter.defineRule(ruleId, noEmptyFunction);
+    linter.defineRule(ruleId, allRules[ruleId]);
 
     const [message] = linter.verify(sourceCode, { rules });
     expect(message).toEqual(expect.objectContaining({ ruleId }));
@@ -109,10 +110,11 @@ describe('transformFixes', () => {
     const filePath = path.join(__dirname, 'fixtures', 'undeclared.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
-    const ruleId = 'eqeqeq';
+    const ruleId = 'S1440';
     const rules = { [ruleId]: 'error' } as any;
 
     const linter = new Linter();
+    linter.defineRule(ruleId, allRules[ruleId]);
     const [message] = linter.verify(sourceCode, { rules });
     expect(message.fix).toBeDefined();
 
@@ -124,11 +126,11 @@ describe('transformFixes', () => {
     const filePath = path.join(__dirname, 'fixtures', 'fixless.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
-    const ruleId = 'no-labels';
+    const ruleId = 'S1119';
     const rules = { [ruleId]: 'error' } as any;
 
     const linter = new Linter();
-    linter.defineRule(ruleId, noLabelsRule);
+    linter.defineRule(ruleId, allRules[ruleId]);
 
     const [message] = linter.verify(sourceCode, { rules });
     expect(message.fix).toBeUndefined();

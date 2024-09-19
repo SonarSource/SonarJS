@@ -39,15 +39,13 @@ describe('initializeLinter', () => {
 
     expect(getLinter).toThrow();
 
-    initializeLinter([{ key: 'no-extra-semi', configurations: [], fileTypeTarget: ['MAIN'] }]);
+    initializeLinter([{ key: 'S1116', configurations: [], fileTypeTarget: ['MAIN'] }]);
 
     const linter = getLinter();
 
     expect(linter).toBeDefined();
     expect(linter).toBeInstanceOf(LinterWrapper);
-    expect(console.log).toHaveBeenCalledWith(
-      'DEBUG Initializing linter "default" with no-extra-semi',
-    );
+    expect(console.log).toHaveBeenCalledWith('DEBUG Initializing linter "default" with S1116');
 
     const filePath = path.join(__dirname, 'fixtures', 'index', 'regular.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
@@ -57,7 +55,7 @@ describe('initializeLinter', () => {
     } = linter.lint(sourceCode, filePath);
     expect(issue).toEqual(
       expect.objectContaining({
-        ruleId: 'no-extra-semi',
+        ruleId: 'S1116',
         line: 1,
         column: 8,
       }),

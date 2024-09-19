@@ -64,7 +64,7 @@ describe('server', () => {
 
     const { server, serverClosed } = await start(port);
 
-    const ruleId = 'no-extra-semi';
+    const ruleId = 'S1116';
     const fileType = 'MAIN';
 
     expect(JSON.parse(await requestAnalyzeJs(server, fileType))).toStrictEqual({
@@ -95,7 +95,7 @@ describe('server', () => {
 
     expect(server.listening).toBeTruthy();
 
-    const ruleId = 'no-extra-semi';
+    const ruleId = 'S1116';
     const fileType = 'MAIN';
 
     await requestInitLinter(server, fileType, ruleId);

@@ -44,22 +44,13 @@ describe('BundleLoader', () => {
     ];
 
     expect(linter.getRules().get('max-params')).toBeDefined();
-    expect(linter.getRules().get('sonar-max-params')).toBeUndefined();
-    expect(linter.getRules().get('no-small-switch')).toBeUndefined();
-    expect(linter.getRules().get('react-in-jsx-scope')).toBeUndefined();
+    expect(linter.getRules().get('S6328')).toBeUndefined();
     expect(linter.getRules().get('custom-rule-file')).toBeUndefined();
     expect(linter.getRules().get('custom-rule')).toBeUndefined();
     expect(linter.getRules().get('internal-cognitive-complexity')).toBeUndefined();
 
     loadBundles(linter, ['internalRules']);
-    expect(linter.getRules().get('sonar-max-params')).toBeDefined();
-    expect(linter.getRules().get('react-in-jsx-scope')).toBeUndefined();
-    expect(linter.getRules().get('custom-rule-file')).toBeUndefined();
-    expect(linter.getRules().get('custom-rule')).toBeUndefined();
-    expect(linter.getRules().get('internal-cognitive-complexity')).toBeUndefined();
-
-    loadBundles(linter, ['externalRules']);
-    expect(linter.getRules().get('react-in-jsx-scope')).toBeDefined();
+    expect(linter.getRules().get('S6328')).toBeDefined();
     expect(linter.getRules().get('custom-rule-file')).toBeUndefined();
     expect(linter.getRules().get('custom-rule')).toBeUndefined();
     expect(linter.getRules().get('internal-cognitive-complexity')).toBeUndefined();

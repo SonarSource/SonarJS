@@ -93,6 +93,11 @@ export function interceptReport(
             return originalContext.sourceCode;
           },
 
+          // @ts-ignore
+          getSource(...args) {
+            return originalContext.sourceCode.getText(...args);
+          },
+
           markVariableAsUsed(name: string) {
             return originalContext.markVariableAsUsed(name);
           },
