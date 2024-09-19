@@ -26,15 +26,6 @@ if (fs.existsSync(LINK)) {
 fs.symlinkSync(TARGET, LINK);
 
 function findMissingData() {
-  const PATH_TO_MAPPING = path.join(
-    __dirname,
-    '..',
-    'packages',
-    'ruling',
-    'tests',
-    'data',
-    'eslint-to-sonar-id.json',
-  );
   const PATH_TO_RULES = path.join(
     __dirname,
     '..',
@@ -45,9 +36,6 @@ function findMissingData() {
     'rules.json',
   );
   const missing = [];
-  if (!fs.existsSync(PATH_TO_MAPPING)) {
-    missing.push(PATH_TO_MAPPING);
-  }
   if (!fs.existsSync(PATH_TO_RULES)) {
     missing.push(PATH_TO_RULES);
   }

@@ -32,7 +32,6 @@ const SONARLINT_METADATA_PATH = path.join(
   'classes',
   'sonarlint-metadata.json',
 );
-const ESLINT_TO_SONAR_ID_PATH = path.join(__dirname, '..', 'data', 'eslint-to-sonar-id.json');
 const RULES_PATH = path.join(__dirname, '..', 'data', 'rules.json');
 
 // Loading this through `fs` and not import because the file is absent at compile time
@@ -51,22 +50,7 @@ type RuleData = {
   language: 'js' | 'ts';
 };
 
-extractKeysMapping();
 extractRulesData();
-
-function extractKeysMapping() {
-  const eslintToSonar: Record<string, string> = {};
-
-  for (const rule of rulesMetadata) {
-    eslintToSonar[rule.eslintKey] = extractSonarId(rule);
-  }
-
-  function extractSonarId(rule: { ruleKey: string }) {
-    return rule.ruleKey.split(':')[1];
-  }
-
-  fs.writeFileSync(ESLINT_TO_SONAR_ID_PATH, JSON.stringify(eslintToSonar, null, 2));
-}
 
 function extractRulesData() {
   const rulesData: RuleData[] = [];
