@@ -27,7 +27,7 @@ import { meta } from './meta';
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta as Rule.RuleMetaData, {
     messages: {
-      smallSwitch: '"switch" statements should have at least 3 "case" clauses',
+      replaceSwitch: 'Replace this "switch" statement by "if" statements to increase readability.',
     },
   }),
   create(context) {
@@ -39,7 +39,7 @@ export const rule: Rule.RuleModule = {
           const firstToken = context.sourceCode.getFirstToken(node);
           if (firstToken) {
             context.report({
-              messageId: 'smallSwitch',
+              messageId: 'replaceSwitch',
               loc: firstToken.loc,
             });
           }
