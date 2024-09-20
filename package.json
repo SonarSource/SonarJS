@@ -51,7 +51,7 @@
     "@types/bytes": "3.1.4",
     "@types/eslint": "8.56.10",
     "@types/eslint-scope": "3.7.7",
-    "@types/estree": "1.0.6",
+    "@types/estree": "1.0.5",
     "@types/express": "4.17.21",
     "@types/functional-red-black-tree": "1.0.6",
     "@types/jest": "29.5.13",
