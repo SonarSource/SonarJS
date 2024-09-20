@@ -105,7 +105,7 @@
     "minimatch": "10.0.1",
     "module-alias": "2.2.3",
     "postcss": "8.4.47",
-    "postcss-html": "1.7.0",
+    "postcss-html": "0.36.0",
     "postcss-less": "6.0.0",
     "postcss-sass": "0.5.0",
     "postcss-scss": "4.0.9",
