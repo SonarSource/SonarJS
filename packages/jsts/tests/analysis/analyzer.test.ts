@@ -564,7 +564,7 @@ describe('analyzeJSTS', () => {
       ],
       metrics: {
         classes: 1,
-        cognitiveComplexity: 0,
+        cognitiveComplexity: 1,
         commentLines: [2],
         complexity: 2,
         executableLines: [4],

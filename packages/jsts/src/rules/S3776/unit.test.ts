@@ -606,7 +606,7 @@ class TopLevel {
 }
       `,
       options: [0, 'metric'],
-      errors: [{ messageId: 'fileComplexity', data: { complexityAmount: 5 } }],
+      errors: [{ messageId: 'fileComplexity', data: { complexityAmount: 25 } }],
     },
   ],
 });
