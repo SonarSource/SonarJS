@@ -156,6 +156,13 @@ ruleTester.run('Using clear-text protocols is security-sensitive', rule, {
         },
       });`,
     },
+    {
+      code: `
+        url = 'http://schemas.microsoft.com/ws/2008/06/identity/claims/groups';
+        url = 'http://schemas.microsoft.com/identity/claims/displayname';
+        url = 'http://schemas.microsoft.com';
+      `,
+    },
   ],
   invalid: [
     {

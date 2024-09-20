@@ -42,6 +42,7 @@ const EXCEPTION_FULL_HOSTS = [
   'docbook.org',
   'graphml.graphdrawing.org',
   'json-schema.org',
+  'schemas.microsoft.com',
 ];
 const EXCEPTION_TOP_HOSTS = [
   /\.example$/,
