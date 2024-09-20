@@ -21,7 +21,6 @@ package org.sonar.plugins.javascript.bridge;
 
 import static java.util.Map.entry;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -54,8 +53,7 @@ public class NodeDeprecationWarning {
    */
   static final Version MIN_SUPPORTED_NODE_VERSION = Version.create(18, 17, 0);
   static final int MIN_RECOMMENDED_NODE_VERSION = 18;
-  static final List<String> RECOMMENDED_NODE_VERSIONS = List.of("^18.18.0", "^20.9.0");
-  static final List<Integer> ALL_RECOMMENDED_NODE_VERSIONS = Arrays.asList(18, 20, 21);
+  static final List<String> RECOMMENDED_NODE_VERSIONS = List.of("^18.18.0", "^20.9.0", "^22.9.0");
   private final AnalysisWarningsWrapper analysisWarnings;
 
   public NodeDeprecationWarning(AnalysisWarningsWrapper analysisWarnings) {
@@ -72,17 +70,6 @@ public class NodeDeprecationWarning {
         RECOMMENDED_NODE_VERSIONS
       );
       LOG.warn(msg);
-      analysisWarnings.addUnique(msg);
-    }
-
-    if (!ALL_RECOMMENDED_NODE_VERSIONS.contains(actualNodeVersion)) {
-      String msg = String.format(
-        "Node.js version %d is not recommended, you might experience issues. Please use " +
-        "a recommended version of Node.js %s",
-        actualNodeVersion,
-        RECOMMENDED_NODE_VERSIONS
-      );
-      LOG.warn(msg, actualNodeVersion);
       analysisWarnings.addUnique(msg);
     }
   }

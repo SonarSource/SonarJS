@@ -55,20 +55,7 @@ class NodeDeprecationWarningTest {
     deprecationWarning.logNodeDeprecation(18);
     deprecationWarning.logNodeDeprecation(20);
     deprecationWarning.logNodeDeprecation(21);
-    assertWarnings();
-  }
-
-  @Test
-  void test_19() {
-    deprecationWarning.logNodeDeprecation(19);
-    assertWarnings(
-      "Node.js version 19 is not recommended, you might experience issues. Please use a recommended version of Node.js [^18.18.0, ^20.9.0]"
-    );
-  }
-
-  @Test
-  void test_20() {
-    deprecationWarning.logNodeDeprecation(20);
+    deprecationWarning.logNodeDeprecation(22);
     assertWarnings();
   }
 
