@@ -49,12 +49,16 @@ public class Environment {
       .of(
         configuration.get("sonar.userHome").orElse(null),
         System.getenv("SONAR_USER_HOME"),
-        System.getProperty("user.home") + File.separator + ".sonar"
+        defaultSonarUserHome()
       )
       .filter(Objects::nonNull)
       .findFirst()
       .map(Path::of)
       .get();
+  }
+
+  public static String defaultSonarUserHome() {
+    return System.getProperty("user.home") + File.separator + ".sonar";
   }
 
   public String getOsName() {
