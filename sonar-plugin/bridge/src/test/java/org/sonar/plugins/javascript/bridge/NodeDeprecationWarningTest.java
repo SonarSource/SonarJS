@@ -20,13 +20,9 @@
 package org.sonar.plugins.javascript.bridge;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.plugins.javascript.bridge.NodeDeprecationWarning.MIN_RECOMMENDED_NODE_VERSION;
-import static org.sonar.plugins.javascript.bridge.NodeDeprecationWarning.MIN_SUPPORTED_NODE_VERSION;
-import static org.sonar.plugins.javascript.bridge.NodeDeprecationWarning.REMOVAL_DATE;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.IntStream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.slf4j.event.Level;
@@ -51,33 +47,20 @@ class NodeDeprecationWarningTest {
   NodeDeprecationWarning deprecationWarning = new NodeDeprecationWarning(analysisWarnings);
 
   @Test
-  void test_recommended() {
+  void test_unsupported() {
+    deprecationWarning.logNodeDeprecation(16);
+    assertWarnings(
+      "Using Node.js version 16 to execute analysis is not supported. " +
+      "Please upgrade to a newer LTS version of Node.js: [^18.18.0, ^20.9.0, ^22.9.0].");
+  }
+
+  @Test
+  void test_supported() {
     deprecationWarning.logNodeDeprecation(18);
     deprecationWarning.logNodeDeprecation(20);
     deprecationWarning.logNodeDeprecation(21);
+    deprecationWarning.logNodeDeprecation(22);
     assertWarnings();
-  }
-
-  @Test
-  void test_19() {
-    deprecationWarning.logNodeDeprecation(19);
-    assertWarnings(
-      "Node.js version 19 is not recommended, you might experience issues. Please use a recommended version of Node.js [^18.18.0, ^20.9.0]"
-    );
-  }
-
-  @Test
-  void test_20() {
-    deprecationWarning.logNodeDeprecation(20);
-    assertWarnings();
-  }
-
-  @Test
-  void test_all_removal_dates_defined() {
-    var allRemovalDates = IntStream
-      .range(MIN_SUPPORTED_NODE_VERSION.major(), MIN_RECOMMENDED_NODE_VERSION)
-      .allMatch(REMOVAL_DATE::containsKey);
-    assertThat(allRemovalDates).isTrue();
   }
 
   private void assertWarnings(String... messages) {
