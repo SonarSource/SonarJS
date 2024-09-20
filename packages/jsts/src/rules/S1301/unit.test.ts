@@ -22,7 +22,7 @@ import { JavaScriptRuleTester } from '../../../tests/tools';
 
 const ruleTester = new JavaScriptRuleTester();
 
-ruleTester.run('no-small-switch', rule, {
+ruleTester.run('"if" statements should be preferred over "switch" when simpler', rule, {
   valid: [
     { code: 'switch (a) { case 1: case 2: break; default: doSomething(); break; }' },
     { code: 'switch (a) { case 1: break; default: doSomething(); break; case 2: }' },
@@ -33,7 +33,7 @@ ruleTester.run('no-small-switch', rule, {
       code: 'switch (a) { case 1: doSomething(); break; default: doSomething(); }',
       errors: [
         {
-          messageId: 'smallSwitch',
+          messageId: 'replaceSwitch',
           column: 1,
           endColumn: 7,
         },
@@ -43,7 +43,7 @@ ruleTester.run('no-small-switch', rule, {
       code: 'switch (a) { case 1: break; }',
       errors: [
         {
-          messageId: 'smallSwitch',
+          messageId: 'replaceSwitch',
           column: 1,
           endColumn: 7,
         },
@@ -53,7 +53,7 @@ ruleTester.run('no-small-switch', rule, {
       code: 'switch (a) {}',
       errors: [
         {
-          messageId: 'smallSwitch',
+          messageId: 'replaceSwitch',
           column: 1,
           endColumn: 7,
         },

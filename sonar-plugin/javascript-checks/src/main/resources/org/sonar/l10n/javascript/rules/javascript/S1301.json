@@ -1,5 +1,5 @@
 {
-  "title": "\"switch\" statements should have at least 3 \"case\" clauses",
+  "title": "\"if\" statements should be preferred over \"switch\" when simpler",
   "type": "CODE_SMELL",
   "code": {
     "impacts": {
