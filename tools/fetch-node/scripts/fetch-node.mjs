@@ -20,7 +20,7 @@
 import fetch from 'node-fetch';
 import fs from 'fs-extra';
 import extract from 'extract-zip';
-import tar from 'tar';
+import * as tar from 'tar';
 import * as path from 'node:path';
 import * as stream from 'node:stream';
 import * as crypto from 'node:crypto';

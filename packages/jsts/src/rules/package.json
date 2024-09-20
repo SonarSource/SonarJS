@@ -10,7 +10,7 @@
     "build": "npm ci && npm run compile && npm pack",
     "compile": "npm run clear && tsc -p tsconfig-plugin.json --outDir lib",
     "eslint-docs": "npm run compile && eslint-doc-generator && rimraf docs",
-    "clear": "rimraf lib/*"
+    "clear": "rimraf --glob lib/*"
   },
   "repository": {
     "type": "git",
@@ -54,7 +54,7 @@
     "eslint-scope": "8.0.2",
     "functional-red-black-tree": "1.0.1",
     "jsx-ast-utils": "^3.3.5",
-    "minimatch": "^9.0.3",
+    "minimatch": "^10.0.1",
     "scslre": "0.3.0",
     "semver": "7.6.3",
     "typescript": "*",
