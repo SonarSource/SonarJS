@@ -6,6 +6,7 @@
   <something/>
   <another-THING/>
   <library.item/>
+  <div v-focus />
 </template>
 <script lang="ts">
   import Comp from './some.vue'; // Noncompliant
@@ -18,4 +19,5 @@
   import something from './something';
   import AnotherTHING from './another';
   import * as Library from './library';
+  import vFocus from './vfocus';
 </script>
