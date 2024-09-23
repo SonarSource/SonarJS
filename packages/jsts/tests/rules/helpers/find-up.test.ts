@@ -31,15 +31,15 @@ describe('findUp', () => {
       '/a/foo.bar': '/a/foo.bar content',
     });
 
-    const findUp = createFindUp();
+    const findUp = createFindUp('foo.bar');
 
     const filesystemReadFileSpy = jest.spyOn(filesystem, 'readFileSync');
     const filesystemReaddirSpy = jest.spyOn(filesystem, 'readdirSync');
 
-    const abcEntries = findUp('/a/b/c', '/', 'foo.bar', filesystem);
-    const abcEntries2 = findUp('/a/b/c', '/', 'foo.bar', filesystem);
-    const abcEntries3 = findUp('/a/b/c', '/', 'foo.bar', filesystem);
-    const abcEntries4 = findUp('/a/b/c', '/', 'foo.bar', filesystem);
+    const abcEntries = findUp('/a/b/c', '/', filesystem);
+    const abcEntries2 = findUp('/a/b/c', '/', filesystem);
+    const abcEntries3 = findUp('/a/b/c', '/', filesystem);
+    const abcEntries4 = findUp('/a/b/c', '/', filesystem);
 
     equal(filesystemReadFileSpy.mock.calls.length, 2);
     equal(filesystemReaddirSpy.mock.calls.length, 4);
@@ -70,12 +70,12 @@ describe('findUp', () => {
       '/foo.bar': '/foo.bar content',
     });
 
-    const findUp = createFindUp();
+    const findUp = createFindUp('foo.bar');
 
-    const entriesUpToRoot = findUp('/a/b/c', '/', 'foo.bar', filesystem);
+    const entriesUpToRoot = findUp('/a/b/c', '/', filesystem);
 
-    const entriesUpToA = findUp('/a/b/c', '/a', 'foo.bar', filesystem);
-    const entriesUpToAB = findUp('/a/b/c', '/a/b', 'foo.bar', filesystem);
+    const entriesUpToA = findUp('/a/b/c', '/a', filesystem);
+    const entriesUpToAB = findUp('/a/b/c', '/a/b', filesystem);
 
     equal(entriesUpToRoot.length, 3);
     equal(entriesUpToRoot[0].path, Path.join('/', 'a', 'b', 'c', 'foo.bar'));
@@ -95,12 +95,12 @@ describe('findUp', () => {
       '/foo.y.bar': '/foo.bar content',
     });
 
-    const findUp = createFindUp();
+    const findUp = createFindUp('foo.{*.,}bar');
 
-    const entriesUpToRoot = findUp('/a/b/c', '/', 'foo.{*.,}bar', filesystem);
+    const entriesUpToRoot = findUp('/a/b/c', '/', filesystem);
 
-    const entriesUpToA = findUp('/a/b/c', '/a', 'foo.{*.,}bar', filesystem);
-    const entriesUpToAB = findUp('/a/b/c', '/a/b', 'foo.{*.,}bar', filesystem);
+    const entriesUpToA = findUp('/a/b/c', '/a', filesystem);
+    const entriesUpToAB = findUp('/a/b/c', '/a/b', filesystem);
 
     equal(entriesUpToRoot.length, 3);
     equal(entriesUpToRoot[0].path, Path.join('/', 'a', 'b', 'c', 'foo.bar'));

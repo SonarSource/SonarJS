@@ -22,11 +22,16 @@ import { type PackageJson } from 'type-fest';
 import { searchFiles, File } from './find-files';
 import { toUnixPath } from './files';
 import { Minimatch } from 'minimatch';
-import { findUp, type Filesystem } from './find-up';
+import { type Filesystem, createFindUp } from './find-up';
 
 export const PACKAGE_JSON = 'package.json';
 export const parsePackageJson = (_filename: string, contents: string | null) =>
   contents ? (JSON.parse(contents) as PackageJson) : {};
+
+/**
+ * The {@link FindUp} instance dedicated to retrieving `package.json` files
+ */
+const findPackageJsons = createFindUp(PACKAGE_JSON);
 
 const DefinitelyTyped = '@types/';
 
@@ -194,7 +199,7 @@ export const getManifests = (
   workingDirectory: string,
   fileSystem: Filesystem,
 ): Array<PackageJson> => {
-  const files = findUp(Path.dirname(fileName), workingDirectory, 'package.json', fileSystem);
+  const files = findPackageJsons(Path.dirname(fileName), workingDirectory, fileSystem);
 
   return files.map(file => {
     const content = file.content;

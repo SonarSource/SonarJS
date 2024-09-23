@@ -26,22 +26,11 @@ interface Stats {
 }
 
 export interface Filesystem {
-  existsSync(path: string): boolean;
-
-  mkdirSync(
-    path: string,
-    options: {
-      recursive: true;
-    },
-  ): void;
-
   readdirSync: (typeof vol)['readdirSync'];
 
   readFileSync(path: string): Buffer | string;
 
   statSync(path: string): Stats;
-
-  writeFileSync(path: string, data: Buffer | string): void;
 }
 
 export interface File {
@@ -49,29 +38,17 @@ export interface File {
   readonly content: Buffer | string;
 }
 
-export type FindUp = (
-  from: string,
-  to: string,
-  pattern: string,
-  fallbackFilesystem: Filesystem,
-) => Array<File>;
+export type FindUp = (from: string, to: string, filesystem: Filesystem) => Array<File>;
 
 /**
  * Create an instance of FindUp.
  */
-export const createFindUp = (): FindUp => {
-  const registry: Map<string, Map<string, Array<File>>> = new Map();
+export const createFindUp = (pattern: string): FindUp => {
+  const cache: Map<string, Array<File>> = new Map();
+  const matcher = new Minimatch(pattern);
 
-  const findUp: FindUp = (from, to, pattern, filesystem) => {
+  const findUp: FindUp = (from, to, filesystem) => {
     const results: Array<File> = [];
-
-    let cache = registry.get(pattern);
-
-    if (cache === undefined) {
-      cache = new Map();
-
-      registry.set(pattern, cache);
-    }
 
     let cacheContent = cache.get(from);
 
@@ -83,22 +60,22 @@ export const createFindUp = (): FindUp => {
       for (const entry of filesystem.readdirSync(from)) {
         const fullEntryPath = Path.join(from, entry.toString());
 
-        let stats: Stats;
+        const basename = Path.basename(fullEntryPath);
 
-        // the resource may not be available
-        try {
-          stats = filesystem.statSync(fullEntryPath);
-        } catch (error) {
-          // todo: this is testable and should be tested
-          stats = {
-            isFile: () => false,
-          };
-        }
+        if (matcher.match(basename)) {
+          let stats: Stats;
 
-        if (stats.isFile()) {
-          const basename = Path.basename(fullEntryPath);
+          // the resource may not be available
+          try {
+            stats = filesystem.statSync(fullEntryPath);
+          } catch (error) {
+            // todo: this is testable and should be tested
+            stats = {
+              isFile: () => false,
+            };
+          }
 
-          if (new Minimatch(pattern).match(basename)) {
+          if (stats.isFile()) {
             cacheContent.push({
               path: fullEntryPath,
               content: filesystem.readFileSync(fullEntryPath),
@@ -113,7 +90,7 @@ export const createFindUp = (): FindUp => {
     if (from !== '/' && from !== to) {
       const parent = Path.dirname(from);
 
-      results.push(...findUp(parent, to, pattern, filesystem));
+      results.push(...findUp(parent, to, filesystem));
     }
 
     return results;
@@ -121,8 +98,3 @@ export const createFindUp = (): FindUp => {
 
   return findUp;
 };
-
-/**
- * An instance of FindUp using a global cache.
- */
-export const findUp = createFindUp();
