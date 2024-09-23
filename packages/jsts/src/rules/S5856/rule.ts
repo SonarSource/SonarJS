@@ -27,10 +27,10 @@ import {
   isRequiredParserServices,
   isStringLiteral,
   isStringType,
-} from '../helpers';
+} from '../helpers/index.js';
 import * as estree from 'estree';
 import { RegExpValidator } from '@eslint-community/regexpp';
-import { meta } from './meta';
+import { meta } from './meta.js';
 
 const validator = new RegExpValidator();
 

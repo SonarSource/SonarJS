@@ -21,9 +21,9 @@ import {
   getSyntaxHighlighting,
   SyntaxHighlight,
   TextType,
-} from '../../../src/linter/visitors/syntax-highlighting';
+} from '../../../src/linter/visitors/syntax-highlighting.js';
 import path from 'path';
-import { parseTypeScriptSourceFile } from '../../tools/helpers';
+import { parseTypeScriptSourceFile } from '../../tools/helpers/index.js';
 
 describe('getSyntaxHighlighting', () => {
   it('should highlight keywords', async () => {

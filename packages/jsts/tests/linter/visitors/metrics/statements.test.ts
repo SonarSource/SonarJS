@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { countStatements } from '../../../../src/linter/visitors/metrics/statements';
+import { countStatements } from '../../../../src/linter/visitors/metrics/statements.js';
 import path from 'path';
-import { parseJavaScriptSourceFile } from '../../../tools';
+import { parseJavaScriptSourceFile } from '../../../tools/index.js';
 
 describe('countStatements', () => {
   it('should count the number of statements', async () => {

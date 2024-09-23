@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { eslintRules } from './core';
+import { eslintRules } from './core/index.js';
 import { rules as reactPluginRules } from 'eslint-plugin-react';
-import { tsEslintRules } from './typescript-eslint';
+import { tsEslintRules } from './typescript-eslint/index.js';
 import { rules as a11yPluginRules } from 'eslint-plugin-jsx-a11y';
 import { rules as importPluginRules } from 'eslint-plugin-import';
 

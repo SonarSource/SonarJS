@@ -21,8 +21,8 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { generateMeta, getVariableFromName, interceptReport } from '../helpers';
-import { meta } from './meta';
+import { generateMeta, getVariableFromName, interceptReport } from '../helpers/index.js';
+import { meta } from './meta.js';
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(

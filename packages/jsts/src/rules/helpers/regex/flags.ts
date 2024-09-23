@@ -19,14 +19,14 @@
  */
 import * as estree from 'estree';
 import { Rule } from 'eslint';
-import { getVariableFromIdentifier } from '../reaching-definitions';
+import { getVariableFromIdentifier } from '../reaching-definitions.js';
 import {
   getUniqueWriteReference,
   getSimpleRawStringValue,
   isSimpleRawString,
   isStaticTemplateLiteral,
   isStringLiteral,
-} from '../ast';
+} from '../ast.js';
 
 export function getFlags(
   callExpr: estree.CallExpression,

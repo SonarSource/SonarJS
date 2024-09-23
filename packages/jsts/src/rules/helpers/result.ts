@@ -26,7 +26,7 @@ import {
   isStringLiteral,
   isUndefined,
   StringLiteral,
-} from './ast';
+} from './ast.js';
 import { Rule } from 'eslint';
 
 export class Result {

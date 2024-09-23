@@ -20,10 +20,10 @@
 // https://sonarsource.github.io/rspec/#/rspec/S1192
 
 import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/utils';
-import { generateMeta, report, toSecondaryLocation } from '../helpers';
+import { generateMeta, report, toSecondaryLocation } from '../helpers/index.js';
 import { Rule } from 'eslint';
 import estree from 'estree';
-import { meta, schema } from './meta';
+import { meta, schema } from './meta.js';
 import { FromSchema } from 'json-schema-to-ts';
 
 // Number of times a literal must be duplicated to trigger an issue

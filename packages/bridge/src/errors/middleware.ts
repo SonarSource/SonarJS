@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import express from 'express';
-import { ErrorCode, error } from '@sonar/shared';
-import { JsTsAnalysisOutput } from '@sonar/jsts';
+import { ErrorCode, error } from '@sonar/shared/index.js';
+import { JsTsAnalysisOutput } from '@sonar/jsts/index.js';
 
 /**
  * Express.js middleware for handling error while serving requests.

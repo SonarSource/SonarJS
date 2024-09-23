@@ -19,7 +19,7 @@
  */
 import * as esprima from 'esprima';
 import * as estree from 'estree';
-import { Mocha } from '../../../src/rules';
+import { Mocha } from '../../../src/rules/index.js';
 
 describe('Mocha.js', () => {
   it('should recognize test constructs', () => {

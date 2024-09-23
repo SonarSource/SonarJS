@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Rule } from 'eslint';
-import { Issue } from './issue';
-import { hasSonarRuntimeOption } from '../parameters';
-import { type EncodedMessage } from '../../rules/helpers';
+import { Issue } from './issue.js';
+import { hasSonarRuntimeOption } from '../parameters/index.js';
+import { type EncodedMessage } from '../../rules/helpers/index.js';
 
 /**
  * Decodes an issue with secondary locations, if any

@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { StylelintRuleTester } from '../../../tests/tools/tester';
-import { messages, rule } from './rule';
+import { StylelintRuleTester } from '../../../tests/tools/tester/index.js';
+import { messages, rule } from './rule.js';
 
 const ruleTester = new StylelintRuleTester(rule);
 ruleTester.run('function-calc-no-invalid', {

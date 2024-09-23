@@ -23,10 +23,10 @@
 // https://github.com/jsx-eslint/eslint-plugin-react/blob/0a2f6b7e9df32215fcd4e3061ec69ea3f2eef793/lib/rules/no-array-index-key.js#L16
 
 import { Rule } from 'eslint';
-import { generateMeta, isMemberExpression } from '../helpers';
+import { generateMeta, isMemberExpression } from '../helpers/index.js';
 import { TSESTree } from '@typescript-eslint/utils';
 import * as estree from 'estree';
-import { meta } from './meta';
+import { meta } from './meta.js';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta as Rule.RuleMetaData, {

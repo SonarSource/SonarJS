@@ -22,8 +22,8 @@
 import estree from 'estree';
 import { Rule } from 'eslint';
 import { TSESTree } from '@typescript-eslint/utils';
-import { generateMeta, interceptReport, isNumberLiteral } from '../helpers';
-import { meta } from './meta';
+import { generateMeta, interceptReport, isNumberLiteral } from '../helpers/index.js';
+import { meta } from './meta.js';
 
 // The core implementation of this rule reports all enums for which there is a member value that is
 // not initialized explicitly. Here, the decorator's purpose is to restrict the scope of the rule only

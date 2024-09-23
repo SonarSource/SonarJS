@@ -21,8 +21,8 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { generateMeta, isIdentifier, isNumberLiteral } from '../helpers';
-import { meta } from './meta';
+import { generateMeta, isIdentifier, isNumberLiteral } from '../helpers/index.js';
+import { meta } from './meta.js';
 
 const assertionFunctions = [
   'a',

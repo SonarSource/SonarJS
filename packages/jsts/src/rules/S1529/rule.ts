@@ -22,8 +22,8 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import * as ts from 'typescript';
-import { generateMeta, getTypeFromTreeNode } from '../helpers';
-import { meta } from './meta';
+import { generateMeta, getTypeFromTreeNode } from '../helpers/index.js';
+import { meta } from './meta.js';
 
 const BITWISE_AND_OR = ['&', '|'];
 const BITWISE_OPERATORS = [

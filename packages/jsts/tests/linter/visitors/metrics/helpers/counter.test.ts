@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { visitAndCountIf } from '../../../../../src/linter/visitors/metrics/helpers';
+import { visitAndCountIf } from '../../../../../src/linter/visitors/metrics/helpers/index.js';
 import path from 'path';
-import { parseJavaScriptSourceFile } from '../../../../tools';
+import { parseJavaScriptSourceFile } from '../../../../tools/index.js';
 
 describe('visitAndCountIf', () => {
   it('should count matching nodes', async () => {

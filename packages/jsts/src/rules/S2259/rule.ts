@@ -31,8 +31,8 @@ import {
   isRequiredParserServices,
   isUndefined,
   isUndefinedOrNull,
-} from '../helpers';
-import { meta } from './meta';
+} from '../helpers/index.js';
+import { meta } from './meta.js';
 
 enum Null {
   confirmed,

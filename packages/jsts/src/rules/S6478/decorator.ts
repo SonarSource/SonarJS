@@ -27,9 +27,9 @@ import {
   getMainFunctionTokenLocation,
   interceptReportForReact,
   RuleContext,
-} from '../helpers';
+} from '../helpers/index.js';
 import { TSESTree } from '@typescript-eslint/utils';
-import { meta } from './meta';
+import { meta } from './meta.js';
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReportForReact(

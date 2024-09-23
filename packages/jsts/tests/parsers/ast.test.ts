@@ -19,7 +19,7 @@
  */
 import path from 'path';
 
-import { readFile } from '@sonar/shared';
+import { readFile } from '@sonar/shared/index.js';
 import {
   buildParserOptions,
   parseForESLint,
@@ -30,8 +30,8 @@ import {
   NODE_TYPE_ENUM,
   type ParseFunction,
   visitNode,
-} from '../../src/parsers';
-import { JsTsAnalysisInput } from '../../src/analysis';
+} from '../../src/parsers/index.js';
+import { JsTsAnalysisInput } from '../../src/analysis/index.js';
 import { TSESTree } from '@typescript-eslint/utils';
 
 const parseFunctions = [

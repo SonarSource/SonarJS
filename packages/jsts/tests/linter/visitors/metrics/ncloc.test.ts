@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { findNcloc } from '../../../../src/linter/visitors/metrics/ncloc';
+import { findNcloc } from '../../../../src/linter/visitors/metrics/ncloc.js';
 import path from 'path';
-import { parseJavaScriptSourceFile } from '../../../tools';
+import { parseJavaScriptSourceFile } from '../../../tools/index.js';
 
 describe('findNcloc', () => {
   it('should find the line numbers of code', async () => {

@@ -21,9 +21,9 @@
 
 import { Rule } from 'eslint';
 import { CharacterClass, Flags, Quantifier, RegExpLiteral } from '@eslint-community/regexpp/ast';
-import { createRegExpRule, RegexRuleContext } from '../helpers/regex';
-import { generateMeta } from '../helpers';
-import { meta } from './meta';
+import { createRegExpRule, RegexRuleContext } from '../helpers/regex/index.js';
+import { generateMeta } from '../helpers/index.js';
+import { meta } from './meta.js';
 
 export const rule: Rule.RuleModule = createRegExpRule(
   context => {

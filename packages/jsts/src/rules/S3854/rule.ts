@@ -20,9 +20,9 @@
 // https://sonarsource.github.io/rspec/#/rspec/S3854/javascript
 
 import { Rule } from 'eslint';
-import { eslintRules } from '../core';
-import { generateMeta, mergeRules } from '../helpers';
-import { meta } from './meta';
+import { eslintRules } from '../core/index.js';
+import { generateMeta, mergeRules } from '../helpers/index.js';
+import { meta } from './meta.js';
 
 const constructorSuperRule = eslintRules['constructor-super'];
 const noThisBeforeSuperRule = eslintRules['no-this-before-super'];

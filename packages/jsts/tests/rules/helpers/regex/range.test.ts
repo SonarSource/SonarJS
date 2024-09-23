@@ -19,7 +19,7 @@
  */
 import * as esprima from 'esprima';
 import * as estree from 'estree';
-import { getRegexpLocation, getRegexpRange } from '../../../../src/rules/helpers';
+import { getRegexpLocation, getRegexpRange } from '../../../../src/rules/helpers/index.js';
 import * as regexpp from '@eslint-community/regexpp';
 import { Rule, SourceCode } from 'eslint';
 import RuleContext = Rule.RuleContext;

@@ -33,9 +33,9 @@ import {
   isRegexLiteral,
   report,
   toSecondaryLocation,
-} from '../helpers';
-import { getFlags, isRegExpConstructor } from '../helpers/regex';
-import { meta } from './meta';
+} from '../helpers/index.js';
+import { getFlags, isRegExpConstructor } from '../helpers/regex/index.js';
+import { meta } from './meta.js';
 
 type RegexInfo = { node: estree.Node; flags: string };
 

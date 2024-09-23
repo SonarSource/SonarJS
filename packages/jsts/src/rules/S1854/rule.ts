@@ -22,8 +22,14 @@
 import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
-import { generateMeta, isNullLiteral, LiveVariables, lva, ReferenceLike } from '../helpers';
-import { meta } from './meta';
+import {
+  generateMeta,
+  isNullLiteral,
+  LiveVariables,
+  lva,
+  ReferenceLike,
+} from '../helpers/index.js';
+import { meta } from './meta.js';
 import CodePath = Rule.CodePath;
 import Variable = Scope.Variable;
 import CodePathSegment = Rule.CodePathSegment;

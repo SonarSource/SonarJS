@@ -20,9 +20,9 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6535/javascript
 
 import { Rule } from 'eslint';
-import { eslintRules } from '../core';
-import { generateMeta, interceptReport, mergeRules } from '../helpers';
-import { meta } from './meta';
+import { eslintRules } from '../core/index.js';
+import { generateMeta, interceptReport, mergeRules } from '../helpers/index.js';
+import { meta } from './meta.js';
 
 /**
  * We want to merge ESLint rules 'no-useless-escape' and 'no-nonoctal-decimal-escape'. However,

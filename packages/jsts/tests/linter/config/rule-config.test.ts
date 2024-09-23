@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Rule } from 'eslint';
-import { setContext } from '@sonar/shared';
-import { extendRuleConfig, RuleConfig } from '../../../src/linter/config';
-import { SONAR_CONTEXT, SONAR_RUNTIME } from '../../../src/linter/parameters';
+import { setContext } from '@sonar/shared/index.js';
+import { extendRuleConfig, RuleConfig } from '../../../src/linter/config/index.js';
+import { SONAR_CONTEXT, SONAR_RUNTIME } from '../../../src/linter/parameters/index.js';
 
 describe('extendRuleConfig', () => {
   it('should include `sonar-runtime`', () => {

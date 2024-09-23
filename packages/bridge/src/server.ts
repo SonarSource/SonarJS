@@ -25,17 +25,17 @@ import 'module-alias/register';
 import express from 'express';
 import http from 'http';
 import path from 'path';
-import router from './router';
-import { errorMiddleware } from './errors';
-import { debug, getContext } from '@sonar/shared';
-import { timeoutMiddleware } from './timeout';
+import router from './router.js';
+import { errorMiddleware } from './errors/index.js';
+import { debug, getContext } from '@sonar/shared/index.js';
+import { timeoutMiddleware } from './timeout/index.js';
 import { AddressInfo } from 'net';
 import { Worker, SHARE_ENV } from 'worker_threads';
 import {
   registerGarbageCollectionObserver,
   logMemoryConfiguration,
   logMemoryError,
-} from './memory';
+} from './memory.js';
 
 /**
  * The maximum request body size

@@ -29,9 +29,9 @@ import {
   isRequiredParserServices,
   last,
   RequiredParserServices,
-} from '../helpers';
+} from '../helpers/index.js';
 import * as ts from 'typescript';
-import { meta } from './meta';
+import { meta } from './meta.js';
 
 /**
  * Stacks return statements per function.

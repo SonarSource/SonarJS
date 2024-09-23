@@ -21,9 +21,9 @@
 
 import type { ParserServicesWithTypeInformation, TSESTree } from '@typescript-eslint/utils';
 import { Rule } from 'eslint';
-import { generateMeta, isRequiredParserServices } from '../helpers';
+import { generateMeta, isRequiredParserServices } from '../helpers/index.js';
 import estree from 'estree';
-import { meta } from './meta';
+import { meta } from './meta.js';
 
 const CollectionLike = ['Array', 'Map', 'Set', 'WeakMap', 'WeakSet'];
 const CollectionSizeLike = ['length', 'size'];

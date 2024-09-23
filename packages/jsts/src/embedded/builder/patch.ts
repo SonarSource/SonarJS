@@ -19,9 +19,9 @@
  */
 import { AST, SourceCode } from 'eslint';
 import { Comment, Node } from 'estree';
-import { visit } from '../../linter';
-import { EmbeddedJS } from '../analysis';
-import { APIError } from '@sonar/shared';
+import { visit } from '../../linter/index.js';
+import { EmbeddedJS } from '../analysis/index.js';
+import { APIError } from '@sonar/shared/index.js';
 
 /**
  * Patches the ESLint SourceCode instance parsed with an ESLint-based parser

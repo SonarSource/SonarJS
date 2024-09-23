@@ -22,10 +22,10 @@
 import { Rule } from 'eslint';
 import { rules as reactRules } from 'eslint-plugin-react';
 import { rules as jsxA11yRules } from 'eslint-plugin-jsx-a11y';
-import { generateMeta, interceptReport, mergeRules } from '../helpers';
-import { decorate } from './decorator';
+import { generateMeta, interceptReport, mergeRules } from '../helpers/index.js';
+import { decorate } from './decorator.js';
 import { TSESTree } from '@typescript-eslint/utils';
-import { meta } from './meta';
+import { meta } from './meta.js';
 
 const noUnknownProp = reactRules['no-unknown-property'];
 const decoratedNoUnknownProp = decorate(noUnknownProp);

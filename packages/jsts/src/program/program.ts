@@ -37,7 +37,7 @@ import {
   addTsConfigIfDirectory,
   readFileSync,
   toUnixPath,
-} from '@sonar/shared';
+} from '@sonar/shared/index.js';
 import tmp from 'tmp';
 import { promisify } from 'util';
 import fs from 'fs/promises';

@@ -23,12 +23,12 @@
  * Said differently, this is the public API of the ESLint Plugin.
  */
 import fs from 'fs';
-import { findParent } from './helpers';
+import { findParent } from './helpers/index.js';
 import { PackageJson } from 'type-fest';
 import type { Rule, Linter } from 'eslint';
 
-import * as originalRules from './original';
-import * as decoratedRules from './decorated';
+import * as originalRules from './original.js';
+import * as decoratedRules from './decorated.js';
 
 export const rules: Record<string, Rule.RuleModule> = {
   'anchor-precedence': originalRules.S5850,

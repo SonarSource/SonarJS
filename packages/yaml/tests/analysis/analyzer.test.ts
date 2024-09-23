@@ -18,12 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { join } from 'path';
-import { setContext, APIError } from '@sonar/shared';
-import { parseAwsFromYaml } from '../../src/aws';
-import { embeddedInput } from '../../../jsts/tests/tools';
+import { setContext, APIError } from '@sonar/shared/index.js';
+import { parseAwsFromYaml } from '../../src/aws/index.js';
+import { embeddedInput } from '../../../jsts/tests/tools/index.js';
 // loading it from @sonar/jsts breaks resolution
-import { initializeLinter, getLinter } from '../../../jsts/src/linter';
-import { analyzeEmbedded, composeSyntheticFilePath } from '@sonar/jsts';
+import { initializeLinter, getLinter } from '../../../jsts/src/linter/index.js';
+import { analyzeEmbedded, composeSyntheticFilePath } from '@sonar/jsts/index.js';
 import { Rule } from 'eslint';
 
 describe('analyzeYAML', () => {

@@ -18,12 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { join } from 'path';
-import { embeddedInput } from '../../../jsts/tests/tools';
-import { parseHTML } from '../../src/parser';
-import { setContext } from '@sonar/shared';
-import { analyzeEmbedded } from '@sonar/jsts';
+import { embeddedInput } from '../../../jsts/tests/tools/index.js';
+import { parseHTML } from '../../src/parser/index.js';
+import { setContext } from '@sonar/shared/index.js';
+import { analyzeEmbedded } from '@sonar/jsts/index.js';
 // importing this from @sonar/jsts causes a resolution issue
-import { initializeLinter } from '../../../jsts/src/linter';
+import { initializeLinter } from '../../../jsts/src/linter/index.js';
 
 describe('analyzeHTML', () => {
   const fixturesPath = join(__dirname, 'fixtures');

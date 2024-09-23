@@ -32,8 +32,8 @@ import {
   isIfStatement,
   isRequiredParserServices,
   resolveFunction,
-} from '../helpers';
-import { meta } from './meta';
+} from '../helpers/index.js';
+import { meta } from './meta.js';
 
 const POST_MESSAGE = 'postMessage';
 const ADD_EVENT_LISTENER = 'addEventListener';

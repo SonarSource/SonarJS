@@ -20,8 +20,8 @@
 import { AST, Rule } from 'eslint';
 import * as estree from 'estree';
 import * as regexpp from '@eslint-community/regexpp';
-import { isRegexLiteral, isStringLiteral } from '../';
-import { getRegexpRange } from './range';
+import { isRegexLiteral, isStringLiteral } from '..//index.js';
+import { getRegexpRange } from './range.js';
 
 /**
  * Gets the regexp node location in the ESLint referential

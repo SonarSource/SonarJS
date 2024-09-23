@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as stylelint from 'stylelint';
-import { plugins } from '../rules';
+import { plugins } from '../rules/index.js';
 
 /**
  * A Stylelint rule configuration

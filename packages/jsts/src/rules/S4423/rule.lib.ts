@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { getFullyQualifiedName, getProperty, getValueOfExpression } from '../helpers';
+import { getFullyQualifiedName, getProperty, getValueOfExpression } from '../helpers/index.js';
 
 const SECURE_PROTOCOL_ALLOWED_VALUES = [
   'TLSv1_2_method',

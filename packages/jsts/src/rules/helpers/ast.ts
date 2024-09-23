@@ -26,7 +26,7 @@ import {
   getFullyQualifiedName,
   report,
   toSecondaryLocation,
-} from '.';
+} from './index.js';
 
 export type Node = estree.Node | TSESTree.Node;
 

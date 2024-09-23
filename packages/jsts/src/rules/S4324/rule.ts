@@ -21,10 +21,14 @@
 
 import { Rule } from 'eslint';
 import { TSESTree } from '@typescript-eslint/utils';
-import { generateMeta, isRequiredParserServices, RequiredParserServices } from '../helpers';
+import {
+  generateMeta,
+  isRequiredParserServices,
+  RequiredParserServices,
+} from '../helpers/index.js';
 import * as estree from 'estree';
 import * as ts from 'typescript';
-import { meta } from './meta';
+import { meta } from './meta.js';
 
 type ReturnedExpression = estree.Expression | undefined | null;
 

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export * from './extract';
-export * from './issue';
-export * from './message';
-export * from './transform';
+export * from './extract.js';
+export * from './issue.js';
+export * from './message.js';
+export * from './transform.js';

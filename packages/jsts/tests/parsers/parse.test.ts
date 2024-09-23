@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { APIError, readFile } from '@sonar/shared';
-import { buildParserOptions, parseForESLint, parsers } from '../../src/parsers';
-import { JsTsAnalysisInput } from '../../src/analysis';
+import { APIError, readFile } from '@sonar/shared/index.js';
+import { buildParserOptions, parseForESLint, parsers } from '../../src/parsers/index.js';
+import { JsTsAnalysisInput } from '../../src/analysis/index.js';
 import path from 'path';
 
 const parseFunctions = [

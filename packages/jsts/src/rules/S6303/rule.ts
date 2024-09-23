@@ -28,11 +28,11 @@ import {
   getValueOfExpression,
   isFalseLiteral,
   isUndefined,
-} from '../helpers';
+} from '../helpers/index.js';
 
 import * as estree from 'estree';
-import { AwsCdkTemplate, normalizeFQN } from '../helpers/aws/cdk';
-import { meta } from './meta';
+import { AwsCdkTemplate, normalizeFQN } from '../helpers/aws/cdk.js';
+import { meta } from './meta.js';
 
 const CfnDBCluster = 'CfnDBCluster';
 const CfnDBInstance = 'CfnDBInstance';

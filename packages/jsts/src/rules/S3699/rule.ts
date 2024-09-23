@@ -25,10 +25,10 @@ import {
   isArrowFunctionExpression,
   isFunctionExpression,
   RuleContext,
-} from '../helpers';
+} from '../helpers/index.js';
 import { Rule } from 'eslint';
 import estree from 'estree';
-import { meta } from './meta';
+import { meta } from './meta.js';
 
 const EMPTY_RETURN_VALUE_KEYWORDS = new Set([
   'TSVoidKeyword',

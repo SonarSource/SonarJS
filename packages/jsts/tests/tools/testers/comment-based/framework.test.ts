@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as path from 'path';
-import { extractExpectations } from './framework';
-import { readFile } from '@sonar/shared';
+import { extractExpectations } from './framework.js';
+import { readFile } from '@sonar/shared/index.js';
 
 describe('Comment-based Testing Framework', () => {
   const baseDir = path.resolve(`${__dirname}/fixtures`);

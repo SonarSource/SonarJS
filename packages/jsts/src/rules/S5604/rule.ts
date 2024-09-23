@@ -21,9 +21,14 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { generateMeta, getValueOfExpression, isIdentifier, isMemberExpression } from '../helpers';
+import {
+  generateMeta,
+  getValueOfExpression,
+  isIdentifier,
+  isMemberExpression,
+} from '../helpers/index.js';
 import { FromSchema } from 'json-schema-to-ts';
-import { meta, schema } from './meta';
+import { meta, schema } from './meta.js';
 
 const GEOLOCATION = 'geolocation';
 const CAMERA = 'camera';

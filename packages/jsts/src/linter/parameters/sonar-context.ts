@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Rule } from 'eslint';
-import { getRuleSchema } from './helpers/schema';
+import { getRuleSchema } from './helpers/schema.js';
 
 /**
  * An internal rule parameter for context-passing support

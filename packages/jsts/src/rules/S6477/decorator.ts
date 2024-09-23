@@ -19,8 +19,8 @@
  */
 import { TSESTree } from '@typescript-eslint/utils';
 import { Rule } from 'eslint';
-import { generateMeta, interceptReportForReact } from '../helpers';
-import { meta } from './meta';
+import { generateMeta, interceptReportForReact } from '../helpers/index.js';
+import { meta } from './meta.js';
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReportForReact(

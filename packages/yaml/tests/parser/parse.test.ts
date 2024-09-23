@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import path from 'path';
-import { parseYaml } from '../../src/parser';
-import { APIError, readFile } from '@sonar/shared';
+import { parseYaml } from '../../src/parser/index.js';
+import { APIError, readFile } from '../../../shared/src/index.js';
 
 function noOpPicker(_key: any, _node: any, _ancestors: any) {
   return {};

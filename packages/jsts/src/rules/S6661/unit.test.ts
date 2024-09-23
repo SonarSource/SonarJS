@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RuleTester } from 'eslint';
-import { rule } from './';
-import { clearPackageJsons, loadPackageJsons } from '../helpers/package-json';
+import { rule } from './/index.js';
+import { clearPackageJsons, loadPackageJsons } from '../helpers/package-json.js';
 import path from 'path';
 
 clearPackageJsons();

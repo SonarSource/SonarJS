@@ -20,8 +20,8 @@
 import * as estree from 'estree';
 import ts from 'typescript';
 import { TSESLint, TSESTree } from '@typescript-eslint/utils';
-import { RequiredParserServices } from '../helpers';
-import { getVariableFromScope } from './ast';
+import { RequiredParserServices } from '../helpers/index.js';
+import { getVariableFromScope } from './ast.js';
 import { Rule } from 'eslint';
 
 export type RuleContext = TSESLint.RuleContext<string, string[]>;

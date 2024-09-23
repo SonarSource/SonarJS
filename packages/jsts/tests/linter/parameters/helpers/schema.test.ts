@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Rule } from 'eslint';
-import { getRuleSchema } from '../../../../src/linter/parameters/helpers';
+import { getRuleSchema } from '../../../../src/linter/parameters/helpers/index.js';
 
 describe('getRuleSchema', () => {
   it('should return the schema', () => {

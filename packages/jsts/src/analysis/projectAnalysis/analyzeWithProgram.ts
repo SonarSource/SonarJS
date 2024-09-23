@@ -24,8 +24,8 @@ import {
   deleteProgram,
   JsTsFiles,
   ProjectAnalysisOutput,
-} from '../../';
-import { error, readFile } from '@sonar/shared';
+} from '../..//index.js';
+import { error, readFile } from '@sonar/shared/index.js';
 
 /**
  * Analyzes JavaScript / TypeScript files using TypeScript programs. Only the files

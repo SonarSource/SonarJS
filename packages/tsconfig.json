@@ -19,11 +19,11 @@
     "typeRoots": ["../node_modules/@types", "../typings"],
     "baseUrl": ".",
     "paths": {
-      "@sonar/css": ["css/src"],
-      "@sonar/html": ["html/src"],
-      "@sonar/jsts": ["jsts/src"],
-      "@sonar/shared": ["shared/src"],
-      "@sonar/yaml": ["yaml/src"]
+      "@sonar/css/*": ["css/src/*"],
+      "@sonar/html/*": ["html/src/*"],
+      "@sonar/jsts/*": ["jsts/src/*"],
+      "@sonar/shared/*": ["shared/src/*"],
+      "@sonar/yaml/*": ["yaml/src/*"]
     }
   },
   "references": [

@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Rule, RuleTester } from 'eslint';
-import { interceptReport } from '../../../../src/rules';
+import { interceptReport } from '../../../../src/rules/index.js';
 // Covers `getDeclaredVariables`, `getScope`, `getSourceCode`.
-import { rule as noParameterReassignment } from '../../../../src/rules/S1226';
+import { rule as noParameterReassignment } from '../../../../src/rules/S1226/index.js';
 // Covers `getFilename`
-import { rule as noImplicitDependencies } from '../../../../src/rules/S4328';
+import { rule as noImplicitDependencies } from '../../../../src/rules/S4328/index.js';
 import * as path from 'path';
 
 describe('interceptReport', () => {

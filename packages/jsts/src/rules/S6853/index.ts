@@ -18,6 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { rules } from 'eslint-plugin-jsx-a11y';
-import { decorate } from './decorator';
+import { decorate } from './decorator.js';
 
 export const rule = decorate(rules['label-has-associated-control']);

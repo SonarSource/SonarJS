@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Rule } from 'eslint';
-import { generateMeta, interceptReport } from '../helpers';
+import { generateMeta, interceptReport } from '../helpers/index.js';
 import { hasAnyProp } from 'jsx-ast-utils';
 import { TSESTree } from '@typescript-eslint/utils';
-import { meta } from './meta';
+import { meta } from './meta.js';
 
 /**
  * This fix was introduced in eslint-plugin-jsx-a11y e6bfd5cb7c,

@@ -21,8 +21,13 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { generateMeta, getFullyQualifiedName, getProperty, getUniqueWriteUsage } from '../helpers';
-import { meta } from './meta';
+import {
+  generateMeta,
+  getFullyQualifiedName,
+  getProperty,
+  getUniqueWriteUsage,
+} from '../helpers/index.js';
+import { meta } from './meta.js';
 
 const SERVE_STATIC = 'serve-static';
 

@@ -20,9 +20,9 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6582/javascript
 
 import { Rule } from 'eslint';
-import { tsEslintRules } from '../typescript-eslint';
-import { generateMeta } from '../helpers';
-import { meta } from './meta';
+import { tsEslintRules } from '../typescript-eslint/index.js';
+import { generateMeta } from '../helpers/index.js';
+import { meta } from './meta.js';
 
 /**
  * Original rule 'prefer-optional-chain' from TypeScript ESLint.

@@ -19,10 +19,10 @@
  */
 import { Linter } from 'eslint';
 import path from 'path';
-import { rule as noExclusiveTests } from '../../../src/rules/S6426';
-import { transformFixes } from '../../../src/linter/quickfixes';
-import { parseJavaScriptSourceFile } from '../../tools/helpers';
-import { rules as allRules } from '../../../src/rules/index';
+import { rule as noExclusiveTests } from '../../../src/rules/S6426/index.js';
+import { transformFixes } from '../../../src/linter/quickfixes/index.js';
+import { parseJavaScriptSourceFile } from '../../tools/helpers/index.js';
+import { rules as allRules } from '../../../src/rules/index.js';
 
 describe('transformFixes', () => {
   it('should transform an ESLint core fix', async () => {

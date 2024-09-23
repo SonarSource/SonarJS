@@ -5,7 +5,7 @@
   "exports": "./lib/plugin.js",
   "description": "SonarJS rules for ESLint",
   "types": "./lib/plugin.d.ts",
-  "type": "commonjs",
+  "type": "module",
   "scripts": {
     "build": "npm ci && npm run compile && npm pack",
     "compile": "npm run clear && tsc -p tsconfig-plugin.json --outDir lib",
