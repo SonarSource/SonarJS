@@ -22,7 +22,7 @@
 import { Rule } from 'eslint';
 import { rules as reactRules } from 'eslint-plugin-react';
 import { rules as jsxA11yRules } from 'eslint-plugin-jsx-a11y';
-import { generateMeta, interceptReport, mergeRules } from '../helpers';
+import { generateMeta, getDependencies, interceptReport, mergeRules } from '../helpers';
 import { decorate } from './decorator';
 import { TSESTree } from '@typescript-eslint/utils';
 import { meta } from './meta';
@@ -88,6 +88,11 @@ export const rule: Rule.RuleModule = {
   }),
 
   create(context: Rule.RuleContext) {
+    const dependencies = getDependencies(context.filename);
+    if (!dependencies.has('react')) {
+      return {};
+    }
+
     const ariaPropsListener: Rule.RuleListener = decoratedAriaPropsRule.create(context);
     const noUnknownPropListener: Rule.RuleListener = twiceDecoratedNoUnknownProp.create(context);
 
