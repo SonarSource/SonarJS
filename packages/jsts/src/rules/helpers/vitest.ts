@@ -23,10 +23,12 @@ import { getFullyQualifiedName, getImportDeclarations, getRequireCalls } from '.
 
 export namespace Vitest {
   export function isImported(context: Rule.RuleContext): boolean {
+    const variants = ['vitest', '@fast-check/vitest'];
+
     return (
       getRequireCalls(context).some(
-        r => r.arguments[0].type === 'Literal' && r.arguments[0].value === 'vitest',
-      ) || getImportDeclarations(context).some(i => i.source.value === 'vitest')
+        r => r.arguments[0].type === 'Literal' && variants.includes(r.arguments[0].value as string),
+      ) || getImportDeclarations(context).some(i => variants.includes(i.source.value as string))
     );
   }
 
@@ -34,9 +36,15 @@ export namespace Vitest {
     return isExpectUsage(context, node);
   }
 
-  function isExpectUsage(context: Rule.RuleContext, node: estree.Node) {
+  function isExpectUsage(context: Rule.RuleContext, node: estree.Node): boolean {
     // expect(), vitest.expect()
-    return extractFQNforCallExpression(context, node) === 'vitest.expect';
+    const fqn = extractFQNforCallExpression(context, node);
+
+    return (
+      fqn !== undefined &&
+      fqn !== null &&
+      ['vitest.expect', '@fast-check.vitest.expect'].includes(fqn)
+    );
   }
 
   function extractFQNforCallExpression(context: Rule.RuleContext, node: estree.Node) {

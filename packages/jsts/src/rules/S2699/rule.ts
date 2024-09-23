@@ -32,6 +32,7 @@ import {
 } from '../helpers';
 import { Supertest } from '../helpers/supertest';
 import { meta } from './meta';
+import * as Assert from '../helpers/assert';
 
 /**
  * We assume that the user is using a single assertion library per file,
@@ -55,7 +56,8 @@ export const rule: Rule.RuleModule = {
           Chai.isImported(context) ||
           Sinon.isImported(context) ||
           Vitest.isImported(context) ||
-          Supertest.isImported(context)
+          Supertest.isImported(context) ||
+          Assert.isImported(context)
         ) {
           potentialIssues.forEach(issue => {
             context.report(issue);
@@ -101,7 +103,8 @@ class TestCaseAssertionVisitor {
       Chai.isAssertion(context, node) ||
       Sinon.isAssertion(context, node) ||
       Vitest.isAssertion(context, node) ||
-      Supertest.isAssertion(context, node)
+      Supertest.isAssertion(context, node) ||
+      Assert.isAssertion(context, node)
     ) {
       this.hasAssertions = true;
       return;
