@@ -30,6 +30,7 @@ describe('findUp', () => {
       '/a/b/c/foo.bar': '/a/b/c/foo.bar content',
       '/a/foo.bar': '/a/foo.bar content',
     });
+    console.log(filesystem.toJSON());
 
     const findUp = createFindUp('foo.bar');
 
@@ -40,6 +41,7 @@ describe('findUp', () => {
     const abcEntries2 = findUp('/a/b/c', '/', filesystem);
     const abcEntries3 = findUp('/a/b/c', '/', filesystem);
     const abcEntries4 = findUp('/a/b/c', '/', filesystem);
+    findUp('/a/b', '/', filesystem);
 
     equal(filesystemReadFileSpy.mock.calls.length, 2);
     equal(filesystemReaddirSpy.mock.calls.length, 4);
@@ -61,6 +63,11 @@ describe('findUp', () => {
 
     equal(filesystemReadFileSpy.mock.calls.length, 2);
     equal(filesystemReaddirSpy.mock.calls.length, 4);
+
+    findUp('/a/b/c/d', '/', filesystem);
+
+    equal(filesystemReadFileSpy.mock.calls.length, 3);
+    equal(filesystemReaddirSpy.mock.calls.length, 5);
   });
 
   it('honors the threshold', () => {

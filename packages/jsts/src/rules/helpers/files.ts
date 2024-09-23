@@ -79,3 +79,8 @@ export function findParent(dir: string, name: string): string | null {
   }
   return findParent(parentDir, name);
 }
+
+export function isRoot(file: string) {
+  const result = path.parse(file);
+  return toUnixPath(file) === toUnixPath(result.root);
+}

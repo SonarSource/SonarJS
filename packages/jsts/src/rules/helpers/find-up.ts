@@ -20,6 +20,7 @@
 import * as Path from 'node:path/posix';
 import type { vol } from 'memfs';
 import { Minimatch } from 'minimatch';
+import { isRoot } from './files';
 
 interface Stats {
   isFile(): boolean;
@@ -87,7 +88,7 @@ export const createFindUp = (pattern: string): FindUp => {
 
     results.push(...cacheContent);
 
-    if (from !== '/' && from !== to) {
+    if (!isRoot(from) && from !== to) {
       const parent = Path.dirname(from);
 
       results.push(...findUp(parent, to, filesystem));
