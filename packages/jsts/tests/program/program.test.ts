@@ -26,8 +26,8 @@ import {
   getProgramById,
   isRootNodeModules,
   writeTSConfigFile,
-} from '../../src/program';
-import { toUnixPath } from '@sonar/shared';
+} from '../../src/program/index.js';
+import { toUnixPath } from '@sonar/shared/index.js';
 import ts, { ModuleKind, ScriptTarget } from 'typescript';
 import fs from 'fs';
 import { isRoot } from '../../src/rules/helpers';

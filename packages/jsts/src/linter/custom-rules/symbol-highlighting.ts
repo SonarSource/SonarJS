@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { CustomRule } from './custom-rule';
-import { rule as symbolHighlightingRule } from '../visitors/symbol-highlighting';
+import { CustomRule } from './custom-rule.js';
+import { rule as symbolHighlightingRule } from '../visitors/symbol-highlighting.js';
 import { Rule } from 'eslint';
 
 /**

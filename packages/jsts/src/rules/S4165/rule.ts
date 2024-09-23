@@ -29,8 +29,8 @@ import {
   reachingDefinitions,
   resolveAssignedValues,
   Values,
-} from '../helpers';
-import { meta } from './meta';
+} from '../helpers/index.js';
+import { meta } from './meta.js';
 import CodePath = Rule.CodePath;
 import Variable = Scope.Variable;
 import Reference = Scope.Reference;

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { configs, rules, meta } from '../../src/rules/plugin';
+import { configs, rules, meta } from '../../src/rules/plugin.js';
 import fs from 'fs';
 import path from 'path';
 import { valid } from 'semver';

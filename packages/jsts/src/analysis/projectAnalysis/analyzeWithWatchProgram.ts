@@ -24,8 +24,8 @@ import {
   DEFAULT_LANGUAGE,
   JsTsFiles,
   ProjectAnalysisOutput,
-} from '../../';
-import { readFile } from '@sonar/shared';
+} from '../..//index.js';
+import { readFile } from '@sonar/shared/index.js';
 
 /**
  * Analyzes JavaScript / TypeScript files using TypeScript watchPrograms. Only the files

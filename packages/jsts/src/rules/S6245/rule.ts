@@ -30,8 +30,8 @@ import {
   normalizeFQN,
   report,
   S3BucketTemplate,
-} from '../helpers';
-import { meta } from './meta';
+} from '../helpers/index.js';
+import { meta } from './meta.js';
 
 const ENCRYPTED_KEY = 'encryption';
 

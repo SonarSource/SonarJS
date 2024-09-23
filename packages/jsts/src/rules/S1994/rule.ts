@@ -21,9 +21,9 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { areEquivalent, generateMeta, getParent } from '../helpers';
+import { areEquivalent, generateMeta, getParent } from '../helpers/index.js';
 import { TSESTree } from '@typescript-eslint/utils';
-import { meta } from './meta';
+import { meta } from './meta.js';
 
 class ForInfo {
   updatedExpressions: estree.Node[] = [];

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { compareSync } from 'dir-compare';
-import { setupBeforeAll, testProject } from '../tools/testProject';
+import { setupBeforeAll, testProject } from '../tools/testProject.js';
 
 describe('Ruling', () => {
   const { project, expectedPath, actualPath, rules } = setupBeforeAll(__filename);

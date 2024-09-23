@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as estree from 'estree';
-import { isStringLiteral } from '../';
+import { isStringLiteral } from '..//index.js';
 
 export interface GroupReference {
   raw: string;

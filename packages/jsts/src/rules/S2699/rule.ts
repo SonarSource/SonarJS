@@ -29,9 +29,9 @@ import {
   resolveFunction,
   Sinon,
   Vitest,
-} from '../helpers';
-import { Supertest } from '../helpers/supertest';
-import { meta } from './meta';
+} from '../helpers/index.js';
+import { Supertest } from '../helpers/supertest.js';
+import { meta } from './meta.js';
 
 /**
  * We assume that the user is using a single assertion library per file,

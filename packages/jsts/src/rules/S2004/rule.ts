@@ -28,9 +28,9 @@ import {
   report,
   RuleContext,
   toSecondaryLocation,
-} from '../helpers';
+} from '../helpers/index.js';
 import { FromSchema } from 'json-schema-to-ts';
-import { meta, schema } from './meta';
+import { meta, schema } from './meta.js';
 
 const DEFAULT_THRESHOLD = 4;
 

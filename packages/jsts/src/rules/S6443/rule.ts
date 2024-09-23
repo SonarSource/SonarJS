@@ -20,9 +20,9 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6443/javascript
 
 import { Rule, Scope } from 'eslint';
-import { generateMeta, getFullyQualifiedName, getVariableFromName } from '../helpers';
+import { generateMeta, getFullyQualifiedName, getVariableFromName } from '../helpers/index.js';
 import * as estree from 'estree';
-import { meta } from './meta';
+import { meta } from './meta.js';
 
 type Reference = {
   setter: Scope.Variable | undefined;

@@ -22,8 +22,8 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
-import { generateMeta, isTypeAlias } from '../helpers';
-import { meta } from './meta';
+import { generateMeta, isTypeAlias } from '../helpers/index.js';
+import { meta } from './meta.js';
 
 const COMMON_NODE_TYPES = new Set([
   'TSAnyKeyword',

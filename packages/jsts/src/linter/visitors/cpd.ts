@@ -20,8 +20,8 @@
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
 import { SourceCode, AST } from 'eslint';
-import { visit } from './visitor';
-import { Location } from './metrics/helpers';
+import { visit } from './visitor.js';
+import { Location } from './metrics/helpers/index.js';
 
 /**
  * A copy-paste detector token (cpd)

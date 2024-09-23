@@ -19,13 +19,13 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S5260/javascript
 
-import getElementType from 'eslint-plugin-jsx-a11y/lib/util/getElementType';
+import getElementType from 'eslint-plugin-jsx-a11y/lib/util/getElementType.js';
 import * as estree from 'estree';
 import { Rule } from 'eslint';
 import { TSESTree } from '@typescript-eslint/utils';
-import { computeGrid, TableCell } from '../helpers/table';
-import { generateMeta } from '../helpers';
-import { meta } from './meta';
+import { computeGrid, TableCell } from '../helpers/table.js';
+import { generateMeta } from '../helpers/index.js';
+import { meta } from './meta.js';
 
 type BlockInfo = {
   minRow: number;

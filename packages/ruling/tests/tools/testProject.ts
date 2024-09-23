@@ -27,7 +27,7 @@ import {
   FileType,
   setContext,
   toUnixPath,
-} from '../../../shared/src';
+} from '../../../shared/src/index.js';
 import {
   DEFAULT_ENVIRONMENTS,
   DEFAULT_GLOBALS,
@@ -39,14 +39,14 @@ import {
   initializeLinter,
   getLinter,
   CustomRule,
-} from '../../../jsts/src';
-import { accept } from '../filter/JavaScriptExclusionsFilter';
-import { writeResults } from './lits';
-import { analyzeHTML } from '../../../html/src';
-import { isHtmlFile, isJsFile, isTsFile, isYamlFile } from './languages';
-import { analyzeYAML } from '../../../yaml/src';
-import projects from '../data/projects.json';
-import { loadCustomRules } from '../../../jsts/src/linter/bundle-loader';
+} from '../../../jsts/src/index.js';
+import { accept } from '../filter/JavaScriptExclusionsFilter.js';
+import { writeResults } from './lits.js';
+import { analyzeHTML } from '../../../html/src/index.js';
+import { isHtmlFile, isJsFile, isTsFile, isYamlFile } from './languages.js';
+import { analyzeYAML } from '../../../yaml/src/index.js';
+import projects from '../data/projects.json' with { type: 'json' };
+import { loadCustomRules } from '../../../jsts/src/linter/bundle-loader.js';
 
 const sourcesPath = path.join(__dirname, '..', '..', '..', '..', '..', 'sonarjs-ruling-sources');
 const jsTsProjectsPath = path.join(sourcesPath, 'jsts', 'projects');

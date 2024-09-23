@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Rule } from 'eslint';
-import { eslintRules } from '../core';
-import { decorate } from './decorator';
-import { isSupported } from '../helpers/validate-version';
+import { eslintRules } from '../core/index.js';
+import { decorate } from './decorator.js';
+import { isSupported } from '../helpers/validate-version.js';
 
 const decorated = decorate(eslintRules['prefer-object-spread']);
 

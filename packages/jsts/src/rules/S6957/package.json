@@ -4,5 +4,6 @@
   },
   "devDependencies": {
     "react": "15.0"
-  }
+  },
+  "type": "module"
 }

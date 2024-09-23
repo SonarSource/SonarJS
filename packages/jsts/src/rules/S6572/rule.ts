@@ -19,10 +19,10 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6572/javascript
 
-import * as estree from 'estree';
+import estree from 'estree';
 import { Rule } from 'eslint';
 import { TSESTree } from '@typescript-eslint/utils';
-import { generateMeta, isNumberLiteral } from '../helpers';
+import { generateMeta, isNumberLiteral } from '../helpers/index.js';
 import { meta } from './meta';
 import { tsEslintRules } from '../typescript-eslint';
 const baseRuleModule = tsEslintRules['prefer-enum-initializers'];
@@ -60,8 +60,7 @@ function isEnumWithBody(
 }
 
 function anyInitialized(enumDecl: TSESTree.TSEnumDeclaration) {
-  const members = isEnumWithBody(enumDecl) ? enumDecl.body.members : enumDecl.members;
-  return members.some(m => m.initializer !== undefined);
+  return enumDecl.members.some(m => m.initializer !== undefined);
 }
 
 function numericalOrder(enumDecl: TSESTree.TSEnumDeclaration) {

@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as stylelint from 'stylelint';
-import { debug } from '@sonar/shared';
-import { Issue } from './issue';
+import { debug } from '@sonar/shared/index.js';
+import { Issue } from './issue.js';
 
 /**
  * Transforms Stylelint linting results into SonarQube issues

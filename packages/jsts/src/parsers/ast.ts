@@ -20,7 +20,7 @@
 import * as protobuf from 'protobufjs';
 import * as path from 'node:path';
 import { TSESTree } from '@typescript-eslint/utils';
-import { debug } from '@sonar/shared';
+import { debug } from '@sonar/shared/index.js';
 
 const PATH_TO_PROTOFILE = path.join(__dirname, 'estree.proto');
 const PROTO_ROOT = protobuf.loadSync(PATH_TO_PROTOFILE);

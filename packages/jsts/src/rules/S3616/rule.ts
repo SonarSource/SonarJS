@@ -21,8 +21,8 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { generateMeta, isLiteral } from '../helpers';
-import { meta } from './meta';
+import { generateMeta, isLiteral } from '../helpers/index.js';
+import { meta } from './meta.js';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta as Rule.RuleMetaData, {

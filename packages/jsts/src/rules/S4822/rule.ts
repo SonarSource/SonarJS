@@ -29,8 +29,8 @@ import {
   isThenable,
   report,
   toSecondaryLocation,
-} from '../helpers';
-import { meta } from './meta';
+} from '../helpers/index.js';
+import { meta } from './meta.js';
 
 type CallLikeExpression =
   | TSESTree.CallExpression

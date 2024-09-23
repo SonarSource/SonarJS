@@ -20,8 +20,8 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6754/javascript
 
 import { Rule } from 'eslint';
-import { generateMeta, interceptReportForReact } from '../helpers';
-import { meta } from './meta';
+import { generateMeta, interceptReportForReact } from '../helpers/index.js';
+import { meta } from './meta.js';
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReportForReact(

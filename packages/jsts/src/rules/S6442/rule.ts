@@ -28,9 +28,9 @@ import {
   getVariableFromName,
   isFunctionNode,
   isIdentifier,
-} from '../helpers';
+} from '../helpers/index.js';
 import { TSESTree } from '@typescript-eslint/utils';
-import { meta } from './meta';
+import { meta } from './meta.js';
 import Variable = ESLintScope.Variable;
 import Scope = ESLintScope.Scope;
 

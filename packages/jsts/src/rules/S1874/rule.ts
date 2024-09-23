@@ -20,9 +20,9 @@
 // https://sonarsource.github.io/rspec/#/rspec/S1874/javascript
 
 import { Rule } from 'eslint';
-import { generateMeta, isRequiredParserServices } from '../helpers';
+import { generateMeta, isRequiredParserServices } from '../helpers/index.js';
 import * as ts from 'typescript';
-import { meta } from './meta';
+import { meta } from './meta.js';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta as Rule.RuleMetaData, {

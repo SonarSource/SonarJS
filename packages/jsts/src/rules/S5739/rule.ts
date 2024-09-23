@@ -28,8 +28,8 @@ import {
   getProperty,
   getPropertyWithValue,
   getValueOfExpression,
-} from '../helpers';
-import { meta } from './meta';
+} from '../helpers/index.js';
+import { meta } from './meta.js';
 
 const HSTS = 'hsts';
 const HELMET = 'helmet';

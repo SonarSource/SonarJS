@@ -19,7 +19,7 @@
  */
 import { Rule } from 'eslint';
 import { rules } from '@typescript-eslint/eslint-plugin';
-import { sanitize } from './sanitize';
+import { sanitize } from './sanitize.js';
 
 /**
  * TypeScript ESLint rules that rely on type information fail at runtime because

@@ -19,11 +19,11 @@
  */
 import { SourceCode } from 'eslint';
 import { Position } from 'estree';
-import { getLinter, Issue, LinterWrapper } from '../../linter';
-import { buildSourceCodes, ExtendedSourceCode, LanguageParser } from '../builder';
-import { EmbeddedAnalysisInput, EmbeddedAnalysisOutput } from './analysis';
-import { debug } from '@sonar/shared';
-import { findNcloc } from '../../linter/visitors/metrics/ncloc';
+import { getLinter, Issue, LinterWrapper } from '../../linter/index.js';
+import { buildSourceCodes, ExtendedSourceCode, LanguageParser } from '../builder/index.js';
+import { EmbeddedAnalysisInput, EmbeddedAnalysisOutput } from './analysis.js';
+import { debug } from '@sonar/shared/index.js';
+import { findNcloc } from '../../linter/visitors/metrics/ncloc.js';
 
 /**
  * Analyzes a file containing JS snippets

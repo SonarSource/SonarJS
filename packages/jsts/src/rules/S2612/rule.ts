@@ -27,8 +27,8 @@ import {
   getUniqueWriteUsage,
   isIdentifier,
   isMemberExpression,
-} from '../helpers';
-import { meta } from './meta';
+} from '../helpers/index.js';
+import { meta } from './meta.js';
 
 const chmodLikeFunction = ['chmod', 'chmodSync', 'fchmod', 'fchmodSync', 'lchmod', 'lchmodSync'];
 

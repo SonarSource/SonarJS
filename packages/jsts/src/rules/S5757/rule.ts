@@ -28,8 +28,8 @@ import {
   getValueOfExpression,
   report,
   toSecondaryLocation,
-} from '../helpers';
-import { meta } from './meta';
+} from '../helpers/index.js';
+import { meta } from './meta.js';
 
 const MESSAGE = 'Make sure confidential information is not logged here.';
 export const rule: Rule.RuleModule = {

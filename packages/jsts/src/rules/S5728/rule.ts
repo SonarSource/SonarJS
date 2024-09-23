@@ -21,8 +21,13 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { Express, generateMeta, getFullyQualifiedName, getPropertyWithValue } from '../helpers';
-import { meta } from './meta';
+import {
+  Express,
+  generateMeta,
+  getFullyQualifiedName,
+  getPropertyWithValue,
+} from '../helpers/index.js';
+import { meta } from './meta.js';
 
 const HELMET = 'helmet';
 const CONTENT_SECURITY_POLICY = 'contentSecurityPolicy';

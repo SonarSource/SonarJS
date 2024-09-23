@@ -19,7 +19,7 @@
  */
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { getFullyQualifiedName, getImportDeclarations, getRequireCalls } from '.';
+import { getFullyQualifiedName, getImportDeclarations, getRequireCalls } from './index.js';
 
 export namespace Sinon {
   export function isImported(context: Rule.RuleContext): boolean {

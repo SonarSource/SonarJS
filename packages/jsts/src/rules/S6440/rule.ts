@@ -21,8 +21,8 @@
 
 import { Rule } from 'eslint';
 import { rules as reactHooksRules } from 'eslint-plugin-react-hooks';
-import { detectReactRule, generateMeta, interceptReport, mergeRules } from '../helpers';
-import { meta } from './meta';
+import { detectReactRule, generateMeta, interceptReport, mergeRules } from '../helpers/index.js';
+import { meta } from './meta.js';
 
 const rulesOfHooks = reactHooksRules['rules-of-hooks'];
 

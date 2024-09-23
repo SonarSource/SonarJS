@@ -20,9 +20,9 @@
 // https://sonarsource.github.io/rspec/#/rspec/S1082/javascript
 
 import { Rule } from 'eslint';
-import { generateMeta, mergeRules } from '../helpers';
+import { generateMeta, mergeRules } from '../helpers/index.js';
 import { rules as jsxA11yRules } from 'eslint-plugin-jsx-a11y';
-import { meta } from './meta';
+import { meta } from './meta.js';
 
 const mouseEventsHaveKeyEvents = jsxA11yRules['mouse-events-have-key-events'];
 const clickEventsHaveKeyEvents = jsxA11yRules['click-events-have-key-events'];

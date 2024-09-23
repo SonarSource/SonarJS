@@ -27,7 +27,7 @@ import {
   report,
   toSecondaryLocation,
   IssueLocation,
-} from '.';
+} from './index.js';
 
 export class CookieFlagCheck {
   issueMessage: string;

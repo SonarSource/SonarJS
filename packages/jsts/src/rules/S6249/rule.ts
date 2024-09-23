@@ -25,8 +25,8 @@ import {
   getBucketProperty,
   getValueOfExpression,
   S3BucketTemplate,
-} from '../helpers';
-import { meta } from './meta';
+} from '../helpers/index.js';
+import { meta } from './meta.js';
 
 const ENFORCE_SSL_KEY = 'enforceSSL';
 

@@ -19,7 +19,7 @@
  */
 import express from 'express';
 import { Worker } from 'worker_threads';
-import { delegate } from './worker';
+import { delegate } from './worker.js';
 
 export default function (worker: Worker): express.Router {
   const router = express.Router();

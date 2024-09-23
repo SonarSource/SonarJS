@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { createStylelintConfig, RuleConfig } from '../../src/linter';
-import { plugins } from '../../src/rules';
+import { createStylelintConfig, RuleConfig } from '../../src/linter/index.js';
+import { plugins } from '../../src/rules/index.js';
 
 describe('createStylelintConfig', () => {
   it('should create a Stylelint config', () => {

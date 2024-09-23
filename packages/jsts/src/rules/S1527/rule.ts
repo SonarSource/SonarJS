@@ -21,8 +21,8 @@
 
 import { Rule, Scope } from 'eslint';
 import estree from 'estree';
-import { generateMeta } from '../helpers';
-import { meta } from './meta';
+import { generateMeta } from '../helpers/index.js';
+import { meta } from './meta.js';
 
 const futureReservedWords = [
   'implements',

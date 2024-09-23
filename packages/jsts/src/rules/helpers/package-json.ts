@@ -19,8 +19,8 @@
  */
 import Path from 'path/posix';
 import { type PackageJson } from 'type-fest';
-import { searchFiles, File } from './find-files';
-import { toUnixPath } from './files';
+import { searchFiles, File } from './find-files.js';
+import { toUnixPath } from './files.js';
 import { Minimatch } from 'minimatch';
 import { type Filesystem, createFindUp } from './find-up';
 

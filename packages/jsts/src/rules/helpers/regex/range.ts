@@ -20,8 +20,8 @@
 import { AST } from 'eslint';
 import * as estree from 'estree';
 import * as regexpp from '@eslint-community/regexpp';
-import { last, isRegexLiteral, isStringLiteral } from '../';
-import { tokenizeString } from './tokenizer';
+import { last, isRegexLiteral, isStringLiteral } from '..//index.js';
+import { tokenizeString } from './tokenizer.js';
 
 /**
  * Returns the location of regexpNode relative to the node, which is regexp string or literal. If the computation

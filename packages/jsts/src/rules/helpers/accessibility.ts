@@ -19,7 +19,7 @@
  */
 
 import { getProp, getLiteralPropValue } from 'jsx-ast-utils';
-import getElementType from 'eslint-plugin-jsx-a11y/lib/util/getElementType';
+import getElementType from 'eslint-plugin-jsx-a11y/lib/util/getElementType.js';
 import { TSESTree } from '@typescript-eslint/utils';
 import { Rule } from 'eslint';
 

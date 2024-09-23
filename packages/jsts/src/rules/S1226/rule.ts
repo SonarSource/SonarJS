@@ -22,8 +22,8 @@
 import { AST, Rule, Scope } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
-import { generateMeta, getParent, resolveIdentifiers } from '../helpers';
-import { meta } from './meta';
+import { generateMeta, getParent, resolveIdentifiers } from '../helpers/index.js';
+import { meta } from './meta.js';
 
 type ContextType = 'catch' | 'function' | 'foreach' | 'global';
 

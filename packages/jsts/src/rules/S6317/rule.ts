@@ -21,10 +21,14 @@
 
 import { Rule } from 'eslint';
 import { Node } from 'estree';
-import { generateMeta, report, StringLiteral, toSecondaryLocation } from '../helpers';
-import { getResultOfExpression, Result } from '../helpers/result';
-import { AwsIamPolicyTemplate, getSensitiveEffect, PolicyCheckerOptions } from '../helpers/aws/iam';
-import { meta } from './meta';
+import { generateMeta, report, StringLiteral, toSecondaryLocation } from '../helpers/index.js';
+import { getResultOfExpression, Result } from '../helpers/result.js';
+import {
+  AwsIamPolicyTemplate,
+  getSensitiveEffect,
+  PolicyCheckerOptions,
+} from '../helpers/aws/iam.js';
+import { meta } from './meta.js';
 
 const SENSITIVE_RESOURCE = /^(\*|arn:[^:]*:[^:]*:[^:]*:[^:]*:(role|user|group)\/\*)$/;
 

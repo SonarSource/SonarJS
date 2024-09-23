@@ -27,8 +27,8 @@ import {
   getFullyQualifiedName,
   getUniqueWriteUsageOrNode,
   isMemberWithProperty,
-} from '../helpers';
-import { meta } from './meta';
+} from '../helpers/index.js';
+import { meta } from './meta.js';
 
 const ERRORHANDLER_MODULE = 'errorhandler';
 

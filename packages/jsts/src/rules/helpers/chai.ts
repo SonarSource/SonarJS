@@ -19,7 +19,12 @@
  */
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { getFullyQualifiedName, getImportDeclarations, getRequireCalls, isIdentifier } from '.';
+import {
+  getFullyQualifiedName,
+  getImportDeclarations,
+  getRequireCalls,
+  isIdentifier,
+} from './index.js';
 
 export namespace Chai {
   export function isImported(context: Rule.RuleContext): boolean {

@@ -19,9 +19,9 @@
  */
 import fs from 'fs';
 import path from 'path';
-import { JsTsLanguage, setContext } from '@sonar/shared';
-import { CustomRule, LinterWrapper, quickFixRules, RuleConfig } from '../../src';
-import { parseJavaScriptSourceFile, parseTypeScriptSourceFile } from '../tools';
+import { JsTsLanguage, setContext } from '@sonar/shared/index.js';
+import { CustomRule, LinterWrapper, quickFixRules, RuleConfig } from '../../src/index.js';
+import { parseJavaScriptSourceFile, parseTypeScriptSourceFile } from '../tools/index.js';
 
 describe('LinterWrapper', () => {
   beforeAll(() => {

@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Linter, Rule } from 'eslint';
-import { rules as internalRules } from '../rules/index';
-import { customRules as internalCustomRules, CustomRule } from './custom-rules';
-import { debug, getContext } from '@sonar/shared';
+import { rules as internalRules } from '../rules/index.js';
+import { customRules as internalCustomRules, CustomRule } from './custom-rules/index.js';
+import { debug, getContext } from '@sonar/shared/index.js';
 
 export function loadCustomRules(linter: Linter, rules: CustomRule[] = []) {
   for (const rule of rules) {

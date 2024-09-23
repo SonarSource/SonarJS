@@ -27,8 +27,8 @@ import {
   isInsideVueSetupScript,
   report,
   toSecondaryLocation,
-} from '../helpers';
-import { meta } from './meta';
+} from '../helpers/index.js';
+import { meta } from './meta.js';
 
 // https://vuejs.org/api/sfc-script-setup.html#defineprops-defineemits
 const vueMacroNames = new Set([
