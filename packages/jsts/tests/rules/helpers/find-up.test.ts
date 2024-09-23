@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Volume } from 'memfs';
-import { spy } from 'sinon';
 import { equal } from 'node:assert';
 import { createFindUp } from '../../../src/rules/helpers/find-up';
 import Path from 'path/posix';
+import { jest } from '@jest/globals';
 
 describe('findUp', () => {
   it('only touches the filesystem when needed', () => {
@@ -33,20 +33,18 @@ describe('findUp', () => {
 
     const findUp = createFindUp();
 
-    const filesystemReadFileSpy = spy(filesystem, 'readFileSync');
-    const filesystemReaddirSpy = spy(filesystem, 'readdirSync');
+    const filesystemReadFileSpy = jest.spyOn(filesystem, 'readFileSync');
+    const filesystemReaddirSpy = jest.spyOn(filesystem, 'readdirSync');
 
     const abcEntries = findUp('/a/b/c', '/', 'foo.bar', filesystem);
     const abcEntries2 = findUp('/a/b/c', '/', 'foo.bar', filesystem);
     const abcEntries3 = findUp('/a/b/c', '/', 'foo.bar', filesystem);
     const abcEntries4 = findUp('/a/b/c', '/', 'foo.bar', filesystem);
 
-    equal(filesystemReadFileSpy.callCount, 2);
-    equal(filesystemReaddirSpy.callCount, 4);
+    equal(filesystemReadFileSpy.mock.calls.length, 2);
+    equal(filesystemReaddirSpy.mock.calls.length, 4);
 
-    const filesystemReaddirSpyCallArgs = filesystemReaddirSpy.getCalls().map(call => {
-      return call.args;
-    });
+    const filesystemReaddirSpyCallArgs = filesystemReaddirSpy.mock.calls;
 
     equal(filesystemReaddirSpyCallArgs[0][0], Path.join('/', 'a', 'b', 'c'));
     equal(filesystemReaddirSpyCallArgs[1][0], Path.join('/', 'a', 'b'));
@@ -61,8 +59,8 @@ describe('findUp', () => {
       equal(entries[1].content.toString(), '/a/foo.bar content');
     }
 
-    equal(filesystemReadFileSpy.callCount, 2);
-    equal(filesystemReaddirSpy.callCount, 4);
+    equal(filesystemReadFileSpy.mock.calls.length, 2);
+    equal(filesystemReaddirSpy.mock.calls.length, 4);
   });
 
   it('honors the threshold', () => {
