@@ -17,4 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export { rule } from './rule';
+import { RuleTester } from 'eslint';
+import { rule } from '../../';
+import { clearPackageJsons, loadPackageJsons } from '../../../helpers';
+
+clearPackageJsons();
+loadPackageJsons(__dirname, []);
+
+const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module', ecmaFeatures: { jsx: true } } });
+ruleTester.run('S6477 turns into a noop on non-React projects', rule, {
+  valid: [
+    {
+      code: `
+      function Blog(props) {
+        return (
+          <ul>
+            {props.posts.map((post) =>
+              <li>
+                {post.title}
+              </li>
+            )}
+          </ul>
+        );
+      }
+      `,
+    },
+  ],
+  invalid: [],
+});

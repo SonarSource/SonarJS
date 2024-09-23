@@ -17,4 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export { rule } from './rule';
+// https://sonarsource.github.io/rspec/#/rspec/S6477/javascript
+
+import { Rule } from 'eslint';
+import { rules } from 'eslint-plugin-react';
+import { generateMeta, getDependencies } from '../helpers';
+import { decorate } from './decorator';
+import { meta } from './meta';
+
+const decoratedJsxKey = decorate(rules['jsx-key']);
+
+export const rule: Rule.RuleModule = {
+  meta: generateMeta(meta as Rule.RuleMetaData, {
+    messages: {
+      ...decoratedJsxKey.meta!.messages,
+    },
+  }),
+  create(context: Rule.RuleContext) {
+    const dependencies = getDependencies(context.filename);
+    if (!dependencies.has('react')) {
+      return {};
+    }
+    return decoratedJsxKey.create(context);
+  },
+};
