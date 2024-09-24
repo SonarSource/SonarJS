@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { visit } from '../../../src/linter/visitors/index.js';
+import { visit } from '../../../src/linter/visitors/index.ts';
 import path from 'path';
-import { parseTypeScriptSourceFile } from '../../tools/helpers/index.js';
-import { childrenOf } from '../../../src/rules/index.js';
+import { parseTypeScriptSourceFile } from '../../tools/helpers/index.ts';
+import { childrenOf } from '../../../src/rules/index.ts';
 
 describe('visitor', () => {
   describe('visit', () => {

@@ -22,7 +22,7 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
-import { eslintRules } from '../core/index.js';
+import { eslintRules } from '../core/index.ts';
 import {
   generateMeta,
   getFullyQualifiedName,
@@ -30,9 +30,9 @@ import {
   isFunctionCall,
   isIdentifier,
   mergeRules,
-} from '../helpers/index.js';
+} from '../helpers/index.ts';
 import { FromSchema } from 'json-schema-to-ts';
-import { meta, schema } from './meta.js';
+import { meta, schema } from './meta.ts';
 
 const eslintMaxParams = eslintRules['max-params'];
 

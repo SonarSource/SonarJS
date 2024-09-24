@@ -29,8 +29,8 @@ import {
   report,
   S3BucketTemplate,
   toSecondaryLocation,
-} from '../helpers/index.js';
-import { meta } from './meta.js';
+} from '../helpers/index.ts';
+import { meta } from './meta.ts';
 
 const VERSIONED_KEY = 'versioned';
 

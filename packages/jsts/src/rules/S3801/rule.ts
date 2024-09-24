@@ -29,8 +29,8 @@ import {
   report,
   RuleContext,
   toSecondaryLocation,
-} from '../helpers/index.js';
-import { meta } from './meta.js';
+} from '../helpers/index.ts';
+import { meta } from './meta.ts';
 
 interface FunctionContext {
   codePath: Rule.CodePath;

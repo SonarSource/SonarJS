@@ -26,10 +26,10 @@ import {
   isRequiredParserServices,
   isUndefined,
   RequiredParserServices,
-} from '../helpers/index.js';
+} from '../helpers/index.ts';
 import * as estree from 'estree';
 import * as ts from 'typescript';
-import { meta } from './meta.js';
+import { meta } from './meta.ts';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta as Rule.RuleMetaData, {

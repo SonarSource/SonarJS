@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as estree from 'estree';
-import { convertLocation } from '../../../../../src/linter/visitors/metrics/helpers/index.js';
+import { convertLocation } from '../../../../../src/linter/visitors/metrics/helpers/index.ts';
 
 describe('convertLocation', () => {
   it('should convert an ESTree location', () => {

@@ -19,9 +19,9 @@
  */
 import type { TSESTree } from '@typescript-eslint/utils';
 import { Rule } from 'eslint';
-import { eslintRules } from '../core/index.js';
-import { decorate } from './decorator.js';
-import { getVariableFromName } from '../helpers/index.js';
+import { eslintRules } from '../core/index.ts';
+import { decorate } from './decorator.ts';
+import { getVariableFromName } from '../helpers/index.ts';
 import type estree from 'estree';
 
 /**

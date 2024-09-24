@@ -27,9 +27,9 @@ import {
   getSignatureFromCallee,
   getTypeFromTreeNode,
   isRequiredParserServices,
-} from '../helpers/index.js';
+} from '../helpers/index.ts';
 import { ParserServicesWithTypeInformation } from '@typescript-eslint/utils';
-import { meta } from './meta.js';
+import { meta } from './meta.ts';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta as Rule.RuleMetaData, {

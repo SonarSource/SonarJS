@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { tsEslintRules } from '../typescript-eslint/index.js';
+import { tsEslintRules } from '../typescript-eslint/index.ts';
 import { type Rule } from 'eslint';
 import {
   generateMeta,
@@ -26,9 +26,9 @@ import {
   isBooleanType,
   isNullOrUndefinedType,
   isObjectType,
-} from '../helpers/index.js';
+} from '../helpers/index.ts';
 import { type LogicalExpression } from 'estree';
-import { meta } from './meta.js';
+import { meta } from './meta.ts';
 
 const preferNullishCoalescingRule = tsEslintRules['prefer-nullish-coalescing'];
 

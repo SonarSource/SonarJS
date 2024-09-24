@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import Detector from './Detector.js';
+import Detector from './Detector.ts';
 
 export default interface LanguageFootprint {
   getDetectors(): Set<Detector>;

@@ -21,15 +21,15 @@
 
 import * as estree from 'estree';
 import { Rule, SourceCode } from 'eslint';
-import { tsEslintRules } from '../typescript-eslint/index.js';
+import { tsEslintRules } from '../typescript-eslint/index.ts';
 import {
   generateMeta,
   interceptReport,
   isRequiredParserServices,
   isUnion,
   mergeRules,
-} from '../helpers/index.js';
-import { meta } from './meta.js';
+} from '../helpers/index.ts';
+import { meta } from './meta.ts';
 
 /**
  * This rule raises issues on switch statements without a default branch if, and only if,

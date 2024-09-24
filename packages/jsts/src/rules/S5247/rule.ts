@@ -30,8 +30,8 @@ import {
   isRequiredParserServices,
   report,
   resolveFromFunctionReference,
-} from '../helpers/index.js';
-import { meta } from './meta.js';
+} from '../helpers/index.ts';
+import { meta } from './meta.ts';
 
 const MESSAGE = 'Make sure disabling auto-escaping feature is safe here.';
 

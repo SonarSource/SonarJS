@@ -20,7 +20,7 @@
 import { SourceCode } from 'eslint';
 import * as ESTree from 'estree';
 import { AST } from 'vue-eslint-parser';
-import { extractTokensAndComments, Location } from './metrics/helpers/index.js';
+import { extractTokensAndComments, Location } from './metrics/helpers/index.ts';
 
 /**
  * A syntax highlight

@@ -17,6 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export * from './errors/index.js';
-export * from './helpers/index.js';
-export * from './types/index.js';
+export * from './errors/index.ts';
+export * from './helpers/index.ts';
+export * from './types/index.ts';

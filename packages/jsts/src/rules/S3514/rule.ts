@@ -29,8 +29,8 @@ import {
   isNumberLiteral,
   report,
   toSecondaryLocation,
-} from '../helpers/index.js';
-import { meta } from './meta.js';
+} from '../helpers/index.ts';
+import { meta } from './meta.ts';
 
 const MAX_INDEX = 4;
 const isAllowedIndex = (idx: number) => idx >= 0 && idx <= MAX_INDEX;

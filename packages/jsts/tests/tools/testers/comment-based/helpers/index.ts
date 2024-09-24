@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export * from './comments.js';
-export * from './file.js';
-export * from './issues.js';
-export * from './locations.js';
-export * from './ranges.js';
+export * from './comments.ts';
+export * from './file.ts';
+export * from './issues.ts';
+export * from './locations.ts';
+export * from './ranges.ts';

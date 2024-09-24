@@ -27,8 +27,8 @@ import {
   isProperty,
   IssueLocation,
   toSecondaryLocation,
-} from '../index.js';
-import { normalizeFQN } from './cdk.js';
+} from '../index.ts';
+import { normalizeFQN } from './cdk.ts';
 
 /**
  * A rule template for AWS S3 Buckets

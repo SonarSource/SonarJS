@@ -21,8 +21,8 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { generateMeta } from '../helpers/index.js';
-import { meta } from './meta.js';
+import { generateMeta } from '../helpers/index.ts';
+import { meta } from './meta.ts';
 
 const UNIX_DIRECTORIES = [
   '/tmp/',

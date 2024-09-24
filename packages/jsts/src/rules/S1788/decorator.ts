@@ -21,8 +21,8 @@
 
 import { Rule } from 'eslint';
 import { AssignmentPattern, BaseFunction } from 'estree';
-import { generateMeta, interceptReport, isIdentifier } from '../helpers/index.js';
-import { meta } from './meta.js';
+import { generateMeta, interceptReport, isIdentifier } from '../helpers/index.ts';
+import { meta } from './meta.ts';
 
 const NUM_ARGS_REDUX_REDUCER = 2;
 

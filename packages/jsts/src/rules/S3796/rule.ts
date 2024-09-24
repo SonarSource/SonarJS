@@ -33,8 +33,8 @@ import {
   isTypedArray,
   RequiredParserServices,
   RuleContext,
-} from '../helpers/index.js';
-import { meta } from './meta.js';
+} from '../helpers/index.ts';
+import { meta } from './meta.ts';
 
 const message = `Add a "return" statement to this callback.`;
 

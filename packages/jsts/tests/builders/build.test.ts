@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { setContext, APIError } from '@sonar/shared/index.js';
-import { buildSourceCode } from '../../src/index.js';
+import { setContext, APIError } from '@sonar/shared/index.ts';
+import { buildSourceCode } from '../../src/index.ts';
 import path from 'path';
 import { AST } from 'vue-eslint-parser';
-import { jsTsInput } from '../tools/index.js';
+import { jsTsInput } from '../tools/index.ts';
 describe('buildSourceCode', () => {
   beforeEach(() => {
     setContext({

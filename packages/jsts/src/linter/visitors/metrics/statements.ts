@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { SourceCode } from 'eslint';
-import { visitAndCountIf } from './helpers/index.js';
+import { visitAndCountIf } from './helpers/index.ts';
 
 /**
  * The ESLint statement node types

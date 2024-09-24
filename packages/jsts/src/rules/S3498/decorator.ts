@@ -22,8 +22,8 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
-import { generateMeta, interceptReport } from '../helpers/index.js';
-import { meta } from './meta.js';
+import { generateMeta, interceptReport } from '../helpers/index.ts';
+import { meta } from './meta.ts';
 
 // core implementation of this rule raises issues on aura lightning components
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {

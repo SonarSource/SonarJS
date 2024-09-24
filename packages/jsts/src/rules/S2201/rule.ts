@@ -23,9 +23,9 @@ import type { ParserServicesWithTypeInformation } from '@typescript-eslint/utils
 import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/utils';
 import type { Type } from 'typescript';
 import { Rule } from 'eslint';
-import { generateMeta, getTypeFromTreeNode, isRequiredParserServices } from '../helpers/index.js';
+import { generateMeta, getTypeFromTreeNode, isRequiredParserServices } from '../helpers/index.ts';
 import estree from 'estree';
-import { meta } from './meta.js';
+import { meta } from './meta.ts';
 
 const METHODS_WITHOUT_SIDE_EFFECTS: { [index: string]: Set<string> } = {
   array: new Set([

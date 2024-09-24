@@ -21,10 +21,10 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { getCommentLineNumbers, getLocsNumber } from '../S138/rule.js';
-import { generateMeta } from '../helpers/index.js';
+import { getCommentLineNumbers, getLocsNumber } from '../S138/rule.ts';
+import { generateMeta } from '../helpers/index.ts';
 import { FromSchema } from 'json-schema-to-ts';
-import { meta, schema } from './meta.js';
+import { meta, schema } from './meta.ts';
 
 const DEFAULT = 1000;
 

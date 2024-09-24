@@ -19,13 +19,13 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6329/javascript
 
-import { AwsCdkCheckArguments, AwsCdkTemplate } from '../helpers/aws/cdk.js';
+import { AwsCdkCheckArguments, AwsCdkTemplate } from '../helpers/aws/cdk.ts';
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { Node } from 'estree';
-import { getResultOfExpression, Result } from '../helpers/result.js';
-import { generateMeta, getFullyQualifiedName, isCallingMethod } from '../helpers/index.js';
-import { meta } from './meta.js';
+import { getResultOfExpression, Result } from '../helpers/result.ts';
+import { generateMeta, getFullyQualifiedName, isCallingMethod } from '../helpers/index.ts';
+import { meta } from './meta.ts';
 
 const PROPERTIES_POSITION = 2;
 

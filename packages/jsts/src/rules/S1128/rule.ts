@@ -28,8 +28,8 @@ import {
   isInsideVueSetupScript,
   isRequiredParserServices,
   removeNodeWithLeadingWhitespaces,
-} from '../helpers/index.js';
-import { meta } from './meta.js';
+} from '../helpers/index.ts';
+import { meta } from './meta.ts';
 
 const EXCLUDED_IMPORTS = ['React'];
 const JSDOC_TAGS = [

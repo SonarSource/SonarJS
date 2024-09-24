@@ -21,9 +21,9 @@ import {
   analyzeEmbedded,
   EmbeddedAnalysisInput as YamlAnalysisInput,
   EmbeddedAnalysisOutput as YamlAnalysisOutput,
-} from '@sonar/jsts/index.js';
+} from '@sonar/jsts/index.ts';
 
-import { parseAwsFromYaml } from './aws/index.js';
+import { parseAwsFromYaml } from './aws/index.ts';
 
 export { YamlAnalysisInput, YamlAnalysisOutput };
 

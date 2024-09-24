@@ -36,8 +36,8 @@ import {
   normalizeFQN,
   report,
   S3BucketTemplate,
-} from '../helpers/index.js';
-import { meta } from './meta.js';
+} from '../helpers/index.ts';
+import { meta } from './meta.ts';
 
 const messages = {
   accessLevel: (param: string) => `Make sure granting ${param} access is safe here.`,

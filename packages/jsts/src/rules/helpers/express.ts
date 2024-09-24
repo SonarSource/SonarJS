@@ -27,7 +27,7 @@ import {
   getParent,
   report,
   toSecondaryLocation,
-} from './index.js';
+} from './index.ts';
 
 /**
  * This modules provides utilities for writing rules about Express.js.

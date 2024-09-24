@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import path from 'path';
-import { parseAwsFromYaml } from '../../src/aws/index.js';
-import { APIError, readFile } from '@sonar/shared/index.js';
+import { parseAwsFromYaml } from '../../src/aws/index.ts';
+import { APIError, readFile } from '@sonar/shared/index.ts';
 
 describe('parseAwsFromYaml()', () => {
   it('should parse valid YAML syntax', async () => {

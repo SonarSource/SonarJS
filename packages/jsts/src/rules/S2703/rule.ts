@@ -20,9 +20,9 @@
 // https://sonarsource.github.io/rspec/#/rspec/S2703/javascript
 
 import { Rule } from 'eslint';
-import { flatMap, generateMeta, globalsByLibraries } from '../helpers/index.js';
+import { flatMap, generateMeta, globalsByLibraries } from '../helpers/index.ts';
 import estree from 'estree';
-import { meta } from './meta.js';
+import { meta } from './meta.ts';
 
 const excludedNames = new Set(flatMap(Object.values(globalsByLibraries), globals => globals));
 

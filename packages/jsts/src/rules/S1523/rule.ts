@@ -22,9 +22,9 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { eslintRules } from '../core/index.js';
-import { generateMeta } from '../helpers/index.js';
-import { meta } from './meta.js';
+import { eslintRules } from '../core/index.ts';
+import { generateMeta } from '../helpers/index.ts';
+import { meta } from './meta.ts';
 
 const noScriptUrlRule = eslintRules['no-script-url'];
 

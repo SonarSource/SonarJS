@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export * from './context.js';
-export * from './files.js';
-export * from './logging.js';
-export * from './language.js';
-export * from './escape.js';
+export * from './context.ts';
+export * from './files.ts';
+export * from './logging.ts';
+export * from './language.ts';
+export * from './escape.ts';

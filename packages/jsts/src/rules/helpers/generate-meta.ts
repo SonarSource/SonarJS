@@ -19,7 +19,7 @@
  */
 
 import { Rule } from 'eslint';
-import { SONAR_RUNTIME } from './/index.js';
+import { SONAR_RUNTIME } from './/index.ts';
 
 export function generateMeta(
   rspecMeta: Rule.RuleMetaData,

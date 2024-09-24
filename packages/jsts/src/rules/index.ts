@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import * as originalRules from './original.js';
-import * as decoratedRules from './decorated.js';
-import * as externalRules from './external.js';
+import * as originalRules from './original.ts';
+import * as decoratedRules from './decorated.ts';
+import * as externalRules from './external.ts';
 
 export const rules = {
   ...originalRules,
@@ -28,4 +28,4 @@ export const rules = {
   ...externalRules.rules,
 };
 
-export * from './helpers/index.js';
+export * from './helpers/index.ts';

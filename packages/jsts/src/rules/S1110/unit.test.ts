@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RuleTester } from 'eslint';
-import { rule } from './/index.js';
+import { rule } from './/index.ts';
 
 // @typescript-eslint/parser is required for the type assertion test at the end of this test file
 const tsParserPath = require.resolve('@typescript-eslint/parser');

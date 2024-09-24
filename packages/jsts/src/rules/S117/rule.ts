@@ -22,9 +22,9 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
-import { generateMeta, resolveIdentifiers } from '../helpers/index.js';
+import { generateMeta, resolveIdentifiers } from '../helpers/index.ts';
 import { FromSchema } from 'json-schema-to-ts';
-import { meta, schema } from './meta.js';
+import { meta, schema } from './meta.ts';
 
 interface FunctionLike {
   declare?: boolean;

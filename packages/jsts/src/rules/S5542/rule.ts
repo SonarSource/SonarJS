@@ -21,8 +21,8 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { generateMeta, getFullyQualifiedName, getValueOfExpression } from '../helpers/index.js';
-import { meta } from './meta.js';
+import { generateMeta, getFullyQualifiedName, getValueOfExpression } from '../helpers/index.ts';
+import { meta } from './meta.ts';
 
 const aliases: string[] = [
   'AES128',

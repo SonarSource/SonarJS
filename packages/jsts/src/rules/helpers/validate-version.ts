@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { getNearestPackageJsons } from './package-json.js';
+import { getNearestPackageJsons } from './package-json.ts';
 import * as semver from 'semver';
 
 /**

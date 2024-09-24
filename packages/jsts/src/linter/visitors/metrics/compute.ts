@@ -18,14 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { SourceCode } from 'eslint';
-import { countClasses } from './classes.js';
-import { findCommentLines } from './comments.js';
-import { computeCyclomaticComplexity } from './cyclomatic-complexity.js';
-import { findExecutableLines } from './executable-lines.js';
-import { countFunctions } from './functions.js';
-import { Metrics } from './metrics.js';
-import { findNcloc } from './ncloc.js';
-import { countStatements } from './statements.js';
+import { countClasses } from './classes.ts';
+import { findCommentLines } from './comments.ts';
+import { computeCyclomaticComplexity } from './cyclomatic-complexity.ts';
+import { findExecutableLines } from './executable-lines.ts';
+import { countFunctions } from './functions.ts';
+import { Metrics } from './metrics.ts';
+import { findNcloc } from './ncloc.ts';
+import { countStatements } from './statements.ts';
 
 /**
  * Computes the metrics of an ESLint source code

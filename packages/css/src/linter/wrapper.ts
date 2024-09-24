@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import stylelint from 'stylelint';
-import { transform } from './issues/index.js';
+import { transform } from './issues/index.ts';
 
 /**
  * A wrapper of Stylelint linter

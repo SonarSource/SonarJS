@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { rule } from './rule.js';
-import { JavaScriptRuleTester } from '../../../tests/tools/index.js';
+import { rule } from './rule.ts';
+import { JavaScriptRuleTester } from '../../../tests/tools/index.ts';
 import { RuleTester } from 'eslint';
-import { IssueLocation } from '../helpers/index.js';
+import { IssueLocation } from '../helpers/index.ts';
 
 const ruleTester = new JavaScriptRuleTester();
 

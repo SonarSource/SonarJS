@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Issue } from './issue.js';
-import { rule as cognitiveComplexityRule } from '../custom-rules/cognitive-complexity.js';
-import { rule as symbolHighlightingRule } from '../custom-rules/symbol-highlighting.js';
-import { SymbolHighlight } from '../visitors/index.js';
+import { Issue } from './issue.ts';
+import { rule as cognitiveComplexityRule } from '../custom-rules/cognitive-complexity.ts';
+import { rule as symbolHighlightingRule } from '../custom-rules/symbol-highlighting.ts';
+import { SymbolHighlight } from '../visitors/index.ts';
 
 /**
  * Extracts the symbol highlighting

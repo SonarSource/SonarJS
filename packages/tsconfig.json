@@ -16,7 +16,7 @@
     "skipLibCheck": true,
     "useUnknownInCatchVariables": false,
     "forceConsistentCasingInFileNames": true,
-    "typeRoots": ["../node_modules/@types", "../typings"],
+    "typeRoots": ["../node_modules/@types", "../typings/"],
     "baseUrl": ".",
     "paths": {
       "@sonar/css/*": ["css/src/*"],
@@ -24,7 +24,9 @@
       "@sonar/jsts/*": ["jsts/src/*"],
       "@sonar/shared/*": ["shared/src/*"],
       "@sonar/yaml/*": ["yaml/src/*"]
-    }
+    },
+    "allowImportingTsExtensions": true,
+    "emitDeclarationOnly": true
   },
   "references": [
     {

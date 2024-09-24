@@ -19,7 +19,7 @@
  */
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { getFullyQualifiedName } from '../module.js';
+import { getFullyQualifiedName } from '../module.ts';
 import {
   getProperty,
   getUniqueWriteUsage,
@@ -29,7 +29,7 @@ import {
   isUndefined,
   isUnresolved,
   getValueOfExpression,
-} from '../ast.js';
+} from '../ast.ts';
 
 const AWS_OPTIONS_ARGUMENT_POSITION = 2;
 

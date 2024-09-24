@@ -31,9 +31,9 @@ import {
   mergeRules,
   report,
   toSecondaryLocation,
-} from '../helpers/index.js';
-import { eslintRules } from '../core/index.js';
-import { meta } from './meta.js';
+} from '../helpers/index.ts';
+import { eslintRules } from '../core/index.ts';
+import { meta } from './meta.ts';
 
 const getterReturnRule = eslintRules['getter-return'];
 type AccessorNode = TSESTree.Property | TSESTree.MethodDefinition;

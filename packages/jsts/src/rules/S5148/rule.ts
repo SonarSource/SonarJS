@@ -27,8 +27,8 @@ import {
   isIdentifier,
   isMethodCall,
   isStringLiteral,
-} from '../helpers/index.js';
-import { meta } from './meta.js';
+} from '../helpers/index.ts';
+import { meta } from './meta.ts';
 
 const REQUIRED_OPTION = 'noopener';
 const REQUIRED_OPTION_INDEX = 2;

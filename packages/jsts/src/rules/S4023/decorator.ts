@@ -21,8 +21,8 @@
 
 import { Rule } from 'eslint';
 import { TSESTree } from '@typescript-eslint/utils';
-import { generateMeta, interceptReport, UTILITY_TYPES } from '../helpers/index.js';
-import { meta } from './meta.js';
+import { generateMeta, interceptReport, UTILITY_TYPES } from '../helpers/index.ts';
+import { meta } from './meta.ts';
 
 // core implementation of this rule raises issues on empty interface extending TypeScript utility types
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {

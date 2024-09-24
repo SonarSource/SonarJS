@@ -33,10 +33,10 @@ import {
   report,
   RuleContext,
   toSecondaryLocation,
-} from '../helpers/index.js';
+} from '../helpers/index.ts';
 import { Rule } from 'eslint';
 import estree from 'estree';
-import { meta, schema } from './meta.js';
+import { meta, schema } from './meta.ts';
 import { FromSchema } from 'json-schema-to-ts';
 
 const DEFAULT_THRESHOLD = 15;

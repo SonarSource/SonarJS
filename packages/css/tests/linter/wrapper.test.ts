@@ -19,10 +19,10 @@
  */
 import path from 'path';
 import * as stylelint from 'stylelint';
-import { readFile } from '@sonar/shared/index.js';
-import { createStylelintConfig, LinterWrapper, RuleConfig } from '../../src/linter/index.js';
+import { readFile } from '@sonar/shared/index.ts';
+import { createStylelintConfig, LinterWrapper, RuleConfig } from '../../src/linter/index.ts';
 
-import { rule as S5362 } from '../../src/rules/S5362/index.js';
+import { rule as S5362 } from '../../src/rules/S5362/index.ts';
 
 describe('LinterWrapper', () => {
   it('should lint with a stylelint rule', async () => {

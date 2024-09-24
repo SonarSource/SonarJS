@@ -19,9 +19,9 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S3723/javascript
 
-import { eslintRules } from '../core/index.js';
-import { generateMeta } from '../helpers/index.js';
-import { meta } from './meta.js';
+import { eslintRules } from '../core/index.ts';
+import { generateMeta } from '../helpers/index.ts';
+import { meta } from './meta.ts';
 import { Rule } from 'eslint';
 
 /**

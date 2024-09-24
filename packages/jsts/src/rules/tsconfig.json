@@ -15,10 +15,12 @@
     "skipLibCheck": true,
     "useUnknownInCatchVariables": false,
     "forceConsistentCasingInFileNames": true,
-    "typeRoots": ["./node_modules/@types", "./typings"],
+    "typeRoots": ["./node_modules/@types", "./typings/**/*.d.ts"],
     "baseUrl": ".",
     "composite": true,
-    "allowJs": true
+    "allowJs": true,
+    "allowImportingTsExtensions": true,
+    "emitDeclarationOnly": true
   },
   "include": ["**/*.ts"],
   "exclude": ["**/*.test.ts", "**/*.fixture.*", "**/fixtures"]

@@ -21,7 +21,7 @@ import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
 import { AST } from 'vue-eslint-parser';
-import { convertLocation, extractTokensAndComments, Location } from './metrics/helpers/index.js';
+import { convertLocation, extractTokensAndComments, Location } from './metrics/helpers/index.ts';
 
 /**
  * A symbol highlight

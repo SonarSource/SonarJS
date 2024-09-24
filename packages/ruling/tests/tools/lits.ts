@@ -19,8 +19,8 @@
  */
 import * as fs from 'fs';
 import * as path from 'path';
-import { Issue, JsTsFiles, ProjectAnalysisOutput } from '../../../jsts/src/index.js';
-import { JsTsLanguage } from '../../../shared/src/index.js';
+import { Issue, JsTsFiles, ProjectAnalysisOutput } from '../../../jsts/src/index.ts';
+import { JsTsLanguage } from '../../../shared/src/index.ts';
 
 /**
  * LITS formatted results with extra intermediate key js/ts

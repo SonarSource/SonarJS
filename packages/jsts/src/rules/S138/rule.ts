@@ -32,9 +32,9 @@ import {
   getParent,
   last,
   RuleContext,
-} from '../helpers/index.js';
+} from '../helpers/index.ts';
 import { FromSchema } from 'json-schema-to-ts';
-import { meta, schema } from './meta.js';
+import { meta, schema } from './meta.ts';
 
 interface FunctionKnowledge {
   node: estree.Node;

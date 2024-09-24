@@ -22,8 +22,8 @@
 import { TSESTree } from '@typescript-eslint/utils';
 import { Rule } from 'eslint';
 import { rules as jsxA11yRules } from 'eslint-plugin-jsx-a11y';
-import { generateMeta, interceptReport, mergeRules } from '../helpers/index.js';
-import { meta } from './meta.js';
+import { generateMeta, interceptReport, mergeRules } from '../helpers/index.ts';
+import { meta } from './meta.ts';
 
 const langRule = jsxA11yRules['lang'];
 const htmlHasLangRule = jsxA11yRules['html-has-lang'];

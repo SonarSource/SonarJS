@@ -32,8 +32,8 @@ import {
   normalizeFQN,
   report,
   S3BucketTemplate,
-} from '../helpers/index.js';
-import { meta } from './meta.js';
+} from '../helpers/index.ts';
+import { meta } from './meta.ts';
 
 const BLOCK_PUBLIC_ACCESS_KEY = 'blockPublicAccess';
 const BLOCK_PUBLIC_ACCESS_PROPERTY_KEYS = [

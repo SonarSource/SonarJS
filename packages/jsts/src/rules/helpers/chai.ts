@@ -24,7 +24,7 @@ import {
   getImportDeclarations,
   getRequireCalls,
   isIdentifier,
-} from './index.js';
+} from './index.ts';
 
 export namespace Chai {
   export function isImported(context: Rule.RuleContext): boolean {

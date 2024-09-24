@@ -19,8 +19,8 @@
  */
 import { AST, Rule } from 'eslint';
 import * as estree from 'estree';
-import { generateMeta, interceptReport } from '../helpers/index.js';
-import { meta } from './meta.js';
+import { generateMeta, interceptReport } from '../helpers/index.ts';
+import { meta } from './meta.ts';
 
 type NullableToken = AST.Token | null | undefined;
 type NodeCondition = (context: Rule.RuleContext, node: estree.Node) => boolean;

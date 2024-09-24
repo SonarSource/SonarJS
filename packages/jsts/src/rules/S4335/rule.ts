@@ -23,8 +23,8 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import * as ts from 'typescript';
 import { TSESTree } from '@typescript-eslint/utils';
-import { generateMeta, isRequiredParserServices } from '../helpers/index.js';
-import { meta } from './meta.js';
+import { generateMeta, isRequiredParserServices } from '../helpers/index.ts';
+import { meta } from './meta.ts';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta as Rule.RuleMetaData, {

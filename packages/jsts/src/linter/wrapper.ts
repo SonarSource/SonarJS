@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Linter, SourceCode } from 'eslint';
-import { loadBundles, loadCustomRules } from './bundle-loader.js';
-import { createLinterConfig, RuleConfig } from './config/index.js';
-import { debug, FileType, JsTsLanguage } from '@sonar/shared/index.js';
-import { LintingResult, transformMessages } from './issues/index.js';
-import { CustomRule } from './custom-rules/index.js';
+import { loadBundles, loadCustomRules } from './bundle-loader.ts';
+import { createLinterConfig, RuleConfig } from './config/index.ts';
+import { debug, FileType, JsTsLanguage } from '@sonar/shared/index.ts';
+import { LintingResult, transformMessages } from './issues/index.ts';
+import { CustomRule } from './custom-rules/index.ts';
 
 /**
  * Wrapper's constructor initializer. All the parameters are optional,

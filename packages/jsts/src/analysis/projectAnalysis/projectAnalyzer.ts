@@ -22,21 +22,21 @@ import {
   DEFAULT_GLOBALS,
   ProjectAnalysisInput,
   ProjectAnalysisOutput,
-} from './projectAnalysis.js';
+} from './projectAnalysis.ts';
 import { PackageJson } from 'type-fest';
-import { analyzeWithProgram } from './analyzeWithProgram.js';
-import { analyzeWithWatchProgram } from './analyzeWithWatchProgram.js';
-import { analyzeWithoutProgram } from './analyzeWithoutProgram.js';
-import { initializeLinter } from '../../linter/index.js';
-import { TSCONFIG_JSON, setTSConfigs, getTSConfigsIterator } from '../../program/index.js';
+import { analyzeWithProgram } from './analyzeWithProgram.ts';
+import { analyzeWithWatchProgram } from './analyzeWithWatchProgram.ts';
+import { analyzeWithoutProgram } from './analyzeWithoutProgram.ts';
+import { initializeLinter } from '../../linter/index.ts';
+import { TSCONFIG_JSON, setTSConfigs, getTSConfigsIterator } from '../../program/index.ts';
 import {
   PACKAGE_JSON,
   parsePackageJson,
   setPackageJsons,
   File,
   searchFiles,
-} from '../../rules/helpers/index.js';
-import { toUnixPath } from '@sonar/shared/index.js';
+} from '../../rules/helpers/index.ts';
+import { toUnixPath } from '@sonar/shared/index.ts';
 
 /**
  * Analyzes a JavaScript / TypeScript project in a single run

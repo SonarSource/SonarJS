@@ -23,10 +23,11 @@ import getElementType from 'eslint-plugin-jsx-a11y/lib/util/getElementType.js';
 import * as estree from 'estree';
 import { Rule } from 'eslint';
 import { TSESTree } from '@typescript-eslint/utils';
-import { getLiteralPropValue, getProp } from 'jsx-ast-utils';
-import { computeGrid } from '../helpers/table.js';
-import { generateMeta, isPresentationTable } from '../helpers/index.js';
-import { meta } from './meta.js';
+import getLiteralPropValue from 'jsx-ast-utils/getLiteralPropValue.js';
+import getProp from 'jsx-ast-utils/getProp.js';
+import { computeGrid } from '../helpers/table.ts';
+import { generateMeta, isPresentationTable } from '../helpers/index.ts';
+import { meta } from './meta.ts';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta as Rule.RuleMetaData),

@@ -20,9 +20,9 @@
 // https://sonarsource.github.io/rspec/#/rspec/S1451/javascript
 
 import { Rule } from 'eslint';
-import { generateMeta } from '../helpers/index.js';
+import { generateMeta } from '../helpers/index.ts';
 import { FromSchema } from 'json-schema-to-ts';
-import { meta, schema } from './meta.js';
+import { meta, schema } from './meta.ts';
 
 let cached: {
   headerFormat: string;

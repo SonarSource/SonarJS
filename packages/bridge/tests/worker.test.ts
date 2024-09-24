@@ -19,7 +19,7 @@
  */
 import path from 'path';
 import { Worker } from 'worker_threads';
-import { ErrorCode } from '@sonar/shared/index.js';
+import { ErrorCode } from '@sonar/shared/index.ts';
 
 describe('worker', () => {
   let worker: Worker;

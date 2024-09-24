@@ -21,8 +21,8 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { checkSensitiveCall, generateMeta, getFullyQualifiedName } from '../helpers/index.js';
-import { meta } from './meta.js';
+import { checkSensitiveCall, generateMeta, getFullyQualifiedName } from '../helpers/index.ts';
+import { meta } from './meta.ts';
 
 const MESSAGE = 'Make sure allowing browsers to perform DNS prefetching is safe here.';
 

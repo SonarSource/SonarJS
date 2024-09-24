@@ -29,8 +29,8 @@ import {
   Mocha,
   report,
   toSecondaryLocation,
-} from '../helpers/index.js';
-import { meta } from './meta.js';
+} from '../helpers/index.ts';
+import { meta } from './meta.ts';
 
 const ASSERT_FUNCTIONS = [
   'equal',

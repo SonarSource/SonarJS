@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { buildSourceCode } from '../../src/builders/index.js';
-import { JsTsAnalysisInput } from '../../src/analysis/index.js';
+import { buildSourceCode } from '../../src/builders/index.ts';
+import { JsTsAnalysisInput } from '../../src/analysis/index.ts';
 import path from 'path';
-import { JsTsLanguage, readFile } from '@sonar/shared/index.js';
+import { JsTsLanguage, readFile } from '@sonar/shared/index.ts';
 
 const cases = [
   { syntax: 'ECMAScript 2015', fixture: 'es2015.js', language: 'js' },

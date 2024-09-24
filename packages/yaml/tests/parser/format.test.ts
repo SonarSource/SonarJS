@@ -19,8 +19,8 @@
  */
 import * as yaml from 'yaml';
 import path from 'path';
-import { readFile } from '@sonar/shared/index.js';
-import { isSupportedFormat, SUPPORTED_STRING_FORMATS } from '../../src/parser/index.js';
+import { readFile } from '@sonar/shared/index.ts';
+import { isSupportedFormat, SUPPORTED_STRING_FORMATS } from '../../src/parser/index.ts';
 
 describe('isSupportedFormat', () => {
   const fixtures = path.join(__dirname, 'fixtures', 'format');

@@ -17,20 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { setContext, toUnixPath } from '@sonar/shared/index.js';
+import { setContext, toUnixPath } from '@sonar/shared/index.ts';
 import http from 'http';
 import {
   createAndSaveProgram,
   deserializeProtobuf,
   ProjectAnalysisInput,
   RuleConfig,
-} from '@sonar/jsts/index.js';
+} from '@sonar/jsts/index.ts';
 import path from 'path';
-import { start } from '../src/server.js';
-import { request } from './tools/index.js';
+import { start } from '../src/server.ts';
+import { request } from './tools/index.ts';
 import * as fs from 'fs';
 
-import { rule as S5362 } from '../../css/src/rules/S5362/index.js';
+import { rule as S5362 } from '../../css/src/rules/S5362/index.ts';
 
 describe('router', () => {
   const fixtures = path.join(__dirname, 'fixtures', 'router');

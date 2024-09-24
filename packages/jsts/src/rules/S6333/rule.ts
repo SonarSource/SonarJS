@@ -20,17 +20,17 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6333/javascript
 
 import { Rule } from 'eslint';
-import { AwsCdkCheckArguments, AwsCdkTemplate, normalizeFQN } from '../helpers/aws/cdk.js';
+import { AwsCdkCheckArguments, AwsCdkTemplate, normalizeFQN } from '../helpers/aws/cdk.ts';
 import { CallExpression, MemberExpression, NewExpression, Node } from 'estree';
-import { getResultOfExpression } from '../helpers/result.js';
+import { getResultOfExpression } from '../helpers/result.ts';
 import {
   generateMeta,
   getFullyQualifiedName,
   getUniqueWriteUsageOrNode,
   isMemberWithProperty,
   isMethodCall,
-} from '../helpers/index.js';
-import { meta } from './meta.js';
+} from '../helpers/index.ts';
+import { meta } from './meta.ts';
 
 const REST_API_PROPERTIES_POSITION = 2;
 const RESOURCE_ADD_RESOURCE_PROPERTIES_POSITION = 1;

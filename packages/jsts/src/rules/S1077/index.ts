@@ -18,6 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { rules as jsxA11yRules } from 'eslint-plugin-jsx-a11y';
-import { decorate } from './decorator.js';
+import { decorate } from './decorator.ts';
 
 export const rule = decorate(jsxA11yRules['alt-text']);

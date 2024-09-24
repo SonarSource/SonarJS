@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import Detector from './Detector.js';
-import CamelCaseDetector from './detectors/CamelCaseDetector.js';
-import ContainsDetector from './detectors/ContainsDetector.js';
-import EndWithDetector from './detectors/EndWithDetector.js';
-import KeywordsDetector from './detectors/KeywordsDetector.js';
-import LanguageFootprint from './LanguageFootprint.js';
+import Detector from './Detector.ts';
+import CamelCaseDetector from './detectors/CamelCaseDetector.ts';
+import ContainsDetector from './detectors/ContainsDetector.ts';
+import EndWithDetector from './detectors/EndWithDetector.ts';
+import KeywordsDetector from './detectors/KeywordsDetector.ts';
+import LanguageFootprint from './LanguageFootprint.ts';
 
 export class JavaScriptFootPrint implements LanguageFootprint {
   detectors: Set<Detector> = new Set();

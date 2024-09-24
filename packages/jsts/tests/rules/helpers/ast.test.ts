@@ -21,9 +21,9 @@
 import path from 'path';
 
 import { Linter, Rule } from 'eslint';
-import { getProperty } from '../../../src/rules/index.js';
+import { getProperty } from '../../../src/rules/index.ts';
 
-import { parseJavaScriptSourceFile } from '../../tools/index.js';
+import { parseJavaScriptSourceFile } from '../../tools/index.ts';
 
 describe('getProperty', () => {
   it.each([

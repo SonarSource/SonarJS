@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RuleTester } from 'eslint';
-import { rule } from './/index.js';
-import { IssueLocation } from '../helpers/index.js';
+import { rule } from './/index.ts';
+import { IssueLocation } from '../helpers/index.ts';
 
 const ruleTester = new RuleTester({
   parserOptions: { ecmaVersion: 2018, sourceType: 'module', ecmaFeatures: { jsx: true } },

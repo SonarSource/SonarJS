@@ -23,9 +23,9 @@ import getElementType from 'eslint-plugin-jsx-a11y/lib/util/getElementType.js';
 import * as estree from 'estree';
 import { Rule } from 'eslint';
 import { TSESTree } from '@typescript-eslint/utils';
-import { computeGrid, TableCell } from '../helpers/table.js';
-import { generateMeta } from '../helpers/index.js';
-import { meta } from './meta.js';
+import { computeGrid, TableCell } from '../helpers/table.ts';
+import { generateMeta } from '../helpers/index.ts';
+import { meta } from './meta.ts';
 
 type BlockInfo = {
   minRow: number;

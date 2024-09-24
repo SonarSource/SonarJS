@@ -29,10 +29,10 @@ import {
   isSimpleRawString,
   isStaticTemplateLiteral,
   isStringLiteral,
-} from '..//index.js';
+} from '..//index.ts';
 import { TSESTree } from '@typescript-eslint/utils';
-import { isRegExpConstructor } from './ast.js';
-import { getFlags } from './flags.js';
+import { isRegExpConstructor } from './ast.ts';
+import { getFlags } from './flags.ts';
 
 export function getParsedRegex(
   node: estree.Node,

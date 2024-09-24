@@ -20,10 +20,10 @@
 // https://sonarsource.github.io/rspec/#/rspec/S4423/javascript
 
 import { Rule } from 'eslint';
-import { rule as librariesRule } from './rule.lib.js';
-import { rule as awsRule } from './rule.aws.js';
-import { generateMeta, mergeRules } from '../helpers/index.js';
-import { meta } from './meta.js';
+import { rule as librariesRule } from './rule.lib.ts';
+import { rule as awsRule } from './rule.aws.ts';
+import { generateMeta, mergeRules } from '../helpers/index.ts';
+import { meta } from './meta.ts';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta as Rule.RuleMetaData, {

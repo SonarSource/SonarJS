@@ -20,8 +20,8 @@
 import { TSESTree } from '@typescript-eslint/utils';
 import { type Rule } from 'eslint';
 import { type Node } from 'estree';
-import { generateMeta } from '../helpers/index.js';
-import { meta } from './meta.js';
+import { generateMeta } from '../helpers/index.ts';
+import { meta } from './meta.ts';
 
 const NODES = new Set<string>([
   TSESTree.AST_NODE_TYPES.ArrayExpression,

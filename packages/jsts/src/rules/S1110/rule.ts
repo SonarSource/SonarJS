@@ -21,8 +21,8 @@
 
 import { AST, Rule, SourceCode } from 'eslint';
 import * as estree from 'estree';
-import { generateMeta, getParent, report, toSecondaryLocation } from '../helpers/index.js';
-import { meta } from './meta.js';
+import { generateMeta, getParent, report, toSecondaryLocation } from '../helpers/index.ts';
+import { meta } from './meta.ts';
 
 interface ParenthesesPair {
   openingParenthesis: AST.Token;

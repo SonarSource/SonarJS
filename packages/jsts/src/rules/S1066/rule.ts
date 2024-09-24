@@ -21,9 +21,9 @@
 
 import { Rule } from 'eslint';
 import estree from 'estree';
-import { generateMeta, report, toSecondaryLocation } from '../helpers/index.js';
+import { generateMeta, report, toSecondaryLocation } from '../helpers/index.ts';
 import { AST_NODE_TYPES } from '@typescript-eslint/utils';
-import { meta } from './meta.js';
+import { meta } from './meta.ts';
 
 const message = 'Merge this if statement with the nested one.';
 

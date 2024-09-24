@@ -34,9 +34,9 @@
  */
 
 import { RuleTester } from 'eslint';
-import { encodeContents } from '../../../../src/rules/helpers/index.js';
-import { FileIssues, LineIssues } from './helpers/index.js';
-import { Change, QuickFix } from './helpers/quickfixes.js';
+import { encodeContents } from '../../../../src/rules/helpers/index.ts';
+import { FileIssues, LineIssues } from './helpers/index.ts';
+import { Change, QuickFix } from './helpers/quickfixes.ts';
 
 interface ExpectationsResult {
   errors: RuleTester.TestCaseError[];

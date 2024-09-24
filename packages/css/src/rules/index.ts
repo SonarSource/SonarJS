@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { rule as S125 } from './S125/index.js';
-import { rule as S5362 } from './S5362/index.js';
+import { rule as S125 } from './S125/index.ts';
+import { rule as S5362 } from './S5362/index.ts';
 
 /**
  * The set of internal Stylelint-based rules

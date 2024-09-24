@@ -21,8 +21,8 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { generateMeta, getProperty, getValueOfExpression, isIdentifier } from '../helpers/index.js';
-import { meta } from './meta.js';
+import { generateMeta, getProperty, getValueOfExpression, isIdentifier } from '../helpers/index.ts';
+import { meta } from './meta.ts';
 
 const MINIMAL_MODULUS_LENGTH = 2048;
 const MINIMAL_DIVISOR_LENGTH = 224;

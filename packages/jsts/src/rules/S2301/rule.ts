@@ -28,10 +28,10 @@ import {
   isRequiredParserServices,
   report,
   toSecondaryLocation,
-} from '../helpers/index.js';
+} from '../helpers/index.ts';
 import type { BlockStatement, Node as ESTreeNode } from 'estree';
 import NodeParentExtension = Rule.NodeParentExtension;
-import { meta as rspecMeta } from './meta.js';
+import { meta as rspecMeta } from './meta.ts';
 
 type Node = ESTreeNode & NodeParentExtension;
 

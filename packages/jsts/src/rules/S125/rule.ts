@@ -23,9 +23,9 @@ import { Rule, SourceCode } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
 import * as babel from '@babel/eslint-parser';
-import { generateMeta } from '../helpers/index.js';
-import { meta } from './meta.js';
-import { CodeRecognizer, JavaScriptFootPrint } from '../helpers/recognizers/index.js';
+import { generateMeta } from '../helpers/index.ts';
+import { meta } from './meta.ts';
+import { CodeRecognizer, JavaScriptFootPrint } from '../helpers/recognizers/index.ts';
 
 const EXCLUDED_STATEMENTS = ['BreakStatement', 'LabeledStatement', 'ContinueStatement'];
 

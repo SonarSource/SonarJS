@@ -21,8 +21,8 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { Express, generateMeta, getFullyQualifiedName, getProperty } from '../helpers/index.js';
-import { meta } from './meta.js';
+import { Express, generateMeta, getFullyQualifiedName, getProperty } from '../helpers/index.ts';
+import { meta } from './meta.ts';
 
 const HELMET = 'helmet';
 const HELMET_CSP = 'helmet-csp';

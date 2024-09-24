@@ -21,8 +21,8 @@
 import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/utils';
 import { Rule } from 'eslint';
 import estree from 'estree';
-import { generateMeta } from '../helpers/index.js';
-import { meta } from './meta.js';
+import { generateMeta } from '../helpers/index.ts';
+import { meta } from './meta.ts';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta as Rule.RuleMetaData, {

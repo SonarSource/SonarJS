@@ -1,10 +1,37 @@
-declare module 'jsx-ast-utils' {
-  import { TSESTree } from '@typescript-eslint/utils';
-  export const hasAnyProp: (any, any) => boolean;
-  export const getProp: (
+/*
+ * SonarQube JavaScript Plugin
+ * Copyright (C) 2011-2024 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+declare module 'jsx-ast-utils/hasAnyProp.js' {
+  const hasAnyProp: (any, any) => boolean;
+  export default hasAnyProp;
+}
+
+declare module 'jsx-ast-utils/getProp.js' {
+  const getProp: (
     attributes: (JSXAttribute | JSXSpreadAttribute)[],
-    prop: string,
+    prop?: string,
     options?: any,
   ) => JSXAttribute | undefined;
-  export const getLiteralPropValue: (attributes: JSXAttribute) => unknown;
+  export default getProp;
+}
+
+declare module 'jsx-ast-utils/getLiteralPropValue.js' {
+  const getLiteralPropValue: (attributes: JSXAttribute) => unknown;
+  export default getLiteralPropValue;
 }

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import path from 'path';
-import { toUnixPath } from '@sonar/shared/index.js';
+import { toUnixPath } from '@sonar/shared/index.ts';
 import {
   clearPackageJsons,
   getAllPackageJsons,
@@ -26,7 +26,7 @@ import {
   getPackageJsonsCount,
   isSupported,
   loadPackageJsons,
-} from '../../src/rules/index.js';
+} from '../../src/rules/index.ts';
 
 describe('initialize package.json files', () => {
   const baseDir = path.posix.join(toUnixPath(__dirname), 'fixtures', 'package-json');

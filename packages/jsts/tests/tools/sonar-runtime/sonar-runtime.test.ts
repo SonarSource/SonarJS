@@ -21,11 +21,11 @@ import { Linter } from 'eslint';
 import {
   rule as noMissingSonarRuntimeRule,
   ruleId as noMissingSonarRuntimeRuleId,
-} from './rule/no-missing-sonar-runtime.js';
-import { parseTypeScriptSourceFile } from '../helpers/index.js';
+} from './rule/no-missing-sonar-runtime.ts';
+import { parseTypeScriptSourceFile } from '../helpers/index.ts';
 import path from 'path';
 import { readdir } from 'fs/promises';
-import { fileReadable } from '@sonar/shared/index.js';
+import { fileReadable } from '@sonar/shared/index.ts';
 
 /**
  * Detects missing secondary location support for rules using secondary locations.

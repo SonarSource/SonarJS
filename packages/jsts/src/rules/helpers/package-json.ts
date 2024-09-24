@@ -19,8 +19,8 @@
  */
 import Path from 'path/posix';
 import { type PackageJson } from 'type-fest';
-import { searchFiles, File } from './find-files.js';
-import { toUnixPath } from './files.js';
+import { searchFiles, File } from './find-files.ts';
+import { toUnixPath } from './files.ts';
 import { Minimatch } from 'minimatch';
 
 export const PACKAGE_JSON = 'package.json';

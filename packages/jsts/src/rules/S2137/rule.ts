@@ -21,8 +21,8 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { generateMeta, globalsByLibraries } from '../helpers/index.js';
-import { meta } from './meta.js';
+import { generateMeta, globalsByLibraries } from '../helpers/index.ts';
+import { meta } from './meta.ts';
 
 const illegalNames = ['arguments'];
 const objectPrototypeProperties = [

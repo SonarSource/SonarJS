@@ -21,9 +21,9 @@ import {
   extractCognitiveComplexity,
   extractHighlightedSymbols,
   Issue,
-} from '../../../src/linter/issues/index.js';
-import { rule as cognitiveComplexityRule } from '../../../src/linter/custom-rules/cognitive-complexity.js';
-import { rule as symbolHighlightingRule } from '../../../src/linter/custom-rules/symbol-highlighting.js';
+} from '../../../src/linter/issues/index.ts';
+import { rule as cognitiveComplexityRule } from '../../../src/linter/custom-rules/cognitive-complexity.ts';
+import { rule as symbolHighlightingRule } from '../../../src/linter/custom-rules/symbol-highlighting.ts';
 
 describe('extract', () => {
   it('should extract highlighted symbols', () => {

@@ -22,8 +22,8 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { isIP } from 'net';
-import { generateMeta } from '../helpers/index.js';
-import { meta } from './meta.js';
+import { generateMeta } from '../helpers/index.ts';
+import { meta } from './meta.ts';
 
 const netMaskRegex = /(^[^/]+)\/\d{1,3}$/;
 const acceptedIpAddresses = ['255.255.255.255', '::1', '::', '0:0:0:0:0:0:0:1', '0:0:0:0:0:0:0:0'];

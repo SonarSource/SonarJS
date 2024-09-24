@@ -18,7 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { getProp, getLiteralPropValue } from 'jsx-ast-utils';
+import getProp from 'jsx-ast-utils/getProp.js';
+import getLiteralPropValue from 'jsx-ast-utils/getProp.js';
 import getElementType from 'eslint-plugin-jsx-a11y/lib/util/getElementType.js';
 import { TSESTree } from '@typescript-eslint/utils';
 import { Rule } from 'eslint';

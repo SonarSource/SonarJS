@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { addLines } from '../../../../../src/linter/visitors/metrics/helpers/index.js';
+import { addLines } from '../../../../../src/linter/visitors/metrics/helpers/index.ts';
 
 describe('addLines', () => {
   it('should add lines within a range', () => {

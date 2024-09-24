@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { QuickFix } from '../quickfixes/index.js';
-import { Location } from './location.js';
+import { QuickFix } from '../quickfixes/index.ts';
+import { Location } from './location.ts';
 
 /**
  * A SonarQube-compatible source code issue

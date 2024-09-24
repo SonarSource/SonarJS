@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { findExecutableLines } from '../../../../src/linter/visitors/metrics/executable-lines.js';
+import { findExecutableLines } from '../../../../src/linter/visitors/metrics/executable-lines.ts';
 import path from 'path';
-import { parseTypeScriptSourceFile } from '../../../tools/index.js';
+import { parseTypeScriptSourceFile } from '../../../tools/index.ts';
 
 describe('findExecutableLines', () => {
   it('should find the number of executable lines', async () => {

@@ -27,10 +27,10 @@ import {
   generateMeta,
   isIdentifier,
   isReferenceTo,
-} from '../helpers/index.js';
+} from '../helpers/index.ts';
 import { Rule, Scope } from 'eslint';
 import estree from 'estree';
-import { meta } from './meta.js';
+import { meta } from './meta.ts';
 
 // Methods that mutate the collection but can't add elements
 const nonAdditiveMutatorMethods = [

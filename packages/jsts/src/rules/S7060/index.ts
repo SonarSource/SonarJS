@@ -19,6 +19,6 @@
  */
 
 import { rules as importRules } from 'eslint-plugin-import';
-import { decorate } from './decorator.js';
+import { decorate } from './decorator.ts';
 
 export const rule = decorate(importRules['no-self-import']);

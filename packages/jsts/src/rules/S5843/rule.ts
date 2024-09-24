@@ -50,9 +50,9 @@ import {
   getRegexpRange,
   isRegExpConstructor,
   isStringRegexMethodCall,
-} from '../helpers/index.js';
+} from '../helpers/index.ts';
 import { FromSchema } from 'json-schema-to-ts';
-import { meta, schema } from './meta.js';
+import { meta, schema } from './meta.ts';
 
 const DEFAULT_THRESHOLD = 20;
 

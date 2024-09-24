@@ -21,10 +21,10 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import * as regexpp from '@eslint-community/regexpp';
 import type { RegExpVisitor } from '@eslint-community/regexpp/visitor';
-import { isStringRegexMethodCall } from './ast.js';
-import { getParsedRegex } from './extract.js';
-import { getRegexpLocation } from './location.js';
-import { isRequiredParserServices, IssueLocation, report } from '../index.js';
+import { isStringRegexMethodCall } from './ast.ts';
+import { getParsedRegex } from './extract.ts';
+import { getRegexpLocation } from './location.ts';
+import { isRequiredParserServices, IssueLocation, report } from '../index.ts';
 
 /**
  * Rule context for regex rules that also includes the original ESLint node

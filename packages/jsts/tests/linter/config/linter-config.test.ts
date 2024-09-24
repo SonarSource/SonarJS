@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Rule } from 'eslint';
-import { setContext } from '@sonar/shared/index.js';
-import { createLinterConfig, RuleConfig } from '../../../src/linter/index.js';
+import { setContext } from '@sonar/shared/index.ts';
+import { createLinterConfig, RuleConfig } from '../../../src/linter/index.ts';
 
 describe('createLinterConfig', () => {
   beforeEach(() => {

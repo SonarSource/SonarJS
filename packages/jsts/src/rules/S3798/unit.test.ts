@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RuleTester } from 'eslint';
-import { BabelRuleTester } from '../../../tests/tools/index.js';
-import { rule } from './/index.js';
+import { BabelRuleTester } from '../../../tests/tools/index.ts';
+import { rule } from './/index.ts';
 
-const tsParserPath = require.resolve('@typescript-eslint/parser');
+import tsParserPath from '@typescript-eslint/parser';
 const ruleTester = new RuleTester({
   parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
   parser: tsParserPath,

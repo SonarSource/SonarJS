@@ -20,10 +20,10 @@
 // https://sonarsource.github.io/rspec/#/rspec/S3626
 
 import type { TSESTree } from '@typescript-eslint/utils';
-import { generateMeta, RuleContext } from '../helpers/index.js';
+import { generateMeta, RuleContext } from '../helpers/index.ts';
 import { Rule } from 'eslint';
 import estree from 'estree';
-import { meta } from './meta.js';
+import { meta } from './meta.ts';
 
 const loops = 'WhileStatement, ForStatement, DoWhileStatement, ForInStatement, ForOfStatement';
 

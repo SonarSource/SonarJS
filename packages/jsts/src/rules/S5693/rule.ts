@@ -21,7 +21,7 @@
 
 import { Rule, Scope } from 'eslint';
 import * as estree from 'estree';
-import { getVariablePropertyFromAssignment } from '../S2598/rule.js';
+import { getVariablePropertyFromAssignment } from '../S2598/rule.ts';
 import { parse } from 'bytes';
 import {
   generateMeta,
@@ -29,9 +29,9 @@ import {
   getLhsVariable,
   getProperty,
   getValueOfExpression,
-} from '../helpers/index.js';
+} from '../helpers/index.ts';
 import { FromSchema } from 'json-schema-to-ts';
-import { meta, schema } from './meta.js';
+import { meta, schema } from './meta.ts';
 
 const FORMIDABLE_MODULE = 'formidable';
 const MAX_FILE_SIZE = 'maxFileSize';

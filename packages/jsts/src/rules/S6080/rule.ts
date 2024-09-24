@@ -30,8 +30,8 @@ import {
   isNumberLiteral,
   isThisExpression,
   Mocha,
-} from '../helpers/index.js';
-import { meta } from './meta.js';
+} from '../helpers/index.ts';
+import { meta } from './meta.ts';
 
 const MESSAGE =
   'Set this timeout to 0 if you want to disable it, otherwise use a value lower than 2147483648.';

@@ -24,7 +24,7 @@ import {
   getImportDeclarations,
   getUniqueWriteUsage,
   isIdentifier,
-} from '../../../../src/rules/index.js';
+} from '../../../../src/rules/index.ts';
 
 /**
  *

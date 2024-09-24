@@ -28,7 +28,7 @@ import {
   FullyQualifiedName,
   getLiteralValue,
   normalizeFQN,
-} from '../helpers/aws/cdk.js';
+} from '../helpers/aws/cdk.ts';
 import {
   generateMeta,
   getFullyQualifiedName,
@@ -38,8 +38,8 @@ import {
   isUndefined,
   isUnresolved,
   reduceToIdentifier,
-} from '../helpers/index.js';
-import { meta } from './meta.js';
+} from '../helpers/index.ts';
+import { meta } from './meta.ts';
 
 const TYPES_WITH_CONNECTIONS = [
   'aws_cdk_lib.aws_docdb.DatabaseCluster.connections',

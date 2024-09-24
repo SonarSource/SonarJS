@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { BabelRuleTester, TypeScriptRuleTester } from '../../../tests/tools/index.js';
-import { rule } from './/index.js';
+import { BabelRuleTester, TypeScriptRuleTester } from '../../../tests/tools/index.ts';
+import { rule } from './/index.ts';
 
 const babelRuleTester = BabelRuleTester();
 

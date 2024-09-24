@@ -21,15 +21,15 @@
 
 import { Rule } from 'eslint';
 import { Node } from 'estree';
-import { getResultOfExpression, Result } from '../helpers/result.js';
+import { getResultOfExpression, Result } from '../helpers/result.ts';
 import {
   AwsIamPolicyTemplate,
   getSensitiveEffect,
   isAnyLiteral,
   PolicyCheckerOptions,
-} from '../helpers/aws/iam.js';
-import { generateMeta, report, toSecondaryLocation } from '../helpers/index.js';
-import { meta } from './meta.js';
+} from '../helpers/aws/iam.ts';
+import { generateMeta, report, toSecondaryLocation } from '../helpers/index.ts';
+import { meta } from './meta.ts';
 
 const MESSAGES = {
   message: 'Make sure granting all privileges is safe here.',

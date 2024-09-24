@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { analyzeCSS, CssAnalysisInput } from '../../src/analysis/index.js';
-import { RuleConfig } from '../../src/linter/index.js';
+import { analyzeCSS, CssAnalysisInput } from '../../src/analysis/index.ts';
+import { RuleConfig } from '../../src/linter/index.ts';
 import path from 'path';
-import { readFile } from '@sonar/shared/index.js';
+import { readFile } from '@sonar/shared/index.ts';
 
 const rules = [{ key: 'block-no-empty', configurations: [] }];
 

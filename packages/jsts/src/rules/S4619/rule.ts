@@ -21,9 +21,9 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { generateMeta, isArray, isNumber, isRequiredParserServices } from '../helpers/index.js';
+import { generateMeta, isArray, isNumber, isRequiredParserServices } from '../helpers/index.ts';
 import { TSESTree } from '@typescript-eslint/utils';
-import { meta } from './meta.js';
+import { meta } from './meta.ts';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta as Rule.RuleMetaData, {

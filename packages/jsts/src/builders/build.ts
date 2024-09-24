@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { debug, getContext, JsTsLanguage } from '@sonar/shared/index.js';
-import { JsTsAnalysisInput } from '../analysis/index.js';
-import { buildParserOptions, parseForESLint, parsers } from '../parsers/index.js';
-import { getProgramById } from '../program/index.js';
+import { debug, getContext, JsTsLanguage } from '@sonar/shared/index.ts';
+import { JsTsAnalysisInput } from '../analysis/index.ts';
+import { buildParserOptions, parseForESLint, parsers } from '../parsers/index.ts';
+import { getProgramById } from '../program/index.ts';
 import { Linter } from 'eslint';
 
 /**

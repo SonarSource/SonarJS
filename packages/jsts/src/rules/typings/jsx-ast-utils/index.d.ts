@@ -17,13 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-declare module 'jsx-ast-utils' {
-  import { TSESTree } from '@typescript-eslint/utils';
-  export const hasAnyProp: (any, any) => boolean;
-  export const getProp: (
+declare module 'jsx-ast-utils/hasAnyProp.js' {
+  const hasAnyProp: (any, any) => boolean;
+  export default hasAnyProp;
+}
+
+declare module 'jsx-ast-utils/getProp.js' {
+  const getProp: (
     attributes: (JSXAttribute | JSXSpreadAttribute)[],
-    prop: string,
+    prop?: string,
     options?: any,
   ) => JSXAttribute | undefined;
-  export const getLiteralPropValue: (attributes: JSXAttribute) => unknown;
+  export default getProp;
+}
+
+declare module 'jsx-ast-utils/getLiteralPropValue.js' {
+  const getLiteralPropValue: (attributes: JSXAttribute) => unknown;
+  export default getLiteralPropValue;
 }

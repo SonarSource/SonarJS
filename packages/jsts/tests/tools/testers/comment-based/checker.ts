@@ -20,10 +20,10 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { Rule, RuleTester } from 'eslint';
-import { hasSonarRuntimeOption } from '../../../../src/linter/parameters/index.js';
-import { buildSourceCode } from '../../../../src/builders/index.js';
-import { FileType, JsTsLanguage } from '@sonar/shared/index.js';
-import { extractExpectations } from './framework.js';
+import { hasSonarRuntimeOption } from '../../../../src/linter/parameters/index.ts';
+import { buildSourceCode } from '../../../../src/builders/index.ts';
+import { FileType, JsTsLanguage } from '@sonar/shared/index.ts';
+import { extractExpectations } from './framework.ts';
 
 /**
  * Loading this file's `parseForESLint()` function into ESLint's rule tester.

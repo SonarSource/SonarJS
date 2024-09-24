@@ -21,9 +21,9 @@
 
 import { AST, Rule } from 'eslint';
 import * as estree from 'estree';
-import { generateMeta, last, report, toSecondaryLocation } from '../helpers/index.js';
+import { generateMeta, last, report, toSecondaryLocation } from '../helpers/index.ts';
 import { FromSchema } from 'json-schema-to-ts';
-import { meta, schema } from './meta.js';
+import { meta, schema } from './meta.ts';
 
 const DEFAULT_MAXIMUM_NESTING_LEVEL = 3;
 

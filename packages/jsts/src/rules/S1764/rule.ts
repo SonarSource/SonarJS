@@ -28,9 +28,9 @@ import {
   IssueLocation,
   report,
   toSecondaryLocation,
-} from '../helpers/index.js';
+} from '../helpers/index.ts';
 import { Rule } from 'eslint';
-import { meta } from './meta.js';
+import { meta } from './meta.ts';
 
 const EQUALITY_OPERATOR_TOKEN_KINDS = new Set(['==', '===', '!=', '!==']);
 

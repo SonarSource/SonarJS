@@ -26,8 +26,8 @@ import {
   getFullyQualifiedName,
   getUniqueWriteUsageOrNode,
   isStringLiteral,
-} from '../helpers/index.js';
-import { meta } from './meta.js';
+} from '../helpers/index.ts';
+import { meta } from './meta.ts';
 
 const message = 'Make sure this weak hash algorithm is not used in a sensitive context here.';
 const CRYPTO_UNSECURE_HASH_ALGORITHMS = new Set([

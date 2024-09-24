@@ -36,8 +36,8 @@ import {
   report,
   RuleContext,
   toSecondaryLocation,
-} from '../helpers/index.js';
-import { meta } from './meta.js';
+} from '../helpers/index.ts';
+import { meta } from './meta.ts';
 
 class FunctionScope {
   private readonly returnStatements: estree.ReturnStatement[] = [];

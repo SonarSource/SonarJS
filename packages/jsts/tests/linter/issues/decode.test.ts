@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Issue } from '../../../src/linter/issues/index.js';
-import { decodeSonarRuntime } from '../../../src/linter/issues/decode.js';
-import { SONAR_RUNTIME } from '../../../src/linter/parameters/index.js';
+import { Issue } from '../../../src/linter/issues/index.ts';
+import { decodeSonarRuntime } from '../../../src/linter/issues/decode.ts';
+import { SONAR_RUNTIME } from '../../../src/linter/parameters/index.ts';
 
 describe('decodeSonarRuntime', () => {
   it('should decode sonar-runtime-like issues', () => {

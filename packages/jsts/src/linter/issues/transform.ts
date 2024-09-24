@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Linter, Rule, SourceCode } from 'eslint';
-import { decodeSonarRuntime } from './decode.js';
-import { Issue } from './issue.js';
-import { convertMessage } from './message.js';
-import { extractCognitiveComplexity, extractHighlightedSymbols } from './extract.js';
-import { SymbolHighlight } from '../visitors/index.js';
+import { decodeSonarRuntime } from './decode.ts';
+import { Issue } from './issue.ts';
+import { convertMessage } from './message.ts';
+import { extractCognitiveComplexity, extractHighlightedSymbols } from './extract.ts';
+import { SymbolHighlight } from '../visitors/index.ts';
 
 /**
  * The result of linting a source code

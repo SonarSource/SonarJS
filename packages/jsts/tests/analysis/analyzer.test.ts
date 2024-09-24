@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import path from 'path';
-import { setContext, toUnixPath, APIError } from '@sonar/shared/index.js';
+import { setContext, toUnixPath, APIError } from '@sonar/shared/index.ts';
 import {
   initializeLinter,
   RuleConfig,
@@ -26,10 +26,10 @@ import {
   JsTsAnalysisOutput,
   createAndSaveProgram,
   deserializeProtobuf,
-} from '../../src/index.js';
-import { jsTsInput, parseJavaScriptSourceFile } from '../tools/index.js';
+} from '../../src/index.ts';
+import { jsTsInput, parseJavaScriptSourceFile } from '../tools/index.ts';
 import { Linter, Rule } from 'eslint';
-import { getNearestPackageJsons, loadPackageJsons } from '../../src/rules/index.js';
+import { getNearestPackageJsons, loadPackageJsons } from '../../src/rules/index.ts';
 describe('analyzeJSTS', () => {
   beforeEach(() => {
     jest.resetModules();

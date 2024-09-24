@@ -23,8 +23,8 @@ import {
   AnalysisInput,
   AnalysisOutput,
   ErrorCode,
-} from '@sonar/shared/index.js';
-import { CpdToken, Issue, Metrics, SymbolHighlight, SyntaxHighlight } from '../linter/index.js';
+} from '@sonar/shared/index.ts';
+import { CpdToken, Issue, Metrics, SymbolHighlight, SyntaxHighlight } from '../linter/index.ts';
 
 /**
  *

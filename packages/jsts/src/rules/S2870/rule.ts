@@ -21,8 +21,8 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { generateMeta, getParent, isArray, isRequiredParserServices } from '../helpers/index.js';
-import { meta } from './meta.js';
+import { generateMeta, getParent, isArray, isRequiredParserServices } from '../helpers/index.ts';
+import { meta } from './meta.ts';
 
 const ArrayDeleteExpression =
   "UnaryExpression[operator='delete'] > MemberExpression[computed=true]";

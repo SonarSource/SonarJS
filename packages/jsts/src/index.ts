@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export * from './analysis/index.js';
-export * from './builders/index.js';
-export * from './linter/index.js';
-export * from './parsers/index.js';
-export * from './program/index.js';
-export * from './rules/index.js';
-export * from './embedded/index.js';
+export * from './analysis/index.ts';
+export * from './builders/index.ts';
+export * from './linter/index.ts';
+export * from './parsers/index.ts';
+export * from './program/index.ts';
+export * from './rules/index.ts';
+export * from './embedded/index.ts';

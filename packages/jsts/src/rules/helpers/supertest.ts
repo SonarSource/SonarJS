@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Rule } from 'eslint';
-import { getFullyQualifiedName, getImportDeclarations, getRequireCalls } from './index.js';
+import { getFullyQualifiedName, getImportDeclarations, getRequireCalls } from './index.ts';
 import * as estree from 'estree';
 
 export namespace Supertest {

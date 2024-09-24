@@ -20,10 +20,10 @@
 // https://sonarsource.github.io/rspec/#/rspec/S4138/javascript
 
 import { AST, Rule, Scope } from 'eslint';
-import { generateMeta, interceptReport } from '../helpers/index.js';
+import { generateMeta, interceptReport } from '../helpers/index.ts';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
-import { meta } from './meta.js';
+import { meta } from './meta.ts';
 
 const element = 'element';
 

@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { check } from '../../../tests/tools/index.js';
-import { rule } from './/index.js';
+import { check } from '../../../tests/tools/index.ts';
+import { rule } from './/index.ts';
 import path from 'path';
-import { clearPackageJsons, loadPackageJsons } from '../helpers/package-json.js';
+import { clearPackageJsons, loadPackageJsons } from '../helpers/package-json.ts';
 
 const sonarId = path.basename(__dirname);
 

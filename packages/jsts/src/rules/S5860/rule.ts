@@ -44,16 +44,16 @@ import {
   report,
   RequiredParserServices,
   toSecondaryLocation,
-} from '../helpers/index.js';
+} from '../helpers/index.ts';
 import {
   extractReferences,
   getParsedRegex,
   getRegexpLocation,
   isStringRegexMethodCall,
   isStringReplaceCall,
-} from '../helpers/regex/index.js';
+} from '../helpers/regex/index.ts';
 import { TSESTree } from '@typescript-eslint/utils';
-import { meta } from './meta.js';
+import { meta } from './meta.ts';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta as Rule.RuleMetaData, undefined, true),

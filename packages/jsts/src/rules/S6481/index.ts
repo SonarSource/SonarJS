@@ -18,6 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { rules } from 'eslint-plugin-react';
-import { decorate } from './decorator.js';
+import { decorate } from './decorator.ts';
 
 export const rule = decorate(rules['jsx-no-constructed-context-values']);

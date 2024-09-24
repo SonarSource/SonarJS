@@ -19,10 +19,10 @@
  */
 import { CallExpression, NewExpression, Node } from 'estree';
 import { Rule } from 'eslint';
-import { AwsCdkTemplate, normalizeFQN } from './cdk.js';
-import { getResultOfExpression, Result } from '../result.js';
-import { flattenArgs, isStringLiteral, StringLiteral } from '../ast.js';
-import { getFullyQualifiedName } from '../module.js';
+import { AwsCdkTemplate, normalizeFQN } from './cdk.ts';
+import { getResultOfExpression, Result } from '../result.ts';
+import { flattenArgs, isStringLiteral, StringLiteral } from '../ast.ts';
+import { getFullyQualifiedName } from '../module.ts';
 
 export interface PolicyCheckerOptions {
   effect: {

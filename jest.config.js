@@ -1,17 +1,19 @@
 /** @type {import('jest').Config} */
+
 const config = {
+  extensionsToTreatAsEsm: ['.ts', '.d.ts'],
   collectCoverageFrom: ['packages/*/src/**/*.ts'],
   coveragePathIgnorePatterns: ['.fixture.', '/fixtures/'],
-  moduleFileExtensions: ['js', 'ts', 'json'],
+  moduleFileExtensions: ['js', 'ts', 'json', 'd.ts'],
   moduleDirectories: ['node_modules', '<rootDir>packages/*/tests/**/fixtures'],
   moduleNameMapper: {
     '^@sonar/(\\w+)(.*)$': '<rootDir>/packages/$1/src$2',
   },
   modulePathIgnorePatterns: ['<rootDir>/packages/jsts/src/rules/.*/package.json$', '<rootDir>/its'],
-  resolver: '<rootDir>/jest-resolver.js',
+  // resolver: '<rootDir>/jest-resolver.js',
   testResultsProcessor: 'jest-sonar-reporter',
   transform: {
-    '^.+\\.ts$': ['ts-jest', { tsconfig: 'packages/tsconfig.test.json' }],
+    '^.+\\.ts$': ['ts-jest', { tsconfig: 'packages/tsconfig.test.json', useESM: true }],
   },
   testMatch: [
     '<rootDir>/packages/*/tests/**/*.test.ts',
@@ -21,4 +23,4 @@ const config = {
   testTimeout: 20000,
 };
 
-module.exports = config;
+export default config;

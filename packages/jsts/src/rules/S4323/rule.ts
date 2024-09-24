@@ -22,8 +22,8 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
-import { generateMeta, report, toSecondaryLocation } from '../helpers/index.js';
-import { meta } from './meta.js';
+import { generateMeta, report, toSecondaryLocation } from '../helpers/index.ts';
+import { meta } from './meta.ts';
 
 const TYPE_THRESHOLD = 2;
 const USAGE_THRESHOLD = 2;

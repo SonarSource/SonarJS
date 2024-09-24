@@ -19,7 +19,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S4156/javascript
 
-import { tsEslintRules as rules } from '../typescript-eslint/index.js';
-import { decorate } from './decorator.js';
+import { tsEslintRules as rules } from '../typescript-eslint/index.ts';
+import { decorate } from './decorator.ts';
 
 export const rule = decorate(rules['prefer-namespace-keyword']);

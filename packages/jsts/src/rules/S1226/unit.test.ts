@@ -19,7 +19,7 @@
  */
 import { RuleTester } from 'eslint';
 
-import { rule } from './/index.js';
+import { rule } from './/index.ts';
 
 const tsParserPath = require.resolve('@typescript-eslint/parser');
 const ruleTester = new RuleTester({

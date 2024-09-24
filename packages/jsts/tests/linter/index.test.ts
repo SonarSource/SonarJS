@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import path from 'path';
-import { setContext } from '@sonar/shared/index.js';
-import { initializeLinter, getLinter, LinterWrapper } from '@sonar/jsts/index.js';
-import { parseJavaScriptSourceFile } from '../tools/index.js';
+import { setContext } from '@sonar/shared/index.ts';
+import { initializeLinter, getLinter, LinterWrapper } from '@sonar/jsts/index.ts';
+import { parseJavaScriptSourceFile } from '../tools/index.ts';
 
 describe('initializeLinter', () => {
   beforeEach(() => {

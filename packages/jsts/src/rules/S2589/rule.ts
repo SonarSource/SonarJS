@@ -28,9 +28,9 @@ import {
   report,
   RuleContext,
   toSecondaryLocation,
-} from '../helpers/index.js';
+} from '../helpers/index.ts';
 import estree from 'estree';
-import { meta } from './meta.js';
+import { meta } from './meta.ts';
 
 const message = 'This always evaluates to {{value}}. Consider refactoring this code.';
 

@@ -33,9 +33,9 @@ import {
   report,
   resolveFunction,
   toSecondaryLocation,
-} from '../helpers/index.js';
+} from '../helpers/index.ts';
 import { TSESTree } from '@typescript-eslint/utils';
-import { meta } from './meta.js';
+import { meta } from './meta.ts';
 
 const MESSAGE = `Make sure that enabling CORS is safe here.`;
 const SECONDARY_MESSAGE = 'Sensitive configuration';

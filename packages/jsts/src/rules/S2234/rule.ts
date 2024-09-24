@@ -33,8 +33,8 @@ import {
   resolveFromFunctionReference,
   resolveIdentifiers,
   toSecondaryLocation,
-} from '../helpers/index.js';
-import { meta } from './meta.js';
+} from '../helpers/index.ts';
+import { meta } from './meta.ts';
 
 interface FunctionSignature {
   params: Array<string | undefined>;

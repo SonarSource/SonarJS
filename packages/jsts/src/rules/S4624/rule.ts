@@ -20,10 +20,10 @@
 // https://sonarsource.github.io/rspec/#/rspec/S4624
 
 import type { TSESTree } from '@typescript-eslint/utils';
-import { ancestorsChain, generateMeta } from '../helpers/index.js';
+import { ancestorsChain, generateMeta } from '../helpers/index.ts';
 import { Rule } from 'eslint';
 import estree from 'estree';
-import { meta } from './meta.js';
+import { meta } from './meta.ts';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta as Rule.RuleMetaData, {

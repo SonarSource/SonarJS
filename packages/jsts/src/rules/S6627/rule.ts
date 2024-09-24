@@ -21,8 +21,8 @@
 
 import { Rule } from 'eslint';
 import estree from 'estree';
-import { generateMeta, isRequire, isStringLiteral } from '../helpers/index.js';
-import { meta } from './meta.js';
+import { generateMeta, isRequire, isStringLiteral } from '../helpers/index.ts';
+import { meta } from './meta.ts';
 
 const messages = {
   default: 'Do not use internal APIs of your dependencies',

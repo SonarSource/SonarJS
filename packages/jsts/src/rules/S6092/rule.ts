@@ -20,9 +20,9 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6092/javascript
 
 import { Rule } from 'eslint';
-import { Chai, generateMeta, isDotNotation, isIdentifier } from '../helpers/index.js';
+import { Chai, generateMeta, isDotNotation, isIdentifier } from '../helpers/index.ts';
 import * as estree from 'estree';
-import { meta } from './meta.js';
+import { meta } from './meta.ts';
 
 const message = 'Refactor this uncertain assertion; it can succeed for multiple reasons.';
 

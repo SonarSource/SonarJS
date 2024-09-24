@@ -20,9 +20,9 @@
 // https://sonarsource.github.io/rspec/#/rspec/S1134/javascript
 
 import { Rule } from 'eslint';
-import { reportPatternInComment } from '../S1135/rule.js';
-import { generateMeta } from '../helpers/index.js';
-import { meta } from './meta.js';
+import { reportPatternInComment } from '../S1135/rule.ts';
+import { generateMeta } from '../helpers/index.ts';
+import { meta } from './meta.ts';
 
 const fixmePattern = 'fixme';
 

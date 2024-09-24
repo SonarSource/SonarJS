@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Range } from './ranges.js';
-import { FileIssues } from './file.js';
-import { Comment } from './comments.js';
+import { Range } from './ranges.ts';
+import { FileIssues } from './file.ts';
+import { Comment } from './comments.ts';
 
 export const LINE_ADJUSTMENT = '(?:@(?<lineAdjustment>(?<relativeAdjustment>[+-])?\\d+))?';
 

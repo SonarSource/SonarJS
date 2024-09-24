@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { findCommentLines } from '../../../../src/linter/visitors/metrics/comments.js';
+import { findCommentLines } from '../../../../src/linter/visitors/metrics/comments.ts';
 import path from 'path';
-import { parseJavaScriptSourceFile } from '../../../tools/helpers/index.js';
+import { parseJavaScriptSourceFile } from '../../../tools/helpers/index.ts';
 
 const cases = [
   {

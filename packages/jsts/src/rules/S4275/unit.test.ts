@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { rule } from './/index.js';
+import { rule } from './index.ts';
 import { RuleTester } from 'eslint';
 
-const tsParserPath = require.resolve('@typescript-eslint/parser');
+import tsParserPath from '@typescript-eslint/parser';
 const ruleTester = new RuleTester({
   parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
   parser: tsParserPath,

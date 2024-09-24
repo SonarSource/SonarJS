@@ -21,9 +21,9 @@
 
 import type { TSESLint, TSESTree } from '@typescript-eslint/utils';
 import { AST, Rule } from 'eslint';
-import { generateMeta, report, toSecondaryLocation } from '../helpers/index.js';
+import { generateMeta, report, toSecondaryLocation } from '../helpers/index.ts';
 import estree from 'estree';
-import { meta } from './meta.js';
+import { meta } from './meta.ts';
 
 const message = 'Move this "if" to a new line or add the missing "else".';
 

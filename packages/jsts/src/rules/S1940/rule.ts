@@ -22,8 +22,8 @@
 import { Rule } from 'eslint';
 import estree from 'estree';
 import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/utils';
-import { generateMeta } from '../helpers/index.js';
-import { meta } from './meta.js';
+import { generateMeta } from '../helpers/index.ts';
+import { meta } from './meta.ts';
 
 const invertedOperators: { [operator: string]: string } = {
   '==': '!=',

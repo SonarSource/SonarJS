@@ -20,7 +20,7 @@
 import fs from 'fs';
 import path from 'path';
 import { Minimatch } from 'minimatch';
-import { toUnixPath, readFileSync } from './files.js';
+import { toUnixPath, readFileSync } from './files.ts';
 
 function debug(message: string) {
   console.log(`DEBUG ${message}`);

@@ -27,8 +27,8 @@ import {
   interceptReport,
   isFunctionNode,
   isIdentifier,
-} from '../helpers/index.js';
-import { meta } from './meta.js';
+} from '../helpers/index.ts';
+import { meta } from './meta.ts';
 
 type RuleFunctionNode = FunctionNodeType & Rule.Node;
 

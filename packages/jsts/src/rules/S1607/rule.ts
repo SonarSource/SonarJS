@@ -33,8 +33,8 @@ import {
   isLiteral,
   isMethodInvocation,
   resolveFunction,
-} from '../helpers/index.js';
-import { meta } from './meta.js';
+} from '../helpers/index.ts';
+import { meta } from './meta.ts';
 import { TSESTree } from '@typescript-eslint/utils';
 
 export const rule: Rule.RuleModule = {

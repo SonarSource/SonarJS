@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { rule as cognitiveComplexity } from './cognitive-complexity.js';
-import { CustomRule } from './custom-rule.js';
-import { rule as symbolHighlighting } from './symbol-highlighting.js';
+import { rule as cognitiveComplexity } from './cognitive-complexity.ts';
+import { CustomRule } from './custom-rule.ts';
+import { rule as symbolHighlighting } from './symbol-highlighting.ts';
 
-export * from './custom-rule.js';
+export * from './custom-rule.ts';
 
 /**
  * The set of internal custom rules

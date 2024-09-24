@@ -26,8 +26,8 @@ import {
   getFullyQualifiedName,
   getProperty,
   getUniqueWriteUsage,
-} from '../helpers/index.js';
-import { meta } from './meta.js';
+} from '../helpers/index.ts';
+import { meta } from './meta.ts';
 
 const SERVE_STATIC = 'serve-static';
 

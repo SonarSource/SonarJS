@@ -25,9 +25,9 @@ import {
   generateMeta,
   isThenable,
   isFunctionNode,
-} from '../helpers/index.js';
+} from '../helpers/index.ts';
 import * as estree from 'estree';
-import { meta } from './meta.js';
+import { meta } from './meta.ts';
 import { AST_NODE_TYPES } from '@typescript-eslint/utils';
 
 const flaggedStatements = new Set();

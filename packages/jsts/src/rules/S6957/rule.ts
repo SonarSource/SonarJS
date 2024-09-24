@@ -21,9 +21,9 @@
 
 import { Rule } from 'eslint';
 import { rules } from 'eslint-plugin-react';
-import { generateMeta, getNearestPackageJsons } from '../helpers/index.js';
+import { generateMeta, getNearestPackageJsons } from '../helpers/index.ts';
 import { FromSchema } from 'json-schema-to-ts';
-import { meta, schema } from './meta.js';
+import { meta, schema } from './meta.ts';
 
 const reactNoDeprecated = rules['no-deprecated'];
 

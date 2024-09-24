@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RuleTester } from 'eslint';
-import { BabelRuleTester } from '../../../tests/tools/index.js';
-import { rule } from './/index.js';
+import { BabelRuleTester } from '../../../tests/tools/index.ts';
+import { rule } from './/index.ts';
 
 const ruleTester = new RuleTester({
   parserOptions: {

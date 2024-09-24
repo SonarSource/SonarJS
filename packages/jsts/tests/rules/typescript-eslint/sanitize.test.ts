@@ -19,9 +19,9 @@
  */
 import { rules as typescriptESLintRules } from '@typescript-eslint/eslint-plugin';
 import { Linter } from 'eslint';
-import { sanitize } from '../../../src/rules/typescript-eslint/sanitize.js';
+import { sanitize } from '../../../src/rules/typescript-eslint/sanitize.ts';
 import path from 'path';
-import { parseTypeScriptSourceFile } from '../../tools/helpers/index.js';
+import { parseTypeScriptSourceFile } from '../../tools/helpers/index.ts';
 
 const cases = [
   {

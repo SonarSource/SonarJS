@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { APIError, debug, info, getContext, JsTsLanguage } from '@sonar/shared/index.js';
+import { APIError, debug, info, getContext, JsTsLanguage } from '@sonar/shared/index.ts';
 import { SourceCode } from 'eslint';
 import {
   computeMetrics,
@@ -27,10 +27,10 @@ import {
   getSyntaxHighlighting,
   LinterWrapper,
   SymbolHighlight,
-} from '../linter/index.js';
-import { buildSourceCode } from '../builders/index.js';
-import { JsTsAnalysisInput, JsTsAnalysisOutput } from './analysis.js';
-import { serializeInProtobuf } from '../parsers/index.js';
+} from '../linter/index.ts';
+import { buildSourceCode } from '../builders/index.ts';
+import { JsTsAnalysisInput, JsTsAnalysisOutput } from './analysis.ts';
+import { serializeInProtobuf } from '../parsers/index.ts';
 import { TSESTree } from '@typescript-eslint/utils';
 
 /**

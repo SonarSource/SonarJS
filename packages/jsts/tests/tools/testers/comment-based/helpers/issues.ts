@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { extractEffectiveLine, LINE_ADJUSTMENT, PrimaryLocation } from './locations.js';
-import { QuickFix, QUICKFIX_ID, QUICKFIX_SEPARATOR } from './quickfixes.js';
-import { Comment } from './comments.js';
-import { FileIssues } from './file.js';
+import { extractEffectiveLine, LINE_ADJUSTMENT, PrimaryLocation } from './locations.ts';
+import { QuickFix, QUICKFIX_ID, QUICKFIX_SEPARATOR } from './quickfixes.ts';
+import { Comment } from './comments.ts';
+import { FileIssues } from './file.ts';
 
 const START_WITH_NON_COMPLIANT = /^ *Noncompliant/i;
 const NON_COMPLIANT_PATTERN = RegExp(

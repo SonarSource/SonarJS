@@ -31,10 +31,10 @@ import {
   isFunctionNode,
   IssueLocation,
   RuleContext,
-} from '../helpers/index.js';
+} from '../helpers/index.ts';
 import { TSESTree } from '@typescript-eslint/utils';
 import { FromSchema } from 'json-schema-to-ts';
-import { meta, schema } from './meta.js';
+import { meta, schema } from './meta.ts';
 
 const DEFAULT_THRESHOLD = 10;
 

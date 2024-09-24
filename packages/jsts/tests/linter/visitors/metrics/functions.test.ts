@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { countFunctions } from '../../../../src/linter/visitors/metrics/functions.js';
+import { countFunctions } from '../../../../src/linter/visitors/metrics/functions.ts';
 import path from 'path';
-import { parseJavaScriptSourceFile } from '../../../tools/index.js';
+import { parseJavaScriptSourceFile } from '../../../tools/index.ts';
 
 describe('countFunctions', () => {
   it('should count the number of functions', async () => {

@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { computeCyclomaticComplexity } from '../../../../src/linter/visitors/metrics/cyclomatic-complexity.js';
+import { computeCyclomaticComplexity } from '../../../../src/linter/visitors/metrics/cyclomatic-complexity.ts';
 import path from 'path';
-import { parseJavaScriptSourceFile } from '../../../tools/index.js';
+import { parseJavaScriptSourceFile } from '../../../tools/index.ts';
 
 const cases = [
   { fixture: 'conjunction', expectedComplexity: 1 },

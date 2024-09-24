@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { SourceCode } from 'eslint';
-import { addLines } from './helpers/index.js';
+import { addLines } from './helpers/index.ts';
 
 /**
  * A comment marker to tell SonarQube to ignore any issue on the same line

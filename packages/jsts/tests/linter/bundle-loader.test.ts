@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Linter } from 'eslint';
-import { loadBundles, loadCustomRules } from '../../src/linter/bundle-loader.js';
-import { CustomRule } from '../../src/linter/custom-rules/index.js';
+import { loadBundles, loadCustomRules } from '../../src/linter/bundle-loader.ts';
+import { CustomRule } from '../../src/linter/custom-rules/index.ts';
 import path from 'path';
-import { setContext } from '@sonar/shared/index.js';
+import { setContext } from '@sonar/shared/index.ts';
 
 describe('BundleLoader', () => {
   it('should only load rules when requested', async () => {

@@ -22,8 +22,8 @@
 import { Rule } from 'eslint';
 import * as estree from 'estree';
 import ts, { TypeFlags } from 'typescript';
-import { generateMeta, getTypeFromTreeNode, isRequiredParserServices } from '../helpers/index.js';
-import { meta } from './meta.js';
+import { generateMeta, getTypeFromTreeNode, isRequiredParserServices } from '../helpers/index.ts';
+import { meta } from './meta.ts';
 
 const BINARY_OPERATORS = ['/', '*', '%', '-', '-=', '*=', '/=', '%='];
 const UNARY_OPERATORS = ['++', '--', '+', '-'];

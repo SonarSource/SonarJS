@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import path from 'path';
-import { computeMetrics } from '../../../../src/linter/visitors/metrics/index.js';
-import { parseJavaScriptSourceFile } from '../../../tools/index.js';
+import { computeMetrics } from '../../../../src/linter/visitors/metrics/index.ts';
+import { parseJavaScriptSourceFile } from '../../../tools/index.ts';
 
 describe('computeMetrics', () => {
   it('should compute metrics', async () => {

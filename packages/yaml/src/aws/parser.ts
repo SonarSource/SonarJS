@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { parseYaml } from '../parser/index.js';
-import { lambdaParsingContext, serverlessParsingContext } from './parsingContexts.js';
+import { parseYaml } from '../parser/index.ts';
+import { lambdaParsingContext, serverlessParsingContext } from './parsingContexts.ts';
 
 /**
  * Extracts from a YAML file all the embedded JavaScript code snippets either

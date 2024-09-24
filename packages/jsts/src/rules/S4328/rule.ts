@@ -23,11 +23,11 @@ import { Rule } from 'eslint';
 import * as estree from 'estree';
 import builtins from 'builtin-modules';
 import * as ts from 'typescript';
-import { generateMeta, getDependenciesFromPackageJson, toUnixPath } from '../helpers/index.js';
+import { generateMeta, getDependenciesFromPackageJson, toUnixPath } from '../helpers/index.ts';
 import { FromSchema } from 'json-schema-to-ts';
-import { meta, schema } from './meta.js';
+import { meta, schema } from './meta.ts';
 import { Minimatch } from 'minimatch';
-import { getManifests } from '../helpers/package-json.js';
+import { getManifests } from '../helpers/package-json.ts';
 import fs from 'fs';
 
 const messages = {

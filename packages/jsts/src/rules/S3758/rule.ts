@@ -30,8 +30,8 @@ import {
   isRequiredParserServices,
   isStringType,
   RequiredParserServices,
-} from '../helpers/index.js';
-import { meta } from './meta.js';
+} from '../helpers/index.ts';
+import { meta } from './meta.ts';
 
 const comparisonOperators = new Set(['>', '<', '>=', '<=']);
 

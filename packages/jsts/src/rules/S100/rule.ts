@@ -21,9 +21,9 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { functionLike, generateMeta, last } from '../helpers/index.js';
+import { functionLike, generateMeta, last } from '../helpers/index.ts';
 import { FromSchema } from 'json-schema-to-ts';
-import { meta, schema } from './meta.js';
+import { meta, schema } from './meta.ts';
 
 interface FunctionKnowledge {
   node: estree.Identifier;

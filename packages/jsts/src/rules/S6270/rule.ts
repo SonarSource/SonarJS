@@ -29,16 +29,16 @@ import {
   report,
   StringLiteral,
   toSecondaryLocation,
-} from '../helpers/index.js';
-import { getResultOfExpression, Result } from '../helpers/result.js';
+} from '../helpers/index.ts';
+import { getResultOfExpression, Result } from '../helpers/result.ts';
 import {
   AwsIamPolicyTemplate,
   getSensitiveEffect,
   isAnyLiteral,
   PolicyCheckerOptions,
-} from '../helpers/aws/iam.js';
-import { normalizeFQN } from '../helpers/aws/cdk.js';
-import { meta } from './meta.js';
+} from '../helpers/aws/iam.ts';
+import { normalizeFQN } from '../helpers/aws/cdk.ts';
+import { meta } from './meta.ts';
 
 const AWS_PRINCIPAL_PROPERTY = 'AWS';
 

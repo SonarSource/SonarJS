@@ -21,9 +21,9 @@
 
 import { Rule } from 'eslint';
 import * as estree from 'estree';
-import { CookieFlagCheck } from '../helpers/cookie-flag-check.js';
-import { generateMeta } from '../helpers/index.js';
-import { meta } from './meta.js';
+import { CookieFlagCheck } from '../helpers/cookie-flag-check.ts';
+import { generateMeta } from '../helpers/index.ts';
+import { meta } from './meta.ts';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta as Rule.RuleMetaData, undefined, true),

@@ -19,9 +19,9 @@
  */
 import * as yaml from 'yaml';
 import assert from 'assert';
-import { EmbeddedJS } from '@sonar/jsts/index.js';
-import { BLOCK_FOLDED_FORMAT, BLOCK_LITERAL_FORMAT, isSupportedFormat } from './yaml/format.js';
-import { APIError } from '@sonar/shared/index.js';
+import { EmbeddedJS } from '@sonar/jsts/index.ts';
+import { BLOCK_FOLDED_FORMAT, BLOCK_LITERAL_FORMAT, isSupportedFormat } from './yaml/format.ts';
+import { APIError } from '@sonar/shared/index.ts';
 
 /**
  * A bundle of Yaml visitor predicate and Extras picker

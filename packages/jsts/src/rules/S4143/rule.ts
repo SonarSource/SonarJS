@@ -28,10 +28,10 @@ import {
   isLiteral,
   report,
   toSecondaryLocation,
-} from '../helpers/index.js';
+} from '../helpers/index.ts';
 import { AST, Rule } from 'eslint';
 import estree from 'estree';
-import { meta } from './meta.js';
+import { meta } from './meta.ts';
 
 const message =
   'Verify this is the index that was intended; "{{index}}" was already set on line {{line}}.';
