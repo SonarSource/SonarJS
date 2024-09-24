@@ -19,25 +19,16 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.Collections;
-import java.util.List;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.Check;
-import org.sonar.plugins.javascript.api.JavaScriptRule;
-import org.sonar.plugins.javascript.api.TypeScriptRule;
+import com.google.gson.Gson;
+import org.junit.jupiter.api.Test;
 
-@TypeScriptRule
-@JavaScriptRule
-@Rule(key = "S6847")
-public class NoNonInteractiveElementsWithHandlersCheck extends Check {
+class NoNonInteractiveElementsWithHandlersCheckTest {
 
-  @Override
-  public List<Object> configurations() {
-    return Collections.singletonList(new Config());
-  }
-
-  private static class Config {
-    String[] handlers = {"onClick", "onMouseDown", "onMouseUp", "onKeyPress", "onKeyDown", "onKeyUp"};
+  @Test
+  void configurations() {
+    var config = new Gson().toJson(new NoNonInteractiveElementsWithHandlersCheck().configurations());
+    assertThat(config).isEqualTo("[{\"handlers\":[\"onClick\",\"onMouseDown\",\"onMouseUp\",\"onKeyPress\",\"onKeyDown\",\"onKeyUp\"]}]");
   }
 }

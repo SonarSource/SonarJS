@@ -6,6 +6,8 @@ elements are given event handlers, it can lead to accessibility issues.</p>
 difficult for users with disabilities to navigate and interact with the website. Additionally, these elements may not be focusable or provide visual
 feedback when interacted with, resulting in a confusing and potentially frustrating user experience. Therefore, to maintain an accessible and
 user-friendly website, event handlers should be used exclusively with interactive elements.</p>
+<p>The rule only considers the handlers <code>onClick</code>, <code>onMouseDown</code>, <code>onMouseUp</code>, <code>onKeyPress</code>,
+<code>onKeyDown</code>, and <code>onKeyUp</code>.</p>
 <h2>How to fix it</h2>
 <p>To fix this issue, remove the event handler from the non-interactive element and attach it to an interactive element instead. If the element is not
 interactive, it should not have an event handler.</p>
