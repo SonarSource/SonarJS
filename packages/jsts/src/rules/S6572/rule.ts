@@ -22,7 +22,7 @@
 import * as estree from 'estree';
 import { Rule } from 'eslint';
 import { TSESTree } from '@typescript-eslint/utils';
-import { generateMeta, interceptReport, isNumberLiteral } from '../helpers';
+import { generateMeta, isNumberLiteral } from '../helpers';
 import { meta } from './meta';
 import { tsEslintRules } from '../typescript-eslint';
 const baseRuleModule = tsEslintRules['prefer-enum-initializers'];
@@ -39,16 +39,15 @@ export const rule: Rule.RuleModule = {
     hasSuggestions: true,
   }),
   create(context) {
-    let enumDecl: TSESTree.TSEnumDeclaration | undefined = undefined;
-    const baseRuleListener = interceptReport(baseRuleModule, function (_context, descriptor) {
-      if (descriptor && anyInitialized(enumDecl!) && !numericalOrder(enumDecl!)) {
-        context.report(descriptor);
-      }
-    }).create(context) as unknown as { TSEnumDeclaration: (node: Rule.Node) => void };
+    const baseRuleListener = baseRuleModule.create(context) as unknown as {
+      TSEnumDeclaration: (node: Rule.Node) => void;
+    };
     return {
       TSEnumDeclaration: (node: Rule.Node) => {
-        enumDecl = node as unknown as TSESTree.TSEnumDeclaration;
-        baseRuleListener.TSEnumDeclaration(node);
+        const enumDecl = node as unknown as TSESTree.TSEnumDeclaration;
+        if (anyInitialized(enumDecl) && !numericalOrder(enumDecl)) {
+          baseRuleListener.TSEnumDeclaration(node);
+        }
       },
     };
   },
