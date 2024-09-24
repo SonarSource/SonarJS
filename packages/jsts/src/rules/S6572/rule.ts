@@ -19,36 +19,40 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6572/javascript
 
-import estree from 'estree';
+import * as estree from 'estree';
 import { Rule } from 'eslint';
 import { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta, interceptReport, isNumberLiteral } from '../helpers';
 import { meta } from './meta';
+import { tsEslintRules } from '../typescript-eslint';
+const baseRuleModule = tsEslintRules['prefer-enum-initializers'];
 
 // The core implementation of this rule reports all enums for which there is a member value that is
 // not initialized explicitly. Here, the decorator's purpose is to restrict the scope of the rule only
-// to enums that already initialize a subset of members and leave the remaining ones uninitialized, with
-// the exception of those that enforce a numerical order by assigning a literal to the first member value.
+// to enums that already initialize a subset of members and leave the remaining ones uninitialized, except
+// those that enforce a numerical order by assigning a literal to the first member value.
 // In other words, the decorated rule ignores enums that don't initialize any member value or those
 // that initialize their first member with a number literal.
-export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
-  return interceptReport(
-    {
-      ...rule,
-      meta: generateMeta(meta as Rule.RuleMetaData, {
-        ...rule.meta!,
-        hasSuggestions: true,
-      }),
-    },
-    (context, descriptor) => {
-      const enumMember = (descriptor as any).node as TSESTree.TSEnumMember;
-      const enumDecl = enumMember.parent as TSESTree.TSEnumDeclaration;
-      if (anyInitialized(enumDecl) && !numericalOrder(enumDecl)) {
+export const rule: Rule.RuleModule = {
+  meta: generateMeta(meta as Rule.RuleMetaData, {
+    ...baseRuleModule.meta!,
+    hasSuggestions: true,
+  }),
+  create(context) {
+    let enumDecl: TSESTree.TSEnumDeclaration | undefined = undefined;
+    const baseRuleListener = interceptReport(baseRuleModule, function (_context, descriptor) {
+      if (descriptor && anyInitialized(enumDecl!) && !numericalOrder(enumDecl!)) {
         context.report(descriptor);
       }
-    },
-  );
-}
+    }).create(context) as unknown as { TSEnumDeclaration: (node: Rule.Node) => void };
+    return {
+      TSEnumDeclaration: (node: Rule.Node) => {
+        enumDecl = node as unknown as TSESTree.TSEnumDeclaration;
+        baseRuleListener.TSEnumDeclaration(node);
+      },
+    };
+  },
+};
 
 function isEnumWithBody(
   enumDecl: TSESTree.TSEnumDeclaration,
