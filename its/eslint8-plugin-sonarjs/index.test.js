@@ -25,7 +25,7 @@ test('should work with ECMAScript modules config', async t => {
 });
 
 test('should work with TSESLint config', async t => {
-  const result = spawn.sync('npx', ['eslint', '-c', 'tseslint.config.mjs', 'file.js'], {
+  const result = spawn.sync('npx', ['eslint', '-c', 'tseslint.config.mjs', 'file.ts'], {
     cwd: __dirname,
     encoding: 'utf-8',
   });
