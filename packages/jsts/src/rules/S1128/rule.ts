@@ -219,8 +219,12 @@ export const rule: Rule.RuleModule = {
             const {
               name: { name },
             } = node;
-            vueIdentifiers.add(toCamelCase(name));
-            vueIdentifiers.add(toPascalCase(name));
+            const camelCased = toCamelCase(name);
+            const pascalCased = toPascalCase(name);
+            vueIdentifiers.add(camelCased);
+            vueIdentifiers.add(pascalCased);
+            vueIdentifiers.add(`v${camelCased}`);
+            vueIdentifiers.add(`v${pascalCased}`);
           },
           Identifier: (node: AST.ESLintIdentifier) => {
             vueIdentifiers.add(node.name);
