@@ -22,10 +22,16 @@ import { type PackageJson } from 'type-fest';
 import { searchFiles, File } from './find-files';
 import { toUnixPath } from './files';
 import { Minimatch } from 'minimatch';
+import { type Filesystem, createFindUp } from './find-up';
 
 export const PACKAGE_JSON = 'package.json';
 export const parsePackageJson = (_filename: string, contents: string | null) =>
   contents ? (JSON.parse(contents) as PackageJson) : {};
+
+/**
+ * The {@link FindUp} instance dedicated to retrieving `package.json` files
+ */
+const findPackageJsons = createFindUp(PACKAGE_JSON);
 
 const DefinitelyTyped = '@types/';
 
@@ -191,46 +197,19 @@ function addDependency(result: Set<string | Minimatch>, dependency: string, isGl
 export const getManifests = (
   fileName: string,
   workingDirectory: string,
-  fileSystem: {
-    readdirSync: (path: string) => Array<string>;
-    readFileSync: (path: string) => Buffer;
-  },
+  fileSystem: Filesystem,
 ): Array<PackageJson> => {
-  // if the fileName is not a child of the working directory, we bail
-  const relativePath = Path.relative(workingDirectory, fileName);
+  const files = findPackageJsons(Path.dirname(fileName), workingDirectory, fileSystem);
 
-  if (relativePath.startsWith('..')) {
-    return [];
-  }
+  return files.map(file => {
+    const content = file.content;
 
-  const getManifestsAtPath = (path: string): Array<PackageJson> => {
-    const results: Array<PackageJson> = [];
-    const entries = fileSystem.readdirSync(path);
+    try {
+      return JSON.parse(content.toString());
+    } catch (error) {
+      console.debug(`Error parsing file ${file.path}: ${error}`);
 
-    for (const entry of entries) {
-      const entryUnixPath = toUnixPath(entry);
-      const absoluteEntryPath = Path.join(path, entryUnixPath);
-
-      if (Path.basename(absoluteEntryPath) === 'package.json') {
-        const content = fileSystem.readFileSync(absoluteEntryPath);
-
-        try {
-          results.push(JSON.parse(content.toString()));
-        } catch (error) {
-          console.debug(`Error parsing file ${absoluteEntryPath}: ${error}`);
-        }
-      }
+      return {};
     }
-
-    // we stop as soon as the working directory has been reached
-    if (path !== workingDirectory) {
-      const parentDirectory = Path.dirname(path);
-
-      results.push(...getManifestsAtPath(parentDirectory));
-    }
-
-    return results;
-  };
-
-  return getManifestsAtPath(Path.dirname(fileName));
+  });
 };

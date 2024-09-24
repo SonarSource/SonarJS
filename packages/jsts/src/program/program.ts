@@ -300,10 +300,6 @@ export function isRootNodeModules(file: string) {
   return normalizedFile.startsWith(topNodeModules);
 }
 
-export function isRoot(file: string) {
-  return toUnixPath(file) === toUnixPath(path.parse(file).root);
-}
-
 /**
  * Any temporary file created with the `tmp` library will be removed once the Node.js process terminates.
  */

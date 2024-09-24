@@ -25,12 +25,12 @@ import {
   deleteProgram,
   getProgramById,
   isRootNodeModules,
-  isRoot,
   writeTSConfigFile,
 } from '../../src/program';
 import { toUnixPath } from '@sonar/shared';
 import ts, { ModuleKind, ScriptTarget } from 'typescript';
 import fs from 'fs';
+import { isRoot } from '../../src/rules/helpers';
 
 jest.setTimeout(60000);
 
