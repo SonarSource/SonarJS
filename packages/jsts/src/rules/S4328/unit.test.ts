@@ -107,6 +107,11 @@ ruleTester.run('Dependencies should be explicit', rule, {
       options,
     },
     {
+      code: `import "dependency";`,
+      filename: path.join(fixtures, 'bom-package-json-project/file.js'),
+      options,
+    },
+    {
       code: `const fs = require("node:fs/promises");`,
       filename,
       options,
@@ -177,13 +182,6 @@ ruleTester.run('Dependencies should be explicit', rule, {
     {
       code: `import "foo";`,
       filename: '/file.js',
-      options,
-      errors: 1,
-    },
-    {
-      name: 'with a non-parsable manifest',
-      code: `import "dependency";`,
-      filename: path.join(fixtures, 'bom-package-json-project/file.js'),
       options,
       errors: 1,
     },

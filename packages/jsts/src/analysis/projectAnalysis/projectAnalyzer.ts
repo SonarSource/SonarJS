@@ -23,19 +23,12 @@ import {
   ProjectAnalysisInput,
   ProjectAnalysisOutput,
 } from './projectAnalysis';
-import { PackageJson } from 'type-fest';
 import { analyzeWithProgram } from './analyzeWithProgram';
 import { analyzeWithWatchProgram } from './analyzeWithWatchProgram';
 import { analyzeWithoutProgram } from './analyzeWithoutProgram';
 import { initializeLinter } from '../../linter';
 import { TSCONFIG_JSON, setTSConfigs, getTSConfigsIterator } from '../../program';
-import {
-  PACKAGE_JSON,
-  parsePackageJson,
-  setPackageJsons,
-  File,
-  searchFiles,
-} from '../../rules/helpers';
+import { File, searchFiles } from '../../rules/helpers';
 import { toUnixPath } from '@sonar/shared';
 
 /**
@@ -94,14 +87,12 @@ export async function analyzeProject(input: ProjectAnalysisInput): Promise<Proje
  * and save them in their respective caches.
  */
 function loadTSConfigAndPackageJsonFiles(baseDir: string, exclusions: string[]) {
-  const { packageJsons, tsConfigs } = searchFiles(
+  const { tsConfigs } = searchFiles(
     baseDir,
     {
-      packageJsons: { pattern: PACKAGE_JSON, parser: parsePackageJson },
       tsConfigs: { pattern: TSCONFIG_JSON },
     },
     exclusions,
   );
-  setPackageJsons(packageJsons as Record<string, File<PackageJson>[]>);
   setTSConfigs(tsConfigs as Record<string, File<void>[]>);
 }

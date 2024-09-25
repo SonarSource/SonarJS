@@ -34,7 +34,7 @@ export const rule: Rule.RuleModule = {
     },
   }),
   create(context: Rule.RuleContext) {
-    const dependencies = getDependencies(context.filename);
+    const dependencies = getDependencies(context.filename, context.cwd);
     if (!dependencies.has('react')) {
       return {};
     }

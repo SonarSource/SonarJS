@@ -19,129 +19,82 @@
  */
 import path from 'path';
 import { toUnixPath } from '@sonar/shared';
-import {
-  clearPackageJsons,
-  getAllPackageJsons,
-  getNearestPackageJsons,
-  getPackageJsonsCount,
-  isSupported,
-  loadPackageJsons,
-} from '../../src/rules';
+import { getManifests, isSupported } from '../../src/rules/helpers';
+import fs from 'fs';
 
 describe('initialize package.json files', () => {
   const baseDir = path.posix.join(toUnixPath(__dirname), 'fixtures', 'package-json');
-  beforeEach(() => {
-    clearPackageJsons();
-  });
 
   it('should find all package.json files', () => {
-    loadPackageJsons(baseDir, []);
-    expect(getPackageJsonsCount()).toEqual(7);
+    const basePJList = getManifests(baseDir, baseDir, fs);
 
-    const basePJList = getNearestPackageJsons(path.posix.join(baseDir, 'index.js'));
-    const basePJ = toUnixPath(path.posix.join(baseDir, 'package.json'));
+    const moduleAPJList = getManifests(path.posix.join(baseDir, 'moduleA'), baseDir, fs);
 
-    const moduleAPJList = getNearestPackageJsons(path.posix.join(baseDir, 'moduleA', 'index.js'));
-    const moduleAPJ = toUnixPath(path.posix.join(baseDir, 'moduleA', 'package.json'));
-
-    const moduleAsubmoduleAPJList = getNearestPackageJsons(
-      path.posix.join(baseDir, 'moduleA', 'submoduleA', 'index.js'),
-    );
-    const moduleAsubmoduleAPJ = toUnixPath(
-      path.posix.join(baseDir, 'moduleA', 'submoduleA', 'package.json'),
+    const moduleAsubmoduleAPJList = getManifests(
+      path.posix.join(baseDir, 'moduleA', 'submoduleA'),
+      baseDir,
+      fs,
     );
 
-    const moduleAsubmoduleBPJList = getNearestPackageJsons(
-      path.posix.join(baseDir, 'moduleA', 'submoduleB', 'index.js'),
-    );
-    const moduleAsubmoduleBPJ = toUnixPath(
-      path.posix.join(baseDir, 'moduleA', 'submoduleB', 'package.json'),
-    );
-
-    const moduleBPJList = getNearestPackageJsons(path.posix.join(baseDir, 'moduleB', 'index.js'));
-    const moduleBPJ = toUnixPath(path.posix.join(baseDir, 'moduleB', 'package.json'));
-
-    const moduleBsubmoduleAPJList = getNearestPackageJsons(
-      path.posix.join(baseDir, 'moduleB', 'submoduleA', 'index.js'),
-    );
-    const moduleBsubmoduleAPJ = toUnixPath(
-      path.posix.join(baseDir, 'moduleB', 'submoduleA', 'package.json'),
+    const moduleAsubmoduleBPJList = getManifests(
+      path.posix.join(baseDir, 'moduleA', 'submoduleB'),
+      baseDir,
+      fs,
     );
 
-    const moduleBsubmoduleBPJList = getNearestPackageJsons(
-      path.posix.join(baseDir, 'moduleB', '.submoduleB', 'index.js'),
+    const moduleBPJList = getManifests(path.posix.join(baseDir, 'moduleB'), baseDir, fs);
+
+    const moduleBsubmoduleAPJList = getManifests(
+      path.posix.join(baseDir, 'moduleB', 'submoduleA'),
+      baseDir,
+      fs,
     );
-    const moduleBsubmoduleBPJ = toUnixPath(
-      path.posix.join(baseDir, 'moduleB', '.submoduleB', 'package.json'),
+
+    const moduleBsubmoduleBPJList = getManifests(
+      path.posix.join(baseDir, 'moduleB', '.submoduleB'),
+      baseDir,
+      fs,
     );
 
     expect(basePJList).toHaveLength(1);
-    expect(basePJList[0].filename).toEqual(basePJ);
+    expect(basePJList[0].name).toEqual('myProject');
     expect(moduleAPJList).toHaveLength(2);
-    expect(moduleAPJList[0].filename).toEqual(toUnixPath(moduleAPJ));
+    expect(moduleAPJList[0].name).toEqual('module-a');
     expect(moduleAsubmoduleAPJList).toHaveLength(3);
-    expect(moduleAsubmoduleAPJList[0].filename).toEqual(moduleAsubmoduleAPJ);
+    expect(moduleAsubmoduleAPJList[0].name).toEqual('module-a-submodule-a');
     expect(moduleAsubmoduleBPJList).toHaveLength(3);
-    expect(moduleAsubmoduleBPJList[0].filename).toEqual(moduleAsubmoduleBPJ);
+    expect(moduleAsubmoduleBPJList[0].name).toEqual('module-a-submodule-b');
     expect(moduleBPJList).toHaveLength(2);
-    expect(moduleBPJList[0].filename).toEqual(toUnixPath(moduleBPJ));
+    expect(moduleBPJList[0].name).toEqual(toUnixPath('module-b'));
     expect(moduleBsubmoduleAPJList).toHaveLength(3);
-    expect(moduleBsubmoduleAPJList[0].filename).toEqual(moduleBsubmoduleAPJ);
+    expect(moduleBsubmoduleAPJList[0].name).toEqual('module-b-submodule-a');
     expect(moduleBsubmoduleBPJList).toHaveLength(3);
-    expect(moduleBsubmoduleBPJList[0].filename).toEqual(moduleBsubmoduleBPJ);
+    expect(moduleBsubmoduleBPJList[0].name).toEqual('module-b-submodule-b');
 
-    const fakeFilePJList = getNearestPackageJsons(
-      path.posix.join(
-        baseDir,
-        'moduleB',
-        '.submoduleB',
-        'subfolder1',
-        'subfolder2',
-        'subfolder3',
-        'index.js',
-      ),
+    const fakeFilePJList = getManifests(
+      path.posix.join(baseDir, 'moduleB', '.submoduleB', 'subfolder1', 'subfolder2', 'subfolder3'),
+      baseDir,
+      fs,
     );
     expect(fakeFilePJList).toHaveLength(3);
-    expect(fakeFilePJList[0].filename).toEqual(moduleBsubmoduleBPJ);
-  });
-
-  it('should ignore package.json files from ignored patterns', () => {
-    loadPackageJsons(baseDir, ['moduleA']);
-    expect(getPackageJsonsCount()).toEqual(4);
-    const expected = [
-      ['package.json'],
-      ['moduleB', 'package.json'],
-      ['moduleB', 'submoduleA', 'package.json'],
-      ['moduleB', '.submoduleB', 'package.json'],
-    ];
-    const actual = getAllPackageJsons();
-    const expectedMap = {};
-    expected.forEach(packageJson => {
-      const filename = path.posix.join(baseDir, ...packageJson);
-      expectedMap[path.posix.dirname(filename)] = [{ filename, contents: expect.any(Object) }];
-    });
-    expect(actual).toEqual(expectedMap);
-
-    clearPackageJsons();
-    loadPackageJsons(baseDir, ['module*']);
-    expect(getPackageJsonsCount()).toEqual(1);
-    expect(getAllPackageJsons()).toEqual({
-      [baseDir]: [
-        { filename: path.posix.join(baseDir, 'package.json'), contents: expect.any(Object) },
-      ],
-    });
+    expect(moduleBsubmoduleBPJList[0].name).toEqual('module-b-submodule-b');
   });
 
   it('should return empty array when no package.json are in the DB or none exist in the file tree', () => {
-    expect(getPackageJsonsCount()).toEqual(0);
     expect(
-      getNearestPackageJsons(path.posix.join(baseDir, '..', 'another-module', 'index.js')),
+      getManifests(
+        path.posix.join(baseDir, '..', 'another-module'),
+        path.posix.join(baseDir, '..'),
+        fs,
+      ),
     ).toHaveLength(0);
 
-    loadPackageJsons(baseDir, ['']);
-    expect(getPackageJsonsCount()).toEqual(7);
     expect(
-      getNearestPackageJsons(path.posix.join(baseDir, '..', 'another-module', 'index.js')),
+      getManifests(
+        path.posix.join(baseDir, '..', 'another-module'),
+        path.posix.join(baseDir, '..'),
+        fs,
+      ),
     ).toHaveLength(0);
   });
 });
@@ -149,7 +102,6 @@ describe('initialize package.json files', () => {
 describe('isSupported()', () => {
   let baseDir;
   beforeEach(() => {
-    clearPackageJsons();
     baseDir = path.posix.join(toUnixPath(__dirname), 'fixtures', 'is-supported-node');
   });
 
@@ -168,17 +120,11 @@ describe('isSupported()', () => {
       describe('when there is a minimum version', () => {
         it('should return true when the project supports the feature', () => {
           const projectDir = path.posix.join(baseDir, 'with-node-with-minimum');
-          loadPackageJsons(projectDir, []);
-          expect(isSupported(path.posix.join(projectDir, 'index.js'), { node: '4.0.0' })).toBe(
-            true,
-          );
+          expect(isSupported(projectDir, { node: '4.0.0' })).toBe(true);
         });
         it('should return false when the project does not support the feature', () => {
           const projectDir = path.posix.join(baseDir, 'with-node-with-minimum');
-          loadPackageJsons(projectDir, []);
-          expect(isSupported(path.posix.join(projectDir, 'index.js'), { node: '6.0.0' })).toBe(
-            false,
-          );
+          expect(isSupported(projectDir, { node: '6.0.0' })).toBe(false);
         });
       });
 
@@ -186,25 +132,21 @@ describe('isSupported()', () => {
       describe('when there is no minimum version', () => {
         it('should return true', () => {
           const projectDir = path.posix.join(baseDir, 'with-node-no-minimum');
-          loadPackageJsons(projectDir, []);
-          expect(isSupported(path.posix.join(projectDir, 'index.js'), { node: '5.0.0' })).toBe(
-            true,
-          );
+          expect(isSupported(projectDir, { node: '5.0.0' })).toBe(true);
         });
       });
     });
     describe('when package.json#engine.node is undefined', () => {
       it('should return true', () => {
         const projectDir = path.posix.join(baseDir, 'no-node');
-        loadPackageJsons(projectDir, []);
-        expect(isSupported(path.posix.join(projectDir, 'index.js'), { node: '6.0.0' })).toBe(true);
+        expect(isSupported(projectDir, { node: '6.0.0' })).toBe(true);
       });
     });
     describe('when no package.json is found', () => {
       // we simply don't load the package.json files
       it('should return true', () => {
         const projectDir = path.posix.join(baseDir, 'no-node');
-        expect(isSupported(path.posix.join(projectDir, 'index.js'), { node: '6.0.0' })).toBe(true);
+        expect(isSupported(projectDir, { node: '6.0.0' })).toBe(true);
       });
     });
   });

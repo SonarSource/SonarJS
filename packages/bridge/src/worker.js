@@ -30,7 +30,6 @@ const {
   deleteProgram,
   initializeLinter,
   writeTSConfigFile,
-  loadPackageJsons,
   analyzeProject,
 } = require('@sonar/jsts');
 const { readFile, setContext } = require('@sonar/shared/helpers');
@@ -161,11 +160,8 @@ if (parentPort) {
         }
 
         case 'on-init-linter': {
-          const { rules, environments, globals, linterId, baseDir, exclusions } = data;
+          const { rules, environments, globals, linterId, baseDir } = data;
           initializeLinter(rules, environments, globals, baseDir, linterId);
-          if (baseDir) {
-            loadPackageJsons(baseDir, exclusions);
-          }
           parentThread.postMessage({ type: 'success', result: 'OK!' });
           break;
         }

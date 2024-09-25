@@ -20,16 +20,10 @@
 import { check } from '../../../tests/tools';
 import { rule } from './';
 import path from 'path';
-import { clearPackageJsons, loadPackageJsons } from '../helpers/package-json';
 
 const sonarId = path.basename(__dirname);
 
 describe('Rule S6957', () => {
-  beforeEach(() => {
-    loadPackageJsons(__dirname, []);
-  });
-  afterAll(() => {
-    clearPackageJsons();
-  });
+  process.chdir(__dirname); // change current working dir to avoid the package.json lookup to up in the tree
   check(sonarId, rule, __dirname);
 });

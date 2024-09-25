@@ -19,10 +19,9 @@
  */
 import { RuleTester } from 'eslint';
 import { rule } from '../../';
-import { clearPackageJsons, loadPackageJsons } from '../../../helpers';
+import { join } from 'path';
 
-clearPackageJsons();
-loadPackageJsons(__dirname, []);
+process.chdir(__dirname) // change current working dir to avoid the package.json lookup to up in the tree
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module', ecmaFeatures: { jsx: true } } });
 ruleTester.run('S6477 turns into a noop on non-React projects', rule, {
@@ -41,6 +40,7 @@ ruleTester.run('S6477 turns into a noop on non-React projects', rule, {
         );
       }
       `,
+      filename: join(__dirname, 'file.jsx')
     },
   ],
   invalid: [],
