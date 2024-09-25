@@ -13,7 +13,7 @@
     "server.ts",
     "*/src/**/*.ts",
     "*/src/**/*.json",
-    "bridge/src/worker.js",
+    "bridge/src/worker.mjs",
     "ruling/tools/*.ts",
     "ruling/filter/*.ts"
   ],

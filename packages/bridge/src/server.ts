@@ -20,14 +20,13 @@
 /**
  * `module-alias` must be imported first for module aliasing to work.
  */
-import 'module-alias/register';
 
 import express from 'express';
 import http from 'http';
-import path from 'path';
+import * as path from 'path';
 import router from './router.js';
 import { errorMiddleware } from './errors/index.js';
-import { debug, getContext } from '@sonar/shared/index.js';
+import { debug, getContext } from '../../shared/src/index.js';
 import { timeoutMiddleware } from './timeout/index.js';
 import { AddressInfo } from 'net';
 import { Worker, SHARE_ENV } from 'worker_threads';
@@ -98,7 +97,7 @@ export function start(
   return new Promise(resolve => {
     debug('Starting the bridge server');
 
-    worker = new Worker(path.resolve(__dirname, 'worker.js'), {
+    worker = new Worker(path.resolve(import.meta.dirname, 'worker.mjs'), {
       workerData: { context: getContext() },
       env: SHARE_ENV,
     });

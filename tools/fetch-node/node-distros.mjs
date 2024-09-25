@@ -1,4 +1,4 @@
-export const NODE_VERSION = 'v20.9.0';
+export const NODE_VERSION = 'v20.17.0';
 
 const NODE_ORG_URL = `https://nodejs.org/dist/${NODE_VERSION}/node-${NODE_VERSION}`;
 const NODE_ARTIFACTORY_URL = `https://repox.jfrog.io/artifactory/nodejs-dist/${NODE_VERSION}/node-${NODE_VERSION}`;
@@ -16,35 +16,35 @@ export const DISTROS = [
     id: 'win-x64',
     url: `${NODE_ORG_URL}-win-x64.zip`,
     artifactoryUrl: `${NODE_ARTIFACTORY_URL}-win-x64.zip`,
-    sha: '70d87dad2378c63216ff83d5a754c61d2886fc39d32ce0d2ea6de763a22d3780',
+    sha: 'e323fff0aba197090faabd29c4c23f334557ff24454324f0c83faa7e399dbb74',
     binPath: 'node.exe',
   },
   {
     id: 'darwin-arm64',
     url: `${NODE_ORG_URL}-darwin-arm64.tar.gz`,
     artifactoryUrl: `${NODE_ARTIFACTORY_URL}-darwin-arm64.tar.gz`,
-    sha: '31d2d46ae8d8a3982f54e2ff1e60c2e4a8e80bf78a3e8b46dcaac95ac5d7ce6a',
+    sha: '476324108c4361935465631eec47df1c943ba2c87bc050853385b1d1c71f0b1f',
     binPath: 'bin/node',
   },
   {
     id: 'darwin-x64',
     url: `${NODE_ORG_URL}-darwin-x64.tar.gz`,
     artifactoryUrl: `${NODE_ARTIFACTORY_URL}-darwin-x64.tar.gz`,
-    sha: 'fc5b73f2a78c17bbe926cdb1447d652f9f094c79582f1be6471b4b38a2e1ccc8',
+    sha: 'eefe9447dbb0b5b233d42730989c6c364487de4043145db2f63da94e9623c380',
     binPath: 'bin/node',
   },
   {
     id: 'linux-arm64',
     url: `${NODE_ORG_URL}-linux-arm64.tar.gz`,
     artifactoryUrl: `${NODE_ARTIFACTORY_URL}-linux-arm64.tar.gz`,
-    sha: 'd2a7dbeeb274bfd16b579d2cafb92f673010df36c83a5b55de3916aad6806a6a',
+    sha: '18afbf2781edfcc9918343f4bf74a8c35d74d778b85d40a0c09b232adc0ea82c',
     binPath: 'bin/node',
   },
   {
     id: 'linux-x64',
     url: `${NODE_ORG_URL}-linux-x64.tar.gz`,
     artifactoryUrl: `${NODE_ARTIFACTORY_URL}-linux-x64.tar.gz`,
-    sha: 'f0919f092fbf74544438907fa083c21e76b2d7a4bc287f0607ada1553ef16f60',
+    sha: '21e656f6f4e34080ddc5d75fbfe58ce8482fe6e70a76aeae14afdcdc1e23079d',
     binPath: 'bin/node',
   },
 ];

@@ -79,7 +79,7 @@ ruleTester.run('File uploads should be restricted', rule, {
     },
     {
       code: `
-      import * as formidableModule from 'formidable';
+      import formidableModule from 'formidable';
       import { formidable } from 'formidable';
       import { IncomingForm } from 'formidable';
       import { Formidable } from 'formidable';
@@ -222,7 +222,7 @@ ruleTester.run('File uploads should be restricted', rule, {
     },
     {
       code: `
-      import * as multer from 'multer';
+      import multer from 'multer';
       const storage = multer.diskStorage({ filename: filenameFunc });
       multer({ storage }); // Noncompliant
       multer({ storage: multer.diskStorage({ filename: filenameFunc }) }); // Noncompliant

@@ -40,7 +40,7 @@ ruleTester.run('Executing XPath expressions is security-sensitive', rule, {
     },
     {
       code: `
-        import * as foo from 'xpath';
+        import foo from 'xpath';
         foo.parse(expr);`,
     },
     {

@@ -19,7 +19,7 @@
  */
 import { TSESTree } from '@typescript-eslint/utils';
 import { Rule, Scope } from 'eslint';
-import * as estree from 'estree';
+import estree from 'estree';
 import {
   findFirstMatchingAncestor,
   flatMap,

@@ -22,7 +22,8 @@
 import { Rule } from 'eslint';
 import { eslintRules } from '../core/index.js';
 import { tsEslintRules } from '../typescript-eslint/index.js';
-import { rules as reactRules } from 'eslint-plugin-react';
+import pkg from 'eslint-plugin-react';
+const { rules: reactRules } = pkg;
 import { generateMeta, mergeRules } from '../helpers/index.js';
 import { decorate } from './decorator.js';
 import { meta } from './meta.js';

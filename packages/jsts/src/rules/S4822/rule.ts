@@ -20,7 +20,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S4822/javascript
 
 import { Rule } from 'eslint';
-import * as estree from 'estree';
+import estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
 import {
   childrenOf,

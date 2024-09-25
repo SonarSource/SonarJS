@@ -77,7 +77,7 @@ ruleTester.run(
       },
       {
         code: `
-        import * as errorhandler from 'errorhandler';
+        import errorhandler from 'errorhandler';
         const handler = errorhandler();
         app1.use(handler); // Noncompliant  
         if (process.env.NODE_ENV === 'development') {

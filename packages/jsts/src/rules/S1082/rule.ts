@@ -21,7 +21,8 @@
 
 import { Rule } from 'eslint';
 import { generateMeta, mergeRules } from '../helpers/index.js';
-import { rules as jsxA11yRules } from 'eslint-plugin-jsx-a11y';
+import pkg from 'eslint-plugin-jsx-a11y';
+const { rules: jsxA11yRules } = pkg;
 import { meta } from './meta.js';
 
 const mouseEventsHaveKeyEvents = jsxA11yRules['mouse-events-have-key-events'];

@@ -27,7 +27,7 @@ import {
   report as contextReport,
   toSecondaryLocation,
 } from '../helpers/index.js';
-import * as estree from 'estree';
+import estree from 'estree';
 import { meta } from './meta.js';
 
 export const rule: Rule.RuleModule = {

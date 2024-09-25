@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Issue, RuleConfig } from '../linter/index.js';
-import { AnalysisInput, AnalysisOutput } from '@sonar/shared/index.js';
+import { AnalysisInput, AnalysisOutput } from '../../../shared/src/index.js';
 
 /**
  * A CSS analysis input

@@ -30,7 +30,7 @@ import {
   last,
   RequiredParserServices,
 } from '../helpers/index.js';
-import * as ts from 'typescript';
+import ts from 'typescript';
 import { meta } from './meta.js';
 
 /**

@@ -20,7 +20,8 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6441/javascript
 
 import { Rule } from 'eslint';
-import { rules as reactRules } from 'eslint-plugin-react';
+import pkg from 'eslint-plugin-react';
+const { rules: reactRules } = pkg;
 import { detectReactRule, generateMeta, mergeRules } from '../helpers/index.js';
 import { meta } from './meta.js';
 

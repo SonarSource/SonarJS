@@ -19,20 +19,21 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S125/css
 
-import * as stylelint from 'stylelint';
+import pkg from 'stylelint';
+const { createPlugin, utils } = pkg;
 import { parse } from 'postcss';
 
 const ruleName = 'sonar/no-commented-code';
 const messages = { commentedCode: 'Remove this commented out code.' };
 
-const ruleImpl: stylelint.RuleBase = () => {
+const ruleImpl: pkg.RuleBase = () => {
   return (root: any, result: any) => {
     root.walkComments((comment: any) => {
       const { text } = comment;
       if (isLikelyCss(text)) {
         try {
           parse(text);
-          stylelint.utils.report({
+          utils.report({
             ruleName,
             result,
             message: messages.commentedCode,
@@ -63,10 +64,10 @@ const ruleImpl: stylelint.RuleBase = () => {
   }
 };
 
-export const rule = stylelint.createPlugin(
+export const rule = createPlugin(
   ruleName,
   Object.assign(ruleImpl, {
     messages,
     ruleName,
   }),
-) as { ruleName: string; rule: stylelint.Rule };
+) as { ruleName: string; rule: pkg.Rule };

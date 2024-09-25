@@ -20,7 +20,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S5332/javascript
 
 import { Rule } from 'eslint';
-import * as estree from 'estree';
+import estree from 'estree';
 import { URL } from 'url';
 import {
   getFullyQualifiedName,

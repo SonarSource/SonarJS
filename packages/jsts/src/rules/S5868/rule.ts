@@ -29,7 +29,7 @@ import {
 } from '../helpers/regex/index.js';
 import { RegExpValidator } from '@eslint-community/regexpp';
 import { Character, CharacterClassElement } from '@eslint-community/regexpp/ast';
-import * as estree from 'estree';
+import estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
 import { meta } from './meta.js';
 

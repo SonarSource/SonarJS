@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as v8 from 'v8';
-import * as os from 'os';
+import v8 from 'v8';
+import os from 'os';
 import fs from 'fs';
 import { constants, NodeGCPerformanceDetail, PerformanceObserver } from 'perf_hooks';
-import { debug, error, getContext, info, warn } from '@sonar/shared/index.js';
+import { debug, error, getContext, info, warn } from '../../shared/src/index.js';
 
 const MB = 1024 * 1024;
 

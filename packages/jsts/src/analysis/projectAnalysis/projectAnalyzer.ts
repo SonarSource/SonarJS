@@ -36,7 +36,7 @@ import {
   File,
   searchFiles,
 } from '../../rules/helpers/index.js';
-import { toUnixPath } from '@sonar/shared/index.js';
+import { toUnixPath } from '../../../../shared/src/index.js';
 
 /**
  * Analyzes a JavaScript / TypeScript project in a single run

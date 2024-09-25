@@ -21,7 +21,7 @@
 
 import { AwsCdkCheckArguments, AwsCdkTemplate } from '../helpers/aws/cdk.js';
 import { Rule } from 'eslint';
-import * as estree from 'estree';
+import estree from 'estree';
 import { Node } from 'estree';
 import { getResultOfExpression, Result } from '../helpers/result.js';
 import { generateMeta, getFullyQualifiedName, isCallingMethod } from '../helpers/index.js';

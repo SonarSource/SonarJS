@@ -19,7 +19,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S2699/javascript
 import { Rule, SourceCode } from 'eslint';
-import * as estree from 'estree';
+import estree from 'estree';
 import {
   Chai,
   childrenOf,

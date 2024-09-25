@@ -19,7 +19,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6959/javascript
 
-import * as estree from 'estree';
+import estree from 'estree';
 import { Rule } from 'eslint';
 import {
   generateMeta,

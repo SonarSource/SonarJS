@@ -20,7 +20,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S5693/javascript
 
 import { Rule, Scope } from 'eslint';
-import * as estree from 'estree';
+import estree from 'estree';
 import { getVariablePropertyFromAssignment } from '../S2598/rule.js';
 import { parse } from 'bytes';
 import {

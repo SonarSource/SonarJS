@@ -19,7 +19,7 @@
  */
 import { Rule } from 'eslint';
 import { getFullyQualifiedName, getImportDeclarations, getRequireCalls } from './index.js';
-import * as estree from 'estree';
+import estree from 'estree';
 
 export namespace Supertest {
   export function isImported(context: Rule.RuleContext): boolean {

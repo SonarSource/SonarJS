@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as path from 'path';
-import * as fs from 'fs';
-import * as os from 'os';
+import path from 'path';
+import fs from 'fs';
+import os from 'os';
 import { Minimatch } from 'minimatch';
 import {
   AnalysisInput,

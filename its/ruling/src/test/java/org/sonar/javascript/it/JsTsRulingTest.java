@@ -41,6 +41,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.apache.commons.lang.StringUtils;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.parallel.Execution;
@@ -288,6 +289,7 @@ class JsTsRulingTest {
       .setProjectName(projectKey)
       .setProjectVersion("1")
       .setSourceDirs("./")
+      .setDebugLogs(true)
       .setTestDirs(testDir)
       .setSourceEncoding("utf-8")
       .setScannerVersion(SCANNER_VERSION)
@@ -375,6 +377,11 @@ class JsTsRulingTest {
         " has not been activated"
       );
     }
+  }
+
+  @AfterAll
+  public static void tearDown() {
+    LOG.warn("Completed all tests");
   }
 
   static WsClient newAdminWsClient(Orchestrator orchestrator) {

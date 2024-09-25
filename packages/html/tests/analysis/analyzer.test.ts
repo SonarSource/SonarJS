@@ -20,8 +20,8 @@
 import { join } from 'path';
 import { embeddedInput } from '../../../jsts/tests/tools/index.js';
 import { parseHTML } from '../../src/parser/index.js';
-import { setContext } from '@sonar/shared/index.js';
-import { analyzeEmbedded } from '@sonar/jsts/index.js';
+import { setContext } from '../../../shared/src/index.js';
+import { analyzeEmbedded } from '../../../jsts/src/index.js';
 // importing this from @sonar/jsts causes a resolution issue
 import { initializeLinter } from '../../../jsts/src/linter/index.js';
 

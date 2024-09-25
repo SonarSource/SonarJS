@@ -8,7 +8,7 @@ const config = {
     '^@sonar/(\\w+)(.*)$': '<rootDir>/packages/$1/src$2',
   },
   modulePathIgnorePatterns: ['<rootDir>/packages/jsts/src/rules/.*/package.json$', '<rootDir>/its'],
-  resolver: '<rootDir>/jest-resolver.js',
+  resolver: '<rootDir>/jest-resolver.cjs',
   testResultsProcessor: 'jest-sonar-reporter',
   transform: {
     '^.+\\.ts$': ['ts-jest', { tsconfig: 'packages/tsconfig.test.json' }],

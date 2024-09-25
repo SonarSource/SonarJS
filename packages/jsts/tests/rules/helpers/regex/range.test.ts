@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as esprima from 'esprima';
-import * as estree from 'estree';
+import esprima from 'esprima';
+import estree from 'estree';
 import { getRegexpLocation, getRegexpRange } from '../../../../src/rules/helpers/index.js';
 import * as regexpp from '@eslint-community/regexpp';
 import { Rule, SourceCode } from 'eslint';

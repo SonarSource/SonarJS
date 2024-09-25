@@ -184,10 +184,10 @@ public class EmbeddedNode {
         LOG.debug("Embedded node not found for platform {}", platform.archivePathInJar());
         return;
       }
-
       var targetRuntime = deployLocation.resolve(platform.binary());
       var targetDirectory = targetRuntime.getParent();
       var targetVersion = targetDirectory.resolve(VERSION_FILENAME);
+      LOG.info("Deploy location {}, tagetRuntime: {},  version: {}", deployLocation, targetRuntime, targetVersion);
       // we assume that since the archive exists, the version file must as well
       var versionIs = getClass().getResourceAsStream(platform.versionPathInJar());
 

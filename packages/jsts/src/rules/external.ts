@@ -18,9 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { eslintRules } from './core/index.js';
-import { rules as reactPluginRules } from 'eslint-plugin-react';
+import pkg from 'eslint-plugin-react';
+const reactPluginRules = pkg.rules;
 import { tsEslintRules } from './typescript-eslint/index.js';
-import { rules as a11yPluginRules } from 'eslint-plugin-jsx-a11y';
+import jsxA11yPlugin from 'eslint-plugin-jsx-a11y';
+const { rules: a11yPluginRules } = jsxA11yPlugin;
 import { rules as importPluginRules } from 'eslint-plugin-import';
 
 export const rules = {

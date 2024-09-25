@@ -20,7 +20,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S4818/javascript
 
 import { Rule } from 'eslint';
-import * as estree from 'estree';
+import estree from 'estree';
 import { generateMeta, getFullyQualifiedName } from '../helpers/index.js';
 import { meta } from './meta.js';
 

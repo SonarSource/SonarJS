@@ -1,3 +1,3 @@
-import * as jest from 'jest';
+import jest from 'jest';
 
 jest.retryTimes(3); // Noncompliant

@@ -21,7 +21,7 @@
 // SQ key 'eval'
 
 import { Rule } from 'eslint';
-import * as estree from 'estree';
+import estree from 'estree';
 import { eslintRules } from '../core/index.js';
 import { generateMeta } from '../helpers/index.js';
 import { meta } from './meta.js';

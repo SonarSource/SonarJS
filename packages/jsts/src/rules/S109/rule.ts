@@ -20,7 +20,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S109/javascript
 
 import { Rule } from 'eslint';
-import * as estree from 'estree';
+import estree from 'estree';
 import { tsEslintRules } from '../typescript-eslint/index.js';
 import { generateMeta, getNodeParent, isMethodInvocation } from '../helpers/index.js';
 import { meta } from './meta.js';

@@ -20,7 +20,8 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6957/javascript
 
 import { Rule } from 'eslint';
-import { rules } from 'eslint-plugin-react';
+import pkg from 'eslint-plugin-react';
+const { rules } = pkg;
 import { generateMeta, getNearestPackageJsons } from '../helpers/index.js';
 import { FromSchema } from 'json-schema-to-ts';
 import { meta, schema } from './meta.js';

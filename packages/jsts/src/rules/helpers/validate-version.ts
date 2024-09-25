@@ -19,7 +19,7 @@
  */
 
 import { getNearestPackageJsons } from './package-json.js';
-import * as semver from 'semver';
+import semver from 'semver';
 
 /**
  * Minimum version per reference

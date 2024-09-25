@@ -219,7 +219,7 @@ new module.Class();
     },
     {
       code: `
-import * as cdk from 'aws-cdk-lib';
+import cdk from 'aws-cdk-lib';
 new cdk.aws_module.Class();
       `,
       errors: 1,

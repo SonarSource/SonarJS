@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Rule } from 'eslint';
-import { FileType, getContext, JsTsLanguage } from '@sonar/shared/index.js';
+import { FileType, getContext, JsTsLanguage } from '../../../../shared/src/index.js';
 import {
   hasSonarContextOption,
   hasSonarRuntimeOption,

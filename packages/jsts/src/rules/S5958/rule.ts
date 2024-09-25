@@ -20,7 +20,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S5958/javascript
 
 import { Rule } from 'eslint';
-import * as estree from 'estree';
+import estree from 'estree';
 import { generateMeta, getVariableFromIdentifier, isIdentifier, Mocha } from '../helpers/index.js';
 import { meta } from './meta.js';
 

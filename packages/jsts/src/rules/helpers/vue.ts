@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Rule } from 'eslint';
-import * as estree from 'estree';
+import estree from 'estree';
 import { AST } from 'vue-eslint-parser';
 
 type VChildElement = AST.VElement | AST.VText | AST.VExpressionContainer | AST.VStyleElement;

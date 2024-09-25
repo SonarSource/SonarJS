@@ -40,7 +40,7 @@ const tests = {
     },
     {
       code: `
-        import * as libxmljs from "libxmljs";
+        import libxmljs from "libxmljs";
         var xmlDoc = libxmljs.parseXmlString(xml, { noblanks: true, nocdata: true });`,
     },
     {
@@ -84,7 +84,7 @@ const tests = {
     },
     {
       code: `
-        import * as libxmljs from "libxmljs";
+        import libxmljs from "libxmljs";
         var xmlDoc = libxmljs.parseXmlString(xml, { noblanks: true, noent: true, nocdata: true });`,
       errors: 1,
     },

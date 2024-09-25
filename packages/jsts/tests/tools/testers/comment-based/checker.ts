@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as fs from 'fs';
-import * as path from 'path';
+import fs from 'fs';
+import path from 'path';
 import { Rule, RuleTester } from 'eslint';
 import { hasSonarRuntimeOption } from '../../../../src/linter/parameters/index.js';
 import { buildSourceCode } from '../../../../src/builders/index.js';
-import { FileType, JsTsLanguage } from '@sonar/shared/index.js';
+import { FileType, JsTsLanguage } from '../../../../../shared/src/index.js';
 import { extractExpectations } from './framework.js';
 
 /**

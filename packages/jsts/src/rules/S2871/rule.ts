@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import ts from 'typescript';
-import * as estree from 'estree';
+import estree from 'estree';
 import {
   copyingSortLike,
   generateMeta,

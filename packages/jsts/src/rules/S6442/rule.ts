@@ -20,7 +20,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6442/javascript
 
 import { Rule, Scope as ESLintScope } from 'eslint';
-import * as estree from 'estree';
+import estree from 'estree';
 import {
   findFirstMatchingLocalAncestor,
   generateMeta,

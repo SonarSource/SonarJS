@@ -26,6 +26,7 @@
       "@sonar/yaml/*": ["yaml/src/*"]
     }
   },
+  "ts-node": { "esm": true, "experimentalSpecifierResolution": "node" },
   "references": [
     {
       "path": "./tsconfig.app.json"

@@ -21,8 +21,8 @@
 
 import { TSESTree } from '@typescript-eslint/utils';
 import { Rule } from 'eslint';
-import * as estree from 'estree';
-import * as ts from 'typescript';
+import estree from 'estree';
+import ts from 'typescript';
 import { type UnionType } from 'typescript';
 import {
   generateMeta,

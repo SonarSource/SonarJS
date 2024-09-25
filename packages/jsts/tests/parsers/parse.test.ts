@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { APIError, readFile } from '@sonar/shared/index.js';
+import { APIError, readFile } from '../../../shared/src/index.js';
 import { buildParserOptions, parseForESLint, parsers } from '../../src/parsers/index.js';
 import { JsTsAnalysisInput } from '../../src/analysis/index.js';
 import path from 'path';

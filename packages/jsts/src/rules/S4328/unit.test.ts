@@ -37,12 +37,12 @@ const ruleTester = new RuleTester({
 ruleTester.run('Dependencies should be explicit', rule, {
   valid: [
     {
-      code: `import * as fs from "fs";`,
+      code: `import fs from "fs";`,
       filename,
       options,
     },
     {
-      code: `import * as ts from "devDependency";`,
+      code: `import ts from "devDependency";`,
       filename,
       options,
     },

@@ -21,7 +21,7 @@
 
 import { generateMeta, globalsByLibraries } from '../helpers/index.js';
 import { Rule, Scope } from 'eslint';
-import * as estree from 'estree';
+import estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
 import { meta } from './meta.js';
 

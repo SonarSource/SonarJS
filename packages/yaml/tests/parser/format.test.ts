@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as yaml from 'yaml';
+import yaml from 'yaml';
 import path from 'path';
-import { readFile } from '@sonar/shared/index.js';
+import { readFile } from '../../../shared/src/index.js';
 import { isSupportedFormat, SUPPORTED_STRING_FORMATS } from '../../src/parser/index.js';
 
 describe('isSupportedFormat', () => {

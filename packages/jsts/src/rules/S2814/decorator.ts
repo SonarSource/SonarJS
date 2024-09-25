@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Rule } from 'eslint';
-import * as estree from 'estree';
+import estree from 'estree';
 import { generateMeta, interceptReport } from '../helpers/index.js';
 import { TSESTree } from '@typescript-eslint/utils';
 import { meta } from './meta.js';

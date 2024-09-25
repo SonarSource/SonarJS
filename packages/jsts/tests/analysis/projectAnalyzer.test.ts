@@ -18,13 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import path from 'path';
-import { getContext, setContext, toUnixPath } from '@sonar/shared/index.js';
+import { getContext, setContext, toUnixPath } from '../../../shared/src/index.js';
 import {
   analyzeProject,
   clearTSConfigs,
   ProjectAnalysisInput,
   RuleConfig,
-} from '@sonar/jsts/index.js';
+} from '../../../jsts/src/index.js';
 import { searchFiles, File } from '../../src/rules/index.js';
 
 const defaultRules: RuleConfig[] = [

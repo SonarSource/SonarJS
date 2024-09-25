@@ -21,7 +21,7 @@ import { Linter } from 'eslint';
 import { loadBundles, loadCustomRules } from '../../src/linter/bundle-loader.js';
 import { CustomRule } from '../../src/linter/custom-rules/index.js';
 import path from 'path';
-import { setContext } from '@sonar/shared/index.js';
+import { setContext } from '../../../shared/src/index.js';
 
 describe('BundleLoader', () => {
   it('should only load rules when requested', async () => {

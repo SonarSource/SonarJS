@@ -25,7 +25,7 @@
 import { Rule } from 'eslint';
 import { generateMeta, isMemberExpression } from '../helpers/index.js';
 import { TSESTree } from '@typescript-eslint/utils';
-import * as estree from 'estree';
+import estree from 'estree';
 import { meta } from './meta.js';
 
 export const rule: Rule.RuleModule = {

@@ -74,7 +74,7 @@ ruleTester.run(`Objects should not be created to be dropped immediately without 
     },
     {
       code: `
-import * as s3 from 'aws-cdk-lib/aws-s3';
+import s3 from 'aws-cdk-lib/aws-s3';
 export class Stack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);

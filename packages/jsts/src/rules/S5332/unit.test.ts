@@ -97,7 +97,7 @@ ruleTester.run('Using clear-text protocols is security-sensitive', rule, {
       code: `
       require('some-module');
       require();
-      import * as estree from 'estree';
+      import estree from 'estree';
       `,
     },
     {
@@ -145,7 +145,7 @@ ruleTester.run('Using clear-text protocols is security-sensitive', rule, {
     },
     {
       code: `
-      import * as ses from '@aws-sdk/client-ses';
+      import ses from '@aws-sdk/client-ses';
       import nodemailer from 'nodemailer';
 
       const sesClient = new ses.SES({ region: AWS_REGION });
@@ -208,7 +208,7 @@ ruleTester.run('Using clear-text protocols is security-sensitive', rule, {
     {
       code: `
       require('telnet-client');
-      import * as telnet from 'telnet-client';
+      import telnet from 'telnet-client';
       `,
       errors: 2,
     },
@@ -247,8 +247,8 @@ ruleTester.run('Using clear-text protocols is security-sensitive', rule, {
     },
     {
       code: `
-      import * as ses from '@aws-sdk/client-ses';
-      import * as fakeSes from 'fake-client-ses';
+      import ses from '@aws-sdk/client-ses';
+      importfakeSes from 'fake-client-ses';
       import nodemailer from 'nodemailer';
 
       const sesClient = new ses.SES({ region: AWS_REGION });

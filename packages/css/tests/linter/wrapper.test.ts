@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import path from 'path';
-import * as stylelint from 'stylelint';
-import { readFile } from '@sonar/shared/index.js';
+import stylelint from 'stylelint';
+import { readFile } from '../../../shared/src/index.js';
 import { createStylelintConfig, LinterWrapper, RuleConfig } from '../../src/linter/index.js';
 
 import { rule as S5362 } from '../../src/rules/S5362/index.js';

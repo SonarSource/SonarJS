@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import { TSESTree } from '@typescript-eslint/utils';
-import * as estree from 'estree';
+import estree from 'estree';
 import {
   findFirstMatchingAncestor,
   generateMeta,

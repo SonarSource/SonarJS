@@ -19,7 +19,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S131/javascript
 
-import * as estree from 'estree';
+import estree from 'estree';
 import { Rule, SourceCode } from 'eslint';
 import { tsEslintRules } from '../typescript-eslint/index.js';
 import {

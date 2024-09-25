@@ -19,7 +19,7 @@
  */
 import { start } from '../src/server.js';
 import path from 'path';
-import { setContext } from '@sonar/shared/index.js';
+import { setContext } from '../../shared/src/index.js';
 import { AddressInfo } from 'net';
 import { request } from './tools/index.js';
 import http from 'http';

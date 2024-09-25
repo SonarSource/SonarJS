@@ -19,7 +19,7 @@
  */
 import path from 'path';
 
-import { readFile } from '@sonar/shared/index.js';
+import { readFile } from '../../../shared/src/index.js';
 import {
   buildParserOptions,
   parseForESLint,

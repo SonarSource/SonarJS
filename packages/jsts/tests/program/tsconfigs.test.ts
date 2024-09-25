@@ -21,8 +21,8 @@ import {
   clearTSConfigs as clearTSconfigFiles,
   getTSConfigsCount,
   loadTSConfigs,
-} from '@sonar/jsts/index.js';
-import * as path from 'path';
+} from '../../../jsts/src/index.js';
+import path from 'path';
 
 describe('tsconfigs', () => {
   describe('loadTSConfigFiles', () => {

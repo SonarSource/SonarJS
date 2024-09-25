@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { rules as typescriptESLintRules } from '@typescript-eslint/eslint-plugin';
+import pkg from '@typescript-eslint/eslint-plugin';
+const { rules: typescriptESLintRules } = pkg;
 import { Linter } from 'eslint';
 import { sanitize } from '../../../src/rules/typescript-eslint/sanitize.js';
 import path from 'path';

@@ -21,7 +21,8 @@
 
 import { TSESTree } from '@typescript-eslint/utils';
 import { Rule } from 'eslint';
-import { rules as jsxA11yRules } from 'eslint-plugin-jsx-a11y';
+import pkg from 'eslint-plugin-jsx-a11y';
+const { rules: jsxA11yRules } = pkg;
 import { generateMeta, interceptReport, mergeRules } from '../helpers/index.js';
 import { meta } from './meta.js';
 

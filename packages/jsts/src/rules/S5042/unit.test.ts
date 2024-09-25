@@ -66,7 +66,7 @@ ruleTesterTs.run(
       },
       {
         code: `
-        import * as tar from 'tar';
+        import tar from 'tar';
 
         tar.x({ // Sensitive
           file: 'foo.tar.gz'
@@ -131,7 +131,7 @@ ruleTesterTs.run(
       },
       {
         code: `
-        import * as AdmZip from 'adm-zip';
+        importAdmZip from 'adm-zip';
 
         let zip = new AdmZip("./foo.zip");
         zip.extractAllTo("."); // Sensitive`,

@@ -46,7 +46,7 @@ class RulesBundlesTest {
     List<Path> paths = rulesBundles.deploy(tempDir);
     assertThat(paths).hasSize(1);
     assertThat(paths.get(0)).exists();
-    assertThat(paths.get(0).resolve("bin/server")).hasContent("#!/usr/bin/env node\n\n");
+    assertThat(paths.get(0).resolve("bin/server.mjs")).hasContent("#!/usr/bin/env node\n\n");
   }
 
   @Test

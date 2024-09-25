@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import path from 'path';
-import { toUnixPath } from '@sonar/shared/index.js';
+import { toUnixPath } from '../../../shared/src/index.js';
 import {
   clearPackageJsons,
   getAllPackageJsons,

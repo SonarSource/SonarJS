@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { buildSourceCode } from '../../../../../src/builders/index.js';
-import * as estree from 'estree';
+import estree from 'estree';
 import { SourceCode } from 'eslint';
 
 export interface Comment {

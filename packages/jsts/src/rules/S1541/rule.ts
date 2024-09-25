@@ -20,7 +20,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S1541/javascript
 
 import { AST, Rule } from 'eslint';
-import * as estree from 'estree';
+import estree from 'estree';
 import {
   childrenOf,
   EncodedMessage,

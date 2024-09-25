@@ -22,7 +22,8 @@
 // inspired from `no-array-index` from `eslint-plugin-react`:
 // https://github.com/jsx-eslint/eslint-plugin-react/blob/0a2f6b7e9df32215fcd4e3061ec69ea3f2eef793/lib/rules/no-array-index-key.js#L16
 
-import { rules } from 'eslint-plugin-react';
+import pkg from 'eslint-plugin-react';
+const { rules } = pkg;
 import { generateMeta, interceptReportForReact } from '../helpers/index.js';
 import { Rule } from 'eslint';
 import { meta } from './meta.js';

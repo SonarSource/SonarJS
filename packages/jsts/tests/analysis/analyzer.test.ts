@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import path from 'path';
-import { setContext, toUnixPath, APIError } from '@sonar/shared/index.js';
+import { setContext, toUnixPath, APIError } from '../../../shared/src/index.js';
 import {
   initializeLinter,
   RuleConfig,

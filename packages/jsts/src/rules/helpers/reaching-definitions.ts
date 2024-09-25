@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Rule, Scope } from 'eslint';
-import * as estree from 'estree';
+import estree from 'estree';
 import Variable = Scope.Variable;
 import CodePathSegment = Rule.CodePathSegment;
 import Reference = Scope.Reference;

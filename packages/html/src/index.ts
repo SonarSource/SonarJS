@@ -21,7 +21,7 @@ import {
   analyzeEmbedded,
   EmbeddedAnalysisInput as HtmlAnalysisInput,
   EmbeddedAnalysisOutput as HtmlAnalysisOutput,
-} from '@sonar/jsts/index.js';
+} from '../../jsts/src/index.js';
 
 import { parseHTML } from './parser/index.js';
 

@@ -26,8 +26,8 @@ import {
   isRequiredParserServices,
   RequiredParserServices,
 } from '../helpers/index.js';
-import * as estree from 'estree';
-import * as ts from 'typescript';
+import estree from 'estree';
+import ts from 'typescript';
 import { meta } from './meta.js';
 
 type ReturnedExpression = estree.Expression | undefined | null;

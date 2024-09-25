@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import { Chai, generateMeta, isDotNotation, isIdentifier } from '../helpers/index.js';
-import * as estree from 'estree';
+import estree from 'estree';
 import { meta } from './meta.js';
 
 const message = 'Refactor this uncertain assertion; it can succeed for multiple reasons.';

@@ -19,13 +19,13 @@
  */
 import path from 'path';
 import { Worker } from 'worker_threads';
-import { ErrorCode } from '@sonar/shared/index.js';
+import { ErrorCode } from '../../shared/src/index.js';
 
 describe('worker', () => {
   let worker: Worker;
 
   beforeAll(() => {
-    worker = new Worker(path.resolve(__dirname, '../src/worker.js'), {
+    worker = new Worker(path.resolve(__dirname, '../src/worker.mjs'), {
       workerData: { context: {} },
     });
   });

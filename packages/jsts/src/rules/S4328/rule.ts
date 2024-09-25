@@ -20,9 +20,9 @@
 // https://sonarsource.github.io/rspec/#/rspec/S4328/javascript
 
 import { Rule } from 'eslint';
-import * as estree from 'estree';
+import estree from 'estree';
 import builtins from 'builtin-modules';
-import * as ts from 'typescript';
+import ts from 'typescript';
 import { generateMeta, getDependenciesFromPackageJson, toUnixPath } from '../helpers/index.js';
 import { FromSchema } from 'json-schema-to-ts';
 import { meta, schema } from './meta.js';

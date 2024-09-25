@@ -24,7 +24,7 @@ foo.createHash('sha1'); // Noncompliant
 const createHash = require('crypto').createHash;
    createHash('sha1'); // Noncompliant
 // ^^^^^^^^^^
-import * as crypto from 'crypto';
+import crypto from 'crypto';
 crypto.createHash('sha1'); // Noncompliant
 
 const otpyrc = require('otpyrc');

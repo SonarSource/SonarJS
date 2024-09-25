@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as estree from 'estree';
+import estree from 'estree';
 import { join } from 'path';
 import { parseAwsFromYaml } from '../../src/aws/index.js';
 import { embeddedInput } from '../../../jsts/tests/tools/index.js';
-import { buildSourceCodes, composeSyntheticFilePath } from '@sonar/jsts/index.js';
-import { APIError } from '@sonar/shared/index.js';
+import { buildSourceCodes, composeSyntheticFilePath } from '../../../jsts/src/index.js';
+import { APIError } from '../../../shared/src/index.js';
 
 describe('buildSourceCodes()', () => {
   const fixturesPath = join(__dirname, 'fixtures', 'build');

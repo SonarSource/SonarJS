@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { setContext, APIError } from '@sonar/shared/index.js';
+import { setContext, APIError } from '../../../shared/src/index.js';
 import { buildSourceCode } from '../../src/index.js';
 import path from 'path';
 import { AST } from 'vue-eslint-parser';

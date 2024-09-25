@@ -22,7 +22,7 @@
 import { Rule } from 'eslint';
 import isHiddenFromScreenReader from 'eslint-plugin-jsx-a11y/lib/util/isHiddenFromScreenReader.js';
 import getElementType from 'eslint-plugin-jsx-a11y/lib/util/getElementType.js';
-import * as estree from 'estree';
+import estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta } from '../helpers/index.js';
 import { meta } from './meta.js';

@@ -20,7 +20,7 @@
 import { Linter, SourceCode } from 'eslint';
 import { loadBundles, loadCustomRules } from './bundle-loader.js';
 import { createLinterConfig, RuleConfig } from './config/index.js';
-import { debug, FileType, JsTsLanguage } from '@sonar/shared/index.js';
+import { debug, FileType, JsTsLanguage } from '../../../shared/src/index.js';
 import { LintingResult, transformMessages } from './issues/index.js';
 import { CustomRule } from './custom-rules/index.js';
 

@@ -30,7 +30,7 @@ import {
   isUndefined,
 } from '../helpers/index.js';
 
-import * as estree from 'estree';
+import estree from 'estree';
 import { AwsCdkTemplate, normalizeFQN } from '../helpers/aws/cdk.js';
 import { meta } from './meta.js';
 

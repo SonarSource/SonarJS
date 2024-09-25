@@ -20,7 +20,7 @@
 import { join } from 'path';
 import { parseHTML } from '../../src/parser/index.js';
 import { embeddedInput } from '../../../jsts/tests/tools/index.js';
-import { buildSourceCodes } from '@sonar/jsts/index.js';
+import { buildSourceCodes } from '../../../jsts/src/index.js';
 
 describe('buildSourceCodes()', () => {
   const fixturesPath = join(__dirname, 'fixtures');

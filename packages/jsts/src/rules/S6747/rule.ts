@@ -20,10 +20,12 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6747/javascript
 
 import { Rule } from 'eslint';
-import { rules as reactRules } from 'eslint-plugin-react';
-import { rules as jsxA11yRules } from 'eslint-plugin-jsx-a11y';
+import pkg from 'eslint-plugin-react';
+const { rules: reactRules } = pkg;
+import jsxA11yPlugin from 'eslint-plugin-jsx-a11y';
+const { rules: jsxA11yRules } = jsxA11yPlugin;
 import { generateMeta, getDependencies, interceptReport, mergeRules } from '../helpers/index.js';
-import { decorate } from './decorator';
+import { decorate } from './decorator.js';
 import { TSESTree } from '@typescript-eslint/utils';
 import { meta } from './meta.js';
 

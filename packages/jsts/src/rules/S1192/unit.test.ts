@@ -78,9 +78,9 @@ ruleTester.run('S1192', rule, {
     },
     {
       code: ` // ImportDeclaration
-    import * as name1 from "module-name-long";
-    import * as name2 from "module-name-long";
-    import * as name3 from "module-name-long";
+    import name1 from "module-name-long";
+    import name2 from "module-name-long";
+    import name3 from "module-name-long";
       `,
     },
     {

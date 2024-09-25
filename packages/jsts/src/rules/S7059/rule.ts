@@ -26,7 +26,7 @@ import {
   isThenable,
   isFunctionNode,
 } from '../helpers/index.js';
-import * as estree from 'estree';
+import estree from 'estree';
 import { meta } from './meta.js';
 import { AST_NODE_TYPES } from '@typescript-eslint/utils';
 

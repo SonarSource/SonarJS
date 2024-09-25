@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import { AwsCdkCheckArguments, AwsCdkTemplate } from '../helpers/aws/cdk.js';
-import * as estree from 'estree';
+import estree from 'estree';
 
 const sensitivePorts = [80, 8080, 8000, 8008];
 

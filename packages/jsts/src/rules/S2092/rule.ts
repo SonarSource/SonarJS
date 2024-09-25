@@ -20,7 +20,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S2092/javascript
 
 import { Rule } from 'eslint';
-import * as estree from 'estree';
+import estree from 'estree';
 import { CookieFlagCheck } from '../helpers/cookie-flag-check.js';
 import { generateMeta } from '../helpers/index.js';
 import { meta } from './meta.js';

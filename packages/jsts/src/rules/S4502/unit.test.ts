@@ -126,7 +126,7 @@ ruleTester.run('Disabling CSRF protections is security-sensitive', rule, {
     },
     {
       code: `
-        import * as csrf from 'csurf';
+        import csrf from 'csurf';
         app.post('/process', function (req, res) {
           res.send('data is being processed');
         });

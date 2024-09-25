@@ -21,7 +21,7 @@
 
 import { AST, Rule, Scope } from 'eslint';
 import { generateMeta, interceptReport } from '../helpers/index.js';
-import * as estree from 'estree';
+import estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
 import { meta } from './meta.js';
 

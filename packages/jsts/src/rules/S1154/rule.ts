@@ -20,8 +20,8 @@
 // https://sonarsource.github.io/rspec/#/rspec/S1154/javascript
 
 import { Rule } from 'eslint';
-import * as estree from 'estree';
-import * as ts from 'typescript';
+import estree from 'estree';
+import ts from 'typescript';
 import { generateMeta, getTypeFromTreeNode, isRequiredParserServices } from '../helpers/index.js';
 import { meta } from './meta.js';
 
