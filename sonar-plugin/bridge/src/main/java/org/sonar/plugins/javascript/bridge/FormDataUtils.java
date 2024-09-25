@@ -60,33 +60,24 @@ public class FormDataUtils {
 
   public static BridgeServer.BridgeResponse parseFormData2(CloseableHttpResponse response) {
     HttpEntity entity = response.getEntity();
-
-    // Get the content type and boundary
     String contentType = entity.getContentType();
     String boundary = contentType.split("boundary=")[1];
 
     try {
-      // Convert the response entity to a byte array
       byte[] responseBytes = EntityUtils.toByteArray(entity);
+
       String json = null;
       byte[] ast = null;
 
-      // Parse the multipart response
       try (InputStream inputStream = new ByteArrayInputStream(responseBytes)) {
         MultipartStream multipartStream = new MultipartStream(inputStream, boundary.getBytes(), 1024, null);
         boolean nextPart = multipartStream.skipPreamble();
-
-
 
         while (nextPart) {
           String headers = multipartStream.readHeaders();
           ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
           multipartStream.readBodyData(outputStream);
-
-          // Process the part
           byte[] partBytes = outputStream.toByteArray();
-          System.out.println("Headers: " + headers);
-          System.out.println("Part size: " + partBytes.length);
 
           if (headers.contains("json")) {
             json = new String(partBytes, StandardCharsets.UTF_8);
