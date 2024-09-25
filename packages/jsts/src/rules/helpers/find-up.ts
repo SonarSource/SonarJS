@@ -68,7 +68,7 @@ export const createFindUp = (pattern: string): FindUp => {
 
       cache.set(from, cacheContent);
 
-      let entries: any[] = [];
+      let entries: ReturnType<Filesystem['readdirSync']> = [];
 
       try {
         entries = filesystem.readdirSync(from);

@@ -23,8 +23,10 @@ import { toUnixPath } from './files';
 import { Minimatch } from 'minimatch';
 import { type Filesystem, createFindUp } from './find-up';
 import fs from 'fs';
+import { stripBOM } from './files';
 
 export const PACKAGE_JSON = 'package.json';
+
 /**
  * The {@link FindUp} instance dedicated to retrieving `package.json` files
  */
@@ -135,7 +137,7 @@ export const getManifests = (
     const content = file.content;
 
     try {
-      return JSON.parse(content.toString());
+      return JSON.parse(stripBOM(content.toString()));
     } catch (error) {
       console.debug(`Error parsing file ${file.path}: ${error}`);
 

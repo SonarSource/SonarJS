@@ -21,6 +21,7 @@ import { RuleTester } from 'eslint';
 import { rule } from './';
 import path from 'path';
 
+process.chdir(__dirname); // change current working dir to avoid the package.json lookup to up in the tree
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
 
 ruleTester.run('Object spread syntax should be used instead of "Object.assign"', rule, {
