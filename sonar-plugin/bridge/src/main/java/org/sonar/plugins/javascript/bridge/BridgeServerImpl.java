@@ -44,6 +44,17 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.config.RequestConfig;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.ProtocolException;
+import org.apache.hc.core5.http.io.entity.StringEntity;
+import org.apache.hc.core5.util.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.SonarProduct;
@@ -366,7 +377,7 @@ public class BridgeServerImpl implements BridgeServer {
   @Override
   public AnalysisResponse analyzeJavaScript(JsAnalysisRequest request) throws IOException {
     String json = GSON.toJson(request);
-    return response(request(json, "analyze-js"), request.filePath());
+    return response(request2(json, "analyze-js"), request.filePath());
   }
 
   @Override
@@ -416,6 +427,37 @@ public class BridgeServerImpl implements BridgeServer {
     }
   }
 
+  private BridgeResponse request2(String json, String endpoint) throws IOException {
+    try (final CloseableHttpClient httpclient = HttpClients.createDefault()) {
+      RequestConfig config = RequestConfig.copy(RequestConfig.DEFAULT)
+        .setConnectionRequestTimeout(Timeout.ofSeconds(timeoutSeconds))
+        .build();
+      HttpPost httpPost = new HttpPost(url(endpoint));
+      httpPost.setEntity(new StringEntity(json, ContentType.APPLICATION_JSON));
+      httpPost.setConfig(config);
+
+      try (CloseableHttpResponse response = httpclient.execute(httpPost)) {
+        if (isFormData2(response)) {
+          return FormDataUtils.parseFormData2(response);
+        } else {
+          return new BridgeResponse(response.getEntity().toString());
+        }
+      }
+    }
+  }
+
+  private static boolean isFormData2(ClassicHttpResponse response) {
+      try {
+        Header contentTypeHeader = response.getHeader("Content-Type");
+        if (contentTypeHeader == null) {
+          return false;
+        }
+        return contentTypeHeader.toString().contains("multipart/form-data");
+      } catch (ProtocolException e) {
+        return false;
+      }
+  }
+
   private static boolean isFormData(HttpResponse<byte[]> response) {
     var contentTypeHeader = response.headers().firstValue("Content-type").orElse("");
     return contentTypeHeader.contains("multipart/form-data");
@@ -463,7 +505,7 @@ public class BridgeServerImpl implements BridgeServer {
   @Override
   public boolean newTsConfig() {
     try {
-      var response = request("", "new-tsconfig").json();
+      var response = request2("", "new-tsconfig").json();
       return "OK!".equals(response);
     } catch (IOException e) {
       LOG.error("Failed to post new-tsconfig", e);
@@ -475,7 +517,7 @@ public class BridgeServerImpl implements BridgeServer {
     String result = null;
     try {
       TsConfigRequest tsConfigRequest = new TsConfigRequest(tsconfigAbsolutePath);
-      result = request(GSON.toJson(tsConfigRequest), "tsconfig-files").json();
+      result = request2(GSON.toJson(tsConfigRequest), "tsconfig-files").json();
       return GSON.fromJson(result, TsConfigResponse.class);
     } catch (IOException e) {
       LOG.error("Failed to request files for tsconfig: " + tsconfigAbsolutePath, e);
@@ -503,20 +545,20 @@ public class BridgeServerImpl implements BridgeServer {
 
   @Override
   public TsProgram createProgram(TsProgramRequest tsProgramRequest) throws IOException {
-    var response = request(GSON.toJson(tsProgramRequest), "create-program");
+    var response = request2(GSON.toJson(tsProgramRequest), "create-program");
     return GSON.fromJson(response.json(), TsProgram.class);
   }
 
   @Override
   public boolean deleteProgram(TsProgram tsProgram) throws IOException {
     var programToDelete = new TsProgram(tsProgram.programId(), null, null);
-    var response = request(GSON.toJson(programToDelete), "delete-program").json();
+    var response = request2(GSON.toJson(programToDelete), "delete-program").json();
     return "OK!".equals(response);
   }
 
   @Override
   public TsConfigFile createTsConfigFile(String content) throws IOException {
-    var response = request(content, "create-tsconfig-file");
+    var response = request2(content, "create-tsconfig-file");
     return GSON.fromJson(response.json(), TsConfigFile.class);
   }
 
@@ -530,7 +572,7 @@ public class BridgeServerImpl implements BridgeServer {
     heartbeatService.shutdownNow();
     if (nodeCommand != null && isAlive()) {
       try {
-        request("", "close");
+        request2("", "close");
       } catch (IOException e) {
         LOG.warn("Failed to close the bridge server", e);
       }

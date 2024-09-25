@@ -21,13 +21,20 @@ package org.sonar.plugins.javascript.bridge;
 
 import com.google.protobuf.CodedInputStream;
 import com.google.protobuf.InvalidProtocolBufferException;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import javax.annotation.CheckForNull;
+import org.apache.commons.fileupload.MultipartStream;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.plugins.javascript.bridge.protobuf.Node;
@@ -51,6 +58,52 @@ public class FormDataUtils {
     throw new IllegalStateException("Utility class");
   }
 
+  public static BridgeServer.BridgeResponse parseFormData2(CloseableHttpResponse response) {
+    HttpEntity entity = response.getEntity();
+
+    // Get the content type and boundary
+    String contentType = entity.getContentType();
+    String boundary = contentType.split("boundary=")[1];
+
+    try {
+      // Convert the response entity to a byte array
+      byte[] responseBytes = EntityUtils.toByteArray(entity);
+      String json = null;
+      byte[] ast = null;
+
+      // Parse the multipart response
+      try (InputStream inputStream = new ByteArrayInputStream(responseBytes)) {
+        MultipartStream multipartStream = new MultipartStream(inputStream, boundary.getBytes(), 1024, null);
+        boolean nextPart = multipartStream.skipPreamble();
+
+
+
+        while (nextPart) {
+          String headers = multipartStream.readHeaders();
+          ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+          multipartStream.readBodyData(outputStream);
+
+          // Process the part
+          byte[] partBytes = outputStream.toByteArray();
+          System.out.println("Headers: " + headers);
+          System.out.println("Part size: " + partBytes.length);
+
+          if (headers.contains("json")) {
+            json = new String(partBytes, StandardCharsets.UTF_8);
+          } else if (headers.contains("ast")) {
+            ast = partBytes;
+          }
+          nextPart = multipartStream.readBoundary();
+        }
+      }
+      if (json == null || ast == null) {
+        throw new IllegalStateException("Data missing from response");
+      }
+      return new BridgeServer.BridgeResponse(json, parseProtobuf(ast));
+    } catch (IOException e) {
+      throw new IllegalStateException(e);
+    }
+  }
   public static BridgeServer.BridgeResponse parseFormData(HttpResponse<byte[]> response) {
     String boundary = "--" + response.headers().firstValue("Content-Type")
       .orElseThrow(() -> new IllegalStateException("No Content-Type header"))
