@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { mkdirpSync } from 'mkdirp';
 
 const targetDir = join(
-  import.meta.url,
+  import.meta.dirname,
   '..',
   'sonar-plugin',
   'sonar-javascript-plugin',

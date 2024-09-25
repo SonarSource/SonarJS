@@ -26,6 +26,7 @@ import { Rule } from 'eslint';
 import { generateMeta, getTypeFromTreeNode, isRequiredParserServices } from '../helpers/index.js';
 import estree from 'estree';
 import { meta } from './meta.js';
+import ts from 'typescript';
 
 const METHODS_WITHOUT_SIDE_EFFECTS: { [index: string]: Set<string> } = {
   array: new Set([
@@ -187,7 +188,7 @@ export const rule: Rule.RuleModule = {
       return {};
     }
     return {
-      CallExpression: (node: estree.Node) => {
+      CallExpression: async (node: estree.Node) => {
         const call = node as estree.CallExpression;
         const { callee } = call;
         if (callee.type === AST_NODE_TYPES.MemberExpression) {
@@ -222,7 +223,7 @@ function isReplaceWithCallback(
     const typeNode = services.program.getTypeChecker().typeToTypeNode(type, undefined, undefined);
     // dynamically import 'typescript' as classic 'import' will fail if project not using 'typescript' parser
     // we are sure it's available as 'RequiredParserServices' are available here
-    const ts = require('typescript');
+    // const ts = await import('typescript');
     return typeNode && ts.isFunctionTypeNode(typeNode);
   }
   return false;

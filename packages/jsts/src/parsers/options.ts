@@ -70,7 +70,7 @@ export function buildParserOptions(initialOptions: Linter.ParserOptions, usingBa
  * @returns the extend parser options
  */
 function babelParserOptions(options: Linter.ParserOptions) {
-  const pluginPath = `${__dirname}/../../../../node_modules`;
+  const pluginPath = `${import.meta.dirname}/../../../../node_modules`;
   const babelOptions = {
     targets: 'defaults',
     presets: [
