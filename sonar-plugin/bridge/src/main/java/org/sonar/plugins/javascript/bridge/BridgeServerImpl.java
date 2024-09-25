@@ -52,7 +52,9 @@ import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.ProtocolException;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.util.Timeout;
 import org.slf4j.Logger;
@@ -440,8 +442,10 @@ public class BridgeServerImpl implements BridgeServer {
         if (isFormData2(response)) {
           return FormDataUtils.parseFormData2(response);
         } else {
-          return new BridgeResponse(response.getEntity().toString());
+          return new BridgeResponse(EntityUtils.toString(response.getEntity()));
         }
+      } catch (ParseException e) {
+        throw new IllegalStateException("Error while parsing response: " + e.getMessage());
       }
     }
   }
