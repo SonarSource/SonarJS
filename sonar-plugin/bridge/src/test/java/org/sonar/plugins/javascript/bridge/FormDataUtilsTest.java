@@ -46,7 +46,7 @@ public class FormDataUtilsTest {
   public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.ERROR);
 
   @Test
-  void should_parse_form_data_into_bridge_response2() throws Exception {
+  void should_parse_form_data_into_bridge_response() throws Exception {
     ClassicHttpResponse mockResponse = mock(ClassicHttpResponse.class);
     HttpEntity mockEntity = mock(HttpEntity.class);
     when(mockEntity.getContentType()).thenReturn("multipart/form-data; boundary=---------------------------9051914041544843365972754266");
