@@ -21,9 +21,10 @@
 
 import { Rule } from 'eslint';
 import { rules } from 'eslint-plugin-react';
-import { generateMeta, getNearestPackageJsons } from '../helpers';
+import { generateMeta, getManifests } from '../helpers';
 import { FromSchema } from 'json-schema-to-ts';
 import { meta, schema } from './meta';
+import path from 'path';
 
 const reactNoDeprecated = rules['no-deprecated'];
 
@@ -38,7 +39,7 @@ export const rule: Rule.RuleModule = {
       return (context.options as FromSchema<typeof schema>)[0]?.['react-version'];
     }
     function getVersionFromPackageJson() {
-      for (const { contents: packageJson } of getNearestPackageJsons(context.filename)) {
+      for (const packageJson of getManifests(path.posix.dirname(context.filename))) {
         if (packageJson.dependencies?.react) {
           return packageJson.dependencies.react;
         }

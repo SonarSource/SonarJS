@@ -20,17 +20,10 @@
 import { basename } from 'path';
 import { check } from '../../../../../tests/tools';
 import { rule } from '../../';
-import { clearPackageJsons, loadPackageJsons } from '../../../helpers';
 
 
 const sonarId = basename(__dirname);
 
 describe('Rule S5973', () => {
-  beforeEach(() => {
-    loadPackageJsons(__dirname, []);
-  });
-  afterAll(() => {
-    clearPackageJsons();
-  });
   check(sonarId, rule, __dirname);
 });

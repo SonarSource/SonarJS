@@ -19,10 +19,6 @@
  */
 import { RuleTester } from 'eslint';
 import { rule } from '../../';
-import { clearPackageJsons, loadPackageJsons } from '../../../helpers';
-
-clearPackageJsons();
-loadPackageJsons(__dirname, []);
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module', ecmaFeatures: { jsx: true } } });
 ruleTester.run('S6477 turns into a noop on non-React projects', rule, {

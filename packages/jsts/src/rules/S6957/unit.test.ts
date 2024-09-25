@@ -19,14 +19,10 @@
  */
 import { RuleTester } from 'eslint';
 import { rule } from './';
-import path from 'path';
-import { clearPackageJsons, loadPackageJsons } from '../helpers';
+import path from 'path/posix';
+import { toUnixPath } from '@sonar/jsts';
 
-//reset and search package.json files in rule dir
-clearPackageJsons();
-loadPackageJsons(__dirname, []);
-
-const fixtures = path.join(__dirname, 'fixtures');
+const fixtures = path.join(toUnixPath(__dirname), 'fixtures');
 const filenameReact15 = path.join(fixtures, 'react15/file.js');
 
 const tsParserPath = require.resolve('@typescript-eslint/parser');

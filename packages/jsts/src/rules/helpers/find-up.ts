@@ -21,6 +21,7 @@ import * as Path from 'node:path/posix';
 import type { vol } from 'memfs';
 import { Minimatch } from 'minimatch';
 import { isRoot } from './files';
+import fs from 'fs';
 
 interface Stats {
   isFile(): boolean;
@@ -39,7 +40,7 @@ export interface File {
   readonly content: Buffer | string;
 }
 
-export type FindUp = (from: string, to: string, filesystem: Filesystem) => Array<File>;
+export type FindUp = (from: string, to?: string, filesystem?: Filesystem) => Array<File>;
 
 /**
  * Create an instance of FindUp.
@@ -48,7 +49,7 @@ export const createFindUp = (pattern: string): FindUp => {
   const cache: Map<string, Array<File>> = new Map();
   const matcher = new Minimatch(pattern);
 
-  const findUp: FindUp = (from, to, filesystem) => {
+  const findUp: FindUp = (from, to?, filesystem = fs) => {
     const results: Array<File> = [];
 
     let cacheContent = cache.get(from);
@@ -58,7 +59,13 @@ export const createFindUp = (pattern: string): FindUp => {
 
       cache.set(from, cacheContent);
 
-      for (const entry of filesystem.readdirSync(from)) {
+      let entries: any[] = [];
+
+      try {
+        entries = filesystem.readdirSync(from);
+      } catch {}
+
+      for (const entry of entries) {
         const fullEntryPath = Path.join(from, entry.toString());
 
         const basename = Path.basename(fullEntryPath);

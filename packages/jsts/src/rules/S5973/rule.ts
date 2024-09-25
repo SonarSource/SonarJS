@@ -82,7 +82,7 @@ function hasJestRetry(context: Rule.RuleContext, node: estree.CallExpression, ha
 }
 
 function hasJestDependency(context: Rule.RuleContext) {
-  const dependencies = getDependencies(context.filename);
+  const dependencies = getDependencies(context.filename, context.cwd);
   return dependencies.has('jest');
 }
 
