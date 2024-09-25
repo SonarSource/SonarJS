@@ -19,7 +19,7 @@
  */
 import { Volume } from 'memfs';
 import { equal } from 'node:assert';
-import { createFindUp } from '../../../src/rules/helpers/find-up';
+import { createFindUp } from '../../../src/rules/helpers/find-up.js';
 import Path from 'path/posix';
 import { jest } from '@jest/globals';
 

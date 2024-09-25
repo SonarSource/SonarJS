@@ -23,8 +23,8 @@ import estree from 'estree';
 import { Rule } from 'eslint';
 import { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta, isNumberLiteral } from '../helpers/index.js';
-import { meta } from './meta';
-import { tsEslintRules } from '../typescript-eslint';
+import { meta } from './meta.js';
+import { tsEslintRules } from '../typescript-eslint/index.js';
 const baseRuleModule = tsEslintRules['prefer-enum-initializers'];
 
 // The core implementation of this rule reports all enums for which there is a member value that is
@@ -60,7 +60,8 @@ function isEnumWithBody(
 }
 
 function anyInitialized(enumDecl: TSESTree.TSEnumDeclaration) {
-  return enumDecl.members.some(m => m.initializer !== undefined);
+  const members = isEnumWithBody(enumDecl) ? enumDecl.body.members : enumDecl.members;
+  return members.some(m => m.initializer !== undefined);
 }
 
 function numericalOrder(enumDecl: TSESTree.TSEnumDeclaration) {

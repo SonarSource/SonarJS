@@ -30,7 +30,7 @@ import {
 import { toUnixPath } from '../../../shared/src/index.js';
 import ts, { ModuleKind, ScriptTarget } from 'typescript';
 import fs from 'fs';
-import { isRoot } from '../../src/rules/helpers';
+import { isRoot } from '../../src/rules/helpers/index.js';
 
 jest.setTimeout(60000);
 

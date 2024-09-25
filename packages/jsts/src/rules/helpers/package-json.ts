@@ -22,7 +22,7 @@ import { type PackageJson } from 'type-fest';
 import { searchFiles, File } from './find-files.js';
 import { toUnixPath } from './files.js';
 import { Minimatch } from 'minimatch';
-import { type Filesystem, createFindUp } from './find-up';
+import { type Filesystem, createFindUp } from './find-up.js';
 
 export const PACKAGE_JSON = 'package.json';
 export const parsePackageJson = (_filename: string, contents: string | null) =>

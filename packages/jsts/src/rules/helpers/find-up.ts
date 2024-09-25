@@ -20,7 +20,7 @@
 import * as Path from 'node:path/posix';
 import type { vol } from 'memfs';
 import { Minimatch } from 'minimatch';
-import { isRoot } from './files';
+import { isRoot } from './files.js';
 
 interface Stats {
   isFile(): boolean;
