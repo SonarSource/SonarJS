@@ -405,10 +405,12 @@ public class BridgeServerImpl implements BridgeServer {
   }
 
   private BridgeResponse request(String json, String endpoint) throws IOException {
-    try (final CloseableHttpClient httpclient = HttpClients.createDefault()) {
-      RequestConfig config = RequestConfig.copy(RequestConfig.DEFAULT)
-        .setConnectionRequestTimeout(Timeout.ofSeconds(timeoutSeconds))
+    try (CloseableHttpClient httpclient = HttpClients.custom().build()) {
+
+      var config = RequestConfig.custom()
+        .setResponseTimeout(Timeout.ofSeconds(timeoutSeconds))
         .build();
+
       HttpPost httpPost = new HttpPost(url(endpoint));
       httpPost.setEntity(new StringEntity(json, ContentType.APPLICATION_JSON));
       httpPost.setConfig(config);
@@ -426,15 +428,15 @@ public class BridgeServerImpl implements BridgeServer {
   }
 
   private static boolean isFormData(ClassicHttpResponse response) {
-      try {
-        Header contentTypeHeader = response.getHeader("Content-Type");
-        if (contentTypeHeader == null) {
-          return false;
-        }
-        return contentTypeHeader.toString().contains("multipart/form-data");
-      } catch (ProtocolException e) {
+    try {
+      Header contentTypeHeader = response.getHeader("Content-Type");
+      if (contentTypeHeader == null) {
         return false;
       }
+      return contentTypeHeader.toString().contains("multipart/form-data");
+    } catch (ProtocolException e) {
+      return false;
+    }
   }
 
   private static IllegalStateException handleInterruptedException(
