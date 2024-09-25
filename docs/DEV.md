@@ -173,21 +173,7 @@ The contents of the options file must be a valid JSON array:
 ['1tbs', { allowSingleLine: true }];
 ```
 
-If your rule depends on a dependency declared in the `package.json` file, you can add the following clauses to your test:
-
-```js
-describe('Rule S5973', () => {
-  beforeEach(() => {
-    loadPackageJsons(__dirname, []);
-  });
-  afterAll(() => {
-    clearPackageJsons();
-  });
-  check(sonarId, rule, __dirname);
-});
-```
-
-and define multiple subfolders for your different settings like:
+You can define multiple subfolders for your different settings like:
 
 - fixtures/setup-1/cb.test.ts
 - fixtures/setup-1/cb.fixture.ts
