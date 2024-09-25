@@ -36,6 +36,14 @@ ruleTester.run('Allowing requests with excessive content length is security-sens
       code: `
       const multer = require('multer');
       const upload = multer(options);
+      const storage = multer.diskStorage({
+        destination: function (req, file, cb) {
+          cb(null, '/tmp/my-uploads')
+        },
+        filename: function (req, file, cb) {
+          cb(null, file.fieldname)
+        }
+      });
         `,
       options,
     },
