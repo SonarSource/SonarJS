@@ -19,11 +19,10 @@
  */
 import Path from 'path/posix';
 import { type PackageJson } from 'type-fest';
-import { toUnixPath } from './files';
+import { toUnixPath, stripBOM } from './files';
 import { Minimatch } from 'minimatch';
 import { type Filesystem, createFindUp } from './find-up';
 import fs from 'fs';
-import { stripBOM } from './files';
 
 export const PACKAGE_JSON = 'package.json';
 
@@ -47,7 +46,7 @@ const cache: Map<string, Set<string | Minimatch>> = new Map();
  * @returns
  */
 export function getDependencies(filename: string, cwd: string) {
-  let dirname = Path.dirname(toUnixPath(filename));
+  const dirname = Path.dirname(toUnixPath(filename));
   const cached = cache.get(dirname);
   if (cached) {
     return cached;
