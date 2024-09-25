@@ -23,12 +23,8 @@ import { toUnixPath } from './files';
 import { Minimatch } from 'minimatch';
 import { type Filesystem, createFindUp } from './find-up';
 import fs from 'fs';
-import { stripBOM } from './files';
 
 export const PACKAGE_JSON = 'package.json';
-export const parsePackageJson = (_filename: string, contents: string | null) =>
-  contents ? (JSON.parse(contents) as PackageJson) : {};
-
 /**
  * The {@link FindUp} instance dedicated to retrieving `package.json` files
  */
@@ -57,7 +53,7 @@ export function getDependencies(filename: string, cwd: string) {
   const result = new Set<string | Minimatch>();
   cache.set(dirname, result);
 
-  getManifests(filename, cwd, fs).forEach(manifest => {
+  getManifests(dirname, cwd, fs).forEach(manifest => {
     const manifestDependencies = getDependenciesFromPackageJson(manifest);
 
     manifestDependencies.forEach(dependency => {
@@ -139,7 +135,7 @@ export const getManifests = (
     const content = file.content;
 
     try {
-      return JSON.parse(stripBOM(content.toString()));
+      return JSON.parse(content.toString());
     } catch (error) {
       console.debug(`Error parsing file ${file.path}: ${error}`);
 

@@ -20,7 +20,7 @@
 import * as Path from 'node:path/posix';
 import type { vol } from 'memfs';
 import { Minimatch } from 'minimatch';
-import { isRoot } from './files';
+import { isRoot, toUnixPath } from './files';
 import fs from 'fs';
 
 interface Stats {
@@ -50,7 +50,16 @@ export const createFindUp = (pattern: string): FindUp => {
   const matcher = new Minimatch(pattern);
 
   const findUp: FindUp = (from, to?, filesystem = fs) => {
+    return _findUp(toUnixPath(from), to ? toUnixPath(to) : undefined, filesystem);
+  };
+
+  const _findUp: FindUp = (from, to?, filesystem = fs) => {
     const results: Array<File> = [];
+
+    if (from === '.') {
+      // handle path.dirname returning "." in windows
+      return results;
+    }
 
     let cacheContent = cache.get(from);
 
@@ -98,7 +107,7 @@ export const createFindUp = (pattern: string): FindUp => {
     if (!isRoot(from) && from !== to) {
       const parent = Path.dirname(from);
 
-      results.push(...findUp(parent, to, filesystem));
+      results.push(..._findUp(parent, to, filesystem));
     }
 
     return results;
