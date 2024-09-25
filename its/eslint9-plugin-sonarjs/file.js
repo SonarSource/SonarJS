@@ -1,3 +1,7 @@
+// S4328
+import * as Bar from 'bar';
+import * as CrossSpawn from 'cross-spawn';
+
 function S3776(foo) {
   if (foo.bar) {
     if (foo.baz) {
