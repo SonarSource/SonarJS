@@ -25,5 +25,6 @@ import { rule } from '../../';
 const sonarId = basename(__dirname);
 
 describe('Rule S5973', () => {
+  process.chdir(__dirname) // change current working dir to avoid the package.json lookup to up in the tree
   check(sonarId, rule, __dirname);
 });

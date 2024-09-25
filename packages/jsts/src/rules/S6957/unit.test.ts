@@ -26,6 +26,9 @@ const fixtures = path.join(toUnixPath(__dirname), 'fixtures');
 const filenameReact15 = path.join(fixtures, 'react15/file.js');
 
 const tsParserPath = require.resolve('@typescript-eslint/parser');
+
+process.chdir(__dirname); // change current working dir to avoid the package.json lookup to up in the tree
+
 const ruleTester = new RuleTester({
   parser: tsParserPath,
   parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
