@@ -28,9 +28,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.HashMap;
@@ -379,7 +377,7 @@ public class BridgeServerImpl implements BridgeServer {
   @Override
   public AnalysisResponse analyzeJavaScript(JsAnalysisRequest request) throws IOException {
     String json = GSON.toJson(request);
-    return response(request2(json, "analyze-js"), request.filePath());
+    return response(request(json, "analyze-js"), request.filePath());
   }
 
   @Override
@@ -407,29 +405,6 @@ public class BridgeServerImpl implements BridgeServer {
   }
 
   private BridgeResponse request(String json, String endpoint) throws IOException {
-    var request = HttpRequest
-      .newBuilder()
-      .uri(url(endpoint))
-      .timeout(Duration.ofSeconds(timeoutSeconds))
-      .header("Content-Type", "application/json")
-      .POST(HttpRequest.BodyPublishers.ofString(json))
-      .build();
-
-    try {
-      HttpResponse<byte[]> response = client.send(request, BodyHandlers.ofByteArray());
-      if (isFormData(response)) {
-        return FormDataUtils.parseFormData(response);
-      } else {
-        return new BridgeResponse(new String(response.body(), StandardCharsets.UTF_8));
-      }
-    } catch (InterruptedException e) {
-      throw handleInterruptedException(e, "Request " + endpoint + " was interrupted.");
-    } catch (IOException e) {
-      throw new IllegalStateException("The bridge server is unresponsive", e);
-    }
-  }
-
-  private BridgeResponse request2(String json, String endpoint) throws IOException {
     try (final CloseableHttpClient httpclient = HttpClients.createDefault()) {
       RequestConfig config = RequestConfig.copy(RequestConfig.DEFAULT)
         .setConnectionRequestTimeout(Timeout.ofSeconds(timeoutSeconds))
@@ -439,8 +414,8 @@ public class BridgeServerImpl implements BridgeServer {
       httpPost.setConfig(config);
 
       try (CloseableHttpResponse response = httpclient.execute(httpPost)) {
-        if (isFormData2(response)) {
-          return FormDataUtils.parseFormData2(response);
+        if (isFormData(response)) {
+          return FormDataUtils.parseFormData(response);
         } else {
           return new BridgeResponse(EntityUtils.toString(response.getEntity()));
         }
@@ -450,7 +425,7 @@ public class BridgeServerImpl implements BridgeServer {
     }
   }
 
-  private static boolean isFormData2(ClassicHttpResponse response) {
+  private static boolean isFormData(ClassicHttpResponse response) {
       try {
         Header contentTypeHeader = response.getHeader("Content-Type");
         if (contentTypeHeader == null) {
@@ -460,11 +435,6 @@ public class BridgeServerImpl implements BridgeServer {
       } catch (ProtocolException e) {
         return false;
       }
-  }
-
-  private static boolean isFormData(HttpResponse<byte[]> response) {
-    var contentTypeHeader = response.headers().firstValue("Content-type").orElse("");
-    return contentTypeHeader.contains("multipart/form-data");
   }
 
   private static IllegalStateException handleInterruptedException(
@@ -509,7 +479,7 @@ public class BridgeServerImpl implements BridgeServer {
   @Override
   public boolean newTsConfig() {
     try {
-      var response = request2("", "new-tsconfig").json();
+      var response = request("", "new-tsconfig").json();
       return "OK!".equals(response);
     } catch (IOException e) {
       LOG.error("Failed to post new-tsconfig", e);
@@ -521,7 +491,7 @@ public class BridgeServerImpl implements BridgeServer {
     String result = null;
     try {
       TsConfigRequest tsConfigRequest = new TsConfigRequest(tsconfigAbsolutePath);
-      result = request2(GSON.toJson(tsConfigRequest), "tsconfig-files").json();
+      result = request(GSON.toJson(tsConfigRequest), "tsconfig-files").json();
       return GSON.fromJson(result, TsConfigResponse.class);
     } catch (IOException e) {
       LOG.error("Failed to request files for tsconfig: " + tsconfigAbsolutePath, e);
@@ -549,20 +519,20 @@ public class BridgeServerImpl implements BridgeServer {
 
   @Override
   public TsProgram createProgram(TsProgramRequest tsProgramRequest) throws IOException {
-    var response = request2(GSON.toJson(tsProgramRequest), "create-program");
+    var response = request(GSON.toJson(tsProgramRequest), "create-program");
     return GSON.fromJson(response.json(), TsProgram.class);
   }
 
   @Override
   public boolean deleteProgram(TsProgram tsProgram) throws IOException {
     var programToDelete = new TsProgram(tsProgram.programId(), null, null);
-    var response = request2(GSON.toJson(programToDelete), "delete-program").json();
+    var response = request(GSON.toJson(programToDelete), "delete-program").json();
     return "OK!".equals(response);
   }
 
   @Override
   public TsConfigFile createTsConfigFile(String content) throws IOException {
-    var response = request2(content, "create-tsconfig-file");
+    var response = request(content, "create-tsconfig-file");
     return GSON.fromJson(response.json(), TsConfigFile.class);
   }
 
@@ -576,7 +546,7 @@ public class BridgeServerImpl implements BridgeServer {
     heartbeatService.shutdownNow();
     if (nodeCommand != null && isAlive()) {
       try {
-        request2("", "close");
+        request("", "close");
       } catch (IOException e) {
         LOG.warn("Failed to close the bridge server", e);
       }
