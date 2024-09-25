@@ -29,7 +29,7 @@
       "1.14.6"
     ]
   },
-  "quickfix": "unknown",
+  "quickfix": "infeasible",
   "compatibleLanguages": [
     "JAVASCRIPT",
     "TYPESCRIPT"

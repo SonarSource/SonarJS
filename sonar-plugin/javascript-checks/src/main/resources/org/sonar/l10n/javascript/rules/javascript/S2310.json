@@ -12,6 +12,12 @@
   "sqKey": "S2310",
   "scope": "Main",
   "quickfix": "unknown",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "MEDIUM"
+    },
+    "attribute": "CLEAR"
+  },
   "compatibleLanguages": [
     "JAVASCRIPT",
     "TYPESCRIPT"

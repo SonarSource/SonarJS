@@ -12,6 +12,12 @@
   "sqKey": "S6679",
   "scope": "All",
   "quickfix": "covered",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "MEDIUM"
+    },
+    "attribute": "CONVENTIONAL"
+  },
   "compatibleLanguages": [
     "JAVASCRIPT",
     "TYPESCRIPT"

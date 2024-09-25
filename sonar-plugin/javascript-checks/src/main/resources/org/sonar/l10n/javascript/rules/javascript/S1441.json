@@ -12,6 +12,12 @@
   "quickfix": "covered",
   "status": "deprecated",
   "tags": [],
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "MEDIUM"
+    },
+    "attribute": "FORMATTED"
+  },
   "compatibleLanguages": [
     "JAVASCRIPT",
     "TYPESCRIPT"

@@ -12,6 +12,12 @@
   "sqKey": "S3523",
   "scope": "Main",
   "quickfix": "unknown",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "MEDIUM"
+    },
+    "attribute": "CONVENTIONAL"
+  },
   "compatibleLanguages": [
     "JAVASCRIPT"
   ]

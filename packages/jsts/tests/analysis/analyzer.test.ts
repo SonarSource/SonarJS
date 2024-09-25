@@ -864,7 +864,10 @@ describe('analyzeJSTS', () => {
       create(context) {
         return {
           CallExpression(node) {
-            const packageJsons = getManifests(path.posix.dirname(context.filename), baseDir);
+            const packageJsons = getManifests(
+              path.posix.dirname(toUnixPath(context.filename)),
+              baseDir,
+            );
             expect(packageJsons).toBeDefined();
             expect(packageJsons[0].name).toEqual('test-module');
             context.report({
