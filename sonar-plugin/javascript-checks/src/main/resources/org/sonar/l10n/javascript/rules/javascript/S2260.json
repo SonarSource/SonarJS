@@ -13,7 +13,14 @@
   "ruleSpecification": "RSPEC-2260",
   "sqKey": "S2260",
   "scope": "Main",
-  "quickfix": "unknown",
+  "quickfix": "infeasible",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "MEDIUM",
+      "RELIABILITY": "MEDIUM"
+    },
+    "attribute": "CONVENTIONAL"
+  },
   "compatibleLanguages": [
     "JAVASCRIPT",
     "TYPESCRIPT"

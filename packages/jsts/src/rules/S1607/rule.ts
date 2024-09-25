@@ -33,10 +33,11 @@ import {
   isLiteral,
   isMethodInvocation,
   resolveFunction,
+  toUnixPath,
 } from '../helpers';
 import { meta } from './meta';
 import { TSESTree } from '@typescript-eslint/utils';
-import fs from 'fs';
+import { dirname } from 'path/posix';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta as Rule.RuleMetaData, {
@@ -53,7 +54,7 @@ export const rule: Rule.RuleModule = {
         return jestListener();
       case dependencies.has('mocha'):
         return mochaListener();
-      case getManifests(context.filename, context.cwd, fs).length > 0:
+      case getManifests(dirname(toUnixPath(context.filename)), context.cwd).length > 0:
         return nodejsListener();
       default:
         return {};
