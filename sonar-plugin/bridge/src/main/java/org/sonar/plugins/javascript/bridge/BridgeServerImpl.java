@@ -421,6 +421,8 @@ public class BridgeServerImpl implements BridgeServer {
         } else {
           return new BridgeResponse(EntityUtils.toString(response.getEntity()));
         }
+      } catch (IOException e) {
+        throw new IllegalStateException("The bridge server is unresponsive", e);
       } catch (ParseException e) {
         throw new IllegalStateException("Error while parsing response: " + e.getMessage());
       }
