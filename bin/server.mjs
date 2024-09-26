@@ -15,7 +15,7 @@ import * as server from '../lib/server.js';
 import path from 'path';
 import * as context from '../lib/shared/src/helpers/context.js';
 
-const port = process.argv[2];
+const port = process.argv[2] ?? 60001;
 const host = process.argv[3];
 const workDir = process.argv[4];
 const shouldUseTypeScriptParserForJS = process.argv[5] !== 'false';

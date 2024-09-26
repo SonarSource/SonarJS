@@ -1,0 +1,21 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="JsTsRulingTest debug" type="JUnit" factoryName="JUnit">
+    <module name="javascript-it-ruling" />
+    <extension name="coverage">
+      <pattern>
+        <option name="PATTERN" value="org.sonar.javascript.it.*" />
+        <option name="ENABLED" value="$ESLINT_USE_FLAT_CONFIG$" />
+      </pattern>
+    </extension>
+    <option name="PACKAGE_NAME" value="org.sonar.javascript.it" />
+    <option name="MAIN_CLASS_NAME" value="org.sonar.javascript.it.JsTsRulingTest" />
+    <option name="METHOD_NAME" value="" />
+    <option name="TEST_OBJECT" value="class" />
+    <envs>
+      <env name="SONARJS_EXISTING_NODE_PROCESS_PORT" value="60001" />
+    </envs>
+    <method v="2">
+      <option name="Make" enabled="$ESLINT_USE_FLAT_CONFIG$" />
+    </method>
+  </configuration>
+</component>

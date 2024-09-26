@@ -27,6 +27,11 @@ import { generateMeta } from '../helpers/index.js';
 import { meta } from './meta.js';
 import { CodeRecognizer, JavaScriptFootPrint } from '../helpers/recognizers/index.js';
 
+import babelPresetReact from '@babel/preset-react';
+import babelPresetFlow from '@babel/preset-flow';
+import babelPresetEnv from '@babel/preset-env';
+import babelPluginDecorators from '@babel/plugin-proposal-decorators';
+
 const EXCLUDED_STATEMENTS = ['BreakStatement', 'LabeledStatement', 'ContinueStatement'];
 
 const recognizer = new CodeRecognizer(0.9, new JavaScriptFootPrint());
@@ -164,8 +169,8 @@ function containsCode(value: string) {
       requireConfigFile: false,
       babelOptions: {
         targets: 'defaults',
-        presets: [`@babel/preset-react`, `@babel/preset-flow`, `@babel/preset-env`],
-        plugins: [[`@babel/plugin-proposal-decorators`, { version: '2022-03' }]],
+        presets: [babelPresetReact, babelPresetFlow, babelPresetEnv],
+        plugins: [[babelPluginDecorators, { version: '2022-03' }]],
         babelrc: false,
         configFile: false,
         parserOpts: {

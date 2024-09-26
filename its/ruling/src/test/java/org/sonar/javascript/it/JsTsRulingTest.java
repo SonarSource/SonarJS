@@ -89,9 +89,9 @@ class JsTsRulingTest {
 
   public static Stream<Arguments> ruling() {
     return Stream.of(
-//      jsTsProject("amplify", "external/**", "test")
+//      jsTsProject("amplify", "external/**", "test"),
 //      jsTsProject("angular.js", "src/ngLocale/**, i18n/**", "test"),
-      jsTsProject("backbone", "test")
+//      jsTsProject("backbone", "test"),
 //      jsTsProject("es5-shim", "tests"),
 //      jsTsProject("fireact"),
 //      jsTsProject("ace"),
@@ -124,7 +124,7 @@ class JsTsRulingTest {
 //      jsTsProject("ant-design", "tests"), // todo: many dirs **/__tests__
 //      jsTsProject("console"), // todo: many dirs **/__tests__
 //      jsTsProject("courselit", ".yarn/**", ""),
-//      jsTsProject("desktop", "app/test"),
+      jsTsProject("desktop", "app/test")
 //      jsTsProject("eigen"), // todo
 //      jsTsProject("fireface"),
 //      jsTsProject("ionic2-auth"),
@@ -137,8 +137,8 @@ class JsTsRulingTest {
 //      jsTsProject("TypeScript", "src/harness/unittests"),
 //      jsTsProject("vuetify"),
 //      jsTsProject("it-tools"),
-//      jsTsProject("yaml", "../sources/yaml", "", ""),
-//      jsTsProject("file-for-rules", "../sources/jsts/custom", "", "tests")
+//      jsTsProject("yaml", "../../../sonarjs-ruling-sources/yaml", "", ""),
+//      jsTsProject("file-for-rules", "../../../sonarjs-ruling-sources/jsts/custom", "", "tests")
     );
   }
 
@@ -151,7 +151,7 @@ class JsTsRulingTest {
   }
 
   private static Arguments jsTsProject(String project, String exclusions, String testDir) {
-    return jsTsProject(project, "../sources/jsts/projects/" + project, exclusions, testDir);
+    return jsTsProject(project, "/Users/michal.zgliczynski/codes/sonarjs-ruling-sources/jsts/projects/" + project, exclusions, testDir);
   }
 
   private static Arguments jsTsProject(
@@ -289,7 +289,7 @@ class JsTsRulingTest {
       .setProjectName(projectKey)
       .setProjectVersion("1")
       .setSourceDirs("./")
-      .setDebugLogs(true)
+//      .setDebugLogs(true)
       .setTestDirs(testDir)
       .setSourceEncoding("utf-8")
       .setScannerVersion(SCANNER_VERSION)
