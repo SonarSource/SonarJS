@@ -45,7 +45,6 @@ import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.Header;
-import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.util.Timeout;
@@ -447,10 +446,9 @@ public class BridgeServerImpl implements BridgeServer {
     }
     try (var client = HttpClients.custom().build()) {
       var get = new HttpGet(url("status"));
-      var response = client.execute(get);
-      String body = EntityUtils.toString(response.getEntity());
-      return "OK!".equals(body);
-    } catch (IOException|ParseException e) {
+      var res = client.execute(get, response -> EntityUtils.toString(response.getEntity()));
+      return "OK!".equals(res);
+    } catch (IOException e) {
       return false;
     }
   }
