@@ -22,7 +22,7 @@ import {
   DEFAULT_GLOBALS,
   ProjectAnalysisInput,
   ProjectAnalysisOutput,
-} from './projectAnalysis';
+} from './projectAnalysis.js';
 import { analyzeWithProgram } from './analyzeWithProgram.js';
 import { analyzeWithWatchProgram } from './analyzeWithWatchProgram.js';
 import { analyzeWithoutProgram } from './analyzeWithoutProgram.js';
