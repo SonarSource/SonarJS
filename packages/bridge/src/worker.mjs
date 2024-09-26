@@ -38,7 +38,6 @@ import {
   deleteProgram,
   initializeLinter,
   writeTSConfigFile,
-  loadPackageJsons,
   analyzeProject,
 } from '../../jsts/src/index.js';
 import { readFile, setContext } from '../../shared/src/helpers/index.js';
@@ -164,11 +163,8 @@ if (parentPort) {
         }
 
         case 'on-init-linter': {
-          const { rules, environments, globals, linterId, baseDir, exclusions } = data;
+          const { rules, environments, globals, linterId, baseDir } = data;
           initializeLinter(rules, environments, globals, baseDir, linterId);
-          if (baseDir) {
-            loadPackageJsons(baseDir, exclusions);
-          }
           parentThread.postMessage({ type: 'success', result: 'OK!' });
           break;
         }

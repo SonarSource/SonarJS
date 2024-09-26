@@ -173,18 +173,10 @@ The contents of the options file must be a valid JSON array:
 ['1tbs', { allowSingleLine: true }];
 ```
 
-If your rule depends on a dependency declared in the `package.json` file, you can add the following clauses to your test:
+If your rule depends on a dependency declared in the `package.json` file, you can add the following clause to your test:
 
 ```js
-describe('Rule S5973', () => {
-  beforeEach(() => {
-    loadPackageJsons(__dirname, []);
-  });
-  afterAll(() => {
-    clearPackageJsons();
-  });
-  check(sonarId, rule, __dirname);
-});
+process.chdir(__dirname); // change current working dir to avoid the package.json lookup to up in the tree
 ```
 
 and define multiple subfolders for your different settings like:

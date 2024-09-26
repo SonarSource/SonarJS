@@ -18,18 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { check } from '../../../tests/tools/index.js';
-import { rule } from './/index.js';
+import { rule } from './index.js';
 import path from 'path';
-import { clearPackageJsons, loadPackageJsons } from '../helpers/package-json.js';
 
 const sonarId = path.basename(__dirname);
 
 describe('Rule S6957', () => {
-  beforeEach(() => {
-    loadPackageJsons(__dirname, []);
-  });
-  afterAll(() => {
-    clearPackageJsons();
-  });
+  process.chdir(__dirname); // change current working dir to avoid the package.json lookup to up in the tree
   check(sonarId, rule, __dirname);
 });

@@ -12,6 +12,12 @@
   "sqKey": "S3723",
   "scope": "Main",
   "quickfix": "unknown",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "MEDIUM"
+    },
+    "attribute": "FORMATTED"
+  },
   "compatibleLanguages": [
     "JAVASCRIPT",
     "TYPESCRIPT"

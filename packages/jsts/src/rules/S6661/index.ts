@@ -20,7 +20,8 @@
 import { Rule } from 'eslint';
 import { eslintRules } from '../core/index.js';
 import { decorate } from './decorator.js';
-import { isSupported } from '../helpers/validate-version.js';
+import { dirname } from 'path/posix';
+import { toUnixPath, isSupported } from '../helpers/index.js';
 
 const decorated = decorate(eslintRules['prefer-object-spread']);
 
@@ -28,7 +29,7 @@ export const rule: Rule.RuleModule = {
   meta: decorated.meta,
   create(context) {
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax#browser_compatibility
-    if (!isSupported(context.filename, { node: '8.3.0' })) {
+    if (!isSupported(dirname(toUnixPath(context.filename)), { node: '8.3.0' })) {
       return {};
     }
 

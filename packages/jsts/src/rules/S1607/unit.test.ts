@@ -20,6 +20,7 @@
 import { RuleTester } from 'eslint';
 import { rule } from './/index.js';
 
+process.chdir(__dirname); // change current working dir to avoid the package.json lookup to up in the tree
 const ruleTester = new RuleTester();
 
 ruleTester.run(`Tests should not be skipped without providing a reason`, rule, {

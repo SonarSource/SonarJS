@@ -18,12 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RuleTester } from 'eslint';
-import { rule } from './/index.js';
-import { clearPackageJsons, loadPackageJsons } from '../helpers/package-json.js';
+import { rule } from './index.js';
 import path from 'path';
 
-clearPackageJsons();
-
+process.chdir(__dirname); // change current working dir to avoid the package.json lookup to up in the tree
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
 
 ruleTester.run('Object spread syntax should be used instead of "Object.assign"', rule, {
@@ -76,10 +74,7 @@ const b = { ...foo, ...bar};`,
   ],
 });
 
-clearPackageJsons();
-const project = path.join(__dirname, 'fixtures', 'unsupported-node');
-loadPackageJsons(project, []);
-const filename = path.join(project, 'file.js');
+const filename = path.join(__dirname, 'fixtures', 'unsupported-node', 'file.js');
 
 ruleTester.run(
   'When the project does not support the object spread syntax, the rule should be ignored',

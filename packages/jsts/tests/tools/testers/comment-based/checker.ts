@@ -26,16 +26,16 @@ import { FileType, JsTsLanguage } from '../../../../../shared/src/index.js';
 import { extractExpectations } from './framework.js';
 
 /**
- * Loading this file's `parseForESLint()` function into ESLint's rule tester.
- */
-const ruleTester = new RuleTester({ parser: __filename });
-
-/**
  * Checks that a rule raises the issues declared as comment-based expectations on fixture files.
  * These fixtures are to be found in the rule directory and should be named as `*.fixture.<ext>`.
  * The directory can include options (`cb.options.json`) to configure the rule behaviour.
  */
 export function check(ruleId: string, ruleModule: Rule.RuleModule, ruleDir: string) {
+  /**
+   * Loading this file's `parseForESLint()` function into ESLint's rule tester.
+   */
+  const ruleTester = new RuleTester({ parser: __filename });
+
   const fixtures = [];
   for (const file of fs.readdirSync(ruleDir, { recursive: true })) {
     if (/\.fixture\.(js|ts|jsx|tsx|vue)$/.exec(file as string)) {

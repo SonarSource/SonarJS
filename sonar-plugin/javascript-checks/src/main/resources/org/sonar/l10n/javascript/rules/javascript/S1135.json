@@ -24,7 +24,7 @@
       546
     ]
   },
-  "quickfix": "unknown",
+  "quickfix": "infeasible",
   "compatibleLanguages": [
     "JAVASCRIPT",
     "TYPESCRIPT"

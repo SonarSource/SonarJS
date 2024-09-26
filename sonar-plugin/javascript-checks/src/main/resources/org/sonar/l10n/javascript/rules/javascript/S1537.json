@@ -12,6 +12,12 @@
   "sqKey": "S1537",
   "scope": "Main",
   "quickfix": "covered",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "LOW"
+    },
+    "attribute": "FORMATTED"
+  },
   "compatibleLanguages": [
     "JAVASCRIPT",
     "TYPESCRIPT"

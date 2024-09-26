@@ -25,7 +25,7 @@ import {
   generateMeta,
   getDependencies,
   getFullyQualifiedName,
-  getPackageJsonsCount,
+  getManifests,
   getProperty,
   getValueOfExpression,
   isFunctionInvocation,
@@ -33,9 +33,11 @@ import {
   isLiteral,
   isMethodInvocation,
   resolveFunction,
+  toUnixPath,
 } from '../helpers/index.js';
 import { meta } from './meta.js';
 import { TSESTree } from '@typescript-eslint/utils';
+import { dirname } from 'path/posix';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta as Rule.RuleMetaData, {
@@ -44,7 +46,7 @@ export const rule: Rule.RuleModule = {
     },
   }),
   create(context) {
-    const dependencies = getDependencies(context.filename);
+    const dependencies = getDependencies(context.filename, context.cwd);
     switch (true) {
       case dependencies.has('jasmine'):
         return jasmineListener();
@@ -52,7 +54,7 @@ export const rule: Rule.RuleModule = {
         return jestListener();
       case dependencies.has('mocha'):
         return mochaListener();
-      case getPackageJsonsCount() > 0:
+      case getManifests(dirname(toUnixPath(context.filename)), context.cwd).length > 0:
         return nodejsListener();
       default:
         return {};
