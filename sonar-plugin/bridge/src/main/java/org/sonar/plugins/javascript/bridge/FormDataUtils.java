@@ -22,7 +22,6 @@ package org.sonar.plugins.javascript.bridge;
 import com.google.protobuf.CodedInputStream;
 import com.google.protobuf.InvalidProtocolBufferException;
 import java.io.IOException;
-import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -51,12 +50,8 @@ public class FormDataUtils {
     throw new IllegalStateException("Utility class");
   }
 
-  public static BridgeServer.BridgeResponse parseFormData(HttpResponse<byte[]> response) {
-    String boundary = "--" + response.headers().firstValue("Content-Type")
-      .orElseThrow(() -> new IllegalStateException("No Content-Type header"))
-      .split("boundary=")[1];
-
-    byte[] responseBody = response.body();
+  public static BridgeServer.BridgeResponse parseFormData(String contentType, byte[] responseBody) {
+    String boundary = "--" + contentType.split("boundary=")[1];
     byte[] boundaryBytes = boundary.getBytes(StandardCharsets.ISO_8859_1);
     List<byte[]> parts = split(responseBody, boundaryBytes);
 

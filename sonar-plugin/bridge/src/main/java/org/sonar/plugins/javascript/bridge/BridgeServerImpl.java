@@ -26,13 +26,8 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +39,15 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.config.RequestConfig;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.io.entity.StringEntity;
+import org.apache.hc.core5.util.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.SonarProduct;
@@ -79,7 +83,6 @@ public class BridgeServerImpl implements BridgeServer {
   private static final Gson GSON = new Gson();
   private static final String BRIDGE_DEPLOY_LOCATION = "bridge-bundle";
 
-  private final HttpClient client;
   private final NodeCommandBuilder nodeCommandBuilder;
   private final int timeoutSeconds;
   private final Bundle bundle;
@@ -127,8 +130,6 @@ public class BridgeServerImpl implements BridgeServer {
     this.nodeCommandBuilder = nodeCommandBuilder;
     this.timeoutSeconds = timeoutSeconds;
     this.bundle = bundle;
-    this.client =
-      HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(timeoutSeconds)).build();
     this.rulesBundles = rulesBundles;
     this.deprecationWarning = deprecationWarning;
     this.hostAddress = InetAddress.getLoopbackAddress().getHostAddress();
@@ -394,40 +395,35 @@ public class BridgeServerImpl implements BridgeServer {
   }
 
   private BridgeResponse request(String json, String endpoint) throws IOException {
-    var request = HttpRequest
-      .newBuilder()
-      .uri(url(endpoint))
-      .timeout(Duration.ofSeconds(timeoutSeconds))
-      .header("Content-Type", "application/json")
-      .POST(HttpRequest.BodyPublishers.ofString(json))
-      .build();
+    try (var httpclient = HttpClients.createDefault()) {
 
-    try {
-      HttpResponse<byte[]> response = client.send(request, BodyHandlers.ofByteArray());
-      if (isFormData(response)) {
-        return FormDataUtils.parseFormData(response);
-      } else {
-        return new BridgeResponse(new String(response.body(), StandardCharsets.UTF_8));
-      }
-    } catch (InterruptedException e) {
-      throw handleInterruptedException(e, "Request " + endpoint + " was interrupted.");
+      var config = RequestConfig.custom()
+        .setResponseTimeout(Timeout.ofSeconds(timeoutSeconds))
+        .build();
+
+      HttpPost httpPost = new HttpPost(url(endpoint));
+      httpPost.setEntity(new StringEntity(json, ContentType.APPLICATION_JSON));
+      httpPost.setConfig(config);
+
+      return httpclient.execute(httpPost, response -> {
+        var contentTypeHeader = response.getHeader("Content-Type");
+        var responseBody = EntityUtils.toByteArray(response.getEntity());
+        if (isFormData(contentTypeHeader)) {
+          return FormDataUtils.parseFormData(contentTypeHeader.toString(), responseBody);
+        } else {
+          return new BridgeResponse(new String(responseBody, StandardCharsets.UTF_8));
+        }
+      });
     } catch (IOException e) {
       throw new IllegalStateException("The bridge server is unresponsive", e);
     }
   }
 
-  private static boolean isFormData(HttpResponse<byte[]> response) {
-    var contentTypeHeader = response.headers().firstValue("Content-type").orElse("");
-    return contentTypeHeader.contains("multipart/form-data");
-  }
-
-  private static IllegalStateException handleInterruptedException(
-    InterruptedException e,
-    String msg
-  ) {
-    LOG.error(msg, e);
-    Thread.currentThread().interrupt();
-    return new IllegalStateException(msg, e);
+  private static boolean isFormData(@Nullable Header contentTypeHeader) {
+    if (contentTypeHeader == null) {
+      return false;
+    }
+    return contentTypeHeader.toString().contains("multipart/form-data");
   }
 
   private static AnalysisResponse response(BridgeResponse result, String filePath) {
@@ -448,13 +444,10 @@ public class BridgeServerImpl implements BridgeServer {
     if (nodeCommand == null && status != Status.STARTED) {
       return false;
     }
-    var request = HttpRequest.newBuilder(url("status")).GET().build();
-    try {
-      var response = client.send(request, BodyHandlers.ofString());
-      String body = response.body();
-      return "OK!".equals(body);
-    } catch (InterruptedException e) {
-      throw handleInterruptedException(e, "isAlive was interrupted");
+    try (var client = HttpClients.custom().build()) {
+      var get = new HttpGet(url("status"));
+      var res = client.execute(get, response -> EntityUtils.toString(response.getEntity()));
+      return "OK!".equals(res);
     } catch (IOException e) {
       return false;
     }
