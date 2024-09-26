@@ -415,7 +415,7 @@ public class BridgeServerImpl implements BridgeServer {
           return new BridgeResponse(new String(responseBody, StandardCharsets.UTF_8));
         }
       });
-    }  catch (IOException e) {
+    } catch (IOException e) {
       throw new IllegalStateException("The bridge server is unresponsive", e);
     }
   }
@@ -425,15 +425,6 @@ public class BridgeServerImpl implements BridgeServer {
       return false;
     }
     return contentTypeHeader.toString().contains("multipart/form-data");
-  }
-
-  private static IllegalStateException handleInterruptedException(
-    InterruptedException e,
-    String msg
-  ) {
-    LOG.error(msg, e);
-    Thread.currentThread().interrupt();
-    return new IllegalStateException(msg, e);
   }
 
   private static AnalysisResponse response(BridgeResponse result, String filePath) {
