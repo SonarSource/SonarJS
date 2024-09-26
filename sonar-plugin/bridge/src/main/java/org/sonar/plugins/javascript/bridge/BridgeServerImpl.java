@@ -26,11 +26,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.file.Path;
-import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +38,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -90,7 +87,6 @@ public class BridgeServerImpl implements BridgeServer {
   private static final Gson GSON = new Gson();
   private static final String BRIDGE_DEPLOY_LOCATION = "bridge-bundle";
 
-  private final HttpClient client;
   private final NodeCommandBuilder nodeCommandBuilder;
   private final int timeoutSeconds;
   private final Bundle bundle;
@@ -138,8 +134,6 @@ public class BridgeServerImpl implements BridgeServer {
     this.nodeCommandBuilder = nodeCommandBuilder;
     this.timeoutSeconds = timeoutSeconds;
     this.bundle = bundle;
-    this.client =
-      HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(timeoutSeconds)).build();
     this.rulesBundles = rulesBundles;
     this.deprecationWarning = deprecationWarning;
     this.hostAddress = InetAddress.getLoopbackAddress().getHostAddress();
@@ -468,14 +462,12 @@ public class BridgeServerImpl implements BridgeServer {
     if (nodeCommand == null && status != Status.STARTED) {
       return false;
     }
-    var request = HttpRequest.newBuilder(url("status")).GET().build();
-    try {
-      var response = client.send(request, BodyHandlers.ofString());
-      String body = response.body();
+    try (var client = HttpClients.custom().build()) {
+      var get = new HttpGet(url("status"));
+      var response = client.execute(get);
+      String body = EntityUtils.toString(response.getEntity());
       return "OK!".equals(body);
-    } catch (InterruptedException e) {
-      throw handleInterruptedException(e, "isAlive was interrupted");
-    } catch (IOException e) {
+    } catch (IOException|ParseException e) {
       return false;
     }
   }
