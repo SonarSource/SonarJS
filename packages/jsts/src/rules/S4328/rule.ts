@@ -36,7 +36,7 @@ export const rule: Rule.RuleModule = {
   meta: generateMeta(meta as Rule.RuleMetaData, { messages, schema }),
   create(context: Rule.RuleContext) {
     // we need to find all the npm manifests from the directory of the analyzed file to the context working directory
-    const dependencies = getDependencies(context.filename, context.cwd);
+    const dependencies = getDependencies(context.filename);
 
     const whitelist = (context.options as FromSchema<typeof schema>)[0]?.whitelist || [];
     const program = context.sourceCode.parserServices?.program;

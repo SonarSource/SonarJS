@@ -45,7 +45,7 @@ const cache: Map<string, Set<string | Minimatch>> = new Map();
  * @param cwd working dir, will search up to that root
  * @returns
  */
-export function getDependencies(filename: string, cwd: string) {
+export function getDependencies(filename: string, cwd?: string) {
   const dirname = Path.dirname(toUnixPath(filename));
   const cached = cache.get(dirname);
   if (cached) {

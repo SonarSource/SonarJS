@@ -46,7 +46,7 @@ export const rule: Rule.RuleModule = {
     },
   }),
   create(context) {
-    const dependencies = getDependencies(context.filename, context.cwd);
+    const dependencies = getDependencies(context.filename);
     switch (true) {
       case dependencies.has('jasmine'):
         return jasmineListener();
