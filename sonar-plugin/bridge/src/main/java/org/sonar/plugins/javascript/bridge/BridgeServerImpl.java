@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
@@ -42,12 +43,9 @@ import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
-import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.Header;
-import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.ParseException;
-import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.util.Timeout;
@@ -409,11 +407,12 @@ public class BridgeServerImpl implements BridgeServer {
       httpPost.setConfig(config);
 
       return httpclient.execute(httpPost, response -> {
-        HttpEntity entity = response.getEntity();
-        if (isFormData(response)) {
-          return FormDataUtils.parseFormData(response);
+        var contentTypeHeader = response.getHeader("Content-Type");
+        var responseBody = EntityUtils.toByteArray(response.getEntity());
+        if (isFormData(contentTypeHeader)) {
+          return FormDataUtils.parseFormData(contentTypeHeader.toString(), responseBody);
         } else {
-          return new BridgeResponse(EntityUtils.toString(entity));
+          return new BridgeResponse(new String(responseBody, StandardCharsets.UTF_8));
         }
       });
     }  catch (IOException e) {
@@ -421,16 +420,11 @@ public class BridgeServerImpl implements BridgeServer {
     }
   }
 
-  private static boolean isFormData(ClassicHttpResponse response) {
-    try {
-      Header contentTypeHeader = response.getHeader("Content-Type");
-      if (contentTypeHeader == null) {
-        return false;
-      }
-      return contentTypeHeader.toString().contains("multipart/form-data");
-    } catch (ProtocolException e) {
+  private static boolean isFormData(@Nullable Header contentTypeHeader) {
+    if (contentTypeHeader == null) {
       return false;
     }
+    return contentTypeHeader.toString().contains("multipart/form-data");
   }
 
   private static IllegalStateException handleInterruptedException(

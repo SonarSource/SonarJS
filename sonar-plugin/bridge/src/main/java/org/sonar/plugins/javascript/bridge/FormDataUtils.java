@@ -27,9 +27,6 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import javax.annotation.CheckForNull;
-import org.apache.hc.core5.http.ClassicHttpResponse;
-import org.apache.hc.core5.http.HttpEntity;
-import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.plugins.javascript.bridge.protobuf.Node;
@@ -53,43 +50,39 @@ public class FormDataUtils {
     throw new IllegalStateException("Utility class");
   }
 
-  public static BridgeServer.BridgeResponse parseFormData(ClassicHttpResponse response) {
-    HttpEntity entity = response.getEntity();
-    String contentType = entity.getContentType();
+  public static BridgeServer.BridgeResponse parseFormData(String contentType, byte[] responseBody) {
     String boundary = "--" + contentType.split("boundary=")[1];
+    byte[] boundaryBytes = boundary.getBytes(StandardCharsets.ISO_8859_1);
+    List<byte[]> parts = split(responseBody, boundaryBytes);
+
+    String json = null;
+    byte[] ast = null;
+
+    for (byte[] part : parts) {
+      int separatorIndex = indexOf(part, "\r\n\r\n".getBytes(StandardCharsets.ISO_8859_1));
+      if (separatorIndex == -1) {
+        // Skip if there's no body
+        continue;
+      }
+
+      // I remove the first 2 bytes, representing "\r\n" before the headers
+      byte[] headers = Arrays.copyOfRange(part, 2, separatorIndex);
+      // I remove the first 4 bytes and last 2.
+      // They are the "\r\n\r\n" before and "\r\n" after the payload
+      byte[] body = Arrays.copyOfRange(part, separatorIndex + 4, part.length - 2);
+
+      String headersStr = new String(headers, StandardCharsets.UTF_8);
+
+      if (headersStr.contains("json")) {
+        json = new String(body, StandardCharsets.UTF_8);
+      } else if (headersStr.contains("ast")) {
+        ast = body;
+      }
+    }
+    if (json == null || ast == null) {
+      throw new IllegalStateException("Data missing from response");
+    }
     try {
-      byte[] responseBytes = EntityUtils.toByteArray(entity);
-
-      byte[] boundaryBytes = boundary.getBytes(StandardCharsets.ISO_8859_1);
-      List<byte[]> parts = split(responseBytes, boundaryBytes);
-
-      String json = null;
-      byte[] ast = null;
-
-      for (byte[] part : parts) {
-        int separatorIndex = indexOf(part, "\r\n\r\n".getBytes(StandardCharsets.ISO_8859_1));
-        if (separatorIndex == -1) {
-          // Skip if there's no body
-          continue;
-        }
-
-        // I remove the first 2 bytes, representing "\r\n" before the headers
-        byte[] headers = Arrays.copyOfRange(part, 2, separatorIndex);
-        // I remove the first 4 bytes and last 2.
-        // They are the "\r\n\r\n" before and "\r\n" after the payload
-        byte[] body = Arrays.copyOfRange(part, separatorIndex + 4, part.length - 2);
-
-        String headersStr = new String(headers, StandardCharsets.UTF_8);
-
-        if (headersStr.contains("json")) {
-          json = new String(body, StandardCharsets.UTF_8);
-        } else if (headersStr.contains("ast")) {
-          ast = body;
-        }
-      }
-      if (json == null || ast == null) {
-        throw new IllegalStateException("Data missing from response");
-      }
       return new BridgeServer.BridgeResponse(json, parseProtobuf(ast));
     } catch (IOException e) {
       throw new IllegalStateException(e);
