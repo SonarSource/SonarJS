@@ -416,7 +416,10 @@ public class BridgeServerImpl implements BridgeServer {
           return new BridgeResponse(EntityUtils.toString(entity));
         }
       });
-  }}
+    }  catch (IOException e) {
+      throw new IllegalStateException("The bridge server is unresponsive", e);
+    }
+  }
 
   private static boolean isFormData(ClassicHttpResponse response) {
     try {
