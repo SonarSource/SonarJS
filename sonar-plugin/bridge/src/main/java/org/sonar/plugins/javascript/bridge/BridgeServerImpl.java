@@ -41,12 +41,11 @@ import javax.annotation.Nullable;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.config.RequestConfig;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
@@ -399,7 +398,7 @@ public class BridgeServerImpl implements BridgeServer {
   }
 
   private BridgeResponse request(String json, String endpoint) throws IOException {
-    try (CloseableHttpClient httpclient = HttpClients.custom().build()) {
+    try (var httpclient = HttpClients.createDefault()) {
 
       var config = RequestConfig.custom()
         .setResponseTimeout(Timeout.ofSeconds(timeoutSeconds))
@@ -409,17 +408,15 @@ public class BridgeServerImpl implements BridgeServer {
       httpPost.setEntity(new StringEntity(json, ContentType.APPLICATION_JSON));
       httpPost.setConfig(config);
 
-      try (CloseableHttpResponse response = httpclient.execute(httpPost)) {
+      return httpclient.execute(httpPost, response -> {
+        HttpEntity entity = response.getEntity();
         if (isFormData(response)) {
           return FormDataUtils.parseFormData(response);
         } else {
-          return new BridgeResponse(EntityUtils.toString(response.getEntity()));
+          return new BridgeResponse(EntityUtils.toString(entity));
         }
-      } catch (ParseException e) {
-        throw new IllegalStateException("Error while parsing response: " + e.getMessage());
-      }
-    }
-  }
+      });
+  }}
 
   private static boolean isFormData(ClassicHttpResponse response) {
     try {
