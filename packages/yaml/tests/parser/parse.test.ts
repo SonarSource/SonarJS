@@ -27,7 +27,7 @@ function noOpPicker(_key: any, _node: any, _ancestors: any) {
 
 describe('parseYaml', () => {
   it('should return embedded JavaScript', async () => {
-    const filePath = path.join(__dirname, 'fixtures', 'parse', 'embedded.yaml');
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'parse', 'embedded.yaml');
     const fileContent = await readFile(filePath);
     const parsingContexts = [
       {
@@ -49,7 +49,7 @@ describe('parseYaml', () => {
   });
 
   it('should return parsing errors', async () => {
-    const filePath = path.join(__dirname, 'fixtures', 'parse', 'error.yaml');
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'parse', 'error.yaml');
     const fileContent = await readFile(filePath);
     const parsingContexts = [
       {

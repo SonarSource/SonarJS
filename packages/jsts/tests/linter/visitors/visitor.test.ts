@@ -25,7 +25,7 @@ import { childrenOf } from '../../../src/rules/index.js';
 describe('visitor', () => {
   describe('visit', () => {
     it('should traverse an ESLint node', async () => {
-      const filePath = path.join(__dirname, './fixtures/visitor/tree.ts');
+      const filePath = path.join(import.meta.dirname, './fixtures/visitor/tree.ts');
       const sourceCode = await parseTypeScriptSourceFile(filePath, []);
 
       const visited = [];
@@ -62,14 +62,14 @@ describe('visitor', () => {
 
   describe('childrenOf', () => {
     it('should return the child of an ESLint node', async () => {
-      const filePath = path.join(__dirname, './fixtures/visitor/child.ts');
+      const filePath = path.join(import.meta.dirname, './fixtures/visitor/child.ts');
       const sourceCode = await parseTypeScriptSourceFile(filePath, []);
       const children = childrenOf(sourceCode.ast, sourceCode.visitorKeys).map(node => node.type);
       expect(children).toEqual(['IfStatement']);
     });
 
     it('should return the children of an ESLint node', async () => {
-      const filePath = path.join(__dirname, './fixtures/visitor/children.ts');
+      const filePath = path.join(import.meta.dirname, './fixtures/visitor/children.ts');
       const sourceCode = await parseTypeScriptSourceFile(filePath, []);
       const children = childrenOf(sourceCode.ast, sourceCode.visitorKeys).map(node => node.type);
       expect(children).toEqual(['WhileStatement', 'EmptyStatement']);

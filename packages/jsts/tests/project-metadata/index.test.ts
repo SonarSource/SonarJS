@@ -23,7 +23,7 @@ import { getManifests, isSupported } from '../../src/rules/helpers/index.js';
 import fs from 'fs';
 
 describe('initialize package.json files', () => {
-  const baseDir = path.posix.join(toUnixPath(__dirname), 'fixtures', 'package-json');
+  const baseDir = path.posix.join(toUnixPath(import.meta.dirname), 'fixtures', 'package-json');
 
   it('should find all package.json files', () => {
     const basePJList = getManifests(baseDir, baseDir, fs);
@@ -102,7 +102,7 @@ describe('initialize package.json files', () => {
 describe('isSupported()', () => {
   let baseDir;
   beforeEach(() => {
-    baseDir = path.posix.join(toUnixPath(__dirname), 'fixtures', 'is-supported-node');
+    baseDir = path.posix.join(toUnixPath(import.meta.dirname), 'fixtures', 'is-supported-node');
   });
 
   it('should throw an error when a version is invalid', () => {

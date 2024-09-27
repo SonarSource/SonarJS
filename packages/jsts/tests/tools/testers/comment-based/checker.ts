@@ -72,7 +72,7 @@ export function parseForESLint(
   fileType: FileType = 'MAIN',
 ) {
   const { filePath } = options;
-  const tsConfigs = [path.join(__dirname, '../../../../src/rules', 'tsconfig.cb.json')];
+  const tsConfigs = [path.join(import.meta.dirname, '../../../../src/rules', 'tsconfig.cb.json')];
   const sourceCode = buildSourceCode(
     { filePath, fileContent, fileType, tsConfigs },
     languageFromFile(fileContent, filePath),

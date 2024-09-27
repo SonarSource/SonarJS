@@ -23,7 +23,7 @@ import { parseJavaScriptSourceFile } from '../../../../tools/index.js';
 
 describe('visitAndCountIf', () => {
   it('should count matching nodes', async () => {
-    const filePath = path.join(__dirname, './fixtures/counter.js');
+    const filePath = path.join(import.meta.dirname, './fixtures/counter.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath, []);
     const count = visitAndCountIf(sourceCode, node => node.type === 'CallExpression');
     expect(count).toEqual(3);

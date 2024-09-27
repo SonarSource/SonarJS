@@ -29,7 +29,7 @@ const mappedRules = new Map(
 
 describe('Plugin public API', () => {
   it('should map keys to rules definitions', () => {
-    const ruleFolder = path.join(__dirname, '../../src/rules');
+    const ruleFolder = path.join(import.meta.dirname, '../../src/rules');
     const sonarKeys = fs.readdirSync(ruleFolder).filter(name => /^S\d+/.test(name));
     const missing = [];
     for (const sonarKey of sonarKeys) {

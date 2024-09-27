@@ -33,7 +33,7 @@ import fs from 'fs';
 import { rule as S5362 } from '../../css/src/rules/S5362/index.js';
 
 describe('router', () => {
-  const fixtures = path.join(__dirname, 'fixtures', 'router');
+  const fixtures = path.join(import.meta.dirname, 'fixtures', 'router');
   const port = 0;
   let closePromise: Promise<void>;
 

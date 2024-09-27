@@ -55,7 +55,7 @@ describe('sonar-runtime', () => {
     const linter = new Linter();
     linter.defineRule(noMissingSonarRuntimeRuleId, noMissingSonarRuntimeRule);
 
-    const rulesDir = path.join(__dirname, '/../../../src/rules/');
+    const rulesDir = path.join(import.meta.dirname, '/../../../src/rules/');
     const rulesList = (await readdir(rulesDir)).filter(name => /S\d{3,4}/.test(name));
 
     let ruleImplementationsCount = 0;

@@ -21,9 +21,9 @@ import { basename } from 'path';
 import { check } from '../../../../../tests/tools';
 import { rule } from '../../';
 
-const sonarId = basename(__dirname);
+const sonarId = basename(import.meta.dirname);
 
 describe('Rule S1607', () => {
-  process.chdir(__dirname) // change current working dir to avoid the package.json lookup to up in the tree
-  check(sonarId, rule, __dirname);
+  process.chdir(import.meta.dirname) // change current working dir to avoid the package.json lookup to up in the tree
+  check(sonarId, rule, import.meta.dirname);
 });

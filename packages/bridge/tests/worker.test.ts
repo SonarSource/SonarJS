@@ -25,7 +25,7 @@ describe('worker', () => {
   let worker: Worker;
 
   beforeAll(() => {
-    worker = new Worker(path.resolve(__dirname, '../src/worker.js'), {
+    worker = new Worker(path.resolve(import.meta.dirname, '../src/worker.js'), {
       workerData: { context: {} },
     });
   });
@@ -48,7 +48,7 @@ describe('worker', () => {
 
   it('should post back stringified results', done => {
     const input = {
-      filePath: path.join(__dirname, 'fixtures', 'worker', 'file.css'),
+      filePath: path.join(import.meta.dirname, 'fixtures', 'worker', 'file.css'),
       rules: [{ key: 'no-duplicate-selectors', configurations: [] }],
     };
     worker.once('message', message => {

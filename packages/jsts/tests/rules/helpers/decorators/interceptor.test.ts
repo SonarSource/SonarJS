@@ -35,7 +35,7 @@ describe('interceptReport', () => {
     },
   );
 
-  const filename = path.join(__dirname, 'fixtures', 'file.js');
+  const filename = path.join(import.meta.dirname, 'fixtures', 'file.js');
   assertThatInterceptReportDecoratorForwardsCalls(
     'Dependencies should be explicit',
     noImplicitDependencies,

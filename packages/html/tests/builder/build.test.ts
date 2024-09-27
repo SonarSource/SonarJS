@@ -23,7 +23,7 @@ import { embeddedInput } from '../../../jsts/tests/tools/index.js';
 import { buildSourceCodes } from '../../../jsts/src/index.js';
 
 describe('buildSourceCodes()', () => {
-  const fixturesPath = join(__dirname, 'fixtures');
+  const fixturesPath = join(import.meta.dirname, 'fixtures');
   it('should build source codes from an HTML file', async () => {
     const filePath = join(fixturesPath, 'multiple.html');
     const sourceCodes = buildSourceCodes(await embeddedInput({ filePath }), parseHTML);

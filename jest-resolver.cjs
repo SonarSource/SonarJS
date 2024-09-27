@@ -17,31 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from 'eslint';
-import { rule } from '../../';
-import { join } from 'path';
-
-process.chdir(import.meta.dirname) // change current working dir to avoid the package.json lookup to up in the tree
-
-const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module', ecmaFeatures: { jsx: true } } });
-ruleTester.run('S6477 turns into a noop on non-React projects', rule, {
-  valid: [
-    {
-      code: `
-      function Blog(props) {
-        return (
-          <ul>
-            {props.posts.map((post) =>
-              <li>
-                {post.title}
-              </li>
-            )}
-          </ul>
-        );
+module.exports = (path, options) => {
+  // Call the defaultResolver, so we leverage its cache, error handling, etc.
+  return options.defaultResolver(path, {
+    ...options,
+    // Use packageFilter to process parsed `package.json` before the resolution (see https://www.npmjs.com/package/resolve#resolveid-opts-cb)
+    packageFilter: pkg => {
+      if (pkg.name === '@typescript-eslint/parser') {
+        /**
+         * `@typescript-eslint/parser` uses a more modern "exports" field in its package.json, which is not yet supported
+         * by the Jest default resolver (see https://github.com/browserify/resolve/issues/222, https://github.com/jestjs/jest/issues/9771).
+         * This is a workaround to make it work.
+         */
+        return {
+          ...pkg,
+          main: pkg.exports['.'].default,
+        };
+      } else {
+        return pkg;
       }
-      `,
-      filename: join(import.meta.dirname, 'file.jsx')
     },
-  ],
-  invalid: [],
-});
+  });
+};

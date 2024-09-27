@@ -22,7 +22,7 @@ import { extractExpectations } from './framework.js';
 import { readFile } from '../../../../../shared/src/index.js';
 
 describe('Comment-based Testing Framework', () => {
-  const baseDir = path.resolve(`${__dirname}/fixtures`);
+  const baseDir = path.resolve(`${import.meta.dirname}/fixtures`);
 
   async function assertions(filename: string, usesSecondaryLocations = false) {
     const filePath = path.join(baseDir, filename);

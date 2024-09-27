@@ -23,7 +23,7 @@ import { parseJavaScriptSourceFile } from '../../../tools/index.js';
 
 describe('countClasses', () => {
   it('should count the number of classes', async () => {
-    const filePath = path.join(__dirname, 'fixtures', 'classes.js');
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'classes.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
     const classes = countClasses(sourceCode);
     expect(classes).toEqual(2);

@@ -26,7 +26,7 @@ import { rules as allRules } from '../../../src/rules/index.js';
 
 describe('transformFixes', () => {
   it('should transform an ESLint core fix', async () => {
-    const filePath = path.join(__dirname, 'fixtures', 'eslint.js');
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'eslint.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
     const ruleId = 'S1116';
@@ -52,7 +52,7 @@ describe('transformFixes', () => {
   });
 
   it('should transform a SonarJS suggestion', async () => {
-    const filePath = path.join(__dirname, 'fixtures', 'sonarjs.js');
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'sonarjs.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
     const ruleId = 'S6426';
@@ -80,7 +80,7 @@ describe('transformFixes', () => {
   });
 
   it('should transform a fix from a decorated rule', async () => {
-    const filePath = path.join(__dirname, 'fixtures', 'decorated.js');
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'decorated.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
     const ruleId = 'S1186';
@@ -107,7 +107,7 @@ describe('transformFixes', () => {
   });
 
   it('should ignore an undeclared rule quick fix', async () => {
-    const filePath = path.join(__dirname, 'fixtures', 'undeclared.js');
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'undeclared.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
     const ruleId = 'S1440';
@@ -123,7 +123,7 @@ describe('transformFixes', () => {
   });
 
   it('should not return quick fixes for a fixless rule', async () => {
-    const filePath = path.join(__dirname, 'fixtures', 'fixless.js');
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'fixless.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
     const ruleId = 'S1119';

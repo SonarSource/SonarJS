@@ -49,7 +49,7 @@ describe('sanitize', () => {
       const linter = new Linter();
       linter.defineRule(ruleId, sanitizedRule);
 
-      const fixtures = path.join(__dirname, 'fixtures', 'sanitize');
+      const fixtures = path.join(import.meta.dirname, 'fixtures', 'sanitize');
       const filePath = path.join(fixtures, 'file.ts');
       const tsConfigs = tsConfigFiles.map(file => path.join(fixtures, file));
 

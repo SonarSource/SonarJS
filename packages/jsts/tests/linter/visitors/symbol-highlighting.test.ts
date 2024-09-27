@@ -93,7 +93,7 @@ describe('symbol highlighting rule', () => {
 });
 
 async function highlighting(fixture: string): Promise<SymbolHighlight[]> {
-  const filePath = path.join(__dirname, 'fixtures', 'symbol-highlighting', fixture);
+  const filePath = path.join(import.meta.dirname, 'fixtures', 'symbol-highlighting', fixture);
   const sourceCode = await parseTypeScriptSourceFile(filePath, []);
 
   const ruleId = 'symbol-highlighting';

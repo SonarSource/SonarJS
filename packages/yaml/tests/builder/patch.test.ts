@@ -39,7 +39,7 @@ describe('patchSourceCode', () => {
   });
 
   it('should patch source code', async () => {
-    const filePath = path.join(__dirname, 'fixtures', 'patch', 'source-code.yaml');
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'patch', 'source-code.yaml');
     const text = await readFile(filePath);
     const [patchedSourceCode] = buildSourceCodes(
       {
@@ -70,7 +70,7 @@ describe('patchSourceCode', () => {
   });
 
   test.each(['body', 'tokens', 'comments'])('should patch ast %s', async property => {
-    const fixture = path.join(__dirname, 'fixtures', 'patch', property);
+    const fixture = path.join(import.meta.dirname, 'fixtures', 'patch', property);
 
     let filePath = `${fixture}.yaml`;
     let fileContent = await readFile(filePath);
@@ -90,7 +90,7 @@ describe('patchSourceCode', () => {
   });
 
   it('should patch parsing errors', async () => {
-    const fixture = path.join(__dirname, 'fixtures', 'patch', 'parsing-error');
+    const fixture = path.join(import.meta.dirname, 'fixtures', 'patch', 'parsing-error');
 
     let filePath = `${fixture}.yaml`;
     let fileContent = await readFile(filePath);

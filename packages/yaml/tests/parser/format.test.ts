@@ -23,7 +23,7 @@ import { readFile } from '../../../shared/src/index.js';
 import { isSupportedFormat, SUPPORTED_STRING_FORMATS } from '../../src/parser/index.js';
 
 describe('isSupportedFormat', () => {
-  const fixtures = path.join(__dirname, 'fixtures', 'format');
+  const fixtures = path.join(import.meta.dirname, 'fixtures', 'format');
 
   test.each(SUPPORTED_STRING_FORMATS)('should support the string format %o', async format => {
     const filePath = path.join(fixtures, `${format}.yaml`);

@@ -39,7 +39,8 @@ describe('BundleLoader', () => {
       {
         ruleId: customRuleId,
         ruleConfig: [],
-        ruleModule: require(path.join(__dirname, 'fixtures', 'wrapper', 'custom-rule.ts')).rule,
+        ruleModule: require(path.join(import.meta.dirname, 'fixtures', 'wrapper', 'custom-rule.ts'))
+          .rule,
       },
     ];
 

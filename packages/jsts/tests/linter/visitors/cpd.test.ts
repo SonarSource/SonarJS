@@ -82,7 +82,7 @@ describe('getCpdTokens', () => {
 });
 
 async function tokens(filename: string): Promise<CpdToken[]> {
-  const filePath = path.join(__dirname, 'fixtures', 'cpd', filename);
+  const filePath = path.join(import.meta.dirname, 'fixtures', 'cpd', filename);
   const sourceCode = await parseJavaScriptSourceFile(filePath);
   return getCpdTokens(sourceCode).cpdTokens;
 }

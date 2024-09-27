@@ -23,7 +23,7 @@ import { parseJavaScriptSourceFile } from '../../../tools/index.js';
 
 describe('countFunctions', () => {
   it('should count the number of functions', async () => {
-    const filePath = path.join(__dirname, 'fixtures', 'functions.js');
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'functions.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
     const statements = countFunctions(sourceCode);
     expect(statements).toEqual(6);

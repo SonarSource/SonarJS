@@ -21,9 +21,13 @@ import { check } from '../../../tests/tools/index.js';
 import { rule } from './/index.js';
 import path from 'path';
 
-const sonarId = path.basename(__dirname);
+const sonarId = path.basename(import.meta.dirname);
 
 describe('Rule S6544', () => {
-  check(sonarId, rule, path.join(__dirname, 'fixtures', 'checksVoidReturn', 'true'));
-  check(sonarId, rule, path.join(__dirname, 'fixtures', 'checksVoidReturn', 'arguments', 'false'));
+  check(sonarId, rule, path.join(import.meta.dirname, 'fixtures', 'checksVoidReturn', 'true'));
+  check(
+    sonarId,
+    rule,
+    path.join(import.meta.dirname, 'fixtures', 'checksVoidReturn', 'arguments', 'false'),
+  );
 });

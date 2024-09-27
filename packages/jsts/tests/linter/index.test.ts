@@ -47,7 +47,7 @@ describe('initializeLinter', () => {
     expect(linter).toBeInstanceOf(LinterWrapper);
     expect(console.log).toHaveBeenCalledWith('DEBUG Initializing linter "default" with S1116');
 
-    const filePath = path.join(__dirname, 'fixtures', 'index', 'regular.js');
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'index', 'regular.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
     const {
@@ -84,7 +84,7 @@ describe('initializeLinter', () => {
       'DEBUG Initializing linter "default" with custom-rule',
     );
 
-    const filePath = path.join(__dirname, 'fixtures', 'index', 'custom.js');
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'index', 'custom.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
     const {

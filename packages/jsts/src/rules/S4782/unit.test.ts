@@ -231,7 +231,7 @@ const noopRuleTester = new RuleTester({
     ecmaVersion: 2018,
     sourceType: 'module',
     project: `tsconfig.json`,
-    tsconfigRootDir: path.join(__dirname, 'fixtures'),
+    tsconfigRootDir: path.join(import.meta.dirname, 'fixtures'),
   },
 });
 
@@ -239,7 +239,7 @@ noopRuleTester.run('S4782 becomes noop when exactOptionalPropertyTypes is enable
   valid: [
     {
       code: 'interface T { p?: string | undefined; }',
-      filename: path.join(__dirname, 'fixtures', 'index.ts'),
+      filename: path.join(import.meta.dirname, 'fixtures', 'index.ts'),
     },
   ],
   invalid: [],

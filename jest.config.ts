@@ -1,9 +1,4 @@
-import { createDefaultEsmPreset } from 'ts-jest';
-const defaultEsmPreset = createDefaultEsmPreset();
-
 const config = {
-  ...defaultEsmPreset,
-  setupFilesAfterEnv: ['<rootDir>/test-setup.ts'],
   collectCoverageFrom: ['packages/*/src/**/*.ts'],
   coveragePathIgnorePatterns: ['.fixture.', '/fixtures/'],
   moduleFileExtensions: ['js', 'ts', 'json'],
@@ -14,7 +9,7 @@ const config = {
     // "(.+)\\.js": "$1",
   },
   modulePathIgnorePatterns: ['<rootDir>/packages/jsts/src/rules/.*/package.json$', '<rootDir>/its'],
-  // resolver: '<rootDir>/jest-resolver.cjs',
+  resolver: '<rootDir>/jest-resolver.cjs',
   testResultsProcessor: 'jest-sonar-reporter',
   // transform: {
   //   // '^.+\\.ts$': ['ts-jest', { tsconfig: 'packages/tsconfig.test.json' }],
@@ -26,6 +21,11 @@ const config = {
         useESM: true,
         tsconfig: 'packages/tsconfig.test.json',
       },
+      'ts-jest',
+      {
+        useESM: true,
+        tsconfig: 'packages/tsconfig.app.json',
+      },
     ],
   },
   testMatch: [
@@ -35,6 +35,7 @@ const config = {
   ],
   testTimeout: 20000,
   extensionsToTreatAsEsm: ['.ts'],
+  preset: 'ts-jest/presets/default-esm',
 };
 
 export default config;

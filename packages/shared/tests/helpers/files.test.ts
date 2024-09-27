@@ -22,12 +22,12 @@ import { readFile } from '../../src/helpers/index.js';
 
 describe('readFile', () => {
   it('should read a file', async () => {
-    const contents = await readFile(path.join(__dirname, 'fixtures', 'file.js'));
+    const contents = await readFile(path.join(import.meta.dirname, 'fixtures', 'file.js'));
     expect(contents).toBe('file();');
   });
 
   it('should remove any BOM header', async () => {
-    const contents = await readFile(path.join(__dirname, 'fixtures', 'bom.js'));
+    const contents = await readFile(path.join(import.meta.dirname, 'fixtures', 'bom.js'));
     expect(contents).toBe('bom();');
   });
 });

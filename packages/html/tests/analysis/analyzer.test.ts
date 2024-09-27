@@ -26,7 +26,7 @@ import { analyzeEmbedded } from '../../../jsts/src/index.js';
 import { initializeLinter } from '../../../jsts/src/linter/index.js';
 
 describe('analyzeHTML', () => {
-  const fixturesPath = join(__dirname, 'fixtures');
+  const fixturesPath = join(import.meta.dirname, 'fixtures');
 
   beforeAll(() => {
     setContext({

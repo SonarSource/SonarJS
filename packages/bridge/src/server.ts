@@ -35,9 +35,6 @@ import {
   logMemoryConfiguration,
   logMemoryError,
 } from './memory.js';
-import { fileURLToPath } from 'url';
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 /**
  * The maximum request body size
@@ -98,10 +95,9 @@ export function start(
     registerGarbageCollectionObserver();
   }
   return new Promise(resolve => {
-    worker = new Worker(path.resolve(__dirname, 'worker.js'), {
+    worker = new Worker(path.resolve(import.meta.dirname, 'worker.js'), {
       workerData: { context: getContext() },
       env: SHARE_ENV,
-      execArgv: ['--require', 'ts-node/register'],
     });
 
     worker.on('online', () => {

@@ -113,7 +113,7 @@ describe('getSyntaxHighlighting', () => {
 });
 
 async function highlighting(filename: string): Promise<SyntaxHighlight[]> {
-  const filePath = path.join(__dirname, 'fixtures', 'syntax-highlighting', filename);
+  const filePath = path.join(import.meta.dirname, 'fixtures', 'syntax-highlighting', filename);
   const sourceCode = await parseTypeScriptSourceFile(filePath, []);
   return getSyntaxHighlighting(sourceCode).highlights;
 }

@@ -48,11 +48,19 @@ import { analyzeYAML } from '../../../yaml/src/index.js';
 import projects from '../data/projects.json' with { type: 'json' };
 import { loadCustomRules } from '../../../jsts/src/linter/bundle-loader.js';
 
-const sourcesPath = path.join(__dirname, '..', '..', '..', '..', '..', 'sonarjs-ruling-sources');
+const sourcesPath = path.join(
+  import.meta.dirname,
+  '..',
+  '..',
+  '..',
+  '..',
+  '..',
+  'sonarjs-ruling-sources',
+);
 const jsTsProjectsPath = path.join(sourcesPath, 'jsts', 'projects');
 
 const expectedPath = path.join(
-  __dirname,
+  import.meta.dirname,
   '..',
   '..',
   '..',
@@ -64,7 +72,7 @@ const expectedPath = path.join(
   'expected',
   'jsts',
 );
-const actualPath = path.join(__dirname, '..', 'actual', 'jsts');
+const actualPath = path.join(import.meta.dirname, '..', 'actual', 'jsts');
 
 const SETTINGS_KEY = 'SONAR_RULING_SETTINGS';
 const HTML_LINTER_ID = 'html';
@@ -333,7 +341,7 @@ function createParsingIssue({
  * Loading this through `fs` and not import because the file is absent at compile time
  */
 function loadRules() {
-  const rulesPath = path.join(__dirname, '..', 'data', 'rules.json');
+  const rulesPath = path.join(import.meta.dirname, '..', 'data', 'rules.json');
   const rulesContent = fs.readFileSync(rulesPath, 'utf8');
   return JSON.parse(rulesContent);
 }

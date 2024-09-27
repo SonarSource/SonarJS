@@ -71,7 +71,7 @@ function prepareInput(files: Record<string, File<void>[]>): ProjectAnalysisInput
   };
 }
 
-const fixtures = path.join(__dirname, 'fixtures');
+const fixtures = path.join(import.meta.dirname, 'fixtures');
 
 describe('analyzeProject', () => {
   beforeEach(() => {

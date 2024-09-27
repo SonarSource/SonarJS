@@ -27,7 +27,7 @@ const ruleTester = new RuleTester({
     ecmaVersion: 2018,
     sourceType: 'module',
     project: `./tsconfig.json`,
-    tsconfigRootDir: path.join(__dirname, 'fixtures'),
+    tsconfigRootDir: path.join(import.meta.dirname, 'fixtures'),
   },
 });
 
@@ -39,7 +39,7 @@ ruleTester.run('S6606', rule, {
     return value || 'default';
   }
   `,
-      filename: path.join(__dirname, 'fixtures/index.ts'),
+      filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
     },
     {
       code: `
@@ -47,7 +47,7 @@ ruleTester.run('S6606', rule, {
     return value || 'default';
   }
   `,
-      filename: path.join(__dirname, 'fixtures/index.ts'),
+      filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
     },
     {
       code: `
@@ -55,7 +55,7 @@ ruleTester.run('S6606', rule, {
     return value || 'default';
   }
   `,
-      filename: path.join(__dirname, 'fixtures/index.ts'),
+      filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
     },
     {
       code: `
@@ -63,7 +63,7 @@ ruleTester.run('S6606', rule, {
     return value || 'default';
   }
   `,
-      filename: path.join(__dirname, 'fixtures/index.ts'),
+      filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
     },
     {
       code: `
@@ -71,7 +71,7 @@ ruleTester.run('S6606', rule, {
     return value || 'default';
   }
   `,
-      filename: path.join(__dirname, 'fixtures/index.ts'),
+      filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
     },
   ],
   invalid: [
@@ -81,7 +81,7 @@ ruleTester.run('S6606', rule, {
     return value || 'default';
   }
   `,
-      filename: path.join(__dirname, 'fixtures/index.ts'),
+      filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
       errors: 1,
     },
     {
@@ -90,7 +90,7 @@ ruleTester.run('S6606', rule, {
     return value || 'default';
   }
   `,
-      filename: path.join(__dirname, 'fixtures/index.ts'),
+      filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
       errors: 1,
     },
     {
@@ -99,7 +99,7 @@ ruleTester.run('S6606', rule, {
     return value || 'default';
   }
   `,
-      filename: path.join(__dirname, 'fixtures/index.ts'),
+      filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
       errors: 1,
     },
   ],

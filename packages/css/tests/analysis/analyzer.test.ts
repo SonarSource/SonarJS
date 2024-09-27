@@ -26,7 +26,7 @@ const rules = [{ key: 'block-no-empty', configurations: [] }];
 
 describe('analyzeCSS', () => {
   it('should analyze a css file', async () => {
-    const filePath = path.join(__dirname, 'fixtures', 'file.css');
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'file.css');
     await expect(analyzeCSS(await input(filePath, undefined, rules))).resolves.toEqual({
       issues: [
         {
@@ -51,7 +51,7 @@ describe('analyzeCSS', () => {
   });
 
   it('should analyze sass syntax', async () => {
-    const filePath = path.join(__dirname, 'fixtures', 'file.sass');
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'file.sass');
     await expect(
       analyzeCSS(
         await input(filePath, undefined, [
@@ -68,7 +68,7 @@ describe('analyzeCSS', () => {
   });
 
   it('should analyze less syntax', async () => {
-    const filePath = path.join(__dirname, 'fixtures', 'file.less');
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'file.less');
     await expect(analyzeCSS(await input(filePath, undefined, rules))).resolves.toEqual({
       issues: [
         expect.objectContaining({
@@ -79,7 +79,7 @@ describe('analyzeCSS', () => {
   });
 
   it('should return a parsing error in the form of an issue', async () => {
-    const filePath = path.join(__dirname, 'fixtures', 'malformed.css');
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'malformed.css');
     await expect(analyzeCSS(await input(filePath))).resolves.toEqual({
       issues: [
         {

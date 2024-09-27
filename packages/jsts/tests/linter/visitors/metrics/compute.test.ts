@@ -23,7 +23,7 @@ import { parseJavaScriptSourceFile } from '../../../tools/index.js';
 
 describe('computeMetrics', () => {
   it('should compute metrics', async () => {
-    const filePath = path.join(__dirname, 'fixtures', 'compute.js');
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'compute.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
     const metrics = computeMetrics(sourceCode, true, 42);
     expect(metrics).toEqual({

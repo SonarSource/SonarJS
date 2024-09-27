@@ -66,7 +66,7 @@ describe('ast', () => {
     test.each(parseFunctions)(
       'should not lose information between serialize and deserializing JavaScript',
       async ({ parser, usingBabel }) => {
-        const filePath = path.join(__dirname, 'fixtures', 'ast', 'base.js');
+        const filePath = path.join(import.meta.dirname, 'fixtures', 'ast', 'base.js');
         const sc = await parseSourceFile(filePath, parser, usingBabel);
         const protoMessage = parseInProtobuf(sc.ast as TSESTree.Program);
         const serialized = serializeInProtobuf(sc.ast as TSESTree.Program);
@@ -76,7 +76,7 @@ describe('ast', () => {
     );
   });
   test('should encode unknown nodes', async () => {
-    const filePath = path.join(__dirname, 'fixtures', 'ast', 'unknownNode.ts');
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'ast', 'unknownNode.ts');
     const sc = await parseSourceFile(filePath, parsers.typescript);
     const protoMessage = parseInProtobuf(sc.ast as TSESTree.Program);
     expect((protoMessage as any).program.body[0].type).toEqual(

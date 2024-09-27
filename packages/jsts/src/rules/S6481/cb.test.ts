@@ -21,8 +21,8 @@ import { check } from '../../../tests/tools/index.js';
 import { rule } from './/index.js';
 import path from 'path';
 
-const sonarId = path.basename(__dirname);
+const sonarId = path.basename(import.meta.dirname);
 
 describe('Rule S6481', () => {
-  check(sonarId, rule, __dirname);
+  check(sonarId, rule, import.meta.dirname);
 });

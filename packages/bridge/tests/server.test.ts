@@ -166,7 +166,7 @@ describe('server', () => {
 });
 
 async function requestAnalyzeJs(server: http.Server, fileType: string): Promise<any> {
-  const filePath = path.join(__dirname, 'fixtures', 'routing.js');
+  const filePath = path.join(import.meta.dirname, 'fixtures', 'routing.js');
   const analysisInput = { filePath, fileType };
 
   return await request(server, '/analyze-js', 'POST', analysisInput);

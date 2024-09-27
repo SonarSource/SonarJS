@@ -27,7 +27,7 @@ import { analyzeEmbedded, composeSyntheticFilePath } from '../../../jsts/src/ind
 import { Rule } from 'eslint';
 
 describe('analyzeYAML', () => {
-  const fixturesPath = join(__dirname, 'fixtures');
+  const fixturesPath = join(import.meta.dirname, 'fixtures');
 
   beforeAll(() => {
     setContext({

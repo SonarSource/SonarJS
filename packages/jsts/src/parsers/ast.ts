@@ -22,11 +22,9 @@ import { TSESTree } from '@typescript-eslint/utils';
 import { debug } from '../../../shared/src/index.js';
 
 import path from 'path';
-import { fileURLToPath } from 'url';
-const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
-const __dirname = path.dirname(__filename); // get the name of the directory
+import { fileURLToPath } from 'node:url';
 
-const PATH_TO_PROTOFILE = path.join(__dirname, 'estree.proto');
+const PATH_TO_PROTOFILE = path.join(path.dirname(fileURLToPath(import.meta.url)), 'estree.proto');
 const PROTO_ROOT = protobuf.loadSync(PATH_TO_PROTOFILE);
 const NODE_TYPE = PROTO_ROOT.lookupType('Node');
 export const NODE_TYPE_ENUM = PROTO_ROOT.lookupEnum('NodeType');

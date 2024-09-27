@@ -39,7 +39,7 @@ const cases = [
 
 describe('ESLint-based parsers', () => {
   test.each(cases)('should parse $syntax syntax', async ({ fixture, language }) => {
-    const filePath = path.join(__dirname, 'fixtures', 'eslint', fixture);
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'eslint', fixture);
     const fileContent = await readFile(filePath);
     const fileType = 'MAIN';
 

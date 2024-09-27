@@ -23,7 +23,7 @@ import { parseJavaScriptSourceFile } from '../../../tools/index.js';
 
 describe('findNoSonarLines', () => {
   it('should find NOSONAR comment lines', async () => {
-    const filePath = path.join(__dirname, 'fixtures', 'nosonar.js');
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'nosonar.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
     const { nosonarLines } = findNoSonarLines(sourceCode);
     expect(nosonarLines).toEqual([1, 2, 3]);

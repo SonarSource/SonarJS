@@ -23,7 +23,7 @@ import { parseTypeScriptSourceFile } from '../../../tools/index.js';
 
 describe('findExecutableLines', () => {
   it('should find the number of executable lines', async () => {
-    const filePath = path.join(__dirname, 'fixtures', 'executable-lines.ts');
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'executable-lines.ts');
     const tsConfigs = [];
     const sourceCode = await parseTypeScriptSourceFile(filePath, tsConfigs);
     const statements = findExecutableLines(sourceCode);

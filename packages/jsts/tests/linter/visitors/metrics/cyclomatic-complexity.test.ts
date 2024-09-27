@@ -33,7 +33,12 @@ describe('computeCyclomaticComplexity', () => {
   test.each(cases)(
     'should compute complexity for $fixture',
     async ({ fixture, expectedComplexity }) => {
-      const filePath = path.join(__dirname, 'fixtures', 'cyclomatic-complexity', `${fixture}.js`);
+      const filePath = path.join(
+        import.meta.dirname,
+        'fixtures',
+        'cyclomatic-complexity',
+        `${fixture}.js`,
+      );
       const sourceCode = await parseJavaScriptSourceFile(filePath);
       const actualComplexity = computeCyclomaticComplexity(sourceCode);
       expect(actualComplexity).toEqual(expectedComplexity);

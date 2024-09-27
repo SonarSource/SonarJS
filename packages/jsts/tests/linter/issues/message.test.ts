@@ -25,7 +25,7 @@ import { S1116 } from '../../../src/rules/decorated.js';
 
 describe('convertMessage', () => {
   it('should convert an ESLint message into a Sonar issue', async () => {
-    const filePath = path.join(__dirname, 'fixtures', 'convert.js');
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'convert.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
     const ruleId = 'S1116';

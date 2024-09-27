@@ -25,7 +25,7 @@ import { buildSourceCodes, composeSyntheticFilePath } from '../../../jsts/src/in
 import { APIError } from '../../../shared/src/index.js';
 
 describe('buildSourceCodes()', () => {
-  const fixturesPath = join(__dirname, 'fixtures', 'build');
+  const fixturesPath = join(import.meta.dirname, 'fixtures', 'build');
   it('should build source code from YAML lambda file', async () => {
     const filePath = join(fixturesPath, 'valid-lambda.yaml');
     const sourceCodes = buildSourceCodes(await embeddedInput({ filePath }), parseAwsFromYaml);

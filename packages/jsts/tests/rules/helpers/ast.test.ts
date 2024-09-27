@@ -52,7 +52,7 @@ describe('getProperty', () => {
       property => expect(property).toBeUndefined(),
     ],
   ])('it %s', async (_: string, fixtureFile: string, key: string, verifier: (property) => void) => {
-    const baseDir = path.join(__dirname, 'fixtures');
+    const baseDir = path.join(import.meta.dirname, 'fixtures');
 
     const linter = new Linter();
     linter.defineRule('custom-rule-file', {

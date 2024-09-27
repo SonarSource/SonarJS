@@ -30,7 +30,7 @@ describe('tsconfigs', () => {
       clearTSconfigFiles();
     });
 
-    const fixturesDir = path.join(__dirname, 'fixtures');
+    const fixturesDir = path.join(import.meta.dirname, 'fixtures');
     it('should return the TSconfig files', () => {
       loadTSConfigs(fixturesDir, []);
       expect(getTSConfigsCount()).toEqual(7);

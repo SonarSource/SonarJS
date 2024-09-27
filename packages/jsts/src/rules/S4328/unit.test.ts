@@ -21,7 +21,7 @@ import { RuleTester } from 'eslint';
 import { rule } from './/index.js';
 import path from 'path';
 
-const fixtures = path.join(__dirname, 'fixtures');
+const fixtures = path.join(import.meta.dirname, 'fixtures');
 const filename = path.join(fixtures, 'package-json-project/file.js');
 const options = [
   {

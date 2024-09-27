@@ -21,13 +21,13 @@ import { RuleTester } from 'eslint';
 import { rule } from '../../';
 import {join} from 'node:path';
 
-process.chdir(__dirname) // change current working dir to avoid the package.json lookup to up in the tree
+process.chdir(import.meta.dirname) // change current working dir to avoid the package.json lookup to up in the tree
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module', ecmaFeatures: { jsx: true } } });
 ruleTester.run('S6747 turns into a noop on non-React projects', rule, {
   valid: [
     {
       code: '<div class="foo"></div>;',
-      filename: join(__dirname, 'filename.jsx')
+      filename: join(import.meta.dirname, 'filename.jsx')
     },
   ],
   invalid: []

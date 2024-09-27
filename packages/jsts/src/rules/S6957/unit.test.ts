@@ -22,12 +22,13 @@ import { rule } from './index.js';
 import path from 'path/posix';
 import { toUnixPath } from '../../index.js';
 
-const fixtures = path.join(toUnixPath(__dirname), 'fixtures');
+const dirname = import.meta.dirname;
+const fixtures = path.join(toUnixPath(dirname), 'fixtures');
 const filenameReact15 = path.join(fixtures, 'react15/file.js');
 
 const tsParserPath = require.resolve('@typescript-eslint/parser');
 
-process.chdir(__dirname); // change current working dir to avoid the package.json lookup to up in the tree
+process.chdir(import.meta.dirname); // change current working dir to avoid the package.json lookup to up in the tree
 
 const ruleTester = new RuleTester({
   parser: tsParserPath,

@@ -35,7 +35,7 @@ describe('parseForESLint', () => {
   test.each(parseFunctions)(
     'should parse a valid input with $parser.parser',
     async ({ parser, usingBabel }) => {
-      const filePath = path.join(__dirname, 'fixtures', 'parse', 'valid.js');
+      const filePath = path.join(import.meta.dirname, 'fixtures', 'parse', 'valid.js');
       const fileContent = await readFile(filePath);
       const fileType = 'MAIN';
 
@@ -66,7 +66,7 @@ describe('parseForESLint', () => {
   test.each(parseFunctions)(
     'should fail parsing an invalid input with $parser.parser',
     async ({ parser, usingBabel, errorMessage }) => {
-      const filePath = path.join(__dirname, 'fixtures', 'parse', 'invalid.js');
+      const filePath = path.join(import.meta.dirname, 'fixtures', 'parse', 'invalid.js');
       const fileContent = await readFile(filePath);
       const fileType = 'MAIN';
 

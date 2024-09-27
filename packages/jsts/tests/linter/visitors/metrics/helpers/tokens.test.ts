@@ -24,7 +24,7 @@ import { parseJavaScriptSourceFile } from '../../../../tools/index.js';
 
 describe('extractTokensAndComments', () => {
   it('should extract tokens and comments', async () => {
-    const filePath = path.join(__dirname, './fixtures/tokens.js');
+    const filePath = path.join(import.meta.dirname, './fixtures/tokens.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath, []);
     const { tokens, comments } = parseTokensAndComments(extractTokensAndComments(sourceCode));
     expect(tokens).toEqual(['foo', '(', `'hello'`, ')', ';']);
@@ -32,7 +32,7 @@ describe('extractTokensAndComments', () => {
   });
 
   it('should extract tokens and comments from Vue files', async () => {
-    const filePath = path.join(__dirname, './fixtures/tokens.vue');
+    const filePath = path.join(import.meta.dirname, './fixtures/tokens.vue');
     const sourceCode = await parseJavaScriptSourceFile(filePath, []);
     const { tokens, comments } = parseTokensAndComments(extractTokensAndComments(sourceCode));
     expect(tokens).toEqual(expect.arrayContaining(['jsCode', 'vue-tag']));

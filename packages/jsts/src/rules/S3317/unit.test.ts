@@ -91,7 +91,7 @@ ruleTester.run('Class names and file names should match', rule, {
     {
       code: `class MyClass {}
             export default MyClass;`,
-      filename: `${__dirname}${path.sep}MyClass.js`,
+      filename: `${import.meta.dirname}${path.sep}MyClass.js`,
     },
     {
       code: `const MY_CONST = 3.14;
