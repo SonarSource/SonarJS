@@ -22,7 +22,7 @@
  */
 
 import express from 'express';
-import http from 'http';
+import * as http from 'http';
 import * as path from 'path';
 import router from './router.js';
 import { errorMiddleware } from './errors/index.js';
@@ -35,6 +35,9 @@ import {
   logMemoryConfiguration,
   logMemoryError,
 } from './memory.js';
+import { fileURLToPath } from 'url';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 /**
  * The maximum request body size
@@ -95,11 +98,10 @@ export function start(
     registerGarbageCollectionObserver();
   }
   return new Promise(resolve => {
-    debug('Starting the bridge server');
-
-    worker = new Worker(path.resolve(import.meta.dirname, 'worker.mjs'), {
+    worker = new Worker(path.resolve(__dirname, 'worker.js'), {
       workerData: { context: getContext() },
       env: SHARE_ENV,
+      execArgv: ['--require', 'ts-node/register'],
     });
 
     worker.on('online', () => {

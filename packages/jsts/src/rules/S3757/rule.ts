@@ -21,7 +21,7 @@
 
 import { Rule } from 'eslint';
 import estree from 'estree';
-import ts, { TypeFlags } from 'typescript';
+import ts from 'typescript';
 import { generateMeta, getTypeFromTreeNode, isRequiredParserServices } from '../helpers/index.js';
 import { meta } from './meta.js';
 
@@ -43,7 +43,7 @@ export const rule: Rule.RuleModule = {
 
     function isObjectType(...types: ts.Type[]): boolean {
       return types.some(
-        t => !!(t.getFlags() & TypeFlags.Object) && !isDate(t) && t.symbol?.name !== 'Number',
+        t => !!(t.getFlags() & ts.TypeFlags.Object) && !isDate(t) && t.symbol?.name !== 'Number',
       );
     }
 

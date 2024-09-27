@@ -21,7 +21,7 @@ import { RuleTester } from 'eslint';
 import { rule } from './/index.js';
 
 const ruleTester = new RuleTester({
-  parser: require.resolve('@typescript-eslint/parser'),
+  parser: import.meta.resolve('@typescript-eslint/parser'),
   parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
 });
 

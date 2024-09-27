@@ -25,7 +25,7 @@ describe('worker', () => {
   let worker: Worker;
 
   beforeAll(() => {
-    worker = new Worker(path.resolve(__dirname, '../src/worker.mjs'), {
+    worker = new Worker(path.resolve(__dirname, '../src/worker.js'), {
       workerData: { context: {} },
     });
   });

@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { start } from '../src/server.js';
-import path from 'path';
+import * as path from 'path';
 import { setContext } from '../../shared/src/index.js';
 import { AddressInfo } from 'net';
 import { request } from './tools/index.js';
-import http from 'http';
+import * as http from 'http';
 
 describe('server', () => {
   const port = 0;
@@ -39,7 +39,10 @@ describe('server', () => {
   it('should start', async () => {
     expect.assertions(5);
 
-    console.log = jest.fn();
+    console.log = inp => {
+      inp;
+      jest.fn();
+    };
 
     const { server, serverClosed } = await start(undefined, undefined);
 

@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import express from 'express';
+import * as express from 'express';
 import { Worker } from 'worker_threads';
-import { delegate } from './worker.mjs';
+import { delegate } from './worker.js';
 
 export default function (worker: Worker): express.Router {
   const router = express.Router();
