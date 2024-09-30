@@ -20,6 +20,8 @@
 import { rule } from './/index.js';
 import { RuleTester } from 'eslint';
 
+import Module from 'node:module';
+const require = Module.createRequire(import.meta.url);
 const tsParserPath = require.resolve('@typescript-eslint/parser');
 const ruleTester = new RuleTester({
   parserOptions: { ecmaVersion: 2018, sourceType: 'module' },

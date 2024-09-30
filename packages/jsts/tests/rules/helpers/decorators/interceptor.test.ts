@@ -24,6 +24,8 @@ import { rule as noParameterReassignment } from '../../../../src/rules/S1226/ind
 // Covers `getFilename`
 import { rule as noImplicitDependencies } from '../../../../src/rules/S4328/index.js';
 import path from 'path';
+import Module from 'node:module';
+const require = Module.createRequire(import.meta.url);
 
 describe('interceptReport', () => {
   assertThatInterceptReportDecoratorForwardsCalls(

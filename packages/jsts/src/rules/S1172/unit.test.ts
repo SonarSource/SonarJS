@@ -19,6 +19,8 @@
  */
 import { RuleTester, Scope } from 'eslint';
 import { isParameterProperty, rule } from './rule.js';
+import Module from 'node:module';
+const require = Module.createRequire(import.meta.url);
 
 const ruleTester = new RuleTester({
   parser: require.resolve('@typescript-eslint/parser'),

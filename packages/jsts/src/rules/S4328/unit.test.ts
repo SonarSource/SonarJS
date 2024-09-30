@@ -28,6 +28,8 @@ const options = [
     whitelist: [],
   },
 ];
+import Module from 'node:module';
+const require = Module.createRequire(import.meta.url);
 const tsParserPath = require.resolve('@typescript-eslint/parser');
 const ruleTester = new RuleTester({
   parser: tsParserPath,

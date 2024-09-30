@@ -19,6 +19,8 @@
  */
 import { RuleTester } from 'eslint';
 import { rule } from './/index.js';
+import Module from 'node:module';
+const require = Module.createRequire(import.meta.url);
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
 ruleTester.run(`Function declarations should not be made within blocks`, rule, {

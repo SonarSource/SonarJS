@@ -20,6 +20,8 @@
 import { rule } from './/index.js';
 import { RuleTester } from 'eslint';
 import { JavaScriptRuleTester, TypeScriptRuleTester } from '../../../tests/tools/index.js';
+import Module from 'node:module';
+const require = Module.createRequire(import.meta.url);
 
 const ruleTester = new TypeScriptRuleTester();
 ruleTester.run('await should only be used with promises.', rule, {

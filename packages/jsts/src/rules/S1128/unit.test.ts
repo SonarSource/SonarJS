@@ -21,6 +21,8 @@ import { RuleTester } from 'eslint';
 import { rule } from './/index.js';
 import path from 'path';
 import { BabelRuleTester } from '../../../tests/tools/index.js';
+import Module from 'node:module';
+const require = Module.createRequire(import.meta.url);
 
 const babelRuleTester = BabelRuleTester();
 

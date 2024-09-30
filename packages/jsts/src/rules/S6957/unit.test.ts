@@ -26,6 +26,8 @@ const dirname = import.meta.dirname;
 const fixtures = path.join(toUnixPath(dirname), 'fixtures');
 const filenameReact15 = path.join(fixtures, 'react15/file.js');
 
+import Module from 'node:module';
+const require = Module.createRequire(import.meta.url);
 const tsParserPath = require.resolve('@typescript-eslint/parser');
 
 process.chdir(import.meta.dirname); // change current working dir to avoid the package.json lookup to up in the tree

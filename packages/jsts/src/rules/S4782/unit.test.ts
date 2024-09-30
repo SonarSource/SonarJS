@@ -21,6 +21,8 @@ import { TypeScriptRuleTester } from '../../../tests/tools/index.js';
 import { rule } from './/index.js';
 import { RuleTester } from 'eslint';
 import path from 'path';
+import Module from 'node:module';
+const require = Module.createRequire(import.meta.url);
 
 const ruleTester = new TypeScriptRuleTester();
 ruleTester.run(
