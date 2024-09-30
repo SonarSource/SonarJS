@@ -19,7 +19,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S1994/javascript
 
-import { Rule } from 'eslint';
+import type { Rule } from 'eslint';
 import estree from 'estree';
 import { areEquivalent, generateMeta, getParent } from '../helpers/index.js';
 import { TSESTree } from '@typescript-eslint/utils';

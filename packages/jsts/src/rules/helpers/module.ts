@@ -17,11 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Rule, Scope } from 'eslint';
+import type { Rule, Scope } from 'eslint';
 import estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
 import { Node, isIdentifier, getVariableFromScope, getUniqueWriteReference } from './ast.js';
-import Variable = Scope.Variable;
 
 export function getImportDeclarations(context: Rule.RuleContext) {
   const program = context.sourceCode.ast;
@@ -122,7 +121,7 @@ export function getFullyQualifiedNameRaw(
   node: estree.Node,
   fqn: string[],
   scope?: Scope.Scope,
-  visitedVars: Variable[] = [],
+  visitedVars: Scope.Variable[] = [],
 ): string | null {
   const nodeToCheck = reduceToIdentifier(node, fqn);
 
@@ -184,7 +183,7 @@ function checkFqnFromImport(
   definition: Scope.Definition,
   context: Rule.RuleContext,
   fqn: string[],
-  visitedVars: Variable[],
+  visitedVars: Scope.Variable[],
 ) {
   if (definition.type === 'ImportBinding') {
     const specifier = definition.node;
@@ -234,7 +233,7 @@ function checkFqnFromRequire(
   definition: Scope.Definition,
   context: Rule.RuleContext,
   fqn: string[],
-  visitedVars: Variable[],
+  visitedVars: Scope.Variable[],
 ) {
   const value = getUniqueWriteReference(variable);
   // requires

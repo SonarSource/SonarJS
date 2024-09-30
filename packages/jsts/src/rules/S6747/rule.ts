@@ -19,7 +19,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6747/javascript
 
-import { Rule } from 'eslint';
+import type { Rule } from 'eslint';
 import pkg from 'eslint-plugin-react';
 const { rules: reactRules } = pkg;
 import jsxA11yPlugin from 'eslint-plugin-jsx-a11y';

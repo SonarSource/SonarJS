@@ -23,7 +23,7 @@ import pkg from 'eslint-plugin-jsx-a11y';
 const { rules: jsxA11yRules } = pkg;
 import { generateMeta, interceptReport } from '../helpers/index.js';
 import { meta } from './meta.js';
-import { Rule } from 'eslint';
+import type { Rule } from 'eslint';
 
 const anchorIsValid = jsxA11yRules['anchor-is-valid'];
 

@@ -19,7 +19,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6759/javascript
 
-import { Rule } from 'eslint';
+import type { Rule } from 'eslint';
 import { Function, Node, ReturnStatement } from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
 import {

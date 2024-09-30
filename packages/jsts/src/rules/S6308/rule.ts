@@ -19,7 +19,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6308/javascript
 
-import { Rule } from 'eslint';
+import type { Rule } from 'eslint';
 import { AwsCdkTemplate } from '../helpers/aws/cdk.js';
 import { NewExpression, Node } from 'estree';
 import {

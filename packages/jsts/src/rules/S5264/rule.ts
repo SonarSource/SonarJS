@@ -19,7 +19,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S5264/javascript
 
-import { Rule } from 'eslint';
+import type { Rule } from 'eslint';
 import isHiddenFromScreenReader from 'eslint-plugin-jsx-a11y/lib/util/isHiddenFromScreenReader.js';
 import getElementType from 'eslint-plugin-jsx-a11y/lib/util/getElementType.js';
 import estree from 'estree';

@@ -19,7 +19,7 @@
  */
 import { CustomRule } from './custom-rule.js';
 import { rule as symbolHighlightingRule } from '../visitors/symbol-highlighting.js';
-import { Rule } from 'eslint';
+import type { Rule } from 'eslint';
 
 /**
  * The internal _symbol highlighting_ custom rule

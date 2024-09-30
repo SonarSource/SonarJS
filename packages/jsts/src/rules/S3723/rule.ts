@@ -22,7 +22,7 @@
 import { eslintRules } from '../core/index.js';
 import { generateMeta } from '../helpers/index.js';
 import { meta } from './meta.js';
-import { Rule } from 'eslint';
+import type { Rule } from 'eslint';
 
 /**
  * S1537 ('comma-dangle') and S3723 ('enforce-trailing-comma') both depend on the

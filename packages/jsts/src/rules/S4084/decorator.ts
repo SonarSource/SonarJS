@@ -19,7 +19,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S4084/javascript
 
-import { Rule } from 'eslint';
+import type { Rule } from 'eslint';
 import { Node } from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta, interceptReport } from '../helpers/index.js';

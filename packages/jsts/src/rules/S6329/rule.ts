@@ -20,7 +20,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6329/javascript
 
 import { AwsCdkCheckArguments, AwsCdkTemplate } from '../helpers/aws/cdk.js';
-import { Rule } from 'eslint';
+import type { Rule } from 'eslint';
 import estree from 'estree';
 import { Node } from 'estree';
 import { getResultOfExpression, Result } from '../helpers/result.js';

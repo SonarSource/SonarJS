@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 declare module 'eslint-plugin-jsx-a11y' {
-  import { Rule } from 'eslint';
+  import type { Rule } from 'eslint';
   export const rules: { [name: string]: Rule.RuleModule };
 }
 declare module 'eslint-plugin-jsx-a11y/lib/util/getElementType.js' {

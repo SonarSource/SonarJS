@@ -22,7 +22,7 @@ import ts from 'typescript';
 import { TSESLint, TSESTree } from '@typescript-eslint/utils';
 import { RequiredParserServices } from '../helpers/index.js';
 import { getVariableFromScope } from './ast.js';
-import { Rule } from 'eslint';
+import type { Rule } from 'eslint';
 
 export type RuleContext = TSESLint.RuleContext<string, string[]>;
 

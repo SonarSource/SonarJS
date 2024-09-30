@@ -19,7 +19,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S1854/javascript
 
-import { Rule, Scope } from 'eslint';
+import type { Rule, Scope } from 'eslint';
 import estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
 import {
@@ -30,9 +30,6 @@ import {
   ReferenceLike,
 } from '../helpers/index.js';
 import { meta } from './meta.js';
-import CodePath = Rule.CodePath;
-import Variable = Scope.Variable;
-import CodePathSegment = Rule.CodePathSegment;
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta as Rule.RuleMetaData, {
@@ -43,13 +40,13 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     const codePathStack: CodePathContext[] = [];
     const liveVariablesMap = new Map<string, LiveVariables>();
-    const readVariables = new Set<Variable>();
+    const readVariables = new Set<Scope.Variable>();
     // map from Variable to CodePath ids where variable is used
-    const variableUsages = new Map<Variable, Set<string>>();
+    const variableUsages = new Map<Scope.Variable, Set<string>>();
     const referencesUsedInDestructuring = new Set<ReferenceLike>();
     const destructuringStack: DestructuringContext[] = [];
-    const codePathSegments: CodePathSegment[][] = [];
-    let currentCodePathSegments: CodePathSegment[] = [];
+    const codePathSegments: Rule.CodePathSegment[][] = [];
+    let currentCodePathSegments: Rule.CodePathSegment[] = [];
 
     return {
       ':matches(AssignmentExpression, VariableDeclarator[init])': (node: estree.Node) => {
@@ -96,7 +93,7 @@ export const rule: Rule.RuleModule = {
       },
 
       // CodePath events
-      onCodePathSegmentStart: (segment: CodePathSegment) => {
+      onCodePathSegmentStart: (segment: Rule.CodePathSegment) => {
         liveVariablesMap.set(segment.id, new LiveVariables(segment));
         currentCodePathSegments.push(segment);
       },
@@ -125,7 +122,7 @@ export const rule: Rule.RuleModule = {
     }
 
     function checkSegment(liveVariables: LiveVariables) {
-      const willBeRead = new Set<Variable>(liveVariables.out);
+      const willBeRead = new Set<Scope.Variable>(liveVariables.out);
       const references = [...liveVariables.references].reverse();
       references.forEach(ref => {
         const variable = ref.resolved;
@@ -204,7 +201,7 @@ export const rule: Rule.RuleModule = {
       return parent && parent.type === 'AssignmentPattern';
     }
 
-    function isLocalVar(variable: Variable) {
+    function isLocalVar(variable: Scope.Variable) {
       // @ts-ignore
       const scope = variable.scope;
       const node = scope.block as TSESTree.Node;
@@ -288,7 +285,7 @@ export const rule: Rule.RuleModule = {
       }
     }
 
-    function lvaForSegment(segment: CodePathSegment) {
+    function lvaForSegment(segment: Rule.CodePathSegment) {
       let lva;
       if (liveVariablesMap.has(segment.id)) {
         lva = liveVariablesMap.get(segment.id)!;
@@ -352,11 +349,11 @@ export const rule: Rule.RuleModule = {
 };
 
 class CodePathContext {
-  codePath: CodePath;
-  segments = new Map<string, CodePathSegment>();
+  codePath: Rule.CodePath;
+  segments = new Map<string, Rule.CodePathSegment>();
   assignmentStack: AssignmentContext[] = [];
 
-  constructor(codePath: CodePath) {
+  constructor(codePath: Rule.CodePath) {
     this.codePath = codePath;
   }
 }

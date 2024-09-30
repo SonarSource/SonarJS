@@ -21,7 +21,7 @@
 
 import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/utils';
 import { generateMeta, isBooleanLiteral } from '../helpers/index.js';
-import { Rule } from 'eslint';
+import type { Rule } from 'eslint';
 import estree from 'estree';
 import { meta } from './meta.js';
 

@@ -19,7 +19,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S3516/javascript
 
-import { Rule, Scope } from 'eslint';
+import type { Rule, Scope } from 'eslint';
 import estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
 import {
@@ -34,7 +34,6 @@ import {
   toSecondaryLocation,
 } from '../helpers/index.js';
 import { meta } from './meta.js';
-import CodePathSegment = Rule.CodePathSegment;
 
 interface FunctionContext {
   codePath: Rule.CodePath;
@@ -99,7 +98,7 @@ export const rule: Rule.RuleModule = {
         functionContextStack.pop();
         currentCodePathSegments = codePathSegments.pop() || [];
       },
-      onCodePathSegmentStart: (segment: CodePathSegment) => {
+      onCodePathSegmentStart: (segment: Rule.CodePathSegment) => {
         currentCodePathSegments.push(segment);
       },
       onCodePathSegmentEnd() {

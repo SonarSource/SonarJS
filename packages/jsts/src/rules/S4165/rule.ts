@@ -19,7 +19,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S4165/javascript
 
-import { Rule, Scope } from 'eslint';
+import type { Rule, Scope } from 'eslint';
 import estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
 import {
@@ -31,10 +31,6 @@ import {
   Values,
 } from '../helpers/index.js';
 import { meta } from './meta.js';
-import CodePath = Rule.CodePath;
-import Variable = Scope.Variable;
-import Reference = Scope.Reference;
-import CodePathSegment = Rule.CodePathSegment;
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta as Rule.RuleMetaData, {
@@ -47,7 +43,7 @@ export const rule: Rule.RuleModule = {
     const codePathStack: CodePathContext[] = [];
     const reachingDefsMap = new Map<string, ReachingDefinitions>();
     // map from Variable to CodePath ids where variable is used
-    const variableUsages = new Map<Variable, Set<string>>();
+    const variableUsages = new Map<Scope.Variable, Set<string>>();
     const codePathSegments: Rule.CodePathSegment[][] = [];
     let currentCodePathSegments: Rule.CodePathSegment[] = [];
 
@@ -77,7 +73,7 @@ export const rule: Rule.RuleModule = {
       },
 
       // CodePath events
-      onCodePathSegmentStart: (segment: CodePathSegment) => {
+      onCodePathSegmentStart: (segment: Rule.CodePathSegment) => {
         reachingDefsMap.set(segment.id, new ReachingDefinitions(segment));
         currentCodePathSegments.push(segment);
       },
@@ -106,7 +102,7 @@ export const rule: Rule.RuleModule = {
     }
 
     function checkSegment(reachingDefs: ReachingDefinitions) {
-      const assignedValuesMap = new Map<Variable, Values>(reachingDefs.in);
+      const assignedValuesMap = new Map<Scope.Variable, Values>(reachingDefs.in);
       reachingDefs.references.forEach(ref => {
         const variable = ref.resolved;
         if (!variable || !ref.isWrite() || !shouldReport(ref)) {
@@ -130,7 +126,7 @@ export const rule: Rule.RuleModule = {
     function checkRedundantAssignement(
       { resolved: variable }: Scope.Reference,
       node: estree.Node | null,
-      lhsVal: string | Variable,
+      lhsVal: string | Scope.Variable,
       rhsValues: Values,
       name: string,
     ) {
@@ -155,12 +151,12 @@ export const rule: Rule.RuleModule = {
       return variable.references.filter(ref => ref.isWrite()).length === 1;
     }
 
-    function shouldReport(ref: Reference) {
+    function shouldReport(ref: Scope.Reference) {
       const variable = ref.resolved;
       return variable && shouldReportReference(ref) && !variableUsedOutsideOfCodePath(variable);
     }
 
-    function shouldReportReference(ref: Reference) {
+    function shouldReportReference(ref: Scope.Reference) {
       const variable = ref.resolved;
 
       return (
@@ -195,7 +191,7 @@ export const rule: Rule.RuleModule = {
       }
     }
 
-    function processReference(ref: Reference) {
+    function processReference(ref: Scope.Reference) {
       const assignmentStack = peek(codePathStack).assignmentStack;
       if (assignmentStack.length > 0) {
         const assignment = peek(assignmentStack);
@@ -208,7 +204,7 @@ export const rule: Rule.RuleModule = {
       }
     }
 
-    function reachingDefsForSegment(segment: CodePathSegment) {
+    function reachingDefsForSegment(segment: Rule.CodePathSegment) {
       let defs;
       if (reachingDefsMap.has(segment.id)) {
         defs = reachingDefsMap.get(segment.id)!;
@@ -239,7 +235,7 @@ export const rule: Rule.RuleModule = {
     function resolveReferenceRecursively(
       node: estree.Identifier,
       scope: Scope.Scope | null,
-    ): { ref: Reference | null; variable: Scope.Variable | null } {
+    ): { ref: Scope.Reference | null; variable: Scope.Variable | null } {
       if (scope === null) {
         return { ref: null, variable: null };
       }
@@ -267,11 +263,11 @@ export const rule: Rule.RuleModule = {
 class CodePathContext {
   reachingDefinitionsMap = new Map<string, ReachingDefinitions>();
   reachingDefinitionsStack: ReachingDefinitions[] = [];
-  codePath: CodePath;
-  segments = new Map<string, CodePathSegment>();
+  codePath: Rule.CodePath;
+  segments = new Map<string, Rule.CodePathSegment>();
   assignmentStack: AssignmentContext[] = [];
 
-  constructor(codePath: CodePath) {
+  constructor(codePath: Rule.CodePath) {
     this.codePath = codePath;
   }
 }
@@ -285,8 +281,8 @@ class AssignmentContext {
     this.node = node;
   }
 
-  lhs = new Set<Reference>();
-  rhs = new Set<Reference>();
+  lhs = new Set<Scope.Reference>();
+  rhs = new Set<Scope.Reference>();
 
   isRhs(node: TSESTree.Node) {
     return this.node.type === 'AssignmentExpression'
@@ -300,7 +296,7 @@ class AssignmentContext {
       : this.node.id === node;
   }
 
-  add(ref: Reference) {
+  add(ref: Scope.Reference) {
     let parent = ref.identifier as TSESTree.Node | undefined;
     while (parent) {
       if (this.isLhs(parent)) {
@@ -323,7 +319,7 @@ function peek<T>(arr: Array<T>) {
   return arr[arr.length - 1];
 }
 
-function isSelfAssignement(ref: Reference) {
+function isSelfAssignement(ref: Scope.Reference) {
   const lhs = ref.resolved;
   if (ref.writeExpr?.type === 'Identifier') {
     const rhs = getVariableFromIdentifier(ref.writeExpr, ref.from);
@@ -340,7 +336,7 @@ function isCompoundAssignment(writeExpr: estree.Node | null) {
   return false;
 }
 
-function isDefaultParameter(ref: Reference) {
+function isDefaultParameter(ref: Scope.Reference) {
   if (ref.identifier.type !== 'Identifier') {
     return false;
   }

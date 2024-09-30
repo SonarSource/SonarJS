@@ -19,7 +19,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6302/javascript
 
-import { Rule } from 'eslint';
+import type { Rule } from 'eslint';
 import { Node } from 'estree';
 import { getResultOfExpression, Result } from '../helpers/result.js';
 import {

@@ -27,7 +27,7 @@ import {
   isUndefined,
   StringLiteral,
 } from './ast.js';
-import { Rule } from 'eslint';
+import type { Rule } from 'eslint';
 
 export class Result {
   constructor(

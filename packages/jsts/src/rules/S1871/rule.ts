@@ -30,7 +30,7 @@ import {
   takeWithoutBreak,
   toSecondaryLocation,
 } from '../helpers/index.js';
-import { Rule } from 'eslint';
+import type { Rule } from 'eslint';
 import estree from 'estree';
 import { meta } from './meta.js';
 

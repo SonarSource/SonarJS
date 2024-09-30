@@ -19,7 +19,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S5842/javascript
 
-import { Rule } from 'eslint';
+import type { Rule } from 'eslint';
 import { Node, Quantifier } from '@eslint-community/regexpp/ast';
 import { createRegExpRule } from '../helpers/regex/index.js';
 import { generateMeta } from '../helpers/index.js';

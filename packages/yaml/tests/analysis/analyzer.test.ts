@@ -24,7 +24,7 @@ import { embeddedInput } from '../../../jsts/tests/tools/index.js';
 // loading it from @sonar/jsts breaks resolution
 import { initializeLinter, getLinter } from '../../../jsts/src/linter/index.js';
 import { analyzeEmbedded, composeSyntheticFilePath } from '../../../jsts/src/index.js';
-import { Rule } from 'eslint';
+import type { Rule } from 'eslint';
 
 describe('analyzeYAML', () => {
   const fixturesPath = join(import.meta.dirname, 'fixtures');

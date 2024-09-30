@@ -21,7 +21,7 @@
 
 import getElementType from 'eslint-plugin-jsx-a11y/lib/util/getElementType.js';
 import estree from 'estree';
-import { Rule } from 'eslint';
+import type { Rule } from 'eslint';
 import { TSESTree } from '@typescript-eslint/utils';
 import pkg from 'jsx-ast-utils';
 const { getLiteralPropValue, getProp } = pkg;

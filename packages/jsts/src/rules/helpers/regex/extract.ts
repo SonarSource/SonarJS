@@ -19,7 +19,7 @@
  */
 import estree from 'estree';
 import * as regexpp from '@eslint-community/regexpp';
-import { Rule } from 'eslint';
+import type { Rule } from 'eslint';
 import {
   getSimpleRawStringValue,
   getUniqueWriteUsage,

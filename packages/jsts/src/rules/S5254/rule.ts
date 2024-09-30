@@ -20,7 +20,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S5254/javascript
 
 import { TSESTree } from '@typescript-eslint/utils';
-import { Rule } from 'eslint';
+import type { Rule } from 'eslint';
 import pkg from 'eslint-plugin-jsx-a11y';
 const { rules: jsxA11yRules } = pkg;
 import { generateMeta, interceptReport, mergeRules } from '../helpers/index.js';

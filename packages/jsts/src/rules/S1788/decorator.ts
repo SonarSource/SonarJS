@@ -19,7 +19,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S1788/javascript
 
-import { Rule } from 'eslint';
+import type { Rule } from 'eslint';
 import { AssignmentPattern, BaseFunction } from 'estree';
 import { generateMeta, interceptReport, isIdentifier } from '../helpers/index.js';
 import { meta } from './meta.js';

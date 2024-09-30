@@ -34,7 +34,7 @@ import {
   RuleContext,
   toSecondaryLocation,
 } from '../helpers/index.js';
-import { Rule } from 'eslint';
+import type { Rule } from 'eslint';
 import estree from 'estree';
 import { meta, schema } from './meta.js';
 import { FromSchema } from 'json-schema-to-ts';

@@ -19,7 +19,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6544/javascript
 
-import { Rule } from 'eslint';
+import type { Rule } from 'eslint';
 import { tsEslintRules } from '../typescript-eslint/index.js';
 import { eslintRules } from '../core/index.js';
 import {

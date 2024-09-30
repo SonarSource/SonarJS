@@ -19,7 +19,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6328/javascript
 
-import { Rule } from 'eslint';
+import type { Rule } from 'eslint';
 import estree from 'estree';
 import * as regexpp from '@eslint-community/regexpp';
 import { RegExpLiteral } from '@eslint-community/regexpp/ast';

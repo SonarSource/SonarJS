@@ -29,7 +29,7 @@ import {
   report,
   toSecondaryLocation,
 } from '../helpers/index.js';
-import { Rule } from 'eslint';
+import type { Rule } from 'eslint';
 import { meta } from './meta.js';
 
 const EQUALITY_OPERATOR_TOKEN_KINDS = new Set(['==', '===', '!=', '!==']);

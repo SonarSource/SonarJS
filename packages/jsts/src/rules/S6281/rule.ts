@@ -19,7 +19,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6281/javascript
 
-import { Rule } from 'eslint';
+import type { Rule } from 'eslint';
 import { NewExpression, ObjectExpression, Property } from 'estree';
 import {
   findPropagatedSetting,

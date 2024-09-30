@@ -19,7 +19,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6333/javascript
 
-import { Rule } from 'eslint';
+import type { Rule } from 'eslint';
 import { AwsCdkCheckArguments, AwsCdkTemplate, normalizeFQN } from '../helpers/aws/cdk.js';
 import { CallExpression, MemberExpression, NewExpression, Node } from 'estree';
 import { getResultOfExpression } from '../helpers/result.js';

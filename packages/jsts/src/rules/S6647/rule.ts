@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import type { TSESTree } from '@typescript-eslint/utils';
-import { Rule } from 'eslint';
+import type { Rule } from 'eslint';
 import { eslintRules } from '../core/index.js';
 import { decorate } from './decorator.js';
 import { getVariableFromName } from '../helpers/index.js';
