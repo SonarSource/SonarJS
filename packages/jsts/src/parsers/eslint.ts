@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import babelESLintParser from '@babel/eslint-parser';
-import vueESLintParser from 'vue-eslint-parser';
-import typescriptESLintParser from '@typescript-eslint/parser';
+import * as babelESLintParser from '@babel/eslint-parser';
+import * as vueESLintParser from 'vue-eslint-parser';
+import * as typescriptESLintParser from '@typescript-eslint/parser';
 
 /**
  * An ESLint-based parsing function

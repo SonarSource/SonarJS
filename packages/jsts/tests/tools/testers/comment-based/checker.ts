@@ -24,6 +24,10 @@ import { hasSonarRuntimeOption } from '../../../../src/linter/parameters/index.j
 import { buildSourceCode } from '../../../../src/builders/index.js';
 import { FileType, JsTsLanguage } from '../../../../../shared/src/index.js';
 import { extractExpectations } from './framework.js';
+import { fileURLToPath } from 'node:url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 /**
  * Checks that a rule raises the issues declared as comment-based expectations on fixture files.
@@ -34,7 +38,7 @@ export function check(ruleId: string, ruleModule: Rule.RuleModule, ruleDir: stri
   /**
    * Loading this file's `parseForESLint()` function into ESLint's rule tester.
    */
-  const ruleTester = new RuleTester({ parser: import.meta.filename });
+  const ruleTester = new RuleTester({ parser: __filename });
 
   const fixtures = [];
   for (const file of fs.readdirSync(ruleDir, { recursive: true })) {
@@ -72,7 +76,7 @@ export function parseForESLint(
   fileType: FileType = 'MAIN',
 ) {
   const { filePath } = options;
-  const tsConfigs = [path.join(import.meta.dirname, '../../../../src/rules', 'tsconfig.cb.json')];
+  const tsConfigs = [path.join(__dirname, '../../../../src/rules', 'tsconfig.cb.json')];
   const sourceCode = buildSourceCode(
     { filePath, fileContent, fileType, tsConfigs },
     languageFromFile(fileContent, filePath),
