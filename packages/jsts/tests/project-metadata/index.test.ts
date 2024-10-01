@@ -21,6 +21,8 @@ import path from 'path';
 import { toUnixPath } from '../../../shared/src/index.js';
 import { getManifests, isSupported } from '../../src/rules/helpers/index.js';
 import fs from 'fs';
+import { describe, it, beforeEach } from 'node:test';
+import { expect } from 'expect';
 
 describe('initialize package.json files', () => {
   const baseDir = path.posix.join(toUnixPath(import.meta.dirname), 'fixtures', 'package-json');

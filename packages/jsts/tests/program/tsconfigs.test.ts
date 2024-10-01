@@ -23,10 +23,12 @@ import {
   loadTSConfigs,
 } from '../../../jsts/src/index.js';
 import path from 'path';
+import { describe, before, it } from 'node:test';
+import { expect } from 'expect';
 
 describe('tsconfigs', () => {
   describe('loadTSConfigFiles', () => {
-    beforeAll(() => {
+    before(() => {
       clearTSconfigFiles();
     });
 

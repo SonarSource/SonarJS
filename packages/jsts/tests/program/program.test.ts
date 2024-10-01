@@ -31,8 +31,8 @@ import { toUnixPath } from '../../../shared/src/index.js';
 import ts, { ModuleKind, ScriptTarget } from 'typescript';
 import fs from 'fs';
 import { isRoot } from '../../src/rules/helpers/index.js';
-
-jest.setTimeout(60000);
+import { describe, it, Mock, mock } from 'node:test';
+import { expect } from 'expect';
 
 describe('program', () => {
   it('should create a program', () => {
@@ -120,7 +120,7 @@ describe('program', () => {
     const configHost = {
       useCaseSensitiveFileNames: true,
       readDirectory: ts.sys.readDirectory,
-      fileExists: jest.fn((_file: string) => {
+      fileExists: mock.fn((_file: string) => {
         console.log(_file);
         return false;
       }),
@@ -160,10 +160,11 @@ describe('program', () => {
       tsConfigMissing,
     );
 
+    const fileExistsMock = (configHost.fileExists as Mock<typeof configHost.fileExists>).mock;
     expect(parsedConfigFile.errors).not.toHaveLength(0);
-    expect(configHost.fileExists).toHaveBeenCalledTimes(searchedFiles.length);
+    expect(fileExistsMock.calls.length).toEqual(searchedFiles.length);
     searchedFiles.forEach((file, index) => {
-      expect(configHost.fileExists).toHaveBeenNthCalledWith(index + 1, toUnixPath(file));
+      expect(fileExistsMock.calls[index].arguments[0]).toEqual(toUnixPath(file));
     });
   });
 
