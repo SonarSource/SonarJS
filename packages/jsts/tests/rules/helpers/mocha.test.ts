@@ -20,6 +20,8 @@
 import esprima from 'esprima';
 import estree from 'estree';
 import { Mocha } from '../../../src/rules/index.js';
+import { describe, it } from 'node:test';
+import { expect } from 'expect';
 
 describe('Mocha.js', () => {
   it('should recognize test constructs', () => {

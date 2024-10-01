@@ -18,6 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { bundleAssessor } from './bundleAssessor.js';
+import { describe, it } from 'node:test';
+import { expect } from 'expect';
 
 describe('assessors', () => {
   describe('bundleAssessor', () => {

@@ -22,22 +22,29 @@ import { configs, rules, meta } from '../../src/rules/plugin.js';
 import fs from 'fs';
 import path from 'path';
 import { valid } from 'semver';
+import { describe, it } from 'node:test';
+import { expect } from 'expect';
+import { pathToFileURL } from 'node:url';
 
 const mappedRules = new Map(
   Object.entries(rules).map(([eslintId, rule]) => [rule.meta.docs.url, eslintId]),
 );
 
 describe('Plugin public API', () => {
-  it('should map keys to rules definitions', () => {
+  it('should map keys to rules definitions', async () => {
     const ruleFolder = path.join(import.meta.dirname, '../../src/rules');
     const sonarKeys = fs.readdirSync(ruleFolder).filter(name => /^S\d+/.test(name));
     const missing = [];
     for (const sonarKey of sonarKeys) {
-      const { rule } = require(path.join(ruleFolder, sonarKey));
+      const { rule } = await import(
+        pathToFileURL(path.join(ruleFolder, sonarKey, 'index.js')).toString()
+      );
       expect(rule.meta.docs!.url).toBe(
         `https://sonarsource.github.io/rspec/#/rspec/${sonarKey}/javascript`,
       );
-      const { meta } = require(path.join(ruleFolder, sonarKey, 'meta.ts'));
+      const { meta } = await import(
+        pathToFileURL(path.join(ruleFolder, sonarKey, 'meta.js')).toString()
+      );
       const eslintId = mappedRules.get(rule.meta.docs.url);
       if (!eslintId) {
         missing.push(sonarKey);

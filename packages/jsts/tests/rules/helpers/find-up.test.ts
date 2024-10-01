@@ -21,7 +21,7 @@ import { Volume } from 'memfs';
 import { equal } from 'node:assert';
 import { createFindUp } from '../../../src/rules/helpers/find-up.js';
 import Path from 'path/posix';
-import { jest } from '@jest/globals';
+import { describe, it, mock } from 'node:test';
 
 describe('findUp', () => {
   it('only touches the filesystem when needed', () => {
@@ -34,8 +34,8 @@ describe('findUp', () => {
 
     const findUp = createFindUp('foo.bar');
 
-    const filesystemReadFileSpy = jest.spyOn(filesystem, 'readFileSync');
-    const filesystemReaddirSpy = jest.spyOn(filesystem, 'readdirSync');
+    const filesystemReadFileSpy = mock.method(filesystem, 'readFileSync');
+    const filesystemReaddirSpy = mock.method(filesystem, 'readdirSync');
 
     const abcEntries = findUp('/a/b/c', '/', filesystem);
     const abcEntries2 = findUp('/a/b/c', '/', filesystem);
@@ -48,10 +48,10 @@ describe('findUp', () => {
 
     const filesystemReaddirSpyCallArgs = filesystemReaddirSpy.mock.calls;
 
-    equal(filesystemReaddirSpyCallArgs[0][0], Path.join('/', 'a', 'b', 'c'));
-    equal(filesystemReaddirSpyCallArgs[1][0], Path.join('/', 'a', 'b'));
-    equal(filesystemReaddirSpyCallArgs[2][0], Path.join('/', 'a'));
-    equal(filesystemReaddirSpyCallArgs[3][0], Path.join('/'));
+    equal(filesystemReaddirSpyCallArgs[0].arguments[0], Path.join('/', 'a', 'b', 'c'));
+    equal(filesystemReaddirSpyCallArgs[1].arguments[0], Path.join('/', 'a', 'b'));
+    equal(filesystemReaddirSpyCallArgs[2].arguments[0], Path.join('/', 'a'));
+    equal(filesystemReaddirSpyCallArgs[3].arguments[0], Path.join('/'));
 
     for (const entries of [abcEntries, abcEntries2, abcEntries3, abcEntries4]) {
       equal(entries.length, 2);
