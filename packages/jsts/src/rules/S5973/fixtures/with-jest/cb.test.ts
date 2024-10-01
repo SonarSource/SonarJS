@@ -18,8 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { basename } from 'path';
-import { check } from '../../../../../tests/tools';
-import { rule } from '../../';
+import { check } from '../../../../../tests/tools/index.js';
+import { rule } from '../../rule.js';
+import { describe } from 'node:test';
 
 
 const sonarId = basename(import.meta.dirname);

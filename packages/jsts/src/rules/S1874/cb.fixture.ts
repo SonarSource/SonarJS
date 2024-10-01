@@ -141,7 +141,7 @@ deprecatedCallSignature2(); // Noncompliant
 
 /* separator */
 
-importallDeprecations from './cb.fixture.deprecations';
+import * as allDeprecations from './cb.fixture.deprecations';
 z(allDeprecations.deprecatedFunction);
 
 import defaultImport, {deprecatedFunction, anotherDeprecatedFunction as aliasForDeprecated, notDeprecated1, notDeprecated2} from './cb.fixture.deprecations'; // Noncompliant 2
@@ -152,7 +152,7 @@ aliasForDeprecated(); // Noncompliant
 noDeprecated1(); // OK
 noDeprecated2(); // OK
 
-importdeprecationsExport from './cb.fixture.deprecationsExport';
+import * as deprecationsExport from './cb.fixture.deprecationsExport';
 z(deprecationsExport); // Noncompliant
 
 import {DeprecatedClass, ClassWithDeprecatedConstructor, ClassWithOneDeprecatedConstructor} from "./cb.fixture.deprecations" // Noncompliant
