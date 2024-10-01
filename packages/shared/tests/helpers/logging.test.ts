@@ -18,18 +18,24 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { debug, error, info, warn } from '../../src/helpers/index.js';
+import { describe, it, mock, Mock } from 'node:test';
+import assert from 'node:assert';
+import { expect } from 'expect';
 
 describe('debug', () => {
   it('should log with a `DEBUG` prefix', () => {
-    console.log = jest.fn();
+    console.log = mock.fn();
     debug('hello, world!');
-    expect(console.log).toHaveBeenCalledWith(`DEBUG hello, world!`);
+    assert.equal(
+      (console.log as Mock<typeof console.log>).mock.calls[0].arguments[0],
+      `DEBUG hello, world!`,
+    );
   });
 });
 
 describe('error', () => {
   it('should log to stderr', () => {
-    console.error = jest.fn();
+    console.error = mock.fn();
     error('hello, world!');
     expect(console.error).toHaveBeenCalledWith(`hello, world!`);
   });
@@ -37,7 +43,7 @@ describe('error', () => {
 
 describe('warn', () => {
   it('should log with a `WARN` prefix', () => {
-    console.log = jest.fn();
+    console.log = mock.fn();
     warn('hello, world!');
     expect(console.log).toHaveBeenCalledWith(`WARN hello, world!`);
   });
@@ -45,7 +51,7 @@ describe('warn', () => {
 
 describe('info', () => {
   it('should log with no prefix', () => {
-    console.log = jest.fn();
+    console.log = mock.fn();
     info('hello, world!');
     expect(console.log).toHaveBeenCalledWith(`hello, world!`);
   });

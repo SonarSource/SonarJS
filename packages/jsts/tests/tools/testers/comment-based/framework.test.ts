@@ -20,6 +20,8 @@
 import path from 'path';
 import { extractExpectations } from './framework.js';
 import { readFile } from '../../../../../shared/src/index.js';
+import { describe, it } from 'node:test';
+import { expect } from 'expect';
 
 describe('Comment-based Testing Framework', () => {
   const baseDir = path.resolve(`${import.meta.dirname}/fixtures`);

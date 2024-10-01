@@ -18,6 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { setContext, getContext } from '../../src/helpers/index.js';
+import { describe, it, beforeEach } from 'node:test';
+import { expect } from 'expect';
 
 describe('context', () => {
   const initialCtx = {

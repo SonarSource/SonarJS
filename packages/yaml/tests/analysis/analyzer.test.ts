@@ -25,11 +25,13 @@ import { embeddedInput } from '../../../jsts/tests/tools/index.js';
 import { initializeLinter, getLinter } from '../../../jsts/src/linter/index.js';
 import { analyzeEmbedded, composeSyntheticFilePath } from '../../../jsts/src/index.js';
 import type { Rule } from 'eslint';
+import { describe, it, before } from 'node:test';
+import { expect } from 'expect';
 
 describe('analyzeYAML', () => {
   const fixturesPath = join(import.meta.dirname, 'fixtures');
 
-  beforeAll(() => {
+  before(() => {
     setContext({
       workDir: '/tmp/workdir',
       shouldUseTypeScriptParserForJS: true,

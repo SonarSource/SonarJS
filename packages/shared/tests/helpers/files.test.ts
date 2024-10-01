@@ -19,6 +19,8 @@
  */
 import path from 'path';
 import { readFile } from '../../src/helpers/index.js';
+import { describe, it } from 'node:test';
+import { expect } from 'expect';
 
 describe('readFile', () => {
   it('should read a file', async () => {

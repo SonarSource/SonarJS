@@ -20,6 +20,8 @@
 import path from 'path';
 import { parseAwsFromYaml } from '../../src/aws/index.js';
 import { APIError, readFile } from '../../../shared/src/index.js';
+import { describe, it } from 'node:test';
+import { expect } from 'expect';
 
 describe('parseAwsFromYaml()', () => {
   it('should parse valid YAML syntax', async () => {
