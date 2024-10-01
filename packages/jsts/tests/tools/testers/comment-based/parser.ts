@@ -13,7 +13,6 @@ export function parseForESLint(
   fileType: FileType = 'MAIN',
 ) {
   const { filePath } = options;
-  console.log(__dirname);
   const tsConfigs = [
     path.join(dirname(fileURLToPath(import.meta.url)), '../../../../src/rules', 'tsconfig.cb.json'),
   ];

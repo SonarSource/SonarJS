@@ -33,7 +33,7 @@ export function check(ruleId: string, ruleModule: Rule.RuleModule, ruleDir: stri
   /**
    * Loading this file's `parseForESLint()` function into ESLint's rule tester.
    */
-  const ruleTester = new RuleTester({ parser: join(dirname(import.meta.filename), 'parser.js') });
+  const ruleTester = new RuleTester({ parser: join(dirname(import.meta.filename), 'parser.ts') });
 
   const fixtures = [];
   for (const file of fs.readdirSync(ruleDir, { recursive: true })) {
