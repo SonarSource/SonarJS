@@ -19,7 +19,7 @@
  */
 import { check } from '../../../../../tests/tools/index.js';
 import { rule } from '../../index.js';
-import path from 'path';
+import path from 'path';import { describe } from 'node:test';
 
 const sonarId = path.basename(import.meta.dirname);
 
