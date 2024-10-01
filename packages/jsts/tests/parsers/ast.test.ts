@@ -33,6 +33,8 @@ import {
 } from '../../src/parsers/index.js';
 import { JsTsAnalysisInput } from '../../src/analysis/index.js';
 import { TSESTree } from '@typescript-eslint/utils';
+import { describe, test } from 'node:test';
+import { expect } from 'expect';
 
 const parseFunctions = [
   {
@@ -63,16 +65,15 @@ async function parseSourceCode(code: string, parser: { parse: ParseFunction }) {
 
 describe('ast', () => {
   describe('serializeInProtobuf()', () => {
-    test.each(parseFunctions)(
-      'should not lose information between serialize and deserializing JavaScript',
-      async ({ parser, usingBabel }) => {
+    parseFunctions.forEach(({ parser, usingBabel }) =>
+      test('should not lose information between serialize and deserializing JavaScript', async () => {
         const filePath = path.join(import.meta.dirname, 'fixtures', 'ast', 'base.js');
         const sc = await parseSourceFile(filePath, parser, usingBabel);
         const protoMessage = parseInProtobuf(sc.ast as TSESTree.Program);
         const serialized = serializeInProtobuf(sc.ast as TSESTree.Program);
         const deserializedProtoMessage = deserializeProtobuf(serialized);
         compareASTs(protoMessage, deserializedProtoMessage);
-      },
+      }),
     );
   });
   test('should encode unknown nodes', async () => {

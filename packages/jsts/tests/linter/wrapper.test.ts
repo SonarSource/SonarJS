@@ -22,9 +22,11 @@ import path from 'path';
 import { JsTsLanguage, setContext } from '../../../shared/src/index.js';
 import { CustomRule, LinterWrapper, quickFixRules, RuleConfig } from '../../src/index.js';
 import { parseJavaScriptSourceFile, parseTypeScriptSourceFile } from '../tools/index.js';
+import { describe, before, it } from 'node:test';
+import { expect } from 'expect';
 
 describe('LinterWrapper', () => {
-  beforeAll(() => {
+  before(() => {
     setContext({
       workDir: '/tmp/workdir',
       shouldUseTypeScriptParserForJS: true,
@@ -75,12 +77,12 @@ describe('LinterWrapper', () => {
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
     const customRuleId = 'custom-rule';
+    const ruleModule = await import('./fixtures/wrapper/custom-rule.js');
     const customRules: CustomRule[] = [
       {
         ruleId: customRuleId,
         ruleConfig: [],
-        ruleModule: require(path.join(import.meta.dirname, 'fixtures', 'wrapper', 'custom-rule.ts'))
-          .rule,
+        ruleModule: ruleModule.rule,
       },
     ];
 
@@ -98,7 +100,7 @@ describe('LinterWrapper', () => {
       expect.objectContaining({
         ruleId: customRuleId,
         message:
-          `Visited 'Today here, tomorrow the world!' literal from a custom rule ` +
+          `Visited 'sonar-context' literal from a custom rule ` +
           `with injected contextual workDir '/tmp/workdir'.`,
       }),
     );
@@ -261,9 +263,8 @@ describe('LinterWrapper', () => {
     ]);
   });
 
-  test.each(Array.from(quickFixRules))(
-    `should provide quick fixes from enabled fixable rule '%s'`,
-    async ruleId => {
+  Array.from(quickFixRules).forEach(ruleId =>
+    it(`should provide quick fixes from enabled fixable rule ${ruleId}`, async () => {
       // we ignore SXXX rules: they are aliases of ESLint keys, for which we have proper fixtures
       if (/^S\d+$/.test(ruleId)) {
         return;
@@ -304,7 +305,7 @@ describe('LinterWrapper', () => {
         }),
       );
       expect(issue.quickFixes.length).toBeGreaterThan(0);
-    },
+    }),
   );
 
   it('should not provide quick fixes from disabled fixable rules', async () => {
