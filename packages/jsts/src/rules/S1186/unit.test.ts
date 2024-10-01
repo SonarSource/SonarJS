@@ -20,6 +20,7 @@
 import { Rule, RuleTester } from 'eslint';
 import { rule } from './/index.js';
 import { reportWithQuickFixIfApplicable } from './decorator.js';
+import { it } from 'node:test';
 
 const ruleTester = new RuleTester({
   parserOptions: { ecmaVersion: 2022, ecmaFeatures: { jsx: true } },

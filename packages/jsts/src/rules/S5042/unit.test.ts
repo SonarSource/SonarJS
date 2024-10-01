@@ -131,7 +131,7 @@ ruleTesterTs.run(
       },
       {
         code: `
-        importAdmZip from 'adm-zip';
+        import AdmZip from 'adm-zip';
 
         let zip = new AdmZip("./foo.zip");
         zip.extractAllTo("."); // Sensitive`,

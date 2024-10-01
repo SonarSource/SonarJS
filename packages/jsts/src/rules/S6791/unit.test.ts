@@ -29,7 +29,7 @@ ruleTester.run(
     valid: [
       {
         code: `
-importReact from 'react';
+import React from 'react';
 class Component extends React.Component {
     componentWillMount() {}
 }`,
@@ -38,7 +38,7 @@ class Component extends React.Component {
     invalid: [
       {
         code: `
-importReact from 'react';
+import React from 'react';
 class Component extends React.Component {
     UNSAFE_componentWillMount() {}
 }`,

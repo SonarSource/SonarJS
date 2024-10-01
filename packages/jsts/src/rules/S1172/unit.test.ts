@@ -20,6 +20,8 @@
 import { RuleTester, Scope } from 'eslint';
 import { isParameterProperty, rule } from './rule.js';
 import Module from 'node:module';
+import { it } from 'node:test';
+import { expect } from 'expect';
 const require = Module.createRequire(import.meta.url);
 
 const ruleTester = new RuleTester({

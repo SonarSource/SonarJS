@@ -66,7 +66,7 @@ ruleTester.run('Allowing requests with excessive content length is security-sens
     },
     {
       code: `
-      importformidableModule from 'formidable';
+      import formidableModule from 'formidable';
       import { formidable } from 'formidable';
       import { IncomingForm } from 'formidable';
       import { Formidable } from 'formidable';

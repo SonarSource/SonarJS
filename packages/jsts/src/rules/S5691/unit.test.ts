@@ -75,7 +75,7 @@ app.use(serveStatic('public',
     },
     {
       code: `
-importserveStatic from 'serve-static';
+import serveStatic from 'serve-static';
 let app = express();
 const options = { 
   'index': false, 

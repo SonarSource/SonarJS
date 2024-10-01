@@ -248,7 +248,7 @@ ruleTester.run('Using clear-text protocols is security-sensitive', rule, {
     {
       code: `
       import ses from '@aws-sdk/client-ses';
-      importfakeSes from 'fake-client-ses';
+      import fakeSes from 'fake-client-ses';
       import nodemailer from 'nodemailer';
 
       const sesClient = new ses.SES({ region: AWS_REGION });
