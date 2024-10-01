@@ -21,6 +21,8 @@ import path from 'path';
 import stylelint from 'stylelint';
 import { readFile } from '../../../shared/src/index.js';
 import { createStylelintConfig, LinterWrapper, RuleConfig } from '../../src/linter/index.js';
+import { describe, it } from 'node:test';
+import { expect } from 'expect';
 
 import { rule as S5362 } from '../../src/rules/S5362/index.js';
 

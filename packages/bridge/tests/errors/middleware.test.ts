@@ -20,6 +20,9 @@
 import { ErrorCode, APIError } from '../../../shared/src/index.js';
 import express from 'express';
 import { EMPTY_JSTS_ANALYSIS_OUTPUT, errorMiddleware } from '../../src/errors/index.js';
+import assert from 'assert';
+
+import { describe, it, beforeEach, mock } from 'node:test';
 
 describe('errorMiddleware', () => {
   const mockRequest = {} as express.Request;
@@ -28,7 +31,7 @@ describe('errorMiddleware', () => {
   let mockResponse: Partial<express.Response>;
   beforeEach(() => {
     mockResponse = {
-      json: jest.fn(),
+      json: mock.fn(),
     };
   });
 
@@ -39,7 +42,7 @@ describe('errorMiddleware', () => {
       mockResponse as express.Response,
       mockNext,
     );
-    expect(mockResponse.json).toBeCalledWith({
+    assert.deepEqual(mockResponse.json.mock.calls[0].arguments[0], {
       parsingError: {
         message: 'Unexpected token "{"',
         line: 42,
@@ -56,7 +59,7 @@ describe('errorMiddleware', () => {
       mockResponse as express.Response,
       mockNext,
     );
-    expect(mockResponse.json).toBeCalledWith({
+    assert.deepEqual(mockResponse.json.mock.calls[0].arguments[0], {
       parsingError: {
         message: 'TypeScript failed for some reason',
         code: ErrorCode.FailingTypeScript,
@@ -71,7 +74,7 @@ describe('errorMiddleware', () => {
       mockResponse as express.Response,
       mockNext,
     );
-    expect(mockResponse.json).toBeCalledWith({
+    assert.deepEqual(mockResponse.json.mock.calls[0].arguments[0], {
       parsingError: {
         message: 'Uninitialized linter',
         code: ErrorCode.LinterInitialization,
@@ -79,14 +82,14 @@ describe('errorMiddleware', () => {
     });
   });
 
-  it('should return a propery "error" containing the error message for any other error', () => {
+  it('should return a property "error" containing the error message for any other error', () => {
     errorMiddleware(
       new Error('Something unexpected happened.'),
       mockRequest,
       mockResponse as express.Response,
       mockNext,
     );
-    expect(mockResponse.json).toBeCalledWith({
+    assert.deepEqual(mockResponse.json.mock.calls[0].arguments[0], {
       error: 'Something unexpected happened.',
     });
   });

@@ -20,6 +20,8 @@
 import path from 'path';
 import { parseHTML } from '../../src/parser/index.js';
 import { readFile } from '../../../shared/src/index.js';
+import { describe, it } from 'node:test';
+import { expect } from 'expect';
 
 describe('parseHtml', () => {
   it('should return embedded JavaScript', async () => {

@@ -19,6 +19,8 @@
  */
 import { createStylelintConfig, RuleConfig } from '../../src/linter/index.js';
 import { plugins } from '../../src/rules/index.js';
+import { describe, it } from 'node:test';
+import { expect } from 'expect';
 
 describe('createStylelintConfig', () => {
   it('should create a Stylelint config', () => {

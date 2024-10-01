@@ -21,6 +21,8 @@ import { APIError, readFile } from '../../../shared/src/index.js';
 import { buildParserOptions, parseForESLint, parsers } from '../../src/parsers/index.js';
 import { JsTsAnalysisInput } from '../../src/analysis/index.js';
 import path from 'path';
+import { describe, it } from 'node:test';
+import { expect } from 'expect';
 
 const parseFunctions = [
   {
@@ -32,9 +34,8 @@ const parseFunctions = [
 ];
 
 describe('parseForESLint', () => {
-  test.each(parseFunctions)(
-    'should parse a valid input with $parser.parser',
-    async ({ parser, usingBabel }) => {
+  parseFunctions.forEach(({ parser, usingBabel, errorMessage }) => {
+    it(`should parse a valid input with ${parser.parser}`, async () => {
       const filePath = path.join(import.meta.dirname, 'fixtures', 'parse', 'valid.js');
       const fileContent = await readFile(filePath);
       const fileType = 'MAIN';
@@ -45,12 +46,9 @@ describe('parseForESLint', () => {
 
       expect(sourceCode).toBeDefined();
       expect(sourceCode.ast).toBeDefined();
-    },
-  );
+    });
 
-  test.each(parseFunctions)(
-    'should parse a valid input with $parser.parser',
-    ({ parser, usingBabel }) => {
+    it(`should parse a valid input with ${parser.parser}`, () => {
       const fileContent = 'if (foo()) bar();';
       const fileType = 'MAIN';
 
@@ -60,12 +58,9 @@ describe('parseForESLint', () => {
 
       expect(sourceCode).toBeDefined();
       expect(sourceCode.ast).toBeDefined();
-    },
-  );
+    });
 
-  test.each(parseFunctions)(
-    'should fail parsing an invalid input with $parser.parser',
-    async ({ parser, usingBabel, errorMessage }) => {
+    it(`should fail parsing an invalid input with ${parser.parser}`, async () => {
       const filePath = path.join(import.meta.dirname, 'fixtures', 'parse', 'invalid.js');
       const fileContent = await readFile(filePath);
       const fileType = 'MAIN';
@@ -76,6 +71,6 @@ describe('parseForESLint', () => {
       expect(() => parseForESLint(fileContent, parser.parse, options)).toThrow(
         APIError.parsingError(errorMessage, { line: 1 }),
       );
-    },
-  );
+    });
+  });
 });

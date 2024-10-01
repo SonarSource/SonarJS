@@ -21,6 +21,8 @@ import { analyzeCSS, CssAnalysisInput } from '../../src/analysis/index.js';
 import { RuleConfig } from '../../src/linter/index.js';
 import path from 'path';
 import { readFile } from '../../../shared/src/index.js';
+import { describe, it } from 'node:test';
+import { expect } from 'expect';
 
 const rules = [{ key: 'block-no-empty', configurations: [] }];
 

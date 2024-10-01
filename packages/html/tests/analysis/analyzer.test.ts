@@ -24,11 +24,13 @@ import { setContext } from '../../../shared/src/index.js';
 import { analyzeEmbedded } from '../../../jsts/src/index.js';
 // importing this from @sonar/jsts causes a resolution issue
 import { initializeLinter } from '../../../jsts/src/linter/index.js';
+import { describe, before, it } from 'node:test';
+import { expect } from 'expect';
 
 describe('analyzeHTML', () => {
   const fixturesPath = join(import.meta.dirname, 'fixtures');
 
-  beforeAll(() => {
+  before(() => {
     setContext({
       workDir: '/tmp/workdir',
       shouldUseTypeScriptParserForJS: true,
