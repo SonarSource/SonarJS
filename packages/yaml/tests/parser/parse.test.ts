@@ -20,6 +20,8 @@
 import path from 'path';
 import { parseYaml } from '../../src/parser/index.js';
 import { APIError, readFile } from '../../../shared/src/index.js';
+import { describe, it } from 'node:test';
+import { expect } from 'expect';
 
 function noOpPicker(_key: any, _node: any, _ancestors: any) {
   return {};

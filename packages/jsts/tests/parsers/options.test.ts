@@ -20,6 +20,8 @@
 import { buildParserOptions } from '../../src/parsers/index.js';
 import { createAndSaveProgram, getProgramById } from '../../src/program/index.js';
 import path from 'path';
+import { describe, it } from 'node:test';
+import { expect } from 'expect';
 
 describe('buildParserOptions', () => {
   it('should build parser options', () => {

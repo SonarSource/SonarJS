@@ -21,6 +21,8 @@ import { buildSourceCode } from '../../src/builders/index.js';
 import { JsTsAnalysisInput } from '../../src/analysis/index.js';
 import path from 'path';
 import { JsTsLanguage, readFile } from '../../../shared/src/index.js';
+import { describe, test } from 'node:test';
+import { expect } from 'expect';
 
 const cases = [
   { syntax: 'ECMAScript 2015', fixture: 'es2015.js', language: 'js' },
@@ -38,16 +40,18 @@ const cases = [
 ];
 
 describe('ESLint-based parsers', () => {
-  test.each(cases)('should parse $syntax syntax', async ({ fixture, language }) => {
-    const filePath = path.join(import.meta.dirname, 'fixtures', 'eslint', fixture);
-    const fileContent = await readFile(filePath);
-    const fileType = 'MAIN';
+  cases.forEach(({ syntax, fixture, language }) => {
+    test(`should parse ${syntax} syntax`, async () => {
+      const filePath = path.join(import.meta.dirname, 'fixtures', 'eslint', fixture);
+      const fileContent = await readFile(filePath);
+      const fileType = 'MAIN';
 
-    const input = { filePath, fileType, fileContent } as JsTsAnalysisInput;
-    const sourceCode = buildSourceCode(input, language as JsTsLanguage);
+      const input = { filePath, fileType, fileContent } as JsTsAnalysisInput;
+      const sourceCode = buildSourceCode(input, language as JsTsLanguage);
 
-    expect(sourceCode).toBeDefined();
-    expect(sourceCode.ast).toBeDefined();
-    expect(sourceCode.ast.body.length).toBeGreaterThan(0);
+      expect(sourceCode).toBeDefined();
+      expect(sourceCode.ast).toBeDefined();
+      expect(sourceCode.ast.body.length).toBeGreaterThan(0);
+    });
   });
 });
