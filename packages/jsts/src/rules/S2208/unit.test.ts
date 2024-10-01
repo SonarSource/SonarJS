@@ -40,7 +40,7 @@ ruleTesterJS.run('Wildcard imports should not be used', rule, {
   invalid: [
     {
       code: `
-      import name1 from "module-name";
+      import * as name1 from "module-name";
       import defaultMember, * as name2 from "module-name";
       `,
       errors: [

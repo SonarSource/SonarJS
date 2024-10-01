@@ -168,7 +168,7 @@ ruleTester.run('Allowing requests with excessive content length is security-sens
     {
       code: `
       import { json } from 'body-parser';
-      importbodyParser from 'body-parser';
+      import bodyParser from 'body-parser';
       bodyParser.json({ limits: 4000000}); // Noncompliant
       json({ limits: 4000000}); // Noncompliant, second option parameter is used
       json({ limits: 42000000}); // Noncompliant
@@ -193,7 +193,7 @@ ruleTester.run('Allowing requests with excessive content length is security-sens
     },
     {
       code: `
-      importbodyParser from 'body-parser'
+      import bodyParser from 'body-parser'
 
       bodyParser.text({ limits: '4mb'}); // Noncompliant, second option parameter is used
       bodyParser.raw({ limits: '42mb'}); // Noncompliant
