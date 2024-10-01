@@ -20,6 +20,8 @@
 import { Rule, RuleTester } from 'eslint';
 import { rule } from './/index.js';
 import { isProtectionSemicolon } from './decorator.js';
+import { it } from 'node:test';
+import { expect } from 'expect';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
 
@@ -77,11 +79,13 @@ ruleTester.run('Extra semicolons should be removed', rule, {
   ],
 });
 
-it('S1116 handles null nodes', () => {
+it('S1116 handles null nodes', t => {
   const context = {
     sourceCode: {
-      getTokenBefore: jest.fn().mockReturnValue(null),
-      getTokenAfter: jest.fn().mockReturnValue({ type: 'Punctuator', value: '[' }),
+      getTokenBefore: t.mock.fn(() => null), //mockReturnValue(null),
+      getTokenAfter: t.mock.fn(() => {
+        return { type: 'Punctuator', value: '[' };
+      }),
     },
   } as unknown as Rule.RuleContext;
 

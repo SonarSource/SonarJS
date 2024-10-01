@@ -18,6 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import stylelint from 'stylelint';
+import { describe, it } from 'node:test';
+import { expect } from 'expect';
 
 export type ValidAssertion = { description: string; code: string };
 export type InvalidAssertion = {
