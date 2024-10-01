@@ -20,17 +20,19 @@
 import path from 'path';
 import { Worker } from 'worker_threads';
 import { ErrorCode } from '../../shared/src/index.js';
+import { describe, before, after, it } from 'node:test';
+import { expect } from 'expect';
 
 describe('worker', () => {
   let worker: Worker;
 
-  beforeAll(() => {
+  before(() => {
     worker = new Worker(path.resolve(import.meta.dirname, '../src/worker.js'), {
       workerData: { context: {} },
     });
   });
 
-  afterAll(async () => {
+  after(async () => {
     await worker.terminate();
   });
 

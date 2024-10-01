@@ -23,11 +23,14 @@ import { setContext } from '../../shared/src/index.js';
 import { AddressInfo } from 'net';
 import { request } from './tools/index.js';
 import * as http from 'http';
+import { describe, before, it, mock, Mock } from 'node:test';
+import { expect } from 'expect';
+import assert from 'node:assert';
 
 describe('server', () => {
   const port = 0;
 
-  beforeAll(() => {
+  before(() => {
     setContext({
       workDir: '/tmp/dir',
       shouldUseTypeScriptParserForJS: false,
@@ -37,24 +40,20 @@ describe('server', () => {
   });
 
   it('should start', async () => {
-    expect.assertions(5);
-
-    console.log = inp => {
-      inp;
-      jest.fn();
-    };
+    console.log = mock.fn();
 
     const { server, serverClosed } = await start(undefined, undefined);
 
     expect(server.listening).toBeTruthy();
-    expect(console.log).toHaveBeenCalledTimes(3);
-    expect(console.log).toHaveBeenNthCalledWith(
-      1,
-      expect.stringMatching('Memory configuration: OS \\(\\d+ MB\\), Node.js \\(\\d+ MB\\).'),
+    const consoleLogMock = (console.log as Mock<typeof console.log>).mock;
+    assert.equal(consoleLogMock.calls.length, 3);
+    assert.match(
+      consoleLogMock.calls[0].arguments[0],
+      /Memory configuration: OS \(\d+ MB\), Node.js \(\d+ MB\)\./,
     );
-    expect(console.log).toHaveBeenNthCalledWith(2, `DEBUG Starting the bridge server`);
-    expect(console.log).toHaveBeenNthCalledWith(
-      3,
+    assert.equal(consoleLogMock.calls[1].arguments[0], `DEBUG Starting the bridge server`);
+    assert.equal(
+      consoleLogMock.calls[2].arguments[0],
       `DEBUG The bridge server is listening on port ${(server.address() as AddressInfo)?.port}`,
     );
 
@@ -120,7 +119,7 @@ describe('server', () => {
   it('should shut down', async () => {
     expect.assertions(3);
 
-    console.log = jest.fn();
+    console.log = mock.fn();
 
     const { server, serverClosed } = await start(port);
     expect(server.listening).toBeTruthy();
@@ -133,7 +132,7 @@ describe('server', () => {
   });
 
   it('worker crashing should close server', async () => {
-    console.log = jest.fn();
+    console.log = mock.fn();
 
     const { server, serverClosed, worker } = await start(port);
     expect(server.listening).toBeTruthy();
@@ -147,7 +146,7 @@ describe('server', () => {
   });
 
   it('should timeout', async () => {
-    console.log = jest.fn();
+    console.log = mock.fn();
 
     const { server, serverClosed } = await start(port, '127.0.0.1', 500);
 

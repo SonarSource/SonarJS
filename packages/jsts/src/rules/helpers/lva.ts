@@ -18,8 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import type { Rule, Scope } from 'eslint';
-import Variable = Scope.Variable;
-import CodePathSegment = Rule.CodePathSegment;
 import estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
 
@@ -58,24 +56,24 @@ export class LiveVariables {
     this.segment = segment;
   }
 
-  segment: CodePathSegment;
+  segment: Rule.CodePathSegment;
 
   /**
    * variables that are being read in the block
    */
-  gen = new Set<Variable>();
+  gen = new Set<Scope.Variable>();
   /**
    * variables that are being written in the block
    */
-  kill = new Set<Variable>();
+  kill = new Set<Scope.Variable>();
   /**
    * variables needed by this or a successor block and are not killed in this block
    */
-  in = new Set<Variable>();
+  in = new Set<Scope.Variable>();
   /**
    * variables needed by successors
    */
-  out: Variable[] = [];
+  out: Scope.Variable[] = [];
 
   /**
    * collects references in order they are evaluated, set in JS maintains insertion order
@@ -96,7 +94,7 @@ export class LiveVariables {
   }
 
   propagate(liveVariablesMap: Map<string, LiveVariables>) {
-    const out: Variable[] = [];
+    const out: Scope.Variable[] = [];
     this.segment.nextSegments.forEach(next => {
       out.push(...liveVariablesMap.get(next.id)!.in);
     });
@@ -124,7 +122,11 @@ function difference<T>(a: T[], b: Set<T>): T[] {
   return diff;
 }
 
-function shouldUpdate(inSet: Set<Variable>, gen: Set<Variable>, diff: Variable[]): boolean {
+function shouldUpdate(
+  inSet: Set<Scope.Variable>,
+  gen: Set<Scope.Variable>,
+  diff: Scope.Variable[],
+): boolean {
   for (const e of gen) {
     if (!inSet.has(e)) {
       return true;

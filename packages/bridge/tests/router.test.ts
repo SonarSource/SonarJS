@@ -29,8 +29,11 @@ import path from 'path';
 import { start } from '../src/server.js';
 import { request } from './tools/index.js';
 import fs from 'fs';
+import { describe, beforeEach, afterEach, it, mock, Mock } from 'node:test';
+import { expect } from 'expect';
 
 import { rule as S5362 } from '../../css/src/rules/S5362/index.js';
+import assert from 'node:assert';
 
 describe('router', () => {
   const fixtures = path.join(import.meta.dirname, 'fixtures', 'router');
@@ -46,7 +49,7 @@ describe('router', () => {
       sonarlint: false,
       bundles: [],
     });
-    jest.setTimeout(60 * 1000);
+    // jest.setTimeout(60 * 1000);
     const { server: serverInstance, serverClosed } = await start(port, '127.0.0.1', 60 * 60 * 1000);
     server = serverInstance;
     closePromise = serverClosed;
@@ -250,13 +253,13 @@ describe('router', () => {
   });
 
   it('should forward /create-program failures', async () => {
-    console.error = jest.fn();
+    console.error = mock.fn();
     const tsConfig = path.join(fixtures, 'malformed.json');
     const data = { tsConfig };
     const response = (await request(server, '/create-program', 'POST', data)) as string;
     const { error } = JSON.parse(response);
     expect(error).toBeDefined();
-    expect(console.error).toHaveBeenCalled();
+    assert((console.error as Mock<typeof console.error>).mock.calls.length > 0);
   });
 
   it('should route /delete-program requests', async () => {
@@ -311,13 +314,13 @@ describe('router', () => {
   });
 
   it('should forward /tsconfig-files failures', async () => {
-    console.error = jest.fn();
+    console.error = mock.fn();
     const tsConfig = path.join(fixtures, 'malformed.json');
     const data = { tsConfig };
     const response = (await request(server, '/tsconfig-files', 'POST', data)) as string;
     const { error } = JSON.parse(response);
     expect(error).toEqual('Debug Failure.');
-    expect(console.error).toHaveBeenCalled();
+    assert((console.error as Mock<typeof console.error>).mock.calls.length > 0);
   });
 
   it('should write tsconfig.json file', async () => {

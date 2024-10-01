@@ -95,6 +95,8 @@ export function start(
     registerGarbageCollectionObserver();
   }
   return new Promise(resolve => {
+    debug('Starting the bridge server');
+
     worker = new Worker(path.resolve(import.meta.dirname, 'worker.js'), {
       workerData: { context: getContext() },
       env: SHARE_ENV,

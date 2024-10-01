@@ -30,10 +30,9 @@ import {
   toSecondaryLocation,
 } from '../helpers/index.js';
 import type { BlockStatement, Node as ESTreeNode } from 'estree';
-import NodeParentExtension = Rule.NodeParentExtension;
 import { meta as rspecMeta } from './meta.js';
 
-type Node = ESTreeNode & NodeParentExtension;
+type Node = ESTreeNode & Rule.NodeParentExtension;
 
 const message =
   'Provide multiple methods instead of using "{{parameterName}}" to determine which action to take.';
