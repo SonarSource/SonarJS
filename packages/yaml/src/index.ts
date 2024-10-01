@@ -19,8 +19,8 @@
  */
 import {
   analyzeEmbedded,
-  EmbeddedAnalysisInput as YamlAnalysisInput,
-  EmbeddedAnalysisOutput as YamlAnalysisOutput,
+  type EmbeddedAnalysisInput as YamlAnalysisInput,
+  type EmbeddedAnalysisOutput as YamlAnalysisOutput,
 } from '../../jsts/src/index.js';
 
 import { parseAwsFromYaml } from './aws/index.js';

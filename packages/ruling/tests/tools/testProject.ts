@@ -47,6 +47,7 @@ import { isHtmlFile, isJsFile, isTsFile, isYamlFile } from './languages.js';
 import { analyzeYAML } from '../../../yaml/src/index.js';
 import projects from '../data/projects.json' with { type: 'json' };
 import { loadCustomRules } from '../../../jsts/src/linter/bundle-loader.js';
+import { before } from 'node:test';
 
 const sourcesPath = path.join(
   import.meta.dirname,
@@ -98,7 +99,7 @@ const DEFAULT_EXCLUSIONS = [
 export function setupBeforeAll(projectFile: string, customRules?: CustomRule[]) {
   const { project, rules, expectedPath, actualPath } = extractParameters(projectFile);
 
-  beforeAll(() => {
+  before(() => {
     setContext({
       workDir: path.join(os.tmpdir(), 'sonarjs'),
       shouldUseTypeScriptParserForJS: true,

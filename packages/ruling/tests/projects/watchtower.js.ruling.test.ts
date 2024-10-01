@@ -19,19 +19,17 @@
  */
 import { compareSync } from 'dir-compare';
 import { setupBeforeAll, testProject } from '../tools/testProject.js';
+import { describe, it } from 'node:test';
+import assert from 'node:assert';
 
 describe('Ruling', () => {
-  const { project, expectedPath, actualPath, rules } = setupBeforeAll(__filename);
-  it(
-    project.name,
-    async () => {
-      await testProject(project, actualPath, rules);
-      expect(
-        compareSync(expectedPath, actualPath, {
-          compareContent: true,
-        }).same,
-      ).toBeTruthy();
-    },
-    10 * 60 * 1000,
-  );
+  const { project, expectedPath, actualPath, rules } = setupBeforeAll(import.meta.filename);
+  it(project.name, { timeout: 10 * 60 * 1000 }, async () => {
+    await testProject(project, actualPath, rules);
+    assert(
+      compareSync(expectedPath, actualPath, {
+        compareContent: true,
+      }).same,
+    );
+  });
 });

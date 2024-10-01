@@ -19,8 +19,8 @@
  */
 import {
   analyzeEmbedded,
-  EmbeddedAnalysisInput as HtmlAnalysisInput,
-  EmbeddedAnalysisOutput as HtmlAnalysisOutput,
+  type EmbeddedAnalysisInput as HtmlAnalysisInput,
+  type EmbeddedAnalysisOutput as HtmlAnalysisOutput,
 } from '../../jsts/src/index.js';
 
 import { parseHTML } from './parser/index.js';
