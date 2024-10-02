@@ -48,9 +48,6 @@
   },
   "type": "module",
   "devDependencies": {
-    "@babel/preset-env": "7.25.4",
-    "@babel/preset-flow": "7.24.7",
-    "@babel/preset-react": "7.24.7",
     "@types/babel__preset-env": "^7.9.7",
     "@types/bytes": "3.1.4",
     "@types/eslint": "8.56.10",
