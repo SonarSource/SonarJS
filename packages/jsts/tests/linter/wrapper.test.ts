@@ -43,6 +43,7 @@ describe('LinterWrapper', () => {
     const rules = [{ key: ruleId, configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
 
     const linter = new LinterWrapper({ inputRules: rules });
+    await linter.init();
     const { issues } = linter.lint(sourceCode, filePath);
 
     expect(issues).toEqual([
@@ -63,6 +64,7 @@ describe('LinterWrapper', () => {
     const rules = [{ key: ruleId, configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
 
     const linter = new LinterWrapper({ inputRules: rules });
+    await linter.init();
     const { issues } = linter.lint(sourceCode, filePath);
 
     expect(issues).toEqual([
@@ -91,6 +93,7 @@ describe('LinterWrapper', () => {
     ] as RuleConfig[];
 
     const linter = new LinterWrapper({ inputRules: rules, customRules });
+    await linter.init();
 
     const {
       issues: [issue],
@@ -116,6 +119,7 @@ describe('LinterWrapper', () => {
     ] as RuleConfig[];
 
     const linter = new LinterWrapper({ inputRules: rules });
+    await linter.init();
     const { issues } = linter.lint(sourceCode, filePath, 'TEST');
 
     expect(issues).toEqual([
@@ -133,6 +137,7 @@ describe('LinterWrapper', () => {
     const rules = [{ key: ruleId, configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
 
     const linter = new LinterWrapper({ inputRules: rules });
+    await linter.init();
     const { issues } = linter.lint(sourceCode, filePath);
 
     expect(issues).toHaveLength(0);
@@ -144,6 +149,7 @@ describe('LinterWrapper', () => {
 
     const rules = [{ key: 'S2933', configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
     const linter = new LinterWrapper({ inputRules: rules });
+    await linter.init();
     const { issues } = linter.lint(sourceCode, filePath);
 
     expect(issues).toHaveLength(0);
@@ -157,6 +163,7 @@ describe('LinterWrapper', () => {
     const rules = [{ key: ruleId, configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
 
     const linter = new LinterWrapper({ inputRules: rules });
+    await linter.init();
     const { issues } = linter.lint(sourceCode, filePath);
 
     expect(issues).toEqual([
@@ -188,6 +195,7 @@ describe('LinterWrapper', () => {
       { key: 'S3854', configurations: [], fileTypeTarget: [fileType] },
     ] as RuleConfig[];
     const linter = new LinterWrapper({ inputRules: rules });
+    await linter.init();
     const { issues } = linter.lint(sourceCode, filePath);
 
     expect(issues).toHaveLength(4);
@@ -199,6 +207,7 @@ describe('LinterWrapper', () => {
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
     const linter = new LinterWrapper();
+    await linter.init();
     const { issues } = linter.lint(sourceCode, filePath);
 
     expect(issues).toHaveLength(0);
@@ -217,6 +226,7 @@ describe('LinterWrapper', () => {
     const env = ['browser'];
 
     const linter = new LinterWrapper({ inputRules: rules, environments: env });
+    await linter.init();
     const { issues } = linter.lint(sourceCode, filePath);
     const config = linter.getConfig({ language, fileType });
     expect(config.env['browser']).toEqual(true);
@@ -236,6 +246,7 @@ describe('LinterWrapper', () => {
     const globals = ['angular'];
 
     const linter = new LinterWrapper({ inputRules: rules, globals });
+    await linter.init();
     const { issues } = linter.lint(sourceCode, filePath);
 
     expect(linter.getConfig({ language, fileType }).globals['angular']).toEqual(true);
@@ -247,6 +258,7 @@ describe('LinterWrapper', () => {
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
     const linter = new LinterWrapper();
+    await linter.init();
     const { cognitiveComplexity, highlightedSymbols } = linter.lint(sourceCode, filePath);
 
     expect(cognitiveComplexity).toEqual(6);
@@ -295,6 +307,7 @@ describe('LinterWrapper', () => {
 
       const rules = [{ key: ruleId, configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
       const linter = new LinterWrapper({ inputRules: rules });
+      await linter.init();
       const {
         issues: [issue],
       } = linter.lint(sourceCode, filePath);
@@ -322,6 +335,7 @@ describe('LinterWrapper', () => {
     const rules = [{ key: ruleId, configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
 
     const linter = new LinterWrapper({ inputRules: rules });
+    await linter.init();
     const { issues } = linter.lint(sourceCode, filePath);
 
     expect(issues).toEqual([

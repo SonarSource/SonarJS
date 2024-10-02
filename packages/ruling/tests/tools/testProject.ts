@@ -99,14 +99,14 @@ const DEFAULT_EXCLUSIONS = [
 export function setupBeforeAll(projectFile: string, customRules?: CustomRule[]) {
   const { project, rules, expectedPath, actualPath } = extractParameters(projectFile);
 
-  before(() => {
+  before(async () => {
     setContext({
       workDir: path.join(os.tmpdir(), 'sonarjs'),
       shouldUseTypeScriptParserForJS: true,
       sonarlint: false,
       bundles: [],
     });
-    initializeRules(rules, customRules);
+    await initializeRules(rules, customRules);
   });
 
   return {
@@ -116,16 +116,22 @@ export function setupBeforeAll(projectFile: string, customRules?: CustomRule[]) 
     rules,
   };
 }
-function initializeRules(rules: RuleConfig[], customRules?: CustomRule[]) {
+async function initializeRules(rules: RuleConfig[], customRules?: CustomRule[]) {
   if (customRules) {
     const defaultLinter = getLinter();
     const htmlLinter = getLinter(HTML_LINTER_ID);
     loadCustomRules(defaultLinter.linter, customRules);
     loadCustomRules(htmlLinter.linter, customRules);
   }
-  initializeLinter(rules, DEFAULT_ENVIRONMENTS, DEFAULT_GLOBALS);
+  await initializeLinter(rules, DEFAULT_ENVIRONMENTS, DEFAULT_GLOBALS);
   const htmlRules = rules.filter(rule => rule.key !== 'S3504');
-  initializeLinter(htmlRules, DEFAULT_ENVIRONMENTS, DEFAULT_GLOBALS, undefined, HTML_LINTER_ID);
+  await initializeLinter(
+    htmlRules,
+    DEFAULT_ENVIRONMENTS,
+    DEFAULT_GLOBALS,
+    undefined,
+    HTML_LINTER_ID,
+  );
 }
 function getProjectName(testFilePath: string) {
   const SUFFIX = '.ruling.test.ts';

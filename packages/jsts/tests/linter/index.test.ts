@@ -37,7 +37,7 @@ describe('initializeLinter', () => {
 
     expect(getLinter).toThrow();
 
-    initializeLinter([{ key: 'S1116', configurations: [], fileTypeTarget: ['MAIN'] }]);
+    await initializeLinter([{ key: 'S1116', configurations: [], fileTypeTarget: ['MAIN'] }]);
 
     const linter = getLinter();
 
@@ -64,16 +64,23 @@ describe('initializeLinter', () => {
   });
 
   it('should load rule bundles', async () => {
+    const bundlePath = path.join(
+      import.meta.dirname,
+      'fixtures',
+      'index',
+      'custom-rule-bundle',
+      'rules.js',
+    );
     setContext({
       workDir: '/tmp/dir',
       shouldUseTypeScriptParserForJS: false,
       sonarlint: false,
-      bundles: ['custom-rule-bundle'],
+      bundles: [bundlePath],
     });
 
     console.log = mock.fn();
 
-    initializeLinter([{ key: 'custom-rule', configurations: [], fileTypeTarget: ['MAIN'] }]);
+    await initializeLinter([{ key: 'custom-rule', configurations: [], fileTypeTarget: ['MAIN'] }]);
 
     const linter = getLinter();
 
@@ -81,7 +88,7 @@ describe('initializeLinter', () => {
     const logs = (console.log as Mock<typeof console.log>).mock.calls.map(
       call => call.arguments[0],
     );
-    expect(logs).toContain('DEBUG Loaded rules custom-rule from custom-rule-bundle');
+    expect(logs).toContain(`DEBUG Loaded rules custom-rule from ${bundlePath}`);
     expect(logs).toContain('DEBUG Initializing linter "default" with custom-rule');
 
     const filePath = path.join(import.meta.dirname, 'fixtures', 'index', 'custom.js');

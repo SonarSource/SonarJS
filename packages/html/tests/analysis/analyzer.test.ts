@@ -40,7 +40,7 @@ describe('analyzeHTML', () => {
   });
 
   it('should analyze HTML file', async () => {
-    initializeLinter([{ key: 'S3923', configurations: [], fileTypeTarget: ['MAIN'] }]);
+    await initializeLinter([{ key: 'S3923', configurations: [], fileTypeTarget: ['MAIN'] }]);
     const {
       issues: [issue],
     } = analyzeEmbedded(
@@ -59,7 +59,7 @@ describe('analyzeHTML', () => {
   });
 
   it('should not break when using a rule with a quickfix', async () => {
-    initializeLinter([{ key: 'S1116', configurations: [], fileTypeTarget: ['MAIN'] }]);
+    await initializeLinter([{ key: 'S1116', configurations: [], fileTypeTarget: ['MAIN'] }]);
     const result = analyzeEmbedded(
       await embeddedInput({ filePath: join(fixturesPath, 'quickfix.html') }),
       parseHTML,
@@ -86,7 +86,7 @@ describe('analyzeHTML', () => {
   });
 
   it('should not break when using "S3723" rule', async () => {
-    initializeLinter([
+    await initializeLinter([
       {
         key: 'S3723',
         configurations: ['always-multiline'],
@@ -117,7 +117,7 @@ describe('analyzeHTML', () => {
   });
 
   it('should not break when using a rule with secondary locations', async () => {
-    initializeLinter([{ key: 'S2251', configurations: [], fileTypeTarget: ['MAIN'] }]);
+    await initializeLinter([{ key: 'S2251', configurations: [], fileTypeTarget: ['MAIN'] }]);
     const result = analyzeEmbedded(
       await embeddedInput({ filePath: join(fixturesPath, 'secondary.html') }),
       parseHTML,
@@ -138,7 +138,7 @@ describe('analyzeHTML', () => {
   });
 
   it('should not break when using a regex rule', async () => {
-    initializeLinter([{ key: 'S6326', configurations: [], fileTypeTarget: ['MAIN'] }]);
+    await initializeLinter([{ key: 'S6326', configurations: [], fileTypeTarget: ['MAIN'] }]);
     const result = analyzeEmbedded(
       await embeddedInput({ filePath: join(fixturesPath, 'regex.html') }),
       parseHTML,
