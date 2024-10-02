@@ -81,7 +81,7 @@ export class LinterWrapper {
   readonly linter: Linter;
 
   /** The wrapper's linting configuration */
-  readonly config: Map<LinterConfigurationKey, Linter.Config>;
+  config: Map<LinterConfigurationKey, Linter.Config> = new Map();
 
   readonly configurationKeys: LinterConfigurationKey[] = [];
 
@@ -117,8 +117,11 @@ export class LinterWrapper {
     this.linter = new Linter({
       cwd: options.workingDirectory,
     });
-    loadBundles(this.linter, options.ruleBundles ?? defaultRuleBundles);
-    loadCustomRules(this.linter, options.customRules);
+  }
+
+  async init() {
+    await loadBundles(this.linter, this.options.ruleBundles ?? defaultRuleBundles);
+    loadCustomRules(this.linter, this.options.customRules);
     this.config = this.createConfig();
   }
 

@@ -23,20 +23,34 @@ import { CustomRule } from '../../src/linter/custom-rules/index.js';
 import { setContext } from '../../../shared/src/index.js';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
+import path from 'node:path/posix';
 
 describe('BundleLoader', () => {
   it('should only load rules when requested', async () => {
+    const bundlePath = path.join(
+      import.meta.dirname,
+      'fixtures',
+      'index',
+      'custom-rule-bundle',
+      'rules.js',
+    );
     setContext({
       workDir: '/tmp/dir',
       shouldUseTypeScriptParserForJS: false,
       sonarlint: false,
-      bundles: ['custom-rule-bundle'],
+      bundles: [bundlePath],
     });
 
     const linter = new Linter();
 
     const customRuleId = 'custom-rule-file';
-    const ruleModule = await import('./fixtures/wrapper/custom-rule.js');
+    let ruleModule;
+    try {
+      // @ts-ignore
+      ruleModule = await import('./fixtures/wrapper/custom-rule.js');
+    } catch (e) {
+      e;
+    }
     const customRules: CustomRule[] = [
       {
         ruleId: customRuleId,

@@ -44,7 +44,7 @@ const linters: Linters = {};
  * @param workingDirectory the working directory
  * @param linterId key of the linter
  */
-export function initializeLinter(
+export async function initializeLinter(
   inputRules: RuleConfig[],
   environments: string[] = [],
   globals: string[] = [],
@@ -53,6 +53,7 @@ export function initializeLinter(
 ) {
   debug(`Initializing linter "${linterId}" with ${inputRules.map(rule => rule.key)}`);
   linters[linterId] = new LinterWrapper({ inputRules, environments, globals, workingDirectory });
+  await linters[linterId].init();
 }
 
 /**

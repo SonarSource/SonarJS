@@ -21,8 +21,8 @@ import { Linter, Rule } from 'eslint';
 import { rules as internalRules } from '../rules/index.js';
 import { customRules as internalCustomRules, CustomRule } from './custom-rules/index.js';
 import { debug, getContext } from '../../../shared/src/index.js';
-import Module from 'node:module';
-const require = Module.createRequire(import.meta.url);
+// import Module from 'node:module';
+// const require = Module.createRequire(import.meta.url);
 
 export function loadCustomRules(linter: Linter, rules: CustomRule[] = []) {
   for (const rule of rules) {
@@ -30,9 +30,9 @@ export function loadCustomRules(linter: Linter, rules: CustomRule[] = []) {
   }
 }
 
-export function loadBundles(linter: Linter, rulesBundles: (keyof typeof loaders)[]) {
+export async function loadBundles(linter: Linter, rulesBundles: (keyof typeof loaders)[]) {
   for (const bundleId of rulesBundles) {
-    loaders[bundleId](linter);
+    await loaders[bundleId](linter);
   }
 }
 
@@ -57,11 +57,18 @@ const loaders: { [key: string]: Function } = {
    * including rule keys and rule definitions that cannot be provided to the linter
    * wrapper using the same feeding channel as rules from the active quality profile.
    */
-  contextRules(linter: Linter) {
+  async contextRules(linter: Linter) {
     const { bundles } = getContext();
     const customRules: CustomRule[] = [];
     for (const ruleBundle of bundles) {
-      const bundle = require(ruleBundle);
+      let bundle;
+      try {
+        bundle = await import(ruleBundle);
+      } catch (e) {
+        e;
+      } finally {
+        console.log('finally');
+      }
       customRules.push(...bundle.rules);
       const ruleIds = bundle.rules.map((r: CustomRule) => r.ruleId);
       debug(`Loaded rules ${ruleIds} from ${ruleBundle}`);
