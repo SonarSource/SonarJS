@@ -19,15 +19,13 @@
  */
 import { debug, error, info, warn } from '../../src/helpers/index.js';
 import { describe, it, mock, Mock } from 'node:test';
-import assert from 'node:assert';
 import { expect } from 'expect';
 
 describe('debug', () => {
   it('should log with a `DEBUG` prefix', () => {
     console.log = mock.fn();
     debug('hello, world!');
-    assert.equal(
-      (console.log as Mock<typeof console.log>).mock.calls[0].arguments[0],
+    expect((console.log as Mock<typeof console.log>).mock.calls[0].arguments[0]).toEqual(
       `DEBUG hello, world!`,
     );
   });
@@ -37,7 +35,9 @@ describe('error', () => {
   it('should log to stderr', () => {
     console.error = mock.fn();
     error('hello, world!');
-    expect(console.error).toHaveBeenCalledWith(`hello, world!`);
+    expect((console.error as Mock<typeof console.error>).mock.calls[0].arguments[0]).toEqual(
+      `hello, world!`,
+    );
   });
 });
 
@@ -45,7 +45,9 @@ describe('warn', () => {
   it('should log with a `WARN` prefix', () => {
     console.log = mock.fn();
     warn('hello, world!');
-    expect(console.log).toHaveBeenCalledWith(`WARN hello, world!`);
+    expect((console.log as Mock<typeof console.log>).mock.calls[0].arguments[0]).toEqual(
+      `WARN hello, world!`,
+    );
   });
 });
 
@@ -53,6 +55,8 @@ describe('info', () => {
   it('should log with no prefix', () => {
     console.log = mock.fn();
     info('hello, world!');
-    expect(console.log).toHaveBeenCalledWith(`hello, world!`);
+    expect((console.log as Mock<typeof console.log>).mock.calls[0].arguments[0]).toEqual(
+      `hello, world!`,
+    );
   });
 });
