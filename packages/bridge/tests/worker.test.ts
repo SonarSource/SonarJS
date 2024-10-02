@@ -36,19 +36,18 @@ describe('worker', () => {
     await worker.terminate();
   });
 
-  it('should post back results', done => {
+  it('should post back results', () => {
     worker.once('message', message => {
       expect(message).toEqual({
         type: 'success',
         result: 'OK!',
       });
-      done();
     });
 
     worker.postMessage({ type: 'on-new-tsconfig' });
   });
 
-  it('should post back stringified results', done => {
+  it('should post back stringified results', () => {
     const input = {
       filePath: path.join(import.meta.dirname, 'fixtures', 'worker', 'file.css'),
       rules: [{ key: 'no-duplicate-selectors', configurations: [] }],
@@ -64,20 +63,18 @@ describe('worker', () => {
           }),
         ],
       });
-      done();
     });
 
     worker.postMessage({ type: 'on-analyze-css', data: input });
   });
 
-  it('should post back errors', done => {
+  it('should post back errors', () => {
     const tsconfig = path.resolve('does', 'not', 'exist');
     worker.once('message', message => {
       const { type, error } = message;
       expect(type).toEqual('failure');
       expect(error.code).toEqual(ErrorCode.Unexpected);
       expect(error.message).toEqual(`Cannot read file '${tsconfig}'.`);
-      done();
     });
 
     worker.postMessage({ type: 'on-tsconfig-files', data: { tsconfig } });
