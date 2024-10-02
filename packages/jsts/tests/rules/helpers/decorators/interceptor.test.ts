@@ -26,6 +26,7 @@ import { rule as noImplicitDependencies } from '../../../../src/rules/S4328/inde
 import path from 'path';
 import Module from 'node:module';
 const require = Module.createRequire(import.meta.url);
+import { describe } from 'node:test';
 
 describe('interceptReport', () => {
   assertThatInterceptReportDecoratorForwardsCalls(

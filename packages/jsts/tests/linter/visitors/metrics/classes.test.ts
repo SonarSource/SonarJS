@@ -20,6 +20,8 @@
 import { countClasses } from '../../../../src/linter/visitors/metrics/classes.js';
 import path from 'path';
 import { parseJavaScriptSourceFile } from '../../../tools/index.js';
+import { describe, it } from 'node:test';
+import { expect } from 'expect';
 
 describe('countClasses', () => {
   it('should count the number of classes', async () => {

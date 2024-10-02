@@ -20,6 +20,8 @@
 import { countFunctions } from '../../../../src/linter/visitors/metrics/functions.js';
 import path from 'path';
 import { parseJavaScriptSourceFile } from '../../../tools/index.js';
+import { describe, it } from 'node:test';
+import { expect } from 'expect';
 
 describe('countFunctions', () => {
   it('should count the number of functions', async () => {

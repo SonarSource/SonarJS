@@ -21,12 +21,10 @@ import path from 'path';
 import { setContext } from '../../../shared/src/index.js';
 import { initializeLinter, getLinter, LinterWrapper } from '../../../jsts/src/index.js';
 import { parseJavaScriptSourceFile } from '../tools/index.js';
+import { describe, it, mock, Mock } from 'node:test';
+import { expect } from 'expect';
 
 describe('initializeLinter', () => {
-  beforeEach(() => {
-    jest.resetModules();
-  });
-
   it('should initialize the linter wrapper', async () => {
     setContext({
       workDir: '/tmp/dir',
@@ -35,7 +33,7 @@ describe('initializeLinter', () => {
       bundles: [],
     });
 
-    console.log = jest.fn();
+    console.log = mock.fn();
 
     expect(getLinter).toThrow();
 
@@ -45,7 +43,10 @@ describe('initializeLinter', () => {
 
     expect(linter).toBeDefined();
     expect(linter).toBeInstanceOf(LinterWrapper);
-    expect(console.log).toHaveBeenCalledWith('DEBUG Initializing linter "default" with S1116');
+    const logs = (console.log as Mock<typeof console.log>).mock.calls.map(
+      call => call.arguments[0],
+    );
+    expect(logs).toContain('DEBUG Initializing linter "default" with S1116');
 
     const filePath = path.join(import.meta.dirname, 'fixtures', 'index', 'regular.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
@@ -70,19 +71,18 @@ describe('initializeLinter', () => {
       bundles: ['custom-rule-bundle'],
     });
 
-    console.log = jest.fn();
+    console.log = mock.fn();
 
     initializeLinter([{ key: 'custom-rule', configurations: [], fileTypeTarget: ['MAIN'] }]);
 
     const linter = getLinter();
 
     expect(linter).toBeDefined();
-    expect(console.log).toHaveBeenCalledWith(
-      'DEBUG Loaded rules custom-rule from custom-rule-bundle',
+    const logs = (console.log as Mock<typeof console.log>).mock.calls.map(
+      call => call.arguments[0],
     );
-    expect(console.log).toHaveBeenCalledWith(
-      'DEBUG Initializing linter "default" with custom-rule',
-    );
+    expect(logs).toContain('DEBUG Loaded rules custom-rule from custom-rule-bundle');
+    expect(logs).toContain('DEBUG Initializing linter "default" with custom-rule');
 
     const filePath = path.join(import.meta.dirname, 'fixtures', 'index', 'custom.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);

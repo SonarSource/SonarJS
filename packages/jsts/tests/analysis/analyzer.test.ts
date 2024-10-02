@@ -30,12 +30,13 @@ import {
 } from '../../src/index.js';
 import { jsTsInput, parseJavaScriptSourceFile } from '../tools/index.js';
 import { Linter, Rule } from 'eslint';
+import { describe, beforeEach, it } from 'node:test';
+import { expect } from 'expect';
 
 const currentPath = toUnixPath(import.meta.dirname);
 
 describe('analyzeJSTS', () => {
   beforeEach(() => {
-    jest.resetModules();
     setContext({
       workDir: '/tmp/dir',
       shouldUseTypeScriptParserForJS: false,

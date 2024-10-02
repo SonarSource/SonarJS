@@ -20,6 +20,8 @@
 import { findNcloc } from '../../../../src/linter/visitors/metrics/ncloc.js';
 import path from 'path';
 import { parseJavaScriptSourceFile } from '../../../tools/index.js';
+import { describe, it } from 'node:test';
+import { expect } from 'expect';
 
 describe('findNcloc', () => {
   it('should find the line numbers of code', async () => {

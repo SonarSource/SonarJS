@@ -20,6 +20,8 @@
 import { findNoSonarLines } from '../../../../src/index.js';
 import path from 'path';
 import { parseJavaScriptSourceFile } from '../../../tools/index.js';
+import { describe, it } from 'node:test';
+import { expect } from 'expect';
 
 describe('findNoSonarLines', () => {
   it('should find NOSONAR comment lines', async () => {

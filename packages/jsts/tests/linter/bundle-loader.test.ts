@@ -20,8 +20,9 @@
 import { Linter } from 'eslint';
 import { loadBundles, loadCustomRules } from '../../src/linter/bundle-loader.js';
 import { CustomRule } from '../../src/linter/custom-rules/index.js';
-import path from 'path';
 import { setContext } from '../../../shared/src/index.js';
+import { describe, it } from 'node:test';
+import { expect } from 'expect';
 
 describe('BundleLoader', () => {
   it('should only load rules when requested', async () => {
@@ -35,12 +36,12 @@ describe('BundleLoader', () => {
     const linter = new Linter();
 
     const customRuleId = 'custom-rule-file';
+    const ruleModule = await import('./fixtures/wrapper/custom-rule.js');
     const customRules: CustomRule[] = [
       {
         ruleId: customRuleId,
         ruleConfig: [],
-        ruleModule: require(path.join(import.meta.dirname, 'fixtures', 'wrapper', 'custom-rule.ts'))
-          .rule,
+        ruleModule: ruleModule.rule,
       },
     ];
 

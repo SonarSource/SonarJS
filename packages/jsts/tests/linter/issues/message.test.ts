@@ -22,6 +22,8 @@ import { convertMessage } from '../../../src/linter/issues/index.js';
 import path from 'path';
 import { parseJavaScriptSourceFile } from '../../tools/index.js';
 import { S1116 } from '../../../src/rules/decorated.js';
+import { describe, it, Mock, mock } from 'node:test';
+import { expect } from 'expect';
 
 describe('convertMessage', () => {
   it('should convert an ESLint message into a Sonar issue', async () => {
@@ -63,8 +65,11 @@ describe('convertMessage', () => {
   });
 
   it('should return null when an ESLint message is missing a rule id', () => {
-    console.error = jest.fn();
+    console.error = mock.fn();
     expect(convertMessage({} as SourceCode, {} as Linter.LintMessage)).toEqual(null);
-    expect(console.error).toHaveBeenCalledWith("Illegal 'null' ruleId for eslint issue");
+    const logs = (console.error as Mock<typeof console.error>).mock.calls.map(
+      call => call.arguments[0],
+    );
+    expect(logs).toContain("Illegal 'null' ruleId for eslint issue");
   });
 });

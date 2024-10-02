@@ -22,6 +22,8 @@ import path from 'path';
 import { parseJavaScriptSourceFile, parseTypeScriptSourceFile } from '../../tools/index.js';
 import { transformMessages } from '../../../src/linter/issues/index.js';
 import { rules } from '../../../src/rules/index.js';
+import { describe, it } from 'node:test';
+import { expect } from 'expect';
 
 describe('transformMessages', () => {
   it('should transform ESLint messages', async () => {

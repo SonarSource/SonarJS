@@ -20,6 +20,8 @@
 import { visitAndCountIf } from '../../../../../src/linter/visitors/metrics/helpers/index.js';
 import path from 'path';
 import { parseJavaScriptSourceFile } from '../../../../tools/index.js';
+import { describe, it } from 'node:test';
+import { expect } from 'expect';
 
 describe('visitAndCountIf', () => {
   it('should count matching nodes', async () => {

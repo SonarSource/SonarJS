@@ -20,6 +20,8 @@
 import path from 'path';
 import { computeMetrics } from '../../../../src/linter/visitors/metrics/index.js';
 import { parseJavaScriptSourceFile } from '../../../tools/index.js';
+import { describe, it } from 'node:test';
+import { expect } from 'expect';
 
 describe('computeMetrics', () => {
   it('should compute metrics', async () => {

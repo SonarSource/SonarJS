@@ -21,6 +21,8 @@ import { extractTokensAndComments } from '../../../../../src/linter/visitors/met
 import { AST } from 'vue-eslint-parser';
 import path from 'path';
 import { parseJavaScriptSourceFile } from '../../../../tools/index.js';
+import { describe, it } from 'node:test';
+import { expect } from 'expect';
 
 describe('extractTokensAndComments', () => {
   it('should extract tokens and comments', async () => {

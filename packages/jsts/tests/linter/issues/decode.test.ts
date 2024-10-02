@@ -20,6 +20,8 @@
 import { Issue } from '../../../src/linter/issues/index.js';
 import { decodeSonarRuntime } from '../../../src/linter/issues/decode.js';
 import { SONAR_RUNTIME } from '../../../src/linter/parameters/index.js';
+import { describe, it } from 'node:test';
+import { expect } from 'expect';
 
 describe('decodeSonarRuntime', () => {
   it('should decode sonar-runtime-like issues', () => {

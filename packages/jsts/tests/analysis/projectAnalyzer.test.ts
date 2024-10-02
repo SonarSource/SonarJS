@@ -26,6 +26,8 @@ import {
   RuleConfig,
 } from '../../../jsts/src/index.js';
 import { searchFiles, File } from '../../src/rules/index.js';
+import { describe, it, beforeEach } from 'node:test';
+import { expect } from 'expect';
 
 const defaultRules: RuleConfig[] = [
   { key: 'S4621', configurations: [], fileTypeTarget: ['MAIN'] },
@@ -75,7 +77,7 @@ const fixtures = path.join(import.meta.dirname, 'fixtures');
 
 describe('analyzeProject', () => {
   beforeEach(() => {
-    jest.resetModules();
+    // jest.resetModules();
     clearTSConfigs();
     setContext({
       workDir: '/tmp/dir',

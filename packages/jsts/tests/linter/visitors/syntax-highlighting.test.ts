@@ -24,6 +24,8 @@ import {
 } from '../../../src/linter/visitors/syntax-highlighting.js';
 import path from 'path';
 import { parseTypeScriptSourceFile } from '../../tools/helpers/index.js';
+import { describe, it } from 'node:test';
+import { expect } from 'expect';
 
 describe('getSyntaxHighlighting', () => {
   it('should highlight keywords', async () => {

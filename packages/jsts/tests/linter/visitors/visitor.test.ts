@@ -21,6 +21,8 @@ import { visit } from '../../../src/linter/visitors/index.js';
 import path from 'path';
 import { parseTypeScriptSourceFile } from '../../tools/helpers/index.js';
 import { childrenOf } from '../../../src/rules/index.js';
+import { describe, it } from 'node:test';
+import { expect } from 'expect';
 
 describe('visitor', () => {
   describe('visit', () => {

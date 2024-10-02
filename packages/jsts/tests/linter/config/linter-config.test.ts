@@ -20,6 +20,8 @@
 import type { Rule } from 'eslint';
 import { setContext } from '../../../../shared/src/index.js';
 import { createLinterConfig, RuleConfig } from '../../../src/linter/index.js';
+import { describe, beforeEach, it } from 'node:test';
+import { expect } from 'expect';
 
 describe('createLinterConfig', () => {
   beforeEach(() => {

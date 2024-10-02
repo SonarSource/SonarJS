@@ -22,6 +22,9 @@ import { buildSourceCode } from '../../src/index.js';
 import path from 'path';
 import { AST } from 'vue-eslint-parser';
 import { jsTsInput } from '../tools/index.js';
+import { describe, it, beforeEach, mock, Mock } from 'node:test';
+import { expect } from 'expect';
+
 describe('buildSourceCode', () => {
   beforeEach(() => {
     setContext({
@@ -43,8 +46,6 @@ describe('buildSourceCode', () => {
   });
 
   it('should build JavaScript source code with TypeScript ESLint parser', async () => {
-    console.log = jest.fn();
-
     setContext({
       workDir: '/tmp/dir',
       shouldUseTypeScriptParserForJS: true,
@@ -131,8 +132,6 @@ describe('buildSourceCode', () => {
   });
 
   it('should build JavaScript code with TypeScript ESLint parser', async () => {
-    console.log = jest.fn();
-
     const filePath = path.join(import.meta.dirname, 'fixtures', 'build-js', 'file.js');
     const {
       ast: {
@@ -144,14 +143,17 @@ describe('buildSourceCode', () => {
   });
 
   it('should fail building JavaScript code with TypeScript ESLint parser', async () => {
-    console.log = jest.fn();
+    console.log = mock.fn();
 
     const filePath = path.join(import.meta.dirname, 'fixtures', 'build-js', 'malformed.js');
     const analysisInput = await jsTsInput({ filePath });
     expect(() => buildSourceCode(analysisInput, 'js')).toThrow(Error('Unexpected token (3:0)'));
 
     const log = `DEBUG Failed to parse ${filePath} with TypeScript parser: '}' expected.`;
-    expect(console.log).toHaveBeenCalledWith(log);
+    const logs = (console.log as Mock<typeof console.log>).mock.calls.map(
+      call => call.arguments[0],
+    );
+    expect(logs).toContain(log);
   });
 
   it('should build module JavaScript code', async () => {
@@ -278,13 +280,16 @@ describe('buildSourceCode', () => {
   });
 
   it('should fail building malformed Vue.js code with TypeScript ESLint parser', async () => {
-    console.log = jest.fn();
+    console.log = mock.fn();
 
     const filePath = path.join(import.meta.dirname, 'fixtures', 'build-vue', 'malformed.vue');
     const analysisInput = await jsTsInput({ filePath });
     expect(() => buildSourceCode(analysisInput, 'ts')).toThrow(Error('Expression expected.'));
 
     const log = `DEBUG Failed to parse ${filePath} with TypeScript parser: Expression expected.`;
-    expect(console.log).toHaveBeenCalledWith(log);
+    const logs = (console.log as Mock<typeof console.log>).mock.calls.map(
+      call => call.arguments[0],
+    );
+    expect(logs).toContain(log);
   });
 });

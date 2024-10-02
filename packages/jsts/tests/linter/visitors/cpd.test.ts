@@ -20,6 +20,8 @@
 import { CpdToken, getCpdTokens } from '../../../src/linter/visitors/index.js';
 import path from 'path';
 import { parseJavaScriptSourceFile } from '../../tools/helpers/index.js';
+import { describe, it } from 'node:test';
+import { expect } from 'expect';
 
 describe('getCpdTokens', () => {
   it('should find all tokens', async () => {

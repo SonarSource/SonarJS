@@ -20,6 +20,8 @@
 import { countStatements } from '../../../../src/linter/visitors/metrics/statements.js';
 import path from 'path';
 import { parseJavaScriptSourceFile } from '../../../tools/index.js';
+import { describe, it } from 'node:test';
+import { expect } from 'expect';
 
 describe('countStatements', () => {
   it('should count the number of statements', async () => {

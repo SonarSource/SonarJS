@@ -20,6 +20,8 @@
 import { computeCyclomaticComplexity } from '../../../../src/linter/visitors/metrics/cyclomatic-complexity.js';
 import path from 'path';
 import { parseJavaScriptSourceFile } from '../../../tools/index.js';
+import { describe, it } from 'node:test';
+import { expect } from 'expect';
 
 const cases = [
   { fixture: 'conjunction', expectedComplexity: 1 },
@@ -30,9 +32,8 @@ const cases = [
 ];
 
 describe('computeCyclomaticComplexity', () => {
-  test.each(cases)(
-    'should compute complexity for $fixture',
-    async ({ fixture, expectedComplexity }) => {
+  cases.forEach(({ fixture, expectedComplexity }) =>
+    it(`should compute complexity for ${fixture}`, async () => {
       const filePath = path.join(
         import.meta.dirname,
         'fixtures',
@@ -42,6 +43,6 @@ describe('computeCyclomaticComplexity', () => {
       const sourceCode = await parseJavaScriptSourceFile(filePath);
       const actualComplexity = computeCyclomaticComplexity(sourceCode);
       expect(actualComplexity).toEqual(expectedComplexity);
-    },
+    }),
   );
 });

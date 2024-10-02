@@ -18,6 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { hasSonarRuntimeOption, SONAR_RUNTIME } from '../../../src/linter/parameters/index.js';
+import { describe, it } from 'node:test';
+import { expect } from 'expect';
 
 describe('hasSonarRuntimeOption', () => {
   it('should return true for a rule that has `sonar-runtime` option', () => {

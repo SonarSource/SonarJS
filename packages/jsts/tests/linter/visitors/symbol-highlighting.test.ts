@@ -22,6 +22,8 @@ import { rule, SymbolHighlight } from '../../../src/linter/visitors/index.js';
 import { Location } from '../../../src/linter/visitors/metrics/helpers/index.js';
 import path from 'path';
 import { parseTypeScriptSourceFile } from '../../tools/index.js';
+import { describe, it } from 'node:test';
+import { expect } from 'expect';
 
 describe('symbol highlighting rule', () => {
   it('should highlight variables', async () => {

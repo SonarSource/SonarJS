@@ -20,6 +20,8 @@
 import { findCommentLines } from '../../../../src/linter/visitors/metrics/comments.js';
 import path from 'path';
 import { parseJavaScriptSourceFile } from '../../../tools/helpers/index.js';
+import { describe, it } from 'node:test';
+import { expect } from 'expect';
 
 const cases = [
   {
@@ -61,13 +63,12 @@ const cases = [
 ];
 
 describe('findCommentLines', () => {
-  test.each(cases)(
-    'should find comment lines $given',
-    async ({ fixture, ignoreHeader, expectedLines }) => {
+  cases.forEach(({ given, fixture, ignoreHeader, expectedLines }) =>
+    it(`should find comment lines ${given}`, async () => {
       const filePath = path.join(import.meta.dirname, 'fixtures', 'comments', `${fixture}.js`);
       const sourceCode = await parseJavaScriptSourceFile(filePath);
       const { commentLines: actualLines } = findCommentLines(sourceCode, ignoreHeader);
       expect(actualLines).toEqual(expectedLines);
-    },
+    }),
   );
 });

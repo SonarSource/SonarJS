@@ -19,6 +19,8 @@
  */
 import estree from 'estree';
 import { convertLocation } from '../../../../../src/linter/visitors/metrics/helpers/index.js';
+import { describe, it } from 'node:test';
+import { expect } from 'expect';
 
 describe('convertLocation', () => {
   it('should convert an ESTree location', () => {

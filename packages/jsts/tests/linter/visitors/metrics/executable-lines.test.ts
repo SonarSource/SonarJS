@@ -20,6 +20,8 @@
 import { findExecutableLines } from '../../../../src/linter/visitors/metrics/executable-lines.js';
 import path from 'path';
 import { parseTypeScriptSourceFile } from '../../../tools/index.js';
+import { describe, it } from 'node:test';
+import { expect } from 'expect';
 
 describe('findExecutableLines', () => {
   it('should find the number of executable lines', async () => {

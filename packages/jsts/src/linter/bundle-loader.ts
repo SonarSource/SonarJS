@@ -21,6 +21,8 @@ import { Linter, Rule } from 'eslint';
 import { rules as internalRules } from '../rules/index.js';
 import { customRules as internalCustomRules, CustomRule } from './custom-rules/index.js';
 import { debug, getContext } from '../../../shared/src/index.js';
+import Module from 'node:module';
+const require = Module.createRequire(import.meta.url);
 
 export function loadCustomRules(linter: Linter, rules: CustomRule[] = []) {
   for (const rule of rules) {

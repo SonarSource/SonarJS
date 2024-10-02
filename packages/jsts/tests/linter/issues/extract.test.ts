@@ -24,6 +24,8 @@ import {
 } from '../../../src/linter/issues/index.js';
 import { rule as cognitiveComplexityRule } from '../../../src/linter/custom-rules/cognitive-complexity.js';
 import { rule as symbolHighlightingRule } from '../../../src/linter/custom-rules/symbol-highlighting.js';
+import { describe, it } from 'node:test';
+import { expect } from 'expect';
 
 describe('extract', () => {
   it('should extract highlighted symbols', () => {

@@ -21,6 +21,8 @@ import type { Rule } from 'eslint';
 import { setContext } from '../../../../shared/src/index.js';
 import { extendRuleConfig, RuleConfig } from '../../../src/linter/config/index.js';
 import { SONAR_CONTEXT, SONAR_RUNTIME } from '../../../src/linter/parameters/index.js';
+import { describe, it } from 'node:test';
+import { expect } from 'expect';
 
 describe('extendRuleConfig', () => {
   it('should include `sonar-runtime`', () => {

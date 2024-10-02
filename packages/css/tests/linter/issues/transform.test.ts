@@ -19,6 +19,8 @@
  */
 import stylelint from 'stylelint';
 import { transform } from '../../../src/linter/issues/index.js';
+import { describe, it, mock, Mock } from 'node:test';
+import { expect } from 'expect';
 
 describe('transform', () => {
   it('should transform Stylelint results into issues', () => {
@@ -50,7 +52,7 @@ describe('transform', () => {
   });
 
   it('should not transform Stylelint results from a different file', () => {
-    console.log = jest.fn();
+    console.log = mock.fn();
 
     const filePath = '/tmp/path';
     const source = '/some/fake/source';
@@ -71,7 +73,7 @@ describe('transform', () => {
     const issues = transform(results, filePath);
 
     expect(issues).toHaveLength(0);
-    expect(console.log).toHaveBeenCalledWith(
+    expect((console.log as Mock<typeof console.log>).mock.calls[0].arguments[0]).toEqual(
       `DEBUG For file [${filePath}] received issues with [${source}] as a source. They will not be reported.`,
     );
   });
