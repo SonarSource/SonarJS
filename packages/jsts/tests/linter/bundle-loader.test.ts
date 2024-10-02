@@ -44,13 +44,7 @@ describe('BundleLoader', () => {
     const linter = new Linter();
 
     const customRuleId = 'custom-rule-file';
-    let ruleModule;
-    try {
-      // @ts-ignore
-      ruleModule = await import('./fixtures/wrapper/custom-rule.js');
-    } catch (e) {
-      e;
-    }
+    const ruleModule = await import('./fixtures/wrapper/custom-rule.js');
     const customRules: CustomRule[] = [
       {
         ruleId: customRuleId,
@@ -65,7 +59,7 @@ describe('BundleLoader', () => {
     expect(linter.getRules().get('custom-rule')).toBeUndefined();
     expect(linter.getRules().get('internal-cognitive-complexity')).toBeUndefined();
 
-    loadBundles(linter, ['internalRules']);
+    await loadBundles(linter, ['internalRules']);
     expect(linter.getRules().get('S6328')).toBeDefined();
     expect(linter.getRules().get('custom-rule-file')).toBeUndefined();
     expect(linter.getRules().get('custom-rule')).toBeUndefined();
@@ -76,11 +70,11 @@ describe('BundleLoader', () => {
     expect(linter.getRules().get('custom-rule')).toBeUndefined();
     expect(linter.getRules().get('internal-cognitive-complexity')).toBeUndefined();
 
-    loadBundles(linter, ['contextRules']);
+    await loadBundles(linter, ['contextRules']);
     expect(linter.getRules().get('custom-rule')).toBeDefined();
     expect(linter.getRules().get('internal-cognitive-complexity')).toBeUndefined();
 
-    loadBundles(linter, ['internalCustomRules']);
+    await loadBundles(linter, ['internalCustomRules']);
     expect(linter.getRules().get('internal-cognitive-complexity')).toBeDefined();
   });
 });

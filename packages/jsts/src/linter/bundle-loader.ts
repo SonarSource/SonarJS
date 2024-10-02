@@ -61,14 +61,7 @@ const loaders: { [key: string]: Function } = {
     const { bundles } = getContext();
     const customRules: CustomRule[] = [];
     for (const ruleBundle of bundles) {
-      let bundle;
-      try {
-        bundle = await import(ruleBundle);
-      } catch (e) {
-        e;
-      } finally {
-        console.log('finally');
-      }
+      const bundle = await import(ruleBundle);
       customRules.push(...bundle.rules);
       const ruleIds = bundle.rules.map((r: CustomRule) => r.ruleId);
       debug(`Loaded rules ${ruleIds} from ${ruleBundle}`);
