@@ -27,7 +27,7 @@ describe('worker', () => {
   let worker: Worker;
 
   before(() => {
-    worker = new Worker(path.resolve(import.meta.dirname, '../src/worker.js'), {
+    worker = new Worker(path.resolve(import.meta.dirname, '../../../lib/bridge/src/worker.js'), {
       workerData: { context: {} },
     });
   });
@@ -36,18 +36,29 @@ describe('worker', () => {
     await worker.terminate();
   });
 
-  it('should post back results', () => {
+  it('should post back results', async () => {
+    let resolver: (value?: unknown) => void;
+    expect.assertions(2);
+    const p = new Promise(resolve => {
+      resolver = resolve;
+    });
     worker.once('message', message => {
       expect(message).toEqual({
         type: 'success',
         result: 'OK!',
       });
+      resolver();
     });
 
     worker.postMessage({ type: 'on-new-tsconfig' });
+    await p;
   });
 
-  it('should post back stringified results', () => {
+  it('should post back stringified results', async () => {
+    let resolver: (value?: unknown) => void;
+    const p = new Promise(resolve => {
+      resolver = resolve;
+    });
     const input = {
       filePath: path.join(import.meta.dirname, 'fixtures', 'worker', 'file.css'),
       rules: [{ key: 'no-duplicate-selectors', configurations: [] }],
@@ -63,9 +74,11 @@ describe('worker', () => {
           }),
         ],
       });
+      resolver();
     });
 
     worker.postMessage({ type: 'on-analyze-css', data: input });
+    await p;
   });
 
   it('should post back errors', () => {
