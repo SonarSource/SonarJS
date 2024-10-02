@@ -284,7 +284,7 @@ js_ts_ruling_task:
     - source set_maven_build_version $BUILD_NUMBER
     - npm run build:fast
     - npm run update-ruling-data
-    - npm run ruling -- --maxWorkers=8
+    - npm run ruling
   on_failure:
     debug_script: diff -rq its/ruling/src/test/expected/jsts packages/ruling/tests/actual/jsts
   cleanup_before_cache_script: cleanup_maven_repository
