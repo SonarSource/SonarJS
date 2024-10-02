@@ -44,6 +44,7 @@ describe('BundleLoader', () => {
     const linter = new Linter();
 
     const customRuleId = 'custom-rule-file';
+    // @ts-ignore
     const ruleModule = await import('./fixtures/wrapper/custom-rule.js');
     const customRules: CustomRule[] = [
       {
