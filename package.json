@@ -16,7 +16,7 @@
     "ruling-sync": "rsync -avh packages/ruling/tests/actual/jsts/ its/ruling/src/test/expected/jsts/ --delete",
     "update-ruling-data": "mvn -f sonar-plugin/sonar-javascript-plugin/pom.xml compile && npx tsx packages/ruling/tests/tools/parseRulesData.ts",
     "bridge:compile": "tsc -b packages profiling && npm run _:bridge:copy-protofiles",
-    "bridge:test": "tsx --tsconfig packages/tsconfig.test.json --test packages/*/src/rules/**/*.test.ts packages/*[!ruling]/tests/**/*.test.ts",
+    "bridge:test": "tsx --tsconfig packages/tsconfig.test.json --test --experimental-test-coverage --test-reporter lcov --test-reporter-destination lcov.info packages/*/src/rules/**/*.test.ts packages/*[!ruling]/tests/**/*.test.ts",
     "bridge:build": "npm run bridge:build:fast && npm run bridge:test",
     "bridge:build:fast": "npm ci && cd packages/jsts/src/rules && npm ci && cd ../../../../ && npm run _:bridge:clear && npm run bridge:compile",
     "bbf": "npm run bridge:build:fast",
