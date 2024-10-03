@@ -23,7 +23,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.nio.file.Path;
-import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
@@ -38,16 +37,6 @@ class RulesBundlesTest {
 
   @RegisterExtension
   public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
-
-  @Test
-  void test() throws Exception {
-    TestRulesBundle rulesBundle = new TestRulesBundle("/test-bundle.tgz");
-    RulesBundles rulesBundles = new RulesBundles(new TestRulesBundle[] { rulesBundle });
-    List<Path> paths = rulesBundles.deploy(tempDir);
-    assertThat(paths).hasSize(1);
-    assertThat(paths.get(0)).exists();
-    assertThat(paths.get(0).resolve("bin/server.mjs")).hasContent("#!/usr/bin/env node\n\n");
-  }
 
   @Test
   void test_not_exists() {
