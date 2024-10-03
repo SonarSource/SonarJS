@@ -20,7 +20,6 @@
 import { logMemoryError } from '../src/memory.js';
 import { describe, it, mock, Mock } from 'node:test';
 import { expect } from 'expect';
-import assert from 'assert';
 
 describe('logMemoryError', () => {
   it('should log out-of-memory troubleshooting guide', () => {
@@ -31,26 +30,18 @@ describe('logMemoryError', () => {
     const logs = (console.error as Mock<typeof console.error>).mock.calls.map(
       call => call.arguments[0],
     );
-    assert(
-      logs.includes(
-        'You can see how Node.js heap usage evolves during analysis with "sonar.javascript.node.debugMemory=true"',
-      ),
+    expect(logs).toContain(
+      'You can see how Node.js heap usage evolves during analysis with "sonar.javascript.node.debugMemory=true"',
     );
 
-    expect(
-      logs.includes(
-        'You can see how Node.js heap usage evolves during analysis with "sonar.javascript.node.debugMemory=true"',
-      ),
+    expect(logs).toContain(
+      'You can see how Node.js heap usage evolves during analysis with "sonar.javascript.node.debugMemory=true"',
     );
-    expect(
-      logs.includes(
-        'Try setting "sonar.javascript.node.maxspace" to a higher value to increase Node.js heap size limit',
-      ),
+    expect(logs).toContain(
+      'Try setting "sonar.javascript.node.maxspace" to a higher value to increase Node.js heap size limit',
     );
-    expect(
-      logs.includes(
-        'If the problem persists, please report the issue at https://community.sonarsource.com',
-      ),
+    expect(logs).toContain(
+      'If the problem persists, please report the issue at https://community.sonarsource.com',
     );
   });
 

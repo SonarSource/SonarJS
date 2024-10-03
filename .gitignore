@@ -5,7 +5,6 @@ lib/
 node_modules/
 coverage/
 test-report.xml
-lcov.info
 
 sonarjs-*
 
