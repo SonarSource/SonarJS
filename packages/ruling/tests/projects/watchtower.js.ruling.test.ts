@@ -21,10 +21,12 @@ import { compareSync } from 'dir-compare';
 import { setupBeforeAll, testProject } from '../tools/testProject.js';
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
+import path from 'node:path/posix';
 
 describe('Ruling', () => {
-  const { project, expectedPath, actualPath, rules } = setupBeforeAll(import.meta.filename);
-  it(project.name, { timeout: 10 * 60 * 1000 }, async () => {
+  const projectName = path.basename(import.meta.filename).split('.')[0];
+  it(`Ruling ${projectName}`, { timeout: 10 * 60 * 1000 }, async () => {
+    const { project, expectedPath, actualPath, rules } = setupBeforeAll(import.meta.filename);
     await testProject(project, actualPath, rules);
     assert(
       compareSync(expectedPath, actualPath, {
