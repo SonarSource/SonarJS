@@ -4,8 +4,8 @@ sonarpedia.json
 lib
 
 packages/*/tests/**/fixtures
-packages/jsts/src/rules/*/*.fixture.*
-packages/jsts/src/rules/*/fixtures
+packages/jsts/src/rules/**/*.fixture.*
+packages/jsts/src/rules/**/fixtures
 packages/ruling/tests/actual
 
 its/sources
