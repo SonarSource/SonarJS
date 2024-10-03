@@ -97,7 +97,7 @@ export function start(
   return new Promise(resolve => {
     debug('Starting the bridge server');
 
-    worker = new Worker(path.resolve(import.meta.dirname, 'worker.js'), {
+    worker = new Worker(path.resolve(import.meta.dirname, '../../../lib/bridge/src/worker.js'), {
       workerData: { context: getContext() },
       env: SHARE_ENV,
     });
