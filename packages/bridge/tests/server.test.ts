@@ -127,7 +127,10 @@ describe('server', () => {
     await request(server, '/close', 'POST');
 
     expect(server.listening).toBeFalsy();
-    expect(console.log).toHaveBeenCalledWith('DEBUG Shutting down the worker');
+    const logs = (console.log as Mock<typeof console.log>).mock.calls.map(
+      call => call.arguments[0],
+    );
+    expect(logs).toContain('DEBUG Shutting down the worker');
     await serverClosed;
   });
 
@@ -141,7 +144,10 @@ describe('server', () => {
     await worker.terminate();
 
     expect(server.listening).toBeFalsy();
-    expect(console.log).toHaveBeenCalledWith('DEBUG The worker thread failed: Error: An error');
+    const logs = (console.log as Mock<typeof console.log>).mock.calls.map(
+      call => call.arguments[0],
+    );
+    expect(logs).toContain('DEBUG The worker thread failed: Error: An error');
     await serverClosed;
   });
 
@@ -159,7 +165,10 @@ describe('server', () => {
     await request(server, '/status', 'GET');
 
     await serverClosed;
-    expect(console.log).toHaveBeenCalledWith('DEBUG The bridge server shut down');
+    const logs = (console.log as Mock<typeof console.log>).mock.calls.map(
+      call => call.arguments[0],
+    );
+    expect(logs).toContain('DEBUG The bridge server shut down');
     expect(server.listening).toBeFalsy();
   });
 });
