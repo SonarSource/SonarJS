@@ -53,7 +53,7 @@ describe('logMemoryError', () => {
     const logs = (console.error as Mock<typeof console.error>).mock.calls.map(
       call => call.arguments[0],
     );
-    expect(logs.includes('The analysis will stop due to an unexpected error: something failed'));
-    expect(logs.includes('Please report the issue at https://community.sonarsource.com'));
+    expect(logs).toContain('The analysis will stop due to an unexpected error: something failed');
+    expect(logs).toContain('Please report the issue at https://community.sonarsource.com');
   });
 });

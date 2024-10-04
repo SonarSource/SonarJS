@@ -188,7 +188,7 @@ export const rule: Rule.RuleModule = {
       return {};
     }
     return {
-      CallExpression: async (node: estree.Node) => {
+      CallExpression: (node: estree.Node) => {
         const call = node as estree.CallExpression;
         const { callee } = call;
         if (callee.type === AST_NODE_TYPES.MemberExpression) {
