@@ -18,7 +18,7 @@
     "bridge:compile": "tsc -b packages profiling && npm run _:bridge:copy-protofiles",
     "bridge:test": "mkdir coverage && tsx --tsconfig packages/tsconfig.test.json --test --experimental-test-coverage --test-reporter lcov --test-reporter-destination coverage/lcov.info --test-reporter spec --test-reporter-destination stdout \"packages/*/src/rules/*[!node_modules]/**/*.test.ts\" \"packages/*[!ruling]/tests/**/*.test.ts\"",
     "bridge:build": "npm run bridge:build:fast && npm run bridge:test",
-    "bridge:build:fast": "npm ci && cd packages/jsts/src/rules && npm ci && cd ../../../../ && npm run _:bridge:clear && npm run bridge:compile",
+    "bridge:build:fast": "npm ci && npm --prefix packages/jsts/src/rules ci && npm run _:bridge:clear && npm run bridge:compile",
     "bbf": "npm run bridge:build:fast",
     "plugin:build-no-bridge": "mvn install",
     "plugin:build:fast": "npm run plugin:build-no-bridge -- -DskipTests",
