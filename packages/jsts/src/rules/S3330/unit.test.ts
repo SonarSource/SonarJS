@@ -20,7 +20,7 @@
 import { RuleTester } from 'eslint';
 import { TypeScriptRuleTester } from '../../../tests/tools/index.js';
 
-import { rule } from './/index.js';
+import { rule } from './index.js';
 
 const ruleTesterJs = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
 const ruleTesterTs = new TypeScriptRuleTester();

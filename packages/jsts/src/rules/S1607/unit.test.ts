@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RuleTester } from 'eslint';
-import { rule } from './/index.js';
+import { rule } from './index.js';
 
 process.chdir(import.meta.dirname); // change current working dir to avoid the package.json lookup to up in the tree
 const ruleTester = new RuleTester();

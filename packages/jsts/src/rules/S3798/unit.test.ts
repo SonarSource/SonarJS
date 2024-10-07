@@ -19,7 +19,7 @@
  */
 import { RuleTester } from 'eslint';
 import { BabelRuleTester } from '../../../tests/tools/index.js';
-import { rule } from './/index.js';
+import { rule } from './index.js';
 
 import Module from 'node:module';
 const require = Module.createRequire(import.meta.url);

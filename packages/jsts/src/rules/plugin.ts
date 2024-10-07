@@ -395,7 +395,7 @@ export const configs = {
 };
 
 /*
- package.json may be in current or parent dir depending on running with ts-jest or built js files
+ package.json may be in current or parent dir depending on running with tsx or built js files
  we need to find it in both cases
  */
 const packageJsonPath = findParent(import.meta.dirname, 'package.json');

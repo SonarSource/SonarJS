@@ -77,7 +77,6 @@ const fixtures = path.join(import.meta.dirname, 'fixtures');
 
 describe('analyzeProject', () => {
   beforeEach(() => {
-    // jest.resetModules();
     clearTSConfigs();
     setContext({
       workDir: '/tmp/dir',

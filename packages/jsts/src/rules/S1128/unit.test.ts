@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RuleTester } from 'eslint';
-import { rule } from './/index.js';
+import { rule } from './index.js';
 import path from 'path';
 import { BabelRuleTester } from '../../../tests/tools/index.js';
 import Module from 'node:module';
@@ -200,85 +200,85 @@ ruleTesterTS.run('Unnecessary imports should be removed', rule, {
   valid: [
     {
       code: `
-      import Foo from 'foobar';
+      importFoo from 'foobar';
       let k: Foo;
       `,
     },
     {
       code: `
-      import Foo from 'foobar';
+      importFoo from 'foobar';
       let k: Foo.Bar;
       `,
     },
     {
       code: `
-      import Foo from 'foobar';
+      importFoo from 'foobar';
       let k: Foo.Bar.Baz;
       `,
     },
     {
       code: `
-      import Foo from 'foobar';
+      importFoo from 'foobar';
       let k: Foo<Bar>;
       `,
     },
     {
       code: `
-      import Foo from 'foobar';
+      importFoo from 'foobar';
       let k: Bar<Foo>;
       `,
     },
     {
       code: `
-      import Foo from 'foobar';
+      importFoo from 'foobar';
       let k: Foo | Bar;
       `,
     },
     {
       code: `
-      import Foo from 'foobar';
+      importFoo from 'foobar';
       let k: Foo & Bar;
       `,
     },
     {
       code: `
-      import Foo from 'foobar';
+      importFoo from 'foobar';
       interface I extends Foo {}
       `,
     },
     {
       code: `
-      import Foo from 'foobar';
+      importFoo from 'foobar';
       interface I extends Foo.Bar {}
       `,
     },
     {
       code: `
-      import Foo from 'foobar';
+      importFoo from 'foobar';
       interface I extends Foo<Bar> {}
       `,
     },
     {
       code: `
-      import Foo from 'foobar';
+      importFoo from 'foobar';
       class C implements Foo {}
       `,
     },
     {
       code: `
-      import Foo from 'foobar';
+      importFoo from 'foobar';
       class C implements Foo.Bar {}
       `,
     },
     {
       code: `
-      import Foo from 'foobar';
+      importFoo from 'foobar';
       class C implements Foo<Bar> {}
       `,
     },
     {
       code: `
-      import Foo from 'foobar';
+      importFoo from 'foobar';
       class C extends Foo {}
       `,
     },
@@ -304,33 +304,33 @@ ruleTesterTS.run('Unnecessary imports should be removed', rule, {
   ],
   invalid: [
     {
-      code: `import Foo from 'foobar';`,
+      code: `importFoo from 'foobar';`,
       errors: 1,
     },
     {
       code: `
-      import Foo from 'foobar';
+      importFoo from 'foobar';
       let k: Bar.Foo;
       `,
       errors: 1,
     },
     {
       code: `
-      import Foo from 'foobar';
+      importFoo from 'foobar';
       let k: Baz.Bar.Foo;
       `,
       errors: 1,
     },
     {
       code: `
-      import Foo from 'foobar';
+      importFoo from 'foobar';
       interface I extends Bar.Foo {};
       `,
       errors: 1,
     },
     {
       code: `
-      import Foo from 'foobar';
+      importFoo from 'foobar';
       class C implements Bar.Foo {};
       `,
       errors: 1,

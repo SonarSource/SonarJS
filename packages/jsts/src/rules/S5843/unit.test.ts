@@ -19,7 +19,7 @@
  */
 import { RuleTester } from 'eslint';
 import { TypeScriptRuleTester } from '../../../tests/tools/index.js';
-import { rule } from './/index.js';
+import { rule } from './index.js';
 
 const createOptions = (threshold: number) => {
   return [{ threshold }, 'sonar-runtime'];

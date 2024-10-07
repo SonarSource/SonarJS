@@ -24,7 +24,7 @@ import {
   DEFAULT_LANGUAGE,
   JsTsFiles,
   ProjectAnalysisOutput,
-} from '../..//index.js';
+} from '../../index.js';
 import { readFile } from '../../../../shared/src/index.js';
 
 /**

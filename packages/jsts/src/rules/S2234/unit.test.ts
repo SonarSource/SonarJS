@@ -19,7 +19,7 @@
  */
 import { RuleTester } from 'eslint';
 import { TypeScriptRuleTester } from '../../../tests/tools/index.js';
-import { rule } from './/index.js';
+import { rule } from './index.js';
 
 const eslintRuleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
 eslintRuleTester.run('Parameters should be passed in the correct order', rule, {

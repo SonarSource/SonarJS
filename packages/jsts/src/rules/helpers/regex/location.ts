@@ -20,7 +20,7 @@
 import { AST, Rule } from 'eslint';
 import estree from 'estree';
 import * as regexpp from '@eslint-community/regexpp';
-import { isRegexLiteral, isStringLiteral } from '..//index.js';
+import { isRegexLiteral, isStringLiteral } from '../index.js';
 import { getRegexpRange } from './range.js';
 
 /**

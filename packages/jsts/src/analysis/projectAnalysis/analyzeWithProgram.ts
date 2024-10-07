@@ -24,7 +24,7 @@ import {
   deleteProgram,
   JsTsFiles,
   ProjectAnalysisOutput,
-} from '../..//index.js';
+} from '../../index.js';
 import { error, readFile } from '../../../../shared/src/index.js';
 
 /**

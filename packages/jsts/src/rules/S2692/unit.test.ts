@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { TypeScriptRuleTester } from '../../../tests/tools/index.js';
-import { rule } from './/index.js';
+import { rule } from './index.js';
 
 const ruleTester = new TypeScriptRuleTester();
 ruleTester.run(`"indexOf" checks should not be for positive numbers`, rule, {

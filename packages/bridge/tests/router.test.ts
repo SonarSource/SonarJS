@@ -49,7 +49,6 @@ describe('router', () => {
       sonarlint: false,
       bundles: [],
     });
-    // jest.setTimeout(60 * 1000);
     const { server: serverInstance, serverClosed } = await start(port, '127.0.0.1', 60 * 60 * 1000);
     server = serverInstance;
     closePromise = serverClosed;
@@ -277,10 +276,6 @@ describe('router', () => {
   });
 
   it('should route /new-tsconfig requests', async () => {
-    /**
-     * There is no easy way to test that a module was unloaded, because jest is modifying require calls for tests
-     * @see https://github.com/facebook/jest/issues/6725
-     */
     const data = {};
     const response = await request(server, '/new-tsconfig', 'POST', data);
     expect(response).toEqual('OK!');
