@@ -139,7 +139,7 @@ babelRuleTester.run('Unnecessary imports should be removed', rule, {
       errors: 1,
     },
     {
-      code: `import a from 'b';`,
+      code: `import * as a from 'b';`,
       errors: 1,
     },
     {
@@ -200,85 +200,85 @@ ruleTesterTS.run('Unnecessary imports should be removed', rule, {
   valid: [
     {
       code: `
-      importFoo from 'foobar';
+      import * as Foo from 'foobar';
       let k: Foo;
       `,
     },
     {
       code: `
-      importFoo from 'foobar';
+      import * as Foo from 'foobar';
       let k: Foo.Bar;
       `,
     },
     {
       code: `
-      importFoo from 'foobar';
+      import * as Foo from 'foobar';
       let k: Foo.Bar.Baz;
       `,
     },
     {
       code: `
-      importFoo from 'foobar';
+      import * as Foo from 'foobar';
       let k: Foo<Bar>;
       `,
     },
     {
       code: `
-      importFoo from 'foobar';
+      import * as Foo from 'foobar';
       let k: Bar<Foo>;
       `,
     },
     {
       code: `
-      importFoo from 'foobar';
+      import * as Foo from 'foobar';
       let k: Foo | Bar;
       `,
     },
     {
       code: `
-      importFoo from 'foobar';
+      import * as Foo from 'foobar';
       let k: Foo & Bar;
       `,
     },
     {
       code: `
-      importFoo from 'foobar';
+      import * as Foo from 'foobar';
       interface I extends Foo {}
       `,
     },
     {
       code: `
-      importFoo from 'foobar';
+      import * as Foo from 'foobar';
       interface I extends Foo.Bar {}
       `,
     },
     {
       code: `
-      importFoo from 'foobar';
+      import * as Foo from 'foobar';
       interface I extends Foo<Bar> {}
       `,
     },
     {
       code: `
-      importFoo from 'foobar';
+      import * as Foo from 'foobar';
       class C implements Foo {}
       `,
     },
     {
       code: `
-      importFoo from 'foobar';
+      import * as Foo from 'foobar';
       class C implements Foo.Bar {}
       `,
     },
     {
       code: `
-      importFoo from 'foobar';
+      import * as Foo from 'foobar';
       class C implements Foo<Bar> {}
       `,
     },
     {
       code: `
-      importFoo from 'foobar';
+      import * as Foo from 'foobar';
       class C extends Foo {}
       `,
     },
@@ -304,33 +304,33 @@ ruleTesterTS.run('Unnecessary imports should be removed', rule, {
   ],
   invalid: [
     {
-      code: `importFoo from 'foobar';`,
+      code: `import * as Foo from 'foobar';`,
       errors: 1,
     },
     {
       code: `
-      importFoo from 'foobar';
+      import * as Foo from 'foobar';
       let k: Bar.Foo;
       `,
       errors: 1,
     },
     {
       code: `
-      importFoo from 'foobar';
+      import * as Foo from 'foobar';
       let k: Baz.Bar.Foo;
       `,
       errors: 1,
     },
     {
       code: `
-      importFoo from 'foobar';
+      import * as Foo from 'foobar';
       interface I extends Bar.Foo {};
       `,
       errors: 1,
     },
     {
       code: `
-      importFoo from 'foobar';
+      import * as Foo from 'foobar';
       class C implements Bar.Foo {};
       `,
       errors: 1,
