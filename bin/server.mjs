@@ -14,8 +14,9 @@
 import * as server from '../lib/server.js';
 import path from 'path';
 import * as context from '../lib/shared/src/helpers/context.js';
+import { pathToFileURL } from 'node:url';
 
-const port = process.argv[2] ?? 60001;
+const port = process.argv[2];
 const host = process.argv[3];
 const workDir = process.argv[4];
 const shouldUseTypeScriptParserForJS = process.argv[5] !== 'false';
@@ -24,8 +25,8 @@ const debugMemory = process.argv[7] === 'true';
 
 let bundles = [];
 if (process.argv[8]) {
-  bundles = process.argv[8].split(path.delimiter);
+  bundles = process.argv[8].split(path.delimiter).map(bundleDir => pathToFileURL(bundleDir).href);
 }
 
 context.setContext({ workDir, shouldUseTypeScriptParserForJS, sonarlint, debugMemory, bundles });
-server.start(Number.parseInt(port), host, 11232132).catch(() => {});
+server.start(Number.parseInt(port), host).catch(() => {});

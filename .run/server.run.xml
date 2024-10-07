@@ -1,5 +1,0 @@
-<component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="server" type="NodeJSConfigurationType" application-parameters="60001" path-to-node="$USER_HOME$/.sonar/js/node-runtime/node" path-to-js-file="../package/bin/server.mjs" working-dir="$PROJECT_DIR$/packages">
-    <method v="2" />
-  </configuration>
-</component>
