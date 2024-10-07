@@ -73,13 +73,13 @@ ruleTester.run('Encrypting data is security-sensitive: server side', rule, {
       code: `const crypto = require('crypto'); crypto.scryptSync();`,
     },
     {
-      code: `import bar from 'crypto'; foo.createCipher();`,
+      code: `import * as bar from 'crypto'; foo.createCipher();`,
     },
     {
-      code: `import crypto from 'foo'; crypto.createCipher();`,
+      code: `import * as crypto from 'foo'; crypto.createCipher();`,
     },
     {
-      code: `import crypto from 'crypto'; crypto.scryptSync();`,
+      code: `import * as crypto from 'crypto'; crypto.scryptSync();`,
     },
     {
       code: `const createCipher = require('foo').createCipher; createCipher();`,
@@ -103,7 +103,7 @@ ruleTester.run('Encrypting data is security-sensitive: server side', rule, {
       errors: 1,
     },
     {
-      code: `import foo from 'crypto'; foo.createCipher();`,
+      code: `import * as foo from 'crypto'; foo.createCipher();`,
       errors: 1,
     },
     {

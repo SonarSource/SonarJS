@@ -44,7 +44,7 @@
   },
   "homepage": "https://github.com/SonarSource/SonarJS#readme",
   "engines": {
-    "node": "^22.8.0"
+    "node": ">= 20"
   },
   "type": "module",
   "devDependencies": {

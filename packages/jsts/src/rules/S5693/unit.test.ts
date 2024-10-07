@@ -66,7 +66,7 @@ ruleTester.run('Allowing requests with excessive content length is security-sens
     },
     {
       code: `
-      import formidableModule from 'formidable';
+      import * as formidableModule from 'formidable';
       import { formidable } from 'formidable';
       import { IncomingForm } from 'formidable';
       import { Formidable } from 'formidable';
@@ -151,7 +151,7 @@ ruleTester.run('Allowing requests with excessive content length is security-sens
     },
     {
       code: `
-      import multer from 'multer';
+      import * as multer from 'multer';
       multer({ limits: { fileSize: 42000000 } }); // Noncompliant
 
       const options = { limits: { fileSize: 42000000 } };  // Noncompliant
@@ -168,7 +168,7 @@ ruleTester.run('Allowing requests with excessive content length is security-sens
     {
       code: `
       import { json } from 'body-parser';
-      import bodyParser from 'body-parser';
+      import * as bodyParser from 'body-parser';
       bodyParser.json({ limits: 4000000}); // Noncompliant
       json({ limits: 4000000}); // Noncompliant, second option parameter is used
       json({ limits: 42000000}); // Noncompliant
@@ -193,7 +193,7 @@ ruleTester.run('Allowing requests with excessive content length is security-sens
     },
     {
       code: `
-      import bodyParser from 'body-parser'
+      import * as bodyParser from 'body-parser'
 
       bodyParser.text({ limits: '4mb'}); // Noncompliant, second option parameter is used
       bodyParser.raw({ limits: '42mb'}); // Noncompliant
