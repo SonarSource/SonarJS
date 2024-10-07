@@ -23,6 +23,7 @@ import { initializeLinter, getLinter, LinterWrapper } from '../../../jsts/src/in
 import { parseJavaScriptSourceFile } from '../tools/index.js';
 import { describe, it, mock, Mock } from 'node:test';
 import { expect } from 'expect';
+import { pathToFileURL } from 'node:url';
 
 describe('initializeLinter', () => {
   it('should initialize the linter wrapper', async () => {
@@ -64,13 +65,9 @@ describe('initializeLinter', () => {
   });
 
   it('should load rule bundles', async () => {
-    const bundlePath = path.join(
-      import.meta.dirname,
-      'fixtures',
-      'index',
-      'custom-rule-bundle',
-      'rules.js',
-    );
+    const bundlePath = pathToFileURL(
+      path.join(import.meta.dirname, 'fixtures', 'index', 'custom-rule-bundle', 'rules.js'),
+    ).href;
     setContext({
       workDir: '/tmp/dir',
       shouldUseTypeScriptParserForJS: false,

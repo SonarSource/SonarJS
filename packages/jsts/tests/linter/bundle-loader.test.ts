@@ -24,6 +24,7 @@ import { setContext } from '../../../shared/src/index.js';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
 import path from 'node:path/posix';
+import { pathToFileURL } from 'node:url';
 
 describe('BundleLoader', () => {
   it('should only load rules when requested', async () => {
@@ -38,7 +39,7 @@ describe('BundleLoader', () => {
       workDir: '/tmp/dir',
       shouldUseTypeScriptParserForJS: false,
       sonarlint: false,
-      bundles: [bundlePath],
+      bundles: [pathToFileURL(bundlePath).href],
     });
 
     const linter = new Linter();
