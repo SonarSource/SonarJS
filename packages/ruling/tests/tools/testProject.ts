@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as path from 'path';
-import * as fs from 'fs';
-import * as os from 'os';
+import path from 'path';
+import fs from 'fs';
+import os from 'os';
 import { Minimatch } from 'minimatch';
 import {
   AnalysisInput,
@@ -27,7 +27,7 @@ import {
   FileType,
   setContext,
   toUnixPath,
-} from '../../../shared/src';
+} from '../../../shared/src/index.js';
 import {
   DEFAULT_ENVIRONMENTS,
   DEFAULT_GLOBALS,
@@ -39,20 +39,29 @@ import {
   initializeLinter,
   getLinter,
   CustomRule,
-} from '../../../jsts/src';
-import { accept } from '../filter/JavaScriptExclusionsFilter';
-import { writeResults } from './lits';
-import { analyzeHTML } from '../../../html/src';
-import { isHtmlFile, isJsFile, isTsFile, isYamlFile } from './languages';
-import { analyzeYAML } from '../../../yaml/src';
-import projects from '../data/projects.json';
-import { loadCustomRules } from '../../../jsts/src/linter/bundle-loader';
+} from '../../../jsts/src/index.js';
+import { accept } from '../filter/JavaScriptExclusionsFilter.js';
+import { writeResults } from './lits.js';
+import { analyzeHTML } from '../../../html/src/index.js';
+import { isHtmlFile, isJsFile, isTsFile, isYamlFile } from './languages.js';
+import { analyzeYAML } from '../../../yaml/src/index.js';
+import projects from '../data/projects.json' with { type: 'json' };
+import { loadCustomRules } from '../../../jsts/src/linter/bundle-loader.js';
+import { before } from 'node:test';
 
-const sourcesPath = path.join(__dirname, '..', '..', '..', '..', '..', 'sonarjs-ruling-sources');
+const sourcesPath = path.join(
+  import.meta.dirname,
+  '..',
+  '..',
+  '..',
+  '..',
+  '..',
+  'sonarjs-ruling-sources',
+);
 const jsTsProjectsPath = path.join(sourcesPath, 'jsts', 'projects');
 
 const expectedPath = path.join(
-  __dirname,
+  import.meta.dirname,
   '..',
   '..',
   '..',
@@ -64,7 +73,7 @@ const expectedPath = path.join(
   'expected',
   'jsts',
 );
-const actualPath = path.join(__dirname, '..', 'actual', 'jsts');
+const actualPath = path.join(import.meta.dirname, '..', 'actual', 'jsts');
 
 const SETTINGS_KEY = 'SONAR_RULING_SETTINGS';
 const HTML_LINTER_ID = 'html';
@@ -90,14 +99,14 @@ const DEFAULT_EXCLUSIONS = [
 export function setupBeforeAll(projectFile: string, customRules?: CustomRule[]) {
   const { project, rules, expectedPath, actualPath } = extractParameters(projectFile);
 
-  beforeAll(() => {
+  before(async () => {
     setContext({
       workDir: path.join(os.tmpdir(), 'sonarjs'),
       shouldUseTypeScriptParserForJS: true,
       sonarlint: false,
       bundles: [],
     });
-    initializeRules(rules, customRules);
+    await initializeRules(rules, customRules);
   });
 
   return {
@@ -107,16 +116,22 @@ export function setupBeforeAll(projectFile: string, customRules?: CustomRule[]) 
     rules,
   };
 }
-function initializeRules(rules: RuleConfig[], customRules?: CustomRule[]) {
+async function initializeRules(rules: RuleConfig[], customRules?: CustomRule[]) {
   if (customRules) {
     const defaultLinter = getLinter();
     const htmlLinter = getLinter(HTML_LINTER_ID);
     loadCustomRules(defaultLinter.linter, customRules);
     loadCustomRules(htmlLinter.linter, customRules);
   }
-  initializeLinter(rules, DEFAULT_ENVIRONMENTS, DEFAULT_GLOBALS);
+  await initializeLinter(rules, DEFAULT_ENVIRONMENTS, DEFAULT_GLOBALS);
   const htmlRules = rules.filter(rule => rule.key !== 'S3504');
-  initializeLinter(htmlRules, DEFAULT_ENVIRONMENTS, DEFAULT_GLOBALS, undefined, HTML_LINTER_ID);
+  await initializeLinter(
+    htmlRules,
+    DEFAULT_ENVIRONMENTS,
+    DEFAULT_GLOBALS,
+    undefined,
+    HTML_LINTER_ID,
+  );
 }
 function getProjectName(testFilePath: string) {
   const SUFFIX = '.ruling.test.ts';
@@ -333,7 +348,7 @@ function createParsingIssue({
  * Loading this through `fs` and not import because the file is absent at compile time
  */
 function loadRules() {
-  const rulesPath = path.join(__dirname, '..', 'data', 'rules.json');
+  const rulesPath = path.join(import.meta.dirname, '..', 'data', 'rules.json');
   const rulesContent = fs.readFileSync(rulesPath, 'utf8');
   return JSON.parse(rulesContent);
 }
