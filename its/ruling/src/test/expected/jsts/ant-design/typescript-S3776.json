@@ -1,10 +1,4 @@
 {
-"ant-design:components/avatar/avatar.tsx": [
-40
-],
-"ant-design:components/badge/index.tsx": [
-57
-],
 "ant-design:components/button/button.tsx": [
 142
 ],
@@ -13,12 +7,6 @@
 ],
 "ant-design:components/form/FormItem.tsx": [
 362
-],
-"ant-design:components/input-number/index.tsx": [
-32
-],
-"ant-design:components/input/TextArea.tsx": [
-80
 ],
 "ant-design:components/list/index.tsx": [
 73
@@ -44,8 +32,5 @@
 ],
 "ant-design:components/upload/UploadList/ListItem.tsx": [
 74
-],
-"ant-design:site/theme/template/utils.tsx": [
-32
 ]
 }

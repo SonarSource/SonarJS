@@ -1,10 +1,8 @@
 {
 "p5.js:docs/yuidoc-p5-theme/assets/js/reference.js": [
-73,
 2340,
 2755,
 2827,
-2988,
 3153,
 3257,
 3457,
@@ -43,7 +41,6 @@
 211
 ],
 "p5.js:src/core/p5.Renderer2D.js": [
-125,
 279,
 597,
 718

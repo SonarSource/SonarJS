@@ -1,7 +1,4 @@
 {
-"ace:Makefile.dryice.js": [
-346
-],
 "ace:doc/template/resources/javascripts/jquery-scrollspy.js": [
 37
 ],
@@ -52,8 +49,6 @@
 "ace:lib/ace/mode/javascript/jshint.js": [
 161,
 1002,
-2361,
-2394,
 2756,
 3415,
 3660,
@@ -70,7 +65,6 @@
 6525,
 7150,
 7315,
-7480,
 7554,
 7673,
 7799,
@@ -84,7 +78,6 @@
 8857,
 9049,
 9138,
-9207,
 9244,
 9391,
 9546,
@@ -111,7 +104,6 @@
 15606,
 15847,
 18037,
-18086,
 18468,
 18625,
 18893,
@@ -122,7 +114,6 @@
 105
 ],
 "ace:lib/ace/mode/json/json_parse.js": [
-106,
 147
 ],
 "ace:lib/ace/mode/php/php.js": [
@@ -169,7 +160,6 @@
 3303,
 3712,
 3947,
-4667,
 4906
 ],
 "ace:src/autocomplete.js": [
@@ -209,13 +199,11 @@
 233,
 523,
 583,
-730,
 773
 ],
 "ace:src/editor.js": [
 136,
 499,
-851,
 895,
 1332,
 1856,
@@ -226,9 +214,6 @@
 ],
 "ace:src/ext/code_lens.js": [
 15
-],
-"ace:src/ext/emmet.js": [
-319
 ],
 "ace:src/ext/error_marker.js": [
 25
@@ -252,9 +237,6 @@
 "ace:src/keyboard/emacs.js": [
 202
 ],
-"ace:src/keyboard/keybinding.js": [
-70
-],
 "ace:src/keyboard/sublime.js": [
 5
 ],
@@ -273,8 +255,6 @@
 828,
 1351,
 1681,
-2292,
-2396,
 2436,
 2694,
 2781,
@@ -285,7 +265,6 @@
 3400,
 3610,
 3774,
-3825,
 4198,
 4323,
 4491,
@@ -311,11 +290,7 @@
 6997
 ],
 "ace:src/keyboard/vim_test.js": [
-5449,
 5508
-],
-"ace:src/layer/cursor.js": [
-172
 ],
 "ace:src/layer/decorators.js": [
 44
@@ -329,7 +304,6 @@
 ],
 "ace:src/layer/text.js": [
 155,
-224,
 338,
 440,
 522,
@@ -342,15 +316,12 @@
 248
 ],
 "ace:src/lib/dom.js": [
-6,
-176
+6
 ],
 "ace:src/lib/event.js": [
-132,
 180
 ],
 "ace:src/line_widgets.js": [
-83,
 221,
 265,
 308
@@ -427,11 +398,7 @@
 34
 ],
 "ace:src/mouse/default_handlers.js": [
-110,
 202
-],
-"ace:src/mouse/dragdrop_handler.js": [
-345
 ],
 "ace:src/mouse/multi_select_handler.js": [
 9
@@ -490,11 +457,8 @@
 450
 ],
 "ace:src/virtual_renderer.js": [
-331,
-369,
 616,
 807,
-996,
 1223
 ],
 "ace:tool/lib.js": [
@@ -504,8 +468,7 @@
 36
 ],
 "ace:tool/tmlanguage.js": [
-275,
-363
+275
 ],
 "ace:tool/tmtheme.js": [
 105

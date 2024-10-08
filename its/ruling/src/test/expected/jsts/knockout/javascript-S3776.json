@@ -17,9 +17,6 @@
 "knockout:src/binding/defaultBindings/textInput.js": [
 50
 ],
-"knockout:src/binding/defaultBindings/value.js": [
-2
-],
 "knockout:src/binding/editDetection/arrayToDomNodeChildren.js": [
 36
 ],
@@ -44,9 +41,6 @@
 ],
 "knockout:src/tasks.js": [
 35
-],
-"knockout:src/templating/templateSources.js": [
-83
 ],
 "knockout:src/templating/templating.js": [
 289

@@ -1,7 +1,4 @@
 {
-"eigen:src/app/Components/ArtworkGrids/LotCloseInfo.tsx": [
-26
-],
 "eigen:src/app/Components/Bidding/Screens/ConfirmBid/index.tsx": [
 459
 ],
@@ -20,32 +17,20 @@
 "eigen:src/app/Scenes/Artwork/Components/ImageCarousel/FullScreen/DeepZoom/DeepZoomLevel.tsx": [
 169
 ],
-"eigen:src/app/Scenes/Fair/Fair.tsx": [
-46
-],
 "eigen:src/app/Scenes/Feature/Feature.tsx": [
 54
 ],
 "eigen:src/app/Scenes/Inbox/Components/Conversations/ConversationCTA.tsx": [
 15
 ],
-"eigen:src/app/Scenes/Inbox/Components/Conversations/OpenInquiryModalButton.tsx": [
-21
-],
 "eigen:src/app/Scenes/Inbox/Components/Conversations/OrderUpdate.tsx": [
 23
-],
-"eigen:src/app/Scenes/Map/GlobalMap.tsx": [
-334
 ],
 "eigen:src/app/Scenes/MyAccount/MyAccount.tsx": [
 20
 ],
 "eigen:src/app/Scenes/MyCollection/Screens/ArtworkForm/MyCollectionArtworkForm.tsx": [
 283
-],
-"eigen:src/app/navigation/navigate.ts": [
-42
 ],
 "eigen:src/app/relay/middlewares/cacheMiddleware.ts": [
 8
@@ -54,7 +39,6 @@
 17
 ],
 "eigen:src/app/store/AuthModel.ts": [
-310,
 658
 ],
 "eigen:src/app/tests/createMockNetworkLayer/index.ts": [

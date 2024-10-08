@@ -35,9 +35,6 @@
 "Joust:ts/protocol/HSReplayDecoder.ts": [
 159
 ],
-"Joust:ts/state/GameStateHistory.ts": [
-15
-],
 "Joust:ts/state/plugins/Timer.ts": [
 42
 ]

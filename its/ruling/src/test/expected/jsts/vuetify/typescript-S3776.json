@@ -11,9 +11,6 @@
 "vuetify:packages/docs/src/util/helpers.ts": [
 46
 ],
-"vuetify:packages/vuetify/src/components/VCalendar/mixins/calendar-with-events.ts": [
-159
-],
 "vuetify:packages/vuetify/src/components/VCalendar/mixins/mouse.ts": [
 42
 ],
@@ -25,9 +22,6 @@
 ],
 "vuetify:packages/vuetify/src/components/VCalendar/util/props.ts": [
 220
-],
-"vuetify:packages/vuetify/src/components/VCalendar/util/timestamp.ts": [
-117
 ],
 "vuetify:packages/vuetify/src/components/VChip/VChip.tsx": [
 150
@@ -49,8 +43,7 @@
 97
 ],
 "vuetify:packages/vuetify/src/components/VOverlay/locationStrategies.ts": [
-218,
-325
+218
 ],
 "vuetify:packages/vuetify/src/components/VOverlay/util/point.ts": [
 37
@@ -89,13 +82,7 @@
 "vuetify:packages/vuetify/src/composables/theme.ts": [
 208
 ],
-"vuetify:packages/vuetify/src/labs/VDataTable/composables/headers.ts": [
-37
-],
 "vuetify:packages/vuetify/src/labs/VDataTable/composables/sort.ts": [
 99
-],
-"vuetify:packages/vuetify/src/util/colorUtils.ts": [
-22
 ]
 }
