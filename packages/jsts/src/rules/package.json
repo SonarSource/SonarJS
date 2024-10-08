@@ -34,7 +34,7 @@
   "peerDependencies": {
     "eslint": "^8.0.0 || ^9.0.0"
   },
-  "homepage": "https://github.com/SonarSource/SonarJS#readme",
+  "homepage": "https://github.com/SonarSource/SonarJS/blob/master/packages/jsts/src/rules/README.md",
   "dependencies": {
     "@babel/core": "7.25.2",
     "@babel/eslint-parser": "7.25.1",

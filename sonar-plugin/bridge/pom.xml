@@ -43,6 +43,14 @@
       <groupId>org.tukaani</groupId>
       <artifactId>xz</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.apache.httpcomponents.client5</groupId>
+      <artifactId>httpclient5</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.httpcomponents.core5</groupId>
+      <artifactId>httpcore5</artifactId>
+    </dependency>
 
     <dependency>
       <groupId>com.google.protobuf</groupId>
