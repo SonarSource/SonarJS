@@ -19,7 +19,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S5973/javascript
 
-import { Rule } from 'eslint';
+import type { Rule } from 'eslint';
 import {
   generateMeta,
   getDependencies,
@@ -27,9 +27,9 @@ import {
   isIdentifier,
   isMethodInvocation,
   Mocha,
-} from '../helpers';
-import * as estree from 'estree';
-import { meta } from './meta';
+} from '../helpers/index.js';
+import estree from 'estree';
+import { meta } from './meta.js';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta as Rule.RuleMetaData, {
@@ -82,7 +82,7 @@ function hasJestRetry(context: Rule.RuleContext, node: estree.CallExpression, ha
 }
 
 function hasJestDependency(context: Rule.RuleContext) {
-  const dependencies = getDependencies(context.filename);
+  const dependencies = getDependencies(context.filename, context.cwd);
   return dependencies.has('jest');
 }
 

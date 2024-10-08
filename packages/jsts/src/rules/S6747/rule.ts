@@ -19,13 +19,15 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6747/javascript
 
-import { Rule } from 'eslint';
-import { rules as reactRules } from 'eslint-plugin-react';
-import { rules as jsxA11yRules } from 'eslint-plugin-jsx-a11y';
-import { generateMeta, getDependencies, interceptReport, mergeRules } from '../helpers';
-import { decorate } from './decorator';
+import type { Rule } from 'eslint';
+import pkg from 'eslint-plugin-react';
+const { rules: reactRules } = pkg;
+import jsxA11yPlugin from 'eslint-plugin-jsx-a11y';
+const { rules: jsxA11yRules } = jsxA11yPlugin;
+import { generateMeta, getDependencies, interceptReport, mergeRules } from '../helpers/index.js';
+import { decorate } from './decorator.js';
 import { TSESTree } from '@typescript-eslint/utils';
-import { meta } from './meta';
+import { meta } from './meta.js';
 
 const noUnknownProp = reactRules['no-unknown-property'];
 const decoratedNoUnknownProp = decorate(noUnknownProp);
@@ -88,7 +90,7 @@ export const rule: Rule.RuleModule = {
   }),
 
   create(context: Rule.RuleContext) {
-    const dependencies = getDependencies(context.filename);
+    const dependencies = getDependencies(context.filename, context.cwd);
     if (!dependencies.has('react')) {
       return {};
     }

@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { CallExpression, NewExpression, Node } from 'estree';
-import { Rule } from 'eslint';
-import { AwsCdkTemplate, normalizeFQN } from './cdk';
-import { getResultOfExpression, Result } from '../result';
-import { flattenArgs, isStringLiteral, StringLiteral } from '../ast';
-import { getFullyQualifiedName } from '../module';
+import type { Rule } from 'eslint';
+import { AwsCdkTemplate, normalizeFQN } from './cdk.js';
+import { getResultOfExpression, Result } from '../result.js';
+import { flattenArgs, isStringLiteral, StringLiteral } from '../ast.js';
+import { getFullyQualifiedName } from '../module.js';
 
 export interface PolicyCheckerOptions {
   effect: {

@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { rule } from './';
+import { rule } from './index.js';
 import { RuleTester } from 'eslint';
-import { TypeScriptRuleTester } from '../../../tests/tools';
+import { TypeScriptRuleTester } from '../../../tests/tools/index.js';
 
 const tests = {
   valid: [
@@ -40,7 +40,7 @@ const tests = {
     },
     {
       code: `
-        import * as libxmljs from "libxmljs";
+        import libxmljs from "libxmljs";
         var xmlDoc = libxmljs.parseXmlString(xml, { noblanks: true, nocdata: true });`,
     },
     {
@@ -84,7 +84,7 @@ const tests = {
     },
     {
       code: `
-        import * as libxmljs from "libxmljs";
+        import libxmljs from "libxmljs";
         var xmlDoc = libxmljs.parseXmlString(xml, { noblanks: true, noent: true, nocdata: true });`,
       errors: 1,
     },

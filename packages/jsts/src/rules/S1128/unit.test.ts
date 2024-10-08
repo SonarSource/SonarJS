@@ -18,9 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RuleTester } from 'eslint';
-import { rule } from './';
+import { rule } from './index.js';
 import path from 'path';
-import { BabelRuleTester } from '../../../tests/tools';
+import { BabelRuleTester } from '../../../tests/tools/index.js';
+import Module from 'node:module';
+const require = Module.createRequire(import.meta.url);
 
 const babelRuleTester = BabelRuleTester();
 
@@ -336,8 +338,8 @@ ruleTesterTS.run('Unnecessary imports should be removed', rule, {
   ],
 });
 
-const project = path.join(__dirname, 'fixtures', 'tsconfig.fixture.json');
-const filename = path.join(__dirname, 'fixtures', 'file.tsx');
+const project = path.join(import.meta.dirname, 'fixtures', 'tsconfig.fixture.json');
+const filename = path.join(import.meta.dirname, 'fixtures', 'file.tsx');
 
 const ruleTesterJsxFactory = new RuleTester({
   parserOptions: {

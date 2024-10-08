@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Rule } from 'eslint';
-import { rules } from '@typescript-eslint/eslint-plugin';
-import { sanitize } from './sanitize';
+import type { Rule } from 'eslint';
+import pkg from '@typescript-eslint/eslint-plugin';
+const { rules } = pkg;
+import { sanitize } from './sanitize.js';
 
 /**
  * TypeScript ESLint rules that rely on type information fail at runtime because

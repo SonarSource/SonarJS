@@ -19,11 +19,11 @@
  */
 import {
   analyzeEmbedded,
-  EmbeddedAnalysisInput as HtmlAnalysisInput,
-  EmbeddedAnalysisOutput as HtmlAnalysisOutput,
-} from '@sonar/jsts';
+  type EmbeddedAnalysisInput as HtmlAnalysisInput,
+  type EmbeddedAnalysisOutput as HtmlAnalysisOutput,
+} from '../../jsts/src/index.js';
 
-import { parseHTML } from './parser';
+import { parseHTML } from './parser/index.js';
 
 export { HtmlAnalysisInput, HtmlAnalysisOutput };
 

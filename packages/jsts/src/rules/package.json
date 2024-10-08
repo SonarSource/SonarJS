@@ -5,7 +5,7 @@
   "exports": "./lib/plugin.js",
   "description": "SonarJS rules for ESLint",
   "types": "./lib/plugin.d.ts",
-  "type": "commonjs",
+  "type": "module",
   "scripts": {
     "build": "npm ci && npm run compile && npm pack",
     "compile": "npm run clear && tsc -p tsconfig-plugin.json --outDir lib",
@@ -61,6 +61,7 @@
     "vue-eslint-parser": "9.4.3"
   },
   "devDependencies": {
+    "@types/babel__preset-env": "^7.9.7",
     "@types/bytes": "3.1.4",
     "@types/eslint": "8.56.10",
     "@types/eslint-scope": "3.7.7",

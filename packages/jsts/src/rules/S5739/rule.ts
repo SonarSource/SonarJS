@@ -19,8 +19,8 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S5734/javascript
 
-import { Rule } from 'eslint';
-import * as estree from 'estree';
+import type { Rule } from 'eslint';
+import estree from 'estree';
 import {
   Express,
   generateMeta,
@@ -28,8 +28,8 @@ import {
   getProperty,
   getPropertyWithValue,
   getValueOfExpression,
-} from '../helpers';
-import { meta } from './meta';
+} from '../helpers/index.js';
+import { meta } from './meta.js';
 
 const HSTS = 'hsts';
 const HELMET = 'helmet';

@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 declare module 'eslint-plugin-jsx-a11y' {
-  import { Rule } from 'eslint';
+  import type { Rule } from 'eslint';
   export const rules: { [name: string]: Rule.RuleModule };
 }
-declare module 'eslint-plugin-jsx-a11y/lib/util/getElementType' {
+declare module 'eslint-plugin-jsx-a11y/lib/util/getElementType.js' {
   import { TSESTree } from '@typescript-eslint/utils';
   type ESLintSettings = {
     [key: string]: mixed;
@@ -43,7 +43,7 @@ declare module 'eslint-plugin-jsx-a11y/lib/util/getElementType' {
   export default getElementType;
 }
 
-declare module 'eslint-plugin-jsx-a11y/lib/util/isHiddenFromScreenReader' {
+declare module 'eslint-plugin-jsx-a11y/lib/util/isHiddenFromScreenReader.js' {
   const isHiddenFromScreenReader = (
     type: string,
     attributes: (TSESTree.JSXAttribute | TSESTree.JSXSpreadAttribute)[],
@@ -51,7 +51,7 @@ declare module 'eslint-plugin-jsx-a11y/lib/util/isHiddenFromScreenReader' {
   export default isHiddenFromScreenReader;
 }
 
-declare module 'eslint-plugin-jsx-a11y/lib/util/hasAccessibleChild' {
+declare module 'eslint-plugin-jsx-a11y/lib/util/hasAccessibleChild.js' {
   const hasAccessibleChild = (node: JSXElement, elementType: (JSXOpeningElement) => string) =>
     boolean;
   export default hasAccessibleChild;

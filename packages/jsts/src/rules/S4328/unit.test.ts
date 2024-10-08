@@ -18,16 +18,18 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RuleTester } from 'eslint';
-import { rule } from './';
+import { rule } from './index.js';
 import path from 'path';
 
-const fixtures = path.join(__dirname, 'fixtures');
+const fixtures = path.join(import.meta.dirname, 'fixtures');
 const filename = path.join(fixtures, 'package-json-project/file.js');
 const options = [
   {
     whitelist: [],
   },
 ];
+import Module from 'node:module';
+const require = Module.createRequire(import.meta.url);
 const tsParserPath = require.resolve('@typescript-eslint/parser');
 const ruleTester = new RuleTester({
   parser: tsParserPath,
@@ -37,12 +39,12 @@ const ruleTester = new RuleTester({
 ruleTester.run('Dependencies should be explicit', rule, {
   valid: [
     {
-      code: `import * as fs from "fs";`,
+      code: `import fs from "fs";`,
       filename,
       options,
     },
     {
-      code: `import * as ts from "devDependency";`,
+      code: `import ts from "devDependency";`,
       filename,
       options,
     },
@@ -104,6 +106,11 @@ ruleTester.run('Dependencies should be explicit', rule, {
     {
       code: `const foo = require("foo", "bar");`,
       filename,
+      options,
+    },
+    {
+      code: `import "dependency";`,
+      filename: path.join(fixtures, 'bom-package-json-project/file.js'),
       options,
     },
     {
@@ -177,13 +184,6 @@ ruleTester.run('Dependencies should be explicit', rule, {
     {
       code: `import "foo";`,
       filename: '/file.js',
-      options,
-      errors: 1,
-    },
-    {
-      name: 'with a non-parsable manifest',
-      code: `import "dependency";`,
-      filename: path.join(fixtures, 'bom-package-json-project/file.js'),
       options,
       errors: 1,
     },

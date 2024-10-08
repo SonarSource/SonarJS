@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as estree from 'estree';
+import estree from 'estree';
 import * as regexpp from '@eslint-community/regexpp';
-import { Rule } from 'eslint';
+import type { Rule } from 'eslint';
 import {
   getSimpleRawStringValue,
   getUniqueWriteUsage,
@@ -29,10 +29,10 @@ import {
   isSimpleRawString,
   isStaticTemplateLiteral,
   isStringLiteral,
-} from '../';
+} from '../index.js';
 import { TSESTree } from '@typescript-eslint/utils';
-import { isRegExpConstructor } from './ast';
-import { getFlags } from './flags';
+import { isRegExpConstructor } from './ast.js';
+import { getFlags } from './flags.js';
 
 export function getParsedRegex(
   node: estree.Node,

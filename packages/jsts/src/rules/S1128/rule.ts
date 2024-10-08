@@ -20,7 +20,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S1128/javascript
 
 import { Rule, Scope } from 'eslint';
-import * as estree from 'estree';
+import estree from 'estree';
 import { AST } from 'vue-eslint-parser';
 import { TSESTree } from '@typescript-eslint/utils';
 import {
@@ -28,8 +28,8 @@ import {
   isInsideVueSetupScript,
   isRequiredParserServices,
   removeNodeWithLeadingWhitespaces,
-} from '../helpers';
-import { meta } from './meta';
+} from '../helpers/index.js';
+import { meta } from './meta.js';
 
 const EXCLUDED_IMPORTS = ['React'];
 const JSDOC_TAGS = [

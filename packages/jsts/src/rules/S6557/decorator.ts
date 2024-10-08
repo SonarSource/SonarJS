@@ -19,9 +19,9 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6557/javascript
 
-import { Rule } from 'eslint';
-import { generateMeta, interceptReport } from '../helpers';
-import { meta } from './meta';
+import type { Rule } from 'eslint';
+import { generateMeta, interceptReport } from '../helpers/index.js';
+import { meta } from './meta.js';
 
 // Core implementation of this rule does not provide a message for quick fixes. Normally, we would
 // just map the rule id to a message in src/linter/quickfixes/messages.ts. However,

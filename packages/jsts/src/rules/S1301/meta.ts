@@ -23,7 +23,7 @@
 export const meta = {
   type: 'suggestion',
   docs: {
-    description: '"switch" statements should have at least 3 "case" clauses',
+    description: '"if" statements should be preferred over "switch" when simpler',
     recommended: true,
     url: 'https://sonarsource.github.io/rspec/#/rspec/S1301/javascript',
     requiresTypeChecking: false,

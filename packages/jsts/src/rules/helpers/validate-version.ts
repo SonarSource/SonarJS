@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { getNearestPackageJsons } from './package-json';
 import * as semver from 'semver';
+import { getManifests } from './package-json.js';
 
 /**
  * Minimum version per reference
@@ -32,9 +32,9 @@ type MinimumVersions = {
  * Checks if context where the filename is located supports the provided
  * minimum versions.
  */
-export function isSupported(filename: string, minVersions: MinimumVersions): boolean {
+export function isSupported(dirname: string, minVersions: MinimumVersions): boolean {
   validateVersions(minVersions);
-  return isSupportedNodeVersion(filename, minVersions.node);
+  return isSupportedNodeVersion(dirname, minVersions.node);
 }
 
 /**
@@ -55,12 +55,12 @@ function validateVersions(versions: MinimumVersions) {
  * @param requiredVersion
  * @returns
  */
-function isSupportedNodeVersion(filename: string, requiredVersion?: string): boolean {
+function isSupportedNodeVersion(dirname: string, requiredVersion?: string): boolean {
   if (!requiredVersion) {
     return true;
   }
-  const packageJsons = getNearestPackageJsons(filename);
-  const versionRange = packageJsons.find(pj => pj.contents.engines?.node)?.contents.engines?.node;
+  const packageJsons = getManifests(dirname);
+  const versionRange = packageJsons.find(pj => pj.engines?.node)?.engines?.node;
   if (!versionRange) {
     return true;
   }

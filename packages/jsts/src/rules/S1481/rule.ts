@@ -20,9 +20,9 @@
 // https://sonarsource.github.io/rspec/#/rspec/S1481/javascript
 
 import { Rule, Scope } from 'eslint';
-import * as estree from 'estree';
-import { generateMeta } from '../helpers';
-import { meta } from './meta';
+import estree from 'estree';
+import { generateMeta } from '../helpers/index.js';
+import { meta } from './meta.js';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta as Rule.RuleMetaData, {

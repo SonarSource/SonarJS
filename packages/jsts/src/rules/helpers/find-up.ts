@@ -20,7 +20,8 @@
 import * as Path from 'node:path/posix';
 import type { vol } from 'memfs';
 import { Minimatch } from 'minimatch';
-import { isRoot } from './files';
+import { isRoot, toUnixPath } from './files.js';
+import fs from 'fs';
 
 interface Stats {
   isFile(): boolean;
@@ -39,7 +40,7 @@ export interface File {
   readonly content: Buffer | string;
 }
 
-export type FindUp = (from: string, to: string, filesystem: Filesystem) => Array<File>;
+export type FindUp = (from: string, to?: string, filesystem?: Filesystem) => Array<File>;
 
 /**
  * Create an instance of FindUp.
@@ -48,8 +49,17 @@ export const createFindUp = (pattern: string): FindUp => {
   const cache: Map<string, Array<File>> = new Map();
   const matcher = new Minimatch(pattern);
 
-  const findUp: FindUp = (from, to, filesystem) => {
+  const findUp: FindUp = (from, to?, filesystem = fs) => {
+    return _findUp(toUnixPath(from), to ? toUnixPath(to) : undefined, filesystem);
+  };
+
+  const _findUp: FindUp = (from, to?, filesystem = fs) => {
     const results: Array<File> = [];
+
+    if (from === '.') {
+      // handle path.dirname returning "." in windows
+      return results;
+    }
 
     let cacheContent = cache.get(from);
 
@@ -58,7 +68,13 @@ export const createFindUp = (pattern: string): FindUp => {
 
       cache.set(from, cacheContent);
 
-      for (const entry of filesystem.readdirSync(from)) {
+      let entries: ReturnType<Filesystem['readdirSync']> = [];
+
+      try {
+        entries = filesystem.readdirSync(from);
+      } catch {}
+
+      for (const entry of entries) {
         const fullEntryPath = Path.join(from, entry.toString());
 
         const basename = Path.basename(fullEntryPath);
@@ -91,7 +107,7 @@ export const createFindUp = (pattern: string): FindUp => {
     if (!isRoot(from) && from !== to) {
       const parent = Path.dirname(from);
 
-      results.push(...findUp(parent, to, filesystem));
+      results.push(..._findUp(parent, to, filesystem));
     }
 
     return results;

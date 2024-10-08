@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { FileType, JsTsLanguage } from '@sonar/shared';
-import { JsTsAnalysisOutput, RuleConfig } from '../../';
+import { FileType, JsTsLanguage } from '../../../../shared/src/index.js';
+import { JsTsAnalysisOutput, RuleConfig } from '../../index.js';
 
 export type ProjectAnalysisOutput = {
   files: { [key: string]: JsTsAnalysisOutput };

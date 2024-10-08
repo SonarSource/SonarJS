@@ -20,7 +20,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S2259/javascript
 
 import { Rule, Scope } from 'eslint';
-import * as estree from 'estree';
+import estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
 import {
   areEquivalent,
@@ -31,8 +31,8 @@ import {
   isRequiredParserServices,
   isUndefined,
   isUndefinedOrNull,
-} from '../helpers';
-import { meta } from './meta';
+} from '../helpers/index.js';
+import { meta } from './meta.js';
 
 enum Null {
   confirmed,

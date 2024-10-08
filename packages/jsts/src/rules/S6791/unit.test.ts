@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { rule } from './';
-import { TypeScriptRuleTester } from '../../../tests/tools';
+import { rule } from './index.js';
+import { TypeScriptRuleTester } from '../../../tests/tools/index.js';
 
 const ruleTester = new TypeScriptRuleTester();
 
@@ -29,7 +29,7 @@ ruleTester.run(
     valid: [
       {
         code: `
-import * as React from 'react';
+import React from 'react';
 class Component extends React.Component {
     componentWillMount() {}
 }`,
@@ -38,7 +38,7 @@ class Component extends React.Component {
     invalid: [
       {
         code: `
-import * as React from 'react';
+import React from 'react';
 class Component extends React.Component {
     UNSAFE_componentWillMount() {}
 }`,

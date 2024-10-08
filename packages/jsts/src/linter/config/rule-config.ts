@@ -17,9 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Rule } from 'eslint';
-import { FileType, getContext, JsTsLanguage } from '@sonar/shared';
-import { hasSonarContextOption, hasSonarRuntimeOption, SONAR_RUNTIME } from '../parameters';
+import type { Rule } from 'eslint';
+import { FileType, getContext, JsTsLanguage } from '../../../../shared/src/index.js';
+import {
+  hasSonarContextOption,
+  hasSonarRuntimeOption,
+  SONAR_RUNTIME,
+} from '../parameters/index.js';
 
 /**
  * An input rule configuration for linting

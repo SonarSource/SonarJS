@@ -18,6 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Linter } from 'eslint';
+import { dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 /**
  * Builds ESLint parser options
@@ -70,7 +72,7 @@ export function buildParserOptions(initialOptions: Linter.ParserOptions, usingBa
  * @returns the extend parser options
  */
 function babelParserOptions(options: Linter.ParserOptions) {
-  const pluginPath = `${__dirname}/../../../../node_modules`;
+  const pluginPath = `${dirname(fileURLToPath(import.meta.url))}/../../../../node_modules`;
   const babelOptions = {
     targets: 'defaults',
     presets: [

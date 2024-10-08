@@ -18,10 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { getProp, getLiteralPropValue } from 'jsx-ast-utils';
-import getElementType from 'eslint-plugin-jsx-a11y/lib/util/getElementType';
+import pkg from 'jsx-ast-utils';
+const { getProp, getLiteralPropValue } = pkg;
+import getElementType from 'eslint-plugin-jsx-a11y/lib/util/getElementType.js';
 import { TSESTree } from '@typescript-eslint/utils';
-import { Rule } from 'eslint';
+import type { Rule } from 'eslint';
 
 export function isPresentationTable(context: Rule.RuleContext, node: TSESTree.JSXOpeningElement) {
   const DISALLOWED_VALUES = ['presentation', 'none'];

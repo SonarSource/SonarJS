@@ -20,16 +20,16 @@
 // https://sonarsource.github.io/rspec/#/rspec/S2755/javascript
 
 import { TSESTree } from '@typescript-eslint/utils';
-import { Rule } from 'eslint';
-import * as estree from 'estree';
+import type { Rule } from 'eslint';
+import estree from 'estree';
 import {
   generateMeta,
   getFullyQualifiedName,
   getProperty,
   report,
   toSecondaryLocation,
-} from '../helpers';
-import { meta } from './meta';
+} from '../helpers/index.js';
+import { meta } from './meta.js';
 
 const XML_LIBRARY = 'libxmljs';
 const XML_PARSERS = ['parseXml', 'parseXmlString'];

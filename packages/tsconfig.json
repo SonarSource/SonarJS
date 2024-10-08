@@ -1,9 +1,9 @@
 {
   "compilerOptions": {
-    "target": "ES2021",
+    "target": "ES2022",
     "module": "nodenext",
     "moduleResolution": "nodenext",
-    "lib": ["ES2021", "dom"],
+    "lib": ["ES2023", "dom"],
     "declaration": true,
     "outDir": "../lib",
     "strict": true,
@@ -17,15 +17,9 @@
     "useUnknownInCatchVariables": false,
     "forceConsistentCasingInFileNames": true,
     "typeRoots": ["../node_modules/@types", "../typings"],
-    "baseUrl": ".",
-    "paths": {
-      "@sonar/css": ["css/src"],
-      "@sonar/html": ["html/src"],
-      "@sonar/jsts": ["jsts/src"],
-      "@sonar/shared": ["shared/src"],
-      "@sonar/yaml": ["yaml/src"]
-    }
+    "baseUrl": "."
   },
+  "ts-node": { "esm": true, "experimentalSpecifierResolution": "node" },
   "references": [
     {
       "path": "./tsconfig.app.json"

@@ -19,10 +19,10 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S3723/javascript
 
-import { eslintRules } from '../core';
-import { generateMeta } from '../helpers';
-import { meta } from './meta';
-import { Rule } from 'eslint';
+import { eslintRules } from '../core/index.js';
+import { generateMeta } from '../helpers/index.js';
+import { meta } from './meta.js';
+import type { Rule } from 'eslint';
 
 /**
  * S1537 ('comma-dangle') and S3723 ('enforce-trailing-comma') both depend on the

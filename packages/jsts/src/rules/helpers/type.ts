@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as estree from 'estree';
+import estree from 'estree';
 import ts from 'typescript';
 import { TSESLint, TSESTree } from '@typescript-eslint/utils';
-import { RequiredParserServices } from '../helpers';
-import { getVariableFromScope } from './ast';
-import { Rule } from 'eslint';
+import { RequiredParserServices } from '../helpers/index.js';
+import { getVariableFromScope } from './ast.js';
+import type { Rule } from 'eslint';
 
 export type RuleContext = TSESLint.RuleContext<string, string[]>;
 

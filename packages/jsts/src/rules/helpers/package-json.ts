@@ -19,14 +19,12 @@
  */
 import Path from 'path/posix';
 import { type PackageJson } from 'type-fest';
-import { searchFiles, File } from './find-files';
-import { toUnixPath } from './files';
+import { toUnixPath, stripBOM } from './files.js';
 import { Minimatch } from 'minimatch';
-import { type Filesystem, createFindUp } from './find-up';
+import { type Filesystem, createFindUp } from './find-up.js';
+import fs from 'fs';
 
 export const PACKAGE_JSON = 'package.json';
-export const parsePackageJson = (_filename: string, contents: string | null) =>
-  contents ? (JSON.parse(contents) as PackageJson) : {};
 
 /**
  * The {@link FindUp} instance dedicated to retrieving `package.json` files
@@ -36,106 +34,39 @@ const findPackageJsons = createFindUp(PACKAGE_JSON);
 const DefinitelyTyped = '@types/';
 
 /**
- * Cache for each dirname the dependencies of the package.json in this directory, empty set when no package.json.
- */
-const dirCache: Map<string, Set<string>> = new Map();
-
-/**
  * Cache for the available dependencies by dirname.
  */
 const cache: Map<string, Set<string | Minimatch>> = new Map();
 
-let PackageJsonsByBaseDir: Record<string, File<PackageJson>[]>;
-
-export function loadPackageJsons(baseDir: string, exclusions: string[]) {
-  const { packageJsons } = searchFiles(
-    baseDir,
-    {
-      packageJsons: {
-        pattern: PACKAGE_JSON,
-        parser: parsePackageJson,
-      },
-    },
-    exclusions,
-  );
-
-  PackageJsonsByBaseDir = packageJsons as Record<string, File<PackageJson>[]>;
-}
-
-export function getAllPackageJsons() {
-  return PackageJsonsByBaseDir;
-}
-
-export function getPackageJsonsCount() {
-  return PackageJsonsByBaseDir ? Object.keys(PackageJsonsByBaseDir).length : 0;
-}
-
-export function clearPackageJsons() {
-  PackageJsonsByBaseDir = {};
-}
-
-export function setPackageJsons(db: Record<string, File<PackageJson>[]>) {
-  PackageJsonsByBaseDir = db;
-}
-
 /**
  * Retrieve the dependencies of all the package.json files available for the given file.
  *
- * @param fileName context.filename
+ * @param filename context.filename
+ * @param cwd working dir, will search up to that root
  * @returns
  */
-export function getDependencies(fileName: string) {
-  let dirname = Path.dirname(toUnixPath(fileName));
+export function getDependencies(filename: string, cwd: string) {
+  const dirname = Path.dirname(toUnixPath(filename));
   const cached = cache.get(dirname);
   if (cached) {
     return cached;
   }
-
   const result = new Set<string | Minimatch>();
   cache.set(dirname, result);
 
-  for (const packageJson of getNearestPackageJsons(fileName)) {
-    dirname = Path.dirname(packageJson.filename);
-    const dirCached = dirCache.get(dirname);
-    if (dirCached) {
-      dirCached.forEach(d => result.add(d));
-    } else {
-      const dep = getDependenciesFromPackageJson(packageJson.contents);
-      dep.forEach(d => result.add(d));
-      dirCache.set(dirname, dep);
-    }
-  }
+  getManifests(dirname, cwd, fs).forEach(manifest => {
+    const manifestDependencies = getDependenciesFromPackageJson(manifest);
+
+    manifestDependencies.forEach(dependency => {
+      result.add(dependency);
+    });
+  });
 
   return result;
 }
 
-/**
- * Given a filename, return all package.json files in the ancestor paths
- * ordered from nearest to furthest
- *
- * @param file source file for which we need a package.json
- */
-export function getNearestPackageJsons(file: string) {
-  if (!getAllPackageJsons()) {
-    return [];
-  }
-  const results: File<PackageJson>[] = [];
-  if (getPackageJsonsCount() === 0) {
-    return results;
-  }
-  let currentDir = Path.dirname(Path.normalize(toUnixPath(file)));
-  do {
-    const packageJson = PackageJsonsByBaseDir[currentDir];
-    if (packageJson?.length) {
-      results.push(...packageJson);
-    }
-    currentDir = Path.dirname(currentDir);
-  } while (currentDir !== Path.dirname(currentDir));
-  return results;
-}
-
 export function getDependenciesFromPackageJson(content: PackageJson) {
-  const result = new Set<string>();
+  const result = new Set<string | Minimatch>();
   if (content.name) {
     addDependencies(result, { [content.name]: '*' });
   }
@@ -192,20 +123,20 @@ function addDependency(result: Set<string | Minimatch>, dependency: string, isGl
 
 /**
  * Returns the project manifests that are used to resolve the dependencies imported by
- * the module named `fileName`, up to the passed working directory.
+ * the module named `filename`, up to the passed working directory.
  */
 export const getManifests = (
-  fileName: string,
-  workingDirectory: string,
-  fileSystem: Filesystem,
+  dir: string,
+  workingDirectory?: string,
+  fileSystem?: Filesystem,
 ): Array<PackageJson> => {
-  const files = findPackageJsons(Path.dirname(fileName), workingDirectory, fileSystem);
+  const files = findPackageJsons(dir, workingDirectory, fileSystem);
 
   return files.map(file => {
     const content = file.content;
 
     try {
-      return JSON.parse(content.toString());
+      return JSON.parse(stripBOM(content.toString()));
     } catch (error) {
       console.debug(`Error parsing file ${file.path}: ${error}`);
 

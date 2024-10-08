@@ -18,18 +18,20 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RuleTester } from 'eslint';
-import { rule } from './';
-import path from 'path';
-import { clearPackageJsons, loadPackageJsons } from '../helpers';
+import { rule } from './index.js';
+import path from 'path/posix';
+import { toUnixPath } from '../../index.js';
 
-//reset and search package.json files in rule dir
-clearPackageJsons();
-loadPackageJsons(__dirname, []);
-
-const fixtures = path.join(__dirname, 'fixtures');
+const dirname = import.meta.dirname;
+const fixtures = path.join(toUnixPath(dirname), 'fixtures');
 const filenameReact15 = path.join(fixtures, 'react15/file.js');
 
+import Module from 'node:module';
+const require = Module.createRequire(import.meta.url);
 const tsParserPath = require.resolve('@typescript-eslint/parser');
+
+process.chdir(import.meta.dirname); // change current working dir to avoid the package.json lookup to up in the tree
+
 const ruleTester = new RuleTester({
   parser: tsParserPath,
   parserOptions: { ecmaVersion: 2018, sourceType: 'module' },

@@ -19,9 +19,9 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S3402/javascript
 
-import { Rule } from 'eslint';
-import * as estree from 'estree';
-import * as tsTypes from 'typescript';
+import type { Rule } from 'eslint';
+import estree from 'estree';
+import tsTypes from 'typescript';
 import {
   generateMeta,
   getTypeFromTreeNode,
@@ -30,8 +30,8 @@ import {
   report,
   RequiredParserServices,
   toSecondaryLocation,
-} from '../helpers';
-import { meta } from './meta';
+} from '../helpers/index.js';
+import { meta } from './meta.js';
 
 const message = `Review this expression to be sure that the concatenation was intended.`;
 const objectLikeTypes = new Set(['object', 'Object']);

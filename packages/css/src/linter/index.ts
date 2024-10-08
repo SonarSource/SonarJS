@@ -17,6 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export * from './config';
-export * from './issues';
-export * from './wrapper';
+export * from './config.js';
+export * from './issues/index.js';
+export * from './wrapper.js';

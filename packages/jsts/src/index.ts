@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export * from './analysis';
-export * from './builders';
-export * from './linter';
-export * from './parsers';
-export * from './program';
-export * from './rules';
-export * from './embedded';
+export * from './analysis/index.js';
+export * from './builders/index.js';
+export * from './linter/index.js';
+export * from './parsers/index.js';
+export * from './program/index.js';
+export * from './rules/index.js';
+export * from './embedded/index.js';

@@ -22,21 +22,14 @@ import {
   DEFAULT_GLOBALS,
   ProjectAnalysisInput,
   ProjectAnalysisOutput,
-} from './projectAnalysis';
-import { PackageJson } from 'type-fest';
-import { analyzeWithProgram } from './analyzeWithProgram';
-import { analyzeWithWatchProgram } from './analyzeWithWatchProgram';
-import { analyzeWithoutProgram } from './analyzeWithoutProgram';
-import { initializeLinter } from '../../linter';
-import { TSCONFIG_JSON, setTSConfigs, getTSConfigsIterator } from '../../program';
-import {
-  PACKAGE_JSON,
-  parsePackageJson,
-  setPackageJsons,
-  File,
-  searchFiles,
-} from '../../rules/helpers';
-import { toUnixPath } from '@sonar/shared';
+} from './projectAnalysis.js';
+import { analyzeWithProgram } from './analyzeWithProgram.js';
+import { analyzeWithWatchProgram } from './analyzeWithWatchProgram.js';
+import { analyzeWithoutProgram } from './analyzeWithoutProgram.js';
+import { initializeLinter } from '../../linter/index.js';
+import { TSCONFIG_JSON, setTSConfigs, getTSConfigsIterator } from '../../program/index.js';
+import { File, searchFiles } from '../../rules/helpers/index.js';
+import { toUnixPath } from '../../../../shared/src/index.js';
 
 /**
  * Analyzes a JavaScript / TypeScript project in a single run
@@ -69,7 +62,7 @@ export async function analyzeProject(input: ProjectAnalysisInput): Promise<Proje
   }
   const pendingFiles: Set<string> = new Set(inputFilenames);
   const watchProgram = input.isSonarlint;
-  initializeLinter(rules, environments, globals, baseDir);
+  await initializeLinter(rules, environments, globals, baseDir);
   loadTSConfigAndPackageJsonFiles(baseDir, exclusions);
   const tsConfigs = getTSConfigsIterator(
     inputFilenames,
@@ -94,14 +87,12 @@ export async function analyzeProject(input: ProjectAnalysisInput): Promise<Proje
  * and save them in their respective caches.
  */
 function loadTSConfigAndPackageJsonFiles(baseDir: string, exclusions: string[]) {
-  const { packageJsons, tsConfigs } = searchFiles(
+  const { tsConfigs } = searchFiles(
     baseDir,
     {
-      packageJsons: { pattern: PACKAGE_JSON, parser: parsePackageJson },
       tsConfigs: { pattern: TSCONFIG_JSON },
     },
     exclusions,
   );
-  setPackageJsons(packageJsons as Record<string, File<PackageJson>[]>);
   setTSConfigs(tsConfigs as Record<string, File<void>[]>);
 }

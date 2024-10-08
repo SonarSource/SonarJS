@@ -19,7 +19,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6265/javascript
 
-import { Rule } from 'eslint';
+import type { Rule } from 'eslint';
 import estree from 'estree';
 import {
   findPropagatedSetting,
@@ -36,8 +36,8 @@ import {
   normalizeFQN,
   report,
   S3BucketTemplate,
-} from '../helpers';
-import { meta } from './meta';
+} from '../helpers/index.js';
+import { meta } from './meta.js';
 
 const messages = {
   accessLevel: (param: string) => `Make sure granting ${param} access is safe here.`,

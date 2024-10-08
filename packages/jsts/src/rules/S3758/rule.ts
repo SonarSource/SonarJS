@@ -19,9 +19,9 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S3758/javascript
 
-import { Rule } from 'eslint';
-import * as estree from 'estree';
-import * as ts from 'typescript';
+import type { Rule } from 'eslint';
+import estree from 'estree';
+import ts from 'typescript';
 import {
   generateMeta,
   getTypeFromTreeNode,
@@ -30,8 +30,8 @@ import {
   isRequiredParserServices,
   isStringType,
   RequiredParserServices,
-} from '../helpers';
-import { meta } from './meta';
+} from '../helpers/index.js';
+import { meta } from './meta.js';
 
 const comparisonOperators = new Set(['>', '<', '>=', '<=']);
 

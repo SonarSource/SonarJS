@@ -17,5 +17,5 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export * from './sonar-context';
-export * from './sonar-runtime';
+export * from './sonar-context.js';
+export * from './sonar-runtime.js';

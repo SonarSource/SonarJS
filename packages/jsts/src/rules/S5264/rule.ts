@@ -19,13 +19,13 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S5264/javascript
 
-import { Rule } from 'eslint';
-import isHiddenFromScreenReader from 'eslint-plugin-jsx-a11y/lib/util/isHiddenFromScreenReader';
-import getElementType from 'eslint-plugin-jsx-a11y/lib/util/getElementType';
-import * as estree from 'estree';
+import type { Rule } from 'eslint';
+import isHiddenFromScreenReader from 'eslint-plugin-jsx-a11y/lib/util/isHiddenFromScreenReader.js';
+import getElementType from 'eslint-plugin-jsx-a11y/lib/util/getElementType.js';
+import estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
-import { generateMeta } from '../helpers';
-import { meta } from './meta';
+import { generateMeta } from '../helpers/index.js';
+import { meta } from './meta.js';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta as Rule.RuleMetaData, {

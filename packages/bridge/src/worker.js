@@ -18,11 +18,19 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-require('module-alias/register');
+import { analyzeCSS } from '../../css/src/index.js';
 
-const formData = require('form-data');
-const { parentPort, workerData } = require('worker_threads');
-const {
+import { analyzeHTML } from '../../html/src/index.js';
+
+import { analyzeYAML } from '../../yaml/src/index.js';
+
+import { APIError, ErrorCode } from '../../shared/src/errors/index.js';
+
+import { logHeapStatistics } from '../../bridge/src/memory.js';
+
+import formData from 'form-data';
+import { parentPort, workerData } from 'worker_threads';
+import {
   analyzeJSTS,
   clearTypeScriptESLintParserCaches,
   createAndSaveProgram,
@@ -30,20 +38,14 @@ const {
   deleteProgram,
   initializeLinter,
   writeTSConfigFile,
-  loadPackageJsons,
   analyzeProject,
-} = require('@sonar/jsts');
-const { readFile, setContext } = require('@sonar/shared/helpers');
-const { analyzeCSS } = require('@sonar/css');
-const { analyzeHTML } = require('@sonar/html');
-const { analyzeYAML } = require('@sonar/yaml');
-const { APIError, ErrorCode } = require('@sonar/shared/errors');
-const { logHeapStatistics } = require('@sonar/bridge/memory');
+} from '../../jsts/src/index.js';
+import { readFile, setContext } from '../../shared/src/helpers/index.js';
 
 /**
  * Delegate the handling of an HTTP request to a worker thread
  */
-exports.delegate = function (worker, type) {
+export const delegate = function (worker, type) {
   return async (request, response, next) => {
     worker.once('message', message => {
       switch (message.type) {
@@ -161,11 +163,8 @@ if (parentPort) {
         }
 
         case 'on-init-linter': {
-          const { rules, environments, globals, linterId, baseDir, exclusions } = data;
-          initializeLinter(rules, environments, globals, baseDir, linterId);
-          if (baseDir) {
-            loadPackageJsons(baseDir, exclusions);
-          }
+          const { rules, environments, globals, linterId, baseDir } = data;
+          await initializeLinter(rules, environments, globals, baseDir, linterId);
           parentThread.postMessage({ type: 'success', result: 'OK!' });
           break;
         }

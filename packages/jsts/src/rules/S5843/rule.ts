@@ -19,8 +19,8 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S5843/javascript
 
-import { Rule } from 'eslint';
-import * as estree from 'estree';
+import type { Rule } from 'eslint';
+import estree from 'estree';
 import * as regexpp from '@eslint-community/regexpp';
 import {
   Assertion,
@@ -50,9 +50,9 @@ import {
   getRegexpRange,
   isRegExpConstructor,
   isStringRegexMethodCall,
-} from '../helpers';
+} from '../helpers/index.js';
 import { FromSchema } from 'json-schema-to-ts';
-import { meta, schema } from './meta';
+import { meta, schema } from './meta.js';
 
 const DEFAULT_THRESHOLD = 20;
 

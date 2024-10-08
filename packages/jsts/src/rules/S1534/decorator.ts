@@ -20,9 +20,9 @@
 // https://sonarsource.github.io/rspec/#/rspec/S1534/javascript
 
 import { AST, Rule } from 'eslint';
-import { generateMeta, interceptReport } from '../helpers';
-import * as estree from 'estree';
-import { meta } from './meta';
+import { generateMeta, interceptReport } from '../helpers/index.js';
+import estree from 'estree';
+import { meta } from './meta.js';
 
 // core implementation of ESLint 'no-dupe-keys' does not provide quick fixes
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {

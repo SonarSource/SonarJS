@@ -19,11 +19,13 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6957/javascript
 
-import { Rule } from 'eslint';
-import { rules } from 'eslint-plugin-react';
-import { generateMeta, getNearestPackageJsons } from '../helpers';
+import type { Rule } from 'eslint';
+import pkg from 'eslint-plugin-react';
+const { rules } = pkg;
+import { generateMeta, getManifests, toUnixPath } from '../helpers/index.js';
 import { FromSchema } from 'json-schema-to-ts';
-import { meta, schema } from './meta';
+import { meta, schema } from './meta.js';
+import { dirname } from 'path/posix';
 
 const reactNoDeprecated = rules['no-deprecated'];
 
@@ -38,7 +40,7 @@ export const rule: Rule.RuleModule = {
       return (context.options as FromSchema<typeof schema>)[0]?.['react-version'];
     }
     function getVersionFromPackageJson() {
-      for (const { contents: packageJson } of getNearestPackageJsons(context.filename)) {
+      for (const packageJson of getManifests(dirname(toUnixPath(context.filename)), context.cwd)) {
         if (packageJson.dependencies?.react) {
           return packageJson.dependencies.react;
         }

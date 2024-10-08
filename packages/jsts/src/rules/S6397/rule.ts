@@ -19,11 +19,11 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6397/javascript
 
-import { Rule } from 'eslint';
+import type { Rule } from 'eslint';
 import { CharacterClass, CharacterClassElement } from '@eslint-community/regexpp/ast';
-import { createRegExpRule } from '../helpers/regex';
-import { generateMeta } from '../helpers';
-import { meta } from './meta';
+import { createRegExpRule } from '../helpers/regex/index.js';
+import { generateMeta } from '../helpers/index.js';
+import { meta } from './meta.js';
 
 const FORBIDDEN_TYPES = [
   'EscapeCharacterSet',

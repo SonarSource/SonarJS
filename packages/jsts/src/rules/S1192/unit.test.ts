@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { rule } from './rule';
-import { JavaScriptRuleTester } from '../../../tests/tools';
+import { rule } from './rule.js';
+import { JavaScriptRuleTester } from '../../../tests/tools/index.js';
 
 const ruleTester = new JavaScriptRuleTester();
 
@@ -78,9 +78,9 @@ ruleTester.run('S1192', rule, {
     },
     {
       code: ` // ImportDeclaration
-    import * as name1 from "module-name-long";
-    import * as name2 from "module-name-long";
-    import * as name3 from "module-name-long";
+    import name1 from "module-name-long";
+    import name2 from "module-name-long";
+    import name3 from "module-name-long";
       `,
     },
     {

@@ -17,12 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as protobuf from 'protobufjs';
-import * as path from 'node:path';
+import protobuf from 'protobufjs';
 import { TSESTree } from '@typescript-eslint/utils';
-import { debug } from '@sonar/shared';
+import { debug } from '../../../shared/src/index.js';
 
-const PATH_TO_PROTOFILE = path.join(__dirname, 'estree.proto');
+import path from 'path';
+import { fileURLToPath } from 'node:url';
+
+const PATH_TO_PROTOFILE = path.join(path.dirname(fileURLToPath(import.meta.url)), 'estree.proto');
 const PROTO_ROOT = protobuf.loadSync(PATH_TO_PROTOFILE);
 const NODE_TYPE = PROTO_ROOT.lookupType('Node');
 export const NODE_TYPE_ENUM = PROTO_ROOT.lookupEnum('NodeType');

@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as estree from 'estree';
+import estree from 'estree';
 import { SourceCode } from 'eslint';
-import { childrenOf } from '../../rules/helpers';
+import { childrenOf } from '../../rules/helpers/index.js';
 
 /**
  * Visits the abstract syntax tree of an ESLint source code
