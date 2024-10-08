@@ -17,28 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as yaml from 'yaml';
+import yaml from 'yaml';
 import path from 'path';
-import { readFile } from '@sonar/shared';
-import { isSupportedFormat, SUPPORTED_STRING_FORMATS } from '../../src/parser';
+import { readFile } from '../../../shared/src/index.js';
+import { isSupportedFormat, SUPPORTED_STRING_FORMATS } from '../../src/parser/index.js';
+import { describe, test } from 'node:test';
+import { expect } from 'expect';
 
 describe('isSupportedFormat', () => {
-  const fixtures = path.join(__dirname, 'fixtures', 'format');
+  const fixtures = path.join(import.meta.dirname, 'fixtures', 'format');
 
-  test.each(SUPPORTED_STRING_FORMATS)('should support the string format %o', async format => {
-    const filePath = path.join(fixtures, `${format}.yaml`);
-    const fileContents = await readFile(filePath);
-    const tokens = new yaml.Parser().parse(fileContents);
-    const [doc] = new yaml.Composer().compose(tokens);
-    const {
-      contents: {
-        items: [pair],
-      },
-    } = doc as any;
-    expect(isSupportedFormat(pair)).toBeTruthy();
+  SUPPORTED_STRING_FORMATS.forEach(format => {
+    test('should support the string format %o', async () => {
+      const filePath = path.join(fixtures, `${format}.yaml`);
+      const fileContents = await readFile(filePath);
+      const tokens = new yaml.Parser().parse(fileContents);
+      const [doc] = new yaml.Composer().compose(tokens);
+      const {
+        contents: {
+          items: [pair],
+        },
+      } = doc as any;
+      expect(isSupportedFormat(pair)).toBeTruthy();
+    });
   });
 
-  it('should not support an unsupported string format', async () => {
+  test('should not support an unsupported string format', async () => {
     const filePath = path.join(fixtures, 'unsupported.yaml');
     const fileContents = await readFile(filePath);
     const tokens = new yaml.Parser().parse(fileContents);

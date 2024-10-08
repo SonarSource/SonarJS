@@ -18,12 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import path from 'path';
-import { parseAwsFromYaml } from '../../src/aws';
-import { APIError, readFile } from '@sonar/shared';
+import { parseAwsFromYaml } from '../../src/aws/index.js';
+import { APIError, readFile } from '../../../shared/src/index.js';
+import { describe, it } from 'node:test';
+import { expect } from 'expect';
 
 describe('parseAwsFromYaml()', () => {
   it('should parse valid YAML syntax', async () => {
-    const filePath = path.join(__dirname, 'fixtures', 'parser', 'valid.yaml');
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'parser', 'valid.yaml');
     const fileContent = await readFile(filePath);
     const embedded = parseAwsFromYaml(fileContent);
     expect(embedded).toBeDefined();
@@ -39,7 +41,7 @@ describe('parseAwsFromYaml()', () => {
   });
 
   it('should extract the resource name', async () => {
-    const filePath = path.join(__dirname, 'fixtures', 'parser', 'resource-names.yaml');
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'parser', 'resource-names.yaml');
     const fileContent = await readFile(filePath);
     const [firstEmbedded, secondEmbedded] = parseAwsFromYaml(fileContent);
     expect(firstEmbedded).toEqual(
@@ -59,7 +61,7 @@ describe('parseAwsFromYaml()', () => {
   });
 
   it('should fail parsing invalid YAML syntax', async () => {
-    const filePath = path.join(__dirname, 'fixtures', 'parser', 'invalid.yaml');
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'parser', 'invalid.yaml');
     const fileContent = await readFile(filePath);
     expect(() => parseAwsFromYaml(fileContent)).toThrow(
       APIError.parsingError('Missing closing "quote', { line: 7 }),

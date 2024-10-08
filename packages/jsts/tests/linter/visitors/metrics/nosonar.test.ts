@@ -17,13 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { findNoSonarLines } from '../../../../src';
+import { findNoSonarLines } from '../../../../src/index.js';
 import path from 'path';
-import { parseJavaScriptSourceFile } from '../../../tools';
+import { parseJavaScriptSourceFile } from '../../../tools/index.js';
+import { describe, it } from 'node:test';
+import { expect } from 'expect';
 
 describe('findNoSonarLines', () => {
   it('should find NOSONAR comment lines', async () => {
-    const filePath = path.join(__dirname, 'fixtures', 'nosonar.js');
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'nosonar.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
     const { nosonarLines } = findNoSonarLines(sourceCode);
     expect(nosonarLines).toEqual([1, 2, 3]);

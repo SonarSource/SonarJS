@@ -18,28 +18,40 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Linter } from 'eslint';
-import { loadBundles, loadCustomRules } from '../../src/linter/bundle-loader';
-import { CustomRule } from '../../src/linter/custom-rules';
-import path from 'path';
-import { setContext } from '@sonar/shared';
+import { loadBundles, loadCustomRules } from '../../src/linter/bundle-loader.js';
+import { CustomRule } from '../../src/linter/custom-rules/index.js';
+import { setContext } from '../../../shared/src/index.js';
+import { describe, it } from 'node:test';
+import { expect } from 'expect';
+import path from 'node:path/posix';
+import { pathToFileURL } from 'node:url';
 
 describe('BundleLoader', () => {
   it('should only load rules when requested', async () => {
+    const bundlePath = path.join(
+      import.meta.dirname,
+      'fixtures',
+      'index',
+      'custom-rule-bundle',
+      'rules.js',
+    );
     setContext({
       workDir: '/tmp/dir',
       shouldUseTypeScriptParserForJS: false,
       sonarlint: false,
-      bundles: ['custom-rule-bundle'],
+      bundles: [pathToFileURL(bundlePath).href],
     });
 
     const linter = new Linter();
 
     const customRuleId = 'custom-rule-file';
+    // @ts-ignore
+    const ruleModule = await import('./fixtures/wrapper/custom-rule.js');
     const customRules: CustomRule[] = [
       {
         ruleId: customRuleId,
         ruleConfig: [],
-        ruleModule: require(path.join(__dirname, 'fixtures', 'wrapper', 'custom-rule.ts')).rule,
+        ruleModule: ruleModule.rule,
       },
     ];
 
@@ -49,7 +61,7 @@ describe('BundleLoader', () => {
     expect(linter.getRules().get('custom-rule')).toBeUndefined();
     expect(linter.getRules().get('internal-cognitive-complexity')).toBeUndefined();
 
-    loadBundles(linter, ['internalRules']);
+    await loadBundles(linter, ['internalRules']);
     expect(linter.getRules().get('S6328')).toBeDefined();
     expect(linter.getRules().get('custom-rule-file')).toBeUndefined();
     expect(linter.getRules().get('custom-rule')).toBeUndefined();
@@ -60,11 +72,11 @@ describe('BundleLoader', () => {
     expect(linter.getRules().get('custom-rule')).toBeUndefined();
     expect(linter.getRules().get('internal-cognitive-complexity')).toBeUndefined();
 
-    loadBundles(linter, ['contextRules']);
+    await loadBundles(linter, ['contextRules']);
     expect(linter.getRules().get('custom-rule')).toBeDefined();
     expect(linter.getRules().get('internal-cognitive-complexity')).toBeUndefined();
 
-    loadBundles(linter, ['internalCustomRules']);
+    await loadBundles(linter, ['internalCustomRules']);
     expect(linter.getRules().get('internal-cognitive-complexity')).toBeDefined();
   });
 });

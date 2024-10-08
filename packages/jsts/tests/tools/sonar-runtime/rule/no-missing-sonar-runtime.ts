@@ -17,14 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as estree from 'estree';
-import { Rule } from 'eslint';
+import estree from 'estree';
+import type { Rule } from 'eslint';
 import {
   getFullyQualifiedName,
   getImportDeclarations,
   getUniqueWriteUsage,
   isIdentifier,
-} from '../../../../src/rules';
+} from '../../../../src/rules/index.js';
 
 /**
  *

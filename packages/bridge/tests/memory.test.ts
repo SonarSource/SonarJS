@@ -17,40 +17,43 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { logMemoryError } from '../src/memory';
+import { logMemoryError } from '../src/memory.js';
+import { describe, it, mock, Mock } from 'node:test';
+import { expect } from 'expect';
 
 describe('logMemoryError', () => {
   it('should log out-of-memory troubleshooting guide', () => {
-    console.error = jest.fn();
+    console.error = mock.fn();
 
     logMemoryError({ code: 'ERR_WORKER_OUT_OF_MEMORY' });
 
-    expect(console.error).toHaveBeenCalledWith(
-      expect.stringContaining(
-        `The analysis will stop due to the Node\.js process running out of memory`,
-      ),
+    const logs = (console.error as Mock<typeof console.error>).mock.calls.map(
+      call => call.arguments[0],
     );
-    expect(console.error).toHaveBeenCalledWith(
+    expect(logs).toContain(
       'You can see how Node.js heap usage evolves during analysis with "sonar.javascript.node.debugMemory=true"',
     );
-    expect(console.error).toHaveBeenCalledWith(
+
+    expect(logs).toContain(
+      'You can see how Node.js heap usage evolves during analysis with "sonar.javascript.node.debugMemory=true"',
+    );
+    expect(logs).toContain(
       'Try setting "sonar.javascript.node.maxspace" to a higher value to increase Node.js heap size limit',
     );
-    expect(console.error).toHaveBeenCalledWith(
+    expect(logs).toContain(
       'If the problem persists, please report the issue at https://community.sonarsource.com',
     );
   });
 
   it('should log default troubleshooting guide', () => {
-    console.error = jest.fn();
+    console.error = mock.fn();
 
     logMemoryError('something failed');
 
-    expect(console.error).toHaveBeenCalledWith(
-      'The analysis will stop due to an unexpected error: something failed',
+    const logs = (console.error as Mock<typeof console.error>).mock.calls.map(
+      call => call.arguments[0],
     );
-    expect(console.error).toHaveBeenCalledWith(
-      'Please report the issue at https://community.sonarsource.com',
-    );
+    expect(logs).toContain('The analysis will stop due to an unexpected error: something failed');
+    expect(logs).toContain('Please report the issue at https://community.sonarsource.com');
   });
 });

@@ -17,15 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { visit } from '../../../src/linter/visitors';
+import { visit } from '../../../src/linter/visitors/index.js';
 import path from 'path';
-import { parseTypeScriptSourceFile } from '../../tools/helpers';
-import { childrenOf } from '../../../src/rules';
+import { parseTypeScriptSourceFile } from '../../tools/helpers/index.js';
+import { childrenOf } from '../../../src/rules/index.js';
+import { describe, it } from 'node:test';
+import { expect } from 'expect';
 
 describe('visitor', () => {
   describe('visit', () => {
     it('should traverse an ESLint node', async () => {
-      const filePath = path.join(__dirname, './fixtures/visitor/tree.ts');
+      const filePath = path.join(import.meta.dirname, './fixtures/visitor/tree.ts');
       const sourceCode = await parseTypeScriptSourceFile(filePath, []);
 
       const visited = [];
@@ -62,14 +64,14 @@ describe('visitor', () => {
 
   describe('childrenOf', () => {
     it('should return the child of an ESLint node', async () => {
-      const filePath = path.join(__dirname, './fixtures/visitor/child.ts');
+      const filePath = path.join(import.meta.dirname, './fixtures/visitor/child.ts');
       const sourceCode = await parseTypeScriptSourceFile(filePath, []);
       const children = childrenOf(sourceCode.ast, sourceCode.visitorKeys).map(node => node.type);
       expect(children).toEqual(['IfStatement']);
     });
 
     it('should return the children of an ESLint node', async () => {
-      const filePath = path.join(__dirname, './fixtures/visitor/children.ts');
+      const filePath = path.join(import.meta.dirname, './fixtures/visitor/children.ts');
       const sourceCode = await parseTypeScriptSourceFile(filePath, []);
       const children = childrenOf(sourceCode.ast, sourceCode.visitorKeys).map(node => node.type);
       expect(children).toEqual(['WhileStatement', 'EmptyStatement']);

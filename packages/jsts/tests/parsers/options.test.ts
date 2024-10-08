@@ -17,9 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { buildParserOptions } from '../../src/parsers';
-import { createAndSaveProgram, getProgramById } from '../../src/program';
+import { buildParserOptions } from '../../src/parsers/index.js';
+import { createAndSaveProgram, getProgramById } from '../../src/program/index.js';
 import path from 'path';
+import { describe, it } from 'node:test';
+import { expect } from 'expect';
 
 describe('buildParserOptions', () => {
   it('should build parser options', () => {
@@ -73,7 +75,7 @@ describe('buildParserOptions', () => {
   });
 
   it('should build parser options with TypeScript program', () => {
-    const tsConfig = path.join(__dirname, 'fixtures', 'options', 'tsconfig.json');
+    const tsConfig = path.join(import.meta.dirname, 'fixtures', 'options', 'tsconfig.json');
 
     const { programId } = createAndSaveProgram(tsConfig);
     const program = getProgramById(programId);

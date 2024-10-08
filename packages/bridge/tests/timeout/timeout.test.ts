@@ -17,31 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import Timeout from '../../src/timeout/timeout';
+import Timeout from '../../src/timeout/timeout.js';
+import { describe, it, mock } from 'node:test';
+import assert from 'node:assert';
 
 describe('timeout', () => {
   it('should start the timeout', () => {
-    expect.assertions(1);
+    mock.timers.enable({ apis: ['setTimeout'] });
 
-    jest.useFakeTimers();
-
-    const fn = jest.fn();
+    const fn = mock.fn();
     const timeout = new Timeout(fn, 0);
     timeout.start();
 
-    jest.advanceTimersByTime(1);
+    mock.timers.tick(1);
 
-    expect(fn).toHaveBeenCalled();
+    assert(fn.mock.calls.length > 0);
   });
 
   it('should stop the timeout', () => {
-    expect.assertions(1);
-
-    const fn = jest.fn();
+    const fn = mock.fn();
     const timeout = new Timeout(fn, 10_000);
     timeout.start();
     timeout.stop();
 
-    expect(fn).toHaveBeenCalledTimes(0);
+    assert(fn.mock.calls.length === 0);
   });
 });

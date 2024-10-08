@@ -17,15 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as estree from 'estree';
+import estree from 'estree';
 import { join } from 'path';
-import { parseAwsFromYaml } from '../../src/aws';
-import { embeddedInput } from '../../../jsts/tests/tools';
-import { buildSourceCodes, composeSyntheticFilePath } from '@sonar/jsts';
-import { APIError } from '@sonar/shared';
+import { parseAwsFromYaml } from '../../src/aws/index.js';
+import { embeddedInput } from '../../../jsts/tests/tools/index.js';
+import { buildSourceCodes, composeSyntheticFilePath } from '../../../jsts/src/index.js';
+import { APIError } from '../../../shared/src/index.js';
+import { describe, it } from 'node:test';
+import { expect } from 'expect';
 
 describe('buildSourceCodes()', () => {
-  const fixturesPath = join(__dirname, 'fixtures', 'build');
+  const fixturesPath = join(import.meta.dirname, 'fixtures', 'build');
   it('should build source code from YAML lambda file', async () => {
     const filePath = join(fixturesPath, 'valid-lambda.yaml');
     const sourceCodes = buildSourceCodes(await embeddedInput({ filePath }), parseAwsFromYaml);

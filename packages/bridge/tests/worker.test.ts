@@ -19,36 +19,48 @@
  */
 import path from 'path';
 import { Worker } from 'worker_threads';
-import { ErrorCode } from '@sonar/shared';
+import { ErrorCode } from '../../shared/src/index.js';
+import { describe, before, after, it } from 'node:test';
+import { expect } from 'expect';
 
 describe('worker', () => {
   let worker: Worker;
 
-  beforeAll(() => {
-    worker = new Worker(path.resolve(__dirname, '../src/worker.js'), {
+  before(() => {
+    worker = new Worker(path.resolve(import.meta.dirname, '../../../lib/bridge/src/worker.js'), {
       workerData: { context: {} },
     });
   });
 
-  afterAll(async () => {
+  after(async () => {
     await worker.terminate();
   });
 
-  it('should post back results', done => {
+  it('should post back results', async () => {
+    let resolver: (value?: unknown) => void;
+    expect.assertions(2);
+    const p = new Promise(resolve => {
+      resolver = resolve;
+    });
     worker.once('message', message => {
       expect(message).toEqual({
         type: 'success',
         result: 'OK!',
       });
-      done();
+      resolver();
     });
 
     worker.postMessage({ type: 'on-new-tsconfig' });
+    await p;
   });
 
-  it('should post back stringified results', done => {
+  it('should post back stringified results', async () => {
+    let resolver: (value?: unknown) => void;
+    const p = new Promise(resolve => {
+      resolver = resolve;
+    });
     const input = {
-      filePath: path.join(__dirname, 'fixtures', 'worker', 'file.css'),
+      filePath: path.join(import.meta.dirname, 'fixtures', 'worker', 'file.css'),
       rules: [{ key: 'no-duplicate-selectors', configurations: [] }],
     };
     worker.once('message', message => {
@@ -62,20 +74,20 @@ describe('worker', () => {
           }),
         ],
       });
-      done();
+      resolver();
     });
 
     worker.postMessage({ type: 'on-analyze-css', data: input });
+    await p;
   });
 
-  it('should post back errors', done => {
+  it('should post back errors', () => {
     const tsconfig = path.resolve('does', 'not', 'exist');
     worker.once('message', message => {
       const { type, error } = message;
       expect(type).toEqual('failure');
       expect(error.code).toEqual(ErrorCode.Unexpected);
       expect(error.message).toEqual(`Cannot read file '${tsconfig}'.`);
-      done();
     });
 
     worker.postMessage({ type: 'on-tsconfig-files', data: { tsconfig } });

@@ -17,20 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { findNcloc } from '../../../../src/linter/visitors/metrics/ncloc';
+import { findNcloc } from '../../../../src/linter/visitors/metrics/ncloc.js';
 import path from 'path';
-import { parseJavaScriptSourceFile } from '../../../tools';
+import { parseJavaScriptSourceFile } from '../../../tools/index.js';
+import { describe, it } from 'node:test';
+import { expect } from 'expect';
 
 describe('findNcloc', () => {
   it('should find the line numbers of code', async () => {
-    const filePath = path.join(__dirname, 'fixtures/ncloc.js');
+    const filePath = path.join(import.meta.dirname, 'fixtures/ncloc.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
     const nloc = findNcloc(sourceCode);
     expect(nloc).toEqual([4, 6, 7, 8, 9, 11]);
   });
 
   it('should find the line numbers of code in Vue.js', async () => {
-    const filePath = path.join(__dirname, 'fixtures/ncloc.vue');
+    const filePath = path.join(import.meta.dirname, 'fixtures/ncloc.vue');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
     const nloc = findNcloc(sourceCode);
     expect(nloc).toEqual([

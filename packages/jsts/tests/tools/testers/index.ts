@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export * from './babel';
-export * from './comment-based';
-export * from './javascript';
-export * from './typescript';
+export * from './babel/index.js';
+export * from './comment-based/index.js';
+export * from './javascript/index.js';
+export * from './typescript/index.js';

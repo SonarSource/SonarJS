@@ -17,9 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { findCommentLines } from '../../../../src/linter/visitors/metrics/comments';
+import { findCommentLines } from '../../../../src/linter/visitors/metrics/comments.js';
 import path from 'path';
-import { parseJavaScriptSourceFile } from '../../../tools/helpers';
+import { parseJavaScriptSourceFile } from '../../../tools/helpers/index.js';
+import { describe, it } from 'node:test';
+import { expect } from 'expect';
 
 const cases = [
   {
@@ -61,13 +63,12 @@ const cases = [
 ];
 
 describe('findCommentLines', () => {
-  test.each(cases)(
-    'should find comment lines $given',
-    async ({ fixture, ignoreHeader, expectedLines }) => {
-      const filePath = path.join(__dirname, 'fixtures', 'comments', `${fixture}.js`);
+  cases.forEach(({ given, fixture, ignoreHeader, expectedLines }) =>
+    it(`should find comment lines ${given}`, async () => {
+      const filePath = path.join(import.meta.dirname, 'fixtures', 'comments', `${fixture}.js`);
       const sourceCode = await parseJavaScriptSourceFile(filePath);
       const { commentLines: actualLines } = findCommentLines(sourceCode, ignoreHeader);
       expect(actualLines).toEqual(expectedLines);
-    },
+    }),
   );
 });

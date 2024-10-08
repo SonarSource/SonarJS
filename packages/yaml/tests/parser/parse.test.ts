@@ -18,8 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import path from 'path';
-import { parseYaml } from '../../src/parser';
-import { APIError, readFile } from '@sonar/shared';
+import { parseYaml } from '../../src/parser/index.js';
+import { APIError, readFile } from '../../../shared/src/index.js';
+import { describe, it } from 'node:test';
+import { expect } from 'expect';
 
 function noOpPicker(_key: any, _node: any, _ancestors: any) {
   return {};
@@ -27,7 +29,7 @@ function noOpPicker(_key: any, _node: any, _ancestors: any) {
 
 describe('parseYaml', () => {
   it('should return embedded JavaScript', async () => {
-    const filePath = path.join(__dirname, 'fixtures', 'parse', 'embedded.yaml');
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'parse', 'embedded.yaml');
     const fileContent = await readFile(filePath);
     const parsingContexts = [
       {
@@ -49,7 +51,7 @@ describe('parseYaml', () => {
   });
 
   it('should return parsing errors', async () => {
-    const filePath = path.join(__dirname, 'fixtures', 'parse', 'error.yaml');
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'parse', 'error.yaml');
     const fileContent = await readFile(filePath);
     const parsingContexts = [
       {
