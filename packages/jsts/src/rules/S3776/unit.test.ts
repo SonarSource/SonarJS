@@ -172,7 +172,6 @@ ruleTester.run('cognitive-complexity', rule, {
       }`,
       [
         { message: '+1', column: 14, line: 3, endColumn: 16, endLine: 3 }, // &&
-        { message: '+1', column: 19, line: 3, endColumn: 21, endLine: 3 }, // ||
         { message: '+1', column: 24, line: 3, endColumn: 26, endLine: 3 }, // &&
       ],
     ),
@@ -183,13 +182,13 @@ ruleTester.run('cognitive-complexity', rule, {
         foo((1 && 2) && (3 && 4)); // +1
         foo(((1 && 2) && 3) && 4); // +1
         foo(1 && (2 && (3 && 4))); // +1
-        foo(1 || 2 || 3 || 4); // +1
-        foo(1 && 2 || 3 || 4); // +2
-        foo(1 && 2 || 3 && 4); // +3
+        foo(1 || 2 || 3 || 4);
+        foo(1 && 2 || 3 || 4); // +1
+        foo(1 && 2 || 3 && 4); // +2
         foo(1 && 2 && !(3 && 4)); // +2
       }`,
       options: [0],
-      errors: [message(12)],
+      errors: [message(9)],
     },
     {
       code: `
@@ -440,7 +439,6 @@ ruleTester.run('cognitive-complexity', rule, {
         );
       }`,
       [
-        { message: '+1', column: 41, line: 5, endColumn: 43, endLine: 5 }, // ??
         { message: '+1', column: 56, line: 5, endColumn: 57, endLine: 5 }, // ?:
       ],
     ),
@@ -455,7 +453,6 @@ ruleTester.run('cognitive-complexity', rule, {
       }`,
       [
         { message: '+1', column: 25, line: 5, endColumn: 27, endLine: 5 }, // &&
-        { message: '+1', column: 38, line: 5, endColumn: 40, endLine: 5 }, // ||
       ],
     ),
     testCaseWithSonarRuntime(

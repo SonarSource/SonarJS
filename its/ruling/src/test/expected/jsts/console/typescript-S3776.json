@@ -2,14 +2,8 @@
 "console:src/utils/valueparser.ts": [
 120
 ],
-"console:src/views/RelationsPopup/RelationPopup.tsx": [
-102
-],
 "console:src/views/Settings/Billing/Billing.tsx": [
 81
-],
-"console:src/views/models/AuthProviderPopup/AuthProviderSidePanel.tsx": [
-345
 ],
 "console:src/views/models/DatabrowserView/Cell/SelectNodesCell/SelectNodesCell.tsx": [
 294

@@ -17,19 +17,16 @@
 318,
 415,
 465,
-1040,
 1212,
 1278,
 1576,
 1652,
 1999,
-3042,
 3286
 ],
 "TypeScript:src/compiler/checker.ts": [
 523,
 564,
-732,
 856,
 1161,
 1394,
@@ -41,11 +38,9 @@
 2570,
 2632,
 2772,
-2810,
 2878,
 3072,
 3168,
-3223,
 3307,
 3931,
 4046,
@@ -59,7 +54,6 @@
 4910,
 4985,
 5200,
-5309,
 5341,
 5458,
 5665,
@@ -70,10 +64,8 @@
 6146,
 6172,
 6359,
-6730,
 7020,
 7125,
-7181,
 7313,
 7388,
 7486,
@@ -81,7 +73,6 @@
 8060,
 8253,
 8481,
-8510,
 8639,
 8754,
 8817,
@@ -90,7 +81,6 @@
 9095,
 9127,
 9239,
-9354,
 9492,
 9566,
 9728,
@@ -185,7 +175,6 @@
 22282,
 22391,
 22621,
-22669,
 22870,
 23151,
 23213,
@@ -211,9 +200,7 @@
 39
 ],
 "TypeScript:src/compiler/core.ts": [
-500,
 546,
-679,
 858,
 884,
 1018,
@@ -223,9 +210,6 @@
 ],
 "TypeScript:src/compiler/declarationEmitter.ts": [
 216,
-659,
-998,
-1229,
 1260,
 1373,
 1413,
@@ -255,8 +239,6 @@
 744
 ],
 "TypeScript:src/compiler/parser.ts": [
-53,
-1278,
 1854,
 3072,
 4015,
@@ -288,14 +270,12 @@
 1708
 ],
 "TypeScript:src/compiler/transformers/destructuring.ts": [
-35,
 257,
 315
 ],
 "TypeScript:src/compiler/transformers/es2015.ts": [
 603,
 916,
-1030,
 1815,
 1992,
 2257,
@@ -322,10 +302,8 @@
 "TypeScript:src/compiler/utilities.ts": [
 644,
 965,
-1219,
 1407,
 1681,
-2654,
 2785,
 2837,
 2870,
@@ -358,9 +336,6 @@
 "TypeScript:src/harness/sourceMapRecorder.ts": [
 64
 ],
-"TypeScript:src/harness/typeWriter.ts": [
-39
-],
 "TypeScript:src/server/builder.ts": [
 333
 ],
@@ -374,7 +349,6 @@
 1573
 ],
 "TypeScript:src/server/project.ts": [
-547,
 680
 ],
 "TypeScript:src/server/scriptVersionCache.ts": [
@@ -402,7 +376,6 @@
 128,
 282,
 548,
-643,
 873
 ],
 "TypeScript:src/services/codefixes/helpers.ts": [
@@ -421,9 +394,7 @@
 348,
 828,
 931,
-1031,
-1066,
-1147
+1066
 ],
 "TypeScript:src/services/documentHighlights.ts": [
 57,
@@ -516,9 +487,7 @@
 281
 ],
 "TypeScript:src/services/utilities.ts": [
-422,
 646,
-759,
 933,
 1217
 ]

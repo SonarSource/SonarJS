@@ -11,8 +11,7 @@
 ],
 "jquery:src/attributes/classes.js": [
 23,
-60,
-122
+60
 ],
 "jquery:src/core.js": [
 118
@@ -25,7 +24,6 @@
 ],
 "jquery:src/css.js": [
 46,
-114,
 202
 ],
 "jquery:src/css/adjustCSS.js": [
@@ -37,17 +35,12 @@
 "jquery:src/data.js": [
 93
 ],
-"jquery:src/data/Data.js": [
-104
-],
 "jquery:src/effects.js": [
 80,
 249,
-448,
 536
 ],
 "jquery:src/event.js": [
-37,
 106,
 221,
 294,

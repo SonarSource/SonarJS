@@ -370,16 +370,16 @@ export const rule: Rule.RuleModule = {
         return;
       }
 
-      if (isDefaultValuePattern(logicalExpression)) {
-        return;
-      }
-
       if (!consideredLogicalExpressions.has(logicalExpression)) {
         const flattenedLogicalExpressions = flattenLogicalExpression(logicalExpression);
 
         let previous: TSESTree.LogicalExpression | undefined;
         for (const current of flattenedLogicalExpressions) {
-          if (!previous || previous.operator !== current.operator) {
+          if (
+            current.operator !== '||' &&
+            current.operator !== '??' &&
+            (!previous || previous.operator !== current.operator)
+          ) {
             const operatorTokenLoc = getFirstTokenAfter(
               current.left,
               context as unknown as RuleContext,
@@ -388,29 +388,6 @@ export const rule: Rule.RuleModule = {
           }
           previous = current;
         }
-      }
-    }
-
-    function isDefaultValuePattern(node: TSESTree.LogicalExpression) {
-      const { left, right, operator, parent } = node;
-
-      const operators = ['||', '??'];
-      const literals = ['Literal', 'ArrayExpression', 'ObjectExpression'];
-
-      switch (parent?.type) {
-        /* Matches: const x = a || literal */
-        case 'VariableDeclarator':
-          return operators.includes(operator) && literals.includes(right.type);
-        /* Matches: a = a || literal */
-        case 'AssignmentExpression':
-          return (
-            operators.includes(operator) &&
-            literals.includes(right.type) &&
-            context.sourceCode.getText((parent as estree.AssignmentExpression).left) ===
-              context.sourceCode.getText(left as estree.Node)
-          );
-        default:
-          return false;
       }
     }
 

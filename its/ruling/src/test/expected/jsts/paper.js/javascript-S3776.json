@@ -13,7 +13,6 @@
 ],
 "paper.js:src/core/Base.js": [
 122,
-180,
 438,
 520
 ],
@@ -26,8 +25,6 @@
 92
 ],
 "paper.js:src/item/Item.js": [
-136,
-942,
 1998,
 2154,
 2273,
@@ -81,7 +78,6 @@
 567,
 779,
 872,
-916,
 1239,
 1382
 ],
@@ -111,11 +107,7 @@
 ],
 "paper.js:src/svg/SvgImport.js": [
 62,
-323,
 572
-],
-"paper.js:src/tool/Tool.js": [
-304
 ],
 "paper.js:src/util/CollisionDetection.js": [
 143

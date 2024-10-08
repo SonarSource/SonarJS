@@ -8,7 +8,6 @@
 "desktop:app/src/lib/actions-log-parser/action-log-parser.ts": [
 174,
 258,
-293,
 488
 ],
 "desktop:app/src/lib/api.ts": [
@@ -16,9 +15,6 @@
 ],
 "desktop:app/src/lib/find-account.ts": [
 38
-],
-"desktop:app/src/lib/git/core.ts": [
-157
 ],
 "desktop:app/src/lib/git/diff.ts": [
 281
@@ -38,21 +34,12 @@
 "desktop:app/src/lib/patch-formatter.ts": [
 143
 ],
-"desktop:app/src/lib/progress/git.ts": [
-245
-],
 "desktop:app/src/lib/status-parser.ts": [
 165
 ],
 "desktop:app/src/lib/stores/app-store.ts": [
 2165,
 2841
-],
-"desktop:app/src/lib/stores/git-store.ts": [
-742
-],
-"desktop:app/src/lib/stores/pull-request-store.ts": [
-233
 ],
 "desktop:app/src/lib/stores/sign-in-store.ts": [
 334
@@ -80,14 +67,10 @@
 ],
 "desktop:app/src/ui/app.tsx": [
 997,
-1357,
-2515
+1357
 ],
 "desktop:app/src/ui/changes/commit-message.tsx": [
 646
-],
-"desktop:app/src/ui/dialog/dialog.tsx": [
-321
 ],
 "desktop:app/src/ui/diff/diff-helpers.tsx": [
 257
@@ -106,15 +89,10 @@
 175
 ],
 "desktop:app/src/ui/diff/text-diff.tsx": [
-525,
-873,
-1255
+873
 ],
 "desktop:app/src/ui/history/commit-list-item.tsx": [
 265
-],
-"desktop:app/src/ui/history/commit-list.tsx": [
-387
 ],
 "desktop:app/src/ui/index.tsx": [
 126
@@ -135,9 +113,6 @@
 "desktop:app/src/ui/lib/path-text.tsx": [
 161,
 318
-],
-"desktop:app/src/ui/repositories-list/group-repositories.ts": [
-128
 ],
 "desktop:app/src/ui/repository-settings/repository-settings.tsx": [
 286

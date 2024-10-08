@@ -2,11 +2,7 @@
 "prototype:src/prototype/ajax/request.js": [
 230
 ],
-"prototype:src/prototype/dom/dom.js": [
-2181
-],
 "prototype:src/prototype/dom/layout.js": [
-52,
-1407
+52
 ]
 }
