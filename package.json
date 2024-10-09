@@ -8,8 +8,8 @@
     "build": "mvn clean && npm run _:plugin:pre-build && npm run plugin:build-no-bridge && npm run update-ruling-data",
     "build:fast": "npm run bridge:build:fast && npm run _:plugin:prepare-bridge && npm run _:plugin-fetch-node && npm run plugin:build:fast && npm run update-ruling-data",
     "bf": "npm run build:fast",
-    "new-rule": "ts-node tools/newRule.ts",
-    "generate-meta": "ts-node tools/generate-meta.ts && cd packages/jsts/src/rules && npm run eslint-docs",
+    "new-rule": "tsx tools/newRule.ts",
+    "generate-meta": "tsx tools/generate-meta.ts && cd packages/jsts/src/rules && npm run eslint-docs",
     "generate-rules-list": "node tools/generate-rules-list.js",
     "ruling": "node tools/prepare-ruling.js && tsx --tsconfig packages/tsconfig.test.json --test packages/ruling/tests/projects/*.ruling.test.ts",
     "ruling-parametrized": "node tools/prepare-ruling.js && SONAR_RULING_SETTINGS=../settings.js  tsx --tsconfig packages/tsconfig.test.json --test packages/ruling/tests/projects/*.ruling.test.ts",
@@ -74,7 +74,6 @@
     "prettier-plugin-java": "2.6.4",
     "pretty-quick": "4.0.0",
     "rimraf": "6.0.1",
-    "ts-node": "10.9.2",
     "tsx": "^4.19.1",
     "type-fest": "4.26.1",
     "typedoc": "0.26.7"
