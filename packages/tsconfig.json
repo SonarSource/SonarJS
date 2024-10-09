@@ -19,7 +19,6 @@
     "typeRoots": ["../node_modules/@types", "../typings"],
     "baseUrl": "."
   },
-  "ts-node": { "esm": true, "experimentalSpecifierResolution": "node" },
   "references": [
     {
       "path": "./tsconfig.app.json"
