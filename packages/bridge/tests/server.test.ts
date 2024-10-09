@@ -62,8 +62,6 @@ describe('server', () => {
   });
 
   it('should fail when linter is not initialized', async () => {
-    expect.assertions(3);
-
     const { server, serverClosed } = await start(port);
 
     const ruleId = 'S1116';
@@ -91,8 +89,6 @@ describe('server', () => {
   });
 
   it('should route service requests', async () => {
-    expect.assertions(2);
-
     const { server, serverClosed } = await start(port);
 
     expect(server.listening).toBeTruthy();
@@ -117,8 +113,6 @@ describe('server', () => {
   });
 
   it('should shut down', async () => {
-    expect.assertions(3);
-
     console.log = mock.fn();
 
     const { server, serverClosed } = await start(port);

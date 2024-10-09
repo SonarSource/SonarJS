@@ -30,10 +30,14 @@ describe('logMemoryError', () => {
     const logs = (console.error as Mock<typeof console.error>).mock.calls.map(
       call => call.arguments[0],
     );
+    expect(logs).toContainEqual(
+      expect.stringContaining(
+        'The analysis will stop due to the Node.js process running out of memory',
+      ),
+    );
     expect(logs).toContain(
       'You can see how Node.js heap usage evolves during analysis with "sonar.javascript.node.debugMemory=true"',
     );
-
     expect(logs).toContain(
       'You can see how Node.js heap usage evolves during analysis with "sonar.javascript.node.debugMemory=true"',
     );

@@ -38,7 +38,6 @@ describe('worker', () => {
 
   it('should post back results', async () => {
     let resolver: (value?: unknown) => void;
-    expect.assertions(2);
     const p = new Promise(resolve => {
       resolver = resolve;
     });
