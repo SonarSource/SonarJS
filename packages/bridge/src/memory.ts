@@ -21,7 +21,8 @@ import v8 from 'v8';
 import os from 'os';
 import fs from 'fs';
 import { constants, NodeGCPerformanceDetail, PerformanceObserver } from 'perf_hooks';
-import { debug, error, getContext, info, warn } from '../../shared/src/index.js';
+import { debug, error, info, warn } from '../../shared/src/helpers/logging.js';
+import { getContext } from '../../shared/src/helpers/context.js';
 
 const MB = 1024 * 1024;
 

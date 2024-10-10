@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { parseYaml } from '../parser/index.js';
+import { parseYaml } from '../parser/parse-yaml.js';
 import { lambdaParsingContext, serverlessParsingContext } from './parsingContexts.js';
 
 /**

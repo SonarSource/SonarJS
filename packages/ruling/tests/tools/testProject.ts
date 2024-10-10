@@ -40,7 +40,7 @@ import {
 } from '../../../jsts/src/analysis/projectAnalysis/projectAnalysis.js';
 import { analyzeProject } from '../../../jsts/src/analysis/projectAnalysis/projectAnalyzer.js';
 import { setContext } from '../../../shared/src/helpers/context.js';
-import { toUnixPath } from '../../../jsts/src/rules/helpers/files.js';
+import { toUnixPath } from '../../../shared/src/helpers/files.js';
 import { FileType } from '../../../shared/src/helpers/files.js';
 import { AnalysisInput, AnalysisOutput } from '../../../shared/src/types/analysis.js';
 import { RuleConfig } from '../../../jsts/src/linter/config/rule-config.js';
