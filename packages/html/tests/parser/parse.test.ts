@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import path from 'path';
-import { parseHTML } from '../../src/parser/index.js';
-import { readFile } from '../../../shared/src/index.js';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
+import { readFile } from '../../../shared/src/helpers/files.js';
+import { parseHTML } from '../../src/parser/parse.js';
 
 describe('parseHtml', () => {
   it('should return embedded JavaScript', async () => {

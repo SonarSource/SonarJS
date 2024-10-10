@@ -17,8 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { FileType, JsTsLanguage } from '../../../../shared/src/index.js';
-import { JsTsAnalysisOutput, RuleConfig } from '../../index.js';
+
+import { JsTsAnalysisOutput } from '../analysis.js';
+import { FileType } from '../../../../shared/src/helpers/files.js';
+import { JsTsLanguage } from '../../../../shared/src/helpers/language.js';
+import { RuleConfig } from '../../linter/config/rule-config.js';
 
 export type ProjectAnalysisOutput = {
   files: { [key: string]: JsTsAnalysisOutput };

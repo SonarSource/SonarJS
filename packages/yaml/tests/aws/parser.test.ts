@@ -18,10 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import path from 'path';
-import { parseAwsFromYaml } from '../../src/aws/index.js';
-import { APIError, readFile } from '../../../shared/src/index.js';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
+import { readFile } from '../../../shared/src/helpers/files.js';
+import { parseAwsFromYaml } from '../../src/aws/parser.js';
+import { APIError } from '../../../shared/src/errors/error.js';
 
 describe('parseAwsFromYaml()', () => {
   it('should parse valid YAML syntax', async () => {

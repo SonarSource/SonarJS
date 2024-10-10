@@ -19,8 +19,12 @@
  */
 import fs from 'fs';
 import path from 'path';
-import { Issue, JsTsFiles, ProjectAnalysisOutput } from '../../../jsts/src/index.js';
-import { JsTsLanguage } from '../../../shared/src/index.js';
+import {
+  JsTsFiles,
+  ProjectAnalysisOutput,
+} from '../../../jsts/src/analysis/projectAnalysis/projectAnalysis.js';
+import { Issue } from '../../../jsts/src/linter/issues/issue.js';
+import { JsTsLanguage } from '../../../shared/src/helpers/language.js';
 
 /**
  * LITS formatted results with extra intermediate key js/ts
@@ -126,7 +130,7 @@ function writeIssues(projectDir: string, ruleId: string, issues: FileIssues, isJ
   );
   fs.writeFileSync(
     issueFilename,
-    // we spaces at the beginning of lines
+    // we space at the beginning of lines
     // and we sort the keys
     JSON.stringify(issues, Object.keys(issues).sort(), 1).replaceAll(/\n\s+/g, '\n') + '\n',
   );

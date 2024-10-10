@@ -20,7 +20,7 @@
 import { RuleTester } from 'eslint';
 import { rule } from './index.js';
 import path from 'path/posix';
-import { toUnixPath } from '../../index.js';
+import { toUnixPath } from '../helpers/index.js';
 
 const dirname = import.meta.dirname;
 const fixtures = path.join(toUnixPath(dirname), 'fixtures');

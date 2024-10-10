@@ -25,9 +25,9 @@ import {
 import { parseTypeScriptSourceFile } from '../helpers/index.js';
 import path from 'path';
 import { readdir } from 'fs/promises';
-import { fileReadable } from '../../../../shared/src/index.js';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
+import { fileReadable } from '../../../../shared/src/helpers/files.js';
 
 /**
  * Detects missing secondary location support for rules using secondary locations.

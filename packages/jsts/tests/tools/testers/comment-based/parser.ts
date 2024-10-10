@@ -17,11 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { FileType, JsTsLanguage } from '../../../../../shared/src/helpers/index.js';
 import path from 'path';
-import { buildSourceCode } from '../../../../src/builders/index.js';
 import { fileURLToPath } from 'node:url';
 import { dirname } from 'node:path';
+import { FileType } from '../../../../../shared/src/helpers/files.js';
+import { buildSourceCode } from '../../../../src/builders/build.js';
+import { JsTsLanguage } from '../../../../../shared/src/helpers/language.js';
 /**
  * This function is provided as 'parseForESLint' implementation which is used in RuleTester to invoke exactly same logic
  * as we use in our 'services/analysis/analyzer.ts' module

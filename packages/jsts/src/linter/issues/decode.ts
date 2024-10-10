@@ -19,7 +19,7 @@
  */
 import type { Rule } from 'eslint';
 import { Issue } from './issue.js';
-import { hasSonarRuntimeOption } from '../parameters/index.js';
+import { hasSonarRuntimeOption } from '../parameters/sonar-runtime.js';
 import { type EncodedMessage } from '../../rules/helpers/index.js';
 
 /**

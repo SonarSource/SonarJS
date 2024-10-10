@@ -19,10 +19,13 @@
  */
 import { Linter, SourceCode } from 'eslint';
 import { loadBundles, loadCustomRules } from './bundle-loader.js';
-import { createLinterConfig, RuleConfig } from './config/index.js';
-import { debug, FileType, JsTsLanguage } from '../../../shared/src/index.js';
-import { LintingResult, transformMessages } from './issues/index.js';
-import { CustomRule } from './custom-rules/index.js';
+import { RuleConfig } from './config/rule-config.js';
+import { CustomRule } from './custom-rules/custom-rule.js';
+import { JsTsLanguage } from '../../../shared/src/helpers/language.js';
+import { debug } from '../../../shared/src/helpers/logging.js';
+import { FileType } from '../../../shared/src/helpers/files.js';
+import { LintingResult, transformMessages } from './issues/transform.js';
+import { createLinterConfig } from './config/linter-config.js';
 
 /**
  * Wrapper's constructor initializer. All the parameters are optional,

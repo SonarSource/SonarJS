@@ -22,7 +22,7 @@ import { decodeSonarRuntime } from './decode.js';
 import { Issue } from './issue.js';
 import { convertMessage } from './message.js';
 import { extractCognitiveComplexity, extractHighlightedSymbols } from './extract.js';
-import { SymbolHighlight } from '../visitors/index.js';
+import { SymbolHighlight } from '../visitors/symbol-highlighting.js';
 
 /**
  * The result of linting a source code

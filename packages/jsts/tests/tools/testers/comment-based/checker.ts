@@ -20,7 +20,7 @@
 import fs from 'fs';
 import path from 'path';
 import { Rule, RuleTester } from 'eslint';
-import { hasSonarRuntimeOption } from '../../../../src/linter/parameters/index.js';
+import { hasSonarRuntimeOption } from '../../../../src/linter/parameters/sonar-runtime.js';
 import { extractExpectations } from './framework.js';
 import { join, dirname } from 'node:path';
 

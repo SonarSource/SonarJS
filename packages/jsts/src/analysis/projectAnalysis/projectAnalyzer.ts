@@ -26,10 +26,14 @@ import {
 import { analyzeWithProgram } from './analyzeWithProgram.js';
 import { analyzeWithWatchProgram } from './analyzeWithWatchProgram.js';
 import { analyzeWithoutProgram } from './analyzeWithoutProgram.js';
-import { initializeLinter } from '../../linter/index.js';
-import { TSCONFIG_JSON, setTSConfigs, getTSConfigsIterator } from '../../program/index.js';
-import { File, searchFiles } from '../../rules/helpers/index.js';
-import { toUnixPath } from '../../../../shared/src/index.js';
+import { initializeLinter } from '../../linter/linters.js';
+import {
+  getTSConfigsIterator,
+  setTSConfigs,
+  TSCONFIG_JSON,
+} from '../../program/tsconfigs/index.js';
+import { toUnixPath } from '../../../../shared/src/helpers/files.js';
+import { searchFiles, File } from '../../rules/index.js';
 
 /**
  * Analyzes a JavaScript / TypeScript project in a single run

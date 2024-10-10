@@ -26,7 +26,7 @@ import * as http from 'http';
 import * as path from 'path';
 import router from './router.js';
 import { errorMiddleware } from './errors/index.js';
-import { debug, getContext } from '../../shared/src/index.js';
+import { debug } from '../../shared/src/helpers/logging.js';
 import { timeoutMiddleware } from './timeout/index.js';
 import { AddressInfo } from 'net';
 import { Worker, SHARE_ENV } from 'worker_threads';
@@ -35,6 +35,7 @@ import {
   logMemoryConfiguration,
   logMemoryError,
 } from './memory.js';
+import { getContext } from '../../shared/src/helpers/context.js';
 
 /**
  * The maximum request body size

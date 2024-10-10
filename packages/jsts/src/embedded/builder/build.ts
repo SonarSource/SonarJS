@@ -18,12 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { SourceCode } from 'eslint';
-import { buildSourceCode } from '../../builders/index.js';
-import { JsTsAnalysisInput } from '../../analysis/index.js';
-import { EmbeddedJS, EmbeddedAnalysisInput } from '../analysis/index.js';
 import { patchParsingError, patchSourceCode } from './patch.js';
 import clone from 'lodash.clone';
 import path from 'path';
+import { EmbeddedJS } from '../analysis/embedded-js.js';
+import { EmbeddedAnalysisInput } from '../analysis/analysis.js';
+import { JsTsAnalysisInput } from '../../analysis/analysis.js';
+import { buildSourceCode } from '../../builders/build.js';
 
 export type ExtendedSourceCode = SourceCode & { syntheticFilePath: string };
 export type LanguageParser = (text: string) => EmbeddedJS[];

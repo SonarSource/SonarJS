@@ -19,8 +19,10 @@
  */
 import { Linter, Rule } from 'eslint';
 import { rules as internalRules } from '../rules/index.js';
-import { customRules as internalCustomRules, CustomRule } from './custom-rules/index.js';
-import { debug, getContext } from '../../../shared/src/index.js';
+import { customRules as internalCustomRules } from './custom-rules/rules.js';
+import { debug } from '../../../shared/src/helpers/logging.js';
+import { getContext } from '../../../shared/src/helpers/context.js';
+import type { CustomRule } from './custom-rules/custom-rule.js';
 
 export function loadCustomRules(linter: Linter, rules: CustomRule[] = []) {
   for (const rule of rules) {

@@ -19,7 +19,7 @@
  */
 import protobuf from 'protobufjs';
 import { TSESTree } from '@typescript-eslint/utils';
-import { debug } from '../../../shared/src/index.js';
+import { debug } from '../../../shared/src/helpers/logging.js';
 
 import path from 'path';
 import { fileURLToPath } from 'node:url';

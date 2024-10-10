@@ -18,29 +18,25 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { analyzeCSS } from '../../css/src/index.js';
-
+import { analyzeCSS } from '../../css/src/analysis/analyzer.js';
 import { analyzeHTML } from '../../html/src/index.js';
-
 import { analyzeYAML } from '../../yaml/src/index.js';
-
-import { APIError, ErrorCode } from '../../shared/src/errors/index.js';
-
+import { APIError, ErrorCode } from '../../shared/src/errors/error.js';
+import { readFile } from '../../shared/src/helpers/files.js';
 import { logHeapStatistics } from '../../bridge/src/memory.js';
-
 import formData from 'form-data';
 import { parentPort, workerData } from 'worker_threads';
+import { setContext } from '../../shared/src/helpers/context.js';
+import { analyzeProject } from '../../jsts/src/analysis/projectAnalysis/projectAnalyzer.js';
+import { analyzeJSTS } from '../../jsts/src/analysis/analyzer.js';
 import {
-  analyzeJSTS,
-  clearTypeScriptESLintParserCaches,
   createAndSaveProgram,
   createProgramOptions,
   deleteProgram,
-  initializeLinter,
   writeTSConfigFile,
-  analyzeProject,
-} from '../../jsts/src/index.js';
-import { readFile, setContext } from '../../shared/src/helpers/index.js';
+} from '../../jsts/src/program/program.js';
+import { initializeLinter } from '../../jsts/src/linter/linters.js';
+import { clearTypeScriptESLintParserCaches } from '../../jsts/src/parsers/eslint.js';
 
 /**
  * Delegate the handling of an HTTP request to a worker thread

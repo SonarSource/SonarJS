@@ -17,5 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export * from './program.js';
-export * from './tsconfigs/index.js';
+import { rule as cognitiveComplexity } from './cognitive-complexity.js';
+import { CustomRule } from './custom-rule.js';
+import { rule as symbolHighlighting } from './symbol-highlighting.js';
+/**
+ * The set of internal custom rules
+ */
+export const customRules: CustomRule[] = [cognitiveComplexity, symbolHighlighting];

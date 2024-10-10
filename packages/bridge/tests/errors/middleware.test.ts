@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ErrorCode, APIError } from '../../../shared/src/index.js';
 import express from 'express';
 import { EMPTY_JSTS_ANALYSIS_OUTPUT, errorMiddleware } from '../../src/errors/index.js';
 import assert from 'assert';
 
 import { describe, it, beforeEach, mock, Mock } from 'node:test';
+import { APIError, ErrorCode } from '../../../shared/src/errors/error.js';
 
 describe('errorMiddleware', () => {
   const mockRequest = {} as express.Request;

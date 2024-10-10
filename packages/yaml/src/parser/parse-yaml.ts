@@ -19,9 +19,9 @@
  */
 import yaml from 'yaml';
 import assert from 'assert';
-import { EmbeddedJS } from '../../../jsts/src/index.js';
 import { BLOCK_FOLDED_FORMAT, BLOCK_LITERAL_FORMAT, isSupportedFormat } from './yaml/format.js';
-import { APIError } from '../../../shared/src/index.js';
+import { EmbeddedJS } from '../../../jsts/src/embedded/analysis/embedded-js.js';
+import { APIError } from '../../../shared/src/errors/error.js';
 
 /**
  * A bundle of Yaml visitor predicate and Extras picker

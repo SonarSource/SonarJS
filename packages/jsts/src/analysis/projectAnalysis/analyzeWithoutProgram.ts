@@ -17,8 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { analyzeFile, DEFAULT_LANGUAGE, JsTsFiles, ProjectAnalysisOutput } from '../../index.js';
-import { readFile } from '../../../../shared/src/index.js';
+
+import { DEFAULT_LANGUAGE, JsTsFiles, ProjectAnalysisOutput } from './projectAnalysis.js';
+import { analyzeFile } from './analyzeFile.js';
+import { readFile } from '../../../../shared/src/helpers/files.js';
 
 /**
  * Analyzes JavaScript / TypeScript files without type-checking.

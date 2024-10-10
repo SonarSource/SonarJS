@@ -17,23 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { setContext, toUnixPath } from '../../shared/src/index.js';
 import http from 'http';
-import {
-  createAndSaveProgram,
-  deserializeProtobuf,
-  ProjectAnalysisInput,
-  RuleConfig,
-} from '../../jsts/src/index.js';
 import path from 'path';
 import { start } from '../src/server.js';
 import { request } from './tools/index.js';
 import fs from 'fs';
-import { describe, beforeEach, afterEach, it, mock, Mock } from 'node:test';
+import { describe, before, after, it, mock, Mock } from 'node:test';
 import { expect } from 'expect';
 
 import { rule as S5362 } from '../../css/src/rules/S5362/index.js';
 import assert from 'node:assert';
+import { setContext } from '../../shared/src/helpers/context.js';
+import { toUnixPath } from '../../shared/src/helpers/files.js';
+import { ProjectAnalysisInput } from '../../jsts/src/analysis/projectAnalysis/projectAnalysis.js';
+import { deserializeProtobuf } from '../../jsts/src/parsers/ast.js';
+import { createAndSaveProgram } from '../../jsts/src/program/program.js';
+import { RuleConfig } from '../../jsts/src/linter/config/rule-config.js';
 
 describe('router', () => {
   const fixtures = path.join(import.meta.dirname, 'fixtures', 'router');
@@ -42,7 +41,7 @@ describe('router', () => {
 
   let server: http.Server;
 
-  beforeEach(async () => {
+  before(async () => {
     setContext({
       workDir: '/tmp/dir',
       shouldUseTypeScriptParserForJS: true,
@@ -54,7 +53,7 @@ describe('router', () => {
     closePromise = serverClosed;
   });
 
-  afterEach(async () => {
+  after(async () => {
     await request(server, '/close', 'POST');
     //We need to await the server close promise, as the http server still needs to be up to finish the response of the /close request.
     await closePromise;

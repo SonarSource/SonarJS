@@ -19,12 +19,12 @@
  */
 import { Linter } from 'eslint';
 import { loadBundles, loadCustomRules } from '../../src/linter/bundle-loader.js';
-import { CustomRule } from '../../src/linter/custom-rules/index.js';
-import { setContext } from '../../../shared/src/index.js';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
 import path from 'node:path/posix';
 import { pathToFileURL } from 'node:url';
+import { setContext } from '../../../shared/src/helpers/context.js';
+import { CustomRule } from '../../src/linter/custom-rules/custom-rule.js';
 
 describe('BundleLoader', () => {
   it('should only load rules when requested', async () => {

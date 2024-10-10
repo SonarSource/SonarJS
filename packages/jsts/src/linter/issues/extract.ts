@@ -20,7 +20,7 @@
 import { Issue } from './issue.js';
 import { rule as cognitiveComplexityRule } from '../custom-rules/cognitive-complexity.js';
 import { rule as symbolHighlightingRule } from '../custom-rules/symbol-highlighting.js';
-import { SymbolHighlight } from '../visitors/index.js';
+import { SymbolHighlight } from '../visitors/symbol-highlighting.js';
 
 /**
  * Extracts the symbol highlighting

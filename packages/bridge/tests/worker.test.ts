@@ -19,9 +19,9 @@
  */
 import path from 'path';
 import { Worker } from 'worker_threads';
-import { ErrorCode } from '../../shared/src/index.js';
 import { describe, before, after, it } from 'node:test';
 import { expect } from 'expect';
+import { ErrorCode } from '../../shared/src/errors/error.js';
 
 describe('worker', () => {
   let worker: Worker;

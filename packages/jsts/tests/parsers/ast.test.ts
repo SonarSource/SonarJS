@@ -19,22 +19,21 @@
  */
 import path from 'path';
 
-import { readFile } from '../../../shared/src/index.js';
-import {
-  buildParserOptions,
-  parseForESLint,
-  parsers,
-  deserializeProtobuf,
-  parseInProtobuf,
-  serializeInProtobuf,
-  NODE_TYPE_ENUM,
-  type ParseFunction,
-  visitNode,
-} from '../../src/parsers/index.js';
-import { JsTsAnalysisInput } from '../../src/analysis/index.js';
+import { parsers, type ParseFunction } from '../../src/parsers/eslint.js';
 import { TSESTree } from '@typescript-eslint/utils';
 import { describe, test } from 'node:test';
 import { expect } from 'expect';
+import { readFile } from '../../../shared/src/helpers/files.js';
+import { JsTsAnalysisInput } from '../../src/analysis/analysis.js';
+import { buildParserOptions } from '../../src/parsers/options.js';
+import { visitNode } from '../../src/parsers/ast.js';
+import { parseForESLint } from '../../src/parsers/parse.js';
+import {
+  deserializeProtobuf,
+  NODE_TYPE_ENUM,
+  parseInProtobuf,
+  serializeInProtobuf,
+} from '../../src/parsers/ast.js';
 
 const parseFunctions = [
   {

@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { createTSConfigFile, writeTSConfigFile } from '../program.js';
-import { DEFAULT_MAX_FILES_FOR_TYPE_CHECKING } from '../../analysis/index.js';
 import { File, searchFiles } from '../../rules/helpers/index.js';
+import { DEFAULT_MAX_FILES_FOR_TYPE_CHECKING } from '../../analysis/projectAnalysis/projectAnalysis.js';
 
 export const TSCONFIG_JSON = 'tsconfig.json';
 

@@ -19,11 +19,15 @@
  */
 import fs from 'fs';
 import path from 'path';
-import { JsTsLanguage, setContext } from '../../../shared/src/index.js';
-import { CustomRule, LinterWrapper, quickFixRules, RuleConfig } from '../../src/index.js';
 import { parseJavaScriptSourceFile, parseTypeScriptSourceFile } from '../tools/index.js';
 import { describe, before, it } from 'node:test';
 import { expect } from 'expect';
+import { setContext } from '../../../shared/src/helpers/context.js';
+import { LinterWrapper } from '../../src/linter/wrapper.js';
+import { RuleConfig } from '../../src/linter/config/rule-config.js';
+import { CustomRule } from '../../src/linter/custom-rules/custom-rule.js';
+import { JsTsLanguage } from '../../../shared/src/helpers/language.js';
+import { quickFixRules } from '../../src/linter/quickfixes/rules.js';
 
 describe('LinterWrapper', () => {
   before(() => {

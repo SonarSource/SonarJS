@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { FileType, readFile } from '../../../../shared/src/index.js';
-import { EmbeddedAnalysisInput } from '../../../src/embedded/index.js';
-import { JsTsAnalysisInput } from '../../../src/index.js';
+import { FileType, readFile } from '../../../../shared/src/helpers/files.js';
+import { EmbeddedAnalysisInput } from '../../../src/embedded/analysis/analysis.js';
+import { JsTsAnalysisInput } from '../../../src/analysis/analysis.js';
 
 type allOptional = {
   filePath: string;

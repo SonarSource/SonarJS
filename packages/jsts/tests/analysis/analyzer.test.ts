@@ -18,20 +18,19 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import path from 'path/posix';
-import { setContext, toUnixPath, APIError } from '../../../shared/src/index.js';
-import {
-  initializeLinter,
-  RuleConfig,
-  analyzeJSTS,
-  JsTsAnalysisOutput,
-  createAndSaveProgram,
-  deserializeProtobuf,
-  getManifests,
-} from '../../src/index.js';
 import { jsTsInput, parseJavaScriptSourceFile } from '../tools/index.js';
 import { Linter, Rule } from 'eslint';
 import { describe, beforeEach, it } from 'node:test';
 import { expect } from 'expect';
+import { getManifests, toUnixPath } from '../../src/rules/helpers/index.js';
+import { setContext } from '../../../shared/src/helpers/context.js';
+import { analyzeJSTS } from '../../src/analysis/analyzer.js';
+import { APIError } from '../../../shared/src/errors/error.js';
+import { RuleConfig } from '../../src/linter/config/rule-config.js';
+import { initializeLinter } from '../../src/linter/linters.js';
+import { JsTsAnalysisOutput } from '../../src/analysis/analysis.js';
+import { createAndSaveProgram } from '../../src/program/program.js';
+import { deserializeProtobuf } from '../../src/parsers/ast.js';
 
 const currentPath = toUnixPath(import.meta.dirname);
 

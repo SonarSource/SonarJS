@@ -19,13 +19,12 @@
  */
 import { join } from 'path';
 import { embeddedInput } from '../../../jsts/tests/tools/index.js';
-import { parseHTML } from '../../src/parser/index.js';
-import { setContext } from '../../../shared/src/index.js';
-import { analyzeEmbedded } from '../../../jsts/src/index.js';
-// importing this from @sonar/jsts causes a resolution issue
-import { initializeLinter } from '../../../jsts/src/linter/index.js';
 import { describe, before, it } from 'node:test';
 import { expect } from 'expect';
+import { setContext } from '../../../shared/src/helpers/context.js';
+import { initializeLinter } from '../../../jsts/src/linter/linters.js';
+import { analyzeEmbedded } from '../../../jsts/src/embedded/analysis/analyzer.js';
+import { parseHTML } from '../../src/parser/parse.js';
 
 describe('analyzeHTML', () => {
   const fixturesPath = join(import.meta.dirname, 'fixtures');
