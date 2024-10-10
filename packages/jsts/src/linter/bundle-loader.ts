@@ -24,8 +24,6 @@ import { debug } from '../../../shared/src/helpers/logging.js';
 import { getContext } from '../../../shared/src/helpers/context.js';
 import type { CustomRule } from './custom-rules/custom-rule.js';
 
-console.log(3245345345);
-
 export function loadCustomRules(linter: Linter, rules: CustomRule[] = []) {
   for (const rule of rules) {
     linter.defineRule(rule.ruleId, rule.ruleModule);
