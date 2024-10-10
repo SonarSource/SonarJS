@@ -17,19 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import {
-  clearTSConfigs as clearTSconfigFiles,
-  getTSConfigsCount,
-  loadTSConfigs,
-} from '../../../jsts/src/index.js';
 import path from 'path';
 import { describe, before, it } from 'node:test';
 import { expect } from 'expect';
+import {
+  getTSConfigsCount,
+  loadTSConfigs,
+  clearTSConfigs,
+} from '../../src/program/tsconfigs/index.js';
 
 describe('tsconfigs', () => {
   describe('loadTSConfigFiles', () => {
     before(() => {
-      clearTSconfigFiles();
+      clearTSConfigs();
     });
 
     const fixturesDir = path.join(import.meta.dirname, 'fixtures');

@@ -18,15 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { join } from 'path';
-import { setContext, APIError } from '../../../shared/src/index.js';
-import { parseAwsFromYaml } from '../../src/aws/index.js';
 import { embeddedInput } from '../../../jsts/tests/tools/index.js';
-// loading it from @sonar/jsts breaks resolution
-import { initializeLinter, getLinter } from '../../../jsts/src/linter/index.js';
-import { analyzeEmbedded, composeSyntheticFilePath } from '../../../jsts/src/index.js';
 import type { Rule } from 'eslint';
 import { describe, it, before } from 'node:test';
 import { expect } from 'expect';
+import { setContext } from '../../../shared/src/helpers/context.js';
+import { parseAwsFromYaml } from '../../src/aws/parser.js';
+import { analyzeEmbedded } from '../../../jsts/src/embedded/analysis/analyzer.js';
+import { APIError } from '../../../shared/src/errors/error.js';
+import { getLinter, initializeLinter } from '../../../jsts/src/linter/linters.js';
+import { composeSyntheticFilePath } from '../../../jsts/src/embedded/builder/build.js';
 
 describe('analyzeYAML', () => {
   const fixturesPath = join(import.meta.dirname, 'fixtures');

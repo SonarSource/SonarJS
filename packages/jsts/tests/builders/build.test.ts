@@ -17,13 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { setContext, APIError } from '../../../shared/src/index.js';
-import { buildSourceCode } from '../../src/index.js';
 import path from 'path';
 import { AST } from 'vue-eslint-parser';
 import { jsTsInput } from '../tools/index.js';
 import { describe, it, beforeEach, mock, Mock } from 'node:test';
 import { expect } from 'expect';
+import { setContext } from '../../../shared/src/helpers/context.js';
+import { buildSourceCode } from '../../src/builders/build.js';
+import { APIError } from '../../../shared/src/errors/error.js';
 
 describe('buildSourceCode', () => {
   beforeEach(() => {

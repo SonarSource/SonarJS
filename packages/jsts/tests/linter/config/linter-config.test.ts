@@ -18,10 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import type { Rule } from 'eslint';
-import { setContext } from '../../../../shared/src/index.js';
-import { createLinterConfig, RuleConfig } from '../../../src/linter/index.js';
 import { describe, beforeEach, it } from 'node:test';
 import { expect } from 'expect';
+import { setContext } from '../../../../shared/src/helpers/context.js';
+import { createLinterConfig } from '../../../src/linter/config/linter-config.js';
+import { RuleConfig } from '../../../src/linter/config/rule-config.js';
 
 describe('createLinterConfig', () => {
   beforeEach(() => {

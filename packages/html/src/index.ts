@@ -17,15 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import {
-  analyzeEmbedded,
-  type EmbeddedAnalysisInput as HtmlAnalysisInput,
-  type EmbeddedAnalysisOutput as HtmlAnalysisOutput,
-} from '../../jsts/src/index.js';
 
-import { parseHTML } from './parser/index.js';
+import { parseHTML } from './parser/parse.js';
 
-export { HtmlAnalysisInput, HtmlAnalysisOutput };
+import type {
+  EmbeddedAnalysisInput as HtmlAnalysisInput,
+  EmbeddedAnalysisOutput as HtmlAnalysisOutput,
+} from '../../jsts/src/embedded/analysis/analysis.js';
+import { analyzeEmbedded } from '../../jsts/src/embedded/analysis/analyzer.js';
 
 export async function analyzeHTML(input: HtmlAnalysisInput): Promise<HtmlAnalysisOutput> {
   return Promise.resolve(analyzeEmbedded(input, parseHTML));

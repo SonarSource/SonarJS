@@ -17,12 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { analyzeCSS, CssAnalysisInput } from '../../src/analysis/index.js';
-import { RuleConfig } from '../../src/linter/index.js';
 import path from 'path';
-import { readFile } from '../../../shared/src/index.js';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
+import { analyzeCSS } from '../../src/analysis/analyzer.js';
+import { CssAnalysisInput } from '../../src/analysis/analysis.js';
+import { readFile } from '../../../shared/src/helpers/files.js';
+import { RuleConfig } from '../../src/linter/config.js';
 
 const rules = [{ key: 'block-no-empty', configurations: [] }];
 

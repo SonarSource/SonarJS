@@ -18,17 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import path from 'path';
-import { readFile, setContext } from '../../../shared/src/index.js';
-import { buildSourceCode, JsTsAnalysisInput } from '../../../jsts/src/index.js';
-import { parseAwsFromYaml } from '../../src/aws/index.js';
-import {
-  buildSourceCodes,
-  EmbeddedAnalysisInput,
-  EmbeddedJS,
-  patchParsingErrorMessage,
-} from '../../../jsts/src/index.js';
 import { describe, it, before } from 'node:test';
 import { expect } from 'expect';
+import { buildSourceCodes } from '../../../jsts/src/embedded/builder/build.js';
+import { EmbeddedAnalysisInput } from '../../../jsts/src/embedded/analysis/analysis.js';
+import { JsTsAnalysisInput } from '../../../jsts/src/analysis/analysis.js';
+import { buildSourceCode } from '../../../jsts/src/builders/build.js';
+import { EmbeddedJS } from '../../../jsts/src/embedded/analysis/embedded-js.js';
+import { patchParsingErrorMessage } from '../../../jsts/src/embedded/builder/patch.js';
+import { setContext } from '../../../shared/src/helpers/context.js';
+import { readFile } from '../../../shared/src/helpers/files.js';
+import { parseAwsFromYaml } from '../../src/aws/parser.js';
 
 describe('patchSourceCode', () => {
   before(() => {

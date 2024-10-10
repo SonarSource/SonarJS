@@ -18,8 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import path from 'path';
-import { toUnixPath } from '../../../shared/src/index.js';
-import { getManifests, isSupported } from '../../src/rules/helpers/index.js';
+import { getManifests, isSupported, toUnixPath } from '../../src/rules/helpers/index.js';
 import fs from 'fs';
 import { describe, it, beforeEach } from 'node:test';
 import { expect } from 'expect';

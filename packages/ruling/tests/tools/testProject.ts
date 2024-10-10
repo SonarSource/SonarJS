@@ -21,25 +21,6 @@ import path from 'path';
 import fs from 'fs';
 import os from 'os';
 import { Minimatch } from 'minimatch';
-import {
-  AnalysisInput,
-  AnalysisOutput,
-  FileType,
-  setContext,
-  toUnixPath,
-} from '../../../shared/src/index.js';
-import {
-  DEFAULT_ENVIRONMENTS,
-  DEFAULT_GLOBALS,
-  JsTsFiles,
-  ProjectAnalysisInput,
-  ProjectAnalysisOutput,
-  RuleConfig,
-  analyzeProject,
-  initializeLinter,
-  getLinter,
-  CustomRule,
-} from '../../../jsts/src/index.js';
 import { accept } from '../filter/JavaScriptExclusionsFilter.js';
 import { writeResults } from './lits.js';
 import { analyzeHTML } from '../../../html/src/index.js';
@@ -48,6 +29,21 @@ import { analyzeYAML } from '../../../yaml/src/index.js';
 import projects from '../data/projects.json' with { type: 'json' };
 import { loadCustomRules } from '../../../jsts/src/linter/bundle-loader.js';
 import { before } from 'node:test';
+import { CustomRule } from '../../../jsts/src/linter/custom-rules/custom-rule.js';
+import { getLinter, initializeLinter } from '../../../jsts/src/linter/linters.js';
+import {
+  DEFAULT_ENVIRONMENTS,
+  DEFAULT_GLOBALS,
+  JsTsFiles,
+  ProjectAnalysisInput,
+  ProjectAnalysisOutput,
+} from '../../../jsts/src/analysis/projectAnalysis/projectAnalysis.js';
+import { analyzeProject } from '../../../jsts/src/analysis/projectAnalysis/projectAnalyzer.js';
+import { setContext } from '../../../shared/src/helpers/context.js';
+import { toUnixPath } from '../../../jsts/src/rules/helpers/files.js';
+import { FileType } from '../../../shared/src/helpers/files.js';
+import { AnalysisInput, AnalysisOutput } from '../../../shared/src/types/analysis.js';
+import { RuleConfig } from '../../../jsts/src/linter/config/rule-config.js';
 
 const sourcesPath = path.join(
   import.meta.dirname,

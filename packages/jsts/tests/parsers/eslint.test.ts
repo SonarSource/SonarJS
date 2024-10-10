@@ -17,12 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { buildSourceCode } from '../../src/builders/index.js';
-import { JsTsAnalysisInput } from '../../src/analysis/index.js';
 import path from 'path';
-import { JsTsLanguage, readFile } from '../../../shared/src/index.js';
 import { describe, test } from 'node:test';
 import { expect } from 'expect';
+import { readFile } from '../../../shared/src/helpers/files.js';
+import { JsTsAnalysisInput } from '../../src/analysis/analysis.js';
+import { JsTsLanguage } from '../../../shared/src/helpers/language.js';
+import { buildSourceCode } from '../../src/builders/build.js';
 
 const cases = [
   { syntax: 'ECMAScript 2015', fixture: 'es2015.js', language: 'js' },

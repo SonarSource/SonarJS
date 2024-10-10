@@ -20,7 +20,7 @@
 import { Linter } from 'eslint';
 import path from 'path';
 import { parseJavaScriptSourceFile, parseTypeScriptSourceFile } from '../../tools/index.js';
-import { transformMessages } from '../../../src/linter/issues/index.js';
+import { transformMessages } from '../../../src/linter/issues/transform.js';
 import { rules } from '../../../src/rules/index.js';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';

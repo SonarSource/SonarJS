@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import path from 'path';
-import { readFile } from '../../src/helpers/index.js';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
+import { readFile } from '../../src/helpers/files.js';
 
 describe('readFile', () => {
   it('should read a file', async () => {
