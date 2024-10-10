@@ -22,7 +22,7 @@ import path from 'path';
 import { start } from '../src/server.js';
 import { request } from './tools/index.js';
 import fs from 'fs';
-import { describe, beforeEach, afterEach, it, mock, Mock } from 'node:test';
+import { describe, before, after, it, mock, Mock } from 'node:test';
 import { expect } from 'expect';
 
 import { rule as S5362 } from '../../css/src/rules/S5362/index.js';
@@ -41,7 +41,7 @@ describe('router', () => {
 
   let server: http.Server;
 
-  beforeEach(async () => {
+  before(async () => {
     setContext({
       workDir: '/tmp/dir',
       shouldUseTypeScriptParserForJS: true,
@@ -53,7 +53,7 @@ describe('router', () => {
     closePromise = serverClosed;
   });
 
-  afterEach(async () => {
+  after(async () => {
     await request(server, '/close', 'POST');
     //We need to await the server close promise, as the http server still needs to be up to finish the response of the /close request.
     await closePromise;
