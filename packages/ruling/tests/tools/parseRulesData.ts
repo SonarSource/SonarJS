@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as fs from 'node:fs';
-import * as path from 'node:path';
+import fs from 'node:fs';
+import path from 'node:path';
 
 const SONARLINT_METADATA_PATH = path.join(
-  __dirname,
+  import.meta.dirname,
   '..',
   '..',
   '..',
@@ -32,7 +32,7 @@ const SONARLINT_METADATA_PATH = path.join(
   'classes',
   'sonarlint-metadata.json',
 );
-const RULES_PATH = path.join(__dirname, '..', 'data', 'rules.json');
+const RULES_PATH = path.join(import.meta.dirname, '..', 'data', 'rules.json');
 
 // Loading this through `fs` and not import because the file is absent at compile time
 const rulesMetadata: RuleMetadata[] = JSON.parse(fs.readFileSync(SONARLINT_METADATA_PATH, 'utf8'));

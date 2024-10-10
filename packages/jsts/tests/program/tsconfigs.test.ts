@@ -21,16 +21,18 @@ import {
   clearTSConfigs as clearTSconfigFiles,
   getTSConfigsCount,
   loadTSConfigs,
-} from '@sonar/jsts';
-import * as path from 'path';
+} from '../../../jsts/src/index.js';
+import path from 'path';
+import { describe, before, it } from 'node:test';
+import { expect } from 'expect';
 
 describe('tsconfigs', () => {
   describe('loadTSConfigFiles', () => {
-    beforeAll(() => {
+    before(() => {
       clearTSconfigFiles();
     });
 
-    const fixturesDir = path.join(__dirname, 'fixtures');
+    const fixturesDir = path.join(import.meta.dirname, 'fixtures');
     it('should return the TSconfig files', () => {
       loadTSConfigs(fixturesDir, []);
       expect(getTSConfigsCount()).toEqual(7);

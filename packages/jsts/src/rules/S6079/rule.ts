@@ -26,9 +26,9 @@ import {
   Mocha,
   report as contextReport,
   toSecondaryLocation,
-} from '../helpers';
-import * as estree from 'estree';
-import { meta } from './meta';
+} from '../helpers/index.js';
+import estree from 'estree';
+import { meta } from './meta.js';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta as Rule.RuleMetaData, undefined, true),

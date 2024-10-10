@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { LineIssues } from './issues';
-import { Comment } from './comments';
-import { extractEffectiveLine, LINE_ADJUSTMENT } from './locations';
+import { LineIssues } from './issues.js';
+import { Comment } from './comments.js';
+import { extractEffectiveLine, LINE_ADJUSTMENT } from './locations.js';
 
 const STARTS_WITH_QUICKFIX = /^ *(edit|del|add|fix)@/;
 export const QUICKFIX_SEPARATOR = '[,\\s]+';

@@ -19,10 +19,10 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S4043/javascript
 
-import { Rule } from 'eslint';
-import * as estree from 'estree';
+import type { Rule } from 'eslint';
+import estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
-import * as ts from 'typescript';
+import ts from 'typescript';
 import {
   generateMeta,
   getSymbolAtLocation,
@@ -31,8 +31,8 @@ import {
   localAncestorsChain,
   RequiredParserServices,
   sortLike,
-} from '../helpers';
-import { meta } from './meta';
+} from '../helpers/index.js';
+import { meta } from './meta.js';
 
 const arrayMutatingMethods = ['reverse', "'reverse'", '"reverse"', ...sortLike];
 

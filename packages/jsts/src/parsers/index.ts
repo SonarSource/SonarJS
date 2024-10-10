@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export * from './ast';
-export * from './eslint';
-export * from './options';
-export * from './parse';
+export * from './ast.js';
+export * from './eslint.js';
+export * from './options.js';
+export * from './parse.js';

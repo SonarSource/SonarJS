@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Linter, SourceCode } from 'eslint';
-import { loadBundles, loadCustomRules } from './bundle-loader';
-import { createLinterConfig, RuleConfig } from './config';
-import { debug, FileType, JsTsLanguage } from '@sonar/shared';
-import { LintingResult, transformMessages } from './issues';
-import { CustomRule } from './custom-rules';
+import { loadBundles, loadCustomRules } from './bundle-loader.js';
+import { createLinterConfig, RuleConfig } from './config/index.js';
+import { debug, FileType, JsTsLanguage } from '../../../shared/src/index.js';
+import { LintingResult, transformMessages } from './issues/index.js';
+import { CustomRule } from './custom-rules/index.js';
 
 /**
  * Wrapper's constructor initializer. All the parameters are optional,
@@ -81,7 +81,7 @@ export class LinterWrapper {
   readonly linter: Linter;
 
   /** The wrapper's linting configuration */
-  readonly config: Map<LinterConfigurationKey, Linter.Config>;
+  config: Map<LinterConfigurationKey, Linter.Config> = new Map();
 
   readonly configurationKeys: LinterConfigurationKey[] = [];
 
@@ -117,8 +117,11 @@ export class LinterWrapper {
     this.linter = new Linter({
       cwd: options.workingDirectory,
     });
-    loadBundles(this.linter, options.ruleBundles ?? defaultRuleBundles);
-    loadCustomRules(this.linter, options.customRules);
+  }
+
+  async init() {
+    await loadBundles(this.linter, this.options.ruleBundles ?? defaultRuleBundles);
+    loadCustomRules(this.linter, this.options.customRules);
     this.config = this.createConfig();
   }
 

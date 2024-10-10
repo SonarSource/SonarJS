@@ -19,7 +19,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S5856/javascript
 
-import { Rule } from 'eslint';
+import type { Rule } from 'eslint';
 import {
   generateMeta,
   getTypeFromTreeNode,
@@ -27,10 +27,10 @@ import {
   isRequiredParserServices,
   isStringLiteral,
   isStringType,
-} from '../helpers';
-import * as estree from 'estree';
+} from '../helpers/index.js';
+import estree from 'estree';
 import { RegExpValidator } from '@eslint-community/regexpp';
-import { meta } from './meta';
+import { meta } from './meta.js';
 
 const validator = new RegExpValidator();
 

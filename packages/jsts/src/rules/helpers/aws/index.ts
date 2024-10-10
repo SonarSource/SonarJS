@@ -17,6 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export * from './cdk';
-export * from './iam';
-export * from './s3';
+export * from './cdk.js';
+export * from './iam.js';
+export * from './s3.js';

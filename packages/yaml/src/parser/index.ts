@@ -17,5 +17,5 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export * from './yaml/format';
-export * from './parse-yaml';
+export * from './yaml/format.js';
+export * from './parse-yaml.js';

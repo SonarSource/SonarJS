@@ -17,13 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { countStatements } from '../../../../src/linter/visitors/metrics/statements';
+import { countStatements } from '../../../../src/linter/visitors/metrics/statements.js';
 import path from 'path';
-import { parseJavaScriptSourceFile } from '../../../tools';
+import { parseJavaScriptSourceFile } from '../../../tools/index.js';
+import { describe, it } from 'node:test';
+import { expect } from 'expect';
 
 describe('countStatements', () => {
   it('should count the number of statements', async () => {
-    const filePath = path.join(__dirname, 'fixtures', 'statements.js');
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'statements.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
     const statements = countStatements(sourceCode);
     expect(statements).toEqual(10);

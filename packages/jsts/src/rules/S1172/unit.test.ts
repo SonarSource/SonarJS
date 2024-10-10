@@ -18,7 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RuleTester, Scope } from 'eslint';
-import { isParameterProperty, rule } from './rule';
+import { isParameterProperty, rule } from './rule.js';
+import Module from 'node:module';
+import { it } from 'node:test';
+import { expect } from 'expect';
+const require = Module.createRequire(import.meta.url);
 
 const ruleTester = new RuleTester({
   parser: require.resolve('@typescript-eslint/parser'),

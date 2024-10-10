@@ -19,12 +19,12 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S3782/javascript
 
-import { Rule } from 'eslint';
-import * as estree from 'estree';
-import { generateMeta, getTypeFromTreeNode, isRequiredParserServices } from '../helpers';
+import type { Rule } from 'eslint';
+import estree from 'estree';
+import { generateMeta, getTypeFromTreeNode, isRequiredParserServices } from '../helpers/index.js';
 import { TSESTree } from '@typescript-eslint/utils';
-import ts, { SyntaxKind } from 'typescript';
-import { meta } from './meta';
+import ts from 'typescript';
+import { meta } from './meta.js';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta as Rule.RuleMetaData),
@@ -37,7 +37,7 @@ export const rule: Rule.RuleModule = {
 
     function isBuiltInMethod(symbol: ts.Symbol) {
       const parent = symbol.valueDeclaration?.parent;
-      if (!parent || parent.kind !== SyntaxKind.InterfaceDeclaration) {
+      if (!parent || parent.kind !== ts.SyntaxKind.InterfaceDeclaration) {
         return false;
       }
       const parentSymbol = tc.getSymbolAtLocation((parent as ts.InterfaceDeclaration).name);

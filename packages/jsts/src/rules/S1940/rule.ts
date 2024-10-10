@@ -19,11 +19,11 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S1940
 
-import { Rule } from 'eslint';
+import type { Rule } from 'eslint';
 import estree from 'estree';
 import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/utils';
-import { generateMeta } from '../helpers';
-import { meta } from './meta';
+import { generateMeta } from '../helpers/index.js';
+import { meta } from './meta.js';
 
 const invertedOperators: { [operator: string]: string } = {
   '==': '!=',

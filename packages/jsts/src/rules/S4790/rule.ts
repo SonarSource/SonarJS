@@ -19,15 +19,15 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S4790/javascript
 
-import { Rule } from 'eslint';
-import * as estree from 'estree';
+import type { Rule } from 'eslint';
+import estree from 'estree';
 import {
   generateMeta,
   getFullyQualifiedName,
   getUniqueWriteUsageOrNode,
   isStringLiteral,
-} from '../helpers';
-import { meta } from './meta';
+} from '../helpers/index.js';
+import { meta } from './meta.js';
 
 const message = 'Make sure this weak hash algorithm is not used in a sensitive context here.';
 const CRYPTO_UNSECURE_HASH_ALGORITHMS = new Set([

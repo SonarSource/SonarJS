@@ -19,10 +19,11 @@
  */
 
 import { TSESTree } from '@typescript-eslint/utils';
-import { getLiteralPropValue, getProp } from 'jsx-ast-utils';
-import { Rule } from 'eslint';
-import getElementType from 'eslint-plugin-jsx-a11y/lib/util/getElementType';
-import { isHtmlElement } from './isHtmlElement';
+import pkg from 'jsx-ast-utils';
+const { getLiteralPropValue, getProp } = pkg;
+import type { Rule } from 'eslint';
+import getElementType from 'eslint-plugin-jsx-a11y/lib/util/getElementType.js';
+import { isHtmlElement } from './isHtmlElement.js';
 
 export type TableCell = {
   isHeader: boolean;

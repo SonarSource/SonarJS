@@ -17,12 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as esprima from 'esprima';
-import * as estree from 'estree';
-import { getRegexpLocation, getRegexpRange } from '../../../../src/rules/helpers';
+import esprima from 'esprima';
+import estree from 'estree';
+import { getRegexpLocation, getRegexpRange } from '../../../../src/rules/helpers/index.js';
 import * as regexpp from '@eslint-community/regexpp';
-import { Rule, SourceCode } from 'eslint';
-import RuleContext = Rule.RuleContext;
+import type { Rule } from 'eslint';
+import { SourceCode } from 'eslint';
+import { describe, it } from 'node:test';
+import { expect } from 'expect';
 
 describe('getRegexpRange', () => {
   it('should get range for regexp /s*', () => {
@@ -79,7 +81,7 @@ describe('getRegexpRange', () => {
     const context = {
       sourceCode: new SourceCode(code, program),
     };
-    const range = getRegexpLocation(literal, quantifier, context as RuleContext);
+    const range = getRegexpLocation(literal, quantifier, context as Rule.RuleContext);
     expect(range).toStrictEqual({
       start: { column: 5, line: 1 },
       end: { column: 10, line: 1 },

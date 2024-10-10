@@ -19,10 +19,10 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S5743/javascript
 
-import { Rule } from 'eslint';
-import * as estree from 'estree';
-import { checkSensitiveCall, generateMeta, getFullyQualifiedName } from '../helpers';
-import { meta } from './meta';
+import type { Rule } from 'eslint';
+import estree from 'estree';
+import { checkSensitiveCall, generateMeta, getFullyQualifiedName } from '../helpers/index.js';
+import { meta } from './meta.js';
 
 const MESSAGE = 'Make sure allowing browsers to perform DNS prefetching is safe here.';
 

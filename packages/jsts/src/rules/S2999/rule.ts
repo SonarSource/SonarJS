@@ -19,9 +19,9 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S2999/javascript
 
-import { Rule } from 'eslint';
-import * as estree from 'estree';
-import * as ts from 'typescript';
+import type { Rule } from 'eslint';
+import estree from 'estree';
+import ts from 'typescript';
 import {
   generateMeta,
   getSignatureFromCallee,
@@ -29,9 +29,9 @@ import {
   isRequiredParserServices,
   report,
   toSecondaryLocation,
-} from '../helpers';
+} from '../helpers/index.js';
 import { FromSchema } from 'json-schema-to-ts';
-import { meta, schema } from './meta';
+import { meta, schema } from './meta.js';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta as Rule.RuleMetaData, { schema }),

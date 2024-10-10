@@ -19,13 +19,14 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S1534/javascript
 
-import { Rule } from 'eslint';
-import { eslintRules } from '../core';
-import { tsEslintRules } from '../typescript-eslint';
-import { rules as reactRules } from 'eslint-plugin-react';
-import { generateMeta, mergeRules } from '../helpers';
-import { decorate } from './decorator';
-import { meta } from './meta';
+import type { Rule } from 'eslint';
+import { eslintRules } from '../core/index.js';
+import { tsEslintRules } from '../typescript-eslint/index.js';
+import pkg from 'eslint-plugin-react';
+const { rules: reactRules } = pkg;
+import { generateMeta, mergeRules } from '../helpers/index.js';
+import { decorate } from './decorator.js';
+import { meta } from './meta.js';
 
 const noDupeKeysRule = decorate(eslintRules['no-dupe-keys']);
 const noDupeClassMembersRule = tsEslintRules['no-dupe-class-members'];

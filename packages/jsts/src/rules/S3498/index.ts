@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { eslintRules } from '../core';
-import { decorate } from './decorator';
+import { eslintRules } from '../core/index.js';
+import { decorate } from './decorator.js';
 
 export const rule = decorate(eslintRules['object-shorthand']);

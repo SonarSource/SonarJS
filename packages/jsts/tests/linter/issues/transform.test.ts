@@ -19,13 +19,15 @@
  */
 import { Linter } from 'eslint';
 import path from 'path';
-import { parseJavaScriptSourceFile, parseTypeScriptSourceFile } from '../../tools';
-import { transformMessages } from '../../../src/linter/issues';
-import { rules } from '../../../src/rules/index';
+import { parseJavaScriptSourceFile, parseTypeScriptSourceFile } from '../../tools/index.js';
+import { transformMessages } from '../../../src/linter/issues/index.js';
+import { rules } from '../../../src/rules/index.js';
+import { describe, it } from 'node:test';
+import { expect } from 'expect';
 
 describe('transformMessages', () => {
   it('should transform ESLint messages', async () => {
-    const filePath = path.join(__dirname, 'fixtures', 'message.js');
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'message.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
     const ruleId = 'S3504';
@@ -49,7 +51,7 @@ describe('transformMessages', () => {
   });
 
   it('should normalize ESLint locations', async () => {
-    const filePath = path.join(__dirname, 'fixtures', 'location.js');
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'location.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
     const ruleId = 'S1172';
@@ -73,7 +75,7 @@ describe('transformMessages', () => {
   });
 
   it('should transform ESLint fixes', async () => {
-    const filePath = path.join(__dirname, 'fixtures', 'fix.js');
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'fix.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
     const ruleId = 'S1116';
@@ -107,7 +109,7 @@ describe('transformMessages', () => {
   });
 
   it('should decode secondary locations', async () => {
-    const filePath = path.join(__dirname, 'fixtures', 'secondary.ts');
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'secondary.ts');
     const tsConfigs = [];
     const sourceCode = await parseTypeScriptSourceFile(filePath, tsConfigs);
 
@@ -135,7 +137,7 @@ describe('transformMessages', () => {
   });
 
   it('should remove ucfg issues', async () => {
-    const filePath = path.join(__dirname, 'fixtures', 'secondary.ts');
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'secondary.ts');
     const tsConfigs = [];
     const sourceCode = await parseTypeScriptSourceFile(filePath, tsConfigs);
 
@@ -143,7 +145,7 @@ describe('transformMessages', () => {
     const messages = [
       {
         ruleId: 'ucfg',
-        message: path.join(__dirname, 'fixtures', 'secondary.ts'),
+        message: path.join(import.meta.dirname, 'fixtures', 'secondary.ts'),
       } as Linter.LintMessage,
     ];
 

@@ -21,58 +21,64 @@
 import path from 'path';
 
 import { Linter, Rule } from 'eslint';
-import { getProperty } from '../../../src/rules';
+import { getProperty } from '../../../src/rules/index.js';
 
-import { parseJavaScriptSourceFile } from '../../tools';
+import { parseJavaScriptSourceFile } from '../../tools/index.js';
+import { describe, test } from 'node:test';
+import { expect } from 'expect';
 
 describe('getProperty', () => {
-  it.each([
+  (
     [
-      'should read property of simple object',
-      'normalObject.js',
-      'foo',
-      property => expect(property.value.type).toEqual('Literal'),
-    ],
-    [
-      'should return null if key not found in simple object',
-      'normalObject.js',
-      'baz',
-      property => expect(property).toBeNull(),
-    ],
-    [
-      'should read property of object with a recursive spread operator',
-      'objectWithSpread.js',
-      'bar',
-      property => expect(property.value.type).toEqual('Literal'),
-    ],
-    [
-      'should read undefined of object with a recursive spread operator if key not found',
-      'objectWithSpread.js',
-      'baz',
-      property => expect(property).toBeUndefined(),
-    ],
-  ])('it %s', async (_: string, fixtureFile: string, key: string, verifier: (property) => void) => {
-    const baseDir = path.join(__dirname, 'fixtures');
+      [
+        'should read property of simple object',
+        'normalObject.js',
+        'foo',
+        property => expect(property.value.type).toEqual('Literal'),
+      ],
+      [
+        'should return null if key not found in simple object',
+        'normalObject.js',
+        'baz',
+        property => expect(property).toBeNull(),
+      ],
+      [
+        'should read property of object with a recursive spread operator',
+        'objectWithSpread.js',
+        'bar',
+        property => expect(property.value.type).toEqual('Literal'),
+      ],
+      [
+        'should read undefined of object with a recursive spread operator if key not found',
+        'objectWithSpread.js',
+        'baz',
+        property => expect(property).toBeUndefined(),
+      ],
+    ] as [_: string, fixtureFile: string, key: string, verifier: (property) => void][]
+  ).forEach(([_, fixtureFile, key, verifier]) => {
+    test(`it ${_}`, async () => {
+      const baseDir = path.join(import.meta.dirname, 'fixtures');
 
-    const linter = new Linter();
-    linter.defineRule('custom-rule-file', {
-      create(context: Rule.RuleContext) {
-        return {
-          'ExpressionStatement ObjectExpression': node => {
-            const property = getProperty(node, key, context);
-            verifier(property);
-          },
-        };
-      },
-    } as Rule.RuleModule);
+      const linter = new Linter();
+      linter.defineRule('custom-rule-file', {
+        create(context: Rule.RuleContext) {
+          return {
+            'ExpressionStatement ObjectExpression': node => {
+              const property = getProperty(node, key, context);
+              verifier(property);
+            },
+          };
+        },
+      } as Rule.RuleModule);
 
-    const filePath = path.join(baseDir, fixtureFile);
-    const sourceCode = await parseJavaScriptSourceFile(filePath);
+      const filePath = path.join(baseDir, fixtureFile);
+      const sourceCode = await parseJavaScriptSourceFile(filePath);
 
-    linter.verify(
-      sourceCode,
-      { rules: { 'custom-rule-file': 'error' } },
-      { filename: filePath, allowInlineConfig: false },
-    );
+      linter.verify(
+        sourceCode,
+        { rules: { 'custom-rule-file': 'error' } },
+        { filename: filePath, allowInlineConfig: false },
+      );
+    });
   });
 });

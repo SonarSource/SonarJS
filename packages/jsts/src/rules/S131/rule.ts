@@ -19,17 +19,17 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S131/javascript
 
-import * as estree from 'estree';
+import estree from 'estree';
 import { Rule, SourceCode } from 'eslint';
-import { tsEslintRules } from '../typescript-eslint';
+import { tsEslintRules } from '../typescript-eslint/index.js';
 import {
   generateMeta,
   interceptReport,
   isRequiredParserServices,
   isUnion,
   mergeRules,
-} from '../helpers';
-import { meta } from './meta';
+} from '../helpers/index.js';
+import { meta } from './meta.js';
 
 /**
  * This rule raises issues on switch statements without a default branch if, and only if,

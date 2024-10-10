@@ -21,13 +21,13 @@
 
 import { AST, Rule } from 'eslint';
 import { CharacterClass, Flags, Node, RegExpLiteral } from '@eslint-community/regexpp/ast';
-import { generateMeta, IssueLocation, toSecondaryLocation } from '../helpers';
+import { generateMeta, IssueLocation, toSecondaryLocation } from '../helpers/index.js';
 import {
   createRegExpRule,
   getRegexpLocation,
   SimplifiedRegexCharacterClass,
-} from '../helpers/regex';
-import { meta } from './meta';
+} from '../helpers/regex/index.js';
+import { meta } from './meta.js';
 
 export const rule: Rule.RuleModule = createRegExpRule(
   context => {

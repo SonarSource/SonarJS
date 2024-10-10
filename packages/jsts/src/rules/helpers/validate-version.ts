@@ -19,7 +19,7 @@
  */
 
 import * as semver from 'semver';
-import { getManifests } from './package-json';
+import { getManifests } from './package-json.js';
 
 /**
  * Minimum version per reference

@@ -20,7 +20,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S2598/javascript
 
 import { Rule, Scope } from 'eslint';
-import * as estree from 'estree';
+import estree from 'estree';
 import {
   generateMeta,
   getFullyQualifiedName,
@@ -31,8 +31,8 @@ import {
   IssueLocation,
   report as contextReport,
   toSecondaryLocation,
-} from '../helpers';
-import { meta } from './meta';
+} from '../helpers/index.js';
+import { meta } from './meta.js';
 
 const FORMIDABLE_MODULE = 'formidable';
 const KEEP_EXTENSIONS = 'keepExtensions';

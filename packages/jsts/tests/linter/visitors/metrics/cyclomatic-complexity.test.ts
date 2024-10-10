@@ -17,9 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { computeCyclomaticComplexity } from '../../../../src/linter/visitors/metrics/cyclomatic-complexity';
+import { computeCyclomaticComplexity } from '../../../../src/linter/visitors/metrics/cyclomatic-complexity.js';
 import path from 'path';
-import { parseJavaScriptSourceFile } from '../../../tools';
+import { parseJavaScriptSourceFile } from '../../../tools/index.js';
+import { describe, it } from 'node:test';
+import { expect } from 'expect';
 
 const cases = [
   { fixture: 'conjunction', expectedComplexity: 1 },
@@ -30,13 +32,17 @@ const cases = [
 ];
 
 describe('computeCyclomaticComplexity', () => {
-  test.each(cases)(
-    'should compute complexity for $fixture',
-    async ({ fixture, expectedComplexity }) => {
-      const filePath = path.join(__dirname, 'fixtures', 'cyclomatic-complexity', `${fixture}.js`);
+  cases.forEach(({ fixture, expectedComplexity }) =>
+    it(`should compute complexity for ${fixture}`, async () => {
+      const filePath = path.join(
+        import.meta.dirname,
+        'fixtures',
+        'cyclomatic-complexity',
+        `${fixture}.js`,
+      );
       const sourceCode = await parseJavaScriptSourceFile(filePath);
       const actualComplexity = computeCyclomaticComplexity(sourceCode);
       expect(actualComplexity).toEqual(expectedComplexity);
-    },
+    }),
   );
 });

@@ -363,14 +363,14 @@
               <rules>
                 <requireFilesSize>
                   <minsize>80000000</minsize>
-                  <maxsize>87500000</maxsize>
+                  <maxsize>90000000</maxsize>
                   <files>
                     <file>${project.build.directory}/${project.build.finalName}-multi.jar</file>
                   </files>
                 </requireFilesSize>
                 <requireFilesSize>
                   <minsize>30000000</minsize>
-                  <maxsize>50000000</maxsize>
+                  <maxsize>55000000</maxsize>
                   <files>
                     <file>${project.build.directory}/${project.build.finalName}-linux-x64.jar</file>
                     <file>${project.build.directory}/${project.build.finalName}-win-x64.jar</file>

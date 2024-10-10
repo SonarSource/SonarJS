@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export * from './counter';
-export * from './lines';
-export * from './location';
-export * from './tokens';
+export * from './counter.js';
+export * from './lines.js';
+export * from './location.js';
+export * from './tokens.js';

@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Rule, RuleTester } from 'eslint';
-import * as estree from 'estree';
-import { Express, getProperty } from '../../../src/rules';
+import estree from 'estree';
+import { Express, getProperty } from '../../../src/rules/index.js';
 
 const rule = Express.SensitiveMiddlewarePropertyRule(
   (context: Rule.RuleContext, node: estree.CallExpression): estree.Property[] => {

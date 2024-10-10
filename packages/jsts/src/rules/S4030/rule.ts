@@ -28,9 +28,9 @@ import {
   isElementWrite,
   isIdentifier,
   writingMethods,
-} from '../helpers';
+} from '../helpers/index.js';
 import estree from 'estree';
-import { meta } from './meta';
+import { meta } from './meta.js';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta as Rule.RuleMetaData, {

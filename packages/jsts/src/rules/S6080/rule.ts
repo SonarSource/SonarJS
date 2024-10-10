@@ -19,8 +19,8 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6080/javascript
 
-import { Rule } from 'eslint';
-import * as estree from 'estree';
+import type { Rule } from 'eslint';
+import estree from 'estree';
 import {
   Chai,
   generateMeta,
@@ -30,8 +30,8 @@ import {
   isNumberLiteral,
   isThisExpression,
   Mocha,
-} from '../helpers';
-import { meta } from './meta';
+} from '../helpers/index.js';
+import { meta } from './meta.js';
 
 const MESSAGE =
   'Set this timeout to 0 if you want to disable it, otherwise use a value lower than 2147483648.';

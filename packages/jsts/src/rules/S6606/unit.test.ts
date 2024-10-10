@@ -17,9 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { rule } from './rule';
+import { rule } from './rule.js';
 import { RuleTester } from 'eslint';
 import path from 'path';
+import Module from 'node:module';
+const require = Module.createRequire(import.meta.url);
 
 const ruleTester = new RuleTester({
   parser: require.resolve('@typescript-eslint/parser'),
@@ -27,7 +29,7 @@ const ruleTester = new RuleTester({
     ecmaVersion: 2018,
     sourceType: 'module',
     project: `./tsconfig.json`,
-    tsconfigRootDir: path.join(__dirname, 'fixtures'),
+    tsconfigRootDir: path.join(import.meta.dirname, 'fixtures'),
   },
 });
 
@@ -39,7 +41,7 @@ ruleTester.run('S6606', rule, {
     return value || 'default';
   }
   `,
-      filename: path.join(__dirname, 'fixtures/index.ts'),
+      filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
     },
     {
       code: `
@@ -47,7 +49,7 @@ ruleTester.run('S6606', rule, {
     return value || 'default';
   }
   `,
-      filename: path.join(__dirname, 'fixtures/index.ts'),
+      filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
     },
     {
       code: `
@@ -55,7 +57,7 @@ ruleTester.run('S6606', rule, {
     return value || 'default';
   }
   `,
-      filename: path.join(__dirname, 'fixtures/index.ts'),
+      filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
     },
     {
       code: `
@@ -63,7 +65,7 @@ ruleTester.run('S6606', rule, {
     return value || 'default';
   }
   `,
-      filename: path.join(__dirname, 'fixtures/index.ts'),
+      filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
     },
     {
       code: `
@@ -71,7 +73,7 @@ ruleTester.run('S6606', rule, {
     return value || 'default';
   }
   `,
-      filename: path.join(__dirname, 'fixtures/index.ts'),
+      filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
     },
   ],
   invalid: [
@@ -81,7 +83,7 @@ ruleTester.run('S6606', rule, {
     return value || 'default';
   }
   `,
-      filename: path.join(__dirname, 'fixtures/index.ts'),
+      filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
       errors: 1,
     },
     {
@@ -90,7 +92,7 @@ ruleTester.run('S6606', rule, {
     return value || 'default';
   }
   `,
-      filename: path.join(__dirname, 'fixtures/index.ts'),
+      filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
       errors: 1,
     },
     {
@@ -99,7 +101,7 @@ ruleTester.run('S6606', rule, {
     return value || 'default';
   }
   `,
-      filename: path.join(__dirname, 'fixtures/index.ts'),
+      filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
       errors: 1,
     },
   ],

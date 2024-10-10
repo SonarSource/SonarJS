@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { Rule } from 'eslint';
-import { SONAR_RUNTIME } from './';
+import type { Rule } from 'eslint';
+import { SONAR_RUNTIME } from './index.js';
 
 export function generateMeta(
   rspecMeta: Rule.RuleMetaData,

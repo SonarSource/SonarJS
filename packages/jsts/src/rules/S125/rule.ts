@@ -20,12 +20,17 @@
 // https://sonarsource.github.io/rspec/#/rspec/S125/javascript
 
 import { Rule, SourceCode } from 'eslint';
-import * as estree from 'estree';
+import estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
-import * as babel from '@babel/eslint-parser';
-import { generateMeta } from '../helpers';
-import { meta } from './meta';
-import { CodeRecognizer, JavaScriptFootPrint } from '../helpers/recognizers';
+import babel from '@babel/eslint-parser';
+import { generateMeta } from '../helpers/index.js';
+import { meta } from './meta.js';
+import { CodeRecognizer, JavaScriptFootPrint } from '../helpers/recognizers/index.js';
+
+import babelPresetReact from '@babel/preset-react';
+import babelPresetFlow from '@babel/preset-flow';
+import babelPresetEnv from '@babel/preset-env';
+import babelPluginDecorators from '@babel/plugin-proposal-decorators';
 
 const EXCLUDED_STATEMENTS = ['BreakStatement', 'LabeledStatement', 'ContinueStatement'];
 
@@ -164,8 +169,8 @@ function containsCode(value: string) {
       requireConfigFile: false,
       babelOptions: {
         targets: 'defaults',
-        presets: [`@babel/preset-react`, `@babel/preset-flow`, `@babel/preset-env`],
-        plugins: [[`@babel/plugin-proposal-decorators`, { version: '2022-03' }]],
+        presets: [babelPresetReact, babelPresetFlow, babelPresetEnv],
+        plugins: [[babelPluginDecorators, { version: '2022-03' }]],
         babelrc: false,
         configFile: false,
         parserOpts: {

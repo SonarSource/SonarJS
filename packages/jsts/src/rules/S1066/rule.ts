@@ -19,11 +19,11 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S1066
 
-import { Rule } from 'eslint';
+import type { Rule } from 'eslint';
 import estree from 'estree';
-import { generateMeta, report, toSecondaryLocation } from '../helpers';
+import { generateMeta, report, toSecondaryLocation } from '../helpers/index.js';
 import { AST_NODE_TYPES } from '@typescript-eslint/utils';
-import { meta } from './meta';
+import { meta } from './meta.js';
 
 const message = 'Merge this if statement with the nested one.';
 

@@ -20,7 +20,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S2819/javascript
 
 import { Rule, Scope } from 'eslint';
-import * as estree from 'estree';
+import estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
 import {
   childrenOf,
@@ -32,8 +32,8 @@ import {
   isIfStatement,
   isRequiredParserServices,
   resolveFunction,
-} from '../helpers';
-import { meta } from './meta';
+} from '../helpers/index.js';
+import { meta } from './meta.js';
 
 const POST_MESSAGE = 'postMessage';
 const ADD_EVENT_LISTENER = 'addEventListener';

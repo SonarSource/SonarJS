@@ -17,9 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Rule } from 'eslint';
-import * as estree from 'estree';
-import { getFullyQualifiedName, getImportDeclarations, getRequireCalls, isIdentifier } from '.';
+import type { Rule } from 'eslint';
+import estree from 'estree';
+import {
+  getFullyQualifiedName,
+  getImportDeclarations,
+  getRequireCalls,
+  isIdentifier,
+} from './index.js';
 
 export namespace Chai {
   export function isImported(context: Rule.RuleContext): boolean {

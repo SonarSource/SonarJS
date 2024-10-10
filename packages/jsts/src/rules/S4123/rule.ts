@@ -19,17 +19,17 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S4123/javascript
 
-import { Rule } from 'eslint';
-import * as estree from 'estree';
-import * as ts from 'typescript';
+import type { Rule } from 'eslint';
+import estree from 'estree';
+import ts from 'typescript';
 import {
   generateMeta,
   getSignatureFromCallee,
   getTypeFromTreeNode,
   isRequiredParserServices,
-} from '../helpers';
+} from '../helpers/index.js';
 import { ParserServicesWithTypeInformation } from '@typescript-eslint/utils';
-import { meta } from './meta';
+import { meta } from './meta.js';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta as Rule.RuleMetaData, {

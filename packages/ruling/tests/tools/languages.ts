@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as path from 'path';
+import path from 'path';
 
 const HTML_EXTENSIONS = ['.html', '.htm'];
 const YAML_EXTENSIONS = ['.yml', '.yaml'];

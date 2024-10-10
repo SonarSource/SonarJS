@@ -19,10 +19,10 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6643/javascript
 
-import * as estree from 'estree';
-import { Rule } from 'eslint';
-import { generateMeta, interceptReport } from '../helpers';
-import { meta } from './meta';
+import estree from 'estree';
+import type { Rule } from 'eslint';
+import { generateMeta, interceptReport } from '../helpers/index.js';
+import { meta } from './meta.js';
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(

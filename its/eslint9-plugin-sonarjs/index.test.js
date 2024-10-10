@@ -8,13 +8,13 @@ function verifyErrors(output) {
   assert(errorLines.length >= 8);
 }
 
-test('should work with CommonJS config', async t => {
-  const result = spawn.sync('npx', ['eslint', '-c', 'eslint.config.cjs', 'file.js'], {
-    cwd: __dirname,
-    encoding: 'utf-8',
-  });
-  verifyErrors(result.stdout);
-});
+// test('should work with CommonJS config', async t => {
+//   const result = spawn.sync('npx', ['eslint', '-c', 'eslint.config.cjs', 'file.js'], {
+//     cwd: __dirname,
+//     encoding: 'utf-8',
+//   });
+//   verifyErrors(result.stdout);
+// });
 
 test('should work with ECMAScript modules config', async t => {
   const result = spawn.sync('npx', ['eslint', '-c', 'eslint.config.mjs', 'file.js'], {

@@ -21,9 +21,9 @@
 
 import { Rule, Scope } from 'eslint';
 import { TSESTree } from '@typescript-eslint/utils';
-import { generateMeta, report, toSecondaryLocation } from '../helpers';
+import { generateMeta, report, toSecondaryLocation } from '../helpers/index.js';
 import estree from 'estree';
-import { meta } from './meta';
+import { meta } from './meta.js';
 
 const MESSAGE = "Use the rest syntax to declare this function's arguments.";
 const SECONDARY_MESSAGE = 'Replace this reference to "arguments".';

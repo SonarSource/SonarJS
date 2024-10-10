@@ -19,12 +19,12 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S4622/javascript
 
-import { Rule } from 'eslint';
-import * as estree from 'estree';
+import type { Rule } from 'eslint';
+import estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
-import { generateMeta, isIdentifier, UTILITY_TYPES } from '../helpers';
+import { generateMeta, isIdentifier, UTILITY_TYPES } from '../helpers/index.js';
 import { FromSchema } from 'json-schema-to-ts';
-import { meta, schema } from './meta';
+import { meta, schema } from './meta.js';
 
 const DEFAULT_THRESHOLD = 3;
 

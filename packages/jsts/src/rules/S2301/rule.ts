@@ -19,7 +19,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S2301/javascript
 
-import { Rule } from 'eslint';
+import type { Rule } from 'eslint';
 import {
   generateMeta,
   getTypeFromTreeNode,
@@ -28,12 +28,11 @@ import {
   isRequiredParserServices,
   report,
   toSecondaryLocation,
-} from '../helpers';
+} from '../helpers/index.js';
 import type { BlockStatement, Node as ESTreeNode } from 'estree';
-import NodeParentExtension = Rule.NodeParentExtension;
-import { meta as rspecMeta } from './meta';
+import { meta as rspecMeta } from './meta.js';
 
-type Node = ESTreeNode & NodeParentExtension;
+type Node = ESTreeNode & Rule.NodeParentExtension;
 
 const message =
   'Provide multiple methods instead of using "{{parameterName}}" to determine which action to take.';

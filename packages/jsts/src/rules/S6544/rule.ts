@@ -19,9 +19,9 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6544/javascript
 
-import { Rule } from 'eslint';
-import { tsEslintRules } from '../typescript-eslint';
-import { eslintRules } from '../core';
+import type { Rule } from 'eslint';
+import { tsEslintRules } from '../typescript-eslint/index.js';
+import { eslintRules } from '../core/index.js';
 import {
   FUNCTION_NODES,
   generateMeta,
@@ -29,9 +29,9 @@ import {
   interceptReport,
   mergeRules,
   RuleContext,
-} from '../helpers';
+} from '../helpers/index.js';
 import { TSESTree } from '@typescript-eslint/utils';
-import { meta } from './meta';
+import { meta } from './meta.js';
 
 /**
  * We keep a single occurrence of issues raised by both rules, discarding the ones raised by 'no-async-promise-executor'

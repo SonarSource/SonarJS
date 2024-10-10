@@ -17,12 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { check } from '../../../tests/tools';
-import { rule } from './';
+import { check } from '../../../tests/tools/index.js';
+import { rule } from './index.js';
 import path from 'path';
+import { describe } from 'node:test';
 
-const sonarId = path.basename(__dirname);
+const sonarId = path.basename(import.meta.dirname);
 
 describe('Rule S6440', () => {
-  check(sonarId, rule, __dirname);
+  check(sonarId, rule, import.meta.dirname);
 });

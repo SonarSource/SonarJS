@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { bundleAssessor } from './bundleAssessor';
-import { minificationAssessor } from './minificationAssessor';
-import { sizeAssessor } from './sizeAssessor';
+import { bundleAssessor } from './bundleAssessor.js';
+import { minificationAssessor } from './minificationAssessor.js';
+import { sizeAssessor } from './sizeAssessor.js';
 
 export function accept(filePath: string, fileContent: string) {
   return (

@@ -23,12 +23,12 @@
  * Said differently, this is the public API of the ESLint Plugin.
  */
 import fs from 'fs';
-import { findParent } from './helpers';
+import { findParent } from './helpers/index.js';
 import { PackageJson } from 'type-fest';
 import type { Rule, Linter } from 'eslint';
 
-import * as originalRules from './original';
-import * as decoratedRules from './decorated';
+import * as originalRules from './original.js';
+import * as decoratedRules from './decorated.js';
 
 export const rules: Record<string, Rule.RuleModule> = {
   'anchor-precedence': originalRules.S5850,
@@ -395,10 +395,10 @@ export const configs = {
 };
 
 /*
- package.json may be in current or parent dir depending on running with ts-jest or built js files
+ package.json may be in current or parent dir depending on running with tsx or built js files
  we need to find it in both cases
  */
-const packageJsonPath = findParent(__dirname, 'package.json');
+const packageJsonPath = findParent(import.meta.dirname, 'package.json');
 const { name, version } = (
   packageJsonPath ? JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8')) : {}
 ) as PackageJson;

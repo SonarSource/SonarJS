@@ -19,10 +19,10 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S5547/javascript
 
-import { Rule } from 'eslint';
-import * as estree from 'estree';
-import { generateMeta, getFullyQualifiedName, getValueOfExpression } from '../helpers';
-import { meta } from './meta';
+import type { Rule } from 'eslint';
+import estree from 'estree';
+import { generateMeta, getFullyQualifiedName, getValueOfExpression } from '../helpers/index.js';
+import { meta } from './meta.js';
 
 const WEAK_CIPHERS = ['bf', 'blowfish', 'des', 'rc2', 'rc4'];
 

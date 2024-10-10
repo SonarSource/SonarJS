@@ -19,11 +19,11 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S100/javascript
 
-import { Rule } from 'eslint';
-import * as estree from 'estree';
-import { functionLike, generateMeta, last } from '../helpers';
+import type { Rule } from 'eslint';
+import estree from 'estree';
+import { functionLike, generateMeta, last } from '../helpers/index.js';
 import { FromSchema } from 'json-schema-to-ts';
-import { meta, schema } from './meta';
+import { meta, schema } from './meta.js';
 
 interface FunctionKnowledge {
   node: estree.Identifier;

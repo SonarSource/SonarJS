@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as estree from 'estree';
-import { isIdentifier, isString, RequiredParserServices } from '../';
+import estree from 'estree';
+import { isIdentifier, isString, RequiredParserServices } from '../index.js';
 
 export function isRegExpConstructor(node: estree.Node): node is estree.CallExpression {
   return (

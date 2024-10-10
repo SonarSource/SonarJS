@@ -19,10 +19,10 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S3696/javascript
 
-import { Rule } from 'eslint';
-import * as estree from 'estree';
-import { generateMeta, interceptReport, isBinaryPlus, isStringLiteral } from '../helpers';
-import { meta } from './meta';
+import type { Rule } from 'eslint';
+import estree from 'estree';
+import { generateMeta, interceptReport, isBinaryPlus, isStringLiteral } from '../helpers/index.js';
+import { meta } from './meta.js';
 
 // core implementation of this rule does not provide quick fixes
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {

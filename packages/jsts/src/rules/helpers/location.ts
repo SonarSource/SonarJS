@@ -17,10 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as estree from 'estree';
-import { AST, Rule } from 'eslint';
-import RuleContext = Rule.RuleContext;
-import ReportDescriptor = Rule.ReportDescriptor;
+import estree from 'estree';
+import type { AST, Rule } from 'eslint';
 import { TSESLint, TSESTree } from '@typescript-eslint/utils';
 
 export type LocationHolder = AST.Token | TSESTree.Node | estree.Node | { loc: AST.SourceLocation };
@@ -132,18 +130,21 @@ export function toSecondaryLocation(
  * in Sonar* environment.
  */
 export function report(
-  context: RuleContext,
-  reportDescriptor: ReportDescriptor,
+  context: Rule.RuleContext,
+  reportDescriptor: Rule.ReportDescriptor,
   secondaryLocations: IssueLocation[] = [],
   cost?: number,
 ) {
   if ((context.options[context.options.length - 1] as unknown) !== 'sonar-runtime') {
     if ('message' in reportDescriptor && 'messageId' in reportDescriptor) {
       const { message: _, ...rest } = reportDescriptor;
-      context.report(rest as ReportDescriptor);
+      context.report(rest as Rule.ReportDescriptor);
     } else if ('message' in reportDescriptor && 'data' in reportDescriptor) {
       const { data, ...rest } = reportDescriptor;
-      context.report({ ...rest, message: expandMessage(rest.message, data) } as ReportDescriptor);
+      context.report({
+        ...rest,
+        message: expandMessage(rest.message, data),
+      } as Rule.ReportDescriptor);
     } else {
       context.report(reportDescriptor);
     }

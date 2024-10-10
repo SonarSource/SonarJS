@@ -19,12 +19,12 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S104/javascript
 
-import { Rule } from 'eslint';
-import * as estree from 'estree';
-import { getCommentLineNumbers, getLocsNumber } from '../S138/rule';
-import { generateMeta } from '../helpers';
+import type { Rule } from 'eslint';
+import estree from 'estree';
+import { getCommentLineNumbers, getLocsNumber } from '../S138/rule.js';
+import { generateMeta } from '../helpers/index.js';
 import { FromSchema } from 'json-schema-to-ts';
-import { meta, schema } from './meta';
+import { meta, schema } from './meta.js';
 
 const DEFAULT = 1000;
 

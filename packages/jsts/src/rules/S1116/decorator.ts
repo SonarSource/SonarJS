@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { AST, Rule } from 'eslint';
-import * as estree from 'estree';
-import { generateMeta, interceptReport } from '../helpers';
-import { meta } from './meta';
+import estree from 'estree';
+import { generateMeta, interceptReport } from '../helpers/index.js';
+import { meta } from './meta.js';
 
 type NullableToken = AST.Token | null | undefined;
 type NodeCondition = (context: Rule.RuleContext, node: estree.Node) => boolean;

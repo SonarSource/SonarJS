@@ -18,21 +18,26 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RuleTester, Rule } from 'eslint';
-import * as path from 'path';
+import path from 'path';
+import { fileURLToPath } from 'node:url';
 
+const dirname = path.dirname(fileURLToPath(import.meta.url));
+
+import Module from 'node:module';
+const require = Module.createRequire(import.meta.url);
 const parser = require.resolve('@typescript-eslint/parser');
 
 const parserOptions = {
   ecmaVersion: 2018,
   sourceType: 'module',
-  project: path.resolve(`${__dirname}/fixtures/tsconfig.json`),
+  project: path.resolve(`${dirname}/fixtures/tsconfig.json`),
 };
 
 const env = {
   es6: true,
 };
 
-const placeHolderFilePath = path.resolve(`${__dirname}/fixtures/placeholder.tsx`);
+const placeHolderFilePath = path.resolve(`${dirname}/fixtures/placeholder.tsx`);
 
 /**
  * Rule tester for Typescript, using @typescript-eslint parser, making sure that type information is present.

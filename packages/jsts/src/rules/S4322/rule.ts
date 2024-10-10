@@ -19,8 +19,8 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S4322/javascript
 
-import { Rule } from 'eslint';
-import * as estree from 'estree';
+import type { Rule } from 'eslint';
+import estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
 import {
   generateMeta,
@@ -28,8 +28,8 @@ import {
   getParent,
   isUndefined,
   RuleContext,
-} from '../helpers';
-import { meta } from './meta';
+} from '../helpers/index.js';
+import { meta } from './meta.js';
 
 type FunctionLikeDeclaration = TSESTree.FunctionDeclaration | TSESTree.FunctionExpression;
 

@@ -19,11 +19,11 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S109/javascript
 
-import { Rule } from 'eslint';
-import * as estree from 'estree';
-import { tsEslintRules } from '../typescript-eslint';
-import { generateMeta, getNodeParent, isMethodInvocation } from '../helpers';
-import { meta } from './meta';
+import type { Rule } from 'eslint';
+import estree from 'estree';
+import { tsEslintRules } from '../typescript-eslint/index.js';
+import { generateMeta, getNodeParent, isMethodInvocation } from '../helpers/index.js';
+import { meta } from './meta.js';
 
 const baseRuleModule = tsEslintRules['no-magic-numbers'];
 export const rule: Rule.RuleModule = {

@@ -17,8 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as estree from 'estree';
-import { convertLocation } from '../../../../../src/linter/visitors/metrics/helpers';
+import estree from 'estree';
+import { convertLocation } from '../../../../../src/linter/visitors/metrics/helpers/index.js';
+import { describe, it } from 'node:test';
+import { expect } from 'expect';
 
 describe('convertLocation', () => {
   it('should convert an ESTree location', () => {

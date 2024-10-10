@@ -19,7 +19,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S1186/javascript
 
-import * as estree from 'estree';
+import estree from 'estree';
 import { AST, Rule } from 'eslint';
 import {
   FunctionNodeType,
@@ -27,8 +27,8 @@ import {
   interceptReport,
   isFunctionNode,
   isIdentifier,
-} from '../helpers';
-import { meta } from './meta';
+} from '../helpers/index.js';
+import { meta } from './meta.js';
 
 type RuleFunctionNode = FunctionNodeType & Rule.Node;
 

@@ -18,16 +18,18 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import path from 'path';
-import { readFile } from '../../src/helpers';
+import { readFile } from '../../src/helpers/index.js';
+import { describe, it } from 'node:test';
+import { expect } from 'expect';
 
 describe('readFile', () => {
   it('should read a file', async () => {
-    const contents = await readFile(path.join(__dirname, 'fixtures', 'file.js'));
+    const contents = await readFile(path.join(import.meta.dirname, 'fixtures', 'file.js'));
     expect(contents).toBe('file();');
   });
 
   it('should remove any BOM header', async () => {
-    const contents = await readFile(path.join(__dirname, 'fixtures', 'bom.js'));
+    const contents = await readFile(path.join(import.meta.dirname, 'fixtures', 'bom.js'));
     expect(contents).toBe('bom();');
   });
 });

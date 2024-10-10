@@ -18,10 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Linter } from 'eslint';
-import { rule, SymbolHighlight } from '../../../src/linter/visitors';
-import { Location } from '../../../src/linter/visitors/metrics/helpers';
+import { rule, SymbolHighlight } from '../../../src/linter/visitors/index.js';
+import { Location } from '../../../src/linter/visitors/metrics/helpers/index.js';
 import path from 'path';
-import { parseTypeScriptSourceFile } from '../../tools';
+import { parseTypeScriptSourceFile } from '../../tools/index.js';
+import { describe, it } from 'node:test';
+import { expect } from 'expect';
 
 describe('symbol highlighting rule', () => {
   it('should highlight variables', async () => {
@@ -93,7 +95,7 @@ describe('symbol highlighting rule', () => {
 });
 
 async function highlighting(fixture: string): Promise<SymbolHighlight[]> {
-  const filePath = path.join(__dirname, 'fixtures', 'symbol-highlighting', fixture);
+  const filePath = path.join(import.meta.dirname, 'fixtures', 'symbol-highlighting', fixture);
   const sourceCode = await parseTypeScriptSourceFile(filePath, []);
 
   const ruleId = 'symbol-highlighting';

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import express from 'express';
-import Timeout from './timeout';
+import Timeout from './timeout.js';
 
 /**
  * Express.js middleware that timeouts after a lapse of time and triggers a function.

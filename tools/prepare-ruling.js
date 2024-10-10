@@ -1,6 +1,6 @@
-const path = require('path');
-const fs = require('fs');
-const semver = require('semver');
+import path from 'path';
+import fs from 'fs';
+import semver from 'semver';
 
 const version = process.versions.node;
 if (semver.lt(version, '20.10.0')) {
@@ -17,8 +17,8 @@ if (missing.length > 0) {
   process.exit(1);
 }
 
-const TARGET = path.join(__dirname, '..', 'its', 'sources');
-const LINK = path.join(__dirname, '..', '..', 'sonarjs-ruling-sources');
+const TARGET = path.join(import.meta.dirname, '..', 'its', 'sources');
+const LINK = path.join(import.meta.dirname, '..', '..', 'sonarjs-ruling-sources');
 
 if (fs.existsSync(LINK)) {
   fs.unlinkSync(LINK);
@@ -27,7 +27,7 @@ fs.symlinkSync(TARGET, LINK);
 
 function findMissingData() {
   const PATH_TO_RULES = path.join(
-    __dirname,
+    import.meta.dirname,
     '..',
     'packages',
     'ruling',

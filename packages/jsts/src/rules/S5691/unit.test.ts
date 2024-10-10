@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RuleTester } from 'eslint';
-import { rule } from './';
+import { rule } from './index.js';
 
 const message = 'Make sure serving hidden files is safe here.';
 
@@ -75,7 +75,7 @@ app.use(serveStatic('public',
     },
     {
       code: `
-import * as serveStatic from 'serve-static';
+import serveStatic from 'serve-static';
 let app = express();
 const options = { 
   'index': false, 

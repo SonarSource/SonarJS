@@ -19,16 +19,16 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S3827/javascript
 import { TSESTree } from '@typescript-eslint/utils';
-import { Rule } from 'eslint';
-import * as estree from 'estree';
+import type { Rule } from 'eslint';
+import estree from 'estree';
 import {
   findFirstMatchingAncestor,
   generateMeta,
   isInsideVueSetupScript,
   report,
   toSecondaryLocation,
-} from '../helpers';
-import { meta } from './meta';
+} from '../helpers/index.js';
+import { meta } from './meta.js';
 
 // https://vuejs.org/api/sfc-script-setup.html#defineprops-defineemits
 const vueMacroNames = new Set([

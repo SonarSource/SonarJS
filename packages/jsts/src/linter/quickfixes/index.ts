@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export * from './messages';
-export * from './quickfix';
-export * from './rules';
-export * from './transform';
+export * from './messages.js';
+export * from './quickfix.js';
+export * from './rules.js';
+export * from './transform.js';

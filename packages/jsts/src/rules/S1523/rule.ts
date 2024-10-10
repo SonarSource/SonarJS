@@ -20,11 +20,11 @@
 // https://sonarsource.github.io/rspec/#/rspec/S1523/javascript
 // SQ key 'eval'
 
-import { Rule } from 'eslint';
-import * as estree from 'estree';
-import { eslintRules } from '../core';
-import { generateMeta } from '../helpers';
-import { meta } from './meta';
+import type { Rule } from 'eslint';
+import estree from 'estree';
+import { eslintRules } from '../core/index.js';
+import { generateMeta } from '../helpers/index.js';
+import { meta } from './meta.js';
 
 const noScriptUrlRule = eslintRules['no-script-url'];
 

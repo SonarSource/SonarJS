@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export * from './config';
-export * from './custom-rules';
-export * from './issues';
-export * from './linters';
-export * from './quickfixes';
-export * from './visitors';
-export * from './wrapper';
+export * from './config/index.js';
+export * from './custom-rules/index.js';
+export * from './issues/index.js';
+export * from './linters.js';
+export * from './quickfixes/index.js';
+export * from './visitors/index.js';
+export * from './wrapper.js';

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 // https://sonarsource.github.io/rspec/#/rspec/S5362/css
-import * as stylelint from 'stylelint';
+import stylelint from 'stylelint';
 import postcssValueParser from 'postcss-value-parser';
 
 const ruleName = 'sonar/function-calc-no-invalid';

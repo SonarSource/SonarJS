@@ -1,4 +1,4 @@
-import * as cdk from 'aws-cdk-lib';
+import cdk from 'aws-cdk-lib';
 import { aws_elasticsearch as elasticsearch, aws_opensearchservice as opensearchservice } from 'aws-cdk-lib';
 import { EngineVersion } from 'aws-cdk-lib/aws-opensearchservice';
 import { ElasticsearchVersion } from 'aws-cdk-lib/aws-elasticsearch';

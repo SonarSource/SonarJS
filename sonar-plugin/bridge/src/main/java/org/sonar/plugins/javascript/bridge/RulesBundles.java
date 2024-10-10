@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -91,7 +92,7 @@ public class RulesBundles {
             "Failed to deploy bundle " + bundle + ". Didn't find 'package' dir."
           );
         }
-        unpackedBundles.add(deployedBundle);
+        unpackedBundles.add(Paths.get(deployedBundle.toString(), "dist", "rules.js"));
       } catch (IOException e) {
         LOG.error("Failed to extract bundle " + bundle, e);
       }

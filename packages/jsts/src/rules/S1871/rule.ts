@@ -29,10 +29,10 @@ import {
   report,
   takeWithoutBreak,
   toSecondaryLocation,
-} from '../helpers';
-import { Rule } from 'eslint';
+} from '../helpers/index.js';
+import type { Rule } from 'eslint';
 import estree from 'estree';
-import { meta } from './meta';
+import { meta } from './meta.js';
 
 const message =
   "This {{type}}'s code block is the same as the block for the {{type}} on line {{line}}.";

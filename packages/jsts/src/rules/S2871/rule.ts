@@ -19,9 +19,9 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S2871/javascript
 
-import { Rule } from 'eslint';
+import type { Rule } from 'eslint';
 import ts from 'typescript';
-import * as estree from 'estree';
+import estree from 'estree';
 import {
   copyingSortLike,
   generateMeta,
@@ -32,8 +32,8 @@ import {
   isRequiredParserServices,
   isStringArray,
   sortLike,
-} from '../helpers';
-import { meta } from './meta';
+} from '../helpers/index.js';
+import { meta } from './meta.js';
 
 const compareNumberFunctionPlaceholder = '(a, b) => (a - b)';
 const compareBigIntFunctionPlaceholder = [

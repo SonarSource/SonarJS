@@ -19,11 +19,12 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6477/javascript
 
-import { Rule } from 'eslint';
-import { rules } from 'eslint-plugin-react';
-import { generateMeta, getDependencies } from '../helpers';
-import { decorate } from './decorator';
-import { meta } from './meta';
+import type { Rule } from 'eslint';
+import pkg from 'eslint-plugin-react';
+const { rules } = pkg;
+import { generateMeta, getDependencies } from '../helpers/index.js';
+import { decorate } from './decorator.js';
+import { meta } from './meta.js';
 
 const decoratedJsxKey = decorate(rules['jsx-key']);
 

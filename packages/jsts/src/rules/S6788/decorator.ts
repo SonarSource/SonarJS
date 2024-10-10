@@ -19,9 +19,9 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6788/javascript
 
-import { Rule } from 'eslint';
-import { generateMeta, interceptReport } from '../helpers';
-import { meta } from './meta';
+import type { Rule } from 'eslint';
+import { generateMeta, interceptReport } from '../helpers/index.js';
+import { meta } from './meta.js';
 
 // Rewording issue message reported by the core implementation.
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {

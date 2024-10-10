@@ -19,16 +19,16 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S2817/javascript
 
-import { Rule } from 'eslint';
-import * as estree from 'estree';
+import type { Rule } from 'eslint';
+import estree from 'estree';
 import {
   generateMeta,
   getSymbolAtLocation,
   getTypeAsString,
   isIdentifier,
   isRequiredParserServices,
-} from '../helpers';
-import { meta } from './meta';
+} from '../helpers/index.js';
+import { meta } from './meta.js';
 
 const OPEN_DATABASE = 'openDatabase';
 

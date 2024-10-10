@@ -19,8 +19,8 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S4275/javascript
 
-import { Rule } from 'eslint';
-import * as estree from 'estree';
+import type { Rule } from 'eslint';
+import estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
 import {
   generateMeta,
@@ -31,9 +31,9 @@ import {
   mergeRules,
   report,
   toSecondaryLocation,
-} from '../helpers';
-import { eslintRules } from '../core';
-import { meta } from './meta';
+} from '../helpers/index.js';
+import { eslintRules } from '../core/index.js';
+import { meta } from './meta.js';
 
 const getterReturnRule = eslintRules['getter-return'];
 type AccessorNode = TSESTree.Property | TSESTree.MethodDefinition;

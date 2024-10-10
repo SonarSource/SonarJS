@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6853/javascript
-import { Rule } from 'eslint';
+import type { Rule } from 'eslint';
 import { TSESTree } from '@typescript-eslint/utils';
 import { Node } from 'estree';
-import { generateMeta, interceptReport } from '../helpers';
-import { meta } from './meta';
+import { generateMeta, interceptReport } from '../helpers/index.js';
+import { meta } from './meta.js';
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(

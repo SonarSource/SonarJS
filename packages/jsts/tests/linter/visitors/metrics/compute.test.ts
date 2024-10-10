@@ -18,12 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import path from 'path';
-import { computeMetrics } from '../../../../src/linter/visitors/metrics';
-import { parseJavaScriptSourceFile } from '../../../tools';
+import { computeMetrics } from '../../../../src/linter/visitors/metrics/index.js';
+import { parseJavaScriptSourceFile } from '../../../tools/index.js';
+import { describe, it } from 'node:test';
+import { expect } from 'expect';
 
 describe('computeMetrics', () => {
   it('should compute metrics', async () => {
-    const filePath = path.join(__dirname, 'fixtures', 'compute.js');
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'compute.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
     const metrics = computeMetrics(sourceCode, true, 42);
     expect(metrics).toEqual({

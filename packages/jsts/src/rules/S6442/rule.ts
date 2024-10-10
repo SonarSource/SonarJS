@@ -19,8 +19,8 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6442/javascript
 
-import { Rule, Scope as ESLintScope } from 'eslint';
-import * as estree from 'estree';
+import type { Rule, Scope } from 'eslint';
+import estree from 'estree';
 import {
   findFirstMatchingLocalAncestor,
   generateMeta,
@@ -28,11 +28,9 @@ import {
   getVariableFromName,
   isFunctionNode,
   isIdentifier,
-} from '../helpers';
+} from '../helpers/index.js';
 import { TSESTree } from '@typescript-eslint/utils';
-import { meta } from './meta';
-import Variable = ESLintScope.Variable;
-import Scope = ESLintScope.Scope;
+import { meta } from './meta.js';
 
 type HookDeclarator = estree.VariableDeclarator & {
   id: {
@@ -64,14 +62,14 @@ export const rule: Rule.RuleModule = {
       );
     }
 
-    function getReactComponentScope(node: estree.Node): Scope | null {
+    function getReactComponentScope(node: estree.Node): Scope.Scope | null {
       const scope = context.sourceCode.getScope(node);
       const isReact = isFunctionNode(scope.block) && matchesReactComponentName(scope.block, 1);
       return isReact ? scope : null;
     }
 
-    function isInsideFunctionScope(scope: Scope | null, node: estree.Node): boolean {
-      function searchUpperFunctionScope(current: Scope | null): Scope | null {
+    function isInsideFunctionScope(scope: Scope.Scope | null, node: estree.Node): boolean {
+      function searchUpperFunctionScope(current: Scope.Scope | null): Scope.Scope | null {
         if (current === null) {
           return null;
         } else if (current.type === 'function') {
@@ -93,8 +91,8 @@ export const rule: Rule.RuleModule = {
       );
     }
 
-    let reactComponentScope: Scope | null; // Scope of the React component render function.
-    const setters: Variable[] = []; // Setter variables returned by the React useState() function.
+    let reactComponentScope: Scope.Scope | null; // Scope.Scope of the React component render function.
+    const setters: Scope.Variable[] = []; // Setter variables returned by the React useState() function.
 
     return {
       ':function'(node: estree.Node) {

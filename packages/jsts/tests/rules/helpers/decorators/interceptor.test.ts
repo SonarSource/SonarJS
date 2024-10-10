@@ -18,12 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Rule, RuleTester } from 'eslint';
-import { interceptReport } from '../../../../src/rules';
+import { interceptReport } from '../../../../src/rules/index.js';
 // Covers `getDeclaredVariables`, `getScope`, `getSourceCode`.
-import { rule as noParameterReassignment } from '../../../../src/rules/S1226';
+import { rule as noParameterReassignment } from '../../../../src/rules/S1226/index.js';
 // Covers `getFilename`
-import { rule as noImplicitDependencies } from '../../../../src/rules/S4328';
-import * as path from 'path';
+import { rule as noImplicitDependencies } from '../../../../src/rules/S4328/index.js';
+import path from 'path';
+import Module from 'node:module';
+const require = Module.createRequire(import.meta.url);
+import { describe } from 'node:test';
 
 describe('interceptReport', () => {
   assertThatInterceptReportDecoratorForwardsCalls(
@@ -35,7 +38,7 @@ describe('interceptReport', () => {
     },
   );
 
-  const filename = path.join(__dirname, 'fixtures', 'file.js');
+  const filename = path.join(import.meta.dirname, 'fixtures', 'file.js');
   assertThatInterceptReportDecoratorForwardsCalls(
     'Dependencies should be explicit',
     noImplicitDependencies,

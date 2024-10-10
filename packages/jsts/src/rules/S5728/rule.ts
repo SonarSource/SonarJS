@@ -19,10 +19,15 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S5728/javascript
 
-import { Rule } from 'eslint';
-import * as estree from 'estree';
-import { Express, generateMeta, getFullyQualifiedName, getPropertyWithValue } from '../helpers';
-import { meta } from './meta';
+import type { Rule } from 'eslint';
+import estree from 'estree';
+import {
+  Express,
+  generateMeta,
+  getFullyQualifiedName,
+  getPropertyWithValue,
+} from '../helpers/index.js';
+import { meta } from './meta.js';
 
 const HELMET = 'helmet';
 const CONTENT_SECURITY_POLICY = 'contentSecurityPolicy';

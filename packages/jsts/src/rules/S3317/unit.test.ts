@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { RuleTester } from 'eslint';
-import { rule } from './';
+import { rule } from './index.js';
 import path from 'path';
 
 const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
@@ -91,7 +91,7 @@ ruleTester.run('Class names and file names should match', rule, {
     {
       code: `class MyClass {}
             export default MyClass;`,
-      filename: `${__dirname}${path.sep}MyClass.js`,
+      filename: `${import.meta.dirname}${path.sep}MyClass.js`,
     },
     {
       code: `const MY_CONST = 3.14;

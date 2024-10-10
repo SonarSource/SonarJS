@@ -17,13 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { countClasses } from '../../../../src/linter/visitors/metrics/classes';
+import { countClasses } from '../../../../src/linter/visitors/metrics/classes.js';
 import path from 'path';
-import { parseJavaScriptSourceFile } from '../../../tools';
+import { parseJavaScriptSourceFile } from '../../../tools/index.js';
+import { describe, it } from 'node:test';
+import { expect } from 'expect';
 
 describe('countClasses', () => {
   it('should count the number of classes', async () => {
-    const filePath = path.join(__dirname, 'fixtures', 'classes.js');
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'classes.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
     const classes = countClasses(sourceCode);
     expect(classes).toEqual(2);

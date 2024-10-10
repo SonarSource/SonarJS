@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { TSESTree } from '@typescript-eslint/utils';
-import { Rule } from 'eslint';
-import { generateMeta, interceptReportForReact } from '../helpers';
-import { meta } from './meta';
+import type { Rule } from 'eslint';
+import { generateMeta, interceptReportForReact } from '../helpers/index.js';
+import { meta } from './meta.js';
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReportForReact(

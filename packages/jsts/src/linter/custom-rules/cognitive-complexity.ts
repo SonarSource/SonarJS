@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { rule as cognitiveComplexityRule } from '../../rules/S3776';
-import { CustomRule } from './custom-rule';
+import { rule as cognitiveComplexityRule } from '../../rules/S3776/index.js';
+import { CustomRule } from './custom-rule.js';
 
 /**
  * The internal _cognitive complexity_ custom rule

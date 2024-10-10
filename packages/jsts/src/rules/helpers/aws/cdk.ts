@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Rule } from 'eslint';
-import * as estree from 'estree';
-import { getFullyQualifiedName } from '../module';
+import type { Rule } from 'eslint';
+import estree from 'estree';
+import { getFullyQualifiedName } from '../module.js';
 import {
   getProperty,
   getUniqueWriteUsage,
@@ -29,7 +29,7 @@ import {
   isUndefined,
   isUnresolved,
   getValueOfExpression,
-} from '../ast';
+} from '../ast.js';
 
 const AWS_OPTIONS_ARGUMENT_POSITION = 2;
 

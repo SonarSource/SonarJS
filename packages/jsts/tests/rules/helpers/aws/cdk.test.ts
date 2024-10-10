@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { AwsCdkTemplate } from '../../../../src/rules';
-import { TypeScriptRuleTester } from '../../../tools';
+import { AwsCdkTemplate } from '../../../../src/rules/index.js';
+import { TypeScriptRuleTester } from '../../../tools/index.js';
 
 const rule = AwsCdkTemplate({
   'aws-cdk-lib.aws_module.Class': (node, context) => {
@@ -219,7 +219,7 @@ new module.Class();
     },
     {
       code: `
-import * as cdk from 'aws-cdk-lib';
+import cdk from 'aws-cdk-lib';
 new cdk.aws_module.Class();
       `,
       errors: 1,

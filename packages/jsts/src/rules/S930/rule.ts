@@ -32,9 +32,9 @@ import {
   report,
   RuleContext,
   toSecondaryLocation,
-} from '../helpers';
+} from '../helpers/index.js';
 import estree from 'estree';
-import { meta } from './meta';
+import { meta } from './meta.js';
 
 const message = 'This function expects {{expectedArguments}}, but {{providedArguments}} provided.';
 

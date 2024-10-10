@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Rule } from 'eslint';
+import type { Rule } from 'eslint';
 import { AST } from '@eslint-community/regexpp';
-import { createRegExpRule } from '../../../../src/rules/helpers';
-import { JavaScriptRuleTester } from '../../../tools';
+import { createRegExpRule } from '../../../../src/rules/helpers/index.js';
+import { JavaScriptRuleTester } from '../../../tools/index.js';
 
 const rule: Rule.RuleModule = createRegExpRule(context => {
   return {

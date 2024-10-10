@@ -19,10 +19,15 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S5691/javascript
 
-import { Rule } from 'eslint';
-import * as estree from 'estree';
-import { generateMeta, getFullyQualifiedName, getProperty, getUniqueWriteUsage } from '../helpers';
-import { meta } from './meta';
+import type { Rule } from 'eslint';
+import estree from 'estree';
+import {
+  generateMeta,
+  getFullyQualifiedName,
+  getProperty,
+  getUniqueWriteUsage,
+} from '../helpers/index.js';
+import { meta } from './meta.js';
 
 const SERVE_STATIC = 'serve-static';
 

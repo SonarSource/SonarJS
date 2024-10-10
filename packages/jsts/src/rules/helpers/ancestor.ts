@@ -20,7 +20,7 @@
 import { TSESTree } from '@typescript-eslint/utils';
 import { Rule, SourceCode } from 'eslint';
 import estree, { Node } from 'estree';
-import { functionLike } from './ast';
+import { functionLike } from './ast.js';
 
 export function findFirstMatchingLocalAncestor(
   node: TSESTree.Node,

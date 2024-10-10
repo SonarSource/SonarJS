@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { AST, Rule } from 'eslint';
-import * as estree from 'estree';
+import estree from 'estree';
 import * as regexpp from '@eslint-community/regexpp';
-import { isRegexLiteral, isStringLiteral } from '../';
-import { getRegexpRange } from './range';
+import { isRegexLiteral, isStringLiteral } from '../index.js';
+import { getRegexpRange } from './range.js';
 
 /**
  * Gets the regexp node location in the ESLint referential

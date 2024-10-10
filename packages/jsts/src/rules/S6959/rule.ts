@@ -19,8 +19,8 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6959/javascript
 
-import * as estree from 'estree';
-import { Rule } from 'eslint';
+import estree from 'estree';
+import type { Rule } from 'eslint';
 import {
   generateMeta,
   getUniqueWriteUsageOrNode,
@@ -28,8 +28,8 @@ import {
   isArrayExpression,
   isCallingMethod,
   isRequiredParserServices,
-} from '../helpers';
-import { meta } from './meta';
+} from '../helpers/index.js';
+import { meta } from './meta.js';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta as Rule.RuleMetaData, {

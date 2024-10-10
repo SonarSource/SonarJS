@@ -19,9 +19,9 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S5332/javascript
 
-import { Rule } from 'eslint';
-import { AwsCdkCheckArguments, AwsCdkTemplate } from '../helpers/aws/cdk';
-import * as estree from 'estree';
+import type { Rule } from 'eslint';
+import { AwsCdkCheckArguments, AwsCdkTemplate } from '../helpers/aws/cdk.js';
+import estree from 'estree';
 
 const sensitivePorts = [80, 8080, 8000, 8008];
 

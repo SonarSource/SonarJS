@@ -18,6 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 declare module '@typescript-eslint/eslint-plugin' {
-  import { Rule } from 'eslint';
+  import type { Rule } from 'eslint';
   export const rules: { [name: string]: Rule.RuleModule };
 }

@@ -19,10 +19,10 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S2970/javascript
 
-import { Rule } from 'eslint';
-import * as estree from 'estree';
-import { generateMeta, isIdentifier, isNumberLiteral } from '../helpers';
-import { meta } from './meta';
+import type { Rule } from 'eslint';
+import estree from 'estree';
+import { generateMeta, isIdentifier, isNumberLiteral } from '../helpers/index.js';
+import { meta } from './meta.js';
 
 const assertionFunctions = [
   'a',

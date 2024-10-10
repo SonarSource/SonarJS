@@ -19,8 +19,8 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6321/javascript
 
-import { Rule } from 'eslint';
-import * as estree from 'estree';
+import type { Rule } from 'eslint';
+import estree from 'estree';
 import {
   AwsCdkCheckArguments,
   AwsCdkConsumer,
@@ -28,7 +28,7 @@ import {
   FullyQualifiedName,
   getLiteralValue,
   normalizeFQN,
-} from '../helpers/aws/cdk';
+} from '../helpers/aws/cdk.js';
 import {
   generateMeta,
   getFullyQualifiedName,
@@ -38,8 +38,8 @@ import {
   isUndefined,
   isUnresolved,
   reduceToIdentifier,
-} from '../helpers';
-import { meta } from './meta';
+} from '../helpers/index.js';
+import { meta } from './meta.js';
 
 const TYPES_WITH_CONNECTIONS = [
   'aws_cdk_lib.aws_docdb.DatabaseCluster.connections',

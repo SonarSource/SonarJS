@@ -76,7 +76,8 @@
 
   <properties>
     <!--  this is necessary because of drop of modules  -->
-    <sonar.testExecutionReportPaths>test-report.xml</sonar.testExecutionReportPaths>
+<!--        <sonar.testExecutionReportPaths>test-report.xml</sonar.testExecutionReportPaths>-->
+    <sonar.javascript.lcov.reportPaths>lcov.info</sonar.javascript.lcov.reportPaths>
 
     <gitRepositoryName>SonarJS</gitRepositoryName>
     <license.title>SonarQube JavaScript Plugin</license.title>

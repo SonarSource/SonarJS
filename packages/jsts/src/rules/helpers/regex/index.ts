@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export * from './alternation';
-export * from './ast';
-export * from './extract';
-export * from './flags';
-export * from './group';
-export * from './location';
-export * from './range';
-export * from './rule-template';
-export * from './simplified-regex-character-class';
-export * from './tokenizer';
+export * from './alternation.js';
+export * from './ast.js';
+export * from './extract.js';
+export * from './flags.js';
+export * from './group.js';
+export * from './location.js';
+export * from './range.js';
+export * from './rule-template.js';
+export * from './simplified-regex-character-class.js';
+export * from './tokenizer.js';

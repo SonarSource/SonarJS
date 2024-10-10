@@ -17,9 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as esprima from 'esprima';
-import * as estree from 'estree';
-import { Mocha } from '../../../src/rules';
+import esprima from 'esprima';
+import estree from 'estree';
+import { Mocha } from '../../../src/rules/index.js';
+import { describe, it } from 'node:test';
+import { expect } from 'expect';
 
 describe('Mocha.js', () => {
   it('should recognize test constructs', () => {

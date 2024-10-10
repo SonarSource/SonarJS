@@ -20,10 +20,11 @@
 // https://sonarsource.github.io/rspec/#/rspec/S5254/javascript
 
 import { TSESTree } from '@typescript-eslint/utils';
-import { Rule } from 'eslint';
-import { rules as jsxA11yRules } from 'eslint-plugin-jsx-a11y';
-import { generateMeta, interceptReport, mergeRules } from '../helpers';
-import { meta } from './meta';
+import type { Rule } from 'eslint';
+import pkg from 'eslint-plugin-jsx-a11y';
+const { rules: jsxA11yRules } = pkg;
+import { generateMeta, interceptReport, mergeRules } from '../helpers/index.js';
+import { meta } from './meta.js';
 
 const langRule = jsxA11yRules['lang'];
 const htmlHasLangRule = jsxA11yRules['html-has-lang'];

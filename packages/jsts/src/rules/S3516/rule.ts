@@ -19,8 +19,8 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S3516/javascript
 
-import { Rule, Scope } from 'eslint';
-import * as estree from 'estree';
+import type { Rule, Scope } from 'eslint';
+import estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
 import {
   findFirstMatchingAncestor,
@@ -32,9 +32,8 @@ import {
   report,
   RuleContext,
   toSecondaryLocation,
-} from '../helpers';
-import { meta } from './meta';
-import CodePathSegment = Rule.CodePathSegment;
+} from '../helpers/index.js';
+import { meta } from './meta.js';
 
 interface FunctionContext {
   codePath: Rule.CodePath;
@@ -99,7 +98,7 @@ export const rule: Rule.RuleModule = {
         functionContextStack.pop();
         currentCodePathSegments = codePathSegments.pop() || [];
       },
-      onCodePathSegmentStart: (segment: CodePathSegment) => {
+      onCodePathSegmentStart: (segment: Rule.CodePathSegment) => {
         currentCodePathSegments.push(segment);
       },
       onCodePathSegmentEnd() {

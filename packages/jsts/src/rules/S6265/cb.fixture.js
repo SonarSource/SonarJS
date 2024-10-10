@@ -89,7 +89,7 @@ const invalidBucketDeploymentParam3 = new s3deploy.BucketDeployment(this, 'id', 
 });
 
 const falseNegative = new s3deploy.BucketDeployment(this, 'upload', {
-  sources: [s3deploy.Source.asset(path.join(__dirname, '../lib'))],
+  sources: [s3deploy.Source.asset(path.join(import.meta.dirname, '../lib'))],
   destinationBucket: bucketNoncompliant4,
   accessControl: s3.BucketAccessControl.PUBLIC_READ_WRITE // Noncompliant
 });

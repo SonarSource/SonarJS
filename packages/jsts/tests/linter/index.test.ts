@@ -18,15 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import path from 'path';
-import { setContext } from '@sonar/shared';
-import { initializeLinter, getLinter, LinterWrapper } from '@sonar/jsts';
-import { parseJavaScriptSourceFile } from '../tools';
+import { setContext } from '../../../shared/src/index.js';
+import { initializeLinter, getLinter, LinterWrapper } from '../../../jsts/src/index.js';
+import { parseJavaScriptSourceFile } from '../tools/index.js';
+import { describe, it, mock, Mock } from 'node:test';
+import { expect } from 'expect';
+import { pathToFileURL } from 'node:url';
 
 describe('initializeLinter', () => {
-  beforeEach(() => {
-    jest.resetModules();
-  });
-
   it('should initialize the linter wrapper', async () => {
     setContext({
       workDir: '/tmp/dir',
@@ -35,19 +34,22 @@ describe('initializeLinter', () => {
       bundles: [],
     });
 
-    console.log = jest.fn();
+    console.log = mock.fn();
 
     expect(getLinter).toThrow();
 
-    initializeLinter([{ key: 'S1116', configurations: [], fileTypeTarget: ['MAIN'] }]);
+    await initializeLinter([{ key: 'S1116', configurations: [], fileTypeTarget: ['MAIN'] }]);
 
     const linter = getLinter();
 
     expect(linter).toBeDefined();
     expect(linter).toBeInstanceOf(LinterWrapper);
-    expect(console.log).toHaveBeenCalledWith('DEBUG Initializing linter "default" with S1116');
+    const logs = (console.log as Mock<typeof console.log>).mock.calls.map(
+      call => call.arguments[0],
+    );
+    expect(logs).toContain('DEBUG Initializing linter "default" with S1116');
 
-    const filePath = path.join(__dirname, 'fixtures', 'index', 'regular.js');
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'index', 'regular.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
     const {
@@ -63,28 +65,30 @@ describe('initializeLinter', () => {
   });
 
   it('should load rule bundles', async () => {
+    const bundlePath = pathToFileURL(
+      path.join(import.meta.dirname, 'fixtures', 'index', 'custom-rule-bundle', 'rules.js'),
+    ).href;
     setContext({
       workDir: '/tmp/dir',
       shouldUseTypeScriptParserForJS: false,
       sonarlint: false,
-      bundles: ['custom-rule-bundle'],
+      bundles: [bundlePath],
     });
 
-    console.log = jest.fn();
+    console.log = mock.fn();
 
-    initializeLinter([{ key: 'custom-rule', configurations: [], fileTypeTarget: ['MAIN'] }]);
+    await initializeLinter([{ key: 'custom-rule', configurations: [], fileTypeTarget: ['MAIN'] }]);
 
     const linter = getLinter();
 
     expect(linter).toBeDefined();
-    expect(console.log).toHaveBeenCalledWith(
-      'DEBUG Loaded rules custom-rule from custom-rule-bundle',
+    const logs = (console.log as Mock<typeof console.log>).mock.calls.map(
+      call => call.arguments[0],
     );
-    expect(console.log).toHaveBeenCalledWith(
-      'DEBUG Initializing linter "default" with custom-rule',
-    );
+    expect(logs).toContain(`DEBUG Loaded rules custom-rule from ${bundlePath}`);
+    expect(logs).toContain('DEBUG Initializing linter "default" with custom-rule');
 
-    const filePath = path.join(__dirname, 'fixtures', 'index', 'custom.js');
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'index', 'custom.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
     const {

@@ -18,9 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import path from 'path';
-import { getContext, setContext, toUnixPath } from '@sonar/shared';
-import { analyzeProject, clearTSConfigs, ProjectAnalysisInput, RuleConfig } from '@sonar/jsts';
-import { searchFiles, File } from '../../src/rules';
+import { getContext, setContext, toUnixPath } from '../../../shared/src/index.js';
+import {
+  analyzeProject,
+  clearTSConfigs,
+  ProjectAnalysisInput,
+  RuleConfig,
+} from '../../../jsts/src/index.js';
+import { searchFiles, File } from '../../src/rules/index.js';
+import { describe, it, beforeEach } from 'node:test';
+import { expect } from 'expect';
 
 const defaultRules: RuleConfig[] = [
   { key: 'S4621', configurations: [], fileTypeTarget: ['MAIN'] },
@@ -66,11 +73,10 @@ function prepareInput(files: Record<string, File<void>[]>): ProjectAnalysisInput
   };
 }
 
-const fixtures = path.join(__dirname, 'fixtures');
+const fixtures = path.join(import.meta.dirname, 'fixtures');
 
 describe('analyzeProject', () => {
   beforeEach(() => {
-    jest.resetModules();
     clearTSConfigs();
     setContext({
       workDir: '/tmp/dir',

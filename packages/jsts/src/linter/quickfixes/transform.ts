@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Linter, Rule, SourceCode } from 'eslint';
-import { getQuickFixMessage } from './messages';
-import { QuickFix, QuickFixEdit } from './quickfix';
-import { quickFixRules } from './rules';
+import { getQuickFixMessage } from './messages.js';
+import { QuickFix, QuickFixEdit } from './quickfix.js';
+import { quickFixRules } from './rules.js';
 
 /**
  * Transforms ESLint fixes and suggestions into SonarLint quick fixes

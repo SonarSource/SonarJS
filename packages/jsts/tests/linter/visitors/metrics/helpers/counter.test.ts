@@ -17,13 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { visitAndCountIf } from '../../../../../src/linter/visitors/metrics/helpers';
+import { visitAndCountIf } from '../../../../../src/linter/visitors/metrics/helpers/index.js';
 import path from 'path';
-import { parseJavaScriptSourceFile } from '../../../../tools';
+import { parseJavaScriptSourceFile } from '../../../../tools/index.js';
+import { describe, it } from 'node:test';
+import { expect } from 'expect';
 
 describe('visitAndCountIf', () => {
   it('should count matching nodes', async () => {
-    const filePath = path.join(__dirname, './fixtures/counter.js');
+    const filePath = path.join(import.meta.dirname, './fixtures/counter.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath, []);
     const count = visitAndCountIf(sourceCode, node => node.type === 'CallExpression');
     expect(count).toEqual(3);

@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export * from './cpd';
-export * from './metrics';
-export * from './symbol-highlighting';
-export * from './syntax-highlighting';
-export * from './visitor';
+export * from './cpd.js';
+export * from './metrics/index.js';
+export * from './symbol-highlighting.js';
+export * from './syntax-highlighting.js';
+export * from './visitor.js';

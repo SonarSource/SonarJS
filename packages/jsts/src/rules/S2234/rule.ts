@@ -19,8 +19,8 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S2234/javascript
 
-import { Rule } from 'eslint';
-import * as estree from 'estree';
+import type { Rule } from 'eslint';
+import estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
 import {
   FunctionNodeType,
@@ -33,8 +33,8 @@ import {
   resolveFromFunctionReference,
   resolveIdentifiers,
   toSecondaryLocation,
-} from '../helpers';
-import { meta } from './meta';
+} from '../helpers/index.js';
+import { meta } from './meta.js';
 
 interface FunctionSignature {
   params: Array<string | undefined>;

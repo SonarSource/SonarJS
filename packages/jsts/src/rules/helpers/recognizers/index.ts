@@ -21,5 +21,5 @@
 // - https://github.com/SonarSource/sonar-java/blob/e3b4ce381eb994235ab811d253953e400d12aab2/java-checks/src/main/java/org/sonar/java/checks/JavaFootprint.java#L31
 // - https://github.com/SonarSource/sonar-analyzer-commons/blob/e2881512ce632259981c65b587652151e876d736/recognizers/src/main/java/org/sonarsource/analyzer/commons/recognizers/CodeRecognizer.java#L25
 
-export * from './JavaScriptFootPrint';
-export * from './CodeRecognizer';
+export * from './JavaScriptFootPrint.js';
+export * from './CodeRecognizer.js';

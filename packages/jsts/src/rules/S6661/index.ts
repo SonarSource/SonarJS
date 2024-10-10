@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Rule } from 'eslint';
-import { eslintRules } from '../core';
-import { decorate } from './decorator';
+import type { Rule } from 'eslint';
+import { eslintRules } from '../core/index.js';
+import { decorate } from './decorator.js';
 import { dirname } from 'path/posix';
-import { toUnixPath, isSupported } from '../helpers';
+import { toUnixPath, isSupported } from '../helpers/index.js';
 
 const decorated = decorate(eslintRules['prefer-object-spread']);
 

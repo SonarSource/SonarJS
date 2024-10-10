@@ -19,8 +19,8 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S5247/javascript
 
-import { Rule } from 'eslint';
-import * as estree from 'estree';
+import type { Rule } from 'eslint';
+import estree from 'estree';
 import {
   checkSensitiveCall,
   generateMeta,
@@ -30,8 +30,8 @@ import {
   isRequiredParserServices,
   report,
   resolveFromFunctionReference,
-} from '../helpers';
-import { meta } from './meta';
+} from '../helpers/index.js';
+import { meta } from './meta.js';
 
 const MESSAGE = 'Make sure disabling auto-escaping feature is safe here.';
 

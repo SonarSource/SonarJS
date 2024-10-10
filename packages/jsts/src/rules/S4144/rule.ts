@@ -27,10 +27,10 @@ import {
   report,
   RuleContext,
   toSecondaryLocation,
-} from '../helpers';
-import { Rule } from 'eslint';
+} from '../helpers/index.js';
+import type { Rule } from 'eslint';
 import estree from 'estree';
-import { meta, schema } from './meta';
+import { meta, schema } from './meta.js';
 import { FromSchema } from 'json-schema-to-ts';
 
 const DEFAULT_MIN_LINES = 3;

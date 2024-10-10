@@ -19,10 +19,11 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6844/javascript
 
-import { rules as jsxA11yRules } from 'eslint-plugin-jsx-a11y';
-import { generateMeta, interceptReport } from '../helpers';
-import { meta } from './meta';
-import { Rule } from 'eslint';
+import pkg from 'eslint-plugin-jsx-a11y';
+const { rules: jsxA11yRules } = pkg;
+import { generateMeta, interceptReport } from '../helpers/index.js';
+import { meta } from './meta.js';
+import type { Rule } from 'eslint';
 
 const anchorIsValid = jsxA11yRules['anchor-is-valid'];
 
