@@ -49,7 +49,7 @@ describe('server', () => {
     assert.equal(consoleLogMock.calls.length, 3);
     assert.match(
       consoleLogMock.calls[0].arguments[0],
-      /Memory configuration: OS \(\d+ MB\), Node.js \(\d+ MB\)\./,
+      /Memory configuration: OS \(\d+ MB\),( Docker \(\d+ MB\),)? Node.js \(\d+ MB\)\./,
     );
     assert.equal(consoleLogMock.calls[1].arguments[0], `DEBUG Starting the bridge server`);
     assert.equal(

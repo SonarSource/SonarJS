@@ -29,7 +29,7 @@ export function logMemoryConfiguration() {
   const osMem = Math.floor(os.totalmem() / MB);
   const heapSize = getHeapSize();
   const dockerMemLimit = readDockerMemoryLimit();
-  const dockerMem = dockerMemLimit ? `, Docker (${dockerMemLimit} MB)` : ',';
+  const dockerMem = dockerMemLimit ? `, Docker (${dockerMemLimit} MB),` : ',';
   info(`Memory configuration: OS (${osMem} MB)${dockerMem} Node.js (${heapSize} MB).`);
   if (heapSize > osMem) {
     warn(
