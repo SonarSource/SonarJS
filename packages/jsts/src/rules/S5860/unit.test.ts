@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { rule } from './index.js';
-import { RuleTester } from 'eslint';
+import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { JavaScriptRuleTester } from '../../../tests/tools/index.js';
 
 const typeAwareRuleTester = new JavaScriptRuleTester();
@@ -601,7 +601,9 @@ typeAwareRuleTester.run('Regular expressions named groups should be used', rule,
   ],
 });
 
-const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
+const ruleTester = new NodeRuleTester({
+  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
+});
 ruleTester.run('"unused-named-groups" reports nothing without types', rule, {
   valid: [
     {

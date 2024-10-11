@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { rule } from './index.js';
-import { RuleTester } from 'eslint';
+import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { TypeScriptRuleTester } from '../../../tests/tools/index.js';
 
 const tests = {
@@ -97,7 +97,9 @@ const tests = {
   ],
 };
 
-const ruleTesterJs = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
+const ruleTesterJs = new NodeRuleTester({
+  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
+});
 const ruleTesterTs = new TypeScriptRuleTester();
 
 ruleTesterJs.run('XML parsers should not be vulnerable to XXE attacks [js]', rule, tests);

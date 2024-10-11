@@ -19,9 +19,9 @@
  */
 import { rule } from './rule.js';
 import { TypeScriptRuleTester } from '../../../tests/tools/index.js';
-import { RuleTester } from 'eslint';
+import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 
-const ruleTester = new RuleTester({
+const ruleTester = new NodeRuleTester({
   parserOptions: {
     ecmaVersion: 2018,
     sourceType: 'module',

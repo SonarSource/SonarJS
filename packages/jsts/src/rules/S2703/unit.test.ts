@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { rule } from './index.js';
-import { RuleTester } from 'eslint';
+import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 
-const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
+const ruleTester = new NodeRuleTester({ parserOptions: { ecmaVersion: 2018 } });
 ruleTester.run('No implicit global', rule, {
   valid: [
     {

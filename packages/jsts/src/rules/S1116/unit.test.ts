@@ -17,13 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Rule, RuleTester } from 'eslint';
+import { Rule } from 'eslint';
+import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
 import { isProtectionSemicolon } from './decorator.js';
 import { it } from 'node:test';
 import { expect } from 'expect';
 
-const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
+const ruleTester = new NodeRuleTester({
+  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
+});
 
 ruleTester.run('Extra semicolons should be removed', rule, {
   valid: [

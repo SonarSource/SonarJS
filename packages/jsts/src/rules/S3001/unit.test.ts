@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { rule } from './index.js';
-import { RuleTester } from 'eslint';
+import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { TypeScriptRuleTester } from '../../../tests/tools/index.js';
 
 const tests = {
@@ -103,7 +103,7 @@ const tests = {
   ],
 };
 
-const ruleTesterJs = new RuleTester({ parserOptions: { ecmaVersion: 2021 } });
+const ruleTesterJs = new NodeRuleTester({ parserOptions: { ecmaVersion: 2021 } });
 const ruleTesterTs = new TypeScriptRuleTester();
 
 ruleTesterJs.run('"delete" should be used only with object properties [js]', rule, tests);

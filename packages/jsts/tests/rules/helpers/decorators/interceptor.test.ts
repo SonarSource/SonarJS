@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Rule, RuleTester } from 'eslint';
+import { Rule } from 'eslint';
+import { NodeRuleTester } from '../../../../tests/tools/testers/rule-tester.js';
 import { interceptReport } from '../../../../src/rules/index.js';
 // Covers `getDeclaredVariables`, `getScope`, `getSourceCode`.
 import { rule as noParameterReassignment } from '../../../../src/rules/S1226/index.js';
@@ -53,11 +54,11 @@ function assertThatInterceptReportDecoratorForwardsCalls(
   name: string,
   rule: Rule.RuleModule,
   tests: {
-    valid?: RuleTester.ValidTestCase[];
-    invalid?: RuleTester.InvalidTestCase[];
+    valid?: NodeRuleTester.ValidTestCase[];
+    invalid?: NodeRuleTester.InvalidTestCase[];
   },
 ) {
-  const ruleTester = new RuleTester({
+  const ruleTester = new NodeRuleTester({
     parser: require.resolve('@typescript-eslint/parser'),
     parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
   });

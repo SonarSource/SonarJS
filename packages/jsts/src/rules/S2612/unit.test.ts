@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { rule } from './index.js';
-import { RuleTester } from 'eslint';
+import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { TypeScriptRuleTester } from '../../../tests/tools/index.js';
 
 let tests = {
@@ -297,7 +297,7 @@ let tests = {
   ],
 };
 
-const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
+const ruleTester = new NodeRuleTester({ parserOptions: { ecmaVersion: 2018 } });
 ruleTester.run('Using publicly writable directories is security-sensitive', rule, tests);
 
 const ruleTesterTs = new TypeScriptRuleTester();

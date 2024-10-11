@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester, Rule } from 'eslint';
+import { Rule } from 'eslint';
+import { NodeRuleTester } from '../rule-tester.js';
 import path from 'path';
 import { fileURLToPath } from 'node:url';
 
@@ -43,7 +44,7 @@ const placeHolderFilePath = path.resolve(`${dirname}/fixtures/placeholder.tsx`);
  * Rule tester for Typescript, using @typescript-eslint parser, making sure that type information is present.
  * It will also assert that no issues is raised when there are no type information.
  */
-class TypeScriptRuleTester extends RuleTester {
+class TypeScriptRuleTester extends NodeRuleTester {
   constructor() {
     super({
       env,
@@ -56,8 +57,8 @@ class TypeScriptRuleTester extends RuleTester {
     name: string,
     rule: Rule.RuleModule,
     tests: {
-      valid?: RuleTester.ValidTestCase[];
-      invalid?: RuleTester.InvalidTestCase[];
+      valid?: NodeRuleTester.ValidTestCase[];
+      invalid?: NodeRuleTester.InvalidTestCase[];
     },
   ): void {
     const setFilename = test => {

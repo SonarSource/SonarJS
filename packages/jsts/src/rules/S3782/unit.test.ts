@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { rule } from './index.js';
-import { RuleTester } from 'eslint';
+import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { TypeScriptRuleTester } from '../../../tests/tools/index.js';
 
-const eslintRuleTester = new RuleTester({
+const eslintRuleTester = new NodeRuleTester({
   parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
 });
 eslintRuleTester.run('Correct types should be used [js]', rule, {

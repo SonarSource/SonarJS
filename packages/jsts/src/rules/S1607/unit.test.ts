@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from 'eslint';
+import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
 
 process.chdir(import.meta.dirname); // change current working dir to avoid the package.json lookup to up in the tree
-const ruleTester = new RuleTester();
+const ruleTester = new NodeRuleTester();
 
 ruleTester.run(`Tests should not be skipped without providing a reason`, rule, {
   valid: [

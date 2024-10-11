@@ -19,7 +19,7 @@
  */
 import { rule as S2301 } from './index.js';
 import { TypeScriptRuleTester } from '../../../tests/tools/index.js';
-import { RuleTester } from 'eslint';
+import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 
 const ruleTester = new TypeScriptRuleTester();
 
@@ -189,7 +189,7 @@ function tempt8(name: string, ofAge: boolean) {
   ],
 });
 
-const javaScriptRuleTester = new RuleTester({
+const javaScriptRuleTester = new NodeRuleTester({
   parserOptions: {
     ecmaVersion: 2018,
   },

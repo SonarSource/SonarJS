@@ -19,7 +19,7 @@
  */
 import { rule } from './rule.js';
 import { JavaScriptRuleTester } from '../../../tests/tools/index.js';
-import { RuleTester } from 'eslint';
+import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { IssueLocation } from '../helpers/index.js';
 
 const ruleTester = new JavaScriptRuleTester();
@@ -179,7 +179,7 @@ ruleTester.run('no-extra-arguments', rule, {
   ],
 });
 
-const ruleTesterScript = new RuleTester({
+const ruleTesterScript = new NodeRuleTester({
   parserOptions: {
     ecmaVersion: 2018,
     sourceType: 'script',
@@ -214,8 +214,8 @@ ruleTesterScript.run('no-extra-arguments script', rule, {
 function message(
   expected: number,
   provided: number,
-  extra: Partial<RuleTester.TestCaseError> = {},
-): RuleTester.TestCaseError {
+  extra: Partial<NodeRuleTester.TestCaseError> = {},
+): NodeRuleTester.TestCaseError {
   // prettier-ignore
   const expectedArguments =
     expected === 0 ? "no arguments" :

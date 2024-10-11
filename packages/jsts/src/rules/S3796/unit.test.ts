@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from 'eslint';
+import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
 import { TypeScriptRuleTester } from '../../../tests/tools/index.js';
 
@@ -384,7 +384,7 @@ typeScriptRuleTester.run(
   },
 );
 
-const eslintRuleTester = new RuleTester({
+const eslintRuleTester = new NodeRuleTester({
   parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
 });
 eslintRuleTester.run('Callbacks of array methods should have return statements [w/o types]', rule, {

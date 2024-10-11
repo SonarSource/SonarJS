@@ -17,27 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
-import { rule } from './index.js';
+import { RuleTester } from 'eslint';
+import { describe, it } from 'node:test';
 
-// Main test cases are in the file comment-based fixture file.
-// Here we are testing that no issues are reported when no 'chai' import.
+(RuleTester as any).describe = describe;
+(RuleTester as any).it = it;
 
-const ruleTester = new NodeRuleTester({
-  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
-});
-ruleTester.run('Assertions should not be given twice the same argument', rule, {
-  valid: [
-    {
-      code: `expect(foo).to.not.throw(ReferenceError);`,
-    },
-  ],
-  invalid: [
-    {
-      code: `
-      const chai = require('chai');
-      expect(foo).to.not.throw(ReferenceError);`,
-      errors: [{ line: 3 }],
-    },
-  ],
-});
+export { RuleTester as NodeRuleTester };

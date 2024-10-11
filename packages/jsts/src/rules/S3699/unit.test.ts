@@ -19,7 +19,7 @@
  */
 import { rule } from './rule.js';
 import { JavaScriptRuleTester } from '../../../tests/tools/index.js';
-import { RuleTester } from 'eslint';
+import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 
 const ruleTester = new JavaScriptRuleTester();
 
@@ -81,7 +81,7 @@ ruleTester.run('no-use-of-empty-return-value', rule, {
 function invalidPrefixWithFunction(
   code: string,
   functionName: string = 'noReturn',
-): { code: string; errors: RuleTester.TestCaseError[] } {
+): { code: string; errors: NodeRuleTester.TestCaseError[] } {
   return {
     code: 'function noReturn() { 1;} ' + code,
     errors: [
@@ -95,7 +95,7 @@ function invalidPrefixWithFunction(
   };
 }
 
-function invalid(code: string): { code: string; errors: RuleTester.TestCaseError[] } {
+function invalid(code: string): { code: string; errors: NodeRuleTester.TestCaseError[] } {
   return {
     code,
     errors: [

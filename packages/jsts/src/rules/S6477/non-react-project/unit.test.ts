@@ -17,14 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from 'eslint';
+import { NodeRuleTester } from '../../../../tests/tools/testers/rule-tester.js';
 import { rule } from '../index.js';
 import { join } from 'path';
 
 const dirname = join(import.meta.dirname, 'fixtures');
 process.chdir(dirname); // change current working dir to avoid the package.json lookup to up in the tree
 
-const ruleTester = new RuleTester({
+const ruleTester = new NodeRuleTester({
   parserOptions: { ecmaVersion: 2018, sourceType: 'module', ecmaFeatures: { jsx: true } },
 });
 ruleTester.run('S6477 turns into a noop on non-React projects', rule, {

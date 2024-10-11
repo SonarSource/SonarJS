@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester, Rule } from 'eslint';
+import { Rule } from 'eslint';
+import { NodeRuleTester } from '../rule-tester.js';
 import path from 'path';
 
 import Module from 'node:module';
@@ -39,7 +40,7 @@ const placeHolderFilePath = path.resolve(`${import.meta.dirname}/fixtures/placeh
 /**
  * Rule tester for JavaScript, using @typescript-eslint parser.
  */
-class JavaScriptRuleTester extends RuleTester {
+class JavaScriptRuleTester extends NodeRuleTester {
   constructor() {
     super({
       env,
@@ -52,8 +53,8 @@ class JavaScriptRuleTester extends RuleTester {
     name: string,
     rule: Rule.RuleModule,
     tests: {
-      valid?: RuleTester.ValidTestCase[];
-      invalid?: RuleTester.InvalidTestCase[];
+      valid?: NodeRuleTester.ValidTestCase[];
+      invalid?: NodeRuleTester.InvalidTestCase[];
     },
   ): void {
     const setFilename = test => {

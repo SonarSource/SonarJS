@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from 'eslint';
+import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
 import { IssueLocation } from '../helpers/index.js';
 import Module from 'node:module';
 const require = Module.createRequire(import.meta.url);
 
-const ruleTester = new RuleTester({
+const ruleTester = new NodeRuleTester({
   parserOptions: { ecmaVersion: 2018, sourceType: 'module', ecmaFeatures: { jsx: true } },
   parser: require.resolve('@typescript-eslint/parser'),
 });
@@ -617,7 +617,7 @@ function testCaseWithSonarRuntime(
   code: string,
   secondaryLocations: IssueLocation[],
   complexity?: number,
-): RuleTester.InvalidTestCase {
+): NodeRuleTester.InvalidTestCase {
   const cost = complexity ?? secondaryLocations.length;
   const message = `Refactor this function to reduce its Cognitive Complexity from ${cost} to the 0 allowed.`;
   const sonarRuntimeData = JSON.stringify({ message, secondaryLocations, cost });
@@ -637,7 +637,7 @@ function testCaseWithSonarRuntime(
   };
 }
 
-function message(complexityAmount: number, other: RuleTester.TestCaseError = {}) {
+function message(complexityAmount: number, other: NodeRuleTester.TestCaseError = {}) {
   return {
     messageId: 'refactorFunction',
     data: { complexityAmount, threshold: 0 },

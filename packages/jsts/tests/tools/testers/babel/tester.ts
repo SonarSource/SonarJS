@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from 'eslint';
+import { NodeRuleTester } from '../rule-tester.js';
 import { buildParserOptions } from '../../../../src/parsers/options.js';
 import Module from 'node:module';
 const require = Module.createRequire(import.meta.url);
@@ -27,7 +27,7 @@ export function BabelRuleTester() {
     { filePath: 'some/filePath', tsConfigs: [], fileContent: '', fileType: 'MAIN' },
     true,
   );
-  return new RuleTester({
+  return new NodeRuleTester({
     // we use babel to parse JSX syntax
     parser: require.resolve('@babel/eslint-parser'),
     parserOptions,

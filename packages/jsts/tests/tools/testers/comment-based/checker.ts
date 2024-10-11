@@ -19,7 +19,8 @@
  */
 import fs from 'fs';
 import path from 'path';
-import { Rule, RuleTester } from 'eslint';
+import { Rule } from 'eslint';
+import { NodeRuleTester } from '../rule-tester.js';
 import { hasSonarRuntimeOption } from '../../../../src/linter/parameters/sonar-runtime.js';
 import { extractExpectations } from './framework.js';
 import { join, dirname } from 'node:path';
@@ -33,7 +34,9 @@ export function check(ruleId: string, ruleModule: Rule.RuleModule, ruleDir: stri
   /**
    * Loading this file's `parseForESLint()` function into ESLint's rule tester.
    */
-  const ruleTester = new RuleTester({ parser: join(dirname(import.meta.filename), 'parser.ts') });
+  const ruleTester = new NodeRuleTester({
+    parser: join(dirname(import.meta.filename), 'parser.ts'),
+  });
 
   const fixtures = [];
   for (const file of fs.readdirSync(ruleDir, { recursive: true })) {

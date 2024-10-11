@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from 'eslint';
+import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
 
-const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2015 } });
+const ruleTester = new NodeRuleTester({ parserOptions: { ecmaVersion: 2015 } });
 
 const combiningClass = c =>
   `Move this Unicode combined character '${c}' outside of the character class`;
@@ -99,7 +99,7 @@ ruleTester.run('', rule, {
       code: "var r = globalThis.RegExp('{ [Á]', 'u');",
       env: { es2020: true },
     },
-  ] as Array<RuleTester.ValidTestCase | string>,
+  ] as Array<NodeRuleTester.ValidTestCase | string>,
   invalid: [
     {
       code: 'var r = /[\\u0041\\u0301-\\u0301]/',
@@ -433,5 +433,5 @@ ruleTester.run('', rule, {
       code: 'const c = "👍", p = "[" + c + "]", r = new RegExp(p)',
       errors: surrogatePair('👍', 'const c = "👍", p = "[" + c + "]", r = new RegExp(p, "u")'),
     },
-  ] as RuleTester.InvalidTestCase[],
+  ] as NodeRuleTester.InvalidTestCase[],
 });

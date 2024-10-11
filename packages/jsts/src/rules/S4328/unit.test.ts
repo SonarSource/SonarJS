@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from 'eslint';
+import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
 import path from 'path';
 
@@ -31,7 +31,7 @@ const options = [
 import Module from 'node:module';
 const require = Module.createRequire(import.meta.url);
 const tsParserPath = require.resolve('@typescript-eslint/parser');
-const ruleTester = new RuleTester({
+const ruleTester = new NodeRuleTester({
   parser: tsParserPath,
   parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
 });
@@ -190,7 +190,7 @@ ruleTester.run('Dependencies should be explicit', rule, {
   ],
 });
 
-const ruleTesterNestedPackage = new RuleTester({
+const ruleTesterNestedPackage = new NodeRuleTester({
   parser: tsParserPath,
   parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
 });
@@ -221,7 +221,7 @@ ruleTesterNestedPackage.run('all levels of package.json should be considered', r
   ],
 });
 
-const ruleTesterForPathMappings = new RuleTester({
+const ruleTesterForPathMappings = new NodeRuleTester({
   parser: require.resolve('@typescript-eslint/parser'),
   parserOptions: {
     ecmaVersion: 2018,
@@ -272,7 +272,7 @@ ruleTesterForPathMappings.run('Path aliases should be exempt', rule, {
   ],
 });
 
-const ruleTesterForBaseUrl = new RuleTester({
+const ruleTesterForBaseUrl = new NodeRuleTester({
   parser: require.resolve('@typescript-eslint/parser'),
   parserOptions: {
     ecmaVersion: 2018,

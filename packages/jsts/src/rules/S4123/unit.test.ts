@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { rule } from './index.js';
-import { RuleTester } from 'eslint';
+import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { JavaScriptRuleTester, TypeScriptRuleTester } from '../../../tests/tools/index.js';
 import Module from 'node:module';
 const require = Module.createRequire(import.meta.url);
@@ -218,7 +218,7 @@ ruleTester.run('await should only be used with promises.', rule, {
   ],
 });
 
-const ruleTesterWithNoFullTypeInfo = new RuleTester({
+const ruleTesterWithNoFullTypeInfo = new NodeRuleTester({
   parser: require.resolve('@typescript-eslint/parser'),
   parserOptions: {
     ecmaVersion: 2018,

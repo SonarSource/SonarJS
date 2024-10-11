@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Rule, RuleTester } from 'eslint';
+import { Rule } from 'eslint';
+import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import estree from 'estree';
 import { Express, getProperty } from '../../../src/rules/index.js';
 
@@ -41,7 +42,9 @@ const rule = Express.SensitiveMiddlewarePropertyRule(
   `Make sure sensitive property is safe here.`,
 );
 
-const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
+const ruleTester = new NodeRuleTester({
+  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
+});
 ruleTester.run(
   'Express.js rule template for middlewares configured with sensitive settings',
   rule,

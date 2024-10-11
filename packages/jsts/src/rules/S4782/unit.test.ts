@@ -19,7 +19,7 @@
  */
 import { TypeScriptRuleTester } from '../../../tests/tools/index.js';
 import { rule } from './index.js';
-import { RuleTester } from 'eslint';
+import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import path from 'path';
 import Module from 'node:module';
 const require = Module.createRequire(import.meta.url);
@@ -227,7 +227,7 @@ ruleTester.run(
   },
 );
 
-const noopRuleTester = new RuleTester({
+const noopRuleTester = new NodeRuleTester({
   parser: require.resolve('@typescript-eslint/parser'),
   parserOptions: {
     ecmaVersion: 2018,

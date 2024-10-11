@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from 'eslint';
+import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { TypeScriptRuleTester } from '../../../tests/tools/index.js';
 import { rule } from './index.js';
 
-const eslintRuleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
+const eslintRuleTester = new NodeRuleTester({ parserOptions: { ecmaVersion: 2018 } });
 eslintRuleTester.run('Parameters should be passed in the correct order', rule, {
   valid: [
     {
@@ -272,7 +272,7 @@ typeScriptRuleTester.run('Parameters should be passed in the correct order', rul
 });
 
 function invalid(code: string) {
-  const errors: RuleTester.TestCaseError[] = [];
+  const errors: NodeRuleTester.TestCaseError[] = [];
   const lines = code.split('\n');
   for (let i = 1; i <= lines.length; i++) {
     const line = lines[i - 1];

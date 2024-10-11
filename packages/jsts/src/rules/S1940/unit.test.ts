@@ -19,7 +19,7 @@
  */
 import { rule } from './rule.js';
 import { JavaScriptRuleTester } from '../../../tests/tools/index.js';
-import { RuleTester } from 'eslint';
+import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 
 const ruleTester = new JavaScriptRuleTester();
 
@@ -111,7 +111,7 @@ ruleTester.run('no-inverted-boolean-check', rule, {
   ],
 });
 
-function error(invertedOperator: string, output: string): RuleTester.TestCaseError {
+function error(invertedOperator: string, output: string): NodeRuleTester.TestCaseError {
   return {
     messageId: 'useOppositeOperator',
     data: { invertedOperator },
