@@ -35,8 +35,11 @@ import tmp from 'tmp';
 import { promisify } from 'util';
 import fs from 'fs/promises';
 import { TsConfigJson } from 'type-fest';
-import { readFileSync, toUnixPath } from '../../../shared/src/helpers/files.js';
-import { addTsConfigIfDirectory } from '../../../shared/src/helpers/files.js';
+import {
+  readFileSync,
+  toUnixPath,
+  addTsConfigIfDirectory,
+} from '../../../shared/src/helpers/files.js';
 
 export type ProgramResult = {
   files: string[];
