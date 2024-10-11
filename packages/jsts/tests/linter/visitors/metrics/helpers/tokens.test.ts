@@ -17,14 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { extractTokensAndComments } from '../../../../../src/linter/visitors/metrics/helpers';
+import { extractTokensAndComments } from '../../../../../src/linter/visitors/metrics/helpers/index.js';
 import { AST } from 'vue-eslint-parser';
 import path from 'path';
-import { parseJavaScriptSourceFile } from '../../../../tools';
+import { parseJavaScriptSourceFile } from '../../../../tools/index.js';
+import { describe, it } from 'node:test';
+import { expect } from 'expect';
 
 describe('extractTokensAndComments', () => {
   it('should extract tokens and comments', async () => {
-    const filePath = path.join(__dirname, './fixtures/tokens.js');
+    const filePath = path.join(import.meta.dirname, './fixtures/tokens.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath, []);
     const { tokens, comments } = parseTokensAndComments(extractTokensAndComments(sourceCode));
     expect(tokens).toEqual(['foo', '(', `'hello'`, ')', ';']);
@@ -32,7 +34,7 @@ describe('extractTokensAndComments', () => {
   });
 
   it('should extract tokens and comments from Vue files', async () => {
-    const filePath = path.join(__dirname, './fixtures/tokens.vue');
+    const filePath = path.join(import.meta.dirname, './fixtures/tokens.vue');
     const sourceCode = await parseJavaScriptSourceFile(filePath, []);
     const { tokens, comments } = parseTokensAndComments(extractTokensAndComments(sourceCode));
     expect(tokens).toEqual(expect.arrayContaining(['jsCode', 'vue-tag']));

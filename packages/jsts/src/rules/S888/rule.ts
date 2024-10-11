@@ -19,10 +19,10 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S888/javascript
 
-import { Rule } from 'eslint';
-import * as estree from 'estree';
-import { generateMeta, getVariableFromName } from '../helpers';
-import { meta } from './meta';
+import type { Rule } from 'eslint';
+import estree from 'estree';
+import { generateMeta, getVariableFromName } from '../helpers/index.js';
+import { meta } from './meta.js';
 
 const allEqualityOperators = ['!=', '==', '!==', '==='];
 const notEqualOperators = ['!==', '!='];

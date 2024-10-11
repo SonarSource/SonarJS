@@ -17,10 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { buildSourceCode } from '../../src/builders';
-import { JsTsAnalysisInput } from '../../src/analysis';
 import path from 'path';
-import { JsTsLanguage, readFile } from '@sonar/shared';
+import { describe, test } from 'node:test';
+import { expect } from 'expect';
+import { readFile } from '../../../shared/src/helpers/files.js';
+import { JsTsAnalysisInput } from '../../src/analysis/analysis.js';
+import { JsTsLanguage } from '../../../shared/src/helpers/language.js';
+import { buildSourceCode } from '../../src/builders/build.js';
 
 const cases = [
   { syntax: 'ECMAScript 2015', fixture: 'es2015.js', language: 'js' },
@@ -38,16 +41,18 @@ const cases = [
 ];
 
 describe('ESLint-based parsers', () => {
-  test.each(cases)('should parse $syntax syntax', async ({ fixture, language }) => {
-    const filePath = path.join(__dirname, 'fixtures', 'eslint', fixture);
-    const fileContent = await readFile(filePath);
-    const fileType = 'MAIN';
+  cases.forEach(({ syntax, fixture, language }) => {
+    test(`should parse ${syntax} syntax`, async () => {
+      const filePath = path.join(import.meta.dirname, 'fixtures', 'eslint', fixture);
+      const fileContent = await readFile(filePath);
+      const fileType = 'MAIN';
 
-    const input = { filePath, fileType, fileContent } as JsTsAnalysisInput;
-    const sourceCode = buildSourceCode(input, language as JsTsLanguage);
+      const input = { filePath, fileType, fileContent } as JsTsAnalysisInput;
+      const sourceCode = buildSourceCode(input, language as JsTsLanguage);
 
-    expect(sourceCode).toBeDefined();
-    expect(sourceCode.ast).toBeDefined();
-    expect(sourceCode.ast.body.length).toBeGreaterThan(0);
+      expect(sourceCode).toBeDefined();
+      expect(sourceCode.ast).toBeDefined();
+      expect(sourceCode.ast.body.length).toBeGreaterThan(0);
+    });
   });
 });

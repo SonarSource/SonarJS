@@ -22,14 +22,18 @@ import {
   DEFAULT_GLOBALS,
   ProjectAnalysisInput,
   ProjectAnalysisOutput,
-} from './projectAnalysis';
-import { analyzeWithProgram } from './analyzeWithProgram';
-import { analyzeWithWatchProgram } from './analyzeWithWatchProgram';
-import { analyzeWithoutProgram } from './analyzeWithoutProgram';
-import { initializeLinter } from '../../linter';
-import { TSCONFIG_JSON, setTSConfigs, getTSConfigsIterator } from '../../program';
-import { File, searchFiles } from '../../rules/helpers';
-import { toUnixPath } from '@sonar/shared';
+} from './projectAnalysis.js';
+import { analyzeWithProgram } from './analyzeWithProgram.js';
+import { analyzeWithWatchProgram } from './analyzeWithWatchProgram.js';
+import { analyzeWithoutProgram } from './analyzeWithoutProgram.js';
+import { initializeLinter } from '../../linter/linters.js';
+import {
+  getTSConfigsIterator,
+  setTSConfigs,
+  TSCONFIG_JSON,
+} from '../../program/tsconfigs/index.js';
+import { toUnixPath } from '../../../../shared/src/helpers/files.js';
+import { searchFiles, File } from '../../rules/index.js';
 
 /**
  * Analyzes a JavaScript / TypeScript project in a single run
@@ -62,7 +66,7 @@ export async function analyzeProject(input: ProjectAnalysisInput): Promise<Proje
   }
   const pendingFiles: Set<string> = new Set(inputFilenames);
   const watchProgram = input.isSonarlint;
-  initializeLinter(rules, environments, globals, baseDir);
+  await initializeLinter(rules, environments, globals, baseDir);
   loadTSConfigAndPackageJsonFiles(baseDir, exclusions);
   const tsConfigs = getTSConfigsIterator(
     inputFilenames,

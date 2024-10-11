@@ -19,12 +19,17 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6308/javascript
 
-import { Rule } from 'eslint';
-import { AwsCdkTemplate } from '../helpers/aws/cdk';
+import type { Rule } from 'eslint';
+import { AwsCdkTemplate } from '../helpers/aws/cdk.js';
 import { NewExpression, Node } from 'estree';
-import { generateMeta, getFullyQualifiedName, isBooleanLiteral, isStringLiteral } from '../helpers';
-import { getResultOfExpression } from '../helpers/result';
-import { meta } from './meta';
+import {
+  generateMeta,
+  getFullyQualifiedName,
+  isBooleanLiteral,
+  isStringLiteral,
+} from '../helpers/index.js';
+import { getResultOfExpression } from '../helpers/result.js';
+import { meta } from './meta.js';
 
 const DOMAIN_PROPS_POSITION = 2;
 const ENABLED_PROPERTY = 'enabled';

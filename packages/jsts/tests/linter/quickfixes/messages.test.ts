@@ -17,7 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getQuickFixMessage } from '../../../src/linter/quickfixes';
+import { getQuickFixMessage } from '../../../src/linter/quickfixes/messages.js';
+import { describe, it } from 'node:test';
+import { expect } from 'expect';
 
 describe('messages', () => {
   it('should return a quick fix message', () => {

@@ -17,10 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { TypeScriptRuleTester } from '../../../tests/tools';
-import { rule } from './';
-import { RuleTester } from 'eslint';
+import { TypeScriptRuleTester } from '../../../tests/tools/index.js';
+import { rule } from './index.js';
+import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import path from 'path';
+import Module from 'node:module';
+const require = Module.createRequire(import.meta.url);
 
 const ruleTester = new TypeScriptRuleTester();
 ruleTester.run(
@@ -225,13 +227,13 @@ ruleTester.run(
   },
 );
 
-const noopRuleTester = new RuleTester({
+const noopRuleTester = new NodeRuleTester({
   parser: require.resolve('@typescript-eslint/parser'),
   parserOptions: {
     ecmaVersion: 2018,
     sourceType: 'module',
     project: `tsconfig.json`,
-    tsconfigRootDir: path.join(__dirname, 'fixtures'),
+    tsconfigRootDir: path.join(import.meta.dirname, 'fixtures'),
   },
 });
 
@@ -239,7 +241,7 @@ noopRuleTester.run('S4782 becomes noop when exactOptionalPropertyTypes is enable
   valid: [
     {
       code: 'interface T { p?: string | undefined; }',
-      filename: path.join(__dirname, 'fixtures', 'index.ts'),
+      filename: path.join(import.meta.dirname, 'fixtures', 'index.ts'),
     },
   ],
   invalid: [],

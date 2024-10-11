@@ -19,10 +19,10 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S5542/javascript
 
-import { Rule } from 'eslint';
-import * as estree from 'estree';
-import { generateMeta, getFullyQualifiedName, getValueOfExpression } from '../helpers';
-import { meta } from './meta';
+import type { Rule } from 'eslint';
+import estree from 'estree';
+import { generateMeta, getFullyQualifiedName, getValueOfExpression } from '../helpers/index.js';
+import { meta } from './meta.js';
 
 const aliases: string[] = [
   'AES128',

@@ -17,16 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { analyzeCSS, CssAnalysisInput } from '../../src/analysis';
-import { RuleConfig } from '../../src/linter';
 import path from 'path';
-import { readFile } from '@sonar/shared';
+import { describe, it } from 'node:test';
+import { expect } from 'expect';
+import { analyzeCSS } from '../../src/analysis/analyzer.js';
+import { CssAnalysisInput } from '../../src/analysis/analysis.js';
+import { readFile } from '../../../shared/src/helpers/files.js';
+import { RuleConfig } from '../../src/linter/config.js';
 
 const rules = [{ key: 'block-no-empty', configurations: [] }];
 
 describe('analyzeCSS', () => {
   it('should analyze a css file', async () => {
-    const filePath = path.join(__dirname, 'fixtures', 'file.css');
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'file.css');
     await expect(analyzeCSS(await input(filePath, undefined, rules))).resolves.toEqual({
       issues: [
         {
@@ -51,7 +54,7 @@ describe('analyzeCSS', () => {
   });
 
   it('should analyze sass syntax', async () => {
-    const filePath = path.join(__dirname, 'fixtures', 'file.sass');
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'file.sass');
     await expect(
       analyzeCSS(
         await input(filePath, undefined, [
@@ -68,7 +71,7 @@ describe('analyzeCSS', () => {
   });
 
   it('should analyze less syntax', async () => {
-    const filePath = path.join(__dirname, 'fixtures', 'file.less');
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'file.less');
     await expect(analyzeCSS(await input(filePath, undefined, rules))).resolves.toEqual({
       issues: [
         expect.objectContaining({
@@ -79,7 +82,7 @@ describe('analyzeCSS', () => {
   });
 
   it('should return a parsing error in the form of an issue', async () => {
-    const filePath = path.join(__dirname, 'fixtures', 'malformed.css');
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'malformed.css');
     await expect(analyzeCSS(await input(filePath))).resolves.toEqual({
       issues: [
         {

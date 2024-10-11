@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as fs from 'fs';
-import * as path from 'path';
-import { Rule, RuleTester } from 'eslint';
-import { hasSonarRuntimeOption } from '../../../../src/linter/parameters';
-import { buildSourceCode } from '../../../../src/builders';
-import { FileType, JsTsLanguage } from '@sonar/shared';
-import { extractExpectations } from './framework';
+import fs from 'fs';
+import path from 'path';
+import { Rule } from 'eslint';
+import { NodeRuleTester } from '../rule-tester.js';
+import { hasSonarRuntimeOption } from '../../../../src/linter/parameters/sonar-runtime.js';
+import { extractExpectations } from './framework.js';
+import { join, dirname } from 'node:path';
 
 /**
  * Checks that a rule raises the issues declared as comment-based expectations on fixture files.
@@ -34,7 +34,9 @@ export function check(ruleId: string, ruleModule: Rule.RuleModule, ruleDir: stri
   /**
    * Loading this file's `parseForESLint()` function into ESLint's rule tester.
    */
-  const ruleTester = new RuleTester({ parser: __filename });
+  const ruleTester = new NodeRuleTester({
+    parser: join(dirname(import.meta.filename), 'parser.ts'),
+  });
 
   const fixtures = [];
   for (const file of fs.readdirSync(ruleDir, { recursive: true })) {
@@ -62,54 +64,10 @@ export function check(ruleId: string, ruleModule: Rule.RuleModule, ruleDir: stri
   }
 }
 
-/**
- * This function is provided as 'parseForESLint' implementation which is used in RuleTester to invoke exactly same logic
- * as we use in our 'services/analysis/analyzer.ts' module
- */
-export function parseForESLint(
-  fileContent: string,
-  options: { filePath: string },
-  fileType: FileType = 'MAIN',
-) {
-  const { filePath } = options;
-  const tsConfigs = [path.join(__dirname, '../../../../src/rules', 'tsconfig.cb.json')];
-  const sourceCode = buildSourceCode(
-    { filePath, fileContent, fileType, tsConfigs },
-    languageFromFile(fileContent, filePath),
-  );
-
-  /**
-   * ESLint expects the parser services (including the type checker) to be available in a field
-   * `services` after parsing while TypeScript ESLint returns it as `parserServices`. Therefore,
-   * we need to extend the source code with this additional property so that the type checker
-   * can be retrieved from type-aware rules.
-   */
-  return Object.create(sourceCode, {
-    services: { value: sourceCode.parserServices },
-  });
-}
-
 function extractRuleOptions(ruleDir) {
   const options = path.join(ruleDir, 'cb.options.json');
   if (fs.existsSync(options)) {
     return JSON.parse(fs.readFileSync(options, { encoding: 'utf8' }));
   }
   return [];
-}
-
-/**
- * Returns the source code's language based on the file content and path.
- */
-function languageFromFile(fileContent: string, filePath: string): JsTsLanguage {
-  // Keep this regex aligned with the one in JavaScriptFilePredicate.java to have the same flow
-  const hasScriptTagWithLangTs = /<script[^>]+lang=['"]ts['"][^>]*>/;
-  const { ext } = path.parse(filePath);
-  if (
-    ['.ts', '.tsx'].includes(ext) ||
-    (ext === '.vue' && hasScriptTagWithLangTs.test(fileContent))
-  ) {
-    return 'ts';
-  } else {
-    return 'js';
-  }
 }

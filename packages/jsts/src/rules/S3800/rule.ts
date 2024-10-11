@@ -20,9 +20,9 @@
 // https://sonarsource.github.io/rspec/#/rspec/S3800/javascript
 
 import { TSESTree } from '@typescript-eslint/utils';
-import { Rule } from 'eslint';
-import * as estree from 'estree';
-import * as ts from 'typescript';
+import type { Rule } from 'eslint';
+import estree from 'estree';
+import ts from 'typescript';
 import { type UnionType } from 'typescript';
 import {
   generateMeta,
@@ -36,8 +36,8 @@ import {
   report,
   RuleContext,
   toSecondaryLocation,
-} from '../helpers';
-import { meta } from './meta';
+} from '../helpers/index.js';
+import { meta } from './meta.js';
 
 class FunctionScope {
   private readonly returnStatements: estree.ReturnStatement[] = [];

@@ -17,13 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import {
-  analyzeEmbedded,
+
+import type {
   EmbeddedAnalysisInput as YamlAnalysisInput,
   EmbeddedAnalysisOutput as YamlAnalysisOutput,
-} from '@sonar/jsts';
+} from '../../jsts/src/embedded/analysis/analysis.js';
 
-import { parseAwsFromYaml } from './aws';
+import { analyzeEmbedded } from '../../jsts/src/embedded/analysis/analyzer.js';
+import { parseAwsFromYaml } from './aws/parser.js';
 
 export { YamlAnalysisInput, YamlAnalysisOutput };
 

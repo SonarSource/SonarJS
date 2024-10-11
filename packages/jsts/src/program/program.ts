@@ -30,18 +30,16 @@
 
 import path from 'path';
 import ts from 'typescript';
-import {
-  debug,
-  error,
-  warn,
-  addTsConfigIfDirectory,
-  readFileSync,
-  toUnixPath,
-} from '@sonar/shared';
+import { debug, error, warn } from '../../../shared/src/helpers/logging.js';
 import tmp from 'tmp';
 import { promisify } from 'util';
 import fs from 'fs/promises';
 import { TsConfigJson } from 'type-fest';
+import {
+  readFileSync,
+  toUnixPath,
+  addTsConfigIfDirectory,
+} from '../../../shared/src/helpers/files.js';
 
 export type ProgramResult = {
   files: string[];

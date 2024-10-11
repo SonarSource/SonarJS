@@ -18,14 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Linter, SourceCode } from 'eslint';
-import { convertMessage } from '../../../src/linter/issues';
+import { convertMessage } from '../../../src/linter/issues/message.js';
 import path from 'path';
-import { parseJavaScriptSourceFile } from '../../tools';
-import { S1116 } from '../../../src/rules/decorated';
+import { parseJavaScriptSourceFile } from '../../tools/index.js';
+import { S1116 } from '../../../src/rules/decorated.js';
+import { describe, it, Mock, mock } from 'node:test';
+import { expect } from 'expect';
 
 describe('convertMessage', () => {
   it('should convert an ESLint message into a Sonar issue', async () => {
-    const filePath = path.join(__dirname, 'fixtures', 'convert.js');
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'convert.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
     const ruleId = 'S1116';
@@ -63,8 +65,11 @@ describe('convertMessage', () => {
   });
 
   it('should return null when an ESLint message is missing a rule id', () => {
-    console.error = jest.fn();
+    console.error = mock.fn();
     expect(convertMessage({} as SourceCode, {} as Linter.LintMessage)).toEqual(null);
-    expect(console.error).toHaveBeenCalledWith("Illegal 'null' ruleId for eslint issue");
+    const logs = (console.error as Mock<typeof console.error>).mock.calls.map(
+      call => call.arguments[0],
+    );
+    expect(logs).toContain("Illegal 'null' ruleId for eslint issue");
   });
 });

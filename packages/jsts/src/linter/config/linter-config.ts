@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Linter, Rule } from 'eslint';
-import { getContext } from '@sonar/shared';
-import { customRules as internalCustomRules } from '../custom-rules';
-import { extendRuleConfig, RuleConfig } from './rule-config';
+import { getContext } from '../../../../shared/src/helpers/context.js';
+import { customRules as internalCustomRules } from '../custom-rules/rules.js';
+import { extendRuleConfig, RuleConfig } from './rule-config.js';
 
 /**
  * Creates an ESLint linting configuration

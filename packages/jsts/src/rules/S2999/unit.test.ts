@@ -17,11 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { rule } from './';
-import { RuleTester } from 'eslint';
-import { TypeScriptRuleTester } from '../../../tests/tools';
+import { rule } from './index.js';
+import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { TypeScriptRuleTester } from '../../../tests/tools/index.js';
 
-const ruleTesterJs = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
+const ruleTesterJs = new NodeRuleTester({
+  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
+});
 ruleTesterJs.run('"new" operators should be used with functions [js]', rule, {
   valid: [
     {

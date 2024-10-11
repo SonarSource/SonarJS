@@ -19,8 +19,8 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S3760/javascript
 
-import { Rule } from 'eslint';
-import * as estree from 'estree';
+import type { Rule } from 'eslint';
+import estree from 'estree';
 import ts from 'typescript';
 import {
   generateMeta,
@@ -30,8 +30,8 @@ import {
   IssueLocation,
   report,
   toSecondaryLocation,
-} from '../helpers';
-import { meta } from './meta';
+} from '../helpers/index.js';
+import { meta } from './meta.js';
 
 const MESSAGE = 'Convert this operand into a number.';
 export const rule: Rule.RuleModule = {

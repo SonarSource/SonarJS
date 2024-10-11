@@ -20,10 +20,10 @@
 // https://sonarsource.github.io/rspec/#/rspec/S134/javascript
 
 import { AST, Rule } from 'eslint';
-import * as estree from 'estree';
-import { generateMeta, last, report, toSecondaryLocation } from '../helpers';
+import estree from 'estree';
+import { generateMeta, last, report, toSecondaryLocation } from '../helpers/index.js';
 import { FromSchema } from 'json-schema-to-ts';
-import { meta, schema } from './meta';
+import { meta, schema } from './meta.js';
 
 const DEFAULT_MAXIMUM_NESTING_LEVEL = 3;
 

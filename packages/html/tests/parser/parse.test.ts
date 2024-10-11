@@ -18,12 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import path from 'path';
-import { parseHTML } from '../../src/parser';
-import { readFile } from '@sonar/shared';
+import { describe, it } from 'node:test';
+import { expect } from 'expect';
+import { readFile } from '../../../shared/src/helpers/files.js';
+import { parseHTML } from '../../src/parser/parse.js';
 
 describe('parseHtml', () => {
   it('should return embedded JavaScript', async () => {
-    const filePath = path.join(__dirname, 'fixtures', 'multiple.html');
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'multiple.html');
     const fileContent = await readFile(filePath);
     const embeddedJSs = parseHTML(fileContent);
     expect(embeddedJSs).toHaveLength(2);
@@ -51,14 +53,14 @@ describe('parseHtml', () => {
   });
 
   it('should ignore script tags with the "src" attribute', async () => {
-    const filePath = path.join(__dirname, 'fixtures', 'src.html');
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'src.html');
     const fileContent = await readFile(filePath);
     const embeddedJSs = parseHTML(fileContent);
     expect(embeddedJSs).toHaveLength(0);
   });
 
   it('should ignore non-js script tags', async () => {
-    const filePath = path.join(__dirname, 'fixtures', 'non-js.html');
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'non-js.html');
     const fileContent = await readFile(filePath);
     const embeddedJSs = parseHTML(fileContent);
     expect(embeddedJSs).toHaveLength(0);

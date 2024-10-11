@@ -17,11 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { rules as typescriptESLintRules } from '@typescript-eslint/eslint-plugin';
+import pkg from '@typescript-eslint/eslint-plugin';
 import { Linter } from 'eslint';
-import { sanitize } from '../../../src/rules/typescript-eslint/sanitize';
+import { sanitize } from '../../../src/rules/typescript-eslint/sanitize.js';
 import path from 'path';
-import { parseTypeScriptSourceFile } from '../../tools/helpers';
+import { parseTypeScriptSourceFile } from '../../tools/helpers/index.js';
+import { describe, test } from 'node:test';
+import { expect } from 'expect';
+
+const { rules: typescriptESLintRules } = pkg;
 
 const cases = [
   {
@@ -39,16 +43,15 @@ const cases = [
 ];
 
 describe('sanitize', () => {
-  test.each(cases)(
-    'should $action a sanitized rule raise issues when type information is $typing',
-    async ({ tsConfigFiles, issues }) => {
+  cases.forEach(({ action, typing, tsConfigFiles, issues }) => {
+    test(`should ${action} a sanitized rule raise issues when type information is ${typing}`, async () => {
       const ruleId = 'prefer-readonly';
       const sanitizedRule = sanitize(typescriptESLintRules[ruleId]);
 
       const linter = new Linter();
       linter.defineRule(ruleId, sanitizedRule);
 
-      const fixtures = path.join(__dirname, 'fixtures', 'sanitize');
+      const fixtures = path.join(import.meta.dirname, 'fixtures', 'sanitize');
       const filePath = path.join(fixtures, 'file.ts');
       const tsConfigs = tsConfigFiles.map(file => path.join(fixtures, file));
 
@@ -57,6 +60,6 @@ describe('sanitize', () => {
 
       const messages = linter.verify(sourceCode, { rules });
       expect(messages).toHaveLength(issues);
-    },
-  );
+    });
+  });
 });

@@ -17,13 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { rule as cognitiveComplexityRule } from '../../../src/linter/custom-rules/cognitive-complexity.js';
+import { rule as symbolHighlightingRule } from '../../../src/linter/custom-rules/symbol-highlighting.js';
+import { describe, it } from 'node:test';
+import { expect } from 'expect';
+import { Issue } from '../../../src/linter/issues/issue.js';
 import {
   extractCognitiveComplexity,
   extractHighlightedSymbols,
-  Issue,
-} from '../../../src/linter/issues';
-import { rule as cognitiveComplexityRule } from '../../../src/linter/custom-rules/cognitive-complexity';
-import { rule as symbolHighlightingRule } from '../../../src/linter/custom-rules/symbol-highlighting';
+} from '../../../src/linter/issues/extract.js';
 
 describe('extract', () => {
   it('should extract highlighted symbols', () => {

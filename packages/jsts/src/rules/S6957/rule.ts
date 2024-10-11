@@ -19,11 +19,12 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6957/javascript
 
-import { Rule } from 'eslint';
-import { rules } from 'eslint-plugin-react';
-import { generateMeta, getManifests, toUnixPath } from '../helpers';
+import type { Rule } from 'eslint';
+import pkg from 'eslint-plugin-react';
+const { rules } = pkg;
+import { generateMeta, getManifests, toUnixPath } from '../helpers/index.js';
 import { FromSchema } from 'json-schema-to-ts';
-import { meta, schema } from './meta';
+import { meta, schema } from './meta.js';
 import { dirname } from 'path/posix';
 
 const reactNoDeprecated = rules['no-deprecated'];

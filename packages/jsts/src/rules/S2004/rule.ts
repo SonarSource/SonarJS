@@ -19,8 +19,8 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S2004/javascript
 
-import * as estree from 'estree';
-import { Rule } from 'eslint';
+import estree from 'estree';
+import type { Rule } from 'eslint';
 import { TSESTree } from '@typescript-eslint/utils';
 import {
   generateMeta,
@@ -28,9 +28,9 @@ import {
   report,
   RuleContext,
   toSecondaryLocation,
-} from '../helpers';
+} from '../helpers/index.js';
 import { FromSchema } from 'json-schema-to-ts';
-import { meta, schema } from './meta';
+import { meta, schema } from './meta.js';
 
 const DEFAULT_THRESHOLD = 4;
 

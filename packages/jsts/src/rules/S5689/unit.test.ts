@@ -17,10 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from 'eslint';
-import { rule } from './';
+import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { rule } from './index.js';
 
-const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
+const ruleTester = new NodeRuleTester({
+  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
+});
 ruleTester.run(
   'Recovering fingerprints from web application technologies should not be possible',
   rule,
@@ -181,7 +183,7 @@ ruleTester.run(
       },
       {
         code: `
-        import * as express from 'express';
+        import express from 'express';
         const app = express(); // Noncompliant
       `,
         errors: [

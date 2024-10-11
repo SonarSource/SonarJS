@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { rule } from './rule';
-import { JavaScriptRuleTester } from '../../../tests/tools';
-import { RuleTester } from 'eslint';
+import { rule } from './rule.js';
+import { JavaScriptRuleTester } from '../../../tests/tools/index.js';
+import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 
 const ruleTester = new JavaScriptRuleTester();
 
@@ -111,7 +111,7 @@ ruleTester.run('no-inverted-boolean-check', rule, {
   ],
 });
 
-function error(invertedOperator: string, output: string): RuleTester.TestCaseError {
+function error(invertedOperator: string, output: string): NodeRuleTester.TestCaseError {
   return {
     messageId: 'useOppositeOperator',
     data: { invertedOperator },

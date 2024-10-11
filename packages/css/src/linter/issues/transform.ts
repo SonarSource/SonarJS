@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as stylelint from 'stylelint';
-import { debug } from '@sonar/shared';
-import { Issue } from './issue';
+import stylelint from 'stylelint';
+import { debug } from '../../../../shared/src/helpers/logging.js';
+import { Issue } from './issue.js';
 
 /**
  * Transforms Stylelint linting results into SonarQube issues

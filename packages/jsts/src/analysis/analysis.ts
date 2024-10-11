@@ -17,8 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { FileType, JsTsLanguage, AnalysisInput, AnalysisOutput, ErrorCode } from '@sonar/shared';
-import { CpdToken, Issue, Metrics, SymbolHighlight, SyntaxHighlight } from '../linter';
+import { FileType } from '../../../shared/src/helpers/files.js';
+import { JsTsLanguage } from '../../../shared/src/helpers/language.js';
+import { AnalysisInput, AnalysisOutput } from '../../../shared/src/types/analysis.js';
+import { ErrorCode } from '../../../shared/src/errors/error.js';
+import { SyntaxHighlight } from '../linter/visitors/syntax-highlighting.js';
+import { SymbolHighlight } from '../linter/visitors/symbol-highlighting.js';
+import { Metrics } from '../linter/visitors/metrics/metrics.js';
+import { CpdToken } from '../linter/visitors/cpd.js';
+import { Issue } from '../linter/issues/issue.js';
 
 /**
  *

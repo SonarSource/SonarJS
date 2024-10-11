@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { rule } from './rule';
-import { JavaScriptRuleTester } from '../../../tests/tools';
-import { RuleTester } from 'eslint';
-import { IssueLocation } from '../helpers';
+import { rule } from './rule.js';
+import { JavaScriptRuleTester } from '../../../tests/tools/index.js';
+import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { IssueLocation } from '../helpers/index.js';
 
 const ruleTester = new JavaScriptRuleTester();
 
@@ -179,7 +179,7 @@ ruleTester.run('no-extra-arguments', rule, {
   ],
 });
 
-const ruleTesterScript = new RuleTester({
+const ruleTesterScript = new NodeRuleTester({
   parserOptions: {
     ecmaVersion: 2018,
     sourceType: 'script',
@@ -214,8 +214,8 @@ ruleTesterScript.run('no-extra-arguments script', rule, {
 function message(
   expected: number,
   provided: number,
-  extra: Partial<RuleTester.TestCaseError> = {},
-): RuleTester.TestCaseError {
+  extra: Partial<NodeRuleTester.TestCaseError> = {},
+): NodeRuleTester.TestCaseError {
   // prettier-ignore
   const expectedArguments =
     expected === 0 ? "no arguments" :

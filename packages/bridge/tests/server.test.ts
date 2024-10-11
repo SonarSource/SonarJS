@@ -17,17 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { start } from '../src/server';
-import path from 'path';
-import { setContext } from '@sonar/shared';
+import { start } from '../src/server.js';
+import * as path from 'path';
 import { AddressInfo } from 'net';
-import { request } from './tools';
-import http from 'http';
+import { request } from './tools/index.js';
+import * as http from 'http';
+import { describe, before, it, mock, Mock } from 'node:test';
+import { expect } from 'expect';
+import assert from 'node:assert';
+import { setContext } from '../../shared/src/helpers/context.js';
 
 describe('server', () => {
   const port = 0;
 
-  beforeAll(() => {
+  before(() => {
     setContext({
       workDir: '/tmp/dir',
       shouldUseTypeScriptParserForJS: false,
@@ -37,21 +40,20 @@ describe('server', () => {
   });
 
   it('should start', async () => {
-    expect.assertions(5);
-
-    console.log = jest.fn();
+    console.log = mock.fn();
 
     const { server, serverClosed } = await start(undefined, undefined);
 
     expect(server.listening).toBeTruthy();
-    expect(console.log).toHaveBeenCalledTimes(3);
-    expect(console.log).toHaveBeenNthCalledWith(
-      1,
-      expect.stringMatching('Memory configuration: OS \\(\\d+ MB\\), Node.js \\(\\d+ MB\\).'),
+    const consoleLogMock = (console.log as Mock<typeof console.log>).mock;
+    assert.equal(consoleLogMock.calls.length, 3);
+    assert.match(
+      consoleLogMock.calls[0].arguments[0],
+      /Memory configuration: OS \(\d+ MB\),( Docker \(\d+ MB\),)? Node.js \(\d+ MB\)\./,
     );
-    expect(console.log).toHaveBeenNthCalledWith(2, `DEBUG Starting the bridge server`);
-    expect(console.log).toHaveBeenNthCalledWith(
-      3,
+    assert.equal(consoleLogMock.calls[1].arguments[0], `DEBUG Starting the bridge server`);
+    assert.equal(
+      consoleLogMock.calls[2].arguments[0],
       `DEBUG The bridge server is listening on port ${(server.address() as AddressInfo)?.port}`,
     );
 
@@ -60,8 +62,6 @@ describe('server', () => {
   });
 
   it('should fail when linter is not initialized', async () => {
-    expect.assertions(3);
-
     const { server, serverClosed } = await start(port);
 
     const ruleId = 'S1116';
@@ -89,8 +89,6 @@ describe('server', () => {
   });
 
   it('should route service requests', async () => {
-    expect.assertions(2);
-
     const { server, serverClosed } = await start(port);
 
     expect(server.listening).toBeTruthy();
@@ -115,9 +113,7 @@ describe('server', () => {
   });
 
   it('should shut down', async () => {
-    expect.assertions(3);
-
-    console.log = jest.fn();
+    console.log = mock.fn();
 
     const { server, serverClosed } = await start(port);
     expect(server.listening).toBeTruthy();
@@ -125,12 +121,15 @@ describe('server', () => {
     await request(server, '/close', 'POST');
 
     expect(server.listening).toBeFalsy();
-    expect(console.log).toHaveBeenCalledWith('DEBUG Shutting down the worker');
+    const logs = (console.log as Mock<typeof console.log>).mock.calls.map(
+      call => call.arguments[0],
+    );
+    expect(logs).toContain('DEBUG Shutting down the worker');
     await serverClosed;
   });
 
   it('worker crashing should close server', async () => {
-    console.log = jest.fn();
+    console.log = mock.fn();
 
     const { server, serverClosed, worker } = await start(port);
     expect(server.listening).toBeTruthy();
@@ -139,12 +138,15 @@ describe('server', () => {
     await worker.terminate();
 
     expect(server.listening).toBeFalsy();
-    expect(console.log).toHaveBeenCalledWith('DEBUG The worker thread failed: Error: An error');
+    const logs = (console.log as Mock<typeof console.log>).mock.calls.map(
+      call => call.arguments[0],
+    );
+    expect(logs).toContain('DEBUG The worker thread failed: Error: An error');
     await serverClosed;
   });
 
   it('should timeout', async () => {
-    console.log = jest.fn();
+    console.log = mock.fn();
 
     const { server, serverClosed } = await start(port, '127.0.0.1', 500);
 
@@ -157,13 +159,16 @@ describe('server', () => {
     await request(server, '/status', 'GET');
 
     await serverClosed;
-    expect(console.log).toHaveBeenCalledWith('DEBUG The bridge server shut down');
+    const logs = (console.log as Mock<typeof console.log>).mock.calls.map(
+      call => call.arguments[0],
+    );
+    expect(logs).toContain('DEBUG The bridge server shut down');
     expect(server.listening).toBeFalsy();
   });
 });
 
 async function requestAnalyzeJs(server: http.Server, fileType: string): Promise<any> {
-  const filePath = path.join(__dirname, 'fixtures', 'routing.js');
+  const filePath = path.join(import.meta.dirname, 'fixtures', 'routing.js');
   const analysisInput = { filePath, fileType };
 
   return await request(server, '/analyze-js', 'POST', analysisInput);

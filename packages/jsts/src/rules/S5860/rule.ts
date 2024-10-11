@@ -20,9 +20,9 @@
 // https://sonarsource.github.io/rspec/#/rspec/S5860/javascript
 
 import { AST, Rule, Scope } from 'eslint';
-import * as estree from 'estree';
+import estree from 'estree';
 import * as regexpp from '@eslint-community/regexpp';
-import {
+import type {
   AmbiguousBackreference,
   Backreference,
   CapturingGroup,
@@ -44,16 +44,16 @@ import {
   report,
   RequiredParserServices,
   toSecondaryLocation,
-} from '../helpers';
+} from '../helpers/index.js';
 import {
   extractReferences,
   getParsedRegex,
   getRegexpLocation,
   isStringRegexMethodCall,
   isStringReplaceCall,
-} from '../helpers/regex';
+} from '../helpers/regex/index.js';
 import { TSESTree } from '@typescript-eslint/utils';
-import { meta } from './meta';
+import { meta } from './meta.js';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta as Rule.RuleMetaData, undefined, true),

@@ -18,18 +18,20 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import path from 'path';
-import { readFile, setContext } from '@sonar/shared';
-import { buildSourceCode, JsTsAnalysisInput } from '@sonar/jsts';
-import { parseAwsFromYaml } from '../../src/aws';
-import {
-  buildSourceCodes,
-  EmbeddedAnalysisInput,
-  EmbeddedJS,
-  patchParsingErrorMessage,
-} from '@sonar/jsts';
+import { describe, it, before } from 'node:test';
+import { expect } from 'expect';
+import { buildSourceCodes } from '../../../jsts/src/embedded/builder/build.js';
+import { EmbeddedAnalysisInput } from '../../../jsts/src/embedded/analysis/analysis.js';
+import { JsTsAnalysisInput } from '../../../jsts/src/analysis/analysis.js';
+import { buildSourceCode } from '../../../jsts/src/builders/build.js';
+import { EmbeddedJS } from '../../../jsts/src/embedded/analysis/embedded-js.js';
+import { patchParsingErrorMessage } from '../../../jsts/src/embedded/builder/patch.js';
+import { setContext } from '../../../shared/src/helpers/context.js';
+import { readFile } from '../../../shared/src/helpers/files.js';
+import { parseAwsFromYaml } from '../../src/aws/parser.js';
 
 describe('patchSourceCode', () => {
-  beforeAll(() => {
+  before(() => {
     setContext({
       workDir: '/tmp/dir',
       shouldUseTypeScriptParserForJS: true,
@@ -39,7 +41,7 @@ describe('patchSourceCode', () => {
   });
 
   it('should patch source code', async () => {
-    const filePath = path.join(__dirname, 'fixtures', 'patch', 'source-code.yaml');
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'patch', 'source-code.yaml');
     const text = await readFile(filePath);
     const [patchedSourceCode] = buildSourceCodes(
       {
@@ -69,28 +71,30 @@ describe('patchSourceCode', () => {
     );
   });
 
-  test.each(['body', 'tokens', 'comments'])('should patch ast %s', async property => {
-    const fixture = path.join(__dirname, 'fixtures', 'patch', property);
+  ['body', 'tokens', 'comments'].forEach(property => {
+    it('should patch ast %s', async () => {
+      const fixture = path.join(import.meta.dirname, 'fixtures', 'patch', property);
 
-    let filePath = `${fixture}.yaml`;
-    let fileContent = await readFile(filePath);
-    const [patchedSourceCode] = buildSourceCodes(
-      { filePath, fileContent } as EmbeddedAnalysisInput,
-      parseAwsFromYaml,
-    );
-    const patchedNodes = patchedSourceCode.ast[property];
+      let filePath = `${fixture}.yaml`;
+      let fileContent = await readFile(filePath);
+      const [patchedSourceCode] = buildSourceCodes(
+        { filePath, fileContent } as EmbeddedAnalysisInput,
+        parseAwsFromYaml,
+      );
+      const patchedNodes = patchedSourceCode.ast[property];
 
-    filePath = `${fixture}.js`;
-    fileContent = await readFile(filePath);
-    const input = { filePath, fileContent } as JsTsAnalysisInput;
-    const referenceSourceCode = buildSourceCode(input, 'js');
-    const referenceNodes = referenceSourceCode.ast[property];
+      filePath = `${fixture}.js`;
+      fileContent = await readFile(filePath);
+      const input = { filePath, fileContent } as JsTsAnalysisInput;
+      const referenceSourceCode = buildSourceCode(input, 'js');
+      const referenceNodes = referenceSourceCode.ast[property];
 
-    expect(patchedNodes).toEqual(referenceNodes);
+      expect(patchedNodes).toEqual(referenceNodes);
+    });
   });
 
   it('should patch parsing errors', async () => {
-    const fixture = path.join(__dirname, 'fixtures', 'patch', 'parsing-error');
+    const fixture = path.join(import.meta.dirname, 'fixtures', 'patch', 'parsing-error');
 
     let filePath = `${fixture}.yaml`;
     let fileContent = await readFile(filePath);

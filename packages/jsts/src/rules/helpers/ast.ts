@@ -19,14 +19,14 @@
  */
 import { TSESTree } from '@typescript-eslint/utils';
 import { Rule, Scope } from 'eslint';
-import * as estree from 'estree';
+import estree from 'estree';
 import {
   findFirstMatchingAncestor,
   flatMap,
   getFullyQualifiedName,
   report,
   toSecondaryLocation,
-} from '.';
+} from './index.js';
 
 export type Node = estree.Node | TSESTree.Node;
 

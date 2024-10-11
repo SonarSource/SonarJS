@@ -18,18 +18,21 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { join } from 'path';
-import { setContext, APIError } from '@sonar/shared';
-import { parseAwsFromYaml } from '../../src/aws';
-import { embeddedInput } from '../../../jsts/tests/tools';
-// loading it from @sonar/jsts breaks resolution
-import { initializeLinter, getLinter } from '../../../jsts/src/linter';
-import { analyzeEmbedded, composeSyntheticFilePath } from '@sonar/jsts';
-import { Rule } from 'eslint';
+import { embeddedInput } from '../../../jsts/tests/tools/index.js';
+import type { Rule } from 'eslint';
+import { describe, it, before } from 'node:test';
+import { expect } from 'expect';
+import { setContext } from '../../../shared/src/helpers/context.js';
+import { parseAwsFromYaml } from '../../src/aws/parser.js';
+import { analyzeEmbedded } from '../../../jsts/src/embedded/analysis/analyzer.js';
+import { APIError } from '../../../shared/src/errors/error.js';
+import { getLinter, initializeLinter } from '../../../jsts/src/linter/linters.js';
+import { composeSyntheticFilePath } from '../../../jsts/src/embedded/builder/build.js';
 
 describe('analyzeYAML', () => {
-  const fixturesPath = join(__dirname, 'fixtures');
+  const fixturesPath = join(import.meta.dirname, 'fixtures');
 
-  beforeAll(() => {
+  before(() => {
     setContext({
       workDir: '/tmp/workdir',
       shouldUseTypeScriptParserForJS: true,
@@ -46,7 +49,7 @@ describe('analyzeYAML', () => {
   });
 
   it('should analyze YAML file', async () => {
-    initializeLinter([{ key: 'S3923', configurations: [], fileTypeTarget: ['MAIN'] }]);
+    await initializeLinter([{ key: 'S3923', configurations: [], fileTypeTarget: ['MAIN'] }]);
     const {
       issues: [issue],
     } = analyzeEmbedded(
@@ -65,7 +68,7 @@ describe('analyzeYAML', () => {
   });
 
   it('should return an empty issues list on parsing error', async () => {
-    initializeLinter([{ key: 'S3923', configurations: [], fileTypeTarget: ['MAIN'] }]);
+    await initializeLinter([{ key: 'S3923', configurations: [], fileTypeTarget: ['MAIN'] }]);
     const analysisInput = await embeddedInput({ filePath: join(fixturesPath, 'malformed.yaml') });
     expect(() => analyzeEmbedded(analysisInput, parseAwsFromYaml)).toThrow(
       APIError.parsingError('Map keys must be unique', { line: 2 }),
@@ -73,7 +76,7 @@ describe('analyzeYAML', () => {
   });
 
   it('should not break when using a rule with a quickfix', async () => {
-    initializeLinter([{ key: 'S1116', configurations: [], fileTypeTarget: ['MAIN'] }]);
+    await initializeLinter([{ key: 'S1116', configurations: [], fileTypeTarget: ['MAIN'] }]);
     const result = analyzeEmbedded(
       await embeddedInput({ filePath: join(fixturesPath, 'quickfix.yaml') }),
       parseAwsFromYaml,
@@ -99,7 +102,7 @@ describe('analyzeYAML', () => {
   });
 
   it('should not break when using "S3723" rule', async () => {
-    initializeLinter([
+    await initializeLinter([
       {
         key: 'S3723',
         configurations: ['always-multiline'],
@@ -130,7 +133,7 @@ describe('analyzeYAML', () => {
   });
 
   it('should not break when using a rule with secondary locations', async () => {
-    initializeLinter([{ key: 'S2251', configurations: [], fileTypeTarget: ['MAIN'] }]);
+    await initializeLinter([{ key: 'S2251', configurations: [], fileTypeTarget: ['MAIN'] }]);
     const result = analyzeEmbedded(
       await embeddedInput({ filePath: join(fixturesPath, 'secondary.yaml') }),
       parseAwsFromYaml,
@@ -151,7 +154,7 @@ describe('analyzeYAML', () => {
   });
 
   it('should not break when using a regex rule', async () => {
-    initializeLinter([{ key: 'S6326', configurations: [], fileTypeTarget: ['MAIN'] }]);
+    await initializeLinter([{ key: 'S6326', configurations: [], fileTypeTarget: ['MAIN'] }]);
     const result = analyzeEmbedded(
       await embeddedInput({ filePath: join(fixturesPath, 'regex.yaml') }),
       parseAwsFromYaml,
@@ -170,7 +173,7 @@ describe('analyzeYAML', () => {
   });
 
   it('should not return issues outside of the embedded JS', async () => {
-    initializeLinter([
+    await initializeLinter([
       { key: 'S1131', configurations: [], fileTypeTarget: ['MAIN'] },
       { key: 'S1451', configurations: [{ headerFormat: '' }], fileTypeTarget: ['MAIN'] },
     ]);
@@ -182,7 +185,6 @@ describe('analyzeYAML', () => {
   });
 
   it('should provide a synthetic filename to the rule context', async () => {
-    expect.assertions(1);
     const resourceName = 'SomeLambdaFunction';
     const filePath = join(fixturesPath, 'synthetic-filename.yaml');
     const syntheticFilename = composeSyntheticFilePath(filePath, resourceName);
@@ -198,7 +200,7 @@ describe('analyzeYAML', () => {
         },
       },
     };
-    initializeLinter([{ key: rule.key, configurations: [], fileTypeTarget: ['MAIN'] }]);
+    await initializeLinter([{ key: rule.key, configurations: [], fileTypeTarget: ['MAIN'] }]);
     getLinter().linter.defineRule(rule.key, rule.module);
     analyzeEmbedded(await embeddedInput({ filePath }), parseAwsFromYaml);
   });

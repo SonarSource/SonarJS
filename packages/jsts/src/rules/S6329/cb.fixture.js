@@ -1,4 +1,4 @@
-import * as cdk from 'aws-cdk-lib';
+import cdk from 'aws-cdk-lib';
 import { aws_dms as dms, aws_ec2 as ec2, aws_rds as rds, RemovalPolicy } from 'aws-cdk-lib';
 
 export class CfnDatabaseInstanceStack extends cdk.Stack {

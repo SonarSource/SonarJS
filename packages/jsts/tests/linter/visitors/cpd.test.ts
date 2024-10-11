@@ -17,9 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { CpdToken, getCpdTokens } from '../../../src/linter/visitors';
+import { CpdToken, getCpdTokens } from '../../../src/linter/visitors/cpd.js';
 import path from 'path';
-import { parseJavaScriptSourceFile } from '../../tools/helpers';
+import { parseJavaScriptSourceFile } from '../../tools/helpers/index.js';
+import { describe, it } from 'node:test';
+import { expect } from 'expect';
 
 describe('getCpdTokens', () => {
   it('should find all tokens', async () => {
@@ -82,7 +84,7 @@ describe('getCpdTokens', () => {
 });
 
 async function tokens(filename: string): Promise<CpdToken[]> {
-  const filePath = path.join(__dirname, 'fixtures', 'cpd', filename);
+  const filePath = path.join(import.meta.dirname, 'fixtures', 'cpd', filename);
   const sourceCode = await parseJavaScriptSourceFile(filePath);
   return getCpdTokens(sourceCode).cpdTokens;
 }

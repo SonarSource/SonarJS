@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { createStylelintConfig, linter } from '../linter';
-import { CssAnalysisInput, CssAnalysisOutput } from './analysis';
+import { CssAnalysisInput, CssAnalysisOutput } from './analysis.js';
+import { linter } from '../linter/wrapper.js';
+import { createStylelintConfig } from '../linter/config.js';
 
 /**
  * Analyzes a CSS analysis input

@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from 'eslint';
-import { rule } from './';
-import { EncodedMessage, IssueLocation } from '../helpers';
+import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { rule } from './index.js';
+import { EncodedMessage, IssueLocation } from '../helpers/index.js';
 
-const ruleTester = new RuleTester({
+const ruleTester = new NodeRuleTester({
   parserOptions: { ecmaVersion: 2018, sourceType: 'module', ecmaFeatures: { jsx: true } },
 });
 

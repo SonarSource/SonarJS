@@ -20,18 +20,18 @@
 // https://sonarsource.github.io/rspec/#/rspec/S5868/javascript
 
 import { AST, Rule } from 'eslint';
-import { ancestorsChain, generateMeta, isRegexLiteral } from '../helpers';
+import { ancestorsChain, generateMeta, isRegexLiteral } from '../helpers/index.js';
 import {
   createRegExpRule,
   getFlags,
   getPatternFromNode,
   isRegExpConstructor,
-} from '../helpers/regex';
+} from '../helpers/regex/index.js';
 import { RegExpValidator } from '@eslint-community/regexpp';
 import { Character, CharacterClassElement } from '@eslint-community/regexpp/ast';
-import * as estree from 'estree';
+import estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
-import { meta } from './meta';
+import { meta } from './meta.js';
 
 const MODIFIABLE_REGEXP_FLAGS_TYPES: estree.Node['type'][] = [
   'Literal',

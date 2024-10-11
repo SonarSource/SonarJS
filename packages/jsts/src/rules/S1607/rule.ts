@@ -19,7 +19,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S1607
 
-import { Rule } from 'eslint';
+import type { Rule } from 'eslint';
 import estree from 'estree';
 import {
   generateMeta,
@@ -34,8 +34,8 @@ import {
   isMethodInvocation,
   resolveFunction,
   toUnixPath,
-} from '../helpers';
-import { meta } from './meta';
+} from '../helpers/index.js';
+import { meta } from './meta.js';
 import { TSESTree } from '@typescript-eslint/utils';
 import { dirname } from 'path/posix';
 

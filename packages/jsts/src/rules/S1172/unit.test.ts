@@ -17,10 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester, Scope } from 'eslint';
-import { isParameterProperty, rule } from './rule';
+import { Scope } from 'eslint';
+import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { isParameterProperty, rule } from './rule.js';
+import Module from 'node:module';
+import { it } from 'node:test';
+import { expect } from 'expect';
+const require = Module.createRequire(import.meta.url);
 
-const ruleTester = new RuleTester({
+const ruleTester = new NodeRuleTester({
   parser: require.resolve('@typescript-eslint/parser'),
   parserOptions: { ecmaVersion: 2018, ecmaFeatures: { jsx: true } },
 });

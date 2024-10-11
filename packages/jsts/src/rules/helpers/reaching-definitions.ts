@@ -17,11 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Rule, Scope } from 'eslint';
-import * as estree from 'estree';
-import Variable = Scope.Variable;
-import CodePathSegment = Rule.CodePathSegment;
-import Reference = Scope.Reference;
+import type { Rule, Scope } from 'eslint';
+import estree from 'estree';
 
 type LiteralValue = string;
 
@@ -57,18 +54,18 @@ export class ReachingDefinitions {
     this.segment = segment;
   }
 
-  segment: CodePathSegment;
+  segment: Rule.CodePathSegment;
 
-  in = new Map<Variable, Values>();
+  in = new Map<Scope.Variable, Values>();
 
-  out = new Map<Variable, Values>();
+  out = new Map<Scope.Variable, Values>();
 
   /**
    * collects references in order they are evaluated, set in JS maintains insertion order
    */
-  references = new Set<Reference>();
+  references = new Set<Scope.Reference>();
 
-  add(ref: Reference) {
+  add(ref: Scope.Reference) {
     const variable = ref.resolved;
     if (variable) {
       this.references.add(ref);
@@ -80,7 +77,7 @@ export class ReachingDefinitions {
     this.segment.prevSegments.forEach(prev => {
       this.join(reachingDefinitionsMap.get(prev.id)!.out);
     });
-    const newOut = new Map<Variable, Values>(this.in);
+    const newOut = new Map<Scope.Variable, Values>(this.in);
     this.references.forEach(ref => this.updateProgramState(ref, newOut));
     if (!equals(this.out, newOut)) {
       this.out = newOut;
@@ -90,7 +87,7 @@ export class ReachingDefinitions {
     }
   }
 
-  updateProgramState(ref: Reference, programState: Map<Variable, Values>) {
+  updateProgramState(ref: Scope.Reference, programState: Map<Scope.Variable, Values>) {
     const variable = ref.resolved;
     if (!variable || !ref.isWrite()) {
       return;
@@ -103,7 +100,7 @@ export class ReachingDefinitions {
     programState.set(variable, rhsValues);
   }
 
-  join(previousOut: Map<Variable, Values>) {
+  join(previousOut: Map<Scope.Variable, Values>) {
     for (const [key, values] of previousOut.entries()) {
       const inValues = this.in.get(key) ?? new AssignedValues();
       if (inValues.type === 'AssignedValues' && values.type === 'AssignedValues') {
@@ -117,9 +114,9 @@ export class ReachingDefinitions {
 }
 
 export function resolveAssignedValues(
-  lhsVariable: Variable,
+  lhsVariable: Scope.Variable,
   writeExpr: estree.Node | null,
-  assignedValuesMap: Map<Variable, Values>,
+  assignedValuesMap: Map<Scope.Variable, Values>,
   scope: Scope.Scope,
 ): Values {
   if (!writeExpr) {
@@ -141,7 +138,7 @@ export function resolveAssignedValues(
   }
 }
 
-function equals(ps1: Map<Variable, Values>, ps2: Map<Variable, Values>) {
+function equals(ps1: Map<Scope.Variable, Values>, ps2: Map<Scope.Variable, Values>) {
   if (ps1.size !== ps2.size) {
     return false;
   }

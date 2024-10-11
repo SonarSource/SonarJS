@@ -17,13 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Rule, RuleTester } from 'eslint';
-import { interceptReport } from '../../../../src/rules';
+import { Rule } from 'eslint';
+import { NodeRuleTester } from '../../../../tests/tools/testers/rule-tester.js';
+import { interceptReport } from '../../../../src/rules/index.js';
 // Covers `getDeclaredVariables`, `getScope`, `getSourceCode`.
-import { rule as noParameterReassignment } from '../../../../src/rules/S1226';
+import { rule as noParameterReassignment } from '../../../../src/rules/S1226/index.js';
 // Covers `getFilename`
-import { rule as noImplicitDependencies } from '../../../../src/rules/S4328';
-import * as path from 'path';
+import { rule as noImplicitDependencies } from '../../../../src/rules/S4328/index.js';
+import path from 'path';
+import Module from 'node:module';
+const require = Module.createRequire(import.meta.url);
+import { describe } from 'node:test';
 
 describe('interceptReport', () => {
   assertThatInterceptReportDecoratorForwardsCalls(
@@ -35,7 +39,7 @@ describe('interceptReport', () => {
     },
   );
 
-  const filename = path.join(__dirname, 'fixtures', 'file.js');
+  const filename = path.join(import.meta.dirname, 'fixtures', 'file.js');
   assertThatInterceptReportDecoratorForwardsCalls(
     'Dependencies should be explicit',
     noImplicitDependencies,
@@ -50,11 +54,11 @@ function assertThatInterceptReportDecoratorForwardsCalls(
   name: string,
   rule: Rule.RuleModule,
   tests: {
-    valid?: RuleTester.ValidTestCase[];
-    invalid?: RuleTester.InvalidTestCase[];
+    valid?: NodeRuleTester.ValidTestCase[];
+    invalid?: NodeRuleTester.InvalidTestCase[];
   },
 ) {
-  const ruleTester = new RuleTester({
+  const ruleTester = new NodeRuleTester({
     parser: require.resolve('@typescript-eslint/parser'),
     parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
   });

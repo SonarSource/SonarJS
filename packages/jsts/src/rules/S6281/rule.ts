@@ -19,7 +19,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6281/javascript
 
-import { Rule } from 'eslint';
+import type { Rule } from 'eslint';
 import { NewExpression, ObjectExpression, Property } from 'estree';
 import {
   findPropagatedSetting,
@@ -32,8 +32,8 @@ import {
   normalizeFQN,
   report,
   S3BucketTemplate,
-} from '../helpers';
-import { meta } from './meta';
+} from '../helpers/index.js';
+import { meta } from './meta.js';
 
 const BLOCK_PUBLIC_ACCESS_KEY = 'blockPublicAccess';
 const BLOCK_PUBLIC_ACCESS_PROPERTY_KEYS = [

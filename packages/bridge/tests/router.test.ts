@@ -17,23 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { setContext, toUnixPath } from '@sonar/shared';
 import http from 'http';
-import {
-  createAndSaveProgram,
-  deserializeProtobuf,
-  ProjectAnalysisInput,
-  RuleConfig,
-} from '@sonar/jsts';
 import path from 'path';
-import { start } from '../src/server';
-import { request } from './tools';
-import * as fs from 'fs';
+import { start } from '../src/server.js';
+import { request } from './tools/index.js';
+import fs from 'fs';
+import { describe, beforeEach, afterEach, it, mock, Mock } from 'node:test';
+import { expect } from 'expect';
 
-import { rule as S5362 } from '../../css/src/rules/S5362';
+import { rule as S5362 } from '../../css/src/rules/S5362/index.js';
+import assert from 'node:assert';
+import { setContext } from '../../shared/src/helpers/context.js';
+import { toUnixPath } from '../../shared/src/helpers/files.js';
+import { ProjectAnalysisInput } from '../../jsts/src/analysis/projectAnalysis/projectAnalysis.js';
+import { deserializeProtobuf } from '../../jsts/src/parsers/ast.js';
+import { createAndSaveProgram } from '../../jsts/src/program/program.js';
+import { RuleConfig } from '../../jsts/src/linter/config/rule-config.js';
 
 describe('router', () => {
-  const fixtures = path.join(__dirname, 'fixtures', 'router');
+  const fixtures = path.join(import.meta.dirname, 'fixtures', 'router');
   const port = 0;
   let closePromise: Promise<void>;
 
@@ -46,7 +48,6 @@ describe('router', () => {
       sonarlint: false,
       bundles: [],
     });
-    jest.setTimeout(60 * 1000);
     const { server: serverInstance, serverClosed } = await start(port, '127.0.0.1', 60 * 60 * 1000);
     server = serverInstance;
     closePromise = serverClosed;
@@ -250,13 +251,13 @@ describe('router', () => {
   });
 
   it('should forward /create-program failures', async () => {
-    console.error = jest.fn();
+    console.error = mock.fn();
     const tsConfig = path.join(fixtures, 'malformed.json');
     const data = { tsConfig };
     const response = (await request(server, '/create-program', 'POST', data)) as string;
     const { error } = JSON.parse(response);
     expect(error).toBeDefined();
-    expect(console.error).toHaveBeenCalled();
+    assert((console.error as Mock<typeof console.error>).mock.calls.length > 0);
   });
 
   it('should route /delete-program requests', async () => {
@@ -274,10 +275,6 @@ describe('router', () => {
   });
 
   it('should route /new-tsconfig requests', async () => {
-    /**
-     * There is no easy way to test that a module was unloaded, because jest is modifying require calls for tests
-     * @see https://github.com/facebook/jest/issues/6725
-     */
     const data = {};
     const response = await request(server, '/new-tsconfig', 'POST', data);
     expect(response).toEqual('OK!');
@@ -311,13 +308,13 @@ describe('router', () => {
   });
 
   it('should forward /tsconfig-files failures', async () => {
-    console.error = jest.fn();
+    console.error = mock.fn();
     const tsConfig = path.join(fixtures, 'malformed.json');
     const data = { tsConfig };
     const response = (await request(server, '/tsconfig-files', 'POST', data)) as string;
     const { error } = JSON.parse(response);
     expect(error).toEqual('Debug Failure.');
-    expect(console.error).toHaveBeenCalled();
+    assert((console.error as Mock<typeof console.error>).mock.calls.length > 0);
   });
 
   it('should write tsconfig.json file', async () => {

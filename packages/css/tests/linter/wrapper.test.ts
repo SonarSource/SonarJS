@@ -18,15 +18,18 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import path from 'path';
-import * as stylelint from 'stylelint';
-import { readFile } from '@sonar/shared';
-import { createStylelintConfig, LinterWrapper, RuleConfig } from '../../src/linter';
+import stylelint from 'stylelint';
+import { describe, it } from 'node:test';
+import { expect } from 'expect';
 
-import { rule as S5362 } from '../../src/rules/S5362';
+import { rule as S5362 } from '../../src/rules/S5362/index.js';
+import { LinterWrapper } from '../../src/linter/wrapper.js';
+import { readFile } from '../../../shared/src/helpers/files.js';
+import { createStylelintConfig, RuleConfig } from '../../src/linter/config.js';
 
 describe('LinterWrapper', () => {
   it('should lint with a stylelint rule', async () => {
-    const filePath = path.join(__dirname, './fixtures/block.css');
+    const filePath = path.join(import.meta.dirname, './fixtures/block.css');
     const rules = [{ key: 'block-no-empty', configurations: [] }];
     const options = await createStylelintOptions(filePath, rules);
 
@@ -44,7 +47,7 @@ describe('LinterWrapper', () => {
   });
 
   it('should lint with an internal rule', async () => {
-    const filePath = path.join(__dirname, './fixtures/calc.css');
+    const filePath = path.join(import.meta.dirname, './fixtures/calc.css');
     const rules = [{ key: S5362.ruleName, configurations: [] }];
     const options = await createStylelintOptions(filePath, rules);
 
@@ -62,7 +65,7 @@ describe('LinterWrapper', () => {
   });
 
   it('should lint with a configured rule', async () => {
-    const filePath = path.join(__dirname, './fixtures/font-family.css');
+    const filePath = path.join(import.meta.dirname, './fixtures/font-family.css');
     const rules = [
       {
         key: 'font-family-no-missing-generic-family-keyword',
@@ -86,7 +89,7 @@ describe('LinterWrapper', () => {
   });
 
   it('should not lint with a disabled rule', async () => {
-    const filePath = path.join(__dirname, './fixtures/block.css');
+    const filePath = path.join(import.meta.dirname, './fixtures/block.css');
     const rules = [];
     const options = await createStylelintOptions(filePath, rules);
 

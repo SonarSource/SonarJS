@@ -17,11 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from 'eslint';
-import { rule } from './rule';
-import { expandMessage, IssueLocation } from '../helpers';
+import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { rule } from './rule.js';
+import { expandMessage, IssueLocation } from '../helpers/index.js';
+import Module from 'node:module';
+const require = Module.createRequire(import.meta.url);
 
-const ruleTester = new RuleTester({
+const ruleTester = new NodeRuleTester({
   parserOptions: { ecmaVersion: 2018, sourceType: 'module', ecmaFeatures: { jsx: true } },
   parser: require.resolve('@typescript-eslint/parser'),
 });
@@ -293,7 +295,7 @@ ruleTester.run('no-identical-functions', rule, {
   ],
 });
 
-function message(originalLine: number, duplicationLine: number): RuleTester.TestCaseError {
+function message(originalLine: number, duplicationLine: number): NodeRuleTester.TestCaseError {
   return {
     message: expandMessage(
       'Update this function so that its implementation is not identical to the one on line {{line}}.',
@@ -310,7 +312,7 @@ function encodedMessage(
   originalLine: number,
   duplicationLine: number,
   secondaries: IssueLocation[],
-): RuleTester.TestCaseError {
+): NodeRuleTester.TestCaseError {
   return {
     messageId: 'sonarRuntime',
     data: {

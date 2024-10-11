@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Rule } from 'eslint';
-import * as estree from 'estree';
+import type { Rule } from 'eslint';
+import estree from 'estree';
 
 const NUM_ARGS_NODE_MESSAGE = 2;
 
@@ -47,7 +47,7 @@ export function interceptReport(
   contextOverrider?: ContextOverrider,
 ): Rule.RuleModule {
   return {
-    // meta should be defined only when it's defined on original rule, otherwise RuleTester will fail
+    // meta should be defined only when it's defined on original rule, otherwise NodeRuleTester will fail
     ...(!!rule.meta && { meta: rule.meta }),
     create(originalContext: Rule.RuleContext) {
       let interceptingContext: Rule.RuleContext;

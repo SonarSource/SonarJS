@@ -17,21 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { APIError, debug, info, getContext, JsTsLanguage } from '@sonar/shared';
+import { debug, info } from '../../../shared/src/helpers/logging.js';
 import { SourceCode } from 'eslint';
-import {
-  computeMetrics,
-  findNoSonarLines,
-  getCpdTokens,
-  getLinter,
-  getSyntaxHighlighting,
-  LinterWrapper,
-  SymbolHighlight,
-} from '../linter';
-import { buildSourceCode } from '../builders';
-import { JsTsAnalysisInput, JsTsAnalysisOutput } from './analysis';
-import { serializeInProtobuf } from '../parsers';
+import { JsTsAnalysisInput, JsTsAnalysisOutput } from './analysis.js';
 import { TSESTree } from '@typescript-eslint/utils';
+import { JsTsLanguage } from '../../../shared/src/helpers/language.js';
+import { getLinter } from '../linter/linters.js';
+import { buildSourceCode } from '../builders/build.js';
+import { LinterWrapper } from '../linter/wrapper.js';
+import { APIError } from '../../../shared/src/errors/error.js';
+import { serializeInProtobuf } from '../parsers/ast.js';
+import { SymbolHighlight } from '../linter/visitors/symbol-highlighting.js';
+import { getContext } from '../../../shared/src/helpers/context.js';
+import { computeMetrics, findNoSonarLines } from '../linter/visitors/metrics/index.js';
+import { getSyntaxHighlighting } from '../linter/visitors/syntax-highlighting.js';
+import { getCpdTokens } from '../linter/visitors/cpd.js';
 
 /**
  * Analyzes a JavaScript / TypeScript analysis input

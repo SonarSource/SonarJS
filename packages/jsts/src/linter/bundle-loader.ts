@@ -18,9 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Linter, Rule } from 'eslint';
-import { rules as internalRules } from '../rules/index';
-import { customRules as internalCustomRules, CustomRule } from './custom-rules';
-import { debug, getContext } from '@sonar/shared';
+import { rules as internalRules } from '../rules/index.js';
+import { customRules as internalCustomRules } from './custom-rules/rules.js';
+import { debug } from '../../../shared/src/helpers/logging.js';
+import { getContext } from '../../../shared/src/helpers/context.js';
+import type { CustomRule } from './custom-rules/custom-rule.js';
 
 export function loadCustomRules(linter: Linter, rules: CustomRule[] = []) {
   for (const rule of rules) {
@@ -28,9 +30,9 @@ export function loadCustomRules(linter: Linter, rules: CustomRule[] = []) {
   }
 }
 
-export function loadBundles(linter: Linter, rulesBundles: (keyof typeof loaders)[]) {
+export async function loadBundles(linter: Linter, rulesBundles: (keyof typeof loaders)[]) {
   for (const bundleId of rulesBundles) {
-    loaders[bundleId](linter);
+    await loaders[bundleId](linter);
   }
 }
 
@@ -55,11 +57,11 @@ const loaders: { [key: string]: Function } = {
    * including rule keys and rule definitions that cannot be provided to the linter
    * wrapper using the same feeding channel as rules from the active quality profile.
    */
-  contextRules(linter: Linter) {
+  async contextRules(linter: Linter) {
     const { bundles } = getContext();
     const customRules: CustomRule[] = [];
     for (const ruleBundle of bundles) {
-      const bundle = require(ruleBundle);
+      const bundle = await import(new URL(ruleBundle).toString());
       customRules.push(...bundle.rules);
       const ruleIds = bundle.rules.map((r: CustomRule) => r.ruleId);
       debug(`Loaded rules ${ruleIds} from ${ruleBundle}`);

@@ -17,10 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from 'eslint';
-import { rule } from './';
+import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { rule } from './index.js';
 
-const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
+const ruleTester = new NodeRuleTester({
+  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
+});
 
 function encodedMessage(
   message: string,
@@ -79,7 +81,7 @@ ruleTester.run('File uploads should be restricted', rule, {
     },
     {
       code: `
-      import * as formidableModule from 'formidable';
+      import formidableModule from 'formidable';
       import { formidable } from 'formidable';
       import { IncomingForm } from 'formidable';
       import { Formidable } from 'formidable';
@@ -222,7 +224,7 @@ ruleTester.run('File uploads should be restricted', rule, {
     },
     {
       code: `
-      import * as multer from 'multer';
+      import multer from 'multer';
       const storage = multer.diskStorage({ filename: filenameFunc });
       multer({ storage }); // Noncompliant
       multer({ storage: multer.diskStorage({ filename: filenameFunc }) }); // Noncompliant

@@ -18,9 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import path from 'path';
-import { getContext, setContext, toUnixPath } from '@sonar/shared';
-import { analyzeProject, clearTSConfigs, ProjectAnalysisInput, RuleConfig } from '@sonar/jsts';
-import { searchFiles, File } from '../../src/rules';
+import { searchFiles, File, toUnixPath } from '../../src/rules/helpers/index.js';
+import { describe, it, beforeEach } from 'node:test';
+import { expect } from 'expect';
+import { RuleConfig } from '../../src/linter/config/rule-config.js';
+import { ProjectAnalysisInput } from '../../src/analysis/projectAnalysis/projectAnalysis.js';
+import { getContext, setContext } from '../../../shared/src/helpers/context.js';
+import { clearTSConfigs } from '../../src/program/tsconfigs/index.js';
+import { analyzeProject } from '../../src/analysis/projectAnalysis/projectAnalyzer.js';
 
 const defaultRules: RuleConfig[] = [
   { key: 'S4621', configurations: [], fileTypeTarget: ['MAIN'] },
@@ -66,11 +71,10 @@ function prepareInput(files: Record<string, File<void>[]>): ProjectAnalysisInput
   };
 }
 
-const fixtures = path.join(__dirname, 'fixtures');
+const fixtures = path.join(import.meta.dirname, 'fixtures');
 
 describe('analyzeProject', () => {
   beforeEach(() => {
-    jest.resetModules();
     clearTSConfigs();
     setContext({
       workDir: '/tmp/dir',

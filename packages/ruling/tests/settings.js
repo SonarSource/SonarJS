@@ -2,9 +2,9 @@ const path = require('path');
 const rules = require('./data/rules.json');
 
 module.exports = {
-  actualPath: path.join(__dirname, 'actual', 'jsts'),
+  actualPath: path.join(import.meta.dirname, 'actual', 'jsts'),
   expectedPath: path.join(
-    __dirname,
+    import.meta.dirname,
     '..',
     '..',
     '..',

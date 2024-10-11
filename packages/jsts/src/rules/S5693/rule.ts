@@ -20,8 +20,8 @@
 // https://sonarsource.github.io/rspec/#/rspec/S5693/javascript
 
 import { Rule, Scope } from 'eslint';
-import * as estree from 'estree';
-import { getVariablePropertyFromAssignment } from '../S2598/rule';
+import estree from 'estree';
+import { getVariablePropertyFromAssignment } from '../S2598/rule.js';
 import { parse } from 'bytes';
 import {
   generateMeta,
@@ -29,9 +29,9 @@ import {
   getLhsVariable,
   getProperty,
   getValueOfExpression,
-} from '../helpers';
+} from '../helpers/index.js';
 import { FromSchema } from 'json-schema-to-ts';
-import { meta, schema } from './meta';
+import { meta, schema } from './meta.js';
 
 const FORMIDABLE_MODULE = 'formidable';
 const MAX_FILE_SIZE = 'maxFileSize';

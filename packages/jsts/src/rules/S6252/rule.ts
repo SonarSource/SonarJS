@@ -19,7 +19,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6252/javascript
 
-import { Rule } from 'eslint';
+import type { Rule } from 'eslint';
 import {
   generateMeta,
   getBucketProperty,
@@ -29,8 +29,8 @@ import {
   report,
   S3BucketTemplate,
   toSecondaryLocation,
-} from '../helpers';
-import { meta } from './meta';
+} from '../helpers/index.js';
+import { meta } from './meta.js';
 
 const VERSIONED_KEY = 'versioned';
 

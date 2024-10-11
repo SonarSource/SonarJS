@@ -21,9 +21,11 @@ import {
   getSyntaxHighlighting,
   SyntaxHighlight,
   TextType,
-} from '../../../src/linter/visitors/syntax-highlighting';
+} from '../../../src/linter/visitors/syntax-highlighting.js';
 import path from 'path';
-import { parseTypeScriptSourceFile } from '../../tools/helpers';
+import { parseTypeScriptSourceFile } from '../../tools/helpers/index.js';
+import { describe, it } from 'node:test';
+import { expect } from 'expect';
 
 describe('getSyntaxHighlighting', () => {
   it('should highlight keywords', async () => {
@@ -113,7 +115,7 @@ describe('getSyntaxHighlighting', () => {
 });
 
 async function highlighting(filename: string): Promise<SyntaxHighlight[]> {
-  const filePath = path.join(__dirname, 'fixtures', 'syntax-highlighting', filename);
+  const filePath = path.join(import.meta.dirname, 'fixtures', 'syntax-highlighting', filename);
   const sourceCode = await parseTypeScriptSourceFile(filePath, []);
   return getSyntaxHighlighting(sourceCode).highlights;
 }

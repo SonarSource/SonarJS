@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Rule } from 'eslint';
-import * as estree from 'estree';
+import type { Rule } from 'eslint';
+import estree from 'estree';
 import { AST } from 'vue-eslint-parser';
 
 type VChildElement = AST.VElement | AST.VText | AST.VExpressionContainer | AST.VStyleElement;

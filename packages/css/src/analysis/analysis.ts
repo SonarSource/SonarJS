@@ -17,8 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Issue, RuleConfig } from '../linter';
-import { AnalysisInput, AnalysisOutput } from '@sonar/shared';
+
+import { AnalysisInput, AnalysisOutput } from '../../../shared/src/types/analysis.js';
+import { RuleConfig } from '../linter/config.js';
+import { Issue } from '../linter/issues/index.js';
 
 /**
  * A CSS analysis input

@@ -20,7 +20,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S1515/javascript
 
 import { AST, Rule, Scope } from 'eslint';
-import * as estree from 'estree';
+import estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
 import {
   findFirstMatchingAncestor,
@@ -31,8 +31,8 @@ import {
   report,
   RuleContext,
   toSecondaryLocation,
-} from '../helpers';
-import { meta } from './meta';
+} from '../helpers/index.js';
+import { meta } from './meta.js';
 
 const message = 'Make sure this function is not called after the loop completes.';
 

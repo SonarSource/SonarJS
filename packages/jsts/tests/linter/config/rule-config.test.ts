@@ -17,10 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Rule } from 'eslint';
-import { setContext } from '@sonar/shared';
-import { extendRuleConfig, RuleConfig } from '../../../src/linter/config';
-import { SONAR_CONTEXT, SONAR_RUNTIME } from '../../../src/linter/parameters';
+import type { Rule } from 'eslint';
+import { describe, it } from 'node:test';
+import { expect } from 'expect';
+import { SONAR_RUNTIME } from '../../../src/rules/index.js';
+import { extendRuleConfig, RuleConfig } from '../../../src/linter/config/rule-config.js';
+import { setContext } from '../../../../shared/src/helpers/context.js';
+import { SONAR_CONTEXT } from '../../../src/linter/parameters/sonar-context.js';
 
 describe('extendRuleConfig', () => {
   it('should include `sonar-runtime`', () => {

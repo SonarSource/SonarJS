@@ -17,16 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as estree from 'estree';
-import { Rule } from 'eslint';
-import { getVariableFromIdentifier } from '../reaching-definitions';
+import estree from 'estree';
+import type { Rule } from 'eslint';
+import { getVariableFromIdentifier } from '../reaching-definitions.js';
 import {
   getUniqueWriteReference,
   getSimpleRawStringValue,
   isSimpleRawString,
   isStaticTemplateLiteral,
   isStringLiteral,
-} from '../ast';
+} from '../ast.js';
 
 export function getFlags(
   callExpr: estree.CallExpression,

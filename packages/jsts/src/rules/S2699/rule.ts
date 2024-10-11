@@ -19,7 +19,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S2699/javascript
 import { Rule, SourceCode } from 'eslint';
-import * as estree from 'estree';
+import estree from 'estree';
 import {
   Chai,
   childrenOf,
@@ -29,9 +29,9 @@ import {
   resolveFunction,
   Sinon,
   Vitest,
-} from '../helpers';
-import { Supertest } from '../helpers/supertest';
-import { meta } from './meta';
+} from '../helpers/index.js';
+import { Supertest } from '../helpers/supertest.js';
+import { meta } from './meta.js';
 
 /**
  * We assume that the user is using a single assertion library per file,

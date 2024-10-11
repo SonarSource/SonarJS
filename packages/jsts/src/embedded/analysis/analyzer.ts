@@ -17,13 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { SourceCode } from 'eslint';
-import { Position } from 'estree';
-import { getLinter, Issue, LinterWrapper } from '../../linter';
-import { buildSourceCodes, ExtendedSourceCode, LanguageParser } from '../builder';
-import { EmbeddedAnalysisInput, EmbeddedAnalysisOutput } from './analysis';
-import { debug } from '@sonar/shared';
-import { findNcloc } from '../../linter/visitors/metrics/ncloc';
+import type { SourceCode } from 'eslint';
+import type { Position } from 'estree';
+import { Issue } from '../../linter/issues/issue.js';
+import { getLinter } from '../../linter/linters.js';
+import type { LinterWrapper } from '../../linter/wrapper.js';
+import { EmbeddedAnalysisInput, EmbeddedAnalysisOutput } from './analysis.js';
+import { findNcloc } from '../../linter/visitors/metrics/ncloc.js';
+import { buildSourceCodes, ExtendedSourceCode, LanguageParser } from '../builder/build.js';
+import { debug } from '../../../../shared/src/helpers/logging.js';
 
 /**
  * Analyzes a file containing JS snippets

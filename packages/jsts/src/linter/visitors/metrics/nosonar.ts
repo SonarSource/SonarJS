@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { SourceCode } from 'eslint';
-import { findCommentLines } from './comments';
+import { findCommentLines } from './comments.js';
 
 /**
  * Finds the line numbers of `NOSONAR` comments

@@ -19,13 +19,13 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S4328/javascript
 
-import { Rule } from 'eslint';
-import * as estree from 'estree';
+import type { Rule } from 'eslint';
+import estree from 'estree';
 import builtins from 'builtin-modules';
-import * as ts from 'typescript';
-import { generateMeta, getDependencies } from '../helpers';
+import ts from 'typescript';
+import { generateMeta, getDependencies } from '../helpers/index.js';
 import { FromSchema } from 'json-schema-to-ts';
-import { meta, schema } from './meta';
+import { meta, schema } from './meta.js';
 import { Minimatch } from 'minimatch';
 
 const messages = {

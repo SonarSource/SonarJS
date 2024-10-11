@@ -19,7 +19,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6759/javascript
 
-import { Rule } from 'eslint';
+import type { Rule } from 'eslint';
 import { Function, Node, ReturnStatement } from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
 import {
@@ -29,9 +29,9 @@ import {
   isRequiredParserServices,
   last,
   RequiredParserServices,
-} from '../helpers';
-import * as ts from 'typescript';
-import { meta } from './meta';
+} from '../helpers/index.js';
+import ts from 'typescript';
+import { meta } from './meta.js';
 
 /**
  * Stacks return statements per function.

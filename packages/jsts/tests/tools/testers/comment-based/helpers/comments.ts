@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { buildSourceCode } from '../../../../../src/builders';
-import * as estree from 'estree';
+import { buildSourceCode } from '../../../../../src/builders/build.js';
+import estree from 'estree';
 import { SourceCode } from 'eslint';
 
 export interface Comment {

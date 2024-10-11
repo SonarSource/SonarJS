@@ -20,22 +20,22 @@
 /**
  * `module-alias` must be imported first for module aliasing to work.
  */
-import 'module-alias/register';
 
 import express from 'express';
-import http from 'http';
-import path from 'path';
-import router from './router';
-import { errorMiddleware } from './errors';
-import { debug, getContext } from '@sonar/shared';
-import { timeoutMiddleware } from './timeout';
+import * as http from 'http';
+import * as path from 'path';
+import router from './router.js';
+import { errorMiddleware } from './errors/index.js';
+import { debug } from '../../shared/src/helpers/logging.js';
+import { timeoutMiddleware } from './timeout/index.js';
 import { AddressInfo } from 'net';
 import { Worker, SHARE_ENV } from 'worker_threads';
 import {
   registerGarbageCollectionObserver,
   logMemoryConfiguration,
   logMemoryError,
-} from './memory';
+} from './memory.js';
+import { getContext } from '../../shared/src/helpers/context.js';
 
 /**
  * The maximum request body size
@@ -98,7 +98,7 @@ export function start(
   return new Promise(resolve => {
     debug('Starting the bridge server');
 
-    worker = new Worker(path.resolve(__dirname, 'worker.js'), {
+    worker = new Worker(path.resolve(import.meta.dirname, '../../../lib/bridge/src/worker.js'), {
       workerData: { context: getContext() },
       env: SHARE_ENV,
     });

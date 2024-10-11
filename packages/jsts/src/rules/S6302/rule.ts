@@ -19,17 +19,17 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6302/javascript
 
-import { Rule } from 'eslint';
+import type { Rule } from 'eslint';
 import { Node } from 'estree';
-import { getResultOfExpression, Result } from '../helpers/result';
+import { getResultOfExpression, Result } from '../helpers/result.js';
 import {
   AwsIamPolicyTemplate,
   getSensitiveEffect,
   isAnyLiteral,
   PolicyCheckerOptions,
-} from '../helpers/aws/iam';
-import { generateMeta, report, toSecondaryLocation } from '../helpers';
-import { meta } from './meta';
+} from '../helpers/aws/iam.js';
+import { generateMeta, report, toSecondaryLocation } from '../helpers/index.js';
+import { meta } from './meta.js';
 
 const MESSAGES = {
   message: 'Make sure granting all privileges is safe here.',

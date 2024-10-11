@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as yaml from 'yaml';
+import yaml from 'yaml';
 import assert from 'assert';
-import { EmbeddedJS } from '@sonar/jsts';
-import { BLOCK_FOLDED_FORMAT, BLOCK_LITERAL_FORMAT, isSupportedFormat } from './yaml/format';
-import { APIError } from '@sonar/shared';
+import { BLOCK_FOLDED_FORMAT, BLOCK_LITERAL_FORMAT, isSupportedFormat } from './yaml/format.js';
+import { EmbeddedJS } from '../../../jsts/src/embedded/analysis/embedded-js.js';
+import { APIError } from '../../../shared/src/errors/error.js';
 
 /**
  * A bundle of Yaml visitor predicate and Extras picker

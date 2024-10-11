@@ -17,10 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from 'eslint';
-import { rule } from './';
+import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { rule } from './index.js';
+import Module from 'node:module';
+const require = Module.createRequire(import.meta.url);
 
-const ruleTester = new RuleTester({
+const ruleTester = new NodeRuleTester({
   parser: require.resolve('@babel/eslint-parser'),
   parserOptions: { ecmaVersion: 2015, requireConfigFile: false },
 });

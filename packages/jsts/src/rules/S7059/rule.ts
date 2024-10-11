@@ -19,10 +19,15 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S7059/javascript
 
-import { Rule } from 'eslint';
-import { isRequiredParserServices, generateMeta, isThenable, isFunctionNode } from '../helpers';
-import * as estree from 'estree';
-import { meta } from './meta';
+import type { Rule } from 'eslint';
+import {
+  isRequiredParserServices,
+  generateMeta,
+  isThenable,
+  isFunctionNode,
+} from '../helpers/index.js';
+import estree from 'estree';
+import { meta } from './meta.js';
 import { AST_NODE_TYPES } from '@typescript-eslint/utils';
 
 const flaggedStatements = new Set();

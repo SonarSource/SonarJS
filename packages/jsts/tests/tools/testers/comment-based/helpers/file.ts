@@ -17,16 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { extractComments } from './comments';
+import { extractComments } from './comments.js';
 import {
   Location,
   extractLocations,
   PrimaryLocation,
   SecondaryLocation,
   isLocationLine,
-} from './locations';
-import { extractQuickFixes, isQuickfixLine, QuickFix } from './quickfixes';
-import { LineIssues, extractLineIssues, isNonCompliantLine } from './issues';
+} from './locations.js';
+import { extractQuickFixes, isQuickfixLine, QuickFix } from './quickfixes.js';
+import { LineIssues, extractLineIssues, isNonCompliantLine } from './issues.js';
 
 export class FileIssues {
   public readonly expectedIssues = new Map<number, LineIssues>();

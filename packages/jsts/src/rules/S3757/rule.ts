@@ -19,11 +19,11 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S3757/javascript
 
-import { Rule } from 'eslint';
-import * as estree from 'estree';
-import ts, { TypeFlags } from 'typescript';
-import { generateMeta, getTypeFromTreeNode, isRequiredParserServices } from '../helpers';
-import { meta } from './meta';
+import type { Rule } from 'eslint';
+import estree from 'estree';
+import ts from 'typescript';
+import { generateMeta, getTypeFromTreeNode, isRequiredParserServices } from '../helpers/index.js';
+import { meta } from './meta.js';
 
 const BINARY_OPERATORS = ['/', '*', '%', '-', '-=', '*=', '/=', '%='];
 const UNARY_OPERATORS = ['++', '--', '+', '-'];
@@ -43,7 +43,7 @@ export const rule: Rule.RuleModule = {
 
     function isObjectType(...types: ts.Type[]): boolean {
       return types.some(
-        t => !!(t.getFlags() & TypeFlags.Object) && !isDate(t) && t.symbol?.name !== 'Number',
+        t => !!(t.getFlags() & ts.TypeFlags.Object) && !isDate(t) && t.symbol?.name !== 'Number',
       );
     }
 

@@ -1,10 +1,10 @@
-const { rules } = require('../lib/jsts/src/rules/index');
-const { writeFileSync } = require('node:fs');
-const { join } = require('node:path');
-const { mkdirpSync } = require('mkdirp');
+import { rules } from '../lib/jsts/src/rules/index.js';
+import { writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { mkdirpSync } from 'mkdirp';
 
 const targetDir = join(
-  __dirname,
+  import.meta.dirname,
   '..',
   'sonar-plugin',
   'sonar-javascript-plugin',

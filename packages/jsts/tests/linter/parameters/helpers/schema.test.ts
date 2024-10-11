@@ -17,8 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Rule } from 'eslint';
-import { getRuleSchema } from '../../../../src/linter/parameters/helpers';
+import type { Rule } from 'eslint';
+import { getRuleSchema } from '../../../../src/linter/parameters/helpers/index.js';
+import { describe, it, mock, Mock } from 'node:test';
+import { expect } from 'expect';
 
 describe('getRuleSchema', () => {
   it('should return the schema', () => {
@@ -28,9 +30,12 @@ describe('getRuleSchema', () => {
   });
 
   it('should return undefined on an undefined rule', () => {
-    console.log = jest.fn();
+    console.log = mock.fn();
     expect(getRuleSchema(undefined, 'undefined-rule')).toBeUndefined();
-    expect(console.log).toHaveBeenCalledWith(`DEBUG ruleModule not found for rule undefined-rule`);
+    const logs = (console.log as Mock<typeof console.log>).mock.calls.map(
+      call => call.arguments[0],
+    );
+    expect(logs).toContain(`DEBUG ruleModule not found for rule undefined-rule`);
   });
 
   it('should return undefined on a meta-less rule', () => {

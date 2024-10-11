@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { rule } from './rule';
-import { JavaScriptRuleTester } from '../../../tests/tools';
-import { RuleTester } from 'eslint';
+import { rule } from './rule.js';
+import { JavaScriptRuleTester } from '../../../tests/tools/index.js';
+import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 
 const ruleTester = new JavaScriptRuleTester();
 
@@ -81,7 +81,7 @@ ruleTester.run('no-use-of-empty-return-value', rule, {
 function invalidPrefixWithFunction(
   code: string,
   functionName: string = 'noReturn',
-): { code: string; errors: RuleTester.TestCaseError[] } {
+): { code: string; errors: NodeRuleTester.TestCaseError[] } {
   return {
     code: 'function noReturn() { 1;} ' + code,
     errors: [
@@ -95,7 +95,7 @@ function invalidPrefixWithFunction(
   };
 }
 
-function invalid(code: string): { code: string; errors: RuleTester.TestCaseError[] } {
+function invalid(code: string): { code: string; errors: NodeRuleTester.TestCaseError[] } {
   return {
     code,
     errors: [

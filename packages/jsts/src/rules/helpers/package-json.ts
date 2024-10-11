@@ -19,9 +19,9 @@
  */
 import Path from 'path/posix';
 import { type PackageJson } from 'type-fest';
-import { toUnixPath, stripBOM } from './files';
+import { toUnixPath, stripBOM } from './files.js';
 import { Minimatch } from 'minimatch';
-import { type Filesystem, createFindUp } from './find-up';
+import { type Filesystem, createFindUp } from './find-up.js';
 import fs from 'fs';
 
 export const PACKAGE_JSON = 'package.json';

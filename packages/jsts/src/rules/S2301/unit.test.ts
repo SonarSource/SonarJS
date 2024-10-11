@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { rule as S2301 } from './index';
-import { TypeScriptRuleTester } from '../../../tests/tools';
-import { RuleTester } from 'eslint';
+import { rule as S2301 } from './index.js';
+import { TypeScriptRuleTester } from '../../../tests/tools/index.js';
+import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 
 const ruleTester = new TypeScriptRuleTester();
 
@@ -189,7 +189,7 @@ function tempt8(name: string, ofAge: boolean) {
   ],
 });
 
-const javaScriptRuleTester = new RuleTester({
+const javaScriptRuleTester = new NodeRuleTester({
   parserOptions: {
     ecmaVersion: 2018,
   },

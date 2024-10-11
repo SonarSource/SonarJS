@@ -17,10 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from 'eslint';
-import { rule } from './';
+import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { rule } from './index.js';
 
-const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
+const ruleTester = new NodeRuleTester({
+  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
+});
 
 const message =
   'Make sure this debug feature is deactivated before delivering the code in production.';
@@ -77,7 +79,7 @@ ruleTester.run(
       },
       {
         code: `
-        import * as errorhandler from 'errorhandler';
+        import errorhandler from 'errorhandler';
         const handler = errorhandler();
         app1.use(handler); // Noncompliant  
         if (process.env.NODE_ENV === 'development') {

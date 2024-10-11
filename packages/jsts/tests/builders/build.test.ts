@@ -17,11 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { setContext, APIError } from '@sonar/shared';
-import { buildSourceCode } from '../../src';
 import path from 'path';
 import { AST } from 'vue-eslint-parser';
-import { jsTsInput } from '../tools';
+import { jsTsInput } from '../tools/index.js';
+import { describe, it, beforeEach, mock, Mock } from 'node:test';
+import { expect } from 'expect';
+import { setContext } from '../../../shared/src/helpers/context.js';
+import { buildSourceCode } from '../../src/builders/build.js';
+import { APIError } from '../../../shared/src/errors/error.js';
+
 describe('buildSourceCode', () => {
   beforeEach(() => {
     setContext({
@@ -32,7 +36,7 @@ describe('buildSourceCode', () => {
     });
   });
   it('should build JavaScript source code', async () => {
-    const filePath = path.join(__dirname, 'fixtures', 'build', 'file.js');
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'build', 'file.js');
     const {
       ast: {
         body: [stmt],
@@ -43,8 +47,6 @@ describe('buildSourceCode', () => {
   });
 
   it('should build JavaScript source code with TypeScript ESLint parser', async () => {
-    console.log = jest.fn();
-
     setContext({
       workDir: '/tmp/dir',
       shouldUseTypeScriptParserForJS: true,
@@ -52,7 +54,7 @@ describe('buildSourceCode', () => {
       bundles: [],
     });
 
-    const filePath = path.join(__dirname, 'fixtures', 'build', 'file.js');
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'build', 'file.js');
     const {
       ast: {
         body: [stmt],
@@ -63,7 +65,7 @@ describe('buildSourceCode', () => {
   });
 
   it('should build JavaScript Vue.js source code', async () => {
-    const filePath = path.join(__dirname, 'fixtures', 'build', 'js.vue');
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'build', 'js.vue');
 
     const {
       ast: {
@@ -74,8 +76,8 @@ describe('buildSourceCode', () => {
   });
 
   it('should build TypeScript source code', async () => {
-    const filePath = path.join(__dirname, 'fixtures', 'build', 'file.ts');
-    const tsConfigs = [path.join(__dirname, 'fixtures', 'build', 'tsconfig.json')];
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'build', 'file.ts');
+    const tsConfigs = [path.join(import.meta.dirname, 'fixtures', 'build', 'tsconfig.json')];
     const {
       ast: {
         body: [stmt],
@@ -86,8 +88,8 @@ describe('buildSourceCode', () => {
   });
 
   it('should build TypeScript Vue.js source code', async () => {
-    const filePath = path.join(__dirname, 'fixtures', 'build', 'ts.vue');
-    const tsConfigs = [path.join(__dirname, 'fixtures', 'build', 'tsconfig.json')];
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'build', 'ts.vue');
+    const tsConfigs = [path.join(import.meta.dirname, 'fixtures', 'build', 'tsconfig.json')];
     const {
       ast: {
         body: [stmt],
@@ -98,7 +100,7 @@ describe('buildSourceCode', () => {
   });
 
   it('should build JavaScript code', async () => {
-    const filePath = path.join(__dirname, 'fixtures', 'build-js', 'file.js');
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'build-js', 'file.js');
     setContext({
       workDir: '/tmp/dir',
       shouldUseTypeScriptParserForJS: false,
@@ -115,7 +117,7 @@ describe('buildSourceCode', () => {
   });
 
   it('should fail building malformed JavaScript code', async () => {
-    const filePath = path.join(__dirname, 'fixtures', 'build-js', 'malformed.js');
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'build-js', 'malformed.js');
 
     const analysisInput = await jsTsInput({ filePath });
     setContext({
@@ -131,9 +133,7 @@ describe('buildSourceCode', () => {
   });
 
   it('should build JavaScript code with TypeScript ESLint parser', async () => {
-    console.log = jest.fn();
-
-    const filePath = path.join(__dirname, 'fixtures', 'build-js', 'file.js');
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'build-js', 'file.js');
     const {
       ast: {
         body: [stmt],
@@ -144,18 +144,21 @@ describe('buildSourceCode', () => {
   });
 
   it('should fail building JavaScript code with TypeScript ESLint parser', async () => {
-    console.log = jest.fn();
+    console.log = mock.fn();
 
-    const filePath = path.join(__dirname, 'fixtures', 'build-js', 'malformed.js');
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'build-js', 'malformed.js');
     const analysisInput = await jsTsInput({ filePath });
     expect(() => buildSourceCode(analysisInput, 'js')).toThrow(Error('Unexpected token (3:0)'));
 
     const log = `DEBUG Failed to parse ${filePath} with TypeScript parser: '}' expected.`;
-    expect(console.log).toHaveBeenCalledWith(log);
+    const logs = (console.log as Mock<typeof console.log>).mock.calls.map(
+      call => call.arguments[0],
+    );
+    expect(logs).toContain(log);
   });
 
   it('should build module JavaScript code', async () => {
-    const filePath = path.join(__dirname, 'fixtures', 'build-js', 'module.js');
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'build-js', 'module.js');
     setContext({
       workDir: '/tmp/dir',
       shouldUseTypeScriptParserForJS: false,
@@ -168,7 +171,7 @@ describe('buildSourceCode', () => {
   });
 
   it('should build script JavaScript code', async () => {
-    const filePath = path.join(__dirname, 'fixtures', 'build-js', 'script.js');
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'build-js', 'script.js');
     setContext({
       workDir: '/tmp/dir',
       shouldUseTypeScriptParserForJS: false,
@@ -181,7 +184,7 @@ describe('buildSourceCode', () => {
   });
 
   it('should support JavaScript decorators', async () => {
-    const filePath = path.join(__dirname, 'fixtures', 'build-js', 'decorator.js');
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'build-js', 'decorator.js');
     setContext({
       workDir: '/tmp/dir',
       shouldUseTypeScriptParserForJS: false,
@@ -200,8 +203,8 @@ describe('buildSourceCode', () => {
   });
 
   it('should build TypeScript code', async () => {
-    const filePath = path.join(__dirname, 'fixtures', 'build-ts', 'file.ts');
-    const tsConfigs = [path.join(__dirname, 'fixtures', 'build-ts', 'tsconfig.json')];
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'build-ts', 'file.ts');
+    const tsConfigs = [path.join(import.meta.dirname, 'fixtures', 'build-ts', 'tsconfig.json')];
 
     const {
       ast: {
@@ -212,8 +215,8 @@ describe('buildSourceCode', () => {
   });
 
   it('should fail building malformed TypeScript code', async () => {
-    const filePath = path.join(__dirname, 'fixtures', 'build-ts', 'malformed.ts');
-    const tsConfigs = [path.join(__dirname, 'fixtures', 'build-ts', 'tsconfig.json')];
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'build-ts', 'malformed.ts');
+    const tsConfigs = [path.join(import.meta.dirname, 'fixtures', 'build-ts', 'tsconfig.json')];
     const analysisInput = await jsTsInput({ filePath, tsConfigs });
     expect(() => buildSourceCode(analysisInput, 'ts')).toThrow(
       APIError.parsingError(`'}' expected.`, { line: 2 }),
@@ -221,8 +224,8 @@ describe('buildSourceCode', () => {
   });
 
   it('should build TypeScript Vue.js code', async () => {
-    const filePath = path.join(__dirname, 'fixtures', 'build-ts', 'file.vue');
-    const tsConfigs = [path.join(__dirname, 'fixtures', 'build-ts', 'tsconfig.json')];
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'build-ts', 'file.vue');
+    const tsConfigs = [path.join(import.meta.dirname, 'fixtures', 'build-ts', 'tsconfig.json')];
     const sourceCode = buildSourceCode(await jsTsInput({ filePath, tsConfigs }), 'ts');
 
     const {
@@ -236,7 +239,7 @@ describe('buildSourceCode', () => {
   });
 
   it('should build Vue.js code with JavaScript parser', async () => {
-    const filePath = path.join(__dirname, 'fixtures', 'build-vue', 'js.vue');
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'build-vue', 'js.vue');
     setContext({
       workDir: '/tmp/dir',
       shouldUseTypeScriptParserForJS: false,
@@ -256,7 +259,7 @@ describe('buildSourceCode', () => {
   });
 
   it('should fail building malformed Vue.js code', async () => {
-    const filePath = path.join(__dirname, 'fixtures', 'build-vue', 'malformed.vue');
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'build-vue', 'malformed.vue');
 
     const analysisInput = await jsTsInput({ filePath });
     setContext({
@@ -271,20 +274,23 @@ describe('buildSourceCode', () => {
   });
 
   it('should build Vue.js code with TypeScript ESLint parser', async () => {
-    const filePath = path.join(__dirname, 'fixtures', 'build-vue', 'ts.vue');
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'build-vue', 'ts.vue');
     const sourceCode = buildSourceCode(await jsTsInput({ filePath }), 'ts');
 
     expect(sourceCode.ast).toBeDefined();
   });
 
   it('should fail building malformed Vue.js code with TypeScript ESLint parser', async () => {
-    console.log = jest.fn();
+    console.log = mock.fn();
 
-    const filePath = path.join(__dirname, 'fixtures', 'build-vue', 'malformed.vue');
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'build-vue', 'malformed.vue');
     const analysisInput = await jsTsInput({ filePath });
     expect(() => buildSourceCode(analysisInput, 'ts')).toThrow(Error('Expression expected.'));
 
     const log = `DEBUG Failed to parse ${filePath} with TypeScript parser: Expression expected.`;
-    expect(console.log).toHaveBeenCalledWith(log);
+    const logs = (console.log as Mock<typeof console.log>).mock.calls.map(
+      call => call.arguments[0],
+    );
+    expect(logs).toContain(log);
   });
 });

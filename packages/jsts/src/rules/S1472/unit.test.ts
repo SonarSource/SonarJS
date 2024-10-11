@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { rule } from './';
-import { TypeScriptRuleTester } from '../../../tests/tools';
+import { rule } from './index.js';
+import { TypeScriptRuleTester } from '../../../tests/tools/index.js';
 
 const ruleTester = new TypeScriptRuleTester();
 ruleTester.run(`Function call arguments should not start on new lines`, rule, {

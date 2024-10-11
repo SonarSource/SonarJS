@@ -17,15 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from 'eslint';
-import { TypeScriptRuleTester } from '../../../tests/tools';
-import { rule } from './';
+import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { TypeScriptRuleTester } from '../../../tests/tools/index.js';
+import { rule } from './index.js';
 
 const createOptions = (threshold: number) => {
   return [{ threshold }, 'sonar-runtime'];
 };
 
-const ruleTesterThreshold0 = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
+const ruleTesterThreshold0 = new NodeRuleTester({ parserOptions: { ecmaVersion: 2018 } });
 ruleTesterThreshold0.run(
   'Regular expressions should not be too complicated with threshold 0',
   rule,
@@ -423,7 +423,7 @@ if (isString(regex)) {
   },
 );
 
-const ruleTesterThreshold1 = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
+const ruleTesterThreshold1 = new NodeRuleTester({ parserOptions: { ecmaVersion: 2018 } });
 ruleTesterThreshold1.run(
   'Regular expressions should not be too complicated with threshold 1',
   rule,
@@ -526,7 +526,7 @@ typeAwareRuleTester.run(
   },
 );
 
-const ruleTesterDefaultThreshold = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
+const ruleTesterDefaultThreshold = new NodeRuleTester({ parserOptions: { ecmaVersion: 2018 } });
 ruleTesterDefaultThreshold.run(
   'Regular expressions should not be too complicated with default threshold',
   rule,

@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Rule } from 'eslint';
-import * as estree from 'estree';
+import type { Rule } from 'eslint';
+import estree from 'estree';
 import {
   getFullyQualifiedName,
   getNodeParent,
@@ -27,8 +27,8 @@ import {
   isProperty,
   IssueLocation,
   toSecondaryLocation,
-} from '..';
-import { normalizeFQN } from './cdk';
+} from '../index.js';
+import { normalizeFQN } from './cdk.js';
 
 /**
  * A rule template for AWS S3 Buckets

@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { APIError, debug } from '@sonar/shared';
-import { LinterWrapper } from './wrapper';
-import { RuleConfig } from './config';
+import { debug } from '../../../shared/src/helpers/logging.js';
+import { LinterWrapper } from './wrapper.js';
+import { RuleConfig } from './config/rule-config.js';
+import { APIError } from '../../../shared/src/errors/error.js';
 
 type Linters = { [id: string]: LinterWrapper };
 /**
@@ -44,7 +45,7 @@ const linters: Linters = {};
  * @param workingDirectory the working directory
  * @param linterId key of the linter
  */
-export function initializeLinter(
+export async function initializeLinter(
   inputRules: RuleConfig[],
   environments: string[] = [],
   globals: string[] = [],
@@ -53,6 +54,7 @@ export function initializeLinter(
 ) {
   debug(`Initializing linter "${linterId}" with ${inputRules.map(rule => rule.key)}`);
   linters[linterId] = new LinterWrapper({ inputRules, environments, globals, workingDirectory });
+  await linters[linterId].init();
 }
 
 /**

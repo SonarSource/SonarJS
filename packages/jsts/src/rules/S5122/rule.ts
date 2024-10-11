@@ -19,8 +19,8 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S5122/javascript
 
-import { Rule } from 'eslint';
-import * as estree from 'estree';
+import type { Rule } from 'eslint';
+import estree from 'estree';
 import {
   findFirstMatchingLocalAncestor,
   generateMeta,
@@ -33,9 +33,9 @@ import {
   report,
   resolveFunction,
   toSecondaryLocation,
-} from '../helpers';
+} from '../helpers/index.js';
 import { TSESTree } from '@typescript-eslint/utils';
-import { meta } from './meta';
+import { meta } from './meta.js';
 
 const MESSAGE = `Make sure that enabling CORS is safe here.`;
 const SECONDARY_MESSAGE = 'Sensitive configuration';

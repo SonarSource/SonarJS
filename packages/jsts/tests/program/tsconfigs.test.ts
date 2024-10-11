@@ -17,20 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import path from 'path';
+import { describe, before, it } from 'node:test';
+import { expect } from 'expect';
 import {
-  clearTSConfigs as clearTSconfigFiles,
   getTSConfigsCount,
   loadTSConfigs,
-} from '@sonar/jsts';
-import * as path from 'path';
+  clearTSConfigs,
+} from '../../src/program/tsconfigs/index.js';
 
 describe('tsconfigs', () => {
   describe('loadTSConfigFiles', () => {
-    beforeAll(() => {
-      clearTSconfigFiles();
+    before(() => {
+      clearTSConfigs();
     });
 
-    const fixturesDir = path.join(__dirname, 'fixtures');
+    const fixturesDir = path.join(import.meta.dirname, 'fixtures');
     it('should return the TSconfig files', () => {
       loadTSConfigs(fixturesDir, []);
       expect(getTSConfigsCount()).toEqual(7);

@@ -17,12 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as path from 'path';
-import { extractExpectations } from './framework';
-import { readFile } from '@sonar/shared';
+import path from 'path';
+import { extractExpectations } from './framework.js';
+import { describe, it } from 'node:test';
+import { expect } from 'expect';
+import { readFile } from '../../../../../shared/src/helpers/files.js';
 
 describe('Comment-based Testing Framework', () => {
-  const baseDir = path.resolve(`${__dirname}/fixtures`);
+  const baseDir = path.resolve(`${import.meta.dirname}/fixtures`);
 
   async function assertions(filename: string, usesSecondaryLocations = false) {
     const filePath = path.join(baseDir, filename);

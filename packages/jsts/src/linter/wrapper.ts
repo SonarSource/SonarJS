@@ -18,11 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Linter, SourceCode } from 'eslint';
-import { loadBundles, loadCustomRules } from './bundle-loader';
-import { createLinterConfig, RuleConfig } from './config';
-import { debug, FileType, JsTsLanguage } from '@sonar/shared';
-import { LintingResult, transformMessages } from './issues';
-import { CustomRule } from './custom-rules';
+import { loadBundles, loadCustomRules } from './bundle-loader.js';
+import { RuleConfig } from './config/rule-config.js';
+import { CustomRule } from './custom-rules/custom-rule.js';
+import { JsTsLanguage } from '../../../shared/src/helpers/language.js';
+import { debug } from '../../../shared/src/helpers/logging.js';
+import { FileType } from '../../../shared/src/helpers/files.js';
+import { LintingResult, transformMessages } from './issues/transform.js';
+import { createLinterConfig } from './config/linter-config.js';
 
 /**
  * Wrapper's constructor initializer. All the parameters are optional,
@@ -81,7 +84,7 @@ export class LinterWrapper {
   readonly linter: Linter;
 
   /** The wrapper's linting configuration */
-  readonly config: Map<LinterConfigurationKey, Linter.Config>;
+  config: Map<LinterConfigurationKey, Linter.Config> = new Map();
 
   readonly configurationKeys: LinterConfigurationKey[] = [];
 
@@ -117,8 +120,11 @@ export class LinterWrapper {
     this.linter = new Linter({
       cwd: options.workingDirectory,
     });
-    loadBundles(this.linter, options.ruleBundles ?? defaultRuleBundles);
-    loadCustomRules(this.linter, options.customRules);
+  }
+
+  async init() {
+    await loadBundles(this.linter, this.options.ruleBundles ?? defaultRuleBundles);
+    loadCustomRules(this.linter, this.options.customRules);
     this.config = this.createConfig();
   }
 

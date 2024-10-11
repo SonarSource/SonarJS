@@ -17,7 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { unicodeEscape } from '../../src/helpers';
+import { describe, it } from 'node:test';
+import { expect } from 'expect';
+import { unicodeEscape } from '../../src/helpers/escape.js';
 
 describe('unicodeEscape', () => {
   it('should escape', () => {

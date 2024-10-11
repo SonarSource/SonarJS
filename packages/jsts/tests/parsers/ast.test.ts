@@ -19,20 +19,21 @@
  */
 import path from 'path';
 
-import { readFile } from '@sonar/shared';
+import { parsers, type ParseFunction } from '../../src/parsers/eslint.js';
+import { TSESTree } from '@typescript-eslint/utils';
+import { describe, test } from 'node:test';
+import { expect } from 'expect';
+import { readFile } from '../../../shared/src/helpers/files.js';
+import { JsTsAnalysisInput } from '../../src/analysis/analysis.js';
+import { buildParserOptions } from '../../src/parsers/options.js';
+import { visitNode } from '../../src/parsers/ast.js';
+import { parseForESLint } from '../../src/parsers/parse.js';
 import {
-  buildParserOptions,
-  parseForESLint,
-  parsers,
   deserializeProtobuf,
+  NODE_TYPE_ENUM,
   parseInProtobuf,
   serializeInProtobuf,
-  NODE_TYPE_ENUM,
-  type ParseFunction,
-  visitNode,
-} from '../../src/parsers';
-import { JsTsAnalysisInput } from '../../src/analysis';
-import { TSESTree } from '@typescript-eslint/utils';
+} from '../../src/parsers/ast.js';
 
 const parseFunctions = [
   {
@@ -63,20 +64,19 @@ async function parseSourceCode(code: string, parser: { parse: ParseFunction }) {
 
 describe('ast', () => {
   describe('serializeInProtobuf()', () => {
-    test.each(parseFunctions)(
-      'should not lose information between serialize and deserializing JavaScript',
-      async ({ parser, usingBabel }) => {
-        const filePath = path.join(__dirname, 'fixtures', 'ast', 'base.js');
+    parseFunctions.forEach(({ parser, usingBabel }) =>
+      test('should not lose information between serialize and deserializing JavaScript', async () => {
+        const filePath = path.join(import.meta.dirname, 'fixtures', 'ast', 'base.js');
         const sc = await parseSourceFile(filePath, parser, usingBabel);
         const protoMessage = parseInProtobuf(sc.ast as TSESTree.Program);
         const serialized = serializeInProtobuf(sc.ast as TSESTree.Program);
         const deserializedProtoMessage = deserializeProtobuf(serialized);
         compareASTs(protoMessage, deserializedProtoMessage);
-      },
+      }),
     );
   });
   test('should encode unknown nodes', async () => {
-    const filePath = path.join(__dirname, 'fixtures', 'ast', 'unknownNode.ts');
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'ast', 'unknownNode.ts');
     const sc = await parseSourceFile(filePath, parsers.typescript);
     const protoMessage = parseInProtobuf(sc.ast as TSESTree.Program);
     expect((protoMessage as any).program.body[0].type).toEqual(

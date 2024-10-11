@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { analyzeJSTS, JsTsAnalysisInput } from '../../';
-import { parseParsingError } from '../../../../bridge/src/errors';
+import { parseParsingError } from '../../../../bridge/src/errors/index.js';
+import { JsTsAnalysisInput } from '../analysis.js';
+import { analyzeJSTS } from '../analyzer.js';
 
 /**
  * Safely analyze a JavaScript/TypeScript file wrapping raised exceptions in the output format

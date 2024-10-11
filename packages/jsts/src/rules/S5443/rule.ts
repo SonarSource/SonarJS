@@ -19,10 +19,10 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S5443/javascript
 
-import { Rule } from 'eslint';
-import * as estree from 'estree';
-import { generateMeta } from '../helpers';
-import { meta } from './meta';
+import type { Rule } from 'eslint';
+import estree from 'estree';
+import { generateMeta } from '../helpers/index.js';
+import { meta } from './meta.js';
 
 const UNIX_DIRECTORIES = [
   '/tmp/',

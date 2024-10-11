@@ -17,11 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as v8 from 'v8';
-import * as os from 'os';
+import v8 from 'v8';
+import os from 'os';
 import fs from 'fs';
 import { constants, NodeGCPerformanceDetail, PerformanceObserver } from 'perf_hooks';
-import { debug, error, getContext, info, warn } from '@sonar/shared';
+import { debug, error, info, warn } from '../../shared/src/helpers/logging.js';
+import { getContext } from '../../shared/src/helpers/context.js';
 
 const MB = 1024 * 1024;
 
@@ -29,7 +30,7 @@ export function logMemoryConfiguration() {
   const osMem = Math.floor(os.totalmem() / MB);
   const heapSize = getHeapSize();
   const dockerMemLimit = readDockerMemoryLimit();
-  const dockerMem = dockerMemLimit ? `, Docker (${dockerMemLimit} MB)` : ',';
+  const dockerMem = dockerMemLimit ? `, Docker (${dockerMemLimit} MB),` : ',';
   info(`Memory configuration: OS (${osMem} MB)${dockerMem} Node.js (${heapSize} MB).`);
   if (heapSize > osMem) {
     warn(

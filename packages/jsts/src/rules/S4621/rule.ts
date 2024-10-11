@@ -20,10 +20,10 @@
 // https://sonarsource.github.io/rspec/#/rspec/S4621/javascript
 
 import { AST, Rule } from 'eslint';
-import * as estree from 'estree';
+import estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
-import { generateMeta, IssueLocation, report, toSecondaryLocation } from '../helpers';
-import { meta } from './meta';
+import { generateMeta, IssueLocation, report, toSecondaryLocation } from '../helpers/index.js';
+import { meta } from './meta.js';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta as Rule.RuleMetaData, { hasSuggestions: true }, true),

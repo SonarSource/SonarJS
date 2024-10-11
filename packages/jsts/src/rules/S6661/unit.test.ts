@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from 'eslint';
-import { rule } from './';
+import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { rule } from './index.js';
 import path from 'path';
 
-process.chdir(__dirname); // change current working dir to avoid the package.json lookup to up in the tree
-const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
+process.chdir(import.meta.dirname); // change current working dir to avoid the package.json lookup to up in the tree
+const ruleTester = new NodeRuleTester({ parserOptions: { ecmaVersion: 2018 } });
 
 ruleTester.run('Object spread syntax should be used instead of "Object.assign"', rule, {
   valid: [
@@ -74,7 +74,7 @@ const b = { ...foo, ...bar};`,
   ],
 });
 
-const filename = path.join(__dirname, 'fixtures', 'unsupported-node', 'file.js');
+const filename = path.join(import.meta.dirname, 'fixtures', 'unsupported-node', 'file.js');
 
 ruleTester.run(
   'When the project does not support the object spread syntax, the rule should be ignored',

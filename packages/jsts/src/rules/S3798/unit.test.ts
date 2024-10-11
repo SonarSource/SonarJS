@@ -17,24 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from 'eslint';
-import { BabelRuleTester } from '../../../tests/tools';
-import { rule } from './';
+import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { BabelRuleTester } from '../../../tests/tools/index.js';
+import { rule } from './index.js';
 
+import Module from 'node:module';
+const require = Module.createRequire(import.meta.url);
 const tsParserPath = require.resolve('@typescript-eslint/parser');
-const ruleTester = new RuleTester({
+const ruleTester = new NodeRuleTester({
   parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
   parser: tsParserPath,
 });
-const ruleTesterwithBrowser = new RuleTester({
+const ruleTesterwithBrowser = new NodeRuleTester({
   parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
   env: { es6: true, browser: true },
 });
-const ruleTesterCustomGlobals = new RuleTester({
+const ruleTesterCustomGlobals = new NodeRuleTester({
   parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
   globals: { angular: true, other: true },
 });
-const ruleTesterScript = new RuleTester({
+const ruleTesterScript = new NodeRuleTester({
   parserOptions: { ecmaVersion: 2018, sourceType: 'script' },
 });
 

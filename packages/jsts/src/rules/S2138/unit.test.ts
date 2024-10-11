@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { rule } from './';
-import { RuleTester } from 'eslint';
-import { TypeScriptRuleTester } from '../../../tests/tools';
+import { rule } from './index.js';
+import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { TypeScriptRuleTester } from '../../../tests/tools/index.js';
 
 const tests = {
   valid: [
@@ -61,7 +61,7 @@ const tests = {
   ],
 };
 
-const ruleTesterJs = new RuleTester({ parserOptions: { ecmaVersion: 2018 } });
+const ruleTesterJs = new NodeRuleTester({ parserOptions: { ecmaVersion: 2018 } });
 const ruleTesterTs = new TypeScriptRuleTester();
 
 ruleTesterJs.run('"undefined" should not be assigned [js]', rule, tests);

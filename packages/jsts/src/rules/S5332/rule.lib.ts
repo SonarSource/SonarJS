@@ -19,11 +19,16 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S5332/javascript
 
-import { Rule } from 'eslint';
-import * as estree from 'estree';
+import type { Rule } from 'eslint';
+import estree from 'estree';
 import { URL } from 'url';
-import { getFullyQualifiedName, getParent, getProperty, getValueOfExpression } from '../helpers';
-import { normalizeFQN } from '../helpers/aws/cdk';
+import {
+  getFullyQualifiedName,
+  getParent,
+  getProperty,
+  getValueOfExpression,
+} from '../helpers/index.js';
+import { normalizeFQN } from '../helpers/aws/cdk.js';
 
 const INSECURE_PROTOCOLS = ['http://', 'ftp://', 'telnet://'];
 const LOOPBACK_PATTERN = /localhost|127(?:\.\d+){0,2}\.\d+$|\/\/(?:0*:)*?:?0*1$/;

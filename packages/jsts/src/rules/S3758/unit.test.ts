@@ -17,12 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RuleTester } from 'eslint';
-import { TypeScriptRuleTester } from '../../../tests/tools';
-import { rule } from './';
+import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { TypeScriptRuleTester } from '../../../tests/tools/index.js';
+import { rule } from './index.js';
 
 const ruleTesterTs = new TypeScriptRuleTester();
-const ruleTesterJs = new RuleTester({ parserOptions: { ecmaVersion: 2018, sourceType: 'module' } });
+const ruleTesterJs = new NodeRuleTester({
+  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
+});
 
 ruleTesterTs.run(
   'Values not convertible to numbers should not be used in numeric comparisons [TS]',

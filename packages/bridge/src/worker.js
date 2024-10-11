@@ -18,31 +18,30 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-require('module-alias/register');
-
-const formData = require('form-data');
-const { parentPort, workerData } = require('worker_threads');
-const {
-  analyzeJSTS,
-  clearTypeScriptESLintParserCaches,
+import { analyzeCSS } from '../../css/src/analysis/analyzer.js';
+import { analyzeHTML } from '../../html/src/index.js';
+import { analyzeYAML } from '../../yaml/src/index.js';
+import { APIError, ErrorCode } from '../../shared/src/errors/error.js';
+import { readFile } from '../../shared/src/helpers/files.js';
+import { logHeapStatistics } from '../../bridge/src/memory.js';
+import formData from 'form-data';
+import { parentPort, workerData } from 'worker_threads';
+import { setContext } from '../../shared/src/helpers/context.js';
+import { analyzeProject } from '../../jsts/src/analysis/projectAnalysis/projectAnalyzer.js';
+import { analyzeJSTS } from '../../jsts/src/analysis/analyzer.js';
+import {
   createAndSaveProgram,
   createProgramOptions,
   deleteProgram,
-  initializeLinter,
   writeTSConfigFile,
-  analyzeProject,
-} = require('@sonar/jsts');
-const { readFile, setContext } = require('@sonar/shared/helpers');
-const { analyzeCSS } = require('@sonar/css');
-const { analyzeHTML } = require('@sonar/html');
-const { analyzeYAML } = require('@sonar/yaml');
-const { APIError, ErrorCode } = require('@sonar/shared/errors');
-const { logHeapStatistics } = require('@sonar/bridge/memory');
+} from '../../jsts/src/program/program.js';
+import { initializeLinter } from '../../jsts/src/linter/linters.js';
+import { clearTypeScriptESLintParserCaches } from '../../jsts/src/parsers/eslint.js';
 
 /**
  * Delegate the handling of an HTTP request to a worker thread
  */
-exports.delegate = function (worker, type) {
+export const delegate = function (worker, type) {
   return async (request, response, next) => {
     worker.once('message', message => {
       switch (message.type) {
@@ -161,7 +160,7 @@ if (parentPort) {
 
         case 'on-init-linter': {
           const { rules, environments, globals, linterId, baseDir } = data;
-          initializeLinter(rules, environments, globals, baseDir, linterId);
+          await initializeLinter(rules, environments, globals, baseDir, linterId);
           parentThread.postMessage({ type: 'success', result: 'OK!' });
           break;
         }

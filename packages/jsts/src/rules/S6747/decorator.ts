@@ -19,9 +19,9 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6747/javascript
 
-import { Rule } from 'eslint';
-import { generateMeta, interceptReport } from '../helpers';
-import { meta } from './meta';
+import type { Rule } from 'eslint';
+import { generateMeta, interceptReport } from '../helpers/index.js';
+import { meta } from './meta.js';
 
 /**
  * The core implementation of the rule includes a fix without a message.

@@ -17,11 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { Rule, RuleTester } from 'eslint';
-import { rule } from './';
-import { reportWithQuickFixIfApplicable } from './decorator';
+import { Rule } from 'eslint';
+import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { rule } from './index.js';
+import { reportWithQuickFixIfApplicable } from './decorator.js';
+import { it } from 'node:test';
 
-const ruleTester = new RuleTester({
+const ruleTester = new NodeRuleTester({
   parserOptions: { ecmaVersion: 2022, ecmaFeatures: { jsx: true } },
 });
 

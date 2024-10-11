@@ -19,11 +19,11 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S3498/javascript
 
-import { Rule } from 'eslint';
-import * as estree from 'estree';
+import type { Rule } from 'eslint';
+import estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
-import { generateMeta, interceptReport } from '../helpers';
-import { meta } from './meta';
+import { generateMeta, interceptReport } from '../helpers/index.js';
+import { meta } from './meta.js';
 
 // core implementation of this rule raises issues on aura lightning components
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {

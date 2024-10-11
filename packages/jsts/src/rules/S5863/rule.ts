@@ -20,8 +20,8 @@
 // https://sonarsource.github.io/rspec/#/rspec/S5863/javascript
 
 import { TSESTree } from '@typescript-eslint/utils';
-import { Rule } from 'eslint';
-import * as estree from 'estree';
+import type { Rule } from 'eslint';
+import estree from 'estree';
 import {
   areEquivalent,
   Chai,
@@ -30,8 +30,8 @@ import {
   isLiteral,
   report,
   toSecondaryLocation,
-} from '../helpers';
-import { meta } from './meta';
+} from '../helpers/index.js';
+import { meta } from './meta.js';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta as Rule.RuleMetaData, undefined, true),

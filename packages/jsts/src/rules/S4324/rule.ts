@@ -19,12 +19,16 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S4324/javascript
 
-import { Rule } from 'eslint';
+import type { Rule } from 'eslint';
 import { TSESTree } from '@typescript-eslint/utils';
-import { generateMeta, isRequiredParserServices, RequiredParserServices } from '../helpers';
-import * as estree from 'estree';
-import * as ts from 'typescript';
-import { meta } from './meta';
+import {
+  generateMeta,
+  isRequiredParserServices,
+  RequiredParserServices,
+} from '../helpers/index.js';
+import estree from 'estree';
+import ts from 'typescript';
+import { meta } from './meta.js';
 
 type ReturnedExpression = estree.Expression | undefined | null;
 

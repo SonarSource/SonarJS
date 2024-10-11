@@ -17,9 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { ErrorCode, APIError } from '@sonar/shared';
-import * as express from 'express';
-import { EMPTY_JSTS_ANALYSIS_OUTPUT, errorMiddleware } from '../../src/errors';
+import express from 'express';
+import { EMPTY_JSTS_ANALYSIS_OUTPUT, errorMiddleware } from '../../src/errors/index.js';
+import assert from 'assert';
+
+import { describe, it, beforeEach, mock, Mock } from 'node:test';
+import { APIError, ErrorCode } from '../../../shared/src/errors/error.js';
 
 describe('errorMiddleware', () => {
   const mockRequest = {} as express.Request;
@@ -28,7 +31,7 @@ describe('errorMiddleware', () => {
   let mockResponse: Partial<express.Response>;
   beforeEach(() => {
     mockResponse = {
-      json: jest.fn(),
+      json: mock.fn(),
     };
   });
 
@@ -39,14 +42,17 @@ describe('errorMiddleware', () => {
       mockResponse as express.Response,
       mockNext,
     );
-    expect(mockResponse.json).toBeCalledWith({
-      parsingError: {
-        message: 'Unexpected token "{"',
-        line: 42,
-        code: ErrorCode.Parsing,
+    assert.deepEqual(
+      (mockResponse.json as Mock<typeof mockResponse.json>).mock.calls[0].arguments[0],
+      {
+        parsingError: {
+          message: 'Unexpected token "{"',
+          line: 42,
+          code: ErrorCode.Parsing,
+        },
+        ...EMPTY_JSTS_ANALYSIS_OUTPUT,
       },
-      ...EMPTY_JSTS_ANALYSIS_OUTPUT,
-    });
+    );
   });
 
   it('should return a parsingError with properties "message" and "code" for FAILING_TYPESCRIPT errors', () => {
@@ -56,12 +62,15 @@ describe('errorMiddleware', () => {
       mockResponse as express.Response,
       mockNext,
     );
-    expect(mockResponse.json).toBeCalledWith({
-      parsingError: {
-        message: 'TypeScript failed for some reason',
-        code: ErrorCode.FailingTypeScript,
+    assert.deepEqual(
+      (mockResponse.json as Mock<typeof mockResponse.json>).mock.calls[0].arguments[0],
+      {
+        parsingError: {
+          message: 'TypeScript failed for some reason',
+          code: ErrorCode.FailingTypeScript,
+        },
       },
-    });
+    );
   });
 
   it('should return a parsingError with properties "message" and "code" for LINTER_INITIALIZATION errors', () => {
@@ -71,23 +80,29 @@ describe('errorMiddleware', () => {
       mockResponse as express.Response,
       mockNext,
     );
-    expect(mockResponse.json).toBeCalledWith({
-      parsingError: {
-        message: 'Uninitialized linter',
-        code: ErrorCode.LinterInitialization,
+    assert.deepEqual(
+      (mockResponse.json as Mock<typeof mockResponse.json>).mock.calls[0].arguments[0],
+      {
+        parsingError: {
+          message: 'Uninitialized linter',
+          code: ErrorCode.LinterInitialization,
+        },
       },
-    });
+    );
   });
 
-  it('should return a propery "error" containing the error message for any other error', () => {
+  it('should return a property "error" containing the error message for any other error', () => {
     errorMiddleware(
       new Error('Something unexpected happened.'),
       mockRequest,
       mockResponse as express.Response,
       mockNext,
     );
-    expect(mockResponse.json).toBeCalledWith({
-      error: 'Something unexpected happened.',
-    });
+    assert.deepEqual(
+      (mockResponse.json as Mock<typeof mockResponse.json>).mock.calls[0].arguments[0],
+      {
+        error: 'Something unexpected happened.',
+      },
+    );
   });
 });
