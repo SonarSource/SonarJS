@@ -17,15 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import {
-  analyzeFile,
-  createAndSaveProgram,
-  DEFAULT_LANGUAGE,
-  deleteProgram,
-  JsTsFiles,
-  ProjectAnalysisOutput,
-} from '../../index.js';
-import { error, readFile } from '../../../../shared/src/index.js';
+
+import { DEFAULT_LANGUAGE, JsTsFiles, ProjectAnalysisOutput } from './projectAnalysis.js';
+import { createAndSaveProgram, deleteProgram } from '../../program/program.js';
+import { analyzeFile } from './analyzeFile.js';
+import { error } from '../../../../shared/src/helpers/logging.js';
+import { readFile } from '../../../../shared/src/helpers/files.js';
 
 /**
  * Analyzes JavaScript / TypeScript files using TypeScript programs. Only the files

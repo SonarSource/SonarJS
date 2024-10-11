@@ -18,12 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Linter } from 'eslint';
-import { rule, SymbolHighlight } from '../../../src/linter/visitors/index.js';
 import { Location } from '../../../src/linter/visitors/metrics/helpers/index.js';
 import path from 'path';
 import { parseTypeScriptSourceFile } from '../../tools/index.js';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
+import { SymbolHighlight, rule } from '../../../src/linter/visitors/symbol-highlighting.js';
 
 describe('symbol highlighting rule', () => {
   it('should highlight variables', async () => {

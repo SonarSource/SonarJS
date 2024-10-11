@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Linter, SourceCode } from 'eslint';
-import { transformFixes } from '../quickfixes/index.js';
+import { transformFixes } from '../quickfixes/transform.js';
 import { Issue } from './issue.js';
-import { error } from '../../../../shared/src/index.js';
+import { error } from '../../../../shared/src/helpers/logging.js';
 
 /**
  * Converts an ESLint message into a SonarQube issue

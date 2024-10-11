@@ -19,10 +19,10 @@
  */
 import yaml from 'yaml';
 import path from 'path';
-import { readFile } from '../../../shared/src/index.js';
-import { isSupportedFormat, SUPPORTED_STRING_FORMATS } from '../../src/parser/index.js';
 import { describe, test } from 'node:test';
 import { expect } from 'expect';
+import { isSupportedFormat, SUPPORTED_STRING_FORMATS } from '../../src/parser/yaml/format.js';
+import { readFile } from '../../../shared/src/helpers/files.js';
 
 describe('isSupportedFormat', () => {
   const fixtures = path.join(import.meta.dirname, 'fixtures', 'format');

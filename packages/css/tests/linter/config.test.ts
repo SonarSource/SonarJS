@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { createStylelintConfig, RuleConfig } from '../../src/linter/index.js';
 import { plugins } from '../../src/rules/index.js';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
+import { createStylelintConfig, RuleConfig } from '../../src/linter/config.js';
 
 describe('createStylelintConfig', () => {
   it('should create a Stylelint config', () => {

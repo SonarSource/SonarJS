@@ -18,12 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import path from 'path';
-import { setContext } from '../../../shared/src/index.js';
-import { initializeLinter, getLinter, LinterWrapper } from '../../../jsts/src/index.js';
 import { parseJavaScriptSourceFile } from '../tools/index.js';
 import { describe, it, mock, Mock } from 'node:test';
 import { expect } from 'expect';
 import { pathToFileURL } from 'node:url';
+import { setContext } from '../../../shared/src/helpers/context.js';
+import { getLinter, initializeLinter } from '../../src/linter/linters.js';
+import { LinterWrapper } from '../../src/linter/wrapper.js';
 
 describe('initializeLinter', () => {
   it('should initialize the linter wrapper', async () => {

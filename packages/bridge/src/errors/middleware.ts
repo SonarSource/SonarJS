@@ -18,8 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import express from 'express';
-import { ErrorCode, error } from '../../../shared/src/index.js';
-import { JsTsAnalysisOutput } from '../../../jsts/src/index.js';
+import { ErrorCode } from '../../../shared/src/errors/error.js';
+import { error } from '../../../shared/src/helpers/logging.js';
+import { JsTsAnalysisOutput } from '../../../jsts/src/analysis/analysis.js';
 
 /**
  * Express.js middleware for handling error while serving requests.

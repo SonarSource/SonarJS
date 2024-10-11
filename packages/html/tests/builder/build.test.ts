@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { join } from 'path';
-import { parseHTML } from '../../src/parser/index.js';
 import { embeddedInput } from '../../../jsts/tests/tools/index.js';
-import { buildSourceCodes } from '../../../jsts/src/index.js';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
+import { parseHTML } from '../../src/parser/parse.js';
+import { buildSourceCodes } from '../../../jsts/src/embedded/builder/build.js';
 
 describe('buildSourceCodes()', () => {
   const fixturesPath = join(import.meta.dirname, 'fixtures');

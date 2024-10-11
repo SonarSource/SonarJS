@@ -19,7 +19,7 @@
  */
 import estree from 'estree';
 import { SourceCode } from 'eslint';
-import { childrenOf } from '../../rules/helpers/index.js';
+import { childrenOf } from '../../rules/helpers/ancestor.js';
 
 /**
  * Visits the abstract syntax tree of an ESLint source code

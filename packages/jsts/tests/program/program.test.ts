@@ -18,6 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import path from 'path';
+import ts, { ModuleKind, ScriptTarget } from 'typescript';
+import fs from 'fs';
+import { isRoot, toUnixPath } from '../../src/rules/helpers/index.js';
+import { describe, it, Mock, mock } from 'node:test';
+import { expect } from 'expect';
 import {
   createAndSaveProgram,
   createProgram,
@@ -26,13 +31,7 @@ import {
   getProgramById,
   isRootNodeModules,
   writeTSConfigFile,
-} from '../../src/program/index.js';
-import { toUnixPath } from '../../../shared/src/index.js';
-import ts, { ModuleKind, ScriptTarget } from 'typescript';
-import fs from 'fs';
-import { isRoot } from '../../src/rules/helpers/index.js';
-import { describe, it, Mock, mock } from 'node:test';
-import { expect } from 'expect';
+} from '../../src/program/program.js';
 
 describe('program', () => {
   it('should create a program', () => {

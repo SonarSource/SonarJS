@@ -19,13 +19,13 @@
  */
 import { start } from '../src/server.js';
 import * as path from 'path';
-import { setContext } from '../../shared/src/index.js';
 import { AddressInfo } from 'net';
 import { request } from './tools/index.js';
 import * as http from 'http';
 import { describe, before, it, mock, Mock } from 'node:test';
 import { expect } from 'expect';
 import assert from 'node:assert';
+import { setContext } from '../../shared/src/helpers/context.js';
 
 describe('server', () => {
   const port = 0;

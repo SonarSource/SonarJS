@@ -18,12 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import type { Rule } from 'eslint';
-import { FileType, getContext, JsTsLanguage } from '../../../../shared/src/index.js';
-import {
-  hasSonarContextOption,
-  hasSonarRuntimeOption,
-  SONAR_RUNTIME,
-} from '../parameters/index.js';
+import { hasSonarRuntimeOption, SONAR_RUNTIME } from '../parameters/sonar-runtime.js';
+import { hasSonarContextOption } from '../parameters/sonar-context.js';
+import { FileType } from '../../../../shared/src/helpers/files.js';
+import { JsTsLanguage } from '../../../../shared/src/helpers/language.js';
+import { getContext } from '../../../../shared/src/helpers/context.js';
 
 /**
  * An input rule configuration for linting

@@ -17,11 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { debug, getContext, JsTsLanguage } from '../../../shared/src/index.js';
-import { JsTsAnalysisInput } from '../analysis/index.js';
-import { buildParserOptions, parseForESLint, parsers } from '../parsers/index.js';
-import { getProgramById } from '../program/index.js';
+import { debug } from '../../../shared/src/helpers/logging.js';
+import { JsTsAnalysisInput } from '../analysis/analysis.js';
+import { buildParserOptions } from '../parsers/options.js';
+import { parseForESLint } from '../parsers/parse.js';
+import { parsers } from '../parsers/eslint.js';
+import { getProgramById } from '../program/program.js';
 import { Linter } from 'eslint';
+import { JsTsLanguage } from '../../../shared/src/helpers/language.js';
+import { getContext } from '../../../shared/src/helpers/context.js';
 
 /**
  * Builds an ESLint SourceCode for JavaScript / TypeScript

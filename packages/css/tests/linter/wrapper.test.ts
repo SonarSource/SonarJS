@@ -19,12 +19,13 @@
  */
 import path from 'path';
 import stylelint from 'stylelint';
-import { readFile } from '../../../shared/src/index.js';
-import { createStylelintConfig, LinterWrapper, RuleConfig } from '../../src/linter/index.js';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
 
 import { rule as S5362 } from '../../src/rules/S5362/index.js';
+import { LinterWrapper } from '../../src/linter/wrapper.js';
+import { readFile } from '../../../shared/src/helpers/files.js';
+import { createStylelintConfig, RuleConfig } from '../../src/linter/config.js';
 
 describe('LinterWrapper', () => {
   it('should lint with a stylelint rule', async () => {
