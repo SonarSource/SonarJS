@@ -308,9 +308,8 @@ eslint_plugin_test_task:
     - . ~/.profile
     - source cirrus-env QA
     - source set_maven_build_version $BUILD_NUMBER
-    - cd packages/jsts/src/rules
-    - npm run build
-    - cd ../../../../its/eslint8-plugin-sonarjs
+    - npm run eslint-plugin:build
+    - cd its/eslint8-plugin-sonarjs
     - npm run build
     - npx tsc --noEmit # check typings for tseslint.config.ts
     - npm run test

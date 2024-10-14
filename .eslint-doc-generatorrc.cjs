@@ -1,6 +1,6 @@
-/** @type {import('eslint-doc-generator').GenerateOptions} */
-const rules = require('eslint-plugin-sonarjs').rules;
+const rules = require('./lib').rules;
 
+/** @type {import('eslint-doc-generator').GenerateOptions} */
 const config = {
   urlRuleDoc(name) {
     return rules[name].meta.docs.url;
@@ -10,6 +10,7 @@ const config = {
   pathRuleDoc(name) {
     return `docs/${name}.md`;
   },
+  pathRuleList: '../packages/jsts/src/rules/README.md',
   ruleListColumns: [
     'name',
     'description',
@@ -19,7 +20,6 @@ const config = {
     'requiresTypeChecking',
     'deprecated',
   ],
-  initRuleDocs: true,
 };
 
 module.exports = config;

@@ -1,13 +1,12 @@
 {
   "compilerOptions": {
-    "target": "ES2022",
+    "target": "ES2021",
     "module": "nodenext",
     "moduleResolution": "nodenext",
-    "lib": ["ES2023", "dom"],
+    "lib": ["ES2021", "dom"],
     "declaration": true,
-    "outDir": "../../../../lib/jsts/src/rules",
     "strict": true,
-    "sourceMap": true,
+    "sourceMap": false,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "allowSyntheticDefaultImports": true,
@@ -15,11 +14,7 @@
     "skipLibCheck": true,
     "useUnknownInCatchVariables": false,
     "forceConsistentCasingInFileNames": true,
-    "typeRoots": ["./node_modules/@types", "./typings"],
-    "baseUrl": ".",
-    "composite": true,
-    "allowJs": true
+    "typeRoots": ["./node_modules/@types", "./typings"]
   },
-  "include": ["**/*.ts"],
-  "exclude": ["**/*.test.ts", "**/*.fixture.*", "**/fixtures"]
+  "include": ["packages/jsts/src/rules/plugin.ts"]
 }
