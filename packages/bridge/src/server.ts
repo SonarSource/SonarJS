@@ -36,8 +36,6 @@ import {
   logMemoryError,
 } from './memory.js';
 import { getContext } from '../../shared/src/helpers/context.js';
-import { dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
 
 /**
  * The maximum request body size
@@ -100,13 +98,10 @@ export function start(
   return new Promise(resolve => {
     debug('Starting the bridge server');
 
-    worker = new Worker(
-      path.resolve(dirname(fileURLToPath(import.meta.url)), '../../../lib/bridge/src/worker.js'),
-      {
-        workerData: { context: getContext() },
-        env: SHARE_ENV,
-      },
-    );
+    worker = new Worker(path.resolve(import.meta.dirname, '../../../lib/bridge/src/worker.js'), {
+      workerData: { context: getContext() },
+      env: SHARE_ENV,
+    });
 
     worker.on('online', () => {
       debug('The worker thread is running');
