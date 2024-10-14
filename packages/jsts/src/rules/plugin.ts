@@ -29,6 +29,8 @@ import type { Rule, Linter } from 'eslint';
 
 import * as originalRules from './original.js';
 import * as decoratedRules from './decorated.js';
+import { dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 export const rules: Record<string, Rule.RuleModule> = {
   'anchor-precedence': originalRules.S5850,
@@ -398,7 +400,7 @@ export const configs = {
  package.json may be in current or parent dir depending on running with tsx or built js files
  we need to find it in both cases
  */
-const packageJsonPath = findParent(import.meta.dirname, 'package.json');
+const packageJsonPath = findParent(dirname(fileURLToPath(import.meta.url)), 'package.json');
 const { name, version } = (
   packageJsonPath ? JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8')) : {}
 ) as PackageJson;

@@ -298,6 +298,7 @@ eslint_plugin_test_task:
     dockerfile: .cirrus/nodejs.Dockerfile
     docker_arguments:
       CIRRUS_AWS_ACCOUNT: ${CIRRUS_AWS_ACCOUNT}
+      NODE_VERSION: 16
   env:
     CIRRUS_CLONE_DEPTH: 1
     SONARSOURCE_QA: true
