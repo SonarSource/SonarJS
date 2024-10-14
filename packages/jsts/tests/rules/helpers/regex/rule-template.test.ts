@@ -19,8 +19,8 @@
  */
 import type { Rule } from 'eslint';
 import { AST } from '@eslint-community/regexpp';
-import { createRegExpRule } from '../../../../src/rules/helpers/index.js';
 import { JavaScriptRuleTester } from '../../../tools/index.js';
+import { createRegExpRule } from '../../../../src/rules/helpers/regex/rule-template.js';
 
 const rule: Rule.RuleModule = createRegExpRule(context => {
   return {

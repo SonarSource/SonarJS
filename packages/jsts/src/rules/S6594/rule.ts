@@ -24,13 +24,13 @@ import estree from 'estree';
 import {
   generateMeta,
   getNodeParent,
-  getParsedRegex,
   getVariableFromName,
   isMemberWithProperty,
   isRequiredParserServices,
   isString,
 } from '../helpers/index.js';
 import { meta } from './meta.js';
+import { getParsedRegex } from '../helpers/regex/extract.js';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta as Rule.RuleMetaData, {

@@ -45,15 +45,12 @@ import {
   RequiredParserServices,
   toSecondaryLocation,
 } from '../helpers/index.js';
-import {
-  extractReferences,
-  getParsedRegex,
-  getRegexpLocation,
-  isStringRegexMethodCall,
-  isStringReplaceCall,
-} from '../helpers/regex/index.js';
 import { TSESTree } from '@typescript-eslint/utils';
 import { meta } from './meta.js';
+import { isStringRegexMethodCall, isStringReplaceCall } from '../helpers/regex/ast.js';
+import { extractReferences } from '../helpers/regex/group.js';
+import { getRegexpLocation } from '../helpers/regex/location.js';
+import { getParsedRegex } from '../helpers/regex/extract.js';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta as Rule.RuleMetaData, undefined, true),

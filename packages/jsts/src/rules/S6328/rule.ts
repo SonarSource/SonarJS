@@ -24,13 +24,10 @@ import estree from 'estree';
 import * as regexpp from '@eslint-community/regexpp';
 import { RegExpLiteral } from '@eslint-community/regexpp/ast';
 import { generateMeta, isRequiredParserServices } from '../helpers/index.js';
-import {
-  extractReferences,
-  getParsedRegex,
-  GroupReference,
-  isStringReplaceCall,
-} from '../helpers/regex/index.js';
 import { meta } from './meta.js';
+import { extractReferences, type GroupReference } from '../helpers/regex/group.js';
+import { getParsedRegex } from '../helpers/regex/extract.js';
+import { isStringReplaceCall } from '../helpers/regex/ast.js';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta as Rule.RuleMetaData, {

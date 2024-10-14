@@ -39,7 +39,6 @@ export * from './module.js';
 export * from './package-json.js';
 export * from './quickfix.js';
 export * from './reaching-definitions.js';
-export * from './regex/index.js';
 export * from './rule-detect-react.js';
 export * from './sinon.js';
 export * from './type.js';

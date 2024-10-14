@@ -45,8 +45,9 @@ jobs:
           cd packages/jsts/src/rules/
           jfrog rt npm-config --repo-resolve npm --repo-deploy sonarsource-npm-public-qa
           jfrog rt npm-ci
-          npm version $RELEASE_TAG
-          npm run build
+          npm run compile
+          cd lib
+          npm version $RELEASE_TAG --no-git-tag-version
           npm publish
           jfrog rt npm-publish --build-name=eslint-plugin-sonarjs --build-number=${{ github.event.inputs.release_version }}
           jfrog rt build-publish eslint-plugin-sonarjs ${{ github.event.inputs.release_version }}
