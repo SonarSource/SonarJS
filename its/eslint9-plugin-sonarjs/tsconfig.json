@@ -4,9 +4,8 @@
     "target": "es6",
     "allowJs": true,
     "moduleResolution": "NodeNext",
-    "skipLibCheck": false,
+    "skipLibCheck": true,
     "strict": true
   },
-  "files": ["tseslint.config.mjs"],
-  "exclude": ["../../node_modules"]
+  "files": ["tseslint.config.mjs"]
 }

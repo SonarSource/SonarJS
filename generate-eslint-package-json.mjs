@@ -33,11 +33,22 @@ const mainPackageJson = JSON.parse(
 );
 
 const dependencies = {};
+let missingDependencies = Array.from(eslintPluginDependencies);
 
-for (const [name, value] of Object.entries(mainPackageJson.dependencies)) {
+for (const [name, value] of Object.entries(mainPackageJson.dependencies).concat(
+  Object.entries(mainPackageJson.devDependencies),
+)) {
   if (eslintPluginDependencies.includes(name)) {
     dependencies[name] = value;
+    const i = missingDependencies.indexOf(name);
+    missingDependencies.splice(i, 1);
   }
+}
+
+if (missingDependencies.length > 0) {
+  throw new Error(
+    `Some dependencies of the ESLint plugin were not found in the package.json: ${missingDependencies.toString()}`,
+  );
 }
 
 await fs.writeFile(

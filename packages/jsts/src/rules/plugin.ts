@@ -392,7 +392,7 @@ export const configs = {
 };
 
 /**
- * I kept the meta export for compatibility, but we need to fond a way to populate it without relying on the package manifest
+ * I kept the meta export for compatibility, but we need to find a way to populate it without relying on the package manifest
  */
 export const meta = {
   name: 'eslint-plugin-sonarjs',
