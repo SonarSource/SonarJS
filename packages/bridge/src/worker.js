@@ -173,7 +173,12 @@ if (parentPort) {
 
         case 'on-tsconfig-files': {
           const { tsconfig } = data;
+          const t0 = performance.now();
           const options = createProgramOptions(tsconfig);
+          const tTotal = performance.now() - t0;
+          // if (tTotal > 100) {
+          console.log(`${tsconfig} - time: ${tTotal} ms, files: ${options.rootNames.length}`);
+          // }
           parentThread.postMessage({
             type: 'success',
             result: JSON.stringify({

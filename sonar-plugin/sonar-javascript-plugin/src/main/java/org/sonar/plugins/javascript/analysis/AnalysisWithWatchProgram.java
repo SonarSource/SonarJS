@@ -20,13 +20,8 @@
 package org.sonar.plugins.javascript.analysis;
 
 import java.io.IOException;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,21 +38,24 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
 public class AnalysisWithWatchProgram extends AbstractAnalysis {
 
   private static final Logger LOG = LoggerFactory.getLogger(AnalysisWithWatchProgram.class);
+  TsConfigCache tsConfigCache;
 
   public AnalysisWithWatchProgram(
     BridgeServer bridgeServer,
     AnalysisProcessor analysisProcessor,
-    AnalysisWarningsWrapper analysisWarnings
+    AnalysisWarningsWrapper analysisWarnings,
+    TsConfigCache tsConfigCache
   ) {
     super(bridgeServer, analysisProcessor, analysisWarnings);
+    this.tsConfigCache = tsConfigCache;
   }
 
   @Override
   public void analyzeFiles(List<InputFile> inputFiles, List<String> tsConfigs) throws IOException {
     boolean success = false;
     progressReport = new ProgressReport(PROGRESS_REPORT_TITLE, PROGRESS_REPORT_PERIOD);
-    Map<TsConfigFile, List<InputFile>> filesByTsConfig = TsConfigFile.inputFilesByTsConfig(
-      loadTsConfigs(tsConfigs),
+    Map<TsConfigFile, List<InputFile>> filesByTsConfig = tsConfigCache.inputFilesByTsConfigPath(
+      tsConfigs,
       inputFiles
     );
     try {
@@ -69,7 +67,7 @@ public class AnalysisWithWatchProgram extends AbstractAnalysis {
         for (Map.Entry<TsConfigFile, List<InputFile>> entry : filesByTsConfig.entrySet()) {
           TsConfigFile tsConfigFile = entry.getKey();
           List<InputFile> files = entry.getValue();
-          if (TsConfigFile.UNMATCHED_CONFIG.equals(tsConfigFile)) {
+          if (TsConfigCache.UNMATCHED_CONFIG.equals(tsConfigFile)) {
             LOG.info("Analyzing {} files without tsconfig", files.size());
             analyzeTsConfig(null, files);
           } else {
@@ -96,23 +94,7 @@ public class AnalysisWithWatchProgram extends AbstractAnalysis {
     }
   }
 
-  private List<TsConfigFile> loadTsConfigs(List<String> tsConfigPaths) {
-    List<TsConfigFile> tsConfigFiles = new ArrayList<>();
-    Deque<String> workList = new ArrayDeque<>(tsConfigPaths);
-    Set<String> processed = new HashSet<>();
-    while (!workList.isEmpty()) {
-      String path = workList.pop();
-      if (processed.add(path)) {
-        TsConfigFile tsConfigFile = bridgeServer.loadTsConfig(path);
-        tsConfigFiles.add(tsConfigFile);
-        if (!tsConfigFile.getProjectReferences().isEmpty()) {
-          LOG.debug("Adding referenced project's tsconfigs {}", tsConfigFile.getProjectReferences());
-        }
-        workList.addAll(tsConfigFile.getProjectReferences());
-      }
-    }
-    return tsConfigFiles;
-  }
+
 
   private void analyzeTsConfig(@Nullable TsConfigFile tsConfigFile, List<InputFile> files)
     throws IOException {

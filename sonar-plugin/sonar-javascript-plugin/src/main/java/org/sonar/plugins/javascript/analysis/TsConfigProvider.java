@@ -69,6 +69,13 @@ public class TsConfigProvider {
     this.providers = providers;
   }
 
+  static List<String> getTsConfigs(
+    ContextUtils contextUtils,
+    @Nullable SonarLintTypeCheckingChecker javaScriptProjectChecker,
+    TsConfigFileCreator tsConfigFileCreator) throws IOException {
+    return getTsConfigs(contextUtils, javaScriptProjectChecker, tsConfigFileCreator, null);
+  }
+
   /**
    * Relying on (in order of priority)
    * 1. Property sonar.typescript.tsconfigPath(s)
@@ -78,14 +85,16 @@ public class TsConfigProvider {
   static List<String> getTsConfigs(
     ContextUtils contextUtils,
     @Nullable SonarLintTypeCheckingChecker javaScriptProjectChecker,
-    TsConfigFileCreator tsConfigFileCreator
+    TsConfigFileCreator tsConfigFileCreator,
+    @Nullable TsConfigCache tsConfigCache
   ) throws IOException {
     var defaultProvider = contextUtils.isSonarLint()
       ? new TsConfigProvider.WildcardTsConfigProvider(javaScriptProjectChecker, tsConfigFileCreator)
       : new DefaultTsConfigProvider(tsConfigFileCreator, JavaScriptFilePredicate::getJsTsPredicate);
+    var lookupProvider = tsConfigCache == null ? new LookupTsConfigProvider() : tsConfigCache;
 
     var provider = new TsConfigProvider(
-      List.of(new PropertyTsConfigProvider(), new LookupTsConfigProvider(), defaultProvider)
+      List.of(new PropertyTsConfigProvider(), lookupProvider, defaultProvider)
     );
     return provider.tsconfigs(contextUtils.context());
   }
@@ -168,27 +177,31 @@ public class TsConfigProvider {
 
     @Override
     public List<String> tsconfigs(SensorContext context) {
-      var fs = context.fileSystem();
-      var tsconfigs = new ArrayList<String>();
-      var dirs = new ArrayDeque<File>();
-      dirs.add(fs.baseDir());
-      while (!dirs.isEmpty()) {
-        var dir = dirs.removeFirst();
-        var files = dir.listFiles();
-        if (files == null) {
-          continue;
-        }
-        for (var file : files) {
-          if (file.isDirectory() && !"node_modules".equals(file.getName())) {
-            dirs.add(file);
-          } else if ("tsconfig.json".equals(file.getName())) {
-            tsconfigs.add(file.getAbsolutePath());
-          }
+      return lookupTsConfigs(context);
+    }
+  }
+
+  public static List<String> lookupTsConfigs(SensorContext context) {
+    var fs = context.fileSystem();
+    var tsconfigs = new ArrayList<String>();
+    var dirs = new ArrayDeque<File>();
+    dirs.add(fs.baseDir());
+    while (!dirs.isEmpty()) {
+      var dir = dirs.removeFirst();
+      var files = dir.listFiles();
+      if (files == null) {
+        continue;
+      }
+      for (var file : files) {
+        if (file.isDirectory() && !"node_modules".equals(file.getName())) {
+          dirs.add(file);
+        } else if (file.getName().endsWith("json") && file.getName().contains("tsconfig")) { // "tsconfig.json".equals(file.getName())) {
+          tsconfigs.add(file.getAbsolutePath());
         }
       }
-      LOG.info("Found {} tsconfig.json file(s): {}",tsconfigs.size(), tsconfigs);
-      return tsconfigs;
     }
+    LOG.info("Found {} tsconfig.json file(s): {}",tsconfigs.size(), tsconfigs);
+    return tsconfigs;
   }
 
   abstract static class GeneratedTsConfigFileProvider implements Provider {

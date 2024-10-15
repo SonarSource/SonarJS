@@ -39,12 +39,6 @@ public class TsConfigFile implements Predicate<InputFile> {
 
   private static final Logger LOG = LoggerFactory.getLogger(TsConfigFile.class);
 
-  public static final TsConfigFile UNMATCHED_CONFIG = new TsConfigFile(
-    "NO_CONFIG",
-    emptyList(),
-    emptyList()
-  );
-
   final String filename;
   final Set<String> files;
   final List<String> projectReferences;
@@ -80,23 +74,6 @@ public class TsConfigFile implements Predicate<InputFile> {
   public boolean test(InputFile inputFile) {
     var path = normalizePath(inputFile.absolutePath());
     return files.contains(path);
-  }
-
-  public static Map<TsConfigFile, List<InputFile>> inputFilesByTsConfig(
-    List<TsConfigFile> tsConfigFiles,
-    List<InputFile> inputFiles
-  ) {
-    Map<TsConfigFile, List<InputFile>> result = new LinkedHashMap<>();
-    inputFiles.forEach(inputFile -> {
-      TsConfigFile tsconfig = tsConfigFiles
-        .stream()
-        .filter(tsConfigFile -> tsConfigFile.test(inputFile))
-        .findFirst()
-        .orElse(UNMATCHED_CONFIG);
-      LOG.debug("{} matched {}", inputFile, tsconfig);
-      result.computeIfAbsent(tsconfig, t -> new ArrayList<>()).add(inputFile);
-    });
-    return result;
   }
 
   @Override

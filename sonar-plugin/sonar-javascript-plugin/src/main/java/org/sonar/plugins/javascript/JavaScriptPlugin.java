@@ -31,16 +31,7 @@ import org.sonar.css.CssProfileDefinition;
 import org.sonar.css.CssRulesDefinition;
 import org.sonar.css.StylelintReportSensor;
 import org.sonar.css.metrics.CssMetricSensor;
-import org.sonar.plugins.javascript.analysis.AnalysisConsumers;
-import org.sonar.plugins.javascript.analysis.AnalysisProcessor;
-import org.sonar.plugins.javascript.analysis.AnalysisWithProgram;
-import org.sonar.plugins.javascript.analysis.AnalysisWithWatchProgram;
-import org.sonar.plugins.javascript.analysis.CssRuleSensor;
-import org.sonar.plugins.javascript.analysis.HtmlSensor;
-import org.sonar.plugins.javascript.analysis.JsTsChecks;
-import org.sonar.plugins.javascript.analysis.JsTsSensor;
-import org.sonar.plugins.javascript.analysis.TsConfigProvider;
-import org.sonar.plugins.javascript.analysis.YamlSensor;
+import org.sonar.plugins.javascript.analysis.*;
 import org.sonar.plugins.javascript.bridge.AnalysisWarningsWrapper;
 import org.sonar.plugins.javascript.bridge.BridgeServerImpl;
 import org.sonar.plugins.javascript.bridge.BundleImpl;
@@ -338,6 +329,7 @@ public class JavaScriptPlugin implements Plugin {
     ) {
       if (sonarLintPluginAPIVersion.isDependencyAvailable()) {
         context.addExtension(SonarLintTypeCheckingCheckerImpl.class);
+        context.addExtension(TsConfigCache.class);
       } else {
         LOG.debug("Error while trying to inject SonarLintTypeCheckingChecker");
       }

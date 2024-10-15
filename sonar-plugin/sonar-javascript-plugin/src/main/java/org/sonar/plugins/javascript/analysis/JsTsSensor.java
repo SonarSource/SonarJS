@@ -46,6 +46,7 @@ public class JsTsSensor extends AbstractBridgeSensor {
   private final JsTsChecks checks;
   private final SonarLintTypeCheckingChecker javaScriptProjectChecker;
   private final AnalysisConsumers consumers;
+  private final TsConfigCache tsConfigCache;
 
   // Constructor for SonarCloud without the optional dependency (Pico doesn't support optional dependencies)
   public JsTsSensor(
@@ -61,7 +62,8 @@ public class JsTsSensor extends AbstractBridgeSensor {
       null,
       analysisWithProgram,
       analysisWithWatchProgram,
-      consumers
+      consumers,
+      null
     );
   }
 
@@ -71,7 +73,8 @@ public class JsTsSensor extends AbstractBridgeSensor {
     @Nullable SonarLintTypeCheckingChecker javaScriptProjectChecker,
     AnalysisWithProgram analysisWithProgram,
     AnalysisWithWatchProgram analysisWithWatchProgram,
-    AnalysisConsumers consumers
+    AnalysisConsumers consumers,
+    @Nullable TsConfigCache tsConfigCache
   ) {
     super(bridgeServer, "JS/TS");
     this.analysisWithProgram = analysisWithProgram;
@@ -79,6 +82,7 @@ public class JsTsSensor extends AbstractBridgeSensor {
     this.checks = checks;
     this.javaScriptProjectChecker = javaScriptProjectChecker;
     this.consumers = consumers;
+    this.tsConfigCache = tsConfigCache;
   }
 
   @Override
@@ -110,10 +114,12 @@ public class JsTsSensor extends AbstractBridgeSensor {
     );
 
     SonarLintTypeCheckingChecker.checkOnce(javaScriptProjectChecker, context);
+    assert tsConfigCache != null;
     var tsConfigs = TsConfigProvider.getTsConfigs(
       contextUtils,
       javaScriptProjectChecker,
-      this::createTsConfigFile
+      this::createTsConfigFile,
+      tsConfigCache
     );
     AbstractAnalysis analysis;
     if (shouldAnalyzeWithProgram()) {

@@ -119,6 +119,8 @@ class JsTsSensorTest {
 
   @Mock
   private BridgeServerImpl bridgeServerMock;
+  @Mock
+  private TsConfigCache tsConfigCache;
 
   private final TestAnalysisWarnings analysisWarnings = new TestAnalysisWarnings();
 
@@ -966,7 +968,7 @@ class JsTsSensorTest {
   }
 
   private AnalysisWithWatchProgram analysisWithWatchProgram() {
-    return new AnalysisWithWatchProgram(bridgeServerMock, processAnalysis, analysisWarnings);
+    return new AnalysisWithWatchProgram(bridgeServerMock, processAnalysis, analysisWarnings, tsConfigCache);
   }
 
   private AnalysisResponse createResponse() {
