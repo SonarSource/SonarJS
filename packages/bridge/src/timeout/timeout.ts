@@ -23,7 +23,7 @@
  * The purpose of this wrapper is to rely on a single reference of Node.js timeout,
  * start the timeout to execute a function at a given delay, and stop it on demand.
  */
-export default class Timeout {
+export class Timeout {
   private timeout: NodeJS.Timeout | null = null;
 
   /**

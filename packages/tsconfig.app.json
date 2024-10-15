@@ -1,9 +1,5 @@
 {
   "extends": "./tsconfig.json",
-  "compilerOptions": {
-    "composite": true,
-    "allowJs": true
-  },
   "include": [
     "server.ts",
     "*/src/**/*.ts",
@@ -12,5 +8,5 @@
     "ruling/tools/*.ts",
     "ruling/filter/*.ts"
   ],
-  "exclude": ["*/src/rules/*/*.test.ts", "*/src/rules/*/*.fixture.*", "*/src/rules/*/fixtures"]
+  "exclude": ["*/src/rules/**/*.test.ts", "*/src/rules/**/*.fixture.*", "*/src/rules/**/fixtures"]
 }
