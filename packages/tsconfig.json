@@ -12,12 +12,13 @@
     "noUnusedParameters": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
-    "resolveJsonModule": true,
     "skipLibCheck": true,
     "useUnknownInCatchVariables": false,
     "forceConsistentCasingInFileNames": true,
     "typeRoots": ["../node_modules/@types", "../typings"],
-    "baseUrl": "."
+    "baseUrl": ".",
+    "composite": true,
+    "allowJs": true
   },
   "references": [
     {
