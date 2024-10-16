@@ -19,12 +19,13 @@
  */
 import esprima from 'esprima';
 import estree from 'estree';
-import { getRegexpLocation, getRegexpRange } from '../../../../src/rules/helpers/index.js';
 import * as regexpp from '@eslint-community/regexpp';
 import type { Rule } from 'eslint';
 import { SourceCode } from 'eslint';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
+import { getRegexpRange } from '../../../../src/rules/helpers/regex/range.js';
+import { getRegexpLocation } from '../../../../src/rules/helpers/regex/location.js';
 
 describe('getRegexpRange', () => {
   it('should get range for regexp /s*', () => {

@@ -22,9 +22,9 @@
 import type { Rule } from 'eslint';
 import { RegExpLiteral } from '@eslint-community/regexpp/ast';
 import { analyse } from 'scslre';
-import { createRegExpRule } from '../helpers/regex/index.js';
 import { generateMeta } from '../helpers/index.js';
 import { meta } from './meta.js';
+import { createRegExpRule } from '../helpers/regex/rule-template.js';
 
 const message = `Make sure the regex used here, which is vulnerable to super-linear runtime due to backtracking, cannot lead to denial of service.`;
 

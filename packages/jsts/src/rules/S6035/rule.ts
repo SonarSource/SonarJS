@@ -21,9 +21,10 @@
 
 import type { Rule } from 'eslint';
 import { AST } from '@eslint-community/regexpp';
-import { Alternation, createRegExpRule } from '../helpers/regex/index.js';
 import { generateMeta } from '../helpers/index.js';
 import { meta } from './meta.js';
+import { createRegExpRule } from '../helpers/regex/rule-template.js';
+import type { Alternation } from '../helpers/regex/alternation.js';
 
 export const rule: Rule.RuleModule = createRegExpRule(
   context => {

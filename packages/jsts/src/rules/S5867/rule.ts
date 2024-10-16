@@ -22,8 +22,9 @@
 import type { Rule } from 'eslint';
 import { Character, Quantifier, RegExpLiteral } from '@eslint-community/regexpp/ast';
 import { generateMeta, IssueLocation, toSecondaryLocation } from '../helpers/index.js';
-import { createRegExpRule, getRegexpLocation } from '../helpers/regex/index.js';
 import { meta } from './meta.js';
+import { createRegExpRule } from '../helpers/regex/rule-template.js';
+import { getRegexpLocation } from '../helpers/regex/location.js';
 
 export const rule: Rule.RuleModule = createRegExpRule(
   context => {

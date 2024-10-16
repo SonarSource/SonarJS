@@ -4,7 +4,6 @@
     "module": "nodenext",
     "moduleResolution": "nodenext",
     "lib": ["ES2021", "dom"],
-    "declaration": true,
     "strict": true,
     "sourceMap": false,
     "noUnusedLocals": true,
@@ -16,5 +15,5 @@
     "forceConsistentCasingInFileNames": true,
     "typeRoots": ["./node_modules/@types", "./typings"]
   },
-  "include": ["plugin.ts"]
+  "include": ["packages/jsts/src/rules/plugin.ts"]
 }

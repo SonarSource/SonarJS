@@ -21,17 +21,15 @@
 
 import { AST, Rule } from 'eslint';
 import { ancestorsChain, generateMeta, isRegexLiteral } from '../helpers/index.js';
-import {
-  createRegExpRule,
-  getFlags,
-  getPatternFromNode,
-  isRegExpConstructor,
-} from '../helpers/regex/index.js';
 import { RegExpValidator } from '@eslint-community/regexpp';
 import { Character, CharacterClassElement } from '@eslint-community/regexpp/ast';
 import estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
 import { meta } from './meta.js';
+import { getPatternFromNode } from '../helpers/regex/extract.js';
+import { getFlags } from '../helpers/regex/flags.js';
+import { createRegExpRule } from '../helpers/regex/rule-template.js';
+import { isRegExpConstructor } from '../helpers/regex/ast.js';
 
 const MODIFIABLE_REGEXP_FLAGS_TYPES: estree.Node['type'][] = [
   'Literal',

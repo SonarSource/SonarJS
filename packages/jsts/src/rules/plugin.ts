@@ -22,15 +22,10 @@
  * This is the entry point of the ESLint Plugin.
  * Said differently, this is the public API of the ESLint Plugin.
  */
-import fs from 'fs';
-import { findParent } from './helpers/index.js';
-import { PackageJson } from 'type-fest';
 import type { Rule, Linter } from 'eslint';
 
 import * as originalRules from './original.js';
 import * as decoratedRules from './decorated.js';
-import { dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
 
 export const rules: Record<string, Rule.RuleModule> = {
   'anchor-precedence': originalRules.S5850,
@@ -396,18 +391,12 @@ export const configs = {
   'recommended-legacy': recommendedLegacyConfig,
 };
 
-/*
- package.json may be in current or parent dir depending on running with tsx or built js files
- we need to find it in both cases
+/**
+ * I kept the meta export for compatibility, but we need to find a way to populate it without relying on the package manifest
  */
-const packageJsonPath = findParent(dirname(fileURLToPath(import.meta.url)), 'package.json');
-const { name, version } = (
-  packageJsonPath ? JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8')) : {}
-) as PackageJson;
-
 export const meta = {
-  name,
-  version,
+  name: 'eslint-plugin-sonarjs',
+  version: '0.0.0-SNAPSHOT',
 };
 
 export default { rules, configs, meta };
