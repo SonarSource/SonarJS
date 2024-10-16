@@ -130,6 +130,10 @@ function checkFormidable(context: Rule.RuleContext, callExpression: estree.CallE
 }
 
 function checkMulter(context: Rule.RuleContext, callExpression: estree.CallExpression) {
+  if (callExpression.callee.type === 'MemberExpression') {
+    return;
+  }
+
   if (callExpression.arguments.length === 0) {
     report(context, callExpression.callee);
     return;
