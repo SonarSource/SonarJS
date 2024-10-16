@@ -11,6 +11,7 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
 import org.sonarsource.sonarlint.plugin.api.module.file.ModuleFileEvent;
 import org.sonarsource.sonarlint.plugin.api.module.file.ModuleFileListener;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -65,7 +66,7 @@ public class TsConfigCache implements ModuleFileListener, TsConfigProvider.Provi
         tsConfigFilesMap.put(path, tsConfigFile);
         if (!tsConfigFile.getProjectReferences().isEmpty()) {
           LOG.info("Adding referenced project's tsconfigs {}", tsConfigFile.getProjectReferences());
-          var baseDir = (tsConfigFile.getFilename().charAt(0) == '/') ? Path.of(path).getParent().toString() : path.substring(0, path.length() - tsConfigFile.getFilename().length());
+          var baseDir = (new File(tsConfigFile.getFilename())).isAbsolute() ? Path.of(path).getParent().toString() : path.substring(0, path.length() - tsConfigFile.getFilename().length());
           workList.addAll(tsConfigFile.getProjectReferences().stream().map(ref -> Paths.get(baseDir, ref).toAbsolutePath().toString()).toList());
         }
       }
