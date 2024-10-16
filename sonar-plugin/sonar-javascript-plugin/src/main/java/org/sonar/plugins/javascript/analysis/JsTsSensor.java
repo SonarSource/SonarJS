@@ -114,7 +114,6 @@ public class JsTsSensor extends AbstractBridgeSensor {
     );
 
     SonarLintTypeCheckingChecker.checkOnce(javaScriptProjectChecker, context);
-    assert tsConfigCache != null;
     var tsConfigs = TsConfigProvider.getTsConfigs(
       contextUtils,
       javaScriptProjectChecker,

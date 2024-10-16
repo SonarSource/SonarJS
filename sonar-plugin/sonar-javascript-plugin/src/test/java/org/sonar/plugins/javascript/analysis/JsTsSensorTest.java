@@ -119,7 +119,6 @@ class JsTsSensorTest {
 
   @Mock
   private BridgeServerImpl bridgeServerMock;
-  @Mock
   private TsConfigCache tsConfigCache;
 
   private final TestAnalysisWarnings analysisWarnings = new TestAnalysisWarnings();
@@ -176,6 +175,7 @@ class JsTsSensorTest {
     FileLinesContext fileLinesContext = mock(FileLinesContext.class);
     when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(fileLinesContext);
     processAnalysis = new AnalysisProcessor(new DefaultNoSonarFilter(), fileLinesContextFactory);
+    tsConfigCache = new TsConfigCache(bridgeServerMock);
   }
 
   @Test

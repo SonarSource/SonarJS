@@ -200,7 +200,7 @@ public class TsConfigProvider {
         }
       }
     }
-    LOG.info("Found {} tsconfig.json file(s): {}",tsconfigs.size(), tsconfigs);
+    LOG.info("Found {} tsconfig.json file(s): {}", tsconfigs.size(), tsconfigs);
     return tsconfigs;
   }
 

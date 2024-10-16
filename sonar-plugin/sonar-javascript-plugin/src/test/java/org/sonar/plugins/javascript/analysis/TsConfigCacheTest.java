@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.javascript.bridge;
+package org.sonar.plugins.javascript.analysis;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.entry;
 
 import java.util.Arrays;
 import java.util.List;
@@ -33,8 +33,9 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
+import org.sonar.plugins.javascript.bridge.TsConfigFile;
 
-class TsConfigFileTest {
+class TsConfigCacheTest {
 
   @RegisterExtension
   public LogTesterJUnit5 logTester = new LogTesterJUnit5();
@@ -53,29 +54,29 @@ class TsConfigFileTest {
       new TsConfigFile("dir3/tsconfig.json", singletonList("foo/dir3/file3.ts"), emptyList())
     );
 
-//    Map<TsConfigFile, List<InputFile>> result = TsConfigCache.inputFilesByTsConfig(
-//      tsConfigFiles,
-//      inputFiles
-//    );
-//    assertThat(result)
-//      .containsExactly(
-//        entry(tsConfigFiles.get(0), singletonList(inputFiles.get(0))),
-//        entry(tsConfigFiles.get(1), singletonList(inputFiles.get(1))),
-//        entry(tsConfigFiles.get(2), singletonList(inputFiles.get(2)))
-//      );
+    Map<TsConfigFile, List<InputFile>> result = TsConfigCache.inputFilesByTsConfig(
+      tsConfigFiles,
+      inputFiles
+    );
+    assertThat(result)
+      .containsExactly(
+        entry(tsConfigFiles.get(0), singletonList(inputFiles.get(0))),
+        entry(tsConfigFiles.get(1), singletonList(inputFiles.get(1))),
+        entry(tsConfigFiles.get(2), singletonList(inputFiles.get(2)))
+      );
   }
 
-//  @Test
-//  void failsToLoad() {
-//    List<TsConfigFile> tsConfigFiles = singletonList(
-//      new TsConfigFile("tsconfig/path", emptyList(), emptyList())
-//    );
-//    Map<TsConfigFile, List<InputFile>> result = TsConfigFile.inputFilesByTsConfig(
-//      tsConfigFiles,
-//      emptyList()
-//    );
-//    assertThat(result).isEmpty();
-//  }
+  @Test
+  void failsToLoad() {
+    List<TsConfigFile> tsConfigFiles = singletonList(
+      new TsConfigFile("tsconfig/path", emptyList(), emptyList())
+    );
+    Map<TsConfigFile, List<InputFile>> result = TsConfigCache.inputFilesByTsConfig(
+      tsConfigFiles,
+      emptyList()
+    );
+    assertThat(result).isEmpty();
+  }
 
   @Test
   void getters() {

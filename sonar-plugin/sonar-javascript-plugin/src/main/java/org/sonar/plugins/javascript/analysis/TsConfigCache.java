@@ -11,9 +11,9 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
 import org.sonarsource.sonarlint.plugin.api.module.file.ModuleFileEvent;
 import org.sonarsource.sonarlint.plugin.api.module.file.ModuleFileListener;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
 
@@ -46,11 +46,11 @@ public class TsConfigCache implements ModuleFileListener, TsConfigProvider.Provi
       return tsConfigFilesMap.keySet().stream().toList();
     }
 
-    initialized = true;
     var tsconfigs = TsConfigProvider.lookupTsConfigs(context);
     for (var tsConfigFile : tsconfigs) {
       tsConfigFilesMap.put(tsConfigFile, null);
     }
+    initialized = true;
     return tsconfigs;
   }
 
@@ -65,10 +65,9 @@ public class TsConfigCache implements ModuleFileListener, TsConfigProvider.Provi
         tsConfigFilesMap.put(path, tsConfigFile);
         if (!tsConfigFile.getProjectReferences().isEmpty()) {
           LOG.info("Adding referenced project's tsconfigs {}", tsConfigFile.getProjectReferences());
+          var baseDir = (tsConfigFile.getFilename().charAt(0) == '/') ? Path.of(path).getParent().toString() : path.substring(0, path.length() - tsConfigFile.getFilename().length());
+          workList.addAll(tsConfigFile.getProjectReferences().stream().map(ref -> Paths.get(baseDir, ref).toAbsolutePath().toString()).toList());
         }
-        workList.addAll(tsConfigFile.getProjectReferences());
-      } else {
-        LOG.info("tsconfig {} already cached", path);
       }
       tsConfigFiles.add(tsConfigFilesMap.get(path));
     }

@@ -94,8 +94,6 @@ public class AnalysisWithWatchProgram extends AbstractAnalysis {
     }
   }
 
-
-
   private void analyzeTsConfig(@Nullable TsConfigFile tsConfigFile, List<InputFile> files)
     throws IOException {
     List<String> tsConfigs = tsConfigFile == null ? List.of() : List.of(tsConfigFile.getFilename());
