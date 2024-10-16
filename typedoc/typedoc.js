@@ -1,12 +1,12 @@
 // https://typedoc.org/guides/options
-module.exports = {
+export default {
   entryPoints: ['../packages/jsts/src/rules/helpers/index.ts'],
   name: 'SonarJS linter helper functions',
   out: './site',
   searchInComments: true,
   plugin: ['searchable-parameters-plugin'],
   readme: './main.md',
-  tsconfig: '../packages/jsts/src/rules/tsconfig.json',
+  tsconfig: '../tsconfig-plugin.json',
   json: 'models/reflections.json',
   pretty: true,
   sidebarLinks: {

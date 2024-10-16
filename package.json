@@ -26,7 +26,7 @@
     "plugin:build": "mvn install && npm run update-ruling-data",
     "plugin:build:fast": "mvn install -DskipTests && npm run update-ruling-data",
     "pbf": "npm run plugin:build:fast",
-    "td": "node typedoc/scripts/setup-plugins.js && npx typedoc --options typedoc/typedoc.js",
+    "td": "npm --prefix typedoc/searchable-parameters-plugin run setup && npx typedoc --options typedoc/typedoc.js",
     "prepare": "husky install",
     "precommit": "pretty-quick --staged",
     "count-rules": "node tools/count-rules.js",
