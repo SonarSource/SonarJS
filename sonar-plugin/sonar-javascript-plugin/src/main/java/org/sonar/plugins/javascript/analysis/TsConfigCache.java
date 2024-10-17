@@ -105,8 +105,13 @@ public class TsConfigCache implements ModuleFileListener, TsConfigProvider.Provi
     var filename = moduleFileEvent.getTarget().absolutePath();
     LOG.info("File changed {} event: {}", filename, moduleFileEvent.getType());
     if (filename.endsWith("json") && filename.contains("tsconfig")) {
-      LOG.info("Removing {} from cache", filename);
-      tsConfigFilesMap.put(filename, null);
+      if (moduleFileEvent.getType() == ModuleFileEvent.Type.DELETED) {
+        LOG.info("Removing {} from cache", filename);
+        tsConfigFilesMap.remove(filename);
+      } else {
+        LOG.info("Clearing {} from cache", filename);
+        tsConfigFilesMap.put(filename, null);
+      }
     }
   }
 }
