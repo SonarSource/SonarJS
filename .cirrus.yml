@@ -129,6 +129,7 @@ build_task:
     - source cirrus-env BUILD
     - node --version
     - npm run bridge:build:fast && npm run _:plugin:pre-build && npm run plugin:build
+    - cat /tmp/cirrus-ci-build/sonar-plugin/sonar-javascript-plugin/target/surefire-reports/org.sonar.plugins.javascript.analysis.JsTsSensorTest-output.txt
     - regular_mvn_build_deploy_analyze -Dmaven.test.skip=true -Dmaven.install.skip=true -Dsonar.skip=true
   cleanup_before_cache_script: cleanup_maven_repository
 
