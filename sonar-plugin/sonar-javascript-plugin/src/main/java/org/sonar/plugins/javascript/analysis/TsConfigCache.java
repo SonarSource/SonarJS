@@ -2,9 +2,6 @@ package org.sonar.plugins.javascript.analysis;
 
 import static java.util.Collections.emptyList;
 
-import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -73,8 +70,7 @@ public class TsConfigCache implements ModuleFileListener, TsConfigProvider.Provi
         tsConfigFilesMap.put(path, tsConfigFile);
         if (!tsConfigFile.getProjectReferences().isEmpty()) {
           LOG.info("Adding referenced project's tsconfigs {}", tsConfigFile.getProjectReferences());
-          var baseDir = (new File(tsConfigFile.getFilename())).isAbsolute() ? Path.of(path).getParent().toString() : path.substring(0, path.length() - tsConfigFile.getFilename().length());
-          workList.addAll(tsConfigFile.getProjectReferences().stream().map(ref -> Paths.get(baseDir, ref).toAbsolutePath().toString()).toList());
+          workList.addAll(tsConfigFile.getProjectReferences());
         }
         System.out.println("New worklist:" + workList);
       }
