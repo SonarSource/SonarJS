@@ -23,7 +23,7 @@
     "bridge:build:cov": "npm run bridge:build:fast && npm run bridge:test:cov",
     "bridge:build:fast": "npm ci && npm --prefix packages/jsts/src/rules ci && npm run _:bridge:clear && npm run bridge:compile",
     "bbf": "npm run bridge:build:fast",
-    "plugin:build": "mvn install && npm run update-ruling-data",
+    "plugin:build": "mvn install -X && npm run update-ruling-data",
     "plugin:build:fast": "mvn install -DskipTests && npm run update-ruling-data",
     "pbf": "npm run plugin:build:fast",
     "td": "node typedoc/scripts/setup-plugins.js && npx typedoc --options typedoc/typedoc.js",
