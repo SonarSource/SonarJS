@@ -23,6 +23,8 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -136,7 +138,31 @@ public class BridgeServerImpl implements BridgeServer {
     this.temporaryDeployLocation = tempFolder.newDir(BRIDGE_DEPLOY_LOCATION).toPath();
     this.heartbeatService = Executors.newSingleThreadScheduledExecutor();
     this.embeddedNode = embeddedNode;
+    silenceHttpClientLogs();
   }
+
+  private static void silenceHttpClientLogs() {
+    setLoggerLevelToInfo("org.apache.hc");
+  }
+
+  /**
+   * This method sets the log level of the logger with the given name to INFO.
+   * It assumes that SLF4J is used as the logging facade and Logback as the logging implementation.
+   * Since we don't want to directly depend on logback, we use reflection to set the log level.
+   * @param loggerName
+   */
+  private static void setLoggerLevelToInfo(String loggerName) {
+    try {
+      ClassLoader cl = BridgeServerImpl.class.getClassLoader();
+      Class<?> level = cl.loadClass("ch.qos.logback.classic.Level");
+      Logger logger = LoggerFactory.getLogger(loggerName);
+      Method setLevel = logger.getClass().getMethod("setLevel", level);
+      setLevel.invoke(logger, level.getField("INFO").get(null));
+    } catch (NoSuchFieldException | IllegalAccessException | ClassNotFoundException | NoSuchMethodException | InvocationTargetException e) {
+      LOG.info("Failed to set logger level to INFO for " + loggerName, e);
+    }
+  }
+
 
   void heartbeat() {
     LOG.trace("Pinging the bridge server");
