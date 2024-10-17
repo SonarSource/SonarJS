@@ -682,8 +682,8 @@ class JsTsSensorTest {
     DefaultInputFile file1 = inputFileFromResource(context, baseDir, "src/file.ts");
 
     String tsconfig = absolutePath(baseDir, "tsconfig.json");
-    String appTsConfig = "src/tsconfig.app.json";
-    String appTsConfig2 = "src/tsconfig.app2.json";
+    String appTsConfig = absolutePath(baseDir, "src/tsconfig.app.json");
+    String appTsConfig2 = absolutePath(baseDir, "src/tsconfig.app2.json");
 
     // we intentionally create cycle between appTsConfig and appTsConfig2
     when(bridgeServerMock.loadTsConfig(anyString()))
