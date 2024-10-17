@@ -1,5 +1,17 @@
 package org.sonar.plugins.javascript.analysis;
 
+import static java.util.Collections.emptyList;
+
+import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
@@ -10,13 +22,6 @@ import org.sonar.plugins.javascript.bridge.TsConfigFile;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 import org.sonarsource.sonarlint.plugin.api.module.file.ModuleFileEvent;
 import org.sonarsource.sonarlint.plugin.api.module.file.ModuleFileListener;
-
-import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.*;
-
-import static java.util.Collections.emptyList;
 
 @ScannerSide
 @SonarLintSide(lifespan = SonarLintSide.MODULE)
@@ -60,15 +65,18 @@ public class TsConfigCache implements ModuleFileListener, TsConfigProvider.Provi
     Deque<String> workList = new ArrayDeque<>(tsConfigPaths);
     while (!workList.isEmpty()) {
       String path = workList.pop();
+      System.out.println("Current tsconfig: " + path);
       if (!tsConfigFilesMap.containsKey(path) || tsConfigFilesMap.get(path) == null) {
         LOG.info("Computing tsconfig {} from bridge", path);
         TsConfigFile tsConfigFile = bridgeServer.loadTsConfig(path);
+        System.out.println("Resolved tsconfig object: " + tsConfigFile);
         tsConfigFilesMap.put(path, tsConfigFile);
         if (!tsConfigFile.getProjectReferences().isEmpty()) {
           LOG.info("Adding referenced project's tsconfigs {}", tsConfigFile.getProjectReferences());
           var baseDir = (new File(tsConfigFile.getFilename())).isAbsolute() ? Path.of(path).getParent().toString() : path.substring(0, path.length() - tsConfigFile.getFilename().length());
           workList.addAll(tsConfigFile.getProjectReferences().stream().map(ref -> Paths.get(baseDir, ref).toAbsolutePath().toString()).toList());
         }
+        System.out.println("New worklist:" + workList);
       }
       tsConfigFiles.add(tsConfigFilesMap.get(path));
     }

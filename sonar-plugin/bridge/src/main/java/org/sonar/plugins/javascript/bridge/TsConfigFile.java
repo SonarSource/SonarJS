@@ -19,15 +19,10 @@
  */
 package org.sonar.plugins.javascript.bridge;
 
-import static java.util.Collections.emptyList;
-
 import java.io.IOException;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -78,6 +73,6 @@ public class TsConfigFile implements Predicate<InputFile> {
 
   @Override
   public String toString() {
-    return filename;
+    return filename + " --- " +  projectReferences;
   }
 }
