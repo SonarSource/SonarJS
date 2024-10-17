@@ -73,6 +73,6 @@ public class TsConfigFile implements Predicate<InputFile> {
 
   @Override
   public String toString() {
-    return filename + " --- " +  projectReferences;
+    return filename;
   }
 }
