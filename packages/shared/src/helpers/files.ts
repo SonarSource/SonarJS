@@ -94,17 +94,13 @@ export function toUnixPath(path: string) {
  *
  * @param tsConfig
  */
-export function normalizeTsConfigPath(tsConfig: string, rootTsConfig: string) {
-  let normalizedPath = tsConfig;
-  if (!path.posix.isAbsolute(tsConfig)) {
-    normalizedPath = path.posix.join(rootTsConfig, normalizedPath);
-  }
+export function addTsConfigIfDirectory(tsConfig: string) {
   try {
     if (fs.lstatSync(tsConfig).isDirectory()) {
-      return path.posix.join(normalizedPath, 'tsconfig.json');
+      return path.join(tsConfig, 'tsconfig.json');
     }
 
-    return normalizedPath;
+    return tsConfig;
   } catch {
     return null;
   }

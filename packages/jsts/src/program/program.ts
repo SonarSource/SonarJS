@@ -38,7 +38,7 @@ import { TsConfigJson } from 'type-fest';
 import {
   readFileSync,
   toUnixPath,
-  normalizeTsConfigPath,
+  addTsConfigIfDirectory,
 } from '../../../shared/src/helpers/files.js';
 
 export type ProgramResult = {
@@ -126,17 +126,7 @@ export function createProgramOptions(
   return {
     rootNames: parsedConfigFile.fileNames,
     options: { ...parsedConfigFile.options, allowNonTsExtensions: true },
-    projectReferences: (parsedConfigFile.projectReferences || [])
-      .map(ref => {
-        const refPath = normalizeProjectReference(ref.path, tsConfig);
-        if (refPath) {
-          return {
-            ...ref,
-            path: refPath,
-          };
-        }
-      })
-      .filter((ref): ref is ts.ProjectReference => !!ref),
+    projectReferences: parsedConfigFile.projectReferences,
     missingTsConfig,
   };
 }
@@ -164,6 +154,16 @@ export function createProgram(tsConfig: string, tsconfigContents?: string): Prog
   const programOptions = createProgramOptions(tsConfig, tsconfigContents);
   const program = ts.createProgram(programOptions);
   const inputProjectReferences = program.getProjectReferences() ?? [];
+  const projectReferences: string[] = [];
+
+  for (const reference of inputProjectReferences) {
+    const sanitizedReference = addTsConfigIfDirectory(reference.path);
+    if (!sanitizedReference) {
+      warn(`Skipping missing referenced tsconfig.json: ${reference.path}`);
+    } else {
+      projectReferences.push(sanitizedReference);
+    }
+  }
   const files = program
     .getSourceFiles()
     .map(sourceFile => sourceFile.fileName)
@@ -171,9 +171,7 @@ export function createProgram(tsConfig: string, tsconfigContents?: string): Prog
 
   return {
     files,
-    projectReferences: inputProjectReferences
-      .map(ref => normalizeProjectReference(ref.path, tsConfig))
-      .filter((refPath): refPath is string => !!refPath),
+    projectReferences,
     missingTsConfig: programOptions.missingTsConfig,
     program,
   };
@@ -336,13 +334,4 @@ export function createTSConfigFile(files?: string[], include?: string[]): TsConf
     include,
     files,
   } as TsConfigJson;
-}
-
-function normalizeProjectReference(referencePath: string, tsConfig: string) {
-  const sanitizedReference = normalizeTsConfigPath(referencePath, tsConfig);
-  if (!sanitizedReference) {
-    warn(`Skipping missing referenced tsconfig.json: ${referencePath}`);
-  } else {
-    return sanitizedReference;
-  }
 }
