@@ -132,6 +132,8 @@ build_task:
     - cat /tmp/cirrus-ci-build/sonar-plugin/sonar-javascript-plugin/target/surefire-reports/org.sonar.plugins.javascript.analysis.JsTsSensorTest-output.txt
     - regular_mvn_build_deploy_analyze -Dmaven.test.skip=true -Dmaven.install.skip=true -Dsonar.skip=true
   cleanup_before_cache_script: cleanup_maven_repository
+  after_script:
+    - cat /tmp/cirrus-ci-build/sonar-plugin/sonar-javascript-plugin/target/surefire-reports/org.sonar.plugins.javascript.analysis.JsTsSensorTest-output.txt
 
 analyze_task:
   eks_container:
