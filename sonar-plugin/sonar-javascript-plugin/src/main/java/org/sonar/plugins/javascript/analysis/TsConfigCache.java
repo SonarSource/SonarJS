@@ -65,18 +65,14 @@ public class TsConfigCache implements ModuleFileListener, TsConfigProvider.Provi
     Deque<String> workList = new ArrayDeque<>(tsConfigPaths);
     while (!workList.isEmpty()) {
       String path = workList.pop();
-      System.out.println("Current tsconfig: " + path);
       if (!tsConfigFilesMap.containsKey(path) || tsConfigFilesMap.get(path) == null) {
         LOG.info("Computing tsconfig {} from bridge", path);
         TsConfigFile tsConfigFile = bridgeServer.loadTsConfig(path);
-        System.out.println("Resolved tsconfig object: " + tsConfigFile);
         tsConfigFilesMap.put(path, tsConfigFile);
         if (!tsConfigFile.getProjectReferences().isEmpty()) {
           LOG.info("Adding referenced project's tsconfigs {}", tsConfigFile.getProjectReferences());
-          var baseDir = (new File(tsConfigFile.getFilename())).isAbsolute() ? Path.of(path).getParent().toString() : path.substring(0, path.length() - tsConfigFile.getFilename().length());
-          workList.addAll(tsConfigFile.getProjectReferences().stream().map(ref -> Paths.get(baseDir, ref).toAbsolutePath().toString()).toList());
+          workList.addAll(tsConfigFile.getProjectReferences().stream().filter(ref -> !tsConfigFilesMap.containsKey(ref)).toList());
         }
-        System.out.println("New worklist:" + workList);
       }
       tsConfigFiles.add(tsConfigFilesMap.get(path));
     }
