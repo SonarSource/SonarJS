@@ -402,6 +402,24 @@ class JsTsSensorTest {
   }
 
   @Test
+  void should_not_send_the_skipAst_flag_when_jared_is_enabled() throws Exception {
+    var ctx = createSensorContext(baseDir);
+    ctx.setSettings(new MapSettings().setProperty("sonar.jared.internal.enabled", "true"));
+    var inputFile = createInputFile(ctx);
+    var tsProgram = new TsProgram("1", List.of(inputFile.absolutePath()), List.of());
+    var consumer = createConsumer();
+    var sensor = createSensorWithConsumer(consumer);
+    when(bridgeServerMock.createProgram(any())).thenReturn(tsProgram);
+    when(bridgeServerMock.analyzeTypeScript(any())).thenReturn(new AnalysisResponse());
+    sensor.execute(ctx);
+
+    createSensor().execute(context);
+    var captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
+    verify(bridgeServerMock).analyzeTypeScript(captor.capture());
+    assertThat(captor.getValue().skipAst()).isFalse();
+  }
+
+  @Test
   void should_send_the_skipAst_flag_when_there_are_consumers_but_armor_is_disabled() throws Exception {
     var ctx = createSensorContext(baseDir);
     ctx.setSettings(new MapSettings().setProperty("sonar.armor.internal.enabled", "false"));

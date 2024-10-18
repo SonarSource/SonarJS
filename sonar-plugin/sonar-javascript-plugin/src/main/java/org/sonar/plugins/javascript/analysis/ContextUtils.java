@@ -30,6 +30,9 @@ class ContextUtils {
   /* Internal property to enable Armor (disabled by default) */
   private static final String ARMOR_INTERNAL_ENABLED = "sonar.armor.internal.enabled";
 
+  /* Internal property to enable JaRED (disabled by default) */
+  private static final String JARED_INTERNAL_ENABLED = "sonar.jared.internal.enabled";
+
   private final SensorContext context;
 
   ContextUtils(SensorContext context) {
@@ -65,5 +68,9 @@ class ContextUtils {
 
   boolean isSonarArmorEnabled() {
     return context.config().getBoolean(ARMOR_INTERNAL_ENABLED).orElse(false);
+  }
+
+  boolean isSonarJaredEnabled() {
+    return context.config().getBoolean(JARED_INTERNAL_ENABLED).orElse(false);
   }
 }
