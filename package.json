@@ -18,7 +18,7 @@
     "update-ruling-data": "mvn -f sonar-plugin/sonar-javascript-plugin/pom.xml compile && npx tsx packages/ruling/tests/tools/parseRulesData.ts",
     "bridge:compile": "tsc -b packages profiling && npm run _:bridge:copy-protofiles",
     "bridge:test": "tsx --tsconfig packages/tsconfig.test.json --test \"packages/*/src/rules/*[!node_modules]/**/*.test.ts\" \"packages/*[!ruling]/tests/**/*.test.ts\"",
-    "bridge:test:cov": "mkdir coverage && tsx --tsconfig packages/tsconfig.test.json --test --experimental-test-coverage --test-reporter lcov --test-reporter-destination coverage/lcov.info --test-reporter spec --test-reporter-destination stdout \"packages/*/src/rules/*[!node_modules]/**/*.test.ts\" \"packages/*[!ruling]/tests/**/*.test.ts\"",
+    "bridge:test:cov": "tsx --tsconfig packages/tsconfig.test.json --test --experimental-test-coverage --test-reporter lcov --test-reporter-destination lcov.info --test-reporter spec --test-reporter-destination stdout \"packages/*/src/rules/*[!node_modules]/**/*.test.ts\" \"packages/*[!ruling]/tests/**/*.test.ts\"",
     "bridge:build": "npm run bridge:build:fast && npm run bridge:test",
     "bridge:build:cov": "npm run bridge:build:fast && npm run bridge:test:cov",
     "bridge:build:fast": "npm ci && npm run _:bridge:clear && npm run bridge:compile",
