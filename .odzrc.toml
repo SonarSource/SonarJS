@@ -5,9 +5,11 @@ sources = [
 ignoredSources = [
   "packages/**/*.test.*",
   "packages/**/*.fixture.*",
-  "packages/**/fixtures/**",
-  "packages/**/node_modules/**"
+  "packages/**/fixtures/**"
 ]
+
+coverageDirectory="coverage/.coverage"
+reportsDirectory="coverage/reports"
 
 reporters = [
   "html",
