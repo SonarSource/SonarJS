@@ -112,7 +112,6 @@ class CssRulingTest {
       .setProjectKey(PROJECT_KEY)
       .setProjectName(PROJECT_KEY)
       .setProjectVersion("1")
-      .setLanguage("css")
       .setSourceEncoding("UTF-8")
       .setSourceDirs(".")
       .setProperty(
@@ -129,7 +128,7 @@ class CssRulingTest {
       .setEnvironmentVariable("SONAR_RUNNER_OPTS", "-Xmx2000m");
     ORCHESTRATOR.executeBuild(build);
 
-    String litsDifferences = new String(Files.readAllBytes(litsDifferencesFile.toPath()), UTF_8);
+    String litsDifferences = Files.readString(litsDifferencesFile.toPath());
     assertThat(litsDifferences).isEmpty();
   }
 }

@@ -34,8 +34,9 @@ import {
   report,
   toSecondaryLocation,
 } from '../helpers/index.js';
-import { getFlags, isRegExpConstructor } from '../helpers/regex/index.js';
 import { meta } from './meta.js';
+import { isRegExpConstructor } from '../helpers/regex/ast.js';
+import { getFlags } from '../helpers/regex/flags.js';
 
 type RegexInfo = { node: estree.Node; flags: string };
 

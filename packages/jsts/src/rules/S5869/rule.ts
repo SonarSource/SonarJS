@@ -22,12 +22,10 @@
 import { AST, Rule } from 'eslint';
 import { CharacterClass, Flags, Node, RegExpLiteral } from '@eslint-community/regexpp/ast';
 import { generateMeta, IssueLocation, toSecondaryLocation } from '../helpers/index.js';
-import {
-  createRegExpRule,
-  getRegexpLocation,
-  SimplifiedRegexCharacterClass,
-} from '../helpers/regex/index.js';
 import { meta } from './meta.js';
+import { createRegExpRule } from '../helpers/regex/rule-template.js';
+import { SimplifiedRegexCharacterClass } from '../helpers/regex/simplified-regex-character-class.js';
+import { getRegexpLocation } from '../helpers/regex/location.js';
 
 export const rule: Rule.RuleModule = createRegExpRule(
   context => {

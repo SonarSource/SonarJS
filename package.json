@@ -21,21 +21,29 @@
     "bridge:test:cov": "mkdir coverage && tsx --tsconfig packages/tsconfig.test.json --test --experimental-test-coverage --test-reporter lcov --test-reporter-destination coverage/lcov.info --test-reporter spec --test-reporter-destination stdout \"packages/*/src/rules/*[!node_modules]/**/*.test.ts\" \"packages/*[!ruling]/tests/**/*.test.ts\"",
     "bridge:build": "npm run bridge:build:fast && npm run bridge:test",
     "bridge:build:cov": "npm run bridge:build:fast && npm run bridge:test:cov",
-    "bridge:build:fast": "npm ci && npm --prefix packages/jsts/src/rules ci && npm run _:bridge:clear && npm run bridge:compile",
+    "bridge:build:fast": "npm ci && npm run _:bridge:clear && npm run bridge:compile",
     "bbf": "npm run bridge:build:fast",
     "plugin:build": "mvn install && npm run update-ruling-data",
     "plugin:build:fast": "mvn install -DskipTests && npm run update-ruling-data",
     "pbf": "npm run plugin:build:fast",
-    "td": "node typedoc/scripts/setup-plugins.js && npx typedoc --options typedoc/typedoc.js",
+    "td": "npm --prefix typedoc/searchable-parameters-plugin run setup && npx typedoc --options typedoc/typedoc.js",
     "prepare": "husky install",
     "precommit": "pretty-quick --staged",
     "count-rules": "node tools/count-rules.js",
     "_:bridge:copy-protofiles": "cpy --flat packages/jsts/src/parsers/estree.proto sonar-plugin/bridge/src/main/protobuf && cpy --flat packages/jsts/src/parsers/estree.proto lib/jsts/src/parsers",
-    "_:bridge:clear": "rimraf --glob lib/* && rimraf packages/jsts/src/rules/lib",
+    "_:bridge:clear": "rimraf --glob lib/*",
     "_:plugin:prepare-bridge": "npm pack && node tools/check-distribution-filepath-length.cjs && npm run _:plugin:copy-bridge && npm run generate-rules-list",
     "_:plugin-fetch-node": "node tools/fetch-node/scripts/wrapper.mjs",
     "_:plugin:pre-build": "npm run _:plugin:prepare-bridge && npm run _:plugin-fetch-node",
-    "_:plugin:copy-bridge": "cpy sonarjs-1.0.0.tgz sonar-plugin/sonar-javascript-plugin/target/classes && cpy sonarjs-1.0.0.tgz sonar-plugin/standalone/target/classes"
+    "_:plugin:copy-bridge": "cpy sonarjs-1.0.0.tgz sonar-plugin/sonar-javascript-plugin/target/classes && cpy sonarjs-1.0.0.tgz sonar-plugin/standalone/target/classes",
+    "eslint-plugin:build": "npm ci && npm run eslint-plugin:compile && cd lib && npm pack",
+    "eslint-plugin:compile": "npm run _:bridge:clear && npm run eslint-plugin:check && npm run eslint-plugin:emit && npm run eslint-plugin:types && npm run eslint-plugin:package-json && npm run eslint-plugin:copy-assets",
+    "eslint-plugin:check": "tsc -p tsconfig-plugin.json --noEmit",
+    "eslint-plugin:emit": "tsc -p tsconfig-plugin.json --noCheck --module commonjs --moduleResolution node --outDir lib/cjs",
+    "eslint-plugin:types": "tsc -p tsconfig-plugin.json --declaration true --emitDeclarationOnly --outDir lib/types",
+    "eslint-plugin:package-json": "node generate-eslint-package-json.mjs",
+    "eslint-plugin:copy-assets": "cpy LICENSE.txt lib/ --rename LICENSE && cpy packages/jsts/src/rules/README.md lib/ --flat",
+    "eslint-docs": "npm run compile && eslint-doc-generator lib"
   },
   "repository": {
     "type": "git",
@@ -47,7 +55,7 @@
   },
   "homepage": "https://github.com/SonarSource/SonarJS#readme",
   "engines": {
-    "node": ">= 20"
+    "node": "^18.17.0 || ^20.9.0 || >=21.1.0"
   },
   "type": "module",
   "devDependencies": {
@@ -64,6 +72,7 @@
     "@types/tmp": "0.2.6",
     "cpy-cli": "5.0.0",
     "dir-compare": "5.0.0",
+    "eslint-doc-generator": "1.7.1",
     "esprima": "4.0.1",
     "expect": "29.7.0",
     "extract-zip": "2.0.1",
@@ -99,6 +108,7 @@
     "eslint-plugin-jsx-a11y": "6.10.0",
     "eslint-plugin-react": "7.36.1",
     "eslint-plugin-react-hooks": "4.6.2",
+    "eslint-scope": "8.1.0",
     "express": "4.21.1",
     "form-data": "4.0.0",
     "functional-red-black-tree": "1.0.1",

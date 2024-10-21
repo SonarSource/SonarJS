@@ -3,9 +3,8 @@
   "compilerOptions": {
     "strictNullChecks": false,
     "noImplicitAny": false,
-    "composite": true,
     "resolveJsonModule": true,
-    "allowJs": true
+    "noEmit": true
   },
   "references": [
     {
@@ -16,8 +15,8 @@
     "*/tests",
     "*/src/rules/tools",
     "ruling/**/*",
-    "*/src/rules/*/*.test.ts",
+    "*/src/rules/**/*.test.ts",
     "**/ruling/tests/data/*.json"
   ],
-  "exclude": ["*/tests/**/fixtures", "*/src/rules/*/*.fixture.*", "*/src/rules/*/fixtures"]
+  "exclude": ["*/tests/**/fixtures", "*/src/rules/**/*.fixture.*", "*/src/rules/**/fixtures"]
 }

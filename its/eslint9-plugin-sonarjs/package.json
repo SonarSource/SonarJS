@@ -2,7 +2,7 @@
   "name": "eslint9-plugin-sonarjs-tests",
   "description": "Test suite for eslint-plugin-sonarjs",
   "scripts": {
-    "build": "npm install && cp ../../packages/jsts/src/rules/eslint-plugin-sonarjs-* ./plugin.tgz && npm i ./plugin.tgz --no-save && rm -f plugin.tgz",
+    "build": "npm install && cp ../../lib/eslint-plugin-sonarjs-* ./plugin.tgz && npm i ./plugin.tgz --no-save && rm -f plugin.tgz",
     "test": "node index.test.js"
   },
   "devDependencies": {

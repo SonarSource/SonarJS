@@ -45,14 +45,13 @@ import {
   LocationHolder,
   report,
   toSecondaryLocation,
-  getParsedRegex,
-  getRegexpLocation,
-  getRegexpRange,
-  isRegExpConstructor,
-  isStringRegexMethodCall,
 } from '../helpers/index.js';
+import { isRegExpConstructor, isStringRegexMethodCall } from '../helpers/regex/ast.js';
 import { FromSchema } from 'json-schema-to-ts';
 import { meta, schema } from './meta.js';
+import { getParsedRegex } from '../helpers/regex/extract.js';
+import { getRegexpRange } from '../helpers/regex/range.js';
+import { getRegexpLocation } from '../helpers/regex/location.js';
 
 const DEFAULT_THRESHOLD = 20;
 

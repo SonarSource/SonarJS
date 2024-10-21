@@ -4,8 +4,8 @@ SonarJS rules for ESLint to help developers produce [Clean Code](https://www.son
 
 ## Prerequisites
 
-- Node.js (>=16.x).
-- ESLint 8.x or 9.x (peer dependency for the plugin).
+- Node.js (>=16.x) with ESLint 8.
+- Node.js (^18.18.0 || ^20.9.0 || >=21) with ESLint 9.
 
 ## Usage
 
