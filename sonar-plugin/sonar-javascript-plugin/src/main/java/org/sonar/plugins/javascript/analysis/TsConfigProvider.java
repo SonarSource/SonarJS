@@ -195,7 +195,7 @@ public class TsConfigProvider {
       for (var file : files) {
         if (file.isDirectory() && !"node_modules".equals(file.getName())) {
           dirs.add(file);
-        } else if (file.getName().endsWith("json") && file.getName().contains("tsconfig")) { // "tsconfig.json".equals(file.getName())) {
+        } else if ("tsconfig.json".equals(file.getName())) {
           tsconfigs.add(file.getAbsolutePath());
         }
       }
