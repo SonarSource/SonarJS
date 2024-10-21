@@ -54,7 +54,7 @@ class TsConfigCacheTest {
       new TsConfigFile("dir3/tsconfig.json", singletonList("foo/dir3/file3.ts"), emptyList())
     );
 
-    Map<TsConfigFile, List<InputFile>> result = TsConfigCache.inputFilesByTsConfig(
+    Map<TsConfigFile, List<InputFile>> result = TsConfigCacheImpl.inputFilesByTsConfig(
       tsConfigFiles,
       inputFiles
     );
@@ -71,7 +71,7 @@ class TsConfigCacheTest {
     List<TsConfigFile> tsConfigFiles = singletonList(
       new TsConfigFile("tsconfig/path", emptyList(), emptyList())
     );
-    Map<TsConfigFile, List<InputFile>> result = TsConfigCache.inputFilesByTsConfig(
+    Map<TsConfigFile, List<InputFile>> result = TsConfigCacheImpl.inputFilesByTsConfig(
       tsConfigFiles,
       emptyList()
     );

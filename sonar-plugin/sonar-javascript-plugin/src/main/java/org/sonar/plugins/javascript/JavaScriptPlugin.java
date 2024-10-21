@@ -39,7 +39,7 @@ import org.sonar.plugins.javascript.analysis.CssRuleSensor;
 import org.sonar.plugins.javascript.analysis.HtmlSensor;
 import org.sonar.plugins.javascript.analysis.JsTsChecks;
 import org.sonar.plugins.javascript.analysis.JsTsSensor;
-import org.sonar.plugins.javascript.analysis.TsConfigCache;
+import org.sonar.plugins.javascript.analysis.TsConfigCacheImpl;
 import org.sonar.plugins.javascript.analysis.TsConfigProvider;
 import org.sonar.plugins.javascript.analysis.YamlSensor;
 import org.sonar.plugins.javascript.bridge.AnalysisWarningsWrapper;
@@ -339,7 +339,7 @@ public class JavaScriptPlugin implements Plugin {
     ) {
       if (sonarLintPluginAPIVersion.isDependencyAvailable()) {
         context.addExtension(SonarLintTypeCheckingCheckerImpl.class);
-        context.addExtension(TsConfigCache.class);
+        context.addExtension(TsConfigCacheImpl.class);
       } else {
         LOG.debug("Error while trying to inject SonarLint extensions");
       }

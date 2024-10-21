@@ -44,7 +44,7 @@ public class AnalysisWithWatchProgram extends AbstractAnalysis {
     BridgeServer bridgeServer,
     AnalysisProcessor analysisProcessor,
     AnalysisWarningsWrapper analysisWarnings,
-    TsConfigCache tsConfigCache
+    @Nullable TsConfigCache tsConfigCache
   ) {
     super(bridgeServer, analysisProcessor, analysisWarnings);
     this.tsConfigCache = tsConfigCache;
@@ -67,7 +67,7 @@ public class AnalysisWithWatchProgram extends AbstractAnalysis {
         for (Map.Entry<TsConfigFile, List<InputFile>> entry : filesByTsConfig.entrySet()) {
           TsConfigFile tsConfigFile = entry.getKey();
           List<InputFile> files = entry.getValue();
-          if (TsConfigCache.UNMATCHED_CONFIG.equals(tsConfigFile)) {
+          if (TsConfigCacheImpl.UNMATCHED_CONFIG.equals(tsConfigFile)) {
             LOG.info("Analyzing {} files without tsconfig", files.size());
             analyzeTsConfig(null, files);
           } else {
