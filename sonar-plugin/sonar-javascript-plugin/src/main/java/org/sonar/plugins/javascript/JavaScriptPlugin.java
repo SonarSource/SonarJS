@@ -350,7 +350,7 @@ public class JavaScriptPlugin implements Plugin {
 
     boolean isDependencyAvailable() {
       try {
-        Class.forName("org.sonarsource.sonarlint.plugin.api.module.file.ModuleFileSystem");
+        Class.forName("org.sonarsource.sonarlint.plugin.api.module.file.ModuleFileListener");
       } catch (ClassNotFoundException e) {
         return false;
       }
