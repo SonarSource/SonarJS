@@ -1,0 +1,17 @@
+sources = [
+  "packages/*/src/**/*.ts"
+]
+
+ignoredSources = [
+  "packages/**/*.test.*",
+  "packages/**/*.fixture.*",
+  "packages/**/fixtures/**"
+]
+
+coverageDirectory="coverage/.coverage"
+reportsDirectory="coverage/reports"
+
+reporters = [
+  "html",
+  "text-summary"
+]
