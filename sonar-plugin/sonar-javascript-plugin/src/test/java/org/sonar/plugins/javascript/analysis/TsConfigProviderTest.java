@@ -78,9 +78,9 @@ class TsConfigProviderTest {
     Files.createDirectory(subdir);
     Files.createDirectory(subdir.resolve("node_modules"));
     Path tsconfig2 = Files.createFile(subdir.resolve("tsconfig.json"));
-    Path tsconfig3 = Files.createFile(subdir.resolve("base.tsconfig.json"));
     // these should not be taken into account
     Files.createFile(subdir.resolve("node_modules/tsconfig.json"));
+    Files.createFile(subdir.resolve("base.tsconfig.json"));
 
     SensorContextTester ctx = SensorContextTester.create(baseDir);
     createInputFile(ctx, "file1.ts");
@@ -94,8 +94,7 @@ class TsConfigProviderTest {
     assertThat(tsconfigs)
       .containsExactlyInAnyOrder(
         tsconfig1.toAbsolutePath().toString(),
-        tsconfig2.toAbsolutePath().toString(),
-        tsconfig3.toAbsolutePath().toString()
+        tsconfig2.toAbsolutePath().toString()
       );
   }
 
