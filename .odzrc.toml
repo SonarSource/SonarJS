@@ -1,0 +1,15 @@
+sources = [
+  "packages/*/src/**/*.ts"
+]
+
+ignoredSources = [
+  "packages/**/*.test.*",
+  "packages/**/*.fixture.*",
+  "packages/**/fixtures/**",
+  "packages/**/node_modules/**"
+]
+
+reporters = [
+  "html",
+  "text-summary"
+]
