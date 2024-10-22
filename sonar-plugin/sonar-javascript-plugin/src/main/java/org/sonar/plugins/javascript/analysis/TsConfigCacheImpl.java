@@ -9,10 +9,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
 import org.sonar.plugins.javascript.bridge.TsConfigFile;
@@ -30,9 +30,16 @@ public class TsConfigCacheImpl implements TsConfigCache {
 
   BridgeServer bridgeServer;
   boolean initialized;
+
+  public TsConfigProvider.CacheOrigin origin;
+
   TsConfigCacheImpl(BridgeServer bridgeServer) {
     this.bridgeServer = bridgeServer;
     this.initialized = false;
+  }
+
+  public TsConfigProvider.CacheOrigin getOrigin() {
+    return origin;
   }
 
   public TsConfigFile getTsConfigForInputFile(InputFile inputFile) {
@@ -63,17 +70,16 @@ public class TsConfigCacheImpl implements TsConfigCache {
     return null;
   }
 
-  @Override
-  public List<String> tsconfigs(SensorContext context) {
+  public @Nullable List<String> listCachedTsConfigs() {
     if (initialized) {
       LOG.info("TsConfigCache is already initialized");
       return originalTsConfigFiles;
     }
-    return List.of();
+    return null;
   }
 
-  public void initializeWith(List<String> tsConfigPaths) {
-    if (tsConfigPaths.equals(originalTsConfigFiles)) {
+  public void initializeWith(List<String> tsConfigPaths, TsConfigProvider.CacheOrigin cacheOrigin) {
+    if (origin == cacheOrigin && tsConfigPaths.equals(originalTsConfigFiles)) {
       return;
     }
 
@@ -84,6 +90,7 @@ public class TsConfigCacheImpl implements TsConfigCache {
     processedTsConfigFiles.clear();
 
     initialized = true;
+    origin = cacheOrigin;
     LOG.info("TsConfigCache initialized");
   }
 
@@ -98,6 +105,7 @@ public class TsConfigCacheImpl implements TsConfigCache {
       inputFileToTsConfigFilesMap.clear();
       pendingTsConfigFiles.clear();
       processedTsConfigFiles.clear();
+      origin = null;
     }
   }
 }

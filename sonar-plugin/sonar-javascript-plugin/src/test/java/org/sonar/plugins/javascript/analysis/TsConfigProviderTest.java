@@ -23,11 +23,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.plugins.javascript.analysis.JsTsSensor.getTsConfigs;
 import static org.sonar.plugins.javascript.analysis.TsConfigProvider.TSCONFIG_PATHS;
 import static org.sonar.plugins.javascript.analysis.TsConfigProvider.TSCONFIG_PATHS_ALIAS;
 import static org.sonar.plugins.javascript.analysis.TsConfigProvider.TsConfigFileCreator;
 import static org.sonar.plugins.javascript.analysis.TsConfigProvider.WildcardTsConfigProvider;
+import static org.sonar.plugins.javascript.analysis.TsConfigProvider.getTsConfigs;
 
 import java.io.File;
 import java.io.IOException;

@@ -23,7 +23,6 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.nio.file.Files;
@@ -31,7 +30,6 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -40,7 +38,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
-import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.plugins.javascript.bridge.BridgeServerImpl;
 import org.sonar.plugins.javascript.bridge.TsConfigFile;
@@ -86,7 +83,7 @@ class TsConfigCacheTest {
       Files.createDirectory(tsConfigPath.getParent());
       Files.createFile(tsConfigPath);
     }
-    tsConfigCache.initializeWith(tsConfigFiles.stream().map(TsConfigFile::getFilename).toList());
+    tsConfigCache.initializeWith(tsConfigFiles.stream().map(TsConfigFile::getFilename).toList(), TsConfigProvider.CacheOrigin.LOOKUP);
 
     when(bridgeServerMock.loadTsConfig(any()))
       .thenAnswer(invocationOnMock -> {
@@ -119,7 +116,7 @@ class TsConfigCacheTest {
     var tsConfigInputFile = TestInputFileBuilder.create(baseDir.toString(), "tsconfig.json").build();
     var tsConfigFile = new TsConfigFile("tsconfig.json", singletonList(file1.absolutePath()), emptyList());
 
-    tsConfigCache.initializeWith(List.of(tsConfigFile.getFilename()));
+    tsConfigCache.initializeWith(List.of(tsConfigFile.getFilename()), TsConfigProvider.CacheOrigin.LOOKUP);
     when(bridgeServerMock.loadTsConfig(any())).thenReturn(tsConfigFile);
     var foundTsConfig = tsConfigCache.getTsConfigForInputFile(file1);
     assertThat(foundTsConfig.getFilename()).isEqualTo(tsConfigFile.getFilename());
@@ -135,7 +132,7 @@ class TsConfigCacheTest {
     var file1 = TestInputFileBuilder.create(baseDir.toString(), "file1.ts").build();
     var tsConfigFile = new TsConfigFile("tsconfig.json", singletonList(file1.absolutePath()), emptyList());
 
-    tsConfigCache.initializeWith(List.of(tsConfigFile.getFilename()));
+    tsConfigCache.initializeWith(List.of(tsConfigFile.getFilename()), TsConfigProvider.CacheOrigin.LOOKUP);
     when(bridgeServerMock.loadTsConfig(any())).thenReturn(tsConfigFile);
     var foundTsConfig = tsConfigCache.getTsConfigForInputFile(file1);
     assertThat(foundTsConfig.getFilename()).isEqualTo(tsConfigFile.getFilename());

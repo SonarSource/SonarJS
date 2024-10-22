@@ -44,6 +44,7 @@ import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.plugins.javascript.JavaScriptFilePredicate;
 import org.sonar.plugins.javascript.sonarlint.SonarLintTypeCheckingChecker;
 import org.sonarsource.analyzer.commons.FileProvider;
 
@@ -55,6 +56,7 @@ public class TsConfigProvider {
 
   interface Provider {
     List<String> tsconfigs(SensorContext context) throws IOException;
+    CacheOrigin type();
   }
 
   @FunctionalInterface
@@ -62,10 +64,41 @@ public class TsConfigProvider {
     String createTsConfigFile(String content) throws IOException;
   }
 
-  private final List<Provider> providers;
+  public enum CacheOrigin {
+    PROPERTY,
+    LOOKUP,
+    FALLBACK
+  }
 
-  public TsConfigProvider(List<Provider> providers) {
+  private final List<Provider> providers;
+  private final TsConfigCache cache;
+
+  TsConfigProvider(List<Provider> providers, @Nullable TsConfigCache cache) {
     this.providers = providers;
+    this.cache = cache;
+  }
+
+  /**
+   * Relying on (in order of priority)
+   * 1. Property sonar.typescript.tsconfigPath(s)
+   * 2. Looking up file system
+   * 3. Creating a tmp tsconfig.json listing all files
+   */
+  static List<String> getTsConfigs(
+    ContextUtils contextUtils,
+    @Nullable SonarLintTypeCheckingChecker javaScriptProjectChecker,
+    TsConfigProvider.TsConfigFileCreator tsConfigFileCreator,
+    @Nullable TsConfigCache tsConfigCache
+  ) throws IOException {
+    var defaultProvider = contextUtils.isSonarLint()
+      ? new TsConfigProvider.WildcardTsConfigProvider(javaScriptProjectChecker, tsConfigFileCreator)
+      : new TsConfigProvider.DefaultTsConfigProvider(tsConfigFileCreator, JavaScriptFilePredicate::getJsTsPredicate);
+
+    List<TsConfigProvider.Provider> providers = new ArrayList<>();
+    providers.add(new TsConfigProvider.PropertyTsConfigProvider());
+    providers.addAll(List.of(new TsConfigProvider.LookupTsConfigProvider(tsConfigCache), defaultProvider));
+    var provider = new TsConfigProvider(providers, tsConfigCache);
+    return provider.tsconfigs(contextUtils.context());
   }
 
   List<String> tsconfigs(SensorContext context) throws IOException {
@@ -75,6 +108,9 @@ public class TsConfigProvider {
       }
       List<String> tsconfigs = provider.tsconfigs(context);
       if (!tsconfigs.isEmpty()) {
+        if (cache != null) {
+          cache.initializeWith(tsconfigs, provider.type());
+        }
         return tsconfigs;
       }
     }
@@ -82,7 +118,6 @@ public class TsConfigProvider {
   }
 
   static class PropertyTsConfigProvider implements Provider {
-
     @Override
     public List<String> tsconfigs(SensorContext context) {
       if (
@@ -125,10 +160,13 @@ public class TsConfigProvider {
           tsconfigs.addAll(matchingTsconfigs.stream().map(File::getAbsolutePath).toList());
         }
       }
-
       LOG.info("Found {} TSConfig file(s): {}", tsconfigs.size(), tsconfigs);
 
       return tsconfigs;
+    }
+
+    public CacheOrigin type() {
+      return CacheOrigin.PROPERTY;
     }
 
     private static Path getFilePath(File baseDir, String path) {
@@ -146,40 +184,45 @@ public class TsConfigProvider {
   }
 
   static class LookupTsConfigProvider implements Provider {
+    private final TsConfigCache cache;
+    LookupTsConfigProvider(@Nullable TsConfigCache cache) {
+      this.cache = cache;
+    }
 
     @Override
     public List<String> tsconfigs(SensorContext context) {
-      return lookupTsConfigs(context);
-    }
-  }
-
-  public static List<String> lookupTsConfigs(SensorContext context) {
-    var fs = context.fileSystem();
-    var tsconfigs = new ArrayList<String>();
-    var dirs = new ArrayDeque<File>();
-    dirs.add(fs.baseDir());
-    while (!dirs.isEmpty()) {
-      var dir = dirs.removeFirst();
-      var files = dir.listFiles();
-      if (files == null) {
-        continue;
+      if (cache != null && cache.getOrigin() == CacheOrigin.LOOKUP) {
+        return cache.listCachedTsConfigs();
       }
-      for (var file : files) {
-        if (file.isDirectory() && !"node_modules".equals(file.getName())) {
-          dirs.add(file);
-        } else if ("tsconfig.json".equals(file.getName())) {
-          tsconfigs.add(file.getAbsolutePath());
+      var fs = context.fileSystem();
+      var tsconfigs = new ArrayList<String>();
+      var dirs = new ArrayDeque<File>();
+      dirs.add(fs.baseDir());
+      while (!dirs.isEmpty()) {
+        var dir = dirs.removeFirst();
+        var files = dir.listFiles();
+        if (files == null) {
+          continue;
+        }
+        for (var file : files) {
+          if (file.isDirectory() && !"node_modules".equals(file.getName())) {
+            dirs.add(file);
+          } else if ("tsconfig.json".equals(file.getName())) {
+            tsconfigs.add(file.getAbsolutePath());
+          }
         }
       }
+      LOG.info("Found {} tsconfig.json file(s): {}", tsconfigs.size(), tsconfigs);
+      return tsconfigs;
     }
-    LOG.info("Found {} tsconfig.json file(s): {}", tsconfigs.size(), tsconfigs);
-    return tsconfigs;
+
+    public CacheOrigin type() {
+      return CacheOrigin.LOOKUP;
+    }
   }
 
   abstract static class GeneratedTsConfigFileProvider implements Provider {
-
     static class TsConfig {
-
       List<String> files;
       Map<String, Object> compilerOptions = new LinkedHashMap<>();
       List<String> include;
@@ -193,6 +236,7 @@ public class TsConfigProvider {
         }
         this.include = include;
       }
+
 
       List<String> writeFileWith(TsConfigFileCreator tsConfigFileCreator) {
         try {
@@ -208,6 +252,10 @@ public class TsConfigProvider {
 
     GeneratedTsConfigFileProvider(SonarProduct product) {
       this.product = product;
+    }
+
+    public CacheOrigin type() {
+      return CacheOrigin.FALLBACK;
     }
 
     @Override
@@ -228,7 +276,6 @@ public class TsConfigProvider {
   }
 
   static class DefaultTsConfigProvider extends GeneratedTsConfigFileProvider {
-
     private final Function<FileSystem, FilePredicate> filePredicateProvider;
     private final TsConfigFileCreator tsConfigFileCreator;
 
@@ -259,7 +306,6 @@ public class TsConfigProvider {
   }
 
   static class WildcardTsConfigProvider extends GeneratedTsConfigFileProvider {
-
     private static String getProjectRoot(SensorContext context) {
       var projectBaseDir = context.fileSystem().baseDir().getAbsolutePath();
       return "/".equals(File.separator)
