@@ -21,7 +21,6 @@ package org.sonar.plugins.javascript.analysis;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +28,6 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonar.plugins.javascript.bridge.AnalysisWarningsWrapper;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
-import org.sonar.plugins.javascript.bridge.TsConfigFile;
 import org.sonar.plugins.javascript.utils.ProgressReport;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
@@ -54,27 +52,11 @@ public class AnalysisWithWatchProgram extends AbstractAnalysis {
   public void analyzeFiles(List<InputFile> inputFiles, List<String> tsConfigs) throws IOException {
     boolean success = false;
     progressReport = new ProgressReport(PROGRESS_REPORT_TITLE, PROGRESS_REPORT_PERIOD);
-    Map<TsConfigFile, List<InputFile>> filesByTsConfig = tsConfigCache.inputFilesByTsConfigPath(
-      tsConfigs,
-      inputFiles
-    );
     try {
       progressReport.start(inputFiles.size(), inputFiles.iterator().next().toString());
-      if (tsConfigs.isEmpty()) {
-        LOG.info("Analyzing {} files without tsconfig", inputFiles.size());
-        analyzeTsConfig(null, inputFiles);
-      } else {
-        for (Map.Entry<TsConfigFile, List<InputFile>> entry : filesByTsConfig.entrySet()) {
-          TsConfigFile tsConfigFile = entry.getKey();
-          List<InputFile> files = entry.getValue();
-          if (TsConfigCacheImpl.UNMATCHED_CONFIG.equals(tsConfigFile)) {
-            LOG.info("Analyzing {} files without tsconfig", files.size());
-            analyzeTsConfig(null, files);
-          } else {
-            LOG.info("Analyzing {} files using tsconfig: {}", files.size(), tsConfigFile);
-            analyzeTsConfig(tsConfigFile, files);
-          }
-        }
+      for (InputFile inputFile : inputFiles) {
+        var tsConfigFile = tsConfigCache.getTsConfigForInputFile(inputFile);
+        analyzeFile(inputFile, tsConfigFile == null ? List.of() : List.of(tsConfigFile.getFilename()), null);
       }
       success = true;
       if (analysisProcessor.parsingErrorFilesCount() > 0) {
@@ -91,14 +73,6 @@ public class AnalysisWithWatchProgram extends AbstractAnalysis {
       } else {
         progressReport.cancel();
       }
-    }
-  }
-
-  private void analyzeTsConfig(@Nullable TsConfigFile tsConfigFile, List<InputFile> files)
-    throws IOException {
-    List<String> tsConfigs = tsConfigFile == null ? List.of() : List.of(tsConfigFile.getFilename());
-    for (InputFile inputFile : files) {
-      analyzeFile(inputFile, tsConfigs, null);
     }
   }
 }

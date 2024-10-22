@@ -21,18 +21,22 @@ package org.sonar.plugins.javascript.analysis;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
-import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
+import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
+import org.sonar.plugins.javascript.bridge.BridgeServerImpl;
 import org.sonar.plugins.javascript.bridge.TsConfigFile;
 
 class TsConfigCacheTest {
@@ -40,8 +44,22 @@ class TsConfigCacheTest {
   @RegisterExtension
   public LogTesterJUnit5 logTester = new LogTesterJUnit5();
 
+  @Mock
+  private BridgeServerImpl bridgeServerMock;
+  private TsConfigCache tsConfigCache;
+
+  private SensorContextTester context;
+
+  public void setUp() throws Exception {
+    MockitoAnnotations.initMocks(this);
+    when(bridgeServerMock.isAlive()).thenReturn(true);
+    when(bridgeServerMock.getCommandInfo()).thenReturn("bridgeServerMock command info");
+    tsConfigCache = new TsConfigCacheImpl(bridgeServerMock);
+  }
   @Test
-  void test() {
+  void test() throws Exception {
+    setUp();
+
     List<String> files = Arrays.asList("dir1/file1.ts", "dir2/file2.ts", "dir3/file3.ts");
     List<InputFile> inputFiles = files
       .stream()
@@ -54,28 +72,22 @@ class TsConfigCacheTest {
       new TsConfigFile("dir3/tsconfig.json", singletonList("foo/dir3/file3.ts"), emptyList())
     );
 
-    Map<TsConfigFile, List<InputFile>> result = TsConfigCacheImpl.inputFilesByTsConfig(
-      tsConfigFiles,
-      inputFiles
-    );
-    assertThat(result)
-      .containsExactly(
-        entry(tsConfigFiles.get(0), singletonList(inputFiles.get(0))),
-        entry(tsConfigFiles.get(1), singletonList(inputFiles.get(1))),
-        entry(tsConfigFiles.get(2), singletonList(inputFiles.get(2)))
-      );
+    when(bridgeServerMock.loadTsConfig(any()))
+      .thenAnswer(invocationOnMock -> {
+        String tsConfigPath = (String) invocationOnMock.getArguments()[0];
+        return tsConfigFiles.stream().filter(tsConfigFile -> tsConfigFile.getFilename() == tsConfigPath);
+      });
+
+    for (var i = 0; i < files.size(); i++) {
+      var tsConfigFile = tsConfigCache.getTsConfigForInputFile(inputFiles.get(i));
+      assertThat(tsConfigFile).isEqualTo(tsConfigFiles.get(i));
+    }
   }
 
   @Test
-  void failsToLoad() {
-    List<TsConfigFile> tsConfigFiles = singletonList(
-      new TsConfigFile("tsconfig/path", emptyList(), emptyList())
-    );
-    Map<TsConfigFile, List<InputFile>> result = TsConfigCacheImpl.inputFilesByTsConfig(
-      tsConfigFiles,
-      emptyList()
-    );
-    assertThat(result).isEmpty();
+  void failsToLoad() throws Exception {
+    setUp();
+    assertThat(tsConfigCache.getTsConfigForInputFile(TestInputFileBuilder.create("foo", "file1.ts").build())).isNull();
   }
 
   @Test

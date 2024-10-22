@@ -35,6 +35,7 @@ public class TsConfigFile implements Predicate<InputFile> {
   private static final Logger LOG = LoggerFactory.getLogger(TsConfigFile.class);
 
   final String filename;
+
   final Set<String> files;
   final List<String> projectReferences;
 
@@ -44,7 +45,7 @@ public class TsConfigFile implements Predicate<InputFile> {
     this.projectReferences = projectReferences;
   }
 
-  static String normalizePath(String path) {
+  public static String normalizePath(String path) {
     try {
       return Path
         .of(path)
@@ -63,6 +64,10 @@ public class TsConfigFile implements Predicate<InputFile> {
 
   public String getFilename() {
     return filename;
+  }
+
+  public Set<String> getFiles() {
+    return files;
   }
 
   @Override
