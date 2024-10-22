@@ -20,7 +20,6 @@ container_definition: &CONTAINER_DEFINITION
   builder_role: cirrus-builder
   builder_image: docker-builder-v*
   builder_instance_type: t3.small
-  builder_subnet_id: ${CIRRUS_AWS_SUBNET}
   region: eu-central-1
   namespace: default
   use_in_memory_disk: true
@@ -57,7 +56,6 @@ win_vm_definition: &WINDOWS_VM_DEFINITION
     platform: windows
     region: eu-central-1
     type: c6id.4xlarge
-    subnet_id: ${CIRRUS_AWS_SUBNET}
     preemptible: false
     use_ssd: true
 
