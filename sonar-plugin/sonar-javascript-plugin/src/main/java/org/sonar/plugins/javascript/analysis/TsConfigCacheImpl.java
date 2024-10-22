@@ -37,6 +37,10 @@ public class TsConfigCacheImpl implements TsConfigCache, ModuleFileListener, TsC
   }
 
   public TsConfigFile getTsConfigForInputFile(InputFile inputFile) {
+    if (!initialized) {
+      LOG.error("TsConfigCache not yet initialized. Cannot load tsconfig.");
+      return null;
+    }
     var inputFilePath = TsConfigFile.normalizePath(inputFile.absolutePath());
     if (inputFileTotsConfigFilesMap.containsKey(inputFilePath)) {
       return inputFileTotsConfigFilesMap.get(inputFilePath);

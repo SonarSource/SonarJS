@@ -25,11 +25,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.sonar.api.batch.fs.InputFile;
@@ -48,7 +51,8 @@ class TsConfigCacheTest {
   private BridgeServerImpl bridgeServerMock;
   private TsConfigCache tsConfigCache;
 
-  private SensorContextTester context;
+  @TempDir
+  Path baseDir;
 
   public void setUp() throws Exception {
     MockitoAnnotations.initMocks(this);
@@ -72,10 +76,18 @@ class TsConfigCacheTest {
       new TsConfigFile("dir3/tsconfig.json", singletonList("foo/dir3/file3.ts"), emptyList())
     );
 
+    for (var tsConfigFile : tsConfigFiles) {
+      Path tsConfigPath = baseDir.resolve(tsConfigFile.getFilename());
+      Files.createDirectory(tsConfigPath.getParent());
+      Files.createFile(tsConfigPath);
+    }
+    SensorContextTester context = SensorContextTester.create(baseDir);
+    tsConfigCache.tsconfigs(context);
+
     when(bridgeServerMock.loadTsConfig(any()))
       .thenAnswer(invocationOnMock -> {
         String tsConfigPath = (String) invocationOnMock.getArguments()[0];
-        return tsConfigFiles.stream().filter(tsConfigFile -> tsConfigFile.getFilename() == tsConfigPath);
+        return tsConfigFiles.stream().filter(tsConfigFile -> tsConfigPath.endsWith(tsConfigFile.getFilename())).findFirst().get();
       });
 
     for (var i = 0; i < files.size(); i++) {
