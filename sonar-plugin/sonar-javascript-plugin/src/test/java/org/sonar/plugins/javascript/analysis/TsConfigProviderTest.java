@@ -23,11 +23,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.plugins.javascript.analysis.JsTsSensor.getTsConfigs;
 import static org.sonar.plugins.javascript.analysis.TsConfigProvider.TSCONFIG_PATHS;
 import static org.sonar.plugins.javascript.analysis.TsConfigProvider.TSCONFIG_PATHS_ALIAS;
 import static org.sonar.plugins.javascript.analysis.TsConfigProvider.TsConfigFileCreator;
 import static org.sonar.plugins.javascript.analysis.TsConfigProvider.WildcardTsConfigProvider;
-import static org.sonar.plugins.javascript.analysis.TsConfigProvider.getTsConfigs;
 
 import java.io.File;
 import java.io.IOException;
@@ -89,7 +89,8 @@ class TsConfigProviderTest {
     List<String> tsconfigs = getTsConfigs(
       new ContextUtils(ctx),
       null,
-      this::tsConfigFileCreator
+      this::tsConfigFileCreator,
+      null
     );
     assertThat(tsconfigs)
       .containsExactlyInAnyOrder(
@@ -117,7 +118,8 @@ class TsConfigProviderTest {
     List<String> tsconfigs = getTsConfigs(
       new ContextUtils(ctx),
       null,
-      this::tsConfigFileCreator
+      this::tsConfigFileCreator,
+      null
     );
     String absolutePath = baseDir.resolve("custom.tsconfig.json").toAbsolutePath().toString();
     assertThat(tsconfigs).containsExactly(absolutePath);
@@ -140,7 +142,8 @@ class TsConfigProviderTest {
     List<String> tsconfigs = getTsConfigs(
       new ContextUtils(ctx),
       null,
-      this::tsConfigFileCreator
+      this::tsConfigFileCreator,
+      null
     );
     assertThat(tsconfigs).containsExactly(absolutePath);
   }
@@ -165,7 +168,8 @@ class TsConfigProviderTest {
     List<String> tsconfigs = getTsConfigs(
       new ContextUtils(ctx),
       null,
-      this::tsConfigFileCreator
+      this::tsConfigFileCreator,
+      null
     );
     assertThat(tsconfigs)
       .containsExactlyInAnyOrder(
@@ -202,7 +206,8 @@ class TsConfigProviderTest {
     List<String> tsconfigs = getTsConfigs(
       new ContextUtils(ctx),
       null,
-      this::tsConfigFileCreator
+      this::tsConfigFileCreator,
+      null
     );
     assertThat(tsconfigs)
       .containsExactlyInAnyOrder(
@@ -224,7 +229,8 @@ class TsConfigProviderTest {
     List<String> tsconfigs = getTsConfigs(
       new ContextUtils(ctx),
       null,
-      this::tsConfigFileCreator
+      this::tsConfigFileCreator,
+      null
     );
     assertThat(tsconfigs).contains(baseDir.resolve("tsconfig.json").toAbsolutePath().toString());
     assertThat(logger.logs(LoggerLevel.INFO))
@@ -243,7 +249,8 @@ class TsConfigProviderTest {
     List<String> tsconfigs = getTsConfigs(
       new ContextUtils(ctx),
       null,
-      this::tsConfigFileCreator
+      this::tsConfigFileCreator,
+      null
     );
     assertThat(tsconfigs).hasSize(1);
     String tsconfig = new String(

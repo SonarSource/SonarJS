@@ -44,7 +44,6 @@ import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
-import org.sonar.plugins.javascript.JavaScriptFilePredicate;
 import org.sonar.plugins.javascript.sonarlint.SonarLintTypeCheckingChecker;
 import org.sonarsource.analyzer.commons.FileProvider;
 
@@ -65,45 +64,8 @@ public class TsConfigProvider {
 
   private final List<Provider> providers;
 
-  private TsConfigProvider(List<Provider> providers) {
+  public TsConfigProvider(List<Provider> providers) {
     this.providers = providers;
-  }
-
-  static List<String> getTsConfigs(
-    ContextUtils contextUtils,
-    @Nullable SonarLintTypeCheckingChecker javaScriptProjectChecker,
-    TsConfigFileCreator tsConfigFileCreator) throws IOException {
-    return getTsConfigs(contextUtils, javaScriptProjectChecker, tsConfigFileCreator, null);
-  }
-
-  /**
-   * Relying on (in order of priority)
-   * 1. Property sonar.typescript.tsconfigPath(s)
-   * 2. Looking up file system
-   * 3. Creating a tmp tsconfig.json listing all files
-   */
-  static List<String> getTsConfigs(
-    ContextUtils contextUtils,
-    @Nullable SonarLintTypeCheckingChecker javaScriptProjectChecker,
-    TsConfigFileCreator tsConfigFileCreator,
-    @Nullable TsConfigCache tsConfigCache
-  ) throws IOException {
-    var defaultProvider = contextUtils.isSonarLint()
-      ? new TsConfigProvider.WildcardTsConfigProvider(javaScriptProjectChecker, tsConfigFileCreator)
-      : new DefaultTsConfigProvider(tsConfigFileCreator, JavaScriptFilePredicate::getJsTsPredicate);
-
-    List<Provider> providers = new ArrayList<>();
-    providers.add(new PropertyTsConfigProvider());
-    if (tsConfigCache != null) {
-      providers.add(tsConfigCache);
-    }
-    providers.addAll(List.of(new LookupTsConfigProvider(), defaultProvider));
-    var provider = new TsConfigProvider(providers);
-    var result = provider.tsconfigs(contextUtils.context());
-    if (tsConfigCache != null) {
-      tsConfigCache.initializeWith(result);
-    }
-    return result;
   }
 
   List<String> tsconfigs(SensorContext context) throws IOException {
@@ -164,7 +126,7 @@ public class TsConfigProvider {
         }
       }
 
-      LOG.info("Found " + tsconfigs.size() + " TSConfig file(s): " + tsconfigs);
+      LOG.info("Found {} TSConfig file(s): {}", tsconfigs.size(), tsconfigs);
 
       return tsconfigs;
     }

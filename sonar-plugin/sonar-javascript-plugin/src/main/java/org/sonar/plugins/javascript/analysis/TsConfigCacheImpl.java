@@ -13,19 +13,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
-import org.sonar.api.internal.apachecommons.logging.Log;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
 import org.sonar.plugins.javascript.bridge.TsConfigFile;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 import org.sonarsource.sonarlint.plugin.api.module.file.ModuleFileEvent;
-import org.sonarsource.sonarlint.plugin.api.module.file.ModuleFileListener;
 
 @ScannerSide
 @SonarLintSide(lifespan = SonarLintSide.MODULE)
-public class TsConfigCacheImpl implements TsConfigCache, ModuleFileListener, TsConfigProvider.Provider {
+public class TsConfigCacheImpl implements TsConfigCache {
   private static final Logger LOG = LoggerFactory.getLogger(TsConfigCacheImpl.class);
-  Map<String, TsConfigFile> inputFileTotsConfigFilesMap = new HashMap<>();
+  Map<String, TsConfigFile> inputFileToTsConfigFilesMap = new HashMap<>();
   Set<String> processedTsConfigFiles = new HashSet<>();
   List<String> originalTsConfigFiles = new ArrayList<>();
   Deque<String> pendingTsConfigFiles = new ArrayDeque<>();
@@ -38,13 +36,13 @@ public class TsConfigCacheImpl implements TsConfigCache, ModuleFileListener, TsC
   }
 
   public TsConfigFile getTsConfigForInputFile(InputFile inputFile) {
+    var inputFilePath = TsConfigFile.normalizePath(inputFile.absolutePath());
     if (!initialized) {
-      LOG.error("TsConfigCacheImpl is not initialized for file {}", inputFile.filename());
+      LOG.error("TsConfigCacheImpl is not initialized for file {}", inputFilePath);
       return null;
     }
-    var inputFilePath = TsConfigFile.normalizePath(inputFile.absolutePath());
-    if (inputFileTotsConfigFilesMap.containsKey(inputFilePath)) {
-      return inputFileTotsConfigFilesMap.get(inputFilePath);
+    if (inputFileToTsConfigFilesMap.containsKey(inputFilePath)) {
+      return inputFileToTsConfigFilesMap.get(inputFilePath);
     }
 
     while (!pendingTsConfigFiles.isEmpty()) {
@@ -52,16 +50,16 @@ public class TsConfigCacheImpl implements TsConfigCache, ModuleFileListener, TsC
       processedTsConfigFiles.add(tsConfigPath);
       LOG.info("Computing tsconfig {} from bridge", tsConfigPath);
       TsConfigFile tsConfigFile = bridgeServer.loadTsConfig(tsConfigPath);
-      tsConfigFile.getFiles().forEach(file -> inputFileTotsConfigFilesMap.putIfAbsent(TsConfigFile.normalizePath(file), tsConfigFile));
+      tsConfigFile.getFiles().forEach(file -> inputFileToTsConfigFilesMap.putIfAbsent(TsConfigFile.normalizePath(file), tsConfigFile));
       if (!tsConfigFile.getProjectReferences().isEmpty()) {
         LOG.info("Adding referenced project's tsconfigs {}", tsConfigFile.getProjectReferences());
         pendingTsConfigFiles.addAll(tsConfigFile.getProjectReferences().stream().filter(refPath -> !processedTsConfigFiles.contains(refPath)).toList());
       }
-      if (inputFileTotsConfigFilesMap.containsKey(inputFilePath)) {
-        return inputFileTotsConfigFilesMap.get(inputFilePath);
+      if (inputFileToTsConfigFilesMap.containsKey(inputFilePath)) {
+        return inputFileToTsConfigFilesMap.get(inputFilePath);
       }
     }
-    inputFileTotsConfigFilesMap.put(inputFilePath, null);
+    inputFileToTsConfigFilesMap.put(inputFilePath, null);
     return null;
   }
 
@@ -80,7 +78,7 @@ public class TsConfigCacheImpl implements TsConfigCache, ModuleFileListener, TsC
     }
 
     LOG.info("Resetting the TsConfigCache");
-    inputFileTotsConfigFilesMap.clear();
+    inputFileToTsConfigFilesMap.clear();
     originalTsConfigFiles = tsConfigPaths;
     pendingTsConfigFiles = new ArrayDeque<>(originalTsConfigFiles);
     processedTsConfigFiles.clear();
@@ -92,12 +90,13 @@ public class TsConfigCacheImpl implements TsConfigCache, ModuleFileListener, TsC
   @Override
   public void process(ModuleFileEvent moduleFileEvent) {
     var filename = moduleFileEvent.getTarget().absolutePath();
+    // Look for any event on files named *tsconfig*.json
+    // Filenames other than tsconfig.json can be discovered through references
     if (filename.endsWith("json") && filename.contains("tsconfig")) {
       LOG.info("Clearing tsconfig cache");
       initialized = false;
-      inputFileTotsConfigFilesMap.clear();
+      inputFileToTsConfigFilesMap.clear();
       pendingTsConfigFiles.clear();
-      originalTsConfigFiles.clear();
       processedTsConfigFiles.clear();
     }
   }

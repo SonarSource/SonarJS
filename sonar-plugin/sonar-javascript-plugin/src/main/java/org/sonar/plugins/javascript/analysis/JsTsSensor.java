@@ -20,6 +20,7 @@
 package org.sonar.plugins.javascript.analysis;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.StreamSupport;
 import javax.annotation.Nullable;
@@ -112,7 +113,7 @@ public class JsTsSensor extends AbstractBridgeSensor {
     );
 
     SonarLintTypeCheckingChecker.checkOnce(javaScriptProjectChecker, context);
-    var tsConfigs = TsConfigProvider.getTsConfigs(
+    var tsConfigs = getTsConfigs(
       contextUtils,
       javaScriptProjectChecker,
       this::createTsConfigFile,
@@ -134,5 +135,35 @@ public class JsTsSensor extends AbstractBridgeSensor {
 
   private String createTsConfigFile(String content) throws IOException {
     return bridgeServer.createTsConfigFile(content).getFilename();
+  }
+
+  /**
+   * Relying on (in order of priority)
+   * 1. Property sonar.typescript.tsconfigPath(s)
+   * 2. Looking up file system
+   * 3. Creating a tmp tsconfig.json listing all files
+   */
+  static List<String> getTsConfigs(
+    ContextUtils contextUtils,
+    @Nullable SonarLintTypeCheckingChecker javaScriptProjectChecker,
+    TsConfigProvider.TsConfigFileCreator tsConfigFileCreator,
+    @Nullable TsConfigCache tsConfigCache
+  ) throws IOException {
+    var defaultProvider = contextUtils.isSonarLint()
+      ? new TsConfigProvider.WildcardTsConfigProvider(javaScriptProjectChecker, tsConfigFileCreator)
+      : new TsConfigProvider.DefaultTsConfigProvider(tsConfigFileCreator, JavaScriptFilePredicate::getJsTsPredicate);
+
+    List<TsConfigProvider.Provider> providers = new ArrayList<>();
+    providers.add(new TsConfigProvider.PropertyTsConfigProvider());
+    if (tsConfigCache != null) {
+      providers.add(tsConfigCache);
+    }
+    providers.addAll(List.of(new TsConfigProvider.LookupTsConfigProvider(), defaultProvider));
+    var provider = new TsConfigProvider(providers);
+    var result = provider.tsconfigs(contextUtils.context());
+    if (tsConfigCache != null) {
+      tsConfigCache.initializeWith(result);
+    }
+    return result;
   }
 }

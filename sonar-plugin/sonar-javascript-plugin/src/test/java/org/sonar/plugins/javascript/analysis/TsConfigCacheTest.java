@@ -23,6 +23,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.nio.file.Files;
@@ -30,6 +31,8 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
@@ -37,9 +40,12 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
+import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.plugins.javascript.bridge.BridgeServerImpl;
 import org.sonar.plugins.javascript.bridge.TsConfigFile;
+import org.sonarsource.sonarlint.core.analysis.container.module.DefaultModuleFileEvent;
+import org.sonarsource.sonarlint.plugin.api.module.file.ModuleFileEvent;
 
 class TsConfigCacheTest {
 
@@ -53,16 +59,16 @@ class TsConfigCacheTest {
   @TempDir
   Path baseDir;
 
+  @BeforeEach
   public void setUp() throws Exception {
     MockitoAnnotations.initMocks(this);
     when(bridgeServerMock.isAlive()).thenReturn(true);
     when(bridgeServerMock.getCommandInfo()).thenReturn("bridgeServerMock command info");
     tsConfigCache = new TsConfigCacheImpl(bridgeServerMock);
   }
+
   @Test
   void test() throws Exception {
-    setUp();
-
     List<String> files = Arrays.asList("dir1/file1.ts", "dir2/file2.ts", "dir3/file3.ts");
     List<InputFile> inputFiles = files
       .stream()
@@ -96,7 +102,6 @@ class TsConfigCacheTest {
 
   @Test
   void failsToLoad() throws Exception {
-    setUp();
     assertThat(tsConfigCache.getTsConfigForInputFile(TestInputFileBuilder.create("foo", "file1.ts").build())).isNull();
   }
 
@@ -106,5 +111,38 @@ class TsConfigCacheTest {
     assertThat(file.getFilename()).isEqualTo("dir1/tsconfig.json");
     assertThat(file.getProjectReferences()).isEmpty();
     assertThat(file).hasToString("dir1/tsconfig.json");
+  }
+
+  @Test
+  void testClearCacheOnTsConfigChange() throws Exception {
+    var file1 = TestInputFileBuilder.create(baseDir.toString(), "file1.ts").build();
+    var tsConfigInputFile = TestInputFileBuilder.create(baseDir.toString(), "tsconfig.json").build();
+    var tsConfigFile = new TsConfigFile("tsconfig.json", singletonList(file1.absolutePath()), emptyList());
+
+    tsConfigCache.initializeWith(List.of(tsConfigFile.getFilename()));
+    when(bridgeServerMock.loadTsConfig(any())).thenReturn(tsConfigFile);
+    var foundTsConfig = tsConfigCache.getTsConfigForInputFile(file1);
+    assertThat(foundTsConfig.getFilename()).isEqualTo(tsConfigFile.getFilename());
+
+    var fileEvent = DefaultModuleFileEvent.of(tsConfigInputFile, ModuleFileEvent.Type.MODIFIED);
+    tsConfigCache.process(fileEvent);
+    var newTsConfig = tsConfigCache.getTsConfigForInputFile(file1);
+    assertThat(newTsConfig).isNull();
+  }
+
+  @Test
+  void testDoesNotClearCacheOnIrrelevantFile() throws Exception {
+    var file1 = TestInputFileBuilder.create(baseDir.toString(), "file1.ts").build();
+    var tsConfigFile = new TsConfigFile("tsconfig.json", singletonList(file1.absolutePath()), emptyList());
+
+    tsConfigCache.initializeWith(List.of(tsConfigFile.getFilename()));
+    when(bridgeServerMock.loadTsConfig(any())).thenReturn(tsConfigFile);
+    var foundTsConfig = tsConfigCache.getTsConfigForInputFile(file1);
+    assertThat(foundTsConfig.getFilename()).isEqualTo(tsConfigFile.getFilename());
+
+    var fileEvent = DefaultModuleFileEvent.of(file1, ModuleFileEvent.Type.MODIFIED);
+    tsConfigCache.process(fileEvent);
+    var newTsConfig = tsConfigCache.getTsConfigForInputFile(file1);
+    assertThat(newTsConfig.getFilename()).isEqualTo(tsConfigFile.getFilename());
   }
 }
