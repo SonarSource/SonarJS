@@ -37,7 +37,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
-import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.plugins.javascript.bridge.BridgeServerImpl;
 import org.sonar.plugins.javascript.bridge.TsConfigFile;
@@ -81,8 +80,7 @@ class TsConfigCacheTest {
       Files.createDirectory(tsConfigPath.getParent());
       Files.createFile(tsConfigPath);
     }
-    SensorContextTester context = SensorContextTester.create(baseDir);
-    tsConfigCache.tsconfigs(context);
+    tsConfigCache.initializeWith(tsConfigFiles.stream().map(TsConfigFile::getFilename).toList());
 
     when(bridgeServerMock.loadTsConfig(any()))
       .thenAnswer(invocationOnMock -> {

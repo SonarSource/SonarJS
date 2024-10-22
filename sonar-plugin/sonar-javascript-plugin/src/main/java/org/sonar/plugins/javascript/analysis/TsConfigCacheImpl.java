@@ -83,6 +83,7 @@ public class TsConfigCacheImpl implements TsConfigCache, ModuleFileListener, TsC
     inputFileTotsConfigFilesMap.clear();
     originalTsConfigFiles = tsConfigPaths;
     pendingTsConfigFiles = new ArrayDeque<>(originalTsConfigFiles);
+    processedTsConfigFiles.clear();
 
     initialized = true;
     LOG.info("TsConfigCache initialized");
@@ -97,6 +98,7 @@ public class TsConfigCacheImpl implements TsConfigCache, ModuleFileListener, TsC
       inputFileTotsConfigFilesMap.clear();
       pendingTsConfigFiles.clear();
       originalTsConfigFiles.clear();
+      processedTsConfigFiles.clear();
     }
   }
 }
