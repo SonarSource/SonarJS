@@ -91,16 +91,26 @@ public class TsConfigProvider {
     var defaultProvider = contextUtils.isSonarLint()
       ? new TsConfigProvider.WildcardTsConfigProvider(javaScriptProjectChecker, tsConfigFileCreator)
       : new DefaultTsConfigProvider(tsConfigFileCreator, JavaScriptFilePredicate::getJsTsPredicate);
-    var lookupProvider = tsConfigCache == null ? new LookupTsConfigProvider() : tsConfigCache;
 
-    var provider = new TsConfigProvider(
-      List.of(new PropertyTsConfigProvider(), lookupProvider, defaultProvider)
-    );
-    return provider.tsconfigs(contextUtils.context());
+    List<Provider> providers = new ArrayList<>();
+    providers.add(new PropertyTsConfigProvider());
+    if (tsConfigCache != null) {
+      providers.add(tsConfigCache);
+    }
+    providers.addAll(List.of(new LookupTsConfigProvider(), defaultProvider));
+    var provider = new TsConfigProvider(providers);
+    var result = provider.tsconfigs(contextUtils.context());
+    if (tsConfigCache != null) {
+      tsConfigCache.initializeWith(result);
+    }
+    return result;
   }
 
   List<String> tsconfigs(SensorContext context) throws IOException {
     for (Provider provider : providers) {
+      if (provider == null) {
+        continue;
+      }
       List<String> tsconfigs = provider.tsconfigs(context);
       if (!tsconfigs.isEmpty()) {
         return tsconfigs;

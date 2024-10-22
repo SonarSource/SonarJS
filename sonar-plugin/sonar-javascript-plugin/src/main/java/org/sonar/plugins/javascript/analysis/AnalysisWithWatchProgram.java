@@ -22,8 +22,6 @@ package org.sonar.plugins.javascript.analysis;
 import java.io.IOException;
 import java.util.List;
 import javax.annotation.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonar.plugins.javascript.bridge.AnalysisWarningsWrapper;
@@ -35,7 +33,6 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
 @SonarLintSide
 public class AnalysisWithWatchProgram extends AbstractAnalysis {
 
-  private static final Logger LOG = LoggerFactory.getLogger(AnalysisWithWatchProgram.class);
   TsConfigCache tsConfigCache;
 
   public AnalysisWithWatchProgram(
@@ -56,6 +53,7 @@ public class AnalysisWithWatchProgram extends AbstractAnalysis {
       progressReport.start(inputFiles.size(), inputFiles.iterator().next().toString());
       for (InputFile inputFile : inputFiles) {
         var tsConfigFile = tsConfigCache.getTsConfigForInputFile(inputFile);
+        // process
         analyzeFile(inputFile, tsConfigFile == null ? List.of() : List.of(tsConfigFile.getFilename()), null);
       }
       success = true;

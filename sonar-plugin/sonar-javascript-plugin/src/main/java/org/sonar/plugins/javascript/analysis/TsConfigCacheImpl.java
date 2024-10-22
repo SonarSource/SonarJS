@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.internal.apachecommons.logging.Log;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
 import org.sonar.plugins.javascript.bridge.TsConfigFile;
@@ -38,7 +39,7 @@ public class TsConfigCacheImpl implements TsConfigCache, ModuleFileListener, TsC
 
   public TsConfigFile getTsConfigForInputFile(InputFile inputFile) {
     if (!initialized) {
-      LOG.error("TsConfigCache not yet initialized. Cannot load tsconfig.");
+      LOG.error("TsConfigCacheImpl is not initialized for file {}", inputFile.filename());
       return null;
     }
     var inputFilePath = TsConfigFile.normalizePath(inputFile.absolutePath());
@@ -70,13 +71,21 @@ public class TsConfigCacheImpl implements TsConfigCache, ModuleFileListener, TsC
       LOG.info("TsConfigCache is already initialized");
       return originalTsConfigFiles;
     }
+    return List.of();
+  }
 
-    originalTsConfigFiles = TsConfigProvider.lookupTsConfigs(context);
+  public void initializeWith(List<String> tsConfigPaths) {
+    if (tsConfigPaths.equals(originalTsConfigFiles)) {
+      return;
+    }
+
+    LOG.info("Resetting the TsConfigCache");
+    inputFileTotsConfigFilesMap.clear();
+    originalTsConfigFiles = tsConfigPaths;
     pendingTsConfigFiles = new ArrayDeque<>(originalTsConfigFiles);
 
     initialized = true;
     LOG.info("TsConfigCache initialized");
-    return originalTsConfigFiles;
   }
 
   @Override

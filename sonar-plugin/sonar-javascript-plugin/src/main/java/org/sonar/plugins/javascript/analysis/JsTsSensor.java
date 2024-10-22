@@ -62,8 +62,7 @@ public class JsTsSensor extends AbstractBridgeSensor {
       null,
       analysisWithProgram,
       analysisWithWatchProgram,
-      consumers,
-      null
+      consumers
     );
   }
 
@@ -73,8 +72,7 @@ public class JsTsSensor extends AbstractBridgeSensor {
     @Nullable SonarLintTypeCheckingChecker javaScriptProjectChecker,
     AnalysisWithProgram analysisWithProgram,
     AnalysisWithWatchProgram analysisWithWatchProgram,
-    AnalysisConsumers consumers,
-    @Nullable TsConfigCache tsConfigCache
+    AnalysisConsumers consumers
   ) {
     super(bridgeServer, "JS/TS");
     this.analysisWithProgram = analysisWithProgram;
@@ -82,7 +80,7 @@ public class JsTsSensor extends AbstractBridgeSensor {
     this.checks = checks;
     this.javaScriptProjectChecker = javaScriptProjectChecker;
     this.consumers = consumers;
-    this.tsConfigCache = tsConfigCache;
+    this.tsConfigCache = analysisWithWatchProgram.tsConfigCache;
   }
 
   @Override

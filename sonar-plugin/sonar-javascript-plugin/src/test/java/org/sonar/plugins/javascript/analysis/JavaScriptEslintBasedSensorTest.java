@@ -798,8 +798,7 @@ class JavaScriptEslintBasedSensorTest {
       sonarlintTypeCheckingChecker,
       analysisWithProgram,
       analysisWithWatchProgram,
-      new AnalysisConsumers(),
-      null
+      new AnalysisConsumers()
     );
   }
 
