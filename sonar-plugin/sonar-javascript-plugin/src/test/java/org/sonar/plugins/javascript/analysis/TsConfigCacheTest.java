@@ -51,7 +51,7 @@ class TsConfigCacheTest {
 
   @Mock
   private BridgeServerImpl bridgeServerMock;
-  private TsConfigCache tsConfigCache;
+  private TsConfigCacheImpl tsConfigCache;
 
   @TempDir
   Path baseDir;

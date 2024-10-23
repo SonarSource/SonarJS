@@ -113,7 +113,9 @@ public class TsConfigProvider {
         cache.initializeWith(tsconfigs, provider.type());
       }
       if (!tsconfigs.isEmpty()) {
-        cache.setOrigin(provider.type());
+        if (cache != null) {
+          cache.setOrigin(provider.type());
+        }
         return tsconfigs;
       }
     }
