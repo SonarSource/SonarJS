@@ -23,15 +23,15 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -41,7 +41,9 @@ import org.mockito.MockitoAnnotations;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
+import org.sonar.api.impl.utils.DefaultTempFolder;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
+import org.sonar.api.utils.TempFolder;
 import org.sonar.plugins.javascript.bridge.BridgeServerImpl;
 import org.sonar.plugins.javascript.bridge.TsConfigFile;
 import org.sonarsource.sonarlint.core.analysis.container.module.DefaultModuleFileEvent;
@@ -54,10 +56,15 @@ class TsConfigCacheTest {
 
   @Mock
   private BridgeServerImpl bridgeServerMock;
-  private TsConfigCache tsConfigCache;
+  private TsConfigCacheImpl tsConfigCache;
 
   @TempDir
   Path baseDir;
+
+  @TempDir
+  File tempDir;
+
+  TempFolder tempFolder;
 
   @BeforeEach
   public void setUp() throws Exception {
@@ -65,20 +72,23 @@ class TsConfigCacheTest {
     when(bridgeServerMock.isAlive()).thenReturn(true);
     when(bridgeServerMock.getCommandInfo()).thenReturn("bridgeServerMock command info");
     tsConfigCache = new TsConfigCacheImpl(bridgeServerMock);
+    tempFolder = new DefaultTempFolder(tempDir, true);
   }
 
   @Test
   void test() throws Exception {
     List<String> files = Arrays.asList("dir1/file1.ts", "dir2/file2.ts", "dir3/file3.ts");
+
+
     List<InputFile> inputFiles = files
       .stream()
-      .map(f -> TestInputFileBuilder.create("foo", f).build())
+      .map(f -> TestInputFileBuilder.create("moduleKey", baseDir.toFile(), baseDir.resolve(f).toFile()).build())
       .collect(Collectors.toList());
 
     List<TsConfigFile> tsConfigFiles = Arrays.asList(
-      new TsConfigFile("dir1/tsconfig.json", singletonList("foo/dir1/file1.ts"), emptyList()),
-      new TsConfigFile("dir2/tsconfig.json", singletonList("foo/dir2/file2.ts"), emptyList()),
-      new TsConfigFile("dir3/tsconfig.json", singletonList("foo/dir3/file3.ts"), emptyList())
+      new TsConfigFile(absolutePath(baseDir, "dir1/tsconfig.json"), singletonList(inputFiles.get(0).absolutePath()), emptyList()),
+      new TsConfigFile(absolutePath(baseDir, "dir2/tsconfig.json"), singletonList(inputFiles.get(1).absolutePath()), emptyList()),
+      new TsConfigFile(absolutePath(baseDir, "dir3/tsconfig.json"), singletonList(inputFiles.get(2).absolutePath()), emptyList())
     );
 
     for (var tsConfigFile : tsConfigFiles) {
@@ -86,7 +96,8 @@ class TsConfigCacheTest {
       Files.createDirectory(tsConfigPath.getParent());
       Files.createFile(tsConfigPath);
     }
-    tsConfigCache.initializeWith(tsConfigFiles.stream().map(TsConfigFile::getFilename).toList());
+    SensorContextTester ctx = SensorContextTester.create(baseDir);
+    TsConfigProvider.getTsConfigs(new ContextUtils(ctx), null, this::tsConfigFileCreator, tsConfigCache);
 
     when(bridgeServerMock.loadTsConfig(any()))
       .thenAnswer(invocationOnMock -> {
@@ -118,8 +129,12 @@ class TsConfigCacheTest {
     var file1 = TestInputFileBuilder.create(baseDir.toString(), "file1.ts").build();
     var tsConfigInputFile = TestInputFileBuilder.create(baseDir.toString(), "tsconfig.json").build();
     var tsConfigFile = new TsConfigFile("tsconfig.json", singletonList(file1.absolutePath()), emptyList());
+    Path tsconfig1 = baseDir.resolve("tsconfig.json");
+    Files.createFile(tsconfig1);
 
-    tsConfigCache.initializeWith(List.of(tsConfigFile.getFilename()));
+    SensorContextTester ctx = SensorContextTester.create(baseDir);
+    TsConfigProvider.getTsConfigs(new ContextUtils(ctx), null, this::tsConfigFileCreator, tsConfigCache);
+
     when(bridgeServerMock.loadTsConfig(any())).thenReturn(tsConfigFile);
     var foundTsConfig = tsConfigCache.getTsConfigForInputFile(file1);
     assertThat(foundTsConfig.getFilename()).isEqualTo(tsConfigFile.getFilename());
@@ -132,17 +147,31 @@ class TsConfigCacheTest {
 
   @Test
   void testDoesNotClearCacheOnIrrelevantFile() throws Exception {
-    var file1 = TestInputFileBuilder.create(baseDir.toString(), "file1.ts").build();
+    var file1 = TestInputFileBuilder.create(baseDir.toString(), "file1.ts").setLanguage("js").build();
     var tsConfigFile = new TsConfigFile("tsconfig.json", singletonList(file1.absolutePath()), emptyList());
+    Path tsconfig1 = baseDir.resolve("tsconfig.json");
+    Files.createFile(tsconfig1);
 
-    tsConfigCache.initializeWith(List.of(tsConfigFile.getFilename()));
+    SensorContextTester ctx = SensorContextTester.create(baseDir);
+    TsConfigProvider.getTsConfigs(new ContextUtils(ctx), null, this::tsConfigFileCreator, tsConfigCache);
     when(bridgeServerMock.loadTsConfig(any())).thenReturn(tsConfigFile);
+
     var foundTsConfig = tsConfigCache.getTsConfigForInputFile(file1);
     assertThat(foundTsConfig.getFilename()).isEqualTo(tsConfigFile.getFilename());
 
-    var fileEvent = DefaultModuleFileEvent.of(file1, ModuleFileEvent.Type.MODIFIED);
+    var fileEvent = DefaultModuleFileEvent.of(file1, ModuleFileEvent.Type.CREATED);
     tsConfigCache.process(fileEvent);
     var newTsConfig = tsConfigCache.getTsConfigForInputFile(file1);
     assertThat(newTsConfig.getFilename()).isEqualTo(tsConfigFile.getFilename());
+  }
+
+  String tsConfigFileCreator(String content) throws IOException {
+    var path = tempFolder.newFile().toPath();
+    Files.writeString(path, content);
+    return path.toString();
+  }
+
+  private String absolutePath(Path baseDir, String relativePath) {
+    return new File(baseDir.toFile(), relativePath).getAbsolutePath();
   }
 }
