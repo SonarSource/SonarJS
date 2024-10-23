@@ -94,10 +94,12 @@ public class TsConfigProvider {
       ? new TsConfigProvider.WildcardTsConfigProvider(javaScriptProjectChecker, tsConfigFileCreator)
       : new TsConfigProvider.DefaultTsConfigProvider(tsConfigFileCreator, JavaScriptFilePredicate::getJsTsPredicate);
 
-    List<TsConfigProvider.Provider> providers = new ArrayList<>();
-    providers.add(new TsConfigProvider.PropertyTsConfigProvider());
-    providers.addAll(List.of(new TsConfigProvider.LookupTsConfigProvider(tsConfigCache), defaultProvider));
-    var provider = new TsConfigProvider(providers, tsConfigCache);
+
+    var provider = new TsConfigProvider(
+      List.of(new PropertyTsConfigProvider(), new LookupTsConfigProvider(tsConfigCache), defaultProvider),
+      tsConfigCache
+    );
+
     return provider.tsconfigs(contextUtils.context());
   }
 
@@ -107,10 +109,11 @@ public class TsConfigProvider {
         continue;
       }
       List<String> tsconfigs = provider.tsconfigs(context);
+      if (cache != null) {
+        cache.initializeWith(tsconfigs, provider.type());
+      }
       if (!tsconfigs.isEmpty()) {
-        if (cache != null) {
-          cache.initializeWith(tsconfigs, provider.type());
-        }
+        cache.setOrigin(provider.type());
         return tsconfigs;
       }
     }
@@ -191,8 +194,12 @@ public class TsConfigProvider {
 
     @Override
     public List<String> tsconfigs(SensorContext context) {
-      if (cache != null && cache.getOrigin() == CacheOrigin.LOOKUP) {
-        return cache.listCachedTsConfigs();
+      if (cache != null) {
+        var tsconfigs = cache.listCachedTsConfigs(CacheOrigin.LOOKUP);
+        if (tsconfigs != null) {
+          return tsconfigs;
+        }
+
       }
       var fs = context.fileSystem();
       var tsconfigs = new ArrayList<String>();

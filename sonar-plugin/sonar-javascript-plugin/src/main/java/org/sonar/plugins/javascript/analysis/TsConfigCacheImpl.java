@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.scanner.ScannerSide;
+import org.sonar.plugins.javascript.JavaScriptFilePredicate;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
 import org.sonar.plugins.javascript.bridge.TsConfigFile;
 import org.sonarsource.api.sonarlint.SonarLintSide;
@@ -29,13 +30,14 @@ public class TsConfigCacheImpl implements TsConfigCache {
   Deque<String> pendingTsConfigFiles = new ArrayDeque<>();
 
   BridgeServer bridgeServer;
-  boolean initialized;
 
   public TsConfigProvider.CacheOrigin origin;
 
   TsConfigCacheImpl(BridgeServer bridgeServer) {
     this.bridgeServer = bridgeServer;
-    this.initialized = false;
+    cacheMap.put(TsConfigProvider.CacheOrigin.PROPERTY, new Cache());
+    cacheMap.put(TsConfigProvider.CacheOrigin.LOOKUP, new Cache());
+    cacheMap.put(TsConfigProvider.CacheOrigin.FALLBACK, new Cache());
   }
 
   public TsConfigProvider.CacheOrigin getOrigin() {
@@ -70,42 +72,48 @@ public class TsConfigCacheImpl implements TsConfigCache {
     return null;
   }
 
-  public @Nullable List<String> listCachedTsConfigs() {
-    if (initialized) {
-      LOG.info("TsConfigCache is already initialized");
-      return originalTsConfigFiles;
+  public @Nullable List<String> listCachedTsConfigs(TsConfigProvider.CacheOrigin cacheOrigin) {
+    var currentCache = cacheMap.get(origin);
+
+    if (currentCache.initialized) {
+      LOG.debug("TsConfigCache is already initialized");
+      return currentCache.originalTsConfigFiles;
     }
     return null;
   }
 
+  public void setOrigin(TsConfigProvider.CacheOrigin cacheOrigin) {
+    origin = cacheOrigin;
+  }
+
   public void initializeWith(List<String> tsConfigPaths, TsConfigProvider.CacheOrigin cacheOrigin) {
-    if (origin == cacheOrigin && tsConfigPaths.equals(originalTsConfigFiles)) {
+    var cache = cacheMap.get(cacheOrigin);
+    if (cacheOrigin == TsConfigProvider.CacheOrigin.FALLBACK && cache.initialized) {
+      return;
+    }
+    if (cacheOrigin != TsConfigProvider.CacheOrigin.FALLBACK && cache.originalTsConfigFiles.equals(tsConfigPaths)) {
       return;
     }
 
-    LOG.info("Resetting the TsConfigCache");
-    inputFileToTsConfigFilesMap.clear();
-    originalTsConfigFiles = tsConfigPaths;
-    pendingTsConfigFiles = new ArrayDeque<>(originalTsConfigFiles);
-    processedTsConfigFiles.clear();
-
-    initialized = true;
-    origin = cacheOrigin;
-    LOG.info("TsConfigCache initialized");
+    LOG.debug("Resetting the TsConfigCache {}", cacheOrigin);
+    cache.initializeOriginalTsConfigs(tsConfigPaths);
   }
 
   @Override
   public void process(ModuleFileEvent moduleFileEvent) {
-    var filename = moduleFileEvent.getTarget().absolutePath();
+    var file = moduleFileEvent.getTarget();
+    var filename = file.absolutePath();
     // Look for any event on files named *tsconfig*.json
     // Filenames other than tsconfig.json can be discovered through references
     if (filename.endsWith("json") && filename.contains("tsconfig")) {
-      LOG.info("Clearing tsconfig cache");
-      initialized = false;
-      inputFileToTsConfigFilesMap.clear();
-      pendingTsConfigFiles.clear();
-      processedTsConfigFiles.clear();
-      origin = null;
+      LOG.debug("Clearing tsconfig cache");
+      cacheMap.get(TsConfigProvider.CacheOrigin.LOOKUP).clearOriginalTsConfigCache();
+      if (cacheMap.get(TsConfigProvider.CacheOrigin.PROPERTY).processedTsConfigFiles.contains(filename)) {
+        cacheMap.get(TsConfigProvider.CacheOrigin.PROPERTY).clearOriginalTsConfigCache();
+      }
+    } else if (moduleFileEvent.getType() == ModuleFileEvent.Type.CREATED && (JavaScriptFilePredicate.isJavaScriptFile(file) || JavaScriptFilePredicate.isTypeScriptFile(file))) {
+      // if there is a new file, we need to know to which tsconfig it belongs to
+      cacheMap.values().forEach(Cache::clearFileToTsConfigCache);
     }
   }
 }
