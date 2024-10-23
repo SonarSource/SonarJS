@@ -24,14 +24,65 @@ import org.sonarsource.sonarlint.plugin.api.module.file.ModuleFileEvent;
 @SonarLintSide(lifespan = SonarLintSide.MODULE)
 public class TsConfigCacheImpl implements TsConfigCache {
   private static final Logger LOG = LoggerFactory.getLogger(TsConfigCacheImpl.class);
-  Map<String, TsConfigFile> inputFileToTsConfigFilesMap = new HashMap<>();
-  Set<String> processedTsConfigFiles = new HashSet<>();
-  List<String> originalTsConfigFiles = new ArrayList<>();
-  Deque<String> pendingTsConfigFiles = new ArrayDeque<>();
 
   BridgeServer bridgeServer;
 
   public TsConfigProvider.CacheOrigin origin;
+
+  class Cache {
+    Map<String, TsConfigFile> inputFileToTsConfigFilesMap = new HashMap<>();
+    Set<String> processedTsConfigFiles = new HashSet<>();
+    List<String> originalTsConfigFiles = new ArrayList<>();
+    Deque<String> pendingTsConfigFiles = new ArrayDeque<>();
+    boolean initialized = false;
+
+    void initializeOriginalTsConfigs(List<String> tsconfigs) {
+      clearOriginalTsConfigCache();
+      initialized = true;
+      originalTsConfigFiles = tsconfigs;
+      pendingTsConfigFiles = new ArrayDeque<>(originalTsConfigFiles);
+    }
+
+    TsConfigFile getTsConfigForInputFile(InputFile inputFile) {
+      var inputFilePath = TsConfigFile.normalizePath(inputFile.absolutePath());
+      if (!initialized) {
+        LOG.error("TsConfigCacheImpl is not initialized for file {}", inputFilePath);
+        return null;
+      }
+      if (inputFileToTsConfigFilesMap.containsKey(inputFilePath)) {
+        return inputFileToTsConfigFilesMap.get(inputFilePath);
+      }
+
+      while (!pendingTsConfigFiles.isEmpty()) {
+        var tsConfigPath = pendingTsConfigFiles.pop();
+        processedTsConfigFiles.add(tsConfigPath);
+        LOG.debug("Computing tsconfig {} from bridge", tsConfigPath);
+        TsConfigFile tsConfigFile = bridgeServer.loadTsConfig(tsConfigPath);
+        tsConfigFile.getFiles().forEach(file -> inputFileToTsConfigFilesMap.putIfAbsent(TsConfigFile.normalizePath(file), tsConfigFile));
+        if (!tsConfigFile.getProjectReferences().isEmpty()) {
+          LOG.debug("Adding referenced project's tsconfigs {}", tsConfigFile.getProjectReferences());
+          pendingTsConfigFiles.addAll(tsConfigFile.getProjectReferences().stream().filter(refPath -> !processedTsConfigFiles.contains(refPath)).toList());
+        }
+        if (inputFileToTsConfigFilesMap.containsKey(inputFilePath)) {
+          return inputFileToTsConfigFilesMap.get(inputFilePath);
+        }
+      }
+      inputFileToTsConfigFilesMap.put(inputFilePath, null);
+      return null;
+    }
+    void clearOriginalTsConfigCache() {
+      clearFileToTsConfigCache();
+      initialized = false;
+      processedTsConfigFiles = new HashSet<>();
+      originalTsConfigFiles = new ArrayList<>();
+      pendingTsConfigFiles = new ArrayDeque<>();
+    }
+    void clearFileToTsConfigCache() {
+      inputFileToTsConfigFilesMap.clear();
+    }
+  }
+
+  Map<TsConfigProvider.CacheOrigin, Cache> cacheMap = new HashMap<>();
 
   TsConfigCacheImpl(BridgeServer bridgeServer) {
     this.bridgeServer = bridgeServer;
@@ -45,31 +96,7 @@ public class TsConfigCacheImpl implements TsConfigCache {
   }
 
   public TsConfigFile getTsConfigForInputFile(InputFile inputFile) {
-    var inputFilePath = TsConfigFile.normalizePath(inputFile.absolutePath());
-    if (!initialized) {
-      LOG.error("TsConfigCacheImpl is not initialized for file {}", inputFilePath);
-      return null;
-    }
-    if (inputFileToTsConfigFilesMap.containsKey(inputFilePath)) {
-      return inputFileToTsConfigFilesMap.get(inputFilePath);
-    }
-
-    while (!pendingTsConfigFiles.isEmpty()) {
-      var tsConfigPath = pendingTsConfigFiles.pop();
-      processedTsConfigFiles.add(tsConfigPath);
-      LOG.info("Computing tsconfig {} from bridge", tsConfigPath);
-      TsConfigFile tsConfigFile = bridgeServer.loadTsConfig(tsConfigPath);
-      tsConfigFile.getFiles().forEach(file -> inputFileToTsConfigFilesMap.putIfAbsent(TsConfigFile.normalizePath(file), tsConfigFile));
-      if (!tsConfigFile.getProjectReferences().isEmpty()) {
-        LOG.info("Adding referenced project's tsconfigs {}", tsConfigFile.getProjectReferences());
-        pendingTsConfigFiles.addAll(tsConfigFile.getProjectReferences().stream().filter(refPath -> !processedTsConfigFiles.contains(refPath)).toList());
-      }
-      if (inputFileToTsConfigFilesMap.containsKey(inputFilePath)) {
-        return inputFileToTsConfigFilesMap.get(inputFilePath);
-      }
-    }
-    inputFileToTsConfigFilesMap.put(inputFilePath, null);
-    return null;
+    return cacheMap.get(origin).getTsConfigForInputFile(inputFile);
   }
 
   public @Nullable List<String> listCachedTsConfigs(TsConfigProvider.CacheOrigin cacheOrigin) {
