@@ -78,15 +78,17 @@ class TsConfigCacheTest {
   @Test
   void test() throws Exception {
     List<String> files = Arrays.asList("dir1/file1.ts", "dir2/file2.ts", "dir3/file3.ts");
+
+
     List<InputFile> inputFiles = files
       .stream()
       .map(f -> TestInputFileBuilder.create("foo", f).build())
       .collect(Collectors.toList());
 
     List<TsConfigFile> tsConfigFiles = Arrays.asList(
-      new TsConfigFile("dir1/tsconfig.json", singletonList("foo/dir1/file1.ts"), emptyList()),
-      new TsConfigFile("dir2/tsconfig.json", singletonList("foo/dir2/file2.ts"), emptyList()),
-      new TsConfigFile("dir3/tsconfig.json", singletonList("foo/dir3/file3.ts"), emptyList())
+      new TsConfigFile(absolutePath(baseDir, "dir1/tsconfig.json"), singletonList(inputFiles.get(0).absolutePath()), emptyList()),
+      new TsConfigFile(absolutePath(baseDir, "dir2/tsconfig.json"), singletonList(inputFiles.get(1).absolutePath()), emptyList()),
+      new TsConfigFile(absolutePath(baseDir, "dir3/tsconfig.json"), singletonList(inputFiles.get(2).absolutePath()), emptyList())
     );
 
     for (var tsConfigFile : tsConfigFiles) {
@@ -94,7 +96,8 @@ class TsConfigCacheTest {
       Files.createDirectory(tsConfigPath.getParent());
       Files.createFile(tsConfigPath);
     }
-    tsConfigCache.initializeWith(tsConfigFiles.stream().map(TsConfigFile::getFilename).toList(), TsConfigProvider.CacheOrigin.LOOKUP);
+    SensorContextTester ctx = SensorContextTester.create(baseDir);
+    TsConfigProvider.getTsConfigs(new ContextUtils(ctx), null, this::tsConfigFileCreator, tsConfigCache);
 
     when(bridgeServerMock.loadTsConfig(any()))
       .thenAnswer(invocationOnMock -> {
@@ -126,8 +129,12 @@ class TsConfigCacheTest {
     var file1 = TestInputFileBuilder.create(baseDir.toString(), "file1.ts").build();
     var tsConfigInputFile = TestInputFileBuilder.create(baseDir.toString(), "tsconfig.json").build();
     var tsConfigFile = new TsConfigFile("tsconfig.json", singletonList(file1.absolutePath()), emptyList());
+    Path tsconfig1 = baseDir.resolve("tsconfig.json");
+    Files.createFile(tsconfig1);
 
-    tsConfigCache.initializeWith(List.of(tsConfigFile.getFilename()), TsConfigProvider.CacheOrigin.LOOKUP);
+    SensorContextTester ctx = SensorContextTester.create(baseDir);
+    TsConfigProvider.getTsConfigs(new ContextUtils(ctx), null, this::tsConfigFileCreator, tsConfigCache);
+
     when(bridgeServerMock.loadTsConfig(any())).thenReturn(tsConfigFile);
     var foundTsConfig = tsConfigCache.getTsConfigForInputFile(file1);
     assertThat(foundTsConfig.getFilename()).isEqualTo(tsConfigFile.getFilename());
@@ -162,5 +169,9 @@ class TsConfigCacheTest {
     var path = tempFolder.newFile().toPath();
     Files.writeString(path, content);
     return path.toString();
+  }
+
+  private String absolutePath(Path baseDir, String relativePath) {
+    return new File(baseDir.toFile(), relativePath).getAbsolutePath();
   }
 }

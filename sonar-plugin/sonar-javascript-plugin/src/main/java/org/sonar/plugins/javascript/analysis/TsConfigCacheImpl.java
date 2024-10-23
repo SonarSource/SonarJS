@@ -97,6 +97,9 @@ public class TsConfigCacheImpl implements TsConfigCache, ModuleFileListener {
   }
 
   public TsConfigFile getTsConfigForInputFile(InputFile inputFile) {
+    if (origin == null) {
+      return null;
+    }
     return cacheMap.get(origin).getTsConfigForInputFile(inputFile);
   }
 

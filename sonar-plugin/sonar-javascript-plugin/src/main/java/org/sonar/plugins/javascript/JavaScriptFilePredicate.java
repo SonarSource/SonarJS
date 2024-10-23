@@ -103,6 +103,6 @@ public class JavaScriptFilePredicate {
   }
 
   public static boolean isJavaScriptFile(InputFile file) {
-    return (JavaScriptLanguage.KEY.equals(file.language()) || isVueTsFile(file));
+    return JavaScriptLanguage.KEY.equals(file.language());
   }
 }
