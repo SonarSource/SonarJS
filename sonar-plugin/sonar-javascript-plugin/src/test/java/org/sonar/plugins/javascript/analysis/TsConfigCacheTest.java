@@ -82,7 +82,7 @@ class TsConfigCacheTest {
 
     List<InputFile> inputFiles = files
       .stream()
-      .map(f -> TestInputFileBuilder.create("foo", f).build())
+      .map(f -> TestInputFileBuilder.create("moduleKey", baseDir.toFile(), baseDir.resolve(f).toFile()).build())
       .collect(Collectors.toList());
 
     List<TsConfigFile> tsConfigFiles = Arrays.asList(
