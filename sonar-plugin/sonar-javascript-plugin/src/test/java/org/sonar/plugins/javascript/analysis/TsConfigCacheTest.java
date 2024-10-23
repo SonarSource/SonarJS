@@ -25,6 +25,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -38,7 +40,10 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
+import org.sonar.api.batch.sensor.internal.SensorContextTester;
+import org.sonar.api.impl.utils.DefaultTempFolder;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
+import org.sonar.api.utils.TempFolder;
 import org.sonar.plugins.javascript.bridge.BridgeServerImpl;
 import org.sonar.plugins.javascript.bridge.TsConfigFile;
 import org.sonarsource.sonarlint.core.analysis.container.module.DefaultModuleFileEvent;
@@ -56,12 +61,18 @@ class TsConfigCacheTest {
   @TempDir
   Path baseDir;
 
+  @TempDir
+  File tempDir;
+
+  TempFolder tempFolder;
+
   @BeforeEach
   public void setUp() throws Exception {
     MockitoAnnotations.initMocks(this);
     when(bridgeServerMock.isAlive()).thenReturn(true);
     when(bridgeServerMock.getCommandInfo()).thenReturn("bridgeServerMock command info");
     tsConfigCache = new TsConfigCacheImpl(bridgeServerMock);
+    tempFolder = new DefaultTempFolder(tempDir, true);
   }
 
   @Test
@@ -129,17 +140,27 @@ class TsConfigCacheTest {
 
   @Test
   void testDoesNotClearCacheOnIrrelevantFile() throws Exception {
-    var file1 = TestInputFileBuilder.create(baseDir.toString(), "file1.ts").build();
+    var file1 = TestInputFileBuilder.create(baseDir.toString(), "file1.ts").setLanguage("js").build();
     var tsConfigFile = new TsConfigFile("tsconfig.json", singletonList(file1.absolutePath()), emptyList());
+    Path tsconfig1 = baseDir.resolve("tsconfig.json");
+    Files.createFile(tsconfig1);
 
-    tsConfigCache.initializeWith(List.of(tsConfigFile.getFilename()), TsConfigProvider.CacheOrigin.LOOKUP);
+    SensorContextTester ctx = SensorContextTester.create(baseDir);
+    TsConfigProvider.getTsConfigs(new ContextUtils(ctx), null, this::tsConfigFileCreator, tsConfigCache);
     when(bridgeServerMock.loadTsConfig(any())).thenReturn(tsConfigFile);
+
     var foundTsConfig = tsConfigCache.getTsConfigForInputFile(file1);
     assertThat(foundTsConfig.getFilename()).isEqualTo(tsConfigFile.getFilename());
 
-    var fileEvent = DefaultModuleFileEvent.of(file1, ModuleFileEvent.Type.MODIFIED);
+    var fileEvent = DefaultModuleFileEvent.of(file1, ModuleFileEvent.Type.CREATED);
     tsConfigCache.process(fileEvent);
     var newTsConfig = tsConfigCache.getTsConfigForInputFile(file1);
     assertThat(newTsConfig.getFilename()).isEqualTo(tsConfigFile.getFilename());
+  }
+
+  String tsConfigFileCreator(String content) throws IOException {
+    var path = tempFolder.newFile().toPath();
+    Files.writeString(path, content);
+    return path.toString();
   }
 }

@@ -37,12 +37,6 @@ public class TsConfigCacheImpl implements TsConfigCache, ModuleFileListener {
     Deque<String> pendingTsConfigFiles = new ArrayDeque<>();
     boolean initialized = false;
 
-    void initializeOriginalTsConfigs(List<String> tsconfigs) {
-      clearOriginalTsConfigCache();
-      initialized = true;
-      originalTsConfigFiles = tsconfigs;
-      pendingTsConfigFiles = new ArrayDeque<>(originalTsConfigFiles);
-    }
 
     TsConfigFile getTsConfigForInputFile(InputFile inputFile) {
       var inputFilePath = TsConfigFile.normalizePath(inputFile.absolutePath());
@@ -71,15 +65,21 @@ public class TsConfigCacheImpl implements TsConfigCache, ModuleFileListener {
       inputFileToTsConfigFilesMap.put(inputFilePath, null);
       return null;
     }
-    void clearOriginalTsConfigCache() {
+
+    void initializeOriginalTsConfigs(List<String> tsconfigs) {
+      initialized = true;
+      originalTsConfigFiles = tsconfigs;
       clearFileToTsConfigCache();
+    }
+    void clearAll() {
       initialized = false;
-      processedTsConfigFiles = new HashSet<>();
       originalTsConfigFiles = new ArrayList<>();
-      pendingTsConfigFiles = new ArrayDeque<>();
+      clearFileToTsConfigCache();
     }
     void clearFileToTsConfigCache() {
       inputFileToTsConfigFilesMap.clear();
+      processedTsConfigFiles = new HashSet<>();
+      pendingTsConfigFiles = new ArrayDeque<>(originalTsConfigFiles);
     }
   }
 
@@ -101,7 +101,7 @@ public class TsConfigCacheImpl implements TsConfigCache, ModuleFileListener {
   }
 
   public @Nullable List<String> listCachedTsConfigs(TsConfigProvider.CacheOrigin cacheOrigin) {
-    var currentCache = cacheMap.get(origin);
+    var currentCache = cacheMap.get(cacheOrigin);
 
     if (currentCache.initialized) {
       LOG.debug("TsConfigCache is already initialized");
@@ -135,9 +135,9 @@ public class TsConfigCacheImpl implements TsConfigCache, ModuleFileListener {
     // Filenames other than tsconfig.json can be discovered through references
     if (filename.endsWith("json") && filename.contains("tsconfig")) {
       LOG.debug("Clearing tsconfig cache");
-      cacheMap.get(TsConfigProvider.CacheOrigin.LOOKUP).clearOriginalTsConfigCache();
+      cacheMap.get(TsConfigProvider.CacheOrigin.LOOKUP).clearAll();
       if (cacheMap.get(TsConfigProvider.CacheOrigin.PROPERTY).processedTsConfigFiles.contains(filename)) {
-        cacheMap.get(TsConfigProvider.CacheOrigin.PROPERTY).clearOriginalTsConfigCache();
+        cacheMap.get(TsConfigProvider.CacheOrigin.PROPERTY).clearAll();
       }
     } else if (moduleFileEvent.getType() == ModuleFileEvent.Type.CREATED && (JavaScriptFilePredicate.isJavaScriptFile(file) || JavaScriptFilePredicate.isTypeScriptFile(file))) {
       // if there is a new file, we need to know to which tsconfig it belongs to
