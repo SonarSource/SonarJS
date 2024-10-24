@@ -24,13 +24,11 @@ import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.fs.InputFile;
 
-public class TsConfigFile implements Predicate<InputFile> {
+public class TsConfigFile {
 
   private static final Logger LOG = LoggerFactory.getLogger(TsConfigFile.class);
 
@@ -45,16 +43,10 @@ public class TsConfigFile implements Predicate<InputFile> {
   }
 
   public static String normalizePath(String path) {
-    try {
-      return Path
-        .of(path)
-        .toRealPath(LinkOption.NOFOLLOW_LINKS)
-        .toString()
-        .replaceAll("[\\\\/]", "/");
-    } catch (IOException e) {
-      LOG.debug("Could not normalize {}", path);
-      return path;
-    }
+    return Path
+      .of(path)
+      .toString()
+      .replaceAll("[\\\\/]", "/");
   }
 
   public List<String> getProjectReferences() {
@@ -67,12 +59,6 @@ public class TsConfigFile implements Predicate<InputFile> {
 
   public Set<String> getFiles() {
     return files;
-  }
-
-  @Override
-  public boolean test(InputFile inputFile) {
-    var path = normalizePath(inputFile.absolutePath());
-    return files.contains(path);
   }
 
   @Override
