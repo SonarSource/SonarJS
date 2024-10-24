@@ -1,6 +1,7 @@
 package org.sonar.plugins.javascript.analysis;
 
 
+import java.nio.file.Path;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -37,6 +38,8 @@ public class TsConfigCacheImpl implements TsConfigCache, ModuleFileListener {
     Deque<String> pendingTsConfigFiles = new ArrayDeque<>();
     boolean initialized = false;
 
+
+
     TsConfigFile getTsConfigForInputFile(InputFile inputFile) {
       var inputFilePath = TsConfigFile.normalizePath(inputFile.absolutePath());
       if (!initialized) {
@@ -46,6 +49,27 @@ public class TsConfigCacheImpl implements TsConfigCache, ModuleFileListener {
       if (inputFileToTsConfigFilesMap.containsKey(inputFilePath)) {
         return inputFileToTsConfigFilesMap.get(inputFilePath);
       }
+
+      var newPendingTsConfigFiles = new ArrayList<String>();
+      var notMatchingPendingTsConfigFiles = new ArrayList<String>();
+      pendingTsConfigFiles.forEach(ts -> {
+        if (inputFile.absolutePath().startsWith(Path.of(ts).getParent().toAbsolutePath().toString())) {
+          newPendingTsConfigFiles.add(ts);
+        } else {
+          notMatchingPendingTsConfigFiles.add(ts);
+        }
+      });
+      pendingTsConfigFiles = new ArrayDeque<>(newPendingTsConfigFiles);
+      pendingTsConfigFiles.addAll(notMatchingPendingTsConfigFiles);
+//      pendingTsConfigFiles = new ArrayDeque<>(pendingTsConfigFiles.stream().sorted((ts1, ts2) -> {
+//        var similarity1 = inputFile.absolutePath().startsWith(Path.of(ts1).getParent().toAbsolutePath().toString());
+//        var similarity2 = inputFile.absolutePath().startsWith(Path.of(ts2).getParent().toAbsolutePath().toString());
+//        if (similarity1 != similarity2) {
+//          return similarity1 ? -1 : 1;
+//        }
+//        return 0;
+//      }).toList());
+      LOG.info("Continuing BFS for file: {}, pending order: {}", inputFilePath, pendingTsConfigFiles);
 
       while (!pendingTsConfigFiles.isEmpty()) {
         var tsConfigPath = pendingTsConfigFiles.pop();
