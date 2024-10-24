@@ -56,18 +56,12 @@ public class TsConfigProvider {
 
   interface Provider {
     List<String> tsconfigs(SensorContext context) throws IOException;
-    CacheOrigin type();
+    TsConfigOrigin type();
   }
 
   @FunctionalInterface
   interface TsConfigFileCreator {
     String createTsConfigFile(String content) throws IOException;
-  }
-
-  public enum CacheOrigin {
-    PROPERTY,
-    LOOKUP,
-    FALLBACK
   }
 
   private final List<Provider> providers;
@@ -170,8 +164,8 @@ public class TsConfigProvider {
       return tsconfigs;
     }
 
-    public CacheOrigin type() {
-      return CacheOrigin.PROPERTY;
+    public TsConfigOrigin type() {
+      return TsConfigOrigin.PROPERTY;
     }
 
     private static Path getFilePath(File baseDir, String path) {
@@ -197,7 +191,7 @@ public class TsConfigProvider {
     @Override
     public List<String> tsconfigs(SensorContext context) {
       if (cache != null) {
-        var tsconfigs = cache.listCachedTsConfigs(CacheOrigin.LOOKUP);
+        var tsconfigs = cache.listCachedTsConfigs(TsConfigOrigin.LOOKUP);
         if (tsconfigs != null) {
           return tsconfigs;
         }
@@ -225,8 +219,8 @@ public class TsConfigProvider {
       return tsconfigs;
     }
 
-    public CacheOrigin type() {
-      return CacheOrigin.LOOKUP;
+    public TsConfigOrigin type() {
+      return TsConfigOrigin.LOOKUP;
     }
   }
 
@@ -263,8 +257,8 @@ public class TsConfigProvider {
       this.product = product;
     }
 
-    public CacheOrigin type() {
-      return CacheOrigin.FALLBACK;
+    public TsConfigOrigin type() {
+      return TsConfigOrigin.FALLBACK;
     }
 
     @Override

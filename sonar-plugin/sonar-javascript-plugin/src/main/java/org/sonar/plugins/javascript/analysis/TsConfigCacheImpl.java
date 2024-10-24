@@ -27,8 +27,7 @@ public class TsConfigCacheImpl implements TsConfigCache, ModuleFileListener {
   private static final Logger LOG = LoggerFactory.getLogger(TsConfigCacheImpl.class);
 
   BridgeServer bridgeServer;
-
-  public TsConfigProvider.CacheOrigin origin;
+  TsConfigOrigin origin;
 
   class Cache {
     Map<String, TsConfigFile> inputFileToTsConfigFilesMap = new HashMap<>();
@@ -83,17 +82,13 @@ public class TsConfigCacheImpl implements TsConfigCache, ModuleFileListener {
     }
   }
 
-  Map<TsConfigProvider.CacheOrigin, Cache> cacheMap = new HashMap<>();
+  Map<TsConfigOrigin, Cache> cacheMap = new HashMap<>();
 
   TsConfigCacheImpl(BridgeServer bridgeServer) {
     this.bridgeServer = bridgeServer;
-    cacheMap.put(TsConfigProvider.CacheOrigin.PROPERTY, new Cache());
-    cacheMap.put(TsConfigProvider.CacheOrigin.LOOKUP, new Cache());
-    cacheMap.put(TsConfigProvider.CacheOrigin.FALLBACK, new Cache());
-  }
-
-  public TsConfigProvider.CacheOrigin getOrigin() {
-    return origin;
+    cacheMap.put(TsConfigOrigin.PROPERTY, new Cache());
+    cacheMap.put(TsConfigOrigin.LOOKUP, new Cache());
+    cacheMap.put(TsConfigOrigin.FALLBACK, new Cache());
   }
 
   public TsConfigFile getTsConfigForInputFile(InputFile inputFile) {
@@ -103,8 +98,8 @@ public class TsConfigCacheImpl implements TsConfigCache, ModuleFileListener {
     return cacheMap.get(origin).getTsConfigForInputFile(inputFile);
   }
 
-  public @Nullable List<String> listCachedTsConfigs(TsConfigProvider.CacheOrigin cacheOrigin) {
-    var currentCache = cacheMap.get(cacheOrigin);
+  public @Nullable List<String> listCachedTsConfigs(TsConfigOrigin tsConfigOrigin) {
+    var currentCache = cacheMap.get(tsConfigOrigin);
 
     if (currentCache.initialized) {
       LOG.debug("TsConfigCache is already initialized");
@@ -113,20 +108,20 @@ public class TsConfigCacheImpl implements TsConfigCache, ModuleFileListener {
     return null;
   }
 
-  public void setOrigin(TsConfigProvider.CacheOrigin cacheOrigin) {
-    origin = cacheOrigin;
+  public void setOrigin(TsConfigOrigin tsConfigOrigin) {
+    origin = tsConfigOrigin;
   }
 
-  public void initializeWith(List<String> tsConfigPaths, TsConfigProvider.CacheOrigin cacheOrigin) {
-    var cache = cacheMap.get(cacheOrigin);
-    if (cacheOrigin == TsConfigProvider.CacheOrigin.FALLBACK && cache.initialized) {
+  public void initializeWith(List<String> tsConfigPaths, TsConfigOrigin tsConfigOrigin) {
+    var cache = cacheMap.get(tsConfigOrigin);
+    if (tsConfigOrigin == TsConfigOrigin.FALLBACK && cache.initialized) {
       return;
     }
-    if (cacheOrigin != TsConfigProvider.CacheOrigin.FALLBACK && cache.originalTsConfigFiles.equals(tsConfigPaths)) {
+    if (tsConfigOrigin != TsConfigOrigin.FALLBACK && cache.originalTsConfigFiles.equals(tsConfigPaths)) {
       return;
     }
 
-    LOG.debug("Resetting the TsConfigCache {}", cacheOrigin);
+    LOG.debug("Resetting the TsConfigCache {}", tsConfigOrigin);
     cache.initializeOriginalTsConfigs(tsConfigPaths);
   }
 
@@ -138,9 +133,9 @@ public class TsConfigCacheImpl implements TsConfigCache, ModuleFileListener {
     // Filenames other than tsconfig.json can be discovered through references
     if (filename.endsWith("json") && filename.contains("tsconfig")) {
       LOG.debug("Clearing tsconfig cache");
-      cacheMap.get(TsConfigProvider.CacheOrigin.LOOKUP).clearAll();
-      if (cacheMap.get(TsConfigProvider.CacheOrigin.PROPERTY).processedTsConfigFiles.contains(filename)) {
-        cacheMap.get(TsConfigProvider.CacheOrigin.PROPERTY).clearAll();
+      cacheMap.get(TsConfigOrigin.LOOKUP).clearAll();
+      if (cacheMap.get(TsConfigOrigin.PROPERTY).processedTsConfigFiles.contains(filename)) {
+        cacheMap.get(TsConfigOrigin.PROPERTY).clearAll();
       }
     } else if (moduleFileEvent.getType() == ModuleFileEvent.Type.CREATED && (JavaScriptFilePredicate.isJavaScriptFile(file) || JavaScriptFilePredicate.isTypeScriptFile(file))) {
       // if there is a new file, we need to know to which tsconfig it belongs to
