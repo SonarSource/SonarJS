@@ -135,7 +135,7 @@ public class TsConfigCacheImpl implements TsConfigCache, ModuleFileListener {
     LOG.info("Processing file event {} with event {}", filename, moduleFileEvent.getType());
     // Look for any event on files named *tsconfig*.json
     // Filenames other than tsconfig.json can be discovered through references
-    if (filename.endsWith("json") && filename.contains("tsconfig")) {
+    if (filename.endsWith("json") && file.filename().contains("tsconfig")) {
       LOG.info("Clearing tsconfig cache");
       cacheMap.get(TsConfigOrigin.LOOKUP).clearAll();
       if (cacheMap.get(TsConfigOrigin.PROPERTY).discoveredTsConfigFiles.contains(filename)) {
