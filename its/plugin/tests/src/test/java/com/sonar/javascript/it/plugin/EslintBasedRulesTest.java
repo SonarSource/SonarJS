@@ -83,11 +83,14 @@ class EslintBasedRulesTest {
       .setProjectKey(projectKey)
       .setSourceEncoding("UTF-8")
       .setSourceDirs(".")
+      .setDebugLogs(true)
       .setProjectDir(projectDir);
 
     OrchestratorStarter.setProfile(projectKey, jsProfile, "js");
     BuildResult buildResult = orchestrator.executeBuild(build);
     assertThat(buildResult.getLogsLines(l -> l.startsWith("ERROR"))).isEmpty();
+    // assert that there are no logs from Apache HttpClient
+    assertThat(buildResult.getLogsLines(l -> l.contains("preparing request execution"))).isEmpty();
 
     List<Issue> issuesList = getIssueList(projectKey, "javascript:S3923");
     assertThat(issuesList).hasSize(1);

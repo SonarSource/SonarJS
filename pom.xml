@@ -75,10 +75,6 @@
   </issueManagement>
 
   <properties>
-    <!--  this is necessary because of drop of modules  -->
-<!--        <sonar.testExecutionReportPaths>test-report.xml</sonar.testExecutionReportPaths>-->
-    <sonar.javascript.lcov.reportPaths>lcov.info</sonar.javascript.lcov.reportPaths>
-
     <gitRepositoryName>SonarJS</gitRepositoryName>
     <license.title>SonarQube JavaScript Plugin</license.title>
     <!-- Version corresponds to SQ 9.9 LTS -->
@@ -89,9 +85,9 @@
     <junit.version>5.9.3</junit.version>
     <mockito.version>3.5.0</mockito.version>
     <slf4j.version>1.7.36</slf4j.version>
-    <sonar.version>10.4.1.88267</sonar.version>
-    <sonar.api.version>10.7.0.2191</sonar.api.version>
-    <sonar-orchestrator.version>4.9.0.1920</sonar-orchestrator.version>
+    <sonar.version>10.7.0.96327</sonar.version>
+    <sonar.api.version>10.12.0.2522</sonar.api.version>
+    <sonar-orchestrator.version>5.0.0.2065</sonar-orchestrator.version>
     <gson.version>2.11.0</gson.version>
     <analyzer-commons.version>2.13.0.3004</analyzer-commons.version>
     <sslr.version>1.22</sslr.version>
@@ -111,7 +107,7 @@
     <sonar.exclusions>packages/**/*.test.ts,packages/**/*.fixture.*,packages/**/fixtures/**/*</sonar.exclusions>
     <sonar.tests>packages/</sonar.tests>
     <sonar.test.inclusions>packages/**/*.test.ts</sonar.test.inclusions>
-    <sonar.javascript.lcov.reportPaths>coverage/lcov.info</sonar.javascript.lcov.reportPaths>
+    <sonar.javascript.lcov.reportPaths>lcov.info</sonar.javascript.lcov.reportPaths>
     <sonar.typescript.tsconfigPath>${project.basedir}/packages/tsconfig.app.json,${project.basedir}/packages/tsconfig.test.json</sonar.typescript.tsconfigPath>
     <sonar.cpd.exclusions>sonar-plugin/javascript-checks/src/main/resources/**/*.html</sonar.cpd.exclusions>
     <sonar.coverage.exclusions>packages/bridge/src/worker.js,packages/ruling/**</sonar.coverage.exclusions>

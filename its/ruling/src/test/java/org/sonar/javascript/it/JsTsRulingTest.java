@@ -253,7 +253,7 @@ class JsTsRulingTest {
 
   private static void installScanner() {
     var installer = new SonarScannerInstaller(orchestrator.getConfiguration().locators());
-    installer.install(Version.create(SCANNER_VERSION), null, Path.of("target").toFile(), false);
+    installer.install(Version.create(SCANNER_VERSION), Path.of("target").toFile());
   }
 
   @ParameterizedTest
