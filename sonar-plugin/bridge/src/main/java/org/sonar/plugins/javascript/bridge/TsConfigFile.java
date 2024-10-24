@@ -35,7 +35,6 @@ public class TsConfigFile implements Predicate<InputFile> {
   private static final Logger LOG = LoggerFactory.getLogger(TsConfigFile.class);
 
   final String filename;
-
   final Set<String> files;
   final List<String> projectReferences;
 

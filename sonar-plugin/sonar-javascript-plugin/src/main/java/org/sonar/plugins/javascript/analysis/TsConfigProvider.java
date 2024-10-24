@@ -99,9 +99,6 @@ public class TsConfigProvider {
 
   List<String> tsconfigs(SensorContext context) throws IOException {
     for (Provider provider : providers) {
-      if (provider == null) {
-        continue;
-      }
       List<String> tsconfigs = provider.tsconfigs(context);
       if (cache != null) {
         cache.initializeWith(tsconfigs, provider.type());

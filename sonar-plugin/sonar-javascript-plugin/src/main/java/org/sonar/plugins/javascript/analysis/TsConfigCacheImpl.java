@@ -4,6 +4,7 @@ package org.sonar.plugins.javascript.analysis;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -35,7 +36,6 @@ public class TsConfigCacheImpl implements TsConfigCache, ModuleFileListener {
     List<String> originalTsConfigFiles = new ArrayList<>();
     Deque<String> pendingTsConfigFiles = new ArrayDeque<>();
     boolean initialized = false;
-
 
     TsConfigFile getTsConfigForInputFile(InputFile inputFile) {
       var inputFilePath = TsConfigFile.normalizePath(inputFile.absolutePath());
@@ -82,7 +82,7 @@ public class TsConfigCacheImpl implements TsConfigCache, ModuleFileListener {
     }
   }
 
-  Map<TsConfigOrigin, Cache> cacheMap = new HashMap<>();
+  Map<TsConfigOrigin, Cache> cacheMap = new EnumMap<>(TsConfigOrigin.class);
 
   TsConfigCacheImpl(BridgeServer bridgeServer) {
     this.bridgeServer = bridgeServer;
