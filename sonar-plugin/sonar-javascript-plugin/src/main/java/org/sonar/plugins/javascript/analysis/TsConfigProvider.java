@@ -56,6 +56,7 @@ public class TsConfigProvider {
 
   interface Provider {
     List<String> tsconfigs(SensorContext context) throws IOException;
+    TsConfigOrigin type();
   }
 
   @FunctionalInterface
@@ -64,9 +65,11 @@ public class TsConfigProvider {
   }
 
   private final List<Provider> providers;
+  private final TsConfigCache cache;
 
-  private TsConfigProvider(List<Provider> providers) {
+  TsConfigProvider(List<Provider> providers, @Nullable TsConfigCache cache) {
     this.providers = providers;
+    this.cache = cache;
   }
 
   /**
@@ -78,22 +81,32 @@ public class TsConfigProvider {
   static List<String> getTsConfigs(
     ContextUtils contextUtils,
     @Nullable SonarLintTypeCheckingChecker javaScriptProjectChecker,
-    TsConfigFileCreator tsConfigFileCreator
+    TsConfigProvider.TsConfigFileCreator tsConfigFileCreator,
+    @Nullable TsConfigCache tsConfigCache
   ) throws IOException {
     var defaultProvider = contextUtils.isSonarLint()
       ? new TsConfigProvider.WildcardTsConfigProvider(javaScriptProjectChecker, tsConfigFileCreator)
-      : new DefaultTsConfigProvider(tsConfigFileCreator, JavaScriptFilePredicate::getJsTsPredicate);
+      : new TsConfigProvider.DefaultTsConfigProvider(tsConfigFileCreator, JavaScriptFilePredicate::getJsTsPredicate);
+
 
     var provider = new TsConfigProvider(
-      List.of(new PropertyTsConfigProvider(), new LookupTsConfigProvider(), defaultProvider)
+      List.of(new PropertyTsConfigProvider(), new LookupTsConfigProvider(tsConfigCache), defaultProvider),
+      tsConfigCache
     );
+
     return provider.tsconfigs(contextUtils.context());
   }
 
   List<String> tsconfigs(SensorContext context) throws IOException {
     for (Provider provider : providers) {
       List<String> tsconfigs = provider.tsconfigs(context);
+      if (cache != null) {
+        cache.initializeWith(tsconfigs, provider.type());
+      }
       if (!tsconfigs.isEmpty()) {
+        if (cache != null) {
+          cache.setOrigin(provider.type());
+        }
         return tsconfigs;
       }
     }
@@ -101,7 +114,6 @@ public class TsConfigProvider {
   }
 
   static class PropertyTsConfigProvider implements Provider {
-
     @Override
     public List<String> tsconfigs(SensorContext context) {
       if (
@@ -144,10 +156,13 @@ public class TsConfigProvider {
           tsconfigs.addAll(matchingTsconfigs.stream().map(File::getAbsolutePath).toList());
         }
       }
-
-      LOG.info("Found " + tsconfigs.size() + " TSConfig file(s): " + tsconfigs);
+      LOG.info("Found {} TSConfig file(s): {}", tsconfigs.size(), tsconfigs);
 
       return tsconfigs;
+    }
+
+    public TsConfigOrigin type() {
+      return TsConfigOrigin.PROPERTY;
     }
 
     private static Path getFilePath(File baseDir, String path) {
@@ -165,9 +180,20 @@ public class TsConfigProvider {
   }
 
   static class LookupTsConfigProvider implements Provider {
+    private final TsConfigCache cache;
+    LookupTsConfigProvider(@Nullable TsConfigCache cache) {
+      this.cache = cache;
+    }
 
     @Override
     public List<String> tsconfigs(SensorContext context) {
+      if (cache != null) {
+        var tsconfigs = cache.listCachedTsConfigs(TsConfigOrigin.LOOKUP);
+        if (tsconfigs != null) {
+          return tsconfigs;
+        }
+
+      }
       var fs = context.fileSystem();
       var tsconfigs = new ArrayList<String>();
       var dirs = new ArrayDeque<File>();
@@ -186,15 +212,17 @@ public class TsConfigProvider {
           }
         }
       }
-      LOG.info("Found {} tsconfig.json file(s): {}",tsconfigs.size(), tsconfigs);
+      LOG.info("Found {} tsconfig.json file(s): {}", tsconfigs.size(), tsconfigs);
       return tsconfigs;
+    }
+
+    public TsConfigOrigin type() {
+      return TsConfigOrigin.LOOKUP;
     }
   }
 
   abstract static class GeneratedTsConfigFileProvider implements Provider {
-
     static class TsConfig {
-
       List<String> files;
       Map<String, Object> compilerOptions = new LinkedHashMap<>();
       List<String> include;
@@ -208,6 +236,7 @@ public class TsConfigProvider {
         }
         this.include = include;
       }
+
 
       List<String> writeFileWith(TsConfigFileCreator tsConfigFileCreator) {
         try {
@@ -223,6 +252,10 @@ public class TsConfigProvider {
 
     GeneratedTsConfigFileProvider(SonarProduct product) {
       this.product = product;
+    }
+
+    public TsConfigOrigin type() {
+      return TsConfigOrigin.FALLBACK;
     }
 
     @Override
@@ -243,7 +276,6 @@ public class TsConfigProvider {
   }
 
   static class DefaultTsConfigProvider extends GeneratedTsConfigFileProvider {
-
     private final Function<FileSystem, FilePredicate> filePredicateProvider;
     private final TsConfigFileCreator tsConfigFileCreator;
 
@@ -274,7 +306,6 @@ public class TsConfigProvider {
   }
 
   static class WildcardTsConfigProvider extends GeneratedTsConfigFileProvider {
-
     private static String getProjectRoot(SensorContext context) {
       var projectBaseDir = context.fileSystem().baseDir().getAbsolutePath();
       return "/".equals(File.separator)

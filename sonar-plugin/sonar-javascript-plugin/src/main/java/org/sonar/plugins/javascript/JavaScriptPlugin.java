@@ -39,6 +39,7 @@ import org.sonar.plugins.javascript.analysis.CssRuleSensor;
 import org.sonar.plugins.javascript.analysis.HtmlSensor;
 import org.sonar.plugins.javascript.analysis.JsTsChecks;
 import org.sonar.plugins.javascript.analysis.JsTsSensor;
+import org.sonar.plugins.javascript.analysis.TsConfigCacheImpl;
 import org.sonar.plugins.javascript.analysis.TsConfigProvider;
 import org.sonar.plugins.javascript.analysis.YamlSensor;
 import org.sonar.plugins.javascript.bridge.AnalysisWarningsWrapper;
@@ -323,7 +324,7 @@ public class JavaScriptPlugin implements Plugin {
       );
     } else {
       var sonarLintPluginAPIManager = new SonarLintPluginAPIManager();
-      sonarLintPluginAPIManager.addSonarLintTypeCheckingChecker(
+      sonarLintPluginAPIManager.addSonarLintExtensions(
         context,
         new SonarLintPluginAPIVersion()
       );
@@ -332,14 +333,15 @@ public class JavaScriptPlugin implements Plugin {
 
   static class SonarLintPluginAPIManager {
 
-    public void addSonarLintTypeCheckingChecker(
+    public void addSonarLintExtensions(
       Context context,
       SonarLintPluginAPIVersion sonarLintPluginAPIVersion
     ) {
       if (sonarLintPluginAPIVersion.isDependencyAvailable()) {
         context.addExtension(SonarLintTypeCheckingCheckerImpl.class);
+        context.addExtension(TsConfigCacheImpl.class);
       } else {
-        LOG.debug("Error while trying to inject SonarLintTypeCheckingChecker");
+        LOG.debug("Error while trying to inject SonarLint extensions");
       }
     }
   }
@@ -348,7 +350,7 @@ public class JavaScriptPlugin implements Plugin {
 
     boolean isDependencyAvailable() {
       try {
-        Class.forName("org.sonarsource.sonarlint.plugin.api.module.file.ModuleFileSystem");
+        Class.forName("org.sonarsource.sonarlint.plugin.api.module.file.ModuleFileListener");
       } catch (ClassNotFoundException e) {
         return false;
       }
