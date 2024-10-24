@@ -187,8 +187,9 @@ class TsConfigCacheTest {
     var foundTsConfig = tsConfigCache.getTsConfigForInputFile(file1);
     assertThat(foundTsConfig.getFilename()).isEqualTo(tsConfigFile.getFilename());
 
+    Path tsconfig2 = baseDir.resolve("tsconfig.app.json");
     var tsConfigInputFile = TestInputFileBuilder.create(baseDir.toString(), "tsconfig.app.json").build();
-    Files.createFile(Path.of(tsConfigInputFile.absolutePath()));
+    Files.createFile(tsconfig2);
     var fileEvent = DefaultModuleFileEvent.of(tsConfigInputFile, ModuleFileEvent.Type.CREATED);
     tsConfigCache.process(fileEvent);
     var propertyCachedTsConfig = tsConfigCache.listCachedTsConfigs(TsConfigOrigin.PROPERTY);
@@ -196,7 +197,7 @@ class TsConfigCacheTest {
 
     TsConfigProvider.getTsConfigs(new ContextUtils(ctx), null, this::tsConfigFileCreator, tsConfigCache);
     propertyCachedTsConfig = tsConfigCache.listCachedTsConfigs(TsConfigOrigin.PROPERTY);
-    assertThat(propertyCachedTsConfig).containsExactlyInAnyOrder(tsconfig1.toAbsolutePath().toString(), tsConfigInputFile.absolutePath());
+    assertThat(propertyCachedTsConfig).containsExactlyInAnyOrder(tsconfig1.toAbsolutePath().toString(), tsconfig2.toAbsolutePath().toString());
   }
 
   private Pair<InputFile, TsConfigFile> prepareFileAndTsConfig() throws IOException {
