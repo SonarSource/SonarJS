@@ -27,8 +27,19 @@ import org.sonar.plugins.javascript.JavaScriptPlugin;
 
 class ContextUtils {
 
-  /* Internal property to enable Armor (disabled by default) */
+  /**
+   * Internal property to enable SonarArmor (disabled by default), now called Jasmin
+   * @deprecated Kept for backwards compatibility until SonarArmor has been renamed to Jasmin, to allow for a smooth transition. Roadmap:
+   * 1. Merge this
+   * 2. Rename SonarArmor to Jasmin on SonarArmor repository, this includes renaming the flag
+   * 3. Once Jasmin renaming is on master, change the flags in the Peachee jobs
+   * 4. Finally, remove this flag here
+   */
+  @Deprecated(forRemoval = true)
   private static final String ARMOR_INTERNAL_ENABLED = "sonar.armor.internal.enabled";
+
+  /* Internal property to enable Jasmin (disabled by default) */
+  private static final String JASMIN_INTERNAL_ENABLED = "sonar.jasmin.internal.enabled";
 
   /* Internal property to enable JaRED (disabled by default) */
   private static final String JARED_INTERNAL_ENABLED = "sonar.jared.internal.enabled";
@@ -66,8 +77,13 @@ class ContextUtils {
     return context;
   }
 
+  @Deprecated(forRemoval = true)
   boolean isSonarArmorEnabled() {
     return context.config().getBoolean(ARMOR_INTERNAL_ENABLED).orElse(false);
+  }
+
+  boolean isSonarJasminEnabled() {
+    return context.config().getBoolean(JASMIN_INTERNAL_ENABLED).orElse(false);
   }
 
   boolean isSonarJaredEnabled() {
