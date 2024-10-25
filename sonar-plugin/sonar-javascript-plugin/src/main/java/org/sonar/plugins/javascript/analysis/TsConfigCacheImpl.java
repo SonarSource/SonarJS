@@ -75,7 +75,13 @@ public class TsConfigCacheImpl implements TsConfigCache, ModuleFileListener {
         }
         if (inputFileToTsConfigFilesMap.containsKey(inputFilePath)) {
           var foundTsConfigFile = inputFileToTsConfigFilesMap.get(inputFilePath);
-          LOG.info("Using tsConfig {} for file source file {} ({}/{} tsconfigs not yet checked)", foundTsConfigFile.getFilename(), inputFilePath, pendingTsConfigFiles.size(), discoveredTsConfigFiles.size());
+          LOG.info(
+            "Using tsConfig {} for file source file {} ({}/{} tsconfigs not yet checked)",
+            foundTsConfigFile.getFilename(),
+            inputFilePath,
+            pendingTsConfigFiles.size(),
+            discoveredTsConfigFiles.size()
+          );
           return inputFileToTsConfigFilesMap.get(inputFilePath);
         }
       }
