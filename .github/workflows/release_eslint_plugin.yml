@@ -37,7 +37,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 18
-      - run: cp .github/workflows/.npmrc packages/jsts/src/rules/.npmrc
+      - run: cp .github/workflows/.npmrc .npmrc
       - name: Publish npm package
         env:
           NPM_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).npm_token }}
@@ -45,6 +45,7 @@ jobs:
           jfrog rt npm-config --repo-resolve npm --repo-deploy sonarsource-npm-public-qa
           jfrog rt npm-ci
           npm run eslint-plugin:compile
+          cp .npmrc lib/.npmrc
           cd lib
           npm version $RELEASE_TAG --no-git-tag-version
           npm publish
