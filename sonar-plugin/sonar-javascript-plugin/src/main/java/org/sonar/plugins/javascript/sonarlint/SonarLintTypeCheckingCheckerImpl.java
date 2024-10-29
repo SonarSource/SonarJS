@@ -28,6 +28,7 @@ import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.plugins.javascript.analysis.TsConfigCache;
 import org.sonar.plugins.javascript.utils.PathWalker;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
@@ -43,7 +44,11 @@ public class SonarLintTypeCheckingCheckerImpl implements SonarLintTypeCheckingCh
 
   private boolean shouldCheck = true;
 
-  public boolean isBeyondLimit() {
+  public boolean isBeyondLimit(SensorContext context) {
+    if (shouldCheck) {
+      checkLimit(context);
+      shouldCheck = false;
+    }
     return beyondLimit;
   }
 

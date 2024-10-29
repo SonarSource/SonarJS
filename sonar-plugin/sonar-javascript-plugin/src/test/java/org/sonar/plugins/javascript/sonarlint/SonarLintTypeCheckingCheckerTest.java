@@ -34,6 +34,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.log.LoggerLevel;
@@ -55,7 +56,7 @@ class SonarLintTypeCheckingCheckerTest {
     inputFile("node_modules", "dep.js");
     var checker = sonarLintTypeCheckingChecker(2);
 
-    assertThat(checker.isBeyondLimit()).isFalse();
+    assertThat(checker.isBeyondLimit(SensorContextTester.create(baseDir))).isFalse();
     assertThat(logTester.logs()).contains("Turning on type-checking of JavaScript files");
   }
 
@@ -68,7 +69,7 @@ class SonarLintTypeCheckingCheckerTest {
     inputFile("file4.cts");
     var checker = sonarLintTypeCheckingChecker(3);
 
-    assertThat(checker.isBeyondLimit()).isTrue();
+    assertThat(checker.isBeyondLimit(SensorContextTester.create(baseDir))).isTrue();
     assertThat(logTester.logs())
       .contains(
         "Turning off type-checking of JavaScript files due to the project size exceeding the limit (3 files)",
@@ -84,7 +85,7 @@ class SonarLintTypeCheckingCheckerTest {
     logTester.setLevel(LoggerLevel.WARN);
     var checker = sonarLintTypeCheckingChecker(new IllegalArgumentException());
 
-    assertThat(checker.isBeyondLimit()).isTrue();
+    assertThat(checker.isBeyondLimit(SensorContextTester.create(baseDir))).isTrue();
     assertThat(logTester.logs())
       .containsExactly("Turning off type-checking of JavaScript files due to unexpected error");
   }

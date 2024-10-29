@@ -271,7 +271,7 @@ class TsConfigProviderTest {
     createInputFile(ctx, "file2.js");
 
     var checker = mock(SonarLintTypeCheckingChecker.class);
-    when(checker.isBeyondLimit()).thenReturn(false);
+    when(checker.isBeyondLimit(ctx)).thenReturn(false);
 
     var provider = new WildcardTsConfigProvider(
       checker,
@@ -288,7 +288,7 @@ class TsConfigProviderTest {
         )
       );
 
-    when(checker.isBeyondLimit()).thenReturn(true);
+    when(checker.isBeyondLimit(ctx)).thenReturn(true);
     provider =
       new WildcardTsConfigProvider(
         checker,
@@ -297,7 +297,7 @@ class TsConfigProviderTest {
     assertThat(provider.tsconfigs(ctx)).isEmpty();
 
     provider =
-      new WildcardTsConfigProvider(null, TsConfigProviderTest::createTsConfigFile);
+      new WildcardTsConfigProvider(checker, TsConfigProviderTest::createTsConfigFile);
     assertThat(provider.tsconfigs(ctx)).isEmpty();
   }
 
@@ -310,7 +310,7 @@ class TsConfigProviderTest {
     ctx.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 4)));
 
     var checker = mock(SonarLintTypeCheckingChecker.class);
-    when(checker.isBeyondLimit()).thenReturn(false);
+    when(checker.isBeyondLimit(ctx)).thenReturn(false);
 
     tsconfigs =
       new WildcardTsConfigProvider(
@@ -331,7 +331,7 @@ class TsConfigProviderTest {
     createInputFile(ctx, "file.js");
 
     var checker = mock(SonarLintTypeCheckingChecker.class);
-    when(checker.isBeyondLimit()).thenReturn(false);
+    when(checker.isBeyondLimit(ctx)).thenReturn(false);
 
     var fileWriter = mock(TsConfigFileCreator.class);
     when(fileWriter.createTsConfigFile(anyString())).thenThrow(IOException.class);

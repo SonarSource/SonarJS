@@ -23,12 +23,6 @@ import javax.annotation.Nullable;
 import org.sonar.api.batch.sensor.SensorContext;
 
 public interface SonarLintTypeCheckingChecker {
-  static void checkOnce(@Nullable SonarLintTypeCheckingChecker checker, SensorContext context) {
-    if (checker != null) {
-      checker.checkOnce(context);
-    }
-  }
-
   void checkOnce(SensorContext context);
-  boolean isBeyondLimit();
+  boolean isBeyondLimit(SensorContext context);
 }
