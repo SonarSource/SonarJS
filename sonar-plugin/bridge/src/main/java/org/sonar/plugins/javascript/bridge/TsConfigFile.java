@@ -19,31 +19,18 @@
  */
 package org.sonar.plugins.javascript.bridge;
 
-import static java.util.Collections.emptyList;
-
 import java.io.IOException;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.fs.InputFile;
 
-public class TsConfigFile implements Predicate<InputFile> {
+public class TsConfigFile {
 
   private static final Logger LOG = LoggerFactory.getLogger(TsConfigFile.class);
-
-  public static final TsConfigFile UNMATCHED_CONFIG = new TsConfigFile(
-    "NO_CONFIG",
-    emptyList(),
-    emptyList()
-  );
 
   final String filename;
   final Set<String> files;
@@ -55,17 +42,11 @@ public class TsConfigFile implements Predicate<InputFile> {
     this.projectReferences = projectReferences;
   }
 
-  static String normalizePath(String path) {
-    try {
-      return Path
-        .of(path)
-        .toRealPath(LinkOption.NOFOLLOW_LINKS)
-        .toString()
-        .replaceAll("[\\\\/]", "/");
-    } catch (IOException e) {
-      LOG.debug("Could not normalize {}", path);
-      return path;
-    }
+  public static String normalizePath(String path) {
+    return Path
+      .of(path)
+      .toString()
+      .replaceAll("[\\\\/]", "/");
   }
 
   public List<String> getProjectReferences() {
@@ -76,27 +57,8 @@ public class TsConfigFile implements Predicate<InputFile> {
     return filename;
   }
 
-  @Override
-  public boolean test(InputFile inputFile) {
-    var path = normalizePath(inputFile.absolutePath());
-    return files.contains(path);
-  }
-
-  public static Map<TsConfigFile, List<InputFile>> inputFilesByTsConfig(
-    List<TsConfigFile> tsConfigFiles,
-    List<InputFile> inputFiles
-  ) {
-    Map<TsConfigFile, List<InputFile>> result = new LinkedHashMap<>();
-    inputFiles.forEach(inputFile -> {
-      TsConfigFile tsconfig = tsConfigFiles
-        .stream()
-        .filter(tsConfigFile -> tsConfigFile.test(inputFile))
-        .findFirst()
-        .orElse(UNMATCHED_CONFIG);
-      LOG.debug("{} matched {}", inputFile, tsconfig);
-      result.computeIfAbsent(tsconfig, t -> new ArrayList<>()).add(inputFile);
-    });
-    return result;
+  public Set<String> getFiles() {
+    return files;
   }
 
   @Override

@@ -33,6 +33,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,6 +41,9 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -119,6 +123,7 @@ class JsTsSensorTest {
 
   @Mock
   private BridgeServerImpl bridgeServerMock;
+  private TsConfigCache tsConfigCache;
 
   private final TestAnalysisWarnings analysisWarnings = new TestAnalysisWarnings();
 
@@ -174,6 +179,7 @@ class JsTsSensorTest {
     FileLinesContext fileLinesContext = mock(FileLinesContext.class);
     when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(fileLinesContext);
     processAnalysis = new AnalysisProcessor(new DefaultNoSonarFilter(), fileLinesContextFactory);
+    tsConfigCache = new TsConfigCacheImpl(bridgeServerMock);
   }
 
   @Test
@@ -712,6 +718,13 @@ class JsTsSensorTest {
       .contains("File not part of any tsconfig.json: dir/file.ts");
   }
 
+  private static Stream<Arguments> provideAnalyzeByTsConfig() {
+    return Stream.of(
+      Arguments.of(true, 2), // SonarLint = true, 2 invocations
+      Arguments.of(false, 3) // SonarLint = false, 3 invocations
+    );
+  }
+
   @Test
   void should_resolve_project_references_from_tsconfig() throws Exception {
     Path baseDir = Paths.get("src/test/resources/solution-tsconfig");
@@ -720,8 +733,8 @@ class JsTsSensorTest {
     DefaultInputFile file1 = inputFileFromResource(context, baseDir, "src/file.ts");
 
     String tsconfig = absolutePath(baseDir, "tsconfig.json");
-    String appTsConfig = "src/tsconfig.app.json";
-    String appTsConfig2 = "src/tsconfig.app2.json";
+    String appTsConfig = absolutePath(baseDir, "src/tsconfig.app.json");
+    String appTsConfig2 = absolutePath(baseDir, "src/tsconfig.app2.json");
 
     // we intentionally create cycle between appTsConfig and appTsConfig2
     when(bridgeServerMock.loadTsConfig(anyString()))
@@ -742,7 +755,8 @@ class JsTsSensorTest {
     ArgumentCaptor<JsAnalysisRequest> captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
     createSensor().execute(context);
 
-    verify(bridgeServerMock, times(3)).loadTsConfig(anyString());
+    // Only 2 calls, as we already find the necessary tsconfig (src/tsconfig.app.json) on the 2nd call
+    verify(bridgeServerMock, times(2)).loadTsConfig(anyString());
     verify(bridgeServerMock, times(1)).analyzeTypeScript(captor.capture());
     assertThat(captor.getAllValues())
       .extracting(req -> req.filePath())
@@ -1006,7 +1020,7 @@ class JsTsSensorTest {
   }
 
   private AnalysisWithWatchProgram analysisWithWatchProgram() {
-    return new AnalysisWithWatchProgram(bridgeServerMock, processAnalysis, analysisWarnings);
+    return new AnalysisWithWatchProgram(bridgeServerMock, processAnalysis, analysisWarnings, tsConfigCache);
   }
 
   private AnalysisResponse createResponse() {
