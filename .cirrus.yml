@@ -129,6 +129,7 @@ build_task:
   build_and_deploy_script:
     - source cirrus-env BUILD
     - node --version
+    - npm run check-format
     - npm run build
     - regular_mvn_build_deploy_analyze -Dmaven.test.skip=true -Dmaven.install.skip=true -Dsonar.skip=true
   cleanup_before_cache_script: cleanup_maven_repository

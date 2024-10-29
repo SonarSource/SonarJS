@@ -31,6 +31,15 @@ public class TsConfigCacheImpl implements TsConfigCache, ModuleFileListener {
   BridgeServer bridgeServer;
   TsConfigOrigin origin;
 
+  Map<TsConfigOrigin, Cache> cacheMap = new EnumMap<>(TsConfigOrigin.class);
+
+  TsConfigCacheImpl(BridgeServer bridgeServer) {
+    this.bridgeServer = bridgeServer;
+    cacheMap.put(TsConfigOrigin.PROPERTY, new Cache());
+    cacheMap.put(TsConfigOrigin.LOOKUP, new Cache());
+    cacheMap.put(TsConfigOrigin.FALLBACK, new Cache());
+  }
+
   class Cache {
     Map<String, TsConfigFile> inputFileToTsConfigFilesMap = new HashMap<>();
     Set<String> discoveredTsConfigFiles = new HashSet<>();
@@ -48,19 +57,9 @@ public class TsConfigCacheImpl implements TsConfigCache, ModuleFileListener {
         return inputFileToTsConfigFilesMap.get(inputFilePath);
       }
 
-      var newPendingTsConfigFiles = new ArrayList<String>();
-      var notMatchingPendingTsConfigFiles = new ArrayList<String>();
-      pendingTsConfigFiles.forEach(ts -> {
-        if (inputFile.absolutePath().startsWith(Path.of(ts).getParent().toAbsolutePath().toString())) {
-          newPendingTsConfigFiles.add(ts);
-        } else {
-          notMatchingPendingTsConfigFiles.add(ts);
-        }
-      });
-      pendingTsConfigFiles = new ArrayDeque<>(newPendingTsConfigFiles);
-      pendingTsConfigFiles.addAll(notMatchingPendingTsConfigFiles);
-      LOG.debug("Continuing BFS for file: {}, pending order: {}", inputFilePath, pendingTsConfigFiles);
+      pendingTsConfigFiles = improvedPendingTsConfigOrder(inputFile);
 
+      LOG.debug("Continuing BFS for file: {}, pending order: {}", inputFilePath, pendingTsConfigFiles);
       while (!pendingTsConfigFiles.isEmpty()) {
         var tsConfigPath = pendingTsConfigFiles.pop();
         LOG.debug("Computing tsconfig {} from bridge", tsConfigPath);
@@ -94,25 +93,43 @@ public class TsConfigCacheImpl implements TsConfigCache, ModuleFileListener {
       originalTsConfigFiles = tsconfigs;
       clearFileToTsConfigCache();
     }
+
     void clearAll() {
       initialized = false;
       originalTsConfigFiles = new ArrayList<>();
       clearFileToTsConfigCache();
     }
+
     void clearFileToTsConfigCache() {
       inputFileToTsConfigFilesMap.clear();
       discoveredTsConfigFiles = new HashSet<>(originalTsConfigFiles);
       pendingTsConfigFiles = new ArrayDeque<>(originalTsConfigFiles);
     }
-  }
 
-  Map<TsConfigOrigin, Cache> cacheMap = new EnumMap<>(TsConfigOrigin.class);
-
-  TsConfigCacheImpl(BridgeServer bridgeServer) {
-    this.bridgeServer = bridgeServer;
-    cacheMap.put(TsConfigOrigin.PROPERTY, new Cache());
-    cacheMap.put(TsConfigOrigin.LOOKUP, new Cache());
-    cacheMap.put(TsConfigOrigin.FALLBACK, new Cache());
+    /**
+     * Compute an improved order of the pending tsconfig files with respect to the given inputFile.
+     * This is based on the assumption that a tsconfig *should be* in some parent folder of the inputFile.
+     * As an example, for a file in "/usr/path1/path2/index.js", we would identify look for tsconfig's in the exact
+     * folders * "/", "/usr/", "/usr/path1/", "/usr/path1/path2/" and move them to the front.
+     * Note: This will not change the order between the identified and non-identified tsconfigs.
+     * Time and space complexity: O(n).
+     *
+     * @param inputFile current file to analyze
+     * @return Reordered queue of tsconfig files
+     */
+    private Deque<String> improvedPendingTsConfigOrder(InputFile inputFile) {
+      var newPendingTsConfigFiles = new ArrayDeque<String>();
+      var notMatchingPendingTsConfigFiles = new ArrayList<String>();
+      pendingTsConfigFiles.forEach(ts -> {
+        if (inputFile.absolutePath().startsWith(Path.of(ts).getParent().toAbsolutePath().toString())) {
+          newPendingTsConfigFiles.add(ts);
+        } else {
+          notMatchingPendingTsConfigFiles.add(ts);
+        }
+      });
+      newPendingTsConfigFiles.addAll(notMatchingPendingTsConfigFiles);
+      return newPendingTsConfigFiles;
+    }
   }
 
   public TsConfigFile getTsConfigForInputFile(InputFile inputFile) {
@@ -163,7 +180,8 @@ public class TsConfigCacheImpl implements TsConfigCache, ModuleFileListener {
         cacheMap.get(TsConfigOrigin.PROPERTY).clearAll();
       }
     } else if (moduleFileEvent.getType() == ModuleFileEvent.Type.CREATED && (JavaScriptFilePredicate.isJavaScriptFile(file) || JavaScriptFilePredicate.isTypeScriptFile(file))) {
-      // if there is a new file, we need to know to which tsconfig it belongs to
+      // The file to tsconfig cache is cleared, as potentially the tsconfig file that would cover this new file
+      // has already been processed, and we would not be aware of it. By clearing the cache, we guarantee correctness.
       LOG.debug("Clearing input file to tsconfig cache");
       cacheMap.values().forEach(Cache::clearFileToTsConfigCache);
     }

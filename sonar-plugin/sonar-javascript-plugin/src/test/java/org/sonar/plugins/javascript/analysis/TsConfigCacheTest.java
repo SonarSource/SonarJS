@@ -132,7 +132,7 @@ class TsConfigCacheTest {
   }
 
   @Test
-  void testClearCacheOnTsConfigChange() throws Exception {
+  void testClearCacheOnTsConfigChange() throws IOException {
     var fileAndTsConfig = prepareFileAndTsConfig();
     var file1 = fileAndTsConfig.getLeft();
     var tsConfigFile = fileAndTsConfig.getRight();
@@ -145,6 +145,30 @@ class TsConfigCacheTest {
     tsConfigCache.process(fileEvent);
     var newTsConfig = tsConfigCache.getTsConfigForInputFile(file1);
     assertThat(newTsConfig).isNull();
+  }
+
+  @Test
+  void testResolvesReferences() throws IOException {
+    var file1 = TestInputFileBuilder.create(baseDir.toString(), "file1.ts").setLanguage(TypeScriptLanguage.KEY).build();
+    Path tsconfig1 = baseDir.resolve("tsconfig.json");
+    Path tsconfig2 = baseDir.resolve("tsconfig2.json");
+    var tsConfigFile1 = new TsConfigFile(tsconfig1.toAbsolutePath().toString(), emptyList(), singletonList(tsconfig2.toAbsolutePath().toString()));
+    var tsConfigFile2 = new TsConfigFile(tsconfig2.toAbsolutePath().toString(), singletonList(file1.absolutePath()), emptyList());
+    Files.createFile(tsconfig1);
+    Files.createFile(tsconfig2);
+
+    SensorContextTester ctx = SensorContextTester.create(baseDir);
+    TsConfigProvider.getTsConfigs(new ContextUtils(ctx), null, this::tsConfigFileCreator, tsConfigCache);
+    when(bridgeServerMock.loadTsConfig(any())).thenAnswer(invocationOnMock -> {
+      String tsConfigPath = (String) invocationOnMock.getArguments()[0];
+      if (tsConfigPath.equals(tsConfigFile1.getFilename())) {
+        return tsConfigFile1;
+      } else {
+        return tsConfigFile2;
+      }
+    });
+    var foundTsConfig = tsConfigCache.getTsConfigForInputFile(file1);
+    assertThat(foundTsConfig.getFilename()).isEqualTo(tsConfigFile2.getFilename());
   }
 
   @ParameterizedTest
