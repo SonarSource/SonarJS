@@ -19,10 +19,8 @@
  */
 package org.sonar.plugins.javascript.sonarlint;
 
-import javax.annotation.Nullable;
 import org.sonar.api.batch.sensor.SensorContext;
 
 public interface SonarLintTypeCheckingChecker {
-  void checkOnce(SensorContext context);
   boolean isBeyondLimit(SensorContext context);
 }

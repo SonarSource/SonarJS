@@ -51,13 +51,6 @@ public class SonarLintTypeCheckingCheckerImpl implements SonarLintTypeCheckingCh
     return beyondLimit;
   }
 
-  public void checkOnce(SensorContext context) {
-    if (shouldCheck) {
-      checkLimit(context);
-      shouldCheck = false;
-    }
-  }
-
   private void checkLimit(SensorContext context) {
     try {
       var typeCheckingLimit = getTypeCheckingLimit(context);
