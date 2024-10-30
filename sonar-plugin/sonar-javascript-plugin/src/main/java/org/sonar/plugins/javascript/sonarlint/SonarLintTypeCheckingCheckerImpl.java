@@ -43,15 +43,12 @@ public class SonarLintTypeCheckingCheckerImpl implements SonarLintTypeCheckingCh
 
   private boolean shouldCheck = true;
 
-  public boolean isBeyondLimit() {
-    return beyondLimit;
-  }
-
-  public void checkOnce(SensorContext context) {
+  public boolean isBeyondLimit(SensorContext context) {
     if (shouldCheck) {
       checkLimit(context);
       shouldCheck = false;
     }
+    return beyondLimit;
   }
 
   private void checkLimit(SensorContext context) {

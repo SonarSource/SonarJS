@@ -317,7 +317,7 @@ public class TsConfigProvider {
       new ConcurrentHashMap<>();
 
     final TsConfigFileCreator tsConfigFileCreator;
-    private final boolean deactivated;
+    SonarLintTypeCheckingChecker checker;
 
     WildcardTsConfigProvider(
       @Nullable SonarLintTypeCheckingChecker checker,
@@ -325,11 +325,12 @@ public class TsConfigProvider {
     ) {
       super(SonarProduct.SONARLINT);
       this.tsConfigFileCreator = tsConfigFileCreator;
-      deactivated = checker == null || checker.isBeyondLimit();
+      this.checker = checker;
     }
 
     @Override
     List<String> getDefaultTsConfigs(SensorContext context) {
+      boolean deactivated = checker == null || checker.isBeyondLimit(context);
       if (deactivated) {
         return emptyList();
       } else {

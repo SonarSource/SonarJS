@@ -53,9 +53,9 @@ class SonarLintTypeCheckingCheckerTest {
     inputFile("file.css");
     inputFile("file.d.ts");
     inputFile("node_modules", "dep.js");
-    var checker = sonarLintTypeCheckingChecker(2);
 
-    assertThat(checker.isBeyondLimit()).isFalse();
+    var checker = new SonarLintTypeCheckingCheckerImpl();
+    assertThat(checker.isBeyondLimit(sensorContext(3))).isFalse();
     assertThat(logTester.logs()).contains("Turning on type-checking of JavaScript files");
   }
 
@@ -66,9 +66,9 @@ class SonarLintTypeCheckingCheckerTest {
     inputFile("file2.ts");
     inputFile("file3.cjs");
     inputFile("file4.cts");
-    var checker = sonarLintTypeCheckingChecker(3);
+    var checker = new SonarLintTypeCheckingCheckerImpl();
 
-    assertThat(checker.isBeyondLimit()).isTrue();
+    assertThat(checker.isBeyondLimit(sensorContext(3))).isTrue();
     assertThat(logTester.logs())
       .contains(
         "Turning off type-checking of JavaScript files due to the project size exceeding the limit (3 files)",
@@ -82,25 +82,13 @@ class SonarLintTypeCheckingCheckerTest {
   @Test
   void should_detect_errors() {
     logTester.setLevel(LoggerLevel.WARN);
-    var checker = sonarLintTypeCheckingChecker(new IllegalArgumentException());
-
-    assertThat(checker.isBeyondLimit()).isTrue();
-    assertThat(logTester.logs())
-      .containsExactly("Turning off type-checking of JavaScript files due to unexpected error");
-  }
-
-  private SonarLintTypeCheckingChecker sonarLintTypeCheckingChecker(int maxFiles) {
-    var checker = new SonarLintTypeCheckingCheckerImpl();
-    checker.checkOnce(sensorContext(maxFiles));
-    return checker;
-  }
-
-  private SonarLintTypeCheckingChecker sonarLintTypeCheckingChecker(RuntimeException error) {
     var checker = new SonarLintTypeCheckingCheckerImpl();
     var context = sensorContext();
-    when(context.fileSystem().baseDir()).thenThrow(error);
-    checker.checkOnce(context);
-    return checker;
+    when(context.fileSystem().baseDir()).thenThrow(new IllegalArgumentException());
+
+    assertThat(checker.isBeyondLimit(context)).isTrue();
+    assertThat(logTester.logs())
+      .containsExactly("Turning off type-checking of JavaScript files due to unexpected error");
   }
 
   private SensorContext sensorContext() {
