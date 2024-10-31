@@ -141,7 +141,7 @@ class EslintBasedRulesTest {
       .setSourceEncoding("UTF-8")
       .setSourceDirs(".")
       .setProjectDir(TestUtils.projectDirNoCopy("file-filter/excluded_dir/project"))
-      .setProperty("sonar.javascript.exclusions", "excluded_dir/**");
+      .setProperty("sonar.javascript.exclusions", "excluded_dir/**,**/node_modules");
 
     OrchestratorStarter.setProfile(projectKey, jsProfile, "js");
 
