@@ -319,26 +319,26 @@ public class TsConfigProvider {
     static final String MAX_FILES_PROPERTY = "sonar.javascript.sonarlint.typechecking.maxfiles";
     static final int DEFAULT_MAX_FILES_FOR_TYPE_CHECKING = 20_000;
 
-    private static String getProjectRoot(SensorContext context) {
-      var projectBaseDir = context.fileSystem().baseDir().getAbsolutePath();
-      return "/".equals(File.separator)
-        ? projectBaseDir
-        : projectBaseDir.replace(File.separator, "/");
-    }
-
     private static final Map<String, List<String>> defaultWildcardTsConfig =
       new ConcurrentHashMap<>();
 
-    final TsConfigFileCreator tsConfigFileCreator;
     final TsConfigCache tsConfigCache;
+    final TsConfigFileCreator tsConfigFileCreator;
 
     WildcardTsConfigProvider(
       @Nullable TsConfigCache tsConfigCache,
       TsConfigFileCreator tsConfigFileCreator
     ) {
       super(SonarProduct.SONARLINT);
-      this.tsConfigFileCreator = tsConfigFileCreator;
       this.tsConfigCache = tsConfigCache;
+      this.tsConfigFileCreator = tsConfigFileCreator;
+    }
+
+    private static String getProjectRoot(SensorContext context) {
+      var projectBaseDir = context.fileSystem().baseDir().getAbsolutePath();
+      return "/".equals(File.separator)
+        ? projectBaseDir
+        : projectBaseDir.replace(File.separator, "/");
     }
 
     @Override

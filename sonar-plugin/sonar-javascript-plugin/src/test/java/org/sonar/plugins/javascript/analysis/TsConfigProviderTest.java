@@ -256,7 +256,7 @@ class TsConfigProviderTest {
     String tsconfig = Files.readString(Paths.get(tsconfigs.get(0)));
     assertThat(tsconfig)
       .isEqualTo(
-        String.format("{\"files\":[\"%s/file1.ts\",\"%s/file2.ts\"],\"compilerOptions\":{\"allowJs\":true,\"noImplicitAny\":true}}", baseDir.toString(), baseDir.toString())
+        String.format("{\"files\":[\"%s/file1.ts\",\"%s/file2.ts\"],\"compilerOptions\":{\"allowJs\":true,\"noImplicitAny\":true}}", baseDir.toString().replaceAll("[\\\\/]", "/"), baseDir.toString().replaceAll("[\\\\/]", "/"))
       );
   }
 
