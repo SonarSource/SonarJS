@@ -20,8 +20,8 @@
 package org.sonar.plugins.javascript.analysis;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.plugins.javascript.analysis.TsConfigProvider.LookupTsConfigProvider.FileFilter;
-import static org.sonar.plugins.javascript.analysis.TsConfigProvider.LookupTsConfigProvider.PathFilter;
+import static org.sonar.plugins.javascript.analysis.LookupConfigProviderFilter.FileFilter;
+import static org.sonar.plugins.javascript.analysis.LookupConfigProviderFilter.PathFilter;
 
 import java.io.IOException;
 import java.nio.file.Files;
