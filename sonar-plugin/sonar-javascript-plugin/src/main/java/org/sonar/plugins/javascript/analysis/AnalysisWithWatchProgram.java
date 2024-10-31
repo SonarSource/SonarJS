@@ -26,6 +26,7 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonar.plugins.javascript.bridge.AnalysisWarningsWrapper;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
+import org.sonar.plugins.javascript.sonarlint.TsConfigCache;
 import org.sonar.plugins.javascript.utils.ProgressReport;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 

@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.javascript.sonarlint;
+package org.sonar.plugins.javascript.analysis;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.plugins.javascript.sonarlint.SonarLintTypeCheckingFilter.FileFilter;
-import static org.sonar.plugins.javascript.sonarlint.SonarLintTypeCheckingFilter.PathFilter;
+import static org.sonar.plugins.javascript.analysis.TsConfigProvider.LookupTsConfigProvider.FileFilter;
+import static org.sonar.plugins.javascript.analysis.TsConfigProvider.LookupTsConfigProvider.PathFilter;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -34,7 +34,7 @@ import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
 
-class SonarLintTypeCheckingFilterTest {
+class LookupConfigProviderFilterTest {
 
   @TempDir
   Path baseDir;

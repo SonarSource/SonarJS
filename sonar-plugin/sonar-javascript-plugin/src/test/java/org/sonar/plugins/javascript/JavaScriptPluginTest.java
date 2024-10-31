@@ -43,7 +43,7 @@ class JavaScriptPluginTest {
   private static final int JS_ADDITIONAL_EXTENSIONS = 4;
   private static final int TS_ADDITIONAL_EXTENSIONS = 3;
   private static final int CSS_ADDITIONAL_EXTENSIONS = 3;
-  private static final int SONARLINT_ADDITIONAL_EXTENSIONS = 2;
+  private static final int SONARLINT_ADDITIONAL_EXTENSIONS = 1;
 
   public static final Version LTS_VERSION = Version.create(7, 9);
 
