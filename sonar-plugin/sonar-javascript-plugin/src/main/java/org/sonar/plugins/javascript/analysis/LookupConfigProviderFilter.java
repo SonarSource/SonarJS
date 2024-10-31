@@ -15,6 +15,20 @@ import java.util.function.Predicate;
 import static java.util.Arrays.stream;
 import static java.util.stream.Stream.concat;
 
+/**
+ * This class partially reproduces the behavior of JavaScriptExclusionsFileFilter's implementation.
+ *
+ * The support of JavaScript type-checking in SonarLint context depends on the project size, which
+ * is manually computed by walking the file system. During the traversal, we need to replicate the
+ * plugin's file filtering logic to consider the same set of files during counting.
+ *
+ * The replication is partial; it limits itself to consider files with the expected extensions and
+ * located in directories that should not be excluded. However, minified files and files that are
+ * too big are not excluded, as they would require reading their content. Furthermore, TypeScript
+ * compiler would consider them regardless on program creation.
+ *
+ * @see JavaScriptExclusionsFileFilter
+ */
 public class LookupConfigProviderFilter {
   private LookupConfigProviderFilter() {}
 
