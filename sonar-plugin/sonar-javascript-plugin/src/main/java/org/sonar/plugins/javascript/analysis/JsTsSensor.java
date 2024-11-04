@@ -24,7 +24,6 @@ import static org.sonar.plugins.javascript.analysis.TsConfigProvider.getTsConfig
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.StreamSupport;
-import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.DependedUpon;
@@ -49,7 +48,6 @@ public class JsTsSensor extends AbstractBridgeSensor {
   private final AnalysisConsumers consumers;
   private final TsConfigCache tsConfigCache;
 
-  // Constructor for SonarCloud without the optional dependency (Pico doesn't support optional dependencies)
   public JsTsSensor(
     JsTsChecks checks,
     BridgeServer bridgeServer,
