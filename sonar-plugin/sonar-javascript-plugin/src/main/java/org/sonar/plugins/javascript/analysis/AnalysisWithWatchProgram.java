@@ -53,7 +53,6 @@ public class AnalysisWithWatchProgram extends AbstractAnalysis {
       progressReport.start(inputFiles.size(), inputFiles.iterator().next().toString());
       for (InputFile inputFile : inputFiles) {
         var tsConfigFile = tsConfigCache.getTsConfigForInputFile(inputFile);
-        // process
         analyzeFile(inputFile, tsConfigFile == null ? List.of() : List.of(tsConfigFile.getFilename()), null);
       }
       success = true;
