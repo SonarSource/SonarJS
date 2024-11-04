@@ -19,34 +19,21 @@
  */
 package org.sonar.plugins.javascript.bridge;
 
-import java.io.IOException;
-import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class TsConfigFile {
 
-  private static final Logger LOG = LoggerFactory.getLogger(TsConfigFile.class);
-
-  final String filename;
-  final Set<String> files;
-  final List<String> projectReferences;
+  private final String filename;
+  private final Set<String> files;
+  private final List<String> projectReferences;
 
   public TsConfigFile(String filename, List<String> files, List<String> projectReferences) {
     this.filename = filename;
     this.files = files.stream().map(TsConfigFile::normalizePath).collect(Collectors.toSet());
     this.projectReferences = projectReferences;
-  }
-
-  public static String normalizePath(String path) {
-    return Path
-      .of(path)
-      .toString()
-      .replaceAll("[\\\\/]", "/");
   }
 
   public List<String> getProjectReferences() {
@@ -64,5 +51,12 @@ public class TsConfigFile {
   @Override
   public String toString() {
     return filename;
+  }
+
+  private static String normalizePath(String path) {
+    return Path
+      .of(path)
+      .toString()
+      .replaceAll("[\\\\/]", "/");
   }
 }
