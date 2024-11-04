@@ -17,19 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import static java.util.Objects.requireNonNull;
+
+package com.sonar.javascript.it.plugin.sonarlint.tests;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Objects;
 import java.util.regex.Pattern;
 import org.sonarsource.sonarlint.core.analysis.api.ClientInputFile;
 
@@ -42,14 +41,14 @@ public class TestUtils {
    *
    */
   private static Path artifact() {
-    var target = homeDir()
-      .resolve("../../../../../../sonar-plugin/sonar-javascript-plugin/target")
-      .normalize();
-    try (var stream = Files.walk(target, 1)) {
-      return stream
-        .filter(p -> pluginFilenameMatcher().matcher(p.getFileName().toString()).matches())
-        .findAny()
-        .orElseThrow(() -> new IllegalStateException("Cannot find plugin artifact in " + target));
+    try {
+      var target = Path.of("../../../sonar-plugin/sonar-javascript-plugin/target").toRealPath();
+      try (var stream = Files.walk(target, 1)) {
+        return stream
+          .filter(p -> pluginFilenameMatcher().matcher(p.getFileName().toString()).matches())
+          .findAny()
+          .orElseThrow(() -> new IllegalStateException("Cannot find plugin artifact in " + target));
+      }
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }
@@ -59,14 +58,6 @@ public class TestUtils {
     return "multi".equals(System.getenv("SONARJS_ARTIFACT"))
       ? Pattern.compile("sonar-javascript-plugin-.*-multi\\.jar")
       : Pattern.compile("sonar-javascript-plugin-[0-9.]*(?:-SNAPSHOT)?\\.jar");
-  }
-
-  public static Path homeDir() {
-    try {
-      return Path.of(requireNonNull(TestUtils.class.getResource("TestUtils.txt")).toURI());
-    } catch (URISyntaxException e) {
-      throw new IllegalStateException(e);
-    }
   }
 
   public static Path projectDir(String projectName) {
