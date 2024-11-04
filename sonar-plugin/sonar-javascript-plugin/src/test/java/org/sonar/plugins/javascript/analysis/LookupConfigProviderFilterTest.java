@@ -73,10 +73,10 @@ class LookupConfigProviderFilterTest {
     Configuration config = settings.asConfig();
     var filter = new PathFilter(config);
 
-    assertThat(filter.test(inputFile("node_modules", "file.js"))).isTrue();
-    assertThat(filter.test(inputFile("bower_components", "file.jsx"))).isTrue();
-    assertThat(filter.test(inputFile("file.d.ts"))).isTrue();
-    assertThat(filter.test(inputFile("file.js"))).isFalse();
+    assertThat(filter.test(inputFile("node_modules", "file.js"))).isFalse();
+    assertThat(filter.test(inputFile("bower_components", "file.jsx"))).isFalse();
+    assertThat(filter.test(inputFile("file.d.ts"))).isFalse();
+    assertThat(filter.test(inputFile("file.js"))).isTrue();
   }
 
   @Test
@@ -88,10 +88,10 @@ class LookupConfigProviderFilterTest {
     Configuration config = settings.asConfig();
     var filter = new PathFilter(config);
 
-    assertThat(filter.test(inputFile("foo", "file.js"))).isTrue();
-    assertThat(filter.test(inputFile("bar", "file.ts"))).isTrue();
-    assertThat(filter.test(inputFile("qux", "file.cjs"))).isFalse();
-    assertThat(filter.test(inputFile("file.vue"))).isFalse();
+    assertThat(filter.test(inputFile("foo", "file.js"))).isFalse();
+    assertThat(filter.test(inputFile("bar", "file.ts"))).isFalse();
+    assertThat(filter.test(inputFile("qux", "file.cjs"))).isTrue();
+    assertThat(filter.test(inputFile("file.vue"))).isTrue();
   }
 
   private Path inputFile(String filename) throws IOException {

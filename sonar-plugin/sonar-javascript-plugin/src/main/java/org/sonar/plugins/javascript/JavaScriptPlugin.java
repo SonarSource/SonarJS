@@ -120,15 +120,10 @@ public class JavaScriptPlugin implements Plugin {
   public static final String TS_EXCLUSIONS_KEY = "sonar.typescript.exclusions";
   public static final String[] EXCLUSIONS_DEFAULT_VALUE = new String[] {
     "**/node_modules/**",
-    "**/node_modules",
     "**/bower_components/**",
-    "**/bower_components",
     "**/dist/**",
-    "**/dist",
     "**/vendor/**",
-    "**/vendor",
     "**/external/**",
-    "**/external",
     "**/*.d.ts",
   };
 

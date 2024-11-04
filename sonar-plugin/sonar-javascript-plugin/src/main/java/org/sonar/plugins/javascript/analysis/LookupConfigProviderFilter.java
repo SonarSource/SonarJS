@@ -109,7 +109,7 @@ public class LookupConfigProviderFilter {
 
     @Override
     public boolean test(Path path) {
-      return WildcardPattern.match(exclusions, path.toString().replaceAll("[\\\\/]", "/"));
+      return !WildcardPattern.match(exclusions, path.toString().replaceAll("[\\\\/]", "/"));
     }
   }
 }

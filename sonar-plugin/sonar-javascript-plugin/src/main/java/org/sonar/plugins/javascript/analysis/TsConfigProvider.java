@@ -208,7 +208,10 @@ public class TsConfigProvider {
           continue;
         }
         for (var file : files) {
-          if (file.isDirectory() && !pathFilter.test(file.toPath())) {
+          if (!pathFilter.test(file.toPath())) {
+            continue;
+          }
+          if (file.isDirectory()) {
             dirs.add(file);
           } else {
             if (fileFilter.test(file.toPath())) {
