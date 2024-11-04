@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.javascript.analysis;
+package org.sonar.plugins.javascript.sonarlint;
 
 import java.util.List;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.plugins.javascript.analysis.TsConfigOrigin;
 import org.sonar.plugins.javascript.bridge.TsConfigFile;
 
 public interface TsConfigCache {
@@ -28,4 +29,7 @@ public interface TsConfigCache {
   void initializeWith(List<String> tsConfigs, TsConfigOrigin origin);
   List<String> listCachedTsConfigs(TsConfigOrigin origin);
   void setOrigin(TsConfigOrigin origin);
+
+  void setProjectSize(int projectSize);
+  int getProjectSize();
 }

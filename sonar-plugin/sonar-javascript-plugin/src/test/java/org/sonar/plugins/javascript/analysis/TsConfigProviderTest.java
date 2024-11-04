@@ -36,13 +36,18 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Optional;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
+import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
+import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.impl.utils.DefaultTempFolder;
 import org.sonar.api.internal.SonarRuntimeImpl;
@@ -50,7 +55,9 @@ import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.plugins.javascript.sonarlint.SonarLintTypeCheckingChecker;
+import org.sonar.plugins.javascript.bridge.BridgeServer;
+import org.sonar.plugins.javascript.sonarlint.TsConfigCache;
+import org.sonar.plugins.javascript.sonarlint.TsConfigCacheImpl;
 
 class TsConfigProviderTest {
 
@@ -88,7 +95,6 @@ class TsConfigProviderTest {
 
     List<String> tsconfigs = getTsConfigs(
       new ContextUtils(ctx),
-      null,
       this::tsConfigFileCreator,
       null
     );
@@ -117,7 +123,6 @@ class TsConfigProviderTest {
 
     List<String> tsconfigs = getTsConfigs(
       new ContextUtils(ctx),
-      null,
       this::tsConfigFileCreator,
       null
     );
@@ -141,7 +146,6 @@ class TsConfigProviderTest {
 
     List<String> tsconfigs = getTsConfigs(
       new ContextUtils(ctx),
-      null,
       this::tsConfigFileCreator,
       null
     );
@@ -167,7 +171,6 @@ class TsConfigProviderTest {
 
     List<String> tsconfigs = getTsConfigs(
       new ContextUtils(ctx),
-      null,
       this::tsConfigFileCreator,
       null
     );
@@ -205,7 +208,6 @@ class TsConfigProviderTest {
 
     List<String> tsconfigs = getTsConfigs(
       new ContextUtils(ctx),
-      null,
       this::tsConfigFileCreator,
       null
     );
@@ -228,7 +230,6 @@ class TsConfigProviderTest {
 
     List<String> tsconfigs = getTsConfigs(
       new ContextUtils(ctx),
-      null,
       this::tsConfigFileCreator,
       null
     );
@@ -248,18 +249,14 @@ class TsConfigProviderTest {
 
     List<String> tsconfigs = getTsConfigs(
       new ContextUtils(ctx),
-      null,
       this::tsConfigFileCreator,
       null
     );
     assertThat(tsconfigs).hasSize(1);
-    String tsconfig = new String(
-      Files.readAllBytes(Paths.get(tsconfigs.get(0))),
-      StandardCharsets.UTF_8
-    );
+    String tsconfig = Files.readString(Paths.get(tsconfigs.get(0)));
     assertThat(tsconfig)
-      .isEqualTo(
-        "{\"files\":[\"moduleKey/file1.ts\",\"moduleKey/file2.ts\"],\"compilerOptions\":{\"allowJs\":true,\"noImplicitAny\":true}}"
+      .isEqualToIgnoringCase(
+        String.format("{\"files\":[\"%s/file1.ts\",\"%s/file2.ts\"],\"compilerOptions\":{\"allowJs\":true,\"noImplicitAny\":true}}", baseDir.toString().replaceAll("[\\\\/]", "/"), baseDir.toString().replaceAll("[\\\\/]", "/"))
       );
   }
 
@@ -269,15 +266,9 @@ class TsConfigProviderTest {
     ctx.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 4)));
     createInputFile(ctx, "file1.js");
     createInputFile(ctx, "file2.js");
+    var tsConfigCache = tsConfigCache();
+    var tsconfigs = getTsConfigs(new ContextUtils(ctx), this::tsConfigFileCreator, tsConfigCache);
 
-    var checker = mock(SonarLintTypeCheckingChecker.class);
-    when(checker.isBeyondLimit(ctx)).thenReturn(false);
-
-    var provider = new WildcardTsConfigProvider(
-      checker,
-      TsConfigProviderTest::createTsConfigFile
-    );
-    var tsconfigs = provider.tsconfigs(ctx);
     assertThat(tsconfigs)
       .hasSize(1)
       .extracting(path -> Files.readString(Paths.get(path)))
@@ -287,42 +278,36 @@ class TsConfigProviderTest {
           baseDir.toFile().getAbsolutePath().replace(File.separator, "/")
         )
       );
-
-    when(checker.isBeyondLimit(ctx)).thenReturn(true);
-    provider =
-      new WildcardTsConfigProvider(
-        checker,
-        TsConfigProviderTest::createTsConfigFile
-      );
-    assertThat(provider.tsconfigs(ctx)).isEmpty();
-
-    provider =
-      new WildcardTsConfigProvider(checker, TsConfigProviderTest::createTsConfigFile);
-    assertThat(provider.tsconfigs(ctx)).isEmpty();
   }
 
   @Test
-  void should_not_recreate_wildcart_tsconfig_in_sonarlint() throws Exception {
-    List<String> tsconfigs;
-    Path file;
-
+  void should_not_recreate_wildcard_tsconfig_in_sonarlint() throws Exception {
     var ctx = SensorContextTester.create(baseDir);
     ctx.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 4)));
 
-    var checker = mock(SonarLintTypeCheckingChecker.class);
-    when(checker.isBeyondLimit(ctx)).thenReturn(false);
+    var tsConfigCache = tsConfigCache();
+    var originalTsConfigs = getTsConfigs(new ContextUtils(ctx), this::tsConfigFileCreator, tsConfigCache);
 
-    tsconfigs =
+    var tsconfigs =
       new WildcardTsConfigProvider(
-        checker,
+        tsConfigCache,
         TsConfigProviderTest::createTsConfigFile
       )
         .tsconfigs(ctx);
-    assertThat(tsconfigs).hasSize(1);
+    assertThat(tsconfigs).isEqualTo(originalTsConfigs);
+  }
 
-    file = Path.of(tsconfigs.get(0));
-    assertThat(file).exists();
-    Files.delete(file);
+  @Test
+  void should_not_create_wildcard_tsconfig_in_sonarlint() throws Exception {
+    var ctx = SensorContextTester.create(baseDir);
+    ctx.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 4)));
+    ctx.setSettings(new MapSettings().setProperty(WildcardTsConfigProvider.MAX_FILES_PROPERTY, 1));
+    createInputFile(ctx, "file.js");
+    createInputFile(ctx, "file2.js");
+
+    var tsConfigCache = tsConfigCache();
+    var tsconfigs = getTsConfigs(new ContextUtils(ctx), this::tsConfigFileCreator, tsConfigCache);
+    assertThat(tsconfigs).isEmpty();
   }
 
   @Test
@@ -330,30 +315,75 @@ class TsConfigProviderTest {
     var ctx = SensorContextTester.create(baseDir);
     createInputFile(ctx, "file.js");
 
-    var checker = mock(SonarLintTypeCheckingChecker.class);
-    when(checker.isBeyondLimit(ctx)).thenReturn(false);
+    var tsConfigCache = tsConfigCache();
+    tsConfigCache.setProjectSize(1);
 
     var fileWriter = mock(TsConfigFileCreator.class);
     when(fileWriter.createTsConfigFile(anyString())).thenThrow(IOException.class);
 
     var wildcardTsConfigProvider = new WildcardTsConfigProvider(
-      checker,
+      tsConfigCache,
       fileWriter
     );
     assertThat(wildcardTsConfigProvider.tsconfigs(ctx)).isEmpty();
   }
 
-  private static void createInputFile(SensorContextTester context, String relativePath) {
-    DefaultInputFile inputFile = new TestInputFileBuilder("moduleKey", relativePath)
+  @Test
+  void should_check_javascript_files() throws IOException {
+    logger.setLevel(LoggerLevel.INFO);
+    var ctx = SensorContextTester.create(baseDir);
+    ctx.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 4)));
+    createInputFile(ctx, "file.js");
+    createInputFile(ctx, "file.css");
+    createInputFile(ctx, "file.d.ts");
+    Files.createDirectory(Path.of(baseDir.toString(), "node_modules"));
+    createInputFile(ctx, "node_modules/dep.js");
+
+    var tsConfigCache = tsConfigCache();
+    getTsConfigs(new ContextUtils(ctx), this::tsConfigFileCreator, tsConfigCache);
+    assertThat(logger.logs()).contains("Turning on type-checking of JavaScript files");
+  }
+
+  @Test
+  void should_detect_projects_with_too_many_files() throws IOException {
+    logger.setLevel(LoggerLevel.WARN);
+    var ctx = SensorContextTester.create(baseDir);
+    ctx.setSettings(
+      new MapSettings().setProperty(WildcardTsConfigProvider.MAX_FILES_PROPERTY, 3)
+    );
+    createInputFile(ctx, "file1.js");
+    createInputFile(ctx, "file2.ts");
+    createInputFile(ctx, "file3.cjs");
+    createInputFile(ctx, "file4.cts");
+    var tsConfigCache = tsConfigCache();
+    getTsConfigs(new ContextUtils(ctx), this::tsConfigFileCreator, tsConfigCache);
+    assertThat(WildcardTsConfigProvider.isBeyondLimit(ctx, tsConfigCache.getProjectSize())).isTrue();
+    assertThat(logger.logs())
+      .contains(
+        "Turning off type-checking of JavaScript files due to the project size exceeding the limit (3 files)",
+        "This may cause rules dependent on type information to not behave as expected",
+        "Check the list of impacted rules at https://rules.sonarsource.com/javascript/tag/type-dependent",
+        "To turn type-checking back on, increase the \"" + WildcardTsConfigProvider.MAX_FILES_PROPERTY + "\" property value",
+        "Please be aware that this could potentially impact the performance of the analysis"
+      );
+  }
+
+  private void createInputFile(SensorContextTester context, String relativePath) throws IOException {
+    DefaultInputFile inputFile = new TestInputFileBuilder(baseDir.toString(), relativePath)
       .setLanguage("ts")
       .setContents("if (cond)\ndoFoo(); \nelse \ndoFoo();")
       .build();
     context.fileSystem().add(inputFile);
+    Files.createFile(Paths.get(baseDir.toString(), relativePath));
   }
 
   private static String createTsConfigFile(String content) throws IOException {
     var tempFile = Files.createTempFile(null, null);
     Files.writeString(tempFile, content, StandardCharsets.UTF_8);
     return tempFile.toAbsolutePath().toString();
+  }
+
+  private TsConfigCache tsConfigCache() {
+    return new TsConfigCacheImpl(mock(BridgeServer.class));
   }
 }

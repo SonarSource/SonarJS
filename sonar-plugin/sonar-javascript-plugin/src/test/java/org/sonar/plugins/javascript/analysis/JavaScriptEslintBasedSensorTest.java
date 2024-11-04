@@ -28,7 +28,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import javax.annotation.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -78,7 +77,7 @@ import org.sonar.plugins.javascript.bridge.PluginInfo;
 import org.sonar.plugins.javascript.bridge.ServerAlreadyFailedException;
 import org.sonar.plugins.javascript.bridge.TsConfigFile;
 import org.sonar.plugins.javascript.nodejs.NodeCommandException;
-import org.sonar.plugins.javascript.sonarlint.SonarLintTypeCheckingChecker;
+import org.sonar.plugins.javascript.sonarlint.TsConfigCacheImpl;
 
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -389,7 +388,7 @@ class JavaScriptEslintBasedSensorTest {
     when(bridgeServerMock.loadTsConfig(any())).thenReturn(tsConfigFile);
 
     context.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 4)));
-    var sensor = createSensor(mock(SonarLintTypeCheckingChecker.class));
+    var sensor = createSensor();
     sensor.execute(context);
 
     assertThat(inputFile.hasNoSonarAt(7)).isTrue();
@@ -643,7 +642,7 @@ class JavaScriptEslintBasedSensorTest {
     when(bridgeServerMock.analyzeJavaScript(any())).thenReturn(new AnalysisResponse());
     var captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
 
-    createSensor(mock(SonarLintTypeCheckingChecker.class)).execute(ctx);
+    createSensor().execute(ctx);
     verify(bridgeServerMock).analyzeJavaScript(captor.capture());
     assertThat(captor.getValue().fileContent())
       .isEqualTo("if (cond)\n" + "doFoo(); \n" + "else \n" + "doFoo();");
@@ -786,16 +785,9 @@ class JavaScriptEslintBasedSensorTest {
   }
 
   private JsTsSensor createSensor() {
-    return createSensor(null);
-  }
-
-  private JsTsSensor createSensor(
-    @Nullable SonarLintTypeCheckingChecker sonarlintTypeCheckingChecker
-  ) {
     return new JsTsSensor(
       checks(ESLINT_BASED_RULE, "S2260", "S1451"),
       bridgeServerMock,
-      sonarlintTypeCheckingChecker,
       analysisWithProgram,
       analysisWithWatchProgram,
       new AnalysisConsumers()
