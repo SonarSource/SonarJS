@@ -258,7 +258,7 @@ class JsTsRulingTest {
 
   @ParameterizedTest
   @MethodSource
-  @Execution(ExecutionMode.CONCURRENT)
+//  @Execution(ExecutionMode.CONCURRENT)
   void ruling(String project, String sourceDir, String exclusions, String testDir)
     throws Exception {
     runRulingTest(project, sourceDir, exclusions, testDir);
