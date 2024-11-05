@@ -42,6 +42,11 @@ export interface AnalysisInput {
   fileContent: string;
   linterId?: string;
 }
+export interface MaybeIncompleteAnalysisInput {
+  filePath: string;
+  fileContent?: string;
+  linterId?: string;
+}
 
 /**
  * An analysis output

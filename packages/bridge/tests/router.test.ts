@@ -27,17 +27,19 @@ import { expect } from 'expect';
 
 import { rule as S5362 } from '../../css/src/rules/S5362/index.js';
 import assert from 'node:assert';
-import { setContext } from '../../shared/src/helpers/context.js';
+import { getContext, setContext } from '../../shared/src/helpers/context.js';
 import { toUnixPath } from '../../shared/src/helpers/files.js';
 import { ProjectAnalysisInput } from '../../jsts/src/analysis/projectAnalysis/projectAnalysis.js';
 import { deserializeProtobuf } from '../../jsts/src/parsers/ast.js';
 import { createAndSaveProgram } from '../../jsts/src/program/program.js';
 import { RuleConfig } from '../../jsts/src/linter/config/rule-config.js';
+import { createWorker } from '../../shared/src/helpers/worker.js';
 
 describe('router', () => {
   const fixtures = path.join(import.meta.dirname, 'fixtures', 'router');
   const port = 0;
   let closePromise: Promise<void>;
+  const workerPath = path.join(import.meta.dirname, '..', '..', '..', 'bin', 'server.mjs');
 
   let server: http.Server;
 
@@ -48,7 +50,8 @@ describe('router', () => {
       sonarlint: false,
       bundles: [],
     });
-    const { server: serverInstance, serverClosed } = await start(port, '127.0.0.1', 60 * 60 * 1000);
+    const worker = createWorker(workerPath, getContext());
+    const { server: serverInstance, serverClosed } = await start(port, '127.0.0.1', worker);
     server = serverInstance;
     closePromise = serverClosed;
   });

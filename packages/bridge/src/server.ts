@@ -23,21 +23,18 @@
 
 import express from 'express';
 import * as http from 'http';
-import * as path from 'path';
 import router from './router.js';
 import { errorMiddleware } from './errors/index.js';
 import { debug } from '../../shared/src/helpers/logging.js';
 import { timeoutMiddleware } from './timeout/index.js';
 import { AddressInfo } from 'net';
-import { Worker, SHARE_ENV } from 'worker_threads';
+import type { Worker } from 'worker_threads';
 import {
   registerGarbageCollectionObserver,
   logMemoryConfiguration,
   logMemoryError,
 } from './memory.js';
 import { getContext } from '../../shared/src/helpers/context.js';
-import { dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
 
 /**
  * The maximum request body size
@@ -54,17 +51,6 @@ const MAX_REQUEST_SIZE = '50mb';
 const SHUTDOWN_TIMEOUT = 15_000;
 
 /**
- * A pool of a single worker thread
- *
- * The main thread of the bridge delegates CPU-intensive operations to
- * a worker thread. These include all HTTP requests sent by the plugin
- * that require maintaining a state across requests, namely initialized
- * linters, created programs, and whatever information TypeScript ESLint
- * and TypeScript keep at runtime.
- */
-let worker: Worker;
-
-/**
  * Starts the bridge
  *
  * The bridge is an Express.js web server that exposes several services
@@ -79,14 +65,16 @@ let worker: Worker;
  *
  * @param port the port to listen to
  * @param host only for usage from outside of Node.js - Java plugin, SonarLint, ...
+ * @param worker Worker thread to handle analysis requests
  * @param timeout timeout in ms to shut down the server if unresponsive
  * @returns an http server
  */
 export function start(
   port = 0,
   host = '127.0.0.1',
+  worker?: Worker,
   timeout = SHUTDOWN_TIMEOUT,
-): Promise<{ server: http.Server; serverClosed: Promise<void>; worker: Worker }> {
+): Promise<{ server: http.Server; serverClosed: Promise<void> }> {
   const pendingCloseRequests: express.Response[] = [];
   let resolveClosed: () => void;
   const serverClosed: Promise<void> = new Promise(resolve => {
@@ -100,27 +88,15 @@ export function start(
   return new Promise(resolve => {
     debug('Starting the bridge server');
 
-    worker = new Worker(
-      path.resolve(dirname(fileURLToPath(import.meta.url)), '../../../lib/bridge/src/worker.js'),
-      {
-        workerData: { context: getContext() },
-        env: SHARE_ENV,
-      },
-    );
+    if (worker) {
+      worker.on('exit', () => {
+        closeServer();
+      });
 
-    worker.on('online', () => {
-      debug('The worker thread is running');
-    });
-
-    worker.on('exit', code => {
-      debug(`The worker thread exited with code ${code}`);
-      closeServer();
-    });
-
-    worker.on('error', err => {
-      debug(`The worker thread failed: ${err}`);
-      logMemoryError(err);
-    });
+      worker.on('error', err => {
+        logMemoryError(err);
+      });
+    }
 
     const app = express();
     const server = http.createServer(app);
@@ -129,9 +105,7 @@ export function start(
      * Builds a timeout middleware to shut down the server
      * in case the process becomes orphan.
      */
-    const orphanTimeout = timeoutMiddleware(() => {
-      closeWorker();
-    }, timeout);
+    const orphanTimeout = timeoutMiddleware(close, timeout);
 
     /**
      * The order of the middlewares registration is important, as the
@@ -144,7 +118,7 @@ export function start(
 
     app.post('/close', (_: express.Request, response: express.Response) => {
       pendingCloseRequests.push(response);
-      closeWorker();
+      close();
     });
 
     server.on('close', () => {
@@ -163,7 +137,7 @@ export function start(
        * which we get using server.address().
        */
       debug(`The bridge server is listening on port ${(server.address() as AddressInfo)?.port}`);
-      resolve({ server, serverClosed, worker });
+      resolve({ server, serverClosed });
     });
 
     server.listen(port, host);
@@ -171,9 +145,13 @@ export function start(
     /**
      * Shutdown the server and the worker thread
      */
-    function closeWorker() {
-      debug('Shutting down the worker');
-      worker.postMessage({ type: 'close' });
+    function close() {
+      if (worker) {
+        debug('Shutting down the worker');
+        worker.postMessage({ type: 'close' });
+      } else {
+        closeServer();
+      }
     }
 
     /**
