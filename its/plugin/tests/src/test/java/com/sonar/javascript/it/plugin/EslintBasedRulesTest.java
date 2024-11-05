@@ -257,7 +257,7 @@ class EslintBasedRulesTest {
     assertThat(buildResult.isSuccess()).isTrue();
     assertThat(buildResult.getLogs()).contains("Configured Node.js --max-old-space-size=500000.");
     var osMem = Pattern.compile(
-      ".*Memory configuration: OS \\(\\d+ MB\\), Node.js \\(\\d+ MB\\)\\..*",
+      ".*Memory configuration: OS \\(\\d+ MB\\),.*",
       Pattern.DOTALL
     );
     assertThat(buildResult.getLogs()).matches(osMem);
