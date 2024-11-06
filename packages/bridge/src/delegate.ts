@@ -20,35 +20,25 @@
 import formData from 'form-data';
 import express from 'express';
 import { Worker } from 'node:worker_threads';
-import { JsTsAnalysisOutput } from '../../jsts/src/analysis/analysis.js';
+import { JsTsAnalysisOutputWithAst } from '../../jsts/src/analysis/analysis.js';
 import { handleRequest } from './handle-request.js';
+import { AnalysisOutput } from '../../shared/src/types/analysis.js';
+import { RequestResult, RequestType } from './request.js';
 
 /**
  * Returns a delegate function to handle an HTTP request
  */
 export function createDelegator(worker: Worker | undefined) {
-  return function (type: string) {
+  return function (type: RequestType) {
     return worker ? createWorkerHandler(worker, type) : createHandler(type);
   };
 }
 
-function handleResult(message: any, response: express.Response, next: express.NextFunction) {
-  switch (message.type) {
-    case 'success':
-      if (message.format === 'multipart') {
-        sendFormData(message.result, response);
-      } else {
-        response.send(message.result);
-      }
-      break;
-
-    case 'failure':
-      next(message.error);
-      break;
-  }
-}
-
-function createHandler(type: string) {
+/**
+ * Handler to analyze in the same thread as HTTP server. Used for testing purposes
+ * @param type
+ */
+function createHandler(type: RequestType) {
   return async (
     request: express.Request,
     response: express.Response,
@@ -58,7 +48,7 @@ function createHandler(type: string) {
   };
 }
 
-function createWorkerHandler(worker: Worker, type: string) {
+function createWorkerHandler(worker: Worker, type: RequestType) {
   return async (
     request: express.Request,
     response: express.Response,
@@ -71,13 +61,37 @@ function createWorkerHandler(worker: Worker, type: string) {
   };
 }
 
-function sendFormData(result: JsTsAnalysisOutput, response: express.Response) {
+function handleResult(
+  message: RequestResult,
+  response: express.Response,
+  next: express.NextFunction,
+) {
+  switch (message.type) {
+    case 'success':
+      if (outputContainsAst(message.result)) {
+        sendFormData(message.result, response);
+      } else {
+        response.send(message.result);
+      }
+      break;
+
+    case 'failure':
+      next(message.error);
+      break;
+  }
+}
+
+function sendFormData(result: JsTsAnalysisOutputWithAst, response: express.Response) {
+  const { ast, ...rest } = result;
   const fd = new formData();
-  fd.append('ast', Buffer.from(result.ast!), { filename: 'ast' });
-  delete result.ast;
-  fd.append('json', JSON.stringify(result));
+  fd.append('ast', Buffer.from(ast), { filename: 'ast' });
+  fd.append('json', JSON.stringify(rest));
   // this adds the boundary string that will be used to separate the parts
   response.set('Content-Type', fd.getHeaders()['content-type']);
   response.set('Content-Length', `${fd.getLengthSync()}`);
   fd.pipe(response);
+}
+
+function outputContainsAst(result: AnalysisOutput): result is JsTsAnalysisOutputWithAst {
+  return 'ast' in result;
 }

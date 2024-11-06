@@ -18,18 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { analyzeCSS } from '../../css/src/analysis/analyzer.js';
-import {
-  AnalysisInput,
-  AnalysisOutput,
-  MaybeIncompleteAnalysisInput,
-} from '../../shared/src/types/analysis.js';
-import { CssAnalysisInput } from '../../css/src/analysis/analysis.js';
 import { analyzeHTML } from '../../html/src/index.js';
-import { EmbeddedAnalysisInput } from '../../jsts/src/embedded/analysis/analysis.js';
 import { analyzeJSTS } from '../../jsts/src/analysis/analyzer.js';
-import { JsTsAnalysisInput } from '../../jsts/src/analysis/analysis.js';
 import { analyzeProject } from '../../jsts/src/analysis/projectAnalysis/projectAnalyzer.js';
-import { ProjectAnalysisInput } from '../../jsts/src/analysis/projectAnalysis/projectAnalysis.js';
 import { analyzeYAML } from '../../yaml/src/index.js';
 import { logHeapStatistics } from './memory.js';
 import {
@@ -38,138 +29,60 @@ import {
   deleteProgram,
   writeTSConfigFile,
 } from '../../jsts/src/program/program.js';
-import { TsConfigJson } from 'type-fest';
-import { RuleConfig } from '../../jsts/src/linter/config/rule-config.js';
 import { initializeLinter } from '../../jsts/src/linter/linters.js';
 import { clearTypeScriptESLintParserCaches } from '../../jsts/src/parsers/eslint.js';
-import { readFile } from '../../shared/src/helpers/files.js';
-import { APIError, ErrorCode } from '../../shared/src/errors/error.js';
+import { BridgeRequest, readFileLazily, RequestResult, serializeError } from './request.js';
 
-type RequestResult =
-  | {
-      type: 'success';
-      result: string | AnalysisOutput;
-      format?: string;
-    }
-  | {
-      type: 'failure';
-      error: ReturnType<typeof serializeError>;
-    };
-
-export type RequestType =
-  | 'on-analyze-css'
-  | 'on-analyze-html'
-  | 'on-analyze-js'
-  | 'on-analyze-project'
-  | 'on-analyze-ts'
-  | 'on-analyze-with-program'
-  | 'on-analyze-yaml'
-  | 'on-create-program'
-  | 'on-create-tsconfig-file'
-  | 'on-delete-program'
-  | 'on-init-linter'
-  | 'on-new-tsconfig'
-  | 'on-tsconfig-files';
-
-export async function handleRequest(message: any): Promise<RequestResult> {
+export async function handleRequest(request: BridgeRequest): Promise<RequestResult> {
   try {
-    const { type, data } = message as { type: RequestType; data: unknown };
-    switch (type) {
-      case 'on-analyze-css': {
-        const output = await analyzeCSS(
-          (await readFileLazily(data as MaybeIncompleteAnalysisInput)) as CssAnalysisInput,
-        );
-        return { type: 'success', result: JSON.stringify(output) };
+    switch (request.type) {
+      case 'on-init-linter': {
+        const { rules, environments, globals, linterId, baseDir } = request.data;
+        await initializeLinter(rules, environments, globals, baseDir, linterId);
+        return { type: 'success', result: 'OK!' };
       }
-
-      case 'on-analyze-html': {
-        const output = await analyzeHTML(
-          (await readFileLazily(data as MaybeIncompleteAnalysisInput)) as EmbeddedAnalysisInput,
-        );
-        return { type: 'success', result: JSON.stringify(output) };
-      }
-
       case 'on-analyze-js': {
-        const output = analyzeJSTS(
-          (await readFileLazily(data as MaybeIncompleteAnalysisInput)) as JsTsAnalysisInput,
-          'js',
-        );
+        const output = analyzeJSTS(await readFileLazily(request.data), 'js');
         return {
           type: 'success',
           result: output,
-          format: output.ast ? 'multipart' : 'json',
         };
       }
-
-      case 'on-analyze-project': {
-        const output = await analyzeProject(data as ProjectAnalysisInput);
-        return { type: 'success', result: JSON.stringify(output) };
-      }
-
       case 'on-analyze-ts':
       case 'on-analyze-with-program': {
-        const output = analyzeJSTS(
-          (await readFileLazily(data as MaybeIncompleteAnalysisInput)) as JsTsAnalysisInput,
-          'ts',
-        );
+        const output = analyzeJSTS(await readFileLazily(request.data), 'ts');
         return {
           type: 'success',
           result: output,
-          format: output.ast ? 'multipart' : 'json',
         };
       }
-
-      case 'on-analyze-yaml': {
-        const output = await analyzeYAML(
-          (await readFileLazily(data as MaybeIncompleteAnalysisInput)) as EmbeddedAnalysisInput,
-        );
-        return { type: 'success', result: JSON.stringify(output) };
-      }
-
       case 'on-create-program': {
-        const { tsConfig } = data as { tsConfig: string };
         logHeapStatistics();
-        const { programId, files, projectReferences, missingTsConfig } =
-          createAndSaveProgram(tsConfig);
+        const { programId, files, projectReferences, missingTsConfig } = createAndSaveProgram(
+          request.data.tsConfig,
+        );
         return {
           type: 'success',
           result: JSON.stringify({ programId, files, projectReferences, missingTsConfig }),
         };
       }
-
-      case 'on-create-tsconfig-file': {
-        const tsConfigContent = data as TsConfigJson;
-        const tsConfigFile = await writeTSConfigFile(tsConfigContent);
-        return { type: 'success', result: JSON.stringify(tsConfigFile) };
-      }
-
       case 'on-delete-program': {
-        const { programId } = data as { programId: string };
-        deleteProgram(programId);
+        deleteProgram(request.data.programId);
         logHeapStatistics();
         return { type: 'success', result: 'OK!' };
       }
-
-      case 'on-init-linter': {
-        const { rules, environments, globals, linterId, baseDir } = data as {
-          linterId: string;
-          environments: string[];
-          globals: string[];
-          baseDir: string;
-          rules: RuleConfig[];
-        };
-        await initializeLinter(rules, environments, globals, baseDir, linterId);
-        return { type: 'success', result: 'OK!' };
+      case 'on-create-tsconfig-file': {
+        const tsConfigContent = request.data;
+        const tsConfigFile = await writeTSConfigFile(tsConfigContent);
+        return { type: 'success', result: JSON.stringify(tsConfigFile) };
       }
-
+      // Clean typescript-eslint cache in SonarLint. not used currently
       case 'on-new-tsconfig': {
         clearTypeScriptESLintParserCaches();
         return { type: 'success', result: 'OK!' };
       }
-
       case 'on-tsconfig-files': {
-        const { tsconfig } = data as { tsconfig: string };
-        const options = createProgramOptions(tsconfig);
+        const options = createProgramOptions(request.data.tsConfig);
         return {
           type: 'success',
           result: JSON.stringify({
@@ -180,43 +93,25 @@ export async function handleRequest(message: any): Promise<RequestResult> {
           }),
         };
       }
+      case 'on-analyze-css': {
+        const output = await analyzeCSS(await readFileLazily(request.data));
+        return { type: 'success', result: JSON.stringify(output) };
+      }
+      case 'on-analyze-yaml': {
+        const output = await analyzeYAML(await readFileLazily(request.data));
+        return { type: 'success', result: JSON.stringify(output) };
+      }
+
+      case 'on-analyze-html': {
+        const output = await analyzeHTML(await readFileLazily(request.data));
+        return { type: 'success', result: JSON.stringify(output) };
+      }
+      case 'on-analyze-project': {
+        const output = await analyzeProject(request.data);
+        return { type: 'success', result: JSON.stringify(output) };
+      }
     }
   } catch (err) {
     return { type: 'failure', error: serializeError(err) };
-  }
-}
-
-/**
- * In SonarQube context, an analysis input includes both path and content of a file
- * to analyze. However, in SonarLint, we might only get the file path. As a result,
- * we read the file if the content is missing in the input.
- */
-async function readFileLazily(input: MaybeIncompleteAnalysisInput): Promise<AnalysisInput> {
-  if (!isCompleteAnalysisInput(input)) {
-    return {
-      ...input,
-      fileContent: await readFile(input.filePath),
-    };
-  }
-  return input;
-}
-
-function isCompleteAnalysisInput(input: MaybeIncompleteAnalysisInput): input is AnalysisInput {
-  return 'fileContent' in input;
-}
-
-/**
- * The default (de)serialization mechanism of the Worker Thread API cannot be used
- * to (de)serialize Error instances. To address this, we turn those instances into
- * regular JavaScript objects.
- */
-function serializeError(err: Error) {
-  switch (true) {
-    case err instanceof APIError:
-      return { code: err.code, message: err.message, stack: err.stack, data: err.data };
-    case err instanceof Error:
-      return { code: ErrorCode.Unexpected, message: err.message, stack: err.stack };
-    default:
-      return { code: ErrorCode.Unexpected, message: err };
   }
 }

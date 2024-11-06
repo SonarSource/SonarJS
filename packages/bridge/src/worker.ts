@@ -20,7 +20,8 @@
 
 import { parentPort, workerData } from 'worker_threads';
 import { setContext } from '../../shared/src/helpers/context.js';
-import { handleRequest, RequestType } from './handle-request.js';
+import { handleRequest } from './handle-request.js';
+import { BridgeRequest } from './request.js';
 
 /**
  * Code executed by the worker thread
@@ -28,8 +29,8 @@ import { handleRequest, RequestType } from './handle-request.js';
 if (parentPort) {
   setContext(workerData.context);
   const parentThread = parentPort;
-  parentThread.on('message', async message => {
-    const { type } = message as { type: RequestType | 'close'; data: unknown };
+  parentThread.on('message', async (message: BridgeRequest | { type: 'close' }) => {
+    const { type } = message;
     if (type === 'close') {
       parentThread.close();
     } else {

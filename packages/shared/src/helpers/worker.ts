@@ -18,10 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { SHARE_ENV, Worker } from 'node:worker_threads';
+import { Context } from './context.js';
 import { debug } from './logging.js';
 
-export function createWorker(url: string, context: any) {
-  let worker = new Worker(url, {
+export function createWorker(url: string, context: Context) {
+  const worker = new Worker(url, {
     workerData: { context },
     env: SHARE_ENV,
   });
