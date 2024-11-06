@@ -141,7 +141,7 @@ class EslintBasedRulesTest {
       .setSourceEncoding("UTF-8")
       .setSourceDirs(".")
       .setProjectDir(TestUtils.projectDirNoCopy("file-filter/excluded_dir/project"))
-      .setProperty("sonar.javascript.exclusions", "excluded_dir/**");
+      .setProperty("sonar.javascript.exclusions", "excluded_dir/**,**/node_modules");
 
     OrchestratorStarter.setProfile(projectKey, jsProfile, "js");
 
@@ -257,7 +257,7 @@ class EslintBasedRulesTest {
     assertThat(buildResult.isSuccess()).isTrue();
     assertThat(buildResult.getLogs()).contains("Configured Node.js --max-old-space-size=500000.");
     var osMem = Pattern.compile(
-      ".*Memory configuration: OS \\(\\d+ MB\\), Node.js \\(\\d+ MB\\)\\..*",
+      ".*Memory configuration: OS \\(\\d+ MB\\),.*",
       Pattern.DOTALL
     );
     assertThat(buildResult.getLogs()).matches(osMem);

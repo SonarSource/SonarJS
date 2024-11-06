@@ -17,22 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.javascript.sonarlint;
+package org.sonar.plugins.javascript.analysis;
 
-import static java.util.Arrays.stream;
-import static java.util.stream.Stream.concat;
+import org.sonar.api.config.Configuration;
+import org.sonar.api.utils.WildcardPattern;
+import org.sonar.plugins.javascript.JavaScriptLanguage;
+import org.sonar.plugins.javascript.JavaScriptPlugin;
+import org.sonar.plugins.javascript.TypeScriptLanguage;
 
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Predicate;
-import org.sonar.api.config.Configuration;
-import org.sonar.api.utils.WildcardPattern;
-import org.sonar.plugins.javascript.JavaScriptLanguage;
-import org.sonar.plugins.javascript.JavaScriptPlugin;
-import org.sonar.plugins.javascript.TypeScriptLanguage;
-import org.sonar.plugins.javascript.filter.JavaScriptExclusionsFileFilter;
+
+import static java.util.Arrays.stream;
+import static java.util.stream.Stream.concat;
 
 /**
  * This class partially reproduces the behavior of JavaScriptExclusionsFileFilter's implementation.
@@ -48,9 +48,8 @@ import org.sonar.plugins.javascript.filter.JavaScriptExclusionsFileFilter;
  *
  * @see JavaScriptExclusionsFileFilter
  */
-public class SonarLintTypeCheckingFilter {
-
-  private SonarLintTypeCheckingFilter() {}
+public class LookupConfigProviderFilter {
+  private LookupConfigProviderFilter() {}
 
   static class FileFilter implements Predicate<Path> {
 
@@ -104,13 +103,13 @@ public class SonarLintTypeCheckingFilter {
     private static boolean isExclusionOverridden(Configuration config) {
       return (
         config.get(JavaScriptPlugin.JS_EXCLUSIONS_KEY).isPresent() ||
-        config.get(JavaScriptPlugin.TS_EXCLUSIONS_KEY).isPresent()
+          config.get(JavaScriptPlugin.TS_EXCLUSIONS_KEY).isPresent()
       );
     }
 
     @Override
     public boolean test(Path path) {
-      return WildcardPattern.match(exclusions, path.toString().replaceAll("[\\\\/]", "/"));
+      return !WildcardPattern.match(exclusions, path.toString().replaceAll("[\\\\/]", "/"));
     }
   }
 }

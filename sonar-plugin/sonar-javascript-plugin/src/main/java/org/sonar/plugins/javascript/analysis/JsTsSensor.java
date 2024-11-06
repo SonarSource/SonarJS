@@ -24,7 +24,6 @@ import static org.sonar.plugins.javascript.analysis.TsConfigProvider.getTsConfig
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.StreamSupport;
-import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.DependedUpon;
@@ -37,7 +36,7 @@ import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
 import org.sonar.plugins.javascript.bridge.AnalysisMode;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
-import org.sonar.plugins.javascript.sonarlint.SonarLintTypeCheckingChecker;
+import org.sonar.plugins.javascript.sonarlint.TsConfigCache;
 
 @DependedUpon("js-analysis")
 public class JsTsSensor extends AbstractBridgeSensor {
@@ -46,32 +45,12 @@ public class JsTsSensor extends AbstractBridgeSensor {
   private final AnalysisWithProgram analysisWithProgram;
   private final AnalysisWithWatchProgram analysisWithWatchProgram;
   private final JsTsChecks checks;
-  private final SonarLintTypeCheckingChecker javaScriptProjectChecker;
   private final AnalysisConsumers consumers;
   private final TsConfigCache tsConfigCache;
 
-  // Constructor for SonarCloud without the optional dependency (Pico doesn't support optional dependencies)
   public JsTsSensor(
     JsTsChecks checks,
     BridgeServer bridgeServer,
-    AnalysisWithProgram analysisWithProgram,
-    AnalysisWithWatchProgram analysisWithWatchProgram,
-    AnalysisConsumers consumers
-  ) {
-    this(
-      checks,
-      bridgeServer,
-      null,
-      analysisWithProgram,
-      analysisWithWatchProgram,
-      consumers
-    );
-  }
-
-  public JsTsSensor(
-    JsTsChecks checks,
-    BridgeServer bridgeServer,
-    @Nullable SonarLintTypeCheckingChecker javaScriptProjectChecker,
     AnalysisWithProgram analysisWithProgram,
     AnalysisWithWatchProgram analysisWithWatchProgram,
     AnalysisConsumers consumers
@@ -80,7 +59,6 @@ public class JsTsSensor extends AbstractBridgeSensor {
     this.analysisWithProgram = analysisWithProgram;
     this.analysisWithWatchProgram = analysisWithWatchProgram;
     this.checks = checks;
-    this.javaScriptProjectChecker = javaScriptProjectChecker;
     this.consumers = consumers;
     this.tsConfigCache = analysisWithWatchProgram.tsConfigCache;
   }
@@ -115,7 +93,6 @@ public class JsTsSensor extends AbstractBridgeSensor {
 
     var tsConfigs = getTsConfigs(
       contextUtils,
-      javaScriptProjectChecker,
       this::createTsConfigFile,
       tsConfigCache
     );

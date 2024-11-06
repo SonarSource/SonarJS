@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.javascript.analysis;
+package org.sonar.plugins.javascript.sonarlint;
 
 import java.nio.file.Path;
 import java.util.ArrayDeque;
@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonar.plugins.javascript.JavaScriptFilePredicate;
+import org.sonar.plugins.javascript.analysis.TsConfigOrigin;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
 import org.sonar.plugins.javascript.bridge.TsConfigFile;
 import org.sonarsource.api.sonarlint.SonarLintSide;
@@ -48,10 +49,11 @@ public class TsConfigCacheImpl implements TsConfigCache, ModuleFileListener {
 
   BridgeServer bridgeServer;
   TsConfigOrigin origin;
+  int projectSize;
 
   Map<TsConfigOrigin, Cache> cacheMap = new EnumMap<>(TsConfigOrigin.class);
 
-  TsConfigCacheImpl(BridgeServer bridgeServer) {
+  public TsConfigCacheImpl(BridgeServer bridgeServer) {
     this.bridgeServer = bridgeServer;
     cacheMap.put(TsConfigOrigin.PROPERTY, new Cache());
     cacheMap.put(TsConfigOrigin.LOOKUP, new Cache());
@@ -203,5 +205,13 @@ public class TsConfigCacheImpl implements TsConfigCache, ModuleFileListener {
       LOG.debug("Clearing input file to tsconfig cache");
       cacheMap.values().forEach(Cache::clearFileToTsConfigCache);
     }
+  }
+
+  public void setProjectSize(int projectSize) {
+    this.projectSize = projectSize;
+  }
+
+  public int getProjectSize() {
+    return projectSize;
   }
 }
