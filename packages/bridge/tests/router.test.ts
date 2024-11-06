@@ -22,7 +22,7 @@ import path from 'path';
 import { start } from '../src/server.js';
 import { request } from './tools/index.js';
 import fs from 'fs';
-import { describe, beforeEach, afterEach, it, mock, Mock } from 'node:test';
+import { describe, before, after, it, mock, Mock } from 'node:test';
 import { expect } from 'expect';
 
 import { rule as S5362 } from '../../css/src/rules/S5362/index.js';
@@ -43,7 +43,7 @@ describe('router', () => {
 
   let server: http.Server;
 
-  beforeEach(async () => {
+  before(async () => {
     setContext({
       workDir: '/tmp/dir',
       shouldUseTypeScriptParserForJS: true,
@@ -56,7 +56,7 @@ describe('router', () => {
     closePromise = serverClosed;
   });
 
-  afterEach(async () => {
+  after(async () => {
     await request(server, '/close', 'POST');
     //We need to await the server close promise, as the http server still needs to be up to finish the response of the /close request.
     await closePromise;
@@ -312,11 +312,11 @@ describe('router', () => {
 
   it('should forward /tsconfig-files failures', async () => {
     console.error = mock.fn();
-    const tsConfig = path.join(fixtures, 'malformed.json');
+    const tsConfig = toUnixPath(path.join(fixtures, 'malformed.json'));
     const data = { tsConfig };
     const response = (await request(server, '/tsconfig-files', 'POST', data)) as string;
     const { error } = JSON.parse(response);
-    expect(error).toContain('Debug Failure.');
+    expect(error).toContain("']' expected.");
     assert((console.error as Mock<typeof console.error>).mock.calls.length > 0);
   });
 
