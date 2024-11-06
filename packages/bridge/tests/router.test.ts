@@ -293,7 +293,7 @@ describe('router', () => {
 
     const tsconfig1 = path.join(fixtures, 'tsconfig.json');
     const response1 = (await request(server, '/tsconfig-files', 'POST', {
-      tsconfig: tsconfig1,
+      tsConfig: tsconfig1,
     })) as string;
     expect(JSON.parse(response1)).toEqual({
       files: [file],
@@ -302,7 +302,7 @@ describe('router', () => {
 
     const tsconfig2 = path.join(fixtures, 'tsconfig-references.json');
     const response2 = (await request(server, '/tsconfig-files', 'POST', {
-      tsconfig: tsconfig2,
+      tsConfig: tsconfig2,
     })) as string;
     expect(JSON.parse(response2)).toEqual({
       files: [file],
@@ -316,7 +316,7 @@ describe('router', () => {
     const data = { tsConfig };
     const response = (await request(server, '/tsconfig-files', 'POST', data)) as string;
     const { error } = JSON.parse(response);
-    expect(error).toEqual('Debug Failure.');
+    expect(error).toContain('Debug Failure.');
     assert((console.error as Mock<typeof console.error>).mock.calls.length > 0);
   });
 

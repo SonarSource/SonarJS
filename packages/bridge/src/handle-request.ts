@@ -63,7 +63,7 @@ export async function handleRequest(request: BridgeRequest): Promise<RequestResu
         );
         return {
           type: 'success',
-          result: JSON.stringify({ programId, files, projectReferences, missingTsConfig }),
+          result: { programId, files, projectReferences, missingTsConfig },
         };
       }
       case 'on-delete-program': {
@@ -74,7 +74,7 @@ export async function handleRequest(request: BridgeRequest): Promise<RequestResu
       case 'on-create-tsconfig-file': {
         const tsConfigContent = request.data;
         const tsConfigFile = await writeTSConfigFile(tsConfigContent);
-        return { type: 'success', result: JSON.stringify(tsConfigFile) };
+        return { type: 'success', result: tsConfigFile };
       }
       // Clean typescript-eslint cache in SonarLint. not used currently
       case 'on-new-tsconfig': {
@@ -85,30 +85,30 @@ export async function handleRequest(request: BridgeRequest): Promise<RequestResu
         const options = createProgramOptions(request.data.tsConfig);
         return {
           type: 'success',
-          result: JSON.stringify({
+          result: {
             files: options.rootNames,
             projectReferences: options.projectReferences
               ? options.projectReferences.map(ref => ref.path)
               : [],
-          }),
+          },
         };
       }
       case 'on-analyze-css': {
         const output = await analyzeCSS(await readFileLazily(request.data));
-        return { type: 'success', result: JSON.stringify(output) };
+        return { type: 'success', result: output };
       }
       case 'on-analyze-yaml': {
         const output = await analyzeYAML(await readFileLazily(request.data));
-        return { type: 'success', result: JSON.stringify(output) };
+        return { type: 'success', result: output };
       }
 
       case 'on-analyze-html': {
         const output = await analyzeHTML(await readFileLazily(request.data));
-        return { type: 'success', result: JSON.stringify(output) };
+        return { type: 'success', result: output };
       }
       case 'on-analyze-project': {
         const output = await analyzeProject(request.data);
-        return { type: 'success', result: JSON.stringify(output) };
+        return { type: 'success', result: output };
       }
     }
   } catch (err) {

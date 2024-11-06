@@ -68,7 +68,7 @@ function handleResult(
 ) {
   switch (message.type) {
     case 'success':
-      if (outputContainsAst(message.result)) {
+      if (typeof message.result === 'object' && outputContainsAst(message.result)) {
         sendFormData(message.result, response);
       } else {
         response.send(message.result);
