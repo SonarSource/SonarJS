@@ -37,6 +37,20 @@ const parseFunctions = [
 ];
 
 describe('parseForESLint', () => {
+  it(`Babel should fail parsing input with JSX without the React preset`, async () => {
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'parse', 'valid.js');
+    const fileContent = await readFile(filePath);
+    const fileType = 'MAIN';
+
+    const input = { filePath, fileType, fileContent } as JsTsAnalysisInput;
+    const options = buildParserOptions(input, true);
+    options.babelOptions.presets.shift();
+
+    expect(() => parseForESLint(fileContent, parseFunctions[0].parser.parse, options)).toThrow(
+      APIError.parsingError('Unexpected token (2:15)', { line: 2 }),
+    );
+  });
+
   parseFunctions.forEach(({ parser, usingBabel, errorMessage }) => {
     it(`should parse a valid input with ${parser.parser}`, async () => {
       const filePath = path.join(import.meta.dirname, 'fixtures', 'parse', 'valid.js');
