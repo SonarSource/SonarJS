@@ -21,7 +21,6 @@ package com.sonar.javascript.it.plugin.assertj;
 
 import static java.lang.String.format;
 import static java.util.regex.Pattern.compile;
-import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.fail;
 import static org.assertj.core.api.Assertions.tuple;
 
@@ -150,7 +149,7 @@ public class BuildResultAssert extends AbstractAssert<BuildResultAssert, BuildRe
       for (var filename : filenames) {
         Assertions
           .assertThat(ucfgFiles)
-          .filteredOn(file -> file.getFileName().toString().contains(filename.replace('.', '_')))
+          .filteredOn(file -> filename.replace('.', '_').contains(file.getFileName().toString().replaceFirst("[.][^.]+$", "")))
           .isNotEmpty();
       }
     } catch (IOException e) {
