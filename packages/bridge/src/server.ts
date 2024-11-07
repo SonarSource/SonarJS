@@ -48,7 +48,7 @@ const MAX_REQUEST_SIZE = '50mb';
  * If the Java plugin crashes, this timeout will run out and shut down
  * the bridge to prevent it from becoming an orphan process.
  */
-const SHUTDOWN_TIMEOUT = 15_000;
+const SHUTDOWN_TIMEOUT = 15_000000;
 
 /**
  * Starts the bridge

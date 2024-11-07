@@ -29,11 +29,6 @@ const options = [
             const ms = new MagicString(code);
             ms.update(start, end, 'const babelParser = require("@babel/parser")');
             return getTransformResult(ms);
-          } else if (id.includes('bridge/src/server.js')) {
-            const regex = /'\.\.\/\.\.\/\.\.\/lib\/bridge\/src\/worker\.js'/gm;
-            const ms = new MagicString(code);
-            ms.replace(regex, '"worker.cjs"');
-            return getTransformResult(ms);
           } else if (id.includes('eslint/lib/rule-tester/rule-tester.js')) {
             const regex = /require\.resolve\(\"espree\"\);/gm;
             const ms = new MagicString(code);
@@ -65,6 +60,7 @@ const options = [
           'node_modules/encoding/lib/encoding.js',
           'node_modules/esquery/dist/esquery.js',
           'node_modules/@babel/plugin-proposal-decorators/lib/*.js',
+          'node_modules/@babel/plugin-proposal-decorators',
           // 'node_modules/@babel/parser/lib/index.js',
           // 'node_modules/@babel/eslint-parser/lib/index.js',
           // 'node_modules/@babel/preset-env/lib/index.js'
@@ -80,9 +76,9 @@ const options = [
         ],
       }),
     ],
+    external: ['typescript'],
     treeshake: false, // it is important to not treeshake to preserve all the uncovered branches
     input: {
-      worker: 'lib/bridge/src/worker.js',
       server: 'bin/server.mjs',
     },
     output: [

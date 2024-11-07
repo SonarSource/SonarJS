@@ -165,7 +165,7 @@ class JsTsRulingTest {
 
   @BeforeAll
   public static void setUp() throws Exception {
-    cleanRootNodeModules();
+//    cleanRootNodeModules();
     ProfileGenerator.RulesConfiguration jsRulesConfiguration =
       new ProfileGenerator.RulesConfiguration()
         .add(
