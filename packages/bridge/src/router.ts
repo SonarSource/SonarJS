@@ -19,25 +19,26 @@
  */
 import * as express from 'express';
 import { Worker } from 'worker_threads';
-import { delegate } from './worker.js';
+import { createDelegator } from './delegate.js';
 
-export default function (worker: Worker): express.Router {
+export default function (worker?: Worker): express.Router {
   const router = express.Router();
+  const delegate = createDelegator(worker);
 
   /** Endpoints running on the worker thread */
-  router.post('/analyze-project', delegate(worker, 'on-analyze-project'));
-  router.post('/analyze-css', delegate(worker, 'on-analyze-css'));
-  router.post('/analyze-js', delegate(worker, 'on-analyze-js'));
-  router.post('/analyze-html', delegate(worker, 'on-analyze-html'));
-  router.post('/analyze-ts', delegate(worker, 'on-analyze-ts'));
-  router.post('/analyze-with-program', delegate(worker, 'on-analyze-with-program'));
-  router.post('/analyze-yaml', delegate(worker, 'on-analyze-yaml'));
-  router.post('/create-program', delegate(worker, 'on-create-program'));
-  router.post('/create-tsconfig-file', delegate(worker, 'on-create-tsconfig-file'));
-  router.post('/delete-program', delegate(worker, 'on-delete-program'));
-  router.post('/init-linter', delegate(worker, 'on-init-linter'));
-  router.post('/new-tsconfig', delegate(worker, 'on-new-tsconfig'));
-  router.post('/tsconfig-files', delegate(worker, 'on-tsconfig-files'));
+  router.post('/analyze-project', delegate('on-analyze-project'));
+  router.post('/analyze-css', delegate('on-analyze-css'));
+  router.post('/analyze-js', delegate('on-analyze-js'));
+  router.post('/analyze-html', delegate('on-analyze-html'));
+  router.post('/analyze-ts', delegate('on-analyze-ts'));
+  router.post('/analyze-with-program', delegate('on-analyze-with-program'));
+  router.post('/analyze-yaml', delegate('on-analyze-yaml'));
+  router.post('/create-program', delegate('on-create-program'));
+  router.post('/create-tsconfig-file', delegate('on-create-tsconfig-file'));
+  router.post('/delete-program', delegate('on-delete-program'));
+  router.post('/init-linter', delegate('on-init-linter'));
+  router.post('/new-tsconfig', delegate('on-new-tsconfig'));
+  router.post('/tsconfig-files', delegate('on-tsconfig-files'));
 
   /** Endpoints running on the main thread */
   router.get('/status', (_, response) => response.send('OK!'));

@@ -17,4 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export * from './bridge/src/server.js';
+
+import { parentPort, workerData } from 'worker_threads';
+import { setContext } from '../../shared/src/helpers/context.js';
+import { handleRequest } from './handle-request.js';
+import { BridgeRequest } from './request.js';
+
+/**
+ * Code executed by the worker thread
+ */
+if (parentPort) {
+  setContext(workerData.context);
+  const parentThread = parentPort;
+  parentThread.on('message', async (message: BridgeRequest | { type: 'close' }) => {
+    const { type } = message;
+    if (type === 'close') {
+      parentThread.close();
+    } else {
+      parentThread.postMessage(await handleRequest(message));
+    }
+  });
+}
