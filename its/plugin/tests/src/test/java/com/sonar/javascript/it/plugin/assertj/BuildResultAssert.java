@@ -146,10 +146,19 @@ public class BuildResultAssert extends AbstractAssert<BuildResultAssert, BuildRe
     List<Path> ucfgFiles;
     try {
       ucfgFiles = findUcfgFilesIn(projectPath);
-      for (var filename : filenames) {
+      for (var ucfgFile : ucfgFiles) {
+        // Filenames: file2_SomeLambdaFunction_yaml
+        // ucfgFile: /Users/VICTOR~1.DIE/AppData/Local/Temp/junit14107160890921213721/pr-analysis-yaml/.scannerwork/ucfg2/js/daFunction_yaml.ucfgs
+        // We check if file2_SomeLambdaFunction_yaml contains daFunction_yaml
+        // or
+        // Filenames: index.ts
+        // ucfg: /Users/VICTOR~1.DIE/AppData/Local/Temp/junit2107948845245431806/pr-analysis-ts/.scannerwork/ucfg2/js/sis_ts_index_ts.ucfgs
+        // We check if sis_ts_index_ts ends with index_ts
+
+        var key = ucfgFile.getFileName().toString().replaceFirst("[.][^.]+$", "");
         Assertions
-          .assertThat(ucfgFiles)
-          .filteredOn(file -> filename.replace('.', '_').contains(file.getFileName().toString().replaceFirst("[.][^.]+$", "")))
+          .assertThat(filenames)
+          .filteredOn(filename -> filename.replace('.', '_').contains(key) || key.endsWith(filename.replace('.', '_')))
           .isNotEmpty();
       }
     } catch (IOException e) {
