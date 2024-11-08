@@ -65,8 +65,7 @@ describe('worker', () => {
     worker.once('message', message => {
       const { type, result } = message;
       expect(type).toEqual('success');
-      expect(typeof result).toBe('string');
-      expect(JSON.parse(result)).toEqual({
+      expect(result).toEqual({
         issues: [
           expect.objectContaining({
             ruleId: 'no-duplicate-selectors',

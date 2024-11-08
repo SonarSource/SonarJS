@@ -73,3 +73,7 @@ export interface JsTsAnalysisOutput extends AnalysisOutput {
   ucfgPaths?: string[];
   ast?: Uint8Array;
 }
+
+export interface JsTsAnalysisOutputWithAst extends JsTsAnalysisOutput {
+  ast: Uint8Array;
+}
