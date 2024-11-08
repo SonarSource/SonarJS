@@ -18,6 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { Linter } from 'eslint';
+import { dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 /**
  * Builds ESLint parser options
@@ -70,14 +72,15 @@ export function buildParserOptions(initialOptions: Linter.ParserOptions, usingBa
  * @returns the extend parser options
  */
 function babelParserOptions(options: Linter.ParserOptions) {
+  const pluginPath = `${dirname(fileURLToPath(import.meta.url))}/../../../../node_modules`;
   const babelOptions = {
     targets: 'defaults',
     presets: [
-      ['@babel/preset-react', {}],
-      ['@babel/preset-flow', {}],
-      ['@babel/preset-env', {}],
+      `${pluginPath}/@babel/preset-react`,
+      `${pluginPath}/@babel/preset-flow`,
+      `${pluginPath}/@babel/preset-env`,
     ],
-    plugins: [['@babel/plugin-proposal-decorators', { version: '2022-03' }]],
+    plugins: [[`${pluginPath}/@babel/plugin-proposal-decorators`, { version: '2022-03' }]],
     babelrc: false,
     configFile: false,
     parserOpts: {
