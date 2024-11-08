@@ -20,8 +20,7 @@
 import { rule } from './index.js';
 import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { TypeScriptRuleTester } from '../../../tests/tools/index.js';
-import Module from 'node:module';
-const require = Module.createRequire(import.meta.url);
+import { fileURLToPath } from 'node:url';
 
 const parserOptions = {
   ecmaVersion: 2018,
@@ -29,7 +28,7 @@ const parserOptions = {
 };
 
 const ruleTesterForVue = new NodeRuleTester({
-  parser: require.resolve('vue-eslint-parser'),
+  parser: fileURLToPath(import.meta.resolve('vue-eslint-parser')),
   parserOptions,
 });
 const ruleTester = new TypeScriptRuleTester();

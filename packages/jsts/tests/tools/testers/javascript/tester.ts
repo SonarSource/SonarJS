@@ -20,10 +20,9 @@
 import { Rule } from 'eslint';
 import { NodeRuleTester } from '../rule-tester.js';
 import path from 'path';
+import { fileURLToPath } from 'node:url';
 
-import Module from 'node:module';
-const require = Module.createRequire(import.meta.url);
-const parser = require.resolve('@typescript-eslint/parser');
+const parser = fileURLToPath(import.meta.resolve('@typescript-eslint/parser'));
 
 const parserOptions = {
   ecmaVersion: 2018,

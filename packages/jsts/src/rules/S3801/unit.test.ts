@@ -19,10 +19,9 @@
  */
 import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { fileURLToPath } from 'node:url';
 
-import Module from 'node:module';
-const require = Module.createRequire(import.meta.url);
-const tsParserPath = require.resolve('@typescript-eslint/parser');
+const tsParserPath = fileURLToPath(import.meta.resolve('@typescript-eslint/parser'));
 const ruleTester = new NodeRuleTester({
   parserOptions: { ecmaVersion: 2018 },
   parser: tsParserPath,

@@ -20,13 +20,13 @@
 import { Scope } from 'eslint';
 import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { isParameterProperty, rule } from './rule.js';
-import Module from 'node:module';
 import { it } from 'node:test';
 import { expect } from 'expect';
-const require = Module.createRequire(import.meta.url);
+
+import { fileURLToPath } from 'node:url';
 
 const ruleTester = new NodeRuleTester({
-  parser: require.resolve('@typescript-eslint/parser'),
+  parser: fileURLToPath(import.meta.resolve('@typescript-eslint/parser')),
   parserOptions: { ecmaVersion: 2018, ecmaFeatures: { jsx: true } },
 });
 

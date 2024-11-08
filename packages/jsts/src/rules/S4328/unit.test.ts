@@ -20,6 +20,7 @@
 import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
 import path from 'path';
+import { fileURLToPath } from 'node:url';
 
 const fixtures = path.join(import.meta.dirname, 'fixtures');
 const filename = path.join(fixtures, 'package-json-project/file.js');
@@ -28,9 +29,7 @@ const options = [
     whitelist: [],
   },
 ];
-import Module from 'node:module';
-const require = Module.createRequire(import.meta.url);
-const tsParserPath = require.resolve('@typescript-eslint/parser');
+const tsParserPath = fileURLToPath(import.meta.resolve('@typescript-eslint/parser'));
 const ruleTester = new NodeRuleTester({
   parser: tsParserPath,
   parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
@@ -222,7 +221,7 @@ ruleTesterNestedPackage.run('all levels of package.json should be considered', r
 });
 
 const ruleTesterForPathMappings = new NodeRuleTester({
-  parser: require.resolve('@typescript-eslint/parser'),
+  parser: fileURLToPath(import.meta.resolve('@typescript-eslint/parser')),
   parserOptions: {
     ecmaVersion: 2018,
     sourceType: 'module',
@@ -273,7 +272,7 @@ ruleTesterForPathMappings.run('Path aliases should be exempt', rule, {
 });
 
 const ruleTesterForBaseUrl = new NodeRuleTester({
-  parser: require.resolve('@typescript-eslint/parser'),
+  parser: fileURLToPath(import.meta.resolve('@typescript-eslint/parser')),
   parserOptions: {
     ecmaVersion: 2018,
     sourceType: 'module',

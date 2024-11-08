@@ -20,12 +20,11 @@
 import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
 import { IssueLocation } from '../helpers/index.js';
-import Module from 'node:module';
-const require = Module.createRequire(import.meta.url);
+import { fileURLToPath } from 'node:url';
 
 const ruleTester = new NodeRuleTester({
   parserOptions: { ecmaVersion: 2018, sourceType: 'module', ecmaFeatures: { jsx: true } },
-  parser: require.resolve('@typescript-eslint/parser'),
+  parser: fileURLToPath(import.meta.resolve('@typescript-eslint/parser')),
 });
 
 ruleTester.run('cognitive-complexity', rule, {
