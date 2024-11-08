@@ -21,8 +21,7 @@ import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
 import path from 'path';
 import { BabelRuleTester } from '../../../tests/tools/index.js';
-import Module from 'node:module';
-const require = Module.createRequire(import.meta.url);
+import { fileURLToPath } from 'node:url';
 
 const babelRuleTester = BabelRuleTester();
 
@@ -193,7 +192,7 @@ bar();`),
 
 const ruleTesterTS = new NodeRuleTester({
   parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
-  parser: require.resolve('@typescript-eslint/parser'),
+  parser: fileURLToPath(import.meta.resolve('@typescript-eslint/parser')),
 });
 
 ruleTesterTS.run('Unnecessary imports should be removed', rule, {
@@ -348,7 +347,7 @@ const ruleTesterJsxFactory = new NodeRuleTester({
     ecmaFeatures: { jsx: true },
     project,
   },
-  parser: require.resolve('@typescript-eslint/parser'),
+  parser: fileURLToPath(import.meta.resolve('@typescript-eslint/parser')),
 });
 
 ruleTesterJsxFactory.run('Unused imports denoting jsx factory should be ignored', rule, {
@@ -409,7 +408,7 @@ ruleTesterJsxFactory.run('Unused imports denoting jsx factory should be ignored'
 
 const ruleTesterVue = new NodeRuleTester({
   parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
-  parser: require.resolve('vue-eslint-parser'),
+  parser: fileURLToPath(import.meta.resolve('vue-eslint-parser')),
 });
 
 ruleTesterVue.run('Unnecessary imports should be removed', rule, {
