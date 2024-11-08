@@ -68,7 +68,7 @@ export function buildParserOptions(initialOptions: Linter.ParserOptions, usingBa
  * Babel's parser is able to parse non-standard syntaxes and features.
  * However, the support of such constructs are extracted into dedicated
  * plugins, which need to be explictly included in the parser options,
- * among other things.ts
+ * among other things.
  *
  * @param options the parser options to extend
  * @returns the extend parser options
