@@ -23,7 +23,7 @@ import { fileURLToPath } from 'node:url';
 
 const ruleTester = new NodeRuleTester({
   parser: fileURLToPath(import.meta.resolve('@typescript-eslint/parser')),
-  parserOptions: { ecmaVersion: 2018, ecmaFeatures: { jsx: true } },
+  parserOptions: { ecmaVersion: 2018 },
 });
 
 ruleTester.run('Braces and parentheses should be used consistently with arrow functions', rule, {
