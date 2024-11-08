@@ -1,7 +1,6 @@
 {
   "extends": "./tsconfig.json",
   "include": [
-    "server.ts",
     "*/src/**/*.ts",
     "*/src/**/*.json",
     "bridge/src/worker.js",

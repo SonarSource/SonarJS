@@ -25,7 +25,10 @@ import * as http from 'http';
 import { describe, before, it, mock, Mock } from 'node:test';
 import { expect } from 'expect';
 import assert from 'node:assert';
-import { setContext } from '../../shared/src/helpers/context.js';
+import { getContext, setContext } from '../../shared/src/helpers/context.js';
+import { createWorker } from '../../shared/src/helpers/worker.js';
+
+const workerPath = path.join(import.meta.dirname, '..', '..', '..', 'bin', 'server.mjs');
 
 describe('server', () => {
   const port = 0;
@@ -115,7 +118,8 @@ describe('server', () => {
   it('should shut down', async () => {
     console.log = mock.fn();
 
-    const { server, serverClosed } = await start(port);
+    const worker = createWorker(workerPath, getContext());
+    const { server, serverClosed } = await start(port, undefined, worker);
     expect(server.listening).toBeTruthy();
 
     await request(server, '/close', 'POST');
@@ -131,7 +135,8 @@ describe('server', () => {
   it('worker crashing should close server', async () => {
     console.log = mock.fn();
 
-    const { server, serverClosed, worker } = await start(port);
+    const worker = createWorker(workerPath, getContext());
+    const { server, serverClosed } = await start(port, undefined, worker);
     expect(server.listening).toBeTruthy();
 
     worker.emit('error', new Error('An error'));
@@ -148,7 +153,7 @@ describe('server', () => {
   it('should timeout', async () => {
     console.log = mock.fn();
 
-    const { server, serverClosed } = await start(port, '127.0.0.1', 500);
+    const { server, serverClosed } = await start(port, '127.0.0.1', undefined, 500);
 
     await new Promise(r => setTimeout(r, 100));
     expect(server.listening).toBeTruthy();

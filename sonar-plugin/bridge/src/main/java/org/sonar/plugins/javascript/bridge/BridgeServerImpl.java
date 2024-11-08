@@ -19,6 +19,12 @@
  */
 package org.sonar.plugins.javascript.bridge;
 
+import static java.util.Collections.emptyList;
+import static org.sonar.plugins.javascript.bridge.NetUtils.findOpenPort;
+import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_EXECUTABLE_PROPERTY;
+import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_FORCE_HOST_PROPERTY;
+import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.SKIP_NODE_PROVISIONING_PROPERTY;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import java.io.File;
@@ -58,12 +64,6 @@ import org.sonar.api.utils.TempFolder;
 import org.sonar.plugins.javascript.nodejs.NodeCommand;
 import org.sonar.plugins.javascript.nodejs.NodeCommandBuilder;
 import org.sonar.plugins.javascript.nodejs.NodeCommandException;
-
-import static java.util.Collections.emptyList;
-import static org.sonar.plugins.javascript.bridge.NetUtils.findOpenPort;
-import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_EXECUTABLE_PROPERTY;
-import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_FORCE_HOST_PROPERTY;
-import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.SKIP_NODE_PROVISIONING_PROPERTY;
 
 public class BridgeServerImpl implements BridgeServer {
 
@@ -620,10 +620,10 @@ public class BridgeServerImpl implements BridgeServer {
 
   static class TsConfigRequest {
 
-    final String tsconfig;
+    final String tsConfig;
 
     TsConfigRequest(String tsconfig) {
-      this.tsconfig = tsconfig;
+      this.tsConfig = tsconfig;
     }
   }
 
