@@ -21,7 +21,6 @@ package com.sonar.javascript.it.plugin.assertj;
 
 import static java.lang.String.format;
 import static java.util.regex.Pattern.compile;
-import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.fail;
 import static org.assertj.core.api.Assertions.tuple;
 
@@ -147,10 +146,19 @@ public class BuildResultAssert extends AbstractAssert<BuildResultAssert, BuildRe
     List<Path> ucfgFiles;
     try {
       ucfgFiles = findUcfgFilesIn(projectPath);
-      for (var filename : filenames) {
+      for (var ucfgFile : ucfgFiles) {
+        // Filenames: file2_SomeLambdaFunction_yaml
+        // ucfgFile: /Users/VICTOR~1.DIE/AppData/Local/Temp/junit14107160890921213721/pr-analysis-yaml/.scannerwork/ucfg2/js/daFunction_yaml_1.ucfgs
+        // We check if file2_SomeLambdaFunction_yaml ends with daFunction_yaml
+        // or
+        // Filenames: index.ts
+        // ucfg: /Users/VICTOR~1.DIE/AppData/Local/Temp/junit2107948845245431806/pr-analysis-ts/.scannerwork/ucfg2/js/sis_ts_index_ts.ucfgs
+        // We check if sis_ts_index_ts ends with index_ts
+
+        var key = ucfgFile.getFileName().toString().replaceFirst("(_\\d+)?[.][^.]+$", ""); // We remove index and extension: _1.ucfgs
         Assertions
-          .assertThat(ucfgFiles)
-          .filteredOn(file -> file.getFileName().toString().contains(filename.replace('.', '_')))
+          .assertThat(filenames)
+          .filteredOn(filename -> filename.replace('.', '_').endsWith(key) || key.endsWith(filename.replace('.', '_')))
           .isNotEmpty();
       }
     } catch (IOException e) {

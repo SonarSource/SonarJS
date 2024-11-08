@@ -167,8 +167,12 @@ ruleTester.run('Sections of code should not be commented out', rule, {
     {
       code: `
         /* // nested comment
+         @annotation
+         class MyClass {}
+
          foo(a, function(){
              doSmth();
+             const a = <bv></bv>
          });
          */`,
       errors: [
@@ -176,7 +180,7 @@ ruleTester.run('Sections of code should not be commented out', rule, {
           message: 'Remove this commented out code.',
           line: 2,
           column: 9,
-          endLine: 6,
+          endLine: 10,
           endColumn: 12,
         },
       ],
