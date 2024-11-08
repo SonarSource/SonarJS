@@ -2,6 +2,7 @@ import createNodeResolvePlugin from '@rollup/plugin-node-resolve';
 import createCommonJSPlugin from '@rollup/plugin-commonjs';
 import createJSONPlugin from '@rollup/plugin-json';
 import createIgnorePlugin from 'rollup-plugin-ignore';
+import { dts } from 'rollup-plugin-dts';
 import MagicString from 'magic-string';
 import copy from 'rollup-plugin-copy';
 
@@ -59,11 +60,9 @@ const options = [
           'node_modules/espree/dist/espree.cjs',
           'node_modules/encoding/lib/encoding.js',
           'node_modules/esquery/dist/esquery.js',
-          'node_modules/@babel/plugin-proposal-decorators/lib/*.js',
-          'node_modules/@babel/plugin-proposal-decorators',
           // 'node_modules/@babel/parser/lib/index.js',
           // 'node_modules/@babel/eslint-parser/lib/index.js',
-          // 'node_modules/@babel/preset-env/lib/index.js'
+          'node_modules/@babel/preset-env/lib/index.js',
         ],
       }),
       createJSONPlugin(),
@@ -73,10 +72,13 @@ const options = [
             src: 'lib/jsts/src/parsers/estree.proto',
             dest: 'target',
           },
+          {
+            src: 'node_modules/typescript/lib/*.d.ts',
+            dest: 'target',
+          },
         ],
       }),
     ],
-    external: ['typescript'],
     treeshake: false, // it is important to not treeshake to preserve all the uncovered branches
     input: {
       server: 'bin/server.mjs',
@@ -91,6 +93,11 @@ const options = [
       },
     ],
   },
+  // {
+  //   input: "node_modules/typescript/lib/typescript.d.ts",
+  //   output: [{ format: "cjs", dir: 'target' }],
+  //   plugins: [dts()],
+  // },
 ];
 
 export default options;
