@@ -47,15 +47,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import org.apache.hc.client5.http.classic.methods.HttpGet;
-import org.apache.hc.client5.http.classic.methods.HttpPost;
-import org.apache.hc.client5.http.config.RequestConfig;
-import org.apache.hc.client5.http.impl.classic.HttpClients;
-import org.apache.hc.core5.http.ContentType;
-import org.apache.hc.core5.http.Header;
-import org.apache.hc.core5.http.io.entity.EntityUtils;
-import org.apache.hc.core5.http.io.entity.StringEntity;
-import org.apache.hc.core5.util.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.SonarProduct;
@@ -421,35 +412,16 @@ public class BridgeServerImpl implements BridgeServer {
   }
 
   private BridgeResponse request(String json, String endpoint) throws IOException {
-    try (var httpclient = HttpClients.createDefault()) {
-
-      var config = RequestConfig.custom()
-        .setResponseTimeout(Timeout.ofSeconds(timeoutSeconds))
-        .build();
-
-      HttpPost httpPost = new HttpPost(url(endpoint));
-      httpPost.setEntity(new StringEntity(json, ContentType.APPLICATION_JSON));
-      httpPost.setConfig(config);
-
-      return httpclient.execute(httpPost, response -> {
-        var contentTypeHeader = response.getHeader("Content-Type");
-        var responseBody = EntityUtils.toByteArray(response.getEntity());
-        if (isFormData(contentTypeHeader)) {
-          return FormDataUtils.parseFormData(contentTypeHeader.toString(), responseBody);
-        } else {
-          return new BridgeResponse(new String(responseBody, StandardCharsets.UTF_8));
-        }
-      });
-    } catch (IOException e) {
-      throw new IllegalStateException("The bridge server is unresponsive", e);
+    var response = Http.getInstance().post(json, url(endpoint), timeoutSeconds);
+    if (isFormData(response.contentType())) {
+      return FormDataUtils.parseFormData(response.contentType(), response.body());
+    } else {
+      return new BridgeServer.BridgeResponse(new String(response.body(), StandardCharsets.UTF_8));
     }
   }
 
-  private static boolean isFormData(@Nullable Header contentTypeHeader) {
-    if (contentTypeHeader == null) {
-      return false;
-    }
-    return contentTypeHeader.toString().contains("multipart/form-data");
+  private static boolean isFormData(@Nullable String contentTypeHeader) {
+    return contentTypeHeader != null && contentTypeHeader.contains("multipart/form-data");
   }
 
   private static AnalysisResponse response(BridgeResponse result, String filePath) {
@@ -470,9 +442,8 @@ public class BridgeServerImpl implements BridgeServer {
     if (nodeCommand == null && status != Status.STARTED) {
       return false;
     }
-    try (var client = HttpClients.custom().build()) {
-      var get = new HttpGet(url("status"));
-      var res = client.execute(get, response -> EntityUtils.toString(response.getEntity()));
+    try {
+      String res = Http.getInstance().get(url("status"));
       return "OK!".equals(res);
     } catch (IOException e) {
       return false;
