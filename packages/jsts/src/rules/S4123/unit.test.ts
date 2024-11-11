@@ -20,8 +20,7 @@
 import { rule } from './index.js';
 import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { JavaScriptRuleTester, TypeScriptRuleTester } from '../../../tests/tools/index.js';
-import Module from 'node:module';
-const require = Module.createRequire(import.meta.url);
+import { fileURLToPath } from 'node:url';
 
 const ruleTester = new TypeScriptRuleTester();
 ruleTester.run('await should only be used with promises.', rule, {
@@ -219,7 +218,7 @@ ruleTester.run('await should only be used with promises.', rule, {
 });
 
 const ruleTesterWithNoFullTypeInfo = new NodeRuleTester({
-  parser: require.resolve('@typescript-eslint/parser'),
+  parser: fileURLToPath(import.meta.resolve('@typescript-eslint/parser')),
   parserOptions: {
     ecmaVersion: 2018,
     sourceType: 'module',

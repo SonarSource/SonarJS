@@ -19,14 +19,11 @@
  */
 import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { fileURLToPath } from 'node:url';
 
-// @typescript-eslint/parser is required for the type assertion test at the end of this test file
-import Module from 'node:module';
-const require = Module.createRequire(import.meta.url);
-const tsParserPath = require.resolve('@typescript-eslint/parser');
 const ruleTester = new NodeRuleTester({
   parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
-  parser: tsParserPath,
+  parser: fileURLToPath(import.meta.resolve('@typescript-eslint/parser')),
 });
 
 ruleTester.run('Redundant pairs of parentheses should be removed', rule, {

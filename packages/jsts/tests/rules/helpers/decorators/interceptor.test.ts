@@ -25,9 +25,8 @@ import { rule as noParameterReassignment } from '../../../../src/rules/S1226/ind
 // Covers `getFilename`
 import { rule as noImplicitDependencies } from '../../../../src/rules/S4328/index.js';
 import path from 'path';
-import Module from 'node:module';
-const require = Module.createRequire(import.meta.url);
 import { describe } from 'node:test';
+import { fileURLToPath } from 'node:url';
 
 describe('interceptReport', () => {
   assertThatInterceptReportDecoratorForwardsCalls(
@@ -59,7 +58,7 @@ function assertThatInterceptReportDecoratorForwardsCalls(
   },
 ) {
   const ruleTester = new NodeRuleTester({
-    parser: require.resolve('@typescript-eslint/parser'),
+    parser: fileURLToPath(import.meta.resolve('@typescript-eslint/parser')),
     parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
   });
 

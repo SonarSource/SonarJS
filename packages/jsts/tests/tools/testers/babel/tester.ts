@@ -18,18 +18,25 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { NodeRuleTester } from '../rule-tester.js';
-import { buildParserOptions } from '../../../../src/parsers/options.js';
-import Module from 'node:module';
-const require = Module.createRequire(import.meta.url);
+import { fileURLToPath } from 'node:url';
 
 export function BabelRuleTester() {
-  const parserOptions = buildParserOptions(
-    { filePath: 'some/filePath', tsConfigs: [], fileContent: '', fileType: 'MAIN' },
-    true,
-  );
   return new NodeRuleTester({
     // we use babel to parse JSX syntax
-    parser: require.resolve('@babel/eslint-parser'),
-    parserOptions,
+    parser: fileURLToPath(import.meta.resolve('@babel/eslint-parser')),
+    parserOptions: {
+      ecmaVersion: 2015,
+      requireConfigFile: false,
+      babelOptions: {
+        targets: 'defaults',
+        presets: ['@babel/preset-react', '@babel/preset-flow', '@babel/preset-env'],
+        plugins: [['@babel/plugin-proposal-decorators', { version: '2022-03' }]],
+        babelrc: false,
+        configFile: false,
+        parserOpts: {
+          allowReturnOutsideFunction: true,
+        },
+      },
+    },
   });
 }

@@ -19,12 +19,11 @@
  */
 import { rule } from './index.js';
 import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
-import Module from 'node:module';
-const require = Module.createRequire(import.meta.url);
+import { fileURLToPath } from 'node:url';
 
 const ruleTester = new NodeRuleTester({
-  parser: require.resolve('@typescript-eslint/parser'),
-  parserOptions: { ecmaVersion: 2018 },
+  parser: fileURLToPath(import.meta.resolve('@typescript-eslint/parser')),
+  parserOptions: { ecmaVersion: 2018, ecmaFeatures: { jsx: true } },
 });
 
 ruleTester.run('Optional boolean parameters should have default value', rule, {
