@@ -23,6 +23,14 @@ await esbuild.build({
           'tryRequire(`eslint-import-resolver-${name}`, sourceFile)',
           'require("eslint-import-resolver-node")',
         ],
+        [
+          'style.syntax = loadSyntax(opts, __dirname);',
+          'style.syntax = {parse: require("postcss-html/template-parse"), stringify: require("postcss/lib/stringify")}; opts.syntax.config["css"]={stringify: require("postcss/lib/stringify"),parse: require("postcss/lib/parse")}',
+        ],
+        [
+          "postcssDoc && postcssDoc.constructor.name === 'Document' ? postcssDoc.nodes : [postcssDoc]",
+          "postcssDoc && postcssDoc.constructor === require('postcss-syntax/document') ? postcssDoc.nodes : [postcssDoc]",
+        ],
       ],
     }),
     copy({
