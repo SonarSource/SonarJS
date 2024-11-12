@@ -45,7 +45,7 @@ export function buildSourceCode(input: JsTsAnalysisInput, language: JsTsLanguage
       // enable logs for @typescript-eslint
       // debugLevel: true,
       filePath: input.filePath,
-      parser: vueFile ? parsers.typescript.parser : undefined,
+      parser: vueFile ? parsers.typescript : undefined,
     };
     const parser = vueFile ? parsers.vuejs : parsers.typescript;
     if (!vueFile) {
