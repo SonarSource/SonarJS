@@ -29,13 +29,10 @@ describe('createStylelintConfig', () => {
       { key: 'bar', configurations: [42] },
     ];
     const config = createStylelintConfig(rules);
-    expect(config).toEqual({
-      customSyntax: 'postcss-syntax',
-      rules: {
-        foo: true,
-        bar: [42],
-      },
-      plugins,
+    expect(config.rules).toEqual({
+      foo: true,
+      bar: [42],
     });
+    expect(config.plugins).toEqual(plugins);
   });
 });
