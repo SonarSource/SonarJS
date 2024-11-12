@@ -140,7 +140,8 @@ public class StandaloneParser implements AutoCloseable {
 
         return httpclient.execute(httpPost, response -> {
           var contentTypeHeader = response.getHeader("Content-Type");
-          return new Response(contentTypeHeader.toString(), EntityUtils.toByteArray(response.getEntity()));
+          var contentType = contentTypeHeader != null ? contentTypeHeader.toString() : null;
+          return new Response(contentType, EntityUtils.toByteArray(response.getEntity()));
         });
       }
     }

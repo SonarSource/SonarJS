@@ -115,7 +115,7 @@ abstract class AbstractAnalysis {
           file
         );
         acceptAstResponse(response, file);
-      } catch (IOException e) {
+      } catch (Exception e) {
         LOG.error("Failed to get response while analyzing " + file.uri(), e);
         throw e;
       }
