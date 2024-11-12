@@ -59,6 +59,7 @@
   },
   "type": "module",
   "devDependencies": {
+    "@babel/preset-typescript": "7.26.0",
     "@types/babel__preset-env": "7.9.7",
     "@types/bytes": "3.1.4",
     "@types/eslint": "8.56.10",
@@ -72,6 +73,8 @@
     "@types/tmp": "0.2.6",
     "cpy-cli": "5.0.0",
     "dir-compare": "5.0.0",
+    "esbuild": "0.24.0",
+    "esbuild-plugin-text-replace": "1.3.0",
     "eslint-doc-generator": "1.7.1",
     "esprima": "4.0.1",
     "expect": "29.7.0",
