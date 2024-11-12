@@ -22,19 +22,9 @@ package org.sonar.plugins.javascript.standalone;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.net.URI;
 import java.util.List;
 import java.util.Optional;
-import org.apache.hc.client5.http.classic.methods.HttpGet;
-import org.apache.hc.client5.http.classic.methods.HttpPost;
-import org.apache.hc.client5.http.config.RequestConfig;
-import org.apache.hc.client5.http.impl.classic.HttpClients;
-import org.apache.hc.core5.http.ContentType;
-import org.apache.hc.core5.http.io.entity.EntityUtils;
-import org.apache.hc.core5.http.io.entity.StringEntity;
-import org.apache.hc.core5.util.Timeout;
 import org.sonar.api.SonarProduct;
-import org.sonar.plugins.javascript.bridge.Http;
 import org.sonar.plugins.javascript.api.estree.ESTree;
 import org.sonar.plugins.javascript.bridge.AnalysisMode;
 import org.sonar.plugins.javascript.bridge.AnalysisWarningsWrapper;
@@ -45,6 +35,7 @@ import org.sonar.plugins.javascript.bridge.BundleImpl;
 import org.sonar.plugins.javascript.bridge.ESTreeFactory;
 import org.sonar.plugins.javascript.bridge.EmbeddedNode;
 import org.sonar.plugins.javascript.bridge.Environment;
+import org.sonar.plugins.javascript.bridge.Http;
 import org.sonar.plugins.javascript.bridge.NodeDeprecationWarning;
 import org.sonar.plugins.javascript.bridge.RulesBundles;
 import org.sonar.plugins.javascript.bridge.protobuf.Node;
@@ -58,6 +49,10 @@ public class StandaloneParser implements AutoCloseable {
   private final BridgeServerImpl bridge;
 
   public StandaloneParser() {
+    this(Http.getJdkHttpClient());
+  }
+
+  public StandaloneParser(Http http) {
     ProcessWrapperImpl processWrapper = new ProcessWrapperImpl();
     EmptyConfiguration emptyConfiguration = new EmptyConfiguration();
     bridge = new BridgeServerImpl(
@@ -68,7 +63,7 @@ public class StandaloneParser implements AutoCloseable {
       new NodeDeprecationWarning(new AnalysisWarningsWrapper()),
       new StandaloneTemporaryFolder(),
       new EmbeddedNode(processWrapper, new Environment(emptyConfiguration)),
-      new ApacheHttp());
+      http);
     try {
       bridge.startServerLazily(new BridgeServerConfig(emptyConfiguration, new File(".").getAbsolutePath(), SonarProduct.SONARLINT));
       bridge.initLinter(List.of(), List.of(), List.of(), AnalysisMode.DEFAULT, null, List.of());
@@ -124,33 +119,5 @@ public class StandaloneParser implements AutoCloseable {
     }
   }
 
-  public static class ApacheHttp implements Http {
 
-    @Override
-    public Response post(String json, URI uri, long timeoutSeconds) throws IOException {
-      try (var httpclient = HttpClients.createDefault()) {
-
-        var config = RequestConfig.custom()
-          .setResponseTimeout(Timeout.ofSeconds(timeoutSeconds))
-          .build();
-
-        HttpPost httpPost = new HttpPost(uri);
-        httpPost.setEntity(new StringEntity(json, ContentType.APPLICATION_JSON));
-        httpPost.setConfig(config);
-
-        return httpclient.execute(httpPost, response -> {
-          var contentTypeHeader = response.getHeader("Content-Type");
-          var contentType = contentTypeHeader != null ? contentTypeHeader.toString() : null;
-          return new Response(contentType, EntityUtils.toByteArray(response.getEntity()));
-        });
-      }
-    }
-
-    public String get(URI uri) throws IOException{
-      try (var client = HttpClients.custom().build()) {
-        var get = new HttpGet(uri);
-        return client.execute(get, response -> EntityUtils.toString(response.getEntity()));
-      }
-    }
-  }
 }
