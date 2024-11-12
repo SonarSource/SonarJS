@@ -90,6 +90,7 @@ public class BridgeServerImpl implements BridgeServer {
   private static final int HEARTBEAT_INTERVAL_SECONDS = 5;
   private final ScheduledExecutorService heartbeatService;
   private ScheduledFuture<?> heartbeatFuture;
+  private final Http http;
 
   // Used by pico container for dependency injection
   public BridgeServerImpl(
@@ -120,6 +121,28 @@ public class BridgeServerImpl implements BridgeServer {
     TempFolder tempFolder,
     EmbeddedNode embeddedNode
   ) {
+    this(
+      nodeCommandBuilder,
+      timeoutSeconds,
+      bundle,
+      rulesBundles,
+      deprecationWarning,
+      tempFolder,
+      embeddedNode,
+      Http.getJdkHttpClient()
+    );
+  }
+
+  public BridgeServerImpl(
+    NodeCommandBuilder nodeCommandBuilder,
+    int timeoutSeconds,
+    Bundle bundle,
+    RulesBundles rulesBundles,
+    NodeDeprecationWarning deprecationWarning,
+    TempFolder tempFolder,
+    EmbeddedNode embeddedNode,
+    Http http
+  ) {
     this.nodeCommandBuilder = nodeCommandBuilder;
     this.timeoutSeconds = timeoutSeconds;
     this.bundle = bundle;
@@ -129,6 +152,7 @@ public class BridgeServerImpl implements BridgeServer {
     this.temporaryDeployLocation = tempFolder.newDir(BRIDGE_DEPLOY_LOCATION).toPath();
     this.heartbeatService = Executors.newSingleThreadScheduledExecutor();
     this.embeddedNode = embeddedNode;
+    this.http = http;
     silenceHttpClientLogs();
   }
 
@@ -364,7 +388,7 @@ public class BridgeServerImpl implements BridgeServer {
     List<String> globals,
     String baseDir,
     List<String> exclusions
-  ) throws IOException {
+  ) {
     InitLinterRequest initLinterRequest = new InitLinterRequest(
       linterId,
       rules,
@@ -388,35 +412,39 @@ public class BridgeServerImpl implements BridgeServer {
   }
 
   @Override
-  public AnalysisResponse analyzeTypeScript(JsAnalysisRequest request) throws IOException {
+  public AnalysisResponse analyzeTypeScript(JsAnalysisRequest request) {
     String json = GSON.toJson(request);
     return response(request(json, "analyze-ts"), request.filePath());
   }
 
   @Override
-  public AnalysisResponse analyzeCss(CssAnalysisRequest request) throws IOException {
+  public AnalysisResponse analyzeCss(CssAnalysisRequest request) {
     String json = GSON.toJson(request);
     return response(request(json, "analyze-css"), request.filePath());
   }
 
   @Override
-  public AnalysisResponse analyzeYaml(JsAnalysisRequest request) throws IOException {
+  public AnalysisResponse analyzeYaml(JsAnalysisRequest request) {
     String json = GSON.toJson(request);
     return response(request(json, "analyze-yaml"), request.filePath());
   }
 
   @Override
-  public AnalysisResponse analyzeHtml(JsAnalysisRequest request) throws IOException {
+  public AnalysisResponse analyzeHtml(JsAnalysisRequest request) {
     var json = GSON.toJson(request);
     return response(request(json, "analyze-html"), request.filePath());
   }
 
-  private BridgeResponse request(String json, String endpoint) throws IOException {
-    var response = Http.getInstance().post(json, url(endpoint), timeoutSeconds);
-    if (isFormData(response.contentType())) {
-      return FormDataUtils.parseFormData(response.contentType(), response.body());
-    } else {
-      return new BridgeServer.BridgeResponse(new String(response.body(), StandardCharsets.UTF_8));
+  private BridgeResponse request(String json, String endpoint) {
+    try {
+      var response = http.post(json, url(endpoint), timeoutSeconds);
+      if (isFormData(response.contentType())) {
+        return FormDataUtils.parseFormData(response.contentType(), response.body());
+      } else {
+        return new BridgeServer.BridgeResponse(new String(response.body(), StandardCharsets.UTF_8));
+      }
+    } catch (IOException e) {
+      throw new IllegalStateException("The bridge server is unresponsive", e);
     }
   }
 
@@ -443,7 +471,7 @@ public class BridgeServerImpl implements BridgeServer {
       return false;
     }
     try {
-      String res = Http.getInstance().get(url("status"));
+      String res = http.get(url("status"));
       return "OK!".equals(res);
     } catch (IOException e) {
       return false;
@@ -452,13 +480,8 @@ public class BridgeServerImpl implements BridgeServer {
 
   @Override
   public boolean newTsConfig() {
-    try {
-      var response = request("", "new-tsconfig").json();
-      return "OK!".equals(response);
-    } catch (IOException e) {
-      LOG.error("Failed to post new-tsconfig", e);
-    }
-    return false;
+    var response = request("", "new-tsconfig").json();
+    return "OK!".equals(response);
   }
 
   TsConfigResponse tsConfigFiles(String tsconfigAbsolutePath) {
@@ -467,8 +490,6 @@ public class BridgeServerImpl implements BridgeServer {
       TsConfigRequest tsConfigRequest = new TsConfigRequest(tsconfigAbsolutePath);
       result = request(GSON.toJson(tsConfigRequest), "tsconfig-files").json();
       return GSON.fromJson(result, TsConfigResponse.class);
-    } catch (IOException e) {
-      LOG.error("Failed to request files for tsconfig: " + tsconfigAbsolutePath, e);
     } catch (JsonSyntaxException e) {
       LOG.error(
         "Failed to parse response when requesting files for tsconfig: {}: \n-----\n{}\n-----\n{}", tsconfigAbsolutePath, result, e.getMessage()
@@ -492,20 +513,20 @@ public class BridgeServerImpl implements BridgeServer {
   }
 
   @Override
-  public TsProgram createProgram(TsProgramRequest tsProgramRequest) throws IOException {
+  public TsProgram createProgram(TsProgramRequest tsProgramRequest) {
     var response = request(GSON.toJson(tsProgramRequest), "create-program");
     return GSON.fromJson(response.json(), TsProgram.class);
   }
 
   @Override
-  public boolean deleteProgram(TsProgram tsProgram) throws IOException {
+  public boolean deleteProgram(TsProgram tsProgram) {
     var programToDelete = new TsProgram(tsProgram.programId(), null, null);
     var response = request(GSON.toJson(programToDelete), "delete-program").json();
     return "OK!".equals(response);
   }
 
   @Override
-  public TsConfigFile createTsConfigFile(String content) throws IOException {
+  public TsConfigFile createTsConfigFile(String content) {
     var response = request(content, "create-tsconfig-file");
     return GSON.fromJson(response.json(), TsConfigFile.class);
   }
@@ -519,11 +540,7 @@ public class BridgeServerImpl implements BridgeServer {
     LOG.trace("Closing heartbeat service");
     heartbeatService.shutdownNow();
     if (nodeCommand != null && isAlive()) {
-      try {
-        request("", "close");
-      } catch (IOException e) {
-        LOG.warn("Failed to close the bridge server", e);
-      }
+      request("", "close");
       nodeCommand.waitFor();
       nodeCommand = null;
     }

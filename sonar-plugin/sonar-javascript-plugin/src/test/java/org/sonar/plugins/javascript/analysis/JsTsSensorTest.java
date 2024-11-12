@@ -260,7 +260,7 @@ class JsTsSensorTest {
   @Test
   void should_explode_if_no_response() throws Exception {
     createVueInputFile();
-    when(bridgeServerMock.analyzeTypeScript(any())).thenThrow(new IOException("error"));
+    when(bridgeServerMock.analyzeTypeScript(any())).thenThrow(new IllegalStateException("error"));
 
     var tsProgram = new TsProgram("1", List.of(), List.of());
     when(bridgeServerMock.createProgram(any())).thenReturn(tsProgram);
@@ -778,7 +778,7 @@ class JsTsSensorTest {
   @Test
   void should_fail_fast() throws Exception {
     createTsConfigFile();
-    when(bridgeServerMock.analyzeTypeScript(any())).thenThrow(new IOException("error"));
+    when(bridgeServerMock.analyzeTypeScript(any())).thenThrow(new IllegalStateException("error"));
     JsTsSensor sensor = createSensor();
     createInputFile(context);
 
