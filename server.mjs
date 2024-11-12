@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 import { isMainThread } from 'node:worker_threads';
-import * as server from '../lib/bridge/src/server.js';
+import * as server from './lib/bridge/src/server.js';
 import path from 'path';
-import * as context from '../lib/shared/src/helpers/context.js';
+import * as context from './lib/shared/src/helpers/context.js';
 import { pathToFileURL } from 'node:url';
-import { createWorker } from '../lib/shared/src/helpers/worker.js';
-import { getContext } from '../lib/shared/src/helpers/context.js';
+import { createWorker } from './lib/shared/src/helpers/worker.js';
+import { getContext } from './lib/shared/src/helpers/context.js';
 
 // import containing code which is only executed if it's a child process
-import '../lib/bridge/src/worker.js';
+import './lib/bridge/src/worker.js';
 
 if (isMainThread) {
   /**
@@ -35,13 +35,5 @@ if (isMainThread) {
   }
 
   context.setContext({ workDir, shouldUseTypeScriptParserForJS, sonarlint, debugMemory, bundles });
-
-  server
-    .start(
-      Number.parseInt(port),
-      host,
-      createWorker(new URL(import.meta.url), getContext()),
-      600000000,
-    )
-    .catch(() => {});
+  server.start(Number.parseInt(port), host, createWorker(new URL(import.meta.url), getContext()));
 }

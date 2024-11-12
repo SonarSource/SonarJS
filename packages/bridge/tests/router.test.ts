@@ -39,7 +39,7 @@ describe('router', () => {
   const fixtures = path.join(import.meta.dirname, 'fixtures', 'router');
   const port = 0;
   let closePromise: Promise<void>;
-  const workerPath = path.join(import.meta.dirname, '..', '..', '..', 'bin', 'server.mjs');
+  const workerPath = path.join(import.meta.dirname, '..', '..', '..', 'server.mjs');
 
   let server: http.Server;
 

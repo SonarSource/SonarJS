@@ -174,7 +174,7 @@ class SonarJsIntegrationTest {
       port = findOpenPort();
       String[] cmd = {
         "node",
-        dest.resolve("package/bin/server.mjs").toString(),
+        dest.resolve("package/bin/server.cjs").toString(),
         String.valueOf(port),
         "127.0.0.1",
         temp.toString(),

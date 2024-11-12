@@ -362,14 +362,14 @@
             <configuration>
               <rules>
                 <requireFilesSize>
-                  <minsize>80000000</minsize>
+                  <minsize>70000000</minsize>
                   <maxsize>90000000</maxsize>
                   <files>
                     <file>${project.build.directory}/${project.build.finalName}-multi.jar</file>
                   </files>
                 </requireFilesSize>
                 <requireFilesSize>
-                  <minsize>30000000</minsize>
+                  <minsize>25000000</minsize>
                   <maxsize>55000000</maxsize>
                   <files>
                     <file>${project.build.directory}/${project.build.finalName}-linux-x64.jar</file>
@@ -378,7 +378,7 @@
                   </files>
                 </requireFilesSize>
                 <requireFilesSize>
-                  <minsize>22500000</minsize>
+                  <minsize>10000000</minsize>
                   <maxsize>27500000</maxsize>
                   <files>
                     <file>${project.build.directory}/${project.build.finalName}.jar</file>

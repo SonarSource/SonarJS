@@ -3,8 +3,8 @@ import textReplace from 'esbuild-plugin-text-replace';
 import { copy } from 'esbuild-plugin-copy';
 
 await esbuild.build({
-  entryPoints: ['./bin/server.mjs'],
-  outfile: './build/server.cjs',
+  entryPoints: ['./server.mjs'],
+  outfile: './bin/server.cjs',
   format: 'cjs',
   bundle: true,
   external: ['eslint/lib/util/glob-util'],
@@ -30,11 +30,11 @@ await esbuild.build({
       assets: [
         {
           from: ['./node_modules/typescript/lib/*.d.ts'],
-          to: ['./build/'],
+          to: ['./bin/'],
         },
         {
           from: ['./packages/jsts/src/parsers/estree.proto'],
-          to: ['./build/'],
+          to: ['./bin/'],
         },
       ],
     }),

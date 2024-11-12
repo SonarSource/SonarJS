@@ -37,7 +37,7 @@ public class BundleImpl implements Bundle {
 
   // this archive is created in the bridge module
   private static final String BUNDLE_LOCATION = "/sonarjs-1.0.0.tgz";
-  private static final String DEFAULT_STARTUP_SCRIPT = "package/bin/server.mjs";
+  private static final String DEFAULT_STARTUP_SCRIPT = "package/bin/server.cjs";
   private Path deployLocation;
   private final String bundleLocation;
 

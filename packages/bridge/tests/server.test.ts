@@ -28,7 +28,7 @@ import assert from 'node:assert';
 import { getContext, setContext } from '../../shared/src/helpers/context.js';
 import { createWorker } from '../../shared/src/helpers/worker.js';
 
-const workerPath = path.join(import.meta.dirname, '..', '..', '..', 'bin', 'server.mjs');
+const workerPath = path.join(import.meta.dirname, '..', '..', '..', 'server.mjs');
 
 describe('server', () => {
   const port = 0;
