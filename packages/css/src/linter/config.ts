@@ -18,6 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import stylelint from 'stylelint';
+import postcssHtml from 'postcss-html';
+import postcssSass from 'postcss-sass';
+import postcssScss from 'postcss-scss';
+import postcssLess from 'postcss-less';
 import postcss from 'postcss-syntax';
 import { plugins } from '../rules/index.js';
 
@@ -60,5 +64,14 @@ export function createStylelintConfig(rules: RuleConfig[]): stylelint.Config {
       configRules[key] = configurations;
     }
   }
-  return { customSyntax: postcss(), rules: configRules, plugins };
+  return {
+    customSyntax: postcss({
+      html: postcssHtml,
+      scss: postcssScss,
+      sass: postcssSass,
+      less: postcssLess,
+    }),
+    rules: configRules,
+    plugins,
+  };
 }

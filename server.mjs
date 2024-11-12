@@ -35,5 +35,10 @@ if (isMainThread) {
   }
 
   context.setContext({ workDir, shouldUseTypeScriptParserForJS, sonarlint, debugMemory, bundles });
-  server.start(Number.parseInt(port), host, createWorker(new URL(import.meta.url), getContext()));
+  server.start(
+    Number.parseInt(port),
+    host,
+    createWorker(new URL(import.meta.url), getContext()),
+    6000000,
+  );
 }
