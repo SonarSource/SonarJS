@@ -47,15 +47,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import org.apache.hc.client5.http.classic.methods.HttpGet;
-import org.apache.hc.client5.http.classic.methods.HttpPost;
-import org.apache.hc.client5.http.config.RequestConfig;
-import org.apache.hc.client5.http.impl.classic.HttpClients;
-import org.apache.hc.core5.http.ContentType;
-import org.apache.hc.core5.http.Header;
-import org.apache.hc.core5.http.io.entity.EntityUtils;
-import org.apache.hc.core5.http.io.entity.StringEntity;
-import org.apache.hc.core5.util.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.SonarProduct;
@@ -99,6 +90,7 @@ public class BridgeServerImpl implements BridgeServer {
   private static final int HEARTBEAT_INTERVAL_SECONDS = 5;
   private final ScheduledExecutorService heartbeatService;
   private ScheduledFuture<?> heartbeatFuture;
+  private final Http http;
 
   // Used by pico container for dependency injection
   public BridgeServerImpl(
@@ -129,6 +121,28 @@ public class BridgeServerImpl implements BridgeServer {
     TempFolder tempFolder,
     EmbeddedNode embeddedNode
   ) {
+    this(
+      nodeCommandBuilder,
+      timeoutSeconds,
+      bundle,
+      rulesBundles,
+      deprecationWarning,
+      tempFolder,
+      embeddedNode,
+      Http.getJdkHttpClient()
+    );
+  }
+
+  public BridgeServerImpl(
+    NodeCommandBuilder nodeCommandBuilder,
+    int timeoutSeconds,
+    Bundle bundle,
+    RulesBundles rulesBundles,
+    NodeDeprecationWarning deprecationWarning,
+    TempFolder tempFolder,
+    EmbeddedNode embeddedNode,
+    Http http
+  ) {
     this.nodeCommandBuilder = nodeCommandBuilder;
     this.timeoutSeconds = timeoutSeconds;
     this.bundle = bundle;
@@ -138,31 +152,8 @@ public class BridgeServerImpl implements BridgeServer {
     this.temporaryDeployLocation = tempFolder.newDir(BRIDGE_DEPLOY_LOCATION).toPath();
     this.heartbeatService = Executors.newSingleThreadScheduledExecutor();
     this.embeddedNode = embeddedNode;
-    silenceHttpClientLogs();
+    this.http = http;
   }
-
-  private static void silenceHttpClientLogs() {
-    setLoggerLevelToInfo("org.apache.hc");
-  }
-
-  /**
-   * This method sets the log level of the logger with the given name to INFO.
-   * It assumes that SLF4J is used as the logging facade and Logback as the logging implementation.
-   * Since we don't want to directly depend on logback, we use reflection to set the log level.
-   * @param loggerName
-   */
-  private static void setLoggerLevelToInfo(String loggerName) {
-    try {
-      ClassLoader cl = BridgeServerImpl.class.getClassLoader();
-      Class<?> level = cl.loadClass("ch.qos.logback.classic.Level");
-      Logger logger = LoggerFactory.getLogger(loggerName);
-      Method setLevel = logger.getClass().getMethod("setLevel", level);
-      setLevel.invoke(logger, level.getField("INFO").get(null));
-    } catch (NoSuchFieldException | IllegalAccessException | ClassNotFoundException | NoSuchMethodException | InvocationTargetException e) {
-      LOG.info("Failed to set logger level to INFO for " + loggerName, e);
-    }
-  }
-
 
   void heartbeat() {
     LOG.trace("Pinging the bridge server");
@@ -373,7 +364,7 @@ public class BridgeServerImpl implements BridgeServer {
     List<String> globals,
     String baseDir,
     List<String> exclusions
-  ) throws IOException {
+  ) {
     InitLinterRequest initLinterRequest = new InitLinterRequest(
       linterId,
       rules,
@@ -397,59 +388,44 @@ public class BridgeServerImpl implements BridgeServer {
   }
 
   @Override
-  public AnalysisResponse analyzeTypeScript(JsAnalysisRequest request) throws IOException {
+  public AnalysisResponse analyzeTypeScript(JsAnalysisRequest request) {
     String json = GSON.toJson(request);
     return response(request(json, "analyze-ts"), request.filePath());
   }
 
   @Override
-  public AnalysisResponse analyzeCss(CssAnalysisRequest request) throws IOException {
+  public AnalysisResponse analyzeCss(CssAnalysisRequest request) {
     String json = GSON.toJson(request);
     return response(request(json, "analyze-css"), request.filePath());
   }
 
   @Override
-  public AnalysisResponse analyzeYaml(JsAnalysisRequest request) throws IOException {
+  public AnalysisResponse analyzeYaml(JsAnalysisRequest request) {
     String json = GSON.toJson(request);
     return response(request(json, "analyze-yaml"), request.filePath());
   }
 
   @Override
-  public AnalysisResponse analyzeHtml(JsAnalysisRequest request) throws IOException {
+  public AnalysisResponse analyzeHtml(JsAnalysisRequest request) {
     var json = GSON.toJson(request);
     return response(request(json, "analyze-html"), request.filePath());
   }
 
-  private BridgeResponse request(String json, String endpoint) throws IOException {
-    try (var httpclient = HttpClients.createDefault()) {
-
-      var config = RequestConfig.custom()
-        .setResponseTimeout(Timeout.ofSeconds(timeoutSeconds))
-        .build();
-
-      HttpPost httpPost = new HttpPost(url(endpoint));
-      httpPost.setEntity(new StringEntity(json, ContentType.APPLICATION_JSON));
-      httpPost.setConfig(config);
-
-      return httpclient.execute(httpPost, response -> {
-        var contentTypeHeader = response.getHeader("Content-Type");
-        var responseBody = EntityUtils.toByteArray(response.getEntity());
-        if (isFormData(contentTypeHeader)) {
-          return FormDataUtils.parseFormData(contentTypeHeader.toString(), responseBody);
-        } else {
-          return new BridgeResponse(new String(responseBody, StandardCharsets.UTF_8));
-        }
-      });
+  private BridgeResponse request(String json, String endpoint) {
+    try {
+      var response = http.post(json, url(endpoint), timeoutSeconds);
+      if (isFormData(response.contentType())) {
+        return FormDataUtils.parseFormData(response.contentType(), response.body());
+      } else {
+        return new BridgeServer.BridgeResponse(new String(response.body(), StandardCharsets.UTF_8));
+      }
     } catch (IOException e) {
       throw new IllegalStateException("The bridge server is unresponsive", e);
     }
   }
 
-  private static boolean isFormData(@Nullable Header contentTypeHeader) {
-    if (contentTypeHeader == null) {
-      return false;
-    }
-    return contentTypeHeader.toString().contains("multipart/form-data");
+  private static boolean isFormData(@Nullable String contentTypeHeader) {
+    return contentTypeHeader != null && contentTypeHeader.contains("multipart/form-data");
   }
 
   private static AnalysisResponse response(BridgeResponse result, String filePath) {
@@ -470,9 +446,8 @@ public class BridgeServerImpl implements BridgeServer {
     if (nodeCommand == null && status != Status.STARTED) {
       return false;
     }
-    try (var client = HttpClients.custom().build()) {
-      var get = new HttpGet(url("status"));
-      var res = client.execute(get, response -> EntityUtils.toString(response.getEntity()));
+    try {
+      String res = http.get(url("status"));
       return "OK!".equals(res);
     } catch (IOException e) {
       return false;
@@ -481,13 +456,8 @@ public class BridgeServerImpl implements BridgeServer {
 
   @Override
   public boolean newTsConfig() {
-    try {
-      var response = request("", "new-tsconfig").json();
-      return "OK!".equals(response);
-    } catch (IOException e) {
-      LOG.error("Failed to post new-tsconfig", e);
-    }
-    return false;
+    var response = request("", "new-tsconfig").json();
+    return "OK!".equals(response);
   }
 
   TsConfigResponse tsConfigFiles(String tsconfigAbsolutePath) {
@@ -496,8 +466,6 @@ public class BridgeServerImpl implements BridgeServer {
       TsConfigRequest tsConfigRequest = new TsConfigRequest(tsconfigAbsolutePath);
       result = request(GSON.toJson(tsConfigRequest), "tsconfig-files").json();
       return GSON.fromJson(result, TsConfigResponse.class);
-    } catch (IOException e) {
-      LOG.error("Failed to request files for tsconfig: " + tsconfigAbsolutePath, e);
     } catch (JsonSyntaxException e) {
       LOG.error(
         "Failed to parse response when requesting files for tsconfig: {}: \n-----\n{}\n-----\n{}", tsconfigAbsolutePath, result, e.getMessage()
@@ -521,20 +489,20 @@ public class BridgeServerImpl implements BridgeServer {
   }
 
   @Override
-  public TsProgram createProgram(TsProgramRequest tsProgramRequest) throws IOException {
+  public TsProgram createProgram(TsProgramRequest tsProgramRequest) {
     var response = request(GSON.toJson(tsProgramRequest), "create-program");
     return GSON.fromJson(response.json(), TsProgram.class);
   }
 
   @Override
-  public boolean deleteProgram(TsProgram tsProgram) throws IOException {
+  public boolean deleteProgram(TsProgram tsProgram) {
     var programToDelete = new TsProgram(tsProgram.programId(), null, null);
     var response = request(GSON.toJson(programToDelete), "delete-program").json();
     return "OK!".equals(response);
   }
 
   @Override
-  public TsConfigFile createTsConfigFile(String content) throws IOException {
+  public TsConfigFile createTsConfigFile(String content) {
     var response = request(content, "create-tsconfig-file");
     return GSON.fromJson(response.json(), TsConfigFile.class);
   }
@@ -548,11 +516,7 @@ public class BridgeServerImpl implements BridgeServer {
     LOG.trace("Closing heartbeat service");
     heartbeatService.shutdownNow();
     if (nodeCommand != null && isAlive()) {
-      try {
-        request("", "close");
-      } catch (IOException e) {
-        LOG.warn("Failed to close the bridge server", e);
-      }
+      request("", "close");
       nodeCommand.waitFor();
       nodeCommand = null;
     }
