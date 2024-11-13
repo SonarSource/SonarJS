@@ -9,6 +9,7 @@ await esbuild.build({
   bundle: true,
   external: ['eslint/lib/util/glob-util'],
   platform: 'node',
+  minify: true,
   plugins: [
     textReplace({
       include: /\.(m|c)?js$/,
