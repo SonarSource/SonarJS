@@ -46,7 +46,7 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
 
   public static final String NODE_EXECUTABLE_DEFAULT = "node";
   private static final String NODE_EXECUTABLE_DEFAULT_MACOS =
-    "package/node_modules/run-node/run-node";
+    "package/bin/run-node";
 
   public static final String NODE_EXECUTABLE_PROPERTY = "sonar.nodejs.executable";
   public static final String NODE_FORCE_HOST_PROPERTY = "sonar.nodejs.forceHost";

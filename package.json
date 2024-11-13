@@ -131,7 +131,6 @@
     "postcss-syntax": "0.36.2",
     "postcss-value-parser": "4.2.0",
     "protobufjs": "7.4.0",
-    "run-node": "2.0.0",
     "scslre": "0.3.0",
     "semver": "7.6.3",
     "stylelint": "15.10.0",

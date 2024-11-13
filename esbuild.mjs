@@ -41,6 +41,10 @@ await esbuild.build({
           to: ['./bin/'],
         },
         {
+          from: ['./run-node'],
+          to: ['./bin/'],
+        },
+        {
           from: ['./packages/jsts/src/parsers/estree.proto'],
           to: ['./bin/'],
         },

@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+# MIT License © Sindre Sorhus
+
+if [[ -f "$PWD/node_modules/node/bin/node" ]]; then
+	PATH="$PWD/node_modules/node/bin:$PATH"
+	export PATH
+fi
+
+if [[ -z $RUN_NODE_CACHE_PATH ]]; then
+	PATH_CACHE="$HOME"/.node_path
+else
+	PATH_CACHE="$RUN_NODE_CACHE_PATH"
+	if [[ -f "$PATH_CACHE" ]]; then
+		. "$PATH_CACHE"
+		export PATH
+	fi
+fi
+
+get_user_path() {
+	[[ -x "/usr/libexec/path_helper" ]] && eval $(/usr/libexec/path_helper -s)
+	echo "$($SHELL -i -l -c 'echo -e "\n"PATH=\"$PATH:\$PATH\""\n"' 2>/dev/null | grep "^PATH=")" > "$PATH_CACHE"
+}
+
+set_path() {
+	if [[ -f "$PATH_CACHE" ]]; then
+		. "$PATH_CACHE"
+	else
+		get_user_path
+		. "$PATH_CACHE"
+	fi
+
+	export PATH
+}
+
+has_node() {
+	command -v node >/dev/null 2>&1
+}
+
+if ! has_node; then
+	set_path
+
+	# Retry by deleting old path cache
+	if ! has_node; then
+		rm "$PATH_CACHE"
+		set_path
+	fi
+fi
+
+if has_node; then
+	node "$@"
+else
+	if [[ -z $RUN_NODE_ERROR_MSG ]]; then
+		echo "Couldn't find the Node.js binary. Ensure you have Node.js installed. Open an issue on https://github.com/sindresorhus/run-node"
+	else
+		echo "$RUN_NODE_ERROR_MSG"
+	fi
+fi
