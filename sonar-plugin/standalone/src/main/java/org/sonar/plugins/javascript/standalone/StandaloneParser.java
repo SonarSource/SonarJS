@@ -35,6 +35,7 @@ import org.sonar.plugins.javascript.bridge.BundleImpl;
 import org.sonar.plugins.javascript.bridge.ESTreeFactory;
 import org.sonar.plugins.javascript.bridge.EmbeddedNode;
 import org.sonar.plugins.javascript.bridge.Environment;
+import org.sonar.plugins.javascript.bridge.Http;
 import org.sonar.plugins.javascript.bridge.NodeDeprecationWarning;
 import org.sonar.plugins.javascript.bridge.RulesBundles;
 import org.sonar.plugins.javascript.bridge.protobuf.Node;
@@ -43,13 +44,26 @@ import org.sonar.plugins.javascript.nodejs.ProcessWrapperImpl;
 
 public class StandaloneParser implements AutoCloseable {
 
+  private static final int DEFAULT_TIMEOUT_SECONDS = 5 * 60;
+
   private final BridgeServerImpl bridge;
 
   public StandaloneParser() {
+    this(Http.getJdkHttpClient());
+  }
+
+  public StandaloneParser(Http http) {
     ProcessWrapperImpl processWrapper = new ProcessWrapperImpl();
     EmptyConfiguration emptyConfiguration = new EmptyConfiguration();
-    bridge = new BridgeServerImpl(new NodeCommandBuilderImpl(processWrapper), new BundleImpl(), new RulesBundles(),
-      new NodeDeprecationWarning(new AnalysisWarningsWrapper()), new StandaloneTemporaryFolder(), new EmbeddedNode(processWrapper, new Environment(emptyConfiguration)));
+    bridge = new BridgeServerImpl(
+      new NodeCommandBuilderImpl(processWrapper),
+      DEFAULT_TIMEOUT_SECONDS,
+      new BundleImpl(),
+      new RulesBundles(),
+      new NodeDeprecationWarning(new AnalysisWarningsWrapper()),
+      new StandaloneTemporaryFolder(),
+      new EmbeddedNode(processWrapper, new Environment(emptyConfiguration)),
+      http);
     try {
       bridge.startServerLazily(new BridgeServerConfig(emptyConfiguration, new File(".").getAbsolutePath(), SonarProduct.SONARLINT));
       bridge.initLinter(List.of(), List.of(), List.of(), AnalysisMode.DEFAULT, null, List.of());
@@ -104,4 +118,6 @@ public class StandaloneParser implements AutoCloseable {
       return new String[0];
     }
   }
+
+
 }
