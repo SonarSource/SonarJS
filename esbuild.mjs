@@ -19,19 +19,19 @@ await esbuild.build({
       pattern: [['new URL(import.meta.url)', '__filename']],
     }),
     textReplace({
-      include: /lib\/jsts\/src\/parsers\/ast\.js$/,
+      include: /lib[\/\\]jsts[\/\\]src[\/\\]parsers[\/\\]ast\.js$/,
       pattern: [['path.dirname(fileURLToPath(import.meta.url))', '__dirname']],
     }),
     // Simplify the loader function in babel. At the end it's just importing Babel parser
     textReplace({
-      include: /node_modules\/@babel\/eslint-parser\/lib\/parse\.cjs$/,
+      include: /node_modules[\/\\]@babel[\/\\]eslint-parser[\/\\]lib[\/\\]parse\.cjs$/,
       pattern: [
         [/const babelParser = require.*}\)\)/gms, 'const babelParser = require("@babel/parser")'],
       ],
     }),
     // Remove dynamic import of espree on ESLint Rule tester. In any case, it's never used in the bundle
     textReplace({
-      include: /node_modules\/eslint\/lib\/rule-tester\/rule-tester\.js$/,
+      include: /node_modules[\/\\]eslint[\/\\]lib[\/\\]rule-tester[\/\\]rule-tester\.js$/,
       pattern: [
         ['const espreePath = require.resolve("espree");', ''],
         ['config.parser = espreePath;', ''],
@@ -39,7 +39,7 @@ await esbuild.build({
     }),
     // Dynamic import in module used by eslint-import-plugin. It always resolves to node resolver
     textReplace({
-      include: /node_modules\/eslint-module-utils\/resolve\.js$/,
+      include: /node_modules[\/\\]eslint-module-utils[\/\\]resolve\.js$/,
       pattern: [
         [
           'tryRequire(`eslint-import-resolver-${name}`, sourceFile)',
@@ -51,7 +51,7 @@ await esbuild.build({
     // That function has a dynamic require which always resolves to same dependencies given
     // our stylelint options.
     textReplace({
-      include: /node_modules\/postcss-html\/extract\.js$/,
+      include: /node_modules[\/\\]postcss-html[\/\\]extract\.js$/,
       pattern: [
         [
           'style.syntax = loadSyntax(opts, __dirname);',
@@ -70,7 +70,7 @@ await esbuild.build({
     // The comparison by constructor name made by stylelint is not valid in the bundle because
     // the Document object is named differently. We need to compare constructor object directly
     textReplace({
-      include: /node_modules\/stylelint\/lib\/lintPostcssResult\.js$/,
+      include: /node_modules[\/\\]stylelint[\/\\]lib[\/\\]lintPostcssResult\.js$/,
       pattern: [
         [
           "postcssDoc && postcssDoc.constructor.name === 'Document' ? postcssDoc.nodes : [postcssDoc]",
