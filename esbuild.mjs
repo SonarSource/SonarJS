@@ -23,6 +23,8 @@ await esbuild.build({
       pattern: [['path.dirname(fileURLToPath(import.meta.url))', '__dirname']],
     }),
     // Simplify the loader function in babel. At the end it's just importing Babel parser
+    // This matches the result of the TS compilation of the following lines
+    // https://github.com/babel/babel/blob/v7.25.1/eslint/babel-eslint-parser/src/parse.cts#L8-L12
     textReplace({
       include: /node_modules[\/\\]@babel[\/\\]eslint-parser[\/\\]lib[\/\\]parse\.cjs$/,
       pattern: [
@@ -33,7 +35,9 @@ await esbuild.build({
     textReplace({
       include: /node_modules[\/\\]eslint[\/\\]lib[\/\\]rule-tester[\/\\]rule-tester\.js$/,
       pattern: [
+        // https://github.com/eslint/eslint/blob/v8.57.0/lib/rule-tester/rule-tester.js#L56
         ['const espreePath = require.resolve("espree");', ''],
+        // https://github.com/eslint/eslint/blob/v8.57.0/lib/rule-tester/rule-tester.js#L781
         ['config.parser = espreePath;', ''],
       ],
     }),
@@ -42,6 +46,7 @@ await esbuild.build({
       include: /node_modules[\/\\]eslint-module-utils[\/\\]resolve\.js$/,
       pattern: [
         [
+          // https://github.com/import-js/eslint-plugin-import/blob/v2.11.0/utils/resolve.js#L157
           'tryRequire(`eslint-import-resolver-${name}`, sourceFile)',
           'require("eslint-import-resolver-node")',
         ],
@@ -54,6 +59,7 @@ await esbuild.build({
       include: /node_modules[\/\\]postcss-html[\/\\]extract\.js$/,
       pattern: [
         [
+          //https://github.com/ota-meshi/postcss-html/blob/v0.36.0/extract.js#L108
           'style.syntax = loadSyntax(opts, __dirname);',
           `style.syntax = {
             parse: require("postcss-html/template-parse"), 
@@ -73,6 +79,7 @@ await esbuild.build({
       include: /node_modules[\/\\]stylelint[\/\\]lib[\/\\]lintPostcssResult\.js$/,
       pattern: [
         [
+          // https://github.com/stylelint/stylelint/blob/15.10.0/lib/lintPostcssResult.js#L52
           "postcssDoc && postcssDoc.constructor.name === 'Document' ? postcssDoc.nodes : [postcssDoc]",
           "postcssDoc && postcssDoc.constructor === require('postcss-syntax/document') ? postcssDoc.nodes : [postcssDoc]",
         ],

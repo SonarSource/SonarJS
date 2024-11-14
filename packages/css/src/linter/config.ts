@@ -65,6 +65,9 @@ export function createStylelintConfig(rules: RuleConfig[]): stylelint.Config {
     }
   }
   return {
+    // We can pass just postcss function to the bundle and the module will resolve all plugins
+    // automatically. However, esbuild will not be able to resolve our dependencies. We pass them
+    // explicitly so that no dynamic requires happen at bundle time.
     customSyntax: postcss({
       html: postcssHtml,
       scss: postcssScss,
