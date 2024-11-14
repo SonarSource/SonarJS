@@ -41,7 +41,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.apache.commons.lang.StringUtils;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.parallel.Execution;
@@ -334,13 +333,13 @@ class JsTsRulingTest {
             Arrays.asList(
               (
                 "name=\"" +
-                instantiationKey +
-                "\";key=\"" +
-                instantiationKey +
-                "\";markdown_description=\"" +
-                instantiationKey +
-                "\";" +
-                params
+                  instantiationKey +
+                  "\";key=\"" +
+                  instantiationKey +
+                  "\";markdown_description=\"" +
+                  instantiationKey +
+                  "\";" +
+                  params
               ).split(";", 0)
             )
           )
@@ -372,8 +371,8 @@ class JsTsRulingTest {
     } else {
       throw new IllegalStateException(
         "Could not retrieve profile key : Template rule " +
-        ruleTemplateKey +
-        " has not been activated"
+          ruleTemplateKey +
+          " has not been activated"
       );
     }
   }

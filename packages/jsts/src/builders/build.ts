@@ -70,7 +70,7 @@ export function buildSourceCode(input: JsTsAnalysisInput, language: JsTsLanguage
     return parseForESLint(
       input.fileContent,
       parser.parse,
-      buildParserOptions({ parser: vueFile ? parsers.javascript.parser : undefined }, true),
+      buildParserOptions({ parser: vueFile ? parsers.javascript : undefined }, true),
     );
   } catch (error) {
     debug(`Failed to parse ${input.filePath} with Javascript parser: ${error.message}`);

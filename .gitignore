@@ -1,5 +1,6 @@
 # Maven
 target/
+bin/
 
 lib/
 node_modules/

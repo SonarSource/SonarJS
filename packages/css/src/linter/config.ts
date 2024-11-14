@@ -18,6 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import stylelint from 'stylelint';
+import postcssHtml from 'postcss-html';
+import postcssSass from 'postcss-sass';
+import postcssScss from 'postcss-scss';
+import postcssLess from 'postcss-less';
+import postcss from 'postcss-syntax';
 import { plugins } from '../rules/index.js';
 
 /**
@@ -59,5 +64,17 @@ export function createStylelintConfig(rules: RuleConfig[]): stylelint.Config {
       configRules[key] = configurations;
     }
   }
-  return { customSyntax: 'postcss-syntax', rules: configRules, plugins };
+  return {
+    // We can pass just postcss function to the bundle and the module will resolve all plugins
+    // automatically. However, esbuild will not be able to resolve our dependencies. We pass them
+    // explicitly so that no dynamic requires happen at bundle time.
+    customSyntax: postcss({
+      html: postcssHtml,
+      scss: postcssScss,
+      sass: postcssSass,
+      less: postcssLess,
+    }),
+    rules: configRules,
+    plugins,
+  };
 }
