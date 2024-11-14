@@ -22,7 +22,6 @@ package com.sonar.javascript.it.plugin;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.net.URISyntaxException;
 import java.nio.file.CopyOption;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -37,19 +36,7 @@ public class TestUtils {
   private static final File HOME;
 
   static {
-    File testResources;
-    try {
-      testResources = new File(TestUtils.class.getResource("/TestUtils.txt").toURI());
-    } catch (URISyntaxException e) {
-      throw new IllegalStateException("failed to obtain HOME", e);
-    }
-
-    HOME =
-      testResources // home/tests/src/test/resources
-        .getParentFile() // home/tests/src/test
-        .getParentFile() // home/tests/src
-        .getParentFile() // home/tests
-        .getParentFile(); // home
+    HOME = Path.of("../").toFile();
   }
 
   public static File homeDir() {
