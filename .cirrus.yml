@@ -102,7 +102,7 @@ plugin_qa_body: &PLUGIN_QA_BODY
   qa_script:
     - source cirrus-env QA
     - source set_maven_build_version $BUILD_NUMBER
-    - mvn -f its/plugin/pom.xml -Dsonar.runtimeVersion=${SQ_VERSION} ${MVN_TEST} -B -e -V verify surefire-report:report
+    - mvn test -f its/plugin/pom.xml -Dsonar.runtimeVersion=${SQ_VERSION} ${MVN_TEST} -B -e -V surefire-report:report
   cleanup_before_cache_script: cleanup_maven_repository
 
 build_task:
@@ -240,7 +240,7 @@ plugin_qa_win_task:
     - source /c/buildTools-docker/bin/set_maven_build_version $BUILD_NUMBER
     # building the custom plugin required for the further tests
     - mvn clean package -f its/plugin/plugins/pom.xml
-    - mvn -f its/plugin/tests/pom.xml -Dsonar.runtimeVersion=${SQ_VERSION} "-Dtest=${TEST}" -B -e -V verify surefire-report:report
+    - mvn test -f its/plugin/tests/pom.xml -Dsonar.runtimeVersion=${SQ_VERSION} "-Dtest=${TEST}" -B -e -V surefire-report:report
   cleanup_before_cache_script: cleanup_maven_repository
 
 # Plugin QA for Windows is split into 3 parts to make it faster
@@ -257,7 +257,7 @@ plugin_qa_win_sonarlint_task:
   qa_script:
     - source /c/buildTools-docker/bin/cirrus-env QA
     - source /c/buildTools-docker/bin/set_maven_build_version $BUILD_NUMBER
-    - mvn -f its/plugin/sonarlint-tests/pom.xml -Dsonar.runtimeVersion=${SQ_VERSION} -B -e -V verify surefire-report:report
+    - mvn test -f its/plugin/sonarlint-tests/pom.xml -Dsonar.runtimeVersion=${SQ_VERSION} -B -e -V surefire-report:report
   cleanup_before_cache_script: cleanup_maven_repository
 
 js_ts_ruling_task:
