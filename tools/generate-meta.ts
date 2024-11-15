@@ -42,9 +42,9 @@ type rspecMeta = {
   quickfix: 'covered' | undefined;
   tags: string[];
 };
-const RULES_FOLDER = join(toUnixPath(__dirname), '../packages/jsts/src/rules/');
+const RULES_FOLDER = join(toUnixPath(import.meta.dirname), '../packages/jsts/src/rules/');
 const METADATA_FOLDER = join(
-  toUnixPath(__dirname),
+  toUnixPath(import.meta.dirname),
   '../sonar-plugin/javascript-checks/src/main/resources/org/sonar/l10n/javascript/rules/javascript/',
 );
 const sonarWayProfileFile = join(METADATA_FOLDER, `Sonar_way_profile.json`);

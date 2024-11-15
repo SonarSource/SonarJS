@@ -3,7 +3,7 @@
   "type": "BUG",
   "code": {
     "impacts": {
-      "RELIABILITY": "HIGH"
+      "RELIABILITY": "BLOCKER"
     },
     "attribute": "COMPLETE"
   },
