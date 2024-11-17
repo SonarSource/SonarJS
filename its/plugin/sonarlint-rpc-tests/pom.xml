@@ -31,6 +31,12 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>com.squareup.okhttp3</groupId>
+      <artifactId>mockwebserver</artifactId>
+      <version>5.0.0-alpha.7</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.sonarsource.sonarlint.core</groupId>
       <artifactId>sonarlint-core</artifactId>
       <version>${sonarlint.plugin.api.version}</version>

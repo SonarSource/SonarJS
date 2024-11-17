@@ -19,8 +19,10 @@
  */
 package com.sonar.javascript.it.plugin.sonarlint.tests;
 
+import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.groups.Tuple.tuple;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -57,17 +59,23 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
+import java.util.function.Predicate;
+
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.FalseFileFilter;
+import org.apache.commons.io.filefilter.RegexFileFilter;
 import org.apache.commons.lang3.ArrayUtils;
 import org.assertj.core.api.iterable.ThrowingExtractor;
+import org.awaitility.core.ThrowingRunnable;
 import org.eclipse.lsp4j.ClientCapabilities;
 import org.eclipse.lsp4j.ClientInfo;
 import org.eclipse.lsp4j.ConfigurationItem;
 import org.eclipse.lsp4j.ConfigurationParams;
 import org.eclipse.lsp4j.Diagnostic;
+import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.DidChangeConfigurationParams;
 import org.eclipse.lsp4j.DidChangeNotebookDocumentParams;
 import org.eclipse.lsp4j.DidChangeTextDocumentParams;
@@ -105,9 +113,12 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonarsource.sonarlint.core.rpc.protocol.client.binding.AssistBindingParams;
 import org.sonarsource.sonarlint.core.rpc.protocol.client.binding.SuggestBindingParams;
 import org.sonarsource.sonarlint.core.rpc.protocol.client.connection.SuggestConnectionParams;
+import org.sonarsource.sonarlint.core.serverapi.proto.sonarqube.ws.Components;
 import org.sonarsource.sonarlint.ls.ServerMain;
 import org.sonarsource.sonarlint.ls.SonarLintExtendedLanguageClient;
 import org.sonarsource.sonarlint.ls.SonarLintExtendedLanguageServer;
@@ -117,10 +128,8 @@ import org.sonarsource.sonarlint.ls.settings.SettingsManager;
 import org.sonarsource.sonarlint.ls.telemetry.SonarLintTelemetry;
 import picocli.CommandLine;
 
-public abstract class AbstractLanguageServerMediumTests {
+public class LanguageServerMediumTests {
   protected static final boolean COMMERCIAL_ENABLED = System.getProperty("commercial") != null;
-  private static final String CSHARP_OSS_PATH = fullPathToJar("sonarcsharp");
-  private static final String CSHARP_ENTERPRISE_PATH = COMMERCIAL_ENABLED ? fullPathToJar("csharpenterprise") : CSHARP_OSS_PATH;
 
   private static final Set<Path> staticTempDirs = new HashSet<>();
   private final Set<Path> instanceTempDirs = new HashSet<>();
@@ -132,6 +141,12 @@ public abstract class AbstractLanguageServerMediumTests {
   protected static SonarLintExtendedLanguageServer lsProxy;
   protected static FakeLanguageClient client;
   private static List<SonarLintExtendedLanguageClient.FoundFileDto> foundFileDtos = List.of();
+
+  private static final String CONNECTION_ID = "known";
+  private static final String TOKEN = "token";
+  @RegisterExtension
+  private static final MockWebServerExtension mockWebServerExtension = new MockWebServerExtension();
+  private static Path analysisDir;
 
   @BeforeAll
   static void startServer() throws Exception {
@@ -155,21 +170,8 @@ public abstract class AbstractLanguageServerMediumTests {
       return clientSideLauncher.getRemoteProxy();
     });
 
-    var go = fullPathToJar("sonargo");
-    var iac = fullPathToJar("sonariac");
-    var html = fullPathToJar("sonarhtml");
-    var java = fullPathToJar("sonarjava");
-    var js = fullPathToJar("sonarjs");
-    var php = fullPathToJar("sonarphp");
-    var py = fullPathToJar("sonarpython");
-    var text = fullPathToJar("sonartext");
-    var xml = fullPathToJar("sonarxml");
-    var omnisharp = fullPathToJar("sonarlintomnisharp");
-    String[] languageServerArgs = new String[]{"-port", "" + port, "-analyzers", go, java, js, php, py, html, xml, text, iac, omnisharp};
-    if (COMMERCIAL_ENABLED) {
-      var cfamily = fullPathToJar("cfamily");
-      languageServerArgs = ArrayUtils.add(languageServerArgs, cfamily);
-    }
+    var js = fullPathToJar("^sonar-javascript-plugin-([0-9.]+)(-SNAPSHOT)*.jar$");
+    String[] languageServerArgs = new String[]{"-port", "" + port, "-analyzers", js};
 
     try {
       var cmd = new CommandLine(new ServerMain());
@@ -193,8 +195,11 @@ public abstract class AbstractLanguageServerMediumTests {
   }
   //https://github.com/SonarSource/sonarlint-language-server/blob/63e5ceef866c7a08e6f7c7d9d0f4020200dec720/src/test/java/org/sonarsource/sonarlint/ls/mediumtests/LanguageServerMediumTests.java
   //https://github.com/SonarSource/sonarlint-core/blob/ddb7cfb8ecdbc703263c2662cc697292099759c8/medium-tests/src/test/java/mediumtest/analysis/AnalysisMediumTests.java#L980
-  protected static String fullPathToJar(String jarName) {
-    return Paths.get("target/plugins").resolve(jarName + ".jar").toAbsolutePath().toString();
+  protected static String fullPathToJar(String pattern) {
+    return FileUtils
+      .listFiles(Paths.get("../../../sonar-plugin/sonar-javascript-plugin/target/").toAbsolutePath().normalize().toFile(), new RegexFileFilter(pattern),
+      FalseFileFilter.FALSE)
+      .iterator().next().toPath().toString();
   }
 
   protected static void initialize(Map<String, Object> initializeOptions, WorkspaceFolder... initFolders) throws InterruptedException, ExecutionException {
@@ -219,8 +224,6 @@ public abstract class AbstractLanguageServerMediumTests {
     var actualInitOptions = new HashMap<>(initializeOptions);
     if (initializeOptions.containsKey("additionalAttributes")) {
       var additionalAttributes = new HashMap<>((Map<String, String>)initializeOptions.get("additionalAttributes"));
-      additionalAttributes.put("csharpOssPath", CSHARP_OSS_PATH);
-      additionalAttributes.put("csharpEnterprisePath", CSHARP_ENTERPRISE_PATH);
       actualInitOptions.put("additionalAttributes", additionalAttributes);
     }
     initializeParams.setInitializationOptions(actualInitOptions);
@@ -270,7 +273,7 @@ public abstract class AbstractLanguageServerMediumTests {
   }
 
   protected static void setUpFindFilesInFolderResponse(List<SonarLintExtendedLanguageClient.FoundFileDto> foundFileDtos) {
-    AbstractLanguageServerMediumTests.foundFileDtos = foundFileDtos;
+    LanguageServerMediumTests.foundFileDtos = foundFileDtos;
   }
 
   protected void setupGlobalSettings(Map<String, Object> globalSettings) {
@@ -278,7 +281,7 @@ public abstract class AbstractLanguageServerMediumTests {
   }
 
   protected void setUpFolderSettings(Map<String, Map<String, Object>> folderSettings) {
-    // do nothing by default
+    addSonarQubeConnection(client.globalSettings, CONNECTION_ID, mockWebServerExtension.url("/"), TOKEN);
   }
 
   protected void verifyConfigurationChangeOnClient() {
@@ -298,6 +301,34 @@ public abstract class AbstractLanguageServerMediumTests {
       new DidChangeWorkspaceFoldersParams(new WorkspaceFoldersChangeEvent(List.of(), List.of(new WorkspaceFolder(folderUri))))));
     instanceTempDirs.forEach(tempDirPath -> FileUtils.deleteQuietly(tempDirPath.toFile()));
     instanceTempDirs.clear();
+  }
+
+  @BeforeAll
+  static void initialize() throws Exception {
+    analysisDir = makeStaticTempDir();
+    initialize(Map.of(
+      "telemetryStorage", "not/exists",
+      "productName", "SLCORE tests",
+      "productVersion", "0.1",
+      "showVerboseLogs", false,
+      "productKey", "productKey",
+      "additionalAttributes", Map.of(
+        "extra", "value"
+      )
+    ), new WorkspaceFolder(analysisDir.toUri().toString(), "AnalysisDir"));
+  }
+
+  @BeforeEach
+  void prepare() throws IOException {
+    client.isIgnoredByScm = false;
+    org.apache.commons.io.FileUtils.cleanDirectory(analysisDir.toFile());
+  }
+
+  @BeforeEach
+  public void mockSonarQube() {
+    mockWebServerExtension.addStringResponse("/api/system/status", "{\"status\": \"UP\", \"version\": \"9.9\", \"id\": \"xzy\"}");
+    mockWebServerExtension.addStringResponse("/api/authentication/validate?format=json", "{\"valid\": true}");
+    mockWebServerExtension.addProtobufResponse("/api/components/search.protobuf?qualifiers=TRK&ps=500&p=1", Components.SearchWsResponse.newBuilder().build());
   }
 
   protected static void assertLogContains(String msg) {
@@ -775,6 +806,10 @@ public abstract class AbstractLanguageServerMediumTests {
     return d -> d.getRange().getStart().getLine();
   }
 
+  protected void awaitUntilAsserted(ThrowingRunnable assertion) {
+    await().atMost(2, MINUTES).untilAsserted(assertion);
+  }
+
 
   protected Map<String, Object> getFolderSettings(String folderUri) {
     return client.folderSettings.computeIfAbsent(folderUri, f -> new HashMap<>());
@@ -814,5 +849,22 @@ public abstract class AbstractLanguageServerMediumTests {
     public boolean isSupported() {
       return isSupported;
     }
+  }
+
+  private Predicate<? super MessageParams> notFromContextualTSserver() {
+    return m -> !m.getMessage().contains("SonarTS") && !m.getMessage().contains("Using typescript at");
+  }
+
+  @Test
+  void analyzeSimpleJsFileOnOpen() throws Exception {
+    setShowVerboseLogs(client.globalSettings, true);
+    var uri = getUri("analyzeSimpleJsFileOnOpen.js", analysisDir);
+    didOpen(uri, "javascript", "function foo() {\n  let toto = 0;\n  let plouf = 0;\n}");
+
+    awaitUntilAsserted(() -> assertThat(client.getDiagnostics(uri))
+      .extracting(startLine(), startCharacter(), endLine(), endCharacter(), code(), Diagnostic::getSource, Diagnostic::getMessage, Diagnostic::getSeverity)
+      .containsExactlyInAnyOrder(
+        tuple(1, 6, 1, 10, "javascript:S1481", "sonarlint", "Remove the declaration of the unused 'toto' variable.", DiagnosticSeverity.Warning),
+        tuple(2, 6, 2, 11, "javascript:S1481", "sonarlint", "Remove the declaration of the unused 'plouf' variable.", DiagnosticSeverity.Warning)));
   }
 }
