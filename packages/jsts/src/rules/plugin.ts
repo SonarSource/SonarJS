@@ -207,6 +207,7 @@ export const rules: Record<string, Rule.RuleModule> = {
   'no-same-line-conditional': originalRules.S3972,
   'no-selector-parameter': originalRules.S2301,
   'no-skipped-test': originalRules.S1607,
+  'no-sonar-comments': originalRules.S1291,
   'no-small-switch': originalRules.S1301,
   'no-tab': originalRules.S105,
   'no-table-as-layout': originalRules.S5257,
