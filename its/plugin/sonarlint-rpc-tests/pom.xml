@@ -13,7 +13,7 @@
 
   <properties>
     <surefire.argLine>-server</surefire.argLine>
-    <sonarlint.plugin.api.version>10.8.0.79183</sonarlint.plugin.api.version>
+    <sonarlint.plugin.api.version>10.10.0.79500</sonarlint.plugin.api.version>
   </properties>
 
   <!--

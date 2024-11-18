@@ -783,7 +783,7 @@ public class LanguageServerMediumTests {
   }
 
   protected ThrowingExtractor<? super MessageParams, String, RuntimeException> withoutTimestampAndMillis() {
-    return p -> p.getMessage().replaceAll("\\[(\\w*)\\s+-\\s[\\d:.]*\\]", "[$1]").replaceAll("\\d{2,4}ms", "XXXms");
+    return p -> p.getMessage().replaceAll("\\[(\\w*)\\s+-\\s[\\d:.]*\\]", "[$1]").replaceAll("\\d+ms", "XXXms");
   }
 
   protected Function<? super Diagnostic, ?> code() {
@@ -866,5 +866,42 @@ public class LanguageServerMediumTests {
       .containsExactlyInAnyOrder(
         tuple(1, 6, 1, 10, "javascript:S1481", "sonarlint", "Remove the declaration of the unused 'toto' variable.", DiagnosticSeverity.Warning),
         tuple(2, 6, 2, 11, "javascript:S1481", "sonarlint", "Remove the declaration of the unused 'plouf' variable.", DiagnosticSeverity.Warning)));
+  }
+
+  @Test
+  void noIssueOnTestJSFiles() throws Exception {
+    setTestFilePattern(getFolderSettings(analysisDir.toUri().toString()), "{**/*Test*}");
+    setShowVerboseLogs(client.globalSettings, true);
+    notifyConfigurationChangeOnClient();
+
+    var jsContent = "function foo() {\n  let toto = 0;\n}";
+    var fooTestUri = getUri("fooTest.js", analysisDir);
+    didOpen(fooTestUri, "javascript", jsContent);
+
+    awaitUntilAsserted(() -> assertThat(client.logs)
+      .extracting(withoutTimestampAndMillis())
+      .contains("[Info] Analysis detected 0 issues and 0 Security Hotspots in XXXms"));
+    assertThat(client.getDiagnostics(fooTestUri)).isEmpty();
+    client.clear();
+
+    setTestFilePattern(getFolderSettings(analysisDir.toUri().toString()), "{**/*MyTest*}");
+    notifyConfigurationChangeOnClient();
+
+    didChange(fooTestUri, jsContent);
+    awaitUntilAsserted(() -> assertThat(client.logs)
+      .extracting(withoutTimestampAndMillis())
+      .contains("[Info] Analysis detected 1 issue and 0 Security Hotspots in XXXms"));
+    awaitUntilAsserted(() -> assertThat(client.getDiagnostics(fooTestUri)).hasSize(1));
+
+    client.logs.clear();
+
+    var fooMyTestUri = getUri("fooMyTest.js", analysisDir);
+    didOpen(fooMyTestUri, "javascript", jsContent);
+
+    awaitUntilAsserted(() -> assertThat(client.logs)
+      .extracting(withoutTimestampAndMillis())
+      .contains("[Info] Analysis detected 0 issues and 0 Security Hotspots in XXXms"));
+
+    assertThat(client.getDiagnostics(fooMyTestUri)).isEmpty();
   }
 }
