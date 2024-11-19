@@ -135,6 +135,7 @@ public class JavaScriptPlugin implements Plugin {
   private static final String FILE_SUFFIXES_DESCRIPTION = "List of suffixes for files to analyze.";
 
   public static final String PROPERTY_KEY_MAX_FILE_SIZE = "sonar.javascript.maxFileSize";
+  public static final String SKIP_NODE_PROVISIONING_PROPERTY = "sonar.scanner.skipNodeProvisioning";
 
   @Override
   public void define(Context context) {
@@ -251,6 +252,16 @@ public class JavaScriptPlugin implements Plugin {
         .subCategory(GENERAL)
         .multiValues(true)
         .category(JS_TS_CATEGORY)
+        .build(),
+      PropertyDefinition
+        .builder(SKIP_NODE_PROVISIONING_PROPERTY)
+        .defaultValue("false")
+        .name("Skip the deployment of the embedded Node.js runtime")
+        .description("Controls whether the scanner should skip the deployment of the embedded Node.js runtime, and use the host-provided runtime instead.")
+        .onQualifiers(Qualifiers.PROJECT)
+        .subCategory(GENERAL)
+        .category(JS_TS_CATEGORY)
+        .type(PropertyType.BOOLEAN)
         .build()
     );
 

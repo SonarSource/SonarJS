@@ -25,13 +25,12 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.slf4j.event.Level;
-import org.sonar.api.Plugin;
-import org.sonar.api.SonarEdition;
-import org.sonar.api.SonarQubeSide;
-import org.sonar.api.SonarRuntime;
+import org.sonar.api.*;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
@@ -39,7 +38,7 @@ import org.sonar.api.utils.Version;
 
 class JavaScriptPluginTest {
 
-  private static final int BASE_EXTENSIONS = 36;
+  private static final int BASE_EXTENSIONS = 37;
   private static final int JS_ADDITIONAL_EXTENSIONS = 4;
   private static final int TS_ADDITIONAL_EXTENSIONS = 3;
   private static final int CSS_ADDITIONAL_EXTENSIONS = 3;
@@ -66,7 +65,7 @@ class JavaScriptPluginTest {
 
   @Test
   void should_contain_right_properties_number() throws Exception {
-    assertThat(properties()).hasSize(12);
+    assertThat(properties()).hasSize(13);
   }
 
   @Test
@@ -112,6 +111,20 @@ class JavaScriptPluginTest {
         "_",
         "sap"
       );
+  }
+
+  @Test
+  void skipNodeProvisioningPropertyIsCorrectlyExposed() {
+    var propertyDefinition = properties().stream().filter((item) -> {
+      return Objects.equals(item.key(), "sonar.scanner.skipNodeProvisioning");
+    }).findFirst().get();
+
+    assertThat(propertyDefinition.name()).isEqualTo("Skip the deployment of the embedded Node.js runtime");
+    assertThat(propertyDefinition.description()).isEqualTo("Controls whether the scanner should skip the deployment of the embedded Node.js runtime, and use the host-provided runtime instead.");
+    assertThat(propertyDefinition.type().toString()).isEqualTo("BOOLEAN");
+    assertThat(propertyDefinition.defaultValue()).isEqualTo("false");
+    assertThat(propertyDefinition.category()).isEqualTo("JavaScript / TypeScript");
+    assertThat(propertyDefinition.subCategory()).isEqualTo("General");
   }
 
   private List<PropertyDefinition> properties() {
