@@ -2,11 +2,14 @@
 
 ## Prerequisites
 
-- [JDK 17](https://docs.aws.amazon.com/corretto/latest/corretto-17-ug/what-is-corretto-17.html)
-- [Maven](https://maven.apache.org/install.html)
-- Node.js (we recommend using [NVM](https://github.com/nvm-sh/nvm#installing-and-updating))
+To work on this Project, it is required to have the following tools installed:
 
-You can also use Docker container defined in `./.cirrus/nodejs-lts.Dockerfile` which bundles all required dependencies and is used for our CI pipeline.
+* [JDK 17](https://docs.aws.amazon.com/corretto/latest/corretto-17-ug/what-is-corretto-17.html)
+* [Node.js](https://nodejs.org/en) >= 22
+* [npm](https://www.npmjs.com/) >= 8
+* [Maven](https://maven.apache.org/) >= 3.8
+
+You can also use Docker container defined in `./.cirrus/nodejs.Dockerfile` which bundles all required dependencies and is used for our CI pipeline.
 
 ## Build and run unit tests
 
