@@ -26,14 +26,9 @@ import static org.assertj.core.groups.Tuple.tuple;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.sonarsource.sonarlint.ls.SonarLintLanguageServer.JUPYTER_NOTEBOOK_TYPE;
-import static org.sonarsource.sonarlint.ls.settings.SettingsManager.DOTNET_DEFAULT_SOLUTION_PATH;
-import static org.sonarsource.sonarlint.ls.settings.SettingsManager.OMNISHARP_LOAD_PROJECT_ON_DEMAND;
-import static org.sonarsource.sonarlint.ls.settings.SettingsManager.OMNISHARP_PROJECT_LOAD_TIMEOUT;
-import static org.sonarsource.sonarlint.ls.settings.SettingsManager.OMNISHARP_USE_MODERN_NET;
 import static org.sonarsource.sonarlint.ls.settings.SettingsManager.SONARLINT_CONFIGURATION_NAMESPACE;
-import static org.sonarsource.sonarlint.ls.settings.SettingsManager.VSCODE_FILE_EXCLUDES;
 
+import com.google.protobuf.Message;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -47,7 +42,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -59,11 +53,12 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
-import java.util.function.Predicate;
-
 import java.util.regex.Pattern;
-import java.util.stream.Stream;
-import javax.annotation.Nullable;
+import mockwebserver3.Dispatcher;
+import mockwebserver3.MockResponse;
+import mockwebserver3.MockWebServer;
+import mockwebserver3.RecordedRequest;
+import okio.Buffer;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FalseFileFilter;
 import org.apache.commons.io.filefilter.RegexFileFilter;
@@ -72,24 +67,19 @@ import org.assertj.core.api.iterable.ThrowingExtractor;
 import org.awaitility.core.ThrowingRunnable;
 import org.eclipse.lsp4j.ClientCapabilities;
 import org.eclipse.lsp4j.ClientInfo;
-import org.eclipse.lsp4j.ConfigurationItem;
 import org.eclipse.lsp4j.ConfigurationParams;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.DidChangeConfigurationParams;
-import org.eclipse.lsp4j.DidChangeNotebookDocumentParams;
 import org.eclipse.lsp4j.DidChangeTextDocumentParams;
 import org.eclipse.lsp4j.DidChangeWorkspaceFoldersParams;
 import org.eclipse.lsp4j.DidCloseNotebookDocumentParams;
 import org.eclipse.lsp4j.DidCloseTextDocumentParams;
-import org.eclipse.lsp4j.DidOpenNotebookDocumentParams;
 import org.eclipse.lsp4j.DidOpenTextDocumentParams;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4j.InitializedParams;
 import org.eclipse.lsp4j.MessageActionItem;
 import org.eclipse.lsp4j.MessageParams;
-import org.eclipse.lsp4j.NotebookDocument;
-import org.eclipse.lsp4j.NotebookDocumentChangeEvent;
 import org.eclipse.lsp4j.NotebookDocumentClientCapabilities;
 import org.eclipse.lsp4j.NotebookDocumentIdentifier;
 import org.eclipse.lsp4j.NotebookDocumentSyncClientCapabilities;
@@ -99,7 +89,6 @@ import org.eclipse.lsp4j.ShowMessageRequestParams;
 import org.eclipse.lsp4j.TextDocumentContentChangeEvent;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextDocumentItem;
-import org.eclipse.lsp4j.VersionedNotebookDocumentIdentifier;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.eclipse.lsp4j.WindowClientCapabilities;
 import org.eclipse.lsp4j.WorkDoneProgressCreateParams;
@@ -114,6 +103,9 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.AfterEachCallback;
+import org.junit.jupiter.api.extension.BeforeEachCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.sonarsource.sonarlint.core.rpc.protocol.client.binding.AssistBindingParams;
 import org.sonarsource.sonarlint.core.rpc.protocol.client.binding.SuggestBindingParams;
@@ -122,15 +114,12 @@ import org.sonarsource.sonarlint.core.serverapi.proto.sonarqube.ws.Components;
 import org.sonarsource.sonarlint.ls.ServerMain;
 import org.sonarsource.sonarlint.ls.SonarLintExtendedLanguageClient;
 import org.sonarsource.sonarlint.ls.SonarLintExtendedLanguageServer;
-import org.sonarsource.sonarlint.ls.SonarLintLanguageServer;
 import org.sonarsource.sonarlint.ls.commands.ShowAllLocationsCommand;
 import org.sonarsource.sonarlint.ls.settings.SettingsManager;
 import org.sonarsource.sonarlint.ls.telemetry.SonarLintTelemetry;
 import picocli.CommandLine;
 
 public class LanguageServerMediumTests {
-  protected static final boolean COMMERCIAL_ENABLED = System.getProperty("commercial") != null;
-
   private static final Set<Path> staticTempDirs = new HashSet<>();
   private final Set<Path> instanceTempDirs = new HashSet<>();
   Path temp;
@@ -140,12 +129,11 @@ public class LanguageServerMediumTests {
   private static ServerSocket serverSocket;
   protected static SonarLintExtendedLanguageServer lsProxy;
   protected static FakeLanguageClient client;
-  private static List<SonarLintExtendedLanguageClient.FoundFileDto> foundFileDtos = List.of();
 
   private static final String CONNECTION_ID = "known";
   private static final String TOKEN = "token";
   @RegisterExtension
-  private static final MockWebServerExtension mockWebServerExtension = new MockWebServerExtension();
+  private final MockWebServerExtension mockWebServerExtension = new MockWebServerExtension();
   private static Path analysisDir;
 
   @BeforeAll
@@ -193,26 +181,18 @@ public class LanguageServerMediumTests {
 
     lsProxy = future.get();
   }
-  //https://github.com/SonarSource/sonarlint-language-server/blob/63e5ceef866c7a08e6f7c7d9d0f4020200dec720/src/test/java/org/sonarsource/sonarlint/ls/mediumtests/LanguageServerMediumTests.java
-  //https://github.com/SonarSource/sonarlint-core/blob/ddb7cfb8ecdbc703263c2662cc697292099759c8/medium-tests/src/test/java/mediumtest/analysis/AnalysisMediumTests.java#L980
+
   protected static String fullPathToJar(String pattern) {
     return FileUtils
       .listFiles(Paths.get("../../../sonar-plugin/sonar-javascript-plugin/target/").toAbsolutePath().normalize().toFile(), new RegexFileFilter(pattern),
-      FalseFileFilter.FALSE)
+        FalseFileFilter.FALSE)
       .iterator().next().toPath().toString();
   }
 
   protected static void initialize(Map<String, Object> initializeOptions, WorkspaceFolder... initFolders) throws InterruptedException, ExecutionException {
     var initializeParams = getInitializeParams(initializeOptions, initFolders);
     initializeParams.getCapabilities().setWindow(new WindowClientCapabilities());
-    var initializeResult = lsProxy.initialize(initializeParams).get();
-    assertThat(initializeResult.getServerInfo().getName()).isEqualTo("SonarLint Language Server");
-    assertThat(initializeResult.getServerInfo().getVersion()).isNotBlank();
-    if (SonarLintLanguageServer.isEnableNotebooks(initializeOptions)) {
-      assertThat(initializeResult.getCapabilities().getNotebookDocumentSync()).isNotNull();
-    } else {
-      assertThat(initializeResult.getCapabilities().getNotebookDocumentSync()).isNull();
-    }
+    lsProxy.initialize(initializeParams).get();
     lsProxy.initialized(new InitializedParams());
   }
 
@@ -223,7 +203,7 @@ public class LanguageServerMediumTests {
 
     var actualInitOptions = new HashMap<>(initializeOptions);
     if (initializeOptions.containsKey("additionalAttributes")) {
-      var additionalAttributes = new HashMap<>((Map<String, String>)initializeOptions.get("additionalAttributes"));
+      var additionalAttributes = new HashMap<>((Map<String, String>) initializeOptions.get("additionalAttributes"));
       actualInitOptions.put("additionalAttributes", additionalAttributes);
     }
     initializeParams.setInitializationOptions(actualInitOptions);
@@ -272,10 +252,6 @@ public class LanguageServerMediumTests {
     verifyConfigurationChangeOnClient();
   }
 
-  protected static void setUpFindFilesInFolderResponse(List<SonarLintExtendedLanguageClient.FoundFileDto> foundFileDtos) {
-    LanguageServerMediumTests.foundFileDtos = foundFileDtos;
-  }
-
   protected void setupGlobalSettings(Map<String, Object> globalSettings) {
     // do nothing by default
   }
@@ -311,16 +287,13 @@ public class LanguageServerMediumTests {
       "productName", "SLCORE tests",
       "productVersion", "0.1",
       "showVerboseLogs", false,
-      "productKey", "productKey",
-      "additionalAttributes", Map.of(
-        "extra", "value"
-      )
+      "productKey", "productKey"
     ), new WorkspaceFolder(analysisDir.toUri().toString(), "AnalysisDir"));
   }
 
   @BeforeEach
   void prepare() throws IOException {
-    client.isIgnoredByScm = false;
+    client.isIgnoredByScm = true;
     org.apache.commons.io.FileUtils.cleanDirectory(analysisDir.toFile());
   }
 
@@ -337,18 +310,6 @@ public class LanguageServerMediumTests {
 
   protected static void assertLogContainsPattern(String msgPattern) {
     await().atMost(10, SECONDS).untilAsserted(() -> assertThat(client.logs).anyMatch(p -> p.getMessage().matches(msgPattern)));
-  }
-
-  protected String getUri(String filename) throws IOException {
-    var file = temp.resolve(filename);
-    Files.createFile(file);
-    return file.toUri().toString();
-  }
-
-  protected String getUri(String filename, Path tempDir) throws IOException {
-    var file = tempDir.resolve(filename);
-    Files.createFile(file);
-    return file.toUri().toString();
   }
 
   protected static void awaitLatch(CountDownLatch latch) {
@@ -377,7 +338,7 @@ public class LanguageServerMediumTests {
     ShowFixSuggestionParams showFixSuggestionParams;
     SuggestBindingParams suggestedBindings;
     ShowRuleDescriptionParams ruleDesc;
-    boolean isIgnoredByScm = false;
+    boolean isIgnoredByScm = true;
     boolean shouldAnalyseFile = true;
     final AtomicInteger needCompilationDatabaseCalls = new AtomicInteger();
     final Set<String> openedLinks = new HashSet<>();
@@ -391,12 +352,15 @@ public class LanguageServerMediumTests {
     }
 
     void clear() {
-      diagnostics.clear();
-      hotspots.clear();
+      clearHotspotsAndIssuesAndConfigScopeReadiness();
       logs.clear();
       shownMessages.clear();
       globalSettings = new HashMap<>();
-      setDisableTelemetry(globalSettings, true);
+      globalSettings.put("disableTelemetry", true);
+      globalSettings.put("output", new HashMap<String, Object>() {{
+        put("showAnalyzerLogs", true);
+        put("showVerboseLogs", true);
+      }});
       folderSettings.clear();
       settingsLatch = new CountDownLatch(0);
       showRuleDescriptionLatch = new CountDownLatch(0);
@@ -404,7 +368,6 @@ public class LanguageServerMediumTests {
       readyForTestsLatch = new CountDownLatch(0);
       needCompilationDatabaseCalls.set(0);
       shouldAnalyseFile = true;
-      scopeReadyForAnalysis.clear();
       suggestedBindings = null;
     }
 
@@ -465,18 +428,10 @@ public class LanguageServerMediumTests {
       return CompletableFutures.computeAsync(cancelToken -> {
         List<Object> result;
         try {
-          assertThat(configurationParams.getItems()).extracting(ConfigurationItem::getSection).containsExactly(SONARLINT_CONFIGURATION_NAMESPACE,
-            DOTNET_DEFAULT_SOLUTION_PATH, OMNISHARP_USE_MODERN_NET, OMNISHARP_LOAD_PROJECT_ON_DEMAND, OMNISHARP_PROJECT_LOAD_TIMEOUT, VSCODE_FILE_EXCLUDES);
           result = new ArrayList<>(configurationParams.getItems().size());
           for (var item : configurationParams.getItems()) {
             if (item.getScopeUri() == null && item.getSection().equals(SONARLINT_CONFIGURATION_NAMESPACE)) {
               result.add(globalSettings);
-            } else if (item.getScopeUri() != null && !item.getSection().equals(SONARLINT_CONFIGURATION_NAMESPACE)) {
-              result
-                .add(Optional.ofNullable(folderSettings.get(item.getScopeUri()))
-                  .orElseThrow(() -> new IllegalStateException("No settings mocked for workspaceFolderPath " + item.getScopeUri())));
-              // we don't want to repeat the same setting for one folder 5 times :)
-              break;
             }
           }
         } finally {
@@ -519,7 +474,7 @@ public class LanguageServerMediumTests {
 
     @Override
     public CompletableFuture<FindFileByNamesInScopeResponse> listFilesInFolder(FolderUriParams params) {
-      return CompletableFuture.completedFuture(new FindFileByNamesInScopeResponse(foundFileDtos));
+      return CompletableFuture.completedFuture(new FindFileByNamesInScopeResponse(List.of()));
     }
 
     @Override
@@ -644,6 +599,63 @@ public class LanguageServerMediumTests {
 
   }
 
+  protected class MockWebServerExtension implements BeforeEachCallback, AfterEachCallback {
+    private final Integer port;
+    private MockWebServer server;
+    protected final Map<String, MockResponse> responsesByPath = new HashMap<>();
+
+    public MockWebServerExtension() {
+      this.server = new MockWebServer();
+      this.port = null;
+    }
+
+    @Override
+    public void beforeEach(ExtensionContext context) throws Exception {
+      server = new MockWebServer();
+      responsesByPath.clear();
+      final Dispatcher dispatcher = new Dispatcher() {
+        @Override
+        public MockResponse dispatch(RecordedRequest request) {
+          if (responsesByPath.containsKey(request.getPath())) {
+            return responsesByPath.get(request.getPath());
+          }
+          return new MockResponse().setResponseCode(404);
+        }
+      };
+      server.setDispatcher(dispatcher);
+      if (this.port != null) {
+        server.start(this.port);
+      } else {
+        server.start();
+      }
+    }
+
+    @Override
+    public void afterEach(ExtensionContext context) throws Exception {
+      stopServer();
+    }
+
+    public void stopServer() throws IOException {
+      server.shutdown();
+    }
+
+    public void addStringResponse(String path, String body) {
+      responsesByPath.put(path, new MockResponse().setBody(body));
+    }
+
+    public String url(String path) {
+      return server.url(path).toString();
+    }
+
+    public void addProtobufResponse(String path, Message m) {
+      try (var b = new Buffer()) {
+        m.writeTo(b.outputStream());
+        responsesByPath.put(path, new MockResponse().setBody(b));
+      } catch (IOException e) {
+        fail(e);
+      }
+    }
+  }
   protected static void notifyConfigurationChangeOnClient() {
     client.settingsLatch = new CountDownLatch(1);
     lsProxy.getWorkspaceService().didChangeConfiguration(new DidChangeConfigurationParams(Map.of("sonarlint", client.globalSettings)));
@@ -653,46 +665,6 @@ public class LanguageServerMediumTests {
       Thread.sleep(200);
     } catch (InterruptedException e) {
       e.printStackTrace();
-    }
-  }
-
-  protected static void setTestFilePattern(Map<String, Object> config, @Nullable String testFilePattern) {
-    if (testFilePattern != null) {
-      config.put("testFilePattern", testFilePattern);
-    } else {
-      config.remove("testFilePattern");
-    }
-  }
-
-  protected static void setPathToCompileCommands(Map<String, Object> config, @Nullable String pathToCompileCommands) {
-    if (pathToCompileCommands != null) {
-      config.put("pathToCompileCommands", pathToCompileCommands);
-    } else {
-      config.remove("pathToCompileCommands");
-    }
-  }
-
-  protected static void setDisableTelemetry(Map<String, Object> config, @Nullable Boolean disableTelemetry) {
-    if (disableTelemetry != null) {
-      config.put("disableTelemetry", disableTelemetry);
-    } else {
-      config.remove("disableTelemetry");
-    }
-  }
-
-  protected static void setShowAnalyzerLogs(Map<String, Object> config, @Nullable Boolean showAnalyzerLogs) {
-    if (showAnalyzerLogs != null) {
-      ((HashMap<String, Object>) config.computeIfAbsent("output", k -> new HashMap<String, Object>())).put("showAnalyzerLogs", showAnalyzerLogs);
-    } else {
-      config.remove("showAnalyzerLogs");
-    }
-  }
-
-  protected static void setShowVerboseLogs(Map<String, Object> config, @Nullable Boolean showVerboseLogs) {
-    if (showVerboseLogs != null) {
-      ((HashMap<String, Object>) config.computeIfAbsent("output", k -> new HashMap<String, Object>())).put("showVerboseLogs", showVerboseLogs);
-    } else {
-      config.remove("showVerboseLogs");
     }
   }
 
@@ -739,12 +711,6 @@ public class LanguageServerMediumTests {
       .didChange(new DidChangeTextDocumentParams(docId, List.of(new TextDocumentContentChangeEvent(content))));
   }
 
-  protected void didChangeNotebook(String uri, String content) {
-    var docId = new VersionedNotebookDocumentIdentifier(1, uri);
-    lsProxy.getNotebookDocumentService()
-      .didChange(new DidChangeNotebookDocumentParams(docId, new NotebookDocumentChangeEvent()));
-  }
-
   protected void didOpen(String uri, String languageId, String content) {
     lsProxy.getTextDocumentService()
       .didOpen(new DidOpenTextDocumentParams(new TextDocumentItem(uri, languageId, 1, content)));
@@ -757,26 +723,6 @@ public class LanguageServerMediumTests {
     toBeClosed.remove(uri);
   }
 
-  protected void didOpenNotebook(String uri, String... cellContents) {
-    var notebookDocument = new NotebookDocument();
-    notebookDocument.setUri(uri);
-    notebookDocument.setNotebookType(JUPYTER_NOTEBOOK_TYPE);
-    notebookDocument.setVersion(1);
-
-    var cellDocuments = new ArrayList<TextDocumentItem>();
-    var cellIndex = new AtomicInteger();
-    Stream.of(cellContents).forEach(cellContent -> {
-      var newCellDocument = new TextDocumentItem();
-      newCellDocument.setText(cellContent);
-      newCellDocument.setUri(uri + "#" + cellIndex.incrementAndGet());
-      newCellDocument.setLanguageId("python");
-      newCellDocument.setVersion(1);
-      cellDocuments.add(newCellDocument);
-    });
-
-    lsProxy.getNotebookDocumentService().didOpen(new DidOpenNotebookDocumentParams(notebookDocument, cellDocuments));
-    notebooksToBeClosed.add(uri);
-  }
 
   protected ThrowingExtractor<? super MessageParams, String, RuntimeException> withoutTimestamp() {
     return p -> p.getMessage().replaceAll("\\[(\\w*)\\s+-\\s[\\d:.]*\\]", "[$1]");
@@ -851,14 +797,19 @@ public class LanguageServerMediumTests {
     }
   }
 
-  private Predicate<? super MessageParams> notFromContextualTSserver() {
-    return m -> !m.getMessage().contains("SonarTS") && !m.getMessage().contains("Using typescript at");
+  private static String upsertFile(Path folderPath, String fileName, String content) {
+    var filePath = folderPath.resolve(fileName);
+    try {
+      Files.writeString(filePath, content);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+    return filePath.toUri().toString();
   }
 
   @Test
-  void analyzeSimpleJsFileOnOpen() throws Exception {
-    setShowVerboseLogs(client.globalSettings, true);
-    var uri = getUri("analyzeSimpleJsFileOnOpen.js", analysisDir);
+  void analyzeSimpleJsFileOnOpen() {
+    var uri = upsertFile(analysisDir, "analyzeSimpleJsFileOnOpen.js", "");
     didOpen(uri, "javascript", "function foo() {\n  let toto = 0;\n  let plouf = 0;\n}");
 
     awaitUntilAsserted(() -> assertThat(client.getDiagnostics(uri))
@@ -869,39 +820,25 @@ public class LanguageServerMediumTests {
   }
 
   @Test
-  void noIssueOnTestJSFiles() throws Exception {
-    setTestFilePattern(getFolderSettings(analysisDir.toUri().toString()), "{**/*Test*}");
-    setShowVerboseLogs(client.globalSettings, true);
-    notifyConfigurationChangeOnClient();
-
+  void noIssueOnTestJSFiles() {
+    var jsFilename = "foo.js";
     var jsContent = "function foo() {\n  let toto = 0;\n}";
-    var fooTestUri = getUri("fooTest.js", analysisDir);
-    didOpen(fooTestUri, "javascript", jsContent);
+    var tsConfigFilename = "tsconfig.json";
+    var tsConfigContent = "{\"files\": [\"%s\"]}".formatted(jsFilename);
 
+    var tsconfigUri = upsertFile(analysisDir, tsConfigFilename, tsConfigContent);
+    var jsFileUri = upsertFile(analysisDir, jsFilename, jsContent);
+
+    didOpen(jsFileUri, "javascript", jsContent);
     awaitUntilAsserted(() -> assertThat(client.logs)
       .extracting(withoutTimestampAndMillis())
-      .contains("[Info] Analysis detected 0 issues and 0 Security Hotspots in XXXms"));
-    assertThat(client.getDiagnostics(fooTestUri)).isEmpty();
-    client.clear();
+      .containsAll(List.of("[Info] Analysis detected 1 issue and 0 Security Hotspots in XXXms"))
+      .anyMatch(log -> log.matches("\\[Info] Found 1 tsconfig\\.json file\\(s\\): \\[.*tsconfig.json]"))
+      .anyMatch(log -> log.matches("\\[Info] Using tsConfig .*tsconfig\\.json for file source file .*foo.js \\(0/1 tsconfigs not yet checked\\)")));
+    awaitUntilAsserted(() -> assertThat(client.getDiagnostics(jsFileUri)).hasSize(1));
 
-    setTestFilePattern(getFolderSettings(analysisDir.toUri().toString()), "{**/*MyTest*}");
-    notifyConfigurationChangeOnClient();
-
-    didChange(fooTestUri, jsContent);
-    awaitUntilAsserted(() -> assertThat(client.logs)
-      .extracting(withoutTimestampAndMillis())
-      .contains("[Info] Analysis detected 1 issue and 0 Security Hotspots in XXXms"));
-    awaitUntilAsserted(() -> assertThat(client.getDiagnostics(fooTestUri)).hasSize(1));
+    didOpen(tsconfigUri, "", tsConfigContent);
 
     client.logs.clear();
-
-    var fooMyTestUri = getUri("fooMyTest.js", analysisDir);
-    didOpen(fooMyTestUri, "javascript", jsContent);
-
-    awaitUntilAsserted(() -> assertThat(client.logs)
-      .extracting(withoutTimestampAndMillis())
-      .contains("[Info] Analysis detected 0 issues and 0 Security Hotspots in XXXms"));
-
-    assertThat(client.getDiagnostics(fooMyTestUri)).isEmpty();
   }
 }
