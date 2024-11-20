@@ -121,20 +121,24 @@ build_task:
     SONAR_TOKEN: VAULT[development/kv/data/next data.token]
     SONAR_HOST_URL: https://next.sonarqube.com/sonarqube
     ARTIFACTORY_DEPLOY_ACCESS_TOKEN: VAULT[development/artifactory/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-qa-deployer access_token]
-  <<: *MAVEN_CACHE
-  <<: *RUNTIME_CACHE
-  <<: *NPMRC_SCRIPT_DEFINITION
   clone_script: |
-    git config --system core.longpaths true
     if [ -z "$CIRRUS_PR" ]; then
       git clone --branch=$CIRRUS_BRANCH https://x-access-token:${CIRRUS_REPO_CLONE_TOKEN}@github.com/${CIRRUS_REPO_FULL_NAME}.git $CIRRUS_WORKING_DIR
       git reset --hard $CIRRUS_CHANGE_IN_REPO
     else
       git clone --branch=$CIRRUS_BASE_BRANCH https://x-access-token:${CIRRUS_REPO_CLONE_TOKEN}@github.com/${CIRRUS_REPO_FULL_NAME}.git $CIRRUS_WORKING_DIR
-      git checkout -b $CIRRUS_PR
+      git symbolic-ref HEAD
+      git checkout -b PR-$CIRRUS_PR
       git fetch origin pull/$CIRRUS_PR/head
-      get merge origin/pull/$CIRRUS_PR/head
+      git symbolic-ref HEAD
+      git config user.email "sonarsource@cirrus-ci-task-${CIRRUS_TASK_ID}.org"
+      git config user.name "sonarsource@cirrus-ci-task-${CIRRUS_TASK_ID}.org"
+      git merge FETCH_HEAD
+      ls -la
     fi
+  <<: *MAVEN_CACHE
+  <<: *RUNTIME_CACHE
+  <<: *NPMRC_SCRIPT_DEFINITION
   build_and_deploy_script:
     - source cirrus-env BUILD
     - node --version

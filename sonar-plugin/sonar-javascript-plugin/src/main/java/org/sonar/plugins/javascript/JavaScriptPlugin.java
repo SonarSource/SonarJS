@@ -257,7 +257,7 @@ public class JavaScriptPlugin implements Plugin {
         .builder(SKIP_NODE_PROVISIONING_PROPERTY)
         .defaultValue("false")
         .name("Skip the deployment of the embedded Node.js runtime")
-        .description(this.getHTMLMarkup("Controls whether the scanner should skip the deployment of the embedded Node.js runtime, and use the host-provided runtime instead.\n\nAnalysis will fail if a compatible version of Node.js is not provided via `sonar.nodejs.executable` or the `PATH`."))
+        .description(JavaScriptPlugin.getHTMLMarkup("Controls whether the scanner should skip the deployment of the embedded Node.js runtime, and use the host-provided runtime instead.\n\nAnalysis will fail if a compatible version of Node.js is not provided via `sonar.nodejs.executable` or the `PATH`."))
         .onQualifiers(Qualifiers.PROJECT)
         .subCategory(GENERAL)
         .category(JS_TS_CATEGORY)
