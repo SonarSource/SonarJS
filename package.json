@@ -30,7 +30,7 @@
     "td": "npm --prefix typedoc/searchable-parameters-plugin run setup && npx typedoc --options typedoc/typedoc.js",
     "prepare": "husky install",
     "precommit": "pretty-quick --staged",
-    "count-rules": "node tools/count-rules.cjs",
+    "count-rules": "node tools/count-rules.js",
     "_:bridge:copy-protofiles": "cpy --flat packages/jsts/src/parsers/estree.proto sonar-plugin/bridge/src/main/protobuf && cpy --flat packages/jsts/src/parsers/estree.proto lib/jsts/src/parsers",
     "_:bridge:clear": "rimraf --glob lib/*",
     "_:plugin:prepare-bridge": "npm pack && node tools/check-distribution-filepath-length.cjs && npm run _:plugin:copy-bridge && npm run generate-rules-list",
