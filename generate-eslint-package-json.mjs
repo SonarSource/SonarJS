@@ -1,5 +1,5 @@
 import fs from 'node:fs/promises';
-import { join, dirname } from 'path';
+import { dirname, join } from 'path';
 import { fileURLToPath } from 'node:url';
 
 const eslintPluginDependencies = [
@@ -74,7 +74,7 @@ await fs.writeFile(
         'https://github.com/SonarSource/SonarJS/blob/master/packages/jsts/src/rules/README.md',
       dependencies,
       peerDependencies: {
-        eslint: '^8.0.0 || ^9.0.0',
+        eslint: '8.0.0 - 9.14',
       },
     },
     null,
