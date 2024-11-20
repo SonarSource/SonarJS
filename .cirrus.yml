@@ -124,6 +124,17 @@ build_task:
   <<: *MAVEN_CACHE
   <<: *RUNTIME_CACHE
   <<: *NPMRC_SCRIPT_DEFINITION
+  clone_script: |
+    git config --system core.longpaths true
+    if [ -z "$CIRRUS_PR" ]; then
+      git clone --branch=$CIRRUS_BRANCH https://x-access-token:${CIRRUS_REPO_CLONE_TOKEN}@github.com/${CIRRUS_REPO_FULL_NAME}.git $CIRRUS_WORKING_DIR
+      git reset --hard $CIRRUS_CHANGE_IN_REPO
+    else
+      git clone --branch=$CIRRUS_BASE_BRANCH https://x-access-token:${CIRRUS_REPO_CLONE_TOKEN}@github.com/${CIRRUS_REPO_FULL_NAME}.git $CIRRUS_WORKING_DIR
+      git checkout -b $CIRRUS_PR
+      git fetch origin pull/$CIRRUS_PR/head
+      get merge origin/pull/$CIRRUS_PR/head
+    fi
   build_and_deploy_script:
     - source cirrus-env BUILD
     - node --version
