@@ -1,5 +1,5 @@
 import fs from 'node:fs/promises';
-import { join, dirname } from 'path';
+import { dirname, join } from 'path';
 import { fileURLToPath } from 'node:url';
 
 const eslintPluginDependencies = [
