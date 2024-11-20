@@ -216,7 +216,7 @@ plugin_qa_sq_dev_task:
   eks_container:
     image: ${CIRRUS_AWS_ACCOUNT}.dkr.ecr.eu-central-1.amazonaws.com/base:j17-latest
   env:
-    SQ_VERSION: DEV
+    SQ_VERSION: 'DEV[10.8]' # replace this with "DEV" when platform squad is ready
     SONARJS_ARTIFACT: multi
     MVN_TEST: '-Dtest=!EslintCustomRulesTest,!SonarJsIntegrationTest --projects !org.sonarsource.javascript:eslint-custom-rules-plugin'
 
