@@ -1,8 +1,8 @@
 name: Releasability status
 'on':
-  check_suite:
-    types:
-      - completed
+  push:
+    branches:
+      - js-417
 jobs:
   update_releasability_status:
     runs-on: ubuntu-latest
@@ -11,13 +11,6 @@ jobs:
       id-token: write
       statuses: write
       contents: read
-    if: >-
-      (contains(fromJSON('["main", "master", "js-417"]'),
-      github.event.check_suite.head_branch) ||
-      startsWith(github.event.check_suite.head_branch, 'dogfood-') ||
-      startsWith(github.event.check_suite.head_branch, 'branch-')) &&
-      github.event.check_suite.conclusion == 'success' &&
-      github.event.check_suite.app.slug == 'cirrus-ci'
     steps:
       -   uses: >-
             SonarSource/gh-action_releasability/releasability-status@v2
