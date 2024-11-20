@@ -346,7 +346,7 @@ public class JavaScriptPlugin implements Plugin {
    *
    * Note that this method should probably not be hosted here: either it should be part of a dedicated helper class, or it should be provided by a Markdown-to-HTML library. Since it is only used in this specific class, it is acceptable for now to have it hosted here.
    */
-  private String getHTMLMarkup(String markdownMarkup) {
+  private static String getHTMLMarkup(String markdownMarkup) {
     return markdownMarkup
       .replace("\n", "<br>")
       .replaceAll("`(.*?)`", "<code>$1</code>")
