@@ -120,7 +120,7 @@ class JavaScriptPluginTest {
     }).findFirst().get();
 
     assertThat(propertyDefinition.name()).isEqualTo("Skip the deployment of the embedded Node.js runtime");
-    assertThat(propertyDefinition.description()).isEqualTo("Controls whether the scanner should skip the deployment of the embedded Node.js runtime, and use the host-provided runtime instead.");
+    assertThat(propertyDefinition.description()).isEqualTo("Controls whether the scanner should skip the deployment of the embedded Node.js runtime, and use the host-provided runtime instead.<br><br>Analysis will fail if a compatible version of Node.js is not provided via <code>sonar.nodejs.executable</code> or the <code>PATH</code>.");
     assertThat(propertyDefinition.type().toString()).isEqualTo("BOOLEAN");
     assertThat(propertyDefinition.defaultValue()).isEqualTo("false");
     assertThat(propertyDefinition.category()).isEqualTo("JavaScript / TypeScript");
@@ -128,19 +128,13 @@ class JavaScriptPluginTest {
   }
 
   private List<PropertyDefinition> properties() {
-    List<PropertyDefinition> propertiesList = new ArrayList<>();
-    List extensions = setupContext(
+    var extensions = setupContext(
       SonarRuntimeImpl.forSonarQube(LTS_VERSION, SonarQubeSide.SERVER, SonarEdition.COMMUNITY)
-    )
-      .getExtensions();
+    ).getExtensions();
 
-    for (Object extension : extensions) {
-      if (extension instanceof PropertyDefinition) {
-        propertiesList.add((PropertyDefinition) extension);
-      }
-    }
-
-    return propertiesList;
+    return extensions.stream().filter((extension) -> {
+      return extension instanceof PropertyDefinition;
+    }).toList();
   }
 
   private Plugin.Context setupContext(SonarRuntime runtime) {

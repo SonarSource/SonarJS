@@ -257,7 +257,7 @@ public class JavaScriptPlugin implements Plugin {
         .builder(SKIP_NODE_PROVISIONING_PROPERTY)
         .defaultValue("false")
         .name("Skip the deployment of the embedded Node.js runtime")
-        .description("Controls whether the scanner should skip the deployment of the embedded Node.js runtime, and use the host-provided runtime instead.")
+        .description(this.getHTMLMarkup("Controls whether the scanner should skip the deployment of the embedded Node.js runtime, and use the host-provided runtime instead.\n\nAnalysis will fail if a compatible version of Node.js is not provided via `sonar.nodejs.executable` or the `PATH`."))
         .onQualifiers(Qualifiers.PROJECT)
         .subCategory(GENERAL)
         .category(JS_TS_CATEGORY)
@@ -339,6 +339,18 @@ public class JavaScriptPlugin implements Plugin {
         new SonarLintPluginAPIVersion()
       );
     }
+  }
+
+  /**
+   * From a Markdown markup, returns the corresponding HTML markup.
+   *
+   * Note that this method should probably not be hosted here: either it should be part of a dedicated helper class, or it should be provided by a Markdown-to-HTML library. Since it is only used in this specific class, it is acceptable for now to have it hosted here.
+   */
+  protected String getHTMLMarkup(String markdownMarkup) {
+    return markdownMarkup
+      .replace("\n", "<br>")
+      .replaceAll("`(.*?)`", "<code>$1</code>")
+      ;
   }
 
   static class SonarLintPluginAPIManager {
