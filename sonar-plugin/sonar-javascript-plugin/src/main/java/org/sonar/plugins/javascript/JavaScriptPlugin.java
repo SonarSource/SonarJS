@@ -135,6 +135,7 @@ public class JavaScriptPlugin implements Plugin {
   private static final String FILE_SUFFIXES_DESCRIPTION = "List of suffixes for files to analyze.";
 
   public static final String PROPERTY_KEY_MAX_FILE_SIZE = "sonar.javascript.maxFileSize";
+  public static final String SKIP_NODE_PROVISIONING_PROPERTY = "sonar.scanner.skipNodeProvisioning";
 
   @Override
   public void define(Context context) {
@@ -251,6 +252,16 @@ public class JavaScriptPlugin implements Plugin {
         .subCategory(GENERAL)
         .multiValues(true)
         .category(JS_TS_CATEGORY)
+        .build(),
+      PropertyDefinition
+        .builder(SKIP_NODE_PROVISIONING_PROPERTY)
+        .defaultValue("false")
+        .name("Skip the deployment of the embedded Node.js runtime")
+        .description(JavaScriptPlugin.getHTMLMarkup("Controls whether the scanner should skip the deployment of the embedded Node.js runtime, and use the host-provided runtime instead.\n\nAnalysis will fail if a compatible version of Node.js is not provided via `sonar.nodejs.executable` or the `PATH`."))
+        .onQualifiers(Qualifiers.PROJECT)
+        .subCategory(GENERAL)
+        .category(JS_TS_CATEGORY)
+        .type(PropertyType.BOOLEAN)
         .build()
     );
 
@@ -328,6 +339,18 @@ public class JavaScriptPlugin implements Plugin {
         new SonarLintPluginAPIVersion()
       );
     }
+  }
+
+  /**
+   * From a Markdown markup, returns the corresponding HTML markup.
+   *
+   * Note that this method should probably not be hosted here: either it should be part of a dedicated helper class, or it should be provided by a Markdown-to-HTML library. Since it is only used in this specific class, it is acceptable for now to have it hosted here.
+   */
+  private static String getHTMLMarkup(String markdownMarkup) {
+    return markdownMarkup
+      .replace("\n", "<br>")
+      .replaceAll("`(.*?)`", "<code>$1</code>")
+      ;
   }
 
   static class SonarLintPluginAPIManager {
