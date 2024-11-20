@@ -310,11 +310,11 @@ eslint_plugin_test_task:
     - source set_maven_build_version $BUILD_NUMBER
     - npm run eslint-plugin:build
     - cd its/eslint8-plugin-sonarjs
-    - npm run build
+    - npm install
     - npx tsc --noEmit # check typings for tseslint.config.ts
     - npm run test
     - cd ../eslint9-plugin-sonarjs
-    - npm run build
+    - npm install
     - npx tsc --noEmit # check typings for tseslint.config.ts
     - npm run test
 
@@ -338,7 +338,7 @@ eslint8_node16_plugin_test_task:
     - source set_maven_build_version $BUILD_NUMBER
     - npm run eslint-plugin:build
     - cd its/eslint8-plugin-sonarjs
-    - npm run build
+    - npm install
     - npx tsc --noEmit # check typings for tseslint.config.ts
     - npm run test
 
