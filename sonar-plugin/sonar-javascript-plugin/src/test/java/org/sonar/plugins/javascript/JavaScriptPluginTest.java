@@ -23,14 +23,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.slf4j.event.Level;
-import org.sonar.api.*;
+import org.sonar.api.Plugin;
+import org.sonar.api.SonarEdition;
+import org.sonar.api.SonarQubeSide;
+import org.sonar.api.SonarRuntime;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
