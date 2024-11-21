@@ -17,11 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import path from 'node:path';
-import fs from 'node:fs/promises';
+const url = require('node:url');
+const path = require('node:path');
+const fs = require('node:fs');
 
 const pathToJsTsRules = path.join(
-  import.meta.dirname,
+  __dirname,
   '..',
   'sonar-plugin',
   'javascript-checks',
@@ -36,7 +37,7 @@ const pathToJsTsRules = path.join(
   'javascript',
 );
 const pathToCssRules = path.join(
-  import.meta.dirname,
+  __dirname,
   '..',
   'sonar-plugin',
   'css',
@@ -51,23 +52,21 @@ const pathToCssRules = path.join(
   'css',
 );
 
-const jsTsRules = await getJsonFiles(pathToJsTsRules);
+const jsTsRules = getJsonFiles(pathToJsTsRules);
 
-const jsRules = jsTsRules.filter(rule => rule.default.compatibleLanguages.includes('JAVASCRIPT'));
-const tsRules = jsTsRules.filter(rule => rule.default.compatibleLanguages.includes('TYPESCRIPT'));
+const jsRules = jsTsRules.filter(rule => rule.compatibleLanguages.includes('JAVASCRIPT'));
+const tsRules = jsTsRules.filter(rule => rule.compatibleLanguages.includes('TYPESCRIPT'));
 
-const cssRules = await getJsonFiles(pathToCssRules);
+const cssRules = getJsonFiles(pathToCssRules);
 
 console.log(`JS/TS rules: ${jsTsRules.length}`);
 console.log(`JS rules: ${jsRules.length}`);
 console.log(`TS rules: ${tsRules.length}`);
 console.log(`CSS rules: ${cssRules.length}`);
 
-async function getJsonFiles(pathToRules) {
-  const filenames = await fs.readdir(pathToRules);
-  return Promise.all(
-    filenames
-      .filter(filename => filename.endsWith('.json') && filename.length <= 'S1234.json'.length)
-      .map(async file => await import(path.join(pathToRules, file), { assert: { type: 'json' } })),
-  );
+function getJsonFiles(pathToRules) {
+  const filenames = fs.readdirSync(pathToRules);
+  return filenames
+    .filter(filename => filename.endsWith('.json') && filename.length <= 'S1234.json'.length)
+    .map(file => require(path.join(pathToRules, file)));
 }

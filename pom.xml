@@ -280,25 +280,41 @@
         <artifactId>license-maven-plugin</artifactId>
         <!-- This plugin is already configured in parent pom, however we want a configuration specific to this project -->
         <configuration>
-          <includes>
-            <include>packages/**/*.ts</include>
-            <include>packages/**/*.tsx</include>
-            <include>profiling/**/*.ts</include>
-            <include>profiling/**/*.js</include>
-            <include>tools/resources/rule.*</include>
-            <include>tools/**/*.mjs</include>
-            <include>tools/**/*.ts</include>
-            <include>tools/**/*.java</include>
-          </includes>
           <mapping>
-            <template_java>JAVADOC_STYLE</template_java>
-            <template_ts>JAVADOC_STYLE</template_ts>
+            <js>SLASHSTAR_STYLE</js>
+            <mjs>SLASHSTAR_STYLE</mjs>
+            <cjs>SLASHSTAR_STYLE</cjs>
+            <ts>SLASHSTAR_STYLE</ts>
           </mapping>
-          <excludes>
-            <exclude>packages/**/fixtures/**/*</exclude>
-            <exclude>packages/**/*.fixture.*</exclude>
-            <exclude>**/src/test/resources/**/*</exclude>
-          </excludes>
+          <licenseSets>
+            <licenseSet>
+              <includes>
+                <include>**/*.java</include>
+                <include>**/*.js</include>
+                <include>**/*.cjs</include>
+                <include>**/*.mjs</include>
+                <include>**/*.ts</include>
+                <include>tools/resources/rule.*</include>
+              </includes>
+              <excludes>
+                <!-- Misc files -->
+                <exclude>server.mjs</exclude>
+                <exclude>**/*.d.ts</exclude>
+                <exclude>**/SonarJsPerfBenchmark.java</exclude>
+                <!-- Generated folders -->
+                <exclude>**/bin/**/*</exclude>
+                <exclude>**/dist/**/*</exclude>
+                <exclude>**/lib/**/*</exclude>
+                <!-- Fixture files -->
+                <exclude>**/fixtures/**/*</exclude>
+                <exclude>**/*.fixture.*</exclude>
+                <!-- Resources -->
+                <exclude>**/src/test/resources/**/*</exclude>
+                <exclude>its/**/projects/**/*</exclude>
+                <exclude>its/**/sources/**/*</exclude>
+              </excludes>
+            </licenseSet>
+          </licenseSets>
         </configuration>
       </plugin>
     </plugins>
