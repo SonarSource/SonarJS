@@ -1,0 +1,3 @@
+// NOSONAR
+/* NOSONAR */
+// NOFOOBAR
