@@ -28,6 +28,7 @@ import static org.sonar.plugins.javascript.bridge.EmbeddedNode.Platform.DARWIN_A
 import static org.sonar.plugins.javascript.bridge.EmbeddedNode.Platform.DARWIN_X64;
 import static org.sonar.plugins.javascript.bridge.EmbeddedNode.Platform.LINUX_ARM64;
 import static org.sonar.plugins.javascript.bridge.EmbeddedNode.Platform.LINUX_X64;
+import static org.sonar.plugins.javascript.bridge.EmbeddedNode.Platform.LINUX_X64_MUSL;
 import static org.sonar.plugins.javascript.bridge.EmbeddedNode.Platform.UNSUPPORTED;
 import static org.sonar.plugins.javascript.bridge.EmbeddedNode.Platform.WIN_X64;
 
@@ -124,12 +125,16 @@ class EmbeddedNodeTest {
 
   @Test
   void should_detect_platform_for_linux_x64_environment() {
-    var linux = mock(Environment.class);
-    when(linux.getOsName()).thenReturn("linux");
-    when(linux.getOsArch()).thenReturn("amd64");
-    var platform = Platform.detect(linux);
+    var platform = Platform.detect(createLinuxX64Environment());
     assertThat(platform).isEqualTo(LINUX_X64);
     assertThat(platform.archivePathInJar()).isEqualTo("/linux-x64/node.xz");
+  }
+
+  @Test
+  void should_detect_platform_for_linux_x64_musl_environment() {
+    var platform = Platform.detect(createLinuxX64MuslEnvironment());
+    assertThat(platform).isEqualTo(LINUX_X64_MUSL);
+    assertThat(platform.archivePathInJar()).isEqualTo("/linux-x64-musl/node.xz");
   }
 
   @Test
@@ -202,6 +207,22 @@ class EmbeddedNodeTest {
     Environment mockEnvironment = mock(Environment.class);
     when(mockEnvironment.getOsName()).thenReturn("linux");
     when(mockEnvironment.getOsArch()).thenReturn("aarch64");
+    return mockEnvironment;
+  }
+
+  private Environment createLinuxX64Environment() {
+    Environment mockEnvironment = mock(Environment.class);
+    when(mockEnvironment.getOsName()).thenReturn("linux");
+    when(mockEnvironment.getOsArch()).thenReturn("amd64");
+    when(mockEnvironment.isAlpine()).thenReturn(false);
+    return mockEnvironment;
+  }
+
+  private Environment createLinuxX64MuslEnvironment() {
+    Environment mockEnvironment = mock(Environment.class);
+    when(mockEnvironment.getOsName()).thenReturn("linux");
+    when(mockEnvironment.getOsArch()).thenReturn("amd64");
+    when(mockEnvironment.isAlpine()).thenReturn(true);
     return mockEnvironment;
   }
 
