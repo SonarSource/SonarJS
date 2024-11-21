@@ -200,7 +200,6 @@ plugin_qa_with_node_task:
     dockerfile: .cirrus/nodejs.Dockerfile
   env:
     SQ_VERSION: LATEST_RELEASE
-    SONAR_SCANNER_SKIP_NODE_PROVISIONING: true
     MVN_TEST: ''
 
 plugin_qa_no_node_task:
