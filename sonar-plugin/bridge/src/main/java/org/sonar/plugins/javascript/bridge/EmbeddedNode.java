@@ -117,10 +117,7 @@ public class EmbeddedNode {
       } else if (lowerCaseOsName.contains("linux") && isARM64(env) ) {
         return LINUX_ARM64;
       } else if (lowerCaseOsName.contains("linux") && isX64(env)) {
-        if (env.isAlpine()) {
-          return LINUX_X64_MUSL;
-        }
-        return LINUX_X64;
+        return env.isAlpine() ? LINUX_X64_MUSL : LINUX_X64;
       } else if (lowerCaseOsName.contains("mac os") && isARM64(env)) {
         return DARWIN_ARM64;
       } else if (lowerCaseOsName.contains("mac os") && isX64(env)) {
