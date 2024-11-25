@@ -133,7 +133,7 @@ export class Result {
     return true;
   }
 
-  asStringLiterals() {
+  asStringLiterals(): StringLiteral[] {
     if (!this.isFound) {
       return [];
     }

@@ -42,7 +42,7 @@ function message(name: string): string {
 }
 
 let randomnessSensibility: number;
-let secretWordRegexps: RegExp[] | null = null;
+let secretWordRegexps: RegExp[];
 
 const schema = {
   type: 'array',
@@ -70,7 +70,6 @@ export const rule: Rule.RuleModule = {
     { schema },
     false /* true if secondary locations */,
   ),
-  // @ts-ignore
   create(context: Rule.RuleContext) {
     // get typed rule options with FromSchema helper
     const secretWords =
@@ -81,20 +80,20 @@ export const rule: Rule.RuleModule = {
       DEFAULT_RANDOMNESS_SENSIBILITY;
 
     return {
-      AssignmentExpression(node: TSESTree.AssignmentExpression) {
-        handleAssignmentExpression(context, node);
+      AssignmentExpression(node) {
+        handleAssignmentExpression(context, node as TSESTree.AssignmentExpression);
       },
-      AssignmentPattern(node: TSESTree.AssignmentPattern) {
-        handleAssignmentPattern(context, node);
+      AssignmentPattern(node) {
+        handleAssignmentPattern(context, node as TSESTree.AssignmentPattern);
       },
-      Property(node: TSESTree.Property) {
-        handlePropertyAndPropertyDefinition(context, node);
+      Property(node) {
+        handlePropertyAndPropertyDefinition(context, node as TSESTree.Property);
       },
-      PropertyDefinition(node: TSESTree.PropertyDefinition) {
-        handlePropertyAndPropertyDefinition(context, node);
+      PropertyDefinition(node) {
+        handlePropertyAndPropertyDefinition(context, node as TSESTree.PropertyDefinition);
       },
-      VariableDeclarator(node: TSESTree.VariableDeclarator) {
-        handleVariableDeclarator(context, node);
+      VariableDeclarator(node) {
+        handleVariableDeclarator(context, node as TSESTree.VariableDeclarator);
       },
     };
   },
@@ -156,9 +155,7 @@ function handleVariableDeclarator(context: Rule.RuleContext, node: TSESTree.Vari
 }
 
 function findKeySuspect(node: TSESTree.Node): string | undefined {
-  // @ts-ignore
   if (isIdentifier(node) && secretWordRegexps.some(pattern => pattern.test(node.name))) {
-    // @ts-ignore
     return node.name;
   } else {
     return undefined;
@@ -167,11 +164,8 @@ function findKeySuspect(node: TSESTree.Node): string | undefined {
 function findValueSuspect(node: TSESTree.Node | undefined | null): TSESTree.Node | undefined {
   if (
     node &&
-    // @ts-ignore
     isStringLiteral(node) &&
-    // @ts-ignore
     valuePassesPostValidation(node.value) &&
-    // @ts-ignore
     entropyShouldRaise(node.value)
   ) {
     return node;
