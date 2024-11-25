@@ -10,7 +10,6 @@ export default [
   plugin.configs.recommended,
   {
     rules: {
-      'sonarjs/accessor-pairs': 'error',
       'sonarjs/no-implicit-dependencies': 'error',
     },
   },
