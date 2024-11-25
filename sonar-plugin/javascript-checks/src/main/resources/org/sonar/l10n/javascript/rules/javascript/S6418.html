@@ -24,61 +24,23 @@ randomness sensibility can be adjusted if needed. Lower values will detect less 
 </ul>
 <h2>Sensitive Code Example</h2>
 <pre>
-private static final String MY_SECRET = "47828a8dd77ee1eb9dde2d5e93cb221ce8c32b37";
+API_KEY = "1234567890abcdef"  # Hard-coded secret (bad practice)
 
-public static void main(String[] args) {
-  MyClass.callMyService(MY_SECRET);
-}
+const response = await fetch("https://api.my-service/v1/users", {
+  headers: {
+    Authorization: `Bearer ${API_KEY}`,
+  },
+});
 </pre>
 <h2>Compliant Solution</h2>
-<p>Using <a href="https://github.com/awsdocs/aws-doc-sdk-examples/tree/main/javav2/example_code/secrets-manager">AWS Secrets Manager</a>:</p>
 <pre>
-import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueRequest;
-import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueResponse;
+API_KEY = process.env.API_KEY
 
-public static void main(String[] args) {
-  SecretsManagerClient secretsClient = ...
-  MyClass.doSomething(secretsClient, "MY_SERVICE_SECRET");
-}
-
-public static void doSomething(SecretsManagerClient secretsClient, String secretName) {
-  GetSecretValueRequest valueRequest = GetSecretValueRequest.builder()
-    .secretId(secretName)
-    .build();
-
-  GetSecretValueResponse valueResponse = secretsClient.getSecretValue(valueRequest);
-  String secret = valueResponse.secretString();
-  // do something with the secret
-  MyClass.callMyService(secret);
-}
-</pre>
-<p>Using <a href="https://docs.microsoft.com/en-us/azure/key-vault/secrets/quick-create-java?tabs=azure-cli">Azure Key Vault Secret</a>:</p>
-<pre>
-import com.azure.identity.DefaultAzureCredentialBuilder;
-
-import com.azure.security.keyvault.secrets.SecretClient;
-import com.azure.security.keyvault.secrets.SecretClientBuilder;
-import com.azure.security.keyvault.secrets.models.KeyVaultSecret;
-
-public static void main(String[] args) throws InterruptedException, IllegalArgumentException {
-  String keyVaultName = System.getenv("KEY_VAULT_NAME");
-  String keyVaultUri = "https://" + keyVaultName + ".vault.azure.net";
-
-  SecretClient secretClient = new SecretClientBuilder()
-    .vaultUrl(keyVaultUri)
-    .credential(new DefaultAzureCredentialBuilder().build())
-    .buildClient();
-
-  MyClass.doSomething(secretClient, "MY_SERVICE_SECRET");
-}
-
-public static void doSomething(SecretClient secretClient, String secretName) {
-  KeyVaultSecret retrievedSecret = secretClient.getSecret(secretName);
-  String secret = retrievedSecret.getValue(),
-
-  // do something with the secret
-  MyClass.callMyService(secret);
-}
+const response = await fetch("https://api.my-service/v1/users", {
+  headers: {
+    Authorization: `Bearer ${API_KEY}`,
+  },
+});
 </pre>
 <h2>See</h2>
 <ul>
