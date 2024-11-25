@@ -32,28 +32,37 @@ import org.sonar.plugins.javascript.api.TypeScriptRule;
 @Rule(key = "S6418")
 public class HardcodedSecretsCheck extends Check {
 
-  private static final String DEFAULT = "42";
+  private static final String DEFAULT_SECRET_WORDS = "api[_.-]?key,auth,credential,secret,token";
+  private static final String DEFAULT_RANDOMNESS_SENSIBILITY = "3.0";
 
   @RuleProperty(
-    key = "foo",
-    description = "foo is 42",
-    defaultValue = DEFAULT
+    key = "secret-words",
+    description = "Comma separated list of words identifying potential secrets",
+    defaultValue = DEFAULT_SECRET_WORDS
   )
-  public String parameter = DEFAULT;
+  public String secretWords = DEFAULT_SECRET_WORDS;
+  @RuleProperty(
+    key = "randomness-sensibility",
+    description = "Minimum shannon entropy threshold of the secret",
+    defaultValue = DEFAULT_RANDOMNESS_SENSIBILITY
+  )
+  public String randomnessSensibility = DEFAULT_RANDOMNESS_SENSIBILITY;
 
   @Override
   public List<Object> configurations() {
     return Collections.singletonList(
-      new HardcodedSecretsCheck.Config(parameter)
+      new HardcodedSecretsCheck.Config(secretWords, randomnessSensibility)
     );
   }
 
   private static class Config {
 
-    String parameter;
+    String secretWords;
+    String randomnessSensibility;
 
-    Config(String parameter) {
-      this.parameter = parameter;
+    Config(String secretWords, String randomnessSensibility) {
+      this.secretWords = secretWords;
+      this.randomnessSensibility = randomnessSensibility;
     }
   }
 }
