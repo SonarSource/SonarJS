@@ -19,8 +19,8 @@
  */
 
 import { readdir, writeFile } from 'fs/promises';
-import { join } from 'node:path/posix';
-import { pathToFileURL } from 'node:url';
+import { join, dirname } from 'node:path/posix';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 function toUnixPath(path: string) {
   return path.replace(/[\\/]+/g, '/');
@@ -46,7 +46,10 @@ const header = `/*
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */`;
 
-const RULES_FOLDER = join(toUnixPath(import.meta.dirname), '../packages/jsts/src/rules/');
+const RULES_FOLDER = join(
+  dirname(toUnixPath(fileURLToPath(import.meta.url))),
+  '../packages/jsts/src/rules/',
+);
 const ruleRegex = /^S\d+$/;
 
 const allRules: string[] = [];
