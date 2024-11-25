@@ -72,9 +72,11 @@ public final class OrchestratorStarter
   }
 
   private static Pattern pluginFilenameMatcher() {
-    return "multi".equals(System.getenv("SONARJS_ARTIFACT"))
-      ? Pattern.compile("sonar-javascript-plugin-.*-multi\\.jar")
-      : Pattern.compile("sonar-javascript-plugin-[0-9.]*(?:-SNAPSHOT)?\\.jar");
+    if (System.getenv("SONARJS_ARTIFACT") != null) {
+      return Pattern.compile(String.format("sonar-javascript-plugin-.*-%s\\.jar", System.getenv("SONARJS_ARTIFACT")));
+    }
+
+    return Pattern.compile("sonar-javascript-plugin-[0-9.]*(?:-SNAPSHOT)?\\.jar");
   }
 
   public static final OrchestratorExtension ORCHESTRATOR = OrchestratorExtension

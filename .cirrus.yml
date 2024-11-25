@@ -211,6 +211,15 @@ plugin_qa_no_node_task:
     SONARJS_ARTIFACT: multi
     MVN_TEST: '-Dtest=!EslintCustomRulesTest,!SonarJsIntegrationTest --projects !org.sonarsource.javascript:eslint-custom-rules-plugin'
 
+plugin_qa_no_node_alpine_task:
+  <<: *PLUGIN_QA_BODY
+  eks_container:
+    dockerfile: .cirrus/alpine.Dockerfile
+  env:
+    SQ_VERSION: LATEST_RELEASE
+    SONARJS_ARTIFACT: linux-x64-musl
+    MVN_TEST: '-Dtest=!EslintCustomRulesTest,!SonarJsIntegrationTest --projects !org.sonarsource.javascript:eslint-custom-rules-plugin'
+
 plugin_qa_sq_dev_task:
   <<: *PLUGIN_QA_BODY
   eks_container:

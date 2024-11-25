@@ -25,6 +25,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.sonar.orchestrator.junit5.OrchestratorExtension;
 import com.sonar.orchestrator.locator.FileLocation;
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Locale;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Isolated;
@@ -74,11 +76,18 @@ class EmbeddedNodeTest {
     var os = System.getProperty("os.name").toLowerCase(Locale.ROOT);
     var arch = System.getProperty("os.arch");
     if (os.contains("linux") && arch.contains("64")) {
+      if (isAlpine()) {
+        return "-linux-x64-musl";
+      }
       return "-linux-x64";
     } else if (os.contains("windows")) {
       return "-win-x64";
     } else {
       return "-multi";
     }
+  }
+
+  private static boolean isAlpine() {
+    return Files.exists(Path.of("/etc/alpine-release"));
   }
 }
