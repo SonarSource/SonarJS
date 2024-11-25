@@ -20,12 +20,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6418/javascript
 
 import type { Rule } from 'eslint';
-import {
-  generateMeta,
-  isRequiredParserServices,
-  isStringLiteral,
-  report,
-} from '../helpers/index.js';
+import { generateMeta, isRequiredParserServices, isStringLiteral } from '../helpers/index.js';
 import { meta } from './meta.js';
 import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
 import { FromSchema } from 'json-schema-to-ts';
@@ -37,29 +32,18 @@ const messages = {
 };
 
 const DEFAULT_SECRET_WORDS = 'api[_.-]?key,auth,credential,secret,token';
-const DEFAULT_RANDOMNESS_SENSIBILITY = 5.0;
-const MINIMUM_CREDENTIAL_LENGTH = 17;
-
-const FIRST_ACCEPTED_CHARACTER = '[\\w.+/~$:&-]';
-const FOLLOWING_ACCEPTED_CHARACTER = '[=\\w.+/~$:&-]';
-const SECRET_PATTERN = new RegExp(
-  FIRST_ACCEPTED_CHARACTER +
-    '(' +
-    FOLLOWING_ACCEPTED_CHARACTER +
-    '|\\\\\\\\' +
-    FOLLOWING_ACCEPTED_CHARACTER +
-    ')++',
+const DEFAULT_RANDOMNESS_SENSIBILITY = 3.0;
+const POSTVALIDATION_PATTERN = new RegExp(
+  '[a-zA-Z0-9_.+/~$-]([a-zA-Z0-9_.+/=~$-]|\\\\\\\\(?![ntr"])){14,1022}[a-zA-Z0-9_.+/=~$-]',
 );
 
-const IP_V6_WITH_FIRST_PART = '(\\p{XDigit}{1,4}::?){1,7}\\p{XDigit}{0,4}';
-const IP_V6_WITHOUT_FIRST_PART = '::((\\p{XDigit}{1,4}:){0,6}\\p{XDigit}{1,4})?';
-const IP_V6_ALONE = '(?<ip>' + IP_V6_WITH_FIRST_PART + '|' + IP_V6_WITHOUT_FIRST_PART + ')';
-const IPV_6_PATTERN = new RegExp(IP_V6_ALONE);
+function message(name: string): string {
+  return `"${name}" detected here, make sure this is not a hard-coded secret.`;
+}
 
 let secretWords: string;
 let randomnessSensibility: number;
-let variablePatterns: Array<RegExp>;
-let literalPatterns: Array<RegExp>;
+let patterns: RegExp[] | null = null;
 
 const schema = {
   type: 'array',
@@ -108,130 +92,61 @@ export const rule: Rule.RuleModule = {
         }
         handleStringLiteral(context, node);
       },
-      Identifier(node: estree.Identifier) {
-        handleIdentifier(context, node);
-      },
-      AssignmentExpression(node: estree.AssignmentExpression) {
-        handleAssignmentExpression(context, node);
-      },
-      CallExpression(node: estree.CallExpression) {
-        handleCallExpression(context, node);
-      },
     };
   },
 };
 
 function handleStringLiteral(context: Rule.RuleContext, node: estree.Literal) {
-  if (!isPartOfConstantCredentialDeclaration(node)) {
-    const toReport = getLiteralPatterns()
-      .map(pattern => pattern.exec(node.value as string))
-      .filter(result => !isExcludedLiteral(result?.[1]));
-    if (toReport) {
-      report(context, {
-        node,
-        message: generateMessage(toReport[0]),
-      });
+  const value = node.value as string;
+  patternMatch(context, node, value);
+}
+
+function patternMatch(context: Rule.RuleContext, node: estree.Literal, value: string) {
+  if (!valuePassesPostValidation(value) || !enthropyShouldRaise(value)) {
+    return;
+  }
+  getPatterns();
+  //getPatterns().map(pattern => {
+  //if (pattern.test(value)) {
+  context.report({
+    node,
+    message: message(value),
+  });
+  //}
+  //});
+}
+
+function valuePassesPostValidation(value: string): boolean {
+  return POSTVALIDATION_PATTERN.test(value);
+}
+
+function getPatterns() {
+  if (patterns === null) {
+    patterns = secretWords.split(',').map(word => new RegExp(`(${word})`, 'i'));
+  }
+  return patterns;
+}
+
+function enthropyShouldRaise(value: string): boolean {
+  return ShannonEntropy.calculate(value) > randomnessSensibility;
+}
+
+const ShannonEntropy = {
+  calculate: (str: string): number => {
+    if (!str) {
+      return 0;
     }
-  }
-}
-function isExcludedLiteral(value: string | undefined): boolean {
-  return value === undefined || value.length < MINIMUM_CREDENTIAL_LENGTH;
-}
-
-function getLiteralPatterns(): Array<RegExp> {
-  if (literalPatterns === undefined) {
-    literalPatterns = toPatterns('=\\s*+([^\\\\ &;#,|]+)');
-  }
-  return literalPatterns;
-}
-
-function isPartOfConstantCredentialDeclaration(node: estree.Literal): boolean {
-  return (node as any).parent.type === 'VariableDeclarator' && isCredentialVariableName(node);
-}
-
-function isCredentialVariableName(node: estree.Identifier): boolean {
-  return isCredentialLikeName(node.name);
-}
-function isCredentialLikeName(name: string): boolean {
-  return getVariablePatterns()
-    .map(pattern => pattern.exec(name))
-    .map(result => result?.[0])
-    .some(element => element !== undefined);
-}
-function getVariablePatterns(): Array<RegExp> {
-  if (variablePatterns === undefined) {
-    variablePatterns = toPatterns('');
-  }
-  return variablePatterns;
-}
-function toPatterns(suffix: string): Array<RegExp> {
-  return getCredentialWords()
-    .split(',')
-    .map(e => e.trim())
-    .map(word => new RegExp(`(${word})${suffix}`, 'i'));
-}
-function getCredentialWords(): string {
-  return secretWords;
-}
-
-function handleIdentifier(context: Rule.RuleContext, node: estree.Identifier) {
-  if (node.name === 'secret') {
-    report(context, {
-      node,
-      message: 'Hard-coded secrets are security-sensitive',
-    });
-  }
-}
-
-function handleAssignmentExpression(context: Rule.RuleContext, node: estree.AssignmentExpression) {
-  if (node.left.type === 'Identifier' && node.left.name === 'secret') {
-    report(context, {
-      node,
-      message: 'Hard-coded secrets are security-sensitive',
-    });
-  }
-}
-
-function generateMessage(match: string): string {
-  return `'${match}' detected in this expression, review this potentially hard-coded secret.`;
-}
-
-function handleCallExpression(context: Rule.RuleContext, node: estree.CallExpression) {
-  const credential = findSettingCredential(node);
-  if (credential) {
-    report(context, {
-      node,
-      message: generateMessage(credential.value as string),
-    });
-  }
-}
-
-const ALLOW_LIST = new Set(['anonymous']);
-
-function findSettingCredential(node: estree.CallExpression): estree.Literal | undefined {
-  const args = node.arguments;
-  if (
-    args.length === 2 &&
-    areStrings(args) &&
-    isPotenticalCredential(args[1] as estree.Literal) &&
-    !isCredentialContainingPattern(args[1] as estree.Literal)
-  ) {
-    return args[0] as estree.Literal;
-  }
-
-  function areStrings(args: estree.Node[]): boolean {
-    return args.every(isStringLiteral);
-  }
-}
-
-function isCredentialContainingPattern(node: estree.Literal): boolean {
-  return false;
-}
-
-function isPotenticalCredential(node: estree.Literal): boolean {
-  if (!isStringLiteral(node)) {
-    return false;
-  }
-  const trimmed = node.value.trim();
-  return trimmed.length >= MINIMUM_CREDENTIAL_LENGTH && !ALLOW_LIST.has(trimmed);
-}
+    const lettersTotal = str.length;
+    const occurences: Record<string, number> = {};
+    for (const letter of [...str]) {
+      occurences[letter] = (occurences[letter] ?? 0) + 1;
+    }
+    const values = Object.values(occurences);
+    const entropy =
+      values
+        .map(count => count / lettersTotal)
+        .map(frequency => -frequency * Math.log(frequency))
+        .reduce((acc, entropy) => acc + entropy, 0) / Math.log(2);
+    return entropy;
+  },
+};
