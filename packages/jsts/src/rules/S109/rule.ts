@@ -21,7 +21,7 @@
 
 import type { Rule } from 'eslint';
 import estree from 'estree';
-import { tsEslintRules } from '../typescript-eslint/index.js';
+import { rules as tsEslintRules } from '../typescript-eslint/index.js';
 import { generateMeta, getNodeParent, isMethodInvocation } from '../helpers/index.js';
 import { meta } from './meta.js';
 

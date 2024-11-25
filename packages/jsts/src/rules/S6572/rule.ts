@@ -24,7 +24,7 @@ import type { Rule } from 'eslint';
 import { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta, isNumberLiteral } from '../helpers/index.js';
 import { meta } from './meta.js';
-import { tsEslintRules } from '../typescript-eslint/index.js';
+import { rules as tsEslintRules } from '../typescript-eslint/index.js';
 const baseRuleModule = tsEslintRules['prefer-enum-initializers'];
 
 // The core implementation of this rule reports all enums for which there is a member value that is

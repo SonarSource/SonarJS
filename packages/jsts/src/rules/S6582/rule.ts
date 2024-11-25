@@ -20,7 +20,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6582/javascript
 
 import type { Rule } from 'eslint';
-import { tsEslintRules } from '../typescript-eslint/index.js';
+import { rules as tsEslintRules } from '../typescript-eslint/index.js';
 import { generateMeta } from '../helpers/index.js';
 import { meta } from './meta.js';
 

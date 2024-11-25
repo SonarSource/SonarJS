@@ -21,7 +21,7 @@ import { Linter, SourceCode } from 'eslint';
 import { convertMessage } from '../../../src/linter/issues/message.js';
 import path from 'path';
 import { parseJavaScriptSourceFile } from '../../tools/index.js';
-import { S1116 } from '../../../src/rules/decorated.js';
+import { rule as S1116 } from '../../../src/rules/S1116/index.js';
 import { describe, it, Mock, mock } from 'node:test';
 import { expect } from 'expect';
 

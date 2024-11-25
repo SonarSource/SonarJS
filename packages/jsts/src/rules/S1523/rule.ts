@@ -22,11 +22,11 @@
 
 import type { Rule } from 'eslint';
 import estree from 'estree';
-import { eslintRules } from '../core/index.js';
+import { getESLintCoreRule } from '../external/core.js';
 import { generateMeta } from '../helpers/index.js';
 import { meta } from './meta.js';
 
-const noScriptUrlRule = eslintRules['no-script-url'];
+const noScriptUrlRule = getESLintCoreRule('no-script-url');
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta as Rule.RuleMetaData, {

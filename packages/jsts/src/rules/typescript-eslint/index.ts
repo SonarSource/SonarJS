@@ -19,7 +19,7 @@
  */
 import type { Rule } from 'eslint';
 import pkg from '@typescript-eslint/eslint-plugin';
-const { rules } = pkg;
+const { rules: tsEslintRules } = pkg;
 import { sanitize } from './sanitize.js';
 
 /**
@@ -27,11 +27,11 @@ import { sanitize } from './sanitize.js';
  * they unconditionally assume that TypeScript's type checker is available.
  */
 const sanitized: Record<string, Rule.RuleModule> = {};
-for (const ruleKey of Object.keys(rules)) {
-  sanitized[ruleKey] = sanitize(rules[ruleKey] as unknown as Rule.RuleModule);
+for (const ruleKey of Object.keys(tsEslintRules)) {
+  sanitized[ruleKey] = sanitize(tsEslintRules[ruleKey] as unknown as Rule.RuleModule);
 }
 
 /**
  * TypeScript ESLint rules.
  */
-export const tsEslintRules = sanitized;
+export const rules = sanitized;

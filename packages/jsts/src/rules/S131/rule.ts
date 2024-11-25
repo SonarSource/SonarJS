@@ -21,7 +21,7 @@
 
 import estree from 'estree';
 import { Rule, SourceCode } from 'eslint';
-import { tsEslintRules } from '../typescript-eslint/index.js';
+import { rules as tsEslintRules } from '../typescript-eslint/index.js';
 import {
   generateMeta,
   interceptReport,
