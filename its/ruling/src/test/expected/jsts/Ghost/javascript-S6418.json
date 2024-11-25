@@ -2,12 +2,5 @@
 "Ghost:core/client/app/mirage/config.js": [
 59,
 61
-],
-"Ghost:core/test/unit/metadata/schema_spec.js": [
-11,
-12,
-59,
-148,
-149
 ]
 }
