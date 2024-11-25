@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { configs, rules, meta } from '../../src/rules/plugin.js';
+import { configs, meta } from '../../src/rules/plugin.js';
 import fs from 'fs';
 import path from 'path';
 import { valid } from 'semver';
@@ -26,26 +26,26 @@ import { describe, it } from 'node:test';
 import { expect } from 'expect';
 import { pathToFileURL } from 'node:url';
 
-const mappedRules = new Map(
-  Object.entries(rules).map(([eslintId, rule]) => [rule.meta.docs.url, eslintId]),
-);
-
 describe('Plugin public API', () => {
   it('should map keys to rules definitions', async () => {
     const ruleFolder = path.join(import.meta.dirname, '../../src/rules');
-    const sonarKeys = fs.readdirSync(ruleFolder).filter(name => /^S\d+/.test(name));
+    const ruleIds = fs.readdirSync(ruleFolder).filter(name => /^S\d+/.test(name));
     const missing = [];
-    for (const sonarKey of sonarKeys) {
+    for (const ruleId of ruleIds) {
+      const { meta, implementation, eslintId, sonarKey } = await import(
+        pathToFileURL(path.join(ruleFolder, ruleId, 'meta.js')).toString()
+      );
+      expect(sonarKey).toEqual(ruleId);
+      expect(['original', 'decorated', 'external']).toContain(implementation);
+      if (implementation !== 'original') {
+        continue;
+      }
       const { rule } = await import(
         pathToFileURL(path.join(ruleFolder, sonarKey, 'index.js')).toString()
       );
       expect(rule.meta.docs!.url).toBe(
         `https://sonarsource.github.io/rspec/#/rspec/${sonarKey}/javascript`,
       );
-      const { meta } = await import(
-        pathToFileURL(path.join(ruleFolder, sonarKey, 'meta.js')).toString()
-      );
-      const eslintId = mappedRules.get(rule.meta.docs.url);
       if (!eslintId) {
         missing.push(sonarKey);
       } else {

@@ -308,7 +308,6 @@ eslint_plugin_test_task:
     - . ~/.profile
     - source cirrus-env QA
     - source set_maven_build_version $BUILD_NUMBER
-    - npm install -g tsx
     - npm run eslint-plugin:build
     - cd its/eslint8-plugin-sonarjs
     - npm install
@@ -337,7 +336,6 @@ eslint8_node16_plugin_test_task:
     - . ~/.profile
     - source cirrus-env QA
     - source set_maven_build_version $BUILD_NUMBER
-    - npm install -g tsx
     - npm run eslint-plugin:build
     - cd its/eslint8-plugin-sonarjs
     - npm install
