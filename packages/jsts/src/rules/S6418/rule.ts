@@ -33,9 +33,8 @@ import { TSESTree } from '@typescript-eslint/utils';
 
 const DEFAULT_SECRET_WORDS = 'api[_.-]?key,auth,credential,secret,token';
 const DEFAULT_RANDOMNESS_SENSIBILITY = 3.0;
-const POSTVALIDATION_PATTERN = new RegExp(
-  '[a-zA-Z0-9_.+/~$-]([a-zA-Z0-9_.+/=~$-]|\\\\\\\\(?![ntr"])){14,1022}[a-zA-Z0-9_.+/=~$-]',
-);
+const POSTVALIDATION_PATTERN =
+  /[a-zA-Z0-9_.+/~$-]([a-zA-Z0-9_.+/=~$-]|\\\\\\\\(?![ntr"])){14,1022}[a-zA-Z0-9_.+/=~$-]/;
 
 function message(name: string): string {
   return `"${name}" detected here, make sure this is not a hard-coded secret.`;
@@ -108,7 +107,7 @@ function handleAssignmentExpression(
   if (keySuspect && ValueSuspect) {
     context.report({
       node: node.right as TSESTree.Literal,
-      message: message(keySuspect as string),
+      message: message(keySuspect),
     });
   }
   function extractDefaultOperatorIfNeeded(node: TSESTree.AssignmentExpression): TSESTree.Node {
@@ -149,7 +148,7 @@ function handleVariableDeclarator(context: Rule.RuleContext, node: TSESTree.Vari
   if (keySuspect && ValueSuspect) {
     context.report({
       node: node.init as TSESTree.Literal,
-      message: message(keySuspect as string),
+      message: message(keySuspect),
     });
   }
 }
