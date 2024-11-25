@@ -88,10 +88,10 @@ export const rule: Rule.RuleModule = {
         handleAssignmentPattern(context, node);
       },
       Property(node: TSESTree.Property) {
-        handleProperty(context, node);
+        handlePropertyAndPropertyDefinition(context, node);
       },
       PropertyDefinition(node: TSESTree.PropertyDefinition) {
-        handlePropertyDefinition(context, node);
+        handlePropertyAndPropertyDefinition(context, node);
       },
       VariableDeclarator(node: TSESTree.VariableDeclarator) {
         handleVariableDeclarator(context, node);
@@ -121,7 +121,6 @@ function handleAssignmentExpression(
     }
   }
 }
-
 function handleAssignmentPattern(context: Rule.RuleContext, node: TSESTree.AssignmentPattern) {
   const keySuspect = findKeySuspect(node.left);
   const ValueSuspect = findValueSuspect(node.right);
@@ -132,17 +131,10 @@ function handleAssignmentPattern(context: Rule.RuleContext, node: TSESTree.Assig
     });
   }
 }
-function handleProperty(context: Rule.RuleContext, node: TSESTree.Property) {
-  const keySuspect = findKeySuspect(node.key);
-  const ValueSuspect = findValueSuspect(node.value);
-  if (keySuspect && ValueSuspect) {
-    context.report({
-      node: node.value as TSESTree.Literal,
-      message: message(keySuspect),
-    });
-  }
-}
-function handlePropertyDefinition(context: Rule.RuleContext, node: TSESTree.PropertyDefinition) {
+function handlePropertyAndPropertyDefinition(
+  context: Rule.RuleContext,
+  node: TSESTree.Property | TSESTree.PropertyDefinition,
+) {
   const keySuspect = findKeySuspect(node.key);
   const ValueSuspect = findValueSuspect(node.value);
   if (keySuspect && ValueSuspect) {
