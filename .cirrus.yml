@@ -216,7 +216,7 @@ plugin_qa_sq_dev_task:
   eks_container:
     image: ${CIRRUS_AWS_ACCOUNT}.dkr.ecr.eu-central-1.amazonaws.com/base:j17-latest
   env:
-    SQ_VERSION: DEV
+    SQ_VERSION: 'DEV[10.8]' # replace this with "DEV" when platform squad is ready
     SONARJS_ARTIFACT: multi
     MVN_TEST: '-Dtest=!EslintCustomRulesTest,!SonarJsIntegrationTest --projects !org.sonarsource.javascript:eslint-custom-rules-plugin'
 
@@ -310,11 +310,11 @@ eslint_plugin_test_task:
     - source set_maven_build_version $BUILD_NUMBER
     - npm run eslint-plugin:build
     - cd its/eslint8-plugin-sonarjs
-    - npm run build
+    - npm install
     - npx tsc --noEmit # check typings for tseslint.config.ts
     - npm run test
     - cd ../eslint9-plugin-sonarjs
-    - npm run build
+    - npm install
     - npx tsc --noEmit # check typings for tseslint.config.ts
     - npm run test
 
@@ -338,7 +338,7 @@ eslint8_node16_plugin_test_task:
     - source set_maven_build_version $BUILD_NUMBER
     - npm run eslint-plugin:build
     - cd its/eslint8-plugin-sonarjs
-    - npm run build
+    - npm install
     - npx tsc --noEmit # check typings for tseslint.config.ts
     - npm run test
 

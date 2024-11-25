@@ -23,8 +23,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.slf4j.event.Level;
@@ -39,7 +40,7 @@ import org.sonar.api.utils.Version;
 
 class JavaScriptPluginTest {
 
-  private static final int BASE_EXTENSIONS = 36;
+  private static final int BASE_EXTENSIONS = 37;
   private static final int JS_ADDITIONAL_EXTENSIONS = 4;
   private static final int TS_ADDITIONAL_EXTENSIONS = 3;
   private static final int CSS_ADDITIONAL_EXTENSIONS = 3;
@@ -66,7 +67,7 @@ class JavaScriptPluginTest {
 
   @Test
   void should_contain_right_properties_number() throws Exception {
-    assertThat(properties()).hasSize(12);
+    assertThat(properties()).hasSize(13);
   }
 
   @Test
@@ -114,20 +115,28 @@ class JavaScriptPluginTest {
       );
   }
 
+  @Test
+  void skipNodeProvisioningPropertyIsCorrectlyExposed() {
+    var propertyDefinition = properties().stream().filter((item) -> {
+      return Objects.equals(item.key(), "sonar.scanner.skipNodeProvisioning");
+    }).findFirst().get();
+
+    assertThat(propertyDefinition.name()).isEqualTo("Skip the deployment of the embedded Node.js runtime");
+    assertThat(propertyDefinition.description()).isEqualTo("Controls whether the scanner should skip the deployment of the embedded Node.js runtime, and use the host-provided runtime instead.<br><br>Analysis will fail if a compatible version of Node.js is not provided via <code>sonar.nodejs.executable</code> or the <code>PATH</code>.");
+    assertThat(propertyDefinition.type().toString()).isEqualTo("BOOLEAN");
+    assertThat(propertyDefinition.defaultValue()).isEqualTo("false");
+    assertThat(propertyDefinition.category()).isEqualTo("JavaScript / TypeScript");
+    assertThat(propertyDefinition.subCategory()).isEqualTo("General");
+  }
+
   private List<PropertyDefinition> properties() {
-    List<PropertyDefinition> propertiesList = new ArrayList<>();
-    List extensions = setupContext(
+    var extensions = setupContext(
       SonarRuntimeImpl.forSonarQube(LTS_VERSION, SonarQubeSide.SERVER, SonarEdition.COMMUNITY)
-    )
-      .getExtensions();
+    ).getExtensions();
 
-    for (Object extension : extensions) {
-      if (extension instanceof PropertyDefinition) {
-        propertiesList.add((PropertyDefinition) extension);
-      }
-    }
-
-    return propertiesList;
+    return extensions.stream().filter((extension) -> {
+      return extension instanceof PropertyDefinition;
+    }).toList();
   }
 
   private Plugin.Context setupContext(SonarRuntime runtime) {

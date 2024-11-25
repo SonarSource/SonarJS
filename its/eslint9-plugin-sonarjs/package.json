@@ -2,13 +2,13 @@
   "name": "eslint9-plugin-sonarjs-tests",
   "description": "Test suite for eslint-plugin-sonarjs",
   "scripts": {
-    "build": "npm install && cp ../../lib/eslint-plugin-sonarjs-* ./plugin.tgz && npm i ./plugin.tgz --no-save && rm -f plugin.tgz",
     "test": "node index.test.js"
   },
   "devDependencies": {
-    "cross-spawn": "7.0.3",
-    "eslint": "^9.10.0",
-    "typescript": "5.5.4",
+    "eslint-plugin-sonarjs": "file:../../lib/eslint-plugin-sonarjs-0.0.0-SNAPSHOT.tgz",
+    "cross-spawn": "7.0.6",
+    "eslint": "9 - 9.14",
+    "typescript": "5.6.3",
     "typescript-eslint": "^8.5.0"
   }
 }

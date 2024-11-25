@@ -198,6 +198,7 @@ export { rule as S5863 } from './S5863/index.js'; // no-same-argument-assert
 export { rule as S3972 } from './S3972/index.js'; // no-same-line-conditional
 export { rule as S1607 } from './S1607/index.js'; // no-skipped-tests
 export { rule as S1301 } from './S1301/index.js'; // no-small-switch
+export { rule as S1291 } from './S1291/index.js'; // no-sonar-comments
 export { rule as S105 } from './S105/index.js'; // no-tab
 export { rule as S5257 } from './S5257/index.js'; // no-table-as-layout
 export { rule as S4822 } from './S4822/index.js'; // no-try-promise

@@ -191,7 +191,11 @@ function checkFqnFromImport(
     // import {default as cdk} from 'aws-cdk-lib';
     // vs.
     // import { aws_s3 as s3 } from 'aws-cdk-lib';
-    if (specifier.type === 'ImportSpecifier' && specifier.imported?.name !== 'default') {
+    if (
+      specifier.type === 'ImportSpecifier' &&
+      specifier.imported.type === 'Identifier' &&
+      specifier.imported?.name !== 'default'
+    ) {
       fqn.unshift(specifier.imported?.name);
     }
     if (typeof importDeclaration.source?.value === 'string') {

@@ -1,0 +1,62 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "github>SonarSource/renovate-config:languages-team"
+  ],
+  "schedule": [
+    "before 4am on Monday"
+  ],
+  "enabledManagers": [
+    "github-actions",
+    "maven",
+    "npm"
+  ],
+  "gradle": {
+    "enabled": true
+  },
+  "bicep": {
+    "enabled": true
+  },
+  "dockerfile": {
+    "enabled": true
+  },
+  "ignorePaths": [
+    "its/sources/**",
+    "its/plugin/projects/**",
+    "**/test/**",
+    "**/fixtures/**"
+  ],
+  "packageRules": [
+    {
+      "managers": [
+        "github-actions"
+      ],
+      "pinDigests": false,
+      "groupName": "all github actions",
+      "groupSlug": "all-github-actions"
+    },
+    {
+      "managers": [
+        "github-actions"
+      ],
+      "matchUpdateTypes": ["pin", "rollback"],
+      "enabled": false
+    },
+    {
+      "managers": [
+        "maven",
+        "npm"
+      ],
+      "matchPackagePatterns": [
+        "*"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
+      "groupName": "all non-major dependencies",
+      "groupSlug": "all-minor-patch"
+    }
+  ],
+  "reviewers": ["team:analysis-js-squad"]
+}
