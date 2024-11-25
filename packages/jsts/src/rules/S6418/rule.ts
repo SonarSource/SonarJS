@@ -23,13 +23,14 @@ import type { Rule } from 'eslint';
 import {
   generateMeta,
   isIdentifier,
+  isLogicalExpression,
   isRequiredParserServices,
   isStringLiteral,
 } from '../helpers/index.js';
 import { meta } from './meta.js';
 import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
 import { FromSchema } from 'json-schema-to-ts';
-import estree from 'estree';
+import { TSESTree } from '@typescript-eslint/utils';
 
 const messages = {
   //TODO: add needed messages
@@ -76,6 +77,7 @@ export const rule: Rule.RuleModule = {
     { schema, messages },
     false /* true if secondary locations */,
   ),
+  // @ts-ignore
   create(context: Rule.RuleContext) {
     // get typed rule options with FromSchema helper
     secretWords =
@@ -91,126 +93,109 @@ export const rule: Rule.RuleModule = {
     }
 
     return {
-      AssignmentExpression(node: estree.AssignmentExpression) {
+      AssignmentExpression(node: TSESTree.AssignmentExpression) {
         handleAssignmentExpression(context, node);
       },
-      VariableDeclarator(node: estree.VariableDeclarator) {
-        handleVariableDeclarator(context, node);
-      },
-      Property(node: estree.Property) {
-        handleProperty(context, node);
-      },
-      AssignmentPattern(node: estree.AssignmentPattern) {
+      AssignmentPattern(node: TSESTree.AssignmentPattern) {
         handleAssignmentPattern(context, node);
       },
-      PropertyDefinition(node: estree.PropertyDefinition) {
+      Property(node: TSESTree.Property) {
+        handleProperty(context, node);
+      },
+      PropertyDefinition(node: TSESTree.PropertyDefinition) {
         handlePropertyDefinition(context, node);
+      },
+      VariableDeclarator(node: TSESTree.VariableDeclarator) {
+        handleVariableDeclarator(context, node);
       },
     };
   },
 };
 
-function handleAssignmentPattern(context: Rule.RuleContext, node: estree.AssignmentPattern) {
+function handleAssignmentExpression(
+  context: Rule.RuleContext,
+  node: TSESTree.AssignmentExpression,
+) {
+  const keySuspect = findKeySuspect(node.left);
+  const ValueSuspect = findValueSuspect(extractDefaultOperatorIfNeeded(node));
+  if (keySuspect && ValueSuspect) {
+    context.report({
+      node: node.right as TSESTree.Literal,
+      message: message(keySuspect as string),
+    });
+  }
+  function extractDefaultOperatorIfNeeded(node: TSESTree.AssignmentExpression): TSESTree.Node {
+    const defaultOperators = ['??', '||'];
+    if (isLogicalExpression(node.right) && defaultOperators.includes(node.right.operator)) {
+      return node.right.right;
+    } else {
+      return node.right;
+    }
+  }
+}
+
+function handleAssignmentPattern(context: Rule.RuleContext, node: TSESTree.AssignmentPattern) {
   const keySuspect = findKeySuspect(node.left);
   const ValueSuspect = findValueSuspect(node.right);
   if (keySuspect && ValueSuspect) {
     context.report({
-      node: node.right as estree.Literal,
-      message: message(keySuspect as string),
+      node: node.right as TSESTree.Literal,
+      message: message(keySuspect),
     });
   }
 }
-
-function handleProperty(context: Rule.RuleContext, node: estree.Property) {
+function handleProperty(context: Rule.RuleContext, node: TSESTree.Property) {
   const keySuspect = findKeySuspect(node.key);
   const ValueSuspect = findValueSuspect(node.value);
   if (keySuspect && ValueSuspect) {
     context.report({
-      node: node.value as estree.Literal,
-      message: message(keySuspect as string),
+      node: node.value as TSESTree.Literal,
+      message: message(keySuspect),
     });
   }
 }
-
-function handlePropertyDefinition(context: Rule.RuleContext, node: estree.PropertyDefinition) {
+function handlePropertyDefinition(context: Rule.RuleContext, node: TSESTree.PropertyDefinition) {
   const keySuspect = findKeySuspect(node.key);
   const ValueSuspect = findValueSuspect(node.value);
   if (keySuspect && ValueSuspect) {
     context.report({
-      node: node.value as estree.Literal,
-      message: message(keySuspect as string),
+      node: node.value as TSESTree.Literal,
+      message: message(keySuspect),
     });
   }
 }
-
-function handleVariableDeclarator(context: Rule.RuleContext, node: estree.VariableDeclarator) {
+function handleVariableDeclarator(context: Rule.RuleContext, node: TSESTree.VariableDeclarator) {
   const keySuspect = findKeySuspect(node.id);
   const ValueSuspect = findValueSuspect(node.init);
   if (keySuspect && ValueSuspect) {
     context.report({
-      node: node.init as estree.Literal,
+      node: node.init as TSESTree.Literal,
       message: message(keySuspect as string),
     });
   }
 }
 
-function handleAssignmentExpression(context: Rule.RuleContext, node: estree.AssignmentExpression) {
-  const keySuspect = findKeySuspect(node.left);
-  const ValueSuspect = findValueSuspect(node.right);
-  if (keySuspect && ValueSuspect) {
-    context.report({
-      node: node.right,
-      message: message(keySuspect as string),
-    });
-  }
-}
-
-function findKeySuspect(node: estree.Node): string | undefined {
-  let name: string;
-  if (isIdentifier(node)) {
-    name = node.name;
+function findKeySuspect(node: TSESTree.Node): string | undefined {
+  // @ts-ignore
+  if (isIdentifier(node) && getPatterns().some(pattern => pattern.test(node.name))) {
+    // @ts-ignore
+    return node.name;
   } else {
     return undefined;
   }
-  if (getPatterns().some(pattern => pattern.test(name))) {
-    return name;
-  }
-  return undefined;
 }
-function findValueSuspect(node: estree.Node | null | undefined): estree.Node | undefined {
-  if (!node) {
-    return undefined;
-  }
-  let value;
-  if (isStringLiteral(node)) {
-    value = node.value;
-  } else {
-    return undefined;
-  }
-  if (valuePassesPostValidation(value) && enthropyShouldRaise(value)) {
+function findValueSuspect(node: TSESTree.Node | undefined | null): TSESTree.Node | undefined {
+  // @ts-ignore
+  if (
+    node &&
+    isStringLiteral(node) &&
+    valuePassesPostValidation(node.value) &&
+    entropyShouldRaise(node.value)
+  ) {
     return node;
+  } else {
+    return undefined;
   }
-  return undefined;
-}
-
-function handleStringLiteral(context: Rule.RuleContext, node: estree.Literal) {
-  const value = node.value as string;
-  patternMatch(context, node, value);
-}
-
-function patternMatch(context: Rule.RuleContext, node: estree.Literal, value: string) {
-  if (!valuePassesPostValidation(value) || !enthropyShouldRaise(value)) {
-    return;
-  }
-  getPatterns();
-  //getPatterns().map(pattern => {
-  //if (pattern.test(value)) {
-  context.report({
-    node,
-    message: message(value),
-  });
-  //}
-  //});
 }
 
 function valuePassesPostValidation(value: string): boolean {
@@ -224,7 +209,7 @@ function getPatterns() {
   return patterns;
 }
 
-function enthropyShouldRaise(value: string): boolean {
+function entropyShouldRaise(value: string): boolean {
   return ShannonEntropy.calculate(value) > randomnessSensibility;
 }
 

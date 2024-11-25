@@ -20,7 +20,7 @@ function functionWithSecret({ secret = '1IfHMPanImzX8ZxC-Ud6+YhXiLwlXq$f_-3v~.='
 //                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   }
 function cleanFunction(someArg, parameter='a string', anotherParameter: 42, ...args) {
-  another_call(42, 'a string', parameter, { a_keyword: 42 }, args)
+  another_call(42, 'a string', parameter, { a_keyword: 42 }, args)
 
   function another_call(...foo) {}
 }
@@ -40,4 +40,10 @@ function assignmentWithType() {
   const secret: string = '1IfHMPanImzX8ZxC-Ud6+YhXiLwlXq$f_-3v~.=' // Noncompliant
   let someVar: string;
   const anotherVar: number = 42
+}
+
+function defaultValues(foo) {
+  let secret;
+  secret = foo || '1IfHMPanImzX8ZxC-Ud6+YhXiLwlXq$f_-3v~.='; // Noncompliant
+  secret = foo ?? '1IfHMPanImzX8ZxC-Ud6+YhXiLwlXq$f_-3v~.='; // Noncompliant
 }
