@@ -22,7 +22,6 @@
 import type { Rule } from 'eslint';
 import estree from 'estree';
 import { generateMeta, isArray, isNumber, isRequiredParserServices } from '../helpers/index.js';
-import { TSESTree } from '@typescript-eslint/utils';
 import { meta } from './meta.js';
 
 export const rule: Rule.RuleModule = {
@@ -37,8 +36,7 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     const services = context.sourceCode.parserServices;
 
-    function prototypeProperty(node: estree.Expression) {
-      const expr = node as TSESTree.Expression;
+    function prototypeProperty(expr: estree.Expression | estree.PrivateIdentifier) {
       if (expr.type !== 'Literal' || typeof expr.value !== 'string') {
         return false;
       }
