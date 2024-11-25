@@ -24,18 +24,12 @@ import {
   generateMeta,
   isIdentifier,
   isLogicalExpression,
-  isRequiredParserServices,
   isStringLiteral,
 } from '../helpers/index.js';
 import { meta } from './meta.js';
 import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
 import { FromSchema } from 'json-schema-to-ts';
 import { TSESTree } from '@typescript-eslint/utils';
-
-const messages = {
-  //TODO: add needed messages
-  messageId: 'message body',
-};
 
 const DEFAULT_SECRET_WORDS = 'api[_.-]?key,auth,credential,secret,token';
 const DEFAULT_RANDOMNESS_SENSIBILITY = 3.0;
@@ -47,9 +41,8 @@ function message(name: string): string {
   return `"${name}" detected here, make sure this is not a hard-coded secret.`;
 }
 
-let secretWords: string;
 let randomnessSensibility: number;
-let patterns: RegExp[] | null = null;
+let secretWordRegexps: RegExp[] | null = null;
 
 const schema = {
   type: 'array',
@@ -74,23 +67,18 @@ const schema = {
 export const rule: Rule.RuleModule = {
   meta: generateMeta(
     meta as Rule.RuleMetaData,
-    { schema, messages },
+    { schema },
     false /* true if secondary locations */,
   ),
   // @ts-ignore
   create(context: Rule.RuleContext) {
     // get typed rule options with FromSchema helper
-    secretWords =
+    const secretWords =
       (context.options as FromSchema<typeof schema>)[0]?.['secret-words'] ?? DEFAULT_SECRET_WORDS;
+    secretWordRegexps = buildSecretWordRegexps(secretWords);
     randomnessSensibility =
       (context.options as FromSchema<typeof schema>)[0]?.['randomness-sensibility'] ??
       DEFAULT_RANDOMNESS_SENSIBILITY;
-    const services = context.parserServices;
-
-    // remove this condition if the rule does not depend on TS type-checker
-    if (!isRequiredParserServices(services)) {
-      return {};
-    }
 
     return {
       AssignmentExpression(node: TSESTree.AssignmentExpression) {
@@ -177,7 +165,7 @@ function handleVariableDeclarator(context: Rule.RuleContext, node: TSESTree.Vari
 
 function findKeySuspect(node: TSESTree.Node): string | undefined {
   // @ts-ignore
-  if (isIdentifier(node) && getPatterns().some(pattern => pattern.test(node.name))) {
+  if (isIdentifier(node) && secretWordRegexps.some(pattern => pattern.test(node.name))) {
     // @ts-ignore
     return node.name;
   } else {
@@ -185,11 +173,13 @@ function findKeySuspect(node: TSESTree.Node): string | undefined {
   }
 }
 function findValueSuspect(node: TSESTree.Node | undefined | null): TSESTree.Node | undefined {
-  // @ts-ignore
   if (
     node &&
+    // @ts-ignore
     isStringLiteral(node) &&
+    // @ts-ignore
     valuePassesPostValidation(node.value) &&
+    // @ts-ignore
     entropyShouldRaise(node.value)
   ) {
     return node;
@@ -202,11 +192,8 @@ function valuePassesPostValidation(value: string): boolean {
   return POSTVALIDATION_PATTERN.test(value);
 }
 
-function getPatterns() {
-  if (patterns === null) {
-    patterns = secretWords.split(',').map(word => new RegExp(`(${word})`, 'i'));
-  }
-  return patterns;
+function buildSecretWordRegexps(secretWords: string) {
+  return secretWords.split(',').map(word => new RegExp(`(${word})`, 'i'));
 }
 
 function entropyShouldRaise(value: string): boolean {

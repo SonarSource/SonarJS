@@ -22,7 +22,7 @@
  * This is the entry point of the ESLint Plugin.
  * Said differently, this is the public API of the ESLint Plugin.
  */
-import type { Rule, Linter } from 'eslint';
+import type { Linter, Rule } from 'eslint';
 
 import * as originalRules from './original.js';
 import * as decoratedRules from './decorated.js';
@@ -106,6 +106,7 @@ export const rules: Record<string, Rule.RuleModule> = {
   'function-return-type': originalRules.S3800,
   'future-reserved-words': originalRules.S1527,
   'generator-without-yield': originalRules.S3531,
+  'hardcoded-credentials': originalRules.S6418,
   hashing: originalRules.S4790,
   'hidden-files': originalRules.S5691,
   'hook-use-state': originalRules.S6754,
