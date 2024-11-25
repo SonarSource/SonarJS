@@ -1,0 +1,45 @@
+{
+"eigen:src/app/Scenes/MyCollection/Screens/ArtworkForm/MyCollectionArtworkForm.tests.tsx": [
+75,
+297,
+450,
+518
+],
+"eigen:src/app/Scenes/Onboarding/OnboardingCreateAccount/OnboardingCreateAccount.tests.tsx": [
+46,
+88,
+127
+],
+"eigen:src/app/Scenes/VanityURL/VanityURLPossibleRedirect.tests.tsx": [
+16
+],
+"eigen:src/app/store/AuthModel.tests.ts": [
+34,
+50,
+61,
+75,
+122,
+278,
+332,
+477,
+576,
+671
+],
+"eigen:src/app/store/migration.tests.ts": [
+353
+],
+"eigen:src/app/utils/PushNotification.tests.ts": [
+54,
+129
+],
+"eigen:src/app/utils/PushNotification.ts": [
+14
+],
+"eigen:src/setupJest.ts": [
+302,
+304,
+312,
+390,
+471
+]
+}
