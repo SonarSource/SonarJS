@@ -29,6 +29,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.regex.Pattern;
 import org.sonarsource.sonarlint.core.analysis.api.ClientInputFile;
 
@@ -36,6 +37,7 @@ public class TestUtils {
 
   static final Path JAVASCRIPT_PLUGIN_LOCATION = artifact();
 
+  static final List<String> platformStrings = List.of("darwin-arm64", "darwin-x64", "linux-arm64", "linux-x64", "linux-x64-musl", "win-x64", "multi");
   /**
    * This is used to test artifact with and without embedded runtime during plugin QA integration tests
    *
@@ -55,9 +57,16 @@ public class TestUtils {
   }
 
   private static Pattern pluginFilenameMatcher() {
-    return "multi".equals(System.getenv("SONARJS_ARTIFACT"))
-      ? Pattern.compile("sonar-javascript-plugin-.*-multi\\.jar")
-      : Pattern.compile("sonar-javascript-plugin-[0-9.]*(?:-SNAPSHOT)?\\.jar");
+    if (System.getenv("SONARJS_ARTIFACT") != null) {
+      return Pattern.compile(String.format("sonar-javascript-plugin-.*-%s\\.jar", System.getenv("SONARJS_ARTIFACT")));
+    }
+
+    return Pattern.compile("sonar-javascript-plugin-[0-9.]*(?:-SNAPSHOT)?\\.jar");
+  }
+
+
+  static boolean usingEmbeddedNode() {
+    return platformStrings.stream().anyMatch(TestUtils.JAVASCRIPT_PLUGIN_LOCATION.toString()::contains);
   }
 
   public static Path projectDir(String projectName) {

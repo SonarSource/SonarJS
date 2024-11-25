@@ -20,6 +20,7 @@
 
 package com.sonar.javascript.it.plugin.sonarlint.tests;
 
+import static com.sonar.javascript.it.plugin.sonarlint.tests.TestUtils.usingEmbeddedNode;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
@@ -115,10 +116,6 @@ class SonarLintTest {
       )
         .isTrue();
     }
-  }
-
-  private static boolean usingEmbeddedNode() {
-    return TestUtils.JAVASCRIPT_PLUGIN_LOCATION.toString().contains("multi");
   }
 
   @Test
