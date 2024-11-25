@@ -20,7 +20,12 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6418/javascript
 
 import type { Rule } from 'eslint';
-import { generateMeta, isRequiredParserServices, isStringLiteral } from '../helpers/index.js';
+import {
+  generateMeta,
+  isIdentifier,
+  isRequiredParserServices,
+  isStringLiteral,
+} from '../helpers/index.js';
 import { meta } from './meta.js';
 import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
 import { FromSchema } from 'json-schema-to-ts';
@@ -86,15 +91,107 @@ export const rule: Rule.RuleModule = {
     }
 
     return {
-      Literal(node: estree.Literal) {
-        if (!isStringLiteral(node)) {
-          return;
-        }
-        handleStringLiteral(context, node);
+      AssignmentExpression(node: estree.AssignmentExpression) {
+        handleAssignmentExpression(context, node);
+      },
+      VariableDeclarator(node: estree.VariableDeclarator) {
+        handleVariableDeclarator(context, node);
+      },
+      Property(node: estree.Property) {
+        handleProperty(context, node);
+      },
+      AssignmentPattern(node: estree.AssignmentPattern) {
+        handleAssignmentPattern(context, node);
+      },
+      PropertyDefinition(node: estree.PropertyDefinition) {
+        handlePropertyDefinition(context, node);
       },
     };
   },
 };
+
+function handleAssignmentPattern(context: Rule.RuleContext, node: estree.AssignmentPattern) {
+  const keySuspect = findKeySuspect(node.left);
+  const ValueSuspect = findValueSuspect(node.right);
+  if (keySuspect && ValueSuspect) {
+    context.report({
+      node: node.right as estree.Literal,
+      message: message(keySuspect as string),
+    });
+  }
+}
+
+function handleProperty(context: Rule.RuleContext, node: estree.Property) {
+  const keySuspect = findKeySuspect(node.key);
+  const ValueSuspect = findValueSuspect(node.value);
+  if (keySuspect && ValueSuspect) {
+    context.report({
+      node: node.value as estree.Literal,
+      message: message(keySuspect as string),
+    });
+  }
+}
+
+function handlePropertyDefinition(context: Rule.RuleContext, node: estree.PropertyDefinition) {
+  const keySuspect = findKeySuspect(node.key);
+  const ValueSuspect = findValueSuspect(node.value);
+  if (keySuspect && ValueSuspect) {
+    context.report({
+      node: node.value as estree.Literal,
+      message: message(keySuspect as string),
+    });
+  }
+}
+
+function handleVariableDeclarator(context: Rule.RuleContext, node: estree.VariableDeclarator) {
+  const keySuspect = findKeySuspect(node.id);
+  const ValueSuspect = findValueSuspect(node.init);
+  if (keySuspect && ValueSuspect) {
+    context.report({
+      node: node.init as estree.Literal,
+      message: message(keySuspect as string),
+    });
+  }
+}
+
+function handleAssignmentExpression(context: Rule.RuleContext, node: estree.AssignmentExpression) {
+  const keySuspect = findKeySuspect(node.left);
+  const ValueSuspect = findValueSuspect(node.right);
+  if (keySuspect && ValueSuspect) {
+    context.report({
+      node: node.right,
+      message: message(keySuspect as string),
+    });
+  }
+}
+
+function findKeySuspect(node: estree.Node): string | undefined {
+  let name: string;
+  if (isIdentifier(node)) {
+    name = node.name;
+  } else {
+    return undefined;
+  }
+  if (getPatterns().some(pattern => pattern.test(name))) {
+    return name;
+  }
+  return undefined;
+}
+function findValueSuspect(node: estree.Node | null | undefined): estree.Node | undefined {
+  if (!node) {
+    return undefined;
+  }
+  let value;
+  if (isStringLiteral(node)) {
+    value = node.value;
+  } else {
+    return undefined;
+  }
+  if (valuePassesPostValidation(value) && enthropyShouldRaise(value)) {
+    return node;
+  }
+  return undefined;
+}
 
 function handleStringLiteral(context: Rule.RuleContext, node: estree.Literal) {
   const value = node.value as string;
