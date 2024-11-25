@@ -47,3 +47,7 @@ function defaultValues(foo) {
   secret = foo || '1IfHMPanImzX8ZxC-Ud6+YhXiLwlXq$f_-3v~.='; // Noncompliant
   secret = foo ?? '1IfHMPanImzX8ZxC-Ud6+YhXiLwlXq$f_-3v~.='; // Noncompliant
 }
+
+function customSecretWord() {
+  const yolo = '1IfHMPanImzX8ZxC-Ud6+YhXiLwlXq$f_-3v~.='; // Noncompliant
+}
