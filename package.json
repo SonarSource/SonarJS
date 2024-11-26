@@ -45,7 +45,7 @@
     "eslint-plugin:types": "tsc -p tsconfig-plugin.json --declaration true --emitDeclarationOnly --outDir lib/types",
     "eslint-plugin:package-json": "node generate-eslint-package-json.mjs",
     "eslint-plugin:copy-assets": "cpy LICENSE.txt lib/ --rename LICENSE && cpy packages/jsts/src/rules/README.md lib/ --flat",
-    "eslint-docs": "npm run eslint-plugin:compile && eslint-doc-generator lib --init-rule-docs"
+    "eslint-docs": "npm run eslint-plugin:compile && eslint-doc-generator lib --init-rule-docs && tsx tools/generate-external-rules-docs.ts"
   },
   "repository": {
     "type": "git",
