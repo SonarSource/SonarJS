@@ -3,7 +3,7 @@
     "react": "19.0"
   },
   "devDependencies": {
-    "react": "15.0"
+    "react": "15.7"
   },
   "type": "module"
 }
