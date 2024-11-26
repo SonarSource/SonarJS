@@ -31,7 +31,7 @@ import estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
 
 const DEFAULT_SECRET_WORDS = 'api[_.-]?key,auth,credential,secret,token';
-const DEFAULT_RANDOMNESS_SENSIBILITY = 3.0;
+const DEFAULT_RANDOMNESS_SENSIBILITY = 5.0;
 const POSTVALIDATION_PATTERN =
   /[a-zA-Z0-9_.+/~$-]([a-zA-Z0-9_.+/=~$-]|\\\\\\\\(?![ntr"])){14,1022}[a-zA-Z0-9_.+/=~$-]/;
 
