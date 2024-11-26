@@ -56,7 +56,7 @@ export type FunctionNodeType =
   | estree.FunctionExpression
   | estree.ArrowFunctionExpression;
 
-export type StringLiteral = (estree.Literal | TSESTree.Literal) & { value: string };
+export type StringLiteral = estree.Literal & { value: string };
 
 export const FUNCTION_NODES = [
   'FunctionDeclaration',
@@ -92,7 +92,7 @@ export function isArrowFunctionExpression(
 export function isIdentifier(
   node: Node | undefined,
   ...values: string[]
-): node is estree.Identifier | TSESTree.Identifier {
+): node is estree.Identifier {
   return (
     node?.type === 'Identifier' &&
     (values.length === 0 || values.some(value => value === node.name))
@@ -130,7 +130,7 @@ export function isMemberExpression(
 }
 
 export function isLogicalExpression(
-  node: TSESTree.Node | estree.Node | undefined,
+  node: Node | undefined,
 ): node is TSESTree.LogicalExpression | estree.LogicalExpression {
   return node !== undefined && node.type === 'LogicalExpression';
 }
@@ -251,9 +251,7 @@ export function isFunctionNode(node: estree.Node): node is FunctionNodeType {
 
 // we have similar function in eslint-plugin-sonarjs, however this one accepts null
 // eventually we should update eslint-plugin-sonarjs
-export function isLiteral(
-  n: estree.Node | TSESTree.Node | null,
-): n is estree.Literal | TSESTree.Literal {
+export function isLiteral(n: estree.Node | null): n is estree.Literal {
   return n != null && n.type === 'Literal';
 }
 
@@ -626,7 +624,7 @@ export function checkSensitiveCall(
   }
 }
 
-export function isStringLiteral(node: estree.Node | TSESTree.Node): node is StringLiteral {
+export function isStringLiteral(node: estree.Node): node is StringLiteral {
   return isLiteral(node) && typeof node.value === 'string';
 }
 
