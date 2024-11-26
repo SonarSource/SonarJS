@@ -51,7 +51,7 @@ public class HardcodedSecretsCheck extends Check {
   @Override
   public List<Object> configurations() {
     return Collections.singletonList(
-      new HardcodedSecretsCheck.Config(secretWords, randomnessSensibility)
+      new Config(secretWords, randomnessSensibility)
     );
   }
 

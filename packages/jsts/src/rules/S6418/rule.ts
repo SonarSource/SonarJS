@@ -30,6 +30,7 @@ import { meta } from './meta.js';
 import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
 import { FromSchema } from 'json-schema-to-ts';
 import { TSESTree } from '@typescript-eslint/utils';
+import { error } from '../../../../shared/src/helpers/logging.js';
 
 const DEFAULT_SECRET_WORDS = 'api[_.-]?key,auth,credential,secret,token';
 const DEFAULT_RANDOMNESS_SENSIBILITY = 5.0;
@@ -103,8 +104,8 @@ function handleAssignmentExpression(
   node: TSESTree.AssignmentExpression,
 ) {
   const keySuspect = findKeySuspect(node.left);
-  const ValueSuspect = findValueSuspect(extractDefaultOperatorIfNeeded(node));
-  if (keySuspect && ValueSuspect) {
+  const valueSuspect = findValueSuspect(extractDefaultOperatorIfNeeded(node));
+  if (keySuspect && valueSuspect) {
     context.report({
       node: node.right as TSESTree.Literal,
       message: message(keySuspect),
@@ -121,8 +122,8 @@ function handleAssignmentExpression(
 }
 function handleAssignmentPattern(context: Rule.RuleContext, node: TSESTree.AssignmentPattern) {
   const keySuspect = findKeySuspect(node.left);
-  const ValueSuspect = findValueSuspect(node.right);
-  if (keySuspect && ValueSuspect) {
+  const valueSuspect = findValueSuspect(node.right);
+  if (keySuspect && valueSuspect) {
     context.report({
       node: node.right as TSESTree.Literal,
       message: message(keySuspect),
@@ -134,8 +135,8 @@ function handlePropertyAndPropertyDefinition(
   node: TSESTree.Property | TSESTree.PropertyDefinition,
 ) {
   const keySuspect = findKeySuspect(node.key);
-  const ValueSuspect = findValueSuspect(node.value);
-  if (keySuspect && ValueSuspect) {
+  const valueSuspect = findValueSuspect(node.value);
+  if (keySuspect && valueSuspect) {
     context.report({
       node: node.value as TSESTree.Literal,
       message: message(keySuspect),
@@ -144,8 +145,8 @@ function handlePropertyAndPropertyDefinition(
 }
 function handleVariableDeclarator(context: Rule.RuleContext, node: TSESTree.VariableDeclarator) {
   const keySuspect = findKeySuspect(node.id);
-  const ValueSuspect = findValueSuspect(node.init);
-  if (keySuspect && ValueSuspect) {
+  const valueSuspect = findValueSuspect(node.init);
+  if (keySuspect && valueSuspect) {
     context.report({
       node: node.init as TSESTree.Literal,
       message: message(keySuspect),
@@ -178,7 +179,14 @@ function valuePassesPostValidation(value: string): boolean {
 }
 
 function buildSecretWordRegexps(secretWords: string) {
-  return secretWords.split(',').map(word => new RegExp(`(${word})`, 'i'));
+  try {
+    return secretWords.split(',').map(word => new RegExp(`(${word})`, 'i'));
+  } catch (e) {
+    error(
+      `Invalid characters provided to rule S6418 'hardcoded-secrets' parameter "secret-words": "${secretWords}" falling back to default: "${DEFAULT_SECRET_WORDS}".`,
+    );
+    return buildSecretWordRegexps(DEFAULT_SECRET_WORDS);
+  }
 }
 
 function entropyShouldRaise(value: string): boolean {
