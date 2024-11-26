@@ -17,3 +17,4 @@
 export * from './generated-meta.js';
 export const implementation = 'external';
 export const eslintId = 'no-constant-binary-expression';
+export const externalPlugin = 'eslint';

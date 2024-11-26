@@ -17,3 +17,4 @@
 export * from './generated-meta.js';
 export const implementation = 'external';
 export const eslintId = 'jsx-pascal-case';
+export const externalPlugin = 'react';

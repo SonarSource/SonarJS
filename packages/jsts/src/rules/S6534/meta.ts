@@ -17,3 +17,4 @@
 export * from './generated-meta.js';
 export const implementation = 'external';
 export const eslintId = 'no-loss-of-precision';
+export const externalPlugin = 'eslint';

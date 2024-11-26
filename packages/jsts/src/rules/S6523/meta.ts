@@ -17,3 +17,4 @@
 export * from './generated-meta.js';
 export const implementation = 'external';
 export const eslintId = 'no-unsafe-optional-chaining';
+export const externalPlugin = 'eslint';

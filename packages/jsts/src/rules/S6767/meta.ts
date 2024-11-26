@@ -17,3 +17,4 @@
 export * from './generated-meta.js';
 export const implementation = 'external';
 export const eslintId = 'no-unused-prop-types';
+export const externalPlugin = 'react';

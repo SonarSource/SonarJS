@@ -17,3 +17,4 @@
 export * from './generated-meta.js';
 export const implementation = 'external';
 export const eslintId = 'no-aria-hidden-on-focusable';
+export const externalPlugin = 'jsx-a11y';

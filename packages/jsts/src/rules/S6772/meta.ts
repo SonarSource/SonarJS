@@ -17,3 +17,4 @@
 export * from './generated-meta.js';
 export const implementation = 'external';
 export const eslintId = 'jsx-child-element-spacing';
+export const externalPlugin = 'react';

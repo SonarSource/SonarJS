@@ -17,3 +17,4 @@
 export * from './generated-meta.js';
 export const implementation = 'external';
 export const eslintId = 'prefer-tag-over-role';
+export const externalPlugin = 'jsx-a11y';

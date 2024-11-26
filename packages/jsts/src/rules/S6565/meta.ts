@@ -17,3 +17,4 @@
 export * from './generated-meta.js';
 export const implementation = 'external';
 export const eslintId = 'prefer-return-this-type';
+export const externalPlugin = 'typescript-eslint';

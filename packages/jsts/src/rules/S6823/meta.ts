@@ -17,3 +17,4 @@
 export * from './generated-meta.js';
 export const implementation = 'external';
 export const eslintId = 'aria-activedescendant-has-tabindex';
+export const externalPlugin = 'jsx-a11y';

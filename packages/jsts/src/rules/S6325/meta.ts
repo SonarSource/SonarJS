@@ -17,3 +17,4 @@
 export * from './generated-meta.js';
 export const implementation = 'external';
 export const eslintId = 'prefer-regex-literals';
+export const externalPlugin = 'eslint';
