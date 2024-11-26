@@ -130,8 +130,8 @@ export function isMemberExpression(
 }
 
 export function isLogicalExpression(
-  node: Node | undefined,
-): node is TSESTree.LogicalExpression | estree.LogicalExpression {
+  node: TSESTree.Node | undefined,
+): node is TSESTree.LogicalExpression {
   return node !== undefined && node.type === 'LogicalExpression';
 }
 

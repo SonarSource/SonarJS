@@ -28,6 +28,7 @@ import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
 import { FromSchema } from 'json-schema-to-ts';
 import { error } from '../../../../shared/src/helpers/logging.js';
 import estree from 'estree';
+import { TSESTree } from '@typescript-eslint/utils';
 
 const DEFAULT_SECRET_WORDS = 'api[_.-]?key,auth,credential,secret,token';
 const DEFAULT_RANDOMNESS_SENSIBILITY = 3.0;
@@ -107,8 +108,11 @@ function handleAssignmentExpression(context: Rule.RuleContext, node: estree.Assi
   }
   function extractDefaultOperatorIfNeeded(node: estree.AssignmentExpression): estree.Node {
     const defaultOperators = ['??', '||'];
-    if (isLogicalExpression(node.right) && defaultOperators.includes(node.right.operator)) {
-      return node.right.right;
+    if (
+      isLogicalExpression(node.right as TSESTree.Node) &&
+      defaultOperators.includes((node.right as estree.LogicalExpression).operator)
+    ) {
+      return (node.right as estree.LogicalExpression).right;
     } else {
       return node.right;
     }
