@@ -19,7 +19,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S3699
 
-import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/utils';
+import type { TSESTree } from '@typescript-eslint/utils';
 import {
   generateMeta,
   isArrowFunctionExpression,
@@ -132,7 +132,7 @@ export const rule: Rule.RuleModule = {
         if (
           func.async ||
           func.generator ||
-          (func.body.type === AST_NODE_TYPES.BlockStatement && func.body.body.length === 0)
+          (func.body.type === 'BlockStatement' && func.body.body.length === 0)
         ) {
           functionsWithReturnValue.add(func);
         }

@@ -20,7 +20,7 @@
 import type { Rule } from 'eslint';
 import estree from 'estree';
 import { generateMeta, interceptReport } from '../helpers/index.js';
-import { TSESTree } from '@typescript-eslint/utils';
+import type { TSESTree } from '@typescript-eslint/utils';
 import { meta } from './meta.js';
 
 // core implementation of this rule raises issues on type exports

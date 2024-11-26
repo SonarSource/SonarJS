@@ -19,7 +19,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S930
 
-import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/utils';
+import type { TSESTree } from '@typescript-eslint/utils';
 import { Rule, Scope } from 'eslint';
 import {
   generateMeta,
@@ -85,7 +85,7 @@ export const rule: Rule.RuleModule = {
       ':function'(node: estree.Node) {
         const fn = node as TSESTree.FunctionExpression;
         if (
-          fn.body.type === AST_NODE_TYPES.BlockStatement &&
+          fn.body.type === 'BlockStatement' &&
           fn.body.body.length === 0 &&
           fn.params.length === 0
         ) {

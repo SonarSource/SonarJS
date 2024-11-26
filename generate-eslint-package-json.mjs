@@ -10,22 +10,14 @@ const eslintPluginDependencies = [
   '@babel/preset-flow',
   '@babel/preset-react',
   '@eslint-community/regexpp',
-  '@typescript-eslint/eslint-plugin',
-  '@typescript-eslint/utils',
   'builtin-modules',
   'bytes',
-  'eslint-plugin-import',
-  'eslint-plugin-jsx-a11y',
-  'eslint-plugin-react',
-  'eslint-plugin-react-hooks',
-  'eslint-scope',
   'functional-red-black-tree',
   'jsx-ast-utils',
   'minimatch',
   'scslre',
   'semver',
   'typescript',
-  'vue-eslint-parser',
 ];
 
 const mainPackageJson = JSON.parse(

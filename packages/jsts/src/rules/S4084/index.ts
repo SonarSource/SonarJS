@@ -17,8 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import pkg from 'eslint-plugin-jsx-a11y';
-const { rules: jsxA11yRules } = pkg;
+import { rules } from '../external/a11y.js';
 import { decorate } from './decorator.js';
 
-export const rule = decorate(jsxA11yRules['media-has-caption']);
+export const rule = decorate(rules['media-has-caption']);

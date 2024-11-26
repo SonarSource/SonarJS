@@ -18,12 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { TSESTree } from '@typescript-eslint/utils';
+import type { TSESTree } from '@typescript-eslint/utils';
 import pkg from 'jsx-ast-utils';
 const { getLiteralPropValue, getProp } = pkg;
 import type { Rule } from 'eslint';
-import getElementType from 'eslint-plugin-jsx-a11y/lib/util/getElementType.js';
 import { isHtmlElement } from './isHtmlElement.js';
+import { getElementType } from './accessibility.js';
 
 export type TableCell = {
   isHeader: boolean;

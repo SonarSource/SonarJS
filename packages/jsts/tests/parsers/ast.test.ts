@@ -20,7 +20,7 @@
 import path from 'path';
 
 import { parsers, type ParseFunction } from '../../src/parsers/eslint.js';
-import { TSESTree } from '@typescript-eslint/utils';
+import type { TSESTree } from '@typescript-eslint/utils';
 import { describe, test } from 'node:test';
 import { expect } from 'expect';
 import { readFile } from '../../../shared/src/helpers/files.js';

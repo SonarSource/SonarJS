@@ -29,7 +29,7 @@ import {
   isUndefined,
   mergeRules,
 } from '../helpers/index.js';
-import { TSESTree } from '@typescript-eslint/utils';
+import type { TSESTree } from '@typescript-eslint/utils';
 import { meta } from './meta.js';
 
 const noUnmodifiedLoopEslint = getESLintCoreRule('no-unmodified-loop-condition');

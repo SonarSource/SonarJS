@@ -30,7 +30,7 @@ import {
   isStaticTemplateLiteral,
   isStringLiteral,
 } from '../index.js';
-import { TSESTree } from '@typescript-eslint/utils';
+import type { TSESTree } from '@typescript-eslint/utils';
 import { isRegExpConstructor } from './ast.js';
 import { getFlags } from './flags.js';
 

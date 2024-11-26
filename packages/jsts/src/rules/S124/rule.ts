@@ -20,7 +20,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S124/javascript
 
 import type { Rule } from 'eslint';
-import { TSESTree } from '@typescript-eslint/utils';
+import type { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta } from '../helpers/index.js';
 import { FromSchema } from 'json-schema-to-ts';
 import { meta, schema } from './meta.js';

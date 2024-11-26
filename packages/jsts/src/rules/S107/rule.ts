@@ -21,7 +21,7 @@
 
 import type { Rule } from 'eslint';
 import estree from 'estree';
-import { TSESTree } from '@typescript-eslint/utils';
+import type { TSESTree } from '@typescript-eslint/utils';
 import { getESLintCoreRule } from '../external/core.js';
 import {
   generateMeta,

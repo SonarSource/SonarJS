@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { AST_NODE_TYPES } from '@typescript-eslint/utils';
 import estree from 'estree';
 
 /** Returns a list of statements corresponding to a `if - else if - else` chain */
@@ -27,7 +26,7 @@ export function collectIfBranches(node: estree.IfStatement) {
   let statement = node.alternate;
 
   while (statement) {
-    if (statement.type === AST_NODE_TYPES.IfStatement) {
+    if (statement.type === 'IfStatement') {
       branches.push(statement.consequent);
       statement = statement.alternate;
     } else {
@@ -59,7 +58,7 @@ export function collectSwitchBranches(node: estree.SwitchStatement) {
 
 /** Excludes the break statement from the list */
 export function takeWithoutBreak(nodes: estree.Statement[]) {
-  return nodes.length > 0 && nodes[nodes.length - 1].type === AST_NODE_TYPES.BreakStatement
+  return nodes.length > 0 && nodes[nodes.length - 1].type === 'BreakStatement'
     ? nodes.slice(0, -1)
     : nodes;
 }

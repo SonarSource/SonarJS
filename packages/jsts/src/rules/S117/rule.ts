@@ -21,7 +21,7 @@
 
 import type { Rule } from 'eslint';
 import estree from 'estree';
-import { TSESTree } from '@typescript-eslint/utils';
+import type { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta, resolveIdentifiers } from '../helpers/index.js';
 import { FromSchema } from 'json-schema-to-ts';
 import { meta, schema } from './meta.js';

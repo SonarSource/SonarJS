@@ -19,7 +19,7 @@
  */
 import pkg from '@typescript-eslint/eslint-plugin';
 import { Linter } from 'eslint';
-import { sanitize } from '../../../src/rules/typescript-eslint/sanitize.js';
+import { sanitize } from '../../../src/rules/external/typescript-eslint/sanitize.js';
 import path from 'path';
 import { parseTypeScriptSourceFile } from '../../tools/helpers/index.js';
 import { describe, test } from 'node:test';

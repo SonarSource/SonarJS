@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { TSESTree } from '@typescript-eslint/utils';
+import type { TSESTree } from '@typescript-eslint/utils';
 
 export function getJsxShortCircuitNodes(logicalExpression: TSESTree.LogicalExpression) {
   if (logicalExpression.parent?.type !== 'JSXExpressionContainer') {

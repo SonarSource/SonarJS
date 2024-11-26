@@ -18,5 +18,5 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 export * from './generated-meta.js';
-export const implementation = 'original';
+export const implementation = 'decorated';
 export const eslintId = 'no-magic-numbers';

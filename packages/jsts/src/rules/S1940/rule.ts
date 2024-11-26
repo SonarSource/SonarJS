@@ -21,7 +21,7 @@
 
 import type { Rule } from 'eslint';
 import estree from 'estree';
-import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/utils';
+import type { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta } from '../helpers/index.js';
 import { meta } from './meta.js';
 
@@ -53,10 +53,7 @@ export const rule: Rule.RuleModule = {
 };
 
 function visitUnaryExpression(unaryExpression: estree.UnaryExpression, context: Rule.RuleContext) {
-  if (
-    unaryExpression.operator === '!' &&
-    unaryExpression.argument.type === AST_NODE_TYPES.BinaryExpression
-  ) {
+  if (unaryExpression.operator === '!' && unaryExpression.argument.type === 'BinaryExpression') {
     const condition: estree.BinaryExpression = unaryExpression.argument;
     const invertedOperator = invertedOperators[condition.operator];
     if (invertedOperator) {

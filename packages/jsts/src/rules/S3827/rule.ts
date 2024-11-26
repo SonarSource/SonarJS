@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 // https://sonarsource.github.io/rspec/#/rspec/S3827/javascript
-import { TSESTree } from '@typescript-eslint/utils';
+import type { TSESTree } from '@typescript-eslint/utils';
 import type { Rule } from 'eslint';
 import estree from 'estree';
 import {

@@ -27,7 +27,7 @@ import {
   getParent,
   RuleContext,
 } from '../helpers/index.js';
-import { TSESTree } from '@typescript-eslint/utils';
+import type { TSESTree } from '@typescript-eslint/utils';
 import { meta } from './meta.js';
 
 export const rule: Rule.RuleModule = {

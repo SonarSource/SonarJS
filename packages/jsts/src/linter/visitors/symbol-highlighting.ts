@@ -19,7 +19,7 @@
  */
 import { Rule, Scope } from 'eslint';
 import estree from 'estree';
-import { TSESTree } from '@typescript-eslint/utils';
+import type { TSESTree } from '@typescript-eslint/utils';
 import { AST } from 'vue-eslint-parser';
 import { convertLocation, extractTokensAndComments, Location } from './metrics/helpers/index.js';
 

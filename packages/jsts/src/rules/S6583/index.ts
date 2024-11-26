@@ -18,5 +18,5 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { rules } from '../typescript-eslint/index.js';
+import { rules } from '../external/typescript-eslint/index.js';
 export const rule = rules['no-mixed-enums'];

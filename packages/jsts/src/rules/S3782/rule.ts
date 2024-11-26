@@ -22,7 +22,7 @@
 import type { Rule } from 'eslint';
 import estree from 'estree';
 import { generateMeta, getTypeFromTreeNode, isRequiredParserServices } from '../helpers/index.js';
-import { TSESTree } from '@typescript-eslint/utils';
+import type { TSESTree } from '@typescript-eslint/utils';
 import ts from 'typescript';
 import { meta } from './meta.js';
 

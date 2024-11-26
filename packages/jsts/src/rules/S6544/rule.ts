@@ -20,7 +20,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6544/javascript
 
 import type { Rule } from 'eslint';
-import { rules as tsEslintRules } from '../typescript-eslint/index.js';
+import { rules as tsEslintRules } from '../external/typescript-eslint/index.js';
 import { getESLintCoreRule } from '../external/core.js';
 import {
   FUNCTION_NODES,
@@ -30,7 +30,7 @@ import {
   mergeRules,
   RuleContext,
 } from '../helpers/index.js';
-import { TSESTree } from '@typescript-eslint/utils';
+import type { TSESTree } from '@typescript-eslint/utils';
 import { meta } from './meta.js';
 
 /**

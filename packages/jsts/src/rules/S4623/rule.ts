@@ -20,7 +20,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S4623/javascript
 
 import type { Rule } from 'eslint';
-import { TSESTree } from '@typescript-eslint/utils';
+import type { TSESTree } from '@typescript-eslint/utils';
 import {
   generateMeta,
   isRequiredParserServices,

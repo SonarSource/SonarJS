@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import type { Rule } from 'eslint';
-import { isRequiredParserServices } from '../helpers/index.js';
+import { isRequiredParserServices } from '../../helpers/index.js';
 
 /**
  * Sanitizes a TypeScript ESLint rule

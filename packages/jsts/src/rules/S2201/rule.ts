@@ -20,7 +20,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S2201
 
 import type { ParserServicesWithTypeInformation } from '@typescript-eslint/utils';
-import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/utils';
+import type { TSESTree } from '@typescript-eslint/utils';
 import type * as TS from 'typescript';
 import type { Rule } from 'eslint';
 import { generateMeta, getTypeFromTreeNode, isRequiredParserServices } from '../helpers/index.js';
@@ -190,7 +190,7 @@ export const rule: Rule.RuleModule = {
       CallExpression: (node: estree.Node) => {
         const call = node as estree.CallExpression;
         const { callee } = call;
-        if (callee.type === AST_NODE_TYPES.MemberExpression) {
+        if (callee.type === 'MemberExpression') {
           const { parent } = node as TSESTree.MemberExpression;
           if (parent && parent.type === 'ExpressionStatement') {
             const methodName = context.sourceCode.getText(callee.property as estree.Node);

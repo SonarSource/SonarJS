@@ -19,7 +19,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S1488
 
-import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/utils';
+import type { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta, isIdentifier } from '../helpers/index.js';
 import type { Rule } from 'eslint';
 import estree from 'estree';
@@ -66,7 +66,7 @@ export const rule: Rule.RuleModule = {
             context.report({
               messageId: 'doImmediateAction',
               data: {
-                action: last.type === AST_NODE_TYPES.ReturnStatement ? 'return' : 'throw',
+                action: last.type === 'ReturnStatement' ? 'return' : 'throw',
                 variable: returnedIdentifier.name,
               },
               node: declaredIdentifier.init,
@@ -99,8 +99,7 @@ export const rule: Rule.RuleModule = {
     }
 
     function getOnlyReturnedVariable(node: estree.Statement) {
-      return (node.type === AST_NODE_TYPES.ReturnStatement ||
-        node.type === AST_NODE_TYPES.ThrowStatement) &&
+      return (node.type === 'ReturnStatement' || node.type === 'ThrowStatement') &&
         node.argument &&
         isIdentifier(node.argument)
         ? node.argument
@@ -108,13 +107,9 @@ export const rule: Rule.RuleModule = {
     }
 
     function getOnlyDeclaredVariable(node: estree.Statement) {
-      if (node.type === AST_NODE_TYPES.VariableDeclaration && node.declarations.length === 1) {
+      if (node.type === 'VariableDeclaration' && node.declarations.length === 1) {
         const { id, init } = node.declarations[0];
-        if (
-          id.type === AST_NODE_TYPES.Identifier &&
-          init &&
-          !(id as TSESTree.Identifier).typeAnnotation
-        ) {
+        if (id.type === 'Identifier' && init && !(id as TSESTree.Identifier).typeAnnotation) {
           return { id, init };
         }
       }

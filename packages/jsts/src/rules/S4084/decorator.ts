@@ -21,7 +21,7 @@
 
 import type { Rule } from 'eslint';
 import { Node } from 'estree';
-import { TSESTree } from '@typescript-eslint/utils';
+import type { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta, interceptReport } from '../helpers/index.js';
 import { meta } from './meta.js';
 

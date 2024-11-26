@@ -28,7 +28,7 @@ import {
   getTypeFromTreeNode,
   isRequiredParserServices,
 } from '../helpers/index.js';
-import { ParserServicesWithTypeInformation } from '@typescript-eslint/utils';
+import type { ParserServicesWithTypeInformation } from '@typescript-eslint/utils';
 import { meta } from './meta.js';
 
 export const rule: Rule.RuleModule = {

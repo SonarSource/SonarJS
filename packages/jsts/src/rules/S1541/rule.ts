@@ -32,7 +32,7 @@ import {
   IssueLocation,
   RuleContext,
 } from '../helpers/index.js';
-import { TSESTree } from '@typescript-eslint/utils';
+import type { TSESTree } from '@typescript-eslint/utils';
 import { FromSchema } from 'json-schema-to-ts';
 import { meta, schema } from './meta.js';
 

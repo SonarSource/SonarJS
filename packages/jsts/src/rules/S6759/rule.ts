@@ -21,7 +21,7 @@
 
 import type { Rule } from 'eslint';
 import { Function, Node, ReturnStatement } from 'estree';
-import { TSESTree } from '@typescript-eslint/utils';
+import type { TSESTree } from '@typescript-eslint/utils';
 import {
   generateMeta,
   getTypeFromTreeNode,

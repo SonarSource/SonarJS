@@ -19,7 +19,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S2428
 
-import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/utils';
+import type { TSESTree } from '@typescript-eslint/utils';
 import { Rule, SourceCode } from 'eslint';
 import {
   areEquivalent,
@@ -63,7 +63,7 @@ function checkObjectInitialization(statements: estree.Statement[], context: Rule
 }
 
 function getObjectDeclaration(statement: estree.Statement) {
-  if (statement.type === AST_NODE_TYPES.VariableDeclaration) {
+  if (statement.type === 'VariableDeclaration') {
     return statement.declarations.find(
       declaration => !!declaration.init && isEmptyObjectExpression(declaration.init),
     );
@@ -72,7 +72,7 @@ function getObjectDeclaration(statement: estree.Statement) {
 }
 
 function isEmptyObjectExpression(expression: estree.Expression) {
-  return expression.type === AST_NODE_TYPES.ObjectExpression && expression.properties.length === 0;
+  return expression.type === 'ObjectExpression' && expression.properties.length === 0;
 }
 
 function isPropertyAssignment(
@@ -81,11 +81,11 @@ function isPropertyAssignment(
   sourceCode: SourceCode,
 ) {
   if (
-    statement.type === AST_NODE_TYPES.ExpressionStatement &&
-    statement.expression.type === AST_NODE_TYPES.AssignmentExpression
+    statement.type === 'ExpressionStatement' &&
+    statement.expression.type === 'AssignmentExpression'
   ) {
     const { left, right } = statement.expression;
-    if (left.type === AST_NODE_TYPES.MemberExpression) {
+    if (left.type === 'MemberExpression') {
       return (
         !left.computed &&
         isSingleLineExpression(right, sourceCode) &&

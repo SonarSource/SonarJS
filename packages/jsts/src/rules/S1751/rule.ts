@@ -19,7 +19,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S1751
 
-import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/utils';
+import type { TSESTree } from '@typescript-eslint/utils';
 import type { Rule } from 'eslint';
 import estree from 'estree';
 import { generateMeta } from '../helpers/index.js';
@@ -72,7 +72,7 @@ export const rule: Rule.RuleModule = {
         visitLoopChild((node as TSESTree.Node).parent as estree.ForStatement);
       },
       onCodePathSegmentLoop(_: unknown, toSegment: Rule.CodePathSegment, node: estree.Node) {
-        if (node.type === AST_NODE_TYPES.ContinueStatement) {
+        if (node.type === 'ContinueStatement') {
           loopsAndTheirSegments.forEach(({ segments, loop }) => {
             if (segments.includes(toSegment)) {
               loopingNodes.add(loop);

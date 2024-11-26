@@ -19,7 +19,7 @@
  */
 import type { Rule, Scope } from 'eslint';
 import estree from 'estree';
-import { TSESTree } from '@typescript-eslint/utils';
+import type { TSESTree } from '@typescript-eslint/utils';
 import { Node, isIdentifier, getVariableFromScope, getUniqueWriteReference } from './ast.js';
 
 export function getImportDeclarations(context: Rule.RuleContext) {

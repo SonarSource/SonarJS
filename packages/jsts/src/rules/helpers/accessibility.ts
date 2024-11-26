@@ -19,9 +19,8 @@
  */
 
 import pkg from 'jsx-ast-utils';
-const { getProp, getLiteralPropValue } = pkg;
-import getElementType from 'eslint-plugin-jsx-a11y/lib/util/getElementType.js';
-import { TSESTree } from '@typescript-eslint/utils';
+const { getProp, getLiteralPropValue, elementType } = pkg;
+import type { TSESTree } from '@typescript-eslint/utils';
 import type { Rule } from 'eslint';
 
 export function isPresentationTable(context: Rule.RuleContext, node: TSESTree.JSXOpeningElement) {
@@ -38,3 +37,30 @@ export function isPresentationTable(context: Rule.RuleContext, node: TSESTree.JS
 
   return DISALLOWED_VALUES.includes(roleValue?.toLowerCase());
 }
+
+export const getElementType = (
+  context: Rule.RuleContext,
+): ((node: TSESTree.JSXOpeningElement) => string) => {
+  const { settings } = context;
+  const polymorphicPropName = settings['jsx-a11y']?.polymorphicPropName;
+  const polymorphicAllowList = settings['jsx-a11y']?.polymorphicAllowList;
+
+  const componentMap = settings['jsx-a11y']?.components;
+
+  return (node: TSESTree.JSXOpeningElement): string => {
+    const polymorphicProp = polymorphicPropName
+      ? getLiteralPropValue(getProp(node.attributes, polymorphicPropName))
+      : undefined;
+
+    let rawType: string = elementType(node);
+    if (polymorphicProp && (!polymorphicAllowList || polymorphicAllowList.includes(rawType))) {
+      rawType = `${polymorphicProp}`;
+    }
+
+    if (!componentMap) {
+      return rawType;
+    }
+
+    return componentMap.hasOwnProperty(rawType) ? componentMap[rawType] : rawType;
+  };
+};

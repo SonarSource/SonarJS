@@ -21,7 +21,7 @@
 
 import { AST, Rule, Scope } from 'eslint';
 import estree from 'estree';
-import { TSESTree } from '@typescript-eslint/utils';
+import type { TSESTree } from '@typescript-eslint/utils';
 import {
   findFirstMatchingAncestor,
   generateMeta,

@@ -36,7 +36,7 @@ import {
   toUnixPath,
 } from '../helpers/index.js';
 import { meta } from './meta.js';
-import { TSESTree } from '@typescript-eslint/utils';
+import type { TSESTree } from '@typescript-eslint/utils';
 import { dirname } from 'path/posix';
 
 export const rule: Rule.RuleModule = {

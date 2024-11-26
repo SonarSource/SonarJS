@@ -20,12 +20,12 @@
 // https://sonarsource.github.io/rspec/#/rspec/S5264/javascript
 
 import type { Rule } from 'eslint';
-import isHiddenFromScreenReader from 'eslint-plugin-jsx-a11y/lib/util/isHiddenFromScreenReader.js';
-import getElementType from 'eslint-plugin-jsx-a11y/lib/util/getElementType.js';
 import estree from 'estree';
-import { TSESTree } from '@typescript-eslint/utils';
-import { generateMeta } from '../helpers/index.js';
+import type { TSESTree } from '@typescript-eslint/utils';
+import { generateMeta, getElementType } from '../helpers/index.js';
 import { meta } from './meta.js';
+import pkg from 'jsx-ast-utils';
+const { getLiteralPropValue, getProp, getPropValue } = pkg;
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta as Rule.RuleMetaData, {
@@ -77,4 +77,20 @@ export const rule: Rule.RuleModule = {
       },
     };
   },
+};
+
+const isHiddenFromScreenReader = (
+  type: string,
+  attributes: (TSESTree.JSXAttribute | TSESTree.JSXSpreadAttribute)[],
+) => {
+  if (type.toUpperCase() === 'INPUT') {
+    const hidden = getLiteralPropValue(getProp(attributes, 'type'));
+
+    if (typeof hidden === 'string' && hidden.toUpperCase?.() === 'HIDDEN') {
+      return true;
+    }
+  }
+
+  const ariaHidden = getPropValue(getProp(attributes, 'aria-hidden'));
+  return ariaHidden === true;
 };
