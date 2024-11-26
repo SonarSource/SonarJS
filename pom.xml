@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.sonarsource.parent</groupId>
     <artifactId>parent</artifactId>
-    <version>80.0.0.2205</version>
+    <version>81.0.0.2300</version>
   </parent>
 
   <groupId>org.sonarsource.javascript</groupId>
@@ -23,8 +23,8 @@
   </organization>
   <licenses>
     <license>
-      <name>GNU LGPL 3</name>
-      <url>http://www.gnu.org/licenses/lgpl.txt</url>
+      <name>SSALv1</name>
+      <url>https://sonarsource.com/license/ssal/</url>
       <distribution>repo</distribution>
     </license>
   </licenses>
@@ -280,25 +280,39 @@
         <artifactId>license-maven-plugin</artifactId>
         <!-- This plugin is already configured in parent pom, however we want a configuration specific to this project -->
         <configuration>
-          <includes>
-            <include>packages/**/*.ts</include>
-            <include>packages/**/*.tsx</include>
-            <include>profiling/**/*.ts</include>
-            <include>profiling/**/*.js</include>
-            <include>tools/resources/rule.*</include>
-            <include>tools/**/*.mjs</include>
-            <include>tools/**/*.ts</include>
-            <include>tools/**/*.java</include>
-          </includes>
           <mapping>
-            <template_java>JAVADOC_STYLE</template_java>
-            <template_ts>JAVADOC_STYLE</template_ts>
+            <js>SLASHSTAR_STYLE</js>
+            <mjs>SLASHSTAR_STYLE</mjs>
+            <cjs>SLASHSTAR_STYLE</cjs>
+            <ts>SLASHSTAR_STYLE</ts>
           </mapping>
-          <excludes>
-            <exclude>packages/**/fixtures/**/*</exclude>
-            <exclude>packages/**/*.fixture.*</exclude>
-            <exclude>**/src/test/resources/**/*</exclude>
-          </excludes>
+          <licenseSets>
+            <licenseSet>
+              <includes>
+                <include>**/*.java</include>
+                <include>**/*.js</include>
+                <include>**/*.cjs</include>
+                <include>**/*.mjs</include>
+                <include>**/*.ts</include>
+              </includes>
+              <excludes>
+                <!-- Files -->
+                <exclude>server.mjs</exclude>
+                <exclude>**/*.d.ts</exclude>
+                <!-- Folders -->
+                <exclude>its/**/*</exclude>
+                <!-- Generated -->
+                <exclude>**/bin/**/*</exclude>
+                <exclude>**/dist/**/*</exclude>
+                <exclude>**/lib/**/*</exclude>
+                <!-- Fixtures -->
+                <exclude>**/fixtures/**/*</exclude>
+                <exclude>**/*.fixture.*</exclude>
+                <!-- Resources -->
+                <exclude>**/src/test/resources/**/*</exclude>
+              </excludes>
+            </licenseSet>
+          </licenseSets>
         </configuration>
       </plugin>
     </plugins>
