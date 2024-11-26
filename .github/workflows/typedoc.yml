@@ -28,6 +28,7 @@ jobs:
         cp .cirrus/npmrc ./.npmrc
         export ARTIFACTORY_ACCESS_TOKEN=${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
         npm ci
+        npm i -g typedoc
         npm run td
     - name: Publish typedoc site
       uses: JamesIves/github-pages-deploy-action@v4
