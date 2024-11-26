@@ -34,10 +34,10 @@ If you want to report a bug, request a feature, or provide other kind of feedbac
 
 To work on this Project, it is required to have the following tools installed:
 
-* [JDK 17](https://docs.aws.amazon.com/corretto/latest/corretto-17-ug/what-is-corretto-17.html)
-* [Node.js](https://nodejs.org/en) >= 22
-* [npm](https://www.npmjs.com/) >= 8
-* [Maven](https://maven.apache.org/) >= 3.8
+- [JDK 17](https://docs.aws.amazon.com/corretto/latest/corretto-17-ug/what-is-corretto-17.html)
+- [Node.js](https://nodejs.org/en) >= 22
+- [npm](https://www.npmjs.com/) >= 8
+- [Maven](https://maven.apache.org/) >= 3.8
 
 ## How-to
 
