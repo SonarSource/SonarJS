@@ -4,18 +4,15 @@
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3 of the License, or (at your option) any later version.
+ * modify it under the terms of the Sonar Source-Available License Version 1, as published by SonarSource SA.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the Sonar Source-Available License for more details.
  *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ * You should have received a copy of the Sonar Source-Available License
+ * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 package com.sonar.javascript.it.plugin;
 
@@ -25,6 +22,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.sonar.orchestrator.junit5.OrchestratorExtension;
 import com.sonar.orchestrator.locator.FileLocation;
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Locale;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Isolated;
@@ -74,11 +73,18 @@ class EmbeddedNodeTest {
     var os = System.getProperty("os.name").toLowerCase(Locale.ROOT);
     var arch = System.getProperty("os.arch");
     if (os.contains("linux") && arch.contains("64")) {
+      if (isAlpine()) {
+        return "-linux-x64-musl";
+      }
       return "-linux-x64";
     } else if (os.contains("windows")) {
       return "-win-x64";
     } else {
       return "-multi";
     }
+  }
+
+  private static boolean isAlpine() {
+    return Files.exists(Path.of("/etc/alpine-release"));
   }
 }

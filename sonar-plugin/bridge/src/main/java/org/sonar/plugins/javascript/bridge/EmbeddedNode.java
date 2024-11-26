@@ -61,25 +61,21 @@ public class EmbeddedNode {
     WIN_X64,
     LINUX_ARM64,
     LINUX_X64,
+    LINUX_X64_MUSL,
     DARWIN_ARM64,
     DARWIN_X64,
     UNSUPPORTED;
 
     private String pathInJar() {
-      switch (this) {
-        case WIN_X64:
-          return "/win-x64/";
-        case LINUX_ARM64:
-          return "/linux-arm64/";
-        case LINUX_X64:
-          return "/linux-x64/";
-        case DARWIN_ARM64:
-          return "/darwin-arm64/";
-        case DARWIN_X64:
-          return "/darwin-x64/";
-        default:
-          return "";
-      }
+      return switch (this) {
+        case WIN_X64 -> "/win-x64/";
+        case LINUX_ARM64 -> "/linux-arm64/";
+        case LINUX_X64 -> "/linux-x64/";
+        case LINUX_X64_MUSL -> "/linux-x64-musl/";
+        case DARWIN_ARM64 -> "/darwin-arm64/";
+        case DARWIN_X64 -> "/darwin-x64/";
+        default -> "";
+      };
     }
 
     /**
@@ -117,9 +113,8 @@ public class EmbeddedNode {
         return WIN_X64;
       } else if (lowerCaseOsName.contains("linux") && isARM64(env) ) {
         return LINUX_ARM64;
-      } else if (lowerCaseOsName.contains("linux") && isX64(env) && !env.isAlpine()) {
-        // alpine linux is using musl libc, which is not compatible with linux-x64
-        return LINUX_X64;
+      } else if (lowerCaseOsName.contains("linux") && isX64(env)) {
+        return env.isAlpine() ? LINUX_X64_MUSL : LINUX_X64;
       } else if (lowerCaseOsName.contains("mac os") && isARM64(env)) {
         return DARWIN_ARM64;
       } else if (lowerCaseOsName.contains("mac os") && isX64(env)) {

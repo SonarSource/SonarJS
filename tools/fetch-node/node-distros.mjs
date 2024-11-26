@@ -19,6 +19,9 @@ export const NODE_VERSION = 'v22.11.0';
 const NODE_ORG_URL = `https://nodejs.org/dist/${NODE_VERSION}/node-${NODE_VERSION}`;
 const NODE_ARTIFACTORY_URL = `https://repox.jfrog.io/artifactory/nodejs-dist/${NODE_VERSION}/node-${NODE_VERSION}`;
 
+// alpine builds are not officially supported. this is the URL the official docker alpine uses
+// https://github.com/nodejs/docker-node/blob/15cd6b44e0284c459de7763b45e3b16972c0716e/22/alpine3.20/Dockerfile#L23
+const UNOFFICIAL_NODE_ORG_URL = `https://unofficial-builds.nodejs.org/download/release/${NODE_VERSION}/node-${NODE_VERSION}`;
 /**
  * Node.js runtimes distributions
  *
@@ -61,6 +64,13 @@ export const DISTROS = [
     url: `${NODE_ORG_URL}-linux-x64.tar.gz`,
     artifactoryUrl: `${NODE_ARTIFACTORY_URL}-linux-x64.tar.gz`,
     sha: '4f862bab52039835efbe613b532238b6e4dde98d139a34e6923193e073438b13',
+    binPath: 'bin/node',
+  },
+  {
+    id: 'linux-x64-musl',
+    url: `${UNOFFICIAL_NODE_ORG_URL}-linux-x64-musl.tar.gz`,
+    artifactoryUrl: `${NODE_ARTIFACTORY_URL}-linux-x64-musl.tar.gz`,
+    sha: 'c9b4eba63f6569547e3a3423b446613a5a56dffb571b10f556bac2ae45fdc1fb',
     binPath: 'bin/node',
   },
 ];

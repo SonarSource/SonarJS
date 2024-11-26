@@ -57,7 +57,10 @@ function isZero(node: estree.Expression): boolean {
   return node.type === 'Literal' && node.value === 0;
 }
 
-function isArrayIndexOfCall(node: estree.Expression, services: RequiredParserServices): boolean {
+function isArrayIndexOfCall(
+  node: estree.Expression | estree.PrivateIdentifier,
+  services: RequiredParserServices,
+): boolean {
   return (
     node.type === 'CallExpression' &&
     node.arguments.length === 1 &&

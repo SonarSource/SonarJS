@@ -18,4 +18,45 @@
     <module>ruling</module>
   </modules>
 
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>com.mycila</groupId>
+        <artifactId>license-maven-plugin</artifactId>
+        <configuration>
+          <mapping>
+            <js>SLASHSTAR_STYLE</js>
+            <mjs>SLASHSTAR_STYLE</mjs>
+            <cjs>SLASHSTAR_STYLE</cjs>
+            <ts>SLASHSTAR_STYLE</ts>
+          </mapping>
+          <licenseSets>
+            <licenseSet>
+              <includes>
+                <include>**/*.java</include>
+                <include>**/*.js</include>
+                <include>**/*.cjs</include>
+                <include>**/*.mjs</include>
+                <include>**/*.ts</include>
+              </includes>
+              <excludes>
+                <!-- Files -->
+                <exclude>**/SonarJsPerfBenchmark.java</exclude>
+                <exclude>**/bundle/dist/rules.js</exclude>
+                <!-- Fixtures -->
+                <exclude>**/fixtures/**/*</exclude>
+                <!-- Projects -->
+                <exclude>**/projects/**/*</exclude>
+                <!-- Submodules -->
+                <exclude>**/sources/**/*</exclude>
+                <!-- Resources -->
+                <exclude>**/src/test/resources/**/*</exclude>
+              </excludes>
+            </licenseSet>
+          </licenseSets>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
 </project>

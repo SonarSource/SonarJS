@@ -138,7 +138,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
-        <version>3.5.0</version>
+        <version>3.6.0</version>
         <configuration>
           <minimizeJar>true</minimizeJar>
           <createDependencyReducedPom>false</createDependencyReducedPom>
@@ -195,6 +195,34 @@
                 <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
                   <resource>linux-x64/version.txt</resource>
                   <file>${project.build.directory}/node/linux-x64/version.txt</file>
+                </transformer>
+              </transformers>
+            </configuration>
+          </execution>
+
+          <execution>
+            <id>linux-x64-musl</id>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <shadedArtifactAttached>true</shadedArtifactAttached>
+              <shadedClassifierName>linux-x64-musl</shadedClassifierName>
+              <transformers>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                  <manifestEntries>
+                    <!-- This is used to get plugin version at runtime using getPackage().getImplementationVersion() -->
+                    <Implementation-Version>${project.version}</Implementation-Version>
+                  </manifestEntries>
+                </transformer>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+                  <resource>linux-x64-musl/node.xz</resource>
+                  <file>${project.build.directory}/node/linux-x64-musl/node.xz</file>
+                </transformer>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+                  <resource>linux-x64-musl/version.txt</resource>
+                  <file>${project.build.directory}/node/linux-x64-musl/version.txt</file>
                 </transformer>
               </transformers>
             </configuration>
@@ -317,6 +345,14 @@
                   <file>${project.build.directory}/node/linux-x64/version.txt</file>
                 </transformer>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+                  <resource>linux-x64-musl/node.xz</resource>
+                  <file>${project.build.directory}/node/linux-x64-musl/node.xz</file>
+                </transformer>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+                  <resource>linux-x64-musl/version.txt</resource>
+                  <file>${project.build.directory}/node/linux-x64-musl/version.txt</file>
+                </transformer>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
                   <resource>darwin-arm64/node.xz</resource>
                   <file>${project.build.directory}/node/darwin-arm64/node.xz</file>
                 </transformer>
@@ -363,7 +399,7 @@
               <rules>
                 <requireFilesSize>
                   <minsize>70000000</minsize>
-                  <maxsize>90000000</maxsize>
+                  <maxsize>110000000</maxsize>
                   <files>
                     <file>${project.build.directory}/${project.build.finalName}-multi.jar</file>
                   </files>
@@ -373,6 +409,7 @@
                   <maxsize>55000000</maxsize>
                   <files>
                     <file>${project.build.directory}/${project.build.finalName}-linux-x64.jar</file>
+                    <file>${project.build.directory}/${project.build.finalName}-linux-x64-musl.jar</file>
                     <file>${project.build.directory}/${project.build.finalName}-win-x64.jar</file>
                     <file>${project.build.directory}/${project.build.finalName}-darwin-arm64.jar</file>
                   </files>

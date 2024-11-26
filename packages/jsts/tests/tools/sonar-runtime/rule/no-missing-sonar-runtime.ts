@@ -82,7 +82,10 @@ function getModuleNameOfImportedIdentifier(
   // check if importing using `import { f } from 'module_name'`
   const importedDeclaration = getImportDeclarations(context).find(({ specifiers }) =>
     specifiers.some(
-      spec => spec.type === 'ImportSpecifier' && spec.imported.name === identifier.name,
+      spec =>
+        spec.type === 'ImportSpecifier' &&
+        spec.imported.type === 'Identifier' &&
+        spec.imported.name === identifier.name,
     ),
   );
   if (importedDeclaration) {

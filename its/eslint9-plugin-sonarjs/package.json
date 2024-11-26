@@ -6,9 +6,9 @@
   },
   "devDependencies": {
     "eslint-plugin-sonarjs": "file:../../lib/eslint-plugin-sonarjs-0.0.0-SNAPSHOT.tgz",
-    "cross-spawn": "7.0.3",
+    "cross-spawn": "7.0.6",
     "eslint": "9 - 9.14",
-    "typescript": "5.5.4",
+    "typescript": "5.6.3",
     "typescript-eslint": "^8.5.0"
   }
 }

@@ -2,12 +2,6 @@
 "moose:renderer/components/Cast/Cast.tsx": [
 51
 ],
-"moose:renderer/components/Downloads/Downloads.tsx": [
-130
-],
-"moose:renderer/components/FilesList/FilesList.tsx": [
-165
-],
 "moose:renderer/components/Settings/Settings.tsx": [
 60,
 78

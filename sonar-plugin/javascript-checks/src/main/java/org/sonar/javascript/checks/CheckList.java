@@ -325,6 +325,7 @@ public final class CheckList {
       NoSelfCompareCheck.class,
       NoSelfImportCheck.class,
       NoSkippedTestsCheck.class,
+      NoSonarCommentsCheck.class,
       NoSparseArraysCheck.class,
       NoStaticElementInteractionsCheck.class,
       NoStringRefsCheck.class,

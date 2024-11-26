@@ -4,20 +4,16 @@
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3 of the License, or (at your option) any later version.
+ * modify it under the terms of the Sonar Source-Available License Version 1, as published by SonarSource SA.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the Sonar Source-Available License for more details.
  *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ * You should have received a copy of the Sonar Source-Available License
+ * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-
 package com.sonar.javascript.it.plugin.sonarlint.tests;
 
 import java.io.ByteArrayInputStream;
@@ -29,6 +25,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.regex.Pattern;
 import org.sonarsource.sonarlint.core.analysis.api.ClientInputFile;
 
@@ -36,6 +33,7 @@ public class TestUtils {
 
   static final Path JAVASCRIPT_PLUGIN_LOCATION = artifact();
 
+  static final List<String> platformStrings = List.of("darwin-arm64", "darwin-x64", "linux-arm64", "linux-x64", "linux-x64-musl", "win-x64", "multi");
   /**
    * This is used to test artifact with and without embedded runtime during plugin QA integration tests
    *
@@ -55,9 +53,16 @@ public class TestUtils {
   }
 
   private static Pattern pluginFilenameMatcher() {
-    return "multi".equals(System.getenv("SONARJS_ARTIFACT"))
-      ? Pattern.compile("sonar-javascript-plugin-.*-multi\\.jar")
-      : Pattern.compile("sonar-javascript-plugin-[0-9.]*(?:-SNAPSHOT)?\\.jar");
+    if (System.getenv("SONARJS_ARTIFACT") != null) {
+      return Pattern.compile(String.format("sonar-javascript-plugin-.*-%s\\.jar", System.getenv("SONARJS_ARTIFACT")));
+    }
+
+    return Pattern.compile("sonar-javascript-plugin-[0-9.]*(?:-SNAPSHOT)?\\.jar");
+  }
+
+
+  static boolean usingEmbeddedNode() {
+    return platformStrings.stream().anyMatch(TestUtils.JAVASCRIPT_PLUGIN_LOCATION.toString()::contains);
   }
 
   public static Path projectDir(String projectName) {

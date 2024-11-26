@@ -84,11 +84,6 @@ public class TestActiveRules implements ActiveRules {
     }
 
     @Override
-    public Map<SoftwareQuality, Severity> impacts() {
-      return Map.of();
-    }
-
-    @Override
     public String language() {
       return null;
     }

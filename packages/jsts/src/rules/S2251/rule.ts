@@ -175,6 +175,9 @@ function getWrongDirection(
   return 0;
 }
 
-function isSameIdentifier(expression: estree.Expression, identifier: estree.Identifier) {
+function isSameIdentifier(
+  expression: estree.Expression | estree.PrivateIdentifier,
+  identifier: estree.Identifier,
+) {
   return expression.type === 'Identifier' && expression.name === identifier.name;
 }
