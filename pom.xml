@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.sonarsource.parent</groupId>
     <artifactId>parent</artifactId>
-    <version>80.0.0.2205</version>
+    <version>81.0.0.2300</version>
   </parent>
 
   <groupId>org.sonarsource.javascript</groupId>
@@ -23,8 +23,8 @@
   </organization>
   <licenses>
     <license>
-      <name>GNU LGPL 3</name>
-      <url>http://www.gnu.org/licenses/lgpl.txt</url>
+      <name>SSALv1</name>
+      <url>https://sonarsource.com/license/ssal/</url>
       <distribution>repo</distribution>
     </license>
   </licenses>
@@ -80,18 +80,18 @@
     <!-- Version corresponds to SQ 9.9 LTS -->
     <pluginApiMinVersion>9.14.0.375</pluginApiMinVersion>
 
-    <assertj.version>3.16.1</assertj.version>
-    <jgit.version>6.2.0.202206071550-r</jgit.version>
-    <junit.version>5.9.3</junit.version>
-    <mockito.version>3.5.0</mockito.version>
+    <assertj.version>3.26.3</assertj.version>
+    <jgit.version>6.10.0.202406032230-r</jgit.version>
+    <junit.version>5.11.3</junit.version>
+    <mockito.version>3.12.4</mockito.version>
     <slf4j.version>1.7.36</slf4j.version>
     <sonar.version>10.7.0.96327</sonar.version>
-    <sonar.api.version>10.12.0.2522</sonar.api.version>
+    <sonar.api.version>10.14.0.2599</sonar.api.version>
     <sonar-orchestrator.version>5.0.0.2065</sonar-orchestrator.version>
     <gson.version>2.11.0</gson.version>
-    <analyzer-commons.version>2.13.0.3004</analyzer-commons.version>
-    <sslr.version>1.22</sslr.version>
-    <sonarlint.plugin.api.version>9.1.1.74346</sonarlint.plugin.api.version>
+    <analyzer-commons.version>2.16.0.3141</analyzer-commons.version>
+    <sslr.version>1.24.0.633</sslr.version>
+    <sonarlint.plugin.api.version>9.8.0.76914</sonarlint.plugin.api.version>
 
     <artifactsToPublish>${project.groupId}:sonar-javascript-plugin:jar</artifactsToPublish>
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
@@ -155,12 +155,12 @@
       <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-compress</artifactId>
-        <version>1.26.0</version>
+        <version>1.27.1</version>
       </dependency>
       <dependency>
         <groupId>commons-io</groupId>
         <artifactId>commons-io</artifactId>
-        <version>2.17.0</version>
+        <version>2.18.0</version>
       </dependency>
       <dependency>
         <groupId>commons-lang</groupId>
@@ -168,9 +168,9 @@
         <version>2.6</version>
       </dependency>
       <dependency>
-          <groupId>org.sonarsource.sslr</groupId>
-          <artifactId>sslr-core</artifactId>
-          <version>${sslr.version}</version>
+        <groupId>org.sonarsource.sslr</groupId>
+        <artifactId>sslr-core</artifactId>
+        <version>${sslr.version}</version>
       </dependency>
       <dependency>
         <groupId>org.sonarsource.sonarlint.core</groupId>
@@ -181,7 +181,7 @@
       <dependency>
         <groupId>org.tukaani</groupId>
         <artifactId>xz</artifactId>
-        <version>1.9</version>
+        <version>1.10</version>
       </dependency>
       <dependency>
         <groupId>org.slf4j</groupId>
@@ -237,7 +237,7 @@
       <dependency>
         <groupId>org.awaitility</groupId>
         <artifactId>awaitility</artifactId>
-        <version>4.0.3</version>
+        <version>4.2.2</version>
         <scope>test</scope>
       </dependency>
 
@@ -280,25 +280,39 @@
         <artifactId>license-maven-plugin</artifactId>
         <!-- This plugin is already configured in parent pom, however we want a configuration specific to this project -->
         <configuration>
-          <includes>
-            <include>packages/**/*.ts</include>
-            <include>packages/**/*.tsx</include>
-            <include>profiling/**/*.ts</include>
-            <include>profiling/**/*.js</include>
-            <include>tools/resources/rule.*</include>
-            <include>tools/**/*.mjs</include>
-            <include>tools/**/*.ts</include>
-            <include>tools/**/*.java</include>
-          </includes>
           <mapping>
-            <template_java>JAVADOC_STYLE</template_java>
-            <template_ts>JAVADOC_STYLE</template_ts>
+            <js>SLASHSTAR_STYLE</js>
+            <mjs>SLASHSTAR_STYLE</mjs>
+            <cjs>SLASHSTAR_STYLE</cjs>
+            <ts>SLASHSTAR_STYLE</ts>
           </mapping>
-          <excludes>
-            <exclude>packages/**/fixtures/**/*</exclude>
-            <exclude>packages/**/*.fixture.*</exclude>
-            <exclude>**/src/test/resources/**/*</exclude>
-          </excludes>
+          <licenseSets>
+            <licenseSet>
+              <includes>
+                <include>**/*.java</include>
+                <include>**/*.js</include>
+                <include>**/*.cjs</include>
+                <include>**/*.mjs</include>
+                <include>**/*.ts</include>
+              </includes>
+              <excludes>
+                <!-- Files -->
+                <exclude>server.mjs</exclude>
+                <exclude>**/*.d.ts</exclude>
+                <!-- Folders -->
+                <exclude>its/**/*</exclude>
+                <!-- Generated -->
+                <exclude>**/bin/**/*</exclude>
+                <exclude>**/dist/**/*</exclude>
+                <exclude>**/lib/**/*</exclude>
+                <!-- Fixtures -->
+                <exclude>**/fixtures/**/*</exclude>
+                <exclude>**/*.fixture.*</exclude>
+                <!-- Resources -->
+                <exclude>**/src/test/resources/**/*</exclude>
+              </excludes>
+            </licenseSet>
+          </licenseSets>
         </configuration>
       </plugin>
     </plugins>
@@ -307,7 +321,7 @@
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>exec-maven-plugin</artifactId>
-          <version>3.0.0</version>
+          <version>3.5.0</version>
         </plugin>
       </plugins>
     </pluginManagement>
