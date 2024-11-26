@@ -122,7 +122,7 @@
     "htmlparser2": "9.1.0",
     "jsx-ast-utils": "3.3.5",
     "lodash.clone": "4.5.0",
-    "minimatch": "10.0.1",
+    "minimatch": "9.0.5",
     "module-alias": "2.2.3",
     "postcss": "8.4.47",
     "postcss-html": "0.36.0",
