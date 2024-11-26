@@ -26,7 +26,6 @@ import {
 import { meta } from './meta.js';
 import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
 import { FromSchema } from 'json-schema-to-ts';
-import { error } from '../../../../shared/src/helpers/logging.js';
 import estree from 'estree';
 import { TSESTree } from '@typescript-eslint/utils';
 
@@ -181,7 +180,7 @@ function buildSecretWordRegexps(secretWords: string) {
   try {
     return secretWords.split(',').map(word => new RegExp(`(${word})`, 'i'));
   } catch (e) {
-    error(
+    console.error(
       `Invalid characters provided to rule S6418 'hardcoded-secrets' parameter "secretWords": "${secretWords}" falling back to default: "${DEFAULT_SECRET_WORDS}". Error: ${e}`,
     );
     return buildSecretWordRegexps(DEFAULT_SECRET_WORDS);
