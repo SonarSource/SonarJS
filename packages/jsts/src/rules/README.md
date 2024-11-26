@@ -64,7 +64,9 @@ We include a `recommended-legacy` configuration to be backward compatible with E
 
 ## ESLint and Sonar
 
-This plugin exposes to ESLint users all JS/TS rules from Sonar-\* products (aka [SonarJS](https://github.com/SonarSource/SonarJS)). We extracted the rules to be beneficial for the ESLint community.
+This plugin exposes to ESLint users all original JS/TS rules from Sonar-\* products (aka [SonarJS](https://github.com/SonarSource/SonarJS)). We extracted the rules to be beneficial for the ESLint community.
+
+SonarJS contains more rules from other ESLint plugins (listed [here](#sonarjs-additional-rules)). We recommend enabling those rules if you are looking for similar results to SonarQube using ESLint.
 
 If you are a [SonarQube](https://www.sonarqube.org) or [SonarCloud](https://sonarcloud.io) user, to lint your code locally, we suggest using [SonarLint](https://www.sonarlint.org) IDE extension (available for VSCode, JetBrains IDEs and Eclipse). You can connect SonarLint to your SonarQube/SonarCloud project to synchronize rules configuration, issue statuses, etc.
 
@@ -349,3 +351,17 @@ If you are a [SonarQube](https://www.sonarqube.org) or [SonarCloud](https://sona
 | [xpath](https://sonarsource.github.io/rspec/#/rspec/S4817/javascript)                                | Executing XPath expressions is security-sensitive                                                                              |     |     |     |     | ❌  |
 
 <!-- end auto-generated rules list -->
+
+## SonarJS additional rules
+
+There are some rules which are not shipped in this ESLint plugin to avoid duplication with other already existing ESLint rules.
+
+The following rules are used directly, without modifying the original behavior:
+
+<!--- start external rules -->
+<!--- end external rules -->
+
+The following rules are used in SonarJS, but their behavior is modified, so your experience using them in your ESLint configuration may differ to the results you may get using SonarQube:
+
+<!--- start decorated rules -->
+<!--- end decorated rules -->
