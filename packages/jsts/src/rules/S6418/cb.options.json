@@ -1,0 +1,6 @@
+[
+  {
+    "secretWords": "api[_.-]?key,auth,credential,secret,token,yolo",
+    "randomnessSensibility": 5.0
+  }
+]

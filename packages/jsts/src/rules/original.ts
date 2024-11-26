@@ -92,6 +92,7 @@ export { rule as S100 } from './S100/index.js'; // function-name
 export { rule as S3800 } from './S3800/index.js'; // function-return-type
 export { rule as S1527 } from './S1527/index.js'; // future-reserved-words
 export { rule as S3531 } from './S3531/index.js'; // generator-without-yield
+export { rule as S6418 } from './S6418/index.js'; // hard-coded-credentials
 export { rule as S4790 } from './S4790/index.js'; // hashing
 export { rule as S5691 } from './S5691/index.js'; // hidden-files
 export { rule as S6754 } from './S6754/index.js'; // hook-use-state

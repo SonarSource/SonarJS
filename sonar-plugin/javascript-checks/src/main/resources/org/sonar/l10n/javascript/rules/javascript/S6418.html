@@ -1,0 +1,54 @@
+<p>Because it is easy to extract strings from an application source code or binary, secrets should not be hard-coded. This is particularly true for
+applications that are distributed or that are open-source.</p>
+<p>In the past, it has led to the following vulnerabilities:</p>
+<ul>
+  <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-25510">CVE-2022-25510</a> </li>
+  <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-42635">CVE-2021-42635</a> </li>
+</ul>
+<p>Secrets should be stored outside of the source code in a configuration file or a management service for secrets.</p>
+<p>This rule detects variables/fields having a name matching a list of words (secret, token, credential, auth, api[_.-]?key) being assigned a
+pseudorandom hard-coded value. The pseudorandomness of the hard-coded value is based on its entropy and the probability to be human-readable. The
+randomness sensibility can be adjusted if needed. Lower values will detect less random values, raising potentially more false positives.</p>
+<h2>Ask Yourself Whether</h2>
+<ul>
+  <li> The secret allows access to a sensitive component like a database, a file storage, an API, or a service. </li>
+  <li> The secret is used in a production environment. </li>
+  <li> Application re-distribution is required before updating the secret. </li>
+</ul>
+<p>There would be a risk if you answered yes to any of those questions.</p>
+<h2>Recommended Secure Coding Practices</h2>
+<ul>
+  <li> Store the secret in a configuration file that is not pushed to the code repository. </li>
+  <li> Use your cloud provider’s service for managing secrets. </li>
+  <li> If a secret has been disclosed through the source code: revoke it and create a new one. </li>
+</ul>
+<h2>Sensitive Code Example</h2>
+<pre>
+const API_KEY = "1234567890abcdef"  // Hard-coded secret (bad practice)
+
+const response = await fetch("https://api.my-service/v1/users", {
+  headers: {
+    Authorization: `Bearer ${API_KEY}`,
+  },
+});
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+const API_KEY = process.env.API_KEY;
+
+const response = await fetch("https://api.my-service/v1/users", {
+  headers: {
+    Authorization: `Bearer ${API_KEY}`,
+  },
+});
+</pre>
+<h2>See</h2>
+<ul>
+  <li> OWASP - <a href="https://owasp.org/Top10/A07_2021-Identification_and_Authentication_Failures/">Top 10 2021 Category A7 - Identification and
+  Authentication Failures</a> </li>
+  <li> OWASP - <a href="https://owasp.org/www-project-top-ten/2017/A2_2017-Broken_Authentication">Top 10 2017 Category A2 - Broken Authentication</a>
+  </li>
+  <li> CWE - <a href="https://cwe.mitre.org/data/definitions/798">CWE-798 - Use of Hard-coded Credentials</a> </li>
+  <li> MSC - <a href="https://wiki.sei.cmu.edu/confluence/x/OjdGBQ">MSC03-J - Never hard code sensitive information</a> </li>
+</ul>
+
