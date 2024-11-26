@@ -17,3 +17,7 @@
 export * from './generated-meta.js';
 export const implementation = 'decorated';
 export const eslintId = 'unnecessary-character-escapes';
+export const externalRules = [
+  { externalPlugin: 'eslint', externalRule: 'no-useless-escape' },
+  { externalPlugin: 'eslint', externalRule: 'no-nonoctal-decimal-escape' },
+];

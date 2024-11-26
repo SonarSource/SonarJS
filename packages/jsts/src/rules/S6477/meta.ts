@@ -17,3 +17,4 @@
 export * from './generated-meta.js';
 export const implementation = 'decorated';
 export const eslintId = 'jsx-key';
+export const externalRules = [{ externalPlugin: 'react', externalRule: 'jsx-key' }];

@@ -17,3 +17,4 @@
 export * from './generated-meta.js';
 export const implementation = 'decorated';
 export const eslintId = 'rules-of-hooks';
+export const externalRules = [{ externalPlugin: 'react-hooks', externalRule: 'rules-of-hooks' }];

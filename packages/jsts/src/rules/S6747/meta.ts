@@ -17,3 +17,7 @@
 export * from './generated-meta.js';
 export const implementation = 'decorated';
 export const eslintId = 'no-unknown-property';
+export const externalRules = [
+  { externalPlugin: 'react', externalRule: 'no-unknown-property' },
+  { externalPlugin: 'jsx-a11y', externalRule: 'aria-props' },
+];

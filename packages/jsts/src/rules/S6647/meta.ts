@@ -17,3 +17,4 @@
 export * from './generated-meta.js';
 export const implementation = 'decorated';
 export const eslintId = 'no-useless-constructor';
+export const externalRules = [{ externalPlugin: 'eslint', externalRule: 'no-useless-constructor' }];

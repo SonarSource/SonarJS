@@ -17,3 +17,8 @@
 export * from './generated-meta.js';
 export const implementation = 'decorated';
 export const eslintId = 'no-dupe-keys';
+export const externalRules = [
+  { externalPlugin: 'eslint', externalRule: 'no-dupe-keys' },
+  { externalPlugin: 'typescript-eslint', externalRule: 'no-dupe-class-members' },
+  { externalPlugin: 'react', externalRule: 'jsx-no-duplicate-props' },
+];

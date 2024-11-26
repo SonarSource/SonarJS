@@ -17,3 +17,4 @@
 export * from './generated-meta.js';
 export const implementation = 'decorated';
 export const eslintId = 'prefer-object-spread';
+export const externalRules = [{ externalPlugin: 'eslint', externalRule: 'prefer-object-spread' }];

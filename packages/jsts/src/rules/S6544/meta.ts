@@ -17,3 +17,7 @@
 export * from './generated-meta.js';
 export const implementation = 'decorated';
 export const eslintId = 'no-misused-promises';
+export const externalRules = [
+  { externalPlugin: 'typescript-eslint', externalRule: 'no-misused-promises' },
+  { externalPlugin: 'eslint', externalRule: 'no-async-promise-executor' },
+];

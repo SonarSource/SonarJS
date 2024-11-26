@@ -17,3 +17,6 @@
 export * from './generated-meta.js';
 export const implementation = 'decorated';
 export const eslintId = 'no-infinite-loop';
+export const externalRules = [
+  { externalPlugin: 'eslint', externalRule: 'no-unmodified-loop-condition' },
+];

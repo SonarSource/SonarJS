@@ -22,39 +22,72 @@ import { describe, it } from 'node:test';
 import { expect } from 'expect';
 import { pathToFileURL } from 'node:url';
 
+const externalPlugins = [
+  'eslint',
+  'typescript-eslint',
+  'jsx-a11y',
+  'import',
+  'react',
+  'react-hooks',
+];
+
+import { rules as a11yRules } from '../../src/rules/external/a11y.js';
+import { rules as reactRules } from '../../src/rules/external/react.js';
+import { getESLintCoreRule } from '../../src/rules/external/core.js';
+import { rules as tsEslintRules } from '../../src/rules/external/typescript-eslint/index.js';
+import { rules as importRules } from 'eslint-plugin-import';
+import { rules as reactHooksRules } from 'eslint-plugin-react-hooks';
+
+const allRules = {
+  eslint: key => getESLintCoreRule(key),
+  'typescript-eslint': key => tsEslintRules[key],
+  'jsx-a11y': key => a11yRules[key],
+  import: key => importRules[key],
+  react: key => reactRules[key],
+  'react-hooks': key => reactHooksRules[key],
+};
+
 describe('Plugin public API', () => {
   it('should map keys to rules definitions', async () => {
     const ruleFolder = path.join(import.meta.dirname, '../../src/rules');
     const ruleIds = fs.readdirSync(ruleFolder).filter(name => /^S\d+/.test(name));
-    const missing = [];
+    const usedExternalEslintIds = [];
+
     for (const ruleId of ruleIds) {
-      const { meta, implementation, eslintId, sonarKey } = await import(
+      const metadata = await import(
         pathToFileURL(path.join(ruleFolder, ruleId, 'meta.js')).toString()
       );
-      expect(sonarKey).toEqual(ruleId);
-      expect(['original', 'decorated', 'external']).toContain(implementation);
-      if (implementation !== 'original') {
-        continue;
-      }
-      const { rule } = await import(
-        pathToFileURL(path.join(ruleFolder, sonarKey, 'index.js')).toString()
-      );
-      expect(rule.meta.docs!.url).toBe(
-        `https://sonarsource.github.io/rspec/#/rspec/${sonarKey}/javascript`,
-      );
-      if (!eslintId) {
-        missing.push(sonarKey);
-      } else {
-        if (meta.docs.recommended) {
-          expect(configs.recommended.rules).toHaveProperty(`sonarjs/${eslintId}`);
-          expect(configs.recommended.rules[`sonarjs/${eslintId}`]).toEqual('error');
+      expect(metadata.eslintId).toBeDefined();
+      expect(metadata.sonarKey).toEqual(ruleId);
+      expect(['original', 'decorated', 'external']).toContain(metadata.implementation);
+      if (metadata.implementation === 'original') {
+        const { rule } = await import(
+          pathToFileURL(path.join(ruleFolder, metadata.sonarKey, 'index.js')).toString()
+        );
+        expect(rule.meta.docs!.url).toBe(
+          `https://sonarsource.github.io/rspec/#/rspec/${metadata.sonarKey}/javascript`,
+        );
+        if (metadata.meta.docs.recommended) {
+          expect(configs.recommended.rules).toHaveProperty(`sonarjs/${metadata.eslintId}`);
+          expect(configs.recommended.rules[`sonarjs/${metadata.eslintId}`]).toEqual('error');
         } else {
-          expect(configs.recommended.rules[`sonarjs/${eslintId}`]).toEqual('off');
+          expect(configs.recommended.rules[`sonarjs/${metadata.eslintId}`]).toEqual('off');
         }
-        expect(configs.recommended.plugins!['sonarjs'].rules).toHaveProperty(eslintId);
+        expect(configs.recommended.plugins!['sonarjs'].rules).toHaveProperty(metadata.eslintId);
+      } else if (metadata.implementation === 'external') {
+        expect(externalPlugins).toContain(metadata.externalPlugin);
+        expect(usedExternalEslintIds).not.toContain(metadata.eslintId);
+        usedExternalEslintIds.push(metadata.eslintId);
+      } else if (metadata.implementation === 'decorated') {
+        expect(metadata.externalRules.length).toBeGreaterThan(0);
+        metadata.externalRules.forEach(externalRule => {
+          expect(usedExternalEslintIds).not.toContain(externalRule.externalRule);
+          usedExternalEslintIds.push(externalRule.externalRule);
+          expect(externalPlugins).toContain(externalRule.externalPlugin);
+          expect(allRules[externalRule.externalPlugin](externalRule.externalRule)).toBeDefined();
+        });
       }
     }
-    expect(missing).toHaveLength(0);
   });
 
   it('should export legacy config', () => {

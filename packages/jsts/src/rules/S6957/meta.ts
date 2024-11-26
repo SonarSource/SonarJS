@@ -17,3 +17,5 @@
 export * from './generated-meta.js';
 export const implementation = 'decorated';
 export const eslintId = 'no-deprecated-react';
+
+export const externalRules = [{ externalPlugin: 'react', externalRule: 'no-deprecated' }];

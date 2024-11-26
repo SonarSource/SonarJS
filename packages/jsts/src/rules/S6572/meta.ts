@@ -17,3 +17,6 @@
 export * from './generated-meta.js';
 export const implementation = 'decorated';
 export const eslintId = 'prefer-enum-initializers';
+export const externalRules = [
+  { externalPlugin: 'typescript-eslint', externalRule: 'prefer-enum-initializers' },
+];

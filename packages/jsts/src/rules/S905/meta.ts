@@ -17,3 +17,6 @@
 export * from './generated-meta.js';
 export const implementation = 'decorated';
 export const eslintId = 'no-unused-expressions';
+export const externalRules = [
+  { externalPlugin: 'typescript-eslint', externalRule: 'no-unused-expressions' },
+];

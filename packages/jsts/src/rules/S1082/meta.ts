@@ -17,3 +17,7 @@
 export * from './generated-meta.js';
 export const implementation = 'decorated';
 export const eslintId = 'mouse-events-a11y';
+export const externalRules = [
+  { externalPlugin: 'jsx-a11y', externalRule: 'mouse-events-have-key-events' },
+  { externalPlugin: 'jsx-a11y', externalRule: 'click-events-have-key-events' },
+];

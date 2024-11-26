@@ -17,3 +17,6 @@
 export * from './generated-meta.js';
 export const implementation = 'decorated';
 export const eslintId = 'jsx-no-constructed-context-values';
+export const externalRules = [
+  { externalPlugin: 'react', externalRule: 'jsx-no-constructed-context-values' },
+];

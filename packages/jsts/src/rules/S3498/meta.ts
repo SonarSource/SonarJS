@@ -17,3 +17,4 @@
 export * from './generated-meta.js';
 export const implementation = 'decorated';
 export const eslintId = 'object-shorthand';
+export const externalRules = [{ externalPlugin: 'eslint', externalRule: 'object-shorthand' }];

@@ -17,3 +17,4 @@
 export * from './generated-meta.js';
 export const implementation = 'decorated';
 export const eslintId = 'no-self-import';
+export const externalRules = [{ externalPlugin: 'import', externalRule: 'no-self-import' }];

@@ -17,3 +17,6 @@
 export * from './generated-meta.js';
 export const implementation = 'decorated';
 export const eslintId = 'no-unused-private-class-members';
+export const externalRules = [
+  { externalPlugin: 'eslint', externalRule: 'no-unused-private-class-members' },
+];

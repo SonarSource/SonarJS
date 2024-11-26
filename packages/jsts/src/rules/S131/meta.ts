@@ -17,3 +17,6 @@
 export * from './generated-meta.js';
 export const implementation = 'decorated';
 export const eslintId = 'switch-without-default';
+export const externalRules = [
+  { externalPlugin: 'typescript-eslint', externalRule: 'switch-exhaustiveness-check' },
+];

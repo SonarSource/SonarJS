@@ -17,3 +17,4 @@
 export * from './generated-meta.js';
 export const implementation = 'decorated';
 export const eslintId = 'media-has-caption';
+export const externalRules = [{ externalPlugin: 'jsx-a11y', externalRule: 'media-has-caption' }];

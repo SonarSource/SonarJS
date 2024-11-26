@@ -17,3 +17,4 @@
 export * from './generated-meta.js';
 export const implementation = 'decorated';
 export const eslintId = 'no-find-dom-node';
+export const externalRules = [{ externalPlugin: 'react', externalRule: 'no-find-dom-node' }];

@@ -17,3 +17,4 @@
 export * from './generated-meta.js';
 export const implementation = 'decorated';
 export const eslintId = 'prefer-template';
+export const externalRules = [{ externalPlugin: 'eslint', externalRule: 'prefer-template' }];

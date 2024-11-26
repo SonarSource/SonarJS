@@ -17,3 +17,6 @@
 export * from './generated-meta.js';
 export const implementation = 'decorated';
 export const eslintId = 'no-this-alias';
+export const externalRules = [
+  { externalPlugin: 'typescript-eslint', externalRule: 'no-this-alias' },
+];

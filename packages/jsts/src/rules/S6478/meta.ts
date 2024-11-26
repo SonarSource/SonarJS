@@ -17,3 +17,6 @@
 export * from './generated-meta.js';
 export const implementation = 'decorated';
 export const eslintId = 'no-unstable-nested-components';
+export const externalRules = [
+  { externalPlugin: 'react', externalRule: 'no-unstable-nested-components' },
+];

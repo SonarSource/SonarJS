@@ -17,3 +17,6 @@
 export * from './generated-meta.js';
 export const implementation = 'decorated';
 export const eslintId = 'default-param-last';
+export const externalRules = [
+  { externalPlugin: 'typescript-eslint', externalRule: 'default-param-last' },
+];

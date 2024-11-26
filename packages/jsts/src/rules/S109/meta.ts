@@ -17,3 +17,6 @@
 export * from './generated-meta.js';
 export const implementation = 'decorated';
 export const eslintId = 'no-magic-numbers';
+export const externalRules = [
+  { externalPlugin: 'typescript-eslint', externalRule: 'no-magic-numbers' },
+];

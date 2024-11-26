@@ -17,3 +17,4 @@
 export * from './generated-meta.js';
 export const implementation = 'decorated';
 export const eslintId = 'new-cap';
+export const externalRules = [{ externalPlugin: 'eslint', externalRule: 'new-cap' }];

@@ -17,3 +17,7 @@
 export * from './generated-meta.js';
 export const implementation = 'decorated';
 export const eslintId = 'html-has-lang';
+export const externalRules = [
+  { externalPlugin: 'jsx-a11y', externalRule: 'lang' },
+  { externalPlugin: 'jsx-a11y', externalRule: 'html-has-lang' },
+];
