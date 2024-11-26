@@ -20,7 +20,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -32,7 +31,7 @@ import org.sonar.plugins.javascript.api.JavaScriptCheck;
 
 class CheckListTest {
 
-  private static final int CHECKS_PROPERTIES_COUNT = 36;
+  private static final int CHECKS_PROPERTIES_COUNT = 38;
 
   /**
    * Enforces that each check declared in list.

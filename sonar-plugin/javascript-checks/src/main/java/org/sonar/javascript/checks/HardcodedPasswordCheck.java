@@ -27,7 +27,7 @@ import org.sonar.plugins.javascript.api.TypeScriptRule;
 @JavaScriptRule
 @TypeScriptRule
 @Rule(key = "S2068")
-public class HardcodedCredentialsCheck extends Check {
+public class HardcodedPasswordCheck extends Check {
 
   private static final String DEFAULT = "password, pwd, passwd";
 
@@ -45,12 +45,8 @@ public class HardcodedCredentialsCheck extends Check {
     );
   }
 
-
-
   private static class Config {
-
     String[] credentialWords;
-
     Config(String[] credentialWords) {
       this.credentialWords = credentialWords;
     }
