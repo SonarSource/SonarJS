@@ -82,7 +82,7 @@ await fs.writeFile(
         'https://github.com/SonarSource/SonarJS/blob/master/packages/jsts/src/rules/README.md',
       dependencies,
       peerDependencies: {
-        eslint: '8.0.0 - 9.14',
+        eslint: '^8.0.0 || ^9.0.0',
       },
     },
     null,
