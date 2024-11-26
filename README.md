@@ -32,7 +32,7 @@ If you want to report a bug, request a feature, or provide other kind of feedbac
 
 ## Prerequisites
 
-To work on this Project, it is required to have the following tools installed:
+To work on this project, it is required to have the following tools installed:
 
 - [JDK 17](https://docs.aws.amazon.com/corretto/latest/corretto-17-ug/what-is-corretto-17.html)
 - [Node.js](https://nodejs.org/en) >= 22
