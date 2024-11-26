@@ -161,6 +161,7 @@ function findKeySuspect(node: TSESTree.Node): string | undefined {
     return undefined;
   }
 }
+
 function findValueSuspect(node: TSESTree.Node | undefined | null): TSESTree.Node | undefined {
   if (
     node &&
