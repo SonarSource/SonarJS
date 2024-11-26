@@ -26,8 +26,8 @@ import {
 import { meta } from './meta.js';
 import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
 import { FromSchema } from 'json-schema-to-ts';
-import { TSESTree } from '@typescript-eslint/utils';
 import { error } from '../../../../shared/src/helpers/logging.js';
+import estree from 'estree';
 
 const DEFAULT_SECRET_WORDS = 'api[_.-]?key,auth,credential,secret,token';
 const DEFAULT_RANDOMNESS_SENSIBILITY = 5.0;
@@ -78,37 +78,34 @@ export const rule: Rule.RuleModule = {
 
     return {
       AssignmentExpression(node) {
-        handleAssignmentExpression(context, node as TSESTree.AssignmentExpression);
+        handleAssignmentExpression(context, node);
       },
       AssignmentPattern(node) {
-        handleAssignmentPattern(context, node as TSESTree.AssignmentPattern);
+        handleAssignmentPattern(context, node);
       },
       Property(node) {
-        handlePropertyAndPropertyDefinition(context, node as TSESTree.Property);
+        handlePropertyAndPropertyDefinition(context, node);
       },
       PropertyDefinition(node) {
-        handlePropertyAndPropertyDefinition(context, node as TSESTree.PropertyDefinition);
+        handlePropertyAndPropertyDefinition(context, node);
       },
       VariableDeclarator(node) {
-        handleVariableDeclarator(context, node as TSESTree.VariableDeclarator);
+        handleVariableDeclarator(context, node);
       },
     };
   },
 };
 
-function handleAssignmentExpression(
-  context: Rule.RuleContext,
-  node: TSESTree.AssignmentExpression,
-) {
+function handleAssignmentExpression(context: Rule.RuleContext, node: estree.AssignmentExpression) {
   const keySuspect = findKeySuspect(node.left);
   const valueSuspect = findValueSuspect(extractDefaultOperatorIfNeeded(node));
   if (keySuspect && valueSuspect) {
     context.report({
-      node: node.right as TSESTree.Literal,
+      node: node.right,
       message: message(keySuspect),
     });
   }
-  function extractDefaultOperatorIfNeeded(node: TSESTree.AssignmentExpression): TSESTree.Node {
+  function extractDefaultOperatorIfNeeded(node: estree.AssignmentExpression): estree.Node {
     const defaultOperators = ['??', '||'];
     if (isLogicalExpression(node.right) && defaultOperators.includes(node.right.operator)) {
       return node.right.right;
@@ -117,41 +114,41 @@ function handleAssignmentExpression(
     }
   }
 }
-function handleAssignmentPattern(context: Rule.RuleContext, node: TSESTree.AssignmentPattern) {
+function handleAssignmentPattern(context: Rule.RuleContext, node: estree.AssignmentPattern) {
   const keySuspect = findKeySuspect(node.left);
   const valueSuspect = findValueSuspect(node.right);
   if (keySuspect && valueSuspect) {
     context.report({
-      node: node.right as TSESTree.Literal,
+      node: node.right,
       message: message(keySuspect),
     });
   }
 }
 function handlePropertyAndPropertyDefinition(
   context: Rule.RuleContext,
-  node: TSESTree.Property | TSESTree.PropertyDefinition,
+  node: estree.Property | estree.PropertyDefinition,
 ) {
   const keySuspect = findKeySuspect(node.key);
   const valueSuspect = findValueSuspect(node.value);
   if (keySuspect && valueSuspect) {
     context.report({
-      node: node.value as TSESTree.Literal,
+      node: node.value as estree.Literal,
       message: message(keySuspect),
     });
   }
 }
-function handleVariableDeclarator(context: Rule.RuleContext, node: TSESTree.VariableDeclarator) {
+function handleVariableDeclarator(context: Rule.RuleContext, node: estree.VariableDeclarator) {
   const keySuspect = findKeySuspect(node.id);
   const valueSuspect = findValueSuspect(node.init);
   if (keySuspect && valueSuspect) {
     context.report({
-      node: node.init as TSESTree.Literal,
+      node: node.init as estree.Literal,
       message: message(keySuspect),
     });
   }
 }
 
-function findKeySuspect(node: TSESTree.Node): string | undefined {
+function findKeySuspect(node: estree.Node): string | undefined {
   if (isIdentifier(node) && secretWordRegexps.some(pattern => pattern.test(node.name))) {
     return node.name;
   } else {
@@ -159,7 +156,7 @@ function findKeySuspect(node: TSESTree.Node): string | undefined {
   }
 }
 
-function findValueSuspect(node: TSESTree.Node | undefined | null): TSESTree.Node | undefined {
+function findValueSuspect(node: estree.Node | undefined | null): estree.Node | undefined {
   if (
     node &&
     isStringLiteral(node) &&
@@ -181,7 +178,7 @@ function buildSecretWordRegexps(secretWords: string) {
     return secretWords.split(',').map(word => new RegExp(`(${word})`, 'i'));
   } catch (e) {
     error(
-      `Invalid characters provided to rule S6418 'hardcoded-secrets' parameter "secretWords": "${secretWords}" falling back to default: "${DEFAULT_SECRET_WORDS}".`,
+      `Invalid characters provided to rule S6418 'hardcoded-secrets' parameter "secretWords": "${secretWords}" falling back to default: "${DEFAULT_SECRET_WORDS}". Error: ${e}`,
     );
     return buildSecretWordRegexps(DEFAULT_SECRET_WORDS);
   }
