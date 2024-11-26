@@ -205,11 +205,11 @@ const ShannonEntropy = {
       occurences[letter] = (occurences[letter] ?? 0) + 1;
     }
     const values = Object.values(occurences);
-    const entropy =
+    return (
       values
         .map(count => count / lettersTotal)
         .map(frequency => -frequency * Math.log(frequency))
-        .reduce((acc, entropy) => acc + entropy, 0) / Math.log(2);
-    return entropy;
+        .reduce((acc, entropy) => acc + entropy, 0) / Math.log(2)
+    );
   },
 };
