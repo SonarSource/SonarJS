@@ -17,26 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { JavaScriptRuleTester } from '../../../tests/tools/index.js';
-import { rule } from './rule.js';
+package org.sonar.javascript.checks;
 
-const ruleTester = new JavaScriptRuleTester();
+import static org.assertj.core.api.Assertions.assertThat;
 
-ruleTester.run('Rule S6418 - hardcoded-secrets', rule, {
-  valid: [],
-  invalid: [
-    // we're verifying that given a broken RegExp, the rule still works.
-    {
-      code: `
-      secret = '9ah9w8dha9w8hd98h';
-      `,
-      options: [
-        {
-          secretWords: 'sel/\\',
-          randomnessSensibility: 0.5,
-        },
-      ],
-      errors: 1,
-    },
-  ],
-});
+import com.google.gson.Gson;
+import org.junit.jupiter.api.Test;
+
+class HardcodedSecretsCheckTest {
+
+  @Test
+  void configurations() {
+    HardcodedSecretsCheck check = new HardcodedSecretsCheck();
+    // default configuration
+    String defaultConfigAsString = new Gson().toJson(check.configurations());
+    assertThat(defaultConfigAsString).isEqualTo(
+      "[{\"secretWords\":\"api[_.-]?key,auth,credential,secret,token\",\"randomnessSensibility\":\"3.0\"}]"
+    );
+  }
+}

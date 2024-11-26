@@ -52,10 +52,10 @@ const schema = {
     {
       type: 'object',
       properties: {
-        'secret-words': {
+        secretWords: {
           type: 'string',
         },
-        'randomness-sensibility': {
+        randomnessSensibility: {
           type: 'number',
         },
       },
@@ -73,10 +73,10 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     // get typed rule options with FromSchema helper
     const secretWords =
-      (context.options as FromSchema<typeof schema>)[0]?.['secret-words'] ?? DEFAULT_SECRET_WORDS;
+      (context.options as FromSchema<typeof schema>)[0]?.['secretWords'] ?? DEFAULT_SECRET_WORDS;
     secretWordRegexps = buildSecretWordRegexps(secretWords);
     randomnessSensibility =
-      (context.options as FromSchema<typeof schema>)[0]?.['randomness-sensibility'] ??
+      (context.options as FromSchema<typeof schema>)[0]?.['randomnessSensibility'] ??
       DEFAULT_RANDOMNESS_SENSIBILITY;
 
     return {
@@ -184,7 +184,7 @@ function buildSecretWordRegexps(secretWords: string) {
     return secretWords.split(',').map(word => new RegExp(`(${word})`, 'i'));
   } catch (e) {
     error(
-      `Invalid characters provided to rule S6418 'hardcoded-secrets' parameter "secret-words": "${secretWords}" falling back to default: "${DEFAULT_SECRET_WORDS}".`,
+      `Invalid characters provided to rule S6418 'hardcoded-secrets' parameter "secretWords": "${secretWords}" falling back to default: "${DEFAULT_SECRET_WORDS}".`,
     );
     return buildSecretWordRegexps(DEFAULT_SECRET_WORDS);
   }

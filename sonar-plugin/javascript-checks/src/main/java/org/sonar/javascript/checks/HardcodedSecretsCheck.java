@@ -33,16 +33,16 @@ import org.sonar.plugins.javascript.api.TypeScriptRule;
 public class HardcodedSecretsCheck extends Check {
 
   private static final String DEFAULT_SECRET_WORDS = "api[_.-]?key,auth,credential,secret,token";
-  private static final String DEFAULT_RANDOMNESS_SENSIBILITY = "5.0";
+  private static final String DEFAULT_RANDOMNESS_SENSIBILITY = "3.0";
 
   @RuleProperty(
-    key = "secret-words",
+    key = "secretWords",
     description = "Comma separated list of words identifying potential secrets",
     defaultValue = DEFAULT_SECRET_WORDS
   )
   public String secretWords = DEFAULT_SECRET_WORDS;
   @RuleProperty(
-    key = "randomness-sensibility",
+    key = "randomnessSensibility",
     description = "Minimum shannon entropy threshold of the secret",
     defaultValue = DEFAULT_RANDOMNESS_SENSIBILITY
   )
