@@ -14,6 +14,13 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-export * from './generated-meta.js';
-export const implementation = 'original';
-export const eslintId = 'no-hardcoded-passwords';
+import { check } from '../../../tests/tools/index.js';
+import { rule } from './index.js';
+import path from 'path';
+import { describe } from 'node:test';
+
+const sonarId = path.basename(import.meta.dirname);
+
+describe('Rule S6418', () => {
+  check(sonarId, rule, import.meta.dirname);
+});

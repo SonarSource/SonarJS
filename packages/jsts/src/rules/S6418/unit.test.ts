@@ -14,6 +14,26 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-export * from './generated-meta.js';
-export const implementation = 'original';
-export const eslintId = 'no-hardcoded-passwords';
+import { JavaScriptRuleTester } from '../../../tests/tools/index.js';
+import { rule } from './rule.js';
+
+const ruleTester = new JavaScriptRuleTester();
+
+ruleTester.run('Rule S6418 - no-hardcoded-secrets', rule, {
+  valid: [],
+  invalid: [
+    // we're verifying that given a broken RegExp, the rule still works.
+    {
+      code: `
+      secret = '9ah9w8dha9w8hd98h';
+      `,
+      options: [
+        {
+          secretWords: 'sel/\\',
+          randomnessSensibility: 0.5,
+        },
+      ],
+      errors: 1,
+    },
+  ],
+});

@@ -185,7 +185,12 @@ public class AnalysisProcessor {
         file,
         issue.line()
       );
-      saveIssue(issue);
+      try {
+        saveIssue(issue);
+      } catch (RuntimeException e) {
+        LOG.warn("Failed to save issue in {} at line {}", file.uri(), issue.line());
+        LOG.warn("Exception cause", e);
+      }
     }
   }
 

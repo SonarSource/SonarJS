@@ -16,4 +16,4 @@
  */
 export * from './generated-meta.js';
 export const implementation = 'original';
-export const eslintId = 'no-hardcoded-passwords';
+export const eslintId = 'no-hardcoded-secrets';

@@ -35,6 +35,7 @@ import org.sonar.plugins.javascript.bridge.BridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.bridge.BridgeServer.CpdToken;
 import org.sonar.plugins.javascript.bridge.BridgeServer.Highlight;
 import org.sonar.plugins.javascript.bridge.BridgeServer.HighlightedSymbol;
+import org.sonar.plugins.javascript.bridge.BridgeServer.Issue;
 import org.sonar.plugins.javascript.bridge.BridgeServer.Location;
 import org.sonar.plugins.javascript.bridge.BridgeServer.Metrics;
 
@@ -106,5 +107,22 @@ class AnalysisProcessorTest {
     assertThat(context.cpdTokens(file.key())).isNull();
     assertThat(logTester.logs())
       .contains("Failed to save CPD token in " + file.uri() + ". File will not be analyzed for duplications.");
+  }
+
+  @Test
+  void should_not_fail_when_invalid_issue() {
+    var fileLinesContextFactory = mock(FileLinesContextFactory.class);
+    when(fileLinesContextFactory.createFor(any())).thenReturn(mock(FileLinesContext.class));
+    var processor = new AnalysisProcessor(mock(NoSonarFilter.class), fileLinesContextFactory);
+    var context = SensorContextTester.create(baseDir);
+    var file = TestInputFileBuilder
+      .create("moduleKey", "file.js")
+      .setContents("var x  = 1;")
+      .build();
+    var issue = new Issue(2, 1, 1, 2, "message", "ruleId", List.of(), 3.14, List.of()); // invalid location startLine > endLine
+    var response = new AnalysisResponse(null, List.of(issue), List.of(), List.of(), new Metrics(), List.of(), List.of(), null);
+    processor.processResponse(context, mock(JsTsChecks.class), file, response);
+    assertThat(logTester.logs())
+      .contains("Failed to save issue in " + file.uri() + " at line 2");
   }
 }

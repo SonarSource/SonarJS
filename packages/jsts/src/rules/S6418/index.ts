@@ -14,6 +14,4 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-export * from './generated-meta.js';
-export const implementation = 'original';
-export const eslintId = 'no-hardcoded-passwords';
+export { rule } from './rule.js';

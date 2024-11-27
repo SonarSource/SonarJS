@@ -1,5 +1,5 @@
 {
-  "title": "Hard-coded passwords are security-sensitive",
+  "title": "Hard-coded secrets are security-sensitive",
   "type": "SECURITY_HOTSPOT",
   "code": {
     "impacts": {
@@ -16,13 +16,12 @@
     "cwe"
   ],
   "defaultSeverity": "Blocker",
-  "ruleSpecification": "RSPEC-2068",
-  "sqKey": "S2068",
+  "ruleSpecification": "RSPEC-6418",
+  "sqKey": "S6418",
   "scope": "Main",
   "securityStandards": {
     "CWE": [
-      798,
-      259
+      798
     ],
     "OWASP": [
       "A2"
@@ -42,6 +41,7 @@
       "6.4.1"
     ]
   },
+  "quickfix": "infeasible",
   "compatibleLanguages": [
     "JAVASCRIPT",
     "TYPESCRIPT"

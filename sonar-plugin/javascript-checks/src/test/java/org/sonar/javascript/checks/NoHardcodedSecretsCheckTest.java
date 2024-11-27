@@ -14,6 +14,22 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-export * from './generated-meta.js';
-export const implementation = 'original';
-export const eslintId = 'no-hardcoded-passwords';
+package org.sonar.javascript.checks;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import com.google.gson.Gson;
+import org.junit.jupiter.api.Test;
+
+class NoHardcodedSecretsCheckTest {
+
+  @Test
+  void configurations() {
+    NoHardcodedSecretsCheck check = new NoHardcodedSecretsCheck();
+    // default configuration
+    String defaultConfigAsString = new Gson().toJson(check.configurations());
+    assertThat(defaultConfigAsString).isEqualTo(
+      "[{\"secretWords\":\"api[_.-]?key,auth,credential,secret,token\",\"randomnessSensibility\":\"5.0\"}]"
+    );
+  }
+}
