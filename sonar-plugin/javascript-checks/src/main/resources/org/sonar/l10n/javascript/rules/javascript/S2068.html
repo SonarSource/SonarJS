@@ -1,34 +1,32 @@
-<p>Because it is easy to extract strings from an application source code or binary, credentials should not be hard-coded. This is particularly true
-for applications that are distributed or that are open-source.</p>
+<p>Because it is easy to extract strings from an application source code or binary, passwords should not be hard-coded. This is particularly true for
+applications that are distributed or that are open-source.</p>
 <p>In the past, it has led to the following vulnerabilities:</p>
 <ul>
   <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-13466">CVE-2019-13466</a> </li>
   <li> <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-15389">CVE-2018-15389</a> </li>
 </ul>
-<p>Credentials should be stored outside of the code in a configuration file, a database, or a management service for secrets.</p>
-<p>This rule flags instances of hard-coded credentials used in database and LDAP connections. It looks for hard-coded credentials in connection
-strings, and for variable names that match any of the patterns from the provided list.</p>
-<p>It’s recommended to customize the configuration of this rule with additional credential words such as "oauthToken", "secret", …​</p>
+<p>Passwords should be stored outside of the code in a configuration file, a database, or a management service for passwords.</p>
+<p>This rule flags instances of hard-coded passwords used in database and LDAP connections. It looks for hard-coded passwords in connection strings,
+and for variable names that match any of the patterns from the provided list.</p>
 <h2>Ask Yourself Whether</h2>
 <ul>
-  <li> Credentials allow access to a sensitive component like a database, a file storage, an API or a service. </li>
-  <li> Credentials are used in production environments. </li>
-  <li> Application re-distribution is required before updating the credentials. </li>
+  <li> Passwords allow access to a sensitive component like a database, a file storage, an API or a service. </li>
+  <li> Passwords are used in production environments. </li>
+  <li> Application re-distribution is required before updating the passwords. </li>
 </ul>
 <p>There is a risk if you answered yes to any of those questions.</p>
 <h2>Recommended Secure Coding Practices</h2>
 <ul>
-  <li> Store the credentials in a configuration file that is not pushed to the code repository. </li>
-  <li> Store the credentials in a database. </li>
-  <li> Use your cloud provider’s service for managing secrets. </li>
+  <li> Store the passwords in a configuration file that is not pushed to the code repository. </li>
+  <li> Store the passwords in a database. </li>
+  <li> Use your cloud provider’s service for managing passwords. </li>
   <li> If a password has been disclosed through the source code: change it. </li>
 </ul>
 <h2>Sensitive Code Example</h2>
 <pre>
-var mysql = require('mysql');
+const mysql = require('mysql');
 
-var connection = mysql.createConnection(
-{
+const connection = mysql.createConnection({
   host:'localhost',
   user: "admin",
   database: "project",
@@ -40,9 +38,9 @@ connection.connect();
 </pre>
 <h2>Compliant Solution</h2>
 <pre>
-var mysql = require('mysql');
+const mysql = require('mysql');
 
-var connection = mysql.createConnection({
+const connection = mysql.createConnection({
   host: process.env.MYSQL_URL,
   user: process.env.MYSQL_USERNAME,
   password: process.env.MYSQL_PASSWORD,
@@ -56,7 +54,6 @@ connection.connect();
   Authentication Failures</a> </li>
   <li> OWASP - <a href="https://owasp.org/www-project-top-ten/2017/A2_2017-Broken_Authentication">Top 10 2017 Category A2 - Broken Authentication</a>
   </li>
-  <li> CWE - <a href="https://cwe.mitre.org/data/definitions/798">CWE-798 - Use of Hard-coded Credentials</a> </li>
   <li> CWE - <a href="https://cwe.mitre.org/data/definitions/259">CWE-259 - Use of Hard-coded Password</a> </li>
   <li> Derived from FindSecBugs rule <a href="https://h3xstream.github.io/find-sec-bugs/bugs.htm#HARD_CODE_PASSWORD">Hard Coded Password</a> </li>
 </ul>

@@ -19,7 +19,7 @@
 export const meta = {
   type: 'problem',
   docs: {
-    description: 'Hard-coded credentials are security-sensitive',
+    description: 'Hard-coded passwords are security-sensitive',
     recommended: true,
     url: 'https://sonarsource.github.io/rspec/#/rspec/S2068/javascript',
     requiresTypeChecking: false,
@@ -36,7 +36,7 @@ export const schema = {
     {
       type: 'object',
       properties: {
-        credentialWords: {
+        passwordWords: {
           type: 'array',
           items: {
             type: 'string',

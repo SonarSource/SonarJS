@@ -26,7 +26,7 @@ import { meta, schema } from './meta.js';
 const DEFAULT_NAMES = ['password', 'pwd', 'passwd'];
 
 const messages = {
-  reviewCredential: 'Review this potentially hardcoded credential.',
+  reviewPassword: 'Review this potentially hard-coded password.',
 };
 
 export const rule: Rule.RuleModule = {
@@ -39,7 +39,7 @@ export const rule: Rule.RuleModule = {
     }
 
     const variableNames =
-      (context.options as FromSchema<typeof schema>)[0]?.credentialWords ?? DEFAULT_NAMES;
+      (context.options as FromSchema<typeof schema>)[0]?.passwordWords ?? DEFAULT_NAMES;
     const literalRegExp = variableNames.map(name => new RegExp(`${name}=.+`));
     return {
       VariableDeclarator: (node: estree.Node) => {
@@ -75,7 +75,7 @@ function checkAssignment(
     patterns.some(pattern => context.sourceCode.getText(variable).includes(pattern))
   ) {
     context.report({
-      messageId: 'reviewCredential',
+      messageId: 'reviewPassword',
       node: initializer,
     });
   }
@@ -84,7 +84,7 @@ function checkAssignment(
 function checkLiteral(context: Rule.RuleContext, patterns: RegExp[], literal: estree.Literal) {
   if (isStringLiteral(literal) && patterns.some(pattern => pattern.test(literal.value as string))) {
     context.report({
-      messageId: 'reviewCredential',
+      messageId: 'reviewPassword',
       node: literal,
     });
   }

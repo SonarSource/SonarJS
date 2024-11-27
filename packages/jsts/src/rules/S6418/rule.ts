@@ -181,7 +181,7 @@ function buildSecretWordRegexps(secretWords: string) {
     return secretWords.split(',').map(word => new RegExp(`(${word})`, 'i'));
   } catch (e) {
     console.error(
-      `Invalid characters provided to rule S6418 'hardcoded-secrets' parameter "secretWords": "${secretWords}" falling back to default: "${DEFAULT_SECRET_WORDS}". Error: ${e}`,
+      `Invalid characters provided to rule S6418 'no-hardcoded-secrets' parameter "secretWords": "${secretWords}" falling back to default: "${DEFAULT_SECRET_WORDS}". Error: ${e}`,
     );
     return buildSecretWordRegexps(DEFAULT_SECRET_WORDS);
   }

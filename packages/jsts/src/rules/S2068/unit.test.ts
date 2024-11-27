@@ -24,9 +24,9 @@ const ruleTester = new NodeRuleTester({
   parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
 });
 
-const options = [{ credentialWords: ['password', 'pwd', 'passwd'] }];
+const options = [{ passwordWords: ['password', 'pwd', 'passwd'] }];
 
-ruleTester.run('Hardcoded credentials should be avoided', rule, {
+ruleTester.run('Hard-coded passwords should be avoided', rule, {
   valid: [
     {
       code: `let password = ""`,
@@ -44,7 +44,7 @@ ruleTester.run('Hardcoded credentials should be avoided', rule, {
       options,
       errors: [
         {
-          message: 'Review this potentially hardcoded credential.',
+          message: 'Review this potentially hard-coded password.',
           line: 1,
           endLine: 1,
           column: 16,
@@ -66,7 +66,7 @@ ruleTester.run('Hardcoded credentials should be avoided', rule, {
       errors: 1,
     },
     {
-      code: `let credentials = { user: "foo", passwd: "bar" };`,
+      code: `let passwords = { user: "foo", passwd: "bar" };`,
       options,
       errors: 1,
     },
@@ -77,12 +77,12 @@ ruleTester.run('Hardcoded credentials should be avoided', rule, {
     },
     {
       code: `let secret = "foo"`,
-      options: [{ credentialWords: ['secret'] }],
+      options: [{ passwordWords: ['secret'] }],
       errors: 1,
     },
     {
       code: `let url = "https://example.com?token=hl2OAIXXZ60";`,
-      options: [{ credentialWords: ['token'] }],
+      options: [{ passwordWords: ['token'] }],
       errors: 1,
     },
     {

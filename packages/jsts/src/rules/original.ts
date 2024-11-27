@@ -92,7 +92,6 @@ export { rule as S100 } from './S100/index.js'; // function-name
 export { rule as S3800 } from './S3800/index.js'; // function-return-type
 export { rule as S1527 } from './S1527/index.js'; // future-reserved-words
 export { rule as S3531 } from './S3531/index.js'; // generator-without-yield
-export { rule as S6418 } from './S6418/index.js'; // hard-coded-credentials
 export { rule as S4790 } from './S4790/index.js'; // hashing
 export { rule as S5691 } from './S5691/index.js'; // hidden-files
 export { rule as S6754 } from './S6754/index.js'; // hook-use-state
@@ -146,8 +145,9 @@ export { rule as S1530 } from './S1530/index.js'; // no-function-declaration-in-
 export { rule as S2990 } from './S2990/index.js'; // no-global-this
 export { rule as S2137 } from './S2137/index.js'; // no-globals-shadowing
 export { rule as S2589 } from './S2589/index.js'; // no-gratuitous-expressions
-export { rule as S2068 } from './S2068/index.js'; // no-hardcoded-credentials
 export { rule as S1313 } from './S1313/index.js'; // no-hardcoded-ip
+export { rule as S2068 } from './S2068/index.js'; // no-hardcoded-passwords
+export { rule as S6418 } from './S6418/index.js'; // no-hardcoded-secrets
 export { rule as S6442 } from './S6442/index.js'; // no-hook-setter-in-body
 export { rule as S1862 } from './S1862/index.js'; // no-identical-conditions
 export { rule as S1764 } from './S1764/index.js'; // no-identical-expressions
