@@ -21,15 +21,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.google.gson.Gson;
 import org.junit.jupiter.api.Test;
 
-class HardcodedSecretsCheckTest {
+class NoHardcodedPasswordsCheckTest {
 
   @Test
   void configurations() {
-    HardcodedSecretsCheck check = new HardcodedSecretsCheck();
+    NoHardcodedPasswordsCheck check = new NoHardcodedPasswordsCheck();
     // default configuration
     String defaultConfigAsString = new Gson().toJson(check.configurations());
-    assertThat(defaultConfigAsString).isEqualTo(
-      "[{\"secretWords\":\"api[_.-]?key,auth,credential,secret,token\",\"randomnessSensibility\":\"5.0\"}]"
-    );
+    assertThat(defaultConfigAsString).isEqualTo("[{\"passwordWords\":[\"password\",\"pwd\",\"passwd\"]}]");
+
+    check.passwordWords = "foo, bar";
+    String customConfigAsString = new Gson().toJson(check.configurations());
+    assertThat(customConfigAsString).isEqualTo("[{\"passwordWords\":[\"foo\",\"bar\"]}]");
   }
 }

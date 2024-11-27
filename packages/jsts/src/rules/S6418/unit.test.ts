@@ -19,7 +19,7 @@ import { rule } from './rule.js';
 
 const ruleTester = new JavaScriptRuleTester();
 
-ruleTester.run('Rule S6418 - hardcoded-secrets', rule, {
+ruleTester.run('Rule S6418 - no-hardcoded-secrets', rule, {
   valid: [],
   invalid: [
     // we're verifying that given a broken RegExp, the rule still works.

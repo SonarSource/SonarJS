@@ -24,31 +24,42 @@ import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
 
-@JavaScriptRule
 @TypeScriptRule
-@Rule(key = "S2068")
-public class HardcodedPasswordCheck extends Check {
+@JavaScriptRule
+@Rule(key = "S6418")
+public class NoHardcodedSecretsCheck extends Check {
 
-  private static final String DEFAULT = "password, pwd, passwd";
+  private static final String DEFAULT_SECRET_WORDS = "api[_.-]?key,auth,credential,secret,token";
+  private static final String DEFAULT_RANDOMNESS_SENSIBILITY = "5.0";
 
   @RuleProperty(
-    key = "credentialWords",
-    description = "Comma separated list of words identifying potential credentials.",
-    defaultValue = "" + DEFAULT
+    key = "secretWords",
+    description = "Comma separated list of words identifying potential secrets",
+    defaultValue = DEFAULT_SECRET_WORDS
   )
-  public String credentialWords = DEFAULT;
+  public String secretWords = DEFAULT_SECRET_WORDS;
+  @RuleProperty(
+    key = "randomnessSensibility",
+    description = "Minimum shannon entropy threshold of the secret",
+    defaultValue = DEFAULT_RANDOMNESS_SENSIBILITY
+  )
+  public String randomnessSensibility = DEFAULT_RANDOMNESS_SENSIBILITY;
 
   @Override
   public List<Object> configurations() {
     return Collections.singletonList(
-      new Config(credentialWords.split("\\s*,\\s*"))
+      new Config(secretWords, randomnessSensibility)
     );
   }
 
   private static class Config {
-    String[] credentialWords;
-    Config(String[] credentialWords) {
-      this.credentialWords = credentialWords;
+
+    String secretWords;
+    String randomnessSensibility;
+
+    Config(String secretWords, String randomnessSensibility) {
+      this.secretWords = secretWords;
+      this.randomnessSensibility = randomnessSensibility;
     }
   }
 }
