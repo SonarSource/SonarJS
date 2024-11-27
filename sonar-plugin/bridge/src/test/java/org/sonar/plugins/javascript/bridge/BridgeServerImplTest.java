@@ -239,6 +239,7 @@ class BridgeServerImplTest {
       singletonList(tsConfig.absolutePath()),
       null,
       DEFAULT_LINTER_ID,
+      false,
       false
     );
     assertThat(bridgeServer.analyzeTypeScript(request).issues()).hasSize(1);
@@ -268,6 +269,7 @@ class BridgeServerImplTest {
       null,
       null,
       DEFAULT_LINTER_ID,
+      false,
       false
     );
   }
@@ -295,6 +297,7 @@ class BridgeServerImplTest {
       null,
       programCreated.programId(),
       DEFAULT_LINTER_ID,
+      false,
       false
     );
     assertThat(bridgeServer.analyzeTypeScript(request).issues()).hasSize(1);
@@ -516,6 +519,7 @@ class BridgeServerImplTest {
       null,
       null,
       DEFAULT_LINTER_ID,
+      false,
       false
     );
     assertThatThrownBy(() -> bridgeServer.analyzeJavaScript(request))
@@ -767,7 +771,8 @@ class BridgeServerImplTest {
       null,
       null,
       DEFAULT_LINTER_ID,
-      true
+      true,
+      false
     );
     var response = bridgeServer.analyzeJavaScript(request);
     assertThat(response.ast()).isNull();
