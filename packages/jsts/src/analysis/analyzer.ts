@@ -29,6 +29,7 @@ import { getContext } from '../../../shared/src/helpers/context.js';
 import { computeMetrics, findNoSonarLines } from '../linter/visitors/metrics/index.js';
 import { getSyntaxHighlighting } from '../linter/visitors/syntax-highlighting.js';
 import { getCpdTokens } from '../linter/visitors/cpd.js';
+import { clearDependenciesCache } from '../rules/helpers/package-json.js';
 
 /**
  * Analyzes a JavaScript / TypeScript analysis input
@@ -70,7 +71,8 @@ function analyzeFile(
   sourceCode: SourceCode,
 ): JsTsAnalysisOutput {
   try {
-    const { filePath, fileType, language } = input;
+    const { filePath, fileType, language, shouldClearDependenciesCache } = input;
+    shouldClearDependenciesCache && clearDependenciesCache();
     const { issues, highlightedSymbols, cognitiveComplexity, ucfgPaths } = linter.lint(
       sourceCode,
       filePath,

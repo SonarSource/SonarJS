@@ -51,7 +51,7 @@ public class AnalysisWithWatchProgram extends AbstractAnalysis {
       progressReport.start(inputFiles.size(), inputFiles.iterator().next().toString());
       for (InputFile inputFile : inputFiles) {
         var tsConfigFile = tsConfigCache.getTsConfigForInputFile(inputFile);
-        analyzeFile(inputFile, tsConfigFile == null ? List.of() : List.of(tsConfigFile.getFilename()), null);
+        analyzeFile(inputFile, tsConfigFile == null ? List.of() : List.of(tsConfigFile.getFilename()), null, this.tsConfigCache != null && this.tsConfigCache.getAndResetShouldClearDependenciesCache());
       }
       success = true;
       if (analysisProcessor.parsingErrorFilesCount() > 0) {
