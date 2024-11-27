@@ -20,31 +20,11 @@
 export const meta = {
   type: 'problem',
   docs: {
-    description: 'Hard-coded passwords are security-sensitive',
+    description: 'Hard-coded secrets are security-sensitive',
     recommended: true,
-    url: 'https://sonarsource.github.io/rspec/#/rspec/S2068/javascript',
+    url: 'https://sonarsource.github.io/rspec/#/rspec/S6418/javascript',
     requiresTypeChecking: false,
   },
 };
 
-export const sonarKey = 'S2068';
-import { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
-export const schema = {
-  type: 'array',
-  minItems: 0,
-  maxItems: 1,
-  items: [
-    {
-      type: 'object',
-      properties: {
-        passwordWords: {
-          type: 'array',
-          items: {
-            type: 'string',
-          },
-        },
-      },
-      additionalProperties: false,
-    },
-  ],
-} as const satisfies JSONSchema4;
+export const sonarKey = 'S6418';
