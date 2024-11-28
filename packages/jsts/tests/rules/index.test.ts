@@ -38,7 +38,7 @@ import { rules as tsEslintRules } from '../../src/rules/external/typescript-esli
 import { rules as importRules } from 'eslint-plugin-import';
 import { rules as reactHooksRules } from 'eslint-plugin-react-hooks';
 
-const allRules = {
+const allExternalRules = {
   eslint: key => getESLintCoreRule(key),
   'typescript-eslint': key => tsEslintRules[key],
   'jsx-a11y': key => a11yRules[key],
@@ -77,6 +77,7 @@ describe('Plugin public API', () => {
       } else if (metadata.implementation === 'external') {
         expect(externalPlugins).toContain(metadata.externalPlugin);
         expect(usedExternalEslintIds).not.toContain(metadata.eslintId);
+        expect(allExternalRules[metadata.externalPlugin](metadata.eslintId)).toBeDefined();
         usedExternalEslintIds.push(metadata.eslintId);
       } else if (metadata.implementation === 'decorated') {
         expect(metadata.externalRules.length).toBeGreaterThan(0);
@@ -84,7 +85,9 @@ describe('Plugin public API', () => {
           expect(usedExternalEslintIds).not.toContain(externalRule.externalRule);
           usedExternalEslintIds.push(externalRule.externalRule);
           expect(externalPlugins).toContain(externalRule.externalPlugin);
-          expect(allRules[externalRule.externalPlugin](externalRule.externalRule)).toBeDefined();
+          expect(
+            allExternalRules[externalRule.externalPlugin](externalRule.externalRule),
+          ).toBeDefined();
         });
       }
     }
