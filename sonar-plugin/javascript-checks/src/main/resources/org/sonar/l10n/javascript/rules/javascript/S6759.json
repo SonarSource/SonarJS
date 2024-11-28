@@ -10,7 +10,7 @@
     "react",
     "type-dependent"
   ],
-  "defaultSeverity": "Major",
+  "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-6759",
   "sqKey": "S6759",
   "scope": "All",
