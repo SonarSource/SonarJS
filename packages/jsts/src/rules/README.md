@@ -353,7 +353,7 @@ If you are a [SonarQube](https://www.sonarqube.org) or [SonarCloud](https://sona
 
 <!-- end auto-generated rules list -->
 
-## SonarJS additional rules
+## ESLint rules
 
 There are some rules which are not shipped in this ESLint plugin to avoid duplication with already existing ESLint rules.
 
