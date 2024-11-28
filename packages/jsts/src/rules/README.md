@@ -64,9 +64,9 @@ We include a `recommended-legacy` configuration to be backward compatible with E
 
 ## ESLint and Sonar
 
-This plugin exposes to ESLint users all original JS/TS rules from Sonar-\* products (aka [SonarJS](https://github.com/SonarSource/SonarJS)). We extracted the rules to be beneficial for the ESLint community.
+This plugin exposes to ESLint users all original JS/TS rules from Sonar products (aka [SonarJS](https://github.com/SonarSource/SonarJS)). We extracted the rules to be beneficial for the ESLint community.
 
-SonarJS contains more rules from other ESLint plugins (listed [here](#sonarjs-additional-rules)). We recommend enabling those rules if you are looking for similar results to SonarQube using ESLint.
+This ESLint plugin does not contain all the rules from the SonarQube JS/TS analyzer. Aside of the rules available here, SonarQube uses rules from other ESLint plugins ([some](#eslint-rules) used as they are, [some others](#improved-eslint-rules) have been modified). We recommend installing those ESLint plugins and enabling those rules if you are looking for similar results to SonarQube using ESLint.
 
 If you are a [SonarQube](https://www.sonarqube.org) or [SonarCloud](https://sonarcloud.io) user, to lint your code locally, we suggest using [SonarLint](https://www.sonarlint.org) IDE extension (available for VSCode, JetBrains IDEs and Eclipse). You can connect SonarLint to your SonarQube/SonarCloud project to synchronize rules configuration, issue statuses, etc.
 
@@ -480,7 +480,7 @@ The following rules are used directly, without modifying the original behavior:
 
 ## Improved ESLint rules
 
-The following rules are used in SonarJS, but their behavior is modified, so your experience using them in your ESLint configuration may differ from the results you may get using SonarQube:
+Also not available in this ESLint plugin, but used in SonarJS, this list of rules have been modified, so your experience using them in your ESLint configuration may differ from the results you may get using SonarQube:
 
 <!--- start decorated rules -->
 
