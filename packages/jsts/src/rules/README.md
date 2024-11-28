@@ -355,7 +355,7 @@ If you are a [SonarQube](https://www.sonarqube.org) or [SonarCloud](https://sona
 
 ## ESLint rules
 
-There are some rules which are not shipped in this ESLint plugin to avoid duplication with already existing ESLint rules.
+Some rules are not shipped in this ESLint plugin to avoid duplication with already existing rules from ESLint core and third-party ESLint plugins.
 
 The following rules are used directly, without modifying the original behavior:
 
