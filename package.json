@@ -28,7 +28,7 @@
     "plugin:build:fast": "mvn install -DskipTests && npm run update-ruling-data",
     "pbf": "npm run plugin:build:fast",
     "td": "npm --prefix typedoc/searchable-parameters-plugin run setup && npx typedoc --options typedoc/typedoc.js",
-    "prepare": "husky install",
+    "prepare": "husky",
     "precommit": "pretty-quick --staged",
     "count-rules": "node tools/count-rules.js",
     "_:bridge:copy-protofiles": "cpy --flat packages/jsts/src/parsers/estree.proto sonar-plugin/bridge/src/main/protobuf && cpy --flat packages/jsts/src/parsers/estree.proto lib/jsts/src/parsers",
