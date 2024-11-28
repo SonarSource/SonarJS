@@ -12,6 +12,6 @@
   "author": "Ilia Kebets",
   "license": "LGPL-3.0-only",
   "dependencies": {
-    "typedoc": "0.26.11"
+    "typedoc": "0.27.1"
   }
 }
