@@ -5,7 +5,7 @@
     "func": "Constant\/Issue",
     "constantCost": "1min"
   },
-  "defaultSeverity": "Minor",
+  "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-1441",
   "sqKey": "S1441",
   "scope": "Main",

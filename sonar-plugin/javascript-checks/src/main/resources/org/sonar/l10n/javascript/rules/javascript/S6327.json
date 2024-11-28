@@ -10,7 +10,7 @@
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
-    "constantCost": "10min"
+    "constantCost": "45min"
   },
   "tags": [
     "aws",
