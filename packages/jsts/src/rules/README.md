@@ -478,7 +478,9 @@ The following rules are used directly, without modifying the original behavior:
 
 <!--- end external rules -->
 
-The following rules are used in SonarJS, but their behavior is modified, so your experience using them in your ESLint configuration may differ to the results you may get using SonarQube:
+## Improved ESLint rules
+
+The following rules are used in SonarJS, but their behavior is modified, so your experience using them in your ESLint configuration may differ from the results you may get using SonarQube:
 
 <!--- start decorated rules -->
 
