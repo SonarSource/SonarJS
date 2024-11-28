@@ -174,7 +174,7 @@ function prettyPrint(type: ts.Type, checker: ts.TypeChecker): string {
 function isTypedArray(type: ts.Type, checker: ts.TypeChecker) {
   const typeAsString = checker.typeToString(type);
   // Since TS 5.7 typed arrays include the type of the elements in the string, eg. Float32Array<any>
-  return /.*Array(?:<.*>)?$/.test(typeAsString);
+  return /.*Array(?:<[^>]*>)?$/.test(typeAsString);
 }
 
 function isNullLike(type: ts.Type) {
