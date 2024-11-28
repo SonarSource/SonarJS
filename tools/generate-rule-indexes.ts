@@ -68,7 +68,7 @@ for (const file of files) {
   }
 }
 
-const sonarKeySorter = (a, b) => (parseInt(a.substring(1)) < parseInt(b.substring(1)) ? -1 : 1);
+const sonarKeySorter = (a, b) => (parseInt(a.substring(1)) - parseInt(b.substring(1)));
 
 await writeFile(
   allRulesIndex,
