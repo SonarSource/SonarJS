@@ -80,18 +80,14 @@ export function verifyRspecId(sonarKey: string) {
   }
 }
 
-export function escapeRegExp(str: string) {
-  return str.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, '\\$1');
-}
-
 /**
  * Inflate string template with given dictionary
  * @param text template string
  * @param dictionary object with the keys to replace
  */
 export function inflateTemplate(text: string, dictionary: { [x: string]: string }): string {
-  for (const tok in dictionary) {
-    text = text.replace(new RegExp(escapeRegExp(tok), 'g'), dictionary[tok]);
+  for (const key in dictionary) {
+    text = text.replaceAll(key, dictionary[key]);
   }
   return text;
 }
