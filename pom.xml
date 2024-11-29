@@ -255,6 +255,12 @@
         <scope>test</scope>
       </dependency>
       <dependency>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-classic</artifactId>
+        <version>1.5.6</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
         <groupId>org.sonarsource.javascript</groupId>
         <artifactId>sonar-javascript-plugin</artifactId>
         <type>sonar-plugin</type>
