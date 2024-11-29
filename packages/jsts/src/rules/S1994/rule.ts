@@ -19,7 +19,7 @@
 import type { Rule } from 'eslint';
 import estree from 'estree';
 import { areEquivalent, generateMeta, getParent } from '../helpers/index.js';
-import { TSESTree } from '@typescript-eslint/utils';
+import type { TSESTree } from '@typescript-eslint/utils';
 import { meta } from './meta.js';
 
 class ForInfo {

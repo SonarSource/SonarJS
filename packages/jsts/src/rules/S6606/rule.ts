@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { tsEslintRules } from '../typescript-eslint/index.js';
+import { rules } from '../external/typescript-eslint/index.js';
 import { type Rule } from 'eslint';
 import {
   generateMeta,
@@ -27,7 +27,7 @@ import {
 import { type LogicalExpression } from 'estree';
 import { meta } from './meta.js';
 
-const preferNullishCoalescingRule = tsEslintRules['prefer-nullish-coalescing'];
+const preferNullishCoalescingRule = rules['prefer-nullish-coalescing'];
 
 export const rule = interceptReport(
   {

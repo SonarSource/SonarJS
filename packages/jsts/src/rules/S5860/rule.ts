@@ -42,7 +42,7 @@ import {
   RequiredParserServices,
   toSecondaryLocation,
 } from '../helpers/index.js';
-import { TSESTree } from '@typescript-eslint/utils';
+import type { TSESTree } from '@typescript-eslint/utils';
 import { meta } from './meta.js';
 import { isStringRegexMethodCall, isStringReplaceCall } from '../helpers/regex/ast.js';
 import { extractReferences } from '../helpers/regex/group.js';

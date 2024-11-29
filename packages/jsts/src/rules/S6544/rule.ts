@@ -17,8 +17,8 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6544/javascript
 
 import type { Rule } from 'eslint';
-import { tsEslintRules } from '../typescript-eslint/index.js';
-import { eslintRules } from '../core/index.js';
+import { rules as tsEslintRules } from '../external/typescript-eslint/index.js';
+import { getESLintCoreRule } from '../external/core.js';
 import {
   FUNCTION_NODES,
   generateMeta,
@@ -27,7 +27,7 @@ import {
   mergeRules,
   RuleContext,
 } from '../helpers/index.js';
-import { TSESTree } from '@typescript-eslint/utils';
+import type { TSESTree } from '@typescript-eslint/utils';
 import { meta } from './meta.js';
 
 /**
@@ -65,7 +65,7 @@ const decoratedNoMisusedPromisesRule = interceptReport(
   },
 );
 
-const noAsyncPromiseExecutorRule = eslintRules['no-async-promise-executor'];
+const noAsyncPromiseExecutorRule = getESLintCoreRule('no-async-promise-executor');
 const decoratedNoAsyncPromiseExecutorRule = interceptReport(
   noAsyncPromiseExecutorRule,
   (context, descriptor) => {

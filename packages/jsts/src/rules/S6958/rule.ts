@@ -14,18 +14,17 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { TSESTree } from '@typescript-eslint/utils';
 import { type Rule } from 'eslint';
 import { type Node } from 'estree';
 import { generateMeta } from '../helpers/index.js';
 import { meta } from './meta.js';
 
 const NODES = new Set<string>([
-  TSESTree.AST_NODE_TYPES.ArrayExpression,
-  TSESTree.AST_NODE_TYPES.ClassExpression,
-  TSESTree.AST_NODE_TYPES.ObjectExpression,
-  TSESTree.AST_NODE_TYPES.Literal,
-  TSESTree.AST_NODE_TYPES.TemplateLiteral,
+  'ArrayExpression',
+  'ClassExpression',
+  'ObjectExpression',
+  'Literal',
+  'TemplateLiteral',
 ]);
 
 export const rule: Rule.RuleModule = {

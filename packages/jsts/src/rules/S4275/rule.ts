@@ -18,7 +18,7 @@
 
 import type { Rule } from 'eslint';
 import estree from 'estree';
-import { TSESTree } from '@typescript-eslint/utils';
+import type { TSESTree } from '@typescript-eslint/utils';
 import {
   generateMeta,
   getVariableFromName,
@@ -29,10 +29,10 @@ import {
   report,
   toSecondaryLocation,
 } from '../helpers/index.js';
-import { eslintRules } from '../core/index.js';
+import { getESLintCoreRule } from '../external/core.js';
 import { meta } from './meta.js';
 
-const getterReturnRule = eslintRules['getter-return'];
+const getterReturnRule = getESLintCoreRule('getter-return');
 type AccessorNode = TSESTree.Property | TSESTree.MethodDefinition;
 
 function isAccessorNode(node: TSESTree.Node | null | undefined): node is AccessorNode {

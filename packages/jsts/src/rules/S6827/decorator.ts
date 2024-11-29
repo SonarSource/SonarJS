@@ -18,7 +18,7 @@ import type { Rule } from 'eslint';
 import { generateMeta, interceptReport } from '../helpers/index.js';
 import pkg from 'jsx-ast-utils';
 const { hasAnyProp } = pkg;
-import { TSESTree } from '@typescript-eslint/utils';
+import type { TSESTree } from '@typescript-eslint/utils';
 import { meta } from './meta.js';
 
 /**

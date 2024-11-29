@@ -16,7 +16,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S1871
 
-import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/utils';
+import type { TSESTree } from '@typescript-eslint/utils';
 import {
   areEquivalent,
   collectIfBranches,
@@ -139,7 +139,7 @@ export const rule: Rule.RuleModule = {
     function expandSingleBlockStatement(nodes: estree.Statement[]) {
       if (nodes.length === 1) {
         const node = nodes[0];
-        if (node.type === AST_NODE_TYPES.BlockStatement) {
+        if (node.type === 'BlockStatement') {
           return node.body;
         }
       }

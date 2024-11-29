@@ -15,12 +15,12 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type { Rule } from 'eslint';
-import { eslintRules } from '../core/index.js';
+import { getESLintCoreRule } from '../external/core.js';
 import { decorate } from './decorator.js';
 import { dirname } from 'path/posix';
 import { toUnixPath, isSupported } from '../helpers/index.js';
 
-const decorated = decorate(eslintRules['prefer-object-spread']);
+const decorated = decorate(getESLintCoreRule('prefer-object-spread'));
 
 export const rule: Rule.RuleModule = {
   meta: decorated.meta,

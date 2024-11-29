@@ -16,7 +16,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6551/javascript
 
-import { TSESTree } from '@typescript-eslint/utils';
+import type { TSESTree } from '@typescript-eslint/utils';
 import type { Rule } from 'eslint';
 import { generateMeta, interceptReport, isGenericType } from '../helpers/index.js';
 import { meta } from './meta.js';

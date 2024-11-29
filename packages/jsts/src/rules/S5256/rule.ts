@@ -16,14 +16,14 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S5256/javascript
 
-import getElementType from 'eslint-plugin-jsx-a11y/lib/util/getElementType.js';
 import estree from 'estree';
 import type { Rule } from 'eslint';
-import { TSESTree } from '@typescript-eslint/utils';
+import type { TSESTree } from '@typescript-eslint/utils';
 import pkg from 'jsx-ast-utils';
 const { getLiteralPropValue, getProp } = pkg;
+
 import { computeGrid } from '../helpers/table.js';
-import { generateMeta, isPresentationTable } from '../helpers/index.js';
+import { generateMeta, isPresentationTable, getElementType } from '../helpers/index.js';
 import { meta } from './meta.js';
 
 export const rule: Rule.RuleModule = {
