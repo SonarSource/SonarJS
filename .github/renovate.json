@@ -4,19 +4,13 @@
     "github>SonarSource/renovate-config:languages-team"
   ],
   "schedule": [
-    "before 4am on Monday"
+    "before 6am every weekday"
   ],
   "enabledManagers": [
     "github-actions",
     "maven",
     "npm"
   ],
-  "gradle": {
-    "enabled": true
-  },
-  "bicep": {
-    "enabled": true
-  },
   "dockerfile": {
     "enabled": true
   },
@@ -24,7 +18,10 @@
     "its/sources/**",
     "its/plugin/projects/**",
     "**/test/**",
-    "**/fixtures/**"
+    "**/fixtures/**",
+    "packages/jsts/src/rules/**",
+    "its/eslint8-plugin-sonarjs/**",
+    "its/eslint9-plugin-sonarjs/**"
   ],
   "packageRules": [
     {
@@ -43,20 +40,13 @@
       "enabled": false
     },
     {
-      "managers": [
-        "maven",
-        "npm"
-      ],
-      "matchPackagePatterns": [
-        "*"
-      ],
-      "matchUpdateTypes": [
-        "minor",
-        "patch"
-      ],
-      "groupName": "all non-major dependencies",
-      "groupSlug": "all-minor-patch"
+      "packageRules": [
+        {
+          "matchUpdateTypes": ["minor", "patch"],
+          "matchCurrentVersion": "!/^0/",
+          "automerge": true
+        }
+      ]
     }
-  ],
-  "reviewers": ["team:analysis-js-squad"]
+  ]
 }

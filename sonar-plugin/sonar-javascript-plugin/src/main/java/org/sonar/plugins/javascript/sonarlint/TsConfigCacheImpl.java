@@ -47,6 +47,7 @@ public class TsConfigCacheImpl implements TsConfigCache, ModuleFileListener {
   BridgeServer bridgeServer;
   TsConfigOrigin origin;
   int projectSize;
+  boolean shouldClearDependenciesCache;
 
   Map<TsConfigOrigin, Cache> cacheMap = new EnumMap<>(TsConfigOrigin.class);
 
@@ -55,6 +56,7 @@ public class TsConfigCacheImpl implements TsConfigCache, ModuleFileListener {
     cacheMap.put(TsConfigOrigin.PROPERTY, new Cache());
     cacheMap.put(TsConfigOrigin.LOOKUP, new Cache());
     cacheMap.put(TsConfigOrigin.FALLBACK, new Cache());
+    shouldClearDependenciesCache = false;
   }
 
   class Cache {
@@ -170,6 +172,13 @@ public class TsConfigCacheImpl implements TsConfigCache, ModuleFileListener {
     origin = tsConfigOrigin;
   }
 
+  @Override
+  public boolean getAndResetShouldClearDependenciesCache() {
+    var result = shouldClearDependenciesCache;
+    shouldClearDependenciesCache = false;
+    return result;
+  }
+
   public void initializeWith(List<String> tsConfigPaths, TsConfigOrigin tsConfigOrigin) {
     var cache = cacheMap.get(tsConfigOrigin);
     if (tsConfigOrigin == TsConfigOrigin.FALLBACK && cache.initialized) {
@@ -196,6 +205,9 @@ public class TsConfigCacheImpl implements TsConfigCache, ModuleFileListener {
       if (cacheMap.get(TsConfigOrigin.PROPERTY).discoveredTsConfigFiles.contains(filename)) {
         cacheMap.get(TsConfigOrigin.PROPERTY).clearAll();
       }
+    } else if (filename.endsWith("package.json")) {
+      LOG.debug("Package json update, will clear dependency cache on next analysis request.");
+      shouldClearDependenciesCache = true;
     } else if (moduleFileEvent.getType() == ModuleFileEvent.Type.CREATED && (JavaScriptFilePredicate.isJavaScriptFile(file) || JavaScriptFilePredicate.isTypeScriptFile(file))) {
       // The file to tsconfig cache is cleared, as potentially the tsconfig file that would cover this new file
       // has already been processed, and we would not be aware of it. By clearing the cache, we guarantee correctness.

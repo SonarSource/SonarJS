@@ -99,7 +99,7 @@ public class AnalysisWithProgram extends AbstractAnalysis {
         );
         for (var f : skippedFiles) {
           LOG.debug("File not part of any tsconfig.json: {}", f);
-          analyzeFile(f, null, null);
+          analyzeFile(f, null, null, false);
         }
       }
       success = true;
@@ -131,7 +131,7 @@ public class AnalysisWithProgram extends AbstractAnalysis {
         continue;
       }
       if (analyzedFiles.add(inputFile)) {
-        analyzeFile(inputFile, null, program);
+        analyzeFile(inputFile, null, program, false);
         counter++;
       } else {
         LOG.debug(

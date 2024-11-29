@@ -29,7 +29,7 @@
     "plugin:build:fast": "mvn install -DskipTests && npm run update-ruling-data",
     "pbf": "npm run plugin:build:fast",
     "td": "npm --prefix typedoc/searchable-parameters-plugin run setup && npx typedoc --options typedoc/typedoc.js",
-    "prepare": "husky install && npm run create-rule-indexes",
+    "prepare": "husky && npm run create-rule-indexes",
     "precommit": "pretty-quick --staged",
     "count-rules": "node tools/count-rules.js",
     "_:bridge:copy-protofiles": "cpy --flat packages/jsts/src/parsers/estree.proto sonar-plugin/bridge/src/main/protobuf && cpy --flat packages/jsts/src/parsers/estree.proto lib/jsts/src/parsers",
@@ -70,7 +70,7 @@
     "@types/express": "4.17.21",
     "@types/functional-red-black-tree": "1.0.6",
     "@types/lodash.clone": "4.5.9",
-    "@types/node": "20.17.6",
+    "@types/node": "20.17.9",
     "@types/semver": "7.5.8",
     "@types/tmp": "0.2.6",
     "cpy-cli": "5.0.0",
@@ -89,13 +89,13 @@
     "mkdirp": "3.0.1",
     "node-fetch": "3.3.2",
     "one-double-zero": "^1.0.0-beta.10",
-    "prettier": "3.3.3",
+    "prettier": "3.4.1",
     "prettier-plugin-java": "2.6.5",
     "pretty-quick": "4.0.0",
     "rimraf": "6.0.1",
     "tsx": "4.19.2",
-    "type-fest": "4.27.0",
-    "typedoc": "0.26.11"
+    "type-fest": "4.29.0",
+    "typedoc": "0.27.1"
   },
   "dependencies": {
     "@babel/core": "7.26.0",
@@ -137,7 +137,7 @@
     "stylelint": "15.11.0",
     "tar": "7.4.3",
     "tmp": "0.2.3",
-    "typescript": "5.6.3",
+    "typescript": "5.7.2",
     "vue-eslint-parser": "9.4.3",
     "yaml": "2.6.1"
   },
