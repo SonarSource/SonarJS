@@ -1,0 +1,11 @@
+___HEADER___// https://sonarsource.github.io/rspec/#/rspec/___RULE_KEY___/javascript
+import { check } from '../../../tests/tools/index.js';
+import { rule } from './index.js';
+import path from 'path';
+import { describe } from 'node:test';
+
+const sonarId = path.basename(import.meta.dirname);
+
+describe(`Rule ${sonarId}`, () => {
+  check(sonarId, rule, import.meta.dirname);
+});
