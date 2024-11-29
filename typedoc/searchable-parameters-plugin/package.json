@@ -2,9 +2,9 @@
   "name": "searchable-parameters-plugin",
   "version": "1.0.0",
   "description": "Plugin for Typedoc that makes functions searchable by parameter types",
-  "main": "index.js",
+  "main": "index.mjs",
   "scripts": {
-    "setup": "node setup.js"
+    "setup": "node setup.mjs"
   },
   "keywords": [
     "typedoc-plugin"

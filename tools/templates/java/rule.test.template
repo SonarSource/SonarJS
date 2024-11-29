@@ -1,0 +1,18 @@
+___HEADER___
+// https://sonarsource.github.io/rspec/#/rspec/___RULE_KEY___/javascript
+package org.sonar.javascript.checks;
+
+import java.util.Collections;
+import java.util.List;
+import org.sonar.check.Rule;
+import org.sonar.check.RuleProperty;
+import org.sonar.plugins.javascript.api.JavaScriptRule;
+import org.sonar.plugins.javascript.api.TestFileCheck;
+import org.sonar.plugins.javascript.api.TypeScriptRule;
+
+@JavaScriptRule
+@TypeScriptRule
+@Rule(key = "___RULE_KEY___")
+public class ___JAVA_RULE_CLASS_NAME___ extends TestFileCheck {
+___PROPERTIES___
+}

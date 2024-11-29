@@ -18,7 +18,7 @@
 
 import type { Rule } from 'eslint';
 import { generateMeta, interceptReport } from '../helpers/index.js';
-import { TSESTree } from '@typescript-eslint/utils';
+import type { TSESTree } from '@typescript-eslint/utils';
 import { meta } from './meta.js';
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {

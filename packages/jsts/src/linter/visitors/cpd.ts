@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import estree from 'estree';
-import { TSESTree } from '@typescript-eslint/utils';
+import type { TSESTree } from '@typescript-eslint/utils';
 import { SourceCode, AST } from 'eslint';
 import { visit } from './visitor.js';
 import { Location } from './metrics/helpers/location.js';

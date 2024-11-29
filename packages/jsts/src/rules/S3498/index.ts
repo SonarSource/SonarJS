@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { eslintRules } from '../core/index.js';
+import { getESLintCoreRule } from '../external/core.js';
 import { decorate } from './decorator.js';
 
-export const rule = decorate(eslintRules['object-shorthand']);
+export const rule = decorate(getESLintCoreRule('object-shorthand'));

@@ -11,7 +11,7 @@
 
   <groupId>org.sonarsource.javascript</groupId>
   <artifactId>javascript</artifactId>
-  <version>10.18.0-SNAPSHOT</version>
+  <version>10.19.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>SonarJS</name>
@@ -168,9 +168,9 @@
         <version>2.6</version>
       </dependency>
       <dependency>
-          <groupId>org.sonarsource.sslr</groupId>
-          <artifactId>sslr-core</artifactId>
-          <version>${sslr.version}</version>
+        <groupId>org.sonarsource.sslr</groupId>
+        <artifactId>sslr-core</artifactId>
+        <version>${sslr.version}</version>
       </dependency>
       <dependency>
         <groupId>org.sonarsource.sonarlint.core</groupId>

@@ -16,15 +16,14 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S5254/javascript
 
-import { TSESTree } from '@typescript-eslint/utils';
+import type { TSESTree } from '@typescript-eslint/utils';
 import type { Rule } from 'eslint';
-import pkg from 'eslint-plugin-jsx-a11y';
-const { rules: jsxA11yRules } = pkg;
+import { rules } from '../external/a11y.js';
 import { generateMeta, interceptReport, mergeRules } from '../helpers/index.js';
 import { meta } from './meta.js';
 
-const langRule = jsxA11yRules['lang'];
-const htmlHasLangRule = jsxA11yRules['html-has-lang'];
+const langRule = rules['lang'];
+const htmlHasLangRule = rules['html-has-lang'];
 const decoratedHasLangRule = decorate(htmlHasLangRule);
 
 function decorate(rule: Rule.RuleModule): Rule.RuleModule {

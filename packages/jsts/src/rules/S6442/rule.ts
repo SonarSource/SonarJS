@@ -26,7 +26,7 @@ import {
   isFunctionNode,
   isIdentifier,
 } from '../helpers/index.js';
-import { TSESTree } from '@typescript-eslint/utils';
+import type { TSESTree } from '@typescript-eslint/utils';
 import { meta } from './meta.js';
 
 type HookDeclarator = estree.VariableDeclarator & {

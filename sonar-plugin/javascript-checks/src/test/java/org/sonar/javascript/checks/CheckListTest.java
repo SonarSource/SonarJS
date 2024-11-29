@@ -40,7 +40,7 @@ class CheckListTest {
   void count() throws Exception {
     long count = Files
       .list(Paths.get("src/main/java/org/sonar/javascript/checks/"))
-      .filter(p -> p.toString().endsWith("Check.java") && !p.toString().startsWith("Abstract"))
+      .filter(p -> p.getFileName().toString().matches("S\\d+(Js|Ts)?\\.java"))
       .count();
     assertThat(CheckList.getAllChecks()).hasSize((int) count);
   }
@@ -53,7 +53,7 @@ class CheckListTest {
     List<Class<? extends JavaScriptCheck>> checks = CheckList.getAllChecks();
 
     for (Class<? extends JavaScriptCheck> cls : checks) {
-      if (!cls.getSimpleName().equals("ParsingErrorCheck") && !isEslintBasedCheck(cls)) {
+      if (!cls.getSimpleName().equals("S2260") && !isEslintBasedCheck(cls)) {
         String testName = '/' + cls.getName().replace('.', '/') + "Test.class";
         assertThat(getClass().getResource(testName))
           .overridingErrorMessage("No test for " + cls.getSimpleName())
@@ -90,7 +90,7 @@ class CheckListTest {
     assertThat(typeScriptChecks)
       .isNotEmpty()
       .isNotEqualTo(CheckList.getAllChecks())
-      .allMatch(c -> c == ParsingErrorCheck.class || EslintBasedCheck.class.isAssignableFrom(c));
+      .allMatch(c -> c == S2260.class || EslintBasedCheck.class.isAssignableFrom(c));
   }
 
   @Test

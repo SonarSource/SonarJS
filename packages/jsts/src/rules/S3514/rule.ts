@@ -17,7 +17,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S3514/javascript
 
 import type { Rule } from 'eslint';
-import { TSESTree } from '@typescript-eslint/utils';
+import type { TSESTree } from '@typescript-eslint/utils';
 import estree from 'estree';
 import {
   findFirstMatchingAncestor,

@@ -16,7 +16,7 @@ jobs:
       ARTIFACTORY_URL: https://repox.jfrog.io/artifactory
     steps:
     - name: Checkout 🛎️
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
     - name: Get vault secrets
       id: secrets
       uses: SonarSource/vault-action-wrapper@v3

@@ -16,7 +16,7 @@
  */
 import estree from 'estree';
 import type { AST, Rule } from 'eslint';
-import { TSESLint, TSESTree } from '@typescript-eslint/utils';
+import type { TSESLint, TSESTree } from '@typescript-eslint/utils';
 
 export type LocationHolder = AST.Token | TSESTree.Node | estree.Node | { loc: AST.SourceLocation };
 

@@ -31,7 +31,7 @@ import org.junit.jupiter.api.io.TempDir;
 import org.sonar.css.CssProfileDefinition;
 import org.sonar.css.CssRulesDefinition;
 import org.sonar.css.rules.AtRuleNoUnknown;
-import org.sonar.javascript.checks.StringLiteralsQuotesCheck;
+import org.sonar.javascript.checks.S1441;
 import org.sonar.plugins.javascript.JavaScriptProfilesDefinition;
 import org.sonar.plugins.javascript.rules.JavaScriptRulesDefinition;
 
@@ -46,7 +46,7 @@ class RulesMetadataForSonarLintTest {
     var metadata = new RulesMetadataForSonarLint();
     metadata.addRules(
       "repo",
-      List.of(StringLiteralsQuotesCheck.class),
+      List.of(S1441.class),
       JavaScriptRulesDefinition.METADATA_LOCATION,
       JavaScriptProfilesDefinition.SONAR_WAY_JSON
     );

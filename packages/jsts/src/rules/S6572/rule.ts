@@ -18,11 +18,11 @@
 
 import estree from 'estree';
 import type { Rule } from 'eslint';
-import { TSESTree } from '@typescript-eslint/utils';
+import type { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta, isNumberLiteral } from '../helpers/index.js';
 import { meta } from './meta.js';
-import { tsEslintRules } from '../typescript-eslint/index.js';
-const baseRuleModule = tsEslintRules['prefer-enum-initializers'];
+import { rules } from '../external/typescript-eslint/index.js';
+const baseRuleModule = rules['prefer-enum-initializers'];
 
 // The core implementation of this rule reports all enums for which there is a member value that is
 // not initialized explicitly. Here, the decorator's purpose is to restrict the scope of the rule only

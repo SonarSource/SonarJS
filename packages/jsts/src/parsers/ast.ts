@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import protobuf from 'protobufjs';
-import { TSESTree } from '@typescript-eslint/utils';
+import type { TSESTree } from '@typescript-eslint/utils';
 import { debug } from '../../../shared/src/helpers/logging.js';
 
 import path from 'path';

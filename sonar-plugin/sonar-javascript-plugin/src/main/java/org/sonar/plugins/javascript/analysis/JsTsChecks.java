@@ -30,7 +30,7 @@ import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonar.javascript.checks.CheckList;
-import org.sonar.javascript.checks.ParsingErrorCheck;
+import org.sonar.javascript.checks.S2260;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
 import org.sonar.plugins.javascript.api.CustomRuleRepository;
@@ -140,7 +140,7 @@ public class JsTsChecks {
   protected void initParsingErrorRuleKey() {
     this.parseErrorRuleKey =
       all()
-        .filter(ParsingErrorCheck.class::isInstance)
+        .filter(S2260.class::isInstance)
         .findFirst()
         .map(this::ruleKeyFor)
         .orElse(null);

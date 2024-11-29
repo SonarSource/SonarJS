@@ -17,7 +17,7 @@
 import { debug, info } from '../../../shared/src/helpers/logging.js';
 import { SourceCode } from 'eslint';
 import { JsTsAnalysisInput, JsTsAnalysisOutput } from './analysis.js';
-import { TSESTree } from '@typescript-eslint/utils';
+import type { TSESTree } from '@typescript-eslint/utils';
 import { JsTsLanguage } from '../../../shared/src/helpers/language.js';
 import { getLinter } from '../linter/linters.js';
 import { buildSourceCode } from '../builders/build.js';

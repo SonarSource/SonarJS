@@ -1,0 +1,23 @@
+___HEADER___
+// https://sonarsource.github.io/rspec/#/rspec/___RULE_KEY___/javascript
+package org.sonar.javascript.checks;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import com.google.gson.Gson;
+import org.junit.jupiter.api.Test;
+
+// TODO: delete this file if the rule is not configurable
+class ___JAVA_RULE_CLASS_NAME___Test {
+  @Test
+  void configurations() {
+    ___JAVA_RULE_CLASS_NAME___ check = new ___JAVA_RULE_CLASS_NAME___();
+    // default configuration
+    String defaultConfigAsString = new Gson().toJson(check.configurations());
+    assertThat(defaultConfigAsString).isEqualTo("[{\"property\":\"\"}]");
+
+    check.property = "42";
+    String customConfigAsString = new Gson().toJson(check.configurations());
+    assertThat(customConfigAsString).isEqualTo("[{\"property\":\"42\"}]");
+  }
+}

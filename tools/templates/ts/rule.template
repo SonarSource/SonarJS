@@ -1,0 +1,57 @@
+___HEADER___// https://sonarsource.github.io/rspec/#/rspec/___RULE_KEY___/javascript
+
+import { Rule } from 'eslint';
+import {
+  isRequiredParserServices,
+  generateMeta,
+  report,
+  toSecondaryLocation,
+} from '../helpers/index.js';
+import estree from 'estree';
+import { FromSchema } from 'json-schema-to-ts';
+// if rule has schema, provide it in
+// sonar-plugin/javascript-checks/src/main/resources/org/sonar/l10n/javascript/rules/javascript/schemas/
+// and re-run npm run generate-meta, otherwise remove the schema import
+import { meta, schema } from './meta.js';
+
+const messages = {
+  //TODO: add needed messages
+  messageId: 'message body',
+};
+
+const DEFAULT_PARAM = 10;
+
+export const rule: Rule.RuleModule = {
+  meta: generateMeta(meta as Rule.RuleMetaData, { schema, messages }, true /* false if no secondary locations */ ),
+  create(context: Rule.RuleContext) {
+    // remove this condition if the rule does not depend on TS type-checker
+    if (!isRequiredParserServices(services)) {
+      return {};
+    }
+
+    // get typed rule options with FromSchema helper
+    const param = (context.options as FromSchema<typeof schema>)[0]?.param ?? DEFAULT_PARAM;
+    const services = context.parserServices;
+
+    return {
+      //example
+      Identifier(node: estree.Identifier) {
+        const secondaries: estree.Node[] = [];
+        const message = 'message body';
+        const messageId = 'messageId'; // must exist in messages object of rule metadata
+        if (param) {
+        // Use context.report if rule does not use secondary locations
+          report(
+            context,
+            {
+              node,
+              message,
+              messageId,
+            },
+            secondaries.map(n => toSecondaryLocation(n, 'Optional secondary location message'))
+          );
+        }
+      },
+    };
+  },
+};
