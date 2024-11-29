@@ -21,7 +21,7 @@ import { ancestorsChain, generateMeta, isRegexLiteral } from '../helpers/index.j
 import { RegExpValidator } from '@eslint-community/regexpp';
 import { Character, CharacterClassElement } from '@eslint-community/regexpp/ast';
 import estree from 'estree';
-import { TSESTree } from '@typescript-eslint/utils';
+import type { TSESTree } from '@typescript-eslint/utils';
 import { meta } from './meta.js';
 import { getPatternFromNode } from '../helpers/regex/extract.js';
 import { getFlags } from '../helpers/regex/flags.js';

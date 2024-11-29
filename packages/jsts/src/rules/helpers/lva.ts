@@ -16,7 +16,7 @@
  */
 import type { Rule, Scope } from 'eslint';
 import estree from 'estree';
-import { TSESTree } from '@typescript-eslint/utils';
+import type { TSESTree } from '@typescript-eslint/utils';
 
 export function lva(liveVariablesMap: Map<string, LiveVariables>) {
   const worklist = Array.from(liveVariablesMap.values(), lva => lva.segment);

@@ -16,7 +16,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S1125
 
-import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/utils';
+import type { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta, isBooleanLiteral } from '../helpers/index.js';
 import type { Rule } from 'eslint';
 import estree from 'estree';
@@ -48,8 +48,8 @@ export const rule: Rule.RuleModule = {
         const parent = (expression as TSESTree.Node).parent as estree.Node;
         if (
           expression.operator === '||' &&
-          ((parent.type === AST_NODE_TYPES.ConditionalExpression && parent.test === expression) ||
-            parent.type === AST_NODE_TYPES.IfStatement)
+          ((parent.type === 'ConditionalExpression' && parent.test === expression) ||
+            parent.type === 'IfStatement')
         ) {
           checkBooleanLiteral(expression.right);
         }

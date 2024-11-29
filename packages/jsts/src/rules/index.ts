@@ -14,14 +14,6 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import * as originalRules from './original.js';
-import * as decoratedRules from './decorated.js';
-import * as externalRules from './external.js';
-
-export const rules = {
-  ...originalRules,
-  ...decoratedRules,
-  ...externalRules.rules,
-};
+export * as rules from './rules.js';
 
 export * from './helpers/index.js';

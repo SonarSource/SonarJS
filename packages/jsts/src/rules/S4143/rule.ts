@@ -16,7 +16,6 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S4143
 
-import { AST_NODE_TYPES } from '@typescript-eslint/utils';
 import {
   areEquivalent,
   generateMeta,
@@ -98,7 +97,7 @@ export const rule: Rule.RuleModule = {
     }
 
     function getKeyWriteUsage(node: estree.Node): KeyWriteCollectionUsage | undefined {
-      if (node.type === AST_NODE_TYPES.ExpressionStatement) {
+      if (node.type === 'ExpressionStatement') {
         return arrayKeyWriteUsage(node.expression) || mapOrSetKeyWriteUsage(node.expression);
       }
       return undefined;
@@ -106,11 +105,7 @@ export const rule: Rule.RuleModule = {
 
     function arrayKeyWriteUsage(node: estree.Node): KeyWriteCollectionUsage | undefined {
       // a[b] = ...
-      if (
-        isSimpleAssignment(node) &&
-        node.left.type === AST_NODE_TYPES.MemberExpression &&
-        node.left.computed
-      ) {
+      if (isSimpleAssignment(node) && node.left.type === 'MemberExpression' && node.left.computed) {
         const { left, right } = node;
         const index = extractIndex(left.property);
         if (index !== undefined && !isUsed(left.object, right)) {
@@ -125,10 +120,7 @@ export const rule: Rule.RuleModule = {
     }
 
     function mapOrSetKeyWriteUsage(node: estree.Node): KeyWriteCollectionUsage | undefined {
-      if (
-        node.type === AST_NODE_TYPES.CallExpression &&
-        node.callee.type === AST_NODE_TYPES.MemberExpression
-      ) {
+      if (node.type === 'CallExpression' && node.callee.type === 'MemberExpression') {
         const propertyAccess = node.callee;
         if (isIdentifier(propertyAccess.property)) {
           const methodName = propertyAccess.property.name;
@@ -191,7 +183,7 @@ function eq(token1: AST.Token, token2: AST.Token) {
 }
 
 function isSimpleAssignment(node: estree.Node): node is estree.AssignmentExpression {
-  return node.type === AST_NODE_TYPES.AssignmentExpression && node.operator === '=';
+  return node.type === 'AssignmentExpression' && node.operator === '=';
 }
 
 interface KeyWriteCollectionUsage {

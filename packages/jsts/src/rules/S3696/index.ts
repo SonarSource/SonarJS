@@ -14,11 +14,11 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { eslintRules } from '../core/index.js';
+import { getESLintCoreRule } from '../external/core.js';
 import { decorate } from './decorator.js';
 
 /**
  * TypeScript ESLint implementation of 'no-throw-literal' does not support JavaScript code.
  * Therefore, we decorate ESLint's implemention of the rule.
  */
-export const rule = decorate(eslintRules['no-throw-literal']);
+export const rule = decorate(getESLintCoreRule('no-throw-literal'));

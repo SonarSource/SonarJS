@@ -14,12 +14,12 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { TSESTree } from '@typescript-eslint/utils';
+import type { TSESTree } from '@typescript-eslint/utils';
 import pkg from 'jsx-ast-utils';
 const { getLiteralPropValue, getProp } = pkg;
 import type { Rule } from 'eslint';
-import getElementType from 'eslint-plugin-jsx-a11y/lib/util/getElementType.js';
 import { isHtmlElement } from './isHtmlElement.js';
+import { getElementType } from './accessibility.js';
 
 export type TableCell = {
   isHeader: boolean;

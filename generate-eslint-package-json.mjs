@@ -26,22 +26,14 @@ const eslintPluginDependencies = [
   '@babel/preset-flow',
   '@babel/preset-react',
   '@eslint-community/regexpp',
-  '@typescript-eslint/eslint-plugin',
-  '@typescript-eslint/utils',
   'builtin-modules',
   'bytes',
-  'eslint-plugin-import',
-  'eslint-plugin-jsx-a11y',
-  'eslint-plugin-react',
-  'eslint-plugin-react-hooks',
-  'eslint-scope',
   'functional-red-black-tree',
   'jsx-ast-utils',
   'minimatch',
   'scslre',
   'semver',
   'typescript',
-  'vue-eslint-parser',
 ];
 
 const mainPackageJson = JSON.parse(
@@ -90,7 +82,7 @@ await fs.writeFile(
         'https://github.com/SonarSource/SonarJS/blob/master/packages/jsts/src/rules/README.md',
       dependencies,
       peerDependencies: {
-        eslint: '8.0.0 - 9.14',
+        eslint: '^8.0.0 || ^9.0.0',
       },
     },
     null,

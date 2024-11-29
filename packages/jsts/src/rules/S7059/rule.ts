@@ -25,7 +25,6 @@ import {
 } from '../helpers/index.js';
 import estree from 'estree';
 import { meta } from './meta.js';
-import { AST_NODE_TYPES } from '@typescript-eslint/utils';
 
 const flaggedStatements = new Set();
 
@@ -57,7 +56,7 @@ export const rule: Rule.RuleModule = {
       let classConstructor: estree.MethodDefinition | undefined;
       let statement: estree.Statement | undefined;
       context.sourceCode.getAncestors(node).forEach(node => {
-        if (node.type === AST_NODE_TYPES.MethodDefinition && node.kind === 'constructor') {
+        if (node.type === 'MethodDefinition' && node.kind === 'constructor') {
           classConstructor = node;
         }
         if (classConstructor && node.type.endsWith('Statement')) {

@@ -168,9 +168,9 @@
         <version>2.6</version>
       </dependency>
       <dependency>
-          <groupId>org.sonarsource.sslr</groupId>
-          <artifactId>sslr-core</artifactId>
-          <version>${sslr.version}</version>
+        <groupId>org.sonarsource.sslr</groupId>
+        <artifactId>sslr-core</artifactId>
+        <version>${sslr.version}</version>
       </dependency>
       <dependency>
         <groupId>org.sonarsource.sonarlint.core</groupId>

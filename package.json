@@ -16,6 +16,7 @@
     "ruling-parametrized": "node tools/prepare-ruling.js && SONAR_RULING_SETTINGS=../settings.js  tsx --tsconfig packages/tsconfig.test.json --test packages/ruling/tests/projects/*.ruling.test.ts",
     "ruling-sync": "rsync -avh packages/ruling/tests/actual/jsts/ its/ruling/src/test/expected/jsts/ --delete",
     "update-ruling-data": "mvn -f sonar-plugin/sonar-javascript-plugin/pom.xml compile && npx tsx packages/ruling/tests/tools/parseRulesData.ts",
+    "create-rule-indexes": "tsx tools/generate-rule-indexes.ts",
     "bridge:compile": "tsc -b packages profiling && npm run _:bridge:copy-protofiles",
     "bridge:test": "tsx --tsconfig packages/tsconfig.test.json --test --test-reporter spec --test-reporter-destination stdout \"packages/*/src/rules/*[!node_modules]/**/*.test.ts\" \"packages/*[!ruling]/tests/**/*.test.ts\"",
     "bridge:test:cov": "odz run npm run bridge:test || true && odz report --reporters=text-lcov > lcov.info",
@@ -28,7 +29,7 @@
     "plugin:build:fast": "mvn install -DskipTests && npm run update-ruling-data",
     "pbf": "npm run plugin:build:fast",
     "td": "npm --prefix typedoc/searchable-parameters-plugin run setup && npx typedoc --options typedoc/typedoc.js",
-    "prepare": "husky",
+    "prepare": "husky && npm run create-rule-indexes",
     "precommit": "pretty-quick --staged",
     "count-rules": "node tools/count-rules.js",
     "_:bridge:copy-protofiles": "cpy --flat packages/jsts/src/parsers/estree.proto sonar-plugin/bridge/src/main/protobuf && cpy --flat packages/jsts/src/parsers/estree.proto lib/jsts/src/parsers",
@@ -44,7 +45,7 @@
     "eslint-plugin:types": "tsc -p tsconfig-plugin.json --declaration true --emitDeclarationOnly --outDir lib/types",
     "eslint-plugin:package-json": "node generate-eslint-package-json.mjs",
     "eslint-plugin:copy-assets": "cpy LICENSE.txt lib/ --rename LICENSE && cpy packages/jsts/src/rules/README.md lib/ --flat",
-    "eslint-docs": "npm run eslint-plugin:compile && eslint-doc-generator lib --init-rule-docs"
+    "eslint-docs": "npm run eslint-plugin:compile && eslint-doc-generator lib --init-rule-docs && tsx tools/generate-external-rules-docs.ts"
   },
   "repository": {
     "type": "git",
@@ -121,7 +122,7 @@
     "htmlparser2": "9.1.0",
     "jsx-ast-utils": "3.3.5",
     "lodash.clone": "4.5.0",
-    "minimatch": "10.0.1",
+    "minimatch": "9.0.5",
     "module-alias": "2.2.3",
     "postcss": "8.4.49",
     "postcss-html": "0.36.0",

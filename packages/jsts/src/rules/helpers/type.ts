@@ -16,7 +16,7 @@
  */
 import estree from 'estree';
 import ts from 'typescript';
-import { TSESLint, TSESTree } from '@typescript-eslint/utils';
+import type { TSESLint, TSESTree } from '@typescript-eslint/utils';
 import { RequiredParserServices } from '../helpers/index.js';
 import { getVariableFromScope } from './ast.js';
 import type { Rule } from 'eslint';

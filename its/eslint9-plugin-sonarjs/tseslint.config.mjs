@@ -23,7 +23,6 @@ import parser from '@typescript-eslint/parser';
 console.log(`Loaded ${Object.keys(plugin.configs.recommended.rules ?? {}).length} rules`);
 
 export default tseslint.config(plugin.configs.recommended, {
-  rules: { 'sonarjs/accessor-pairs': 'error' },
   files: ['**/*.ts'],
   languageOptions: {
     parser,

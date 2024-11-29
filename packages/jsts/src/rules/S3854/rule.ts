@@ -17,12 +17,12 @@
 // https://sonarsource.github.io/rspec/#/rspec/S3854/javascript
 
 import type { Rule } from 'eslint';
-import { eslintRules } from '../core/index.js';
+import { getESLintCoreRule } from '../external/core.js';
 import { generateMeta, mergeRules } from '../helpers/index.js';
 import { meta } from './meta.js';
 
-const constructorSuperRule = eslintRules['constructor-super'];
-const noThisBeforeSuperRule = eslintRules['no-this-before-super'];
+const constructorSuperRule = getESLintCoreRule('constructor-super');
+const noThisBeforeSuperRule = getESLintCoreRule('no-this-before-super');
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta as Rule.RuleMetaData, {

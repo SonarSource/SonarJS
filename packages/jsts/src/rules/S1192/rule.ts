@@ -16,7 +16,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S1192
 
-import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/utils';
+import type { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta, report, toSecondaryLocation } from '../helpers/index.js';
 import type { Rule } from 'eslint';
 import estree from 'estree';
@@ -119,5 +119,5 @@ function isRequireContext(parent: estree.Node, context: Rule.RuleContext) {
 }
 
 function isObjectPropertyKey(parent: estree.Node, literal: estree.Literal) {
-  return parent.type === AST_NODE_TYPES.Property && parent.key === literal;
+  return parent.type === 'Property' && parent.key === literal;
 }

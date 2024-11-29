@@ -14,8 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import pkg from 'eslint-plugin-jsx-a11y';
-const { rules } = pkg;
+import { rules } from '../external/a11y.js';
 import { decorate } from './decorator.js';
 
 export const rule = decorate(rules['label-has-associated-control']);

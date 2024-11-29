@@ -31,7 +31,7 @@ import {
   resolveFunction,
   toSecondaryLocation,
 } from '../helpers/index.js';
-import { TSESTree } from '@typescript-eslint/utils';
+import type { TSESTree } from '@typescript-eslint/utils';
 import { meta } from './meta.js';
 
 const MESSAGE = `Make sure that enabling CORS is safe here.`;
