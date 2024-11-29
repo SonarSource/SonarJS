@@ -1,0 +1,40 @@
+___HEADER___// https://sonarsource.github.io/rspec/#/rspec/___RULE_KEY___/javascript
+
+import { Rule } from 'eslint';
+import { rules } from 'external-plugin';
+import {
+  generateMeta,
+  interceptReport,
+  mergeRules,
+} from '../helpers/index.js';
+import { meta } from './meta.js';
+
+// you can return the decoratedRule
+export const rule: Rule.RuleModule = interceptReport(
+  rules['external-rule'],
+  function (context: Rule.RuleContext, descriptor: Rule.ReportDescriptor) {
+    const node = 'node' in descriptor && descriptor.node;
+    if (node) {
+      // ...
+      context.report({ ...descriptor });
+    }
+  },
+);
+
+// or return the merger of two or more rules together
+export const rule: Rule.RuleModule = {
+  meta: generateMeta(meta as Rule.RuleMetaData, {
+    hasSuggestions: true,
+    messages: {
+      ...rule1.meta?.messages,
+      ...rule2.meta?.messages,
+    },
+    schema: rule1.schema,
+  }),
+  create(context: Rule.RuleContext) {
+    return mergeRules(
+      rule1.create(context),
+      rule1.create(context),
+    );
+  },
+};
