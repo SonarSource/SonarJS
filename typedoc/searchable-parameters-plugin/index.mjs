@@ -14,9 +14,9 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-const { Renderer } = require('typedoc');
+import { Renderer } from 'typedoc';
 
-module.exports.load = function load(app) {
+export function load(app) {
   app.renderer.on(Renderer.EVENT_PREPARE_INDEX, event => {
     for (const [index, result] of event.searchResults.entries()) {
       // To see what is available on a event.searchResults element, see the reflections.json in the generated files
@@ -34,7 +34,7 @@ module.exports.load = function load(app) {
     // https://github.com/TypeStrong/typedoc/blob/56813c0cb201f0c248a0cc43ef6e7578d680191c/src/lib/output/plugins/JavascriptIndexPlugin.ts#L89
     event.searchFieldWeights.parameters = 5;
   });
-};
+}
 
 /**
  * Initialises object[propName] to ''
