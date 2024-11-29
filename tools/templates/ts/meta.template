@@ -1,0 +1,5 @@
+___HEADER___// https://sonarsource.github.io/rspec/#/rspec/___RULE_KEY___/javascript
+export * from './generated-meta.js';
+export const implementation = '___IMPLEMENTATION___';
+export const eslintId = '___ESLINT_ID___';
+___EXTRA___
