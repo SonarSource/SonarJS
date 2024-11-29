@@ -65,6 +65,6 @@ async function getJsonFiles(pathToRules) {
   return Promise.all(
     filenames
       .filter(filename => filename.endsWith('.json') && filename.length <= 'S1234.json'.length)
-      .map(async file => await import(path.join(pathToRules, file), { assert: { type: 'json' } })),
+      .map(async file => await import(path.join(pathToRules, file), { with: { type: 'json' } })),
   );
 }
