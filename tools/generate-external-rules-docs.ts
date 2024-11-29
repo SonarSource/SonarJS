@@ -14,12 +14,55 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { readFile, writeFile } from 'node:fs/promises';
-import { dirname, join } from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
-import { readdir } from 'fs/promises';
-import prettier from 'prettier';
-import { prettier as prettierOpts } from '../package.json';
+import { readFile } from 'node:fs/promises';
+import { join } from 'node:path';
+import { getAllRulesMetadata, RULES_FOLDER, writePrettyFile } from './helpers.js';
+
+/**
+ * Script to be called to update the eslint-plugin-sonarjs README.md
+ * eslint-doc-generator will create a table in the README with all the rules contained in
+ * plugin. However, we only package the 'original' implementation rules.
+ *
+ * We want the README to mention what other rules are contained in SonarJS but NOT
+ * shipped in the ESlint plugin, so that the users can install those 3rd party plugins
+ * and enable those rules to get an experience as close as SonarJS but using ESLint
+ *
+ * This script will fill the README with those rules for which their meta.ts file
+ * exports implementation = ['external'|'decorated']
+ */
+
+const allRules = await getAllRulesMetadata();
+
+const externalContents = `| SonarJS rule ID | Rule implemented by |\n|:---|:---|\n${allRules
+  .filter(rule => rule.implementation === 'external')
+  .map(
+    rule =>
+      `| ${sonarCell(rule.sonarKey)} | ${externalRuleCell(rule.externalPlugin, rule.eslintId)} |\n`,
+  )
+  .join('')}`;
+
+const decoratedContents = `| SonarJS rule ID | Rules used in the SonarJS implementation |\n|:---|:---|\n${allRules
+  .filter(rule => rule.implementation === 'decorated')
+  .map(
+    rule =>
+      `| ${sonarCell(rule.sonarKey)} | ${rule.externalRules.map(r => externalRuleCell(r.externalPlugin, r.externalRule)).join('<br>')} |\n`,
+  )
+  .join('')}`;
+
+const README = join(RULES_FOLDER, 'README.md');
+
+await writePrettyFile(
+  README,
+  (await readFile(README, 'utf8'))
+    .replace(
+      /<!--- start external rules -->.*<!--- end external rules -->/gs,
+      `<!--- start external rules -->\n${externalContents}\n<!--- end external rules -->`,
+    )
+    .replace(
+      /<!--- start decorated rules -->.*<!--- end decorated rules -->/gs,
+      `<!--- start decorated rules -->\n${decoratedContents}\n<!--- end decorated rules -->`,
+    ),
+);
 
 function sonarURL(key: string) {
   return `https://sonarsource.github.io/rspec/#/rspec/${key}/javascript`;
@@ -51,83 +94,3 @@ function externalURL(plugin: string, key: string) {
 function externalRuleCell(plugin: string, key: string) {
   return `[${plugin}/${key}](${externalURL(plugin, key)})`;
 }
-
-const sonarKeySorter = (a, b) =>
-  parseInt(a.sonarId.substring(1)) < parseInt(b.sonarId.substring(1)) ? -1 : 1;
-
-const ruleRegex = /^S\d+$/;
-const RULES_FOLDER = join(
-  dirname(fileURLToPath(import.meta.url)),
-  '..',
-  'packages',
-  'jsts',
-  'src',
-  'rules',
-);
-
-const decoratedRules = [];
-const externalRules = [];
-const files = await readdir(RULES_FOLDER, { withFileTypes: true });
-for (const file of files) {
-  if (ruleRegex.test(file.name) && file.isDirectory()) {
-    const metadata = await import(
-      pathToFileURL(join(RULES_FOLDER, file.name, 'meta.js')).toString()
-    );
-    if (metadata.implementation === 'decorated') {
-      decoratedRules.push({
-        sonarId: file.name,
-        rules: metadata.externalRules,
-      });
-    } else if (metadata.implementation === 'external') {
-      externalRules.push({
-        sonarId: file.name,
-        externalPlugin: metadata.externalPlugin,
-        externalRule: metadata.eslintId,
-      });
-    }
-  }
-}
-
-externalRules.sort(sonarKeySorter);
-decoratedRules.sort(sonarKeySorter);
-
-const externalContents = `| SonarJS rule ID | Rule implemented by |\n|:---|:---|\n${externalRules
-  .map(
-    rule =>
-      `| ${sonarCell(rule.sonarId)} | ${externalRuleCell(rule.externalPlugin, rule.externalRule)} |\n`,
-  )
-  .join('')}`;
-
-const decoratedContents = `| SonarJS rule ID | Rules used in the SonarJS implementation |\n|:---|:---|\n${decoratedRules
-  .map(
-    rule =>
-      `| ${sonarCell(rule.sonarId)} | ${rule.rules.map(r => externalRuleCell(r.externalPlugin, r.externalRule)).join('<br>')} |\n`,
-  )
-  .join('')}`;
-
-const README = join(
-  dirname(fileURLToPath(import.meta.url)),
-  '..',
-  'packages',
-  'jsts',
-  'src',
-  'rules',
-  'README.md',
-);
-
-await writeFile(
-  README,
-  await prettier.format(
-    (await readFile(README, 'utf8'))
-      .replace(
-        /<!--- start external rules -->.*<!--- end external rules -->/gs,
-        `<!--- start external rules -->\n${externalContents}\n<!--- end external rules -->`,
-      )
-      .replace(
-        /<!--- start decorated rules -->.*<!--- end decorated rules -->/gs,
-        `<!--- start decorated rules -->\n${decoratedContents}\n<!--- end decorated rules -->`,
-      ),
-    { ...(prettierOpts as prettier.Options), filepath: README },
-  ),
-  'utf8',
-);
