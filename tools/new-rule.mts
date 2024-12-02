@@ -132,7 +132,6 @@ await inflateTemplateToFile(
   join(JAVA_TEMPLATES_FOLDER, ruleTarget === 'MAIN' ? 'rule.main.template' : 'rule.test.template'),
   join(javaChecksPath('main'), `${sonarKey}.java`),
   {
-    ___JAVA_RULE_CLASS_NAME___: sonarKey,
     ___RULE_KEY___: sonarKey,
     ___PROPERTIES___: await readFile(join(JAVA_TEMPLATES_FOLDER, 'properties'), 'utf8'),
     ___HEADER___: header,
@@ -144,7 +143,7 @@ await inflateTemplateToFile(
   join(JAVA_TEMPLATES_FOLDER, 'ruletest.template'),
   join(javaChecksPath('test'), `${sonarKey}Test.java`),
   {
-    ___JAVA_RULE_CLASS_NAME___: sonarKey,
+    ___RULE_KEY___: sonarKey,
     ___HEADER___: header,
   },
 );
