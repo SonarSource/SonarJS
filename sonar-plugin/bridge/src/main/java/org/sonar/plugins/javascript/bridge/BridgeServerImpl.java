@@ -68,6 +68,7 @@ public class BridgeServerImpl implements BridgeServer {
   private static final String MAX_OLD_SPACE_SIZE_PROPERTY = "sonar.javascript.node.maxspace";
   private static final String ALLOW_TS_PARSER_JS_FILES = "sonar.javascript.allowTsParserJsFiles";
   private static final String DEBUG_MEMORY = "sonar.javascript.node.debugMemory";
+  private static final String SONARLINT_BUNDLE_PATH = "sonar.js.internal.bundlePath";
   public static final String SONARJS_EXISTING_NODE_PROCESS_PORT =
     "SONARJS_EXISTING_NODE_PROCESS_PORT";
   private static final Gson GSON = new Gson();
@@ -181,7 +182,12 @@ public class BridgeServerImpl implements BridgeServer {
    * @throws IOException
    */
   void deploy(Configuration configuration) throws IOException {
-    bundle.deploy(temporaryDeployLocation);
+    var bundlePath = configuration.get(SONARLINT_BUNDLE_PATH);
+    if (bundlePath.isPresent()) {
+      bundle.setDeployLocation(Path.of(bundlePath.get()));
+    } else {
+      bundle.deploy(temporaryDeployLocation);
+    }
     if (configuration.get(NODE_EXECUTABLE_PROPERTY).isPresent() ||
         configuration.getBoolean(SKIP_NODE_PROVISIONING_PROPERTY).orElse(false) ||
         configuration.getBoolean(NODE_FORCE_HOST_PROPERTY).orElse(false)) {

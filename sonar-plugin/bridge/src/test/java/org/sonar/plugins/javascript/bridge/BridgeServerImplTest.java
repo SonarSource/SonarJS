@@ -854,6 +854,11 @@ class BridgeServerImplTest {
     }
 
     @Override
+    public void setDeployLocation(Path deployLocation) {
+      // no-op for unit test
+    }
+
+    @Override
     public void deploy(Path deployLocation) {
       // no-op for unit test
     }
