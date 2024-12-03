@@ -123,7 +123,8 @@ public class TsConfigProvider {
       String property = context.config().hasKey(TSCONFIG_PATHS) ? TSCONFIG_PATHS : TSCONFIG_PATHS_ALIAS;
       Set<String> patterns = new HashSet<>(Arrays.asList(context.config().getStringArray(property)));
 
-      LOG.info("Resolving TSConfig files using '{}' from property {}", String.join(",", patterns), property);
+      var patternString = String.join(",", patterns);
+      LOG.info("Resolving TSConfig files using '{}' from property {}", patternString, property);
 
       File baseDir = context.fileSystem().baseDir();
 

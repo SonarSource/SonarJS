@@ -18,8 +18,6 @@ package org.sonar.plugins.javascript.analysis;
 
 import java.io.IOException;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.plugins.javascript.bridge.AnalysisWarningsWrapper;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
@@ -29,8 +27,6 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
 
 @SonarLintSide
 public class AnalysisWithWatchProgram extends AbstractAnalysis {
-
-  private static final Logger LOG = LoggerFactory.getLogger(AnalysisWithWatchProgram.class);
 
   TsConfigCache tsConfigCache;
 
