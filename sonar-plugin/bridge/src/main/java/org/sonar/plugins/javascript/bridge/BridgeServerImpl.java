@@ -68,7 +68,7 @@ public class BridgeServerImpl implements BridgeServer {
   private static final String MAX_OLD_SPACE_SIZE_PROPERTY = "sonar.javascript.node.maxspace";
   private static final String ALLOW_TS_PARSER_JS_FILES = "sonar.javascript.allowTsParserJsFiles";
   private static final String DEBUG_MEMORY = "sonar.javascript.node.debugMemory";
-  private static final String SONARLINT_BUNDLE_PATH = "sonar.js.internal.bundlePath";
+  public static final String SONARLINT_BUNDLE_PATH = "sonar.js.internal.bundlePath";
   public static final String SONARJS_EXISTING_NODE_PROCESS_PORT =
     "SONARJS_EXISTING_NODE_PROCESS_PORT";
   private static final Gson GSON = new Gson();

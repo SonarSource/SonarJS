@@ -822,16 +822,45 @@ class BridgeServerImplTest {
       );
   }
 
-  private BridgeServerImpl createBridgeServer(String startServerScript) {
+  @Test
+  void should_start_bridge_from_path() throws IOException {
+    bridgeServer = createBridgeServer(new BundleImpl());
+    var deployLocation = "src/test/resources";
+    var settings = new MapSettings().setProperty(BridgeServerImpl.SONARLINT_BUNDLE_PATH, deployLocation);
+    context.setSettings(settings);
+
+    var config = BridgeServerConfig.fromSensorContext(context);
+    bridgeServer.startServerLazily(config);
+    assertThat(logTester.logs(DEBUG))
+      .contains("Setting deploy location to " + deployLocation);
+  }
+
+  @Test
+  void should_fail_on_bad_bridge_path() {
+    bridgeServer = createBridgeServer(new BundleImpl());
+    var deployLocation = "src/test";
+    var settings = new MapSettings().setProperty(BridgeServerImpl.SONARLINT_BUNDLE_PATH, deployLocation);
+    context.setSettings(settings);
+
+    var config = BridgeServerConfig.fromSensorContext(context);
+    assertThatThrownBy(() -> bridgeServer.startServerLazily(config))
+      .isInstanceOf(NodeCommandException.class);
+  }
+
+  private BridgeServerImpl createBridgeServer(Bundle bundle) {
     return new BridgeServerImpl(
       builder(),
       TEST_TIMEOUT_SECONDS,
-      new TestBundle(startServerScript),
+      bundle,
       emptyRulesBundles,
       deprecationWarning,
       tempFolder,
       unsupportedEmbeddedRuntime
     );
+  }
+
+  private BridgeServerImpl createBridgeServer(String startServerScript) {
+    return createBridgeServer(new TestBundle(startServerScript));
   }
 
   /**
