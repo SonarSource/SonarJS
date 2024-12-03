@@ -33,7 +33,6 @@ const eslintPluginDependencies = [
   'minimatch',
   'scslre',
   'semver',
-  'typescript',
 ];
 
 const mainPackageJson = JSON.parse(
@@ -83,6 +82,7 @@ await fs.writeFile(
       dependencies,
       peerDependencies: {
         eslint: '^8.0.0 || ^9.0.0',
+        typescript: '>=5.0.0',
       },
     },
     null,
