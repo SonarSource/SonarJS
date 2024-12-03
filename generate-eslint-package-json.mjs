@@ -36,6 +36,10 @@ const eslintPluginDependencies = [
   'typescript',
 ];
 
+const fixedVersions = {
+  typescript: '^5',
+};
+
 const mainPackageJson = JSON.parse(
   await fs.readFile(join(dirname(fileURLToPath(import.meta.url)), 'package.json'), 'utf8'),
 );
@@ -47,7 +51,7 @@ for (const [name, value] of Object.entries(mainPackageJson.dependencies).concat(
   Object.entries(mainPackageJson.devDependencies),
 )) {
   if (eslintPluginDependencies.includes(name)) {
-    dependencies[name] = value;
+    dependencies[name] = fixedVersions[name] ?? value;
     const i = missingDependencies.indexOf(name);
     missingDependencies.splice(i, 1);
   }
