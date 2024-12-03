@@ -37,11 +37,9 @@ import org.sonar.api.utils.Version;
 
 class JavaScriptPluginTest {
 
-  private static final int BASE_EXTENSIONS = 37;
-  private static final int JS_ADDITIONAL_EXTENSIONS = 4;
-  private static final int TS_ADDITIONAL_EXTENSIONS = 3;
-  private static final int CSS_ADDITIONAL_EXTENSIONS = 3;
-  private static final int SONARLINT_ADDITIONAL_EXTENSIONS = 1;
+  private static final int BASE_EXTENSIONS = 35;
+  private static final int SCANNER_EXTENSIONS = 11;
+  private static final int SONARLINT_ADDITIONAL_EXTENSIONS = 2;
 
   public static final Version LTS_VERSION = Version.create(7, 9);
 
@@ -49,26 +47,23 @@ class JavaScriptPluginTest {
   public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
 
   @Test
-  void count_extensions_lts() throws Exception {
+  void count_extensions_lts() {
     Plugin.Context context = setupContext(
       SonarRuntimeImpl.forSonarQube(LTS_VERSION, SonarQubeSide.SERVER, SonarEdition.COMMUNITY)
     );
     assertThat(context.getExtensions())
       .hasSize(
-        BASE_EXTENSIONS +
-        JS_ADDITIONAL_EXTENSIONS +
-        TS_ADDITIONAL_EXTENSIONS +
-        CSS_ADDITIONAL_EXTENSIONS
+        BASE_EXTENSIONS + SCANNER_EXTENSIONS
       );
   }
 
   @Test
-  void should_contain_right_properties_number() throws Exception {
+  void should_contain_right_properties_number() {
     assertThat(properties()).hasSize(13);
   }
 
   @Test
-  void count_extensions_for_sonarlint() throws Exception {
+  void count_extensions_for_sonarlint() {
     Plugin.Context context = setupContext(SonarRuntimeImpl.forSonarLint(LTS_VERSION));
     assertThat(context.getExtensions()).hasSize(BASE_EXTENSIONS + SONARLINT_ADDITIONAL_EXTENSIONS);
   }

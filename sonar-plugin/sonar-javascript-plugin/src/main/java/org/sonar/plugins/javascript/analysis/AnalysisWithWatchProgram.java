@@ -45,16 +45,8 @@ public class AnalysisWithWatchProgram extends AbstractAnalysis {
   public AnalysisWithWatchProgram(
     BridgeServer bridgeServer,
     AnalysisProcessor analysisProcessor,
-    AnalysisWarningsWrapper analysisWarnings
-  ) {
-    this(bridgeServer, analysisProcessor, analysisWarnings, null);
-  }
-
-  public AnalysisWithWatchProgram(
-    BridgeServer bridgeServer,
-    AnalysisProcessor analysisProcessor,
     AnalysisWarningsWrapper analysisWarnings,
-    @Nullable TsConfigCache tsConfigCache
+    TsConfigCache tsConfigCache
   ) {
     super(bridgeServer, analysisProcessor, analysisWarnings);
     this.tsConfigCache = tsConfigCache;
