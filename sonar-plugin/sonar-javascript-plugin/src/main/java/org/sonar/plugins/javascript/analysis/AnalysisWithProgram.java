@@ -38,7 +38,6 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
 import static org.sonar.plugins.javascript.analysis.TsConfigProvider.getTsConfigs;
 
 @ScannerSide
-@SonarLintSide
 public class AnalysisWithProgram extends AbstractAnalysis {
 
   private static final Logger LOG = LoggerFactory.getLogger(AnalysisWithProgram.class);

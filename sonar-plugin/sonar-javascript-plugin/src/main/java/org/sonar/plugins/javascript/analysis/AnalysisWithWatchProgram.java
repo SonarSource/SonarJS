@@ -18,14 +18,11 @@ package org.sonar.plugins.javascript.analysis;
 
 import java.io.IOException;
 import java.util.List;
-import javax.annotation.Nullable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.scanner.ScannerSide;
-import org.sonar.plugins.javascript.bridge.AnalysisMode;
 import org.sonar.plugins.javascript.bridge.AnalysisWarningsWrapper;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
 import org.sonar.plugins.javascript.sonarlint.TsConfigCache;
@@ -34,7 +31,6 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
 
 import static org.sonar.plugins.javascript.analysis.TsConfigProvider.getTsConfigs;
 
-@ScannerSide
 @SonarLintSide
 public class AnalysisWithWatchProgram extends AbstractAnalysis {
 
