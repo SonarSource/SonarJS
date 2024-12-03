@@ -33,7 +33,6 @@ import org.sonar.plugins.javascript.bridge.BridgeServer;
 import org.sonar.plugins.javascript.bridge.BridgeServer.TsProgram;
 import org.sonar.plugins.javascript.bridge.BridgeServer.TsProgramRequest;
 import org.sonar.plugins.javascript.utils.ProgressReport;
-import org.sonarsource.api.sonarlint.SonarLintSide;
 
 import static org.sonar.plugins.javascript.analysis.TsConfigProvider.getTsConfigs;
 
