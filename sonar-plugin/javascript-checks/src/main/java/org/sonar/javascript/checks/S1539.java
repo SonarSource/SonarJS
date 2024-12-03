@@ -34,6 +34,4 @@ public class S1539 extends Check {
   public List<Object> configurations() {
     return Collections.singletonList("never");
   }
-
-
 }

@@ -44,7 +44,6 @@ class CustomRuleRepositoryTest {
     }
   }
 
-  @Rule(key="key")
-  static class CustomCheck extends Check {
-  }
+  @Rule(key = "key")
+  static class CustomCheck extends Check {}
 }

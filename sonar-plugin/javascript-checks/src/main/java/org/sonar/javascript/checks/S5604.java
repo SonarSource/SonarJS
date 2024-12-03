@@ -43,13 +43,9 @@ public class S5604 extends Check {
   @Override
   public List<Object> configurations() {
     return Collections.singletonList(
-      new Config(
-        Arrays.stream(permissions.split(",")).map(String::trim).toArray(String[]::new)
-      )
+      new Config(Arrays.stream(permissions.split(",")).map(String::trim).toArray(String[]::new))
     );
   }
-
-
 
   private static class Config {
 

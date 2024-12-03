@@ -26,7 +26,4 @@ import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 @TypeScriptRule
 @DeprecatedRuleKey(ruleKey = "BitwiseOperators")
 @Rule(key = "S1529")
-public class S1529 extends Check {
-
-  
-}
+public class S1529 extends Check {}

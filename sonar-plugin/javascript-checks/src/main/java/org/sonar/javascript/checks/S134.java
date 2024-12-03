@@ -45,8 +45,6 @@ public class S134 extends Check {
     return Collections.singletonList(new Config(maximumNestingLevel));
   }
 
-  
-
   private static class Config {
 
     int maximumNestingLevel;

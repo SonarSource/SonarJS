@@ -28,9 +28,8 @@ class S6544Test {
     S6544 check = new S6544();
 
     String defaultConfigAsString = new Gson().toJson(check.configurations());
-    assertThat(defaultConfigAsString)
-      .isEqualTo(
-        "[{\"ignoreIIFE\":true,\"checksVoidReturn\":{\"attributes\":false,\"arguments\":false}}]"
-      );
+    assertThat(defaultConfigAsString).isEqualTo(
+      "[{\"ignoreIIFE\":true,\"checksVoidReturn\":{\"attributes\":false,\"arguments\":false}}]"
+    );
   }
 }

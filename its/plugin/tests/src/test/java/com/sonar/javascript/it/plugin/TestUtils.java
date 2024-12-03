@@ -41,12 +41,11 @@ public class TestUtils {
       throw new IllegalStateException("failed to obtain HOME", e);
     }
 
-    HOME =
-      testResources // home/tests/src/test/resources
-        .getParentFile() // home/tests/src/test
-        .getParentFile() // home/tests/src
-        .getParentFile() // home/tests
-        .getParentFile(); // home
+    HOME = testResources // home/tests/src/test/resources
+      .getParentFile() // home/tests/src/test
+      .getParentFile() // home/tests/src
+      .getParentFile() // home/tests
+      .getParentFile(); // home
   }
 
   public static File homeDir() {
@@ -97,33 +96,30 @@ public class TestUtils {
 
   static void deleteDirRecursively(Path pathToBeDeleted) {
     try (var walk = Files.walk(pathToBeDeleted)) {
-      walk
-        .sorted(Comparator.reverseOrder())
-        .map(Path::toFile)
-        .forEach(File::delete);
+      walk.sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }
   }
 
-  static void copyFolder(Path source, Path target, CopyOption... options)
-    throws IOException {
-    Files.walkFileTree(source, new SimpleFileVisitor<>() {
+  static void copyFolder(Path source, Path target, CopyOption... options) throws IOException {
+    Files.walkFileTree(
+      source,
+      new SimpleFileVisitor<>() {
+        @Override
+        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
+          throws IOException {
+          Files.createDirectories(target.resolve(source.relativize(dir).toString()));
+          return FileVisitResult.CONTINUE;
+        }
 
-      @Override
-      public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
-        throws IOException {
-        Files.createDirectories(target.resolve(source.relativize(dir).toString()));
-        return FileVisitResult.CONTINUE;
+        @Override
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+          Files.copy(file, target.resolve(source.relativize(file).toString()), options);
+          return FileVisitResult.CONTINUE;
+        }
       }
-
-      @Override
-      public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
-        throws IOException {
-        Files.copy(file, target.resolve(source.relativize(file).toString()), options);
-        return FileVisitResult.CONTINUE;
-      }
-    });
+    );
   }
 
   public static File file(String relativePath) {

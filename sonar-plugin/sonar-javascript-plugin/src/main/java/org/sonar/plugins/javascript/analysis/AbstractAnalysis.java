@@ -72,7 +72,12 @@ abstract class AbstractAnalysis {
       : JavaScriptLanguage.KEY;
   }
 
-  void initialize(SensorContext context, JsTsChecks checks, AnalysisMode analysisMode, AnalysisConsumers consumers) {
+  void initialize(
+    SensorContext context,
+    JsTsChecks checks,
+    AnalysisMode analysisMode,
+    AnalysisConsumers consumers
+  ) {
     LOG.debug("Initializing {}", getClass().getName());
     this.context = context;
     contextUtils = new ContextUtils(context);
@@ -87,7 +92,12 @@ abstract class AbstractAnalysis {
 
   abstract void analyzeFiles(List<InputFile> inputFiles, List<String> tsConfigs) throws IOException;
 
-  protected void analyzeFile(InputFile file, @Nullable List<String> tsConfigs, @Nullable TsProgram tsProgram, boolean dirtyPackageJSONCache) throws IOException {
+  protected void analyzeFile(
+    InputFile file,
+    @Nullable List<String> tsConfigs,
+    @Nullable TsProgram tsProgram,
+    boolean dirtyPackageJSONCache
+  ) throws IOException {
     if (context.isCancelled()) {
       throw new CancellationException(
         "Analysis interrupted because the SensorContext is in cancelled state"
@@ -99,8 +109,19 @@ abstract class AbstractAnalysis {
         LOG.debug("Analyzing file: {}", file.uri());
         progressReport.nextFile(file.toString());
         var fileContent = contextUtils.shouldSendFileContent(file) ? file.contents() : null;
-        var skipAst = !consumers.hasConsumers() || !(contextUtils.isSonarArmorEnabled() || contextUtils.isSonarJasminEnabled() || contextUtils.isSonarJaredEnabled());
-        var request = getJsAnalysisRequest(file, fileContent, tsProgram, tsConfigs, skipAst, dirtyPackageJSONCache);
+        var skipAst =
+          !consumers.hasConsumers() ||
+          !(contextUtils.isSonarArmorEnabled() ||
+            contextUtils.isSonarJasminEnabled() ||
+            contextUtils.isSonarJaredEnabled());
+        var request = getJsAnalysisRequest(
+          file,
+          fileContent,
+          tsProgram,
+          tsConfigs,
+          skipAst,
+          dirtyPackageJSONCache
+        );
 
         var response = isJavaScript(file)
           ? bridgeServer.analyzeJavaScript(request)

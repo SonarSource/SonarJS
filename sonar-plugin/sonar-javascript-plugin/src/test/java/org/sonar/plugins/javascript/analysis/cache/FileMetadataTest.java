@@ -26,14 +26,12 @@ class FileMetadataTest {
 
   @Test
   void test() throws Exception {
-    var file = TestInputFileBuilder
-      .create("module", "file.ts")
+    var file = TestInputFileBuilder.create("module", "file.ts")
       .setContents("abc")
       .setCharset(StandardCharsets.UTF_8)
       .build();
 
-    var same = TestInputFileBuilder
-      .create("module", "file.ts")
+    var same = TestInputFileBuilder.create("module", "file.ts")
       .setContents("abc")
       .setCharset(StandardCharsets.UTF_8)
       .build();
@@ -41,15 +39,13 @@ class FileMetadataTest {
     var metadata = FileMetadata.from(file);
     assertThat(metadata.compareTo(same)).isTrue();
 
-    var diffSize = TestInputFileBuilder
-      .create("module", "file.ts")
+    var diffSize = TestInputFileBuilder.create("module", "file.ts")
       .setContents("a")
       .setCharset(StandardCharsets.UTF_8)
       .build();
     assertThat(metadata.compareTo(diffSize)).isFalse();
 
-    var diffContent = TestInputFileBuilder
-      .create("module", "file.ts")
+    var diffContent = TestInputFileBuilder.create("module", "file.ts")
       .setContents("def")
       .setCharset(StandardCharsets.UTF_8)
       .build();

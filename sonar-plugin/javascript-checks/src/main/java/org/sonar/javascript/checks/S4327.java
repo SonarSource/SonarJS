@@ -31,8 +31,6 @@ public class S4327 extends Check {
     return Collections.singletonList(new Config());
   }
 
-
-
   private static class Config {
 
     boolean allowDestructuring = true;

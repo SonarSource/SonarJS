@@ -26,7 +26,4 @@ import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 @TypeScriptRule
 @DeprecatedRuleKey(ruleKey = "TabCharacter")
 @Rule(key = "S105")
-public class S105 extends Check {
-
-
-}
+public class S105 extends Check {}

@@ -43,8 +43,6 @@ public class S1105 extends Check {
     return Arrays.asList(braceStyle, new Config());
   }
 
-
-
   private static class Config {
 
     boolean allowSingleLine = true;

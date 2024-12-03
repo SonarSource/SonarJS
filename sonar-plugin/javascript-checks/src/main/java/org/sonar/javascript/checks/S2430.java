@@ -28,8 +28,6 @@ import org.sonar.plugins.javascript.api.TypeScriptRule;
 @Rule(key = "S2430")
 public class S2430 extends Check {
 
-
-
   @Override
   public List<Object> configurations() {
     return Collections.singletonList(new Config());

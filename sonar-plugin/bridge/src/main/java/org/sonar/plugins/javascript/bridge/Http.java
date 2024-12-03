@@ -27,7 +27,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public interface Http {
-
   static Http getJdkHttpClient() {
     return new JdkHttp();
   }
@@ -49,8 +48,7 @@ public interface Http {
 
     @Override
     public Response post(String json, URI uri, long timeoutSeconds) throws IOException {
-      var request = HttpRequest
-        .newBuilder()
+      var request = HttpRequest.newBuilder()
         .uri(uri)
         .timeout(Duration.ofSeconds(timeoutSeconds))
         .header("Content-Type", "application/json")
@@ -59,8 +57,7 @@ public interface Http {
 
       try {
         var response = client.send(request, HttpResponse.BodyHandlers.ofByteArray());
-        var contentType = response.headers().firstValue("Content-Type")
-          .orElse(null);
+        var contentType = response.headers().firstValue("Content-Type").orElse(null);
         return new Response(contentType, response.body());
       } catch (InterruptedException e) {
         throw handleInterruptedException(e, "Request " + uri + " was interrupted.");
@@ -68,7 +65,7 @@ public interface Http {
     }
 
     @Override
-    public String get(URI uri) throws IOException{
+    public String get(URI uri) throws IOException {
       var request = HttpRequest.newBuilder(uri).GET().build();
       try {
         var response = client.send(request, HttpResponse.BodyHandlers.ofString());
@@ -86,7 +83,5 @@ public interface Http {
       Thread.currentThread().interrupt();
       return new IllegalStateException(msg, e);
     }
-
   }
-
 }

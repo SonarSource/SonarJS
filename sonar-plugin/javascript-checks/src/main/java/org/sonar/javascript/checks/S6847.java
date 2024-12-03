@@ -18,7 +18,6 @@ package org.sonar.javascript.checks;
 
 import java.util.Collections;
 import java.util.List;
-
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.Check;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
@@ -35,6 +34,14 @@ public class S6847 extends Check {
   }
 
   private static class Config {
-    String[] handlers = {"onClick", "onMouseDown", "onMouseUp", "onKeyPress", "onKeyDown", "onKeyUp"};
+
+    String[] handlers = {
+      "onClick",
+      "onMouseDown",
+      "onMouseUp",
+      "onKeyPress",
+      "onKeyDown",
+      "onKeyUp",
+    };
   }
 }

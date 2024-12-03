@@ -155,7 +155,7 @@ public class SonarJsPerfBenchmark {
       println("Baseline: " + baselineScore);
       println("Candidate: " + candidateScore);
       var delta = Math.abs(baselineScore - candidateScore);
-      var deltaPercent = delta / baselineScore * 100;
+      var deltaPercent = (delta / baselineScore) * 100;
       printf("Delta: %.3f (%.3f %%)%n", delta, deltaPercent);
       if (deltaPercent > MARGIN_PERCENT) {
         println("Performance degradation is greater than " + MARGIN_PERCENT + "%");
@@ -217,8 +217,7 @@ public class SonarJsPerfBenchmark {
       .execute()
       .getBodyAsString();
     var plugins = new Gson().fromJson(installed, JsonObject.class).get("plugins").getAsJsonArray();
-    return StreamSupport
-      .stream(plugins.spliterator(), false)
+    return StreamSupport.stream(plugins.spliterator(), false)
       .map(JsonElement::getAsJsonObject)
       .filter(e -> "javascript".equals(e.get("key").getAsString()))
       .map(e -> e.get("version").getAsString())
@@ -226,8 +225,7 @@ public class SonarJsPerfBenchmark {
   }
 
   private static Orchestrator orchestrator(Location pluginLocation) {
-    return OrchestratorExtension
-      .builderEnv()
+    return OrchestratorExtension.builderEnv()
       .setSonarVersion("LATEST_RELEASE")
       .setOrchestratorProperty("orchestrator.container.port", "9000")
       .useDefaultAdminCredentialsForBuilds(true)
@@ -236,8 +234,7 @@ public class SonarJsPerfBenchmark {
   }
 
   private static BuildResult runScan(String token, String projectKey, int maxspace) {
-    var build = SonarScanner
-      .create(Path.of("../sources/jsts/projects/", projectKey).toFile())
+    var build = SonarScanner.create(Path.of("../sources/jsts/projects/", projectKey).toFile())
       .setProjectKey(projectKey)
       .setProjectName(projectKey)
       .setProjectVersion("1")

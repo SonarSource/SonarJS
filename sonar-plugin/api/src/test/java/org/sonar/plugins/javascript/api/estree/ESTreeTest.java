@@ -25,7 +25,6 @@ class ESTreeTest {
 
   @Test
   void test() {
-
     Class<?>[] classes = ESTree.class.getDeclaredClasses();
     assertThat(classes).hasSize(108);
 

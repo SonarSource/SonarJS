@@ -32,8 +32,7 @@ class FileLocatorTest {
     InputFile inputFile = new TestInputFileBuilder(
       "module1",
       "src/main/java/org/sonar/test/File.java"
-    )
-      .build();
+    ).build();
     FileLocator locator = new FileLocator(Collections.singleton(inputFile));
     assertThat(locator.getInputFile("org/sonar/test/File.java")).isEqualTo(inputFile);
   }
@@ -43,8 +42,7 @@ class FileLocatorTest {
     InputFile inputFile = new TestInputFileBuilder(
       "module1",
       "src/main/java/org/sonar/test/File.java"
-    )
-      .build();
+    ).build();
     FileLocator locator = new FileLocator(Collections.singleton(inputFile));
     assertThat(locator.getInputFile("org/sonar/test/File2.java")).isNull();
     assertThat(locator.getInputFile("org/sonar/test2/File.java")).isNull();
@@ -56,13 +54,11 @@ class FileLocatorTest {
     InputFile inputFile1 = new TestInputFileBuilder(
       "module1",
       "src/main/java/org/sonar/test/File.java"
-    )
-      .build();
+    ).build();
     InputFile inputFile2 = new TestInputFileBuilder(
       "module1",
       "src/test/java/org/sonar/test/File.java"
-    )
-      .build();
+    ).build();
 
     FileLocator locator = new FileLocator(Arrays.asList(inputFile1, inputFile2));
     assertThat(locator.getInputFile("org/sonar/test/File.java")).isEqualTo(inputFile1);
@@ -73,8 +69,7 @@ class FileLocatorTest {
     InputFile inputFile = new TestInputFileBuilder(
       "module1",
       "src/main/java/org/sonar/test/File.java"
-    )
-      .build();
+    ).build();
 
     FileLocator locator = new FileLocator(singletonList(inputFile));
     assertThat(locator.getInputFile("./org/sonar/test/File.java")).isEqualTo(inputFile);

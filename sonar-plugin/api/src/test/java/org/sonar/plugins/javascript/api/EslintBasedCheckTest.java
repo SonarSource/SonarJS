@@ -24,9 +24,8 @@ import org.sonar.check.Rule;
 
 class EslintBasedCheckTest {
 
-  @Rule(key="key")
-  static class CustomCheck extends Check {
-  }
+  @Rule(key = "key")
+  static class CustomCheck extends Check {}
 
   @Test
   void test() {

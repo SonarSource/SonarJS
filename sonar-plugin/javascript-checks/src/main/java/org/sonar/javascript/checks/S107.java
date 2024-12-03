@@ -42,12 +42,8 @@ public class S107 extends Check {
 
   @Override
   public List<Object> configurations() {
-    return Collections.singletonList(
-      new Config(maximumFunctionParameters)
-    );
+    return Collections.singletonList(new Config(maximumFunctionParameters));
   }
-
-
 
   private static class Config {
 

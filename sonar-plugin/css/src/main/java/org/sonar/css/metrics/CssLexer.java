@@ -61,8 +61,7 @@ public final class CssLexer {
   private CssLexer() {}
 
   public static Lexer create() {
-    return Lexer
-      .builder()
+    return Lexer.builder()
       .withFailIfNoChannelToConsumeOneCharacter(false)
       .withChannel(regexp(CssTokenType.COMMENT, MULTI_LINE_COMMENT))
       .withChannel(regexp(CssTokenType.COMMENT, INLINE_COMMENT))

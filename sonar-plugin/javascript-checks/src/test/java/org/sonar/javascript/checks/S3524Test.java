@@ -28,17 +28,20 @@ class S3524Test {
     S3524 check = new S3524();
 
     String config = new Gson().toJson(check.configurations());
-    assertThat(config)
-      .isEqualTo("[{\"requireParameterParentheses\":false,\"requireBodyBraces\":false}]");
+    assertThat(config).isEqualTo(
+      "[{\"requireParameterParentheses\":false,\"requireBodyBraces\":false}]"
+    );
 
     check.parameterParens = true;
     config = new Gson().toJson(check.configurations());
-    assertThat(config)
-      .isEqualTo("[{\"requireParameterParentheses\":true,\"requireBodyBraces\":false}]");
+    assertThat(config).isEqualTo(
+      "[{\"requireParameterParentheses\":true,\"requireBodyBraces\":false}]"
+    );
 
     check.bodyBraces = true;
     config = new Gson().toJson(check.configurations());
-    assertThat(config)
-      .isEqualTo("[{\"requireParameterParentheses\":true,\"requireBodyBraces\":true}]");
+    assertThat(config).isEqualTo(
+      "[{\"requireParameterParentheses\":true,\"requireBodyBraces\":true}]"
+    );
   }
 }

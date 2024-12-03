@@ -53,16 +53,25 @@ class AnalysisProcessorTest {
     when(fileLinesContextFactory.createFor(any())).thenReturn(mock(FileLinesContext.class));
     var processor = new AnalysisProcessor(mock(NoSonarFilter.class), fileLinesContextFactory);
     var context = SensorContextTester.create(baseDir);
-    var file = TestInputFileBuilder
-      .create("moduleKey", "file.js")
+    var file = TestInputFileBuilder.create("moduleKey", "file.js")
       .setContents("var x  = 1;")
       .build();
     var location = new Location(1, 2, 1, 1); // invalid range startCol > endCol
     var highlight = new Highlight(location, "");
-    var response = new AnalysisResponse(null, List.of(), List.of(highlight), List.of(), new Metrics(), List.of(), List.of(), null);
+    var response = new AnalysisResponse(
+      null,
+      List.of(),
+      List.of(highlight),
+      List.of(),
+      new Metrics(),
+      List.of(),
+      List.of(),
+      null
+    );
     processor.processResponse(context, mock(JsTsChecks.class), file, response);
-    assertThat(logTester.logs())
-      .contains("Failed to create highlight in " + file.uri() + " at 1:2-1:1");
+    assertThat(logTester.logs()).contains(
+      "Failed to create highlight in " + file.uri() + " at 1:2-1:1"
+    );
   }
 
   @Test
@@ -71,23 +80,42 @@ class AnalysisProcessorTest {
     when(fileLinesContextFactory.createFor(any())).thenReturn(mock(FileLinesContext.class));
     var processor = new AnalysisProcessor(mock(NoSonarFilter.class), fileLinesContextFactory);
     var context = SensorContextTester.create(baseDir);
-    var file = TestInputFileBuilder
-      .create("moduleKey", "file.js")
+    var file = TestInputFileBuilder.create("moduleKey", "file.js")
       .setContents("var x  = 1;")
       .build();
     var declaration = new Location(1, 2, 1, 1); // invalid range startCol > endCol
     var symbol = new HighlightedSymbol(declaration, List.of());
-    var response = new AnalysisResponse(null, List.of(), List.of(), List.of(symbol), new Metrics(), List.of(), List.of(), null);
+    var response = new AnalysisResponse(
+      null,
+      List.of(),
+      List.of(),
+      List.of(symbol),
+      new Metrics(),
+      List.of(),
+      List.of(),
+      null
+    );
     processor.processResponse(context, mock(JsTsChecks.class), file, response);
-    assertThat(logTester.logs())
-      .contains("Failed to create symbol declaration in " + file.uri() + " at 1:2-1:1");
+    assertThat(logTester.logs()).contains(
+      "Failed to create symbol declaration in " + file.uri() + " at 1:2-1:1"
+    );
 
     context = SensorContextTester.create(baseDir);
     symbol = new HighlightedSymbol(new Location(1, 1, 1, 2), List.of(new Location(2, 2, 2, 1)));
-    response = new AnalysisResponse(null, List.of(), List.of(), List.of(symbol), new Metrics(), List.of(), List.of(), null);
+    response = new AnalysisResponse(
+      null,
+      List.of(),
+      List.of(),
+      List.of(symbol),
+      new Metrics(),
+      List.of(),
+      List.of(),
+      null
+    );
     processor.processResponse(context, mock(JsTsChecks.class), file, response);
-    assertThat(logTester.logs())
-      .contains("Failed to create symbol reference in " + file.uri() + " at 2:2-2:1");
+    assertThat(logTester.logs()).contains(
+      "Failed to create symbol reference in " + file.uri() + " at 2:2-2:1"
+    );
   }
 
   @Test
@@ -96,17 +124,26 @@ class AnalysisProcessorTest {
     when(fileLinesContextFactory.createFor(any())).thenReturn(mock(FileLinesContext.class));
     var processor = new AnalysisProcessor(mock(NoSonarFilter.class), fileLinesContextFactory);
     var context = SensorContextTester.create(baseDir);
-    var file = TestInputFileBuilder
-      .create("moduleKey", "file.js")
+    var file = TestInputFileBuilder.create("moduleKey", "file.js")
       .setContents("var x  = 1;")
       .build();
     var location = new Location(1, 2, 1, 1); // invalid range startCol > endCol
     var cpd = new CpdToken(location, "img");
-    var response = new AnalysisResponse(null, List.of(), List.of(), List.of(), new Metrics(), List.of(cpd), List.of(), null);
+    var response = new AnalysisResponse(
+      null,
+      List.of(),
+      List.of(),
+      List.of(),
+      new Metrics(),
+      List.of(cpd),
+      List.of(),
+      null
+    );
     processor.processResponse(context, mock(JsTsChecks.class), file, response);
     assertThat(context.cpdTokens(file.key())).isNull();
-    assertThat(logTester.logs())
-      .contains("Failed to save CPD token in " + file.uri() + ". File will not be analyzed for duplications.");
+    assertThat(logTester.logs()).contains(
+      "Failed to save CPD token in " + file.uri() + ". File will not be analyzed for duplications."
+    );
   }
 
   @Test
@@ -115,14 +152,21 @@ class AnalysisProcessorTest {
     when(fileLinesContextFactory.createFor(any())).thenReturn(mock(FileLinesContext.class));
     var processor = new AnalysisProcessor(mock(NoSonarFilter.class), fileLinesContextFactory);
     var context = SensorContextTester.create(baseDir);
-    var file = TestInputFileBuilder
-      .create("moduleKey", "file.js")
+    var file = TestInputFileBuilder.create("moduleKey", "file.js")
       .setContents("var x  = 1;")
       .build();
     var issue = new Issue(2, 1, 1, 2, "message", "ruleId", List.of(), 3.14, List.of()); // invalid location startLine > endLine
-    var response = new AnalysisResponse(null, List.of(issue), List.of(), List.of(), new Metrics(), List.of(), List.of(), null);
+    var response = new AnalysisResponse(
+      null,
+      List.of(issue),
+      List.of(),
+      List.of(),
+      new Metrics(),
+      List.of(),
+      List.of(),
+      null
+    );
     processor.processResponse(context, mock(JsTsChecks.class), file, response);
-    assertThat(logTester.logs())
-      .contains("Failed to save issue in " + file.uri() + " at line 2");
+    assertThat(logTester.logs()).contains("Failed to save issue in " + file.uri() + " at line 2");
   }
 }

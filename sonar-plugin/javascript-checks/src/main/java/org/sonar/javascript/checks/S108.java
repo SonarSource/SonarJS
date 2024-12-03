@@ -35,8 +35,6 @@ public class S108 extends Check {
     return Collections.singletonList(new Config());
   }
 
-  
-
   private static class Config {
 
     boolean allowEmptyCatch = true;

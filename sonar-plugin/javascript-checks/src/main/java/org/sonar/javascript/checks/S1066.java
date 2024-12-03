@@ -26,7 +26,4 @@ import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 @TypeScriptRule
 @DeprecatedRuleKey(ruleKey = "CollapsibleIfStatements")
 @Rule(key = "S1066")
-public class S1066 extends Check {
-
-  
-}
+public class S1066 extends Check {}

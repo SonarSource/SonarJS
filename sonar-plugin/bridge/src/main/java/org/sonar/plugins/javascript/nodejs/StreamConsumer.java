@@ -34,15 +34,13 @@ class StreamConsumer {
   private final ExecutorService executorService;
 
   StreamConsumer() {
-    executorService =
-      Executors.newCachedThreadPool(r -> {
-        Thread thread = new Thread(r);
-        thread.setName("nodejs-stream-consumer");
-        thread.setDaemon(true);
-        thread.setUncaughtExceptionHandler((t, e) -> LOG.error("Error in thread " + t.getName(), e)
-        );
-        return thread;
-      });
+    executorService = Executors.newCachedThreadPool(r -> {
+      Thread thread = new Thread(r);
+      thread.setName("nodejs-stream-consumer");
+      thread.setDaemon(true);
+      thread.setUncaughtExceptionHandler((t, e) -> LOG.error("Error in thread " + t.getName(), e));
+      return thread;
+    });
   }
 
   void consumeStream(InputStream inputStream, Consumer<String> consumer) {

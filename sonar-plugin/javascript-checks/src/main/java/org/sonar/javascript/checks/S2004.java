@@ -40,12 +40,8 @@ public class S2004 extends Check {
 
   @Override
   public List<Object> configurations() {
-    return Collections.singletonList(
-      new Config(threshold)
-    );
+    return Collections.singletonList(new Config(threshold));
   }
-
-
 
   private static class Config {
 

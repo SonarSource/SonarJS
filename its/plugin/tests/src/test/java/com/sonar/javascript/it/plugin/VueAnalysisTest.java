@@ -54,8 +54,9 @@ class VueAnalysisTest {
     assertThat(OrchestratorStarter.getMeasureAsInt(projectKey, "statements")).isEqualTo(3);
     assertThat(OrchestratorStarter.getMeasureAsInt(projectKey, "comment_lines")).isEqualTo(0);
     assertThat(OrchestratorStarter.getMeasureAsInt(projectKey, "complexity")).isEqualTo(1);
-    assertThat(OrchestratorStarter.getMeasureAsInt(projectKey, "cognitive_complexity"))
-      .isEqualTo(2);
+    assertThat(OrchestratorStarter.getMeasureAsInt(projectKey, "cognitive_complexity")).isEqualTo(
+      2
+    );
   }
 
   @Test
@@ -95,8 +96,9 @@ class VueAnalysisTest {
     assertThat(OrchestratorStarter.getMeasureAsInt(vueFileKey, "statements")).isEqualTo(3);
     assertThat(OrchestratorStarter.getMeasureAsInt(vueFileKey, "comment_lines")).isEqualTo(0);
     assertThat(OrchestratorStarter.getMeasureAsInt(vueFileKey, "complexity")).isEqualTo(1);
-    assertThat(OrchestratorStarter.getMeasureAsInt(vueFileKey, "cognitive_complexity"))
-      .isEqualTo(2);
+    assertThat(OrchestratorStarter.getMeasureAsInt(vueFileKey, "cognitive_complexity")).isEqualTo(
+      2
+    );
 
     // assert both .vue and .ts files are analyzed
 

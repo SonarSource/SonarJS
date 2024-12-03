@@ -42,6 +42,4 @@ public class S1479 extends Check {
   public List<Object> configurations() {
     return Collections.singletonList(maximum);
   }
-
-
 }

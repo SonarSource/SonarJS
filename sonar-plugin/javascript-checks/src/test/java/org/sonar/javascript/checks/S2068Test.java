@@ -28,7 +28,9 @@ class S2068Test {
     S2068 check = new S2068();
     // default configuration
     String defaultConfigAsString = new Gson().toJson(check.configurations());
-    assertThat(defaultConfigAsString).isEqualTo("[{\"passwordWords\":[\"password\",\"pwd\",\"passwd\"]}]");
+    assertThat(defaultConfigAsString).isEqualTo(
+      "[{\"passwordWords\":[\"password\",\"pwd\",\"passwd\"]}]"
+    );
 
     check.passwordWords = "foo, bar";
     String customConfigAsString = new Gson().toJson(check.configurations());

@@ -26,7 +26,8 @@ class S1186Test {
   @Test
   void configurations() {
     String configAsString = new Gson().toJson(new S1186().configurations());
-    assertThat(configAsString)
-      .isEqualTo("[{\"allow\":[\"arrowFunctions\",\"constructors\",\"private-constructors\"]}]");
+    assertThat(configAsString).isEqualTo(
+      "[{\"allow\":[\"arrowFunctions\",\"constructors\",\"private-constructors\"]}]"
+    );
   }
 }

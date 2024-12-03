@@ -34,6 +34,4 @@ public class S4144 extends Check {
   public List<Object> configurations() {
     return Collections.singletonList(DEFAULT_THRESHOLD);
   }
-
-  
 }

@@ -25,7 +25,8 @@ class S4327Test {
 
   @Test
   void configurations() {
-    assertThat(new Gson().toJson(new S4327().configurations()))
-      .isEqualTo("[{\"allowDestructuring\":true}]");
+    assertThat(new Gson().toJson(new S4327().configurations())).isEqualTo(
+      "[{\"allowDestructuring\":true}]"
+    );
   }
 }

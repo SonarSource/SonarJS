@@ -26,9 +26,8 @@ class S106Test {
   @Test
   void configurations() {
     String configAsString = new Gson().toJson(new S106().configurations());
-    assertThat(configAsString)
-      .isEqualTo(
-        "[{\"allow\":[\"assert\",\"clear\",\"count\",\"group\",\"groupCollapsed\",\"groupEnd\",\"info\",\"table\",\"time\",\"timeEnd\",\"trace\"]}]"
-      );
+    assertThat(configAsString).isEqualTo(
+      "[{\"allow\":[\"assert\",\"clear\",\"count\",\"group\",\"groupCollapsed\",\"groupEnd\",\"info\",\"table\",\"time\",\"timeEnd\",\"trace\"]}]"
+    );
   }
 }

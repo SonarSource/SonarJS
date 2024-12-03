@@ -38,9 +38,10 @@ class CssStylelintReportTest {
   @BeforeAll
   public static void prepare() {
     orchestrator.executeBuild(
-      CssTestsUtils
-        .createScanner(PROJECT_KEY)
-        .setProperty("sonar.css.stylelint.reportPaths", "report.json")
+      CssTestsUtils.createScanner(PROJECT_KEY).setProperty(
+        "sonar.css.stylelint.reportPaths",
+        "report.json"
+      )
     );
   }
 

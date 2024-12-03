@@ -26,7 +26,4 @@ import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 @TypeScriptRule
 @DeprecatedRuleKey(ruleKey = "LabelPlacement")
 @Rule(key = "S1439")
-public class S1439 extends Check {
-
-
-}
+public class S1439 extends Check {}

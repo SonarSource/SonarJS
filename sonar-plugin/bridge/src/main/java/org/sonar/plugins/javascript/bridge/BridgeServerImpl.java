@@ -162,13 +162,12 @@ public class BridgeServerImpl implements BridgeServer {
     status = Status.STARTED;
     if (heartbeatFuture == null) {
       LOG.trace("Starting heartbeat service");
-      heartbeatFuture =
-        heartbeatService.scheduleAtFixedRate(
-          this::heartbeat,
-          HEARTBEAT_INTERVAL_SECONDS,
-          HEARTBEAT_INTERVAL_SECONDS,
-          TimeUnit.SECONDS
-        );
+      heartbeatFuture = heartbeatService.scheduleAtFixedRate(
+        this::heartbeat,
+        HEARTBEAT_INTERVAL_SECONDS,
+        HEARTBEAT_INTERVAL_SECONDS,
+        TimeUnit.SECONDS
+      );
     }
   }
 
@@ -188,9 +187,11 @@ public class BridgeServerImpl implements BridgeServer {
     } else {
       bundle.deploy(temporaryDeployLocation);
     }
-    if (configuration.get(NODE_EXECUTABLE_PROPERTY).isPresent() ||
-        configuration.getBoolean(SKIP_NODE_PROVISIONING_PROPERTY).orElse(false) ||
-        configuration.getBoolean(NODE_FORCE_HOST_PROPERTY).orElse(false)) {
+    if (
+      configuration.get(NODE_EXECUTABLE_PROPERTY).isPresent() ||
+      configuration.getBoolean(SKIP_NODE_PROVISIONING_PROPERTY).orElse(false) ||
+      configuration.getBoolean(NODE_FORCE_HOST_PROPERTY).orElse(false)
+    ) {
       String property;
       if (configuration.get(NODE_EXECUTABLE_PROPERTY).isPresent()) {
         property = NODE_EXECUTABLE_PROPERTY;
@@ -255,8 +256,11 @@ public class BridgeServerImpl implements BridgeServer {
     return true;
   }
 
-  private NodeCommand initNodeCommand(BridgeServerConfig serverConfig, File scriptFile, String bundles)
-    throws IOException {
+  private NodeCommand initNodeCommand(
+    BridgeServerConfig serverConfig,
+    File scriptFile,
+    String bundles
+  ) throws IOException {
     var workdir = serverConfig.workDirAbsolutePath();
     var config = serverConfig.config();
     var allowTsParserJsFiles = config.getBoolean(ALLOW_TS_PARSER_JS_FILES).orElse(true);
@@ -471,7 +475,10 @@ public class BridgeServerImpl implements BridgeServer {
       return GSON.fromJson(result, TsConfigResponse.class);
     } catch (JsonSyntaxException e) {
       LOG.error(
-        "Failed to parse response when requesting files for tsconfig: {}: \n-----\n{}\n-----\n{}", tsconfigAbsolutePath, result, e.getMessage()
+        "Failed to parse response when requesting files for tsconfig: {}: \n-----\n{}\n-----\n{}",
+        tsconfigAbsolutePath,
+        result,
+        e.getMessage()
       );
     }
     return new TsConfigResponse(emptyList(), emptyList(), result, null);
@@ -563,8 +570,7 @@ public class BridgeServerImpl implements BridgeServer {
 
   int nodeAlreadyRunningPort() {
     try {
-      int existingNodePort = Optional
-        .ofNullable(getExistingNodeProcessPort())
+      int existingNodePort = Optional.ofNullable(getExistingNodeProcessPort())
         .map(Integer::parseInt)
         .orElse(0);
       if (existingNodePort < 0 || existingNodePort > 65535) {

@@ -147,11 +147,7 @@ public class CssRuleSensor extends AbstractBridgeSensor {
     }
   }
 
-  private void saveIssues(
-    SensorContext context,
-    InputFile inputFile,
-    List<Issue> issues
-  ) {
+  private void saveIssues(SensorContext context, InputFile inputFile, List<Issue> issues) {
     for (Issue issue : issues) {
       RuleKey ruleKey = cssRules.getActiveSonarKey(issue.ruleId());
       if (ruleKey == null) {
@@ -230,14 +226,12 @@ public class CssRuleSensor extends AbstractBridgeSensor {
       p.hasLanguages("js", "ts")
     );
 
-    return StreamSupport
-      .stream(
-        fileSystem
-          .inputFiles(p.or(cssFilePredicate, webFilePredicate, vueFilePredicate))
-          .spliterator(),
-        false
-      )
-      .toList();
+    return StreamSupport.stream(
+      fileSystem
+        .inputFiles(p.or(cssFilePredicate, webFilePredicate, vueFilePredicate))
+        .spliterator(),
+      false
+    ).toList();
   }
 
   public static boolean hasCssFiles(SensorContext context) {

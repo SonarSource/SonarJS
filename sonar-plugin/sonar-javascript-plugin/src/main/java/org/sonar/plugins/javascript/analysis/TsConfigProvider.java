@@ -18,6 +18,8 @@ package org.sonar.plugins.javascript.analysis;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static org.sonar.plugins.javascript.analysis.LookupConfigProviderFilter.FileFilter;
+import static org.sonar.plugins.javascript.analysis.LookupConfigProviderFilter.PathFilter;
 
 import com.google.gson.Gson;
 import java.io.File;
@@ -41,8 +43,6 @@ import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
-import static org.sonar.plugins.javascript.analysis.LookupConfigProviderFilter.FileFilter;
-import static org.sonar.plugins.javascript.analysis.LookupConfigProviderFilter.PathFilter;
 import org.sonar.plugins.javascript.JavaScriptFilePredicate;
 import org.sonar.plugins.javascript.sonarlint.TsConfigCache;
 import org.sonarsource.analyzer.commons.FileProvider;
@@ -84,11 +84,17 @@ public class TsConfigProvider {
   ) throws IOException {
     var defaultProvider = contextUtils.isSonarLint()
       ? new TsConfigProvider.WildcardTsConfigProvider(tsConfigCache, tsConfigFileCreator)
-      : new TsConfigProvider.DefaultTsConfigProvider(tsConfigFileCreator, JavaScriptFilePredicate::getJsTsPredicate);
-
+      : new TsConfigProvider.DefaultTsConfigProvider(
+        tsConfigFileCreator,
+        JavaScriptFilePredicate::getJsTsPredicate
+      );
 
     var provider = new TsConfigProvider(
-      List.of(new PropertyTsConfigProvider(), new LookupTsConfigProvider(tsConfigCache), defaultProvider),
+      List.of(
+        new PropertyTsConfigProvider(),
+        new LookupTsConfigProvider(tsConfigCache),
+        defaultProvider
+      ),
       tsConfigCache
     );
 
@@ -112,11 +118,11 @@ public class TsConfigProvider {
   }
 
   static class PropertyTsConfigProvider implements Provider {
+
     @Override
     public List<String> tsconfigs(SensorContext context) {
       if (
-        !context.config().hasKey(TSCONFIG_PATHS) &&
-        !context.config().hasKey(TSCONFIG_PATHS_ALIAS)
+        !context.config().hasKey(TSCONFIG_PATHS) && !context.config().hasKey(TSCONFIG_PATHS_ALIAS)
       ) {
         return emptyList();
       }
@@ -178,7 +184,9 @@ public class TsConfigProvider {
   }
 
   static class LookupTsConfigProvider implements Provider {
+
     private final TsConfigCache cache;
+
     LookupTsConfigProvider(@Nullable TsConfigCache cache) {
       this.cache = cache;
     }
@@ -232,7 +240,9 @@ public class TsConfigProvider {
   }
 
   abstract static class GeneratedTsConfigFileProvider implements Provider {
+
     static class TsConfig {
+
       List<String> files;
       Map<String, Object> compilerOptions = new LinkedHashMap<>();
       List<String> include;
@@ -246,7 +256,6 @@ public class TsConfigProvider {
         }
         this.include = include;
       }
-
 
       List<String> writeFileWith(TsConfigFileCreator tsConfigFileCreator) {
         try {
@@ -286,6 +295,7 @@ public class TsConfigProvider {
   }
 
   static class DefaultTsConfigProvider extends GeneratedTsConfigFileProvider {
+
     private final Function<FileSystem, FilePredicate> filePredicateProvider;
     private final TsConfigFileCreator tsConfigFileCreator;
 
@@ -316,6 +326,7 @@ public class TsConfigProvider {
   }
 
   static class WildcardTsConfigProvider extends GeneratedTsConfigFileProvider {
+
     static final String MAX_FILES_PROPERTY = "sonar.javascript.sonarlint.typechecking.maxfiles";
     static final int DEFAULT_MAX_FILES_FOR_TYPE_CHECKING = 20_000;
 
@@ -343,7 +354,8 @@ public class TsConfigProvider {
 
     @Override
     List<String> getDefaultTsConfigs(SensorContext context) {
-      boolean deactivated = tsConfigCache == null || isBeyondLimit(context, tsConfigCache.getProjectSize());
+      boolean deactivated =
+        tsConfigCache == null || isBeyondLimit(context, tsConfigCache.getProjectSize());
       if (deactivated) {
         return emptyList();
       } else {

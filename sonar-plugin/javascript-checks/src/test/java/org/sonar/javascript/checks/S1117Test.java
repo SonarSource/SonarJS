@@ -25,7 +25,6 @@ class S1117Test {
 
   @Test
   void test() {
-    assertThat(new Gson().toJson(new S1117().configurations()))
-      .isEqualTo("[{\"hoist\":\"all\"}]");
+    assertThat(new Gson().toJson(new S1117().configurations())).isEqualTo("[{\"hoist\":\"all\"}]");
   }
 }

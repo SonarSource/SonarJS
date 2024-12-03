@@ -90,11 +90,9 @@ class LCOVParser {
     for (String line : lines) {
       reportLineNum++;
       if (line.startsWith(SF)) {
-        fileData =
-          files.computeIfAbsent(
-            inputFileForSourceFile(line),
-            inputFile -> inputFile == null ? null : new FileData(inputFile)
-          );
+        fileData = files.computeIfAbsent(inputFileForSourceFile(line), inputFile ->
+          inputFile == null ? null : new FileData(inputFile)
+        );
       } else if (fileData != null) {
         if (line.startsWith(DA)) {
           parseLineCoverage(fileData, reportLineNum, line);
@@ -147,10 +145,10 @@ class LCOVParser {
 
   private void logWrongDataWarning(String dataType, int reportLineNum, Exception e) {
     LOG.debug(
-        "Problem during processing LCOV report: can't save {} data for line {} of coverage report file ({}).",
-        dataType,
-        reportLineNum,
-        e.toString()
+      "Problem during processing LCOV report: can't save {} data for line {} of coverage report file ({}).",
+      dataType,
+      reportLineNum,
+      e.toString()
     );
     inconsistenciesCounter++;
   }
@@ -201,9 +199,8 @@ class LCOVParser {
 
     void addBranch(Integer lineNumber, String branchNumber, Integer taken) {
       checkLine(lineNumber);
-      Map<String, Integer> branchesForLine = branches.computeIfAbsent(
-        lineNumber,
-        l -> new HashMap<>()
+      Map<String, Integer> branchesForLine = branches.computeIfAbsent(lineNumber, l ->
+        new HashMap<>()
       );
       branchesForLine.merge(branchNumber, taken, Integer::sum);
     }

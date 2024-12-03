@@ -111,7 +111,7 @@ public class EmbeddedNode {
       var lowerCaseOsName = osName.toLowerCase(Locale.ROOT);
       if (osName.contains("Windows") && isX64(env)) {
         return WIN_X64;
-      } else if (lowerCaseOsName.contains("linux") && isARM64(env) ) {
+      } else if (lowerCaseOsName.contains("linux") && isARM64(env)) {
         return LINUX_ARM64;
       } else if (lowerCaseOsName.contains("linux") && isX64(env)) {
         return env.isAlpine() ? LINUX_X64_MUSL : LINUX_X64;
@@ -179,7 +179,12 @@ public class EmbeddedNode {
       var targetRuntime = deployLocation.resolve(platform.binary());
       var targetDirectory = targetRuntime.getParent();
       var targetVersion = targetDirectory.resolve(VERSION_FILENAME);
-      LOG.info("Deploy location {}, tagetRuntime: {},  version: {}", deployLocation, targetRuntime, targetVersion);
+      LOG.info(
+        "Deploy location {}, tagetRuntime: {},  version: {}",
+        deployLocation,
+        targetRuntime,
+        targetVersion
+      );
       // we assume that since the archive exists, the version file must as well
       var versionIs = getClass().getResourceAsStream(platform.versionPathInJar());
 
@@ -193,7 +198,8 @@ public class EmbeddedNode {
       LOG.debug("Deployed node version {}", detected);
       isAvailable = true;
     } catch (Exception e) {
-      LOG.warn("""
+      LOG.warn(
+        """
         Embedded Node.js failed to deploy in {}.
         You can change the location by setting the option `sonar.userHome` or the environment variable `SONAR_USER_HOME`.
         Otherwise, it will default to {}.
@@ -210,7 +216,9 @@ public class EmbeddedNode {
     var newVersionString = new String(newVersionIs.readAllBytes(), StandardCharsets.UTF_8);
     var currentVersionString = Files.readString(currentVersionPath);
     LOG.debug(
-      "Currently installed Node.js version: {}. Available version in analyzer: {}", currentVersionString, newVersionString
+      "Currently installed Node.js version: {}. Available version in analyzer: {}",
+      currentVersionString,
+      newVersionString
     );
     return !newVersionString.equals(currentVersionString);
   }

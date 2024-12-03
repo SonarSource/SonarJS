@@ -52,8 +52,7 @@ class EslintCustomRulesTest {
   }
 
   static OrchestratorExtension initOrchestrator(String customRulesArtifactId) {
-    var orchestrator = OrchestratorExtension
-      .builderEnv()
+    var orchestrator = OrchestratorExtension.builderEnv()
       .useDefaultAdminCredentialsForBuilds(true)
       .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
       .addPlugin(JAVASCRIPT_PLUGIN_LOCATION)
@@ -79,16 +78,14 @@ class EslintCustomRulesTest {
     org.sonarqube.ws.client.issues.SearchRequest searchRequest =
       new org.sonarqube.ws.client.issues.SearchRequest();
     searchRequest.setRules(Collections.singletonList(ruleKey));
-    Issues.SearchWsResponse response = OrchestratorStarter
-      .newWsClient(orchestrator)
+    Issues.SearchWsResponse response = OrchestratorStarter.newWsClient(orchestrator)
       .issues()
       .search(searchRequest);
     return response.getIssuesList();
   }
 
   static BuildResult runBuild(Orchestrator orchestrator) {
-    SonarScanner build = OrchestratorStarter
-      .createScanner()
+    SonarScanner build = OrchestratorStarter.createScanner()
       .setProjectDir(TestUtils.projectDirNoCopy("custom_rules"))
       .setProjectKey("custom-rules")
       .setProjectName("Custom Rules")
@@ -114,18 +111,15 @@ class EslintCustomRulesTest {
           ".*DEBUG: Deploying custom rules bundle jar:file:.*/custom-eslint-based-rules-1\\.0\\.0\\.tgz to .*"
         )
       )
-    )
-      .hasSize(1);
+    ).hasSize(1);
     assertThat(
       buildResult.getLogsLines(l ->
         l.contains(
           "Custom JavaScript rules are deprecated and API will be removed in future version."
         )
       )
-    )
-      .isEmpty();
-    assertThat(buildResult.getLogsLines(l -> l.contains("Rule context options:")))
-      .hasSize(2);
+    ).isEmpty();
+    assertThat(buildResult.getLogsLines(l -> l.contains("Rule context options:"))).hasSize(2);
     List<Issue> issues = findIssues("eslint-custom-rules:sqKey", orchestrator);
     assertThat(issues).hasSize(2);
     assertThat(issues)
@@ -135,8 +129,9 @@ class EslintCustomRulesTest {
         new Tuple("eslint-custom-rules:sqKey", "custom-rules:src/dir/file.ts", 4, "call")
       );
     Common.Location secondaryLocation = issues.get(0).getFlows(0).getLocations(0);
-    assertThat(secondaryLocation.getMsg())
-      .isEqualTo(new File(TestUtils.projectDirNoCopy("custom_rules"), ".scannerwork").getAbsolutePath());
+    assertThat(secondaryLocation.getMsg()).isEqualTo(
+      new File(TestUtils.projectDirNoCopy("custom_rules"), ".scannerwork").getAbsolutePath()
+    );
 
     issues = findIssues("ts-custom-rules:tsRuleKey", orchestrator);
     assertThat(issues)

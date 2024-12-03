@@ -29,7 +29,4 @@ import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 @TypeScriptRule
 @Rule(key = "S1537")
 @DeprecatedRuleKey(ruleKey = "TrailingComma")
-public class S1537 extends Check {
-
-
-}
+public class S1537 extends Check {}

@@ -45,6 +45,4 @@ public class S6544 extends Check {
   public List<Object> configurations() {
     return Collections.singletonList(new Config());
   }
-
-
 }

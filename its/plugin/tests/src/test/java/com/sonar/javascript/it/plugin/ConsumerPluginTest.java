@@ -16,6 +16,9 @@
  */
 package com.sonar.javascript.it.plugin;
 
+import static com.sonar.javascript.it.plugin.OrchestratorStarter.JAVASCRIPT_PLUGIN_LOCATION;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
@@ -25,9 +28,6 @@ import java.io.File;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-
-import static com.sonar.javascript.it.plugin.OrchestratorStarter.JAVASCRIPT_PLUGIN_LOCATION;
-import static org.assertj.core.api.Assertions.assertThat;
 
 class ConsumerPluginTest {
 
@@ -46,8 +46,7 @@ class ConsumerPluginTest {
   }
 
   static OrchestratorExtension initOrchestrator(String customRulesArtifactId) {
-    var orchestrator = OrchestratorExtension
-      .builderEnv()
+    var orchestrator = OrchestratorExtension.builderEnv()
       .useDefaultAdminCredentialsForBuilds(true)
       .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
       .addPlugin(JAVASCRIPT_PLUGIN_LOCATION)
@@ -70,8 +69,7 @@ class ConsumerPluginTest {
   }
 
   static BuildResult runBuild(Orchestrator orchestrator) {
-    SonarScanner build = OrchestratorStarter
-      .createScanner()
+    SonarScanner build = OrchestratorStarter.createScanner()
       .setProjectDir(TestUtils.projectDirNoCopy("custom_rules"))
       .setProjectKey("custom-rules")
       .setProjectName("Custom Rules")
@@ -93,7 +91,8 @@ class ConsumerPluginTest {
   @Test
   void test() {
     var buildResult = runBuild(orchestrator);
-    var logMatch = ".*DEBUG: Registered JsAnalysisConsumers \\[org.sonar.samples.javascript.consumer.Consumer.*]";
+    var logMatch =
+      ".*DEBUG: Registered JsAnalysisConsumers \\[org.sonar.samples.javascript.consumer.Consumer.*]";
     assertThat(buildResult.getLogsLines(l -> l.matches(logMatch))).hasSize(1);
 
     // TS file is not processed yet.

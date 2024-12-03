@@ -45,8 +45,6 @@ public class S1441 extends Check {
     return Arrays.asList(singleQuotes ? "single" : "double", new Config());
   }
 
-
-
   private static class Config {
 
     boolean avoidEscape = true;

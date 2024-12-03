@@ -101,12 +101,11 @@ class CssRuleSensorTest {
   public void setUp() throws IOException {
     MockitoAnnotations.initMocks(this);
     when(bridgeServerMock.isAlive()).thenReturn(true);
-    when(bridgeServerMock.analyzeCss(any()))
-      .thenReturn(
-        response(
-          "{ issues: [{\"line\":1,\"ruleId\":\"block-no-empty\",\"message\":\"Unexpected empty block\"}]}"
-        )
-      );
+    when(bridgeServerMock.analyzeCss(any())).thenReturn(
+      response(
+        "{ issues: [{\"line\":1,\"ruleId\":\"block-no-empty\",\"message\":\"Unexpected empty block\"}]}"
+      )
+    );
     when(bridgeServerMock.getCommandInfo()).thenReturn("bridgeServerMock command info");
     context = SensorContextTester.create(baseDir);
     context.fileSystem().setWorkDir(workDir);
@@ -116,12 +115,7 @@ class CssRuleSensorTest {
     when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(fileLinesContext);
 
     SonarRuntime sonarRuntime = SonarRuntimeImpl.forSonarLint(Version.create(8, 9));
-    sensor =
-      new CssRuleSensor(
-        sonarRuntime,
-        bridgeServerMock,
-        CHECK_FACTORY
-      );
+    sensor = new CssRuleSensor(sonarRuntime, bridgeServerMock, CHECK_FACTORY);
   }
 
   static ActiveRules activeRules(String... rules) {
@@ -161,12 +155,7 @@ class CssRuleSensorTest {
       SonarQubeSide.SCANNER,
       SonarEdition.COMMUNITY
     );
-    sensor =
-      new CssRuleSensor(
-        sonarRuntime,
-        bridgeServerMock,
-        CHECK_FACTORY
-      );
+    sensor = new CssRuleSensor(sonarRuntime, bridgeServerMock, CHECK_FACTORY);
     DefaultSensorDescriptor sensorDescriptor = new DefaultSensorDescriptor();
     sensor.describe(sensorDescriptor);
     assertThat(sensorDescriptor.name()).isEqualTo("CSS Rules");
@@ -180,12 +169,7 @@ class CssRuleSensorTest {
       SonarQubeSide.SCANNER,
       SonarEdition.COMMUNITY
     );
-    sensor =
-      new CssRuleSensor(
-        sonarRuntime,
-        bridgeServerMock,
-        CHECK_FACTORY
-      );
+    sensor = new CssRuleSensor(sonarRuntime, bridgeServerMock, CHECK_FACTORY);
     DefaultSensorDescriptor sensorDescriptor = new DefaultSensorDescriptor();
     sensor.describe(sensorDescriptor);
     assertThat(sensorDescriptor.name()).isEqualTo("CSS Rules");
@@ -261,10 +245,9 @@ class CssRuleSensorTest {
     sensor.execute(context);
     assertThat(context.allIssues()).isEmpty();
     assertThat(logTester.logs(Level.ERROR)).isEmpty();
-    assertThat(logTester.logs(Level.INFO))
-      .contains(
-        "No CSS, PHP, HTML or VueJS files are found in the project. CSS analysis is skipped."
-      );
+    assertThat(logTester.logs(Level.INFO)).contains(
+      "No CSS, PHP, HTML or VueJS files are found in the project. CSS analysis is skipped."
+    );
   }
 
   @Test
@@ -299,10 +282,9 @@ class CssRuleSensorTest {
     context.setCancelled(true);
     sensor.execute(context);
     assertThat(context.allIssues()).isEmpty();
-    assertThat(logTester.logs(Level.INFO))
-      .contains(
-        "org.sonar.plugins.javascript.CancellationException: Analysis interrupted because the SensorContext is in cancelled state"
-      );
+    assertThat(logTester.logs(Level.INFO)).contains(
+      "org.sonar.plugins.javascript.CancellationException: Analysis interrupted because the SensorContext is in cancelled state"
+    );
   }
 
   @Test
@@ -316,10 +298,12 @@ class CssRuleSensorTest {
     InputFile inputFileNotCss = addInputFile("syntax-error.html");
     sensor.execute(context);
     assertThat(context.allIssues()).isEmpty();
-    assertThat(logTester.logs(Level.WARN))
-      .contains("Failed to parse file " + inputFile.uri() + ", line 2, Missed semicolon");
-    assertThat(logTester.logs(Level.DEBUG))
-      .contains("Failed to parse file " + inputFileNotCss.uri() + ", line 2, Missed semicolon");
+    assertThat(logTester.logs(Level.WARN)).contains(
+      "Failed to parse file " + inputFile.uri() + ", line 2, Missed semicolon"
+    );
+    assertThat(logTester.logs(Level.DEBUG)).contains(
+      "Failed to parse file " + inputFileNotCss.uri() + ", line 2, Missed semicolon"
+    );
   }
 
   @Test
@@ -333,8 +317,9 @@ class CssRuleSensorTest {
     sensor.execute(context);
 
     assertThat(context.allIssues()).isEmpty();
-    assertThat(logTester.logs(Level.ERROR))
-      .contains("Unknown stylelint rule or rule not enabled: 'unknown-rule-key'");
+    assertThat(logTester.logs(Level.ERROR)).contains(
+      "Unknown stylelint rule or rule not enabled: 'unknown-rule-key'"
+    );
   }
 
   @Test

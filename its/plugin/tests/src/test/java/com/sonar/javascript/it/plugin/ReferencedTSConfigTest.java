@@ -49,7 +49,8 @@ class ReferencedTSConfigTest {
 
     BuildResult buildResult = orchestrator.executeBuild(build);
 
-    assertThat(buildResult.getLogsLines(l -> l.contains("INFO: TypeScript configuration file")))
-      .hasSize(2);
+    assertThat(
+      buildResult.getLogsLines(l -> l.contains("INFO: TypeScript configuration file"))
+    ).hasSize(2);
   }
 }

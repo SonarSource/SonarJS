@@ -22,6 +22,4 @@ import org.sonar.plugins.javascript.api.JavaScriptRule;
 
 @JavaScriptRule
 @Rule(key = "S3523")
-public class S3523 extends Check {
-
-}
+public class S3523 extends Check {}

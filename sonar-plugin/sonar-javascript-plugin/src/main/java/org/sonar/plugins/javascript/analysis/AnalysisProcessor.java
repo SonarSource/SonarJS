@@ -16,12 +16,12 @@
  */
 package org.sonar.plugins.javascript.analysis;
 
+import static org.sonar.plugins.javascript.JavaScriptFilePredicate.isTypeScriptFile;
 import static org.sonar.plugins.javascript.analysis.QuickFixSupport.addQuickFixes;
 import static org.sonar.plugins.javascript.api.CustomRuleRepository.Language.JAVASCRIPT;
 import static org.sonar.plugins.javascript.api.CustomRuleRepository.Language.TYPESCRIPT;
 import static org.sonar.plugins.javascript.bridge.BridgeServer.Issue;
 import static org.sonar.plugins.javascript.bridge.BridgeServer.IssueLocation;
-import static org.sonar.plugins.javascript.JavaScriptFilePredicate.isTypeScriptFile;
 import static org.sonar.plugins.javascript.utils.UnicodeEscape.unicodeEscape;
 
 import java.io.Serializable;
@@ -62,6 +62,7 @@ import org.sonarsource.sonarlint.plugin.api.SonarLintRuntime;
 @ScannerSide
 @SonarLintSide
 public class AnalysisProcessor {
+
   private static final Logger LOG = LoggerFactory.getLogger(AnalysisProcessor.class);
   private static final Version SONARLINT_6_3 = Version.create(6, 3);
 
@@ -222,13 +223,12 @@ public class AnalysisProcessor {
       Location declaration = highlightedSymbol.declaration();
       NewSymbol newSymbol;
       try {
-        newSymbol =
-          symbolTable.newSymbol(
-            declaration.startLine(),
-            declaration.startCol(),
-            declaration.endLine(),
-            declaration.endCol()
-          );
+        newSymbol = symbolTable.newSymbol(
+          declaration.startLine(),
+          declaration.startCol(),
+          declaration.endLine(),
+          declaration.endCol()
+        );
       } catch (RuntimeException e) {
         LOG.warn("Failed to create symbol declaration in {} at {}", file.uri(), declaration);
         continue;
@@ -251,10 +251,7 @@ public class AnalysisProcessor {
 
   private void saveMetrics(Metrics metrics) {
     if (file.type() == InputFile.Type.TEST || contextUtils.isSonarLint()) {
-      noSonarFilter.noSonarInFile(
-        file,
-        Set.copyOf(metrics.nosonarLines())
-      );
+      noSonarFilter.noSonarInFile(file, Set.copyOf(metrics.nosonarLines()));
       return;
     }
 
@@ -266,10 +263,7 @@ public class AnalysisProcessor {
     saveMetric(file, CoreMetrics.COMPLEXITY, metrics.complexity());
     saveMetric(file, CoreMetrics.COGNITIVE_COMPLEXITY, metrics.cognitiveComplexity());
 
-    noSonarFilter.noSonarInFile(
-      file,
-      Set.copyOf(metrics.nosonarLines())
-    );
+    noSonarFilter.noSonarInFile(file, Set.copyOf(metrics.nosonarLines()));
 
     FileLinesContext fileLinesContext = fileLinesContextFactory.createFor(file);
     for (int line : metrics.ncloc()) {
@@ -299,7 +293,10 @@ public class AnalysisProcessor {
       }
       newCpdTokens.save();
     } catch (RuntimeException e) {
-      LOG.warn("Failed to save CPD token in {}. File will not be analyzed for duplications.", file.uri());
+      LOG.warn(
+        "Failed to save CPD token in {}. File will not be analyzed for duplications.",
+        file.uri()
+      );
       LOG.warn("Exception cause", e);
     }
   }
@@ -320,12 +317,14 @@ public class AnalysisProcessor {
       }
     }
 
-    issue.secondaryLocations().forEach(secondary -> {
-      NewIssueLocation newIssueLocation = newSecondaryLocation(file, newIssue, secondary);
-      if (newIssueLocation != null) {
-        newIssue.addLocation(newIssueLocation);
-      }
-    });
+    issue
+      .secondaryLocations()
+      .forEach(secondary -> {
+        NewIssueLocation newIssueLocation = newSecondaryLocation(file, newIssue, secondary);
+        if (newIssueLocation != null) {
+          newIssue.addLocation(newIssueLocation);
+        }
+      });
 
     if (issue.cost() != null) {
       newIssue.gap(issue.cost());
@@ -382,7 +381,12 @@ public class AnalysisProcessor {
       location.endColumn() != null
     ) {
       newIssueLocation.at(
-        inputFile.newRange(location.line(), location.column(), location.endLine(), location.endColumn())
+        inputFile.newRange(
+          location.line(),
+          location.column(),
+          location.endLine(),
+          location.endColumn()
+        )
       );
       if (location.message() != null) {
         newIssueLocation.message(unicodeEscape(location.message()));

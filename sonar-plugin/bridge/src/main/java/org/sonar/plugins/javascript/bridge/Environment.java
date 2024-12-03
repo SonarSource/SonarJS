@@ -42,12 +42,11 @@ public class Environment {
   }
 
   public Path getSonarUserHome() {
-    return Stream
-      .of(
-        configuration.get("sonar.userHome").orElse(null),
-        System.getenv("SONAR_USER_HOME"),
-        defaultSonarUserHome()
-      )
+    return Stream.of(
+      configuration.get("sonar.userHome").orElse(null),
+      System.getenv("SONAR_USER_HOME"),
+      defaultSonarUserHome()
+    )
       .filter(Objects::nonNull)
       .findFirst()
       .map(Path::of)

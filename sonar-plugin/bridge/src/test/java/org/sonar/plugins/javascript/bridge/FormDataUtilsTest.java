@@ -39,7 +39,8 @@ public class FormDataUtilsTest {
 
   @Test
   void should_parse_form_data_into_bridge_response() throws Exception {
-    var contentTypeHeader = "multipart/form-data; boundary=---------------------------9051914041544843365972754266";
+    var contentTypeHeader =
+      "multipart/form-data; boundary=---------------------------9051914041544843365972754266";
     var body = buildPayload("{\"hello\":\"worlds\"}");
 
     BridgeServer.BridgeResponse response = parseFormData(contentTypeHeader, body);
@@ -57,7 +58,7 @@ public class FormDataUtilsTest {
   }
 
   private static byte[] concatArrays(byte[] arr1, byte[] arr2, byte[] arr3) throws IOException {
-    ByteArrayOutputStream outputStream =  new ByteArrayOutputStream();
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
     outputStream.write(arr1);
     outputStream.write(arr2);
     outputStream.write(arr3);
@@ -68,8 +69,10 @@ public class FormDataUtilsTest {
     return buildPayload(jsonData, null);
   }
 
-  private static byte[] buildPayload(String jsonData, @Nullable byte[] protoData) throws IOException {
-    var firstPart = "-----------------------------9051914041544843365972754266" +
+  private static byte[] buildPayload(String jsonData, @Nullable byte[] protoData)
+    throws IOException {
+    var firstPart =
+      "-----------------------------9051914041544843365972754266" +
       "\r\n" +
       "Content-Disposition: form-data; name=\"json\"" +
       "\r\n" +
@@ -82,9 +85,7 @@ public class FormDataUtilsTest {
       "\r\n" +
       "\r\n";
     protoData = protoData != null ? protoData : getSerializedProtoData();
-    var lastPart = "\r\n" +
-      "-----------------------------9051914041544843365972754266--" +
-      "\r\n";
+    var lastPart = "\r\n" + "-----------------------------9051914041544843365972754266--" + "\r\n";
     return concatArrays(
       firstPart.getBytes(StandardCharsets.UTF_8),
       protoData,
@@ -94,20 +95,24 @@ public class FormDataUtilsTest {
 
   @Test
   void should_log_error_if_ast_is_invalid() throws Exception {
-    var contentTypeHeader = "multipart/form-data; boundary=---------------------------9051914041544843365972754266";
-    var invalidAst = new byte[]{42};
+    var contentTypeHeader =
+      "multipart/form-data; boundary=---------------------------9051914041544843365972754266";
+    var invalidAst = new byte[] { 42 };
     var body = buildPayload("{\"hello\":\"worlds\"}", invalidAst);
 
     assertThat(parseFormData(contentTypeHeader, body).ast()).isNull();
     assertThat(logTester.logs(Level.ERROR)).containsExactly(
       "Failed to deserialize Protobuf message: While parsing a protocol message, the input ended unexpectedly in the middle of a field.  " +
-        "This could mean either that the input has been truncated or that an embedded message misreported its own length.");
+      "This could mean either that the input has been truncated or that an embedded message misreported its own length."
+    );
   }
 
   @Test
   void should_throw_an_error_if_json_is_missing() throws Exception {
-    var contentTypeHeader = "multipart/form-data; boundary=---------------------------9051914041544843365972754266";
-    var body = "-----------------------------9051914041544843365972754266" +
+    var contentTypeHeader =
+      "multipart/form-data; boundary=---------------------------9051914041544843365972754266";
+    var body =
+      "-----------------------------9051914041544843365972754266" +
       "\r\n" +
       "Content-Disposition: form-data; name=\"ast\"" +
       "\r\n" +
@@ -117,15 +122,18 @@ public class FormDataUtilsTest {
       "-----------------------------9051914041544843365972754266--" +
       "\r\n";
 
-    assertThatThrownBy(() -> parseFormData(contentTypeHeader, body.getBytes(StandardCharsets.UTF_8)))
+    assertThatThrownBy(() -> parseFormData(contentTypeHeader, body.getBytes(StandardCharsets.UTF_8))
+    )
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Data missing from response");
   }
 
   @Test
   void should_throw_an_error_if_ast_is_missing() throws Exception {
-    var contentTypeHeader = "multipart/form-data; boundary=---------------------------9051914041544843365972754266";
-    var body = "-----------------------------9051914041544843365972754266" +
+    var contentTypeHeader =
+      "multipart/form-data; boundary=---------------------------9051914041544843365972754266";
+    var body =
+      "-----------------------------9051914041544843365972754266" +
       "\r\n" +
       "Content-Disposition: form-data; name=\"json\"" +
       "\r\n" +
@@ -134,7 +142,8 @@ public class FormDataUtilsTest {
       "\r\n" +
       "-----------------------------9051914041544843365972754266--" +
       "\r\n";
-    assertThatThrownBy(() -> parseFormData(contentTypeHeader, body.getBytes(StandardCharsets.UTF_8)))
+    assertThatThrownBy(() -> parseFormData(contentTypeHeader, body.getBytes(StandardCharsets.UTF_8))
+    )
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Data missing from response");
   }

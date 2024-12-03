@@ -72,8 +72,9 @@ class NodeCommandTest {
   @BeforeEach
   public void setUp() throws Exception {
     MockitoAnnotations.initMocks(this);
-    when(mockProcessWrapper.startProcess(any(), any(), any(), any()))
-      .thenReturn(mock(Process.class));
+    when(mockProcessWrapper.startProcess(any(), any(), any(), any())).thenReturn(
+      mock(Process.class)
+    );
   }
 
   @Test
@@ -107,8 +108,8 @@ class NodeCommandTest {
   @Test
   void test_min_version() throws IOException {
     assertThatThrownBy(() ->
-        builder().minNodeVersion(Version.create(99, 0)).pathResolver(getPathResolver()).build()
-      )
+      builder().minNodeVersion(Version.create(99, 0)).pathResolver(getPathResolver()).build()
+    )
       .isInstanceOf(NodeCommandException.class)
       .hasMessageMatching(
         "Unsupported Node.JS version detected .* Please upgrade to the latest Node.JS LTS version."
@@ -120,8 +121,8 @@ class NodeCommandTest {
     when(mockProcessWrapper.isMac()).thenReturn(true);
 
     assertThatThrownBy(() ->
-        builder(mockProcessWrapper).pathResolver(p -> "/file/does/not/exist").build()
-      )
+      builder(mockProcessWrapper).pathResolver(p -> "/file/does/not/exist").build()
+    )
       .isInstanceOf(NodeCommandException.class)
       .hasMessage("Default Node.js executable for MacOS does not exist.");
   }
@@ -143,8 +144,9 @@ class NodeCommandTest {
   void test_version_check() {
     assertThat(NodeCommandBuilderImpl.nodeVersion("v5.1.1")).isEqualTo(Version.create(5, 1, 1));
     assertThat(NodeCommandBuilderImpl.nodeVersion("v10.8.0")).isEqualTo(Version.create(10, 8, 0));
-    assertThat(NodeCommandBuilderImpl.nodeVersion("v10.8.0+123"))
-      .isEqualTo(Version.create(10, 8, 0));
+    assertThat(NodeCommandBuilderImpl.nodeVersion("v10.8.0+123")).isEqualTo(
+      Version.create(10, 8, 0)
+    );
 
     assertThatThrownBy(() -> NodeCommandBuilderImpl.nodeVersion("Invalid version"))
       .isInstanceOf(NodeCommandException.class)
@@ -166,8 +168,9 @@ class NodeCommandTest {
     command.waitFor();
     Map map = new Gson().fromJson(output.toString(), Map.class);
     double total_available_size = (double) map.get("total_available_size");
-    assertThat(logTester.logs(Level.INFO))
-      .contains("Configured Node.js --max-old-space-size=" + maxOldSpaceSize + ".");
+    assertThat(logTester.logs(Level.INFO)).contains(
+      "Configured Node.js --max-old-space-size=" + maxOldSpaceSize + "."
+    );
     assertThat(total_available_size).isGreaterThan(maxOldSpaceSize * 1000);
   }
 
@@ -261,8 +264,9 @@ class NodeCommandTest {
     nodeCommand.start();
     int exitValue = nodeCommand.waitFor();
     verify(mockProcessWrapper).interrupt();
-    assertThat(logTester.logs())
-      .contains("Interrupted while waiting for Node.js process to terminate.");
+    assertThat(logTester.logs()).contains(
+      "Interrupted while waiting for Node.js process to terminate."
+    );
     assertThat(exitValue).isEqualTo(1);
   }
 
@@ -339,8 +343,9 @@ class NodeCommandTest {
 
   @Test
   void test_missing_node() throws Exception {
-    when(mockProcessWrapper.startProcess(any(), any(), any(), any()))
-      .thenThrow(new IOException("CreateProcess error=2"));
+    when(mockProcessWrapper.startProcess(any(), any(), any(), any())).thenThrow(
+      new IOException("CreateProcess error=2")
+    );
     NodeCommand nodeCommand = builder(mockProcessWrapper)
       .configuration(new MapSettings().asConfig())
       .script("not-used")
@@ -369,30 +374,38 @@ class NodeCommandTest {
   @Test
   void test_windows_default_node() throws Exception {
     when(mockProcessWrapper.isWindows()).thenReturn(true);
-    when(mockProcessWrapper.startProcess(processStartArgument.capture(), any(), any(), any()))
-      .then(invocation -> {
+    when(mockProcessWrapper.startProcess(processStartArgument.capture(), any(), any(), any())).then(
+      invocation -> {
         invocation.getArgument(2, Consumer.class).accept("C:\\Program Files\\node.exe");
         return mock(Process.class);
-      });
+      }
+    );
     NodeCommand nodeCommand = builder(mockProcessWrapper).script("script.js").build();
-    assertThat(processStartArgument.getValue())
-      .containsExactly("C:\\Windows\\System32\\where.exe", "$PATH:node.exe");
+    assertThat(processStartArgument.getValue()).containsExactly(
+      "C:\\Windows\\System32\\where.exe",
+      "$PATH:node.exe"
+    );
     nodeCommand.start();
-    assertThat(processStartArgument.getValue())
-      .containsExactly("C:\\Program Files\\node.exe", "script.js");
+    assertThat(processStartArgument.getValue()).containsExactly(
+      "C:\\Program Files\\node.exe",
+      "script.js"
+    );
   }
 
   @Test
   void test_windows_default_node_not_found() throws Exception {
     when(mockProcessWrapper.isWindows()).thenReturn(true);
-    when(mockProcessWrapper.startProcess(processStartArgument.capture(), any(), any(), any()))
-      .thenReturn(mock(Process.class));
+    when(
+      mockProcessWrapper.startProcess(processStartArgument.capture(), any(), any(), any())
+    ).thenReturn(mock(Process.class));
     NodeCommandBuilder builder = builder(mockProcessWrapper).script("script.js");
     assertThatThrownBy(builder::build)
       .isInstanceOf(NodeCommandException.class)
       .hasMessage("Node.js not found in PATH. PATH value was: null");
-    assertThat(processStartArgument.getValue())
-      .containsExactly("C:\\Windows\\System32\\where.exe", "$PATH:node.exe");
+    assertThat(processStartArgument.getValue()).containsExactly(
+      "C:\\Windows\\System32\\where.exe",
+      "$PATH:node.exe"
+    );
   }
 
   @Test
@@ -429,8 +442,7 @@ class NodeCommandTest {
       .embeddedNode(en)
       .build();
     var commandParts = nodeCommand.toString().split(" ");
-    assertThat(commandParts[0])
-      .endsWith("src/test/resources/package/bin/run-node");
+    assertThat(commandParts[0]).endsWith("src/test/resources/package/bin/run-node");
   }
 
   @Test
@@ -462,11 +474,10 @@ class NodeCommandTest {
       .pathResolver(getPathResolver())
       .build();
 
-    assertThat(logTester.logs(Level.WARN))
-      .contains(
-        "Property 'sonar.nodejs.forceHost' is deprecated and will be removed in a future version. " +
-        "Please use 'sonar.scanner.skipNodeProvisioning' instead."
-      );
+    assertThat(logTester.logs(Level.WARN)).contains(
+      "Property 'sonar.nodejs.forceHost' is deprecated and will be removed in a future version. " +
+      "Please use 'sonar.scanner.skipNodeProvisioning' instead."
+    );
   }
 
   private static String resourceScript(String script) throws URISyntaxException {

@@ -39,12 +39,8 @@ public class S1067 extends Check {
 
   @Override
   public List<Object> configurations() {
-    return Collections.singletonList(
-      new Config(this.max)
-    );
+    return Collections.singletonList(new Config(this.max));
   }
-
-
 
   private static class Config {
 

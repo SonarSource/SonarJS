@@ -26,9 +26,8 @@ class S6606Test {
   @Test
   void configurations() {
     String configAsString = new Gson().toJson(new S6606().configurations());
-    assertThat(configAsString)
-      .isEqualTo(
-        "[{\"ignoreConditionalTests\":true,\"ignoreTernaryTests\":false,\"ignoreMixedLogicalExpressions\":true,\"allowRuleToRunWithoutStrictNullChecksIKnowWhatIAmDoing\":true}]"
-      );
+    assertThat(configAsString).isEqualTo(
+      "[{\"ignoreConditionalTests\":true,\"ignoreTernaryTests\":false,\"ignoreMixedLogicalExpressions\":true,\"allowRuleToRunWithoutStrictNullChecksIKnowWhatIAmDoing\":true}]"
+    );
   }
 }

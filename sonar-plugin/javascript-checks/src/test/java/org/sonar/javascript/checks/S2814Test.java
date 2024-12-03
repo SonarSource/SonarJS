@@ -26,7 +26,8 @@ class S2814Test {
   @Test
   void configurations() {
     String configAsString = new Gson().toJson(new S2814().configurations());
-    assertThat(configAsString)
-      .isEqualTo("[{\"builtinGlobals\":false,\"ignoreDeclarationMerge\":true}]");
+    assertThat(configAsString).isEqualTo(
+      "[{\"builtinGlobals\":false,\"ignoreDeclarationMerge\":true}]"
+    );
   }
 }

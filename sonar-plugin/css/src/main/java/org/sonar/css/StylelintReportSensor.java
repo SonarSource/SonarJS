@@ -16,6 +16,8 @@
  */
 package org.sonar.css;
 
+import static org.sonar.css.CssRulesDefinition.RESOURCE_FOLDER;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import java.io.File;
@@ -41,8 +43,6 @@ import org.sonar.css.StylelintReport.Issue;
 import org.sonar.css.StylelintReport.IssuesPerFile;
 import org.sonarsource.analyzer.commons.ExternalReportProvider;
 import org.sonarsource.analyzer.commons.ExternalRuleLoader;
-
-import static org.sonar.css.CssRulesDefinition.RESOURCE_FOLDER;
 
 public class StylelintReportSensor implements Sensor {
 

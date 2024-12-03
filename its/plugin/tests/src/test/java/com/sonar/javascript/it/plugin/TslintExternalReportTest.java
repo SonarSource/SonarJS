@@ -37,8 +37,7 @@ class TslintExternalReportTest {
   void should_save_issues_from_external_report() {
     OrchestratorStarter.setEmptyProfile(PROJECT_KEY);
 
-    SonarScanner build = OrchestratorStarter
-      .createScanner()
+    SonarScanner build = OrchestratorStarter.createScanner()
       .setProjectDir(TestUtils.projectDir("tslint-report-project"))
       .setProjectKey(PROJECT_KEY)
       .setProjectName(PROJECT_KEY)

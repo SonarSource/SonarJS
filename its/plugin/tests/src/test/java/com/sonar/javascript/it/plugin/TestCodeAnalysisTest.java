@@ -69,7 +69,8 @@ class TestCodeAnalysisTest {
     List<Issue> issuesList = newWsClient(orchestrator).issues().search(request).getIssuesList();
     assertThat(issuesList).hasSize(1);
     assertThat(issuesList.get(0).getComponent()).endsWith("src/file.js");
-    assertThat(buildResult.getLogsLines(l -> l.contains("2 source files to be analyzed")))
-      .hasSize(1);
+    assertThat(buildResult.getLogsLines(l -> l.contains("2 source files to be analyzed"))).hasSize(
+      1
+    );
   }
 }

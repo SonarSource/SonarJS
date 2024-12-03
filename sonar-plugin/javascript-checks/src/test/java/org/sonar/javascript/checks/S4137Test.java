@@ -25,9 +25,9 @@ class S4137Test {
 
   @Test
   void configurations() {
-    String configAsString = new Gson()
-      .toJson(new S4137().configurations());
-    assertThat(configAsString)
-      .isEqualTo("[{\"assertionStyle\":\"as\",\"objectLiteralTypeAssertions\":\"allow\"}]");
+    String configAsString = new Gson().toJson(new S4137().configurations());
+    assertThat(configAsString).isEqualTo(
+      "[{\"assertionStyle\":\"as\",\"objectLiteralTypeAssertions\":\"allow\"}]"
+    );
   }
 }

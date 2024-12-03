@@ -75,8 +75,10 @@ class QuickFixSupportTest {
       .build();
     activeRules = new ActiveRulesBuilder().addRule(activeRule).build();
     checks = new JsTsChecks(new CheckFactory(activeRules));
-    analysisProcessor =
-      new AnalysisProcessor(mock(NoSonarFilter.class), mock(FileLinesContextFactory.class));
+    analysisProcessor = new AnalysisProcessor(
+      mock(NoSonarFilter.class),
+      mock(FileLinesContextFactory.class)
+    );
   }
 
   DefaultSensorContext createContext(Version version) {
@@ -100,7 +102,16 @@ class QuickFixSupportTest {
   void test() {
     var context = createContext(Version.create(6, 3));
 
-    var response = new AnalysisResponse(null, List.of(issueWithQuickFix()), List.of(), List.of(), new Metrics(), List.of(), List.of(), null);
+    var response = new AnalysisResponse(
+      null,
+      List.of(issueWithQuickFix()),
+      List.of(),
+      List.of(),
+      new Metrics(),
+      List.of(),
+      List.of(),
+      null
+    );
 
     var issueCaptor = ArgumentCaptor.forClass(DefaultSonarLintIssue.class);
     doNothing().when(sensorStorage).store(issueCaptor.capture());
@@ -125,14 +136,23 @@ class QuickFixSupportTest {
   static Issue issueWithQuickFix() {
     var quickFixEdit = new QuickFixEdit(";", new IssueLocation(1, 2, 3, 4, ""));
     var quickFix = new QuickFix("QuickFix message", List.of(quickFixEdit));
-    var issue = new Issue(1, 1, 1, 1,"", "S1116", List.of(), 1.0, List.of(quickFix));
+    var issue = new Issue(1, 1, 1, 1, "", "S1116", List.of(), 1.0, List.of(quickFix));
     return issue;
   }
 
   @Test
   void test_old_version() {
     var context = createContext(Version.create(6, 2));
-    var response = new AnalysisResponse(null, List.of(issueWithQuickFix()), List.of(), List.of(), new Metrics(), List.of(), List.of(), null);
+    var response = new AnalysisResponse(
+      null,
+      List.of(issueWithQuickFix()),
+      List.of(),
+      List.of(),
+      new Metrics(),
+      List.of(),
+      List.of(),
+      null
+    );
 
     var issueCaptor = ArgumentCaptor.forClass(DefaultSonarLintIssue.class);
     doNothing().when(sensorStorage).store(issueCaptor.capture());
@@ -144,8 +164,17 @@ class QuickFixSupportTest {
   @Test
   void test_null() {
     var context = createContext(Version.create(6, 3));
-    var issue = new Issue(1, 1, 1, 1,"", "S1116", List.of(), 1.0, List.of());
-    var response = new AnalysisResponse(null, List.of(issue), List.of(), List.of(), new Metrics(), List.of(), List.of(), null);
+    var issue = new Issue(1, 1, 1, 1, "", "S1116", List.of(), 1.0, List.of());
+    var response = new AnalysisResponse(
+      null,
+      List.of(issue),
+      List.of(),
+      List.of(),
+      new Metrics(),
+      List.of(),
+      List.of(),
+      null
+    );
 
     var issueCaptor = ArgumentCaptor.forClass(DefaultSonarLintIssue.class);
     doNothing().when(sensorStorage).store(issueCaptor.capture());

@@ -24,7 +24,4 @@ import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 @JavaScriptRule
 @Rule(key = "S1536")
 @DeprecatedRuleKey(ruleKey = "DuplicateFunctionArgument")
-public class S1536 extends Check {
-
-  
-}
+public class S1536 extends Check {}

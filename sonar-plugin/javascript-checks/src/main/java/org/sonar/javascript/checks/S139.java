@@ -40,8 +40,6 @@ public class S139 extends Check {
   )
   String legalCommentPattern = DEFAULT_LEGAL_COMMENT_PATTERN;
 
-
-
   @Override
   public List<Object> configurations() {
     return Collections.singletonList(new Config(legalCommentPattern));
