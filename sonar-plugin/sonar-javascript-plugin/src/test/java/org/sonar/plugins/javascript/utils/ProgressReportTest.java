@@ -17,16 +17,13 @@
 package org.sonar.plugins.javascript.utils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.atLeast;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.awaitility.Awaitility.await;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-import org.slf4j.Logger;
 import org.slf4j.event.Level;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 
@@ -47,29 +44,20 @@ class ProgressReportTest {
 
   @Test
   void testPlural() throws Exception {
-    Logger logger = mock(Logger.class);
+    List<String> messages = new ArrayList<>();
 
     ProgressReport report = new ProgressReport(
       ProgressReportTest.class.getName(),
       100,
-      logger,
+      messages::add,
       "analyzed"
     );
 
     report.start(2, "foo1.java");
-
-    // Wait for start message
-    waitForMessage(logger);
-
-    // Wait for at least one progress message
-    waitForMessage(logger);
+    await().until(() -> messages.size() >= 3);
 
     report.stop();
 
-    ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-    verify(logger, atLeast(3)).info(captor.capture());
-
-    List<String> messages = captor.getAllValues();
     assertThat(messages).hasSizeGreaterThanOrEqualTo(3);
     assertThat(messages.get(0)).isEqualTo("2 source files to be analyzed");
     for (int i = 1; i < messages.size() - 1; i++) {
@@ -81,29 +69,19 @@ class ProgressReportTest {
 
   @Test
   void testSingular() throws Exception {
-    Logger logger = mock(Logger.class);
+    List<String> messages = new ArrayList<>();
 
     ProgressReport report = new ProgressReport(
       ProgressReportTest.class.getName(),
       100,
-      logger,
+      messages::add,
       "analyzed"
     );
 
     report.start(1, "foo.java");
-
-    // Wait for start message
-    waitForMessage(logger);
-
-    // Wait for at least one progress message
-    waitForMessage(logger);
-
+    await().until(() -> messages.size() >= 3);
     report.stop();
 
-    ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-    verify(logger, atLeast(3)).info(captor.capture());
-
-    List<String> messages = captor.getAllValues();
     assertThat(messages).hasSizeGreaterThanOrEqualTo(3);
     assertThat(messages.get(0)).isEqualTo("1 source file to be analyzed");
     for (int i = 1; i < messages.size() - 1; i++) {
@@ -115,36 +93,36 @@ class ProgressReportTest {
 
   @Test
   void testCancel() throws InterruptedException {
-    Logger logger = mock(Logger.class);
+    List<String> messages = new ArrayList<>();
 
     ProgressReport report = new ProgressReport(
       ProgressReport.class.getName(),
       100,
-      logger,
+      messages::add,
       "analyzed"
     );
     report.start(1, "foo.java");
 
     // Wait for start message
-    waitForMessage(logger);
+    await().until(() -> !messages.isEmpty());
 
     report.cancel();
   }
 
   @Test
   void testStopPreserveTheInterruptedFlag() throws InterruptedException {
-    Logger logger = mock(Logger.class);
+    List<String> messages = new ArrayList<>();
 
     ProgressReport report = new ProgressReport(
       ProgressReport.class.getName(),
       100,
-      logger,
+      messages::add,
       "analyzed"
     );
     report.start(1, "foo.java");
 
     // Wait for start message
-    waitForMessage(logger);
+    await().until(() -> !messages.isEmpty());
 
     AtomicBoolean interruptFlagPreserved = new AtomicBoolean(false);
 
@@ -166,11 +144,9 @@ class ProgressReportTest {
     t.join(1000);
     assertThat(interruptFlagPreserved.get()).isTrue();
 
-    ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-    verify(logger, atLeast(1)).info(captor.capture());
-
-    List<String> messages = captor.getAllValues();
-    assertThat(messages).contains("1/1" + " source file has been analyzed");
+    assertThat(messages)
+      .isNotEmpty()
+      .contains("1/1" + " source file has been analyzed");
   }
 
   @Test
@@ -207,9 +183,4 @@ class ProgressReportTest {
     assertThat(time.get()).isLessThan(300);
   }
 
-  private static void waitForMessage(Logger logger) throws InterruptedException {
-    synchronized (logger) {
-      logger.wait();
-    }
-  }
 }
