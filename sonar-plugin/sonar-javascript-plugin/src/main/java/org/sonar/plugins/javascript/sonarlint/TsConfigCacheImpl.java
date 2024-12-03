@@ -30,7 +30,6 @@ import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.scanner.ScannerSide;
 import org.sonar.plugins.javascript.JavaScriptFilePredicate;
 import org.sonar.plugins.javascript.analysis.TsConfigOrigin;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
@@ -39,7 +38,6 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
 import org.sonarsource.sonarlint.plugin.api.module.file.ModuleFileEvent;
 import org.sonarsource.sonarlint.plugin.api.module.file.ModuleFileListener;
 
-@ScannerSide
 @SonarLintSide(lifespan = SonarLintSide.MODULE)
 public class TsConfigCacheImpl implements TsConfigCache, ModuleFileListener {
   private static final Logger LOG = LoggerFactory.getLogger(TsConfigCacheImpl.class);
