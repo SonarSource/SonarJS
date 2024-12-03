@@ -19,7 +19,7 @@
 import { AST, Rule, Scope } from 'eslint';
 import { generateMeta, interceptReport } from '../helpers/index.js';
 import estree from 'estree';
-import { TSESTree } from '@typescript-eslint/utils';
+import type { TSESTree } from '@typescript-eslint/utils';
 import { meta } from './meta.js';
 
 const element = 'element';

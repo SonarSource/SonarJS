@@ -2,11 +2,14 @@
 
 ## Prerequisites
 
-- [JDK 17](https://docs.aws.amazon.com/corretto/latest/corretto-17-ug/what-is-corretto-17.html)
-- [Maven](https://maven.apache.org/install.html)
-- Node.js (we recommend using [NVM](https://github.com/nvm-sh/nvm#installing-and-updating))
+To work on this project, it is required to have the following tools installed:
 
-You can also use Docker container defined in `./.cirrus/nodejs-lts.Dockerfile` which bundles all required dependencies and is used for our CI pipeline.
+- [JDK 17](https://docs.aws.amazon.com/corretto/latest/corretto-17-ug/what-is-corretto-17.html)
+- [Node.js](https://nodejs.org/en) >= 22
+- [npm](https://www.npmjs.com/) >= 8
+- [Maven](https://maven.apache.org/) >= 3.8
+
+You can also use Docker container defined in `./.cirrus/nodejs.Dockerfile` which bundles all required dependencies and is used for our CI pipeline.
 
 ## Build and run unit tests
 
@@ -104,30 +107,33 @@ When using this for the ruling tests, make sure that you run them in series (and
 java -jar <location of rule-api jar> generate -rule S1234 [-branch <RSPEC branch>]
 ```
 
-2. Generate other files required for a new rule. If the rule is already covered by ESLint or its plugins, use the existing <ESLint-style rulekey> and add the `eslint` option.
+2. Generate other files required for a new rule. Just choose your options in the prompt of the `new-rule` script
 
 ```sh
-npm run new-rule S1234 <ESLint-style rulekey>
-// e.g.
-npm run new-rule S1234 no-invalid-something [eslint]
+npm run new-rule
 ```
 
 This script:
 
-- generates a Java check class for the rule `NoInvalidSomethingCheck.java`
+- generates a Java check class for the rule `S1234.java`
+- generates a Java check test class for the rule `S1234Test.java`
 - generates a `rules/S1234` folder
 - generates a `rules/S1234/index.ts` rule index file
 - generates a `rules/S1234/rule.ts` file for the rule implementation
 - generates a `rules/S1234/cb.fixture.js` comment-based test file (empty)
 - generates a `rules/S1234/cb.test.js` test launcher
-- updates the `rules/index.ts` file to include the new rule
-- updates the `CheckList.java` to include the new rule
+
+It will also update some files which are not tracked by Git as they are automatically generated:
+
+- updates the `rules/rules.ts` file to include the new rule
+- updates the `rules/plugin-rules.ts` file to include the new rule
+- updates the `AllRules.java` to include the new rule
 
 3. Update generated files
    - Make sure annotations in the Java class specify languages to cover (`@JavaScriptRule` and/or `@TypeScriptRule`)
-   - If your rule has configurations or you are using some from an ESLint rule, override the `configurations()` method of the Java check class
+   - If your rule has configurations, or you are using some from an ESLint rule, override the `configurations()` method of the Java check class
      - You can use a `MyRuleCheckTest.java` test case to verify how the configurations will be serialized to JSON as shown [here](https://github.com/SonarSource/SonarJS/blob/master/sonar-plugin/javascript-checks/src/test/java/org/sonar/javascript/checks/NoEmptyClassCheckTest.java#L30)
-   - If writing a rule for the test files, replace `implements EslintBasedCheck` with `extends TestFileCheck` in the Java class
+   - If writing a rule for the test files, replace `extends Check` with `extends TestFileCheck` in the Java class. This will be done by the `new-rule` script, but make sure you are extending the right base class.
    - In the generated metadata JSON file `javascript-checks/src/main/resources/org/sonar/l10n/javascript/rules/javascript/S1234.json`, add (one or both):
      ```json
       "compatibleLanguages": [

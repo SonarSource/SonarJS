@@ -16,6 +16,12 @@
  */
 import path from 'node:path';
 import fs from 'node:fs/promises';
+import { pathToFileURL } from 'node:url';
+
+/**
+ * Script to count the rules in SonarJS for CSS, JS and TS so that we can update the README.md
+ * manually. We should automatize this as we do with the eslint-plugin-sonarjs README.md
+ */
 
 const pathToJsTsRules = path.join(
   import.meta.dirname,
@@ -65,6 +71,9 @@ async function getJsonFiles(pathToRules) {
   return Promise.all(
     filenames
       .filter(filename => filename.endsWith('.json') && filename.length <= 'S1234.json'.length)
-      .map(async file => await import(path.join(pathToRules, file), { assert: { type: 'json' } })),
+      .map(
+        async file =>
+          await import(pathToFileURL(path.join(pathToRules, file)), { with: { type: 'json' } }),
+      ),
   );
 }

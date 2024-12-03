@@ -36,6 +36,14 @@ public class AnalysisWithWatchProgram extends AbstractAnalysis {
   public AnalysisWithWatchProgram(
     BridgeServer bridgeServer,
     AnalysisProcessor analysisProcessor,
+    AnalysisWarningsWrapper analysisWarnings
+  ) {
+    this(bridgeServer, analysisProcessor, analysisWarnings, null);
+  }
+
+  public AnalysisWithWatchProgram(
+    BridgeServer bridgeServer,
+    AnalysisProcessor analysisProcessor,
     AnalysisWarningsWrapper analysisWarnings,
     @Nullable TsConfigCache tsConfigCache
   ) {
@@ -51,7 +59,7 @@ public class AnalysisWithWatchProgram extends AbstractAnalysis {
       progressReport.start(inputFiles.size(), inputFiles.iterator().next().toString());
       for (InputFile inputFile : inputFiles) {
         var tsConfigFile = tsConfigCache.getTsConfigForInputFile(inputFile);
-        analyzeFile(inputFile, tsConfigFile == null ? List.of() : List.of(tsConfigFile.getFilename()), null);
+        analyzeFile(inputFile, tsConfigFile == null ? List.of() : List.of(tsConfigFile.getFilename()), null, this.tsConfigCache.getAndResetShouldClearDependenciesCache());
       }
       success = true;
       if (analysisProcessor.parsingErrorFilesCount() > 0) {

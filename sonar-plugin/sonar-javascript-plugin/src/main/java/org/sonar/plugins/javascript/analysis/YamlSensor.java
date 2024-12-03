@@ -162,6 +162,7 @@ public class YamlSensor extends AbstractBridgeSensor {
           null,
           null,
           analysisMode.getLinterIdFor(file),
+          false,
           false
         );
         var response = bridgeServer.analyzeYaml(jsAnalysisRequest);

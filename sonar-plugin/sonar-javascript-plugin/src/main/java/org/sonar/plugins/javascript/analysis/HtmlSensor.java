@@ -129,6 +129,7 @@ public class HtmlSensor extends AbstractBridgeSensor {
         null,
         null,
         analysisMode.getLinterIdFor(file),
+        false,
         false
       );
       var response = bridgeServer.analyzeHtml(jsAnalysisRequest);

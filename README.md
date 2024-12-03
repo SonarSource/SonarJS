@@ -9,7 +9,7 @@ This repository now hosts [eslint-plugin-sonarjs](./packages/jsts/src/rules/READ
 # Features
 
 - Advanced rules based on pattern matching and control flow analysis
-- [406 JS rules](https://rules.sonarsource.com/javascript) and [411 TS rules](https://rules.sonarsource.com/typescript)
+- [408 JS rules](https://rules.sonarsource.com/javascript) and [413 TS rules](https://rules.sonarsource.com/typescript)
 - [26 CSS rules](https://rules.sonarsource.com/css)
 - Compatible with ECMAScript 2015-2020
 - React JSX, Flow, Vue, and AWS lambda functions support for JavaScript and TypeScript
@@ -30,15 +30,26 @@ If you want to report a bug, request a feature, or provide other kind of feedbac
 
 # Contributing
 
-#### 1. Request a new feature
+## Prerequisites
+
+To work on this project, it is required to have the following tools installed:
+
+- [JDK 17](https://docs.aws.amazon.com/corretto/latest/corretto-17-ug/what-is-corretto-17.html)
+- [Node.js](https://nodejs.org/en) >= 22
+- [npm](https://www.npmjs.com/) >= 8
+- [Maven](https://maven.apache.org/) >= 3.8
+
+## How-to
+
+### 1. Request a new feature
 
 To request a new feature, create a new thread in [SonarSource Community Forum](https://community.sonarsource.com/). Even if you plan to implement it yourself and submit it back to the community, please create a thread to be sure that we can follow up on it.
 
-#### 2. Pull Request
+### 2. Pull Request
 
 To submit a contribution, create a pull request for this repository. Please make sure that you follow our [code style](https://github.com/SonarSource/sonar-developer-toolset) and that all [tests](/docs/DEV.md#testing) are passing.
 
-#### Work with us
+## Work with us
 
 Would you like to work on this project full-time? We are hiring! Check out https://www.sonarsource.com/hiring
 

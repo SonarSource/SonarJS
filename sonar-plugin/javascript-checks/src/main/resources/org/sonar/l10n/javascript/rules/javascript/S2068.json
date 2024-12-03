@@ -1,5 +1,5 @@
 {
-  "title": "Hard-coded credentials are security-sensitive",
+  "title": "Hard-coded passwords are security-sensitive",
   "type": "SECURITY_HOTSPOT",
   "code": {
     "impacts": {

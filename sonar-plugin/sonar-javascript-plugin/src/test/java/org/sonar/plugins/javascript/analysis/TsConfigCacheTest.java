@@ -222,6 +222,29 @@ class TsConfigCacheTest {
     assertThat(propertyCachedTsConfig).containsExactlyInAnyOrder(tsconfig1.toAbsolutePath().toString(), tsconfig2.toAbsolutePath().toString());
   }
 
+  @Test
+  void testPackageJsonChanged() throws IOException {
+    Path packageJson = baseDir.resolve("package.json");
+    Files.createFile(packageJson);
+    var packageJsonFileInput = TestInputFileBuilder.create(baseDir.toString(), packageJson.getFileName().toString()).build();
+    var fileEvent = DefaultModuleFileEvent.of(packageJsonFileInput, ModuleFileEvent.Type.MODIFIED);
+    tsConfigCache.process(fileEvent);
+    // We should mark the dependency cache to be cleared
+    assertThat(tsConfigCache.getAndResetShouldClearDependenciesCache()).isTrue();
+    // The getAndReset... method has side effects. Calling it a second time should clear it.
+    assertThat(tsConfigCache.getAndResetShouldClearDependenciesCache()).isFalse();
+  }
+
+  @Test
+  void testTSConfigChangedDoesntClearDependencyCache() throws IOException {
+    Path tsconfig = baseDir.resolve("tsconfig.json");
+    Files.createFile(tsconfig);
+    var packageJsonFileInput = TestInputFileBuilder.create(baseDir.toString(), tsconfig.getFileName().toString()).build();
+    var fileEvent = DefaultModuleFileEvent.of(packageJsonFileInput, ModuleFileEvent.Type.MODIFIED);
+    tsConfigCache.process(fileEvent);
+    assertThat(tsConfigCache.getAndResetShouldClearDependenciesCache()).isFalse();
+  }
+
   private Pair<InputFile, TsConfigFile> prepareFileAndTsConfig() throws IOException {
     var file1 = TestInputFileBuilder.create(baseDir.toString(), "file1.ts").setLanguage(TypeScriptLanguage.KEY).build();
     Path tsconfig1 = baseDir.resolve("tsconfig.json");

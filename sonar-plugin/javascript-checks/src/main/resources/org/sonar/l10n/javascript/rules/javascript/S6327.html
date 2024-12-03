@@ -9,8 +9,17 @@ access the data.</p>
 </ul>
 <p>There is a risk if you answered yes to any of those questions.</p>
 <h2>Recommended Secure Coding Practices</h2>
-<p>It’s recommended to encrypt SNS topics that contain sensitive information. Encryption and decryption are handled transparently by SNS, so no
-further modifications to the application are necessary.</p>
+<p>It is recommended to encrypt SNS topics that contain sensitive information.</p>
+<p>To do so, create a master key and assign the SNS topic to it. Note that this system does not encrypt the following:</p>
+<ul>
+  <li> Topic metadata (topic name and attributes) </li>
+  <li> Message metadata (subject, message ID, timestamp, and attributes) </li>
+  <li> Data protection policy </li>
+  <li> Per-topic metrics </li>
+</ul>
+<p>Then, make sure that any publishers have the <code>kms:GenerateDataKey*</code> and <code>kms:Decrypt</code> permissions for the AWS KMS key.</p>
+<p>See <a href="https://docs.aws.amazon.com/sns/latest/dg/sns-key-management.html#sns-what-permissions-for-sse">AWS SNS Key Management
+Documentation</a> for more information.</p>
 <h2>Sensitive Code Example</h2>
 <p>For <a href="https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_sns.Topic.html"><code>aws_cdk.aws_sns.Topic</code></a></p>
 <pre>

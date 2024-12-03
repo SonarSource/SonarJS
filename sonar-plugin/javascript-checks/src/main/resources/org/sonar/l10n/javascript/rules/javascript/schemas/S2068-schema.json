@@ -6,7 +6,7 @@
     {
       "type": "object",
       "properties": {
-        "credentialWords": {
+        "passwordWords": {
           "type": "array",
           "items": {
             "type": "string"

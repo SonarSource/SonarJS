@@ -26,6 +26,7 @@ public interface TsConfigCache {
   void initializeWith(List<String> tsConfigs, TsConfigOrigin origin);
   List<String> listCachedTsConfigs(TsConfigOrigin origin);
   void setOrigin(TsConfigOrigin origin);
+  boolean getAndResetShouldClearDependenciesCache();
 
   void setProjectSize(int projectSize);
   int getProjectSize();

@@ -16,7 +16,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S1862
 
-import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/utils';
+import type { TSESTree } from '@typescript-eslint/utils';
 import { Rule, SourceCode } from 'eslint';
 import { areEquivalent, generateMeta, report, toSecondaryLocation } from '../helpers/index.js';
 import estree from 'estree';
@@ -111,7 +111,7 @@ const splitByOr = splitByLogicalOperator.bind(null, '||');
 const splitByAnd = splitByLogicalOperator.bind(null, '&&');
 
 function splitByLogicalOperator(operator: '??' | '&&' | '||', node: estree.Node): estree.Node[] {
-  if (node.type === AST_NODE_TYPES.LogicalExpression && node.operator === operator) {
+  if (node.type === 'LogicalExpression' && node.operator === operator) {
     return [
       ...splitByLogicalOperator(operator, node.left),
       ...splitByLogicalOperator(operator, node.right),
@@ -128,7 +128,7 @@ function isSubset(first: estree.Node[], second: estree.Node[], sourceCode: Sourc
       return false;
     }
 
-    if (first.type === AST_NODE_TYPES.LogicalExpression) {
+    if (first.type === 'LogicalExpression') {
       const second1 = second as estree.LogicalExpression;
       if (
         (first.operator === '||' || first.operator === '&&') &&

@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.sonarsource.javascript</groupId>
     <artifactId>sonar-plugin</artifactId>
-    <version>10.18.0-SNAPSHOT</version>
+    <version>10.19.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>bridge</artifactId>
@@ -14,7 +14,7 @@
   <name>SonarQube JavaScript :: Bridge</name>
 
   <properties>
-    <protobuf.version>3.25.5</protobuf.version>
+    <protobuf.version>4.29.0</protobuf.version>
   </properties>
 
   <dependencies>
@@ -74,6 +74,11 @@
     <dependency>
       <groupId>org.sonarsource.sonarqube</groupId>
       <artifactId>sonar-plugin-api-impl</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 

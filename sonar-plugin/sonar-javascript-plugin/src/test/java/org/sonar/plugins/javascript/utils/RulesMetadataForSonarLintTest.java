@@ -31,7 +31,7 @@ import org.junit.jupiter.api.io.TempDir;
 import org.sonar.css.CssProfileDefinition;
 import org.sonar.css.CssRulesDefinition;
 import org.sonar.css.rules.AtRuleNoUnknown;
-import org.sonar.javascript.checks.StringLiteralsQuotesCheck;
+import org.sonar.javascript.checks.S1441;
 import org.sonar.plugins.javascript.JavaScriptProfilesDefinition;
 import org.sonar.plugins.javascript.rules.JavaScriptRulesDefinition;
 
@@ -46,7 +46,7 @@ class RulesMetadataForSonarLintTest {
     var metadata = new RulesMetadataForSonarLint();
     metadata.addRules(
       "repo",
-      List.of(StringLiteralsQuotesCheck.class),
+      List.of(S1441.class),
       JavaScriptRulesDefinition.METADATA_LOCATION,
       JavaScriptProfilesDefinition.SONAR_WAY_JSON
     );
@@ -65,7 +65,7 @@ class RulesMetadataForSonarLintTest {
         "    \"type\": \"CODE_SMELL\",\n" +
         "    \"name\": \"Quotes for string literals should be used consistently\",\n" +
         "    \"htmlDescription\": \"\\u003cp\\u003eThis rule is deprecated, and will eventually be removed.\\u003c/p\\u003e\\n\\u003ch2\\u003eWhy is this an issue?\\u003c/h2\\u003e\\n\\u003cp\\u003eThis rule checks that all string literals use the same kind of quotes.\\u003c/p\\u003e\\n\\u003ch3\\u003eNoncompliant code example\\u003c/h3\\u003e\\n\\u003cp\\u003eUsing the parameter default (forcing single quotes):\\u003c/p\\u003e\\n\\u003cpre\\u003e\\nvar firstParameter \\u003d \\\"something\\\"; // Noncompliant\\n\\u003c/pre\\u003e\\n\\u003ch3\\u003eCompliant solution\\u003c/h3\\u003e\\n\\u003cpre\\u003e\\nvar firstParameter \\u003d \\u0027something\\u0027;\\n\\u003c/pre\\u003e\\n\\u003ch3\\u003eExceptions\\u003c/h3\\u003e\\n\\u003cp\\u003eStrings that contain quotes are ignored.\\u003c/p\\u003e\\n\\u003cpre\\u003e\\nlet heSaid \\u003d \\\"Then he said \\u0027What?\\u0027.\\\"  // ignored\\nlet sheSaid \\u003d \\u0027\\\"Whatever!\\\" she replied.\\u0027  // ignored\\n\\u003c/pre\\u003e\",\n" +
-        "    \"severity\": \"MINOR\",\n" +
+        "    \"severity\": \"MAJOR\",\n" +
         "    \"status\": \"DEPRECATED\",\n" +
         "    \"tags\": [],\n" +
         "    \"params\": [\n" +

@@ -49,6 +49,7 @@ export interface JsTsAnalysisInput extends AnalysisInput {
   tsConfigs?: string[];
   programId?: string;
   skipAst?: boolean;
+  shouldClearDependenciesCache?: boolean;
 }
 
 export interface ParsingError {

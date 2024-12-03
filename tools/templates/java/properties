@@ -1,0 +1,22 @@
+  // TODO adapt to your rule properties or remove if rule has none
+  private static final String DEFAULT_PROPERTY_VALUE = "";
+
+  @RuleProperty(
+    key = "property",
+    description = "Property description",
+    defaultValue = DEFAULT_PROPERTY_VALUE,
+    type = "TEXT"
+  )
+  public String property = DEFAULT_PROPERTY_VALUE;
+
+  @Override
+  public List<Object> configurations() {
+    return Collections.singletonList(new Config(property));
+  }
+
+  private static class Config {
+    String property;
+    Config(String property) {
+      this.property = property;
+    }
+  }

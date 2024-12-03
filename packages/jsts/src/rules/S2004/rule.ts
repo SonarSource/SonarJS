@@ -18,7 +18,7 @@
 
 import estree from 'estree';
 import type { Rule } from 'eslint';
-import { TSESTree } from '@typescript-eslint/utils';
+import type { TSESTree } from '@typescript-eslint/utils';
 import {
   generateMeta,
   getMainFunctionTokenLocation,

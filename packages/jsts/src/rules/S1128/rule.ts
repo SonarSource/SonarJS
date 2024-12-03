@@ -19,7 +19,7 @@
 import { Rule, Scope } from 'eslint';
 import estree from 'estree';
 import { AST } from 'vue-eslint-parser';
-import { TSESTree } from '@typescript-eslint/utils';
+import type { TSESTree } from '@typescript-eslint/utils';
 import {
   generateMeta,
   isInsideVueSetupScript,

@@ -9,7 +9,7 @@
   "tags": [
     "es2018"
   ],
-  "defaultSeverity": "Minor",
+  "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-6661",
   "sqKey": "S6661",
   "scope": "All",

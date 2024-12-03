@@ -9,6 +9,8 @@ test-report.xml
 
 sonarjs-*
 
+packages/jsts/src/rules/*/generated-meta.ts
+
 # IntelliJ IDEA
 *.iws
 *.iml

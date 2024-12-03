@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 // https://sonarsource.github.io/rspec/#/rspec/S1126
-import { AST_NODE_TYPES, TSESTree } from '@typescript-eslint/utils';
+import type { TSESTree } from '@typescript-eslint/utils';
 import type { Rule } from 'eslint';
 import estree from 'estree';
 import { generateMeta } from '../helpers/index.js';
@@ -38,7 +38,7 @@ export const rule: Rule.RuleModule = {
         const parent = (node as TSESTree.IfStatement).parent as estree.Node;
         if (
           // ignore `else if`
-          parent.type !== AST_NODE_TYPES.IfStatement &&
+          parent.type !== 'IfStatement' &&
           returnsBoolean(node.consequent) &&
           alternateReturnsBoolean(node)
         ) {
@@ -57,7 +57,7 @@ export const rule: Rule.RuleModule = {
       }
 
       const { parent } = node as TSESTree.IfStatement;
-      if (parent?.type === AST_NODE_TYPES.BlockStatement) {
+      if (parent?.type === 'BlockStatement') {
         const ifStmtIndex = parent.body.findIndex(stmt => stmt === node);
         return isSimpleReturnBooleanLiteral(parent.body[ifStmtIndex + 1] as estree.Statement);
       }
@@ -74,7 +74,7 @@ export const rule: Rule.RuleModule = {
 
     function isBlockReturningBooleanLiteral(statement: estree.Statement) {
       return (
-        statement.type === AST_NODE_TYPES.BlockStatement &&
+        statement.type === 'BlockStatement' &&
         statement.body.length === 1 &&
         isSimpleReturnBooleanLiteral(statement.body[0])
       );
@@ -82,8 +82,8 @@ export const rule: Rule.RuleModule = {
 
     function isSimpleReturnBooleanLiteral(statement: estree.Node) {
       return (
-        statement?.type === AST_NODE_TYPES.ReturnStatement &&
-        statement.argument?.type === AST_NODE_TYPES.Literal &&
+        statement?.type === 'ReturnStatement' &&
+        statement.argument?.type === 'Literal' &&
         typeof statement.argument.value === 'boolean'
       );
     }
@@ -122,15 +122,14 @@ export const rule: Rule.RuleModule = {
 
     function isReturningFalse(stmt: estree.Statement): boolean {
       const returnStmt = (
-        stmt.type === AST_NODE_TYPES.BlockStatement ? stmt.body[0] : stmt
+        stmt.type === 'BlockStatement' ? stmt.body[0] : stmt
       ) as estree.ReturnStatement;
       return (returnStmt.argument as estree.Literal).value === false;
     }
 
     function isBooleanExpression(expr: estree.Expression) {
       return (
-        (expr.type === AST_NODE_TYPES.UnaryExpression ||
-          expr.type === AST_NODE_TYPES.BinaryExpression) &&
+        (expr.type === 'UnaryExpression' || expr.type === 'BinaryExpression') &&
         ['!', '==', '===', '!=', '!==', '<', '<=', '>', '>=', 'in', 'instanceof'].includes(
           expr.operator,
         )

@@ -9,7 +9,7 @@
   "tags": [
     "react"
   ],
-  "defaultSeverity": "Major",
+  "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-6767",
   "sqKey": "S6767",
   "scope": "All",

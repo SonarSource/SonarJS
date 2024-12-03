@@ -18,12 +18,11 @@
 
 import type { Rule } from 'eslint';
 import { generateMeta, mergeRules } from '../helpers/index.js';
-import pkg from 'eslint-plugin-jsx-a11y';
-const { rules: jsxA11yRules } = pkg;
+import { rules } from '../external/a11y.js';
 import { meta } from './meta.js';
 
-const mouseEventsHaveKeyEvents = jsxA11yRules['mouse-events-have-key-events'];
-const clickEventsHaveKeyEvents = jsxA11yRules['click-events-have-key-events'];
+const mouseEventsHaveKeyEvents = rules['mouse-events-have-key-events'];
+const clickEventsHaveKeyEvents = rules['click-events-have-key-events'];
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta as Rule.RuleMetaData, {

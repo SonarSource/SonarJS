@@ -62,6 +62,14 @@ export function getDependencies(filename: string, cwd: string) {
   return result;
 }
 
+/**
+ * In the case of SonarIDE, when a package.json file changes, the cache can become obsolete.
+ */
+export function clearDependenciesCache() {
+  console.debug('Clearing dependencies cache');
+  cache.clear();
+}
+
 export function getDependenciesFromPackageJson(content: PackageJson) {
   const result = new Set<string | Minimatch>();
   if (content.name) {

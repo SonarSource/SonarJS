@@ -15,13 +15,14 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 const rules = require('./lib').rules;
+const prettier = require('prettier');
+const { prettier: prettierOpts } = require('./package.json');
 
 /** @type {import('eslint-doc-generator').GenerateOptions} */
 const config = {
   urlRuleDoc(name) {
     return rules[name].meta.docs.url;
   },
-  postprocess: content => content.replace('<table>', '&lt;table&gt;'),
   ignoreConfig: ['recommended-legacy'],
   pathRuleDoc(name) {
     return `docs/${name}.md`;
@@ -36,6 +37,11 @@ const config = {
     'requiresTypeChecking',
     'deprecated',
   ],
+  postprocess: content =>
+    prettier.format(content.replace('<table>', '&lt;table&gt;'), {
+      ...prettierOpts,
+      parser: 'markdown',
+    }),
 };
 
 module.exports = config;

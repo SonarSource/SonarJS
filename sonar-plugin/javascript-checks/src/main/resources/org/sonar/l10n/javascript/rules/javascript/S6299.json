@@ -7,7 +7,7 @@
     },
     "attribute": "CONVENTIONAL"
   },
-  "status": "ready",
+  "status": "deprecated",
   "tags": [
     "cwe"
   ],

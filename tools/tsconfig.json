@@ -1,9 +1,10 @@
 {
   "compilerOptions": {
-    "module": "NodeNext",
-    "target": "es6",
+    "module": "nodenext",
+    "target": "ES2023",
     "allowJs": true,
-    "moduleResolution": "NodeNext"
-  },
-  "files": ["generate-meta.ts"]
+    "moduleResolution": "NodeNext",
+    "resolveJsonModule": true,
+    "typeRoots": ["../node_modules/@types", "../typings"]
+  }
 }
