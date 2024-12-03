@@ -25,6 +25,7 @@ import static org.sonar.plugins.javascript.analysis.TsConfigProvider.TSCONFIG_PA
 import static org.sonar.plugins.javascript.analysis.TsConfigProvider.TsConfigFileCreator;
 import static org.sonar.plugins.javascript.analysis.TsConfigProvider.WildcardTsConfigProvider;
 import static org.sonar.plugins.javascript.analysis.TsConfigProvider.getTsConfigs;
+import static org.sonar.plugins.javascript.analysis.TsConfigProvider.initializeTsConfigCache;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,18 +34,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.Optional;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
-import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
-import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
-import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.impl.utils.DefaultTempFolder;
 import org.sonar.api.internal.SonarRuntimeImpl;
@@ -92,8 +88,7 @@ class TsConfigProviderTest {
 
     List<String> tsconfigs = getTsConfigs(
       new ContextUtils(ctx),
-      this::tsConfigFileCreator,
-      null
+      this::tsConfigFileCreator
     );
     assertThat(tsconfigs)
       .containsExactlyInAnyOrder(
@@ -120,8 +115,7 @@ class TsConfigProviderTest {
 
     List<String> tsconfigs = getTsConfigs(
       new ContextUtils(ctx),
-      this::tsConfigFileCreator,
-      null
+      this::tsConfigFileCreator
     );
     String absolutePath = baseDir.resolve("custom.tsconfig.json").toAbsolutePath().toString();
     assertThat(tsconfigs).containsExactly(absolutePath);
@@ -143,8 +137,7 @@ class TsConfigProviderTest {
 
     List<String> tsconfigs = getTsConfigs(
       new ContextUtils(ctx),
-      this::tsConfigFileCreator,
-      null
+      this::tsConfigFileCreator
     );
     assertThat(tsconfigs).containsExactly(absolutePath);
   }
@@ -168,8 +161,7 @@ class TsConfigProviderTest {
 
     List<String> tsconfigs = getTsConfigs(
       new ContextUtils(ctx),
-      this::tsConfigFileCreator,
-      null
+      this::tsConfigFileCreator
     );
     assertThat(tsconfigs)
       .containsExactlyInAnyOrder(
@@ -205,8 +197,7 @@ class TsConfigProviderTest {
 
     List<String> tsconfigs = getTsConfigs(
       new ContextUtils(ctx),
-      this::tsConfigFileCreator,
-      null
+      this::tsConfigFileCreator
     );
     assertThat(tsconfigs)
       .containsExactlyInAnyOrder(
@@ -227,8 +218,7 @@ class TsConfigProviderTest {
 
     List<String> tsconfigs = getTsConfigs(
       new ContextUtils(ctx),
-      this::tsConfigFileCreator,
-      null
+      this::tsConfigFileCreator
     );
     assertThat(tsconfigs).contains(baseDir.resolve("tsconfig.json").toAbsolutePath().toString());
     assertThat(logger.logs(LoggerLevel.INFO))
@@ -246,14 +236,13 @@ class TsConfigProviderTest {
 
     List<String> tsconfigs = getTsConfigs(
       new ContextUtils(ctx),
-      this::tsConfigFileCreator,
-      null
+      this::tsConfigFileCreator
     );
     assertThat(tsconfigs).hasSize(1);
     String tsconfig = Files.readString(Paths.get(tsconfigs.get(0)));
     assertThat(tsconfig)
       .isEqualToIgnoringCase(
-        String.format("{\"files\":[\"%s/file1.ts\",\"%s/file2.ts\"],\"compilerOptions\":{\"allowJs\":true,\"noImplicitAny\":true}}", baseDir.toString().replaceAll("[\\\\/]", "/"), baseDir.toString().replaceAll("[\\\\/]", "/"))
+        String.format("{\"files\":[\"%s/file1.ts\",\"%s/file2.ts\"],\"compilerOptions\":{\"allowJs\":true,\"noImplicitAny\":true}}", baseDir.toRealPath().toString().replaceAll("[\\\\/]", "/"), baseDir.toRealPath().toString().replaceAll("[\\\\/]", "/"))
       );
   }
 
@@ -264,9 +253,9 @@ class TsConfigProviderTest {
     createInputFile(ctx, "file1.js");
     createInputFile(ctx, "file2.js");
     var tsConfigCache = tsConfigCache();
-    var tsconfigs = getTsConfigs(new ContextUtils(ctx), this::tsConfigFileCreator, tsConfigCache);
+    initializeTsConfigCache(new ContextUtils(ctx), this::tsConfigFileCreator, tsConfigCache);
 
-    assertThat(tsconfigs)
+    assertThat(tsConfigCache.listCachedTsConfigs(TsConfigOrigin.FALLBACK))
       .hasSize(1)
       .extracting(path -> Files.readString(Paths.get(path)))
       .contains(
@@ -283,7 +272,7 @@ class TsConfigProviderTest {
     ctx.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 4)));
 
     var tsConfigCache = tsConfigCache();
-    var originalTsConfigs = getTsConfigs(new ContextUtils(ctx), this::tsConfigFileCreator, tsConfigCache);
+    initializeTsConfigCache(new ContextUtils(ctx), this::tsConfigFileCreator, tsConfigCache);
 
     var tsconfigs =
       new WildcardTsConfigProvider(
@@ -291,7 +280,7 @@ class TsConfigProviderTest {
         TsConfigProviderTest::createTsConfigFile
       )
         .tsconfigs(ctx);
-    assertThat(tsconfigs).isEqualTo(originalTsConfigs);
+    assertThat(tsconfigs).isEqualTo(tsConfigCache.listCachedTsConfigs(TsConfigOrigin.FALLBACK));
   }
 
   @Test
@@ -303,8 +292,8 @@ class TsConfigProviderTest {
     createInputFile(ctx, "file2.js");
 
     var tsConfigCache = tsConfigCache();
-    var tsconfigs = getTsConfigs(new ContextUtils(ctx), this::tsConfigFileCreator, tsConfigCache);
-    assertThat(tsconfigs).isEmpty();
+    initializeTsConfigCache(new ContextUtils(ctx), this::tsConfigFileCreator, tsConfigCache);
+    assertThat(tsConfigCache.listCachedTsConfigs(TsConfigOrigin.FALLBACK)).isEmpty();
   }
 
   @Test
@@ -337,7 +326,7 @@ class TsConfigProviderTest {
     createInputFile(ctx, "node_modules/dep.js");
 
     var tsConfigCache = tsConfigCache();
-    getTsConfigs(new ContextUtils(ctx), this::tsConfigFileCreator, tsConfigCache);
+    initializeTsConfigCache(new ContextUtils(ctx), this::tsConfigFileCreator, tsConfigCache);
     assertThat(logger.logs()).contains("Turning on type-checking of JavaScript files");
   }
 
@@ -353,7 +342,7 @@ class TsConfigProviderTest {
     createInputFile(ctx, "file3.cjs");
     createInputFile(ctx, "file4.cts");
     var tsConfigCache = tsConfigCache();
-    getTsConfigs(new ContextUtils(ctx), this::tsConfigFileCreator, tsConfigCache);
+    initializeTsConfigCache(new ContextUtils(ctx), this::tsConfigFileCreator, tsConfigCache);
     assertThat(WildcardTsConfigProvider.isBeyondLimit(ctx, tsConfigCache.getProjectSize())).isTrue();
     assertThat(logger.logs())
       .contains(

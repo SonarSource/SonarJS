@@ -66,6 +66,7 @@ public abstract class AbstractAnalysis {
     this.analysisWarnings = analysisWarnings;
   }
 
+
   protected static String inputFileLanguage(InputFile file) {
     return JavaScriptFilePredicate.isTypeScriptFile(file)
       ? TypeScriptLanguage.KEY

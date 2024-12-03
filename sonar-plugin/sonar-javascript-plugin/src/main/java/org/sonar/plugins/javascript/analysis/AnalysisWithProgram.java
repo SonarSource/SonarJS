@@ -34,8 +34,6 @@ import org.sonar.plugins.javascript.bridge.BridgeServer.TsProgram;
 import org.sonar.plugins.javascript.bridge.BridgeServer.TsProgramRequest;
 import org.sonar.plugins.javascript.utils.ProgressReport;
 
-import static org.sonar.plugins.javascript.analysis.TsConfigProvider.getTsConfigs;
-
 @ScannerSide
 public class AnalysisWithProgram extends AbstractAnalysis {
 
@@ -50,13 +48,7 @@ public class AnalysisWithProgram extends AbstractAnalysis {
 
   @Override
   void analyzeFiles(List<InputFile> inputFiles) throws IOException {
-    var tsConfigs = getTsConfigs(
-      contextUtils,
-      this::createTsConfigFile
-    );
-    if (tsConfigs.isEmpty()) {
-      LOG.info("No tsconfig.json file found");
-    }
+    var tsConfigs = TsConfigProvider.getTsConfigs(contextUtils, this::createTsConfigFile);
     progressReport = new ProgressReport(PROGRESS_REPORT_TITLE, PROGRESS_REPORT_PERIOD);
     progressReport.start(inputFiles.size(), inputFiles.iterator().next().toString());
     boolean success = false;

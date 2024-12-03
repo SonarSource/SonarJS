@@ -18,7 +18,6 @@ package org.sonar.plugins.javascript.analysis;
 
 import java.io.IOException;
 import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
@@ -27,8 +26,6 @@ import org.sonar.plugins.javascript.bridge.BridgeServer;
 import org.sonar.plugins.javascript.sonarlint.TsConfigCache;
 import org.sonar.plugins.javascript.utils.ProgressReport;
 import org.sonarsource.api.sonarlint.SonarLintSide;
-
-import static org.sonar.plugins.javascript.analysis.TsConfigProvider.getTsConfigs;
 
 @SonarLintSide
 public class AnalysisWithWatchProgram extends AbstractAnalysis {
@@ -49,14 +46,7 @@ public class AnalysisWithWatchProgram extends AbstractAnalysis {
 
   @Override
   public void analyzeFiles(List<InputFile> inputFiles) throws IOException {
-    var tsConfigs = getTsConfigs(
-      contextUtils,
-      this::createTsConfigFile,
-      tsConfigCache
-    );
-    if (tsConfigs.isEmpty()) {
-      LOG.info("No tsconfig.json file found");
-    }
+    TsConfigProvider.initializeTsConfigCache(contextUtils, this::createTsConfigFile, tsConfigCache);
     boolean success = false;
     progressReport = new ProgressReport(PROGRESS_REPORT_TITLE, PROGRESS_REPORT_PERIOD);
     try {
