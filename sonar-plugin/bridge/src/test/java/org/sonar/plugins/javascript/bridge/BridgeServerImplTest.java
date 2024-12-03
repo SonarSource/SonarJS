@@ -16,6 +16,24 @@
  */
 package org.sonar.plugins.javascript.bridge;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.awaitility.Awaitility.await;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
+import static org.slf4j.event.Level.DEBUG;
+import static org.slf4j.event.Level.ERROR;
+import static org.slf4j.event.Level.INFO;
+import static org.slf4j.event.Level.WARN;
+import static org.sonar.plugins.javascript.bridge.AnalysisMode.DEFAULT_LINTER_ID;
+import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_EXECUTABLE_PROPERTY;
+import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_FORCE_HOST_PROPERTY;
+import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.SKIP_NODE_PROVISIONING_PROPERTY;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -53,24 +71,6 @@ import org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl;
 import org.sonar.plugins.javascript.nodejs.NodeCommandException;
 import org.sonar.plugins.javascript.nodejs.ProcessWrapper;
 import org.sonar.plugins.javascript.nodejs.ProcessWrapperImpl;
-
-import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.awaitility.Awaitility.await;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
-import static org.slf4j.event.Level.DEBUG;
-import static org.slf4j.event.Level.ERROR;
-import static org.slf4j.event.Level.INFO;
-import static org.slf4j.event.Level.WARN;
-import static org.sonar.plugins.javascript.bridge.AnalysisMode.DEFAULT_LINTER_ID;
-import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_EXECUTABLE_PROPERTY;
-import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_FORCE_HOST_PROPERTY;
-import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.SKIP_NODE_PROVISIONING_PROPERTY;
 
 class BridgeServerImplTest {
 
@@ -837,7 +837,7 @@ class BridgeServerImplTest {
     var config = BridgeServerConfig.fromSensorContext(context);
     bridgeServer.startServerLazily(config);
     assertThat(logTester.logs(DEBUG))
-      .contains("Setting deploy location to " + deployLocation);
+      .contains("Setting deploy location to " + deployLocation.replace("/", File.separator));
   }
 
   @Test
