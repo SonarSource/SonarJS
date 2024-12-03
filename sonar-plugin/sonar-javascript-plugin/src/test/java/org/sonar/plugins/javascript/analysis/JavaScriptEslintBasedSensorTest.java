@@ -385,7 +385,7 @@ class JavaScriptEslintBasedSensorTest {
     when(bridgeServerMock.loadTsConfig(any())).thenReturn(tsConfigFile);
 
     context.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 4)));
-    var sensor = createSensor();
+    var sensor = createSonarLintSensor();
     sensor.execute(context);
 
     assertThat(inputFile.hasNoSonarAt(7)).isTrue();
@@ -531,7 +531,6 @@ class JavaScriptEslintBasedSensorTest {
       checks(ESLINT_BASED_RULE),
       bridgeServerMock,
       analysisWithProgram,
-      analysisWithWatchProgram,
       new AnalysisConsumers()
     );
     javaScriptEslintBasedSensor.execute(context);
@@ -548,7 +547,6 @@ class JavaScriptEslintBasedSensorTest {
       checks(ESLINT_BASED_RULE),
       bridgeServerMock,
       analysisWithProgram,
-      analysisWithWatchProgram,
       new AnalysisConsumers()
     );
     createInputFile(context);
@@ -611,7 +609,6 @@ class JavaScriptEslintBasedSensorTest {
       checks(ESLINT_BASED_RULE),
       bridgeServerMock,
       analysisWithProgram,
-      analysisWithWatchProgram,
       new AnalysisConsumers()
     )
       .execute(context);
@@ -639,7 +636,7 @@ class JavaScriptEslintBasedSensorTest {
     when(bridgeServerMock.analyzeJavaScript(any())).thenReturn(new AnalysisResponse());
     var captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
 
-    createSensor().execute(ctx);
+    createSonarLintSensor().execute(ctx);
     verify(bridgeServerMock).analyzeJavaScript(captor.capture());
     assertThat(captor.getValue().fileContent())
       .isEqualTo("if (cond)\n" + "doFoo(); \n" + "else \n" + "doFoo();");
@@ -651,7 +648,7 @@ class JavaScriptEslintBasedSensorTest {
     ctx.setNextCache(mock(WriteCache.class));
     createInputFile(ctx);
 
-    createSensor().execute(ctx);
+    createSonarLintSensor().execute(ctx);
     verify(bridgeServerMock).analyzeJavaScript(captor.capture());
     assertThat(captor.getValue().fileContent()).isNull();
   }
@@ -781,12 +778,20 @@ class JavaScriptEslintBasedSensorTest {
     return inputFile;
   }
 
+  private JsTsSensor createSonarLintSensor() {
+    return new JsTsSensor(
+      checks(ESLINT_BASED_RULE, "S2260", "S1451"),
+      bridgeServerMock,
+      analysisWithWatchProgram,
+      new AnalysisConsumers()
+    );
+  }
+
   private JsTsSensor createSensor() {
     return new JsTsSensor(
       checks(ESLINT_BASED_RULE, "S2260", "S1451"),
       bridgeServerMock,
       analysisWithProgram,
-      analysisWithWatchProgram,
       new AnalysisConsumers()
     );
   }

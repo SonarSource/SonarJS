@@ -71,6 +71,13 @@ public class TsConfigProvider {
     this.cache = cache;
   }
 
+  static List<String> getTsConfigs(
+    ContextUtils contextUtils,
+    TsConfigProvider.TsConfigFileCreator tsConfigFileCreator
+  ) throws IOException {
+    return getTsConfigs(contextUtils, tsConfigFileCreator, null);
+  }
+
   /**
    * Relying on (in order of priority)
    * 1. Property sonar.typescript.tsconfigPath(s)

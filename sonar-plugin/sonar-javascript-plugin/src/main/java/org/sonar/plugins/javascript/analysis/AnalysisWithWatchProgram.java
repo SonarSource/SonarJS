@@ -19,17 +19,26 @@ package org.sonar.plugins.javascript.analysis;
 import java.io.IOException;
 import java.util.List;
 import javax.annotation.Nullable;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.scanner.ScannerSide;
+import org.sonar.plugins.javascript.bridge.AnalysisMode;
 import org.sonar.plugins.javascript.bridge.AnalysisWarningsWrapper;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
 import org.sonar.plugins.javascript.sonarlint.TsConfigCache;
 import org.sonar.plugins.javascript.utils.ProgressReport;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
+import static org.sonar.plugins.javascript.analysis.TsConfigProvider.getTsConfigs;
+
 @ScannerSide
 @SonarLintSide
 public class AnalysisWithWatchProgram extends AbstractAnalysis {
+
+  private static final Logger LOG = LoggerFactory.getLogger(AnalysisWithWatchProgram.class);
 
   TsConfigCache tsConfigCache;
 
@@ -52,7 +61,15 @@ public class AnalysisWithWatchProgram extends AbstractAnalysis {
   }
 
   @Override
-  public void analyzeFiles(List<InputFile> inputFiles, List<String> tsConfigs) throws IOException {
+  public void analyzeFiles(List<InputFile> inputFiles) throws IOException {
+    var tsConfigs = getTsConfigs(
+      contextUtils,
+      this::createTsConfigFile,
+      tsConfigCache
+    );
+    if (tsConfigs.isEmpty()) {
+      LOG.info("No tsconfig.json file found");
+    }
     boolean success = false;
     progressReport = new ProgressReport(PROGRESS_REPORT_TITLE, PROGRESS_REPORT_PERIOD);
     try {

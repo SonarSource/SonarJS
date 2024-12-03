@@ -40,7 +40,7 @@ import org.sonar.plugins.javascript.bridge.ESTreeFactory;
 import org.sonar.plugins.javascript.bridge.protobuf.Node;
 import org.sonar.plugins.javascript.utils.ProgressReport;
 
-abstract class AbstractAnalysis {
+public abstract class AbstractAnalysis {
 
   private static final Logger LOG = LoggerFactory.getLogger(AbstractAnalysis.class);
   static final String PROGRESS_REPORT_TITLE = "Progress of JavaScript/TypeScript analysis";
@@ -72,7 +72,7 @@ abstract class AbstractAnalysis {
       : JavaScriptLanguage.KEY;
   }
 
-  void initialize(SensorContext context, JsTsChecks checks, AnalysisMode analysisMode, AnalysisConsumers consumers) {
+  void initialize(SensorContext context, JsTsChecks checks, AnalysisMode analysisMode, AnalysisConsumers consumers) throws IOException {
     LOG.debug("Initializing {}", getClass().getName());
     this.context = context;
     contextUtils = new ContextUtils(context);
@@ -85,7 +85,7 @@ abstract class AbstractAnalysis {
     return inputFileLanguage(file).equals(JavaScriptLanguage.KEY);
   }
 
-  abstract void analyzeFiles(List<InputFile> inputFiles, List<String> tsConfigs) throws IOException;
+  abstract void analyzeFiles(List<InputFile> inputFiles) throws IOException;
 
   protected void analyzeFile(InputFile file, @Nullable List<String> tsConfigs, @Nullable TsProgram tsProgram, boolean dirtyPackageJSONCache) throws IOException {
     if (context.isCancelled()) {
@@ -158,5 +158,9 @@ abstract class AbstractAnalysis {
       skipAst,
       shouldClearDependenciesCache
     );
+  }
+
+  protected String createTsConfigFile(String content) throws IOException {
+    return bridgeServer.createTsConfigFile(content).getFilename();
   }
 }

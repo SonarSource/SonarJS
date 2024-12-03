@@ -153,8 +153,6 @@ public class JavaScriptPlugin implements Plugin {
       RulesBundles.class,
       JsTsChecks.class,
       AnalysisWarningsWrapper.class,
-      AnalysisWithProgram.class,
-      AnalysisWithWatchProgram.class,
       AnalysisProcessor.class,
       YamlSensor.class,
       HtmlSensor.class,
@@ -288,7 +286,8 @@ public class JavaScriptPlugin implements Plugin {
         EslintReportSensor.class,
         EslintRulesDefinition.class,
         TslintReportSensor.class,
-        TslintRulesDefinition.class
+        TslintRulesDefinition.class,
+        AnalysisWithProgram.class
       );
 
       context.addExtension(
@@ -357,7 +356,7 @@ public class JavaScriptPlugin implements Plugin {
       SonarLintPluginAPIVersion sonarLintPluginAPIVersion
     ) {
       if (sonarLintPluginAPIVersion.isDependencyAvailable()) {
-        context.addExtension(TsConfigCacheImpl.class);
+        context.addExtensions(TsConfigCacheImpl.class, AnalysisWithWatchProgram.class);
       } else {
         LOG.debug("Error while trying to inject SonarLint extensions");
       }
