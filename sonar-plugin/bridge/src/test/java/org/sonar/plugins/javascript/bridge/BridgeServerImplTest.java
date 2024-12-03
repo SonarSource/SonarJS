@@ -16,6 +16,24 @@
  */
 package org.sonar.plugins.javascript.bridge;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.awaitility.Awaitility.await;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
+import static org.slf4j.event.Level.DEBUG;
+import static org.slf4j.event.Level.ERROR;
+import static org.slf4j.event.Level.INFO;
+import static org.slf4j.event.Level.WARN;
+import static org.sonar.plugins.javascript.bridge.AnalysisMode.DEFAULT_LINTER_ID;
+import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_EXECUTABLE_PROPERTY;
+import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_FORCE_HOST_PROPERTY;
+import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.SKIP_NODE_PROVISIONING_PROPERTY;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -53,24 +71,6 @@ import org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl;
 import org.sonar.plugins.javascript.nodejs.NodeCommandException;
 import org.sonar.plugins.javascript.nodejs.ProcessWrapper;
 import org.sonar.plugins.javascript.nodejs.ProcessWrapperImpl;
-
-import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.awaitility.Awaitility.await;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
-import static org.slf4j.event.Level.DEBUG;
-import static org.slf4j.event.Level.ERROR;
-import static org.slf4j.event.Level.INFO;
-import static org.slf4j.event.Level.WARN;
-import static org.sonar.plugins.javascript.bridge.AnalysisMode.DEFAULT_LINTER_ID;
-import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_EXECUTABLE_PROPERTY;
-import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_FORCE_HOST_PROPERTY;
-import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.SKIP_NODE_PROVISIONING_PROPERTY;
 
 class BridgeServerImplTest {
 
@@ -827,16 +827,45 @@ class BridgeServerImplTest {
       );
   }
 
-  private BridgeServerImpl createBridgeServer(String startServerScript) {
+  @Test
+  void should_start_bridge_from_path() throws IOException {
+    bridgeServer = createBridgeServer(new BundleImpl());
+    var deployLocation = "src/test/resources";
+    var settings = new MapSettings().setProperty(BridgeServerImpl.SONARLINT_BUNDLE_PATH, deployLocation);
+    context.setSettings(settings);
+
+    var config = BridgeServerConfig.fromSensorContext(context);
+    bridgeServer.startServerLazily(config);
+    assertThat(logTester.logs(DEBUG))
+      .contains("Setting deploy location to " + deployLocation.replace("/", File.separator));
+  }
+
+  @Test
+  void should_fail_on_bad_bridge_path() {
+    bridgeServer = createBridgeServer(new BundleImpl());
+    var deployLocation = "src/test";
+    var settings = new MapSettings().setProperty(BridgeServerImpl.SONARLINT_BUNDLE_PATH, deployLocation);
+    context.setSettings(settings);
+
+    var config = BridgeServerConfig.fromSensorContext(context);
+    assertThatThrownBy(() -> bridgeServer.startServerLazily(config))
+      .isInstanceOf(NodeCommandException.class);
+  }
+
+  private BridgeServerImpl createBridgeServer(Bundle bundle) {
     return new BridgeServerImpl(
       builder(),
       TEST_TIMEOUT_SECONDS,
-      new TestBundle(startServerScript),
+      bundle,
       emptyRulesBundles,
       deprecationWarning,
       tempFolder,
       unsupportedEmbeddedRuntime
     );
+  }
+
+  private BridgeServerImpl createBridgeServer(String startServerScript) {
+    return createBridgeServer(new TestBundle(startServerScript));
   }
 
   /**
@@ -856,6 +885,11 @@ class BridgeServerImplTest {
 
     TestBundle(String startServerScript) {
       this.startServerScript = startServerScript;
+    }
+
+    @Override
+    public void setDeployLocation(Path deployLocation) {
+      // no-op for unit test
     }
 
     @Override

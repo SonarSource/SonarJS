@@ -20,7 +20,8 @@ import java.io.IOException;
 import java.nio.file.Path;
 import org.sonar.plugins.javascript.nodejs.BundlePathResolver;
 
-interface Bundle extends BundlePathResolver {
+public interface Bundle extends BundlePathResolver {
+  void setDeployLocation(Path deployLocation);
   void deploy(Path deployLocation) throws IOException;
 
   String startServerScript();
