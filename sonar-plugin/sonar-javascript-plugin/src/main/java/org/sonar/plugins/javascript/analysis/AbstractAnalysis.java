@@ -72,7 +72,7 @@ public abstract class AbstractAnalysis {
       : JavaScriptLanguage.KEY;
   }
 
-  void initialize(SensorContext context, JsTsChecks checks, AnalysisMode analysisMode, AnalysisConsumers consumers) throws IOException {
+  void initialize(SensorContext context, JsTsChecks checks, AnalysisMode analysisMode, AnalysisConsumers consumers) {
     LOG.debug("Initializing {}", getClass().getName());
     this.context = context;
     contextUtils = new ContextUtils(context);
