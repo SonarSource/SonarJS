@@ -1,40 +1,75 @@
 # eslint-plugin-sonarjs [![npm version](https://badge.fury.io/js/eslint-plugin-sonarjs.svg)](https://badge.fury.io/js/eslint-plugin-sonarjs)
 
-SonarJS rules for ESLint to help developers produce [Clean Code](https://www.sonarsource.com/solutions/clean-code/) by detecting bugs and suspicious patterns.
+eslint-plugin-sonarjs is an ESLint plugin maintained by [Sonar](https://www.sonarsource.com/), designed to help developers write [Clean Code](https://www.sonarsource.com/solutions/clean-code/). This plugin exposes to ESLint users all original JS/TS rules from [SonarJS](https://github.com/SonarSource/SonarJS), an analyzer for JavaScript and TypeScript within the Sonar ecosystem. This plugin offers general-purpose rules for detecting code smells and bugs, as well as rules for other aspects of code quality, including testing, accessibility, and more. Additionally, it enhances code security by providing rules to report potential security vulnerabilities.
+
+This ESLint plugin does not contain all the rules from the SonarQube JS/TS analyzer. Aside of the rules available here, SonarQube uses rules from other ESLint plugins ([some](#eslint-rules) used as they are, [some others](#improved-eslint-rules) have been modified). We recommend installing those ESLint plugins and enabling those rules if you are looking for similar results to SonarQube using ESLint.
+
+If you are a [SonarQube](https://www.sonarqube.org) or [SonarCloud](https://sonarcloud.io) user, to lint your code locally, we suggest using [SonarLint](https://www.sonarlint.org) IDE extension (available for VSCode, JetBrains IDEs and Eclipse). You can connect SonarLint to your SonarQube/SonarCloud project to synchronize rules configuration, issue statuses, etc.
+
+## Table of Contents
+
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Usage](#usage)
+- [SonarLint](#sonarlint)
+- [Feedback](#feedback)
+- [Rules](#rules)
+- [ESLint rules](#eslint-rules)
+- [Improved ESLint rules](#improved-eslint-rules)
+
+## [Changelog](CHANGELOG.md)
 
 ## Prerequisites
 
-- Node.js (>=16.x) with ESLint 8.
-- Node.js (^18.18.0 || ^20.9.0 || >=21) with ESLint 9.
+The prerequisites for using this plugin depend on the ESLint version you are using:
+
+- For ESLint 8, you need Node.js version >= 16.
+- For ESLint 9, you need Node.js version that complies with (^18.18.0 || ^20.9.0 || >=21).
+
+## Installation
+
+First, ensure that your project is configured with ESLint. If it is not, please follow the [ESLint instructions](<(https://github.com/eslint/eslint#installation-and-usage)>) to set it up.
+
+To install `eslint-plugin-sonarjs`, use the following `npm` command (or `yarn` equivalent):
+
+```sh
+npm install eslint-plugin-sonarjs --save-dev # locally
+npm install eslint-plugin-sonarjs -g         # globally
+```
 
 ## Usage
 
-- If you don't have ESLint yet configured for your project, follow [these instructions](https://github.com/eslint/eslint#installation-and-usage).
-- Install `eslint-plugin-sonarjs` using `npm` (or `yarn`) for your project or globally:
+The usage of `eslint-plugin-sonarjs` depends on the ESLint version used by your project.
 
-```sh
-npm install eslint-plugin-sonarjs --save-dev # install for your project
-npm install eslint-plugin-sonarjs -g         # or install globally
+### For ESLint 9
+
+This plugin provides a single configuration named `recommended`. This configuration enables most of the rules except for a few exceptions, and the rules are enabled with the error severity. You can enable the `recommended` configuration in your `eslint.config.js` file:
+
+```javascript
+import sonarjs from 'eslint-plugin-sonarjs';
+
+export default [sonarjs.configs.recommended];
 ```
 
-- Add `eslint-plugin-sonarjs` to the plugins of your ESLint config.
+If you don't use the `recommended` configuration, you need to declare the plugin manually in the `plugins` field. Enable or disable rules using the `rules` field:
 
-For ESLint 9: add `plugins` option to your `eslint.config.js` and include the recommended config to enable all rules:
-
-```code
-import sonarjs from "eslint-plugin-sonarjs";
-
-[
-  sonarjs.configs.recommended,
+```javascript
+import sonarjs from 'eslint-plugin-sonarjs';
+export default [
   {
-    "plugins": {
-      sonarjs,
-    }
-  }
-]
+    plugins: { sonarjs },
+    rules: {
+      'sonarjs/no-implicit-dependencies': 'error',
+    },
+  },
+];
 ```
 
-For ESLint 8: add `plugins` option to your `.eslintrc` and `plugin:sonarjs/recommended-legacy` to the `extends` option to enable all recommended rules:
+### For ESLint 8
+
+We include a `recommended-legacy` configuration to be backward compatible with ESLint v8, equivalent to the `recommended` configuration for ESLint 9.
+
+Add `sonarjs` to your `.eslintrc` file:
 
 ```json
 {
@@ -43,32 +78,28 @@ For ESLint 8: add `plugins` option to your `.eslintrc` and `plugin:sonarjs/recom
 }
 ```
 
-- or enable only some rules manually:
+You can enable some rules manually:
 
 ```json
 {
   "rules": {
     "sonarjs/cognitive-complexity": "error",
     "sonarjs/no-identical-expressions": "error"
-    // etc.
   }
 }
 ```
 
-- To allow each of the rules to fully perform, use `@typescript-eslint/parser` as a parser for ESLint and set the [parserOptions.project](https://github.com/typescript-eslint/typescript-eslint/tree/master/packages/parser#parseroptionsproject) option. This enables type checking which is beneficial or even essential for some rules.
+### TypeScript ESLint parser
 
-## Available Configurations
+Several rules are designed for linting both JavaScript and TypeScript code, and some even rely on type checking through TypeScript. Therefore, you will need to install the `@typescript-eslint/parser` dependency and [instruct ESLint to use this parser](https://eslint.org/docs/latest/use/configure/parser) through the `parserOptions` property.
 
-This plugin provides only a `recommended` configuration. Almost all rules are activated in this profile with a few exceptions (check the `disabled` tag in the rules list). The `recommended` configuration activates rules with `error` severity.
-We include a `recommended-legacy` configuration to be backward compatible with ESLint v8, with the same rule configuration..
+## SonarLint
 
-## ESLint and Sonar
+As an alternative to using this ESLint plugin, you can use [SonarLint](https://www.sonarsource.com/products/sonarlint/). SonarLint is an IDE extension that helps you detect and fix quality issues as you write code. It provides a broader set of rules compared to the ESLint plugin, improved versions of ESLint rules, and additional [features](https://github.com/SonarSource/SonarJS/tree/master?tab=readme-ov-file#features) that enhance your linting experience.
 
-This plugin exposes to ESLint users all original JS/TS rules from Sonar products (aka [SonarJS](https://github.com/SonarSource/SonarJS)). We extracted the rules to be beneficial for the ESLint community.
+## Feedback
 
-This ESLint plugin does not contain all the rules from the SonarQube JS/TS analyzer. Aside of the rules available here, SonarQube uses rules from other ESLint plugins ([some](#eslint-rules) used as they are, [some others](#improved-eslint-rules) have been modified). We recommend installing those ESLint plugins and enabling those rules if you are looking for similar results to SonarQube using ESLint.
-
-If you are a [SonarQube](https://www.sonarqube.org) or [SonarCloud](https://sonarcloud.io) user, to lint your code locally, we suggest using [SonarLint](https://www.sonarlint.org) IDE extension (available for VSCode, JetBrains IDEs and Eclipse). You can connect SonarLint to your SonarQube/SonarCloud project to synchronize rules configuration, issue statuses, etc.
+If you have any questions, encounter any bugs, or have feature requests, please reach out to us through the [Sonar Community Forum](https://community.sonarsource.com/). Your messages will reach the maintainers of this GitHub repository.
 
 ## Rules
 
@@ -356,9 +387,7 @@ If you are a [SonarQube](https://www.sonarqube.org) or [SonarCloud](https://sona
 
 ## ESLint rules
 
-Some rules are not shipped in this ESLint plugin to avoid duplication with already existing rules from ESLint core and third-party ESLint plugins.
-
-The following rules are used directly, without modifying the original behavior:
+SonarJS uses some rules are not shipped in this ESLint plugin to avoid duplication with already existing rules from ESLint core and third-party ESLint plugins. The following rules are used directly, without modifying the original behavior:
 
 <!--- start external rules -->
 
@@ -481,7 +510,7 @@ The following rules are used directly, without modifying the original behavior:
 
 ## Improved ESLint rules
 
-Also not available in this ESLint plugin, but used in SonarJS, this list of rules have been modified, so your experience using them in your ESLint configuration may differ from the results you may get using SonarQube:
+The following rules are used in SonarJS but not available in this ESLint plugin. These rules have been modified, so your experience using them in your ESLint configuration may differ from the results you may get using SonarQube.
 
 <!--- start decorated rules -->
 
