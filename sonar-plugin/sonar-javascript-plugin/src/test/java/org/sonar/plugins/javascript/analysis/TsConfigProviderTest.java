@@ -86,15 +86,11 @@ class TsConfigProviderTest {
     createInputFile(ctx, "file1.ts");
     createInputFile(ctx, "file2.ts");
 
-    List<String> tsconfigs = getTsConfigs(
-      new ContextUtils(ctx),
-      this::tsConfigFileCreator
+    List<String> tsconfigs = getTsConfigs(new ContextUtils(ctx), this::tsConfigFileCreator);
+    assertThat(tsconfigs).containsExactlyInAnyOrder(
+      tsconfig1.toAbsolutePath().toString(),
+      tsconfig2.toAbsolutePath().toString()
     );
-    assertThat(tsconfigs)
-      .containsExactlyInAnyOrder(
-        tsconfig1.toAbsolutePath().toString(),
-        tsconfig2.toAbsolutePath().toString()
-      );
   }
 
   String tsConfigFileCreator(String content) throws IOException {
@@ -108,22 +104,15 @@ class TsConfigProviderTest {
     Path baseDir = tempFolder.newDir().toPath();
     Files.createFile(baseDir.resolve("custom.tsconfig.json"));
     SensorContextTester ctx = SensorContextTester.create(baseDir);
-    ctx.setSettings(
-      new MapSettings().setProperty(TSCONFIG_PATHS, "custom.tsconfig.json")
-    );
+    ctx.setSettings(new MapSettings().setProperty(TSCONFIG_PATHS, "custom.tsconfig.json"));
     createInputFile(ctx, "file.ts");
 
-    List<String> tsconfigs = getTsConfigs(
-      new ContextUtils(ctx),
-      this::tsConfigFileCreator
-    );
+    List<String> tsconfigs = getTsConfigs(new ContextUtils(ctx), this::tsConfigFileCreator);
     String absolutePath = baseDir.resolve("custom.tsconfig.json").toAbsolutePath().toString();
     assertThat(tsconfigs).containsExactly(absolutePath);
-    assertThat(logger.logs(LoggerLevel.INFO))
-      .contains(
-        "Resolving TSConfig files using 'custom.tsconfig.json' from property " +
-          TSCONFIG_PATHS
-      );
+    assertThat(logger.logs(LoggerLevel.INFO)).contains(
+      "Resolving TSConfig files using 'custom.tsconfig.json' from property " + TSCONFIG_PATHS
+    );
   }
 
   @Test
@@ -135,10 +124,7 @@ class TsConfigProviderTest {
     ctx.setSettings(new MapSettings().setProperty(TSCONFIG_PATHS, absolutePath));
     createInputFile(ctx, "file.ts");
 
-    List<String> tsconfigs = getTsConfigs(
-      new ContextUtils(ctx),
-      this::tsConfigFileCreator
-    );
+    List<String> tsconfigs = getTsConfigs(new ContextUtils(ctx), this::tsConfigFileCreator);
     assertThat(tsconfigs).containsExactly(absolutePath);
   }
 
@@ -159,21 +145,16 @@ class TsConfigProviderTest {
         )
     );
 
-    List<String> tsconfigs = getTsConfigs(
-      new ContextUtils(ctx),
-      this::tsConfigFileCreator
+    List<String> tsconfigs = getTsConfigs(new ContextUtils(ctx), this::tsConfigFileCreator);
+    assertThat(tsconfigs).containsExactlyInAnyOrder(
+      baseDir.resolve("base.tsconfig.json").toAbsolutePath().toString(),
+      baseDir.resolve("custom.tsconfig.json").toAbsolutePath().toString(),
+      baseDir.resolve("extended.tsconfig.json").toAbsolutePath().toString()
     );
-    assertThat(tsconfigs)
-      .containsExactlyInAnyOrder(
-        baseDir.resolve("base.tsconfig.json").toAbsolutePath().toString(),
-        baseDir.resolve("custom.tsconfig.json").toAbsolutePath().toString(),
-        baseDir.resolve("extended.tsconfig.json").toAbsolutePath().toString()
-      );
-    assertThat(logger.logs(LoggerLevel.INFO))
-      .contains(
-        "Resolving TSConfig files using 'base.tsconfig.json,custom.tsconfig.json,extended.tsconfig.json' from property " +
-          TSCONFIG_PATHS
-      );
+    assertThat(logger.logs(LoggerLevel.INFO)).contains(
+      "Resolving TSConfig files using 'base.tsconfig.json,custom.tsconfig.json,extended.tsconfig.json' from property " +
+      TSCONFIG_PATHS
+    );
   }
 
   @Test
@@ -189,21 +170,14 @@ class TsConfigProviderTest {
     SensorContextTester ctx = SensorContextTester.create(baseDir);
     ctx.setSettings(
       new MapSettings()
-        .setProperty(
-          TSCONFIG_PATHS,
-          "**/tsconfig.settings.json,**/tsconfig.custom.json"
-        )
+        .setProperty(TSCONFIG_PATHS, "**/tsconfig.settings.json,**/tsconfig.custom.json")
     );
 
-    List<String> tsconfigs = getTsConfigs(
-      new ContextUtils(ctx),
-      this::tsConfigFileCreator
+    List<String> tsconfigs = getTsConfigs(new ContextUtils(ctx), this::tsConfigFileCreator);
+    assertThat(tsconfigs).containsExactlyInAnyOrder(
+      baseDir.resolve("tsconfig.settings.json").toAbsolutePath().toString(),
+      baseDir.resolve(Paths.get("dir", "tsconfig.settings.json")).toAbsolutePath().toString()
     );
-    assertThat(tsconfigs)
-      .containsExactlyInAnyOrder(
-        baseDir.resolve("tsconfig.settings.json").toAbsolutePath().toString(),
-        baseDir.resolve(Paths.get("dir", "tsconfig.settings.json")).toAbsolutePath().toString()
-      );
   }
 
   @Test
@@ -212,20 +186,13 @@ class TsConfigProviderTest {
     Files.createFile(baseDir.resolve("tsconfig.json"));
 
     SensorContextTester ctx = SensorContextTester.create(baseDir);
-    ctx.setSettings(
-      new MapSettings().setProperty(TSCONFIG_PATHS_ALIAS, "tsconfig.json")
-    );
+    ctx.setSettings(new MapSettings().setProperty(TSCONFIG_PATHS_ALIAS, "tsconfig.json"));
 
-    List<String> tsconfigs = getTsConfigs(
-      new ContextUtils(ctx),
-      this::tsConfigFileCreator
-    );
+    List<String> tsconfigs = getTsConfigs(new ContextUtils(ctx), this::tsConfigFileCreator);
     assertThat(tsconfigs).contains(baseDir.resolve("tsconfig.json").toAbsolutePath().toString());
-    assertThat(logger.logs(LoggerLevel.INFO))
-      .contains(
-        "Resolving TSConfig files using 'tsconfig.json' from property " +
-          TSCONFIG_PATHS_ALIAS
-      );
+    assertThat(logger.logs(LoggerLevel.INFO)).contains(
+      "Resolving TSConfig files using 'tsconfig.json' from property " + TSCONFIG_PATHS_ALIAS
+    );
   }
 
   @Test
@@ -234,16 +201,16 @@ class TsConfigProviderTest {
     createInputFile(ctx, "file1.ts");
     createInputFile(ctx, "file2.ts");
 
-    List<String> tsconfigs = getTsConfigs(
-      new ContextUtils(ctx),
-      this::tsConfigFileCreator
-    );
+    List<String> tsconfigs = getTsConfigs(new ContextUtils(ctx), this::tsConfigFileCreator);
     assertThat(tsconfigs).hasSize(1);
     String tsconfig = Files.readString(Paths.get(tsconfigs.get(0)));
-    assertThat(tsconfig)
-      .isEqualToIgnoringCase(
-        String.format("{\"files\":[\"%s/file1.ts\",\"%s/file2.ts\"],\"compilerOptions\":{\"allowJs\":true,\"noImplicitAny\":true}}", baseDir.toRealPath().toString().replaceAll("[\\\\/]", "/"), baseDir.toRealPath().toString().replaceAll("[\\\\/]", "/"))
-      );
+    assertThat(tsconfig).isEqualToIgnoringCase(
+      String.format(
+        "{\"files\":[\"%s/file1.ts\",\"%s/file2.ts\"],\"compilerOptions\":{\"allowJs\":true,\"noImplicitAny\":true}}",
+        baseDir.toRealPath().toString().replaceAll("[\\\\/]", "/"),
+        baseDir.toRealPath().toString().replaceAll("[\\\\/]", "/")
+      )
+    );
   }
 
   @Test
@@ -274,12 +241,10 @@ class TsConfigProviderTest {
     var tsConfigCache = tsConfigCache();
     initializeTsConfigCache(new ContextUtils(ctx), this::tsConfigFileCreator, tsConfigCache);
 
-    var tsconfigs =
-      new WildcardTsConfigProvider(
-        tsConfigCache,
-        TsConfigProviderTest::createTsConfigFile
-      )
-        .tsconfigs(ctx);
+    var tsconfigs = new WildcardTsConfigProvider(
+      tsConfigCache,
+      TsConfigProviderTest::createTsConfigFile
+    ).tsconfigs(ctx);
     assertThat(tsconfigs).isEqualTo(tsConfigCache.listCachedTsConfigs(TsConfigOrigin.FALLBACK));
   }
 
@@ -307,10 +272,7 @@ class TsConfigProviderTest {
     var fileWriter = mock(TsConfigFileCreator.class);
     when(fileWriter.createTsConfigFile(anyString())).thenThrow(IOException.class);
 
-    var wildcardTsConfigProvider = new WildcardTsConfigProvider(
-      tsConfigCache,
-      fileWriter
-    );
+    var wildcardTsConfigProvider = new WildcardTsConfigProvider(tsConfigCache, fileWriter);
     assertThat(wildcardTsConfigProvider.tsconfigs(ctx)).isEmpty();
   }
 
@@ -334,27 +296,29 @@ class TsConfigProviderTest {
   void should_detect_projects_with_too_many_files() throws IOException {
     logger.setLevel(LoggerLevel.WARN);
     var ctx = SensorContextTester.create(baseDir);
-    ctx.setSettings(
-      new MapSettings().setProperty(WildcardTsConfigProvider.MAX_FILES_PROPERTY, 3)
-    );
+    ctx.setSettings(new MapSettings().setProperty(WildcardTsConfigProvider.MAX_FILES_PROPERTY, 3));
     createInputFile(ctx, "file1.js");
     createInputFile(ctx, "file2.ts");
     createInputFile(ctx, "file3.cjs");
     createInputFile(ctx, "file4.cts");
     var tsConfigCache = tsConfigCache();
     initializeTsConfigCache(new ContextUtils(ctx), this::tsConfigFileCreator, tsConfigCache);
-    assertThat(WildcardTsConfigProvider.isBeyondLimit(ctx, tsConfigCache.getProjectSize())).isTrue();
-    assertThat(logger.logs())
-      .contains(
-        "Turning off type-checking of JavaScript files due to the project size exceeding the limit (3 files)",
-        "This may cause rules dependent on type information to not behave as expected",
-        "Check the list of impacted rules at https://rules.sonarsource.com/javascript/tag/type-dependent",
-        "To turn type-checking back on, increase the \"" + WildcardTsConfigProvider.MAX_FILES_PROPERTY + "\" property value",
-        "Please be aware that this could potentially impact the performance of the analysis"
-      );
+    assertThat(
+      WildcardTsConfigProvider.isBeyondLimit(ctx, tsConfigCache.getProjectSize())
+    ).isTrue();
+    assertThat(logger.logs()).contains(
+      "Turning off type-checking of JavaScript files due to the project size exceeding the limit (3 files)",
+      "This may cause rules dependent on type information to not behave as expected",
+      "Check the list of impacted rules at https://rules.sonarsource.com/javascript/tag/type-dependent",
+      "To turn type-checking back on, increase the \"" +
+      WildcardTsConfigProvider.MAX_FILES_PROPERTY +
+      "\" property value",
+      "Please be aware that this could potentially impact the performance of the analysis"
+    );
   }
 
-  private void createInputFile(SensorContextTester context, String relativePath) throws IOException {
+  private void createInputFile(SensorContextTester context, String relativePath)
+    throws IOException {
     DefaultInputFile inputFile = new TestInputFileBuilder(baseDir.toString(), relativePath)
       .setLanguage("ts")
       .setContents("if (cond)\ndoFoo(); \nelse \ndoFoo();")
