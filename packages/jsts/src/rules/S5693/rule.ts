@@ -175,7 +175,7 @@ function checkSize(
   context: Rule.RuleContext,
   callExpr: estree.CallExpression,
   property?: estree.Property | null,
-  defaultLimit?: number,
+  defaultLimit?: number | null,
   useStandardSizeLimit = false,
 ) {
   if (property) {
@@ -199,7 +199,7 @@ function visitAssignment(context: Rule.RuleContext, assignment: estree.Assignmen
   const formOptions = formidableObjects.get(objectVariable);
   if (formOptions && property === MAX_FILE_SIZE) {
     const rhsValue = getSizeValue(context, assignment.right);
-    if (rhsValue !== undefined) {
+    if (rhsValue) {
       formOptions.maxFileSize = rhsValue;
       formOptions.nodeToReport = assignment;
     } else {
@@ -208,7 +208,7 @@ function visitAssignment(context: Rule.RuleContext, assignment: estree.Assignmen
   }
 }
 
-function getSizeValue(context: Rule.RuleContext, node: estree.Node): number | undefined {
+function getSizeValue(context: Rule.RuleContext, node: estree.Node): number | null {
   const literal = getValueOfExpression(context, node, 'Literal');
   if (literal) {
     if (typeof literal.value === 'number') {
@@ -217,13 +217,13 @@ function getSizeValue(context: Rule.RuleContext, node: estree.Node): number | un
       return parse(literal.value);
     }
   }
-  return undefined;
+  return null;
 }
 
 function report(
   context: Rule.RuleContext,
   nodeToReport: estree.Node,
-  size?: number,
+  size?: number | null,
   useStandardSizeLimit = false,
 ) {
   const { fileUploadSizeLimit, standardSizeLimit } = {
