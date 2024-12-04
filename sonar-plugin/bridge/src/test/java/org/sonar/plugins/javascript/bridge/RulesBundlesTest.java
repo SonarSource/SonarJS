@@ -38,8 +38,9 @@ class RulesBundlesTest {
   @Test
   void test_not_exists() {
     RulesBundle[] missingBundle = { new TestRulesBundle("missing.tgz") };
-    assertThatThrownBy(() -> new RulesBundles(missingBundle))
-      .isInstanceOf(IllegalStateException.class);
+    assertThatThrownBy(() -> new RulesBundles(missingBundle)).isInstanceOf(
+      IllegalStateException.class
+    );
   }
 
   @Test
@@ -55,8 +56,7 @@ class RulesBundlesTest {
     RulesBundles rulesBundles = new RulesBundles(new TestRulesBundle[] { rulesBundle });
     rulesBundles.deploy(tempDir);
     assertThat(logTester.logs(Level.DEBUG)).hasSize(1);
-    assertThat(logTester.logs(Level.DEBUG).get(0))
-      .startsWith("Deploying custom rules bundle");
+    assertThat(logTester.logs(Level.DEBUG).get(0)).startsWith("Deploying custom rules bundle");
     assertThat(logTester.logs(Level.DEBUG).get(0)).contains(filename);
   }
 

@@ -44,8 +44,6 @@ public class S6747 extends Check {
     );
   }
 
-
-
   private static class Config {
 
     List<String> ignore;

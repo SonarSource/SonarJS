@@ -53,8 +53,9 @@ class CacheReporterTest {
     var counter = new AtomicInteger(0);
 
     logTester.setLevel(Level.DEBUG);
-    when(inputFile.toString())
-      .thenAnswer(invocation -> String.format("file-%02d.js", counter.incrementAndGet()));
+    when(inputFile.toString()).thenAnswer(invocation ->
+      String.format("file-%02d.js", counter.incrementAndGet())
+    );
 
     cacheReporter.reset();
     cacheReporter.logAndIncrement(
@@ -86,26 +87,22 @@ class CacheReporterTest {
     cacheReporter.logAndIncrement(createReadAndWrite(), inputFile, null);
     cacheReporter.logReport();
 
-    assertThat(logTester.logs())
-      .containsExactly(
-        "Cache strategy set to 'NO_CACHE' for file 'file-01.js' as the runtime API is not compatible",
-        "Cache strategy set to 'NO_CACHE' for file 'file-02.js' as cache is disabled",
-        "Cache strategy set to 'WRITE_ONLY' for file 'file-03.js' as current analysis requires all files to be analyzed",
-        "Cache strategy set to 'WRITE_ONLY' for file 'file-04.js' as the current file is changed",
-        "Cache strategy set to 'WRITE_ONLY' for file 'file-05.js' as the current file is not cached",
-        "Cache strategy set to 'WRITE_ONLY' for file 'file-06.js' as the cache is corrupted",
-        "Cache strategy set to 'READ_AND_WRITE' for file 'file-07.js'",
-        "Hit the cache for 1 out of 7",
-        "Miss the cache for 6 out of 7: ANALYSIS_MODE_INELIGIBLE [1/7], CACHE_CORRUPTED [1/7], CACHE_DISABLED [1/7], FILE_CHANGED [1/7], " +
-        "FILE_NOT_IN_CACHE [1/7], RUNTIME_API_INCOMPATIBLE [1/7]"
-      );
+    assertThat(logTester.logs()).containsExactly(
+      "Cache strategy set to 'NO_CACHE' for file 'file-01.js' as the runtime API is not compatible",
+      "Cache strategy set to 'NO_CACHE' for file 'file-02.js' as cache is disabled",
+      "Cache strategy set to 'WRITE_ONLY' for file 'file-03.js' as current analysis requires all files to be analyzed",
+      "Cache strategy set to 'WRITE_ONLY' for file 'file-04.js' as the current file is changed",
+      "Cache strategy set to 'WRITE_ONLY' for file 'file-05.js' as the current file is not cached",
+      "Cache strategy set to 'WRITE_ONLY' for file 'file-06.js' as the cache is corrupted",
+      "Cache strategy set to 'READ_AND_WRITE' for file 'file-07.js'",
+      "Hit the cache for 1 out of 7",
+      "Miss the cache for 6 out of 7: ANALYSIS_MODE_INELIGIBLE [1/7], CACHE_CORRUPTED [1/7], CACHE_DISABLED [1/7], FILE_CHANGED [1/7], " +
+      "FILE_NOT_IN_CACHE [1/7], RUNTIME_API_INCOMPATIBLE [1/7]"
+    );
   }
 
   private CacheStrategy createReadAndWrite() {
-    return CacheStrategy.readAndWrite(
-      CacheAnalysis.fromCache(List.of()),
-      createSerialization()
-    );
+    return CacheStrategy.readAndWrite(CacheAnalysis.fromCache(List.of()), createSerialization());
   }
 
   private CacheAnalysisSerialization createSerialization() {

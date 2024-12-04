@@ -61,8 +61,7 @@ class ExternalTSConfigDependencyTest {
           "WARN: At least one tsconfig.json was not found in the project. Please run 'npm install' for a more complete analysis. Check analysis logs for more details."
         )
       )
-    )
-      .hasSize(1);
+    ).hasSize(1);
 
     File rootDrive = PROJECT_DIR;
     while (rootDrive.getParentFile() != null) {
@@ -82,7 +81,6 @@ class ExternalTSConfigDependencyTest {
           "; falling back to an empty configuration."
         )
       )
-    )
-      .hasSize(1);
+    ).hasSize(1);
   }
 }

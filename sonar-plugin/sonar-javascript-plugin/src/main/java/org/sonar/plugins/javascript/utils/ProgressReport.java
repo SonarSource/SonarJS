@@ -17,13 +17,14 @@
 package org.sonar.plugins.javascript.utils;
 
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ProgressReport implements Runnable {
 
   private final long period;
-  private final Logger logger;
+  private final Consumer<String> logger;
   private long count;
   private long currentFileNumber = -1;
   private String currentFilename;
@@ -41,7 +42,7 @@ public class ProgressReport implements Runnable {
    */
   private final AtomicBoolean interrupted = new AtomicBoolean();
 
-  public ProgressReport(String threadName, long period, Logger logger, String adjective) {
+  public ProgressReport(String threadName, long period, Consumer<String> logger, String adjective) {
     interrupted.set(false);
     this.period = period;
     this.logger = logger;
@@ -49,6 +50,10 @@ public class ProgressReport implements Runnable {
     thread = new Thread(this);
     thread.setName(threadName);
     thread.setDaemon(true);
+  }
+
+  public ProgressReport(String threadName, long period, Logger logger, String adjective) {
+    this(threadName, period, logger::info, adjective);
   }
 
   public ProgressReport(String threadName, long period, String adjective) {
@@ -144,9 +149,6 @@ public class ProgressReport implements Runnable {
   }
 
   private void log(String message) {
-    synchronized (logger) {
-      logger.info(message);
-      logger.notifyAll();
-    }
+    logger.accept(message);
   }
 }

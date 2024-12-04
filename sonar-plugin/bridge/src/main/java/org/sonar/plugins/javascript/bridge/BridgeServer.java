@@ -16,6 +16,8 @@
  */
 package org.sonar.plugins.javascript.bridge;
 
+import static org.sonarsource.api.sonarlint.SonarLintSide.INSTANCE;
+
 import java.io.IOException;
 import java.util.List;
 import javax.annotation.Nullable;
@@ -26,15 +28,19 @@ import org.sonar.api.scanner.ScannerSide;
 import org.sonar.plugins.javascript.bridge.protobuf.Node;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
-import static org.sonarsource.api.sonarlint.SonarLintSide.INSTANCE;
-
 @ScannerSide
 @SonarLintSide(lifespan = INSTANCE)
 public interface BridgeServer extends Startable {
   void startServerLazily(BridgeServerConfig context) throws IOException;
 
-  void initLinter(List<EslintRule> rules, List<String> environments, List<String> globals, AnalysisMode analysisMode, String baseDir,
-    List<String> exclusions) throws IOException;
+  void initLinter(
+    List<EslintRule> rules,
+    List<String> environments,
+    List<String> globals,
+    AnalysisMode analysisMode,
+    String baseDir,
+    List<String> exclusions
+  ) throws IOException;
 
   AnalysisResponse analyzeJavaScript(JsAnalysisRequest request) throws IOException;
 
@@ -62,34 +68,68 @@ public interface BridgeServer extends Startable {
 
   TsConfigFile createTsConfigFile(String content) throws IOException;
 
-  record JsAnalysisRequest(String filePath, String fileType, String language, @Nullable String fileContent, boolean ignoreHeaderComments,
-                           @Nullable List<String> tsConfigs, @Nullable String programId, String linterId, boolean skipAst, boolean shouldClearDependenciesCache) {
+  record JsAnalysisRequest(
+    String filePath,
+    String fileType,
+    String language,
+    @Nullable String fileContent,
+    boolean ignoreHeaderComments,
+    @Nullable List<String> tsConfigs,
+    @Nullable String programId,
+    String linterId,
+    boolean skipAst,
+    boolean shouldClearDependenciesCache
+  ) {}
 
-  }
-
-  record CssAnalysisRequest(String filePath, @Nullable String fileContent, List<StylelintRule> rules) {
-  }
+  record CssAnalysisRequest(
+    String filePath,
+    @Nullable String fileContent,
+    List<StylelintRule> rules
+  ) {}
 
   record BridgeResponse(String json, @Nullable Node ast) {
     public BridgeResponse(String json) {
       this(json, null);
     }
   }
-  record AnalysisResponse(@Nullable ParsingError parsingError, List<Issue> issues, List<Highlight> highlights,
-                          List<HighlightedSymbol> highlightedSymbols, Metrics metrics, List<CpdToken> cpdTokens, List<String> ucfgPaths, @Nullable Node ast) {
 
+  record AnalysisResponse(
+    @Nullable ParsingError parsingError,
+    List<Issue> issues,
+    List<Highlight> highlights,
+    List<HighlightedSymbol> highlightedSymbols,
+    Metrics metrics,
+    List<CpdToken> cpdTokens,
+    List<String> ucfgPaths,
+    @Nullable Node ast
+  ) {
     public AnalysisResponse(AnalysisResponse response, @Nullable Node ast) {
-      this(response.parsingError, response.issues, response.highlights, response.highlightedSymbols,
-           response.metrics, response.cpdTokens, response.ucfgPaths, ast);
+      this(
+        response.parsingError,
+        response.issues,
+        response.highlights,
+        response.highlightedSymbols,
+        response.metrics,
+        response.cpdTokens,
+        response.ucfgPaths,
+        ast
+      );
     }
 
     public AnalysisResponse() {
       this(null, List.of(), List.of(), List.of(), new Metrics(), List.of(), List.of(), null);
     }
 
-    public AnalysisResponse(@Nullable ParsingError parsingError, @Nullable List<Issue> issues, @Nullable List<Highlight> highlights,
-                            @Nullable List<HighlightedSymbol> highlightedSymbols, @Nullable Metrics metrics,
-                            @Nullable List<CpdToken> cpdTokens, List<String> ucfgPaths, @Nullable Node ast) {
+    public AnalysisResponse(
+      @Nullable ParsingError parsingError,
+      @Nullable List<Issue> issues,
+      @Nullable List<Highlight> highlights,
+      @Nullable List<HighlightedSymbol> highlightedSymbols,
+      @Nullable Metrics metrics,
+      @Nullable List<CpdToken> cpdTokens,
+      List<String> ucfgPaths,
+      @Nullable Node ast
+    ) {
       this.parsingError = parsingError;
       this.issues = issues != null ? issues : List.of();
       this.highlights = highlights != null ? highlights : List.of();
@@ -101,42 +141,43 @@ public interface BridgeServer extends Startable {
     }
   }
 
-  record ParsingError(String message, Integer line, ParsingErrorCode code) {
-  }
+  record ParsingError(String message, Integer line, ParsingErrorCode code) {}
 
   enum ParsingErrorCode {
-    PARSING, FAILING_TYPESCRIPT, GENERAL_ERROR,
+    PARSING,
+    FAILING_TYPESCRIPT,
+    GENERAL_ERROR,
   }
 
-  record Issue(Integer line, Integer column, Integer endLine, Integer endColumn, String message, String ruleId,
-               List<IssueLocation> secondaryLocations, Double cost, List<QuickFix> quickFixes) {
-  }
+  record Issue(
+    Integer line,
+    Integer column,
+    Integer endLine,
+    Integer endColumn,
+    String message,
+    String ruleId,
+    List<IssueLocation> secondaryLocations,
+    Double cost,
+    List<QuickFix> quickFixes
+  ) {}
 
-  record QuickFix(String message, List<QuickFixEdit> edits) {
-  }
+  record QuickFix(String message, List<QuickFixEdit> edits) {}
 
-  record QuickFixEdit(String text, IssueLocation loc) {
-  }
+  record QuickFixEdit(String text, IssueLocation loc) {}
 
   record IssueLocation(
+    Integer line,
+    Integer column,
+    Integer endLine,
+    Integer endColumn,
+    String message
+  ) {}
 
-    Integer line, Integer column, Integer endLine, Integer endColumn, String message) {
-  }
+  record Highlight(Location location, String textType) {}
 
-  record Highlight(
+  record HighlightedSymbol(Location declaration, List<Location> references) {}
 
-    Location location, String textType) {
-  }
-
-  record HighlightedSymbol(
-
-    Location declaration, List<Location> references) {
-  }
-
-  record Location(
-
-    int startLine, int startCol, int endLine, int endCol) {
-
+  record Location(int startLine, int startCol, int endLine, int endCol) {
     public TextRange toTextRange(InputFile inputFile) {
       return inputFile.newRange(this.startLine, this.startCol, this.endLine, this.endCol);
     }
@@ -148,18 +189,22 @@ public interface BridgeServer extends Startable {
   }
 
   record Metrics(
-
-    List<Integer> ncloc, List<Integer> commentLines, List<Integer> nosonarLines, List<Integer> executableLines, int functions,
-    int statements, int classes, int complexity, int cognitiveComplexity) {
+    List<Integer> ncloc,
+    List<Integer> commentLines,
+    List<Integer> nosonarLines,
+    List<Integer> executableLines,
+    int functions,
+    int statements,
+    int classes,
+    int complexity,
+    int cognitiveComplexity
+  ) {
     public Metrics() {
       this(List.of(), List.of(), List.of(), List.of(), 0, 0, 0, 0, 0);
     }
   }
 
-  record CpdToken(
-
-    Location location, String image) {
-  }
+  record CpdToken(Location location, String image) {}
 
   class TsConfigResponse {
 
@@ -168,7 +213,12 @@ public interface BridgeServer extends Startable {
     final String error;
     final ParsingErrorCode errorCode;
 
-    TsConfigResponse(List<String> files, List<String> projectReferences, @Nullable String error, @Nullable ParsingErrorCode errorCode) {
+    TsConfigResponse(
+      List<String> files,
+      List<String> projectReferences,
+      @Nullable String error,
+      @Nullable ParsingErrorCode errorCode
+    ) {
       this.files = files;
       this.projectReferences = projectReferences;
       this.error = error;
@@ -177,14 +227,26 @@ public interface BridgeServer extends Startable {
   }
 
   record TsProgram(
-    @Nullable String programId, @Nullable List<String> files, @Nullable List<String> projectReferences, boolean missingTsConfig,
-    @Nullable String error) {
-
-    public TsProgram(String programId, @Nullable List<String> files, @Nullable List<String> projectReferences) {
+    @Nullable String programId,
+    @Nullable List<String> files,
+    @Nullable List<String> projectReferences,
+    boolean missingTsConfig,
+    @Nullable String error
+  ) {
+    public TsProgram(
+      String programId,
+      @Nullable List<String> files,
+      @Nullable List<String> projectReferences
+    ) {
       this(programId, files, projectReferences, false, null);
     }
 
-    public TsProgram(String programId, List<String> files, List<String> projectReferences, boolean missingTsConfig) {
+    public TsProgram(
+      String programId,
+      List<String> files,
+      List<String> projectReferences,
+      boolean missingTsConfig
+    ) {
       this(programId, files, projectReferences, missingTsConfig, null);
     }
 
@@ -195,13 +257,22 @@ public interface BridgeServer extends Startable {
     @Override
     public String toString() {
       if (error == null) {
-        return ("TsProgram{" + "programId='" + programId + '\'' + ", files=" + files + ", projectReferences=" + projectReferences + '}');
+        return (
+          "TsProgram{" +
+          "programId='" +
+          programId +
+          '\'' +
+          ", files=" +
+          files +
+          ", projectReferences=" +
+          projectReferences +
+          '}'
+        );
       } else {
         return "TsProgram{ error='" + error + "'}";
       }
     }
   }
 
-  record TsProgramRequest(String tsConfig) {
-  }
+  record TsProgramRequest(String tsConfig) {}
 }

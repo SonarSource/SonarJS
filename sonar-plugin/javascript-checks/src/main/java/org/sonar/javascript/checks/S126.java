@@ -26,7 +26,4 @@ import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 @TypeScriptRule
 @DeprecatedRuleKey(ruleKey = "ElseIfWithoutElse")
 @Rule(key = "S126")
-public class S126 extends Check {
-
-  
-}
+public class S126 extends Check {}

@@ -73,8 +73,7 @@ class TypeScriptRulesDefinitionTest {
   void compatibleLanguagesInJson() {
     List<Class<? extends JavaScriptCheck>> typeScriptChecks = CheckList.getTypeScriptChecks();
     List<Class<? extends JavaScriptCheck>> javaScriptChecks = CheckList.getJavaScriptChecks();
-    CheckList
-      .getAllChecks()
+    CheckList.getAllChecks()
       .forEach(c -> {
         boolean isTypeScriptCheck = typeScriptChecks.contains(c);
         boolean isJavaScriptCheck = javaScriptChecks.contains(c);
@@ -97,8 +96,7 @@ class TypeScriptRulesDefinitionTest {
 
   @Test
   void sqKeyInJson() {
-    CheckList
-      .getAllChecks()
+    CheckList.getAllChecks()
       .forEach(c -> {
         Annotation ruleAnnotation = c.getAnnotation(org.sonar.check.Rule.class);
         String key = ((org.sonar.check.Rule) ruleAnnotation).key();
@@ -131,10 +129,9 @@ class TypeScriptRulesDefinitionTest {
   private void assertRuleProperties(Repository repository) {
     Rule rule = repository.rule("S3923");
     assertThat(rule).isNotNull();
-    assertThat(rule.name())
-      .isEqualTo(
-        "All branches in a conditional structure should not have exactly the same implementation"
-      );
+    assertThat(rule.name()).isEqualTo(
+      "All branches in a conditional structure should not have exactly the same implementation"
+    );
     assertThat(rule.debtRemediationFunction().type()).isEqualTo(Type.CONSTANT_ISSUE);
     assertThat(rule.type()).isEqualTo(RuleType.BUG);
     assertThat(repository.rule("S124").template()).isTrue();

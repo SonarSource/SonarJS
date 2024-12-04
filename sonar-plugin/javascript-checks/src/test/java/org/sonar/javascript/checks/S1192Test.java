@@ -27,8 +27,9 @@ class S1192Test {
   void configurations() {
     // default configuration
     String configAsString = new Gson().toJson(new S1192().configurations());
-    assertThat(configAsString)
-      .isEqualTo("[{\"threshold\":3,\"ignoreStrings\":\"application/json\"}]");
+    assertThat(configAsString).isEqualTo(
+      "[{\"threshold\":3,\"ignoreStrings\":\"application/json\"}]"
+    );
     // custom configuration
     S1192 noDuplicateStringCheck = new S1192();
     noDuplicateStringCheck.threshold = 10;

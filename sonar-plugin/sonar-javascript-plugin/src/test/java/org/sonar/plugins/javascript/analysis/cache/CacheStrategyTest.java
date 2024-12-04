@@ -109,52 +109,46 @@ class CacheStrategyTest {
     inputFile = mock(InputFile.class);
     var testFile = createFile(baseDir.resolve("src/test.js"));
     when(inputFile.uri()).thenReturn(testFile.toUri());
-    when(inputFile.key())
-      .thenReturn(baseDir.relativize(testFile).toString().replace(File.separator, "/"));
+    when(inputFile.key()).thenReturn(
+      baseDir.relativize(testFile).toString().replace(File.separator, "/")
+    );
     doReturn("Hello World!").when(inputFile).contents();
     when(inputFile.charset()).thenReturn(StandardCharsets.UTF_8);
 
     previousCache = mock(ReadCache.class);
     nextCache = mock(WriteCache.class);
     context = mock(SensorContext.class);
-    serialization =
-      new CacheAnalysisSerialization(context, CacheKey.forFile(inputFile, PLUGIN_VERSION));
+    serialization = new CacheAnalysisSerialization(
+      context,
+      CacheKey.forFile(inputFile, PLUGIN_VERSION)
+    );
 
-    jsonCacheKey =
-      CacheKey
-        .forFile(inputFile, PLUGIN_VERSION)
-        .forUcfg()
-        .withPrefix(UCFGFilesSerialization.JSON_PREFIX)
-        .toString();
-    seqCacheKey =
-      CacheKey
-        .forFile(inputFile, PLUGIN_VERSION)
-        .forUcfg()
-        .withPrefix(UCFGFilesSerialization.SEQ_PREFIX)
-        .toString();
-    cpdDataCacheKey =
-      CacheKey
-        .forFile(inputFile, PLUGIN_VERSION)
-        .forCpd()
-        .withPrefix(CpdSerialization.DATA_PREFIX)
-        .toString();
-    cpdStringTableCacheKey =
-      CacheKey
-        .forFile(inputFile, PLUGIN_VERSION)
-        .forCpd()
-        .withPrefix(CpdSerialization.STRING_TABLE_PREFIX)
-        .toString();
+    jsonCacheKey = CacheKey.forFile(inputFile, PLUGIN_VERSION)
+      .forUcfg()
+      .withPrefix(UCFGFilesSerialization.JSON_PREFIX)
+      .toString();
+    seqCacheKey = CacheKey.forFile(inputFile, PLUGIN_VERSION)
+      .forUcfg()
+      .withPrefix(UCFGFilesSerialization.SEQ_PREFIX)
+      .toString();
+    cpdDataCacheKey = CacheKey.forFile(inputFile, PLUGIN_VERSION)
+      .forCpd()
+      .withPrefix(CpdSerialization.DATA_PREFIX)
+      .toString();
+    cpdStringTableCacheKey = CacheKey.forFile(inputFile, PLUGIN_VERSION)
+      .forCpd()
+      .withPrefix(CpdSerialization.STRING_TABLE_PREFIX)
+      .toString();
     metadataCacheKey = CacheKey.forFile(inputFile, PLUGIN_VERSION).forFileMetadata().toString();
 
     when(context.getSonarQubeVersion()).thenReturn(Version.create(9, 6));
-    when(context.runtime())
-      .thenReturn(
-        SonarRuntimeImpl.forSonarQube(
-          Version.create(9, 6),
-          SonarQubeSide.SCANNER,
-          SonarEdition.ENTERPRISE
-        )
-      );
+    when(context.runtime()).thenReturn(
+      SonarRuntimeImpl.forSonarQube(
+        Version.create(9, 6),
+        SonarQubeSide.SCANNER,
+        SonarEdition.ENTERPRISE
+      )
+    );
     when(context.previousCache()).thenReturn(previousCache);
     when(context.nextCache()).thenReturn(nextCache);
     when(context.fileSystem()).thenReturn(fileSystem);
@@ -168,12 +162,10 @@ class CacheStrategyTest {
   void should_generate_cache_keys() {
     assertThat(
       CacheKey.forFile(inputFile, null).forUcfg().withPrefix(UCFGFilesSerialization.JSON_PREFIX)
-    )
-      .hasToString("jssecurity:ucfgs:JSON:src/test.js");
+    ).hasToString("jssecurity:ucfgs:JSON:src/test.js");
     assertThat(
       CacheKey.forFile(inputFile, null).forUcfg().withPrefix(UCFGFilesSerialization.SEQ_PREFIX)
-    )
-      .hasToString("jssecurity:ucfgs:SEQ:src/test.js");
+    ).hasToString("jssecurity:ucfgs:SEQ:src/test.js");
     assertThat(jsonCacheKey).isEqualTo("jssecurity:ucfgs:JSON:1.0.0:src/test.js");
     assertThat(seqCacheKey).isEqualTo("jssecurity:ucfgs:SEQ:1.0.0:src/test.js");
     assertThat(cpdDataCacheKey).isEqualTo("js:cpd:DATA:1.0.0:src/test.js");
@@ -183,14 +175,13 @@ class CacheStrategyTest {
   @Test
   void should_not_fail_on_older_versions() throws Exception {
     when(context.getSonarQubeVersion()).thenReturn(Version.create(9, 3));
-    when(context.runtime())
-      .thenReturn(
-        SonarRuntimeImpl.forSonarQube(
-          Version.create(9, 3),
-          SonarQubeSide.SCANNER,
-          SonarEdition.ENTERPRISE
-        )
-      );
+    when(context.runtime()).thenReturn(
+      SonarRuntimeImpl.forSonarQube(
+        Version.create(9, 3),
+        SonarQubeSide.SCANNER,
+        SonarEdition.ENTERPRISE
+      )
+    );
 
     var strategy = CacheStrategies.getStrategyFor(context, inputFile, PLUGIN_VERSION);
     assertThat(strategy.getName()).isEqualTo(CacheStrategy.NO_CACHE);
@@ -229,10 +220,7 @@ class CacheStrategyTest {
     assertThat(strategy.getName()).isEqualTo(CacheStrategy.WRITE_ONLY);
     assertThat(strategy.isAnalysisRequired()).isTrue();
 
-    strategy.writeAnalysisToCache(
-      new CacheAnalysis(ucfgFiles, CPD_TOKENS),
-      inputFile
-    );
+    strategy.writeAnalysisToCache(new CacheAnalysis(ucfgFiles, CPD_TOKENS), inputFile);
 
     var sequenceCaptor = ArgumentCaptor.forClass(InputStream.class);
     verify(nextCache).write(eq(seqCacheKey), sequenceCaptor.capture());
@@ -281,12 +269,10 @@ class CacheStrategyTest {
     assertThat(strategy.isAnalysisRequired()).isTrue();
 
     var generatedFiles = List.of("inexistent.ucfg");
-    var cacheAnalysis = new CacheAnalysis(
-      generatedFiles,
-      CPD_TOKENS
+    var cacheAnalysis = new CacheAnalysis(generatedFiles, CPD_TOKENS);
+    assertThatThrownBy(() -> strategy.writeAnalysisToCache(cacheAnalysis, inputFile)).isInstanceOf(
+      UncheckedIOException.class
     );
-    assertThatThrownBy(() -> strategy.writeAnalysisToCache(cacheAnalysis, inputFile))
-      .isInstanceOf(UncheckedIOException.class);
     verify(nextCache, never()).write(eq(jsonCacheKey), any(byte[].class));
     verify(nextCache, never()).write(eq(seqCacheKey), any(InputStream.class));
     verify(nextCache, never()).write(eq(cpdDataCacheKey), any(byte[].class));
@@ -300,20 +286,20 @@ class CacheStrategyTest {
     when(previousCache.contains(anyString())).thenReturn(false);
 
     doAnswer(invocation -> {
-        var inputStream = invocation.getArgument(1, InputStream.class);
-        try (var counting = new CountingInputStream(inputStream)) {
-          counting.transferTo(OutputStream.nullOutputStream());
-          assertThat(counting.getBytesRead()).isZero();
-        }
-        return null;
-      })
+      var inputStream = invocation.getArgument(1, InputStream.class);
+      try (var counting = new CountingInputStream(inputStream)) {
+        counting.transferTo(OutputStream.nullOutputStream());
+        assertThat(counting.getBytesRead()).isZero();
+      }
+      return null;
+    })
       .when(nextCache)
       .write(eq(seqCacheKey), any(InputStream.class));
     doAnswer(invocation -> {
-        var bytes = invocation.getArgument(1, byte[].class);
-        assertThat(new String(bytes, StandardCharsets.UTF_8)).isEqualTo("{\"fileSizes\":[]}");
-        return null;
-      })
+      var bytes = invocation.getArgument(1, byte[].class);
+      assertThat(new String(bytes, StandardCharsets.UTF_8)).isEqualTo("{\"fileSizes\":[]}");
+      return null;
+    })
       .when(nextCache)
       .write(eq(jsonCacheKey), any(byte[].class));
 
@@ -323,10 +309,7 @@ class CacheStrategyTest {
     assertThat(strategy.getName()).isEqualTo(CacheStrategy.WRITE_ONLY);
     assertThat(strategy.isAnalysisRequired()).isTrue();
 
-    strategy.writeAnalysisToCache(
-      CacheAnalysis.fromResponse(null, CPD_TOKENS),
-      inputFile
-    );
+    strategy.writeAnalysisToCache(CacheAnalysis.fromResponse(null, CPD_TOKENS), inputFile);
     verify(nextCache).write(eq(jsonCacheKey), any(byte[].class));
     verify(nextCache).write(eq(seqCacheKey), any(InputStream.class));
     verify(nextCache).write(eq(cpdDataCacheKey), any(byte[].class));
@@ -365,10 +348,7 @@ class CacheStrategyTest {
       .map(workDir::resolve)
       .map(Path::toString)
       .toList();
-    strategy.writeAnalysisToCache(
-      new CacheAnalysis(ucfgPaths, CPD_TOKENS),
-      inputFile
-    );
+    strategy.writeAnalysisToCache(new CacheAnalysis(ucfgPaths, CPD_TOKENS), inputFile);
     verify(nextCache).write(eq(jsonCacheKey), any(byte[].class));
     verify(nextCache).write(eq(seqCacheKey), any(InputStream.class));
     verify(nextCache).write(eq(cpdDataCacheKey), any(byte[].class));
@@ -426,8 +406,9 @@ class CacheStrategyTest {
     when(inputFile.status()).thenReturn(InputFile.Status.SAME);
     when(context.canSkipUnchangedFiles()).thenReturn(true);
     when(previousCache.read(cpdDataCacheKey)).thenReturn(inputStream("invalid-cpd-data"));
-    when(previousCache.read(cpdStringTableCacheKey))
-      .thenReturn(inputStream("invalid-cpd-stringTable"));
+    when(previousCache.read(cpdStringTableCacheKey)).thenReturn(
+      inputStream("invalid-cpd-stringTable")
+    );
 
     var strategy = CacheStrategies.getStrategyFor(context, inputFile, PLUGIN_VERSION);
     assertThat(strategy.getName()).isEqualTo(CacheStrategy.WRITE_ONLY);
@@ -453,33 +434,31 @@ class CacheStrategyTest {
     when(context.canSkipUnchangedFiles()).thenReturn(true);
 
     var serializationResult = CpdSerializer.toBinary(new CpdData(emptyList()));
-    when(previousCache.read(cpdDataCacheKey))
-      .thenReturn(inputStream(serializationResult.getData()));
-    when(previousCache.read(cpdStringTableCacheKey))
-      .thenReturn(inputStream(serializationResult.getStringTable()));
+    when(previousCache.read(cpdDataCacheKey)).thenReturn(
+      inputStream(serializationResult.getData())
+    );
+    when(previousCache.read(cpdStringTableCacheKey)).thenReturn(
+      inputStream(serializationResult.getStringTable())
+    );
 
     var strategy = CacheStrategies.getStrategyFor(context, inputFile, pluginVersion);
     assertThat(strategy.getName()).isEqualTo(CacheStrategy.WRITE_ONLY);
     assertThat(strategy.isAnalysisRequired()).isTrue();
 
     var metadataCacheKey = CacheKey.forFile(inputFile, pluginVersion).forFileMetadata().toString();
-    var jsonCacheKey = CacheKey
-      .forFile(inputFile, pluginVersion)
+    var jsonCacheKey = CacheKey.forFile(inputFile, pluginVersion)
       .forUcfg()
       .withPrefix(UCFGFilesSerialization.JSON_PREFIX)
       .toString();
-    var seqCacheKey = CacheKey
-      .forFile(inputFile, pluginVersion)
+    var seqCacheKey = CacheKey.forFile(inputFile, pluginVersion)
       .forUcfg()
       .withPrefix(UCFGFilesSerialization.SEQ_PREFIX)
       .toString();
-    var cpdDataCacheKey = CacheKey
-      .forFile(inputFile, pluginVersion)
+    var cpdDataCacheKey = CacheKey.forFile(inputFile, pluginVersion)
       .forCpd()
       .withPrefix(CpdSerialization.DATA_PREFIX)
       .toString();
-    var cpdStringTableCacheKey = CacheKey
-      .forFile(inputFile, pluginVersion)
+    var cpdStringTableCacheKey = CacheKey.forFile(inputFile, pluginVersion)
       .forCpd()
       .withPrefix(CpdSerialization.STRING_TABLE_PREFIX)
       .toString();
@@ -523,8 +502,9 @@ class CacheStrategyTest {
 
     when(inputFile.status()).thenReturn(InputFile.Status.SAME);
 
-    when(previousCache.read(seqCacheKey))
-      .thenReturn(new InfiniteCircularInputStream(new byte[] { 32 }));
+    when(previousCache.read(seqCacheKey)).thenReturn(
+      new InfiniteCircularInputStream(new byte[] { 32 })
+    );
     when(context.canSkipUnchangedFiles()).thenReturn(true);
 
     var strategy = CacheStrategies.getStrategyFor(context, inputFile, PLUGIN_VERSION);
@@ -562,10 +542,7 @@ class CacheStrategyTest {
       .map(workDir::resolve)
       .map(Path::toString)
       .toList();
-    strategy.writeAnalysisToCache(
-      new CacheAnalysis(ucfgPaths, CPD_TOKENS),
-      inputFile
-    );
+    strategy.writeAnalysisToCache(new CacheAnalysis(ucfgPaths, CPD_TOKENS), inputFile);
     verify(nextCache).write(eq(jsonCacheKey), any(byte[].class));
     verify(nextCache).write(eq(seqCacheKey), any(InputStream.class));
     verify(nextCache).write(eq(cpdDataCacheKey), any(byte[].class));
@@ -602,10 +579,7 @@ class CacheStrategyTest {
       .map(workDir::resolve)
       .map(Path::toString)
       .toList();
-    strategy.writeAnalysisToCache(
-      new CacheAnalysis(ucfgPaths, CPD_TOKENS),
-      inputFile
-    );
+    strategy.writeAnalysisToCache(new CacheAnalysis(ucfgPaths, CPD_TOKENS), inputFile);
     verify(nextCache).write(eq(jsonCacheKey), any(byte[].class));
     verify(nextCache).write(eq(seqCacheKey), any(InputStream.class));
     verify(nextCache).write(eq(cpdDataCacheKey), any(byte[].class));
@@ -621,22 +595,20 @@ class CacheStrategyTest {
         inputFile,
         "this is a test"
       )
-    )
-      .isEqualTo("Cache strategy set to 'READ_AND_WRITE' for file 'test.js' as this is a test");
-    assertThat(CacheStrategies.getLogMessage(writeOnly(serialization), inputFile, null))
-      .isEqualTo("Cache strategy set to 'WRITE_ONLY' for file 'test.js'");
+    ).isEqualTo("Cache strategy set to 'READ_AND_WRITE' for file 'test.js' as this is a test");
+    assertThat(CacheStrategies.getLogMessage(writeOnly(serialization), inputFile, null)).isEqualTo(
+      "Cache strategy set to 'WRITE_ONLY' for file 'test.js'"
+    );
   }
 
   @Test
   void should_iterate_files() {
     var ucfgFiles = createUcfgFiles(tempDir).stream().map(tempDir::resolve).toList();
     var iterator = new FileIterator(ucfgFiles);
-    IntStream
-      .range(0, ucfgFiles.size())
-      .forEach(i -> {
-        assertThat(iterator.hasNext()).isTrue();
-        assertThat(iterator.next()).isNotNull();
-      });
+    IntStream.range(0, ucfgFiles.size()).forEach(i -> {
+      assertThat(iterator.hasNext()).isTrue();
+      assertThat(iterator.next()).isNotNull();
+    });
     assertThatThrownBy(iterator::next).isInstanceOf(NoSuchElementException.class);
   }
 
@@ -644,8 +616,7 @@ class CacheStrategyTest {
   void should_check_file_hash() throws Exception {
     when(context.canSkipUnchangedFiles()).thenReturn(true);
 
-    var inputFile = TestInputFileBuilder
-      .create("dir", "file.ts")
+    var inputFile = TestInputFileBuilder.create("dir", "file.ts")
       .setContents("abc")
       .setCharset(StandardCharsets.UTF_8)
       .build();
@@ -661,14 +632,16 @@ class CacheStrategyTest {
 
     reset(previousCache);
     when(previousCache.contains(metadataKey)).thenReturn(true);
-    when(previousCache.read(metadataKey))
-      .thenReturn(inputStream(new Gson().toJson(FileMetadata.from(inputFile))));
+    when(previousCache.read(metadataKey)).thenReturn(
+      inputStream(new Gson().toJson(FileMetadata.from(inputFile)))
+    );
     CacheStrategies.getStrategyFor(context, inputFile, pluginVersion);
 
     verify(previousCache).contains(metadataKey);
     verify(previousCache).read(metadataKey);
-    verify(previousCache)
-      .contains(cacheKey.forUcfg().withPrefix(UCFGFilesSerialization.JSON_PREFIX).toString());
+    verify(previousCache).contains(
+      cacheKey.forUcfg().withPrefix(UCFGFilesSerialization.JSON_PREFIX).toString()
+    );
   }
 
   private String readFile(Path file) {
@@ -692,27 +665,24 @@ class CacheStrategyTest {
 
     var tempCache = mock(WriteCache.class);
     doAnswer(invocation -> {
-        var input = invocation.getArgument(1, InputStream.class);
-        Files.copy(input, binFile, StandardCopyOption.REPLACE_EXISTING);
-        return null;
-      })
+      var input = invocation.getArgument(1, InputStream.class);
+      Files.copy(input, binFile, StandardCopyOption.REPLACE_EXISTING);
+      return null;
+    })
       .when(tempCache)
       .write(eq(seqCacheKey), any(InputStream.class));
     doAnswer(invocation -> {
-        var bytes = invocation.getArgument(1, byte[].class);
-        Files.deleteIfExists(jsonFile);
-        Files.write(jsonFile, bytes);
-        return null;
-      })
+      var bytes = invocation.getArgument(1, byte[].class);
+      Files.deleteIfExists(jsonFile);
+      Files.write(jsonFile, bytes);
+      return null;
+    })
       .when(tempCache)
       .write(eq(jsonCacheKey), any(byte[].class));
 
     when(fileSystem.workDir()).thenReturn(tempDir.toFile());
     when(context.nextCache()).thenReturn(tempCache);
-    serialization.writeToCache(
-      CacheAnalysis.fromResponse(ucfgFiles, List.of()),
-      inputFile
-    );
+    serialization.writeToCache(CacheAnalysis.fromResponse(ucfgFiles, List.of()), inputFile);
     when(fileSystem.workDir()).thenReturn(workDir.toFile());
     when(context.nextCache()).thenReturn(nextCache);
 
@@ -720,10 +690,12 @@ class CacheStrategyTest {
     when(previousCache.read(seqCacheKey)).thenReturn(inputStream(binFile));
 
     var serializationResult = CpdSerializer.toBinary(new CpdData(CPD_TOKENS));
-    when(previousCache.read(cpdDataCacheKey))
-      .thenReturn(inputStream(serializationResult.getData()));
-    when(previousCache.read(cpdStringTableCacheKey))
-      .thenReturn(inputStream(serializationResult.getStringTable()));
+    when(previousCache.read(cpdDataCacheKey)).thenReturn(
+      inputStream(serializationResult.getData())
+    );
+    when(previousCache.read(cpdStringTableCacheKey)).thenReturn(
+      inputStream(serializationResult.getStringTable())
+    );
     when(previousCache.contains(jsonCacheKey)).thenReturn(true);
     when(previousCache.contains(seqCacheKey)).thenReturn(true);
     when(previousCache.contains(cpdDataCacheKey)).thenReturn(true);

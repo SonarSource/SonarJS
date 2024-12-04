@@ -26,7 +26,4 @@ import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 @TypeScriptRule
 @Rule(key = "S1774")
 @DeprecatedRuleKey(ruleKey = "ConditionalOperator")
-public class S1774 extends Check {
-
-  
-}
+public class S1774 extends Check {}

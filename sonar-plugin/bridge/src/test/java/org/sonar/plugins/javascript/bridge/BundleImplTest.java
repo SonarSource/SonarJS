@@ -48,4 +48,14 @@ class BundleImplTest {
     bundle.deploy(deployLocation);
     // no exception expected
   }
+
+  @Test
+  void should_save_deploy_location() {
+    BundleImpl bundle = new BundleImpl();
+    bundle.setDeployLocation(deployLocation);
+    String scriptPath = bundle.startServerScript();
+    assertThat(scriptPath).isEqualTo(
+      deployLocation.resolve(BundleImpl.DEFAULT_STARTUP_SCRIPT).toString()
+    );
+  }
 }

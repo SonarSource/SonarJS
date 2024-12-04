@@ -16,6 +16,12 @@
  */
 package org.sonar.plugins.javascript;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.plugins.javascript.JavaScriptProfilesDefinition.SECURITY_RULE_KEYS_METHOD_NAME;
+import static org.sonar.plugins.javascript.JavaScriptProfilesDefinition.SONAR_SECURITY_RULES_CLASS_NAME;
+import static org.sonar.plugins.javascript.JavaScriptProfilesDefinition.SONAR_WAY_JSON;
+import static org.sonar.plugins.javascript.JavaScriptProfilesDefinition.getSecurityRuleKeys;
+
 import com.sonar.plugins.security.api.JsRules;
 import java.lang.annotation.Annotation;
 import java.util.List;
@@ -37,12 +43,6 @@ import org.sonar.plugins.javascript.rules.JavaScriptRulesDefinition;
 import org.sonar.plugins.javascript.rules.TypeScriptRulesDefinition;
 import org.sonarsource.analyzer.commons.BuiltInQualityProfileJsonLoader;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.plugins.javascript.JavaScriptProfilesDefinition.SECURITY_RULE_KEYS_METHOD_NAME;
-import static org.sonar.plugins.javascript.JavaScriptProfilesDefinition.SONAR_SECURITY_RULES_CLASS_NAME;
-import static org.sonar.plugins.javascript.JavaScriptProfilesDefinition.SONAR_WAY_JSON;
-import static org.sonar.plugins.javascript.JavaScriptProfilesDefinition.getSecurityRuleKeys;
-
 class JavaScriptProfilesDefinitionTest {
 
   private static final SonarRuntime sonarRuntime = SonarRuntimeImpl.forSonarLint(
@@ -50,16 +50,20 @@ class JavaScriptProfilesDefinitionTest {
   );
   private final BuiltInQualityProfilesDefinition.Context context =
     new BuiltInQualityProfilesDefinition.Context();
-  private final Set<String> deprecatedJsRules = TestUtils
-    .buildRepository("javascript", new JavaScriptRulesDefinition(sonarRuntime))
+  private final Set<String> deprecatedJsRules = TestUtils.buildRepository(
+    "javascript",
+    new JavaScriptRulesDefinition(sonarRuntime)
+  )
     .rules()
     .stream()
     .filter(r -> r.status() == RuleStatus.DEPRECATED)
     .map(RulesDefinition.Rule::key)
     .collect(Collectors.toSet());
 
-  private final Set<String> deprecatedTsRules = TestUtils
-    .buildRepository("typescript", new TypeScriptRulesDefinition(sonarRuntime))
+  private final Set<String> deprecatedTsRules = TestUtils.buildRepository(
+    "typescript",
+    new TypeScriptRulesDefinition(sonarRuntime)
+  )
     .rules()
     .stream()
     .filter(r -> r.status() == RuleStatus.DEPRECATED)
@@ -118,8 +122,7 @@ class JavaScriptProfilesDefinitionTest {
 
   @Test
   void no_legacy_Key_in_profile_json() {
-    Set<String> allKeys = CheckList
-      .getAllChecks()
+    Set<String> allKeys = CheckList.getAllChecks()
       .stream()
       .map(c -> {
         Annotation ruleAnnotation = c.getAnnotation(Rule.class);
@@ -137,20 +140,24 @@ class JavaScriptProfilesDefinitionTest {
   @Test
   void should_contains_security_rules_if_available() {
     // no security rule available
-    assertThat(getSecurityRuleKeys(SONAR_SECURITY_RULES_CLASS_NAME, SECURITY_RULE_KEYS_METHOD_NAME, "js"))
-      .isEmpty();
+    assertThat(
+      getSecurityRuleKeys(SONAR_SECURITY_RULES_CLASS_NAME, SECURITY_RULE_KEYS_METHOD_NAME, "js")
+    ).isEmpty();
 
-    assertThat(getSecurityRuleKeys(SONAR_SECURITY_RULES_CLASS_NAME, SECURITY_RULE_KEYS_METHOD_NAME, "ts"))
-      .isEmpty();
+    assertThat(
+      getSecurityRuleKeys(SONAR_SECURITY_RULES_CLASS_NAME, SECURITY_RULE_KEYS_METHOD_NAME, "ts")
+    ).isEmpty();
 
     JsRules.JS_RULES.add(RuleKey.parse("jssecurity:S3649"));
     // one security rule available
-    assertThat(getSecurityRuleKeys(SONAR_SECURITY_RULES_CLASS_NAME, SECURITY_RULE_KEYS_METHOD_NAME, "js"))
-      .containsOnly(RuleKey.of("jssecurity", "S3649"));
+    assertThat(
+      getSecurityRuleKeys(SONAR_SECURITY_RULES_CLASS_NAME, SECURITY_RULE_KEYS_METHOD_NAME, "js")
+    ).containsOnly(RuleKey.of("jssecurity", "S3649"));
 
     JsRules.TS_RULES.add(RuleKey.parse("tssecurity:S3649"));
-    assertThat(getSecurityRuleKeys(SONAR_SECURITY_RULES_CLASS_NAME, SECURITY_RULE_KEYS_METHOD_NAME, "ts"))
-      .containsOnly(RuleKey.of("tssecurity", "S3649"));
+    assertThat(
+      getSecurityRuleKeys(SONAR_SECURITY_RULES_CLASS_NAME, SECURITY_RULE_KEYS_METHOD_NAME, "ts")
+    ).containsOnly(RuleKey.of("tssecurity", "S3649"));
 
     // invalid class name
     assertThat(getSecurityRuleKeys("xxx", SECURITY_RULE_KEYS_METHOD_NAME, "js")).isEmpty();

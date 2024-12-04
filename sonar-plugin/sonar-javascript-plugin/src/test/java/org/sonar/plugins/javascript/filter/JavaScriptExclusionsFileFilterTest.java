@@ -64,10 +64,9 @@ class JavaScriptExclusionsFileFilterTest {
     assertThat(filter.accept(inputFile("build/some_lib.js"))).isTrue();
     assertThat(filter.accept(inputFile("dist/some_lib.js"))).isFalse();
     assertThat(filter.accept(inputFile("external/some_lib.js"))).isFalse();
-    assertThat(logTester.logs(Level.DEBUG))
-      .contains(
-        "File test_node_modules/node_modules/some_lib.js was excluded by sonar.javascript.exclusions or sonar.typescript.exclusions"
-      );
+    assertThat(logTester.logs(Level.DEBUG)).contains(
+      "File test_node_modules/node_modules/some_lib.js was excluded by sonar.javascript.exclusions or sonar.typescript.exclusions"
+    );
     assertThat(filter.accept(inputFile("node_modules/my_lib_folder/my_lib.js"))).isFalse();
     assertThat(filter.accept(inputFile("sub_module/node_modules/submodule_lib.js"))).isFalse();
     assertThat(filter.accept(inputFile("sub_module2/bower_components/bower_lib/lib.js"))).isFalse();
@@ -80,10 +79,9 @@ class JavaScriptExclusionsFileFilterTest {
     assertThat(filter.accept(inputFile("some_app.js"))).isTrue();
     assertThat(filter.accept(inputFile("some_app.ts"))).isTrue();
     assertThat(filter.accept(inputFile("node_modules/some_lib.js"))).isFalse();
-    assertThat(logTester.logs(Level.DEBUG))
-      .contains(
-        "File test_node_modules/node_modules/some_lib.js was excluded by sonar.javascript.exclusions or sonar.typescript.exclusions"
-      );
+    assertThat(logTester.logs(Level.DEBUG)).contains(
+      "File test_node_modules/node_modules/some_lib.js was excluded by sonar.javascript.exclusions or sonar.typescript.exclusions"
+    );
     assertThat(filter.accept(inputFile("node_modules/my_lib_folder/my_lib.js"))).isFalse();
     assertThat(filter.accept(inputFile("sub_module/node_modules/submodule_lib.js"))).isFalse();
     assertThat(filter.accept(inputFile("sub_module2/bower_components/bower_lib/lib.js"))).isFalse();
@@ -189,10 +187,9 @@ class JavaScriptExclusionsFileFilterTest {
     JavaScriptExclusionsFileFilter filter = new JavaScriptExclusionsFileFilter(
       mapSettings.asConfig()
     );
-    assertThat(logTester.logs(Level.WARN))
-      .contains(
-        "Maximum file size (sonar.javascript.maxFileSize) is not strictly positive: -42, falling back to 1000."
-      );
+    assertThat(logTester.logs(Level.WARN)).contains(
+      "Maximum file size (sonar.javascript.maxFileSize) is not strictly positive: -42, falling back to 1000."
+    );
   }
 
   @Test
@@ -202,10 +199,9 @@ class JavaScriptExclusionsFileFilterTest {
     JavaScriptExclusionsFileFilter filter = new JavaScriptExclusionsFileFilter(
       mapSettings.asConfig()
     );
-    assertThat(logTester.logs(Level.WARN))
-      .contains(
-        "Maximum file size (sonar.javascript.maxFileSize) is not an integer: \"huge\", falling back to 1000."
-      );
+    assertThat(logTester.logs(Level.WARN)).contains(
+      "Maximum file size (sonar.javascript.maxFileSize) is not an integer: \"huge\", falling back to 1000."
+    );
   }
 
   @Test
@@ -214,10 +210,9 @@ class JavaScriptExclusionsFileFilterTest {
     JavaScriptExclusionsFileFilter filter = new JavaScriptExclusionsFileFilter(settings.asConfig());
     assertThat(filter.accept(inputFile("foo.d.ts"))).isFalse();
     assertThat(filter.accept(inputFile("dir/foo.d.ts"))).isFalse();
-    assertThat(logTester.logs(Level.DEBUG))
-      .contains(
-        "File test_node_modules/dir/foo.d.ts was excluded by sonar.javascript.exclusions or sonar.typescript.exclusions"
-      );
+    assertThat(logTester.logs(Level.DEBUG)).contains(
+      "File test_node_modules/dir/foo.d.ts was excluded by sonar.javascript.exclusions or sonar.typescript.exclusions"
+    );
   }
 
   @Test
@@ -252,20 +247,18 @@ class JavaScriptExclusionsFileFilterTest {
       .build();
     assertThat(filter.accept(inputFile)).isFalse();
 
-    inputFile =
-      new TestInputFileBuilder("key", "vendor/file.ts")
-        .setContents("alert('hello');")
-        .setLanguage("ts")
-        .setCharset(StandardCharsets.UTF_8)
-        .build();
+    inputFile = new TestInputFileBuilder("key", "vendor/file.ts")
+      .setContents("alert('hello');")
+      .setLanguage("ts")
+      .setCharset(StandardCharsets.UTF_8)
+      .build();
     assertThat(filter.accept(inputFile)).isFalse();
 
-    inputFile =
-      new TestInputFileBuilder("key", "vendor/file.ts")
-        .setContents("alert('hello');")
-        .setLanguage("xxx")
-        .setCharset(StandardCharsets.UTF_8)
-        .build();
+    inputFile = new TestInputFileBuilder("key", "vendor/file.ts")
+      .setContents("alert('hello');")
+      .setLanguage("xxx")
+      .setCharset(StandardCharsets.UTF_8)
+      .build();
     assertThat(filter.accept(inputFile)).isTrue();
   }
 

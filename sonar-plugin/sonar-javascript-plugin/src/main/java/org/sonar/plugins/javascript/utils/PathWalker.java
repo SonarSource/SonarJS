@@ -73,8 +73,7 @@ public class PathWalker implements Iterator<Path> {
 
     var path = paths.removeFirst();
     if (Files.isDirectory(path)) {
-      Stream
-        .ofNullable(path.toFile().listFiles())
+      Stream.ofNullable(path.toFile().listFiles())
         .flatMap(Arrays::stream)
         .map(File::toPath)
         .filter(p -> !exclusion.test(p))

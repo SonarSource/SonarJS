@@ -48,9 +48,8 @@ public class CoverageSensor implements Sensor {
   public void describe(SensorDescriptor descriptor) {
     descriptor
       .onlyOnLanguages(JavaScriptLanguage.KEY, TypeScriptLanguage.KEY)
-      .onlyWhenConfiguration(conf ->
-        conf.hasKey(LCOV_REPORT_PATHS) ||
-        conf.hasKey(LCOV_REPORT_PATHS_ALIAS)
+      .onlyWhenConfiguration(
+        conf -> conf.hasKey(LCOV_REPORT_PATHS) || conf.hasKey(LCOV_REPORT_PATHS_ALIAS)
       )
       .name("JavaScript/TypeScript Coverage")
       .onlyOnFileType(Type.MAIN);
@@ -61,16 +60,16 @@ public class CoverageSensor implements Sensor {
     Set<String> reports = new HashSet<>(
       Arrays.asList(context.config().getStringArray(LCOV_REPORT_PATHS))
     );
-    reports.addAll(
-      Arrays.asList(context.config().getStringArray(LCOV_REPORT_PATHS_ALIAS))
-    );
+    reports.addAll(Arrays.asList(context.config().getStringArray(LCOV_REPORT_PATHS_ALIAS)));
     logIfUsedProperty(context, LCOV_REPORT_PATHS);
     logIfUsedProperty(context, LCOV_REPORT_PATHS_ALIAS);
     if (
-      context.config().hasKey(LCOV_REPORT_PATHS) &&
-      context.config().hasKey(LCOV_REPORT_PATHS_ALIAS)
+      context.config().hasKey(LCOV_REPORT_PATHS) && context.config().hasKey(LCOV_REPORT_PATHS_ALIAS)
     ) {
-      LOG.info("Merging coverage reports from {} and {}.", LCOV_REPORT_PATHS, LCOV_REPORT_PATHS_ALIAS
+      LOG.info(
+        "Merging coverage reports from {} and {}.",
+        LCOV_REPORT_PATHS,
+        LCOV_REPORT_PATHS_ALIAS
       );
     }
     List<File> lcovFiles = getLcovFiles(context.fileSystem().baseDir(), reports);
@@ -132,7 +131,9 @@ public class CoverageSensor implements Sensor {
         LOG.debug("Unresolved paths:\n{}", String.join("\n", unresolvedPaths));
       } else {
         LOG.warn(
-          "First unresolved path: {} (Run in DEBUG mode to get full list of unresolved paths)", unresolvedPaths.get(0));
+          "First unresolved path: {} (Run in DEBUG mode to get full list of unresolved paths)",
+          unresolvedPaths.get(0)
+        );
       }
     }
 

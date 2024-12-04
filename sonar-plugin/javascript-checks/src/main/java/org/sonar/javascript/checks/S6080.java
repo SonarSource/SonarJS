@@ -24,7 +24,4 @@ import org.sonar.plugins.javascript.api.TypeScriptRule;
 @JavaScriptRule
 @TypeScriptRule
 @Rule(key = "S6080")
-public class S6080 extends TestFileCheck {
-
-
-}
+public class S6080 extends TestFileCheck {}

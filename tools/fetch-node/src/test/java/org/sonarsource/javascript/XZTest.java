@@ -66,8 +66,9 @@ class XZTest {
   @Test
   void should_throw_an_error_if_a_filename_doesnt_exists() {
     List<String> filenames = List.of("foobar");
-    assertThatThrownBy(() -> XZ.compress(filenames))
-      .hasMessage("File " + filenames.get(0) + " does not exist.");
+    assertThatThrownBy(() -> XZ.compress(filenames)).hasMessage(
+      "File " + filenames.get(0) + " does not exist."
+    );
   }
 
   @Test
@@ -79,8 +80,9 @@ class XZTest {
 
   @Test
   void no_args() {
-    assertThatThrownBy(() -> XZ.main(new String[] {}))
-      .hasMessage("Please provide at least 1 filename to compress using XZ");
+    assertThatThrownBy(() -> XZ.main(new String[] {})).hasMessage(
+      "Please provide at least 1 filename to compress using XZ"
+    );
   }
 
   /**

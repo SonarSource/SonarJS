@@ -45,16 +45,14 @@ class TypeScriptRuleTest {
 
   @BeforeAll
   public static void before() throws IOException, InterruptedException {
-    orchestrator =
-      OrchestratorExtension
-        .builderEnv()
-        .useDefaultAdminCredentialsForBuilds(true)
-        .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
-        .addPlugin(JAVASCRIPT_PLUGIN_LOCATION)
-        .addPlugin(
-          MavenLocation.of("org.sonarsource.sonar-lits-plugin", "sonar-lits-plugin", LITS_VERSION)
-        )
-        .build();
+    orchestrator = OrchestratorExtension.builderEnv()
+      .useDefaultAdminCredentialsForBuilds(true)
+      .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
+      .addPlugin(JAVASCRIPT_PLUGIN_LOCATION)
+      .addPlugin(
+        MavenLocation.of("org.sonarsource.sonar-lits-plugin", "sonar-lits-plugin", LITS_VERSION)
+      )
+      .build();
 
     // Installation of SQ server in orchestrator is not thread-safe, so we need to synchronize
     synchronized (OrchestratorStarter.class) {
@@ -128,7 +126,6 @@ class TypeScriptRuleTest {
 
     assertThat(
       new String(Files.readAllBytes(Paths.get("target/differences")), StandardCharsets.UTF_8)
-    )
-      .isEmpty();
+    ).isEmpty();
   }
 }

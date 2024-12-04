@@ -27,7 +27,4 @@ import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 @Rule(key = "S1763")
 @DeprecatedRuleKey(ruleKey = "S1736")
 @DeprecatedRuleKey(ruleKey = "UnreachableCode")
-public class S1763 extends Check {
-
-
-}
+public class S1763 extends Check {}

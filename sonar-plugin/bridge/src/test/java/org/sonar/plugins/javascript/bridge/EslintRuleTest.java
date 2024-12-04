@@ -43,9 +43,8 @@ class EslintRuleTest {
   @Test
   void should_throw_when_invalid_lang() {
     assertThatThrownBy(() ->
-        new EslintRule("key", List.of(), List.of(InputFile.Type.MAIN), "invalid")
-      )
-      .isInstanceOf(IllegalArgumentException.class);
+      new EslintRule("key", List.of(), List.of(InputFile.Type.MAIN), "invalid")
+    ).isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
@@ -56,8 +55,7 @@ class EslintRuleTest {
   }
 
   private static List<EslintRule> rules(String... keys) {
-    return Arrays
-      .stream(keys)
+    return Arrays.stream(keys)
       .map(key -> new EslintRule(key, emptyList(), emptyList(), "js"))
       .toList();
   }

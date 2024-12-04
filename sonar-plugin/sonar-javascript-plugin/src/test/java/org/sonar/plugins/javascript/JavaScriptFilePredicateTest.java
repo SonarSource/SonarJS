@@ -121,8 +121,15 @@ class JavaScriptFilePredicateTest {
       .filter(f -> !isTypeScriptFile(f))
       .map(InputFile::filename)
       .toList();
-    assertThat(filenames)
-      .containsExactlyInAnyOrder("a.js", "c.vue", "d.vue", "e.vue", "f.vue", "h.vue", "j.jsx");
+    assertThat(filenames).containsExactlyInAnyOrder(
+      "a.js",
+      "c.vue",
+      "d.vue",
+      "e.vue",
+      "f.vue",
+      "h.vue",
+      "j.jsx"
+    );
   }
 
   @Test
@@ -233,34 +240,29 @@ class JavaScriptFilePredicateTest {
     fs.files(predicate).forEach(files::add);
 
     var filenames = files.stream().map(File::getName).toList();
-    assertThat(filenames)
-      .containsExactlyInAnyOrder(
-        "single-quote.yaml",
-        "double-quote.yaml",
-        "comment.yaml",
-        "code-fresh.yaml"
-      );
+    assertThat(filenames).containsExactlyInAnyOrder(
+      "single-quote.yaml",
+      "double-quote.yaml",
+      "comment.yaml",
+      "code-fresh.yaml"
+    );
   }
 
   @Test
   void testIsTypeScriptFile() {
-    var tsFile = TestInputFileBuilder
-      .create("", "file.ts")
+    var tsFile = TestInputFileBuilder.create("", "file.ts")
       .setLanguage(TypeScriptLanguage.KEY)
       .build();
     assertThat(isTypeScriptFile(tsFile)).isTrue();
-    var jsFile = TestInputFileBuilder
-      .create("", "file.js")
+    var jsFile = TestInputFileBuilder.create("", "file.js")
       .setLanguage(JavaScriptLanguage.KEY)
       .build();
     assertThat(isTypeScriptFile(jsFile)).isFalse();
-    var vueFile = TestInputFileBuilder
-      .create("", "file.vue")
+    var vueFile = TestInputFileBuilder.create("", "file.vue")
       .setLanguage(JavaScriptLanguage.KEY)
       .build();
     assertThat(isTypeScriptFile(vueFile)).isFalse();
-    var tsVueFile = TestInputFileBuilder
-      .create("", "file.vue")
+    var tsVueFile = TestInputFileBuilder.create("", "file.vue")
       .setLanguage(JavaScriptLanguage.KEY)
       .setContents("<script lang='ts'>")
       .build();
@@ -270,12 +272,10 @@ class JavaScriptFilePredicateTest {
   @Test
   void testJsTsPredicate() {
     var fs = new DefaultFileSystem(baseDir);
-    var tsFile = TestInputFileBuilder
-      .create("", "file.ts")
+    var tsFile = TestInputFileBuilder.create("", "file.ts")
       .setLanguage(TypeScriptLanguage.KEY)
       .build();
-    var jsFile = TestInputFileBuilder
-      .create("", "file.js")
+    var jsFile = TestInputFileBuilder.create("", "file.js")
       .setLanguage(JavaScriptLanguage.KEY)
       .build();
     var f = TestInputFileBuilder.create("", "file.cpp").setLanguage("c").build();

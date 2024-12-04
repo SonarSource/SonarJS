@@ -24,9 +24,8 @@ class ConsumerTest {
 
   @Test
   void test() {
-   var consumer = new Consumer();
-   consumer.doneAnalysis();
-   assertTrue(consumer.isDone());
+    var consumer = new Consumer();
+    consumer.doneAnalysis();
+    assertTrue(consumer.isDone());
   }
-
 }

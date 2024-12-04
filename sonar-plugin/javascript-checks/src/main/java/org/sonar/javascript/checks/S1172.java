@@ -26,7 +26,4 @@ import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 @TypeScriptRule
 @Rule(key = "S1172")
 @DeprecatedRuleKey(ruleKey = "UnusedFunctionArgument")
-public class S1172 extends Check {
-
-
-}
+public class S1172 extends Check {}

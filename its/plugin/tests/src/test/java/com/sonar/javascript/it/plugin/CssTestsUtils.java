@@ -21,8 +21,7 @@ import com.sonar.orchestrator.build.SonarScanner;
 class CssTestsUtils {
 
   static SonarScanner createScanner(String projectKey) {
-    return OrchestratorStarter
-      .getSonarScanner()
+    return OrchestratorStarter.getSonarScanner()
       .setSourceEncoding("UTF-8")
       .setProjectDir(TestUtils.projectDir(projectKey))
       .setProjectKey(projectKey)

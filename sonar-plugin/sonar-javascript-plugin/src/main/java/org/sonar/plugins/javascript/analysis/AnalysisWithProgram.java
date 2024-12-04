@@ -38,6 +38,7 @@ import org.sonar.plugins.javascript.utils.ProgressReport;
 public class AnalysisWithProgram extends AbstractAnalysis {
 
   private static final Logger LOG = LoggerFactory.getLogger(AnalysisWithProgram.class);
+
   public AnalysisWithProgram(
     BridgeServer bridgeServer,
     AnalysisProcessor analysisProcessor,
@@ -142,5 +143,4 @@ public class AnalysisWithProgram extends AbstractAnalysis {
 
     LOG.info("Analyzed {} file(s) with current program", counter);
   }
-
 }

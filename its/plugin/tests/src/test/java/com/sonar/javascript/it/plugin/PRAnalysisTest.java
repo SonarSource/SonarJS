@@ -76,8 +76,7 @@ class PRAnalysisTest {
 
       gitExecutor.execute(git -> git.checkout().setName(Main.BRANCH));
       var buildResult = scanWith(getMasterScannerIn(projectPath, projectKey));
-      BuildResultAssert
-        .assertThat(buildResult)
+      BuildResultAssert.assertThat(buildResult)
         .withProjectKey(projectKey)
         .logsAtLeastOnce(
           "DEBUG: Analysis of unchanged files will not be skipped (current analysis requires all files to be analyzed)"
@@ -103,8 +102,7 @@ class PRAnalysisTest {
         .contains(projectKey + ":" + indexFile);
 
       gitExecutor.execute(git -> git.checkout().setName(PR.BRANCH));
-      BuildResultAssert
-        .assertThat(scanWith(getBranchScannerIn(projectPath, projectKey)))
+      BuildResultAssert.assertThat(scanWith(getBranchScannerIn(projectPath, projectKey)))
         .withProjectKey(projectKey)
         .logsAtLeastOnce(
           "DEBUG: Files which didn't change will be part of UCFG generation only, other rules will not be executed"
@@ -149,8 +147,7 @@ class PRAnalysisTest {
 
     try (var gitExecutor = cloudformation.createIn(projectPath)) {
       gitExecutor.execute(git -> git.checkout().setName(Main.BRANCH));
-      BuildResultAssert
-        .assertThat(scanWith(getMasterScannerIn(projectPath, projectKey)))
+      BuildResultAssert.assertThat(scanWith(getMasterScannerIn(projectPath, projectKey)))
         .withProjectKey(projectKey)
         .logsAtLeastOnce(
           "DEBUG: Analysis of unchanged files will not be skipped (current analysis requires all files to be analyzed)"
@@ -176,8 +173,7 @@ class PRAnalysisTest {
       assertThat(getIssues(orchestrator, projectKey, Main.BRANCH, null)).isEmpty();
 
       gitExecutor.execute(git -> git.checkout().setName(PR.BRANCH));
-      BuildResultAssert
-        .assertThat(scanWith(getBranchScannerIn(projectPath, projectKey)))
+      BuildResultAssert.assertThat(scanWith(getBranchScannerIn(projectPath, projectKey)))
         .withProjectKey(projectKey)
         .logsAtLeastOnce(
           "DEBUG: Files which didn't change will be part of UCFG generation only, other rules will not be executed"
@@ -230,41 +226,37 @@ class PRAnalysisTest {
       gitExecutor.execute(git -> git.checkout().setName(Main.BRANCH));
       scanWith(getMasterScannerIn(projectPath, projectKey));
 
-      MeasuresAssert
-        .assertThat(getMeasures(projectKey + ":file1." + language, Main.BRANCH, null))
+      MeasuresAssert.assertThat(getMeasures(projectKey + ":file1." + language, Main.BRANCH, null))
         .has("duplicated_lines", 30.0d)
         .has("duplicated_blocks", 1.0d)
         .has("duplicated_files", 1.0d)
         .has("duplicated_lines_density", 93.8d);
 
-      MeasuresAssert
-        .assertThat(getMeasures(projectKey + ":file2." + language, Main.BRANCH, null))
+      MeasuresAssert.assertThat(getMeasures(projectKey + ":file2." + language, Main.BRANCH, null))
         .has("duplicated_lines", 30.0d)
         .has("duplicated_blocks", 1.0d)
         .has("duplicated_files", 1.0d)
         .has("duplicated_lines_density", 88.2d);
 
-      MeasuresAssert
-        .assertThat(getMeasures(projectKey, Main.BRANCH, null))
+      MeasuresAssert.assertThat(getMeasures(projectKey, Main.BRANCH, null))
         .has("duplicated_lines", 60.0d)
         .has("duplicated_blocks", 2.0d)
         .has("duplicated_files", 2.0d)
         .has("duplicated_lines_density", 90.9d);
 
       gitExecutor.execute(git -> git.checkout().setName(PR.BRANCH));
-      BuildResultAssert
-        .assertThat(scanWith(getBranchScannerIn(projectPath, projectKey)))
-        .logsTimes(2, "DEBUG: Processing cache analysis of file");
+      BuildResultAssert.assertThat(scanWith(getBranchScannerIn(projectPath, projectKey))).logsTimes(
+        2,
+        "DEBUG: Processing cache analysis of file"
+      );
 
-      MeasuresAssert
-        .assertThat(getMeasures(projectKey + ":file3." + language, null, PR.BRANCH))
+      MeasuresAssert.assertThat(getMeasures(projectKey + ":file3." + language, null, PR.BRANCH))
         .has("duplicated_lines", 31.0d)
         .has("duplicated_blocks", 2.0d)
         .has("duplicated_files", 1.0d)
         .has("duplicated_lines_density", 96.9d);
 
-      MeasuresAssert
-        .assertThat(getMeasures(projectKey, null, PR.BRANCH))
+      MeasuresAssert.assertThat(getMeasures(projectKey, null, PR.BRANCH))
         .has("duplicated_lines", 92.0d)
         .has("duplicated_blocks", 5.0d)
         .has("duplicated_files", 3.0d)
@@ -278,8 +270,7 @@ class PRAnalysisTest {
 
   @BeforeAll
   public static void startOrchestrator() {
-    var builder = OrchestratorExtension
-      .builderEnv()
+    var builder = OrchestratorExtension.builderEnv()
       .useDefaultAdminCredentialsForBuilds(true)
       .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
       .addPlugin(JAVASCRIPT_PLUGIN_LOCATION)
@@ -403,12 +394,10 @@ class PRAnalysisTest {
 
     GitExecutor(Path root) {
       try {
-        git =
-          Git
-            .init()
-            .setDirectory(Files.createDirectories(root).toFile())
-            .setInitialBranch(Main.BRANCH)
-            .call();
+        git = Git.init()
+          .setDirectory(Files.createDirectories(root).toFile())
+          .setInitialBranch(Main.BRANCH)
+          .call();
       } catch (IOException | GitAPIException e) {
         throw new RuntimeException(e);
       }

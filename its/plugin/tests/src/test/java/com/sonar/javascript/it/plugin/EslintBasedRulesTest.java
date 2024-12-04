@@ -52,14 +52,13 @@ class EslintBasedRulesTest {
 
   @BeforeAll
   static void setup() {
-    jsProfile =
-      generateProfile(
-        orchestrator,
-        "js",
-        "javascript",
-        new ProfileGenerator.RulesConfiguration(),
-        emptySet()
-      );
+    jsProfile = generateProfile(
+      orchestrator,
+      "js",
+      "javascript",
+      new ProfileGenerator.RulesConfiguration(),
+      emptySet()
+    );
   }
 
   @Test
@@ -174,8 +173,9 @@ class EslintBasedRulesTest {
     Files.copy(ping, fakeNodePath, StandardCopyOption.REPLACE_EXISTING);
     BuildResult buildResult = orchestrator.executeBuild(build);
     assertThat(buildResult.isSuccess()).isTrue();
-    assertThat(buildResult.getLogs())
-      .contains("Looking for Node.js in the PATH using where.exe (Windows)");
+    assertThat(buildResult.getLogs()).contains(
+      "Looking for Node.js in the PATH using where.exe (Windows)"
+    );
 
     // compare that the node which we used is not "ping.exe"
     String log = buildResult.getLogsLines(s -> s.contains("Found node.exe at")).get(0);
@@ -221,11 +221,10 @@ class EslintBasedRulesTest {
 
     BuildResult buildResult = orchestrator.executeBuild(build);
     assertThat(
-      buildResult.getLogsLines(l ->
-        l.contains("Failed to parse") && l.contains("with TypeScript parser")
+      buildResult.getLogsLines(
+        l -> l.contains("Failed to parse") && l.contains("with TypeScript parser")
       )
-    )
-      .isEmpty();
+    ).isEmpty();
 
     var issuesList = getIssues(projectKey);
     assertThat(issuesList)
@@ -253,10 +252,7 @@ class EslintBasedRulesTest {
     var buildResult = orchestrator.executeBuild(build);
     assertThat(buildResult.isSuccess()).isTrue();
     assertThat(buildResult.getLogs()).contains("Configured Node.js --max-old-space-size=500000.");
-    var osMem = Pattern.compile(
-      ".*Memory configuration: OS \\(\\d+ MB\\),.*",
-      Pattern.DOTALL
-    );
+    var osMem = Pattern.compile(".*Memory configuration: OS \\(\\d+ MB\\),.*", Pattern.DOTALL);
     assertThat(buildResult.getLogs()).matches(osMem);
     var warn = Pattern.compile(
       ".*WARN: Node.js heap size limit \\d+ is higher than available memory \\d+. Check your configuration of sonar\\.javascript\\.node\\.maxspace.*",

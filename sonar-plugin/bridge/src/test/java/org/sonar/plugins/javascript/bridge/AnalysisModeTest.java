@@ -73,8 +73,7 @@ class AnalysisModeTest {
     var files = fileList(changedFiles(2), unchangedFiles(1), addedFiles(3));
     assertThat(
       files.stream().map(mode::getLinterIdFor).allMatch(AnalysisMode.DEFAULT_LINTER_ID::equals)
-    )
-      .isTrue();
+    ).isTrue();
   }
 
   @Test
@@ -89,8 +88,7 @@ class AnalysisModeTest {
     var files = fileList(changedFiles(2), unchangedFiles(1), addedFiles(3));
     assertThat(
       files.stream().map(mode::getLinterIdFor).allMatch(AnalysisMode.DEFAULT_LINTER_ID::equals)
-    )
-      .isTrue();
+    ).isTrue();
   }
 
   @Test
@@ -106,15 +104,14 @@ class AnalysisModeTest {
     verify(context).canSkipUnchangedFiles();
 
     var files = fileList(changedFiles(2), unchangedFiles(1), addedFiles(3));
-    assertThat(files.stream().map(mode::getLinterIdFor))
-      .containsExactly(
-        AnalysisMode.DEFAULT_LINTER_ID,
-        AnalysisMode.DEFAULT_LINTER_ID,
-        AnalysisMode.UNCHANGED_LINTER_ID,
-        AnalysisMode.DEFAULT_LINTER_ID,
-        AnalysisMode.DEFAULT_LINTER_ID,
-        AnalysisMode.DEFAULT_LINTER_ID
-      );
+    assertThat(files.stream().map(mode::getLinterIdFor)).containsExactly(
+      AnalysisMode.DEFAULT_LINTER_ID,
+      AnalysisMode.DEFAULT_LINTER_ID,
+      AnalysisMode.UNCHANGED_LINTER_ID,
+      AnalysisMode.DEFAULT_LINTER_ID,
+      AnalysisMode.DEFAULT_LINTER_ID,
+      AnalysisMode.DEFAULT_LINTER_ID
+    );
   }
 
   @Test
@@ -128,12 +125,10 @@ class AnalysisModeTest {
   }
 
   private static List<EslintRule> rules(String... keys) {
-    return Arrays
-      .stream(keys)
+    return Arrays.stream(keys)
       .map(key -> new EslintRule(key, emptyList(), emptyList(), "js"))
       .toList();
   }
-
 
   @SafeVarargs
   private static List<InputFile> fileList(Stream<InputFile>... streams) {

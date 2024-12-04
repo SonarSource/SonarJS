@@ -36,8 +36,7 @@ class MetricsTest {
 
   @BeforeAll
   public static void prepare() {
-    SonarScanner build = OrchestratorStarter
-      .createScanner()
+    SonarScanner build = OrchestratorStarter.createScanner()
       .setProjectDir(TestUtils.projectDir("metrics"))
       .setProjectKey(PROJECT_KEY)
       .setProjectName(PROJECT_KEY)

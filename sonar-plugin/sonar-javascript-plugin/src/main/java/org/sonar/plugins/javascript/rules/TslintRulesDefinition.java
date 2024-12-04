@@ -51,8 +51,7 @@ public class TslintRulesDefinition implements RulesDefinition {
     )
   );
 
-  private static final Map<String, RuleType> RULE_TYPE_MAP = RULE_LOADERS
-    .stream()
+  private static final Map<String, RuleType> RULE_TYPE_MAP = RULE_LOADERS.stream()
     .flatMap(loader ->
       loader
         .ruleKeys()

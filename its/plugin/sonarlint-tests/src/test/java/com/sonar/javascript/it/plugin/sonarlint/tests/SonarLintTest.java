@@ -109,8 +109,7 @@ class SonarLintTest {
           .anyMatch(s ->
             s.matches("Using Node\\.js executable .* from property sonar\\.nodejs\\.executable\\.")
           )
-      )
-        .isTrue();
+      ).isTrue();
     }
   }
 
@@ -179,10 +178,9 @@ class SonarLintTest {
     // we need to stop engine initialized in @BeforeEach prepare() method, because we need configuration with different node
     sonarlintEngine.stop();
     // version `42` will let us pass SonarLint check of version
-    sonarlintEngine =
-      new StandaloneSonarLintEngineImpl(
-        getSonarLintConfig(new File("invalid/path/node").toPath(), Version.create("42"))
-      );
+    sonarlintEngine = new StandaloneSonarLintEngineImpl(
+      getSonarLintConfig(new File("invalid/path/node").toPath(), Version.create("42"))
+    );
     List<Issue> issues = analyze(FILE_PATH, "");
     assertThat(logs).contains("Provided Node.js executable file does not exist.");
     assertThat(issues).isEmpty();
@@ -300,8 +298,7 @@ class SonarLintTest {
       System.out.println(formattedMessage);
     };
 
-    return StandaloneGlobalConfiguration
-      .builder()
+    return StandaloneGlobalConfiguration.builder()
       .addEnabledLanguage(Language.JS)
       .addEnabledLanguage(Language.TS)
       .addEnabledLanguage(Language.CSS)

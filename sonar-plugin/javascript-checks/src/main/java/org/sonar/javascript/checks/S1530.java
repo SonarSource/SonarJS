@@ -26,7 +26,4 @@ import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 @TypeScriptRule
 @DeprecatedRuleKey(ruleKey = "FunctionDeclarationsWithinBlocks")
 @Rule(key = "S1530")
-public class S1530 extends Check {
-
-
-}
+public class S1530 extends Check {}

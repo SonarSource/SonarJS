@@ -40,8 +40,7 @@ class CssRulingTest {
   private static final String PROJECT_KEY = "project";
 
   @RegisterExtension
-  public static final OrchestratorExtension ORCHESTRATOR = OrchestratorExtension
-    .builderEnv()
+  public static final OrchestratorExtension ORCHESTRATOR = OrchestratorExtension.builderEnv()
     .useDefaultAdminCredentialsForBuilds(true)
     .setSonarVersion(System.getProperty(SQ_VERSION_PROPERTY, DEFAULT_SQ_VERSION))
     .addPlugin(MavenLocation.of("org.sonarsource.php", "sonar-php-plugin", "LATEST_RELEASE"))
@@ -104,8 +103,7 @@ class CssRulingTest {
     ORCHESTRATOR.getServer().associateProjectToQualityProfile(PROJECT_KEY, "js", "rules");
     ORCHESTRATOR.getServer().associateProjectToQualityProfile(PROJECT_KEY, "ts", "rules");
     File litsDifferencesFile = FileLocation.of("target/differences").getFile();
-    SonarScanner build = SonarScanner
-      .create(FileLocation.of("../sources/css").getFile())
+    SonarScanner build = SonarScanner.create(FileLocation.of("../sources/css").getFile())
       .setProjectKey(PROJECT_KEY)
       .setProjectName(PROJECT_KEY)
       .setProjectVersion("1")

@@ -63,7 +63,7 @@
     "@babel/preset-typescript": "7.26.0",
     "@inquirer/prompts": "^7.1.0",
     "@types/babel__preset-env": "7.9.7",
-    "@types/bytes": "3.1.4",
+    "@types/bytes": "3.1.5",
     "@types/eslint": "8.56.12",
     "@types/eslint-scope": "3.7.7",
     "@types/estree": "1.0.6",
@@ -94,7 +94,7 @@
     "pretty-quick": "4.0.0",
     "rimraf": "6.0.1",
     "tsx": "4.19.2",
-    "type-fest": "4.29.1",
+    "type-fest": "4.30.0",
     "typedoc": "0.27.2"
   },
   "dependencies": {
@@ -146,7 +146,10 @@
     "trailingComma": "all",
     "singleQuote": true,
     "arrowParens": "avoid",
-    "endOfLine": "lf"
+    "endOfLine": "lf",
+    "plugins": [
+      "prettier-plugin-java"
+    ]
   },
   "files": [
     "bin/"

@@ -30,8 +30,6 @@ public class S6550 extends Check {
     return List.of(new Config());
   }
 
-
-
   private static class Config {
 
     // Option to allow bitwise expressions in enum initializers (Default: false).

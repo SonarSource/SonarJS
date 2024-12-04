@@ -31,8 +31,6 @@ public class S2814 extends Check {
     return Collections.singletonList(new Config());
   }
 
-  
-
   private static class Config {
 
     boolean builtinGlobals = false;

@@ -67,8 +67,11 @@ class JavaScriptRulesDefinitionTest {
   private void assertSecurityStandards(Repository repository) {
     Rule rule = repository.rule("S5736");
     assertThat(rule).isNotNull();
-    assertThat(rule.securityStandards())
-      .containsExactly("cwe:200", "owaspTop10-2021:a1", "owaspTop10:a3");
+    assertThat(rule.securityStandards()).containsExactly(
+      "cwe:200",
+      "owaspTop10-2021:a1",
+      "owaspTop10:a3"
+    );
   }
 
   private void assertParameterProperties(Repository repository) {

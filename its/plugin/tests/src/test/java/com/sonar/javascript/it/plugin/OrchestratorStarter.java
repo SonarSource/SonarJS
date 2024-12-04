@@ -70,14 +70,15 @@ public final class OrchestratorStarter
 
   private static Pattern pluginFilenameMatcher() {
     if (System.getenv("SONARJS_ARTIFACT") != null) {
-      return Pattern.compile(String.format("sonar-javascript-plugin-.*-%s\\.jar", System.getenv("SONARJS_ARTIFACT")));
+      return Pattern.compile(
+        String.format("sonar-javascript-plugin-.*-%s\\.jar", System.getenv("SONARJS_ARTIFACT"))
+      );
     }
 
     return Pattern.compile("sonar-javascript-plugin-[0-9.]*(?:-SNAPSHOT)?\\.jar");
   }
 
-  public static final OrchestratorExtension ORCHESTRATOR = OrchestratorExtension
-    .builderEnv()
+  public static final OrchestratorExtension ORCHESTRATOR = OrchestratorExtension.builderEnv()
     .useDefaultAdminCredentialsForBuilds(true)
     .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
     .addPlugin(MavenLocation.of("org.sonarsource.php", "sonar-php-plugin", "LATEST_RELEASE"))
@@ -218,8 +219,7 @@ public final class OrchestratorStarter
   }
 
   static WsClient newWsClient(Orchestrator orchestrator) {
-    return WsClientFactories
-      .getDefault()
+    return WsClientFactories.getDefault()
       .newClient(HttpConnector.newBuilder().url(orchestrator.getServer().getUrl()).build());
   }
 

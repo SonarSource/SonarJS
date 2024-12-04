@@ -78,8 +78,7 @@ class PathWalkerTest {
       Files.createDirectory(path);
 
       if (depth > 0) {
-        IntStream
-          .range(0, width)
+        IntStream.range(0, width)
           .mapToObj(n -> path.resolve(String.format("folder-%d", n)))
           .flatMap(folder -> createFolder(folder, depth - 1, width))
           .forEach(streamBuilder::add);
@@ -91,8 +90,7 @@ class PathWalkerTest {
           path.resolve(String.format("folder-%d", width - 1))
         );
 
-        IntStream
-          .range(0, width)
+        IntStream.range(0, width)
           .mapToObj(n -> path.resolve(String.format("file-%d.js", n)))
           .peek(PathWalkerTest::createFile)
           .forEach(streamBuilder::add);

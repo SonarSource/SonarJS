@@ -35,7 +35,6 @@ public enum AnalysisMode {
   public static final String UNCHANGED_LINTER_ID = "unchanged";
   private static final Logger LOG = LoggerFactory.getLogger(AnalysisMode.class);
 
-
   public static AnalysisMode getMode(SensorContext context) {
     var logDefaultMode = "Analysis of unchanged files will not be skipped ({})";
 
@@ -61,7 +60,9 @@ public enum AnalysisMode {
   }
 
   private static boolean hasSecurityRules(ActiveRules activeRules) {
-    return Stream.of("jssecurity", "tssecurity").anyMatch(r -> !activeRules.findByRepository(r).isEmpty());
+    return Stream.of("jssecurity", "tssecurity").anyMatch(r ->
+      !activeRules.findByRepository(r).isEmpty()
+    );
   }
 
   public static List<EslintRule> getUnchangedFileRules(List<EslintRule> rules) {

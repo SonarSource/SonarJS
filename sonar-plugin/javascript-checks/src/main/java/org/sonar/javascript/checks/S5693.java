@@ -28,6 +28,7 @@ import org.sonar.plugins.javascript.api.TypeScriptRule;
 @TypeScriptRule
 @Rule(key = "S5693")
 public class S5693 extends Check {
+
   private static final int DEFAULT_FILE_UPLOAD_SIZE_LIMIT = 8_000_000;
   private static final int DEFAULT_STANDARD_SIZE_LIMIT = 2_000_000;
 
@@ -38,7 +39,6 @@ public class S5693 extends Check {
   )
   long fileUploadSizeLimit = DEFAULT_FILE_UPLOAD_SIZE_LIMIT;
 
-
   @RuleProperty(
     key = "standardSizeLimit",
     description = "The maximum size of regular HTTP requests (in bytes)",
@@ -48,14 +48,11 @@ public class S5693 extends Check {
 
   @Override
   public List<Object> configurations() {
-    return Collections.singletonList(
-      new Config(fileUploadSizeLimit, standardSizeLimit)
-    );
+    return Collections.singletonList(new Config(fileUploadSizeLimit, standardSizeLimit));
   }
 
-
-
   private static class Config {
+
     long fileUploadSizeLimit;
     long standardSizeLimit;
 

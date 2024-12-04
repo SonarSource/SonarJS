@@ -31,8 +31,6 @@ public class S6606 extends Check {
     return Collections.singletonList(new Config());
   }
 
-  
-
   private static class Config {
 
     boolean ignoreConditionalTests = true;

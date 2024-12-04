@@ -59,8 +59,7 @@ class TypeCheckerConfigTest {
     var key = createName(project);
     var scanner = getSonarScanner(project);
 
-    BuildResultAssert
-      .assertThat(orchestrator.executeBuild(scanner))
+    BuildResultAssert.assertThat(orchestrator.executeBuild(scanner))
       .logsOnce("Found 1 tsconfig.json file(s)")
       .logsOnce(
         "INFO: Found 1 file(s) not part of any tsconfig.json: they will be analyzed without type information"
@@ -75,8 +74,7 @@ class TypeCheckerConfigTest {
       "sonar.typescript.tsconfigPaths",
       "tsconfig.json,tsconfig.es6.json"
     );
-    BuildResultAssert
-      .assertThat(orchestrator.executeBuild(configuredBuild))
+    BuildResultAssert.assertThat(orchestrator.executeBuild(configuredBuild))
       .logsOnce("Found 2 TSConfig file(s)")
       .doesNotLog("INFO: Skipped");
 
@@ -99,9 +97,9 @@ class TypeCheckerConfigTest {
     var key = createName(project);
     var scanner = getSonarScanner(project);
 
-    BuildResultAssert
-      .assertThat(orchestrator.executeBuild(scanner))
-      .logsOnce("Found 2 tsconfig.json file(s)");
+    BuildResultAssert.assertThat(orchestrator.executeBuild(scanner)).logsOnce(
+      "Found 2 tsconfig.json file(s)"
+    );
 
     assertThat(getIssues(key)).isEmpty();
     // Missing issues for main.ts
@@ -110,9 +108,9 @@ class TypeCheckerConfigTest {
       "sonar.typescript.tsconfigPaths",
       "src/tsconfig.json"
     );
-    BuildResultAssert
-      .assertThat(orchestrator.executeBuild(configuredBuild))
-      .logsOnce("Found 1 TSConfig file(s)");
+    BuildResultAssert.assertThat(orchestrator.executeBuild(configuredBuild)).logsOnce(
+      "Found 1 TSConfig file(s)"
+    );
 
     assertThat(getIssues(key))
       .extracting(Issues.Issue::getLine, Issues.Issue::getComponent)
@@ -138,9 +136,9 @@ class TypeCheckerConfigTest {
       "sonar.typescript.tsconfigPaths",
       "src/jsconfig.json"
     );
-    BuildResultAssert
-      .assertThat(orchestrator.executeBuild(configuredBuild))
-      .logsOnce("INFO: 2/2 source files have been analyzed");
+    BuildResultAssert.assertThat(orchestrator.executeBuild(configuredBuild)).logsOnce(
+      "INFO: 2/2 source files have been analyzed"
+    );
     assertThat(getIssues(key)).isEmpty(); // False negative
   }
 
@@ -150,9 +148,9 @@ class TypeCheckerConfigTest {
     var scanner = getSonarScanner(project.getName());
     var buildResult = orchestrator.executeBuild(scanner);
 
-    BuildResultAssert
-      .assertThat(buildResult)
-      .logsOnce(String.format("Found %d tsconfig.json file(s)", project.getExpectedFound()));
+    BuildResultAssert.assertThat(buildResult).logsOnce(
+      String.format("Found %d tsconfig.json file(s)", project.getExpectedFound())
+    );
     assertThat(getIssues(project.getKey()))
       .extracting(Issues.Issue::getLine, Issues.Issue::getComponent)
       .containsExactlyInAnyOrder(project.getIssues());
@@ -170,8 +168,7 @@ class TypeCheckerConfigTest {
     orchestrator.getServer().associateProjectToQualityProfile(key, "ts", createName("ts-profile"));
     orchestrator.getServer().associateProjectToQualityProfile(key, "js", createName("js-profile"));
 
-    return OrchestratorStarter
-      .getSonarScanner()
+    return OrchestratorStarter.getSonarScanner()
       .setProjectKey(key)
       .setSourceEncoding("UTF-8")
       .setSourceDirs(".")
@@ -236,8 +233,7 @@ class TypeCheckerConfigTest {
     }
 
     Tuple[] getIssues() {
-      return Arrays
-        .stream(filesWithIssue)
+      return Arrays.stream(filesWithIssue)
         .map(file -> tuple(ISSUE_LINE, getKey() + ":" + file))
         .toArray(Tuple[]::new);
     }

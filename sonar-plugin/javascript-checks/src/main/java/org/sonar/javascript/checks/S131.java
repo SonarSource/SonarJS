@@ -26,7 +26,4 @@ import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 @TypeScriptRule
 @Rule(key = "S131")
 @DeprecatedRuleKey(ruleKey = "SwitchWithoutDefault")
-public class S131 extends Check {
-
-
-}
+public class S131 extends Check {}

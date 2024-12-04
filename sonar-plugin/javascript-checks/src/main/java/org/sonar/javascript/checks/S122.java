@@ -26,7 +26,4 @@ import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 @TypeScriptRule
 @Rule(key = "S122")
 @DeprecatedRuleKey(ruleKey = "OneStatementPerLine")
-public class S122 extends Check {
-
-
-}
+public class S122 extends Check {}

@@ -31,8 +31,11 @@ public class CacheAnalysisSerialization extends CacheSerialization {
     super(context, cacheKey);
     ucfgFileSerialization = new UCFGFilesSerialization(context, cacheKey.forUcfg());
     cpdSerialization = new CpdSerialization(context, cacheKey.forCpd());
-    fileMetadataSerialization =
-      new JsonSerialization<>(FileMetadata.class, context, cacheKey.forFileMetadata());
+    fileMetadataSerialization = new JsonSerialization<>(
+      FileMetadata.class,
+      context,
+      cacheKey.forFileMetadata()
+    );
   }
 
   @Override

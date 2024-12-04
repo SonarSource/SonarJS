@@ -26,7 +26,4 @@ import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 @TypeScriptRule
 @DeprecatedRuleKey(ruleKey = "AssignmentWithinCondition")
 @Rule(key = "S1121")
-public class S1121 extends Check {
-
-  
-}
+public class S1121 extends Check {}

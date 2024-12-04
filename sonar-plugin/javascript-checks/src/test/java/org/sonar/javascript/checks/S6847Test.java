@@ -26,6 +26,8 @@ class S6847Test {
   @Test
   void configurations() {
     var config = new Gson().toJson(new S6847().configurations());
-    assertThat(config).isEqualTo("[{\"handlers\":[\"onClick\",\"onMouseDown\",\"onMouseUp\",\"onKeyPress\",\"onKeyDown\",\"onKeyUp\"]}]");
+    assertThat(config).isEqualTo(
+      "[{\"handlers\":[\"onClick\",\"onMouseDown\",\"onMouseUp\",\"onKeyPress\",\"onKeyDown\",\"onKeyUp\"]}]"
+    );
   }
 }

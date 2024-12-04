@@ -16,6 +16,18 @@
  */
 package org.sonar.plugins.javascript.analysis;
 
+import static java.util.Collections.emptyList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.clearInvocations;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.sonar.plugins.javascript.analysis.JsTsSensorTest.PLUGIN_VERSION;
+
 import com.google.gson.Gson;
 import java.io.File;
 import java.io.IOException;
@@ -76,18 +88,6 @@ import org.sonar.plugins.javascript.bridge.TsConfigFile;
 import org.sonar.plugins.javascript.nodejs.NodeCommandException;
 import org.sonar.plugins.javascript.sonarlint.TsConfigCacheImpl;
 
-import static java.util.Collections.emptyList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.clearInvocations;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.sonar.plugins.javascript.analysis.JsTsSensorTest.PLUGIN_VERSION;
-
 class JavaScriptEslintBasedSensorTest {
 
   private static final String ESLINT_BASED_RULE = "S3923";
@@ -140,10 +140,9 @@ class JavaScriptEslintBasedSensorTest {
     when(bridgeServerMock.analyzeJavaScript(any())).thenReturn(new AnalysisResponse());
     when(bridgeServerMock.analyzeJavaScript(any())).thenReturn(new AnalysisResponse());
     when(bridgeServerMock.getCommandInfo()).thenReturn("bridgeServerMock command info");
-    when(bridgeServerMock.createTsConfigFile(any()))
-      .thenReturn(
-        new TsConfigFile(tempFolder.newFile().getAbsolutePath(), emptyList(), emptyList())
-      );
+    when(bridgeServerMock.createTsConfigFile(any())).thenReturn(
+      new TsConfigFile(tempFolder.newFile().getAbsolutePath(), emptyList(), emptyList())
+    );
     tsProgram = new TsProgram("", new ArrayList<>(), List.of());
     when(bridgeServerMock.createProgram(any())).thenReturn(tsProgram);
     context = SensorContextTester.create(baseDir);
@@ -162,10 +161,17 @@ class JavaScriptEslintBasedSensorTest {
     var analysisWarnings = new AnalysisWarningsWrapper();
     var tsConfigCache = new TsConfigCacheImpl(bridgeServerMock);
 
-    analysisWithProgram =
-      new AnalysisWithProgram(bridgeServerMock, analysisProcessor, analysisWarnings);
-    analysisWithWatchProgram =
-      new AnalysisWithWatchProgram(bridgeServerMock, analysisProcessor, analysisWarnings, tsConfigCache);
+    analysisWithProgram = new AnalysisWithProgram(
+      bridgeServerMock,
+      analysisProcessor,
+      analysisWarnings
+    );
+    analysisWithWatchProgram = new AnalysisWithWatchProgram(
+      bridgeServerMock,
+      analysisProcessor,
+      analysisWarnings,
+      tsConfigCache
+    );
   }
 
   @Test
@@ -194,14 +200,16 @@ class JavaScriptEslintBasedSensorTest {
     IssueLocation location = firstIssue.primaryLocation();
     assertThat(location.inputComponent()).isEqualTo(inputFile);
     assertThat(location.message()).isEqualTo("Issue message");
-    assertThat(location.textRange())
-      .isEqualTo(new DefaultTextRange(new DefaultTextPointer(1, 2), new DefaultTextPointer(3, 4)));
+    assertThat(location.textRange()).isEqualTo(
+      new DefaultTextRange(new DefaultTextPointer(1, 2), new DefaultTextPointer(3, 4))
+    );
 
     location = secondIssue.primaryLocation();
     assertThat(location.inputComponent()).isEqualTo(inputFile);
     assertThat(location.message()).isEqualTo("Line issue message");
-    assertThat(location.textRange())
-      .isEqualTo(new DefaultTextRange(new DefaultTextPointer(1, 0), new DefaultTextPointer(1, 9)));
+    assertThat(location.textRange()).isEqualTo(
+      new DefaultTextRange(new DefaultTextPointer(1, 0), new DefaultTextPointer(1, 9))
+    );
 
     location = thirdIssue.primaryLocation();
     assertThat(location.inputComponent()).isEqualTo(inputFile);
@@ -211,10 +219,9 @@ class JavaScriptEslintBasedSensorTest {
     assertThat(firstIssue.ruleKey().rule()).isEqualTo("S3923");
     assertThat(secondIssue.ruleKey().rule()).isEqualTo("S3923");
     assertThat(thirdIssue.ruleKey().rule()).isEqualTo("S1451");
-    assertThat(logTester.logs(Level.WARN))
-      .doesNotContain(
-        "Custom JavaScript rules are deprecated and API will be removed in future version."
-      );
+    assertThat(logTester.logs(Level.WARN)).doesNotContain(
+      "Custom JavaScript rules are deprecated and API will be removed in future version."
+    );
   }
 
   @Test
@@ -255,17 +262,16 @@ class JavaScriptEslintBasedSensorTest {
 
   @Test
   void should_report_secondary_issue_locations() throws Exception {
-    when(bridgeServerMock.analyzeJavaScript(any()))
-      .thenReturn(
-        response(
-          "{ issues: [{\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"S3923\",\"message\":\"Issue message\", " +
-          "\"cost\": 14," +
-          "\"secondaryLocations\": [" +
-          "{ message: \"Secondary\", \"line\":2,\"column\":0,\"endLine\":2,\"endColumn\":3}," +
-          "{ message: \"Secondary\", \"line\":3,\"column\":1,\"endLine\":3,\"endColumn\":4}" +
-          "]}]}"
-        )
-      );
+    when(bridgeServerMock.analyzeJavaScript(any())).thenReturn(
+      response(
+        "{ issues: [{\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"S3923\",\"message\":\"Issue message\", " +
+        "\"cost\": 14," +
+        "\"secondaryLocations\": [" +
+        "{ message: \"Secondary\", \"line\":2,\"column\":0,\"endLine\":2,\"endColumn\":3}," +
+        "{ message: \"Secondary\", \"line\":3,\"column\":1,\"endLine\":3,\"endColumn\":4}" +
+        "]}]}"
+      )
+    );
 
     var sensor = createSensor();
     DefaultInputFile inputFile = createInputFile(context);
@@ -284,27 +290,28 @@ class JavaScriptEslintBasedSensorTest {
     IssueLocation secondary1 = issue.flows().get(0).locations().get(0);
     assertThat(secondary1.inputComponent()).isEqualTo(inputFile);
     assertThat(secondary1.message()).isEqualTo("Secondary");
-    assertThat(secondary1.textRange())
-      .isEqualTo(new DefaultTextRange(new DefaultTextPointer(2, 0), new DefaultTextPointer(2, 3)));
+    assertThat(secondary1.textRange()).isEqualTo(
+      new DefaultTextRange(new DefaultTextPointer(2, 0), new DefaultTextPointer(2, 3))
+    );
 
     IssueLocation secondary2 = issue.flows().get(1).locations().get(0);
     assertThat(secondary2.inputComponent()).isEqualTo(inputFile);
     assertThat(secondary2.message()).isEqualTo("Secondary");
-    assertThat(secondary2.textRange())
-      .isEqualTo(new DefaultTextRange(new DefaultTextPointer(3, 1), new DefaultTextPointer(3, 4)));
+    assertThat(secondary2.textRange()).isEqualTo(
+      new DefaultTextRange(new DefaultTextPointer(3, 1), new DefaultTextPointer(3, 4))
+    );
   }
 
   @Test
   void should_not_report_secondary_when_location_are_null() throws Exception {
-    when(bridgeServerMock.analyzeJavaScript(any()))
-      .thenReturn(
-        response(
-          "{ issues: [{\"line\":1,\"column\":3,\"endLine\":3,\"endColumn\":5,\"ruleId\":\"S3923\",\"message\":\"Issue message\", " +
-          "\"secondaryLocations\": [" +
-          "{ message: \"Secondary\", \"line\":2,\"column\":1,\"endLine\":null,\"endColumn\":4}" +
-          "]}]}"
-        )
-      );
+    when(bridgeServerMock.analyzeJavaScript(any())).thenReturn(
+      response(
+        "{ issues: [{\"line\":1,\"column\":3,\"endLine\":3,\"endColumn\":5,\"ruleId\":\"S3923\",\"message\":\"Issue message\", " +
+        "\"secondaryLocations\": [" +
+        "{ message: \"Secondary\", \"line\":2,\"column\":1,\"endLine\":null,\"endColumn\":4}" +
+        "]}]}"
+      )
+    );
 
     var sensor = createSensor();
     createInputFile(context);
@@ -320,14 +327,13 @@ class JavaScriptEslintBasedSensorTest {
 
   @Test
   void should_report_cost() throws Exception {
-    when(bridgeServerMock.analyzeJavaScript(any()))
-      .thenReturn(
-        response(
-          "{ issues: [{\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"S3923\",\"message\":\"Issue message\", " +
-          "\"cost\": 42," +
-          "\"secondaryLocations\": []}]}"
-        )
-      );
+    when(bridgeServerMock.analyzeJavaScript(any())).thenReturn(
+      response(
+        "{ issues: [{\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"S3923\",\"message\":\"Issue message\", " +
+        "\"cost\": 42," +
+        "\"secondaryLocations\": []}]}"
+      )
+    );
 
     var sensor = createSensor();
     DefaultInputFile inputFile = createInputFile(context);
@@ -342,8 +348,9 @@ class JavaScriptEslintBasedSensorTest {
     IssueLocation location = issue.primaryLocation();
     assertThat(location.inputComponent()).isEqualTo(inputFile);
     assertThat(location.message()).isEqualTo("Issue message");
-    assertThat(location.textRange())
-      .isEqualTo(new DefaultTextRange(new DefaultTextPointer(1, 2), new DefaultTextPointer(3, 4)));
+    assertThat(location.textRange()).isEqualTo(
+      new DefaultTextRange(new DefaultTextPointer(1, 2), new DefaultTextPointer(3, 4))
+    );
 
     assertThat(issue.gap()).isEqualTo(42);
     assertThat(issue.flows()).isEmpty();
@@ -367,8 +374,9 @@ class JavaScriptEslintBasedSensorTest {
     assertThat(context.measure(inputFile.key(), CoreMetrics.NCLOC).value()).isEqualTo(3);
     assertThat(context.measure(inputFile.key(), CoreMetrics.COMMENT_LINES).value()).isEqualTo(3);
     assertThat(context.measure(inputFile.key(), CoreMetrics.COMPLEXITY).value()).isEqualTo(4);
-    assertThat(context.measure(inputFile.key(), CoreMetrics.COGNITIVE_COMPLEXITY).value())
-      .isEqualTo(5);
+    assertThat(
+      context.measure(inputFile.key(), CoreMetrics.COGNITIVE_COMPLEXITY).value()
+    ).isEqualTo(5);
   }
 
   @Test
@@ -395,7 +403,9 @@ class JavaScriptEslintBasedSensorTest {
 
   @Test
   void should_save_only_nosonar_metric_for_test() throws Exception {
-    AnalysisResponse responseMetrics = response("{ metrics: {\"nosonarLines\":[7, 8, 9], ncloc: [], commentLines: [], executableLines: []} }");
+    AnalysisResponse responseMetrics = response(
+      "{ metrics: {\"nosonarLines\":[7, 8, 9], ncloc: [], commentLines: [], executableLines: []} }"
+    );
     when(bridgeServerMock.analyzeJavaScript(any())).thenReturn(responseMetrics);
 
     var sensor = createSensor();
@@ -426,11 +436,13 @@ class JavaScriptEslintBasedSensorTest {
     sensor.execute(context);
 
     assertThat(context.highlightingTypeAt(inputFile.key(), 1, 0)).isNotEmpty();
-    assertThat(context.highlightingTypeAt(inputFile.key(), 1, 0).get(0))
-      .isEqualTo(TypeOfText.KEYWORD);
+    assertThat(context.highlightingTypeAt(inputFile.key(), 1, 0).get(0)).isEqualTo(
+      TypeOfText.KEYWORD
+    );
     assertThat(context.highlightingTypeAt(inputFile.key(), 2, 1)).isNotEmpty();
-    assertThat(context.highlightingTypeAt(inputFile.key(), 2, 1).get(0))
-      .isEqualTo(TypeOfText.CONSTANT);
+    assertThat(context.highlightingTypeAt(inputFile.key(), 2, 1).get(0)).isEqualTo(
+      TypeOfText.CONSTANT
+    );
     assertThat(context.highlightingTypeAt(inputFile.key(), 3, 0)).isEmpty();
   }
 
@@ -474,8 +486,9 @@ class JavaScriptEslintBasedSensorTest {
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Analysis of JS/TS files failed");
 
-    assertThat(logTester.logs(Level.ERROR))
-      .contains("Failed to get response while analyzing " + inputFile.uri());
+    assertThat(logTester.logs(Level.ERROR)).contains(
+      "Failed to get response while analyzing " + inputFile.uri()
+    );
     assertThat(context.allIssues()).isEmpty();
   }
 
@@ -515,8 +528,9 @@ class JavaScriptEslintBasedSensorTest {
     assertThat(rules).hasSize(3);
 
     assertThat(rules.get(0).getKey()).isEqualTo("S1192");
-    assertThat(new Gson().toJson(rules.get(0).getConfigurations()))
-      .isEqualTo("[{\"threshold\":3,\"ignoreStrings\":\"application/json\"}]");
+    assertThat(new Gson().toJson(rules.get(0).getConfigurations())).isEqualTo(
+      "[{\"threshold\":3,\"ignoreStrings\":\"application/json\"}]"
+    );
 
     assertThat(rules.get(1).getKey()).isEqualTo("S1479");
     assertThat(rules.get(1).getConfigurations()).containsExactly(42);
@@ -560,28 +574,28 @@ class JavaScriptEslintBasedSensorTest {
 
   @Test
   void log_debug_if_already_failed_server() throws Exception {
-    Mockito.doThrow(new ServerAlreadyFailedException()).when(bridgeServerMock).startServerLazily(any());
+    Mockito.doThrow(new ServerAlreadyFailedException())
+      .when(bridgeServerMock)
+      .startServerLazily(any());
     var javaScriptEslintBasedSensor = createSensor();
     createInputFile(context);
     javaScriptEslintBasedSensor.execute(context);
 
-    assertThat(logTester.logs())
-      .contains(
-        "Skipping the start of the bridge server as it failed to start during the first analysis or it's not answering anymore",
-        "No rules will be executed"
-      );
+    assertThat(logTester.logs()).contains(
+      "Skipping the start of the bridge server as it failed to start during the first analysis or it's not answering anymore",
+      "No rules will be executed"
+    );
   }
 
   @Test
   void should_raise_a_parsing_error() throws IOException {
-    when(bridgeServerMock.analyzeJavaScript(any()))
-      .thenReturn(
-        new Gson()
-          .fromJson(
-            "{ parsingError: { line: 3, message: \"Parse error message\", code: \"Parsing\"} }",
-            AnalysisResponse.class
-          )
-      );
+    when(bridgeServerMock.analyzeJavaScript(any())).thenReturn(
+      new Gson()
+        .fromJson(
+          "{ parsingError: { line: 3, message: \"Parse error message\", code: \"Parsing\"} }",
+          AnalysisResponse.class
+        )
+    );
     createInputFile(context);
     createSensor().execute(context);
     Collection<Issue> issues = context.allIssues();
@@ -590,33 +604,33 @@ class JavaScriptEslintBasedSensorTest {
     assertThat(issue.primaryLocation().textRange().start().line()).isEqualTo(3);
     assertThat(issue.primaryLocation().message()).isEqualTo("Parse error message");
     assertThat(context.allAnalysisErrors()).hasSize(1);
-    assertThat(logTester.logs(Level.WARN))
-      .contains("Failed to parse file [dir/file.js] at line 3: Parse error message");
+    assertThat(logTester.logs(Level.WARN)).contains(
+      "Failed to parse file [dir/file.js] at line 3: Parse error message"
+    );
   }
 
   @Test
   void should_not_create_parsing_issue_when_no_rule() throws IOException {
-    when(bridgeServerMock.analyzeJavaScript(any()))
-      .thenReturn(
-        new Gson()
-          .fromJson(
-            "{ parsingError: { line: 3, message: \"Parse error message\", code: \"Parsing\"} }",
-            AnalysisResponse.class
-          )
-      );
+    when(bridgeServerMock.analyzeJavaScript(any())).thenReturn(
+      new Gson()
+        .fromJson(
+          "{ parsingError: { line: 3, message: \"Parse error message\", code: \"Parsing\"} }",
+          AnalysisResponse.class
+        )
+    );
     createInputFile(context);
     new JsTsSensor(
       checks(ESLINT_BASED_RULE),
       bridgeServerMock,
       analysisWithProgram,
       new AnalysisConsumers()
-    )
-      .execute(context);
+    ).execute(context);
     Collection<Issue> issues = context.allIssues();
     assertThat(issues).isEmpty();
     assertThat(context.allAnalysisErrors()).hasSize(1);
-    assertThat(logTester.logs(Level.WARN))
-      .contains("Failed to parse file [dir/file.js] at line 3: Parse error message");
+    assertThat(logTester.logs(Level.WARN)).contains(
+      "Failed to parse file [dir/file.js] at line 3: Parse error message"
+    );
   }
 
   @Test
@@ -638,8 +652,9 @@ class JavaScriptEslintBasedSensorTest {
 
     createSonarLintSensor().execute(ctx);
     verify(bridgeServerMock).analyzeJavaScript(captor.capture());
-    assertThat(captor.getValue().fileContent())
-      .isEqualTo("if (cond)\n" + "doFoo(); \n" + "else \n" + "doFoo();");
+    assertThat(captor.getValue().fileContent()).isEqualTo(
+      "if (cond)\n" + "doFoo(); \n" + "else \n" + "doFoo();"
+    );
     assertThat(captor.getValue().tsConfigs()).containsExactly("/path/to/file");
 
     clearInvocations(bridgeServerMock);
@@ -703,27 +718,29 @@ class JavaScriptEslintBasedSensorTest {
     createInputFile(context);
     context.setCancelled(true);
     sensor.execute(context);
-    assertThat(logTester.logs(Level.INFO))
-      .contains(
-        "org.sonar.plugins.javascript.CancellationException: Analysis interrupted because the SensorContext is in cancelled state"
-      );
+    assertThat(logTester.logs(Level.INFO)).contains(
+      "org.sonar.plugins.javascript.CancellationException: Analysis interrupted because the SensorContext is in cancelled state"
+    );
   }
 
   @Test
   void should_save_cached_cpd() throws IOException {
     var path = "dir/file.js";
     var context = CacheTestUtils.createContextWithCache(baseDir, workDir, path);
-    var file = TestUtils
-      .createInputFile(context, "if (cond)\ndoFoo(); \nelse \ndoFoo();", path)
-      .setStatus(InputFile.Status.SAME);
+    var file = TestUtils.createInputFile(
+      context,
+      "if (cond)\ndoFoo(); \nelse \ndoFoo();",
+      path
+    ).setStatus(InputFile.Status.SAME);
     tsProgram.files().add(file.absolutePath());
     var sensor = createSensor();
 
     sensor.execute(context);
 
     assertThat(context.cpdTokens(file.key())).hasSize(2);
-    assertThat(logTester.logs(Level.DEBUG))
-      .contains("Processing cache analysis of file: " + file.uri());
+    assertThat(logTester.logs(Level.DEBUG)).contains(
+      "Processing cache analysis of file: " + file.uri()
+    );
   }
 
   @Test

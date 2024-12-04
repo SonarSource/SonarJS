@@ -143,33 +143,33 @@ class YamlSensorTest {
     IssueLocation location = firstIssue.primaryLocation();
     assertThat(location.inputComponent()).isEqualTo(inputFile);
     assertThat(location.message()).isEqualTo("Issue message");
-    assertThat(location.textRange())
-      .isEqualTo(new DefaultTextRange(new DefaultTextPointer(1, 2), new DefaultTextPointer(3, 4)));
+    assertThat(location.textRange()).isEqualTo(
+      new DefaultTextRange(new DefaultTextPointer(1, 2), new DefaultTextPointer(3, 4))
+    );
 
     location = secondIssue.primaryLocation();
     assertThat(location.inputComponent()).isEqualTo(inputFile);
     assertThat(location.message()).isEqualTo("Line issue message");
-    assertThat(location.textRange())
-      .isEqualTo(new DefaultTextRange(new DefaultTextPointer(1, 0), new DefaultTextPointer(1, 37)));
+    assertThat(location.textRange()).isEqualTo(
+      new DefaultTextRange(new DefaultTextPointer(1, 0), new DefaultTextPointer(1, 37))
+    );
 
     assertThat(firstIssue.ruleKey().rule()).isEqualTo("S3923");
     assertThat(secondIssue.ruleKey().rule()).isEqualTo("S3923");
-    assertThat(logTester.logs(Level.WARN))
-      .doesNotContain(
-        "Custom JavaScript rules are deprecated and API will be removed in future version."
-      );
+    assertThat(logTester.logs(Level.WARN)).doesNotContain(
+      "Custom JavaScript rules are deprecated and API will be removed in future version."
+    );
   }
 
   @Test
   void should_raise_a_parsing_error() throws IOException {
-    when(bridgeServerMock.analyzeYaml(any()))
-      .thenReturn(
-        new Gson()
-          .fromJson(
-            "{ parsingError: { line: 1, message: \"Parse error message\", code: \"Parsing\"} }",
-            AnalysisResponse.class
-          )
-      );
+    when(bridgeServerMock.analyzeYaml(any())).thenReturn(
+      new Gson()
+        .fromJson(
+          "{ parsingError: { line: 1, message: \"Parse error message\", code: \"Parsing\"} }",
+          AnalysisResponse.class
+        )
+    );
 
     createInputFile(context);
     createSensor().execute(context);
@@ -181,8 +181,9 @@ class YamlSensorTest {
     assertThat(issue.primaryLocation().textRange().start().line()).isEqualTo(1);
     assertThat(issue.primaryLocation().message()).isEqualTo("Parse error message");
     assertThat(context.allAnalysisErrors()).hasSize(1);
-    assertThat(logTester.logs(Level.WARN))
-      .contains("Failed to parse file [dir/file.yaml] at line 1: Parse error message");
+    assertThat(logTester.logs(Level.WARN)).contains(
+      "Failed to parse file [dir/file.yaml] at line 1: Parse error message"
+    );
   }
 
   @Test
@@ -196,8 +197,9 @@ class YamlSensorTest {
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Analysis of JS in YAML files failed");
 
-    assertThat(logTester.logs(Level.ERROR))
-      .contains("Failed to get response while analyzing " + inputFile.uri());
+    assertThat(logTester.logs(Level.ERROR)).contains(
+      "Failed to get response while analyzing " + inputFile.uri()
+    );
     assertThat(context.allIssues()).isEmpty();
   }
 
@@ -209,10 +211,9 @@ class YamlSensorTest {
     context.setCancelled(true);
     sensor.execute(context);
 
-    assertThat(logTester.logs(Level.INFO))
-      .contains(
-        "org.sonar.plugins.javascript.CancellationException: Analysis interrupted because the SensorContext is in cancelled state"
-      );
+    assertThat(logTester.logs(Level.INFO)).contains(
+      "org.sonar.plugins.javascript.CancellationException: Analysis interrupted because the SensorContext is in cancelled state"
+    );
   }
 
   @Test
@@ -232,24 +233,24 @@ class YamlSensorTest {
     YamlSensor sensor = createSensor();
     DefaultInputFile inputFile = createInputFile(context, "a: 1\nb: 'var a = 2;'");
     sensor.execute(context);
-    assertThat(logTester.logs(Level.DEBUG))
-      .doesNotContain("Analyzing file: " + inputFile.uri());
+    assertThat(logTester.logs(Level.DEBUG)).doesNotContain("Analyzing file: " + inputFile.uri());
   }
 
   @Test
   void should_not_save_cached_cpd() throws IOException {
     var path = "dir/file.yaml";
     var context = CacheTestUtils.createContextWithCache(baseDir, workDir, path);
-    var file = TestUtils
-      .createInputFile(context, getInputFileContent(), path)
-      .setStatus(InputFile.Status.SAME);
+    var file = TestUtils.createInputFile(context, getInputFileContent(), path).setStatus(
+      InputFile.Status.SAME
+    );
     var sensor = createSensor();
 
     sensor.execute(context);
 
     assertThat(context.cpdTokens(file.key())).isNull();
-    assertThat(logTester.logs(Level.DEBUG))
-      .doesNotContain("Processing cache analysis of file: " + file.uri());
+    assertThat(logTester.logs(Level.DEBUG)).doesNotContain(
+      "Processing cache analysis of file: " + file.uri()
+    );
   }
 
   private static JsTsChecks checks(String... ruleKeys) {

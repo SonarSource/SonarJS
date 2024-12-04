@@ -121,8 +121,7 @@ public class FormDataUtils {
     }
     int begin = 0;
 
-    outer:
-    for (int i = 0; i < array.length - delimiter.length + 1; i++) {
+    outer: for (int i = 0; i < array.length - delimiter.length + 1; i++) {
       for (int j = 0; j < delimiter.length; j++) {
         if (array[i + j] != delimiter[j]) {
           continue outer;

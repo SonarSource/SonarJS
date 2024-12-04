@@ -16,6 +16,9 @@
  */
 package org.sonar.plugins.javascript.standalone;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
@@ -23,17 +26,17 @@ import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-
 class StandaloneTemporaryFolderTest {
 
-  private static final StandaloneTemporaryFolder STANDALONE_TEMPORARY_FOLDER = new StandaloneTemporaryFolder();
+  private static final StandaloneTemporaryFolder STANDALONE_TEMPORARY_FOLDER =
+    new StandaloneTemporaryFolder();
 
   @Test
   void new_dir_can_throw() {
     try (MockedStatic<Files> mockedFiles = Mockito.mockStatic(Files.class)) {
-      mockedFiles.when(() -> Files.createTempDirectory(any(String.class))).thenThrow(new IOException("IOException!"));
+      mockedFiles
+        .when(() -> Files.createTempDirectory(any(String.class)))
+        .thenThrow(new IOException("IOException!"));
       assertThatThrownBy(STANDALONE_TEMPORARY_FOLDER::newDir)
         .isInstanceOf(UncheckedIOException.class)
         .hasMessage("java.io.IOException: IOException!");
@@ -43,11 +46,12 @@ class StandaloneTemporaryFolderTest {
   @Test
   void new_file_can_throw() {
     try (MockedStatic<Files> mockedFiles = Mockito.mockStatic(Files.class)) {
-      mockedFiles.when(() -> Files.createTempFile(any(), any())).thenThrow(new IOException("IOException!"));
+      mockedFiles
+        .when(() -> Files.createTempFile(any(), any()))
+        .thenThrow(new IOException("IOException!"));
       assertThatThrownBy(STANDALONE_TEMPORARY_FOLDER::newFile)
         .isInstanceOf(UncheckedIOException.class)
         .hasMessage("java.io.IOException: IOException!");
     }
   }
-
 }

@@ -30,5 +30,4 @@ class PluginInfoTest {
     PluginInfo.setUcfgPluginVersion("1.0.0");
     assertEquals("1.0.0", PluginInfo.getUcfgPluginVersion().get());
   }
-
 }

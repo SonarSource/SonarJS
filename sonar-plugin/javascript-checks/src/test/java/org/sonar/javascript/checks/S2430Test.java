@@ -26,7 +26,8 @@ class S2430Test {
   @Test
   void configurations() {
     String configAsString = new Gson().toJson(new S2430().configurations());
-    assertThat(configAsString)
-      .isEqualTo("[{\"newIsCap\":true,\"capIsNew\":false,\"properties\":false}]");
+    assertThat(configAsString).isEqualTo(
+      "[{\"newIsCap\":true,\"capIsNew\":false,\"properties\":false}]"
+    );
   }
 }

@@ -53,6 +53,6 @@ public class AnalysisConsumers implements JsAnalysisConsumer {
   }
 
   public boolean hasConsumers() {
-    return ! consumers.isEmpty();
+    return !consumers.isEmpty();
   }
 }

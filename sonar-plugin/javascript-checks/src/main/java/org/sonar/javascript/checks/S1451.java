@@ -51,8 +51,6 @@ public class S1451 extends Check {
     return Collections.singletonList(new Config(headerFormat, isRegularExpression));
   }
 
-
-
   private static class Config {
 
     String headerFormat;

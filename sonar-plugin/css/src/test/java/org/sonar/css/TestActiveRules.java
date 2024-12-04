@@ -34,8 +34,9 @@ public class TestActiveRules implements ActiveRules {
   private final List<ActiveRule> activeRules;
 
   public TestActiveRules(String... activeRules) {
-    this.activeRules =
-      Arrays.stream(activeRules).map(TestActiveRule::new).collect(Collectors.toList());
+    this.activeRules = Arrays.stream(activeRules)
+      .map(TestActiveRule::new)
+      .collect(Collectors.toList());
   }
 
   @CheckForNull

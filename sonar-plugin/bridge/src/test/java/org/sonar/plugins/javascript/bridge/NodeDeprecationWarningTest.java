@@ -48,7 +48,8 @@ class NodeDeprecationWarningTest {
     deprecationWarning.logNodeDeprecation(16);
     assertWarnings(
       "Using Node.js version 16 to execute analysis is not supported. " +
-      "Please upgrade to a newer LTS version of Node.js: [^20.9.0, ^22.9.0].");
+      "Please upgrade to a newer LTS version of Node.js: [^20.9.0, ^22.9.0]."
+    );
   }
 
   @Test
@@ -57,8 +58,10 @@ class NodeDeprecationWarningTest {
     deprecationWarning.logNodeDeprecation(20);
     deprecationWarning.logNodeDeprecation(21);
     deprecationWarning.logNodeDeprecation(22);
-    assertWarnings("Using Node.js version 18 to execute analysis is not supported. " +
-      "Please upgrade to a newer LTS version of Node.js: [^20.9.0, ^22.9.0].");
+    assertWarnings(
+      "Using Node.js version 18 to execute analysis is not supported. " +
+      "Please upgrade to a newer LTS version of Node.js: [^20.9.0, ^22.9.0]."
+    );
   }
 
   private void assertWarnings(String... messages) {

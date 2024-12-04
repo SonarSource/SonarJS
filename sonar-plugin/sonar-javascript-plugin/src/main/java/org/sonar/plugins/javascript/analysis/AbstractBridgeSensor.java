@@ -48,10 +48,7 @@ public abstract class AbstractBridgeSensor implements Sensor {
   protected SensorContext context;
   protected ContextUtils contextUtils;
 
-  protected AbstractBridgeSensor(
-    BridgeServer bridgeServer,
-    String lang
-  ) {
+  protected AbstractBridgeSensor(BridgeServer bridgeServer, String lang) {
     this.bridgeServer = bridgeServer;
     this.lang = lang;
   }

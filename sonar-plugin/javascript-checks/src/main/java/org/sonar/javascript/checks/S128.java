@@ -26,7 +26,4 @@ import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 @TypeScriptRule
 @DeprecatedRuleKey(ruleKey = "NonEmptyCaseWithoutBreak")
 @Rule(key = "S128")
-public class S128 extends Check {
-
-
-}
+public class S128 extends Check {}

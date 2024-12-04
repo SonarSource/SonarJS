@@ -40,15 +40,9 @@ public class S4328 extends Check {
   @Override
   public List<Object> configurations() {
     return Collections.singletonList(
-      new Config(
-        Arrays.stream(whitelist.split(","))
-          .map(String::trim)
-          .toArray(String[]::new)
-      )
+      new Config(Arrays.stream(whitelist.split(",")).map(String::trim).toArray(String[]::new))
     );
   }
-
-
 
   private static class Config {
 

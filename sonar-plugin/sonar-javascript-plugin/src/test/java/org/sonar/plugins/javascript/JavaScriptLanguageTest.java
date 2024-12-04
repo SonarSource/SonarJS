@@ -31,8 +31,13 @@ class JavaScriptLanguageTest {
       JavaScriptLanguage.FILE_SUFFIXES_DEFVALUE
     );
     JavaScriptLanguage javaScriptLanguage = new JavaScriptLanguage(mapSettings.asConfig());
-    assertThat(javaScriptLanguage.getFileSuffixes())
-      .containsOnly(".js", ".jsx", ".cjs", ".mjs", ".vue");
+    assertThat(javaScriptLanguage.getFileSuffixes()).containsOnly(
+      ".js",
+      ".jsx",
+      ".cjs",
+      ".mjs",
+      ".vue"
+    );
   }
 
   @Test

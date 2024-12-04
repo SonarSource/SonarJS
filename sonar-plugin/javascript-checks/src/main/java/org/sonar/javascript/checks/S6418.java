@@ -38,6 +38,7 @@ public class S6418 extends Check {
     defaultValue = DEFAULT_SECRET_WORDS
   )
   public String secretWords = DEFAULT_SECRET_WORDS;
+
   @RuleProperty(
     key = "randomnessSensibility",
     description = "Minimum shannon entropy threshold of the secret",
@@ -47,9 +48,7 @@ public class S6418 extends Check {
 
   @Override
   public List<Object> configurations() {
-    return Collections.singletonList(
-      new Config(secretWords, randomnessSensibility)
-    );
+    return Collections.singletonList(new Config(secretWords, randomnessSensibility));
   }
 
   private static class Config {

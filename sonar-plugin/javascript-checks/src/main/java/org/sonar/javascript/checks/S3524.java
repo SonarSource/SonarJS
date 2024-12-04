@@ -46,8 +46,6 @@ public class S3524 extends Check {
   )
   boolean bodyBraces = DEFAULT_BODY_BRACES;
 
-  
-
   @Override
   public List<Object> configurations() {
     return Collections.singletonList(new Config(parameterParens, bodyBraces));

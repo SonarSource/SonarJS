@@ -78,12 +78,11 @@ class CoverageSensorTest {
       .build();
 
     inputFile.setMetadata(
-      new FileMetadata(s -> {})
-        .readMetadata(
-          new FileInputStream(inputFile.file()),
-          StandardCharsets.UTF_8,
-          inputFile.absolutePath()
-        )
+      new FileMetadata(s -> {}).readMetadata(
+        new FileInputStream(inputFile.file()),
+        StandardCharsets.UTF_8,
+        inputFile.absolutePath()
+      )
     );
     context.fileSystem().add(inputFile);
 
@@ -119,14 +118,13 @@ class CoverageSensorTest {
     settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, REPORT1);
     settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS_ALIAS, REPORT2);
     coverageSensor.execute(context);
-    assertThat(logTester.logs(Level.INFO))
-      .contains(
-        String.format(
-          "Merging coverage reports from %s and %s.",
-          JavaScriptPlugin.LCOV_REPORT_PATHS,
-          JavaScriptPlugin.LCOV_REPORT_PATHS_ALIAS
-        )
-      );
+    assertThat(logTester.logs(Level.INFO)).contains(
+      String.format(
+        "Merging coverage reports from %s and %s.",
+        JavaScriptPlugin.LCOV_REPORT_PATHS,
+        JavaScriptPlugin.LCOV_REPORT_PATHS_ALIAS
+      )
+    );
     assertTwoReportsCoverageDataPresent();
   }
 
@@ -134,8 +132,9 @@ class CoverageSensorTest {
   void test_used_property_log() {
     settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, TWO_REPORTS);
     coverageSensor.execute(context);
-    assertThat(logTester.logs(Level.DEBUG))
-      .contains(String.format("Property %s is used.", JavaScriptPlugin.LCOV_REPORT_PATHS));
+    assertThat(logTester.logs(Level.DEBUG)).contains(
+      String.format("Property %s is used.", JavaScriptPlugin.LCOV_REPORT_PATHS)
+    );
   }
 
   private void assertTwoReportsCoverageDataPresent() {
@@ -166,14 +165,12 @@ class CoverageSensorTest {
     assertThat(context.conditions("moduleKey:file1.js", 2)).isEqualTo(3);
     assertThat(context.coveredConditions("moduleKey:file1.js", 2)).isEqualTo(1);
 
-    assertThat(logTester.logs())
-      .contains(
-        "Problem during processing LCOV report: can't save DA data for line 3 of coverage report file (java.lang.IllegalArgumentException: Line with number 0 doesn't belong to file file1.js)."
-      );
-    assertThat(logTester.logs())
-      .contains(
-        "Problem during processing LCOV report: can't save BRDA data for line 8 of coverage report file (java.lang.IllegalArgumentException: Line with number 102 doesn't belong to file file1.js)."
-      );
+    assertThat(logTester.logs()).contains(
+      "Problem during processing LCOV report: can't save DA data for line 3 of coverage report file (java.lang.IllegalArgumentException: Line with number 0 doesn't belong to file file1.js)."
+    );
+    assertThat(logTester.logs()).contains(
+      "Problem during processing LCOV report: can't save BRDA data for line 8 of coverage report file (java.lang.IllegalArgumentException: Line with number 102 doesn't belong to file file1.js)."
+    );
   }
 
   @Test
@@ -205,12 +202,12 @@ class CoverageSensorTest {
     coverageSensor.execute(context);
     String fileName =
       File.separator + "reports" + File.separator + "report_with_unresolved_path.lcov";
-    assertThat(logTester.logs(Level.WARN))
-      .contains(
-        "Could not resolve 2 file paths in [" + moduleBaseDir.getAbsolutePath() + fileName + "]"
-      );
-    assertThat(logTester.logs(Level.DEBUG))
-      .contains("Unresolved paths:\n" + "unresolved/file1.js\n" + "unresolved/file2.js");
+    assertThat(logTester.logs(Level.WARN)).contains(
+      "Could not resolve 2 file paths in [" + moduleBaseDir.getAbsolutePath() + fileName + "]"
+    );
+    assertThat(logTester.logs(Level.DEBUG)).contains(
+      "Unresolved paths:\n" + "unresolved/file1.js\n" + "unresolved/file2.js"
+    );
   }
 
   @Test
@@ -224,23 +221,19 @@ class CoverageSensorTest {
     assertThat(context.conditions("moduleKey:file1.js", 2)).isEqualTo(2);
     assertThat(context.coveredConditions("moduleKey:file1.js", 2)).isEqualTo(2);
 
-    assertThat(logTester.logs(Level.DEBUG))
-      .contains(
-        "Problem during processing LCOV report: can't save DA data for line 3 of coverage report file (java.lang.NumberFormatException: For input string: \"1.\")."
-      );
+    assertThat(logTester.logs(Level.DEBUG)).contains(
+      "Problem during processing LCOV report: can't save DA data for line 3 of coverage report file (java.lang.NumberFormatException: For input string: \"1.\")."
+    );
     String stringIndexOutOfBoundLogMessage = logTester.logs(Level.DEBUG).get(3);
-    assertThat(stringIndexOutOfBoundLogMessage)
-      .startsWith(
-        "Problem during processing LCOV report: can't save DA data for line 4 of coverage report file (java.lang.StringIndexOutOfBoundsException:"
-      );
-    assertThat(logTester.logs(Level.DEBUG).get(logTester.logs(Level.DEBUG).size() - 1))
-      .startsWith(
-        "Problem during processing LCOV report: can't save BRDA data for line 6 of coverage report file (java.lang.ArrayIndexOutOfBoundsException: "
-      );
-    assertThat(logTester.logs(Level.WARN))
-      .contains(
-        "Found 3 inconsistencies in coverage report. Re-run analyse in debug mode to see details."
-      );
+    assertThat(stringIndexOutOfBoundLogMessage).startsWith(
+      "Problem during processing LCOV report: can't save DA data for line 4 of coverage report file (java.lang.StringIndexOutOfBoundsException:"
+    );
+    assertThat(logTester.logs(Level.DEBUG).get(logTester.logs(Level.DEBUG).size() - 1)).startsWith(
+      "Problem during processing LCOV report: can't save BRDA data for line 6 of coverage report file (java.lang.ArrayIndexOutOfBoundsException: "
+    );
+    assertThat(logTester.logs(Level.WARN)).contains(
+      "Found 3 inconsistencies in coverage report. Re-run analyse in debug mode to see details."
+    );
   }
 
   @Test
@@ -255,14 +248,12 @@ class CoverageSensorTest {
       descriptor
         .configurationPredicate()
         .test(new MapSettings().setProperty("sonar.javascript.lcov.reportPaths", "foo").asConfig())
-    )
-      .isTrue();
+    ).isTrue();
     assertThat(
       descriptor
         .configurationPredicate()
         .test(new MapSettings().setProperty("sonar.typescript.lcov.reportPaths", "bar").asConfig())
-    )
-      .isTrue();
+    ).isTrue();
     assertThat(descriptor.configurationPredicate().test(new MapSettings().asConfig())).isFalse();
   }
 
@@ -296,8 +287,7 @@ class CoverageSensorTest {
 
     Files.write(
       lcovFile,
-      (
-        "SF:" +
+      ("SF:" +
         absolutePathFile1 +
         "\n" +
         "DA:1,2\n" +
@@ -315,8 +305,7 @@ class CoverageSensorTest {
         "\n" +
         "DA:1,5\n" +
         "DA:2,5\n" +
-        "end_of_record\n"
-      ).getBytes(StandardCharsets.UTF_8)
+        "end_of_record\n").getBytes(StandardCharsets.UTF_8)
     );
     settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, lcovFile.toAbsolutePath().toString());
     inputFile("file1.js", Type.MAIN);
@@ -370,8 +359,7 @@ class CoverageSensorTest {
     Path lcov = tempDir.resolve("file.lcov");
     Files.write(
       lcov,
-      (
-        "SF:src/file1.ts\n" +
+      ("SF:src/file1.ts\n" +
         "DA:1,2\n" +
         "DA:2,2\n" +
         "DA:3,1\n" +
@@ -385,8 +373,7 @@ class CoverageSensorTest {
         "SF:src/file2.ts\n" +
         "DA:1,5\n" +
         "DA:2,5\n" +
-        "end_of_record\n"
-      ).getBytes(StandardCharsets.UTF_8)
+        "end_of_record\n").getBytes(StandardCharsets.UTF_8)
     );
     settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, lcov.toAbsolutePath().toString());
     coverageSensor.execute(context);

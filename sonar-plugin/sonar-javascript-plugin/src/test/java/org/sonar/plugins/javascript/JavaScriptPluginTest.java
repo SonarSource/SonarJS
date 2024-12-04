@@ -22,7 +22,6 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Objects;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.slf4j.event.Level;
@@ -51,10 +50,7 @@ class JavaScriptPluginTest {
     Plugin.Context context = setupContext(
       SonarRuntimeImpl.forSonarQube(LTS_VERSION, SonarQubeSide.SERVER, SonarEdition.COMMUNITY)
     );
-    assertThat(context.getExtensions())
-      .hasSize(
-        BASE_EXTENSIONS + SCANNER_EXTENSIONS
-      );
+    assertThat(context.getExtensions()).hasSize(BASE_EXTENSIONS + SCANNER_EXTENSIONS);
   }
 
   @Test
@@ -76,8 +72,9 @@ class JavaScriptPluginTest {
     var context = mock(Plugin.Context.class);
 
     sonarLintPluginAPIManager.addSonarLintExtensions(context, sonarLintPluginAPIVersion);
-    assertThat(logTester.logs(Level.DEBUG))
-      .containsExactly("Error while trying to inject SonarLint extensions");
+    assertThat(logTester.logs(Level.DEBUG)).containsExactly(
+      "Error while trying to inject SonarLint extensions"
+    );
   }
 
   @Test
@@ -89,32 +86,39 @@ class JavaScriptPluginTest {
     assertThat(globals).isPresent();
 
     var defaultValue = globals.get().defaultValue().split(",");
-    assertThat(defaultValue)
-      .containsExactly(
-        "angular",
-        "goog",
-        "google",
-        "OpenLayers",
-        "d3",
-        "dojo",
-        "dojox",
-        "dijit",
-        "Backbone",
-        "moment",
-        "casper",
-        "_",
-        "sap"
-      );
+    assertThat(defaultValue).containsExactly(
+      "angular",
+      "goog",
+      "google",
+      "OpenLayers",
+      "d3",
+      "dojo",
+      "dojox",
+      "dijit",
+      "Backbone",
+      "moment",
+      "casper",
+      "_",
+      "sap"
+    );
   }
 
   @Test
   void skipNodeProvisioningPropertyIsCorrectlyExposed() {
-    var propertyDefinition = properties().stream().filter((item) -> {
-      return Objects.equals(item.key(), "sonar.scanner.skipNodeProvisioning");
-    }).findFirst().get();
+    var propertyDefinition = properties()
+      .stream()
+      .filter(item -> {
+        return Objects.equals(item.key(), "sonar.scanner.skipNodeProvisioning");
+      })
+      .findFirst()
+      .get();
 
-    assertThat(propertyDefinition.name()).isEqualTo("Skip the deployment of the embedded Node.js runtime");
-    assertThat(propertyDefinition.description()).isEqualTo("Controls whether the scanner should skip the deployment of the embedded Node.js runtime, and use the host-provided runtime instead.<br><br>Analysis will fail if a compatible version of Node.js is not provided via <code>sonar.nodejs.executable</code> or the <code>PATH</code>.");
+    assertThat(propertyDefinition.name()).isEqualTo(
+      "Skip the deployment of the embedded Node.js runtime"
+    );
+    assertThat(propertyDefinition.description()).isEqualTo(
+      "Controls whether the scanner should skip the deployment of the embedded Node.js runtime, and use the host-provided runtime instead.<br><br>Analysis will fail if a compatible version of Node.js is not provided via <code>sonar.nodejs.executable</code> or the <code>PATH</code>."
+    );
     assertThat(propertyDefinition.type().toString()).isEqualTo("BOOLEAN");
     assertThat(propertyDefinition.defaultValue()).isEqualTo("false");
     assertThat(propertyDefinition.category()).isEqualTo("JavaScript / TypeScript");
@@ -126,9 +130,12 @@ class JavaScriptPluginTest {
       SonarRuntimeImpl.forSonarQube(LTS_VERSION, SonarQubeSide.SERVER, SonarEdition.COMMUNITY)
     ).getExtensions();
 
-    return extensions.stream().filter((extension) -> {
-      return extension instanceof PropertyDefinition;
-    }).toList();
+    return extensions
+      .stream()
+      .filter(extension -> {
+        return extension instanceof PropertyDefinition;
+      })
+      .toList();
   }
 
   private Plugin.Context setupContext(SonarRuntime runtime) {

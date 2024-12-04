@@ -56,8 +56,9 @@ class TslintReportSensorTest {
   @RegisterExtension
   public final LogTesterJUnit5 logTester = new LogTesterJUnit5();
 
-  private static final File BASE_DIR = new File("src/test/resources/externalIssues/")
-    .getAbsoluteFile();
+  private static final File BASE_DIR = new File(
+    "src/test/resources/externalIssues/"
+  ).getAbsoluteFile();
   private static final String CONTENT = "foo('aaaaaaa')\nif (cond) \n{ }";
 
   private SensorContextTester context = SensorContextTester.create(BASE_DIR);
@@ -97,11 +98,10 @@ class TslintReportSensorTest {
     assertThat(first.primaryLocation().message()).isEqualTo("Missing semicolon");
     assertThat(first.primaryLocation().textRange().start().line()).isEqualTo(1);
 
-    assertThat(logTester.logs(Level.DEBUG))
-      .containsExactlyInAnyOrder(
-        "Saving external TSLint issue { file:\"myFile.ts\", id:semicolon, message:\"Missing semicolon\", line:1, offset:0, type: CODE_SMELL }",
-        "Saving external TSLint issue { file:\"myFile.ts\", id:curly, message:\"misplaced opening brace\", line:3, offset:0, type: BUG }"
-      );
+    assertThat(logTester.logs(Level.DEBUG)).containsExactlyInAnyOrder(
+      "Saving external TSLint issue { file:\"myFile.ts\", id:semicolon, message:\"Missing semicolon\", line:1, offset:0, type: CODE_SMELL }",
+      "Saving external TSLint issue { file:\"myFile.ts\", id:curly, message:\"misplaced opening brace\", line:3, offset:0, type: BUG }"
+    );
   }
 
   @Test
@@ -155,8 +155,9 @@ class TslintReportSensorTest {
     tslintReportSensor.execute(context);
 
     assertThat(context.allExternalIssues()).isEmpty();
-    assertThat(logTester.logs(Level.ERROR))
-      .contains("No issues information will be saved as the report file can't be read.");
+    assertThat(logTester.logs(Level.ERROR)).contains(
+      "No issues information will be saved as the report file can't be read."
+    );
   }
 
   @Test
@@ -165,10 +166,9 @@ class TslintReportSensorTest {
     tslintReportSensor.execute(context);
 
     assertThat(context.allExternalIssues()).hasSize(1);
-    assertThat(logTester.logs(Level.WARN))
-      .contains(
-        "No input file found for not-exist.ts. No TSLint issues will be imported on this file."
-      );
+    assertThat(logTester.logs(Level.WARN)).contains(
+      "No input file found for not-exist.ts. No TSLint issues will be imported on this file."
+    );
   }
 
   @Test

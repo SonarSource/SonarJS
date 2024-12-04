@@ -55,11 +55,15 @@ class EslintRulesDefinitionTest {
     assertThat(eslintRepo.rule("sonarjs/no-duplicate-string")).isNotNull();
 
     // checking loader resolution code
-    assertThat(EslintRulesDefinition.loader("@angular-eslint/no-attribute-decorator").ruleKeys())
-      .hasSizeBetween(30, 40); // 35
-    assertThat(EslintRulesDefinition.loader("@angular-eslint/template/valid-aria").ruleKeys())
-      .hasSizeBetween(25, 30); // 27
-    assertThat(EslintRulesDefinition.loader("no-useless-escape").ruleKeys())
-      .hasSizeBetween(270, 320); // 290
+    assertThat(
+      EslintRulesDefinition.loader("@angular-eslint/no-attribute-decorator").ruleKeys()
+    ).hasSizeBetween(30, 40); // 35
+    assertThat(
+      EslintRulesDefinition.loader("@angular-eslint/template/valid-aria").ruleKeys()
+    ).hasSizeBetween(25, 30); // 27
+    assertThat(EslintRulesDefinition.loader("no-useless-escape").ruleKeys()).hasSizeBetween(
+      270,
+      320
+    ); // 290
   }
 }

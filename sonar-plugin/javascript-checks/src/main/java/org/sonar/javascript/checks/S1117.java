@@ -31,8 +31,6 @@ import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 @Rule(key = "S1117")
 public class S1117 extends Check {
 
-
-
   @Override
   public List<Object> configurations() {
     return Collections.singletonList(new Config());

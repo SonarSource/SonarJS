@@ -25,11 +25,9 @@ class S905Test {
 
   @Test
   void test() {
-    String configAsString = new Gson()
-      .toJson(new S905().configurations());
-    assertThat(configAsString)
-      .isEqualTo(
-        "[{\"allowShortCircuit\":true,\"allowTaggedTemplates\":true,\"allowTernary\":true,\"enforceForJSX\":true}]"
-      );
+    String configAsString = new Gson().toJson(new S905().configurations());
+    assertThat(configAsString).isEqualTo(
+      "[{\"allowShortCircuit\":true,\"allowTaggedTemplates\":true,\"allowTernary\":true,\"enforceForJSX\":true}]"
+    );
   }
 }

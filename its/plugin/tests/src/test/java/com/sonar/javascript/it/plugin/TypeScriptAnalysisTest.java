@@ -64,21 +64,26 @@ class TypeScriptAnalysisTest {
     assertThat(OrchestratorStarter.getMeasureAsInt(sampleFileKey, "statements")).isEqualTo(3);
     assertThat(OrchestratorStarter.getMeasureAsInt(sampleFileKey, "comment_lines")).isEqualTo(1);
     assertThat(OrchestratorStarter.getMeasureAsInt(sampleFileKey, "complexity")).isEqualTo(2);
-    assertThat(OrchestratorStarter.getMeasureAsInt(sampleFileKey, "cognitive_complexity"))
-      .isEqualTo(2);
+    assertThat(
+      OrchestratorStarter.getMeasureAsInt(sampleFileKey, "cognitive_complexity")
+    ).isEqualTo(2);
 
-    assertThat(OrchestratorStarter.getMeasureAsDouble(projectKey, "duplicated_lines"))
-      .isEqualTo(111.0);
-    assertThat(OrchestratorStarter.getMeasureAsDouble(projectKey, "duplicated_blocks"))
-      .isEqualTo(2.0);
-    assertThat(OrchestratorStarter.getMeasureAsDouble(projectKey, "duplicated_files"))
-      .isEqualTo(1.0);
+    assertThat(OrchestratorStarter.getMeasureAsDouble(projectKey, "duplicated_lines")).isEqualTo(
+      111.0
+    );
+    assertThat(OrchestratorStarter.getMeasureAsDouble(projectKey, "duplicated_blocks")).isEqualTo(
+      2.0
+    );
+    assertThat(OrchestratorStarter.getMeasureAsDouble(projectKey, "duplicated_files")).isEqualTo(
+      1.0
+    );
 
     issuesList = getIssues(projectKey + ":nosonar.lint.ts");
     assertThat(issuesList).hasSize(1);
 
-    assertThat(result.getLogsLines(log -> log.contains("Found 1 tsconfig.json file(s)")))
-      .hasSize(1);
+    assertThat(result.getLogsLines(log -> log.contains("Found 1 tsconfig.json file(s)"))).hasSize(
+      1
+    );
   }
 
   @Test
@@ -112,10 +117,10 @@ class TypeScriptAnalysisTest {
           "Resolving TSConfig files using 'custom.tsconfig.json' from property sonar.typescript.tsconfigPath"
         )
       )
-    )
-      .hasSize(1);
-    assertThat(result.getLogsLines(l -> l.contains("Found 1 TSConfig file(s): [" + tsconfig + "]")))
-      .hasSize(1);
+    ).hasSize(1);
+    assertThat(
+      result.getLogsLines(l -> l.contains("Found 1 TSConfig file(s): [" + tsconfig + "]"))
+    ).hasSize(1);
   }
 
   @Test
@@ -145,8 +150,9 @@ class TypeScriptAnalysisTest {
       projectDir.getCanonicalFile().toPath().resolve(Paths.get("dir", "custom.tsconfig.json")),
       projectDir.getCanonicalFile().toPath().resolve("tsconfig.json")
     );
-    assertThat(result.getLogsLines(l -> l.contains("Found 2 TSConfig file(s): " + tsconfigs)))
-      .hasSize(1);
+    assertThat(
+      result.getLogsLines(l -> l.contains("Found 2 TSConfig file(s): " + tsconfigs))
+    ).hasSize(1);
   }
 
   @Test
@@ -166,8 +172,9 @@ class TypeScriptAnalysisTest {
 
     List<Issue> issuesList = getIssues(projectKey);
     assertThat(issuesList).extracting(Issue::getRule).containsExactly("typescript:S4325");
-    assertThat(result.getLogsLines(l -> l.contains("Using generated tsconfig.json file")))
-      .hasSize(1);
+    assertThat(result.getLogsLines(l -> l.contains("Using generated tsconfig.json file"))).hasSize(
+      1
+    );
   }
 
   /**
@@ -197,8 +204,9 @@ class TypeScriptAnalysisTest {
         tuple(6, "typescript:S3923", "missing-tsconfig-vue:src/file.vue")
       );
 
-    assertThat(result.getLogsLines(l -> l.contains("Using generated tsconfig.json file")))
-      .hasSize(1);
+    assertThat(result.getLogsLines(l -> l.contains("Using generated tsconfig.json file"))).hasSize(
+      1
+    );
   }
 
   @Test
@@ -230,14 +238,12 @@ class TypeScriptAnalysisTest {
           "INFO: Found 1 file(s) not part of any tsconfig.json: they will be analyzed without type information"
         )
       )
-    )
-      .hasSize(1);
+    ).hasSize(1);
     assertThat(
       result.getLogsLines(l ->
         l.contains("File not part of any tsconfig.json: dir/file.excluded.ts")
       )
-    )
-      .hasSize(1);
+    ).hasSize(1);
   }
 
   @Test
@@ -263,11 +269,10 @@ class TypeScriptAnalysisTest {
       );
 
     assertThat(
-      result.getLogsLines(l ->
-        l.contains("Skipped") && l.contains("because they were not part of any tsconfig.json")
+      result.getLogsLines(
+        l -> l.contains("Skipped") && l.contains("because they were not part of any tsconfig.json")
       )
-    )
-      .isEmpty();
+    ).isEmpty();
   }
 
   @Test
@@ -295,11 +300,10 @@ class TypeScriptAnalysisTest {
       );
 
     assertThat(
-      result.getLogsLines(l ->
-        l.contains("Skipped") && l.contains("because they were not part of any tsconfig.json")
+      result.getLogsLines(
+        l -> l.contains("Skipped") && l.contains("because they were not part of any tsconfig.json")
       )
-    )
-      .isEmpty();
+    ).isEmpty();
   }
 
   @Test

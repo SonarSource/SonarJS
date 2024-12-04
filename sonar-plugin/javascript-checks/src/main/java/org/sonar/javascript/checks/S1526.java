@@ -26,7 +26,4 @@ import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 @TypeScriptRule
 @DeprecatedRuleKey(ruleKey = "VariableDeclarationAfterUsage")
 @Rule(key = "S1526")
-public class S1526 extends Check {
-
-
-}
+public class S1526 extends Check {}
