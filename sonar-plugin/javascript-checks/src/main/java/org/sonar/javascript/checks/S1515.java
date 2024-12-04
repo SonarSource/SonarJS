@@ -26,7 +26,4 @@ import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 @TypeScriptRule
 @DeprecatedRuleKey(ruleKey = "FunctionDefinitionInsideLoop")
 @Rule(key = "S1515")
-public class S1515 extends Check {
-
-
-}
+public class S1515 extends Check {}

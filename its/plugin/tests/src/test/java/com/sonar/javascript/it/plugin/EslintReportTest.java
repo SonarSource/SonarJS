@@ -44,8 +44,7 @@ class EslintReportTest {
   void should_save_issues_from_external_report_with_relative_paths() {
     String projectKey = PROJECT_KEY_PREFIX + "-relative";
 
-    SonarScanner build = OrchestratorStarter
-      .createScanner()
+    SonarScanner build = OrchestratorStarter.createScanner()
       .setProjectDir(PROJECT_DIR)
       .setProjectKey(projectKey)
       .setProjectName(projectKey)
@@ -62,8 +61,7 @@ class EslintReportTest {
   @Test
   void should_save_issues_from_external_report_with_absolute_paths() throws IOException {
     String projectKey = PROJECT_KEY_PREFIX + "-absolute";
-    SonarScanner build = OrchestratorStarter
-      .createScanner()
+    SonarScanner build = OrchestratorStarter.createScanner()
       .setProjectDir(PROJECT_DIR)
       .setProjectKey(projectKey)
       .setProjectName(projectKey)

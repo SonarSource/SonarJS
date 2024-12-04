@@ -54,6 +54,8 @@ class BundleImplTest {
     BundleImpl bundle = new BundleImpl();
     bundle.setDeployLocation(deployLocation);
     String scriptPath = bundle.startServerScript();
-    assertThat(scriptPath).isEqualTo(deployLocation.resolve(BundleImpl.DEFAULT_STARTUP_SCRIPT).toString());
+    assertThat(scriptPath).isEqualTo(
+      deployLocation.resolve(BundleImpl.DEFAULT_STARTUP_SCRIPT).toString()
+    );
   }
 }

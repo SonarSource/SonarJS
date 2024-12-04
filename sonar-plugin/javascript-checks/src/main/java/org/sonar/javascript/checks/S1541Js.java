@@ -43,12 +43,8 @@ public class S1541Js extends Check {
 
   @Override
   public List<Object> configurations() {
-    return Collections.singletonList(
-      new Config(threshold)
-    );
+    return Collections.singletonList(new Config(threshold));
   }
-
-
 
   private static class Config {
 

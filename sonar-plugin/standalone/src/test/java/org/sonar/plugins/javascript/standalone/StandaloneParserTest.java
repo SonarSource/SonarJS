@@ -16,14 +16,14 @@
  */
 package org.sonar.plugins.javascript.standalone;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.sonar.plugins.javascript.api.estree.ESTree.Program;
+
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.sonar.plugins.javascript.api.estree.ESTree;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.sonar.plugins.javascript.api.estree.ESTree.Program;
 
 class StandaloneParserTest {
 
@@ -48,8 +48,12 @@ class StandaloneParserTest {
       assertThat(v.declarations()).hasSize(1);
       var declaration = v.declarations().get(0);
       assertThat(declaration).isInstanceOfSatisfying(ESTree.VariableDeclarator.class, d -> {
-        assertThat(d.id()).isInstanceOfSatisfying(ESTree.Identifier.class, i -> assertThat(i.name()).isEqualTo("a"));
-        assertThat(d.init().get()).isInstanceOfSatisfying(ESTree.SimpleLiteral.class, l -> assertThat(l.value()).isEqualTo(42));
+        assertThat(d.id()).isInstanceOfSatisfying(ESTree.Identifier.class, i ->
+          assertThat(i.name()).isEqualTo("a")
+        );
+        assertThat(d.init().get()).isInstanceOfSatisfying(ESTree.SimpleLiteral.class, l ->
+          assertThat(l.value()).isEqualTo(42)
+        );
       });
     });
     Program secondSample = parser.parse("let x;");
@@ -65,10 +69,10 @@ class StandaloneParserTest {
 
   @Test
   void test_empty_configuration() {
-    StandaloneParser.EmptyConfiguration emptyConfiguration = new StandaloneParser.EmptyConfiguration();
+    StandaloneParser.EmptyConfiguration emptyConfiguration =
+      new StandaloneParser.EmptyConfiguration();
     assertThat(emptyConfiguration.get("key")).isEmpty();
     assertThat(emptyConfiguration.hasKey("key")).isFalse();
     assertThat(emptyConfiguration.getStringArray("key")).isEmpty();
   }
-
 }

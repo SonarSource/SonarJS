@@ -24,7 +24,4 @@ import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 @JavaScriptRule
 @Rule(key = "S1527")
 @DeprecatedRuleKey(ruleKey = "FutureReservedWords")
-public class S1527 extends Check {
-
-
-}
+public class S1527 extends Check {}

@@ -27,8 +27,6 @@ import org.sonar.plugins.javascript.api.TypeScriptRule;
 @Rule(key = "S6749")
 public class S6749 extends Check {
 
-
-
   @Override
   public List<Object> configurations() {
     return List.of(new Config());

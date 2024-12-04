@@ -26,7 +26,4 @@ import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 @TypeScriptRule
 @DeprecatedRuleKey(ruleKey = "ConstructorFunctionsForSideEffects")
 @Rule(key = "S1848")
-public class S1848 extends Check {
-
-
-}
+public class S1848 extends Check {}

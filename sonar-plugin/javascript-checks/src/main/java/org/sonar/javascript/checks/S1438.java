@@ -26,7 +26,4 @@ import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 @TypeScriptRule
 @Rule(key = "S1438")
 @DeprecatedRuleKey(ruleKey = "Semicolon")
-public class S1438 extends Check {
-
-
-}
+public class S1438 extends Check {}

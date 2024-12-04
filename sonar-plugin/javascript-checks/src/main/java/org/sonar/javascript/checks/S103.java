@@ -49,6 +49,4 @@ public class S103 extends Check {
     configurationsMap.put("tabWidth", 1);
     return Collections.singletonList(configurationsMap);
   }
-
-
 }

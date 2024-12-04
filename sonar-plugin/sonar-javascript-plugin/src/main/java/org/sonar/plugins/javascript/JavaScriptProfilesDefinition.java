@@ -126,7 +126,7 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
       Method getRuleKeysMethod = rulesClass.getMethod(ruleKeysMethodName, String.class);
       return (Set<RuleKey>) getRuleKeysMethod.invoke(null, language);
     } catch (ClassNotFoundException e) {
-      LOG.debug("{} is not found, {}", className,  securityRuleMessage(e));
+      LOG.debug("{} is not found, {}", className, securityRuleMessage(e));
     } catch (NoSuchMethodException e) {
       LOG.debug("Method not found on {}, {}", className, securityRuleMessage(e));
     } catch (IllegalAccessException | InvocationTargetException e) {

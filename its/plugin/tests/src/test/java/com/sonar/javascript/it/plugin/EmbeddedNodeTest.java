@@ -38,8 +38,7 @@ class EmbeddedNodeTest {
       "sonar-javascript-plugin-*" + classifier() + ".jar"
     );
 
-    var orchestrator = OrchestratorExtension
-      .builderEnv()
+    var orchestrator = OrchestratorExtension.builderEnv()
       .useDefaultAdminCredentialsForBuilds(true)
       .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
       .restoreProfileAtStartup(FileLocation.ofClasspath("/eslint-based-rules.xml"))

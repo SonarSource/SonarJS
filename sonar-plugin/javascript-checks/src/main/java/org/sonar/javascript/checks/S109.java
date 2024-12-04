@@ -33,8 +33,6 @@ public class S109 extends Check {
     return Collections.singletonList(new Config());
   }
 
-
-
   private static class Config {
 
     int[] ignore = { 0, 1, -1, 24, 60 };

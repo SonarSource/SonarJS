@@ -46,8 +46,7 @@ class SonarLintTestCodeAnalysisTest {
     NodeJsHelper nodeJsHelper = new NodeJsHelper();
     nodeJsHelper.detect(null);
 
-    StandaloneGlobalConfiguration globalConfig = StandaloneGlobalConfiguration
-      .builder()
+    StandaloneGlobalConfiguration globalConfig = StandaloneGlobalConfiguration.builder()
       .addEnabledLanguage(Language.JS)
       .addEnabledLanguage(Language.TS)
       .addPlugin(TestUtils.JAVASCRIPT_PLUGIN_LOCATION)
@@ -65,8 +64,7 @@ class SonarLintTestCodeAnalysisTest {
       TestUtils.sonarLintInputFile(testFile, Files.readString(testFile))
     );
 
-    StandaloneAnalysisConfiguration analysisConfig = StandaloneAnalysisConfiguration
-      .builder()
+    StandaloneAnalysisConfiguration analysisConfig = StandaloneAnalysisConfiguration.builder()
       .setBaseDir(baseDir)
       .addInputFiles(inputFiles)
       .build();

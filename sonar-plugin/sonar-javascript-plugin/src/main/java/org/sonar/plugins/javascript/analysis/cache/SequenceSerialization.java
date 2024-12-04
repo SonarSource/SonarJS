@@ -46,8 +46,7 @@ class SequenceSerialization extends CacheSerialization {
 
   private static String convertToEntryName(Path baseAbsolutePath, Path fileAbsolutePath) {
     var relativePath = baseAbsolutePath.relativize(fileAbsolutePath);
-    return StreamSupport
-      .stream(relativePath.spliterator(), false)
+    return StreamSupport.stream(relativePath.spliterator(), false)
       .map(Path::getFileName)
       .map(Path::toString)
       .collect(joining(ENTRY_SEPARATOR));

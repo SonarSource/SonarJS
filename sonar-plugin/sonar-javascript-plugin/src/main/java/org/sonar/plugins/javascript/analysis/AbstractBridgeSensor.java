@@ -16,6 +16,8 @@
  */
 package org.sonar.plugins.javascript.analysis;
 
+import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_EXECUTABLE_PROPERTY;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -33,8 +35,6 @@ import org.sonar.plugins.javascript.bridge.ServerAlreadyFailedException;
 import org.sonar.plugins.javascript.nodejs.NodeCommandException;
 import org.sonar.plugins.javascript.utils.Exclusions;
 
-import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_EXECUTABLE_PROPERTY;
-
 public abstract class AbstractBridgeSensor implements Sensor {
 
   private static final Logger LOG = LoggerFactory.getLogger(AbstractBridgeSensor.class);
@@ -48,10 +48,7 @@ public abstract class AbstractBridgeSensor implements Sensor {
   protected SensorContext context;
   protected ContextUtils contextUtils;
 
-  protected AbstractBridgeSensor(
-    BridgeServer bridgeServer,
-    String lang
-  ) {
+  protected AbstractBridgeSensor(BridgeServer bridgeServer, String lang) {
     this.bridgeServer = bridgeServer;
     this.lang = lang;
   }

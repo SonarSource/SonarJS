@@ -26,9 +26,16 @@ import org.sonar.api.config.Configuration;
  * This class will contain only information required by {@link BridgeServerImpl}.
  * This will reduce the dependency on external API, and ease the testing.
  */
-public record BridgeServerConfig(Configuration config, String workDirAbsolutePath, SonarProduct product) {
-
+public record BridgeServerConfig(
+  Configuration config,
+  String workDirAbsolutePath,
+  SonarProduct product
+) {
   public static BridgeServerConfig fromSensorContext(SensorContext context) {
-    return new BridgeServerConfig(context.config(), context.fileSystem().workDir().getAbsolutePath(), context.runtime().getProduct());
+    return new BridgeServerConfig(
+      context.config(),
+      context.fileSystem().workDir().getAbsolutePath(),
+      context.runtime().getProduct()
+    );
   }
 }

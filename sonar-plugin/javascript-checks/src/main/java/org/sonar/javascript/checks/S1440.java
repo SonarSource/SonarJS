@@ -34,6 +34,4 @@ public class S1440 extends Check {
   public List<Object> configurations() {
     return Collections.singletonList("smart");
   }
-
-
 }

@@ -31,8 +31,6 @@ public class S4137 extends Check {
     return Collections.singletonList(new Config());
   }
 
-
-
   private static class Config {
 
     String assertionStyle = "as";

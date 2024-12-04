@@ -40,8 +40,9 @@ class EslintReportSensorTest {
   @RegisterExtension
   public final LogTesterJUnit5 logTester = new LogTesterJUnit5();
 
-  private static final File BASE_DIR = new File("src/test/resources/externalIssues/")
-    .getAbsoluteFile();
+  private static final File BASE_DIR = new File(
+    "src/test/resources/externalIssues/"
+  ).getAbsoluteFile();
   private static final String CONTENT =
     "function addOne(i) {\n" +
     "    if (i != NaN) {\n" +
@@ -75,34 +76,33 @@ class EslintReportSensorTest {
     assertThat(first.type()).isEqualTo(RuleType.BUG);
     assertThat(second.type()).isEqualTo(RuleType.CODE_SMELL);
 
-    assertThat(first.primaryLocation().message())
-      .isEqualTo("Use the isNaN function to compare with NaN.");
+    assertThat(first.primaryLocation().message()).isEqualTo(
+      "Use the isNaN function to compare with NaN."
+    );
     assertThat(first.primaryLocation().textRange().start().line()).isEqualTo(2);
     assertThat(first.primaryLocation().inputComponent()).isEqualTo(jsInputFile);
     assertThat(jsInputFile.language()).isEqualTo("js");
 
-    assertThat(third.primaryLocation().textRange())
-      .isEqualTo(new DefaultTextRange(new DefaultTextPointer(2, 0), new DefaultTextPointer(2, 19)));
+    assertThat(third.primaryLocation().textRange()).isEqualTo(
+      new DefaultTextRange(new DefaultTextPointer(2, 0), new DefaultTextPointer(2, 19))
+    );
 
     assertThat(fourth.primaryLocation().inputComponent()).isEqualTo(tsInputFile);
     assertThat(tsInputFile.language()).isEqualTo("ts");
 
-    assertThat(logTester.logs(Level.WARN))
-      .contains(
-        "No input file found for notExist.js. No ESLint issues will be imported on this file."
-      );
-    assertThat(logTester.logs(Level.WARN))
-      .contains(
-        "Parse error issue from ESLint will not be imported, file " + parseErrorInputFile.uri()
-      );
+    assertThat(logTester.logs(Level.WARN)).contains(
+      "No input file found for notExist.js. No ESLint issues will be imported on this file."
+    );
+    assertThat(logTester.logs(Level.WARN)).contains(
+      "Parse error issue from ESLint will not be imported, file " + parseErrorInputFile.uri()
+    );
 
-    assertThat(logTester.logs(Level.DEBUG))
-      .containsExactlyInAnyOrder(
-        "Saving external ESLint issue { file:\"file.js\", id:use-isnan, message:\"Use the isNaN function to compare with NaN.\", line:2, offset:8, type: BUG, severity:MAJOR, remediation:5 }",
-        "Saving external ESLint issue { file:\"file.js\", id:semi, message:\"Use the isNaN function to compare with NaN.\", line:3, offset:0, type: CODE_SMELL, severity:MAJOR, remediation:5 }",
-        "Saving external ESLint issue { file:\"file.js\", id:indent, message:\"Expected indentation of 4 spaces but found 0.\", line:2, offset:0, type: CODE_SMELL, severity:MAJOR, remediation:5 }",
-        "Saving external ESLint issue { file:\"file-ts.ts\", id:semi, message:\"Use the isNaN function to compare with NaN.\", line:3, offset:0, type: CODE_SMELL, severity:MAJOR, remediation:5 }"
-      );
+    assertThat(logTester.logs(Level.DEBUG)).containsExactlyInAnyOrder(
+      "Saving external ESLint issue { file:\"file.js\", id:use-isnan, message:\"Use the isNaN function to compare with NaN.\", line:2, offset:8, type: BUG, severity:MAJOR, remediation:5 }",
+      "Saving external ESLint issue { file:\"file.js\", id:semi, message:\"Use the isNaN function to compare with NaN.\", line:3, offset:0, type: CODE_SMELL, severity:MAJOR, remediation:5 }",
+      "Saving external ESLint issue { file:\"file.js\", id:indent, message:\"Expected indentation of 4 spaces but found 0.\", line:2, offset:0, type: CODE_SMELL, severity:MAJOR, remediation:5 }",
+      "Saving external ESLint issue { file:\"file-ts.ts\", id:semi, message:\"Use the isNaN function to compare with NaN.\", line:3, offset:0, type: CODE_SMELL, severity:MAJOR, remediation:5 }"
+    );
   }
 
   @Test
@@ -113,8 +113,9 @@ class EslintReportSensorTest {
     Collection<ExternalIssue> externalIssues = context.allExternalIssues();
     assertThat(externalIssues).hasSize(0);
 
-    assertThat(logTester.logs(Level.WARN))
-      .contains("No issues information will be saved as the report file can't be read.");
+    assertThat(logTester.logs(Level.WARN)).contains(
+      "No issues information will be saved as the report file can't be read."
+    );
   }
 
   @Test
@@ -125,8 +126,9 @@ class EslintReportSensorTest {
     Collection<ExternalIssue> externalIssues = context.allExternalIssues();
     assertThat(externalIssues).hasSize(0);
 
-    assertThat(logTester.logs(Level.WARN))
-      .contains("No issues information will be saved as the report file can't be read.");
+    assertThat(logTester.logs(Level.WARN)).contains(
+      "No issues information will be saved as the report file can't be read."
+    );
   }
 
   @Test

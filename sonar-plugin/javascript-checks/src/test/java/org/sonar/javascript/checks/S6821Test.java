@@ -26,7 +26,8 @@ class S6821Test {
   @Test
   void config() {
     String configAsString = new Gson().toJson(new S6821().configurations());
-    assertThat(configAsString)
-      .isEqualTo("[{\"ignoreNonDOM\":true,\"allowedInvalidRoles\":[\"text\"]}]");
+    assertThat(configAsString).isEqualTo(
+      "[{\"ignoreNonDOM\":true,\"allowedInvalidRoles\":[\"text\"]}]"
+    );
   }
 }

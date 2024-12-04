@@ -31,5 +31,6 @@ class S4622Test {
     assertThat(defaultConfigAsString).isEqualTo("[{\"threshold\":3}]");
     check.threshold = 4;
     String customConfigAsString = new Gson().toJson(check.configurations());
-    assertThat(customConfigAsString).isEqualTo("[{\"threshold\":4}]");  }
+    assertThat(customConfigAsString).isEqualTo("[{\"threshold\":4}]");
+  }
 }

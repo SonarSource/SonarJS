@@ -138,12 +138,11 @@ public class JsTsChecks {
   }
 
   protected void initParsingErrorRuleKey() {
-    this.parseErrorRuleKey =
-      all()
-        .filter(S2260.class::isInstance)
-        .findFirst()
-        .map(this::ruleKeyFor)
-        .orElse(null);
+    this.parseErrorRuleKey = all()
+      .filter(S2260.class::isInstance)
+      .findFirst()
+      .map(this::ruleKeyFor)
+      .orElse(null);
   }
 
   List<EslintRule> eslintRules() {
@@ -175,8 +174,9 @@ public class JsTsChecks {
     final String repository;
 
     LanguageAndRepository(Language language, String repository) {
-      this.language =
-        language == Language.JAVASCRIPT ? JavaScriptLanguage.KEY : TypeScriptLanguage.KEY;
+      this.language = language == Language.JAVASCRIPT
+        ? JavaScriptLanguage.KEY
+        : TypeScriptLanguage.KEY;
       this.repository = repository;
     }
 

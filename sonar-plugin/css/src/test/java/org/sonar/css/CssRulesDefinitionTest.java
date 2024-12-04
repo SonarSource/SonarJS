@@ -82,8 +82,9 @@ class CssRulesDefinitionTest {
     Param param = repository.rule("S4662").param("ignoreAtRules");
     assertThat(param).isNotNull();
     assertThat(param.defaultValue()).startsWith("value,at-root,content");
-    assertThat(param.description())
-      .isEqualTo("Comma-separated list of \"at-rules\" to consider as valid.");
+    assertThat(param.description()).isEqualTo(
+      "Comma-separated list of \"at-rules\" to consider as valid."
+    );
     assertThat(param.type()).isEqualTo(RuleParamType.STRING);
   }
 

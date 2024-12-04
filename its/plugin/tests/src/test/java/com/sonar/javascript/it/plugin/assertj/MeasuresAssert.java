@@ -44,8 +44,7 @@ public class MeasuresAssert extends AbstractAssert<MeasuresAssert, Measures> {
   }
 
   public MeasuresAssert has(String metricKey, double value) {
-    Assertions
-      .assertThat(measures.get(metricKey))
+    Assertions.assertThat(measures.get(metricKey))
       .as("measure %s", metricKey, value)
       .isEqualTo(value, offset);
     return this;

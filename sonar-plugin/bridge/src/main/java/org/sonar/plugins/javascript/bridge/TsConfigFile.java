@@ -51,9 +51,6 @@ public class TsConfigFile {
   }
 
   private static String normalizePath(String path) {
-    return Path
-      .of(path)
-      .toString()
-      .replaceAll("[\\\\/]", "/");
+    return Path.of(path).toString().replaceAll("[\\\\/]", "/");
   }
 }

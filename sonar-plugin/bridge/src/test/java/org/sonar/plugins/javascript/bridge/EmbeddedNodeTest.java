@@ -164,27 +164,29 @@ class EmbeddedNodeTest {
     logTester.setLevel(Level.DEBUG);
     var en = new EmbeddedNode(mock(ProcessWrapper.class), createUnsupportedEnvironment());
     en.deploy();
-    assertThat(logTester.logs())
-      .anyMatch(l ->
-        l.startsWith(
-          "Your platform is not supported for embedded Node.js. Falling back to host Node.js."
-        )
-      );
+    assertThat(logTester.logs()).anyMatch(l ->
+      l.startsWith(
+        "Your platform is not supported for embedded Node.js. Falling back to host Node.js."
+      )
+    );
   }
 
   @Test
   void should_fail_gracefully() throws Exception {
     ProcessWrapper processWrapper = mock(ProcessWrapper.class);
-    when(processWrapper.waitFor(any(), anyLong(), any()))
-      .thenThrow(new IllegalStateException("My Error"));
+    when(processWrapper.waitFor(any(), anyLong(), any())).thenThrow(
+      new IllegalStateException("My Error")
+    );
     var en = new EmbeddedNode(processWrapper, createTestEnvironment());
     en.deploy();
-    assertThat(logTester.logs())
-      .anyMatch(l ->
+    assertThat(logTester.logs()).anyMatch(
+      l ->
         l.startsWith("Embedded Node.js failed to deploy in ") &&
-          l.contains("You can change the location by setting the option `sonar.userHome` or the environment variable `SONAR_USER_HOME`.") &&
-          l.endsWith("Will fallback to host Node.js.")
-      );
+        l.contains(
+          "You can change the location by setting the option `sonar.userHome` or the environment variable `SONAR_USER_HOME`."
+        ) &&
+        l.endsWith("Will fallback to host Node.js.")
+    );
   }
 
   @Nonnull

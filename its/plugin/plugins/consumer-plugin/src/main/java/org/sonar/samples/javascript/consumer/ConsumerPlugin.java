@@ -22,9 +22,6 @@ public class ConsumerPlugin implements Plugin {
 
   @Override
   public void define(Context context) {
-    context.addExtensions(
-      Consumer.class,
-      ConsumerSensor.class
-    );
+    context.addExtensions(Consumer.class, ConsumerSensor.class);
   }
 }

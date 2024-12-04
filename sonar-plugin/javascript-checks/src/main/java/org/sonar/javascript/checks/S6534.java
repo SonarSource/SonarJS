@@ -24,7 +24,4 @@ import org.sonar.plugins.javascript.api.TypeScriptRule;
 @TypeScriptRule
 @JavaScriptRule
 @Rule(key = "S6534")
-public class S6534 extends Check {
-
-
-}
+public class S6534 extends Check {}

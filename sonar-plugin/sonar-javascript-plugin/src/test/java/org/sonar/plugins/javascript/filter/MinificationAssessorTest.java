@@ -83,7 +83,8 @@ class MinificationAssessorTest {
   }
 
   private AbstractBooleanAssert<?> getAssert(MinificationAssessor assessor, String fileName) {
-    return assertThat(assessor.isMinified(getFile(fileName)))
-      .as("File '" + fileName + "' is minified?");
+    return assertThat(assessor.isMinified(getFile(fileName))).as(
+      "File '" + fileName + "' is minified?"
+    );
   }
 }

@@ -30,10 +30,7 @@ public class CacheAnalysis {
     this.cpdTokens = cpdTokens;
   }
 
-  public static CacheAnalysis fromResponse(
-    List<String> ucfgPaths,
-    List<CpdToken> cpdTokens
-  ) {
+  public static CacheAnalysis fromResponse(List<String> ucfgPaths, List<CpdToken> cpdTokens) {
     return new CacheAnalysis(ucfgPaths, cpdTokens);
   }
 

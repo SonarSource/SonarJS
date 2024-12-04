@@ -34,6 +34,4 @@ public class S113 extends Check {
   public List<Object> configurations() {
     return Collections.singletonList("always");
   }
-
-
 }

@@ -63,8 +63,7 @@ class HtmlSecurityTest {
 
   @BeforeAll
   public static void startOrchestrator() {
-    var builder = OrchestratorExtension
-      .builderEnv()
+    var builder = OrchestratorExtension.builderEnv()
       .useDefaultAdminCredentialsForBuilds(true)
       .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
       .addPlugin(JAVASCRIPT_PLUGIN_LOCATION)

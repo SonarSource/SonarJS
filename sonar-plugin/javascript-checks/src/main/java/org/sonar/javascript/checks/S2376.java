@@ -40,12 +40,8 @@ public class S2376 extends Check {
 
   @Override
   public List<Object> configurations() {
-    return Collections.singletonList(
-      new Config(getWithoutSet)
-    );
+    return Collections.singletonList(new Config(getWithoutSet));
   }
-
-
 
   private static class Config {
 

@@ -31,23 +31,23 @@ public class JavaScriptExclusionsFileFilter implements InputFileFilter {
   private final List<Assessor> cssAssessors;
 
   public JavaScriptExclusionsFileFilter(Configuration configuration) {
-    jsTsAssessors =
-      Stream
-        .of(
-          new PathAssessor(configuration),
-          new SizeAssessor(configuration),
-          new MinificationAssessor(),
-          new BundleAssessor()
-        )
-        .filter(assessor -> shouldBeEnabled(assessor, configuration))
-        .toList();
+    jsTsAssessors = Stream.of(
+      new PathAssessor(configuration),
+      new SizeAssessor(configuration),
+      new MinificationAssessor(),
+      new BundleAssessor()
+    )
+      .filter(assessor -> shouldBeEnabled(assessor, configuration))
+      .toList();
 
     // We ignore the size limit for CSS files, because analyzing large CSS files takes a reasonable amount of time
-    cssAssessors =
-      Stream
-        .of(new PathAssessor(configuration), new MinificationAssessor(), new BundleAssessor())
-        .filter(assessor -> shouldBeEnabled(assessor, configuration))
-        .toList();
+    cssAssessors = Stream.of(
+      new PathAssessor(configuration),
+      new MinificationAssessor(),
+      new BundleAssessor()
+    )
+      .filter(assessor -> shouldBeEnabled(assessor, configuration))
+      .toList();
   }
 
   private static boolean shouldBeEnabled(Assessor assessor, Configuration configuration) {

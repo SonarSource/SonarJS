@@ -65,8 +65,7 @@ class JsTsRulingTest {
   static final String DEFAULT_EXCLUSIONS = "**/.*,**/*.d.ts";
 
   @RegisterExtension
-  public static final OrchestratorExtension orchestrator = OrchestratorExtension
-    .builderEnv()
+  public static final OrchestratorExtension orchestrator = OrchestratorExtension.builderEnv()
     .useDefaultAdminCredentialsForBuilds(true)
     .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
     .addPlugin(
@@ -279,8 +278,7 @@ class JsTsRulingTest {
     }
 
     var differencesPath = Path.of("target", projectKey + "-differences").toAbsolutePath();
-    SonarScanner build = SonarScanner
-      .create(sourcesLocation)
+    SonarScanner build = SonarScanner.create(sourcesLocation)
       .setProjectKey(projectKey)
       .setProjectName(projectKey)
       .setProjectVersion("1")
@@ -328,16 +326,14 @@ class JsTsRulingTest {
           .setPreventReactivation("true")
           .setParams(
             Arrays.asList(
-              (
-                "name=\"" +
-                  instantiationKey +
-                  "\";key=\"" +
-                  instantiationKey +
-                  "\";markdown_description=\"" +
-                  instantiationKey +
-                  "\";" +
-                  params
-              ).split(";", 0)
+              ("name=\"" +
+                instantiationKey +
+                "\";key=\"" +
+                instantiationKey +
+                "\";markdown_description=\"" +
+                instantiationKey +
+                "\";" +
+                params).split(";", 0)
             )
           )
       );
@@ -368,18 +364,16 @@ class JsTsRulingTest {
     } else {
       throw new IllegalStateException(
         "Could not retrieve profile key : Template rule " +
-          ruleTemplateKey +
-          " has not been activated"
+        ruleTemplateKey +
+        " has not been activated"
       );
     }
   }
 
   static WsClient newAdminWsClient(Orchestrator orchestrator) {
-    return WsClientFactories
-      .getDefault()
+    return WsClientFactories.getDefault()
       .newClient(
-        HttpConnector
-          .newBuilder()
+        HttpConnector.newBuilder()
           .credentials(Server.ADMIN_LOGIN, Server.ADMIN_PASSWORD)
           .url(orchestrator.getServer().getUrl())
           .build()

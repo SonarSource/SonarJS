@@ -42,6 +42,7 @@ import org.sonarsource.sonarlint.plugin.api.module.file.ModuleFileListener;
 @ScannerSide
 @SonarLintSide(lifespan = SonarLintSide.MODULE)
 public class TsConfigCacheImpl implements TsConfigCache, ModuleFileListener {
+
   private static final Logger LOG = LoggerFactory.getLogger(TsConfigCacheImpl.class);
 
   BridgeServer bridgeServer;
@@ -60,6 +61,7 @@ public class TsConfigCacheImpl implements TsConfigCache, ModuleFileListener {
   }
 
   class Cache {
+
     Map<String, TsConfigFile> inputFileToTsConfigFilesMap = new HashMap<>();
     Set<String> discoveredTsConfigFiles = new HashSet<>();
     List<String> originalTsConfigFiles = new ArrayList<>();
@@ -78,18 +80,28 @@ public class TsConfigCacheImpl implements TsConfigCache, ModuleFileListener {
 
       pendingTsConfigFiles = improvedPendingTsConfigOrder(inputFile);
 
-      LOG.debug("Continuing BFS for file: {}, pending order: {}", inputFilePath, pendingTsConfigFiles);
+      LOG.debug(
+        "Continuing BFS for file: {}, pending order: {}",
+        inputFilePath,
+        pendingTsConfigFiles
+      );
       while (!pendingTsConfigFiles.isEmpty()) {
         var tsConfigPath = pendingTsConfigFiles.pop();
         LOG.debug("Computing tsconfig {} from bridge", tsConfigPath);
         TsConfigFile tsConfigFile = bridgeServer.loadTsConfig(tsConfigPath);
-        tsConfigFile.getFiles().forEach(file -> inputFileToTsConfigFilesMap.putIfAbsent(file, tsConfigFile));
+        tsConfigFile
+          .getFiles()
+          .forEach(file -> inputFileToTsConfigFilesMap.putIfAbsent(file, tsConfigFile));
         if (!tsConfigFile.getProjectReferences().isEmpty()) {
           LOG.info("Adding referenced project's tsconfigs {}", tsConfigFile.getProjectReferences());
-          tsConfigFile.getProjectReferences().stream().filter(refPath -> !discoveredTsConfigFiles.contains(refPath)).forEach(refPath -> {
-            discoveredTsConfigFiles.add(refPath);
-            pendingTsConfigFiles.addFirst(refPath);
-          });
+          tsConfigFile
+            .getProjectReferences()
+            .stream()
+            .filter(refPath -> !discoveredTsConfigFiles.contains(refPath))
+            .forEach(refPath -> {
+              discoveredTsConfigFiles.add(refPath);
+              pendingTsConfigFiles.addFirst(refPath);
+            });
         }
         if (inputFileToTsConfigFilesMap.containsKey(inputFilePath)) {
           var foundTsConfigFile = inputFileToTsConfigFilesMap.get(inputFilePath);
@@ -140,7 +152,9 @@ public class TsConfigCacheImpl implements TsConfigCache, ModuleFileListener {
       var newPendingTsConfigFiles = new ArrayDeque<String>();
       var notMatchingPendingTsConfigFiles = new ArrayList<String>();
       pendingTsConfigFiles.forEach(ts -> {
-        if (inputFile.absolutePath().startsWith(Path.of(ts).getParent().toAbsolutePath().toString())) {
+        if (
+          inputFile.absolutePath().startsWith(Path.of(ts).getParent().toAbsolutePath().toString())
+        ) {
           newPendingTsConfigFiles.add(ts);
         } else {
           notMatchingPendingTsConfigFiles.add(ts);
@@ -184,7 +198,9 @@ public class TsConfigCacheImpl implements TsConfigCache, ModuleFileListener {
     if (tsConfigOrigin == TsConfigOrigin.FALLBACK && cache.initialized) {
       return;
     }
-    if (tsConfigOrigin != TsConfigOrigin.FALLBACK && cache.originalTsConfigFiles.equals(tsConfigPaths)) {
+    if (
+      tsConfigOrigin != TsConfigOrigin.FALLBACK && cache.originalTsConfigFiles.equals(tsConfigPaths)
+    ) {
       return;
     }
 
@@ -208,7 +224,11 @@ public class TsConfigCacheImpl implements TsConfigCache, ModuleFileListener {
     } else if (filename.endsWith("package.json")) {
       LOG.debug("Package json update, will clear dependency cache on next analysis request.");
       shouldClearDependenciesCache = true;
-    } else if (moduleFileEvent.getType() == ModuleFileEvent.Type.CREATED && (JavaScriptFilePredicate.isJavaScriptFile(file) || JavaScriptFilePredicate.isTypeScriptFile(file))) {
+    } else if (
+      moduleFileEvent.getType() == ModuleFileEvent.Type.CREATED &&
+      (JavaScriptFilePredicate.isJavaScriptFile(file) ||
+        JavaScriptFilePredicate.isTypeScriptFile(file))
+    ) {
       // The file to tsconfig cache is cleared, as potentially the tsconfig file that would cover this new file
       // has already been processed, and we would not be aware of it. By clearing the cache, we guarantee correctness.
       LOG.debug("Clearing input file to tsconfig cache");

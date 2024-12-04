@@ -60,9 +60,16 @@ public class StandaloneParser implements AutoCloseable {
       new NodeDeprecationWarning(new AnalysisWarningsWrapper()),
       new StandaloneTemporaryFolder(),
       new EmbeddedNode(processWrapper, new Environment(emptyConfiguration)),
-      http);
+      http
+    );
     try {
-      bridge.startServerLazily(new BridgeServerConfig(emptyConfiguration, new File(".").getAbsolutePath(), SonarProduct.SONARLINT));
+      bridge.startServerLazily(
+        new BridgeServerConfig(
+          emptyConfiguration,
+          new File(".").getAbsolutePath(),
+          SonarProduct.SONARLINT
+        )
+      );
       bridge.initLinter(List.of(), List.of(), List.of(), AnalysisMode.DEFAULT, null, List.of());
     } catch (IOException e) {
       throw new UncheckedIOException(e);
@@ -117,6 +124,4 @@ public class StandaloneParser implements AutoCloseable {
       return new String[0];
     }
   }
-
-
 }

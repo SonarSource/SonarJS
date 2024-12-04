@@ -38,8 +38,7 @@ class CheckListTest {
    */
   @Test
   void count() throws Exception {
-    long count = Files
-      .list(Paths.get("src/main/java/org/sonar/javascript/checks/"))
+    long count = Files.list(Paths.get("src/main/java/org/sonar/javascript/checks/"))
       .filter(p -> p.getFileName().toString().matches("S\\d+(Js|Ts)?\\.java"))
       .count();
     assertThat(CheckList.getAllChecks()).hasSize((int) count);

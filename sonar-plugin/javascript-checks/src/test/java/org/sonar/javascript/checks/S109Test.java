@@ -26,9 +26,8 @@ class S109Test {
   @Test
   void config() {
     String configAsString = new Gson().toJson(new S109().configurations());
-    assertThat(configAsString)
-      .isEqualTo(
-        "[{\"ignore\":[0,1,-1,24,60],\"ignoreEnums\":true,\"ignoreReadonlyClassProperties\":true,\"ignoreNumericLiteralTypes\":true,\"ignoreDefaultValues\":true,\"ignoreClassFieldInitialValues\":true}]"
-      );
+    assertThat(configAsString).isEqualTo(
+      "[{\"ignore\":[0,1,-1,24,60],\"ignoreEnums\":true,\"ignoreReadonlyClassProperties\":true,\"ignoreNumericLiteralTypes\":true,\"ignoreDefaultValues\":true,\"ignoreClassFieldInitialValues\":true}]"
+    );
   }
 }

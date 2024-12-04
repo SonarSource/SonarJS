@@ -54,8 +54,9 @@ class StylelintReportSensorTest {
   @RegisterExtension
   public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(Level.DEBUG);
 
-  private static final File BASE_DIR = new File("src/test/resources/stylelint-report/")
-    .getAbsoluteFile();
+  private static final File BASE_DIR = new File(
+    "src/test/resources/stylelint-report/"
+  ).getAbsoluteFile();
   private static final String CONTENT = ".foo {\n}";
 
   private SensorContextTester context = SensorContextTester.create(BASE_DIR);
@@ -91,8 +92,9 @@ class StylelintReportSensorTest {
 
     assertThat(first.remediationEffort()).isEqualTo(5);
     assertThat(first.severity()).isEqualTo(Severity.MAJOR);
-    assertThat(first.primaryLocation().message())
-      .isEqualTo("external issue message (color-no-invalid-hex)");
+    assertThat(first.primaryLocation().message()).isEqualTo(
+      "external issue message (color-no-invalid-hex)"
+    );
     assertThat(first.primaryLocation().textRange().start().line()).isEqualTo(1);
   }
 
@@ -148,8 +150,9 @@ class StylelintReportSensorTest {
     stylelintReportSensor.execute(context);
 
     assertThat(context.allExternalIssues()).isEmpty();
-    assertThat(logTester.logs(Level.ERROR))
-      .contains("Import of external issues requires SonarQube 7.2 or greater.");
+    assertThat(logTester.logs(Level.ERROR)).contains(
+      "Import of external issues requires SonarQube 7.2 or greater."
+    );
   }
 
   @Test
@@ -166,8 +169,9 @@ class StylelintReportSensorTest {
     stylelintReportSensor.execute(context);
 
     assertThat(context.allExternalIssues()).isEmpty();
-    assertThat(logTester.logs(Level.ERROR))
-      .contains("No issues information will be saved as the report file can't be read.");
+    assertThat(logTester.logs(Level.ERROR)).contains(
+      "No issues information will be saved as the report file can't be read."
+    );
   }
 
   @Test
@@ -176,10 +180,9 @@ class StylelintReportSensorTest {
     stylelintReportSensor.execute(context);
 
     assertThat(context.allExternalIssues()).hasSize(1);
-    assertThat(logTester.logs(Level.WARN))
-      .contains(
-        "No input file found for not-exist.css. No stylelint issues will be imported on this file."
-      );
+    assertThat(logTester.logs(Level.WARN)).contains(
+      "No input file found for not-exist.css. No stylelint issues will be imported on this file."
+    );
   }
 
   @Test

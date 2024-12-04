@@ -33,8 +33,6 @@ public class S905 extends Check {
     return Collections.singletonList(new Config());
   }
 
-
-
   private static class Config {
 
     boolean allowShortCircuit = true;

@@ -59,8 +59,7 @@ public class BuildResultAssert extends AbstractAssert<BuildResultAssert, BuildRe
     return new CustomMatcher<>(description) {
       @Override
       public boolean matches(Object item) {
-        return Optional
-          .ofNullable(item)
+        return Optional.ofNullable(item)
           .filter(BuildResult.class::isInstance)
           .map(BuildResult.class::cast)
           .map(result -> result.getLogsLines(logPredicate).size())
@@ -105,10 +104,8 @@ public class BuildResultAssert extends AbstractAssert<BuildResultAssert, BuildRe
 
   public BuildResultAssert logsTimes(int times, String... logs) {
     for (var log : logs) {
-      logsTimesWhere(
-        format("has log \"%s\" %d time(s)", log, times),
-        times,
-        line -> line.contains(log)
+      logsTimesWhere(format("has log \"%s\" %d time(s)", log, times), times, line ->
+        line.contains(log)
       );
     }
     return this;
@@ -153,9 +150,11 @@ public class BuildResultAssert extends AbstractAssert<BuildResultAssert, BuildRe
         // We check if sis_ts_index_ts ends with index_ts
 
         var key = ucfgFile.getFileName().toString().replaceFirst("(_\\d+)?[.][^.]+$", ""); // We remove index and extension: _1.ucfgs
-        Assertions
-          .assertThat(filenames)
-          .filteredOn(filename -> filename.replace('.', '_').endsWith(key) || key.endsWith(filename.replace('.', '_')))
+        Assertions.assertThat(filenames)
+          .filteredOn(
+            filename ->
+              filename.replace('.', '_').endsWith(key) || key.endsWith(filename.replace('.', '_'))
+          )
           .isNotEmpty();
       }
     } catch (IOException e) {
@@ -191,8 +190,7 @@ public class BuildResultAssert extends AbstractAssert<BuildResultAssert, BuildRe
     }
 
     public BuildResultAssert isUsed() {
-      IntStream
-        .range(0, files.size())
+      IntStream.range(0, files.size())
         .mapToObj(i -> tuple(files.get(i), cachedFilesCounts.get(i)))
         .forEach(this::check);
       return BuildResultAssert.this;

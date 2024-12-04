@@ -40,12 +40,8 @@ public class S138 extends Check {
 
   @Override
   public List<Object> configurations() {
-    return Collections.singletonList(
-      new Config(max)
-    );
+    return Collections.singletonList(new Config(max));
   }
-
-
 
   private static class Config {
 

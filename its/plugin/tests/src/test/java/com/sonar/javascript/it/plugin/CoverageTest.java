@@ -34,8 +34,7 @@ class CoverageTest {
   @Test
   void LCOV_path_can_be_relative() {
     final String projectKey = "LcovPathCanBeRelative";
-    SonarScanner build = OrchestratorStarter
-      .createScanner()
+    SonarScanner build = OrchestratorStarter.createScanner()
       .setProjectDir(TestUtils.projectDir("lcov"))
       .setProjectKey(projectKey)
       .setProjectName(projectKey)
@@ -55,8 +54,7 @@ class CoverageTest {
   @Test
   void LCOV_path_can_be_absolute() {
     final String projectKey = "LcovPathCanBeAbsolute";
-    SonarScanner build = OrchestratorStarter
-      .createScanner()
+    SonarScanner build = OrchestratorStarter.createScanner()
       .setProjectDir(TestUtils.projectDir("lcov"))
       .setProjectKey(projectKey)
       .setProjectName(projectKey)
@@ -79,8 +77,7 @@ class CoverageTest {
   @Test
   void LCOV_report_paths() {
     final String projectKey = "LcovReportPaths";
-    SonarScanner build = OrchestratorStarter
-      .createScanner()
+    SonarScanner build = OrchestratorStarter.createScanner()
       .setProjectDir(TestUtils.projectDir("lcov"))
       .setProjectKey(projectKey)
       .setProjectName(projectKey)
@@ -103,8 +100,7 @@ class CoverageTest {
   @Test
   void LCOV_report_paths_alias() {
     final String projectKey = "LcovReportPathsAlias";
-    SonarScanner build = OrchestratorStarter
-      .createScanner()
+    SonarScanner build = OrchestratorStarter.createScanner()
       .setProjectDir(TestUtils.projectDir("lcov"))
       .setProjectKey(projectKey)
       .setProjectName(projectKey)
@@ -124,8 +120,7 @@ class CoverageTest {
   @Test
   void zero_coverage() {
     final String projectKey = "ZeroCoverage";
-    SonarScanner build = OrchestratorStarter
-      .createScanner()
+    SonarScanner build = OrchestratorStarter.createScanner()
       .setProjectDir(TestUtils.projectDir("lcov"))
       .setProjectKey(projectKey)
       .setProjectName(projectKey)
@@ -147,8 +142,7 @@ class CoverageTest {
   // SONARJS-301
   public void print_log_for_not_found_resource() {
     final String projectKey = "PrintLogForNotFoundResource";
-    SonarScanner build = OrchestratorStarter
-      .createScanner()
+    SonarScanner build = OrchestratorStarter.createScanner()
       .setProjectDir(TestUtils.projectDir("lcov"))
       .setProjectKey(projectKey)
       .setProjectName(projectKey)
@@ -177,8 +171,7 @@ class CoverageTest {
   // SONARJS-547
   void wrong_line_in_report() {
     final String projectKey = "WrongLineInReport";
-    SonarScanner build = OrchestratorStarter
-      .createScanner()
+    SonarScanner build = OrchestratorStarter.createScanner()
       .setProjectDir(TestUtils.projectDir("lcov"))
       .setProjectKey(projectKey)
       .setProjectName(projectKey)
@@ -211,8 +204,7 @@ class CoverageTest {
   @Test
   void conditions_on_non_executable_lines() {
     final String projectKey = "ConditionsOnNonExecutableLines";
-    SonarScanner build = OrchestratorStarter
-      .createScanner()
+    SonarScanner build = OrchestratorStarter.createScanner()
       .setProjectDir(TestUtils.projectDir("lcov-jsx"))
       .setProjectKey(projectKey)
       .setProjectName(projectKey)
@@ -221,9 +213,9 @@ class CoverageTest {
       .setDebugLogs(true)
       .setProperty(
         "sonar.javascript.lcov.reportPaths",
-        TestUtils
-          .file("projects/lcov-jsx/conditions-on-non-executable-lines.lcov")
-          .getAbsolutePath()
+        TestUtils.file(
+          "projects/lcov-jsx/conditions-on-non-executable-lines.lcov"
+        ).getAbsolutePath()
       );
     OrchestratorStarter.setEmptyProfile(projectKey);
     orchestrator.executeBuild(build);
@@ -237,8 +229,7 @@ class CoverageTest {
   @Test
   void wildcard_LCOV_report_paths() {
     final String projectKey = "LcovWildcardReportPaths";
-    SonarScanner build = OrchestratorStarter
-      .createScanner()
+    SonarScanner build = OrchestratorStarter.createScanner()
       .setProjectDir(TestUtils.projectDir("lcov-wildcard"))
       .setProjectKey(projectKey)
       .setProjectName(projectKey)
@@ -257,8 +248,7 @@ class CoverageTest {
   @Test
   void LCOV_report_outside_module() {
     final String projectKey = "LcovReportOutsideModule";
-    SonarScanner build = OrchestratorStarter
-      .createScanner()
+    SonarScanner build = OrchestratorStarter.createScanner()
       .setProjectDir(TestUtils.projectDir("lcov"))
       .setProperty("sonar.modules", "dir")
       .setProjectKey(projectKey)

@@ -26,7 +26,4 @@ import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 @TypeScriptRule
 @Rule(key = "S135")
 @DeprecatedRuleKey(ruleKey = "TooManyBreakOrContinueInLoop")
-public class S135 extends Check {
-
-
-}
+public class S135 extends Check {}

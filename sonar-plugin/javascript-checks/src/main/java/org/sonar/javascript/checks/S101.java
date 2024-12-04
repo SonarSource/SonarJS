@@ -42,6 +42,4 @@ public class S101 extends Check {
   public List<Object> configurations() {
     return Collections.singletonList(new FormatRuleProperty(format));
   }
-
-
 }

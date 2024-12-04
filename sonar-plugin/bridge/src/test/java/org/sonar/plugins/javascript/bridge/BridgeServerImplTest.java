@@ -108,8 +108,10 @@ class BridgeServerImplTest {
     context.fileSystem().setWorkDir(workDir);
     serverConfig = BridgeServerConfig.fromSensorContext(context);
     tempFolder = new DefaultTempFolder(tempDir, true);
-    unsupportedEmbeddedRuntime =
-      new EmbeddedNode(mock(ProcessWrapper.class), createUnsupportedEnvironment());
+    unsupportedEmbeddedRuntime = new EmbeddedNode(
+      mock(ProcessWrapper.class),
+      createUnsupportedEnvironment()
+    );
   }
 
   @AfterEach
@@ -136,27 +138,23 @@ class BridgeServerImplTest {
 
   @Test
   void should_throw_if_failed_to_build_node_command() {
-    NodeCommandBuilder nodeCommandBuilder = mock(
-      NodeCommandBuilder.class,
-      invocation -> {
-        if (NodeCommandBuilder.class.equals(invocation.getMethod().getReturnType())) {
-          return invocation.getMock();
-        } else {
-          throw new NodeCommandException("msg");
-        }
+    NodeCommandBuilder nodeCommandBuilder = mock(NodeCommandBuilder.class, invocation -> {
+      if (NodeCommandBuilder.class.equals(invocation.getMethod().getReturnType())) {
+        return invocation.getMock();
+      } else {
+        throw new NodeCommandException("msg");
       }
-    );
+    });
 
-    bridgeServer =
-      new BridgeServerImpl(
-        nodeCommandBuilder,
-        TEST_TIMEOUT_SECONDS,
-        testBundle,
-        emptyRulesBundles,
-        deprecationWarning,
-        tempFolder,
-        unsupportedEmbeddedRuntime
-      );
+    bridgeServer = new BridgeServerImpl(
+      nodeCommandBuilder,
+      TEST_TIMEOUT_SECONDS,
+      testBundle,
+      emptyRulesBundles,
+      deprecationWarning,
+      tempFolder,
+      unsupportedEmbeddedRuntime
+    );
     List<Path> deployedBundles = emptyList();
 
     assertThatThrownBy(() -> bridgeServer.startServer(serverConfig, deployedBundles))
@@ -180,8 +178,7 @@ class BridgeServerImplTest {
     bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
     bridgeServer.startServer(serverConfig, emptyList());
 
-    DefaultInputFile inputFile = TestInputFileBuilder
-      .create("foo", "foo.js")
+    DefaultInputFile inputFile = TestInputFileBuilder.create("foo", "foo.js")
       .setContents("alert('Fly, you fools!')")
       .build();
     JsAnalysisRequest request = createRequest(inputFile);
@@ -211,10 +208,9 @@ class BridgeServerImplTest {
       Collections.emptyList()
     );
     bridgeServer.stop();
-    assertThat(logTester.logs())
-      .contains(
-        "{\"linterId\":\"default\",\"rules\":[{\"key\":\"key\",\"fileTypeTarget\":[\"MAIN\"],\"configurations\":[\"config\"],\"language\":\"js\"}],\"environments\":[],\"globals\":[],\"baseDir\":\"\",\"exclusions\":[]}"
-      );
+    assertThat(logTester.logs()).contains(
+      "{\"linterId\":\"default\",\"rules\":[{\"key\":\"key\",\"fileTypeTarget\":[\"MAIN\"],\"configurations\":[\"config\"],\"language\":\"js\"}],\"environments\":[],\"globals\":[],\"baseDir\":\"\",\"exclusions\":[]}"
+    );
   }
 
   @Test
@@ -222,12 +218,10 @@ class BridgeServerImplTest {
     bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
     bridgeServer.startServer(serverConfig, emptyList());
 
-    DefaultInputFile inputFile = TestInputFileBuilder
-      .create("foo", "foo.ts")
+    DefaultInputFile inputFile = TestInputFileBuilder.create("foo", "foo.ts")
       .setContents("alert('Fly, you fools!')")
       .build();
-    DefaultInputFile tsConfig = TestInputFileBuilder
-      .create("foo", "tsconfig.json")
+    DefaultInputFile tsConfig = TestInputFileBuilder.create("foo", "tsconfig.json")
       .setContents("{\"compilerOptions\": {\"target\": \"es6\", \"allowJs\": true }}")
       .build();
     JsAnalysisRequest request = new JsAnalysisRequest(
@@ -250,8 +244,7 @@ class BridgeServerImplTest {
     bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
     bridgeServer.startServer(serverConfig, emptyList());
 
-    DefaultInputFile inputFile = TestInputFileBuilder
-      .create("foo", "foo.yaml")
+    DefaultInputFile inputFile = TestInputFileBuilder.create("foo", "foo.yaml")
       .setContents("alert('Fly, you fools!')")
       .build();
     var request = createRequest(inputFile);
@@ -332,8 +325,7 @@ class BridgeServerImplTest {
     bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
     bridgeServer.startServer(serverConfig, emptyList());
 
-    DefaultInputFile inputFile = TestInputFileBuilder
-      .create("foo", "foo.css")
+    DefaultInputFile inputFile = TestInputFileBuilder.create("foo", "foo.css")
       .setContents("a { }")
       .build();
     CssAnalysisRequest request = new CssAnalysisRequest(
@@ -357,21 +349,26 @@ class BridgeServerImplTest {
   @Test
   void should_return_command_info() throws Exception {
     bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
-    assertThat(bridgeServer.getCommandInfo())
-      .isEqualTo("Node.js command to start the bridge server was not built yet.");
+    assertThat(bridgeServer.getCommandInfo()).isEqualTo(
+      "Node.js command to start the bridge server was not built yet."
+    );
 
     bridgeServer.startServer(serverConfig, emptyList());
 
-    assertThat(bridgeServer.getCommandInfo())
-      .contains("Node.js command to start the bridge server was: ", "node", START_SERVER_SCRIPT);
+    assertThat(bridgeServer.getCommandInfo()).contains(
+      "Node.js command to start the bridge server was: ",
+      "node",
+      START_SERVER_SCRIPT
+    );
     assertThat(bridgeServer.getCommandInfo()).doesNotContain("--max-old-space-size");
   }
 
   @Test
   void should_set_max_old_space_size() throws Exception {
     bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
-    assertThat(bridgeServer.getCommandInfo())
-      .isEqualTo("Node.js command to start the bridge server was not built yet.");
+    assertThat(bridgeServer.getCommandInfo()).isEqualTo(
+      "Node.js command to start the bridge server was not built yet."
+    );
 
     context.setSettings(new MapSettings().setProperty("sonar.javascript.node.maxspace", 2048));
     BridgeServerConfig serverConfigForMaxSpace = BridgeServerConfig.fromSensorContext(context);
@@ -475,8 +472,9 @@ class BridgeServerImplTest {
       .isInstanceOf(NodeCommandException.class)
       .hasMessage(failedToStartExceptionMessage);
 
-    assertThatThrownBy(() -> bridgeServer.startServerLazily(serverConfig))
-      .isInstanceOf(ServerAlreadyFailedException.class);
+    assertThatThrownBy(() -> bridgeServer.startServerLazily(serverConfig)).isInstanceOf(
+      ServerAlreadyFailedException.class
+    );
   }
 
   @Test
@@ -486,8 +484,9 @@ class BridgeServerImplTest {
       .isInstanceOf(NodeCommandException.class)
       .hasMessageStartingWith("Node.js script to start the bridge server doesn't exist");
 
-    assertThatThrownBy(() -> bridgeServer.startServerLazily(serverConfig))
-      .isInstanceOf(ServerAlreadyFailedException.class);
+    assertThatThrownBy(() -> bridgeServer.startServerLazily(serverConfig)).isInstanceOf(
+      ServerAlreadyFailedException.class
+    );
   }
 
   @Test
@@ -497,8 +496,9 @@ class BridgeServerImplTest {
 
     bridgeServer.waitFor();
 
-    assertThatThrownBy(() -> bridgeServer.startServerLazily(serverConfig))
-      .isInstanceOf(ServerAlreadyFailedException.class);
+    assertThatThrownBy(() -> bridgeServer.startServerLazily(serverConfig)).isInstanceOf(
+      ServerAlreadyFailedException.class
+    );
   }
 
   @Test
@@ -506,8 +506,7 @@ class BridgeServerImplTest {
     bridgeServer = createBridgeServer("badResponse.js");
     bridgeServer.startServerLazily(serverConfig);
 
-    DefaultInputFile inputFile = TestInputFileBuilder
-      .create("foo", "foo.js")
+    DefaultInputFile inputFile = TestInputFileBuilder.create("foo", "foo.js")
       .setContents("alert('Fly, you fools!')")
       .build();
     JsAnalysisRequest request = new JsAnalysisRequest(
@@ -522,8 +521,9 @@ class BridgeServerImplTest {
       false,
       false
     );
-    assertThatThrownBy(() -> bridgeServer.analyzeJavaScript(request))
-      .isInstanceOf(IllegalStateException.class);
+    assertThatThrownBy(() -> bridgeServer.analyzeJavaScript(request)).isInstanceOf(
+      IllegalStateException.class
+    );
     assertThat(context.allIssues()).isEmpty();
   }
 
@@ -551,12 +551,19 @@ class BridgeServerImplTest {
     bridgeServer.startServer(serverConfig, emptyList());
     String tsconfig = "path/to/tsconfig.json";
     BridgeServerImpl.TsConfigResponse tsConfigResponse = bridgeServer.tsConfigFiles(tsconfig);
-    assertThat(tsConfigResponse.files)
-      .contains("abs/path/file1", "abs/path/file2", "abs/path/file3");
+    assertThat(tsConfigResponse.files).contains(
+      "abs/path/file1",
+      "abs/path/file2",
+      "abs/path/file3"
+    );
     assertThat(tsConfigResponse.error).isNull();
 
     TsConfigFile tsConfigFile = bridgeServer.loadTsConfig(tsconfig);
-    assertThat(tsConfigFile.getFiles()).contains("abs/path/file1", "abs/path/file2", "abs/path/file3");
+    assertThat(tsConfigFile.getFiles()).contains(
+      "abs/path/file1",
+      "abs/path/file2",
+      "abs/path/file3"
+    );
     assertThat(tsConfigFile.getFilename()).isEqualTo(tsconfig);
   }
 
@@ -614,11 +621,15 @@ class BridgeServerImplTest {
   @Test
   void should_load_custom_rules() throws Exception {
     bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
-    bridgeServer.startServer(serverConfig, Arrays.asList(Paths.get("bundle1"), Paths.get("bundle2")));
+    bridgeServer.startServer(
+      serverConfig,
+      Arrays.asList(Paths.get("bundle1"), Paths.get("bundle2"))
+    );
     bridgeServer.stop();
 
-    assertThat(logTester.logs())
-      .contains("additional rules: [bundle1" + File.pathSeparator + "bundle2]");
+    assertThat(logTester.logs()).contains(
+      "additional rules: [bundle1" + File.pathSeparator + "bundle2]"
+    );
   }
 
   @Test
@@ -626,7 +637,10 @@ class BridgeServerImplTest {
     bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
     context.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(7, 9)));
     BridgeServerConfig serverConfigFor79 = BridgeServerConfig.fromSensorContext(context);
-    bridgeServer.startServer(serverConfigFor79, Arrays.asList(Paths.get("bundle1"), Paths.get("bundle2")));
+    bridgeServer.startServer(
+      serverConfigFor79,
+      Arrays.asList(Paths.get("bundle1"), Paths.get("bundle2"))
+    );
     bridgeServer.stop();
 
     assertThat(logTester.logs()).contains("sonarlint: true");
@@ -637,7 +651,10 @@ class BridgeServerImplTest {
     bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
     context.setSettings(new MapSettings().setProperty("sonar.javascript.node.debugMemory", "true"));
     BridgeServerConfig serverConfigForDebugMemory = BridgeServerConfig.fromSensorContext(context);
-    bridgeServer.startServer(serverConfigForDebugMemory, Arrays.asList(Paths.get("bundle1"), Paths.get("bundle2")));
+    bridgeServer.startServer(
+      serverConfigForDebugMemory,
+      Arrays.asList(Paths.get("bundle1"), Paths.get("bundle2"))
+    );
     bridgeServer.stop();
 
     assertThat(logTester.logs()).contains("debugMemory: true");
@@ -645,15 +662,14 @@ class BridgeServerImplTest {
 
   @Test
   void should_use_default_timeout() {
-    bridgeServer =
-      new BridgeServerImpl(
-        builder(),
-        mock(Bundle.class),
-        mock(RulesBundles.class),
-        deprecationWarning,
-        tempFolder,
-        unsupportedEmbeddedRuntime
-      );
+    bridgeServer = new BridgeServerImpl(
+      builder(),
+      mock(Bundle.class),
+      mock(RulesBundles.class),
+      deprecationWarning,
+      tempFolder,
+      unsupportedEmbeddedRuntime
+    );
     assertThat(bridgeServer.getTimeoutSeconds()).isEqualTo(300);
   }
 
@@ -681,10 +697,9 @@ class BridgeServerImplTest {
       singletonList("path/file.ts"),
       singletonList("path/tsconfig.json")
     );
-    assertThat(tsProgram)
-      .hasToString(
-        "TsProgram{programId='42', files=[path/file.ts], projectReferences=[path/tsconfig.json]}"
-      );
+    assertThat(tsProgram).hasToString(
+      "TsProgram{programId='42', files=[path/file.ts], projectReferences=[path/tsconfig.json]}"
+    );
 
     TsProgram tsProgramError = new TsProgram("failed to create program");
     assertThat(tsProgramError).hasToString("TsProgram{ error='failed to create program'}");
@@ -692,22 +707,23 @@ class BridgeServerImplTest {
 
   @Test
   void enabled_monitoring() throws Exception {
-    bridgeServer =
-      new BridgeServerImpl(
-        builder(),
-        TEST_TIMEOUT_SECONDS,
-        new TestBundle(START_SERVER_SCRIPT),
-        emptyRulesBundles,
-        deprecationWarning,
-        tempFolder,
-        unsupportedEmbeddedRuntime
-      );
+    bridgeServer = new BridgeServerImpl(
+      builder(),
+      TEST_TIMEOUT_SECONDS,
+      new TestBundle(START_SERVER_SCRIPT),
+      emptyRulesBundles,
+      deprecationWarning,
+      tempFolder,
+      unsupportedEmbeddedRuntime
+    );
     bridgeServer.startServerLazily(serverConfig);
     bridgeServer.stop();
-    assertThat(logTester.logs(INFO).stream().anyMatch(s -> s.startsWith("no-commented-code")))
-      .isTrue();
-    assertThat(logTester.logs(INFO).stream().anyMatch(s -> s.startsWith("arguments-order")))
-      .isTrue();
+    assertThat(
+      logTester.logs(INFO).stream().anyMatch(s -> s.startsWith("no-commented-code"))
+    ).isTrue();
+    assertThat(
+      logTester.logs(INFO).stream().anyMatch(s -> s.startsWith("arguments-order"))
+    ).isTrue();
     assertThat(logTester.logs(INFO).stream().anyMatch(s -> s.startsWith("deprecation"))).isTrue();
   }
 
@@ -720,20 +736,20 @@ class BridgeServerImplTest {
     RulesBundles rulesBundles = mock(RulesBundles.class);
     when(rulesBundles.getUcfgRulesBundle()).thenReturn(Optional.of(ucfgRulesBundle));
 
-    bridgeServer =
-      new BridgeServerImpl(
-        builder(),
-        TEST_TIMEOUT_SECONDS,
-        new TestBundle(START_SERVER_SCRIPT),
-        rulesBundles,
-        deprecationWarning,
-        tempFolder,
-        unsupportedEmbeddedRuntime
-      );
+    bridgeServer = new BridgeServerImpl(
+      builder(),
+      TEST_TIMEOUT_SECONDS,
+      new TestBundle(START_SERVER_SCRIPT),
+      rulesBundles,
+      deprecationWarning,
+      tempFolder,
+      unsupportedEmbeddedRuntime
+    );
     bridgeServer.startServerLazily(serverConfig);
 
-    assertThat(logTester.logs(DEBUG))
-      .contains("Security Frontend version is available: [some_bundle_version]");
+    assertThat(logTester.logs(DEBUG)).contains(
+      "Security Frontend version is available: [some_bundle_version]"
+    );
   }
 
   @Test
@@ -741,8 +757,7 @@ class BridgeServerImplTest {
     bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
     bridgeServer.startServer(serverConfig, emptyList());
 
-    DefaultInputFile inputFile = TestInputFileBuilder
-      .create("foo", "foo.js")
+    DefaultInputFile inputFile = TestInputFileBuilder.create("foo", "foo.js")
       .setContents("alert('Fly, you fools!')")
       .build();
     JsAnalysisRequest request = createRequest(inputFile);
@@ -758,8 +773,7 @@ class BridgeServerImplTest {
     bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
     bridgeServer.startServer(BridgeServerConfig.fromSensorContext(context), emptyList());
 
-    DefaultInputFile inputFile = TestInputFileBuilder
-      .create("foo", "foo.js")
+    DefaultInputFile inputFile = TestInputFileBuilder.create("foo", "foo.js")
       .setContents("alert('Fly, you fools!')")
       .build();
     JsAnalysisRequest request = new JsAnalysisRequest(
@@ -783,14 +797,15 @@ class BridgeServerImplTest {
     var existingDoesntMatterScript = "logging.js";
     bridgeServer = createBridgeServer(existingDoesntMatterScript);
     context.setSettings(new MapSettings().setProperty(NODE_EXECUTABLE_PROPERTY, "whatever"));
-    BridgeServerConfig serverConfigForExecutableProperty = BridgeServerConfig.fromSensorContext(context);
-    assertThatThrownBy(() -> bridgeServer.startServerLazily(serverConfigForExecutableProperty))
-      .isInstanceOf(NodeCommandException.class);
+    BridgeServerConfig serverConfigForExecutableProperty = BridgeServerConfig.fromSensorContext(
+      context
+    );
+    assertThatThrownBy(() -> bridgeServer.startServerLazily(serverConfigForExecutableProperty)
+    ).isInstanceOf(NodeCommandException.class);
 
-    assertThat(logTester.logs(INFO))
-      .contains(
-        "'" + NODE_EXECUTABLE_PROPERTY + "' is set. Skipping embedded Node.js runtime deployment."
-      );
+    assertThat(logTester.logs(INFO)).contains(
+      "'" + NODE_EXECUTABLE_PROPERTY + "' is set. Skipping embedded Node.js runtime deployment."
+    );
   }
 
   @Test
@@ -804,10 +819,11 @@ class BridgeServerImplTest {
     var config = BridgeServerConfig.fromSensorContext(context);
     bridgeServer.startServerLazily(config);
 
-    assertThat(logTester.logs(INFO))
-      .contains(
-        "'" + SKIP_NODE_PROVISIONING_PROPERTY + "' is set. Skipping embedded Node.js runtime deployment."
-      );
+    assertThat(logTester.logs(INFO)).contains(
+      "'" +
+      SKIP_NODE_PROVISIONING_PROPERTY +
+      "' is set. Skipping embedded Node.js runtime deployment."
+    );
   }
 
   @Test
@@ -821,35 +837,38 @@ class BridgeServerImplTest {
     var config = BridgeServerConfig.fromSensorContext(context);
     bridgeServer.startServerLazily(config);
 
-    assertThat(logTester.logs(INFO))
-      .contains(
-        "'" + NODE_FORCE_HOST_PROPERTY + "' is set. Skipping embedded Node.js runtime deployment."
-      );
+    assertThat(logTester.logs(INFO)).contains(
+      "'" + NODE_FORCE_HOST_PROPERTY + "' is set. Skipping embedded Node.js runtime deployment."
+    );
   }
 
   @Test
   void should_start_bridge_from_path() throws IOException {
     bridgeServer = createBridgeServer(new BundleImpl());
     var deployLocation = "src/test/resources";
-    var settings = new MapSettings().setProperty(BridgeServerImpl.SONARLINT_BUNDLE_PATH, deployLocation);
+    var settings = new MapSettings()
+      .setProperty(BridgeServerImpl.SONARLINT_BUNDLE_PATH, deployLocation);
     context.setSettings(settings);
 
     var config = BridgeServerConfig.fromSensorContext(context);
     bridgeServer.startServerLazily(config);
-    assertThat(logTester.logs(DEBUG))
-      .contains("Setting deploy location to " + deployLocation.replace("/", File.separator));
+    assertThat(logTester.logs(DEBUG)).contains(
+      "Setting deploy location to " + deployLocation.replace("/", File.separator)
+    );
   }
 
   @Test
   void should_fail_on_bad_bridge_path() {
     bridgeServer = createBridgeServer(new BundleImpl());
     var deployLocation = "src/test";
-    var settings = new MapSettings().setProperty(BridgeServerImpl.SONARLINT_BUNDLE_PATH, deployLocation);
+    var settings = new MapSettings()
+      .setProperty(BridgeServerImpl.SONARLINT_BUNDLE_PATH, deployLocation);
     context.setSettings(settings);
 
     var config = BridgeServerConfig.fromSensorContext(context);
-    assertThatThrownBy(() -> bridgeServer.startServerLazily(config))
-      .isInstanceOf(NodeCommandException.class);
+    assertThatThrownBy(() -> bridgeServer.startServerLazily(config)).isInstanceOf(
+      NodeCommandException.class
+    );
   }
 
   private BridgeServerImpl createBridgeServer(Bundle bundle) {
@@ -910,7 +929,8 @@ class BridgeServerImplTest {
   }
 
   private static NodeCommandBuilder builder() {
-    return new NodeCommandBuilderImpl(new ProcessWrapperImpl())
-      .configuration(new MapSettings().asConfig());
+    return new NodeCommandBuilderImpl(new ProcessWrapperImpl()).configuration(
+      new MapSettings().asConfig()
+    );
   }
 }

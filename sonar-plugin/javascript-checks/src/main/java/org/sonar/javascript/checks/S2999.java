@@ -38,15 +38,15 @@ public class S2999 extends Check {
   )
   public boolean considerJSDoc = CONSIDER_JSDOC;
 
-
-
   @Override
   public List<Object> configurations() {
     return Collections.singletonList(new Config(considerJSDoc));
   }
 
   private static class Config {
+
     boolean considerJSDoc;
+
     Config(boolean considerJSDoc) {
       this.considerJSDoc = considerJSDoc;
     }

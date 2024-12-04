@@ -28,10 +28,14 @@ class S5693Test {
     S5693 check = new S5693();
     // default configuration
     String defaultConfigAsString = new Gson().toJson(check.configurations());
-    assertThat(defaultConfigAsString).isEqualTo("[{\"fileUploadSizeLimit\":8000000,\"standardSizeLimit\":2000000}]");
+    assertThat(defaultConfigAsString).isEqualTo(
+      "[{\"fileUploadSizeLimit\":8000000,\"standardSizeLimit\":2000000}]"
+    );
     check.fileUploadSizeLimit = 42;
     check.standardSizeLimit = 24;
     String customConfigAsString = new Gson().toJson(check.configurations());
-    assertThat(customConfigAsString).isEqualTo("[{\"fileUploadSizeLimit\":42,\"standardSizeLimit\":24}]");
+    assertThat(customConfigAsString).isEqualTo(
+      "[{\"fileUploadSizeLimit\":42,\"standardSizeLimit\":24}]"
+    );
   }
 }

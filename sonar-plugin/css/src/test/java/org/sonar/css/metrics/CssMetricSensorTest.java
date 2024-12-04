@@ -72,8 +72,9 @@ class CssMetricSensorTest {
     var sonarlintDescriptor =
       new org.sonarsource.sonarlint.core.analysis.sonarapi.DefaultSensorDescriptor();
     // should not throw as 'processesFilesIndependently' is not executed for SonarLint
-    new CssMetricSensor(SonarRuntimeImpl.forSonarLint(Version.create(8, 9)), null)
-      .describe(sonarlintDescriptor);
+    new CssMetricSensor(SonarRuntimeImpl.forSonarLint(Version.create(8, 9)), null).describe(
+      sonarlintDescriptor
+    );
     assertThat(sonarlintDescriptor.name()).isEqualTo("CSS Metrics");
   }
 
@@ -244,12 +245,11 @@ class CssMetricSensorTest {
 
   private void executeSensor(String content, InputFile.Type type) throws IOException {
     File file = tempFolder.resolve("file.js").toFile();
-    inputFile =
-      new TestInputFileBuilder("moduleKey", file.getName())
-        .setLanguage("css")
-        .setType(type)
-        .setContents(content)
-        .build();
+    inputFile = new TestInputFileBuilder("moduleKey", file.getName())
+      .setLanguage("css")
+      .setType(type)
+      .setContents(content)
+      .build();
 
     sensorContext = SensorContextTester.create(tempFolder.getRoot());
     sensorContext.fileSystem().add(inputFile);
@@ -269,12 +269,14 @@ class CssMetricSensorTest {
   }
 
   private void assertLinesOfCode(int expected) {
-    assertThat(sensorContext.measure(inputFile.key(), CoreMetrics.NCLOC).value())
-      .isEqualTo(expected);
+    assertThat(sensorContext.measure(inputFile.key(), CoreMetrics.NCLOC).value()).isEqualTo(
+      expected
+    );
   }
 
   private void assertLinesOfComment(int expected) {
-    assertThat(sensorContext.measure(inputFile.key(), CoreMetrics.COMMENT_LINES).value())
-      .isEqualTo(expected);
+    assertThat(sensorContext.measure(inputFile.key(), CoreMetrics.COMMENT_LINES).value()).isEqualTo(
+      expected
+    );
   }
 }

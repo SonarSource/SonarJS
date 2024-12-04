@@ -28,8 +28,6 @@ import org.sonar.plugins.javascript.api.TypeScriptRule;
 @Rule(key = "S3723")
 public class S3723 extends Check {
 
-
-
   @Override
   public List<Object> configurations() {
     return Collections.singletonList("always-multiline");

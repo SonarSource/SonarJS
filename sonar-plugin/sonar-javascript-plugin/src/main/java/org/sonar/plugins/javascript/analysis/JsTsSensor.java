@@ -71,9 +71,10 @@ public class JsTsSensor extends AbstractBridgeSensor {
   protected List<InputFile> getInputFiles() {
     FileSystem fileSystem = context.fileSystem();
     FilePredicate allFilesPredicate = JavaScriptFilePredicate.getJsTsPredicate(fileSystem);
-    return StreamSupport
-      .stream(fileSystem.inputFiles(allFilesPredicate).spliterator(), false)
-      .toList();
+    return StreamSupport.stream(
+      fileSystem.inputFiles(allFilesPredicate).spliterator(),
+      false
+    ).toList();
   }
 
   @Override
@@ -88,11 +89,7 @@ public class JsTsSensor extends AbstractBridgeSensor {
       exclusions
     );
 
-    var tsConfigs = getTsConfigs(
-      contextUtils,
-      this::createTsConfigFile,
-      tsConfigCache
-    );
+    var tsConfigs = getTsConfigs(contextUtils, this::createTsConfigFile, tsConfigCache);
     AbstractAnalysis analysis;
     if (shouldAnalyzeWithProgram()) {
       analysis = analysisWithProgram;

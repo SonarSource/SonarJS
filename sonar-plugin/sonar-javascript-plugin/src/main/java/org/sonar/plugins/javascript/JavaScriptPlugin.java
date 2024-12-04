@@ -36,7 +36,6 @@ import org.sonar.plugins.javascript.analysis.CssRuleSensor;
 import org.sonar.plugins.javascript.analysis.HtmlSensor;
 import org.sonar.plugins.javascript.analysis.JsTsChecks;
 import org.sonar.plugins.javascript.analysis.JsTsSensor;
-import org.sonar.plugins.javascript.sonarlint.TsConfigCacheImpl;
 import org.sonar.plugins.javascript.analysis.TsConfigProvider;
 import org.sonar.plugins.javascript.analysis.YamlSensor;
 import org.sonar.plugins.javascript.bridge.AnalysisWarningsWrapper;
@@ -56,6 +55,7 @@ import org.sonar.plugins.javascript.rules.EslintRulesDefinition;
 import org.sonar.plugins.javascript.rules.JavaScriptRulesDefinition;
 import org.sonar.plugins.javascript.rules.TslintRulesDefinition;
 import org.sonar.plugins.javascript.rules.TypeScriptRulesDefinition;
+import org.sonar.plugins.javascript.sonarlint.TsConfigCacheImpl;
 
 public class JavaScriptPlugin implements Plugin {
 
@@ -163,8 +163,7 @@ public class JavaScriptPlugin implements Plugin {
     );
 
     context.addExtensions(
-      PropertyDefinition
-        .builder(LCOV_REPORT_PATHS)
+      PropertyDefinition.builder(LCOV_REPORT_PATHS)
         .defaultValue(LCOV_REPORT_PATHS_DEFAULT_VALUE)
         .name("LCOV Files")
         .description("Paths (absolute or relative) to the files with LCOV data.")
@@ -173,8 +172,7 @@ public class JavaScriptPlugin implements Plugin {
         .category(JS_TS_CATEGORY)
         .multiValues(true)
         .build(),
-      PropertyDefinition
-        .builder(JavaScriptLanguage.FILE_SUFFIXES_KEY)
+      PropertyDefinition.builder(JavaScriptLanguage.FILE_SUFFIXES_KEY)
         .defaultValue(JavaScriptLanguage.FILE_SUFFIXES_DEFVALUE)
         .name("JavaScript File Suffixes")
         .description(FILE_SUFFIXES_DESCRIPTION)
@@ -183,8 +181,7 @@ public class JavaScriptPlugin implements Plugin {
         .multiValues(true)
         .onQualifiers(Qualifiers.PROJECT)
         .build(),
-      PropertyDefinition
-        .builder(TypeScriptLanguage.FILE_SUFFIXES_KEY)
+      PropertyDefinition.builder(TypeScriptLanguage.FILE_SUFFIXES_KEY)
         .defaultValue(TypeScriptLanguage.FILE_SUFFIXES_DEFVALUE)
         .name("TypeScript File Suffixes")
         .description(FILE_SUFFIXES_DESCRIPTION)
@@ -193,8 +190,7 @@ public class JavaScriptPlugin implements Plugin {
         .onQualifiers(Qualifiers.PROJECT)
         .multiValues(true)
         .build(),
-      PropertyDefinition
-        .builder(TsConfigProvider.TSCONFIG_PATHS)
+      PropertyDefinition.builder(TsConfigProvider.TSCONFIG_PATHS)
         .name("TypeScript tsconfig.json location")
         .description("Comma-delimited list of paths to TSConfig files. Wildcards are supported.")
         .onQualifiers(Qualifiers.PROJECT)
@@ -202,8 +198,7 @@ public class JavaScriptPlugin implements Plugin {
         .category(JS_TS_CATEGORY)
         .multiValues(true)
         .build(),
-      PropertyDefinition
-        .builder(PROPERTY_KEY_MAX_FILE_SIZE)
+      PropertyDefinition.builder(PROPERTY_KEY_MAX_FILE_SIZE)
         .name("Maximum size of analyzed files")
         .description(
           "Threshold for the maximum size of analyzed files (in kilobytes). " +
@@ -215,8 +210,7 @@ public class JavaScriptPlugin implements Plugin {
         .type(PropertyType.INTEGER)
         .defaultValue("1000")
         .build(),
-      PropertyDefinition
-        .builder(JavaScriptPlugin.IGNORE_HEADER_COMMENTS)
+      PropertyDefinition.builder(JavaScriptPlugin.IGNORE_HEADER_COMMENTS)
         .defaultValue(JavaScriptPlugin.IGNORE_HEADER_COMMENTS_DEFAULT_VALUE.toString())
         .name("Ignore header comments")
         .description("True to not count file header comments in comment metrics.")
@@ -225,8 +219,7 @@ public class JavaScriptPlugin implements Plugin {
         .category(JS_TS_CATEGORY)
         .type(PropertyType.BOOLEAN)
         .build(),
-      PropertyDefinition
-        .builder(JavaScriptPlugin.ENVIRONMENTS)
+      PropertyDefinition.builder(JavaScriptPlugin.ENVIRONMENTS)
         .defaultValue(String.join(",", JavaScriptPlugin.ENVIRONMENTS_DEFAULT_VALUE))
         .name("JavaScript execution environments")
         .description(
@@ -240,8 +233,7 @@ public class JavaScriptPlugin implements Plugin {
         .multiValues(true)
         .category(JS_TS_CATEGORY)
         .build(),
-      PropertyDefinition
-        .builder(JavaScriptPlugin.GLOBALS)
+      PropertyDefinition.builder(JavaScriptPlugin.GLOBALS)
         .defaultValue(JavaScriptPlugin.GLOBALS_DEFAULT_VALUE)
         .name("Global variables")
         .description("List of global variables.")
@@ -250,11 +242,14 @@ public class JavaScriptPlugin implements Plugin {
         .multiValues(true)
         .category(JS_TS_CATEGORY)
         .build(),
-      PropertyDefinition
-        .builder(SKIP_NODE_PROVISIONING_PROPERTY)
+      PropertyDefinition.builder(SKIP_NODE_PROVISIONING_PROPERTY)
         .defaultValue("false")
         .name("Skip the deployment of the embedded Node.js runtime")
-        .description(JavaScriptPlugin.getHTMLMarkup("Controls whether the scanner should skip the deployment of the embedded Node.js runtime, and use the host-provided runtime instead.\n\nAnalysis will fail if a compatible version of Node.js is not provided via `sonar.nodejs.executable` or the `PATH`."))
+        .description(
+          JavaScriptPlugin.getHTMLMarkup(
+            "Controls whether the scanner should skip the deployment of the embedded Node.js runtime, and use the host-provided runtime instead.\n\nAnalysis will fail if a compatible version of Node.js is not provided via `sonar.nodejs.executable` or the `PATH`."
+          )
+        )
         .onQualifiers(Qualifiers.PROJECT)
         .subCategory(GENERAL)
         .category(JS_TS_CATEGORY)
@@ -270,8 +265,7 @@ public class JavaScriptPlugin implements Plugin {
     );
 
     context.addExtension(
-      PropertyDefinition
-        .builder(CssLanguage.FILE_SUFFIXES_KEY)
+      PropertyDefinition.builder(CssLanguage.FILE_SUFFIXES_KEY)
         .defaultValue(CssLanguage.FILE_SUFFIXES_DEFVALUE)
         .name("File Suffixes")
         .description(FILE_SUFFIXES_DESCRIPTION)
@@ -292,8 +286,7 @@ public class JavaScriptPlugin implements Plugin {
       );
 
       context.addExtension(
-        PropertyDefinition
-          .builder(ESLINT_REPORT_PATHS)
+        PropertyDefinition.builder(ESLINT_REPORT_PATHS)
           .name("ESLint Report Files")
           .description("Paths (absolute or relative) to the JSON files with ESLint issues.")
           .onQualifiers(Qualifiers.PROJECT)
@@ -304,8 +297,7 @@ public class JavaScriptPlugin implements Plugin {
       );
 
       context.addExtension(
-        PropertyDefinition
-          .builder(TSLINT_REPORT_PATHS)
+        PropertyDefinition.builder(TSLINT_REPORT_PATHS)
           .name("TSLint Report Files")
           .description("Paths (absolute or relative) to the JSON files with TSLint issues.")
           .onQualifiers(Qualifiers.PROJECT)
@@ -318,8 +310,7 @@ public class JavaScriptPlugin implements Plugin {
       context.addExtensions(CssMetricSensor.class, StylelintReportSensor.class);
 
       context.addExtension(
-        PropertyDefinition
-          .builder(StylelintReportSensor.STYLELINT_REPORT_PATHS)
+        PropertyDefinition.builder(StylelintReportSensor.STYLELINT_REPORT_PATHS)
           .defaultValue(StylelintReportSensor.STYLELINT_REPORT_PATHS_DEFAULT_VALUE)
           .name("Stylelint Report Files")
           .description("Paths (absolute or relative) to the JSON files with stylelint issues.")
@@ -331,10 +322,7 @@ public class JavaScriptPlugin implements Plugin {
       );
     } else {
       var sonarLintPluginAPIManager = new SonarLintPluginAPIManager();
-      sonarLintPluginAPIManager.addSonarLintExtensions(
-        context,
-        new SonarLintPluginAPIVersion()
-      );
+      sonarLintPluginAPIManager.addSonarLintExtensions(context, new SonarLintPluginAPIVersion());
     }
   }
 
@@ -344,10 +332,7 @@ public class JavaScriptPlugin implements Plugin {
    * Note that this method should probably not be hosted here: either it should be part of a dedicated helper class, or it should be provided by a Markdown-to-HTML library. Since it is only used in this specific class, it is acceptable for now to have it hosted here.
    */
   private static String getHTMLMarkup(String markdownMarkup) {
-    return markdownMarkup
-      .replace("\n", "<br>")
-      .replaceAll("`(.*?)`", "<code>$1</code>")
-      ;
+    return markdownMarkup.replace("\n", "<br>").replaceAll("`(.*?)`", "<code>$1</code>");
   }
 
   static class SonarLintPluginAPIManager {

@@ -61,27 +61,22 @@ public class JavaScriptFilePredicate {
   public static FilePredicate getYamlPredicate(FileSystem fs) {
     return fs
       .predicates()
-      .and(
-        fs.predicates().hasLanguage(YamlSensor.LANGUAGE),
-        inputFile -> {
-          try (Scanner scanner = new Scanner(inputFile.inputStream(), inputFile.charset().name())) {
-            while (scanner.hasNextLine()) {
-              String line = scanner.nextLine();
-              if (
-                line.contains("{{") && !HELM_DIRECTIVE_IN_COMMENT_OR_STRING.matcher(line).find()
-              ) {
-                return false;
-              }
+      .and(fs.predicates().hasLanguage(YamlSensor.LANGUAGE), inputFile -> {
+        try (Scanner scanner = new Scanner(inputFile.inputStream(), inputFile.charset().name())) {
+          while (scanner.hasNextLine()) {
+            String line = scanner.nextLine();
+            if (line.contains("{{") && !HELM_DIRECTIVE_IN_COMMENT_OR_STRING.matcher(line).find()) {
+              return false;
             }
-            return true;
-          } catch (IOException e) {
-            throw new IllegalStateException(
-              String.format("Unable to read file: %s. %s", inputFile.uri(), e.getMessage()),
-              e
-            );
           }
+          return true;
+        } catch (IOException e) {
+          throw new IllegalStateException(
+            String.format("Unable to read file: %s. %s", inputFile.uri(), e.getMessage()),
+            e
+          );
         }
-      );
+      });
   }
 
   public static FilePredicate getJsTsPredicate(FileSystem fs) {

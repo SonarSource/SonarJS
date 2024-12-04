@@ -26,9 +26,8 @@ class S2094Test {
   @Test
   void config() {
     String configAsString = new Gson().toJson(new S2094().configurations());
-    assertThat(configAsString)
-      .isEqualTo(
-        "[{\"allowConstructorOnly\":false,\"allowEmpty\":false,\"allowStaticOnly\":true,\"allowWithDecorator\":true}]"
-      );
+    assertThat(configAsString).isEqualTo(
+      "[{\"allowConstructorOnly\":false,\"allowEmpty\":false,\"allowStaticOnly\":true,\"allowWithDecorator\":true}]"
+    );
   }
 }

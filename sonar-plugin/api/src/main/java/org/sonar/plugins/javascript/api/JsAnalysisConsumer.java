@@ -26,7 +26,6 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
 @ScannerSide
 @SonarLintSide
 public interface JsAnalysisConsumer {
-
   /**
    * Called for each file during the analysis.
    * @param jsFile the file which was analyzed

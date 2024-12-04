@@ -52,13 +52,9 @@ public class S124 extends Check {
   )
   public String flags = DEFAULT_FLAGS;
 
-
-
   @Override
   public List<Object> configurations() {
-    return Collections.singletonList(
-      new S124.Config(regularExpression, message, flags)
-    );
+    return Collections.singletonList(new S124.Config(regularExpression, message, flags));
   }
 
   private static class Config {

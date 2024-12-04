@@ -44,8 +44,7 @@ public class ExpectedIssues {
   public static void parseForExpectedIssues(String projectKey, Path projectDir) throws IOException {
     Map<String, ExpectedIssues> expectedIssuesByRule = new HashMap<>();
 
-    Arrays
-      .stream(projectDir.toFile().listFiles())
+    Arrays.stream(projectDir.toFile().listFiles())
       .filter(file -> file.toString().endsWith(".ts") || file.toString().endsWith(".tsx"))
       .forEach(file -> parseFile(projectKey, projectDir, expectedIssuesByRule, file.toPath()));
 

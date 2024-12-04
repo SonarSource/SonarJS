@@ -51,23 +51,17 @@ public class RulesBundles {
 
   public RulesBundles(RulesBundle[] rulesBundles) {
     bundles = List.of(rulesBundles);
-    bundleUrls =
-      Arrays
-        .stream(rulesBundles)
-        .map(bundle -> {
-          URL resource = bundle.getClass().getResource(bundle.bundlePath());
-          if (resource == null) {
-            throw new IllegalStateException(
-              String.format(
-                "Resource for bundle %s from %s not found.",
-                bundle.bundlePath(),
-                bundle
-              )
-            );
-          }
-          return resource;
-        })
-        .toList();
+    bundleUrls = Arrays.stream(rulesBundles)
+      .map(bundle -> {
+        URL resource = bundle.getClass().getResource(bundle.bundlePath());
+        if (resource == null) {
+          throw new IllegalStateException(
+            String.format("Resource for bundle %s from %s not found.", bundle.bundlePath(), bundle)
+          );
+        }
+        return resource;
+      })
+      .toList();
   }
 
   /**

@@ -63,8 +63,9 @@ class ProgressReportTest {
     for (int i = 1; i < messages.size() - 1; i++) {
       assertThat(messages.get(i)).isEqualTo("0/2 files analyzed, current file: foo1.java");
     }
-    assertThat(messages.get(messages.size() - 1))
-      .isEqualTo("2/2" + " source files have been analyzed");
+    assertThat(messages.get(messages.size() - 1)).isEqualTo(
+      "2/2" + " source files have been analyzed"
+    );
   }
 
   @Test
@@ -87,8 +88,9 @@ class ProgressReportTest {
     for (int i = 1; i < messages.size() - 1; i++) {
       assertThat(messages.get(i)).isEqualTo("0/1 files analyzed, current file: foo.java");
     }
-    assertThat(messages.get(messages.size() - 1))
-      .isEqualTo("1/1" + " source file has been analyzed");
+    assertThat(messages.get(messages.size() - 1)).isEqualTo(
+      "1/1" + " source file has been analyzed"
+    );
   }
 
   @Test
@@ -144,9 +146,7 @@ class ProgressReportTest {
     t.join(1000);
     assertThat(interruptFlagPreserved.get()).isTrue();
 
-    assertThat(messages)
-      .isNotEmpty()
-      .contains("1/1" + " source file has been analyzed");
+    assertThat(messages).isNotEmpty().contains("1/1" + " source file has been analyzed");
   }
 
   @Test
@@ -182,5 +182,4 @@ class ProgressReportTest {
     selfInterruptedThread.join();
     assertThat(time.get()).isLessThan(300);
   }
-
 }

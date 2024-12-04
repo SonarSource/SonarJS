@@ -32,9 +32,8 @@ class S1451Test {
     check.headerFormat = "// header format 20\\d\\d";
     check.isRegularExpression = true;
     configAsString = new Gson().toJson(check.configurations());
-    assertThat(configAsString)
-      .isEqualTo(
-        "[{\"headerFormat\":\"// header format 20\\\\d\\\\d\",\"isRegularExpression\":true}]"
-      );
+    assertThat(configAsString).isEqualTo(
+      "[{\"headerFormat\":\"// header format 20\\\\d\\\\d\",\"isRegularExpression\":true}]"
+    );
   }
 }

@@ -38,8 +38,6 @@ public class S3776 extends Check {
   )
   int threshold = DEFAULT_THRESHOLD;
 
-
-
   @Override
   public List<Object> configurations() {
     return Collections.singletonList(threshold);

@@ -26,7 +26,4 @@ import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 @TypeScriptRule
 @DeprecatedRuleKey(ruleKey = "CurlyBraces")
 @Rule(key = "S121")
-public class S121 extends Check {
-
-
-}
+public class S121 extends Check {}

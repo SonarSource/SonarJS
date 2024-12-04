@@ -52,6 +52,7 @@ public class S1192 extends Check {
   }
 
   private static class Config {
+
     int threshold;
     String ignoreStrings;
 
