@@ -106,13 +106,4 @@ public abstract class AbstractBridgeSensor implements Sensor {
   protected abstract void analyzeFiles(List<InputFile> inputFiles) throws IOException;
 
   protected abstract List<InputFile> getInputFiles();
-
-  protected boolean shouldAnalyzeWithProgram() {
-    if (contextUtils.isSonarLint()) {
-      LOG.debug("Will use AnalysisWithWatchProgram because we are in SonarLint context");
-      return false;
-    }
-    LOG.debug("Will use AnalysisWithProgram");
-    return true;
-  }
 }

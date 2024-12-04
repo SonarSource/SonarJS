@@ -55,6 +55,7 @@ public class TsConfigProvider {
 
   interface Provider {
     List<String> tsconfigs(SensorContext context) throws IOException;
+
     TsConfigOrigin type();
   }
 
@@ -71,6 +72,10 @@ public class TsConfigProvider {
     this.cache = cache;
   }
 
+  TsConfigProvider(List<Provider> providers) {
+    this(providers, null);
+  }
+
   /**
    * Relying on (in order of priority)
    * 1. Property sonar.typescript.tsconfigPath(s)
@@ -79,26 +84,40 @@ public class TsConfigProvider {
    */
   static List<String> getTsConfigs(
     ContextUtils contextUtils,
-    TsConfigProvider.TsConfigFileCreator tsConfigFileCreator,
-    @Nullable TsConfigCache tsConfigCache
+    TsConfigProvider.TsConfigFileCreator tsConfigFileCreator
   ) throws IOException {
-    var defaultProvider = contextUtils.isSonarLint()
-      ? new TsConfigProvider.WildcardTsConfigProvider(tsConfigCache, tsConfigFileCreator)
-      : new TsConfigProvider.DefaultTsConfigProvider(
-        tsConfigFileCreator,
-        JavaScriptFilePredicate::getJsTsPredicate
-      );
+    var provider = new TsConfigProvider(
+      List.of(
+        new PropertyTsConfigProvider(),
+        new LookupTsConfigProvider(),
+        new TsConfigProvider.DefaultTsConfigProvider(
+          tsConfigFileCreator,
+          JavaScriptFilePredicate::getJsTsPredicate
+        )
+      )
+    );
+    return provider.tsconfigs(contextUtils.context());
+  }
 
+  /**
+   * Fill tsConfigCache with the tsconfigs found in the order listed by the
+   * providers. No need to return the list of tsconfigs
+   * because we get the tsconfig file from the cache.
+   */
+  static void initializeTsConfigCache(
+    ContextUtils contextUtils,
+    TsConfigProvider.TsConfigFileCreator tsConfigFileCreator,
+    TsConfigCache tsConfigCache
+  ) throws IOException {
     var provider = new TsConfigProvider(
       List.of(
         new PropertyTsConfigProvider(),
         new LookupTsConfigProvider(tsConfigCache),
-        defaultProvider
+        new TsConfigProvider.WildcardTsConfigProvider(tsConfigCache, tsConfigFileCreator)
       ),
       tsConfigCache
     );
-
-    return provider.tsconfigs(contextUtils.context());
+    provider.tsconfigs(contextUtils.context());
   }
 
   List<String> tsconfigs(SensorContext context) throws IOException {
@@ -134,11 +153,8 @@ public class TsConfigProvider {
         Arrays.asList(context.config().getStringArray(property))
       );
 
-      LOG.info(
-        "Resolving TSConfig files using '{}' from property {}",
-        String.join(",", patterns),
-        property
-      );
+      var patternString = String.join(",", patterns);
+      LOG.info("Resolving TSConfig files using '{}' from property {}", patternString, property);
 
       File baseDir = context.fileSystem().baseDir();
 
@@ -189,6 +205,10 @@ public class TsConfigProvider {
 
     LookupTsConfigProvider(@Nullable TsConfigCache cache) {
       this.cache = cache;
+    }
+
+    LookupTsConfigProvider() {
+      this(null);
     }
 
     @Override

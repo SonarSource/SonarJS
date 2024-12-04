@@ -18,16 +18,13 @@ package org.sonar.plugins.javascript.analysis;
 
 import java.io.IOException;
 import java.util.List;
-import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.scanner.ScannerSide;
 import org.sonar.plugins.javascript.bridge.AnalysisWarningsWrapper;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
 import org.sonar.plugins.javascript.sonarlint.TsConfigCache;
 import org.sonar.plugins.javascript.utils.ProgressReport;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
-@ScannerSide
 @SonarLintSide
 public class AnalysisWithWatchProgram extends AbstractAnalysis {
 
@@ -36,23 +33,16 @@ public class AnalysisWithWatchProgram extends AbstractAnalysis {
   public AnalysisWithWatchProgram(
     BridgeServer bridgeServer,
     AnalysisProcessor analysisProcessor,
-    AnalysisWarningsWrapper analysisWarnings
-  ) {
-    this(bridgeServer, analysisProcessor, analysisWarnings, null);
-  }
-
-  public AnalysisWithWatchProgram(
-    BridgeServer bridgeServer,
-    AnalysisProcessor analysisProcessor,
     AnalysisWarningsWrapper analysisWarnings,
-    @Nullable TsConfigCache tsConfigCache
+    TsConfigCache tsConfigCache
   ) {
     super(bridgeServer, analysisProcessor, analysisWarnings);
     this.tsConfigCache = tsConfigCache;
   }
 
   @Override
-  public void analyzeFiles(List<InputFile> inputFiles, List<String> tsConfigs) throws IOException {
+  public void analyzeFiles(List<InputFile> inputFiles) throws IOException {
+    TsConfigProvider.initializeTsConfigCache(contextUtils, this::createTsConfigFile, tsConfigCache);
     boolean success = false;
     progressReport = new ProgressReport(PROGRESS_REPORT_TITLE, PROGRESS_REPORT_PERIOD);
     try {

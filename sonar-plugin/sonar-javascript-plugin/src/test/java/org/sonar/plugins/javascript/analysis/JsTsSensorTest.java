@@ -302,7 +302,7 @@ class JsTsSensorTest {
         )
     );
     createInputFile(context);
-    createSensor().execute(context);
+    createSonarLintSensor().execute(context);
     Collection<Issue> issues = context.allIssues();
     assertThat(issues).hasSize(1);
     Issue issue = issues.iterator().next();
@@ -347,7 +347,7 @@ class JsTsSensorTest {
       new TsConfigFile("tsconfig.json", singletonList(file.absolutePath()), emptyList())
     );
     ArgumentCaptor<JsAnalysisRequest> captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
-    createSensor().execute(ctx);
+    createSonarLintSensor().execute(ctx);
     verify(bridgeServerMock).analyzeTypeScript(captor.capture());
     assertThat(captor.getValue().fileContent()).isEqualTo(
       "if (cond)\n" + "doFoo(); \n" + "else \n" + "doFoo();"
@@ -538,7 +538,7 @@ class JsTsSensorTest {
     );
 
     ArgumentCaptor<JsAnalysisRequest> captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
-    createSensor().execute(context);
+    createSonarLintSensor().execute(context);
     verify(bridgeServerMock, times(4)).analyzeTypeScript(captor.capture());
     assertThat(captor.getAllValues())
       .extracting(req -> req.filePath())
@@ -751,7 +751,7 @@ class JsTsSensorTest {
     );
 
     ArgumentCaptor<JsAnalysisRequest> captor = ArgumentCaptor.forClass(JsAnalysisRequest.class);
-    createSensor().execute(context);
+    createSonarLintSensor().execute(context);
 
     // Only 2 calls, as we already find the necessary tsconfig (src/tsconfig.app.json) on the 2nd call
     verify(bridgeServerMock, times(2)).loadTsConfig(anyString());
@@ -806,7 +806,7 @@ class JsTsSensorTest {
 
   @Test
   void stop_analysis_if_cancelled() throws Exception {
-    JsTsSensor sensor = createSensor();
+    JsTsSensor sensor = createSonarLintSensor();
     createInputFile(context);
     setSonarLintRuntime(context);
     createTsConfigFile();
@@ -911,7 +911,6 @@ class JsTsSensorTest {
       checks(ESLINT_BASED_RULE, "S2260"),
       bridgeServerMock,
       analysisWithProgram(),
-      analysisWithWatchProgram(),
       new AnalysisConsumers(List.of(consumer))
     );
 
@@ -1019,7 +1018,6 @@ class JsTsSensorTest {
       checks(ESLINT_BASED_RULE, "S2260"),
       bridgeServerMock,
       analysisWithProgram(),
-      analysisWithWatchProgram(),
       new AnalysisConsumers(List.of(consumer))
     );
   }
@@ -1029,6 +1027,14 @@ class JsTsSensorTest {
       checks(ESLINT_BASED_RULE, "S2260"),
       bridgeServerMock,
       analysisWithProgram(),
+      new AnalysisConsumers()
+    );
+  }
+
+  private JsTsSensor createSonarLintSensor() {
+    return new JsTsSensor(
+      checks(ESLINT_BASED_RULE, "S2260"),
+      bridgeServerMock,
       analysisWithWatchProgram(),
       new AnalysisConsumers()
     );

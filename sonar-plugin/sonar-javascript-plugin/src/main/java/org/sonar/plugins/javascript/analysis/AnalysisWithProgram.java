@@ -33,10 +33,8 @@ import org.sonar.plugins.javascript.bridge.BridgeServer;
 import org.sonar.plugins.javascript.bridge.BridgeServer.TsProgram;
 import org.sonar.plugins.javascript.bridge.BridgeServer.TsProgramRequest;
 import org.sonar.plugins.javascript.utils.ProgressReport;
-import org.sonarsource.api.sonarlint.SonarLintSide;
 
 @ScannerSide
-@SonarLintSide
 public class AnalysisWithProgram extends AbstractAnalysis {
 
   private static final Logger LOG = LoggerFactory.getLogger(AnalysisWithProgram.class);
@@ -50,7 +48,8 @@ public class AnalysisWithProgram extends AbstractAnalysis {
   }
 
   @Override
-  void analyzeFiles(List<InputFile> inputFiles, List<String> tsConfigs) throws IOException {
+  void analyzeFiles(List<InputFile> inputFiles) throws IOException {
+    var tsConfigs = TsConfigProvider.getTsConfigs(contextUtils, this::createTsConfigFile);
     progressReport = new ProgressReport(PROGRESS_REPORT_TITLE, PROGRESS_REPORT_PERIOD);
     progressReport.start(inputFiles.size(), inputFiles.iterator().next().toString());
     boolean success = false;

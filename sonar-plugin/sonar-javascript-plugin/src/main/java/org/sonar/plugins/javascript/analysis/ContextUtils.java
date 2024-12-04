@@ -22,7 +22,7 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 
-class ContextUtils {
+public class ContextUtils {
 
   /**
    * Internal property to enable SonarArmor (disabled by default), now called Jasmin
