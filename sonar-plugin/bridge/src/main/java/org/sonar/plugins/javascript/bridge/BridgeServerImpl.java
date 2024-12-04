@@ -26,8 +26,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -64,6 +62,7 @@ public class BridgeServerImpl implements BridgeServer {
   private static final Logger LOG = LoggerFactory.getLogger(BridgeServerImpl.class);
 
   private static final int DEFAULT_TIMEOUT_SECONDS = 5 * 60;
+  private static final int TIME_AFTER_FAILURE_TO_RESTART_MS = 60 * 1000;
   // internal property to set "--max-old-space-size" for Node process running this server
   private static final String MAX_OLD_SPACE_SIZE_PROPERTY = "sonar.javascript.node.maxspace";
   private static final String ALLOW_TS_PARSER_JS_FILES = "sonar.javascript.allowTsParserJsFiles";
@@ -89,6 +88,7 @@ public class BridgeServerImpl implements BridgeServer {
   private final ScheduledExecutorService heartbeatService;
   private ScheduledFuture<?> heartbeatFuture;
   private final Http http;
+  private long latestOKIsAliveTimestamp;
 
   // Used by pico container for dependency injection
   public BridgeServerImpl(
@@ -310,8 +310,13 @@ public class BridgeServerImpl implements BridgeServer {
   @Override
   public void startServerLazily(BridgeServerConfig serverConfig) throws IOException {
     if (status == Status.FAILED) {
-      // required for SonarLint context to avoid restarting already failed server
-      throw new ServerAlreadyFailedException();
+      if (shouldRestartFailedServer()) {
+        // Reset the status, which will cause the server to retry deployment
+        status = Status.NOT_STARTED;
+      } else {
+        // required for SonarLint context to avoid restarting already failed server
+        throw new ServerAlreadyFailedException();
+      }
     }
     var providedPort = nodeAlreadyRunningPort();
     // if SONARJS_EXISTING_NODE_PROCESS_PORT is set, use existing node process
@@ -455,10 +460,18 @@ public class BridgeServerImpl implements BridgeServer {
     }
     try {
       String res = http.get(url("status"));
-      return "OK!".equals(res);
+      var result = "OK!".equals(res);
+      if (result) {
+        latestOKIsAliveTimestamp = System.currentTimeMillis();
+      }
+      return result;
     } catch (IOException e) {
       return false;
     }
+  }
+
+  private boolean shouldRestartFailedServer() {
+    return System.currentTimeMillis() - latestOKIsAliveTimestamp > TIME_AFTER_FAILURE_TO_RESTART_MS;
   }
 
   @Override
