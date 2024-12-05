@@ -103,7 +103,7 @@
     "@babel/plugin-proposal-decorators": "7.25.9",
     "@babel/preset-env": "7.26.0",
     "@babel/preset-flow": "7.25.9",
-    "@babel/preset-react": "7.25.9",
+    "@babel/preset-react": "7.26.3",
     "@eslint-community/regexpp": "4.12.1",
     "@typescript-eslint/eslint-plugin": "7.18.0",
     "@typescript-eslint/parser": "7.18.0",
