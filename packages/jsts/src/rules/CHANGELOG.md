@@ -1,8 +1,16 @@
+## 2024-12-05, Version 3.0.1
+
+- [[ESLINTJS-64](https://sonarsource.atlassian.net/browse/ESLINTJS-64)] - Fix `Usage` section of the documentation
+- [[ESLINTJS-61](https://sonarsource.atlassian.net/browse/ESLINTJS-61)] - Allow for wider margin of Typescript versions
+- [[ESLINTJS-55](https://sonarsource.atlassian.net/browse/ESLINTJS-55)] - Create solution for release notes
+
 ## 2024-12-02, Version 3.0.0
 
-- [[ESLINTJS-65](https://sonarsource.atlassian.net/browse/ESLINTJS-65)] - Remove decorated rules from ESLint plugin
-- [[ESLINTJS-58](https://sonarsource.atlassian.net/browse/ESLINTJS-58)] - Change homepage to point to README.md in rules folder
-- [[ESLINTJS-57](https://sonarsource.atlassian.net/browse/ESLINTJS-57)] - Remove "sonar-" from eslint-plugin-sonarjs rule names
+- [[JS-359](https://sonarsource.atlassian.net/browse/JS-359)] - Create rule S6418 (`no-hardcoded-secrets`): Hard-coded secrets are security-sensitive
+
+* [[ESLINTJS-65](https://sonarsource.atlassian.net/browse/ESLINTJS-65)] - Remove decorated rules from ESLint plugin
+* [[ESLINTJS-58](https://sonarsource.atlassian.net/browse/ESLINTJS-58)] - Change homepage to point to README.md in rules folder
+* [[ESLINTJS-57](https://sonarsource.atlassian.net/browse/ESLINTJS-57)] - Remove "sonar-" from eslint-plugin-sonarjs rule names
 
 ## 2024-10-18, Version 2.0.4
 

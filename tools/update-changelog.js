@@ -33,21 +33,23 @@ import { fileURLToPath } from 'node:url';
 
 const version = process.argv[2];
 
+export const DIRNAME = dirname(fileURLToPath(import.meta.url));
+const changelogPath = join(DIRNAME, '..', 'packages', 'jsts', 'src', 'rules', 'CHANGELOG.md');
+const changelog = await readFile(changelogPath, 'utf8').catch(() => '');
+
+const startDate = changelog.match(/^## (\d+-\d+-\d+)/)[1];
+
 const response = await fetch(
   encodeURI(
-    `https://sonarsource.atlassian.net/rest/api/2/search?jql=fixVersion=${version} and project="ESLINTJS"`,
+    `https://sonarsource.atlassian.net/rest/api/2/search?jql=(project = ESLINTJS AND fixversion = ${version}) OR (project = JS AND labels = eslint-plugin AND resolutiondate > '${startDate}') `,
   ),
 );
 if (!response.ok) {
   throw new Error(`Response status: ${response.status}`);
 }
 
-export const DIRNAME = dirname(fileURLToPath(import.meta.url));
-const changelogPath = join(DIRNAME, '..', 'packages', 'jsts', 'src', 'rules', 'CHANGELOG.md');
-const changelog = await readFile(changelogPath, 'utf8').catch(() => '');
-
 const json = await response.json();
-let newVersionStr = `## ${json.issues[0].fields.fixVersions[0].releaseDate}, Version ${version}\n\n`;
+let newVersionStr = `## ${new Date().toISOString().split('T')[0]}, Version ${version}\n\n`;
 json.issues.forEach(issue => {
   newVersionStr += `* \[[${issue.key}](https://sonarsource.atlassian.net/browse/${issue.key})] - ${issue.fields.summary}\n`;
 });
