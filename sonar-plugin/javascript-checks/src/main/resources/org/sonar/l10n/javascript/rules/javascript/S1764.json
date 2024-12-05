@@ -12,7 +12,9 @@
     "func": "Constant\/Issue",
     "constantCost": "2min"
   },
-  "tags": [],
+  "tags": [
+    "suspicious"
+  ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-1764",
   "sqKey": "S1764",
