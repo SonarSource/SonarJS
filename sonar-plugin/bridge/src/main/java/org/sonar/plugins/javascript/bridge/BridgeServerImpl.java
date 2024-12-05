@@ -88,7 +88,7 @@ public class BridgeServerImpl implements BridgeServer {
   private final ScheduledExecutorService heartbeatService;
   private ScheduledFuture<?> heartbeatFuture;
   private final Http http;
-  private long latestOKIsAliveTimestamp;
+  private Long latestOKIsAliveTimestamp;
 
   // Used by pico container for dependency injection
   public BridgeServerImpl(
@@ -471,7 +471,10 @@ public class BridgeServerImpl implements BridgeServer {
   }
 
   private boolean shouldRestartFailedServer() {
-    return System.currentTimeMillis() - latestOKIsAliveTimestamp > TIME_AFTER_FAILURE_TO_RESTART_MS;
+    return (
+      latestOKIsAliveTimestamp != null &&
+      System.currentTimeMillis() - latestOKIsAliveTimestamp > TIME_AFTER_FAILURE_TO_RESTART_MS
+    );
   }
 
   @Override
