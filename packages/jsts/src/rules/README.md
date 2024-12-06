@@ -17,7 +17,7 @@ If you are a [SonarQube](https://www.sonarqube.org) or [SonarCloud](https://sona
 - [ESLint rules](#eslint-rules)
 - [Improved ESLint rules](#improved-eslint-rules)
 
-## [Changelog](CHANGELOG.md)
+## [Changelog](https://github.com/SonarSource/SonarJS/blob/master/packages/jsts/src/rules/CHANGELOG.md)
 
 ## Prerequisites
 
@@ -28,7 +28,7 @@ The prerequisites for using this plugin depend on the ESLint version you are usi
 
 ## Installation
 
-First, ensure that your project is configured with ESLint. If it is not, please follow the [ESLint instructions](<(https://github.com/eslint/eslint#installation-and-usage)>) to set it up.
+First, ensure that your project is configured with ESLint. If it is not, please follow the [ESLint instructions](https://github.com/eslint/eslint#installation-and-usage) to set it up.
 
 To install `eslint-plugin-sonarjs`, use the following `npm` command (or `yarn` equivalent):
 
