@@ -17,7 +17,7 @@
 import fs from 'fs';
 import path from 'path';
 import { Rule } from 'eslint';
-import { NodeRuleTester } from '../rule-tester.js';
+import { RuleTester } from '../rule-tester.js';
 import { hasSonarRuntimeOption } from '../../../../src/linter/parameters/sonar-runtime.js';
 import { extractExpectations } from './framework.js';
 import parser from './parser.js';
@@ -31,7 +31,7 @@ export function check(ruleId: string, ruleModule: Rule.RuleModule, ruleDir: stri
   /**
    * Loading this file's `parseForESLint()` function into ESLint's rule tester.
    */
-  const ruleTester = new NodeRuleTester({
+  const ruleTester = new RuleTester({
     languageOptions: { parser },
   });
 

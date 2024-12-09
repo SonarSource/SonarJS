@@ -15,9 +15,9 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { JavaScriptRuleTester } from '../../../tests/tools/testers/javascript/index.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 
-const ruleTesterJs = new JavaScriptRuleTester();
+const ruleTesterJs = new RuleTester();
 ruleTesterJs.run('Functions should always return the same type [js]', rule, {
   valid: [
     {
@@ -33,7 +33,7 @@ ruleTesterJs.run('Functions should always return the same type [js]', rule, {
   invalid: [],
 });
 
-const ruleTesterTs = new JavaScriptRuleTester();
+const ruleTesterTs = new RuleTester();
 ruleTesterTs.run(`Functions should always return the same type [ts]`, rule, {
   valid: [
     {
@@ -561,7 +561,7 @@ const sanitize = () => {
   ],
 });
 
-const ruleTestJSWithTypes = new JavaScriptRuleTester();
+const ruleTestJSWithTypes = new RuleTester();
 ruleTestJSWithTypes.run(
   `'Functions should always return the same type [js with type inference]'`,
   rule,

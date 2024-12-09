@@ -15,10 +15,9 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './rule.js';
-import { JavaScriptRuleTester } from '../../../tests/tools/testers/javascript/index.js';
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 
-const ruleTester = new JavaScriptRuleTester();
+const ruleTester = new RuleTester();
 
 ruleTester.run('no-inverted-boolean-check', rule, {
   valid: [
@@ -108,7 +107,7 @@ ruleTester.run('no-inverted-boolean-check', rule, {
   ],
 });
 
-function error(invertedOperator: string, output: string): NodeRuleTester.TestCaseError {
+function error(invertedOperator: string, output: string) {
   return {
     messageId: 'useOppositeOperator',
     data: { invertedOperator },

@@ -15,8 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
-import { TypeScriptRuleTester } from '../../../tests/tools/testers/typescript/index.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 
 let tests = {
   valid: [
@@ -294,8 +293,8 @@ let tests = {
   ],
 };
 
-const ruleTester = new NodeRuleTester({ languageOptions: { ecmaVersion: 2018 } });
+const ruleTester = new RuleTester({ languageOptions: { ecmaVersion: 2018 } });
 ruleTester.run('Using publicly writable directories is security-sensitive', rule, tests);
 
-const ruleTesterTs = new TypeScriptRuleTester();
+const ruleTesterTs = new RuleTester();
 ruleTesterTs.run('Using publicly writable directories is security-sensitive [TS]', rule, tests);

@@ -14,11 +14,11 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { NodeRuleTester } from '../rule-tester.js';
+import { RuleTester } from '../rule-tester.js';
 import parser from '@babel/eslint-parser';
 
 export function BabelRuleTester() {
-  return new NodeRuleTester({
+  return new RuleTester({
     // we use babel to parse JSX syntax
     languageOptions: {
       parser,

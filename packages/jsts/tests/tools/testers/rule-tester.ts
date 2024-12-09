@@ -14,10 +14,62 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { RuleTester } from 'eslint';
+import { RuleTester as ESLintRuleTester } from 'eslint';
+import type { Linter, Rule } from 'eslint';
 import { describe, it } from 'node:test';
+import path from 'path';
+import parser from '@typescript-eslint/parser';
+import globals from 'globals';
+
+type Tests = {
+  valid: (string | ESLintRuleTester.ValidTestCase)[];
+  invalid: ESLintRuleTester.InvalidTestCase[];
+};
+
+const languageOptions: Linter.LanguageOptions = {
+  parser,
+  ecmaVersion: 2018,
+  sourceType: 'module',
+  globals: {
+    ...globals.es2025,
+  },
+  parserOptions: {
+    project: path.resolve(`${import.meta.dirname}/fixtures/tsconfig.json`),
+    ecmaFeatures: {
+      jsx: true,
+    },
+  },
+} as const;
+
+const placeHolderFilePath = path.resolve(`${import.meta.dirname}/fixtures/placeholder.tsx`);
+
+/**
+ * Rule tester for JavaScript, using @typescript-eslint parser.
+ */
+class RuleTester extends ESLintRuleTester {
+  constructor(options?: Linter.Config) {
+    super({
+      languageOptions,
+      ...options,
+    });
+  }
+
+  run(name: string, rule: Rule.RuleModule, tests: Tests): void {
+    const setFilename = test => {
+      if (!test.filename) {
+        test.filename = placeHolderFilePath;
+      }
+    };
+
+    tests.valid.forEach(setFilename);
+    tests.invalid.forEach(setFilename);
+
+    super.run(name, rule, tests);
+  }
+}
 
 (RuleTester as any).describe = describe;
 (RuleTester as any).it = it;
 
-export { RuleTester as NodeRuleTester };
+export { RuleTester };
+export type { Tests };

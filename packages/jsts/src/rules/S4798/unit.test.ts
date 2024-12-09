@@ -15,9 +15,9 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { JavaScriptRuleTester } from '../../../tests/tools/testers/javascript/index.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 
-const ruleTester = new JavaScriptRuleTester();
+const ruleTester = new RuleTester();
 
 ruleTester.run('Optional boolean parameters should have default value', rule, {
   valid: [

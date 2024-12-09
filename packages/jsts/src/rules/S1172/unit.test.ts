@@ -19,9 +19,9 @@ import { isParameterProperty, rule } from './rule.js';
 import { it } from 'node:test';
 import { expect } from 'expect';
 
-import { JavaScriptRuleTester } from '../../../tests/tools/testers/javascript/index.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 
-const ruleTester = new JavaScriptRuleTester();
+const ruleTester = new RuleTester();
 
 ruleTester.run('Unused function parameters should be removed', rule, {
   valid: [

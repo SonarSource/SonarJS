@@ -15,9 +15,9 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { JavaScriptRuleTester } from '../../../tests/tools/testers/javascript/index.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 
-const ruleTester = new JavaScriptRuleTester();
+const ruleTester = new RuleTester();
 ruleTester.run('await should only be used with promises.', rule, {
   valid: [
     {
@@ -212,7 +212,7 @@ ruleTester.run('await should only be used with promises.', rule, {
   ],
 });
 
-const ruleTesterWithNoFullTypeInfo = new JavaScriptRuleTester();
+const ruleTesterWithNoFullTypeInfo = new RuleTester();
 
 ruleTesterWithNoFullTypeInfo.run('await should only be used with promises.', rule, {
   valid: [
@@ -228,7 +228,7 @@ ruleTesterWithNoFullTypeInfo.run('await should only be used with promises.', rul
   invalid: [],
 });
 
-const javaScriptRuleTester = new JavaScriptRuleTester();
+const javaScriptRuleTester = new RuleTester();
 javaScriptRuleTester.run(
   'await should only be used with promises: ignore function calls for functions with JSdoc',
   rule,

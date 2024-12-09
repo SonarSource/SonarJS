@@ -15,13 +15,11 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { TypeScriptRuleTester } from '../../../tests/tools/testers/typescript/index.js';
-import { JavaScriptRuleTester } from '../../../tests/tools/testers/javascript/index.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 
-const ruleTesterTs = new TypeScriptRuleTester();
-const ruleTesterJs = new JavaScriptRuleTester();
+const ruleTester = new RuleTester();
 
-ruleTesterTs.run('', rule, {
+ruleTester.run('', rule, {
   valid: [
     {
       code: `
@@ -241,7 +239,7 @@ ruleTesterTs.run('', rule, {
   ],
 });
 
-ruleTesterJs.run('', rule, {
+ruleTester.run('', rule, {
   valid: [
     {
       code: `

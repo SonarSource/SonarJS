@@ -14,14 +14,13 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { BabelRuleTester } from '../../../tests/tools/testers/babel/index.js';
 import { rule } from './index.js';
-import { JavaScriptRuleTester } from '../../../tests/tools/testers/javascript/index.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import globals from 'globals';
 
-const ruleTester = new JavaScriptRuleTester();
-const ruleTesterwithBrowser = new NodeRuleTester({
+const ruleTester = new RuleTester();
+const ruleTesterwithBrowser = new RuleTester({
   languageOptions: {
     ecmaVersion: 2018,
     sourceType: 'module',
@@ -31,7 +30,7 @@ const ruleTesterwithBrowser = new NodeRuleTester({
     },
   },
 });
-const ruleTesterCustomGlobals = new NodeRuleTester({
+const ruleTesterCustomGlobals = new RuleTester({
   languageOptions: {
     ecmaVersion: 2018,
     sourceType: 'module',
@@ -41,7 +40,7 @@ const ruleTesterCustomGlobals = new NodeRuleTester({
     },
   },
 });
-const ruleTesterScript = new NodeRuleTester({
+const ruleTesterScript = new RuleTester({
   languageOptions: { ecmaVersion: 2018, sourceType: 'script' },
 });
 

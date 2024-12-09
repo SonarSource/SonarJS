@@ -15,10 +15,9 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
-import { TypeScriptRuleTester } from '../../../tests/tools/testers/typescript/index.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 
-const eslintRuleTester = new NodeRuleTester({
+const eslintRuleTester = new RuleTester({
   languageOptions: { ecmaVersion: 2018, sourceType: 'module' },
 });
 eslintRuleTester.run('Correct types should be used [js]', rule, {
@@ -30,7 +29,7 @@ eslintRuleTester.run('Correct types should be used [js]', rule, {
   invalid: [],
 });
 
-const typeScriptRuleTester = new TypeScriptRuleTester();
+const typeScriptRuleTester = new RuleTester();
 typeScriptRuleTester.run('Correct types should be used', rule, {
   valid: [
     {

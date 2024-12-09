@@ -16,11 +16,11 @@
  */
 import { rule } from '../rule.js';
 import { join } from 'node:path';
-import { JavaScriptRuleTester } from '../../../../tests/tools/testers/javascript/index.js';
+import { RuleTester } from '../../../../tests/tools/testers/rule-tester.js';
 
 const dirname = join(import.meta.dirname, 'fixtures');
 process.chdir(dirname); // change current working dir to avoid the package.json lookup to up in the tree
-const ruleTester = new JavaScriptRuleTester();
+const ruleTester = new RuleTester();
 ruleTester.run('S6747 turns into a noop on non-React projects', rule, {
   valid: [
     {

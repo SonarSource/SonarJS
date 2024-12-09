@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { Rule } from 'eslint';
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import estree from 'estree';
 import { Express, getProperty } from '../../../src/rules/index.js';
 
@@ -39,7 +39,7 @@ const rule = Express.SensitiveMiddlewarePropertyRule(
   `Make sure sensitive property is safe here.`,
 );
 
-const ruleTester = new NodeRuleTester({
+const ruleTester = new RuleTester({
   languageOptions: { ecmaVersion: 2018, sourceType: 'module' },
 });
 ruleTester.run(

@@ -15,10 +15,9 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
-import { JavaScriptRuleTester } from '../../../tests/tools/testers/javascript/index.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 
-const typeAwareRuleTester = new JavaScriptRuleTester();
+const typeAwareRuleTester = new RuleTester();
 typeAwareRuleTester.run('Regular expressions named groups should be used', rule, {
   valid: [
     {
@@ -598,7 +597,7 @@ typeAwareRuleTester.run('Regular expressions named groups should be used', rule,
   ],
 });
 
-const ruleTester = new NodeRuleTester({
+const ruleTester = new RuleTester({
   languageOptions: { ecmaVersion: 2018, sourceType: 'module' },
 });
 ruleTester.run('"unused-named-groups" reports nothing without types', rule, {

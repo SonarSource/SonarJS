@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { Rule } from 'eslint';
-import { NodeRuleTester } from '../../../../tests/tools/testers/rule-tester.js';
+import { RuleTester, Tests } from '../../../../tests/tools/testers/rule-tester.js';
 import { interceptReport } from '../../../../src/rules/index.js';
 // Covers `getDeclaredVariables`, `getScope`, `getSourceCode`.
 import { rule as noParameterReassignment } from '../../../../src/rules/S1226/index.js';
@@ -49,12 +49,9 @@ describe('interceptReport', () => {
 function assertThatInterceptReportDecoratorForwardsCalls(
   name: string,
   rule: Rule.RuleModule,
-  tests: {
-    valid: (string | NodeRuleTester.ValidTestCase)[];
-    invalid: NodeRuleTester.InvalidTestCase[];
-  },
+  tests: Tests,
 ) {
-  const ruleTester = new NodeRuleTester({
+  const ruleTester = new RuleTester({
     languageOptions: { ecmaVersion: 2018, sourceType: 'module', parser },
   });
 

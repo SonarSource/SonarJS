@@ -15,10 +15,9 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule as S2301 } from './index.js';
-import { TypeScriptRuleTester } from '../../../tests/tools/testers/typescript/index.js';
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 
-const ruleTester = new TypeScriptRuleTester();
+const ruleTester = new RuleTester();
 
 ruleTester.run('S2301:TypeScript', S2301, {
   invalid: [
@@ -186,7 +185,7 @@ function tempt8(name: string, ofAge: boolean) {
   ],
 });
 
-const javaScriptRuleTester = new NodeRuleTester({
+const javaScriptRuleTester = new RuleTester({
   languageOptions: {
     ecmaVersion: 2018,
   },

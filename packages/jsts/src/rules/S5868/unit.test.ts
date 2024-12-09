@@ -14,10 +14,10 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
 
-const ruleTester = new NodeRuleTester({ languageOptions: { ecmaVersion: 2015 } });
+const ruleTester = new RuleTester({ languageOptions: { ecmaVersion: 2015 } });
 
 const combiningClass = c =>
   `Move this Unicode combined character '${c}' outside of the character class`;
@@ -90,13 +90,11 @@ ruleTester.run('', rule, {
 
     {
       code: "var r = new globalThis.RegExp('[Á] [ ');",
-      env: { es2020: true },
     },
     {
       code: "var r = globalThis.RegExp('{ [Á]', 'u');",
-      env: { es2020: true },
     },
-  ] as Array<NodeRuleTester.ValidTestCase | string>,
+  ],
   invalid: [
     {
       code: 'var r = /[\\u0041\\u0301-\\u0301]/',
@@ -400,22 +398,18 @@ ruleTester.run('', rule, {
     },
     {
       code: String.raw`var r = new globalThis.RegExp("[❇️]", "")`,
-      env: { es2020: true },
       errors: [{ message: combiningClass('❇️') }],
     },
     {
       code: String.raw`var r = new globalThis.RegExp("[👶🏻]", "u")`,
-      env: { es2020: true },
       errors: [{ message: modifiedEmoji('👶🏻') }],
     },
     {
       code: String.raw`var r = new globalThis.RegExp("[🇯🇵]", "")`,
-      env: { es2020: true },
       errors: surrogatePair('🇯', String.raw`var r = new globalThis.RegExp("[🇯🇵]", "u")`),
     },
     {
       code: String.raw`var r = new globalThis.RegExp("[\\u{1F468}\\u{200D}\\u{1F469}\\u{200D}\\u{1F466}]", "u")`,
-      env: { es2020: true },
       errors: [{ message: zwj }],
     },
     {
@@ -430,5 +424,5 @@ ruleTester.run('', rule, {
       code: 'const c = "👍", p = "[" + c + "]", r = new RegExp(p)',
       errors: surrogatePair('👍', 'const c = "👍", p = "[" + c + "]", r = new RegExp(p, "u")'),
     },
-  ] as NodeRuleTester.InvalidTestCase[],
+  ],
 });

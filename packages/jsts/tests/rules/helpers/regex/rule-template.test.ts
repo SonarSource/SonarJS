@@ -17,7 +17,7 @@
 import type { Rule } from 'eslint';
 import { AST } from '@eslint-community/regexpp';
 import { createRegExpRule } from '../../../../src/rules/helpers/regex/rule-template.js';
-import { JavaScriptRuleTester } from '../../../tools/testers/javascript/index.js';
+import { RuleTester } from '../../../tools/testers/rule-tester.js';
 
 const rule: Rule.RuleModule = createRegExpRule(context => {
   return {
@@ -33,7 +33,7 @@ const rule: Rule.RuleModule = createRegExpRule(context => {
   };
 });
 
-const ruleTester = new JavaScriptRuleTester();
+const ruleTester = new RuleTester();
 ruleTester.run('Template for regular expressions rules', rule, {
   valid: [
     {

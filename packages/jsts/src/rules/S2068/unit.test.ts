@@ -16,9 +16,9 @@
  */
 import { rule } from './index.js';
 import path from 'path';
-import { JavaScriptRuleTester } from '../../../tests/tools/testers/javascript/index.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 
-const ruleTester = new JavaScriptRuleTester();
+const ruleTester = new RuleTester();
 
 const options = [{ passwordWords: ['password', 'pwd', 'passwd'] }];
 

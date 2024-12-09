@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { TypeScriptRuleTester } from '../../../tests/tools/testers/typescript/index.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 
 const MAX_PARAMS_3 = 3;
 const MAX_PARAMS_5 = 5;
@@ -24,7 +24,7 @@ const createOptions = (max: number) => {
   return [{ max }];
 };
 
-const ruleTester = new TypeScriptRuleTester();
+const ruleTester = new RuleTester();
 ruleTester.run(``, rule, {
   valid: [
     {

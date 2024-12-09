@@ -15,10 +15,9 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
-import { TypeScriptRuleTester } from '../../../tests/tools/testers/typescript/index.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 
-const ruleTesterJs = new NodeRuleTester({
+const ruleTesterJs = new RuleTester({
   languageOptions: { ecmaVersion: 2018, sourceType: 'module' },
 });
 ruleTesterJs.run('Arithmetic operation returning NaN [NoParserServices]', rule, {
@@ -32,7 +31,7 @@ ruleTesterJs.run('Arithmetic operation returning NaN [NoParserServices]', rule, 
   invalid: [],
 });
 
-const ruleTester = new TypeScriptRuleTester();
+const ruleTester = new RuleTester();
 ruleTester.run('Arithmetic operation returning NaN', rule, {
   valid: [
     {

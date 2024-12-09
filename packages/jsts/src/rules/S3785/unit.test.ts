@@ -15,10 +15,9 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
-import { TypeScriptRuleTester } from '../../../tests/tools/testers/typescript/index.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 
-const ruleTesterJs = new NodeRuleTester({
+const ruleTesterJs = new RuleTester({
   languageOptions: { ecmaVersion: 2018, sourceType: 'module' },
 });
 ruleTesterJs.run('"in" should not be used with primitive types [js]', rule, {
@@ -30,7 +29,7 @@ ruleTesterJs.run('"in" should not be used with primitive types [js]', rule, {
   invalid: [],
 });
 
-const ruleTesterTs = new TypeScriptRuleTester();
+const ruleTesterTs = new RuleTester();
 ruleTesterTs.run(`"in" should not be used with primitive types [ts]`, rule, {
   valid: [
     {

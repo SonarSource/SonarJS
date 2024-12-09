@@ -15,13 +15,13 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { Rule } from 'eslint';
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
 import { isProtectionSemicolon } from './decorator.js';
 import { it } from 'node:test';
 import { expect } from 'expect';
 
-const ruleTester = new NodeRuleTester({
+const ruleTester = new RuleTester({
   languageOptions: { ecmaVersion: 2018, sourceType: 'module' },
 });
 

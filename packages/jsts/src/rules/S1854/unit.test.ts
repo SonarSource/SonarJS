@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { BabelRuleTester } from '../../../tests/tools/testers/babel/index.js';
-import { TypeScriptRuleTester } from '../../../tests/tools/testers/typescript/index.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
 
 const babelRuleTester = BabelRuleTester();
@@ -383,7 +383,7 @@ const invalid = [
 
 babelRuleTester.run('Dead stores should be removed', rule, { valid, invalid });
 
-const ruleTesterTs = new TypeScriptRuleTester();
+const ruleTesterTs = new RuleTester();
 
 ruleTesterTs.run('Dead stores should be removed[TS]', rule, {
   valid: [

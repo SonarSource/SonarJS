@@ -14,10 +14,10 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
 
-const ruleTester = new NodeRuleTester({
+const ruleTester = new RuleTester({
   languageOptions: { ecmaVersion: 2018, sourceType: 'module' },
 });
 ruleTester.run('Variables should be defined before being used', rule, {
@@ -137,7 +137,7 @@ ruleTester.run('Variables should be defined before being used', rule, {
   ],
 });
 
-const ruleTesterScript = new NodeRuleTester({ languageOptions: { sourceType: 'script' } });
+const ruleTesterScript = new RuleTester({ languageOptions: { sourceType: 'script' } });
 ruleTesterScript.run('No issues within with statements', rule, {
   valid: [
     {

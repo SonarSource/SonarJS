@@ -15,10 +15,9 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { TypeScriptRuleTester } from '../../../tests/tools/testers/typescript/index.js';
-import { JavaScriptRuleTester } from '../../../tests/tools/testers/javascript/index.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 
-const ruleTester = new JavaScriptRuleTester();
+const ruleTester = new RuleTester();
 
 ruleTester.run('"switch" statements should have "default" clauses', rule, {
   valid: [
@@ -94,7 +93,7 @@ ruleTester.run('"switch" statements should have "default" clauses', rule, {
   ],
 });
 
-const typeAwareRuleTester = new TypeScriptRuleTester();
+const typeAwareRuleTester = new RuleTester();
 typeAwareRuleTester.run('"switch" statements should have "default" clauses', rule, {
   valid: [
     {

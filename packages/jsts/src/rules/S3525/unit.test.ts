@@ -15,10 +15,9 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
-import { TypeScriptRuleTester } from '../../../tests/tools/testers/typescript/index.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 
-const ruleTesterJs = new NodeRuleTester({
+const ruleTesterJs = new RuleTester({
   languageOptions: { ecmaVersion: 2018 },
 });
 ruleTesterJs.run('Class methods should be used instead of "prototype" assignments [js]', rule, {
@@ -60,7 +59,7 @@ ruleTesterJs.run('Class methods should be used instead of "prototype" assignment
   ],
 });
 
-const ruleTesterTs = new TypeScriptRuleTester();
+const ruleTesterTs = new RuleTester();
 ruleTesterTs.run('Class methods should be used instead of "prototype" assignments [ts]', rule, {
   valid: [
     {

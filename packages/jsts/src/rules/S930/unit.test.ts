@@ -15,11 +15,10 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './rule.js';
-import { JavaScriptRuleTester } from '../../../tests/tools/testers/javascript/index.js';
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { IssueLocation } from '../helpers/index.js';
 
-const ruleTester = new JavaScriptRuleTester();
+const ruleTester = new RuleTester();
 
 ruleTester.run('no-extra-arguments', rule, {
   valid: [
@@ -176,7 +175,7 @@ ruleTester.run('no-extra-arguments', rule, {
   ],
 });
 
-const ruleTesterScript = new NodeRuleTester({
+const ruleTesterScript = new RuleTester({
   languageOptions: {
     ecmaVersion: 2018,
     sourceType: 'script',
@@ -208,11 +207,7 @@ ruleTesterScript.run('no-extra-arguments script', rule, {
   ],
 });
 
-function message(
-  expected: number,
-  provided: number,
-  extra: Partial<NodeRuleTester.TestCaseError> = {},
-): NodeRuleTester.TestCaseError {
+function message(expected: number, provided: number, extra = {}) {
   // prettier-ignore
   const expectedArguments =
     expected === 0 ? "no arguments" :

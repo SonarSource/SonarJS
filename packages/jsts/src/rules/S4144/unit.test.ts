@@ -16,9 +16,9 @@
  */
 import { rule } from './rule.js';
 import { expandMessage, IssueLocation } from '../helpers/index.js';
-import { JavaScriptRuleTester } from '../../../tests/tools/testers/javascript/index.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 
-const ruleTester = new JavaScriptRuleTester();
+const ruleTester = new RuleTester();
 
 ruleTester.run('no-identical-functions', rule, {
   valid: [

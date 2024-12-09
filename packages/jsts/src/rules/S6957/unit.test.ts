@@ -17,7 +17,7 @@
 import { rule } from './index.js';
 import path from 'path/posix';
 import { toUnixPath } from '../helpers/index.js';
-import { JavaScriptRuleTester } from '../../../tests/tools/testers/javascript/index.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 
 const dirname = import.meta.dirname;
 const fixtures = path.join(toUnixPath(dirname), 'fixtures');
@@ -25,7 +25,7 @@ const filenameReact15 = path.join(fixtures, 'react15/file.js');
 
 process.chdir(import.meta.dirname); // change current working dir to avoid the package.json lookup to up in the tree
 
-const ruleTester = new JavaScriptRuleTester();
+const ruleTester = new RuleTester();
 
 ruleTester.run('React15', rule, {
   valid: [

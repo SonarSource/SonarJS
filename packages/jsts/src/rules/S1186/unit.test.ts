@@ -18,9 +18,9 @@ import type { Rule } from 'eslint';
 import { rule } from './index.js';
 import { reportWithQuickFixIfApplicable } from './decorator.js';
 import { it } from 'node:test';
-import { JavaScriptRuleTester } from '../../../tests/tools/testers/javascript/index.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 
-const ruleTester = new JavaScriptRuleTester();
+const ruleTester = new RuleTester();
 
 ruleTester.run(`Decorated rule should provide suggestion`, rule, {
   valid: [

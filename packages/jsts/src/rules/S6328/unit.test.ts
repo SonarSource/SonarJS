@@ -15,10 +15,9 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
-import { TypeScriptRuleTester } from '../../../tests/tools/testers/typescript/index.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 
-const typeAwareRuleTester = new TypeScriptRuleTester();
+const typeAwareRuleTester = new RuleTester();
 typeAwareRuleTester.run('Existing regular expression groups', rule, {
   valid: [
     {
@@ -175,7 +174,7 @@ typeAwareRuleTester.run('Existing regular expression groups', rule, {
   ],
 });
 
-const ruleTester = new NodeRuleTester({
+const ruleTester = new RuleTester({
   languageOptions: { ecmaVersion: 2018, sourceType: 'module' },
 });
 ruleTester.run('Existing regular expression groups reports nothing without types', rule, {

@@ -16,9 +16,9 @@
  */
 import { rule } from './index.js';
 import type { IssueLocation } from '../helpers/index.js';
-import { JavaScriptRuleTester } from '../../../tests/tools/testers/javascript/index.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 
-const ruleTester = new JavaScriptRuleTester();
+const ruleTester = new RuleTester();
 
 ruleTester.run('cognitive-complexity', rule, {
   valid: [

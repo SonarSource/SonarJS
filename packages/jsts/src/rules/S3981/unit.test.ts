@@ -15,10 +15,9 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './rule.js';
-import { TypeScriptRuleTester } from '../../../tests/tools/testers/typescript/index.js';
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 
-const ruleTester = new NodeRuleTester({
+const ruleTester = new RuleTester({
   languageOptions: {
     ecmaVersion: 2018,
     sourceType: 'module',
@@ -111,7 +110,7 @@ ruleTester.run('Collection sizes and array length comparisons should make sense'
   ],
 });
 
-const ruleTesterTs = new TypeScriptRuleTester();
+const ruleTesterTs = new RuleTester();
 
 ruleTesterTs.run('Collection sizes and array length comparisons should make sense', rule, {
   valid: [

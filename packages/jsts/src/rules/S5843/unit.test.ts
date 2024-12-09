@@ -14,15 +14,14 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
-import { TypeScriptRuleTester } from '../../../tests/tools/testers/typescript/index.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
 
 const createOptions = (threshold: number) => {
   return [{ threshold }, 'sonar-runtime'];
 };
 
-const ruleTesterThreshold0 = new NodeRuleTester({ languageOptions: { ecmaVersion: 2018 } });
+const ruleTesterThreshold0 = new RuleTester({ languageOptions: { ecmaVersion: 2018 } });
 ruleTesterThreshold0.run(
   'Regular expressions should not be too complicated with threshold 0',
   rule,
@@ -420,7 +419,7 @@ if (isString(regex)) {
   },
 );
 
-const ruleTesterThreshold1 = new NodeRuleTester({ languageOptions: { ecmaVersion: 2018 } });
+const ruleTesterThreshold1 = new RuleTester({ languageOptions: { ecmaVersion: 2018 } });
 ruleTesterThreshold1.run(
   'Regular expressions should not be too complicated with threshold 1',
   rule,
@@ -488,7 +487,7 @@ ruleTesterThreshold1.run(
   },
 );
 
-const typeAwareRuleTester = new TypeScriptRuleTester();
+const typeAwareRuleTester = new RuleTester();
 typeAwareRuleTester.run(
   'Regular expressions should not be too complicated with type information',
   rule,
@@ -523,7 +522,7 @@ typeAwareRuleTester.run(
   },
 );
 
-const ruleTesterDefaultThreshold = new NodeRuleTester({ languageOptions: { ecmaVersion: 2018 } });
+const ruleTesterDefaultThreshold = new RuleTester({ languageOptions: { ecmaVersion: 2018 } });
 ruleTesterDefaultThreshold.run(
   'Regular expressions should not be too complicated with default threshold',
   rule,

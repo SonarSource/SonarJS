@@ -15,9 +15,9 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { JavaScriptRuleTester } from '../../../tests/tools/testers/javascript/index.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 
-const ruleTester = new JavaScriptRuleTester();
+const ruleTester = new RuleTester();
 ruleTester.run(`Function declarations should not be made within blocks`, rule, {
   valid: [
     {
@@ -67,7 +67,7 @@ ruleTester.run(`Function declarations should not be made within blocks`, rule, {
   ],
 });
 
-const ruleTesterTS = new JavaScriptRuleTester();
+const ruleTesterTS = new RuleTester();
 
 ruleTesterTS.run(`Function declarations should not be made within blocks`, rule, {
   valid: [

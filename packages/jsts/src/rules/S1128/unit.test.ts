@@ -14,12 +14,11 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
 import path from 'path';
 import { BabelRuleTester } from '../../../tests/tools/testers/babel/index.js';
 import parser from '@typescript-eslint/parser';
-import { JavaScriptRuleTester } from '../../../tests/tools/testers/javascript/index.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 
 const babelRuleTester = BabelRuleTester();
 
@@ -188,7 +187,7 @@ bar();`),
   ],
 });
 
-const ruleTesterTS = new JavaScriptRuleTester();
+const ruleTesterTS = new RuleTester();
 
 ruleTesterTS.run('Unnecessary imports should be removed', rule, {
   valid: [
@@ -335,7 +334,7 @@ ruleTesterTS.run('Unnecessary imports should be removed', rule, {
 const project = path.join(import.meta.dirname, 'fixtures', 'tsconfig.fixture.json');
 const filename = path.join(import.meta.dirname, 'fixtures', 'file.tsx');
 
-const ruleTesterJsxFactory = new NodeRuleTester({
+const ruleTesterJsxFactory = new RuleTester({
   languageOptions: {
     parser,
     parserOptions: {
@@ -403,7 +402,7 @@ ruleTesterJsxFactory.run('Unused imports denoting jsx factory should be ignored'
   ],
 });
 
-const ruleTesterVue = new JavaScriptRuleTester();
+const ruleTesterVue = new RuleTester();
 
 ruleTesterVue.run('Unnecessary imports should be removed', rule, {
   valid: [

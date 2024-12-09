@@ -14,11 +14,10 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
-import { TypeScriptRuleTester } from '../../../tests/tools/testers/typescript/index.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
 
-const eslintRuleTester = new NodeRuleTester({ languageOptions: { ecmaVersion: 2018 } });
+const eslintRuleTester = new RuleTester({ languageOptions: { ecmaVersion: 2018 } });
 eslintRuleTester.run('Parameters should be passed in the correct order', rule, {
   valid: [
     {
@@ -130,7 +129,7 @@ eslintRuleTester.run('Parameters should be passed in the correct order', rule, {
   ],
 });
 
-const typeScriptRuleTester = new TypeScriptRuleTester();
+const typeScriptRuleTester = new RuleTester();
 typeScriptRuleTester.run('Parameters should be passed in the correct order', rule, {
   valid: [
     {
@@ -269,7 +268,7 @@ typeScriptRuleTester.run('Parameters should be passed in the correct order', rul
 });
 
 function invalid(code: string) {
-  const errors: NodeRuleTester.TestCaseError[] = [];
+  const errors = [];
   const lines = code.split('\n');
   for (let i = 1; i <= lines.length; i++) {
     const line = lines[i - 1];

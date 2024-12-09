@@ -14,11 +14,10 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
-import { TypeScriptRuleTester } from '../../../tests/tools/testers/typescript/index.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 
-const typeScriptRuleTester = new TypeScriptRuleTester();
+const typeScriptRuleTester = new RuleTester();
 typeScriptRuleTester.run(
   'Callbacks of array methods should have return statements [w types]',
   rule,
@@ -381,7 +380,7 @@ typeScriptRuleTester.run(
   },
 );
 
-const eslintRuleTester = new NodeRuleTester({
+const eslintRuleTester = new RuleTester({
   languageOptions: { ecmaVersion: 2018, sourceType: 'module' },
 });
 eslintRuleTester.run('Callbacks of array methods should have return statements [w/o types]', rule, {

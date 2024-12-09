@@ -15,8 +15,8 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './rule.js';
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
-const ruleTester = new NodeRuleTester({
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+const ruleTester = new RuleTester({
   languageOptions: { ecmaVersion: 2018, sourceType: 'module' },
 });
 

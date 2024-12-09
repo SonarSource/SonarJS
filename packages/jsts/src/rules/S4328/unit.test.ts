@@ -14,8 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
-import { JavaScriptRuleTester } from '../../../tests/tools/testers/javascript/index.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
 import path from 'path';
 import parser from '@typescript-eslint/parser';
@@ -28,7 +27,7 @@ const options = [
     whitelist: [],
   },
 ];
-const ruleTester = new JavaScriptRuleTester();
+const ruleTester = new RuleTester();
 
 const filenameNestedPackage = path.join(fixtures, 'nested-package-json-project/dir/file.js');
 
@@ -203,7 +202,7 @@ ruleTester.run('Dependencies should be explicit', rule, {
   ],
 });
 
-const ruleTesterForPathMappings = new NodeRuleTester({
+const ruleTesterForPathMappings = new RuleTester({
   languageOptions: {
     parser,
     ecmaVersion: 2018,
@@ -256,7 +255,7 @@ ruleTesterForPathMappings.run('Path aliases should be exempt', rule, {
   ],
 });
 
-const ruleTesterForBaseUrl = new NodeRuleTester({
+const ruleTesterForBaseUrl = new RuleTester({
   languageOptions: {
     parser,
     ecmaVersion: 2018,
