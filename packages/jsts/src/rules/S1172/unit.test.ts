@@ -15,17 +15,13 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { Scope } from 'eslint';
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { isParameterProperty, rule } from './rule.js';
 import { it } from 'node:test';
 import { expect } from 'expect';
 
-import { fileURLToPath } from 'node:url';
+import { JavaScriptRuleTester } from '../../../tests/tools/testers/javascript/index.js';
 
-const ruleTester = new NodeRuleTester({
-  parser: fileURLToPath(import.meta.resolve('@typescript-eslint/parser')),
-  parserOptions: { ecmaVersion: 2018, ecmaFeatures: { jsx: true } },
-});
+const ruleTester = new JavaScriptRuleTester();
 
 ruleTester.run('Unused function parameters should be removed', rule, {
   valid: [

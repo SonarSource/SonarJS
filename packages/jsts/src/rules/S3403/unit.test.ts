@@ -16,10 +16,10 @@
  */
 import { rule } from './index.js';
 import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
-import { TypeScriptRuleTester } from '../../../tests/tools/index.js';
+import { TypeScriptRuleTester } from '../../../tests/tools/testers/typescript/index.js';
 
 const ruleTesterJs = new NodeRuleTester({
-  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
+  languageOptions: { ecmaVersion: 2018, sourceType: 'module' },
 });
 ruleTesterJs.run('Strict equality operators should not be used with dissimilar types  [js]', rule, {
   valid: [

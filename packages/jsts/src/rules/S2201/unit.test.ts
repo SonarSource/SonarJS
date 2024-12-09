@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './rule.js';
-import { TypeScriptRuleTester } from '../../../tests/tools/index.js';
+import { TypeScriptRuleTester } from '../../../tests/tools/testers/typescript/index.js';
 
 const ruleTester = new TypeScriptRuleTester();
 

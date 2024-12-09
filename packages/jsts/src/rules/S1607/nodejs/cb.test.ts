@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { basename, dirname } from 'path';
-import { check } from '../../../../tests/tools/index.js';
+import { check } from '../../../../tests/tools/testers/comment-based/index.js';
 import { rule } from '../rule.js';
 import { describe } from 'node:test';
 import { join } from 'node:path';

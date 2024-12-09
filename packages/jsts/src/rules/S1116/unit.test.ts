@@ -22,7 +22,7 @@ import { it } from 'node:test';
 import { expect } from 'expect';
 
 const ruleTester = new NodeRuleTester({
-  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
+  languageOptions: { ecmaVersion: 2018, sourceType: 'module' },
 });
 
 ruleTester.run('Extra semicolons should be removed', rule, {

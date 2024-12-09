@@ -14,15 +14,11 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
-import { IssueLocation } from '../helpers/index.js';
-import { fileURLToPath } from 'node:url';
+import type { IssueLocation } from '../helpers/index.js';
+import { JavaScriptRuleTester } from '../../../tests/tools/testers/javascript/index.js';
 
-const ruleTester = new NodeRuleTester({
-  parserOptions: { ecmaVersion: 2018, sourceType: 'module', ecmaFeatures: { jsx: true } },
-  parser: fileURLToPath(import.meta.resolve('@typescript-eslint/parser')),
-});
+const ruleTester = new JavaScriptRuleTester();
 
 ruleTester.run('cognitive-complexity', rule, {
   valid: [
@@ -34,7 +30,6 @@ ruleTester.run('cognitive-complexity', rule, {
           <span>{ obj.title?.text }</span>
         );
       }`,
-      parserOptions: { ecmaFeatures: { jsx: true } },
       options: [0],
     },
     {
@@ -46,7 +41,6 @@ ruleTester.run('cognitive-complexity', rule, {
           </>
         );
       }`,
-      parserOptions: { ecmaFeatures: { jsx: true } },
       options: [0],
     },
     {
@@ -58,7 +52,6 @@ ruleTester.run('cognitive-complexity', rule, {
           </>
         );
       }`,
-      parserOptions: { ecmaFeatures: { jsx: true } },
       options: [0],
     },
     {
@@ -70,7 +63,6 @@ ruleTester.run('cognitive-complexity', rule, {
           </>
         );
       }`,
-      parserOptions: { ecmaFeatures: { jsx: true } },
       options: [0],
     },
     {
@@ -80,7 +72,6 @@ ruleTester.run('cognitive-complexity', rule, {
           <span title={ obj.title || obj.disclaimer }>Text</span>
         );
       }`,
-      parserOptions: { ecmaFeatures: { jsx: true } },
       options: [0],
     },
     {
@@ -90,7 +81,6 @@ ruleTester.run('cognitive-complexity', rule, {
           <button type="button" disabled={ obj.user?.isBot ?? obj.isDemo }>Logout</button>
         );
       }`,
-      parserOptions: { ecmaFeatures: { jsx: true } },
       options: [0],
     },
     {
@@ -392,7 +382,6 @@ ruleTester.run('cognitive-complexity', rule, {
         if (x) {} // +1
         return <h1>Hello, world</h1>;
       }`,
-      parserOptions: { ecmaFeatures: { jsx: true } },
       options: [0],
       errors: [message(1, { line: 2 }), message(1, { line: 3 })],
     },
@@ -405,7 +394,6 @@ ruleTester.run('cognitive-complexity', rule, {
         if (x) {} // +1
         return <h1>Hello, world</h1>;
       }`,
-      parserOptions: { ecmaFeatures: { jsx: true } },
       options: [0],
       errors: [message(1, { line: 2 }), message(1, { line: 3 })],
     },
@@ -423,7 +411,6 @@ ruleTester.run('cognitive-complexity', rule, {
           </>
         );
       }`,
-      parserOptions: { ecmaFeatures: { jsx: true } },
       options: [0],
       errors: [message(1, { line: 2 }), message(1, { line: 3 })],
     },
@@ -610,13 +597,12 @@ function testCaseWithSonarRuntime(
   code: string,
   secondaryLocations: IssueLocation[],
   complexity?: number,
-): NodeRuleTester.InvalidTestCase {
+) {
   const cost = complexity ?? secondaryLocations.length;
   const message = `Refactor this function to reduce its Cognitive Complexity from ${cost} to the 0 allowed.`;
   const sonarRuntimeData = JSON.stringify({ message, secondaryLocations, cost });
   return {
     code,
-    parserOptions: { ecmaFeatures: { jsx: true } },
     options: [0, 'sonar-runtime'],
     errors: [
       {
@@ -630,7 +616,7 @@ function testCaseWithSonarRuntime(
   };
 }
 
-function message(complexityAmount: number, other: NodeRuleTester.TestCaseError = {}) {
+function message(complexityAmount: number, other = {}) {
   return {
     messageId: 'refactorFunction',
     data: { complexityAmount, threshold: 0 },

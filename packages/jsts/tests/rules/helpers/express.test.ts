@@ -40,7 +40,7 @@ const rule = Express.SensitiveMiddlewarePropertyRule(
 );
 
 const ruleTester = new NodeRuleTester({
-  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
+  languageOptions: { ecmaVersion: 2018, sourceType: 'module' },
 });
 ruleTester.run(
   'Express.js rule template for middlewares configured with sensitive settings',

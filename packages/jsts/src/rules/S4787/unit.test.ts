@@ -18,7 +18,7 @@ import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
 
 const ruleTester = new NodeRuleTester({
-  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
+  languageOptions: { ecmaVersion: 2018, sourceType: 'module' },
 });
 ruleTester.run('Encrypting data is security-sensitive: client side', rule, {
   valid: [

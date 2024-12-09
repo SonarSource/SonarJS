@@ -23,7 +23,7 @@ import { rule as noParameterReassignment } from '../../../../src/rules/S1226/ind
 import { rule as noImplicitDependencies } from '../../../../src/rules/S4328/index.js';
 import path from 'path';
 import { describe } from 'node:test';
-import { fileURLToPath } from 'node:url';
+import parser from '@typescript-eslint/parser';
 
 describe('interceptReport', () => {
   assertThatInterceptReportDecoratorForwardsCalls(
@@ -50,13 +50,12 @@ function assertThatInterceptReportDecoratorForwardsCalls(
   name: string,
   rule: Rule.RuleModule,
   tests: {
-    valid?: NodeRuleTester.ValidTestCase[];
-    invalid?: NodeRuleTester.InvalidTestCase[];
+    valid: (string | NodeRuleTester.ValidTestCase)[];
+    invalid: NodeRuleTester.InvalidTestCase[];
   },
 ) {
   const ruleTester = new NodeRuleTester({
-    parser: fileURLToPath(import.meta.resolve('@typescript-eslint/parser')),
-    parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
+    languageOptions: { ecmaVersion: 2018, sourceType: 'module', parser },
   });
 
   ruleTester.run(name + ' (without decorator)', rule, tests);

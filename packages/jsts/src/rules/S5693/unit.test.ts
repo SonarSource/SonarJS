@@ -18,7 +18,7 @@ import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
 
 const ruleTester = new NodeRuleTester({
-  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
+  languageOptions: { ecmaVersion: 2018, sourceType: 'module' },
 });
 const options = [{ fileUploadSizeLimit: 8_000_000, standardSizeLimit: 2_000_000 }];
 

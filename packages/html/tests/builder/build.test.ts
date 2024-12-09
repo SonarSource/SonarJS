@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { join } from 'path';
-import { embeddedInput } from '../../../jsts/tests/tools/index.js';
+import { embeddedInput } from '../../../jsts/tests/tools/helpers/input.js';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
 import { parseHTML } from '../../src/parser/parse.js';

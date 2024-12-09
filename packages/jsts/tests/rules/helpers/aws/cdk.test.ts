@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { AwsCdkTemplate } from '../../../../src/rules/index.js';
-import { TypeScriptRuleTester } from '../../../tools/index.js';
+import { TypeScriptRuleTester } from '../../../tools/testers/typescript/index.js';
 
 const rule = AwsCdkTemplate({
   'aws-cdk-lib.aws_module.Class': (node, context) => {

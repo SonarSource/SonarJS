@@ -16,7 +16,7 @@
  */
 import path from 'path';
 import { computeMetrics } from '../../../../src/linter/visitors/metrics/index.js';
-import { parseJavaScriptSourceFile } from '../../../tools/index.js';
+import { parseJavaScriptSourceFile } from '../../../tools/helpers/parsing.js';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
 

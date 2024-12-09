@@ -16,9 +16,9 @@
  */
 import { rule } from './index.js';
 import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
-import { TypeScriptRuleTester } from '../../../tests/tools/index.js';
+import { TypeScriptRuleTester } from '../../../tests/tools/testers/typescript/index.js';
 
-const ruleTesterJS = new NodeRuleTester({ parserOptions: { ecmaVersion: 2018 } });
+const ruleTesterJS = new NodeRuleTester({ languageOptions: { ecmaVersion: 2018 } });
 const ruleTesterTS = new TypeScriptRuleTester();
 
 const testCases = {

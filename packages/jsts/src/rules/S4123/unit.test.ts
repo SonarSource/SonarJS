@@ -15,11 +15,9 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
-import { JavaScriptRuleTester, TypeScriptRuleTester } from '../../../tests/tools/index.js';
-import { fileURLToPath } from 'node:url';
+import { JavaScriptRuleTester } from '../../../tests/tools/testers/javascript/index.js';
 
-const ruleTester = new TypeScriptRuleTester();
+const ruleTester = new JavaScriptRuleTester();
 ruleTester.run('await should only be used with promises.', rule, {
   valid: [
     {
@@ -214,14 +212,7 @@ ruleTester.run('await should only be used with promises.', rule, {
   ],
 });
 
-const ruleTesterWithNoFullTypeInfo = new NodeRuleTester({
-  parser: fileURLToPath(import.meta.resolve('@typescript-eslint/parser')),
-  parserOptions: {
-    ecmaVersion: 2018,
-    sourceType: 'module',
-    project: [],
-  },
-});
+const ruleTesterWithNoFullTypeInfo = new JavaScriptRuleTester();
 
 ruleTesterWithNoFullTypeInfo.run('await should only be used with promises.', rule, {
   valid: [

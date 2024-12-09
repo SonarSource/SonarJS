@@ -16,17 +16,17 @@
  */
 import { rule } from './index.js';
 import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
-import { TypeScriptRuleTester } from '../../../tests/tools/index.js';
-import { fileURLToPath } from 'node:url';
+import { TypeScriptRuleTester } from '../../../tests/tools/testers/typescript/index.js';
+import parser from 'vue-eslint-parser';
 
-const parserOptions = {
+const languageOptions = {
   ecmaVersion: 2018,
   sourceType: 'module',
-};
+  parser,
+} as const;
 
 const ruleTesterForVue = new NodeRuleTester({
-  parser: fileURLToPath(import.meta.resolve('vue-eslint-parser')),
-  parserOptions,
+  languageOptions,
 });
 const ruleTester = new TypeScriptRuleTester();
 

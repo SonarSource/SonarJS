@@ -18,6 +18,7 @@ import { Linter, Rule } from 'eslint';
 import { getContext } from '../../../../shared/src/helpers/context.js';
 import { customRules as internalCustomRules } from '../custom-rules/rules.js';
 import { extendRuleConfig, RuleConfig } from './rule-config.js';
+import globals from 'globals';
 
 /**
  * Creates an ESLint linting configuration
@@ -44,11 +45,11 @@ export function createLinterConfig(
 ) {
   const env = createEnv(environments);
   const globals = createGlobals(globs);
-  const parserOptions = { sourceType: 'module', ecmaVersion: 2018 } as Linter.ParserOptions;
   const config: Linter.Config = {
-    env,
-    globals,
-    parserOptions,
+    languageOptions: {
+      ...globals,
+      ...env,
+    },
     rules: {},
     /* using "max" version to prevent `eslint-plugin-react` from printing a warning */
     settings: { react: { version: '999.999.999' } },
@@ -64,11 +65,13 @@ export function createLinterConfig(
  * @returns a configuration of JavaScript execution environments
  */
 function createEnv(environments: string[]) {
-  const env: { [name: string]: boolean } = { es6: true };
-  for (const key of environments) {
-    env[key] = true;
-  }
-  return env;
+  return environments.reduce(
+    (globalsAcc, env) => ({
+      ...globalsAcc,
+      ...globals[env as keyof typeof globals],
+    }),
+    {},
+  );
 }
 
 /**

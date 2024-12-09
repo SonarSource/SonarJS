@@ -15,10 +15,10 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
-import { TypeScriptRuleTester } from '../../../tests/tools/index.js';
+import { TypeScriptRuleTester } from '../../../tests/tools/testers/typescript/index.js';
 import { rule } from './index.js';
 
-const eslintRuleTester = new NodeRuleTester({ parserOptions: { ecmaVersion: 2018 } });
+const eslintRuleTester = new NodeRuleTester({ languageOptions: { ecmaVersion: 2018 } });
 eslintRuleTester.run('Parameters should be passed in the correct order', rule, {
   valid: [
     {

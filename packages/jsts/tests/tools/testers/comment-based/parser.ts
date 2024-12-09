@@ -65,3 +65,5 @@ function languageFromFile(fileContent: string, filePath: string): JsTsLanguage {
     return 'js';
   }
 }
+
+export default { parseForESLint };

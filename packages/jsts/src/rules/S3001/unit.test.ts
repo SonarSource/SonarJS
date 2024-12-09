@@ -16,7 +16,7 @@
  */
 import { rule } from './index.js';
 import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
-import { TypeScriptRuleTester } from '../../../tests/tools/index.js';
+import { TypeScriptRuleTester } from '../../../tests/tools/testers/typescript/index.js';
 
 const tests = {
   valid: [
@@ -100,7 +100,7 @@ const tests = {
   ],
 };
 
-const ruleTesterJs = new NodeRuleTester({ parserOptions: { ecmaVersion: 2021 } });
+const ruleTesterJs = new NodeRuleTester({ languageOptions: { ecmaVersion: 2021 } });
 const ruleTesterTs = new TypeScriptRuleTester();
 
 ruleTesterJs.run('"delete" should be used only with object properties [js]', rule, tests);

@@ -17,7 +17,7 @@
 import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
 
-const ruleTesterJs = new NodeRuleTester({ parserOptions: { ecmaVersion: 2018 } });
+const ruleTesterJs = new NodeRuleTester({ languageOptions: { ecmaVersion: 2018 } });
 
 const minMaxVersion = {
   valid: [

@@ -15,22 +15,22 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { JavaScriptRuleTester } from '../../../tests/tools/testers/javascript/index.js';
 import { rule } from './index.js';
 import path from 'path';
-import { fileURLToPath } from 'node:url';
+import parser from '@typescript-eslint/parser';
 
 const fixtures = path.join(import.meta.dirname, 'fixtures');
 const filename = path.join(fixtures, 'package-json-project/file.js');
+
 const options = [
   {
     whitelist: [],
   },
 ];
-const tsParserPath = fileURLToPath(import.meta.resolve('@typescript-eslint/parser'));
-const ruleTester = new NodeRuleTester({
-  parser: tsParserPath,
-  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
-});
+const ruleTester = new JavaScriptRuleTester();
+
+const filenameNestedPackage = path.join(fixtures, 'nested-package-json-project/dir/file.js');
 
 ruleTester.run('Dependencies should be explicit', rule, {
   valid: [
@@ -129,6 +129,15 @@ ruleTester.run('Dependencies should be explicit', rule, {
       filename,
       options,
     },
+    {
+      code: `
+        import { f as f1 } from 'top-dependency';
+        import { f as f2 } from 'nested-dependency';
+        import { f as f2 } from 'local-dependency';
+      `,
+      filename: filenameNestedPackage,
+      options,
+    },
   ],
   invalid: [
     {
@@ -183,29 +192,6 @@ ruleTester.run('Dependencies should be explicit', rule, {
       options,
       errors: 1,
     },
-  ],
-});
-
-const ruleTesterNestedPackage = new NodeRuleTester({
-  parser: tsParserPath,
-  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
-});
-
-const filenameNestedPackage = path.join(fixtures, 'nested-package-json-project/dir/file.js');
-
-ruleTesterNestedPackage.run('all levels of package.json should be considered', rule, {
-  valid: [
-    {
-      code: `
-        import { f as f1 } from 'top-dependency';
-        import { f as f2 } from 'nested-dependency';
-        import { f as f2 } from 'local-dependency';
-      `,
-      filename: filenameNestedPackage,
-      options,
-    },
-  ],
-  invalid: [
     {
       code: `
         import { f as f1 } from 'nonexistent';
@@ -218,12 +204,14 @@ ruleTesterNestedPackage.run('all levels of package.json should be considered', r
 });
 
 const ruleTesterForPathMappings = new NodeRuleTester({
-  parser: fileURLToPath(import.meta.resolve('@typescript-eslint/parser')),
-  parserOptions: {
+  languageOptions: {
+    parser,
     ecmaVersion: 2018,
     sourceType: 'module',
-    tsconfigRootDir: path.join(fixtures, 'ts-project-with-path-aliases'),
-    project: './tsconfig.json',
+    parserOptions: {
+      tsconfigRootDir: path.join(fixtures, 'ts-project-with-path-aliases'),
+      project: './tsconfig.json',
+    },
   },
 });
 
@@ -269,12 +257,14 @@ ruleTesterForPathMappings.run('Path aliases should be exempt', rule, {
 });
 
 const ruleTesterForBaseUrl = new NodeRuleTester({
-  parser: fileURLToPath(import.meta.resolve('@typescript-eslint/parser')),
-  parserOptions: {
+  languageOptions: {
+    parser,
     ecmaVersion: 2018,
     sourceType: 'module',
-    tsconfigRootDir: path.join(fixtures, 'ts-project-with-base-url'),
-    project: './tsconfig.json',
+    parserOptions: {
+      tsconfigRootDir: path.join(fixtures, 'ts-project-with-base-url'),
+      project: './tsconfig.json',
+    },
   },
 });
 

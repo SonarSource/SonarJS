@@ -32,23 +32,13 @@ describe('createLinterConfig', () => {
   });
 
   it('should enable environments', () => {
-    const { env } = createLinterConfig([], new Map(), ['node', 'jquery']);
-    expect(env).toEqual(
-      expect.objectContaining({
-        node: true,
-        jquery: true,
-      }),
-    );
+    const { globals } = createLinterConfig([], new Map(), ['node', 'jquery']).languageOptions;
+    expect(globals).toHaveProperty(['__dirname', '$']);
   });
 
   it('should enable globals', () => {
-    const { globals } = createLinterConfig([], new Map(), [], ['_', '$']);
-    expect(globals).toEqual(
-      expect.objectContaining({
-        _: true,
-        $: true,
-      }),
-    );
+    const { globals } = createLinterConfig([], new Map(), [], ['_', '$']).languageOptions;
+    expect(globals).toHaveProperty(['_', '$']);
   });
 
   it('should enable rules', () => {

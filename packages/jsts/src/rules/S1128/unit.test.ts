@@ -17,8 +17,9 @@
 import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
 import path from 'path';
-import { BabelRuleTester } from '../../../tests/tools/index.js';
-import { fileURLToPath } from 'node:url';
+import { BabelRuleTester } from '../../../tests/tools/testers/babel/index.js';
+import parser from '@typescript-eslint/parser';
+import { JavaScriptRuleTester } from '../../../tests/tools/testers/javascript/index.js';
 
 const babelRuleTester = BabelRuleTester();
 
@@ -187,10 +188,7 @@ bar();`),
   ],
 });
 
-const ruleTesterTS = new NodeRuleTester({
-  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
-  parser: fileURLToPath(import.meta.resolve('@typescript-eslint/parser')),
-});
+const ruleTesterTS = new JavaScriptRuleTester();
 
 ruleTesterTS.run('Unnecessary imports should be removed', rule, {
   valid: [
@@ -338,13 +336,15 @@ const project = path.join(import.meta.dirname, 'fixtures', 'tsconfig.fixture.jso
 const filename = path.join(import.meta.dirname, 'fixtures', 'file.tsx');
 
 const ruleTesterJsxFactory = new NodeRuleTester({
-  parserOptions: {
-    ecmaVersion: 2018,
-    sourceType: 'module',
-    ecmaFeatures: { jsx: true },
-    project,
+  languageOptions: {
+    parser,
+    parserOptions: {
+      ecmaVersion: 2018,
+      sourceType: 'module',
+      ecmaFeatures: { jsx: true },
+      project,
+    },
   },
-  parser: fileURLToPath(import.meta.resolve('@typescript-eslint/parser')),
 });
 
 ruleTesterJsxFactory.run('Unused imports denoting jsx factory should be ignored', rule, {
@@ -403,10 +403,7 @@ ruleTesterJsxFactory.run('Unused imports denoting jsx factory should be ignored'
   ],
 });
 
-const ruleTesterVue = new NodeRuleTester({
-  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
-  parser: fileURLToPath(import.meta.resolve('vue-eslint-parser')),
-});
+const ruleTesterVue = new JavaScriptRuleTester();
 
 ruleTesterVue.run('Unnecessary imports should be removed', rule, {
   valid: [

@@ -17,7 +17,7 @@
 import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
 
-const ruleTester = new NodeRuleTester({ parserOptions: { ecmaVersion: 2018 } });
+const ruleTester = new NodeRuleTester({ languageOptions: { ecmaVersion: 2018 } });
 ruleTester.run('Variables should be used in the blocks where they are declared', rule, {
   valid: [
     {

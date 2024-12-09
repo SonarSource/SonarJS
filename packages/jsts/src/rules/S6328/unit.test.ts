@@ -16,7 +16,7 @@
  */
 import { rule } from './index.js';
 import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
-import { TypeScriptRuleTester } from '../../../tests/tools/index.js';
+import { TypeScriptRuleTester } from '../../../tests/tools/testers/typescript/index.js';
 
 const typeAwareRuleTester = new TypeScriptRuleTester();
 typeAwareRuleTester.run('Existing regular expression groups', rule, {
@@ -176,7 +176,7 @@ typeAwareRuleTester.run('Existing regular expression groups', rule, {
 });
 
 const ruleTester = new NodeRuleTester({
-  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
+  languageOptions: { ecmaVersion: 2018, sourceType: 'module' },
 });
 ruleTester.run('Existing regular expression groups reports nothing without types', rule, {
   valid: [

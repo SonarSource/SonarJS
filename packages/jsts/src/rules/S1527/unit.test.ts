@@ -18,7 +18,7 @@ import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
 
 const ruleTester = new NodeRuleTester({
-  parserOptions: { ecmaVersion: 3, sourceType: 'script', allowReserved: true },
+  languageOptions: { parserOptions: { ecmaVersion: 3, sourceType: 'script', allowReserved: true } },
 });
 
 ruleTester.run('Future reserved words', rule, {

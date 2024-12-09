@@ -22,8 +22,8 @@ import type { Linter } from 'eslint';
 
 import { rules } from './plugin-rules.js';
 
-const recommendedLegacyConfig: Linter.Config = { plugins: ['sonarjs'], rules: {} };
-const recommendedConfig: Linter.FlatConfig & {
+const recommendedLegacyConfig: Linter.LegacyConfig = { plugins: ['sonarjs'], rules: {} };
+const recommendedConfig: Linter.Config & {
   rules: Linter.RulesRecord;
 } = {
   name: 'sonarjs/recommended',

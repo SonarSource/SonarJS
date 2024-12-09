@@ -15,8 +15,8 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
-import { TypeScriptRuleTester } from '../../../tests/tools/index.js';
+import { TypeScriptRuleTester } from '../../../tests/tools/testers/typescript/index.js';
+import { JavaScriptRuleTester } from '../../../tests/tools/testers/javascript/index.js';
 
 const tests = {
   valid: [
@@ -66,10 +66,7 @@ const tests = {
   ],
 };
 
-const ruleTesterJs = new NodeRuleTester({
-  parserOptions: { ecmaVersion: 2018 },
-  env: { es6: true },
-});
+const ruleTesterJs = new JavaScriptRuleTester();
 ruleTesterJs.run('Built-in objects should not be overridden [js]', rule, tests);
 
 tests.valid.push({

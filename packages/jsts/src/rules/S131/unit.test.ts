@@ -15,14 +15,11 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
-import { TypeScriptRuleTester } from '../../../tests/tools/index.js';
-import { fileURLToPath } from 'node:url';
+import { TypeScriptRuleTester } from '../../../tests/tools/testers/typescript/index.js';
+import { JavaScriptRuleTester } from '../../../tests/tools/testers/javascript/index.js';
 
-const ruleTester = new NodeRuleTester({
-  parser: fileURLToPath(import.meta.resolve('@typescript-eslint/parser')),
-  parserOptions: { ecmaVersion: 2018 },
-});
+const ruleTester = new JavaScriptRuleTester();
+
 ruleTester.run('"switch" statements should have "default" clauses', rule, {
   valid: [
     {

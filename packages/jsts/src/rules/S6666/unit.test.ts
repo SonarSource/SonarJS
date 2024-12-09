@@ -18,7 +18,7 @@ import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
 
 const ruleTester = new NodeRuleTester({
-  parserOptions: { ecmaVersion: 2015 },
+  languageOptions: { ecmaVersion: 2015 },
 });
 
 ruleTester.run(`Spread syntax should be used instead of apply()`, rule, {

@@ -19,7 +19,7 @@ import { rule } from './index.js';
 import { EncodedMessage, IssueLocation } from '../helpers/index.js';
 
 const ruleTester = new NodeRuleTester({
-  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
+  languageOptions: { ecmaVersion: 2018, sourceType: 'module' },
 });
 const options = [
   {

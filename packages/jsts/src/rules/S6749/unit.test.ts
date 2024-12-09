@@ -14,12 +14,10 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { JavaScriptRuleTester } from '../../../tests/tools/testers/javascript/index.js';
 
-const ruleTester = new NodeRuleTester({
-  parserOptions: { ecmaVersion: 2018, ecmaFeatures: { jsx: true } },
-});
+const ruleTester = new JavaScriptRuleTester();
 ruleTester.run('Redundant React fragments should be removed', rule, {
   valid: [
     {

@@ -14,15 +14,11 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
 import path from 'path';
-import { fileURLToPath } from 'node:url';
+import { JavaScriptRuleTester } from '../../../tests/tools/testers/javascript/index.js';
 
-const ruleTester = new NodeRuleTester({
-  parser: fileURLToPath(import.meta.resolve('@typescript-eslint/parser')),
-  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
-});
+const ruleTester = new JavaScriptRuleTester();
 
 const options = [{ passwordWords: ['password', 'pwd', 'passwd'] }];
 

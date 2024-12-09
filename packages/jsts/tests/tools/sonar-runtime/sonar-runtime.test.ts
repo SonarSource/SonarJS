@@ -19,12 +19,12 @@ import {
   rule as noMissingSonarRuntimeRule,
   ruleId as noMissingSonarRuntimeRuleId,
 } from './rule/no-missing-sonar-runtime.js';
-import { parseTypeScriptSourceFile } from '../helpers/index.js';
 import path from 'path';
 import { readdir } from 'fs/promises';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
 import { fileReadable } from '../../../../shared/src/helpers/files.js';
+import { parseTypeScriptSourceFile } from '../helpers/parsing.js';
 
 /**
  * Detects missing secondary location support for rules using secondary locations.

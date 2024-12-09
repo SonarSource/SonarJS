@@ -17,7 +17,7 @@
 import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
 
-const ruleTester = new NodeRuleTester({ parserOptions: { ecmaVersion: 2015 } });
+const ruleTester = new NodeRuleTester({ languageOptions: { ecmaVersion: 2015 } });
 
 const combiningClass = c =>
   `Move this Unicode combined character '${c}' outside of the character class`;
@@ -179,12 +179,12 @@ ruleTester.run('', rule, {
     },
     {
       code: 'var r = /(?<=[👍])/',
-      parserOptions: { ecmaVersion: 9 },
+      languageOptions: { ecmaVersion: 9 },
       errors: surrogatePair('👍', 'var r = /(?<=[👍])/u'),
     },
     {
       code: 'var r = /(?<=[👍])/',
-      parserOptions: { ecmaVersion: 9 },
+      languageOptions: { ecmaVersion: 9 },
       errors: surrogatePair('👍', 'var r = /(?<=[👍])/u'),
     },
     {
@@ -322,12 +322,12 @@ ruleTester.run('', rule, {
     },
     {
       code: String.raw`var r = new RegExp("/(?<=[👍])", "")`,
-      parserOptions: { ecmaVersion: 9 },
+      languageOptions: { ecmaVersion: 9 },
       errors: surrogatePair('👍', String.raw`var r = new RegExp("/(?<=[👍])", "u")`),
     },
     {
       code: String.raw`var r = new RegExp("/(?<=[👍])", "")`,
-      parserOptions: { ecmaVersion: 2018 },
+      languageOptions: { ecmaVersion: 2018 },
       errors: surrogatePair('👍', String.raw`var r = new RegExp("/(?<=[👍])", "u")`),
     },
     {

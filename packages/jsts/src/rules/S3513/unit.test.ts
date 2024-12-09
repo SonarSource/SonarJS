@@ -18,10 +18,12 @@ import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
 
 const ruleTester = new NodeRuleTester({
-  parserOptions: {
-    ecmaVersion: 2018,
-    ecmaFeatures: { impliedStrict: false },
-    sourceType: 'script',
+  languageOptions: {
+    parserOptions: {
+      ecmaVersion: 2018,
+      ecmaFeatures: { impliedStrict: false },
+      sourceType: 'script',
+    },
   },
 });
 

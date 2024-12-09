@@ -16,7 +16,7 @@
  */
 import { rule } from './index.js';
 import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
-import { TypeScriptRuleTester } from '../../../tests/tools/index.js';
+import { TypeScriptRuleTester } from '../../../tests/tools/testers/typescript/index.js';
 
 const tests = {
   valid: [
@@ -58,7 +58,7 @@ const tests = {
   ],
 };
 
-const ruleTesterJs = new NodeRuleTester({ parserOptions: { ecmaVersion: 2018 } });
+const ruleTesterJs = new NodeRuleTester({ languageOptions: { ecmaVersion: 2018 } });
 const ruleTesterTs = new TypeScriptRuleTester();
 
 ruleTesterJs.run('"undefined" should not be assigned [js]', rule, tests);

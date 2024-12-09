@@ -14,11 +14,11 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { TypeScriptRuleTester } from '../../../tests/tools/index.js';
+import { TypeScriptRuleTester } from '../../../tests/tools/testers/typescript/index.js';
 import { rule } from './index.js';
 import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import path from 'path';
-import { fileURLToPath } from 'node:url';
+import parser from '@typescript-eslint/parser';
 
 const ruleTester = new TypeScriptRuleTester();
 ruleTester.run(
@@ -224,12 +224,14 @@ ruleTester.run(
 );
 
 const noopRuleTester = new NodeRuleTester({
-  parser: fileURLToPath(import.meta.resolve('@typescript-eslint/parser')),
-  parserOptions: {
+  languageOptions: {
+    parser,
     ecmaVersion: 2018,
     sourceType: 'module',
-    project: `tsconfig.json`,
-    tsconfigRootDir: path.join(import.meta.dirname, 'fixtures'),
+    parserOptions: {
+      project: `tsconfig.json`,
+      tsconfigRootDir: path.join(import.meta.dirname, 'fixtures'),
+    },
   },
 });
 

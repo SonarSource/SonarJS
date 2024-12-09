@@ -19,9 +19,9 @@ import path from 'path';
 import { Linter, Rule } from 'eslint';
 import { getProperty } from '../../../src/rules/index.js';
 
-import { parseJavaScriptSourceFile } from '../../tools/index.js';
 import { describe, test } from 'node:test';
 import { expect } from 'expect';
+import { parseJavaScriptSourceFile } from '../../tools/helpers/parsing.js';
 
 describe('getProperty', () => {
   (

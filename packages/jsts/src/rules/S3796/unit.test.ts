@@ -16,7 +16,7 @@
  */
 import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
-import { TypeScriptRuleTester } from '../../../tests/tools/index.js';
+import { TypeScriptRuleTester } from '../../../tests/tools/testers/typescript/index.js';
 
 const typeScriptRuleTester = new TypeScriptRuleTester();
 typeScriptRuleTester.run(
@@ -382,7 +382,7 @@ typeScriptRuleTester.run(
 );
 
 const eslintRuleTester = new NodeRuleTester({
-  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
+  languageOptions: { ecmaVersion: 2018, sourceType: 'module' },
 });
 eslintRuleTester.run('Callbacks of array methods should have return statements [w/o types]', rule, {
   valid: [

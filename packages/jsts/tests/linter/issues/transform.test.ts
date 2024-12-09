@@ -16,7 +16,10 @@
  */
 import { Linter } from 'eslint';
 import path from 'path';
-import { parseJavaScriptSourceFile, parseTypeScriptSourceFile } from '../../tools/index.js';
+import {
+  parseJavaScriptSourceFile,
+  parseTypeScriptSourceFile,
+} from '../../tools/helpers/parsing.js';
 import { transformMessages } from '../../../src/linter/issues/transform.js';
 import { rules } from '../../../src/rules/index.js';
 import { describe, it } from 'node:test';

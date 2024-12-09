@@ -15,7 +15,6 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import path from 'path/posix';
-import { jsTsInput, parseJavaScriptSourceFile } from '../tools/index.js';
 import { Linter, Rule } from 'eslint';
 import { describe, beforeEach, it } from 'node:test';
 import { expect } from 'expect';
@@ -28,6 +27,8 @@ import { initializeLinter } from '../../src/linter/linters.js';
 import { JsTsAnalysisOutput } from '../../src/analysis/analysis.js';
 import { createAndSaveProgram } from '../../src/program/program.js';
 import { deserializeProtobuf } from '../../src/parsers/ast.js';
+import { jsTsInput } from '../tools/helpers/input.js';
+import { parseJavaScriptSourceFile } from '../tools/helpers/parsing.js';
 
 const currentPath = toUnixPath(import.meta.dirname);
 

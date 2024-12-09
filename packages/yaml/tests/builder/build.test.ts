@@ -16,7 +16,6 @@
  */
 import estree from 'estree';
 import { join } from 'path';
-import { embeddedInput } from '../../../jsts/tests/tools/index.js';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
 import {
@@ -25,6 +24,7 @@ import {
 } from '../../../jsts/src/embedded/builder/build.js';
 import { parseAwsFromYaml } from '../../src/aws/parser.js';
 import { APIError } from '../../../shared/src/errors/error.js';
+import { embeddedInput } from '../../../jsts/tests/tools/helpers/input.js';
 
 describe('buildSourceCodes()', () => {
   const fixturesPath = join(import.meta.dirname, 'fixtures', 'build');

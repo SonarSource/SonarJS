@@ -14,14 +14,12 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
-import { TypeScriptRuleTester } from '../../../tests/tools/index.js';
+import { TypeScriptRuleTester } from '../../../tests/tools/testers/typescript/index.js';
+import { JavaScriptRuleTester } from '../../../tests/tools/testers/javascript/index.js';
 
 const ruleTesterTs = new TypeScriptRuleTester();
-const ruleTesterJs = new NodeRuleTester({
-  parserOptions: { ecmaVersion: 2018, sourceType: 'module', ecmaFeatures: { jsx: true } },
-});
+const ruleTesterJs = new JavaScriptRuleTester();
 
 ruleTesterTs.run('', rule, {
   valid: [

@@ -18,7 +18,7 @@ import { Linter } from 'eslint';
 import path from 'path';
 import { rule as noExclusiveTests } from '../../../src/rules/S6426/index.js';
 import { transformFixes } from '../../../src/linter/quickfixes/transform.js';
-import { parseJavaScriptSourceFile } from '../../tools/helpers/index.js';
+import { parseJavaScriptSourceFile } from '../../tools/helpers/parsing.js';
 import { rules as allRules } from '../../../src/rules/index.js';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';

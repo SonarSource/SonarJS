@@ -15,11 +15,11 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './rule.js';
-import { TypeScriptRuleTester } from '../../../tests/tools/index.js';
+import { TypeScriptRuleTester } from '../../../tests/tools/testers/typescript/index.js';
 import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 
 const ruleTester = new NodeRuleTester({
-  parserOptions: {
+  languageOptions: {
     ecmaVersion: 2018,
     sourceType: 'module',
   },

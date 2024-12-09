@@ -15,12 +15,9 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
-import { JavaScriptRuleTester, TypeScriptRuleTester } from '../../../tests/tools/index.js';
+import { JavaScriptRuleTester } from '../../../tests/tools/testers/javascript/index.js';
 
-const ruleTesterJs = new NodeRuleTester({
-  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
-});
+const ruleTesterJs = new JavaScriptRuleTester();
 ruleTesterJs.run('Functions should always return the same type [js]', rule, {
   valid: [
     {
@@ -36,7 +33,7 @@ ruleTesterJs.run('Functions should always return the same type [js]', rule, {
   invalid: [],
 });
 
-const ruleTesterTs = new TypeScriptRuleTester();
+const ruleTesterTs = new JavaScriptRuleTester();
 ruleTesterTs.run(`Functions should always return the same type [ts]`, rule, {
   valid: [
     {

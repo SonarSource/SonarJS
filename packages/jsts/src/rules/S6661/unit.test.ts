@@ -19,7 +19,7 @@ import { rule } from './index.js';
 import path from 'path';
 
 process.chdir(import.meta.dirname); // change current working dir to avoid the package.json lookup to up in the tree
-const ruleTester = new NodeRuleTester({ parserOptions: { ecmaVersion: 2018 } });
+const ruleTester = new NodeRuleTester({ languageOptions: { ecmaVersion: 2018 } });
 
 ruleTester.run('Object spread syntax should be used instead of "Object.assign"', rule, {
   valid: [

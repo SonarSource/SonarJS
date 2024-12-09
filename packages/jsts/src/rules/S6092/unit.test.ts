@@ -21,7 +21,7 @@ import { rule } from './index.js';
 // Here we are testing that no issues are reported when no 'chai' import.
 
 const ruleTester = new NodeRuleTester({
-  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
+  languageOptions: { ecmaVersion: 2018, sourceType: 'module' },
 });
 ruleTester.run('Assertions should not be given twice the same argument', rule, {
   valid: [

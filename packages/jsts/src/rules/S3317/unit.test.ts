@@ -19,7 +19,7 @@ import { rule } from './index.js';
 import path from 'path';
 
 const ruleTester = new NodeRuleTester({
-  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
+  languageOptions: { ecmaVersion: 2018, sourceType: 'module' },
 });
 
 ruleTester.run('Class names and file names should match', rule, {

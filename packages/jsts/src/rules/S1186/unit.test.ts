@@ -14,15 +14,13 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { Rule } from 'eslint';
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import type { Rule } from 'eslint';
 import { rule } from './index.js';
 import { reportWithQuickFixIfApplicable } from './decorator.js';
 import { it } from 'node:test';
+import { JavaScriptRuleTester } from '../../../tests/tools/testers/javascript/index.js';
 
-const ruleTester = new NodeRuleTester({
-  parserOptions: { ecmaVersion: 2022, ecmaFeatures: { jsx: true } },
-});
+const ruleTester = new JavaScriptRuleTester();
 
 ruleTester.run(`Decorated rule should provide suggestion`, rule, {
   valid: [

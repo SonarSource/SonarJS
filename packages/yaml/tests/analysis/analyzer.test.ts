@@ -15,7 +15,6 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { join } from 'path';
-import { embeddedInput } from '../../../jsts/tests/tools/index.js';
 import type { Rule } from 'eslint';
 import { describe, it, before } from 'node:test';
 import { expect } from 'expect';
@@ -25,6 +24,7 @@ import { analyzeEmbedded } from '../../../jsts/src/embedded/analysis/analyzer.js
 import { APIError } from '../../../shared/src/errors/error.js';
 import { getLinter, initializeLinter } from '../../../jsts/src/linter/linters.js';
 import { composeSyntheticFilePath } from '../../../jsts/src/embedded/builder/build.js';
+import { embeddedInput } from '../../../jsts/tests/tools/helpers/input.js';
 
 describe('analyzeYAML', () => {
   const fixturesPath = join(import.meta.dirname, 'fixtures');

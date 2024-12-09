@@ -14,4 +14,28 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-export * from './tester.js';
+import { NodeRuleTester } from '../rule-tester.js';
+import parser from '@babel/eslint-parser';
+
+export function BabelRuleTester() {
+  return new NodeRuleTester({
+    // we use babel to parse JSX syntax
+    languageOptions: {
+      parser,
+      parserOptions: {
+        requireConfigFile: false,
+        babelOptions: {
+          targets: 'defaults',
+          presets: ['@babel/preset-react', '@babel/preset-flow', '@babel/preset-env'],
+          plugins: [['@babel/plugin-proposal-decorators', { version: '2022-03' }]],
+          babelrc: false,
+          configFile: false,
+          parserOpts: {
+            allowReturnOutsideFunction: true,
+          },
+        },
+      },
+      ecmaVersion: 2015,
+    },
+  });
+}

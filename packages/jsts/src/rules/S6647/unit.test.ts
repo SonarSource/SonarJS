@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { BabelRuleTester } from '../../../tests/tools/index.js';
+import { BabelRuleTester } from '../../../tests/tools/testers/babel/index.js';
 
 const babelRuleTester = BabelRuleTester();
 

@@ -14,15 +14,13 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { NodeRuleTester } from '../../../../tests/tools/testers/rule-tester.js';
 import { rule } from '../rule.js';
 import { join } from 'node:path';
+import { JavaScriptRuleTester } from '../../../../tests/tools/testers/javascript/index.js';
 
 const dirname = join(import.meta.dirname, 'fixtures');
 process.chdir(dirname); // change current working dir to avoid the package.json lookup to up in the tree
-const ruleTester = new NodeRuleTester({
-  parserOptions: { ecmaVersion: 2018, sourceType: 'module', ecmaFeatures: { jsx: true } },
-});
+const ruleTester = new JavaScriptRuleTester();
 ruleTester.run('S6747 turns into a noop on non-React projects', rule, {
   valid: [
     {

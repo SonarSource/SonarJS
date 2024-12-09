@@ -17,15 +17,17 @@
 import { rule } from './rule.js';
 import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import path from 'path';
-import { fileURLToPath } from 'node:url';
+import parser from '@typescript-eslint/parser';
 
 const ruleTester = new NodeRuleTester({
-  parser: fileURLToPath(import.meta.resolve('@typescript-eslint/parser')),
-  parserOptions: {
+  languageOptions: {
+    parser,
     ecmaVersion: 2018,
     sourceType: 'module',
-    project: `./tsconfig.json`,
-    tsconfigRootDir: path.join(import.meta.dirname, 'fixtures'),
+    parserOptions: {
+      project: `./tsconfig.json`,
+      tsconfigRootDir: path.join(import.meta.dirname, 'fixtures'),
+    },
   },
 });
 

@@ -15,17 +15,12 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
-import { fileURLToPath } from 'node:url';
+import { JavaScriptRuleTester } from '../../../tests/tools/testers/javascript/index.js';
 
-const tsParserPath = fileURLToPath(import.meta.resolve('@typescript-eslint/parser'));
-const ruleTester = new NodeRuleTester({
-  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
-  parser: tsParserPath,
-});
+const ruleTester = new JavaScriptRuleTester();
 
 function invalid(code: string) {
-  const errors: NodeRuleTester.TestCaseError[] = [];
+  const errors = [];
   const lines = code.split('\n');
   for (let i = 1; i <= lines.length; i++) {
     const line = lines[i - 1];

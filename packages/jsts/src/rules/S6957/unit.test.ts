@@ -14,24 +14,18 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
 import path from 'path/posix';
 import { toUnixPath } from '../helpers/index.js';
-import { fileURLToPath } from 'node:url';
+import { JavaScriptRuleTester } from '../../../tests/tools/testers/javascript/index.js';
 
 const dirname = import.meta.dirname;
 const fixtures = path.join(toUnixPath(dirname), 'fixtures');
 const filenameReact15 = path.join(fixtures, 'react15/file.js');
 
-const tsParserPath = fileURLToPath(import.meta.resolve('@typescript-eslint/parser'));
-
 process.chdir(import.meta.dirname); // change current working dir to avoid the package.json lookup to up in the tree
 
-const ruleTester = new NodeRuleTester({
-  parser: tsParserPath,
-  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
-});
+const ruleTester = new JavaScriptRuleTester();
 
 ruleTester.run('React15', rule, {
   valid: [

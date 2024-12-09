@@ -17,7 +17,7 @@
 import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
 
-const ruleTester = new NodeRuleTester({ parserOptions: { ecmaVersion: 2018 } });
+const ruleTester = new NodeRuleTester({ languageOptions: { ecmaVersion: 2018 } });
 ruleTester.run('Destructuring syntax should be used for assignments', rule, {
   valid: [
     {

@@ -14,15 +14,11 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './rule.js';
 import { expandMessage, IssueLocation } from '../helpers/index.js';
-import { fileURLToPath } from 'node:url';
+import { JavaScriptRuleTester } from '../../../tests/tools/testers/javascript/index.js';
 
-const ruleTester = new NodeRuleTester({
-  parserOptions: { ecmaVersion: 2018, sourceType: 'module', ecmaFeatures: { jsx: true } },
-  parser: fileURLToPath(import.meta.resolve('@typescript-eslint/parser')),
-});
+const ruleTester = new JavaScriptRuleTester();
 
 ruleTester.run('no-identical-functions', rule, {
   valid: [
@@ -291,7 +287,7 @@ ruleTester.run('no-identical-functions', rule, {
   ],
 });
 
-function message(originalLine: number, duplicationLine: number): NodeRuleTester.TestCaseError {
+function message(originalLine: number, duplicationLine: number) {
   return {
     message: expandMessage(
       'Update this function so that its implementation is not identical to the one on line {{line}}.',
@@ -308,7 +304,7 @@ function encodedMessage(
   originalLine: number,
   duplicationLine: number,
   secondaries: IssueLocation[],
-): NodeRuleTester.TestCaseError {
+) {
   return {
     messageId: 'sonarRuntime',
     data: {

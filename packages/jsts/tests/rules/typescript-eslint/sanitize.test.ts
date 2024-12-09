@@ -18,9 +18,9 @@ import pkg from '@typescript-eslint/eslint-plugin';
 import { Linter } from 'eslint';
 import { sanitize } from '../../../src/rules/external/typescript-eslint/sanitize.js';
 import path from 'path';
-import { parseTypeScriptSourceFile } from '../../tools/helpers/index.js';
 import { describe, test } from 'node:test';
 import { expect } from 'expect';
+import { parseTypeScriptSourceFile } from '../../tools/helpers/parsing.js';
 
 const { rules: typescriptESLintRules } = pkg;
 

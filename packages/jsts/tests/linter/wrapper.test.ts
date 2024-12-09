@@ -16,7 +16,7 @@
  */
 import fs from 'fs';
 import path from 'path';
-import { parseJavaScriptSourceFile, parseTypeScriptSourceFile } from '../tools/index.js';
+import { parseJavaScriptSourceFile, parseTypeScriptSourceFile } from '../tools/helpers/parsing.js';
 import { describe, before, it } from 'node:test';
 import { expect } from 'expect';
 import { setContext } from '../../../shared/src/helpers/context.js';
@@ -230,7 +230,7 @@ describe('LinterWrapper', () => {
     await linter.init();
     const { issues } = linter.lint(sourceCode, filePath);
     const config = linter.getConfig({ language, fileType });
-    expect(config.env['browser']).toEqual(true);
+    expect(config.languageOptions.globals.browser).toEqual(true);
     expect(issues).toHaveLength(0);
   });
 
@@ -250,7 +250,9 @@ describe('LinterWrapper', () => {
     await linter.init();
     const { issues } = linter.lint(sourceCode, filePath);
 
-    expect(linter.getConfig({ language, fileType }).globals['angular']).toEqual(true);
+    expect(linter.getConfig({ language, fileType }).languageOptions.globals['angular']).toEqual(
+      true,
+    );
     expect(issues).toHaveLength(0);
   });
 

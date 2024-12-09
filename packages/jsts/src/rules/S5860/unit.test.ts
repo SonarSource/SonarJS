@@ -16,7 +16,7 @@
  */
 import { rule } from './index.js';
 import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
-import { JavaScriptRuleTester } from '../../../tests/tools/index.js';
+import { JavaScriptRuleTester } from '../../../tests/tools/testers/javascript/index.js';
 
 const typeAwareRuleTester = new JavaScriptRuleTester();
 typeAwareRuleTester.run('Regular expressions named groups should be used', rule, {
@@ -599,7 +599,7 @@ typeAwareRuleTester.run('Regular expressions named groups should be used', rule,
 });
 
 const ruleTester = new NodeRuleTester({
-  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
+  languageOptions: { ecmaVersion: 2018, sourceType: 'module' },
 });
 ruleTester.run('"unused-named-groups" reports nothing without types', rule, {
   valid: [

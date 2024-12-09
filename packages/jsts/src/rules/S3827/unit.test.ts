@@ -18,7 +18,7 @@ import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
 
 const ruleTester = new NodeRuleTester({
-  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
+  languageOptions: { ecmaVersion: 2018, sourceType: 'module' },
 });
 ruleTester.run('Variables should be defined before being used', rule, {
   valid: [
@@ -137,7 +137,7 @@ ruleTester.run('Variables should be defined before being used', rule, {
   ],
 });
 
-const ruleTesterScript = new NodeRuleTester({ parserOptions: { sourceType: 'script' } });
+const ruleTesterScript = new NodeRuleTester({ languageOptions: { sourceType: 'script' } });
 ruleTesterScript.run('No issues within with statements', rule, {
   valid: [
     {

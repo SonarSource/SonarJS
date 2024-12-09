@@ -17,7 +17,7 @@
 import { rule } from './index.js';
 import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 
-const ruleTester = new NodeRuleTester({ parserOptions: { ecmaVersion: 2018 } });
+const ruleTester = new NodeRuleTester({ languageOptions: { ecmaVersion: 2018 } });
 ruleTester.run('Labels should not be used', rule, {
   valid: [
     {

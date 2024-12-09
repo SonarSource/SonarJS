@@ -14,4 +14,52 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-export * from './tester.js';
+import { Rule } from 'eslint';
+import { NodeRuleTester } from '../rule-tester.js';
+import path from 'path';
+import parser from '@typescript-eslint/parser';
+import globals from 'globals';
+
+const languageOptions = {
+  parser,
+  ecmaVersion: 2018,
+  sourceType: 'module',
+  project: path.resolve(`${import.meta.dirname}/fixtures/tsconfig.json`),
+  globals: {
+    ...globals.es2025,
+  },
+} as const;
+
+const placeHolderFilePath = path.resolve(`${import.meta.dirname}/fixtures/placeholder.tsx`);
+
+/**
+ * Rule tester for Typescript, using @typescript-eslint parser, making sure that type information is present.
+ * It will also assert that no issues is raised when there are no type information.
+ */
+class TypeScriptRuleTester extends NodeRuleTester {
+  constructor() {
+    super({ languageOptions });
+  }
+
+  run(
+    name: string,
+    rule: Rule.RuleModule,
+    tests: {
+      valid: (string | NodeRuleTester.ValidTestCase)[];
+      invalid: NodeRuleTester.InvalidTestCase[];
+    },
+  ): void {
+    const setFilename = test => {
+      if (!test.filename) {
+        test.filename = placeHolderFilePath;
+      }
+    };
+
+    tests.valid.forEach(setFilename);
+    tests.invalid.forEach(setFilename);
+
+    super.run(name, rule, tests);
+  }
+}
+
+export { TypeScriptRuleTester };

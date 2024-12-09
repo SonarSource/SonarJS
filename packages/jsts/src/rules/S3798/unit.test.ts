@@ -15,24 +15,34 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { NodeRuleTester } from '../../../tests/tools/testers/rule-tester.js';
-import { BabelRuleTester } from '../../../tests/tools/index.js';
+import { BabelRuleTester } from '../../../tests/tools/testers/babel/index.js';
 import { rule } from './index.js';
-import { fileURLToPath } from 'node:url';
+import { JavaScriptRuleTester } from '../../../tests/tools/testers/javascript/index.js';
+import globals from 'globals';
 
-const ruleTester = new NodeRuleTester({
-  parser: fileURLToPath(import.meta.resolve('@typescript-eslint/parser')),
-  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
-});
+const ruleTester = new JavaScriptRuleTester();
 const ruleTesterwithBrowser = new NodeRuleTester({
-  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
-  env: { es6: true, browser: true },
+  languageOptions: {
+    ecmaVersion: 2018,
+    sourceType: 'module',
+    globals: {
+      ...globals.es2015,
+      ...globals.browser,
+    },
+  },
 });
 const ruleTesterCustomGlobals = new NodeRuleTester({
-  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
-  globals: { angular: true, other: true },
+  languageOptions: {
+    ecmaVersion: 2018,
+    sourceType: 'module',
+    globals: {
+      angular: true,
+      other: true,
+    },
+  },
 });
 const ruleTesterScript = new NodeRuleTester({
-  parserOptions: { ecmaVersion: 2018, sourceType: 'script' },
+  languageOptions: { ecmaVersion: 2018, sourceType: 'script' },
 });
 
 const babelRuleTester = BabelRuleTester();

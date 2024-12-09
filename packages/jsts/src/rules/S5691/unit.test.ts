@@ -20,7 +20,7 @@ import { rule } from './index.js';
 const message = 'Make sure serving hidden files is safe here.';
 
 const ruleTester = new NodeRuleTester({
-  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
+  languageOptions: { ecmaVersion: 2018, sourceType: 'module' },
 });
 ruleTester.run('Statically serving hidden files is security-sensitive', rule, {
   valid: [
