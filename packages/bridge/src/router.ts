@@ -36,6 +36,7 @@ export default function (worker?: Worker): express.Router {
   router.post('/init-linter', delegate('on-init-linter'));
   router.post('/new-tsconfig', delegate('on-new-tsconfig'));
   router.post('/tsconfig-files', delegate('on-tsconfig-files'));
+  router.post('/get-telemetry', delegate('on-get-telemetry'));
 
   /** Endpoints running on the main thread */
   router.get('/status', (_, response) => response.send('OK!'));

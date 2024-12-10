@@ -1,0 +1,11 @@
+{
+  "name": "test-module",
+  "version": "1.0.0",
+  "author": "Your Name <email@example.com>",
+  "dependencies": {
+    "pkg1": "1.0.0"
+  },
+  "devDependencies": {
+    "pkg2": "2.0.0"
+  }
+}

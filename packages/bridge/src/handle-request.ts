@@ -28,7 +28,14 @@ import {
 } from '../../jsts/src/program/program.js';
 import { initializeLinter } from '../../jsts/src/linter/linters.js';
 import { clearTypeScriptESLintParserCaches } from '../../jsts/src/parsers/eslint.js';
-import { BridgeRequest, readFileLazily, RequestResult, serializeError } from './request.js';
+import {
+  BridgeRequest,
+  readFileLazily,
+  RequestResult,
+  serializeError,
+  Telemetry,
+} from './request.js';
+import { getAllDependencies } from '../../jsts/src/rules/index.js';
 
 export async function handleRequest(request: BridgeRequest): Promise<RequestResult> {
   try {
@@ -107,8 +114,18 @@ export async function handleRequest(request: BridgeRequest): Promise<RequestResu
         const output = await analyzeProject(request.data);
         return { type: 'success', result: output };
       }
+      case 'on-get-telemetry': {
+        const output = getTelemetry();
+        return { type: 'success', result: output };
+      }
     }
   } catch (err) {
     return { type: 'failure', error: serializeError(err) };
   }
+}
+
+function getTelemetry(): Telemetry {
+  return {
+    dependencies: getAllDependencies(),
+  };
 }

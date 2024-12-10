@@ -23,16 +23,21 @@ import { TsConfigJson } from 'type-fest';
 import { RuleConfig } from '../../jsts/src/linter/config/rule-config.js';
 import { readFile } from '../../shared/src/helpers/files.js';
 import { APIError, ErrorCode } from '../../shared/src/errors/error.js';
+import { NamedDependency } from '../../jsts/src/rules/index.js';
 
 export type RequestResult =
   | {
       type: 'success';
-      result: string | AnalysisOutput;
+      result: string | AnalysisOutput | Telemetry;
     }
   | {
       type: 'failure';
       error: ReturnType<typeof serializeError>;
     };
+
+export type Telemetry = {
+  dependencies: NamedDependency[];
+};
 
 export type RequestType = BridgeRequest['type'];
 
@@ -61,7 +66,8 @@ export type BridgeRequest =
   | DeleteProgramRequest
   | InitLinterRequest
   | NewTsConfigRequest
-  | TsConfigFilesRequest;
+  | TsConfigFilesRequest
+  | GetTelemetryRequest;
 
 type CssRequest = {
   type: 'on-analyze-css';
@@ -114,6 +120,9 @@ type NewTsConfigRequest = {
 type TsConfigFilesRequest = {
   type: 'on-tsconfig-files';
   data: { tsConfig: string };
+};
+type GetTelemetryRequest = {
+  type: 'on-get-telemetry';
 };
 
 /**

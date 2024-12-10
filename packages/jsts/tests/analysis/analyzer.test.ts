@@ -28,6 +28,10 @@ import { initializeLinter } from '../../src/linter/linters.js';
 import { JsTsAnalysisOutput } from '../../src/analysis/analysis.js';
 import { createAndSaveProgram } from '../../src/program/program.js';
 import { deserializeProtobuf } from '../../src/parsers/ast.js';
+import {
+  getAllDependencies,
+  getDependencies,
+} from '../../../../lib/jsts/src/rules/helpers/package-json.js';
 
 const currentPath = toUnixPath(import.meta.dirname);
 
@@ -897,6 +901,49 @@ describe('analyzeJSTS', () => {
     );
     expect(vueIssues).toHaveLength(1);
     expect(vueIssues[0].message).toEqual('call');
+  });
+
+  it('should populate dependencies after analysis', async () => {
+    const baseDir = path.join(currentPath, 'fixtures', 'dependencies');
+    const linter = new Linter();
+    linter.defineRule('custom-rule-file', {
+      create(context) {
+        return {
+          CallExpression(node) {
+            // Necessarily call 'getDependencies' to populate the cache of dependencies
+            const dependencies = getDependencies(toUnixPath(context.filename), baseDir);
+            if (dependencies.size) {
+              context.report({
+                node: node.callee,
+                message: 'call',
+              });
+            }
+          },
+        };
+      },
+    } as Rule.RuleModule);
+    const filePath = path.join(currentPath, 'fixtures', 'dependencies', 'index.js');
+    const sourceCode = await parseJavaScriptSourceFile(filePath);
+    linter.verify(
+      sourceCode,
+      { rules: { 'custom-rule-file': 'error' } },
+      { filename: filePath, allowInlineConfig: false },
+    );
+    const dependencies = getAllDependencies();
+    expect(dependencies).toStrictEqual([
+      {
+        name: 'test-module',
+        version: '*',
+      },
+      {
+        name: 'pkg1',
+        version: '1.0.0',
+      },
+      {
+        name: 'pkg2',
+        version: '2.0.0',
+      },
+    ]);
   });
 
   it('should return the AST along with the issues', async () => {
