@@ -17,6 +17,7 @@
 package org.sonar.plugins.javascript.analysis;
 
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -35,12 +36,12 @@ public class PluginTelemetry {
     this.ctx = ctx;
   }
 
-  void reportTelemetry(TelemetryResponse telemetry) {
+  void reportTelemetry(@Nullable TelemetryResponse telemetry) {
     var isTelemetrySupported = ctx
       .runtime()
       .getApiVersion()
       .isGreaterThanOrEqual(Version.create(10, 9));
-    if (!isTelemetrySupported) {
+    if (telemetry == null || !isTelemetrySupported) {
       // addTelemetryProperty is added in 10.9:
       // https://github.com/SonarSource/sonar-plugin-api/releases/tag/10.9.0.2362
       return;
