@@ -20,7 +20,6 @@ import { toUnixPath, stripBOM } from './files.js';
 import { Minimatch } from 'minimatch';
 import { type Filesystem, createFindUp } from './find-up.js';
 import fs from 'fs';
-import { Telemetry } from '../../../../bridge/src/request.js';
 
 export const PACKAGE_JSON = 'package.json';
 
