@@ -328,7 +328,7 @@ describe('router', () => {
   });
 
   it('should return empty get-telemetry on fresh server', async () => {
-    const response = (await request(server, '/get-telemetry', 'POST')) as string;
+    const response = (await request(server, '/get-telemetry', 'GET')) as string;
     const json = JSON.parse(response);
     expect(json).toEqual({ dependencies: [] });
   });
