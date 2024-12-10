@@ -26,8 +26,10 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
+import org.sonar.plugins.javascript.bridge.AnalysisMode;
 import org.sonar.plugins.javascript.bridge.AnalysisWarningsWrapper;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
 import org.sonar.plugins.javascript.bridge.BridgeServer.TsProgram;
@@ -111,6 +113,8 @@ public class AnalysisWithProgram extends AbstractAnalysis {
             )
           );
       }
+      var telemetry = bridgeServer.getTelemetry();
+      (new PluginTelemetry(context)).reportTelemetry(telemetry);
     } finally {
       if (success) {
         progressReport.stop();
