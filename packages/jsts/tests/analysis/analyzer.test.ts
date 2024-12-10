@@ -19,7 +19,7 @@ import { jsTsInput, parseJavaScriptSourceFile } from '../tools/index.js';
 import { Linter, Rule } from 'eslint';
 import { describe, beforeEach, it } from 'node:test';
 import { expect } from 'expect';
-import { getManifests, toUnixPath } from '../../src/rules/helpers/index.js';
+import { getDependencies, getManifests, toUnixPath } from '../../src/rules/helpers/index.js';
 import { setContext } from '../../../shared/src/helpers/context.js';
 import { analyzeJSTS, getTelemetry } from '../../src/analysis/analyzer.js';
 import { APIError } from '../../../shared/src/errors/error.js';
@@ -28,7 +28,6 @@ import { initializeLinter } from '../../src/linter/linters.js';
 import { JsTsAnalysisOutput } from '../../src/analysis/analysis.js';
 import { createAndSaveProgram } from '../../src/program/program.js';
 import { deserializeProtobuf } from '../../src/parsers/ast.js';
-import { getDependencies } from '../../../../lib/jsts/src/rules/helpers/package-json.js';
 
 const currentPath = toUnixPath(import.meta.dirname);
 
