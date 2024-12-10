@@ -16,7 +16,7 @@
  */
 import { analyzeCSS } from '../../css/src/analysis/analyzer.js';
 import { analyzeHTML } from '../../html/src/index.js';
-import { analyzeJSTS } from '../../jsts/src/analysis/analyzer.js';
+import { analyzeJSTS, getTelemetry } from '../../jsts/src/analysis/analyzer.js';
 import { analyzeProject } from '../../jsts/src/analysis/projectAnalysis/projectAnalyzer.js';
 import { analyzeYAML } from '../../yaml/src/index.js';
 import { logHeapStatistics } from './memory.js';
@@ -28,14 +28,7 @@ import {
 } from '../../jsts/src/program/program.js';
 import { initializeLinter } from '../../jsts/src/linter/linters.js';
 import { clearTypeScriptESLintParserCaches } from '../../jsts/src/parsers/eslint.js';
-import {
-  BridgeRequest,
-  readFileLazily,
-  RequestResult,
-  serializeError,
-  Telemetry,
-} from './request.js';
-import { getAllDependencies } from '../../jsts/src/rules/index.js';
+import { BridgeRequest, readFileLazily, RequestResult, serializeError } from './request.js';
 
 export async function handleRequest(request: BridgeRequest): Promise<RequestResult> {
   try {
@@ -122,10 +115,4 @@ export async function handleRequest(request: BridgeRequest): Promise<RequestResu
   } catch (err) {
     return { type: 'failure', error: serializeError(err) };
   }
-}
-
-function getTelemetry(): Telemetry {
-  return {
-    dependencies: getAllDependencies(),
-  };
 }

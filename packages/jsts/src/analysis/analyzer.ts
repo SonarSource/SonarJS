@@ -29,7 +29,8 @@ import { getContext } from '../../../shared/src/helpers/context.js';
 import { computeMetrics, findNoSonarLines } from '../linter/visitors/metrics/index.js';
 import { getSyntaxHighlighting } from '../linter/visitors/syntax-highlighting.js';
 import { getCpdTokens } from '../linter/visitors/cpd.js';
-import { clearDependenciesCache } from '../rules/helpers/package-json.js';
+import { clearDependenciesCache, getAllDependencies } from '../rules/index.js';
+import { Telemetry } from '../../../bridge/src/request.js';
 
 /**
  * Analyzes a JavaScript / TypeScript analysis input
@@ -159,4 +160,10 @@ function computeExtendedMetrics(
       metrics: findNoSonarLines(sourceCode),
     };
   }
+}
+
+export function getTelemetry(): Telemetry {
+  return {
+    dependencies: getAllDependencies(),
+  };
 }

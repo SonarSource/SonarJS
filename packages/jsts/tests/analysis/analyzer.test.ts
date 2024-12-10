@@ -21,17 +21,14 @@ import { describe, beforeEach, it } from 'node:test';
 import { expect } from 'expect';
 import { getManifests, toUnixPath } from '../../src/rules/helpers/index.js';
 import { setContext } from '../../../shared/src/helpers/context.js';
-import { analyzeJSTS } from '../../src/analysis/analyzer.js';
+import { analyzeJSTS, getTelemetry } from '../../src/analysis/analyzer.js';
 import { APIError } from '../../../shared/src/errors/error.js';
 import { RuleConfig } from '../../src/linter/config/rule-config.js';
 import { initializeLinter } from '../../src/linter/linters.js';
 import { JsTsAnalysisOutput } from '../../src/analysis/analysis.js';
 import { createAndSaveProgram } from '../../src/program/program.js';
 import { deserializeProtobuf } from '../../src/parsers/ast.js';
-import {
-  getAllDependencies,
-  getDependencies,
-} from '../../../../lib/jsts/src/rules/helpers/package-json.js';
+import { getDependencies } from '../../../../lib/jsts/src/rules/helpers/package-json.js';
 
 const currentPath = toUnixPath(import.meta.dirname);
 
@@ -929,7 +926,8 @@ describe('analyzeJSTS', () => {
       { rules: { 'custom-rule-file': 'error' } },
       { filename: filePath, allowInlineConfig: false },
     );
-    const dependencies = getAllDependencies();
+    const telemetry = getTelemetry();
+    const dependencies = telemetry.dependencies;
     expect(dependencies).toStrictEqual([
       {
         name: 'test-module',
