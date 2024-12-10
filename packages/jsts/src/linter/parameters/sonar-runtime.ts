@@ -14,8 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import type { Rule } from 'eslint';
-import { getRuleSchema } from './helpers/index.js';
+import type { JSONSchema4 } from 'json-schema';
 
 /**
  * An internal rule parameter for secondary location support
@@ -49,18 +48,12 @@ export const SONAR_RUNTIME = 'sonar-runtime';
 
 /**
  * Checks if the rule schema sets the `sonar-runtime` internal parameter
- * @param ruleModule the rule definition
- * @param ruleId the ESLint rule key
+ * @param schema the rule schema
  * @returns true if the rule definition includes the parameter
  */
-export function hasSonarRuntimeOption(
-  ruleModule: Rule.RuleModule | undefined,
-  ruleId: string,
-): boolean {
-  const schema = getRuleSchema(ruleModule, ruleId);
-
+export function hasSonarRuntimeOption(schema: JSONSchema4 | JSONSchema4[] | undefined): boolean {
   if (Array.isArray(schema)) {
-    return schema.some(option => !!option.enum && option.enum.includes(SONAR_RUNTIME));
+    return schema.some(option => option.type === 'string' && option.enum?.includes(SONAR_RUNTIME));
   }
   if (schema?.type === 'array' && Array.isArray(schema.items)) {
     return schema.items.some(

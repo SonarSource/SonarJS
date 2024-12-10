@@ -42,7 +42,7 @@ export function convertMessage(source: SourceCode, message: Linter.LintMessage):
     return null;
   }
   return {
-    ruleId: message.ruleId,
+    ruleId: message.ruleId.slice(8), // remove "sonarjs/" prefix
     line: message.line,
     column: message.column,
     endLine: message.endLine,

@@ -32,29 +32,33 @@ import globals from 'globals';
  * execution environments defined through the analyzer's properties.
  *
  * @param inputRules the rules from the active quality profile
- * @param linterRules the wrapper's rule database
+ * @param allRules all RuleModules that have been loaded
  * @param environments the JavaScript execution environments
  * @param globs the global variables
  * @returns the created ESLint linting configuration
  */
 export function createLinterConfig(
   inputRules: RuleConfig[],
-  linterRules: Map<string, Rule.RuleModule>,
+  allRules: Record<string, Rule.RuleModule>,
   environments: string[] = [],
   globs: string[] = [],
 ) {
-  const env = createEnv(environments);
-  const globals = createGlobals(globs);
   const config: Linter.Config = {
+    files: ['**/do-not-ignore-any-file'],
     languageOptions: {
-      ...globals,
-      ...env,
+      globals: {
+        ...createGlobals(globs),
+        ...createEnv(environments),
+      },
+    },
+    plugins: {
+      sonarjs: { rules: allRules },
     },
     rules: {},
     /* using "max" version to prevent `eslint-plugin-react` from printing a warning */
     settings: { react: { version: '999.999.999' } },
   };
-  enableRules(config, inputRules, linterRules);
+  enableRules(config, inputRules, allRules);
   enableInternalCustomRules(config);
   return config;
 }
@@ -100,16 +104,19 @@ function createGlobals(globs: string[]) {
  *
  * @param config the configuration to augment with rule enabling
  * @param inputRules the input rules to enable
- * @param linterRules the linter rules available
+ * @param allRules all RuleModules that have been loaded
  */
 function enableRules(
   config: Linter.Config,
   inputRules: RuleConfig[],
-  linterRules: Map<string, Rule.RuleModule>,
+  allRules: Record<string, Rule.RuleModule>,
 ) {
   for (const inputRule of inputRules) {
-    const ruleModule = linterRules.get(inputRule.key);
-    config.rules![inputRule.key] = ['error', ...extendRuleConfig(ruleModule, inputRule)];
+    const ruleModule = allRules[inputRule.key];
+    config.rules![`sonarjs/${inputRule.key}`] = [
+      'error',
+      ...extendRuleConfig(ruleModule.meta?.schema || undefined, inputRule),
+    ];
   }
 }
 
@@ -127,7 +134,10 @@ function enableRules(
 function enableInternalCustomRules(config: Linter.Config) {
   if (!getContext().sonarlint) {
     for (const internalCustomRule of internalCustomRules) {
-      config.rules![internalCustomRule.ruleId] = ['error', ...internalCustomRule.ruleConfig];
+      config.rules![`sonarjs/${internalCustomRule.ruleId}`] = [
+        'error',
+        ...internalCustomRule.ruleConfig,
+      ];
     }
   }
 }
