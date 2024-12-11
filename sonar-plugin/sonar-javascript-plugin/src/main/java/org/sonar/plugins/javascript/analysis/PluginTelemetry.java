@@ -28,9 +28,9 @@ import org.sonar.plugins.javascript.bridge.BridgeServer.TelemetryResponse;
 public class PluginTelemetry {
 
   private static final Logger LOG = LoggerFactory.getLogger(PluginTelemetry.class);
+  private static final String KEY_PREFIX = "javascript.";
 
   private final SensorContext ctx;
-  private static final String KEY_PREFIX = "javascript.";
 
   public PluginTelemetry(SensorContext ctx) {
     this.ctx = ctx;
