@@ -33,12 +33,14 @@ describe('createLinterConfig', () => {
 
   it('should enable environments', () => {
     const { globals } = createLinterConfig([], {}, ['node', 'jquery']).languageOptions;
-    expect(globals).toHaveProperty(['__dirname', '$']);
+    expect(globals).toHaveProperty('__dirname');
+    expect(globals).toHaveProperty('$');
   });
 
   it('should enable globals', () => {
     const { globals } = createLinterConfig([], {}, [], ['_', '$']).languageOptions;
-    expect(globals).toHaveProperty(['_', '$']);
+    expect(globals).toHaveProperty('_');
+    expect(globals).toHaveProperty('$');
   });
 
   it('should enable rules', () => {
@@ -50,7 +52,7 @@ describe('createLinterConfig', () => {
     const { rules } = createLinterConfig(inputRules, linterRules);
     expect(rules).toEqual(
       expect.objectContaining({
-        foo: ['error'],
+        'sonarjs/foo': ['error'],
       }),
     );
   });
@@ -58,8 +60,8 @@ describe('createLinterConfig', () => {
   it('should enable internal custom rules by default', () => {
     const { rules } = createLinterConfig([], {});
     expect(rules).toEqual({
-      'internal-cognitive-complexity': ['error', 'metric'],
-      'internal-symbol-highlighting': ['error'],
+      'sonarjs/internal-cognitive-complexity': ['error', 'metric'],
+      'sonarjs/internal-symbol-highlighting': ['error'],
     });
   });
 

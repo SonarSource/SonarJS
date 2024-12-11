@@ -53,12 +53,10 @@ export const SONAR_RUNTIME = 'sonar-runtime';
  */
 export function hasSonarRuntimeOption(schema: JSONSchema4 | JSONSchema4[] | undefined): boolean {
   if (Array.isArray(schema)) {
-    return schema.some(option => option.type === 'string' && option.enum?.includes(SONAR_RUNTIME));
+    return schema.some(option => option.enum?.includes(SONAR_RUNTIME));
   }
   if (schema?.type === 'array' && Array.isArray(schema.items)) {
-    return schema.items.some(
-      option => option.type === 'string' && option.enum?.includes(SONAR_RUNTIME),
-    );
+    return schema.items.some(option => option.enum?.includes(SONAR_RUNTIME));
   }
   return false;
 }

@@ -69,7 +69,7 @@ internalCustomRules.forEach((rule: CustomRule) => {
 });
 
 async function loadRulesFromBundle(ruleBundle: string) {
-  const { bundleRules } = await import(new URL(ruleBundle).toString());
+  const { rules: bundleRules } = await import(new URL(ruleBundle).toString());
   bundleRules.forEach((rule: CustomRule) => {
     rules[rule.ruleId] = rule.ruleModule;
     debug(`Loaded rule ${rule.ruleId} from ${ruleBundle}`);

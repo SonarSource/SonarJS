@@ -28,11 +28,13 @@ describe('convertMessage', () => {
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
     const ruleId = 'S1116';
-    const config = { rules: { [ruleId]: 'error' } } as Linter.Config;
-
     const linter = new Linter();
-    linter.defineRule(ruleId, S1116);
-    const [message] = linter.verify(sourceCode, config);
+    const [message] = linter.verify(sourceCode, {
+      plugins: {
+        sonarjs: { rules: { [ruleId]: S1116 } },
+      },
+      rules: { [`sonarjs/${ruleId}`]: 'error' },
+    });
 
     expect(convertMessage(sourceCode, message)).toEqual({
       ruleId,

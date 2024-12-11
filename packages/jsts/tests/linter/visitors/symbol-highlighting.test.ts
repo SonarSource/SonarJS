@@ -96,12 +96,15 @@ async function highlighting(fixture: string): Promise<SymbolHighlight[]> {
   const sourceCode = await parseTypeScriptSourceFile(filePath, []);
 
   const ruleId = 'symbol-highlighting';
-  const rules = { [ruleId]: 'error' } as any;
 
   const linter = new Linter();
-  linter.defineRule(ruleId, rule);
 
-  const [message] = linter.verify(sourceCode, { rules });
+  const [message] = linter.verify(sourceCode, {
+    plugins: {
+      sonarjs: { rules: { [ruleId]: rule } },
+    },
+    rules: { [`sonarjs/${ruleId}`]: 'error' },
+  });
   return JSON.parse(message.message) as SymbolHighlight[];
 }
 
