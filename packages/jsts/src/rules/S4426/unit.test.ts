@@ -17,9 +17,7 @@
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
 
-const ruleTesterJS = new RuleTester({
-  languageOptions: { ecmaVersion: 2018, sourceType: 'module' },
-});
+const ruleTesterJS = new RuleTester();
 
 ruleTesterJS.run('Cryptographic keys should be robust', rule, {
   valid: [

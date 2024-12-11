@@ -18,14 +18,8 @@ import { rule } from './index.js';
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import parser from 'vue-eslint-parser';
 
-const languageOptions = {
-  ecmaVersion: 2018,
-  sourceType: 'module',
-  parser,
-} as const;
-
 const ruleTesterForVue = new RuleTester({
-  languageOptions,
+  parser,
 });
 const ruleTester = new RuleTester();
 

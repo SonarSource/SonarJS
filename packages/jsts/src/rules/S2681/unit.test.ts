@@ -17,7 +17,7 @@
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
 
-const ruleTester = new RuleTester({ languageOptions: { ecmaVersion: 2018 } });
+const ruleTester = new RuleTester();
 const ruleTesterTs = new RuleTester();
 
 ruleTester.run('Multiline blocks should be enclosed in curly braces', rule, {

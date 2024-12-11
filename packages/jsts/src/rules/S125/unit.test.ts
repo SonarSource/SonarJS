@@ -19,7 +19,7 @@ import { rule } from './index.js';
 import { describe } from 'node:test';
 
 describe('S125', () => {
-  const ruleTester = new RuleTester({ languageOptions: { ecmaVersion: 2018 } });
+  const ruleTester = new RuleTester();
   ruleTester.run('Sections of code should not be commented out', rule, {
     valid: [
       {

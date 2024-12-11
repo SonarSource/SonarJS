@@ -17,7 +17,7 @@
 import fs from 'fs';
 import path from 'path';
 import { Rule } from 'eslint';
-import { RuleTester } from '../rule-tester.js';
+import { RuleTester } from 'eslint';
 import { hasSonarRuntimeOption } from '../../../../src/linter/parameters/sonar-runtime.js';
 import { extractExpectations } from './framework.js';
 import parser from './parser.js';

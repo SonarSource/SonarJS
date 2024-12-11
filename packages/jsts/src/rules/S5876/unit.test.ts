@@ -17,7 +17,7 @@
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
 
-const ruleTester = new RuleTester({ languageOptions: { ecmaVersion: 2018 } });
+const ruleTester = new RuleTester();
 ruleTester.run(
   'Create a new session during user authentication to prevent session fixation attacks.',
   rule,

@@ -17,9 +17,7 @@
 import { rule } from './index.js';
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 
-const ruleTester = new RuleTester({
-  languageOptions: { ecmaVersion: 2018, sourceType: 'module' },
-});
+const ruleTester = new RuleTester();
 ruleTester.run(
   'Disabling content security policy frame-ancestors directive is security-sensitive',
   rule,

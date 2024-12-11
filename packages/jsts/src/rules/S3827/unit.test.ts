@@ -17,9 +17,7 @@
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
 
-const ruleTester = new RuleTester({
-  languageOptions: { ecmaVersion: 2018, sourceType: 'module' },
-});
+const ruleTester = new RuleTester();
 ruleTester.run('Variables should be defined before being used', rule, {
   valid: [
     {
@@ -137,7 +135,7 @@ ruleTester.run('Variables should be defined before being used', rule, {
   ],
 });
 
-const ruleTesterScript = new RuleTester({ languageOptions: { sourceType: 'script' } });
+const ruleTesterScript = new RuleTester();
 ruleTesterScript.run('No issues within with statements', rule, {
   valid: [
     {

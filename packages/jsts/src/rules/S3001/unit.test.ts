@@ -99,7 +99,7 @@ const tests = {
   ],
 };
 
-const ruleTesterJs = new RuleTester({ languageOptions: { ecmaVersion: 2021 } });
+const ruleTesterJs = new RuleTester();
 const ruleTesterTs = new RuleTester();
 
 ruleTesterJs.run('"delete" should be used only with object properties [js]', rule, tests);

@@ -17,9 +17,7 @@
 import { rule } from './index.js';
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 
-const ruleTesterJs = new RuleTester({
-  languageOptions: { ecmaVersion: 2018 },
-});
+const ruleTesterJs = new RuleTester();
 ruleTesterJs.run('Class methods should be used instead of "prototype" assignments [js]', rule, {
   valid: [
     {

@@ -20,14 +20,10 @@ import path from 'path';
 import parser from '@typescript-eslint/parser';
 
 const ruleTester = new RuleTester({
-  languageOptions: {
-    parser,
-    ecmaVersion: 2018,
-    sourceType: 'module',
-    parserOptions: {
-      project: `./tsconfig.json`,
-      tsconfigRootDir: path.join(import.meta.dirname, 'fixtures'),
-    },
+  parser,
+  parserOptions: {
+    project: `./tsconfig.json`,
+    tsconfigRootDir: path.join(import.meta.dirname, 'fixtures'),
   },
 });
 

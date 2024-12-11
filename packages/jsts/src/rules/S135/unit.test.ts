@@ -18,7 +18,7 @@ import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
 import { describe } from 'node:test';
 
-const ruleTesterJs = new RuleTester({ languageOptions: { ecmaVersion: 2018 } });
+const ruleTesterJs = new RuleTester();
 const ruleTesterTs = new RuleTester();
 
 const testCases = {

@@ -17,7 +17,7 @@
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
 
-const ruleTester = new RuleTester({ languageOptions: { ecmaVersion: 2018 } });
+const ruleTester = new RuleTester();
 ruleTester.run('Reading the Standard Input is security-sensitive', rule, {
   valid: [
     {

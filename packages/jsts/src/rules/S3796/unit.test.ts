@@ -380,9 +380,7 @@ typeScriptRuleTester.run(
   },
 );
 
-const eslintRuleTester = new RuleTester({
-  languageOptions: { ecmaVersion: 2018, sourceType: 'module' },
-});
+const eslintRuleTester = new RuleTester();
 eslintRuleTester.run('Callbacks of array methods should have return statements [w/o types]', rule, {
   valid: [
     {

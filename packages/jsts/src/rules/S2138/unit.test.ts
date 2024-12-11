@@ -57,7 +57,7 @@ const tests = {
   ],
 };
 
-const ruleTesterJs = new RuleTester({ languageOptions: { ecmaVersion: 2018 } });
+const ruleTesterJs = new RuleTester();
 const ruleTesterTs = new RuleTester();
 
 ruleTesterJs.run('"undefined" should not be assigned [js]', rule, tests);

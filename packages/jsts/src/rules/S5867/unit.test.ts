@@ -17,9 +17,7 @@
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
 
-const ruleTester = new RuleTester({
-  languageOptions: { ecmaVersion: 2018, sourceType: 'module' },
-});
+const ruleTester = new RuleTester();
 ruleTester.run(`Regular expressions using Unicode constructs with the 'u' flag`, rule, {
   valid: [
     {

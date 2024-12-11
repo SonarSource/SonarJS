@@ -17,15 +17,7 @@
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
 
-const ruleTester = new RuleTester({
-  languageOptions: {
-    parserOptions: {
-      ecmaVersion: 2018,
-      ecmaFeatures: { impliedStrict: false },
-      sourceType: 'script',
-    },
-  },
-});
+const ruleTester = new RuleTester();
 
 ruleTester.run(`"arguments" should not be accessed directly`, rule, {
   valid: [

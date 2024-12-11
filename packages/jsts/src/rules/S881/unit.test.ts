@@ -18,7 +18,7 @@ import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
 import { describe } from 'node:test';
 
-const ruleTester = new RuleTester({ languageOptions: { ecmaVersion: 2018 } });
+const ruleTester = new RuleTester();
 describe('S881', () => {
   ruleTester.run('Nested increment (++) and decrement (--) operators should not be used', rule, {
     valid: [

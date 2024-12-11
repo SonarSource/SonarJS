@@ -17,9 +17,7 @@
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
 
-const ruleTester = new RuleTester({
-  languageOptions: { parserOptions: { ecmaVersion: 3, sourceType: 'script', allowReserved: true } },
-});
+const ruleTester = new RuleTester();
 
 ruleTester.run('Future reserved words', rule, {
   valid: [

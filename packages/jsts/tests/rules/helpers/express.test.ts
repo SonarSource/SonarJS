@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { Rule } from 'eslint';
-import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { RuleTester } from 'eslint';
 import estree from 'estree';
 import { Express, getProperty } from '../../../src/rules/index.js';
 

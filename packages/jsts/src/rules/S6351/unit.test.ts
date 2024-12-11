@@ -17,7 +17,7 @@
 import { rule } from './index.js';
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 
-const ruleTester = new RuleTester({ languageOptions: { ecmaVersion: 2018 } });
+const ruleTester = new RuleTester();
 ruleTester.run('Regular expressions with the global flag should be used with caution', rule, {
   valid: [
     {

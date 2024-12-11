@@ -223,14 +223,12 @@ ruleTester.run(
 );
 
 const noopRuleTester = new RuleTester({
-  languageOptions: {
-    parser,
-    ecmaVersion: 2018,
-    sourceType: 'module',
-    parserOptions: {
-      project: `tsconfig.json`,
-      tsconfigRootDir: path.join(import.meta.dirname, 'fixtures'),
-    },
+  parser,
+  ecmaVersion: 2018,
+  sourceType: 'module',
+  parserOptions: {
+    project: `tsconfig.json`,
+    tsconfigRootDir: path.join(import.meta.dirname, 'fixtures'),
   },
 });
 

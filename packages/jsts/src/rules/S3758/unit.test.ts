@@ -18,9 +18,7 @@ import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
 
 const ruleTesterTs = new RuleTester();
-const ruleTesterJs = new RuleTester({
-  languageOptions: { ecmaVersion: 2018, sourceType: 'module' },
-});
+const ruleTesterJs = new RuleTester();
 
 ruleTesterTs.run(
   'Values not convertible to numbers should not be used in numeric comparisons [TS]',

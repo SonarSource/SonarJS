@@ -174,9 +174,7 @@ typeAwareRuleTester.run('Existing regular expression groups', rule, {
   ],
 });
 
-const ruleTester = new RuleTester({
-  languageOptions: { ecmaVersion: 2018, sourceType: 'module' },
-});
+const ruleTester = new RuleTester();
 ruleTester.run('Existing regular expression groups reports nothing without types', rule, {
   valid: [
     {

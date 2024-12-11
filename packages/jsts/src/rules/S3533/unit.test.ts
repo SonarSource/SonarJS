@@ -17,9 +17,7 @@
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
 
-const ruleTesterJs = new RuleTester({
-  languageOptions: { ecmaVersion: 2018, sourceType: 'module' },
-});
+const ruleTesterJs = new RuleTester();
 ruleTesterJs.run('No require or define import [js]', rule, {
   valid: [],
   invalid: [

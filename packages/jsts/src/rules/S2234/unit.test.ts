@@ -17,7 +17,7 @@
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
 
-const eslintRuleTester = new RuleTester({ languageOptions: { ecmaVersion: 2018 } });
+const eslintRuleTester = new RuleTester();
 eslintRuleTester.run('Parameters should be passed in the correct order', rule, {
   valid: [
     {

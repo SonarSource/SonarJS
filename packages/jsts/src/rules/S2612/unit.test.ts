@@ -293,7 +293,7 @@ let tests = {
   ],
 };
 
-const ruleTester = new RuleTester({ languageOptions: { ecmaVersion: 2018 } });
+const ruleTester = new RuleTester();
 ruleTester.run('Using publicly writable directories is security-sensitive', rule, tests);
 
 const ruleTesterTs = new RuleTester();

@@ -93,9 +93,7 @@ const tests = {
   ],
 };
 
-const ruleTesterJs = new RuleTester({
-  languageOptions: { ecmaVersion: 2018, sourceType: 'module' },
-});
+const ruleTesterJs = new RuleTester();
 const ruleTesterTs = new RuleTester();
 
 ruleTesterJs.run('XML parsers should not be vulnerable to XXE attacks [js]', rule, tests);

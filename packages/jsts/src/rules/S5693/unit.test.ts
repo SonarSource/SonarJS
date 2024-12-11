@@ -17,9 +17,7 @@
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
 
-const ruleTester = new RuleTester({
-  languageOptions: { ecmaVersion: 2018, sourceType: 'module' },
-});
+const ruleTester = new RuleTester();
 const options = [{ fileUploadSizeLimit: 8_000_000, standardSizeLimit: 2_000_000 }];
 
 ruleTester.run('Allowing requests with excessive content length is security-sensitive', rule, {

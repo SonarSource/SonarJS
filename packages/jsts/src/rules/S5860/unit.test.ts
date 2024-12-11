@@ -597,9 +597,7 @@ typeAwareRuleTester.run('Regular expressions named groups should be used', rule,
   ],
 });
 
-const ruleTester = new RuleTester({
-  languageOptions: { ecmaVersion: 2018, sourceType: 'module' },
-});
+const ruleTester = new RuleTester();
 ruleTester.run('"unused-named-groups" reports nothing without types', rule, {
   valid: [
     {

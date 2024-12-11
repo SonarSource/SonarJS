@@ -21,7 +21,7 @@ const createOptions = (threshold: number) => {
   return [{ threshold }, 'sonar-runtime'];
 };
 
-const ruleTesterThreshold0 = new RuleTester({ languageOptions: { ecmaVersion: 2018 } });
+const ruleTesterThreshold0 = new RuleTester();
 ruleTesterThreshold0.run(
   'Regular expressions should not be too complicated with threshold 0',
   rule,
@@ -419,7 +419,7 @@ if (isString(regex)) {
   },
 );
 
-const ruleTesterThreshold1 = new RuleTester({ languageOptions: { ecmaVersion: 2018 } });
+const ruleTesterThreshold1 = new RuleTester();
 ruleTesterThreshold1.run(
   'Regular expressions should not be too complicated with threshold 1',
   rule,
@@ -522,7 +522,7 @@ typeAwareRuleTester.run(
   },
 );
 
-const ruleTesterDefaultThreshold = new RuleTester({ languageOptions: { ecmaVersion: 2018 } });
+const ruleTesterDefaultThreshold = new RuleTester();
 ruleTesterDefaultThreshold.run(
   'Regular expressions should not be too complicated with default threshold',
   rule,

@@ -26,7 +26,7 @@ const rule = S3BucketTemplate((node, context) => {
   }
 });
 
-const ruleTester = new RuleTester({ languageOptions: { ecmaVersion: 2018 } });
+const ruleTester = new RuleTester();
 ruleTester.run('S3 Bucket Template', rule, {
   valid: [
     {

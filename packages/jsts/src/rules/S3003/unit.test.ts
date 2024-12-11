@@ -17,9 +17,7 @@
 import { rule } from './index.js';
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 
-const ruleTesterJs = new RuleTester({
-  languageOptions: { ecmaVersion: 2018, sourceType: 'module' },
-});
+const ruleTesterJs = new RuleTester();
 ruleTesterJs.run('Comparison operators should not be used with strings [js]', rule, {
   valid: [
     {

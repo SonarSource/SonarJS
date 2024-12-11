@@ -18,9 +18,7 @@ import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
 import { describe } from 'node:test';
 
-const ruleTester = new RuleTester({
-  languageOptions: { ecmaVersion: 2022 },
-});
+const ruleTester = new RuleTester();
 
 describe('S108', () => {
   ruleTester.run(`Unused private class members should be removed`, rule, {

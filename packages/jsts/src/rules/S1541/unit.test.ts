@@ -18,9 +18,7 @@ import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
 import { EncodedMessage, IssueLocation } from '../helpers/index.js';
 
-const ruleTester = new RuleTester({
-  languageOptions: { ecmaVersion: 2018, sourceType: 'module' },
-});
+const ruleTester = new RuleTester();
 const options = [
   {
     threshold: 2,

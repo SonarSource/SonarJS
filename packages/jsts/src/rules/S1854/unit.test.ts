@@ -14,15 +14,17 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { BabelRuleTester } from '../../../tests/tools/testers/babel/index.js';
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe } from 'node:test';
 
-const babelRuleTester = BabelRuleTester();
+const ruleTester = new RuleTester();
 
-const valid = [
-  {
-    code: `
+describe('S1854', () => {
+  ruleTester.run('Dead stores should be removed', rule, {
+    valid: [
+      {
+        code: `
     function foo(cond) {
       let x = 1;
       if (cond) {
@@ -30,23 +32,23 @@ const valid = [
       }
     }
    `,
-  },
-  {
-    code: `
+      },
+      {
+        code: `
     var global1 = 42;
   `,
-  },
-  {
-    code: `const {run} = Ember;`,
-  },
-  {
-    code: `
+      },
+      {
+        code: `const {run} = Ember;`,
+      },
+      {
+        code: `
     function functionParameter(p) { // OK
     }
     `,
-  },
-  {
-    code: `
+      },
+      {
+        code: `
       function write_in_nested_function_expression() {
         var a = 42;
         executeConditionally(function() {
@@ -55,9 +57,9 @@ const valid = [
         return a;
       }
     `,
-  },
-  {
-    code: `
+      },
+      {
+        code: `
       function read_in_nested_function_expression() {
         var a = 42;
         var f = function() {
@@ -66,9 +68,9 @@ const valid = [
         a = 1; // OK
         return f;
       }`,
-  },
-  {
-    code: `
+      },
+      {
+        code: `
       function read_in_nested_function_declaration() {
         var a = 42;
         function f() {
@@ -77,9 +79,9 @@ const valid = [
         a = 1; // OK
         return f;
       }`,
-  },
-  {
-    code: `
+      },
+      {
+        code: `
       function read_in_nested_method() {
         var a = 42;
         class A {
@@ -90,33 +92,33 @@ const valid = [
         a = 1; // OK
         return new A();
       }`,
-  },
-  {
-    code: `
+      },
+      {
+        code: `
     function blockless_arrow_function() {
       doSomething(() => 1);
     }
     `,
-  },
-  {
-    code: `
+      },
+      {
+        code: `
       function assignment_order() {
         var x = foo(); // OK
         x = bar(x);
         return baz(x);
       }
     `,
-  },
-  {
-    code: `
+      },
+      {
+        code: `
     var globalCounter = 0;
     function getUniqueId() {
       return ++globalCounter;
     }
 `,
-  },
-  {
-    code: `
+      },
+      {
+        code: `
       var x = function loops() {
         let i = 0;
         let length;
@@ -124,11 +126,11 @@ const valid = [
         }
       }
     `,
-  },
-  {
-    // this test case demonstrates that unreachable elements will not be part of any CodePathSegment
-    // see https://eslint.org/docs/developer-guide/code-path-analysis#forstatement-for-ever
-    code: `
+      },
+      {
+        // this test case demonstrates that unreachable elements will not be part of any CodePathSegment
+        // see https://eslint.org/docs/developer-guide/code-path-analysis#forstatement-for-ever
+        code: `
     function forever() {
       for (;; ) {
 
@@ -136,15 +138,15 @@ const valid = [
       foo();
     }
     `,
-  },
-  {
-    code: `
+      },
+      {
+        code: `
       let x = 1;
       x = foo() ? x : 2;
     `,
-  },
-  {
-    code: `
+      },
+      {
+        code: `
   function f(){
       const mod = "foo";
       switch (mod) {
@@ -155,15 +157,15 @@ const valid = [
       }
   }
   `,
-  },
-  {
-    code: ` function f(){
+      },
+      {
+        code: ` function f(){
       let {x} = bar();
       foo(x);
   }`,
-  },
-  {
-    code: `
+      },
+      {
+        code: `
     function foo(map) {
       let i;
       for (const _ in map) {
@@ -171,17 +173,17 @@ const valid = [
       }
     }
    `,
-  },
-  {
-    code: `
+      },
+      {
+        code: `
         function f(a,b) {
           var d = (d = a - b) * d + (d = a - b) * d;
           foo(d);
         }
         `,
-  },
-  {
-    code: `
+      },
+      {
+        code: `
     function f() {
       let {a, ...rest} = foo();
       bar(rest);
@@ -191,36 +193,71 @@ const valid = [
       bar(rest);
     }
   `,
-  },
-  {
-    code: `
+      },
+      {
+        code: `
   var x; 
   function foo() {
     x = 5;
   }`,
-  },
-  {
-    code: `
+      },
+      {
+        code: `
     function read_write() {
       var i = 42;
       var j = i++;
       doSomething(j);
     }`,
-  },
-  {
-    code: `
+      },
+      {
+        code: `
     function foo() {
       let x = 42;
       console.log(x);
       x = null;
     }
   `,
-  },
-];
+      },
+      {
+        code: `
+        const enum A {
+          Monday = 1,
+          Tuesday = 2
+        }
+    `,
+      },
+      {
+        code: `
+        class A {
+          constructor(private concurrent: number = 42) { }
+        }
+        `,
+      },
+      {
+        code: `
+        namespace ts {
+          export const version = "2.4.0";
+        }
+      `,
+      },
+      {
+        code: `
+        function getIconSettings() {
+          const Container = styled.div\`
+            width: 26px;
+            height: 26px;
+          \`
 
-const invalid = [
-  {
-    code: `
+          return (
+           <Container> </Container>
+          )
+        }
+    `,
+      },
+    ],
+    invalid: [
+      {
+        code: `
     function foo(cond) {
       let x = 1;
       if (cond) {
@@ -228,17 +265,17 @@ const invalid = [
       }
     }
    `,
-    errors: [
-      {
-        message: 'Remove this useless assignment to variable "x".',
-        line: 5,
-        endLine: 5,
-        column: 9,
-        endColumn: 10,
+        errors: [
+          {
+            message: 'Remove this useless assignment to variable "x".',
+            line: 5,
+            endLine: 5,
+            column: 9,
+            endColumn: 10,
+          },
+        ],
       },
-    ],
-  },
-  noncompliant(`
+      noncompliant(`
       function foo(condition, a) {
         var x;
         x = 42; // Noncompliant
@@ -250,7 +287,7 @@ const invalid = [
         foo(x);
       }
     `),
-  noncompliant(`
+      noncompliant(`
     function loops() {
       var i = 42;
       while(i < 10) {
@@ -263,7 +300,7 @@ const invalid = [
         j = k + 1; // Noncompliant
       }
     }`),
-  noncompliant(`
+      noncompliant(`
     function write_in_nested_function_expression_but_never_read() {
       var a = 42; // Noncompliant
       execute(function() {
@@ -271,7 +308,7 @@ const invalid = [
       });
     }
     `),
-  noncompliant(`
+      noncompliant(`
         function arrow_function() {
           doSomething(() => {
             var x = 42; // Noncompliant
@@ -279,21 +316,21 @@ const invalid = [
             return x;
           });
         }`),
-  noncompliant(`
+      noncompliant(`
     class A {
       method1() {
         var x = 42; // Noncompliant
         return y;
       }
     }`),
-  noncompliant(`
+      noncompliant(`
     function let_variable() {
       if (condition()) {
         let x = 42; // Noncompliant
       }
     }
     `),
-  noncompliant(`
+      noncompliant(`
     //  -1, 0, 1, null, true, false, "" and void 0.
       function ok_initializer_to_standard_value() {
         let [a, b] = [42, 1]; // Noncompliant
@@ -350,7 +387,7 @@ const invalid = [
 
       }
     `),
-  noncompliant(`
+      noncompliant(`
    function getIconSettings() {
     const Container = styled.div\`
         width: 26px;
@@ -363,7 +400,7 @@ const invalid = [
       )
     }
   `),
-  noncompliant(`
+      noncompliant(`
     function f() {
       let {a, b} = foo(); // Noncompliant
       bar(a);
@@ -372,59 +409,15 @@ const invalid = [
       bar(x);
     }
   `),
-  noncompliant(`
+      noncompliant(`
     function f() {
       // 'b' is ignored but 'unused' is reported
       let {unused, a: {b, ...rest}} = foo(); // Noncompliant
       foo(rest);
     }
   `),
-];
-
-babelRuleTester.run('Dead stores should be removed', rule, { valid, invalid });
-
-const ruleTesterTs = new RuleTester();
-
-ruleTesterTs.run('Dead stores should be removed[TS]', rule, {
-  valid: [
-    {
-      code: `
-        const enum A {
-          Monday = 1,
-          Tuesday = 2
-        }
-    `,
-    },
-    {
-      code: `
-        class A {
-          constructor(private concurrent: number = 42) { }
-        }
-        `,
-    },
-    {
-      code: `
-        namespace ts {
-          export const version = "2.4.0";
-        }
-      `,
-    },
-    {
-      code: `
-        function getIconSettings() {
-          const Container = styled.div\`
-            width: 26px;
-            height: 26px;
-          \`
-
-          return (
-           <Container> </Container>
-          )
-        }
-    `,
-    },
-  ],
-  invalid: [],
+    ],
+  });
 });
 
 function noncompliant(code: string) {
@@ -437,7 +430,7 @@ function noncompliant(code: string) {
   return {
     code,
     errors: nonCompliantLines.map(l => {
-      return { line: l };
+      return { messageId: 'removeAssignment', line: l };
     }),
   };
 }

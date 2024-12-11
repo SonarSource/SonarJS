@@ -18,7 +18,7 @@ import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
 import { describe } from 'node:test';
 
-const ruleTester = new RuleTester({ languageOptions: { ecmaVersion: 2018 } });
+const ruleTester = new RuleTester();
 
 const optionsWithouthMessage = [{ regularExpression: '[a-z]' }];
 const optionsWithMessage = [{ regularExpression: '[a-z]', message: 'this is a message' }];

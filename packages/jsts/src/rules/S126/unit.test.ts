@@ -18,9 +18,7 @@ import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
 import { describe } from 'node:test';
 
-const ruleTester = new RuleTester({
-  languageOptions: { ecmaVersion: 2018, sourceType: 'module' },
-});
+const ruleTester = new RuleTester();
 describe('S126', () => {
   ruleTester.run(`"if ... else if" constructs should end with "else" clauses`, rule, {
     valid: [

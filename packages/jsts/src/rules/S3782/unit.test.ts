@@ -17,9 +17,7 @@
 import { rule } from './index.js';
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 
-const eslintRuleTester = new RuleTester({
-  languageOptions: { ecmaVersion: 2018, sourceType: 'module' },
-});
+const eslintRuleTester = new RuleTester();
 eslintRuleTester.run('Correct types should be used [js]', rule, {
   valid: [
     {

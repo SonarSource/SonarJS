@@ -203,14 +203,12 @@ ruleTester.run('Dependencies should be explicit', rule, {
 });
 
 const ruleTesterForPathMappings = new RuleTester({
-  languageOptions: {
-    parser,
-    ecmaVersion: 2018,
-    sourceType: 'module',
-    parserOptions: {
-      tsconfigRootDir: path.join(fixtures, 'ts-project-with-path-aliases'),
-      project: './tsconfig.json',
-    },
+  parser,
+  ecmaVersion: 2018,
+  sourceType: 'module',
+  parserOptions: {
+    tsconfigRootDir: path.join(fixtures, 'ts-project-with-path-aliases'),
+    project: './tsconfig.json',
   },
 });
 
@@ -256,14 +254,12 @@ ruleTesterForPathMappings.run('Path aliases should be exempt', rule, {
 });
 
 const ruleTesterForBaseUrl = new RuleTester({
-  languageOptions: {
-    parser,
-    ecmaVersion: 2018,
-    sourceType: 'module',
-    parserOptions: {
-      tsconfigRootDir: path.join(fixtures, 'ts-project-with-base-url'),
-      project: './tsconfig.json',
-    },
+  parser,
+  ecmaVersion: 2018,
+  sourceType: 'module',
+  parserOptions: {
+    tsconfigRootDir: path.join(fixtures, 'ts-project-with-base-url'),
+    project: './tsconfig.json',
   },
 });
 

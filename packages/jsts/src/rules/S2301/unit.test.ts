@@ -185,11 +185,7 @@ function tempt8(name: string, ofAge: boolean) {
   ],
 });
 
-const javaScriptRuleTester = new RuleTester({
-  languageOptions: {
-    ecmaVersion: 2018,
-  },
-});
+const javaScriptRuleTester = new RuleTester();
 
 javaScriptRuleTester.run('S2301:JavaScript', S2301, {
   invalid: [],

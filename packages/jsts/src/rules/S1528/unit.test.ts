@@ -17,12 +17,7 @@
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
 
-const eslintRuleTester = new RuleTester({
-  languageOptions: {
-    ecmaVersion: 2018,
-    sourceType: 'module',
-  },
-});
+const eslintRuleTester = new RuleTester();
 
 const typeScriptRuleTester = new RuleTester();
 const testCases = {
