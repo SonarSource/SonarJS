@@ -62,7 +62,9 @@ import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.Version;
 import org.sonar.plugins.javascript.bridge.BridgeServer.CssAnalysisRequest;
+import org.sonar.plugins.javascript.bridge.BridgeServer.Dependency;
 import org.sonar.plugins.javascript.bridge.BridgeServer.JsAnalysisRequest;
+import org.sonar.plugins.javascript.bridge.BridgeServer.TelemetryResponse;
 import org.sonar.plugins.javascript.bridge.BridgeServer.TsProgram;
 import org.sonar.plugins.javascript.bridge.BridgeServer.TsProgramRequest;
 import org.sonar.plugins.javascript.bridge.protobuf.Node;
@@ -758,7 +760,7 @@ class BridgeServerImplTest {
     bridgeServer.startServer(serverConfig, emptyList());
     var telemetry = bridgeServer.getTelemetry();
     assertThat(telemetry).isEqualTo(
-      new BridgeServer.TelemetryResponse(List.of(new BridgeServer.Dependency("pkg1", "1.0.0")))
+      new TelemetryResponse(List.of(new Dependency("pkg1", "1.0.0")))
     );
   }
 
