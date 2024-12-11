@@ -14,9 +14,9 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import path from 'path';
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
-import path from 'path';
 import parser from '@typescript-eslint/parser';
 
 const fixtures = path.join(import.meta.dirname, 'fixtures');

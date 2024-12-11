@@ -27,7 +27,7 @@ import parser from './parser.js';
  * These fixtures are to be found in the rule directory and should be named as `*.fixture.<ext>`.
  * The directory can include options (`cb.options.json`) to configure the rule behaviour.
  */
-export function check(ruleId: string, ruleModule: Rule.RuleModule, ruleDir: string) {
+export function check(ruleModule: Rule.RuleModule, ruleDir: string) {
   /**
    * Loading this file's `parseForESLint()` function into ESLint's rule tester.
    */
@@ -49,7 +49,8 @@ export function check(ruleId: string, ruleModule: Rule.RuleModule, ruleDir: stri
     const { errors, output } = extractExpectations(
       code,
       fixture,
-      hasSonarRuntimeOption(ruleModule, ruleId) && options.includes('sonar-runtime'),
+      hasSonarRuntimeOption(ruleModule.meta?.schema || undefined) &&
+        options.includes('sonar-runtime'),
     );
 
     const tests = {

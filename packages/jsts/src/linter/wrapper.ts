@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { type ESLint, Linter, SourceCode } from 'eslint';
+import { Linter, Rule, SourceCode } from 'eslint';
 import { RuleConfig } from './config/rule-config.js';
 import { CustomRule } from './custom-rules/custom-rule.js';
 import { JsTsLanguage } from '../../../shared/src/helpers/language.js';
@@ -55,10 +55,8 @@ interface LinterConfigurationKey {
  *
  * First: the internal rules, i.e. rules in the packages/jsts/src/rules folder
  */
-export const rulesPlugin: ESLint.Plugin = {
-  rules: {
-    ...internalRules,
-  },
+export const rules: Record<string, Rule.RuleModule> = {
+  ...internalRules,
 };
 /**
  * Second: Load internal custom rules
@@ -67,13 +65,13 @@ export const rulesPlugin: ESLint.Plugin = {
  * the cognitive complexity metrics.
  */
 internalCustomRules.forEach((rule: CustomRule) => {
-  rulesPlugin.rules![rule.ruleId] = rule.ruleModule;
+  rules[rule.ruleId] = rule.ruleModule;
 });
 
 async function loadRulesFromBundle(ruleBundle: string) {
   const { bundleRules } = await import(new URL(ruleBundle).toString());
   bundleRules.forEach((rule: CustomRule) => {
-    rulesPlugin.rules![rule.ruleId] = rule.ruleModule;
+    rules[rule.ruleId] = rule.ruleModule;
     debug(`Loaded rule ${rule.ruleId} from ${ruleBundle}`);
   });
 }
@@ -174,12 +172,7 @@ export class LinterWrapper {
     let linterConfig = this.getConfig(key);
     if (!linterConfig) {
       // we create default linter config with internal rules only which provide metrics, tokens, etc...
-      linterConfig = createLinterConfig(
-        [],
-        rulesPlugin.rules!,
-        this.options.environments,
-        this.options.globals,
-      );
+      linterConfig = createLinterConfig([], rules, this.options.environments, this.options.globals);
       this.config.set(key, linterConfig);
     }
     const config = {
@@ -189,7 +182,7 @@ export class LinterWrapper {
     };
     const options = { filename: filePath, allowInlineConfig: false };
     const messages = this.linter.verify(sourceCode, config, options);
-    return transformMessages(messages, { sourceCode, rules: rulesPlugin.rules! });
+    return transformMessages(messages, { sourceCode, rules });
   }
 
   /**
@@ -220,15 +213,10 @@ export class LinterWrapper {
       );
     });
     const configByKey: Map<LinterConfigurationKey, Linter.Config> = new Map();
-    rulesByKey.forEach((rules, key) => {
+    rulesByKey.forEach((ruleConfigs, key) => {
       configByKey.set(
         key,
-        createLinterConfig(
-          rules,
-          rulesPlugin.rules!,
-          this.options.environments,
-          this.options.globals,
-        ),
+        createLinterConfig(ruleConfigs, rules, this.options.environments, this.options.globals),
       );
     });
     return configByKey;

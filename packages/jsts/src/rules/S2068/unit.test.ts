@@ -15,8 +15,8 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import path from 'path';
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import path from 'path';
 
 const ruleTester = new RuleTester();
 

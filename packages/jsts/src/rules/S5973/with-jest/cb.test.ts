@@ -14,14 +14,11 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { basename } from 'path';
 import { check } from '../../../../tests/tools/testers/comment-based/index.js';
 import { rule } from '../rule.js';
 import { describe } from 'node:test';
 
-const sonarId = basename(import.meta.dirname);
-
 describe('Rule S5973', () => {
   process.chdir(import.meta.dirname); // change current working dir to avoid the package.json lookup to up in the tree
-  check(sonarId, rule, import.meta.dirname);
+  check(rule, import.meta.dirname);
 });

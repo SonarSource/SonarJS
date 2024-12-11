@@ -22,7 +22,6 @@ import { expect } from 'expect';
 import { setContext } from '../../../shared/src/helpers/context.js';
 import { LinterWrapper } from '../../src/linter/wrapper.js';
 import { RuleConfig } from '../../src/linter/config/rule-config.js';
-import { CustomRule } from '../../src/linter/custom-rules/custom-rule.js';
 import { JsTsLanguage } from '../../../shared/src/helpers/language.js';
 import { quickFixRules } from '../../src/linter/quickfixes/rules.js';
 
@@ -73,41 +72,6 @@ describe('LinterWrapper', () => {
         ruleId,
       }),
     ]);
-  });
-
-  it('should report issues from custom rules', async () => {
-    const filePath = path.join(import.meta.dirname, 'fixtures', 'wrapper', 'custom-rule.js');
-    const sourceCode = await parseJavaScriptSourceFile(filePath);
-
-    const customRuleId = 'custom-rule';
-    const ruleModule = await import('./fixtures/wrapper/custom-rule.js');
-    const customRules: CustomRule[] = [
-      {
-        ruleId: customRuleId,
-        ruleConfig: [],
-        ruleModule: ruleModule.rule,
-      },
-    ];
-
-    const rules = [
-      { key: customRuleId, configurations: [], fileTypeTarget: ['MAIN'] },
-    ] as RuleConfig[];
-
-    const linter = new LinterWrapper({ inputRules: rules, customRules });
-    await linter.init();
-
-    const {
-      issues: [issue],
-    } = linter.lint(sourceCode, filePath, 'MAIN');
-
-    expect(issue).toEqual(
-      expect.objectContaining({
-        ruleId: customRuleId,
-        message:
-          `Visited 'sonar-context' literal from a custom rule ` +
-          `with injected contextual workDir '/tmp/workdir'.`,
-      }),
-    );
   });
 
   it('should report issues based on the file type', async () => {

@@ -15,10 +15,10 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import path from 'path';
 import { BabelRuleTester } from '../../../tests/tools/testers/babel/index.js';
 import parser from '@typescript-eslint/parser';
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import path from 'path';
 
 const babelRuleTester = BabelRuleTester();
 

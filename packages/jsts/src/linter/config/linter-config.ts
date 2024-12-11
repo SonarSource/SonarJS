@@ -44,7 +44,6 @@ export function createLinterConfig(
   globs: string[] = [],
 ) {
   const config: Linter.Config = {
-    files: ['**/do-not-ignore-any-file'],
     languageOptions: {
       globals: {
         ...createGlobals(globs),

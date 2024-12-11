@@ -16,16 +16,10 @@
  */
 import { check } from '../../../tests/tools/testers/comment-based/index.js';
 import { rule } from './index.js';
-import path from 'path';
 import { describe } from 'node:test';
-
-const sonarId = path.basename(import.meta.dirname);
+import path from 'path';
 
 describe('Rule S6544', () => {
-  check(sonarId, rule, path.join(import.meta.dirname, 'fixtures', 'checksVoidReturn', 'true'));
-  check(
-    sonarId,
-    rule,
-    path.join(import.meta.dirname, 'fixtures', 'checksVoidReturn', 'arguments', 'false'),
-  );
+  check(rule, path.join(import.meta.dirname, 'fixtures', 'checksVoidReturn', 'true'));
+  check(rule, path.join(import.meta.dirname, 'fixtures', 'checksVoidReturn', 'arguments', 'false'));
 });
