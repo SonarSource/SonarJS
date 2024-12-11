@@ -47,6 +47,8 @@ const requestHandler = (request, response) => {
               loc: {}}]}]}],
         highlights: [{location: {startLine: 0, startColumn: 0, endLine: 0, endColumn: 0}}],
         metrics: {}, highlightedSymbols: [{}], cpdTokens: [{}] }`);
+    } else if (request.url === '/get-telemetry') {
+      response.end('{"dependencies": [{"name": "pkg1", "version": "1.0.0"}]}');
     } else {
       // /analyze-with-program
       // /analyze-js

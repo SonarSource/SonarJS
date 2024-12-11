@@ -753,6 +753,16 @@ class BridgeServerImplTest {
   }
 
   @Test
+  void should_return_telemetry() throws Exception {
+    bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
+    bridgeServer.startServer(serverConfig, emptyList());
+    var telemetry = bridgeServer.getTelemetry();
+    assertThat(telemetry).isEqualTo(
+      new BridgeServer.TelemetryResponse(List.of(new BridgeServer.Dependency("pkg1", "1.0.0")))
+    );
+  }
+
+  @Test
   void should_return_an_ast() throws Exception {
     bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
     bridgeServer.startServer(serverConfig, emptyList());
