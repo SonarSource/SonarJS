@@ -14,15 +14,12 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import pkg from '@typescript-eslint/eslint-plugin';
 import { Linter } from 'eslint';
-import { sanitize } from '../../../src/rules/external/typescript-eslint/sanitize.js';
 import path from 'path';
 import { describe, test } from 'node:test';
 import { expect } from 'expect';
 import { parseTypeScriptSourceFile } from '../../tools/helpers/parsing.js';
-
-const { rules: typescriptESLintRules } = pkg;
+import { rules } from '../../../src/rules/external/typescript-eslint/index.js';
 
 const cases = [
   {
@@ -43,19 +40,18 @@ describe('sanitize', () => {
   cases.forEach(({ action, typing, tsConfigFiles, issues }) => {
     test(`should ${action} a sanitized rule raise issues when type information is ${typing}`, async () => {
       const ruleId = 'prefer-readonly';
-      const sanitizedRule = sanitize(typescriptESLintRules[ruleId]);
-
-      const linter = new Linter();
-      linter.defineRule(ruleId, sanitizedRule);
-
       const fixtures = path.join(import.meta.dirname, 'fixtures', 'sanitize');
       const filePath = path.join(fixtures, 'file.ts');
       const tsConfigs = tsConfigFiles.map(file => path.join(fixtures, file));
 
       const sourceCode = await parseTypeScriptSourceFile(filePath, tsConfigs);
-      const rules = { [ruleId]: 'error' } as any;
 
-      const messages = linter.verify(sourceCode, { rules });
+      const messages = new Linter().verify(sourceCode, {
+        plugins: {
+          sonarjs: { rules: { [ruleId]: rules[ruleId] } },
+        },
+        rules: { [`sonarjs/${ruleId}`]: 'error' },
+      });
       expect(messages).toHaveLength(issues);
     });
   });

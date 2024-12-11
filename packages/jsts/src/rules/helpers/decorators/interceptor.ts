@@ -81,10 +81,6 @@ export function interceptReport(
             return originalContext.filename;
           },
 
-          getScope() {
-            return originalContext.getScope();
-          },
-
           getSourceCode() {
             return originalContext.sourceCode;
           },
