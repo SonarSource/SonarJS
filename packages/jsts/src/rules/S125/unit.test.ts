@@ -16,12 +16,14 @@
  */
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe } from 'node:test';
 
-const ruleTester = new RuleTester({ languageOptions: { ecmaVersion: 2018 } });
-ruleTester.run('Sections of code should not be commented out', rule, {
-  valid: [
-    {
-      code: `
+describe('S125', () => {
+  const ruleTester = new RuleTester({ languageOptions: { ecmaVersion: 2018 } });
+  ruleTester.run('Sections of code should not be commented out', rule, {
+    valid: [
+      {
+        code: `
         //
 
         //
@@ -112,159 +114,198 @@ ruleTester.run('Sections of code should not be commented out', rule, {
 
         // }
         `,
-    },
-    {
-      // FN since 2-step implementation
-      code: `
+      },
+      {
+        // FN since 2-step implementation
+        code: `
             // return foo().bar()
         `,
-    },
-    {
-      // FN since 2-step implementation
-      code: `
+      },
+      {
+        // FN since 2-step implementation
+        code: `
             // throw foo().bar()
         `,
-    },
-    {
-      // FN since 2-step implementation
-      code: `
+      },
+      {
+        // FN since 2-step implementation
+        code: `
             // YUI().use('*'); // Comment following ';'
         `,
-    },
-  ],
-  invalid: [
-    {
-      code: `// if (something) {}`,
-      errors: [
-        {
-          message: 'Remove this commented out code.',
-          line: 1,
-          endLine: 1,
-          column: 1,
-          endColumn: 21,
-        },
-      ],
-    },
-    {
-      code: `
-        // // nested comment
-        // foo(a, function(){
-        //     doSmth();
-        // });`,
-      errors: [
-        {
-          message: 'Remove this commented out code.',
-          line: 2,
-          column: 9,
-          endLine: 5,
-          endColumn: 15,
-        },
-      ],
-    },
-    {
-      code: `
-        /* // nested comment
-         @annotation
-         class MyClass {}
+      },
+    ],
+    invalid: [
+      {
+        code: `// if (something) {}`,
+        errors: [
+          {
+            message: 'Remove this commented out code.',
+            line: 1,
+            endLine: 1,
+            column: 1,
+            endColumn: 21,
+            suggestions: [{ desc: 'Remove this commented out code', output: '' }],
+          },
+        ],
+      },
+      {
+        code: `// // nested comment
+// foo(a, function(){
+//     doSmth();
+// });`,
+        errors: [
+          {
+            message: 'Remove this commented out code.',
+            line: 1,
+            column: 1,
+            endLine: 4,
+            endColumn: 7,
+            suggestions: [{ desc: 'Remove this commented out code', output: '' }],
+          },
+        ],
+      },
+      {
+        code: `/* // nested comment
+@annotation
+class MyClass {}
 
-         foo(a, function(){
-             doSmth();
-             const a = <bv></bv>
-         });
-         */`,
-      errors: [
-        {
-          message: 'Remove this commented out code.',
-          line: 2,
-          column: 9,
-          endLine: 10,
-          endColumn: 12,
-        },
-      ],
-    },
-    {
-      code: `
-            // return foo().bar();
-        `,
-      errors: 1,
-    },
-    {
-      code: `
-            // foo();
-            // bar();
-        `,
-      errors: 1,
-    },
-    {
-      code: `
-            /* foo();
-            bar(); */
-            const a = 1;
-        `,
-      errors: 1,
-    },
-    {
-      code: `
-            /* throw foo().bar(); */
-        `,
-      errors: 1,
-    },
-    {
-      code: `
-            // if (condition) {
-            //   while (condition) {
-            //     doSomething();
-        `,
-      errors: 1,
-    },
-    {
-      code: `
-            //   while (condition) {
-            //     doSomething();
-            //   }
-            // }
-        `,
-      errors: 1,
-    },
-    {
-      code: `
-            // }}
-        `,
-      errors: 1,
-    },
-    {
-      code: `
-            // {{
-        `,
-      errors: 1,
-    },
-    {
-      code: `
-            //   }
-            // }
-        `,
-      errors: 1,
-    },
-    {
-      code: `let x = /* let x = 42; */ 0;`,
-      errors: [
-        { suggestions: [{ desc: 'Remove this commented out code', output: `let x =  0;` }] },
-      ],
-    },
-    {
-      code: `// if (value == 42) {
+foo(a, function(){
+   doSmth();
+   const a = <bv></bv>
+});*/`,
+        errors: [
+          {
+            message: 'Remove this commented out code.',
+            line: 1,
+            column: 1,
+            endLine: 8,
+            endColumn: 6,
+            suggestions: [{ desc: 'Remove this commented out code', output: '' }],
+          },
+        ],
+      },
+      {
+        code: `// return foo().bar();`,
+        errors: [
+          {
+            messageId: 'commentedCode',
+            suggestions: [{ desc: 'Remove this commented out code', output: '' }],
+          },
+        ],
+      },
+      {
+        code: `// foo();
+// bar();`,
+        errors: [
+          {
+            messageId: 'commentedCode',
+            suggestions: [{ desc: 'Remove this commented out code', output: '' }],
+          },
+        ],
+      },
+      {
+        code: `/* foo();
+bar(); */
+const a = 1;`,
+        errors: [
+          {
+            messageId: 'commentedCode',
+            suggestions: [
+              {
+                desc: 'Remove this commented out code',
+                output: `
+const a = 1;`,
+              },
+            ],
+          },
+        ],
+      },
+      {
+        code: `/* throw foo().bar(); */`,
+        errors: [
+          {
+            messageId: 'commentedCode',
+            suggestions: [{ desc: 'Remove this commented out code', output: '' }],
+          },
+        ],
+      },
+      {
+        code: `// if (condition) {
+//   while (condition) {
+//     doSomething();`,
+        errors: [
+          {
+            messageId: 'commentedCode',
+            suggestions: [{ desc: 'Remove this commented out code', output: '' }],
+          },
+        ],
+      },
+      {
+        code: `//   while (condition) {
+//     doSomething();
+//   }
+// }`,
+        errors: [
+          {
+            messageId: 'commentedCode',
+            suggestions: [{ desc: 'Remove this commented out code', output: '' }],
+          },
+        ],
+      },
+      {
+        code: `// }}`,
+        errors: [
+          {
+            messageId: 'commentedCode',
+            suggestions: [{ desc: 'Remove this commented out code', output: '' }],
+          },
+        ],
+      },
+      {
+        code: `// {{`,
+        errors: [
+          {
+            messageId: 'commentedCode',
+            suggestions: [{ desc: 'Remove this commented out code', output: '' }],
+          },
+        ],
+      },
+      {
+        code: `//   }
+// }`,
+        errors: [
+          {
+            messageId: 'commentedCode',
+            suggestions: [{ desc: 'Remove this commented out code', output: '' }],
+          },
+        ],
+      },
+      {
+        code: `let x = /* let x = 42; */ 0;`,
+        errors: [
+          {
+            messageId: 'commentedCode',
+            suggestions: [{ desc: 'Remove this commented out code', output: `let x =  0;` }],
+          },
+        ],
+      },
+      {
+        code: `// if (value == 42) {
 //   value++
 let x = 0;`,
-      errors: [
-        {
-          suggestions: [
-            {
-              output: `
+        errors: [
+          {
+            messageId: 'commentedCode',
+            suggestions: [
+              {
+                desc: 'Remove this commented out code',
+                output: `
 let x = 0;`,
-            },
-          ],
-        },
-      ],
-    },
-  ],
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  });
 });

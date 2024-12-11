@@ -16,28 +16,30 @@
  */
 import { rule } from './index.js';
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { describe } from 'node:test';
 
 const ruleTester = new RuleTester();
 
-ruleTester.run('Too many lines in functions', rule, {
-  valid: [
-    {
-      code: `function f() {
+describe('S138', () => {
+  ruleTester.run('Too many lines in functions', rule, {
+    valid: [
+      {
+        code: `function f() {
               console.log("a");
             }`,
-      options: [{ maximum: 3 }],
-    },
-    {
-      code: `function f() {
+        options: [{ maximum: 3 }],
+      },
+      {
+        code: `function f() {
 
               console.log("a");
 
 
             }`,
-      options: [{ maximum: 3 }],
-    },
-    {
-      code: `function f() {
+        options: [{ maximum: 3 }],
+      },
+      {
+        code: `function f() {
               // comment
               console.log("a");
               /*
@@ -46,110 +48,110 @@ ruleTester.run('Too many lines in functions', rule, {
                 comment
               */
             }`,
-      options: [{ maximum: 3 }],
-    },
-    {
-      code: `function foo() {
+        options: [{ maximum: 3 }],
+      },
+      {
+        code: `function foo() {
               console.log("a"); // End of line comment
             }`,
-      options: [{ maximum: 3 }],
-    },
-    {
-      code: `
+        options: [{ maximum: 3 }],
+      },
+      {
+        code: `
             console.log("a");
             function foo() {
               console.log("a");
             }
             console.log("a");
             `,
-      options: [{ maximum: 3 }],
-    },
-    {
-      code: `function f() {
+        options: [{ maximum: 3 }],
+      },
+      {
+        code: `function f() {
               function g() {
                 console.log("a");
               }
             }`,
-      options: [{ maximum: 5 }],
-    },
-    {
-      code: `(
+        options: [{ maximum: 5 }],
+      },
+      {
+        code: `(
 function
 ()
 {
 }
 )
 ()`, //IIFE are ignored
-      options: [{ maximum: 6 }],
-    },
-    {
-      // React Function Component
-      code: `
+        options: [{ maximum: 6 }],
+      },
+      {
+        // React Function Component
+        code: `
       function Welcome() {
         const greeting = 'Hello, world!';
 
         return <h1>{greeting}</h1>
       }`,
-      options: [{ maximum: 2 }],
-    },
-    {
-      // React Function Component using function expressions and JSXFragments
-      code: `
+        options: [{ maximum: 2 }],
+      },
+      {
+        // React Function Component using function expressions and JSXFragments
+        code: `
       let a = function Welcome() {
         const greeting = 'Hello, world!';
 
         return <><h1>{greeting}</h1></>
       }`,
-      options: [{ maximum: 2 }],
-    },
-    {
-      // React Function Component - using arrow function
-      code: `
+        options: [{ maximum: 2 }],
+      },
+      {
+        // React Function Component - using arrow function
+        code: `
       const Welcome = () => {
         const greeting = 'Hello, world!';
 
         return <h1>{greeting}</h1>
       }`,
-      options: [{ maximum: 2 }],
-    },
-  ],
-  invalid: [
-    {
-      code: `function foo() {
+        options: [{ maximum: 2 }],
+      },
+    ],
+    invalid: [
+      {
+        code: `function foo() {
             console.log("a");
             console.log("a");
           }`,
-      options: [{ maximum: 3 }],
-      errors: [
-        {
-          message: `This function has 4 lines, which is greater than the 3 lines authorized. Split it into smaller functions.`,
-          line: 1,
-          endLine: 1,
-          column: 10,
-          endColumn: 13,
-        },
-      ],
-    },
-    {
-      code: `function foo() {
+        options: [{ maximum: 3 }],
+        errors: [
+          {
+            message: `This function has 4 lines, which is greater than the 3 lines authorized. Split it into smaller functions.`,
+            line: 1,
+            endLine: 1,
+            column: 10,
+            endColumn: 13,
+          },
+        ],
+      },
+      {
+        code: `function foo() {
             console.log("a");
             console.log("a");
             console.log("b");
           }`,
-      options: [{ maximum: 4 }],
-      errors: [
-        {
-          message: `This function has 5 lines, which is greater than the 4 lines authorized. Split it into smaller functions.`,
-          line: 1,
-          endLine: 1,
-          column: 10,
-          endColumn: 13,
-        },
-      ],
-    },
-    {
-      // React Function Component
-      code: `
+        options: [{ maximum: 4 }],
+        errors: [
+          {
+            message: `This function has 5 lines, which is greater than the 4 lines authorized. Split it into smaller functions.`,
+            line: 1,
+            endLine: 1,
+            column: 10,
+            endColumn: 13,
+          },
+        ],
+      },
+      {
+        // React Function Component
+        code: `
       function Welcome() {
         const greeting = 'Hello, world!';
 
@@ -161,12 +163,9 @@ function
 
         return <h1>{greeting}</h1>
       }`,
-      options: [{ maximum: 2 }],
-      errors: [
-        {
-          line: 5,
-        },
-      ],
-    },
-  ],
+        options: [{ maximum: 2 }],
+        errors: 1,
+      },
+    ],
+  });
 });

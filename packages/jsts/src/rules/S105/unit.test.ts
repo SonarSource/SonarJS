@@ -16,52 +16,55 @@
  */
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe } from 'node:test';
 
 const ruleTester = new RuleTester();
 
-ruleTester.run('Tabulation characters should not be used', rule, {
-  valid: [
-    {
-      code: ` foo`,
-    },
-    {
-      code: `    foo`,
-    },
-  ],
-  invalid: [
-    {
-      code: `\t`,
-      errors: [
-        {
-          message: 'Replace all tab characters in this file by sequences of white-spaces.',
-          line: 1,
-          column: 1,
-        },
-      ],
-    },
-    {
-      code: `foo(\tx);\n\t`,
-      errors: [
-        {
-          message: 'Replace all tab characters in this file by sequences of white-spaces.',
-          line: 1,
-          column: 1,
-        },
-      ],
-    },
-    {
-      code: `foo(x)\n\t`,
-      errors: [
-        {
-          message: 'Replace all tab characters in this file by sequences of white-spaces.',
-          line: 2,
-          column: 1,
-        },
-      ],
-    },
-    {
-      code: `foo(\tx);`,
-      errors: 1,
-    },
-  ],
+describe('S105', () => {
+  ruleTester.run('Tabulation characters should not be used', rule, {
+    valid: [
+      {
+        code: ` foo`,
+      },
+      {
+        code: `    foo`,
+      },
+    ],
+    invalid: [
+      {
+        code: `\t`,
+        errors: [
+          {
+            message: 'Replace all tab characters in this file by sequences of white-spaces.',
+            line: 1,
+            column: 1,
+          },
+        ],
+      },
+      {
+        code: `foo(\tx);\n\t`,
+        errors: [
+          {
+            message: 'Replace all tab characters in this file by sequences of white-spaces.',
+            line: 1,
+            column: 1,
+          },
+        ],
+      },
+      {
+        code: `foo(x)\n\t`,
+        errors: [
+          {
+            message: 'Replace all tab characters in this file by sequences of white-spaces.',
+            line: 2,
+            column: 1,
+          },
+        ],
+      },
+      {
+        code: `foo(\tx);`,
+        errors: 1,
+      },
+    ],
+  });
 });

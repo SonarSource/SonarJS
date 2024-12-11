@@ -16,126 +16,129 @@
  */
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe } from 'node:test';
 
 const ruleTester = new RuleTester({ languageOptions: { ecmaVersion: 2018 } });
-ruleTester.run('Nested increment (++) and decrement (--) operators should not be used', rule, {
-  valid: [
-    {
-      code: `i++;`,
-    },
-    {
-      code: `++i;`,
-    },
-    {
-      code: `i--;`,
-    },
-    {
-      code: `--i;`,
-    },
-    {
-      code: `foo[i]++;`,
-    },
-    {
-      code: `foo[-i] = 0;`,
-    },
-    {
-      code: `for (i = 0; i < 10; i++, j++, k++) {}`,
-    },
-  ],
-  invalid: [
-    {
-      code: `for (i++, j-- ; i < 10; i++) {}`,
-      errors: [
-        {
-          message: 'Extract this increment operation into a dedicated statement.',
-          line: 1,
-          column: 6,
-          endLine: 1,
-          endColumn: 9,
-        },
-        {
-          message: 'Extract this decrement operation into a dedicated statement.',
-          line: 1,
-          column: 11,
-          endLine: 1,
-          endColumn: 14,
-        },
-      ],
-    },
-    {
-      code: `foo[i--]++;`,
-      errors: [
-        {
-          message: 'Extract this decrement operation into a dedicated statement.',
-          line: 1,
-          column: 5,
-          endLine: 1,
-          endColumn: 8,
-        },
-      ],
-    },
-    {
-      code: `foo[++i] = 0;`,
-      errors: 1,
-    },
-    {
-      code: `if (i++) {}`,
-      errors: 1,
-    },
-    {
-      code: `console.log(i++);`,
-      errors: 1,
-    },
-    {
-      code: `i = 5 * --i;`,
-      errors: 1,
-    },
-    {
-      code: `i = i++ - 1;`,
-      errors: 1,
-    },
-    {
-      code: `i = (j++, k++);`,
-      errors: 2,
-    },
-    {
-      code: `for (i++, j++ ; i < 10; i++) {}`,
-      errors: 2,
-    },
-    {
-      code: `for (var i = 0; i++ < 10; i++) {}`,
-      errors: 1,
-    },
-    {
-      code: `for (let el of [foo[i++]]) {}`,
-      errors: 1,
-    },
-    {
-      code: `for (var i = 0; i < 10; i = j++ - 2, i++) {}`,
-      errors: 1,
-    },
-    {
-      code: `while (i++) {}`,
-      errors: 1,
-    },
-    {
-      code: `do {} while (i++);`,
-      errors: 1,
-    },
-    {
-      code: `() => { return i++; }`,
-      errors: 1,
-    },
-    {
-      code: `() => { throw i++; }`,
-      errors: 1,
-    },
-    {
-      code: `switch (i++) {
+describe('S881', () => {
+  ruleTester.run('Nested increment (++) and decrement (--) operators should not be used', rule, {
+    valid: [
+      {
+        code: `i++;`,
+      },
+      {
+        code: `++i;`,
+      },
+      {
+        code: `i--;`,
+      },
+      {
+        code: `--i;`,
+      },
+      {
+        code: `foo[i]++;`,
+      },
+      {
+        code: `foo[-i] = 0;`,
+      },
+      {
+        code: `for (i = 0; i < 10; i++, j++, k++) {}`,
+      },
+    ],
+    invalid: [
+      {
+        code: `for (i++, j-- ; i < 10; i++) {}`,
+        errors: [
+          {
+            message: 'Extract this increment operation into a dedicated statement.',
+            line: 1,
+            column: 6,
+            endLine: 1,
+            endColumn: 9,
+          },
+          {
+            message: 'Extract this decrement operation into a dedicated statement.',
+            line: 1,
+            column: 11,
+            endLine: 1,
+            endColumn: 14,
+          },
+        ],
+      },
+      {
+        code: `foo[i--]++;`,
+        errors: [
+          {
+            message: 'Extract this decrement operation into a dedicated statement.',
+            line: 1,
+            column: 5,
+            endLine: 1,
+            endColumn: 8,
+          },
+        ],
+      },
+      {
+        code: `foo[++i] = 0;`,
+        errors: 1,
+      },
+      {
+        code: `if (i++) {}`,
+        errors: 1,
+      },
+      {
+        code: `console.log(i++);`,
+        errors: 1,
+      },
+      {
+        code: `i = 5 * --i;`,
+        errors: 1,
+      },
+      {
+        code: `i = i++ - 1;`,
+        errors: 1,
+      },
+      {
+        code: `i = (j++, k++);`,
+        errors: 2,
+      },
+      {
+        code: `for (i++, j++ ; i < 10; i++) {}`,
+        errors: 2,
+      },
+      {
+        code: `for (var i = 0; i++ < 10; i++) {}`,
+        errors: 1,
+      },
+      {
+        code: `for (let el of [foo[i++]]) {}`,
+        errors: 1,
+      },
+      {
+        code: `for (var i = 0; i < 10; i = j++ - 2, i++) {}`,
+        errors: 1,
+      },
+      {
+        code: `while (i++) {}`,
+        errors: 1,
+      },
+      {
+        code: `do {} while (i++);`,
+        errors: 1,
+      },
+      {
+        code: `() => { return i++; }`,
+        errors: 1,
+      },
+      {
+        code: `() => { throw i++; }`,
+        errors: 1,
+      },
+      {
+        code: `switch (i++) {
                 case j--: break;
                 default: break;
               }`,
-      errors: 2,
-    },
-  ],
+        errors: 2,
+      },
+    ],
+  });
 });

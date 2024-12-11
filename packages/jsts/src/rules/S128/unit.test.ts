@@ -16,12 +16,14 @@
  */
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe } from 'node:test';
 
-const ruleTester = new RuleTester({ languageOptions: { ecmaVersion: 2018 } });
-ruleTester.run('No fallthrough in switch statement', rule, {
-  valid: [
-    {
-      code: `
+describe('S128', () => {
+  const ruleTester = new RuleTester({ languageOptions: { ecmaVersion: 2018 } });
+  ruleTester.run('No fallthrough in switch statement', rule, {
+    valid: [
+      {
+        code: `
         switch (x) {
           case 0:
             process.exit(1);
@@ -29,9 +31,9 @@ ruleTester.run('No fallthrough in switch statement', rule, {
             doSomething();
         }
             `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
         switch (x) {
           case 0:
             if (foo()) {
@@ -45,9 +47,9 @@ ruleTester.run('No fallthrough in switch statement', rule, {
             doSomething();
         }
             `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
         switch (x) {
           case 0:
             if (foo()) {
@@ -64,9 +66,9 @@ ruleTester.run('No fallthrough in switch statement', rule, {
             doSomething();
         }
             `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
         switch (param) {}
 
         // with not executable clause
@@ -91,9 +93,9 @@ ruleTester.run('No fallthrough in switch statement', rule, {
             break;
         }
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       switch ( x ) {
         case 0:
           while ( isTrue() ) {
@@ -104,11 +106,11 @@ ruleTester.run('No fallthrough in switch statement', rule, {
           console.log("hello");
       }
             `,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+      },
+    ],
+    invalid: [
+      {
+        code: `
       function func(){
         while(condition) {
           switch (param) {
@@ -128,30 +130,30 @@ ruleTester.run('No fallthrough in switch statement', rule, {
           }
         }
       }`,
-      errors: [
-        {
-          message:
-            'End this switch case with an unconditional break, continue, return or throw statement.',
-          line: 12,
-          column: 13,
-          endLine: 12,
-          endColumn: 17,
-        },
-      ],
-    },
+        errors: [
+          {
+            message:
+              'End this switch case with an unconditional break, continue, return or throw statement.',
+            line: 12,
+            column: 13,
+            endLine: 12,
+            endColumn: 17,
+          },
+        ],
+      },
 
-    {
-      code: `
+      {
+        code: `
         switch (param) {
           default: // Noncompliant
             doSomething();
           case 0: // OK
             doSomethingElse();
         }`,
-      errors: [{ line: 3 }],
-    },
-    {
-      code: `
+        errors: [{ messageId: 'switchEnd', line: 3 }],
+      },
+      {
+        code: `
       function fun() {
         switch (param) {
           case 0: // OK
@@ -172,10 +174,13 @@ ruleTester.run('No fallthrough in switch statement', rule, {
         }
       }
       `,
-      errors: [{ line: 8 }, { line: 10 }],
-    },
-    {
-      code: `
+        errors: [
+          { messageId: 'switchEnd', line: 8 },
+          { messageId: 'switchEnd', line: 10 },
+        ],
+      },
+      {
+        code: `
       function fun(){
         switch (param) {
           case a:
@@ -208,10 +213,10 @@ ruleTester.run('No fallthrough in switch statement', rule, {
         }
       }
       `,
-      errors: [{ line: 19 }],
-    },
-    {
-      code: `
+        errors: [{ messageId: 'switchEnd', line: 19 }],
+      },
+      {
+        code: `
         function fun() {
             switch (param) {
               case 0: // Noncompliant
@@ -223,10 +228,10 @@ ruleTester.run('No fallthrough in switch statement', rule, {
             }
           }
     `,
-      errors: [{ line: 4 }],
-    },
-    {
-      code: `
+        errors: [{ messageId: 'switchEnd', line: 4 }],
+      },
+      {
+        code: `
         function fun() {
           // OK with comment
           switch (x) {
@@ -270,10 +275,10 @@ ruleTester.run('No fallthrough in switch statement', rule, {
           }
         }
       `,
-      errors: [{ line: 35 }],
-    },
-    {
-      code: `
+        errors: [{ messageId: 'switchEnd', line: 35 }],
+      },
+      {
+        code: `
         switch (x) {
           case 0:
             if (foo()) {
@@ -283,10 +288,10 @@ ruleTester.run('No fallthrough in switch statement', rule, {
             doSomething();
         }
             `,
-      errors: [{ line: 3 }],
-    },
-    {
-      code: `
+        errors: [{ messageId: 'switchEnd', line: 3 }],
+      },
+      {
+        code: `
         switch (x) {
           case 0:
             if (foo()) {
@@ -297,10 +302,10 @@ ruleTester.run('No fallthrough in switch statement', rule, {
             doSomething();
         }
             `,
-      errors: [{ line: 3 }],
-    },
-    {
-      code: `
+        errors: [{ messageId: 'switchEnd', line: 3 }],
+      },
+      {
+        code: `
         process.exit(1);
         switch (x) {
           case 0:
@@ -309,10 +314,10 @@ ruleTester.run('No fallthrough in switch statement', rule, {
             doSomethingElse();
         }
             `,
-      errors: [{ line: 4 }],
-    },
-    {
-      code: `
+        errors: [{ messageId: 'switchEnd', line: 4 }],
+      },
+      {
+        code: `
       switch (x) {
         case 0:
           doSomething();
@@ -327,10 +332,10 @@ ruleTester.run('No fallthrough in switch statement', rule, {
       }
       
             `,
-      errors: [{ line: 9 }],
-    },
-    {
-      code: `
+        errors: [{ messageId: 'switchEnd', line: 9 }],
+      },
+      {
+        code: `
         function doSomething() {
             doSmth();
         }
@@ -343,7 +348,11 @@ ruleTester.run('No fallthrough in switch statement', rule, {
                 doSomethingElse();
         }
             `,
-      errors: [{ line: 6 }, { line: 8 }],
-    },
-  ],
+        errors: [
+          { messageId: 'switchEnd', line: 6 },
+          { messageId: 'switchEnd', line: 8 },
+        ],
+      },
+    ],
+  });
 });

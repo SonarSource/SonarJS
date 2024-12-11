@@ -16,99 +16,108 @@
  */
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe } from 'node:test';
 
 const ruleTester = new RuleTester({
   languageOptions: { ecmaVersion: 2022 },
 });
 
-ruleTester.run(`Unused private class members should be removed`, rule, {
-  valid: [
-    {
-      code: `
+describe('S108', () => {
+  ruleTester.run(`Unused private class members should be removed`, rule, {
+    valid: [
+      {
+        code: `
         class MyClass{
           #foo = 123;
           bar(){return this.#foo;}
         }`,
-    },
-  ],
-  invalid: [
-    {
-      code: `class MyClass{ #foo = 123; }`,
-      errors: [
-        {
-          suggestions: [
-            {
-              desc: 'Remove unused private class member',
-              output: `class MyClass{  }`,
-            },
-          ],
-        },
-      ],
-    },
-    {
-      code: `class MyClass{ #foo(){} }`,
-      errors: [
-        {
-          suggestions: [
-            {
-              desc: 'Remove unused private class member',
-              output: `class MyClass{  }`,
-            },
-          ],
-        },
-      ],
-    },
-    {
-      code: `class MyClass{ get #foo(){} }`,
-      errors: [
-        {
-          suggestions: [
-            {
-              desc: 'Remove unused private class member',
-              output: `class MyClass{  }`,
-            },
-          ],
-        },
-      ],
-    },
-    {
-      code: `class MyClass{ set #foo(v){} }`,
-      errors: [
-        {
-          suggestions: [
-            {
-              desc: 'Remove unused private class member',
-              output: `class MyClass{  }`,
-            },
-          ],
-        },
-      ],
-    },
-    {
-      code: `class MyClass{ static #foo = 123; }`,
-      errors: [
-        {
-          suggestions: [
-            {
-              desc: 'Remove unused private class member',
-              output: `class MyClass{  }`,
-            },
-          ],
-        },
-      ],
-    },
-    {
-      code: `class MyClass{ static #foo(){} }`,
-      errors: [
-        {
-          suggestions: [
-            {
-              desc: 'Remove unused private class member',
-              output: `class MyClass{  }`,
-            },
-          ],
-        },
-      ],
-    },
-  ],
+      },
+    ],
+    invalid: [
+      {
+        code: `class MyClass{ #foo = 123; }`,
+        errors: [
+          {
+            messageId: 'unusedPrivateClassMember',
+            suggestions: [
+              {
+                desc: 'Remove unused private class member',
+                output: `class MyClass{  }`,
+              },
+            ],
+          },
+        ],
+      },
+      {
+        code: `class MyClass{ #foo(){} }`,
+        errors: [
+          {
+            messageId: 'unusedPrivateClassMember',
+            suggestions: [
+              {
+                desc: 'Remove unused private class member',
+                output: `class MyClass{  }`,
+              },
+            ],
+          },
+        ],
+      },
+      {
+        code: `class MyClass{ get #foo(){} }`,
+        errors: [
+          {
+            messageId: 'unusedPrivateClassMember',
+            suggestions: [
+              {
+                desc: 'Remove unused private class member',
+                output: `class MyClass{  }`,
+              },
+            ],
+          },
+        ],
+      },
+      {
+        code: `class MyClass{ set #foo(v){} }`,
+        errors: [
+          {
+            messageId: 'unusedPrivateClassMember',
+            suggestions: [
+              {
+                desc: 'Remove unused private class member',
+                output: `class MyClass{  }`,
+              },
+            ],
+          },
+        ],
+      },
+      {
+        code: `class MyClass{ static #foo = 123; }`,
+        errors: [
+          {
+            messageId: 'unusedPrivateClassMember',
+            suggestions: [
+              {
+                desc: 'Remove unused private class member',
+                output: `class MyClass{  }`,
+              },
+            ],
+          },
+        ],
+      },
+      {
+        code: `class MyClass{ static #foo(){} }`,
+        errors: [
+          {
+            messageId: 'unusedPrivateClassMember',
+            suggestions: [
+              {
+                desc: 'Remove unused private class member',
+                output: `class MyClass{  }`,
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  });
 });

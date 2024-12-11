@@ -24,7 +24,7 @@ function f() {
   else { return start; }
 }
 
-//Noncompliant@+2 [[qf1!]]
+//Noncompliant@+2 [[qf1!]] {{Opening curly brace does not appear on the same line as controlling statement.}}
 if (condition)
 {
   doSomething();
@@ -32,7 +32,7 @@ if (condition)
 // del@qf1
 // edit@qf1@-1 {{if (condition) {}}
 
-//Noncompliant@+1 [[qf2!]]
+//Noncompliant@+1 [[qf2!]] {{Statement inside of curly braces should be on next line.}}
 if (condition) { doSomething()
 }
 // add@qf2@+1 {{ doSomething()}}

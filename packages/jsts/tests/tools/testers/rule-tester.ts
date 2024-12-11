@@ -16,10 +16,10 @@
  */
 import { RuleTester as ESLintRuleTester } from 'eslint';
 import type { Linter, Rule } from 'eslint';
-import { describe, it } from 'node:test';
 import path from 'path';
 import parser from '@typescript-eslint/parser';
 import globals from 'globals';
+import merge from 'lodash.merge';
 
 type Tests = {
   valid: (string | ESLintRuleTester.ValidTestCase)[];
@@ -47,11 +47,8 @@ const placeHolderFilePath = path.resolve(`${import.meta.dirname}/fixtures/placeh
  * Rule tester for JavaScript, using @typescript-eslint parser.
  */
 class RuleTester extends ESLintRuleTester {
-  constructor(options?: Linter.Config) {
-    super({
-      languageOptions,
-      ...options,
-    });
+  constructor(options?: Linter.LanguageOptions) {
+    super({ languageOptions: merge({}, languageOptions, options) });
   }
 
   run(name: string, rule: Rule.RuleModule, tests: Tests): void {
@@ -67,9 +64,6 @@ class RuleTester extends ESLintRuleTester {
     super.run(name, rule, tests);
   }
 }
-
-(RuleTester as any).describe = describe;
-(RuleTester as any).it = it;
 
 export { RuleTester };
 export type { Tests };

@@ -17,6 +17,7 @@
 import { rule } from './index.js';
 import { EncodedMessage, IssueLocation } from '../helpers/index.js';
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { describe } from 'node:test';
 
 const ruleTester = new RuleTester();
 
@@ -26,85 +27,86 @@ const options = [
   },
 ];
 
-ruleTester.run('Expressions should not be too complex', rule, {
-  valid: [
-    {
-      code: `let b = 1 || 2 || 3 || 4`,
-      options,
-    },
-    {
-      code: `let b = 1 && 2 && 4 && 4`,
-      options,
-    },
-    {
-      code: `let b = 1 ? ( 2 ? ( 3 ? true : false ) : false ) : false;`,
-      options,
-    },
-    {
-      code: `let b = foo(1 || 2 || 3, 1 || 2 || 3);`,
-      options,
-    },
-    {
-      code: `let b = 1 || 2 || 3 || foo(1 || 2);`,
-      options,
-    },
-    {
-      code: `let b = {x: 1 || 2 || 3, y: 1 || 2 || 3};`,
-      options,
-    },
-    {
-      code: `let b = 1 || 2 || 3 || {x: 1 || 2};`,
-      options,
-    },
-    {
-      code: `let b = function () {1 || 2 || 3 || 4};`,
-      options,
-    },
-    {
-      code: `let b = 1 || 2 || 3 || function () {1 || 2};`,
-      options,
-    },
-    {
-      code: `let b = 1 || 2 || 3 || function () {1 || 2 || function () {1 || 2}};`,
-      options,
-    },
-    {
-      code: `let b = 1 || 2 || 3 || function f() {1 || 2 || function g() {1 || 2}};`,
-      options,
-    },
-    {
-      code: `let b = <div>{1 || 2 || 3 || 4}</div>;`,
-      options,
-    },
-    {
-      code: `let b = 1 || 2 || 3 || <div>{1 || 2}</div>;`,
-      options,
-    },
-    {
-      code: `let b = 1 || 2 || 3 || 4 || 5 || 6 || 7 || 8 || 9 || 10;`,
-      options: [
-        {
-          max: 10,
-        },
-      ],
-    },
-  ],
-  invalid: [
-    invalid(`
+describe('S1067', () => {
+  ruleTester.run('Expressions should not be too complex', rule, {
+    valid: [
+      {
+        code: `let b = 1 || 2 || 3 || 4`,
+        options,
+      },
+      {
+        code: `let b = 1 && 2 && 4 && 4`,
+        options,
+      },
+      {
+        code: `let b = 1 ? ( 2 ? ( 3 ? true : false ) : false ) : false;`,
+        options,
+      },
+      {
+        code: `let b = foo(1 || 2 || 3, 1 || 2 || 3);`,
+        options,
+      },
+      {
+        code: `let b = 1 || 2 || 3 || foo(1 || 2);`,
+        options,
+      },
+      {
+        code: `let b = {x: 1 || 2 || 3, y: 1 || 2 || 3};`,
+        options,
+      },
+      {
+        code: `let b = 1 || 2 || 3 || {x: 1 || 2};`,
+        options,
+      },
+      {
+        code: `let b = function () {1 || 2 || 3 || 4};`,
+        options,
+      },
+      {
+        code: `let b = 1 || 2 || 3 || function () {1 || 2};`,
+        options,
+      },
+      {
+        code: `let b = 1 || 2 || 3 || function () {1 || 2 || function () {1 || 2}};`,
+        options,
+      },
+      {
+        code: `let b = 1 || 2 || 3 || function f() {1 || 2 || function g() {1 || 2}};`,
+        options,
+      },
+      {
+        code: `let b = <div>{1 || 2 || 3 || 4}</div>;`,
+        options,
+      },
+      {
+        code: `let b = 1 || 2 || 3 || <div>{1 || 2}</div>;`,
+        options,
+      },
+      {
+        code: `let b = 1 || 2 || 3 || 4 || 5 || 6 || 7 || 8 || 9 || 10;`,
+        options: [
+          {
+            max: 10,
+          },
+        ],
+      },
+    ],
+    invalid: [
+      invalid(`
     let b = 1 || 2 || 3 || 4 || 5;
           //--^^---^^---^^---^^--
     `),
-    invalid(`
+      invalid(`
     let b = 1 && 2 && 3 && 4 && 5;
           //--^^---^^---^^---^^--
     `),
-    invalid(`
+      invalid(`
     function f() {
       let b = 1 || 2 || 3 || 4 || 5;
             //--^^---^^---^^---^^--
     }
     `),
-    invalid(`
+      invalid(`
     function f() {
       let b = 1 || 2 || 3 ||
       function g() {
@@ -113,7 +115,7 @@ ruleTester.run('Expressions should not be too complex', rule, {
       }
     }
     `),
-    invalid(`
+      invalid(`
     function f() {
       let b = 1 || 2 || 3 ||
       function g() {
@@ -125,14 +127,15 @@ ruleTester.run('Expressions should not be too complex', rule, {
       }
     }
     `),
-    invalid(
-      `
+      invalid(
+        `
     let b = 1 ? true : false;
           //--^-------------
     `,
-      0,
-    ),
-  ],
+        0,
+      ),
+    ],
+  });
 });
 
 function invalid(code: string, max = 3) {

@@ -17,6 +17,7 @@
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
 import { EncodedMessage, IssueLocation } from '../helpers/index.js';
+import { describe } from 'node:test';
 
 const ruleTester = new RuleTester({
   languageOptions: { ecmaVersion: 2018, sourceType: 'module' },
@@ -28,13 +29,14 @@ const createOptions = (maximumNestingLevel: number) => {
   return [{ maximumNestingLevel }, 'sonar-runtime'];
 };
 
-ruleTester.run(
-  'Refactor this code to not nest more than X if/for/while/switch/try statements.',
-  rule,
-  {
-    valid: [
-      {
-        code: `
+describe('S134', () => {
+  ruleTester.run(
+    'Refactor this code to not nest more than X if/for/while/switch/try statements.',
+    rule,
+    {
+      valid: [
+        {
+          code: `
       if (true) {
         if (true) {
           for (const i of arr) {
@@ -42,10 +44,10 @@ ruleTester.run(
         }
       }
     `,
-        options: createOptions(THRESHOLD),
-      },
-      {
-        code: `
+          options: createOptions(THRESHOLD),
+        },
+        {
+          code: `
       if (true) {
         if (true) {
           for (const i of arr) {
@@ -55,10 +57,10 @@ ruleTester.run(
         }
       }
     `,
-        options: createOptions(4),
-      },
-      {
-        code: `
+          options: createOptions(4),
+        },
+        {
+          code: `
           if (true) {
           } else if (false) {
             while (true) {
@@ -67,12 +69,12 @@ ruleTester.run(
             }
           }
         `,
-        options: createOptions(THRESHOLD),
-      },
-    ],
-    invalid: [
-      invalid(
-        `
+          options: createOptions(THRESHOLD),
+        },
+      ],
+      invalid: [
+        invalid(
+          `
         if (true) {
 //      ^^         
           if (true) {
@@ -82,10 +84,10 @@ ruleTester.run(
               }
           }
         }`,
-        2,
-      ),
-      invalid(
-        `
+          2,
+        ),
+        invalid(
+          `
         if (true) {
 
         } else if (true) {
@@ -97,10 +99,10 @@ ruleTester.run(
               }
           }
         }`,
-        2,
-      ),
-      invalid(
-        `
+          2,
+        ),
+        invalid(
+          `
        for (var i = 0; i < 0; i++) { // level 1
 //     ^^^
           for (bar in MyArray) {     // level 2
@@ -108,11 +110,12 @@ ruleTester.run(
             while (false) {               // level 3
 //----------^^^^^---
               }}}`,
-        2,
-      ),
-    ],
-  },
-);
+          2,
+        ),
+      ],
+    },
+  );
+});
 
 function invalid(code: string, threshold = THRESHOLD) {
   let primaryLocation: IssueLocation;
