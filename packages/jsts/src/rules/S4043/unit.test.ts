@@ -16,12 +16,14 @@
  */
 import { rule } from './index.js';
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { describe } from 'node:test';
 
-const ruleTester = new RuleTester();
-ruleTester.run('Array-mutating methods should not be used misleadingly.', rule, {
-  valid: [
-    {
-      code: `
+describe('S4043', () => {
+  const ruleTester = new RuleTester();
+  ruleTester.run('Array-mutating methods should not be used misleadingly.', rule, {
+    valid: [
+      {
+        code: `
         let a = [];
         let d;
       
@@ -38,12 +40,12 @@ ruleTester.run('Array-mutating methods should not be used misleadingly.', rule, 
         a = a.reverse();
         a = a.sort();
       `,
-    },
-    {
-      code: `const c = [1, 2, 3].reverse();`,
-    },
-    {
-      code: `
+      },
+      {
+        code: `const c = [1, 2, 3].reverse();`,
+      },
+      {
+        code: `
           function foo() {
             const keys = [];
             // fill keys...
@@ -54,9 +56,9 @@ ruleTester.run('Array-mutating methods should not be used misleadingly.', rule, 
               return s.split("").reverse().join();
           }
           `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
           class Bar {
               field: string[];
             
@@ -71,18 +73,18 @@ ruleTester.run('Array-mutating methods should not be used misleadingly.', rule, 
                 return [...this.field];
               }
             }`,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
           class NotArray {
               public reverse() {}
           }
           const notArray = new NotArray();
           // ok
           const notArrayReversed = notArray.reverse();`,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
             class WithGetter {
                 _groups: string[];
               
@@ -96,101 +98,185 @@ ruleTester.run('Array-mutating methods should not be used misleadingly.', rule, 
                   return groups;
                 }
             }`,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+      },
+    ],
+    invalid: [
+      {
+        code: `
         let a = [];
         const b = a?.sort();
         `,
-      errors: 1,
-    },
-    {
-      code: `
+        errors: 1,
+      },
+      {
+        code: `
         let a = [];
         let d;
         const b = a.reverse();
         const bb = a.sort();
         d = a.reverse();
         `,
-      errors: [
-        {
-          message:
-            'Move this array "reverse" operation to a separate statement or replace it with "toReversed".',
-          line: 4,
-          endLine: 4,
-          column: 19,
-          endColumn: 30,
-        },
-        {
-          message:
-            'Move this array "sort" operation to a separate statement or replace it with "toSorted".',
-          line: 5,
-          endLine: 5,
-          column: 20,
-          endColumn: 28,
-        },
-        {
-          message:
-            'Move this array "reverse" operation to a separate statement or replace it with "toReversed".',
-          line: 6,
-          endLine: 6,
-          column: 13,
-          endColumn: 24,
-        },
-      ],
-    },
-    {
-      code: `
+        errors: [
+          {
+            message:
+              'Move this array "reverse" operation to a separate statement or replace it with "toReversed".',
+            line: 4,
+            endLine: 4,
+            column: 19,
+            endColumn: 30,
+            suggestions: [
+              {
+                desc: 'Replace with "toReversed" method',
+                output: `
+        let a = [];
+        let d;
+        const b = a.toReversed();
+        const bb = a.sort();
+        d = a.reverse();
+        `,
+              },
+            ],
+          },
+          {
+            message:
+              'Move this array "sort" operation to a separate statement or replace it with "toSorted".',
+            line: 5,
+            endLine: 5,
+            column: 20,
+            endColumn: 28,
+            suggestions: [
+              {
+                desc: 'Replace with "toSorted" method',
+                output: `
+        let a = [];
+        let d;
+        const b = a.reverse();
+        const bb = a.toSorted();
+        d = a.reverse();
+        `,
+              },
+            ],
+          },
+          {
+            message:
+              'Move this array "reverse" operation to a separate statement or replace it with "toReversed".',
+            line: 6,
+            endLine: 6,
+            column: 13,
+            endColumn: 24,
+            suggestions: [
+              {
+                desc: 'Replace with "toReversed" method',
+                output: `
+        let a = [];
+        let d;
+        const b = a.reverse();
+        const bb = a.sort();
+        d = a.toReversed();
+        `,
+              },
+            ],
+          },
+        ],
+      },
+      {
+        code: `
         let b = [];
         const a = b["sort"]()
         const a = b['sort']()
         const a = b["reverse"]()
         const a = b['reverse']()
         `,
-      errors: [
-        {
-          message:
-            'Move this array "sort" operation to a separate statement or replace it with "toSorted".',
-        },
-        {
-          message:
-            'Move this array "sort" operation to a separate statement or replace it with "toSorted".',
-        },
-        {
-          message:
-            'Move this array "reverse" operation to a separate statement or replace it with "toReversed".',
-        },
-        {
-          message:
-            'Move this array "reverse" operation to a separate statement or replace it with "toReversed".',
-        },
-      ],
-    },
-    {
-      code: `function foo() {
+        errors: [
+          {
+            message:
+              'Move this array "sort" operation to a separate statement or replace it with "toSorted".',
+            suggestions: [
+              {
+                desc: 'Replace with "toSorted" method',
+                output: `
+        let b = [];
+        const a = b["toSorted"]()
+        const a = b['sort']()
+        const a = b["reverse"]()
+        const a = b['reverse']()
+        `,
+              },
+            ],
+          },
+          {
+            message:
+              'Move this array "sort" operation to a separate statement or replace it with "toSorted".',
+            suggestions: [
+              {
+                desc: 'Replace with "toSorted" method',
+                output: `
+        let b = [];
+        const a = b["sort"]()
+        const a = b['toSorted']()
+        const a = b["reverse"]()
+        const a = b['reverse']()
+        `,
+              },
+            ],
+          },
+          {
+            message:
+              'Move this array "reverse" operation to a separate statement or replace it with "toReversed".',
+            suggestions: [
+              {
+                desc: 'Replace with "toReversed" method',
+                output: `
+        let b = [];
+        const a = b["sort"]()
+        const a = b['sort']()
+        const a = b["toReversed"]()
+        const a = b['reverse']()
+        `,
+              },
+            ],
+          },
+          {
+            message:
+              'Move this array "reverse" operation to a separate statement or replace it with "toReversed".',
+            suggestions: [
+              {
+                desc: 'Replace with "toReversed" method',
+                output: `
+        let b = [];
+        const a = b["sort"]()
+        const a = b['sort']()
+        const a = b["reverse"]()
+        const a = b['toReversed']()
+        `,
+              },
+            ],
+          },
+        ],
+      },
+      {
+        code: `function foo() {
             const keys = [];
             // fill keys...
             const x = keys.reverse();
           }`,
-      errors: 1,
-    },
-    {
-      code: `function reverseAndJoin() {
+        errors: 1,
+      },
+      {
+        code: `function reverseAndJoin() {
                   const a = [1, 2, 3];
                   const x = a.reverse().join();
               }`,
-      errors: 1,
-    },
-    {
-      code: `const a = [1, 2, 3];
+        errors: 1,
+      },
+      {
+        code: `const a = [1, 2, 3];
             function something(a: string[]) {}
             something(a.reverse());`,
-      errors: 1,
-    },
-    {
-      code: `class Bar {
+        errors: 1,
+      },
+      {
+        code: `class Bar {
           field: string[];
         
           public method() {
@@ -198,81 +284,85 @@ ruleTester.run('Array-mutating methods should not be used misleadingly.', rule, 
             const bb = this.field.sort();
           }
         }`,
-      errors: 2,
-    },
-    {
-      code: `function qux(a: string[][]) {
+        errors: 2,
+      },
+      {
+        code: `function qux(a: string[][]) {
                    return a.map(b => b.reverse());
               }`,
-      errors: 1,
-    },
-    {
-      code: `function foo(a: string[][]) {
+        errors: 1,
+      },
+      {
+        code: `function foo(a: string[][]) {
                 return function(a: string[][]) {
                   let b;
                   b = a.reverse();
               }
             }`,
-      errors: 1,
-    },
-    {
-      code: `
+        errors: 1,
+      },
+      {
+        code: `
         function foo() {
           let a = [];
           return a.length > 0 && a.reverse();
         }`,
-      errors: 1,
-    },
-    {
-      code: `
+        errors: 1,
+      },
+      {
+        code: `
 const x = ["foo", "bar", "baz"];
 const y = x.sort();`,
-      errors: [
-        {
-          suggestions: [
-            {
-              desc: 'Replace with "toSorted" method',
-              output: `
+        errors: [
+          {
+            messageId: 'moveMethod',
+            suggestions: [
+              {
+                desc: 'Replace with "toSorted" method',
+                output: `
 const x = ["foo", "bar", "baz"];
 const y = x.toSorted();`,
-            },
-          ],
-        },
-      ],
-    },
-    {
-      code: `
+              },
+            ],
+          },
+        ],
+      },
+      {
+        code: `
 const x = [true, false];
 const y = x['reverse']();`,
-      errors: [
-        {
-          suggestions: [
-            {
-              desc: 'Replace with "toReversed" method',
-              output: `
+        errors: [
+          {
+            messageId: 'moveMethod',
+            suggestions: [
+              {
+                desc: 'Replace with "toReversed" method',
+                output: `
 const x = [true, false];
 const y = x['toReversed']();`,
-            },
-          ],
-        },
-      ],
-    },
-    {
-      code: `
+              },
+            ],
+          },
+        ],
+      },
+      {
+        code: `
 const x = ["foo", "bar", "baz"];
 const y = x.sort((a, b) => true);`,
-      errors: [
-        {
-          suggestions: [
-            {
-              desc: 'Replace with "toSorted" method',
-              output: `
+        errors: [
+          {
+            messageId: 'moveMethod',
+            suggestions: [
+              {
+                desc: 'Replace with "toSorted" method',
+                output: `
 const x = ["foo", "bar", "baz"];
 const y = x.toSorted((a, b) => true);`,
-            },
-          ],
-        },
-      ],
-    },
-  ],
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  });
 });

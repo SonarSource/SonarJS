@@ -153,7 +153,10 @@ describe('S4322', () => {
             suggestions: [
               {
                 desc: 'Use type predicate',
-                output: ``,
+                output: `// With explicit return type
+        function isFish(animal: Animal) : animal is Fish { // Noncompliant
+            return (animal as Fish).swim !== undefined;
+        }`,
               },
             ],
           },
@@ -169,7 +172,9 @@ describe('S4322', () => {
             suggestions: [
               {
                 desc: 'Use type predicate',
-                output: ``,
+                output: `function isFish(animal: Animal): animal is Fish { // Noncompliant
+            return undefined !== (animal as Fish).swim;
+        }`,
               },
             ],
           },
@@ -186,13 +191,17 @@ describe('S4322', () => {
             suggestions: [
               {
                 desc: 'Use type predicate',
-                output: ``,
+                output: `// With loose inequality
+        function isFish(animal: Animal): animal is Fish { // Noncompliant
+            return (animal as Fish).swim != undefined;
+        }`,
               },
             ],
           },
         ],
       },
       {
+        filename: 'file.ts',
         code: `function isFish(animal: Animal) { // Noncompliant
             return (<Fish> animal).swim !== undefined;
         }`,
@@ -202,7 +211,9 @@ describe('S4322', () => {
             suggestions: [
               {
                 desc: 'Use type predicate',
-                output: ``,
+                output: `function isFish(animal: Animal): animal is Fish { // Noncompliant
+            return (<Fish> animal).swim !== undefined;
+        }`,
               },
             ],
           },
@@ -218,7 +229,9 @@ describe('S4322', () => {
             suggestions: [
               {
                 desc: 'Use type predicate',
-                output: ``,
+                output: `function isFish(animal: Animal): animal is Fish { // Noncompliant
+            return Boolean((animal as Fish).swim);
+          }`,
               },
             ],
           },
@@ -234,13 +247,16 @@ describe('S4322', () => {
             suggestions: [
               {
                 desc: 'Use type predicate',
-                output: ``,
+                output: `function isFish(animal: Animal): animal is Fish { // Noncompliant
+            return !!((animal as Fish).swim);
+        }`,
               },
             ],
           },
         ],
       },
       {
+        filename: 'file.ts',
         code: `function isFish(animal: Animal) { // Noncompliant
             return (<Fish>animal).swim !== undefined;
         }`,
@@ -250,7 +266,9 @@ describe('S4322', () => {
             suggestions: [
               {
                 desc: 'Use type predicate',
-                output: ``,
+                output: `function isFish(animal: Animal): animal is Fish { // Noncompliant
+            return (<Fish>animal).swim !== undefined;
+        }`,
               },
             ],
           },
@@ -275,6 +293,22 @@ describe('S4322', () => {
             column: 13,
             endLine: 4,
             endColumn: 19,
+            suggestions: [
+              {
+                desc: 'Use type predicate',
+                output: `// Type predicate on "this"
+        class Animal {
+            swim?: Function;
+            isFish(): this is Fish { // Noncompliant
+                return !!(this as Fish).swim;
+            }
+        
+            isFishOK() : this is Fish {
+                return !!(this as Fish).swim;
+            }
+        }`,
+              },
+            ],
           },
         ],
       },
@@ -299,7 +333,20 @@ describe('S4322', () => {
             suggestions: [
               {
                 desc: 'Use type predicate',
-                output: ``,
+                output: `// Method declarations
+        class Farm {
+            isFish(animal: Animal): animal is Fish { // Noncompliant
+                return !!((animal as Fish).swim);
+            }
+        
+            isFishOK(animal: Animal): animal is Fish {
+                return !!((animal as Fish).swim);
+            }
+
+            get getIsFish(animal: Animal) { //OK, getter
+              return !!((animal as Fish).swim);
+            }
+        }`,
               },
             ],
           },
@@ -309,6 +356,7 @@ describe('S4322', () => {
         code: `function isAnimal(animal: Animal) { return Boolean((animal as Fish).swim); }`,
         errors: [
           {
+            messageId: 'useTypePredicate',
             suggestions: [
               {
                 desc: 'Use type predicate',
@@ -323,8 +371,10 @@ describe('S4322', () => {
         code: `function isAnimal(animal: Animal): boolean { return Boolean((animal as Fish).swim); }`,
         errors: [
           {
+            messageId: 'useTypePredicate',
             suggestions: [
               {
+                desc: 'Use type predicate',
                 output:
                   'function isAnimal(animal: Animal): animal is Fish { return Boolean((animal as Fish).swim); }',
               },
