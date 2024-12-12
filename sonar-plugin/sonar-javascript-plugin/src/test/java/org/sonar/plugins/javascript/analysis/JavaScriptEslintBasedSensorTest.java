@@ -772,7 +772,9 @@ class JavaScriptEslintBasedSensorTest {
     context.setNextCache(mock(WriteCache.class));
     createInputFile(context);
     sensor.execute(context);
-    assertThat(logTester.logs(Level.DEBUG)).contains("Telemetry saved: {javascript.pkg1=1.1.0}");
+    assertThat(logTester.logs(Level.DEBUG)).contains(
+      "Telemetry saved: {javascript.dependency.pkg1=1.1.0}"
+    );
   }
 
   private static JsTsChecks checks(String... ruleKeys) {
