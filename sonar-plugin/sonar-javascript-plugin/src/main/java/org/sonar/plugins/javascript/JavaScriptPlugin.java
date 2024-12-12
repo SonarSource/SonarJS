@@ -282,8 +282,7 @@ public class JavaScriptPlugin implements Plugin {
         EslintRulesDefinition.class,
         TslintReportSensor.class,
         TslintRulesDefinition.class,
-        AnalysisWithProgram.class,
-        PluginTelemetry.class
+        AnalysisWithProgram.class
       );
 
       context.addExtension(

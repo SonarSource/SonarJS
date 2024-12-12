@@ -29,6 +29,7 @@ public class PluginTelemetry {
 
   private static final Logger LOG = LoggerFactory.getLogger(PluginTelemetry.class);
   private static final String KEY_PREFIX = "javascript.";
+  private static final String DEPENDENCY_PREFIX = KEY_PREFIX + "dependency.";
 
   private final SensorContext ctx;
 
@@ -46,18 +47,13 @@ public class PluginTelemetry {
       // https://github.com/SonarSource/sonar-plugin-api/releases/tag/10.9.0.2362
       return;
     }
-    try {
-      var keyMapToSave = telemetry
-        .dependencies()
-        .stream()
-        .collect(
-          Collectors.toMap(dependency -> KEY_PREFIX + dependency.name(), Dependency::version)
-        );
-      keyMapToSave.forEach(ctx::addTelemetryProperty);
-      LOG.debug("Telemetry saved: {}", keyMapToSave);
-    } catch (UnsupportedOperationException e) {
-      // Ignore if api is not supported yet. In production, it is currently noop, but in tests it throws UnsupportedOperationException:
-      // https://github.com/SonarSource/sonarqube/blob/10.7.0.96327/sonar-plugin-api-impl/src/main/java/org/sonar/api/batch/sensor/internal/SensorContextTester.java#L446
-    }
+    var keyMapToSave = telemetry
+      .dependencies()
+      .stream()
+      .collect(
+        Collectors.toMap(dependency -> DEPENDENCY_PREFIX + dependency.name(), Dependency::version)
+      );
+    keyMapToSave.forEach(ctx::addTelemetryProperty);
+    LOG.debug("Telemetry saved: {}", keyMapToSave);
   }
 }

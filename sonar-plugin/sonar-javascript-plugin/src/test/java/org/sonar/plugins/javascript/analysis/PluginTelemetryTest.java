@@ -58,17 +58,6 @@ class PluginTelemetryTest {
   void shouldReportIfApiVersionIsGreaterThanOrEqualTo109() {
     when(ctx.runtime().getApiVersion()).thenReturn(Version.create(10, 9));
     pluginTelemetry.reportTelemetry(telemetryResponse);
-    verify(ctx).addTelemetryProperty("javascript.pkg1", "1.0.0");
-  }
-
-  @Test
-  void reportTelemetry_shouldHandleUnsupportedOperationException() {
-    when(ctx.runtime().getApiVersion()).thenReturn(Version.create(10, 9));
-    doThrow(new UnsupportedOperationException())
-      .when(ctx)
-      .addTelemetryProperty(anyString(), anyString());
-    pluginTelemetry.reportTelemetry(telemetryResponse);
-    // Verify that the exception is caught and no further exceptions are thrown
-    verify(ctx).addTelemetryProperty("javascript.pkg1", "1.0.0");
+    verify(ctx).addTelemetryProperty("javascript.dependency.pkg1", "1.0.0");
   }
 }
