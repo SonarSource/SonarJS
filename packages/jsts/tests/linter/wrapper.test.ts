@@ -178,7 +178,7 @@ describe('LinterWrapper', () => {
     expect(issues).toHaveLength(0);
   });
 
-  it('should not report on globals provided by environnments configuration', async () => {
+  it('should not report on globals provided by environments configuration', async () => {
     const filePath = path.join(import.meta.dirname, 'fixtures', 'wrapper', 'env.js');
     const fileType = 'MAIN';
     const language: JsTsLanguage = 'js';
@@ -194,7 +194,7 @@ describe('LinterWrapper', () => {
     await linter.init();
     const { issues } = linter.lint(sourceCode, filePath);
     const config = linter.getConfig({ language, fileType });
-    expect(config.languageOptions.globals.browser).toEqual(true);
+    expect(config.languageOptions.globals).toHaveProperty('alert');
     expect(issues).toHaveLength(0);
   });
 

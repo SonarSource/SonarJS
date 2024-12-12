@@ -26,29 +26,37 @@ type Tests = {
   invalid: ESLintRuleTester.InvalidTestCase[];
 };
 
-const languageOptions: Linter.LanguageOptions = {
-  parser,
+const baseLanguageOptions: Linter.LanguageOptions = {
   ecmaVersion: 2018,
   sourceType: 'module',
   globals: {
     ...globals.es2025,
   },
   parserOptions: {
-    project: path.resolve(`${import.meta.dirname}/fixtures/tsconfig.json`),
     ecmaFeatures: {
       jsx: true,
     },
   },
 } as const;
 
+const tsParserLanguageOptions: Linter.LanguageOptions = {
+  parser,
+};
+
+const typeCheckingLanguageOptions: Linter.LanguageOptions = {
+  parserOptions: {
+    project: path.resolve(`${import.meta.dirname}/fixtures/tsconfig.json`),
+  },
+} as const;
+
 const placeHolderFilePath = path.resolve(`${import.meta.dirname}/fixtures/placeholder.tsx`);
 
 /**
- * Rule tester for JavaScript, using @typescript-eslint parser.
+ * Rule tester for JavaScript, using ESLint default parser (espree).
  */
-class RuleTester extends ESLintRuleTester {
+class DefaultParserRuleTester extends ESLintRuleTester {
   constructor(options?: Linter.LanguageOptions) {
-    super({ languageOptions: merge({}, languageOptions, options) });
+    super({ languageOptions: merge({}, baseLanguageOptions, options) });
   }
 
   run(name: string, rule: Rule.RuleModule, tests: Tests): void {
@@ -65,5 +73,23 @@ class RuleTester extends ESLintRuleTester {
   }
 }
 
-export { RuleTester };
+/**
+ * Rule tester for JS/TS, using @typescript-eslint parser.
+ */
+class NoTypeCheckingRuleTester extends DefaultParserRuleTester {
+  constructor(options?: Linter.LanguageOptions) {
+    super(merge({}, tsParserLanguageOptions, options));
+  }
+}
+
+/**
+ * Rule tester for JS/TS, using @typescript-eslint parser with type-checking.
+ */
+class RuleTester extends NoTypeCheckingRuleTester {
+  constructor(options?: Linter.LanguageOptions) {
+    super(merge({}, typeCheckingLanguageOptions, options));
+  }
+}
+
+export { RuleTester, DefaultParserRuleTester, NoTypeCheckingRuleTester };
 export type { Tests };

@@ -16,13 +16,15 @@
  */
 import { rule } from './rule.js';
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { describe } from 'node:test';
 
-const ruleTester = new RuleTester();
+describe('S2201', () => {
+  const ruleTester = new RuleTester();
 
-ruleTester.run('Return values from functions without side effects should not be ignored', rule, {
-  valid: [
-    {
-      code: `
+  ruleTester.run('Return values from functions without side effects should not be ignored', rule, {
+    valid: [
+      {
+        code: `
       function returnIsNotIgnored() {
         var x = "abc".concat("bcd");
 
@@ -30,9 +32,9 @@ ruleTester.run('Return values from functions without side effects should not be 
           return true;
         }
       }`,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       function noSupportForUserTypes() {
         class A {
           methodWithoutSideEffect() {
@@ -42,22 +44,22 @@ ruleTester.run('Return values from functions without side effects should not be 
 
         (new A()).methodWithoutSideEffect(); // OK
       }`,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       function unknownType(x: any) {
         x.foo();
       }`,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       function computedPropertyOnDestructuring(source: any, property: string) { // OK, used as computed property name
         const { [property]: _, ...rest } = source;
         return rest;
       }`,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       // "some" and "every" are sometimes used to provide early termination for loops
       // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach
       [1, 2, 3].some(function(el) {
@@ -68,56 +70,56 @@ ruleTester.run('Return values from functions without side effects should not be 
         return ! el !== 2;
       });
             `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       function methodsOnString() {
         // "replace" with callback is OK
         "abc".replace(/ab/, () => "");
         "abc".replace(/ab/, function() {return ""});
       }`,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       function myCallBack() {}
       function methodsOnString() {
         // "replace" with callback is OK
         "abc".replace(/ab/, myCallBack);
       }`,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+      },
+    ],
+    invalid: [
+      {
+        code: `
       function methodsOnMath() {
         let x = -42;
         Math.abs(x);
       }`,
-      errors: [
-        {
-          messageId: `returnValueMustBeUsed`,
-          data: { methodName: 'abs' },
-          line: 4,
-          endLine: 4,
-          column: 9,
-          endColumn: 20,
-        },
-      ],
-    },
-    {
-      code: `
+        errors: [
+          {
+            messageId: `returnValueMustBeUsed`,
+            data: { methodName: 'abs' },
+            line: 4,
+            endLine: 4,
+            column: 9,
+            endColumn: 20,
+          },
+        ],
+      },
+      {
+        code: `
       function mapOnArray() {
         let arr = [1, 2, 3];
         arr.map(function(x){ });
       }`,
-      errors: [
-        {
-          messageId: `useForEach`,
-        },
-      ],
-    },
-    {
-      code: `
+        errors: [
+          {
+            messageId: `useForEach`,
+          },
+        ],
+      },
+      {
+        code: `
       function methodsOnArray(arr1: any[]) {
         let arr = [1, 2, 3];
 
@@ -125,27 +127,27 @@ ruleTester.run('Return values from functions without side effects should not be 
 
         arr1.join(",");
       }`,
-      errors: [
-        {
-          messageId: 'returnValueMustBeUsed',
-          data: { methodName: 'slice' },
-          line: 5,
-          column: 9,
-          endLine: 5,
-          endColumn: 24,
-        },
-        {
-          messageId: 'returnValueMustBeUsed',
-          data: { methodName: 'join' },
-          line: 7,
-          column: 9,
-          endLine: 7,
-          endColumn: 23,
-        },
-      ],
-    },
-    {
-      code: `
+        errors: [
+          {
+            messageId: 'returnValueMustBeUsed',
+            data: { methodName: 'slice' },
+            line: 5,
+            column: 9,
+            endLine: 5,
+            endColumn: 24,
+          },
+          {
+            messageId: 'returnValueMustBeUsed',
+            data: { methodName: 'join' },
+            line: 7,
+            column: 9,
+            endLine: 7,
+            endColumn: 23,
+          },
+        ],
+      },
+      {
+        code: `
       function methodsOnString() {
         let x = "abc";
         x.concat("abc");
@@ -153,74 +155,75 @@ ruleTester.run('Return values from functions without side effects should not be 
         "abc".concat("bcd").charCodeAt(2);
         "abc".replace(/ab/, "d");
       }`,
-      errors: [
-        {
-          messageId: 'returnValueMustBeUsed',
-          data: { methodName: 'concat' },
-          line: 4,
-          column: 9,
-          endLine: 4,
-          endColumn: 24,
-        },
-        {
-          messageId: 'returnValueMustBeUsed',
-          data: { methodName: 'concat' },
-          line: 5,
-          column: 9,
-          endLine: 5,
-          endColumn: 28,
-        },
-        {
-          messageId: 'returnValueMustBeUsed',
-          data: { methodName: 'charCodeAt' },
-          line: 6,
-          column: 9,
-          endLine: 6,
-          endColumn: 42,
-        },
-        {
-          messageId: 'returnValueMustBeUsed',
-          data: { methodName: 'replace' },
-          line: 7,
-          column: 9,
-          endLine: 7,
-          endColumn: 33,
-        },
-      ],
-    },
-    {
-      code: `
+        errors: [
+          {
+            messageId: 'returnValueMustBeUsed',
+            data: { methodName: 'concat' },
+            line: 4,
+            column: 9,
+            endLine: 4,
+            endColumn: 24,
+          },
+          {
+            messageId: 'returnValueMustBeUsed',
+            data: { methodName: 'concat' },
+            line: 5,
+            column: 9,
+            endLine: 5,
+            endColumn: 28,
+          },
+          {
+            messageId: 'returnValueMustBeUsed',
+            data: { methodName: 'charCodeAt' },
+            line: 6,
+            column: 9,
+            endLine: 6,
+            endColumn: 42,
+          },
+          {
+            messageId: 'returnValueMustBeUsed',
+            data: { methodName: 'replace' },
+            line: 7,
+            column: 9,
+            endLine: 7,
+            endColumn: 33,
+          },
+        ],
+      },
+      {
+        code: `
       function methodsOnNumbers() {
         var num = 43 * 53;
         num.toExponential();
       }`,
-      errors: [
-        {
-          messageId: 'returnValueMustBeUsed',
-          data: { methodName: 'toExponential' },
-          line: 4,
-          column: 9,
-          endLine: 4,
-          endColumn: 28,
-        },
-      ],
-    },
-    {
-      code: `
+        errors: [
+          {
+            messageId: 'returnValueMustBeUsed',
+            data: { methodName: 'toExponential' },
+            line: 4,
+            column: 9,
+            endLine: 4,
+            endColumn: 28,
+          },
+        ],
+      },
+      {
+        code: `
       function methodsOnRegexp() {
         var regexp = /abc/;
         regexp.test("my string");
       }`,
-      errors: [
-        {
-          messageId: 'returnValueMustBeUsed',
-          data: { methodName: 'test' },
-          line: 4,
-          column: 9,
-          endLine: 4,
-          endColumn: 33,
-        },
-      ],
-    },
-  ],
+        errors: [
+          {
+            messageId: 'returnValueMustBeUsed',
+            data: { methodName: 'test' },
+            line: 4,
+            column: 9,
+            endLine: 4,
+            endColumn: 33,
+          },
+        ],
+      },
+    ],
+  });
 });

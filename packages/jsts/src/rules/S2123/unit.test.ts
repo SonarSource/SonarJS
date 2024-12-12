@@ -16,69 +16,72 @@
  */
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe } from 'node:test';
 
-const ruleTester = new RuleTester();
-ruleTester.run('Values should not be uselessly incremented', rule, {
-  valid: [
-    {
-      code: `i = j++;`,
-    },
-    {
-      code: `i = ++i;`,
-    },
-    {
-      code: `i++;`,
-    },
-    {
-      code: `function f1() {
+describe('S2123', () => {
+  const ruleTester = new RuleTester();
+  ruleTester.run('Values should not be uselessly incremented', rule, {
+    valid: [
+      {
+        code: `i = j++;`,
+      },
+      {
+        code: `i = ++i;`,
+      },
+      {
+        code: `i++;`,
+      },
+      {
+        code: `function f1() {
               let i = 1;
               i++;
             }`,
-    },
-    {
-      code: `let outside = 1;
+      },
+      {
+        code: `let outside = 1;
              function f1() {
                return outside++;
              }`,
-    },
-    {
-      code: `function f1() {
+      },
+      {
+        code: `function f1() {
               let i = 1;
               return ++i;
             }`,
-    },
-  ],
-  invalid: [
-    {
-      code: `i = i++;`,
-      errors: [
-        {
-          message: 'Remove this increment or correct the code not to waste it.',
-          line: 1,
-          endLine: 1,
-          column: 5,
-          endColumn: 8,
-        },
-      ],
-    },
-    {
-      code: `i = i--; `,
-      errors: [
-        {
-          message: 'Remove this decrement or correct the code not to waste it.',
-        },
-      ],
-    },
-    {
-      code: `function f1() {
+      },
+    ],
+    invalid: [
+      {
+        code: `i = i++;`,
+        errors: [
+          {
+            message: 'Remove this increment or correct the code not to waste it.',
+            line: 1,
+            endLine: 1,
+            column: 5,
+            endColumn: 8,
+          },
+        ],
+      },
+      {
+        code: `i = i--; `,
+        errors: [
+          {
+            message: 'Remove this decrement or correct the code not to waste it.',
+          },
+        ],
+      },
+      {
+        code: `function f1() {
               let i = 1;
               return i++;
             }`,
-      errors: [
-        {
-          message: 'Remove this increment or correct the code not to waste it.',
-        },
-      ],
-    },
-  ],
+        errors: [
+          {
+            message: 'Remove this increment or correct the code not to waste it.',
+          },
+        ],
+      },
+    ],
+  });
 });

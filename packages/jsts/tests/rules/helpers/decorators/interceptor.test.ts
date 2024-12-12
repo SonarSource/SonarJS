@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { Rule } from 'eslint';
-import { RuleTester, Tests } from '../../../../tests/tools/testers/rule-tester.js';
+import { NoTypeCheckingRuleTester, Tests } from '../../../../tests/tools/testers/rule-tester.js';
 import { interceptReport } from '../../../../src/rules/index.js';
 // Covers `getDeclaredVariables`, `getScope`, `getSourceCode`.
 import { rule as noParameterReassignment } from '../../../../src/rules/S1226/index.js';
@@ -50,7 +50,7 @@ function assertThatInterceptReportDecoratorForwardsCalls(
   rule: Rule.RuleModule,
   tests: Tests,
 ) {
-  const ruleTester = new RuleTester();
+  const ruleTester = new NoTypeCheckingRuleTester();
 
   ruleTester.run(name + ' (without decorator)', rule, tests);
   ruleTester.run(

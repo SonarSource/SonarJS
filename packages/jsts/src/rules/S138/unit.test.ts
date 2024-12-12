@@ -15,10 +15,10 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { DefaultParserRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { describe } from 'node:test';
 
-const ruleTester = new RuleTester();
+const ruleTester = new DefaultParserRuleTester();
 
 describe('S138', () => {
   ruleTester.run('Too many lines in functions', rule, {

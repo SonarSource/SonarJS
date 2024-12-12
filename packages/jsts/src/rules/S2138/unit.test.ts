@@ -16,6 +16,7 @@
  */
 import { rule } from './index.js';
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { describe } from 'node:test';
 
 const tests = {
   valid: [
@@ -60,5 +61,7 @@ const tests = {
 const ruleTesterJs = new RuleTester();
 const ruleTesterTs = new RuleTester();
 
-ruleTesterJs.run('"undefined" should not be assigned [js]', rule, tests);
-ruleTesterTs.run('"undefined" should not be assigned [ts]', rule, tests);
+describe('S2138', () => {
+  ruleTesterJs.run('"undefined" should not be assigned [js]', rule, tests);
+  ruleTesterTs.run('"undefined" should not be assigned [ts]', rule, tests);
+});

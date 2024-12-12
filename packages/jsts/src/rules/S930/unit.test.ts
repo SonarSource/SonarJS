@@ -15,11 +15,11 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './rule.js';
-import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { DefaultParserRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { IssueLocation } from '../helpers/index.js';
 import { describe } from 'node:test';
 
-const ruleTester = new RuleTester();
+const ruleTester = new DefaultParserRuleTester({ sourceType: 'script' });
 
 describe('S930', () => {
   ruleTester.run('no-extra-arguments', rule, {

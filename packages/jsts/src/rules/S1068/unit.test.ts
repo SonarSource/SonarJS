@@ -20,7 +20,7 @@ import { describe } from 'node:test';
 
 const ruleTester = new RuleTester();
 
-describe('S108', () => {
+describe('S1068', () => {
   ruleTester.run(`Unused private class members should be removed`, rule, {
     valid: [
       {

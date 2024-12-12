@@ -14,78 +14,81 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { DefaultParserRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe } from 'node:test';
 
-const ruleTester = new RuleTester();
-ruleTester.run('Test files should contain at least one test case', rule, {
-  valid: [
-    {
-      code: `/* empty main file */`,
-      filename: 'foo.js',
-    },
-    {
-      code: `
+describe('S2187', () => {
+  const ruleTester = new DefaultParserRuleTester();
+  ruleTester.run('Test files should contain at least one test case', rule, {
+    valid: [
+      {
+        code: `/* empty main file */`,
+        filename: 'foo.js',
+      },
+      {
+        code: `
 /* a test file using 'it' */
 it('1 + 2 should give 3', () => {
     expect(1 + 2).toBe(3)
 });`,
-      filename: 'foo.test.js',
-    },
-    {
-      code: `
+        filename: 'foo.test.js',
+      },
+      {
+        code: `
 /* a test file using 'it.only' */
 it.only('1 + 2 should give 3', () => {
     expect(1 + 2).toBe(3)
 });`,
-      filename: 'foo.test.js',
-    },
-    {
-      code: `
+        filename: 'foo.test.js',
+      },
+      {
+        code: `
 /* a test file using 'test' */
 test('1 + 2 should give 3', () => {
     expect(1 + 2).toBe(3)
 });`,
-      filename: 'foo.test.js',
-    },
-    {
-      code: `
+        filename: 'foo.test.js',
+      },
+      {
+        code: `
 /* a test file using 'test.only' */
 test.only('1 + 2 should give 3', () => {
     expect(1 + 2).toBe(3)
 });`,
-      filename: 'foo.test.js',
-    },
-    {
-      code: `
+        filename: 'foo.test.js',
+      },
+      {
+        code: `
 /* a spec file using 'it' */
 it('1 + 2 should give 3', () => {
     expect(1 + 2).toBe(3)
 });`,
-      filename: 'foo.spec.js',
-    },
-  ],
-  invalid: [
-    {
-      code: `/* empty test file */`,
-      filename: 'foo.test.js',
-      errors: [
-        {
-          message: 'Add some tests to this file or delete it.',
-          line: 0,
-          column: 1,
-        },
-      ],
-    },
-    {
-      code: `/* empty spec file */`,
-      filename: 'foo.spec.js',
-      errors: 1,
-    },
-    {
-      code: `it['coverage']();`,
-      filename: 'foo.spec.js',
-      errors: 1,
-    },
-  ],
+        filename: 'foo.spec.js',
+      },
+    ],
+    invalid: [
+      {
+        code: `/* empty test file */`,
+        filename: 'foo.test.js',
+        errors: [
+          {
+            message: 'Add some tests to this file or delete it.',
+            line: 0,
+            column: 1,
+          },
+        ],
+      },
+      {
+        code: `/* empty spec file */`,
+        filename: 'foo.spec.js',
+        errors: 1,
+      },
+      {
+        code: `it['coverage']();`,
+        filename: 'foo.spec.js',
+        errors: 1,
+      },
+    ],
+  });
 });
