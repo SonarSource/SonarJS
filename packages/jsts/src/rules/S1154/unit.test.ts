@@ -15,83 +15,86 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { DefaultParserRuleTester, RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { describe } from 'node:test';
 
-const ruleTesterJs = new RuleTester();
-ruleTesterJs.run('Results of operations on strings should not be ignored [js]', rule, {
-  valid: [
-    {
-      code: `
+describe('S1154', () => {
+  const ruleTesterJs = new DefaultParserRuleTester();
+  ruleTesterJs.run('Results of operations on strings should not be ignored [js]', rule, {
+    valid: [
+      {
+        code: `
       let str = 'hello';
       str.toUpperCase(); // not raised without type information`,
-    },
-  ],
-  invalid: [],
-});
+      },
+    ],
+    invalid: [],
+  });
 
-const ruleTesterTs = new RuleTester();
-ruleTesterTs.run(`Results of operations on strings should not be ignored [ts]`, rule, {
-  valid: [
-    {
-      code: `let res = 'hello'.toUpperCase();`,
-    },
-    {
-      code: `let res = 'hello'.substr(1, 2).toUpperCase();`,
-    },
-    {
-      code: `
+  const ruleTesterTs = new RuleTester();
+  ruleTesterTs.run(`Results of operations on strings should not be ignored [ts]`, rule, {
+    valid: [
+      {
+        code: `let res = 'hello'.toUpperCase();`,
+      },
+      {
+        code: `let res = 'hello'.substr(1, 2).toUpperCase();`,
+      },
+      {
+        code: `
         let str = 'hello';
         let res = str.toUpperCase();
       `,
-    },
-    {
-      code: `'hello'['whatever']();`,
-    },
-  ],
-  invalid: [
-    {
-      code: `'hello'.toUpperCase();`,
-      errors: [
-        {
-          message: `'hello' is an immutable object; you must either store or return the result of the operation.`,
-          line: 1,
-          column: 9,
-          endLine: 1,
-          endColumn: 20,
-        },
-      ],
-    },
-    {
-      code: `
+      },
+      {
+        code: `'hello'['whatever']();`,
+      },
+    ],
+    invalid: [
+      {
+        code: `'hello'.toUpperCase();`,
+        errors: [
+          {
+            message: `'hello' is an immutable object; you must either store or return the result of the operation.`,
+            line: 1,
+            column: 9,
+            endLine: 1,
+            endColumn: 20,
+          },
+        ],
+      },
+      {
+        code: `
         let str = 'hello';
         str.toUpperCase();`,
-      errors: [
-        {
-          message: `str is an immutable object; you must either store or return the result of the operation.`,
-          line: 3,
-          column: 13,
-          endLine: 3,
-          endColumn: 24,
-        },
-      ],
-    },
-    {
-      code: `
+        errors: [
+          {
+            message: `str is an immutable object; you must either store or return the result of the operation.`,
+            line: 3,
+            column: 13,
+            endLine: 3,
+            endColumn: 24,
+          },
+        ],
+      },
+      {
+        code: `
         let str = 'hello';
         str.toLowerCase().toUpperCase().toLowerCase();`,
-      errors: [
-        {
-          message: `String is an immutable object; you must either store or return the result of the operation.`,
-          line: 3,
-          column: 41,
-          endLine: 3,
-          endColumn: 52,
-        },
-      ],
-    },
-    {
-      code: `'hello'.substr(1, 2).toUpperCase();`,
-      errors: 1,
-    },
-  ],
+        errors: [
+          {
+            message: `String is an immutable object; you must either store or return the result of the operation.`,
+            line: 3,
+            column: 41,
+            endLine: 3,
+            endColumn: 52,
+          },
+        ],
+      },
+      {
+        code: `'hello'.substr(1, 2).toUpperCase();`,
+        errors: 1,
+      },
+    ],
+  });
 });

@@ -20,6 +20,7 @@ import path from 'path';
 import parser from '@typescript-eslint/parser';
 import globals from 'globals';
 import merge from 'lodash.merge';
+import { it } from 'node:test';
 
 type Tests = {
   valid: (string | ESLintRuleTester.ValidTestCase)[];
@@ -91,5 +92,6 @@ class RuleTester extends NoTypeCheckingRuleTester {
   }
 }
 
+(RuleTester as any).it = it;
 export { RuleTester, DefaultParserRuleTester, NoTypeCheckingRuleTester };
 export type { Tests };
