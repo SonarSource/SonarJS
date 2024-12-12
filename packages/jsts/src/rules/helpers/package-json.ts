@@ -30,10 +30,42 @@ const findPackageJsons = createFindUp(PACKAGE_JSON);
 
 const DefinitelyTyped = '@types/';
 
+type MinimatchDependency = {
+  name: Minimatch;
+  version?: string;
+};
+
+export type NamedDependency = {
+  name: string;
+  version?: string;
+};
+
+type Dependency = MinimatchDependency | NamedDependency;
+
 /**
  * Cache for the available dependencies by dirname.
  */
-const cache: Map<string, Set<string | Minimatch>> = new Map();
+const cache: Map<string, Set<Dependency>> = new Map();
+
+/**
+ * Returns the dependencies of the root package.json file collected in the cache.
+ * As the cache is populated lazily, it could be null in case no rule execution has touched it.
+ * This removes duplicate dependencies and keeps the last occurrence.
+ */
+export function getAllDependencies(): NamedDependency[] {
+  const dependencies = [...cache.values()]
+    .flatMap(dependencies => [...dependencies])
+    .filter((dependency): dependency is NamedDependency => typeof dependency.name === 'string');
+  return Object.values(
+    dependencies.reduce(
+      (result, dependency) => ({
+        ...result,
+        [dependency.name]: dependency,
+      }),
+      {},
+    ),
+  );
+}
 
 /**
  * Retrieve the dependencies of all the package.json files available for the given file.
@@ -46,9 +78,9 @@ export function getDependencies(filename: string, cwd: string) {
   const dirname = Path.dirname(toUnixPath(filename));
   const cached = cache.get(dirname);
   if (cached) {
-    return cached;
+    return new Set([...cached].map(item => item.name));
   }
-  const result = new Set<string | Minimatch>();
+  const result = new Set<Dependency>();
   cache.set(dirname, result);
 
   getManifests(dirname, cwd, fs).forEach(manifest => {
@@ -59,7 +91,7 @@ export function getDependencies(filename: string, cwd: string) {
     });
   });
 
-  return result;
+  return new Set([...result].map(item => item.name));
 }
 
 /**
@@ -71,7 +103,7 @@ export function clearDependenciesCache() {
 }
 
 export function getDependenciesFromPackageJson(content: PackageJson) {
-  const result = new Set<string | Minimatch>();
+  const result = new Set<Dependency>();
   if (content.name) {
     addDependencies(result, { [content.name]: '*' });
   }
@@ -99,30 +131,37 @@ export function getDependenciesFromPackageJson(content: PackageJson) {
 }
 
 function addDependencies(
-  result: Set<string | Minimatch>,
+  result: Set<Dependency>,
   dependencies: PackageJson.Dependency,
   isGlob = false,
 ) {
-  Object.keys(dependencies).forEach(name => addDependency(result, name, isGlob));
+  Object.keys(dependencies).forEach(name =>
+    addDependency(result, name, isGlob, dependencies[name]),
+  );
 }
 
-function addDependenciesArray(
-  result: Set<string | Minimatch>,
-  dependencies: string[],
-  isGlob = true,
-) {
+function addDependenciesArray(result: Set<Dependency>, dependencies: string[], isGlob = true) {
   dependencies.forEach(name => addDependency(result, name, isGlob));
 }
 
-function addDependency(result: Set<string | Minimatch>, dependency: string, isGlob: boolean) {
+function addDependency(
+  result: Set<Dependency>,
+  dependency: string,
+  isGlob: boolean,
+  version?: string,
+) {
   if (isGlob) {
-    result.add(new Minimatch(dependency, { nocase: true, matchBase: true }));
+    result.add({
+      name: new Minimatch(dependency, { nocase: true, matchBase: true }),
+      version,
+    });
   } else {
-    result.add(
-      dependency.startsWith(DefinitelyTyped)
+    result.add({
+      name: dependency.startsWith(DefinitelyTyped)
         ? dependency.substring(DefinitelyTyped.length)
         : dependency,
-    );
+      version,
+    });
   }
 }
 

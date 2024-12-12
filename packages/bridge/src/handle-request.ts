@@ -16,7 +16,7 @@
  */
 import { analyzeCSS } from '../../css/src/analysis/analyzer.js';
 import { analyzeHTML } from '../../html/src/index.js';
-import { analyzeJSTS } from '../../jsts/src/analysis/analyzer.js';
+import { analyzeJSTS, getTelemetry } from '../../jsts/src/analysis/analyzer.js';
 import { analyzeProject } from '../../jsts/src/analysis/projectAnalysis/projectAnalyzer.js';
 import { analyzeYAML } from '../../yaml/src/index.js';
 import { logHeapStatistics } from './memory.js';
@@ -105,6 +105,10 @@ export async function handleRequest(request: BridgeRequest): Promise<RequestResu
       }
       case 'on-analyze-project': {
         const output = await analyzeProject(request.data);
+        return { type: 'success', result: output };
+      }
+      case 'on-get-telemetry': {
+        const output = getTelemetry();
         return { type: 'success', result: output };
       }
     }

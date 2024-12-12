@@ -533,6 +533,16 @@ public class BridgeServerImpl implements BridgeServer {
     return GSON.fromJson(response.json(), TsConfigFile.class);
   }
 
+  @Override
+  public TelemetryResponse getTelemetry() {
+    try {
+      var result = http.get(url("get-telemetry"));
+      return GSON.fromJson(result, TelemetryResponse.class);
+    } catch (IOException e) {
+      return new TelemetryResponse(List.of());
+    }
+  }
+
   private static <T> List<T> emptyListIfNull(@Nullable List<T> list) {
     return list == null ? emptyList() : list;
   }

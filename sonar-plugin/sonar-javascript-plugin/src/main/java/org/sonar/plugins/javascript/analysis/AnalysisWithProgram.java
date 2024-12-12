@@ -111,6 +111,8 @@ public class AnalysisWithProgram extends AbstractAnalysis {
             )
           );
       }
+      var telemetry = bridgeServer.getTelemetry();
+      new PluginTelemetry(context).reportTelemetry(telemetry);
     } finally {
       if (success) {
         progressReport.stop();
