@@ -16,12 +16,14 @@
  */
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe } from 'node:test';
 
-const ruleTester = new RuleTester();
-ruleTester.run('Variables should be used in the blocks where they are declared', rule, {
-  valid: [
-    {
-      code: `
+describe('S2392', () => {
+  const ruleTester = new RuleTester();
+  ruleTester.run('Variables should be used in the blocks where they are declared', rule, {
+    valid: [
+      {
+        code: `
         function fun() {
 
           if (cond) {
@@ -48,11 +50,11 @@ ruleTester.run('Variables should be used in the blocks where they are declared',
           }
         }
         `,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+      },
+    ],
+    invalid: [
+      {
+        code: `
         function fun() {
           if (cond) {
             var a = 42;
@@ -62,19 +64,19 @@ ruleTester.run('Variables should be used in the blocks where they are declared',
           }
         }
         `,
-      errors: [
-        {
-          message: `{"message":"Consider moving declaration of 'a' as it is referenced outside current binding context.","secondaryLocations":[{"message":"Outside reference.","column":16,"line":7,"endColumn":17,"endLine":7}]}`,
-          line: 4,
-          endLine: 4,
-          column: 17,
-          endColumn: 18,
-        },
-      ],
-      options: ['sonar-runtime'],
-    },
-    {
-      code: `
+        errors: [
+          {
+            message: `{"message":"Consider moving declaration of 'a' as it is referenced outside current binding context.","secondaryLocations":[{"message":"Outside reference.","column":16,"line":7,"endColumn":17,"endLine":7}]}`,
+            line: 4,
+            endLine: 4,
+            column: 17,
+            endColumn: 18,
+          },
+        ],
+        options: ['sonar-runtime'],
+      },
+      {
+        code: `
       function fun() {
         if (cond) {
           var a = 42; // nok
@@ -82,35 +84,35 @@ ruleTester.run('Variables should be used in the blocks where they are declared',
         console.log(a);
       }
         `,
-      errors: [
-        {
-          message: `{"message":"Consider moving declaration of 'a' as it is referenced outside current binding context.","secondaryLocations":[{"message":"Outside reference.","column":20,"line":6,"endColumn":21,"endLine":6}]}`,
-          line: 4,
-        },
-      ],
-      options: ['sonar-runtime'],
-    },
-    {
-      code: `
+        errors: [
+          {
+            message: `{"message":"Consider moving declaration of 'a' as it is referenced outside current binding context.","secondaryLocations":[{"message":"Outside reference.","column":20,"line":6,"endColumn":21,"endLine":6}]}`,
+            line: 4,
+          },
+        ],
+        options: ['sonar-runtime'],
+      },
+      {
+        code: `
         function fun() {
           for (var i = 0; ;) {}
           foo(i);
           return i;
         }
         `,
-      errors: [
-        {
-          message: `{"message":"Consider moving declaration of 'i' as it is referenced outside current binding context.","secondaryLocations":[{"message":"Outside reference.","column":14,"line":4,"endColumn":15,"endLine":4},{"message":"Outside reference.","column":17,"line":5,"endColumn":18,"endLine":5}]}`,
-          line: 3,
-          endLine: 3,
-          column: 20,
-          endColumn: 21,
-        },
-      ],
-      options: ['sonar-runtime'],
-    },
-    {
-      code: `
+        errors: [
+          {
+            message: `{"message":"Consider moving declaration of 'i' as it is referenced outside current binding context.","secondaryLocations":[{"message":"Outside reference.","column":14,"line":4,"endColumn":15,"endLine":4},{"message":"Outside reference.","column":17,"line":5,"endColumn":18,"endLine":5}]}`,
+            line: 3,
+            endLine: 3,
+            column: 20,
+            endColumn: 21,
+          },
+        ],
+        options: ['sonar-runtime'],
+      },
+      {
+        code: `
         function fun() {
           for (var i in smth) {}
           foo(i);
@@ -125,17 +127,24 @@ ruleTester.run('Variables should be used in the blocks where they are declared',
           foo(k);
         }
         `,
-      errors: [
-        {
-          line: 3,
-        },
-        {
-          line: 6,
-        },
-        {
-          line: 11,
-        },
-      ],
-    },
-  ],
+        errors: [
+          {
+            message:
+              "Consider moving declaration of 'i' as it is referenced outside current binding context.",
+            line: 3,
+          },
+          {
+            message:
+              "Consider moving declaration of 'j' as it is referenced outside current binding context.",
+            line: 6,
+          },
+          {
+            message:
+              "Consider moving declaration of 'k' as it is referenced outside current binding context.",
+            line: 11,
+          },
+        ],
+      },
+    ],
+  });
 });

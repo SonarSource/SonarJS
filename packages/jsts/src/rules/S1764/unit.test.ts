@@ -16,253 +16,247 @@
  */
 import { rule } from './rule.js';
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { describe } from 'node:test';
 
-const ruleTester = new RuleTester();
+describe('S1764', () => {
+  const ruleTester = new RuleTester();
 
-ruleTester.run('no-identical-expressions', rule, {
-  valid: [
-    { code: `1 << 1;` },
-    { code: `1n << 1n;` },
-    { code: `foo(), foo();` },
-    { code: `if (Foo instanceof Foo) { }` },
-    {
-      code: `name === "any" || name === "string" || name === "number" || name === "boolean" || name === "never"`,
-    },
-    { code: `a != a;` },
-    { code: `a === a;` },
-    { code: `a !== a;` },
+  ruleTester.run('no-identical-expressions', rule, {
+    valid: [
+      { code: `1 << 1;` },
+      { code: `1n << 1n;` },
+      { code: `foo(), foo();` },
+      { code: `if (Foo instanceof Foo) { }` },
+      {
+        code: `name === "any" || name === "string" || name === "number" || name === "boolean" || name === "never"`,
+      },
+      { code: `a != a;` },
+      { code: `a === a;` },
+      { code: `a !== a;` },
 
-    { code: `node.text === "eval" || node.text === "arguments";` },
-    { code: `nodeText === '"use strict"' || nodeText === "'use strict'";` },
-    { code: `name.charCodeAt(0) === CharacterCodes._ && name.charCodeAt(1) === CharacterCodes._;` },
-    { code: `if (+a !== +b) { }` },
-    { code: 'first(`const`) || first(`var`);' },
-    {
-      code: 'window[`${prefix}CancelAnimationFra  me`] || window[`${prefix}CancelRequestAnimationFrame`];',
-    },
-    { code: '' },
-    { code: `dirPath.match(/localhost:\d+/) || dirPath.match(/localhost:\d+\s/);` },
-    { code: `a == b || a == c;` },
-    { code: `a == b;` },
-  ],
-  invalid: [
-    {
-      code: 'a == b && a == b',
-      errors: [
-        {
-          messageId: 'correctIdenticalSubExpressions',
-          data: {
-            operator: '&&',
+      { code: `node.text === "eval" || node.text === "arguments";` },
+      { code: `nodeText === '"use strict"' || nodeText === "'use strict'";` },
+      {
+        code: `name.charCodeAt(0) === CharacterCodes._ && name.charCodeAt(1) === CharacterCodes._;`,
+      },
+      { code: `if (+a !== +b) { }` },
+      { code: 'first(`const`) || first(`var`);' },
+      {
+        code: 'window[`${prefix}CancelAnimationFra  me`] || window[`${prefix}CancelRequestAnimationFrame`];',
+      },
+      { code: '' },
+      { code: `dirPath.match(/localhost:\d+/) || dirPath.match(/localhost:\d+\s/);` },
+      { code: `a == b || a == c;` },
+      { code: `a == b;` },
+    ],
+    invalid: [
+      {
+        code: 'a == b && a == b',
+        errors: [
+          {
+            messageId: 'correctIdenticalSubExpressions',
+            data: {
+              operator: '&&',
+            },
+            column: 1,
+            endColumn: 17,
           },
-          column: 1,
-          endColumn: 17,
-        },
-      ],
-    },
-    {
-      code: 'a == b || a == b',
-      errors: [
-        {
-          messageId: 'correctIdenticalSubExpressions',
-          data: {
-            operator: '||',
+        ],
+      },
+      {
+        code: 'a == b || a == b',
+        errors: [
+          {
+            messageId: 'correctIdenticalSubExpressions',
+            data: {
+              operator: '||',
+            },
           },
-        },
-      ],
-    },
-    {
-      code: `a == b || a == b
+        ],
+      },
+      {
+        code: `a == b || a == b
       //     ^^^^^^>   ^^^^^^`,
-      options: ['sonar-runtime'],
-      errors: [
-        {
-          messageId: 'sonarRuntime',
-          data: {
-            operator: '||',
-            sonarRuntimeData: JSON.stringify({
-              message:
-                'Correct one of the identical sub-expressions on both sides of operator "||"',
-              secondaryLocations: [
-                {
-                  column: 0,
-                  line: 1,
-                  endColumn: 6,
-                  endLine: 1,
-                },
-              ],
-            }),
+        options: ['sonar-runtime'],
+        errors: [
+          {
+            messageId: 'sonarRuntime',
+            data: {
+              operator: '||',
+              sonarRuntimeData: JSON.stringify({
+                message:
+                  'Correct one of the identical sub-expressions on both sides of operator "||"',
+                secondaryLocations: [
+                  {
+                    column: 0,
+                    line: 1,
+                    endColumn: 6,
+                    endLine: 1,
+                  },
+                ],
+              }),
+            },
+            line: 1,
+            endLine: 1,
+            column: 11,
+            endColumn: 17,
           },
-          line: 1,
-          endLine: 1,
-          column: 11,
-          endColumn: 17,
-        },
-      ],
-    },
-    {
-      code: 'a > a',
-      errors: [
-        {
-          messageId: 'correctIdenticalSubExpressions',
-          data: {
-            operator: '>',
+        ],
+      },
+      {
+        code: 'a > a',
+        errors: [
+          {
+            messageId: 'correctIdenticalSubExpressions',
+            data: {
+              operator: '>',
+            },
           },
-        },
-      ],
-    },
-    {
-      code: 'a >= a',
-      errors: [
-        {
-          messageId: 'correctIdenticalSubExpressions',
-          data: {
-            operator: '>=',
+        ],
+      },
+      {
+        code: 'a >= a',
+        errors: [
+          {
+            messageId: 'correctIdenticalSubExpressions',
+            data: {
+              operator: '>=',
+            },
           },
-        },
-      ],
-    },
-    {
-      code: 'a < a',
-      errors: [
-        {
-          messageId: 'correctIdenticalSubExpressions',
-          data: {
-            operator: '<',
+        ],
+      },
+      {
+        code: 'a < a',
+        errors: [
+          {
+            messageId: 'correctIdenticalSubExpressions',
+            data: {
+              operator: '<',
+            },
           },
-        },
-      ],
-    },
-    {
-      code: 'a <= a',
-      errors: [
-        {
-          messageId: 'correctIdenticalSubExpressions',
-          data: {
-            operator: '<=',
+        ],
+      },
+      {
+        code: 'a <= a',
+        errors: [
+          {
+            messageId: 'correctIdenticalSubExpressions',
+            data: {
+              operator: '<=',
+            },
           },
-        },
-      ],
-    },
-    {
-      code: '5 / 5',
-      errors: [
-        {
-          messageId: 'correctIdenticalSubExpressions',
-          data: {
-            operator: '/',
+        ],
+      },
+      {
+        code: '5 / 5',
+        errors: [
+          {
+            messageId: 'correctIdenticalSubExpressions',
+            data: {
+              operator: '/',
+            },
           },
-        },
-      ],
-    },
-    {
-      code: '5 - 5',
-      errors: [
-        {
-          messageId: 'correctIdenticalSubExpressions',
-          data: {
-            operator: '-',
+        ],
+      },
+      {
+        code: '5 - 5',
+        errors: [
+          {
+            messageId: 'correctIdenticalSubExpressions',
+            data: {
+              operator: '-',
+            },
           },
-        },
-      ],
-    },
-    {
-      code: 'a << a',
-      errors: [
-        {
-          messageId: 'correctIdenticalSubExpressions',
-          data: {
-            operator: '<<',
+        ],
+      },
+      {
+        code: 'a << a',
+        errors: [
+          {
+            messageId: 'correctIdenticalSubExpressions',
+            data: {
+              operator: '<<',
+            },
           },
-        },
-      ],
-    },
-    {
-      code: 'a << a',
-      errors: [
-        {
-          messageId: 'correctIdenticalSubExpressions',
-          data: {
-            operator: '<<',
+        ],
+      },
+      {
+        code: 'a >> a',
+        errors: [
+          {
+            messageId: 'correctIdenticalSubExpressions',
+            data: {
+              operator: '>>',
+            },
           },
-        },
-      ],
-    },
-    {
-      code: 'a >> a',
-      errors: [
-        {
-          messageId: 'correctIdenticalSubExpressions',
-          data: {
-            operator: '>>',
+        ],
+      },
+      {
+        code: '1 >> 1',
+        errors: [
+          {
+            messageId: 'correctIdenticalSubExpressions',
+            data: {
+              operator: '>>',
+            },
           },
-        },
-      ],
-    },
-    {
-      code: '1 >> 1',
-      errors: [
-        {
-          messageId: 'correctIdenticalSubExpressions',
-          data: {
-            operator: '>>',
+        ],
+      },
+      {
+        code: '5 << 5',
+        errors: [
+          {
+            messageId: 'correctIdenticalSubExpressions',
+            data: {
+              operator: '<<',
+            },
           },
-        },
-      ],
-    },
-    {
-      code: '5 << 5',
-      errors: [
-        {
-          messageId: 'correctIdenticalSubExpressions',
-          data: {
-            operator: '<<',
+        ],
+      },
+      {
+        code: 'obj.foo() == obj.foo()',
+        errors: [
+          {
+            messageId: 'correctIdenticalSubExpressions',
+            data: {
+              operator: '==',
+            },
           },
-        },
-      ],
-    },
-    {
-      code: 'obj.foo() == obj.foo()',
-      errors: [
-        {
-          messageId: 'correctIdenticalSubExpressions',
-          data: {
-            operator: '==',
+        ],
+      },
+      {
+        code: 'foo(/*comment*/() => doSomething()) === foo(() => doSomething())',
+        errors: [
+          {
+            messageId: 'correctIdenticalSubExpressions',
+            data: {
+              operator: '===',
+            },
           },
-        },
-      ],
-    },
-    {
-      code: 'foo(/*comment*/() => doSomething()) === foo(() => doSomething())',
-      errors: [
-        {
-          messageId: 'correctIdenticalSubExpressions',
-          data: {
-            operator: '===',
+        ],
+      },
+      {
+        code: '(a == b) == (a == b)',
+        errors: [
+          {
+            messageId: 'correctIdenticalSubExpressions',
+            data: {
+              operator: '==',
+            },
           },
-        },
-      ],
-    },
-    {
-      code: '(a == b) == (a == b)',
-      errors: [
-        {
-          messageId: 'correctIdenticalSubExpressions',
-          data: {
-            operator: '==',
+        ],
+      },
+      {
+        code: 'if (+a !== +a);',
+        errors: [
+          {
+            messageId: 'correctIdenticalSubExpressions',
+            data: {
+              operator: '!==',
+            },
           },
-        },
-      ],
-    },
-    {
-      code: 'if (+a !== +a);',
-      errors: [
-        {
-          messageId: 'correctIdenticalSubExpressions',
-          data: {
-            operator: '!==',
-          },
-        },
-      ],
-    },
-  ],
+        ],
+      },
+    ],
+  });
 });

@@ -16,12 +16,14 @@
  */
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe } from 'node:test';
 
-const ruleTester = new RuleTester();
-ruleTester.run(`Functions should not be defined inside loops`, rule, {
-  valid: [
-    {
-      code: `
+describe('S1515', () => {
+  const ruleTester = new RuleTester();
+  ruleTester.run(`Functions should not be defined inside loops`, rule, {
+    valid: [
+      {
+        code: `
       for (var i = 0; i < 10; i++) {
         funs[i] = function(i) {  // OK, no variable from outer scope is used
           return i;
@@ -33,9 +35,9 @@ ruleTester.run(`Functions should not be defined inside loops`, rule, {
         return i;
       };
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       for (var i = 0; i < 10; i++) {
         funs[i] = function() {  // OK, no variable from outer scope is used
           var x = 42;
@@ -56,18 +58,18 @@ ruleTester.run(`Functions should not be defined inside loops`, rule, {
         }
       }
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       for (let i = 0; i < 13; i++) {
         funs[i] = function() {              // Ok, 'let' declaration
           return i;
         };
       }
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       function value_written_once() {
         var constValue = 42;
         for (let i = 0; i < 13; i++) {
@@ -76,9 +78,9 @@ ruleTester.run(`Functions should not be defined inside loops`, rule, {
           };
         }
       }`,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       class A {
       
         foo() {}
@@ -92,9 +94,9 @@ ruleTester.run(`Functions should not be defined inside loops`, rule, {
         }
       }
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       function some_callbacks_ok() {
         for (var i = 0; i < 13; i++) {
       
@@ -153,9 +155,9 @@ ruleTester.run(`Functions should not be defined inside loops`, rule, {
         }
       }
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       function iife_ok() {
         for (var i = 0; i < 13; i++) {
       
@@ -168,9 +170,9 @@ ruleTester.run(`Functions should not be defined inside loops`, rule, {
           }).call(this);
         }
       }`,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       var timeout = 5000;
       while (true) {
         new Promise((resolve) => setTimeout(resolve, timeout))
@@ -182,9 +184,9 @@ ruleTester.run(`Functions should not be defined inside loops`, rule, {
         };
       }
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       const object = {a: 1, b: 2, c: 3};
       for (const property in object) {
         funs[i] = function() {              // OK
@@ -192,11 +194,11 @@ ruleTester.run(`Functions should not be defined inside loops`, rule, {
         };
       }
             `,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+      },
+    ],
+    invalid: [
+      {
+        code: `
           var funs = [];     
 
           for (var i = 0; i < 13; i++) {
@@ -233,85 +235,85 @@ ruleTester.run(`Functions should not be defined inside loops`, rule, {
             };
           }
           `,
-      errors: [
-        {
-          message: JSON.stringify({
-            message: `Make sure this function is not called after the loop completes.`,
-            secondaryLocations: [
-              {
-                column: 10,
-                line: 4,
-                endColumn: 13,
-                endLine: 4,
-              },
-            ],
-          }),
-          line: 5,
-          endLine: 5,
-          column: 23,
-          endColumn: 31,
-        },
-        {
-          message: JSON.stringify({
-            message: `Make sure this function is not called after the loop completes.`,
-            secondaryLocations: [
-              {
-                column: 10,
-                line: 10,
-                endColumn: 13,
-                endLine: 10,
-              },
-            ],
-          }),
-          line: 12,
-        },
-        {
-          message: JSON.stringify({
-            message: `Make sure this function is not called after the loop completes.`,
-            secondaryLocations: [
-              {
-                column: 10,
-                line: 18,
-                endColumn: 15,
-                endLine: 18,
-              },
-            ],
-          }),
-          line: 19,
-        },
-        {
-          message: JSON.stringify({
-            message: `Make sure this function is not called after the loop completes.`,
-            secondaryLocations: [
-              {
-                column: 12,
-                line: 28,
-                endColumn: 17,
-                endLine: 28,
-              },
-            ],
-          }),
-          line: 25,
-        },
-        {
-          message: JSON.stringify({
-            message: `Make sure this function is not called after the loop completes.`,
-            secondaryLocations: [
-              {
-                column: 10,
-                line: 32,
-                endColumn: 13,
-                endLine: 32,
-              },
-            ],
-          }),
-          line: 33,
-        },
-      ],
-      options: ['sonar-runtime'],
-    },
-    {
-      code: `
+        errors: [
+          {
+            message: JSON.stringify({
+              message: `Make sure this function is not called after the loop completes.`,
+              secondaryLocations: [
+                {
+                  column: 10,
+                  line: 4,
+                  endColumn: 13,
+                  endLine: 4,
+                },
+              ],
+            }),
+            line: 5,
+            endLine: 5,
+            column: 23,
+            endColumn: 31,
+          },
+          {
+            message: JSON.stringify({
+              message: `Make sure this function is not called after the loop completes.`,
+              secondaryLocations: [
+                {
+                  column: 10,
+                  line: 10,
+                  endColumn: 13,
+                  endLine: 10,
+                },
+              ],
+            }),
+            line: 12,
+          },
+          {
+            message: JSON.stringify({
+              message: `Make sure this function is not called after the loop completes.`,
+              secondaryLocations: [
+                {
+                  column: 10,
+                  line: 18,
+                  endColumn: 15,
+                  endLine: 18,
+                },
+              ],
+            }),
+            line: 19,
+          },
+          {
+            message: JSON.stringify({
+              message: `Make sure this function is not called after the loop completes.`,
+              secondaryLocations: [
+                {
+                  column: 12,
+                  line: 28,
+                  endColumn: 17,
+                  endLine: 28,
+                },
+              ],
+            }),
+            line: 25,
+          },
+          {
+            message: JSON.stringify({
+              message: `Make sure this function is not called after the loop completes.`,
+              secondaryLocations: [
+                {
+                  column: 10,
+                  line: 32,
+                  endColumn: 13,
+                  endLine: 32,
+                },
+              ],
+            }),
+            line: 33,
+          },
+        ],
+        options: ['sonar-runtime'],
+      },
+      {
+        code: `
           var funs = [];
 
           for (var i = 0; i < 13; i++) {
@@ -320,14 +322,15 @@ ruleTester.run(`Functions should not be defined inside loops`, rule, {
             };
           }
       `,
-      errors: [
-        {
-          line: 5,
-        },
-      ],
-    },
-    {
-      code: `
+        errors: [
+          {
+            message: 'Make sure this function is not called after the loop completes.',
+            line: 5,
+          },
+        ],
+      },
+      {
+        code: `
       function value_written_once() {
 
         for (let i = 0; i < 13; i++) {
@@ -346,10 +349,10 @@ ruleTester.run(`Functions should not be defined inside loops`, rule, {
         }
       }
       `,
-      errors: 2,
-    },
-    {
-      code: `
+        errors: 2,
+      },
+      {
+        code: `
       for (var i = 0; i < 10; i++) {
         var x = 42;
         funs[i] = function() {  // Noncompliant, x is in the loop scope
@@ -360,10 +363,10 @@ ruleTester.run(`Functions should not be defined inside loops`, rule, {
         }
       }
       `,
-      errors: 2,
-    },
-    {
-      code: `
+        errors: 2,
+      },
+      {
+        code: `
           function some_callbacks_not_ok() {
             for (var i = 0; i < 13; i++) {
               arr.unknown(function() {              // Noncompliant
@@ -376,18 +379,18 @@ ruleTester.run(`Functions should not be defined inside loops`, rule, {
             }
           }
           `,
-      errors: 2,
-    },
-    {
-      code: `
+        errors: 2,
+      },
+      {
+        code: `
       while (true) {
         var timeout = 5000;
         new Promise((resolve) => setTimeout(resolve, timeout)) // Noncompliant
       }`,
-      errors: 1,
-    },
-    {
-      code: `   
+        errors: 1,
+      },
+      {
+        code: `   
       for (var i = 0; i < 10; i++) {
         funs[i] = (function() {             
           return function() {               // Noncompliant
@@ -403,14 +406,17 @@ ruleTester.run(`Functions should not be defined inside loops`, rule, {
               };
           }(i));
       }`,
-      errors: [
-        {
-          line: 4,
-        },
-        {
-          line: 12,
-        },
-      ],
-    },
-  ],
+        errors: [
+          {
+            message: 'Make sure this function is not called after the loop completes.',
+            line: 4,
+          },
+          {
+            message: 'Make sure this function is not called after the loop completes.',
+            line: 12,
+          },
+        ],
+      },
+    ],
+  });
 });

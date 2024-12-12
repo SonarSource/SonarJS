@@ -16,45 +16,48 @@
  */
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe } from 'node:test';
 
-const ruleTester = new RuleTester();
+describe('S1763', () => {
+  const ruleTester = new RuleTester();
 
-ruleTester.run(`Decorated rule should provide suggestion`, rule, {
-  valid: [
-    {
-      code: `
+  ruleTester.run(`Decorated rule should provide suggestion`, rule, {
+    valid: [
+      {
+        code: `
 while (a()) {
   b();
   break;
 }
 `,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+      },
+    ],
+    invalid: [
+      {
+        code: `
 while (a()) {
   break;
   b();
 }
 `,
-      errors: [
-        {
-          suggestions: [
-            {
-              output: `
+        errors: [
+          {
+            messageId: 'unreachableCode',
+            suggestions: [
+              {
+                output: `
 while (a()) {
   break;
 }
 `,
-              desc: 'Remove unreachable code',
-            },
-          ],
-        },
-      ],
-    },
-    {
-      code: `
+                desc: 'Remove unreachable code',
+              },
+            ],
+          },
+        ],
+      },
+      {
+        code: `
 while (a()) {
   b();
   break;
@@ -62,21 +65,23 @@ while (a()) {
   d();
 }
 `,
-      errors: [
-        {
-          suggestions: [
-            {
-              output: `
+        errors: [
+          {
+            messageId: 'unreachableCode',
+            suggestions: [
+              {
+                output: `
 while (a()) {
   b();
   break;
 }
 `,
-              desc: 'Remove unreachable code',
-            },
-          ],
-        },
-      ],
-    },
-  ],
+                desc: 'Remove unreachable code',
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  });
 });
