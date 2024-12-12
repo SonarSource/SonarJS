@@ -1,4 +1,4 @@
-import { listRulesDir, RULES_FOLDER } from './helpers.js';
+import { listRulesDir, RULES_FOLDER, writePrettyFile } from './helpers.js';
 import { readdir } from 'fs/promises';
 import { join } from 'node:path';
 import { readFile } from 'node:fs/promises';
@@ -14,23 +14,22 @@ for (const rule of rules) {
     continue;
   }
   const testContents = await readFile(join(ruleFolder, UNIT_TEST), 'utf8');
-  if (testContents.includes("import { describe } from 'node:test';")) {
+  if (testContents.match(/import\s*\{\s*[^}]*\s*}\s+from\s+'node:test'/)) {
     console.log('DONEEEEE!!');
     count++;
     continue;
   }
   const lines = testContents.split('\n');
   const lastImport = lines.findLastIndex(line => line.startsWith('import {'));
-  lines
-    .splice(
-      lastImport,
-      0,
-      `import { describe } from 'node:test';`,
-      '',
-      `describe('${rule}', () => {`,
-    )
-    .push('});');
-
+  lines.splice(
+    lastImport + 1,
+    0,
+    `import { describe } from 'node:test';`,
+    '',
+    `describe('${rule}', () => {`,
+  );
+  lines.push('});');
+  await writePrettyFile(join(ruleFolder, UNIT_TEST), lines.join('\n'));
   //console.log(ruleFolder);
 }
 

@@ -16,23 +16,31 @@
  */
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe } from 'node:test';
 
 // Main test cases are in the file comment-based fixture file.
 // Here we are testing that no issues are reported when no 'chai' import.
 
-const ruleTester = new RuleTester();
-ruleTester.run('Assertions should not be given twice the same argument', rule, {
-  valid: [
-    {
-      code: `expect(foo).to.not.throw(ReferenceError);`,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+describe('S6092', () => {
+  const ruleTester = new RuleTester();
+  ruleTester.run('Assertions should not be given twice the same argument', rule, {
+    valid: [
+      {
+        code: `expect(foo).to.not.throw(ReferenceError);`,
+      },
+    ],
+    invalid: [
+      {
+        code: `
       const chai = require('chai');
       expect(foo).to.not.throw(ReferenceError);`,
-      errors: [{ line: 3 }],
-    },
-  ],
+        errors: [
+          {
+            message: 'Refactor this uncertain assertion; it can succeed for multiple reasons.',
+            line: 3,
+          },
+        ],
+      },
+    ],
+  });
 });

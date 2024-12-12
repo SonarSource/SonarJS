@@ -15,10 +15,12 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { NoTypeCheckingRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { describe } from 'node:test';
 
-const ruleTester = new RuleTester();
+const ruleTester = new NoTypeCheckingRuleTester({
+  parserOptions: { ecmaFeatures: { jsx: false } },
+});
 
 describe('S1110', () => {
   ruleTester.run('Redundant pairs of parentheses should be removed', rule, {
@@ -151,6 +153,7 @@ describe('S1110', () => {
       },
       {
         code: `if (myBool) { ((<myCast>obj)).methodCall() }`,
+        filename: 'file.ts',
         errors: [
           {
             message:

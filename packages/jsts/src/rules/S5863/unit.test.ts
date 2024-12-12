@@ -16,24 +16,27 @@
  */
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe } from 'node:test';
 
-const ruleTester = new RuleTester();
+describe('S5863', () => {
+  const ruleTester = new RuleTester();
 
-// Main test cases are in the file comment-based fixture file.
-// Here we are testing that no issues are reported when no 'chai' import.
+  // Main test cases are in the file comment-based fixture file.
+  // Here we are testing that no issues are reported when no 'chai' import.
 
-ruleTester.run('Assertions should not be given twice the same argument', rule, {
-  valid: [
-    {
-      code: `assert.equal(obj, obj);`,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+  ruleTester.run('Assertions should not be given twice the same argument', rule, {
+    valid: [
+      {
+        code: `assert.equal(obj, obj);`,
+      },
+    ],
+    invalid: [
+      {
+        code: `
       const chai = require('chai');
       assert.equal(obj, obj);`,
-      errors: [{ line: 3 }],
-    },
-  ],
+        errors: [{ message: 'Replace this argument or its duplicate.', line: 3 }],
+      },
+    ],
+  });
 });

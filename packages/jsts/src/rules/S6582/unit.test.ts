@@ -14,15 +14,18 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { DefaultParserRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe } from 'node:test';
 
-const ruleTester = new RuleTester();
-ruleTester.run('Sanitized prefer-optional-chain should not raise a runtime error', rule, {
-  valid: [
-    {
-      code: `foo && foo.a;`,
-    },
-  ],
-  invalid: [],
+describe('S6582', () => {
+  const ruleTester = new DefaultParserRuleTester();
+  ruleTester.run('Sanitized prefer-optional-chain should not raise a runtime error', rule, {
+    valid: [
+      {
+        code: `foo && foo.a;`,
+      },
+    ],
+    invalid: [],
+  });
 });

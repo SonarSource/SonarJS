@@ -16,50 +16,52 @@
  */
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe } from 'node:test';
 
-const ruleTesterTs = new RuleTester();
-ruleTesterTs.run('redos', rule, {
-  valid: [
-    {
-      code: `
+describe('S5852', () => {
+  const ruleTesterTs = new RuleTester();
+  ruleTesterTs.run('redos', rule, {
+    valid: [
+      {
+        code: `
       /a|b|c/;
       /x*x*/;
       /a*(ab)*/;
       /x*|x*/;
       /a*b*/;
       `,
-    },
-  ],
-  invalid: [
-    {
-      code: ` 
+      },
+    ],
+    invalid: [
+      {
+        code: ` 
         /(a+)+$/
       `,
-      errors: [
-        {
-          message: `Make sure the regex used here, which is vulnerable to super-linear runtime due to backtracking, cannot lead to denial of service.`,
-          line: 2,
-          endLine: 2,
-          column: 9,
-          endColumn: 17,
-        },
-      ],
-    },
-    {
-      code: ` 
+        errors: [
+          {
+            message: `Make sure the regex used here, which is vulnerable to super-linear runtime due to backtracking, cannot lead to denial of service.`,
+            line: 2,
+            endLine: 2,
+            column: 9,
+            endColumn: 17,
+          },
+        ],
+      },
+      {
+        code: ` 
         /([^,]*,)*/; // FP? compliant in SonarJava tests
       `,
-      errors: 1,
-    },
-    {
-      code: ` 
+        errors: 1,
+      },
+      {
+        code: ` 
         new RegExp('x*$');
       `,
-      errors: 1,
-    },
-    {
-      // Real vulnerabilities
-      code: `
+        errors: 1,
+      },
+      {
+        // Real vulnerabilities
+        code: `
       protocol.trim().split(/ *, */);
       var matcher = /.+\\@.+\\..+/;
       enclosure = /[{[].*\\/.*[}\\]]$/;
@@ -74,46 +76,58 @@ ruleTesterTs.run('redos', rule, {
       const match = /^data:(?<type>.*?),(?<data>.*?)(?:#(?<hash>.*))?$/.exec(urlString);
       const match = /^data:(?<type>[^,]*?),(?<data>[^#]*?)(?:#(?<hash>.*))?$/.exec(urlString); // OK, fix for previous one
       `,
-      errors: [
-        {
-          line: 2,
-        },
-        {
-          line: 3,
-        },
-        {
-          line: 4,
-        },
-        {
-          line: 5,
-        },
-        {
-          line: 6,
-        },
-        {
-          line: 7,
-        },
-        {
-          line: 8,
-        },
-        {
-          line: 9,
-        },
-        {
-          line: 10,
-        },
-        {
-          line: 11,
-        },
-        {
-          line: 13,
-        },
-      ],
-    },
-    {
-      // fails on Node 10
-      code: `new RegExp('[\\x09\\x0A]*$');`,
-      errors: 1,
-    },
-  ],
+        errors: [
+          {
+            message: `Make sure the regex used here, which is vulnerable to super-linear runtime due to backtracking, cannot lead to denial of service.`,
+            line: 2,
+          },
+          {
+            message: `Make sure the regex used here, which is vulnerable to super-linear runtime due to backtracking, cannot lead to denial of service.`,
+            line: 3,
+          },
+          {
+            message: `Make sure the regex used here, which is vulnerable to super-linear runtime due to backtracking, cannot lead to denial of service.`,
+            line: 4,
+          },
+          {
+            message: `Make sure the regex used here, which is vulnerable to super-linear runtime due to backtracking, cannot lead to denial of service.`,
+            line: 5,
+          },
+          {
+            message: `Make sure the regex used here, which is vulnerable to super-linear runtime due to backtracking, cannot lead to denial of service.`,
+            line: 6,
+          },
+          {
+            message: `Make sure the regex used here, which is vulnerable to super-linear runtime due to backtracking, cannot lead to denial of service.`,
+            line: 7,
+          },
+          {
+            message: `Make sure the regex used here, which is vulnerable to super-linear runtime due to backtracking, cannot lead to denial of service.`,
+            line: 8,
+          },
+          {
+            message: `Make sure the regex used here, which is vulnerable to super-linear runtime due to backtracking, cannot lead to denial of service.`,
+            line: 9,
+          },
+          {
+            message: `Make sure the regex used here, which is vulnerable to super-linear runtime due to backtracking, cannot lead to denial of service.`,
+            line: 10,
+          },
+          {
+            message: `Make sure the regex used here, which is vulnerable to super-linear runtime due to backtracking, cannot lead to denial of service.`,
+            line: 11,
+          },
+          {
+            message: `Make sure the regex used here, which is vulnerable to super-linear runtime due to backtracking, cannot lead to denial of service.`,
+            line: 13,
+          },
+        ],
+      },
+      {
+        // fails on Node 10
+        code: `new RegExp('[\\x09\\x0A]*$');`,
+        errors: 1,
+      },
+    ],
+  });
 });

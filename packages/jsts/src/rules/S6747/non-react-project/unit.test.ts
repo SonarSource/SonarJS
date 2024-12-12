@@ -16,17 +16,20 @@
  */
 import { rule } from '../rule.js';
 import { join } from 'node:path';
-import { RuleTester } from '../../../../tests/tools/testers/rule-tester.js';
+import { NoTypeCheckingRuleTester } from '../../../../tests/tools/testers/rule-tester.js';
+import { describe } from 'node:test';
 
-const dirname = join(import.meta.dirname, 'fixtures');
-process.chdir(dirname); // change current working dir to avoid the package.json lookup to up in the tree
-const ruleTester = new RuleTester();
-ruleTester.run('S6747 turns into a noop on non-React projects', rule, {
-  valid: [
-    {
-      code: '<div class="foo"></div>;',
-      filename: join(dirname, 'filename.jsx'),
-    },
-  ],
-  invalid: [],
+describe('S6947', () => {
+  const dirname = join(import.meta.dirname, 'fixtures');
+  process.chdir(dirname); // change current working dir to avoid the package.json lookup to up in the tree
+  const ruleTester = new NoTypeCheckingRuleTester();
+  ruleTester.run('S6747 turns into a noop on non-React projects', rule, {
+    valid: [
+      {
+        code: '<div class="foo"></div>;',
+        filename: join(dirname, 'filename.jsx'),
+      },
+    ],
+    invalid: [],
+  });
 });

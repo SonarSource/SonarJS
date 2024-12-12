@@ -16,75 +16,108 @@
  */
 import { rule } from './index.js';
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { describe } from 'node:test';
 
-const ruleTester = new RuleTester();
+describe('S4634', () => {
+  const ruleTester = new RuleTester();
 
-ruleTester.run('Shorthand promises should be used', rule, {
-  valid: [
-    {
-      code: `let fulfilledPromise = new Promise(resolve => { resolve(calc(42));  console.log("foo"); });`,
-    },
-    {
-      code: `let fulfilledPromise = Promise.resolve(42);`,
-    },
-    {
-      code: `let fulfilledPromise = Promise.reject('fail');`,
-    },
-    {
-      code: `
+  ruleTester.run('Shorthand promises should be used', rule, {
+    valid: [
+      {
+        code: `let fulfilledPromise = new Promise(resolve => { resolve(calc(42));  console.log("foo"); });`,
+      },
+      {
+        code: `let fulfilledPromise = Promise.resolve(42);`,
+      },
+      {
+        code: `let fulfilledPromise = Promise.reject('fail');`,
+      },
+      {
+        code: `
       function calc(x:number): number { return x * 2; }
       let somePromise = new Promise(() => { calc(42); }); // 0 parameters
       `,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+      },
+    ],
+    invalid: [
+      {
+        code: `
       let fulfilledPromise = new Promise(resolve => resolve(calc(42)));
       `,
-      errors: [
-        {
-          message: `Replace this trivial promise with "Promise.resolve".`,
-          line: 2,
-          endLine: 2,
-          column: 34,
-          endColumn: 41,
-        },
-      ],
-    },
-    {
-      code: `let rejectedPromise = new Promise((resolve, reject) => reject(new Error('fail')));`,
-      errors: [{ message: `Replace this trivial promise with "Promise.reject".` }],
-    },
-    {
-      code: `let rejectedPromise = new Promise((p1, p2) => p2(new Error('fail')));`,
-      errors: [{ message: `Replace this trivial promise with "Promise.reject".` }],
-    },
-    {
-      code: `new Promise(resolve => resolve(calc(42)));`,
-      errors: [
-        {
-          suggestions: [
-            {
-              desc: 'Replace with "Promise.resolve"',
-              output: 'Promise.resolve(calc(42));',
-            },
-          ],
-        },
-      ],
-    },
-    {
-      code: `new Promise((resolve, reject) => reject(new Error('fail')));`,
-      errors: [
-        {
-          suggestions: [
-            {
-              desc: 'Replace with "Promise.reject"',
-              output: `Promise.reject(new Error('fail'));`,
-            },
-          ],
-        },
-      ],
-    },
-  ],
+        errors: [
+          {
+            message: `Replace this trivial promise with "Promise.resolve".`,
+            line: 2,
+            endLine: 2,
+            column: 34,
+            endColumn: 41,
+            suggestions: [
+              {
+                desc: 'Replace with "Promise.resolve"',
+                output: `
+      let fulfilledPromise = Promise.resolve(calc(42));
+      `,
+              },
+            ],
+          },
+        ],
+      },
+      {
+        code: `let rejectedPromise = new Promise((resolve, reject) => reject(new Error('fail')));`,
+        errors: [
+          {
+            message: `Replace this trivial promise with "Promise.reject".`,
+            suggestions: [
+              {
+                desc: 'Replace with "Promise.reject"',
+                output: `let rejectedPromise = Promise.reject(new Error('fail'));`,
+              },
+            ],
+          },
+        ],
+      },
+      {
+        code: `let rejectedPromise = new Promise((p1, p2) => p2(new Error('fail')));`,
+        errors: [
+          {
+            message: `Replace this trivial promise with "Promise.reject".`,
+            suggestions: [
+              {
+                desc: 'Replace with "Promise.reject"',
+                output: `let rejectedPromise = Promise.reject(new Error('fail'));`,
+              },
+            ],
+          },
+        ],
+      },
+      {
+        code: `new Promise(resolve => resolve(calc(42)));`,
+        errors: [
+          {
+            messageId: 'promiseAction',
+            suggestions: [
+              {
+                desc: 'Replace with "Promise.resolve"',
+                output: 'Promise.resolve(calc(42));',
+              },
+            ],
+          },
+        ],
+      },
+      {
+        code: `new Promise((resolve, reject) => reject(new Error('fail')));`,
+        errors: [
+          {
+            messageId: 'promiseAction',
+            suggestions: [
+              {
+                desc: 'Replace with "Promise.reject"',
+                output: `Promise.reject(new Error('fail'));`,
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  });
 });

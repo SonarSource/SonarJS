@@ -15,14 +15,14 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { DefaultParserRuleTester, RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { describe } from 'node:test';
 
-const ruleTester = new RuleTester();
-
-ruleTester.run('', rule, {
-  valid: [
-    {
-      code: `
+describe('S6439', () => {
+  new RuleTester().run('', rule, {
+    valid: [
+      {
+        code: `
         const Component = (count, collection) => {
           count = 1;
           return (
@@ -32,9 +32,9 @@ ruleTester.run('', rule, {
           )
         }
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
         const Component = (count: boolean, collection) => {
           return (
             <div>
@@ -43,9 +43,9 @@ ruleTester.run('', rule, {
           )
         }
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
         const Component = (collection) => {
           let test = '';
           return (
@@ -55,11 +55,11 @@ ruleTester.run('', rule, {
           )
         }
       `,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+      },
+    ],
+    invalid: [
+      {
+        code: `
         const Component = (count: number, collection) => {
           return (
             <div>
@@ -68,16 +68,17 @@ ruleTester.run('', rule, {
           )
         }
       `,
-      errors: [
-        {
-          message: 'Convert the conditional to a boolean to avoid leaked value',
-          line: 5,
-          column: 16,
-          endLine: 5,
-          endColumn: 21,
-          suggestions: [
-            {
-              output: `
+        errors: [
+          {
+            message: 'Convert the conditional to a boolean to avoid leaked value',
+            line: 5,
+            column: 16,
+            endLine: 5,
+            endColumn: 21,
+            suggestions: [
+              {
+                desc: 'Convert the conditional to a boolean',
+                output: `
         const Component = (count: number, collection) => {
           return (
             <div>
@@ -86,13 +87,13 @@ ruleTester.run('', rule, {
           )
         }
       `,
-            },
-          ],
-        },
-      ],
-    },
-    {
-      code: `
+              },
+            ],
+          },
+        ],
+      },
+      {
+        code: `
         const Component = (collection) => {
           const count = 0;
           return (
@@ -102,15 +103,17 @@ ruleTester.run('', rule, {
           )
         }
       `,
-      errors: [
-        {
-          line: 6,
-          column: 16,
-          endLine: 6,
-          endColumn: 21,
-          suggestions: [
-            {
-              output: `
+        errors: [
+          {
+            message: 'Convert the conditional to a boolean to avoid leaked value',
+            line: 6,
+            column: 16,
+            endLine: 6,
+            endColumn: 21,
+            suggestions: [
+              {
+                desc: 'Convert the conditional to a boolean',
+                output: `
         const Component = (collection) => {
           const count = 0;
           return (
@@ -120,13 +123,13 @@ ruleTester.run('', rule, {
           )
         }
       `,
-            },
-          ],
-        },
-      ],
-    },
-    {
-      code: `
+              },
+            ],
+          },
+        ],
+      },
+      {
+        code: `
         const Component = (collection: Array<number>) => {
           return (
             <div>
@@ -135,15 +138,17 @@ ruleTester.run('', rule, {
           )
         }
       `,
-      errors: [
-        {
-          line: 5,
-          column: 16,
-          endLine: 5,
-          endColumn: 33,
-          suggestions: [
-            {
-              output: `
+        errors: [
+          {
+            message: 'Convert the conditional to a boolean to avoid leaked value',
+            line: 5,
+            column: 16,
+            endLine: 5,
+            endColumn: 33,
+            suggestions: [
+              {
+                desc: 'Convert the conditional to a boolean',
+                output: `
         const Component = (collection: Array<number>) => {
           return (
             <div>
@@ -152,13 +157,13 @@ ruleTester.run('', rule, {
           )
         }
       `,
-            },
-          ],
-        },
-      ],
-    },
-    {
-      code: `
+              },
+            ],
+          },
+        ],
+      },
+      {
+        code: `
         const Component = (test: number, count: number, collection) => {
           return (
             <div>
@@ -167,15 +172,17 @@ ruleTester.run('', rule, {
           )
         }
       `,
-      errors: [
-        {
-          line: 5,
-          column: 17,
-          endLine: 5,
-          endColumn: 21,
-          suggestions: [
-            {
-              output: `
+        errors: [
+          {
+            message: 'Convert the conditional to a boolean to avoid leaked value',
+            line: 5,
+            column: 17,
+            endLine: 5,
+            endColumn: 21,
+            suggestions: [
+              {
+                desc: 'Convert the conditional to a boolean',
+                output: `
         const Component = (test: number, count: number, collection) => {
           return (
             <div>
@@ -184,17 +191,19 @@ ruleTester.run('', rule, {
           )
         }
       `,
-            },
-          ],
-        },
-        {
-          line: 5,
-          column: 26,
-          endLine: 5,
-          endColumn: 31,
-          suggestions: [
-            {
-              output: `
+              },
+            ],
+          },
+          {
+            message: 'Convert the conditional to a boolean to avoid leaked value',
+            line: 5,
+            column: 26,
+            endLine: 5,
+            endColumn: 31,
+            suggestions: [
+              {
+                desc: 'Convert the conditional to a boolean',
+                output: `
         const Component = (test: number, count: number, collection) => {
           return (
             <div>
@@ -203,13 +212,13 @@ ruleTester.run('', rule, {
           )
         }
       `,
-            },
-          ],
-        },
-      ],
-    },
-    {
-      code: `
+              },
+            ],
+          },
+        ],
+      },
+      {
+        code: `
         import react from 'react-native';
         const Component = (collection) => {
           let test = '';
@@ -220,10 +229,10 @@ ruleTester.run('', rule, {
           )
         }
       `,
-      errors: 1,
-    },
-    {
-      code: `
+        errors: 1,
+      },
+      {
+        code: `
         const react = require('react-native');
         const Component = (collection) => {
           let test = '';
@@ -234,15 +243,15 @@ ruleTester.run('', rule, {
           )
         }
       `,
-      errors: 1,
-    },
-  ],
-});
+        errors: 1,
+      },
+    ],
+  });
 
-ruleTester.run('', rule, {
-  valid: [
-    {
-      code: `
+  new DefaultParserRuleTester().run('', rule, {
+    valid: [
+      {
+        code: `
         const Component = (collection) => {
           const count = 0;
           return (
@@ -252,7 +261,8 @@ ruleTester.run('', rule, {
           )
         }
         `,
-    },
-  ],
-  invalid: [],
+      },
+    ],
+    invalid: [],
+  });
 });
