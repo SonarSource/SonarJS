@@ -68,6 +68,8 @@ public interface BridgeServer extends Startable {
 
   TsConfigFile createTsConfigFile(String content) throws IOException;
 
+  TelemetryResponse getTelemetry();
+
   record JsAnalysisRequest(
     String filePath,
     String fileType,
@@ -275,4 +277,8 @@ public interface BridgeServer extends Startable {
   }
 
   record TsProgramRequest(String tsConfig) {}
+
+  record TelemetryResponse(List<Dependency> dependencies) {}
+
+  record Dependency(String name, String version) {}
 }
