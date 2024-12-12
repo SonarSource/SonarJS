@@ -925,8 +925,7 @@ describe('analyzeJSTS', () => {
       { rules: { 'custom-rule-file': 'error' } },
       { filename: filePath, allowInlineConfig: false },
     );
-    const telemetry = getTelemetry();
-    const dependencies = telemetry.dependencies;
+    const { dependencies } = getTelemetry();
     expect(dependencies).toStrictEqual([
       {
         name: 'test-module',
