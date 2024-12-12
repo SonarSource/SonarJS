@@ -14,150 +14,153 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { DefaultParserRuleTester, RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe } from 'node:test';
 
-const ruleTesterTs = new RuleTester();
-const ruleTesterJs = new RuleTester();
+describe('S3758', () => {
+  const ruleTesterTs = new RuleTester();
+  const ruleTesterJs = new DefaultParserRuleTester();
 
-ruleTesterTs.run(
-  'Values not convertible to numbers should not be used in numeric comparisons [TS]',
-  rule,
-  {
-    valid: [
-      {
-        code: `42 > 41`,
-      },
-      {
-        code: `
+  ruleTesterTs.run(
+    'Values not convertible to numbers should not be used in numeric comparisons [TS]',
+    rule,
+    {
+      valid: [
+        {
+          code: `42 > 41`,
+        },
+        {
+          code: `
         const n1 = 42;
         const n2 = 0;
         n1 >= 0`,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
         const date = new Date();
         date > 42;
         `,
-      },
-      {
-        code: `42 > NaN`, // FN,
-      },
-      {
-        code: `"foo" > "hello"`,
-      },
-      {
-        code: 'true > false',
-      },
-      {
-        code: `
+        },
+        {
+          code: `42 > NaN`, // FN,
+        },
+        {
+          code: `"foo" > "hello"`,
+        },
+        {
+          code: 'true > false',
+        },
+        {
+          code: `
         const a = 42 === 42;
         const b = 'str';
         a < b;
         `,
-      },
-      {
-        code: `42 > null`,
-      },
-      {
-        code: `42 > unknown`,
-      },
-      {
-        code: `
+        },
+        {
+          code: `42 > null`,
+        },
+        {
+          code: `42 > unknown`,
+        },
+        {
+          code: `
         const undef;
         undef > 42;`, // FN
-      },
-      {
-        code: `"hello" <= new Object()`,
-      },
-      {
-        code: `
+        },
+        {
+          code: `"hello" <= new Object()`,
+        },
+        {
+          code: `
         var undefinedVariable;
         var nan = undefinedVariable + 42;
         nan >= 42;`, // FN
-      },
-      {
-        code: `
+        },
+        {
+          code: `
         let x = { };
         x.a >= 42;`, // FN
-      },
-      {
-        code: `
+        },
+        {
+          code: `
         const a = BigInt("42");
         const b = BigInt("41");
         a > b;
         `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
         const a = 42n;
         const b = 41n;
         a > b;
         `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
         const a = BigInt("42");
         const b = 41n;
         a > b;
         `,
-      },
-    ],
-    invalid: [
-      {
-        code: `new Object() > 0`,
-        errors: [
-          {
-            message:
-              'Re-evaluate the data flow; this operand of a numeric comparison could be of type Object.',
-            line: 1,
-            endLine: 1,
-            column: 1,
-            endColumn: 13,
-          },
-        ],
-      },
-      {
-        code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `new Object() > 0`,
+          errors: [
+            {
+              message:
+                'Re-evaluate the data flow; this operand of a numeric comparison could be of type Object.',
+              line: 1,
+              endLine: 1,
+              column: 1,
+              endColumn: 13,
+            },
+          ],
+        },
+        {
+          code: `
         const obj1 = new Object();
         const obj2 = new Object();
         obj1 < obj2;`,
-        errors: 2,
-      },
-      {
-        code: `42 > undefined`,
-        errors: [
-          {
-            message:
-              'Re-evaluate the data flow; this operand of a numeric comparison could be of type undefined.',
-          },
-        ],
-      },
-      {
-        code: `1 < function(){}`,
-        errors: 1,
-      },
-      {
-        code: `
+          errors: 2,
+        },
+        {
+          code: `42 > undefined`,
+          errors: [
+            {
+              message:
+                'Re-evaluate the data flow; this operand of a numeric comparison could be of type undefined.',
+            },
+          ],
+        },
+        {
+          code: `1 < function(){}`,
+          errors: 1,
+        },
+        {
+          code: `
         var array = [3,2];
         array > 42;`,
-        errors: 1,
-      },
-      {
-        code: `
+          errors: 1,
+        },
+        {
+          code: `
         var obj = {};
         obj <= 42;`,
-        errors: 1,
-      },
-    ],
-  },
-);
+          errors: 1,
+        },
+      ],
+    },
+  );
 
-ruleTesterJs.run(
-  'Values not convertible to numbers should not be used in numeric comparisons [JS]',
-  rule,
-  {
-    valid: [{ code: `new Object() > 0` }], // no type information
-    invalid: [],
-  },
-);
+  ruleTesterJs.run(
+    'Values not convertible to numbers should not be used in numeric comparisons [JS]',
+    rule,
+    {
+      valid: [{ code: `new Object() > 0` }], // no type information
+      invalid: [],
+    },
+  );
+});

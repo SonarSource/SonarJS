@@ -14,89 +14,92 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { DefaultParserRuleTester, RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe } from 'node:test';
 
-const ruleTesterJs = new RuleTester();
-const ruleTesterTs = new RuleTester();
+describe('S3735', () => {
+  const ruleTesterJs = new DefaultParserRuleTester();
+  const ruleTesterTs = new RuleTester();
 
-const testCases = {
-  valid: [
-    {
-      code: `
+  ruleTesterJs.run('"void" should not be used JS', rule, {
+    valid: [
+      {
+        code: `
             (function() {
             })()
             `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
             void 0;
             `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
             void (0);
             `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
             void function() {
             }()
             `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
             void (() => 42) ()
             `,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+      },
+    ],
+    invalid: [
+      {
+        code: `
             foo(void 42);
             `,
-      errors: [
-        {
-          message: `Remove this use of the \"void\" operator.`,
-          line: 2,
-          endLine: 2,
-          column: 17,
-          endColumn: 21,
-        },
-      ],
-    },
-    {
-      code: `
+        errors: [
+          {
+            message: `Remove this use of the \"void\" operator.`,
+            line: 2,
+            endLine: 2,
+            column: 17,
+            endColumn: 21,
+          },
+        ],
+      },
+      {
+        code: `
             const f = () => { return new Promise(() => {}); };
             void f(); // FP: should be ignored since 'f()' is a promise but we are missing type information
             `,
-      errors: 1,
-    },
-  ],
-};
-ruleTesterJs.run('"void" should not be used JS', rule, testCases);
-ruleTesterTs.run('"void" should not be used TS', rule, {
-  valid: [
-    {
-      code: `void 0;`,
-    },
-    {
-      code: `
+        errors: 1,
+      },
+    ],
+  });
+
+  ruleTesterTs.run('"void" should not be used TS', rule, {
+    valid: [
+      {
+        code: `void 0;`,
+      },
+      {
+        code: `
             const p = new Promise(() => {});
             void p;
             `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
             const f = () => { return new Promise(() => {}); };
             void f();
             `,
-    },
-  ],
-  invalid: [
-    {
-      code: `void 42;`,
-      errors: 1,
-    },
-  ],
+      },
+    ],
+    invalid: [
+      {
+        code: `void 42;`,
+        errors: 1,
+      },
+    ],
+  });
 });

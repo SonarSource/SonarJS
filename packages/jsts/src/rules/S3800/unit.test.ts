@@ -15,37 +15,39 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { DefaultParserRuleTester, RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { describe } from 'node:test';
 
-const ruleTesterJs = new RuleTester();
-ruleTesterJs.run('Functions should always return the same type [js]', rule, {
-  valid: [
-    {
-      code: `
+describe('S3800', () => {
+  const ruleTesterJs = new DefaultParserRuleTester();
+  ruleTesterJs.run('Functions should always return the same type [js]', rule, {
+    valid: [
+      {
+        code: `
         function foo() {
           if (condition) {
             return 42;
           }
           return 'str'; // not raised without type information
         }`,
-    },
-  ],
-  invalid: [],
-});
+      },
+    ],
+    invalid: [],
+  });
 
-const ruleTesterTs = new RuleTester();
-ruleTesterTs.run(`Functions should always return the same type [ts]`, rule, {
-  valid: [
-    {
-      code: `return;`,
-    },
-    {
-      code: `
+  const ruleTesterTs = new RuleTester();
+  ruleTesterTs.run(`Functions should always return the same type [ts]`, rule, {
+    valid: [
+      {
+        code: `return;`,
+      },
+      {
+        code: `
         function foo() {
         }`,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
         function foo() {
           if (condition) {
             return 42;
@@ -53,17 +55,17 @@ ruleTesterTs.run(`Functions should always return the same type [ts]`, rule, {
             return;
           }
         }`,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
         function foo() {
           if (condition) {
             return 42;
           }
         }`,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
         function foo() {
           if (condition) {
             return 42;
@@ -71,9 +73,9 @@ ruleTesterTs.run(`Functions should always return the same type [ts]`, rule, {
             return 24;
           }
         }`,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
         function foo() {
           if (condition) {
             return 'hello';
@@ -81,9 +83,9 @@ ruleTesterTs.run(`Functions should always return the same type [ts]`, rule, {
             return 'world';
           }
         }`,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
         function foo() {
           if (condition) {
             return true;
@@ -91,9 +93,9 @@ ruleTesterTs.run(`Functions should always return the same type [ts]`, rule, {
             return false;
           }
         }`,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
         function foo() {
           if (condition) {
             return { num: 42 };
@@ -101,9 +103,9 @@ ruleTesterTs.run(`Functions should always return the same type [ts]`, rule, {
             return { str: 'hello' };
           }
         }`,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
         function foo() {
           if (condition) {
             return [1, 2, 3];
@@ -111,9 +113,9 @@ ruleTesterTs.run(`Functions should always return the same type [ts]`, rule, {
             return [4, 5, 6];
           }
         }`,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
         function foo() {
           if (condition) {
             return function (){};
@@ -121,9 +123,9 @@ ruleTesterTs.run(`Functions should always return the same type [ts]`, rule, {
             return function (){};
           }
         }`,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
         function foo() {
           if (condition) {
             return new Date();
@@ -131,9 +133,9 @@ ruleTesterTs.run(`Functions should always return the same type [ts]`, rule, {
             return new Date();
           }
         }`,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
         function foo() {
           if (condition1) {
             return 42;
@@ -143,9 +145,9 @@ ruleTesterTs.run(`Functions should always return the same type [ts]`, rule, {
             return undefined;
           }
         }`,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
         function foo() {
           if (condition) {
             return 42;
@@ -153,21 +155,9 @@ ruleTesterTs.run(`Functions should always return the same type [ts]`, rule, {
             return any();
           }
         }`,
-    },
-    {
-      code: `
-        function foo() {
-          let ret;
-          if (condition) {
-            ret = 42;
-          } else {
-            ret = 'str';
-          }
-          return ret // FN - does not infer ret to number | string;
-        }`,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
         class A {}
         class B extends A {}
         function Factory() {
@@ -177,9 +167,9 @@ ruleTesterTs.run(`Functions should always return the same type [ts]`, rule, {
             return new B();
           }
         }`,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
         class A {}
         class B {}
         function Factory() {
@@ -189,9 +179,9 @@ ruleTesterTs.run(`Functions should always return the same type [ts]`, rule, {
             return new B();
           }
         }`,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
         /** @returns {(number|string)} - a union of number and string */
         function foo() {
           if (condition) {
@@ -199,9 +189,9 @@ ruleTesterTs.run(`Functions should always return the same type [ts]`, rule, {
           }
           return 'str';
         }`,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
         function bar() {}
         function foo() {
           if (condition) {
@@ -211,16 +201,16 @@ ruleTesterTs.run(`Functions should always return the same type [ts]`, rule, {
           }
         }
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       function foo(value: any): Object | Array<any> {
         return value;
       }
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
           function createTypedArrayFactory(type, len) {
             if (type === 'float32') {
               return new Float32Array(len);
@@ -234,9 +224,9 @@ ruleTesterTs.run(`Functions should always return the same type [ts]`, rule, {
             return Array.from(Array(len));
           }
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
         function foo() {
           if (condition) {
             return [1, 2, 3];
@@ -244,22 +234,22 @@ ruleTesterTs.run(`Functions should always return the same type [ts]`, rule, {
             return ['foo', 'bar', 'baz'];
           }
         }`,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
         function foo() {
           return condition ? 'str' : true;
         }`,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
 const sanitize = () => {
   return condition ? true : 'Value should be a string';
 };
 `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
 const sanitize = () => {
   if (condition) {
     return true;
@@ -267,85 +257,106 @@ const sanitize = () => {
 
   return 'Value should be a string';
 }`,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+      },
+    ],
+    invalid: [
+      {
+        code: `
+        function foo() {
+          let ret;
+          if (condition) {
+            ret = 42;
+          } else {
+            ret = 'str';
+          }
+          return ret // FN - does not infer ret to number | string;
+        }`,
+        errors: [
+          {
+            message: 'Refactor this function to always return the same type.',
+            line: 2,
+            column: 18,
+            endLine: 2,
+            endColumn: 21,
+          },
+        ],
+      },
+      {
+        code: `
         function foo() {
           if (condition) {
             return 42;
           }
           return 'str';
         }`,
-      errors: [
-        {
-          message: JSON.stringify({
-            message: `Refactor this function to always return the same type.`,
-            secondaryLocations: [
-              {
-                message: `Returns number`,
-                column: 12,
-                line: 4,
-                endColumn: 22,
-                endLine: 4,
-              },
-              {
-                message: `Returns string`,
-                column: 10,
-                line: 6,
-                endColumn: 23,
-                endLine: 6,
-              },
-            ],
-          }),
-          line: 2,
-          column: 18,
-          endLine: 2,
-          endColumn: 21,
-        },
-      ],
-      options: ['sonar-runtime'],
-    },
-    {
-      code: `
+        errors: [
+          {
+            message: JSON.stringify({
+              message: `Refactor this function to always return the same type.`,
+              secondaryLocations: [
+                {
+                  message: `Returns number`,
+                  column: 12,
+                  line: 4,
+                  endColumn: 22,
+                  endLine: 4,
+                },
+                {
+                  message: `Returns string`,
+                  column: 10,
+                  line: 6,
+                  endColumn: 23,
+                  endLine: 6,
+                },
+              ],
+            }),
+            line: 2,
+            column: 18,
+            endLine: 2,
+            endColumn: 21,
+          },
+        ],
+        options: ['sonar-runtime'],
+      },
+      {
+        code: `
         function foo() {
           if (condition) {
             return 42;
           }
           return { foo: 'bar' };
         }`,
-      errors: [
-        {
-          message: JSON.stringify({
-            message: `Refactor this function to always return the same type.`,
-            secondaryLocations: [
-              {
-                message: `Returns number`,
-                column: 12,
-                line: 4,
-                endColumn: 22,
-                endLine: 4,
-              },
-              {
-                message: `Returns object`,
-                column: 10,
-                line: 6,
-                endColumn: 32,
-                endLine: 6,
-              },
-            ],
-          }),
-          line: 2,
-          column: 18,
-          endLine: 2,
-          endColumn: 21,
-        },
-      ],
-      options: ['sonar-runtime'],
-    },
-    {
-      code: `
+        errors: [
+          {
+            message: JSON.stringify({
+              message: `Refactor this function to always return the same type.`,
+              secondaryLocations: [
+                {
+                  message: `Returns number`,
+                  column: 12,
+                  line: 4,
+                  endColumn: 22,
+                  endLine: 4,
+                },
+                {
+                  message: `Returns object`,
+                  column: 10,
+                  line: 6,
+                  endColumn: 32,
+                  endLine: 6,
+                },
+              ],
+            }),
+            line: 2,
+            column: 18,
+            endLine: 2,
+            endColumn: 21,
+          },
+        ],
+        options: ['sonar-runtime'],
+      },
+      {
+        code: `
         function foo() {
           if (condition1) {
             return;
@@ -359,37 +370,37 @@ const sanitize = () => {
             return 'str';
           }
         }`,
-      errors: [
-        {
-          message: JSON.stringify({
-            message: `Refactor this function to always return the same type.`,
-            secondaryLocations: [
-              {
-                message: `Returns number`,
-                column: 12,
-                line: 10,
-                endColumn: 22,
-                endLine: 10,
-              },
-              {
-                message: `Returns string`,
-                column: 12,
-                line: 12,
-                endColumn: 25,
-                endLine: 12,
-              },
-            ],
-          }),
-          line: 2,
-          column: 18,
-          endLine: 2,
-          endColumn: 21,
-        },
-      ],
-      options: ['sonar-runtime'],
-    },
-    {
-      code: `
+        errors: [
+          {
+            message: JSON.stringify({
+              message: `Refactor this function to always return the same type.`,
+              secondaryLocations: [
+                {
+                  message: `Returns number`,
+                  column: 12,
+                  line: 10,
+                  endColumn: 22,
+                  endLine: 10,
+                },
+                {
+                  message: `Returns string`,
+                  column: 12,
+                  line: 12,
+                  endColumn: 25,
+                  endLine: 12,
+                },
+              ],
+            }),
+            line: 2,
+            column: 18,
+            endLine: 2,
+            endColumn: 21,
+          },
+        ],
+        options: ['sonar-runtime'],
+      },
+      {
+        code: `
         function fn() { return 'str'; }
         function foo() {
           if (condition) {
@@ -398,37 +409,37 @@ const sanitize = () => {
             return fn;
           }
         }`,
-      errors: [
-        {
-          message: JSON.stringify({
-            message: `Refactor this function to always return the same type.`,
-            secondaryLocations: [
-              {
-                message: `Returns number`,
-                column: 12,
-                line: 5,
-                endColumn: 22,
-                endLine: 5,
-              },
-              {
-                message: `Returns function`,
-                column: 12,
-                line: 7,
-                endColumn: 22,
-                endLine: 7,
-              },
-            ],
-          }),
-          line: 3,
-          column: 18,
-          endLine: 3,
-          endColumn: 21,
-        },
-      ],
-      options: ['sonar-runtime'],
-    },
-    {
-      code: `
+        errors: [
+          {
+            message: JSON.stringify({
+              message: `Refactor this function to always return the same type.`,
+              secondaryLocations: [
+                {
+                  message: `Returns number`,
+                  column: 12,
+                  line: 5,
+                  endColumn: 22,
+                  endLine: 5,
+                },
+                {
+                  message: `Returns function`,
+                  column: 12,
+                  line: 7,
+                  endColumn: 22,
+                  endLine: 7,
+                },
+              ],
+            }),
+            line: 3,
+            column: 18,
+            endLine: 3,
+            endColumn: 21,
+          },
+        ],
+        options: ['sonar-runtime'],
+      },
+      {
+        code: `
         function foo() {
           if (condition1) {
             return 42;
@@ -442,58 +453,58 @@ const sanitize = () => {
             return [ { foo: 'bar' } ];
           }
         }`,
-      errors: [
-        {
-          message: JSON.stringify({
-            message: `Refactor this function to always return the same type.`,
-            secondaryLocations: [
-              {
-                message: `Returns number`,
-                column: 12,
-                line: 4,
-                endColumn: 22,
-                endLine: 4,
-              },
-              {
-                message: `Returns array`,
-                column: 12,
-                line: 6,
-                endColumn: 26,
-                endLine: 6,
-              },
-              {
-                message: `Returns array`,
-                column: 12,
-                line: 8,
-                endColumn: 29,
-                endLine: 8,
-              },
-              {
-                message: `Returns array`,
-                column: 12,
-                line: 10,
-                endColumn: 28,
-                endLine: 10,
-              },
-              {
-                message: `Returns array`,
-                column: 12,
-                line: 12,
-                endColumn: 38,
-                endLine: 12,
-              },
-            ],
-          }),
-          line: 2,
-          column: 18,
-          endLine: 2,
-          endColumn: 21,
-        },
-      ],
-      options: ['sonar-runtime'],
-    },
-    {
-      code: `
+        errors: [
+          {
+            message: JSON.stringify({
+              message: `Refactor this function to always return the same type.`,
+              secondaryLocations: [
+                {
+                  message: `Returns number`,
+                  column: 12,
+                  line: 4,
+                  endColumn: 22,
+                  endLine: 4,
+                },
+                {
+                  message: `Returns array`,
+                  column: 12,
+                  line: 6,
+                  endColumn: 26,
+                  endLine: 6,
+                },
+                {
+                  message: `Returns array`,
+                  column: 12,
+                  line: 8,
+                  endColumn: 29,
+                  endLine: 8,
+                },
+                {
+                  message: `Returns array`,
+                  column: 12,
+                  line: 10,
+                  endColumn: 28,
+                  endLine: 10,
+                },
+                {
+                  message: `Returns array`,
+                  column: 12,
+                  line: 12,
+                  endColumn: 38,
+                  endLine: 12,
+                },
+              ],
+            }),
+            line: 2,
+            column: 18,
+            endLine: 2,
+            endColumn: 21,
+          },
+        ],
+        options: ['sonar-runtime'],
+      },
+      {
+        code: `
         class C {
           m() {
             if (condition) {
@@ -503,10 +514,10 @@ const sanitize = () => {
             }
           }
         }`,
-      errors: 1,
-    },
-    {
-      code: `
+        errors: 1,
+      },
+      {
+        code: `
         /** @param {(number|string)} - a union of number and string */
         function foo() {
           if (condition) {
@@ -514,61 +525,63 @@ const sanitize = () => {
           }
           return 'str';
         }`,
-      errors: 1,
-    },
-    {
-      code: `
+        errors: 1,
+      },
+      {
+        code: `
         (function () {
           if (condition) {
             return 42;
           }
           return 'str';
         })`,
-      errors: [
-        {
-          line: 2,
-          column: 10,
-          endLine: 2,
-          endColumn: 18,
-        },
-      ],
-    },
-    {
-      code: `
+        errors: [
+          {
+            message: 'Refactor this function to always return the same type.',
+            line: 2,
+            column: 10,
+            endLine: 2,
+            endColumn: 18,
+          },
+        ],
+      },
+      {
+        code: `
         () => {
           if (condition) {
             return 42;
           }
           return 'str';
         }`,
-      errors: [
-        {
-          line: 2,
-          column: 12,
-          endLine: 2,
-          endColumn: 14,
-        },
-      ],
-    },
-    {
-      code: `
+        errors: [
+          {
+            message: 'Refactor this function to always return the same type.',
+            line: 2,
+            column: 12,
+            endLine: 2,
+            endColumn: 14,
+          },
+        ],
+      },
+      {
+        code: `
 const sanitize = () => {
   return condition ? true : 42;
 };
 `,
-      errors: 1,
-    },
-  ],
-});
+        errors: 1,
+      },
+    ],
+  });
 
-const ruleTestJSWithTypes = new RuleTester();
-ruleTestJSWithTypes.run(
-  `'Functions should always return the same type [js with type inference]'`,
-  rule,
-  {
-    valid: [
-      {
-        code: `
+  const ruleTestJSWithTypes = new RuleTester();
+  ruleTestJSWithTypes.run(
+    `'Functions should always return the same type [js with type inference]'`,
+    rule,
+    {
+      valid: [
+        {
+          code: `
         /**
          * @param {Function|Object} supplier The object or function supplying the properties to be mixed.
          */
@@ -579,8 +592,9 @@ ruleTestJSWithTypes.run(
           },
         });
         `,
-      },
-    ],
-    invalid: [],
-  },
-);
+        },
+      ],
+      invalid: [],
+    },
+  );
+});

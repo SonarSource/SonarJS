@@ -16,63 +16,71 @@
  */
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe } from 'node:test';
 
-const ruleTester = new RuleTester();
-ruleTester.run('Exception should not be created without being thrown', rule, {
-  valid: [
-    {
-      code: `foo(new Error());`,
-    },
-    {
-      code: `foo(TypeError);`,
-    },
-    {
-      code: `throw new Error();`,
-    },
-    {
-      code: `new LooksLikeAnError().doSomething();`,
-    },
-  ],
-  invalid: [
-    {
-      code: `new Error();`,
-      errors: [
-        {
-          message: 'Throw this error or remove this useless statement.',
-          line: 1,
-          column: 1,
-          endLine: 1,
-          endColumn: 12,
-          suggestions: [
-            {
-              desc: 'Throw this error',
-              output: 'throw new Error();',
-            },
-          ],
-        },
-      ],
-    },
-    {
-      code: `new TypeError();`,
-      errors: 1,
-    },
-    {
-      code: `new MyError();`,
-      errors: 1,
-    },
-    {
-      code: `new A.MyError();`,
-      errors: 1,
-    },
-    {
-      code: `new A(function () {
+describe('S3984', () => {
+  const ruleTester = new RuleTester();
+  ruleTester.run('Exception should not be created without being thrown', rule, {
+    valid: [
+      {
+        code: `foo(new Error());`,
+      },
+      {
+        code: `foo(TypeError);`,
+      },
+      {
+        code: `throw new Error();`,
+      },
+      {
+        code: `new LooksLikeAnError().doSomething();`,
+      },
+    ],
+    invalid: [
+      {
+        code: `new Error();`,
+        errors: [
+          {
+            message: 'Throw this error or remove this useless statement.',
+            line: 1,
+            column: 1,
+            endLine: 1,
+            endColumn: 12,
+            suggestions: [
+              {
+                desc: 'Throw this error',
+                output: 'throw new Error();',
+              },
+            ],
+          },
+        ],
+      },
+      {
+        code: `new TypeError();`,
+        errors: 1,
+      },
+      {
+        code: `new MyError();`,
+        errors: 1,
+      },
+      {
+        code: `new A.MyError();`,
+        errors: 1,
+      },
+      {
+        code: `new A(function () {
                 new SomeError();
             });`,
-      errors: 1,
-    },
-    {
-      code: `(new MyException());`,
-      errors: [{ suggestions: [{ output: 'throw (new MyException());' }] }],
-    },
-  ],
+        errors: 1,
+      },
+      {
+        code: `(new MyException());`,
+        errors: [
+          {
+            messageId: 'throwOrRemoveError',
+            suggestions: [{ desc: 'Throw this error', output: 'throw (new MyException());' }],
+          },
+        ],
+      },
+    ],
+  });
 });

@@ -16,41 +16,61 @@
  */
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe } from 'node:test';
 
-const ruleTester = new RuleTester();
+describe('S3696', () => {
+  const ruleTester = new RuleTester();
 
-ruleTester.run(`Decorated rule should provide suggestion`, rule, {
-  valid: [
-    {
-      code: `{ throw new Error('foo'); }`,
-    },
-  ],
-  invalid: [
-    {
-      code: `{ throw 'foo'; }`,
-      errors: [
-        { suggestions: [{ output: `{ throw new Error('foo'); }`, desc: 'Throw an error object' }] },
-      ],
-    },
-    {
-      code: `{ throw 'foo' + bar(); }`,
-      errors: [{ suggestions: [{ output: `{ throw new Error('foo' + bar()); }` }] }],
-    },
-    {
-      code: `{ throw foo() + 'bar'; }`,
-      errors: [{ suggestions: [{ output: `{ throw new Error(foo() + 'bar'); }` }] }],
-    },
-    {
-      code: `{ throw 1; }`,
-      errors: [{ suggestions: [] }],
-    },
-    {
-      code: `{ throw undefined; }`,
-      errors: [{ suggestions: [] }],
-    },
-    {
-      code: `{ throw 1 + 2; }`,
-      errors: [{ suggestions: [] }],
-    },
-  ],
+  ruleTester.run(`Decorated rule should provide suggestion`, rule, {
+    valid: [
+      {
+        code: `{ throw new Error('foo'); }`,
+      },
+    ],
+    invalid: [
+      {
+        code: `{ throw 'foo'; }`,
+        errors: [
+          {
+            message: 'Expected an error object to be thrown.',
+            suggestions: [{ output: `{ throw new Error('foo'); }`, desc: 'Throw an error object' }],
+          },
+        ],
+      },
+      {
+        code: `{ throw 'foo' + bar(); }`,
+        errors: [
+          {
+            message: 'Expected an error object to be thrown.',
+            suggestions: [
+              { output: `{ throw new Error('foo' + bar()); }`, desc: 'Throw an error object' },
+            ],
+          },
+        ],
+      },
+      {
+        code: `{ throw foo() + 'bar'; }`,
+        errors: [
+          {
+            message: 'Expected an error object to be thrown.',
+            suggestions: [
+              { output: `{ throw new Error(foo() + 'bar'); }`, desc: 'Throw an error object' },
+            ],
+          },
+        ],
+      },
+      {
+        code: `{ throw 1; }`,
+        errors: [{ message: 'Expected an error object to be thrown.', suggestions: [] }],
+      },
+      {
+        code: `{ throw undefined; }`,
+        errors: [{ message: 'Do not throw undefined.', suggestions: [] }],
+      },
+      {
+        code: `{ throw 1 + 2; }`,
+        errors: [{ message: 'Expected an error object to be thrown.', suggestions: [] }],
+      },
+    ],
+  });
 });
