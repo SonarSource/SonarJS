@@ -14,83 +14,86 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { DefaultParserRuleTester, RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe } from 'node:test';
 
-const ruleTesterTs = new RuleTester();
-const ruleTesterJs = new RuleTester();
+describe('S3579', () => {
+  const ruleTesterTs = new RuleTester();
+  const ruleTesterJs = new DefaultParserRuleTester();
 
-ruleTesterTs.run('Array indexes should be numeric [TS]', rule, {
-  valid: [
-    {
-      code: `
+  ruleTesterTs.run('Array indexes should be numeric [TS]', rule, {
+    valid: [
+      {
+        code: `
       const arr = [];
       arr[0] = 'a';`,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       const car = {
         type : "Fiat",
         model : "500",
         color : "white"
       }; 
       car["type"] = "BMW"; // OK`,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       let person = new Object();
       person["lastname"] = "Ben"`,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+      },
+    ],
+    invalid: [
+      {
+        code: `
       const arr = [];
       arr['name'] = 'bob'`,
-      errors: [
-        {
-          message: `Make it an object if it must have named properties; otherwise, use a numeric index here.`,
-          line: 3,
-          column: 7,
-          endLine: 3,
-          endColumn: 26,
-        },
-      ],
-    },
-    {
-      code: `
+        errors: [
+          {
+            message: `Make it an object if it must have named properties; otherwise, use a numeric index here.`,
+            line: 3,
+            column: 7,
+            endLine: 3,
+            endColumn: 26,
+          },
+        ],
+      },
+      {
+        code: `
       const arr = [];
       const strVar = 'foo';
       arr[strVar] = 42`,
-      errors: 1,
-    },
-    {
-      code: `
+        errors: 1,
+      },
+      {
+        code: `
       const arr = new Array();
       arr["foo"] = 42`,
-      errors: 1,
-    },
-    {
-      code: `
+        errors: 1,
+      },
+      {
+        code: `
       const fn = () => [1, 2, 3];
       fn()["foo"] = 42`,
-      errors: 1,
-    },
-  ],
-});
+        errors: 1,
+      },
+    ],
+  });
 
-ruleTesterJs.run('Array indexes should be numeric [JS]', rule, {
-  valid: [
-    {
-      code: `
+  ruleTesterJs.run('Array indexes should be numeric [JS]', rule, {
+    valid: [
+      {
+        code: `
       let arr = [];
       arr[0] = 'a';`,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       let arr = [];
       arr['name'] = 'bob'`, // issue not raised because no types are available
-    },
-  ],
-  invalid: [],
+      },
+    ],
+    invalid: [],
+  });
 });

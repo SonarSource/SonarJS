@@ -16,39 +16,43 @@
  */
 import { rule } from './index.js';
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { describe } from 'node:test';
 
-const ruleTester = new RuleTester();
+describe('S3498', () => {
+  const ruleTester = new RuleTester();
 
-ruleTester.run(`Object literal shorthand syntax should be used`, rule, {
-  valid: [
-    {
-      code: `const obj = { foo };`,
-    },
-    {
-      code: `
+  ruleTester.run(`Object literal shorthand syntax should be used`, rule, {
+    valid: [
+      {
+        code: `const obj = { foo };`,
+      },
+      {
+        code: `
       ({
         foo: function(component, event, helper) {}
       });
       `,
-    },
-  ],
-  invalid: [
-    {
-      code: `const obj = { foo: foo };`,
-      output: `const obj = { foo };`,
-      errors: [
-        {
-          line: 1,
-          column: 15,
-          endLine: 1,
-          endColumn: 18,
-        },
-      ],
-    },
-    {
-      code: `({ foo: foo });`,
-      output: `({ foo });`,
-      errors: 1,
-    },
-  ],
+      },
+    ],
+    invalid: [
+      {
+        code: `const obj = { foo: foo };`,
+        output: `const obj = { foo };`,
+        errors: [
+          {
+            messageId: 'expectedPropertyShorthand',
+            line: 1,
+            column: 15,
+            endLine: 1,
+            endColumn: 18,
+          },
+        ],
+      },
+      {
+        code: `({ foo: foo });`,
+        output: `({ foo });`,
+        errors: 1,
+      },
+    ],
+  });
 });

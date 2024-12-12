@@ -15,202 +15,222 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { DefaultParserRuleTester, RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { describe } from 'node:test';
 
-const ruleTesterJs = new RuleTester();
-ruleTesterJs.run('Strict equality operators should not be used with dissimilar types  [js]', rule, {
-  valid: [
+describe('S3403', () => {
+  const ruleTesterJs = new DefaultParserRuleTester();
+  ruleTesterJs.run(
+    'Strict equality operators should not be used with dissimilar types  [js]',
+    rule,
     {
-      code: `'str' === false; // not reported without type information`,
+      valid: [
+        {
+          code: `'str' === false; // not reported without type information`,
+        },
+      ],
+      invalid: [],
     },
-  ],
-  invalid: [],
-});
+  );
 
-const ruleTesterTs = new RuleTester();
-ruleTesterTs.run(`Strict equality operators should not be used with dissimilar types [ts]`, rule, {
-  valid: [
+  const ruleTesterTs = new RuleTester();
+  ruleTesterTs.run(
+    `Strict equality operators should not be used with dissimilar types [ts]`,
+    rule,
     {
-      code: `
+      valid: [
+        {
+          code: `
         let str = 'str', num = 5;
         str == num;`,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
         let str = 'str', num = 5;
         str != num;`,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
         let n = 4, m = 5;
         n === m;`,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
         let n = 4, m = 5;
         n !== m;`,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
         let s = 'hello', t = 'world';
         s === t;`,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
         let s = 'hello', t = 'world';
         s !== t;`,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
         let b = true, v = false;
         b === v;`,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
         let b = true, v = false;
         b !== v;`,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
         let o = {}, p = { prop: 1 };
         o === p;`,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
         let o = {}, p = { prop: 1 };
         o !== p;`,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
         let whatever, anything;
         whatever === anything;`,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
         let whatever, anything;
         whatever !== anything;`,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
         let str = 'str';
         str === any;`,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
         let str = 'str';
         str !== any;`,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
         let str = 'str', nulll = null;
         str === nulll;`,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
         let str = 'str', undefinedd = undefed;
         str !== undefinedd;`,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
         let union: (string|boolean);
         let str: string;
         union === str;`,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
         let union: (string|boolean);
         let str: string;
         str === union;`,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
         class MyClass {
           m() {
             let that = new MyClass();
             return this === that;
           }
         }`,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
         let str = 'str', obj = {};
         str === obj;`,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
         let str = 'str', obj = {};
         str !== obj;`,
-    },
-    {
-      code: `
+        },
+        {
+          code: `
       const foo = Symbol('foo');
       const symbols = [ foo ];
       symbols.filter(symbol => symbol !== foo);
       `,
-    },
-  ],
-  invalid: [
-    {
-      code: `
-        let str = 'str', num = 5;
-        str === num;`,
-      errors: [
-        {
-          message: JSON.stringify({
-            message: `Remove this "===" check; it will always be false. Did you mean to use "=="?`,
-            secondaryLocations: [
-              {
-                column: 8,
-                line: 3,
-                endColumn: 11,
-                endLine: 3,
-              },
-              {
-                column: 16,
-                line: 3,
-                endColumn: 19,
-                endLine: 3,
-              },
-            ],
-          }),
-          line: 3,
-          column: 13,
-          endLine: 3,
-          endColumn: 16,
         },
       ],
-      options: ['sonar-runtime'],
-    },
-    {
-      code: `
+      invalid: [
+        {
+          code: `
+        let str = 'str', num = 5;
+        str === num;`,
+          errors: [
+            {
+              message: JSON.stringify({
+                message: `Remove this "===" check; it will always be false. Did you mean to use "=="?`,
+                secondaryLocations: [
+                  {
+                    column: 8,
+                    line: 3,
+                    endColumn: 11,
+                    endLine: 3,
+                  },
+                  {
+                    column: 16,
+                    line: 3,
+                    endColumn: 19,
+                    endLine: 3,
+                  },
+                ],
+              }),
+              line: 3,
+              column: 13,
+              endLine: 3,
+              endColumn: 16,
+              suggestions: [
+                {
+                  desc: 'Replace "===" with "=="',
+                  output: `
+        let str = 'str', num = 5;
+        str == num;`,
+                },
+              ],
+            },
+          ],
+          options: ['sonar-runtime'],
+        },
+        {
+          code: `
         let str = 'str', num = 5;
         str !== num;`,
-      errors: 1,
-    },
-    {
-      code: `
+          errors: 1,
+        },
+        {
+          code: `
         let str = 'str', bool = false;
         str === bool;`,
-      errors: 1,
-    },
-    {
-      code: `
+          errors: 1,
+        },
+        {
+          code: `
         let str = 'str', bool = false;
         str !== bool;`,
-      errors: 1,
-    },
-    {
-      code: `'foo' !== {};`,
-      errors: [
+          errors: 1,
+        },
         {
-          suggestions: [
+          code: `'foo' !== {};`,
+          errors: [
             {
-              desc: 'Replace "!==" with "!="',
-              output: `'foo' != {};`,
+              message: 'Remove this "!==" check; it will always be true. Did you mean to use "!="?',
+              suggestions: [
+                {
+                  desc: 'Replace "!==" with "!="',
+                  output: `'foo' != {};`,
+                },
+              ],
             },
           ],
         },
       ],
     },
-  ],
+  );
 });

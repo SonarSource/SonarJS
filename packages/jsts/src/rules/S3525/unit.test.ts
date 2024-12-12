@@ -15,82 +15,85 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { DefaultParserRuleTester, RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { describe } from 'node:test';
 
-const ruleTesterJs = new RuleTester();
-ruleTesterJs.run('Class methods should be used instead of "prototype" assignments [js]', rule, {
-  valid: [
-    {
-      code: `Foo.prototype.property = 1;`,
-    },
-    {
-      code: `
+describe('S3525', () => {
+  const ruleTesterJs = new DefaultParserRuleTester();
+  ruleTesterJs.run('Class methods should be used instead of "prototype" assignments [js]', rule, {
+    valid: [
+      {
+        code: `Foo.prototype.property = 1;`,
+      },
+      {
+        code: `
           function Bar() {}
           Foo.prototype.property = Bar; // FN - we need type information`,
-    },
-    {
-      code: `Foo.prototype = function () {};`,
-    },
-    {
-      code: `Foo.proto.property = function () {};`,
-    },
-  ],
-  invalid: [
-    {
-      code: `Foo.prototype.property = function () {};`,
-      errors: [
-        {
-          message: `Declare a \"Foo\" class and move this declaration of \"property\" into it.`,
-          line: 1,
-          endLine: 1,
-          column: 1,
-          endColumn: 23,
-        },
-      ],
-    },
-    {
-      code: `
+      },
+      {
+        code: `Foo.prototype = function () {};`,
+      },
+      {
+        code: `Foo.proto.property = function () {};`,
+      },
+    ],
+    invalid: [
+      {
+        code: `Foo.prototype.property = function () {};`,
+        errors: [
+          {
+            message: `Declare a \"Foo\" class and move this declaration of \"property\" into it.`,
+            line: 1,
+            endLine: 1,
+            column: 1,
+            endColumn: 23,
+          },
+        ],
+      },
+      {
+        code: `
           const Bar = () => {};
           Foo.prototype.property = () => {};`,
-      errors: 1,
-    },
-  ],
-});
+        errors: 1,
+      },
+    ],
+  });
 
-const ruleTesterTs = new RuleTester();
-ruleTesterTs.run('Class methods should be used instead of "prototype" assignments [ts]', rule, {
-  valid: [
-    {
-      code: `Foo.prototype.property = 1;`,
-    },
-    {
-      code: `Foo.prototype.property = Bar;`,
-    },
-  ],
-  invalid: [
-    {
-      code: `Foo.prototype.property = function () {};`,
-      errors: [
-        {
-          message: `Declare a \"Foo\" class and move this declaration of \"property\" into it.`,
-          line: 1,
-          endLine: 1,
-          column: 1,
-          endColumn: 23,
-        },
-      ],
-    },
-    {
-      code: `
+  const ruleTesterTs = new RuleTester();
+  ruleTesterTs.run('Class methods should be used instead of "prototype" assignments [ts]', rule, {
+    valid: [
+      {
+        code: `Foo.prototype.property = 1;`,
+      },
+      {
+        code: `Foo.prototype.property = Bar;`,
+      },
+    ],
+    invalid: [
+      {
+        code: `Foo.prototype.property = function () {};`,
+        errors: [
+          {
+            message: `Declare a \"Foo\" class and move this declaration of \"property\" into it.`,
+            line: 1,
+            endLine: 1,
+            column: 1,
+            endColumn: 23,
+          },
+        ],
+      },
+      {
+        code: `
           function Bar() {}
           Foo.prototype.property = Bar;`,
-      errors: 1,
-    },
-    {
-      code: `
+        errors: 1,
+      },
+      {
+        code: `
           const Bar = () => {};
           Foo.prototype.property = Bar;`,
-      errors: 1,
-    },
-  ],
+        errors: 1,
+      },
+    ],
+  });
 });
