@@ -16,240 +16,243 @@
  */
 import { rule } from './index.js';
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { describe } from 'node:test';
 
 const ruleTester = new RuleTester();
 
-ruleTester.run('no-literal-call', rule, {
-  valid: [
-    { code: 'foo();' },
-    { code: 'obj.foo();' },
-    { code: '(function() {})();' },
-    { code: '(() => 0)();' },
-    { code: 'foo``;' },
-    { code: 'obj.foo``;' },
-    { code: '(function() {})``;' },
-    { code: '(() => 0)``;' },
-  ],
-  invalid: [
-    {
-      code: 'true();',
-      errors: [
-        {
-          messageId: 'asFunction',
-          line: 1,
-          column: 1,
-          endColumn: 5,
-        },
-      ],
-    },
-    {
-      code: 'true``;',
-      errors: [
-        {
-          messageId: 'asTagFunction',
-          line: 1,
-          column: 1,
-          endColumn: 5,
-        },
-      ],
-    },
-    {
-      code: 'false();',
-      errors: [
-        {
-          messageId: 'asFunction',
-          line: 1,
-          column: 1,
-          endColumn: 6,
-        },
-      ],
-    },
-    {
-      code: 'false``;',
-      errors: [
-        {
-          messageId: 'asTagFunction',
-          line: 1,
-          column: 1,
-          endColumn: 6,
-        },
-      ],
-    },
-    {
-      code: 'null();',
-      errors: [
-        {
-          messageId: 'asFunction',
-          line: 1,
-          column: 1,
-          endColumn: 5,
-        },
-      ],
-    },
-    {
-      code: 'null``;',
-      errors: [
-        {
-          messageId: 'asTagFunction',
-          line: 1,
-          column: 1,
-          endColumn: 5,
-        },
-      ],
-    },
-    {
-      code: '100();',
-      errors: [
-        {
-          messageId: 'asFunction',
-          line: 1,
-          column: 1,
-          endColumn: 4,
-        },
-      ],
-    },
-    {
-      code: '100``;',
-      errors: [
-        {
-          messageId: 'asTagFunction',
-          line: 1,
-          column: 1,
-          endColumn: 4,
-        },
-      ],
-    },
-    {
-      code: '"hello"();',
-      errors: [
-        {
-          messageId: 'asFunction',
-          line: 1,
-          column: 1,
-          endColumn: 8,
-        },
-      ],
-    },
-    {
-      code: '`hello```;',
-      errors: [
-        {
-          messageId: 'asTagFunction',
-          line: 1,
-          column: 1,
-          endColumn: 8,
-        },
-      ],
-    },
-    {
-      code: '/abc/();',
-      errors: [
-        {
-          messageId: 'asFunction',
-          line: 1,
-          column: 1,
-          endColumn: 6,
-        },
-      ],
-    },
-    {
-      code: '/abc/``;',
-      errors: [
-        {
-          messageId: 'asTagFunction',
-          line: 1,
-          column: 1,
-          endColumn: 6,
-        },
-      ],
-    },
-    {
-      code: '[1,2,3]();',
-      errors: [
-        {
-          messageId: 'asFunction',
-          line: 1,
-          column: 1,
-          endColumn: 8,
-        },
-      ],
-    },
-    {
-      code: '[1,2,3]``;',
-      errors: [
-        {
-          messageId: 'asTagFunction',
-          line: 1,
-          column: 1,
-          endColumn: 8,
-        },
-      ],
-    },
-    {
-      code: '({foo: 0})();',
-      errors: [
-        {
-          messageId: 'asFunction',
-          line: 1,
-          column: 2,
-          endColumn: 10,
-        },
-      ],
-    },
-    {
-      code: '({foo: 0})``;',
-      errors: [
-        {
-          messageId: 'asTagFunction',
-          line: 1,
-          column: 2,
-          endColumn: 10,
-        },
-      ],
-    },
-    {
-      code: '`hello`();',
-      errors: [
-        {
-          messageId: 'asFunction',
-          line: 1,
-          column: 1,
-          endColumn: 8,
-        },
-      ],
-    },
-    {
-      code: '"hello"``;',
-      errors: [
-        {
-          messageId: 'asTagFunction',
-          line: 1,
-          column: 1,
-          endColumn: 8,
-        },
-      ],
-    },
-    {
-      code: '(class A {})();',
-      errors: [
-        {
-          messageId: 'asFunction',
-          line: 1,
-          column: 2,
-          endColumn: 12,
-        },
-      ],
-    },
-    {
-      code: '(class A {})``;',
-      errors: [
-        {
-          messageId: 'asTagFunction',
-          line: 1,
-          column: 2,
-          endColumn: 12,
-        },
-      ],
-    },
-  ],
+describe('S6958', () => {
+  ruleTester.run('no-literal-call', rule, {
+    valid: [
+      { code: 'foo();' },
+      { code: 'obj.foo();' },
+      { code: '(function() {})();' },
+      { code: '(() => 0)();' },
+      { code: 'foo``;' },
+      { code: 'obj.foo``;' },
+      { code: '(function() {})``;' },
+      { code: '(() => 0)``;' },
+    ],
+    invalid: [
+      {
+        code: 'true();',
+        errors: [
+          {
+            messageId: 'asFunction',
+            line: 1,
+            column: 1,
+            endColumn: 5,
+          },
+        ],
+      },
+      {
+        code: 'true``;',
+        errors: [
+          {
+            messageId: 'asTagFunction',
+            line: 1,
+            column: 1,
+            endColumn: 5,
+          },
+        ],
+      },
+      {
+        code: 'false();',
+        errors: [
+          {
+            messageId: 'asFunction',
+            line: 1,
+            column: 1,
+            endColumn: 6,
+          },
+        ],
+      },
+      {
+        code: 'false``;',
+        errors: [
+          {
+            messageId: 'asTagFunction',
+            line: 1,
+            column: 1,
+            endColumn: 6,
+          },
+        ],
+      },
+      {
+        code: 'null();',
+        errors: [
+          {
+            messageId: 'asFunction',
+            line: 1,
+            column: 1,
+            endColumn: 5,
+          },
+        ],
+      },
+      {
+        code: 'null``;',
+        errors: [
+          {
+            messageId: 'asTagFunction',
+            line: 1,
+            column: 1,
+            endColumn: 5,
+          },
+        ],
+      },
+      {
+        code: '100();',
+        errors: [
+          {
+            messageId: 'asFunction',
+            line: 1,
+            column: 1,
+            endColumn: 4,
+          },
+        ],
+      },
+      {
+        code: '100``;',
+        errors: [
+          {
+            messageId: 'asTagFunction',
+            line: 1,
+            column: 1,
+            endColumn: 4,
+          },
+        ],
+      },
+      {
+        code: '"hello"();',
+        errors: [
+          {
+            messageId: 'asFunction',
+            line: 1,
+            column: 1,
+            endColumn: 8,
+          },
+        ],
+      },
+      {
+        code: '`hello```;',
+        errors: [
+          {
+            messageId: 'asTagFunction',
+            line: 1,
+            column: 1,
+            endColumn: 8,
+          },
+        ],
+      },
+      {
+        code: '/abc/();',
+        errors: [
+          {
+            messageId: 'asFunction',
+            line: 1,
+            column: 1,
+            endColumn: 6,
+          },
+        ],
+      },
+      {
+        code: '/abc/``;',
+        errors: [
+          {
+            messageId: 'asTagFunction',
+            line: 1,
+            column: 1,
+            endColumn: 6,
+          },
+        ],
+      },
+      {
+        code: '[1,2,3]();',
+        errors: [
+          {
+            messageId: 'asFunction',
+            line: 1,
+            column: 1,
+            endColumn: 8,
+          },
+        ],
+      },
+      {
+        code: '[1,2,3]``;',
+        errors: [
+          {
+            messageId: 'asTagFunction',
+            line: 1,
+            column: 1,
+            endColumn: 8,
+          },
+        ],
+      },
+      {
+        code: '({foo: 0})();',
+        errors: [
+          {
+            messageId: 'asFunction',
+            line: 1,
+            column: 2,
+            endColumn: 10,
+          },
+        ],
+      },
+      {
+        code: '({foo: 0})``;',
+        errors: [
+          {
+            messageId: 'asTagFunction',
+            line: 1,
+            column: 2,
+            endColumn: 10,
+          },
+        ],
+      },
+      {
+        code: '`hello`();',
+        errors: [
+          {
+            messageId: 'asFunction',
+            line: 1,
+            column: 1,
+            endColumn: 8,
+          },
+        ],
+      },
+      {
+        code: '"hello"``;',
+        errors: [
+          {
+            messageId: 'asTagFunction',
+            line: 1,
+            column: 1,
+            endColumn: 8,
+          },
+        ],
+      },
+      {
+        code: '(class A {})();',
+        errors: [
+          {
+            messageId: 'asFunction',
+            line: 1,
+            column: 2,
+            endColumn: 12,
+          },
+        ],
+      },
+      {
+        code: '(class A {})``;',
+        errors: [
+          {
+            messageId: 'asTagFunction',
+            line: 1,
+            column: 2,
+            endColumn: 12,
+          },
+        ],
+      },
+    ],
+  });
 });
