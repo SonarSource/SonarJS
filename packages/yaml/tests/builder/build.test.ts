@@ -32,14 +32,14 @@ describe('buildSourceCodes()', () => {
     const filePath = join(fixturesPath, 'valid-lambda.yaml');
     const sourceCodes = buildSourceCodes(await embeddedInput({ filePath }), parseAwsFromYaml);
     expect(sourceCodes).toHaveLength(1);
-    expect(sourceCodes[0].ast.loc.start).toEqual({ line: 8, column: 17 });
+    expect(sourceCodes[0].sourceCode.ast.loc.start).toEqual({ line: 8, column: 17 });
   });
 
   it('should build source code from YAML serverless file', async () => {
     const filePath = join(fixturesPath, 'valid-serverless.yaml');
     const sourceCodes = buildSourceCodes(await embeddedInput({ filePath }), parseAwsFromYaml);
     expect(sourceCodes).toHaveLength(1);
-    expect(sourceCodes[0].ast.loc.start).toEqual({ line: 7, column: 18 });
+    expect(sourceCodes[0].sourceCode.ast.loc.start).toEqual({ line: 7, column: 18 });
   });
 
   it('should return YAML parsing errors on invalid YAML file', async () => {
@@ -75,7 +75,11 @@ describe('buildSourceCodes()', () => {
 
   it('should fix plain-based format locations', async () => {
     const filePath = join(fixturesPath, 'flow-plain.yaml');
-    const [{ ast }] = buildSourceCodes(await embeddedInput({ filePath }), parseAwsFromYaml);
+    const [
+      {
+        sourceCode: { ast },
+      },
+    ] = buildSourceCodes(await embeddedInput({ filePath }), parseAwsFromYaml);
 
     const {
       body: [ifStmt],
@@ -144,7 +148,11 @@ describe('buildSourceCodes()', () => {
 
   it('should fix block-folded-based format locations', async () => {
     const filePath = join(fixturesPath, 'block-folded.yaml');
-    const [{ ast }] = buildSourceCodes(await embeddedInput({ filePath }), parseAwsFromYaml);
+    const [
+      {
+        sourceCode: { ast },
+      },
+    ] = buildSourceCodes(await embeddedInput({ filePath }), parseAwsFromYaml);
     const {
       body: [ifStmt],
     } = ast;
@@ -212,7 +220,11 @@ describe('buildSourceCodes()', () => {
 
   it('should fix block-literal-based format locations', async () => {
     const filePath = join(fixturesPath, 'block-literal.yaml');
-    const [{ ast }] = buildSourceCodes(await embeddedInput({ filePath }), parseAwsFromYaml);
+    const [
+      {
+        sourceCode: { ast },
+      },
+    ] = buildSourceCodes(await embeddedInput({ filePath }), parseAwsFromYaml);
     const {
       body: [ifStmt],
     } = ast;

@@ -27,7 +27,7 @@ describe('buildSourceCodes()', () => {
     const filePath = join(fixturesPath, 'multiple.html');
     const sourceCodes = buildSourceCodes(await embeddedInput({ filePath }), parseHTML);
     expect(sourceCodes).toHaveLength(2);
-    expect(sourceCodes[0].ast.loc.start).toEqual({ line: 4, column: 8 });
-    expect(sourceCodes[1].ast.loc.start).toEqual({ line: 8, column: 8 });
+    expect(sourceCodes[0].sourceCode.ast.loc.start).toEqual({ line: 4, column: 8 });
+    expect(sourceCodes[1].sourceCode.ast.loc.start).toEqual({ line: 8, column: 8 });
   });
 });
