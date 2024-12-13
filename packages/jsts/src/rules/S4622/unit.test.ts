@@ -16,60 +16,62 @@
  */
 import { rule } from './index.js';
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { describe } from 'node:test';
 
-const ruleTester = new RuleTester();
+describe('S4622', () => {
+  const ruleTester = new RuleTester();
 
-const DEFAULT_THRESHOLD = 3;
-const CUSTOM_THRESHOLD = 4;
+  const DEFAULT_THRESHOLD = 3;
+  const CUSTOM_THRESHOLD = 4;
 
-const createOptions = (threshold: number) => {
-  return [{ threshold }];
-};
+  const createOptions = (threshold: number) => {
+    return [{ threshold }];
+  };
 
-ruleTester.run('Union types should not have too many elements', rule, {
-  valid: [
-    {
-      code: `let smallUnionType: number | boolean | string;`,
-      options: createOptions(DEFAULT_THRESHOLD),
-    },
-    {
-      code: `let smallUnionType: number | boolean | string | any[];`,
-      options: createOptions(CUSTOM_THRESHOLD),
-    },
-    {
-      code: `function smallUnionType(a: number | boolean) {}`,
-      options: createOptions(DEFAULT_THRESHOLD),
-    },
-    {
-      code: `type T = A | B | C | D;`,
-      options: createOptions(DEFAULT_THRESHOLD),
-    },
-    {
-      code: `
+  ruleTester.run('Union types should not have too many elements', rule, {
+    valid: [
+      {
+        code: `let smallUnionType: number | boolean | string;`,
+        options: createOptions(DEFAULT_THRESHOLD),
+      },
+      {
+        code: `let smallUnionType: number | boolean | string | any[];`,
+        options: createOptions(CUSTOM_THRESHOLD),
+      },
+      {
+        code: `function smallUnionType(a: number | boolean) {}`,
+        options: createOptions(DEFAULT_THRESHOLD),
+      },
+      {
+        code: `type T = A | B | C | D;`,
+        options: createOptions(DEFAULT_THRESHOLD),
+      },
+      {
+        code: `
         type T = A | B | C | D;
         function okFn(a: T) {}`,
-      options: createOptions(DEFAULT_THRESHOLD),
-    },
-    {
-      code: `
+        options: createOptions(DEFAULT_THRESHOLD),
+      },
+      {
+        code: `
         type T = A | B | C | D;
         let okVarA : T;`,
-      options: createOptions(DEFAULT_THRESHOLD),
-    },
-    {
-      code: `
+        options: createOptions(DEFAULT_THRESHOLD),
+      },
+      {
+        code: `
         type T = A | B | C | D;
         let okFunctionType: (param: any) => T`,
-      options: createOptions(DEFAULT_THRESHOLD),
-    },
-    {
-      code: `
+        options: createOptions(DEFAULT_THRESHOLD),
+      },
+      {
+        code: `
         type T = A | B | C | D;
         let okTupleType: [string, T];`,
-      options: createOptions(DEFAULT_THRESHOLD),
-    },
-    {
-      code: `
+        options: createOptions(DEFAULT_THRESHOLD),
+      },
+      {
+        code: `
         interface Foo {
           a: string;
           b: number;
@@ -80,82 +82,83 @@ ruleTester.run('Union types should not have too many elements', rule, {
         };
         type Bar = Pick<Foo, 'a' | 'b' | 'c' | 'd'>;
       `,
-      options: createOptions(DEFAULT_THRESHOLD),
-    },
-  ],
-  invalid: [
-    {
-      code: `let nokVarA: A | B | C | D`,
-      options: createOptions(DEFAULT_THRESHOLD),
-      errors: [
-        {
-          message: `Refactor this union type to have less than ${DEFAULT_THRESHOLD} elements.`,
-          line: 1,
-          endLine: 1,
-          column: 14,
-          endColumn: 27,
-        },
-      ],
-    },
-    {
-      code: `let nokVarA: A | B | C | D | E`,
-      options: createOptions(CUSTOM_THRESHOLD),
-      errors: [
-        {
-          message: `Refactor this union type to have less than ${CUSTOM_THRESHOLD} elements.`,
-          line: 1,
-          endLine: 1,
-          column: 14,
-          endColumn: 31,
-        },
-      ],
-    },
-    {
-      code: `function nokFn(a: A | B | C | D) {}`,
-      options: createOptions(DEFAULT_THRESHOLD),
-      errors: [
-        {
-          message: `Refactor this union type to have less than ${DEFAULT_THRESHOLD} elements.`,
-        },
-      ],
-    },
-    {
-      code: `let nokFunctionType: (param: any) => A | B | C | D`,
-      options: createOptions(DEFAULT_THRESHOLD),
-      errors: [
-        {
-          message: `Refactor this union type to have less than ${DEFAULT_THRESHOLD} elements.`,
-        },
-      ],
-    },
-    {
-      code: `let nokTupleType : [string, A | B | C | D];`,
-      options: createOptions(DEFAULT_THRESHOLD),
-      errors: [
-        {
-          message: `Refactor this union type to have less than ${DEFAULT_THRESHOLD} elements.`,
-        },
-      ],
-    },
-    {
-      code: `interface nokInterfaceDeclaration {
+        options: createOptions(DEFAULT_THRESHOLD),
+      },
+    ],
+    invalid: [
+      {
+        code: `let nokVarA: A | B | C | D`,
+        options: createOptions(DEFAULT_THRESHOLD),
+        errors: [
+          {
+            message: `Refactor this union type to have less than ${DEFAULT_THRESHOLD} elements.`,
+            line: 1,
+            endLine: 1,
+            column: 14,
+            endColumn: 27,
+          },
+        ],
+      },
+      {
+        code: `let nokVarA: A | B | C | D | E`,
+        options: createOptions(CUSTOM_THRESHOLD),
+        errors: [
+          {
+            message: `Refactor this union type to have less than ${CUSTOM_THRESHOLD} elements.`,
+            line: 1,
+            endLine: 1,
+            column: 14,
+            endColumn: 31,
+          },
+        ],
+      },
+      {
+        code: `function nokFn(a: A | B | C | D) {}`,
+        options: createOptions(DEFAULT_THRESHOLD),
+        errors: [
+          {
+            message: `Refactor this union type to have less than ${DEFAULT_THRESHOLD} elements.`,
+          },
+        ],
+      },
+      {
+        code: `let nokFunctionType: (param: any) => A | B | C | D`,
+        options: createOptions(DEFAULT_THRESHOLD),
+        errors: [
+          {
+            message: `Refactor this union type to have less than ${DEFAULT_THRESHOLD} elements.`,
+          },
+        ],
+      },
+      {
+        code: `let nokTupleType : [string, A | B | C | D];`,
+        options: createOptions(DEFAULT_THRESHOLD),
+        errors: [
+          {
+            message: `Refactor this union type to have less than ${DEFAULT_THRESHOLD} elements.`,
+          },
+        ],
+      },
+      {
+        code: `interface nokInterfaceDeclaration {
         prop: A | B | C | D;
       }`,
-      options: createOptions(DEFAULT_THRESHOLD),
-      errors: [
-        {
-          message: `Refactor this union type to have less than ${DEFAULT_THRESHOLD} elements.`,
-        },
-      ],
-    },
-    {
-      code: `type U = (A | B | C | D) & E;`,
-      options: createOptions(DEFAULT_THRESHOLD),
-      errors: [
-        {
-          message: `Refactor this union type to have less than ${DEFAULT_THRESHOLD} elements.`,
-        },
-      ],
-    },
-  ],
+        options: createOptions(DEFAULT_THRESHOLD),
+        errors: [
+          {
+            message: `Refactor this union type to have less than ${DEFAULT_THRESHOLD} elements.`,
+          },
+        ],
+      },
+      {
+        code: `type U = (A | B | C | D) & E;`,
+        options: createOptions(DEFAULT_THRESHOLD),
+        errors: [
+          {
+            message: `Refactor this union type to have less than ${DEFAULT_THRESHOLD} elements.`,
+          },
+        ],
+      },
+    ],
+  });
 });

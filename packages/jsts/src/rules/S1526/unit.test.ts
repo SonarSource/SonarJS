@@ -16,114 +16,117 @@
  */
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe } from 'node:test';
 
-const ruleTester = new RuleTester();
+describe('S1526', () => {
+  const ruleTester = new RuleTester();
 
-ruleTester.run(`Variables declared with "var" should be declared before they are used`, rule, {
-  valid: [
-    {
-      code: `var x;`,
-    },
-    {
-      code: `
+  ruleTester.run(`Variables declared with "var" should be declared before they are used`, rule, {
+    valid: [
+      {
+        code: `var x;`,
+      },
+      {
+        code: `
       var x;
       print(x);
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       function fun(x) {
         print(x);
       }
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       print(x);
       let x = 1;
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       print(x);
       const x = 1;
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       for (var x of xs) {}
       var x;
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       for (var x of xs) {}
       x;
       `,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+      },
+    ],
+    invalid: [
+      {
+        code: `
       print(x);
       var x = 1;
       `,
-      errors: [
-        {
-          message: `{"message":"Move the declaration of \\\"x\\\" before this usage.","secondaryLocations":[{"message":"Declaration","column":10,"line":3,"endColumn":11,"endLine":3}]}`,
-          line: 2,
-          endLine: 2,
-          column: 13,
-          endColumn: 14,
-        },
-      ],
-      options: ['sonar-runtime'],
-    },
-    {
-      code: `
+        errors: [
+          {
+            message: `{"message":"Move the declaration of \\\"x\\\" before this usage.","secondaryLocations":[{"message":"Declaration","column":10,"line":3,"endColumn":11,"endLine":3}]}`,
+            line: 2,
+            endLine: 2,
+            column: 13,
+            endColumn: 14,
+          },
+        ],
+        options: ['sonar-runtime'],
+      },
+      {
+        code: `
       print(x);
       println(x);
       var x = 1;
       `,
-      errors: [
-        {
-          message: `{"message":"Move the declaration of \\\"x\\\" before this usage.","secondaryLocations":[{"message":"Declaration","column":10,"line":4,"endColumn":11,"endLine":4}]}`,
-          line: 2,
-          endLine: 2,
-          column: 13,
-          endColumn: 14,
-        },
-      ],
-      options: ['sonar-runtime'],
-    },
-    {
-      code: `
+        errors: [
+          {
+            message: `{"message":"Move the declaration of \\\"x\\\" before this usage.","secondaryLocations":[{"message":"Declaration","column":10,"line":4,"endColumn":11,"endLine":4}]}`,
+            line: 2,
+            endLine: 2,
+            column: 13,
+            endColumn: 14,
+          },
+        ],
+        options: ['sonar-runtime'],
+      },
+      {
+        code: `
       print(x);
       var x;
       `,
-      errors: 1,
-    },
-    {
-      code: `print(x); var x;`,
-      errors: 1,
-    },
-    {
-      code: `
+        errors: 1,
+      },
+      {
+        code: `print(x); var x;`,
+        errors: 1,
+      },
+      {
+        code: `
       function fun() {
         print(x);
       }
       var x;
       `,
-      errors: 1,
-    },
-    {
-      code: `
+        errors: 1,
+      },
+      {
+        code: `
       let fun = () => {
         print(x);
       }
       var x;
       `,
-      errors: 1,
-    },
-  ],
+        errors: 1,
+      },
+    ],
+  });
 });

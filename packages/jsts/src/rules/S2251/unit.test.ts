@@ -16,262 +16,265 @@
  */
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe } from 'node:test';
 
-const ruleTesterJs = new RuleTester();
-const ruleTesterTs = new RuleTester();
+describe('S2251', () => {
+  const ruleTesterJs = new RuleTester();
+  const ruleTesterTs = new RuleTester();
 
-const testCases = {
-  valid: [
-    {
-      code: `
+  const testCases = {
+    valid: [
+      {
+        code: `
             for (let i = x; i < y; i++) {}
             `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
             for (i = x; i > y; i--) {} {}
             `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
             for (i = x; y > i; i++) {} {}
             `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
             for (i = x; y < i; i--) {}
             `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
             for (i = x; x < y; i--) {}
             `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
             for (i = x; x > y; i--) {}
             `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
             for (i = x; i > y; i-=1 ) {}
             `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
             for (i = x; i > y; i-=+1) {}
             `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
             for (i = x; i > y; i+=-x) {}
             `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
             for (i = x; i > y; i+=z ) {}
             `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
             for (i = x; i > y; i=i-1) {}
             `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
             for (i = x; i > y; i=i+z) {}
             `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
             for (i = x; i > y; i=z+1) {}
             `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
             for (i = x; i > y; i=i*2) {}
             `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
             for (i = x; i > y; i=i-z) {}
             `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
             for (i = x; i > y; object.x = i + 1) {}
             `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
             for (i = x; i+1 < y; i++) {}
             `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
             for (i = x; i < y; ) {}
             `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
             for (i = x; i > y; update()) {}
             `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
             for (i = x; condition(); i++) {}
             `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
             for (i = x; ; i++) {}
             `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
             for (i = x; i > y; i+=-1) {}
             `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
             for (i = x; i < y; i-=-1) {}
             `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
             for (i = ""; i<="aaa"; i+="a") {}
             `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
             for (let i = 0; i<=10; my_var.i++) {}
             `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
             for (let i = 0; i<=10; i=!i) {}
             `,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+      },
+    ],
+    invalid: [
+      {
+        code: `
             for (i = 0; i < 5; i--) {}
             //          ^^^^^> ^^^
             `,
-      errors: [
-        {
-          message: `{"message":"\\"i\\" is decremented and will never reach its stop condition.","secondaryLocations":[{"column":24,"line":2,"endColumn":29,"endLine":2}]}`,
-          line: 2,
-          endLine: 2,
-          column: 32,
-          endColumn: 35,
-        },
-      ],
-      options: ['sonar-runtime'],
-    },
-    {
-      code: `
+        errors: [
+          {
+            message: `{"message":"\\"i\\" is decremented and will never reach its stop condition.","secondaryLocations":[{"column":24,"line":2,"endColumn":29,"endLine":2}]}`,
+            line: 2,
+            endLine: 2,
+            column: 32,
+            endColumn: 35,
+          },
+        ],
+        options: ['sonar-runtime'],
+      },
+      {
+        code: `
             for (let i = x; i > y; i++) {}
             //              ^^^^^> ^^^
             `,
-      errors: [
-        {
-          message: `{"message":"\\"i\\" is incremented and will never reach its stop condition.","secondaryLocations":[{"column":28,"line":2,"endColumn":33,"endLine":2}]}`,
-          line: 2,
-          endLine: 2,
-          column: 36,
-          endColumn: 39,
-        },
-      ],
-      options: ['sonar-runtime'],
-    },
-    {
-      code: `
+        errors: [
+          {
+            message: `{"message":"\\"i\\" is incremented and will never reach its stop condition.","secondaryLocations":[{"column":28,"line":2,"endColumn":33,"endLine":2}]}`,
+            line: 2,
+            endLine: 2,
+            column: 36,
+            endColumn: 39,
+          },
+        ],
+        options: ['sonar-runtime'],
+      },
+      {
+        code: `
             for (let i = x; i >=y; i++) {}
             `,
-      errors: 1,
-    },
-    {
-      code: `
+        errors: 1,
+      },
+      {
+        code: `
             for (let i = x; i < y; i--) {}
             `,
-      errors: 1,
-    },
-    {
-      code: `
+        errors: 1,
+      },
+      {
+        code: `
             for (let i = x; i <=y; i--) {}
             `,
-      errors: 1,
-    },
-    {
-      code: `
+        errors: 1,
+      },
+      {
+        code: `
             for (let i = x; y < i; i++) {}
             `,
-      errors: 1,
-    },
-    {
-      code: `
+        errors: 1,
+      },
+      {
+        code: `
             for (let i = x; y <=i; i++) {}
             `,
-      errors: 1,
-    },
-    {
-      code: `
+        errors: 1,
+      },
+      {
+        code: `
             for (let i = x; y > i; i--) {}
             `,
-      errors: 1,
-    },
-    {
-      code: `
+        errors: 1,
+      },
+      {
+        code: `
             for (let i = x; y >=i; i--) {}
             `,
-      errors: 1,
-    },
-    {
-      code: `
+        errors: 1,
+      },
+      {
+        code: `
             for (let i = x; y >i; i--) {}
             `,
-      errors: 1,
-    },
-    {
-      code: `
+        errors: 1,
+      },
+      {
+        code: `
             for (i = x; i > y; i+=1 ) {}
             `,
-      errors: 1,
-    },
-    {
-      code: `
+        errors: 1,
+      },
+      {
+        code: `
             for (i = x; i > y; i=i+1) {}
             `,
-      errors: 1,
-    },
-    {
-      code: `
+        errors: 1,
+      },
+      {
+        code: `
             for (i = x; i > y; i=i+2) {}
             `,
-      errors: 1,
-    },
-    {
-      code: `
+        errors: 1,
+      },
+      {
+        code: `
             for (i = x; i > y; i=i+1.) {}
             `,
-      errors: 1,
-    },
-    {
-      code: `
+        errors: 1,
+      },
+      {
+        code: `
             for (i = x; i < y; i+=-1) {}
             `,
-      errors: 1,
-    },
-    {
-      code: `
+        errors: 1,
+      },
+      {
+        code: `
             for (i = x; i > y; i-=-1) {}
             `,
-      errors: 1,
-    },
-  ],
-};
+        errors: 1,
+      },
+    ],
+  };
 
-ruleTesterJs.run('Loop increment should move in the right direction JavaScript', rule, testCases);
-ruleTesterTs.run('Loop increment should move in the right direction TypeScript', rule, testCases);
+  ruleTesterJs.run('Loop increment should move in the right direction JavaScript', rule, testCases);
+  ruleTesterTs.run('Loop increment should move in the right direction TypeScript', rule, testCases);
+});

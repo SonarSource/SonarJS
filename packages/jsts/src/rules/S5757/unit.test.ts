@@ -16,31 +16,33 @@
  */
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe } from 'node:test';
 
-const ruleTester = new RuleTester();
+describe('S5757', () => {
+  const ruleTester = new RuleTester();
 
-ruleTester.run('Allowing confidential information to be logged is security-sensitive', rule, {
-  valid: [
-    {
-      code: `
+  ruleTester.run('Allowing confidential information to be logged is security-sensitive', rule, {
+    valid: [
+      {
+        code: `
       const { Signale } = require('signale');
       const options = {
         secrets: ["([0-9]{4}-?)+"]
       };
       const logger = new Signale(options); // Compliant
             `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       const signale = require('signale');
       const options = {
         secrets: []
       };
       const logger = new signale.Other(options);
             `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       const { Signale } = require('signale');
       let options = {
         secrets: []
@@ -50,18 +52,18 @@ ruleTester.run('Allowing confidential information to be logged is security-sensi
       }
       const logger = new Signale(options);
             `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       const { Signale } = require('signale');
       let options = {
         secrets: getSecrets()
       };
       const logger = new Signale(options);
             `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       const signale = require('signale');
       let secretsArray = [];
       if (x) {
@@ -72,108 +74,109 @@ ruleTester.run('Allowing confidential information to be logged is security-sensi
       };
       const logger = new signale.Signale(options);
             `,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+      },
+    ],
+    invalid: [
+      {
+        code: `
       const signale = require('signale');
       const options = {
         secrets: []
       };
       const logger = new signale.Signale(options); // Sensitive
             `,
-      errors: [
-        {
-          line: 6,
-          endLine: 6,
-          column: 26,
-          endColumn: 41,
-          message: JSON.stringify({
-            message: 'Make sure confidential information is not logged here.',
-            secondaryLocations: [{ column: 8, line: 4, endColumn: 19, endLine: 4 }],
-          }),
-        },
-      ],
-      options: ['sonar-runtime'],
-    },
-    {
-      code: `
+        errors: [
+          {
+            line: 6,
+            endLine: 6,
+            column: 26,
+            endColumn: 41,
+            message: JSON.stringify({
+              message: 'Make sure confidential information is not logged here.',
+              secondaryLocations: [{ column: 8, line: 4, endColumn: 19, endLine: 4 }],
+            }),
+          },
+        ],
+        options: ['sonar-runtime'],
+      },
+      {
+        code: `
       const { Signale } = require('signale');
       const options = {
         secrets: []
       };
       const logger = new Signale(options); // Sensitive
             `,
-      errors: [
-        {
-          line: 6,
-          endLine: 6,
-          column: 26,
-          endColumn: 33,
-          message: JSON.stringify({
-            message: 'Make sure confidential information is not logged here.',
-            secondaryLocations: [{ column: 8, line: 4, endColumn: 19, endLine: 4 }],
-          }),
-        },
-      ],
-      options: ['sonar-runtime'],
-    },
-    {
-      code: `
+        errors: [
+          {
+            line: 6,
+            endLine: 6,
+            column: 26,
+            endColumn: 33,
+            message: JSON.stringify({
+              message: 'Make sure confidential information is not logged here.',
+              secondaryLocations: [{ column: 8, line: 4, endColumn: 19, endLine: 4 }],
+            }),
+          },
+        ],
+        options: ['sonar-runtime'],
+      },
+      {
+        code: `
       const { Signale } = require('signale');
       const options = {
         other: []
       };
       const logger = new Signale(options); // Sensitive
             `,
-      errors: [
-        {
-          line: 6,
-          endLine: 6,
-          column: 26,
-          endColumn: 33,
-          message: JSON.stringify({
-            message: 'Make sure confidential information is not logged here.',
-            secondaryLocations: [{ column: 22, line: 3, endColumn: 7, endLine: 5 }],
-          }),
-        },
-      ],
-      options: ['sonar-runtime'],
-    },
-    {
-      code: `
+        errors: [
+          {
+            line: 6,
+            endLine: 6,
+            column: 26,
+            endColumn: 33,
+            message: JSON.stringify({
+              message: 'Make sure confidential information is not logged here.',
+              secondaryLocations: [{ column: 22, line: 3, endColumn: 7, endLine: 5 }],
+            }),
+          },
+        ],
+        options: ['sonar-runtime'],
+      },
+      {
+        code: `
       const signale = require('signale');
       const logger = new signale.Signale(); // Sensitive
             `,
-      errors: [
-        {
-          line: 3,
-          endLine: 3,
-          column: 26,
-          endColumn: 41,
-          message: JSON.stringify({
-            message: 'Make sure confidential information is not logged here.',
-            secondaryLocations: [],
-          }),
-        },
-      ],
-      options: ['sonar-runtime'],
-    },
-    {
-      code: `
+        errors: [
+          {
+            line: 3,
+            endLine: 3,
+            column: 26,
+            endColumn: 41,
+            message: JSON.stringify({
+              message: 'Make sure confidential information is not logged here.',
+              secondaryLocations: [],
+            }),
+          },
+        ],
+        options: ['sonar-runtime'],
+      },
+      {
+        code: `
       const {Signale} = require('signale');
       const logger = new Signale(); // Sensitive
             `,
-      errors: [
-        {
-          message: JSON.stringify({
-            message: 'Make sure confidential information is not logged here.',
-            secondaryLocations: [],
-          }),
-        },
-      ],
-      options: ['sonar-runtime'],
-    },
-  ],
+        errors: [
+          {
+            message: JSON.stringify({
+              message: 'Make sure confidential information is not logged here.',
+              secondaryLocations: [],
+            }),
+          },
+        ],
+        options: ['sonar-runtime'],
+      },
+    ],
+  });
 });

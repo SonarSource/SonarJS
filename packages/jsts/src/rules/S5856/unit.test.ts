@@ -16,71 +16,74 @@
  */
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe } from 'node:test';
 
-const ruleTesterTs = new RuleTester();
-ruleTesterTs.run('Malformed regular expressions', rule, {
-  valid: [
-    {
-      code: `new RegExp("\\\\(\\\\[");`,
-    },
-    {
-      code: `new RegExp("\\\\(\\\\[", "g");`,
-    },
-    {
-      code: `str.match("\\\\(\\\\[");`,
-    },
-    {
-      code: `str.replace("([", "{");`,
-    },
-    {
-      code: `'xxx'.match();`,
-    },
-    {
-      code: `foo.match('[');`,
-    },
-    {
-      code: `
+describe('S5856', () => {
+  const ruleTesterTs = new RuleTester();
+  ruleTesterTs.run('Malformed regular expressions', rule, {
+    valid: [
+      {
+        code: `new RegExp("\\\\(\\\\[");`,
+      },
+      {
+        code: `new RegExp("\\\\(\\\\[", "g");`,
+      },
+      {
+        code: `str.match("\\\\(\\\\[");`,
+      },
+      {
+        code: `str.replace("([", "{");`,
+      },
+      {
+        code: `'xxx'.match();`,
+      },
+      {
+        code: `foo.match('[');`,
+      },
+      {
+        code: `
         new RegExp();
         new RegExp('foo', 4);
       `,
-    },
-  ],
-  invalid: [
-    {
-      code: `new RegExp("([");`,
-      errors: [
-        {
-          message: 'Invalid regular expression: /([/: Unterminated character class',
-          line: 1,
-          column: 1,
-          endLine: 1,
-          endColumn: 17,
-        },
-      ],
-    },
-    {
-      code: `'xxx'.match("([");`,
-      errors: [
-        {
-          message: 'Invalid regular expression: /([/: Unterminated character class',
-          line: 1,
-          column: 1,
-          endLine: 1,
-          endColumn: 18,
-        },
-      ],
-    },
-    {
-      code: `new RegExp("\\\\(\\\\[", "a");`,
-      errors: [
-        {
-          message: "Invalid flags supplied to RegExp constructor 'a'",
-          line: 1,
-          column: 1,
-          endLine: 1,
-          endColumn: 26,
-        },
-      ],
-    },
-  ],
+      },
+    ],
+    invalid: [
+      {
+        code: `new RegExp("([");`,
+        errors: [
+          {
+            message: 'Invalid regular expression: /([/: Unterminated character class',
+            line: 1,
+            column: 1,
+            endLine: 1,
+            endColumn: 17,
+          },
+        ],
+      },
+      {
+        code: `'xxx'.match("([");`,
+        errors: [
+          {
+            message: 'Invalid regular expression: /([/: Unterminated character class',
+            line: 1,
+            column: 1,
+            endLine: 1,
+            endColumn: 18,
+          },
+        ],
+      },
+      {
+        code: `new RegExp("\\\\(\\\\[", "a");`,
+        errors: [
+          {
+            message: "Invalid flags supplied to RegExp constructor 'a'",
+            line: 1,
+            column: 1,
+            endLine: 1,
+            endColumn: 26,
+          },
+        ],
+      },
+    ],
+  });
 });

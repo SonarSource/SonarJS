@@ -16,12 +16,14 @@
  */
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe } from 'node:test';
 
-const ruleTester = new RuleTester();
-ruleTester.run('Comma and logical OR operators should not be used in switch cases', rule, {
-  valid: [
-    {
-      code: `switch (a) {
+describe('S3616', () => {
+  const ruleTester = new RuleTester();
+  ruleTester.run('Comma and logical OR operators should not be used in switch cases', rule, {
+    valid: [
+      {
+        code: `switch (a) {
              case 0:         // OK
              case 1:         // OK
              case "a" && "b":  // OK, no logical or
@@ -30,15 +32,15 @@ ruleTester.run('Comma and logical OR operators should not be used in switch case
               foo2();
               break;
       }`,
-    },
-    {
-      code: `switch (true) {
+      },
+      {
+        code: `switch (true) {
                case cond1() || cond2(): 
                  break;
              }`,
-    },
-    {
-      code: `switch (a) {
+      },
+      {
+        code: `switch (a) {
                case 2: 
                  switch (true) {
                    case cond3() || cond4(): 
@@ -46,11 +48,11 @@ ruleTester.run('Comma and logical OR operators should not be used in switch case
                  }
                  break;
              }`,
-    },
-  ],
-  invalid: [
-    {
-      code: `switch (a) {
+      },
+    ],
+    invalid: [
+      {
+        code: `switch (a) {
              case 2,3:       // Noncompliant
               foo2();
               break;
@@ -63,35 +65,35 @@ ruleTester.run('Comma and logical OR operators should not be used in switch case
              default:
               foo4();
       }`,
-      errors: [
-        {
-          message:
-            'Explicitly specify 2 separate cases that fall through; currently this case clause only works for "3".',
-          line: 2,
-          endLine: 2,
-          column: 19,
-          endColumn: 22,
-        },
-        {
-          message:
-            'Explicitly specify 4 separate cases that fall through; currently this case clause only works for "d".',
-          line: 5,
-          endLine: 5,
-          column: 19,
-          endColumn: 34,
-        },
-        {
-          message:
-            'Explicitly specify 2 separate cases that fall through; currently this case clause only works for "baz()".',
-          line: 8,
-          endLine: 8,
-          column: 19,
-          endColumn: 31,
-        },
-      ],
-    },
-    {
-      code: `switch (a) {
+        errors: [
+          {
+            message:
+              'Explicitly specify 2 separate cases that fall through; currently this case clause only works for "3".',
+            line: 2,
+            endLine: 2,
+            column: 19,
+            endColumn: 22,
+          },
+          {
+            message:
+              'Explicitly specify 4 separate cases that fall through; currently this case clause only works for "d".',
+            line: 5,
+            endLine: 5,
+            column: 19,
+            endColumn: 34,
+          },
+          {
+            message:
+              'Explicitly specify 2 separate cases that fall through; currently this case clause only works for "baz()".',
+            line: 8,
+            endLine: 8,
+            column: 19,
+            endColumn: 31,
+          },
+        ],
+      },
+      {
+        code: `switch (a) {
              case 2 || 3:       // Noncompliant
               foo2();
               break;
@@ -104,35 +106,35 @@ ruleTester.run('Comma and logical OR operators should not be used in switch case
              default:
               foo4();
         }`,
-      errors: [
-        {
-          message:
-            'Explicitly specify 2 separate cases that fall through; currently this case clause only works for "2".',
-          line: 2,
-          endLine: 2,
-          column: 19,
-          endColumn: 25,
-        },
-        {
-          message:
-            'Explicitly specify 4 separate cases that fall through; currently this case clause only works for "a".',
-          line: 5,
-          endLine: 5,
-          column: 19,
-          endColumn: 43,
-        },
-        {
-          message:
-            'Explicitly specify 2 separate cases that fall through; currently this case clause only works for "bar()".',
-          line: 8,
-          endLine: 8,
-          column: 19,
-          endColumn: 33,
-        },
-      ],
-    },
-    {
-      code: `switch (true) {
+        errors: [
+          {
+            message:
+              'Explicitly specify 2 separate cases that fall through; currently this case clause only works for "2".',
+            line: 2,
+            endLine: 2,
+            column: 19,
+            endColumn: 25,
+          },
+          {
+            message:
+              'Explicitly specify 4 separate cases that fall through; currently this case clause only works for "a".',
+            line: 5,
+            endLine: 5,
+            column: 19,
+            endColumn: 43,
+          },
+          {
+            message:
+              'Explicitly specify 2 separate cases that fall through; currently this case clause only works for "bar()".',
+            line: 8,
+            endLine: 8,
+            column: 19,
+            endColumn: 33,
+          },
+        ],
+      },
+      {
+        code: `switch (true) {
                case cond1() || cond2(): 
                  switch (a) {
                    case cond3() || cond4(): 
@@ -140,7 +142,8 @@ ruleTester.run('Comma and logical OR operators should not be used in switch case
                  }
                  break;
              }`,
-      errors: 1,
-    },
-  ],
+        errors: 1,
+      },
+    ],
+  });
 });

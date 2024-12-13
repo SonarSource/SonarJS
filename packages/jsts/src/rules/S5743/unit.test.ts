@@ -16,13 +16,15 @@
  */
 import { rule } from './index.js';
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { describe } from 'node:test';
 
-const ruleTester = new RuleTester();
+describe('S5743', () => {
+  const ruleTester = new RuleTester();
 
-ruleTester.run('Allowing browsers to perform DNS prefetching is security-sensitive', rule, {
-  valid: [
-    {
-      code: `
+  ruleTester.run('Allowing browsers to perform DNS prefetching is security-sensitive', rule, {
+    valid: [
+      {
+        code: `
         
       const dnsPrefetchControl = require('dns-prefetch-control')
       const helmet = require('helmet')
@@ -30,9 +32,9 @@ ruleTester.run('Allowing browsers to perform DNS prefetching is security-sensiti
         app.use(dnsPrefetchControl({ allow: false })) // Compliant
       }; 
             `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       const dnsPrefetchControl = require('dns-prefetch-control')
       const helmet = require('helmet')
       module.exports.compliantDnsPrefetch = function(app) {
@@ -41,27 +43,27 @@ ruleTester.run('Allowing browsers to perform DNS prefetching is security-sensiti
         );
       }; 
             `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       const dnsPrefetchControl = require('dns-prefetch-control')
       const helmet = require('helmet')
       module.exports.compliantDnsPrefetch = function(app) {
         app.use(dnsPrefetchControl()) // Compliant by default
       }; 
             `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       const dnsPrefetchControl = require('dns-prefetch-control')
       const helmet = require('helmet')
       module.exports.compliantDnsPrefetch = function(app) {
         app.use(helmet.dnsPrefetchControl()) // Compliant by default
       }; 
             `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       const dnsPrefetchControl = require('dns-prefetch-control');
       const helmet = require('helmet');
       module.exports.sensitiveDnsPrefetch = function(app) {
@@ -72,33 +74,33 @@ ruleTester.run('Allowing browsers to perform DNS prefetching is security-sensiti
         app.use(dnsPrefetchControl(options));
       };       
             `,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+      },
+    ],
+    invalid: [
+      {
+        code: `
       const dnsPrefetchControl = require('dns-prefetch-control')
       const helmet = require('helmet')
       module.exports.sensitiveDnsPrefetch = function(app) {
         app.use(dnsPrefetchControl({ allow: true })) // Sensitive
       };       
             `,
-      errors: [
-        {
-          line: 5,
-          endLine: 5,
-          column: 17,
-          endColumn: 35,
-          message: JSON.stringify({
-            message: 'Make sure allowing browsers to perform DNS prefetching is safe here.',
-            secondaryLocations: [{ column: 37, line: 5, endColumn: 48, endLine: 5 }],
-          }),
-        },
-      ],
-      options: ['sonar-runtime'],
-    },
-    {
-      code: `
+        errors: [
+          {
+            line: 5,
+            endLine: 5,
+            column: 17,
+            endColumn: 35,
+            message: JSON.stringify({
+              message: 'Make sure allowing browsers to perform DNS prefetching is safe here.',
+              secondaryLocations: [{ column: 37, line: 5, endColumn: 48, endLine: 5 }],
+            }),
+          },
+        ],
+        options: ['sonar-runtime'],
+      },
+      {
+        code: `
       const dnsPrefetchControl = require('dns-prefetch-control')
       const helmet = require('helmet')
       module.exports.sensitiveDnsPrefetch = function(app) {
@@ -109,22 +111,22 @@ ruleTester.run('Allowing browsers to perform DNS prefetching is security-sensiti
         );
       }; 
             `,
-      errors: [
-        {
-          line: 6,
-          endLine: 6,
-          column: 11,
-          endColumn: 36,
-          message: JSON.stringify({
-            message: 'Make sure allowing browsers to perform DNS prefetching is safe here.',
-            secondaryLocations: [{ column: 12, line: 7, endColumn: 23, endLine: 7 }],
-          }),
-        },
-      ],
-      options: ['sonar-runtime'],
-    },
-    {
-      code: `
+        errors: [
+          {
+            line: 6,
+            endLine: 6,
+            column: 11,
+            endColumn: 36,
+            message: JSON.stringify({
+              message: 'Make sure allowing browsers to perform DNS prefetching is safe here.',
+              secondaryLocations: [{ column: 12, line: 7, endColumn: 23, endLine: 7 }],
+            }),
+          },
+        ],
+        options: ['sonar-runtime'],
+      },
+      {
+        code: `
       const dnsPrefetchControl = require('dns-prefetch-control')
       const helmet = require('helmet')
       module.exports.sensitiveDnsPrefetch = function(app) {
@@ -135,19 +137,20 @@ ruleTester.run('Allowing browsers to perform DNS prefetching is security-sensiti
         );
       };  
             `,
-      errors: [
-        {
-          line: 6,
-          endLine: 6,
-          column: 11,
-          endColumn: 17,
-          message: JSON.stringify({
-            message: 'Make sure allowing browsers to perform DNS prefetching is safe here.',
-            secondaryLocations: [{ column: 12, line: 7, endColumn: 37, endLine: 7 }],
-          }),
-        },
-      ],
-      options: ['sonar-runtime'],
-    },
-  ],
+        errors: [
+          {
+            line: 6,
+            endLine: 6,
+            column: 11,
+            endColumn: 17,
+            message: JSON.stringify({
+              message: 'Make sure allowing browsers to perform DNS prefetching is safe here.',
+              secondaryLocations: [{ column: 12, line: 7, endColumn: 37, endLine: 7 }],
+            }),
+          },
+        ],
+        options: ['sonar-runtime'],
+      },
+    ],
+  });
 });

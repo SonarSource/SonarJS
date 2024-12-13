@@ -16,31 +16,34 @@
  */
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe } from 'node:test';
 
-const ruleTester = new RuleTester();
-ruleTester.run('Trailing commas should be used', rule, {
-  valid: [
-    {
-      code: `
+describe('S3723', () => {
+  const ruleTester = new RuleTester();
+  ruleTester.run('Trailing commas should be used', rule, {
+    valid: [
+      {
+        code: `
 obj = {
   foo: 42,
   bar: 24
 }; `,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+      },
+    ],
+    invalid: [
+      {
+        code: `
 obj = {
   foo: 42,
   bar: 24,
 };`,
-      errors: 1,
-      output: `
+        errors: 1,
+        output: `
 obj = {
   foo: 42,
   bar: 24
 };`,
-    },
-  ],
+      },
+    ],
+  });
 });

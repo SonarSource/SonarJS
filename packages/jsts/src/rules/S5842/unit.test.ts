@@ -16,151 +16,154 @@
  */
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe } from 'node:test';
 
-const ruleTester = new RuleTester();
-ruleTester.run('Regular expression repetitions matching the empty string', rule, {
-  valid: [
-    {
-      code: `/x*|/`,
-    },
-    {
-      code: `/x*/`,
-    },
-    {
-      code: `/x?/`,
-    },
-    {
-      code: `/(?:x|y)*/`,
-    },
-    {
-      code: `/(?:x+)+/`,
-    },
-    {
-      code: `/(?:x+)*/`,
-    },
-    {
-      code: `/(?:x+)?/`,
-    },
-    {
-      code: `/((x+))*/`,
-    },
-  ],
-  invalid: [
-    {
-      code: `/(?:)*/`,
-      errors: 1,
-    },
-    {
-      code: `/(?:)?/`,
-      errors: 1,
-    },
-    {
-      code: `/(?:)+/`,
-      errors: 1,
-    },
-    {
-      code: `/()*/`,
-      errors: 1,
-    },
-    {
-      code: `/()?/`,
-      errors: 1,
-    },
-    {
-      code: `/()+/`,
-      errors: 1,
-    },
-    {
-      code: `/xyz|(?:)*/`,
-      errors: 1,
-    },
-    {
-      code: `/(?:|x)*/`,
-      errors: 1,
-    },
-    {
-      code: `/(?:x|)*/`,
-      errors: 1,
-    },
-    {
-      code: `/(?:x|y*)*"/`,
-      errors: 1,
-    },
-    {
-      code: `/(?:x*|y*)*/`,
-      errors: 1,
-    },
-    {
-      code: `/(?:x?|y*)*/`,
-      errors: 1,
-    },
-    {
-      code: `/(?:x*)*/`,
-      errors: 1,
-    },
-    {
-      code: `/(?:x?)*/`,
-      errors: 1,
-    },
-    {
-      code: `/(?:x*)?/`,
-      errors: 1,
-    },
-    {
-      code: `/(?:x?)?/`,
-      errors: 1,
-    },
-    {
-      code: `/(?:x*)+/`,
-      errors: 1,
-    },
-    {
-      code: `/(?:x?)+/`,
-      errors: 1,
-    },
-    {
-      code: `/(x*)*/`,
-      errors: 1,
-    },
-    {
-      code: `/((x*))*/`,
-      errors: 1,
-    },
-    {
-      code: `/(?:x*y*)*/`,
-      errors: 1,
-    },
-    {
-      code: `/(?:())*"/`,
-      errors: 1,
-    },
-    {
-      code: `/(?:(?:))*/`,
-      errors: 1,
-    },
-    {
-      code: `/(())*/`,
-      errors: 1,
-    },
-    {
-      code: `/(()x*)*/`,
-      errors: 1,
-    },
-    {
-      code: `/(()|x)*/`,
-      errors: 1,
-    },
-    {
-      code: `/($)*/`,
-      errors: 1,
-    },
-    {
-      code: `/(\\b)*/`,
-      errors: 1,
-    },
-    {
-      code: `/((?!x))*/`,
-      errors: 1,
-    },
-  ],
+describe('S5842', () => {
+  const ruleTester = new RuleTester();
+  ruleTester.run('Regular expression repetitions matching the empty string', rule, {
+    valid: [
+      {
+        code: `/x*|/`,
+      },
+      {
+        code: `/x*/`,
+      },
+      {
+        code: `/x?/`,
+      },
+      {
+        code: `/(?:x|y)*/`,
+      },
+      {
+        code: `/(?:x+)+/`,
+      },
+      {
+        code: `/(?:x+)*/`,
+      },
+      {
+        code: `/(?:x+)?/`,
+      },
+      {
+        code: `/((x+))*/`,
+      },
+    ],
+    invalid: [
+      {
+        code: `/(?:)*/`,
+        errors: 1,
+      },
+      {
+        code: `/(?:)?/`,
+        errors: 1,
+      },
+      {
+        code: `/(?:)+/`,
+        errors: 1,
+      },
+      {
+        code: `/()*/`,
+        errors: 1,
+      },
+      {
+        code: `/()?/`,
+        errors: 1,
+      },
+      {
+        code: `/()+/`,
+        errors: 1,
+      },
+      {
+        code: `/xyz|(?:)*/`,
+        errors: 1,
+      },
+      {
+        code: `/(?:|x)*/`,
+        errors: 1,
+      },
+      {
+        code: `/(?:x|)*/`,
+        errors: 1,
+      },
+      {
+        code: `/(?:x|y*)*"/`,
+        errors: 1,
+      },
+      {
+        code: `/(?:x*|y*)*/`,
+        errors: 1,
+      },
+      {
+        code: `/(?:x?|y*)*/`,
+        errors: 1,
+      },
+      {
+        code: `/(?:x*)*/`,
+        errors: 1,
+      },
+      {
+        code: `/(?:x?)*/`,
+        errors: 1,
+      },
+      {
+        code: `/(?:x*)?/`,
+        errors: 1,
+      },
+      {
+        code: `/(?:x?)?/`,
+        errors: 1,
+      },
+      {
+        code: `/(?:x*)+/`,
+        errors: 1,
+      },
+      {
+        code: `/(?:x?)+/`,
+        errors: 1,
+      },
+      {
+        code: `/(x*)*/`,
+        errors: 1,
+      },
+      {
+        code: `/((x*))*/`,
+        errors: 1,
+      },
+      {
+        code: `/(?:x*y*)*/`,
+        errors: 1,
+      },
+      {
+        code: `/(?:())*"/`,
+        errors: 1,
+      },
+      {
+        code: `/(?:(?:))*/`,
+        errors: 1,
+      },
+      {
+        code: `/(())*/`,
+        errors: 1,
+      },
+      {
+        code: `/(()x*)*/`,
+        errors: 1,
+      },
+      {
+        code: `/(()|x)*/`,
+        errors: 1,
+      },
+      {
+        code: `/($)*/`,
+        errors: 1,
+      },
+      {
+        code: `/(\\b)*/`,
+        errors: 1,
+      },
+      {
+        code: `/((?!x))*/`,
+        errors: 1,
+      },
+    ],
+  });
 });

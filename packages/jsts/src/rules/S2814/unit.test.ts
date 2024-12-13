@@ -16,33 +16,36 @@
  */
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe } from 'node:test';
 
-const ruleTester = new RuleTester();
+describe('S2814', () => {
+  const ruleTester = new RuleTester();
 
-ruleTester.run(`Variables and functions should not be redeclared`, rule, {
-  valid: [
-    {
-      code: `
+  ruleTester.run(`Variables and functions should not be redeclared`, rule, {
+    valid: [
+      {
+        code: `
       export const FOO = 'FOO';
       export type FOO = typeof FOO;`,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       import FOO from "foo";
       export type FOO = 'F' | 'O' | 'O';
       `,
-    },
-  ],
-  invalid: [
-    {
-      code: `var a = 42; var a = 0;`,
-      errors: 1,
-    },
-    {
-      code: `
+      },
+    ],
+    invalid: [
+      {
+        code: `var a = 42; var a = 0;`,
+        errors: 1,
+      },
+      {
+        code: `
       export var FOO = 'FOO';
       export var FOO = typeof FOO;`,
-      errors: 1,
-    },
-  ],
+        errors: 1,
+      },
+    ],
+  });
 });

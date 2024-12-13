@@ -16,12 +16,14 @@
  */
 import { rule } from './index.js';
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { describe } from 'node:test';
 
-const ruleTester = new RuleTester();
-ruleTester.run('"super()" should be invoked appropriately', rule, {
-  valid: [
-    {
-      code: `
+describe('S3854', () => {
+  const ruleTester = new RuleTester();
+  ruleTester.run('"super()" should be invoked appropriately', rule, {
+    valid: [
+      {
+        code: `
       var B1b = class extends A1 {
         constructor() {
           super();                 // OK
@@ -29,16 +31,17 @@ ruleTester.run('"super()" should be invoked appropriately', rule, {
         }
       }
             `,
-    },
-  ],
-  invalid: [
-    {
-      code: `class A extends B { constructor() {this.bar();}}`,
-      errors: 2,
-    },
-    {
-      code: `class A extends B { constructor(a) { while (a) super(); } }`,
-      errors: 2,
-    },
-  ],
+      },
+    ],
+    invalid: [
+      {
+        code: `class A extends B { constructor() {this.bar();}}`,
+        errors: 2,
+      },
+      {
+        code: `class A extends B { constructor(a) { while (a) super(); } }`,
+        errors: 2,
+      },
+    ],
+  });
 });

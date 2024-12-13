@@ -16,23 +16,26 @@
  */
 import { rule } from './index.js';
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { describe } from 'node:test';
 
-const ruleTester = new RuleTester();
-ruleTester.run('Redundant React fragments should be removed', rule, {
-  valid: [
-    {
-      code: `function Empty() { return <></>; }`,
-    },
-  ],
-  invalid: [
-    {
-      code: `function Child() { return <><img /></>; }`,
-      output: `function Child() { return <img />; }`,
-      errors: [
-        {
-          message: 'A fragment with only one child is redundant.',
-        },
-      ],
-    },
-  ],
+describe('S6749', () => {
+  const ruleTester = new RuleTester();
+  ruleTester.run('Redundant React fragments should be removed', rule, {
+    valid: [
+      {
+        code: `function Empty() { return <></>; }`,
+      },
+    ],
+    invalid: [
+      {
+        code: `function Child() { return <><img /></>; }`,
+        output: `function Child() { return <img />; }`,
+        errors: [
+          {
+            message: 'A fragment with only one child is redundant.',
+          },
+        ],
+      },
+    ],
+  });
 });

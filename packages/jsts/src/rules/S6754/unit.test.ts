@@ -16,32 +16,35 @@
  */
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe } from 'node:test';
 
-const ruleTester = new RuleTester();
-ruleTester.run(
-  'The return value of "useState" should be destructured and named symmetrically',
-  rule,
-  {
-    valid: [
-      {
-        code: `
+describe('S6754', () => {
+  const ruleTester = new RuleTester();
+  ruleTester.run(
+    'The return value of "useState" should be destructured and named symmetrically',
+    rule,
+    {
+      valid: [
+        {
+          code: `
       import { useState } from 'react';
       function useFoo() {
         const [foo] = useState();
         return [foo];
       }`,
-      },
-    ],
-    invalid: [
-      {
-        code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
       import { useState } from 'react';
       function useFoo() {
         const [foo, bar] = useState();
         return [foo, bar];
       }`,
-        errors: 1,
-      },
-    ],
-  },
-);
+          errors: 1,
+        },
+      ],
+    },
+  );
+});

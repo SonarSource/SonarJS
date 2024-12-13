@@ -16,13 +16,15 @@
  */
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe } from 'node:test';
 
-const ruleTesterJs = new RuleTester();
+describe('S5547', () => {
+  const ruleTesterJs = new RuleTester();
 
-ruleTesterJs.run('[JS] Cipher algorithms should be robust', rule, {
-  valid: [
-    {
-      code: `
+  ruleTesterJs.run('[JS] Cipher algorithms should be robust', rule, {
+    valid: [
+      {
+        code: `
       const crypto = require('crypto');
       var key = crypto.randomBytes(16);
       var iv = Buffer.from(crypto.randomBytes(16));
@@ -46,9 +48,9 @@ ruleTesterJs.run('[JS] Cipher algorithms should be robust', rule, {
 
       crypto.createCipheriv("SEED-CFB", key, iv);
             `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       const crypto = require('crypto');
       var key = crypto.randomBytes(16);
       var iv = Buffer.from(crypto.randomBytes(16));
@@ -58,56 +60,56 @@ ruleTesterJs.run('[JS] Cipher algorithms should be robust', rule, {
       }
       crypto.createCipheriv(algorithm, key, iv);
             `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       const crypto = require('crypto');
       crypto.createCipheriv();
             `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       const crypto = require('crypto');
       var key = crypto.randomBytes(16);
       crypto.createCipheriv();
             `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       const crypto = require('crypto');
       var key = crypto.randomBytes(16);
       var iv = Buffer.from(crypto.randomBytes(16));
       crypto.createCipheriv(42, key, iv);
             `,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+      },
+    ],
+    invalid: [
+      {
+        code: `
       const crypto = require('crypto');
       
       crypto.createCipheriv("DES", key, iv);       
             `,
-      errors: [
-        {
-          line: 4,
-          column: 29,
-          endLine: 4,
-          endColumn: 34,
-          message: 'Use a strong cipher algorithm.',
-        },
-      ],
-    },
-    {
-      code: `
+        errors: [
+          {
+            line: 4,
+            column: 29,
+            endLine: 4,
+            endColumn: 34,
+            message: 'Use a strong cipher algorithm.',
+          },
+        ],
+      },
+      {
+        code: `
       const crypto = require('node:crypto');
 
       crypto.createCipheriv("DES", key, iv);
             `,
-      errors: 1,
-    },
-    {
-      code: `
+        errors: 1,
+      },
+      {
+        code: `
       const crypto = require('crypto');
       
       crypto.createCipheriv("DES", key, iv); 
@@ -118,7 +120,8 @@ ruleTesterJs.run('[JS] Cipher algorithms should be robust', rule, {
       crypto.createCipheriv("BF", key, iv);
       crypto.createCipheriv("blowfish", key, iv);
             `,
-      errors: 7,
-    },
-  ],
+        errors: 7,
+      },
+    ],
+  });
 });

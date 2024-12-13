@@ -16,18 +16,20 @@
  */
 import { rule } from './index.js';
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { describe } from 'node:test';
 
-const ruleTester = new RuleTester();
+describe('S6788', () => {
+  const ruleTester = new RuleTester();
 
-ruleTester.run(`Decorated rule should reword the issue message`, rule, {
-  valid: [
-    {
-      code: `type Foo = () => number;`,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+  ruleTester.run(`Decorated rule should reword the issue message`, rule, {
+    valid: [
+      {
+        code: `type Foo = () => number;`,
+      },
+    ],
+    invalid: [
+      {
+        code: `
 class MyComponent extends Component {
   componentDidMount() {
     findDOMNode(this).scrollIntoView();
@@ -37,12 +39,13 @@ class MyComponent extends Component {
   }
 }
       `,
-      errors: [
-        {
-          message:
-            "Do not use findDOMNode. It doesn't work with function components and is deprecated in StrictMode.",
-        },
-      ],
-    },
-  ],
+        errors: [
+          {
+            message:
+              "Do not use findDOMNode. It doesn't work with function components and is deprecated in StrictMode.",
+          },
+        ],
+      },
+    ],
+  });
 });

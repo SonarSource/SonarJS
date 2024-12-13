@@ -16,89 +16,92 @@
  */
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe } from 'node:test';
 
-const ruleTester = new RuleTester();
+describe('S4784', () => {
+  const ruleTester = new RuleTester();
 
-const message = 'Make sure that using a regular expression is safe here.';
+  const message = 'Make sure that using a regular expression is safe here.';
 
-ruleTester.run('Using regular expressions is security-sensitive', rule, {
-  valid: [
-    {
-      // not enough of special symbols
-      code: `str.match("(a+)b");`,
-    },
-    {
-      // not enough of special symbols
-      code: `str.match(/(a+)b/);`,
-    },
-    {
-      // different method
-      code: `str.foo("(a+)b+");`,
-    },
-    {
-      // argument is not hardcoded literal
-      code: `str.match(foo("(a+)b+"));`,
-    },
-    {
-      // FN
-      code: `const x = "(a+)b+"; str.match(x);`,
-    },
-    {
-      // not enough length
-      code: `str.match("++");`,
-    },
-    {
-      // missing argument
-      code: `str.match();`,
-    },
-  ],
-  invalid: [
-    {
-      code: `str.match("(a+)+b");`,
-      errors: [
-        {
-          message,
-          line: 1,
-          endLine: 1,
-          column: 11,
-          endColumn: 19,
-        },
-      ],
-    },
+  ruleTester.run('Using regular expressions is security-sensitive', rule, {
+    valid: [
+      {
+        // not enough of special symbols
+        code: `str.match("(a+)b");`,
+      },
+      {
+        // not enough of special symbols
+        code: `str.match(/(a+)b/);`,
+      },
+      {
+        // different method
+        code: `str.foo("(a+)b+");`,
+      },
+      {
+        // argument is not hardcoded literal
+        code: `str.match(foo("(a+)b+"));`,
+      },
+      {
+        // FN
+        code: `const x = "(a+)b+"; str.match(x);`,
+      },
+      {
+        // not enough length
+        code: `str.match("++");`,
+      },
+      {
+        // missing argument
+        code: `str.match();`,
+      },
+    ],
+    invalid: [
+      {
+        code: `str.match("(a+)+b");`,
+        errors: [
+          {
+            message,
+            line: 1,
+            endLine: 1,
+            column: 11,
+            endColumn: 19,
+          },
+        ],
+      },
 
-    {
-      code: `str.match("+++");`,
-      errors: [{ message }],
-    },
-    {
-      code: `str.match("***");`,
-      errors: [{ message }],
-    },
-    {
-      code: `str.match("{{{");`,
-      errors: [{ message }],
-    },
-    {
-      code: `str.match(/(a+)+b/);`,
-      errors: [{ message }],
-    },
+      {
+        code: `str.match("+++");`,
+        errors: [{ message }],
+      },
+      {
+        code: `str.match("***");`,
+        errors: [{ message }],
+      },
+      {
+        code: `str.match("{{{");`,
+        errors: [{ message }],
+      },
+      {
+        code: `str.match(/(a+)+b/);`,
+        errors: [{ message }],
+      },
 
-    {
-      code: `str.split("(a+)+b");`,
-      errors: [{ message }],
-    },
-    {
-      code: `str.search("(a+)+b");`,
-      errors: [{ message }],
-    },
-    {
-      code: `new RegExp("(a+)+b");`,
-      errors: [{ message }],
-    },
+      {
+        code: `str.split("(a+)+b");`,
+        errors: [{ message }],
+      },
+      {
+        code: `str.search("(a+)+b");`,
+        errors: [{ message }],
+      },
+      {
+        code: `new RegExp("(a+)+b");`,
+        errors: [{ message }],
+      },
 
-    {
-      code: `/(a+)+b/;`,
-      errors: [{ message }],
-    },
-  ],
+      {
+        code: `/(a+)+b/;`,
+        errors: [{ message }],
+      },
+    ],
+  });
 });

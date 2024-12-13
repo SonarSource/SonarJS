@@ -16,75 +16,78 @@
  */
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe } from 'node:test';
 
-const ruleTester = new RuleTester();
-ruleTester.run('Functions should not be called both with and without "new"', rule, {
-  valid: [
-    {
-      code: `function foo(){ }
+describe('S3686', () => {
+  const ruleTester = new RuleTester();
+  ruleTester.run('Functions should not be called both with and without "new"', rule, {
+    valid: [
+      {
+        code: `function foo(){ }
         foo();
         foo(1);`,
-    },
-    {
-      code: `function foo(){ }
+      },
+      {
+        code: `function foo(){ }
           new foo();
           new foo(1);`,
-    },
-    {
-      code: `function bar() {
+      },
+      {
+        code: `function bar() {
                 function bar() {}
                 var a = new bar();
             }
             var b = bar(); // OK`,
-    },
-    {
-      code: `                
+      },
+      {
+        code: `                
         Number(x);
         new Number(x);`,
-    },
-    {
-      code: `const a = new A();
+      },
+      {
+        code: `const a = new A();
         a.foo();
         new a.foo();`,
-    },
-  ],
-  invalid: [
-    {
-      code: `var x = external();
+      },
+    ],
+    invalid: [
+      {
+        code: `var x = external();
               x();
               x();
               var xx = new x();
               x();`,
-      errors: [
-        {
-          message:
-            '{"message":"Correct the use of this function; on line 3 it was called without \\"new\\".","secondaryLocations":[{"column":14,"line":3,"endColumn":15,"endLine":3}]}',
-          line: 4,
-          endLine: 4,
-          column: 28,
-          endColumn: 29,
-        },
-      ],
-      options: ['sonar-runtime'],
-    },
-    {
-      code: `function MyObj() { }
+        errors: [
+          {
+            message:
+              '{"message":"Correct the use of this function; on line 3 it was called without \\"new\\".","secondaryLocations":[{"column":14,"line":3,"endColumn":15,"endLine":3}]}',
+            line: 4,
+            endLine: 4,
+            column: 28,
+            endColumn: 29,
+          },
+        ],
+        options: ['sonar-runtime'],
+      },
+      {
+        code: `function MyObj() { }
                 var obj = new MyObj();
                 MyObj(); // Noncompliant
                 
                 obj = new MyObj();
                 MyObj();`,
-      errors: [
-        {
-          message:
-            '{"message":"Correct the use of this function; on line 2 it was called with \\"new\\".","secondaryLocations":[{"column":30,"line":2,"endColumn":35,"endLine":2}]}',
-          line: 3,
-          endLine: 3,
-          column: 17,
-          endColumn: 22,
-        },
-      ],
-      options: ['sonar-runtime'],
-    },
-  ],
+        errors: [
+          {
+            message:
+              '{"message":"Correct the use of this function; on line 2 it was called with \\"new\\".","secondaryLocations":[{"column":30,"line":2,"endColumn":35,"endLine":2}]}',
+            line: 3,
+            endLine: 3,
+            column: 17,
+            endColumn: 22,
+          },
+        ],
+        options: ['sonar-runtime'],
+      },
+    ],
+  });
 });

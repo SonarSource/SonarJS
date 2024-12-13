@@ -16,141 +16,143 @@
  */
 import { rule } from './rule.js';
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { describe } from 'node:test';
 
-const ruleTester = new RuleTester();
+describe('S1488', () => {
+  const ruleTester = new RuleTester();
 
-ruleTester.run('prefer-immediate-return', rule, {
-  valid: [
-    {
-      code: `
+  ruleTester.run('prefer-immediate-return', rule, {
+    valid: [
+      {
+        code: `
         function thrown_ok() {
           throw new Error();
         }
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
         function thrown_expression() {
           const x = new Error();
           throw foo(x);
         }
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
         function thrown_different_variable(y) {
           const x = new Error();
           throw y;
         }
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
         function code_between_declaration_and_return() {
           let x = 42;
           foo();
           return x;
         }
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
         function return_expression() {
           let x = 42;
           return x + 5;
         }
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
         function return_without_value() {
           let x = 42;
           return;
         }
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
         function not_return_statement() {
           let x = 42;
           foo(x);
         }
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
         function no_init_value() {
           let x;
           return x;
         }
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
         function pattern_declared() {
           let { x } = foo();
           return x;
         }
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
         function two_variables_declared() {
           let x = 42,
             y;
           return x;
         }
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
         function different_variable_returned(y) {
           let x = 42;
           return y;
         }
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
         function only_return() {
           return 42;
         }
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
         function one_statement() {
           foo();
         }
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
         function empty_block() {}
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
         let arrow_function_ok = (a, b) => {
           return a + b;
         };
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
         let arrow_function_no_block = (a, b) => a + b;
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
         function variable_has_type_annotation() {
           let foo: number = 1;
           return foo;
         }
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
         function variable_is_used() {
           var bar = {
             doSomethingElse(p) {},
@@ -161,134 +163,134 @@ ruleTester.run('prefer-immediate-return', rule, {
           return bar;
         }
       `,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+      },
+    ],
+    invalid: [
+      {
+        code: `
         function var_returned() {
           var x = 42;
           return x;
         }`,
-      errors: [
-        {
-          messageId: 'doImmediateAction',
-          data: {
-            action: 'return',
-            variable: 'x',
+        errors: [
+          {
+            messageId: 'doImmediateAction',
+            data: {
+              action: 'return',
+              variable: 'x',
+            },
+            line: 3,
+            column: 19,
+            endColumn: 21,
           },
-          line: 3,
-          column: 19,
-          endColumn: 21,
-        },
-      ],
-      output: `
+        ],
+        output: `
         function var_returned() {
           return 42;
         }`,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
         function let_returned() {
           let x = 42;
           return x;
         }
       `,
-      errors: [
-        {
-          messageId: 'doImmediateAction',
-          data: {
-            action: 'return',
-            variable: 'x',
+        errors: [
+          {
+            messageId: 'doImmediateAction',
+            data: {
+              action: 'return',
+              variable: 'x',
+            },
+            line: 3,
+            column: 19,
+            endColumn: 21,
           },
-          line: 3,
-          column: 19,
-          endColumn: 21,
-        },
-      ],
-      output: `
+        ],
+        output: `
         function let_returned() {
           return 42;
         }
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
         function const_returned() {
           const x = 42;
           return x;
         }
       `,
-      errors: [
-        {
-          messageId: 'doImmediateAction',
-          data: {
-            action: 'return',
-            variable: 'x',
+        errors: [
+          {
+            messageId: 'doImmediateAction',
+            data: {
+              action: 'return',
+              variable: 'x',
+            },
+            line: 3,
+            column: 21,
+            endColumn: 23,
           },
-          line: 3,
-          column: 21,
-          endColumn: 23,
-        },
-      ],
-      output: `
+        ],
+        output: `
         function const_returned() {
           return 42;
         }
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
         function code_before_declaration() {
           foo();
           var x = 42;
           return x;
         }
       `,
-      errors: [
-        {
-          messageId: 'doImmediateAction',
-          data: {
-            action: 'return',
-            variable: 'x',
+        errors: [
+          {
+            messageId: 'doImmediateAction',
+            data: {
+              action: 'return',
+              variable: 'x',
+            },
+            line: 4,
+            column: 19,
+            endColumn: 21,
           },
-          line: 4,
-          column: 19,
-          endColumn: 21,
-        },
-      ],
-      output: `
+        ],
+        output: `
         function code_before_declaration() {
           foo();
           return 42;
         }
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
         function thrown_nok() {
           const x = new Error();
           throw x;
         }`,
-      errors: [
-        {
-          messageId: 'doImmediateAction',
-          data: {
-            action: 'throw',
-            variable: 'x',
+        errors: [
+          {
+            messageId: 'doImmediateAction',
+            data: {
+              action: 'throw',
+              variable: 'x',
+            },
+            line: 3,
+            column: 21,
+            endColumn: 32,
           },
-          line: 3,
-          column: 21,
-          endColumn: 32,
-        },
-      ],
-      output: `
+        ],
+        output: `
         function thrown_nok() {
           throw new Error();
         }`,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
         function different_blocks() {
           if (foo) {
             let x = foo();
@@ -307,49 +309,49 @@ ruleTester.run('prefer-immediate-return', rule, {
           }
         }
       `,
-      errors: [
-        {
-          messageId: 'doImmediateAction',
-          data: {
-            action: 'return',
-            variable: 'x',
+        errors: [
+          {
+            messageId: 'doImmediateAction',
+            data: {
+              action: 'return',
+              variable: 'x',
+            },
+            line: 4,
+            column: 21,
+            endColumn: 26,
           },
-          line: 4,
-          column: 21,
-          endColumn: 26,
-        },
-        {
-          messageId: 'doImmediateAction',
-          data: {
-            action: 'return',
-            variable: 'x',
+          {
+            messageId: 'doImmediateAction',
+            data: {
+              action: 'return',
+              variable: 'x',
+            },
+            line: 9,
+            column: 21,
+            endColumn: 26,
           },
-          line: 9,
-          column: 21,
-          endColumn: 26,
-        },
-        {
-          messageId: 'doImmediateAction',
-          data: {
-            action: 'return',
-            variable: 'x',
+          {
+            messageId: 'doImmediateAction',
+            data: {
+              action: 'return',
+              variable: 'x',
+            },
+            line: 12,
+            column: 21,
+            endColumn: 26,
           },
-          line: 12,
-          column: 21,
-          endColumn: 26,
-        },
-        {
-          messageId: 'doImmediateAction',
-          data: {
-            action: 'return',
-            variable: 'x',
+          {
+            messageId: 'doImmediateAction',
+            data: {
+              action: 'return',
+              variable: 'x',
+            },
+            line: 15,
+            column: 21,
+            endColumn: 26,
           },
-          line: 15,
-          column: 21,
-          endColumn: 26,
-        },
-      ],
-      output: `
+        ],
+        output: `
         function different_blocks() {
           if (foo) {
             return foo();
@@ -364,9 +366,9 @@ ruleTester.run('prefer-immediate-return', rule, {
           }
         }
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
         function two_declarations(a) {
           if (a) {
             let x = foo();
@@ -377,19 +379,19 @@ ruleTester.run('prefer-immediate-return', rule, {
           }
         }
       `,
-      errors: [
-        {
-          messageId: 'doImmediateAction',
-          data: {
-            action: 'return',
-            variable: 'x',
+        errors: [
+          {
+            messageId: 'doImmediateAction',
+            data: {
+              action: 'return',
+              variable: 'x',
+            },
+            line: 4,
+            column: 21,
+            endColumn: 26,
           },
-          line: 4,
-          column: 21,
-          endColumn: 26,
-        },
-      ],
-      output: `
+        ],
+        output: `
         function two_declarations(a) {
           if (a) {
             return foo();
@@ -399,9 +401,9 @@ ruleTester.run('prefer-immediate-return', rule, {
           }
         }
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
         function homonymous_is_used() {
           const bar = {
             doSomethingElse(p) {
@@ -415,20 +417,20 @@ ruleTester.run('prefer-immediate-return', rule, {
           return bar;
         }
       `,
-      errors: [
-        {
-          messageId: 'doImmediateAction',
-          data: {
-            action: 'return',
-            variable: 'bar',
+        errors: [
+          {
+            messageId: 'doImmediateAction',
+            data: {
+              action: 'return',
+              variable: 'bar',
+            },
+            line: 3,
+            column: 23,
+            endLine: 11,
+            endColumn: 12,
           },
-          line: 3,
-          column: 23,
-          endLine: 11,
-          endColumn: 12,
-        },
-      ],
-      output: `
+        ],
+        output: `
         function homonymous_is_used() {
           return {
             doSomethingElse(p) {
@@ -441,9 +443,9 @@ ruleTester.run('prefer-immediate-return', rule, {
           };
         }
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
         function inside_switch(x) {
           switch (x) {
             case 1:
@@ -455,29 +457,29 @@ ruleTester.run('prefer-immediate-return', rule, {
           }
         }
       `,
-      errors: [
-        {
-          messageId: 'doImmediateAction',
-          data: {
-            action: 'return',
-            variable: 'y',
+        errors: [
+          {
+            messageId: 'doImmediateAction',
+            data: {
+              action: 'return',
+              variable: 'y',
+            },
+            line: 5,
+            column: 25,
+            endColumn: 26,
           },
-          line: 5,
-          column: 25,
-          endColumn: 26,
-        },
-        {
-          messageId: 'doImmediateAction',
-          data: {
-            action: 'return',
-            variable: 'z',
+          {
+            messageId: 'doImmediateAction',
+            data: {
+              action: 'return',
+              variable: 'z',
+            },
+            line: 8,
+            column: 25,
+            endColumn: 26,
           },
-          line: 8,
-          column: 25,
-          endColumn: 26,
-        },
-      ],
-      output: `
+        ],
+        output: `
         function inside_switch(x) {
           switch (x) {
             case 1:
@@ -487,33 +489,33 @@ ruleTester.run('prefer-immediate-return', rule, {
           }
         }
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
         function var_returned() {
           var x = 42;
           return x
         }`,
-      errors: [
-        {
-          messageId: 'doImmediateAction',
-          data: {
-            action: 'return',
-            variable: 'x',
+        errors: [
+          {
+            messageId: 'doImmediateAction',
+            data: {
+              action: 'return',
+              variable: 'x',
+            },
+            line: 3,
+            column: 19,
+            endColumn: 21,
           },
-          line: 3,
-          column: 19,
-          endColumn: 21,
-        },
-      ],
-      output: `
+        ],
+        output: `
         function var_returned() {
           return 42
         }`,
-    },
-    {
-      // hoisted variables
-      code: `
+      },
+      {
+        // hoisted variables
+        code: `
       function foo() {
         if (cond) {
           var x = 42;
@@ -521,25 +523,25 @@ ruleTester.run('prefer-immediate-return', rule, {
       }
       }
       `,
-      errors: [
-        {
-          messageId: 'doImmediateAction',
-          data: {
-            action: 'return',
-            variable: 'x',
+        errors: [
+          {
+            messageId: 'doImmediateAction',
+            data: {
+              action: 'return',
+              variable: 'x',
+            },
           },
-        },
-      ],
-      output: `
+        ],
+        output: `
       function foo() {
         if (cond) {
           return 42;
       }
       }
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
         function var_returned() {
           // comment1
           var x /* commentInTheMiddle1 */ = 42; // commentOnTheLine1
@@ -547,19 +549,19 @@ ruleTester.run('prefer-immediate-return', rule, {
           return /* commentInTheMiddle2 */ x;   // commentOnTheLine2
           // comment3
         }`,
-      errors: [
-        {
-          messageId: 'doImmediateAction',
-          data: {
-            action: 'return',
-            variable: 'x',
+        errors: [
+          {
+            messageId: 'doImmediateAction',
+            data: {
+              action: 'return',
+              variable: 'x',
+            },
+            line: 4,
+            column: 45,
+            endColumn: 47,
           },
-          line: 4,
-          column: 45,
-          endColumn: 47,
-        },
-      ],
-      output: `
+        ],
+        output: `
         function var_returned() {
           // comment1
           // commentOnTheLine1
@@ -567,6 +569,7 @@ ruleTester.run('prefer-immediate-return', rule, {
           return /* commentInTheMiddle2 */ 42;   // commentOnTheLine2
           // comment3
         }`,
-    },
-  ],
+      },
+    ],
+  });
 });

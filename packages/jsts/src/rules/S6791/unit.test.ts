@@ -16,38 +16,41 @@
  */
 import { rule } from './index.js';
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { describe } from 'node:test';
 
-const ruleTester = new RuleTester();
+describe('S6791', () => {
+  const ruleTester = new RuleTester();
 
-ruleTester.run(
-  'The decorator should refine both message and location, and provide a quickfix',
-  rule,
-  {
-    valid: [
-      {
-        code: `
+  ruleTester.run(
+    'The decorator should refine both message and location, and provide a quickfix',
+    rule,
+    {
+      valid: [
+        {
+          code: `
 import React from 'react';
 class Component extends React.Component {
     componentWillMount() {}
 }`,
-      },
-    ],
-    invalid: [
-      {
-        code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
 import React from 'react';
 class Component extends React.Component {
     UNSAFE_componentWillMount() {}
 }`,
-        errors: [
-          {
-            message: 'UNSAFE_componentWillMount is unsafe for use in async rendering.',
-            line: 4,
-            column: 5,
-            endColumn: 30,
-          },
-        ],
-      },
-    ],
-  },
-);
+          errors: [
+            {
+              message: 'UNSAFE_componentWillMount is unsafe for use in async rendering.',
+              line: 4,
+              column: 5,
+              endColumn: 30,
+            },
+          ],
+        },
+      ],
+    },
+  );
+});

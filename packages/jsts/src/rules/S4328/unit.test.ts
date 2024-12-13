@@ -20,7 +20,7 @@ import { rule } from './index.js';
 import parser from '@typescript-eslint/parser';
 import { describe } from 'node:test';
 
-describe('S4502', () => {
+describe('S4328', () => {
   const fixtures = path.join(import.meta.dirname, 'fixtures');
   const filename = path.join(fixtures, 'package-json-project/file.js');
 

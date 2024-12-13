@@ -16,13 +16,15 @@
  */
 import { rule } from './index.js';
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { describe } from 'node:test';
 
-const ruleTester = new RuleTester();
+describe('S3801', () => {
+  const ruleTester = new RuleTester();
 
-ruleTester.run(`Functions should use "return" consistently`, rule, {
-  valid: [
-    {
-      code: `
+  ruleTester.run(`Functions should use "return" consistently`, rule, {
+    valid: [
+      {
+        code: `
         function empty() {
         }
         
@@ -134,18 +136,18 @@ ruleTester.run(`Functions should use "return" consistently`, rule, {
         
         var simple_arrow_function = (a) => 42;
         var arrowWithExpressionBody = (p) => p ? true : false;`,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       function withNeverType(a) {
         if (a === 1) {
             return true;
         }
         throw new Error('False')
       }`,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       function throwError(message: string): never {
         throw new Error(message);
       }
@@ -156,63 +158,63 @@ ruleTester.run(`Functions should use "return" consistently`, rule, {
         throwError('False')
       }
     `,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+      },
+    ],
+    invalid: [
+      {
+        code: `
         export function inconsistent(p: boolean) {
           if (p) {
             return true;
           }
         }`,
-      errors: [
-        {
-          message:
-            '{"message":"Refactor this function to use \\"return\\" consistently.","secondaryLocations":[{"message":"Return with value","column":12,"line":4,"endColumn":24,"endLine":4},{"message":"Implicit return without value","column":8,"line":6,"endColumn":9,"endLine":6}]}',
-          line: 2,
-          endLine: 2,
-          column: 25,
-          endColumn: 37,
-        },
-      ],
-      options: ['sonar-runtime'],
-    },
-    {
-      code: `
+        errors: [
+          {
+            message:
+              '{"message":"Refactor this function to use \\"return\\" consistently.","secondaryLocations":[{"message":"Return with value","column":12,"line":4,"endColumn":24,"endLine":4},{"message":"Implicit return without value","column":8,"line":6,"endColumn":9,"endLine":6}]}',
+            line: 2,
+            endLine: 2,
+            column: 25,
+            endColumn: 37,
+          },
+        ],
+        options: ['sonar-runtime'],
+      },
+      {
+        code: `
         var function_expression = function () {
           if (condition) {
             return 42;
           }
         }`,
-      errors: [
-        {
-          message:
-            '{"message":"Refactor this function to use \\"return\\" consistently.","secondaryLocations":[{"message":"Return with value","column":12,"line":4,"endColumn":22,"endLine":4},{"message":"Implicit return without value","column":8,"line":6,"endColumn":9,"endLine":6}]}',
-          line: 2,
-          endLine: 2,
-          column: 35,
-          endColumn: 43,
-        },
-      ],
-      options: ['sonar-runtime'],
-    },
-    {
-      code: `var inconsistentArrow = (p) => {if (p) { return true; } return; };`,
-      errors: [
-        {
-          message:
-            '{"message":"Refactor this function to use \\"return\\" consistently.","secondaryLocations":[{"message":"Return with value","column":41,"line":1,"endColumn":53,"endLine":1},{"message":"Return without value","column":56,"line":1,"endColumn":63,"endLine":1}]}',
-          line: 1,
-          endLine: 1,
-          column: 29,
-          endColumn: 31,
-        },
-      ],
-      options: ['sonar-runtime'],
-    },
-    {
-      code: `
+        errors: [
+          {
+            message:
+              '{"message":"Refactor this function to use \\"return\\" consistently.","secondaryLocations":[{"message":"Return with value","column":12,"line":4,"endColumn":22,"endLine":4},{"message":"Implicit return without value","column":8,"line":6,"endColumn":9,"endLine":6}]}',
+            line: 2,
+            endLine: 2,
+            column: 35,
+            endColumn: 43,
+          },
+        ],
+        options: ['sonar-runtime'],
+      },
+      {
+        code: `var inconsistentArrow = (p) => {if (p) { return true; } return; };`,
+        errors: [
+          {
+            message:
+              '{"message":"Refactor this function to use \\"return\\" consistently.","secondaryLocations":[{"message":"Return with value","column":41,"line":1,"endColumn":53,"endLine":1},{"message":"Return without value","column":56,"line":1,"endColumn":63,"endLine":1}]}',
+            line: 1,
+            endLine: 1,
+            column: 29,
+            endColumn: 31,
+          },
+        ],
+        options: ['sonar-runtime'],
+      },
+      {
+        code: `
         function* inconsistentGenerator(p) {
           let i = 0
           while(i < 10) {
@@ -222,20 +224,20 @@ ruleTester.run(`Functions should use "return" consistently`, rule, {
             return true;
           }
         }`,
-      errors: [
-        {
-          message:
-            '{"message":"Refactor this function to use \\"return\\" consistently.","secondaryLocations":[{"message":"Return with value","column":12,"line":8,"endColumn":24,"endLine":8},{"message":"Implicit return without value","column":8,"line":10,"endColumn":9,"endLine":10}]}',
-          line: 2,
-          endLine: 2,
-          column: 19,
-          endColumn: 40,
-        },
-      ],
-      options: ['sonar-runtime'],
-    },
-    {
-      code: `
+        errors: [
+          {
+            message:
+              '{"message":"Refactor this function to use \\"return\\" consistently.","secondaryLocations":[{"message":"Return with value","column":12,"line":8,"endColumn":24,"endLine":8},{"message":"Implicit return without value","column":8,"line":10,"endColumn":9,"endLine":10}]}',
+            line: 2,
+            endLine: 2,
+            column: 19,
+            endColumn: 40,
+          },
+        ],
+        options: ['sonar-runtime'],
+      },
+      {
+        code: `
         function inconsistentNestedFunctions() {
           return true;
         
@@ -245,20 +247,20 @@ ruleTester.run(`Functions should use "return" consistently`, rule, {
             }
           }
         }`,
-      errors: [
-        {
-          message:
-            '{"message":"Refactor this function to use \\"return\\" consistently.","secondaryLocations":[{"message":"Return with value","column":14,"line":7,"endColumn":26,"endLine":7},{"message":"Implicit return without value","column":10,"line":9,"endColumn":11,"endLine":9}]}',
-          line: 5,
-          endLine: 5,
-          column: 20,
-          endColumn: 23,
-        },
-      ],
-      options: ['sonar-runtime'],
-    },
-    {
-      code: `
+        errors: [
+          {
+            message:
+              '{"message":"Refactor this function to use \\"return\\" consistently.","secondaryLocations":[{"message":"Return with value","column":14,"line":7,"endColumn":26,"endLine":7},{"message":"Implicit return without value","column":10,"line":9,"endColumn":11,"endLine":9}]}',
+            line: 5,
+            endLine: 5,
+            column: 20,
+            endColumn: 23,
+          },
+        ],
+        options: ['sonar-runtime'],
+      },
+      {
+        code: `
         class A {
           inconsistentMethod(p) {
             if (p) {
@@ -283,10 +285,10 @@ ruleTester.run(`Functions should use "return" consistently`, rule, {
             }
           }
         }`,
-      errors: 3,
-    },
-    {
-      code: `
+        errors: 3,
+      },
+      {
+        code: `
         const myObj = {
           propertyAsFunction() {
              if (this._value) {
@@ -294,11 +296,11 @@ ruleTester.run(`Functions should use "return" consistently`, rule, {
             }
           }
         }`,
-      errors: 1,
-    },
-    // possible FP, see https://github.com/SonarSource/SonarJS/issues/2579
-    {
-      code: `
+        errors: 1,
+      },
+      // possible FP, see https://github.com/SonarSource/SonarJS/issues/2579
+      {
+        code: `
       function throwError(message: string): never {
         throw new Error(message);
       }
@@ -309,7 +311,8 @@ ruleTester.run(`Functions should use "return" consistently`, rule, {
         throwError('False')
       }
     `,
-      errors: 1,
-    },
-  ],
+        errors: 1,
+      },
+    ],
+  });
 });

@@ -16,99 +16,102 @@
  */
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe } from 'node:test';
 
-const ruleTester = new RuleTester();
-ruleTester.run('Empty groups', rule, {
-  valid: [
-    {
-      code: `/\\(\\)/`,
-    },
-    {
-      code: `/(a)/`,
-    },
-    {
-      code: `/(a|)/`,
-    },
-    {
-      code: `/(a|b)/`,
-    },
-    {
-      code: `/(\d+)/`,
-    },
-  ],
-  invalid: [
-    {
-      code: `/()/`,
-      errors: [
-        {
-          message: 'Remove this empty group.',
-          line: 1,
-          endLine: 1,
-          column: 2,
-          endColumn: 4,
-        },
-      ],
-    },
-    {
-      code: `new RegExp("\\u{000000000061}()")`,
-      errors: [
-        {
-          message: 'Remove this empty group.',
-          line: 1,
-          endLine: 1,
-          column: 29,
-          endColumn: 31,
-        },
-      ],
-    },
-    {
-      code: `/(|)/`,
-      errors: 1,
-    },
-    {
-      code: `/(?:)/`,
-      errors: 1,
-    },
-    {
-      code: `new RegExp('')`, // parsed as /(?:)/
-      errors: 1,
-    },
-    {
-      // \u0009 is unicode escape for TAB
-      code: `new RegExp('\\u0009(|)')`,
-      errors: [
-        {
-          message: 'Remove this empty group.',
-          line: 1,
-          endLine: 1,
-          column: 19,
-          endColumn: 22,
-        },
-      ],
-    },
-    {
-      code: `new RegExp('\\t(|)')`,
-      errors: [
-        {
-          message: 'Remove this empty group.',
-          line: 1,
-          endLine: 1,
-          column: 15,
-          endColumn: 18,
-        },
-      ],
-    },
-    {
-      code: `new RegExp('\\n(|)')`,
-      errors: [
-        {
-          message: 'Remove this empty group.',
-          line: 1,
-          endLine: 1,
-          column: 16,
-          endColumn: 18,
-        },
-      ],
-    },
-  ],
+describe('S6331', () => {
+  const ruleTester = new RuleTester();
+  ruleTester.run('Empty groups', rule, {
+    valid: [
+      {
+        code: `/\\(\\)/`,
+      },
+      {
+        code: `/(a)/`,
+      },
+      {
+        code: `/(a|)/`,
+      },
+      {
+        code: `/(a|b)/`,
+      },
+      {
+        code: `/(\d+)/`,
+      },
+    ],
+    invalid: [
+      {
+        code: `/()/`,
+        errors: [
+          {
+            message: 'Remove this empty group.',
+            line: 1,
+            endLine: 1,
+            column: 2,
+            endColumn: 4,
+          },
+        ],
+      },
+      {
+        code: `new RegExp("\\u{000000000061}()")`,
+        errors: [
+          {
+            message: 'Remove this empty group.',
+            line: 1,
+            endLine: 1,
+            column: 29,
+            endColumn: 31,
+          },
+        ],
+      },
+      {
+        code: `/(|)/`,
+        errors: 1,
+      },
+      {
+        code: `/(?:)/`,
+        errors: 1,
+      },
+      {
+        code: `new RegExp('')`, // parsed as /(?:)/
+        errors: 1,
+      },
+      {
+        // \u0009 is unicode escape for TAB
+        code: `new RegExp('\\u0009(|)')`,
+        errors: [
+          {
+            message: 'Remove this empty group.',
+            line: 1,
+            endLine: 1,
+            column: 19,
+            endColumn: 22,
+          },
+        ],
+      },
+      {
+        code: `new RegExp('\\t(|)')`,
+        errors: [
+          {
+            message: 'Remove this empty group.',
+            line: 1,
+            endLine: 1,
+            column: 15,
+            endColumn: 18,
+          },
+        ],
+      },
+      {
+        code: `new RegExp('\\n(|)')`,
+        errors: [
+          {
+            message: 'Remove this empty group.',
+            line: 1,
+            endLine: 1,
+            column: 16,
+            endColumn: 18,
+          },
+        ],
+      },
+    ],
+  });
 });

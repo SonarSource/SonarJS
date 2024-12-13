@@ -16,12 +16,14 @@
  */
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe } from 'node:test';
 
-const ruleTester = new RuleTester();
-ruleTester.run('Using clear-text protocols is security-sensitive', rule, {
-  valid: [
-    {
-      code: `
+describe('S5332', () => {
+  const ruleTester = new RuleTester();
+  ruleTester.run('Using clear-text protocols is security-sensitive', rule, {
+    valid: [
+      {
+        code: `
       // Non sensitive url scheme
       url = "https://";
       url = "sftp://";
@@ -39,66 +41,66 @@ ruleTester.run('Using clear-text protocols is security-sensitive', rule, {
       url = "http://127.0.0.1";
       url = "ftp://user@localhost";
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       const nodemailer = require("nodemailer");
 
       let transporter = nodemailer.createTransport({
         secure: true,
       });
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       const nodemailer = require("nodemailer");
 
       let transporter = nodemailer.createTransport();
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       const nodemailer = require("nodemailer");
 
       let transporter = nodemailer.createTransport({
         requireTLS: true,
       });
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       const nodemailer = require("nodemailer");
 
       let transporter = nodemailer.createTransport({
         port: 465, // Compliant (port 465 enables encryption automatically)
       });
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       var Client = require('ftp');
       var c = new Client();
       c.connect({
         'secure': true
       });
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       var Client = require('ftp');
       var c = new Client();
       c.connect();
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       require('some-module');
       require();
       import * as estree from 'estree';
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       const nodemailer = require("nodemailer");
 
       let transporter = nodemailer.createTransport({ // OK
@@ -107,16 +109,16 @@ ruleTester.run('Using clear-text protocols is security-sensitive', rule, {
         port: 1234
       });
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       url = "http://";
       url = "ftp://";
       url = "telnet://";
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       url = "http://example.example";
       url = "http://subdomain.example.example";
       url = "http://example.com";
@@ -128,20 +130,20 @@ ruleTester.run('Using clear-text protocols is security-sensitive', rule, {
       url = "http://test.com";
       url = "http://someSubdomain.test.com";
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       url = "http://xmlns.com";
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       url = 'http://'.replace('', foo);
       url = 'http://'.replace('', foo) + bar;
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       import * as ses from '@aws-sdk/client-ses';
       import nodemailer from 'nodemailer';
 
@@ -152,46 +154,46 @@ ruleTester.run('Using clear-text protocols is security-sensitive', rule, {
           aws: ses,
         },
       });`,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
         url = 'http://schemas.microsoft.com/ws/2008/06/identity/claims/groups';
         url = 'http://schemas.microsoft.com/identity/claims/displayname';
         url = 'http://schemas.microsoft.com';
       `,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+      },
+    ],
+    invalid: [
+      {
+        code: `
       url = "http://192.168.0.1";
       url = "http://10.1.1.123";
       url = "http://subdomain.exemple.com";
       url = "ftp://anonymous@exemple.com";
       url = "telnet://anonymous@exemple.com";
       `,
-      errors: 5,
-    },
-    {
-      code: `
+        errors: 5,
+      },
+      {
+        code: `
       var Client = require('ftp');
       var c = new Client();
       c.connect({
         'secure': false
       });
       `,
-      errors: [
-        {
-          message: 'Using ftp protocol is insecure. Use sftp, scp or ftps instead.',
-          line: 4,
-          endLine: 4,
-          column: 7,
-          endColumn: 16,
-        },
-      ],
-    },
-    {
-      code: `
+        errors: [
+          {
+            message: 'Using ftp protocol is insecure. Use sftp, scp or ftps instead.',
+            line: 4,
+            endLine: 4,
+            column: 7,
+            endColumn: 16,
+          },
+        ],
+      },
+      {
+        code: `
       const nodemailer = require("nodemailer");
 
       let transporter = nodemailer.createTransport({
@@ -200,50 +202,50 @@ ruleTester.run('Using clear-text protocols is security-sensitive', rule, {
         port: 1234
       });
       `,
-      errors: 1,
-    },
-    {
-      code: `
+        errors: 1,
+      },
+      {
+        code: `
       require('telnet-client');
       import * as telnet from 'telnet-client';
       `,
-      errors: 2,
-    },
-    {
-      code: `
+        errors: 2,
+      },
+      {
+        code: `
       url = "http://someUrl.com?url=test.com";
       `,
-      errors: 1,
-    },
-    {
-      code: `
+        errors: 1,
+      },
+      {
+        code: `
       url = "http://someSubdomain.xmlns.com";
       url = "http://someUrl.com?url=xmlns.com";
       `,
-      errors: 2,
-    },
-    {
-      code: `
+        errors: 2,
+      },
+      {
+        code: `
       url = 'http://' + something;
       `,
-      errors: 1,
-    },
-    {
-      code: `
+        errors: 1,
+      },
+      {
+        code: `
       url = "http://0001::1";
       url = "http://dead:beef::1";
       url = "http://::dead:beef:1";
       `,
-      errors: 3,
-    },
-    {
-      code: `
+        errors: 3,
+      },
+      {
+        code: `
       url = "http://::1"; // FP - url from Node.js is not able to parse IPV6 loopback address
       `,
-      errors: 1,
-    },
-    {
-      code: `
+        errors: 1,
+      },
+      {
+        code: `
       import * as ses from '@aws-sdk/client-ses';
       import * as fakeSes from 'fake-client-ses';
       import nodemailer from 'nodemailer';
@@ -293,7 +295,8 @@ ruleTester.run('Using clear-text protocols is security-sensitive', rule, {
         },
       });
       `,
-      errors: 7,
-    },
-  ],
+        errors: 7,
+      },
+    ],
+  });
 });

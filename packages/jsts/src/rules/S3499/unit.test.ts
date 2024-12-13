@@ -16,15 +16,17 @@
  */
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe } from 'node:test';
 
-const ruleTester = new RuleTester();
-ruleTester.run(
-  'Shorthand object properties should be grouped at the beginning or end of an object declaration',
-  rule,
-  {
-    valid: [
-      {
-        code: `
+describe('S3499', () => {
+  const ruleTester = new RuleTester();
+  ruleTester.run(
+    'Shorthand object properties should be grouped at the beginning or end of an object declaration',
+    rule,
+    {
+      valid: [
+        {
+          code: `
             let obj2 = {
                 foo,
                 color,
@@ -56,30 +58,30 @@ ruleTester.run(
                 prop2,
                 prop3 : value3
             }`,
-      },
-    ],
-    invalid: [
-      {
-        code: `let obj1 = {  // Main location
+        },
+      ],
+      invalid: [
+        {
+          code: `let obj1 = {  // Main location
             foo, // Secondary location
             a: 1,
             color, // Secondary location
             b: 2,
             judyGarland // Secondary location
         }`,
-        errors: [
-          {
-            message: `{\"message\":\"Group all shorthand properties at either the beginning or end of this object declaration.\",\"secondaryLocations\":[{\"message\":\"Move to either the beginning or end\",\"column\":12,\"line\":2,\"endColumn\":15,\"endLine\":2},{\"message\":\"Move to either the beginning or end\",\"column\":12,\"line\":4,\"endColumn\":17,\"endLine\":4},{\"message\":\"Move to either the beginning or end\",\"column\":12,\"line\":6,\"endColumn\":23,\"endLine\":6}]}`,
-            line: 1,
-            endLine: 1,
-            column: 12,
-            endColumn: 13,
-          },
-        ],
-        options: ['sonar-runtime'],
-      },
-      {
-        code: `let obj1 = { // Main location
+          errors: [
+            {
+              message: `{\"message\":\"Group all shorthand properties at either the beginning or end of this object declaration.\",\"secondaryLocations\":[{\"message\":\"Move to either the beginning or end\",\"column\":12,\"line\":2,\"endColumn\":15,\"endLine\":2},{\"message\":\"Move to either the beginning or end\",\"column\":12,\"line\":4,\"endColumn\":17,\"endLine\":4},{\"message\":\"Move to either the beginning or end\",\"column\":12,\"line\":6,\"endColumn\":23,\"endLine\":6}]}`,
+              line: 1,
+              endLine: 1,
+              column: 12,
+              endColumn: 13,
+            },
+          ],
+          options: ['sonar-runtime'],
+        },
+        {
+          code: `let obj1 = { // Main location
                     foo,
                     color,
                     a: 1,
@@ -87,19 +89,19 @@ ruleTester.run(
                     b: 2,
                     judyGarland // Secondary location
                 }`,
-        errors: [
-          {
-            message: `{\"message\":\"Group all shorthand properties at the beginning of this object declaration.\",\"secondaryLocations\":[{\"message\":\"Move to the beginning\",\"column\":20,\"line\":5,\"endColumn\":21,\"endLine\":5},{\"message\":\"Move to the beginning\",\"column\":20,\"line\":7,\"endColumn\":31,\"endLine\":7}]}`,
-            line: 1,
-            endLine: 1,
-            column: 12,
-            endColumn: 13,
-          },
-        ],
-        options: ['sonar-runtime'],
-      },
-      {
-        code: `let obj6 = { // Main location
+          errors: [
+            {
+              message: `{\"message\":\"Group all shorthand properties at the beginning of this object declaration.\",\"secondaryLocations\":[{\"message\":\"Move to the beginning\",\"column\":20,\"line\":5,\"endColumn\":21,\"endLine\":5},{\"message\":\"Move to the beginning\",\"column\":20,\"line\":7,\"endColumn\":31,\"endLine\":7}]}`,
+              line: 1,
+              endLine: 1,
+              column: 12,
+              endColumn: 13,
+            },
+          ],
+          options: ['sonar-runtime'],
+        },
+        {
+          code: `let obj6 = { // Main location
                     a: 1,
                     foo, // Secondary location
                     color, // Secondary location
@@ -107,17 +109,18 @@ ruleTester.run(
                     c,
                     judyGarland
                 }`,
-        errors: [
-          {
-            message: `{"message":"Group all shorthand properties at the end of this object declaration.","secondaryLocations":[{"message":"Move to the end","column":20,"line":3,"endColumn":23,"endLine":3},{"message":"Move to the end","column":20,"line":4,"endColumn":25,"endLine":4}]}`,
-            line: 1,
-            endLine: 1,
-            column: 12,
-            endColumn: 13,
-          },
-        ],
-        options: ['sonar-runtime'],
-      },
-    ],
-  },
-);
+          errors: [
+            {
+              message: `{"message":"Group all shorthand properties at the end of this object declaration.","secondaryLocations":[{"message":"Move to the end","column":20,"line":3,"endColumn":23,"endLine":3},{"message":"Move to the end","column":20,"line":4,"endColumn":25,"endLine":4}]}`,
+              line: 1,
+              endLine: 1,
+              column: 12,
+              endColumn: 13,
+            },
+          ],
+          options: ['sonar-runtime'],
+        },
+      ],
+    },
+  );
+});

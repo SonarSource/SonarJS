@@ -16,22 +16,24 @@
  */
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe } from 'node:test';
 
-const ruleTesterJS = new RuleTester();
+describe('S4426', () => {
+  const ruleTesterJS = new RuleTester();
 
-ruleTesterJS.run('Cryptographic keys should be robust', rule, {
-  valid: [
-    {
-      code: `
+  ruleTesterJS.run('Cryptographic keys should be robust', rule, {
+    valid: [
+      {
+        code: `
         crypto.generateKeyPair('rsa', {
           modulusLength: 2048,  // Compliant
           publicKeyEncoding:  { type: 'spki', format: 'pem' },
           privateKeyEncoding: { type: 'pkcs8', format: 'pem' }
          }, callback);
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
         // adding coverage
         crypto.generateKeyPair('ed25519', {  // unrelated algorithm
           modulusLength: 1,  // Compliant
@@ -43,9 +45,9 @@ ruleTesterJS.run('Cryptographic keys should be robust', rule, {
          crypto.generateKeyPair('ed25519', options()); // options not an ObjectExpression 
          crypto.generateKeyPair(alg(), {}); // algorithm not Literal 
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
         const alg = 'ed25519';
         crypto.generateKeyPair(alg, {  // alg not literal
           modulusLength: 1,  // Compliant
@@ -53,47 +55,47 @@ ruleTesterJS.run('Cryptographic keys should be robust', rule, {
           privateKeyEncoding: { type: 'pkcs8', format: 'pem' }
          }, callback);
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
         crypto.generateKeyPair('dsa', {
           divisorLength: 224,  // Compliant
           publicKeyEncoding:  { type: 'spki', format: 'pem' },
           privateKeyEncoding: { type: 'pkcs8', format: 'pem' }
          }, callback);
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
         crypto.generateKeyPair('ec', {
           namedCurve: 'secp224k1', 
           publicKeyEncoding:  { type: 'spki', format: 'pem' },
           privateKeyEncoding: { type: 'pkcs8', format: 'pem' }
         }, callback); // compliant
       `,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+      },
+    ],
+    invalid: [
+      {
+        code: `
         var { privateKey, publicKey } = crypto.generateKeyPairSync('rsa', {
           modulusLength: 1024,  // Noncompliant
           publicKeyEncoding:  { type: 'spki', format: 'pem' },
           privateKeyEncoding: { type: 'pkcs8', format: 'pem' }
         }); // Noncompliant: 1024 bits is too short for a RSA key pair       
       `,
-      errors: [
-        {
-          message: `Use a modulus length of at least 2048 bits for rsa cipher algorithm.`,
-          line: 3,
-          endLine: 3,
-          column: 11,
-          endColumn: 30,
-        },
-      ],
-    },
-    {
-      code: `
+        errors: [
+          {
+            message: `Use a modulus length of at least 2048 bits for rsa cipher algorithm.`,
+            line: 3,
+            endLine: 3,
+            column: 11,
+            endColumn: 30,
+          },
+        ],
+      },
+      {
+        code: `
         const alg = 'rsa';
         var { privateKey, publicKey } = crypto.generateKeyPairSync(alg, {
           modulusLength: 1024,  // Noncompliant
@@ -101,18 +103,18 @@ ruleTesterJS.run('Cryptographic keys should be robust', rule, {
           privateKeyEncoding: { type: 'pkcs8', format: 'pem' }
         }); // Noncompliant: 1024 bits is too short for a RSA key pair       
       `,
-      errors: [
-        {
-          message: `Use a modulus length of at least 2048 bits for rsa cipher algorithm.`,
-          line: 4,
-          endLine: 4,
-          column: 11,
-          endColumn: 30,
-        },
-      ],
-    },
-    {
-      code: `
+        errors: [
+          {
+            message: `Use a modulus length of at least 2048 bits for rsa cipher algorithm.`,
+            line: 4,
+            endLine: 4,
+            column: 11,
+            endColumn: 30,
+          },
+        ],
+      },
+      {
+        code: `
         var options = {
           modulusLength: 1024,  // Noncompliant
           publicKeyEncoding:  { type: 'spki', format: 'pem' },
@@ -121,36 +123,36 @@ ruleTesterJS.run('Cryptographic keys should be robust', rule, {
 
         var { privateKey, publicKey } = crypto.generateKeyPairSync('rsa', options); // Noncompliant       
       `,
-      errors: [
-        {
-          message: `Use a modulus length of at least 2048 bits for rsa cipher algorithm.`,
-          line: 3,
-          endLine: 3,
-          column: 11,
-          endColumn: 30,
-        },
-      ],
-    },
-    {
-      code: `
+        errors: [
+          {
+            message: `Use a modulus length of at least 2048 bits for rsa cipher algorithm.`,
+            line: 3,
+            endLine: 3,
+            column: 11,
+            endColumn: 30,
+          },
+        ],
+      },
+      {
+        code: `
         var { privateKey, publicKey } = crypto.generateKeyPairSync('dsa', {
           modulusLength: 1024,  // Noncompliant
           publicKeyEncoding:  { type: 'spki', format: 'pem' },
           privateKeyEncoding: { type: 'pkcs8', format: 'pem' }
         }); // Noncompliant: 1024 bits is too short for a RSA key pair       
       `,
-      errors: [
-        {
-          message: `Use a modulus length of at least 2048 bits for dsa cipher algorithm.`,
-          line: 3,
-          endLine: 3,
-          column: 11,
-          endColumn: 30,
-        },
-      ],
-    },
-    {
-      code: `
+        errors: [
+          {
+            message: `Use a modulus length of at least 2048 bits for dsa cipher algorithm.`,
+            line: 3,
+            endLine: 3,
+            column: 11,
+            endColumn: 30,
+          },
+        ],
+      },
+      {
+        code: `
        crypto.generateKeyPair('dsa', {
           modulusLength: 2048,  // Compliant
           divisorLength: 112, // Noncompliant
@@ -158,18 +160,18 @@ ruleTesterJS.run('Cryptographic keys should be robust', rule, {
           privateKeyEncoding: { type: 'pkcs8', format: 'pem' }
         }, callback); // Noncompliant
       `,
-      errors: [
-        {
-          message: `Use a divisor length of at least 224 bits for dsa cipher algorithm.`,
-          line: 4,
-          endLine: 4,
-          column: 11,
-          endColumn: 29,
-        },
-      ],
-    },
-    {
-      code: `
+        errors: [
+          {
+            message: `Use a divisor length of at least 224 bits for dsa cipher algorithm.`,
+            line: 4,
+            endLine: 4,
+            column: 11,
+            endColumn: 29,
+          },
+        ],
+      },
+      {
+        code: `
         const crypto = require('crypto');
         crypto.generateKeyPair('ec', {
           namedCurve: 'secp112r2', 
@@ -177,15 +179,16 @@ ruleTesterJS.run('Cryptographic keys should be robust', rule, {
           privateKeyEncoding: { type: 'pkcs8', format: 'pem' }
         }, callback); // Noncompliant: secp112r2 curve doesn't provide enough security
       `,
-      errors: [
-        {
-          message: `secp112r2 doesn't provide enough security. Use a stronger curve.`,
-          line: 4,
-          endLine: 4,
-          column: 11,
-          endColumn: 34,
-        },
-      ],
-    },
-  ],
+        errors: [
+          {
+            message: `secp112r2 doesn't provide enough security. Use a stronger curve.`,
+            line: 4,
+            endLine: 4,
+            column: 11,
+            endColumn: 34,
+          },
+        ],
+      },
+    ],
+  });
 });

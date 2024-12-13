@@ -16,66 +16,68 @@
  */
 import { rule } from './rule.js';
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { describe } from 'node:test';
 
-const ruleTester = new RuleTester();
+describe('S4143', () => {
+  const ruleTester = new RuleTester();
 
-ruleTester.run('no-element-overwrite', rule, {
-  valid: [
-    {
-      code: `
+  ruleTester.run('no-element-overwrite', rule, {
+    valid: [
+      {
+        code: `
       fruits[1] = "banana";
       fruits[2] = "apple";`,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       fruits[1] = "banana";
       vegerables[1] = "tomato";`,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       fruits[1] = "banana";
       console.log("Hello");
       fruits[1] = "apple"; // FN`,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       fruits[1] = "banana";
       foo(fruits);
       fruits[1] = "apple";`,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       fruits[1] = "banana";
       if (cond) {
         fruits[1] = "apple";
       }`,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       fruits[2] = "orange";
       fruits[2] = fruits[2] + ";";`,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       this.fruits[2] = "orange";
       this.fruits[2] = foo(this.fruits) + ";";`,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       this.fruits[2] = "orange";
       this.fruits[2] = foo(this.bar, this.fruits);`,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       function anotherCollection() {
         var x = [1,], y = [1, ];
         x[1] = 3;
         y[1] = x[1];
         x[1] = 43; // Compliant
       }`,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       function indexChanges() {
         var nums = [];
         var i = 1;
@@ -86,145 +88,145 @@ ruleTester.run('no-element-overwrite', rule, {
         i += 1;
         nums[i] = 2;
       }`,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+      },
+    ],
+    invalid: [
+      {
+        code: `
       fruits[1] = "banana";
       fruits[1] = "apple";`,
-      errors: [
-        {
-          messageId: 'verifyIntendedIndex',
-          data: {
-            index: 1,
-            line: 2,
+        errors: [
+          {
+            messageId: 'verifyIntendedIndex',
+            data: {
+              index: 1,
+              line: 2,
+            },
+            line: 3,
+            column: 7,
+            endColumn: 26,
           },
-          line: 3,
-          column: 7,
-          endColumn: 26,
-        },
-      ],
-    },
-    {
-      code: `
+        ],
+      },
+      {
+        code: `
       fruits[1] = "banana";
     //^^^^^^^^^^^^^^^^^^^^>
       fruits[1] = "apple";
     //^^^^^^^^^^^^^^^^^^^`,
-      options: ['sonar-runtime'],
-      errors: [
-        {
-          messageId: 'sonarRuntime',
-          data: {
-            index: 1,
-            line: 2,
-            sonarRuntimeData: JSON.stringify({
-              message: `Verify this is the index that was intended; "1" was already set on line 2.`,
-              secondaryLocations: [
-                { message: 'Original value', column: 6, line: 2, endColumn: 26, endLine: 2 },
-              ],
-            }),
+        options: ['sonar-runtime'],
+        errors: [
+          {
+            messageId: 'sonarRuntime',
+            data: {
+              index: 1,
+              line: 2,
+              sonarRuntimeData: JSON.stringify({
+                message: `Verify this is the index that was intended; "1" was already set on line 2.`,
+                secondaryLocations: [
+                  { message: 'Original value', column: 6, line: 2, endColumn: 26, endLine: 2 },
+                ],
+              }),
+            },
           },
-        },
-      ],
-    },
-    {
-      code: `
+        ],
+      },
+      {
+        code: `
       fruits[1] = "banana";
       fruits[2] = "orange";
       fruits[1] = "apple";`,
-      errors: [
-        {
-          messageId: 'verifyIntendedIndex',
-          data: {
-            index: 1,
-            line: 2,
+        errors: [
+          {
+            messageId: 'verifyIntendedIndex',
+            data: {
+              index: 1,
+              line: 2,
+            },
           },
-        },
-      ],
-    },
-    {
-      code: `
+        ],
+      },
+      {
+        code: `
       this.fruits[1] = "banana";
       this.fruits[1] = "apple";`,
-      errors: [
-        {
-          messageId: 'verifyIntendedIndex',
-          data: {
-            index: 1,
-            line: 2,
+        errors: [
+          {
+            messageId: 'verifyIntendedIndex',
+            data: {
+              index: 1,
+              line: 2,
+            },
           },
-        },
-      ],
-    },
-    {
-      code: `
+        ],
+      },
+      {
+        code: `
       this.fruits[1] = "banana";
       this.fruits[1] = foo(this.bar);`,
-      errors: [
-        {
-          messageId: 'verifyIntendedIndex',
-          data: {
-            index: 1,
-            line: 2,
+        errors: [
+          {
+            messageId: 'verifyIntendedIndex',
+            data: {
+              index: 1,
+              line: 2,
+            },
           },
-        },
-      ],
-    },
-    {
-      code: `
+        ],
+      },
+      {
+        code: `
       for (var i = 0; i < 10; i++) {
         fruits[i] = "melon";
         fruits[i] = "pear";
         fruits[i++] = "another";
       }`,
-      errors: [
-        {
-          messageId: 'verifyIntendedIndex',
-          data: {
-            index: 'i',
-            line: 3,
+        errors: [
+          {
+            messageId: 'verifyIntendedIndex',
+            data: {
+              index: 'i',
+              line: 3,
+            },
           },
-        },
-      ],
-    },
-    {
-      code: `
+        ],
+      },
+      {
+        code: `
         myMap.set("key", 1);
         myMap.set("key", 2);
         myMap.clear();
         myMap.set("key", 1);`,
-      errors: [
-        {
-          messageId: 'verifyIntendedIndex',
-          data: {
-            index: 'key',
-            line: 2,
+        errors: [
+          {
+            messageId: 'verifyIntendedIndex',
+            data: {
+              index: 'key',
+              line: 2,
+            },
           },
-        },
-      ],
-    },
-    {
-      code: `
+        ],
+      },
+      {
+        code: `
         mySet.add(1);
         mySet.add(2);
         mySet.add(3);
         mySet.add(2);
         mySet.clear();
         mySet.add(2);`,
-      errors: [
-        {
-          messageId: 'verifyIntendedIndex',
-          data: {
-            index: 2,
-            line: 3,
+        errors: [
+          {
+            messageId: 'verifyIntendedIndex',
+            data: {
+              index: 2,
+              line: 3,
+            },
           },
-        },
-      ],
-    },
-    {
-      code: `
+        ],
+      },
+      {
+        code: `
       function switchTest(kind) {
         var result = [];
         switch (kind) {
@@ -238,36 +240,37 @@ ruleTester.run('no-element-overwrite', rule, {
             break;
         }
       }`,
-      errors: [
-        {
-          messageId: 'verifyIntendedIndex',
-          data: {
-            index: 1,
-            line: 6,
+        errors: [
+          {
+            messageId: 'verifyIntendedIndex',
+            data: {
+              index: 1,
+              line: 6,
+            },
           },
-        },
-        {
-          messageId: 'verifyIntendedIndex',
-          data: {
-            index: 2,
-            line: 10,
+          {
+            messageId: 'verifyIntendedIndex',
+            data: {
+              index: 2,
+              line: 10,
+            },
           },
-        },
-      ],
-    },
-    {
-      code: `
+        ],
+      },
+      {
+        code: `
         fruits[''] = "banana";
         fruits[''] = "apple";`,
-      errors: [
-        {
-          messageId: 'verifyIntendedIndex',
-          data: {
-            index: '',
-            line: 2,
+        errors: [
+          {
+            messageId: 'verifyIntendedIndex',
+            data: {
+              index: '',
+              line: 2,
+            },
           },
-        },
-      ],
-    },
-  ],
+        ],
+      },
+    ],
+  });
 });

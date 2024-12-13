@@ -16,15 +16,18 @@
  */
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe } from 'node:test';
 
-process.chdir(import.meta.dirname); // change current working dir to avoid the package.json lookup to up in the tree
-const ruleTester = new RuleTester();
+describe('S1607', () => {
+  process.chdir(import.meta.dirname); // change current working dir to avoid the package.json lookup to up in the tree
+  const ruleTester = new RuleTester();
 
-ruleTester.run(`Tests should not be skipped without providing a reason`, rule, {
-  valid: [
-    {
-      code: `it.skip('test', function() {});`,
-    },
-  ],
-  invalid: [],
+  ruleTester.run(`Tests should not be skipped without providing a reason`, rule, {
+    valid: [
+      {
+        code: `it.skip('test', function() {});`,
+      },
+    ],
+    invalid: [],
+  });
 });

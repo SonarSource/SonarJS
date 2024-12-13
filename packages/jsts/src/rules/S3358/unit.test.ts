@@ -16,15 +16,17 @@
  */
 import { rule } from './index.js';
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { describe } from 'node:test';
 
-const ruleTester = new RuleTester();
-ruleTester.run('Ternary operators should not be nested', rule, {
-  valid: [
-    {
-      code: `var a = condition ? 1 : 2; // OK`,
-    },
-    {
-      code: `
+describe('S3358', () => {
+  const ruleTester = new RuleTester();
+  ruleTester.run('Ternary operators should not be nested', rule, {
+    valid: [
+      {
+        code: `var a = condition ? 1 : 2; // OK`,
+      },
+      {
+        code: `
       var foo = condition
         ? bar
         : function() {
@@ -33,31 +35,31 @@ ruleTester.run('Ternary operators should not be nested', rule, {
             }
             return g;
         }`,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       var a = condition
         ? 1
         : (function() {
           return condition2 ? 1 : 2; // OK, nesting is broken by function expression
         })();`,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       var foo = condition
         ? bar
         : (x => condition2 ? 1 : 2); // OK, nesting is broken by arrow function`,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       var foo = condition
         ? bar
         : function* gen() {
           yield condition2 ? 1 : 2  // OK, nesting is broken by generator
         }`,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       var obj = condition
         ? {
           a: 1,
@@ -67,15 +69,15 @@ ruleTester.run('Ternary operators should not be nested', rule, {
           a: 1,
           b: condition2 ? 1 : 2 // OK, nesting is broken by object literal
         }`,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       var arr = condition
       ? [1, 2]
       : [1, condition2 ? 1 : 2]  // OK, nesting is broken by array literal`,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
         function Component(isLoading, isEditing) {
           const [saving, setSaving] = useState(false);
           return (
@@ -92,53 +94,54 @@ ruleTester.run('Ternary operators should not be nested', rule, {
           );
         }
       `,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+      },
+    ],
+    invalid: [
+      {
+        code: `
       // nested on the true side
       var a = condition ? 1 : (condition2 ? 1 : 2);`,
-      errors: [
-        {
-          message: 'Extract this nested ternary operation into an independent statement.',
-          line: 3,
-          column: 32,
-          endLine: 3,
-          endColumn: 50,
-        },
-      ],
-    },
-    {
-      code: `
+        errors: [
+          {
+            message: 'Extract this nested ternary operation into an independent statement.',
+            line: 3,
+            column: 32,
+            endLine: 3,
+            endColumn: 50,
+          },
+        ],
+      },
+      {
+        code: `
       // nested on the false side
       var a = condition ? 1 : (condition2 ? 1 : 2);`,
-      errors: 1,
-    },
-    {
-      code: `
+        errors: 1,
+      },
+      {
+        code: `
       // nested on both sides
       var a = condition 
         ? (condition2 ? 1 : 2)
         : (condition3 ? 1 : 2);`,
-      errors: 2,
-    },
-    {
-      code: `
+        errors: 2,
+      },
+      {
+        code: `
       // nested and re-nested
       var a = condition
         ? 1
         : (condition2
             ? 1
             : (condition3 ? 1 : 2));`,
-      errors: 2,
-    },
-    {
-      code: `
+        errors: 2,
+      },
+      {
+        code: `
       var a = condition
         ? 1
         : foo("hello", condition2 ? 1 : 2);`,
-      errors: 1,
-    },
-  ],
+        errors: 1,
+      },
+    ],
+  });
 });

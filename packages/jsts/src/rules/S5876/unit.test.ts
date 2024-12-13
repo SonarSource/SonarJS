@@ -16,15 +16,17 @@
  */
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe } from 'node:test';
 
-const ruleTester = new RuleTester();
-ruleTester.run(
-  'Create a new session during user authentication to prevent session fixation attacks.',
-  rule,
-  {
-    valid: [
-      {
-        code: `
+describe('S5876', () => {
+  const ruleTester = new RuleTester();
+  ruleTester.run(
+    'Create a new session during user authentication to prevent session fixation attacks.',
+    rule,
+    {
+      valid: [
+        {
+          code: `
       var passport = require('passport');
       
       app.post('/login', 
@@ -37,21 +39,21 @@ ruleTester.run(
         });
         console.log('coverage');
       });`,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
       var passport = require('passport');
       passport.authenticate('local', { failureRedirect: '/login' });
       `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
       var passport = require('passport');      
       app.post('/login', passport.authenticate('local', { failureRedirect: '/login' }),  foo);            
     `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
         var passport = require('passport');
         app.post('/api/login', 
         passport.authenticate('local', { session: false }), // Compliant - no session
@@ -59,11 +61,11 @@ ruleTester.run(
           res.redirect('/');
         });
       `,
-      },
-    ],
-    invalid: [
-      {
-        code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
       var passport = require('passport');
       
       app.post('/login', 
@@ -72,19 +74,19 @@ ruleTester.run(
         // Sensitive - no session.regenerate after login
         res.redirect('/');
       });`,
-        errors: [
-          {
-            message:
-              'Create a new session during user authentication to prevent session fixation attacks.',
-            line: 6,
-            column: 7,
-            endLine: 9,
-            endColumn: 8,
-          },
-        ],
-      },
-      {
-        code: `
+          errors: [
+            {
+              message:
+                'Create a new session during user authentication to prevent session fixation attacks.',
+              line: 6,
+              column: 7,
+              endLine: 9,
+              endColumn: 8,
+            },
+          ],
+        },
+        {
+          code: `
         var passport = require('passport');
         app.post('/api/login', 
         passport.authenticate('local', { session: true }),
@@ -92,10 +94,10 @@ ruleTester.run(
           res.redirect('/');
         });
       `,
-        errors: 1,
-      },
-      {
-        code: `
+          errors: 1,
+        },
+        {
+          code: `
         var passport = require('passport');
         app.post('/api/login', 
         passport.authenticate('local', foo()), // could be FP if foo() sets session to false
@@ -103,8 +105,9 @@ ruleTester.run(
           res.redirect('/');
         });
       `,
-        errors: 1,
-      },
-    ],
-  },
-);
+          errors: 1,
+        },
+      ],
+    },
+  );
+});

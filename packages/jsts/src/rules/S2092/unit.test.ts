@@ -16,31 +16,33 @@
  */
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe } from 'node:test';
 
-const ruleTesterJs = new RuleTester();
-const ruleTesterTs = new RuleTester();
+describe('S2092', () => {
+  const ruleTesterJs = new RuleTester();
+  const ruleTesterTs = new RuleTester();
 
-const cookieSessionTestCases = {
-  valid: [
-    {
-      code: `
+  const cookieSessionTestCases = {
+    valid: [
+      {
+        code: `
       var cookieSession = require('cookie-session');
       var session1 = cookieSession({
         secret: "ddfdsfd",
         secure: true,
       });
             `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       var cookieSession = require('cookie-session');
       var session1 = cookieSession({
         secret: "ddfdsfd",
       }); // Compliant: by default secure is set to true on https connection
             `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       var cookieSession = require('cookie-session');
       var session1 = cookieSession("wrong argument");
       var session1 = cookieSession();
@@ -53,31 +55,31 @@ const cookieSessionTestCases = {
         secure: secureValue,
       });
             `,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+      },
+    ],
+    invalid: [
+      {
+        code: `
       var cookieSession = require('cookie-session');
       var session1 = cookieSession({
         secret: "ddfdsfd",
         secure: false,
       });
             `,
-      errors: [
-        {
-          message:
-            '{"message":"Make sure creating this cookie without the \\"secure\\" flag is safe.","secondaryLocations":[{"column":16,"line":5,"endColumn":21,"endLine":5}]}',
-          line: 3,
-          endLine: 3,
-          column: 22,
-          endColumn: 35,
-        },
-      ],
-      options: ['sonar-runtime'],
-    },
-    {
-      code: `
+        errors: [
+          {
+            message:
+              '{"message":"Make sure creating this cookie without the \\"secure\\" flag is safe.","secondaryLocations":[{"column":16,"line":5,"endColumn":21,"endLine":5}]}',
+            line: 3,
+            endLine: 3,
+            column: 22,
+            endColumn: 35,
+          },
+        ],
+        options: ['sonar-runtime'],
+      },
+      {
+        code: `
       var cookieSession = require('cookie-session');
       const options = {
         secret: "ddfdsfd",
@@ -85,20 +87,20 @@ const cookieSessionTestCases = {
       };
       var session1 = cookieSession(options);
             `,
-      errors: [
-        {
-          message:
-            '{"message":"Make sure creating this cookie without the \\"secure\\" flag is safe.","secondaryLocations":[{"column":16,"line":5,"endColumn":21,"endLine":5},{"column":22,"line":3,"endColumn":7,"endLine":6}]}',
-          line: 7,
-          endLine: 7,
-          column: 22,
-          endColumn: 35,
-        },
-      ],
-      options: ['sonar-runtime'],
-    },
-    {
-      code: `
+        errors: [
+          {
+            message:
+              '{"message":"Make sure creating this cookie without the \\"secure\\" flag is safe.","secondaryLocations":[{"column":16,"line":5,"endColumn":21,"endLine":5},{"column":22,"line":3,"endColumn":7,"endLine":6}]}',
+            line: 7,
+            endLine: 7,
+            column: 22,
+            endColumn: 35,
+          },
+        ],
+        options: ['sonar-runtime'],
+      },
+      {
+        code: `
       var cookieSession = require('cookie-session');
       const isSecure = false;
       const options = {
@@ -107,25 +109,25 @@ const cookieSessionTestCases = {
       };
       var session1 = cookieSession(options);
             `,
-      errors: [
-        {
-          message:
-            '{"message":"Make sure creating this cookie without the \\"secure\\" flag is safe.","secondaryLocations":[{"column":23,"line":3,"endColumn":28,"endLine":3},{"column":22,"line":4,"endColumn":7,"endLine":7}]}',
-          line: 8,
-          endLine: 8,
-          column: 22,
-          endColumn: 35,
-        },
-      ],
-      options: ['sonar-runtime'],
-    },
-  ],
-};
+        errors: [
+          {
+            message:
+              '{"message":"Make sure creating this cookie without the \\"secure\\" flag is safe.","secondaryLocations":[{"column":23,"line":3,"endColumn":28,"endLine":3},{"column":22,"line":4,"endColumn":7,"endLine":7}]}',
+            line: 8,
+            endLine: 8,
+            column: 22,
+            endColumn: 35,
+          },
+        ],
+        options: ['sonar-runtime'],
+      },
+    ],
+  };
 
-const cookiesTestCases = {
-  valid: [
-    {
-      code: `
+  const cookiesTestCases = {
+    valid: [
+      {
+        code: `
           var Cookies = require('cookies');
           var cookies = new Cookies(req, res, 
             { 
@@ -136,9 +138,9 @@ const cookiesTestCases = {
           }); // Compliant: by default secure is set to true on https connection
           cookies.set('LastVisit', new Date().toISOString(), { signed: true });
             `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
           var Cookies = require('cookies')
           var cookies = new Cookies(req, res, 
             { 
@@ -150,9 +152,9 @@ const cookiesTestCases = {
             secure: true 
           });
             `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
           var Cookies = require('cookies')
           var cookies = new Cookies(req, res, 
             { 
@@ -171,11 +173,11 @@ const cookiesTestCases = {
             secure: secureValue 
           });
             `,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+      },
+    ],
+    invalid: [
+      {
+        code: `
       var Cookies = require('cookies');
       var cookies = new Cookies(req, res, { keys: keys });
       cookies.set('LastVisit', new Date().toISOString(), { 
@@ -183,20 +185,20 @@ const cookiesTestCases = {
         secure: false
       });
             `,
-      errors: [
-        {
-          message:
-            '{"message":"Make sure creating this cookie without the \\"secure\\" flag is safe.","secondaryLocations":[{"column":16,"line":6,"endColumn":21,"endLine":6}]}',
-          line: 4,
-          endLine: 4,
-          column: 7,
-          endColumn: 18,
-        },
-      ],
-      options: ['sonar-runtime'],
-    },
-    {
-      code: `
+        errors: [
+          {
+            message:
+              '{"message":"Make sure creating this cookie without the \\"secure\\" flag is safe.","secondaryLocations":[{"column":16,"line":6,"endColumn":21,"endLine":6}]}',
+            line: 4,
+            endLine: 4,
+            column: 7,
+            endColumn: 18,
+          },
+        ],
+        options: ['sonar-runtime'],
+      },
+      {
+        code: `
       var Cookies = require('cookies');
       var cookies = new Cookies(req, res, { keys: keys });
       var options = { 
@@ -205,20 +207,20 @@ const cookiesTestCases = {
       };
       cookies.set('LastVisit', new Date().toISOString(), options);
             `,
-      errors: [
-        {
-          message:
-            '{"message":"Make sure creating this cookie without the \\"secure\\" flag is safe.","secondaryLocations":[{"column":16,"line":6,"endColumn":21,"endLine":6},{"column":20,"line":4,"endColumn":7,"endLine":7}]}',
-          line: 8,
-          endLine: 8,
-          column: 7,
-          endColumn: 18,
-        },
-      ],
-      options: ['sonar-runtime'],
-    },
-    {
-      code: `
+        errors: [
+          {
+            message:
+              '{"message":"Make sure creating this cookie without the \\"secure\\" flag is safe.","secondaryLocations":[{"column":16,"line":6,"endColumn":21,"endLine":6},{"column":20,"line":4,"endColumn":7,"endLine":7}]}',
+            line: 8,
+            endLine: 8,
+            column: 7,
+            endColumn: 18,
+          },
+        ],
+        options: ['sonar-runtime'],
+      },
+      {
+        code: `
       var Cookies = require('cookies');
       var cookies = new Cookies(req, res, { keys: keys });
       var secure = false;
@@ -228,31 +230,31 @@ const cookiesTestCases = {
       };
       cookies.set('LastVisit', new Date().toISOString(), options);
             `,
-      errors: [
-        {
-          message:
-            '{"message":"Make sure creating this cookie without the \\"secure\\" flag is safe.","secondaryLocations":[{"column":19,"line":4,"endColumn":24,"endLine":4},{"column":20,"line":5,"endColumn":7,"endLine":8}]}',
-          line: 9,
-          endLine: 9,
-          column: 7,
-          endColumn: 18,
-        },
-      ],
-      options: ['sonar-runtime'],
-    },
-  ],
-};
+        errors: [
+          {
+            message:
+              '{"message":"Make sure creating this cookie without the \\"secure\\" flag is safe.","secondaryLocations":[{"column":19,"line":4,"endColumn":24,"endLine":4},{"column":20,"line":5,"endColumn":7,"endLine":8}]}',
+            line: 9,
+            endLine: 9,
+            column: 7,
+            endColumn: 18,
+          },
+        ],
+        options: ['sonar-runtime'],
+      },
+    ],
+  };
 
-const csurfTestCases = {
-  valid: [
-    {
-      code: `
+  const csurfTestCases = {
+    valid: [
+      {
+        code: `
       var csrf = require('csurf');
       var csrfProtection = csrf({ cookie: { secure: true }});
             `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       var csrf = require('csurf');
       var csrfProtection = csrf("unknown argument");
       var csrfProtection = csrf({ cookie: "unknown"});
@@ -269,68 +271,68 @@ const csurfTestCases = {
       }
       var csrfProtection = csrf({ cookie: cookieValues});
             `,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+      },
+    ],
+    invalid: [
+      {
+        code: `
       var csrf = require('csurf');
       var csrfProtection = csrf({ cookie: { secure: false }}); // Sensitive
             `,
-      errors: [
-        {
-          message:
-            '{"message":"Make sure creating this cookie without the \\"secure\\" flag is safe.","secondaryLocations":[{"column":52,"line":3,"endColumn":57,"endLine":3}]}',
-          line: 3,
-          endLine: 3,
-          column: 28,
-          endColumn: 32,
-        },
-      ],
-      options: ['sonar-runtime'],
-    },
-    {
-      code: `
+        errors: [
+          {
+            message:
+              '{"message":"Make sure creating this cookie without the \\"secure\\" flag is safe.","secondaryLocations":[{"column":52,"line":3,"endColumn":57,"endLine":3}]}',
+            line: 3,
+            endLine: 3,
+            column: 28,
+            endColumn: 32,
+          },
+        ],
+        options: ['sonar-runtime'],
+      },
+      {
+        code: `
       var csrf = require('csurf');
       var cookieObject = {cookie: {secure : false}};
       var csrfProtection = csrf(cookieObject); // Sensitive
             `,
-      errors: [
-        {
-          message:
-            '{"message":"Make sure creating this cookie without the \\"secure\\" flag is safe.","secondaryLocations":[{"column":44,"line":3,"endColumn":49,"endLine":3},{"column":25,"line":3,"endColumn":51,"endLine":3}]}',
-          line: 4,
-          endLine: 4,
-          column: 28,
-          endColumn: 32,
-        },
-      ],
-      options: ['sonar-runtime'],
-    },
-    {
-      code: `
+        errors: [
+          {
+            message:
+              '{"message":"Make sure creating this cookie without the \\"secure\\" flag is safe.","secondaryLocations":[{"column":44,"line":3,"endColumn":49,"endLine":3},{"column":25,"line":3,"endColumn":51,"endLine":3}]}',
+            line: 4,
+            endLine: 4,
+            column: 28,
+            endColumn: 32,
+          },
+        ],
+        options: ['sonar-runtime'],
+      },
+      {
+        code: `
       var csrf = require('csurf');
       var csrfProtection = csrf({ cookie: true}); // Sensitive
             `,
-      errors: [
-        {
-          message:
-            '{"message":"Make sure creating this cookie without the \\"secure\\" flag is safe.","secondaryLocations":[{"column":42,"line":3,"endColumn":46,"endLine":3}]}',
-          line: 3,
-          endLine: 3,
-          column: 28,
-          endColumn: 32,
-        },
-      ],
-      options: ['sonar-runtime'],
-    },
-  ],
-};
+        errors: [
+          {
+            message:
+              '{"message":"Make sure creating this cookie without the \\"secure\\" flag is safe.","secondaryLocations":[{"column":42,"line":3,"endColumn":46,"endLine":3}]}',
+            line: 3,
+            endLine: 3,
+            column: 28,
+            endColumn: 32,
+          },
+        ],
+        options: ['sonar-runtime'],
+      },
+    ],
+  };
 
-const expressSessionTestCases = {
-  valid: [
-    {
-      code: `
+  const expressSessionTestCases = {
+    valid: [
+      {
+        code: `
       var express = require('express');
       var session = require('express-session');
       
@@ -346,9 +348,9 @@ const expressSessionTestCases = {
         }
       })) // Compliant: by default secure is set to true on https
            `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       var express = require('express');
       var session = require('express-session');
 
@@ -365,9 +367,9 @@ const expressSessionTestCases = {
         }
       }));
             `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       var express = require('express');
       var session = require('express-session');
 
@@ -389,11 +391,11 @@ const expressSessionTestCases = {
         cookie: cookieValue
       }));
             `,
-    },
-  ],
-  invalid: [
-    {
-      code: ` 
+      },
+    ],
+    invalid: [
+      {
+        code: ` 
       var express = require('express');
       var session = require('express-session');
 
@@ -410,51 +412,52 @@ const expressSessionTestCases = {
         }
       }));
             `,
-      errors: 1,
-    },
-  ],
-};
+        errors: 1,
+      },
+    ],
+  };
 
-ruleTesterJs.run(
-  '[JS express-session] Creating cookies without the "secure" flag is security-sensitive',
-  rule,
-  expressSessionTestCases,
-);
-ruleTesterTs.run(
-  '[TS express-session] Creating cookies without the "secure" flag is security-sensitive',
-  rule,
-  expressSessionTestCases,
-);
+  ruleTesterJs.run(
+    '[JS express-session] Creating cookies without the "secure" flag is security-sensitive',
+    rule,
+    expressSessionTestCases,
+  );
+  ruleTesterTs.run(
+    '[TS express-session] Creating cookies without the "secure" flag is security-sensitive',
+    rule,
+    expressSessionTestCases,
+  );
 
-ruleTesterJs.run(
-  '[JS cookie-session] Creating cookies without the "secure" flag is security-sensitive',
-  rule,
-  cookieSessionTestCases,
-);
-ruleTesterTs.run(
-  '[TS cookie-session] Creating cookies without the "secure" flag is security-sensitive',
-  rule,
-  cookieSessionTestCases,
-);
+  ruleTesterJs.run(
+    '[JS cookie-session] Creating cookies without the "secure" flag is security-sensitive',
+    rule,
+    cookieSessionTestCases,
+  );
+  ruleTesterTs.run(
+    '[TS cookie-session] Creating cookies without the "secure" flag is security-sensitive',
+    rule,
+    cookieSessionTestCases,
+  );
 
-ruleTesterJs.run(
-  '[JS cookies] Creating cookies without the "secure" flag is security-sensitive',
-  rule,
-  cookiesTestCases,
-);
-ruleTesterTs.run(
-  '[TS cookies] Creating cookies without the "secure" flag is security-sensitive',
-  rule,
-  cookiesTestCases,
-);
+  ruleTesterJs.run(
+    '[JS cookies] Creating cookies without the "secure" flag is security-sensitive',
+    rule,
+    cookiesTestCases,
+  );
+  ruleTesterTs.run(
+    '[TS cookies] Creating cookies without the "secure" flag is security-sensitive',
+    rule,
+    cookiesTestCases,
+  );
 
-ruleTesterJs.run(
-  '[JS csurf] Creating cookies without the "secure" flag is security-sensitive',
-  rule,
-  csurfTestCases,
-);
-ruleTesterTs.run(
-  '[TS csurf] Creating cookies without the "secure" flag is security-sensitive',
-  rule,
-  csurfTestCases,
-);
+  ruleTesterJs.run(
+    '[JS csurf] Creating cookies without the "secure" flag is security-sensitive',
+    rule,
+    csurfTestCases,
+  );
+  ruleTesterTs.run(
+    '[TS csurf] Creating cookies without the "secure" flag is security-sensitive',
+    rule,
+    csurfTestCases,
+  );
+});

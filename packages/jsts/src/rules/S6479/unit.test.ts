@@ -16,31 +16,33 @@
  */
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './rule.js';
+import { describe } from 'node:test';
 
-const ruleTester = new RuleTester();
+describe('S6479', () => {
+  const ruleTester = new RuleTester();
 
-ruleTester.run('Rule S6479 - no-array-index-key', rule, {
-  valid: [
-    {
-      code: `
+  ruleTester.run('Rule S6479 - no-array-index-key', rule, {
+    valid: [
+      {
+        code: `
 export const MyComponent = ({items}) => {
     return <>{items.map((item, index) => {
       return <div key={item.id + '' + index}/>;
     })}</>;
 }
 `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
 export const MyComponent = ({items}) => {
     return <>{items.map((item, index) => {
       return <div key={\`\${item.id}-\${index}\`}/>;
     })}</>;
 }
 `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
 export const MyComponent = ({items}) => {
     const renderItems = () => {
       let i = 0;
@@ -53,9 +55,9 @@ export const MyComponent = ({items}) => {
     return <>{renderItems()}</>;
 }
 `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
 export const MyComponent = ({items}) => {
     const computeKey = (item, index) => {
       return item.id + '' + index;
@@ -66,9 +68,9 @@ export const MyComponent = ({items}) => {
     })}</>;
 }
 `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
 export const MyComponent = ({items}) => {
     const computeKey = (index) => {
       return index;
@@ -79,28 +81,29 @@ export const MyComponent = ({items}) => {
     })}</>;
 } // this test should trigger the rule but it seems ESLint is missing it
 `,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+      },
+    ],
+    invalid: [
+      {
+        code: `
 export const MyComponent = ({items}) => {
     return <>{items.map((item, index) => {
       return <div key={index}>{item.id}</div>;
     })}</>;
 }
 `,
-      errors: 1,
-    },
-    {
-      code: `
+        errors: 1,
+      },
+      {
+        code: `
 export const MyComponent = ({items}) => {
     return <>{items.map((item, index) => {
       return <div key={\`\${index}\`}>{item.id}</div>;
     })}</>;
 }
 `,
-      errors: 1,
-    },
-  ],
+        errors: 1,
+      },
+    ],
+  });
 });

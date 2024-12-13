@@ -16,12 +16,14 @@
  */
 import { rule } from './index.js';
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { describe } from 'node:test';
 
-const ruleTester = new RuleTester();
-ruleTester.run(`Function declarations should not be made within blocks`, rule, {
-  valid: [
-    {
-      code: `
+describe('S1530', () => {
+  const ruleTester = new RuleTester();
+  ruleTester.run(`Function declarations should not be made within blocks`, rule, {
+    valid: [
+      {
+        code: `
         if (x) {
           let foo;
           foo = function() {}      // OK
@@ -45,55 +47,56 @@ ruleTester.run(`Function declarations should not be made within blocks`, rule, {
                 function nested() { } // OK
             }
         }`,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+      },
+    ],
+    invalid: [
+      {
+        code: `
       if (x) {
         function foo() {
         }        
       }`,
-      errors: [
-        {
-          message: `Do not use function declarations within blocks.`,
-          line: 3,
-          column: 18,
-          endLine: 3,
-          endColumn: 21,
-        },
-      ],
-    },
-  ],
-});
+        errors: [
+          {
+            message: `Do not use function declarations within blocks.`,
+            line: 3,
+            column: 18,
+            endLine: 3,
+            endColumn: 21,
+          },
+        ],
+      },
+    ],
+  });
 
-const ruleTesterTS = new RuleTester();
+  const ruleTesterTS = new RuleTester();
 
-ruleTesterTS.run(`Function declarations should not be made within blocks`, rule, {
-  valid: [
-    {
-      code: `
+  ruleTesterTS.run(`Function declarations should not be made within blocks`, rule, {
+    valid: [
+      {
+        code: `
         interface I {
             isOk(): boolean;
         }`,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
         namespace space {
             function f() {}
             export function f2() {}
         }`,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+      },
+    ],
+    invalid: [
+      {
+        code: `
           namespace space {
             if (x) {
               function foo() {}        
             }
           }`,
-      errors: 1,
-    },
-  ],
+        errors: 1,
+      },
+    ],
+  });
 });

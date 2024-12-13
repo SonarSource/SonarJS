@@ -16,12 +16,14 @@
  */
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe } from 'node:test';
 
-const ruleTesterTs = new RuleTester();
-ruleTesterTs.run('', rule, {
-  valid: [
-    {
-      code: `
+describe('S6268', () => {
+  const ruleTesterTs = new RuleTester();
+  ruleTesterTs.run('', rule, {
+    valid: [
+      {
+        code: `
       // without object
       bypassSecurityTrustHtml(foo);
 
@@ -39,42 +41,43 @@ ruleTesterTs.run('', rule, {
       sanitizer.bypassSecurityTrustHtml("input");
       sanitizer.bypassSecurityTrustHtml(\`input\`);
       `,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+      },
+    ],
+    invalid: [
+      {
+        code: `
       sanitizer.bypassSecurityTrustHtml(value);
       sanitizer.bypassSecurityTrustStyle(value);
       sanitizer.bypassSecurityTrustScript(value);
       sanitizer.bypassSecurityTrustUrl(value);
       sanitizer.bypassSecurityTrustResourceUrl(value);
       `,
-      errors: 5,
-    },
-    {
-      code: `
+        errors: 5,
+      },
+      {
+        code: `
       whatever().bypassSecurityTrustHtml(whateverElse());
       `,
-      errors: [
-        {
-          message: 'Make sure disabling Angular built-in sanitization is safe here.',
-          line: 2,
-          column: 18,
-          endLine: 2,
-          endColumn: 41,
-        },
-      ],
-    },
-    {
-      code: `
+        errors: [
+          {
+            message: 'Make sure disabling Angular built-in sanitization is safe here.',
+            line: 2,
+            column: 18,
+            endLine: 2,
+            endColumn: 41,
+          },
+        ],
+      },
+      {
+        code: `
       sanitizer.bypassSecurityTrustHtml(\`\${whatever()}\`);
       `,
-      errors: [
-        {
-          message: 'Make sure disabling Angular built-in sanitization is safe here.',
-        },
-      ],
-    },
-  ],
+        errors: [
+          {
+            message: 'Make sure disabling Angular built-in sanitization is safe here.',
+          },
+        ],
+      },
+    ],
+  });
 });

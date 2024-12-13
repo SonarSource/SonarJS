@@ -16,30 +16,32 @@
  */
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe } from 'node:test';
 
-const ruleTester = new RuleTester();
-ruleTester.run(
-  `Types without members, 'any' and 'never' should not be used in type intersections`,
-  rule,
-  {
-    valid: [
-      {
-        code: `function twoPrimitives(x: string & number) {}`,
-      },
-      {
-        code: `function twoInterfaces(x: { a: string } & { b: number }) {}`,
-      },
-      {
-        code: `
+describe('S4335', () => {
+  const ruleTester = new RuleTester();
+  ruleTester.run(
+    `Types without members, 'any' and 'never' should not be used in type intersections`,
+    rule,
+    {
+      valid: [
+        {
+          code: `function twoPrimitives(x: string & number) {}`,
+        },
+        {
+          code: `function twoInterfaces(x: { a: string } & { b: number }) {}`,
+        },
+        {
+          code: `
       interface WithString {
         a: string;
       }
       interface NotEmpty extends WithString {}
       function withNotEmptyInterface(x: { a: string } & NotEmpty) {}
       `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
         const propName = 'prop-name';
         
         interface MyInterface {
@@ -52,9 +54,9 @@ ruleTester.run(
         
         type MyType = MyOtherInterface & MyInterface;
         `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
          export namespace TestCaseParser {
           export interface CompilerSettings {
               [name: string]: string;
@@ -71,9 +73,9 @@ ruleTester.run(
         let  harnessSettings: TestCaseParser.CompilerSettings & HarnessOptions;
  
         `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
          export namespace TestCaseParser {
           export interface CompilerSettings {
               [name: number]: string;
@@ -90,60 +92,61 @@ ruleTester.run(
         let  harnessSettings: TestCaseParser.CompilerSettings & HarnessOptions;
  
         `,
-      },
-    ],
-    invalid: [
-      {
-        code: `function withNull(x: number & null) {}`,
-        errors: [
-          {
-            message: 'Remove this type without members or change this type intersection.',
-            line: 1,
-            column: 31,
-            endLine: 1,
-            endColumn: 35,
-          },
-        ],
-      },
-      {
-        code: `function withAny(x: any & { a: string }) {}`,
-        errors: [{ message: `Simplify this intersection as it always has type "any".` }],
-      },
-      {
-        code: `function withNever(x: boolean & never) {}`,
-        errors: [{ message: `Simplify this intersection as it always has type "never".` }],
-      },
-      {
-        code: `function withUndefined(x: { a: string } & undefined) {}`,
-        errors: 1,
-      },
-      {
-        code: `function withVoid(x: string & void) {}`,
-        errors: 1,
-      },
-      {
-        code: `function triple(x: null & string & undefined) {}`,
-        errors: 2,
-      },
-      {
-        code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `function withNull(x: number & null) {}`,
+          errors: [
+            {
+              message: 'Remove this type without members or change this type intersection.',
+              line: 1,
+              column: 31,
+              endLine: 1,
+              endColumn: 35,
+            },
+          ],
+        },
+        {
+          code: `function withAny(x: any & { a: string }) {}`,
+          errors: [{ message: `Simplify this intersection as it always has type "any".` }],
+        },
+        {
+          code: `function withNever(x: boolean & never) {}`,
+          errors: [{ message: `Simplify this intersection as it always has type "never".` }],
+        },
+        {
+          code: `function withUndefined(x: { a: string } & undefined) {}`,
+          errors: 1,
+        },
+        {
+          code: `function withVoid(x: string & void) {}`,
+          errors: 1,
+        },
+        {
+          code: `function triple(x: null & string & undefined) {}`,
+          errors: 2,
+        },
+        {
+          code: `
       function declarations() {
         let x: string & null;
       }
       `,
-        errors: 1,
-      },
-      {
-        code: `function withEmptyObjectLiteral(x: { a: string } & {}) {}`,
-        errors: 1,
-      },
-      {
-        code: `
+          errors: 1,
+        },
+        {
+          code: `function withEmptyObjectLiteral(x: { a: string } & {}) {}`,
+          errors: 1,
+        },
+        {
+          code: `
         interface Empty {}
         function withEmptyInterface(x: { a: string } & Empty) {}
         `,
-        errors: 1,
-      },
-    ],
-  },
-);
+          errors: 1,
+        },
+      ],
+    },
+  );
+});

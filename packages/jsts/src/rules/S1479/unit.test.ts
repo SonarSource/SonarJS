@@ -16,22 +16,24 @@
  */
 import { rule } from './rule.js';
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { describe } from 'node:test';
 
-const ruleTester = new RuleTester();
+describe('S1479', () => {
+  const ruleTester = new RuleTester();
 
-ruleTester.run('max-switch-cases', rule, {
-  valid: [
-    {
-      code: `switch(i) {
+  ruleTester.run('max-switch-cases', rule, {
+    valid: [
+      {
+        code: `switch(i) {
       case 1:
         f();
       case 2:
         g();
     }`,
-    },
-    // default branch is excluded
-    {
-      code: `switch(i) {
+      },
+      // default branch is excluded
+      {
+        code: `switch(i) {
       case 1:
         f();
       case 2:
@@ -39,46 +41,47 @@ ruleTester.run('max-switch-cases', rule, {
       default:
         console.log("foo");
     }`,
-      options: [2],
-    },
-    // empty branches are not counted
-    {
-      code: `switch(i) {
+        options: [2],
+      },
+      // empty branches are not counted
+      {
+        code: `switch(i) {
       case 1:
       case 2:
         g();
       case 3:
         console.log("foo");
     }`,
-      options: [2],
-    },
-    // empty switch statement
-    {
-      code: `switch(i) {}`,
-    },
-  ],
-  invalid: [
-    {
-      code: `switch(i) {
+        options: [2],
+      },
+      // empty switch statement
+      {
+        code: `switch(i) {}`,
+      },
+    ],
+    invalid: [
+      {
+        code: `switch(i) {
         case 1:
           f();
         case 2:
           g();
       }`,
-      options: [1],
-      errors: [
-        {
-          messageId: 'reduceNumberOfNonEmptySwitchCases',
-          data: {
-            numSwitchCases: 2,
-            maxSwitchCases: 1,
+        options: [1],
+        errors: [
+          {
+            messageId: 'reduceNumberOfNonEmptySwitchCases',
+            data: {
+              numSwitchCases: 2,
+              maxSwitchCases: 1,
+            },
+            line: 1,
+            endLine: 1,
+            column: 1,
+            endColumn: 7,
           },
-          line: 1,
-          endLine: 1,
-          column: 1,
-          endColumn: 7,
-        },
-      ],
-    },
-  ],
+        ],
+      },
+    ],
+  });
 });

@@ -16,26 +16,28 @@
  */
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe } from 'node:test';
 
-const ruleTester = new RuleTester();
-ruleTester.run(`"switch" statements should not contain non-case labels`, rule, {
-  valid: [
-    {
-      code: `
+describe('S1219', () => {
+  const ruleTester = new RuleTester();
+  ruleTester.run(`"switch" statements should not contain non-case labels`, rule, {
+    valid: [
+      {
+        code: `
       switch (k) {
         case 0:
         case 1:
           break;
       }
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       l: while (b) {}
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       switch (k) {
         case 0:
         case 1:
@@ -44,9 +46,9 @@ ruleTester.run(`"switch" statements should not contain non-case labels`, rule, {
           }
       }
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       switch (k) {
         case 0:
         case 1:
@@ -55,29 +57,29 @@ ruleTester.run(`"switch" statements should not contain non-case labels`, rule, {
           }
       }
       `,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+      },
+    ],
+    invalid: [
+      {
+        code: `
       switch (k) {
         case 0:
         case 1:
           l: while (b) {}
       }
       `,
-      errors: [
-        {
-          message: `Remove this misleading "l" label.`,
-          line: 5,
-          endLine: 5,
-          column: 11,
-          endColumn: 12,
-        },
-      ],
-    },
-    {
-      code: `
+        errors: [
+          {
+            message: `Remove this misleading "l" label.`,
+            line: 5,
+            endLine: 5,
+            column: 11,
+            endColumn: 12,
+          },
+        ],
+      },
+      {
+        code: `
       switch (k) {
         case 0:
         case 1:
@@ -86,10 +88,10 @@ ruleTester.run(`"switch" statements should not contain non-case labels`, rule, {
           }
       }
       `,
-      errors: 1,
-    },
-    {
-      code: `
+        errors: 1,
+      },
+      {
+        code: `
       switch (k) {
         case 0:
         case 1:
@@ -100,10 +102,10 @@ ruleTester.run(`"switch" statements should not contain non-case labels`, rule, {
           }
       }
       `,
-      errors: 1,
-    },
-    {
-      code: `
+        errors: 1,
+      },
+      {
+        code: `
       switch (k) {
         case 0:
         case 1:
@@ -115,7 +117,8 @@ ruleTester.run(`"switch" statements should not contain non-case labels`, rule, {
           }
       }
       `,
-      errors: 2,
-    },
-  ],
+        errors: 2,
+      },
+    ],
+  });
 });

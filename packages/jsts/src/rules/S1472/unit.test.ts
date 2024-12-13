@@ -16,174 +16,177 @@
  */
 import { rule } from './index.js';
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { describe } from 'node:test';
 
-const ruleTester = new RuleTester();
-ruleTester.run(`Function call arguments should not start on new lines`, rule, {
-  valid: [
-    {
-      code: `
+describe('S1472', () => {
+  const ruleTester = new RuleTester();
+  ruleTester.run(`Function call arguments should not start on new lines`, rule, {
+    valid: [
+      {
+        code: `
         foo(bar);
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
         foo(bar)(baz)(qux);
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
         foo(bar)
           (baz)
           (qux);
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
         foo
           (bar, baz, qux);
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       (foo
       )((bar));
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       const MyContext = React.createContext<{
         foo: number,
         bar: number,
       }>({ foo: 1, bar: 2 });
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       const MyContext = React.createContext
       <string>('foo');
       `,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+      },
+    ],
+    invalid: [
+      {
+        code: `
       foo
         (bar);`,
-      errors: [
-        {
-          message: `Make those call arguments start on line 2.`,
-          line: 3,
-          endLine: 3,
-          column: 9,
-          endColumn: 14,
-        },
-      ],
-    },
-    {
-      code: `(function iieflike(factory){}
+        errors: [
+          {
+            message: `Make those call arguments start on line 2.`,
+            line: 3,
+            endLine: 3,
+            column: 9,
+            endColumn: 14,
+          },
+        ],
+      },
+      {
+        code: `(function iieflike(factory){}
       (function () {
           //A lot of code...
         }
       ))`,
-      errors: [
-        {
-          message: `Make those call arguments start on line 1.`,
-          line: 2,
-          column: 7,
-        },
-      ],
-    },
-    {
-      code: `
+        errors: [
+          {
+            message: `Make those call arguments start on line 1.`,
+            line: 2,
+            column: 7,
+          },
+        ],
+      },
+      {
+        code: `
       foo(bar)[baz]
         (qux);
       `,
-      errors: 1,
-    },
-    {
-      code: `
+        errors: 1,
+      },
+      {
+        code: `
       var a = b
       (x || y).doSomething()
       `,
-      errors: 1,
-    },
-    {
-      code: `
+        errors: 1,
+      },
+      {
+        code: `
       var a = (a || b)
       (x || y).doSomething()
       `,
-      errors: 1,
-    },
-    {
-      code: `
+        errors: 1,
+      },
+      {
+        code: `
       var a = (a || b)
       (x).doSomething()
       `,
-      errors: 1,
-    },
-    {
-      code: `
+        errors: 1,
+      },
+      {
+        code: `
       var a = b
           (x || y).doSomething()
       `,
-      errors: 1,
-    },
-    {
-      code: 'let x = function() {}\n `hello`',
-      errors: [
-        {
-          message: `Make this template literal start on line 1.`,
-          line: 2,
-          endLine: 2,
-          column: 2,
-          endColumn: 3,
-        },
-      ],
-    },
-    {
-      code: 'let x = function() {}\nx\n`hello`',
-      errors: [
-        {
-          message: `Make this template literal start on line 2.`,
-          line: 3,
-          endLine: 3,
-          column: 1,
-          endColumn: 2,
-        },
-      ],
-    },
-    {
-      code: `
+        errors: 1,
+      },
+      {
+        code: 'let x = function() {}\n `hello`',
+        errors: [
+          {
+            message: `Make this template literal start on line 1.`,
+            line: 2,
+            endLine: 2,
+            column: 2,
+            endColumn: 3,
+          },
+        ],
+      },
+      {
+        code: 'let x = function() {}\nx\n`hello`',
+        errors: [
+          {
+            message: `Make this template literal start on line 2.`,
+            line: 3,
+            endLine: 3,
+            column: 1,
+            endColumn: 2,
+          },
+        ],
+      },
+      {
+        code: `
       const MyContext = React.createContext<{
         foo: number,
         bar: number,
       }>
       ({ foo: 1, bar: 2 });
       `,
-      errors: [
-        {
-          message: 'Make those call arguments start on line 5.',
-          line: 6,
-          endLine: 6,
-          column: 7,
-          endColumn: 27,
-        },
-      ],
-    },
-    {
-      code: `
+        errors: [
+          {
+            message: 'Make those call arguments start on line 5.',
+            line: 6,
+            endLine: 6,
+            column: 7,
+            endColumn: 27,
+          },
+        ],
+      },
+      {
+        code: `
       const MyContext = React.createContext<string>
       ('foo');
       `,
-      errors: [
-        {
-          message: 'Make those call arguments start on line 2.',
-          line: 3,
-          endLine: 3,
-          column: 7,
-          endColumn: 14,
-        },
-      ],
-    },
-  ],
+        errors: [
+          {
+            message: 'Make those call arguments start on line 2.',
+            line: 3,
+            endLine: 3,
+            column: 7,
+            endColumn: 14,
+          },
+        ],
+      },
+    ],
+  });
 });

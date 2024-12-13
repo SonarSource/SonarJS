@@ -16,23 +16,25 @@
  */
 import { rule } from './rule.js';
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { describe } from 'node:test';
 
-const ruleTester = new RuleTester();
+describe('S1821', () => {
+  const ruleTester = new RuleTester();
 
-const messageId = 'removeNestedSwitch';
+  const messageId = 'removeNestedSwitch';
 
-ruleTester.run('switch statements should not be nested', rule, {
-  valid: [
-    {
-      code: `switch (x) {
+  ruleTester.run('switch statements should not be nested', rule, {
+    valid: [
+      {
+        code: `switch (x) {
         case 1: a; break;
         default: b;
       };`,
-    },
-  ],
-  invalid: [
-    {
-      code: `switch (x) {
+      },
+    ],
+    invalid: [
+      {
+        code: `switch (x) {
         case 1: a; break;
         case 2:
           switch (y) {
@@ -42,18 +44,18 @@ ruleTester.run('switch statements should not be nested', rule, {
           break;
         default: b;
     }`,
-      errors: [
-        {
-          messageId,
-          line: 4,
-          endLine: 4,
-          column: 11,
-          endColumn: 17,
-        },
-      ],
-    },
-    {
-      code: `switch (x) {
+        errors: [
+          {
+            messageId,
+            line: 4,
+            endLine: 4,
+            column: 11,
+            endColumn: 17,
+          },
+        ],
+      },
+      {
+        code: `switch (x) {
             case 1: a; break;
             case 2: {
               switch (y) {
@@ -68,25 +70,25 @@ ruleTester.run('switch statements should not be nested', rule, {
             }
             default: b;
           }`,
-      errors: [
-        {
-          messageId,
-          line: 4,
-          endLine: 4,
-          column: 15,
-          endColumn: 21,
-        },
-        {
-          messageId,
-          line: 8,
-          endLine: 8,
-          column: 15,
-          endColumn: 21,
-        },
-      ],
-    },
-    {
-      code: `switch (x) {
+        errors: [
+          {
+            messageId,
+            line: 4,
+            endLine: 4,
+            column: 15,
+            endColumn: 21,
+          },
+          {
+            messageId,
+            line: 8,
+            endLine: 8,
+            column: 15,
+            endColumn: 21,
+          },
+        ],
+      },
+      {
+        code: `switch (x) {
             case 1: a; break;
             case 2:
               switch (y) {
@@ -100,25 +102,25 @@ ruleTester.run('switch statements should not be nested', rule, {
               break;
             default: b;
           }`,
-      errors: [
-        {
-          messageId,
-          line: 4,
-          endLine: 4,
-          column: 15,
-          endColumn: 21,
-        },
-        {
-          messageId,
-          line: 7,
-          endLine: 7,
-          column: 19,
-          endColumn: 25,
-        },
-      ],
-    },
-    {
-      code: `switch (x) {
+        errors: [
+          {
+            messageId,
+            line: 4,
+            endLine: 4,
+            column: 15,
+            endColumn: 21,
+          },
+          {
+            messageId,
+            line: 7,
+            endLine: 7,
+            column: 19,
+            endColumn: 25,
+          },
+        ],
+      },
+      {
+        code: `switch (x) {
             case 1: a;
             case 2: b;
             default:
@@ -127,32 +129,33 @@ ruleTester.run('switch statements should not be nested', rule, {
                 default: d;
               }
         }`,
-      errors: [
-        {
-          messageId,
-          line: 5,
-          endLine: 5,
-          column: 15,
-          endColumn: 21,
-        },
-      ],
-    },
-    {
-      code: `switch (x) {
+        errors: [
+          {
+            messageId,
+            line: 5,
+            endLine: 5,
+            column: 15,
+            endColumn: 21,
+          },
+        ],
+      },
+      {
+        code: `switch (x) {
             case 1:
               let isideFunction = () => {
                 switch (y) {}
               }
           }`,
-      errors: [
-        {
-          messageId,
-          line: 4,
-          endLine: 4,
-          column: 17,
-          endColumn: 23,
-        },
-      ],
-    },
-  ],
+        errors: [
+          {
+            messageId,
+            line: 4,
+            endLine: 4,
+            column: 17,
+            endColumn: 23,
+          },
+        ],
+      },
+    ],
+  });
 });

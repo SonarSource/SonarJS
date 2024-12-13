@@ -16,31 +16,34 @@
  */
 import { rule } from './index.js';
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { describe } from 'node:test';
 
-const ruleTester = new RuleTester();
-ruleTester.run(`Decorated rule should provide suggestion`, rule, {
-  valid: [
-    {
-      code: 'interface A { x: string }',
-    },
-    {
-      code: 'interface A { x: string, y: string }; interface B extends Pick<A, "x"> {}',
-    },
-  ],
-  invalid: [
-    {
-      code: 'interface A {}',
-      errors: 1,
-    },
-    {
-      code: 'interface A extends "foo" {}',
-      errors: 1,
-      output: 'type A = "foo"',
-    },
-    {
-      code: 'interface A extends Z {}',
-      errors: 1,
-      output: 'type A = Z',
-    },
-  ],
+describe('S4023', () => {
+  const ruleTester = new RuleTester();
+  ruleTester.run(`Decorated rule should provide suggestion`, rule, {
+    valid: [
+      {
+        code: 'interface A { x: string }',
+      },
+      {
+        code: 'interface A { x: string, y: string }; interface B extends Pick<A, "x"> {}',
+      },
+    ],
+    invalid: [
+      {
+        code: 'interface A {}',
+        errors: 1,
+      },
+      {
+        code: 'interface A extends "foo" {}',
+        errors: 1,
+        output: 'type A = "foo"',
+      },
+      {
+        code: 'interface A extends Z {}',
+        errors: 1,
+        output: 'type A = Z',
+      },
+    ],
+  });
 });

@@ -16,148 +16,150 @@
  */
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe } from 'node:test';
 
-const ruleTester = new RuleTester();
-const ruleTesterTs = new RuleTester();
+describe('S2681', () => {
+  const ruleTester = new RuleTester();
+  const ruleTesterTs = new RuleTester();
 
-ruleTester.run('Multiline blocks should be enclosed in curly braces', rule, {
-  valid: [
-    {
-      code: `
+  ruleTester.run('Multiline blocks should be enclosed in curly braces', rule, {
+    valid: [
+      {
+        code: `
       if (condition) {
         action1();
         action2();
       }
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       if (condition)
         action1();
       action2();
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       if (condition)
       action1();
       action2();
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
         if (condition)
       action1();
       action2();
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       for(var i = 1; i < 3; i++) {
         action1();
         action2();
       }
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       while (condition) {
         action1();
         action2();
       }
       `,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+      },
+    ],
+    invalid: [
+      {
+        code: `
       if (condition)
         action1();
         action2();
       `,
-      errors: 1,
-    },
-    {
-      code: `
+        errors: 1,
+      },
+      {
+        code: `
       if (condition)
         action1();
         action2();
         action3();
       `,
-      errors: [
-        {
-          message: `This line will not be executed conditionally; only the first line of this 3-line block will be. The rest will execute unconditionally.`,
-          line: 4,
-          endLine: 4,
-          column: 9,
-          endColumn: 19,
-        },
-      ],
-    },
-    {
-      code: `
+        errors: [
+          {
+            message: `This line will not be executed conditionally; only the first line of this 3-line block will be. The rest will execute unconditionally.`,
+            line: 4,
+            endLine: 4,
+            column: 9,
+            endColumn: 19,
+          },
+        ],
+      },
+      {
+        code: `
       if (condition)
         action1();
 
         action2();
       `,
-      errors: 1,
-    },
-    {
-      code: `
+        errors: 1,
+      },
+      {
+        code: `
       if (condition)
         action1();
         action2();
       
         action3();
       `,
-      errors: 1,
-    },
-    {
-      code: `if (condition) action1(); action2();`,
-      errors: 1,
-    },
-    {
-      code: `
+        errors: 1,
+      },
+      {
+        code: `if (condition) action1(); action2();`,
+        errors: 1,
+      },
+      {
+        code: `
       if (condition) action1();
         action2();
       `,
-      errors: 1,
-    },
-    {
-      code: `
+        errors: 1,
+      },
+      {
+        code: `
       for(var i = 1; i < 3; i++)
         action1();
         action2();
       `,
-      errors: [
-        {
-          message: `This line will not be executed in a loop; only the first line of this 2-line block will be. The rest will execute only once.`,
-          line: 4,
-          endLine: 4,
-          column: 9,
-          endColumn: 19,
-        },
-      ],
-    },
-    {
-      code: `
+        errors: [
+          {
+            message: `This line will not be executed in a loop; only the first line of this 2-line block will be. The rest will execute only once.`,
+            line: 4,
+            endLine: 4,
+            column: 9,
+            endColumn: 19,
+          },
+        ],
+      },
+      {
+        code: `
       for(var x in obj)
         action1();
         action2();
       `,
-      errors: 1,
-    },
-    {
-      code: `
+        errors: 1,
+      },
+      {
+        code: `
       for(var x of obj)
         action1();
         action2();
       `,
-      errors: 1,
-    },
-    {
-      code: `
+        errors: 1,
+      },
+      {
+        code: `
       function foo() {
         if (condition) {
           action1();
@@ -169,23 +171,23 @@ ruleTester.run('Multiline blocks should be enclosed in curly braces', rule, {
           action2();
       }
       `,
-      errors: 1,
-    },
-    {
-      code: `
+        errors: 1,
+      },
+      {
+        code: `
       while (condition)
         action1();
         action2();
       `,
-      errors: 1,
-    },
-  ],
-});
+        errors: 1,
+      },
+    ],
+  });
 
-ruleTesterTs.run('TS: Multiline blocks should be enclosed in curly braces', rule, {
-  valid: [
-    {
-      code: `
+  ruleTesterTs.run('TS: Multiline blocks should be enclosed in curly braces', rule, {
+    valid: [
+      {
+        code: `
       namespace A {
         if (condition) {
           action1();
@@ -193,28 +195,29 @@ ruleTesterTs.run('TS: Multiline blocks should be enclosed in curly braces', rule
         }
       }
       `,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+      },
+    ],
+    invalid: [
+      {
+        code: `
       namespace A {
         if (condition)
           action1();
           action2();
       }
       `,
-      errors: 1,
-    },
-    {
-      code: `
+        errors: 1,
+      },
+      {
+        code: `
       module B {
         if (condition)
           action1();
           action2();
       }
       `,
-      errors: 1,
-    },
-  ],
+        errors: 1,
+      },
+    ],
+  });
 });

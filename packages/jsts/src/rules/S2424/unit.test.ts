@@ -16,65 +16,68 @@
  */
 import { rule } from './index.js';
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { describe } from 'node:test';
 
-const tests = {
-  valid: [
-    {
-      code: `new Promise();`,
-    },
-    {
-      code: `var obj = new Object();`,
-    },
-    {
-      code: `var System = 2`,
-    },
-  ],
-  invalid: [
-    {
-      code: `var JSON = 5;`,
-      errors: [
-        {
-          message: 'Remove this override of "JSON".',
-          line: 1,
-          endLine: 1,
-          column: 5,
-          endColumn: 9,
-        },
-      ],
-    },
-    {
-      code: `Set = "str";`,
-      errors: 1,
-    },
-    {
-      code: `for (Math in arr) {};`,
-      errors: 1,
-    },
-    {
-      code: `function fun(Reflect) {};`,
-      errors: 1,
-    },
-    {
-      code: `JSON++;`,
-      errors: 1,
-    },
-    {
-      code: `function Date() {}`,
-      errors: 1,
-    },
-  ],
-};
+describe('S2424', () => {
+  const tests = {
+    valid: [
+      {
+        code: `new Promise();`,
+      },
+      {
+        code: `var obj = new Object();`,
+      },
+      {
+        code: `var System = 2`,
+      },
+    ],
+    invalid: [
+      {
+        code: `var JSON = 5;`,
+        errors: [
+          {
+            message: 'Remove this override of "JSON".',
+            line: 1,
+            endLine: 1,
+            column: 5,
+            endColumn: 9,
+          },
+        ],
+      },
+      {
+        code: `Set = "str";`,
+        errors: 1,
+      },
+      {
+        code: `for (Math in arr) {};`,
+        errors: 1,
+      },
+      {
+        code: `function fun(Reflect) {};`,
+        errors: 1,
+      },
+      {
+        code: `JSON++;`,
+        errors: 1,
+      },
+      {
+        code: `function Date() {}`,
+        errors: 1,
+      },
+    ],
+  };
 
-const ruleTesterJs = new RuleTester();
-ruleTesterJs.run('Built-in objects should not be overridden [js]', rule, tests);
+  const ruleTesterJs = new RuleTester();
+  ruleTesterJs.run('Built-in objects should not be overridden [js]', rule, tests);
 
-tests.valid.push({
-  code: `
+  tests.valid.push({
+    code: `
     enum Result {
       Error,
       Success
     }`,
-});
+  });
 
-const ruleTesterTs = new RuleTester();
-ruleTesterTs.run('Built-in objects should not be overridden [ts]', rule, tests);
+  const ruleTesterTs = new RuleTester();
+  ruleTesterTs.run('Built-in objects should not be overridden [ts]', rule, tests);
+});

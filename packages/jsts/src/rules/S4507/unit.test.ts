@@ -16,19 +16,21 @@
  */
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe } from 'node:test';
 
-const ruleTester = new RuleTester();
+describe('S4507', () => {
+  const ruleTester = new RuleTester();
 
-const message =
-  'Make sure this debug feature is deactivated before delivering the code in production.';
+  const message =
+    'Make sure this debug feature is deactivated before delivering the code in production.';
 
-ruleTester.run(
-  'Delivering code in production with debug features activated is security-sensitive',
-  rule,
-  {
-    valid: [
-      {
-        code: `
+  ruleTester.run(
+    'Delivering code in production with debug features activated is security-sensitive',
+    rule,
+    {
+      valid: [
+        {
+          code: `
       Debug.write("hello, world");
 
       // we report only on trivial (and mostly used) usages without object access
@@ -42,38 +44,38 @@ ruleTester.run(
       import { confirm } from './confirm';
       confirm("Are you sure?");
       `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
       alert("here!");
       confirm("Are you sure?");
       prompt("What's your name?", "John Doe");
       `,
-      },
-      {
-        code: `debugger;`,
-      },
-    ],
-    invalid: [
-      {
-        code: `
+        },
+        {
+          code: `debugger;`,
+        },
+      ],
+      invalid: [
+        {
+          code: `
         const errorhandler = require('errorhandler');
         if (process.env.NODE_ENV === 'development') {
           app1.use(errorhandler()); // Compliant
         }
         app2.use(errorhandler()); // Noncompliant  
         `,
-        errors: [
-          {
-            message,
-            line: 6,
-            column: 18,
-            endColumn: 32,
-          },
-        ],
-      },
-      {
-        code: `
+          errors: [
+            {
+              message,
+              line: 6,
+              column: 18,
+              endColumn: 32,
+            },
+          ],
+        },
+        {
+          code: `
         import errorhandler from 'errorhandler';
         const handler = errorhandler();
         app1.use(handler); // Noncompliant  
@@ -84,17 +86,17 @@ ruleTester.run(
         }
         app4.use();
         `,
-        errors: [
-          {
-            message,
-            line: 3,
-            column: 25,
-            endColumn: 39,
-          },
-        ],
-      },
-      {
-        code: `
+          errors: [
+            {
+              message,
+              line: 3,
+              column: 25,
+              endColumn: 39,
+            },
+          ],
+        },
+        {
+          code: `
         const errorhandler = require('errorhandler');
         const middlewares = [
           helmet(),
@@ -102,15 +104,16 @@ ruleTester.run(
         ];
         app2.use(sth, middlewares, sthElse); // Noncompliant  
         `,
-        errors: [
-          {
-            message,
-            line: 5,
-            column: 11,
-            endColumn: 25,
-          },
-        ],
-      },
-    ],
-  },
-);
+          errors: [
+            {
+              message,
+              line: 5,
+              column: 11,
+              endColumn: 25,
+            },
+          ],
+        },
+      ],
+    },
+  );
+});

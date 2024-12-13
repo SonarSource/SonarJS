@@ -16,27 +16,29 @@
  */
 import { rule } from './rule.js';
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { describe } from 'node:test';
 
-const ruleTester = new RuleTester();
+describe('S4030', () => {
+  const ruleTester = new RuleTester();
 
-function invalidTest(code: string) {
-  const line = code.split('\n').findIndex(str => str.includes('// Noncompliant')) + 1;
-  return {
-    code,
-    errors: [
+  function invalidTest(code: string) {
+    const line = code.split('\n').findIndex(str => str.includes('// Noncompliant')) + 1;
+    return {
+      code,
+      errors: [
+        {
+          messageId: 'unusedCollection',
+          line,
+          endLine: line,
+        },
+      ],
+    };
+  }
+
+  ruleTester.run('Collection contents should be used', rule, {
+    valid: [
       {
-        messageId: 'unusedCollection',
-        line,
-        endLine: line,
-      },
-    ],
-  };
-}
-
-ruleTester.run('Collection contents should be used', rule, {
-  valid: [
-    {
-      code: `
+        code: `
       function okUnused() {
           let x = [1, 2];
       }
@@ -83,9 +85,9 @@ ruleTester.run('Collection contents should be used', rule, {
           y.push(1);
           return x;
       }`,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       function parameterUpdated(p) {
           p.push(1);
       }
@@ -131,9 +133,9 @@ ruleTester.run('Collection contents should be used', rule, {
           this.myArray.push(""); // OK for properties
         }
       }`,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       function nok() {
         let array = new Uint16Array(2); // FN
         array[1] = 43;
@@ -143,42 +145,42 @@ ruleTester.run('Collection contents should be used', rule, {
           let bufferView = new Uint16Array(buffer);
           bufferView[1] = 43;
       }`,
-    },
-    {
-      code: `var subgoups = [], sub; //both are compliant
+      },
+      {
+        code: `var subgoups = [], sub; //both are compliant
         subgroups.push(sub = []); //sub is used here
         sub.push(node);
         return subgroups;
       `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
         let array = [];
         for (let i in array) {  // used here
           console.log(i);
         }`,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
         export const array = [];
 
         array.push(1);
       `,
-    },
-    {
-      code: `export const collection = new Map()`,
-    },
-    {
-      code: `
+      },
+      {
+        code: `export const collection = new Map()`,
+      },
+      {
+        code: `
         const a = {foo: false};
         const xs = [a];
         xs[0].foo = true;
       `,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+      },
+    ],
+    invalid: [
+      {
+        code: `
       function nok() {
         let x = [1, 2];
         x.push(1);
@@ -188,58 +190,59 @@ ruleTester.run('Collection contents should be used', rule, {
         x.pop();
         x.reverse();
           }`,
-      errors: [
-        {
-          messageId: 'unusedCollection',
-          line: 3,
-          column: 13,
-          endLine: 3,
-          endColumn: 14,
-        },
-      ],
-    },
-    invalidTest(`function nok2() {
+        errors: [
+          {
+            messageId: 'unusedCollection',
+            line: 3,
+            column: 13,
+            endLine: 3,
+            endColumn: 14,
+          },
+        ],
+      },
+      invalidTest(`function nok2() {
           let arrayConstructor = new Array(); // Noncompliant
           arrayConstructor[1] = 42;
       }
       `),
-    invalidTest(`function nok3() {
+      invalidTest(`function nok3() {
           let arrayWithoutNew = Array(); // Noncompliant
           arrayWithoutNew[1] = 42;
       }
       `),
-    invalidTest(`function nok4() {
+      invalidTest(`function nok4() {
           let x: number[]; // Noncompliant
           x = new Array();
           x[1] = 42;
       }`),
-    invalidTest(`function nok41() {
+      invalidTest(`function nok41() {
         let x; // Noncompliant
         x = [];
         x.push("a");
     }`),
-    invalidTest(`function nok5() {
+      invalidTest(`function nok5() {
           let myMap = new Map(); // Noncompliant
           myMap.set(1, "foo1");
           myMap.clear();
       }`),
-    invalidTest(`function nok6() {
+      invalidTest(`function nok6() {
           let mySet = new Set(); // Noncompliant
           mySet.add("foo1");
           mySet.delete("foo1");
           mySet = new Set();
       }`),
-    invalidTest(`function nok7() {
+      invalidTest(`function nok7() {
           let mySet = new WeakSet(); // Noncompliant
           mySet.add({});
           mySet.delete({});
       }`),
-    invalidTest(`function nestedFunctionInVarDeclaration() {
+      invalidTest(`function nestedFunctionInVarDeclaration() {
         var x = [], // Noncompliant
             f = function() {
               x = [];
             }
         x.push();
       }`),
-  ],
+    ],
+  });
 });

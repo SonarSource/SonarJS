@@ -16,95 +16,98 @@
  */
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe } from 'node:test';
 
-const ruleTester = new RuleTester();
-ruleTester.run('Single-character alternation', rule, {
-  valid: [
-    {
-      code: `const str = 'abc123';`,
-    },
-    {
-      code: `const str = /[abc]/;`,
-    },
-    {
-      code: `const re = /ab|cd/;`,
-    },
-    {
-      code: `const re = /a|\\b|c/;`,
-    },
-    {
-      code: `const re = /^|$/;`,
-    },
-    {
-      code: `const re = /|/;`,
-    },
-    {
-      code: `/(s)*/`,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+describe('S6035', () => {
+  const ruleTester = new RuleTester();
+  ruleTester.run('Single-character alternation', rule, {
+    valid: [
+      {
+        code: `const str = 'abc123';`,
+      },
+      {
+        code: `const str = /[abc]/;`,
+      },
+      {
+        code: `const re = /ab|cd/;`,
+      },
+      {
+        code: `const re = /a|\\b|c/;`,
+      },
+      {
+        code: `const re = /^|$/;`,
+      },
+      {
+        code: `const re = /|/;`,
+      },
+      {
+        code: `/(s)*/`,
+      },
+    ],
+    invalid: [
+      {
+        code: `
           const re = /a|b|c/;
                    //^^^^^^^
         `,
-      errors: [
-        {
-          message: 'Replace this alternation with a character class.',
-          line: 2,
-          endLine: 2,
-          column: 23,
-          endColumn: 28,
-        },
-      ],
-    },
-    {
-      code: `const re = /a|(b|c)/;`,
-      errors: [
-        {
-          message: 'Replace this alternation with a character class.',
-          line: 1,
-          endLine: 1,
-          column: 15,
-          endColumn: 20,
-        },
-      ],
-    },
-    {
-      code: `const re = /abcd|(e|f)gh/;`,
-      errors: 1,
-    },
-    {
-      code: `const re = /(a|b|c)*/;`,
-      errors: 1,
-    },
-    {
-      code: `const re = /(?:a|b)/;`,
-      errors: 1,
-    },
-    {
-      code: `const re = /a(?=b|c)/;`,
-      errors: 1,
-    },
-    {
-      code: `const re = /a(?!b|c)/;`,
-      errors: 1,
-    },
-    {
-      code: `const re = /(?<=a|b)c/;`,
-      errors: 1,
-    },
-    {
-      code: `const re = /(?<!a|b)c/;`,
-      errors: 1,
-    },
-    {
-      code: `const re = /\d|x/;`,
-      errors: 1,
-    },
-    {
-      code: `const re = /\u1234|\u{12345}/u;`,
-      errors: 1,
-    },
-  ],
+        errors: [
+          {
+            message: 'Replace this alternation with a character class.',
+            line: 2,
+            endLine: 2,
+            column: 23,
+            endColumn: 28,
+          },
+        ],
+      },
+      {
+        code: `const re = /a|(b|c)/;`,
+        errors: [
+          {
+            message: 'Replace this alternation with a character class.',
+            line: 1,
+            endLine: 1,
+            column: 15,
+            endColumn: 20,
+          },
+        ],
+      },
+      {
+        code: `const re = /abcd|(e|f)gh/;`,
+        errors: 1,
+      },
+      {
+        code: `const re = /(a|b|c)*/;`,
+        errors: 1,
+      },
+      {
+        code: `const re = /(?:a|b)/;`,
+        errors: 1,
+      },
+      {
+        code: `const re = /a(?=b|c)/;`,
+        errors: 1,
+      },
+      {
+        code: `const re = /a(?!b|c)/;`,
+        errors: 1,
+      },
+      {
+        code: `const re = /(?<=a|b)c/;`,
+        errors: 1,
+      },
+      {
+        code: `const re = /(?<!a|b)c/;`,
+        errors: 1,
+      },
+      {
+        code: `const re = /\d|x/;`,
+        errors: 1,
+      },
+      {
+        code: `const re = /\u1234|\u{12345}/u;`,
+        errors: 1,
+      },
+    ],
+  });
 });

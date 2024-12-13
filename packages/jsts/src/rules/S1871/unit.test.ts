@@ -16,13 +16,15 @@
  */
 import { rule } from './rule.js';
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { describe } from 'node:test';
 
-const ruleTester = new RuleTester();
+describe('S1871', () => {
+  const ruleTester = new RuleTester();
 
-ruleTester.run('no-duplicated-branches if', rule, {
-  valid: [
-    {
-      code: `
+  ruleTester.run('no-duplicated-branches if', rule, {
+    valid: [
+      {
+        code: `
       if (a) {
         first('const');
         first('foo');
@@ -30,18 +32,18 @@ ruleTester.run('no-duplicated-branches if', rule, {
         first('var');
         first('foo');
       }`,
-    },
-    {
-      // small branches
-      code: `
+      },
+      {
+        // small branches
+        code: `
       if (a) {
         first();
       } else {
         first();
       }`,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       if (a) {
         first();
         first();
@@ -49,9 +51,9 @@ ruleTester.run('no-duplicated-branches if', rule, {
         second();
         second();
       }`,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       if (a) {
         first();
         second();
@@ -59,9 +61,9 @@ ruleTester.run('no-duplicated-branches if', rule, {
         second();
         first();
       }`,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       if (a) {
         first();
         second();
@@ -69,18 +71,18 @@ ruleTester.run('no-duplicated-branches if', rule, {
         first();
         third();
       }`,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       if (a) {
         first();
         second();
       } else {
         first();
       }`,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       if(a == 1) {
         doSomething();  //no issue, usually this is done on purpose to increase the readability
       } else if (a == 2) {
@@ -88,11 +90,11 @@ ruleTester.run('no-duplicated-branches if', rule, {
       } else {
         doSomething();
       }`,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+      },
+    ],
+    invalid: [
+      {
+        code: `
       if (a) {
         first();
         second();
@@ -100,22 +102,22 @@ ruleTester.run('no-duplicated-branches if', rule, {
         first();
         second();
       }`,
-      errors: [
-        {
-          messageId: 'sameConditionalBlock',
-          data: {
-            type: 'branch',
-            line: 2,
+        errors: [
+          {
+            messageId: 'sameConditionalBlock',
+            data: {
+              type: 'branch',
+              line: 2,
+            },
+            line: 5,
+            endLine: 8,
+            column: 14,
+            endColumn: 8,
           },
-          line: 5,
-          endLine: 8,
-          column: 14,
-          endColumn: 8,
-        },
-      ],
-    },
-    {
-      code: `
+        ],
+      },
+      {
+        code: `
       if (a) {
         first();
         second();
@@ -123,33 +125,33 @@ ruleTester.run('no-duplicated-branches if', rule, {
         first();
         second();
       }`,
-      options: ['sonar-runtime'],
-      errors: [
-        {
-          line: 5,
-          messageId: 'sonarRuntime',
-          data: {
-            type: 'branch',
-            line: 2,
-            sonarRuntimeData: JSON.stringify({
-              message:
-                "This branch's code block is the same as the block for the branch on line 2.",
-              secondaryLocations: [
-                {
-                  message: 'Original',
-                  column: 13,
-                  line: 2,
-                  endColumn: 7,
-                  endLine: 5,
-                },
-              ],
-            }),
+        options: ['sonar-runtime'],
+        errors: [
+          {
+            line: 5,
+            messageId: 'sonarRuntime',
+            data: {
+              type: 'branch',
+              line: 2,
+              sonarRuntimeData: JSON.stringify({
+                message:
+                  "This branch's code block is the same as the block for the branch on line 2.",
+                secondaryLocations: [
+                  {
+                    message: 'Original',
+                    column: 13,
+                    line: 2,
+                    endColumn: 7,
+                    endLine: 5,
+                  },
+                ],
+              }),
+            },
           },
-        },
-      ],
-    },
+        ],
+      },
 
-    /**
+      /**
      * message: JSON.stringify({
             secondaryLocations: [
               {
@@ -164,8 +166,8 @@ ruleTester.run('no-duplicated-branches if', rule, {
           })
      */
 
-    {
-      code: `
+      {
+        code: `
       if (a) {
         first();
         second();
@@ -176,37 +178,37 @@ ruleTester.run('no-duplicated-branches if', rule, {
         first();
         second();
       }`,
-      errors: [
-        {
-          messageId: 'sameConditionalBlock',
-          data: {
-            type: 'branch',
-            line: 2,
+        errors: [
+          {
+            messageId: 'sameConditionalBlock',
+            data: {
+              type: 'branch',
+              line: 2,
+            },
+            line: 8,
           },
-          line: 8,
-        },
-      ],
-    },
-    {
-      code: `
+        ],
+      },
+      {
+        code: `
       if(a == 1) {
         doSomething();
       } else if (a == 2) {
         doSomething();
       }`,
-      errors: [
-        {
-          messageId: 'sameConditionalBlock',
-          data: {
-            type: 'branch',
-            line: 2,
+        errors: [
+          {
+            messageId: 'sameConditionalBlock',
+            data: {
+              type: 'branch',
+              line: 2,
+            },
+            line: 4,
           },
-          line: 4,
-        },
-      ],
-    },
-    {
-      code: `
+        ],
+      },
+      {
+        code: `
       if(a == 1) {
         doSomething();
       } else if (a == 2) {
@@ -214,32 +216,32 @@ ruleTester.run('no-duplicated-branches if', rule, {
       } else if (a == 3) {
         doSomething();
       }`,
-      errors: [
-        {
-          messageId: 'sameConditionalBlock',
-          data: {
-            type: 'branch',
-            line: 2,
-          },
-          line: 4,
-        },
-        {
-          messageId: 'sameConditionalBlock',
-          data: {
-            type: 'branch',
+        errors: [
+          {
+            messageId: 'sameConditionalBlock',
+            data: {
+              type: 'branch',
+              line: 2,
+            },
             line: 4,
           },
-          line: 6,
-        },
-      ],
-    },
-  ],
-});
+          {
+            messageId: 'sameConditionalBlock',
+            data: {
+              type: 'branch',
+              line: 4,
+            },
+            line: 6,
+          },
+        ],
+      },
+    ],
+  });
 
-ruleTester.run('no-duplicated-branches switch', rule, {
-  valid: [
-    {
-      code: `
+  ruleTester.run('no-duplicated-branches switch', rule, {
+    valid: [
+      {
+        code: `
       function foo() {
         switch (a) {
           case 1:
@@ -248,10 +250,10 @@ ruleTester.run('no-duplicated-branches switch', rule, {
             return first();
         }
       }`,
-    },
-    {
-      // small branches
-      code: `
+      },
+      {
+        // small branches
+        code: `
       switch (a) {
         case 1: {
           // comment
@@ -262,9 +264,9 @@ ruleTester.run('no-duplicated-branches switch', rule, {
           break;
         }
       }`,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       switch (a) {
         case 1:
           first();
@@ -274,9 +276,9 @@ ruleTester.run('no-duplicated-branches switch', rule, {
           second();
           first();
       }`,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
       switch (a) {
         case 1:
           first();
@@ -285,11 +287,11 @@ ruleTester.run('no-duplicated-branches switch', rule, {
         case 2:
           third();
       }`,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+      },
+    ],
+    invalid: [
+      {
+        code: `
       switch(a) {
         case 2:
         case 1:
@@ -301,19 +303,19 @@ ruleTester.run('no-duplicated-branches switch', rule, {
           second();
           break;
       }`,
-      errors: [
-        {
-          messageId: 'sameConditionalBlock',
-          data: {
-            type: 'case',
-            line: '4',
+        errors: [
+          {
+            messageId: 'sameConditionalBlock',
+            data: {
+              type: 'case',
+              line: '4',
+            },
+            line: 8,
           },
-          line: 8,
-        },
-      ],
-    },
-    {
-      code: `
+        ],
+      },
+      {
+        code: `
       switch (a) {
         case 1:
           first();
@@ -323,22 +325,22 @@ ruleTester.run('no-duplicated-branches switch', rule, {
           first();
           second();
       }`,
-      errors: [
-        {
-          messageId: 'sameConditionalBlock',
-          data: {
-            type: 'case',
-            line: 3,
+        errors: [
+          {
+            messageId: 'sameConditionalBlock',
+            data: {
+              type: 'case',
+              line: 3,
+            },
+            line: 7,
+            endLine: 9,
+            column: 9,
+            endColumn: 20,
           },
-          line: 7,
-          endLine: 9,
-          column: 9,
-          endColumn: 20,
-        },
-      ],
-    },
-    {
-      code: `
+        ],
+      },
+      {
+        code: `
       switch (a) {
         case 1:
           first();
@@ -349,32 +351,32 @@ ruleTester.run('no-duplicated-branches switch', rule, {
           second();
           break;
       }`,
-      options: ['sonar-runtime'],
-      errors: [
-        {
-          line: 7,
-          messageId: 'sonarRuntime',
-          data: {
-            type: 'case',
-            line: '3',
-            sonarRuntimeData: JSON.stringify({
-              message: `This case's code block is the same as the block for the case on line 3.`,
-              secondaryLocations: [
-                {
-                  message: 'Original',
-                  column: 8,
-                  line: 3,
-                  endColumn: 16,
-                  endLine: 6,
-                },
-              ],
-            }),
+        options: ['sonar-runtime'],
+        errors: [
+          {
+            line: 7,
+            messageId: 'sonarRuntime',
+            data: {
+              type: 'case',
+              line: '3',
+              sonarRuntimeData: JSON.stringify({
+                message: `This case's code block is the same as the block for the case on line 3.`,
+                secondaryLocations: [
+                  {
+                    message: 'Original',
+                    column: 8,
+                    line: 3,
+                    endColumn: 16,
+                    endLine: 6,
+                  },
+                ],
+              }),
+            },
           },
-        },
-      ],
-    },
-    {
-      code: `
+        ],
+      },
+      {
+        code: `
       switch (a) {
         case 1:
           first();
@@ -389,19 +391,19 @@ ruleTester.run('no-duplicated-branches switch', rule, {
           first();
           break;
       }`,
-      errors: [
-        {
-          messageId: 'sameConditionalBlock',
-          line: 11,
-          data: {
-            type: 'case',
-            line: 3,
+        errors: [
+          {
+            messageId: 'sameConditionalBlock',
+            line: 11,
+            data: {
+              type: 'case',
+              line: 3,
+            },
           },
-        },
-      ],
-    },
-    {
-      code: `
+        ],
+      },
+      {
+        code: `
       switch (a) {
         case 1: {
           first();
@@ -413,20 +415,20 @@ ruleTester.run('no-duplicated-branches switch', rule, {
           second();
         }
       }`,
-      errors: [
-        {
-          messageId: 'sameConditionalBlock',
-          line: 8,
-          data: {
-            type: 'case',
-            line: 3,
+        errors: [
+          {
+            messageId: 'sameConditionalBlock',
+            line: 8,
+            data: {
+              type: 'case',
+              line: 3,
+            },
           },
-        },
-      ],
-    },
-    {
-      // check that for each branch we generate only one issue
-      code: `
+        ],
+      },
+      {
+        // check that for each branch we generate only one issue
+        code: `
       switch (a) {
         case 1:
           first();
@@ -445,35 +447,35 @@ ruleTester.run('no-duplicated-branches switch', rule, {
           second();
           break;
       }`,
-      errors: [
-        {
-          messageId: 'sameConditionalBlock',
-          line: 7,
-          data: {
-            type: 'case',
-            line: 3,
-          },
-        },
-        {
-          messageId: 'sameConditionalBlock',
-          line: 11,
-          data: {
-            type: 'case',
+        errors: [
+          {
+            messageId: 'sameConditionalBlock',
             line: 7,
+            data: {
+              type: 'case',
+              line: 3,
+            },
           },
-        },
-        {
-          messageId: 'sameConditionalBlock',
-          line: 15,
-          data: {
-            type: 'case',
+          {
+            messageId: 'sameConditionalBlock',
             line: 11,
+            data: {
+              type: 'case',
+              line: 7,
+            },
           },
-        },
-      ],
-    },
-    {
-      code: `
+          {
+            messageId: 'sameConditionalBlock',
+            line: 15,
+            data: {
+              type: 'case',
+              line: 11,
+            },
+          },
+        ],
+      },
+      {
+        code: `
       switch(a) {
         case 1:
           doSomething();
@@ -482,19 +484,19 @@ ruleTester.run('no-duplicated-branches switch', rule, {
           doSomething();
           break;
       }`,
-      errors: [
-        {
-          messageId: 'sameConditionalBlock',
-          line: 6,
-          data: {
-            type: 'case',
-            line: 3,
+        errors: [
+          {
+            messageId: 'sameConditionalBlock',
+            line: 6,
+            data: {
+              type: 'case',
+              line: 3,
+            },
           },
-        },
-      ],
-    },
-    {
-      code: `
+        ],
+      },
+      {
+        code: `
       switch(a) {
         case 0:
           foo();
@@ -510,16 +512,17 @@ ruleTester.run('no-duplicated-branches switch', rule, {
           second();
           break;
       }`,
-      errors: [
-        {
-          messageId: 'sameConditionalBlock',
-          line: 12,
-          data: {
-            type: 'case',
-            line: 8,
+        errors: [
+          {
+            messageId: 'sameConditionalBlock',
+            line: 12,
+            data: {
+              type: 'case',
+              line: 8,
+            },
           },
-        },
-      ],
-    },
-  ],
+        ],
+      },
+    ],
+  });
 });

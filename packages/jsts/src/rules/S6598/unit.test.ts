@@ -16,24 +16,27 @@
  */
 import { rule } from './index.js';
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { describe } from 'node:test';
 
-const ruleTester = new RuleTester();
+describe('S6598', () => {
+  const ruleTester = new RuleTester();
 
-ruleTester.run(`Decorated rule should reword the issue message`, rule, {
-  valid: [
-    {
-      code: `type Foo = () => number;`,
-    },
-  ],
-  invalid: [
-    {
-      code: `interface Foo { (): number; }`,
-      errors: [
-        {
-          message: 'Interface has only a call signature, you should use a function type instead.',
-        },
-      ],
-      output: 'type Foo = () => number;',
-    },
-  ],
+  ruleTester.run(`Decorated rule should reword the issue message`, rule, {
+    valid: [
+      {
+        code: `type Foo = () => number;`,
+      },
+    ],
+    invalid: [
+      {
+        code: `interface Foo { (): number; }`,
+        errors: [
+          {
+            message: 'Interface has only a call signature, you should use a function type instead.',
+          },
+        ],
+        output: 'type Foo = () => number;',
+      },
+    ],
+  });
 });

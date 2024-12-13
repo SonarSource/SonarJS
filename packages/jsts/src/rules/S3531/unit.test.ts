@@ -16,79 +16,81 @@
  */
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { describe } from 'node:test';
 
-const ruleTester = new RuleTester();
-const ruleTesterTs = new RuleTester();
+describe('S3531', () => {
+  const ruleTester = new RuleTester();
+  const ruleTesterTs = new RuleTester();
 
-const testCases = {
-  valid: [
-    {
-      code: `
+  const testCases = {
+    valid: [
+      {
+        code: `
             var foo = function * () {
             }
             `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
             var foo = function * () {
               let a = 3;
               yield a;
             }
             `,
-    },
-    {
-      code: `
+      },
+      {
+        code: `
             function someFunction() {
               doSomething();
             }
             `,
-    },
-  ],
-  invalid: [
-    {
-      code: `
+      },
+    ],
+    invalid: [
+      {
+        code: `
             function * foo() {
             //         ^^^
               return 1;
             }
             `,
-      errors: [
-        {
-          message: `Add a "yield" statement to this generator.`,
-          line: 2,
-          endLine: 2,
-          column: 24,
-          endColumn: 27,
-        },
-      ],
-    },
-    {
-      code: `
+        errors: [
+          {
+            message: `Add a "yield" statement to this generator.`,
+            line: 2,
+            endLine: 2,
+            column: 24,
+            endColumn: 27,
+          },
+        ],
+      },
+      {
+        code: `
             var foo = function * () {
             //        ^^^^^^^^
               doSomething();
             }
             `,
-      errors: [
-        {
-          message: `Add a "yield" statement to this generator.`,
-          line: 2,
-          endLine: 2,
-          column: 23,
-          endColumn: 31,
-        },
-      ],
-    },
-    {
-      code: `
+        errors: [
+          {
+            message: `Add a "yield" statement to this generator.`,
+            line: 2,
+            endLine: 2,
+            column: 23,
+            endColumn: 31,
+          },
+        ],
+      },
+      {
+        code: `
             var foo = function * bar () {
               doSomething();
             }
             `,
-      errors: 1,
-    },
-    {
-      code: `
+        errors: 1,
+      },
+      {
+        code: `
             function * foo() {  // Noncompliant
             //         ^^^
               function * bar() {  // OK
@@ -96,37 +98,38 @@ const testCases = {
               }
             }
             `,
-      errors: [
-        {
-          message: `Add a "yield" statement to this generator.`,
-          line: 2,
-          endLine: 2,
-          column: 24,
-          endColumn: 27,
-        },
-      ],
-    },
-    {
-      code: `
+        errors: [
+          {
+            message: `Add a "yield" statement to this generator.`,
+            line: 2,
+            endLine: 2,
+            column: 24,
+            endColumn: 27,
+          },
+        ],
+      },
+      {
+        code: `
             class A {
               *foo() {
                 doSomething();
               }
             }
             `,
-      errors: [
-        {
-          message: `Add a "yield" statement to this generator.`,
-          line: 3,
-          endLine: 3,
-          column: 16,
-          endColumn: 19,
-        },
-      ],
-    },
-  ],
-};
+        errors: [
+          {
+            message: `Add a "yield" statement to this generator.`,
+            line: 3,
+            endLine: 3,
+            column: 16,
+            endColumn: 19,
+          },
+        ],
+      },
+    ],
+  };
 
-ruleTester.run('Generator without yield', rule, testCases);
+  ruleTester.run('Generator without yield', rule, testCases);
 
-ruleTesterTs.run('Generator without yield TypeScript', rule, testCases);
+  ruleTesterTs.run('Generator without yield TypeScript', rule, testCases);
+});
