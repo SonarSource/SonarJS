@@ -29,14 +29,11 @@ import path from 'path';
 
 /**
  * Wrapper's constructor initializer. All the parameters are optional,
- * having the option to create a Linter without any additional rules
- * loaded, aside of the preexisting ESLint core rules.
+ * having the option to create a Linter without any rules enabled
  *
- * @param inputRules the quality profile rules, enabled rules
+ * @param inputRules the enabled rules
  * @param environments the JavaScript environments
  * @param globals the global variables
- * @param rulesPlugins the bundles of rules to load in the linter
- * @param customRules array of rules to load in the linter
  */
 interface WrapperOptions {
   inputRules?: RuleConfig[];

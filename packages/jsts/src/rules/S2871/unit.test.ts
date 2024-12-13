@@ -161,6 +161,15 @@ describe('S2871', () => {
               column: 22,
               endLine: 3,
               endColumn: 26,
+              suggestions: [
+                {
+                  messageId: 'suggestNumericOrder',
+                  output: `
+      var arrayOfNumbers = [80, 3, 9, 34, 23, 5, 1];
+      arrayOfNumbers.sort((a, b) => (a - b));
+      `,
+                },
+              ],
             },
           ],
         },
@@ -182,6 +191,7 @@ describe('S2871', () => {
           code: `[80, 3, 9, 34, 23, 5, 1].sort();`,
           errors: [
             {
+              messageId: 'provideCompareFunction',
               suggestions: [
                 {
                   desc: 'Add a comparator function to sort in ascending order',
@@ -195,6 +205,7 @@ describe('S2871', () => {
           code: '[Number("1"), Number("2"), Number("10")].sort();',
           errors: [
             {
+              messageId: 'provideCompareFunction',
               suggestions: [
                 {
                   desc: 'Add a comparator function to sort in ascending order',
@@ -208,6 +219,7 @@ describe('S2871', () => {
           code: '[Number("1"), 2, Number("10")].sort();',
           errors: [
             {
+              messageId: 'provideCompareFunction',
               suggestions: [
                 {
                   desc: 'Add a comparator function to sort in ascending order',
@@ -219,12 +231,18 @@ describe('S2871', () => {
         },
         {
           code: '["1", 2, "10"].sort();',
-          errors: [{ suggestions: [] }],
+          errors: [
+            {
+              messageId: 'provideCompareFunction',
+              suggestions: [],
+            },
+          ],
         },
         {
           code: `[80n, 3n, 9n, 34n, 23n, 5n, 1n].sort();`,
           errors: [
             {
+              messageId: 'provideCompareFunction',
               suggestions: [
                 {
                   desc: 'Add a comparator function to sort in ascending order',
@@ -247,7 +265,12 @@ describe('S2871', () => {
       var arrayOfObjects = [{a: 2}, {a: 4}];
       arrayOfObjects.sort();
       `,
-          errors: [{ suggestions: [] }],
+          errors: [
+            {
+              messageId: 'provideCompareFunction',
+              suggestions: [],
+            },
+          ],
         },
         {
           code: `
@@ -255,7 +278,12 @@ describe('S2871', () => {
       const arrayOfCustomNumbers: MyCustomNumber[];
       arrayOfCustomNumbers.sort();
       `,
-          errors: [{ suggestions: [] }],
+          errors: [
+            {
+              messageId: 'provideCompareFunction',
+              suggestions: [],
+            },
+          ],
         },
         {
           code: `
@@ -263,7 +291,12 @@ describe('S2871', () => {
           a.sort();
         }
       `,
-          errors: [{ suggestions: [] }],
+          errors: [
+            {
+              messageId: 'provideCompareFunction',
+              suggestions: [],
+            },
+          ],
         },
         {
           code: `
@@ -271,7 +304,12 @@ describe('S2871', () => {
           a.sort();
         }
       `,
-          errors: [{ suggestions: [] }],
+          errors: [
+            {
+              messageId: 'provideCompareFunction',
+              suggestions: [],
+            },
+          ],
         },
         {
           code: `
@@ -279,7 +317,12 @@ describe('S2871', () => {
           a.sort();
         }
       `,
-          errors: [{ suggestions: [] }],
+          errors: [
+            {
+              messageId: 'provideCompareFunction',
+              suggestions: [],
+            },
+          ],
         },
         {
           code: `
@@ -287,12 +330,18 @@ describe('S2871', () => {
           a.sort();
         }
       `,
-          errors: [{ suggestions: [] }],
+          errors: [
+            {
+              messageId: 'provideCompareFunction',
+              suggestions: [],
+            },
+          ],
         },
         {
           code: 'const array = ["foo", "bar"]; array.sort();',
           errors: [
             {
+              messageId: 'provideCompareFunctionForArrayOfStrings',
               suggestions: [
                 {
                   desc: 'Add a comparator function to sort in ascending language-sensitive order',
@@ -474,6 +523,15 @@ describe('S2871', () => {
               column: 51,
               endLine: 3,
               endColumn: 59,
+              suggestions: [
+                {
+                  messageId: 'suggestNumericOrder',
+                  output: `
+      var arrayOfNumbers = [80, 3, 9, 34, 23, 5, 1];
+      const sortedArrayOfNumbers = arrayOfNumbers.toSorted((a, b) => (a - b));
+      `,
+                },
+              ],
             },
           ],
         },
@@ -495,6 +553,7 @@ describe('S2871', () => {
           code: `const sortedArrayOfNumbers = [80, 3, 9, 34, 23, 5, 1].toSorted();`,
           errors: [
             {
+              messageId: 'provideCompareFunction',
               suggestions: [
                 {
                   desc: 'Add a comparator function to sort in ascending order',
@@ -509,6 +568,7 @@ describe('S2871', () => {
           code: 'const sortedArrayOfNumbers = [Number("1"), Number("2"), Number("10")].toSorted();',
           errors: [
             {
+              messageId: 'provideCompareFunction',
               suggestions: [
                 {
                   desc: 'Add a comparator function to sort in ascending order',
@@ -523,6 +583,7 @@ describe('S2871', () => {
           code: 'const sortedArrayOfNumbers = [Number("1"), 2, Number("10")].toSorted();',
           errors: [
             {
+              messageId: 'provideCompareFunction',
               suggestions: [
                 {
                   desc: 'Add a comparator function to sort in ascending order',
@@ -535,12 +596,18 @@ describe('S2871', () => {
         },
         {
           code: 'const sortedArrayOfNumbers = ["1", 2, "10"].toSorted();',
-          errors: [{ suggestions: [] }],
+          errors: [
+            {
+              messageId: 'provideCompareFunction',
+              suggestions: [],
+            },
+          ],
         },
         {
           code: `const sortedArrayOfNumbers = [80n, 3n, 9n, 34n, 23n, 5n, 1n].toSorted();`,
           errors: [
             {
+              messageId: 'provideCompareFunction',
               suggestions: [
                 {
                   desc: 'Add a comparator function to sort in ascending order',
@@ -563,7 +630,12 @@ describe('S2871', () => {
       var arrayOfObjects = [{a: 2}, {a: 4}];
       const sortedArrayOfObject = arrayOfObjects.toSorted();
       `,
-          errors: [{ suggestions: [] }],
+          errors: [
+            {
+              messageId: 'provideCompareFunction',
+              suggestions: [],
+            },
+          ],
         },
         {
           code: `
@@ -571,7 +643,12 @@ describe('S2871', () => {
       const arrayOfCustomNumbers: MyCustomNumber[];
       const sortedArrayOfObject = arrayOfCustomNumbers.toSorted();
       `,
-          errors: [{ suggestions: [] }],
+          errors: [
+            {
+              messageId: 'provideCompareFunction',
+              suggestions: [],
+            },
+          ],
         },
         {
           code: `
@@ -579,7 +656,12 @@ describe('S2871', () => {
           return a.toSorted();
         }
       `,
-          errors: [{ suggestions: [] }],
+          errors: [
+            {
+              messageId: 'provideCompareFunction',
+              suggestions: [],
+            },
+          ],
         },
         {
           code: `
@@ -587,7 +669,12 @@ describe('S2871', () => {
           return a.toSorted();
         }
       `,
-          errors: [{ suggestions: [] }],
+          errors: [
+            {
+              messageId: 'provideCompareFunction',
+              suggestions: [],
+            },
+          ],
         },
         {
           code: `
@@ -595,7 +682,12 @@ describe('S2871', () => {
           return a.toSorted();
         }
       `,
-          errors: [{ suggestions: [] }],
+          errors: [
+            {
+              messageId: 'provideCompareFunction',
+              suggestions: [],
+            },
+          ],
         },
         {
           code: `
@@ -603,7 +695,12 @@ describe('S2871', () => {
           return a.toSorted();
         }
       `,
-          errors: [{ suggestions: [] }],
+          errors: [
+            {
+              messageId: 'provideCompareFunction',
+              suggestions: [],
+            },
+          ],
         },
         {
           code: 'const array = ["foo", "bar"]; const sortedArray = array.toSorted();',

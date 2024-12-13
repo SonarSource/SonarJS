@@ -15,11 +15,11 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { DefaultParserRuleTester, RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { describe } from 'node:test';
 
 describe('S3003', () => {
-  const ruleTesterJs = new RuleTester();
+  const ruleTesterJs = new DefaultParserRuleTester();
   ruleTesterJs.run('Comparison operators should not be used with strings [js]', rule, {
     valid: [
       {
