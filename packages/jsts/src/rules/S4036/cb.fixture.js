@@ -1,33 +1,33 @@
 const cp = require('child_process');
 cp.exec('file.exe');  // Noncompliant {{Make sure the "PATH" used to find this command includes only what you intend.}}
 //      ^^^^^^^^^^
-cp.execSync('file.exe');  // Noncompliant
+cp.execSync('file.exe');  // Noncompliant {{Make sure the "PATH" used to find this command includes only what you intend.}}
 //          ^^^^^^^^^^
-cp.spawn('file.exe');  // Noncompliant
+cp.spawn('file.exe');  // Noncompliant {{Make sure the "PATH" used to find this command includes only what you intend.}}
 //       ^^^^^^^^^^
-cp.spawnSync('file.exe');  // Noncompliant
+cp.spawnSync('file.exe');  // Noncompliant {{Make sure the "PATH" used to find this command includes only what you intend.}}
 //           ^^^^^^^^^^
-cp.execFile('file.exe');  // Noncompliant
+cp.execFile('file.exe');  // Noncompliant {{Make sure the "PATH" used to find this command includes only what you intend.}}
 //          ^^^^^^^^^^
-cp.execFileSync('file.exe');  // Noncompliant
+cp.execFileSync('file.exe');  // Noncompliant {{Make sure the "PATH" used to find this command includes only what you intend.}}
 //              ^^^^^^^^^^
 
 const { exec, execSync, spawn, spawnSync, execFile, execFileSync } = require('child_process');
-exec('file.exe');  // Noncompliant
+exec('file.exe');  // Noncompliant {{Make sure the "PATH" used to find this command includes only what you intend.}}
 //   ^^^^^^^^^^
-execSync('file.exe');  // Noncompliant
+execSync('file.exe');  // Noncompliant {{Make sure the "PATH" used to find this command includes only what you intend.}}
 //       ^^^^^^^^^^
-spawn('file.exe');  // Noncompliant
+spawn('file.exe');  // Noncompliant {{Make sure the "PATH" used to find this command includes only what you intend.}}
 //    ^^^^^^^^^^
-spawnSync('file.exe');  // Noncompliant
+spawnSync('file.exe');  // Noncompliant {{Make sure the "PATH" used to find this command includes only what you intend.}}
 //        ^^^^^^^^^^
-execFile('file.exe');  // Noncompliant
+execFile('file.exe');  // Noncompliant {{Make sure the "PATH" used to find this command includes only what you intend.}}
 //       ^^^^^^^^^^
-execFileSync('file.exe');  // Noncompliant
+execFileSync('file.exe');  // Noncompliant {{Make sure the "PATH" used to find this command includes only what you intend.}}
 //           ^^^^^^^^^^
 
 const command = 'file.exe';
-exec(command);  // Noncompliant
+exec(command);  // Noncompliant {{Make sure the "PATH" used to find this command includes only what you intend.}}
 //   ^^^^^^^
 
 cp.exec('./usr/bin/file.exe');

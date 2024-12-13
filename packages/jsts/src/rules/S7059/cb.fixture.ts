@@ -22,6 +22,6 @@ class MyClass {
 class MyClass {
   constructor() {
     console.log('correct');
-    Promise.resolve().then(() => this.data = fetchData()); //Noncompliant
+    Promise.resolve().then(() => this.data = fetchData()); //Noncompliant {{Refactor this asynchronous operation outside of the constructor.}}
   }
 }

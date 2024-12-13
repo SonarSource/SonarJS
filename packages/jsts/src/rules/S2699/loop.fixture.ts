@@ -6,7 +6,7 @@ const chai = require('chai');
 
 describe('test cases', () => {
 
-  it('should reflect a single argument', () => { // Noncompliant
+  it('should reflect a single argument', () => { // Noncompliant {{Add at least one assertion to this test case.}}
     expectParameter(args[0], 'bar', 'Bar');
   });
 });
