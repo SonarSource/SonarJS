@@ -29,7 +29,7 @@ const ruleTesterVue = new RuleTester({
 const fixtures = join(dirname(fileURLToPath(import.meta.url)), 'fixtures');
 const filename = join(fixtures, 'file.tsx');
 const ruleTesterJsxFactory = new RuleTester({
-  parserOptions: { ecmaFeatures: { jsx: false }, project: join(fixtures, 'tsconfig.fixture.json') },
+  parserOptions: { project: join(fixtures, 'tsconfig.fixture.json') },
 });
 
 describe('S1128', () => {
