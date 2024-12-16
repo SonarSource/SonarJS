@@ -63,6 +63,7 @@ class DefaultParserRuleTester extends ESLintRuleTester {
     tests.valid.forEach(setFilename);
     tests.invalid.forEach(setFilename);
 
+    console.log(JSON.stringify(this.testerConfig, null, 2));
     super.run(name, rule, tests);
   }
 }
