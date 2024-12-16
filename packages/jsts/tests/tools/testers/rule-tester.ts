@@ -50,7 +50,8 @@ const typeCheckingLanguageOptions: Linter.LanguageOptions = {
 } as const;
 
 const placeHolderFilePath = path.resolve(`${import.meta.dirname}/fixtures/placeholder.tsx`);
-
+console.log(placeHolderFilePath);
+console.log(typeCheckingLanguageOptions.parserOptions.project);
 /**
  * Rule tester for JavaScript, using ESLint default parser (espree).
  */
