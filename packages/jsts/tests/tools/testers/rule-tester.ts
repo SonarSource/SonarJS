@@ -18,7 +18,6 @@ import { RuleTester as ESLintRuleTester } from 'eslint';
 import type { Linter, Rule } from 'eslint';
 import { dirname, join } from 'path';
 import parser from '@typescript-eslint/parser';
-import globals from 'globals';
 import merge from 'lodash.merge';
 import { fileURLToPath } from 'node:url';
 
@@ -30,14 +29,6 @@ type Tests = {
 const baseLanguageOptions: Linter.LanguageOptions = {
   ecmaVersion: 2018,
   sourceType: 'module',
-  globals: {
-    ...globals.es2025,
-  },
-  parserOptions: {
-    ecmaFeatures: {
-      jsx: true,
-    },
-  },
 } as const;
 
 const tsParserLanguageOptions: Linter.LanguageOptions = {
