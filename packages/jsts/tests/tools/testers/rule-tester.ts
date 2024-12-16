@@ -16,10 +16,11 @@
  */
 import { RuleTester as ESLintRuleTester } from 'eslint';
 import type { Linter, Rule } from 'eslint';
-import path from 'path';
+import { dirname, join } from 'path';
 import parser from '@typescript-eslint/parser';
 import globals from 'globals';
 import merge from 'lodash.merge';
+import { fileURLToPath } from 'node:url';
 
 type Tests = {
   valid: (string | ESLintRuleTester.ValidTestCase)[];
@@ -43,13 +44,14 @@ const tsParserLanguageOptions: Linter.LanguageOptions = {
   parser,
 };
 
+const fixturesPath = join(dirname(fileURLToPath(import.meta.url)), 'fixtures');
 const typeCheckingLanguageOptions: Linter.LanguageOptions = {
   parserOptions: {
-    project: path.resolve(`${import.meta.dirname}/fixtures/tsconfig.json`),
+    project: join(fixturesPath, 'tsconfig.json'),
   },
 } as const;
 
-const placeHolderFilePath = path.resolve(`${import.meta.dirname}/fixtures/placeholder.tsx`);
+const placeHolderFilePath = join(fixturesPath, 'placeholder.tsx');
 console.log(placeHolderFilePath);
 console.log(typeCheckingLanguageOptions.parserOptions.project);
 /**
