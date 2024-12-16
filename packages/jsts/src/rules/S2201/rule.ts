@@ -184,6 +184,13 @@ export const rule: Rule.RuleModule = {
       return {};
     }
     console.log('WE DO HAVE TYPE CHECKING!');
+    console.log(
+      JSON.stringify(
+        services.program.getSourceFiles().map(s => s.fileName),
+        null,
+        4,
+      ),
+    );
     return {
       CallExpression: (node: estree.Node) => {
         const call = node as estree.CallExpression;
