@@ -20,6 +20,7 @@ import { dirname, join } from 'path';
 import parser from '@typescript-eslint/parser';
 import merge from 'lodash.merge';
 import { fileURLToPath } from 'node:url';
+import { writeFileSync } from 'node:fs';
 
 type Tests = {
   valid: (string | ESLintRuleTester.ValidTestCase)[];
@@ -60,6 +61,7 @@ class DefaultParserRuleTester extends ESLintRuleTester {
     const setFilename = test => {
       if (!test.filename) {
         test.filename = placeHolderFilePath;
+        writeFileSync(placeHolderFilePath, test.code);
       }
     };
 
