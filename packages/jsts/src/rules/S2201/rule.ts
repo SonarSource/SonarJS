@@ -22,7 +22,6 @@ import type { Rule } from 'eslint';
 import { generateMeta, getTypeFromTreeNode, isRequiredParserServices } from '../helpers/index.js';
 import estree from 'estree';
 import { meta } from './meta.js';
-import * as util from 'node:util';
 
 const METHODS_WITHOUT_SIDE_EFFECTS: { [index: string]: Set<string> } = {
   array: new Set([
@@ -181,17 +180,10 @@ export const rule: Rule.RuleModule = {
   create(context) {
     const services = context.sourceCode.parserServices;
     if (!isRequiredParserServices(services)) {
-      console.log('NO TYPE CHECKING!');
       return {};
     }
     return {
-      Program: (program: estree.Program) => {
-        console.log('run the rule!');
-        console.log(util.inspect(program));
-        console.log(util.inspect(context.sourceCode));
-      },
       CallExpression: (node: estree.Node) => {
-        //console.log(util.inspect(node));
         const call = node as estree.CallExpression;
         const { callee } = call;
         if (callee.type === 'MemberExpression') {
@@ -203,12 +195,10 @@ export const rule: Rule.RuleModule = {
               .getTypeAtLocation(
                 services.esTreeNodeToTSNodeMap.get(callee.object as TSESTree.Node),
               );
-            //console.log(objectType.flags, methodName, call.arguments);
             if (
               !hasSideEffect(methodName, objectType, services) &&
               !isReplaceWithCallback(methodName, call.arguments, services)
             ) {
-              console.log('Raised!');
               context.report(reportDescriptor(methodName, node));
             }
           }
@@ -259,7 +249,6 @@ function hasSideEffect(
   services: ParserServicesWithTypeInformation,
 ) {
   const typeAsString = typeToString(objectType, services);
-  console.log(typeAsString);
   if (typeAsString !== null) {
     const methods = METHODS_WITHOUT_SIDE_EFFECTS[typeAsString];
     return !methods?.has(methodName);

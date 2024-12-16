@@ -44,8 +44,6 @@ const typeCheckingLanguageOptions: Linter.LanguageOptions = {
 } as const;
 
 const placeHolderFilePath = join(fixturesPath, 'placeholder.tsx');
-console.log(placeHolderFilePath);
-console.log(typeCheckingLanguageOptions.parserOptions.project);
 /**
  * Rule tester for JavaScript, using ESLint default parser (espree).
  */
@@ -68,7 +66,6 @@ class DefaultParserRuleTester extends ESLintRuleTester {
     tests.valid.forEach(setFilename);
     tests.invalid.forEach(setFilename);
 
-    console.log(JSON.stringify((this as any).testerConfig, null, 2));
     super.run(name, rule, tests);
   }
 }

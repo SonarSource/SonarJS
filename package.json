@@ -4,6 +4,7 @@
   "description": "SonarJS code analyzer",
   "scripts": {
     "format": "prettier --write .",
+    "postinstall": "patch-package",
     "check-format": "prettier --list-different .",
     "build": "mvn clean && npm run bridge:build && npm run _:plugin:pre-build && npm run plugin:build",
     "build:cov": "mvn clean && npm run bridge:build:cov && npm run _:plugin:pre-build && npm run plugin:build",
@@ -125,6 +126,7 @@
     "lodash.clone": "4.5.0",
     "minimatch": "9.0.5",
     "module-alias": "2.2.3",
+    "patch-package": "8.0.0",
     "postcss": "8.4.49",
     "postcss-html": "0.36.0",
     "postcss-less": "6.0.0",
