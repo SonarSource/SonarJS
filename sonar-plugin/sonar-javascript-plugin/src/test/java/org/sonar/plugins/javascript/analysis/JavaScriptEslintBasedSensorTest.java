@@ -57,7 +57,6 @@ import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.rule.internal.NewActiveRule;
-import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.cache.WriteCache;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
@@ -82,7 +81,7 @@ import org.sonar.plugins.javascript.bridge.BridgeServer;
 import org.sonar.plugins.javascript.bridge.BridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.bridge.BridgeServer.Dependency;
 import org.sonar.plugins.javascript.bridge.BridgeServer.JsAnalysisRequest;
-import org.sonar.plugins.javascript.bridge.BridgeServer.TelemetryResponse;
+import org.sonar.plugins.javascript.bridge.BridgeServer.TelemetryNodeResponse;
 import org.sonar.plugins.javascript.bridge.BridgeServer.TsProgram;
 import org.sonar.plugins.javascript.bridge.EslintRule;
 import org.sonar.plugins.javascript.bridge.PluginInfo;
@@ -759,7 +758,7 @@ class JavaScriptEslintBasedSensorTest {
   void should_add_telemetry_for_scanner_analysis() throws Exception {
     when(bridgeServerMock.analyzeJavaScript(any())).thenReturn(new AnalysisResponse());
     when(bridgeServerMock.getTelemetry()).thenReturn(
-      new TelemetryResponse(List.of(new Dependency("pkg1", "1.1.0")))
+      new TelemetryNodeResponse(List.of(new Dependency("pkg1", "1.1.0")))
     );
     var sensor = createSensor();
     context.setRuntime(

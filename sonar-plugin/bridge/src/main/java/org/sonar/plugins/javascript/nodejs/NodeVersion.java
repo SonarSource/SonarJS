@@ -48,7 +48,8 @@ public class NodeVersion {
       Map.of(
         "RUN_NODE_ERROR_MSG",
         "Couldn't find the Node.js binary. Ensure you have Node.js installed."
-      )
+      ),
+      "host"
     );
     nodeCommand.start();
     int exitValue = nodeCommand.waitFor();

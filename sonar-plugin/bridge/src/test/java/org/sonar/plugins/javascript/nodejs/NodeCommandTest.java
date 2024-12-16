@@ -189,6 +189,7 @@ class NodeCommandTest {
 
     List<String> value = captureProcessWrapperArgument();
     assertThat(value).contains(nodeExecutable.toString());
+    assertThat(nodeCommand.getNodeExecutableOrigin()).isEqualTo(NODE_EXECUTABLE_PROPERTY);
     await()
       .until(() ->
         logTester
@@ -213,6 +214,7 @@ class NodeCommandTest {
 
     List<String> value = captureProcessWrapperArgument();
     assertThat(value).contains("node");
+    assertThat(nodeCommand.getNodeExecutableOrigin()).isEqualTo("none");
   }
 
   private List<String> captureProcessWrapperArgument() throws IOException {
@@ -335,6 +337,7 @@ class NodeCommandTest {
       .pathResolver(getPathResolver())
       .build();
     nodeCommand.start();
+    assertThat(nodeCommand.getNodeExecutableOrigin()).isEqualTo("host");
     List<String> value = captureProcessWrapperArgument();
     assertThat(value).hasSize(2);
     assertThat(value.get(0)).endsWith("src/test/resources/package/bin/run-node");
@@ -366,7 +369,8 @@ class NodeCommandTest {
       Collections.emptyList(),
       noop,
       noop,
-      Map.of()
+      Map.of(),
+      "host"
     );
     assertThat(nodeCommand.getActualNodeVersion().major()).isEqualTo(12);
   }
@@ -390,6 +394,7 @@ class NodeCommandTest {
       "C:\\Program Files\\node.exe",
       "script.js"
     );
+    assertThat(nodeCommand.getNodeExecutableOrigin()).isEqualTo("host");
   }
 
   @Test
@@ -420,6 +425,7 @@ class NodeCommandTest {
     // For some reason, using mockProcessWrapper to test for the used command does not yield the expected result
     var expectedCommand = Paths.get(en.binary().toString()) + " " + PATH_TO_SCRIPT;
     assertThat(nodeCommand.toString()).isEqualTo(expectedCommand);
+    assertThat(nodeCommand.getNodeExecutableOrigin()).isEqualTo("embedded");
   }
 
   @Test
@@ -443,6 +449,7 @@ class NodeCommandTest {
       .build();
     var commandParts = nodeCommand.toString().split(" ");
     assertThat(commandParts[0]).endsWith("src/test/resources/package/bin/run-node");
+    assertThat(nodeCommand.getNodeExecutableOrigin()).isEqualTo("force-host");
   }
 
   @Test
@@ -451,7 +458,7 @@ class NodeCommandTest {
     var settings = new MapSettings();
     settings.setProperty(skipNodePropvisioning, true);
 
-    builder()
+    var nodeCommand = builder()
       .configuration(settings.asConfig())
       .script("script.js")
       .pathResolver(getPathResolver())
@@ -460,6 +467,7 @@ class NodeCommandTest {
     assertThat(logTester.logs(Level.INFO))
       .doesNotContain("Using embedded Node.js runtime")
       .contains("Forcing to use Node.js from the host.");
+    assertThat(nodeCommand.getNodeExecutableOrigin()).isEqualTo("force-host");
   }
 
   @Test
