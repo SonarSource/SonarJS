@@ -204,10 +204,12 @@ export const rule: Rule.RuleModule = {
               .getTypeAtLocation(
                 services.esTreeNodeToTSNodeMap.get(callee.object as TSESTree.Node),
               );
+            console.log(objectType.flags, methodName, call.arguments);
             if (
               !hasSideEffect(methodName, objectType, services) &&
               !isReplaceWithCallback(methodName, call.arguments, services)
             ) {
+              console.log('Raised!');
               context.report(reportDescriptor(methodName, node));
             }
           }
@@ -258,6 +260,7 @@ function hasSideEffect(
   services: ParserServicesWithTypeInformation,
 ) {
   const typeAsString = typeToString(objectType, services);
+  console.log(typeAsString);
   if (typeAsString !== null) {
     const methods = METHODS_WITHOUT_SIDE_EFFECTS[typeAsString];
     return !methods?.has(methodName);
