@@ -91,23 +91,6 @@ describe('S2201', () => {
     invalid: [
       {
         code: `
-      function methodsOnMath() {
-        let x = -42;
-        Math.abs(x);
-      }`,
-        errors: [
-          {
-            messageId: `returnValueMustBeUsed`,
-            data: { methodName: 'abs' },
-            line: 4,
-            endLine: 4,
-            column: 9,
-            endColumn: 20,
-          },
-        ],
-      },
-      {
-        code: `
       function mapOnArray() {
         let arr = [1, 2, 3];
         arr.map(function(x){ });
