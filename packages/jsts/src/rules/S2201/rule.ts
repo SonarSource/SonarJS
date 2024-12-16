@@ -180,8 +180,10 @@ export const rule: Rule.RuleModule = {
   create(context) {
     const services = context.sourceCode.parserServices;
     if (!isRequiredParserServices(services)) {
+      console.log('NO TYPE CHECKING!');
       return {};
     }
+    console.log('WE DO HAVE TYPE CHECKING!');
     return {
       CallExpression: (node: estree.Node) => {
         const call = node as estree.CallExpression;
