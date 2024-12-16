@@ -50,7 +50,10 @@ console.log(typeCheckingLanguageOptions.parserOptions.project);
  */
 class DefaultParserRuleTester extends ESLintRuleTester {
   constructor(options?: Linter.LanguageOptions) {
-    super({ languageOptions: merge({}, baseLanguageOptions, options) });
+    super({
+      files: ['**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx'],
+      languageOptions: merge({}, baseLanguageOptions, options),
+    });
   }
 
   run(name: string, rule: Rule.RuleModule, tests: Tests): void {

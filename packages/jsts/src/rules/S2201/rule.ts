@@ -22,6 +22,7 @@ import type { Rule } from 'eslint';
 import { generateMeta, getTypeFromTreeNode, isRequiredParserServices } from '../helpers/index.js';
 import estree from 'estree';
 import { meta } from './meta.js';
+import * as util from 'node:util';
 
 const METHODS_WITHOUT_SIDE_EFFECTS: { [index: string]: Set<string> } = {
   array: new Set([
@@ -184,8 +185,9 @@ export const rule: Rule.RuleModule = {
       return {};
     }
     return {
-      Program: () => {
+      Program: (program: estree.Program) => {
         console.log('run the rule!');
+        console.log(util.inspect(program));
       },
       CallExpression: (node: estree.Node) => {
         //console.log(util.inspect(node));
