@@ -39,8 +39,11 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -104,6 +107,8 @@ import org.sonar.plugins.javascript.bridge.protobuf.NodeType;
 import org.sonar.plugins.javascript.bridge.protobuf.Position;
 import org.sonar.plugins.javascript.bridge.protobuf.Program;
 import org.sonar.plugins.javascript.bridge.protobuf.SourceLocation;
+import org.sonar.plugins.javascript.nodejs.NodeCommand;
+import org.sonar.plugins.javascript.nodejs.ProcessWrapper;
 import org.sonar.plugins.javascript.sonarlint.TsConfigCache;
 import org.sonar.plugins.javascript.sonarlint.TsConfigCacheImpl;
 
@@ -165,6 +170,21 @@ class JsTsSensorTest {
     });
     when(bridgeServerMock.createTsConfigFile(any())).thenReturn(
       new TsConfigFile(tempFolder.newFile().getAbsolutePath(), emptyList(), emptyList())
+    );
+    Consumer<String> noop = s -> {};
+    when(bridgeServerMock.command()).thenReturn(
+      new NodeCommand(
+        mock(ProcessWrapper.class),
+        "node",
+        Version.create(22, 9, 0),
+        Collections.emptyList(),
+        null,
+        Collections.emptyList(),
+        noop,
+        noop,
+        Map.of(),
+        "embedded"
+      )
     );
 
     context = createSensorContext(baseDir);

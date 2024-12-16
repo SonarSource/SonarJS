@@ -35,8 +35,11 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -87,7 +90,9 @@ import org.sonar.plugins.javascript.bridge.EslintRule;
 import org.sonar.plugins.javascript.bridge.PluginInfo;
 import org.sonar.plugins.javascript.bridge.ServerAlreadyFailedException;
 import org.sonar.plugins.javascript.bridge.TsConfigFile;
+import org.sonar.plugins.javascript.nodejs.NodeCommand;
 import org.sonar.plugins.javascript.nodejs.NodeCommandException;
+import org.sonar.plugins.javascript.nodejs.ProcessWrapper;
 import org.sonar.plugins.javascript.sonarlint.TsConfigCacheImpl;
 
 class JavaScriptEslintBasedSensorTest {
@@ -147,6 +152,21 @@ class JavaScriptEslintBasedSensorTest {
     );
     tsProgram = new TsProgram("", new ArrayList<>(), List.of());
     when(bridgeServerMock.createProgram(any())).thenReturn(tsProgram);
+    Consumer<String> noop = s -> {};
+    when(bridgeServerMock.command()).thenReturn(
+      new NodeCommand(
+        mock(ProcessWrapper.class),
+        "node",
+        Version.create(22, 9, 0),
+        Collections.emptyList(),
+        null,
+        Collections.emptyList(),
+        noop,
+        noop,
+        Map.of(),
+        "embedded"
+      )
+    );
     context = SensorContextTester.create(baseDir);
     context.fileSystem().setWorkDir(workDir);
     context.setRuntime(
@@ -772,7 +792,7 @@ class JavaScriptEslintBasedSensorTest {
     createInputFile(context);
     sensor.execute(context);
     assertThat(logTester.logs(Level.DEBUG)).contains(
-      "Telemetry saved: {javascript.dependency.pkg1=1.1.0}"
+      "Telemetry saved: {javascript.runtime.node-executable-origin=embedded, javascript.runtime.major-version=22, javascript.dependency.pkg1=1.1.0, javascript.runtime.version=22.9}"
     );
   }
 
