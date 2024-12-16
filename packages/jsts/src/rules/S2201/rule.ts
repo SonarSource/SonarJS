@@ -188,6 +188,7 @@ export const rule: Rule.RuleModule = {
       Program: (program: estree.Program) => {
         console.log('run the rule!');
         console.log(util.inspect(program));
+        console.log(util.inspect(context.sourceCode));
       },
       CallExpression: (node: estree.Node) => {
         //console.log(util.inspect(node));
