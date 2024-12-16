@@ -22,7 +22,6 @@ import type { Rule } from 'eslint';
 import { generateMeta, getTypeFromTreeNode, isRequiredParserServices } from '../helpers/index.js';
 import estree from 'estree';
 import { meta } from './meta.js';
-import * as util from 'node:util';
 
 const METHODS_WITHOUT_SIDE_EFFECTS: { [index: string]: Set<string> } = {
   array: new Set([
@@ -184,17 +183,12 @@ export const rule: Rule.RuleModule = {
       console.log('NO TYPE CHECKING!');
       return {};
     }
-    console.log('WE DO HAVE TYPE CHECKING!');
-    console.log(
-      JSON.stringify(
-        services.program.getSourceFiles().map(s => s.fileName),
-        null,
-        4,
-      ),
-    );
     return {
+      Program: () => {
+        console.log('run the rule!');
+      },
       CallExpression: (node: estree.Node) => {
-        console.log(util.inspect(node));
+        //console.log(util.inspect(node));
         const call = node as estree.CallExpression;
         const { callee } = call;
         if (callee.type === 'MemberExpression') {
@@ -206,7 +200,7 @@ export const rule: Rule.RuleModule = {
               .getTypeAtLocation(
                 services.esTreeNodeToTSNodeMap.get(callee.object as TSESTree.Node),
               );
-            console.log(objectType.flags, methodName, call.arguments);
+            //console.log(objectType.flags, methodName, call.arguments);
             if (
               !hasSideEffect(methodName, objectType, services) &&
               !isReplaceWithCallback(methodName, call.arguments, services)
