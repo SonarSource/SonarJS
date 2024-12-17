@@ -23,9 +23,7 @@ import type { Linter } from 'eslint';
 import { rules } from './plugin-rules.js';
 
 const recommendedLegacyConfig: Linter.LegacyConfig = { plugins: ['sonarjs'], rules: {} };
-const recommendedConfig: Linter.Config & {
-  rules: Linter.RulesRecord;
-} = {
+const recommendedConfig: Linter.FlatConfig = {
   name: 'sonarjs/recommended',
   plugins: {
     sonarjs: {
@@ -43,7 +41,7 @@ const recommendedConfig: Linter.Config & {
 for (const [key, rule] of Object.entries(rules)) {
   const recommended = rule.meta?.docs?.recommended || false;
 
-  recommendedConfig.rules[`sonarjs/${key}`] = recommended ? 'error' : 'off';
+  recommendedConfig.rules![`sonarjs/${key}`] = recommended ? 'error' : 'off';
 }
 
 recommendedLegacyConfig.rules = recommendedConfig.rules;
