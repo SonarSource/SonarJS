@@ -16,10 +16,10 @@
  */
 import { RuleTester as ESLintRuleTester } from 'eslint';
 import type { Linter, Rule } from 'eslint';
-import { dirname, join } from 'path';
+import path from 'path';
 import parser from '@typescript-eslint/parser';
+import globals from 'globals';
 import merge from 'lodash.merge';
-import { fileURLToPath } from 'node:url';
 
 type Tests = {
   valid: (string | ESLintRuleTester.ValidTestCase)[];
@@ -29,20 +29,28 @@ type Tests = {
 const baseLanguageOptions: Linter.LanguageOptions = {
   ecmaVersion: 2018,
   sourceType: 'module',
+  globals: {
+    ...globals.es2025,
+  },
+  parserOptions: {
+    ecmaFeatures: {
+      jsx: true,
+    },
+  },
 } as const;
 
 const tsParserLanguageOptions: Linter.LanguageOptions = {
   parser,
 };
 
-const fixturesPath = join(dirname(fileURLToPath(import.meta.url)), 'fixtures');
 const typeCheckingLanguageOptions: Linter.LanguageOptions = {
   parserOptions: {
-    project: join(fixturesPath, 'tsconfig.json'),
+    project: path.resolve(`${import.meta.dirname}/fixtures/tsconfig.json`),
   },
 } as const;
 
-const placeHolderFilePath = join(fixturesPath, 'placeholder.tsx');
+const placeHolderFilePath = path.resolve(`${import.meta.dirname}/fixtures/placeholder.tsx`);
+
 /**
  * Rule tester for JavaScript, using ESLint default parser (espree).
  */
