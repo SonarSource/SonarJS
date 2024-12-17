@@ -115,6 +115,7 @@ build_task:
   env:
     #allow deployment of pull request artifacts to repox
     DEPLOY_PULL_REQUEST: true
+    DEBUG: typescript-eslint:typescript-estree:*
     #sign artifacts
     SIGN_KEY: VAULT[development/kv/data/sign data.key]
     PGP_PASSPHRASE: VAULT[development/kv/data/sign data.passphrase]
