@@ -41,6 +41,7 @@ export function buildParserOptions(initialOptions: Linter.ParserOptions, usingBa
     range: true,
     ecmaVersion: 2018,
     sourceType: 'module',
+    disallowAutomaticSingleRunInference: true,
     codeFrame: false,
     ecmaFeatures: {
       jsx: true,
