@@ -33,6 +33,7 @@ const baseLanguageOptions: Linter.LanguageOptions = {
     ...globals.es2025,
   },
   parserOptions: {
+    disallowAutomaticSingleRunInference: true,
     ecmaFeatures: {
       jsx: true,
     },
