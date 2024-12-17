@@ -20,13 +20,13 @@ import static org.sonarsource.api.sonarlint.SonarLintSide.INSTANCE;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import javax.annotation.Nullable;
 import org.sonar.api.Startable;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonar.plugins.javascript.bridge.protobuf.Node;
-import org.sonar.plugins.javascript.nodejs.NodeCommand;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
 @ScannerSide
@@ -69,9 +69,7 @@ public interface BridgeServer extends Startable {
 
   TsConfigFile createTsConfigFile(String content) throws IOException;
 
-  TelemetryNodeResponse getTelemetry();
-
-  NodeCommand command();
+  TelemetryData getTelemetry();
 
   record JsAnalysisRequest(
     String filePath,
@@ -281,7 +279,9 @@ public interface BridgeServer extends Startable {
 
   record TsProgramRequest(String tsConfig) {}
 
-  record TelemetryNodeResponse(List<Dependency> dependencies) {}
+  record TelemetryEslintBridgeResponse(List<Dependency> dependencies) {}
+
+  record TelemetryData(List<Dependency> dependencies, Map<String, String> runtime) {}
 
   record Dependency(String name, String version) {}
 }

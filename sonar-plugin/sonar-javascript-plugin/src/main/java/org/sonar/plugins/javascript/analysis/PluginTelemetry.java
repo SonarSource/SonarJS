@@ -17,6 +17,7 @@
 package org.sonar.plugins.javascript.analysis;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,32 +51,21 @@ public class PluginTelemetry {
       // https://github.com/SonarSource/sonar-plugin-api/releases/tag/10.9.0.2362
       return;
     }
-    var dependenciesResponse = server.getTelemetry();
-    var keyMapToSave = new HashMap<String, String>();
-    if (dependenciesResponse != null) {
-      keyMapToSave.putAll(
-        dependenciesResponse
-          .dependencies()
-          .stream()
-          .collect(
-            Collectors.toMap(
-              dependency -> DEPENDENCY_PREFIX + dependency.name(),
-              Dependency::version
-            )
-          )
-      );
-    }
-    keyMapToSave.put(
-      RUNTIME_PREFIX + "major-version",
-      Integer.toString(server.command().getActualNodeVersion().major())
+    var telemetry = server.getTelemetry();
+    var keyMapToSave = new HashMap<String, String>(
+      telemetry
+        .dependencies()
+        .stream()
+        .collect(
+          Collectors.toMap(dependency -> DEPENDENCY_PREFIX + dependency.name(), Dependency::version)
+        )
     );
-    keyMapToSave.put(
-      RUNTIME_PREFIX + "version",
-      server.command().getActualNodeVersion().toString()
-    );
-    keyMapToSave.put(
-      RUNTIME_PREFIX + "node-executable-origin",
-      server.command().getNodeExecutableOrigin()
+    keyMapToSave.putAll(
+      telemetry
+        .runtime()
+        .entrySet()
+        .stream()
+        .collect(Collectors.toMap(key -> RUNTIME_PREFIX + key.getKey(), value -> value.getValue()))
     );
     keyMapToSave.forEach(ctx::addTelemetryProperty);
     LOG.debug("Telemetry saved: {}", keyMapToSave);

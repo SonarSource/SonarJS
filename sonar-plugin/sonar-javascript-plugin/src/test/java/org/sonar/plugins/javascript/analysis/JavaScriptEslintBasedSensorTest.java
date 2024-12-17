@@ -84,7 +84,7 @@ import org.sonar.plugins.javascript.bridge.BridgeServer;
 import org.sonar.plugins.javascript.bridge.BridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.bridge.BridgeServer.Dependency;
 import org.sonar.plugins.javascript.bridge.BridgeServer.JsAnalysisRequest;
-import org.sonar.plugins.javascript.bridge.BridgeServer.TelemetryNodeResponse;
+import org.sonar.plugins.javascript.bridge.BridgeServer.TelemetryEslintBridgeResponse;
 import org.sonar.plugins.javascript.bridge.BridgeServer.TsProgram;
 import org.sonar.plugins.javascript.bridge.EslintRule;
 import org.sonar.plugins.javascript.bridge.PluginInfo;
@@ -152,21 +152,6 @@ class JavaScriptEslintBasedSensorTest {
     );
     tsProgram = new TsProgram("", new ArrayList<>(), List.of());
     when(bridgeServerMock.createProgram(any())).thenReturn(tsProgram);
-    Consumer<String> noop = s -> {};
-    when(bridgeServerMock.command()).thenReturn(
-      new NodeCommand(
-        mock(ProcessWrapper.class),
-        "node",
-        Version.create(22, 9, 0),
-        Collections.emptyList(),
-        null,
-        Collections.emptyList(),
-        noop,
-        noop,
-        Map.of(),
-        "embedded"
-      )
-    );
     context = SensorContextTester.create(baseDir);
     context.fileSystem().setWorkDir(workDir);
     context.setRuntime(
@@ -778,7 +763,10 @@ class JavaScriptEslintBasedSensorTest {
   void should_add_telemetry_for_scanner_analysis() throws Exception {
     when(bridgeServerMock.analyzeJavaScript(any())).thenReturn(new AnalysisResponse());
     when(bridgeServerMock.getTelemetry()).thenReturn(
-      new TelemetryNodeResponse(List.of(new Dependency("pkg1", "1.1.0")))
+      new BridgeServer.TelemetryData(
+        List.of(new Dependency("pkg1", "1.1.0")),
+        Map.of("version", "22.9", "major-version", "22", "node-executable-origin", "embedded")
+      )
     );
     var sensor = createSensor();
     context.setRuntime(

@@ -171,21 +171,6 @@ class JsTsSensorTest {
     when(bridgeServerMock.createTsConfigFile(any())).thenReturn(
       new TsConfigFile(tempFolder.newFile().getAbsolutePath(), emptyList(), emptyList())
     );
-    Consumer<String> noop = s -> {};
-    when(bridgeServerMock.command()).thenReturn(
-      new NodeCommand(
-        mock(ProcessWrapper.class),
-        "node",
-        Version.create(22, 9, 0),
-        Collections.emptyList(),
-        null,
-        Collections.emptyList(),
-        noop,
-        noop,
-        Map.of(),
-        "embedded"
-      )
-    );
 
     context = createSensorContext(baseDir);
     context.setPreviousCache(mock(ReadCache.class));

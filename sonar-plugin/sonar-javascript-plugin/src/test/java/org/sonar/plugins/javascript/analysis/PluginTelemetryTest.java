@@ -34,7 +34,7 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.utils.Version;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
 import org.sonar.plugins.javascript.bridge.BridgeServer.Dependency;
-import org.sonar.plugins.javascript.bridge.BridgeServer.TelemetryNodeResponse;
+import org.sonar.plugins.javascript.bridge.BridgeServer.TelemetryEslintBridgeResponse;
 import org.sonar.plugins.javascript.nodejs.NodeCommand;
 import org.sonar.plugins.javascript.nodejs.ProcessWrapper;
 
@@ -50,26 +50,12 @@ class PluginTelemetryTest {
     when(ctx.runtime()).thenReturn(sonarRuntime);
 
     BridgeServer server = mock(BridgeServer.class);
-    TelemetryNodeResponse telemetryNodeResponse = new TelemetryNodeResponse(
-      List.of(new Dependency("pkg1", "1.0.0"))
-    );
-    when(server.getTelemetry()).thenReturn(telemetryNodeResponse);
-    Consumer<String> noop = s -> {};
-    when(server.command()).thenReturn(
-      new NodeCommand(
-        mock(ProcessWrapper.class),
-        "node",
-        Version.create(22, 9, 0),
-        Collections.emptyList(),
-        null,
-        Collections.emptyList(),
-        noop,
-        noop,
-        Map.of(),
-        "embedded"
+    when(server.getTelemetry()).thenReturn(
+      new BridgeServer.TelemetryData(
+        List.of(new Dependency("pkg1", "1.0.0")),
+        Map.of("version", "22.9", "major-version", "22", "node-executable-origin", "embedded")
       )
     );
-
     pluginTelemetry = new PluginTelemetry(ctx, server);
   }
 
