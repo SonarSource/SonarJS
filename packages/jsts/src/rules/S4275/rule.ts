@@ -67,6 +67,7 @@ export const rule: Rule.RuleModule = {
     meta as Rule.RuleMetaData,
     {
       ...getterReturnRule.meta,
+      defaultOptions: undefined,
       schema: undefined,
     },
     true,
