@@ -5,9 +5,6 @@
   "scripts": {
     "format": "prettier --write .",
     "check-format": "prettier --list-different .",
-    "scripts": {
-      "postinstall": "patch-package"
-    },
     "build": "mvn clean && npm run bridge:build && npm run _:plugin:pre-build && npm run plugin:build",
     "build:cov": "mvn clean && npm run bridge:build:cov && npm run _:plugin:pre-build && npm run plugin:build",
     "build:fast": "npm run bridge:build:fast && npm run _:plugin:pre-build && npm run plugin:build:fast",
@@ -91,7 +88,6 @@
     "mkdirp": "3.0.1",
     "node-fetch": "3.3.2",
     "one-double-zero": "^1.0.0",
-    "patch-package": "8.0.0",
     "prettier": "3.4.2",
     "prettier-plugin-java": "2.6.5",
     "pretty-quick": "4.0.0",
