@@ -57,7 +57,6 @@ import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.rule.internal.NewActiveRule;
-import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.cache.WriteCache;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
@@ -82,7 +81,8 @@ import org.sonar.plugins.javascript.bridge.BridgeServer;
 import org.sonar.plugins.javascript.bridge.BridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.bridge.BridgeServer.Dependency;
 import org.sonar.plugins.javascript.bridge.BridgeServer.JsAnalysisRequest;
-import org.sonar.plugins.javascript.bridge.BridgeServer.TelemetryResponse;
+import org.sonar.plugins.javascript.bridge.BridgeServer.RuntimeTelemetry;
+import org.sonar.plugins.javascript.bridge.BridgeServer.TelemetryData;
 import org.sonar.plugins.javascript.bridge.BridgeServer.TsProgram;
 import org.sonar.plugins.javascript.bridge.EslintRule;
 import org.sonar.plugins.javascript.bridge.PluginInfo;
@@ -148,6 +148,9 @@ class JavaScriptEslintBasedSensorTest {
     );
     tsProgram = new TsProgram("", new ArrayList<>(), List.of());
     when(bridgeServerMock.createProgram(any())).thenReturn(tsProgram);
+    when(bridgeServerMock.getTelemetry()).thenReturn(
+      new TelemetryData(List.of(), new RuntimeTelemetry(Version.create(22, 9), "host"))
+    );
     context = SensorContextTester.create(baseDir);
     context.fileSystem().setWorkDir(workDir);
     context.setRuntime(
@@ -759,7 +762,10 @@ class JavaScriptEslintBasedSensorTest {
   void should_add_telemetry_for_scanner_analysis() throws Exception {
     when(bridgeServerMock.analyzeJavaScript(any())).thenReturn(new AnalysisResponse());
     when(bridgeServerMock.getTelemetry()).thenReturn(
-      new TelemetryResponse(List.of(new Dependency("pkg1", "1.1.0")))
+      new TelemetryData(
+        List.of(new Dependency("pkg1", "1.1.0")),
+        new RuntimeTelemetry(Version.create(22, 9), "embedded")
+      )
     );
     var sensor = createSensor();
     context.setRuntime(
@@ -773,7 +779,7 @@ class JavaScriptEslintBasedSensorTest {
     createInputFile(context);
     sensor.execute(context);
     assertThat(logTester.logs(Level.DEBUG)).contains(
-      "Telemetry saved: {javascript.dependency.pkg1=1.1.0}"
+      "Telemetry saved: {javascript.runtime.node-executable-origin=embedded, javascript.runtime.major-version=22, javascript.dependency.pkg1=1.1.0, javascript.runtime.version=22.9}"
     );
   }
 

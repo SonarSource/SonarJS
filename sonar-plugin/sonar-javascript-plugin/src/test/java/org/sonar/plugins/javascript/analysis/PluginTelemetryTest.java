@@ -17,7 +17,6 @@
 package org.sonar.plugins.javascript.analysis;
 
 import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -29,35 +28,52 @@ import org.junit.jupiter.api.Test;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.utils.Version;
+import org.sonar.plugins.javascript.bridge.BridgeServer;
 import org.sonar.plugins.javascript.bridge.BridgeServer.Dependency;
-import org.sonar.plugins.javascript.bridge.BridgeServer.TelemetryResponse;
+import org.sonar.plugins.javascript.bridge.BridgeServer.RuntimeTelemetry;
+import org.sonar.plugins.javascript.bridge.BridgeServer.TelemetryData;
 
 class PluginTelemetryTest {
 
   private SensorContext ctx;
   private PluginTelemetry pluginTelemetry;
-  private TelemetryResponse telemetryResponse;
 
   @BeforeEach
   void setUp() {
     ctx = mock(SensorContext.class);
     SonarRuntime sonarRuntime = mock(SonarRuntime.class);
     when(ctx.runtime()).thenReturn(sonarRuntime);
-    pluginTelemetry = new PluginTelemetry(ctx);
-    telemetryResponse = new TelemetryResponse(List.of(new Dependency("pkg1", "1.0.0")));
+
+    BridgeServer server = mock(BridgeServer.class);
+    when(server.getTelemetry()).thenReturn(
+      new TelemetryData(
+        List.of(new Dependency("pkg1", "1.0.0")),
+        new RuntimeTelemetry(Version.create(22, 9), "embedded")
+      )
+    );
+    pluginTelemetry = new PluginTelemetry(ctx, server);
   }
 
   @Test
   void shouldNotReportIfApiVersionIsLessThan109() {
     when(ctx.runtime().getApiVersion()).thenReturn(Version.create(10, 8));
-    pluginTelemetry.reportTelemetry(telemetryResponse);
+    pluginTelemetry.reportTelemetry();
     verify(ctx, never()).addTelemetryProperty(anyString(), anyString());
   }
 
   @Test
-  void shouldReportIfApiVersionIsGreaterThanOrEqualTo109() {
+  void shouldReport() {
     when(ctx.runtime().getApiVersion()).thenReturn(Version.create(10, 9));
-    pluginTelemetry.reportTelemetry(telemetryResponse);
+    pluginTelemetry.reportTelemetry();
     verify(ctx).addTelemetryProperty("javascript.dependency.pkg1", "1.0.0");
+  }
+
+  @Test
+  void shouldReportRuntimeTelemetry() {
+    when(ctx.runtime().getApiVersion()).thenReturn(Version.create(10, 9));
+    pluginTelemetry.reportTelemetry();
+    verify(ctx).addTelemetryProperty("javascript.runtime.major-version", "22");
+    verify(ctx).addTelemetryProperty("javascript.runtime.version", "22.9");
+    verify(ctx).addTelemetryProperty("javascript.runtime.node-executable-origin", "embedded");
   }
 }

@@ -64,6 +64,7 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
   private BundlePathResolver pathResolver;
   private Version actualNodeVersion;
   private Map<String, String> env = Map.of();
+  private String nodeExecutableOrigin = "none";
 
   public NodeCommandBuilderImpl(ProcessWrapper processWrapper) {
     this.processWrapper = processWrapper;
@@ -164,7 +165,8 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
       args,
       outputConsumer,
       errorConsumer,
-      env
+      env,
+      nodeExecutableOrigin
     );
   }
 
@@ -219,6 +221,7 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
   private String retrieveNodeExecutable(Configuration configuration)
     throws NodeCommandException, IOException {
     if (configuration.hasKey(NODE_EXECUTABLE_PROPERTY)) {
+      nodeExecutableOrigin = NODE_EXECUTABLE_PROPERTY;
       String nodeExecutable = configuration.get(NODE_EXECUTABLE_PROPERTY).get();
       File file = new File(nodeExecutable);
       if (file.exists()) {
@@ -246,14 +249,18 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
     if (embeddedNode.isAvailable() && !isForceHost) {
       LOG.info("Using embedded Node.js runtime.");
       defaultNode = embeddedNode.binary().toString();
+      nodeExecutableOrigin = "embedded";
     } else if (processWrapper.isMac()) {
       defaultNode = locateNodeOnMac();
+      nodeExecutableOrigin = "host";
     } else if (processWrapper.isWindows()) {
       defaultNode = locateNodeOnWindows();
+      nodeExecutableOrigin = "host";
     }
 
     if (isForceHost) {
       LOG.info("Forcing to use Node.js from the host.");
+      nodeExecutableOrigin = "force-host";
     }
 
     LOG.info("Using Node.js executable: '{}'.", defaultNode);

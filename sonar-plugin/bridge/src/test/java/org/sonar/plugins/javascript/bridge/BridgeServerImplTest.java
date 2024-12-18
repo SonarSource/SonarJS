@@ -64,7 +64,6 @@ import org.sonar.api.utils.Version;
 import org.sonar.plugins.javascript.bridge.BridgeServer.CssAnalysisRequest;
 import org.sonar.plugins.javascript.bridge.BridgeServer.Dependency;
 import org.sonar.plugins.javascript.bridge.BridgeServer.JsAnalysisRequest;
-import org.sonar.plugins.javascript.bridge.BridgeServer.TelemetryResponse;
 import org.sonar.plugins.javascript.bridge.BridgeServer.TsProgram;
 import org.sonar.plugins.javascript.bridge.BridgeServer.TsProgramRequest;
 import org.sonar.plugins.javascript.bridge.protobuf.Node;
@@ -759,9 +758,10 @@ class BridgeServerImplTest {
     bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
     bridgeServer.startServer(serverConfig, emptyList());
     var telemetry = bridgeServer.getTelemetry();
-    assertThat(telemetry).isEqualTo(
-      new TelemetryResponse(List.of(new Dependency("pkg1", "1.0.0")))
-    );
+    assertThat(telemetry.dependencies()).isEqualTo(List.of(new Dependency("pkg1", "1.0.0")));
+    var runtimeTelemetry = telemetry.runtimeTelemetry();
+    assertThat(runtimeTelemetry.version().isGreaterThanOrEqual(Version.create(22, 9))).isTrue();
+    assertThat(runtimeTelemetry.nodeExecutableOrigin()).isNotEmpty();
   }
 
   @Test

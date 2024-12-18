@@ -48,6 +48,7 @@ public class NodeCommand {
   private final Map<String, String> env;
   private Process process;
   private final List<String> command;
+  private final String nodeExecutableOrigin;
 
   NodeCommand(
     ProcessWrapper processWrapper,
@@ -58,7 +59,8 @@ public class NodeCommand {
     List<String> args,
     Consumer<String> outputConsumer,
     Consumer<String> errorConsumer,
-    Map<String, String> env
+    Map<String, String> env,
+    String nodeExecutableOrigin
   ) {
     this.processWrapper = processWrapper;
     this.command = buildCommand(nodeExecutable, nodeJsArgs, scriptFilename, args);
@@ -66,6 +68,7 @@ public class NodeCommand {
     this.outputConsumer = outputConsumer;
     this.errorConsumer = errorConsumer;
     this.env = env;
+    this.nodeExecutableOrigin = nodeExecutableOrigin;
   }
 
   /**
@@ -131,5 +134,9 @@ public class NodeCommand {
 
   public Version getActualNodeVersion() {
     return actualNodeVersion;
+  }
+
+  public String getNodeExecutableOrigin() {
+    return nodeExecutableOrigin;
   }
 }

@@ -152,6 +152,12 @@ class JsTsSensorTest {
     when(bridgeServerMock.isAlive()).thenReturn(true);
     when(bridgeServerMock.analyzeTypeScript(any())).thenReturn(new AnalysisResponse());
     when(bridgeServerMock.getCommandInfo()).thenReturn("bridgeServerMock command info");
+    when(bridgeServerMock.getTelemetry()).thenReturn(
+      new BridgeServer.TelemetryData(
+        List.of(),
+        new BridgeServer.RuntimeTelemetry(Version.create(22, 9), "host")
+      )
+    );
     when(bridgeServerMock.loadTsConfig(any())).thenAnswer(invocationOnMock -> {
       String tsConfigPath = (String) invocationOnMock.getArguments()[0];
       FilePredicates predicates = context.fileSystem().predicates();
