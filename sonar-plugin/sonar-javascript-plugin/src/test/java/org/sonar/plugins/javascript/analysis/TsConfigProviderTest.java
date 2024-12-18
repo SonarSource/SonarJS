@@ -204,11 +204,12 @@ class TsConfigProviderTest {
     List<String> tsconfigs = getTsConfigs(new ContextUtils(ctx), this::tsConfigFileCreator);
     assertThat(tsconfigs).hasSize(1);
     String tsconfig = Files.readString(Paths.get(tsconfigs.get(0)));
+    String expectedBaseDir = this.baseDir.toString().replaceAll("[\\\\/]", "/");
     assertThat(tsconfig).isEqualToIgnoringCase(
       String.format(
         "{\"files\":[\"%s/file1.ts\",\"%s/file2.ts\"],\"compilerOptions\":{\"allowJs\":true,\"noImplicitAny\":true}}",
-        baseDir.toRealPath().toString().replaceAll("[\\\\/]", "/"),
-        baseDir.toRealPath().toString().replaceAll("[\\\\/]", "/")
+        expectedBaseDir,
+        expectedBaseDir
       )
     );
   }
