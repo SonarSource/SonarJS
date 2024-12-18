@@ -35,11 +35,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Consumer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -84,15 +81,14 @@ import org.sonar.plugins.javascript.bridge.BridgeServer;
 import org.sonar.plugins.javascript.bridge.BridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.bridge.BridgeServer.Dependency;
 import org.sonar.plugins.javascript.bridge.BridgeServer.JsAnalysisRequest;
-import org.sonar.plugins.javascript.bridge.BridgeServer.TelemetryEslintBridgeResponse;
+import org.sonar.plugins.javascript.bridge.BridgeServer.RuntimeTelemetry;
+import org.sonar.plugins.javascript.bridge.BridgeServer.TelemetryData;
 import org.sonar.plugins.javascript.bridge.BridgeServer.TsProgram;
 import org.sonar.plugins.javascript.bridge.EslintRule;
 import org.sonar.plugins.javascript.bridge.PluginInfo;
 import org.sonar.plugins.javascript.bridge.ServerAlreadyFailedException;
 import org.sonar.plugins.javascript.bridge.TsConfigFile;
-import org.sonar.plugins.javascript.nodejs.NodeCommand;
 import org.sonar.plugins.javascript.nodejs.NodeCommandException;
-import org.sonar.plugins.javascript.nodejs.ProcessWrapper;
 import org.sonar.plugins.javascript.sonarlint.TsConfigCacheImpl;
 
 class JavaScriptEslintBasedSensorTest {
@@ -763,9 +759,9 @@ class JavaScriptEslintBasedSensorTest {
   void should_add_telemetry_for_scanner_analysis() throws Exception {
     when(bridgeServerMock.analyzeJavaScript(any())).thenReturn(new AnalysisResponse());
     when(bridgeServerMock.getTelemetry()).thenReturn(
-      new BridgeServer.TelemetryData(
+      new TelemetryData(
         List.of(new Dependency("pkg1", "1.1.0")),
-        Map.of("version", "22.9", "major-version", "22", "node-executable-origin", "embedded")
+        new RuntimeTelemetry(Version.create(22, 9), "embedded")
       )
     );
     var sensor = createSensor();

@@ -26,6 +26,7 @@ import org.sonar.api.Startable;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.scanner.ScannerSide;
+import org.sonar.api.utils.Version;
 import org.sonar.plugins.javascript.bridge.protobuf.Node;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
@@ -281,7 +282,9 @@ public interface BridgeServer extends Startable {
 
   record TelemetryEslintBridgeResponse(List<Dependency> dependencies) {}
 
-  record TelemetryData(List<Dependency> dependencies, Map<String, String> runtime) {}
+  record TelemetryData(List<Dependency> dependencies, RuntimeTelemetry runtimeTelemetry) {}
 
   record Dependency(String name, String version) {}
+
+  record RuntimeTelemetry(Version version, String nodeExecutableOrigin) {}
 }

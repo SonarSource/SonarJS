@@ -17,16 +17,12 @@
 package org.sonar.plugins.javascript.analysis;
 
 import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Consumer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.SonarRuntime;
@@ -34,9 +30,8 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.utils.Version;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
 import org.sonar.plugins.javascript.bridge.BridgeServer.Dependency;
-import org.sonar.plugins.javascript.bridge.BridgeServer.TelemetryEslintBridgeResponse;
-import org.sonar.plugins.javascript.nodejs.NodeCommand;
-import org.sonar.plugins.javascript.nodejs.ProcessWrapper;
+import org.sonar.plugins.javascript.bridge.BridgeServer.RuntimeTelemetry;
+import org.sonar.plugins.javascript.bridge.BridgeServer.TelemetryData;
 
 class PluginTelemetryTest {
 
@@ -51,9 +46,9 @@ class PluginTelemetryTest {
 
     BridgeServer server = mock(BridgeServer.class);
     when(server.getTelemetry()).thenReturn(
-      new BridgeServer.TelemetryData(
+      new TelemetryData(
         List.of(new Dependency("pkg1", "1.0.0")),
-        Map.of("version", "22.9", "major-version", "22", "node-executable-origin", "embedded")
+        new RuntimeTelemetry(Version.create(22, 9), "embedded")
       )
     );
     pluginTelemetry = new PluginTelemetry(ctx, server);

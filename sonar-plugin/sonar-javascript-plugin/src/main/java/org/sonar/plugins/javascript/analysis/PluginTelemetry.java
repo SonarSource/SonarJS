@@ -60,12 +60,14 @@ public class PluginTelemetry {
           Collectors.toMap(dependency -> DEPENDENCY_PREFIX + dependency.name(), Dependency::version)
         )
     );
-    keyMapToSave.putAll(
-      telemetry
-        .runtime()
-        .entrySet()
-        .stream()
-        .collect(Collectors.toMap(key -> RUNTIME_PREFIX + key.getKey(), value -> value.getValue()))
+    keyMapToSave.put(
+      RUNTIME_PREFIX + "node-executable-origin",
+      telemetry.runtimeTelemetry().nodeExecutableOrigin()
+    );
+    keyMapToSave.put(RUNTIME_PREFIX + "version", telemetry.runtimeTelemetry().version().toString());
+    keyMapToSave.put(
+      RUNTIME_PREFIX + "major-version",
+      Integer.toString(telemetry.runtimeTelemetry().version().major())
     );
     keyMapToSave.forEach(ctx::addTelemetryProperty);
     LOG.debug("Telemetry saved: {}", keyMapToSave);

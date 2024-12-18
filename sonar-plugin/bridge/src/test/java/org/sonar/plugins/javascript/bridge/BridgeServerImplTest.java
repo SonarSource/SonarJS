@@ -759,9 +759,9 @@ class BridgeServerImplTest {
     bridgeServer.startServer(serverConfig, emptyList());
     var telemetry = bridgeServer.getTelemetry();
     assertThat(telemetry.dependencies()).isEqualTo(List.of(new Dependency("pkg1", "1.0.0")));
-    assertThat(telemetry.runtime()).containsEntry("node-executable-origin", "host");
-    assertThat(telemetry.runtime()).containsKey("version");
-    assertThat(telemetry.runtime()).containsKey("major-version");
+    var runtimeTelemetry = telemetry.runtimeTelemetry();
+    assertThat(runtimeTelemetry.version().isGreaterThanOrEqual(Version.create(22, 9))).isTrue();
+    assertThat(runtimeTelemetry.nodeExecutableOrigin()).isNotEmpty();
   }
 
   @Test

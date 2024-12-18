@@ -537,12 +537,8 @@ public class BridgeServerImpl implements BridgeServer {
   public TelemetryData getTelemetry() {
     return new TelemetryData(
       getTelemetryEslintBridgeResponse().dependencies(),
-      Map.of(
-        "version",
-        nodeCommand.getActualNodeVersion().toString(),
-        "major-version",
-        Integer.toString(nodeCommand.getActualNodeVersion().major()),
-        "node-executable-origin",
+      new RuntimeTelemetry(
+        nodeCommand.getActualNodeVersion(),
         nodeCommand.getNodeExecutableOrigin()
       )
     );
