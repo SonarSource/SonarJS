@@ -325,6 +325,8 @@ class PRAnalysisTest {
 
   private static BuildResult scanWith(SonarScanner scanner) {
     var result = orchestrator.executeBuild(scanner);
+
+    System.out.println(result.getLogs());
     assertThat(result.isSuccess()).isTrue();
     return result;
   }
