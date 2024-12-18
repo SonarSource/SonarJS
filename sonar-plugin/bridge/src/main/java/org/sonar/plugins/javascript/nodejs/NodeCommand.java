@@ -50,7 +50,7 @@ public class NodeCommand {
   private final List<String> command;
   private final String nodeExecutableOrigin;
 
-  public NodeCommand(
+  NodeCommand(
     ProcessWrapper processWrapper,
     String nodeExecutable,
     Version actualNodeVersion,

@@ -20,7 +20,6 @@ import static org.sonarsource.api.sonarlint.SonarLintSide.INSTANCE;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 import javax.annotation.Nullable;
 import org.sonar.api.Startable;
 import org.sonar.api.batch.fs.InputFile;
