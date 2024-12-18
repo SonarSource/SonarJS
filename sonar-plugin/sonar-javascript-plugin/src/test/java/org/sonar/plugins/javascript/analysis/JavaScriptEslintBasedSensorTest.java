@@ -148,6 +148,9 @@ class JavaScriptEslintBasedSensorTest {
     );
     tsProgram = new TsProgram("", new ArrayList<>(), List.of());
     when(bridgeServerMock.createProgram(any())).thenReturn(tsProgram);
+    when(bridgeServerMock.getTelemetry()).thenReturn(
+      new TelemetryData(List.of(), new RuntimeTelemetry(Version.create(22, 9), "host"))
+    );
     context = SensorContextTester.create(baseDir);
     context.fileSystem().setWorkDir(workDir);
     context.setRuntime(
