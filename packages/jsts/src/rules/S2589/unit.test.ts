@@ -16,28 +16,29 @@
  */
 import { rule } from './rule.js';
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
-import { describe } from 'node:test';
+import { describe, it } from 'node:test';
 
 describe('S2589', () => {
-  const ruleTester = new RuleTester();
+  it('S2589', () => {
+    const ruleTester = new RuleTester();
 
-  const falsySonarRuntimeData = JSON.stringify({
-    message: 'This always evaluates to falsy. Consider refactoring this code.',
-    secondaryLocations: [
-      { message: 'Evaluated here to be falsy', column: 12, line: 3, endColumn: 13, endLine: 3 },
-    ],
-  });
-  const truthySonarRuntimeData = JSON.stringify({
-    message: 'This always evaluates to truthy. Consider refactoring this code.',
-    secondaryLocations: [
-      { message: 'Evaluated here to be truthy', column: 12, line: 3, endColumn: 13, endLine: 3 },
-    ],
-  });
+    const falsySonarRuntimeData = JSON.stringify({
+      message: 'This always evaluates to falsy. Consider refactoring this code.',
+      secondaryLocations: [
+        { message: 'Evaluated here to be falsy', column: 12, line: 3, endColumn: 13, endLine: 3 },
+      ],
+    });
+    const truthySonarRuntimeData = JSON.stringify({
+      message: 'This always evaluates to truthy. Consider refactoring this code.',
+      secondaryLocations: [
+        { message: 'Evaluated here to be truthy', column: 12, line: 3, endColumn: 13, endLine: 3 },
+      ],
+    });
 
-  ruleTester.run('no-gratuitous-expressions', rule, {
-    valid: [
-      {
-        code: `
+    ruleTester.run('no-gratuitous-expressions', rule, {
+      valid: [
+        {
+          code: `
       function bar(x: boolean) {
         if (x && y) {
         } else {
@@ -45,9 +46,9 @@ describe('S2589', () => {
         }
       }
       `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
       function bar(x: boolean) {
         if (x) {
           x = bar();
@@ -55,9 +56,9 @@ describe('S2589', () => {
         }
       }
       `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
       function bar(x: boolean) {
         if (x) {
           while (cond) {
@@ -67,9 +68,9 @@ describe('S2589', () => {
         }
       }
       `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
       function bar(x: boolean) {
         if (x) {
           nested();
@@ -81,9 +82,9 @@ describe('S2589', () => {
         }
       }
       `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
       function render(children, right) {
         if (children) {
           return (
@@ -94,109 +95,109 @@ describe('S2589', () => {
         }
       }
       `,
-      },
-    ],
-    invalid: [
-      {
-        code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
         if (true) {}
         if (false) {}`,
-        options: ['sonar-runtime'],
-        errors: [
-          {
-            messageId: 'sonarRuntime',
-            data: {
-              value: 'truthy',
-              sonarRuntimeData: JSON.stringify({
-                message: 'This always evaluates to truthy. Consider refactoring this code.',
-                secondaryLocations: [],
-              }),
+          options: ['sonar-runtime'],
+          errors: [
+            {
+              messageId: 'sonarRuntime',
+              data: {
+                value: 'truthy',
+                sonarRuntimeData: JSON.stringify({
+                  message: 'This always evaluates to truthy. Consider refactoring this code.',
+                  secondaryLocations: [],
+                }),
+              },
+              line: 2,
             },
-            line: 2,
-          },
-          {
-            messageId: 'sonarRuntime',
-            data: {
-              value: 'falsy',
-              sonarRuntimeData: JSON.stringify({
-                message: 'This always evaluates to falsy. Consider refactoring this code.',
-                secondaryLocations: [],
-              }),
+            {
+              messageId: 'sonarRuntime',
+              data: {
+                value: 'falsy',
+                sonarRuntimeData: JSON.stringify({
+                  message: 'This always evaluates to falsy. Consider refactoring this code.',
+                  secondaryLocations: [],
+                }),
+              },
+              line: 3,
             },
-            line: 3,
-          },
-        ],
-      },
-      {
-        code: `
+          ],
+        },
+        {
+          code: `
       function bar(x: boolean, z) {
         if (x && z) {
           if (y && x) {} // "x" always true
           if (y && z) {} // "z" always true
         }
       }`,
-        options: ['sonar-runtime'],
-        errors: [
-          {
-            messageId: 'sonarRuntime',
-            data: {
-              value: 'truthy',
-              sonarRuntimeData: truthySonarRuntimeData,
+          options: ['sonar-runtime'],
+          errors: [
+            {
+              messageId: 'sonarRuntime',
+              data: {
+                value: 'truthy',
+                sonarRuntimeData: truthySonarRuntimeData,
+              },
+              line: 4,
+              column: 20,
+              endLine: 4,
+              endColumn: 21,
             },
-            line: 4,
-            column: 20,
-            endLine: 4,
-            endColumn: 21,
-          },
-          {
-            messageId: 'sonarRuntime',
-            data: {
-              value: 'truthy',
-              sonarRuntimeData: JSON.stringify({
-                message: 'This always evaluates to truthy. Consider refactoring this code.',
-                secondaryLocations: [
-                  {
-                    message: 'Evaluated here to be truthy',
-                    column: 17,
-                    line: 3,
-                    endColumn: 18,
-                    endLine: 3,
-                  },
-                ],
-              }),
+            {
+              messageId: 'sonarRuntime',
+              data: {
+                value: 'truthy',
+                sonarRuntimeData: JSON.stringify({
+                  message: 'This always evaluates to truthy. Consider refactoring this code.',
+                  secondaryLocations: [
+                    {
+                      message: 'Evaluated here to be truthy',
+                      column: 17,
+                      line: 3,
+                      endColumn: 18,
+                      endLine: 3,
+                    },
+                  ],
+                }),
+              },
+              line: 5,
+              column: 20,
+              endLine: 5,
+              endColumn: 21,
             },
-            line: 5,
-            column: 20,
-            endLine: 5,
-            endColumn: 21,
-          },
-        ],
-      },
-      {
-        code: `
+          ],
+        },
+        {
+          code: `
       function bar(x: boolean) {
         if (x) {
           if (x) { // "x" always true
           }
         }
       }`,
-        options: ['sonar-runtime'],
-        errors: [
-          {
-            messageId: 'sonarRuntime',
-            data: {
-              value: 'truthy',
-              sonarRuntimeData: truthySonarRuntimeData,
+          options: ['sonar-runtime'],
+          errors: [
+            {
+              messageId: 'sonarRuntime',
+              data: {
+                value: 'truthy',
+                sonarRuntimeData: truthySonarRuntimeData,
+              },
+              line: 4,
+              column: 15,
+              endLine: 4,
+              endColumn: 16,
             },
-            line: 4,
-            column: 15,
-            endLine: 4,
-            endColumn: 16,
-          },
-        ],
-      },
-      {
-        code: `
+          ],
+        },
+        {
+          code: `
       function bar(x: boolean ) {
         x++;
         if (x) {
@@ -205,90 +206,90 @@ describe('S2589', () => {
         }
         x = foo();
       }`,
-        options: ['sonar-runtime'],
-        errors: [
-          {
-            messageId: 'sonarRuntime',
-            data: {
-              value: 'truthy',
-              sonarRuntimeData: JSON.stringify({
-                message: 'This always evaluates to truthy. Consider refactoring this code.',
-                secondaryLocations: [
-                  {
-                    message: 'Evaluated here to be truthy',
-                    column: 12,
-                    line: 4,
-                    endColumn: 13,
-                    endLine: 4,
-                  },
-                ],
-              }),
+          options: ['sonar-runtime'],
+          errors: [
+            {
+              messageId: 'sonarRuntime',
+              data: {
+                value: 'truthy',
+                sonarRuntimeData: JSON.stringify({
+                  message: 'This always evaluates to truthy. Consider refactoring this code.',
+                  secondaryLocations: [
+                    {
+                      message: 'Evaluated here to be truthy',
+                      column: 12,
+                      line: 4,
+                      endColumn: 13,
+                      endLine: 4,
+                    },
+                  ],
+                }),
+              },
+              line: 5,
+              column: 15,
+              endLine: 5,
+              endColumn: 16,
             },
-            line: 5,
-            column: 15,
-            endLine: 5,
-            endColumn: 16,
-          },
-        ],
-      },
-      {
-        code: `
+          ],
+        },
+        {
+          code: `
       function bar(x: boolean) {
         if (x) {
           if (!x) { // Noncompliant
           }
         }
       }`,
-        options: ['sonar-runtime'],
-        errors: [
-          {
-            messageId: 'sonarRuntime',
-            data: {
-              value: 'truthy',
-              sonarRuntimeData: truthySonarRuntimeData,
+          options: ['sonar-runtime'],
+          errors: [
+            {
+              messageId: 'sonarRuntime',
+              data: {
+                value: 'truthy',
+                sonarRuntimeData: truthySonarRuntimeData,
+              },
+              line: 4,
+              column: 16,
+              endLine: 4,
+              endColumn: 17,
             },
-            line: 4,
-            column: 16,
-            endLine: 4,
-            endColumn: 17,
-          },
-        ],
-      },
-      {
-        code: `
+          ],
+        },
+        {
+          code: `
       function bar(x: boolean) {
         if (!x) {
           foo(!x) // Noncompliant
         }
       }`,
-        options: ['sonar-runtime'],
-        errors: [
-          {
-            messageId: 'sonarRuntime',
-            data: {
-              value: 'falsy',
-              sonarRuntimeData: JSON.stringify({
-                message: 'This always evaluates to falsy. Consider refactoring this code.',
-                secondaryLocations: [
-                  {
-                    message: 'Evaluated here to be falsy',
-                    column: 13,
-                    line: 3,
-                    endColumn: 14,
-                    endLine: 3,
-                  },
-                ],
-              }),
+          options: ['sonar-runtime'],
+          errors: [
+            {
+              messageId: 'sonarRuntime',
+              data: {
+                value: 'falsy',
+                sonarRuntimeData: JSON.stringify({
+                  message: 'This always evaluates to falsy. Consider refactoring this code.',
+                  secondaryLocations: [
+                    {
+                      message: 'Evaluated here to be falsy',
+                      column: 13,
+                      line: 3,
+                      endColumn: 14,
+                      endLine: 3,
+                    },
+                  ],
+                }),
+              },
+              line: 4,
+              column: 16,
+              endLine: 4,
+              endColumn: 17,
             },
-            line: 4,
-            column: 16,
-            endLine: 4,
-            endColumn: 17,
-          },
-        ],
-      },
-      {
-        code: `
+          ],
+        },
+        {
+          code: `
       function bar(x: boolean) {
         if (x) {
           x = 42;
@@ -296,23 +297,23 @@ describe('S2589', () => {
           foo(!x) // Noncompliant
         }
       }`,
-        options: ['sonar-runtime'],
-        errors: [
-          {
-            messageId: 'sonarRuntime',
-            data: {
-              value: 'falsy',
-              sonarRuntimeData: falsySonarRuntimeData,
+          options: ['sonar-runtime'],
+          errors: [
+            {
+              messageId: 'sonarRuntime',
+              data: {
+                value: 'falsy',
+                sonarRuntimeData: falsySonarRuntimeData,
+              },
+              line: 6,
+              column: 16,
+              endLine: 6,
+              endColumn: 17,
             },
-            line: 6,
-            column: 16,
-            endLine: 6,
-            endColumn: 17,
-          },
-        ],
-      },
-      {
-        code: `
+          ],
+        },
+        {
+          code: `
       function bar(x: boolean) {
         if (x) {
           return foo() || x; // OK
@@ -322,67 +323,67 @@ describe('S2589', () => {
           bar() || x || bar(); // FN, not supported
         }
       }`,
-        options: ['sonar-runtime'],
-        errors: [
-          {
-            messageId: 'sonarRuntime',
-            data: {
-              value: 'falsy',
-              sonarRuntimeData: falsySonarRuntimeData,
+          options: ['sonar-runtime'],
+          errors: [
+            {
+              messageId: 'sonarRuntime',
+              data: {
+                value: 'falsy',
+                sonarRuntimeData: falsySonarRuntimeData,
+              },
+              line: 6,
+              column: 11,
+              endLine: 6,
+              endColumn: 12,
             },
-            line: 6,
-            column: 11,
-            endLine: 6,
-            endColumn: 12,
-          },
-          {
-            messageId: 'sonarRuntime',
-            data: {
-              value: 'falsy',
-              sonarRuntimeData: falsySonarRuntimeData,
+            {
+              messageId: 'sonarRuntime',
+              data: {
+                value: 'falsy',
+                sonarRuntimeData: falsySonarRuntimeData,
+              },
+              line: 7,
+              column: 11,
+              endLine: 7,
+              endColumn: 12,
             },
-            line: 7,
-            column: 11,
-            endLine: 7,
-            endColumn: 12,
-          },
-        ],
-      },
-      {
-        code: `
+          ],
+        },
+        {
+          code: `
       function bar(x: boolean) {
         if (!!x) {
           x && foo(); // Noncompliant
         }
       }`,
-        options: ['sonar-runtime'],
-        errors: [
-          {
-            messageId: 'sonarRuntime',
-            data: {
-              value: 'truthy',
-              sonarRuntimeData: JSON.stringify({
-                message: 'This always evaluates to truthy. Consider refactoring this code.',
-                secondaryLocations: [
-                  {
-                    message: 'Evaluated here to be truthy',
-                    column: 14,
-                    line: 3,
-                    endColumn: 15,
-                    endLine: 3,
-                  },
-                ],
-              }),
+          options: ['sonar-runtime'],
+          errors: [
+            {
+              messageId: 'sonarRuntime',
+              data: {
+                value: 'truthy',
+                sonarRuntimeData: JSON.stringify({
+                  message: 'This always evaluates to truthy. Consider refactoring this code.',
+                  secondaryLocations: [
+                    {
+                      message: 'Evaluated here to be truthy',
+                      column: 14,
+                      line: 3,
+                      endColumn: 15,
+                      endLine: 3,
+                    },
+                  ],
+                }),
+              },
+              line: 4,
+              column: 11,
+              endLine: 4,
+              endColumn: 12,
             },
-            line: 4,
-            column: 11,
-            endLine: 4,
-            endColumn: 12,
-          },
-        ],
-      },
-      {
-        code: `
+          ],
+        },
+        {
+          code: `
       function render(children, right) {
         if (right) {
           return (
@@ -393,32 +394,33 @@ describe('S2589', () => {
         }
       }
       `,
-        options: ['sonar-runtime'],
-        errors: [
-          {
-            messageId: 'sonarRuntime',
-            data: {
-              value: 'truthy',
-              sonarRuntimeData: JSON.stringify({
-                message: 'This always evaluates to truthy. Consider refactoring this code.',
-                secondaryLocations: [
-                  {
-                    message: 'Evaluated here to be truthy',
-                    column: 12,
-                    line: 3,
-                    endColumn: 17,
-                    endLine: 3,
-                  },
-                ],
-              }),
+          options: ['sonar-runtime'],
+          errors: [
+            {
+              messageId: 'sonarRuntime',
+              data: {
+                value: 'truthy',
+                sonarRuntimeData: JSON.stringify({
+                  message: 'This always evaluates to truthy. Consider refactoring this code.',
+                  secondaryLocations: [
+                    {
+                      message: 'Evaluated here to be truthy',
+                      column: 12,
+                      line: 3,
+                      endColumn: 17,
+                      endLine: 3,
+                    },
+                  ],
+                }),
+              },
+              line: 6,
+              column: 16,
+              endLine: 6,
+              endColumn: 21,
             },
-            line: 6,
-            column: 16,
-            endLine: 6,
-            endColumn: 21,
-          },
-        ],
-      },
-    ],
+          ],
+        },
+      ],
+    });
   });
 });

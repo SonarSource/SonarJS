@@ -16,46 +16,48 @@
  */
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
-import { describe } from 'node:test';
+import { describe, it } from 'node:test';
 
 describe('S6666', () => {
-  const ruleTester = new RuleTester();
+  it('S6666', () => {
+    const ruleTester = new RuleTester();
 
-  ruleTester.run(`Spread syntax should be used instead of apply()`, rule, {
-    valid: [
-      {
-        code: `foo.apply(obj, args);`,
-      },
-    ],
-    invalid: [
-      {
-        code: `foo.apply(null, args);`,
-        errors: [
-          {
-            messageId: 'preferSpread',
-            suggestions: [
-              {
-                desc: 'Replace apply() with spread syntax',
-                output: `foo(...args);`,
-              },
-            ],
-          },
-        ],
-      },
-      {
-        code: `obj.foo.apply(obj, args);`,
-        errors: [
-          {
-            messageId: 'preferSpread',
-            suggestions: [
-              {
-                desc: 'Replace apply() with spread syntax',
-                output: `obj.foo(...args);`,
-              },
-            ],
-          },
-        ],
-      },
-    ],
+    ruleTester.run(`Spread syntax should be used instead of apply()`, rule, {
+      valid: [
+        {
+          code: `foo.apply(obj, args);`,
+        },
+      ],
+      invalid: [
+        {
+          code: `foo.apply(null, args);`,
+          errors: [
+            {
+              messageId: 'preferSpread',
+              suggestions: [
+                {
+                  desc: 'Replace apply() with spread syntax',
+                  output: `foo(...args);`,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `obj.foo.apply(obj, args);`,
+          errors: [
+            {
+              messageId: 'preferSpread',
+              suggestions: [
+                {
+                  desc: 'Replace apply() with spread syntax',
+                  output: `obj.foo(...args);`,
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
   });
 });

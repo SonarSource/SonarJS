@@ -16,48 +16,49 @@
  */
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
-import { describe } from 'node:test';
+import { describe, it } from 'node:test';
 
 describe('S1763', () => {
-  const ruleTester = new RuleTester();
+  it('S1763', () => {
+    const ruleTester = new RuleTester();
 
-  ruleTester.run(`Decorated rule should provide suggestion`, rule, {
-    valid: [
-      {
-        code: `
+    ruleTester.run(`Decorated rule should provide suggestion`, rule, {
+      valid: [
+        {
+          code: `
 while (a()) {
   b();
   break;
 }
 `,
-      },
-    ],
-    invalid: [
-      {
-        code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
 while (a()) {
   break;
   b();
 }
 `,
-        errors: [
-          {
-            messageId: 'unreachableCode',
-            suggestions: [
-              {
-                output: `
+          errors: [
+            {
+              messageId: 'unreachableCode',
+              suggestions: [
+                {
+                  output: `
 while (a()) {
   break;
 }
 `,
-                desc: 'Remove unreachable code',
-              },
-            ],
-          },
-        ],
-      },
-      {
-        code: `
+                  desc: 'Remove unreachable code',
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `
 while (a()) {
   b();
   break;
@@ -65,23 +66,24 @@ while (a()) {
   d();
 }
 `,
-        errors: [
-          {
-            messageId: 'unreachableCode',
-            suggestions: [
-              {
-                output: `
+          errors: [
+            {
+              messageId: 'unreachableCode',
+              suggestions: [
+                {
+                  output: `
 while (a()) {
   b();
   break;
 }
 `,
-                desc: 'Remove unreachable code',
-              },
-            ],
-          },
-        ],
-      },
-    ],
+                  desc: 'Remove unreachable code',
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
   });
 });

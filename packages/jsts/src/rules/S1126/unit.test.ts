@@ -16,15 +16,16 @@
  */
 import { rule } from './rule.js';
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
-import { describe } from 'node:test';
+import { describe, it } from 'node:test';
 
 const ruleTester = new RuleTester();
 
 describe('S1126', () => {
-  ruleTester.run('prefer-single-boolean-return', rule, {
-    valid: [
-      {
-        code: `
+  it('S1126', () => {
+    ruleTester.run('prefer-single-boolean-return', rule, {
+      valid: [
+        {
+          code: `
         function foo() {
           if (something) {
             return true;
@@ -35,9 +36,9 @@ describe('S1126', () => {
           }
         }
       `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
         function foo() {
           if (something) {
             return x;
@@ -46,9 +47,9 @@ describe('S1126', () => {
           }
         }
       `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
         function foo(y) {
           if (something) {
             return true;
@@ -57,9 +58,9 @@ describe('S1126', () => {
           }
         }
       `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
         function foo() {
           if (something) {
             doSomething();
@@ -68,9 +69,9 @@ describe('S1126', () => {
           }
         }
       `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
         function foo() {
           if (something) {
             doSomething();
@@ -80,9 +81,9 @@ describe('S1126', () => {
           }
         }
       `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
         function foo() {
           if (something) {
             return;
@@ -91,18 +92,18 @@ describe('S1126', () => {
           }
         }
       `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
         function foo() {
           if (something) {
             return true;
           }
         }
       `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
         function foo() {
           if (something) {
             return foo(true);
@@ -111,9 +112,9 @@ describe('S1126', () => {
           }
         }
       `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
         function foo() {
           if (something) {
             var x;
@@ -122,9 +123,9 @@ describe('S1126', () => {
           }
         }
       `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
         function foo() {
           if (something) {
             function f() {}
@@ -134,11 +135,11 @@ describe('S1126', () => {
           }
         }
       `,
-      },
-    ],
-    invalid: [
-      {
-        code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
         function foo() {
           if (something) {
             return true;
@@ -162,16 +163,16 @@ describe('S1126', () => {
           }
         }
       `,
-        errors: [
-          {
-            messageId: 'replaceIfThenElseByReturn',
-            line: 3,
-            column: 11,
-            endLine: 7,
-            endColumn: 12,
-            suggestions: [
-              {
-                output: `
+          errors: [
+            {
+              messageId: 'replaceIfThenElseByReturn',
+              line: 3,
+              column: 11,
+              endLine: 7,
+              endColumn: 12,
+              suggestions: [
+                {
+                  output: `
         function foo() {
           return !!(something);
 
@@ -191,10 +192,10 @@ describe('S1126', () => {
           }
         }
       `,
-                desc: 'Replace with single return statement using "!!" cast',
-              },
-              {
-                output: `
+                  desc: 'Replace with single return statement using "!!" cast',
+                },
+                {
+                  output: `
         function foo() {
           return something;
 
@@ -214,19 +215,19 @@ describe('S1126', () => {
           }
         }
       `,
-                desc: 'Replace with single return statement without cast (condition should be boolean!)',
-              },
-            ],
-          },
-          {
-            messageId: 'replaceIfThenElseByReturn',
-            line: 9,
-            column: 11,
-            endLine: 13,
-            endColumn: 12,
-            suggestions: [
-              {
-                output: `
+                  desc: 'Replace with single return statement without cast (condition should be boolean!)',
+                },
+              ],
+            },
+            {
+              messageId: 'replaceIfThenElseByReturn',
+              line: 9,
+              column: 11,
+              endLine: 13,
+              endColumn: 12,
+              suggestions: [
+                {
+                  output: `
         function foo() {
           if (something) {
             return true;
@@ -246,19 +247,19 @@ describe('S1126', () => {
           }
         }
       `,
-                desc: 'Replace with single return statement',
-              },
-            ],
-          },
-          {
-            messageId: 'replaceIfThenElseByReturn',
-            line: 15,
-            column: 11,
-            endLine: 16,
-            endColumn: 29,
-            suggestions: [
-              {
-                output: `
+                  desc: 'Replace with single return statement',
+                },
+              ],
+            },
+            {
+              messageId: 'replaceIfThenElseByReturn',
+              line: 15,
+              column: 11,
+              endLine: 16,
+              endColumn: 29,
+              suggestions: [
+                {
+                  output: `
         function foo() {
           if (something) {
             return true;
@@ -281,10 +282,10 @@ describe('S1126', () => {
           }
         }
       `,
-                desc: 'Replace with single return statement using "!!" cast',
-              },
-              {
-                output: `
+                  desc: 'Replace with single return statement using "!!" cast',
+                },
+                {
+                  output: `
         function foo() {
           if (something) {
             return true;
@@ -307,19 +308,19 @@ describe('S1126', () => {
           }
         }
       `,
-                desc: 'Replace with single return statement without cast (condition should be boolean!)',
-              },
-            ],
-          },
-          {
-            messageId: 'replaceIfThenElseByReturn',
-            line: 18,
-            column: 11,
-            endLine: 22,
-            endColumn: 12,
-            suggestions: [
-              {
-                output: `
+                  desc: 'Replace with single return statement without cast (condition should be boolean!)',
+                },
+              ],
+            },
+            {
+              messageId: 'replaceIfThenElseByReturn',
+              line: 18,
+              column: 11,
+              endLine: 22,
+              endColumn: 12,
+              suggestions: [
+                {
+                  output: `
         function foo() {
           if (something) {
             return true;
@@ -339,10 +340,10 @@ describe('S1126', () => {
           return !!(something);
         }
       `,
-                desc: 'Replace with single return statement using "!!" cast',
-              },
-              {
-                output: `
+                  desc: 'Replace with single return statement using "!!" cast',
+                },
+                {
+                  output: `
         function foo() {
           if (something) {
             return true;
@@ -362,14 +363,14 @@ describe('S1126', () => {
           return something;
         }
       `,
-                desc: 'Replace with single return statement without cast (condition should be boolean!)',
-              },
-            ],
-          },
-        ],
-      },
-      {
-        code: `
+                  desc: 'Replace with single return statement without cast (condition should be boolean!)',
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `
         function fn() {
           if (foo) {
             if (something) {
@@ -392,16 +393,16 @@ describe('S1126', () => {
           }
         }
       `,
-        errors: [
-          {
-            messageId: 'replaceIfThenElseByReturn',
-            line: 4,
-            column: 13,
-            endLine: 6,
-            endColumn: 14,
-            suggestions: [
-              {
-                output: `
+          errors: [
+            {
+              messageId: 'replaceIfThenElseByReturn',
+              line: 4,
+              column: 13,
+              endLine: 6,
+              endColumn: 14,
+              suggestions: [
+                {
+                  output: `
         function fn() {
           if (foo) {
             return !!(something);
@@ -421,10 +422,10 @@ describe('S1126', () => {
           }
         }
       `,
-                desc: 'Replace with single return statement using "!!" cast',
-              },
-              {
-                output: `
+                  desc: 'Replace with single return statement using "!!" cast',
+                },
+                {
+                  output: `
         function fn() {
           if (foo) {
             return something;
@@ -444,19 +445,19 @@ describe('S1126', () => {
           }
         }
       `,
-                desc: 'Replace with single return statement without cast (condition should be boolean!)',
-              },
-            ],
-          },
-          {
-            messageId: 'replaceIfThenElseByReturn',
-            line: 11,
-            column: 13,
-            endLine: 13,
-            endColumn: 14,
-            suggestions: [
-              {
-                output: `
+                  desc: 'Replace with single return statement without cast (condition should be boolean!)',
+                },
+              ],
+            },
+            {
+              messageId: 'replaceIfThenElseByReturn',
+              line: 11,
+              column: 13,
+              endLine: 13,
+              endColumn: 14,
+              suggestions: [
+                {
+                  output: `
         function fn() {
           if (foo) {
             if (something) {
@@ -476,14 +477,14 @@ describe('S1126', () => {
           }
         }
       `,
-                desc: 'Replace with single return statement',
-              },
-            ],
-          },
-        ],
-      },
-      {
-        code: `
+                  desc: 'Replace with single return statement',
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `
 function foo() {
   if (bar()) {
     if (baz()) {
@@ -494,36 +495,36 @@ function foo() {
   }
   return qux();
 }`,
-        errors: [
-          {
-            messageId: 'replaceIfThenElseByReturn',
-            suggestions: [
-              {
-                messageId: 'suggestCast',
-                output: `
+          errors: [
+            {
+              messageId: 'replaceIfThenElseByReturn',
+              suggestions: [
+                {
+                  messageId: 'suggestCast',
+                  output: `
 function foo() {
   if (bar()) {
     return !!(baz());
   }
   return qux();
 }`,
-              },
-              {
-                messageId: 'suggestBoolean',
-                output: `
+                },
+                {
+                  messageId: 'suggestBoolean',
+                  output: `
 function foo() {
   if (bar()) {
     return baz();
   }
   return qux();
 }`,
-              },
-            ],
-          },
-        ],
-      },
-      {
-        code: `
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `
 function foo() {
   if (bar()) {
     if (baz()) {
@@ -533,36 +534,36 @@ function foo() {
   }
   return qux();
 }`,
-        errors: [
-          {
-            messageId: 'replaceIfThenElseByReturn',
-            suggestions: [
-              {
-                messageId: 'suggestCast',
-                output: `
+          errors: [
+            {
+              messageId: 'replaceIfThenElseByReturn',
+              suggestions: [
+                {
+                  messageId: 'suggestCast',
+                  output: `
 function foo() {
   if (bar()) {
     return !!(baz());
   }
   return qux();
 }`,
-              },
-              {
-                messageId: 'suggestBoolean',
-                output: `
+                },
+                {
+                  messageId: 'suggestBoolean',
+                  output: `
 function foo() {
   if (bar()) {
     return baz();
   }
   return qux();
 }`,
-              },
-            ],
-          },
-        ],
-      },
-      {
-        code: `
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `
 function foo() {
   if (!bar()) {
     return true;
@@ -570,23 +571,23 @@ function foo() {
     return false;
   }
 }`,
-        errors: [
-          {
-            messageId: 'replaceIfThenElseByReturn',
-            suggestions: [
-              {
-                messageId: 'suggest',
-                output: `
+          errors: [
+            {
+              messageId: 'replaceIfThenElseByReturn',
+              suggestions: [
+                {
+                  messageId: 'suggest',
+                  output: `
 function foo() {
   return !bar();
 }`,
-              },
-            ],
-          },
-        ],
-      },
-      {
-        code: `
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `
 function foo() {
   if (bar() > 0) {
     return true;
@@ -594,23 +595,23 @@ function foo() {
     return false;
   }
 }`,
-        errors: [
-          {
-            messageId: 'replaceIfThenElseByReturn',
-            suggestions: [
-              {
-                messageId: 'suggest',
-                output: `
+          errors: [
+            {
+              messageId: 'replaceIfThenElseByReturn',
+              suggestions: [
+                {
+                  messageId: 'suggest',
+                  output: `
 function foo() {
   return bar() > 0;
 }`,
-              },
-            ],
-          },
-        ],
-      },
-      {
-        code: `
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `
 function foo() {
   if (baz() > 0) {
     return false;
@@ -618,23 +619,23 @@ function foo() {
     return true;
   }
 }`,
-        errors: [
-          {
-            messageId: 'replaceIfThenElseByReturn',
-            suggestions: [
-              {
-                messageId: 'suggest',
-                output: `
+          errors: [
+            {
+              messageId: 'replaceIfThenElseByReturn',
+              suggestions: [
+                {
+                  messageId: 'suggest',
+                  output: `
 function foo() {
   return !(baz() > 0);
 }`,
-              },
-            ],
-          },
-        ],
-      },
-      {
-        code: `
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `
 function foo() {
   if (baz()) {
     return false;
@@ -642,21 +643,22 @@ function foo() {
     return true;
   }
 }`,
-        errors: [
-          {
-            messageId: 'replaceIfThenElseByReturn',
-            suggestions: [
-              {
-                messageId: 'suggest',
-                output: `
+          errors: [
+            {
+              messageId: 'replaceIfThenElseByReturn',
+              suggestions: [
+                {
+                  messageId: 'suggest',
+                  output: `
 function foo() {
   return !(baz());
 }`,
-              },
-            ],
-          },
-        ],
-      },
-    ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
   });
 });

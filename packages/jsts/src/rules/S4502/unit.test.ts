@@ -16,15 +16,16 @@
  */
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
-import { describe } from 'node:test';
+import { describe, it } from 'node:test';
 
 describe('S4502', () => {
-  const ruleTester = new RuleTester();
+  it('S4502', () => {
+    const ruleTester = new RuleTester();
 
-  ruleTester.run('Disabling CSRF protections is security-sensitive', rule, {
-    valid: [
-      {
-        code: `
+    ruleTester.run('Disabling CSRF protections is security-sensitive', rule, {
+      valid: [
+        {
+          code: `
         var app = express();
         var csrf = require('csurf');
         var csrfProtection = csrf({ cookie: { httpOnly: true, secure:true }})
@@ -34,24 +35,24 @@ describe('S4502', () => {
           res.send('data is being processed')
         });
       `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
       var app = express();
       var csrf = require('csurf');
       var csrfProtection = csrf({ cookie: { httpOnly: true, secure:true}, ignoreMethods: [] });
       var csrfProtection2 = csrf({ cookie: { httpOnly: true, secure:true}, ignoreMethods: bar() });
       `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
       app.post('/process', function (req, res) { // ok as 'csurf' is not imported
         res.send('data is being processed');
       });
       `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
         var app = express();
         var csrf = require('csurf');
         var csrfProtection = csrf({ cookie: { httpOnly: true, secure:true }})
@@ -65,33 +66,33 @@ describe('S4502', () => {
           res.send('data is being processed')
         });
       `,
-      },
-    ],
-    invalid: [
-      {
-        code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
       var app = express();
       var csrf = require('csurf');
       var csrfProtection = csrf({ cookie: { httpOnly: true, secure:true}, ignoreMethods: ["POST", "PUT", "GET"] }); // Sensitive
       `,
-        errors: [
-          {
-            message: encodedMessage('Make sure disabling CSRF protection is safe here.', {
+          errors: [
+            {
+              message: encodedMessage('Make sure disabling CSRF protection is safe here.', {
+                line: 4,
+                column: 98,
+                endColumn: 103,
+                endLine: 4,
+              }),
               line: 4,
-              column: 98,
-              endColumn: 103,
               endLine: 4,
-            }),
-            line: 4,
-            endLine: 4,
-            column: 91,
-            endColumn: 97,
-          },
-        ],
-        options: ['sonar-runtime'],
-      },
-      {
-        code: `
+              column: 91,
+              endColumn: 97,
+            },
+          ],
+          options: ['sonar-runtime'],
+        },
+        {
+          code: `
         var app = express();
         var csrf = require('csurf');
         var csrfProtection = csrf({ cookie: { httpOnly: true, secure:true }})
@@ -100,62 +101,63 @@ describe('S4502', () => {
           res.send('data is being processed')
         }) 
       `,
-        errors: 1,
-      },
-      {
-        code: `
+          errors: 1,
+        },
+        {
+          code: `
         var csrf = require('csurf');
         app.post('/process', function (req, res) { // Sensitive: csrf used after
           res.send('data is being processed');
         }); 
         app.use(csrf({ cookie: true }));
       `,
-        errors: [
-          {
-            line: 3,
-            endLine: 3,
-            column: 9,
-            endColumn: 17,
-            message: encodedMessage('Make sure not using CSRF protection is safe here.'),
-          },
-        ],
-        options: ['sonar-runtime'],
-      },
-      {
-        code: `
+          errors: [
+            {
+              line: 3,
+              endLine: 3,
+              column: 9,
+              endColumn: 17,
+              message: encodedMessage('Make sure not using CSRF protection is safe here.'),
+            },
+          ],
+          options: ['sonar-runtime'],
+        },
+        {
+          code: `
         import csrf from 'csurf';
         app.post('/process', function (req, res) {
           res.send('data is being processed');
         });
       `,
-        errors: [
-          {
-            message: 'Make sure not using CSRF protection is safe here.',
-            line: 3,
-          },
-        ],
-      },
-    ],
-  });
-
-  function encodedMessage(
-    message: string,
-    secondary?: { line: number; column: number; endColumn: number; endLine: number },
-  ) {
-    let secondaryLocations = [];
-    if (secondary) {
-      secondaryLocations = [
-        {
-          column: secondary.column,
-          line: secondary.line,
-          endColumn: secondary.endColumn,
-          endLine: secondary.endLine,
+          errors: [
+            {
+              message: 'Make sure not using CSRF protection is safe here.',
+              line: 3,
+            },
+          ],
         },
-      ];
-    }
-    return JSON.stringify({
-      message,
-      secondaryLocations,
+      ],
     });
-  }
+
+    function encodedMessage(
+      message: string,
+      secondary?: { line: number; column: number; endColumn: number; endLine: number },
+    ) {
+      let secondaryLocations = [];
+      if (secondary) {
+        secondaryLocations = [
+          {
+            column: secondary.column,
+            line: secondary.line,
+            endColumn: secondary.endColumn,
+            endLine: secondary.endLine,
+          },
+        ];
+      }
+      return JSON.stringify({
+        message,
+        secondaryLocations,
+      });
+    }
+  });
 });

@@ -16,17 +16,18 @@
  */
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
-import { describe } from 'node:test';
+import { describe, it } from 'node:test';
 
 describe('S5876', () => {
-  const ruleTester = new RuleTester();
-  ruleTester.run(
-    'Create a new session during user authentication to prevent session fixation attacks.',
-    rule,
-    {
-      valid: [
-        {
-          code: `
+  it('S5876', () => {
+    const ruleTester = new RuleTester();
+    ruleTester.run(
+      'Create a new session during user authentication to prevent session fixation attacks.',
+      rule,
+      {
+        valid: [
+          {
+            code: `
       var passport = require('passport');
       
       app.post('/login', 
@@ -39,21 +40,21 @@ describe('S5876', () => {
         });
         console.log('coverage');
       });`,
-        },
-        {
-          code: `
+          },
+          {
+            code: `
       var passport = require('passport');
       passport.authenticate('local', { failureRedirect: '/login' });
       `,
-        },
-        {
-          code: `
+          },
+          {
+            code: `
       var passport = require('passport');      
       app.post('/login', passport.authenticate('local', { failureRedirect: '/login' }),  foo);            
     `,
-        },
-        {
-          code: `
+          },
+          {
+            code: `
         var passport = require('passport');
         app.post('/api/login', 
         passport.authenticate('local', { session: false }), // Compliant - no session
@@ -61,11 +62,11 @@ describe('S5876', () => {
           res.redirect('/');
         });
       `,
-        },
-      ],
-      invalid: [
-        {
-          code: `
+          },
+        ],
+        invalid: [
+          {
+            code: `
       var passport = require('passport');
       
       app.post('/login', 
@@ -74,19 +75,19 @@ describe('S5876', () => {
         // Sensitive - no session.regenerate after login
         res.redirect('/');
       });`,
-          errors: [
-            {
-              message:
-                'Create a new session during user authentication to prevent session fixation attacks.',
-              line: 6,
-              column: 7,
-              endLine: 9,
-              endColumn: 8,
-            },
-          ],
-        },
-        {
-          code: `
+            errors: [
+              {
+                message:
+                  'Create a new session during user authentication to prevent session fixation attacks.',
+                line: 6,
+                column: 7,
+                endLine: 9,
+                endColumn: 8,
+              },
+            ],
+          },
+          {
+            code: `
         var passport = require('passport');
         app.post('/api/login', 
         passport.authenticate('local', { session: true }),
@@ -94,10 +95,10 @@ describe('S5876', () => {
           res.redirect('/');
         });
       `,
-          errors: 1,
-        },
-        {
-          code: `
+            errors: 1,
+          },
+          {
+            code: `
         var passport = require('passport');
         app.post('/api/login', 
         passport.authenticate('local', foo()), // could be FP if foo() sets session to false
@@ -105,9 +106,10 @@ describe('S5876', () => {
           res.redirect('/');
         });
       `,
-          errors: 1,
-        },
-      ],
-    },
-  );
+            errors: 1,
+          },
+        ],
+      },
+    );
+  });
 });

@@ -16,47 +16,48 @@
  */
 import { rule } from './index.js';
 import { DefaultParserRuleTester, RuleTester } from '../../../tests/tools/testers/rule-tester.js';
-import { describe } from 'node:test';
+import { describe, it } from 'node:test';
 
 describe('S5725', () => {
-  const ruleTesterJs = new DefaultParserRuleTester();
-  const ruleTesterTs = new RuleTester();
+  it('S5725', () => {
+    const ruleTesterJs = new DefaultParserRuleTester();
+    const ruleTesterTs = new RuleTester();
 
-  ruleTesterJs.run('No issues without types', rule, {
-    valid: [
-      {
-        code: `
+    ruleTesterJs.run('No issues without types', rule, {
+      valid: [
+        {
+          code: `
       var script = document.createElement("script");
       script.src = "https://code.jquery.com/jquery-3.4.1.min.js"; // Sensitive
       script.crossOrigin = "anonymous";
       document.head.appendChild(script);
             `,
-      },
-    ],
-    invalid: [],
-  });
+        },
+      ],
+      invalid: [],
+    });
 
-  ruleTesterTs.run('Disabling resource integrity features is security-sensitive', rule, {
-    valid: [
-      {
-        code: `
+    ruleTesterTs.run('Disabling resource integrity features is security-sensitive', rule, {
+      valid: [
+        {
+          code: `
       var script = document.createElement("script");
       script.src = "https://code.jquery.com/jquery-3.4.1.min.js";
       script.integrity = "sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=";  // Compliant
       script.crossOrigin = "anonymous";
       document.head.appendChild(script);
             `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
       var script = document.createElement("script");
       script.src = getSource();
       script.crossOrigin = "anonymous";
       document.head.appendChild(script);
             `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
       var script = document.createElement("script");
       script.src = "https://code.jquery.com/jquery-3.4.1.min.js";
       if (x) {
@@ -65,9 +66,9 @@ describe('S5725', () => {
       script.crossOrigin = "anonymous";
       document.head.appendChild(script);
             `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
       var script = document.other("script");
       script.src = "https://code.jquery.com/jquery-3.4.1.min.js";
       if (x) {
@@ -76,9 +77,9 @@ describe('S5725', () => {
       script.crossOrigin = "anonymous";
       document.head.appendChild(script);
             `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
       var script = other.createElement("script");
       script.src = "https://code.jquery.com/jquery-3.4.1.min.js";
       if (x) {
@@ -87,9 +88,9 @@ describe('S5725', () => {
       script.crossOrigin = "anonymous";
       document.head.appendChild(script);
             `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
       // Coverage
       var script = getScript();
       script.src = getSource();
@@ -97,9 +98,9 @@ describe('S5725', () => {
       script.crossOrigin = "anonymous";
       document.head.appendChild(script);
             `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
       var script = document.createElement("script");
       script.src = "https://code.jquery.com/jquery-3.4.1.min.js";
       var other = script.src;
@@ -107,51 +108,52 @@ describe('S5725', () => {
       script.crossOrigin = "anonymous";
       document.head.appendChild(script);
             `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
       var script = document.createElement("other");
       script.src = "https://code.jquery.com/jquery-3.4.1.min.js";
       script.crossOrigin = "anonymous";
       document.head.appendChild(script);
             `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
         if (cond) {
           var script = document.createElement( "script" );
           script.src = "https://code.jquery.com/jquery-3.4.1.min.js"; // FN (missing variable)
         }
             `,
-      },
-    ],
-    invalid: [
-      {
-        code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
       var script = document.createElement("script");
       script.src = "https://code.jquery.com/jquery-3.4.1.min.js"; // Sensitive
       script.crossOrigin = "anonymous";
       document.head.appendChild(script);
             `,
-        errors: [
-          {
-            line: 2,
-            endLine: 2,
-            column: 11,
-            endColumn: 52,
-            message: 'Make sure not using resource integrity feature is safe here.',
-          },
-        ],
-      },
-      {
-        code: `
+          errors: [
+            {
+              line: 2,
+              endLine: 2,
+              column: 11,
+              endColumn: 52,
+              message: 'Make sure not using resource integrity feature is safe here.',
+            },
+          ],
+        },
+        {
+          code: `
       var script = document.createElement("script");
       script.src = "//code.jquery.com/jquery-3.4.1.min.js"; // Sensitive
       script.crossOrigin = "anonymous";
       document.head.appendChild(script);
             `,
-        errors: 1,
-      },
-    ],
+          errors: 1,
+        },
+      ],
+    });
   });
 });

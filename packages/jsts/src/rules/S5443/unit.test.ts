@@ -16,14 +16,15 @@
  */
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
-import { describe } from 'node:test';
+import { describe, it } from 'node:test';
 
 describe('S5443', () => {
-  const ruleTester = new RuleTester();
-  ruleTester.run('Using publicly writable directories is security-sensitive', rule, {
-    valid: [
-      {
-        code: `
+  it('S5443', () => {
+    const ruleTester = new RuleTester();
+    ruleTester.run('Using publicly writable directories is security-sensitive', rule, {
+      valid: [
+        {
+          code: `
       const tmp = require('tmp');
       const tmp_promise = require('tmp-promise');
       
@@ -47,33 +48,33 @@ describe('S5443', () => {
       tmpDir = something.env.TMP;
       tmpDir = process.env.other;
       `,
-      },
-    ],
-    invalid: [
-      {
-        code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
       tmpDir = process.env.TMPDIR;
       tmpFile = "/tmp/f";
       `,
-        errors: [
-          {
-            message: 'Make sure publicly writable directories are used safely here.',
-            line: 2,
-            endLine: 2,
-            column: 16,
-            endColumn: 34,
-          },
-          {
-            message: 'Make sure publicly writable directories are used safely here.',
-            line: 3,
-            endLine: 3,
-            column: 17,
-            endColumn: 25,
-          },
-        ],
-      },
-      {
-        code: `
+          errors: [
+            {
+              message: 'Make sure publicly writable directories are used safely here.',
+              line: 2,
+              endLine: 2,
+              column: 16,
+              endColumn: 34,
+            },
+            {
+              message: 'Make sure publicly writable directories are used safely here.',
+              line: 3,
+              endLine: 3,
+              column: 17,
+              endColumn: 25,
+            },
+          ],
+        },
+        {
+          code: `
       tmpDir = process.env.TMP;
       tmpDir = process.env.TEMPDIR;
       tmpDir = process.env.TEMP;
@@ -94,8 +95,9 @@ describe('S5443', () => {
       tmpFile = "C:\\TEMP";
       tmpFile = "C:\\TMP";
       `,
-        errors: 18,
-      },
-    ],
+          errors: 18,
+        },
+      ],
+    });
   });
 });

@@ -17,7 +17,7 @@
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
 import { EncodedMessage, IssueLocation } from '../helpers/index.js';
-import { describe } from 'node:test';
+import { describe, it } from 'node:test';
 
 const ruleTester = new RuleTester();
 
@@ -28,13 +28,14 @@ const createOptions = (maximumNestingLevel: number) => {
 };
 
 describe('S134', () => {
-  ruleTester.run(
-    'Refactor this code to not nest more than X if/for/while/switch/try statements.',
-    rule,
-    {
-      valid: [
-        {
-          code: `
+  it('S134', () => {
+    ruleTester.run(
+      'Refactor this code to not nest more than X if/for/while/switch/try statements.',
+      rule,
+      {
+        valid: [
+          {
+            code: `
       if (true) {
         if (true) {
           for (const i of arr) {
@@ -42,10 +43,10 @@ describe('S134', () => {
         }
       }
     `,
-          options: createOptions(THRESHOLD),
-        },
-        {
-          code: `
+            options: createOptions(THRESHOLD),
+          },
+          {
+            code: `
       if (true) {
         if (true) {
           for (const i of arr) {
@@ -55,10 +56,10 @@ describe('S134', () => {
         }
       }
     `,
-          options: createOptions(4),
-        },
-        {
-          code: `
+            options: createOptions(4),
+          },
+          {
+            code: `
           if (true) {
           } else if (false) {
             while (true) {
@@ -67,12 +68,12 @@ describe('S134', () => {
             }
           }
         `,
-          options: createOptions(THRESHOLD),
-        },
-      ],
-      invalid: [
-        invalid(
-          `
+            options: createOptions(THRESHOLD),
+          },
+        ],
+        invalid: [
+          invalid(
+            `
         if (true) {
 //      ^^         
           if (true) {
@@ -82,10 +83,10 @@ describe('S134', () => {
               }
           }
         }`,
-          2,
-        ),
-        invalid(
-          `
+            2,
+          ),
+          invalid(
+            `
         if (true) {
 
         } else if (true) {
@@ -97,10 +98,10 @@ describe('S134', () => {
               }
           }
         }`,
-          2,
-        ),
-        invalid(
-          `
+            2,
+          ),
+          invalid(
+            `
        for (var i = 0; i < 0; i++) { // level 1
 //     ^^^
           for (bar in MyArray) {     // level 2
@@ -108,66 +109,67 @@ describe('S134', () => {
             while (false) {               // level 3
 //----------^^^^^---
               }}}`,
-          2,
-        ),
-      ],
-    },
-  );
-});
+            2,
+          ),
+        ],
+      },
+    );
+  });
 
-function invalid(code: string, threshold = THRESHOLD) {
-  let primaryLocation: IssueLocation;
-  const secondaryLocations: IssueLocation[] = [];
-  const lines = code.split('\n');
-  for (const [index, line] of lines.entries()) {
-    let found: RegExpMatchArray | null;
+  function invalid(code: string, threshold = THRESHOLD) {
+    let primaryLocation: IssueLocation;
+    const secondaryLocations: IssueLocation[] = [];
+    const lines = code.split('\n');
+    for (const [index, line] of lines.entries()) {
+      let found: RegExpMatchArray | null;
 
-    const primary = /\/\/\s*\-+(\^+)\-+/;
-    found = line.match(primary);
-    if (found) {
-      const marker = found[1];
-      const column = line.indexOf(marker) + 1; // Column is one-based in tests
-      const msg = `Refactor this code to not nest more than ${threshold} if/for/while/switch/try statements.`;
-      primaryLocation = location(index, column, index, column + marker.length, msg);
+      const primary = /\/\/\s*\-+(\^+)\-+/;
+      found = line.match(primary);
+      if (found) {
+        const marker = found[1];
+        const column = line.indexOf(marker) + 1; // Column is one-based in tests
+        const msg = `Refactor this code to not nest more than ${threshold} if/for/while/switch/try statements.`;
+        primaryLocation = location(index, column, index, column + marker.length, msg);
+      }
+
+      const secondary = /\/\/\s*(\^+)/;
+      found = line.match(secondary);
+      if (found) {
+        const marker = found[1];
+        const column = line.indexOf(marker);
+        secondaryLocations.push(location(index, column, index, column + marker.length, '+1'));
+      }
     }
 
-    const secondary = /\/\/\s*(\^+)/;
-    found = line.match(secondary);
-    if (found) {
-      const marker = found[1];
-      const column = line.indexOf(marker);
-      secondaryLocations.push(location(index, column, index, column + marker.length, '+1'));
-    }
+    return {
+      code,
+      errors: [error(primaryLocation, secondaryLocations)],
+      options: createOptions(threshold),
+    };
   }
 
-  return {
-    code,
-    errors: [error(primaryLocation, secondaryLocations)],
-    options: createOptions(threshold),
-  };
-}
+  function error(primaryLocation: IssueLocation, secondaryLocations: IssueLocation[]) {
+    return {
+      ...primaryLocation,
+      message: encode(primaryLocation.message, secondaryLocations),
+    };
+  }
 
-function error(primaryLocation: IssueLocation, secondaryLocations: IssueLocation[]) {
-  return {
-    ...primaryLocation,
-    message: encode(primaryLocation.message, secondaryLocations),
-  };
-}
+  function encode(message: string, secondaryLocations: IssueLocation[]): string {
+    const encodedMessage: EncodedMessage = {
+      message,
+      secondaryLocations,
+    };
+    return JSON.stringify(encodedMessage);
+  }
 
-function encode(message: string, secondaryLocations: IssueLocation[]): string {
-  const encodedMessage: EncodedMessage = {
-    message,
-    secondaryLocations,
-  };
-  return JSON.stringify(encodedMessage);
-}
-
-function location(
-  line: number,
-  column: number,
-  endLine: number,
-  endColumn: number,
-  message: string,
-): IssueLocation {
-  return { message, column, line, endColumn, endLine };
-}
+  function location(
+    line: number,
+    column: number,
+    endLine: number,
+    endColumn: number,
+    message: string,
+  ): IssueLocation {
+    return { message, column, line, endColumn, endLine };
+  }
+});

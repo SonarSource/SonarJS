@@ -16,92 +16,96 @@
  */
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
-import { describe } from 'node:test';
+import { describe, it } from 'node:test';
 
 describe('S1534', () => {
-  const ruleTester = new RuleTester();
-  ruleTester.run(`Decorated rule should provide suggestion`, rule, {
-    valid: [
-      {
-        code: `let x = { a: 42, b: 42 }`,
-      },
-    ],
-    invalid: [
-      {
-        code: `let x = { a: 42, a: 42 }`,
-        errors: [
-          {
-            message: "Duplicate name 'a'.",
-            suggestions: [{ output: `let x = { a: 42 }`, desc: 'Remove this duplicate property' }],
-          },
-        ],
-      },
-      {
-        code: `let x = { a: 42, a: 42, b: 42 }`,
-        errors: [
-          {
-            message: "Duplicate name 'a'.",
-            suggestions: [
-              { output: `let x = { a: 42, b: 42 }`, desc: 'Remove this duplicate property' },
-            ],
-          },
-        ],
-      },
-      {
-        code: `let x = { a: 42, b: 42, a: 42, }`,
-        errors: [
-          {
-            message: "Duplicate name 'a'.",
-            suggestions: [
-              { output: `let x = { a: 42, b: 42, }`, desc: 'Remove this duplicate property' },
-            ],
-          },
-        ],
-      },
-      {
-        code: `
+  it('S1534', () => {
+    const ruleTester = new RuleTester();
+    ruleTester.run(`Decorated rule should provide suggestion`, rule, {
+      valid: [
+        {
+          code: `let x = { a: 42, b: 42 }`,
+        },
+      ],
+      invalid: [
+        {
+          code: `let x = { a: 42, a: 42 }`,
+          errors: [
+            {
+              message: "Duplicate name 'a'.",
+              suggestions: [
+                { output: `let x = { a: 42 }`, desc: 'Remove this duplicate property' },
+              ],
+            },
+          ],
+        },
+        {
+          code: `let x = { a: 42, a: 42, b: 42 }`,
+          errors: [
+            {
+              message: "Duplicate name 'a'.",
+              suggestions: [
+                { output: `let x = { a: 42, b: 42 }`, desc: 'Remove this duplicate property' },
+              ],
+            },
+          ],
+        },
+        {
+          code: `let x = { a: 42, b: 42, a: 42, }`,
+          errors: [
+            {
+              message: "Duplicate name 'a'.",
+              suggestions: [
+                { output: `let x = { a: 42, b: 42, }`, desc: 'Remove this duplicate property' },
+              ],
+            },
+          ],
+        },
+        {
+          code: `
 let x = { 
   a: 42,
   a: 42
 }`,
-        errors: [
-          {
-            message: "Duplicate name 'a'.",
-            suggestions: [
-              {
-                output: `
+          errors: [
+            {
+              message: "Duplicate name 'a'.",
+              suggestions: [
+                {
+                  output: `
 let x = { 
   a: 42
 }`,
-                desc: 'Remove this duplicate property',
-              },
-            ],
-          },
-        ],
-      },
-      {
-        code: `
+                  desc: 'Remove this duplicate property',
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `
 let x = { 
   a: 42,
   get a() {
     return 42;
   },
 }`,
-        errors: [
-          {
-            message: "Duplicate name 'a'.",
-            suggestions: [
-              {
-                output: `
+          errors: [
+            {
+              message: "Duplicate name 'a'.",
+              suggestions: [
+                {
+                  output: `
 let x = { 
   a: 42,
 }`,
-                desc: 'Remove this duplicate property',
-              },
-            ],
-          },
-        ],
-      },
-    ],
+                  desc: 'Remove this duplicate property',
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
   });
 });

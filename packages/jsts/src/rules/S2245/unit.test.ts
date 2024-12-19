@@ -16,46 +16,48 @@
  */
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
-import { describe } from 'node:test';
+import { describe, it } from 'node:test';
 
 describe('S2245', () => {
-  const ruleTester = new RuleTester();
-  ruleTester.run('Using pseudorandom number generators (PRNGs) is security-sensitive', rule, {
-    valid: [
-      {
-        code: `foo(x)`,
-      },
-      {
-        code: `"Math.random()"`,
-      },
-      {
-        code: `Math.foo()`,
-      },
-      {
-        code: `Foo.random()`,
-      },
-    ],
-    invalid: [
-      {
-        code: `let x = Math.random();`,
-        errors: [
-          {
-            message: 'Make sure that using this pseudorandom number generator is safe here.',
-            line: 1,
-            endLine: 1,
-            column: 9,
-            endColumn: 22,
-          },
-        ],
-      },
-      {
-        code: `foo(Math.random())`,
-        errors: 1,
-      },
-      {
-        code: `let random = Math.random; foo(random());`,
-        errors: 1,
-      },
-    ],
+  it('S2245', () => {
+    const ruleTester = new RuleTester();
+    ruleTester.run('Using pseudorandom number generators (PRNGs) is security-sensitive', rule, {
+      valid: [
+        {
+          code: `foo(x)`,
+        },
+        {
+          code: `"Math.random()"`,
+        },
+        {
+          code: `Math.foo()`,
+        },
+        {
+          code: `Foo.random()`,
+        },
+      ],
+      invalid: [
+        {
+          code: `let x = Math.random();`,
+          errors: [
+            {
+              message: 'Make sure that using this pseudorandom number generator is safe here.',
+              line: 1,
+              endLine: 1,
+              column: 9,
+              endColumn: 22,
+            },
+          ],
+        },
+        {
+          code: `foo(Math.random())`,
+          errors: 1,
+        },
+        {
+          code: `let random = Math.random; foo(random());`,
+          errors: 1,
+        },
+      ],
+    });
   });
 });

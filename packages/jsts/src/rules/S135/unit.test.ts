@@ -16,7 +16,7 @@
  */
 import { DefaultParserRuleTester, RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
-import { describe } from 'node:test';
+import { describe, it } from 'node:test';
 
 const ruleTesterJs = new DefaultParserRuleTester();
 const ruleTesterTs = new RuleTester();
@@ -216,14 +216,16 @@ const testCases = {
 };
 
 describe('S135', () => {
-  ruleTesterJs.run(
-    'Loops should not contain more than a single "break" or "continue" statement JS',
-    rule,
-    testCases,
-  );
-  ruleTesterTs.run(
-    'Loops should not contain more than a single "break" or "continue" statement TS',
-    rule,
-    testCases,
-  );
+  it('S135', () => {
+    ruleTesterJs.run(
+      'Loops should not contain more than a single "break" or "continue" statement JS',
+      rule,
+      testCases,
+    );
+    ruleTesterTs.run(
+      'Loops should not contain more than a single "break" or "continue" statement TS',
+      rule,
+      testCases,
+    );
+  });
 });

@@ -16,70 +16,71 @@
  */
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
-import { describe } from 'node:test';
+import { describe, it } from 'node:test';
 
 describe('S5689', () => {
-  const ruleTester = new RuleTester();
-  ruleTester.run(
-    'Recovering fingerprints from web application technologies should not be possible',
-    rule,
-    {
-      valid: [
-        {
-          code: `
+  it('S5689', () => {
+    const ruleTester = new RuleTester();
+    ruleTester.run(
+      'Recovering fingerprints from web application technologies should not be possible',
+      rule,
+      {
+        valid: [
+          {
+            code: `
         const express = require('express');
         const app = express();
         app.disable("x-powered-by"); // Compliant
       `,
-        },
-        {
-          code: `
+          },
+          {
+            code: `
         const express = require('express');
         const hidePoweredBy = require('hide-powered-by');
         const app = express();
         app.use(hidePoweredBy()); // Compliant
       `,
-        },
-        {
-          code: `
+          },
+          {
+            code: `
         const express = require('express');
         const app = express();
         app.set("x-powered-by", false); // Compliant
       `,
-        },
-        {
-          code: `
+          },
+          {
+            code: `
         const express = require('express');
         const app = express();
         app.set("X-PoWeReD-bY", false); // Compliant
       `,
-        },
-        {
-          code: `
+          },
+          {
+            code: `
         const express = require('express');
         const app = express();
         app.use(require('helmet')()); // Compliant
       `,
-        },
-        {
-          code: `
+          },
+          {
+            code: `
         import express from 'express';
         import disableXPoweredBy from 'hide-powered-by';
         const app = express();
         app.use(disableXPoweredBy()); // Compliant
       `,
-        },
-        {
-          code: `
+          },
+          {
+            code: `
         const express = require('express');
         const app = express();
         const helmet = require('helmet');
         const h = helmet();
         app.use(h);
       `,
-        },
-        {
-          code: `
+          },
+          {
+            code: `
         // middleware instance is saved to variable instead of directly passed to 'app.use()'
         const express = require('express');
         const helmet = require('helmet');
@@ -87,38 +88,38 @@ describe('S5689', () => {
         const app = express();
         app.use(helmetInstance); // compliant
       `,
-        },
-        {
-          code: `
+          },
+          {
+            code: `
         const express = require('express');
         const app = express();
         configure(app); // app escapes, probably configured elsewhere.
       `,
-        },
-        {
-          code: `
+          },
+          {
+            code: `
         const express = require('express');
         const helmet = require('helmet');
         const app = express();
         app.use(helmet.hidePoweredBy());
       `,
-        },
-        {
-          code: `
+          },
+          {
+            code: `
         const express = require('express');
         const app = express();
         app.use(require('helmet').hidePoweredBy());
       `,
-        },
-        {
-          code: `
+          },
+          {
+            code: `
         const express = require('express');
         const app = express();
         app.use(a, b, [c, d, require('helmet')(), e, f], g, h);
       `,
-        },
-        {
-          code: `
+          },
+          {
+            code: `
         const express = require('express');
         const app = express();
         const helmet = require('helmet');
@@ -130,26 +131,26 @@ describe('S5689', () => {
         ];
         app.use(usefulStuff, securityMiddlewares, moreStuff);
       `,
-        },
-        {
-          code: `
+          },
+          {
+            code: `
           const { app } = apps[42]; // Compliant (not obviously an express-app, ignored)
           const app2 = apps[42];
           const { subcomponent } = require('express')();
           apps[42] = require('express')(); // Limitation: we don't keep track of 'app' here.
         `,
-        },
-        {
-          code: `
+          },
+          {
+            code: `
           const express = require('express');
           module.exports.createExpressApp = function() {
             var appEscaping = express(); // should be compliant, because express object is returned from the function
             return appEscaping;
           };
         `,
-        },
-        {
-          code: `
+          },
+          {
+            code: `
           const express = require('express');
           function f() {
             return 42; // a return before the application is discovered, for coverage
@@ -159,110 +160,110 @@ describe('S5689', () => {
             return appEscaping;
           };
         `,
-        },
-      ],
-      invalid: [
-        {
-          code: `
+          },
+        ],
+        invalid: [
+          {
+            code: `
         const express = require('express');
         const app = express(); // Noncompliant
       `,
-          errors: [
-            {
-              message:
-                'This framework implicitly discloses version information by default. Make sure it is safe here.',
-              line: 3,
-              endLine: 3,
-              column: 15,
-              endColumn: 18,
-            },
-          ],
-        },
-        {
-          code: `
+            errors: [
+              {
+                message:
+                  'This framework implicitly discloses version information by default. Make sure it is safe here.',
+                line: 3,
+                endLine: 3,
+                column: 15,
+                endColumn: 18,
+              },
+            ],
+          },
+          {
+            code: `
         import express from 'express';
         const app = express(); // Noncompliant
       `,
-          errors: [
-            {
-              message:
-                'This framework implicitly discloses version information by default. Make sure it is safe here.',
-              line: 3,
-              endLine: 3,
-              column: 15,
-              endColumn: 18,
-            },
-          ],
-        },
-        {
-          code: `
+            errors: [
+              {
+                message:
+                  'This framework implicitly discloses version information by default. Make sure it is safe here.',
+                line: 3,
+                endLine: 3,
+                column: 15,
+                endColumn: 18,
+              },
+            ],
+          },
+          {
+            code: `
         const app = require('express')(); // Noncompliant
       `,
-          errors: [
-            {
-              message:
-                'This framework implicitly discloses version information by default. Make sure it is safe here.',
-              line: 2,
-              endLine: 2,
-              column: 15,
-              endColumn: 18,
-            },
-          ],
-        },
-        {
-          code: `
+            errors: [
+              {
+                message:
+                  'This framework implicitly discloses version information by default. Make sure it is safe here.',
+                line: 2,
+                endLine: 2,
+                column: 15,
+                endColumn: 18,
+              },
+            ],
+          },
+          {
+            code: `
         const express = require('express');
         const app = express();
         app.set("x-powered-by", true); // Noncompliant
       `,
-          errors: [
-            {
-              message:
-                'Make sure disclosing the fingerprinting of this web technology is safe here.',
-              line: 3,
-              endLine: 3,
-              column: 15,
-              endColumn: 18,
-            },
-          ],
-        },
-        {
-          code: `
+            errors: [
+              {
+                message:
+                  'Make sure disclosing the fingerprinting of this web technology is safe here.',
+                line: 3,
+                endLine: 3,
+                column: 15,
+                endColumn: 18,
+              },
+            ],
+          },
+          {
+            code: `
         const express = require('express');
         const app = express();
       `,
-          errors: 1,
-        },
-        {
-          code: `
+            errors: 1,
+          },
+          {
+            code: `
         const express = require('express');
         const theforce = require('the-force');
         const app = express();
         app.use(theforce()); // That doesn't help here.
         app.use(somethingunknown()); // That doesn't help either.
       `,
-          errors: 1,
-        },
-        {
-          code: `
+            errors: 1,
+          },
+          {
+            code: `
         const express = require('express');
         const helmet = require('helmet');
         const helmetInst = helmet();
         const app = express();
         // imported, but forgot to use helmet
       `,
-          errors: 1,
-        },
-        {
-          code: `
+            errors: 1,
+          },
+          {
+            code: `
         const express = require('express');
         const app = express();
         app.use(a, b, [c, d, require('sth-useless')(), e, f], g, h);
         `,
-          errors: 1,
-        },
-        {
-          code: `
+            errors: 1,
+          },
+          {
+            code: `
         const express = require('express');
         const app = express();
         const securityMiddlewares = [
@@ -272,19 +273,20 @@ describe('S5689', () => {
         ];
         app.use(usefulStuff, securityMiddlewares, something.unknown());
         `,
-          errors: 1,
-        },
-        {
-          code: `
+            errors: 1,
+          },
+          {
+            code: `
           const express = require('express');
           module.exports.createExpressApp = function() {
             var appEscaping = express();
             return appEscaping.someSubproperty; // that's not sufficient, does not count as escaped app.
           };
         `,
-          errors: 1,
-        },
-      ],
-    },
-  );
+            errors: 1,
+          },
+        ],
+      },
+    );
+  });
 });

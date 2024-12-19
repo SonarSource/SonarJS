@@ -16,22 +16,24 @@
  */
 import { rule } from './index.js';
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
-import { describe } from 'node:test';
+import { describe, it } from 'node:test';
+
 import parser from 'vue-eslint-parser';
 
 describe('S6299', () => {
-  const ruleTesterForVue = new RuleTester({
-    parser,
-  });
-  const ruleTester = new RuleTester();
+  it('S6299', () => {
+    const ruleTesterForVue = new RuleTester({
+      parser,
+    });
+    const ruleTester = new RuleTester();
 
-  const message = `Make sure bypassing Vue built-in sanitization is safe here.`;
-  const testName = 'Disabling Vue.js built-in escaping is security-sensitive';
+    const message = `Make sure bypassing Vue built-in sanitization is safe here.`;
+    const testName = 'Disabling Vue.js built-in escaping is security-sensitive';
 
-  ruleTesterForVue.run(testName, rule, {
-    valid: [
-      {
-        code: `
+    ruleTesterForVue.run(testName, rule, {
+      valid: [
+        {
+          code: `
       <template>
         <p class="footer"></p>
       </template>
@@ -39,20 +41,20 @@ describe('S6299', () => {
         alert('hello');
       </script>
       `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
       <template>
       <div>
         <!-- normal href which is not a directive -->
         <a href="tainted">click here1</a> 
       </div>
       </template>`,
-      },
-    ],
-    invalid: [
-      {
-        code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
       <template>
         <p v-html="innerHtml"></p>
       </template>
@@ -60,18 +62,18 @@ describe('S6299', () => {
 
       </script>
       `,
-        errors: [
-          {
-            message,
-            line: 3,
-            column: 12,
-            endLine: 3,
-            endColumn: 30,
-          },
-        ],
-      },
-      {
-        code: `
+          errors: [
+            {
+              message,
+              line: 3,
+              column: 12,
+              endLine: 3,
+              endColumn: 30,
+            },
+          ],
+        },
+        {
+          code: `
       <template>
       <div>
         <a :href="tainted">click here1</a> <!-- Noncompliant -->
@@ -80,34 +82,34 @@ describe('S6299', () => {
       </div>
       </template>
       `,
-        errors: [
-          { message, line: 4, column: 12, endLine: 4, endColumn: 27 },
-          { message, line: 6, column: 12, endLine: 6, endColumn: 33 },
-        ],
-      },
-    ],
-  });
+          errors: [
+            { message, line: 4, column: 12, endLine: 4, endColumn: 27 },
+            { message, line: 6, column: 12, endLine: 6, endColumn: 33 },
+          ],
+        },
+      ],
+    });
 
-  ruleTester.run(`${testName} JSX`, rule, {
-    valid: [{ code: `let x = <div class="bar">foo</div>` }],
-    invalid: [
-      {
-        code: `
+    ruleTester.run(`${testName} JSX`, rule, {
+      valid: [{ code: `let x = <div class="bar">foo</div>` }],
+      invalid: [
+        {
+          code: `
       let x = <div domPropsInnerHTML={this.message}></div>
       `,
-        errors: [{ message, line: 2, column: 20, endLine: 2, endColumn: 52 }],
-      },
-    ],
-  });
+          errors: [{ message, line: 2, column: 20, endLine: 2, endColumn: 52 }],
+        },
+      ],
+    });
 
-  ruleTester.run(`${testName} JS`, rule, {
-    valid: [
-      {
-        code: `let x = { domProps: { }} `,
-      },
-      { code: `let x = { domProps: { prop: 'foo' } } ` },
-      {
-        code: `
+    ruleTester.run(`${testName} JS`, rule, {
+      valid: [
+        {
+          code: `let x = { domProps: { }} `,
+        },
+        { code: `let x = { domProps: { prop: 'foo' } } ` },
+        {
+          code: `
        createElement({
                 attrs: {
                     href: tainted 
@@ -115,9 +117,9 @@ describe('S6299', () => {
             },
             "click here2")
     `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
        createElement('foo', {
                 attrs: {
                     bar: 'x' 
@@ -125,9 +127,9 @@ describe('S6299', () => {
             },
             "click here2")
     `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
        foo('foo', {
                 attrs: {
                     bar: 'x' 
@@ -135,11 +137,11 @@ describe('S6299', () => {
             },
             "click here2")
     `,
-      },
-    ],
-    invalid: [
-      {
-        code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
         function f (createElement) {
           return createElement(
             'div',
@@ -152,11 +154,11 @@ describe('S6299', () => {
           );
         }
       `,
-        errors: [{ message, line: 7, column: 17, endLine: 7, endColumn: 36 }],
-      },
+          errors: [{ message, line: 7, column: 17, endLine: 7, endColumn: 36 }],
+        },
 
-      {
-        code: `
+        {
+          code: `
        Vue.component('custom-element2', {
           render: function (createElement) {
             return createElement('a', {
@@ -166,11 +168,11 @@ describe('S6299', () => {
             },
             "click here2")}})
       `,
-        errors: [{ message, line: 6, column: 21, endLine: 6, endColumn: 34 }],
-      },
+          errors: [{ message, line: 6, column: 21, endLine: 6, endColumn: 34 }],
+        },
 
-      {
-        code: `
+        {
+          code: `
        Vue.component('custom-element2', {
           render: function (h) {
             return h('a', {
@@ -180,11 +182,11 @@ describe('S6299', () => {
             },
             "click here2")}})
       `,
-        errors: [{ message, line: 6, column: 21, endLine: 6, endColumn: 34 }],
-      },
+          errors: [{ message, line: 6, column: 21, endLine: 6, endColumn: 34 }],
+        },
 
-      {
-        code: `
+        {
+          code: `
        createElement('foo',{
                 attrs: {
                     href: tainted 
@@ -192,8 +194,9 @@ describe('S6299', () => {
             },
             "click here2")
     `,
-        errors: 1,
-      },
-    ],
+          errors: 1,
+        },
+      ],
+    });
   });
 });

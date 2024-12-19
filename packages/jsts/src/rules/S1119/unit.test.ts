@@ -16,23 +16,24 @@
  */
 import { rule } from './index.js';
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
-import { describe } from 'node:test';
+import { describe, it } from 'node:test';
 
 const ruleTester = new RuleTester();
 describe('S1119', () => {
-  ruleTester.run('Labels should not be used', rule, {
-    valid: [
-      {
-        code: `
+  it('S1119', () => {
+    ruleTester.run('Labels should not be used', rule, {
+      valid: [
+        {
+          code: `
       let x = doSomething();
       if (x <= 0) {
         doSomethingElse();
       }`,
-      },
-    ],
-    invalid: [
-      {
-        code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
       myLabel: {
         let x = doSomething();
         if (x > 0) {
@@ -41,16 +42,17 @@ describe('S1119', () => {
         doSomethingElse();
       }
 `,
-        errors: [
-          {
-            message: `Refactor the code to remove this label and the need for it.`,
-            line: 2,
-            endLine: 2,
-            column: 7,
-            endColumn: 14,
-          },
-        ],
-      },
-    ],
+          errors: [
+            {
+              message: `Refactor the code to remove this label and the need for it.`,
+              line: 2,
+              endLine: 2,
+              column: 7,
+              endColumn: 14,
+            },
+          ],
+        },
+      ],
+    });
   });
 });

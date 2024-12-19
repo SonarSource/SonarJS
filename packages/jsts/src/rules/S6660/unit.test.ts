@@ -16,24 +16,25 @@
  */
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
-import { describe } from 'node:test';
+import { describe, it } from 'node:test';
 
 describe('S6660', () => {
-  const ruleTester = new RuleTester();
+  it('S6660', () => {
+    const ruleTester = new RuleTester();
 
-  ruleTester.run("'If' statement should not be the only statement in 'else' block", rule, {
-    valid: [
-      {
-        code: `
+    ruleTester.run("'If' statement should not be the only statement in 'else' block", rule, {
+      valid: [
+        {
+          code: `
         if (condition) {
           doSomething();
         }
       `,
-      },
-    ],
-    invalid: [
-      {
-        code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
         if (condition1) {
           // ...
         } else {
@@ -42,25 +43,25 @@ describe('S6660', () => {
           }
         }
       `,
-        output: `
+          output: `
         if (condition1) {
           // ...
         } else if (condition2) {
             // ...
           }
       `,
-        errors: [
-          {
-            message: "'If' statement should not be the only statement in 'else' block",
-            line: 5,
-            endLine: 5,
-            column: 11,
-            endColumn: 13,
-          },
-        ],
-      },
-      {
-        code: `
+          errors: [
+            {
+              message: "'If' statement should not be the only statement in 'else' block",
+              line: 5,
+              endLine: 5,
+              column: 11,
+              endColumn: 13,
+            },
+          ],
+        },
+        {
+          code: `
         if (condition3) {
           // ...
         } else {
@@ -71,7 +72,7 @@ describe('S6660', () => {
           }
         }
       `,
-        output: `
+          output: `
         if (condition3) {
           // ...
         } else if (condition4) {
@@ -80,16 +81,17 @@ describe('S6660', () => {
             // ...
           }
       `,
-        errors: [
-          {
-            message: "'If' statement should not be the only statement in 'else' block",
-            line: 5,
-            endLine: 5,
-            column: 11,
-            endColumn: 13,
-          },
-        ],
-      },
-    ],
+          errors: [
+            {
+              message: "'If' statement should not be the only statement in 'else' block",
+              line: 5,
+              endLine: 5,
+              column: 11,
+              endColumn: 13,
+            },
+          ],
+        },
+      ],
+    });
   });
 });

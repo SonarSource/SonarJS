@@ -16,15 +16,16 @@
  */
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
-import { describe } from 'node:test';
+import { describe, it } from 'node:test';
 
 const ruleTester = new RuleTester();
 
 describe('S1854', () => {
-  ruleTester.run('Dead stores should be removed', rule, {
-    valid: [
-      {
-        code: `
+  it('S1854', () => {
+    ruleTester.run('Dead stores should be removed', rule, {
+      valid: [
+        {
+          code: `
     function foo(cond) {
       let x = 1;
       if (cond) {
@@ -32,23 +33,23 @@ describe('S1854', () => {
       }
     }
    `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
     var global1 = 42;
   `,
-      },
-      {
-        code: `const {run} = Ember;`,
-      },
-      {
-        code: `
+        },
+        {
+          code: `const {run} = Ember;`,
+        },
+        {
+          code: `
     function functionParameter(p) { // OK
     }
     `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
       function write_in_nested_function_expression() {
         var a = 42;
         executeConditionally(function() {
@@ -57,9 +58,9 @@ describe('S1854', () => {
         return a;
       }
     `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
       function read_in_nested_function_expression() {
         var a = 42;
         var f = function() {
@@ -68,9 +69,9 @@ describe('S1854', () => {
         a = 1; // OK
         return f;
       }`,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
       function read_in_nested_function_declaration() {
         var a = 42;
         function f() {
@@ -79,9 +80,9 @@ describe('S1854', () => {
         a = 1; // OK
         return f;
       }`,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
       function read_in_nested_method() {
         var a = 42;
         class A {
@@ -92,33 +93,33 @@ describe('S1854', () => {
         a = 1; // OK
         return new A();
       }`,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
     function blockless_arrow_function() {
       doSomething(() => 1);
     }
     `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
       function assignment_order() {
         var x = foo(); // OK
         x = bar(x);
         return baz(x);
       }
     `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
     var globalCounter = 0;
     function getUniqueId() {
       return ++globalCounter;
     }
 `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
       var x = function loops() {
         let i = 0;
         let length;
@@ -126,11 +127,11 @@ describe('S1854', () => {
         }
       }
     `,
-      },
-      {
-        // this test case demonstrates that unreachable elements will not be part of any CodePathSegment
-        // see https://eslint.org/docs/developer-guide/code-path-analysis#forstatement-for-ever
-        code: `
+        },
+        {
+          // this test case demonstrates that unreachable elements will not be part of any CodePathSegment
+          // see https://eslint.org/docs/developer-guide/code-path-analysis#forstatement-for-ever
+          code: `
     function forever() {
       for (;; ) {
 
@@ -138,15 +139,15 @@ describe('S1854', () => {
       foo();
     }
     `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
       let x = 1;
       x = foo() ? x : 2;
     `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
   function f(){
       const mod = "foo";
       switch (mod) {
@@ -157,15 +158,15 @@ describe('S1854', () => {
       }
   }
   `,
-      },
-      {
-        code: ` function f(){
+        },
+        {
+          code: ` function f(){
       let {x} = bar();
       foo(x);
   }`,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
     function foo(map) {
       let i;
       for (const _ in map) {
@@ -173,17 +174,17 @@ describe('S1854', () => {
       }
     }
    `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
         function f(a,b) {
           var d = (d = a - b) * d + (d = a - b) * d;
           foo(d);
         }
         `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
     function f() {
       let {a, ...rest} = foo();
       bar(rest);
@@ -193,55 +194,55 @@ describe('S1854', () => {
       bar(rest);
     }
   `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
   var x; 
   function foo() {
     x = 5;
   }`,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
     function read_write() {
       var i = 42;
       var j = i++;
       doSomething(j);
     }`,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
     function foo() {
       let x = 42;
       console.log(x);
       x = null;
     }
   `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
         const enum A {
           Monday = 1,
           Tuesday = 2
         }
     `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
         class A {
           constructor(private concurrent: number = 42) { }
         }
         `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
         namespace ts {
           export const version = "2.4.0";
         }
       `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
         function getIconSettings() {
           const Container = styled.div\`
             width: 26px;
@@ -253,11 +254,11 @@ describe('S1854', () => {
           )
         }
     `,
-      },
-    ],
-    invalid: [
-      {
-        code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
     function foo(cond) {
       let x = 1;
       if (cond) {
@@ -265,17 +266,17 @@ describe('S1854', () => {
       }
     }
    `,
-        errors: [
-          {
-            message: 'Remove this useless assignment to variable "x".',
-            line: 5,
-            endLine: 5,
-            column: 9,
-            endColumn: 10,
-          },
-        ],
-      },
-      noncompliant(`
+          errors: [
+            {
+              message: 'Remove this useless assignment to variable "x".',
+              line: 5,
+              endLine: 5,
+              column: 9,
+              endColumn: 10,
+            },
+          ],
+        },
+        noncompliant(`
       function foo(condition, a) {
         var x;
         x = 42; // Noncompliant
@@ -287,7 +288,7 @@ describe('S1854', () => {
         foo(x);
       }
     `),
-      noncompliant(`
+        noncompliant(`
     function loops() {
       var i = 42;
       while(i < 10) {
@@ -300,7 +301,7 @@ describe('S1854', () => {
         j = k + 1; // Noncompliant
       }
     }`),
-      noncompliant(`
+        noncompliant(`
     function write_in_nested_function_expression_but_never_read() {
       var a = 42; // Noncompliant
       execute(function() {
@@ -308,7 +309,7 @@ describe('S1854', () => {
       });
     }
     `),
-      noncompliant(`
+        noncompliant(`
         function arrow_function() {
           doSomething(() => {
             var x = 42; // Noncompliant
@@ -316,21 +317,21 @@ describe('S1854', () => {
             return x;
           });
         }`),
-      noncompliant(`
+        noncompliant(`
     class A {
       method1() {
         var x = 42; // Noncompliant
         return y;
       }
     }`),
-      noncompliant(`
+        noncompliant(`
     function let_variable() {
       if (condition()) {
         let x = 42; // Noncompliant
       }
     }
     `),
-      noncompliant(`
+        noncompliant(`
     //  -1, 0, 1, null, true, false, "" and void 0.
       function ok_initializer_to_standard_value() {
         let [a, b] = [42, 1]; // Noncompliant
@@ -387,7 +388,7 @@ describe('S1854', () => {
 
       }
     `),
-      noncompliant(`
+        noncompliant(`
    function getIconSettings() {
     const Container = styled.div\`
         width: 26px;
@@ -400,7 +401,7 @@ describe('S1854', () => {
       )
     }
   `),
-      noncompliant(`
+        noncompliant(`
     function f() {
       let {a, b} = foo(); // Noncompliant
       bar(a);
@@ -409,28 +410,29 @@ describe('S1854', () => {
       bar(x);
     }
   `),
-      noncompliant(`
+        noncompliant(`
     function f() {
       // 'b' is ignored but 'unused' is reported
       let {unused, a: {b, ...rest}} = foo(); // Noncompliant
       foo(rest);
     }
   `),
-    ],
+      ],
+    });
   });
-});
 
-function noncompliant(code: string) {
-  const nonCompliantLines: number[] = [];
-  code.split('\n').forEach((line, idx) => {
-    if (line.includes('// Noncompliant')) {
-      nonCompliantLines.push(idx + 1);
-    }
-  });
-  return {
-    code,
-    errors: nonCompliantLines.map(l => {
-      return { messageId: 'removeAssignment', line: l };
-    }),
-  };
-}
+  function noncompliant(code: string) {
+    const nonCompliantLines: number[] = [];
+    code.split('\n').forEach((line, idx) => {
+      if (line.includes('// Noncompliant')) {
+        nonCompliantLines.push(idx + 1);
+      }
+    });
+    return {
+      code,
+      errors: nonCompliantLines.map(l => {
+        return { messageId: 'removeAssignment', line: l };
+      }),
+    };
+  }
+});

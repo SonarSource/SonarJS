@@ -16,31 +16,33 @@
  */
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
-import { describe } from 'node:test';
+import { describe, it } from 'node:test';
 
 describe('S6959', () => {
-  const ruleTester = new RuleTester();
-  ruleTester.run('"Array.reduce()" calls should include an initial value', rule, {
-    valid: [
-      {
-        code: 'xs.reduce((acc, x) => acc + x);',
-      },
-      {
-        code: '[1,2,3].reduce((acc, x) => acc + x, 0);',
-      },
-      {
-        code: 'const xs = [1,2,3]; xs.reduce((acc, x) => acc + x, 0);',
-      },
-    ],
-    invalid: [
-      {
-        code: '[1,2,3].reduce((acc, x) => acc + x);',
-        errors: 1,
-      },
-      {
-        code: 'const xs = [1,2,3]; xs.reduce((acc, x) => acc + x);',
-        errors: 1,
-      },
-    ],
+  it('S6959', () => {
+    const ruleTester = new RuleTester();
+    ruleTester.run('"Array.reduce()" calls should include an initial value', rule, {
+      valid: [
+        {
+          code: 'xs.reduce((acc, x) => acc + x);',
+        },
+        {
+          code: '[1,2,3].reduce((acc, x) => acc + x, 0);',
+        },
+        {
+          code: 'const xs = [1,2,3]; xs.reduce((acc, x) => acc + x, 0);',
+        },
+      ],
+      invalid: [
+        {
+          code: '[1,2,3].reduce((acc, x) => acc + x);',
+          errors: 1,
+        },
+        {
+          code: 'const xs = [1,2,3]; xs.reduce((acc, x) => acc + x);',
+          errors: 1,
+        },
+      ],
+    });
   });
 });

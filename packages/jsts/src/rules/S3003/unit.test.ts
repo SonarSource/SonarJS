@@ -16,101 +16,103 @@
  */
 import { rule } from './index.js';
 import { DefaultParserRuleTester, RuleTester } from '../../../tests/tools/testers/rule-tester.js';
-import { describe } from 'node:test';
+import { describe, it } from 'node:test';
 
 describe('S3003', () => {
-  const ruleTesterJs = new DefaultParserRuleTester();
-  ruleTesterJs.run('Comparison operators should not be used with strings [js]', rule, {
-    valid: [
-      {
-        code: `
+  it('S3003', () => {
+    const ruleTesterJs = new DefaultParserRuleTester();
+    ruleTesterJs.run('Comparison operators should not be used with strings [js]', rule, {
+      valid: [
+        {
+          code: `
       let str1 = 'hello', str2 = 'world';
       str1 < str2; // not reported without type information`,
-      },
-    ],
-    invalid: [],
-  });
+        },
+      ],
+      invalid: [],
+    });
 
-  const ruleTesterTs = new RuleTester();
-  ruleTesterTs.run(`Comparison operators should not be used with strings [ts]`, rule, {
-    valid: [
-      {
-        code: `
+    const ruleTesterTs = new RuleTester();
+    ruleTesterTs.run(`Comparison operators should not be used with strings [ts]`, rule, {
+      valid: [
+        {
+          code: `
         let str1 = 'hello', str2 = 'world';
         str1 == str2;`,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
         let str = 'hello', num = 5;
         str < num;`,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
         let str = 'hello', num = 5;
         num < str;`,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
         let str = 'hello';
         str < 'h';`,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
         let str = 'hello';
         'h' < str;`,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
         ['foo', 'bar', 'baz'].sort((a, b) => a < b);
       `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
         sort((a: string, b: string) => a < b)
       `,
-      },
-    ],
-    invalid: [
-      {
-        code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
         let str1 = 'hello', str2 = 'world';
         str1 < str2;`,
-        options: ['sonar-runtime'],
-        errors: [
-          {
-            message:
-              '{"message":"Convert operands of this use of \\"<\\" to number type.","secondaryLocations":[{"column":8,"line":3,"endColumn":12,"endLine":3},{"column":15,"line":3,"endColumn":19,"endLine":3}]}',
-            line: 3,
-            column: 14,
-            endLine: 3,
-            endColumn: 15,
-          },
-        ],
-      },
-      {
-        code: `
+          options: ['sonar-runtime'],
+          errors: [
+            {
+              message:
+                '{"message":"Convert operands of this use of \\"<\\" to number type.","secondaryLocations":[{"column":8,"line":3,"endColumn":12,"endLine":3},{"column":15,"line":3,"endColumn":19,"endLine":3}]}',
+              line: 3,
+              column: 14,
+              endLine: 3,
+              endColumn: 15,
+            },
+          ],
+        },
+        {
+          code: `
         let str1 = 'hello', str2 = 'world';
         str1 <= str2;`,
-        errors: 1,
-      },
-      {
-        code: `
+          errors: 1,
+        },
+        {
+          code: `
         let str1 = 'hello', str2 = 'world';
         str1 > str2;`,
-        errors: 1,
-      },
-      {
-        code: `
+          errors: 1,
+        },
+        {
+          code: `
         let str1 = 'hello', str2 = 'world';
         str1 >= str2;`,
-        errors: 1,
-      },
-      {
-        code: `
+          errors: 1,
+        },
+        {
+          code: `
         (function () {})((a: string, b: string) => a < b)
       `,
-        errors: 1,
-      },
-    ],
+          errors: 1,
+        },
+      ],
+    });
   });
 });

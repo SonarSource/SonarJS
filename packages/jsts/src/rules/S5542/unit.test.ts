@@ -16,13 +16,14 @@
  */
 import { DefaultParserRuleTester, RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
-import { describe } from 'node:test';
+import { describe, it } from 'node:test';
 
 describe('S5542', () => {
-  const testCases = {
-    valid: [
-      {
-        code: `
+  it('S5542', () => {
+    const testCases = {
+      valid: [
+        {
+          code: `
       const crypto = require('crypto');
       var key = crypto.randomBytes(16);
       var iv = Buffer.from(crypto.randomBytes(16));
@@ -49,9 +50,9 @@ describe('S5542', () => {
       crypto.createCipheriv("RC4-HMAC-MD5", key, "");
       crypto.createCipheriv("SEED-CFB", key, iv);
             `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
       const crypto = require('crypto');
       var key = crypto.randomBytes(16);
       var iv = Buffer.from(crypto.randomBytes(16));
@@ -61,316 +62,317 @@ describe('S5542', () => {
       }
       crypto.createCipheriv(algorithm, key, iv);
             `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
       const crypto = require('crypto');
       crypto.createCipheriv();
             `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
       const crypto = require('crypto');
       var key = crypto.randomBytes(16);
       crypto.createCipheriv();
             `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
       const crypto = require('crypto');
       var key = crypto.randomBytes(16);
       var iv = Buffer.from(crypto.randomBytes(16));
       crypto.createCipheriv(42, key, iv);
             `,
-      },
-    ],
-    invalid: [
-      {
-        code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
       const crypto = require('crypto');
       var key = crypto.randomBytes(16);
       var iv = Buffer.from(crypto.randomBytes(16));
       crypto.createCipheriv("AES-128-CBC", key, iv);
             `,
-        errors: [
-          {
-            line: 5,
-            column: 29,
-            endLine: 5,
-            endColumn: 42,
-            message: 'Use a secure mode and padding scheme.',
-          },
-        ],
-      },
-      {
-        code: `
+          errors: [
+            {
+              line: 5,
+              column: 29,
+              endLine: 5,
+              endColumn: 42,
+              message: 'Use a secure mode and padding scheme.',
+            },
+          ],
+        },
+        {
+          code: `
       const crypto = require('node:crypto');
       var key = crypto.randomBytes(16);
       var iv = Buffer.from(crypto.randomBytes(16));
       crypto.createCipheriv("AES-128-CBC", key, iv);
             `,
-        errors: 1,
-      },
-      {
-        code: `
+          errors: 1,
+        },
+        {
+          code: `
       const crypto = require('crypto');
       var key = crypto.randomBytes(16);
       var iv = Buffer.from(crypto.randomBytes(16));
       const algorithm = "AES-128-CBC";
       crypto.createCipheriv(algorithm, key, iv);
             `,
-        errors: [
-          {
-            line: 6,
-            column: 29,
-            endLine: 6,
-            endColumn: 38,
-            message: 'Use a secure mode and padding scheme.',
-          },
-        ],
-      },
-      {
-        code: `
+          errors: [
+            {
+              line: 6,
+              column: 29,
+              endLine: 6,
+              endColumn: 38,
+              message: 'Use a secure mode and padding scheme.',
+            },
+          ],
+        },
+        {
+          code: `
       const crypto = require('crypto');
       var key = crypto.randomBytes(16);
       var iv = Buffer.from(crypto.randomBytes(16));
       crypto.createCipheriv("AES-128-CBC-HMAC-SHA1", key, iv);
             `,
-        errors: 1,
-      },
-      {
-        code: `
+          errors: 1,
+        },
+        {
+          code: `
       const crypto = require('crypto');
       var key = crypto.randomBytes(16);
       var iv = Buffer.from(crypto.randomBytes(16));
       crypto.createCipheriv("AES-128-CBC-HMAC-SHA256", key, iv);
             `,
-        errors: 1,
-      },
-      {
-        code: `
+          errors: 1,
+        },
+        {
+          code: `
       const crypto = require('crypto');
       var key = crypto.randomBytes(16);
       crypto.createCipheriv("AES-128-ECB", key, "");
             `,
-        errors: 1,
-      },
-      {
-        code: `
+          errors: 1,
+        },
+        {
+          code: `
       const crypto = require('crypto');
       var key = crypto.randomBytes(16);
       var iv = Buffer.from(crypto.randomBytes(16));
       crypto.createCipheriv("AES128", key, iv);
             `,
-        errors: 1,
-      },
-      {
-        code: `
+          errors: 1,
+        },
+        {
+          code: `
       const crypto = require('crypto');
       var key = crypto.randomBytes(16);
       var iv = Buffer.from(crypto.randomBytes(16));
       crypto.createCipheriv("aes128", key, iv);
             `,
-        errors: 1,
-      },
-      {
-        code: `
+          errors: 1,
+        },
+        {
+          code: `
       const crypto = require('crypto');
       var key = crypto.randomBytes(16);
       crypto.createCipheriv("AES-192-ECB", key, "");
             `,
-        errors: 1,
-      },
-      {
-        code: `
+          errors: 1,
+        },
+        {
+          code: `
       const crypto = require('crypto');
       var key = crypto.randomBytes(16);
       crypto.createCipheriv("AES192", key, "");
             `,
-        errors: 1,
-      },
-      {
-        code: `
+          errors: 1,
+        },
+        {
+          code: `
       const crypto = require('crypto');
       var key = crypto.randomBytes(16);
       var iv = Buffer.from(crypto.randomBytes(16));
       crypto.createCipheriv("AES-192-CBC", key, iv);
             `,
-        errors: 1,
-      },
-      {
-        code: `
+          errors: 1,
+        },
+        {
+          code: `
       const crypto = require('crypto');
       var key = crypto.randomBytes(16);
       var iv = Buffer.from(crypto.randomBytes(16));
       crypto.createCipheriv("aes192", key, iv);
             `,
-        errors: 1,
-      },
-      {
-        code: `
+          errors: 1,
+        },
+        {
+          code: `
       const crypto = require('crypto');
       var key = crypto.randomBytes(16);
       var iv = Buffer.from(crypto.randomBytes(16));
       crypto.createCipheriv("AES256", key, iv);
             `,
-        errors: 1,
-      },
-      {
-        code: `
+          errors: 1,
+        },
+        {
+          code: `
       const crypto = require('crypto');
       var key = crypto.randomBytes(16);
       var iv = Buffer.from(crypto.randomBytes(16));
       crypto.createCipheriv("BF", key, iv);
             `,
-        errors: 1,
-      },
-      {
-        code: `
+          errors: 1,
+        },
+        {
+          code: `
       const crypto = require('crypto');
       var key = crypto.randomBytes(16);
       var iv = Buffer.from(crypto.randomBytes(16));
       crypto.createCipheriv("blowfish", key, iv);
             `,
-        errors: 1,
-      },
-      {
-        code: `
+          errors: 1,
+        },
+        {
+          code: `
       const crypto = require('crypto');
       var key = crypto.randomBytes(16);
       var iv = Buffer.from(crypto.randomBytes(16));
       crypto.createCipheriv("CAMELLIA128", key, iv);
             `,
-        errors: 1,
-      },
-      {
-        code: `
+          errors: 1,
+        },
+        {
+          code: `
       const crypto = require('crypto');
       var key = crypto.randomBytes(16);
       var iv = Buffer.from(crypto.randomBytes(16));
       crypto.createCipheriv("CAMELLIA192", key, iv);
             `,
-        errors: 1,
-      },
-      {
-        code: `
+          errors: 1,
+        },
+        {
+          code: `
       const crypto = require('crypto');
       var key = crypto.randomBytes(16);
       var iv = Buffer.from(crypto.randomBytes(16));
       crypto.createCipheriv("CAMELLIA256", key, iv);
             `,
-        errors: 1,
-      },
-      {
-        code: `
+          errors: 1,
+        },
+        {
+          code: `
       const crypto = require('crypto');
       var key = crypto.randomBytes(16);
       var iv = Buffer.from(crypto.randomBytes(16));
       crypto.createCipheriv("CAST", key, iv);
             `,
-        errors: 1,
-      },
-      {
-        code: `
+          errors: 1,
+        },
+        {
+          code: `
       const crypto = require('crypto');
       var key = crypto.randomBytes(16);
       var iv = Buffer.from(crypto.randomBytes(16));
       crypto.createCipheriv("DES", key, iv);
             `,
-        errors: 1,
-      },
-      {
-        code: `
+          errors: 1,
+        },
+        {
+          code: `
       const crypto = require('crypto');
       var key = crypto.randomBytes(16);
       var iv = Buffer.from(crypto.randomBytes(16));
       crypto.createCipheriv("DES-EDE", key, iv);
             `,
-        errors: 1,
-      },
-      {
-        code: `
+          errors: 1,
+        },
+        {
+          code: `
       const crypto = require('crypto');
       var key = crypto.randomBytes(16);
       var iv = Buffer.from(crypto.randomBytes(16));
       crypto.createCipheriv("DES-EDE3", key, iv);
             `,
-        errors: 1,
-      },
-      {
-        code: `
+          errors: 1,
+        },
+        {
+          code: `
       const crypto = require('crypto');
       var key = crypto.randomBytes(16);
       var iv = Buffer.from(crypto.randomBytes(16));
       crypto.createCipheriv("DES3", key, iv);
             `,
-        errors: 1,
-      },
-      {
-        code: `
+          errors: 1,
+        },
+        {
+          code: `
       const crypto = require('crypto');
       var key = crypto.randomBytes(16);
       var iv = Buffer.from(crypto.randomBytes(16));
       crypto.createCipheriv("DESX", key, iv);
             `,
-        errors: 1,
-      },
-      {
-        code: `
+          errors: 1,
+        },
+        {
+          code: `
       const crypto = require('crypto');
       var key = crypto.randomBytes(16);
       var iv = Buffer.from(crypto.randomBytes(16));
       crypto.createCipheriv("RC2", key, iv);
             `,
-        errors: 1,
-      },
-      {
-        code: `
+          errors: 1,
+        },
+        {
+          code: `
       const crypto = require('crypto');
       var key = crypto.randomBytes(16);
       var iv = Buffer.from(crypto.randomBytes(16));
       crypto.createCipheriv("RC2-40", key, iv);
             `,
-        errors: 1,
-      },
-      {
-        code: `
+          errors: 1,
+        },
+        {
+          code: `
       const crypto = require('crypto');
       var key = crypto.randomBytes(16);
       var iv = Buffer.from(crypto.randomBytes(16));
       crypto.createCipheriv("RC2-64", key, iv);
             `,
-        errors: 1,
-      },
-      {
-        code: `
+          errors: 1,
+        },
+        {
+          code: `
       const crypto = require('crypto');
       var key = crypto.randomBytes(16);
       var iv = Buffer.from(crypto.randomBytes(16));
       crypto.createCipheriv("RC2-128", key, iv);
             `,
-        errors: 1,
-      },
-      {
-        code: `
+          errors: 1,
+        },
+        {
+          code: `
       const crypto = require('crypto');
       var key = crypto.randomBytes(16);
       var iv = Buffer.from(crypto.randomBytes(16));
       crypto.createCipheriv("SEED", key, iv);
             `,
-        errors: 1,
-      },
-    ],
-  };
+          errors: 1,
+        },
+      ],
+    };
 
-  new DefaultParserRuleTester().run(
-    '[JS] Encryption algorithms should be used with secure mode and padding scheme',
-    rule,
-    testCases,
-  );
-  new RuleTester().run(
-    '[TS] Encryption algorithms should be used with secure mode and padding scheme',
-    rule,
-    testCases,
-  );
+    new DefaultParserRuleTester().run(
+      '[JS] Encryption algorithms should be used with secure mode and padding scheme',
+      rule,
+      testCases,
+    );
+    new RuleTester().run(
+      '[TS] Encryption algorithms should be used with secure mode and padding scheme',
+      rule,
+      testCases,
+    );
+  });
 });

@@ -16,16 +16,17 @@
  */
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
-import { describe } from 'node:test';
+import { describe, it } from 'node:test';
 
 describe('S5691', () => {
-  const message = 'Make sure serving hidden files is safe here.';
+  it('S5691', () => {
+    const message = 'Make sure serving hidden files is safe here.';
 
-  const ruleTester = new RuleTester();
-  ruleTester.run('Statically serving hidden files is security-sensitive', rule, {
-    valid: [
-      {
-        code: `
+    const ruleTester = new RuleTester();
+    ruleTester.run('Statically serving hidden files is security-sensitive', rule, {
+      valid: [
+        {
+          code: `
 const express = require('express');
 const serveStatic = require('serve-static');
 
@@ -49,11 +50,11 @@ app.use(serveStatic('public',
 app.use(serveStatic('public')); // Compliant by default
 app.use(serveStatic('public', { 'index': false })); // Compliant by default
       `,
-      },
-    ],
-    invalid: [
-      {
-        code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
 const express = require('express');
 const serveStatic = require('serve-static');
 let app = express();
@@ -62,18 +63,18 @@ app.use(serveStatic('public',
                       'dotfiles': 'allow' // Sensitive
                     }));
       `,
-        errors: [
-          {
-            message,
-            line: 7,
-            endLine: 7,
-            column: 23,
-            endColumn: 42,
-          },
-        ],
-      },
-      {
-        code: `
+          errors: [
+            {
+              message,
+              line: 7,
+              endLine: 7,
+              column: 23,
+              endColumn: 42,
+            },
+          ],
+        },
+        {
+          code: `
 import serveStatic from 'serve-static';
 let app = express();
 const options = { 
@@ -82,16 +83,17 @@ const options = {
 };
 app.use(serveStatic('public', options));
       `,
-        errors: [
-          {
-            message,
-            line: 6,
-            endLine: 6,
-            column: 3,
-            endColumn: 22,
-          },
-        ],
-      },
-    ],
+          errors: [
+            {
+              message,
+              line: 6,
+              endLine: 6,
+              column: 3,
+              endColumn: 22,
+            },
+          ],
+        },
+      ],
+    });
   });
 });

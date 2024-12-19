@@ -16,15 +16,16 @@
  */
 import { rule } from './rule.js';
 import { DefaultParserRuleTester, RuleTester } from '../../../tests/tools/testers/rule-tester.js';
-import { describe } from 'node:test';
+import { describe, it } from 'node:test';
 
 describe('S3981', () => {
-  const ruleTester = new DefaultParserRuleTester();
+  it('S3981', () => {
+    const ruleTester = new DefaultParserRuleTester();
 
-  ruleTester.run('Collection sizes and array length comparisons should make sense', rule, {
-    valid: [
-      {
-        code: `
+    ruleTester.run('Collection sizes and array length comparisons should make sense', rule, {
+      valid: [
+        {
+          code: `
       if (collections.length < 1)    {}
       if (collections.length > 0)    {}
       if (collections.length <= 1)   {}
@@ -33,92 +34,92 @@ describe('S3981', () => {
       if (collections.length < 5 + 0){}
       if (collections.size() >= 0)   {}
       `,
-      },
-    ],
-    invalid: [
-      {
-        code: `if (collection.size < 0) {}`,
-        errors: [
-          {
-            messageId: 'fixCollectionSizeCheck',
-            data: {
-              propertyName: 'size',
-              objectName: 'collection',
-            },
-            line: 1,
-            endLine: 1,
-            column: 5,
-            endColumn: 24,
-            suggestions: [
-              {
-                messageId: 'suggestFixedSizeCheck',
-                data: {
-                  operation: 'size',
-                  operator: '==',
+        },
+      ],
+      invalid: [
+        {
+          code: `if (collection.size < 0) {}`,
+          errors: [
+            {
+              messageId: 'fixCollectionSizeCheck',
+              data: {
+                propertyName: 'size',
+                objectName: 'collection',
+              },
+              line: 1,
+              endLine: 1,
+              column: 5,
+              endColumn: 24,
+              suggestions: [
+                {
+                  messageId: 'suggestFixedSizeCheck',
+                  data: {
+                    operation: 'size',
+                    operator: '==',
+                  },
+                  output: `if (collection.size == 0) {}`,
                 },
-                output: `if (collection.size == 0) {}`,
-              },
-            ],
-          },
-        ],
-      },
-      {
-        code: `if (collection.length < 0) {}`,
-        errors: [
-          {
-            messageId: 'fixCollectionSizeCheck',
-            data: {
-              propertyName: 'length',
-              objectName: 'collection',
+              ],
             },
-            line: 1,
-            endLine: 1,
-            column: 5,
-            endColumn: 26,
-            suggestions: [
-              {
-                desc: 'Use "==" for length check',
-                output: `if (collection.length == 0) {}`,
+          ],
+        },
+        {
+          code: `if (collection.length < 0) {}`,
+          errors: [
+            {
+              messageId: 'fixCollectionSizeCheck',
+              data: {
+                propertyName: 'length',
+                objectName: 'collection',
               },
-            ],
-          },
-        ],
-      },
-      {
-        code: `if (collection.length >= 0) {}`,
-        errors: [
-          {
-            messageId: 'fixCollectionSizeCheck',
-            data: {
-              propertyName: 'length',
-              objectName: 'collection',
-            },
-            line: 1,
-            endLine: 1,
-            column: 5,
-            endColumn: 27,
-            suggestions: [
-              {
-                messageId: 'suggestFixedSizeCheck',
-                data: {
-                  operation: 'length',
-                  operator: '>',
+              line: 1,
+              endLine: 1,
+              column: 5,
+              endColumn: 26,
+              suggestions: [
+                {
+                  desc: 'Use "==" for length check',
+                  output: `if (collection.length == 0) {}`,
                 },
-                output: `if (collection.length > 0) {}`,
+              ],
+            },
+          ],
+        },
+        {
+          code: `if (collection.length >= 0) {}`,
+          errors: [
+            {
+              messageId: 'fixCollectionSizeCheck',
+              data: {
+                propertyName: 'length',
+                objectName: 'collection',
               },
-            ],
-          },
-        ],
-      },
-    ],
-  });
+              line: 1,
+              endLine: 1,
+              column: 5,
+              endColumn: 27,
+              suggestions: [
+                {
+                  messageId: 'suggestFixedSizeCheck',
+                  data: {
+                    operation: 'length',
+                    operator: '>',
+                  },
+                  output: `if (collection.length > 0) {}`,
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
 
-  const ruleTesterTs = new RuleTester();
+    const ruleTesterTs = new RuleTester();
 
-  ruleTesterTs.run('Collection sizes and array length comparisons should make sense', rule, {
-    valid: [
-      {
-        code: `
+    ruleTesterTs.run('Collection sizes and array length comparisons should make sense', rule, {
+      valid: [
+        {
+          code: `
       const arr = [];
       if (arr.length < 1)  {}
       if (arr.length > 0)  {}
@@ -127,9 +128,9 @@ describe('S3981', () => {
       if (arr.length < 50) {}
       if (arr.length < 5 + 0) {}
       `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
       const obj = {length: -4, size: -5, foobar: 42};
       if (obj.foobar >= 0) {}
       if (obj.size >= 0)   {}
@@ -138,205 +139,206 @@ describe('S3981', () => {
       if (obj.length < 53) {}
       if (obj.length > 0)  {}
       `,
-      },
-    ],
-    invalid: [
-      {
-        code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
       const arr = [];
       if (arr.length < 0) {}
       `,
-        errors: [
-          {
-            messageId: 'fixCollectionSizeCheck',
-            data: {
-              propertyName: 'length',
-              objectName: 'arr',
-            },
-            line: 3,
-            endLine: 3,
-            column: 11,
-            endColumn: 25,
-            suggestions: [
-              {
-                desc: 'Use "==" for length check',
-                output: `
+          errors: [
+            {
+              messageId: 'fixCollectionSizeCheck',
+              data: {
+                propertyName: 'length',
+                objectName: 'arr',
+              },
+              line: 3,
+              endLine: 3,
+              column: 11,
+              endColumn: 25,
+              suggestions: [
+                {
+                  desc: 'Use "==" for length check',
+                  output: `
       const arr = [];
       if (arr.length == 0) {}
       `,
-              },
-            ],
-          },
-        ],
-      },
-      {
-        code: `
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `
       const arr = [];
       if (arr.length >= 0) {}
       `,
-        errors: [
-          {
-            messageId: 'fixCollectionSizeCheck',
-            data: {
-              propertyName: 'length',
-              objectName: 'arr',
-            },
-            line: 3,
-            endLine: 3,
-            column: 11,
-            endColumn: 26,
-            suggestions: [
-              {
-                desc: 'Use ">" for length check',
-                output: `
+          errors: [
+            {
+              messageId: 'fixCollectionSizeCheck',
+              data: {
+                propertyName: 'length',
+                objectName: 'arr',
+              },
+              line: 3,
+              endLine: 3,
+              column: 11,
+              endColumn: 26,
+              suggestions: [
+                {
+                  desc: 'Use ">" for length check',
+                  output: `
       const arr = [];
       if (arr.length > 0) {}
       `,
-              },
-            ],
-          },
-        ],
-      },
-      {
-        code: `
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `
       const arr = new Array();
       if (arr.length >= 0) {}
       `,
-        errors: [
-          {
-            messageId: 'fixCollectionSizeCheck',
-            data: {
-              propertyName: 'length',
-              objectName: 'arr',
-            },
-            line: 3,
-            endLine: 3,
-            column: 11,
-            endColumn: 26,
-            suggestions: [
-              {
-                desc: 'Use ">" for length check',
-                output: `
+          errors: [
+            {
+              messageId: 'fixCollectionSizeCheck',
+              data: {
+                propertyName: 'length',
+                objectName: 'arr',
+              },
+              line: 3,
+              endLine: 3,
+              column: 11,
+              endColumn: 26,
+              suggestions: [
+                {
+                  desc: 'Use ">" for length check',
+                  output: `
       const arr = new Array();
       if (arr.length > 0) {}
       `,
-              },
-            ],
-          },
-        ],
-      },
-      {
-        code: `
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `
       const set = new Set();
       if (set.length < 0) {}
       `,
-        errors: [
-          {
-            messageId: 'fixCollectionSizeCheck',
-            data: {
-              propertyName: 'length',
-              objectName: 'set',
-            },
-            line: 3,
-            endLine: 3,
-            column: 11,
-            endColumn: 25,
-            suggestions: [
-              {
-                desc: 'Use "==" for length check',
-                output: `
+          errors: [
+            {
+              messageId: 'fixCollectionSizeCheck',
+              data: {
+                propertyName: 'length',
+                objectName: 'set',
+              },
+              line: 3,
+              endLine: 3,
+              column: 11,
+              endColumn: 25,
+              suggestions: [
+                {
+                  desc: 'Use "==" for length check',
+                  output: `
       const set = new Set();
       if (set.length == 0) {}
       `,
-              },
-            ],
-          },
-        ],
-      },
-      {
-        code: `
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `
       const map = new Map();
       if (map.length < 0) {}
       `,
-        errors: [
-          {
-            messageId: 'fixCollectionSizeCheck',
-            data: {
-              propertyName: 'length',
-              objectName: 'map',
-            },
-            line: 3,
-            endLine: 3,
-            column: 11,
-            endColumn: 25,
-            suggestions: [
-              {
-                desc: 'Use "==" for length check',
-                output: `
+          errors: [
+            {
+              messageId: 'fixCollectionSizeCheck',
+              data: {
+                propertyName: 'length',
+                objectName: 'map',
+              },
+              line: 3,
+              endLine: 3,
+              column: 11,
+              endColumn: 25,
+              suggestions: [
+                {
+                  desc: 'Use "==" for length check',
+                  output: `
       const map = new Map();
       if (map.length == 0) {}
       `,
-              },
-            ],
-          },
-        ],
-      },
-      {
-        code: `
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `
       const set = new WeakSet();
       if (set.length < 0) {}
       `,
-        errors: [
-          {
-            messageId: 'fixCollectionSizeCheck',
-            data: {
-              propertyName: 'length',
-              objectName: 'set',
-            },
-            line: 3,
-            endLine: 3,
-            column: 11,
-            endColumn: 25,
-            suggestions: [
-              {
-                desc: 'Use "==" for length check',
-                output: `
+          errors: [
+            {
+              messageId: 'fixCollectionSizeCheck',
+              data: {
+                propertyName: 'length',
+                objectName: 'set',
+              },
+              line: 3,
+              endLine: 3,
+              column: 11,
+              endColumn: 25,
+              suggestions: [
+                {
+                  desc: 'Use "==" for length check',
+                  output: `
       const set = new WeakSet();
       if (set.length == 0) {}
       `,
-              },
-            ],
-          },
-        ],
-      },
-      {
-        code: `
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `
       const map = new WeakMap();
       if (map.length < 0) {}
       `,
-        errors: [
-          {
-            messageId: 'fixCollectionSizeCheck',
-            data: {
-              propertyName: 'length',
-              objectName: 'map',
-            },
-            line: 3,
-            endLine: 3,
-            column: 11,
-            endColumn: 25,
-            suggestions: [
-              {
-                desc: 'Use "==" for length check',
-                output: `
+          errors: [
+            {
+              messageId: 'fixCollectionSizeCheck',
+              data: {
+                propertyName: 'length',
+                objectName: 'map',
+              },
+              line: 3,
+              endLine: 3,
+              column: 11,
+              endColumn: 25,
+              suggestions: [
+                {
+                  desc: 'Use "==" for length check',
+                  output: `
       const map = new WeakMap();
       if (map.length == 0) {}
       `,
-              },
-            ],
-          },
-        ],
-      },
-    ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
   });
 });

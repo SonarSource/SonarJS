@@ -16,46 +16,48 @@
  */
 import { rule } from './index.js';
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
-import { describe } from 'node:test';
+import { describe, it } from 'node:test';
 
 describe('S6557', () => {
-  const ruleTester = new RuleTester();
+  it('S6557', () => {
+    const ruleTester = new RuleTester();
 
-  ruleTester.run(`Decorated rule should provide suggestion with proper message`, rule, {
-    valid: [
-      {
-        code: `'abc'.starsWith('a');`,
-      },
-    ],
-    invalid: [
-      {
-        code: `'abc'[0] === 'a';`,
-        errors: [
-          {
-            messageId: 'preferStartsWith',
-            suggestions: [
-              {
-                desc: "Use 'String#startsWith' method instead.",
-                output: `'abc'.startsWith('a');`,
-              },
-            ],
-          },
-        ],
-      },
-      {
-        code: `'abc'['abc'.length - 1] === 'c';`,
-        errors: [
-          {
-            messageId: 'preferEndsWith',
-            suggestions: [
-              {
-                desc: "Use the 'String#endsWith' method instead.",
-                output: `'abc'.endsWith('c');`,
-              },
-            ],
-          },
-        ],
-      },
-    ],
+    ruleTester.run(`Decorated rule should provide suggestion with proper message`, rule, {
+      valid: [
+        {
+          code: `'abc'.starsWith('a');`,
+        },
+      ],
+      invalid: [
+        {
+          code: `'abc'[0] === 'a';`,
+          errors: [
+            {
+              messageId: 'preferStartsWith',
+              suggestions: [
+                {
+                  desc: "Use 'String#startsWith' method instead.",
+                  output: `'abc'.startsWith('a');`,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `'abc'['abc'.length - 1] === 'c';`,
+          errors: [
+            {
+              messageId: 'preferEndsWith',
+              suggestions: [
+                {
+                  desc: "Use the 'String#endsWith' method instead.",
+                  output: `'abc'.endsWith('c');`,
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
   });
 });

@@ -16,42 +16,44 @@
  */
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
-import { describe } from 'node:test';
+import { describe, it } from 'node:test';
 
 describe('S4829', () => {
-  const ruleTester = new RuleTester();
-  ruleTester.run('Reading the Standard Input is security-sensitive', rule, {
-    valid: [
-      {
-        code: `foo.bar`,
-      },
-      {
-        code: `process.stdout`,
-      },
-      {
-        code: `processFoo.stdin`,
-      },
-      {
-        code: `'process.stdin'`,
-      },
-    ],
-    invalid: [
-      {
-        code: `let x = process.stdin;`,
-        errors: [
-          {
-            message: 'Make sure that reading the standard input is safe here.',
-            line: 1,
-            endLine: 1,
-            column: 9,
-            endColumn: 22,
-          },
-        ],
-      },
-      {
-        code: `process.stdin.on('readable', () => {});`,
-        errors: 1,
-      },
-    ],
+  it('S4829', () => {
+    const ruleTester = new RuleTester();
+    ruleTester.run('Reading the Standard Input is security-sensitive', rule, {
+      valid: [
+        {
+          code: `foo.bar`,
+        },
+        {
+          code: `process.stdout`,
+        },
+        {
+          code: `processFoo.stdin`,
+        },
+        {
+          code: `'process.stdin'`,
+        },
+      ],
+      invalid: [
+        {
+          code: `let x = process.stdin;`,
+          errors: [
+            {
+              message: 'Make sure that reading the standard input is safe here.',
+              line: 1,
+              endLine: 1,
+              column: 9,
+              endColumn: 22,
+            },
+          ],
+        },
+        {
+          code: `process.stdin.on('readable', () => {});`,
+          errors: 1,
+        },
+      ],
+    });
   });
 });

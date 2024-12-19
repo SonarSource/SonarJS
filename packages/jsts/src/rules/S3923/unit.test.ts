@@ -16,28 +16,29 @@
  */
 import { rule } from './rule.js';
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
-import { describe } from 'node:test';
+import { describe, it } from 'node:test';
 
 describe('S3923', () => {
-  const ruleTester = new RuleTester();
+  it('S3923', () => {
+    const ruleTester = new RuleTester();
 
-  ruleTester.run('S3923 if', rule, {
-    valid: [
-      { code: "if (a) { first('const'); } else { first('var'); }" },
-      { code: 'if (a) { first(); } else { second(); }' },
-      { code: 'if (a) { first(); } else if (b) { first(); }' }, // ok, no `else`
-      { code: 'if (a) { first(); } else if (b) { second(); }' },
-      { code: 'if (a) { second(); } else if (b) { first(); } else { first(); }' },
-      { code: 'if (a) { first(); } else if (b) { second(); } else { first(); }' },
-      { code: 'if (a) { first(); } else if (b) { first(); } else { second(); }' },
-      { code: 'if (a) { first(); second(); } else { second(); first(); }' },
-      { code: 'if (a) { first(); second(); } else { first(); third(); }' },
-      { code: 'if (a) { first(); second(); } else { first(); }' },
-      {
-        code: 'if (a) { first(); second(); } else if (b) { first(); second(); } else { first(); third(); }',
-      },
-      {
-        code: `
+    ruleTester.run('S3923 if', rule, {
+      valid: [
+        { code: "if (a) { first('const'); } else { first('var'); }" },
+        { code: 'if (a) { first(); } else { second(); }' },
+        { code: 'if (a) { first(); } else if (b) { first(); }' }, // ok, no `else`
+        { code: 'if (a) { first(); } else if (b) { second(); }' },
+        { code: 'if (a) { second(); } else if (b) { first(); } else { first(); }' },
+        { code: 'if (a) { first(); } else if (b) { second(); } else { first(); }' },
+        { code: 'if (a) { first(); } else if (b) { first(); } else { second(); }' },
+        { code: 'if (a) { first(); second(); } else { second(); first(); }' },
+        { code: 'if (a) { first(); second(); } else { first(); third(); }' },
+        { code: 'if (a) { first(); second(); } else { first(); }' },
+        {
+          code: 'if (a) { first(); second(); } else if (b) { first(); second(); } else { first(); third(); }',
+        },
+        {
+          code: `
       function render() {
         if (a) {
           return <p>foo</p>;
@@ -45,61 +46,61 @@ describe('S3923', () => {
           return <p>bar</p>;
         }
       }`,
-      },
-    ],
-    invalid: [
-      {
-        code: 'if (a) { first(); } else { first(); }',
-        errors: [
-          {
-            messageId: 'removeOrEditConditionalStructure',
-            line: 1,
-            column: 1,
-            endColumn: 38,
-          },
-        ],
-      },
-      {
-        code: 'if (a) { first(); } else if (b) { first(); } else { first(); }',
-        errors: [
-          {
-            messageId: 'removeOrEditConditionalStructure',
-            line: 1,
-            column: 1,
-            endColumn: 63,
-          },
-        ],
-      },
-      {
-        code: 'if (a) { first(); second(); } else { first(); second(); }',
-        errors: [
-          {
-            messageId: 'removeOrEditConditionalStructure',
-            line: 1,
-            column: 1,
-            endColumn: 58,
-          },
-        ],
-      },
-      {
-        code: 'if (a) { first(); second(); } else if (b) { first(); second(); } else { first(); second(); }',
-        errors: [
-          {
-            messageId: 'removeOrEditConditionalStructure',
-            line: 1,
-            column: 1,
-            endColumn: 93,
-          },
-        ],
-      },
-    ],
-  });
+        },
+      ],
+      invalid: [
+        {
+          code: 'if (a) { first(); } else { first(); }',
+          errors: [
+            {
+              messageId: 'removeOrEditConditionalStructure',
+              line: 1,
+              column: 1,
+              endColumn: 38,
+            },
+          ],
+        },
+        {
+          code: 'if (a) { first(); } else if (b) { first(); } else { first(); }',
+          errors: [
+            {
+              messageId: 'removeOrEditConditionalStructure',
+              line: 1,
+              column: 1,
+              endColumn: 63,
+            },
+          ],
+        },
+        {
+          code: 'if (a) { first(); second(); } else { first(); second(); }',
+          errors: [
+            {
+              messageId: 'removeOrEditConditionalStructure',
+              line: 1,
+              column: 1,
+              endColumn: 58,
+            },
+          ],
+        },
+        {
+          code: 'if (a) { first(); second(); } else if (b) { first(); second(); } else { first(); second(); }',
+          errors: [
+            {
+              messageId: 'removeOrEditConditionalStructure',
+              line: 1,
+              column: 1,
+              endColumn: 93,
+            },
+          ],
+        },
+      ],
+    });
 
-  ruleTester.run('S3923 switch', rule, {
-    valid: [
-      {
-        // Ok, no default
-        code: `
+    ruleTester.run('S3923 switch', rule, {
+      valid: [
+        {
+          // Ok, no default
+          code: `
       switch (a) {
         case 1:
           first();
@@ -110,9 +111,9 @@ describe('S3923', () => {
           first();
           second();
       }`,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
       switch (a) {
         case 1:
           first();
@@ -125,9 +126,9 @@ describe('S3923', () => {
         default:
           third();
       }`,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
       switch (a) {
         case 1:
           first();
@@ -139,11 +140,11 @@ describe('S3923', () => {
           break;
         default:
       }`,
-      },
-    ],
-    invalid: [
-      {
-        code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
       switch (a) {
         case 1:
           first();
@@ -153,18 +154,18 @@ describe('S3923', () => {
           first();
           second();
       }`,
-        errors: [
-          {
-            messageId: 'removeOrEditConditionalStructure',
-            line: 2,
-            endLine: 10,
-            column: 7,
-            endColumn: 8,
-          },
-        ],
-      },
-      {
-        code: `
+          errors: [
+            {
+              messageId: 'removeOrEditConditionalStructure',
+              line: 2,
+              endLine: 10,
+              column: 7,
+              endColumn: 8,
+            },
+          ],
+        },
+        {
+          code: `
       switch (a) {
         case 1:
           first();
@@ -178,18 +179,18 @@ describe('S3923', () => {
           first();
           second();
       }`,
-        errors: [
-          {
-            messageId: 'removeOrEditConditionalStructure',
-            line: 2,
-            endLine: 14,
-            column: 7,
-            endColumn: 8,
-          },
-        ],
-      },
-      {
-        code: `
+          errors: [
+            {
+              messageId: 'removeOrEditConditionalStructure',
+              line: 2,
+              endLine: 14,
+              column: 7,
+              endColumn: 8,
+            },
+          ],
+        },
+        {
+          code: `
       switch (a) {
         case 1:
           first();
@@ -200,18 +201,18 @@ describe('S3923', () => {
         default:
           first();
       }`,
-        errors: [
-          {
-            messageId: 'removeOrEditConditionalStructure',
-            line: 2,
-            endLine: 11,
-            column: 7,
-            endColumn: 8,
-          },
-        ],
-      },
-      {
-        code: `
+          errors: [
+            {
+              messageId: 'removeOrEditConditionalStructure',
+              line: 2,
+              endLine: 11,
+              column: 7,
+              endColumn: 8,
+            },
+          ],
+        },
+        {
+          code: `
       switch (a) {
         case 1:
         case 2:
@@ -226,33 +227,34 @@ describe('S3923', () => {
           first();
           second();
       }`,
-        errors: [
-          {
-            messageId: 'removeOrEditConditionalStructure',
-            line: 2,
-            endLine: 15,
-            column: 7,
-            endColumn: 8,
-          },
-        ],
-      },
-    ],
-  });
+          errors: [
+            {
+              messageId: 'removeOrEditConditionalStructure',
+              line: 2,
+              endLine: 15,
+              column: 7,
+              endColumn: 8,
+            },
+          ],
+        },
+      ],
+    });
 
-  ruleTester.run('S3923 conditional', rule, {
-    valid: [{ code: 'a ? first : second;' }],
-    invalid: [
-      {
-        code: 'a ? first : first;',
-        errors: [
-          {
-            messageId: 'returnsTheSameValue',
-            line: 1,
-            column: 1,
-            endColumn: 18,
-          },
-        ],
-      },
-    ],
+    ruleTester.run('S3923 conditional', rule, {
+      valid: [{ code: 'a ? first : second;' }],
+      invalid: [
+        {
+          code: 'a ? first : first;',
+          errors: [
+            {
+              messageId: 'returnsTheSameValue',
+              line: 1,
+              column: 1,
+              endColumn: 18,
+            },
+          ],
+        },
+      ],
+    });
   });
 });

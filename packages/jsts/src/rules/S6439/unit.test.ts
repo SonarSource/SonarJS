@@ -16,13 +16,14 @@
  */
 import { rule } from './index.js';
 import { DefaultParserRuleTester, RuleTester } from '../../../tests/tools/testers/rule-tester.js';
-import { describe } from 'node:test';
+import { describe, it } from 'node:test';
 
 describe('S6439', () => {
-  new RuleTester().run('', rule, {
-    valid: [
-      {
-        code: `
+  it('S6439', () => {
+    new RuleTester().run('', rule, {
+      valid: [
+        {
+          code: `
         const Component = (count, collection) => {
           count = 1;
           return (
@@ -32,9 +33,9 @@ describe('S6439', () => {
           )
         }
       `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
         const Component = (count: boolean, collection) => {
           return (
             <div>
@@ -43,9 +44,9 @@ describe('S6439', () => {
           )
         }
       `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
         const Component = (collection) => {
           let test = '';
           return (
@@ -55,11 +56,11 @@ describe('S6439', () => {
           )
         }
       `,
-      },
-    ],
-    invalid: [
-      {
-        code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
         const Component = (count: number, collection) => {
           return (
             <div>
@@ -68,17 +69,17 @@ describe('S6439', () => {
           )
         }
       `,
-        errors: [
-          {
-            message: 'Convert the conditional to a boolean to avoid leaked value',
-            line: 5,
-            column: 16,
-            endLine: 5,
-            endColumn: 21,
-            suggestions: [
-              {
-                desc: 'Convert the conditional to a boolean',
-                output: `
+          errors: [
+            {
+              message: 'Convert the conditional to a boolean to avoid leaked value',
+              line: 5,
+              column: 16,
+              endLine: 5,
+              endColumn: 21,
+              suggestions: [
+                {
+                  desc: 'Convert the conditional to a boolean',
+                  output: `
         const Component = (count: number, collection) => {
           return (
             <div>
@@ -87,13 +88,13 @@ describe('S6439', () => {
           )
         }
       `,
-              },
-            ],
-          },
-        ],
-      },
-      {
-        code: `
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `
         const Component = (collection) => {
           const count = 0;
           return (
@@ -103,17 +104,17 @@ describe('S6439', () => {
           )
         }
       `,
-        errors: [
-          {
-            message: 'Convert the conditional to a boolean to avoid leaked value',
-            line: 6,
-            column: 16,
-            endLine: 6,
-            endColumn: 21,
-            suggestions: [
-              {
-                desc: 'Convert the conditional to a boolean',
-                output: `
+          errors: [
+            {
+              message: 'Convert the conditional to a boolean to avoid leaked value',
+              line: 6,
+              column: 16,
+              endLine: 6,
+              endColumn: 21,
+              suggestions: [
+                {
+                  desc: 'Convert the conditional to a boolean',
+                  output: `
         const Component = (collection) => {
           const count = 0;
           return (
@@ -123,13 +124,13 @@ describe('S6439', () => {
           )
         }
       `,
-              },
-            ],
-          },
-        ],
-      },
-      {
-        code: `
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `
         const Component = (collection: Array<number>) => {
           return (
             <div>
@@ -138,17 +139,17 @@ describe('S6439', () => {
           )
         }
       `,
-        errors: [
-          {
-            message: 'Convert the conditional to a boolean to avoid leaked value',
-            line: 5,
-            column: 16,
-            endLine: 5,
-            endColumn: 33,
-            suggestions: [
-              {
-                desc: 'Convert the conditional to a boolean',
-                output: `
+          errors: [
+            {
+              message: 'Convert the conditional to a boolean to avoid leaked value',
+              line: 5,
+              column: 16,
+              endLine: 5,
+              endColumn: 33,
+              suggestions: [
+                {
+                  desc: 'Convert the conditional to a boolean',
+                  output: `
         const Component = (collection: Array<number>) => {
           return (
             <div>
@@ -157,13 +158,13 @@ describe('S6439', () => {
           )
         }
       `,
-              },
-            ],
-          },
-        ],
-      },
-      {
-        code: `
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `
         const Component = (test: number, count: number, collection) => {
           return (
             <div>
@@ -172,17 +173,17 @@ describe('S6439', () => {
           )
         }
       `,
-        errors: [
-          {
-            message: 'Convert the conditional to a boolean to avoid leaked value',
-            line: 5,
-            column: 17,
-            endLine: 5,
-            endColumn: 21,
-            suggestions: [
-              {
-                desc: 'Convert the conditional to a boolean',
-                output: `
+          errors: [
+            {
+              message: 'Convert the conditional to a boolean to avoid leaked value',
+              line: 5,
+              column: 17,
+              endLine: 5,
+              endColumn: 21,
+              suggestions: [
+                {
+                  desc: 'Convert the conditional to a boolean',
+                  output: `
         const Component = (test: number, count: number, collection) => {
           return (
             <div>
@@ -191,19 +192,19 @@ describe('S6439', () => {
           )
         }
       `,
-              },
-            ],
-          },
-          {
-            message: 'Convert the conditional to a boolean to avoid leaked value',
-            line: 5,
-            column: 26,
-            endLine: 5,
-            endColumn: 31,
-            suggestions: [
-              {
-                desc: 'Convert the conditional to a boolean',
-                output: `
+                },
+              ],
+            },
+            {
+              message: 'Convert the conditional to a boolean to avoid leaked value',
+              line: 5,
+              column: 26,
+              endLine: 5,
+              endColumn: 31,
+              suggestions: [
+                {
+                  desc: 'Convert the conditional to a boolean',
+                  output: `
         const Component = (test: number, count: number, collection) => {
           return (
             <div>
@@ -212,13 +213,13 @@ describe('S6439', () => {
           )
         }
       `,
-              },
-            ],
-          },
-        ],
-      },
-      {
-        code: `
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `
         import react from 'react-native';
         const Component = (collection) => {
           let test = '';
@@ -229,10 +230,10 @@ describe('S6439', () => {
           )
         }
       `,
-        errors: 1,
-      },
-      {
-        code: `
+          errors: 1,
+        },
+        {
+          code: `
         const react = require('react-native');
         const Component = (collection) => {
           let test = '';
@@ -243,15 +244,15 @@ describe('S6439', () => {
           )
         }
       `,
-        errors: 1,
-      },
-    ],
-  });
+          errors: 1,
+        },
+      ],
+    });
 
-  new DefaultParserRuleTester().run('', rule, {
-    valid: [
-      {
-        code: `
+    new DefaultParserRuleTester().run('', rule, {
+      valid: [
+        {
+          code: `
         const Component = (collection) => {
           const count = 0;
           return (
@@ -261,8 +262,9 @@ describe('S6439', () => {
           )
         }
         `,
-      },
-    ],
-    invalid: [],
+        },
+      ],
+      invalid: [],
+    });
   });
 });

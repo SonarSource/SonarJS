@@ -16,15 +16,16 @@
  */
 import { rule } from './index.js';
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
-import { describe } from 'node:test';
+import { describe, it } from 'node:test';
 
 describe('S1481', () => {
-  const ruleTester = new RuleTester();
+  it('S1481', () => {
+    const ruleTester = new RuleTester();
 
-  ruleTester.run('Local variables should be used', rule, {
-    valid: [
-      {
-        code: `
+    ruleTester.run('Local variables should be used', rule, {
+      valid: [
+        {
+          code: `
       var a = 0;                // OK, global
       export let b = 0          // OK, global
 
@@ -60,28 +61,28 @@ describe('S1481', () => {
         return new RegExp(\`\${foo}\`);
       }
       `,
-      },
-    ],
-    invalid: [
-      {
-        code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
       function fun() {
         var a = 0;              // Noncompliant
         var b = 1;              // OK
         return b;
       }`,
-        errors: [
-          {
-            message: `Remove the declaration of the unused 'a' variable.`,
-            line: 3,
-            endLine: 3,
-            column: 13,
-            endColumn: 14,
-          },
-        ],
-      },
-      {
-        code: `
+          errors: [
+            {
+              message: `Remove the declaration of the unused 'a' variable.`,
+              line: 3,
+              endLine: 3,
+              column: 13,
+              endColumn: 14,
+            },
+          ],
+        },
+        {
+          code: `
       function fun1() {
         var a = 0;              // OK
         function nested() {     // Noncompliant
@@ -108,35 +109,35 @@ describe('S1481', () => {
           var b = 1;              // OK
           return b;
       }`,
-        errors: [
-          {
-            message: `Remove unused function 'nested'.`,
-            line: 4,
-          },
-          {
-            messageId: 'unusedVariable',
-            line: 10,
-          },
-          {
-            messageId: 'unusedFunction',
-            line: 11,
-          },
-          {
-            messageId: 'unusedVariable',
-            line: 17,
-          },
-          {
-            messageId: 'unusedVariable',
-            line: 18,
-          },
-          {
-            messageId: 'unusedVariable',
-            line: 24,
-          },
-        ],
-      },
-      {
-        code: `
+          errors: [
+            {
+              message: `Remove unused function 'nested'.`,
+              line: 4,
+            },
+            {
+              messageId: 'unusedVariable',
+              line: 10,
+            },
+            {
+              messageId: 'unusedFunction',
+              line: 11,
+            },
+            {
+              messageId: 'unusedVariable',
+              line: 17,
+            },
+            {
+              messageId: 'unusedVariable',
+              line: 18,
+            },
+            {
+              messageId: 'unusedVariable',
+              line: 24,
+            },
+          ],
+        },
+        {
+          code: `
       function fun1() {
         var f1 = function() { console.log("f1"); }  // Noncompliant
       }
@@ -167,43 +168,43 @@ describe('S1481', () => {
         class A {}      // OK, ignore anything except variables and functions
       }
       `,
-        errors: [
-          {
-            messageId: 'unusedVariable',
-            line: 3,
-          },
-          {
-            messageId: 'unusedFunction',
-            line: 7,
-          },
-          {
-            messageId: 'unusedVariable',
-            line: 12,
-          },
-          {
-            messageId: 'unusedVariable',
-            line: 17,
-          },
-          {
-            messageId: 'unusedVariable',
-            line: 18,
-          },
-          {
-            messageId: 'unusedVariable',
-            line: 22,
-          },
-          {
-            messageId: 'unusedVariable',
-            line: 26,
-          },
-          {
-            messageId: 'unusedVariable',
-            line: 27,
-          },
-        ],
-      },
-      {
-        code: `
+          errors: [
+            {
+              messageId: 'unusedVariable',
+              line: 3,
+            },
+            {
+              messageId: 'unusedFunction',
+              line: 7,
+            },
+            {
+              messageId: 'unusedVariable',
+              line: 12,
+            },
+            {
+              messageId: 'unusedVariable',
+              line: 17,
+            },
+            {
+              messageId: 'unusedVariable',
+              line: 18,
+            },
+            {
+              messageId: 'unusedVariable',
+              line: 22,
+            },
+            {
+              messageId: 'unusedVariable',
+              line: 26,
+            },
+            {
+              messageId: 'unusedVariable',
+              line: 27,
+            },
+          ],
+        },
+        {
+          code: `
       function objectDestructuringException(obj) {
         var {a, b, c, ...interestingProps} = obj; // OK
         foo(interestingProps);
@@ -221,26 +222,26 @@ describe('S1481', () => {
       
         var {} = obj;
       }`,
-        errors: [
-          {
-            message: `Remove the declaration of the unused 'b1' variable.`,
-            line: 6,
-            column: 18,
-          },
-          {
-            message: `Remove the declaration of the unused 'interestingProps2' variable.`,
-            line: 10,
-            column: 29,
-          },
-          {
-            message: `Remove the declaration of the unused 'b3' variable.`,
-            line: 13,
-            column: 21,
-          },
-        ],
-      },
-      {
-        code: `
+          errors: [
+            {
+              message: `Remove the declaration of the unused 'b1' variable.`,
+              line: 6,
+              column: 18,
+            },
+            {
+              message: `Remove the declaration of the unused 'interestingProps2' variable.`,
+              line: 10,
+              column: 29,
+            },
+            {
+              message: `Remove the declaration of the unused 'b3' variable.`,
+              line: 13,
+              column: 21,
+            },
+          ],
+        },
+        {
+          code: `
     const constUsed = "this is used";
     let letUsed = "this is used";
     var varUsed = "this is used";
@@ -253,14 +254,14 @@ describe('S1481', () => {
 
       }
     }`,
-        errors: [
-          { messageId: 'unusedVariable', line: 6 },
-          { messageId: 'unusedVariable', line: 7 },
-          { messageId: 'unusedFunction', line: 10 },
-        ],
-      },
-      {
-        code: `
+          errors: [
+            { messageId: 'unusedVariable', line: 6 },
+            { messageId: 'unusedVariable', line: 7 },
+            { messageId: 'unusedFunction', line: 10 },
+          ],
+        },
+        {
+          code: `
       function used_in_jsx(icon) {
         const UsedIcon   = icon;
         const UnusedIcon = icon; // Noncompliant
@@ -274,10 +275,11 @@ describe('S1481', () => {
         return <UsedIcon someAttr={tagAttribute}>{tagContent}</UsedIcon>;
       }
       `,
-        errors: [
-          { line: 4, message: `Remove the declaration of the unused \'UnusedIcon\' variable.` },
-        ],
-      },
-    ],
+          errors: [
+            { line: 4, message: `Remove the declaration of the unused \'UnusedIcon\' variable.` },
+          ],
+        },
+      ],
+    });
   });
 });

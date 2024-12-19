@@ -16,44 +16,45 @@
  */
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
-import { describe } from 'node:test';
+import { describe, it } from 'node:test';
 
 const ruleTester = new RuleTester();
 describe('S126', () => {
-  ruleTester.run(`"if ... else if" constructs should end with "else" clauses`, rule, {
-    valid: [
-      {
-        code: `
+  it('S126', () => {
+    ruleTester.run(`"if ... else if" constructs should end with "else" clauses`, rule, {
+      valid: [
+        {
+          code: `
       if (x == 0) {
         x = 42;
       }
       `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
       if (x == 0)
         x = 42;
       `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
       if (x == 0) {
         x = 42;
       } else {
         x = -42;
       }
       `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
       if (x == 0)
         x = 42;
       else
         x = -42;
       `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
       if (x == 0) {
         x == 42;
       } else {
@@ -62,11 +63,11 @@ describe('S126', () => {
         }
       }
       `,
-      },
-    ],
-    invalid: [
-      {
-        code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
       if (x == 0) {
         x = 42;
       } else if (x == 1) {
@@ -75,34 +76,35 @@ describe('S126', () => {
         x = 0;
       }
       `,
-        errors: [
-          {
-            messageId: 'addMissingElseClause',
-            line: 6,
-            endLine: 6,
-            column: 9,
-            endColumn: 16,
-          },
-        ],
-      },
-      {
-        code: `
+          errors: [
+            {
+              messageId: 'addMissingElseClause',
+              line: 6,
+              endLine: 6,
+              column: 9,
+              endColumn: 16,
+            },
+          ],
+        },
+        {
+          code: `
       if (x == 0)
         x == 42;
       else
         if (x == 1)
           x == -42;
       `,
-        errors: [
-          {
-            messageId: 'addMissingElseClause',
-            line: 4,
-            endLine: 5,
-            column: 7,
-            endColumn: 11,
-          },
-        ],
-      },
-    ],
+          errors: [
+            {
+              messageId: 'addMissingElseClause',
+              line: 4,
+              endLine: 5,
+              column: 7,
+              endColumn: 11,
+            },
+          ],
+        },
+      ],
+    });
   });
 });

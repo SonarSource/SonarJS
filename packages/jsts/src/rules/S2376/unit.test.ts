@@ -16,68 +16,70 @@
  */
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
-import { describe } from 'node:test';
+import { describe, it } from 'node:test';
 
 describe('S2376', () => {
-  const ruleTester = new RuleTester();
+  it('S2376', () => {
+    const ruleTester = new RuleTester();
 
-  ruleTester.run(`Property getters and setters should come in pairs`, rule, {
-    valid: [
-      {
-        code: `
+    ruleTester.run(`Property getters and setters should come in pairs`, rule, {
+      valid: [
+        {
+          code: `
       class C {
         get m() { return this.a; }
         set m(a) { this.a = a; }
       }`,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
       class C {
         @Input()
         set m(a) { this.a = a; }
       }`,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
 class C {
   get m() { return this.a; }
   set m(a) { this.a = a; }
 }`,
-        options: [{ getWithoutSet: true }],
-      },
-    ],
-    invalid: [
-      {
-        code: `
+          options: [{ getWithoutSet: true }],
+        },
+      ],
+      invalid: [
+        {
+          code: `
       class C {
         set m(a) { this.a = a; }
       }`,
-        errors: 1,
-      },
-      {
-        code: `
+          errors: 1,
+        },
+        {
+          code: `
       class C {
         @Input
         set m(a) { this.a = a; }
       }`,
-        errors: 1,
-      },
-      {
-        code: `
+          errors: 1,
+        },
+        {
+          code: `
       class C {
         @NonAngularInput()
         set m(a) { this.a = a; }
       }`,
-        errors: 1,
-      },
-      {
-        code: `
+          errors: 1,
+        },
+        {
+          code: `
 class C {
   get m() { return this.a; }
 }`,
-        options: [{ getWithoutSet: true }],
-        errors: 1,
-      },
-    ],
+          options: [{ getWithoutSet: true }],
+          errors: 1,
+        },
+      ],
+    });
   });
 });

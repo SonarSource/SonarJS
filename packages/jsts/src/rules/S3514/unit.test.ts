@@ -16,14 +16,15 @@
  */
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
-import { describe } from 'node:test';
+import { describe, it } from 'node:test';
 
 describe('S3514', () => {
-  const ruleTester = new RuleTester();
-  ruleTester.run('Destructuring syntax should be used for assignments', rule, {
-    valid: [
-      {
-        code: `function foo(obj1, obj2, arr1, arr2) {
+  it('S3514', () => {
+    const ruleTester = new RuleTester();
+    ruleTester.run('Destructuring syntax should be used for assignments', rule, {
+      valid: [
+        {
+          code: `function foo(obj1, obj2, arr1, arr2) {
         var e = obj1.e;     // OK, different objects
         var d = obj2.d;
         foo();
@@ -66,11 +67,11 @@ describe('S3514', () => {
         t = obj1.t;  // OK, destructuring can appear in declaration only
         r = obj1.r;
     }`,
-      },
-    ],
-    invalid: [
-      {
-        code: `function foo(obj1, obj2) {
+        },
+      ],
+      invalid: [
+        {
+          code: `function foo(obj1, obj2) {
             var c = obj1.c;     // Noncompliant
             var d = obj1.d;     // Secondary location
 
@@ -87,37 +88,37 @@ describe('S3514', () => {
 
             var x = obj1.prop.x, y = obj1.prop.y; // Noncompliant
           }`,
-        errors: [
-          {
-            message: `{\"message\":\"Use destructuring syntax for these assignments from \\\"obj1\\\".\",\"secondaryLocations\":[{\"message\":\"Replace this assignment.\",\"column\":16,\"line\":3,\"endColumn\":26,\"endLine\":3}]}`,
-            line: 2,
-            endLine: 2,
-            column: 17,
-            endColumn: 27,
-          },
-          {
-            message: `{\"message\":\"Use destructuring syntax for these assignments from \\\"obj2\\\".\",\"secondaryLocations\":[{\"message\":\"Replace this assignment.\",\"column\":28,\"line\":7,\"endColumn\":38,\"endLine\":7}]}`,
-            line: 7,
-            endLine: 7,
-            column: 17,
-            endColumn: 27,
-          },
-          {
-            message: `{\"message\":\"Use destructuring syntax for these assignments from \\\"obj1\\\".\",\"secondaryLocations\":[{\"message\":\"Replace this assignment.\",\"column\":16,\"line\":12,\"endColumn\":26,\"endLine\":12},{\"message\":\"Replace this assignment.\",\"column\":28,\"line\":12,\"endColumn\":38,\"endLine\":12}]}`,
-            line: 11,
-            endLine: 11,
-            column: 17,
-            endColumn: 27,
-          },
-          {
-            message: `{\"message\":\"Use destructuring syntax for these assignments from \\\"obj1.prop\\\".\",\"secondaryLocations\":[{\"message\":\"Replace this assignment.\",\"column\":33,\"line\":16,\"endColumn\":48,\"endLine\":16}]}`,
-            line: 16,
-          },
-        ],
-        options: ['sonar-runtime'],
-      },
-      {
-        code: `function foo(arr1, arr2) {
+          errors: [
+            {
+              message: `{\"message\":\"Use destructuring syntax for these assignments from \\\"obj1\\\".\",\"secondaryLocations\":[{\"message\":\"Replace this assignment.\",\"column\":16,\"line\":3,\"endColumn\":26,\"endLine\":3}]}`,
+              line: 2,
+              endLine: 2,
+              column: 17,
+              endColumn: 27,
+            },
+            {
+              message: `{\"message\":\"Use destructuring syntax for these assignments from \\\"obj2\\\".\",\"secondaryLocations\":[{\"message\":\"Replace this assignment.\",\"column\":28,\"line\":7,\"endColumn\":38,\"endLine\":7}]}`,
+              line: 7,
+              endLine: 7,
+              column: 17,
+              endColumn: 27,
+            },
+            {
+              message: `{\"message\":\"Use destructuring syntax for these assignments from \\\"obj1\\\".\",\"secondaryLocations\":[{\"message\":\"Replace this assignment.\",\"column\":16,\"line\":12,\"endColumn\":26,\"endLine\":12},{\"message\":\"Replace this assignment.\",\"column\":28,\"line\":12,\"endColumn\":38,\"endLine\":12}]}`,
+              line: 11,
+              endLine: 11,
+              column: 17,
+              endColumn: 27,
+            },
+            {
+              message: `{\"message\":\"Use destructuring syntax for these assignments from \\\"obj1.prop\\\".\",\"secondaryLocations\":[{\"message\":\"Replace this assignment.\",\"column\":33,\"line\":16,\"endColumn\":48,\"endLine\":16}]}`,
+              line: 16,
+            },
+          ],
+          options: ['sonar-runtime'],
+        },
+        {
+          code: `function foo(arr1, arr2) {
                 const one1 = arr1[0];   // Noncompliant
                 const two1 = arr1[1];
                 const three1 = arr1[2];
@@ -126,20 +127,20 @@ describe('S3514', () => {
 
                 let one = arr1[0], two = arr1[1];  // Noncompliant
             }`,
-        errors: [
-          {
-            message: `{\"message\":\"Use destructuring syntax for these assignments from \\\"arr1\\\".\",\"secondaryLocations\":[{\"message\":\"Replace this assignment.\",\"column\":22,\"line\":3,\"endColumn\":36,\"endLine\":3},{\"message\":\"Replace this assignment.\",\"column\":22,\"line\":4,\"endColumn\":38,\"endLine\":4}]}`,
-            line: 2,
-          },
-          {
-            messageId: 'sonarRuntime',
-            line: 8,
-          },
-        ],
-        options: ['sonar-runtime'],
-      },
-      {
-        code: `// switch cases
+          errors: [
+            {
+              message: `{\"message\":\"Use destructuring syntax for these assignments from \\\"arr1\\\".\",\"secondaryLocations\":[{\"message\":\"Replace this assignment.\",\"column\":22,\"line\":3,\"endColumn\":36,\"endLine\":3},{\"message\":\"Replace this assignment.\",\"column\":22,\"line\":4,\"endColumn\":38,\"endLine\":4}]}`,
+              line: 2,
+            },
+            {
+              messageId: 'sonarRuntime',
+              line: 8,
+            },
+          ],
+          options: ['sonar-runtime'],
+        },
+        {
+          code: `// switch cases
                 switch (a) {
                 case 1:
                     var x = obj.x;  // Noncompliant
@@ -148,28 +149,29 @@ describe('S3514', () => {
                 default:
                     var c = obj.c, d = obj.d; // Noncompliant
                 }`,
-        errors: [
-          {
-            message: 'Use destructuring syntax for these assignments from "obj".',
-            line: 4,
-          },
-          {
-            message: 'Use destructuring syntax for these assignments from "obj".',
-            line: 8,
-          },
-        ],
-      },
-      {
-        code: `// global scope
+          errors: [
+            {
+              message: 'Use destructuring syntax for these assignments from "obj".',
+              line: 4,
+            },
+            {
+              message: 'Use destructuring syntax for these assignments from "obj".',
+              line: 8,
+            },
+          ],
+        },
+        {
+          code: `// global scope
             var obj = foo();
             var a = obj.a, b = obj.b; // Noncompliant`,
-        errors: [
-          {
-            message: 'Use destructuring syntax for these assignments from "obj".',
-            line: 3,
-          },
-        ],
-      },
-    ],
+          errors: [
+            {
+              message: 'Use destructuring syntax for these assignments from "obj".',
+              line: 3,
+            },
+          ],
+        },
+      ],
+    });
   });
 });

@@ -16,14 +16,15 @@
  */
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
-import { describe } from 'node:test';
+import { describe, it } from 'node:test';
 
 describe('S128', () => {
-  const ruleTester = new RuleTester();
-  ruleTester.run('No fallthrough in switch statement', rule, {
-    valid: [
-      {
-        code: `
+  it('S128', () => {
+    const ruleTester = new RuleTester();
+    ruleTester.run('No fallthrough in switch statement', rule, {
+      valid: [
+        {
+          code: `
         switch (x) {
           case 0:
             process.exit(1);
@@ -31,9 +32,9 @@ describe('S128', () => {
             doSomething();
         }
             `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
         switch (x) {
           case 0:
             if (foo()) {
@@ -47,9 +48,9 @@ describe('S128', () => {
             doSomething();
         }
             `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
         switch (x) {
           case 0:
             if (foo()) {
@@ -66,9 +67,9 @@ describe('S128', () => {
             doSomething();
         }
             `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
         switch (param) {}
 
         // with not executable clause
@@ -93,9 +94,9 @@ describe('S128', () => {
             break;
         }
       `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
       switch ( x ) {
         case 0:
           while ( isTrue() ) {
@@ -106,11 +107,11 @@ describe('S128', () => {
           console.log("hello");
       }
             `,
-      },
-    ],
-    invalid: [
-      {
-        code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
       function func(){
         while(condition) {
           switch (param) {
@@ -130,30 +131,30 @@ describe('S128', () => {
           }
         }
       }`,
-        errors: [
-          {
-            message:
-              'End this switch case with an unconditional break, continue, return or throw statement.',
-            line: 12,
-            column: 13,
-            endLine: 12,
-            endColumn: 17,
-          },
-        ],
-      },
+          errors: [
+            {
+              message:
+                'End this switch case with an unconditional break, continue, return or throw statement.',
+              line: 12,
+              column: 13,
+              endLine: 12,
+              endColumn: 17,
+            },
+          ],
+        },
 
-      {
-        code: `
+        {
+          code: `
         switch (param) {
           default: // Noncompliant
             doSomething();
           case 0: // OK
             doSomethingElse();
         }`,
-        errors: [{ messageId: 'switchEnd', line: 3 }],
-      },
-      {
-        code: `
+          errors: [{ messageId: 'switchEnd', line: 3 }],
+        },
+        {
+          code: `
       function fun() {
         switch (param) {
           case 0: // OK
@@ -174,13 +175,13 @@ describe('S128', () => {
         }
       }
       `,
-        errors: [
-          { messageId: 'switchEnd', line: 8 },
-          { messageId: 'switchEnd', line: 10 },
-        ],
-      },
-      {
-        code: `
+          errors: [
+            { messageId: 'switchEnd', line: 8 },
+            { messageId: 'switchEnd', line: 10 },
+          ],
+        },
+        {
+          code: `
       function fun(){
         switch (param) {
           case a:
@@ -213,10 +214,10 @@ describe('S128', () => {
         }
       }
       `,
-        errors: [{ messageId: 'switchEnd', line: 19 }],
-      },
-      {
-        code: `
+          errors: [{ messageId: 'switchEnd', line: 19 }],
+        },
+        {
+          code: `
         function fun() {
             switch (param) {
               case 0: // Noncompliant
@@ -228,10 +229,10 @@ describe('S128', () => {
             }
           }
     `,
-        errors: [{ messageId: 'switchEnd', line: 4 }],
-      },
-      {
-        code: `
+          errors: [{ messageId: 'switchEnd', line: 4 }],
+        },
+        {
+          code: `
         function fun() {
           // OK with comment
           switch (x) {
@@ -275,10 +276,10 @@ describe('S128', () => {
           }
         }
       `,
-        errors: [{ messageId: 'switchEnd', line: 35 }],
-      },
-      {
-        code: `
+          errors: [{ messageId: 'switchEnd', line: 35 }],
+        },
+        {
+          code: `
         switch (x) {
           case 0:
             if (foo()) {
@@ -288,10 +289,10 @@ describe('S128', () => {
             doSomething();
         }
             `,
-        errors: [{ messageId: 'switchEnd', line: 3 }],
-      },
-      {
-        code: `
+          errors: [{ messageId: 'switchEnd', line: 3 }],
+        },
+        {
+          code: `
         switch (x) {
           case 0:
             if (foo()) {
@@ -302,10 +303,10 @@ describe('S128', () => {
             doSomething();
         }
             `,
-        errors: [{ messageId: 'switchEnd', line: 3 }],
-      },
-      {
-        code: `
+          errors: [{ messageId: 'switchEnd', line: 3 }],
+        },
+        {
+          code: `
         process.exit(1);
         switch (x) {
           case 0:
@@ -314,10 +315,10 @@ describe('S128', () => {
             doSomethingElse();
         }
             `,
-        errors: [{ messageId: 'switchEnd', line: 4 }],
-      },
-      {
-        code: `
+          errors: [{ messageId: 'switchEnd', line: 4 }],
+        },
+        {
+          code: `
       switch (x) {
         case 0:
           doSomething();
@@ -332,10 +333,10 @@ describe('S128', () => {
       }
       
             `,
-        errors: [{ messageId: 'switchEnd', line: 9 }],
-      },
-      {
-        code: `
+          errors: [{ messageId: 'switchEnd', line: 9 }],
+        },
+        {
+          code: `
         function doSomething() {
             doSmth();
         }
@@ -348,11 +349,12 @@ describe('S128', () => {
                 doSomethingElse();
         }
             `,
-        errors: [
-          { messageId: 'switchEnd', line: 6 },
-          { messageId: 'switchEnd', line: 8 },
-        ],
-      },
-    ],
+          errors: [
+            { messageId: 'switchEnd', line: 6 },
+            { messageId: 'switchEnd', line: 8 },
+          ],
+        },
+      ],
+    });
   });
 });

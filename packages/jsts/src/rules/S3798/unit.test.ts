@@ -20,26 +20,26 @@ import {
   NoTypeCheckingRuleTester,
 } from '../../../tests/tools/testers/rule-tester.js';
 import globals from 'globals';
-import { describe } from 'node:test';
+import { describe, it } from 'node:test';
 
 describe('S3798', () => {
-  const ruleTester = new NoTypeCheckingRuleTester();
-  const ruleTesterwithBrowser = new DefaultParserRuleTester({
-    globals: {
-      ...globals.browser,
-    },
-  });
-  const ruleTesterCustomGlobals = new DefaultParserRuleTester({
-    globals: {
-      angular: true,
-      other: true,
-    },
-  });
-  const ruleTesterScript = new DefaultParserRuleTester({
-    sourceType: 'script',
-  });
+  it('S3798', () => {
+    const ruleTester = new NoTypeCheckingRuleTester();
+    const ruleTesterwithBrowser = new DefaultParserRuleTester({
+      globals: {
+        ...globals.browser,
+      },
+    });
+    const ruleTesterCustomGlobals = new DefaultParserRuleTester({
+      globals: {
+        angular: true,
+        other: true,
+      },
+    });
+    const ruleTesterScript = new DefaultParserRuleTester({
+      sourceType: 'script',
+    });
 
-  describe('S3798', () => {
     ruleTester.run('Variables and functions should not be declared in the global scope', rule, {
       valid: [
         {

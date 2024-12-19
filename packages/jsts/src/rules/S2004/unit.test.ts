@@ -16,14 +16,15 @@
  */
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
-import { describe } from 'node:test';
+import { describe, it } from 'node:test';
 
 describe('S2004', () => {
-  const ruleTester = new RuleTester();
-  ruleTester.run('Functions should not be nested too deeply', rule, {
-    valid: [
-      {
-        code: `
+  it('S2004', () => {
+    const ruleTester = new RuleTester();
+    ruleTester.run('Functions should not be nested too deeply', rule, {
+      valid: [
+        {
+          code: `
       function f1() {
         function f2() {
             function f3() {
@@ -31,11 +32,11 @@ describe('S2004', () => {
             }
         }
       }`,
-      },
-    ],
-    invalid: [
-      {
-        code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
         function f1() {
             function f2() {
                 function f3() {
@@ -43,9 +44,10 @@ describe('S2004', () => {
                 }
             }
         }`,
-        options: [{ threshold: 2 }],
-        errors: 1,
-      },
-    ],
+          options: [{ threshold: 2 }],
+          errors: 1,
+        },
+      ],
+    });
   });
 });

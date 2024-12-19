@@ -16,44 +16,46 @@
  */
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
-import { describe } from 'node:test';
+import { describe, it } from 'node:test';
 
 describe('S104', () => {
-  const ruleTester = new RuleTester();
-  ruleTester.run('Too many lines in file', rule, {
-    valid: [
-      {
-        code: `a;
+  it('S104', () => {
+    const ruleTester = new RuleTester();
+    ruleTester.run('Too many lines in file', rule, {
+      valid: [
+        {
+          code: `a;
              b;
              c;`,
-        options: [{ maximum: 3 }],
-      },
-      {
-        code: `a;
+          options: [{ maximum: 3 }],
+        },
+        {
+          code: `a;
 
              b;
              // comment
              c;`,
-        options: [{ maximum: 3 }],
-      },
-    ],
-    invalid: [
-      {
-        code: `a;
+          options: [{ maximum: 3 }],
+        },
+      ],
+      invalid: [
+        {
+          code: `a;
       b;
 
       c;
       // comment
       d;`,
-        options: [{ maximum: 3 }],
-        errors: [
-          {
-            message: `This file has 4 lines, which is greater than 3 authorized. Split it into smaller files.`,
-            line: 0,
-            column: 1,
-          },
-        ],
-      },
-    ],
+          options: [{ maximum: 3 }],
+          errors: [
+            {
+              message: `This file has 4 lines, which is greater than 3 authorized. Split it into smaller files.`,
+              line: 0,
+              column: 1,
+            },
+          ],
+        },
+      ],
+    });
   });
 });

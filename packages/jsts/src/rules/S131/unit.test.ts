@@ -16,24 +16,25 @@
  */
 import { rule } from './index.js';
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
-import { describe } from 'node:test';
+import { describe, it } from 'node:test';
 
 const ruleTester = new RuleTester();
 
 describe('S131', () => {
-  ruleTester.run('"switch" statements should have "default" clauses', rule, {
-    valid: [
-      {
-        code: `
+  it('S131', () => {
+    ruleTester.run('"switch" statements should have "default" clauses', rule, {
+      valid: [
+        {
+          code: `
         switch (x) {
           case 0:
             break;
           default:
             break;
         }`,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
         type  T = 'foo' | 'bar';
         const x = 'foo' as T;
         switch (x) {
@@ -43,9 +44,9 @@ describe('S131', () => {
             break;
         }
       `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
       enum Direction {
         Up,
         Down
@@ -61,58 +62,58 @@ describe('S131', () => {
           break;
       }
       `,
-      },
-    ],
-    invalid: [
-      {
-        code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
         switch (x) {
           case 0:
             break;
         }`,
-        errors: [
-          {
-            message: `Add a "default" clause to this "switch" statement.`,
-            line: 2,
-            endLine: 2,
-            column: 9,
-            endColumn: 15,
-            suggestions: [
-              {
-                messageId: 'addDefault',
-                output: `
+          errors: [
+            {
+              message: `Add a "default" clause to this "switch" statement.`,
+              line: 2,
+              endLine: 2,
+              column: 9,
+              endColumn: 15,
+              suggestions: [
+                {
+                  messageId: 'addDefault',
+                  output: `
         switch (x) {
           case 0:
             break;
           default: { throw new Error('Not implemented yet'); }
         }`,
-              },
-            ],
-          },
-        ],
-      },
-      {
-        code: `
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `
         switch (x) {
         }`,
-        errors: [
-          {
-            messageId: 'switchDefault',
-            line: 2,
-            suggestions: [
-              {
-                messageId: 'addDefault',
-                output: `
+          errors: [
+            {
+              messageId: 'switchDefault',
+              line: 2,
+              suggestions: [
+                {
+                  messageId: 'addDefault',
+                  output: `
         switch (x) {
         default: { throw new Error('Not implemented yet'); }
         }`,
-              },
-            ],
-          },
-        ],
-      },
-      {
-        code: `
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `
         type  T = 'foo' | 'bar';
         const x = 'foo' as T;
         switch (x) {
@@ -120,17 +121,17 @@ describe('S131', () => {
             break;
         }
       `,
-        errors: [
-          {
-            message: `Switch is not exhaustive. Cases not matched: "bar"`,
-            line: 4,
-            endLine: 4,
-            column: 9,
-            endColumn: 15,
-            suggestions: [
-              {
-                messageId: 'addMissingCases',
-                output: `
+          errors: [
+            {
+              message: `Switch is not exhaustive. Cases not matched: "bar"`,
+              line: 4,
+              endLine: 4,
+              column: 9,
+              endColumn: 15,
+              suggestions: [
+                {
+                  messageId: 'addMissingCases',
+                  output: `
         type  T = 'foo' | 'bar';
         const x = 'foo' as T;
         switch (x) {
@@ -139,11 +140,12 @@ describe('S131', () => {
           case "bar": { throw new Error('Not implemented yet: "bar" case') }
         }
       `,
-              },
-            ],
-          },
-        ],
-      },
-    ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
   });
 });

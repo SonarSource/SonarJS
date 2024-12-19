@@ -16,17 +16,18 @@
  */
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
-import { describe } from 'node:test';
+import { describe, it } from 'node:test';
 
 describe('S4524', () => {
-  const ruleTester = new RuleTester();
-  ruleTester.run('"default" clauses should be last', rule, {
-    valid: [
-      {
-        code: `switch (true) {}`,
-      },
-      {
-        code: `
+  it('S4524', () => {
+    const ruleTester = new RuleTester();
+    ruleTester.run('"default" clauses should be last', rule, {
+      valid: [
+        {
+          code: `switch (true) {}`,
+        },
+        {
+          code: `
         switch (z) {
           case "foo":
             console.log("Hello World")
@@ -37,19 +38,19 @@ describe('S4524', () => {
           default:
             console.log("Default message");
         }`,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
         switch (z) {
         case "foo":
             console.log("Hello World")
             break;
         }`,
-      },
-    ],
-    invalid: [
-      {
-        code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
         switch (x) {
           case 1:
             console.log("1");
@@ -58,19 +59,19 @@ describe('S4524', () => {
           case 2:
             console.log("2");
         }`,
-        errors: [
-          {
-            message: 'Move this "default" clause to the end of this "switch" statement.',
-            line: 5,
-            endLine: 5,
-            column: 11,
-            endColumn: 18,
-          },
-        ],
-      },
+          errors: [
+            {
+              message: 'Move this "default" clause to the end of this "switch" statement.',
+              line: 5,
+              endLine: 5,
+              column: 11,
+              endColumn: 18,
+            },
+          ],
+        },
 
-      {
-        code: `
+        {
+          code: `
         switch (y) {
           default: //Nomcompliant
             console.log("Default message");
@@ -82,8 +83,9 @@ describe('S4524', () => {
             console.log("42");
             break;
         }`,
-        errors: 1,
-      },
-    ],
+          errors: 1,
+        },
+      ],
+    });
   });
 });

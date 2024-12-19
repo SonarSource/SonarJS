@@ -16,15 +16,16 @@
  */
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
-import { describe } from 'node:test';
+import { describe, it } from 'node:test';
 
 describe('S4830', () => {
-  const ruleTesterJs = new RuleTester();
+  it('S4830', () => {
+    const ruleTesterJs = new RuleTester();
 
-  const testCasesHttps = {
-    valid: [
-      {
-        code: `
+    const testCasesHttps = {
+      valid: [
+        {
+          code: `
     const https = require('https');
 
     var options = {
@@ -45,9 +46,9 @@ describe('S4830', () => {
       });
     }); // Compliant
           `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
     const https = require('https');
 
     var options = {
@@ -67,15 +68,15 @@ describe('S4830', () => {
       });
     }); // Compliant
           `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
       const https = require('https');
       var req = https.request();
           `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
       const https = require('https');
 
       var options = getOptions();
@@ -86,11 +87,11 @@ describe('S4830', () => {
         });
       });
           `,
-      },
-    ],
-    invalid: [
-      {
-        code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
     const https = require('https');
     const constants = require('constants');
 
@@ -107,36 +108,36 @@ describe('S4830', () => {
       res.on('data', (d) => {});
     }); // Noncompliant
           `,
-        errors: [
-          {
-            line: 14,
-            endLine: 14,
-            column: 15,
-            endColumn: 28,
-            message: JSON.stringify({
-              message: 'Enable server certificate validation on this SSL/TLS connection.',
-              secondaryLocations: [
-                {
-                  column: 18,
-                  line: 5,
-                  endColumn: 5,
-                  endLine: 12,
-                },
-                {
-                  message: 'Set "rejectUnauthorized" to "true".',
-                  column: 6,
-                  line: 11,
-                  endColumn: 31,
-                  endLine: 11,
-                },
-              ],
-            }),
-          },
-        ],
-        options: ['sonar-runtime'],
-      },
-      {
-        code: `
+          errors: [
+            {
+              line: 14,
+              endLine: 14,
+              column: 15,
+              endColumn: 28,
+              message: JSON.stringify({
+                message: 'Enable server certificate validation on this SSL/TLS connection.',
+                secondaryLocations: [
+                  {
+                    column: 18,
+                    line: 5,
+                    endColumn: 5,
+                    endLine: 12,
+                  },
+                  {
+                    message: 'Set "rejectUnauthorized" to "true".',
+                    column: 6,
+                    line: 11,
+                    endColumn: 31,
+                    endLine: 11,
+                  },
+                ],
+              }),
+            },
+          ],
+          options: ['sonar-runtime'],
+        },
+        {
+          code: `
     const https = require('node:https');
     const constants = require('node:constants');
 
@@ -153,14 +154,14 @@ describe('S4830', () => {
       res.on('data', (d) => {});
     }); // Noncompliant
           `,
-        errors: 1,
-      },
-    ],
-  };
-  const testCasesRequest = {
-    valid: [
-      {
-        code: `
+          errors: 1,
+        },
+      ],
+    };
+    const testCasesRequest = {
+      valid: [
+        {
+          code: `
       const request = require('request');
 
       var socket = request.get({
@@ -169,9 +170,9 @@ describe('S4830', () => {
         rejectUnauthorized: true
       }); // Compliant        
             `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
       const request = require('request');
 
       var socket = request.get({
@@ -180,11 +181,11 @@ describe('S4830', () => {
         //rejectUnauthorized: true // by default is set to true
       }); // Compliant
             `,
-      },
-    ],
-    invalid: [
-      {
-        code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
       const request = require('request');
 
       var socket = request.get({
@@ -193,25 +194,25 @@ describe('S4830', () => {
           rejectUnauthorized: false  // Noncompliant
       }); // Noncompliant
             `,
-        errors: 1,
-      },
-    ],
-  };
-  const testCasesTls = {
-    valid: [
-      {
-        code: `
+          errors: 1,
+        },
+      ],
+    };
+    const testCasesTls = {
+      valid: [
+        {
+          code: `
       var options = {
         rejectUnauthorized: true
       };
       
       var socket = tls.connect(443, "self-signed.badssl.com", options, () => {}); // Compliant
             `,
-      },
-    ],
-    invalid: [
-      {
-        code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
       const tls = require('tls');
 
       var options = {
@@ -219,10 +220,10 @@ describe('S4830', () => {
       };
       var socket = tls.connect(443, "self-signed.badssl.com", options, () => {}); // Noncompliant
             `,
-        errors: 1,
-      },
-      {
-        code: `
+          errors: 1,
+        },
+        {
+          code: `
       const tls = require('node:tls');
 
       var options = {
@@ -230,23 +231,24 @@ describe('S4830', () => {
       };
       var socket = tls.connect(443, "self-signed.badssl.com", options, () => {}); // Noncompliant
             `,
-        errors: 1,
-      },
-    ],
-  };
-  ruleTesterJs.run(
-    '[https] Server certificates should be verified during SSL⁄TLS connections',
-    rule,
-    testCasesHttps,
-  );
-  ruleTesterJs.run(
-    '[request] Server certificates should be verified during SSL⁄TLS connections',
-    rule,
-    testCasesRequest,
-  );
-  ruleTesterJs.run(
-    '[tls] Server certificates should be verified during SSL⁄TLS connections',
-    rule,
-    testCasesTls,
-  );
+          errors: 1,
+        },
+      ],
+    };
+    ruleTesterJs.run(
+      '[https] Server certificates should be verified during SSL⁄TLS connections',
+      rule,
+      testCasesHttps,
+    );
+    ruleTesterJs.run(
+      '[request] Server certificates should be verified during SSL⁄TLS connections',
+      rule,
+      testCasesRequest,
+    );
+    ruleTesterJs.run(
+      '[tls] Server certificates should be verified during SSL⁄TLS connections',
+      rule,
+      testCasesTls,
+    );
+  });
 });

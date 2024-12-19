@@ -16,56 +16,57 @@
  */
 import { DefaultParserRuleTester, RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
-import { describe } from 'node:test';
+import { describe, it } from 'node:test';
 
 describe('S2259', () => {
-  const ruleTesterJsWithTypes = new RuleTester();
-  const ruleTesterJs = new DefaultParserRuleTester();
+  it('S2259', () => {
+    const ruleTesterJsWithTypes = new RuleTester();
+    const ruleTesterJs = new DefaultParserRuleTester();
 
-  ruleTesterJsWithTypes.run('', rule, {
-    valid: [
-      {
-        code: `
+    ruleTesterJsWithTypes.run('', rule, {
+      valid: [
+        {
+          code: `
       function builtin_property() {
         var str = "str";
         str.trim(); // OK
       }`,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
         function chained_properties() {
             var str = "str";
             str.trim().trim(); // OK
             str.undefinedProperty.trim(); // OK, we don't know property "undefinedProperty" and consider it to have ANY_VALUE
         }`,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
         function property_array() {
             var str = "str";
             str.trim().split("t")[0]; // OK
             str.trim().undefinedArray[0]; // OK
         }`,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
         function unknown() {
             var y;
             foo(y);
             y = foo();
             y.foo;
         }`,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
       function class_property() {
             class A {
             }
             A.foo = 42;
        }`,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
         function branch() {
             var z;
             if (cond) {
@@ -73,9 +74,9 @@ describe('S2259', () => {
             }
             z.foo();   // FN?
           }`,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
         function foo() { if (some) { return 42;} }
         function equal_null() {
           var x = foo();
@@ -104,9 +105,9 @@ describe('S2259', () => {
             x.foo();   // FN
           }
         }`,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
         function ternary() {
             var x;
             if (condition) {
@@ -115,9 +116,9 @@ describe('S2259', () => {
           
             x ? x.foo() : bar();  // Compliant
           }`,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
         function duplicated_condition() {
             if (foo("bar")) {
               var x = bar();
@@ -127,9 +128,9 @@ describe('S2259', () => {
               x.foo();   // OK
             }
           }`,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
         function loop_at_least_once() {
             var x;
           
@@ -139,9 +140,9 @@ describe('S2259', () => {
           
             x.foo();
           }`,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
         function loop(arr) {
             var obj;
             for(var i = 0; i < arr.length; i++){
@@ -152,9 +153,9 @@ describe('S2259', () => {
               }
             }
           }`,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
         function one_condition() {
             var x = foo();
           
@@ -166,9 +167,9 @@ describe('S2259', () => {
                 && x.foo != null) {  // Ok
             }
           }`,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
         function one_more() {
             var x = foo();
             while (x != null && i < 10) {
@@ -181,9 +182,9 @@ describe('S2259', () => {
             if (x.foo) {  // Ok
             }
           }`,
-      },
-      {
-        code: `function not_null_if_property_accessed() {
+        },
+        {
+          code: `function not_null_if_property_accessed() {
             var x = foo();
           
             if (x.foo) {
@@ -192,9 +193,9 @@ describe('S2259', () => {
               x.foo();   // Ok
             }
           }`,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
         function tested_copy() {
             var x;
           
@@ -210,43 +211,43 @@ describe('S2259', () => {
           
             x.foo();
           }`,
-      },
-      {
-        code: `function assignment_left_first() {
+        },
+        {
+          code: `function assignment_left_first() {
             var x;
           
             foo[x=foo()] = foo(x.bar);  // Compliant, we first evaluate LHS of assignment
           }`,
-      },
-      {
-        code: `function array_assignment() {
+        },
+        {
+          code: `function array_assignment() {
             var x, y;
             x = 0;
             [x, y] = obj;
             x.foo;
             y.foo;
           }`,
-      },
-      {
-        code: `function object_assignment() {
+        },
+        {
+          code: `function object_assignment() {
         var x, y;
         x = 0;
         ({x, y} = obj);
         x.foo;
         y.foo;
       }`,
-      },
-      {
-        code: `function object_assignment_with_named_properties() {
+        },
+        {
+          code: `function object_assignment_with_named_properties() {
         var x, y;
         x = 0;
         ({prop1:x, prop2:y} = obj);
         x.foo;
         y.foo;
       }`,
-      },
-      {
-        code: `function null_and_not_undefined() {
+        },
+        {
+          code: `function null_and_not_undefined() {
         var x = null;
       
         while (condition()) {
@@ -256,17 +257,17 @@ describe('S2259', () => {
           x.foo();
         }
       }`,
-      },
-      {
-        code: `function async_function_undefined() {
+        },
+        {
+          code: `function async_function_undefined() {
         async function foo_implicit_return() { console.log("foo"); } // async function always return a Promise
         async function foo_return_undefined() { console.log("foo"); return undefined; } // async function always return a Promise
         foo_implicit_return().then(); // OK
         foo_return_undefined().then(); // OK
       }`,
-      },
-      {
-        code: `function written_in_inner_fn() {
+        },
+        {
+          code: `function written_in_inner_fn() {
             var x;
             function update_x() {
               x = 42
@@ -274,9 +275,9 @@ describe('S2259', () => {
             update_x()
             x.toString();
         }`,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
         var x;
         function update_x() {
           x = 42
@@ -284,65 +285,65 @@ describe('S2259', () => {
         update_x()
         x.toString();
           `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
         function fn(ys) {
           var x;
           ys.forEach(function (y) { x = y; })
           x.foo 
         }`,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
       var x;
       x?.foo;
       x?.y?.foo;
       x?.y?.z?.foo;
       `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
       if (x != null && x.prop == 0) {}
       if (x == null || x.prop == 0) {}
       if (x != undefined && x.prop == 0) {}
       if (x == undefined || x.prop == 0) {}
       `,
-      },
-      {
-        code: `if (x == null && x?.prop == 0) {}`,
-      },
-      {
-        code: `if (x == null && y.prop == 0) {}`,
-      },
-    ],
-    invalid: [
-      {
-        code: `
+        },
+        {
+          code: `if (x == null && x?.prop == 0) {}`,
+        },
+        {
+          code: `if (x == null && y.prop == 0) {}`,
+        },
+      ],
+      invalid: [
+        {
+          code: `
       function property() {
         var x;
         x.foo;
       //^
       }`,
-        errors: [
-          {
-            message: `TypeError can be thrown as "x" might be null or undefined here.`,
-            line: 4,
-            column: 9,
-            endColumn: 10,
-          },
-        ],
-      },
-      {
-        code: `
+          errors: [
+            {
+              message: `TypeError can be thrown as "x" might be null or undefined here.`,
+              line: 4,
+              column: 9,
+              endColumn: 10,
+            },
+          ],
+        },
+        {
+          code: `
       function element() {
         var x;
         x[1];
        }`,
-        errors: 1,
-      },
-      {
-        code: `
+          errors: 1,
+        },
+        {
+          code: `
       function stop_after_NPE() {
             var x;
             var other_x;
@@ -351,10 +352,10 @@ describe('S2259', () => {
             ) {
             }
           }`,
-        errors: 2,
-      },
-      {
-        code: `
+          errors: 2,
+        },
+        {
+          code: `
         function typeof_testing() {
             var x;
           
@@ -376,18 +377,18 @@ describe('S2259', () => {
               y.call();  // Noncompliant
             }
           }`,
-        errors: [
-          {
-            messageId: 'nullDereference',
-            line: 20,
-            endLine: 20,
-            column: 15,
-            endColumn: 16,
-          },
-        ],
-      },
-      {
-        code: `function one_issue_per_symbol() {
+          errors: [
+            {
+              messageId: 'nullDereference',
+              line: 20,
+              endLine: 20,
+              column: 15,
+              endColumn: 16,
+            },
+          ],
+        },
+        {
+          code: `function one_issue_per_symbol() {
         var x;
       
         if (condition) {
@@ -396,10 +397,10 @@ describe('S2259', () => {
           x.bar(); // no issue here as we already have issue for same symbol
         }
       }`,
-        errors: 1,
-      },
-      {
-        code: `function for_of_undefined() {
+          errors: 1,
+        },
+        {
+          code: `function for_of_undefined() {
         var undefinedArray;
         for(let i of undefinedArray) {        // Noncompliant
         }
@@ -416,78 +417,79 @@ describe('S2259', () => {
         for(x of obj) {                       // OK we should not care about x being undefined
         }
       }`,
-        errors: [
-          {
-            messageId: 'nullDereference',
-            line: 3,
-            endLine: 3,
-            column: 22,
-            endColumn: 36,
-          },
-          {
-            messageId: 'nullDereference',
-            line: 7,
-            endLine: 7,
-            column: 22,
-            endColumn: 31,
-          },
-        ],
-      },
-      {
-        code: `
+          errors: [
+            {
+              messageId: 'nullDereference',
+              line: 3,
+              endLine: 3,
+              column: 22,
+              endColumn: 36,
+            },
+            {
+              messageId: 'nullDereference',
+              line: 7,
+              endLine: 7,
+              column: 22,
+              endColumn: 31,
+            },
+          ],
+        },
+        {
+          code: `
         var x;
         x.foo`,
-        errors: 1,
-      },
-      {
-        code: `if (x == null && x.prop == 0) {}`,
-        errors: [
-          {
-            messageId: 'shortCircuitError',
-          },
-        ],
-      },
-      {
-        code: `if (null != x || x.prop == 0) {}`,
-        errors: [
-          {
-            messageId: 'shortCircuitError',
-          },
-        ],
-      },
-      {
-        code: `if (undefined == x && x.prop == 0) {}`,
-        errors: [
-          {
-            messageId: 'shortCircuitError',
-          },
-        ],
-      },
-      {
-        code: `if (x.prop != undefined || x.prop.prop2 == 0) {}`,
-        errors: [
-          {
-            line: 1,
-            endLine: 1,
-            column: 28,
-            endColumn: 34,
-            messageId: 'shortCircuitError',
-          },
-        ],
-      },
-    ],
-  });
+          errors: 1,
+        },
+        {
+          code: `if (x == null && x.prop == 0) {}`,
+          errors: [
+            {
+              messageId: 'shortCircuitError',
+            },
+          ],
+        },
+        {
+          code: `if (null != x || x.prop == 0) {}`,
+          errors: [
+            {
+              messageId: 'shortCircuitError',
+            },
+          ],
+        },
+        {
+          code: `if (undefined == x && x.prop == 0) {}`,
+          errors: [
+            {
+              messageId: 'shortCircuitError',
+            },
+          ],
+        },
+        {
+          code: `if (x.prop != undefined || x.prop.prop2 == 0) {}`,
+          errors: [
+            {
+              line: 1,
+              endLine: 1,
+              column: 28,
+              endColumn: 34,
+              messageId: 'shortCircuitError',
+            },
+          ],
+        },
+      ],
+    });
 
-  ruleTesterJs.run('', rule, {
-    valid: [
-      {
-        code: `
+    ruleTesterJs.run('', rule, {
+      valid: [
+        {
+          code: `
         function property() {
           var x;
           x.foo; // OK, no type information available
         }`,
-      },
-    ],
-    invalid: [],
+        },
+      ],
+      invalid: [],
+    });
   });
 });

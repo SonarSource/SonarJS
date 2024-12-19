@@ -16,28 +16,29 @@
  */
 import { DefaultParserRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
-import { describe } from 'node:test';
+import { describe, it } from 'node:test';
 
 describe('S1527', () => {
-  const ruleTester = new DefaultParserRuleTester({
-    sourceType: 'script',
-    parserOptions: { ecmaVersion: 3, allowReserved: true },
-  });
+  it('S1527', () => {
+    const ruleTester = new DefaultParserRuleTester({
+      sourceType: 'script',
+      parserOptions: { ecmaVersion: 3, allowReserved: true },
+    });
 
-  ruleTester.run('Future reserved words', rule, {
-    valid: [
-      {
-        code: `
+    ruleTester.run('Future reserved words', rule, {
+      valid: [
+        {
+          code: `
       var _interface = {
         implements: true
       };
       if (_interface.implements) {}
       `,
-      },
-    ],
-    invalid: [
-      {
-        code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
       var implements; // NOK
 
       implements = 42; // ok, usage
@@ -51,40 +52,41 @@ describe('S1527', () => {
         var extends; // NOK
       }
       `,
-        errors: [
-          {
-            message: `Rename "implements" identifier to prevent potential conflicts with future evolutions of the JavaScript language.`,
-            line: 2,
-            endLine: 2,
-            column: 11,
-            endColumn: 21,
-          },
-          {
-            message: `Rename "interface" identifier to prevent potential conflicts with future evolutions of the JavaScript language.`,
-            line: 7,
-          },
-          {
-            messageId: 'renameReserved',
-            line: 8,
-          },
-          {
-            messageId: 'renameReserved',
-            line: 9,
-          },
-          {
-            messageId: 'renameReserved',
-            line: 10,
-          },
-          {
-            messageId: 'renameReserved',
-            line: 11,
-          },
-          {
-            messageId: 'renameReserved',
-            line: 12,
-          },
-        ],
-      },
-    ],
+          errors: [
+            {
+              message: `Rename "implements" identifier to prevent potential conflicts with future evolutions of the JavaScript language.`,
+              line: 2,
+              endLine: 2,
+              column: 11,
+              endColumn: 21,
+            },
+            {
+              message: `Rename "interface" identifier to prevent potential conflicts with future evolutions of the JavaScript language.`,
+              line: 7,
+            },
+            {
+              messageId: 'renameReserved',
+              line: 8,
+            },
+            {
+              messageId: 'renameReserved',
+              line: 9,
+            },
+            {
+              messageId: 'renameReserved',
+              line: 10,
+            },
+            {
+              messageId: 'renameReserved',
+              line: 11,
+            },
+            {
+              messageId: 'renameReserved',
+              line: 12,
+            },
+          ],
+        },
+      ],
+    });
   });
 });

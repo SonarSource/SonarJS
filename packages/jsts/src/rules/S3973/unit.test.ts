@@ -16,21 +16,22 @@
  */
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
-import { describe } from 'node:test';
+import { describe, it } from 'node:test';
 
 describe('S3973', () => {
-  const ruleTester = new RuleTester();
+  it('S3973', () => {
+    const ruleTester = new RuleTester();
 
-  ruleTester.run(`A conditionally executed single line should be denoted by indentation`, rule, {
-    valid: [
-      {
-        code: `
+    ruleTester.run(`A conditionally executed single line should be denoted by indentation`, rule, {
+      valid: [
+        {
+          code: `
         if (x > 0)
             doTheThing();
         doTheOtherThing();`,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
         while (x <= 10)
             doTheThing();
         doTheOtherThing();
@@ -39,18 +40,18 @@ describe('S3973', () => {
         doTheThing();
         doTheOtherThing();
         }`,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
         if (x == 5)
             doTheThing();
         else if (x == 6)
             doTheThing();
         else
             doTheThing();`,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
             if (x > 0) {
             doTheThing();
             doTheOtherThing();
@@ -61,9 +62,9 @@ describe('S3973', () => {
             doTheThing();
             doTheOtherThing();
             }`,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
             for (x in arr)
                 doTheThing();
             doTheOtherThing();
@@ -72,86 +73,86 @@ describe('S3973', () => {
             doTheThing();
             doTheOtherThing();
             }`,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
       if (something) {
         //... some logic
         doSomething();
       } else
         doSomethingElse();`,
-      },
-    ],
-    invalid: [
-      {
-        code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
         if (x > 0)  // Noncompliant [[ID=ID1]] {{}}
         doTheThing();
         doTheOtherThing();
       `,
-        errors: [
-          {
-            message: `{\"message\":\"Use curly braces or indentation to denote the code conditionally executed by this \\\"if\\\".\",\"secondaryLocations\":[{\"column\":8,\"line\":3,\"endColumn\":18,\"endLine\":3}]}`,
-            line: 2,
-            column: 9,
-            endLine: 2,
-            endColumn: 11,
-          },
-        ],
-        options: ['sonar-runtime'],
-      },
-      {
-        code: `
+          errors: [
+            {
+              message: `{\"message\":\"Use curly braces or indentation to denote the code conditionally executed by this \\\"if\\\".\",\"secondaryLocations\":[{\"column\":8,\"line\":3,\"endColumn\":18,\"endLine\":3}]}`,
+              line: 2,
+              column: 9,
+              endLine: 2,
+              endColumn: 11,
+            },
+          ],
+          options: ['sonar-runtime'],
+        },
+        {
+          code: `
         if (cond) {
         } else // Noncompliant
         foo();
         `,
-        errors: [
-          {
-            message: `{\"message\":\"Use curly braces or indentation to denote the code conditionally executed by this \\\"else\\\".\",\"secondaryLocations\":[{\"column\":8,\"line\":4,\"endColumn\":11,\"endLine\":4}]}`,
-            line: 3,
-            column: 11,
-            endLine: 3,
-            endColumn: 15,
-          },
-        ],
-        options: ['sonar-runtime'],
-      },
-      {
-        code: `
+          errors: [
+            {
+              message: `{\"message\":\"Use curly braces or indentation to denote the code conditionally executed by this \\\"else\\\".\",\"secondaryLocations\":[{\"column\":8,\"line\":4,\"endColumn\":11,\"endLine\":4}]}`,
+              line: 3,
+              column: 11,
+              endLine: 3,
+              endColumn: 15,
+            },
+          ],
+          options: ['sonar-runtime'],
+        },
+        {
+          code: `
           while (x <= 10) // Noncompliant
           doTheThing();
           doTheOtherThing();
           `,
-        errors: [
-          {
-            message: `{\"message\":\"Use curly braces or indentation to denote the code conditionally executed by this \\\"while\\\".\",\"secondaryLocations\":[{\"column\":10,\"line\":3,\"endColumn\":20,\"endLine\":3}]}`,
-            line: 2,
-            column: 11,
-            endLine: 2,
-            endColumn: 16,
-          },
-        ],
-        options: ['sonar-runtime'],
-      },
-      {
-        code: `
+          errors: [
+            {
+              message: `{\"message\":\"Use curly braces or indentation to denote the code conditionally executed by this \\\"while\\\".\",\"secondaryLocations\":[{\"column\":10,\"line\":3,\"endColumn\":20,\"endLine\":3}]}`,
+              line: 2,
+              column: 11,
+              endLine: 2,
+              endColumn: 16,
+            },
+          ],
+          options: ['sonar-runtime'],
+        },
+        {
+          code: `
           for (x in arr) // Noncompliant
           doTheThing();
           doTheOtherThing();`,
-        errors: [
-          {
-            message: `{\"message\":\"Use curly braces or indentation to denote the code conditionally executed by this \\\"for\\\".\",\"secondaryLocations\":[{\"column\":10,\"line\":3,\"endColumn\":20,\"endLine\":3}]}`,
-            line: 2,
-            column: 11,
-            endLine: 2,
-            endColumn: 14,
-          },
-        ],
-        options: ['sonar-runtime'],
-      },
-      {
-        code: `
+          errors: [
+            {
+              message: `{\"message\":\"Use curly braces or indentation to denote the code conditionally executed by this \\\"for\\\".\",\"secondaryLocations\":[{\"column\":10,\"line\":3,\"endColumn\":20,\"endLine\":3}]}`,
+              line: 2,
+              column: 11,
+              endLine: 2,
+              endColumn: 14,
+            },
+          ],
+          options: ['sonar-runtime'],
+        },
+        {
+          code: `
           if (x == 5) // Noncompliant
           doTheThing();
           else if (x == 6) // Noncompliant
@@ -159,10 +160,10 @@ describe('S3973', () => {
           else // Noncompliant
           doTheThing();
             `,
-        errors: 3,
-      },
-      {
-        code: `
+          errors: 3,
+        },
+        {
+          code: `
           for (x = 1; x <= 10; x++) // Noncompliant, only one error at line 2
           doTheThing();
           doTheOtherThing();
@@ -173,20 +174,21 @@ describe('S3973', () => {
               doTheThing();
               doTheOtherThing();
           }`,
-        errors: [
-          {
-            message:
-              'Use curly braces or indentation to denote the code conditionally executed by this "for".',
-            line: 2,
-          },
-        ],
-      },
-      {
-        code: `
+          errors: [
+            {
+              message:
+                'Use curly braces or indentation to denote the code conditionally executed by this "for".',
+              line: 2,
+            },
+          ],
+        },
+        {
+          code: `
           if (cond) // Noncompliant, negative indentation
       foo();`,
-        errors: 1,
-      },
-    ],
+          errors: 1,
+        },
+      ],
+    });
   });
 });
