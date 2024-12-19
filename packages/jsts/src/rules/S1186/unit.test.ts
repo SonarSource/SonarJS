@@ -21,54 +21,55 @@ import { describe, it } from 'node:test';
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 
 describe('S1186', () => {
-  const ruleTester = new RuleTester();
+  it('S1186', () => {
+    const ruleTester = new RuleTester();
 
-  ruleTester.run(`Decorated rule should provide suggestion`, rule, {
-    valid: [
-      {
-        code: `function onSomething() {}`,
-      },
-      {
-        code: `function f() { /* documented */ }`,
-      },
-      {
-        code: `
+    ruleTester.run(`Decorated rule should provide suggestion`, rule, {
+      valid: [
+        {
+          code: `function onSomething() {}`,
+        },
+        {
+          code: `function f() { /* documented */ }`,
+        },
+        {
+          code: `
         class Foo {
           f() { /* documented */ }
         }
       `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
         class Foo {
           onSomething() {}
         }
       `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
         class Foo {
           onSomething = function() {}
         }
       `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
         class Foo {
           onSomething = () => {}
         }
       `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
         const obj = {
           foo: function() {
           }
         };
       `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
         class Foo {
           static defaultProps = {
             foo1: () => {},
@@ -76,109 +77,109 @@ describe('S1186', () => {
           }
         }
       `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
         Foo.defaultProps = {
           foo1: () => {},
           foo2() {}
         };
       `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
         function Foo() {
           return <div onclick={() => {}} onfocus="{() => {}"></div>;
         }
       `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
         function Foo() {
           return <div onclick={() => {}} onfocus="{function() {}"></div>;
         }
       `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
         function foo({ bar = () => {} }) {
           bar();
         }
       `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
         function foo(bar = () => {}) {
           bar();
         }
       `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
         const onSomething = () => {};
       `,
-      },
-      {
-        code: `(function() {})`,
-      },
-      {
-        code: `() => {}`,
-      },
-      {
-        code: `function myNoopFunction() {}`,
-      },
-    ],
-    invalid: [
-      {
-        code: `function f() {}`,
-        errors: [
-          {
-            messageId: 'unexpected',
-            suggestions: [
-              {
-                desc: 'Insert placeholder comment',
-                output: `function f() { /* TODO document why this function 'f' is empty */ }`,
-              },
-            ],
-          },
-        ],
-      },
-      {
-        code: `
+        },
+        {
+          code: `(function() {})`,
+        },
+        {
+          code: `() => {}`,
+        },
+        {
+          code: `function myNoopFunction() {}`,
+        },
+      ],
+      invalid: [
+        {
+          code: `function f() {}`,
+          errors: [
+            {
+              messageId: 'unexpected',
+              suggestions: [
+                {
+                  desc: 'Insert placeholder comment',
+                  output: `function f() { /* TODO document why this function 'f' is empty */ }`,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `
 function f() {
 }
 `,
-        errors: [
-          {
-            messageId: 'unexpected',
-            suggestions: [
-              {
-                desc: 'Insert placeholder comment',
-                output: `
+          errors: [
+            {
+              messageId: 'unexpected',
+              suggestions: [
+                {
+                  desc: 'Insert placeholder comment',
+                  output: `
 function f() {
   // TODO document why this function 'f' is empty
 
 }
 `,
-              },
-            ],
-          },
-        ],
-      },
-      {
-        code: `
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `
 class C {
   static get f() {
   }
 }
 `,
-        errors: [
-          {
-            messageId: 'unexpected',
-            suggestions: [
-              {
-                desc: 'Insert placeholder comment',
-                output: `
+          errors: [
+            {
+              messageId: 'unexpected',
+              suggestions: [
+                {
+                  desc: 'Insert placeholder comment',
+                  output: `
 class C {
   static get f() {
     // TODO document why this static getter 'f' is empty
@@ -186,30 +187,31 @@ class C {
   }
 }
 `,
-              },
-            ],
-          },
-        ],
-      },
-      {
-        code: `const arrow = () => {}`,
-        errors: [
-          {
-            messageId: 'unexpected',
-            suggestions: [
-              {
-                desc: 'Insert placeholder comment',
-                output:
-                  'const arrow = () => { /* TODO document why this arrow function is empty */ }',
-              },
-            ],
-          },
-        ],
-      },
-    ],
-  });
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `const arrow = () => {}`,
+          errors: [
+            {
+              messageId: 'unexpected',
+              suggestions: [
+                {
+                  desc: 'Insert placeholder comment',
+                  output:
+                    'const arrow = () => { /* TODO document why this arrow function is empty */ }',
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
 
-  it('handles non function nodes', () => {
-    reportWithQuickFixIfApplicable({} as Rule.RuleContext, {} as Rule.ReportDescriptor); // The call must not fail.
+    it('handles non function nodes', () => {
+      reportWithQuickFixIfApplicable({} as Rule.RuleContext, {} as Rule.ReportDescriptor); // The call must not fail.
+    });
   });
 });

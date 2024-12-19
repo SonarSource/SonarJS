@@ -38,17 +38,16 @@ const ruleTester = new RuleTester({
 const problemCode = ``;
 
 describe('S6647', () => {
-  ruleTester.run(`Unnecessary constructors should be removed`, rule, {
-    valid: [
-      {
-        code: problemCode,
-      },
-    ],
-    invalid: [],
+  it('S6647', () => {
+    ruleTester.run(`Unnecessary constructors should be removed`, rule, {
+      valid: [
+        {
+          code: problemCode,
+        },
+      ],
+      invalid: [],
+    });
   });
-});
-
-describe('S6647 decorated crash with babel', () => {
   it('should crash with decorated rule', async () => {
     // When this test fails to pass, we can remove our implementation and go back to decorated
     // 'no-useless-constructor' from 'typescript-eslint'

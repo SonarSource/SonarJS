@@ -94,8 +94,7 @@ class SonarJsIntegrationTest {
 
   private void assertAnalyzeJs(Bridge bridge) throws IOException, InterruptedException {
     AnalysisRequest r = new AnalysisRequest();
-    r.fileContent =
-      "function foo() { \n" + "  var a; \n" + "  var c; // NOSONAR\n" + "  var b = 42; \n" + "} \n";
+    r.fileContent = "function foo() { \n  var a; \n  var c; // NOSONAR\n  var b = 42; \n} \n";
     r.filePath = temp.resolve("file.js").toAbsolutePath().toString();
     String response = bridge.request(gson.toJson(r), "analyze-js");
     JsonObject jsonObject = gson.fromJson(response, JsonObject.class);

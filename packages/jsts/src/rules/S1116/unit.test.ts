@@ -24,71 +24,72 @@ import { expect } from 'expect';
 const ruleTester = new RuleTester();
 
 describe('S1116', () => {
-  ruleTester.run('Extra semicolons should be removed', rule, {
-    valid: [
-      {
-        code: `
+  it('S1116', () => {
+    ruleTester.run('Extra semicolons should be removed', rule, {
+      valid: [
+        {
+          code: `
         if (this.startDateTime > this.endDateTime) {
           ;[this.startDateTime, this.endDateTime] = [this.endDateTime, this.startDateTime]
         }
       `,
-      },
-      {
-        code: `
+        },
+        {
+          code: `
         ;(function() {
         })();
       `,
-      },
-    ],
-    invalid: [
-      {
-        code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
         function foo() {
         };
       `,
-        output: `
+          output: `
         function foo() {
         }
       `,
-        errors: [
-          {
-            message: 'Unnecessary semicolon.',
-          },
-        ],
-      },
-      {
-        code: `
+          errors: [
+            {
+              message: 'Unnecessary semicolon.',
+            },
+          ],
+        },
+        {
+          code: `
         function foo() {
           const b = 0;
           ;foo()
         }
       `,
-        output: `
+          output: `
         function foo() {
           const b = 0;
           foo()
         }
       `,
-        errors: [
-          {
-            message: 'Unnecessary semicolon.',
-          },
-        ],
-      },
-    ],
+          errors: [
+            {
+              message: 'Unnecessary semicolon.',
+            },
+          ],
+        },
+      ],
+    });
   });
-});
+  it('S1116 handles null nodes', t => {
+    const context = {
+      sourceCode: {
+        getTokenBefore: t.mock.fn(() => null), //mockReturnValue(null),
+        getTokenAfter: t.mock.fn(() => {
+          return { type: 'Punctuator', value: '[' };
+        }),
+      },
+    } as unknown as Rule.RuleContext;
 
-it('S1116 handles null nodes', t => {
-  const context = {
-    sourceCode: {
-      getTokenBefore: t.mock.fn(() => null), //mockReturnValue(null),
-      getTokenAfter: t.mock.fn(() => {
-        return { type: 'Punctuator', value: '[' };
-      }),
-    },
-  } as unknown as Rule.RuleContext;
-
-  expect(isProtectionSemicolon(context, { type: 'BreakStatement' })).toBe(false);
-  expect(isProtectionSemicolon(context, { type: 'EmptyStatement' })).toBe(false);
+    expect(isProtectionSemicolon(context, { type: 'BreakStatement' })).toBe(false);
+    expect(isProtectionSemicolon(context, { type: 'EmptyStatement' })).toBe(false);
+  });
 });
