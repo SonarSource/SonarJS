@@ -160,7 +160,7 @@ describe('transformMessages', () => {
 
     const messages = [
       {
-        ruleId: 'ucfg',
+        ruleId: 'sonarjs/ucfg',
         message: path.join(import.meta.dirname, 'fixtures', 'secondary.ts'),
       } as Linter.LintMessage,
     ];

@@ -73,7 +73,7 @@ export function transformMessages(
   const ucfgPaths: string[] = [];
 
   for (const message of messages) {
-    if (message.ruleId === 'ucfg') {
+    if (message.ruleId === 'sonarjs/ucfg') {
       ucfgPaths.push(message.message);
     } else {
       let issue = convertMessage(ctx.sourceCode, message);
