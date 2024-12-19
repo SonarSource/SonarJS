@@ -7,7 +7,7 @@
     },
     "attribute": "COMPLETE"
   },
-  "status": "ready",
+  "status": "deprecated",
   "remediation": {
     "func": "Constant\/Issue",
     "constantCost": "30min"
