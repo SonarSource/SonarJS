@@ -22,15 +22,6 @@ import { describe, it } from 'node:test';
 import { expect } from 'expect';
 import { pathToFileURL } from 'node:url';
 
-const externalPlugins = [
-  'eslint',
-  'typescript-eslint',
-  'jsx-a11y',
-  'import',
-  'react',
-  'react-hooks',
-];
-
 import { rules as a11yRules } from '../../src/rules/external/a11y.js';
 import { rules as reactRules } from '../../src/rules/external/react.js';
 import { getESLintCoreRule } from '../../src/rules/external/core.js';
@@ -45,7 +36,10 @@ const allExternalRules = {
   import: key => importRules[key],
   react: key => reactRules[key],
   'react-hooks': key => reactHooksRules[key],
+  '@stylistic/eslint-plugin-ts': async key =>
+    await import(`@stylistic/eslint-plugin-ts/rules/${key}`),
 };
+const externalPlugins = Object.keys(allExternalRules);
 
 describe('Plugin public API', () => {
   it('should map keys to rules definitions', async () => {
@@ -77,18 +71,18 @@ describe('Plugin public API', () => {
       } else if (metadata.implementation === 'external') {
         expect(externalPlugins).toContain(metadata.externalPlugin);
         expect(usedExternalEslintIds).not.toContain(metadata.eslintId);
-        expect(allExternalRules[metadata.externalPlugin](metadata.eslintId)).toBeDefined();
+        expect(await allExternalRules[metadata.externalPlugin](metadata.eslintId)).toBeDefined();
         usedExternalEslintIds.push(metadata.eslintId);
       } else if (metadata.implementation === 'decorated') {
         expect(metadata.externalRules.length).toBeGreaterThan(0);
-        metadata.externalRules.forEach(externalRule => {
+        for (const externalRule of metadata.externalRules) {
           expect(usedExternalEslintIds).not.toContain(externalRule.externalRule);
           usedExternalEslintIds.push(externalRule.externalRule);
           expect(externalPlugins).toContain(externalRule.externalPlugin);
           expect(
-            allExternalRules[externalRule.externalPlugin](externalRule.externalRule),
+            await allExternalRules[externalRule.externalPlugin](externalRule.externalRule),
           ).toBeDefined();
-        });
+        }
       }
     }
   });

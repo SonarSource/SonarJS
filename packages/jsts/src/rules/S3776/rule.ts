@@ -64,7 +64,8 @@ export const rule: Rule.RuleModule = {
   ),
   create(context) {
     /** Complexity threshold */
-    const threshold = (context.options as FromSchema<typeof schema>)[0] ?? DEFAULT_THRESHOLD;
+    const thresholdOption = (context.options as FromSchema<typeof schema>)[0];
+    const threshold = typeof thresholdOption === 'number' ? thresholdOption : DEFAULT_THRESHOLD;
 
     /** Indicator if the file complexity should be reported */
     const isFileComplexity = context.options.includes('metric');

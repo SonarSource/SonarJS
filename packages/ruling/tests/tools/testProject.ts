@@ -24,10 +24,8 @@ import { analyzeHTML } from '../../../html/src/index.js';
 import { isHtmlFile, isJsFile, isTsFile, isYamlFile } from './languages.js';
 import { analyzeYAML } from '../../../yaml/src/index.js';
 import projects from '../data/projects.json' with { type: 'json' };
-import { loadCustomRules } from '../../../jsts/src/linter/bundle-loader.js';
 import { before } from 'node:test';
-import { CustomRule } from '../../../jsts/src/linter/custom-rules/custom-rule.js';
-import { getLinter, initializeLinter } from '../../../jsts/src/linter/linters.js';
+import { initializeLinter } from '../../../jsts/src/linter/linters.js';
 import {
   DEFAULT_ENVIRONMENTS,
   DEFAULT_GLOBALS,
@@ -88,7 +86,7 @@ const DEFAULT_EXCLUSIONS = [
   '**/external/**',
 ].map(pattern => new Minimatch(pattern, { nocase: true, dot: true }));
 
-export function setupBeforeAll(projectFile: string, customRules?: CustomRule[]) {
+export function setupBeforeAll(projectFile: string) {
   const { project, rules, expectedPath, actualPath } = extractParameters(projectFile);
 
   before(async () => {
@@ -98,7 +96,7 @@ export function setupBeforeAll(projectFile: string, customRules?: CustomRule[]) 
       sonarlint: false,
       bundles: [],
     });
-    await initializeRules(rules, customRules);
+    await initializeRules(rules, project);
   });
 
   return {
@@ -108,20 +106,19 @@ export function setupBeforeAll(projectFile: string, customRules?: CustomRule[]) 
     rules,
   };
 }
-async function initializeRules(rules: RuleConfig[], customRules?: CustomRule[]) {
-  if (customRules) {
-    const defaultLinter = getLinter();
-    const htmlLinter = getLinter(HTML_LINTER_ID);
-    loadCustomRules(defaultLinter.linter, customRules);
-    loadCustomRules(htmlLinter.linter, customRules);
-  }
-  await initializeLinter(rules, DEFAULT_ENVIRONMENTS, DEFAULT_GLOBALS);
+async function initializeRules(rules: RuleConfig[], project: RulingInput) {
+  await initializeLinter(
+    rules,
+    DEFAULT_ENVIRONMENTS,
+    DEFAULT_GLOBALS,
+    path.join(jsTsProjectsPath, project.folder ?? project.name),
+  );
   const htmlRules = rules.filter(rule => rule.key !== 'S3504');
   await initializeLinter(
     htmlRules,
     DEFAULT_ENVIRONMENTS,
     DEFAULT_GLOBALS,
-    undefined,
+    path.join(jsTsProjectsPath, project.folder ?? project.name),
     HTML_LINTER_ID,
   );
 }

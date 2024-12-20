@@ -28,6 +28,7 @@ describe('buildParserOptions', () => {
     expect(buildParserOptions({ filePath, parser }, usingBabel)).toEqual({
       tokens: true,
       comment: true,
+      disallowAutomaticSingleRunInference: true,
       loc: true,
       range: true,
       ecmaVersion: 2018,

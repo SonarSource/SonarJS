@@ -15,8 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import path from 'path/posix';
-import { jsTsInput, parseJavaScriptSourceFile } from '../tools/index.js';
-import { Linter, Rule } from 'eslint';
+import { Linter } from 'eslint';
 import { describe, beforeEach, it } from 'node:test';
 import { expect } from 'expect';
 import { getDependencies, getManifests, toUnixPath } from '../../src/rules/helpers/index.js';
@@ -28,6 +27,8 @@ import { initializeLinter } from '../../src/linter/linters.js';
 import { JsTsAnalysisOutput } from '../../src/analysis/analysis.js';
 import { createAndSaveProgram } from '../../src/program/program.js';
 import { deserializeProtobuf } from '../../src/parsers/ast.js';
+import { jsTsInput } from '../tools/helpers/input.js';
+import { parseJavaScriptSourceFile } from '../tools/helpers/parsing.js';
 
 const currentPath = toUnixPath(import.meta.dirname);
 
@@ -242,9 +243,9 @@ describe('analyzeJSTS', () => {
 
   it('should analyze file contents', async () => {
     const rules = [{ key: 'S3512', configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
-    await await initializeLinter(rules);
+    await initializeLinter(rules);
 
-    const filePath = '/tmp/dir';
+    const filePath = path.join(currentPath, 'fixtures', 'foo.js');
     const fileContent = `'foo' + bar + 'baz'`;
     const language = 'js';
 
@@ -857,44 +858,51 @@ describe('analyzeJSTS', () => {
     const baseDir = path.join(currentPath, 'fixtures', 'package-json');
 
     const linter = new Linter();
-    linter.defineRule('custom-rule-file', {
-      create(context) {
-        return {
-          CallExpression(node) {
-            const packageJsons = getManifests(
-              path.posix.dirname(toUnixPath(context.filename)),
-              baseDir,
-            );
-            expect(packageJsons).toBeDefined();
-            expect(packageJsons[0].name).toEqual('test-module');
-            context.report({
-              node: node.callee,
-              message: 'call',
-            });
+    const linterConfig: Linter.Config = {
+      plugins: {
+        sonarjs: {
+          rules: {
+            'custom-rule-file': {
+              create(context) {
+                return {
+                  CallExpression(node) {
+                    const packageJsons = getManifests(
+                      path.posix.dirname(toUnixPath(context.filename)),
+                      baseDir,
+                    );
+                    expect(packageJsons).toBeDefined();
+                    expect(packageJsons[0].name).toEqual('test-module');
+                    context.report({
+                      node: node.callee,
+                      message: 'call',
+                    });
+                  },
+                };
+              },
+            },
           },
-        };
+        },
       },
-    } as Rule.RuleModule);
-
+      rules: { 'sonarjs/custom-rule-file': 'error' },
+      files: ['**/*.vue', '**/*.js'],
+    };
     const filePath = path.join(baseDir, 'custom.js');
     const sourceCode = await parseJavaScriptSourceFile(filePath);
 
-    const issues = linter.verify(
-      sourceCode,
-      { rules: { 'custom-rule-file': 'error' } },
-      { filename: filePath, allowInlineConfig: false },
-    );
+    const issues = linter.verify(sourceCode, linterConfig, {
+      filename: filePath,
+      allowInlineConfig: false,
+    });
     expect(issues).toHaveLength(1);
     expect(issues[0].message).toEqual('call');
 
     const vueFilePath = path.join(baseDir, 'code.vue');
     const vueSourceCode = await parseJavaScriptSourceFile(vueFilePath);
 
-    const vueIssues = linter.verify(
-      vueSourceCode,
-      { rules: { 'custom-rule-file': 'error' } },
-      { filename: vueFilePath, allowInlineConfig: false },
-    );
+    const vueIssues = linter.verify(vueSourceCode, linterConfig, {
+      filename: vueFilePath,
+      allowInlineConfig: false,
+    });
     expect(vueIssues).toHaveLength(1);
     expect(vueIssues[0].message).toEqual('call');
   });
@@ -945,7 +953,6 @@ describe('analyzeJSTS', () => {
   it('should return the AST along with the issues', async () => {
     const rules = [{ key: 'S4524', configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
     await initializeLinter(rules);
-    await initializeLinter([], [], [], 'empty');
 
     const filePath = path.join(currentPath, 'fixtures', 'code.js');
     const language = 'js';
@@ -960,7 +967,6 @@ describe('analyzeJSTS', () => {
   it('should not return the AST if the skipAst flag is set', async () => {
     const rules = [{ key: 'S4524', configurations: [], fileTypeTarget: ['MAIN'] }] as RuleConfig[];
     await initializeLinter(rules);
-    await initializeLinter([], [], [], 'empty');
 
     const filePath = path.join(currentPath, 'fixtures', 'code.js');
     const language = 'js';

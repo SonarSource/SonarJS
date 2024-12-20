@@ -26,7 +26,7 @@ await esbuild.build({
   // we mark this file as external because it does not exist on EsLint any more and in any case
   // the code never reaches this dynamic require as this is a fallback if 'eslint/use-at-your-own-risk'
   // does not exist. we need to keep an eye on this in the future.
-  external: ['eslint/lib/util/glob-util'],
+  external: ['eslint/lib/util/glob-util', 'jiti'],
   platform: 'node',
   minify: true,
   plugins: [

@@ -15,11 +15,10 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './no-missing-sonar-runtime.js';
-import { NodeRuleTester } from '../../testers/rule-tester.js';
+import { RuleTester } from '../../testers/rule-tester.js';
 
-const ruleTester = new NodeRuleTester({
-  parserOptions: { ecmaVersion: 2018, sourceType: 'module' },
-});
+const ruleTester = new RuleTester();
+
 ruleTester.run('sonar-runtime configuration for secondary locations', rule, {
   valid: [
     {
